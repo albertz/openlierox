@@ -32,11 +32,13 @@ enum {
 class CImage : public CWidget {
 public:
 	// Constructor
+	// TODO: this "cropping" isn't used at all, remove it?
 	CImage(const std::string& Path, int _cropX=0, int _cropY=0, int _cropW=0, int _cropH=0):
 			cropX(_cropX), cropY(_cropY), cropW(_cropW), cropH(_cropH) {
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
+		cropX = cropY = cropW = cropH = 0;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
 
@@ -63,6 +65,7 @@ public:
 		iType = wid_Image;
 		sPath = "";
 		tImage = img;
+		cropX = cropY = cropW = cropH = 0;
 		if (tImage)  {
 			iWidth = tImage->w;
 			iHeight = tImage->h;

@@ -51,7 +51,8 @@ void CImage::Change(const std::string& Path)
 
 	// Load the new image
 	tImage = LoadImage(sPath);
-
+	cropX = cropY = cropW = cropH = 0;
+	
 	// Update the width and height
 	iWidth = tImage->w;
 	iHeight = tImage->h;
@@ -64,6 +65,7 @@ void CImage::Change(SDL_Surface *bmpImg)
 	tImage = bmpImg;
 	iWidth = bmpImg->w;
 	iHeight = bmpImg->h;
+	cropX = cropY = cropW = cropH = 0;
 }
 
 /////////////////////

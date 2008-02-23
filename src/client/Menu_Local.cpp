@@ -432,7 +432,8 @@ void Menu_LocalAddPlaying(int index)
 	if (img)  {
 		img->setID(index);
 		img->setRedrawMenu(false);
-	}
+	} else
+		printf("WARNING: cannot load teamcolor image\n");
 	lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 	lv->AddItem("",index,tLX->clListView);
 	lv->AddSubitem(LVS_IMAGE, "", tMenu->sLocalPlayers[index].getPicimg(), NULL);
@@ -445,7 +446,8 @@ void Menu_LocalAddPlaying(int index)
 		if(iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)
 			sub->bVisible = false;
 		sub->iExtra = 0;
-	}
+	} else
+		printf("WARNING: strange: did not found teamcolor subitem\n");
 }
 
 //////////////////

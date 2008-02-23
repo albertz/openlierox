@@ -1644,14 +1644,7 @@ void CListview::SetupScrollbar(int x, int y, int h, bool always_visible)
 // Get a specified subitem
 lv_subitem_t *CListview::getSubItem(int item_index, int subitem_index)
 {
-	lv_item_t *it = getItem(item_index);
-	if (!it)
-		return NULL;
-
-	lv_subitem_t *sub = it->tSubitems;
-	for (int i=0; sub && i < subitem_index; sub = sub->tNext, ++i) {}
-
-	return sub;
+	return getSubItem( getItem(item_index), subitem_index );
 }
 
 /////////////////
