@@ -1112,10 +1112,12 @@ void CClient::InitializeGameMenu()
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			cGameMenuLayout.Add(new CImage(gfxGame.bmpTeamColours[iMatchWinner]), gm_TopSkin, 490, 5, 0, 0);
+			SDL_Surface *pic = gfxGame.bmpTeamColours[iMatchWinner];
+			cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		} else {
 			cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			cGameMenuLayout.Add(new CImage(cRemoteWorms[iMatchWinner].getPicimg()), gm_TopSkin, 490, 5, 0, 0);
+			SDL_Surface *pic = cRemoteWorms[iMatchWinner].getPicimg();
+			cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		}
 	}
 

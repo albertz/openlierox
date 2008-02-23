@@ -123,6 +123,10 @@ template <typename T> void RESET_SMALL(T& v, const T& limit) {
 
 template <typename T> void MOD(T& a, const T& b) { a %= b; if(a < 0) a += b; }
 
+template <class Iter> void SafeAdvance(Iter& it, size_t count, const Iter& end)  {
+	for (size_t i=0; i < count && it != end; i++, it++)  {}
+}
+
 // some basic functors
 // TODO: perhaps move them elsewhere?
 

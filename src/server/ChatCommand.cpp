@@ -65,6 +65,51 @@ ChatCommand *GetCommand(ChatCommand::tProcFunc_t func)
 	return NULL;
 }
 
+static inline std::string ReadQuotedParam(const std::string& str, int *param_size)  {
+	*param_size = 0;
+	if (str.size() == 0)
+		return "";
+	if (*str.begin() != '\"')
+		return "";
+
+	std::string::const_iterator it = str.begin();
+	bool was_backslash = false;
+	std::string result;
+
+	// Leading quote
+	*param_size = 1;
+	it++;
+
+	for (; it != str.end(); it++, (*param_size)++)  {
+		switch (*it)  {
+			case '\\': 
+				if (was_backslash)  {
+					result += '\\';
+					was_backslash = false;
+				} else
+					was_backslash = true;
+			break;
+
+			case '\"':
+				if (was_backslash)  {
+					result += '\"';
+					was_backslash = false;
+				} else  {
+					(*param_size)++;
+					return result;
+				}
+			break;
+
+			default:
+				result += *it;
+				was_backslash = false;
+		}
+	}
+
+	(*param_size)++;
+	return result;
+}
+
 /////////////////////
 // Main command parsing function
 const std::vector<std::string>& ParseCommandMessage(const std::string& msg, bool ignore_blank_params)
@@ -87,15 +132,17 @@ const std::vector<std::string>& ParseCommandMessage(const std::string& msg, bool
 		std::string p;
 
 		if (*it == '\"')  {
-			p = ReadUntil(std::string(++it, msg.end()), '\"'); // TODO: doesn't support " inside arguments
+			int skip;
+			p = ReadQuotedParam(std::string(it, msg.end()), &skip);
+			SafeAdvance(it, skip, msg.end());
 		} else if (*it == ' ')  {
 			it++;
 			continue;
 		}
-		else
+		else  {
 			p = ReadUntil(std::string(it, msg.end()), ' ');
-
-		it += p.size();
+			SafeAdvance(it, p.size(), msg.end());
+		}
 
 		// Add it
 		if (result.size() == 0 && ignore_blank_params)

@@ -146,7 +146,13 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 
 		// Join all params that should not be repeated into a message
 		for (; it != cmd.end(); it++)  {
-			message += *it;
+			std::string prm = *it;
+			bool contains_quot = replace(prm, "\\", "\\\\");
+			bool contains_slash = replace(prm, "\"", "\\\"");
+			if (prm.find(' ') != std::string::npos || contains_quot || contains_slash)  { // If the parameter contains spaces, put it in quotes
+				message += "\"" + prm + "\"";
+			} else
+				message += prm;
 			message += ' ';
 		}
 		message.erase(message.size() - 1); // erase the last space

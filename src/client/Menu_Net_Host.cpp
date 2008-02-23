@@ -612,7 +612,14 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
-    cHostLobby.SendMessage(hl_Gametype,  CBM_SETCURINDEX, gl->nGameMode, 0);
+
+	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gametype);
+	if (gtype)  {
+		if (gl->nGameMode >= 0 && gl->nGameMode < gtype->getItemsCount())
+			gtype->setCurItem(gl->nGameMode);
+		else
+			gtype->setCurItem(0);
+	}
 
 	// Setup the player list
 	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
