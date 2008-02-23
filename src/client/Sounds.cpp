@@ -148,11 +148,7 @@ initSoundSystem:
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
 		if(getenv("SDL_AUDIODRIVER")) {
 			printf("trying again with SDL_AUDIODRIVER unset\n");
-#ifndef WIN32
-			putenv("SDL_AUDIODRIVER=");
-#else
-			SDL_putenv("SDL_AUDIODRIVER=");
-#endif
+			unsetenv("SDL_AUDIODRIVER");
 			goto initSoundSystem;
 		} else
 			return false;
@@ -162,7 +158,7 @@ initSoundSystem:
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
 		if(getenv("SDL_AUDIODRIVER")) {
 			printf("trying again with SDL_AUDIODRIVER unset\n");
-			putenv("SDL_AUDIODRIVER=");
+			unsetenv("SDL_AUDIODRIVER");
 			goto initSoundSystem;
 		} else
 			return false;
