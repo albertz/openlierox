@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "LieroX.h"
+#include "AuxLib.h"
 #include "Cache.h"
 #include "StringUtils.h"
 #include "Sounds.h"

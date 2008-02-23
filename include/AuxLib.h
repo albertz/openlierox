@@ -63,5 +63,9 @@ void		SubclassWindow();
 void		UnSubclassWindow();
 #endif
 
+#ifdef WIN32
+int unsetenv(const char *name);
+#endif
+
 
 #endif  //  __AUXLIB_H__
