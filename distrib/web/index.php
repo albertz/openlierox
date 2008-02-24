@@ -53,27 +53,108 @@
 	If somebody here is familiar with deb-packages, take a look at the
 	RFP-bugtracker-entry here: <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850">
 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850</a><br>
-	<br>
+<pre>
+0.57_beta4
+==========
+- very basic dedicated server
+- joystick support (for playing)
+- mouse support (for playing)
+- copy&paste support for Linux and MacOSX
+- config file got parsed completly and unknown options
+  are kept, therefore forward-compatible
+- better forward-compatibility for net-protocol
+- FPS independent physics
+- more correct projectile simulation
+- experimental file transfer support
+- delete-key works now under MacOSX
+- more keys got recognised
+  (super and meta keys, that includes also the
+  Apple-key on a Mac)
+- support for multiple masterservers
+- more intelligent event-handling (in some parts);
+  all pressed keys got recognised in chat/console
+  and you can also play on very low FPS
+- DNS support for serverlist
+- Worm AI improvements
+- usage of ALSA on Linux by default
+- network improved
+- cache for map and gamescript
+- Developer documentation
+- strafing
+- optimised sorting in combobox
+- FPS limit is also valid for menu
+- menu takes less resources
+- help for weapon selection
+- fixed changing of graphic settings
+- and a lot of other fixes / cleanups
+</pre>
 	<b>0.57_beta3</b> (released 2007-08-08)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=531327">
 	OpenLieroX main downloads</a> (with Mac OS X Universal Binary now!)<br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta3.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	HINT: We already provide a Deb-package but this package is not conform to all the 
 	Debian-policies.<br>
-	<br>
+<pre>
+0.57_beta3
+==========
+- 16/24/32 bit graphic support and OpenGL support
+- runs on MacOSX 
+- new design & icon (thanks goes to Raziel)
+- probably fixed any saving-problem
+  (problem was: sometimes SDL_Quit gives a segfault
+  and saving was done after this; now it's done before)
+- full Unicode/UTF8 support
+- font antialasing support
+- working Dev-C++ project (therefore MingW support)
+- MaxFPS in option-dialog
+- Worm AI improvements
+- ninjarope physic simulation is FPS independent
+- profile-saving is correct now
+</pre>
 	<b>0.57_beta2</b> (released 2007-04-09)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
 	OpenLieroX downloads</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
-	<br>
+<pre>
+0.57_beta2
+==========
+- BPP independent
+- ingame mediaplayer
+- 64bit version works now
+- more fixes, general improvements, etc.
+- code cleanups (replacements with C++/STL technics)
+- whole project uses std::string now (realy huge change)
+- collision-checks are improved (more like the original LX, that
+  means, it goes at least through walls with ~3px width)
+- chatbox improvements
+- unlimited number of bots in net play
+- ~/ at the beginning of a searchpath is handled correctly and there
+  is a more correct method to get the homedir
+- MaxFPS option under [Advanced] in ~/.OpenLieroX/cfg/options.cfg
+- fixed compile-issues on 64bit systems
+- no-clipping-issues with weapon-generated dirt are fixed
+</pre>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
 	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
 	<a href="tarball/OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
-	<br>
-	<b>Levels and mods</b> (they are now included since Beta2 in the game)<br>
-	<a href="additions/lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
-	<a href="additions/another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
+<pre>
+0.57_beta1
+==========
+- POSIX-compatible (well-tested under Linux).
+- endian-independent (runs without any problems on my big endian PPC)
+- a _huge_ amount of bug-fixes
+- the old BASS soundsystem was replaced by SDL_mixer
+- new file handling routines
+  (1. based on searchpaths; 2. case-insensitive handling)
+- new bot AI with a very nice pathfinding-algo
+- some other additions/extensions/...
+- ...
+
+======================================
+
+0.56 was the original LieroX by JasonB</pre>
+
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
