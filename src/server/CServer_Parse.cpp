@@ -890,8 +890,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
 	int			ChallengeToSet = -1;
-	static CBytestream	bs;
-	bs.Clear();
+	CBytestream	bs;
 
 	GetRemoteNetAddr(tSocket, adrFrom);
 
@@ -1151,6 +1150,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 	// Connect
 	if (newcl) {
 
+		printf("GameServer: new %s client connected\n", ClientVersion.c_str());
 		newcl->setStatus(NET_CONNECTED);
 
 		newcl->getRights()->Nothing();  // Reset the rights here
@@ -1160,7 +1160,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		//newcl->SetupWorms(numworms, worms);
 
 		newcl->setClientVersion( ClientVersion );
-
+		
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;

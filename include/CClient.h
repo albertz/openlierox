@@ -684,7 +684,6 @@ public:
 	int getGameType()					{ return iGameType; }
 
 	int getHostVer(void)				{ return iHostOLXVer; }
-	void setHostVer(int _v)				{ iHostOLXVer = _v; }
 	const std::string & getClientVersion()				{ return sClientVersion; }
 	void setClientVersion(const std::string & _s);
 	const std::string & getServerVersion()				{ return sServerVersion; }

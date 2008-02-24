@@ -138,6 +138,10 @@ void CWorm::writePacket(CBytestream *bs)
 
 	// The server only needs to know our velocity for shooting
 	// So only send the velocity if our shoot flag is set
+	/*if(getClient() && getClient()->getHostVer() > 4)
+		printf("has client: %i\n", getID());
+	else
+		printf("has no client: %i\n", getID());*/
 	if(tState.iShoot) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );

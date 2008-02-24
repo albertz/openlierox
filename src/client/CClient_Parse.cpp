@@ -94,9 +94,10 @@ void CClient::ParseChallenge(CBytestream *bs)
 	CBytestream bytestr;
 	bytestr.Clear();
 	iChallenge = bs->readInt(4);
-	if( ! bs->isPosAtEnd() )
+	if( ! bs->isPosAtEnd() ) {
 		setServerVersion( bs->readString(128) );
-
+		printf("CClient: connected to %s server\n", getServerVersion().c_str());
+	}
 
 	// TODO: move this out here
 	// Tell the server we are connecting, and give the server our details
