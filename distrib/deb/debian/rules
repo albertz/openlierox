@@ -46,7 +46,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# clean up after the build process.
-	$(MAKE) clean
+	#$(MAKE) clean # not really needed, there will be no object files for you
 	dh_clean
 
 install: build
