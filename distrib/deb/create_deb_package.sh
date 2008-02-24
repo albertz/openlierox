@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd ../.. # go into root dir
-dpkg-buildpackage -rfakeroot -b
+dpkg-buildpackage -rfakeroot

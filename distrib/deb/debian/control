@@ -1,7 +1,7 @@
 Source: openlierox
 Section: games
 Priority: optional
-Maintainer: Albert Zeyer <openlierox@az2000.de>
+Maintainer: Albert Zeyer <albert.zeyer@rwth-aachen.de>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
 
