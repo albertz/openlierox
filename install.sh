@@ -10,6 +10,7 @@
 #						  default=/usr/bin
 #	DOC_DIR				- the dir, where I will place the docs into
 #						  default=/usr/share/doc
+#	PREFIX				- additional prefix for everything
 # ( all paths are only prefixes, I will add /OpenLieroX at the end )
 
 if [ ! -x bin/openlierox ]; then
@@ -22,6 +23,12 @@ fi
 [ "$BIN_DIR" == "" ] && BIN_DIR=/usr/bin
 [ "$DOC_DIR" == "" ] && DOC_DIR=/usr/share/doc
 
+if [ "$PREFIX" != "" ]; then
+	SYSTEM_DATA_DIR=$PREFIX/$SYSTEM_DATA_DIR
+	BIN_DIR=$PREFIX/$BIN_DIR
+	DOC_DIR=$PREFIX/$DOC_DIR
+fi
+
 cp bin/openlierox $BIN_DIR/
 echo "> $BIN_DIR/openlierox copied"
 mkdir -p $SYSTEM_DATA_DIR/OpenLieroX
@@ -30,5 +37,17 @@ echo "> $SYSTEM_DATA_DIR/OpenLieroX copied"
 mkdir -p $DOC_DIR/OpenLieroX
 cp -r doc/* $DOC_DIR/OpenLieroX/
 echo "> $DOC_DIR/OpenLieroX copied"
+
+# cleanup
+for d in $DOC_DIR/OpenLieroX $SYSTEM_DATA_DIR/OpenLieroX; do
+       find $d  \( \( -true -a \
+                \( -name '#*#' -o -name '.*~' -o -name '*~' -o -name DEADJOE \
+                 -o -name '*.orig' -o -name '*.rej' -o -name '*.bak' \
+                 -o -name '.svn' \
+                 -o -name '.*.orig' -o -name .*.rej -o -name '.SUMS' \
+                 -o -name TAGS -o -name core -o \( -path '*/.deps/*' -a -name '*.P' \) \
+                \) -exec rm -f {} \; \) -o \
+                \( -type d -a -name autom4te.cache -prune -exec rm -rf {} \; \) \)
+done
 
 echo ">>> installation ready"

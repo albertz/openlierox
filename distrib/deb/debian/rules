@@ -23,7 +23,8 @@ endif
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
+	# configure the package.
+	cmake -D HAWKNL_BUILTIN=Yes -D DEBUG=No .
 
 	touch configure-stamp
 
@@ -33,7 +34,7 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 
-	# Add here commands to compile the package.
+	# compile the package.
 	$(MAKE)
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
 
@@ -44,10 +45,9 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
-
-	dh_clean 
+	# clean up after the build process.
+	#$(MAKE) clean
+	dh_clean
 
 install: build
 	dh_testdir
@@ -55,9 +55,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/openlierox.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/openlierox install
-
+	# install the package into debian/openlierox.
+	PREFIX=$(CURDIR)/debian/openlierox ./install.sh
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -67,12 +66,12 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs changes.tmp
-	dh_installdocs
-	dh_installexamples
+	dh_installchangelogs doc/ChangeLog
+#	dh_installdocs # already done by installer
+#	dh_installexamples
 #	dh_install
-#	dh_installmenu
-#	dh_installdebconf	
+	dh_installmenu
+#	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam
@@ -81,7 +80,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-	dh_installman
+#	dh_installman
 	dh_link
 	dh_strip
 	dh_compress
