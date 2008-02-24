@@ -10,6 +10,7 @@
 #						  default=/usr/bin
 #	DOC_DIR				- the dir, where I will place the docs into
 #						  default=/usr/share/doc
+#	PIXMAP_DIR			- dir, where I put the icon
 #	PREFIX				- additional prefix for everything
 # ( all paths are only prefixes, I will add /OpenLieroX at the end )
 
@@ -34,20 +35,27 @@ echo "> $BIN_DIR/openlierox copied"
 mkdir -p $SYSTEM_DATA_DIR/OpenLieroX
 cp -r share/gamedir/* $SYSTEM_DATA_DIR/OpenLieroX/
 echo "> $SYSTEM_DATA_DIR/OpenLieroX copied"
-mkdir -p $DOC_DIR/OpenLieroX
-cp -r doc/* $DOC_DIR/OpenLieroX/
-echo "> $DOC_DIR/OpenLieroX copied"
+mkdir -p $DOC_DIR/openlierox
+cp -r doc/* $DOC_DIR/openlierox/
+echo "> $DOC_DIR/openlierox copied"
 
 # cleanup
-for d in $DOC_DIR/OpenLieroX $SYSTEM_DATA_DIR/OpenLieroX; do
+for d in $DOC_DIR/openlierox $SYSTEM_DATA_DIR/OpenLieroX; do
        find $d  \( \( -true -a \
                 \( -name '#*#' -o -name '.*~' -o -name '*~' -o -name DEADJOE \
                  -o -name '*.orig' -o -name '*.rej' -o -name '*.bak' \
                  -o -name '.svn' \
                  -o -name '.*.orig' -o -name .*.rej -o -name '.SUMS' \
                  -o -name TAGS -o -name core -o \( -path '*/.deps/*' -a -name '*.P' \) \
-                \) -exec rm -f {} \; \) -o \
-                \( -type d -a -name autom4te.cache -prune -exec rm -rf {} \; \) \)
+                \) -exec rm -rf {} \; \) -o \
+                \( -type d -a -name autom4te.cache -prune -exec rm -rf {} \; \) \) 2>/dev/null
+done
+
+# gzip doc files
+for f in $DOC_DIR/openlierox/*; do
+	if [ -f "$f" ]; then
+		gzip $f
+	fi
 done
 
 echo ">>> installation ready"

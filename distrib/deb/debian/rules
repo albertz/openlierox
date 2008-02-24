@@ -46,7 +46,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# clean up after the build process.
-	#$(MAKE) clean
+	$(MAKE) clean
 	dh_clean
 
 install: build
@@ -57,6 +57,7 @@ install: build
 
 	# install the package into debian/openlierox.
 	PREFIX=$(CURDIR)/debian/openlierox ./install.sh
+	cp share/OpenLieroX.svg $(CURDIR)/debian/openlierox/usr/share/pixmaps/
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -66,7 +67,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs doc/ChangeLog
+	dh_installchangelogs # doc/ChangeLog is intalled by installer, this makes the DEB changelog
 #	dh_installdocs # already done by installer
 #	dh_installexamples
 #	dh_install
