@@ -77,10 +77,10 @@ void CWorm::getInput()
 	{	
 		// Up
 		if(cUp.isDown()) {
-			fAngleSpeed -= 500 * dt;
+			fAngleSpeed -= 325 * dt; // TODO: in original lierox this was set to 500, but now 500 is too fast, why?
 			//fAngle -= wd->AngleSpeed * dt;
 		} else if(cDown.isDown()) { // Down
-			fAngleSpeed += 500 * dt;
+			fAngleSpeed += 325 * dt; // TODO: in original lierox this was set to 500, but now 500 is too fast, why?
 			//fAngle += wd->AngleSpeed * dt;
 		} else {
 			if(!mouseControl) {
