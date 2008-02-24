@@ -150,11 +150,10 @@
 - new bot AI with a very nice pathfinding-algo
 - some other additions/extensions/...
 - ...
-
-======================================
-
-0.56 was the original LieroX by JasonB</pre>
-
+</pre>
+	<b>additional things</b><br>
+	<a href="additions/original_lxfrontend_for_beta4.zip">original LieroX frontend for Beta4</a>
+	(just extract it to your home-searchpath, that is <i>~/.OpenLieroX</i> under Linux, <i>Documents/OpenLieroX</i> under Windows, <i>~/Library/Application Support/OpenLieroX</i> under MacOSX)
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
@@ -165,7 +164,7 @@
 		cd /usr/portage
 		mkdir -p games-action/openlierox
 		cd games-action/openlierox
-		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta3.ebuild
+		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta4.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>

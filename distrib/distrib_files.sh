@@ -14,6 +14,7 @@ SYNC_CMD="rsync -avP --exclude .svn"
 }
 
 # first, upload all new files
+$SYNC_CMD additions $DEST
 $SYNC_CMD tmpbuild $DEST
 $SYNC_CMD ebuild $DEST
 
@@ -22,4 +23,4 @@ $SYNC_CMD --delete-after web/* $DEST
 
 # and lastly, clean up old files
 $SYNC_CMD --delete-after ebuild $DEST
-$SYNC_CMD --delete-after tmpbuild $DEST
+#$SYNC_CMD --delete-after tmpbuild $DEST

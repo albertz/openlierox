@@ -193,8 +193,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 	cl->setGameReady(true);
 
 	// Let everyone know this client is ready to play
-	static CBytestream bytes;
-	bytes.Clear();
+	CBytestream bytes;
 	if (cl->getNumWorms() <= 2)  {
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
@@ -957,7 +956,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 ///////////////////
 // Handle a 'connect' message
 void GameServer::ParseConnect(CBytestream *bs) {
-	static CBytestream		bytestr;
+	CBytestream		bytestr;
 	NetworkAddr		adrFrom;
 	int				i, p, player = -1;
 	int				numplayers;
@@ -977,8 +976,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		return;
 	}
 
-	bytestr.Clear();
-
 	// User Info to get
 
 	GetRemoteNetAddr(tSocket, adrFrom);
@@ -989,7 +986,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
 
 		// Get the string to send
-		static std::string buf;
+		std::string buf;
 		if (networkTexts->sWrongProtocol != "<none>")  {
 			replacemax(networkTexts->sWrongProtocol, "<version>", itoa(PROTOCOL_VERSION), buf, 1);
 		} else
@@ -1306,7 +1303,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 			// Address
-			static std::string str_addr;
+			std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			// Remove port
 			size_t pos = str_addr.rfind(':');

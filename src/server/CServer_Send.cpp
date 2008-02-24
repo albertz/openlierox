@@ -118,7 +118,6 @@ bool GameServer::SendUpdate()
 			if (w->checkPacketNeeded()) {
 				bytes.writeByte(w->getID());
 				w->writePacket(&bytes);
-				w->updateCheckVariables();
 				worm_bytestreams.push_back(bytes);
 				worms_to_update.push_back(w);
 			}
