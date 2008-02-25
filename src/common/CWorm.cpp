@@ -94,6 +94,7 @@ void CWorm::Clear(void)
 	fPreLastPosUpdate = fLastPosUpdate = -9999;
 
 	bUsesMouse = false;
+	fLastInputTime = tLX->fCurTime;
 
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;

@@ -198,6 +198,7 @@ private:
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
+	float		fLastInputTime;
 
 	CVec		vFollowPos;
 	bool		bFollowOverride;

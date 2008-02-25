@@ -38,7 +38,8 @@ void CWorm::getInput()
 	// TODO: it seems that iCarving isn't used at all. if this is the case, please remove. else, something has to be fixed
 
 	// HINT: we are calling this from simulateWorm
-	const float	dt = tLX->fCurTime - this->fLastSimulationTime;
+	const float	dt = tLX->fCurTime - fLastInputTime;
+	fLastInputTime = tLX->fCurTime;
 	
 	CVec	dir;
 	int		weap = false;
