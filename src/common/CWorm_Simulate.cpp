@@ -77,10 +77,10 @@ void CWorm::getInput()
 	{	
 		// Up
 		if(cUp.isDown()) {
-			// HINT: 500 is the original value here (TODO: which rev?)
+			// HINT: 500 is the original value here (rev 1)
 			fAngleSpeed -= 500 * dt;
 		} else if(cDown.isDown()) { // Down
-			// HINT: 500 is the original value here (TODO: which rev?)
+			// HINT: 500 is the original value here (rev 1)
 			fAngleSpeed += 500 * dt;
 		} else {
 			if(!mouseControl) {
