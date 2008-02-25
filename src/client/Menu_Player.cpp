@@ -276,7 +276,8 @@ void Menu_Player_NewPlayerInit(void)
 
     // Load the default skin
     tMenu->bmpWorm = LoadImage("skins/default.png", true);
-	SetColorKey(tMenu->bmpWorm);
+	if (tMenu->bmpWorm)
+		SetColorKey(tMenu->bmpWorm);
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -293,7 +294,10 @@ void Menu_Player_ViewPlayerInit(void)
 	profile_t *p = GetProfiles();
 	for(; p; p=p->tNext) {
 		lv->AddItem("",p->iID,tLX->clListView);
-		lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+		if (p->bmpWorm)
+			lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+		else
+			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
 	}
 
@@ -320,7 +324,8 @@ void Menu_Player_ViewPlayerInit(void)
 
         // Load the skin
         tMenu->bmpWorm = LoadImage("skins/"+p->szSkin, true);
-		SetColorKey(tMenu->bmpWorm);
+		if (tMenu->bmpWorm)
+			SetColorKey(tMenu->bmpWorm);
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
     }
@@ -549,7 +554,10 @@ void Menu_Player_ViewPlayers(int mouse)
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
 									lv->AddItem("",p->iID,tLX->clListView);
-									lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+									if (p->bmpWorm)
+										lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+									else
+										lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 									lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
 								}
 							}
@@ -681,7 +689,8 @@ void Menu_Player_ViewPlayers(int mouse)
                     // Load the skin
                     buf = "skins/"+buf;
                     tMenu->bmpWorm = LoadImage(buf, true);
-					SetColorKey(tMenu->bmpWorm);
+					if (tMenu->bmpWorm)
+						SetColorKey(tMenu->bmpWorm);
                 }
                 break;
 		}
