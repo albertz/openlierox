@@ -36,7 +36,10 @@ void CImage::Draw(SDL_Surface *bmpDest)
 		iY=0;
 
 	// Draw the image
-	DrawImageAdv(bmpDest,tImage,cropX,cropY,iX,iY,iWidth,iHeight);
+	if( cropX == 0 && cropY == 0 && cropW == 0 && cropH == 0 )
+		DrawImage(bmpDest,tImage,0,0); // Hopefully faster cropping
+	else
+		DrawImageAdv(bmpDest,tImage,cropX,cropY,iX,iY,iWidth,iHeight);
 }
 
 ///////////////////

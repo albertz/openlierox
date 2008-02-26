@@ -33,12 +33,12 @@ class CImage : public CWidget {
 public:
 	// Constructor
 	// TODO: this "cropping" isn't used at all, remove it?
+	// Cropping is used in GUI skinning in one place, I thought it would be nice, yet it's safe to remove it.
 	CImage(const std::string& Path, int _cropX=0, int _cropY=0, int _cropW=0, int _cropH=0):
 			cropX(_cropX), cropY(_cropY), cropW(_cropW), cropH(_cropH) {
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
-		cropX = cropY = cropW = cropH = 0;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
 
