@@ -1189,8 +1189,18 @@ void CClient::processChatter(void)
 
 			for(ushort j=0; j < iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
+
 					// Can we type?
-					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
+					if (cLocalWorms[j]->getLives() == WRM_OUT)  { // We're spectating
+						if (cSpectatorViewportKeys.Down.isDown() ||
+							cSpectatorViewportKeys.Left.isDown() ||
+							cSpectatorViewportKeys.Right.isDown() ||
+							cSpectatorViewportKeys.Up.isDown() ||
+							cSpectatorViewportKeys.V1Type.isDown() ||
+							cSpectatorViewportKeys.V2Toggle.isDown() ||
+							cSpectatorViewportKeys.V2Type.isDown())
+							return;
+					} else if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed()) // Playing
 						return;
 
 					// Clear the input
