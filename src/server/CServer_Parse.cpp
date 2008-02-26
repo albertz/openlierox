@@ -1043,24 +1043,33 @@ void GameServer::ParseConnect(CBytestream *bs) {
 	// TODO: what happenes if we ignore this challenge verification?
 
 	// See if the challenge is valid
-	for (i = MAX_CHALLENGES-1; i >= 0; --i) {
+	bool valid_challenge = false;
+	for (i = 0; i < MAX_CHALLENGES; i++) {
 		if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
 
-			if (ChallId == tChallenges[i].iNum)
-				break;		// good
-
-			printf("Bad connection verification of client\n");
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
-			bytestr.Send(tSocket);
-			return;
+			if (ChallId == tChallenges[i].iNum)  { // good
+				valid_challenge = true;
+				break;
+			} else { // bad
+				valid_challenge = false;
+				// There can be more challanges from one client, if this one doesn't match,
+				// perhaps some other does
+			}
 		}
 	}
 
+	if (!valid_challenge)  {
+		printf("Bad connection verification of client\n");
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx::badconnect");
+		bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
+		bytestr.Send(tSocket);
+		return;
+	}
+
 	// Ran out of challenges
-	if ( i <= -1 ) {
+	if ( i == MAX_CHALLENGES ) {
 		printf("No connection verification for client found\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
