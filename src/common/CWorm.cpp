@@ -247,6 +247,8 @@ void CWorm::Spawn(CVec position) {
     fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
+	iMoveDirection = DIR_RIGHT;
+	fLastInputTime = tLX->fCurTime;
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
