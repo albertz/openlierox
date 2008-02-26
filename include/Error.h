@@ -26,13 +26,13 @@
 
 #include <string>
 
-void SetError(char *fmt, ...);
+void SetError(const std::string& text);
 void ShowError(void);
 void EndError(void);
 
-void SystemError(char *fmt, ...);
+void SystemError(const std::string&text);
 
-void GuiSkinError(char *fmt, ...);
+void GuiSkinError(const std::string& text);
 
 /*void Hint(const std::string& text) {}
 void Debug(const std::string& text) {}

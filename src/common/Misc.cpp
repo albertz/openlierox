@@ -63,23 +63,6 @@ void ConvertTime(float time, int *hours, int *minutes, int *seconds)
 
 
 ///////////////////
-// Debug printf
-// Will only print out if this is a debug build
-void d_printf(char *fmt, ...)
-{
-#ifdef DEBUG
-	va_list arg;
-
-	va_start(arg, fmt);
-	vprintf(fmt, arg);
-	va_end(arg);
-#endif
-}
-
-
-
-
-///////////////////
 // Returns true if the mouse is inside a rectangle
 bool MouseInRect(int x, int y, int w, int h)
 {

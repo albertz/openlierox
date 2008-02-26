@@ -15,6 +15,7 @@
 
 
 #include <assert.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "AuxLib.h"
@@ -311,20 +312,20 @@ bool CGuiLayout::Build(void)
 	// Parse the document
 	tDocument = xmlParseFile(sFilename.c_str());
 	if (tDocument == NULL)  {
-		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename.c_str());
+		Error(ERR_COULDNOTPARSE,"Could not parse the document " + sFilename);
 		return false;
 	}
 
 	// Get the root node
 	tCurrentNode = xmlDocGetRootElement(tDocument);
 	if (tCurrentNode == NULL)  {
-		Error(ERR_EMPTYDOC,"The '%s' document is empty",sFilename.c_str());
+		Error(ERR_EMPTYDOC,"The '" + sFilename + "' document is empty");
 		return false;
 	}
 
 	// Validate the root node
 	if (CMP(tCurrentNode->name,"skin"))  {
-		Error(ERR_INVALIDROOT,"The document '%s' contains invalid parent node: %s",sFilename.c_str(),tCurrentNode->name);
+		Error(ERR_INVALIDROOT,"The document '" + sFilename + "' contains invalid parent node: " + std::string((char *)tCurrentNode->name));
 		return false;
 	}
 
@@ -818,32 +819,24 @@ CWidget *CGuiLayout::getWidget(int id)
 
 ////////////////////
 // Get the widget ID
-int	CGuiLayout::GetIdByName(char *Name)
+int	CGuiLayout::GetIdByName(const std::string& Name)
 {
 	int ID = -1;
 	// Find the standard or previously added widget
-	ID = LayoutWidgets[iID].getID((char *)Name);
+	ID = LayoutWidgets[iID].getID(Name);
 
 	// Non-standard widget, add it to the list
 	if (ID == -1)
-		ID = LayoutWidgets[iID].Add((char *)Name);
+		ID = LayoutWidgets[iID].Add(Name);
 	return ID;
 }
 
 ////////////////////
 // Notifies about the error that occured
-void CGuiLayout::Error(int ErrorCode, char *Format, ...)
+void CGuiLayout::Error(int ErrorCode, const std::string& Text)
 {
-	static char buf[512];
-	va_list	va;
-
-	va_start(va,Format);
-	vsnprintf(buf,sizeof(buf),Format,va);
-	fix_markend(buf);
-	va_end(va);
-
 	// TODO: this better
-	printf("%i: %s",ErrorCode,buf);
+	std::cout << ErrorCode << ": " << Text << std::endl;
 }
 
 ///////////////

@@ -319,7 +319,7 @@ int CGameScript::Load(const std::string& dir)
 	// Open it
 	fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
-		SetError("CGameScript::Load(): Could not load file %s",filename.c_str());
+		SetError("CGameScript::Load(): Could not load file " + filename);
 		return GSE_FILE;
 	}
 
@@ -345,7 +345,7 @@ int CGameScript::Load(const std::string& dir)
 	}
 
     // Clear an old mod file
-    modLog("Loading game mod file %s",filename.c_str());
+    modLog("Loading game mod file " + filename);
 	//modLog("  ID = %s", Header.ID);
 	//modLog("  Version = %i", Header.Version);
 
@@ -546,7 +546,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
         if(!proj->bmpImage)
-            modLog("Could not open image '%s'",proj->ImgFilename.c_str());
+            modLog("Could not open image '" + proj->ImgFilename + "'");
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
 		EndianSwap(proj->Rotating);
@@ -600,7 +600,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				
 				if(proj->smpSample == 0) {
 					proj->Hit_UseSound = false;
-					modLog("Could not open sound '%s'",proj->Hit_SndFilename.c_str());
+					modLog("Could not open sound '" + proj->Hit_SndFilename + "'");
 				}
 			} else
 				proj->smpSample = NULL;
@@ -967,18 +967,9 @@ std::string CGameScript::getError(int code)
 
 ///////////////////
 // Write info to a mod log file
-void CGameScript::modLog(char *fmt, ...)
+void CGameScript::modLog(const std::string& text)
 {
-    static char    buf[1024];
-
-    va_list	va;
-
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);
-	fix_markend(buf);
-	va_end(va);
-
-	printf("%s\n", buf);
+	std::cout << text << std::endl;
 	
 	if(!pModLog) {
 		pModLog = OpenGameFile("modlog.txt","wt");
@@ -987,7 +978,8 @@ void CGameScript::modLog(char *fmt, ...)
 		fprintf(pModLog,"Log file for mod:\n%s\n--------------------------------\n",Header.ModName);
 	}
 	
-	fprintf(pModLog,"%s\n",buf);
+	if (text.size() != 0)
+		fprintf(pModLog,"%s\n", text.c_str());
 }
 
 ///////////////////

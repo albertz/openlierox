@@ -218,14 +218,14 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Initialize the clients
 	cClients = new CClient[MAX_CLIENTS];
 	if(cClients==NULL) {
-		SetError("Error: Out of memory!\nsv::Startserver() %d",__LINE__);
+		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
 		return false;
 	}
 
 	// Allocate the worms
 	cWorms = new CWorm[MAX_WORMS];
 	if(cWorms == NULL) {
-		SetError("Error: Out of memory!\nsv::Startserver() %d",__LINE__);
+		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
 		return false;
 	}
 
@@ -236,7 +236,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	// Shooting list
 	if( !cShootList.Initialize() ) {
-		SetError("Error: Out of memory!\nsv::Startserver() %d",__LINE__);
+		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
 		return false;
 	}
 
@@ -324,7 +324,7 @@ int GameServer::StartGame()
 	// Create the map
 	cMap = new CMap;
 	if(cMap == NULL) {
-		SetError("Error: Out of memory!\nsv::Startgame() %d",__LINE__);
+		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
 		return false;
 	}
 

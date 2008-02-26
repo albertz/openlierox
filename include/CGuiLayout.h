@@ -99,8 +99,8 @@ public:
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
-	int			GetIdByName(char *Name);
-	void		Error(int ErrorCode, char *Format, ...);
+	int			GetIdByName(const std::string& Name);
+	void		Error(int ErrorCode, const std::string& text);
 
 	gui_event_t	*Process(void);
 	void		Draw(SDL_Surface *bmpDest);

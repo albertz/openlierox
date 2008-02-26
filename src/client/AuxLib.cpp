@@ -98,7 +98,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	}
 	
 	if(SDL_Init(SDLflags) == -1) {
-		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
+		SystemError("Failed to initialize the SDL system!\nErrorMsg: " + std::string(SDL_GetError()));
 #ifdef WIN32
 		// retry it with any available video driver	
 		unsetenv("SDL_VIDEODRIVER");
@@ -301,7 +301,7 @@ bool SetVideoMode()
 #endif
 
 	if( SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL) {
-		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, tLXOptions->iColourDepth,SDL_GetError());
+		SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 		return false;
 	}
 

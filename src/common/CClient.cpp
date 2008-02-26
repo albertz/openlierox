@@ -228,7 +228,7 @@ int CClient::Initialize(void)
 	// Initialize the remote worms
 	cRemoteWorms = new CWorm[MAX_WORMS];
 	if(cRemoteWorms == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() %d",__LINE__);
+		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
 		return false;
 	}
 
@@ -247,7 +247,7 @@ int CClient::Initialize(void)
 	// Initialize the projectiles
 	cProjectiles = new CProjectile[MAX_PROJECTILES];
 	if(cProjectiles == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() %d",__LINE__);
+		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
 		return false;
 	}
     for(i=0; i<MAX_PROJECTILES;i++)
@@ -258,7 +258,7 @@ int CClient::Initialize(void)
 	// Initialize the bonuses
 	cBonuses = new CBonus[MAX_BONUSES];
 	if(cBonuses == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() %d",__LINE__);
+		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
 		return false;
 	}
 

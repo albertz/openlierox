@@ -18,6 +18,7 @@
 
 
 #include <stdarg.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "AuxLib.h"
@@ -35,14 +36,11 @@ FILE *ErrorFile = NULL;
 
 ///////////////////
 // Sets the error message
-void SetError(char *fmt, ...)
+void SetError(const std::string& text)
 {
-	va_list	va;
+	if (text.size() == 0)
+		return;
 
-	va_start(va,fmt);
-	vsnprintf(ErrorMsg,sizeof(ErrorMsg),fmt,va);
-	fix_markend(ErrorMsg);
-	va_end(va);
 	GotError = true;
 
 
@@ -53,7 +51,7 @@ void SetError(char *fmt, ...)
 		fprintf(ErrorFile,"%s error file\n----------------------\n",GetGameName().c_str());
 	}
 	
-	fprintf(ErrorFile,"%s\n",ErrorMsg);
+	fprintf(ErrorFile,"%s\n", text.c_str());
 	//printf("Error: %s\n", ErrorMsg);
 	
 }
@@ -92,19 +90,13 @@ void EndError(void)
 
 ///////////////////
 // Show a system error
-void SystemError(char *fmt, ...)
+void SystemError(const std::string& text)
 {
-	static char buf[512];
-	va_list	va;
-
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);
-	fix_markend(buf);
-	va_end(va);
 
 	SDL_ShowCursor(SDL_ENABLE);	
 	// TODO: uniform message system
-	printf("SystemError: %s\n", buf);
+	if (text.size() != 0)
+		printf("SystemError: %s\n", text.c_str());
 
 	// Shudown only when not already shutting down
 	if (tLX)
@@ -112,7 +104,8 @@ void SystemError(char *fmt, ...)
 			ShutdownLieroX();
 
 #ifdef WIN32
-	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
+	if (text.size() != 0)
+		MessageBox(NULL,text.c_str(),GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
 #endif
 
 
@@ -121,37 +114,17 @@ void SystemError(char *fmt, ...)
 }
 
 // List of GUI errors & warnings
-char GUIErrors[64][64];
-// Points to first free slot for error/warning
-int iErrPointer = 0;
+std::list<std::string> GUIErrors;
 
 /////////////////////
 // Show a window informing about skin error
-void GuiSkinError(char *fmt, ...)
+void GuiSkinError(const std::string& text)
 {
-	static char buf[512];
-	va_list	va;
 
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);
-	fix_markend(buf);
-	va_end(va);
-
-	iErrPointer++;
-
-	// Too many errors, shift the list
-	if(iErrPointer >= 64)  {
-		int i;
-		for (i=0;i<62;i++)
-			fix_strncpy(GUIErrors[i],GUIErrors[i+1]);
-		iErrPointer = 63;
-	}
-
-	// Copy the error
-	fix_strncpy(GUIErrors[iErrPointer],buf);
+	GUIErrors.push_back(text);
 
 	// TODO: make this better
-	printf("%s\r\n",buf);
+	std::cout << "GUI error: " << text << std::endl;
 
 }
 

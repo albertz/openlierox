@@ -222,7 +222,7 @@ public:
 
 	static int	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
 
-    void        modLog(char *fmt, ...);
+    void        modLog(const std::string& text);
 
 #ifndef _CONSOLE
 	SDL_Surface* LoadGSImage(const std::string& dir, const std::string& filename);

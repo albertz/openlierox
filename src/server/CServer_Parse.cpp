@@ -175,6 +175,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		if (id >= 0 && id < MAX_WORMS)  {
 			if(!cWorms[id].isUsed()) {
 				printf("WARNING: got unused worm-ID!\n");
+				CWorm::skipWeapons(bs);
 				continue;
 			}
 			cWorms[id].readWeapons(bs);
