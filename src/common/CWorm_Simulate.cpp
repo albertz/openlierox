@@ -405,6 +405,8 @@ void CWorm::getInput()
 // Clear the input
 void CWorm::clearInput(void)
 {
+	fLastInputTime = tLX->fCurTime;
+
 	// Clear the state
 	tState.iCarve = false;
 	tState.iMove  = false;

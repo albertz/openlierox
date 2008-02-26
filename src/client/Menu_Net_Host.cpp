@@ -605,13 +605,13 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 	Menu_HostShowMinimap();
 
-    // Don't show chat box selection
-    CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
-    lv->setShowSelect(false);
-
-    cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
-    cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
-    cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
+	// Don't show chat box selection
+	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	lv->setShowSelect(false);
+	
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
 
 	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gametype);
 	if (gtype)  {
