@@ -511,6 +511,8 @@ public:
 	int			NEW_AI_CreatePath(bool force_break = false);
 	void		NEW_AI_MoveToTarget();
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg);
+	void		NEW_AI_Carve();
+	bool		NEW_AI_Jump();
 	CVec		NEW_AI_FindShootingSpot();
 #ifdef _AI_DEBUG
 	void		NEW_AI_DrawPath();

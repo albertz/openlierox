@@ -752,26 +752,6 @@ void CClient::ParseText(CBytestream *bs)
 {
 	int type = bs->readInt(1);
 
-	// Check for the max
-	/*if(iChat_Numlines+1 >= MAX_CHATLINES) {
-
-		// Move the list up one
-		for(int i=0;i<iChat_Numlines-1;i++) {
-			strcpy( tChatLines[i].sText,  tChatLines[i+1].sText);
-			tChatLines[i].fTime =   tChatLines[i+1].fTime;
-			tChatLines[i].iType =   tChatLines[i+1].iType;
-			tChatLines[i].fScroll = tChatLines[i+1].fScroll;
-		}
-		iChat_Numlines--;
-	}
-
-	chat_line_t *t = &tChatLines[iChat_Numlines++];
-
-	t->fScroll = 0;
-	t->fTime = tLX->fCurTime;
-	t->iType = type;
-	bs->readString(t->sText);*/
-
 	Uint32 col = tLX->clWhite;
 	int	t = bDedicated ? 0 : cLocalWorms[0]->getTeam();
 	switch(type) {

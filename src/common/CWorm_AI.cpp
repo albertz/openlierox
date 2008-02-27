@@ -1036,6 +1036,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	if(teamflaggame && getFlag())
 		return;
 
+	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
+	bOnGround = CheckOnGround();
 
 	iAiGame = gametype;
 	iAiTeams = teamgame;
@@ -1060,26 +1062,16 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 		nAIState = AI_THINK;
 
 	// Carve always; makes no problems and can only help
-	// Don't carve so fast!
-	if (tLX->fCurTime - fLastCarve > 0.2f)  {
-		fLastCarve = tLX->fCurTime;
-		ws->iCarve = true; // Carve
-	}
-	else  {
-		ws->iCarve = false;
-	}
+	NEW_AI_Carve();
 
     // If we have a good shooting 'solution', shoot
     if(AI_Shoot()) {
 
 		// jump, move and carve around
-		if (tLX->fCurTime-fLastJump > 1.0f)  {
-			ws->iJump = true;
-			fLastJump = tLX->fCurTime;
-		}
+		NEW_AI_Jump();
 		ws->iMove = true;
 
-   		if(CheckOnGround() && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos))
+   		if(bOnGround && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos))
    			cNinjaRope.Release();
 
     } else {
@@ -1939,9 +1931,9 @@ void CWorm::AI_MoveToTarget()
     CVec v = CVec((float)(psCurrentNode->nX*pcMap->getGridWidth()+hgw), (float)(psCurrentNode->nY*pcMap->getGridHeight()+hgh));
     int length = traceLine(v, &traceDist, &type);
     if((float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
-        ws->iJump = true;
+		NEW_AI_Jump();
         ws->iMove = true;
-		ws->iCarve = true; // Carve
+
 
         // Shoot a path
         /*int wpn;
@@ -1987,7 +1979,7 @@ void CWorm::AI_MoveToTarget()
 
         // If we're under the final target, jump
         if(nFinalTarget[1] < nCurrentCell[1])
-            ws->iJump = true;
+            NEW_AI_Jump();
     }
 
 
@@ -2179,10 +2171,7 @@ void CWorm::AI_SimpleMove(bool bHaveTarget)
 
 		// Jump and move
 		else  {
-			if (tLX->fCurTime-fLastJump > 3.0)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			}
+			NEW_AI_Jump();
 			ws->iMove = true;
 			cNinjaRope.Release();
 		}
@@ -4202,6 +4191,36 @@ bool CWorm::NEW_AI_IsInAir(CVec pos, int area_a)
 }
 
 
+///////////////////
+// AI carving
+void CWorm::NEW_AI_Carve()
+{
+	// Don't carve too fast
+	if (GetMilliSeconds() - fLastCarve > 0.2f)  {
+		fLastCarve = GetMilliSeconds();
+		tState.iCarve = true; // Carve
+	}
+	else  {
+		tState.iCarve = false;
+	}
+}
+
+///////////////////
+// AI jumping, returns true if we really jumped
+bool CWorm::NEW_AI_Jump()
+{
+	// Don't jump so often
+	if (GetMilliSeconds() - fLastJump > 1.0f)  {
+		fLastJump = GetMilliSeconds();
+		tState.iJump = bOnGround;
+	}
+	else  {
+		tState.iJump = false;
+	}
+
+	return tState.iJump;
+}
+
 /////////////////////
 // Move to the target
 void CWorm::NEW_AI_MoveToTarget()
@@ -4276,14 +4295,7 @@ void CWorm::NEW_AI_MoveToTarget()
 
 	// HINT: carving is handled already in AI_getInput
 	// HINT: carve always; bad hack, but it works good
-	// Don't carve so fast!
-/*	if (tLX->fCurTime-fLastCarve > 0.2f)  {
-		fLastCarve = tLX->fCurTime;
-		ws->iCarve = true; // Carve
-	}
-	else  {
-		ws->iCarve = false;
-	}
+/*	NEW_AI_Carve();
 */
 
     // If we're stuck, just get out of wherever we are
@@ -4291,19 +4303,7 @@ void CWorm::NEW_AI_MoveToTarget()
 //		printf("Stucked");
 
         ws->iMove = true;
-		if (tLX->fCurTime-fLastJump > 1.0f)  {
-			ws->iJump = true;
-			fLastJump = tLX->fCurTime;
-		}
-
-/*		// Don't carve so fast!
-		if (tLX->fCurTime-fLastCarve > 0.2f)  {
-			fLastCarve = tLX->fCurTime;
-			ws->iCarve = true; // Carve
-		}
-		else  {
-			ws->iCarve = false;
-		} */
+		NEW_AI_Jump();
 
         if(tLX->fCurTime - fStuckPause > 2.0f)
             bStuck = false;
@@ -4337,12 +4337,7 @@ void CWorm::NEW_AI_MoveToTarget()
 
 
 		// If we're on ground, jump
-		if(CheckOnGround())  {
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			}
-		}
+		NEW_AI_Jump();
 
 		// Release any previous rope
 		if (fRopeAttachedTime >= 1.5f)
@@ -4529,10 +4524,7 @@ find_one_visible_node:
 
 			// Jump, if the node is above us
 			if (nodePos.y+10.0f < vPos.y)
-				if (tLX->fCurTime - fLastJump > 0.5f)  {
-					ws->iJump = true;
-					fLastJump = tLX->fCurTime;
-				}
+				NEW_AI_Jump();
 
 //			ws->iMove = true;
 
@@ -4581,19 +4573,13 @@ find_one_visible_node:
 		fireNinja = (NEW_psCurrentNode->fY+20 < vPos.y);
 		if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
 			// On ground? Jump
-			if(CheckOnGround()) {
-				if (tLX->fCurTime - fLastJump > 1.0f)  {
-					ws->iJump = true;
-					fLastJump = tLX->fCurTime;
-					// Rope will happen soon
-				}
-			}
+			NEW_AI_Jump();
 		}
 	}
 */
 
 	// If we're above the node and the rope is hooked wrong, release the rope
-/*	if(CheckOnGround() && (vPos.y < nodePos.y)) {
+/*	if(bOnGround && (vPos.y < nodePos.y)) {
 		cNinjaRope.Release();
 		fireNinja = false;
 	}
@@ -4628,7 +4614,7 @@ find_one_visible_node:
           We shoot a ninja rope if it isn't shot
           Or if it is, we make sure it has pulled us up and that it is attached
         */
-        if(aim || !CheckOnGround()) {
+        if(aim || !bOnGround) {
             if(!cNinjaRope.isReleased())
             	fireNinja = true;
             else {
@@ -4639,7 +4625,9 @@ find_one_visible_node:
                     	fireNinja = true;
                 }
             }
-            ws->iJump = CheckOnGround() && (vPos.y - NEW_psCurrentNode->fY) > 5.0f;
+            if( (vPos.y - NEW_psCurrentNode->fY) > 5.0f)  {
+				NEW_AI_Jump();
+			}
         }
     }
 
@@ -4663,10 +4651,7 @@ find_one_visible_node:
 		// If the node is above us by a little, jump
 		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y - NEW_psCurrentNode->fY) > 0) {
 			// Don't jump so often
-			if (tLX->fCurTime - fLastJump > 0.5f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			} else
+			if (!NEW_AI_Jump())
 				ws->iMove = true; // if we should not jump, move
 		}
 	}
@@ -4679,20 +4664,10 @@ find_one_visible_node:
         // Have we been stuck for a few seconds?
         if(fStuckTime > 3) {
             // Jump, move, carve, switch directions and release the ninja rope
-			if (tLX->fCurTime-fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			}
+			NEW_AI_Jump();
             ws->iMove = true;
 
-/*			// Don't carve so fast!
-			if (tLX->fCurTime-fLastCarve > 0.2f)  {
-				fLastCarve = tLX->fCurTime;
-				ws->iCarve = true; // Carve
-			}
-			else  {
-				ws->iCarve = false;
-			} */
+/*			NEW_AI_Carve(); */
 
             bStuck = true;
             fStuckPause = tLX->fCurTime;
@@ -4738,11 +4713,7 @@ find_one_visible_node:
 	NEW_ai_node_t *nextNode = NEW_psCurrentNode->psNext;
 	if (nextNode)  {
 		if ((vPos.y-nextNode->fY) <= 30 && (vPos.y-nextNode->fY) > 0)
-			// Don't jump so often
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			} else
+			if (!NEW_AI_Jump())
 				ws->iMove = true; // if we should not jump, move
 	}
 */
