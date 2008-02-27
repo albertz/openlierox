@@ -474,12 +474,13 @@ public:
 		vOldPos = vPosition;
 	*/
 
-		if(proj->getProjInfo()->Rotating)
+		if(proj->getProjInfo()->Rotating)  {
 			proj->rotation() += (float)proj->getProjInfo()->RotSpeed * dt;
-		if(proj->rotation() < 0)
-			proj->rotation() = 360;
-		else if(proj->rotation() > 360)
-			proj->rotation() = 0;
+			if(proj->rotation() < 0)
+				proj->rotation() = 360;
+			else if(proj->rotation() > 360)
+				proj->rotation() = 0;
+		}
 
 		// Animation
 		if(proj->getProjInfo()->Animating) {
@@ -564,29 +565,30 @@ public:
 		prj->fLastSimulationTime += dt;
 	
 	
-		int a,i;
 		CVec sprd;
-		int explode = false;
-		int timer = false;
-		int shake = 0;
-		int dirt = false;
-		int grndirt = false;
+		bool explode = false;
+		bool timer = false;
+		bool shake = 0;
+		bool dirt = false;
+		bool grndirt = false;
 		int damage = 0;
 		int result = 0;
-		int wormid = -1;	
+		int wormid = -1;
 	
 		bool spawnprojectiles = false;
-		const proj_t *pi;
+		const proj_t *pi = prj->GetProjInfo();
 		float f;
 	
 
 		// Check if the timer is up
-		pi = prj->GetProjInfo();
 		f = prj->getTimeVarRandom();
 		if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {
 
 			// Run the end timer function
-			if(pi->Timer_Type == PJ_EXPLODE) {
+			switch (pi->Timer_Type) {
+
+			// Explode
+			case PJ_EXPLODE:
 				explode = true;
 				timer = true;
 
@@ -594,30 +596,30 @@ public:
 					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-			}
+			break;
 
 			// Create some dirt
-			if(pi->Timer_Type == PJ_DIRT) {
+			case PJ_DIRT:
 				dirt = true;
 				if(pi->Timer_Projectiles)
 					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
 				damage = pi->Timer_Damage;
-			}
+			break;
 
 			// Create some green dirt
-			if(pi->Timer_Type == PJ_GREENDIRT) {
+			case PJ_GREENDIRT:
 				grndirt = true;
 				if(pi->Timer_Projectiles)
 					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
 				damage = pi->Timer_Damage;
-			}
+			break;
 
 			// Carve
-			if(pi->Timer_Type == PJ_CARVE) {
+			case PJ_CARVE:  {
 				int d = map->CarveHole(
 					pi->Timer_Damage, prj->GetPosition());
 				prj->setUnused();
@@ -629,6 +631,8 @@ public:
 				client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 
 				client->CheckDemolitionsGame();
+			} 
+			break;
 			}
 		}
 
@@ -644,7 +648,8 @@ public:
 		if( result & PJC_TERRAIN ) {
 
 			// Explosion
-			if(pi->Hit_Type == PJ_EXPLODE) {
+			switch (pi->Hit_Type)  {
+			case PJ_EXPLODE:
 				explode = true;
 
 				if(pi->Hit_Shake > shake)
@@ -653,19 +658,19 @@ public:
 				// Play the hit sound
 				if(pi->Hit_UseSound)
 					PlaySoundSample(pi->smpSample);
-			}
+			break;
 
 			// Bounce
-			if(pi->Hit_Type == PJ_BOUNCE) {
+			case PJ_BOUNCE:
 				prj->Bounce(pi->Hit_BounceCoeff);
 
 				// Do we do a bounce-explosion (bouncy larpa uses this)
 				if(pi->Hit_BounceExplode > 0)
 					client->Explosion(prj->GetPosition(), pi->Hit_BounceExplode, false, prj->GetOwner());
-			}
+			break;
 
 			// Carve
-			if(pi->Hit_Type == PJ_CARVE) {
+			case PJ_CARVE:  {
 				int d = map->CarveHole(
 					pi->Hit_Damage, prj->GetPosition());
 				prj->setUnused();
@@ -675,16 +680,18 @@ public:
 
 				client->CheckDemolitionsGame();
 			}
+			break;
 
 			// Dirt
-			if(pi->Hit_Type == PJ_DIRT) {
+			case PJ_DIRT:
 				dirt = true;
 				damage = pi->Hit_Damage;
-			}
+			break;
 
 			// Green Dirt
-			if(pi->Hit_Type == PJ_GREENDIRT) {
+			case PJ_GREENDIRT:
 				grndirt = true;
+			break;
 			}
 
 
@@ -744,7 +751,7 @@ public:
 		if(prj->getSpawnPrjTrl()) {
 			prj->setSpawnPrjTrl(false);
 
-			for(i=0; i < pi->PrjTrl_Amount; i++) {
+			for(int i=0; i < pi->PrjTrl_Amount; i++) {
 				sprd = CVec(0,0);
 
 				if(pi->PrjTrl_UsePrjVelocity) {
@@ -770,45 +777,55 @@ public:
 		*/
 		if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer)
 			if( wormid != prj->GetOwner() || (int)(1000 * prj->getLife()) > client->getMyPing())  {
+				bool push_worm = true;
+
+				switch (pi->PlyHit_Type)  {
 
 				// Explode
-				if(pi->PlyHit_Type == PJ_EXPLODE)
+				case PJ_EXPLODE:
 					explode = true;
+				break;
 
 				// Injure
-				if(pi->PlyHit_Type == PJ_INJURE) {
+				case PJ_INJURE:
 
 					// Add damage to the worm
 					client->InjureWorm(&client->getRemoteWorms()[wormid], pi->PlyHit_Damage, prj->GetOwner());
 					prj->setUnused();
+				break;
+
+				// Bounce
+				case PJ_BOUNCE:
+					push_worm = false;
+					prj->Bounce(pi->PlyHit_BounceCoeff);
+				break;
+
+				// Dirt
+				case PJ_DIRT:
+					dirt = true;
+					damage = pi->PlyHit_Damage;
+				break;
+
+				// Green Dirt
+				case PJ_GREENDIRT:
+					grndirt = true;
+				break;
+
+				case PJ_NOTHING:
+					push_worm = false;
+				break;
 				}
 
-				if(pi->PlyHit_Type != PJ_BOUNCE && pi->PlyHit_Type != PJ_NOTHING) {
-
-					// Push the worm back
+				// Push the worm back
+				if(push_worm) {
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
 					CVec *v = client->getRemoteWorms()[wormid].getVelocity();
 					*v += (d*100)*dt;
 				}
 
-				// Bounce
-				if(pi->PlyHit_Type == PJ_BOUNCE)
-					prj->Bounce(pi->PlyHit_BounceCoeff);
-
 				if(pi->PlyHit_Projectiles)
 					spawnprojectiles = true;
-
-				// Dirt
-				if(pi->PlyHit_Type == PJ_DIRT) {
-					dirt = true;
-					damage = pi->PlyHit_Damage;
-				}
-
-				// Green Dirt
-				if(pi->Hit_Type == PJ_GREENDIRT) {
-					grndirt = true;
-				}
 			}
 
 
@@ -861,13 +878,13 @@ public:
 				heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
 				heading+=90;
 				if(heading < 0)
-					heading+=360;
+					heading += 360;
 				else if(heading >= 360)
-					heading-=360;
+					heading -= 360;
 			}
 
-			for(i=0;i<pi->ProjAmount;i++) {
-				a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
+			for(int i=0;i<pi->ProjAmount;i++) {
+				int a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
 				GetAngles(a,&sprd,NULL);
 
 				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
