@@ -277,7 +277,7 @@ void CWorm::Spawn(CVec position) {
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
 	else if(cClient->OwnsWorm(this))
-		clearState();
+		clearInput();
 }
 
 
