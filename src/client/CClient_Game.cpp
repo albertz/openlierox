@@ -353,7 +353,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 			w->setAlive(false);
 			w->Kill();
-            w->clearInput();
+            w->clearState();
 
 			// Let the server know that i am dead
 			SendDeath(w->getID(), owner);
@@ -1202,11 +1202,13 @@ void CClient::processChatter(void)
 							return;
 					} else if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed()) // Playing
 						return;
-
-					// Clear the input
-					cLocalWorms[j]->clearInput();
 				}
 			}
+
+			// Clear the input
+			for (ushort j=0; j < iNumWorms; j++)
+				if (cLocalWorms[j]->getType() == PRF_HUMAN)
+					cLocalWorms[j]->clearInput();
 
 			// Initialize the chatter
 			fChat_BlinkTime = 0;

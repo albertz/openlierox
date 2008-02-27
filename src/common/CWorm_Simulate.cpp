@@ -425,7 +425,18 @@ void CWorm::clearInput(void)
 	cStrafe.reset();	
 }
 
+///////////////////
+// Clear the state (same as the above but doesn't reset the inputs)
+void CWorm::clearState(void)
+{
+	fLastInputTime = tLX->fCurTime;
 
+	// Clear the state
+	tState.iCarve = false;
+	tState.iMove  = false;
+	tState.iShoot = false;
+	tState.iJump  = false;	
+}
 
 
 

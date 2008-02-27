@@ -447,6 +447,7 @@ public:
 	void		getInput(void);
 	void		getMouseInput(void);
     void        clearInput(void);
+	void        clearState(void);
 	void		getGamepadInput(void);
     bool		CheckOnGround();
 

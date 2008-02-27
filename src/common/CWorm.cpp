@@ -277,7 +277,7 @@ void CWorm::Spawn(CVec position) {
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
 	else if(cClient->OwnsWorm(this))
-		clearInput();
+		clearState();
 }
 
 
@@ -302,7 +302,7 @@ void CWorm::Respawn(CVec position) {
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
 	else if(cClient->OwnsWorm(this))
-		clearInput();
+		clearState();
 }
 
 
