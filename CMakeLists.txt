@@ -7,6 +7,7 @@ OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 OPTION(X11CLIPBOARD "X11 clipboard" Yes)
 OPTION(HAWKNL_BUILTIN "HawkNL builtin support" No)
 OPTION(STLPORT "STLport support" No)
+SET(CFLAGS "" CACHE STRING "Additional compiler flags")
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -24,6 +25,7 @@ MESSAGE( "DEDICATED_ONLY = ${DEDICATED_ONLY}" )
 MESSAGE( "X11CLIPBOARD = ${X11CLIPBOARD}" )
 MESSAGE( "HAWKNL_BUILTIN = ${HAWKNL_BUILTIN}" )
 MESSAGE( "STLPORT = ${STLPORT}" )
+MESSAGE( "CFLAGS = ${CFLAGS}" )
 
 PROJECT(openlierox)
 
@@ -91,8 +93,13 @@ ENDIF(DEDICATED_ONLY)
 ADD_DEFINITIONS("`sdl-config --cflags`")
 ADD_DEFINITIONS("-pthread")
 
+IF(CFLAGS)
+	ADD_DEFINITIONS(${CFLAGS})
+ENDIF(CFLAGS)
+
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
+EXEC_PROGRAM("mkdir bin")
 
 TARGET_LINK_LIBRARIES(openlierox SDL SDL_image pthread z xml2)
 

@@ -1,0 +1,85 @@
+.TH OPENLIEROX 6 "Version 1.0" Openlierox GAMES
+
+.nf
+
+.fi
+
+.SH NAME
+
+openlierox - real-time, excessive clone of Worms with network support.
+
+.SH DESCRIPTION
+
+OpenLieroX is based on Jason Boettcher's famous Liero Xtreme.
+( Take a look here: http://lxalliance.net/lierox/ )
+Jason B. has released his work in 2006 under the zlib-licence
+and after some months of work, we ported and enhanced his work
+and got OpenLieroX.
+
+.SH SYNOPSIS
+
+.B openlierox
+.I [options]
+
+.SH OPTIONS
+
+OpenLieroX reads all the configuration options from a configuration
+file at startup but you can override from command line a few of the
+options:
+.TP
+.B -help
+Shows commandline help.
+.TP
+.B -opengl
+Use OpenGL for drawing.
+.TP
+.B -noopengl
+Explicitly disable using OpenGL.
+.TP
+.B -fullscreen
+Runs the game in fullscreen mode.
+.TP
+.B -window
+Runs the game in windowed mode.
+.TP
+.B -nosound
+Disables sound output.
+.TP
+.B -dedicated
+Enables dedicated mode - no graphics or sound initialized, OpenLieroX runs as standalone console process. 
+The file 'scripts/dedicated_control' is executed by OpenLieroX - this file is CGI-like script which operates the OpenLieroX server. 
+It is located in default directory '/usr/share/games/OpenLieroX' , but may be overridden by user as '~/.OpenLieroX/scripts/dedicated_control'.
+.PP
+Configuration file name is '~/.OpenLieroX/cfg/options.cfg'.
+
+.SH LICENCE
+
+This is free software; you can redistribute it and/or modify it
+under the terms specified in the GNU Public Licence (GPL).
+
+.SH WARRANTY
+
+None.
+
+.SH COPYRIGHT AND CREDITS
+
+.TP
+.B Joosa Riekkinen
+Author of original Liero for DOS.
+.TP
+.B Jason Boettcher
+Author of Liero Xtreme.
+.TP
+.B RuNyoufool
+Project admin.
+.TP
+.B Albert Zeyer, Karel Petranek, Martin Griffin, SteelSide, Da_Nick, pelya
+Current OpenLieroX developers.
+.TP
+.B Michal Futer ( [RIP]Raziel )
+GUI frontend design.
+.TP
+.B http://lxalliance.net/
+LieroX community.
+.PP
+And many others for comments, bug reports and ideas.

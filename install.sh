@@ -54,7 +54,7 @@ done
 # gzip doc files
 for f in $DOC_DIR/openlierox/*; do
 	if [ -f "$f" ]; then
-		gzip $f
+		gzip -9 $f
 	fi
 done
 
