@@ -7,7 +7,12 @@ Standards-Version: 3.7.2
 
 Package: openlierox
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsdl1.2debian (>= 1.2.6) | libsdl1.2 (>= 1.2.6), libsdl-mixer1.2 (>= 1.2.6), libsdl-image1.2 (>= 1.2.5), libgd2-xpm (>= 2.0.33) | libgd2-noxpm (>= 2.0.33), zlib1g (>= 1.2.3), libxml2 (>= 2.6.26)
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libsdl1.2debian (>= 1.2.6) | libsdl1.2 (>= 1.2.6),
+ libsdl-mixer1.2 (>= 1.2.6),
+ libsdl-image1.2 (>= 1.2.5),
+ libgd2-xpm (>= 2.0.33) | libgd2-noxpm (>= 2.0.33),
+ zlib1g (>= 1.2.3), libxml2 (>= 2.6.26)
 Description: A real-time excessive Worms-clone with network support
  Remake of original Liero game with network support,
  better graphics and a lot of maps and mods.
