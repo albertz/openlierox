@@ -1,0 +1,3 @@
+version=3
+opts="uversionmangle=s/_/./" \
+  http://sf.net/openlierox/ OpenLieroX_(.*)\.src\.tar\.bz2
