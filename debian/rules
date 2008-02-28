@@ -26,6 +26,7 @@ configure-stamp:
 	if [ -e CMakeCache.txt ] ; then rm CMakeCache.txt ; fi
 	echo SET\(CFLAGS \"$(CFLAGS)\" CACHE STRING \"Additional compiler flags\"\) > CMakeCache_cflags.txt
 	cmake -D HAWKNL_BUILTIN=Yes -D DEBUG=No -C CMakeCache_cflags.txt .
+	if [ \! -e bin ] ; then mkdir bin ; fi
 
 	touch configure-stamp
 
