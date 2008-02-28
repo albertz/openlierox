@@ -99,7 +99,6 @@ ENDIF(CFLAGS)
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
-EXEC_PROGRAM("mkdir bin")
 
 TARGET_LINK_LIBRARIES(openlierox SDL SDL_image pthread z xml2)
 
