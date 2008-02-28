@@ -132,6 +132,7 @@ private:
 
 	bool		bRegServer;	
 	bool		bServerRegistered;
+	float		fRegisterStart;
 	float		fLastRegister;
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;

@@ -2,7 +2,7 @@ TODO
 (remember also to look at the bugs on SF)
 
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
-[?] fix: registering is not done on all masterservers (!!)
+[X] fix: registering is not done on all masterservers (!!)
 [X] fix: aiming too fast
 
 [ ] bot: fix building path (there is one rare case where the

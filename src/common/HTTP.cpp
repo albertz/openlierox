@@ -245,7 +245,7 @@ void CHttp::RequestData(const std::string& address)
     // Ie, '/'s from host goes into url
     ParseAddress(sRemoteAddress);
 
-	std::cout << "Sending HTTP request " << address << "\n";
+	//std::cout << "Sending HTTP request " << address << "\n";
 	
 	// Open the socket
 	tSocket = OpenReliableSocket(0);
