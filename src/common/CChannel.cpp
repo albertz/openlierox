@@ -145,7 +145,8 @@ void CChannel::Transmit( CBytestream *bs )
 			fLastPingSent = GetMilliSeconds();
 		}
 
-	}
+	} else if (GetMilliSeconds() - fLastSent <= 1.0f/60.0f) // Don't flood packets
+		return;
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs) {
@@ -161,7 +162,7 @@ void CChannel::Transmit( CBytestream *bs )
 	// Update statistics
 	iOutgoingBytes += outpack.GetLength();
 	iCurrentOutgoingBytes += outpack.GetLength();
-	fLastSent = tLX->fCurTime;
+	fLastSent = GetMilliSeconds();
 
 	// Calculate the bytes per second
 	if (tLX->fCurTime - fOutgoingClearTime >= 2.0f)  {
