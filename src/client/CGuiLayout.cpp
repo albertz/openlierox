@@ -569,7 +569,7 @@ gui_event_t *CGuiLayout::Process(void)
 	}
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode.wasDown(false) )  {
+	if( cSwitchMode.isUp() )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
