@@ -129,20 +129,24 @@ CVec GameServer::FindSpot(void)
 
     // Start from the cell and go through until we get to an empty cell
 	uchar pf;
+	cMap->lockFlags();
     while(true) {
         while(true) {
             // If we're on the original starting cell, and it's not the first move we have checked all cells
             // and should leave
             if(!first) {
                 if(px == x && py == y) {
+					cMap->unlockFlags();
                     return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
                 }
             }
             first = false;
 
-            pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
-            if(!(pf & PX_ROCK))
+			pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
+            if(!(pf & PX_ROCK))  {
+				cMap->unlockFlags();
                 return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
+			}
 
             if(++x >= cols) {
                 x = 0;
@@ -155,6 +159,7 @@ CVec GameServer::FindSpot(void)
             x = 0;
         }
     }
+	cMap->unlockFlags();
 
     // Can't get here
     return CVec((float)x, (float)y);
