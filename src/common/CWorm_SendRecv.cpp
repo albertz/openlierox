@@ -113,17 +113,17 @@ void CWorm::writePacket(CBytestream *bs)
 
 	// Bit flags
 	uchar bits = 0;
-	if(tState.iCarve)
+	if(tState.bCarve)
 		bits |= 0x01;
 	if(iDirection == DIR_RIGHT)
 		bits |= 0x02;
-	if(tState.iMove)
+	if(tState.bMove)
 		bits |= 0x04;
-	if(tState.iJump)
+	if(tState.bJump)
 		bits |= 0x08;
 	if(cNinjaRope.isReleased())
 		bits |= 0x10;
-	if(tState.iShoot)
+	if(tState.bShoot)
 		bits |= 0x20;
 
 	bs->writeByte( bits );
@@ -142,7 +142,7 @@ void CWorm::writePacket(CBytestream *bs)
 		printf("has client: %i\n", getID());
 	else
 		printf("has no client: %i\n", getID());*/
-	if(tState.iShoot) {
+	if(tState.bShoot) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
@@ -169,17 +169,17 @@ void CWorm::updateCheckVariables()
 bool CWorm::checkPacketNeeded()
 {
 	// State
-	if (tState.iCarve)
+	if (tState.bCarve)
 		return true;
-	if (tState.iShoot && !tWeapons[iCurrentWeapon].Reloading)
+	if (tState.bShoot && !tWeapons[iCurrentWeapon].Reloading)
 		return true;
 
 	if (
-		(tLastState.iCarve != tState.iCarve) ||
+		(tLastState.bCarve != tState.bCarve) ||
 		(tLastState.iDirection != iDirection)  ||
-		(tLastState.iMove != tState.iMove) ||
-		(tLastState.iJump != tState.iJump) ||
-		(tLastState.iShoot != tState.iShoot))
+		(tLastState.bMove != tState.bMove) ||
+		(tLastState.bJump != tState.bJump) ||
+		(tLastState.bShoot != tState.bShoot))
 			return true;
 
 	// Changed weapon
@@ -221,17 +221,17 @@ bool CWorm::checkPacketNeeded()
 
 	// Bit flags
 	uchar bits = 0;
-	if(tState.iCarve)
+	if(tState.bCarve)
 		bits |= 0x01;
 	if(iDirection == DIR_RIGHT)
 		bits |= 0x02;
-	if(tState.iMove)
+	if(tState.bMove)
 		bits |= 0x04;
-	if(tState.iJump)
+	if(tState.bJump)
 		bits |= 0x08;
 	if(cNinjaRope.isReleased())
 		bits |= 0x10;
-	if(tState.iShoot)
+	if(tState.bShoot)
 		bits |= 0x20;
 
 	bs->writeByte( bits );
@@ -390,22 +390,22 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	iMoveDirection = iDirection = DIR_LEFT;
 		
-	tState.iCarve = (bits & 0x01);
+	tState.bCarve = (bits & 0x01) != 0;
 	if(bits & 0x02)
 		iMoveDirection = iDirection = DIR_RIGHT;
-	tState.iMove = (bits & 0x04);
-	tState.iJump = (bits & 0x08);
-	tState.iShoot = (bits & 0x20);
+	tState.bMove = (bits & 0x04) != 0;
+	tState.bJump = (bits & 0x08) != 0;
+	tState.bShoot = (bits & 0x20) != 0;
 
 	// Ninja rope
-	int rope = (bits & 0x10);
+	bool rope = (bits & 0x10) != 0;
 	if(rope)
-		cNinjaRope.read(bs,worms,iID);
+		cNinjaRope.read(bs, worms, iID);
 	else
 		cNinjaRope.Release();
 
 	// Velocity
-	if(tState.iShoot) {
+	if(tState.bShoot) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
@@ -414,7 +414,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// If the worm is inside dirt then it is probably carving
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
-			tState.iCarve = true;
+			tState.bCarve = true;
 
 
 	// Prevent a wall hack
@@ -485,15 +485,15 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	
 	iMoveDirection = iDirection = tState.iDirection = DIR_LEFT;
 
-	tState.iCarve = (bits & 0x01);
+	tState.bCarve = (bits & 0x01);
 	if(bits & 0x02)
 		iMoveDirection = iDirection = tState.iDirection = DIR_RIGHT;
-	tState.iMove = (bits & 0x04);
-	tState.iJump = (bits & 0x08);
-	tState.iShoot = (bits & 0x20);
+	tState.bMove = (bits & 0x04) != 0;
+	tState.bJump = (bits & 0x08) != 0;
+	tState.bShoot = (bits & 0x20) != 0;
 	
 	// Ninja rope
-	int rope = (bits & 0x10);
+	bool rope = (bits & 0x10) != 0;
 	if(rope)
 		cNinjaRope.read(bs,worms,iID);
 	else
@@ -510,7 +510,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	net_updatePos( CVec(x, y) );
 
 	// Velocity
-	if(tState.iShoot) {
+	if(tState.bShoot) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec( (float)vx, (float)vy );
@@ -519,7 +519,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 	
 	// do carving also here as the simulation is only done in next frame and with an updated position
-	if(tState.iCarve) {
+	if(tState.bCarve) {
 		// carve the whole way from old pos to new pos
 		{
 			CVec dir = vPos - oldPos;
@@ -651,7 +651,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 
 
 		
-	tWeapons[cur].Reloading = charge & 0x80;
+	tWeapons[cur].Reloading = (charge & 0x80) != 0;
 	
 	charge &= ~(0x80);
 

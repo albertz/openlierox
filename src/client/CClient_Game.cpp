@@ -159,7 +159,7 @@ void CClient::Simulation(void)
 		if(w->getAlive()) {
 
 			// Shoot
-			if(w->getWormState()->iShoot) {
+			if(w->getWormState()->bShoot) {
 				// This handles only client-side weapons, like jetpack and for beam drawing
 				// It doesn't process the shot itself.
 				// The shot-info will be sent to the server which sends it back and

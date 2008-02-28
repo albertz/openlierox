@@ -38,7 +38,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fRotation = (float)_rot;
 	iOwner = _owner;
 	bUsed = true;
-	iSpawnPrjTrl = false;
+	bSpawnPrjTrl = false;
 	fLastTrailProj = -99999;
 	iRandom = _random;
     iFrameX = 0;
@@ -46,12 +46,10 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;
 	
-	// TODO: is this comment up-to-date??
-	// this produce a memory leak
 	fSpeed = _vel.GetLength();
 
 	fFrame = 0;
-	iFrameDelta = true;
+	bFrameDelta = true;
 
 	firstbounce = true;
 
@@ -65,8 +63,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	}
 
     // Events
-    nExplode = false;
-    nTouched = false;
+    bExplode = false;
+    bTouched = false;
 }
 
 

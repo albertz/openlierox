@@ -44,7 +44,8 @@ class worm_state_t {
 public:
 	worm_state_t() {
 		iFlags = iX = iY = iAngle = iHookType = iHookX = iHookY = 0;
-		iShoot = iCarve = iDirection = iMove = iJump = iWeapon = 0;	
+		bShoot = bCarve = bMove = bJump = false;
+		iDirection = iWeapon = 0;	
 	}
 	
 	int		iFlags;
@@ -55,14 +56,13 @@ public:
 	int		iHookType;
 	int		iHookX, iHookY;
 
-	// TODO: put this together into a struct with the correct sizes or use boolean
 	// Command byte
-	int		iShoot;			// 1 bit   |
-	int		iCarve;			// 1 bit   |
-	int		iDirection;		// 1 bit   | == 1 byte
-	int		iMove;			// 1 bit   |
-	int		iJump;			// 1 bit   |
-	int		iWeapon;		// 3 bits  |
+	bool	bShoot;
+	bool	bCarve;
+	int		iDirection;
+	bool	bMove;
+	bool	bJump;
+	int		iWeapon;
 };
 
 

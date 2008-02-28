@@ -53,10 +53,10 @@ void CWorm::getInput()
 	worm_state_t *ws = &tState;
 
 	// Init the ws
-	ws->iCarve = false;
-	ws->iMove = false;
-	ws->iShoot = false;
-	ws->iJump = false;
+	ws->bCarve = false;
+	ws->bMove = false;
+	ws->bShoot = false;
+	ws->bJump = false;
 
 	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL);
 
@@ -140,11 +140,11 @@ void CWorm::getInput()
 				iMoveDirection = DIR_LEFT;
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
 			}
-			ws->iMove = true;
+			ws->bMove = true;
 			if(!cStrafe.isDown()) iDirection = iMoveDirection;
 		
 		} else {
-			ws->iMove = false;
+			ws->bMove = false;
 		}
 					
 	}
@@ -152,15 +152,15 @@ void CWorm::getInput()
 	
 	if(mouseControl) { // set shooting, ninja and jumping, weapon selection for mousecontrol
 		// like Jason did it
-		ws->iShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
-		ws->iJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
-		if(ws->iJump) {
+		ws->bShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
+		ws->bJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
+		if(ws->bJump) {
 			if(cNinjaRope.isReleased())
 				cNinjaRope.Release();
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
-			cNinjaRope.Shoot(vPos,dir);
+			cNinjaRope.Shoot(vPos, dir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 	
@@ -206,24 +206,24 @@ void CWorm::getInput()
 		const float movetimed_min = 0.08f;
 		const float movetimed_max = CLAMP(dt * 10.0f, 0.2f, 1.0f);
 		
-		if((mouseControl && ws->iMove && iMoveDirection == DIR_LEFT)
+		if((mouseControl && ws->bMove && iMoveDirection == DIR_LEFT)
 		|| (cLeft.isJoystick() && cLeft.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
-				ws->iCarve = true;
-				ws->iMove = true;
+				ws->bCarve = true;
+				ws->bMove = true;
 				iCarving |= 2; // carve left
 			}
 		}
 	
-		if((mouseControl && ws->iMove && iMoveDirection == DIR_RIGHT)
+		if((mouseControl && ws->bMove && iMoveDirection == DIR_RIGHT)
 		|| (cRight.isJoystick() && cRight.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
-				ws->iCarve = true;
-				ws->iMove = true;
+				ws->bCarve = true;
+				ws->bMove = true;
 				iCarving |= 1; // carve right
 			}
 		}
@@ -299,12 +299,12 @@ void CWorm::getInput()
 
 
 	if(cShoot.isDown())  {
-		ws->iShoot = true;
+		ws->bShoot = true;
 	}
 	
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {
-			ws->iMove = true;
+			ws->bMove = true;
 			
 			if(!cRight.isDown()) {
 				if(!cStrafe.isDown()) iDirection = DIR_LEFT;
@@ -312,13 +312,13 @@ void CWorm::getInput()
 			}
 			
 			if(rightOnce) {
-				ws->iCarve = true;
+				ws->bCarve = true;
 				iCarving |= 2; // carve left
 			}
 		}
 		
 		if(cRight.isDown()) {
-			ws->iMove = true;
+			ws->bMove = true;
 			
 			if(!cLeft.isDown()) {
 				if(!cStrafe.isDown()) iDirection = DIR_RIGHT;
@@ -326,7 +326,7 @@ void CWorm::getInput()
 			}
 			
 			if(leftOnce) {
-				ws->iCarve = true;
+				ws->bCarve = true;
 				iCarving |= 1; // carve right
 			}
 		}	
@@ -340,7 +340,7 @@ void CWorm::getInput()
 	// Jump
 	if(jumpdownonce) {
 		if( !(oldskool && cSelWeapon.isDown()) )  {
-			ws->iJump = true;
+			ws->bJump = true;
 
 			if(cNinjaRope.isReleased())
 				cNinjaRope.Release();
@@ -408,10 +408,10 @@ void CWorm::clearInput(void)
 	fLastInputTime = tLX->fCurTime;
 
 	// Clear the state
-	tState.iCarve = false;
-	tState.iMove  = false;
-	tState.iShoot = false;
-	tState.iJump  = false;
+	tState.bCarve = false;
+	tState.bMove  = false;
+	tState.bShoot = false;
+	tState.bJump  = false;
 	
 	// clear inputs
 	cUp.reset();
@@ -432,10 +432,10 @@ void CWorm::clearState(void)
 	fLastInputTime = tLX->fCurTime;
 
 	// Clear the state
-	tState.iCarve = false;
-	tState.iMove  = false;
-	tState.iShoot = false;
-	tState.iJump  = false;	
+	tState.bCarve = false;
+	tState.bMove  = false;
+	tState.bShoot = false;
+	tState.bJump  = false;	
 }
 
 
@@ -463,10 +463,10 @@ void CWorm::getMouseInput(void)
 	worm_state_t *ws = &tState;
 
 	// Init the ws
-	ws->iCarve = false;
-	ws->iMove = false;
-	ws->iShoot = false;
-	ws->iJump = false;
+	ws->bCarve = false;
+	ws->bMove = false;
+	ws->bShoot = false;
+	ws->bJump = false;
 
 
 	// Get mouse delta's
@@ -529,9 +529,9 @@ void CWorm::getMouseInput(void)
 	}
 
 
-	ws->iShoot = false;
+	ws->bShoot = false;
 	if(Shoot)
-		ws->iShoot = true;
+		ws->bShoot = true;
 
 
 
@@ -540,7 +540,7 @@ void CWorm::getMouseInput(void)
 
 		// Check if we dig a small hole
 		if(Left && iDirection == DIR_RIGHT) {
-			ws->iCarve = true;
+			ws->bCarve = true;
 
 			//cClient->SendCarve(vPos + dir*4);
 			//map->CarveHole(3,Pos + dir*4);
@@ -549,7 +549,7 @@ void CWorm::getMouseInput(void)
 
 		if(!Left || iDirection == DIR_RIGHT) {
 			iDirection = DIR_RIGHT;
-			ws->iMove = true;
+			ws->bMove = true;
 
 			//if(vVelocity.x<75)
 			//	vVelocity = vVelocity + CVec(speed,0);
@@ -563,7 +563,7 @@ void CWorm::getMouseInput(void)
 
 		// Check if we dig a small hole
 		if(Right && iDirection == DIR_LEFT) {
-			ws->iCarve = true;
+			ws->bCarve = true;
 
 			//cClient->SendCarve(vPos + dir*4);
 			//map->CarveHole(3,Pos + dir*4);
@@ -571,7 +571,7 @@ void CWorm::getMouseInput(void)
 		}
 
 		iDirection = DIR_LEFT;
-		ws->iMove = true;
+		ws->bMove = true;
 
 		//if(vVelocity.x>-75)
 		//	vVelocity = vVelocity + CVec(-speed,0);
@@ -586,7 +586,7 @@ void CWorm::getMouseInput(void)
 		dir.x=(-dir.x);
 
 	if(Jump) {
-		ws->iJump = true;
+		ws->bJump = true;
 		cNinjaRope.Release();
 	}
 

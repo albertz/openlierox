@@ -232,7 +232,7 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
 		w->readPacket(bs, cWorms);
 
 		// If the worm is shooting, handle it
-		if (w->getWormState()->iShoot && w->getAlive() && iState == SVS_PLAYING)
+		if (w->getWormState()->bShoot && w->getAlive() && iState == SVS_PLAYING)
 			WormShoot(w); // add to shootlist to send it later to the clients
 	}
 }

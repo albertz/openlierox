@@ -310,7 +310,7 @@ public:
 
 
 		// Process the carving
-		if(ws->iCarve) {
+		if(ws->bCarve) {
 			// Calculate dir
 			CVec dir;
 			dir.x=( (float)cos(worm->getAngle() * (PI/180)) );
@@ -322,10 +322,10 @@ public:
 			//cClient->SendCarve(vPos + dir*4);
 		}
 
-		if(ws->iMove)
+		if(ws->bMove)
 			worm->frame() += fFrameRate * dt;
 
-		if(worm->frame() >= 3.0f || !ws->iMove)
+		if(worm->frame() >= 3.0f || !ws->bMove)
 			worm->frame() = (0);
 
 		speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
@@ -338,7 +338,7 @@ public:
 		}
 
 		// Process the moving
-		if(ws->iMove) {
+		if(ws->bMove) {
 			if(worm->getMoveDirection() == DIR_RIGHT) {
 				// Right
 				if(worm->getVelocity()->x < 30)
@@ -352,7 +352,7 @@ public:
 
 
 		// Process the jump
-		if(ws->iJump && worm->CheckOnGround()) {
+		if(ws->bJump && worm->CheckOnGround()) {
 			worm->getVelocity()->y = wd->JumpForce;
 			worm->setOnGround( false );
 		}
@@ -374,7 +374,7 @@ public:
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
-		moveAndCheckWormCollision( dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->iJump );
+		moveAndCheckWormCollision( dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->bJump );
 
 
 		// Ultimate in friction
@@ -384,7 +384,7 @@ public:
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
 			// Too slow, just stop
-			if(fabs(worm->getVelocity()->x) < 5 && !ws->iMove)
+			if(fabs(worm->getVelocity()->x) < 5 && !ws->bMove)
 				worm->getVelocity()->x = 0;
 		}
 
@@ -500,14 +500,12 @@ public:
 						proj->frame() = 0;
 						break;
 					case ANI_PINGPONG:
-						// TODO: why is an integer negated here?
 						proj->setFrameDelta( ! proj->getFrameDelta() );
 						proj->frame() = (float)NumFrames - 1;
 					}
 				}
 				if(proj->frame() < 0) {
 					if(proj->getProjInfo()->AnimType == ANI_PINGPONG) {
-						// TODO: why is an integer negated here?
 						proj->setFrameDelta( ! proj->getFrameDelta() );
 						proj->frame() = 0.0f;
 					}
@@ -546,7 +544,6 @@ public:
 				proj->lastTrailProj() = fCurTime + proj->getProjInfo()->PrjTrl_Delay;
 				
 				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
-				// TODO: why is boolean used for an integer here?
 				proj->setSpawnPrjTrl( true );
 			}
 		}
@@ -568,7 +565,7 @@ public:
 		CVec sprd;
 		bool explode = false;
 		bool timer = false;
-		bool shake = 0;
+		int shake = 0;
 		bool dirt = false;
 		bool grndirt = false;
 		int damage = 0;
@@ -927,7 +924,7 @@ public:
 
 		float length2;
 		// TODO: why is int used as a boolean here?
-		int firsthit = !rope->isAttached();
+		bool firsthit = !rope->isAttached();
 		CVec force;
 
 		if(rope->isShooting())

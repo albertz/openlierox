@@ -143,11 +143,11 @@ public:
 		fLife = 0;
 		tProjInfo = NULL;
 		fLastTrailProj = 0;
-		iSpawnPrjTrl = false;
+		bSpawnPrjTrl = false;
 		iColour = 0;
 		iRandom = 0;
-        nExplode = false;
-        nTouched = false;
+        bExplode = false;
+        bTouched = false;
         fRotation = 0;
 	}
 
@@ -166,7 +166,7 @@ private:
 
 	// Projectile trail
 	float		fLastTrailProj;
-	int			iSpawnPrjTrl;
+	bool		bSpawnPrjTrl;
     float       fTimeVarRandom;
 
 	proj_t		*tProjInfo;
@@ -182,7 +182,7 @@ private:
 
 
 	// Animation
-	int			iFrameDelta;
+	bool		bFrameDelta;
 	float		fFrame;
     int         iFrameX;
 
@@ -191,12 +191,12 @@ private:
 	int			iWidth;
 
     // Queued events
-    int         nExplode;
-    float       fExplodeTime;
-    int         nTouched;
+    bool		bExplode;
+    float		fExplodeTime;
+    bool		bTouched;
 
 	// Debug info
-	int			firstbounce;
+	bool		firstbounce;
 
 
 
@@ -224,18 +224,18 @@ public:
 	float&	life()					{ return fLife; }
 	
 	float&	extra()					{ return fExtra; }
-	int&	explode()				{ return nExplode; }
+	bool&	explode()				{ return bExplode; }
 	float&	explodeTime()			{ return fExplodeTime; }
-	int&	touched()				{ return nTouched; }
+	bool&	touched()				{ return bTouched; }
 	proj_t* getProjInfo()			{ return tProjInfo; }
 	float&	rotation()				{ return fRotation; }
-	void	setFrameDelta(int d)	{ iFrameDelta = d; }
-	int		getFrameDelta()			{ return iFrameDelta; }
+	void	setFrameDelta(bool d)	{ bFrameDelta = d; }
+	bool	getFrameDelta()			{ return bFrameDelta; }
 	float&	frame()					{ return fFrame; }
 	float&	lastTrailProj()			{ return fLastTrailProj; }
 	
-	int		getSpawnPrjTrl(void)	{ return iSpawnPrjTrl; }
-	void	setSpawnPrjTrl(int p)	{ iSpawnPrjTrl = p; }
+	bool	getSpawnPrjTrl(void)	{ return bSpawnPrjTrl; }
+	void	setSpawnPrjTrl(bool p)	{ bSpawnPrjTrl = p; }
 
 	CVec	GetPosition(void)		{ return vPosition; }
 	CVec	GetVelocity(void)		{ return vVelocity; }
@@ -250,8 +250,8 @@ public:
     void    setID(int id)           { iID = id; }
     int     getID(void)             { return iID; }
 
-    void    setExplode(float t, int _e)     { fExplodeTime = t; nExplode = _e; }
-    void    setTouched(int _t)      { nTouched = _t; }
+    void    setExplode(float t, bool _e)     { fExplodeTime = t; bExplode = _e; }
+    void    setTouched(bool _t)      { bTouched = _t; }
 
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }

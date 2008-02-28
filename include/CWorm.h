@@ -63,7 +63,7 @@ struct wpnslot_t {
 	const weapon_t	*Weapon;
 	int			SlotNum;
 	float		Charge;
-	int			Reloading;
+	bool		Reloading;
 	float		LastFire;
 	bool		Enabled;
 };
@@ -668,8 +668,8 @@ public:
 
 	void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
-	bool		isShooting()				{ return tState.iShoot != 0; }
-	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading != 0; }
+	bool		isShooting()				{ return tState.bShoot; }
+	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
 
 	bool		getVIP(void)				{ return bNoShooting; }
 	void		setVIP(bool _s)				{ bNoShooting = _s; }
