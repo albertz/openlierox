@@ -316,7 +316,7 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	// Worm id
 	if(type == ROP_PLYHOOKED) {
 		int id = bs->readByte();
-		if(id >= 0 && id<MAX_WORMS-1) {
+		if(id >= 0 && id < MAX_WORMS) {
 			Worm = &worms[id];
 			Worm->setHooked(true, &worms[owner]);
 

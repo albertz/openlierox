@@ -206,7 +206,7 @@ bool CClient::InitializeDrawing(void)
 
 	// Setup the loading boxes
 	int NumBars = tGameInfo.iGameType == GME_LOCAL ? 4 : 2;
-	for (byte i=0; i<NumBars; i++)  
+	for (byte i=0; i<NumBars; i++)
 		if (!InitializeBar(i))
 			return false;
 
@@ -248,8 +248,8 @@ bool CClient::InitializeBar(byte number)  {
 
 	// Fill in the details according to the index given
 	switch (number)  {
-	case 0: 
-		key = "FirstHealthBar"; 
+	case 0:
+		key = "FirstHealthBar";
 		fname += "healthbar1.png";
 		bar = &cHealthBar1;
 		foreCl = MakeColour(64, 255, 64);
@@ -263,7 +263,7 @@ bool CClient::InitializeBar(byte number)  {
 
 		break;
 
-	case 1: 
+	case 1:
 		key = "FirstWeaponBar";
 		fname += "weaponbar1.png";
 		bar = &cWeaponBar1;
@@ -278,8 +278,8 @@ bool CClient::InitializeBar(byte number)  {
 
 		break;
 
-	case 2: 
-		key = "SecondHealthBar"; 
+	case 2:
+		key = "SecondHealthBar";
 		fname += "healthbar2.png";
 		bar = &cHealthBar2;
 		foreCl = MakeColour(64, 255, 64);
@@ -294,7 +294,7 @@ bool CClient::InitializeBar(byte number)  {
 
 		break;
 
-	case 3: 
+	case 3:
 		key = "SecondWeaponBar";
 		fname += "weaponbar2.png";
 		bar = &cWeaponBar2;
@@ -397,7 +397,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 			Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);
 		}
-		
+
 		GotoNetMenu();
 		return;
 	}
@@ -440,7 +440,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				}
 			}
 		}
-	
+
 		// if 2 viewports, draw special
 		if(cViewports[1].getUsed())
 			DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
@@ -497,13 +497,13 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				if (bForceWeaponsReady)  {
 					cLocalWorms[i]->setWeaponsReady(true);
 				}
-				
+
 				if(cLocalWorms[i]->getWeaponsReady()) {
 					cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
 					if(bDownloadingMap)
 						cout << "but we still have to wait for the download process" << endl;
 				}
-				
+
 				ready = ready && cLocalWorms[i]->getWeaponsReady();
 			}
 		}
@@ -512,7 +512,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if(ready && !bReadySent && !bDownloadingMap) {
 			cout << "Client: we are ready, waiting now for start game signal" << endl;
 			bReadySent = true;
-			
+
 			// TODO: move this out here
 			CBytestream bs;
 			bs.writeByte(C2S_IMREADY);
@@ -555,7 +555,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if(tLXOptions->bShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
 
 			// Draw the box around it
-			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
+			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
 
 			tLX->cFont.Draw( // Draw the text
 						bmpDest,
@@ -622,7 +622,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	#endif*/
 
 		// Game over
-		// TODO: remove this static here; it is a back hack and doesn't work in all cases
+		// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 		static bool was_gameovermenu = false;
 		if(bGameOver) {
 			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
@@ -809,7 +809,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		TeamY = &tInterfaceSettings.Team1Y;
 		TeamW = &tInterfaceSettings.Team1W;
 
-		SpecMsgX = &tInterfaceSettings.SpecMsg1X;	
+		SpecMsgX = &tInterfaceSettings.SpecMsg1X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg1Y;
 		SpecMsgW = &tInterfaceSettings.SpecMsg1W;
 
@@ -831,9 +831,9 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		TeamY = &tInterfaceSettings.Team2Y;
 		TeamW = &tInterfaceSettings.Team2W;
 
-		SpecMsgX = &tInterfaceSettings.SpecMsg2X;	
+		SpecMsgX = &tInterfaceSettings.SpecMsg2X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg2Y;
-		SpecMsgW = &tInterfaceSettings.SpecMsg2W;		
+		SpecMsgW = &tInterfaceSettings.SpecMsg2W;
 
 		HealthBar = cHealthBar2;
 		WeaponBar = cWeaponBar2;
@@ -861,7 +861,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 			stripdot(weapon_name, 100);
 			weapon_name += ":";
 			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
-		
+
 			if (WeaponBar)  {
 				if(Slot->Reloading)  {
 					WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
@@ -869,7 +869,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 					WeaponBar->SetCurrentBgState(1);
 				} else {
 					WeaponBar->SetForeColor(MakeColour(64,64,255));
-					WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
+					WeaponBar->SetCurrentForeState(0);  // "Shooting" state
 					WeaponBar->SetCurrentBgState(0);
 				}
 				WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
@@ -892,7 +892,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	lives_str = "Lives: ";
 	switch (worm->getLives())  {
 	case WRM_OUT:
-		lives_str += "Out";	
+		lives_str += "Out";
 		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
 		break;
 	case WRM_UNLIM:
@@ -946,8 +946,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 				int box_h = bmpBoxLeft ? bmpBoxLeft->h : tLX->cFont.GetHeight();
 				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
 				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
-				DrawImage( bmpDest, gfxGame.bmpTeamColours[worm->getTeam()], 
-						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2, 
+				DrawImage( bmpDest, gfxGame.bmpTeamColours[worm->getTeam()],
+						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2,
 						   *TeamY + MAX(1, box_h/2 - gfxGame.bmpTeamColours[worm->getTeam()]->h/2));
 			}
 		}
@@ -1004,7 +1004,7 @@ void CClient::SimulateHud(void)
 {
     if(bDedicated || !bGameReady)
         return;
-	
+
 	float dt = tLX->fDeltaTime;
 	float ScrollSpeed=5;
     bool  con = Con_IsUsed();
@@ -1055,9 +1055,9 @@ inline void AddColumns(CListview *lv)
 	lv->AddColumn("", 30); // Lives
 	if (tGameInfo.iGameMode == GMT_DEMOLITION)
 		lv->AddColumn("", 40); // Dirt count
-	else  
+	else
 		lv->AddColumn("", 30);  // Kills
-	if (tGameInfo.iGameType == GME_HOST) 
+	if (tGameInfo.iGameType == GME_HOST)
 		lv->AddColumn("", 35);  // Ping
 }
 
@@ -1224,7 +1224,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 				default:
 					QuittoMenu();
 				}
-					
+
 			}
 			break;
 
@@ -1258,7 +1258,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 ///////////////////
 // Update the player list in game menu
-void CClient::UpdateScore(CListview *Left, CListview *Right)	
+void CClient::UpdateScore(CListview *Left, CListview *Right)
 {
 	// No need to update
 	if (!bUpdateScore)
@@ -1311,7 +1311,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 				break;
 			}
 
-			// Kills 
+			// Kills
 			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 			// Ping
@@ -1532,7 +1532,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 				break;
 			}
 
-			// Kills 
+			// Kills
 			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 			// Ping
@@ -1609,7 +1609,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
 					break;
 				}
-				
+
 				// Kills
 				lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
@@ -1702,7 +1702,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 		}
 	}
 	break; // VIP
-	} // switch	
+	} // switch
 }
 
 ///////////////////
@@ -1754,7 +1754,7 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 	// Draw the lines of text
 	while(it != cChatbox.RBegin()) {
 		it--;
-		
+
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {
 			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, it->strLine); // Shadow
@@ -1787,7 +1787,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	}
 
     // If there are too many lines, remove the top one
-	if (lv->getItems())  
+	if (lv->getItems())
 		while(lv->getItemCount() > 256) {
 			lv->RemoveItem(lv->getItems()->iIndex);
 			lv->scrollLast();
@@ -1800,7 +1800,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
 
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged)  {	// Repainting when new messages/scrolling, 
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged)  {	// Repainting when new messages/scrolling,
 																				// or when user is moving the mouse over the chat
 
 		// Local and net play use different backgrounds
@@ -2036,8 +2036,8 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 						cViewports[0].setTarget(trg_v1);
 
 				CWorm *trg_v2 = &cRemoteWorms[v2_target];
-				if (trg_v2) 
-					if (trg_v2->isUsed() && trg_v2->getAlive()) 
+				if (trg_v2)
+					if (trg_v2->isUsed() && trg_v2->getAlive())
 						cViewports[1].setTarget(trg_v2);
 
                 // Shutdown & leave
@@ -2079,7 +2079,7 @@ void CClient::ProcessSpectatorViewportKeys()
 	// Don't process when typing a message
 	if (bChat_Typing)
 		return;
-	
+
 	bool v2_on = cViewports[1].getUsed();
 	int v1_type = cViewports[0].getType();
 	int v2_type = cViewports[1].getType();
@@ -2087,7 +2087,7 @@ void CClient::ProcessSpectatorViewportKeys()
 	CWorm * v2_targetPtr = cViewports[1].getTarget();
 	int v1_target = -1, v2_target = -1, v1_prev = -1, v2_prev = -1, v1_next = -1, v2_next = -1;
 
-    for(int i=0; i<MAX_WORMS; i++ ) 
+    for(int i=0; i<MAX_WORMS; i++ )
 	{
         if( ! cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT )
 			continue;
@@ -2142,7 +2142,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			Changed = true;
 		}
 	}
-	
+
 	int iMsgType = -1, iViewportNum = -1;
 	if( cSpectatorViewportKeys.V2Toggle.isDownOnce() )
 	{
@@ -2190,7 +2190,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			sSpectatorViewportMsg += "Action Cam";
 		fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	}
-	
+
 	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->fCurTime )
 		sSpectatorViewportMsg = "";
 
@@ -2342,7 +2342,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, std::l
 	SDL_SetClipRect(bmpDest, &newclip);
 
 	DrawRectFillA(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground, 128);
-	
+
 	int cur_y = y + 5;
 	for (int i=0; i < num && (it != last); i++, it++)  {
 		CWorm *wrm = *it;
@@ -2424,13 +2424,13 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 	// Background
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
 				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg->w, bmpIngameScoreBg->h);
-	
+
 	if (bUpdateScore)
 		UpdateIngameScore(((CListview *)cScoreLayout.getWidget(sb_Left)), ((CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 
 	// Hide the second list if there are no players
 	cScoreLayout.getWidget(sb_Right)->setEnabled(iNumWorms > 16);
-	
+
 	// Draw it!
 	cScoreLayout.Draw(bmpDest);
 }

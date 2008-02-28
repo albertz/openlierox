@@ -45,7 +45,7 @@ void CClient::SendWormDetails(void)
 	for(i=0;i<iNumWorms;i++) {
 		if(cLocalWorms[i]->getAlive()) {
 			Alive = true;
-			break;		
+			break;
 		}
 	}
 
@@ -69,7 +69,7 @@ void CClient::SendWormDetails(void)
 
 	// Write the update
 	bs.writeByte(C2S_UPDATE);
-	
+
 	w = cLocalWorms[0];
 	for(i = 0; i < iNumWorms; i++, w++)
 		w->writePacket(&bs);
@@ -96,10 +96,12 @@ void CClient::SendDeath(int victim, int killer)
 // Send a string of text
 void CClient::SendText(const std::string& sText, std::string sWormName)
 {
-	bool chat_command = sText[0] == '/' && sText[1] != '/';
+	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
 	std::string message;
 	std::string command;  // this should be repeated before every chunk
 	bool cannot_split = false;
+
+	// TODO: why is this function so complicated?
 
 	if (chat_command)  {
 		// Don't allow sending commands to servers that don't support it
@@ -186,7 +188,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 	int name_w = tLX->cFont.GetWidth(sWormName + ": ");
 	int repeat_length = command.size() ? (command.size() + sWormName.size()) : 0;  // length of repeated string
 	const std::vector<std::string>& split = splitstring(message, 63 - repeat_length,
-		iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) : 
+		iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) :
 		300 - (command.size() ? name_w : 0), tLX->cFont);
 
 	// Check
