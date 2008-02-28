@@ -634,6 +634,22 @@ void Menu_Net_HostLobbyCreateGui(void)
 		player_list->AddColumn("", -1); // Ping
 	}
 
+	// Add the chat
+	if (lv)  {
+		CChatBox *Chatbox = cClient->getChatbox();
+		lines_iterator it = Chatbox->Begin();
+
+		// Copy the chat text
+		for (int id = 0; it != Chatbox->End(); it++, id++)  {
+			lv->AddItem("", id, it->iColour);
+			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+			id++;
+		}
+
+		lv->scrollLast();
+		lv->setShowSelect(false);
+	}
+
 	iSpeaking = 0; // The first player always speaks
 	fStartDedicatedSecondsPassed = tLX->fCurTime;	// Reset timers
 }

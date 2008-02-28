@@ -805,8 +805,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	//
 	// Draw the ninja rope
 	//		
-	if(cNinjaRope.isReleased())
-		cNinjaRope.Draw(bmpDest,v,vDrawPos);
+	cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 
 	int x,y,f,ang;
