@@ -500,13 +500,18 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		iCurrentWeapon = 0;
 	}
 
-	// Update the position (estimation, sets also velocity)
+	const Version& versionOfSender = getClient()->getServerVersion();
+	bool gotVelocity = tState.bShoot || versionOfSender >= GetOLXBetaVersion(5);
+
+	// Update the position
 	CVec oldPos = vPos;
-	net_updatePos( CVec(x, y) );
+	if(!gotVelocity)
+		net_updatePos( CVec(x, y) ); // estimation, sets also velocity
+	else
+		vPos = CVec(x, y);
 
 	// Velocity
-	const Version& versionOfSender = getClient()->getServerVersion();
-	if(tState.bShoot || versionOfSender >= GetOLXBetaVersion(5)) {
+	if(gotVelocity) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec( (float)vx, (float)vy );
