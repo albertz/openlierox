@@ -454,6 +454,21 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 		}
 
+		// DEBUG: draw the AI paths
+#ifdef _AI_DEBUG
+		if (iNetStatus == NET_PLAYING)  {
+			static float last = tLX->fCurTime;
+			if (tLX->fCurTime - last >= 0.5f)  {
+				cMap->ClearDebugImage();
+				for (int i = 0; i < iNumWorms; i++)  {
+					if (cLocalWorms[i]->getType() == PRF_COMPUTER)
+						cLocalWorms[i]->NEW_AI_DrawPath();
+				}
+				last = tLX->fCurTime;
+			}
+		}
+#endif
+
 		// Draw the viewports
 		// HINT: before we get packet with map info and load the map, cMap is undefined
 		// bGameReady says if the game (including cMap) has been initialized

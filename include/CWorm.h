@@ -336,6 +336,7 @@ private:
 	float		fLastCreated;
 	float		fLastCompleting;
 	float		fLastRandomChange;
+	float		fLastGoBack;
 
 	float		fCanShootTime;
 
@@ -513,6 +514,7 @@ public:
 	void		NEW_AI_Carve();
 	bool		NEW_AI_Jump();
 	CVec		NEW_AI_FindShootingSpot();
+	int			NEW_AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap);
 #ifdef _AI_DEBUG
 	void		NEW_AI_DrawPath();
 #endif

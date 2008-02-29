@@ -152,6 +152,7 @@ void CWorm::Clear(void)
 	lastMoveTime = 0;
 
 	fLastSimulationTime = tLX->fCurTime;
+	fLastGoBack = -9999;
 }
 
 
@@ -254,6 +255,7 @@ void CWorm::Spawn(CVec position) {
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
 	fLastShoot = 0;
+	fLastGoBack = -9999;
 
 	iCarving = 0;
 	fFrame = 0;
@@ -294,6 +296,7 @@ void CWorm::Respawn(CVec position) {
 	bHooked = false;
     bForceWeapon_Name = false;
 	vPreLastEstimatedVel =vLastEstimatedVel = vVelocity = CVec(0,0);
+	fLastGoBack = -9999;
 
 	bOnGround = false;
 
