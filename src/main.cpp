@@ -141,7 +141,7 @@ void test_Unicode_UTF8_Conversion() {
 // Main entry point
 int main(int argc, char *argv[])
 {
-	printf(GetFullGameName() + " is starting ...\n");
+	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
