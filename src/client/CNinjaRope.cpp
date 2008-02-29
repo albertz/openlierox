@@ -205,8 +205,7 @@ bool CNinjaRope::writeNeeded()
 			(LastPlayerAttached != PlayerAttached) ||
 			(LastWorm != Worm))
 				return true;
-	CVec vel = HookPos - OldHookPos;
-	vel = vel / (tLX->fCurTime - LastPosUpdate);
+	CVec vel = (HookPos - OldHookPos) / (tLX->fCurTime - LastPosUpdate);
 	LastPosUpdate = tLX->fCurTime;
 	if (vel.GetLength2())
 		return (tLX->fCurTime - LastWrite >= 3.0f/vel.GetLength()) && Released;

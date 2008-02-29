@@ -1,6 +1,6 @@
 /*
 	OpenLieroX
-	
+
 	the LX56 physics
 
 	code under LGPL
@@ -32,12 +32,12 @@ public:
 // ---------
 	PhysicsLX56() : map(NULL) {}
 	virtual ~PhysicsLX56() {}
-	
+
 	virtual std::string name() { return "LX56 physics"; }
 
 	virtual void initGame( CMap* m ) { map = m; }
 	virtual void uninitGame() { map = NULL; }
-	
+
 // -----------------------------
 // ------ worm -----------------
 
@@ -49,11 +49,11 @@ public:
 		// Can happen when starting a game
 		if (!map)
 			return false;
-		
+
 		// check if the vel is really too high (or infinity), in this case just ignore
 		if( (*vel*dt).GetLength2() > (float)map->GetWidth() * (float)map->GetHeight() )
 			return true;
-		
+
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 		// TODO: is this still needed? we call this function with a fixed dt
 		// though perhaps it is as with higher speed the way we have to check is longer
@@ -119,7 +119,7 @@ public:
 
 				if(!(map->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
 					coll = true;
-					
+
 					if(x<0) {
 						clip |= 0x01;
 						worm->pos().x=( pos.x+x+4 );
@@ -227,7 +227,7 @@ public:
 	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, bool local) {
 		const static float dt = 0.01f;
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
-		
+
 		// TODO: Later, we should have a message bus for input-events which is filled
 		// by goleft/goright/stopleft/stopright/shoot/etc signals. These signals are handled in here.
 		// Though the key/mouse event handling (what CWorm::getInput() is doing atm)
@@ -241,9 +241,9 @@ public:
 		// to solve it would be to send wormstate-updates more often if needed
 		// with some checks here. (In the end, also the clean way would result in more
 		// worm updates.)
-		
+
 		// get input max once a frame (and not at all if we don't simulate this frame)
-		
+
 			/*
 				Only get input for this worm on certain conditions:
 				1) This worm is a local worm (ie, owned by me)
@@ -251,7 +251,7 @@ public:
 				3) We're not typing a message
 				4) weapons selected
 			*/
-		
+
 		if(client && local && !client->isGameMenu() && !client->isChatTyping() && !client->isGameOver() && !Con_IsUsed() && worm->getWeaponsReady()) {
 			int old_weapon = worm->getCurrentWeapon();
 
@@ -273,13 +273,13 @@ public:
 
 		const gs_worm_t *wd = worm->getGameScript()->getWorm();
 		worm_state_t *ws = worm->getWormState();
-		
-		
+
+
 	simulateWormStart:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		worm->fLastSimulationTime += dt;
-	
-		
+
+
 		float speed;
 		float	fFrameRate = 7.5f;
 
@@ -317,7 +317,7 @@ public:
 			dir.y=( (float)sin(worm->getAngle() * (PI/180)) );
 			if(worm->getMoveDirection()==DIR_LEFT)
 				dir.x=(-dir.x);
-			
+
 			worm->incrementDirtCount( CarveHole(worm->getMap(), worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}
@@ -389,8 +389,8 @@ public:
 		}
 
 		simulateWormWeapon(dt, worm);
-		
-		
+
+
 		// Fill in the info for sending
 		if(local) {
 			ws->iAngle = (int)worm->getAngle();
@@ -398,7 +398,7 @@ public:
 			ws->iX = (int)worm->getPos().x;
 			ws->iY = (int)worm->getPos().y;
 		}
-	
+
 		goto simulateWormStart;
 	}
 
@@ -412,7 +412,7 @@ public:
 		wpnslot_t *Slot = worm->getWeapon(worm->getCurrentWeapon());
 
 		if(!Slot->Weapon) return;
-		
+
 		if(Slot->LastFire > 0)
 			Slot->LastFire -= dt;
 
@@ -427,15 +427,15 @@ public:
 				Slot->Charge = 1;
 				Slot->Reloading = false;
 			}
-		}	
+		}
 	}
-	
+
 	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
-		
+
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
@@ -446,8 +446,8 @@ public:
 			*wormid = colret;
 			res |= PJC_WORM;
 		}
-		
-		
+
+
 		// HINT: in original LX, we have this simulate code with lower dt
 		//		(this is now the work of CheckCollision)
 		//		but we also do this everytime without checks for a collision
@@ -513,7 +513,7 @@ public:
 			}
 		}
 
-		// Trails	
+		// Trails
 		switch(proj->getProjInfo()->Trail) {
 		case TRL_SMOKE:
 			if(proj->extra() >= 0.075f) {
@@ -542,26 +542,26 @@ public:
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
 				proj->lastTrailProj() = fCurTime + proj->getProjInfo()->PrjTrl_Delay;
-				
+
 				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
 				proj->setSpawnPrjTrl( true );
 			}
 		}
-	
+
 		return res;
 	}
-	
+
 	void simulateProjectile(const float fCurTime, CProjectile* const prj, CClient* const client) {
 		const static float dt = 0.01f;
-		
+
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
-		
+
 	simulateProjectileStart:
 		if(!prj->isUsed()) return;
 		if(prj->fLastSimulationTime + dt > fCurTime) return;
 		prj->fLastSimulationTime += dt;
-	
-	
+
+
 		CVec sprd;
 		bool explode = false;
 		bool timer = false;
@@ -571,11 +571,11 @@ public:
 		int damage = 0;
 		int result = 0;
 		int wormid = -1;
-	
+
 		bool spawnprojectiles = false;
 		const proj_t *pi = prj->GetProjInfo();
 		float f;
-	
+
 
 		// Check if the timer is up
 		f = prj->getTimeVarRandom();
@@ -628,7 +628,7 @@ public:
 				client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 
 				client->CheckDemolitionsGame();
-			} 
+			}
 			break;
 			}
 		}
@@ -891,32 +891,32 @@ public:
 				client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fCurTime);
 			}
 		}
-	
-	
+
+
 		goto simulateProjectileStart;
 	}
-	
+
 	virtual void simulateProjectiles(CProjectile* projs, const int& count, CClient* client) {
 		const static float dt = 0.01f;
-		
+
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
-		
+
 	simulateProjectilesStart:
 		if(client->fLastSimulationTime + dt > tLX->fCurTime) return;
 		client->fLastSimulationTime += dt;
-		
-		CProjectile *prj = projs;				
+
+		CProjectile *prj = projs;
 		for(int p = 0; p < count; p++, prj++) {
 			simulateProjectile( client->fLastSimulationTime, prj, client );
 		}
-		
+
 		goto simulateProjectilesStart;
 	}
 
 	void simulateNinjarope(float dt, CWorm* owner, CWorm *worms) {
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();
-		
+
 		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
@@ -972,14 +972,14 @@ public:
 
 			rope->hookVelocity() += force * dt;
 			rope->hookPos() += rope->hookVelocity() * dt;
-
-			//HookPos = HookPos + CVec(0,170*dt);
 		}
 
 		bool outsideMap = false;
 
 		// Hack to see if the hook went out of the map
-		if(rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
+		if(!rope->isPlayerAttached())
+		if(
+				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
 				rope->hookPos().x >= map->GetWidth()-1 ||
 				rope->hookPos().y >= map->GetHeight()-1) {
 			rope->setShooting( false );
@@ -998,25 +998,25 @@ public:
 
 
 		// Check if the hook has hit anything on the map
-		if(!rope->isPlayerAttached())
+		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
-		LOCK_OR_QUIT(map->GetImage());
-		uchar px = map->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
-		if((px & PX_ROCK || px & PX_DIRT || outsideMap) && !rope->isPlayerAttached()) {
-			rope->setShooting( false );
-			rope->setAttached( true );
-			rope->setPlayerAttached( false );
-			rope->hookVelocity() = CVec(0,0);
+			LOCK_OR_QUIT(map->GetImage());
+			uchar px = outsideMap ? PX_ROCK : map->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
+			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
+				rope->setShooting( false );
+				rope->setAttached( true );
+				rope->setPlayerAttached( false );
+				rope->hookVelocity() = CVec(0,0);
 
-			if(px & PX_DIRT && firsthit) {
-				Uint32 col = GetPixel(map->GetImage(), (int)rope->hookPos().x, (int)rope->hookPos().y);
-				for( short i=0; i<5; i++ )
-					SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
+				if((px & PX_DIRT) && firsthit) {
+					Uint32 col = GetPixel(map->GetImage(), (int)rope->hookPos().x, (int)rope->hookPos().y);
+					for( short i=0; i<5; i++ )
+						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
+				}
 			}
+			UnlockSurface(map->GetImage());
 		}
-		UnlockSurface(map->GetImage());
-
 
 		// Check if the hook has hit another worm
 		if(!rope->isAttached() && !rope->isPlayerAttached()) {
@@ -1034,6 +1034,7 @@ public:
 					continue;
 
 				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
+					rope->setShooting( false );
 					rope->setAttached( true );
 					rope->setPlayerAttached( true );
 					rope->setAttachedPlayer( &worms[i] );
@@ -1058,7 +1059,7 @@ public:
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
 			}
 		}
-	
+
 	}
 
 
@@ -1068,16 +1069,16 @@ public:
 
 	void colideBonus(CBonus* bonus, int x, int y) {
 		bonus->velocity() = CVec(0,0);
-		bonus->pos().y = (float)y - 2;	
+		bonus->pos().y = (float)y - 2;
 	}
 
 	void simulateBonus(CBonus* bonus) {
 		const static float dt = 0.01f;
-		
+
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + dt > tLX->fCurTime) return;
 		bonus->fLastSimulationTime += dt;
-		
+
 		int x,  y;
 		int mw, mh;
 		int px, py;
@@ -1110,7 +1111,7 @@ public:
 		x = px-2;
 		y = py-2;
 
-		
+
 		mw = map->GetWidth();
 		mh = map->GetHeight();
 
@@ -1146,7 +1147,7 @@ public:
 				pf++;
 			}
 		}
-		
+
 		goto simulateBonusStart;
 	}
 
@@ -1155,7 +1156,7 @@ public:
 			return;
 
 		if(!map) return;
-		
+
 		CBonus *b = bonuses;
 
 		for(size_t i=0; i < count; i++,b++) {
@@ -1163,9 +1164,9 @@ public:
 				continue;
 
 			simulateBonus(b);
-		}		
+		}
 	}
-	
+
 };
 
 PhysicsEngine* CreatePhysicsEngineLX56() {
