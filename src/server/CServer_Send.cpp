@@ -102,7 +102,6 @@ bool GameServer::SendUpdate()
 	//
 	// Get the update packets for each worm that needs it and save them
 	//
-	std::list<CBytestream> worm_bytestreams;
 	std::list<CWorm *> worms_to_update;
 	CWorm *w = cWorms;
 	{
@@ -114,21 +113,12 @@ bool GameServer::SendUpdate()
 			++j;
 
 			// w is an own server-side copy of the worm-structure
-			if (w->checkPacketNeeded()) {
-				CBytestream bytes;
-				bytes.writeByte(w->getID());
-				w->writePacket(&bytes, true);
-				worm_bytestreams.push_back(bytes);
+			if (w->checkPacketNeeded())
 				worms_to_update.push_back(w);
-			}
 		}
 	}
-	assert(worm_bytestreams.size() == worms_to_update.size());
 
 
-
-
-	CBytestream update_packets;  // Contains all the update packets except the one from this client
 	{
 		int i=0;
 		for (CClient *cl = cClients; i < MAX_CLIENTS; cl++, i++)  {
@@ -141,6 +131,8 @@ bool GameServer::SendUpdate()
 				// We have gone over the bandwidth for the client, don't send a message this frame
 				continue;
 
+			CBytestream update_packets;  // Contains all the update packets except the one from this client
+
 			CBytestream *bs = cl->getUnreliable();
 			bs->writeByte(S2C_UPDATEWORMS);
 
@@ -148,10 +140,8 @@ bool GameServer::SendUpdate()
 
 			// Send all the _other_ worms details
 			{
-				update_packets.Clear();
 				std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
-				std::list<CBytestream>::iterator bs_it = worm_bytestreams.begin();
-				for(; w_it != worms_to_update.end(); w_it++, bs_it++) {
+				for(; w_it != worms_to_update.end(); w_it++) {
 
 						// Check if this client owns the worm
 						if(cl->OwnsWorm(*w_it))
@@ -159,8 +149,12 @@ bool GameServer::SendUpdate()
 
 						++num_worms;
 
+						CBytestream bytes;
+						bytes.writeByte((*w_it)->getID());
+						(*w_it)->writePacket(&bytes, true, cl);
+
 						// Send out the update
-						update_packets.Append(&(*bs_it));
+						update_packets.Append(&bytes);
 				}
 			}
 

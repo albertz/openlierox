@@ -1228,12 +1228,12 @@ void CClient::Shutdown(void)
 
 void CClient::setClientVersion(const std::string & _s)
 {
-	printf("Client is using " + _s + "\n");
 	cClientVersion.setByString(_s);
+	printf("Client is using " + cClientVersion.asString() + "\n");
 }
 
 void CClient::setServerVersion(const std::string & _s)
 {
-	printf("Server is using " + _s + "\n");
 	cServerVersion.setByString(_s);
+	printf("Server is using " + cServerVersion.asString() + "\n");
 }

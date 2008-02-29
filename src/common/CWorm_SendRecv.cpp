@@ -96,7 +96,7 @@ void CWorm::readScore(CBytestream *bs)
 
 ///////////////////
 // Write a packet out
-void CWorm::writePacket(CBytestream *bs, bool fromServer)
+void CWorm::writePacket(CBytestream *bs, bool fromServer, CClient* receiver)
 {
 	short x, y;
 
@@ -135,7 +135,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer)
 
 
 	// Velocity
-	const Version& versionOfReceiver = fromServer ? getClient()->getClientVersion() : getClient()->getServerVersion();
+	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : getClient()->getServerVersion();
 	if(tState.bShoot || versionOfReceiver >= GetOLXBetaVersion(5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );

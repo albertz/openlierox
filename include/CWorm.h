@@ -383,7 +383,7 @@ public:
 	static bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
-	void		writePacket(CBytestream *bs, bool fromServer);
+	void		writePacket(CBytestream *bs, bool fromServer, CClient* receiver);
 	void		readPacket(CBytestream *bs, CWorm *worms);
 	void		net_updatePos(const CVec& newpos);
 	static bool	skipPacket(CBytestream *bs);
