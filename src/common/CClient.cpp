@@ -241,6 +241,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setTeam(0);
 		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
+		cRemoteWorms[i].setClient(this);
 	}
 
 
@@ -699,14 +700,14 @@ void CClient::Connecting(bool force)
 		strBadConnectMsg = "Server timeout after 30 tries";
 		return;
 	}
-	
+
 	if( tLXOptions->bNatTraverse && iNumConnects == 10 ) // Revert to UDP NAT traversal after 10 seconds
 	{
 		std::string address;
 	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
     	if( !fp1 )
         	return;
-	    while( !feof(fp1) ) 
+	    while( !feof(fp1) )
 		{
     	    std::string line = ReadUntil(fp1);
 			TrimSpaces(line);
@@ -720,7 +721,7 @@ void CClient::Connecting(bool force)
 			break;
 	    };
 		fclose(fp1);
-	
+
 		SetNetAddrValid(cServerAddr, false);
 		fConnectTime = tLX->fCurTime;	// To disable DNS timeout
 		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
@@ -769,7 +770,7 @@ void CClient::Connecting(bool force)
 		bs.writeString("lx::getchallenge");
 		bs.writeString(GetFullGameName());
 	};
-	
+
 	// As we use this tSocket both for sending and receiving,
 	// it's saver to reset the address here.
 	SetRemoteNetAddr(tSocket, cServerAddr);
