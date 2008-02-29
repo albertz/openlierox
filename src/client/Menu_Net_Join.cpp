@@ -189,7 +189,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	if(cClient->getBadConnection()) {
 		cout << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
 		Menu_MessageBox("Connection Error", cClient->getBadConnectionMsg(), LMB_OK);
-		
+
 		cClient->Shutdown();
 
 		// Shutdown
@@ -332,7 +332,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
 	// The button will pop up when some file is not available, disabled by default
-	if( cClient->getHostVer() >= 4 )
+	if( cClient->getServerVersion() >= GetOLXBetaVersion(4) )
 		cJoinLobby.Add( new CTextButton( "", tLX->clError, tLX->clNormalLabel), jl_StartStopUdpFileDownload, 360, 195, 0, 0 );
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
@@ -537,7 +537,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			w->LoadGraphics(gl->nGameMode);
 
 			// Add the item
-			player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
+			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
 			if (lobby_worm->bReady)  // Ready control
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 			else
@@ -625,13 +625,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	if( tLXOptions->bAllowFileDownload )
 	{
 		if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
-			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel, 
+			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
 			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
 			cClient->getUdpFileDownloader()->getFileDownloading() );
 		else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
 			itoa( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
-	
+
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
 		if( dlButton )
 		{
@@ -758,16 +758,16 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						// The last requested file will be downloaded first, so putting these in reverse order
 						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
 							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);
-						
+
 						// Do not request map if already downloading with HTTP
-						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" && 
-							( ! cClient->getDownloadingMap() || 
+						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" &&
+							( ! cClient->getDownloadingMap() ||
 							( cClient->getDownloadingMap() && cClient->getDownloadMethod() == DL_UDP ) ) )
 						{
 							cClient->getUdpFileDownloader()->requestFile("levels/" + cClient->getGameLobby()->szMapName, true);
 							cClient->getUdpFileDownloader()->requestFileInfo("levels/" + cClient->getGameLobby()->szMapName, true); // To get valid progressbar
 						};
-						
+
 						CWorm *w = cClient->getRemoteWorms();
 						for( int i=0; i<MAX_WORMS; i++, w++ )
 						{

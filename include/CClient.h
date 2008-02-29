@@ -34,6 +34,7 @@
 #include "CListview.h"
 #include "InputEvents.h"
 #include "FileDownload.h"
+#include "Version.h"
 
 
 #define		MAX_CLIENTS		32
@@ -235,7 +236,7 @@ public:
 		bForceWeaponsReady = false;
 		SetNetAddrValid( cServerAddr, false );
 		InvalidateSocketState(tSocket);
-		
+
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
 		fMyPingSent = 0;
@@ -251,7 +252,6 @@ public:
 		for(ushort i=0; i<4; i++)
 			iTeamScores[i] = 0;
 
-		iHostOLXVer = 0;
 		bHostAllowsMouse = false;
 		fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 
@@ -405,11 +405,9 @@ private:
 	float		fLastUpdateSent;
 	std::string	szServerName;
 	ClientRights tRights;
-	int			iHostOLXVer;
 	bool		bHostAllowsMouse;
-	std::string	sClientVersion;
-	std::string	sServerVersion;
-	int			iClientOLXVer;
+	Version		cClientVersion;
+	Version		cServerVersion;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -443,21 +441,21 @@ private:
 	// Logging variables
     bool		bInServer;
 	std::string	cIConnectedBuf;
-	
+
 	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastDirtUpdate;
 	int			iPartialDirtUpdateCount;
 	std::string	cPreviousDirtMap;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
-	struct		cSpectatorViewportKeys_t { 
+	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
 	std::string	sSpectatorViewportMsg;
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
-	
-public:	
+
+public:
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorld()
@@ -466,8 +464,8 @@ public:
 	// if you are going to use this also for something else,
 	// then be sure that is is run together with simulateProjectiles() !
 	float	fLastSimulationTime;
-	
-	
+
+
 private:
 	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
 
@@ -677,18 +675,16 @@ public:
 
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
 	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
-	
+
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName(void)			{ return szServerName; }
 
 	int getGameType()					{ return iGameType; }
 
-	int getHostVer(void)				{ return iHostOLXVer; }
-	const std::string & getClientVersion()				{ return sClientVersion; }
+	const Version& getClientVersion()				{ return cClientVersion; }
 	void setClientVersion(const std::string & _s);
-	const std::string & getServerVersion()				{ return sServerVersion; }
+	const Version& getServerVersion()				{ return cServerVersion; }
 	void setServerVersion(const std::string & _s);
-	int getClientOLXVer()	{ return iClientOLXVer; }
 
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
@@ -700,7 +696,7 @@ public:
 	int			getDownloadMethod()				{ return iDownloadMethod; }
 
 	CViewport * getViewports()					{ return cViewports; }
-	
+
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
 	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
 	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
@@ -711,18 +707,18 @@ public:
 	void		setLastFileRequest( float _f ) 			{ fLastFileRequest = _f; };
 	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
 	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
-	
+
 	bool		getSpectate()							{ return bSpectate; };
 	void		setSpectate( bool _b )					{ bSpectate = _b; };
 
 	bool		getForceWeaponsReady()					{ return bForceWeaponsReady; }
 	void		setForceWeaponsReady(bool _r)			{ bForceWeaponsReady = _r; }
-	
+
 	bool		isGameMenu()			{ return bGameMenu; }
 	bool		isChatTyping()			{ return bChat_Typing; }
 	bool		isGameOver()			{ return bGameOver; }
 	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
-	
+
 };
 
 extern	CClient			*cClient;

@@ -61,7 +61,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 	// HINT: if the message is longer than 64 characters, we split it in more messages
 	// (else we could exploit old clients... :( )
 	const std::vector<std::string>& split = splitstring(text, 63, iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
-		
+
 	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
 		// Send it
 		bs.writeByte(S2C_TEXT);
@@ -143,9 +143,9 @@ bool GameServer::SendUpdate()
 
 			CBytestream *bs = cl->getUnreliable();
 			bs->writeByte(S2C_UPDATEWORMS);
-    
+
 			byte num_worms = 0;
-   
+
 			// Send all the _other_ worms details
 			{
 				update_packets.Clear();
@@ -163,11 +163,11 @@ bool GameServer::SendUpdate()
 						update_packets.Append(&(*bs_it));
 				}
 			}
-    
+
 			// Write the packets to the unreliable bytestream
 			bs->writeByte(num_worms);
 			bs->Append(&update_packets);
-    
+
 			// Write out a stat packet
 			{
 				bool need_send = false;
@@ -187,15 +187,15 @@ bool GameServer::SendUpdate()
 						cl->getWorm(j)->writeStatUpdate(bs);
 				}
 			}
-    
+
     		{
 				// Send the shootlist (reliable)
 				CShootList *sh = cl->getShootList();
 				float delay = shootDelay[cl->getNetSpeed()];
-		
+
 				if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
 					CBytestream shootBs;
-			
+
 					// Send the shootlist
 					if( sh->writePacket(&shootBs) )
 						sh->Clear();
@@ -231,7 +231,7 @@ bool GameServer::checkBandwidth(CClient *cl)
 	if(cl->getNetSpeed() == 3)
 		return true;
 
-	
+
 	// Modem, ISDN, LAN, local
 	// (Bytes per second)
 	int	Rates[4] = {2500, 7500, 10000, 50000};
@@ -305,7 +305,7 @@ void GameServer::SendWormLobbyUpdate(void)
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {
         if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
             continue;
-			
+
         // Set the client worms lobby ready state
         bool ready = false;
 	    for(i=0; i < cl->getNumWorms(); i++) {
@@ -314,7 +314,7 @@ void GameServer::SendWormLobbyUpdate(void)
 			    ready = l->bReady;
 	    }
 
-	    // Let all the worms know about the new lobby state	    
+	    // Let all the worms know about the new lobby state
 		if (cl->getNumWorms() <= 2)  {
 			bytestr.writeByte(S2C_UPDATELOBBY);
 			bytestr.writeByte(cl->getNumWorms());
@@ -347,7 +347,7 @@ void GameServer::SendDisconnect(void)
 	CClient *cl = cClients;
 	if (!cl)
 		return;
-	
+
 	CBytestream bs;
 	bs.writeByte(S2C_LEAVING);
 
@@ -358,7 +358,7 @@ void GameServer::SendDisconnect(void)
 		// Send it out-of-bounds 3 times to make sure all the clients received it
 		for(short i=0; i<3; i++)
 			cl->getChannel()->Transmit(&bs);
-	}	
+	}
 }
 
 
@@ -396,7 +396,7 @@ void GameServer::SendRandomPacket()
 void GameServer::SendDirtUpdate( CClient * cl )
 {
 	if( ! tLXOptions->bAllowDirtUpdates ||
-		cl->getClientOLXVer() < 4 ||
+		cl->getClientVersion() < GetOLXBetaVersion(4) ||
 		cl == & cClients[0] )	// Do not update dirt for local client
 		return;
 
@@ -423,7 +423,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	{
 		// If client is laggy send packets rarely - this coefficient is some random value, change if packet overflood occurs
 		if( cl->getLastDirtUpdate() + cl->getPing()*1.2f/1000.0f > tLX->fCurTime )
-			return;	
+			return;
 		CBytestream bs;
 		bs.writeByte( S2C_SENDFILE );
 		cl->getUdpFileDownloader()->send( &bs );
@@ -434,7 +434,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 
 void GameServer::SendFiles()
 {
-	
+
 	if(iState != SVS_LOBBY)
 		return;
 
@@ -443,10 +443,10 @@ void GameServer::SendFiles()
 	const float MaxPacketDelay = 0.25; // Modify this to get higher packet rate, though it may overflood laggy clients
 
 	bool startTimer = false;
-	
+
 	CClient *cl = cClients;
 
-	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 	{
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;

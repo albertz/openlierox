@@ -42,7 +42,7 @@ using namespace std;
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
 	std::string cmd = bs->readString(128);
-	
+
 	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
 
@@ -61,19 +61,23 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Host has OpenLX Beta 3+
 	else if(cmd.find("lx::openbeta") == 0)  {
-		cout << "HINT: host is at least using OLX Beta3" << endl;
 		if (cmd.size() > 12)  {
-			int ver = MAX(0, atoi(cmd.substr(12)));
-			iHostOLXVer = MAX(ver, iHostOLXVer);
+			int betaver = MAX(0, atoi(cmd.substr(12)));
+			Version version = GetOLXBetaVersion(betaver);
+			if(cServerVersion < version) {
+				cServerVersion = version;
+				cout << "HINT: host is at least using OLX Beta3" << endl;
+			}
 		}
 	}
 
 	else if(cmd == "lx::version")  {
-		cout << "HINT: Host is using " << bs->readString() << endl;
-		// TODO: we need a gamename interpreter here which parses the game name and read out the version (and other information)
-		// I would recommend to create a new class GameInfo or something which does this and which is then saved in CClient::hostGameVersionInfo
-		// we just set it to 4 now which is save also for future version because all servers which send this are at least OLX beta4
-		iHostOLXVer = 4;
+		std::string versionStr = bs->readString();
+		Version version(versionStr);
+		if(version > cServerVersion) {
+			cServerVersion = version;
+			cout << "HINT: Host is using " << versionStr << endl;
+		}
 	}
 
 	else if (cmd == "lx:mouseAllowed")
@@ -96,7 +100,7 @@ void CClient::ParseChallenge(CBytestream *bs)
 	iChallenge = bs->readInt(4);
 	if( ! bs->isPosAtEnd() ) {
 		setServerVersion( bs->readString(128) );
-		printf("CClient: connected to %s server\n", getServerVersion().c_str());
+		printf("CClient: connected to %s server\n", getServerVersion().asString().c_str());
 	}
 
 	// TODO: move this out here
@@ -157,7 +161,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	if(!bDedicated) {
 		// Setup the viewports
 		SetupViewports();
-	
+
 		// Setup the controls
 		cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
 		// TODO: setup also more viewports
@@ -173,7 +177,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	bHost_Update = true;
 
 	bHostAllowsMouse = false;
-	
+
 }
 
 //////////////////
@@ -346,7 +350,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
 		tLX->bQuitEngine = false;
 	}
-	
+
 	// We've already got this packet
 	if (bGameReady && iNetStatus != NET_CONNECTED)  {
 		printf("CClient::ParsePrepareGame: we already got this\n");
@@ -529,7 +533,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 	InitializeIngameScore(true);
-	
+
 	// Copy the chat text from lobby to ingame chatbox
 	switch (tGameInfo.iGameType)  {
 	case GME_HOST:
@@ -612,7 +616,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bShouldRepaintInfo = true;
 
 	bJoin_Update = true;
-	
+
 	getUdpFileDownloader()->reset();
 	*getPreviousDirtMap() = "";
 	if( cMap )
@@ -632,7 +636,7 @@ void CClient::ParseStartGame(CBytestream *bs)
 		printf("CClient::ParseStartGame: already playing - ignoring\n");
 		return;
 	}
-	
+
 	printf("Client: get start game signal\n");
 	fLastSimulationTime = tLX->fCurTime;
 	iNetStatus = NET_PLAYING;
@@ -653,7 +657,7 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// let our worms know that the game starts know
 	for(uint i=0;i<iNumWorms;i++) {
 		cLocalWorms[i]->StartGame();
-	}	
+	}
 }
 
 
@@ -702,8 +706,8 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	UpdateScoreboard();
 	if (cRemoteWorms[id].getLocal())
 		bShouldRepaintInfo = true;
-	
-	if( bSpectate 
+
+	if( bSpectate
 		&& iNumWorms > 0
 		&& cLocalWorms[0] == &cRemoteWorms[id]
 		&& cLocalWorms[0]->getType() == PRF_HUMAN
@@ -825,7 +829,7 @@ void CClient::ParseText(CBytestream *bs)
 ///////////////////
 // Parse a score update packet
 void CClient::ParseScoreUpdate(CBytestream *bs)
-{	
+{
 	short id = bs->readInt(1);
 
 	if(id >= 0 && id < MAX_WORMS)  {
@@ -861,7 +865,7 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 	else
 		// do this to get the right position in net stream
 		CWorm::skipScore(bs);
-	
+
 	UpdateScoreboard();
 
 	bJoin_Update = true;
@@ -1080,7 +1084,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	}
 	if(numworms == 0)
 		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");
-		
+
 	std::string HostName;
 
 	byte id;
@@ -1424,7 +1428,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 {
 	if(iNetStatus != NET_PLAYING)  {
 		printf("CClient::ParseMultiShot: not playing - ignoring\n");
-		CShootList::skipMulti(bs); // Skip to get to the correct position 
+		CShootList::skipMulti(bs); // Skip to get to the correct position
 		return;
 	}
 
@@ -1490,7 +1494,7 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 void CClient::ParseGotoLobby(CBytestream *)
 {
 	printf("Client: received gotoLobby signal\n");
-	
+
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
 
@@ -1603,10 +1607,10 @@ void CClient::ParseSendFile(CBytestream *bs)
 			// Put notice about downloaded file in chatbox
 			CBytestream bs;
 			bs.writeByte(TXT_NETWORK);
-			bs.writeString( "Downloaded file \"" + getUdpFileDownloader()->getFilename() + 
+			bs.writeString( "Downloaded file \"" + getUdpFileDownloader()->getFilename() +
 								"\" size " + itoa( getUdpFileDownloader()->getData().size() ) );
 			ParseText( &bs );
-			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 && 
+			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
 					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
 			{
 				tGameLobby.bHaveMap = true;
@@ -1615,7 +1619,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 				if (cMap) delete cMap;
 
 				cMap = new CMap;
-				if (!cMap->Load("levels/" + tGameLobby.szMapName))  
+				if (!cMap->Load("levels/" + tGameLobby.szMapName))
 				{
 					printf("Could not load the downloaded map!\n");
 					Disconnect();

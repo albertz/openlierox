@@ -120,7 +120,7 @@ void CClient::Clear(void)
 		cViewports[i].SetWorldY(0);
     }
 
-	iHostOLXVer = 0;
+	cServerVersion.reset();
 	bHostAllowsMouse = false;
 
 	bDownloadingMap = false;
@@ -474,7 +474,7 @@ void CClient::ProcessMapDownloads()
 			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
 			// HTTP failed, let's try UDP
-			if( getHostVer() > 4 )
+			if( getServerVersion() > GetOLXBetaVersion(4) )
 			{
 				printf("Could not download the map via HTTP, trying UDP...\n");
 				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
@@ -490,7 +490,7 @@ void CClient::ProcessMapDownloads()
 
 
   	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
-	if( getHostVer() < 4 || iNetStatus == NET_DISCONNECTED )
+	if( getServerVersion() < GetOLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )
 		return;
 
 	if( getUdpFileDownloader()->isReceiving() )	 {
@@ -652,7 +652,7 @@ void CClient::Connect(const std::string& address)
 	strServerAddr_HumanReadable = strServerAddr = address;
 	iNumConnects = 0;
 	bBadConnection = false;
-	iHostOLXVer = 0;
+	cServerVersion.reset();
 	fConnectTime = tLX->fCurTime;
 
 	if(!StringToNetAddr(address, cServerAddr)) {
@@ -1188,17 +1188,12 @@ void CClient::Shutdown(void)
 
 void CClient::setClientVersion(const std::string & _s)
 {
-	//printf("CClient::setClientVersion(): %s\n", _s.c_str() );
-	sClientVersion = _s;
-	iHostOLXVer = 4;
-	iClientOLXVer = 4;
+	printf("Client is using " + _s + "\n");
+	cClientVersion.setByString(_s);
 }
 
 void CClient::setServerVersion(const std::string & _s)
 {
-	//printf("CClient::setServerVersion(): %s\n", _s.c_str() );
-	sServerVersion = _s;
-	iHostOLXVer = 4;
-	iClientOLXVer = 4;
+	printf("Server is using " + _s + "\n");
+	cServerVersion.setByString(_s);
 }
-
