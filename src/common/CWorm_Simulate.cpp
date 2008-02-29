@@ -40,16 +40,16 @@ void CWorm::getInput()
 	// HINT: we are calling this from simulateWorm
 	const float	dt = tLX->fCurTime - fLastInputTime;
 	fLastInputTime = tLX->fCurTime;
-	
+
 	CVec	dir;
 	int		weap = false;
 
 	mouse_t *ms = GetMouse();
-	
+
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
 	bool leftOnce = cLeft.isDownOnce();
 	bool rightOnce = cRight.isDownOnce();
-	
+
 	worm_state_t *ws = &tState;
 
 	// Init the ws
@@ -64,9 +64,9 @@ void CWorm::getInput()
 	int mouse_dx = ms->X - 640/2;
 	int mouse_dy = ms->Y - 480/2;
 	if(mouseControl) SDL_WarpMouse(640/2, 480/2);
-	
+
 	{
-/*		// only some debug output for checking the values		
+/*		// only some debug output for checking the values
 		if(mouseControl && (mouse_dx != 0 || mouse_dy != 0))
 			printf("mousepos changed: %i, %i\n", mouse_dx, mouse_dy),
 			printf("anglespeed: %f\n", fAngleSpeed),
@@ -75,7 +75,7 @@ void CWorm::getInput()
 	}
 
 	// angle section
-	{	
+	{
 		// Up
 		if(cUp.isDown()) {
 			// HINT: 500 is the original value here (rev 1)
@@ -89,13 +89,13 @@ void CWorm::getInput()
 				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
 				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
-			
+
 			} else { // mouseControl for angle
 				static const float mult_Y = 200; // how sensitive is the mouse in Y-dir
 				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
 				float diff = mouse_dy * mult_Y * dt;
 				fAngleSpeed += diff;
-				
+
 				// this tries to be like keyboard, this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
 					CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
@@ -120,18 +120,18 @@ void CWorm::getInput()
 			dir.x=(-dir.x);
 
 	} // end angle section
-		
-	
+
+
 	// basic mouse control (moving)
 	if(mouseControl) {
-						
+
 		static const float mult_X = 2; // how sensitive is the mouse in X-dir
-		fMoveSpeedX += mouse_dx * mult_X;		
-		
+		fMoveSpeedX += mouse_dx * mult_X;
+
 		REDUCE_CONST(fMoveSpeedX, 1000*dt);
 		//RESET_SMALL(fMoveSpeedX, 5.0f);
 		CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
-				
+
 		if(fabs(fMoveSpeedX) > 50) {
 			if(fMoveSpeedX > 0) {
 				iMoveDirection = DIR_RIGHT;
@@ -142,14 +142,14 @@ void CWorm::getInput()
 			}
 			ws->bMove = true;
 			if(!cStrafe.isDown()) iDirection = iMoveDirection;
-		
+
 		} else {
 			ws->bMove = false;
 		}
-					
+
 	}
-	
-	
+
+
 	if(mouseControl) { // set shooting, ninja and jumping, weapon selection for mousecontrol
 		// like Jason did it
 		ws->bShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
@@ -163,38 +163,38 @@ void CWorm::getInput()
 			cNinjaRope.Shoot(vPos, dir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
-	
+
 		if( ms->WheelScrollUp || ms->WheelScrollDown ) {
 			bForceWeapon_Name = true;
 			fForceWeapon_Time = tLX->fCurTime + 0.75f;
-			if( ms->WheelScrollUp ) 
+			if( ms->WheelScrollUp )
 				iCurrentWeapon ++;
-			else 
+			else
 				iCurrentWeapon --;
-			if(iCurrentWeapon >= iNumWeaponSlots) 
+			if(iCurrentWeapon >= iNumWeaponSlots)
 				iCurrentWeapon=0;
-			if(iCurrentWeapon < 0) 
+			if(iCurrentWeapon < 0)
 				iCurrentWeapon=iNumWeaponSlots-1;
 		}
 	}
-		
+
 
 
 	{ // set carving
-	
+
 	/*
 		if(!cRight.isDown())
 			iCarving &= ~1; // disable right carving
 		if(!cLeft.isDown())
 			iCarving &= ~2; // disable left carving
-	
+
 		// Carving hack
 		RightOnce = cRight.isDownOnce();
 		if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
 			iCarving |= 2; // carve left
 		}
 	*/
-		
+
 /*		// this is a bit unfair to keyboard players
 		if(mouseControl) { // mouseControl
 			if(fabs(fMoveSpeedX) > 200) {
@@ -202,10 +202,10 @@ void CWorm::getInput()
 				iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
 			}
 		} */
-		
+
 		const float movetimed_min = 0.08f;
 		const float movetimed_max = CLAMP(dt * 10.0f, 0.2f, 1.0f);
-		
+
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_LEFT)
 		|| (cLeft.isJoystick() && cLeft.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
@@ -216,7 +216,7 @@ void CWorm::getInput()
 				iCarving |= 2; // carve left
 			}
 		}
-	
+
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_RIGHT)
 		|| (cRight.isJoystick() && cRight.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
@@ -228,7 +228,7 @@ void CWorm::getInput()
 			}
 		}
 	}
-	
+
     //
     // Weapon changing
 	//
@@ -236,9 +236,9 @@ void CWorm::getInput()
 		// TODO: was is the intention of this var? if weapon change, then it's wrong
 		// if cSelWeapon.isDown(), then we don't need it
 		weap = true;
-		
+
 		// we don't want keyrepeats here, so only count the first down-event
-		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);		
+		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
 		iCurrentWeapon += change;
 		MOD(iCurrentWeapon, iNumWeaponSlots);
 	}
@@ -263,7 +263,7 @@ void CWorm::getInput()
 					fForceWeapon_Time = tLX->fCurTime + 0.75f;
 				}
 			}
-			
+
 		}
 		break;
 
@@ -301,37 +301,37 @@ void CWorm::getInput()
 	if(cShoot.isDown())  {
 		ws->bShoot = true;
 	}
-	
+
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {
 			ws->bMove = true;
-			
+
 			if(!cRight.isDown()) {
 				if(!cStrafe.isDown()) iDirection = DIR_LEFT;
 				iMoveDirection = DIR_LEFT;
 			}
-			
+
 			if(rightOnce) {
 				ws->bCarve = true;
 				iCarving |= 2; // carve left
 			}
 		}
-		
+
 		if(cRight.isDown()) {
 			ws->bMove = true;
-			
+
 			if(!cLeft.isDown()) {
 				if(!cStrafe.isDown()) iDirection = DIR_RIGHT;
 				iMoveDirection = DIR_RIGHT;
 			}
-			
+
 			if(leftOnce) {
 				ws->bCarve = true;
 				iCarving |= 1; // carve right
 			}
-		}	
+		}
 	}
-	
+
 
 	bool oldskool = tLXOptions->bOldSkoolRope;
 
@@ -387,8 +387,8 @@ void CWorm::getInput()
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
-	
-	
+
+
 	cUp.reset();
 	cDown.reset();
 	cLeft.reset();
@@ -412,7 +412,7 @@ void CWorm::clearInput(void)
 	tState.bMove  = false;
 	tState.bShoot = false;
 	tState.bJump  = false;
-	
+
 	// clear inputs
 	cUp.reset();
 	cDown.reset();
@@ -422,21 +422,9 @@ void CWorm::clearInput(void)
 	cJump.reset();
 	cSelWeapon.reset();
 	cInpRope.reset();
-	cStrafe.reset();	
+	cStrafe.reset();
 }
 
-///////////////////
-// Clear the state (same as the above but doesn't reset the inputs)
-void CWorm::clearState(void)
-{
-	fLastInputTime = tLX->fCurTime;
-
-	// Clear the state
-	tState.bCarve = false;
-	tState.bMove  = false;
-	tState.bShoot = false;
-	tState.bJump  = false;	
-}
 
 
 

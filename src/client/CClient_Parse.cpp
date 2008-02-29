@@ -1320,7 +1320,7 @@ void CClient::ParseWormDown(CBytestream *bs)
 	if(id < MAX_WORMS) {
 		cRemoteWorms[id].setAlive(false);
 		if (cRemoteWorms[id].getLocal() && cRemoteWorms[id].getType() == PRF_HUMAN)
-			cRemoteWorms[id].clearState();
+			cRemoteWorms[id].clearInput();
 
 		// Make a death sound
 		int s = GetRandomInt(2);

@@ -135,7 +135,7 @@ public:
 };
 
 class NEW_ai_node_t {
-public:	
+public:
 	float fX, fY;
 	NEW_ai_node_t *psPrev, *psNext;
 };
@@ -202,7 +202,7 @@ private:
 
 	CVec		vFollowPos;
 	bool		bFollowOverride;
-	
+
 	// Score
 	int			iKills;
 	int			iDeaths;
@@ -350,7 +350,7 @@ private:
 	float       fLastPathUpdate;
 	bool		bPathFinished;
 	float		fSearchStartTime;
-	
+
 	// its type is searchpath_base*; defined in CWorm_AI.cpp
 	void*		pathSearcher;
 
@@ -370,7 +370,7 @@ public:
 	void		Init(void);
 	//void		CopyProfile(plyprofile_t *profile);
 	void		Shutdown(void);
-	
+
 
 	//
 	// Network
@@ -391,7 +391,7 @@ public:
 	static bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
 	void		writeWeapons(CBytestream *bs);
 	void		readWeapons(CBytestream *bs);
-	static bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons 
+	static bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons
 	void		writeStatUpdate(CBytestream *bs);
 	void		updateStatCheckVariables();
 	bool		checkStatePacketNeeded();
@@ -438,7 +438,7 @@ public:
 	bool		Kill(void);
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
-	
+
 
 
 	//
@@ -447,7 +447,6 @@ public:
 	void		getInput(void);
 	void		getMouseInput(void);
     void        clearInput(void);
-	void        clearState(void);
 	void		getGamepadInput(void);
     bool		CheckOnGround();
 
@@ -473,17 +472,17 @@ public:
     bool        AI_FindHealth();
     bool        AI_SetAim(CVec cPos);
     CVec        AI_GetTargetPos(void);
-    
+
     void        AI_InitMoveToTarget();
     void        AI_MoveToTarget();
     void        AI_SimpleMove(bool bHaveTarget=true);
 //    void        AI_PreciseMove();
-    
+
     ai_node_t   *AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
     void        AI_CleanupPath(ai_node_t *node);
     void		AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
-    
+
     int         AI_FindClearingWeapon();
     bool        AI_Shoot();
     int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float fTraceDist);
@@ -521,8 +520,8 @@ public:
 
 
     //int         getBestWeapon(int nGameType, float fDistance, CVec cTarget);
-    
-    
+
+
 
 
 
@@ -538,7 +537,7 @@ public:
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 	CInput*		getStrafeInput()			{ return &cStrafe; }
 	CInput*		getShootInput()				{ return &cShoot; }
-	
+
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Uint32		getGameColour(void)			{
@@ -549,7 +548,7 @@ public:
 			return tLX->clTeamColors[iTeam];
 		default:
 			return iColour;
-		}		
+		}
 	}
 	void		setColour(Uint32 c)			{ iColour = c; }
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
@@ -586,17 +585,17 @@ public:
 	CVec		getFollowPos(void)			{ return (bFollowOverride?vFollowPos:vPos); }
 	void		resetFollow(void)			{ bFollowOverride = false; }
 	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
-	
+
 	CVec		getPos(void)				{ return vPos; }
 	void		setPos(CVec v)				{ vPos = v; }
-	
+
 	CVec&		pos()						{ return vPos; }
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }
-	
+
 	CVec		*getVelocity(void)			{ return &vVelocity; }
 	CVec&		velocity()					{ return vVelocity; }
-	
+
 	worm_state_t *getWormState(void)		{ return &tState; }
 
 	float		getAngle(void)				{ return fAngle; }
@@ -604,10 +603,10 @@ public:
 	int			getDirection(void)			{ return iDirection; }
 	void		setDirection(int d)			{ iDirection = d; }
 	int			getMoveDirection()		{ return iMoveDirection; }
-	
+
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 	float		getLoadingTime()			{ return fLoadingTime; }
-	
+
 	CGameScript* getGameScript()			{ return cGameScript; }
 	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
     void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
@@ -673,7 +672,7 @@ public:
 
 	bool		getVIP(void)				{ return bNoShooting; }
 	void		setVIP(bool _s)				{ bNoShooting = _s; }
-	
+
 	// TODO: the sense of this isn't clear; so make it clear
 	bool		getFlag(void)				{ return bFlag; }
 	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
@@ -691,9 +690,9 @@ public:
 	void			setAddresses(std::string _s){ sAddressList = _s; }
 	std::string		getAliases(void)			{ return sAliasList; }
 	void			setAliases(std::string _s)	{ sAliasList = _s; }
-	
+
 	float&		frame()						{ return fFrame; }
-	
+
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()

@@ -69,20 +69,20 @@ void CClient::Simulation(void)
 	//
 	// Key shortcuts
 	//
-	
+
 	// Top bar toggle
 	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
 		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
 
 		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
-			
+
 		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 		int top = toph;
 		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
 			toph = -toph;
 			top = 0;
 		}
-		
+
 		// TODO: allow more viewports
 		// Setup the viewports
 		cViewports[0].SetTop(top);
@@ -106,7 +106,7 @@ void CClient::Simulation(void)
 	// (at the moment, we are doing these 2 things at once in the loop, I want to have 2 loops)
 	// TODO: make it working
 	// TODO: create a function simulateWorms() in PhysicsEngine which does all worms-simulation
-	
+
 	// Player simulation
 	w = cRemoteWorms;
 	for(i = 0; i < MAX_WORMS; i++, w++) {
@@ -118,14 +118,14 @@ void CClient::Simulation(void)
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
 			PhysicsEngine::Get()->simulateWorm( w, this, cRemoteWorms, w->getLocal() );
-			
+
 			if(bGameOver)
 				// TODO: why continue and not break?
                 continue;
 
 
 			// Check if this worm picked up a bonus
-			
+
 			CBonus *b = cBonuses;
 			if (tGameInfo.bBonusesOn)  {
 				for(short n = 0; n < MAX_BONUSES; n++, b++) {
@@ -353,7 +353,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 			w->setAlive(false);
 			w->Kill();
-            w->clearState();
+            w->clearInput();
 
 			// Let the server know that i am dead
 			SendDeath(w->getID(), owner);
@@ -427,7 +427,7 @@ void CClient::PlayerShoot(CWorm *w)
 		printf("ERROR: Slot->Weapon not set\n");
 		return;
 	}
-	
+
 	// TODO: what is the effect of this?
 	Slot->LastFire = Slot->Weapon->ROF;
 
@@ -1107,10 +1107,10 @@ void CClient::processChatter(void)
 			bChat_CursorVisible = !bChat_CursorVisible;
 			fChat_BlinkTime = 0;
 		}
-        
+
         // Go through the keyboard queue
         for(short i=0; i<kb->queueLength; i++) {
-			
+
 			if(kb->keyQueue[i].down && kb->keyQueue[i].sym == SDLK_ESCAPE) {
 				// Stop typing
 				bChat_Typing = false;
@@ -1120,10 +1120,10 @@ void CClient::processChatter(void)
 				kb->keys[SDLK_ESCAPE] = false;
 				kb->KeyDown[SDLK_ESCAPE] = false;
 				kb->KeyUp[SDLK_ESCAPE] = false;
-				
+
 				break;
 			}
-			
+
 			bChat_CursorVisible = true;
             processChatCharacter(kb->keyQueue[i]);
         }
@@ -1174,13 +1174,13 @@ void CClient::processChatter(void)
 
 			// Check, if we can start typing
 			bool controls =
-				cChat_Input.isDown() || 
-				cShowScore.isDown() || 
-				cShowHealth.isDown() || 
-				cShowSettings.isDown() || 
-				cToggleTopBar.isDown() || 
+				cChat_Input.isDown() ||
+				cShowScore.isDown() ||
+				cShowHealth.isDown() ||
+				cShowSettings.isDown() ||
+				cToggleTopBar.isDown() ||
 #ifdef WITH_MEDIAPLAYER
-				cToggleMediaPlayer.isDown() || 
+				cToggleMediaPlayer.isDown() ||
 #endif
 				(input.sym == SDLK_BACKQUOTE) ||
 				cTakeScreenshot.isDown();
@@ -1303,7 +1303,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
     if(input.ch == '\r') {
         bChat_Typing = false;
 		cLocalWorms[0]->clearInput();
-		
+
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
