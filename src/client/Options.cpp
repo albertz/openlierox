@@ -83,7 +83,7 @@ bool GameOptions::Init() {
 		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
-		( tLXOptions->sSTUNServer, "Network.STUNServer", "" )
+		( tLXOptions->bNatTraverse, "Network.NatTraverse", true )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )

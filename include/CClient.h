@@ -454,8 +454,9 @@ private:
 	std::string	sSpectatorViewportMsg;
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
-
-public:
+	bool		bNatTraverseState;
+	
+public:	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorld()
@@ -577,6 +578,7 @@ public:
 	void		ParseChallenge(CBytestream *bs);
 	void		ParseConnected(CBytestream *bs);
 	void		ParsePong(void);
+	void		ParseTraverse(CBytestream *bs);
 
 	void		ParsePacket(CBytestream *bs);
 	bool		ParsePrepareGame(CBytestream *bs);

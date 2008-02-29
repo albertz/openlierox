@@ -82,6 +82,9 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	else if (cmd == "lx:mouseAllowed")
 		bHostAllowsMouse = true;
+	
+	else if(cmd == "lx::traverse")
+		ParseTraverse(bs);
 
 	// Unknown
 	else  {
@@ -196,6 +199,15 @@ void CClient::ParsePong(void)
 		iMyPing = png;
 	}
 }
+
+void CClient::ParseTraverse(CBytestream *bs)
+{
+	bNatTraverseState = false;
+	std::string addr = bs->readString();
+	StringToNetAddr(addr, cServerAddr);
+	printf("CClient::ParseTraverse() %s\n", addr.c_str());
+};
+
 
 /*
 =======================================

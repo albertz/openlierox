@@ -667,6 +667,7 @@ void CClient::Connect(const std::string& address)
 		}
 	}
 
+	bNatTraverseState = false;
 	// send a challenge packet immediatly (if possible)
 	Connecting(true);
 }
@@ -680,8 +681,8 @@ void CClient::Connecting(bool force)
 	if(iNetStatus != NET_CONNECTING)
 		return;
 
-	// Try every 3 seconds
-	if(!force && (tLX->fCurTime - fConnectTime < 3))
+	// Try every second
+	if(!force && (tLX->fCurTime - fConnectTime < 1.0f))
 		return;
 
 	// For local play/hosting: don't send the challenge more times
@@ -691,12 +692,43 @@ void CClient::Connecting(bool force)
 		return;
 
 
-	// If we have tried 10 times (10*3 = 30secs) just quit trying
-	if(iNumConnects >= 10) {
+	// If we have tried 30 times (30 secs) revert to UDP server
+	if(iNumConnects >= 30) {
 		iNetStatus = NET_DISCONNECTED;
 		bBadConnection = true;
-		strBadConnectMsg = "Server timeout after 10 tries";
+		strBadConnectMsg = "Server timeout after 30 tries";
 		return;
+	}
+	
+	if( tLXOptions->bNatTraverse && iNumConnects == 10 ) // Revert to UDP NAT traversal after 10 seconds
+	{
+		std::string address;
+	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
+    	if( !fp1 )
+        	return;
+	    while( !feof(fp1) ) 
+		{
+    	    std::string line = ReadUntil(fp1);
+			TrimSpaces(line);
+
+	        if( line.length() == 0 )
+				continue;
+
+			if( line.find(":") == std::string::npos )
+				continue;
+			address = line;
+			break;
+	    };
+		fclose(fp1);
+	
+		SetNetAddrValid(cServerAddr, false);
+		fConnectTime = tLX->fCurTime;	// To disable DNS timeout
+		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Unknown error while resolving address";
+		}
+		bNatTraverseState = true;
 	}
 
 	if(!IsNetAddrValid(cServerAddr)) {
@@ -715,12 +747,10 @@ void CClient::Connecting(bool force)
 			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
 	}
 
-	{
-		std::string rawServerAddr;
-		NetAddrToString( cServerAddr, rawServerAddr );
-		if( rawServerAddr != strServerAddr )
-			strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
-	}
+	std::string rawServerAddr;
+	NetAddrToString( cServerAddr, rawServerAddr );
+	if( rawServerAddr != strServerAddr )
+		strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
 
 	fConnectTime = tLX->fCurTime;
 	iNumConnects++;
@@ -728,15 +758,24 @@ void CClient::Connecting(bool force)
 	// Request a challenge id
 	CBytestream bs;
 	bs.writeInt(-1,4);
-	bs.writeString("lx::getchallenge");
-	bs.writeString(GetFullGameName());
 
+	if( bNatTraverseState )
+	{
+		bs.writeString("lx::traverse");
+		bs.writeString(strServerAddr);	// Old address specified in connect()
+	}
+	else
+	{
+		bs.writeString("lx::getchallenge");
+		bs.writeString(GetFullGameName());
+	};
+	
 	// As we use this tSocket both for sending and receiving,
 	// it's saver to reset the address here.
 	SetRemoteNetAddr(tSocket, cServerAddr);
 	bs.Send(tSocket);
 
-	Timer(&Timer::DummyHandler, NULL, 3000, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, 1000, true).startHeadless();
 
 	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());
 }

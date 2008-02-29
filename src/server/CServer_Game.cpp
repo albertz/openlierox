@@ -616,6 +616,9 @@ void GameServer::gotoLobby(void)
 
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
+	for( int f=0; f<MAX_CLIENTS; f++ )
+		if(IsSocketStateValid(tNatTraverseSockets[f]))
+			AddSocketToNotifierGroup(tNatTraverseSockets[f]);
 
 	short i;
 	

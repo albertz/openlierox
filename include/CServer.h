@@ -121,7 +121,7 @@ private:
 	// Network
 	NetworkSocket	tSocket;
 	int				nPort;
-	NetworkAddr		tSTUNAddress;
+	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;
@@ -137,6 +137,8 @@ private:
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
+	float		fLastRegisterUdp;
+	std::vector<std::string>			tUdpMasterServers;
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
@@ -183,6 +185,7 @@ public:
 	bool		SendUpdate();
 	bool		checkBandwidth(CClient *cl);
 	void		RegisterServer(void);
+	void		RegisterServerUdp(void);
 	void		ProcessRegister(void);
 	void		CheckRegister(void);
 	bool		DeRegisterServer(void);
@@ -234,13 +237,14 @@ public:
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
 	void		ParseSendFile(CClient *cl, CBytestream *bs);
 
-	void		ParseConnectionlessPacket(CBytestream *bs, const std::string& ip);
-	void		ParseGetChallenge(CBytestream *bs);
-	void		ParseConnect(CBytestream *bs);
-	void		ParsePing(void);
-	void		ParseQuery(CBytestream *bs, const std::string& ip);
-    void        ParseGetInfo(void);
-	void		ParseWantsJoin(CBytestream *bs, const std::string& ip);
+	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
+	void		ParseConnect(NetworkSocket tSocket, CBytestream *bs);
+	void		ParsePing(NetworkSocket tSocket);
+	void		ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
+    void        ParseGetInfo(NetworkSocket tSocket);
+	void		ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 
 
 	// Variables

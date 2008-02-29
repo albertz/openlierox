@@ -1638,6 +1638,12 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 
 			// If we didn't query this server, then we should ignore it
 		}
+		
+		else if(cmd == "lx::serverlist")
+		{
+			Menu_SvrList_ParseUdpServerlist(bs);
+		}
+
 	}
 
 	return update;
@@ -1685,6 +1691,29 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
         svr->nPing = 999;
 }
 
+void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
+{
+	// Look the the list and find which server returned the ping
+	int amount = bs->readByte();
+	printf("Menu_SvrList_ParseUdpServerlist %i\n", amount);
+	for( int f=0; f<amount; f++ )
+	{
+		std::string addr = bs->readString();
+		std::string name = bs->readString();
+		int players = bs->readByte();
+		int maxplayers = bs->readByte();
+		int state = bs->readByte();
+		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
+		if( Menu_SvrList_FindServerStr(addr) != NULL )
+			if( Menu_SvrList_FindServerStr(addr)->szName != "" )
+				continue;
+		server_t *svr = Menu_SvrList_AddServer( addr, false );
+		svr->szName = name;
+		svr->nNumPlayers = players;
+		svr->nMaxPlayers = maxplayers;
+		svr->nState = state;
+	};
+};
 
 ///////////////////
 // Save the server list

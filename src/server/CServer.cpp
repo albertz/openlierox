@@ -78,6 +78,8 @@ void GameServer::Clear(void)
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
+	for(i=0; i<MAX_CLIENTS; i++)
+		InvalidateSocketState(tNatTraverseSockets[i]);
 	tGameLobby.bSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
@@ -99,7 +101,6 @@ void GameServer::Clear(void)
 		tChallenges[i].fTime = 0;
 		tChallenges[i].iNum = 0;
 	}
-	ResetNetAddr( tSTUNAddress );
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
@@ -133,88 +134,27 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		SystemError( "Error: cannot start listening" );
 		return false;
 	}
-
+	
+	if( tLXOptions->bNatTraverse && tGameInfo.iGameType == GME_HOST )
+	{
+		for( int f=0; f<MAX_CLIENTS; f++ )
+		{
+			tNatTraverseSockets[f] = OpenUnreliableSocket(0);
+			if(!IsSocketStateValid(tNatTraverseSockets[f])) {
+				SystemError("Error: Could not open UDP socket");
+				return false;
+			}
+			if(!ListenSocket(tNatTraverseSockets[f])) {
+				SystemError( "Error: cannot start listening" );
+				return false;
+			}
+		};
+	};
+	
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
 	NetAddrToString(addr, tLX->debug_string);
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
-
-	// TODO: put this in a separate function
-	ResetNetAddr( tSTUNAddress );
-	if( tLXOptions->sSTUNServer != "" && tGameInfo.iGameType != GME_LOCAL /* && regserver */ )
-	{
-		try	// STUN server is not critical, so if it failed just proceed further
-		{
-			StunAtrString username;
-			StunAtrString password;
-			username.sizeValue = 0;
-			password.sizeValue = 0;
-			StunMessage req;
-			memset(&req, 0, sizeof(StunMessage));
-			stunBuildReqSimple( &req, username, false, false, 1 ); 
-			char buf[STUN_MAX_MESSAGE_SIZE];
-			int len = STUN_MAX_MESSAGE_SIZE;
-			len = stunEncodeMessage( req, buf, len, password, false );
-			ResetNetAddr( addr );
-			std::string STUNServer = tLXOptions->sSTUNServer;
-			int STUNPort = STUN_PORT;
-			if( STUNServer.find(":") != std::string::npos )	{
-				STUNPort = atoi( STUNServer.substr( STUNServer.find(":")+1 ).c_str() );
-				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
-			}
-			
-			// resolving hostname
-			int count = 100;	// 2 secs
-			if( !GetNetAddrFromNameAsync( STUNServer, addr ) )
-				throw std::string("Error resolving hostname ") + tLXOptions->sSTUNServer;
-
-			while( !IsNetAddrValid(addr) && --count > 0 )  {
-				SDL_Delay(20);
-				// TODO: handle events here to response
-			}
-
-			if( count <= 0 )
-				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
-			SetNetAddrPort( addr, STUNPort );
-			SetRemoteNetAddr( tSocket, addr );
-			
-			// sendinq request
-			WriteSocket( tSocket, buf, len );
-			count = 100;	// 2 secs
-			while( ! isDataAvailable(tSocket) && --count > 0 )  {
-				SDL_Delay(20);
-				// TODO: handle events here to response
-				WriteSocket( tSocket, buf, len );
-			}
-
-			if( count <= 0 )
-				throw std::string("No response from server");
-			len = ReadSocket( tSocket, buf, sizeof(buf) );
-			StunMessage resp;
-			memset(&resp, 0, sizeof(StunMessage));
-			if( ! stunParseMessage( buf, len, resp, false ) )
-				throw std::string("Wrong response from server");
-
-			if( resp.hasMappedAddress )	{
-				std::ostringstream os;
-				for(short i = 3; i >= 0; i--) {
-					os << (255 & (resp.mappedAddress.ipv4.addr >> i*8));
-					if(i != 0) os << ".";
-				}
-				os << ":" << resp.mappedAddress.ipv4.port;
-				StringToNetAddr( os.str(), tSTUNAddress );
-				printf("HINT: STUN returned address: " + os.str() + "\n");
-			} else {
-				printf("HINT: STUN returned the same address, using default port number " + itoa(port) + "\n");
-				ResetNetAddr( tSTUNAddress );
-			}
-		}
-		catch( const std::string & s )
-		{
-			printf("HINT: STUN server failed: %s, using default port number %i\n", s.c_str(), port);
-			ResetNetAddr( tSTUNAddress );
-		}
-	}
 
 	// Initialize the clients
 	cClients = new CClient[MAX_CLIENTS];
@@ -261,10 +201,26 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	fclose(fp);
 
+    fp = OpenGameFile("cfg/udpmasterservers.txt","rt");
+    if( !fp )
+        return false;
+
+    // Parse the lines
+    while(!feof(fp)) {
+		std::string buf = ReadUntil(fp);
+        TrimSpaces(buf);
+        if(buf.size() > 0) {
+			tUdpMasterServers.push_back(buf);
+        }
+    }
+
+	fclose(fp);
+
 
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
     fLastRegister = -99999;
+	fLastRegisterUdp = tLX->fCurTime - 500;
 	//if(bRegServer)
 		//RegisterServer();
 
@@ -293,6 +249,9 @@ int GameServer::StartGame()
 {
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( tSocket );
+	for( int f=0; f<MAX_CLIENTS; f++ )
+		if(IsSocketStateValid(tNatTraverseSockets[f]))
+			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
 	CBytestream bs;
 
@@ -609,51 +568,58 @@ void GameServer::ReadPackets(void)
 	NetworkAddr adrFrom;
 	int c;
 
-	while(bs.Read(tSocket)) {
-		// TODO: comment this; is this still needed?
-		GetRemoteNetAddr(tSocket, adrFrom);
-		SetRemoteNetAddr(tSocket, adrFrom);
+	NetworkSocket pSock = tSocket;
+	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++, pSock = tNatTraverseSockets[sockNum] )
+	{
+		if( !tLXOptions->bNatTraverse && sockNum != -1 )
+			break;
 
-		// Check for connectionless packets (four leading 0xff's)
-		if(bs.readInt(4) == -1) {
-			std::string address;
-			NetAddrToString(adrFrom, address);
+		while(bs.Read(pSock)) {
+			// Set out address to addr from where last packet was sent, used for NAT traverse
+			GetRemoteNetAddr(pSock, adrFrom);
+			SetRemoteNetAddr(pSock, adrFrom);
+
+			// Check for connectionless packets (four leading 0xff's)
+			if(bs.readInt(4) == -1) {
+				std::string address;
+				NetAddrToString(adrFrom, address);
+				bs.ResetPosToBegin();
+				// parse all connectionless packets
+				// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
+				// <rev1457 (incl. Beta3) versions only will parse one package at a time.
+				// I fixed that now since >rev1457 that it parses multiple packages here
+				// (but only for new net-commands).
+				// Same thing in CClient.cpp in ReadPackets
+				while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
+					ParseConnectionlessPacket(pSock, &bs, address);
+				continue;
+			}
 			bs.ResetPosToBegin();
-			// parse all connectionless packets
-			// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
-			// <rev1457 (incl. Beta3) versions only will parse one package at a time.
-			// I fixed that now since >rev1457 that it parses multiple packages here
-			// (but only for new net-commands).
-			// Same thing in CClient.cpp in ReadPackets
-			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
-				ParseConnectionlessPacket(&bs, address);
-			continue;
-		}
-		bs.ResetPosToBegin();
 
-		// Read packets
-		CClient *cl = cClients;
-		for(c=0;c<MAX_CLIENTS;c++,cl++) {
+			// Read packets
+			CClient *cl = cClients;
+			for(c=0;c<MAX_CLIENTS;c++,cl++) {
+	
+				// Player not connected
+				if(cl->getStatus() == NET_DISCONNECTED)
+					continue;
 
-			// Player not connected
-			if(cl->getStatus() == NET_DISCONNECTED)
-				continue;
+				// Check if the packet is from this player
+				if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
+					continue;
 
-			// Check if the packet is from this player
-			if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
-				continue;
+				// Check the port
+				if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
+					continue;
 
-			// Check the port
-			if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
-				continue;
+				// Process the net channel
+	            if(cl->getChannel()->Process(&bs)) {
 
-			// Process the net channel
-            if(cl->getChannel()->Process(&bs)) {
-
-                // Only process the actual packet for playing clients
-                if( cl->getStatus() != NET_ZOMBIE )
-				    ParseClientPacket(cl, &bs);
-            }
+    	            // Only process the actual packet for playing clients
+        	        if( cl->getStatus() != NET_ZOMBIE )
+					    ParseClientPacket(cl, &bs);
+	            }
+			}
 		}
 	}
 }
@@ -701,15 +667,11 @@ void GameServer::RegisterServer(void)
 	// Create the url
 	std::string addr_name;
 
-	if (IsNetAddrValid( tSTUNAddress ))  {
-		NetAddrToString(tSTUNAddress, addr_name);
-	} else  {
-		// We don't know the external IP, just use the local one
-		// Doesn't matter what IP we use because the masterserver finds it out by itself anyways
-		NetworkAddr addr;
-		GetLocalNetAddr(tSocket, addr);
-		NetAddrToString(addr, addr_name);
-	}
+	// We don't know the external IP, just use the local one
+	// Doesn't matter what IP we use because the masterserver finds it out by itself anyways
+	NetworkAddr addr;
+	GetLocalNetAddr(tSocket, addr);
+	NetAddrToString(addr, addr_name);
 
 	fRegisterStart = tLX->fCurTime;
 
@@ -718,9 +680,6 @@ void GameServer::RegisterServer(void)
 	if (pos != std::string::npos)
 		addr_name.erase(pos, std::string::npos);
 
-	// HINT: we don't use the port returned by STUN because it works only for people with cone NAT
-	// It's a rare case and then even people that enabled the LX port couldn't host
-	
 	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 
     bServerRegistered = false;
@@ -777,6 +736,31 @@ void GameServer::ProcessRegister(void)
 
 }
 
+void GameServer::RegisterServerUdp(void)
+{
+	for( uint f=0; f<tUdpMasterServers.size(); f++ )
+	{
+		NetworkAddr addr;
+		if( tUdpMasterServers[f].find(":") == std::string::npos )
+			continue;
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
+		if( !GetFromDnsCache(domain, addr) )
+		{
+			GetNetAddrFromNameAsync(domain, addr);
+			fLastRegisterUdp = tLX->fCurTime - 35;
+			continue;
+		};
+		SetNetAddrPort( addr, port );
+		SetRemoteNetAddr( tSocket, addr );
+
+		CBytestream bs;
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::ping");
+		bs.Send(tSocket);
+	};
+}
+
 
 ///////////////////
 // This checks the registering of a server
@@ -793,6 +777,11 @@ void GameServer::CheckRegister(void)
 		bServerRegistered = false;
 		fLastRegister = tLX->fCurTime;
 		RegisterServer();
+	}
+	// UDP masterserver will remove our registry in 2 minutes
+	if( tLX->fCurTime - fLastRegisterUdp > 40 ) {
+		fLastRegisterUdp = tLX->fCurTime;
+		RegisterServerUdp();
 	}
 }
 
@@ -814,11 +803,6 @@ bool GameServer::DeRegisterServer(void)
 
 	// Stun server
 	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
-	if( IsNetAddrValid( tSTUNAddress ) )
-	{
-		NetAddrToString(tSTUNAddress, addr_name);
-		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( tSTUNAddress )) + "&addr=" + addr_name;
-	}
 
 	// Initialize the request
 	bServerRegistered = false;
@@ -1433,6 +1417,12 @@ void GameServer::Shutdown(void)
 		CloseSocket(tSocket);
 	};
 	InvalidateSocketState(tSocket);
+	for(i=0; i<MAX_CLIENTS; i++)
+	{
+		if(IsSocketStateValid(tNatTraverseSockets[i]))
+			CloseSocket(tNatTraverseSockets[i]);
+		InvalidateSocketState(tNatTraverseSockets[i]);
+	};
 
 	if(cClients) {
 		for(i=0;i<MAX_CLIENTS;i++)

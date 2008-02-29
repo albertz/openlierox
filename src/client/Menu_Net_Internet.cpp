@@ -574,9 +574,40 @@ void Menu_Net_NETUpdateList(void)
             SvrCount++;
     }
 
-
     // Clear the server list
     Menu_SvrList_ClearAuto();
+
+	if( tLXOptions->bNatTraverse )
+	{
+	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
+    	if( !fp1 )
+        	return;
+
+	    while( !feof(fp1) ) {
+    	    szLine = ReadUntil(fp1);
+			TrimSpaces(szLine);
+
+	        if( szLine.length() == 0 )
+				continue;
+
+			NetworkAddr addr;
+			if( szLine.find(":") == std::string::npos )
+				continue;
+			std::string domain = szLine.substr( 0, szLine.find(":") );
+			int port = atoi(szLine.substr( szLine.find(":") + 1 ));
+			if( !GetNetAddrFromName(domain, addr) )
+				continue;
+			SetNetAddrPort( addr, port );
+			SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
+
+			CBytestream bs;
+			bs.writeInt(-1,4);
+			bs.writeString("lx::getserverlist");
+			bs.Send(tMenu->tSocket[SCK_NET]);
+	    }
+		
+		fclose(fp1);
+	};
 
     // Back to the start
     fseek(fp,0,SEEK_SET);

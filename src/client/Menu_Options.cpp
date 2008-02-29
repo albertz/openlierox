@@ -54,7 +54,7 @@ enum {
 	os_NetworkSpeed,
 	os_UseIpToCountry,
 	os_LoadDbAtStartup,
-	os_STUNServer,
+	os_NatTraverse,
 	os_ShowFPS,
 	os_OpenGL,
 	os_ShowPing,
@@ -267,8 +267,8 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
 	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,310,17,17);
-	cOpt_System.Add( new CLabel("STUN server",tLX->clNormalLabel),     Static, 60, 340, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_STUNServer, 170, 340, 130,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CLabel("Use UDP masterserver",tLX->clNormalLabel),     Static, 330, 340, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bNatTraverse),  os_NatTraverse, 530,340,17,17);
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -283,7 +283,6 @@ bool Menu_OptionsInitialize(void)
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
-	cOpt_System.SendMessage(os_STUNServer,TXM_SETMAX,256,0);
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 
@@ -300,8 +299,6 @@ bool Menu_OptionsInitialize(void)
 	t->setText( itoa(tLXOptions->iNetworkPort) );
 	t = (CTextbox *)(cOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
-	t = (CTextbox *)cOpt_System.getWidget(os_STUNServer);
-	t->setText( tLXOptions->sSTUNServer.c_str() );
 
 	// Network speed
 	for(i=0; i<3; i++)
@@ -787,6 +784,10 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bLoadDbAtStartup = cOpt_System.SendMessage(os_LoadDbAtStartup, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
+				
+				case os_NatTraverse:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bNatTraverse = cOpt_System.SendMessage(os_NatTraverse, CKM_GETCHECK, (DWORD)0, 0) != 0;
 			}
 		}
 
@@ -794,8 +795,6 @@ void Menu_OptionsFrame(void)
 		// Get the values
 		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
-		t = (CTextbox *)cOpt_System.getWidget(os_STUNServer);
-		tLXOptions->sSTUNServer = t->getText();
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);

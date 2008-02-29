@@ -139,7 +139,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 				if (bs->readInt(3) == 0xffffff) {
 					std::string address;
 					NetAddrToString(cl->getChannel()->getAddress(), address);
-					ParseConnectionlessPacket(bs, address);
+					ParseConnectionlessPacket(cl->getChannel()->getSocket(), bs, address);
 					break;
 				}
 
@@ -864,21 +864,23 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parses connectionless packets
-void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& ip) {
+void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) {
 	std::string cmd = bs->readString(128);
 
 	if (cmd == "lx::getchallenge")
-		ParseGetChallenge(bs);
+		ParseGetChallenge(tSocket, bs);
 	else if (cmd == "lx::connect")
-		ParseConnect(bs);
+		ParseConnect(tSocket, bs);
 	else if (cmd == "lx::ping")
-		ParsePing();
+		ParsePing(tSocket);
 	else if (cmd == "lx::query")
-		ParseQuery(bs, ip);
+		ParseQuery(tSocket, bs, ip);
 	else if (cmd == "lx::getinfo")
-		ParseGetInfo();
+		ParseGetInfo(tSocket);
 	else if (cmd == "lx::wantsjoin")
-		ParseWantsJoin(bs, ip);
+		ParseWantsJoin(tSocket, bs, ip);
+	else if (cmd == "lx::traverse")
+		ParseTraverse(tSocket, bs, ip);
 	else  {
 		cout << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
@@ -888,7 +890,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& i
 
 ///////////////////
 // Handle a "getchallenge" msg
-void GameServer::ParseGetChallenge(CBytestream *bs_in) {
+void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	int			i;
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
@@ -957,7 +959,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 
 ///////////////////
 // Handle a 'connect' message
-void GameServer::ParseConnect(CBytestream *bs) {
+void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	CBytestream		bytestr;
 	NetworkAddr		adrFrom;
 	int				i, p, player = -1;
@@ -1220,6 +1222,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.writeInt(-1, 4);
 		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
 		// TODO: or should we just drop compatibility with Beta3 and leave this out?
+		// TODO: All these messages are sent over unreliable protocol and may be lost, we should use reliable CChannel.
+		// Server version is added to challenge packet so client will receive it for sure (or won't connect at all).
 		bytestr.writeString("lx::openbeta3");
 		// sadly we have to send this for Beta4
 		// we are sending the version string already in the challenge
@@ -1412,7 +1416,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 ///////////////////
 // Parse a ping packet
-void GameServer::ParsePing(void) {
+void GameServer::ParsePing(NetworkSocket tSocket) {
 	NetworkAddr		adrFrom;
 	GetRemoteNetAddr(tSocket, adrFrom);
 
@@ -1430,7 +1434,7 @@ void GameServer::ParsePing(void) {
 
 ///////////////////
 // Parse a "wants to join" packet
-void GameServer::ParseWantsJoin(CBytestream *bs, const std::string& ip) {
+void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) {
 
 	std::string Nick = bs->readString();
 
@@ -1453,7 +1457,7 @@ void GameServer::ParseWantsJoin(CBytestream *bs, const std::string& ip) {
 
 ///////////////////
 // Parse a query packet
-void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
+void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) {
 	static CBytestream bytestr;
 
 	int num = bs->readByte();
@@ -1481,7 +1485,7 @@ void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
 
 ///////////////////
 // Parse a get_info packet
-void GameServer::ParseGetInfo(void) {
+void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 	CBytestream     bs;
 	game_lobby_t    *gl = &tGameLobby;
 
@@ -1566,6 +1570,62 @@ void GameServer::ParseGetInfo(void) {
 
 	bs.Send(tSocket);
 }
+
+// Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]
+void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) 
+{
+	NetworkAddr		adrFrom, adrClient;
+	GetRemoteNetAddr(tSocket, adrFrom);
+	std::string adrClientStr = bs->readString();
+	StringToNetAddr( adrClientStr, adrClient );
+	printf("GameServer::ParseTraverse() %s\n", adrClientStr.c_str());
+
+	if( !tLXOptions->bNatTraverse )
+		return;
+
+	// Find unused socket
+	int socknum=0;
+	for( ; socknum<MAX_CLIENTS; socknum++ )
+	{
+		int f1=0;
+		for( ; f1<MAX_CLIENTS; f1++ )
+		{
+			NetworkAddr addr1, addr2;
+			GetLocalNetAddr( cClients[f1].getChannel()->getSocket(), addr1 );
+			GetLocalNetAddr( tNatTraverseSockets[socknum], addr2 );
+			if( cClients[f1].getStatus() != NET_DISCONNECTED && GetNetAddrPort(addr1) == GetNetAddrPort(addr2) )
+				break;
+		};
+		if( f1 >= MAX_CLIENTS )
+			break;
+	};
+	if( socknum >= MAX_CLIENTS )
+		return;
+
+	//printf("Sending lx:::traverse back, socknum %i\n", socknum);
+	// Send lx::traverse to udp server and lx::pong to client
+	CBytestream bs1;
+
+	bs1.Clear();
+	bs1.writeInt(-1, 4);
+	bs1.writeString("lx::traverse");
+	bs1.writeString(adrClientStr);
+
+	// Send traverse to server
+	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrFrom);
+	bs1.Send(tNatTraverseSockets[socknum]);
+
+	bs1.Clear();
+	bs1.writeInt(-1, 4);
+	bs1.writeString("lx::pong");
+
+	// Send ping to client to open NAT port
+	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
+	// Send 3 times - first packet may be ignored by remote NAT
+	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(tNatTraverseSockets[socknum]);
+};
 
 /////////////////
 // Parse a command from chat

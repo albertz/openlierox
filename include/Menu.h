@@ -357,6 +357,7 @@ void		Menu_SvrList_PingServer(server_t *svr);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
+void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs);
 void		Menu_SvrList_RefreshList(void);
 void        Menu_SvrList_RefreshServer(server_t *s);
 void		Menu_SvrList_UpdateList(void);
