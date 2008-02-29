@@ -43,8 +43,9 @@ struct KeyboardEvent;
 class CInput {
 	friend void HandleNextEvent();
 	friend void HandleCInputs_UpdateDownOnceForNonKeyboard();
+	friend void HandleCInputs_UpdateUpForNonKeyboard();
 	friend void HandleCInputs_KeyEvent(KeyboardEvent& ev);
-	
+
 public:
 	CInput();
 	~CInput();
@@ -57,17 +58,17 @@ private:
 	int		Extra;
 	std::string m_EventName;
 	bool	resetEachFrame;
-	
+
 	// HINT: currently these are only used for keyboard exept nDownOnce
 	// TODO: change this in HandleNextEvent() and here
 	int		nDown;
 	int		nDownOnce; // this is also updated for non-keyboards with currently the old code
 	int		nUp;
 	bool	bDown;
-		
+
 private:
 	int		wasDown_withoutRepeats();
-		
+
 public:
 	// Methods
 
@@ -83,7 +84,7 @@ public:
 	bool	isKeyboard() { return Type == INP_KEYBOARD; }
 	void	setResetEachFrame(bool r)	{ resetEachFrame = r; }
 	bool	getResetEachFrame()			{ return resetEachFrame; }
-	
+
 	bool	isUp(void);
 	bool	isDown(void);
 	bool	isDownOnce(void);
@@ -93,7 +94,7 @@ public:
 	}
 	int		wasDown(); // checks if there was such an event in the queue; returns the count of presses (down-events)
 	int		wasUp(); // checks if there was an keyup-event; returns the count of up-events
-	
+
 	std::string getEventName() { return m_EventName; }
 
 	// resets the current state

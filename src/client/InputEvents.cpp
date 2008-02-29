@@ -2,7 +2,7 @@
 	OpenLieroX
 
 	input (keyboard, mouse, ...) events and related stuff
-	
+
 	code under LGPL
 	created 01-05-2007
 	by Albert Zeyer and Dark Charlie
@@ -112,7 +112,7 @@ void HandleCInputs_UpdateDownOnceForNonKeyboard() {
 				(*it)->nDownOnce++;
 				continue;
 			}
-			
+
 			// HINT: It's possible that wasDown() > 0 and !isDown().
 			// That is the case when we press a key and release it directly after (in one frame).
 			// Though wasDown() > 0 doesn't mean directly isDownOnce because it also counts keypresses.
@@ -140,6 +140,15 @@ void HandleCInputs_UpdateDownOnceForNonKeyboard() {
 		}
 }
 
+void HandleCInputs_UpdateUpForNonKeyboard() {
+	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++)
+		if((*it)->isUsed() && !(*it)->isKeyboard()) {
+			if((*it)->isDown() && !(*it)->bDown) {
+				(*it)->nUp++;
+			}
+		}
+}
+
 static void ResetCurrentEventStorage() {
 	ResetCInputs();
 
@@ -150,7 +159,7 @@ static void ResetCurrentEventStorage() {
 	Mouse.WheelScrollUp = false;
 	Mouse.WheelScrollDown = false;
 	Mouse.mouseQueue.clear();
-	
+
 	// Reset the video mode changed flag here
 	if (tLX)
 		tLX->bVideoModeChanged = false;
@@ -172,7 +181,7 @@ void HandleNextEvent() {
 		return;
 
 	switch(Event.type) {
-	
+
 	// Quit event
 	case SDL_QUIT:
 		// Quit
@@ -191,13 +200,13 @@ void HandleNextEvent() {
 				Mouse.WheelScrollDown  = true;
 				break;
 		}  // switch
-	
+
 		{
 			MouseEvent mev = { Event.button.x, Event.button.y, Event.button.button, true };
 			Mouse.mouseQueue.push_back( mev );
 		}
 		break;
-		
+
 	case SDL_MOUSEBUTTONUP:
 		{
 			MouseEvent mev = { Event.button.x, Event.button.y, Event.button.button, false };
@@ -271,7 +280,7 @@ void HandleNextEvent() {
 			}
 
 			KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
-			
+
 			// Key down
 			if(Event.type == SDL_KEYDOWN)
 				kbev.down = true;
@@ -282,12 +291,12 @@ void HandleNextEvent() {
 
 			else
 				break; // don't save and handle it
-			
+
 			// save info
 			kbev.ch = input;
 			kbev.sym = Event.key.keysym.sym;
 			Keyboard.queueLength++;
-			
+
 			// handle modifier state
 			switch (kbev.sym)  {
 			case SDLK_LALT: case SDLK_RALT:
@@ -303,32 +312,32 @@ void HandleNextEvent() {
 				keyModifiersState.bSuper = kbev.down;
 				break;
 			}
-			
+
 			// copy it
 			kbev.state = keyModifiersState;
-		
+
 			HandleCInputs_KeyEvent(kbev);
-			
+
 			/*
 			if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 				// I don't want to track keyrepeats here; but works only for special keys
-				cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl; 
+				cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
 			else if(!kbev.down)
 				cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
 			*/
-		
+
 		} else
 			printf("strange Event.key.state = %i\n", Event.key.state);
 		break;
-		
+
 	case SDL_SYSWMEVENT:
 		handle_system_event(Event);
 		break;
-	
+
 	case SDL_USEREVENT_TIMER:
-		Timer::handleEvent(Event);	
+		Timer::handleEvent(Event);
 		break;
-		
+
 	default:
 		//std::cout << "WARNING: unhandled event " << Event.type << std::endl;
 		break;
@@ -346,7 +355,7 @@ static void HandleMouseState() {
 		Mouse.Up = 0;
 		Mouse.FirstDown = 0;
 	}
-	
+
     for( int i=0; i<MAX_MOUSEBUTTONS; i++ ) {
 		if(!(Mouse.Button & SDL_BUTTON(i)) && Mouse.Down & SDL_BUTTON(i))
 			Mouse.Up |= SDL_BUTTON(i);
@@ -366,10 +375,10 @@ static void HandleMouseState() {
 	}
 }
 
-static void HandleKeyboardState() {	
+static void HandleKeyboardState() {
 	// HINT: KeyDown is the state of the keyboard
 	// KeyUp is like an event and will only be true once
-	
+
 	// Keyboard
 	Keyboard.keys = SDL_GetKeyState(NULL);
 
@@ -386,13 +395,13 @@ static void HandleKeyboardState() {
 // halt the current thread until there is a new event
 bool WaitForNextEvent() {
 	ResetCurrentEventStorage();
-	
+
 	bool ret = false;
 	if(SDL_WaitEvent(&Event)) {
-		HandleNextEvent();		
+		HandleNextEvent();
 		ret = true;
 	}
-	
+
 	// Perhaps there are more events in the queue.
 	// In this case, handle all of them. we want an empty
 	// queue after
@@ -404,8 +413,9 @@ bool WaitForNextEvent() {
 	HandleMouseState();
 	HandleKeyboardState();
 	if(bJoystickSupport) SDL_JoystickUpdate();
+	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
-	
+
 	return ret;
 }
 
@@ -415,7 +425,7 @@ bool WaitForNextEvent() {
 bool ProcessEvents()
 {
 	ResetCurrentEventStorage();
-	
+
 	bool ret = false;
 	while(SDL_PollEvent(&Event)) {
 		HandleNextEvent();
@@ -429,8 +439,9 @@ bool ProcessEvents()
 	HandleMouseState();
 	HandleKeyboardState();
 	if(bJoystickSupport) SDL_JoystickUpdate();
+	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
-	
+
 	return ret;
 }
 

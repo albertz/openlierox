@@ -175,9 +175,9 @@ static SDL_Joystick* joys[2] = {NULL, NULL};
 bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
 	if(!bJoystickSupport) return false;
 	if(joy == NULL) return false;
-	
+
 	int val;
-	
+
 	// TODO: atm these limits are hardcoded; make them constants (or perhaps also configurable)
 	switch(flag) {
 		case JOY_UP:
@@ -204,11 +204,11 @@ bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
 			if(SDL_JoystickGetButton(joy,extra))
 				return true;
 			break;
-			
+
 		default:
 			printf("WARNING: checkJoystickState: unknown flag\n");
 	}
-	
+
 	return false;
 }
 
@@ -217,11 +217,11 @@ static bool joysticks_inited_temp[2] = {false, false};
 void initJoystick(int i, bool isTemp) {
 	assert(i == 0 || i == 1);
 	if(!bJoystickSupport) return;
-	
+
 	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
 		printf("opening joystick %i", i);
 		printf(" (\"%s\")\n", SDL_JoystickName(i));
-		joys[i] = SDL_JoystickOpen(0);
+		joys[i] = SDL_JoystickOpen(i);
 		if(joys[i]) {
 			printf("  Number of Axes: %d\n", SDL_JoystickNumAxes(joys[i]));
 			printf("  Number of Buttons: %d\n", SDL_JoystickNumButtons(joys[i]));
@@ -244,6 +244,7 @@ void CInput::InitJoysticksTemp() {
 
 void uninitTempJoystick(int i) {
 	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
+		printf("uninit temporary loaded joystick %i\n", i);
 		SDL_JoystickClose(joys[i]);
 		joys[i] = NULL;
 		joysticks_inited_temp[i] = false;
@@ -265,9 +266,10 @@ CInput::CInput() {
 	Type = INP_NOTUSED;
 	Data = 0;
 	Extra = 0;
-	resetEachFrame = true;	
+	resetEachFrame = true;
 	bDown = false;
-	
+	reset();
+
 	RegisterCInput(this);
 }
 
@@ -361,7 +363,7 @@ int CInput::Setup(const std::string& string)
 
 	m_EventName = string;
 	resetEachFrame = true;
-	
+
 	// Check if it's a mouse
 	if(string.substr(0,2) == "ms") {
 		Type = INP_MOUSE;
@@ -408,7 +410,7 @@ int CInput::Setup(const std::string& string)
 
 		// Open the joystick if it hasn't been already opened
 		initJoystick(1, false);
-		
+
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
 			if(Joysticks[n].text == string) {
@@ -467,7 +469,7 @@ bool CInput::isUp(void)
 		// Joystick
 		case INP_JOYSTICK1:
 		case INP_JOYSTICK2:
-			return !isDown();
+			return nUp > 0;
 
 	}
 
@@ -518,27 +520,22 @@ int CInput::wasDown_withoutRepeats() {
 // goes through the event-signals and searches for the event
 int CInput::wasDown() {
 	int counter = 0;
-	
+
 	switch(Type) {
 	case INP_KEYBOARD:
 		counter = nDown;
 		break;
-			
+
 	case INP_MOUSE:
 		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
-		counter = isDown() ? 1 : 0; // no other way at the moment
+		counter = nDownOnce; // no other way at the moment
 		break;
-		
+
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
-		counter = isDown() ? 1 : 0; // no other way at the moment
+		counter = nDownOnce; // no other way at the moment
 		break;
 	}
-	
-	// this is currently possible because nDownOnce is updated each frame and
-	// we have perhaps not reset this CInput
-	if(nDownOnce > counter)
-		counter = nDownOnce;
 
 	return counter;
 }
@@ -546,26 +543,26 @@ int CInput::wasDown() {
 // goes through the event-signals and searches for the event
 int CInput::wasUp() {
 	int counter = 0;
-	
+
 	switch(Type) {
 	case INP_KEYBOARD:
 		counter = nDown;
 		break;
-	
+
 	case INP_MOUSE:
 		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
-		counter = isUp() ? 1 : 0; // no other way at the moment
+		counter = 0;  // no other way at the moment
 		break;
-		
+
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
-		counter = isUp() ? 1 : 0; // no other way at the moment
+		counter = 0; // no other way at the moment
 		break;
 	}
-	
+
 	return counter;
 }
 
 void CInput::reset() {
-	nDown = nDownOnce = nUp = 0;	
+	nDown = nDownOnce = nUp = 0;
 }

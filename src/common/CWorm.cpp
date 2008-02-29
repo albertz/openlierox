@@ -40,7 +40,7 @@ void CWorm::Clear(void)
 	iClientWormID = 0;
     szSkin = "";
 	cOwner = NULL;
-    
+
 	iKills = 0;
 	iDeaths = 0;
 	iSuicides = 0;
@@ -143,14 +143,14 @@ void CWorm::Clear(void)
 	// Graphics
 	cHealthBar = CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
-	
+
 	ProfileGraphics = true;
 	bAlreadyKilled = false;
 
 	bNoShooting = false;
 	bFlag = false;
 	lastMoveTime = 0;
-	
+
 	fLastSimulationTime = tLX->fCurTime;
 }
 
@@ -185,7 +185,7 @@ void CWorm::FreeGraphics(void)
 
 	gfxFreeSurface(bmpWormRight);
 	bmpWormRight = NULL;
-	
+
 	gfxFreeSurface(bmpPic);
 	bmpPic = NULL;
 
@@ -215,7 +215,7 @@ void CWorm::Prepare(CMap *pcMap)
     // If this is an AI worm, initialize the AI stuff
     if(iType == PRF_COMPUTER && bLocal)
         AI_Initialize();
-       
+
     // we use the normal init system first after the weapons are selected and we are ready
 	StopInputSystem();
 }
@@ -254,7 +254,7 @@ void CWorm::Spawn(CVec position) {
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
 	fLastShoot = 0;
-	
+
 	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
@@ -287,7 +287,7 @@ void CWorm::Spawn(CVec position) {
 void CWorm::Respawn(CVec position) {
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
-	
+
 	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
@@ -311,10 +311,10 @@ void CWorm::Respawn(CVec position) {
 bool CWorm::LoadGraphics(int gametype)
 {
 	// TODO: create some good way to allow custom colors
-	
+
 	bool team = false;
     Uint8 r=0,g=0,b=0;
-    
+
 	// Destroy any previous graphics
 	FreeGraphics();
 
@@ -323,7 +323,7 @@ bool CWorm::LoadGraphics(int gametype)
 		LoadProfileGraphics();
 		ProfileGraphics = false;
 	}
-		
+
 	Uint32 colour = iColour;
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH || gametype == GMT_VIP) {
@@ -339,7 +339,7 @@ bool CWorm::LoadGraphics(int gametype)
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
     // Load the skin
-    bmpWormRight = LoadSkin(szSkin, r,g,b);	
+    bmpWormRight = LoadSkin(szSkin, r,g,b);
 	if (!bmpWormRight)  {
 		// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
 		bmpWormLeft = NULL;
@@ -348,19 +348,19 @@ bool CWorm::LoadGraphics(int gametype)
 		return false;
 	}
 	bmpWormLeft = GetMirroredImage(bmpWormRight);
-    
+
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
     SetColorKey(bmpPic);
     FillSurfaceTransparent(bmpPic);
     CopySurface(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
-	
+
     // Shadow buffer
     bmpShadowPic = gfxCreateSurface(32,18);
     SetColorKey(bmpShadowPic);
 
-	return bmpWormRight != NULL && bmpWormLeft != NULL && 
+	return bmpWormRight != NULL && bmpWormLeft != NULL &&
 			bmpGibs != NULL && bmpPic != NULL && bmpShadowPic != NULL;
 }
 
@@ -403,7 +403,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	int x,y;
 	Uint8 r,g,b;
 	Uint32 pixel;
-	
+
 	Uint32 colour = iColour;
 	if (team)
 		colour = tLX->clTeamColors[iTeam];
@@ -456,7 +456,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 				r2=240;
 				b2=240;
 			}
-			
+
 			PutPixel(img,x,y, MakeColour((int)r2, (int)g2, (int)b2));
 		}
 	}
@@ -474,7 +474,7 @@ void CWorm::InitWeaponSelection(void)
 	iCurrentWeapon = 0;
 
 	bWeaponsReady = false;
-	
+
 	iNumWeaponSlots = 5;
 
 	// Load previous settings from profile
@@ -538,7 +538,7 @@ void CWorm::InitWeaponSelection(void)
 		setWeaponsReady(true);
 	}
 
-	
+
 	for(short n=0;n<iNumWeaponSlots;n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
@@ -563,13 +563,13 @@ void CWorm::GetRandomWeapons(void)
 		// Safety hack
 		if (!num)
 			num = 1;
-		
+
         // Cycle through weapons starting from the random one until we get an enabled weapon
         n=num;
 		lastenabled = 0;
 		while(1) {
 			// Wrap around
-			if(n >= cGameScript->GetNumWeapons())  
+			if(n >= cGameScript->GetNumWeapons())
  			   n = 0;
 
 			// Have we already got this weapon?
@@ -594,8 +594,8 @@ void CWorm::GetRandomWeapons(void)
 			if(n == num) {
 			   n = lastenabled;
 			   break;
-			}	
-											
+			}
+
 		}  // while
 		tWeapons[i].Weapon = cGameScript->GetWeapons()+n;
 	}
@@ -610,9 +610,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	// TODO: reduce local variables in this function
 	// TODO: make this function shorter
 	// TODO: give better names to local variables
-	
+
 	if(bDedicated) return; // just for safty; atm this function only handles non-bot players
-	
+
 	int l = 0;
 	int t = 0;
 	short i;
@@ -625,7 +625,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
             centrex = v->GetLeft() + v->GetVirtW()/2;
         }
     }
-	
+
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+66, tLX->clWeaponSelectionTitle, "(Go to 'Done' and press shoot then.)");
@@ -636,7 +636,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 	int y = t + 100;
 	for(i=0;i<iNumWeaponSlots;i++) {
-		
+
 		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
 		if(iCurrentWeapon == i)
 			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionActive,  tWeapons[i].Weapon->Name);
@@ -669,7 +669,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 			}
 			tWeapons[i].Weapon = &cGameScript->GetWeapons()[id];
 		}
-		
+
 		y += 18;
 	}
 
@@ -680,7 +680,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     if(iCurrentWeapon == iNumWeaponSlots) {
 
 		// Fire on the random button?
-		if((cShoot.wasDown()) && !bChat_Typing) {
+		if((cShoot.isDownOnce()) && !bChat_Typing) {
 			GetRandomWeapons();
 		}
 	}
@@ -701,7 +701,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		}
 	}
 
-    
+
 
 	// AI Worms select their weapons automatically
 	if(iType == PRF_COMPUTER && bLocal) {
@@ -736,14 +736,14 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
 
-		
+
 	if(!bChat_Typing) {
 		// move selection up or down
 		int change = cDown.wasDown() - cUp.wasDown();
 		iCurrentWeapon += change;
 		iCurrentWeapon %= iNumWeaponSlots + 2;
 		if(iCurrentWeapon < 0) iCurrentWeapon += iNumWeaponSlots + 2;
-	}	
+	}
 }
 
 
@@ -762,7 +762,7 @@ void CWorm::UpdateDrawPos() {
 
 		// tmp hack
 		vDrawPos = vPos;
- 
+
 		// update drawing position
 		CVec vDif = vPos - vDrawPos;
 		float dif = vDif.GetLength();
@@ -772,22 +772,22 @@ void CWorm::UpdateDrawPos() {
 			else
 				vDrawPos += vDif * (1/dif)
 					* MAX(10.0f, MIN(dif * dif * (1.0f / 50.0f) * 40.0f, 200.0f)) * tLX->fDeltaTime;
-*/		
+*/
 		}
-		
-	
+
+
 #ifdef _AI_DEBUG
 /*		SDL_Surface *bmpDestDebug = pcMap->GetDebugImage();
 		if (bmpDestDebug) {
 			int node_x = (int)vPos.x*2, node_y = (int)vPos.y*2;
-			
+
 			if(node_x-4 >= 0 && node_y-4 >= 0 && node_x+4 < bmpDestDebug->w && node_y+4 < bmpDestDebug->h) {
 				// Draw the new pos
 				DrawRectFill(bmpDestDebug,node_x-4,node_y-4,node_x+4,node_y+4, MakeColour(0,255,0));
 			}
 		} */
-#endif	
-	
+#endif
+
 	} else {
 		// no antilag movement prediction
 		vDrawPos = vPos;
@@ -801,10 +801,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 {
     if( !v )
         return;
-			
+
 	//
 	// Draw the ninja rope
-	//		
+	//
 	cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 
@@ -857,7 +857,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 					DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
 					DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
 				}
-											// Red			Orange				Yellow		   Light Green		  Green	
+											// Red			Orange				Yellow		   Light Green		  Green
 				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
 
 				// Clamp it
@@ -902,7 +902,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		x = 6;
 		bGotTarget = false;
 	}
-	
+
 	if(bLocal)
 		DrawImageAdv(bmpDest, gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
 
@@ -923,7 +923,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	x -= x % 2;
 	y -= y % 2;
 
-    
+
 	// Draw the worm
     FillSurfaceTransparent(bmpShadowPic);
 	if(iDirection == DIR_RIGHT)
@@ -933,13 +933,13 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
     DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 
-    
 
-	
+
+
 	// Debug: Show the actual worm pos
 	/*x = (int)( (vPos.x-wx)*2+l );
 	y = (int)( (vPos.y-wy)*2+t );
-	
+
 	// Snap the position to a slighter bigger pixel grid (2x2)
 	x -= x % 2;
 	y -= y % 2;*/
@@ -948,7 +948,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	y = (int)( (tLX->debug_pos.y-wy)*2+t );
     DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,tLX->clBlack);*/
 
-	
+
 	//
 	// Draw the muzzle flash
 	//
@@ -977,7 +977,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		}  // switch
 	} // if
 	bDrawMuzzle = false;
-	
+
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
@@ -1051,7 +1051,7 @@ bool CWorm::Injure(int damage)
 		// If playing CTF and I am a flag don't injure me
 		if(cServer->getLobby()->nGameMode == GMT_CTF && getFlag())
 			return false;
-	
+
 		// If playing teams CTF and I am a flag don't injure me
 		if(cServer->getLobby()->nGameMode == GMT_TEAMCTF && getFlag())
 			return false;
@@ -1074,7 +1074,7 @@ bool CWorm::Injure(int damage)
 bool CWorm::Kill(void)
 {
 	std::cout << "our worm " << iID << " died" << std::endl;
-	
+
 	bAlive = false;
 	fTimeofDeath = tLX->fCurTime;
 

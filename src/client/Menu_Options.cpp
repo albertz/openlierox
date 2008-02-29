@@ -290,7 +290,7 @@ bool Menu_OptionsInitialize(void)
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17); 
+	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
@@ -423,7 +423,7 @@ void Menu_OptionsFrame(void)
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer,  180,110,  180,110,  300,30);
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
-	
+
 	// Process the top buttons
 	TopButtons[OptionsMode].MouseOver(Mouse);
 	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
@@ -637,7 +637,7 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAllowDirtUpdates = cOpt_Game.SendMessage(og_AllowDirtUpdates, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
-				
+
 			}
 		}
 
@@ -684,7 +684,7 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						bool restart = (tLXOptions->bOpenGL != opengl) || (tLXOptions->iColourDepth != cdepth);
-						
+
 						// Set to fullscreen / OpenGL / change colour depth
 						tLXOptions->bFullscreen = fullscr;
 						tLXOptions->bOpenGL = opengl;
@@ -705,11 +705,11 @@ void Menu_OptionsFrame(void)
 							bRestartGameAfterQuit = true; // set restart-flag
 							startFunction = &Menu_StartWithSysOptionsMenu; // set function which loads this menu after start
 							return;
-						
+
 						} else {
 							// Set the new video mode
 							SetVideoMode();
-	
+
 							tMenu->bmpScreen = SDL_GetVideoSurface();
 							Menu_RedrawMouse(true);
 							SDL_ShowCursor(SDL_DISABLE);
@@ -854,7 +854,8 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	ProcessEvents();
 	SetGameCursor(CURSOR_ARROW);
 	CInput::InitJoysticksTemp();
-	while(true) {
+	ProcessEvents(); // drop all current events in queue
+	while(!tLX->bQuitGame) {
 		Menu_RedrawMouse(false);
 
 		DrawCursor(tMenu->bmpScreen);
