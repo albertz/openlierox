@@ -113,11 +113,11 @@ bool GameServer::SendUpdate()
 
 			++j;
 
-			CBytestream bytes;
 			// w is an own server-side copy of the worm-structure
 			if (w->checkPacketNeeded()) {
+				CBytestream bytes;
 				bytes.writeByte(w->getID());
-				w->writePacket(&bytes);
+				w->writePacket(&bytes, true);
 				worm_bytestreams.push_back(bytes);
 				worms_to_update.push_back(w);
 			}

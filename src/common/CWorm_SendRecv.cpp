@@ -55,7 +55,7 @@ void CWorm::readInfo(CBytestream *bs)
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();
 	Uint8 b = bs->readByte();
-	
+
 	iColour = MakeColour(r, g, b);
 }
 
@@ -96,7 +96,7 @@ void CWorm::readScore(CBytestream *bs)
 
 ///////////////////
 // Write a packet out
-void CWorm::writePacket(CBytestream *bs)
+void CWorm::writePacket(CBytestream *bs, bool fromServer)
 {
 	short x, y;
 
@@ -135,14 +135,8 @@ void CWorm::writePacket(CBytestream *bs)
 
 
 	// Velocity
-
-	// The server only needs to know our velocity for shooting
-	// So only send the velocity if our shoot flag is set
-	/*if(getClient() && getClient()->getHostVer() > 4)
-		printf("has client: %i\n", getID());
-	else
-		printf("has no client: %i\n", getID());*/
-	if(tState.bShoot) {
+	const Version& versionOfReceiver = fromServer ? getClient()->getClientVersion() : getClient()->getServerVersion();
+	if(tState.bShoot || versionOfReceiver >= GetOLXBetaVersion(5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
@@ -189,17 +183,17 @@ bool CWorm::checkPacketNeeded()
 	// Angle
 	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
 		return true;
-	
+
 	// position change
 	CVec vPosDif = vLastUpdatedPos - vPos;
 	if (vPosDif.GetLength2())
 		if (tLX->fCurTime - fLastUpdateWritten >= MAX(1.0f/vPosDif.GetLength(), 1.0f/80.0f))
 			return true;
-			
+
 	// Flag
 	if(getFlag())
 		return true;
-	
+
 	// Rope
 	return cNinjaRope.writeNeeded();
 }
@@ -246,42 +240,42 @@ bool CWorm::checkPacketNeeded()
 // it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
 	float t = tLX->fCurTime - fLastPosUpdate;
-		
+
 	// TODO: the following just draws the pos received in packet for debugging
 	// atm we only have the debugimage available if _AI_DEBUG is set
 	// this should be changed to DEBUG
-#ifdef _AI_DEBUG	
+#ifdef _AI_DEBUG
 /*	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest) {
 		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
 		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;
-		
+
 		if(node_x-4 >= 0 && node_y-4 >= 0 && node_x+4 < bmpDest->w && node_y+4 < bmpDest->h
 		&& onode_x-4 >= 0 && onode_y-4 >= 0 && onode_x+4 < bmpDest->w && onode_y+4 < bmpDest->h) {
 			// a line between both
 			DrawLine(bmpDest, node_x, node_y, onode_x, onode_y, tLX->clWhite);
-			
+
 			// Draw the old pos
-			DrawRectFill(bmpDest,onode_x-3,onode_y-3,onode_x+3,onode_y+3, MakeColour(122,122,255));	
-			
+			DrawRectFill(bmpDest,onode_x-3,onode_y-3,onode_x+3,onode_y+3, MakeColour(122,122,255));
+
 			// Draw the new pos
-			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? MakeColour(0,0,0) : MakeColour(122,122,0));			
+			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? MakeColour(0,0,0) : MakeColour(122,122,0));
 		}
 	} */
-#endif	
-		
+#endif
+
 	vPos = newpos;
 	bOnGround = CheckOnGround(); // update bOnGround; will perhaps be updated later in simulation
-		
+
 	if (!cGameScript)
 		return;
-		
+
 	CVec dist = newpos - vOldPosOfLastPaket;
-	
+
 	// TODO: Why is there an option for disabling this? There is no reason to disable, it
 	// should always be better with it activated. There is no magic behind, it's just
 	// a more correct estimation/calculation.
-	// HINT: Raziel told me about "jelly-jumping" remote worm behavior under lag in Beta3 
+	// HINT: Raziel told me about "jelly-jumping" remote worm behavior under lag in Beta3
 	// and I believe it's because of an estimation - set net speed in options to "Modem" in client
 	// and hang on ninjarope - the server will see remote worm sliding down fuzzily each frame,
 	// linear approximation looks bit better for me. Raziel haven't confirmed it though.
@@ -303,44 +297,44 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			t = tLX->fCurTime - fLastPosUpdate;
 			dist = newpos - vOldPosOfLastPaket;
 		}
-	
+
 		if(t == 0.0f) { // if it is still =0 after the update, it means that we don't have previous data
 			// we can't do anything here, just accept the situation
-			
+
 		} else {
 			// Approximate with velocity and acceleration (including gravity)
 			CVec a(0, 0);
-		
+
 			const gs_worm_t *wd = cGameScript->getWorm();
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
-	
-	
+
+
 			if(!bOnGround)	{
 				// TODO: this is also not exact
 				CVec preEstimatedVel = vVelocity; //dist / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
-	
+
 			if (cNinjaRope.isAttached())  {
 				a += cNinjaRope.GetForce(newpos);
 			}
-		
+
 			// Gravity
 			a.y += wd->Gravity;
-		
+
 			// this estimates the vel of fLastPosUpdate
 			// it do a better estimation as we had last time, so believe this more
 			CVec estimatedVel = (dist / t) - (a * t / 2.0f);
-			
+
 			// in fLastPosUpdate, we have old vLastEstimatedVel and new estimatedVel
 			// add the dif of them to our current vel
 			vVelocity += estimatedVel - vLastEstimatedVel;
-			
+
 			// or just use this estimation
 			//vVelocity = estimatedVel;
-			
+
 			// update the estimated vel for next time
 			vLastEstimatedVel = vVelocity;
 	/*
@@ -349,7 +343,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
 				estimatedVel.x *= 0.9f;
 				// is it ok here?
-	
+
 				// Too slow, just stop
 	//			if(fabs(estimatedVel.x) < 5 && !ws->iMove)
 	//				estimatedVel.x = 0;
@@ -357,17 +351,17 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	*/
 			// we don't know anything of the moving in between, so we ignore this here
 			// this is already calculated in simulation
-			
-			// HINT: Don't process the moving as it is already included in the linear part of the calculation		
+
+			// HINT: Don't process the moving as it is already included in the linear part of the calculation
 		}
-		
+
 	}
-	
+
 	vPreOldPosOfLastPaket = vOldPosOfLastPaket;
 	vPreLastEstimatedVel = vLastEstimatedVel;
 	fPreLastPosUpdate = fLastPosUpdate;
 
-	vOldPosOfLastPaket = newpos;		
+	vOldPosOfLastPaket = newpos;
 	fLastPosUpdate = tLX->fCurTime;
 
 }
@@ -389,7 +383,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
 	iMoveDirection = iDirection = DIR_LEFT;
-		
+
 	tState.bCarve = (bits & 0x01) != 0;
 	if(bits & 0x02)
 		iMoveDirection = iDirection = DIR_RIGHT;
@@ -405,14 +399,15 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		cNinjaRope.Release();
 
 	// Velocity
-	if(tState.bShoot) {
+	const Version& versionOfSender = getClient()->getClientVersion();
+	if(tState.bShoot || versionOfSender >= GetOLXBetaVersion(5)) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 
 	// If the worm is inside dirt then it is probably carving
-	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
+	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.bCarve = true;
 
@@ -425,7 +420,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		// Out of map
 		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
 		{
-			vPos=vLastPos; 
+			vPos=vLastPos;
 			cServer->SpawnWorm(w, vPos, cl);
 		}
 
@@ -435,7 +430,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 			vPos=vLastPos;
 			cServer->SpawnWorm(w, vPos, cl);
 		}
-	
+
 		// TODO: isn't vLastPos intendent to be the same as vOldPos? if so, remove it
 		vLastPos = vPos;
 	}
@@ -470,7 +465,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		skipPacketState(bs);
 		return;
 	}
-	
+
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
@@ -478,11 +473,11 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Angle
 	tState.iAngle = (bs->readInt(1) - 90);
 	fAngle = (float)tState.iAngle;
-	
+
 	// Flags
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
-	
+
 	iMoveDirection = iDirection = tState.iDirection = DIR_LEFT;
 
 	tState.bCarve = (bits & 0x01);
@@ -491,7 +486,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	tState.bMove = (bits & 0x04) != 0;
 	tState.bJump = (bits & 0x08) != 0;
 	tState.bShoot = (bits & 0x20) != 0;
-	
+
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
 	if(rope)
@@ -510,14 +505,15 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	net_updatePos( CVec(x, y) );
 
 	// Velocity
-	if(tState.bShoot) {
+	const Version& versionOfSender = getClient()->getServerVersion();
+	if(tState.bShoot || versionOfSender >= GetOLXBetaVersion(5)) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec( (float)vx, (float)vy );
 		fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime; // update time to get sure that we don't use old data
 		vPreOldPosOfLastPaket = vOldPosOfLastPaket = vPos; // same with pos
 	}
-	
+
 	// do carving also here as the simulation is only done in next frame and with an updated position
 	if(tState.bCarve) {
 		// carve the whole way from old pos to new pos
@@ -529,7 +525,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 				incrementDirtCount( CarveHole(getMap(), p) );
 			}
 		}
-		
+
 		// carve a bit further were we are heading to (same as in simulation)
 		{
 			// Calculate dir
@@ -538,15 +534,15 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 			dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
 			if(tState.iDirection==DIR_LEFT)
 				dir.x=(-dir.x);
-			
-			incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );		
+
+			incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );
 		}
 	}
 
 	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 
-	
+
 ///////////////////
 // Write out the weapons
 void CWorm::writeWeapons(CBytestream *bs)
@@ -568,7 +564,7 @@ void CWorm::readWeapons(CBytestream *bs)
 {
 	ushort i;
 	int id;
-	
+
 	for(i=0; i<5; i++) {
 		id = bs->readByte();
 
@@ -644,15 +640,15 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		printf("WARNING: readStatUpdate: Weapon == NULL\n");
 		return;
 	}
-	
+
 	// If this is a special weapon, and the charge is processed client side, don't set the charge
 	if( tWeapons[cur].Weapon->Type == WPN_SPECIAL )
 		return;
 
 
-		
+
 	tWeapons[cur].Reloading = (charge & 0x80) != 0;
-	
+
 	charge &= ~(0x80);
 
 	float c = (float)charge/100.0f;

@@ -72,7 +72,7 @@ void CClient::SendWormDetails(void)
 
 	w = cLocalWorms[0];
 	for(i = 0; i < iNumWorms; i++, w++)
-		w->writePacket(&bs);
+		w->writePacket(&bs, false);
 
 	bsUnreliable.Append(&bs);
 }
