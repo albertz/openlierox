@@ -27,6 +27,8 @@
 #include "ChatCommand.h"
 #include "DedicatedControl.h"
 #include "AuxLib.h"
+#include "Version.h"
+
 
 using namespace std;
 
@@ -122,7 +124,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			// which leads to warnings here - we simply parse it here and avoid warnings
 
 			/*
-			It's a bug in LieroX Pro that sent the ping 
+			It's a bug in LieroX Pro that sent the ping
 			packet twice: once per CChannel - it looked like this:
 			(8 bytes of CChannel's sequence)(Connectionless header)(Packet itself)
 			and then the same packet normally (via CBytestream::Send)
@@ -130,7 +132,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 
 			The hack solved the first case which generated warning of unknown packet.
 			*/
-			
+
 			// Avoid "reading from stream behind end" warning if this is really a bad packet
 			// and print the bad command instead
 			if (cmd == 0xff && bs->GetRestLen() > 3)
@@ -296,7 +298,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			}
 
-		 
+
 			// The client on this machine will send the death again, then we'll parse it
 			return;
 		}
@@ -358,7 +360,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			kill->setDeathsInRow(0);
 		}
 	}
-	
+
 	// Suicided or killed team member - decrease score if selected in options
 	if( tLXOptions->tGameinfo.bSuicideDecreasesScore && ( killer == victim ||
 		( (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
@@ -460,7 +462,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			}
 		}
 
-		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)			
+		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)
 			// Declare the winner
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
@@ -558,7 +560,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// Check if the max kills has been reached
 	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills) {
 		cout << "max kills reached" << endl;
-		
+
 		// Game over (max kills reached)
 		GameOver(kill->getID());
 	}
@@ -614,7 +616,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	if(cl->getNumWorms() == 0) return;
-	
+
 	std::string buf = bs->readString(256);
 
 	if (buf == "")  // Ignore empty messages
@@ -811,7 +813,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 		{	// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
 			std::string skin = cl->getUdpFileDownloader()->getData().substr(strlen("skins/"));
 			CWorm *w = cWorms;
-			for ( int i = 0; i < MAX_WORMS; i++, w++ )  
+			for ( int i = 0; i < MAX_WORMS; i++, w++ )
 			{
 				if (!w->isUsed())
 					continue;
@@ -864,7 +866,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 // Parses connectionless packets
 void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& ip) {
 	std::string cmd = bs->readString(128);
-	
+
 	if (cmd == "lx::getchallenge")
 		ParseGetChallenge(bs);
 	else if (cmd == "lx::connect")
@@ -927,7 +929,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	std::string client_version;
 	if( ! bs_in->isPosAtEnd() )
 		client_version = bs_in->readString(128);
-	
+
 	if (ChallengeToSet >= 0) {
 
 		// overwrite the oldest
@@ -948,7 +950,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	bs.writeString("lx::challenge");
 	bs.writeInt(tChallenges[i].iNum, 4);
 	if( client_version != "" )
-		bs.writeString(LX_VERSION);
+		bs.writeString(GetFullGameName());
 	bs.Send(tSocket);
 }
 
@@ -1079,7 +1081,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Send(tSocket);
 		return;
 	}
-	
+
 	const std::string & ClientVersion = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
@@ -1170,7 +1172,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		//newcl->SetupWorms(numworms, worms);
 
 		newcl->setClientVersion( ClientVersion );
-		
+
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;
@@ -1192,7 +1194,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 					w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
-				
+
 				if( DedicatedControl::Get() )
 					DedicatedControl::Get()->NewWorm_Signal(w);
 				break;
@@ -1219,11 +1221,11 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
 		// TODO: or should we just drop compatibility with Beta3 and leave this out?
 		bytestr.writeString("lx::openbeta3");
-		
+		// sadly we have to send this for Beta4
+		// we are sending the version string already in the challenge
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::version");
-		bytestr.writeString(GetGameName() + "/" + LX_VERSION);
-		
+		bytestr.writeString(GetFullGameName());
 		bytestr.Send(tSocket);
 
 		if (tLXOptions->bAllowMouseAiming)
@@ -1268,7 +1270,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		}
 
 		SendGlobalPacket(&bytestr);
-		
+
 
 		std::string buf;
 		// "Has connected" message
@@ -1326,7 +1328,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				// Send the welcome message
 				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", worms[i].getName(), 1)),
 								TXT_NETWORK);
-			} 
+			}
 		}
 
 		// it doesn't make sense to save the nicks permanently on a IP-base
@@ -1390,7 +1392,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			//}
 		}
 		*/
-		
+
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
 		// TODO: if connecting during game update game lobby only for new client
@@ -1542,9 +1544,9 @@ void GameServer::ParseGetInfo(void) {
 	}
 
 	w = cWorms;
-	// Write out lives 
+	// Write out lives
 	for (p = 0;p < MAX_WORMS;p++, w++) {
-		if (w->isUsed()) 
+		if (w->isUsed())
 			bs.writeInt(w->getLives(), 2);
 	}
 

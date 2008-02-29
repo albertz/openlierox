@@ -28,6 +28,7 @@
 #include "CMediaPlayer.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
+#include "Version.h"
 
 
 #ifndef WIN32
@@ -140,13 +141,13 @@ void test_Unicode_UTF8_Conversion() {
 // Main entry point
 int main(int argc, char *argv[])
 {
-	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+	printf(GetFullGameName() + " is starting ...\n");
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif // _DEBUG
-	
+
 	InstallExceptionFilter();
 	nameThread(-1,"Main game thread");
 #else
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
-	
+
     bool startgame = false;
 
 	binary_dir = argv[0];
@@ -231,7 +232,7 @@ startpoint:
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (f)  {	
+		if (f)  {
 			std::string cTime = GetTime();
 			fputs("<game starttime=\"",f);
 			fputs(cTime.c_str(),f);
@@ -287,7 +288,7 @@ startpoint:
 		startgame = false; // the menu has a reference to this variable
 
 		Menu_Start();	// Start the menu
-		
+
 		if(startgame) {
 			// Start the game
 			// this means, start the local server and connect to it
@@ -302,7 +303,7 @@ startpoint:
 		Screen = SDL_GetVideoSurface();
 		if(!bDedicated) FillSurface(Screen, tLX->clBlack);
 		float oldtime = GetMilliSeconds();
-		
+
 		ClearEntities();
 
 		ProcessEvents();
@@ -312,7 +313,7 @@ startpoint:
 		cout << "GameLoopStart" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
-		
+
 		//
         // Main game loop
         //
@@ -325,21 +326,21 @@ startpoint:
 			tLX->fRealDeltaTime = tLX->fDeltaTime;
 			oldtime = tLX->fCurTime;
 
-			// cap the delta 	 
+			// cap the delta
 			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 0.5f);
-	                         						
+
 			ProcessEvents();
 
 			// Main frame
 			GameLoopFrame();
 
 			FlipScreen(Screen);
-			
+
 			CapFPS();
 		}
-		
+
 		PhysicsEngine::Get()->uninitGame();
-		
+
 		cout << "GameLoopEnd" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
@@ -348,7 +349,7 @@ startpoint:
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
-	
+
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		printf("-- Restarting game --\n");
@@ -393,7 +394,7 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-dedicated") == 0 ) {
             bDedicated = true;
 			bDisableSound = true;
-            tLXOptions->bSoundOn = false;			
+            tLXOptions->bSoundOn = false;
         } else
 
         // -window
@@ -412,11 +413,11 @@ void ParseArguments(int argc, char *argv[])
 		// Displays help and quits
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {
         	printf("available parameters:\n");
-     		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");   	
-     		printf("   -noopengl     Explicitly disable using OpenGL\n");   	
-     		printf("   -dedicated    Dedicated mode\n");   	
-     		printf("   -nosound      Disable sound\n");   	
-     		printf("   -window       Run in window mode\n");   	
+     		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");
+     		printf("   -noopengl     Explicitly disable using OpenGL\n");
+     		printf("   -dedicated    Dedicated mode\n");
+     		printf("   -nosound      Disable sound\n");
+     		printf("   -window       Run in window mode\n");
      		printf("   -fullscreen   Run in fullscreen mode\n");
 
 			// Shutdown and quit
@@ -430,14 +431,14 @@ void ParseArguments(int argc, char *argv[])
 ///////////////////
 // Initialize the game
 int InitializeLieroX(void)
-{	
+{
 	printf("Hello there, I am initializing me now...\n");
-	
+
 	LIBXML_TEST_VERSION;
-	
+
 	// Initialize the aux library
 	if(!InitializeAuxLib("OpenLieroX","config.cfg",16,0)) {
-        SystemError("strange problems with the aux library");	
+        SystemError("strange problems with the aux library");
 		return false;
 	}
 
@@ -481,7 +482,7 @@ int InitializeLieroX(void)
         SystemError("Error: InitializeLieroX() Out of memory");
 		return false;
     }
-	
+
 	cClient->Clear();
 
 	cServer = new GameServer;
@@ -548,7 +549,7 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
 
 	DrawLoading(45, "Loading sounds");
-	
+
 	// Load the sounds
 	LoadSounds();
 
@@ -614,7 +615,7 @@ void GameLoopFrame(void)
 {
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
-		
+
     if(tLX->bQuitEngine)
         return;
 
@@ -700,7 +701,7 @@ void GotoNetMenu(void)
 		printf("Warning: called GotoLocalMenu as host, ignoring...\n");
 		return;
 	}
-	
+
 	std::cout << "GotoNetMenu" << std::endl;
 	tLX->bQuitEngine = true;
 	cClient->Disconnect();
@@ -712,7 +713,7 @@ void GotoNetMenu(void)
 // Initialize the loading screen
 void InitializeLoading()  {
 	if(bDedicated) return; // ignore this case
-	
+
 	FillSurface(SDL_GetVideoSurface(), MakeColour(0,0,0));
 
 	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
@@ -760,14 +761,14 @@ void DrawLoading(byte percentage, const std::string &text)  {
 		printf("Loading: "); printf(text); printf("\n");
 		return;
 	}
-	
+
 	// Update the repainted area
 	int x = MIN(cLoading.iBackgroundX, cLoading.cBar->GetX());
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
 	int w = MAX(cLoading.bmpBackground->w, cLoading.cBar->GetWidth());
 	int h = MAX(cLoading.bmpBackground->h, cLoading.cBar->GetHeight());
 	DrawRectFill(SDL_GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
-				
+
 	if (cLoading.bmpBackground)
 		DrawImage(SDL_GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
 
@@ -793,8 +794,8 @@ void ShutdownLoading()  {
 // Shutdown the game
 void ShutdownLieroX(void)
 {
-	printf("Shutting me down...\n");	
-		
+	printf("Shutting me down...\n");
+
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
 
@@ -802,7 +803,7 @@ void ShutdownLieroX(void)
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (f)  { 
+		if (f)  {
 			fputs("</game>\r\n",f);
 			fclose(f);
 		}
@@ -833,7 +834,7 @@ void ShutdownLieroX(void)
 		delete tIpToCountryDB;
 		tIpToCountryDB = NULL;
 	}
-	
+
     // Free the game info structure
     if(tGameInfo.sMapRandom.psObjects)
         delete[] tGameInfo.sMapRandom.psObjects;
@@ -853,7 +854,7 @@ void ShutdownLieroX(void)
 
 	// Entitites
 	ShutdownEntities();
-	
+
 	// LieroX structure
 	if(tLX) {
 		delete tLX;
@@ -865,7 +866,7 @@ void ShutdownLieroX(void)
 
 	// Network
 	QuitNetworkSystem();
-	
+
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();
 
@@ -873,8 +874,8 @@ void ShutdownLieroX(void)
 	ShutdownOptions();
 
 	CScriptableVars::DeInit();
-	
+
 	xmlCleanupParser();
-	
+
 	printf("Everything was shut down\n");
 }

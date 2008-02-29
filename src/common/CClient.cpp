@@ -26,10 +26,10 @@
 #include "Error.h"
 #include "Protocol.h"
 #include "StringUtils.h"
-#ifdef DEBUG
 #include "MathLib.h"
-#endif
 #include "EndianSwap.h"
+#include "Version.h"
+
 
 const float fDownloadRetryTimeout = 5.0;	// 5 seconds
 
@@ -99,7 +99,7 @@ void CClient::Clear(void)
 
 
 	bInServer = false;
-	cIConnectedBuf = ""; 
+	cIConnectedBuf = "";
 
 	fMyPingRefreshed = 0;
 	iMyPing = 0;
@@ -118,7 +118,7 @@ void CClient::Clear(void)
         cViewports[i].setID(i);
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
-    }    
+    }
 
 	iHostOLXVer = 0;
 	bHostAllowsMouse = false;
@@ -220,7 +220,7 @@ int CClient::Initialize(void)
 	// Initialize the local worms
 	iNumWorms = tGameInfo.iNumPlayers;
 
-	for(i=0;i<iNumWorms;i++) { 
+	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i] = NULL;
 		tProfiles[i] = tGameInfo.cPlayers[i];
 	}
@@ -242,7 +242,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
 	}
-	
+
 
 	// Initialize the projectiles
 	cProjectiles = new CProjectile[MAX_PROJECTILES];
@@ -269,7 +269,7 @@ int CClient::Initialize(void)
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
-	
+
 	// Initialize the drawing
 	if(!InitializeDrawing())
 		return false;
@@ -282,7 +282,7 @@ int CClient::Initialize(void)
 	((CListview *)cChatList)->setShowSelect(false);
 	((CListview *)cChatList)->setRedrawMenu(false);
 	((CListview *)cChatList)->setDrawBorder(false);
-	((CListview *)cChatList)->Setup(0, 
+	((CListview *)cChatList)->Setup(0,
 									tInterfaceSettings.ChatBoxX,
 									tInterfaceSettings.ChatBoxY,
 									tInterfaceSettings.ChatBoxW,
@@ -291,8 +291,8 @@ int CClient::Initialize(void)
 											 tInterfaceSettings.ChatboxScrollbarY,
 											 tInterfaceSettings.ChatboxScrollbarH,
 											 tInterfaceSettings.ChatboxScrollbarAlwaysVisible);
-	
-	
+
+
 
 	// Clear the network channel
 	cNetChan.Clear();
@@ -316,7 +316,7 @@ int CClient::Initialize(void)
     //cWeather.Initialize(wth_snow);
 
 	InitializeSpectatorViewportKeys();
-	
+
 	return true;
 }
 
@@ -432,7 +432,7 @@ void CClient::ProcessMapDownloads()
 			bMapDlError = false;
 			sMapDlError = "";
 			iMapDlProgress = 100;
-			
+
 			// Check that the file exists (it should!)
 			if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
 				tGameLobby.bHaveMap = true;
@@ -520,7 +520,7 @@ void CClient::ProcessMapDownloads()
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
 		return;
 	}
-	
+
 	// Download finished
 	if( getUdpFileDownloader()->wasError() )  {
 		getUdpFileDownloader()->clearError();
@@ -531,9 +531,9 @@ void CClient::ProcessMapDownloads()
 	if( bDownloadingMap && iDownloadMethod == DL_UDP )
 		bDownloadingMap = false;
 
-	if( fLastFileRequest > tLX->fCurTime )	
+	if( fLastFileRequest > tLX->fCurTime )
 		return;
-		
+
 	fLastFileRequestPacketReceived = tLX->fCurTime;
 	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; // Request another file from server after little timeout
 
@@ -609,12 +609,12 @@ void CClient::ReadPackets(void)
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
 		getUdpFileDownloader()->reset();
-		
+
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
 }
 
- 
+
 ///////////////////
 // Send the packets
 void CClient::SendPackets(void)
@@ -627,8 +627,8 @@ void CClient::SendPackets(void)
 	}*/
 
 	// Playing packets
-	if(iNetStatus == NET_PLAYING) 
-		SendWormDetails(); 
+	if(iNetStatus == NET_PLAYING)
+		SendWormDetails();
 
 
 	// Randomly send a random packet
@@ -639,7 +639,7 @@ void CClient::SendPackets(void)
 
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan.Transmit(&bsUnreliable);
-	
+
 	bsUnreliable.Clear();
 }
 
@@ -654,9 +654,9 @@ void CClient::Connect(const std::string& address)
 	bBadConnection = false;
 	iHostOLXVer = 0;
 	fConnectTime = tLX->fCurTime;
-	
+
 	if(!StringToNetAddr(address, cServerAddr)) {
-		
+
 		strServerAddr_HumanReadable = strServerAddr + " (...)";
 		Timer(&Timer::DummyHandler, NULL, DNS_TIMEOUT * 1000, true).startHeadless();
 
@@ -707,14 +707,14 @@ void CClient::Connecting(bool force)
 		}
 		return;
 	}
-	
+
 	if(GetNetAddrPort(cServerAddr) == 0)  {
 		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
 			SetNetAddrPort(cServerAddr, LX_PORT);  // Try the default port if no port specified
 		else // Host or local
 			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
 	}
-	
+
 	{
 		std::string rawServerAddr;
 		NetAddrToString( cServerAddr, rawServerAddr );
@@ -729,13 +729,13 @@ void CClient::Connecting(bool force)
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("lx::getchallenge");
-	bs.writeString(LX_VERSION);
-	
+	bs.writeString(GetFullGameName());
+
 	// As we use this tSocket both for sending and receiving,
 	// it's saver to reset the address here.
 	SetRemoteNetAddr(tSocket, cServerAddr);
 	bs.Send(tSocket);
-	
+
 	Timer(&Timer::DummyHandler, NULL, 3000, true).startHeadless();
 
 	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());
@@ -769,7 +769,7 @@ void CClient::Disconnect(void)
 			return;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("  </server>\r\n",f);
 		bInServer = false;
@@ -789,7 +789,7 @@ void CClient::SetupViewports(void)
 				SetupViewports(cLocalWorms[0], cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
 				return;
 			}
-	
+
 	// Only one player
 	SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
 }
@@ -848,7 +848,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
 		cViewports[0].setSmooth( !OwnsWorm(w1) );
-		
+
 		cViewports[1].Setup(322, top, 318, h, type2);
         cViewports[1].setTarget(w2);
 		cViewports[1].setUsed(true);
@@ -905,7 +905,7 @@ void CClient::RemoveWorm(int id)
 			}
 		}
 	}
-			
+
 }
 
 /////////////////
@@ -938,14 +938,14 @@ void CClient::GetLogData(std::string& data)
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
 			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
 			"loading=\"" + itoa(tGameInfo.iLoadingTimes) + "\" " +
-			"lives=\"" + itoa(tGameInfo.iLives) + "\" " + 
-			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " + 
-			"bonuses=\"" + (tGameInfo.bBonusesOn ? "1" : "0") + "\" " + 
-			"bonusnames=\"" + (tGameInfo.bShowBonusName ? "1" : "0") + "\" " + 
-			"levelfile=\"" + levelfile + "\" " + 
-			"modfile=\"" + modfile + "\" " + 
-			"level=\"" + level + "\" " + 
-			"mod=\"" + mod + "\" " + 
+			"lives=\"" + itoa(tGameInfo.iLives) + "\" " +
+			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " +
+			"bonuses=\"" + (tGameInfo.bBonusesOn ? "1" : "0") + "\" " +
+			"bonusnames=\"" + (tGameInfo.bShowBonusName ? "1" : "0") + "\" " +
+			"levelfile=\"" + levelfile + "\" " +
+			"modfile=\"" + modfile + "\" " +
+			"level=\"" + level + "\" " +
+			"mod=\"" + mod + "\" " +
 			"winner=\"" + itoa(tGameLog->iWinner) + "\" " +
 			"gamemode=\"" + itoa(tGameInfo.iGameMode) + "\">";
 
@@ -970,17 +970,17 @@ void CClient::GetLogData(std::string& data)
 		xmlEntities(skin);
 
 		// Write the info
-		data += "<player name=\"" + player + "\" " + 
-				"skin=\"" + skin + "\" " + 
+		data += "<player name=\"" + player + "\" " +
+				"skin=\"" + skin + "\" " +
 				"id=\"" + itoa(tGameLog->tWorms[i].iID) + "\" "
-				"kills=\"" + itoa(tGameLog->tWorms[i].iKills) + "\" " + 
-				"lives=\"" + itoa(tGameLog->tWorms[i].iLives) + "\" " + 
-				"suicides=\"" + itoa(tGameLog->tWorms[i].iSuicides) + "\" " + 
-				"teamkills=\"" + itoa(tGameLog->tWorms[i].iTeamKills) + "\" " + 
-				"teamdeaths=\"" + itoa(tGameLog->tWorms[i].iTeamDeaths) + "\" " + 
-				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " + 
-				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " + 
-				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " + 
+				"kills=\"" + itoa(tGameLog->tWorms[i].iKills) + "\" " +
+				"lives=\"" + itoa(tGameLog->tWorms[i].iLives) + "\" " +
+				"suicides=\"" + itoa(tGameLog->tWorms[i].iSuicides) + "\" " +
+				"teamkills=\"" + itoa(tGameLog->tWorms[i].iTeamKills) + "\" " +
+				"teamdeaths=\"" + itoa(tGameLog->tWorms[i].iTeamDeaths) + "\" " +
+				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " +
+				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " +
+				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " +
 				"left=\"" + (tGameLog->tWorms[i].bLeft ? "1" : "0") + "\" " +
 				"timeleft=\"" + ftoa(MAX(0.0f, tGameLog->tWorms[i].fTimeLeft - tGameLog->fGameStart)) + "\" " +
 				"type=\"" + itoa(tGameLog->tWorms[i].iType) + "\"/>";
@@ -1035,7 +1035,7 @@ void CClient::BotSelectWeapons(void)
 {
 	if(iNetStatus == NET_CONNECTED && bGameReady)  {
 		uint i;
-		
+
 		// Go through and draw the first two worms select menus
 		for(i=0;i<iNumWorms;i++) {
 			// Select weapons
@@ -1151,12 +1151,12 @@ void CClient::Shutdown(void)
 		delete (CListview *)cChatList;
 		cChatList = NULL;
 	}
-	
+
 	// HINT: GameScript is shut down by the cache
 
 	// Weapon restrictions
 	cWeaponRestrictions.Shutdown();
-	
+
 	// Close the socket
 	if(IsSocketStateValid(tSocket))
 	{
@@ -1178,7 +1178,7 @@ void CClient::Shutdown(void)
 			return;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("  </server>\r\n",f);
 		bInServer = false;
@@ -1186,16 +1186,16 @@ void CClient::Shutdown(void)
 	}
 }
 
-void CClient::setClientVersion(const std::string & _s)			
-{ 
+void CClient::setClientVersion(const std::string & _s)
+{
 	//printf("CClient::setClientVersion(): %s\n", _s.c_str() );
 	sClientVersion = _s;
 	iHostOLXVer = 4;
 	iClientOLXVer = 4;
 }
 
-void CClient::setServerVersion(const std::string & _s)			
-{ 
+void CClient::setServerVersion(const std::string & _s)
+{
 	//printf("CClient::setServerVersion(): %s\n", _s.c_str() );
 	sServerVersion = _s;
 	iHostOLXVer = 4;

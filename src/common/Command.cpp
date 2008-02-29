@@ -26,6 +26,8 @@
 #include "sex.h"
 #include "CWorm.h"
 #include "AuxLib.h"
+#include "Version.h"
+
 
 using namespace std;
 
@@ -245,7 +247,7 @@ void Cmd_Free(void)
 		if(cmd)
 			delete cmd;
 	}
-	
+
 	Commands = NULL;
 }
 
@@ -491,7 +493,7 @@ void Cmd_Suicide(void)
 			Con_Printf(CNC_NORMAL, "Cannot suicide in dedicated mode!");
 			return;
 		}
-		
+
 		if(cClient->getStatus() != NET_PLAYING)  {
 			Con_Printf(CNC_NORMAL, "Cannot suicide when not playing!");
 			return;
@@ -545,7 +547,7 @@ void Cmd_Unstuck(void)
 			Con_Printf(CNC_NORMAL, "Cannot unstuck in dedicated mode!");
 			return;
 		}
-		
+
 		// Not playing
 		if(cClient->getStatus() != NET_PLAYING)  {
 			Con_Printf(CNC_NORMAL, "Cannot unstuck when not playing!");
@@ -594,7 +596,7 @@ void Cmd_RenameServer(void)
 		Con_Printf(CNC_NORMAL, "This command is available only for host");
 		return;
 	}
-	
+
 	if (cServer)  {
 		std::string name = Cmd_GetArg(1);
 		for (int i=2; i<Cmd_GetNumArgs();i++)
@@ -628,8 +630,7 @@ void Cmd_Help() {
 }
 
 void Cmd_About() {
-	std::string name = GetGameName();
-	Con_Printf(CNC_NOTIFY, name + " v" + LX_VERSION);
+	Con_Printf(CNC_NOTIFY, GetFullGameName());
 }
 
 void Cmd_BadWord() {
@@ -683,7 +684,7 @@ void Cmd_SetName() {
 		Con_Printf(CNC_NORMAL, "Cannot change name in dedicated mode!");
 		return;
 	}
-	
+
 	// Check arguments
 	if(Cmd_GetNumArgs() == 1) {
 		Con_Printf(CNC_NORMAL, "Usage: setname \"<name>\"");
@@ -708,7 +709,7 @@ void Cmd_SetSkin() {
 		Con_Printf(CNC_NORMAL, "Cannot change skin in dedicated mode!");
 		return;
 	}
-	
+
 	// Check arguments
 	if(Cmd_GetNumArgs() == 1) {
 		Con_Printf(CNC_NORMAL, "Usage: setskin \"<skin_filename>\"");
@@ -733,7 +734,7 @@ void Cmd_SetColour() {
 		Con_Printf(CNC_NORMAL, "Cannot change color in dedicated mode!");
 		return;
 	}
-	
+
 	// Check arguments
 	if(Cmd_GetNumArgs() < 4) {
 		Con_Printf(CNC_NORMAL, "Usage: setcolour <red> <green> <blue>");

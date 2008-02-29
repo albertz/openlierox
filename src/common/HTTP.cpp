@@ -24,6 +24,8 @@
 #include "Timer.h"
 #include "StringUtils.h"
 #include "types.h"
+#include "Version.h"
+
 
 // List of errors, MUST match error IDs in HTTP.h
 static const std::string sHttpErrors[] = {
@@ -240,13 +242,13 @@ void CHttp::RequestData(const std::string& address)
 		SetHttpError(HTTP_INVALID_URL);
 		return;
 	}
-	
+
     // Convert the address to host & url
     // Ie, '/'s from host goes into url
     ParseAddress(sRemoteAddress);
 
 	//std::cout << "Sending HTTP request " << address << "\n";
-	
+
 	// Open the socket
 	tSocket = OpenReliableSocket(0);
 	if(!IsSocketStateValid(tSocket))  {
@@ -294,7 +296,7 @@ bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 
 	// Go through the url, encoding the characters
 	std::string::const_iterator url_it;
-	for( url_it = url.begin(); url_it != url.end(); url_it++) {	
+	for( url_it = url.begin(); url_it != url.end(); url_it++) {
 
 		if( isalnum(*url_it) || dont_encode.find(*url_it) != std::string::npos)
 			dest += *url_it;
@@ -328,7 +330,7 @@ bool CHttp::SendRequest()
 	// Build the url
 	request = "GET " + sUrl + " HTTP/1.1\r\n";
 	request += "Host: " + sHost + "\r\n";
-	request += "User-Agent: OpenLieroX/" + std::string(LX_VERSION) + "\r\n";
+	request += "User-Agent: " + GetFullGameName() + "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
 }
@@ -379,7 +381,7 @@ void CHttp::ProcessData()
 		// The header is ok :)
 		bGotHttpHeader = true;
 	}
-	
+
 	// Process the header
 	ParseHeader();
 
@@ -453,7 +455,7 @@ void CHttp::ParseChunks()
 
 	// Remove the parsed data
 	sData = "";
-	
+
 	// There could be still some footers, but we don't care about them
 }
 
@@ -485,7 +487,7 @@ void CHttp::ParseHeader()
 		code += *i;
 		i++;
 	}
-	
+
 	// Check the code
 	if (code[0] != '2') {  // 2XX = success
 		if (code == "100")  {  // 100 Continue - we should wait for a real header
@@ -553,7 +555,7 @@ int CHttp::ProcessRequest()
         return HTTP_PROC_PROCESSING;
 	}
 
-    
+
 	// Make sure the socket is ready for writing
 	if(!bSocketReady && bConnected) {
 		if(IsSocketReady(tSocket))
@@ -574,7 +576,7 @@ int CHttp::ProcessRequest()
 
 	// Check if the address completed resolving
 	if(IsNetAddrValid(tRemoteIP)) {
-		
+
 		// Default http port (80)
 		SetNetAddrPort(tRemoteIP, 80);
 
@@ -582,7 +584,7 @@ int CHttp::ProcessRequest()
 		if(!bConnected) {
 			// Address was resolved; save it
 			AddToDnsCache(sHost, tRemoteIP);
-		
+
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				SetHttpError(HTTP_NO_CONNECTION);
 				return HTTP_PROC_ERROR;
@@ -592,12 +594,12 @@ int CHttp::ProcessRequest()
 		}
 	} else {
 
-		// Haven't resolved the address yet, so leave but let the 
+		// Haven't resolved the address yet, so leave but let the
 		// caller of this function keep processing us
 		return HTTP_PROC_PROCESSING;
 	}
 
-	
+
 	// If we aren't ready yet, leave
 	if(!bSocketReady || !bConnected || !bRequested)
 		return HTTP_PROC_PROCESSING;
@@ -620,7 +622,7 @@ int CHttp::ProcessRequest()
 	// Some HTTP errors?
 	if (tError.iError != HTTP_NO_ERROR)
 		return HTTP_PROC_ERROR;
-	
+
 	// Error, or end of connection?
 	if(count < 0) {
 		int err = GetSocketErrorNr();
