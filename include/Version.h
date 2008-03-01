@@ -48,7 +48,7 @@ inline bool operator<=(const Version& ver1, const Version& ver2) { return ver1 <
 inline bool operator>=(const Version& ver1, const Version& ver2) { return ver2 < ver1 || ver1 == ver2; }
 inline bool operator!=(const Version& ver1, const Version& ver2) { return ! (ver1 == ver2); }
 
-inline Version GetVersion() { return Version(GetFullGameName()); }
+inline Version GetGameVersion() { return Version(GetFullGameName()); }
 inline Version GetOLXBetaVersion(int betaversion) {	return Version("OpenLieroX/0.57_beta" + itoa(betaversion)); }
 
 #endif

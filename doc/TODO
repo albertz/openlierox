@@ -8,10 +8,11 @@ TODO
 [ ] bot: fix building path (there is one rare case where the
     path is going through an obstacle whereby there is 
     enough place to go around) (!)
-[ ] bot: go one step away if too close (!)
-[ ] bot: don't move too close if shooting is possible (!)
+[X] bot: go one step away if too close (!)
+[X] bot: don't move too close if shooting is possible (!)
 [ ] follow better/faster the way (!)
 [ ] bot avoid projectiles (!)
+[ ] bot: improve shooting
 [ ] fill documentation (README) (!)
 [ ] fix STUN (!)
 [ ] Fix segfaults
