@@ -3467,6 +3467,14 @@
 				RelativePath="..\..\include\Utils.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\common\Version.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Version.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Blast"
