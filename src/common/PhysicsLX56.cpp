@@ -673,7 +673,7 @@ public:
 				prj->setUnused();
 
 				// Increment the dirt count
-				client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS)].incrementDirtCount( d );
+				client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
 
 				client->CheckDemolitionsGame();
 			}

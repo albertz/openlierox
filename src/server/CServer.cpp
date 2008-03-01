@@ -638,7 +638,7 @@ void GameServer::SendPackets(void)
 
 	// Randomly send a random packet :)
 #ifdef DEBUG
-	/*if (GetRandomInt(50) > 24 && iState == SVS_PLAYING)
+	/*if (GetRandomInt(50) > 24)
 		SendRandomPacket();*/
 #endif
 
@@ -852,6 +852,11 @@ void GameServer::CheckTimeouts(void)
 		// Client not connected or no worms
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getNumWorms() == 0)
 			continue;
+
+		// Don't disconnect the local client
+		if (cl->getWorm(0))
+			if (cl->getWorm(0)->getID() == 0)
+				continue;
 
         // Check for a drop
 		if( cl->getLastReceived() < dropvalue && cl->getWorm(0)->getID() != 0 && ( cl->getStatus() != NET_ZOMBIE ) ) {

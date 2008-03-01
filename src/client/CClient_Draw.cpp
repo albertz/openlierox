@@ -456,11 +456,11 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
-		if (iNetStatus == NET_PLAYING)  {
+		if (iNetStatus == NET_PLAYING && cMap)  {
 			static float last = tLX->fCurTime;
 			if (tLX->fCurTime - last >= 0.5f)  {
 				cMap->ClearDebugImage();
-				for (int i = 0; i < iNumWorms; i++)  {
+				for (int i = 0; i < (int)iNumWorms; i++)  {
 					if (cLocalWorms[i]->getType() == PRF_COMPUTER)
 						cLocalWorms[i]->NEW_AI_DrawPath();
 				}
@@ -1128,11 +1128,13 @@ void CClient::InitializeGameMenu()
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			SDL_Surface *pic = gfxGame.bmpTeamColours[iMatchWinner];
-			cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
+			if (pic)
+				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		} else {
 			cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			SDL_Surface *pic = cRemoteWorms[iMatchWinner].getPicimg();
-			cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
+			if (pic)
+				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		}
 	}
 

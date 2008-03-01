@@ -1396,6 +1396,11 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 {
 	// Set the server error details
 
+	if (tGameInfo.iGameType != GME_JOIN)  {
+		printf("WARNING: got local server leaving packet, ignoring...\n");
+		return;
+	}
+
 	// Not so much an error, but rather a disconnection of communication between us & server
 	bServerError = true;
 	strServerErrorMsg = "Server has quit";
@@ -1540,6 +1545,12 @@ void CClient::ParseGotoLobby(CBytestream *)
 void CClient::ParseDropped(CBytestream *bs)
 {
     // Set the server error details
+
+	// Ignore if we are hosting/local, it's a nonsense
+	if (tGameInfo.iGameType != GME_JOIN)  {
+		printf("WARNING: got dropped from local server, ignoring\n");
+		return;
+	}
 
 	// Not so much an error, but i message as to why i was dropped
 	bServerError = true;
