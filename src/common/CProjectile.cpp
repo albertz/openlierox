@@ -255,45 +255,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
 	for(int y = py-h; y <= py+h; y++) {
 
-		// Clipping means that it has collided
-		// TODO: needed? should be covered in the "Hit edges" condition
-		if(y<0)	{
-			CollisionSide |= COL_TOP;
-			collisionWasOnlyDirt = false;
-			vPosition = vOldPos;
-			vVelocity = vOldVel;
-			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
-		}
-		if(y>=mh) {
-			CollisionSide |= COL_BOTTOM;
-			collisionWasOnlyDirt = false;
-			vPosition = vOldPos;
-			vVelocity = vOldVel;
-			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
-		}
-
-
-		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(int x = px-w; x <= px+w; x++) {
 
-			// Clipping
-			if(x<0) {
-				CollisionSide |= COL_LEFT;
-				collisionWasOnlyDirt = false;
-				vPosition = vOldPos;
-				vVelocity = vOldVel;
-				return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
-			}
-			if(x>=mw) {
-				CollisionSide |= COL_RIGHT;
-				collisionWasOnlyDirt = false;
-				vPosition = vOldPos;
-				vVelocity = vOldVel;
-				return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
-			}
-
-			if(*pf & PX_DIRT || *pf & PX_ROCK) {
+			if(!(*pf & PX_EMPTY)) {
 				if(y<py)
 					top++;
 				else if(y>py)
@@ -325,15 +291,18 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		bool bounce = false;
 		
 		// Bit of a hack
-		if( tProjInfo->Hit_Type == PJ_BOUNCE ) {
+		switch ( tProjInfo->Hit_Type )  {
+		case PJ_BOUNCE:
 			// HINT: don't reset vPosition here; it will be reset,
 			//		depending on the collisionside
 			bounce = true;
-		} else if ( tProjInfo->Hit_Type == PJ_NOTHING )  {  // PJ_NOTHING projectiles go through walls (but a bit slower)
+			break;
+		case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
 			//printf("this projectile can go through walls\n");
 			vPosition -= (vVelocity*dt)*0.5f;				// Note: the speed in walls could be moddable
 			vOldPos = vPosition;
-		} else {
+			break;
+		default:
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
 		}
@@ -387,7 +356,6 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
-	int px,py,x,y;
 
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
@@ -408,17 +376,12 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 	pos += vel*dt;
 
-	px=(int)pos.x;
-	py=(int)pos.y;
-
-	short top,bottom,left,right;
-	top=bottom=left=right=0;
+	int px = (int)pos.x;
+	int py = (int)pos.y;
 
 	// Hit edges
-	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
-
+	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh)
 		return true;
-	}
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
 	int grid_w = map->getGridWidth();
@@ -429,44 +392,22 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
 	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
 	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
-	for(y=py-h;y<=py+h;y++) {
+	for(int y=py-h;y<=py+h;y++) {
 
-		// Clipping means that it has collided
-		// TODO: needed? should be covered in the "Hit edges" condition
-		if(y<0 || y>=mh)	{
-			return true;
-		}
+		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
-		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+		for(int x=px-w;x<=px+w;x++) {
 
-		for(x=px-w;x<=px+w;x++) {
 
-			// Clipping
-			if(x<0 || x>=mw) {
+			if(!(*pf & PX_EMPTY))
 				return true;
-			}
-
-			if(*pf & PX_DIRT || *pf & PX_ROCK) {
-				if(y<py)
-					top++;
-				else if(y>py)
-					bottom++;
-				if(x<px)
-					left++;
-				else if(x>px)
-					right++;
-			}
 
 			pf++;
 		}
 	}
 
 
-	// Check for a collision
-	if(top || bottom || left || right) {
-		return true;
-	}
-
+	// No collision
 	return false;
 }
 
@@ -570,6 +511,9 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw the projectiles shadow
 void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 {
+	if (tLX->fDeltaTime >= 0.1f) // Don't draw projectile shadows with FPS <= 10 to get a little better performance
+		return;
+
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 	int l = view->GetLeft();
