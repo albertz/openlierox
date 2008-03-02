@@ -336,8 +336,7 @@ NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 
 NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
-	NLsocket tmp = nlOpen(port, NL_BROADCAST);
-	*getNLsocket(&ret) = tmp;
+	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
 	if (!IsSocketStateValid(ret))  {
 #ifdef DEBUG
 		printf("OpenBroadcastSocket: " + GetLastErrorStr() + "\n");
