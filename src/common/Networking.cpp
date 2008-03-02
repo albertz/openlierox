@@ -210,7 +210,7 @@ void AddSocketToNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 	
-	if( !isSocketInGroup(SdlNetEventGroup, sock) )
+	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )
 		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 };
 
@@ -312,20 +312,38 @@ bool QuitNetworkSystem() {
 NetworkSocket OpenReliableSocket(unsigned short port) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_RELIABLE);
-	AddSocketToNotifierGroup(ret);
+	if (IsSocketStateValid(ret))
+		AddSocketToNotifierGroup(ret);
+#ifdef DEBUG
+	else
+		printf("OpenReliableSocket: " + GetSocketErrorStr(nlGetError()) + "\n");
+#endif
 	return ret;
 }
 
 NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
+	if (!IsSocketStateValid(ret))  {
+#ifdef DEBUG
+		printf("OpenUnreliableSocket: " + GetLastErrorStr() + "\n");
+#endif
+		return ret;
+	}
 	if(events) AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
 NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
-	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
+	NLsocket tmp = nlOpen(port, NL_BROADCAST);
+	*getNLsocket(&ret) = tmp;
+	if (!IsSocketStateValid(ret))  {
+#ifdef DEBUG
+		printf("OpenBroadcastSocket: " + GetLastErrorStr() + "\n");
+#endif
+		return ret;
+	}
 	if(events) AddSocketToNotifierGroup(ret);
 	return ret;
 }
@@ -351,11 +369,7 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		if (nlGetError() == NL_SYSTEM_ERROR)
-			printf("WriteSocket: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
-		else
-			printf("WriteSocket: " + std::string(nlGetErrorStr(nlGetError())) + "\n");
-
+		printf("WriteSocket: " + GetLastErrorStr() + "\n");
 		return NL_INVALID;
 	}
 
@@ -377,11 +391,7 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		if (nlGetError() == NL_SYSTEM_ERROR)
-			printf("ReadSocket: SYSTEM: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
-		else
-			printf("ReadSocket: " + std::string(nlGetErrorStr(nlGetError())) + "\n");
-
+		printf("ReadSocket: " + GetLastErrorStr() + "\n");
 		return NL_INVALID;
 	}
 #endif // DEBUG
@@ -695,6 +705,13 @@ int GetSocketErrorNr() {
 
 const std::string GetSocketErrorStr(int errnr) {
 	return std::string(nlGetErrorStr(errnr));
+}
+
+const std::string GetLastErrorStr()  {
+	if (nlGetError() != NL_SYSTEM_ERROR)
+		return std::string(nlGetErrorStr(nlGetError()));
+	else
+		return std::string(nlGetSystemErrorStr(nlGetSystemError()));
 }
 
 bool IsMessageEndSocketErrorNr(int errnr) {
