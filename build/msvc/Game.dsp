@@ -382,6 +382,14 @@ SOURCE=..\..\src\common\Unicode.cpp
 
 SOURCE=..\..\include\Unicode.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\src\common\Version.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Version.h
+# End Source File
 # End Group
 # Begin Group "Game files"
 

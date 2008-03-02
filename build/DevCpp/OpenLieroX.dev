@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=191
+UnitCount=193
 Type=1
 Ver=1
 ObjFiles=
@@ -1951,6 +1951,26 @@ BuildCmd=
 FileName=..\..\include\CTextButton.h
 CompileCpp=1
 Folder=Frontend/Widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit192]
+FileName=..\..\include\Version.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit193]
+FileName=..\..\src\common\Version.cpp
+CompileCpp=1
+Folder=System files
 Compile=1
 Link=1
 Priority=1000
