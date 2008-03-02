@@ -42,13 +42,13 @@ void TrimSpaces(std::string& szLine) {
 	size_t n = 0;
 	std::string::iterator p;
 	for(p = szLine.begin(); p != szLine.end(); p++, n++)
-		if(!isspace(*p) || isgraph(*p)) break;
+		if(!isspace((uchar)*p) || isgraph((uchar)*p)) break;
 	if(n>0) szLine.erase(0,n);
 
 	n = 0;
 	std::string::reverse_iterator p2;
 	for(p2 = szLine.rbegin(); p2 != szLine.rend(); p2++, n++)
-		if(!isspace(*p2) || isgraph(*p2)) break;
+		if(!isspace((uchar)*p2) || isgraph((uchar)*p2)) break;
 	if(n>0) szLine.erase(szLine.size()-n);
 }
 

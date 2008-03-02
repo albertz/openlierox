@@ -269,6 +269,23 @@ bool Menu_Net_JoinLobbyInitialize(void)
 
     Menu_Net_JoinLobbyCreateGui();
 
+	// Add the chat
+	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	if (lv)  {
+		CChatBox *Chatbox = cClient->getChatbox();
+		lines_iterator it = Chatbox->Begin();
+
+		// Copy the chat text
+		for (int id = 0; it != Chatbox->End(); it++, id++)  {
+			lv->AddItem("", id, it->iColour);
+			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+			id++;
+		}
+
+		lv->scrollLast();
+		lv->setShowSelect(false);
+	}
+
 	iNetMode = net_join;
 	iJoinMenu = join_lobby;
 
@@ -343,23 +360,6 @@ void Menu_Net_JoinLobbyCreateGui(void)
 		player_list->AddColumn("", 30);  // Skin
 		player_list->AddColumn("", 220); // Name
 		player_list->AddColumn("", -1); // Team
-	}
-
-	// Add the chat
-	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
-	if (lv)  {
-		CChatBox *Chatbox = cClient->getChatbox();
-		lines_iterator it = Chatbox->Begin();
-
-		// Copy the chat text
-		for (int id = 0; it != Chatbox->End(); it++, id++)  {
-			lv->AddItem("", id, it->iColour);
-			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-			id++;
-		}
-
-		lv->scrollLast();
-		lv->setShowSelect(false);
 	}
 
 	iJoinSpeaking = 0; // The first client is always speaking

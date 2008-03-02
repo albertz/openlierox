@@ -190,6 +190,9 @@ bool CWorm::checkPacketNeeded()
 		if (tLX->fCurTime - fLastUpdateWritten >= MAX(1.0f/vPosDif.GetLength(), 1.0f/80.0f))
 			return true;
 
+	if (tLX->fCurTime - fLastUpdateWritten >= 0.1f)
+		return true;
+
 	// Flag
 	if(getFlag())
 		return true;

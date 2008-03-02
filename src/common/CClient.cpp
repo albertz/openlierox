@@ -682,8 +682,8 @@ void CClient::Connecting(bool force)
 	if(iNetStatus != NET_CONNECTING)
 		return;
 
-	// Try every second
-	if(!force && (tLX->fCurTime - fConnectTime < 1.0f))
+	// Try every three seconds
+	if(!force && (tLX->fCurTime - fConnectTime < 3.0f))
 		return;
 
 	// For local play/hosting: don't send the challenge more times
@@ -701,7 +701,7 @@ void CClient::Connecting(bool force)
 		return;
 	}
 
-	if( tLXOptions->bNatTraverse && iNumConnects == 10 ) // Revert to UDP NAT traversal after 10 seconds
+	if( tLXOptions->bNatTraverse && iNumConnects == 3 ) // Revert to UDP NAT traversal after 9 seconds
 	{
 		std::string address;
 	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");

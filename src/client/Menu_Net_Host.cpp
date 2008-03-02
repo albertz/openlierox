@@ -514,6 +514,23 @@ bool Menu_Net_HostLobbyInitialize(void)
     // Create the GUI
     Menu_Net_HostLobbyCreateGui();
 
+	// Add the chat
+	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	if (lv)  {
+		CChatBox *Chatbox = cClient->getChatbox();
+		lines_iterator it = Chatbox->Begin();
+
+		// Copy the chat text
+		for (int id = 0; it != Chatbox->End(); it++, id++)  {
+			lv->AddItem("", id, it->iColour);
+			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+			id++;
+		}
+
+		lv->scrollLast();
+		lv->setShowSelect(false);
+	}
+
 	return true;
 }
 
@@ -632,22 +649,6 @@ void Menu_Net_HostLobbyCreateGui(void)
 		player_list->AddColumn("", 200 - gfxGame.bmpTeamColours[0]->w); // Name
 		player_list->AddColumn("", gfxGame.bmpTeamColours[0]->w + 10);  // Team
 		player_list->AddColumn("", -1); // Ping
-	}
-
-	// Add the chat
-	if (lv)  {
-		CChatBox *Chatbox = cClient->getChatbox();
-		lines_iterator it = Chatbox->Begin();
-
-		// Copy the chat text
-		for (int id = 0; it != Chatbox->End(); it++, id++)  {
-			lv->AddItem("", id, it->iColour);
-			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-			id++;
-		}
-
-		lv->scrollLast();
-		lv->setShowSelect(false);
 	}
 
 	iSpeaking = 0; // The first player always speaks

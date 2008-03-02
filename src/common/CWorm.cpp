@@ -480,6 +480,8 @@ void CWorm::InitWeaponSelection(void)
 
 	iNumWeaponSlots = 5;
 
+	clearInput();
+
 	// Load previous settings from profile
 	short i;
 	for(i=0;i<iNumWeaponSlots;i++) {
