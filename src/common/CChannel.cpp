@@ -141,7 +141,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (iPongSequence == -1)  {
-			iPongSequence = iOutgoingSequence;
+			iPongSequence = iOutgoingSequence - 1;
 			fLastPingSent = GetMilliSeconds();
 		}
 
@@ -236,7 +236,7 @@ bool CChannel::Process(CBytestream *bs)
 	// Check if pong has been acknowledged
 	if(SequenceAck >= (size_t)iPongSequence)  {
 		iPongSequence = -1;  // Ready for new pinging
-		iPing = MAX(0, (int)((tLX->fCurTime - fLastPingSent) * 1000));
+		iPing = (int)((GetMilliSeconds() - fLastPingSent) * 1000); // TODO: this highly depends on FPS, dunno why, but it's the reason why it is wrong
 	}
 
 
