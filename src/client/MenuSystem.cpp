@@ -1101,6 +1101,8 @@ static const int	MaxQueries = MAX_QUERIES;
 static const Uint32	PingWait = 1000;
 static const Uint32	QueryWait = 1000;
 
+std::set< std::string > tServersBehindNat; // List of servers accessible from UDP masterserver only
+
 
 
 ///////////////////
@@ -1115,6 +1117,7 @@ void Menu_SvrList_Clear(void)
 // Clear any servers automatically added
 void Menu_SvrList_ClearAuto(void)
 {
+	tServersBehindNat.clear();
     server_t *s = psServerList;
     server_t *sn = NULL;
 
@@ -1142,6 +1145,7 @@ void Menu_SvrList_ClearAuto(void)
 // Shutdown the server list
 void Menu_SvrList_Shutdown(void)
 {
+	tServersBehindNat.clear();
 	server_t *s = psServerList;
 	server_t *sn = NULL;
 
@@ -1353,6 +1357,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 // Remove a server from the server list
 void Menu_SvrList_RemoveServer(const std::string& szAddress)
 {
+	tServersBehindNat.erase(szAddress);
     server_t *sv = Menu_SvrList_FindServerStr(szAddress);
     if( !sv )
         return;
@@ -1450,12 +1455,12 @@ void Menu_SvrList_FillList(CListview *lv)
 				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
 			else
 				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);			
-        } else if(num == 3)
+        } else if( num == 3 && ! Menu_SvrList_ServerBehindNat( s->szAddress ) )
             lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
 
-		bool unknownData = s->bProcessing || num == 3;
+		bool unknownData = ( s->bProcessing || num == 3 ) && ! Menu_SvrList_ServerBehindNat( s->szAddress );
 		
 		// Players
 		lv->AddSubitem(LVS_TEXT,
@@ -1599,6 +1604,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				// It pinged, so fill in the ping info so it will now be queried
 				svr->bgotPong = true;
 				svr->nQueries = 0;
+				tServersBehindNat.erase(svr->szName);
 			} else {
 
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
@@ -1705,7 +1711,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		int state = bs->readByte();
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
 		if( Menu_SvrList_FindServerStr(addr) != NULL )
-			if( Menu_SvrList_FindServerStr(addr)->szName != "" )
+			if( ! Menu_SvrList_FindServerStr(addr)->bProcessing )
 				continue;
 		server_t *svr = Menu_SvrList_AddServer( addr, false );
 		svr->szName = name;
@@ -1713,8 +1719,12 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		svr->nMaxPlayers = maxplayers;
 		svr->nState = state;
 		svr->nPing = 999;
-		svr->bgotPong = true;
-		svr->bgotQuery = true;
+		svr->nQueries = 0;
+		svr->bgotPong = false;
+		svr->bgotQuery = false;
+		svr->bProcessing = true;
+		StringToNetAddr( addr, svr->sAddress );
+		tServersBehindNat.insert(addr);
 	};
 };
 
@@ -1786,7 +1796,10 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     fclose(fp);
 }
 
-
+bool Menu_SvrList_ServerBehindNat(const std::string & addr)
+{
+	return tServersBehindNat.find(addr) != tServersBehindNat.end();
+};
 
 bool bGotDetails = false;
 bool bOldLxBug = false;

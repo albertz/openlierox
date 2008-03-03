@@ -701,8 +701,9 @@ void CClient::Connecting(bool force)
 		return;
 	}
 
-	if( tLXOptions->bNatTraverse && iNumConnects == 3 ) // Revert to UDP NAT traversal after 9 seconds
-	{
+	if( tLXOptions->bNatTraverse && iNumConnects == 0 && Menu_SvrList_ServerBehindNat( strServerAddr ) ) 
+	{	// Start UDP NAT traversal immediately - we know for sure that
+		// the host is registered on UDP masterserver and won't respond on ping
 		std::string address;
 	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
     	if( !fp1 )

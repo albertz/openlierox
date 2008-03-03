@@ -19,6 +19,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <set>
 
 #include "CWidgetList.h"
 #include "CssParser.h"
@@ -366,6 +367,8 @@ void        Menu_SvrList_SaveList(const std::string& szFilename);
 void        Menu_SvrList_LoadList(const std::string& szFilename);
 void        Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h);
 void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
+// Returns true if server is registered on UDP masterserver and won't respond on pinging
+bool		Menu_SvrList_ServerBehindNat(const std::string& szAddress);
 
 // Main menu
 void	Menu_MainInitialize(void);

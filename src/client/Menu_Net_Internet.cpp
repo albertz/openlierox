@@ -700,10 +700,12 @@ void Menu_Net_NETUpdateList(void)
 		// Ping all servers when all 3 masterservers are processed (which is slow) - 
 		// we're listening to that socket to receive lx::serverlist packet from UDP masterserver.
 		if( ! tLXOptions->bNatTraverse )
+		{
 			if( Menu_SvrList_Process() ) {
 				// Add the servers to the listview
 				Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 			}
+		}
 
 
 		cListUpdate.Draw( tMenu->bmpScreen );
