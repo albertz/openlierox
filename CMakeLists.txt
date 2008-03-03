@@ -82,7 +82,7 @@ ELSE(DEBUG)
 	ADD_DEFINITIONS(-O2)
 ENDIF(DEBUG)
 
-ADD_DEFINITIONS("-DLX_VERSION=\\\"`cat VERSION`_r`head -n 4 .svn/entries | tail -n 1`\\\"")
+ADD_DEFINITIONS("-DLX_VERSION=\\\"`cat VERSION`_r`svn info | grep \"Revision:\" | cut -d \" \" -f 2`\\\"")
 IF(X11CLIPBOARD)
 	ADD_DEFINITIONS("-DX11CLIPBOARD")
 ENDIF(X11CLIPBOARD)
