@@ -758,6 +758,19 @@ void CClient::Connecting(bool force)
 
 	// Request a challenge id
 	CBytestream bs;
+	SetRemoteNetAddr(tSocket, cServerAddr);
+
+	if( bNatTraverseState )
+	{
+		for(int f=0; f<3; f++)
+		{
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tSocket);
+			bs.Clear();
+		};
+	};
+
 	bs.writeInt(-1,4);
 
 	if( bNatTraverseState )
@@ -773,7 +786,6 @@ void CClient::Connecting(bool force)
 
 	// As we use this tSocket both for sending and receiving,
 	// it's saver to reset the address here.
-	SetRemoteNetAddr(tSocket, cServerAddr);
 	bs.Send(tSocket);
 
 	Timer(&Timer::DummyHandler, NULL, 1000, true).startHeadless();

@@ -601,6 +601,15 @@ void Menu_Net_NETUpdateList(void)
 			SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
 
 			CBytestream bs;
+
+			for(int f=0; f<3; f++)
+			{
+				bs.writeInt(-1,4);
+				bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+				bs.Send(tMenu->tSocket[SCK_NET]);
+				bs.Clear();
+			};
+
 			bs.writeInt(-1,4);
 			bs.writeString("lx::getserverlist");
 			bs.Send(tMenu->tSocket[SCK_NET]);

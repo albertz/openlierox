@@ -755,6 +755,15 @@ void GameServer::RegisterServerUdp(void)
 		SetRemoteNetAddr( tSocket, addr );
 
 		CBytestream bs;
+
+		for(int f1=0; f1<3; f1++)
+		{
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tSocket);
+			bs.Clear();
+		};
+
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::ping");
 		bs.Send(tSocket);
