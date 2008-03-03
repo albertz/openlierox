@@ -95,7 +95,7 @@ while(true)
 		$amount1 = 0;
 		for( $f = 0; $f<$amount; $f++, $amount1++ )
 		{
-			if( strlen($send) > 255 or $amount1 >= 255 )
+			if( strlen($send) >= 255 or $amount1 >= 255 )
 			{
 				$send = "\xff\xff\xff\xfflx::serverlist\0" . chr(strval($amount1)) . $send;
 				socket_sendto($sock, $send, strlen($send), 0, $source, $sourcePort);
