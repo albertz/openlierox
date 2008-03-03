@@ -48,7 +48,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# clean up after the build process.
-	#$(MAKE) clean # not really needed, there will be no object files for you
+	$(MAKE) clean
 	dh_clean
 
 install: build
@@ -60,6 +60,8 @@ install: build
 	# install the package into debian/openlierox.
 	PREFIX=$(CURDIR)/debian/openlierox BIN_DIR=usr/games SYSTEM_DATA_DIR=/usr/share/games ./install.sh
 	cp share/OpenLieroX.xpm $(CURDIR)/debian/openlierox/usr/share/pixmaps/OpenLieroX.xpm
+	cp share/OpenLieroX.svg $(CURDIR)/debian/openlierox/usr/share/pixmaps/OpenLieroX.svg
+	cp share/openlierox-openlierox.desktop $(CURDIR)/debian/openlierox/usr/share/applications/
 	cp debian/copyright $(CURDIR)/debian/openlierox/usr/share/doc/openlierox/copyright
 	gzip -9 -c doc/openlierox.6 > $(CURDIR)/debian/openlierox/usr/share/man/man6/openlierox.6.gz
 
