@@ -762,6 +762,9 @@ void DrawLoading(byte percentage, const std::string &text)  {
 		return;
 	}
 
+	if (!cLoading.bmpBackground)
+		return;
+
 	// Update the repainted area
 	int x = MIN(cLoading.iBackgroundX, cLoading.cBar->GetX());
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);

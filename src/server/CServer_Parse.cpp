@@ -1053,6 +1053,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
 
 			if (ChallId == tChallenges[i].iNum)  { // good
+				SetNetAddrValid(tChallenges[i].Address, false); // Invalidate it here to avoid duplicate connections
+				tChallenges[i].iNum = 0;
 				valid_challenge = true;
 				break;
 			} else { // bad
