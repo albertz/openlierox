@@ -698,13 +698,13 @@ bool CUdpFileDownloader::isPathValid( const std::string & path )
 		return false;
 	if( stringcasefind( path, "cfg/" ) == 0 )	// Config dir is forbidden - some passwords may be stored here
 		return false;
-	for( uint f=0; f < path.size(); )
+	for( size_t f=0; f < path.size(); )
 	{
-		uint f1 = path.find_first_of(S_SYMBOL, f);
+		size_t f1 = path.find_first_of(S_SYMBOL, f);
 		if( f1 == std::string::npos )
 			f1 = path.size();
 		std::string word = path.substr( f, f1-f );
-		for( uint f2=0; f2<sizeof(invalid_file_names)/sizeof(invalid_file_names[0]); f2++ )
+		for( size_t f2=0; f2<sizeof(invalid_file_names)/sizeof(invalid_file_names[0]); f2++ )
 		{
 			if( stringcasecmp( word, invalid_file_names[f2] ) == 0 )
 				return false;

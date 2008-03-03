@@ -4697,7 +4697,7 @@ find_one_visible_node:
 		CVec force;
 		
 		// Air drag (Mainly to dampen the ninja rope)
-		float Drag = cGameScript->getWorm()->AirFriction;
+		// float Drag = cGameScript->getWorm()->AirFriction; // TODO: not used
 
 		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - vPos).GetLength();
 		float time = sqrt(2*dist/(force.GetLength()));

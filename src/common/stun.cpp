@@ -724,12 +724,14 @@ stunRand()
       tick = hightick;
       tick <<= 32;
       tick |= lowtick;
-#elif defined(__GNUC__) && ( defined(__i686__) || defined(__i386__) )
+#elif defined(__GNUC__) && ( defined(__i686__) || defined(__i386__) || defined(__amd64__) )
       asm("rdtsc" : "=A" (tick));
 #elif defined (__SUNPRO_CC) || defined( __sparc__ )	
       tick = gethrtime();
-#elif defined(__MACH__) 
+#elif defined(__MACH__) || !defined(WIN32)
+	// this is done also for all other non-win32 cases
       int fd=open("/dev/random",O_RDONLY);
+	assert(fd != 0);
       read(fd,&tick,sizeof(tick));
       close(fd);
 #else
