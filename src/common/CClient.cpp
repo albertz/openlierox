@@ -790,7 +790,7 @@ void CClient::Connecting(bool force)
 
 	Timer(&Timer::DummyHandler, NULL, 1000, true).startHeadless();
 
-	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());
+	printf("HINT: sending challenge request to %s\n", rawServerAddr.c_str());
 }
 
 

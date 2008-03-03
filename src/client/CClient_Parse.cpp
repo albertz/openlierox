@@ -204,8 +204,13 @@ void CClient::ParseTraverse(CBytestream *bs)
 {
 	bNatTraverseState = false;
 	std::string addr = bs->readString();
+	if( addr.find(":") == std::string::npos )
+		return;
 	StringToNetAddr(addr, cServerAddr);
-	printf("CClient::ParseTraverse() %s\n", addr.c_str());
+	int port = atoi( addr.substr( addr.find(":") + 1 ) );
+	SetNetAddrPort(cServerAddr, port);
+	NetAddrToString( cServerAddr, addr );
+	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
 };
 
 

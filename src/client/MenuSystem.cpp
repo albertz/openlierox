@@ -1713,6 +1713,8 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		svr->nMaxPlayers = maxplayers;
 		svr->nState = state;
 		svr->nPing = 999;
+		svr->bgotPong = true;
+		svr->bgotQuery = true;
 	};
 };
 
