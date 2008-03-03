@@ -14,6 +14,8 @@
 #include <winsock.h>
 #include <time.h>
 
+typedef int socklen_t;
+
 #else
 
 #include <unistd.h>
@@ -46,6 +48,11 @@ class HostInfo
 
 int main(int argc, char ** argv)
 {
+	#ifdef WIN32
+	WSADATA dummy;
+	WSAStartup(MAKEWORD(2,0), &dummy );	
+	#endif
+
 	int port = DEFAULT_PORT;
 	if( argc > 1 )
 		port = atoi( argv[1] );
@@ -99,10 +106,8 @@ int main(int argc, char ** argv)
 		
 		sourcePort = ntohs(source.sin_port);
 		
+		std::string srcAddr = inet_ntoa( source.sin_addr );
 		char sourceAddrBuf[128];
-		inet_ntop( AF_INET, &(source.sin_addr), sourceAddrBuf, sizeof(sourceAddrBuf) );
-		
-		std::string srcAddr = sourceAddrBuf;
 		sprintf(sourceAddrBuf, "%i", sourcePort );
 		srcAddr += ":";
 		srcAddr += sourceAddrBuf;
@@ -118,10 +123,10 @@ int main(int argc, char ** argv)
 			if( f == std::string::npos )
 				continue;
 			f++;
-			inet_pton( AF_INET, data.c_str()+f, &(dest.sin_addr) );
-			f = data.find(":", f);
-			if( f == std::string::npos )
+			if( data.find(":", f) == std::string::npos )
 				continue;
+			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
+			f = data.find(":", f);
 			f++;
 			destPort = atoi( data.c_str()+f );
 			dest.sin_port = htons(destPort);
@@ -129,9 +134,7 @@ int main(int argc, char ** argv)
 			send += '\0';
 			send += srcAddr;
 			send += '\0';
-			char buf[128];
-			inet_ntop( AF_INET, &(dest.sin_addr), buf, sizeof(buf) );
-			printf("Sending lx::traverse %s to %s:%i\n", send.c_str() + send.find('\0')+1, buf, destPort );
+			printf("Sending lx::traverse %s to %s:%i\n", send.c_str() + send.find('\0')+1, inet_ntoa( dest.sin_addr ), destPort );
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
 			continue;
 		};
@@ -208,6 +211,7 @@ int main(int argc, char ** argv)
 
 	#ifdef WIN32
 	closesocket(sock);
+	WSACleanup();
 	#else
 	close(sock);
 	#endif
