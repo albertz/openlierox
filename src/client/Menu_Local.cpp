@@ -374,7 +374,7 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Draw( tMenu->bmpBuffer );
 
                     // Get the current mod
-					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
+					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                     if(it) {
 
 					    bWeaponRest = true;
@@ -483,7 +483,7 @@ void Menu_LocalAddProfiles(void)
 
 	for(; p; p=p->tNext) {
 		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDITEM, "", p->iID);
-		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE);
+		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
 		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 	}
 
@@ -619,7 +619,7 @@ void Menu_LocalStartGame(void)
 
 
     // Get the mod name
-	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
+	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
     if(it) {
         tGameInfo.sModName = it->sName;
 		tGameInfo.sModDir = it->sIndex;

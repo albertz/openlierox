@@ -98,10 +98,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 			text += '*';
 	}
 
-	int cursorpos = iCurpos;
+	int cursorpos = (int)iCurpos;
 
 	// User can scroll to left
-	cursorpos -= iScrollPos;
+	cursorpos -= (int)iScrollPos;
 	if (cursorpos < 0)  {
 		cursorpos = 5;  // Number of characters, that will be displayed on left if we scroll left and cursor is on the most left
 		iScrollPos -= 5;
@@ -264,15 +264,15 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		// If the shift key is down, select the text
 		if(modstate.bShift)
 			if(iSelLength > 0)
-				iSelLength += iCurpos;
+				iSelLength += (int)iCurpos;
 			else
-				iSelLength = iCurpos;
+				iSelLength = (int)iCurpos;
 		else
 			iSelLength = 0;
 
 		// Safety
 		if((size_t)iSelLength > Utf8StringSize(sText))
-			iSelLength = Utf8StringSize(sText);
+			iSelLength = (int)Utf8StringSize(sText);
 
 		iCurpos = 0;
 		iScrollPos = 0;
@@ -282,7 +282,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	// End
 	if(keysym == SDLK_END) {
 		if (modstate.bShift)
-			iSelLength = -(int)Utf8StringSize(sText) + iCurpos + iSelLength;
+			iSelLength = -(int)Utf8StringSize(sText) + (int)iCurpos + iSelLength;
 		else
 			iSelLength = 0;
 
@@ -557,7 +557,7 @@ void CTextbox::SelectWord(void)
 	} while (right != sText.end() && (isalnum((uchar)*right) || (uchar)*right >= 128));
 
 	// Set the selection
-	iSelLength = iSelStart - iCurpos;
+	iSelLength = (int)iSelStart - (int)iCurpos;
 }
 
 
@@ -663,7 +663,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 		// Get the text length
 		case TXM_GETTEXTLENGTH:
-			return Utf8StringSize(sText);
+			return (DWORD)Utf8StringSize(sText);
 			break;
 
 		// Set some flags

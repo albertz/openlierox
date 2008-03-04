@@ -301,13 +301,13 @@ void Con_AddText(int colour, const std::string& text)
 
 	// Move all the text up, losing the last line
 	int n;
-	for(n = MAX_CONLINES - lines.size() - 1; n >= 1; n--) {
-		Console->Line[n + lines.size()].strText = Console->Line[n].strText;
-		Console->Line[n + lines.size()].Colour = Console->Line[n].Colour;
+	for(n = MAX_CONLINES - (int)lines.size() - 1; n >= 1; n--) {
+		Console->Line[n + (int)lines.size()].strText = Console->Line[n].strText;
+		Console->Line[n + (int)lines.size()].Colour = Console->Line[n].Colour;
 	}
 
 	// Add the lines
-	n = lines.size();
+	n = (int)lines.size();
 	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;

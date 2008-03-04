@@ -203,7 +203,7 @@ bool GameServer::SendUpdate()
 			{
 				// TODO: what is this good for?
 				// Add the length of the client's unreliable packet to the frame's message size
-				int *msgSize = cl->getMsgSize();
+				size_t *msgSize = cl->getMsgSize();
 				msgSize[iServerFrame % RATE_NUMMSGS] = cl->getUnreliable()->GetLength();
 			}
 		}
@@ -228,14 +228,14 @@ bool GameServer::checkBandwidth(CClient *cl)
 
 	// Modem, ISDN, LAN, local
 	// (Bytes per second)
-	int	Rates[4] = {2500, 7500, 10000, 50000};
+	size_t	Rates[4] = {2500, 7500, 10000, 50000};
 
 
-	int total = 0;
-	int i;
+	size_t total = 0;
+	size_t i;
 
 	// Add up the message sizes
-	int *msgSizes = cl->getMsgSize();
+	size_t *msgSizes = cl->getMsgSize();
 	for(i=0; i<RATE_NUMMSGS; i++)
 		total += msgSizes[i];
 

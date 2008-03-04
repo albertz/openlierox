@@ -82,12 +82,12 @@ private:
 
 
 	// Statistics
-	int			iPacketsDropped;
-	int			iPacketsGood;
-	int			iCurrentIncomingBytes;				// how many bytes received since last bandwidth calculation
-	int			iCurrentOutgoingBytes;				// how many bytes sent since last bandwidth calculation
-	int			iOutgoingBytes;
-	int			iIncomingBytes;
+	size_t		iPacketsDropped;
+	size_t		iPacketsGood;
+	size_t		iCurrentIncomingBytes;				// how many bytes received since last bandwidth calculation
+	size_t		iCurrentOutgoingBytes;				// how many bytes sent since last bandwidth calculation
+	size_t		iOutgoingBytes;
+	size_t		iIncomingBytes;
 
 
 
@@ -101,7 +101,7 @@ public:
 										  iPacketsDropped = 0; iPacketsGood = 0; bNewReliablePacket = false; }
 
 
-	int			getPacketLoss(void)		{ return iPacketsDropped; }
+	size_t		getPacketLoss(void)		{ return iPacketsDropped; }
 	float		getLastReceived(void)	{ return fLastPckRecvd; }
 	float		getLastSent(void)		{ return fLastSent; }
 	NetworkAddr	getAddress(void)		{ return RemoteAddr; }
@@ -117,8 +117,8 @@ public:
 
 	int	getInAck(void)			{ return iIncomingAcknowledged; }
 
-	int	getOutoing(void)		{ return iOutgoingBytes; }
-	int	getIncoming(void)		{ return iIncomingBytes; }
+	size_t	getOutoing(void)		{ return iOutgoingBytes; }
+	size_t	getIncoming(void)		{ return iIncomingBytes; }
 
 	int		getPing()			{ return iPing; }
 	void	setPing(int _p)		{ iPing = _p; }

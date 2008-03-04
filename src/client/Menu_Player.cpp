@@ -614,7 +614,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         LoadProfileGraphics(p);
 
                         // Update the item
-                        lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, (DWORD)0,0);
+                        lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, (DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                         if(it) {
                             if(it->tSubitems) {
                                 it->tSubitems->bmpImage = p->bmpWorm;

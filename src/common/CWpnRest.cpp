@@ -359,7 +359,7 @@ void CWpnRest::sendList(CBytestream *psByteS, CGameScript *pcGameS)
 
 
     // Write the header
-    psByteS->writeInt(rest_to_send.size(), 2);
+    psByteS->writeInt((int)rest_to_send.size(), 2);
 
     // Write the restrictions
 	for (std::list<wpnrest_t *>::iterator it = rest_to_send.begin();

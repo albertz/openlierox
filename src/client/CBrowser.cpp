@@ -128,7 +128,7 @@ void CBrowser::Parse()
 
 	// Setup the scrollbar
 	cScrollbar.setItemsperbox(iClientHeight / tLX->cFont.GetHeight());
-	cScrollbar.setMax(tLines.size());
+	cScrollbar.setMax((int)tLines.size());
 	cScrollbar.setValue(0);
 
 }

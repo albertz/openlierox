@@ -529,7 +529,7 @@ std::string CMap::findRandomTheme() {
 	}
 
     // Get a random number
-    int t = GetRandomInt(themes.size()-1);
+    int t = GetRandomInt((int)themes.size()-1);
     return themes[t];
 }
 

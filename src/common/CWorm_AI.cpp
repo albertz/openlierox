@@ -677,7 +677,7 @@ private:
 		// Name the thread
 #ifdef _MSC_VER
 		static char name[32];
-		sprintf(name,"AI thread %i",(int)b);
+		sprintf(name, ("AI thread " + to_string<size_t>((size_t)b)).c_str());
 		nameThread(-1,name);
 #endif // WIN32
 

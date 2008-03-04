@@ -115,7 +115,7 @@ float GetFixedRandomNum(uchar index)
 // Gives a name to the thread
 // Code taken from Thread Validator help
 #ifdef _MSC_VER
-void nameThread(const DWORD threadId, const char *name)
+void nameThread(const DWORD threadId, const std::string& name)
 {
    // You can name your threads by using the following code.
    // Thread Validator will intercept the exception and pass it along (so if you are also running
@@ -140,7 +140,7 @@ void nameThread(const DWORD threadId, const char *name)
                            // just make sure it is large enough!
 
    memset(szSafeThreadName, 0, sizeof(szSafeThreadName));   // ensure all characters are NULL before
-   strncpy(szSafeThreadName, name, BUFFER_LEN - 1);   // copying name
+   strncpy(szSafeThreadName, name.c_str(), BUFFER_LEN - 1);   // copying name
    //szSafeThreadName[BUFFER_LEN - 1] = '\0';
 
    ThreadInfo.dwType = 0x1000;

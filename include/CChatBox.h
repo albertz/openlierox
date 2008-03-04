@@ -29,7 +29,7 @@ class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
 	float	fTime;
-	unsigned int iID;
+	size_t iID;
 };
 
 typedef std::list<line_t> ct_lines_t;

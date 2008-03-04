@@ -215,7 +215,7 @@ public:
 	// yet current implementation will send only files we will request
 	std::string	getFileDownloading() const;
 	float		getFileDownloadingProgress() const;
-	uint		getFilesPendingAmount() const;
+	size_t		getFilesPendingAmount() const;
 
 private:
 	void			processFileRequests();
@@ -223,7 +223,7 @@ private:
 	// TODO: should use intern-pointer here
 	std::string		sFilename;
 	std::string		sData;
-	uint			iPos;
+	size_t			iPos;
 
 	State_t			tState;
 	bool			bWasError;

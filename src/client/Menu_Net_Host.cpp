@@ -147,7 +147,7 @@ bool Menu_Net_HostInitialize(void)
 			continue;*/
 
 		cHostPly.SendMessage( hs_PlayerList, LVS_ADDITEM, "", p->iID);
-		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE );
+		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
 		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 	}
 
@@ -710,7 +710,7 @@ void Menu_Net_HostGotoLobby(void)
 		CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 		if (lv)  {
 			CChatBox *Chatbox = cClient->getChatbox();
-			lines_iterator it = Chatbox->At(Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+			lines_iterator it = Chatbox->At((int)Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 			int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 	
 			// Copy the chat text
@@ -987,7 +987,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.Draw( tMenu->bmpBuffer);
 					Menu_HostDrawLobby(tMenu->bmpBuffer);
 
-                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                     if(it) {
 		                bHostWeaponRest = true;
 					    Menu_WeaponsRestrictions(it->sIndex);
@@ -1178,7 +1178,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 		// Get the mod
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
 		if(it) {
 			tGameInfo.sModName = it->sName;
 			tGameInfo.sModDir = it->sIndex;

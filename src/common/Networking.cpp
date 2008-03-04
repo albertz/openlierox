@@ -143,7 +143,7 @@ static int SdlNetEventThreadMain( void * param )
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT_NET_ACTIVITY;
 	ev.user.code = 0;
-	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
+	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS), TODO: 64bit unsafe (pointer cast)
 	ev.user.data2 = NULL;
 
 	// When restarting, this can happen, we wait for options to initialize
@@ -381,7 +381,7 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 }
 
 int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
-	return WriteSocket(sock, buffer.data(), buffer.size());
+	return WriteSocket(sock, buffer.data(), (int)buffer.size());
 }
 
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {

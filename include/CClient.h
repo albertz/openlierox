@@ -361,7 +361,7 @@ private:
 	bool		bChat_Typing;
 	UnicodeChar	iChat_Lastchar;
 	bool		bChat_Holding;
-	unsigned int	iChat_Pos;
+	size_t		iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
 	CInput		cTeamChat_Input;
@@ -400,7 +400,7 @@ private:
 	CChannel	cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;
-	int			nMessageSizes[RATE_NUMMSGS];
+	size_t		nMessageSizes[RATE_NUMMSGS];
     float       fZombieTime;
 	float		fSendWait;
 	float		fLastUpdateSent;
@@ -649,7 +649,7 @@ public:
 	int			getNetSpeed(void)			{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
 
-	int			*getMsgSize(void)			{ return nMessageSizes; }
+	size_t		*getMsgSize(void)			{ return nMessageSizes; }
 
 	CShootList	*getShootList(void)			{ return &cShootList; }
 

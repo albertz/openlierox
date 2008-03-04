@@ -413,7 +413,7 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 	tGameInfo.iNumPlayers = 1;
 
 	// Fill in the game structure
-	const cb_item_t *item = (const cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+	const cb_item_t *item = (const cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
 
 	// Add the player to the list
 	if (item)  {

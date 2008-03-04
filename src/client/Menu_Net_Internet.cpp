@@ -139,7 +139,7 @@ void Menu_Net_NETShutdown(void)
 		}
 
 		// Save the selected player
-		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
 		if (item)
 			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 	}

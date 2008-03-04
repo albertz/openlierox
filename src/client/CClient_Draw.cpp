@@ -1942,9 +1942,9 @@ void CClient::InitializeViewportManager(void)
             continue;
 
 		ViewportMgr.SendMessage( v1_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
+		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
 		ViewportMgr.SendMessage( v2_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
+		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
     }
 
 	CWorm *trg = cViewports[0].getTarget();
@@ -2409,11 +2409,11 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 	// Two columns
 	if (worms.size() > 16)  {
 		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), 16);
-		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), worms.size() - 16);
+		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), (int)worms.size() - 16);
 
 	// One column
 	} else {
-		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), worms.size());
+		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), (int)worms.size());
 	}
 
 

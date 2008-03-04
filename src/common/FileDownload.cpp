@@ -215,7 +215,7 @@ byte CHttpDownloader::GetProgress()
 {
 	byte res = 0;
 	if (tHttp.GetDataLength() != 0)
-		res = (byte)MIN(100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
+		res = (byte)MIN((size_t)100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
 
 	return res;
 }
@@ -387,8 +387,8 @@ void CUdpFileDownloader::setFileToSend( const std::string & path )
 	
 	while( ! feof( ff ) )
 	{
-		int readed = fread( buf, 1, sizeof(buf), ff );
-		data.append( buf, readed );
+		size_t read = fread( buf, 1, sizeof(buf), ff );
+		data.append( buf, read );
 	};
 	fclose( ff );
 	
@@ -442,7 +442,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		tState = S_FINISHED;
 		iPos = 0;
 		bool error = true;
-		int compressedSize = sData.size();
+		size_t compressedSize = sData.size();
 		if( Decompress( sData, &sFilename ) )
 		{
 			error = false;
@@ -477,11 +477,11 @@ bool CUdpFileDownloader::send( CBytestream * bs )
 		bWasError = true;
 		return true;	// Send finished (due to error)
 	};
-	uint chunkSize = MIN( sData.size() - iPos, MAX_DATA_CHUNK );
+	size_t chunkSize = MIN( sData.size() - iPos, (size_t)MAX_DATA_CHUNK );
 	if( sData.size() - iPos == MAX_DATA_CHUNK )
 		chunkSize++;
-	bs->writeByte( chunkSize );
-	bs->writeData( sData.substr( iPos, MIN( chunkSize, MAX_DATA_CHUNK ) ) );
+	bs->writeByte( (byte)chunkSize );
+	bs->writeData( sData.substr( iPos, MIN( chunkSize, (size_t)MAX_DATA_CHUNK ) ) );
 	iPos += chunkSize;
 	//cout << "CFileDownloaderInGame::send() " << iPos << "/" << sData.size() << endl;
 	if( chunkSize != MAX_DATA_CHUNK )
@@ -816,7 +816,7 @@ float CUdpFileDownloader::getFileDownloadingProgress() const
 	return ret;
 };
 
-uint CUdpFileDownloader::getFilesPendingAmount() const
+size_t CUdpFileDownloader::getFilesPendingAmount() const
 {
 	return tRequestedFiles.size();
 };

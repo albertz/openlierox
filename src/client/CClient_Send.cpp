@@ -186,7 +186,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
 	// HINT: in command messages the name has to be repeated for all chunks so we have to count with that here
 	int name_w = tLX->cFont.GetWidth(sWormName + ": ");
-	int repeat_length = command.size() ? (command.size() + sWormName.size()) : 0;  // length of repeated string
+	size_t repeat_length = command.size() ? (command.size() + sWormName.size()) : 0;  // length of repeated string
 	const std::vector<std::string>& split = splitstring(message, 63 - repeat_length,
 		iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) :
 		300 - (command.size() ? name_w : 0), tLX->cFont);

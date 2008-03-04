@@ -577,7 +577,7 @@ void Menu_MapEd_New(void)
 						int h = from_string<int>(t2->getText());
 						std::string theme;
 						theme = "dirt";
-						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0);
+						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
 						if(it)
 							theme = it->sName;
 

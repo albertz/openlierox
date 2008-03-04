@@ -386,7 +386,7 @@ void Menu_Net_JoinGotoLobby(void)
 	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
 	if (lv)  {
 		CChatBox *Chatbox = cClient->getChatbox();
-		lines_iterator it = Chatbox->At(Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+		lines_iterator it = Chatbox->At((int)Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 		// Copy the chat text
@@ -630,7 +630,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			cClient->getUdpFileDownloader()->getFileDownloading() );
 		else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
-			itoa( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
+			to_string<size_t>( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
 
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
 		if( dlButton )

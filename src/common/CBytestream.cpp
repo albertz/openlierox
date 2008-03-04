@@ -506,10 +506,10 @@ bool CBytestream::readBit()
 	return ret;
 };
 
-std::string CBytestream::readData( uint size )
+std::string CBytestream::readData( size_t size )
 {
 	size = MIN( size, GetLength() - pos );
-	uint oldpos = pos;
+	size_t oldpos = pos;
 	pos += size;
 	return Data.substr( oldpos, size );
 };
@@ -557,6 +557,6 @@ size_t CBytestream::Read(NetworkSocket sock) {
 }
 
 bool CBytestream::Send(NetworkSocket sock) {
-	return (size_t)WriteSocket(sock, Data.data(), Data.size()) == Data.size();
+	return (size_t)WriteSocket(sock, Data.data(), (int)Data.size()) == Data.size();
 }
 

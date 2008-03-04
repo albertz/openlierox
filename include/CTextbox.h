@@ -103,7 +103,7 @@ private:
 
 	bool	bHoldingMouse;
 	float	fTimeHolding;
-	int		iLastCurpos;
+	size_t	iLastCurpos;
 	int		iLastMouseX;
 	float	fScrollTime;
 	float	fLastRepeat;

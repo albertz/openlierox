@@ -69,15 +69,15 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 		// Change the widget's height
 		iHeight = 0;
-		int display_count = 6;
-		if (tItems.size() < (size_t)display_count)
+		size_t display_count = 6;
+		if (tItems.size() < display_count)
 			display_count = tItems.size();
-		iHeight = ItemHeight*(display_count+1)+5;
+		iHeight = (int)(ItemHeight*(display_count+1)+5);
 		// Screen clipping
-		while (iHeight+iY > bmpDest->h)  {
+		while (iHeight+iY > bmpDest->h && display_count)  {
 			display_count--;
 			bGotScrollbar = true;
-			iHeight = ItemHeight*(display_count+1)+5;
+			iHeight = (int)(ItemHeight*(display_count+1)+5);
 		}
 		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-tLX->cFont.GetHeight()-6);
 
@@ -284,7 +284,7 @@ void CCombobox::Unique() {
 	}
 	tItems.erase(new_end, tItems.end());
 
-    cScrollbar.setMax( tItems.size() );	
+    cScrollbar.setMax( (int)tItems.size() );	
 	bGotScrollbar = tItems.size() > 6;
 }
 
@@ -587,7 +587,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Get the current item
 		case CBM_GETCURITEM:
-			return (DWORD)getItemRW(iSelected);
+			return (DWORD)getItemRW(iSelected); // TODO: 64bit unsafe
 
 		// Set the current item
 		case CBM_SETCURSEL:
@@ -601,7 +601,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Set the image for the specified item
 		case CBM_SETIMAGE:
-			setImage((SDL_Surface *) Param2, Param1);
+			setImage((SDL_Surface *) Param2, Param1); // TODO: 64bit unsafe
 			break;
 
 		// Return true, if the combobox is dropped
@@ -633,7 +633,7 @@ DWORD CCombobox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 		break;
 	// Add item message (string index)
 	case CBS_ADDSITEM:
-		addItem(0, sStr, *((std::string *) Param));
+		addItem(0, sStr, *((std::string *) Param)); // TODO: 64bit unsafe
 		break;
 	// Set the current item based on the string index
 	case CBS_SETCURSINDEX:
@@ -696,7 +696,7 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 		const int res = compare_items(*tItems.rbegin(), item);
 		if (res <= 0)  {
 			result = tItems.end();
-			*index = tItems.size();
+			*index = (int)tItems.size();
 			*equal = (res == 0);
 			return result;
 		}
@@ -712,11 +712,11 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 			result = ++mid_value;
 			++mid;
 			n -= mid;
-			*index += mid;
+			*index += (int)mid;
 		} else if (res > 0)
 			n = mid;
 		else  { // Exact match
-			*index += mid;
+			*index += (int)mid;
 			*equal = true;
 			return mid_value;
 		}
@@ -757,11 +757,11 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 			result = ++mid_value;
 			++mid;
 			n -= mid;
-			*index += mid;
+			*index += (int)mid;
 		} else if (res < 0)
 			n = mid;
 		else  { // Exact match
-			*index += mid;
+			*index += (int)mid;
 			*equal = true;
 			return mid_value;
 		}
@@ -824,7 +824,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 			std::advance(it, index);
 			tItems.insert(it, item);
 		} else {
-			index = tItems.size();
+			index = (int)tItems.size();
 			tItems.push_back(item);
 		}
 	}
@@ -835,7 +835,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 		iSelected = index;
 	}
 
-    cScrollbar.setMax( tItems.size() );	
+    cScrollbar.setMax( (int)tItems.size() );	
 	bGotScrollbar = tItems.size() > 6;
 
 	return index;
@@ -944,7 +944,7 @@ cb_item_t* CCombobox::getItemRW(int index)
 /////////////
 // Get the number of items
 int	CCombobox::getItemsCount() {
-	return tItems.size();
+	return (int)tItems.size();
 }
 
 /////////////

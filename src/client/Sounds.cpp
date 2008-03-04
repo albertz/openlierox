@@ -411,7 +411,7 @@ SoundMusic *LoadMusic(const std::string& file)
 	// HINT: we have to convert the filename to ANSI because Mix_LoadMUS_RW doesn't work for MP3
 	Utf16String u16file = Utf8ToUtf16(file);
 	char ansifile[1024];
-	int len = WideCharToMultiByte(CP_ACP, 0, (wchar_t *)(u16file.c_str()), u16file.size(), ansifile, sizeof(ansifile), NULL, NULL);
+	int len = WideCharToMultiByte(CP_ACP, 0, (wchar_t *)(u16file.c_str()), (int)u16file.size(), ansifile, sizeof(ansifile), NULL, NULL);
 	ansifile[len] = '\0';
 	new_music->sndMusic = Mix_LoadMUS(ansifile);
 #endif

@@ -175,7 +175,7 @@ command_t *Cmd_GetCommand(const std::string& strName)
 // Auto complete a command
 int Cmd_AutoComplete(std::string& strVar)
 {
-	int len = strVar.size();
+	size_t len = strVar.size();
 	command_t *cmd;
 
 	if(!len)
@@ -189,11 +189,13 @@ int Cmd_AutoComplete(std::string& strVar)
 	}
 
 	// See if it's a partial match
-	for(cmd=Commands ; cmd ; cmd=cmd->Next)
-		if(!stringcasecmp(strVar, cmd->strName.substr(0,len))) {
-			strVar = cmd->strName + " ";
-			return true;
-		}
+	for(cmd=Commands ; cmd ; cmd=cmd->Next)  {
+		if (cmd->strName.size() >= len)
+			if(!stringcasecmp(strVar, cmd->strName.substr(0,len))) {
+				strVar = cmd->strName + " ";
+				return true;
+			}
+	}
 
 
 	return false;

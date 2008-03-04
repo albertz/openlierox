@@ -836,14 +836,14 @@ stunCreateUserName(const StunAddress4& source, StunAtrString* username)
 	
    char hmac[20];
    char key[] = "Jason";
-   computeHmac(hmac, buffer, strlen(buffer), key, strlen(key) );
+   computeHmac(hmac, buffer, (int)strlen(buffer), key, (int)strlen(key) );
    char hmacHex[41];
    toHex(hmac, 20, hmacHex );
    hmacHex[40] =0;
 	
    strcat(buffer,hmacHex);
 	
-   int l = strlen(buffer);
+   int l = (int)strlen(buffer);
    assert( l+1 < STUN_MAX_STRING );
    assert( l%4 == 0 );
    
@@ -860,7 +860,7 @@ stunCreatePassword(const StunAtrString& username, StunAtrString* password)
    char hmac[20];
    char key[] = "Fluffy";
    //char buffer[STUN_MAX_STRING];
-   computeHmac(hmac, username.value, strlen(username.value), key, strlen(key));
+   computeHmac(hmac, username.value, (int)strlen(username.value), key, (int)strlen(key));
    toHex(hmac, 20, password->value);
    password->sizeValue = 40;
    password->value[40]=0;

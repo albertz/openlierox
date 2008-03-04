@@ -93,7 +93,7 @@ public:
 	void		read2Int12(short& x, short& y);
 	void		read2Int4(short& x, short& y);
 	bool		readBit();
-	std::string	readData( uint size = (uint)(-1) );
+	std::string	readData( size_t size = (size_t)(-1) );
 
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip

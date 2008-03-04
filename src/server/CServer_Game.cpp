@@ -448,7 +448,7 @@ void GameServer::TagRandomWorm(void)
 	}
 
 	// Choose a random worm from all those having the lowest time
-	int random_lowest = GetRandomInt(all_lowest.size()-1);
+	int random_lowest = GetRandomInt((int)all_lowest.size()-1);
 
 
 	// Tag the lowest tagged worm

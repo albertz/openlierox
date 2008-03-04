@@ -611,17 +611,17 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	SetGameCursor(CURSOR_ARROW);
 
-	unsigned int x = 160;
-	unsigned int y = 170;
-	unsigned int w = 320;
-	unsigned int h = 140;
+	int x = 160;
+	int y = 170;
+	int w = 320;
+	int h = 140;
 
 	// Handle multiline messages
-	unsigned int maxwidth = 0;
+	int maxwidth = 0;
 	std::vector<std::string>::const_iterator it;
 	const std::vector<std::string>& lines = explode(sText,"\n");
 	for (it=lines.begin(); it!=lines.end(); it++)  {
-		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
+		maxwidth = MAX(maxwidth, tLX->cFont.GetWidth(*it));
 	}
 
 	if(maxwidth > w) {
@@ -629,13 +629,13 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 		x = 320-w/2;
 	}
 
-	if((tLX->cFont.GetHeight()*lines.size())+5 > h) {
-		h = MIN((tLX->cFont.GetHeight()*lines.size())+20,478);
+	if((tLX->cFont.GetHeight()*(int)lines.size())+5 > h) {
+		h = (int)MIN((tLX->cFont.GetHeight()*lines.size())+20, (size_t)478);
 		y = 240-h/2;
 	}
 
 	int cx = x+w/2;
-	int cy = y+h/2-(lines.size()*tLX->cFont.GetHeight())/2;
+	int cy = y+h/2-((int)lines.size()*tLX->cFont.GetHeight())/2;
 
 
 	//

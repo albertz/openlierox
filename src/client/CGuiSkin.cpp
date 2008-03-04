@@ -117,8 +117,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	char buf[4096];
 	while( ! feof(file) )
 	{
-		int readed = fread( buf, 1, sizeof(buf), file );
-		filedata.append(buf, readed);
+		size_t read = fread( buf, 1, sizeof(buf), file );
+		filedata.append(buf, read);
 	};
 	fclose(file);
 
@@ -362,8 +362,8 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 
 void CGuiSkin::CallbackHandler::Call()
 {
-	unsigned size = m_callbacks.size();	// Some callbacks may destroy *this, m_callbacks.size() call will crash
-	for( unsigned f=0; f<size; f++ )	// I know that's hacky, oh well...
+	size_t size = m_callbacks.size();	// Some callbacks may destroy *this, m_callbacks.size() call will crash
+	for( size_t f=0; f<size; f++ )	// I know that's hacky, oh well...
 		m_callbacks[f].first( m_callbacks[f].second, m_source );	// Here *this may be destroyed
 };
 

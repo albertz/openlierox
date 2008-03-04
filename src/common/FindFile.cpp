@@ -788,7 +788,7 @@ static int stdio_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 	if ( nread == 0 && ferror(context->hidden.stdio.fp) ) {
 		SDL_Error(SDL_EFREAD);
 	}
-	return(nread);
+	return (int)(nread);
 }
 static int stdio_write(SDL_RWops *context, const void *ptr, int size, int num)
 {
@@ -798,7 +798,7 @@ static int stdio_write(SDL_RWops *context, const void *ptr, int size, int num)
 	if ( nwrote == 0 && ferror(context->hidden.stdio.fp) ) {
 		SDL_Error(SDL_EFWRITE);
 	}
-	return(nwrote);
+	return (int)(nwrote);
 }
 static int stdio_close(SDL_RWops *context)
 {

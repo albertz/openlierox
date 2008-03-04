@@ -1498,7 +1498,7 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
         // Return the current item
         case LVM_GETCURITEM:
             if(tSelected)
-                return (DWORD)tSelected;
+                return (DWORD)tSelected; // TODO: 64bit unsafe (pointer cast)
             return 0;
 
 		// Set the old-style property
@@ -1515,9 +1515,9 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Add a sub item
 		case LVS_ADDSUBITEM:
 			if(Param2 == LVS_IMAGE)
-				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1, NULL);
+				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1, NULL); // TODO: 64bit unsafe (pointer cast)
 			else if (Param2 == LVS_WIDGET)
-				AddSubitem(LVS_WIDGET, "", NULL, (CWidget *)Param1);
+				AddSubitem(LVS_WIDGET, "", NULL, (CWidget *)Param1); // TODO: 64bit unsafe (pointer cast)
 			else
 				printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 			break;

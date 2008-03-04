@@ -286,9 +286,11 @@ std::string GetBaseFilename(const std::string& filename) {
 std::string strip(const std::string& buf, int width)
 {
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	static std::string result;
+	if (buf.size() == 0)
+		return "";
+	std::string result;
 	result = buf;
-	for(int j=result.length()-1; tLX->cFont.GetWidth(result) > width && j>0; j--)
+	for(size_t j=result.length()-1; tLX->cFont.GetWidth(result) > width && j != 0; j--)
 		result.erase(result.length()-1);
 
 	return result;
@@ -297,10 +299,13 @@ std::string strip(const std::string& buf, int width)
 
 bool stripdot(std::string& buf, int width)
 {
+	if (buf.size() == 0)
+		return false;
+
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
 	int dotwidth = tLX->cFont.GetWidth("...");
 	bool stripped = false;
-	for(int j=buf.length()-1; tLX->cFont.GetWidth(buf) > width && j>0; j--)  {
+	for(size_t j=buf.length()-1; tLX->cFont.GetWidth(buf) > width && j != 0; j--)  {
 		buf.erase(buf.length()-1);
 		stripped = true;
 	}
@@ -567,7 +572,7 @@ bool Compress( const std::string & in, std::string * out, bool noCompression )
 	ret = deflateInit(&strm, compression);
     if (ret != Z_OK)
 		return false;
-	strm.avail_in = in.size();
+	strm.avail_in = (uint)in.size(); // TODO: possible overflow on 64-bit systems
 	strm.next_in = (Bytef *) in.c_str();
 	char buf[16384];
 	do{
@@ -602,7 +607,7 @@ bool Decompress( const std::string & in, std::string * out )
 	if (ret != Z_OK)
 		return false;
 		
-	strm.avail_in = in.size();
+	strm.avail_in = (uint)in.size();  // TODO: possible overflow on 64-bit systems
 	strm.next_in = (Bytef *) in.c_str();
 	char buf[16384];
 	do{
@@ -622,25 +627,25 @@ bool Decompress( const std::string & in, std::string * out )
 	return true;
 };
 
-uint StringChecksum( const std::string & data )
+size_t StringChecksum( const std::string & data )
 {
-	return adler32(0L, (const Bytef *)data.c_str(), data.size());
+	return adler32(0L, (const Bytef *)data.c_str(), (uint)data.size());
 };
 
-bool FileChecksum( const std::string & path, uint * _checksum, uint * _filesize )
+bool FileChecksum( const std::string & path, uint * _checksum, size_t * _filesize )
 {
 	FILE * ff = OpenGameFile( path, "rb" );
 	if( ff == NULL )
 		return false;
 	char buf[16384];
-	uint checksum = adler32(0L, Z_NULL, 0);
-	uint size = 0;
+	uLong checksum = adler32(0L, Z_NULL, 0);
+	size_t size = 0;
 	
 	while( ! feof( ff ) )
 	{
-		int readed = fread( buf, 1, sizeof(buf), ff );
-		checksum = adler32( checksum, (const Bytef *)buf, readed);
-		size += readed;
+		uint read = (uint)fread( buf, 1, sizeof(buf), ff ); // TODO: possible overflow on 64bit systems
+		checksum = adler32( checksum, (const Bytef *)buf, read);
+		size += read;
 	};
 	fclose( ff );
 	
