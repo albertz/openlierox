@@ -6,3 +6,5 @@ When received lx::traverse masterserver will put there original source address a
 When host receives lx::traverse it opens another UDP socket (actually it's already open, just not used) and sends lx::traverse from this new socket to masterserver, then sends 3 lx::pong packets to the client external IP:port specified in first lx::traverse, thus opening it's NAT to client.
 When masterserver receives lx::traverse from host it re-sends it to client.
 Client will receive external host IP:port and will try to connect there.
+
+That algorithm will work with port restricted NATs that will preserve port numbers when changing destination IP:port - http://en.wikipedia.org/wiki/UDP_hole_punching

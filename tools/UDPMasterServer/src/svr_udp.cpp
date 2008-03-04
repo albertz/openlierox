@@ -1,6 +1,5 @@
 
 // That's the same as svr_udp.php but needs no MySQL or PHP :)
-// Note that "\0" will give you errors in C++, you should use '\0'.
 
 #include <string>
 #include <vector>
@@ -30,9 +29,8 @@ typedef int socklen_t;
 #define DEFAULT_PORT 23450
 bool quit = false;	// TODO: signal here on Ctrl-C
 
-class HostInfo
+struct HostInfo
 {
-	public:
 	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state ):
 		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state) 
 	{ };
@@ -50,7 +48,7 @@ int main(int argc, char ** argv)
 {
 	#ifdef WIN32
 	WSADATA dummy;
-	WSAStartup(MAKEWORD(2,0), &dummy );	
+	WSAStartup(MAKEWORD(2,0), &dummy );
 	#endif
 
 	int port = DEFAULT_PORT;
