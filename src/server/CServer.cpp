@@ -765,7 +765,13 @@ void GameServer::RegisterServerUdp(void)
 		};
 
 		bs.writeInt(-1, 4);
-		bs.writeString("lx::ping");
+		bs.writeString("lx::queryreturn");
+		bs.writeString(OldLxCompatibleString(sName));
+		bs.writeByte(iNumPlayers);
+		bs.writeByte(iMaxWorms);
+		bs.writeByte(iState);
+		bs.writeByte(0);	// ignored by masterserver
+
 		bs.Send(tSocket);
 	};
 }

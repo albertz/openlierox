@@ -210,6 +210,16 @@ void CClient::ParseTraverse(CBytestream *bs)
 	int port = atoi( addr.substr( addr.find(":") + 1 ) );
 	SetNetAddrPort(cServerAddr, port);
 	NetAddrToString( cServerAddr, addr );
+
+	SetRemoteNetAddr(tSocket, cServerAddr);
+	for(int f=0; f<3; f++)
+	{
+		CBytestream bs1;
+		bs1.writeInt(-1,4);
+		bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
+		bs1.Send(tSocket);
+	};
+
 	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
 };
 

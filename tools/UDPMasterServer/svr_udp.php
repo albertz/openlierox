@@ -59,11 +59,12 @@ while(true)
 
 	if( strpos( $data, "\xff\xff\xff\xfflx::ping" ) === 0 )
 	{
-		$send = "\xff\xff\xff\xfflx::query\0";
+		$send = "\xff\xff\xff\xfflx::query\0\0";
 		socket_sendto($sock, $send, strlen($send), 0, $source, $sourcePort);
 		echo "Send $send\n";
 		continue;
 	};
+	
 	if( strpos( $data, "\xff\xff\xff\xfflx::queryreturn" ) === 0 )
 	{
 		$lastping = time();

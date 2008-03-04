@@ -16,6 +16,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <set>
 
 #include "LieroX.h"
 #include "EndianSwap.h"

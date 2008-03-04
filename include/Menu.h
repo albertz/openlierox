@@ -19,7 +19,6 @@
 
 #include <SDL.h>
 #include <string>
-#include <set>
 
 #include "CWidgetList.h"
 #include "CssParser.h"

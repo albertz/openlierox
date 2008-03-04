@@ -35,7 +35,6 @@
 #include "InputEvents.h"
 #include "FileDownload.h"
 #include "Version.h"
-#include <set>
 
 
 #define		MAX_CLIENTS		32
