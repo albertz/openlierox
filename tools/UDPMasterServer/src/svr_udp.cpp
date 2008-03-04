@@ -38,11 +38,19 @@ struct HostInfo
 	std::string addr;
 	time_t lastping;
 	std::string name;
-	int maxworms;
-	int numplayers;
-	int state;
+	unsigned maxworms;
+	unsigned numplayers;
+	unsigned state;
 };
 
+
+
+void printStr(const std::string & s)
+{
+	for(size_t f=0; f<s.size(); f++)
+		printf("%c", s[f] >= 32 ? s[f] : '?' );
+	printf("\n");
+};
 
 int main(int argc, char ** argv)
 {
@@ -153,14 +161,14 @@ int main(int argc, char ** argv)
 			if( f == std::string::npos )
 				continue;
 			f++;
-			std::string name = data.substr( f, data.find( '\0', f ) );
+			std::string name = data.substr( f, data.find( '\0', f ) - f );
 			f = data.find( '\0' );
 			if( f == std::string::npos )
 				continue;
 			f++;
-			int numplayers = data[f];
-			int maxworms = data[f+1];
-			int state = data[f+2];
+			unsigned numplayers = (unsigned char)data[f];
+			unsigned maxworms = (unsigned char)data[f+1];
+			unsigned state = (unsigned char)data[f+2];
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
@@ -168,14 +176,14 @@ int main(int argc, char ** argv)
 				if( it->addr == srcAddr )
 				{
 					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
-					printf("Host db updated: updated: %s\n", name.c_str());
+					printf("Host db updated: updated: %s\n", name.c_str(), numplayers, maxworms, state );
 					break;
 				};
 			};
 			if( it == hosts.end() )
 			{
 				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
-				printf("Host db updated: added: %s\n", name.c_str());
+				printf("Host db updated: added: %s\n", name.c_str(), numplayers, maxworms, state );
 			};
 			continue;
 		};
@@ -189,18 +197,24 @@ int main(int argc, char ** argv)
 				if( send.size() >= 255 || amount >= 255 )
 				{
 					send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
-					printf("Sending lx::serverlist\n");
+					printStr( "Sending lx::serverlist: " + send + "\n" );
 					sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 					amount = 0;
 					send = "";
 				};
-				send += it->addr + '\0' + it->name + '\0' + 
-						char((unsigned char)it->numplayers) +
-						char((unsigned char)it->maxworms) +
-						char((unsigned char)it->state);
+				std::string entry = it->addr;
+				entry += '\0';
+				entry += it->name;
+				entry += '\0';
+				entry += char((unsigned char)it->numplayers);
+				entry += char((unsigned char)it->maxworms);
+				entry += char((unsigned char)it->state);
+				send += entry;
+				//printStr( entry );
 			};
-			printf("Sending lx::serverlist\n");
 			send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
+			printf( "Sending lx::serverlist\n" );
+			//printStr( send );
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 			continue;
 		};
