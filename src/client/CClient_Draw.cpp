@@ -1017,22 +1017,12 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the hud
 void CClient::SimulateHud(void)
 {
-    if(bDedicated || !bGameReady)
+    if(bDedicated)
         return;
 
 	float dt = tLX->fDeltaTime;
 	float ScrollSpeed=5;
     bool  con = Con_IsUsed();
-
-	for(short i=0;i<iChat_Numlines;i++) {
-		tChatLines[i].fScroll += dt*ScrollSpeed;
-		tChatLines[i].fScroll = MIN((float)1,tChatLines[i].fScroll);
-
-		if(tChatLines[i].fTime + 4 < tLX->fCurTime) {
-			iChat_Numlines--;
-			iChat_Numlines = MAX(0,iChat_Numlines);
-		}
-	}
 
     // Console
     if(!bChat_Typing && !bGameMenu && !bViewportMgr)
@@ -1050,10 +1040,11 @@ void CClient::SimulateHud(void)
     }
 
     // Viewport manager
-    if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con)
+    if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con && bGameReady)
         InitializeViewportManager();
 
-    ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
+	if (bGameReady)
+		ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
 
     // Process Chatter
     if(!con)
@@ -2299,7 +2290,7 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 
         // Add the player and if this player is local & human, highlight it
 		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
-		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tGameInfo.iGameType != GME_LOCAL))  {
+		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tGameInfo.iGameType == GME_JOIN))  {
 			lv_item_t *it = lv->getItem(i);
 			it->iBgAlpha = 64;
 			it->iBgColour = tLX->clScoreHighlight;

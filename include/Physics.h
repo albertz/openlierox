@@ -40,6 +40,7 @@ public:
 	
 	virtual void initGame( CMap* map ) = 0; // init a new game (sets map etc.)
 	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
+	virtual bool engineInited() = 0; // tells if the engine is inited
 	
 	// TODO: later, we should have a class World and all objects and the map are included there
 	// in the end, I want to have one single simulate(CWorld* world);

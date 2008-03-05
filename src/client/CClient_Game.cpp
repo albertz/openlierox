@@ -42,6 +42,12 @@ void CClient::Simulation(void)
     CWorm *w;
     //bool con = Con_IsUsed();
 
+	// Don't simulate if the physics engine is not ready
+	if (!PhysicsEngine::Get()->engineInited())  {
+		printf("WARNING: trying to simulate with non-initialized physics engine!\n");
+		return;
+	}
+
 
 	// If we're in a menu & a local game, don't do simulation
 	if (tGameInfo.iGameType == GME_LOCAL)  {
@@ -917,6 +923,11 @@ void CClient::ProcessShot(shoot_t *shot)
     	return;
     }
 
+	if(!w->isUsed())  {
+		printf("WARNING: unused worm was shooting\n");
+		return;
+	}
+
 	// Weird
 	if (!cGameScript.GetWeapons()) {
 		printf("WARNING: weapons not loaded while a client was shooting\n");
@@ -924,6 +935,12 @@ void CClient::ProcessShot(shoot_t *shot)
 	}
 
 	const weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
+
+	// Safety check
+	if (wpn->ID < 0)  {
+		printf("WARNING: weapon ID less than zero\n");
+		return;
+	}
 
 	// Process beam weapons differently
 	if(wpn->Type == WPN_BEAM) {

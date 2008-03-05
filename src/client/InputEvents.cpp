@@ -19,6 +19,9 @@
 #include "Menu.h"
 #include "Timer.h"
 #include "CInput.h"
+#ifdef FUZZ
+#include "MathLib.h"
+#endif
 
 
 using namespace std;
@@ -356,6 +359,15 @@ static void HandleMouseState() {
 		Mouse.FirstDown = 0;
 	}
 
+#ifdef FUZZ
+	/*Mouse.Button = GetRandomInt(8);
+	Mouse.deltaX = SIGN(GetRandomNum()) * GetRandomInt(655535);
+	Mouse.deltaY = SIGN(GetRandomNum()) * GetRandomInt(655535);
+	Mouse.Up = SIGN(GetRandomNum()) * GetRandomInt(655535);
+	Mouse.FirstDown = SIGN(GetRandomNum()) * GetRandomInt(655535);
+	return;*/
+#endif
+
     for( int i=0; i<MAX_MOUSEBUTTONS; i++ ) {
 		if(!(Mouse.Button & SDL_BUTTON(i)) && Mouse.Down & SDL_BUTTON(i))
 			Mouse.Up |= SDL_BUTTON(i);
@@ -364,15 +376,6 @@ static void HandleMouseState() {
     }
 
 	Mouse.Down = Mouse.Button;
-
-    // SAFETY HACK: If we get any mouse presses, we must have focus
-    // TODO: why is this needed? this isn't true for all systems
-    // (under Linux it is possible to receive mouse-clicks without having the focus)
-    if(Mouse.Down)  {
-		if (!nFocus)
-			bActivated = true;
-        nFocus = true;
-	}
 }
 
 static void HandleKeyboardState() {
@@ -431,6 +434,20 @@ bool ProcessEvents()
 		HandleNextEvent();
 		ret = true;
 	}
+
+#ifdef FUZZ
+	/*Event.type = GetRandomInt(255);
+	HandleNextEvent();*/
+
+	/*Event.type = SDL_KEYDOWN;
+	Event.key.keysym.sym = (SDLKey)GetRandomInt(65535);
+	Event.key.keysym.mod = (SDLMod)GetRandomInt(65535);
+	Event.key.keysym.scancode = GetRandomInt(65535);
+	Event.key.keysym.unicode = GetRandomInt(65535);
+	Event.key.which = GetRandomInt(65535);
+	Event.key.state = GetRandomInt(50) > 25 ? SDL_PRESSED : SDL_RELEASED;
+	HandleNextEvent();*/
+#endif
 
     // If we don't have focus, don't update as often
     if(!nFocus)

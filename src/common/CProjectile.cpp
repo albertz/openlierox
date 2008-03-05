@@ -29,6 +29,12 @@
 // this function is called by CClient::SpawnProjectile()
 void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time)
 {
+	// Safety (it is used for indexing later)
+	if (_owner >= MAX_WORMS || _owner < 0)  {
+		printf("WARNING: bad owner ID in CProjectile::Spawn");
+		return;
+	}
+
 	tProjInfo = _proj;
 	fLife = 0;
 	fExtra = 0;

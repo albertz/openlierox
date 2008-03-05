@@ -37,6 +37,7 @@ public:
 
 	virtual void initGame( CMap* m ) { map = m; }
 	virtual void uninitGame() { map = NULL; }
+	virtual bool engineInited()  { return map != NULL; }
 
 // -----------------------------
 // ------ worm -----------------

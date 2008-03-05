@@ -633,9 +633,9 @@ void CClient::SendPackets(void)
 
 
 	// Randomly send a random packet
-#ifdef DEBUG
-	/*if (GetRandomInt(50) > 24)
-		SendRandomPacket();*/
+#ifdef FUZZ
+	if (GetRandomInt(50) > 24)
+		SendRandomPacket();
 #endif
 
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)

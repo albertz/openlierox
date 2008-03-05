@@ -379,7 +379,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// We've already got this packet
-	if (bGameReady && iNetStatus != NET_CONNECTED)  {
+	if (bGameReady)  {
 		printf("CClient::ParsePrepareGame: we already got this\n");
 		return false;
 	}
@@ -904,6 +904,13 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 // Parse a game over packet
 void CClient::ParseGameOver(CBytestream *bs)
 {
+	// Check
+	if (bGameOver)  {
+		printf("CClient::ParseGameOver: the game is already over, ignoring");
+		bs->Skip(1);
+		return;
+	}
+
 	iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
@@ -1004,7 +1011,7 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClient::ParseTagUpdate(CBytestream *bs)
 {
-	if (iNetStatus != NET_PLAYING)  {
+	if (iNetStatus != NET_PLAYING || bGameOver)  {
 		printf("CClient::ParseTagUpdate: not playing - ignoring\n");
 		return;
 	}
@@ -1440,7 +1447,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 // Parse a 'single shot' packet
 void CClient::ParseSingleShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING)  {
+	if(iNetStatus != NET_PLAYING || bGameOver)  {
 		printf("CClient::ParseSingleShot: not playing - ignoring\n");
 		CShootList::skipSingle(bs); // Skip to get to the correct position
 		return;
@@ -1458,7 +1465,7 @@ void CClient::ParseSingleShot(CBytestream *bs)
 // Parse a 'multi shot' packet
 void CClient::ParseMultiShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING)  {
+	if(iNetStatus != NET_PLAYING || bGameOver)  {
 		printf("CClient::ParseMultiShot: not playing - ignoring\n");
 		CShootList::skipMulti(bs); // Skip to get to the correct position
 		return;
@@ -1526,6 +1533,13 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 void CClient::ParseGotoLobby(CBytestream *)
 {
 	printf("Client: received gotoLobby signal\n");
+
+	if (tGameInfo.iGameType != GME_JOIN)  {
+		if (!tLX->bQuitEngine)  {
+			printf("WARNING: we should go to lobby but should not quit the game, ignoring game over signal\n");
+			return;
+		}
+	}
 
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );

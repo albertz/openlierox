@@ -637,9 +637,9 @@ void GameServer::SendPackets(void)
 		SendUpdate();
 
 	// Randomly send a random packet :)
-#ifdef DEBUG
-	/*if (GetRandomInt(50) > 24)
-		SendRandomPacket();*/
+#ifdef FUZZ
+	if (GetRandomInt(50) > 24)
+		SendRandomPacket();
 #endif
 
 

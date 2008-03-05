@@ -469,6 +469,12 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		return;
 	}
 
+	if (!bUsed)  {
+		cout << "ERROR: readPacketState called on an unused worm!" << endl;
+		skipPacketState(bs);
+		return;
+	}
+
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
@@ -582,8 +588,11 @@ void CWorm::readWeapons(CBytestream *bs)
 		if(cGameScript) {
 			if(id >= 0 && id < cGameScript->GetNumWeapons())
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
-			else
+			else  {
 				printf("Error when reading weapons");
+				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
+				tWeapons[i].Enabled = false;
+			}
 		}
 	}
 

@@ -569,7 +569,7 @@ public:
 
 	// Sending
 	void		SendWormDetails(void);
-#ifdef DEBUG
+#ifdef FUZZ
 	void		SendRandomPacket();
 #endif
 

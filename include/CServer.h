@@ -217,7 +217,7 @@ public:
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
 	void		UpdateWorms(void);
-#ifdef DEBUG
+#ifdef FUZZ
 	void		SendRandomPacket();
 #endif
 	void		SendDirtUpdate( CClient * cl );
