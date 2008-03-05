@@ -123,6 +123,11 @@ void CChannel::Transmit( CBytestream *bs )
 		iReliableSequence ^= 1;
 	}
 
+	// Don't flood packets
+	if (!SendReliable)
+		if (GetMilliSeconds() - fLastSent <= 1.0f/60.0f)
+			return;
+
 	
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
@@ -145,8 +150,7 @@ void CChannel::Transmit( CBytestream *bs )
 			fLastPingSent = GetMilliSeconds();
 		}
 
-	} else if (GetMilliSeconds() - fLastSent <= 1.0f/60.0f) // Don't flood packets
-		return;
+	}
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs) {
@@ -183,6 +187,9 @@ bool CChannel::Process(CBytestream *bs)
 
 	// Start from the beginning of the packet
 	bs->ResetPosToBegin();
+
+	// Got a packet (good or bad), update the received time
+	fLastPckRecvd = tLX->fCurTime;
 
 	// Read the reliable packet header
 	Sequence = bs->readInt(4);
@@ -252,7 +259,6 @@ bool CChannel::Process(CBytestream *bs)
 
 
 	// Update the statistics
-	fLastPckRecvd = GetMilliSeconds();
 	iPacketsGood++;
 
 

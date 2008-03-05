@@ -1024,14 +1024,10 @@ void CClient::SimulateHud(void)
 	float ScrollSpeed=5;
     bool  con = Con_IsUsed();
 
-    // Console
-    if(!bChat_Typing && !bGameMenu && !bViewportMgr)
-        Con_Process(tLX->fDeltaTime);
-
 
 	// Game Menu
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-    if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !bChat_Typing && !con) {
+	if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !bChat_Typing && !con && !tMenu->bMenuRunning) {
         if( !bViewportMgr )
 			if (!bGameMenu)
 				InitializeGameMenu();
@@ -1039,16 +1035,21 @@ void CClient::SimulateHud(void)
             bViewportMgr = false;
     }
 
-    // Viewport manager
-    if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con && bGameReady)
-        InitializeViewportManager();
+	if (bGameReady)  {
+		// Console
+		if(!bChat_Typing && !bGameMenu && !bViewportMgr)
+			Con_Process(tLX->fDeltaTime);
 
-	if (bGameReady)
+		// Viewport manager
+		if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con)
+			InitializeViewportManager();
+
 		ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
 
-    // Process Chatter
-    if(!con)
-	    processChatter();
+		// Process Chatter
+		if(!con)
+			processChatter();
+	}
 }
 
 
