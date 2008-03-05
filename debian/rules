@@ -10,7 +10,7 @@
 export DH_VERBOSE=1
 
 # Really unhealthy amount of escaping backslashes to pass quotes through 3 makes and 2 shells to compiler
-CFLAGS = -Wall -g -DSYSTEM_DATA_DIR=\\\\\\\\\\\"/usr/share/games\\\\\\\\\\\"
+CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -22,10 +22,6 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# configure the package.
-	# Shell variable substitution works poorly with variables containing spaces, so create mini-config file and pass it to cmake
-	if [ -e CMakeCache.txt ] ; then rm CMakeCache.txt ; fi
-	echo SET\(CFLAGS \"$(CFLAGS)\" CACHE STRING \"Additional compiler flags\"\) > CMakeCache_cflags.txt
-	cmake -D HAWKNL_BUILTIN=Yes -D DEBUG=No -C CMakeCache_cflags.txt .
 	if [ \! -e bin ] ; then mkdir bin ; fi
 
 	touch configure-stamp
@@ -37,7 +33,8 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# compile the package.
-	$(MAKE) -j2
+	#$(MAKE) -j2
+	HAWKNL_BUILTIN=1 DEBUG=0 SYSTEM_DATA_DIR=/usr/share/games CXXFLAGS="$(CFLAGS)" ./compile.sh
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
 
 	touch $@
@@ -48,7 +45,8 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# clean up after the build process.
-	$(MAKE) clean
+	#$(MAKE) clean #not needed? is called in pbuilder before CMake
+	# we have nothing to cleanup as compile.sh doesn't generate any temp files
 	dh_clean
 
 install: build

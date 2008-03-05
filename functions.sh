@@ -77,8 +77,12 @@ function get_olx_version() {
 		VERSION=$(grep LX_VERSION include/LieroX.h | \
 			grep define | grep -o -e "\".*\"" | cut -d "\"" -f 2)
 	fi
-	if [ -e .svn/entries ]; then	
-		VERSION="${VERSION}_r$(head -n 4 .svn/entries | tail -n 1)"
+	if [ -d .svn ]; then
+		if type svn >/dev/null 2>&1; then
+			if type cut >/dev/null 2>&1; then
+				VERSION="${VERSION}_r$(svn info | grep "Revision:" | cut -d " " -f 2)"
+			fi
+		fi
 	fi
 	echo "$VERSION"
 }
