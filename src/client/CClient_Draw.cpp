@@ -1020,8 +1020,8 @@ void CClient::SimulateHud(void)
     if(bDedicated)
         return;
 
-	float dt = tLX->fDeltaTime;
-	float ScrollSpeed=5;
+	//float dt = tLX->fDeltaTime; // TODO: not used
+	//float ScrollSpeed=5; // TODO: not used
     bool  con = Con_IsUsed();
 
 

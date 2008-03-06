@@ -633,7 +633,7 @@ void CClient::SendPackets(void)
 
 
 	// Randomly send a random packet
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	if (GetRandomInt(50) > 24)
 		SendRandomPacket();
 #endif
@@ -701,7 +701,7 @@ void CClient::Connecting(bool force)
 		return;
 	}
 
-	if( tLXOptions->bNatTraverse && iNumConnects == 0 && Menu_SvrList_ServerBehindNat( strServerAddr ) ) 
+	if( tLXOptions->bNatTraverse && iNumConnects == 0 && Menu_SvrList_ServerBehindNat( strServerAddr ) )
 	{	// Start UDP NAT traversal immediately - we know for sure that
 		// the host is registered on UDP masterserver and won't respond on ping
 		std::string address;

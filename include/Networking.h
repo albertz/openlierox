@@ -78,8 +78,8 @@ void AddSocketToNotifierGroup( NetworkSocket sock );
 void RemoveSocketFromNotifierGroup( NetworkSocket sock );
 
 int		GetSocketErrorNr();
-const std::string	GetSocketErrorStr(int errnr);
-const std::string	GetLastErrorStr();
+std::string	GetSocketErrorStr(int errnr);
+std::string	GetLastErrorStr();
 bool	IsMessageEndSocketErrorNr(int errnr);
 void	ResetSocketError();
 

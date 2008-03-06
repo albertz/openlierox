@@ -19,9 +19,7 @@
 #include "Menu.h"
 #include "Timer.h"
 #include "CInput.h"
-#ifdef FUZZ
 #include "MathLib.h"
-#endif
 
 
 using namespace std;
@@ -359,7 +357,7 @@ static void HandleMouseState() {
 		Mouse.FirstDown = 0;
 	}
 
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	/*Mouse.Button = GetRandomInt(8);
 	Mouse.deltaX = SIGN(GetRandomNum()) * GetRandomInt(655535);
 	Mouse.deltaY = SIGN(GetRandomNum()) * GetRandomInt(655535);
@@ -435,7 +433,7 @@ bool ProcessEvents()
 		ret = true;
 	}
 
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	/*Event.type = GetRandomInt(255);
 	HandleNextEvent();*/
 

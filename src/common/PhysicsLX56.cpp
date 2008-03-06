@@ -28,16 +28,17 @@
 class PhysicsLX56 : public PhysicsEngine {
 public:
 	CMap* map;
+	bool inited;
 
 // ---------
-	PhysicsLX56() : map(NULL) {}
-	virtual ~PhysicsLX56() {}
+	PhysicsLX56() : map(NULL), inited(false) {}
+	virtual ~PhysicsLX56() { uninitGame(); }
 
 	virtual std::string name() { return "LX56 physics"; }
 
-	virtual void initGame( CMap* m ) { map = m; }
-	virtual void uninitGame() { map = NULL; }
-	virtual bool engineInited()  { return map != NULL; }
+	virtual void initGame( CMap* m ) { map = m; inited = true; }
+	virtual void uninitGame() { map = NULL; inited = false; }
+	virtual bool isInitialised() { return inited; }
 
 // -----------------------------
 // ------ worm -----------------

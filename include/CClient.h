@@ -455,8 +455,8 @@ private:
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
 	bool		bNatTraverseState;
-	
-public:	
+
+public:
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorld()
@@ -569,7 +569,7 @@ public:
 
 	// Sending
 	void		SendWormDetails(void);
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
 #endif
 

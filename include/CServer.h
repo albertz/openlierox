@@ -130,7 +130,7 @@ private:
 	CBanList	cBanList;
 	float		fLastUpdateSent;
 
-	bool		bRegServer;	
+	bool		bRegServer;
 	bool		bServerRegistered;
 	float		fRegisterStart;
 	float		fLastRegister;
@@ -143,14 +143,14 @@ private:
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
 
-	
+
 public:
 	// Methods
 
 
 	void		Clear(void);
 	int			StartServer(const std::string& name, int port, int maxplayers, bool regserver);
-	void		Shutdown(void);	
+	void		Shutdown(void);
 
     void        notifyLog(const std::string& msg);
 
@@ -217,7 +217,7 @@ public:
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
 	void		UpdateWorms(void);
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
 #endif
 	void		SendDirtUpdate( CClient * cl );
@@ -262,7 +262,7 @@ public:
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CClient *getClients() { return cClients; }
-	
+
 	// TODO: change the name of these functions; the sense should be clear
 	int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
 	void	setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }

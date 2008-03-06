@@ -43,7 +43,7 @@ void CClient::Simulation(void)
     //bool con = Con_IsUsed();
 
 	// Don't simulate if the physics engine is not ready
-	if (!PhysicsEngine::Get()->engineInited())  {
+	if (!PhysicsEngine::Get()->isInitialised())  {
 		printf("WARNING: trying to simulate with non-initialized physics engine!\n");
 		return;
 	}

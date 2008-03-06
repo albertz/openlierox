@@ -97,15 +97,15 @@ void test_NetworkSmartPointer() {
 		printf("destroying SP\n");
 	}
 
-	
+
 	SDL_Delay(1000);
-	
+
 	printf("creating data-array\n");
 	char* tmp = new char[2048];
 
 	printf("freeing data-array\n");
 	delete tmp;
-	
+
 //	exit(-1);
 }
 
@@ -125,7 +125,7 @@ static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	for( int f = 0; f < len; f++ )
 		if( sockets[f] == *getNLsocket(&sock) )
 			return true;
-	
+
 	return false;
 }
 
@@ -171,7 +171,7 @@ static int SdlNetEventThreadMain( void * param )
 		}
 		lastTime = curTime;
 	};
-	
+
 	delete (uint*)param;
 	return 0;
 };
@@ -181,26 +181,26 @@ static bool SdlNetEvent_Init()
 	if( SdlNetEvent_Inited )
 		return false;
 	SdlNetEvent_Inited = true;
-	
+
 	SdlNetEventGroup = nlGroupCreate();
 	SdlNetEventThreads[0] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
 	SdlNetEventThreads[1] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
 	SdlNetEventThreads[2] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS) );
-	
+
 	return true;
 };
 
 static void SdlNetEvent_UnInit() {
 	if( ! SdlNetEvent_Inited )
 		return;
-		
+
 	SdlNetEventThreadExit = true;
 	int status = 0;
 	SDL_WaitThread( SdlNetEventThreads[0], &status );
 	SDL_WaitThread( SdlNetEventThreads[1], &status );
 	SDL_WaitThread( SdlNetEventThreads[2], &status );
 	nlGroupDestroy(SdlNetEventGroup);
-	
+
 	SdlNetEvent_Inited = false;
 };
 
@@ -209,7 +209,7 @@ static void SdlNetEvent_UnInit() {
 void AddSocketToNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
-	
+
 	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )
 		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 };
@@ -217,7 +217,7 @@ void AddSocketToNotifierGroup( NetworkSocket sock )
 void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
-	
+
 	nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 };
 
@@ -276,25 +276,25 @@ bool InitNetworkSystem() {
     	SystemError("nlInit failed");
     	return false;
     }
-    
+
     if(!nlSelectNetwork(NL_IP)) {
         SystemError("could not select IP-based network");
 		return false;
     }
-	
+
 	bNetworkInited = true;
-	
+
 	if(!SdlNetEvent_Init()) {
 		SystemError("SdlNetEvent_Init failed");
 		return false;
 	}
-	
+
 	dnsCache = new ThreadVar<dnsCacheT>();
-	
+
 #ifndef WIN32
 	//sigignore(SIGPIPE);
 	signal(SIGPIPE, sigpipe_handler);
-#endif	
+#endif
 
 	return true;
 }
@@ -591,7 +591,7 @@ static bool nlUpdateState(NLsocket socket)
 {
     nl_socket_t *sock = nlSockets[socket];
     NLint       count;
-    
+
     if((sock->type == NL_RELIABLE) || (sock->type == NL_RELIABLE_PACKETS)) /* TCP */
     {
         if(sock->connecting == NL_TRUE)
@@ -601,7 +601,7 @@ static bool nlUpdateState(NLsocket socket)
             int             serrval = -1;
             socklen_t       serrsize = (socklen_t)sizeof(serrval);
 
-            
+
             FD_ZERO(&fdset);
             FD_SET((SOCKET)sock->realsocket, &fdset);
             if(select(sock->realsocket + 1, NULL, &fdset, NULL, &t) == 1)
@@ -702,11 +702,11 @@ int GetSocketErrorNr() {
 	return nlGetError();
 }
 
-const std::string GetSocketErrorStr(int errnr) {
+std::string GetSocketErrorStr(int errnr) {
 	return std::string(nlGetErrorStr(errnr));
 }
 
-const std::string GetLastErrorStr()  {
+std::string GetLastErrorStr()  {
 	if (nlGetError() != NL_SYSTEM_ERROR)
 		return std::string(nlGetErrorStr(nlGetError()));
 	else
@@ -772,7 +772,7 @@ void ResetNetAddr(NetworkAddr& addr) {
 bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL) {
 		return false;
-	} else	
+	} else
 		return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
 }
 
@@ -821,14 +821,14 @@ struct NLaddress_ex_t {
 static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 {
     NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
-    
+
     if(nlGetAddrFromName(address->name.c_str(), address->address.get())) {
 		address->address.get()->valid = NL_TRUE;
 		AddToDnsCache(address->name, *address->address.get());
 	}
 		// TODO: handle failures here? there should be, but we only have the valid field
-		// For now, we leave it at false, so the timeout handling will just occur. 
-	
+		// For now, we leave it at false, so the timeout handling will just occur.
+
 	if(SdlNetEvent_Inited) {
 		// push a net event
 		SDL_Event ev;
@@ -838,7 +838,7 @@ static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 		ev.user.data2 = NULL;
 		SDL_PushEvent( &ev );
     }
-	
+
     delete address;
     return 0;
 }
@@ -848,10 +848,10 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
 	// The problem is, if you call this and then delete the memory of the network address
 	// while the thread isn't ready, it will write after to deleted memory.
-	
+
 	if(getNLaddr(addr) == NULL)
 		return false;
-		
+
 	if(GetFromDnsCache(name, addr)) {
 		SetNetAddrValid(addr, true);
 		return true;

@@ -1,2 +1,2 @@
-localhost:23450
+server.az2000.de:23450
 

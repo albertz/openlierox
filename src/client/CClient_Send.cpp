@@ -220,7 +220,7 @@ void CClient::SendTextInternal(const std::string& sText, const std::string& sWor
 	cNetChan.AddReliablePacketToSend(bs);
 }
 
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 //////////////////
 // Send a random packet to server (used for debugging)
 void CClient::SendRandomPacket()

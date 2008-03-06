@@ -134,7 +134,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		SystemError( "Error: cannot start listening" );
 		return false;
 	}
-	
+
 	if( tLXOptions->bNatTraverse && tGameInfo.iGameType == GME_HOST )
 	{
 		for( int f=0; f<MAX_CLIENTS; f++ )
@@ -150,7 +150,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 			}
 		};
 	};
-	
+
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
 	NetAddrToString(addr, tLX->debug_string);
@@ -453,7 +453,7 @@ void GameServer::BeginMatch(void)
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->GameStarted_Signal();
-		
+
 	// Initialize some server settings
 	fServertime = 0;
 	iServerFrame = 0;
@@ -481,7 +481,7 @@ void GameServer::BeginMatch(void)
 
 	iLastVictim = -1;
 
-	for(i=0;i<MAX_WORMS;i++) 
+	for(i=0;i<MAX_WORMS;i++)
 		iFlagHolders[i] = -1;
 
 	// Setup the flag worms
@@ -492,7 +492,7 @@ void GameServer::BeginMatch(void)
 	}
 
 	// No need to kill local worms for dedicated server - they will suicide by themselves
-	
+
 	// perhaps the state is already bad
 	RecheckGame();
 }
@@ -526,7 +526,7 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-	
+
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getUdpFileDownloader()->allowFileRequest(tLXOptions->bAllowFileDownload);
 }
@@ -555,7 +555,7 @@ void GameServer::Frame(void)
 	CheckRegister();
 
 	SendFiles();
-	
+
 	SendPackets();
 }
 
@@ -599,7 +599,7 @@ void GameServer::ReadPackets(void)
 			// Read packets
 			CClient *cl = cClients;
 			for(c=0;c<MAX_CLIENTS;c++,cl++) {
-	
+
 				// Player not connected
 				if(cl->getStatus() == NET_DISCONNECTED)
 					continue;
@@ -637,7 +637,7 @@ void GameServer::SendPackets(void)
 		SendUpdate();
 
 	// Randomly send a random packet :)
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 	if (GetRandomInt(50) > 24)
 		SendRandomPacket();
 #endif
@@ -699,7 +699,7 @@ void GameServer::ProcessRegister(void)
 		return;
 
 	int result = tHttp.ProcessRequest();
-	
+
 	switch(result)  {
 	// Normal, keep going
 	case HTTP_PROC_PROCESSING:
@@ -890,15 +890,15 @@ void GameServer::CheckWeaponSelectionTime()
 {
 	if( iState != SVS_GAME || tGameInfo.iGameType != GME_HOST )
 		return;
-	
+
 	// Issue some sort of warning to clients
-	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 && 
+	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 &&
 		iWeaponSelectionTime_Warning < 2 )
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
 	};
-	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 && 
+	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 &&
 		iWeaponSelectionTime_Warning == 0 )
 	{
 		iWeaponSelectionTime_Warning = 1;
@@ -1047,7 +1047,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
-	
+
 	// Local worms are handled another way
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {

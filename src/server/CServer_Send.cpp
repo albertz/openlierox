@@ -372,7 +372,7 @@ void GameServer::UpdateWorms(void)
 	SendGlobalPacket(&bytestr);
 }
 
-#ifdef FUZZ
+#ifdef FUZZY_ERROR_TESTING
 ///////////////
 // Used for testing network stability
 void GameServer::SendRandomPacket()
