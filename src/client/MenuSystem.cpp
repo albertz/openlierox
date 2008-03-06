@@ -1605,7 +1605,8 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				// It pinged, so fill in the ping info so it will now be queried
 				svr->bgotPong = true;
 				svr->nQueries = 0;
-				tServersBehindNat.erase(svr->szName);
+				tServersBehindNat.erase(svr->szAddress);
+				
 			} else {
 
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
@@ -1649,6 +1650,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 		else if(cmd == "lx::serverlist")
 		{
 			Menu_SvrList_ParseUdpServerlist(bs);
+			update = true;
 		}
 
 	}

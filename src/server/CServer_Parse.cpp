@@ -883,6 +883,8 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 		ParseWantsJoin(tSocket, bs, ip);
 	else if (cmd == "lx::traverse")
 		ParseTraverse(tSocket, bs, ip);
+	else if (cmd == "lx::registered")
+		ParseServerRegistered(tSocket);
 	else  {
 		cout << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
@@ -1575,6 +1577,32 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 	bs.Send(tSocket);
 }
 
+struct SendConnectHereAfterTimeout_Data
+{
+	SendConnectHereAfterTimeout_Data( NetworkSocket _sock, NetworkAddr _addr ):
+		sock(_sock), addr(_addr) {};
+	NetworkSocket sock;
+	NetworkAddr addr;
+};
+
+bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
+{
+	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) userData;
+	NetworkAddr addr;
+	GetRemoteNetAddr( data->sock, addr );
+	if( AreNetAddrEqual( addr, data->addr ) && GetNetAddrPort(addr) == GetNetAddrPort(data->addr) )
+	{	// This socket wasn't used 'till we set timer routine
+		CBytestream bs;
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::connect_here");// In case server behind symmetric NAT and client has IP-restricted NAT or above
+		bs.Send(data->sock);
+		bs.Send(data->sock);
+		bs.Send(data->sock);
+	};
+	delete data;
+	return false;
+};
+
 // Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]
 void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) 
 {
@@ -1619,16 +1647,25 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrFrom);
 	bs1.Send(tNatTraverseSockets[socknum]);
 
+	// Send ping to client to open NAT port
 	bs1.Clear();
 	bs1.writeInt(-1, 4);
 	bs1.writeString("lx::pong");
-
-	// Send ping to client to open NAT port
 	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
 	// Send 3 times - first packet may be ignored by remote NAT
 	bs1.Send(tNatTraverseSockets[socknum]);
 	bs1.Send(tNatTraverseSockets[socknum]);
 	bs1.Send(tNatTraverseSockets[socknum]);
+	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
+	Timer( &SendConnectHereAfterTimeout, 
+			new SendConnectHereAfterTimeout_Data(tNatTraverseSockets[socknum], adrClient), 3000, true ).startHeadless();
+};
+
+// Server sent us "lx::registered", that means it's alive - record that
+void GameServer::ParseServerRegistered(NetworkSocket tSocket)
+{
+	// TODO: add code here
+	printf("GameServer::ParseServerRegistered()\n");
 };
 
 /////////////////

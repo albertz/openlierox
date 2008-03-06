@@ -7,13 +7,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define DEFAULT_PORT 23450
+bool quit = false;	// Signal here on Ctrl-C
+
+
 #ifdef WIN32
 
 #define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <winsock.h>
 #include <time.h>
 
 typedef int socklen_t;
+
+BOOL signal_handler( DWORD signum )
+{ 
+	printf("Caught signal %i, quitting\n", signum);
+	quit=true;
+	return TRUE;
+};
 
 #else
 
@@ -23,11 +35,16 @@ typedef int socklen_t;
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
+void signal_handler(int signum)
+{
+	printf("Caught signal %i, quitting\n", signum);
+	quit=true;
+};
+		 
 #endif
 
-#define DEFAULT_PORT 23450
-bool quit = false;	// TODO: signal here on Ctrl-C
 
 struct HostInfo
 {
@@ -57,6 +74,9 @@ int main(int argc, char ** argv)
 	#ifdef WIN32
 	WSADATA dummy;
 	WSAStartup(MAKEWORD(2,0), &dummy );
+	SetConsoleCtrlHandler( &signal_handler, TRUE );
+	#else
+	signal( SIGINT, &signal_handler );
 	#endif
 
 	int port = DEFAULT_PORT;
@@ -81,6 +101,8 @@ int main(int argc, char ** argv)
 		return 1;
 	};
 	
+	printf("UDP masterserver started at port %i\n", port);
+	
 	std::list< HostInfo > hosts;
 	
 	struct sockaddr_in source;
@@ -102,7 +124,7 @@ int main(int argc, char ** argv)
 		{
 			if( lastping - it->lastping > 2*60 )
 			{
-				printf("Host db updated: deleted: %s\n", it->name.c_str());
+				printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
 				hosts.erase(it);
 				it = hosts.begin();
 			};
@@ -145,30 +167,20 @@ int main(int argc, char ** argv)
 			continue;
 		};
 		
-		if( data.find( "\xff\xff\xff\xfflx::ping" ) == 0 )
-		{
-			std::string send = "\xff\xff\xff\xfflx::query";
-			send += '\0';
-			send += '\0';
-			printf("Sending lx::query\n");
-			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
-			continue;
-		};
-
-		if( data.find( "\xff\xff\xff\xfflx::queryreturn" ) == 0 )
+		if( data.find( "\xff\xff\xff\xfflx::register" ) == 0 )
 		{
 			int f = data.find( '\0' );
 			if( f == std::string::npos )
 				continue;
 			f++;
 			std::string name = data.substr( f, data.find( '\0', f ) - f );
-			f = data.find( '\0' );
+			f = data.find( '\0', f );
 			if( f == std::string::npos )
 				continue;
 			f++;
-			unsigned numplayers = (unsigned char)data[f];
-			unsigned maxworms = (unsigned char)data[f+1];
-			unsigned state = (unsigned char)data[f+2];
+			unsigned numplayers = (unsigned char)(data[f]);
+			unsigned maxworms = (unsigned char)(data[f+1]);
+			unsigned state = (unsigned char)(data[f+2]);
 	
 			std::list<HostInfo> :: iterator it;
 			for( it = hosts.begin(); it != hosts.end(); it++ )
@@ -176,15 +188,34 @@ int main(int argc, char ** argv)
 				if( it->addr == srcAddr )
 				{
 					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
-					printf("Host db updated: updated: %s\n", name.c_str(), numplayers, maxworms, state );
+					printf("Host db updated: updated: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 					break;
 				};
 			};
 			if( it == hosts.end() )
 			{
 				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
-				printf("Host db updated: added: %s\n", name.c_str(), numplayers, maxworms, state );
+				printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 			};
+			// Send back confirmation so host will know we're alive
+			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
+			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
+			continue;
+		};
+
+		if( data.find( "\xff\xff\xff\xfflx::deregister" ) == 0 )
+		{
+			std::list<HostInfo> :: iterator it;
+			for( it = hosts.begin(); it != hosts.end(); it++ )
+			{
+				if( it->addr == srcAddr )
+				{
+					printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
+					hosts.erase(it);
+					break;
+				};
+			};
+			// No need in confirmation here
 			continue;
 		};
 
@@ -197,21 +228,16 @@ int main(int argc, char ** argv)
 				if( send.size() >= 255 || amount >= 255 )
 				{
 					send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
-					printStr( "Sending lx::serverlist: " + send + "\n" );
 					sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 					amount = 0;
 					send = "";
 				};
-				std::string entry = it->addr;
-				entry += '\0';
-				entry += it->name;
-				entry += '\0';
-				entry += char((unsigned char)it->numplayers);
-				entry += char((unsigned char)it->maxworms);
-				entry += char((unsigned char)it->state);
-				send += entry;
-				//printStr( entry );
+				send += it->addr + '\0' + it->name + '\0' + 
+						char((unsigned char)it->numplayers) +
+						char((unsigned char)it->maxworms) +
+						char((unsigned char)it->state);
 			};
+			// Send serverlist even with 0 entries so client will know we're alive
 			send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
 			printf( "Sending lx::serverlist\n" );
 			//printStr( send );

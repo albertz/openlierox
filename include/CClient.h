@@ -579,6 +579,7 @@ public:
 	void		ParseConnected(CBytestream *bs);
 	void		ParsePong(void);
 	void		ParseTraverse(CBytestream *bs);
+	void		ParseConnectHere(CBytestream *bs);
 
 	void		ParsePacket(CBytestream *bs);
 	bool		ParsePrepareGame(CBytestream *bs);

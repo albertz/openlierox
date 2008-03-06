@@ -86,6 +86,9 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::traverse")
 		ParseTraverse(bs);
 
+	else if(cmd == "lx::connect_here")
+		ParseConnectHere(bs);
+
 	// Unknown
 	else  {
 		cout << "CClient::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
@@ -212,15 +215,34 @@ void CClient::ParseTraverse(CBytestream *bs)
 	NetAddrToString( cServerAddr, addr );
 
 	SetRemoteNetAddr(tSocket, cServerAddr);
-	for(int f=0; f<3; f++)
-	{
-		CBytestream bs1;
-		bs1.writeInt(-1,4);
-		bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
-		bs1.Send(tSocket);
-	};
+	CBytestream bs1;
+	bs1.writeInt(-1,4);
+	bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
+	bs1.Send(tSocket);
+	bs1.Send(tSocket);
+	bs1.Send(tSocket);
 
 	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
+};
+
+void CClient::ParseConnectHere(CBytestream *bs)
+{
+	bNatTraverseState = false;
+
+	NetworkAddr addr;
+	GetRemoteNetAddr(tSocket, addr);
+	std::string a1, a2;
+	NetAddrToString( cServerAddr, a1 );
+	NetAddrToString( addr, a2 );
+	printf("CClient::ParseConnectHere(): addr %s to %s %s\n", a1.c_str(), a2.c_str(), a1 != a2 ? "- server behind symmetric NAT" : "" );
+
+	GetRemoteNetAddr(tSocket, cServerAddr);
+	CBytestream bs1;
+	bs1.writeInt(-1,4);
+	bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
+	bs1.Send(tSocket);
+	bs1.Send(tSocket);
+	bs1.Send(tSocket);
 };
 
 

@@ -613,6 +613,7 @@ void Menu_Net_NETUpdateList(void)
 			bs.writeInt(-1,4);
 			bs.writeString("lx::getserverlist");
 			bs.Send(tMenu->tSocket[SCK_NET]);
+			break;	// Only one UDP masterserver supported
 	    }
 		
 		fclose(fp1);

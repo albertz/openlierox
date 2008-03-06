@@ -765,14 +765,50 @@ void GameServer::RegisterServerUdp(void)
 		};
 
 		bs.writeInt(-1, 4);
-		bs.writeString("lx::queryreturn");
+		bs.writeString("lx::register");
 		bs.writeString(OldLxCompatibleString(sName));
 		bs.writeByte(iNumPlayers);
 		bs.writeByte(iMaxWorms);
 		bs.writeByte(iState);
-		bs.writeByte(0);	// ignored by masterserver
 
 		bs.Send(tSocket);
+		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
+		return;	// Only one UDP masterserver is supported
+	};
+}
+
+void GameServer::DeRegisterServerUdp(void)
+{
+	for( uint f=0; f<tUdpMasterServers.size(); f++ )
+	{
+		NetworkAddr addr;
+		if( tUdpMasterServers[f].find(":") == std::string::npos )
+			continue;
+		std::string domain = tUdpMasterServers[f].substr( 0, tUdpMasterServers[f].find(":") );
+		int port = atoi(tUdpMasterServers[f].substr( tUdpMasterServers[f].find(":") + 1 ));
+		if( !GetFromDnsCache(domain, addr) )
+		{
+			GetNetAddrFromNameAsync(domain, addr);
+			continue;
+		};
+		SetNetAddrPort( addr, port );
+		SetRemoteNetAddr( tSocket, addr );
+
+		CBytestream bs;
+
+		for(int f1=0; f1<3; f1++)
+		{
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tSocket);
+			bs.Clear();
+		};
+
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::deregister");
+
+		bs.Send(tSocket);
+		return;	// Only one UDP masterserver is supported
 	};
 }
 
@@ -816,7 +852,6 @@ bool GameServer::DeRegisterServer(void)
 	GetLocalNetAddr(tSocket, addr);
 	NetAddrToString(addr, addr_name);
 
-	// Stun server
 	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 
 	// Initialize the request
@@ -826,6 +861,8 @@ bool GameServer::DeRegisterServer(void)
 	printf("De-registering server at " + *tCurrentMasterServer + "\n");
 	tCurrentMasterServer = tMasterServers.begin();
 	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+	
+	DeRegisterServerUdp();
 
     return true;
 }

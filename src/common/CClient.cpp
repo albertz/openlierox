@@ -764,11 +764,15 @@ void CClient::Connecting(bool force)
 	if( bNatTraverseState )
 	{
 		bs.writeInt(-1,4);
+		bs.writeString("lx::dummypacket");
+		bs.Send(tSocket);	// So NAT will open port 
+		bs.Send(tSocket);
+		bs.Send(tSocket);
+		bs.Clear();
+		bs.writeInt(-1,4);
 		bs.writeString("lx::traverse");
 		bs.writeString(strServerAddr);	// Old address specified in connect()
-		bs.Send(tSocket);	// So NAT will open port
-		bs.Send(tSocket);	// And masterserver will send us back multiple packets
-		bs.Send(tSocket);	// If first packet from masterserver is ignored by NAT
+		bs.Send(tSocket);	
 	}
 	else
 	{

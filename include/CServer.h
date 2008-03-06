@@ -189,6 +189,7 @@ public:
 	void		ProcessRegister(void);
 	void		CheckRegister(void);
 	bool		DeRegisterServer(void);
+	void		DeRegisterServerUdp(void);
 	bool		ProcessDeRegister(void);
 	void		CheckTimeouts(void);
 	void		CheckWeaponSelectionTime(void);
@@ -245,6 +246,7 @@ public:
     void        ParseGetInfo(NetworkSocket tSocket);
 	void		ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseServerRegistered(NetworkSocket tSocket);
 
 
 	// Variables
