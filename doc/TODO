@@ -6,7 +6,7 @@ TODO
 [X] fix: aiming too fast
 
 [ ] bot: fix building path (there is one rare case where the
-    path is going through an obstacle whereby there is 
+    path is going through an obstacle whereby there is
     enough place to go around) (!)
 [X] bot: go one step away if too close (!)
 [X] bot: don't move too close if shooting is possible (!)
@@ -20,6 +20,7 @@ TODO
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
+[ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
 
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
 [?] fix network interpolation (is currently not optimal) (!!)
@@ -30,7 +31,7 @@ TODO
 [?] are there new network errors? (!!)
 [?] fix: sometimes you got into chat while playing online on some keys (!!)
 
-[ ] Multiple UDP masterservers - just switch to another one if masterserver won't answer, 
+[ ] Multiple UDP masterservers - just switch to another one if masterserver won't answer,
     don't open another socket for each mastrserver, it's too complicated (assigned to pelya)
 [ ] merge CButton and CTextButton
 [ ] fix file downloading (!)
@@ -42,7 +43,7 @@ TODO
     Though mostly in this cases it's easy to go around so it
     doesn't make much trouble (mostly). But should be fixed though. (!)
     (assigned to Albert)
-[ ] write general event-based HttpClient class which uses TcpClient (!) 
+[ ] write general event-based HttpClient class which uses TcpClient (!)
     (assigned to Albert)
 [ ] write general TcpClient class which takes use of the general EventHandler (!)
     (assigned to Albert)
