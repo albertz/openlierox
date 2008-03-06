@@ -1,7 +1,7 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
+[X] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [X] fix: registering is not done on all masterservers (!!)
 [X] fix: aiming too fast
 
@@ -14,7 +14,6 @@ TODO
 [ ] bot avoid projectiles (!)
 [ ] bot: improve shooting
 [ ] fill documentation (README) (!)
-[ ] fix STUN (!)
 [ ] Fix segfaults
 	[X] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels) (!)
       TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
@@ -31,7 +30,8 @@ TODO
 [?] are there new network errors? (!!)
 [?] fix: sometimes you got into chat while playing online on some keys (!!)
 
-[ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
+[ ] Multiple UDP masterservers - just switch to another one if masterserver won't answer, 
+    don't open another socket for each mastrserver, it's too complicated (assigned to pelya)
 [ ] merge CButton and CTextButton
 [ ] fix file downloading (!)
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
@@ -51,8 +51,6 @@ TODO
     is called then by the handler; this can be used for net-events to
     be handled in an own thread but event-based (!)
     (assigned to Albert)
-[ ] STUN seems to make trouble in some cases; fix that and enable it
-    by default in config again (!)
 [ ] fix dedicated server (it's often behaving a bit strange) (!)
 [ ] close pipe stream correctly for dedicated server (!)
 [ ] local play menu (map selection etc.) should be faster (!)
