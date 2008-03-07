@@ -574,6 +574,9 @@ void GameServer::ReadPackets(void)
 		if( !tLXOptions->bNatTraverse && sockNum != -1 )
 			break;
 
+		if (!IsSocketStateValid(pSock))
+			continue;
+
 		while(bs.Read(pSock)) {
 			// Set out address to addr from where last packet was sent, used for NAT traverse
 			GetRemoteNetAddr(pSock, adrFrom);
