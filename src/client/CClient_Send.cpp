@@ -19,9 +19,7 @@
 #include "CClient.h"
 #include "Protocol.h"
 #include "CWorm.h"
-#ifdef DEBUG
 #include "MathLib.h"
-#endif
 #include "ChatCommand.h"
 #include "EndianSwap.h"
 

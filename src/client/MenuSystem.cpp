@@ -266,7 +266,7 @@ void Menu_Start(void)
 	// User can switch video mode while playing
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
-	if(!bDedicated) {	
+	if(!bDedicated) {
 		if(!iSkipStart) {
 			tMenu->iMenuType = MNU_MAIN;
 			Menu_MainInitialize();
@@ -299,7 +299,7 @@ void Menu_Frame() {
 	// Media player frame
 	cMediaPlayer.Frame();
 #endif
-		
+
 	switch(tMenu->iMenuType) {
 
 		// Main
@@ -336,7 +336,7 @@ void Menu_Frame() {
 			Menu_CGuiSkinFrame();
 			break;
 	}
-		
+
 #ifdef WITH_MEDIAPLAYER
 	// At last draw the media player
 	cMediaPlayer.Draw(tMenu->bmpScreen);
@@ -360,13 +360,13 @@ void Menu_Loop(void)
 	tLX->fCurTime = GetMilliSeconds();
 	bool last_frame_was_because_of_an_event = false;
 	last_frame_was_because_of_an_event = ProcessEvents();
-	
+
 	while(tMenu->bMenuRunning) {
 		float oldtime = tLX->fCurTime;
-		
+
 		Menu_Frame();
 		CapFPS();
-		
+
 		if(last_frame_was_because_of_an_event) {
 			// Use ProcessEvents() here to handle other processes in queue.
 			// There aren't probably any but it has also the effect that
@@ -437,7 +437,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 {
 	static char	id[32], name[128];
 	Sint32		version;
-		
+
 	FILE *fp;
 	if(abs_filename)
 		fp = fopen(filename.c_str(), "rb");
@@ -445,10 +445,10 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 		fp = OpenGameFile("levels/" + filename, "rb");
 
 	if(!fp) return "";
-	
+
 	// Liero Xtreme level
 	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
-		
+
 		fread(id,		sizeof(char),	32,	fp);
 		fread(&version,	sizeof(version),	1,	fp);
 		EndianSwap(version);
@@ -474,9 +474,9 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 			return GetBaseFilename(filename);
 		}
 	}
-	
+
 	fclose(fp);
-	
+
 	// no level
 	return "";
 }
@@ -686,7 +686,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(true) {
 		Menu_RedrawMouse(true);
-		
+
 		SetGameCursor(CURSOR_ARROW);
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, x,y, x,y, w, h);
@@ -736,7 +736,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 
 		if(!kb->KeyUp[SDLK_ESCAPE] && !tLX->bQuitGame && ret == -1) {
-			DrawCursor(tMenu->bmpScreen);	
+			DrawCursor(tMenu->bmpScreen);
 			FlipScreen(tMenu->bmpScreen);
 			CapFPS();
 			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
@@ -1266,12 +1266,12 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->nQueries = 0;
 	s->nPing = 0;
 	s->bAddrReady = false;
-	
+
 	if(!IsNetAddrValid(s->sAddress) && !StringToNetAddr(s->szAddress, s->sAddress)) {
 		int oldPort = GetNetAddrPort(s->sAddress);
 		s->sAddress = NetworkAddr(); // assign new addr (needed to avoid problems with possible other still running thread)
 		SetNetAddrPort(s->sAddress, oldPort);
-		
+
 		SetNetAddrValid(s->sAddress, false);
 		size_t f = s->szAddress.find(":");
 		GetNetAddrFromNameAsync(s->szAddress.substr(0, f), s->sAddress);
@@ -1304,7 +1304,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 				return sv;
 		}
 	}
-	
+
     // Didn't find one, so create it
 	server_t *svr = new server_t;
 	if(svr == NULL)
@@ -1316,7 +1316,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     svr->psPrev = NULL;
     svr->bManual = bManual;
 	svr->szAddress = tmp_address;
-	
+
 
 	Menu_SvrList_RefreshServer(svr);
 
@@ -1455,14 +1455,14 @@ void Menu_SvrList_FillList(CListview *lv)
 			if(IsNetAddrValid(s->sAddress))
 				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
 			else
-				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);			
+				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);
         } else if( num == 3 && ! Menu_SvrList_ServerBehindNat( s->szAddress ) )
             lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
 
 		bool unknownData = ( s->bProcessing || num == 3 ) && ! Menu_SvrList_ServerBehindNat( s->szAddress );
-		
+
 		// Players
 		lv->AddSubitem(LVS_TEXT,
 					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
@@ -1523,23 +1523,23 @@ bool Menu_SvrList_Process(void)
 		if(!IsNetAddrValid(s->sAddress)) {
 			if(tLX->fCurTime - s->fInitTime >= DNS_TIMEOUT) {
 				s->bIgnore = true; // timeout
-				update = true;	
+				update = true;
 			}
 			continue;
 		} else {
 			if(!s->bAddrReady) {
 				s->bAddrReady = true;
 				update = true;
-				
+
 				size_t f = s->szAddress.find(":");
 				if(f != std::string::npos) {
 					SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
 				} else
 					SetNetAddrPort(s->sAddress, LX_PORT);
-				
+
 			}
 		}
-		
+
 		// Need a pingin'?
 		if(!s->bgotPong) {
 			if(tLX->fCurTime - s->fLastPing > (float)PingWait / 1000.0f) {
@@ -1606,7 +1606,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				svr->bgotPong = true;
 				svr->nQueries = 0;
 				tServersBehindNat.erase(svr->szAddress);
-				
+
 			} else {
 
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
@@ -1646,7 +1646,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 
 			// If we didn't query this server, then we should ignore it
 		}
-		
+
 		else if(cmd == "lx::serverlist")
 		{
 			Menu_SvrList_ParseUdpServerlist(bs);
@@ -1772,7 +1772,7 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
         return;
- 
+
     // Go through every line
     while( !feof(fp) ) {
 		std::string szLine = ReadUntil(fp);
@@ -1785,7 +1785,7 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
         if( parsed.size() == 3 ) {
 			TrimSpaces(parsed[2]); // Address
 			TrimSpaces(parsed[0]);
-			
+
             server_t *sv = Menu_SvrList_AddServer(parsed[2], parsed[0] == "1");
 
             // Fill in the name
@@ -1817,15 +1817,15 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 {
 	int y = tMenu->bmpBuffer->h/2 - h/2;
 	int x = tMenu->bmpBuffer->w/2 - w/2;
-	
+
 	Menu_redrawBufferRect(x,y,w,h);
 
     Menu_DrawBox(tMenu->bmpScreen, x,y, x+w, y+h);
 	DrawRectFillA(tMenu->bmpScreen, x+2,y+2, x+w-2, y+h-2, tLX->clDialogBackground, 230);
     tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2, y+5, tLX->clNormalLabel, "Server Details");
-	
-	
-	
+
+
+
 	NetworkAddr origAddr;
 	server_t* svr = Menu_SvrList_FindServerStr(szAddress);
 	if(svr) {
@@ -1842,10 +1842,10 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			// TODO: this happens also, if the server is not in the serverlist
 			// we should do the domain resolving also here by ourselfs
 			tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
-			return;		
+			return;
 		}
-	}		
-	
+	}
+
 
     // Get the server details
     std::string		szName;
@@ -1863,6 +1863,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	std::string		sIP;
     CWorm			cWorms[MAX_WORMS];
 	bool			bHaveLives = false;
+	bool			bHaveVersion = false;
+	std::string		sServerVersion;
 
     CBytestream inbs;
     NetworkAddr   addr;
@@ -1882,6 +1884,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 		        if(cmd == "lx::serverinfo") {
                     bGotDetails = true;
 
+					sServerVersion = "LieroX 0.56";
+
 					// Get the IP info
 					if (NetAddrToString(addr, sIP))
 						tIpInfo = tIpToCountryDB->GetInfoAboutIP(sIP);
@@ -1890,7 +1894,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 						tIpInfo.Continent = "Hackerland";
 						sIP = "x.x.x.x";
 					}
-						
+
 
                     // Read the info
                     szName = Utf8String(inbs.readString(64));
@@ -1903,7 +1907,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
                     szMapName = inbs.readString(256);
 					// Adjust the map name
-					if (szMapName.find("levels/") == 0) 
+					if (szMapName.find("levels/") == 0)
 						szMapName.erase(0,7); // Remove the path if present
 					szMapName = Menu_GetLevelName(szMapName);
 
@@ -1935,10 +1939,24 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 					// Lives (only OLX servers)
 					if(!inbs.isPosAtEnd())  {
+						sServerVersion = "OpenLieroX/0.57_Beta1"; // TODO: is that correct? which was the first version sending this?
 						bHaveLives = true;
-						for(i=0; i<nNumPlayers; i++) 
+						for(i=0; i<nNumPlayers; i++)
 							cWorms[i].setLives(inbs.readInt(2));
 					}
+
+					// IPs
+					if(!inbs.isPosAtEnd())  {
+						sServerVersion = "OpenLieroX/0.57_Beta1"; // TODO: is that correct? which was the first version sending this?
+						for(i=0; i<nNumPlayers; i++)
+							inbs.readString(); // ignore
+					}
+
+					if(!inbs.isPosAtEnd())  {
+						bHaveVersion = true;
+						sServerVersion = inbs.readString();
+					}
+
                 }
             }
         }
@@ -1987,7 +2005,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			// Columns
 			int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
 			int last_column_width = tLX->cFont.GetWidth("999"); // Kills width
-			lvInfo.AddColumn("", first_column_width); 
+			lvInfo.AddColumn("", first_column_width);
 			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar->w); // The rest
 			lvInfo.AddColumn("", last_column_width);
 			lvInfo.AddColumn("", last_column_width);
@@ -1998,6 +2016,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddItem("servername", index, tLX->clNormalLabel);
 			lvInfo.AddSubitem(LVS_TEXT, "Server name:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, szName, NULL, NULL);
+
+			// server version
+			lvInfo.AddItem("serverversion", index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Server version:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, sServerVersion, NULL, NULL);
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
@@ -2114,7 +2137,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
 				}
-			}			
+			}
 
 		}
 		else // No details yet
@@ -2141,7 +2164,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.MouseDown(Mouse, true);
 		else if (Mouse->Up)
 			lvInfo.MouseUp(Mouse, false);
-		
+
 		if (Mouse->WheelScrollUp)
 			lvInfo.MouseWheelUp(Mouse);
 		else if (Mouse->WheelScrollDown)

@@ -1573,6 +1573,8 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 		}
 	}
 
+	// Write out my version (we do this since Beta5)
+	bs.writeString(GetFullGameName());
 
 	bs.Send(tSocket);
 }
@@ -1604,7 +1606,7 @@ bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
 };
 
 // Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]
-void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) 
+void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip)
 {
 	NetworkAddr		adrFrom, adrClient;
 	GetRemoteNetAddr(tSocket, adrFrom);
@@ -1638,7 +1640,7 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	};
 	if( socknum >= MAX_CLIENTS || socknum < 0 )
 		return;
-		
+
 	fNatTraverseSocketsLastAccessTime[socknum] = tLX->fCurTime;
 
 
@@ -1665,7 +1667,7 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.Send(tNatTraverseSockets[socknum]);
 	bs1.Send(tNatTraverseSockets[socknum]);
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
-	Timer( &SendConnectHereAfterTimeout, 
+	Timer( &SendConnectHereAfterTimeout,
 			new SendConnectHereAfterTimeout_Data(tNatTraverseSockets[socknum], adrClient), 3000, true ).startHeadless();
 };
 
