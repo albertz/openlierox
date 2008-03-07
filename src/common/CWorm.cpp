@@ -1154,9 +1154,15 @@ int CWorm::GetMyPing(void)
 }
 
 ///////////////////
-// Resturns true, if we can start typing
+// Resturns true, if we can start (auto-)typing
 bool CWorm::CanType(void)
 {
+	if(!bAlive) {
+		if(iLives == WRM_OUT)
+			return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
+		else
+			return false; // in this case we don't want auto-typing at all (at least we cannot do the cinput check as these values are not valid here while input is not simulated)
+	}
 	return
 		!cUp.wasDown() &&
 		!cDown.wasDown() &&
