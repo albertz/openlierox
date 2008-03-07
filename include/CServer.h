@@ -122,6 +122,7 @@ private:
 	NetworkSocket	tSocket;
 	int				nPort;
 	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
+	float			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;

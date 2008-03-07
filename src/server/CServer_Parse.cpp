@@ -1616,23 +1616,31 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 		return;
 
 	// Find unused socket
-	int socknum=0;
-	for( ; socknum<MAX_CLIENTS; socknum++ )
+	int socknum=-1;
+	for( int f=0; f<MAX_CLIENTS; f++ )
 	{
 		int f1=0;
 		for( ; f1<MAX_CLIENTS; f1++ )
 		{
 			NetworkAddr addr1, addr2;
 			GetLocalNetAddr( cClients[f1].getChannel()->getSocket(), addr1 );
-			GetLocalNetAddr( tNatTraverseSockets[socknum], addr2 );
+			GetLocalNetAddr( tNatTraverseSockets[f], addr2 );
 			if( cClients[f1].getStatus() != NET_DISCONNECTED && GetNetAddrPort(addr1) == GetNetAddrPort(addr2) )
 				break;
 		};
 		if( f1 >= MAX_CLIENTS )
-			break;
+		{
+			if( socknum == -1 )
+				socknum = f;
+			else if( fNatTraverseSocketsLastAccessTime[socknum] < fNatTraverseSocketsLastAccessTime[f] )
+				socknum = f;
+		};
 	};
-	if( socknum >= MAX_CLIENTS )
+	if( socknum >= MAX_CLIENTS || socknum < 0 )
 		return;
+		
+	fNatTraverseSocketsLastAccessTime[socknum] = tLX->fCurTime;
+
 
 	//printf("Sending lx:::traverse back, socknum %i\n", socknum);
 	// Send lx::traverse to udp server and lx::pong to client

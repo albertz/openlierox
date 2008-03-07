@@ -79,7 +79,10 @@ void GameServer::Clear(void)
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
 	for(i=0; i<MAX_CLIENTS; i++)
+	{
 		InvalidateSocketState(tNatTraverseSockets[i]);
+		fNatTraverseSocketsLastAccessTime[i] = -9999;
+	}
 	tGameLobby.bSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
@@ -569,10 +572,13 @@ void GameServer::ReadPackets(void)
 	int c;
 
 	NetworkSocket pSock = tSocket;
-	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++, pSock = tNatTraverseSockets[sockNum] )
+	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++ )
 	{
 		if( !tLXOptions->bNatTraverse && sockNum != -1 )
 			break;
+		
+		if( sockNum >= 0 )
+			pSock = tNatTraverseSockets[sockNum];
 
 		if (!IsSocketStateValid(pSock))
 			continue;
