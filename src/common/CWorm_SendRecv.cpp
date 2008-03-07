@@ -201,44 +201,6 @@ bool CWorm::checkPacketNeeded()
 	return cNinjaRope.writeNeeded();
 }
 
-///////////////////
-// Write a packet out (from client 2 server)
-/*void CWorm::writeC2SUpdate(CBytestream *bs)
-{
-	short x = (short)vPos.x;
-	short y = (short)vPos.y;
-
-	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
-
-	// Position
-	bs->write2Int12( x, y );
-
-	// Angle
-	bs->writeInt( (int)fAngle+90, 1);
-
-	// Bit flags
-	uchar bits = 0;
-	if(tState.bCarve)
-		bits |= 0x01;
-	if(iDirection == DIR_RIGHT)
-		bits |= 0x02;
-	if(tState.bMove)
-		bits |= 0x04;
-	if(tState.bJump)
-		bits |= 0x08;
-	if(cNinjaRope.isReleased())
-		bits |= 0x10;
-	if(tState.bShoot)
-		bits |= 0x20;
-
-	bs->writeByte( bits );
-	bs->writeByte( iCurrentWeapon );
-
-	// Write out the ninja rope details
-	if(cNinjaRope.isReleased())
-		cNinjaRope.write(bs);
-}*/
-
 // this is used to update the position on the client-side in CWorm::readPacketState
 // it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
@@ -463,7 +425,7 @@ bool CWorm::skipPacket(CBytestream *bs)
 // Read a packet (client side)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
-	if(cClient->OwnsWorm(this)) {
+	if(cClient->OwnsWorm(this->getID())) {
 		cout << "ERROR: get worminfo packet from server for our own worm" << endl;
 		skipPacketState(bs);
 		return;

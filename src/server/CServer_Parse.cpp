@@ -235,7 +235,7 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
 
 		// If the worm is shooting, handle it
 		if (w->getWormState()->bShoot && w->getAlive() && iState == SVS_PLAYING)
-			WormShoot(w); // add to shootlist to send it later to the clients
+			WormShoot(w, this); // handle shot and add to shootlist to send it later to the clients
 	}
 }
 
@@ -290,7 +290,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
-			if (cl->OwnsWorm(vict))  {  // He wants to die, let's fulfill his dream ;)
+			if (cl->OwnsWorm(vict->getID()))  {  // He wants to die, let's fulfill his dream ;)
 				CWorm *w = cClient->getRemoteWorms() + vict->getID();
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
 					cClient->SendDeath(victim, killer);
@@ -305,7 +305,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		// or if the client is host (host can kill anyone - /suicide command in chat)
-		if (!cl->OwnsWorm(vict) && cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
+		if (!cl->OwnsWorm(vict->getID()) && cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
 		}

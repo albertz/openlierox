@@ -765,14 +765,14 @@ void CClient::Connecting(bool force)
 	{
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");
-		bs.Send(tSocket);	// So NAT will open port 
+		bs.Send(tSocket);	// So NAT will open port
 		bs.Send(tSocket);
 		bs.Send(tSocket);
 		bs.Clear();
 		bs.writeInt(-1,4);
 		bs.writeString("lx::traverse");
 		bs.writeString(strServerAddr);	// Old address specified in connect()
-		bs.Send(tSocket);	
+		bs.Send(tSocket);
 	}
 	else
 	{
@@ -888,7 +888,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 640, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		cViewports[0].setSmooth( !OwnsWorm(w1) );
+		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 	}
 
 	// Two wormsize
@@ -896,22 +896,22 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 318, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		cViewports[0].setSmooth( !OwnsWorm(w1) );
+		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 
 		cViewports[1].Setup(322, top, 318, h, type2);
         cViewports[1].setTarget(w2);
 		cViewports[1].setUsed(true);
-		cViewports[1].setSmooth( !OwnsWorm(w2) );
+		cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 	}
 }
 
 
 ///////////////////
 // Return true if we own the worm
-int CClient::OwnsWorm(CWorm *w)
+int CClient::OwnsWorm(int id)
 {
 	for(uint i=0;i<iNumWorms;i++) {
-		if(w->getID() == cLocalWorms[i]->getID())
+		if(id == cLocalWorms[i]->getID())
 			return true;
 	}
 

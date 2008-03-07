@@ -82,7 +82,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	else if (cmd == "lx:mouseAllowed")
 		bHostAllowsMouse = true;
-	
+
 	else if(cmd == "lx::traverse")
 		ParseTraverse(bs);
 
@@ -1478,7 +1478,7 @@ void CClient::ParseSingleShot(CBytestream *bs)
 	cShootList.readSingle(bs);
 
 	// Process the shots
-	ProcessShots();
+	ProcessServerShotList();
 
 }
 
@@ -1496,7 +1496,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 	cShootList.readMulti(bs);
 
 	// Process the shots
-	ProcessShots();
+	ProcessServerShotList();
 }
 
 
@@ -1511,18 +1511,16 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	short oldnum = num;
 	num = (byte)MIN(num,MAX_PLAYERS);
 
-	// For death logging
-	// TODO: not used
-//	int killer = -1;
-//	int victim = -1;
-
 	short i;
 	for(i=0; i<num; i++)
 		if (getWorm(i))  {
 			if (getWorm(i)->getLocal())
 				bShouldRepaintInfo = true;
 
-			getWorm(i)->readStatUpdate(bs);
+//			if(!OwnsWorm(getWorm(i)->getID())) // only read the update if it's a remote worm, else we update it ourselfs
+				getWorm(i)->readStatUpdate(bs);
+/*			else
+				getWorm(i)->skipStatUpdate(bs); */
 		}
 
 	// Skip if there were some clamped worms

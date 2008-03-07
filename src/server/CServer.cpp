@@ -576,7 +576,7 @@ void GameServer::ReadPackets(void)
 	{
 		if( !tLXOptions->bNatTraverse && sockNum != -1 )
 			break;
-		
+
 		if( sockNum >= 0 )
 			pSock = tNatTraverseSockets[sockNum];
 
@@ -870,7 +870,7 @@ bool GameServer::DeRegisterServer(void)
 	printf("De-registering server at " + *tCurrentMasterServer + "\n");
 	tCurrentMasterServer = tMasterServers.begin();
 	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
-	
+
 	DeRegisterServerUdp();
 
     return true;
@@ -1096,7 +1096,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 
 	// Local worms are handled another way
 	if (cClient)  {
-		if (cClient->OwnsWorm(w))  {
+		if (cClient->OwnsWorm(w->getID()))  {
 			// Delete the worm from client and server
 			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);
@@ -1203,7 +1203,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 	// Local worms are handled another way
 	// We just kick the worm, banning makes no sense
 	if (cClient)  {
-		if (cClient->OwnsWorm(w))  {
+		if (cClient->OwnsWorm(w->getID()))  {
 
 			// Delete the worm from client and server
 			cClient->RemoveWorm(w->getID());
@@ -1305,7 +1305,7 @@ void GameServer::muteWorm(int wormID)
 	// Local worms are handled in an other way
 	// We just say, the worm is muted, but do not do anything actually
 	if (cClient)  {
-		if (cClient->OwnsWorm(w))  {
+		if (cClient->OwnsWorm(w->getID()))  {
 			// Send the message
 			SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenMuted,"<player>", w->getName(), 1)),
 							TXT_NETWORK);

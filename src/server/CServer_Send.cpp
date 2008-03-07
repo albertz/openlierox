@@ -144,7 +144,7 @@ bool GameServer::SendUpdate()
 				for(; w_it != worms_to_update.end(); w_it++) {
 
 						// Check if this client owns the worm
-						if(cl->OwnsWorm(*w_it))
+						if(cl->OwnsWorm((*w_it)->getID()))
 							continue;
 
 						++num_worms;

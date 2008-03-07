@@ -96,7 +96,7 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
-		if(!w->getAlive() && w->getLives() != WRM_OUT) 
+		if(!w->getAlive() && w->getLives() != WRM_OUT)
 		{
 			if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
 				w->getTeam() >= 0 && w->getTeam() < 4 &&
@@ -175,7 +175,7 @@ void GameServer::SimulateGame(void)
 
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
-	if(bGameOver 
+	if(bGameOver
 	&& (tLX->fCurTime - fGameOverTime > LX_ENDWAIT || (bDedicated && iNumPlayers <= 1)) // dedicated server should go to lobby immediatly if alone
 	&& iState != SVS_LOBBY
 	&& tGameInfo.iGameType == GME_HOST) {
@@ -196,7 +196,7 @@ void GameServer::SimulateGame(void)
 			continue;
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT) {
-			if( tLXOptions->tGameinfo.bRespawnInWaves && 
+			if( tLXOptions->tGameinfo.bRespawnInWaves &&
 				fLastRespawnWaveTime + tLXOptions->tGameinfo.fRespawnTime < fServertime )
 			{
 				fLastRespawnWaveTime = fServertime;
@@ -247,7 +247,7 @@ void GameServer::SimulateGame(void)
 			CWorm *rw = cClient->getRemoteWorms() + w->getID();
 			w->setPos(rw->getPos());
 		}
-		
+
 		// If the worm holds the flag and is within the base respawn the Flag and give the worm a point
 		for(j=0;j<flags;j++) {
 			if(w->getID() == getFlag(j) && iGameType == GMT_CTF) {
@@ -307,7 +307,7 @@ void GameServer::SimulateGame(void)
 	// Simulate the 'special' gametype stuff
 	if(iGameType == GMT_CTF)
 		SimulateGameSpecial();
-		
+
 	if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 )
 		RecheckGame();
 }
@@ -473,18 +473,18 @@ void GameServer::TagRandomWorm(void)
 
 ///////////////////
 // Worm is shooting
-void GameServer::WormShoot(CWorm *w)
+void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 {
 	// Don't shoot when the game is over
-	if (bGameOver)
+	if (cClient->isGameOver())
 		return;
 
 	// If the worm is a VIP and the gametype is VIP don't shoot
-	if(w->getVIP() && iGameType == GMT_VIP)
+	if(w->getVIP() && tGameInfo.iGameType == GMT_VIP)
 		return;
 
 	// If the worm is a Flag and the gametype is CTF don't shoot
-	if(w->getFlag() && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+	if(w->getFlag() && (tGameInfo.iGameType == GMT_CTF || tGameInfo.iGameType == GMT_TEAMCTF))
 		return;
 
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -520,7 +520,7 @@ void GameServer::WormShoot(CWorm *w)
 		// Is the only difference the speed-param?
 		// In this case, just remove this function and
 		// merge it here. Avoid double code.
-		ShootBeam(w);
+		ShootBeam(w, gameserver);
 		return;
 	}
 
@@ -546,15 +546,22 @@ void GameServer::WormShoot(CWorm *w)
 	if(Angle == 360)
 		Angle=0;
 
-	// Add the shot to ALL the connected clients shootlist
-	CClient *cl = cClients;
-	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED)
-			continue;
+	if(gameserver) {
+		// Add the shot to ALL the connected clients shootlist
+		CClient *cl = gameserver->getClients();
+		for(short i=0; i<MAX_CLIENTS; i++,cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED)
+				continue;
 
-		cl->getShootList()->addShoot( fServertime, speed, (int)Angle, w);
+			cl->getShootList()->addShoot( gameserver->getServerTime(), speed, (int)Angle, w);
+		}
 	}
 
+/*
+	if(!gameserver && cClient->OwnsWorm(w->getID())) {
+		cClient->DoLocalShot( tLX->fCurTime, speed, (int)Angle, w );
+	}
+*/
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
@@ -573,7 +580,7 @@ void GameServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Worm is shooting a beam
-void GameServer::ShootBeam(CWorm *w)
+void GameServer::ShootBeam(CWorm *w, GameServer* gameserver)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
@@ -589,15 +596,22 @@ void GameServer::ShootBeam(CWorm *w)
 	if(Angle == 360)
 		Angle=0;
 
-	// Add the shot to ALL the connected clients shootlist
-	CClient *cl = cClients;
-	for(int i=0; i<MAX_CLIENTS; i++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED)
-			continue;
+	if(gameserver) {
+		// Add the shot to ALL the connected clients shootlist
+		CClient *cl = gameserver->getClients();
+		for(int i=0; i<MAX_CLIENTS; i++,cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED)
+				continue;
 
-		cl->getShootList()->addShoot( fServertime, 0, (int)Angle, w);
+			cl->getShootList()->addShoot( gameserver->getServerTime(), 0, (int)Angle, w);
+		}
 	}
 
+/*
+	if(!gameserver && cClient->OwnsWorm(w->getID())) {
+		cClient->DoLocalShot( tLX->fCurTime, 0, (int)Angle, w );
+	}
+*/
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->Weapon->Drain / 100;
@@ -611,7 +625,7 @@ void GameServer::ShootBeam(CWorm *w)
 ///////////////////
 // Go back to the lobby
 void GameServer::gotoLobby(void)
-{	
+{
 	printf("gotoLobby\n");
 
 	// in lobby we need the events again
@@ -621,7 +635,7 @@ void GameServer::gotoLobby(void)
 			AddSocketToNotifierGroup(tNatTraverseSockets[f]);
 
 	short i;
-	
+
 	// Tell all the clients
 	CBytestream bs;
 	bs.writeByte(S2C_GOTOLOBBY);
@@ -719,7 +733,7 @@ void GameServer::RecheckGame(void)
 				wormid = i; // Save the worm id
 			}
 		}
-		
+
 		// TODO: there is a lot of double code in the following part; can't this be cleaned up?
 
 		if (!bGameOver)  {
@@ -813,7 +827,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
-					
+
 					cout << "recheck: too less worms" << endl;
 					EndGame = true;
 				}
@@ -958,7 +972,7 @@ void GameServer::RecheckGame(void)
 
 				// Get the number of teams left
 				for(i=0;i<2;i++)
-					if(TeamCount[i])  
+					if(TeamCount[i])
 						teamsleft++;
 				team = TeamScore[1]>TeamScore[0] ? 1 : 0;
 
@@ -973,7 +987,7 @@ void GameServer::RecheckGame(void)
 				}
 			}
 			break; // TEAMDEATH
-			
+
 			}
 
 			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 ) {
@@ -1056,7 +1070,7 @@ void GameServer::SimulateGameSpecial()
 				for(i = 0, w = cWorms; i < MAX_WORMS; i++, w++) {
 					if(!w->isUsed())
 						continue;
-					if(CalculateDistance(w->getPos(),(*flagworm)->getPos()) < 10 && cServer->getFlagHolder(i) == -1) 
+					if(CalculateDistance(w->getPos(),(*flagworm)->getPos()) < 10 && cServer->getFlagHolder(i) == -1)
 						cServer->setFlagHolder(w->getID(),i);
 				}
 

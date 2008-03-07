@@ -278,7 +278,7 @@ void CWorm::Spawn(CVec position) {
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
-	else if(cClient->OwnsWorm(this))
+	else if(cClient->OwnsWorm(this->getID()))
 		clearInput();
 }
 
@@ -304,7 +304,7 @@ void CWorm::Respawn(CVec position) {
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
-	else if(cClient->OwnsWorm(this))
+	else if(cClient->OwnsWorm(this->getID()))
 		clearInput();
 }
 
@@ -762,7 +762,7 @@ void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y
 
 
 void CWorm::UpdateDrawPos() {
-	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) ) {
+	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this->getID()) ) {
 		//if(fLastPosUpdate > tLX->fCurTime) return; // something is wrong, we probably have not gotten any update yet
 
 		// tmp hack

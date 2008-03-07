@@ -169,8 +169,8 @@ public:
 	void		SimulateGameSpecial();
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
-	void		WormShoot(CWorm *w);
-	void		ShootBeam(CWorm *w);
+	static void	WormShoot(CWorm *w, GameServer* gameserver);
+	static void	ShootBeam(CWorm *w, GameServer* gameserver);
     void        DemolitionsGameOver(int winner);
     void        RecheckGame(void);
 
@@ -265,6 +265,7 @@ public:
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CClient *getClients() { return cClients; }
+	float	getServerTime() { return fServertime; }
 
 	// TODO: change the name of these functions; the sense should be clear
 	int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }

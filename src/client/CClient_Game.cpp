@@ -194,7 +194,7 @@ void CClient::Simulation(void)
 
 	// Entities
 	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
-	SimulateEntities(tLX->fDeltaTime,cMap);
+	SimulateEntities(tLX->fDeltaTime, cMap);
 
 	// Weather
 	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
@@ -898,22 +898,45 @@ void CClient::LaserSight(CWorm *w)
 
 ///////////////////
 // Process the shots
-void CClient::ProcessShots(void)
+void CClient::ProcessServerShotList(void)
 {
 	int num = cShootList.getNumShots();
+
+	// fServerTime is the time we calculated for the server,
+	// shot->fTime was the fServerTime given by the other client when it produced the shot
+	// HINT: Though we are not using these ase these times are not synchronised and sometimes
+	// shot->fTime > fServerTime.
+	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
+	// the time of both ways (ping+pong).
+	float fSpawnTime = tLX->fCurTime - ((float)iMyPing / 1000.0f) / 2.0f;
 
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);
 
-		if(sh)
-			ProcessShot(sh);
+		// handle all shots not given by me
+		if(sh && !cClient->OwnsWorm(sh->nWormID))
+			ProcessShot(sh, fSpawnTime);
 	}
 }
 
+void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm ) {
+	shoot_t shot;
+
+	shot.cPos = pcWorm->getPos();
+	shot.cWormVel = *pcWorm->getVelocity();
+	shot.fTime = fTime;
+	shot.nAngle = nAngle;
+	shot.nRandom = GetRandomInt(255);
+	shot.nSpeed = (int)( fSpeed*100 );
+	shot.nWeapon = pcWorm->getCurWeapon()->Weapon->ID;
+	shot.nWormID = pcWorm->getID();
+
+	ProcessShot( &shot, tLX->fCurTime );
+}
 
 ///////////////////
 // Process a shot
-void CClient::ProcessShot(shoot_t *shot)
+void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 {
 	CWorm *w = &cRemoteWorms[shot->nWormID];
 
@@ -965,13 +988,6 @@ void CClient::ProcessShot(shoot_t *shot)
 	// Draw the muzzle flash
 	w->setDrawMuzzle(true);
 
-	// fServerTime is the time we calculated for the server,
-	// shot->fTime was the fServerTime given by the other client when it produced the shot
-	// HINT: Though we are not using these ase these times are not synchronised and sometimes
-	// shot->fTime > fServerTime.
-	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
-	// the time of both ways (ping+pong).
-	float fSpawnTime = tLX->fCurTime - ((float)iMyPing / 1000.0f) / 2.0f;
 	CVec sprd;
 
 	for(int i=0; i<wpn->ProjAmount; i++) {

@@ -497,8 +497,9 @@ public:
 	void		PlayerShoot(CWorm *w);
 	void		ShootSpecial(CWorm *w);
 	void		DrawBeam(CWorm *w);
-	void		ProcessShots(void);
-	void		ProcessShot(shoot_t *shot);
+	void		ProcessServerShotList(void);
+	void		DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
+	void		ProcessShot(shoot_t *shot, float fSpawnTime);
 	void		ProcessShot_Beam(shoot_t *shot);
 
 	void		BotSelectWeapons(void);
@@ -564,7 +565,7 @@ public:
 	void		SendDeath(int victim, int killer);
 	void		SendText(const std::string& sText, std::string sWormName);
 	void		Disconnect(void);
-	int			OwnsWorm(CWorm *w);
+	int			OwnsWorm(int id);
 	void		StartDemoReplay(const std::string& filename);
 
 	// Sending
