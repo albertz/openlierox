@@ -598,26 +598,29 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		if( sSpectatorViewportMsg != "" )
 			tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
-	/*#ifdef DEBUG
-		// Upload and download rates
-		float up = 0;
-		float down = 0;
 
-		// Get the rates
-		switch (tGameInfo.iGameType)  {
-		case GME_JOIN:
-			down = cClient->getChannel()->getIncomingRate() / 1024.0f;
-			up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
-			break;
-		case GME_HOST:
-			down = cServer->GetDownload() / 1024.0f;
-			up = cServer->GetUpload() / 1024.0f;
-			break;
+		if(tLXOptions->bShowNetRates) {
+			// Upload and download rates
+			float up = 0;
+			float down = 0;
+
+			// Get the rates
+			switch (tGameInfo.iGameType)  {
+			case GME_JOIN:
+				down = cClient->getChannel()->getIncomingRate() / 1024.0f;
+				up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+				break;
+			case GME_HOST:
+				down = cServer->GetDownload() / 1024.0f;
+				up = cServer->GetUpload() / 1024.0f;
+				break;
+			}
+
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
 		}
 
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
-
+	/*#ifdef DEBUG
 		// Client and server velocity
 		if (tGameInfo.iGameType != GME_JOIN)  {
 			if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {

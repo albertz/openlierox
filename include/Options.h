@@ -92,7 +92,7 @@ public:
 
 	static bool Init();
 	bool LoadFromDisc();
-	
+
 	std::string sHasLeft ;
 	std::string sHasConnected ;
 	std::string sHasTimedOut ;
@@ -122,7 +122,7 @@ public:
 	std::string sTeamOut ;
 	std::string sTeamHasWon ;
 	std::string sTimeLimit ;
-	
+
 	std::string sWormIsIt ;
 
 	std::string sSpree1 ;
@@ -157,7 +157,7 @@ public:
 	static bool Init();
 	bool LoadFromDisc();
 	void SaveToDisc();
-	
+
 	// Video
 	bool	bFullscreen;
 	bool	bShowFPS;
@@ -187,6 +187,7 @@ public:
 	bool	bParticles;
 	bool	bOldSkoolRope;
 	bool	bShowHealth;
+	bool	bShowNetRates;
 	bool	bColorizeNicks;
 	bool	bAutoTyping;
 	std::string	sSkinPath;
@@ -209,7 +210,7 @@ public:
 	bool    bLogConvos;
 	bool	bShowPing;
 	int		iScreenshotFormat;
-	
+
 	// Widget states
 	int		iInternetList[6];
 	int		iLANList[6];
@@ -260,7 +261,7 @@ public:
 
 	// not specified options found in options-file
 	std::map< std::string, std::string > additionalOptions;
-	
+
 };
 
 

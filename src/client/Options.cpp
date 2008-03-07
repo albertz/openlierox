@@ -53,11 +53,11 @@ bool GameOptions::Init() {
 		printf("ERROR: not enough mem for GameOptions\n");
 		return false;
 	}
-	
+
 	// TODO: don't hardcode the size here
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
-	
-	CScriptableVars::RegisterVars("GameOptions")	
+
+	CScriptableVars::RegisterVars("GameOptions")
 		( tLXOptions->bFullscreen, "Video.Fullscreen",
 #ifdef WIN32
 			true )
@@ -73,7 +73,7 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->iColourDepth, "Video.ColourDepth",
-#ifndef WIN32	
+#ifndef WIN32
 			32 )
 #else
 			16 )
@@ -101,7 +101,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
 		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
-		
+
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
@@ -112,8 +112,9 @@ bool GameOptions::Init() {
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
+		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
-		
+
 		( tLXOptions->bRepeatPlaylist, "MediaPlayer.Repeat", true )
 		( tLXOptions->bShufflePlaylist, "MediaPlayer.Shuffle", false )
 		( tLXOptions->iMPlayerLeft, "MediaPlayer.Left", 350 )
@@ -176,7 +177,7 @@ bool GameOptions::Init() {
 static void InitSearchPaths() {
 	// have to set to find the config at some of the default places
 	InitBaseSearchPaths();
-	
+
 	std::string value;
 	int i = 1;
 	while(true) {
@@ -186,7 +187,7 @@ static void InitSearchPaths() {
 		AddToFileList(&tSearchPaths, value);
 		i++;
 	}
-	
+
 	// add the basesearchpaths to the searchpathlist as they should be saved in the end
 	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
 		AddToFileList(&tSearchPaths, *p1);
@@ -205,9 +206,9 @@ static void InitSearchPaths() {
 static void InitWidgetStates(GameOptions& opts) {
 	// this has to be done explicitly at the moment as scriptablevars doesn't support arrays
 	// TODO: add this feature
-	
+
 	const int	 def_widths[] = {32,180,70,80,60,150};
-	
+
 	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)  {
 		opts.iInternetList[i] = def_widths[i];
 		opts.iLANList[i] = def_widths[i];
@@ -228,7 +229,7 @@ bool GameOptions::LoadFromDisc()
 	printf("Loading options... \n");
 
 	additionalOptions.clear();
-	
+
 	// TODO: is this still needed with the new parsing?
 	AddKeyword("true",true);
 	AddKeyword("false",false);
@@ -241,9 +242,9 @@ bool GameOptions::LoadFromDisc()
 
 	// TODO: these use arrays which are not handled by scriptablevars
 	InitWidgetStates(*this);
-	
+
 	// first set the standards (else the vars would be undefined if not defined in options.cfg)
-	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
+	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin();
 			it != CScriptableVars::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
@@ -256,16 +257,16 @@ bool GameOptions::LoadFromDisc()
 				*(it->second.f) = it->second.fdef;
 			else if( it->second.type == CScriptableVars::SVT_STRING )
 				*(it->second.s) = it->second.sdef;
-			else printf("WARNING: Invalid var type %i of \"%s\" when setting default!\n", it->second.type, it->first.c_str() );	
+			else printf("WARNING: Invalid var type %i of \"%s\" when setting default!\n", it->second.type, it->first.c_str() );
 		}
 	}
-	
+
 	// define parser handler
 	class MyIniReader : public IniReader {
 	public:
 		GameOptions* opts;
 		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o) {}
-		
+
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
 			CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var.b !=  NULL ) { // found entry
@@ -279,24 +280,24 @@ bool GameOptions::LoadFromDisc()
 					cout << "WARNING: the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
 				}
 			}
-		
+
 			return true;
 		}
 	}
 	iniReader("cfg/options.cfg", this);
-	
+
 	// parse the file now
 	if( ! iniReader.Parse() ) {
 		printf("HINT: cfg/options.cfg not found, will use standards\n");
 	}
-	
+
 
 
 
 	if(additionalOptions.size() > 0) {
 		cout << "HINT: Unknown options were found. Perhaps you are using an old version of OpenLieroX." << endl;
 	}
-	
+
 	// Clamp the Jpeg quality
 	if (iJpegQuality < 1)
 		iJpegQuality = 1;
@@ -317,10 +318,10 @@ void ShutdownOptions(void)
 		delete tLXOptions;
 		tLXOptions = NULL;
 	}
-	
+
 	if(networkTexts) {
 		delete networkTexts;
-		networkTexts = NULL;	
+		networkTexts = NULL;
 	}
 }
 
@@ -364,7 +365,7 @@ void GameOptions::SaveToDisc()
 
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
-	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
+	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin();
 			it != CScriptableVars::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
@@ -388,7 +389,7 @@ void GameOptions::SaveToDisc()
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
 		};
 	};
-	
+
 	// save additional options
 	// HINT: as this is done seperatly, some sections may be double; though the current parsing and therefore all future parsings handle this correctly
 	currentSection = "";
@@ -403,7 +404,7 @@ void GameOptions::SaveToDisc()
 		};
 		fprintf( fp, "%s = %s\n", key.c_str(), it->second.c_str() );
 	};
-	
+
     fclose(fp);
 }
 
@@ -415,7 +416,7 @@ bool NetworkTexts::Init() {
 
 	networkTexts = new NetworkTexts;
 	if(!networkTexts) {
-		printf("ERROR: not enough mem for networktexts\n");	
+		printf("ERROR: not enough mem for networktexts\n");
 		return false;
 	}
 
@@ -427,7 +428,7 @@ bool NetworkTexts::Init() {
 bool NetworkTexts::LoadFromDisc()
 {
 	printf("Loading network texts... ");
-	
+
 	// TODO: use the general INI-parser here
 	const std::string f = "cfg/network.txt";
 	ReadString (f, "NetworkTexts", "HasConnected",    sHasConnected,	"<player> has connected");
