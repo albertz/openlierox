@@ -36,6 +36,7 @@ float       fPlayerSkinFrame=0;
 float		fPlayerSkinAngle = 0;
 bool		bAimingUp = true;
 bool        bPlayerSkinAnimation = false;
+Timer *		tAnimTimer = NULL;
 
 // Generic
 enum {
@@ -72,6 +73,10 @@ enum {
 	vp_PlySkin
 };
 
+bool TimerHandler(Timer* sender, void* userData) {
+	return true; // we want only a repaint, which is done automatically
+}
+
 ///////////////////
 // Initialize the player menu
 void Menu_PlayerInitialize(void)
@@ -91,7 +96,7 @@ void Menu_PlayerInitialize(void)
 
 	Menu_RedrawMouse(true);
 
-
+	tAnimTimer = new Timer(TimerHandler, NULL, 25, false);
 
 	// Setup the top buttons
 	cPlyButtons[pp_NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);
@@ -211,6 +216,10 @@ void Menu_PlayerShutdown(void)
 {
 	cNewPlayer.Shutdown();
 	cViewPlayers.Shutdown();
+	if (tAnimTimer)  {
+		tAnimTimer->stop();
+		delete tAnimTimer;
+	}
 }
 
 
@@ -439,8 +448,15 @@ void Menu_Player_NewPlayer(int mouse)
 	tLX->cFont.Draw(tMenu->bmpScreen, 250, 323, tLX->clNormalLabel, itoa(g));
 	tLX->cFont.Draw(tMenu->bmpScreen, 250, 343, tLX->clNormalLabel, itoa(b));
 
-    if(MouseInRect(255,195,30,30) && Mouse->Up)
-        bPlayerSkinAnimation = !bPlayerSkinAnimation;
+	if(MouseInRect(255,195,30,30) && Mouse->Up)  {
+		if (bPlayerSkinAnimation)  {
+			bPlayerSkinAnimation = false;
+			tAnimTimer->stop();
+		} else {
+			bPlayerSkinAnimation = true;
+			tAnimTimer->start();
+		}
+	}
 
 	Menu_Player_DrawWormImage(tMenu->bmpScreen, (int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 257, 200, r,g,b);
 
@@ -717,8 +733,15 @@ void Menu_Player_ViewPlayers(int mouse)
 		Menu_DrawBox(tMenu->bmpScreen,  300, 165, 330, 195);
 
 		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);
-        if(MouseInRect(300,165,30,30) && Mouse->Up)
-            bPlayerSkinAnimation = !bPlayerSkinAnimation;
+		if(MouseInRect(300,165,30,30) && Mouse->Up)  {		
+			if (bPlayerSkinAnimation)  {
+				bPlayerSkinAnimation = false;
+				tAnimTimer->stop();
+			} else {
+				bPlayerSkinAnimation = true;
+				tAnimTimer->start();
+			}
+		}
 
         if(bPlayerSkinAnimation)  {
 			if (bAimingUp)
