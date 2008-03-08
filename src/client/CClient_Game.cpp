@@ -919,7 +919,15 @@ void CClient::ProcessServerShotList(void)
 	}
 }
 
+// IMPORTANT HINT: this function is currently not used
+// It was intended for client side shooting but we
+// decided for good reasons to not use it.
+// The main reason is to keep the code clean and
+// to have better forward-compatibility support.
+// See discussion in OLX mailinglist for further details.
 void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm ) {
+	assert(false); // to ensure you not use this if you are not really sure
+
 	shoot_t shot;
 
 	shot.cPos = pcWorm->getPos();

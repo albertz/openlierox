@@ -557,11 +557,6 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 		}
 	}
 
-/*
-	if(!gameserver && cClient->OwnsWorm(w->getID())) {
-		cClient->DoLocalShot( tLX->fCurTime, speed, (int)Angle, w );
-	}
-*/
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
@@ -606,12 +601,6 @@ void GameServer::ShootBeam(CWorm *w, GameServer* gameserver)
 			cl->getShootList()->addShoot( gameserver->getServerTime(), 0, (int)Angle, w);
 		}
 	}
-
-/*
-	if(!gameserver && cClient->OwnsWorm(w->getID())) {
-		cClient->DoLocalShot( tLX->fCurTime, 0, (int)Angle, w );
-	}
-*/
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->Weapon->Drain / 100;

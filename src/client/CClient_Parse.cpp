@@ -1517,10 +1517,7 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 			if (getWorm(i)->getLocal())
 				bShouldRepaintInfo = true;
 
-//			if(!OwnsWorm(getWorm(i)->getID())) // only read the update if it's a remote worm, else we update it ourselfs
-				getWorm(i)->readStatUpdate(bs);
-/*			else
-				getWorm(i)->skipStatUpdate(bs); */
+			getWorm(i)->readStatUpdate(bs);
 		}
 
 	// Skip if there were some clamped worms
