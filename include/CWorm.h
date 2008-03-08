@@ -228,7 +228,6 @@ private:
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
-	int			iCarving;
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
@@ -446,7 +445,6 @@ public:
 	// Simulation
 	//
 	void		getInput(void);
-	void		getMouseInput(void);
     void        clearInput(void);
 	void		getGamepadInput(void);
     bool		CheckOnGround();

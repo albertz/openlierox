@@ -35,8 +35,6 @@ using namespace std;
 // Get the input from a human worm
 void CWorm::getInput()
 {
-	// TODO: it seems that iCarving isn't used at all. if this is the case, please remove. else, something has to be fixed
-
 	// HINT: we are calling this from simulateWorm
 	const float	dt = tLX->fCurTime - fLastInputTime;
 	fLastInputTime = tLX->fCurTime;
@@ -186,7 +184,6 @@ void CWorm::getInput()
 		if(mouseControl) { // mouseControl
 			if(fabs(fMoveSpeedX) > 200) {
 				ws->iCarve = true;
-				iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
 			}
 		} */
 
@@ -200,7 +197,6 @@ void CWorm::getInput()
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				iCarving |= 2; // carve left
 			}
 		}
 
@@ -211,7 +207,6 @@ void CWorm::getInput()
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				iCarving |= 1; // carve right
 			}
 		}
 	}
@@ -300,7 +295,6 @@ void CWorm::getInput()
 
 			if(rightOnce) {
 				ws->bCarve = true;
-				iCarving |= 2; // carve left
 			}
 		}
 
@@ -314,7 +308,6 @@ void CWorm::getInput()
 
 			if(leftOnce) {
 				ws->bCarve = true;
-				iCarving |= 1; // carve right
 			}
 		}
 
@@ -417,175 +410,6 @@ void CWorm::clearInput(void)
 	cStrafe.reset();
 }
 
-
-
-
-
-int MouseX = -1, MouseY = -1;
-
-
-///////////////////
-// Use a mouse for worm input
-// HINT: we don't use this function
-// it is the original function by JasonB
-// atm it is just kept to compare with current implementation
-// TODO: remove this function later
-void CWorm::getMouseInput(void)
-{
-	if (!bUsesMouse)
-		return;
-
-	CVec	dir;
-	int		weap = false;
-	int		RightOnce = false;
-	int		move = false;
-
-	worm_state_t *ws = &tState;
-
-	// Init the ws
-	ws->bCarve = false;
-	ws->bMove = false;
-	ws->bShoot = false;
-	ws->bJump = false;
-
-
-	// Get mouse delta's
-	mouse_t *Mouse = GetMouse();
-	int		DeltaX = 0;
-	int		DeltaY = 0;
-
-	if(MouseX >= 0)
-		DeltaX = Mouse->X - 320;
-	MouseX = Mouse->X;
-
-	if(MouseY >= 0)
-		DeltaY = Mouse->Y - 200;
-	MouseY = Mouse->Y;
-
-	// Change angle
-	fAngle += DeltaY;
-	fAngle = MAX(fAngle,(float)-90);
-	fAngle = MIN(fAngle,(float)60);
-
-	int Right = DeltaX > 0;
-	int Left = DeltaX < 0;
-	int Shoot = Mouse->Down & SDL_BUTTON(1);
-	int Rope = Mouse->Down & SDL_BUTTON(3);
-	int Jump = Mouse->Down & SDL_BUTTON(2);
-
-	static int RopeDown = false;
-
-	// Restore mouse to the middle
-	SDL_WarpMouse(320,200);
-
-
-	if(!Right)
-		iCarving &= ~1;
-	if(!Left)
-		iCarving &= ~2;
-
-
-	// Carving hack
-	/*RightOnce = cRight.isDownOnce();
-	if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)
-		iCarving |= 2;*/
-
-
-	// Weapon changing
-
-	if(cSelWeapon.isDown()) {
-		weap = true;
-
-		if(RightOnce) {
-			iCurrentWeapon++;
-			if(iCurrentWeapon >= iNumWeaponSlots)
-				iCurrentWeapon=0;
-		}
-		if(cLeft.isDownOnce()) {
-			iCurrentWeapon--;
-			if(iCurrentWeapon < 0)
-				iCurrentWeapon=iNumWeaponSlots-1;
-		}
-	}
-
-
-	ws->bShoot = false;
-	if(Shoot)
-		ws->bShoot = true;
-
-
-
-	// Right
-	if(Right && !(iCarving & 2) && !weap) {
-
-		// Check if we dig a small hole
-		if(Left && iDirection == DIR_RIGHT) {
-			ws->bCarve = true;
-
-			//cClient->SendCarve(vPos + dir*4);
-			//map->CarveHole(3,Pos + dir*4);
-			iCarving |= 1;
-		}
-
-		if(!Left || iDirection == DIR_RIGHT) {
-			iDirection = DIR_RIGHT;
-			ws->bMove = true;
-
-			//if(vVelocity.x<75)
-			//	vVelocity = vVelocity + CVec(speed,0);
-			//fFrame+=5*dt;
-			move = true;
-		}
-	}
-
-	// Left
-	if(Left && !(iCarving & 1) && !weap) {
-
-		// Check if we dig a small hole
-		if(Right && iDirection == DIR_LEFT) {
-			ws->bCarve = true;
-
-			//cClient->SendCarve(vPos + dir*4);
-			//map->CarveHole(3,Pos + dir*4);
-			iCarving |= 2;
-		}
-
-		iDirection = DIR_LEFT;
-		ws->bMove = true;
-
-		//if(vVelocity.x>-75)
-		//	vVelocity = vVelocity + CVec(-speed,0);
-		//fFrame+=5*dt;
-		move = true;
-	}
-
-	// Calculate dir
-	dir.x=( (float)cos(fAngle * (PI/180)) );
-	dir.y=( (float)sin(fAngle * (PI/180)) );
-	if(iDirection==DIR_LEFT)
-		dir.x=(-dir.x);
-
-	if(Jump) {
-		ws->bJump = true;
-		cNinjaRope.Release();
-	}
-
-
-	if(Rope && !RopeDown) {
-		cNinjaRope.Shoot(vPos,dir);
-		// Throw sound
-		PlaySoundSample(sfxGame.smpNinja);
-		RopeDown = true;
-	}
-
-	if(!Rope)
-		RopeDown = false;
-
-
-	ws->iAngle = (int)fAngle;
-	ws->iX = (int)vPos.x;
-	ws->iY = (int)vPos.y;
-}
 
 
 

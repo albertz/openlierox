@@ -55,7 +55,6 @@ void CWorm::Clear(void)
 	fAngle = 0;
     fAngleSpeed = 0;
     fMoveSpeedX = 0;
-	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
 
@@ -257,7 +256,6 @@ void CWorm::Spawn(CVec position) {
 	fLastShoot = 0;
 	fLastGoBack = -9999;
 
-	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bHooked = false;
@@ -290,7 +288,6 @@ void CWorm::Respawn(CVec position) {
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 
-	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bHooked = false;
