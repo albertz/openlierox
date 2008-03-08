@@ -489,12 +489,6 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 
 	wpnslot_t *Slot = w->getCurWeapon();
 
-/*	if(w->getID()==0) {
-		Slot->Reloading = false;
-		Slot->LastFire = 0;
-		Slot->Charge = 100;
-	}
-*/
 	if(Slot->Reloading)
 		return;
 
@@ -514,18 +508,8 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 	Slot->LastFire = Slot->Weapon->ROF;
 
 
-	// Beam weapons get processed differently
-	if(Slot->Weapon->Type == WPN_BEAM) {
-		// TODO: in which way is this different?
-		// Is the only difference the speed-param?
-		// In this case, just remove this function and
-		// merge it here. Avoid double code.
-		ShootBeam(w, gameserver);
-		return;
-	}
-
 	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE)
+	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
 		return;
 
 	// Get the direction angle
@@ -533,18 +517,21 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
 
-	CVec pos = w->getPos();
-
-	// Add the shot to the shooting list
-	CVec vel = *w->getVelocity();
-	float speed = NormalizeVector( &vel );
-
 	if(Angle < 0)
 		Angle+=360;
 	if(Angle > 360)
 		Angle-=360;
 	if(Angle == 360)
 		Angle=0;
+
+	float speed = 0.0f;
+
+	// only projectile wpns have speed; Beam weapons have no speed
+	if(Slot->Weapon->Type == WPN_PROJECTILE) {
+		// Add the shot to the shooting list
+		CVec vel = *w->getVelocity();
+		speed = NormalizeVector( &vel );
+	}
 
 	if(gameserver) {
 		// Add the shot to ALL the connected clients shootlist
@@ -573,42 +560,6 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 }
 
 
-///////////////////
-// Worm is shooting a beam
-void GameServer::ShootBeam(CWorm *w, GameServer* gameserver)
-{
-	wpnslot_t *Slot = w->getCurWeapon();
-
-	// Get the direction angle
-	float Angle = w->getAngle();
-	if(w->getDirection() == DIR_LEFT)
-		Angle=180-Angle;
-
-	if(Angle < 0)
-		Angle+=360;
-	if(Angle > 360)
-		Angle-=360;
-	if(Angle == 360)
-		Angle=0;
-
-	if(gameserver) {
-		// Add the shot to ALL the connected clients shootlist
-		CClient *cl = gameserver->getClients();
-		for(int i=0; i<MAX_CLIENTS; i++,cl++) {
-			if(cl->getStatus() == NET_DISCONNECTED)
-				continue;
-
-			cl->getShootList()->addShoot( gameserver->getServerTime(), 0, (int)Angle, w);
-		}
-	}
-
-	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
-	if(Slot->Charge < 0) {
-		Slot->Charge = 0;
-		Slot->Reloading = true;
-	}
-}
 
 
 ///////////////////

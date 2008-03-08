@@ -170,7 +170,6 @@ public:
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
 	static void	WormShoot(CWorm *w, GameServer* gameserver);
-	static void	ShootBeam(CWorm *w, GameServer* gameserver);
     void        DemolitionsGameOver(int winner);
     void        RecheckGame(void);
 
