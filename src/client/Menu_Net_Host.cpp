@@ -1345,7 +1345,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 void Menu_HostShowMinimap(void)
 {
 	CMap map;
-	static std::string buf;
+	std::string buf;
 
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
@@ -1353,9 +1353,8 @@ void Menu_HostShowMinimap(void)
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 463,32,463,32,128,96);
 
 	// Load the map
-	buf ="levels/"+buf;
 	map.SetMinimapDimensions(128, 96);
-	if(map.Load(buf)) {
+	if(map.Load("levels/"+buf)) {
 
 		// Draw the minimap
 		DrawImage(tMenu->bmpBuffer, map.GetMiniMap(), 463,32);
