@@ -1154,11 +1154,24 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start (auto-)typing
 bool CWorm::CanType(void)
 {
-	if(!bAlive) {
+	if(!bAlive || fSpawnTime == tLX->fCurTime) {
 		if(iLives == WRM_OUT)
 			return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
-		else
-			return false; // in this case we don't want auto-typing at all (at least we cannot do the cinput check as these values are not valid here while input is not simulated)
+		else  {
+			keyboard_t *kb = GetKeyboard();
+			for (int i = 0; i < kb->queueLength; i++)  {
+				if (cUp.getData() == kb->keyQueue[i].sym ||
+					cDown.getData() == kb->keyQueue[i].sym ||
+					cLeft.getData() == kb->keyQueue[i].sym ||
+					cRight.getData() == kb->keyQueue[i].sym ||
+					cShoot.getData() == kb->keyQueue[i].sym ||
+					cJump.getData() == kb->keyQueue[i].sym ||
+					cSelWeapon.getData() == kb->keyQueue[i].sym ||
+					cInpRope.getData() == kb->keyQueue[i].sym ||
+					cStrafe.getData() == kb->keyQueue[i].sym)
+						return false;
+			}
+		}
 	}
 	return
 		!cUp.wasDown() &&
