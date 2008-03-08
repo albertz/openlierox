@@ -318,8 +318,9 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 	static void ThemeCombobox_OnChange( const std::string & param, CWidget * source ) {
 		printf("Changed theme to: " + tLXOptions->sTheme + "\n");
 
-		// TODO: I don't know if we can avoid this. If not, add a comment why and remove this TODO.
 		// Atm it's the easiest way and we ensure that every gfx is newly loaded.
+		// The problem is that we would have to clear all the caches because
+		// the order of the searchpaths changed etc.
 
 		// restart game
 		tMenu->bMenuRunning = false; // quit

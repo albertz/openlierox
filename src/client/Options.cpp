@@ -295,6 +295,11 @@ bool GameOptions::LoadFromDisc()
 	}
 
 
+	initSpecialSearchPathForTheme();
+	if(getSpecialSearchPathForTheme()) {
+		printf("Special searchpath for the theme: " + *getSpecialSearchPathForTheme() + "\n");
+	} else
+		printf("Default theme is used\n");
 
 
 	if(additionalOptions.size() > 0) {

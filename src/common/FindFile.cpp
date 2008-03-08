@@ -26,6 +26,7 @@
 
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "Options.h"
 
 
 #ifdef WIN32
@@ -44,9 +45,9 @@
 #		include <ext/hash_set>
 #		ifdef _GLIBCXX_DEBUG
 			using namespace __gnu_debug_def;
-#		else			
+#		else
 			using namespace __gnu_cxx;
-#		endif		
+#		endif
 #	else // !STLPORT
 #		include <hash_set>
 		using std::hash_set;
@@ -155,7 +156,7 @@ list.clear();
 #else
 	// there are not any drives on Linux/Unix/MacOSX/...
 	// it's only windows which uses this crazy drive-letters
-	
+
 	// perhaps not the best way
 	// home-dir of user is in other applications the default
 	// but it's always possible to read most other stuff
@@ -164,11 +165,11 @@ list.clear();
 	tmp.name = "/";
 	tmp.type = 0;
 	list.push_back(tmp);
-	
+
 	// we could communicate with dbus and ask it for all connected
 	// and mounted hardware-stuff
 #endif
- 
+
 	return list;
 }
 
@@ -291,7 +292,7 @@ bool is_searchname_in_exactfilenamecache(
 		exactname = *it;
 		return true;
 	} else
-		return false;	
+		return false;
 }
 
 void add_searchname_to_exactfilenamecache(const std::string& exactname) {
@@ -309,7 +310,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 
 	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
-	
+
 	std::string nextname = "";
 	std::string nextexactname = "";
 	size_t pos;
@@ -317,7 +318,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	bool first_iter = true; // this is used in the bottom loop
 
 	// search in cache
-	
+
 	// sname[0..pos-1] is left rest, excluding the /
 	pos = sname.size();
 	std::string rest;
@@ -327,8 +328,8 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			if(IsPathStatable(filename)) {
 				if(pos == sname.size()) // do we got the whole filename?
 					return true;
-				
-				// filename is the correct one here			
+
+				// filename is the correct one here
 				sname.erase(0,pos+1);
 				first_iter = false; // prevents the following loop from not adding a "/" to filename
 				break;
@@ -340,7 +341,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			break;
 		}
 	}
-	
+
 
 
 	// search the filesystem for the name
@@ -353,7 +354,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		// pos>0  => found a sep (pos is right behind the sep)
 		// pos==0  => none found
 		if(pos > 0) sname.erase(0,pos);
-		
+
 		filename += (first_iter ? "" : "/");
 		if(nextname == "") {
 			// simply ignore this case
@@ -367,10 +368,10 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			// we doesn't get any result
 			// just add rest to it
 			filename += nextname;
-			if(pos > 0) filename += "/" + sname; 
+			if(pos > 0) filename += "/" + sname;
 			return false; // error (not found)
 		}
-		
+
 		filename += nextexactname;
 		if(nextexactname != "")
 			add_searchname_to_exactfilenamecache(filename);
@@ -427,12 +428,29 @@ std::string GetFirstSearchPath() {
 
 
 
-	class CheckSearchpathForFile { public: 
+static std::string specialSearchPathForTheme = "";
+
+void initSpecialSearchPathForTheme() {
+	if(tLXOptions->sTheme != "") {
+		specialSearchPathForTheme = GetFullFileName("themes/" + tLXOptions->sTheme);
+	} else
+		specialSearchPathForTheme = "";
+}
+
+const std::string* getSpecialSearchPathForTheme() {
+	if(specialSearchPathForTheme == "")
+		return NULL;
+	else
+		return &specialSearchPathForTheme;
+}
+
+
+	class CheckSearchpathForFile { public:
 		const std::string& filename;
 		std::string* result;
 		std::string* searchpath;
 		CheckSearchpathForFile(const std::string& f, std::string* r, std::string* s) : filename(f), result(r), searchpath(s) {}
-		
+
 		bool operator() (const std::string& spath) {
 			std::string tmp = spath + filename;
 			if(GetExactFileName(tmp, *result)) {
@@ -440,7 +458,7 @@ std::string GetFirstSearchPath() {
 				if(searchpath) *searchpath = spath;
 				return false; // stop checking next searchpaths
 			}
-	
+
 			// go to the next searchpath
 			return true;
 		}
@@ -452,7 +470,9 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 
 	std::string fname;
 	// this also do lastly a check for an absolute filename
-	ForEachSearchpath(CheckSearchpathForFile(path, &fname, searchpath));
+	CheckSearchpathForFile checker(path, &fname, searchpath);
+	ForEachSearchpath(checker);
+
 	return fname;
 }
 
@@ -561,10 +581,10 @@ void AddToFileList(searchpathlist* l, const std::string& f) {
 	if(!FileListIncludesExact(l, f)) l->push_back(f);
 }
 
-void removeEndingSlashes(std::string& s) 
+void removeEndingSlashes(std::string& s)
 {
 	while(s.size() > 0 && (*s.rbegin() == '\\' || *s.rbegin() == '/'))
-		s.erase(s.size() - 1);	
+		s.erase(s.size() - 1);
 }
 
 /////////////////
@@ -574,7 +594,7 @@ bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 	removeEndingSlashes(tmp1);
 	ReplaceFileVariables(tmp1);
 	replace(tmp1,"\\","/");
-	
+
 	// Go through the list, checking each item
 	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
 		std::string tmp2 = *i;
@@ -584,7 +604,7 @@ bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 		if(stringcaseequal(tmp1, tmp2))
 			return true;
 	}
-	
+
 	return false;
 }
 
@@ -597,7 +617,7 @@ std::string GetHomeDir() {
 			return userinfo->pw_dir;
 		return ""; // both failed, very strange system...
 	}
-	return home;	
+	return home;
 #else
 	static wchar_t tmp[1024];
 	if (!SHGetSpecialFolderPathW(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
@@ -751,14 +771,14 @@ std::string GetAbsolutePath(const std::string& path) {
 bool PathListIncludes(const std::list<std::string>& pathlist, const std::string& path) {
 	std::string abs_path;
 	abs_path = GetAbsolutePath(path);
-	
+
 	// Go through the list, checking each item
 	for(std::list<std::string>::const_iterator i = pathlist.begin(); i != pathlist.end(); i++) {
 		if(abs_path == GetAbsolutePath(*i)) {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -784,7 +804,7 @@ static int stdio_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
 	size_t nread;
 
-	nread = fread(ptr, size, maxnum, context->hidden.stdio.fp); 
+	nread = fread(ptr, size, maxnum, context->hidden.stdio.fp);
 	if ( nread == 0 && ferror(context->hidden.stdio.fp) ) {
 		SDL_Error(SDL_EFREAD);
 	}

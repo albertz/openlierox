@@ -94,6 +94,9 @@ extern searchpathlist tSearchPaths;
 void	AddToFileList(searchpathlist* l, const std::string& f);
 bool	FileListIncludesExact(const searchpathlist* l, const std::string& f);
 
+void	initSpecialSearchPathForTheme();
+const std::string*	getSpecialSearchPathForTheme();
+
 // this replaces ${var} in filename with concrete values
 // currently, the following variables are handled:
 //   ${HOME} - the home-dir, that means under unix ~  and under windows the 'my-documents'
@@ -217,10 +220,18 @@ bool PathListIncludes(const std::list<std::string>& list, const std::string& pat
 // if return is false, it will break
 // HINT: it does no GetExactFileName with the paths
 template<typename _handler>
-void ForEachSearchpath(_handler handler = _handler()) {
+void ForEachSearchpath(_handler& handler) {
 	std::list<std::string> handled_dirs;
 	std::string path;
 	searchpathlist::const_iterator i;
+
+	{
+		const std::string* themeDir = getSpecialSearchPathForTheme();
+		if(themeDir) {
+			if(!handler(*themeDir + "/")) return;
+			handled_dirs.push_back(*themeDir);
+		}
+	}
 
 	for(
 			i = tSearchPaths.begin();
@@ -331,8 +342,10 @@ void FindFiles(
 		printf("FindFiles: WARNING: filter %s isn't handled yet\n", namefilter.c_str());
 	if(absolutePath)
 		FindFilesHandler<_handler>(dir, namefilter, modefilter, handler) ("");
-	else
-		ForEachSearchpath(FindFilesHandler<_handler>(dir, namefilter, modefilter, handler));
+	else {
+		FindFilesHandler<_handler> searchpathHandler(dir, namefilter, modefilter, handler);
+		ForEachSearchpath(searchpathHandler);
+	}
 }
 
 
