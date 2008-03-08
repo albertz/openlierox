@@ -825,7 +825,11 @@ void ShutdownLieroX(void)
 
 	ShutdownLoading();  // In case we're called when an error occured
 
-	CGuiSkin::DeInit();
+	// Only do the deregistration for widgets if we are not restarting.
+	// The problem is that we have registered most widgets globally (not by any init-function)
+	// so we would not reinit them.
+	if(!bRestartGameAfterQuit)
+		CGuiSkin::DeInit();
 
 	ShutdownGraphics();
 
@@ -876,7 +880,14 @@ void ShutdownLieroX(void)
 	// Save and clear options
 	ShutdownOptions();
 
-	CScriptableVars::DeInit();
+	// Only do the deregistration for variables if we are not restarting.
+	// The problem is that we have registered most vars globally (not by any init-function)
+	// so we would not reinit them.
+	// Multiple registration of a var is also not a problem because we are
+	// using a map for all vars and with a new registration, we would just overwrite
+	// the old registration.
+	if(!bRestartGameAfterQuit)
+		CScriptableVars::DeInit();
 
 	xmlCleanupParser();
 
