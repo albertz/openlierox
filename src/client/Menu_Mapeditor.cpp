@@ -26,7 +26,7 @@
 #include "CMediaPlayer.h"
 
 
-CGuiLayout	cMaped;
+static CGuiLayout	cMaped;
 
 // Map editor controls
 enum {
