@@ -33,7 +33,8 @@ public:
 	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
 	static void ClearLayouts();
 
-	typedef std::map< std::string, CScriptableVars::ScriptVarType_t > paramListVector_t;
+	// has to be a vector because the order is important in the WidgetCreator
+	typedef std::vector< std::pair< std::string, CScriptableVars::ScriptVarType_t > > paramListVector_t;
 	// WidgetCreator will create widget and add it to specified CGuiLayout (and init it a bit after that if necessary).
 	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< CScriptableVars::ScriptVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
 
@@ -52,7 +53,7 @@ public:
 		operator bool () { return true; };	// To be able to write static expressions
 
 		WidgetRegisterHelper & operator() ( const std::string & c, CScriptableVars::ScriptVarType_t vt )
-			{ m_params[c] = vt; return *this; };
+			{ m_params.push_back( std::pair< std::string, CScriptableVars::ScriptVarType_t >(c, vt) ); return *this; };
 	};
 
 	static WidgetRegisterHelper RegisterWidget( const std::string & name, WidgetCreator_t creator )
