@@ -32,8 +32,8 @@ public:
 
 	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
 	static void ClearLayouts();
-	
-	typedef std::vector< std::pair< std::string, CScriptableVars::ScriptVarType_t > > paramListVector_t;
+
+	typedef std::map< std::string, CScriptableVars::ScriptVarType_t > paramListVector_t;
 	// WidgetCreator will create widget and add it to specified CGuiLayout (and init it a bit after that if necessary).
 	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< CScriptableVars::ScriptVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
 
@@ -44,17 +44,17 @@ public:
 
 		paramListVector_t & m_params;	// Reference to CGuiSkin.m_vars
 
-		WidgetRegisterHelper( paramListVector_t & params ): 
+		WidgetRegisterHelper( paramListVector_t & params ):
 			m_params( params ) {};
-		
+
 		public:
-		
+
 		operator bool () { return true; };	// To be able to write static expressions
 
 		WidgetRegisterHelper & operator() ( const std::string & c, CScriptableVars::ScriptVarType_t vt )
-			{ m_params.push_back( std::pair< std::string, CScriptableVars::ScriptVarType_t >( c, vt ) ); return *this; };
+			{ m_params[c] = vt; return *this; };
 	};
-	
+
 	static WidgetRegisterHelper RegisterWidget( const std::string & name, WidgetCreator_t creator )
 	{
 		Init();
@@ -63,28 +63,28 @@ public:
 	};
 
 	static std::string DumpWidgets();	// For debug output
-	
+
 	// Helper class for callback info thst should be inserted into widget
 	class CallbackHandler
 	{
 		std::vector< std::pair< CScriptableVars::ScriptCallback_t, std::string > > m_callbacks;
 		CWidget * m_source;
-	
+
 	public:
 		void Init( const std::string & param, CWidget * source );
 		void Call();
 		CallbackHandler(): m_source(NULL) { };
 		CallbackHandler( const std::string & param, CWidget * source ) { Init( param, source ); };
 	};
-	
+
 	// Update will be called on each frame with following params
 	static void RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update, const std::string & param, CWidget * source );
 	// Remove widget from update list ( called from widget destructor )
 	static void DeRegisterUpdateCallback( CWidget * source );
 	// Called on each frame
 	static void ProcessUpdateCallbacks();
-	
-	// INIT_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called 
+
+	// INIT_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called
 	// after widget added to CGuiLayout - some widgets (textbox and combobox) require this.
 	// SHOW_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called
 	// when the dialog is shown - dialogs are cached into memory and may be shown or hidden.
@@ -100,7 +100,7 @@ private:
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
 	struct UpdateList_t
 	{
-		UpdateList_t( CWidget * s, CScriptableVars::ScriptCallback_t u, const std::string & p ): 
+		UpdateList_t( CWidget * s, CScriptableVars::ScriptCallback_t u, const std::string & p ):
 			source( s ), update( u ), param( p ) { };
 		CWidget * source;
 		CScriptableVars::ScriptCallback_t update;

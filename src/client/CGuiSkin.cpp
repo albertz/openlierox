@@ -54,10 +54,11 @@ std::string CGuiSkin::DumpWidgets()
 			m_instance->m_widgets.begin();	it != m_instance->m_widgets.end(); it++ )
 	{
 		ret << it->first + "( ";
-		for( unsigned f = 0; f < it->second.first.size(); f++ )
+		bool first = true;
+		for( paramListVector_t::const_iterator f = it->second.first.begin(); f != it->second.first.end(); ++f )
 		{
-			if( f != 0 ) ret << ", ";
-			switch( it->second.first[f].second )
+			if( !first ) ret << ", ";
+			switch( f->second )
 			{
 				case CScriptableVars::SVT_BOOL: ret << "bool"; break;
 				case CScriptableVars::SVT_INT: ret << "int"; break;
@@ -66,7 +67,8 @@ std::string CGuiSkin::DumpWidgets()
 				case CScriptableVars::SVT_COLOR: ret << "color"; break;
 				case CScriptableVars::SVT_CALLBACK: ret << "callback"; break;
 			};
-			ret << " " << it->second.first[f].first;
+			ret << " " << f->first;
+			first = false;
 		};
 		ret << " )\n";
 	};
@@ -189,20 +191,20 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				continue;
 
 			std::vector< CScriptableVars::ScriptVar_t > params;
-			for( unsigned i = 0; i < it->second.first.size(); i++ )
+			for( paramListVector_t::const_iterator i = it->second.first.begin(); i != it->second.first.end(); i++ )
 			{
-				if( it->second.first[i].second == CScriptableVars::SVT_BOOL )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetBool( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == CScriptableVars::SVT_INT )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetInt( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == CScriptableVars::SVT_FLOAT )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetFloat( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == CScriptableVars::SVT_COLOR )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetColor( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == CScriptableVars::SVT_STRING )
+				if( i->second == CScriptableVars::SVT_BOOL )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetBool( Node, i->first ) ) );
+				else if( i->second == CScriptableVars::SVT_INT )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetInt( Node, i->first ) ) );
+				else if( i->second == CScriptableVars::SVT_FLOAT )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetFloat( Node, i->first ) ) );
+				else if( i->second == CScriptableVars::SVT_COLOR )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetColor( Node, i->first ) ) );
+				else if( i->second == CScriptableVars::SVT_STRING )
 				{	// "<label text="lalala"/>" and "<label>lalala</label>" are equal
-					std::string text = xmlGetString( Node, it->second.first[i].first );
-					if( text == "" && it->second.first[i].first == "text" )
+					std::string text = xmlGetString( Node, i->first );
+					if( text == "" && i->first == "text" )
 						text = xmlGetText( Doc, Node );
 					params.push_back( CScriptableVars::ScriptVar_t( text ) );
 				}
