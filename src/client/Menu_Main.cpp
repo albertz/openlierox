@@ -42,7 +42,6 @@ enum {
 	mm_LevelEditor,
 	mm_Options,
 	mm_Quit,
-	mm_ShowSkin,
 	mm_NewsBox,
 	mm_ShowNews
 };
@@ -194,11 +193,10 @@ void Menu_MainFrame(void)
                 }
                 break;
 
-			// Select skin combobox
-			case mm_ShowSkin:
+			default:
                 if( ev->iEventMsg == CMB_CHANGED )
 				{
-					ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);	// Shuts down Main Menu
+					ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);
 				    return;
 				};
                 break;
@@ -318,7 +316,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 	}
 
 	static void ThemeCombobox_OnChange( const std::string & param, CWidget * source ) {
-		printf("New theme: " + tLXOptions->sTheme);
+		printf("New theme: " + tLXOptions->sTheme + "\n");
 	}
 
 	// handler for FindFile
@@ -349,7 +347,7 @@ void Menu_Main_GuiSkinComboboxCreate()
 	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
 	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
 	// TODO: position as constant, will remove this code when only skins will be left
-	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, mm_ShowSkin, 515,38,115,17);
+	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, -1, 515,38,115,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
 	c_init.Call();
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
