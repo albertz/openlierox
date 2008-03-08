@@ -37,8 +37,8 @@ enum {
 	map_quit
 };
 
-CMap		cMap;
-CViewport	cMapedView;
+CMap*		cMap = NULL;
+CViewport*	cMapedView = NULL;
 int			grabbed = false;
 int			grabX,  grabY;
 int			grabWX, grabWY;
@@ -69,10 +69,14 @@ bool Menu_MapEdInitialize(void)
 	Menu_RedrawMouse(true);
 
 	// Create a map
-	cMap.New(504,350,"dirt");
-	cMapedView.Setup(22,148, 596,310,0);
-	cMapedView.SetWorldX(0);
-	cMapedView.SetWorldY(0);
+	if(cMap) delete cMap;
+	cMap = new CMap();
+	cMap->New(504,350,"dirt");
+	if(cMapedView) delete cMapedView;
+	cMapedView = new CViewport();
+	cMapedView->Setup(22,148, 596,310,0);
+	cMapedView->SetWorldX(0);
+	cMapedView->SetWorldY(0);
 
 	tMenu->iEditMode = 0;
 	tMenu->iCurHole = 0;
@@ -101,7 +105,8 @@ bool Menu_MapEdInitialize(void)
 void Menu_MapEdShutdown(void)
 {
 	cMaped.Shutdown();
-	cMap.Shutdown();
+	cMap->Shutdown(); delete cMap; cMap = NULL;
+	delete cMapedView; cMapedView = NULL;
 }
 
 
@@ -124,7 +129,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 
 
 	// Draw the map
-	cMap.Draw(bmpDest, &cMapedView);
+	cMap->Draw(bmpDest, cMapedView);
 
 
 	// Toolbar
@@ -163,7 +168,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	//
 	// Draw item
 	//
-	theme_t *t = cMap.GetTheme();
+	theme_t *t = cMap->GetTheme();
 
 	// Holes
 	if(tMenu->iEditMode == 0) {
@@ -278,8 +283,8 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	if(Mouse->X >= 22 && Mouse->X <= 618) {
 		if(Mouse->Y >= 148 && Mouse->Y <= 457) {
 
-			x = (Mouse->X - 22)/2 + cMapedView.GetWorldX();
-			y = (Mouse->Y - 148)/2 + cMapedView.GetWorldY();
+			x = (Mouse->X - 22)/2 + cMapedView->GetWorldX();
+			y = (Mouse->Y - 148)/2 + cMapedView->GetWorldY();
 			CVec pos = CVec((float)x, (float)y);
 
 
@@ -289,34 +294,34 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 				case 0:
 					MouseImg = t->bmpHoles[tMenu->iCurHole];
 					if(Mouse->Down & SDL_BUTTON(1))
-						cMap.CarveHole(tMenu->iCurHole,pos);
+						cMap->CarveHole(tMenu->iCurHole,pos);
 					break;
 
 				// Stone
 				case 1:
 					MouseImg = t->bmpStones[tMenu->iCurStone];
 					if(Mouse->Up & SDL_BUTTON(1))
-						cMap.PlaceStone(tMenu->iCurStone,pos);
+						cMap->PlaceStone(tMenu->iCurStone,pos);
 					break;
 
 				// Misc
 				case 2:
 					MouseImg = t->bmpMisc[tMenu->iCurMisc];
 					if(Mouse->Up & SDL_BUTTON(1))
-						cMap.PlaceMisc(tMenu->iCurMisc,pos);
+						cMap->PlaceMisc(tMenu->iCurMisc,pos);
 					break;
 
 				// Dirt
 				case 3:
 					MouseImg = t->bmpHoles[tMenu->iCurDirt];
 					if(Mouse->Down & SDL_BUTTON(1))
-						cMap.PlaceDirt(tMenu->iCurDirt,pos);
+						cMap->PlaceDirt(tMenu->iCurDirt,pos);
 					break;
 
 				// Delete object
 				/*case 4:
 					if(Mouse->Up & SDL_BUTTON(1))
-						cMap.DeleteObject(pos);
+						cMap->DeleteObject(pos);
 					break;*/
 			}
 		}
@@ -347,7 +352,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			// Random
 			case map_random:
 				if(ev->iEventMsg == BTN_MOUSEUP)
-					cMap.ApplyRandom();
+					cMap->ApplyRandom();
 				break;
 
 			// Load
@@ -372,6 +377,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 					Menu_MapEdShutdown();
 
 					Menu_MainInitialize();
+					return;
 				}
 				break;
 		}
@@ -383,13 +389,13 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	int Scroll = 250 * (int)tLX->fDeltaTime;
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if(kb->keys[SDLK_UP])
-		cMapedView.SetWorldY( cMapedView.GetWorldY() - Scroll );
+		cMapedView->SetWorldY( cMapedView->GetWorldY() - Scroll );
 	if(kb->keys[SDLK_DOWN])
-		cMapedView.SetWorldY( cMapedView.GetWorldY() + Scroll );
+		cMapedView->SetWorldY( cMapedView->GetWorldY() + Scroll );
 	if(kb->keys[SDLK_LEFT])
-		cMapedView.SetWorldX( cMapedView.GetWorldX() - Scroll );
+		cMapedView->SetWorldX( cMapedView->GetWorldX() - Scroll );
 	if(kb->keys[SDLK_RIGHT])
-		cMapedView.SetWorldX( cMapedView.GetWorldX() + Scroll );
+		cMapedView->SetWorldX( cMapedView->GetWorldX() + Scroll );
 
     // Grab the level & drag it
 	if(Mouse->Down & SDL_BUTTON(2)) {
@@ -408,12 +414,12 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 					grabbed = true;
 					grabX = x;
 					grabY = y;
-					grabWX = cMapedView.GetWorldX();
-					grabWY = cMapedView.GetWorldY();
+					grabWX = cMapedView->GetWorldX();
+					grabWY = cMapedView->GetWorldY();
 				} else {
 
-					cMapedView.SetWorldX( grabWX + (grabX-x));
-					cMapedView.SetWorldY( grabWY + (grabY-y));
+					cMapedView->SetWorldX( grabWX + (grabX-x));
+					cMapedView->SetWorldY( grabWY + (grabY-y));
 				}
 			}
 		}
@@ -426,19 +432,19 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 
         // X Axis
         if( Mouse->X < EdgeSize )
-            cMapedView.SetWorldX( cMapedView.GetWorldX() - Scroll );
+            cMapedView->SetWorldX( cMapedView->GetWorldX() - Scroll );
         if( Mouse->X > 640-EdgeSize )
-            cMapedView.SetWorldX( cMapedView.GetWorldX() + Scroll );
+            cMapedView->SetWorldX( cMapedView->GetWorldX() + Scroll );
 
         // Y Axis
         if( Mouse->Y < EdgeSize )
-            cMapedView.SetWorldY( cMapedView.GetWorldY() - Scroll );
+            cMapedView->SetWorldY( cMapedView->GetWorldY() - Scroll );
         if( Mouse->Y > 480-EdgeSize )
-            cMapedView.SetWorldY( cMapedView.GetWorldY() + Scroll );
+            cMapedView->SetWorldY( cMapedView->GetWorldY() + Scroll );
     }
 
 	// Clamp the viewport
-	cMapedView.Clamp(cMap.GetWidth(), cMap.GetHeight());
+	cMapedView->Clamp(cMap->GetWidth(), cMap->GetHeight());
 
 
 
@@ -538,8 +544,8 @@ void Menu_MapEd_New(void)
 	t1 = (CTextbox *)cg.getWidget(2);
 	t2 = (CTextbox *)cg.getWidget(3);
 
-	t1->setText(itoa(cMap.GetWidth(),10));
-	t1->setText(itoa(cMap.GetHeight(),10));
+	t1->setText(itoa(cMap->GetWidth(),10));
+	t1->setText(itoa(cMap->GetHeight(),10));
 
 
 	ProcessEvents();
@@ -587,7 +593,7 @@ void Menu_MapEd_New(void)
 						if(w >= 350 && h >= 250 &&
 							w <= 4000 && h <= 4000) {
 								quitloop = true;
-								cMap.New(w,h,theme);
+								cMap->New(w,h,theme);
 						}
 					}
 					break;
@@ -773,7 +779,7 @@ void Menu_MapEd_LoadSave(int save)
 
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
-									cMap.Save(t->getText(),buf);
+									cMap->Save(t->getText(),buf);
 								else
 									quitloop = false;
 							} else {
@@ -783,7 +789,7 @@ void Menu_MapEd_LoadSave(int save)
 								stringlwr(buf);
 								if(buf.find(".lxl") == std::string::npos)
 									buf += ".lxl";
-								cMap.Load(buf);
+								cMap->Load(buf);
 							}
 						}
 					}
