@@ -526,7 +526,8 @@ void Menu_MapEd_New(void)
 	int dirtindex = -1;
 
 	// Find directories in the theme dir
-	FindFiles(ComboboxFiller(&cg, 4, &dirtindex), "data/themes", false, FM_DIR);
+	ComboboxFiller filler(&cg, 4, &dirtindex);
+	FindFiles(filler, "data/themes", false, FM_DIR);
 
 	if(dirtindex != -1)
 		cg.SendMessage(4,CBM_SETCURSEL,dirtindex,0);
@@ -720,7 +721,8 @@ void Menu_MapEd_LoadSave(int save)
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Levels",60);
 
-	FindFiles(LevelListFiller(lv), "levels", false, FM_REG);
+	LevelListFiller filler(lv);
+	FindFiles(filler, "levels", false, FM_REG);
 	lv->SortBy( 0, true );
 
 
@@ -768,7 +770,7 @@ void Menu_MapEd_LoadSave(int save)
 									buf = "levels/" + t->getText() + ".lxl";
 								else
 									buf = "levels/" + t->getText();
-								
+
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
 									cMap.Save(t->getText(),buf);

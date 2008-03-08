@@ -50,7 +50,7 @@ std::string CGuiSkin::DumpWidgets()
 {
 	Init();
 	std::ostringstream ret;
-	for( std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it = 
+	for( std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it =
 			m_instance->m_widgets.begin();	it != m_instance->m_widgets.end(); it++ )
 	{
 		ret << it->first + "( ";
@@ -88,7 +88,7 @@ static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
 static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
 static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
 // Get the text inside element, like "<label rect="..."> Label text </label>"
-static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node); 
+static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node);
 
 
 CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
@@ -125,10 +125,10 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	xmlDocPtr	Doc;
 	xmlNodePtr	Node;
 	CGuiSkinnedLayout * gui = new CGuiSkinnedLayout();
-	
+
 	Doc = xmlReadDoc( (const xmlChar *)filedata.c_str(), filepath.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA );
 
-	if (Doc == NULL)  
+	if (Doc == NULL)
 	{
 		printf("Cannot parse GUI skin file %s\n", filepath.c_str() );
 		return NULL;
@@ -138,25 +138,25 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			InlineDataDeallocator(xmlDocPtr doc): m_doc(doc) {};
 			~InlineDataDeallocator() { xmlFreeDoc(m_doc); };
 	} inlineDataDeallocator( Doc );
-	
+
 	Node = xmlDocGetRootElement(Doc);
 	if (Node == NULL)
 	{
 		printf("GUI skin file %s is empty\n", filepath.c_str() );
 		return NULL;
 	};
-	
-	if ( stringcasecmp( (const char *)Node->name, "dialog" ) ) 
+
+	if ( stringcasecmp( (const char *)Node->name, "dialog" ) )
 	{
 		printf("GUI skin file %s is invalid: root item should be \"dialog\"\n", filepath.c_str() );
 		return NULL;
 	};
-	
+
 	for ( Node = Node->children; Node != NULL; Node = Node->next )
 	{
 		if ( Node->type != XML_ELEMENT_NODE )
 			continue;
-			
+
 		int left   = xmlGetInt(Node,"left");
 		int top    = xmlGetInt(Node,"top");
 		int width  = xmlGetInt(Node,"width");
@@ -177,8 +177,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				height = atoi( pos[3] );
 		};
 		std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it;
-		if( (!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"text")) || 
-			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )	
+		if( (!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"text")) ||
+			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )
 		{	// Some extra newline or comment - skip it
 			//printf("XML text inside \"%s\": \"%s\"\n", Node->parent->name, Node->content );
 		}
@@ -187,7 +187,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		{
 			if( stringcasecmp( it->first.c_str(), (const char *)Node->name ) )
 				continue;
-			
+
 			std::vector< CScriptableVars::ScriptVar_t > params;
 			for( unsigned i = 0; i < it->second.first.size(); i++ )
 			{
@@ -208,7 +208,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				}
 				else params.push_back( CScriptableVars::ScriptVar_t( ) );	// Compile-time error here
 			};
-			
+
 			int i_id = -1;
 			if( s_id != "" )
 				i_id = gui->GetIdByName( s_id );
@@ -340,7 +340,7 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 		else
 			s = "";
 		TrimSpaces(s);
-		
+
 		std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it;
 		for( it = CScriptableVars::Vars().begin();
 				it != CScriptableVars::Vars().end(); it++ )
@@ -379,12 +379,12 @@ void CGuiSkin::RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update,
 void CGuiSkin::DeRegisterUpdateCallback( CWidget * source )
 {
 	Init();
-	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin(); 
+	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin();
 			it != m_instance->m_updateCallbacks.end(); )
 	{
 		if( it->source == source )
 			m_instance->m_updateCallbacks.erase( it++ );	// Erase from std::list do not invalidate iterators
-		else	
+		else
 			++it;
 	};
 	bUpdateCallbackListChanged = true;
@@ -393,7 +393,7 @@ void CGuiSkin::DeRegisterUpdateCallback( CWidget * source )
 void CGuiSkin::ProcessUpdateCallbacks()
 {
 	Init();
-	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin(); 
+	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin();
 			it != m_instance->m_updateCallbacks.end(); ++it )
 	{
 		std::string param = it->param;	// This string may be destroyed if DeRegisterUpdateCallback() called from update
@@ -422,7 +422,7 @@ bool Menu_CGuiSkinInitialize(void)
 		Menu_MainInitialize();
 		return false;
 	};
-	
+
 	return true;
 };
 
@@ -469,13 +469,13 @@ void MakeSound( const std::string & param, CWidget * source )
 		PlaySoundSample(sfxGame.smpDeath[2]);
 };
 
-	class GUISkinAdder 
-	{ 
+	class GUISkinAdder
+	{
 		public:
 	   	CCombobox* cb;
 	   	int index;
 		GUISkinAdder(CCombobox* cb_) : cb(cb_), index(1) {}
-		inline bool operator() (std::string dir) 
+		inline bool operator() (std::string dir)
 		{
 			size_t slash = findLastPathSep(dir);
 			if(slash != std::string::npos)
@@ -485,7 +485,7 @@ void MakeSound( const std::string & param, CWidget * source )
 				return true;
 
 			cb->addItem(index, dir, dir);
-			
+
 			index++;
 			return true;
 		};
@@ -502,7 +502,8 @@ void SkinCombobox_Init( const std::string & param, CWidget * source )
 	cb->setUnique(true);
 	cb->clear();
 	cb->addItem( 0, "", "None" );
-	FindFiles(GUISkinAdder(cb), "data/frontend/skins", false, FM_DIR);
+	GUISkinAdder skinAdder(cb);
+	FindFiles(skinAdder, "data/frontend/skins", false, FM_DIR);
 	cb->setCurSIndexItem( tLXOptions->sSkinPath );
 };
 
@@ -524,7 +525,7 @@ void SkinCombobox_Change( const std::string & param, CWidget * source )
 
 void ExitApplication( const std::string & param, CWidget * source )
 {
-	if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) 
+	if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES )
 	{
 		tMenu->bMenuRunning = false;
 		Menu_MainShutdown();
@@ -574,14 +575,14 @@ static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 
 #include "CAnimation.h"
 
-static bool CAnimation_WidgetRegistered = 
+static bool CAnimation_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
 							( "file", CScriptableVars::SVT_STRING )
 							( "frametime", CScriptableVars::SVT_FLOAT );
 
 #include "CBox.h"
 
-static bool CBox_WidgetRegistered = 
+static bool CBox_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
 							( "round", CScriptableVars::SVT_INT )
 							( "border", CScriptableVars::SVT_INT )
@@ -591,7 +592,7 @@ static bool CBox_WidgetRegistered =
 
 #include "CLabel.h"
 
-static bool CLabel_WidgetRegistered = 
+static bool CLabel_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
 							( "text", CScriptableVars::SVT_STRING )
 							( "color", CScriptableVars::SVT_COLOR )
@@ -600,13 +601,13 @@ static bool CLabel_WidgetRegistered =
 
 #include "CLine.h"
 
-static bool CLine_WidgetRegistered = 
+static bool CLine_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "line", & CLine::WidgetCreator )
 							( "color", CScriptableVars::SVT_COLOR );
 
 #include "CProgressbar.h"
 
-static bool CProgressBar_WidgetRegistered = 
+static bool CProgressBar_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
 							( "file", CScriptableVars::SVT_STRING )
 							( "label_left", CScriptableVars::SVT_INT )

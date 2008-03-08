@@ -127,7 +127,7 @@ inline bool GetExactFileName(const std::string& abs_searchname, std::string& fil
 	if(abs_searchname.size() == 0) {
 		return true;
 	}
-	
+
 	ReplaceFileVariables(filename);
 
 	// Remove the ending slash, else stat will fail
@@ -221,7 +221,7 @@ void ForEachSearchpath(_handler handler = _handler()) {
 	std::list<std::string> handled_dirs;
 	std::string path;
 	searchpathlist::const_iterator i;
-	
+
 	for(
 			i = tSearchPaths.begin();
 			i != tSearchPaths.end(); i++) {
@@ -255,7 +255,7 @@ public:
 	const std::string& namefilter;
 	const filemodes_t modefilter;
 	_filehandler& filehandler;
-	
+
 	FindFilesHandler(
 			const std::string& dir_,
 			const std::string& namefilter_,
@@ -265,12 +265,12 @@ public:
 		namefilter(namefilter_),
 		modefilter(modefilter_),
 		filehandler(filehandler_) {}
-	
+
 	bool operator() (const std::string& path) {
 		std::string abs_path = path;
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
-		
+
 #ifdef WIN32  // uses UTF16
 		struct _wfinddata_t fileinfo;
 		abs_path.append("/");
@@ -307,7 +307,7 @@ public:
 							ret = false;
 							break;
 						}
-			}					
+			}
 		}
 		closedir(handle);
 #endif /* WIN32 */
@@ -321,7 +321,7 @@ public:
 // if it returns false, it will break
 template<typename _handler>
 void FindFiles(
-	_handler handler,
+	_handler& handler,
 	const std::string& dir,
 	bool absolutePath = false,
 	const filemodes_t modefilter = -1,
@@ -343,7 +343,7 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose);
 inline bool StatFile( const std::string & file, struct stat * st )
 {
 	std::string fname;
-	if( ! GetExactFileName( file, fname ) ) 
+	if( ! GetExactFileName( file, fname ) )
 		return false;
 	#ifdef WIN32 // For win32 - wide char = UTF16
 	if( wstat( (wchar_t *)Utf8ToUtf16(fname).c_str(), st) != 0 )

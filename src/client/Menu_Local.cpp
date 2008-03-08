@@ -140,7 +140,7 @@ void Menu_LocalInitialize(void)
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-	
+
 }
 
 //////////////
@@ -292,7 +292,7 @@ void Menu_LocalFrame(void)
 
 					// If the team colour item was clicked on, change it
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-					
+
 					ev = lv->getWidgetEvent();
 					if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
 						lv_item_t *it = lv->getItem(ev->iControlID);
@@ -382,7 +382,7 @@ void Menu_LocalFrame(void)
                     }
                 }
                 break;
-				
+
 		}
 	}
 
@@ -425,7 +425,7 @@ void Menu_LocalAddPlaying(int index)
 	tMenu->sLocalPlayers[index].setSkin(ply->szSkin);
 	tMenu->sLocalPlayers[index].setColour(ply->R, ply->G, ply->B);
 	tMenu->sLocalPlayers[index].LoadGraphics(iGameType);
-	
+
 
 	// Add the item
 	CImage *img = new CImage(gfxGame.bmpTeamColours[tMenu->sLocalPlayers[index].getTeam()]);
@@ -587,7 +587,7 @@ void Menu_LocalStartGame(void)
 		return;
 
     int count = 0;
-    
+
     // Add the human players onto the list
     for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
     	int i = item->iIndex;
@@ -667,7 +667,7 @@ bool Menu_LocalCheckPlaying(int index)
 	p = FindProfile(index);
 
 	// TODO: make it possible to use more than 2 local players
-	
+
 	// Check if there is too many players
 	if(plycount >= MAX_PLAYERS)
 		return false;
@@ -682,9 +682,9 @@ bool Menu_LocalCheckPlaying(int index)
 }
 
 
-	class addMod { public:
+	class ModAdder { public:
 		CCombobox* combobox;
-		addMod(CCombobox* cb_) : combobox(cb_) {}
+		ModAdder(CCombobox* cb_) : combobox(cb_) {}
 		bool operator() (const std::string& abs_filename) {
 			size_t sep = findLastPathSep(abs_filename);
 			if(sep != std::string::npos) {
@@ -708,7 +708,8 @@ void Menu_Local_FillModList( CCombobox *cb )
 	cb->clear();
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
-	FindFiles(addMod(cb),".",false,FM_DIR);
+	ModAdder adder(cb);
+	FindFiles(adder,".",false,FM_DIR);
 	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 }
 
@@ -785,7 +786,7 @@ void Menu_GameSettings(void)
 	// Shutdowns all 3 following instances
 	Menu_GameSettingsShutdown();
 
-	cGameSettings.Initialize();	
+	cGameSettings.Initialize();
 	cGeneralSettings.Initialize();
 	cBonusSettings.Initialize();
 
@@ -882,7 +883,7 @@ void Menu_GameSettings(void)
 	buf = itoa(bonusChance) + "%";
 	cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
 
-	
+
 }
 
 /////////////
@@ -910,14 +911,14 @@ bool Menu_GameSettings_Frame(void)
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
-	
-		ev = cGameSettings.Process();
-	
 
-	if(ev) 
+		ev = cGameSettings.Process();
+
+
+	if(ev)
 	{
 
-		switch(ev->iControlID) 
+		switch(ev->iControlID)
 		{
 
 			case gs_btnGenTab:
@@ -935,7 +936,7 @@ bool Menu_GameSettings_Frame(void)
 
 			// OK, done
 			case gs_Ok:
-				if(ev->iEventMsg == BTN_MOUSEUP) 
+				if(ev->iEventMsg == BTN_MOUSEUP)
 				{
 					Menu_GameSettings_GrabInfo();
 					Menu_GameSettingsShutdown();
@@ -946,7 +947,7 @@ bool Menu_GameSettings_Frame(void)
 
             // Set the default values
             case gs_Default:
-                if( ev->iEventMsg == BTN_MOUSEUP ) 
+                if( ev->iEventMsg == BTN_MOUSEUP )
 				{
                     Menu_GameSettings_Default();
                 }
@@ -958,7 +959,7 @@ bool Menu_GameSettings_Frame(void)
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
-		
+
 	if (GameTabPane == gs_GenTab)
 	{
 		cGeneralSettings.Draw(tMenu->bmpScreen);
@@ -1007,7 +1008,7 @@ bool Menu_GameSettings_Frame(void)
 		}
 	}
 
-	
+
 
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
@@ -1022,7 +1023,7 @@ void Menu_GameSettings_GrabInfo(void)
 {
 	static std::string buf;
 
-	
+
 	// Default to no setting
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = -2;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
@@ -1059,11 +1060,11 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bRespawnInWaves = cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	
+
 	tLXOptions->tGameinfo.bSuicideDecreasesScore = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	
+
 	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	// Bonus
@@ -1243,7 +1244,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
             }
         }
 
-		buf = psWpn[i].psLink->szName; 
+		buf = psWpn[i].psLink->szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour, buf );
         tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour, szStates[psWpn[i].psLink->nState] );
@@ -1338,9 +1339,9 @@ enum  {
 
 CGuiLayout cWpnPresets;
 
-	class addWeaponPresets { public:
+	class WeaponPresetsAdder { public:
 		CListview* listview;
-		addWeaponPresets(CListview* lv_) : listview(lv_) {}
+		WeaponPresetsAdder(CListview* lv_) : listview(lv_) {}
 		inline bool operator() (const std::string& f) {
 			if(stringcasecmp(GetFileExtension(f),"wps")) {
 				size_t sep = findLastPathSep(f);
@@ -1390,7 +1391,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	CListview *lv = (CListview *)cWpnPresets.getWidget(wp_PresetList);
 	lv->AddColumn("Weapon presets",60);
 
-	FindFiles(addWeaponPresets(lv),"cfg/presets/",false,FM_REG);
+	WeaponPresetsAdder adder(lv);
+	FindFiles(adder,"cfg/presets/",false,FM_REG);
 
 
 
@@ -1477,7 +1479,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 		// Display the dialog
 		FlipScreen(tMenu->bmpScreen);
-		
+
 		CapFPS();
 		WaitForNextEvent();
 	}

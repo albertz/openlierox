@@ -197,6 +197,7 @@ public:
 	bool	bAllowStrafing;
 	bool	bUseNumericKeysToSwitchWeapons;
 	bool	bAntilagMovementPrediction;
+	std::string sTheme;
 
     // Advanced
     int     nMaxFPS;

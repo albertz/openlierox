@@ -47,7 +47,8 @@ enum {
 	mm_ShowNews
 };
 
-void Menu_Main_GuiSkinComboboxCreate();
+static void Menu_Main_GuiSkinComboboxCreate();
+static void Menu_Main_GuiThemeComboboxCreate();
 
 ///////////////////
 // Initialize the main menu
@@ -81,7 +82,9 @@ void Menu_MainInitialize(void)
 	#ifdef DEBUG
 	Menu_Main_GuiSkinComboboxCreate();	// Just moved ugly code to function so it won't stand out too much
 	#endif
-	
+	// selection of different themes (like default, LX56, ...)
+	Menu_Main_GuiThemeComboboxCreate();
+
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )
 	{
@@ -193,7 +196,7 @@ void Menu_MainFrame(void)
 
 			// Select skin combobox
 			case mm_ShowSkin:
-                if( ev->iEventMsg == CMB_CHANGED ) 
+                if( ev->iEventMsg == CMB_CHANGED )
 				{
 					ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);	// Shuts down Main Menu
 				    return;
@@ -282,19 +285,73 @@ void Menu_MainShutdown(void)
 	cMainMenu.Shutdown();
 }
 
+
+struct Menu_Main_GuiThemeComboboxCreate__Executer {
+	CCombobox* combobox;
+
+	void execute() {
+		// GUI theme combobox
+
+		CScriptableVars::RegisterVars("GUI")
+			( & ThemeCombobox_OnChange, "ThemeCombobox_OnChange" );
+
+		std::vector< CScriptableVars::ScriptVar_t > GuiThemeInit;
+		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "None#" ) );	// List of items
+		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.Theme" ) );	// Attached var
+		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.ThemeCombobox_OnChange()" ) );	// OnClick handler
+
+		cMainMenu.Add( new CLabel("Theme", tLX->clNormalLabel), -1, 465,10,0,0);
+		combobox = (CCombobox*) CCombobox::WidgetCreator(GuiThemeInit, &cMainMenu, -1, 515,8,115,17);
+
+
+		// Find all directories in the the lierox
+		combobox->clear();
+		combobox->setSorted(SORT_ASC);
+		combobox->setUnique(true);
+
+		combobox->addItem("", "- Default -");
+		FindFiles(*this, "themes", false, FM_DIR);
+		combobox->setCurSIndexItem(tLXOptions->sTheme);
+
+
+		combobox->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+	}
+
+	static void ThemeCombobox_OnChange( const std::string & param, CWidget * source ) {
+		printf("New theme: " + tLXOptions->sTheme);
+	}
+
+	// handler for FindFile
+	bool operator() (std::string abs_filename) {
+		size_t sep = findLastPathSep(abs_filename);
+		if(sep != std::string::npos) abs_filename.erase(0, sep+1);
+
+		if(abs_filename != "" && abs_filename[0] != '.')
+			combobox->addItem(abs_filename, abs_filename);
+
+		return true;
+	}
+};
+
+
+void Menu_Main_GuiThemeComboboxCreate() {
+	Menu_Main_GuiThemeComboboxCreate__Executer initialiser;
+	initialiser.execute();
+}
+
 void Menu_Main_GuiSkinComboboxCreate()
 {
-	// GUI skin combobox 
+	// GUI skin combobox
 	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
-	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
+	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 480,40,0,0);
 	std::vector< CScriptableVars::ScriptVar_t > GuiSkinInit;
 	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "None#" ) );	// List of items
 	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
 	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
 	// TODO: position as constant, will remove this code when only skins will be left
-	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, mm_ShowSkin, 500,8,130,17);
+	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, mm_ShowSkin, 515,38,115,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
 	c_init.Call();
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
-};
+}
 

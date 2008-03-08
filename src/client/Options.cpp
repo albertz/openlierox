@@ -97,6 +97,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", false )
 		( tLXOptions->bAutoTyping, "Game.AutoTyping", false )
 		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
+		( tLXOptions->sTheme, "Game.Theme", "" )
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )

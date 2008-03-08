@@ -733,7 +733,7 @@ void Menu_Player_ViewPlayers(int mouse)
 		Menu_DrawBox(tMenu->bmpScreen,  300, 165, 330, 195);
 
 		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);
-		if(MouseInRect(300,165,30,30) && Mouse->Up)  {		
+		if(MouseInRect(300,165,30,30) && Mouse->Up)  {
 			if (bPlayerSkinAnimation)  {
 				bPlayerSkinAnimation = false;
 				tAnimTimer->stop();
@@ -860,7 +860,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 				size_t slash = findLastPathSep(file);
 				if(slash != std::string::npos)
 					file.erase(0, slash+1);
-				
+
 				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
 				cb->addItem(file, name);
 			}
@@ -878,9 +878,10 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
 	cb->clear();
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
-        
-    FindFiles(SkinAdder(cb), "skins", false, FM_REG);
-	
+
+	SkinAdder skinAdder(cb);
+    FindFiles(skinAdder, "skins", false, FM_REG);
+
     // Select the default
     cb->setCurItemByName("default");
 }

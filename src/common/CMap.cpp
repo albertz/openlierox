@@ -43,7 +43,7 @@
 /*bool CMap::ReuseMapData(CMap* map) {
 	if(Created && !modified && map != this) {
 		map->Shutdown();
-		
+
 		map->Name = Name;
 		map->FileName = FileName;
 		map->Type = Type;
@@ -58,12 +58,12 @@
 		map->nGridWidth = nGridWidth;
 		map->nGridHeight = nGridHeight;
 		map->nGridCols = nGridCols;
-		map->nGridRows = nGridRows;	
-		map->sRandomLayout = sRandomLayout;	
+		map->nGridRows = nGridRows;
+		map->sRandomLayout = sRandomLayout;
 		sRandomLayout.bUsed = false; // needed because we reuse possible allocated data here too
-		map->bMiniMapDirty = bMiniMapDirty;	
+		map->bMiniMapDirty = bMiniMapDirty;
 		map->NumObjects = NumObjects;
-		
+
 		// reusing our allocated data
 		map->bmpImage = bmpImage;
 		map->bmpDrawImage = bmpDrawImage;
@@ -85,7 +85,7 @@
 		map->BaseStartY	= BaseStartY;
 		map->BaseEndX	= BaseEndX;
 		map->BaseEndY	= BaseEndY;
-	
+
 		bmpImage = NULL;
 		bmpDrawImage = NULL;
 		bmpBackImage = NULL;
@@ -99,18 +99,18 @@
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		
+
 		Created = false; // this map is now clean and more or less shutdowned
-		
+
 		return true;
 	}
-	
+
 	return false;
 }*/
 
 ////////////////////
 // Copies all info from the given map to this map
-bool CMap::NewFrom(CMap* map) 
+bool CMap::NewFrom(CMap* map)
 {
 	if (map == NULL || !map->Created)
 		return false;
@@ -127,14 +127,14 @@ bool CMap::NewFrom(CMap* map)
 	nGridWidth = map->nGridWidth;
 	nGridHeight = map->nGridHeight;
 	nGridCols = map->nGridCols;
-	nGridRows = map->nGridRows;	
-	bMiniMapDirty = map->bMiniMapDirty;	
+	nGridRows = map->nGridRows;
+	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
 
 	// Create the map
 	if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
 		return false;
-	
+
 	// Copy the data
 	DrawImage(bmpImage, map->bmpImage, 0, 0);
 	DrawImage(bmpDrawImage, map->bmpDrawImage, 0, 0);
@@ -176,14 +176,14 @@ bool CMap::NewFrom(CMap* map)
 
 ////////////////
 // Save this map to cache
-void CMap::SaveToCache() 
+void CMap::SaveToCache()
 {
 	cCache.SaveMap(FileName, this);
 }
 
 ///////////////
 // Try to load the map from cache
-bool CMap::LoadFromCache() 
+bool CMap::LoadFromCache()
 {
 	CMap *cached = cCache.GetMap(FileName);
 	if (!cached)
@@ -430,7 +430,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 		std::cout << "LoadTheme: Theme " << _theme << " already loaded" << std::endl;
 		return true;
 	}
-	
+
 	std::string thm,buf;
 	int n,x,y;
 
@@ -519,7 +519,8 @@ std::string CMap::findRandomTheme() {
 	themelist themes;
 
     // Count the number of themes
-	FindFiles(ThemesCounter(&themes), "data/themes", false, FM_DIR);
+	ThemesCounter counter(&themes);
+	FindFiles(counter, "data/themes", false, FM_DIR);
 
 	if(themes.size() == 0) {
 		// If we get here, then default to dirt
@@ -613,7 +614,7 @@ bool CMap::CreateSurface(void)
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
-	
+
 	bmpDirtImage = gfxCreateSurface(Width, Height);
 	if(bmpDirtImage == NULL) {
 		SetError("CMap::CreateSurface(): bmpDirtImage creation failed, perhaps out of memory");
@@ -845,7 +846,7 @@ void CMap::TileMap(void)
 	uint x,y;
 
 	// Place the tiles
-	
+
 	// Place the first row
 	for(y=0;y<Height;y+=Theme.bmpFronttile->h) {
 		for(x=0;x<Width;x+=Theme.bmpFronttile->w) {
@@ -861,7 +862,7 @@ void CMap::TileMap(void)
 
 	// Update the draw image
 	UpdateDrawImage(0, 0, Width, Height);
-	
+
 	// Set the pixel flags
 	lockFlags();
 	memset(PixelFlags,PX_DIRT,Width*Height*sizeof(uchar));
@@ -897,7 +898,7 @@ void CMap::CalculateDirtCount(void)
 void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 {
 	if(!bmpDrawImage || !bmpDest) return; // safty
-	
+
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG
@@ -916,7 +917,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 {
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
-	
+
 	// Calculate positions and clipping
 	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
 	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
@@ -999,7 +1000,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	// Unlock the surfaces
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpObj);
-	UnlockSurface(bmpShadowMap);		  
+	UnlockSurface(bmpShadowMap);
 }
 
 
@@ -1045,7 +1046,7 @@ int CMap::CarveHole(int size, CVec pos)
 	// Clipping
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage->clip_rect))
 		return 0;
-	
+
 	// Variables
 	int hx, hy;
 	Uint8 *hole_px, *mapimage_px;
@@ -1072,10 +1073,10 @@ int CMap::CarveHole(int size, CVec pos)
 
 	// Lock
 	lockFlags();
-	
+
 	for(hy = h; hy; --hy)  {
-		for(hx = w; hx; --hx) {		
-			
+		for(hx = w; hx; --hx) {
+
 			// Carve only dirt
 			if (*PixelFlag & PX_DIRT)  {
 
@@ -1097,7 +1098,7 @@ int CMap::CarveHole(int size, CVec pos)
 			hole_px += bpp;
 			mapimage_px += bpp;
 			PixelFlag++;
-		
+
 		}
 
 		hole_px += HoleRowStep;
@@ -1126,7 +1127,7 @@ int CMap::CarveHole(int size, CVec pos)
 
 /*inline void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
 	uchar* px = map->GetPixelFlags() + map_y * map->GetWidth() + map_x;
-	
+
 	if(*px & PX_DIRT) {
 		// Set the flag to empty
 		if(hole_pixel == tLX->clPink) {
@@ -1146,22 +1147,22 @@ int CMap::CarveHole(int size, CVec pos)
 		// we will update the shadowed pixel later
 		CopyPixel_SameFormat(map->GetImage(), map->GetBackImage(), map_x, map_y);
 	}
-	
+
 }
 
 class CarveHole_PixelWalker {
 public:
 	CMap* map; SDL_Surface* hole; int& nNumDirt;
 	int map_left, map_top;
-	
+
 	CarveHole_PixelWalker(CMap* map_, SDL_Surface* hole_, int& nNumDirt_, int map_left_, int map_top_) :
 		map(map_), hole(hole_), nNumDirt(nNumDirt_), map_left(map_left_), map_top(map_top_) {}
-	
+
 	inline bool operator()(int map_x, int map_y) {
 		CarveHole_handlePixel(map, nNumDirt, map_x, map_y, GetPixel(hole, map_x - map_left, map_y - map_top));
 		return true;
 	}
-	
+
 };
 
 
@@ -1185,18 +1186,18 @@ int CMap::CarveHole(int size, CVec pos)
 	int nNumDirt = 0;
 	int map_left = (int)pos.x - (hole->w / 2);
 	int map_top = (int)pos.y - (hole->h / 2);
-	
+
 	lockFlags();
-	
+
 	if (!LockSurface(hole))
 		return 0;
 	if (!LockSurface(bmpImage))
 		return 0;
 	if (!LockSurface(bmpBackImage))
 		return 0;
-	
+
 	walkPixels(ClipRect<int>(&map_left, &map_top, &hole->w, &hole->h), CarveHole_PixelWalker(this, hole, nNumDirt, map_left, map_top));
-	
+
 	unlockFlags();
 
 	UnlockSurface(hole);
@@ -1476,7 +1477,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	lockFlags();
 
-	int clip_y = MAX(sy, (int)0); 
+	int clip_y = MAX(sy, (int)0);
 	int clip_x = MAX(sx, (int)0);
 	int clip_h = MIN(sy + h, Height);
 	int clip_w = MIN(sx + w, Width);
@@ -1584,11 +1585,11 @@ void CMap::PlaceStone(int size, CVec pos)
 	// Calculate the clipping bounds, so we don't have to check each loop then
 	short clip_h = MIN(sy+stone->h, bmpImage->h) - sy;
 	short clip_w = MIN(sx+stone->w, bmpImage->w) - sx;
-	short clip_y = 0; 
-	short clip_x = 0; 
-	if (sy<0) 
+	short clip_y = 0;
+	short clip_x = 0;
+	if (sy<0)
 		clip_y = abs(sy);
-	if (sx<0) 
+	if (sx<0)
 		clip_x = abs(sx);
 
 	// Pixels
@@ -1670,11 +1671,11 @@ void CMap::PlaceMisc(int id, CVec pos)
 	// Calculate the clipping bounds, so we don't have to check each loop then
 	short clip_h = MIN(sy+misc->h,bmpImage->h)-sy;
 	short clip_w = MIN(sx+misc->w,bmpImage->w)-sx;
-	short clip_y = 0; 
-	short clip_x = 0; 
-	if (sy<0) 
+	short clip_y = 0;
+	short clip_x = 0;
+	if (sy<0)
 		clip_y = -sy;
-	if (sx<0) 
+	if (sx<0)
 		clip_x = -sx;
 
 	Uint8 *p = NULL;
@@ -1767,7 +1768,7 @@ void CMap::DeleteObject(CVec pos)
 void CMap::DeleteStone(object_t *obj)
 {
 	// Replace the stone pixels with dirt pixels
-	
+
 	// TODO: why is no code here?
 }
 
@@ -1924,7 +1925,7 @@ bool CMap::Load(const std::string& filename)
 {
 	// Weird
 	if (filename == "") {
-		printf("WARNING: loading unnamed map, ignoring ...\n");	
+		printf("WARNING: loading unnamed map, ignoring ...\n");
 		return true;
 	}
 
@@ -2008,7 +2009,7 @@ bool CMap::Load(const std::string& filename)
 			printf("CMap::Load (%s): ERROR: cannot allocate map\n", filename.c_str());
 			fclose(fp);
 			return false;
-		}		
+		}
 
 		// Load the image format
 		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
@@ -2019,7 +2020,7 @@ bool CMap::Load(const std::string& filename)
 	}
 
 
-	
+
 	// Create a blank map
 	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
@@ -2052,7 +2053,7 @@ bool CMap::Load(const std::string& filename)
 	nTotalDirtCount = Width*Height;  // Calculate the dirt count
 
 	lockFlags();
-	
+
 	for(n = 0, i = 0; i < size; i++, x += 8) {
 		if (x >= Width)  {
 			srcrow += bmpBackImage->pitch;
@@ -2078,7 +2079,7 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	unlockFlags();
-	
+
 	delete[] bitmask;
 
 	// Unlock the surfaces
@@ -2370,7 +2371,7 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	Uint8 *BackPixelRow = backpixel;
 
 	lockFlags();
-	
+
 	for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
 		curpixel = PixelRow;
 		backpixel = BackPixelRow;
@@ -2407,7 +2408,7 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 			n++;
 		};
 	};
-	
+
 	unlockFlags();
 	UnlockSurface(bmpDirtImage);
 
@@ -2712,7 +2713,7 @@ void CMap::Shutdown(void)
 	lockFlags();
 
 	if(Created) {
-		
+
 		//printf("some created map is shutting down...\n");
 
 		gfxFreeSurface(bmpImage);
@@ -2753,7 +2754,7 @@ void CMap::Shutdown(void)
 		Objects = NULL;
 		NumObjects = 0;
 
-/*		
+/*
 		if (m_pnWater1)
 			delete[] m_pnWater1;
 		if (m_pnWater2)
@@ -2784,12 +2785,12 @@ void CMap::Shutdown(void)
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		sRandomLayout.psObjects = NULL;	
+		sRandomLayout.psObjects = NULL;
 	}
 
 	Created = false;
 	FileName = "";
-	
+
 	unlockFlags();
 }
 
@@ -3002,8 +3003,8 @@ bool CMap::RecvDirtUpdate(const std::string &ss)
 	Uint8 * p2 = (Uint8 *)bmpDirtImage->pixels;
 	Uint8 * p3 = (Uint8 *)bmpBackImage->pixels;
 	Uint8 * flag = (Uint8 *)PixelFlags;
-	
-	for( uint y = 0; y < Height; y++, 
+
+	for( uint y = 0; y < Height; y++,
 			p1 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch,
 			p2 = (Uint8 *)bmpDirtImage->pixels + y * bmpDirtImage->pitch,
 			p3 = (Uint8 *)bmpBackImage->pixels + y * bmpBackImage->pitch,
@@ -3076,7 +3077,7 @@ bool CMap::RecvPartialDirtUpdate(const std::string &ss, std::string *old)
 	*/
 	for( size_t f=0, ssSize = ss.size(); f<ssSize; f++ )
 		(*old)[f] ^= ~(ss[f]);
-	
+
 	RecvDirtUpdate(*old);
 	return true;
 };

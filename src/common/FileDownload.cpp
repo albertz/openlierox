@@ -60,7 +60,7 @@ void CHttpDownloader::Start(const std::string& filename, const std::string& dest
 		SetDlError(FILEDL_ERROR_NO_DEST);
 		return;
 	}
-		
+
 	if (tDownloadServers == NULL)  {
 		SetDlError(FILEDL_ERROR_NO_SERVER);
 		return;
@@ -384,14 +384,14 @@ void CUdpFileDownloader::setFileToSend( const std::string & path )
 	};
 	char buf[16384];
 	std::string data = "";
-	
+
 	while( ! feof( ff ) )
 	{
 		size_t read = fread( buf, 1, sizeof(buf), ff );
 		data.append( buf, read );
 	};
 	fclose( ff );
-	
+
 	bool noCompress = false;
 	if( stringcaserfind( path, ".png" ) != std::string::npos ||
 		stringcaserfind( path, ".lxl" ) != std::string::npos || // LieroX levels are in .png format
@@ -498,8 +498,8 @@ void CUdpFileDownloader::sendPing( CBytestream * bs ) const
 	bs->writeByte( 0 );
 };
 
-void CUdpFileDownloader::allowFileRequest( bool allow ) 
-{ 
+void CUdpFileDownloader::allowFileRequest( bool allow )
+{
 	if( ! bAllowFileRequest )
 		reset();	// Stop uploading any files
 	bAllowFileRequest = allow;
@@ -509,7 +509,7 @@ void CUdpFileDownloader::requestFile( const std::string & path, bool retryIfFail
 {
 	setDataToSend( "GET:", path, false );
 	if( retryIfFail )
-	{ 
+	{
 		bool exist = false;
 		for( uint f = 0; f < tRequestedFiles.size(); f++ )
 			if( tRequestedFiles[f] == path )
@@ -526,7 +526,7 @@ bool CUdpFileDownloader::requestFilesPending()
 		return false;
 	if( ! isFinished() )
 		return true;	// Receiving or sending in progress
-	
+
 	if( tRequestedFiles.back().find("STAT:") == 0 )
 		requestFileInfo( tRequestedFiles.back().substr( strlen("STAT:") ), false );
 	else
@@ -539,7 +539,7 @@ void CUdpFileDownloader::requestFileInfo( const std::string & path, bool retryIf
 	cStatInfo.clear();
 	setDataToSend( "STAT:", path );
 	if( retryIfFail )
-	{ 
+	{
 		bool exist = false;
 		for( uint f = 0; f < tRequestedFiles.size(); f++ )
 			if( tRequestedFiles[f] == "STAT:" + path )
@@ -562,7 +562,7 @@ std::string getStatPacketRecursive( const std::string & path );
 void CUdpFileDownloader::processFileRequests()
 {
 	// Process received files
-	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
+	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin();
 			it != tRequestedFiles.end(); )
 	{
 		bool erase = false;
@@ -576,12 +576,12 @@ void CUdpFileDownloader::processFileRequests()
 		if( erase )
 		{
 			tRequestedFiles.erase( it );
-			it = tRequestedFiles.begin(); 
+			it = tRequestedFiles.begin();
 		}
  		else
 			it ++ ;
 	};
-	
+
 	// Process file sending requests
 	if( ! bAllowFileRequest )
 		return;
@@ -668,7 +668,7 @@ void CUdpFileDownloader::processFileRequests()
 
 // Valid filename symbols
 // TODO: don't hardcode this, better check if the path exists/can be created
-// If path already exists is checked outside of this class, 
+// If path already exists is checked outside of this class,
 // this func checks if someone tries to access things outside OLX dir or use forbidden symbols for some filesystems.
 #define S_LETTER_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define S_LETTER_LOWER "abcdefghijklmnopqrstuvwxyz"
@@ -677,8 +677,8 @@ void CUdpFileDownloader::processFileRequests()
 #define S_SYMBOL "/. -_&+"	// No "\\" symbol, no tab.
 // Characters 128-255 - valid UTF8 char will consist only of these ones
 #define S_UTF8_SYMBOL "\128\129\130\131\132\133\134\135\136\137\138\139\140\141\142\143\144\145\146\147\148\149\150\151\152\153\154\155\156\157\158\159\160\161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"
-const char * invalid_file_names [] = { "CON", "PRN", "AUX", "NUL", 
-	"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
+const char * invalid_file_names [] = { "CON", "PRN", "AUX", "NUL",
+	"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
 	"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 
 bool CUdpFileDownloader::isPathValid( const std::string & path )
@@ -719,12 +719,12 @@ bool CUdpFileDownloader::isPathValid( const std::string & path )
 };
 
 class StatFileList
-{ 
+{
 	public:
    	std::string *data;
 	const std::string & reqpath;	// Path as client requested it
    	int index;
-	StatFileList( std::string *_data, const std::string & _reqpath ) : 
+	StatFileList( std::string *_data, const std::string & _reqpath ) :
 		data(_data), reqpath(_reqpath) {}
 	inline bool operator() (std::string path)
 	{
@@ -737,12 +737,12 @@ class StatFileList
 };
 
 class StatDirList
-{ 
+{
 	public:
    	std::string *data;
 	const std::string & reqpath;	// Path as client requested it
    	int index;
-	StatDirList( std::string *_data, const std::string & _reqpath ) : 
+	StatDirList( std::string *_data, const std::string & _reqpath ) :
 		data(_data), reqpath(_reqpath) {}
 	inline bool operator() (std::string path)
 	{
@@ -765,7 +765,7 @@ std::string getStatPacketOneFile( const std::string & path )
 	EndianSwap( checksum );
 	EndianSwap( size );
 	EndianSwap( compressedSize );
-	return path + '\0' + 
+	return path + '\0' +
 			std::string( (const char *) (&size), 4 ) + // Real file size
 			std::string( (const char *) (&compressedSize), 4 ) + // Zipped file size (used for download progressbar, so inexact for now)
 			std::string( (const char *) (&checksum), 4 );	// Checksum
@@ -786,8 +786,10 @@ std::string getStatPacketRecursive( const std::string & path )
 		if( S_ISDIR( st.st_mode ) )
 		{
 			std::string data;
-			FindFiles( StatFileList( &data, path ), path, false, FM_REG);
-			FindFiles( StatDirList( &data, path ), path, false, FM_DIR);
+			StatFileList fileWorker( &data, path );
+			FindFiles( fileWorker, path, false, FM_REG);
+			StatDirList dirWorker( &data, path );
+			FindFiles( dirWorker, path, false, FM_DIR);
 			return data;
 		};
 		return "";
@@ -809,9 +811,9 @@ float CUdpFileDownloader::getFileDownloadingProgress() const
 	if( cStatInfoCache.find(sLastFileRequested) == cStatInfoCache.end() )
 		return 0.0;
 	float ret = float(sData.size()) / float(cStatInfoCache.find(sLastFileRequested)->second.compressedSize);
-	if( ret < 0.0 ) 
+	if( ret < 0.0 )
 		ret = 0.0;
-	if( ret > 1.0 ) 
+	if( ret > 1.0 )
 		ret = 1.0;
 	return ret;
 };
