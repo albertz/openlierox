@@ -914,7 +914,7 @@ void CClient::ProcessServerShotList(void)
 		shoot_t *sh = cShootList.getShot(i);
 
 		// handle all shots not given by me
-		if(sh && !cClient->OwnsWorm(sh->nWormID))
+		if(sh)
 			ProcessShot(sh, fSpawnTime);
 	}
 }
