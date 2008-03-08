@@ -1,6 +1,9 @@
 0.57_beta5
 ==========
-- optimised joystick support
+- fast and easy theme switching
+  ( and LieroX 0.56 theme included )
+- disallow strafing on server if wanted
+- optimised/fixed joystick support
 - optimised network
 - bugfixes
 
@@ -43,7 +46,7 @@
 0.57_beta3
 ==========
 - 16/24/32 bit graphic support and OpenGL support
-- runs on MacOSX 
+- runs on MacOSX
 - new design & icon (thanks goes to Raziel)
 - probably fixed any saving-problem
   (problem was: sometimes SDL_Quit gives a segfault
