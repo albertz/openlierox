@@ -194,6 +194,7 @@ public:
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
 	bool	bAllowMouseAiming;
+	bool	bAllowStrafing;
 	bool	bUseNumericKeysToSwitchWeapons;
 	bool	bAntilagMovementPrediction;
 

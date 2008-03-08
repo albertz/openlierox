@@ -175,8 +175,9 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		// Leave this connection screen & go to the lobby
 		Menu_Net_JoinConnectionShutdown();
 
-		if (tLXOptions->bMouseAiming && !cClient->getHostAllowsMouse())
-			Menu_MessageBox("Mouse Aiming","This host doesn't allow mouse aiming.\n Using keyboard controls.", LMB_OK);
+		if (tLXOptions->bMouseAiming && !cClient->isHostAllowingMouse())
+			// TODO: a msgbox for this is annoying. but perhaps we can add it in the chatbox?
+			printf("HINT: This host doesn't allow mouse aiming. Using keyboard controls.\n");
 
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error

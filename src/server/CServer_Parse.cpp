@@ -1246,6 +1246,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.Send(tSocket);
 		}
 
+		if (tLXOptions->bAllowStrafing)
+		{
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx:strafingAllowed");
+			bytestr.Send(tSocket);
+		}
 
 		newcl->getChannel()->Create(&adrFrom, Port, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);

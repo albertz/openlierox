@@ -122,6 +122,7 @@ void CClient::Clear(void)
 
 	cServerVersion.reset();
 	bHostAllowsMouse = false;
+	bHostAllowsStrafing = false;
 
 	bDownloadingMap = false;
 	cHttpDownloader = NULL;

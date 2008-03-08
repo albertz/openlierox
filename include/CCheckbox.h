@@ -45,10 +45,16 @@ public:
 		iVar = NULL;
 	}
 
+	CCheckbox(bool* val) {
+		bValue = *val;
+        bmpImage = NULL;
+		iType = wid_Checkbox;
+		bVar = val;
+		iVar = NULL;
+	}
 
 private:
 	// Attributes
-
 	bool		bValue;
 	SDL_Surface	*bmpImage;
 	bool		*bVar;
@@ -63,13 +69,13 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return CHK_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ bValue = !bValue;		return CHK_CHANGED; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ bValue = !bValue;	updatePointers(); return CHK_CHANGED; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return CHK_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return CHK_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return CHK_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return CHK_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return CHK_NONE; }
-	
+
 
 	// Process a message sent
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
@@ -86,7 +92,7 @@ public:
 			}
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
-		
+
 
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);
@@ -95,9 +101,16 @@ public:
 
 	bool	getValue(void)						{ return bValue; }
 
+	void	updatePointers()	{
+		if( bVar )
+			*bVar = bValue;
+		if( iVar )
+			*iVar = (int)bValue;
+	}
+
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CCheckbox * w = new CCheckbox(0);
+		CCheckbox * w = new CCheckbox(false);
 		w->bVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_BOOL ).b;
 		w->iVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_INT ).i;
 		if( w->bVar )
@@ -108,8 +121,8 @@ public:
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
-	
-	void	ProcessGuiSkinEvent(int iEvent) 
+
+	void	ProcessGuiSkinEvent(int iEvent)
 	{
 		if( iEvent == CGuiSkin::SHOW_WIDGET )
 		{
@@ -120,10 +133,8 @@ public:
 		};
 		if( iEvent == CHK_CHANGED )
 		{
-			if( bVar )
-				*bVar = bValue;
-			if( iVar )
-				*iVar = (int)bValue;
+			// IMPORTANT TODO: this gets not called. why?
+			updatePointers();
 			cClick.Call();
 		};
 	};

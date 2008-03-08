@@ -103,17 +103,17 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CLabel("Welcome Message",	tLX->clNormalLabel),		-1,			40, 238,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_WelcomeMessage, 175,235,140,tLX->cFont.GetHeight());
 	cHostPly.Add( new CLabel("Register Server",	tLX->clNormalLabel),	-1,			153, 268,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);
+	cHostPly.Add( new CCheckbox(false),	                    hs_Register,	270,265,17, 17);
 	cHostPly.Add( new CLabel("Allow \"Wants to Join\" Messages",	tLX->clNormalLabel),-1,	47, 298,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
+	cHostPly.Add( new CCheckbox(false),	                    hs_AllowWantsJoin,	270,295,17, 17);
 	cHostPly.Add( new CLabel("\"Wants to Join\" from Banned Clients",			tLX->clNormalLabel),-1,	22, 328,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_WantsJoinBanned,	270,325,17, 17);
-	cHostPly.Add( new CLabel("Allow Bots in Server",			tLX->clNormalLabel),-1,	115, 358,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,355,17, 17);
+	cHostPly.Add( new CCheckbox(false),	                    hs_WantsJoinBanned,	270,325,17, 17);
+	cHostPly.Add( new CLabel("Allow Bots in Server",		tLX->clNormalLabel),-1,	115, 358,0,  0);
+	cHostPly.Add( new CCheckbox(false),	                    hs_AllowRemoteBots,	270,355,17, 17);
 	cHostPly.Add( new CLabel("Allow Nick Changing",			tLX->clNormalLabel),-1,	115, 388,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_AllowNickChange,	270,385,17, 17);
+	cHostPly.Add( new CCheckbox(false),	                    hs_AllowNickChange,	270,385,17, 17);
 	cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_ServerSideHealth,	270,415,17, 17);
+	cHostPly.Add( new CCheckbox(false),	                    hs_ServerSideHealth,	270,415,17, 17);
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -456,10 +456,13 @@ bool Menu_Net_HostLobbyInitialize(void)
     bHostWeaponRest = false;
     iSpeaking = -1;
 
+	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
+		// TODO: a msgbox for this is annoying. but perhaps we can add it in the chatbox?
+		printf("HINT: You have disallowed mouse aiming on your server, therefore you can also not use it yourself.\n");
+
+
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
 	// If put below the client connect. Either this or move the draw.
-	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
-		Menu_MessageBox("Mouse Aiming", "You are not allowing mouse aiming on your server.\nUsing keyboard controls for this game.", LMB_OK);
 
     // Draw the lobby
 	Menu_Net_HostLobbyDraw();
@@ -558,7 +561,7 @@ void Menu_Net_HostLobbyDraw(void)
 ///////////////////
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
-{   
+{
     // Lobby gui layout
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
@@ -615,7 +618,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
 	Menu_Local_FillModList( cbMod );
 	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
-	
+
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 	CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
@@ -625,7 +628,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Don't show chat box selection
 	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 	lv->setShowSelect(false);
-	
+
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
 	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
 	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
@@ -712,7 +715,7 @@ void Menu_Net_HostGotoLobby(void)
 			CChatBox *Chatbox = cClient->getChatbox();
 			lines_iterator it = Chatbox->At((int)Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 			int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
-	
+
 			// Copy the chat text
 			for (; it != Chatbox->End(); it++)  {
 				if (it->iColour == tLX->clChatText)  {  // Add only chat messages
@@ -721,11 +724,11 @@ void Menu_Net_HostGotoLobby(void)
 					id++;
 				}
 			}
-	
+
 			lv->scrollLast();
 			lv->setShowSelect(false);
 		}
-	
+
 		// Add the ingame chatter text to lobby chatter
 		cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
 	}
@@ -817,7 +820,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
 		it = cbLevel->getItem(cbLevel->getSelectedIndex());
 		if(it) tLXOptions->tGameinfo.sMapFilename = it->sIndex;
-		
+
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 		cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 	}
@@ -1080,7 +1083,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Popup menu
             case hl_PopupMenu:
                 switch( ev->iEventMsg ) {
-                	
+
                     // Kick the player
                     case MNU_USER+0:
                         if( g_nLobbyWorm > 0 )
@@ -1109,7 +1112,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Authorize
 					case MNU_USER+3:
 							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
-							if (remote_cl) 
+							if (remote_cl)
 								remote_cl->getRights()->Everything();
 						break;
                 }
@@ -1154,15 +1157,15 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	{
 		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
-			cClient->SendText( OldLxCompatibleString( "Game will start when " + 
+			cClient->SendText( OldLxCompatibleString( "Game will start when " +
 					itoa(iStartDedicatedMinPlayers) + " players connect" ), "");
 			fStartDedicatedSecondsPassed = tLX->fCurTime;
 			secondsAnnounced = -1;
 		};
 	}
-	else if( bStartDedicated && 
+	else if( bStartDedicated &&
 			( ( secondsTillGameStart % iStartDedicatedServerSpamsSomeInfoTimeout == 0 &&
-				secondsTillGameStart != secondsAnnounced ) || 
+				secondsTillGameStart != secondsAnnounced ) ||
 				secondsAnnounced == -1 ) )
 	{
 		if( secondsTillGameStart > 0 )
@@ -1170,7 +1173,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		secondsAnnounced = secondsTillGameStart;
 	};
 
-	if( bStartPressed || 
+	if( bStartPressed ||
 		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
 		secondsAnnounced = -1;
@@ -1198,7 +1201,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Setup the client
 		cClient->SetupViewports();
-		if( ! bStartPressed )	
+		if( ! bStartPressed )
 			cClient->setSpectate(true);		// Local client will spectate (auto-select weapons)
 		else
 			cClient->setSpectate(false);	// Clear state from previous game
@@ -1251,7 +1254,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		printf("WARNING: Menu_HostDrawLobby: player_list not set\n");
 		return;
 	}
-	
+
 	// Update the pings first
 	CWorm *w = cClient->getRemoteWorms() + 1;
 	int i;
@@ -1298,7 +1301,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		cmd_button->Setup(w->getID(), 0, 0, gfxGUI.bmpCommandBtn->w, gfxGUI.bmpCommandBtn->h);
 
 		// Add the item
-		player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
+		player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
 		player_list->AddSubitem(LVS_WIDGET, "", NULL, cmd_button);  // Command button
 		if (lobby_worm->bReady)  // Ready control
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
@@ -1472,15 +1475,15 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CTextbox(),							  ss_WelcomeMessage,        265,190,  200, tLX->cFont.GetHeight());
 	cServerSettings.Add( new CTextbox(),							  ss_MaxPlayers, 265,215,  50, tLX->cFont.GetHeight());
 	cServerSettings.Add( new CLabel("Allow \"Wants to join\" Messages",	tLX->clNormalLabel),-1,	130, 245,0,  0);
-	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowWantsJoin,	360,245,17, 17);
+	cServerSettings.Add( new CCheckbox(false),		                    ss_AllowWantsJoin,	360,245,17, 17);
 	cServerSettings.Add( new CLabel("\"Wants to Join\" from Banned Clients",	tLX->clNormalLabel),-1,	130, 275,0,  0);
-	cServerSettings.Add( new CCheckbox(0),		                    ss_WantsJoinBanned,	360,275,17, 17);
+	cServerSettings.Add( new CCheckbox(false),		                    ss_WantsJoinBanned,	360,275,17, 17);
 	cServerSettings.Add( new CLabel("Allow Bots in Server",				tLX->clNormalLabel),-1,	130, 305,0,  0);
-	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowRemoteBots,	360,305,17, 17);
+	cServerSettings.Add( new CCheckbox(false),		                    ss_AllowRemoteBots,	360,305,17, 17);
 	cServerSettings.Add( new CLabel("Allow Nick Change",				tLX->clNormalLabel),-1,	130, 335,0,  0);
-	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowNickChange,	360,335,17, 17);
+	cServerSettings.Add( new CCheckbox(false),		                    ss_AllowNickChange,	360,335,17, 17);
 	cServerSettings.Add( new CLabel("Server-side Health",				tLX->clNormalLabel),-1,	130, 365,0,  0);
-	cServerSettings.Add( new CCheckbox(0),		                    ss_ServerSideHealth,	360,365,17, 17);
+	cServerSettings.Add( new CCheckbox(false),		                    ss_ServerSideHealth,	360,365,17, 17);
 	cServerSettings.Add( new CLabel("Max weapon selection time:",	tLX->clNormalLabel),-1,	130, 395,0,  0);
 	cServerSettings.Add( new CTextbox(),							ss_WeaponSelectionMaxTime, 360,395,  30, tLX->cFont.GetHeight());
 

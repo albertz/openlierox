@@ -406,6 +406,7 @@ private:
 	std::string	szServerName;
 	ClientRights tRights;
 	bool		bHostAllowsMouse;
+	bool		bHostAllowsStrafing;
 	Version		cClientVersion;
 	Version		cServerVersion;
 
@@ -690,8 +691,8 @@ public:
 	const Version& getServerVersion()				{ return cServerVersion; }
 	void setServerVersion(const std::string & _s);
 
-	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
-	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
+	bool isHostAllowingMouse()					{ return bHostAllowsMouse; }
+	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }
 
 	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 

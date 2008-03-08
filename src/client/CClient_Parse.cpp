@@ -71,10 +71,12 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		}
 	}
 
+	// this is only important for Beta4 as it's the main method there to inform about the version
+	// we send the version string now together with the challenge packet
 	else if(cmd == "lx::version")  {
 		std::string versionStr = bs->readString();
 		Version version(versionStr);
-		if(version > cServerVersion) {
+		if(version > cServerVersion) { // only update if this version is really newer than what we know already
 			cServerVersion = version;
 			cout << "HINT: Host is using " << versionStr << endl;
 		}
@@ -82,6 +84,9 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	else if (cmd == "lx:mouseAllowed")
 		bHostAllowsMouse = true;
+
+	else if (cmd == "lx:strafingAllowed")
+		bHostAllowsStrafing = true;
 
 	else if(cmd == "lx::traverse")
 		ParseTraverse(bs);
@@ -183,6 +188,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	bHost_Update = true;
 
 	bHostAllowsMouse = false;
+	bHostAllowsStrafing = false;
 
 }
 

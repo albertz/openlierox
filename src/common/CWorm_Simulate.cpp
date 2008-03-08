@@ -58,7 +58,7 @@ void CWorm::getInput()
 	ws->bShoot = false;
 	ws->bJump = false;
 
-	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL);
+	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
 
 	// TODO: here are width/height of the window hardcoded
 	int mouse_dx = ms->X - 640/2;
@@ -141,7 +141,7 @@ void CWorm::getInput()
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
 			}
 			ws->bMove = true;
-			if(!cStrafe.isDown()) iDirection = iMoveDirection;
+			if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = iMoveDirection;
 
 		} else {
 			ws->bMove = false;
@@ -181,19 +181,6 @@ void CWorm::getInput()
 
 
 	{ // set carving
-
-	/*
-		if(!cRight.isDown())
-			iCarving &= ~1; // disable right carving
-		if(!cLeft.isDown())
-			iCarving &= ~2; // disable left carving
-
-		// Carving hack
-		RightOnce = cRight.isDownOnce();
-		if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
-			iCarving |= 2; // carve left
-		}
-	*/
 
 /*		// this is a bit unfair to keyboard players
 		if(mouseControl) { // mouseControl
@@ -307,7 +294,7 @@ void CWorm::getInput()
 			ws->bMove = true;
 
 			if(!cRight.isDown()) {
-				if(!cStrafe.isDown()) iDirection = DIR_LEFT;
+				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
 				iMoveDirection = DIR_LEFT;
 			}
 
@@ -321,7 +308,7 @@ void CWorm::getInput()
 			ws->bMove = true;
 
 			if(!cLeft.isDown()) {
-				if(!cStrafe.isDown()) iDirection = DIR_RIGHT;
+				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
 				iMoveDirection = DIR_RIGHT;
 			}
 
@@ -330,6 +317,11 @@ void CWorm::getInput()
 				iCarving |= 1; // carve right
 			}
 		}
+
+		// inform player about disallowed strafing
+		if(!cOwner->isHostAllowingStrafing() && cStrafe.isDownOnce())
+			// TODO: perhaps in chat?
+			printf("HINT: strafing is not allowed on this server.\n");
 	}
 
 

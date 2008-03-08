@@ -99,6 +99,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
+		( tLXOptions->bAllowStrafing, "Game.AllowStrafing", true )
 		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
 

@@ -266,6 +266,7 @@ void GameServer::UpdateGameLobby(void)
 	if(!gl->bSet)
 		return;
 
+	// TODO: move this code out here
 	bs.writeByte(S2C_UPDATELOBBYGAME);
 	bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
 	bs.writeString(gl->szMapName);
