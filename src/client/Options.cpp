@@ -369,6 +369,13 @@ void GameOptions::SaveToDisc()
 		fprintf(fp, "%i,",iFavouritesList[i]);
 	fprintf(fp, "%i\n",iFavouritesList[5]);
 
+	// The following part has the disadvantage that section
+	// could occur multiple times in the config file
+	// (most often because of additionalOptions).
+	// The current parsing of a INI-file allowes this but it
+	// looks not so nice.
+	// TODO: make it better (but in a clean way, else just leave it!)
+
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
 	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin();
