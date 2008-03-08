@@ -122,7 +122,7 @@ void Menu_MainFrame(void)
                 img=0;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 					PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
+				    Menu_MainShutdown();
 				    Menu_LocalInitialize();
 				    return;
                 }
@@ -134,7 +134,7 @@ void Menu_MainFrame(void)
                 img=1;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 					PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
+				    Menu_MainShutdown();
 				    Menu_NetInitialize();
 				    return;
                 }
@@ -144,7 +144,7 @@ void Menu_MainFrame(void)
 			case mm_PlayerProfiles:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 					PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
+				    Menu_MainShutdown();
 				    Menu_PlayerInitialize();
 				    return;
                 }
@@ -154,7 +154,7 @@ void Menu_MainFrame(void)
 			case mm_LevelEditor:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
                     PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
+				    Menu_MainShutdown();
 				    Menu_MapEdInitialize();
 				    return;
                 }
@@ -164,7 +164,7 @@ void Menu_MainFrame(void)
 			case mm_Options:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 					PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
+				    Menu_MainShutdown();
 				    Menu_OptionsInitialize();
 				    return;
                 }
@@ -179,7 +179,7 @@ void Menu_MainFrame(void)
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
 					    tMenu->bMenuRunning = false;
-					    cMainMenu.Shutdown();
+					    Menu_MainShutdown();
 				    } else {
 
 					    // Create the buffer
@@ -316,7 +316,15 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 	}
 
 	static void ThemeCombobox_OnChange( const std::string & param, CWidget * source ) {
-		printf("New theme: " + tLXOptions->sTheme + "\n");
+		printf("Changed theme to: " + tLXOptions->sTheme + "\n");
+
+		// TODO: I don't know if we can avoid this. If not, add a comment why and remove this TODO.
+		// Atm it's the easiest way and we ensure that every gfx is newly loaded.
+
+		// restart game
+		tMenu->bMenuRunning = false; // quit
+		Menu_MainShutdown(); // cleanup for this menu
+		bRestartGameAfterQuit = true; // set restart-flag
 	}
 
 	// handler for FindFile
