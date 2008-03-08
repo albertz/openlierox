@@ -1154,33 +1154,21 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start (auto-)typing
 bool CWorm::CanType(void)
 {
-	if(!bAlive || fSpawnTime == tLX->fCurTime) {
-		if(iLives == WRM_OUT)
-			return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
-		else  {
-			keyboard_t *kb = GetKeyboard();
-			for (int i = 0; i < kb->queueLength; i++)  {
-				if (cUp.getData() == kb->keyQueue[i].sym ||
-					cDown.getData() == kb->keyQueue[i].sym ||
-					cLeft.getData() == kb->keyQueue[i].sym ||
-					cRight.getData() == kb->keyQueue[i].sym ||
-					cShoot.getData() == kb->keyQueue[i].sym ||
-					cJump.getData() == kb->keyQueue[i].sym ||
-					cSelWeapon.getData() == kb->keyQueue[i].sym ||
-					cInpRope.getData() == kb->keyQueue[i].sym ||
-					cStrafe.getData() == kb->keyQueue[i].sym)
-						return false;
-			}
-		}
+	if(!bAlive && iLives == WRM_OUT)
+		return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
+
+	keyboard_t* kb = GetKeyboard();
+	for (int i = 0; i < kb->queueLength; i++)  {
+		if (cUp.getData() == kb->keyQueue[i].sym ||
+			cDown.getData() == kb->keyQueue[i].sym ||
+			cLeft.getData() == kb->keyQueue[i].sym ||
+			cRight.getData() == kb->keyQueue[i].sym ||
+			cShoot.getData() == kb->keyQueue[i].sym ||
+			cJump.getData() == kb->keyQueue[i].sym ||
+			cSelWeapon.getData() == kb->keyQueue[i].sym ||
+			cInpRope.getData() == kb->keyQueue[i].sym ||
+			cStrafe.getData() == kb->keyQueue[i].sym)
+				return false;
 	}
-	return
-		!cUp.wasDown() &&
-		!cDown.wasDown() &&
-		!cLeft.wasDown() &&
-		!cRight.wasDown() &&
-		!cShoot.wasDown() &&
-		!cJump.wasDown() &&
-		!cSelWeapon.wasDown() &&
-		!cInpRope.wasDown() &&
-		!cStrafe.wasDown();
+	return true;
 }
