@@ -36,6 +36,7 @@ static const std::string sHttpErrors[] = {
 	"DNS timeout",
 	"Error sending HTTP request",
 	"Could not connect to the server",
+	"Connection timed out",
 	"Network error: "
 };
 
@@ -187,6 +188,7 @@ void CHttp::Clear()
 	bSocketReady = false;
 	bChunkedTransfer = false;
 	fResolveTime = -9999;
+	fConnectTime = -9999;
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
@@ -591,7 +593,15 @@ int CHttp::ProcessRequest()
 			}
 
 			bConnected = true;
+			fConnectTime = GetMilliSeconds();
 		}
+
+		// Check for HTTP timeout
+		if (GetMilliSeconds() - fConnectTime >= 5 && bConnected)  {
+			SetHttpError(HTTP_ERROR_TIMEOUT);
+			return HTTP_PROC_ERROR;
+		}
+
 	} else {
 
 		// Haven't resolved the address yet, so leave but let the

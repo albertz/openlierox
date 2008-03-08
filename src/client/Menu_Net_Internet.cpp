@@ -474,8 +474,6 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.Add( new CLabel("Address", tLX->clNormalLabel),				-1,215, 267, 0, 0);
 	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, tLX->cFont.GetHeight());
 
-	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
-
 	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
@@ -639,7 +637,7 @@ void Menu_Net_NETUpdateList(void)
 
 
 	CHttp http;
-	float senttime = 0;
+
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
@@ -668,8 +666,8 @@ void Menu_Net_NETUpdateList(void)
                 if( szLine.length() > 0 ) {
 
                     // Send the request
+					printf("Getting serverlist from " + szLine + "...\n");
                     http.RequestData(szLine + LX_SVRLIST);
-					senttime = GetMilliSeconds();
 					SentRequest = true;
 
                     break;
@@ -685,11 +683,9 @@ void Menu_Net_NETUpdateList(void)
 				// Other master servers could have more server so we process them anyway
 				SentRequest = false;
 				CurServer++;
-			} else if (http_result == HTTP_PROC_ERROR || (tLX->fCurTime - senttime) >= 5.0f)  {
+			} else if (http_result == HTTP_PROC_ERROR)  {
 				if (http.GetError().iError != HTTP_NO_ERROR)
             		printf("HTTP ERROR: " + http.GetError().sErrorMsg + "\n");
-				else
-					printf("HTTP Timeout\n");
 				// Jump to next server
 				SentRequest = false;
 				CurServer++;

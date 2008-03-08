@@ -280,9 +280,7 @@ void CWorm::getInput()
 	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 
 
-	if(cShoot.isDown())  {
-		ws->bShoot = true;
-	}
+	ws->bShoot = cShoot.isDown();
 
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {

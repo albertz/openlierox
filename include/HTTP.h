@@ -81,6 +81,7 @@ enum  {
 	HTTP_DNS_TIMEOUT,
 	HTTP_ERROR_SENDING_REQ,
 	HTTP_NO_CONNECTION,
+	HTTP_ERROR_TIMEOUT,
 	HTTP_NET_ERROR,
 	HTTP_FILE_NOT_FOUND = 404
 	// HINT: Add more if you need them
@@ -124,6 +125,7 @@ public:
 		bGotHttpHeader = http.bGotHttpHeader;
 		bChunkedTransfer = http.bChunkedTransfer;
 		fResolveTime = http.fResolveTime;
+		fConnectTime = http.fConnectTime;
 		tSocket = http.tSocket;
 		tRemoteIP = http.tRemoteIP;
 
@@ -138,7 +140,7 @@ private:
 	std::string		sHeader;
 	std::string		sMimeType;
 	HttpError		tError;
-	char			*tBuffer;
+	char			*tBuffer; // Internal buffer
 	CChunkParser	*tChunkParser;
 
 	size_t			iDataLength;
@@ -151,6 +153,7 @@ private:
 	bool			bGotHttpHeader;
 	bool			bChunkedTransfer;
 	float			fResolveTime;
+	float			fConnectTime;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 

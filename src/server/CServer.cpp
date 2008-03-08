@@ -86,7 +86,6 @@ void GameServer::Clear(void)
 	tGameLobby.bSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
-	fRegisterStart = 0;
 	fLastRegister = 0;
 	nPort = LX_PORT;
 
@@ -682,8 +681,6 @@ void GameServer::RegisterServer(void)
 	GetLocalNetAddr(tSocket, addr);
 	NetAddrToString(addr, addr_name);
 
-	fRegisterStart = tLX->fCurTime;
-
 	// Remove port from IP
 	size_t pos = addr_name.rfind(':');
 	if (pos != std::string::npos)
@@ -712,12 +709,7 @@ void GameServer::ProcessRegister(void)
 	switch(result)  {
 	// Normal, keep going
 	case HTTP_PROC_PROCESSING:
-		if ((int)(tLX->fCurTime - fRegisterStart) <= 4)
-			return; // Processing, no more work for us
-		else  {
-			notifyLog("Could not register with master server: The master server is probably down");
-			break; // Timeout, go to next server
-		}
+		return; // Processing, no more work for us
 	break;
 
 	// Failed
@@ -735,7 +727,6 @@ void GameServer::ProcessRegister(void)
 	tCurrentMasterServer++;
 	if (tCurrentMasterServer != tMasterServers.end())  {
 		printf("Registering server at " + *tCurrentMasterServer + "\n");
-		fRegisterStart = tLX->fCurTime;
 		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
 	} else {
 		// All servers are processed

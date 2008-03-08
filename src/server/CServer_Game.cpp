@@ -547,9 +547,8 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
+	// (ROF = Rate of Fire)
 	//
-
-	// TODO:  What is ROF?
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->Weapon->Drain / 100;
