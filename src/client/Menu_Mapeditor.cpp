@@ -37,11 +37,11 @@ enum {
 	map_quit
 };
 
-CMap*		cMap = NULL;
-CViewport*	cMapedView = NULL;
-int			grabbed = false;
-int			grabX,  grabY;
-int			grabWX, grabWY;
+static CMap*		cMap = NULL;
+static CViewport*	cMapedView = NULL;
+static int			grabbed = false;
+static int			grabX,  grabY;
+static int			grabWX, grabWY;
 
 ///////////////////
 // Initialize the map editor
