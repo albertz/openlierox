@@ -211,7 +211,8 @@ public:
 		// HINT: when stucked horizontal we move slower - it's more like original LX
 		if ((clip & 0x04) && (clip & 0x08))  {
 			worm->pos().y = vOldPos.y;
-			worm->pos().x -= (worm->pos().x - vOldPos.x) / 2;
+			if (!worm->getWormState()->bJump)  // HINT: this is almost exact as old LX
+				worm->pos().x = vOldPos.x;
 		}
 
 		// If we collided with the ground and we were going pretty fast, make a bump sound
