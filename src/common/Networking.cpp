@@ -117,6 +117,7 @@ bool SdlNetEvent_Inited = false;
 bool SdlNetEventThreadExit = false;
 SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
+int SdlNetEventSocketCount = 0;
 
 static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
@@ -139,7 +140,8 @@ static bool isSocketGroupEmpty(NLint group) {
 
 static int SdlNetEventThreadMain( void * param )
 {
-	NLsocket sock_out;
+	int buffer_size = MAX(2, SdlNetEventSocketCount);
+	NLsocket *sock_out = new NLsocket[buffer_size];
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT_NET_ACTIVITY;
 	ev.user.code = 0;
@@ -154,8 +156,8 @@ static int SdlNetEventThreadMain( void * param )
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
 	{
-		if( ! isSocketGroupEmpty( SdlNetEventGroup ) ) // only when we have at least one socket
-		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
+		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
+		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
 				ev.user.data2 = (void*) sock_out; // save socket-nr to forward it later to the specific event-handler for this socket
@@ -163,6 +165,13 @@ static int SdlNetEventThreadMain( void * param )
 			}
 			else
 				printf("WARNING: net-event-system: invalid socket\n");
+		} else {
+			if (nlGetError() == NL_BUFFER_SIZE)  { // We should increase the buffer size
+				delete[] sock_out;
+				buffer_size = MAX(2, SdlNetEventSocketCount);
+				sock_out = new NLsocket[buffer_size];
+				continue; // Retry
+			}
 		}
 
 		float curTime = GetMilliSeconds();
@@ -173,6 +182,7 @@ static int SdlNetEventThreadMain( void * param )
 	};
 
 	delete (uint*)param;
+	delete[] sock_out;
 	return 0;
 };
 
@@ -210,15 +220,18 @@ void AddSocketToNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 
-	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )
+	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )  {
 		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
+		SdlNetEventSocketCount++;
+	}
 };
 
 void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 
-	nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) );
+	if (nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) ) && SdlNetEventSocketCount > 0)
+		SdlNetEventSocketCount--;
 };
 
 // ------------------------------------------------------------------------
