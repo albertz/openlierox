@@ -9,7 +9,6 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-# Really unhealthy amount of escaping backslashes to pass quotes through 3 makes and 2 shells to compiler
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -47,6 +46,11 @@ clean:
 	# clean up after the build process.
 	#$(MAKE) clean #not needed? is called in pbuilder before CMake
 	# we have nothing to cleanup as compile.sh doesn't generate any temp files
+	# though here some cleanups for unclean orig.sources
+	find . \( -name 'Thumbs.db' \
+			-o -name '*.h.old' \
+			-o -name '*.cpp.old' \
+			\) -exec rm -f {} \;
 	dh_clean
 
 install: build
