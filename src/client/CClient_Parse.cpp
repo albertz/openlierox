@@ -149,6 +149,12 @@ void CClient::ParseConnected(CBytestream *bs)
 {
 	NetworkAddr addr;
 
+	// If already connected, ignore this
+	if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
+		bs->Skip(iNumWorms);
+		return;
+	}
+
 	// Setup the client
 	iNetStatus = NET_CONNECTED;
 

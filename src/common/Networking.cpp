@@ -194,7 +194,12 @@ static bool SdlNetEvent_Init()
 
 	SdlNetEventGroup = nlGroupCreate();
 	SdlNetEventThreads[0] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
-	SdlNetEventThreads[1] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
+	// TODO: this does not behave as expected
+	// select() which is internally used by nlPollGroup will return true if the socket is *writeable*
+	// which for UDP sockets means always (this has nothing to do with the actual writing to the socket)
+	// See http://msdn2.microsoft.com/en-us/library/ms740141(VS.85).aspx or
+	// http://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/select.htm for more details
+	//SdlNetEventThreads[1] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
 	SdlNetEventThreads[2] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS) );
 
 	return true;
