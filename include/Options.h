@@ -103,6 +103,8 @@ public:
 	std::string sHasBeenBannedReason ;
 	std::string sHasBeenMuted ;
 	std::string sHasBeenUnmuted ;
+	std::string sIsSpectating;
+	std::string sIsPlaying;
 
 	std::string sKickedYou ;
 	std::string sKickedYouReason ;

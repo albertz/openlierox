@@ -177,6 +177,7 @@ private:
 	int			iKillsInRow;
 	int			iDeathsInRow;
 	bool		bAlreadyKilled;
+	bool		bSpectating;
 
 	// Client info
 	int			iClientID;
@@ -672,6 +673,9 @@ public:
 
 	bool		getVIP(void)				{ return bNoShooting; }
 	void		setVIP(bool _s)				{ bNoShooting = _s; }
+
+	bool		isSpectating()				{ return bSpectating; }
+	void		setSpectating(bool _s)		{ bSpectating = _s; }
 
 	// TODO: the sense of this isn't clear; so make it clear
 	bool		getFlag(void)				{ return bFlag; }

@@ -1040,22 +1040,29 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						cHostLobby.removeWidget(hl_PopupMenu);
 
 						g_nLobbyWorm = ev->cWidget->getID();  // Widget ID is the same as player ID
-						if (g_nLobbyWorm == 0) // Not for host
+						if (g_nLobbyWorm < 0 || g_nLobbyWorm >= MAX_WORMS)
+							break;
+						CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
+						if (!w->isUsed())
 							break;
 
 						CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
 						mouse_t *Mouse = GetMouse();
 
-						cHostLobby.Add( new CMenu(Mouse->X, Mouse->Y), hl_PopupMenu, 0,0, 640,480 );
-						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Kick player", 0 );
-						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Ban player", 1 );
-						if (remote_cl)  {
-							if (remote_cl->getMuted())
-								cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Unmute player",2 );
-							else
-								cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Mute player",2 );
+						CMenu *mnu = new CMenu(Mouse->X, Mouse->Y);
+						cHostLobby.Add(mnu, hl_PopupMenu, 0,0, 640,480 );
+						if (g_nLobbyWorm > 0)  {  // These items make no sense for host
+							mnu->addItem(0, "Kick player");
+							mnu->addItem(1, "Ban player");
+							if (remote_cl)  {
+								if (remote_cl->getMuted())
+									mnu->addItem(2, "Unmute player");
+								else
+									mnu->addItem(2, "Mute player");
+							}
+							mnu->addItem(3, "Authorise player");
 						}
-						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Authorise player", 3 );
+						mnu->addItem(4, "Spectator", true, w->isSpectating());
 
 					// Click on the team mark
 					} else if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
@@ -1081,7 +1088,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				break;
 
             // Popup menu
-            case hl_PopupMenu:
+			case hl_PopupMenu:  {
+				CMenu *mnu = (CMenu *)cHostLobby.getWidget(hl_PopupMenu);
                 switch( ev->iEventMsg ) {
 
                     // Kick the player
@@ -1110,17 +1118,34 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						break;
 
 					// Authorize
-					case MNU_USER+3:
+					case MNU_USER+3:  {
 							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
 							if (remote_cl)
 								remote_cl->getRights()->Everything();
-						break;
+						} break;
+
+					// Spectate
+					case MNU_USER+4:  {
+						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && g_nLobbyWorm < MAX_WORMS)  {
+							bool spec = mnu->getItem(4)->bChecked;
+							CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
+							w->setSpectating(spec);
+							std::string buf;
+							if (spec)  {
+								if (networkTexts->sIsSpectating != "<none>")
+									cServer->SendGlobalText(replacemax(networkTexts->sIsSpectating, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+							} else {
+								if (networkTexts->sIsPlaying != "<none>")
+									cServer->SendGlobalText(replacemax(networkTexts->sIsPlaying, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+							}
+						}
+						} break;
                 }
 
                 // Remove the menu widget
                 cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
                 cHostLobby.removeWidget(hl_PopupMenu);
-                break;
+				} break;
 
 			case hl_StartDedicated:
 				if(ev->iEventMsg == CHK_CHANGED) {

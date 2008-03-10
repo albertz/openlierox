@@ -27,11 +27,11 @@ CMenu::CMenu(int nPosX, int nPosY)
 {
     m_nPosX = nPosX;
     m_nPosY = nPosY;
+	m_nSelectedIndex = -1;
+	m_bContainsCheckableItems = false;
 
     m_nHeight = 0;
     m_nWidth = 0;
-
-    m_psItemList = NULL;
 }
 
 
@@ -71,8 +71,10 @@ void CMenu::Create(void)
 {
     m_nHeight = 0;
     m_nWidth = 0;
+	m_nSelectedIndex = -1;
+	m_bContainsCheckableItems = false;
 
-    m_psItemList = NULL;
+	m_psItemList.clear();
 }
 
 
@@ -80,47 +82,43 @@ void CMenu::Create(void)
 // Destroy the menu
 void CMenu::Destroy(void)
 {
-    mnu_item_t *it = m_psItemList;
-    mnu_item_t *n;
-    for(; it; it=n) {
-        n=it->psNext;
-
-		assert(it);
-        delete it;
-    }
-
-    m_psItemList = NULL;
+	m_psItemList.clear();
 }
 
 
 ///////////////////
 // Add an item to the menu
-void CMenu::addItem(int nID, const std::string& szName)
+void CMenu::addItem(int nID, const std::string& szName, bool checkable, bool checked)
 {
-    mnu_item_t *i = new mnu_item_t;
-    if( !i )
-        return;
+    mnu_item_t i;
 
-    i->nID = nID;
-    i->psNext = NULL;
-    i->nSelected = false;
-    i->szName = szName;
+    i.nID = nID;
+    i.szName = szName;
+	i.bChecked = checked;
+	i.bCheckable = checkable || checked;
+
     m_nHeight += tLX->cFont.GetHeight();
     m_nHeight = MAX(m_nHeight, tLX->cFont.GetHeight()+4);
-
-    m_nWidth = MAX(m_nWidth, tLX->cFont.GetWidth(szName)+10 );
+	if (!m_bContainsCheckableItems && i.bCheckable)
+		m_nWidth = MAX(m_nWidth + tLX->cFont.GetHeight() + 5, tLX->cFont.GetWidth(szName) + tLX->cFont.GetHeight() + 15 );
+	else
+		m_nWidth = MAX(m_nWidth, tLX->cFont.GetWidth(szName)+10 + (m_bContainsCheckableItems ? tLX->cFont.GetHeight() + 5 : 0) );
+	m_bContainsCheckableItems = m_bContainsCheckableItems || i.bCheckable;
 
     // Link it in at the end
-    mnu_item_t *it = m_psItemList;
-    for(; it; it=it->psNext) {
-        if( it->psNext == NULL ) {
-            it->psNext = i;
-            return;
-        }
-    }
+	m_psItemList.push_back(i);
+}
 
-    // First item if we got here
-    m_psItemList = i;
+///////////////////
+// Get an item based on its index
+mnu_item_t *CMenu::getItem(int nID)
+{
+	for (std::list<mnu_item_t>::iterator i = m_psItemList.begin(); i != m_psItemList.end(); i++)  {
+		if (i->nID == nID)
+			return &(*i);
+	}
+
+	return NULL;
 }
 
 
@@ -144,17 +142,26 @@ void CMenu::Draw(SDL_Surface *bmpDest)
 	if (bRedrawMenu)
 		Menu_DrawBox(bmpDest, X, Y, X+W, Y+H);
 
-    mnu_item_t *it = m_psItemList;
+	std::list<mnu_item_t>::iterator it = m_psItemList.begin();
     int y = Y+2;
-    for(; it; it=it->psNext) {
+	int x = m_bContainsCheckableItems ? X + 10 + tLX->cFont.GetHeight() : X + 5;
+	for(int i=0; it != m_psItemList.end(); it++, i++) {
 
-        if( it->nSelected )
+        if( m_nSelectedIndex == i )
             DrawRectFill(bmpDest, X+2,y,  X+W-1, y+tLX->cFont.GetHeight(), tLX->clMenuSelected);            
-        tLX->cFont.Draw(bmpDest, X+5, y, tLX->clPopupMenu, it->szName);
+        tLX->cFont.Draw(bmpDest, x, y, tLX->clPopupMenu, it->szName);
 
-        it->nSelected = false;
+		// Draw the check
+		if (it->bCheckable && it->bChecked)  {
+			int fh = tLX->cFont.GetHeight() / 2;
+			AntiAliasedLine(bmpDest, X + 5, y + fh + 2, X + 2 + fh, y + fh*2 - 3, tLX->clPopupMenu, PutPixelA);
+			AntiAliasedLine(bmpDest, X + 2 + fh, y + fh*2 - 3, X + 2 + fh*2, y + 3, tLX->clPopupMenu, PutPixelA);
+			AntiAliasedLine(bmpDest, X + 5, y + fh + 1, X + 2 + fh, y + fh*2 - 4, tLX->clPopupMenu, PutPixelA);
+			AntiAliasedLine(bmpDest, X + 2 + fh, y + fh*2 - 4, X + 2 + fh*2, y + 2, tLX->clPopupMenu, PutPixelA);
+			PutPixel(bmpDest, X + 5, y + fh + 2, tLX->clMenuBackground);
+		}
 
-        y+=tLX->cFont.GetHeight();
+        y += tLX->cFont.GetHeight();
     }
 
 	m_nPosX = X;
@@ -166,19 +173,21 @@ void CMenu::Draw(SDL_Surface *bmpDest)
 // Move over event
 int CMenu::MouseOver(mouse_t *tMouse)
 {
-    if( !MouseInRect(m_nPosX, m_nPosY, m_nWidth, m_nHeight) )
+	if( !MouseInRect(m_nPosX, m_nPosY, m_nWidth, m_nHeight) )  {
+		m_nSelectedIndex = -1;
         return MNU_NONE;
+	}
 
     int y = m_nPosY + 2;
-    mnu_item_t *it = m_psItemList;
-    for(; it; it=it->psNext) {
+    std::list<mnu_item_t>::iterator it = m_psItemList.begin();
+	for(int i = 0; it != m_psItemList.end(); it++, i++) {
 
-        if( tMouse->Y > y && tMouse->Y < y+tLX->cFont.GetHeight() ) {
-            it->nSelected = true;
+        if( tMouse->Y > y && tMouse->Y < y + tLX->cFont.GetHeight() ) {
+			m_nSelectedIndex = i;
             break;
         }
 
-        y+=tLX->cFont.GetHeight();
+        y += tLX->cFont.GetHeight();
     }
 
     return MNU_NONE;
@@ -194,13 +203,16 @@ int CMenu::MouseUp(mouse_t *tMouse, int nDown)
         return MNU_LOSTFOCUS;
 
     int y = m_nPosY + 2;
-    mnu_item_t *it = m_psItemList;
-    for(; it; it=it->psNext) {
+    std::list<mnu_item_t>::iterator it = m_psItemList.begin();
+	for(; it != m_psItemList.end(); it++) {
 
-        if( tMouse->Y >= y && tMouse->Y < y+tLX->cFont.GetHeight() )
+		if( tMouse->Y >= y && tMouse->Y < y + tLX->cFont.GetHeight() )  {
+			if (it->bCheckable)
+				it->bChecked = !it->bChecked;
             return MNU_USER + it->nID;
+		}
 
-        y+=tLX->cFont.GetHeight();
+        y += tLX->cFont.GetHeight();
     }
 
     return MNU_NONE;
@@ -212,8 +224,47 @@ int CMenu::MouseUp(mouse_t *tMouse, int nDown)
 int CMenu::MouseDown(mouse_t *tMouse, int nDown)
 {
     // Lose focus?
-    if( !MouseInRect(m_nPosX, m_nPosY, m_nWidth, m_nHeight) )
+	if( !MouseInRect(m_nPosX, m_nPosY, m_nWidth, m_nHeight) )  {
+		m_nSelectedIndex = -1;
         return MNU_LOSTFOCUS;
+	}
 
     return MNU_NONE;
+}
+
+////////////////////
+// Key down event
+int CMenu::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
+{
+	switch (keysym)  {
+		case SDLK_DOWN:
+			if (m_nSelectedIndex == -1)  {
+				if (!m_psItemList.empty())
+					m_nSelectedIndex = 0;
+			} else {
+				if (m_psItemList.empty())
+					m_nSelectedIndex = -1;
+				else {
+					m_nSelectedIndex++;
+					m_nSelectedIndex %= m_psItemList.size();
+				}
+			}
+		break;
+
+		case SDLK_UP:
+			if (m_nSelectedIndex == -1)  {
+				m_nSelectedIndex = m_psItemList.size() - 1;
+			} else {
+				if (m_psItemList.empty())
+					m_nSelectedIndex = -1;
+				else {
+					m_nSelectedIndex--;
+					if (m_nSelectedIndex < 0)
+						m_nSelectedIndex = m_psItemList.size() - 1;
+				}
+			}
+		break;
+	}
+
+	return MNU_NONE;
 }

@@ -617,6 +617,14 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 	proj->Spawn(_proj,pos,vel,rot,owner,_random,remotetime);
 }
 
+static int CompareLives(int l1, int l2)
+{
+	if (l1 == l2)
+		return 0;
+	if (l1 < 0 && l2 < 0)
+		return (l1 > l2) ? -1 : 1;
+	return (l1 < l2) ? -1 : 1;
+}
 
 ///////////////////
 // Update the scoreboard
@@ -733,7 +741,8 @@ void CClient::UpdateScoreboard(void)
 				} else if(cRemoteWorms[iScoreboard[j]].getKills() == cRemoteWorms[iScoreboard[j + 1]].getKills()) {
 
 					// Equal kills, so compare lives
-					if(cRemoteWorms[iScoreboard[j]].getLives() < cRemoteWorms[iScoreboard[j + 1]].getLives()) {
+					int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
+					if(res < 0) {
 
 						// Swap the 2 scoreboard entries
 						s = iScoreboard[j];
@@ -744,13 +753,15 @@ void CClient::UpdateScoreboard(void)
 			} else {
 
 				// DEATHMATCH or TEAM DEATHMATCH or VIP or TEAMCTF
-				if(cRemoteWorms[iScoreboard[j]].getLives() < cRemoteWorms[iScoreboard[j + 1]].getLives()) {
+				// HINT: WRM_OUT (-1) < WRM_UNLIM (-2)
+				int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
+				if(res < 0)  {
 
 					// Swap the 2 scoreboard entries
 					s = iScoreboard[j];
 					iScoreboard[j] = iScoreboard[j+1];
 					iScoreboard[j+1] = s;
-				} else if(cRemoteWorms[iScoreboard[j]].getLives() == cRemoteWorms[iScoreboard[j + 1]].getLives()) {
+				} else if(res == 0) {
 
 					// Equal lives, so compare kills
 					if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {

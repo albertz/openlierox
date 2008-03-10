@@ -19,6 +19,7 @@
 
 
 #include "InputEvents.h"
+#include <list>
 
 
 // Event types
@@ -37,14 +38,11 @@ enum {
 
 
 // Menu item structure
-// TODO: use std::vector/list
 class mnu_item_t { public:
     int     nID;
 	std::string  szName;
-    int     nSelected;
-
-    mnu_item_t   *psNext;
-
+	bool	bChecked;
+	bool	bCheckable;
 };
 
 
@@ -54,8 +52,10 @@ private:
 
     int     m_nPosX, m_nPosY;
     int     m_nWidth, m_nHeight;
+	int		m_nSelectedIndex;
+	bool	m_bContainsCheckableItems;
 
-    mnu_item_t  *m_psItemList;
+	std::list<mnu_item_t>  m_psItemList;
 
 
 public:
@@ -72,7 +72,7 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MNU_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MNU_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MNU_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MNU_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
@@ -84,7 +84,8 @@ public:
 	void	LoadStyle(void) {}
 
 
-    void    addItem(int nID, const std::string& szName);
+    void    addItem(int nID, const std::string& szName, bool checkable = false, bool checked = false);
+	mnu_item_t *getItem(int nID);
 
 };
 

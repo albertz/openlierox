@@ -40,6 +40,7 @@ void CWorm::Clear(void)
 	iClientWormID = 0;
     szSkin = "";
 	cOwner = NULL;
+	bSpectating = false;
 
 	iKills = 0;
 	iDeaths = 0;
@@ -160,6 +161,7 @@ void CWorm::Clear(void)
 void CWorm::Init(void)
 {
 	// TODO: is this needed?
+	// WARNING: this works only because it does not contain any classes
 	tState = worm_state_t();
 }
 
@@ -240,6 +242,10 @@ void CWorm::setupLobby(void)
 ///////////////////
 // Spawn this worm
 void CWorm::Spawn(CVec position) {
+	// No spawn if spectating
+	if (bSpectating)
+		return;
+
     bAlive = true;
 	bAlreadyKilled = false;
 	fAngle = 0;
@@ -285,6 +291,9 @@ void CWorm::Spawn(CVec position) {
 // Respawn this worm
 // TODO: what is the difference between Respawn and Spawn?
 void CWorm::Respawn(CVec position) {
+	if (bSpectating)
+		return;
+
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 

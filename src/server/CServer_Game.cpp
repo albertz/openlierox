@@ -33,7 +33,7 @@ using namespace std;
 // Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 {
-	if (bGameOver)
+	if (bGameOver || Worm->isSpectating())
 		return;
 
 	CVec pos = FindSpot();
@@ -66,7 +66,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 // (Re)Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 {
-	if (bGameOver)
+	if (bGameOver || Worm->isSpectating())
 		return;
 
 	Worm->Respawn(pos);

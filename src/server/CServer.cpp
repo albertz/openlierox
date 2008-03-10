@@ -328,7 +328,7 @@ int GameServer::StartGame()
 	CBytestream bytestr;
 	bytestr.Clear();
 
-	{for(int i=0;i<MAX_WORMS;i++) {
+	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed())
 			continue;
 		if(flags) {
@@ -346,11 +346,11 @@ int GameServer::StartGame()
 			iNumPlayers++;
 			flags--;
 		}
-	}}
+	}
 	SendGlobalPacket(&bytestr);
 
 	// Set some info on the worms
-	{for(int i=0;i<MAX_WORMS;i++) {
+	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);
@@ -360,7 +360,7 @@ int GameServer::StartGame()
 			cWorms[i].setKillsInRow(0);
 			cWorms[i].setDeathsInRow(0);
 		}
-	}}
+	}
 
 	// Clear bonuses
 	for(int i=0; i<MAX_BONUSES; i++)
@@ -376,14 +376,14 @@ int GameServer::StartGame()
 	iWeaponSelectionTime_Warning = 0;
 
 	// Set all the clients to 'not ready'
-	{for(int i=0;i<MAX_CLIENTS;i++) {
+	for(int i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
 		cClients[i].getUdpFileDownloader()->allowFileRequest(false);
 		cClients[i].setPartialDirtUpdateCount(0);
 		*cClients[i].getPreviousDirtMap() = "";
 		cMap->SendDirtUpdate(cClients[i].getPreviousDirtMap());
-	}}
+	}
 
 
     // If this is the host, and we have a team game: Send all the worm info back so the worms know what
@@ -492,6 +492,18 @@ void GameServer::BeginMatch(void)
 			continue;
 		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
+
+	// For spectators: set their lives to out and tell clients about it
+	bs.Clear();
+	for (i = 0; i < MAX_WORMS; i++)  {
+		if (cWorms[i].isUsed() && cWorms[i].isSpectating())  {
+			cWorms[i].setLives(WRM_OUT);
+			cWorms[i].setKills(0);
+			cWorms[i].writeScore(&bs);
+		}
+	}
+	if (bs.GetLength() != 0) // Send only if there are some spectators
+		SendGlobalPacket(&bs);
 
 	// No need to kill local worms for dedicated server - they will suicide by themselves
 
@@ -1000,7 +1012,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 				} else {
 					replacemax(networkTexts->sHasBeenKickedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
 					replacemax(buf,"<reason>", sReason, buf, 5);
-					replacemax(buf,"your", "their", buf, 5);
+					replacemax(buf,"your", "their", buf, 5); // TODO: dirty...
 					replacemax(buf,"you", "they", buf, 5);
 					replacemax(networkTexts->sKickedYouReason,"<reason>",sReason, cl_msg, 1);
 				}
@@ -1014,7 +1026,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 				} else {
 					replacemax(networkTexts->sHasBeenBannedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
 					replacemax(buf,"<reason>", sReason, buf, 5);
-					replacemax(buf,"your", "their", buf, 5);
+					replacemax(buf,"your", "their", buf, 5); // TODO: dirty...
 					replacemax(buf,"you", "they", buf, 5);
 					replacemax(networkTexts->sBannedYouReason,"<reason>",sReason, cl_msg, 1);
 				}
@@ -1029,6 +1041,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 		cl->setMuted(false);
 		cl->getWorm(i)->setUsed(false);
 		cl->getWorm(i)->setAlive(false);
+		cl->getWorm(i)->setSpectating(false);
 	}
 
 

@@ -443,7 +443,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	// HINT: gamescript is ishut down by the cache
+	// HINT: gamescript is shut down by the cache
 
     //bs->Dump();
 

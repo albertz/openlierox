@@ -460,6 +460,8 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "HasBeenBannedReason",   sHasBeenBannedReason,	"<player> has been banned because <reason>");
 	ReadString (f, "NetworkTexts", "HasBeenMuted",    sHasBeenMuted,	"<player> has been muted");
 	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  sHasBeenUnmuted,	"<player> has been unmuted");
+	ReadString (f, "NetworkTexts", "IsSpectating",    sIsSpectating,	"<player> will only spectate this round");
+	ReadString (f, "NetworkTexts", "IsPlaying",		  sIsPlaying,		"<player> will play this round!");
 	ReadString (f, "NetworkTexts", "KickedYou",		  sKickedYou,		"You have been kicked");
 	ReadString (f, "NetworkTexts", "KickedYouReason", sKickedYouReason, "You have been kicked because <reason>");
 	ReadString (f, "NetworkTexts", "BannedYou",		  sBannedYou,		"You have been banned");
