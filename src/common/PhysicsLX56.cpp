@@ -434,7 +434,7 @@ public:
 		}
 	}
 
-	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid) {
+	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid, bool* deleteAfter) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
@@ -497,7 +497,7 @@ public:
 				if(proj->frame() >= NumFrames) {
 					switch(pi->AnimType) {
 					case ANI_ONCE:
-						proj->setUnused();
+						*deleteAfter = true;
 						break;
 					case ANI_LOOP:
 						proj->frame() = 0;
@@ -546,15 +546,16 @@ public:
 			if(fCurTime > proj->lastTrailProj()) {
 				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay;
 
-				for(int i=0; i < pi->PrjTrl_Amount; i++) {
-					CVec sprd = CVec(0,0);
+				CVec sprd;
+				if(pi->PrjTrl_UsePrjVelocity) {
+					sprd = proj->GetVelocity();
+					float l = NormalizeVector(&sprd);
+					sprd *= (l*0.3f);		// Slow it down a bit.
+											// It can be sped up by the speed variable in the script
+				}
 
-					if(pi->PrjTrl_UsePrjVelocity) {
-						sprd = proj->GetVelocity();
-						float l = NormalizeVector(&sprd);
-						sprd *= (l*0.3f);		// Slow it down a bit.
-														// It can be sped up by the speed variable in the script
-					} else
+				for(int i=0; i < pi->PrjTrl_Amount; i++) {
+					if(!pi->PrjTrl_UsePrjVelocity)
 						GetAngles((int)((float)pi->PrjTrl_Spread * proj->getRandomFloat()),&sprd,NULL);
 
 					CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*proj->getRandomFloat();
@@ -577,7 +578,6 @@ public:
 
 		if(damage != -1)
 			client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
-		prj->setUnused();
 	}
 
 	void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -589,11 +589,30 @@ public:
 
 		if(damage != -1)
 			client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
-		prj->setUnused();
 	}
 
-	void projectile_doSpawnOthers(CProjectile* const prj) {
+	void projectile_doSpawnOthers(CProjectile* const prj, float fSpawnTime) {
+		const proj_t *pi = prj->GetProjInfo();
+		CVec v = prj->GetVelocity();
+		NormalizeVector(&v);
 
+		// Calculate the angle of the direction the projectile is heading
+		float heading = 0;
+		if(pi->ProjUseangle) {
+			heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
+			heading+=90;
+			FMOD(heading, 360.0f);
+		}
+
+		CVec sprd;
+		for(int i=0;i<pi->ProjAmount;i++) {
+			int a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
+			GetAngles(a,&sprd,NULL);
+
+			float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar * prj->getRandomFloat();
+
+			client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime);
+		}
 	}
 
 	void projectile_doMakeDirt(CProjectile* const prj) {
@@ -605,7 +624,6 @@ public:
 
 		// Remove the dirt count on the worm
 		client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-		prj->setUnused();
 	}
 
 	void projectile_doMakeGreenDirt(CProjectile* const prj) {
@@ -613,7 +631,6 @@ public:
 
 		// Remove the dirt count on the worm
 		client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-		prj->setUnused();
 	}
 
 	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
@@ -622,17 +639,16 @@ public:
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
 	simulateProjectileStart:
-		if(!prj->isUsed()) return;
 		if(prj->fLastSimulationTime + dt > fCurTime) return;
 		prj->fLastSimulationTime += dt;
 
 
-		CVec sprd;
 		bool explode = false;
 		bool timer = false;
 		int shake = 0;
 		bool dirt = false;
 		bool grndirt = false;
+		bool deleteAfter = false;
 		int result = 0;
 		int wormid = -1;
 
@@ -679,10 +695,8 @@ public:
 
 			// Carve
 			case PJ_CARVE:  {
-				int d = map->CarveHole(
-					pi->Timer_Damage, prj->GetPosition());
-				prj->setUnused();
-				// in LX56, we also continue to simulate this projectile at least in this round
+				int d = map->CarveHole(	pi->Timer_Damage, prj->GetPosition() );
+				deleteAfter = true;
 
 				if(pi->Timer_Projectiles)
 					spawnprojectiles = true;
@@ -698,7 +712,7 @@ public:
 
 		// Simulate the projectile
 		wormid = -1;
-		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, client->getRemoteWorms(), &wormid );
+		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, client->getRemoteWorms(), &wormid, &deleteAfter );
 
 		/*
 		===================
@@ -733,7 +747,7 @@ public:
 			case PJ_CARVE:  {
 				int d = map->CarveHole(
 					pi->Hit_Damage, prj->GetPosition());
-				prj->setUnused();
+				deleteAfter = true;
 
 				// Increment the dirt count
 				client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
@@ -781,7 +795,7 @@ public:
 
 					// Add damage to the worm
 					client->InjureWorm(&client->getRemoteWorms()[wormid], pi->PlyHit_Damage, prj->GetOwner());
-					prj->setUnused();
+					deleteAfter = true;
 				break;
 
 				// Bounce
@@ -824,47 +838,32 @@ public:
 				projectile_doExplode(prj, shake);
 			else
 				projectile_doTimerExplode(prj, shake);
+			deleteAfter = true;
 		}
 
 		// Dirt
 		if(dirt) {
 			projectile_doMakeDirt(prj);
+			deleteAfter = true;
 		}
 
 		// Green dirt
 		if(grndirt) {
 			projectile_doMakeGreenDirt(prj);
+			deleteAfter = true;
 		}
 
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
-
-			CVec v = prj->GetVelocity();
-			NormalizeVector(&v);
-
-			// Calculate the angle of the direction the projectile is heading
-			float heading = 0;
-			if(pi->ProjUseangle) {
-				heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
-				heading+=90;
-				if(heading < 0)
-					heading += 360;
-				else if(heading >= 360)
-					heading -= 360;
-			}
-
-			for(int i=0;i<pi->ProjAmount;i++) {
-				int a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
-				GetAngles(a,&sprd,NULL);
-
-				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
-
-				// we use fCurTime (= the simulation time of the client) to simulate the spawing at this time
-				// because the spawing is caused probably by conditions of the environment like collision with worm/map
-				client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fCurTime);
-			}
+			// we use fCurTime (= the simulation time of the client) to simulate the spawing at this time
+			// because the spawing is caused probably by conditions of the environment like collision with worm/map
+			projectile_doSpawnOthers(prj, fCurTime);
 		}
 
+		if(deleteAfter) {
+			prj->setUnused();
+			return;
+		}
 
 		goto simulateProjectileStart;
 	}
@@ -876,13 +875,14 @@ public:
 
 	simulateProjectilesStart:
 		if(client->fLastSimulationTime + dt > tLX->fCurTime) return;
-		client->fLastSimulationTime += dt;
 
 		CProjectile *prj = projs;
 		for(int p = 0; p < count; p++, prj++) {
-			simulateProjectile( client->fLastSimulationTime, prj );
+			if(prj->isUsed())
+				simulateProjectile( client->fLastSimulationTime, prj );
 		}
 
+		client->fLastSimulationTime += dt;
 		goto simulateProjectilesStart;
 	}
 
