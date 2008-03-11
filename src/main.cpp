@@ -667,6 +667,8 @@ void GameLoopFrame(void)
 		// Update both menu and game screens
 		Screen = SDL_GetVideoSurface();
 		tMenu->bmpScreen = Screen;
+
+		cSwitchMode.reset();
 	}
 
 	// We put it here, so the mouse never displays

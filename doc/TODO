@@ -19,7 +19,7 @@ TODO
       TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
-[ ] CChannel calculates wrong pings (too high) (!)
+[X] CChannel calculates wrong pings (too high) (!)
 [ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
 
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
