@@ -29,6 +29,7 @@
 #include "Timer.h"
 #include "Utils.h"
 #include "ThreadVar.h"
+#include "MathLib.h"
 
 
 #ifdef _MSC_VER

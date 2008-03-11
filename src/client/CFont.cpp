@@ -20,6 +20,8 @@
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "Unicode.h"
+#include "MathLib.h"
+
 
 //
 // IMPORTANT: all surfaces in CFont are alpha blended which means they can (and mostly do) have another format than screen.
@@ -51,7 +53,7 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 	// Pre-calculate some colours
 	f_white = tLX->clNormalLabel;
 	f_green = tLX->clChatText;
-	
+
 	// Precache some common font colors (but only if this font should be colorized)
 	if (Colorize) {
 		PreCalculate(bmpWhite, f_white);
@@ -97,11 +99,11 @@ void CFont::Parse(void) {
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
 	// a blue pixel always indicates a new char exept for the first
-	
+
 	uint char_start = 0;
 	for (x = 0; x < bmpFont->w; x++) {
 		// x is always one pixel behind a blue line or x==0
-	
+
 		// Ignore any free pixel columns before the character
 		char_start = x;
 		while (IsColumnFree(x) && x < bmpFont->w)
@@ -129,11 +131,11 @@ void CFont::Parse(void) {
 				--cur_w;
 				--tmp_x;
 			}
-			
+
 			if(cur_w == 0)
 				printf("WARNING: cur_w == 0\n");
 		}
-		
+
 		// Add the character
 		FontWidth.push_back(cur_w);
 		CharacterOffset.push_back(char_start);
@@ -312,7 +314,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 				continue;
 			}
 		}
-	
+
 		// Translate and ignore unknown
 		int l = TranslateCharacter(p, txt.end()); // HINT: increases the iterator
 		if (l == -1)
@@ -340,7 +342,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 
 		const short bpp = bmpFont->format->BytesPerPixel;
-		Uint8 *src = (Uint8 *) bmpFont->pixels + bmpFont->pitch * (char_y - y) + 
+		Uint8 *src = (Uint8 *) bmpFont->pixels + bmpFont->pitch * (char_y - y) +
 						(CharacterOffset[l] + char_x - x) * bpp;
 		Uint8 *px;
 

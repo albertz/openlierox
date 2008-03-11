@@ -999,7 +999,6 @@ void GameServer::SimulateGameSpecial()
 				// TODO: please, do not use simulateWorm for this; use a simulateFlag and don't use CWorm at all!!
 				PhysicsEngine::Get()->simulateWorm(
 					cClient->getRemoteWorms() + (*flagworm)->getID(),
-					NULL,
 					cClient->getRemoteWorms(), false);
 				(*flagworm)->setPos((cClient->getRemoteWorms() + (*flagworm)->getID())->getPos());
 			}

@@ -27,6 +27,8 @@
 #include "FindFile.h"
 #include "EndianSwap.h"
 #include "FileDownload.h"
+#include "MathLib.h"
+
 
 using namespace std;
 

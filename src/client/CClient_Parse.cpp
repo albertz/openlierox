@@ -540,7 +540,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	}
 
-	PhysicsEngine::Get()->initGame(cMap);
+	PhysicsEngine::Get()->initGame(cMap, this);
 
 	// Other game details
 	iGameType = bs->readInt(1);

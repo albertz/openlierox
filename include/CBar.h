@@ -16,8 +16,9 @@
 #ifndef __CBAR_H_
 #define __CBAR_H_
 
-#include "Utils.h"
 #include <SDL.h>
+#include "MathLib.h"
+
 
 // Bar directions
 enum {
@@ -68,11 +69,11 @@ public:
 	inline void SetLabelY(int _y) { LabelY = _y; }
 	inline int	GetNumForeStates()  { return NumForeStates; }
 	inline void SetNumForeStates(int _s) { NumForeStates = _s; }  // NOTE: number of states is one state less than count of images
-	inline int	GetCurrentForeState()  { return CurrentForeState; }  // 
+	inline int	GetCurrentForeState()  { return CurrentForeState; }  //
 	inline void SetCurrentForeState(int _s) { CurrentForeState = MIN(NumForeStates-1, _s); } // NOTE: the first state is 0
 	inline int	GetNumBgStates()  { return NumBgStates; }
 	inline void SetNumBgStates(int _s) { NumBgStates = _s; }  // NOTE: number of states is one state less than count of images
-	inline int	GetCurrentBgState()  { return CurrentBgState; }  // 
+	inline int	GetCurrentBgState()  { return CurrentBgState; }  //
 	inline void SetCurrentBgState(int _s) { CurrentBgState = MIN(NumBgStates-1, _s); } // NOTE: the first state is 0
 	inline bool IsLabelVisible()  { return LabelVisible; }
 	inline void SetLabelVisible(bool _v)  { LabelVisible = _v; }
@@ -83,4 +84,4 @@ public:
 	inline bool IsProperlyLoaded()  { return bmpBar != NULL; }
 };
 
-#endif // __CBAR_H_	
+#endif // __CBAR_H_

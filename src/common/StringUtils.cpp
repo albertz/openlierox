@@ -2,7 +2,7 @@
 	OpenLieroX
 
 	string utilities
-	
+
 	code under LGPL
 	created 01-05-2007
 	by Albert Zeyer and Dark Charlie
@@ -16,9 +16,12 @@
 #include "StringUtils.h"
 #include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour
-#include "CFont.h" // for CFont
+#include "CFont.h"
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
 #include "FindFile.h"
+#include "MathLib.h"
+
+
 // HTML parsing library for StripHtmlTags()
 #include <libxml/xmlmemory.h>
 #include <libxml/HTMLparser.h>
@@ -500,14 +503,14 @@ std::string StripHtmlTags( const std::string & src )
 	htmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));
 	handler.characters = & charactersParsed;
-  
+
 	/* GCS: override structuredErrorFunc to mine so I can ignore errors */
 	xmlSetStructuredErrorFunc(xmlGenericErrorContext, &structuredError);
-  
+
 	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) src.c_str(), "utf-8", &handler, &str );
-  
+
 	xmlFree(doc);
-	
+
 	// Remove all "\r" and spaces at the beginning of the line
 	// TODO: use some faster method, like str.find_first_of(" \n\r\t")
 	std::string ret;
@@ -525,7 +528,7 @@ std::string StripHtmlTags( const std::string & src )
 		if( str[f] != '\r' )
 			ret += str[f];
 	};
-  
+
 	return ret;
 }
 
@@ -606,7 +609,7 @@ bool Decompress( const std::string & in, std::string * out )
 	ret = inflateInit(&strm);
 	if (ret != Z_OK)
 		return false;
-		
+
 	strm.avail_in = (uint)in.size();  // TODO: possible overflow on 64-bit systems
 	strm.next_in = (Bytef *) in.c_str();
 	char buf[16384];
@@ -622,7 +625,7 @@ bool Decompress( const std::string & in, std::string * out )
 		};
 		out->append( buf, sizeof(buf) - strm.avail_out );
 	} while( ret != Z_STREAM_END );
-	
+
 	inflateEnd(&strm);
 	return true;
 };
@@ -640,7 +643,7 @@ bool FileChecksum( const std::string & path, uint * _checksum, size_t * _filesiz
 	char buf[16384];
 	uLong checksum = adler32(0L, Z_NULL, 0);
 	size_t size = 0;
-	
+
 	while( ! feof( ff ) )
 	{
 		uint read = (uint)fread( buf, 1, sizeof(buf), ff ); // TODO: possible overflow on 64bit systems
@@ -648,7 +651,7 @@ bool FileChecksum( const std::string & path, uint * _checksum, size_t * _filesiz
 		size += read;
 	};
 	fclose( ff );
-	
+
 	if( _checksum )
 		*_checksum = checksum;
 	if( _filesize )

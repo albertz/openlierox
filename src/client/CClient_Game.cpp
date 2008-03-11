@@ -123,7 +123,7 @@ void CClient::Simulation(void)
 
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, this, cRemoteWorms, w->getLocal() );
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
 
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -201,7 +201,7 @@ void CClient::Simulation(void)
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles, nTopProjectile, this);
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles, nTopProjectile);
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);

@@ -48,10 +48,10 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fLastTrailProj = -99999;
 	iRandom = _random;
     iFrameX = 0;
-	
+
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;
-	
+
 	fSpeed = _vel.GetLength();
 
 	fFrame = 0;
@@ -92,11 +92,11 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 	if(proj->GetProjInfo()->PlyHit_Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
 		float len = NormalizeVector( &dif );
-		
+
 		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
 		for (float p = 0.0f; p <= len; p += 2.0f) {
 			CVec curpos = vFrameOldPos + dif * p;
-		
+
 			int ret = proj->ProjWormColl(curpos, worms);
 			if (ret >= 0)  {
 				if (enddt) {
@@ -120,7 +120,7 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 // Returns:
 // -1 if some collision
 // -1000 if none
-// >=0 is collision with worm (the return-value is the ID) 
+// >=0 is collision with worm (the return-value is the ID)
 // TODO: we need one single CheckCollision which is used everywhere in the code
 // atm we have 2 CProj::CC, Map:CC and ProjWormColl and fastTraceLine
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
@@ -130,12 +130,12 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 {
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
-	
+
 	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
 	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
 	int len = (int)vVelocity.GetLength2();
-	
+
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 0;
 		MAX_CHECKSTEP = 3;
@@ -156,13 +156,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		MAX_CHECKSTEP = 9 + rnd;
 		AVG_CHECKSTEP = 6 + rnd;
 	}
-	
+
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
 	int ret;
-	
+
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
 	else
@@ -174,19 +174,19 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(tProjInfo->UseCustomGravity)
 		newvel.y += (float)(tProjInfo->Gravity)*dt;
 	else
-		newvel.y += 100*dt;	
-	
+		newvel.y += 100*dt;
+
 	// Dampening
 	if(tProjInfo->Dampening != 1)
 		// HINT: as this function is always called with fixed dt, we can do it this way
 		newvel *= tProjInfo->Dampening;
-	
+
 	float checkstep = newvel.GetLength2(); // |v|^2
 	if(( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP )) { // |dp|^2=|v*dt|^2
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
 		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
-		
+
 		for(float time = 0; time < dt; time += checkstep) {
 			ret = CheckCollision(time+checkstep>dt ? dt-time : checkstep, map,worms,enddt);
 			if(ret >= -1) {
@@ -194,7 +194,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 				return ret;
 			}
 		}
-		
+
 		if(enddt) *enddt = dt;
 		return NONE_COL_RET;
 	}
@@ -203,11 +203,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(enddt) *enddt = dt;
 	CVec vFrameOldPos = vPosition;
 	vPosition += vVelocity*dt;
-	
+
 	// if distance is to short to last check, just return here without a check
 	if( (vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP ) {
 /*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
-		printf("len = %f , ", sqrt(len));		
+		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
@@ -219,7 +219,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int px=(int)(vPosition.x);
 	int py=(int)(vPosition.y);
 	bool collisionWasOnlyDirt = true;
-	
+
 	// Hit edges
 	if(vPosition.x - w < 0 || vPosition.y - h < 0 || vPosition.x + w >= mw || vPosition.y + h >= mh) {
 
@@ -274,7 +274,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 					left++;
 				else if(x>px)
 					right++;
-				
+
 				if(*pf & PX_ROCK)
 					collisionWasOnlyDirt = false;
 			}
@@ -293,9 +293,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			//		this behavior is the same as in original LX
 			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 		}
-		
+
 		bool bounce = false;
-		
+
 		// Bit of a hack
 		switch ( tProjInfo->Hit_Type )  {
 		case PJ_BOUNCE:
@@ -312,7 +312,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
 		}
-					
+
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(bounce)
@@ -343,13 +343,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			vVelocity.x=0;
 		if(fabs(vVelocity.y) < 2)
 			vVelocity.y=0;
-		
+
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
-	
+
 	// the move was save, so save the position
 	vOldPos = vPosition;
-	
+
 	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 }
 
@@ -458,13 +458,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 			float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
 			float offset = 360.0f / (float)tProjInfo->AngleImages;
 
-			if(angle < 0)
-				angle+=360;
-			if(angle > 360)
-				angle-=360;
-
-			if(angle == 360)
-				angle=0;
+			FMOD(angle, 360.0f);
 
 			framestep = angle / offset;
 		}
@@ -562,7 +556,7 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 //		but this way is way more correct and it seems to work OK
 //		(original LX resets the bounce-direction on each checked side)
 void CProjectile::Bounce(float fCoeff)
-{	
+{
 	float x,y;
 	x=y=1;
 

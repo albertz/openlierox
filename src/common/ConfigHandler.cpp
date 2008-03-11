@@ -21,6 +21,7 @@
 #include "ConfigHandler.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "MathLib.h"
 
 
 int			NumKeywords = 0;

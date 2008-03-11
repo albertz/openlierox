@@ -25,6 +25,7 @@
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "Options.h"
+#include "MathLib.h"
 
 console_t	*Console = NULL;
 
@@ -102,7 +103,7 @@ void Con_Hide(void)
 ///////////////////
 // Process the console
 void Con_Process(float dt)
-{	
+{
 	keyboard_t *kb = GetKeyboard();
 
 	// Process the input
@@ -137,9 +138,9 @@ void Con_Process(float dt)
 void Con_ProcessCharacter(const KeyboardEvent& input)
 {
 	if(!input.down) return;
-	
+
 	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)  {
-		Con_Toggle();	
+		Con_Toggle();
 		return;
 	}
 
@@ -151,7 +152,7 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
 		return;
-	
+
 
 
 	// Backspace
@@ -253,8 +254,8 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 		InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos++, input.ch);
 		Console->icurHistory = -1;
 	}
-	
-	
+
+
 	// Handle the history keys
 
 	// Up arrow
@@ -281,7 +282,7 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 
 		Console->icurHistory = MAX(Console->icurHistory,-1);
 	}
-	
+
 }
 
 
@@ -311,7 +312,7 @@ void Con_AddText(int colour, const std::string& text)
 	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
-		
+
 		cout << "Ingame console: ";
 		switch(colour) {
 		case CNC_NORMAL: break;
@@ -322,7 +323,7 @@ void Con_AddText(int colour, const std::string& text)
 		case CNC_CHAT: cout << "CHAT: "; break;
 		default: cout << "UNKNOWN: ";
 		}
-		cout << *it << endl;		
+		cout << *it << endl;
 	}
 }
 

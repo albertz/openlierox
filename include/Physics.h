@@ -1,8 +1,8 @@
 /*
 	OpenLieroX
-	
+
 	physic simulation interface
-	
+
 	code under LGPL
 	created on 9/2/2008
 */
@@ -28,25 +28,25 @@ class PhysicsEngine {
 public:
 	static void Init(); // init general stuff and set default engine
 	static void UnInit(); // deletes standard engine etc.
-	
+
 	// get/set the current instance of the PhysicsEngine (for example PhysicsLX56)
-	static PhysicsEngine* Get();	
+	static PhysicsEngine* Get();
 	static void Set(PhysicsEngine* engine);
 
 // ------------
 	virtual ~PhysicsEngine() {}
-	
+
 	virtual std::string name() = 0; // get a name of the implementation
-	
-	virtual void initGame( CMap* map ) = 0; // init a new game (sets map etc.)
+
+	virtual void initGame( CMap* map, CClient* client ) = 0; // init a new game (sets map etc.)
 	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
 	virtual bool isInitialised() = 0; // tells if the engine is inited
-	
+
 	// TODO: later, we should have a class World and all objects and the map are included there
 	// in the end, I want to have one single simulate(CWorld* world);
-	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, bool local) = 0;
+	virtual void simulateWorm(CWorm* worm, CWorm *worms, bool local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
-	virtual void simulateProjectiles(CProjectile* projs, const int& count, CClient* client) = 0; // count as ref here as it can change while spawning new projs
+	virtual void simulateProjectiles(CProjectile* projs, const int& count) = 0; // count as ref here as it can change while spawning new projs
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
 };
 

@@ -28,6 +28,7 @@
 class PhysicsLX56 : public PhysicsEngine {
 public:
 	CMap* map;
+	CClient* client;
 	bool inited;
 
 // ---------
@@ -36,8 +37,8 @@ public:
 
 	virtual std::string name() { return "LX56 physics"; }
 
-	virtual void initGame( CMap* m ) { map = m; inited = true; }
-	virtual void uninitGame() { map = NULL; inited = false; }
+	virtual void initGame( CMap* m, CClient* c ) { map = m; client = c; inited = true; }
+	virtual void uninitGame() { map = NULL; client = NULL; inited = false; }
 	virtual bool isInitialised() { return inited; }
 
 // -----------------------------
@@ -227,7 +228,7 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, bool local) {
+	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		const static float dt = 0.01f;
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 
@@ -477,25 +478,24 @@ public:
 		vOldPos = vPosition;
 	*/
 
-		if(proj->getProjInfo()->Rotating)  {
-			proj->rotation() += (float)proj->getProjInfo()->RotSpeed * dt;
-			if(proj->rotation() < 0)
-				proj->rotation() = 360;
-			else if(proj->rotation() > 360)
-				proj->rotation() = 0;
+		const proj_t *pi = proj->GetProjInfo();
+
+		if(pi->Rotating)  {
+			proj->rotation() += (float)pi->RotSpeed * dt;
+			FMOD(proj->rotation(), 360.0f);
 		}
 
 		// Animation
-		if(proj->getProjInfo()->Animating) {
+		if(pi->Animating) {
 			if(proj->getFrameDelta())
-				proj->frame() += (float)proj->getProjInfo()->AnimRate * dt;
+				proj->frame() += (float)pi->AnimRate * dt;
 			else
-				proj->frame() -= (float)proj->getProjInfo()->AnimRate * dt;
+				proj->frame() -= (float)pi->AnimRate * dt;
 
-			if(proj->getProjInfo()->bmpImage) {
-				int NumFrames = proj->getProjInfo()->bmpImage->w / proj->getProjInfo()->bmpImage->h;
+			if(pi->bmpImage) {
+				int NumFrames = pi->bmpImage->w / pi->bmpImage->h;
 				if(proj->frame() >= NumFrames) {
-					switch(proj->getProjInfo()->AnimType) {
+					switch(pi->AnimType) {
 					case ANI_ONCE:
 						proj->setUnused();
 						break;
@@ -507,7 +507,7 @@ public:
 						proj->frame() = (float)NumFrames - 1;
 					}
 				}
-				if(proj->frame() < 0) {
+				else if(proj->frame() < 0) {
 					if(proj->getProjInfo()->AnimType == ANI_PINGPONG) {
 						proj->setFrameDelta( ! proj->getFrameDelta() );
 						proj->frame() = 0.0f;
@@ -517,34 +517,51 @@ public:
 		}
 
 		// Trails
-		switch(proj->getProjInfo()->Trail) {
+		switch(pi->Trail) {
 		case TRL_SMOKE:
 			if(proj->extra() >= 0.075f) {
-				proj->extra()-=0.075f;
+				proj->extra() = 0.0f;
 				SpawnEntity(ENT_SMOKE,0,proj->GetPosition(),CVec(0,0),0,NULL);
 			}
 			break;
 		case TRL_CHEMSMOKE:
 			if(proj->extra() >= 0.075f) {
-				proj->extra()-=0.075f;
+				proj->extra() = 0.0;
 				SpawnEntity(ENT_CHEMSMOKE,0,proj->GetPosition(),CVec(0,0),0,NULL);
 			}
 			break;
 		case TRL_DOOMSDAY:
 			if(proj->extra() >= 0.05f) {
-				proj->extra()-=0.05f;
+				proj->extra() = 0.0;
 				SpawnEntity(ENT_DOOMSDAY,0,proj->GetPosition(),proj->GetVelocity(),0,NULL);
 			}
 			break;
 		case TRL_EXPLOSIVE:
 			if(proj->extra() >= 0.05f) {
-				proj->extra()-=0.05f;
+				proj->extra() = 0.0;
 				SpawnEntity(ENT_EXPLOSION,10,proj->GetPosition(),CVec(0,0),0,NULL);
 			}
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + proj->getProjInfo()->PrjTrl_Delay;
+				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay;
+
+				for(int i=0; i < pi->PrjTrl_Amount; i++) {
+					CVec sprd = CVec(0,0);
+
+					if(pi->PrjTrl_UsePrjVelocity) {
+						sprd = proj->GetVelocity();
+						float l = NormalizeVector(&sprd);
+						sprd *= (l*0.3f);		// Slow it down a bit.
+														// It can be sped up by the speed variable in the script
+					} else
+						GetAngles((int)((float)pi->PrjTrl_Spread * proj->getRandomFloat()),&sprd,NULL);
+
+					CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*proj->getRandomFloat();
+
+					// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
+					client->SpawnProjectile(proj->GetPosition(), v, 0, proj->GetOwner(), pi->PrjTrl_Proj, proj->getRandomIndex()+1, proj->fLastSimulationTime);
+				}
 
 				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
 				proj->setSpawnPrjTrl( true );
@@ -554,7 +571,55 @@ public:
 		return res;
 	}
 
-	void simulateProjectile(const float fCurTime, CProjectile* const prj, CClient* const client) {
+	void projectile_doExplode(CProjectile* const prj, int shake) {
+		const proj_t *pi = prj->GetProjInfo();
+		// Explosion
+		int damage = pi->Hit_Damage;
+		if(pi->PlyHit_Type == PJ_EXPLODE)
+			damage = pi->PlyHit_Damage;
+
+		if(damage != -1)
+			client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+		prj->setUnused();
+	}
+
+	void projectile_doTimerExplode(CProjectile* const prj, int shake) {
+		const proj_t *pi = prj->GetProjInfo();
+		// Explosion
+		int damage = pi->Timer_Damage;
+		if(pi->PlyHit_Type == PJ_EXPLODE)
+			damage = pi->PlyHit_Damage;
+
+		if(damage != -1)
+			client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+		prj->setUnused();
+	}
+
+	void projectile_doSpawnOthers(CProjectile* const prj) {
+
+	}
+
+	void projectile_doMakeDirt(CProjectile* const prj) {
+		int damage = 5;
+		int d = 0;
+		d += map->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
+		d += map->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
+		d += map->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
+
+		// Remove the dirt count on the worm
+		client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		prj->setUnused();
+	}
+
+	void projectile_doMakeGreenDirt(CProjectile* const prj) {
+		int d = map->PlaceGreenDirt(prj->GetPosition());
+
+		// Remove the dirt count on the worm
+		client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		prj->setUnused();
+	}
+
+	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
 		const static float dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
@@ -571,7 +636,6 @@ public:
 		int shake = 0;
 		bool dirt = false;
 		bool grndirt = false;
-		int damage = 0;
 		int result = 0;
 		int wormid = -1;
 
@@ -605,7 +669,6 @@ public:
 					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-				damage = pi->Timer_Damage;
 			break;
 
 			// Create some green dirt
@@ -615,7 +678,6 @@ public:
 					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-				damage = pi->Timer_Damage;
 			break;
 
 			// Carve
@@ -623,6 +685,7 @@ public:
 				int d = map->CarveHole(
 					pi->Timer_Damage, prj->GetPosition());
 				prj->setUnused();
+				// in LX56, we also continue to simulate this projectile at least in this round
 
 				if(pi->Timer_Projectiles)
 					spawnprojectiles = true;
@@ -685,7 +748,6 @@ public:
 			// Dirt
 			case PJ_DIRT:
 				dirt = true;
-				damage = pi->Hit_Damage;
 			break;
 
 			// Green Dirt
@@ -700,73 +762,11 @@ public:
 		}
 
 
-		/*
-		===================
-		Explosion Event
-		===================
-		*/
-		/*if( result & PJC_EXPLODE ) {
-
-			// Explosion
-			if(pi->Exp_Type == PJ_EXPLODE) {
-				explode = true;
-
-				if(pi->Exp_Shake > shake)
-					shake = pi->Exp_Shake;
-
-				// Play the Explode sound
-				if(pi->Exp_UseSound)
-					PlaySoundSample(pi->smpSample);
-			}
-
-			// Carve
-			if(pi->Exp_Type == PJ_CARVE) {
-				int d = cMap->CarveHole(pi->Exp_Damage,prj->GetPosition());
-				prj->setUnused();
-
-				// Increment the dirt count
-				cRemoteWorms[prj->GetOwner()].incrementDirtCount( d );
-
-				CheckDemolitionsGame();
-			}
-
-			// Dirt
-			if(pi->Exp_Type == PJ_DIRT) {
-				dirt = true;
-				damage = pi->Exp_Damage;
-			}
-
-			// Green Dirt
-			if(pi->Exp_Type == PJ_GREENDIRT) {
-				grndirt = true;
-			}
-
-			// Spawn projectiles?
-			if(pi->Exp_Projectiles)
-				spawnprojectiles = true;
-		}*/
-
 
 		// Check if we need to spawn any trail projectiles
 		if(prj->getSpawnPrjTrl()) {
 			prj->setSpawnPrjTrl(false);
 
-			for(int i=0; i < pi->PrjTrl_Amount; i++) {
-				sprd = CVec(0,0);
-
-				if(pi->PrjTrl_UsePrjVelocity) {
-					sprd = prj->GetVelocity();
-					float l = NormalizeVector(&sprd);
-					sprd *= (l*0.3f);		// Slow it down a bit.
-													// It can be sped up by the speed variable in the script
-				} else
-					GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
-
-				CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
-
-				// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-				client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, prj->fLastSimulationTime);
-			}
 		}
 
 
@@ -803,7 +803,6 @@ public:
 				// Dirt
 				case PJ_DIRT:
 					dirt = true;
-					damage = pi->PlyHit_Damage;
 				break;
 
 				// Green Dirt
@@ -831,39 +830,20 @@ public:
 
 		// Explode?
 		if(explode) {
-
-			// Explosion
-			damage = pi->Hit_Damage;
-			if(timer)
-				damage = pi->Timer_Damage;
-			if(pi->PlyHit_Type == PJ_EXPLODE)
-				damage = pi->PlyHit_Damage;
-
-			if(damage != -1)
-				client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
-			prj->setUnused();
+			if(!timer)
+				projectile_doExplode(prj, shake);
+			else
+				projectile_doTimerExplode(prj, shake);
 		}
 
 		// Dirt
 		if(dirt) {
-			damage = 5;
-			int d = 0;
-			d += map->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
-			d += map->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
-			d += map->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
-
-			// Remove the dirt count on the worm
-			client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-			prj->setUnused();
+			projectile_doMakeDirt(prj);
 		}
 
 		// Green dirt
 		if(grndirt) {
-			int d = map->PlaceGreenDirt(prj->GetPosition());
-
-			// Remove the dirt count on the worm
-			client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-			prj->setUnused();
+			projectile_doMakeGreenDirt(prj);
 		}
 
 		// Spawn any projectiles?
@@ -899,7 +879,7 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(CProjectile* projs, const int& count, CClient* client) {
+	virtual void simulateProjectiles(CProjectile* projs, const int& count) {
 		const static float dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
@@ -910,7 +890,7 @@ public:
 
 		CProjectile *prj = projs;
 		for(int p = 0; p < count; p++, prj++) {
-			simulateProjectile( client->fLastSimulationTime, prj, client );
+			simulateProjectile( client->fLastSimulationTime, prj );
 		}
 
 		goto simulateProjectilesStart;

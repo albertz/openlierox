@@ -435,7 +435,7 @@ int GameServer::StartGame()
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
 
-	PhysicsEngine::Get()->initGame( cMap );
+	PhysicsEngine::Get()->initGame( cMap, cClient );
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
