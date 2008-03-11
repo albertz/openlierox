@@ -2,8 +2,6 @@ TODO
 (remember also to look at the bugs on SF)
 
 [X] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
-[X] fix: registering is not done on all masterservers (!!)
-[X] fix: aiming too fast
 
 [ ] bot: fix building path (there is one rare case where the
     path is going through an obstacle whereby there is
@@ -20,7 +18,7 @@ TODO
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
 [X] CChannel calculates wrong pings (too high) (!)
-[ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
+[ ] remove *_WidgetRegistered hacks
 
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
 [?] fix network interpolation (is currently not optimal) (!!)
