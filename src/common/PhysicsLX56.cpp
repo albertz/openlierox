@@ -659,7 +659,7 @@ public:
 
 		// Check if the timer is up
 		f = prj->getTimeVarRandom();
-		if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {
+		if(pi->Timer_Time > 0 && (pi->Timer_Time + pi->Timer_TimeVar * f) < prj->getLife()) {
 
 			// Run the end timer function
 			switch (pi->Timer_Type) {
@@ -779,7 +779,7 @@ public:
 		Worm Collision
 		===================
 		*/
-		if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer)
+		if( (result & PJC_WORM) && wormid >= 0 && !explode)
 			if( wormid != prj->GetOwner() || (int)(1000 * prj->getLife()) > client->getMyPing())  {
 				bool push_worm = true;
 
