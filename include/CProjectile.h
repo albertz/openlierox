@@ -70,7 +70,7 @@ class proj_t { public:
 	int		Timer_Damage;
 	int		Timer_Projectiles;
 	int		Timer_Shake;
-	
+
 	// Hit (When hitting the terrain)
 	int		Hit_Type;
 	int		Hit_Damage;
@@ -109,7 +109,7 @@ class proj_t { public:
 	int		ProjAngle;
 	int		ProjSpeed;
 	float	ProjSpeedVar;
-	float	ProjSpread;	
+	float	ProjSpread;
 	int		ProjAmount;
 	proj_t	*Projectile;
 
@@ -143,7 +143,6 @@ public:
 		fLife = 0;
 		tProjInfo = NULL;
 		fLastTrailProj = 0;
-		bSpawnPrjTrl = false;
 		iColour = 0;
 		iRandom = 0;
         bExplode = false;
@@ -166,7 +165,6 @@ private:
 
 	// Projectile trail
 	float		fLastTrailProj;
-	bool		bSpawnPrjTrl;
     float       fTimeVarRandom;
 
 	proj_t		*tProjInfo;
@@ -202,9 +200,9 @@ private:
 
 public:
 	// Methods
-	
 
-	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time);	
+
+	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time);
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface *bmpDest, CViewport *view);
@@ -222,7 +220,7 @@ public:
 
 	float	getLife(void)			{ return fLife; }
 	float&	life()					{ return fLife; }
-	
+
 	float&	extra()					{ return fExtra; }
 	bool&	explode()				{ return bExplode; }
 	float&	explodeTime()			{ return fExplodeTime; }
@@ -233,9 +231,6 @@ public:
 	bool	getFrameDelta()			{ return bFrameDelta; }
 	float&	frame()					{ return fFrame; }
 	float&	lastTrailProj()			{ return fLastTrailProj; }
-	
-	bool	getSpawnPrjTrl(void)	{ return bSpawnPrjTrl; }
-	void	setSpawnPrjTrl(bool p)	{ bSpawnPrjTrl = p; }
 
 	CVec	GetPosition(void)		{ return vPosition; }
 	CVec	GetVelocity(void)		{ return vVelocity; }
@@ -255,7 +250,7 @@ public:
 
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
-	
+
 	// HINT: saves the current time of the simulation
 	// we need to save this also per projectile as they can have different
 	// simulation times (different times of spawning or remote projectiles)

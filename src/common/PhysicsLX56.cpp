@@ -562,9 +562,6 @@ public:
 					// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
 					client->SpawnProjectile(proj->GetPosition(), v, 0, proj->GetOwner(), pi->PrjTrl_Proj, proj->getRandomIndex()+1, proj->fLastSimulationTime);
 				}
-
-				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
-				proj->setSpawnPrjTrl( true );
 			}
 		}
 
@@ -761,13 +758,6 @@ public:
 				spawnprojectiles = true;
 		}
 
-
-
-		// Check if we need to spawn any trail projectiles
-		if(prj->getSpawnPrjTrl()) {
-			prj->setSpawnPrjTrl(false);
-
-		}
 
 
 		/*

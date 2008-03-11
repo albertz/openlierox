@@ -44,7 +44,6 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fRotation = (float)_rot;
 	iOwner = _owner;
 	bUsed = true;
-	bSpawnPrjTrl = false;
 	fLastTrailProj = -99999;
 	iRandom = _random;
     iFrameX = 0;
