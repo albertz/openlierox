@@ -628,6 +628,9 @@ public:
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
+	void		clearHumanWormInputs();
+	void		clearLocalWormInputs();
+
 	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
 	bool		getGameReady(void)			{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }

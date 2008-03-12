@@ -40,7 +40,6 @@ void CClient::Simulation(void)
 {
 	short i;
     CWorm *w;
-    //bool con = Con_IsUsed();
 
 	// Don't simulate if the physics engine is not ready
 	if (!PhysicsEngine::Get()->isInitialised())  {
@@ -54,14 +53,7 @@ void CClient::Simulation(void)
 		if( bGameOver || bGameMenu || bViewportMgr ) {
 
 			// Clear the input of the local worms
-			w = cRemoteWorms;
-			for(i = 0; i < MAX_WORMS; i++, w++) {
-				if(!w->isUsed())
-					continue;
-
-				if( w->getLocal() )
-					w->clearInput();
-			}
+			clearLocalWormInputs();
 		}
 	}
 
@@ -1143,6 +1135,22 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 }
 
 
+void CClient::clearLocalWormInputs() {
+	CWorm* w = cRemoteWorms;
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if(!w->isUsed())
+			continue;
+
+		if( w->getLocal() )
+			w->clearInput();
+	}
+}
+
+void CClient::clearHumanWormInputs() {
+	for (uint j=0;j<iNumWorms;j++)
+		if (cLocalWorms[j]->getType() == PRF_HUMAN)
+			cLocalWorms[j]->clearInput();
+}
 
 
 ///////////////////
@@ -1170,7 +1178,7 @@ void CClient::processChatter(void)
 				// Stop typing
 				bChat_Typing = false;
 				sChat_Text = "";
-				cLocalWorms[0]->clearInput();
+				clearHumanWormInputs();
 
 				kb->keys[SDLK_ESCAPE] = false;
 				kb->KeyDown[SDLK_ESCAPE] = false;
@@ -1204,9 +1212,7 @@ void CClient::processChatter(void)
 			bTeamChat = true;
 
 		// Clear the input
-		for (uint j=0;j<iNumWorms;j++)
-			if (cLocalWorms[j]->getType() == PRF_HUMAN)
-				cLocalWorms[j]->clearInput();
+		clearHumanWormInputs();
 
 		return;
 	}
@@ -1261,9 +1267,7 @@ void CClient::processChatter(void)
 			}
 
 			// Clear the input
-			for (ushort j=0; j < iNumWorms; j++)
-				if (cLocalWorms[j]->getType() == PRF_HUMAN)
-					cLocalWorms[j]->clearInput();
+			clearHumanWormInputs();
 
 			// Initialize the chatter
 			fChat_BlinkTime = 0;
@@ -1357,7 +1361,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
     // Enter
     if(input.ch == '\r') {
         bChat_Typing = false;
-		cLocalWorms[0]->clearInput();
+		clearHumanWormInputs();
 
         // Send chat message to the server
 		if(sChat_Text != "") {
