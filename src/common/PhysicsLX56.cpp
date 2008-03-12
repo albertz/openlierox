@@ -434,7 +434,7 @@ public:
 		}
 	}
 
-	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid, bool* deleteAfter) {
+	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid, bool* projspawn, bool* deleteAfter) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
@@ -546,23 +546,7 @@ public:
 			if(fCurTime > proj->lastTrailProj()) {
 				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay;
 
-				CVec sprd;
-				if(pi->PrjTrl_UsePrjVelocity) {
-					sprd = proj->GetVelocity();
-					float l = NormalizeVector(&sprd);
-					sprd *= (l*0.3f);		// Slow it down a bit.
-											// It can be sped up by the speed variable in the script
-				}
-
-				for(int i=0; i < pi->PrjTrl_Amount; i++) {
-					if(!pi->PrjTrl_UsePrjVelocity)
-						GetAngles((int)((float)pi->PrjTrl_Spread * proj->getRandomFloat()),&sprd,NULL);
-
-					CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*proj->getRandomFloat();
-
-					// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-					client->SpawnProjectile(proj->GetPosition(), v, 0, proj->GetOwner(), pi->PrjTrl_Proj, proj->getRandomIndex()+1, proj->fLastSimulationTime);
-				}
+				*projspawn = true;
 			}
 		}
 
@@ -589,6 +573,27 @@ public:
 
 		if(damage != -1)
 			client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+	}
+
+	void projectile_doProjSpawn(CProjectile* const prj, float fSpawnTime) {
+		const proj_t *pi = prj->GetProjInfo();
+
+		CVec sprd;
+		if(pi->PrjTrl_UsePrjVelocity) {
+			sprd = prj->GetVelocity();
+			float l = NormalizeVector(&sprd);
+			sprd *= (l*0.3f);		// Slow it down a bit.
+									// It can be sped up by the speed variable in the script
+		}
+
+		for(int i=0; i < pi->PrjTrl_Amount; i++) {
+			if(!pi->PrjTrl_UsePrjVelocity)
+				GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
+
+			CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
+
+			client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime);
+		}
 	}
 
 	void projectile_doSpawnOthers(CProjectile* const prj, float fSpawnTime) {
@@ -649,6 +654,7 @@ public:
 		bool dirt = false;
 		bool grndirt = false;
 		bool deleteAfter = false;
+		bool trailprojspawn = false;
 		int result = 0;
 		int wormid = -1;
 
@@ -712,7 +718,7 @@ public:
 
 		// Simulate the projectile
 		wormid = -1;
-		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, client->getRemoteWorms(), &wormid, &deleteAfter );
+		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, client->getRemoteWorms(), &wormid, &trailprojspawn, &deleteAfter );
 
 		/*
 		===================
@@ -853,6 +859,11 @@ public:
 			deleteAfter = true;
 		}
 
+		if(trailprojspawn) {
+			// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
+			projectile_doProjSpawn( prj, prj->fLastSimulationTime );
+		}
+
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
 			// we use fCurTime (= the simulation time of the client) to simulate the spawing at this time
@@ -862,8 +873,9 @@ public:
 
 		if(deleteAfter) {
 			prj->setUnused();
-			return;
 		}
+
+		if(deleteAfter) return;
 
 		goto simulateProjectileStart;
 	}
