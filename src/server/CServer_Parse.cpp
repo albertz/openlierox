@@ -1063,6 +1063,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				break;
 			} else { // bad
 				valid_challenge = false;
+
+				// HINT: we could receive another connect packet which will contain this challenge
+				// and therefore get the worm connected twice. To avoid it, we clear the challenge here
+				SetNetAddrValid(tChallenges[i].Address, false);
+				tChallenges[i].iNum = 0;
+				printf("HINT: deleting a doubled challenge\n");
+
 				// There can be more challanges from one client, if this one doesn't match,
 				// perhaps some other does
 			}
