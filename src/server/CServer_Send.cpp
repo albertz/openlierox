@@ -112,8 +112,9 @@ bool GameServer::SendUpdate()
 
 			++j;
 
-			// w is an own server-side copy of the worm-structure
-			if (w->checkPacketNeeded())
+			// w is an own server-side copy of the worm-structure,
+			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
+			//if (w->checkPacketNeeded())
 				worms_to_update.push_back(w);
 		}
 	}
@@ -303,8 +304,7 @@ void GameServer::UpdateGameLobby(void)
 // Send updates for all the worm lobby states
 void GameServer::SendWormLobbyUpdate(void)
 {
-    static CBytestream bytestr;
-	bytestr.Clear();
+    CBytestream bytestr;
     short c,i;
 
     CClient *cl = cClients;
