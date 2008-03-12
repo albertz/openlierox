@@ -22,6 +22,7 @@
 #include "MathLib.h"
 #include "ChatCommand.h"
 #include "EndianSwap.h"
+#include "CServer.h"
 
 
 ///////////////////
@@ -30,9 +31,10 @@ void CClient::SendWormDetails(void)
 {
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update
-	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
+	// we are checking with bandwidth if we should add an update
+	/*if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
-			return;
+			return; */
 
 	CBytestream bs;
 	CWorm *w;
@@ -52,15 +54,20 @@ void CClient::SendWormDetails(void)
 
 
 	// Check if we need to write the state update
-	bool update = false;
+/*	bool update = false;
 	w = cLocalWorms[0];
 	for(i = 0; i < iNumWorms; i++, w++)
 		if (w->checkPacketNeeded())  {
 			update = true;
 			break;
 		}
+
 	// No update, just quit
 	if (!update)
+		return;
+*/
+	if(	tGameInfo.iGameType == GME_JOIN // we are a client in a netgame
+	&& !GameServer::checkUploadBandwidth(this->getChannel()->getOutgoingRate()) )
 		return;
 
 	fLastUpdateSent = tLX->fCurTime;

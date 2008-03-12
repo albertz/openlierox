@@ -84,7 +84,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
 		( tLXOptions->bNatTraverse, "Network.NatTraverse", true )
-		( tLXOptions->iMaxServerUploadBandwidth, "Network.MaxServerUploadBandwidth", 20000 )
+		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 20000 )
 		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )

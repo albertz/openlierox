@@ -174,7 +174,7 @@ public:
 	bool	bUseIpToCountry;
 	bool	bLoadDbAtStartup;
 	bool	bNatTraverse;
-	int		iMaxServerUploadBandwidth;
+	int		iMaxUploadBandwidth;
 
 	// Audio
 	bool	bSoundOn;

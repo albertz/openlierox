@@ -130,22 +130,19 @@ bool GameServer::SendUpdate()
 			// If we have, just don't send a packet this frame
 			if( !checkBandwidth(cl) ) {
 				// We have gone over the bandwidth for the client, don't send a message this frame
-				printf("over bandwidth for client %i\n", i);
+				//printf("over bandwidth for client %i\n", i);
 				continue;
 			}
 
 			// check our server bandwidth
 			if( cl->getNetSpeed() < 3 // <3 is non-local
-			&& !checkServerBandwidth() ) {
+			&& !checkUploadBandwidth(GetUpload()) ) {
 				// we have gone over our own bandwidth for non-local clients
-				printf("over upload bandwidth\n");
+				//printf("over upload bandwidth\n");
 				continue;
 			}
 
 			CBytestream update_packets;  // Contains all the update packets except the one from this client
-
-			CBytestream *bs = cl->getUnreliable();
-			bs->writeByte(S2C_UPDATEWORMS);
 
 			byte num_worms = 0;
 
@@ -153,23 +150,29 @@ bool GameServer::SendUpdate()
 			{
 				std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
 				for(; w_it != worms_to_update.end(); w_it++) {
+					CWorm* w = *w_it;
 
-						// Check if this client owns the worm
-						if(cl->OwnsWorm((*w_it)->getID()))
-							continue;
+					// Check if this client owns the worm
+					if(cl->OwnsWorm(w->getID()))
+						continue;
 
-						++num_worms;
+					++num_worms;
 
-						CBytestream bytes;
-						bytes.writeByte((*w_it)->getID());
-						(*w_it)->writePacket(&bytes, true, cl);
+					CBytestream bytes;
+					bytes.writeByte(w->getID());
+					w->writePacket(&bytes, true, cl);
 
-						// Send out the update
-						update_packets.Append(&bytes);
+					// Send out the update
+					update_packets.Append(&bytes);
+
+					printf("sending update in frame %i\n", iServerFrame);
 				}
 			}
 
+			CBytestream *bs = cl->getUnreliable();
+
 			// Write the packets to the unreliable bytestream
+			bs->writeByte(S2C_UPDATEWORMS);
 			bs->writeByte(num_worms);
 			bs->Append(&update_packets);
 
@@ -246,7 +249,7 @@ bool GameServer::checkBandwidth(CClient *cl)
 }
 
 // true means we can send further data
-bool GameServer::checkServerBandwidth() {
+bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	if( tGameInfo.iGameType != GME_LOCAL )
 		return true;
 
@@ -257,17 +260,17 @@ bool GameServer::checkServerBandwidth() {
 	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
 	if(tLXOptions->iNetworkSpeed >= 2) {
 		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to LAN (or higher)
-		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxServerUploadBandwidth);
+		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxUploadBandwidth);
 	}
 
 	{
 		static bool didShowMessageAlready = false;
 		if(!didShowMessageAlready)
-			printf("Server: using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
+			printf("using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
 		didShowMessageAlready = true;
 	}
 
-	return GetUpload() < fMaxRate;
+	return fCurUploadRate < fMaxRate;
 }
 
 ///////////////////

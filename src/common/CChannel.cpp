@@ -71,7 +71,7 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 {
 	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
 		cout
-			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength() 
+			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength()
 			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
 			<< "), packet might not be sent at all!" << endl;
 		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
@@ -98,7 +98,7 @@ void CChannel::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
 	Uint32 SendReliable = 0;
-	ulong r1,r2;	
+	ulong r1,r2;
 
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
@@ -115,7 +115,7 @@ void CChannel::Transmit( CBytestream *bs )
 			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());
 		}
-		
+
 		// We got a reliable packet to send
 		SendReliable = 1;
 
@@ -124,21 +124,22 @@ void CChannel::Transmit( CBytestream *bs )
 	}
 
 	// Don't flood packets
-	if (!SendReliable)
+	// TODO: i comment this as we do already bandwidth checks, so why is it needed here?
+/*	if (!SendReliable)
 		if (GetMilliSeconds() - fLastSent <= 1.0f/60.0f)
 			return;
+*/
 
-	
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);
 
 	iOutgoingSequence++;
-	
+
 	outpack.writeInt(r1,4);
 	outpack.writeInt(r2,4);
 
-	
+
 	// If were sending a reliable message, send it first
 	if(SendReliable) {
 		outpack.Append(&Reliable);
@@ -156,8 +157,10 @@ void CChannel::Transmit( CBytestream *bs )
 	if(bs) {
 		if(outpack.GetLength() + bs->GetLength() < 4096) // Backward compatibility, the old bytestream has a fixed buffer of 4096 bytes
 			outpack.Append(bs);
+		else
+			printf("not adding unrealiable data to avoid too big packets\n");
 	}
-	
+
 
 	// Send the packet
 	SetRemoteNetAddr(Socket, RemoteAddr);
@@ -182,7 +185,7 @@ void CChannel::Transmit( CBytestream *bs )
 bool CChannel::Process(CBytestream *bs)
 {
 	Uint32 Sequence, SequenceAck;
-	Uint32 ReliableAck, ReliableMessage;	
+	Uint32 ReliableAck, ReliableMessage;
 	int drop;
 
 	// Start from the beginning of the packet
@@ -201,7 +204,7 @@ bool CChannel::Process(CBytestream *bs)
 	ReliableAck = SequenceAck >> 31;
 
 	// Get rid of the reliable bits
-	Sequence &= ~(1<<31);	
+	Sequence &= ~(1<<31);
 	SequenceAck &= ~(1<<31);
 
 	// Calculate the bytes per second
@@ -220,15 +223,15 @@ bool CChannel::Process(CBytestream *bs)
 //		printf("Warning: Packet dropped\n");
 //		bs->Dump();
 		/*
-		If we didn't ignore it here, we would become it 
-		again (the remote side will resend it because it thinks we've dropped 
+		If we didn't ignore it here, we would become it
+		again (the remote side will resend it because it thinks we've dropped
 		the packet) and then parse it again => doubled text etc */
 		// see GameServer::ReadPackets and CClient::ReadPackets
 		// or perhaps it's ok to return true here but we should change the behaviour in *::ReadPackets
 		return false;
 	}
 
-	
+
 	// Check for dropped packets
 	drop = Sequence - (iIncomingSequence+1);
 	if(drop>0)
