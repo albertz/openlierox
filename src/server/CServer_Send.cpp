@@ -164,8 +164,6 @@ bool GameServer::SendUpdate()
 
 					// Send out the update
 					update_packets.Append(&bytes);
-
-					printf("sending update in frame %i\n", iServerFrame);
 				}
 			}
 
