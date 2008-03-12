@@ -499,8 +499,9 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 		int size = tProjInfo->bmpImage->h;
 		int half = size/2;
         iFrameX = (int)framestep*size;
+		MOD(iFrameX, tProjInfo->bmpImage->w);
 
-		DrawImageAdv(bmpDest, tProjInfo->bmpImage, (int)framestep*size, 0, x-half, y-half, size,size);
+		DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
 	}
 	return;
 	}
