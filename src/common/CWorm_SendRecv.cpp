@@ -136,7 +136,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CClient* receiver)
 
 	// Velocity
 	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : getClient()->getServerVersion();
-	if(tState.bShoot || versionOfReceiver >= GetOLXBetaVersion(5)) {
+	if(tState.bShoot || versionOfReceiver >= OLXBetaVersion(5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
@@ -365,7 +365,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
-	if(tState.bShoot || versionOfSender >= GetOLXBetaVersion(5)) {
+	if(tState.bShoot || versionOfSender >= OLXBetaVersion(5)) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
@@ -472,7 +472,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 
 	const Version& versionOfSender = getClient()->getServerVersion();
-	bool gotVelocity = tState.bShoot || versionOfSender >= GetOLXBetaVersion(5);
+	bool gotVelocity = tState.bShoot || versionOfSender >= OLXBetaVersion(5);
 
 	// Update the position
 	CVec oldPos = vPos;

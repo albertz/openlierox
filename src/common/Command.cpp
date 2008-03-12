@@ -694,7 +694,7 @@ void Cmd_SetName() {
 	}
 
 	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < GetOLXBetaVersion(3)) {
+	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
 		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}
@@ -719,7 +719,7 @@ void Cmd_SetSkin() {
 	}
 
 	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < GetOLXBetaVersion(3)) {
+	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
 		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}
@@ -744,7 +744,7 @@ void Cmd_SetColour() {
 	}
 
 	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < GetOLXBetaVersion(3)) {
+	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
 		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}

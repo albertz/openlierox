@@ -476,7 +476,7 @@ void CClient::ProcessMapDownloads()
 			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
 			// HTTP failed, let's try UDP
-			if( getServerVersion() > GetOLXBetaVersion(4) )
+			if( getServerVersion() > OLXBetaVersion(4) )
 			{
 				printf("Could not download the map via HTTP, trying UDP...\n");
 				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
@@ -492,7 +492,7 @@ void CClient::ProcessMapDownloads()
 
 
   	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
-	if( getServerVersion() < GetOLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )
+	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )
 		return;
 
 	if( getUdpFileDownloader()->isReceiving() )	 {

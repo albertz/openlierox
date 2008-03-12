@@ -63,7 +63,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd.find("lx::openbeta") == 0)  {
 		if (cmd.size() > 12)  {
 			int betaver = MAX(0, atoi(cmd.substr(12)));
-			Version version = GetOLXBetaVersion(betaver);
+			Version version = OLXBetaVersion(betaver);
 			if(cServerVersion < version) {
 				cServerVersion = version;
 				cout << "HINT: host is at least using OLX Beta3" << endl;

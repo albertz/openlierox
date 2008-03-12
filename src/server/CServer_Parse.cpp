@@ -821,7 +821,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 					continue;
 				if( w->getSkin() == skin )
 				{
-					if( w->getClient()->getClientVersion() < GetOLXBetaVersion(4) )
+					if( w->getClient()->getClientVersion() < OLXBetaVersion(4) )
 						cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file
 					else
 						w->getClient()->getUdpFileDownloader()->requestFile( "skins/" + skin, false );

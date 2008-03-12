@@ -74,7 +74,7 @@ function get_olx_version() {
 	if [ -e VERSION ]; then
 		VERSION=$(cat VERSION)
 	else
-		VERSION=$(grep LX_VERSION include/LieroX.h | \
+		VERSION=$(grep LX_VERSION include/Version.h | \
 			grep define | grep -o -e "\".*\"" | cut -d "\"" -f 2)
 	fi
 	if [ -d .svn ]; then

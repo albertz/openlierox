@@ -350,7 +350,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
 	// The button will pop up when some file is not available, disabled by default
-	if( cClient->getServerVersion() >= GetOLXBetaVersion(4) )
+	if( cClient->getServerVersion() >= OLXBetaVersion(4) )
 		cJoinLobby.Add( new CTextButton( "", tLX->clError, tLX->clNormalLabel), jl_StartStopUdpFileDownload, 360, 195, 0, 0 );
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
