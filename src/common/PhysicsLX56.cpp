@@ -24,6 +24,8 @@
 #include "console.h"
 #include "LieroX.h"
 
+using std::cout; using std::endl;
+
 
 class PhysicsLX56 : public PhysicsEngine {
 public:
@@ -592,7 +594,7 @@ public:
 
 			CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
-			client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime);
+			client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
@@ -616,7 +618,7 @@ public:
 
 			float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar * prj->getRandomFloat();
 
-			client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime);
+			client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
@@ -785,8 +787,10 @@ public:
 		Worm Collision
 		===================
 		*/
-		if( (result & PJC_WORM) && wormid >= 0 && !explode)
-			if( wormid != prj->GetOwner() || (int)(1000 * prj->getLife()) > client->getMyPing())  {
+		if( (result & PJC_WORM) && wormid >= 0 && !explode) {
+			bool preventSelfShooting = (wormid == prj->GetOwner());
+			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
+			if( !preventSelfShooting )  {
 				bool push_worm = true;
 
 				switch (pi->PlyHit_Type)  {
@@ -836,6 +840,7 @@ public:
 				if(pi->PlyHit_Projectiles)
 					spawnprojectiles = true;
 			}
+		}
 
 
 		// Explode?

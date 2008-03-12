@@ -505,7 +505,7 @@ public:
 
 	void		BotSelectWeapons(void);
 
-	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float time);
+	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float time, float ignoreWormCollBeforeTime);
     void        disableProjectile(CProjectile *prj);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);

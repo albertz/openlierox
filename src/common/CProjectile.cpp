@@ -27,7 +27,7 @@
 ///////////////////
 // Spawn the projectile
 // this function is called by CClient::SpawnProjectile()
-void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time)
+void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time, float ignoreWormCollBeforeTime)
 {
 	// Safety (it is used for indexing later)
 	if (_owner >= MAX_WORMS || _owner < 0)  {
@@ -47,6 +47,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fLastTrailProj = -99999;
 	iRandom = _random;
     iFrameX = 0;
+	fIgnoreWormCollBeforeTime = ignoreWormCollBeforeTime;
 
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;

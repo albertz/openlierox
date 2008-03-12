@@ -592,7 +592,7 @@ void CClient::DrawBeam(CWorm *w)
 
 ///////////////////
 // Spawn a projectile
-void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float remotetime)
+void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float remotetime, float ignoreWormCollBeforeTime)
 {
 	CProjectile *proj = cProjectiles;
 	int p=0;
@@ -614,7 +614,7 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
     // Safety
     _random %= 255;
 
-	proj->Spawn(_proj,pos,vel,rot,owner,_random,remotetime);
+	proj->Spawn(_proj,pos,vel,rot,owner,_random,remotetime, ignoreWormCollBeforeTime);
 }
 
 static int CompareLives(int l1, int l2)
@@ -1044,7 +1044,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 
         CVec v = sprd*speed + shot->cWormVel;
 
-		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime);
+		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime, true);
 
 		shot->nRandom++;
 		shot->nRandom %= 255;

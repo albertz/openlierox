@@ -162,6 +162,7 @@ private:
 	int			iOwner;
 	float		fSpeed;
 	Uint32		iColour;
+	float		fIgnoreWormCollBeforeTime;
 
 	// Projectile trail
 	float		fLastTrailProj;
@@ -202,7 +203,7 @@ public:
 	// Methods
 
 
-	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time);
+	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time, float ignoreWormCollBeforeTime);
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface *bmpDest, CViewport *view);
@@ -231,6 +232,7 @@ public:
 	bool	getFrameDelta()			{ return bFrameDelta; }
 	float&	frame()					{ return fFrame; }
 	float&	lastTrailProj()			{ return fLastTrailProj; }
+	float	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
 	CVec	GetPosition(void)		{ return vPosition; }
 	CVec	GetVelocity(void)		{ return vVelocity; }
