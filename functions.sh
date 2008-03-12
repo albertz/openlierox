@@ -79,9 +79,7 @@ function get_olx_version() {
 	fi
 	if [ -d .svn ]; then
 		if type svn >/dev/null 2>&1; then
-			if type cut >/dev/null 2>&1; then
-				VERSION="${VERSION}_r$(svn info | grep "Revision:" | cut -d " " -f 2)"
-			fi
+			VERSION="${VERSION}_r$(svn info | grep "Revision:" | cut -d " " -f 2)"
 		fi
 	fi
 	echo "$VERSION"
