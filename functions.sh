@@ -66,7 +66,7 @@ function own_xml2_config() {
 }
 
 # get somehow a version-string (like "0.57_beta4_r1090")
-# reads the file VERSION if available or else reads out from LieroX.h
+# reads the file VERSION if available or else reads out from Version.h
 # if SVN-data is available, it adds the revision number to the string
 # prints out the version on stdout
 function get_olx_version() {
