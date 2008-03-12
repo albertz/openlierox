@@ -105,8 +105,6 @@ void CClient::Clear(void)
 	iMyPing = 0;
 	fMyPingSent = 0;
 
-	// Clear the message sizes
-	memset(nMessageSizes, 0, sizeof(int)*RATE_NUMMSGS);
 
 	// HINT: gamescript is shut down by the cache
 

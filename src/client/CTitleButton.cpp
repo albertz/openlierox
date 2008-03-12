@@ -14,7 +14,6 @@
 // Jason Boettcher
 
 
-#include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "CTitleButton.h"
@@ -34,7 +33,7 @@ void CTitleButton::Draw(SDL_Surface *bmpDest)
 	bMouseOver = false;
 }
 
-static bool CTitleButton_WidgetRegistered = 
+static bool CTitleButton_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "titlebutton", & CTitleButton::WidgetCreator )
 							( "textid", CScriptableVars::SVT_INT )
 							( "click", CScriptableVars::SVT_STRING );

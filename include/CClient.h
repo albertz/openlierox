@@ -41,7 +41,6 @@
 #define		MAX_PLAYERS		32
 #define		MAX_CHATLINES	8
 
-#define		RATE_NUMMSGS	10
 
 #define     NUM_VIEWPORTS   3
 #define     GAMEOVER_WAIT   3
@@ -399,7 +398,6 @@ private:
 	CChannel	cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;
-	size_t		nMessageSizes[RATE_NUMMSGS];
     float       fZombieTime;
 	float		fSendWait;
 	float		fLastUpdateSent;
@@ -653,8 +651,6 @@ public:
 
 	int			getNetSpeed(void)			{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
-
-	size_t		*getMsgSize(void)			{ return nMessageSizes; }
 
 	CShootList	*getShootList(void)			{ return &cShootList; }
 

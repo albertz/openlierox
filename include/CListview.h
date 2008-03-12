@@ -222,9 +222,12 @@ public:
 	void	SortBy(int column, bool ascending);
 	void	ReSort(void);
 
-	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour = tLX->clNormalLabel);
+	void	AddColumn(const std::string& sText, int iWidth);
+	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, Uint32 iColour = tLX->clPink);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign, Uint32 iColour);
+
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 
@@ -277,8 +280,8 @@ public:
 		w->setDrawBorder( ! p[2].b );
 		return w;
 	};
-	
-	void	ProcessGuiSkinEvent(int iEvent) 
+
+	void	ProcessGuiSkinEvent(int iEvent)
 	{
 	};
 };

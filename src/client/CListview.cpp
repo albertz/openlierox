@@ -66,7 +66,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-	
+
 	// Get the top
 	int y=iY;
 	if (tColumns)  {
@@ -74,11 +74,11 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			y = iY+tLX->cFont.GetHeight();
 		else
 			y = iY+tLX->cFont.GetHeight()+2;
-	} 
+	}
 
 	if (bDrawBorder)
 		y += 2;
-	
+
 	// Re-setup the scrollbar
 	if (!bCustomScrollbarSetup)  {
 		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - y + iY - 1);
@@ -246,6 +246,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		Menu_DrawBoxInset(bmpDest, iX, iY+(tLX->cFont.GetHeight()-1)*bOldStyle, iX+iWidth, iY+iHeight);
 }
 
+void CListview::AddColumn(const std::string& sText, int iWidth) {
+	AddColumn(sText, iWidth, tLX->clNormalLabel);
+}
 
 ///////////////////
 // Add a column to the list view
@@ -375,6 +378,9 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 	bNeedsRepaint = true;
 }
 
+void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign) {
+	AddSubitem(iType, sText, img, wid, iVAlign, tLX->clPink);
+}
 
 ///////////////////
 // Add a sub item to the last item
@@ -1001,7 +1007,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		y = iY+2;
 	lv_item_t *item = tItems;
 	int count=0;
-	
+
 	// Remove focus from the active widget, the following loop will maybe recover it
 	if (tFocusedSubWidget)
 		if (tFocusedSubWidget->CanLoseFocus())
@@ -1313,7 +1319,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 				iLastChar = SDLK_DOWN;
 				if (bGotScrollbar)
 					if (tSelected->_iID >= (cScrollbar.getItemsperbox()-1 + cScrollbar.getValue()))
-						cScrollbar.setValue( cScrollbar.getValue()+1 );			
+						cScrollbar.setValue( cScrollbar.getValue()+1 );
 				return LV_NONE;
 			}
 		} else {
@@ -1334,7 +1340,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 				iLastChar = SDLK_UP;
 				if (bGotScrollbar)
 					if (cScrollbar.getValue() > tSelected->_iID)
-						cScrollbar.setValue( cScrollbar.getValue()-1 );	
+						cScrollbar.setValue( cScrollbar.getValue()-1 );
 				return LV_NONE;
 			}
 		}
@@ -1521,7 +1527,7 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			else
 				printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 			break;
-			
+
 		default:
 			printf("Bad listview message\n");
 	}
@@ -1550,7 +1556,7 @@ DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 		else
 			printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 		break;
-		
+
 	default:
 		printf("Bad listview message\n");
 	}
@@ -1631,7 +1637,7 @@ void CListview::SetupScrollbar(int x, int y, int h, bool always_visible)
 		full_auto_setup++;
 		x = iX + iWidth - 14;
 	}
-	
+
 
 	// Setup the scrollbar
 	cScrollbar.Setup(0, x, y, 14, h);
@@ -1660,7 +1666,7 @@ lv_subitem_t *CListview::getSubItem(lv_item_t *it, int subitem_index)
 	return sub;
 }
 
-static bool CListview_WidgetRegistered = 
+static bool CListview_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "listview", & CListview::WidgetCreator )
 							( "oldstyle", CScriptableVars::SVT_BOOL )
 							( "hideselection", CScriptableVars::SVT_BOOL )
