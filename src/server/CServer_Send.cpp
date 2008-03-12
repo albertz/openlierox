@@ -128,15 +128,19 @@ bool GameServer::SendUpdate()
 
 			// Check if we have gone over the bandwidth rating for the client
 			// If we have, just don't send a packet this frame
-			if( !checkBandwidth(cl) )
+			if( !checkBandwidth(cl) ) {
 				// We have gone over the bandwidth for the client, don't send a message this frame
+				printf("over bandwidth for client %i\n", i);
 				continue;
+			}
 
 			// check our server bandwidth
 			if( cl->getNetSpeed() < 3 // <3 is non-local
-			&& !checkServerBandwidth() )
+			&& !checkServerBandwidth() ) {
 				// we have gone over our own bandwidth for non-local clients
+				printf("over upload bandwidth\n");
 				continue;
+			}
 
 			CBytestream update_packets;  // Contains all the update packets except the one from this client
 
