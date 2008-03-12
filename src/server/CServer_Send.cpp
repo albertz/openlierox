@@ -131,6 +131,12 @@ bool GameServer::SendUpdate()
 				// We have gone over the bandwidth for the client, don't send a message this frame
 				continue;
 
+			// check our server bandwidth
+			if( cl->getNetSpeed() < 3 // <3 is non-local
+			&& !checkServerBandwidth() )
+				// we have gone over our own bandwidth for non-local clients
+				continue;
+
 			CBytestream update_packets;  // Contains all the update packets except the one from this client
 
 			CBytestream *bs = cl->getUnreliable();
@@ -215,7 +221,7 @@ bool GameServer::checkBandwidth(CClient *cl)
 	// Don't bother checking if the client is on the same comp as the server
 	if( tGameInfo.iGameType != GME_LOCAL )
 		return true;
-	if(cl->getNetSpeed() == 3)
+	if(cl->getNetSpeed() == 3) // local
 		return true;
 
 
@@ -234,6 +240,30 @@ bool GameServer::checkBandwidth(CClient *cl)
 	return true;
 }
 
+// true means we can send further data
+bool GameServer::checkServerBandwidth() {
+	if( tGameInfo.iGameType != GME_LOCAL )
+		return true;
+
+	// Modem, ISDN, LAN, local
+	// (Bytes per second)
+	const float	Rates[4] = {2500, 7500, 10000, 50000};
+
+	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
+	if(tLXOptions->iNetworkSpeed >= 2) {
+		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to LAN (or higher)
+		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxServerUploadBandwidth);
+	}
+
+	{
+		static bool didShowMessageAlready = false;
+		if(!didShowMessageAlready)
+			printf("Server: using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
+		didShowMessageAlready = true;
+	}
+
+	return GetUpload() < fMaxRate;
+}
 
 ///////////////////
 // Send an update of the game details in the lobby

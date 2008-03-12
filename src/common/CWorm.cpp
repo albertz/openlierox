@@ -1084,7 +1084,7 @@ bool CWorm::Injure(int damage)
 // Returns true if we are out of the game
 bool CWorm::Kill(void)
 {
-	std::cout << "our worm " << iID << " died" << std::endl;
+//	std::cout << "our worm " << iID << " died" << std::endl;
 
 	bAlive = false;
 	fTimeofDeath = tLX->fCurTime;

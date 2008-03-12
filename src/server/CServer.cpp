@@ -1445,7 +1445,7 @@ CClient *GameServer::getClient(int iWormID)
 
 
 ///////////////////
-// Get the download rate in bytes/s
+// Get the download rate in bytes/s for all non-local clients
 float GameServer::GetDownload()
 {
 	float result = 0;
@@ -1453,7 +1453,7 @@ float GameServer::GetDownload()
 
 	// Sum downloads from all clients
 	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
-		if (cl->getStatus() != NET_DISCONNECTED)
+		if (cl->getStatus() != NET_DISCONNECTED && cl->getNetSpeed() < 3)
 			result += cl->getChannel()->getIncomingRate();
 	}
 
@@ -1461,7 +1461,7 @@ float GameServer::GetDownload()
 }
 
 ///////////////////
-// Get the upload rate in bytes/s
+// Get the upload rate in bytes/s for all non-local clients
 float GameServer::GetUpload()
 {
 	float result = 0;
@@ -1469,7 +1469,7 @@ float GameServer::GetUpload()
 
 	// Sum downloads from all clients
 	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
-		if (cl->getStatus() != NET_DISCONNECTED)
+		if (cl->getStatus() != NET_DISCONNECTED && cl->getNetSpeed() < 3)
 			result += cl->getChannel()->getOutgoingRate();
 	}
 

@@ -183,6 +183,7 @@ public:
 	void		SendPackets(void);
 	bool		SendUpdate();
 	bool		checkBandwidth(CClient *cl);
+	bool		checkServerBandwidth();
 	void		RegisterServer(void);
 	void		RegisterServerUdp(void);
 	void		ProcessRegister(void);
