@@ -123,13 +123,6 @@ void CChannel::Transmit( CBytestream *bs )
 		iReliableSequence ^= 1;
 	}
 
-	// Don't flood packets
-	// TODO: i comment this as we do already bandwidth checks, so why is it needed here?
-/*	if (!SendReliable)
-		if (GetMilliSeconds() - fLastSent <= 1.0f/60.0f)
-			return;
-*/
-
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);

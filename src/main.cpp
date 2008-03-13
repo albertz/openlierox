@@ -619,6 +619,21 @@ void GameLoopFrame(void)
     if(tLX->bQuitEngine)
         return;
 
+	// Switch between window and fullscreen mode
+	if( cSwitchMode.isUp() )  {
+		// Set to fullscreen
+		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
+
+		// Set the new video mode
+		SetVideoMode();
+
+		// Update both menu and game screens
+		Screen = SDL_GetVideoSurface();
+		tMenu->bmpScreen = Screen;
+
+		cSwitchMode.reset();
+	}
+
 #ifdef WITH_MEDIAPLAYER
 	// Media player
 	cMediaPlayer.Frame();
@@ -655,21 +670,6 @@ void GameLoopFrame(void)
 		break;
 
 	} // SWITCH
-
-	// Switch between window and fullscreen mode
-	if( cSwitchMode.isUp() )  {
-		// Set to fullscreen
-		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
-
-		// Set the new video mode
-		SetVideoMode();
-
-		// Update both menu and game screens
-		Screen = SDL_GetVideoSurface();
-		tMenu->bmpScreen = Screen;
-
-		cSwitchMode.reset();
-	}
 
 	// We put it here, so the mouse never displays
     SDL_ShowCursor(SDL_DISABLE);
