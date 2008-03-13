@@ -121,8 +121,9 @@ bool GameServer::SendUpdate()
 
 
 	{
-		int i=0;
-		for (CClient *cl = cClients; i < MAX_CLIENTS; cl++, i++)  {
+		for (int i = 0; i < MAX_CLIENTS; i++)  {
+			CClient* cl = &cClients[ (i + iServerFrame) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
 

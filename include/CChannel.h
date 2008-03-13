@@ -20,7 +20,55 @@
 #include "CBytestream.h"
 #include <list>
 
-// NOTE: in no part of the whole code is the Socket set 
+template< int AMOUNT, int TIMERANGEMS >
+class Rate {
+private:
+	size_t buckets[AMOUNT];
+	int curIndex;
+	float curIndexTime;
+
+public:
+	void clear() { curIndex = -1; curIndexTime = 0; memset(buckets, 0, sizeof(buckets)); }
+	Rate() { clear(); }
+
+	float timeRange() { return (float)TIMERANGEMS / 1000.0f; }
+
+	void addData(float curtime, size_t amount) {
+		// calc diff of oldindex to newindex
+		size_t dindex;
+		if(curIndex >= 0) {
+			dindex = (int) ( (float)AMOUNT * ((curtime - curIndexTime) / timeRange()) );
+			if(dindex >= AMOUNT) { // our data is too old, just clear it
+				clear();
+			}
+		}
+		if(curIndex == -1) {
+			curIndex = 0;
+			dindex = 0;
+			curIndexTime = curtime;
+		}
+
+		// reset the buckets in between
+		for(size_t i = 0; i < dindex; i++) {
+			buckets[ (curIndex + i + 1) % AMOUNT ] = 0;
+		}
+
+		// do updates
+		curIndex += dindex; curIndex %= AMOUNT; curIndexTime += (float)dindex * timeRange() / (float)AMOUNT;
+
+		// add data
+		buckets[curIndex] += amount;
+	}
+
+	float getRate() {
+		size_t sum = 0;
+		for(int i = 0; i < AMOUNT; i++)
+			sum += buckets[i];
+		return (float)sum / timeRange();
+	}
+
+};
+
 
 
 class CChannel {
@@ -46,14 +94,11 @@ private:
 	NetworkSocket	Socket;
 	bool			bNewReliablePacket;
 
-	
-	// Bandwidth Estimation
-	float		fIncomingClearTime;
-	float		fOutgoingClearTime;
-	float		fIncomingRate;								// Bandwidth rate (bytes/second)
-	float		fOutgoingRate;
 
-	
+	// Bandwidth Estimation
+	Rate<100,2000>	cIncomingRate;
+	Rate<100,2000>	cOutgoingRate;
+
 	// Sequencing
 	Uint32		iIncomingSequence;
 	Uint32		iIncomingAcknowledged;
@@ -67,7 +112,7 @@ private:
 
 	// Packets
 	std::list<CBytestream>	Messages;							// Reliable message
-	
+
 	CBytestream	Reliable;							// Reliable message waiting to be acknowledged
 
 
@@ -98,7 +143,8 @@ public:
 	bool		Process(CBytestream *bs);
 	void		Clear(void)				{ fLastPckRecvd = 0;
 										  iPort = LX_PORT; InvalidateSocketState(Socket);
-										  iPacketsDropped = 0; iPacketsGood = 0; bNewReliablePacket = false; }
+										  iPacketsDropped = 0; iPacketsGood = 0; bNewReliablePacket = false;
+										  cIncomingRate.clear(); cOutgoingRate.clear(); }
 
 
 	size_t		getPacketLoss(void)		{ return iPacketsDropped; }
@@ -109,7 +155,7 @@ public:
 
 	// Packets
 	void	AddReliablePacketToSend(CBytestream& bs);
-	
+
 	int		getInSeq(void)			{ return iIncomingSequence; }
 	int		getOutSeq(void)			{ return iOutgoingSequence; }
 	void	setInSeq(int _s)		{ iIncomingSequence = _s; }
@@ -123,8 +169,8 @@ public:
 	int		getPing()			{ return iPing; }
 	void	setPing(int _p)		{ iPing = _p; }
 
-	float getIncomingRate()		{ return fIncomingRate; }
-	float getOutgoingRate()		{ return fOutgoingRate; }
+	float getIncomingRate()		{ return cIncomingRate.getRate(); }
+	float getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };

@@ -42,10 +42,6 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iPacketsGood=0;
 	fLastSent = tLX->fCurTime-1;
 	fLastPingSent = fLastSent;
-	fIncomingClearTime = -9999;
-	fOutgoingClearTime = -9999;
-	fIncomingRate = 0;
-	fOutgoingRate = 0;
 	iCurrentIncomingBytes = 0;
 	iCurrentOutgoingBytes = 0;
 	iPongSequence = -1;
@@ -165,11 +161,7 @@ void CChannel::Transmit( CBytestream *bs )
 	fLastSent = GetMilliSeconds();
 
 	// Calculate the bytes per second
-	if (tLX->fCurTime - fOutgoingClearTime >= 2.0f)  {
-		fOutgoingRate = (float)iCurrentOutgoingBytes/(GetMilliSeconds() - fOutgoingClearTime);
-		iCurrentOutgoingBytes = 0;
-		fOutgoingClearTime = GetMilliSeconds();
-	}
+	cOutgoingRate.addData( tLX->fCurTime, outpack.GetLength() );
 }
 
 
@@ -203,11 +195,7 @@ bool CChannel::Process(CBytestream *bs)
 	// Calculate the bytes per second
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
-	if (tLX->fCurTime - fIncomingClearTime >= 2.0f)  {
-		fIncomingRate = (float)iCurrentIncomingBytes/(GetMilliSeconds() - fIncomingClearTime);
-		iCurrentIncomingBytes = 0;
-		fIncomingClearTime = GetMilliSeconds();
-	}
+	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
 
 	// Get rid of the old packets
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
