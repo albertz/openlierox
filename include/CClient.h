@@ -209,6 +209,7 @@ public:
 		bMapGrabbed = false;
 		cChatList = NULL;
 		bUpdateScore = true;
+		fLastScoreUpdate = -9999;
 		bShouldRepaintInfo = true;
 		bCurrentSettings = false;
 
@@ -339,6 +340,7 @@ private:
 
 	// Game menu && score
 	bool		bUpdateScore;
+	float		fLastScoreUpdate;
 
 	// Ingame scoreboard
 	SDL_Surface *bmpIngameScoreBg;

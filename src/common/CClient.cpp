@@ -65,6 +65,7 @@ void CClient::Clear(void)
 	cBonuses = NULL;
     nTopProjectile = 0;
 	bUpdateScore = true;
+	fLastScoreUpdate = -9999;
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
@@ -150,6 +151,7 @@ void CClient::MinorClear(void)
 	bGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
+	fLastScoreUpdate = -9999;
 	bCurrentSettings = false;
 	bForceWeaponsReady = false;
 

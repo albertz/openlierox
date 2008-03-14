@@ -2338,6 +2338,7 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
     }
 
 	bUpdateScore = false;
+	fLastScoreUpdate = tLX->fCurTime;
 }
 
 #define WAIT_COL_W 180
@@ -2437,7 +2438,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
 				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg->w, bmpIngameScoreBg->h);
 
-	if (bUpdateScore)
+	if (bUpdateScore || tLX->fCurTime - fLastScoreUpdate >= 2.0f)
 		UpdateIngameScore(((CListview *)cScoreLayout.getWidget(sb_Left)), ((CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 
 	// Hide the second list if there are no players
