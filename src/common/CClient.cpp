@@ -482,18 +482,24 @@ void CClient::ProcessMapDownloads()
 				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
 				getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
 				iDownloadMethod = DL_UDP;
-			};
+			} else {
+				bDownloadingMap = false;
+				sMapDownloadName = "";
+			}
 		}
 
 		// Get the progress
 		iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
-	};
+	}
 
 
 
   	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
-	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )
+	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+		bDownloadingMap = false;
+		sMapDownloadName = "";
 		return;
+	}
 
 	if( getUdpFileDownloader()->isReceiving() )	 {
 		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
