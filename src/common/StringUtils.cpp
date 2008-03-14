@@ -635,7 +635,7 @@ size_t StringChecksum( const std::string & data )
 	return adler32(0L, (const Bytef *)data.c_str(), (uint)data.size());
 };
 
-bool FileChecksum( const std::string & path, uint * _checksum, size_t * _filesize )
+bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _filesize )
 {
 	FILE * ff = OpenGameFile( path, "rb" );
 	if( ff == NULL )
@@ -646,7 +646,7 @@ bool FileChecksum( const std::string & path, uint * _checksum, size_t * _filesiz
 
 	while( ! feof( ff ) )
 	{
-		uint read = (uint)fread( buf, 1, sizeof(buf), ff ); // TODO: possible overflow on 64bit systems
+		size_t read = fread( buf, 1, sizeof(buf), ff );
 		checksum = adler32( checksum, (const Bytef *)buf, read);
 		size += read;
 	};

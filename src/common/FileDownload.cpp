@@ -513,7 +513,7 @@ void CUdpFileDownloader::requestFile( const std::string & path, bool retryIfFail
 	if( retryIfFail )
 	{
 		bool exist = false;
-		for( uint f = 0; f < tRequestedFiles.size(); f++ )
+		for( size_t f = 0; f < tRequestedFiles.size(); f++ )
 			if( tRequestedFiles[f] == path )
 				exist = true;
 		if( ! exist )
@@ -760,7 +760,7 @@ class StatDirList
 
 std::string getStatPacketOneFile( const std::string & path )
 {
-	uint checksum, size, compressedSize;
+	size_t checksum, size, compressedSize;
 	if( ! FileChecksum( path, &checksum, &size ) )
 		return "";
 	compressedSize = size + path.size() + 24; // Most files from disk are compressed already, so guessing size

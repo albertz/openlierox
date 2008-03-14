@@ -34,6 +34,7 @@ INCLUDE_DIRECTORIES(include pstreams)
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
+INCLUDE_DIRECTORIES(/usr/include/hawknl)
 IF (HAWKNL_BUILTIN)
 	INCLUDE_DIRECTORIES(hawknl/include)
 ENDIF (HAWKNL_BUILTIN)
