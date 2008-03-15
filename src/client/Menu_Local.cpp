@@ -1133,6 +1133,22 @@ enum {
 };
 
 
+std::list<wpnrest_t *> tWeaponList;
+
+/////////////////
+// Updates the weapon list that is shown in the dialog
+static void UpdateWeaponList()
+{
+	tWeaponList.clear();
+	wpnrest_t *psWpn = cWpnRestList.getList();
+	if (!psWpn)
+		return;
+	
+	for(int i=0; i < cWpnRestList.getNumWeapons(); i++) {
+        if(cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
+			tWeaponList.push_back(&psWpn[i]);
+    }
+}
 
 ///////////////////
 // Initialize the weapons restrictions
@@ -1169,6 +1185,9 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
         if( cWpnGameScript->Load(szMod) )
             cWpnRestList.updateList( cWpnGameScript );
     }
+
+    // Get the weapons for the list
+	UpdateWeaponList();
 }
 
 //////////////////
@@ -1205,23 +1224,11 @@ bool Menu_WeaponsRestrictions_Frame(void)
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Draw the list
-    wpnrest_t *psWpn = cWpnRestList.getList();
-    int num = cWpnRestList.getNumWeapons();
     int count = cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
-    int weaponCount = 0;
-    int i, j = 0, w = 0;
 
-    // Count the number of weapons in _this_ mod only
-    for(i=0; i<num; i++) {
-        if(cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
-            weaponCount++;
-    }
-
-    // Show the weapons
-	static std::string buf;
-    for(i=0; i<num; i++) {
-        if(!cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
-            continue;
+	int w, j;
+	w = j = 0;
+	for (std::list<wpnrest_t *>::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
         if( w++ < count )
             continue;
         if( j > 10 )
@@ -1238,23 +1245,23 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
-                    psWpn[i].psLink->nState++;
-                    psWpn[i].psLink->nState %= 3;
+                    (*it)->psLink->nState++;
+                    (*it)->psLink->nState %= 3;
                 }
             }
         }
 
-		buf = psWpn[i].psLink->szName;
+		std::string buf = (*it)->psLink->szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour, buf );
-        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour, szStates[psWpn[i].psLink->nState] );
-    }
+        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour, szStates[(*it)->psLink->nState] );
+	}
 
     // Adjust the scrollbar
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETITEMSPERBOX, 12, 0);
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, (DWORD)0, 0);
-    if(weaponCount>10)
-        cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, weaponCount+1, 0);
+	if(tWeaponList.size() > 10)
+		cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, tWeaponList.size() + 1, 0);
     else
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 
@@ -1343,14 +1350,12 @@ CGuiLayout cWpnPresets;
 		CListview* listview;
 		WeaponPresetsAdder(CListview* lv_) : listview(lv_) {}
 		inline bool operator() (const std::string& f) {
-			if(stringcasecmp(GetFileExtension(f),"wps")) {
-				size_t sep = findLastPathSep(f);
-				if(sep != std::string::npos) {
-					std::string name = f.substr(sep+1);
-					if(!listview->getItem(name)) {
-						listview->AddItem(name,0,tLX->clListView);
-						listview->AddSubitem(LVS_TEXT, name, NULL, NULL);
-					}
+			if(stringcaseequal(GetFileExtension(f),"wps")) {
+				std::string fname = GetBaseFilename(f);
+				std::string name = fname.substr(0, fname.size() - 4); // remove the extension, the size calcing is safe here
+				if(!listview->getItem(fname)) {
+					listview->AddItem(fname,0,tLX->clListView);
+					listview->AddSubitem(LVS_TEXT, name, NULL, NULL);
 				}
 			}
 			return true;
@@ -1452,11 +1457,11 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 					if(t->getText().length() > 0) {
 
 						quitloop = true;
-						static std::string buf;
+						std::string buf;
 						if(save) {
 
 							// Save
-							buf = std::string("cfg/presets/") + t->getText();
+							buf = std::string("cfg/presets/") + t->getText() + ".wps";
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))
@@ -1468,6 +1473,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							// Load
 							buf = std::string("cfg/presets/") + t->getText();
 							wpnrest->loadList(buf);
+							wpnrest->updateList(cWpnGameScript);
+							UpdateWeaponList();
 						}
 					}
 				}
