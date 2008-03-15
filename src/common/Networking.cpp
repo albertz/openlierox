@@ -609,7 +609,7 @@ extern "C" {
 static bool nlUpdateState(NLsocket socket)
 {
     nl_socket_t *sock = nlSockets[socket];
-    NLint       count;
+    NLint       count = 0;
 
     if((sock->type == NL_RELIABLE) || (sock->type == NL_RELIABLE_PACKETS)) /* TCP */
     {
