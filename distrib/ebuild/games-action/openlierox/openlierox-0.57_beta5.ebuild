@@ -10,7 +10,7 @@ SRC_URI="mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz2"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~ppc ~x86"
+KEYWORDS="~ppc ~x86 ~amd64"
 IUSE="debug"
 
 RDEPEND="media-libs/libsdl
