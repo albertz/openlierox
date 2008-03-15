@@ -24,9 +24,7 @@
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"
-#ifdef DEBUG
 #include "MathLib.h"
-#endif
 
 using namespace std;
 
