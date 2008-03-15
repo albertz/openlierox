@@ -9,7 +9,7 @@ echo $VERSION > VERSION
 SRC_FILES="src include hawknl pstreams boost_process"
 STD_FILES="VERSION CMakeLists.txt *.sh *.bat build/Xcode debian"
 DOC_FILES="COPYING.LIB DEPS doc"
-DAT_FILES="share/gamedir share/*.png share/*.icns share/*.ico share/*.svg share/*.xpm"
+DAT_FILES="share"
 
 export SRC_RELEASE="$SRC_FILES $STD_FILES $DOC_FILES $DAT_FILES"
 export WIN32_RELEASE="doc COPYING.LIB share/gamedir/* distrib/win32/*"
