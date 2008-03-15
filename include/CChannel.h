@@ -35,7 +35,7 @@ public:
 
 	void addData(float curtime, size_t amount) {
 		// calc diff of oldindex to newindex
-		size_t dindex;
+		size_t dindex = 0;
 		if(curIndex >= 0) {
 			dindex = (int) ( (float)AMOUNT * ((curtime - curIndexTime) / timeRange()) );
 			if(dindex >= AMOUNT) { // our data is too old, just clear it

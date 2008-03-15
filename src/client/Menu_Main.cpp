@@ -46,7 +46,9 @@ enum {
 	mm_ShowNews
 };
 
+#ifdef DEBUG
 static void Menu_Main_GuiSkinComboboxCreate();
+#endif
 static void Menu_Main_GuiThemeComboboxCreate();
 
 ///////////////////
@@ -346,6 +348,7 @@ void Menu_Main_GuiThemeComboboxCreate() {
 	initialiser.execute();
 }
 
+#ifdef DEBUG
 void Menu_Main_GuiSkinComboboxCreate()
 {
 	// GUI skin combobox
@@ -361,4 +364,4 @@ void Menu_Main_GuiSkinComboboxCreate()
 	c_init.Call();
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 }
-
+#endif
