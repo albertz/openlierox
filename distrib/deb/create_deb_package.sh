@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd ../.. # go into root dir
-dpkg-buildpackage -rfakeroot -sa -sK -S \
+dpkg-buildpackage -rfakeroot -sa -sK \
 	-I.svn -Idistrib -ICMakeFiles -Ibuild -I*stamp -IMakefile \
 	-ICMakeCache.txt -Icmake* -Itools \
 	-i\
