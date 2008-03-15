@@ -64,40 +64,6 @@ void CClient::Simulation(void)
         return;
 
 
-	//
-	// Key shortcuts
-	//
-
-	// Top bar toggle
-	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
-		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
-
-		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
-
-		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
-		int top = toph;
-		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
-			toph = -toph;
-			top = 0;
-		}
-
-		// TODO: allow more viewports
-		// Setup the viewports
-		cViewports[0].SetTop(top);
-		cViewports[0].SetVirtHeight(cViewports[0].GetVirtH() - toph);
-		if (cViewports[1].getUsed()) {
-			cViewports[1].SetTop(top);
-			cViewports[1].SetVirtHeight(cViewports[1].GetVirtH() - toph);
-		}
-
-		bShouldRepaintInfo = true;
-	}
-
-	// Health bar toggle
-	if (cShowHealth.isDownOnce() && !bChat_Typing)  {
-		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
-	}
-
 	// TODO: does it work also, if we
 	// 1. simulate all worms
 	// 2. check collisions with bonuses

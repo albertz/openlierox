@@ -1028,6 +1028,15 @@ void CClient::SimulateHud(void)
     bool  con = Con_IsUsed();
 
 
+	//
+	// Key shortcuts
+	//
+
+	// Health bar toggle
+	if (cShowHealth.isDownOnce() && !bChat_Typing && iNetStatus == NET_PLAYING)  {
+		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
+	}
+
 	// Game Menu
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !bChat_Typing && !con && !tMenu->bMenuRunning) {
@@ -1037,6 +1046,31 @@ void CClient::SimulateHud(void)
         else
             bViewportMgr = false;
     }
+
+	// Top bar toggle
+	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
+		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
+
+		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+
+		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
+		int top = toph;
+		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
+			toph = -toph;
+			top = 0;
+		}
+
+		// TODO: allow more viewports
+		// Setup the viewports
+		cViewports[0].SetTop(top);
+		cViewports[0].SetVirtHeight(cViewports[0].GetVirtH() - toph);
+		if (cViewports[1].getUsed()) {
+			cViewports[1].SetTop(top);
+			cViewports[1].SetVirtHeight(cViewports[1].GetVirtH() - toph);
+		}
+
+		bShouldRepaintInfo = true;
+	}
 
 	if (bGameReady)  {
 		// Console
