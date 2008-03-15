@@ -146,7 +146,11 @@ static int SdlNetEventThreadMain( void * param )
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT_NET_ACTIVITY;
 	ev.user.code = 0;
-	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS), TODO: 64bit unsafe (pointer cast)
+	// save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
+	// HINT: We are casting the number to a void* because that is the type of data1
+	// It is *not* used as a pointer, it's still the number.
+	// I know this is bad, but much more easier and less error prone.
+	ev.user.data1 = (void*) (long) *(uint*)param;
 	ev.user.data2 = NULL;
 
 	// When restarting, this can happen, we wait for options to initialize
