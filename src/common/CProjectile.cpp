@@ -193,16 +193,23 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
 		checkstep = MAX(checkstep, 0.001f);
 
-		for(float time = 0; time < dt; time += checkstep) {
-			ret = CheckCollision(time+checkstep>dt ? dt-time : checkstep, map,worms,enddt);
-			if(ret >= -1) {
-				if(enddt) *enddt += time;
-				return ret;
+		// In some bad cases (foat accurance problems mainly),
+		// it's possible that checkstep >= dt .
+		// If we would not check this case, we get in an infinie
+		// recursive loop.
+		// Therefore if this is the case, we don't do multiple checksteps.
+		if(checkstep < dt) {
+			for(float time = 0; time < dt; time += checkstep) {
+				ret = CheckCollision((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
+				if(ret >= -1) {
+					if(enddt) *enddt += time;
+					return ret;
+				}
 			}
-		}
 
-		if(enddt) *enddt = dt;
-		return NONE_COL_RET;
+			if(enddt) *enddt = dt;
+			return NONE_COL_RET;
+		}
 	}
 
 	vVelocity = newvel;
