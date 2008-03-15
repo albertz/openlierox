@@ -131,7 +131,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$($xmlconfig --libs) \
 	-lSDL_image -lSDL_mixer -lgd -pthread \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
-	-DDEBUG="$DEBUG" \
+	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
 	$( [ "$ACTIVATE_GDB" == "1" ] && echo "-g" ) \
 	$( [ "$X11CLIPBOARD" == "1" ] && echo "-DX11CLIPBOARD -lX11" ) \
