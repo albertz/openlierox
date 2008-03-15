@@ -191,8 +191,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
 		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
+		checkstep = MAX(checkstep, 0.001f);
 
-		for(float time = 0.001f; time < dt; time += checkstep) { // 0.001 to avoid an infinite recursion, TODO: is it correct like this?
+		for(float time = 0; time < dt; time += checkstep) {
 			ret = CheckCollision(time+checkstep>dt ? dt-time : checkstep, map,worms,enddt);
 			if(ret >= -1) {
 				if(enddt) *enddt += time;
