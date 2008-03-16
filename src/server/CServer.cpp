@@ -188,35 +188,35 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	// Load the master server list
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
-    if( !fp )
-        return false;
+	if( fp )  {
+		// Parse the lines
+		while(!feof(fp)) {
+			std::string buf = ReadUntil(fp);
+			TrimSpaces(buf);
+			if(buf.size() > 0) {
+				tMasterServers.push_back(buf);
+			}
+		}
 
-    // Parse the lines
-    while(!feof(fp)) {
-		std::string buf = ReadUntil(fp);
-        TrimSpaces(buf);
-        if(buf.size() > 0) {
-			tMasterServers.push_back(buf);
-        }
-    }
+		fclose(fp);
+	}
+
 	tCurrentMasterServer = tMasterServers.begin();
 
-	fclose(fp);
-
     fp = OpenGameFile("cfg/udpmasterservers.txt","rt");
-    if( !fp )
-        return false;
+	if( fp )  {
 
-    // Parse the lines
-    while(!feof(fp)) {
-		std::string buf = ReadUntil(fp);
-        TrimSpaces(buf);
-        if(buf.size() > 0) {
-			tUdpMasterServers.push_back(buf);
-        }
-    }
+		// Parse the lines
+		while(!feof(fp)) {
+			std::string buf = ReadUntil(fp);
+			TrimSpaces(buf);
+			if(buf.size() > 0) {
+				tUdpMasterServers.push_back(buf);
+			}
+		}
 
-	fclose(fp);
+		fclose(fp);
+	}
 
 
 	// Setup the register so it happens on the first frame

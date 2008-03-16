@@ -139,6 +139,7 @@ bool 			Compress( const std::string & in, std::string * out, bool noCompression 
 bool 			Decompress( const std::string & in, std::string * out );	// Decompress, returns false if checksum fails
 size_t			StringChecksum( const std::string & data );
 bool			FileChecksum( const std::string & path, size_t * _checksum, size_t * _filesize );
+std::string		Base64Encode(const std::string &data);
 
 
 ////////////////////

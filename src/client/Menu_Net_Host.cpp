@@ -369,7 +369,10 @@ void Menu_Net_HostPlyFrame(int mouse)
 						iHumanPlayers = 0;
 
 						// Start the lobby
-						Menu_Net_HostLobbyInitialize();
+						if (!Menu_Net_HostLobbyInitialize())  {
+							printf("ERROR: could not start hosting\n");
+							Menu_Net_HostInitialize();
+						}
 					}
 				}
 				break;
@@ -464,9 +467,6 @@ bool Menu_Net_HostLobbyInitialize(void)
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
 	// If put below the client connect. Either this or move the draw.
 
-    // Draw the lobby
-	Menu_Net_HostLobbyDraw();
-
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
@@ -498,6 +498,8 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 	cClient->Connect("127.0.0.1");
 
+	// Draw the lobby
+	Menu_Net_HostLobbyDraw();
 
 	cClient->getChatbox()->setWidth(590);
 

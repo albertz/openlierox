@@ -20,11 +20,11 @@
 #include <assert.h>
 
 #include "HTTP.h"
-#include "LieroX.h" // for LX_VERSION
 #include "Timer.h"
 #include "StringUtils.h"
 #include "types.h"
 #include "Version.h"
+#include "Utils.h"
 
 
 // List of errors, MUST match error IDs in HTTP.h
@@ -69,7 +69,7 @@ bool CChunkParser::ParseNext(char c)
 			iCurLength = from_string<size_t>(sChunkLenStr, std::hex, failed);
 			if (failed)  {
 #ifdef DEBUG
-				printf("ParseChunks - atoi failed: \"" + sChunkLenStr + "\", " + itoa((uint)c) + "\n");
+				std::cout << "ParseChunks - atoi failed: \"" << sChunkLenStr << "\", " << itoa((uint)c) << std::endl;
 #endif
 				iCurLength = 0;
 				return false;  // Still processing
@@ -174,6 +174,7 @@ void CHttp::Clear()
 	sUrl = "";
 	sProxyHost = "";
 	iProxyPort = 0;
+	sProxyUser = "";
 	sProxyPasswd = "";
 	sRemoteAddress = "";
 	sData = "";
@@ -251,7 +252,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
     // Convert the address to host & url
     // Ie, '/'s from host goes into url
     ParseAddress(sRemoteAddress);
-	ParseProxyAddress(proxy);	// fills sProxyHost, iProxyPort and sProxyPasswd
+	ParseProxyAddress(proxy);	// Fills sProxyHost, iProxyPort, sProxyPasswd and sProxyUser
 
 	//std::cout << "Sending HTTP request " << address << "\n";
 
@@ -267,12 +268,17 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 	ResetNetAddr(tRemoteIP);
     fResolveTime = GetMilliSeconds();
 	std::string host = sHost;
-	if( sProxyHost != "" )
+	if( sProxyHost.size() != 0 )
 		host = sProxyHost;
-	if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
-		SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
-		tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
-		return;
+
+	// Try if an IP has been entered
+	if (!StringToNetAddr(host, tRemoteIP))  {
+		// Not an IP, use DNS
+		if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
+			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
+			tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
+			return;
+		}
 	}
 
 	// We're active now
@@ -286,7 +292,7 @@ void CHttp::ParseAddress(const std::string& addr)
     sHost = "";
     sUrl = "";
 
-	size_t p = addr.find("/");
+	size_t p = addr.find('/');
 	if(p == std::string::npos)
 		sHost = addr;
 	else {
@@ -295,35 +301,56 @@ void CHttp::ParseAddress(const std::string& addr)
 	}
 }
 
+////////////////////
+// Create the authentication header contents for the `Basic' scheme.
+std::string CHttp::GetBasicAuthentication(const std::string &user, const std::string &passwd)
+{
+	// This is done by encoding the string "USER:PASS" to base64 and
+	// prepending the string "Basic " in front of it.
+	return "Basic " + Base64Encode(user + ":" + passwd);
+}
 
-std::string basic_authentication_encode (const std::string &user, const std::string &passwd);
-
-void CHttp::ParseProxyAddress(std::string proxy)
+/////////////////
+// Parse the given proxy address
+void CHttp::ParseProxyAddress(const std::string& proxy)
 {
 	sProxyHost = "";
 	iProxyPort = 80;
+	sProxyUser = "";
 	sProxyPasswd = "";
 	if( proxy.length() == 0 )
 		return;
-	if( proxy.find("@") != std::string::npos )
-	{
-		sProxyPasswd = proxy.substr( 0, proxy.find("@") );
-		proxy = proxy.substr( proxy.find("@") + 1 );
-		std::string user = sProxyPasswd, pwd = ""; 
-		if( sProxyPasswd.find(":") != std::string::npos )
-		{
-			user = sProxyPasswd.substr( 0, sProxyPasswd.find(":") );
-			pwd = sProxyPasswd.substr( sProxyPasswd.find(":") + 1 );
-		};
-		sProxyPasswd = basic_authentication_encode( user, pwd );
-	};
-	sProxyHost = proxy;
-	if( proxy.find(":") != std::string::npos )
-	{
-		sProxyHost = proxy.substr( 0, proxy.find(":") );
-		iProxyPort = atoi( proxy.substr( proxy.find(":") + 1 ) );
-	};
-};
+
+	// The format is user:pass@host:port
+	// or host:port
+
+	size_t atpos = proxy.find('@');
+	std::string server;
+	if( atpos != std::string::npos )	{
+		// Get the login info and server
+		std::string proxy_login = proxy.substr( 0, atpos );
+		server = proxy.substr( atpos + 1 );
+		
+		size_t dotpos = proxy_login.find(':');
+
+		// Get user and password from the login info
+		if( dotpos != std::string::npos )  {
+			sProxyUser = proxy_login.substr( 0, dotpos );
+			sProxyPasswd = proxy_login.substr( dotpos + 1 );
+		} else {  // No ':' character, everything goes to user
+			sProxyUser = proxy_login;
+		}
+	} else { // No '@' character, everything goes to server
+		server = proxy;
+	}
+
+	// Get the host
+	sProxyHost = server;
+	if( server.find(':') != std::string::npos )  { // Is port present?
+		sProxyHost = server.substr( 0, server.find(':') );
+		iProxyPort = atoi( server.substr( server.find(':') + 1 ) );
+	}
+}
 
 /////////////////
 // Adjust the given URL
@@ -331,7 +358,7 @@ bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 {
 	dest = "";
 
-	const std::string dont_encode = "-_.!~*'()&?/="; // Characters that won't be encoded in any way
+	static const std::string dont_encode = "-_.!~*'()&?/="; // Characters that won't be encoded in any way
 
 	// Go through the url, encoding the characters
 	std::string::const_iterator url_it;
@@ -368,10 +395,10 @@ bool CHttp::SendRequest()
 
 	// Build the url
 	request = "GET " + sUrl + " HTTP/1.1\r\n";
-	if( sProxyHost != "" )	// Dunno why, but my chinese proxy requires full URL in GET header, maybe it supports only HTTP/1.0
+	if( sProxyHost.size() != 0 )  // Proxy servers require full URL in GET header (so they know where to forward the request)
 		request = "GET http://" + sHost + sUrl + " HTTP/1.1\r\n";
-	if( sProxyPasswd != "" )	// Don't know their order, guess Proxy-Authorization should be first header
-		request += "Proxy-Authorization: " + sProxyPasswd + "\r\n";
+	if( sProxyPasswd.size() != 0 || sProxyUser.size() != 0 )	// Don't know their order, guess Proxy-Authorization should be first header
+		request += "Proxy-Authorization: " + GetBasicAuthentication(sProxyUser, sProxyPasswd) + "\r\n";
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: " + GetFullGameName() + "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
@@ -580,22 +607,47 @@ int CHttp::ProcessRequest()
 	// Process DNS resolving
 	if(!IsNetAddrValid(tRemoteIP)) {
         float f = GetMilliSeconds();
+		bool error = false;
 
 		// Error
 		if (GetSocketErrorNr() != 0)  {
 			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 			tError.sErrorMsg += " (" + GetSocketErrorStr(GetSocketErrorNr()) + ")";
-			return HTTP_PROC_ERROR;
+			error = true;
 		}
 
         // Timed out?
         if(f - fResolveTime > DNS_TIMEOUT) {
-            SetHttpError(HTTP_DNS_TIMEOUT);
-		    return HTTP_PROC_ERROR;
+			SetHttpError(HTTP_DNS_TIMEOUT);
+			error = true;
         }
+
+		// If using proxy, try direct connection
+		if (error)  {
+			if (sProxyHost.size() != 0)  {
+				printf("HINT: proxy failed, trying a direct connection\n");
+				RequestData(sHost + sUrl);
+				return HTTP_PROC_PROCESSING;
+			}
+
+			return HTTP_PROC_ERROR;
+		}
 
         // Still waiting for DNS resolution
         return HTTP_PROC_PROCESSING;
+	}
+
+	// Check for HTTP timeout
+	if (GetMilliSeconds() - fConnectTime >= 5  && bConnected)  {
+		// If using proxy, try direct connection
+		if (sProxyHost.size() != 0)  {
+			printf("HINT: proxy failed, trying a direct connection\n");
+			RequestData(sHost + sUrl);
+			return HTTP_PROC_PROCESSING;
+		} else { // Not using proxy, there's no other possibility to obtain the data
+			SetHttpError(HTTP_ERROR_TIMEOUT);
+			return HTTP_PROC_ERROR;
+		}
 	}
 
 
@@ -628,21 +680,24 @@ int CHttp::ProcessRequest()
 		// Connect to the destination
 		if(!bConnected) {
 			// Address was resolved; save it
-			AddToDnsCache(sHost, tRemoteIP);
+			std::string host = sProxyHost.size() ? sProxyHost : sHost;
+			NetworkAddr temp;
+			if (!StringToNetAddr(host, temp))  // Add only if it is not an IP
+				AddToDnsCache(host, tRemoteIP);
 
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
+				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
+					printf("HINT: proxy failed, trying a direct connection\n");
+					RequestData(sHost + sUrl);
+					return HTTP_PROC_PROCESSING;
+				}
+
 				SetHttpError(HTTP_NO_CONNECTION);
 				return HTTP_PROC_ERROR;
 			}
 
 			bConnected = true;
 			fConnectTime = GetMilliSeconds();
-		}
-
-		// Check for HTTP timeout
-		if (GetMilliSeconds() - fConnectTime >= 5 && bConnected)  {
-			SetHttpError(HTTP_ERROR_TIMEOUT);
-			return HTTP_PROC_ERROR;
 		}
 
 	} else {
@@ -701,59 +756,3 @@ int CHttp::ProcessRequest()
 	// Still processing
 	return HTTP_PROC_PROCESSING;
 }
-
-
-// Copied from wget sources
-std::string
-base64_encode (const std::string &data)
-{
-	std::string dest;
-  /* Conversion table.  */
-  static const char tbl[64] = {
-    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
-    'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
-    'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
-    'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
-  };
-  /* Access bytes in DATA as unsigned char, otherwise the shifts below
-     don't work for data with MSB set. */
-  const unsigned char *s = (const unsigned char *)data.c_str();
-  /* Theoretical ANSI violation when length < 3. */
-  const unsigned char *end = s + data.length() - 2;
-
-  /* Transform the 3x8 bits to 4x6 bits, as required by base64.  */
-  for (; s < end; s += 3)
-    {
-      dest += tbl[s[0] >> 2];
-      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
-      dest += tbl[((s[1] & 0xf) << 2) + (s[2] >> 6)];
-      dest += tbl[s[2] & 0x3f];
-    }
-
-  /* Pad the result if necessary...  */
-  switch (data.length() % 3)
-    {
-    case 1:
-      dest += tbl[s[0] >> 2];
-      dest += tbl[(s[0] & 3) << 4];
-      dest += '=';
-      dest += '=';
-      break;
-    case 2:
-      dest += tbl[s[0] >> 2];
-      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
-      dest += tbl[((s[1] & 0xf) << 2)];
-      dest += '=';
-      break;
-    }
-
-  return dest;
-};
-
-/* Create the authentication header contents for the `Basic' scheme.
-   This is done by encoding the string "USER:PASS" to base64 and
-   prepending the string "Basic " in front of it.  */
-std::string basic_authentication_encode (const std::string &user, const std::string &passwd)
-{
-  return "Basic " + base64_encode (user + ":" + passwd);
-};

@@ -128,6 +128,7 @@ public:
 		fConnectTime = http.fConnectTime;
 		tSocket = http.tSocket;
 		tRemoteIP = http.tRemoteIP;
+		sProxyUser = http.sProxyUser;
 		sProxyPasswd = http.sProxyPasswd;
 		sProxyHost = http.sProxyHost;
 		iProxyPort = http.iProxyPort;
@@ -139,6 +140,7 @@ private:
 	std::string		sUrl;
 	std::string		sProxyHost;
 	int				iProxyPort;
+	std::string		sProxyUser;
 	std::string		sProxyPasswd;
 	std::string		sRemoteAddress;
 	std::string		sData;  // Data received from the network, can be chunked and whatever
@@ -172,7 +174,8 @@ private:
 	void				ParseHeader();
 	void				ParseChunks();
 	void				ParseAddress(const std::string& addr);
-	void				ParseProxyAddress(std::string proxy);
+	void				ParseProxyAddress(const std::string& proxy);
+	std::string			GetBasicAuthentication(const std::string &user, const std::string &passwd);
 	void				FinishTransfer();
 
 public:

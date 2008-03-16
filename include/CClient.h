@@ -199,6 +199,7 @@ public:
 		bmpBoxBuffer = NULL;
 		bmpBoxLeft = NULL;
 		bmpBoxRight = NULL;
+		bmpIngameScoreBg = NULL;
 		cHealthBar1 = NULL;
 		cHealthBar2 = NULL;
 		cWeaponBar1 = NULL;

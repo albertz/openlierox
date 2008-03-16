@@ -593,7 +593,7 @@ bool Compress( const std::string & in, std::string * out, bool noCompression )
 
 	deflateEnd(&strm);
 	return true;
-};
+}
 
 bool Decompress( const std::string & in, std::string * out )
 {
@@ -628,12 +628,12 @@ bool Decompress( const std::string & in, std::string * out )
 
 	inflateEnd(&strm);
 	return true;
-};
+}
 
 size_t StringChecksum( const std::string & data )
 {
 	return adler32(0L, (const Bytef *)data.c_str(), (uint)data.size());
-};
+}
 
 bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _filesize )
 {
@@ -657,5 +657,52 @@ bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _files
 	if( _filesize )
 		*_filesize = size;
 	return true;
-};
+}
+
+// Base 64 encoding
+// Copied from wget sources
+std::string Base64Encode(const std::string &data)
+{
+	std::string dest;
+  /* Conversion table.  */
+  static const char tbl[64] = {
+    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
+    'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
+    'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
+    'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
+  };
+  /* Access bytes in DATA as unsigned char, otherwise the shifts below
+     don't work for data with MSB set. */
+  const unsigned char *s = (const unsigned char *)data.c_str();
+  /* Theoretical ANSI violation when length < 3. */
+  const unsigned char *end = s + data.length() - 2;
+
+  /* Transform the 3x8 bits to 4x6 bits, as required by base64.  */
+  for (; s < end; s += 3)
+    {
+      dest += tbl[s[0] >> 2];
+      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
+      dest += tbl[((s[1] & 0xf) << 2) + (s[2] >> 6)];
+      dest += tbl[s[2] & 0x3f];
+    }
+
+  /* Pad the result if necessary...  */
+  switch (data.length() % 3)
+    {
+    case 1:
+      dest += tbl[s[0] >> 2];
+      dest += tbl[(s[0] & 3) << 4];
+      dest += '=';
+      dest += '=';
+      break;
+    case 2:
+      dest += tbl[s[0] >> 2];
+      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
+      dest += tbl[((s[1] & 0xf) << 2)];
+      dest += '=';
+      break;
+    }
+
+  return dest;
+}
 
