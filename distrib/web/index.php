@@ -175,17 +175,24 @@
 		cd /usr/portage
 		mkdir -p games-action/openlierox
 		cd games-action/openlierox
-		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta4.ebuild
+		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta5.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
-	(Feel free to post any success-stories on Gentoo
-	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
-	related to the ebuild, on the Gentoo-Bugtracker.)
+	You can also use the <a href="http://my.opera.com/lazy_bum/blog/2007/10/08/mammy-daddy-i-want-roslin">Roslin overlay</a>, they have included OpenLieroX Beta5.<br>
+	Please post any success-stories on Gentoo
+	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic on the Gentoo-Bugtracker</a>.
 </p>
 <p>
-	<h2>Installation somewhere</h2>
-	Download the source and extract it. Take a look into the file <i>DEPS</i> for the information, which dependencies are needed. Install the missing dependencies.<br>
+	<h2>General installation from source</h2>
+	<i>Either</i>
+	download the most recent source archive from the download section and extract it<br>
+	<i>or</i>
+	get the sources from SVN by the following command:
+	<pre>
+		svn co https://openlierox.svn.sourceforge.net/svnroot/openlierox openlierox
+	</pre>
+	Take a look into the file <i>DEPS</i> for the information, which dependencies are needed. Install the missing dependencies.<br>
 	Then use the <i>compile.sh</i> to compile it. If you want to install it into your system, use the <i>install.sh</i>. Take a look at these both scripts, if you want information about environment-variables you can use.<br>
 	Use the start.sh script, if you don't want to install it.<br>
 	For example:<br>
@@ -196,19 +203,9 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
-	There is a deb-package of Beta3 for you. This package currently doesn't do the dependency check for you, so you have still to install all needed dependencies (libraries) manually.<br>
-	The following commands should install all needed dependencies on your system:
-	<pre>
-		sudo apt-get install build-essential
-		sudo apt-get install libsdl1.2-dev 
-		sudo apt-get install libsdl-mixer1.2-dev
-		sudo apt-get install libsdl-image1.2-dev 
-		sudo apt-get install libgd2-noxpm-dev
-		sudo apt-get install zlib1g-dev
-		sudo apt-get install libxml2-dev
-	</pre>
+	Just download the provided most recent deb-file in the download section and install it as usual.<br>
 	If you want to compile/install it manually yourself:<br>
-	Follow the installation @somewhere. You have only one problem: HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility to compile OpenLieroX with HawkNL builtin. Simply do (after you have installed the needed dependencies):
+	Follow the general installation from source instructions. You have only one problem: HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility to compile OpenLieroX with HawkNL builtin. Simply do (after you have installed the needed dependencies):
 	<pre>
 		HAWKNL_BUILTIN=1 ./compile.sh
 	</pre>
