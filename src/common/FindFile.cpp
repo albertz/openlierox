@@ -759,7 +759,7 @@ std::string GetAbsolutePath(const std::string& path) {
 	else  // Failed
 		return path;
 #else
-	static char buf[1024];
+	static char buf[MAXPATHLEN];
 	if(realpath(path.c_str(), buf) != NULL) {
 		fix_markend(buf);
 		return buf;
