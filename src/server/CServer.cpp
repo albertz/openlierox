@@ -705,7 +705,7 @@ void GameServer::RegisterServer(void)
 	// Start with the first server
 	printf("Registering server at " + *tCurrentMasterServer + "\n");
 	tCurrentMasterServer = tMasterServers.begin();
-	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 }
 
 
@@ -739,7 +739,7 @@ void GameServer::ProcessRegister(void)
 	tCurrentMasterServer++;
 	if (tCurrentMasterServer != tMasterServers.end())  {
 		printf("Registering server at " + *tCurrentMasterServer + "\n");
-		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 	} else {
 		// All servers are processed
 		bServerRegistered = true;
@@ -872,7 +872,7 @@ bool GameServer::DeRegisterServer(void)
 	// Start with the first server
 	printf("De-registering server at " + *tCurrentMasterServer + "\n");
 	tCurrentMasterServer = tMasterServers.begin();
-	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 
 	DeRegisterServerUdp();
 
@@ -890,7 +890,7 @@ bool GameServer::ProcessDeRegister(void)
 		tCurrentMasterServer++;
 		if (tCurrentMasterServer != tMasterServers.end())  {
 			printf("De-registering server at " + *tCurrentMasterServer + "\n");
-			tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+			tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 			return false;
 		} else {
 			tCurrentMasterServer = tMasterServers.begin();

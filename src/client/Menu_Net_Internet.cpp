@@ -611,6 +611,7 @@ void Menu_Net_NETUpdateList(void)
 			bs.writeInt(-1,4);
 			bs.writeString("lx::getserverlist");
 			bs.Send(tMenu->tSocket[SCK_NET]);
+			printf("Sent getserverlist to %s\n", szLine.c_str());
 			break;	// Only one UDP masterserver supported
 	    }
 		
@@ -667,7 +668,7 @@ void Menu_Net_NETUpdateList(void)
 
                     // Send the request
 					printf("Getting serverlist from " + szLine + "...\n");
-                    http.RequestData(szLine + LX_SVRLIST);
+                    http.RequestData(szLine + LX_SVRLIST, tLXOptions->sHttpProxy);
 					SentRequest = true;
 
                     break;

@@ -94,7 +94,7 @@ ENDIF(CFLAGS)
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
-TARGET_LINK_LIBRARIES(openlierox SDL SDL_image pthread z xml2)
+TARGET_LINK_LIBRARIES(openlierox `sdl-config --libs` SDL SDL_image pthread z xml2)
 
 IF (NOT DEDICATED_ONLY)
 	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)

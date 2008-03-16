@@ -55,6 +55,7 @@ enum {
 	os_UseIpToCountry,
 	os_LoadDbAtStartup,
 	os_NatTraverse,
+	os_HttpProxy,
 	os_ShowFPS,
 	os_OpenGL,
 	os_ShowPing,
@@ -263,6 +264,8 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
+	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
 	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
@@ -299,6 +302,8 @@ bool Menu_OptionsInitialize(void)
 	t->setText( itoa(tLXOptions->iNetworkPort) );
 	t = (CTextbox *)(cOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
+	t = (CTextbox *)(cOpt_System.getWidget(os_HttpProxy));
+	t->setText(tLXOptions->sHttpProxy);
 
 	// Network speed
 	for(i=0; i<3; i++)
@@ -798,6 +803,8 @@ void Menu_OptionsFrame(void)
 		// Get the values
 		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
+		t = (CTextbox *)cOpt_System.getWidget(os_HttpProxy);
+		tLXOptions->sHttpProxy = t->getText();
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);

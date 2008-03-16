@@ -57,7 +57,7 @@ void CBrowser::Load(const std::string& url)
 	// Send the HTTP request
 	bFinished = false;
 	tLines.clear();
-	cHttp.RequestData(url);
+	cHttp.RequestData(url, tLXOptions->sHttpProxy);
 }
 
 

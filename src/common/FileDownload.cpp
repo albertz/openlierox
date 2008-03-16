@@ -28,6 +28,7 @@
 #include "EndianSwap.h"
 #include "FileDownload.h"
 #include "MathLib.h"
+#include "Options.h"
 
 
 using namespace std;
@@ -92,7 +93,7 @@ void CHttpDownloader::Start(const std::string& filename, const std::string& dest
 
 	// Try to download from first server in the list
 	iCurrentServer = 0;
-	tHttp.RequestData((*tDownloadServers)[iCurrentServer] + filename);
+	tHttp.RequestData((*tDownloadServers)[iCurrentServer] + filename, tLXOptions->sHttpProxy);
 
 	// Set the state to initializing
 	iState = FILEDL_INITIALIZING;
@@ -150,7 +151,7 @@ void CHttpDownloader::ProcessDownload()
 		if (tHttp.GetError().iError == HTTP_FILE_NOT_FOUND)  {
 			iCurrentServer++;
 			if ((size_t)iCurrentServer < tDownloadServers->size())  {
-				tHttp.RequestData((*tDownloadServers)[iCurrentServer] + sFileName);  // Request the file
+				tHttp.RequestData((*tDownloadServers)[iCurrentServer] + sFileName, tLXOptions->sHttpProxy);  // Request the file
 				iState = FILEDL_INITIALIZING;
 				break;  // Don't set the error
 			}

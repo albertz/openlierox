@@ -128,12 +128,18 @@ public:
 		fConnectTime = http.fConnectTime;
 		tSocket = http.tSocket;
 		tRemoteIP = http.tRemoteIP;
+		sProxyPasswd = http.sProxyPasswd;
+		sProxyHost = http.sProxyHost;
+		iProxyPort = http.iProxyPort;
 
 		return *this;
 	}
 private:
 	std::string		sHost;
 	std::string		sUrl;
+	std::string		sProxyHost;
+	int				iProxyPort;
+	std::string		sProxyPasswd;
 	std::string		sRemoteAddress;
 	std::string		sData;  // Data received from the network, can be chunked and whatever
 	std::string		sPureData;  // Pure data, without chunks or any other stuff
@@ -159,17 +165,20 @@ private:
 
 	void				SetHttpError(int id);
 	void				Clear();
-	bool				AdjustUrl(std::string& dest, const std::string& url);
+	bool				AdjustUrl(std::string& dest, const std::string& url); // URL-encode given string, substitute all non-ASCII symbols with %XX
 	bool				SendRequest();
 	void				ProcessData();
 	std::string			GetPropertyFromHeader(const std::string& prop);
 	void				ParseHeader();
 	void				ParseChunks();
 	void				ParseAddress(const std::string& addr);
+	void				ParseProxyAddress(std::string proxy);
 	void				FinishTransfer();
 
 public:
-	void				RequestData(const std::string& url);
+	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
+	// TODO: Maybe do the proxy string global?
+	void				RequestData(const std::string& url, const std::string& proxy = "");
 	int					ProcessRequest();
 	void				CancelProcessing();
 	void				ClearReceivedData()		{ sPureData = ""; }

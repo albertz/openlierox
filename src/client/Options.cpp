@@ -86,6 +86,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bNatTraverse, "Network.NatTraverse", true )
 		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 20000 )
 		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
+		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )

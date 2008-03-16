@@ -175,6 +175,7 @@ public:
 	bool	bLoadDbAtStartup;
 	bool	bNatTraverse;
 	int		iMaxUploadBandwidth;
+	std::string	sHttpProxy;
 
 	// Audio
 	bool	bSoundOn;

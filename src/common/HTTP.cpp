@@ -172,6 +172,9 @@ void CHttp::Clear()
 {
 	sHost = "";
 	sUrl = "";
+	sProxyHost = "";
+	iProxyPort = 0;
+	sProxyPasswd = "";
 	sRemoteAddress = "";
 	sData = "";
 	sPureData = "";
@@ -234,7 +237,7 @@ void CHttp::SetHttpError(int id)
 
 //////////////
 // Request data from server
-void CHttp::RequestData(const std::string& address)
+void CHttp::RequestData(const std::string& address, const std::string & proxy)
 {
 	// Stop any previous transfers
 	CancelProcessing();
@@ -248,6 +251,7 @@ void CHttp::RequestData(const std::string& address)
     // Convert the address to host & url
     // Ie, '/'s from host goes into url
     ParseAddress(sRemoteAddress);
+	ParseProxyAddress(proxy);	// fills sProxyHost, iProxyPort and sProxyPasswd
 
 	//std::cout << "Sending HTTP request " << address << "\n";
 
@@ -262,7 +266,10 @@ void CHttp::RequestData(const std::string& address)
 	// Reset the current adr; sometimes needed (hack? bug in hawknl?)
 	ResetNetAddr(tRemoteIP);
     fResolveTime = GetMilliSeconds();
-	if(!GetNetAddrFromNameAsync(sHost, tRemoteIP)) {
+	std::string host = sHost;
+	if( sProxyHost != "" )
+		host = sProxyHost;
+	if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
 		SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 		tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
 		return;
@@ -287,6 +294,36 @@ void CHttp::ParseAddress(const std::string& addr)
 		sUrl = addr.substr(p);
 	}
 }
+
+
+std::string basic_authentication_encode (const std::string &user, const std::string &passwd);
+
+void CHttp::ParseProxyAddress(std::string proxy)
+{
+	sProxyHost = "";
+	iProxyPort = 80;
+	sProxyPasswd = "";
+	if( proxy.length() == 0 )
+		return;
+	if( proxy.find("@") != std::string::npos )
+	{
+		sProxyPasswd = proxy.substr( 0, proxy.find("@") );
+		proxy = proxy.substr( proxy.find("@") + 1 );
+		std::string user = sProxyPasswd, pwd = ""; 
+		if( sProxyPasswd.find(":") != std::string::npos )
+		{
+			user = sProxyPasswd.substr( 0, sProxyPasswd.find(":") );
+			pwd = sProxyPasswd.substr( sProxyPasswd.find(":") + 1 );
+		};
+		sProxyPasswd = basic_authentication_encode( user, pwd );
+	};
+	sProxyHost = proxy;
+	if( proxy.find(":") != std::string::npos )
+	{
+		sProxyHost = proxy.substr( 0, proxy.find(":") );
+		iProxyPort = atoi( proxy.substr( proxy.find(":") + 1 ) );
+	};
+};
 
 /////////////////
 // Adjust the given URL
@@ -331,9 +368,14 @@ bool CHttp::SendRequest()
 
 	// Build the url
 	request = "GET " + sUrl + " HTTP/1.1\r\n";
+	if( sProxyHost != "" )	// Dunno why, but my chinese proxy requires full URL in GET header, maybe it supports only HTTP/1.0
+		request = "GET http://" + sHost + sUrl + " HTTP/1.1\r\n";
+	if( sProxyPasswd != "" )	// Don't know their order, guess Proxy-Authorization should be first header
+		request += "Proxy-Authorization: " + sProxyPasswd + "\r\n";
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: " + GetFullGameName() + "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
+	printf("HTTP:\n%s", request.c_str());
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
 }
 
@@ -581,6 +623,8 @@ int CHttp::ProcessRequest()
 
 		// Default http port (80)
 		SetNetAddrPort(tRemoteIP, 80);
+		if( sProxyHost != "" )
+			SetNetAddrPort(tRemoteIP, iProxyPort);
 
 		// Connect to the destination
 		if(!bConnected) {
@@ -658,3 +702,59 @@ int CHttp::ProcessRequest()
 	// Still processing
 	return HTTP_PROC_PROCESSING;
 }
+
+
+// Copied from wget sources
+std::string
+base64_encode (const std::string &data)
+{
+	std::string dest;
+  /* Conversion table.  */
+  static const char tbl[64] = {
+    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
+    'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
+    'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
+    'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
+  };
+  /* Access bytes in DATA as unsigned char, otherwise the shifts below
+     don't work for data with MSB set. */
+  const unsigned char *s = (const unsigned char *)data.c_str();
+  /* Theoretical ANSI violation when length < 3. */
+  const unsigned char *end = s + data.length() - 2;
+
+  /* Transform the 3x8 bits to 4x6 bits, as required by base64.  */
+  for (; s < end; s += 3)
+    {
+      dest += tbl[s[0] >> 2];
+      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
+      dest += tbl[((s[1] & 0xf) << 2) + (s[2] >> 6)];
+      dest += tbl[s[2] & 0x3f];
+    }
+
+  /* Pad the result if necessary...  */
+  switch (data.length() % 3)
+    {
+    case 1:
+      dest += tbl[s[0] >> 2];
+      dest += tbl[(s[0] & 3) << 4];
+      dest += '=';
+      dest += '=';
+      break;
+    case 2:
+      dest += tbl[s[0] >> 2];
+      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
+      dest += tbl[((s[1] & 0xf) << 2)];
+      dest += '=';
+      break;
+    }
+
+  return dest;
+};
+
+/* Create the authentication header contents for the `Basic' scheme.
+   This is done by encoding the string "USER:PASS" to base64 and
+   prepending the string "Basic " in front of it.  */
+std::string basic_authentication_encode (const std::string &user, const std::string &passwd)
+{
+  return "Basic " + base64_encode (user + ":" + passwd);
+};
