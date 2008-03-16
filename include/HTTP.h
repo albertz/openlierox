@@ -22,8 +22,17 @@
 #include "Networking.h"
 
 // Some basic defines
-#define		HTTP_TIMEOUT	10
+#define		HTTP_TIMEOUT	5
 #define		BUFFER_LEN		8192
+
+//
+// Functions
+//
+void AutoSetupHTTPProxy();
+
+//
+// Classes
+//
 
 // HTTP Chunk parsing states
 enum  {

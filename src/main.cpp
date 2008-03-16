@@ -442,6 +442,9 @@ int InitializeLieroX(void)
 		return false;
 	}
 
+	// Setup the HTTP proxy
+	AutoSetupHTTPProxy();
+
 	// Initialize the LieroX structure
 	tLX = new lierox_t;
     if(!tLX) {

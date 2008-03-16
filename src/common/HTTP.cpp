@@ -18,7 +18,12 @@
 
 #include <iostream>
 #include <assert.h>
+#ifdef WIN32
+#include <windows.h>
+#include <wininet.h>
+#endif
 
+#include "Options.h"
 #include "HTTP.h"
 #include "Timer.h"
 #include "StringUtils.h"
@@ -40,6 +45,59 @@ static const std::string sHttpErrors[] = {
 	"Network error: "
 };
 
+//
+// Functions
+//
+
+/////////////////
+// Automatically updates tLXOptions->sHttpProxy with proxy settings retrieved from the system
+void AutoSetupHTTPProxy()
+{
+	// User doesn't wish an automatic proxy setup
+	if (!tLXOptions->bAutoSetupHttpProxy)
+		return;
+
+#ifdef WIN32
+	// Create the list of options we want to retrieve
+	INTERNET_PER_CONN_OPTION_LIST List;
+	INTERNET_PER_CONN_OPTION Options[2];
+	DWORD size = sizeof(INTERNET_PER_CONN_OPTION_LIST);
+
+	// Options we need
+	Options[0].dwOption = INTERNET_PER_CONN_PROXY_SERVER;
+	Options[1].dwOption = INTERNET_PER_CONN_FLAGS;
+
+	// Fill the list info
+	List.dwSize = sizeof(INTERNET_PER_CONN_OPTION_LIST);
+	List.pszConnection = NULL;
+	List.dwOptionCount = 2;
+	List.dwOptionError = 0;
+	List.pOptions = Options;
+
+	// Ask for proxy info
+	if(!InternetQueryOption(NULL, INTERNET_OPTION_PER_CONNECTION_OPTION, &List, &size))
+		return;
+
+	// Using proxy?
+	bool using_proxy = (Options[1].Value.dwValue & PROXY_TYPE_PROXY) == PROXY_TYPE_PROXY;
+	
+	if (using_proxy)  {
+		if (Options[0].Value.pszValue != NULL)  { // Safety check
+			tLXOptions->sHttpProxy = Options[0].Value.pszValue; // Set the proxy
+			std::cout << "Using HTTP proxy: " << tLXOptions->sHttpProxy << std::endl;
+		}
+	} else {
+		tLXOptions->sHttpProxy = ""; // No proxy
+	}
+
+	// Cleanup
+	if(Options[0].Value.pszValue != NULL)
+		GlobalFree(Options[0].Value.pszValue);
+
+#else
+	// TODO: similar for other systems if possible
+#endif
+}
 
 //
 // Chunk parser class
@@ -638,7 +696,7 @@ int CHttp::ProcessRequest()
 	}
 
 	// Check for HTTP timeout
-	if (GetMilliSeconds() - fConnectTime >= 5  && bConnected)  {
+	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			printf("HINT: proxy failed, trying a direct connection\n");

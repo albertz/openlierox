@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
