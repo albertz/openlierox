@@ -375,7 +375,6 @@ bool CHttp::SendRequest()
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: " + GetFullGameName() + "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
-	printf("HTTP:\n%s", request.c_str());
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
 }
 

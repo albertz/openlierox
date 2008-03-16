@@ -530,10 +530,15 @@ bool CUdpFileDownloader::requestFilesPending()
 	if( ! isFinished() )
 		return true;	// Receiving or sending in progress
 
-	if( tRequestedFiles.back().find("STAT:") == 0 )
-		requestFileInfo( tRequestedFiles.back().substr( strlen("STAT:") ), false );
+	std::string file = tRequestedFiles.back();
+	if( sLastFileRequested == file ||
+		( file.find("STAT:") == 0 && sLastFileRequested == file.substr( strlen("STAT:") ) ) )
+			tRequestedFiles.pop_back();	// We already asked for that file and failed, try another files in queue if we fail this time
+
+	if( file.find("STAT:") == 0 )
+		requestFileInfo( file.substr( strlen("STAT:") ), false );
 	else
-		requestFile( tRequestedFiles.back(), false ); // May modify tRequestedFiles array
+		requestFile( file, false );
 	return true;
 };
 
