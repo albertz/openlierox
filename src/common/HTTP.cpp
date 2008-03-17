@@ -21,6 +21,8 @@
 #ifdef WIN32
 #include <windows.h>
 #include <wininet.h>
+#else
+#include <stdlib.h>
 #endif
 
 #include "Options.h"
@@ -95,7 +97,28 @@ void AutoSetupHTTPProxy()
 		GlobalFree(Options[0].Value.pszValue);
 
 #else
+#ifdef linux
+	// Linux has numerous configuration of proxies for each application, but environment var seems to be the most common
+	const char * c_proxy = getenv("http_proxy");
+	if( c_proxy == NULL )
+		c_proxy = getenv("HTTP_PROXY");
+	if( c_proxy == NULL )
+		return;
+	std::string proxy(c_proxy);
+	if( proxy.find("=") == std::string::npos )
+		return;
+	proxy = proxy.substr( proxy.find("=") + 1 );
+	TrimSpaces(proxy);
+	if( proxy.find("http://") == 0 )
+		proxy = proxy.substr( strlen("http://") );
+	if( proxy.size() == 0 )
+		return;
+	if( proxy.rfind("/") == proxy.size() - 1 )
+		proxy.resize( proxy.size() - 1 );
+	tLXOptions->sHttpProxy = proxy;
+#else
 	// TODO: similar for other systems if possible
+#endif
 #endif
 }
 
