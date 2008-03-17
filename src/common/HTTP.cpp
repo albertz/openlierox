@@ -86,6 +86,16 @@ void AutoSetupHTTPProxy()
 	if (using_proxy)  {
 		if (Options[0].Value.pszValue != NULL)  { // Safety check
 			tLXOptions->sHttpProxy = Options[0].Value.pszValue; // Set the proxy
+
+			// Remove http:// if present
+			static const size_t httplen = 7; // length of "http://"
+			if( stringcaseequal(tLXOptions->sHttpProxy.substr(0, httplen), "http://") )
+				tLXOptions->sHttpProxy.erase(0, httplen);
+
+			// Remove trailing slash
+			if (*tLXOptions->sHttpProxy.rbegin() == '/')
+				tLXOptions->sHttpProxy.resize(tLXOptions->sHttpProxy.size() - 1);
+
 			std::cout << "Using HTTP proxy: " << tLXOptions->sHttpProxy << std::endl;
 		}
 	} else {
@@ -100,20 +110,34 @@ void AutoSetupHTTPProxy()
 #ifdef linux
 	// Linux has numerous configuration of proxies for each application, but environment var seems to be the most common
 	const char * c_proxy = getenv("http_proxy");
-	if( c_proxy == NULL )
+	if( c_proxy == NULL )  {
 		c_proxy = getenv("HTTP_PROXY");
-	if( c_proxy == NULL )
-		return;
+		if( c_proxy == NULL )
+			return;
+	}
+
+	// Get the value (string after '=' char)
 	std::string proxy(c_proxy);
-	if( proxy.find("=") == std::string::npos )
+	if( proxy.find('=') == std::string::npos )  { // No proxy
+		tLXOptions->sHttpProxy = "";
 		return;
-	proxy = proxy.substr( proxy.find("=") + 1 );
+	}
+	proxy = proxy.substr( proxy.find('=') + 1 );
 	TrimSpaces(proxy);
-	if( proxy.find("http://") == 0 )
-		proxy = proxy.substr( strlen("http://") );
-	if( proxy.size() == 0 )
+
+	// Remove http:// if present
+	static const size_t httplen = 7; // length of "http://"
+	if( stringcaseequal(proxy.substr(0, httplen), "http://") )
+		proxy.erase(0, httplen);
+
+	// Blank proxy?
+	if( proxy.size() == 0 )  {
+		tLXOptions->sHttpProxy = "";
 		return;
-	if( proxy.rfind("/") == proxy.size() - 1 )
+	}
+
+	// Remove trailing slash
+	if( *proxy.rbegin() == '/')
 		proxy.resize( proxy.size() - 1 );
 	tLXOptions->sHttpProxy = proxy;
 #else
