@@ -1938,9 +1938,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                         cWorms[i].setKills(inbs.readInt(2));
                     }
 
+					if (nState == 1 && !bOldLxBug)  { // Loading and no bug? Must be a fixed version -> LXP/OLX b1 or 2
+						sServerVersion = "LXP or OLX beta1/beta2";
+					}
+
 					// Lives (only OLX servers)
 					if(!inbs.isPosAtEnd())  {
-						sServerVersion = "OpenLieroX/0.57_Beta1"; // TODO: is that correct? which was the first version sending this?
+						sServerVersion = "OpenLieroX/0.57_Beta3";
 						bHaveLives = true;
 						for(i=0; i<nNumPlayers; i++)
 							cWorms[i].setLives(inbs.readInt(2));
@@ -1948,7 +1952,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 					// IPs
 					if(!inbs.isPosAtEnd())  {
-						sServerVersion = "OpenLieroX/0.57_Beta1"; // TODO: is that correct? which was the first version sending this?
+						sServerVersion = "OpenLieroX/0.57_Beta4";
 						for(i=0; i<nNumPlayers; i++)
 							inbs.readString(); // ignore
 					}

@@ -964,7 +964,7 @@ void GameServer::CheckWeaponSelectionTime()
 				continue;
 			if( cl->getGameReady() )
 				continue;
-			if( cl == cClient ) {
+			if( cl->getWorm(0) && cl->getWorm(0)->getID() == 0 ) {
 				printf("forcing end of weapon selection for own client\n");
 				cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
 				continue;
@@ -978,6 +978,12 @@ void GameServer::CheckWeaponSelectionTime()
 // Drop a client
 void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 {
+	// Never ever drop a local client
+	if (cl->getWorm(0) && cl->getWorm(0)->getID() == 0)  {
+		printf("An attempt to drop a local client was ignored\n");
+		return;
+	}
+
     std::string cl_msg;
 
 	// Tell everyone that the client's worms have left both through the net & text

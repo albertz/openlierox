@@ -1579,10 +1579,16 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 	for (p = 0; p < MAX_WORMS; p++, w++)  {
 		if (w->isUsed())  {
 			std::string addr;
-			NetAddrToString(w->getClient()->getChannel()->getAddress(), addr);
-			size_t pos = addr.find(':');
-			if (pos != std::string::npos)
-				addr.erase(pos, std::string::npos);
+			if (NetAddrToString(w->getClient()->getChannel()->getAddress(), addr))  {
+				size_t pos = addr.find(':');
+				if (pos != std::string::npos)
+					addr.erase(pos, std::string::npos);
+			} else {
+				printf("ERROR: Cannot convert address for worm " + w->getName() + "\n");
+			}
+
+			if (addr.size() == 0)
+				addr = "0.0.0.0";
 			bs.writeString(addr);
 		}
 	}
