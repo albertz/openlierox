@@ -19,7 +19,8 @@ RDEPEND="media-libs/libsdl
 	dev-games/hawknl
 	media-libs/gd
 	sys-libs/zlib
-	dev-libs/libxml2"
+	dev-libs/libxml2
+	x11-libs/libX11"
 
 DEPEND="${RDEPEND}"
 
