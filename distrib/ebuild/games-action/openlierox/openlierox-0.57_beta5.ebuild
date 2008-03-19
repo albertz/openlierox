@@ -11,7 +11,7 @@ SRC_URI="mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz2"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~ppc ~x86 ~amd64"
-IUSE="debug"
+IUSE="X debug"
 
 RDEPEND="media-libs/libsdl
 	media-libs/sdl-mixer
@@ -20,9 +20,19 @@ RDEPEND="media-libs/libsdl
 	media-libs/gd
 	sys-libs/zlib
 	dev-libs/libxml2
-	x11-libs/libX11"
+	X? ( x11-libs/libX11 )"
 
 DEPEND="${RDEPEND}"
+
+pkg_setup() {
+	if use X && ! built_with_use media-libs/libsdl X; then
+		ewarn "You have enabled X support but media-libs/libsdl"
+		ewarn "was compiled without X USE-flag set."
+		ewarn "Please recompile media-libs/libsdl with X enabled."
+		die "media-libs/libsdl has to be emerged with X support"
+	fi
+	games_pkg_setup
+}
 
 src_unpack() {
 	mkdir -p ${S} || die "cannot creating working-dir"
@@ -39,6 +49,7 @@ src_compile() {
 	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
 	COMPILER=$(tc-getCXX) \
 	DEBUG=$(use debug && echo 1 || echo 0) \
+	X11CLIPBOARD=$(use X && echo 1 || echo 0) \
 	VERSION=${PV} \
 	./compile.sh || die "error(s) while compiling; please make a report"
 }
