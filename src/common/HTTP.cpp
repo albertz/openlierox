@@ -378,6 +378,8 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 
 	// Try if an IP has been entered
 	if (!StringToNetAddr(host, tRemoteIP))  {
+		ResetSocketError(); // Clear the BAD_ADDR error
+
 		// Not an IP, use DNS
 		if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
 			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);

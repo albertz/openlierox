@@ -744,10 +744,7 @@ void ResetSocketError()  {
 	if (!bNetworkInited)
 		return;
 
-	// TODO: make this correct
-	// Init a new instance and then shut it down (a bit dirty but there's no other way to do it)
-	nlInit();
-	nlShutdown();
+	nlSetError(NL_NO_ERROR);
 }
 
 bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr) {
