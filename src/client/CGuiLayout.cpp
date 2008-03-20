@@ -148,6 +148,8 @@ void CGuiLayout::removeWidget(int id)
 			delete *w;
 
 			cWidgets.erase(w);
+
+			break;
 		}
 	}
 }
