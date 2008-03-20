@@ -25,8 +25,6 @@ public:
 	CGuiSkinnedLayout( int x = 0, int y = 0 ) {
 		cFocused = NULL;
 		bFocusSticked = false;
-		cWidgets = NULL;
-		cWidgetsFromEnd = NULL;
 		//cMouseOverWidget = NULL;
 		//iCanFocus = true;
 		iOffsetX = x;
@@ -43,8 +41,7 @@ public:
 private:
 	// Attributes
 
-	CWidget			*cWidgets;
-	CWidget			*cWidgetsFromEnd;
+	std::list<CWidget *>	cWidgets;
 	CWidget			*cFocused;
 	bool			bFocusSticked;	// if user hold mouse button over some widget the focus sticks to that widget, analog to CGuiLayout::iCanFocus which is never used
 
@@ -63,6 +60,7 @@ public:
 
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
+	CWidget		*getWidgetAtPoint(int x, int y);
 	CWidget		*getWidget(const std::string & name){ return getWidget(GetIdByName(name)); };
     void        removeWidget(int id);
 	int			GetIdByName(const std::string & name);

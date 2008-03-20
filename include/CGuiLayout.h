@@ -55,7 +55,6 @@ public:
 	CGuiLayout() {
 		tEvent = new gui_event_t;
 		cFocused = NULL;
-		cWidgets = NULL;
 		cMouseOverWidget = NULL;
 		bCanFocus = true;
 		iID = -1;
@@ -73,7 +72,7 @@ public:
 private:
 	// Attributes
 
-	CWidget			*cWidgets;
+	std::list<CWidget *> cWidgets;
 	gui_event_t		*tEvent;
 	CWidget			*cFocused;
 	CWidget			*cMouseOverWidget;

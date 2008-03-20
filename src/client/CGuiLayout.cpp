@@ -105,7 +105,7 @@ void CGuiLayout::Initialize(int LayoutID)
 
 	iID = LayoutID;
 
-	cWidgets = NULL;
+	cWidgets.clear();
 	cFocused = NULL;
 	cMouseOverWidget = NULL;
 
@@ -126,13 +126,7 @@ void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 	widget->setParent(this);
 
 	// Link the widget in
-	widget->setPrev(NULL);
-	widget->setNext(cWidgets);
-
-	if(cWidgets)
-		cWidgets->setPrev(widget);
-
-	cWidgets = widget;
+	cWidgets.push_back(widget);
 }
 
 
@@ -140,29 +134,22 @@ void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 // Remove a widget
 void CGuiLayout::removeWidget(int id)
 {
-    CWidget *w = getWidget(id);
-    if( !w )
-        return;
+    for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		if (id == (*w)->getID())  {
 
-    // If this is the focused widget, set focused to null
-    if(cFocused) {
-        if(w->getID() == cFocused->getID())
-            cFocused = NULL;
-    }
+			// If this is the focused widget, set focused to null
+			if(cFocused) {
+				if(id == cFocused->getID())
+					cFocused = NULL;
+			}
 
-    // Unlink the widget
-    if( w->getPrev() )
-        w->getPrev()->setNext( w->getNext() );
-    else
-        cWidgets = w->getNext();
+			// Free it
+			(*w)->Destroy();
+			delete *w;
 
-    if( w->getNext() )
-        w->getNext()->setPrev( w->getPrev() );
-
-    // Free it
-    w->Destroy();
-	assert(w);
-    delete w;
+			cWidgets.erase(w);
+		}
+	}
 }
 
 
@@ -170,17 +157,11 @@ void CGuiLayout::removeWidget(int id)
 // Shutdown the gui layout
 void CGuiLayout::Shutdown(void)
 {
-	CWidget *w,*wid;
-
-	for(w=cWidgets ; w ; w=wid) {
-		wid = w->getNext();
-
-		w->Destroy();
-
-		if(w)
-			delete w;
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		(*w)->Destroy();
+		delete (*w);
 	}
-	cWidgets = NULL;
+	cWidgets.clear();
 
 	// tEvent is freed in destructor
 
@@ -193,21 +174,10 @@ void CGuiLayout::Shutdown(void)
 // Draw the widgets
 void CGuiLayout::Draw(SDL_Surface *bmpDest)
 {
-	CWidget *w, *end;
-
 	// Draw the widgets in reverse order
-	end = NULL;
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		if(w->getNext() == NULL) {
-			end = w;
-			break;
-		}
-	}
-
-
-	for(w=end ; w ; w=w->getPrev()) {
-		if(w->getEnabled() && w)
-			w->Draw(bmpDest);
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)  {
+		if((*w)->getEnabled())
+			(*w)->Draw(bmpDest);
 	}
 }
 
@@ -557,7 +527,6 @@ bool CGuiLayout::Build(void)
 // Process all the widgets
 gui_event_t *CGuiLayout::Process(void)
 {
-	CWidget *w;
 	mouse_t *tMouse = GetMouse();
 	int ev=-1;
 	int widget = false;
@@ -597,11 +566,10 @@ gui_event_t *CGuiLayout::Process(void)
 
 		// If we don't have any focused widget, get the first textbox
 		if (!cFocused)  {
-			CWidget *txt = cWidgets;
-			for (;txt;txt=txt->getNext())  {
-				if (txt->getType() == wid_Textbox && txt->getEnabled()) {
-					cFocused = txt;
-					txt->setFocused(true);
+			for( std::list<CWidget *>::iterator txt = cWidgets.begin() ; txt != cWidgets.end() ; txt++)  {
+				if ((*txt)->getType() == wid_Textbox && (*txt)->getEnabled()) {
+					cFocused = *txt;
+					(*txt)->setFocused(true);
 					break;
 				}
 			}
@@ -631,39 +599,39 @@ gui_event_t *CGuiLayout::Process(void)
 
 
 	// Go through all the widgets
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		tEvent->cWidget = w;
-		tEvent->iControlID = w->getID();
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		tEvent->cWidget = *w;
+		tEvent->iControlID = (*w)->getID();
 
 		// Don't process disabled widgets
-		if(!w->getEnabled())
+		if(!(*w)->getEnabled())
 			continue;
 
 		// Special mouse button event first (for focused widgets)
-		if(tMouse->Down && cFocused == w && !bCanFocus && !w->InBox(tMouse->X,tMouse->Y)) {
+		if(tMouse->Down && cFocused == *w && !bCanFocus && !(*w)->InBox(tMouse->X,tMouse->Y)) {
 			widget = true;
 
 			// Process the skin-defined code
-			w->ProcessEvent(OnMouseDown);
+			(*w)->ProcessEvent(OnMouseDown);
 
-			if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
+			if( (ev = (*w)->MouseDown(tMouse, tMouse->Down)) >= 0) {
 				tEvent->iEventMsg = ev;
 				return tEvent;
 			}
 		}
 
 
-		if(w->InBox(tMouse->X,tMouse->Y)) {
+		if((*w)->InBox(tMouse->X,tMouse->Y)) {
 
 			// Mouse wheel up
 			if(tMouse->WheelScrollUp)  {
 				widget = true;
 				if(cFocused)
 					cFocused->setFocused(false);
-				w->setFocused(true);
-				cFocused = w;
+				(*w)->setFocused(true);
+				cFocused = *w;
 
-				if( (ev=w->MouseWheelUp(tMouse)) >= 0) {
+				if( (ev = (*w)->MouseWheelUp(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
 				}
@@ -674,10 +642,10 @@ gui_event_t *CGuiLayout::Process(void)
 				widget = true;
 				if(cFocused)
 					cFocused->setFocused(false);
-				w->setFocused(true);
-				cFocused = w;
+				(*w)->setFocused(true);
+				cFocused = *w;
 
-				if( (ev=w->MouseWheelDown(tMouse)) >= 0) {
+				if( (ev = (*w)->MouseWheelDown(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
 				}
@@ -691,23 +659,23 @@ gui_event_t *CGuiLayout::Process(void)
 					if(cFocused)  {
 						if (cFocused->CanLoseFocus())  {
 							cFocused->setFocused(false);
-							w->setFocused(true);
-							cFocused = w;
+							(*w)->setFocused(true);
+							cFocused = *w;
 							bCanFocus = false;
 						}
 					}
 					else  {
-						w->setFocused(true);
-						cFocused = w;
+						(*w)->setFocused(true);
+						cFocused = *w;
 						bCanFocus = false;
 					}
 
 				}
 
 				// Process the skin defined code
-				w->ProcessEvent(OnMouseDown);
+				(*w)->ProcessEvent(OnMouseDown);
 
-				if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
+				if( (ev = (*w)->MouseDown(tMouse, tMouse->Down)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
 				}
@@ -720,19 +688,19 @@ gui_event_t *CGuiLayout::Process(void)
 				if(cFocused)  {
 					if(cFocused->CanLoseFocus())  {
 						cFocused->setFocused(false);
-						w->setFocused(true);
-						cFocused = w;
+						(*w)->setFocused(true);
+						cFocused = *w;
 					}
 				}
 				else  {
-					w->setFocused(true);
-					cFocused = w;
+					(*w)->setFocused(true);
+					cFocused = *w;
 				}
 
 				// Process the skin defined code
-				w->ProcessEvent(OnClick);
+				(*w)->ProcessEvent(OnClick);
 
-				if( (ev=w->MouseUp(tMouse, tMouse->Up)) >= 0) {
+				if( (ev = (*w)->MouseUp(tMouse, tMouse->Up)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
 				}
@@ -740,17 +708,17 @@ gui_event_t *CGuiLayout::Process(void)
 
 
 			// Mouse over
-			if (w != cMouseOverWidget)  {
-				w->ProcessEvent(OnMouseOver);
+			if (*w != cMouseOverWidget)  {
+				(*w)->ProcessEvent(OnMouseOver);
 
 				// For the current Mouse over widget this means a mouse out event
 				if(cMouseOverWidget)
 					cMouseOverWidget->ProcessEvent(OnMouseOut);
 
-				cMouseOverWidget = w;
+				cMouseOverWidget = *w;
 			}
 
-			if( (ev=w->MouseOver(tMouse)) >= 0) {
+			if( (ev = (*w)->MouseOver(tMouse)) >= 0) {
 				tEvent->iEventMsg = ev;
 				return tEvent;
 			}
@@ -810,11 +778,9 @@ gui_event_t *CGuiLayout::Process(void)
 // Return a widget based on id
 CWidget *CGuiLayout::getWidget(int id)
 {
-	CWidget *w;
-
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		if(w->getID() == id)
-			return w;
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		if((*w)->getID() == id)
+			return *w;
 	}
 
 	return NULL;
@@ -846,19 +812,18 @@ void CGuiLayout::Error(int ErrorCode, const std::string& Text)
 // Set a property for all widgets
 void CGuiLayout::SetGlobalProperty(int property, int value)
 {
-	CWidget *w = cWidgets;
-# define FOREACH for (; w; w = w->getNext())
+# define FOREACH for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)
 
 	// Set the property
 	switch (property)  {
 	case PRP_REDRAWMENU:
-		FOREACH w->setRedrawMenu(value != 0);
+		FOREACH (*w)->setRedrawMenu(value != 0);
 		break;
 	case PRP_ENABLED:
-		FOREACH w->setEnabled(value != 0);
+		FOREACH (*w)->setEnabled(value != 0);
 		break;
 	case PRP_ID:
-		FOREACH w->setID(value);
+		FOREACH (*w)->setID(value);
 		break;
 	default:
 		printf("CGuiLayout::SetGlobalProperty: unknown property\n");

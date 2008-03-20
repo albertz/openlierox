@@ -34,15 +34,7 @@ void CGuiSkinnedLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 	widget->setParent(this);
 
 	// Link the widget in
-	widget->setPrev(NULL);
-	widget->setNext(cWidgets);
-
-	if(cWidgets)
-		cWidgets->setPrev(widget);
-
-	cWidgets = widget;
-	if( cWidgetsFromEnd == NULL ) 
-		cWidgetsFromEnd = widget;
+	cWidgets.push_back(widget);
 }
 
 void CGuiSkinnedLayout::SetOffset( int x, int y )
@@ -52,41 +44,33 @@ void CGuiSkinnedLayout::SetOffset( int x, int y )
 	iOffsetX = x;
 	iOffsetY = y; 
 
-	for( CWidget * w=cWidgets ; w ; w=w->getNext() ) 
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++ ) 
 	{
-		w->Setup( w->getID(), w->getX() + diffX, w->getY() + diffY, w->getWidth(), w->getHeight() );
-	};
-};
+		(*w)->Setup( (*w)->getID(), (*w)->getX() + diffX, (*w)->getY() + diffY, (*w)->getWidth(), (*w)->getHeight() );
+	}
+}
 
 ///////////////////
 // Remove a widget
 void CGuiSkinnedLayout::removeWidget(int id)
 {
-    CWidget *w = getWidget(id);
-    if( !w )
-        return;
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		if (id == (*w)->getID())  {
 
-    // If this is the focused widget, set focused to null
-    if(cFocused) {
-        if(w->getID() == cFocused->getID())
-            cFocused = NULL;
-    }
+			// If this is the focused widget, set focused to null
+			if(id == cFocused->getID())
+				cFocused = NULL;
 
-    // Unlink the widget
-    if( w->getPrev() )
-        w->getPrev()->setNext( w->getNext() );
-    else
-        cWidgets = w->getNext();
+			// Free
+			(*w)->Destroy();
+			delete (*w);
 
-    if( w->getNext() )
-        w->getNext()->setPrev( w->getPrev() );
-	else
-		cWidgetsFromEnd = w->getPrev();
+			// Remove
+			cWidgets.erase(w);
 
-    // Free it
-    w->Destroy();
-	assert(w);
-    delete w;
+			break;
+		}
+	}
 }
 
 
@@ -94,18 +78,12 @@ void CGuiSkinnedLayout::removeWidget(int id)
 // Shutdown the gui layout
 void CGuiSkinnedLayout::Shutdown(void)
 {
-	CWidget *w,*wid;
-
-	for(w=cWidgets ; w ; w=wid) {
-		wid = w->getNext();
-
-		w->Destroy();
-
-		if(w)
-			delete w;
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		(*w)->Destroy();
+		delete (*w);
 	}
-	cWidgets = NULL;
-	cWidgetsFromEnd = NULL;
+
+	cWidgets.clear();
 
 	cFocused = NULL;
 	bFocusSticked = false;
@@ -118,14 +96,12 @@ void CGuiSkinnedLayout::Shutdown(void)
 // Draw the widgets
 void CGuiSkinnedLayout::Draw(SDL_Surface *bmpDest)
 {
-	CWidget *w;
-	
 	if( ! cChildLayout || ( cChildLayout && ! bChildLayoutFullscreen ) )
-	for( w = cWidgetsFromEnd ; w ; w = w->getPrev() ) 
-	{
-		if( w->getEnabled() )
-			w->Draw(bmpDest);
-	}
+		for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)
+		{
+			if( (*w)->getEnabled() )
+				(*w)->Draw(bmpDest);
+		}
 	
 	if( cChildLayout )
 		cChildLayout->Draw(bmpDest);
@@ -175,11 +151,9 @@ bool CGuiSkinnedLayout::Process(void)
 // Return a widget based on id
 CWidget *CGuiSkinnedLayout::getWidget(int id)
 {
-	CWidget *w;
-
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		if(w->getID() == id)
-			return w;
+	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		if((*w)->getID() == id)
+			return (*w);
 	}
 
 	return NULL;
@@ -210,16 +184,16 @@ void CGuiSkinnedLayout::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent < 0 )	// Global event - pass it to all children
 	{
-		for( CWidget * w = cWidgets ; w ; w = w->getNext() )
-			w->ProcessGuiSkinEvent( iEvent );
+		for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
+			(*w)->ProcessGuiSkinEvent( iEvent );
 		if( cChildLayout )
 			cChildLayout->ProcessGuiSkinEvent( iEvent );
 		if( cFocused )
 			cFocused->setFocused(false);
 		cFocused = NULL;
 		bFocusSticked = false;
-	};
-};
+	}
+}
 
 int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 {
@@ -227,7 +201,8 @@ int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 	{
 		cChildLayout->MouseOver(tMouse);
 		return -1;
-	};
+	}
+
 	SetGameCursor(CURSOR_ARROW); // Set default mouse cursor - widget will change it
 	if( cFocused && bFocusSticked )
 	{
@@ -235,21 +210,22 @@ int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
-	};
-	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	}
+
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
 	{
-		if(!w->getEnabled())
+		if(!(*w)->getEnabled())
 			continue;
-		if(w->InBox(tMouse->X,tMouse->Y))
+		if((*w)->InBox(tMouse->X,tMouse->Y))
 		{
-			int ev = w->MouseOver(tMouse);
+			int ev = (*w)->MouseOver(tMouse);
 			if( ev >= 0 )
-				w->ProcessGuiSkinEvent( ev );
+				(*w)->ProcessGuiSkinEvent( ev );
 			return -1;
-		};
-	};
+		}
+	}
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
 {
@@ -257,19 +233,21 @@ int CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
 	{
 		cChildLayout->MouseUp(tMouse, tMouse->Up);
 		return -1;
-	};
+	}
+
 	bool bFocusStickedOld = bFocusSticked;
 	if( tMouse->Down == 0 )
 		bFocusSticked = false;
+
 	if( cFocused && bFocusStickedOld )
 	{
 		int ev = cFocused->MouseUp(tMouse, nDown);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
-	};
+	}
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 {
@@ -277,33 +255,36 @@ int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 	{
 		cChildLayout->MouseDown(tMouse, nDown);
 		return -1;
-	};
+	}
+
 	if( cFocused && bFocusSticked )
 	{
 		int ev = cFocused->MouseDown(tMouse, nDown);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
-	};
-	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	}
+
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
 	{
-		if(!w->getEnabled())
+		if(!(*w)->getEnabled())
 			continue;
-		if(w->InBox(tMouse->X,tMouse->Y))
+		if((*w)->InBox(tMouse->X,tMouse->Y))
 		{
-			FocusOnMouseClick( w );
-			int ev = w->MouseDown(tMouse, nDown);
+			FocusOnMouseClick( *w );
+			int ev = (*w)->MouseDown(tMouse, nDown);
 			if( ev >= 0 )
-				w->ProcessGuiSkinEvent( ev );
+				(*w)->ProcessGuiSkinEvent( ev );
 			if( cFocused )
 				bFocusSticked = true;
 			return -1;
-		};
-	};
+		}
+	}
+
 	// Click on empty space
 	FocusOnMouseClick( NULL );
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 {
@@ -311,28 +292,30 @@ int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 	{
 		cChildLayout->MouseWheelDown(tMouse);
 		return -1;
-	};
+	}
+
 	if( cFocused && bFocusSticked )
 	{
 		int ev = cFocused->MouseWheelDown(tMouse);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
-	};
-	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	}
+
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
 	{
-		if(!w->getEnabled())
+		if(!(*w)->getEnabled())
 			continue;
-		if(w->InBox(tMouse->X,tMouse->Y))
+		if((*w)->InBox(tMouse->X,tMouse->Y))
 		{
-			int ev = w->MouseWheelDown(tMouse);
+			int ev = (*w)->MouseWheelDown(tMouse);
 			if( ev >= 0 )
-				w->ProcessGuiSkinEvent( ev );
+				(*w)->ProcessGuiSkinEvent( ev );
 			return -1;
-		};
-	};
+		}
+	}
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 {
@@ -340,28 +323,30 @@ int CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 	{
 		cChildLayout->MouseWheelUp(tMouse);
 		return -1;
-	};
+	}
+
 	if( cFocused && bFocusSticked )
 	{
 		int ev = cFocused->MouseWheelUp(tMouse);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
-	};
-	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	}
+
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
 	{
-		if(!w->getEnabled())
+		if(!(*w)->getEnabled())
 			continue;
-		if(w->InBox(tMouse->X,tMouse->Y))
+		if((*w)->InBox(tMouse->X,tMouse->Y))
 		{
-			int ev = w->MouseWheelUp(tMouse);
+			int ev = (*w)->MouseWheelUp(tMouse);
 			if( ev >= 0 )
-				w->ProcessGuiSkinEvent( ev );
+				(*w)->ProcessGuiSkinEvent( ev );
 			return -1;
-		};
-	};
+		}
+	}
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
@@ -369,7 +354,8 @@ int CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& 
 	{
 		cChildLayout->KeyDown(c, keysym, modstate);
 		return -1;
-	};
+	}
+
 	FocusOnKeyPress(c, keysym, false);
 	if ( cFocused )
 	{
@@ -378,9 +364,10 @@ int CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& 
 		int ev = cFocused->KeyDown(c, keysym, modstate);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
-	};
+	}
+
 	return -1;
-};
+}
 
 int CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
@@ -388,7 +375,8 @@ int CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& mo
 	{
 		cChildLayout->KeyUp(c, keysym, modstate);
 		return -1;
-	};
+	}
+
 	FocusOnKeyPress(c, keysym, true);
 	if ( cFocused )
 	{
@@ -397,9 +385,9 @@ int CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& mo
 		int ev = cFocused->KeyUp(c, keysym, modstate);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
-	};
+	}
 	return -1;
-};
+}
 
 void CGuiSkinnedLayout::FocusOnMouseClick( CWidget * w )
 {
@@ -409,28 +397,36 @@ void CGuiSkinnedLayout::FocusOnMouseClick( CWidget * w )
 		{
 			cFocused->setFocused(false);
 			cFocused = NULL;
-		};
+		}
 		if( w && cFocused == NULL )
 		{
 			w->setFocused(true);
 			cFocused = w;
-		};
-};
+		}
+}
 
 void CGuiSkinnedLayout::FocusOnKeyPress(UnicodeChar c, int keysym, bool keyup)
 {
 	// If we don't have any focused widget, get the first textbox
 	if (!cFocused)  {
-		CWidget *txt = cWidgets;
-		for (;txt;txt=txt->getNext())  {
-			if (txt->getType() == wid_Textbox && txt->getEnabled()) {
-				cFocused = txt;
-				txt->setFocused(true);
+		for( std::list<CWidget *>::iterator txt = cWidgets.begin() ; txt != cWidgets.end() ; txt++)  {
+			if ((*txt)->getType() == wid_Textbox && (*txt)->getEnabled()) {
+				cFocused = *txt;
+				(*txt)->setFocused(true);
 				break;
 			}
 		}
 	}
-};
+}
+
+CWidget * CGuiSkinnedLayout::getWidgetAtPoint(int x, int y)
+{
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
+		if ((*w)->getEnabled() && (*w)->InBox(x, y))
+			return (*w);
+
+	return this;
+}
 
 CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
@@ -442,10 +438,11 @@ CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< CScriptableVars::
 	{
 		w->cChildLayout->SetOffset( p[1].i, p[2].i );
 		w->cChildLayout->setParent( w );
-	};
+	}
+
 	layout->Add( w, id, x, y, dx, dy );
 	return w;
-};
+}
 
 static bool CGuiSkinnedLayout_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "tab", & CGuiSkinnedLayout::WidgetCreator )
@@ -463,7 +460,7 @@ void CGuiSkinnedLayout::ExitDialog( const std::string & param, CWidget * source 
 	if( lpp != NULL )
 		lpp->cChildLayout = NULL;
 	lp->setParent( NULL );
-};
+}
 
 void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source )
 {
@@ -483,7 +480,7 @@ void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source
 	{
 		x = atoi( params[1] );
 		y = atoi( params[2] );
-	};
+	}
 	std::string file = params[0];
 	CGuiSkinnedLayout * lc = CGuiSkin::GetLayout( file );
 	if( lc == NULL )
@@ -494,7 +491,7 @@ void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source
 	lp->cChildLayout = lc;
 	lp->bChildLayoutFullscreen = fullscreen;
 	lc->ProcessGuiSkinEvent(CGuiSkin::SHOW_WIDGET);
-};
+}
 
 void CGuiSkinnedLayout::SetTab( const std::string & param, CWidget * source )
 {
@@ -520,7 +517,7 @@ void CGuiSkinnedLayout::SetTab( const std::string & param, CWidget * source )
 	if( params.size() >= 4 )
 		lc->SetOffset( atoi(params[2]), atoi(params[3]) );
 	lc->ProcessGuiSkinEvent(CGuiSkin::SHOW_WIDGET);
-};
+}
 
 static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & CGuiSkinnedLayout::ExitDialog, "ExitDialog" )

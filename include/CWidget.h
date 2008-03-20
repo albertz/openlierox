@@ -103,9 +103,6 @@ private:
 	generic_events_t	tEvents;
 	CGuiLayoutBase		*cParent;
 
-	CWidget				*cNext;
-	CWidget				*cPrev;
-
 
 public:
 	// Methods
@@ -116,11 +113,6 @@ public:
 	bool			InBox(int x, int y);
 
     void            redrawBuffer(void);
-
-	void			setNext(CWidget *w)				{ cNext = w; }
-	CWidget			*getNext(void)					{ return cNext; }
-	void			setPrev(CWidget *w)				{ cPrev = w; }
-	CWidget			*getPrev(void)					{ return cPrev; }
 
 	int				getID(void)						{ return iID; }
 	void			setID(int _i)					{ iID = _i; }
