@@ -126,7 +126,7 @@ void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 	widget->setParent(this);
 
 	// Link the widget in
-	cWidgets.push_back(widget);
+	cWidgets.push_front(widget);
 }
 
 

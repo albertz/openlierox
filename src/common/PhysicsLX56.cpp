@@ -876,6 +876,15 @@ public:
 			projectile_doSpawnOthers(prj, fCurTime);
 		}
 
+		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
+		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new 
+		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning. 
+		// These conditions test for those projectiles and remove them
+		if (pi->Hit_Type == PJ_NOTHING && pi->PlyHit_Type == PJ_NOTHING && (pi->Timer_Type == PJ_NOTHING || pi->Timer_Time <= 0)) // Isn't destroyed by any event
+			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
+				if (!pi->Hit_Projectiles && !pi->PlyHit_Projectiles && !pi->Timer_Projectiles)  // Doesn't spawn any projectiles
+					deleteAfter = true;
+
 		if(deleteAfter) {
 			prj->setUnused();
 		}
