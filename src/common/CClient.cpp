@@ -266,7 +266,12 @@ int CClient::Initialize(void)
 
 
 	// Open a new socket
-	tSocket = OpenUnreliableSocket(0);
+	if( tGameInfo.iGameType == GME_JOIN ) {
+		tSocket = OpenUnreliableSocket( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
+	}
+	if(!IsSocketStateValid(tSocket)) {	// If socket won't open that's not error - open another one on random port
+		tSocket = OpenUnreliableSocket(0);	
+	}
 	if(!IsSocketStateValid(tSocket)) {
 		SetError("Error: Could not open UDP socket!");
 		return false;
