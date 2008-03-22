@@ -267,6 +267,7 @@ int GameServer::StartGame()
 	bBonusesOn =	 tGameInfo.bBonusesOn;
 	bShowBonusName = tGameInfo.bShowBonusName;
 
+
 	// Check
 	if (!cWorms)
 		return false;
@@ -274,7 +275,6 @@ int GameServer::StartGame()
 
 	// Reset the first blood
 	bFirstBlood = true;
-
 
 	// Shutdown any previous map instances
 	if(cMap) {
@@ -540,9 +540,6 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-
-	for( i=0; i<MAX_CLIENTS; i++ )
-		cClients[i].getUdpFileDownloader()->allowFileRequest(tLXOptions->bAllowFileDownload);
 }
 
 ///////////////////
@@ -768,14 +765,13 @@ void GameServer::RegisterServerUdp(void)
 
 		CBytestream bs;
 
-		for(int f1=0; f1<3; f1++)
-		{
-			bs.writeInt(-1,4);
-			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-			bs.Send(tSocket);
-			bs.Clear();
-		};
+		bs.writeInt(-1,4);
+		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+		bs.Send(tSocket);
+		bs.Send(tSocket);
+		bs.Send(tSocket);
 
+		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::register");
 		bs.writeString(OldLxCompatibleString(sName));
@@ -783,6 +779,8 @@ void GameServer::RegisterServerUdp(void)
 		bs.writeByte(iMaxWorms);
 		bs.writeByte(iState);
 
+		bs.Send(tSocket);
+		bs.Send(tSocket);
 		bs.Send(tSocket);
 		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
 		return;	// Only one UDP masterserver is supported
@@ -808,14 +806,13 @@ void GameServer::DeRegisterServerUdp(void)
 
 		CBytestream bs;
 
-		for(int f1=0; f1<3; f1++)
-		{
-			bs.writeInt(-1,4);
-			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-			bs.Send(tSocket);
-			bs.Clear();
-		};
+		bs.writeInt(-1,4);
+		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+		bs.Send(tSocket);
+		bs.Send(tSocket);
+		bs.Send(tSocket);
 
+		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::deregister");
 

@@ -618,6 +618,9 @@ void GameServer::gotoLobby(void)
 	// Goto the host lobby
 	Menu_Net_GotoHostLobby();
 
+	for( i=0; i<MAX_CLIENTS; i++ )
+		cClients[i].getUdpFileDownloader()->allowFileRequest(tLXOptions->bAllowFileDownload);
+
 	// HINT: the gamescript is shut down by the cache
 }
 
