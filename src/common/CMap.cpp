@@ -953,7 +953,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
 	Uint8 *dest_px, *obj_px, *shadowmap_px;
-	Sint16 DestRowStep, ObjRowStep;
+	Uint32 DestRowStep, ObjRowStep;
 	Uint8 *ShadowmapPxRow;  // We draw shadowmap doubly stretched so we cannot use step there
 
 	dest_px		   = (Uint8 *)bmpDest->pixels + (dest_real_y * bmpDest->pitch) + (dest_real_x * bpp);
@@ -963,22 +963,16 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	DestRowStep	 = bmpDest->pitch - (w * bpp);
 	ObjRowStep	 = bmpObj->pitch - (w * bpp);
 
-	// Pixelflags
-	uchar *PixelFlag;
-
-	// Loop variables
-	int loop_x, loop_y;
-
 	// Draw the shadow
-	for (loop_y = h; loop_y; --loop_y)  {
-		PixelFlag = &PixelFlags[pixelflags_y * Width + pixelflags_start_x];
+	for (int loop_y = h; loop_y; --loop_y)  {
+		uchar *PixelFlag = &PixelFlags[pixelflags_y * Width + pixelflags_start_x];
 		shadowmap_px = ShadowmapPxRow;
 
-		for (loop_x = w; loop_x; --loop_x)  {
+		for (int loop_x = w; loop_x; --loop_x)  {
 
 			if ( (*PixelFlag & PX_EMPTY))  { // Don't draw shadow on solid objects
 
-				// Put pixel of not tranparent
+				// Put pixel if not tranparent
 				if (!IsTransparent(bmpObj, GetPixelFromAddr(obj_px, bpp)))
 					memcpy(dest_px, shadowmap_px, bpp);
 			}
