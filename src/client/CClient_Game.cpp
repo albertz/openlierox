@@ -1005,7 +1005,8 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 		// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
 		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
 		// is probably outdated at this time
-		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime, tLX->fCurTime);
+		// HINT: we add dt because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
+		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime, tLX->fCurTime + tLX->fDeltaTime);
 
 		shot->nRandom++;
 		shot->nRandom %= 255;

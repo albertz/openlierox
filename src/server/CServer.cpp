@@ -143,12 +143,10 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		{
 			tNatTraverseSockets[f] = OpenUnreliableSocket(0);
 			if(!IsSocketStateValid(tNatTraverseSockets[f])) {
-				SystemError("Error: Could not open UDP socket");
-				return false;
+				continue;
 			}
 			if(!ListenSocket(tNatTraverseSockets[f])) {
-				SystemError( "Error: cannot start listening" );
-				return false;
+				continue;
 			}
 		};
 	};
