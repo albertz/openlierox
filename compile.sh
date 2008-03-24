@@ -120,7 +120,7 @@ echo "* $COMPILER will be used for compilation"
 
 echo ">>> compiling now, this could take some time ..."
 mkdir -p bin
-if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
+if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp src/mods/*/*.cpp \
 	$HAWKNL_GCC_PARAM \
 	-I include -I pstreams \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
