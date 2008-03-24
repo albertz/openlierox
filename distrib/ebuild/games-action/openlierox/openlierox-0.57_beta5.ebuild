@@ -18,7 +18,6 @@ RDEPEND="media-libs/libsdl
 	media-libs/sdl-image
 	dev-games/hawknl
 	media-libs/gd
-	sys-libs/zlib
 	dev-libs/libxml2
 	X? ( x11-libs/libX11 )"
 
