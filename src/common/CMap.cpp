@@ -1611,6 +1611,11 @@ void CMap::PlaceStone(int size, CVec pos)
 		}
 	}
 
+	// Recalculate the grid
+	for (y = clip_y; y < clip_h; y += nGridHeight)
+		for (x = clip_x; x < clip_w; x += nGridWidth)
+			calculateGridCell(x, y, false);
+
 	unlockFlags();
 
 	UnlockSurface(stone);
