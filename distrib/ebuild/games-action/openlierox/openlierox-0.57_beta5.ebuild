@@ -24,6 +24,10 @@ RDEPEND="media-libs/libsdl
 
 DEPEND="${RDEPEND}"
 
+MY_PN="OpenLieroX"
+MY_P="${MY_PN}_${PV}"
+S="${WORKDIR}/${MY_PN}"
+
 pkg_setup() {
 	if use X && ! built_with_use media-libs/libsdl X; then
 		ewarn "You have enabled X support but media-libs/libsdl"
@@ -34,16 +38,7 @@ pkg_setup() {
 	games_pkg_setup
 }
 
-src_unpack() {
-	mkdir -p ${S} || die "cannot creating working-dir"
-	cd ${S}
-
-	unpack OpenLieroX_${PV}.src.tar.bz2 || die "cannot unpack the main archive"
-}
-
 src_compile() {
-	cd ${S}/OpenLieroX || die "some strange problems ..."
-
 	# SYSTEM_DATA_DIR/OpenLieroX will be the search path
 	# the compile.sh will also take care of CXXFLAGS
 	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
@@ -55,8 +50,6 @@ src_compile() {
 }
 
 src_install() {
-	cd ${S}/OpenLieroX || die "some strange problems ..."
-
 	echo ">>> copying binary ..."
 	newgamesbin bin/openlierox openlierox || die "cannot copy binary"
 
