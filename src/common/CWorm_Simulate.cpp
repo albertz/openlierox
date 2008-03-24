@@ -285,6 +285,7 @@ void CWorm::getInput()
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {
 			ws->bMove = true;
+			lastMoveTime = tLX->fCurTime;
 
 			if(!cRight.isDown()) {
 				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
@@ -298,6 +299,7 @@ void CWorm::getInput()
 
 		if(cRight.isDown()) {
 			ws->bMove = true;
+			lastMoveTime = tLX->fCurTime;
 
 			if(!cLeft.isDown()) {
 				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
