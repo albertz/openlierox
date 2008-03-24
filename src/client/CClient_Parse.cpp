@@ -34,6 +34,8 @@
 #include "MathLib.h"
 #include "EndianSwap.h"
 #include "Physics.h"
+#include "OLXModInterface.h"
+using namespace OlxMod;
 
 using namespace std;
 
@@ -390,6 +392,14 @@ void CClient::ParsePacket(CBytestream *bs)
 
             case S2C_SENDFILE:
                 ParseSendFile(bs);
+                break;
+
+            case S2C_OLXMOD_START:
+                ParseOlxModStart(bs);
+                break;
+				
+            case S2C_OLXMOD_DATA:
+                ParseOlxModData(bs);
                 break;
 
 			default:
@@ -1353,7 +1363,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
         gl->bHaveMap = false;
     else
         fclose(fp);
-
+		
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
 		std::string MapName = Menu_GetLevelName(gl->szMapName);
@@ -1366,6 +1376,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
         gl->bHaveMod = false;
     else
         fclose(fp);
+
+	if( OlxMod_IsModInList(gl->szModDir) )
+	    gl->bHaveMod = true;
 
 	bJoin_Update = true;
 	bHost_Update = true;
@@ -1761,5 +1774,64 @@ void CClient::ParseSendFile(CBytestream *bs)
 		getUdpFileDownloader()->sendPing( &bs );
 		cNetChan.AddReliablePacketToSend(bs);
 	};
+};
+
+void CClient::ParseOlxModStart(CBytestream *bs)
+{
+	std::string modName = bs->readString();
+	int gameSpeed = bs->readInt(1);
+	unsigned long randomSeed = bs->readInt(4);
+	int optionsNum = bs->readInt(1);
+	int banlistNum = bs->readInt(1);
+	if( optionsNum != 0 || banlistNum != 0 )
+	{
+		printf("CClient::ParseOlxModStart(): error, options and banlist not supported yet");
+		return;
+	};
+	int numPlayers = 0, localWorm = -1;
+	
+	CWorm *w;
+	int f;
+	
+	for( f = 0, w = cRemoteWorms; f < MAX_CLIENTS; f++, w++ )
+	{
+		if( ! w->isUsed() )
+			continue;
+		if( w->getLocal() && localWorm == -1 )
+			localWorm = numPlayers;
+		numPlayers ++;
+	};
+
+	// empty by now
+	std::map< std::string, CScriptableVars::ScriptVar_t > options;
+	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions;
+	
+	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed, 
+				(unsigned long)(tLX->fCurTime*1000.0f), 
+				numPlayers, localWorm, randomSeed, 
+				options, weaponRestrictions, 
+				640, 480, SDL_GetVideoSurface() );	// TODO: don't use SDL_GetVideoSurface(), use some var to pass it
+	if( ret == true )
+	{
+		printf("CClient::ParseOlxModStart() random %lu, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
+		iNetStatus = NET_PLAYING_OLXMOD;
+		RemoveSocketFromNotifierGroup( tSocket );
+		bGameReady = true;
+		bShouldRepaintInfo = true;
+		bJoin_Update = true;
+		getUdpFileDownloader()->reset();
+		cLocalWorms[0]->StartGame();
+		FillSurface( SDL_GetVideoSurface(), 0 );	// Clear screen
+	}
+	else
+	{
+		printf("OlxMod_ActivateMod() failed\n");
+	};
+};
+
+void CClient::ParseOlxModData(CBytestream *bs)
+{
+	int wormId = bs->readByte();
+	OlxMod_ReceiveNetPacket( bs, wormId );
 };
 

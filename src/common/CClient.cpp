@@ -29,6 +29,9 @@
 #include "MathLib.h"
 #include "EndianSwap.h"
 #include "Version.h"
+#include "CServer.h"
+#include "OLXModInterface.h"
+using namespace OlxMod;
 
 
 const float fDownloadRetryTimeout = 5.0;	// 5 seconds
@@ -571,6 +574,9 @@ void CClient::Frame(void)
 	if(iNetStatus == NET_PLAYING)
 		Simulation();
 
+	if(iNetStatus == NET_PLAYING_OLXMOD)
+		SimulationOlxMod();
+
 	SendPackets();
 
 	// Connecting process
@@ -650,7 +656,7 @@ void CClient::SendPackets(void)
 		SendRandomPacket();
 #endif
 
-	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
+	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING_OLXMOD)
 		cNetChan.Transmit(&bsUnreliable);
 
 	bsUnreliable.Clear();
@@ -1258,3 +1264,35 @@ void CClient::setServerVersion(const std::string & _s)
 	cServerVersion.setByString(_s);
 	printf("Server is using " + cServerVersion.asString() + "\n");
 }
+
+void CClient::SimulationOlxMod()
+{
+	OlxMod_KeyState_t keys;
+	keys.up = cLocalWorms[0]->getInputUp().isDown();
+	keys.down = cLocalWorms[0]->getInputDown().isDown();
+	keys.left = cLocalWorms[0]->getInputLeft().isDown();
+	keys.right = cLocalWorms[0]->getInputRight().isDown();
+	keys.shoot = cLocalWorms[0]->getInputShoot().isDown();
+	keys.jump = cLocalWorms[0]->getInputJump().isDown();
+	keys.selweap = cLocalWorms[0]->getInputWeapon().isDown();
+	keys.rope = cLocalWorms[0]->getInputRope().isDown();
+	keys.strafe = cLocalWorms[0]->getInputStrafe().isDown();
+	cLocalWorms[0]->clearInput();
+	CBytestream bs;
+	bs.writeByte(C2S_OLXMOD_DATA);
+	if( OlxMod_Frame( (unsigned long)(tLX->fCurTime*1000.0f), keys, &bs, cShowScore.isDown() ) )
+	{
+		cNetChan.AddReliablePacketToSend(bs);
+	};
+	if( GetKeyboard()->KeyUp[SDLK_ESCAPE] )
+	{
+		OlxMod_EndRound();
+		if( tGameInfo.iGameType == GME_LOCAL )
+			GotoLocalMenu();
+		if( tGameInfo.iGameType == GME_HOST )
+			cServer->gotoLobby();
+		if( tGameInfo.iGameType == GME_JOIN )
+			GotoNetMenu();
+	};
+};
+

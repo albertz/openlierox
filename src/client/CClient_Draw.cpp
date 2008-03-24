@@ -374,6 +374,8 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
+	if( iNetStatus == NET_PLAYING_OLXMOD )
+		return;
 	// TODO: clean this function up
 	// currently both control structure and the drawing itself is in here
 

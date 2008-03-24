@@ -44,6 +44,7 @@
 #define		C2S_DISCONNECT		7
 #define		C2S_GRABBONUS		8
 #define     C2S_SENDFILE        9
+#define     C2S_OLXMOD_DATA     10
 
 
 // Server->Client
@@ -70,6 +71,8 @@
 #define		S2C_DESTROYBONUS	20
 #define     S2C_DROPPED         21
 #define     S2C_SENDFILE        22
+#define     S2C_OLXMOD_START    23
+#define     S2C_OLXMOD_DATA     24
 
 
 #endif  //  __PROTOCOL_H__

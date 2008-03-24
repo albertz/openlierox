@@ -29,6 +29,8 @@
 #include "DedicatedControl.h"
 #include "Physics.h"
 #include "Version.h"
+#include "OLXModInterface.h"
+using namespace OlxMod;
 
 
 #ifndef WIN32
@@ -892,7 +894,10 @@ void ShutdownLieroX(void)
 	// using a map for all vars and with a new registration, we would just overwrite
 	// the old registration.
 	if(!bRestartGameAfterQuit)
+	{
 		CScriptableVars::DeInit();
+		OlxMod_DeleteModList();
+	};
 
 	xmlCleanupParser();
 

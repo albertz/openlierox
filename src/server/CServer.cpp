@@ -19,6 +19,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <time.h>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -35,6 +36,8 @@
 #include "stun.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
+#include "OLXModInterface.h"
+using namespace OlxMod;
 
 
 using namespace std;
@@ -254,7 +257,7 @@ int GameServer::StartGame()
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
 	CBytestream bs;
-
+	
 	iLives =		 tGameInfo.iLives;
 	iGameType =		 tGameInfo.iGameMode;
 	iMaxKills =		 tGameInfo.iKillLimit;
@@ -265,11 +268,27 @@ int GameServer::StartGame()
 	bBonusesOn =	 tGameInfo.bBonusesOn;
 	bShowBonusName = tGameInfo.bShowBonusName;
 
+	printf("GameServer::StartGame() mod %s\n", sModName.c_str());
+	if( OlxMod_IsModInList(sModName) )
+	{
+		printf("GameServer::StartGame() mod %s - in OlxMod list\n", sModName.c_str());
+		iState = SVS_PLAYING_OLXMOD;
+		iServerFrame = 0;
+	    bGameOver = false;
+		
+		bs.writeByte(S2C_OLXMOD_START);
+		bs.writeString( sModName );
+		bs.writeInt( OlxMod_GameSpeed_Normal, 1 );
+		bs.writeInt( (unsigned long)time(NULL) + SDL_GetTicks(), 4 ); // Random seed
+		bs.writeInt( 0, 1 ); // Zero options for now
+		bs.writeInt( 0, 1 ); // Zero weapon banlist for now
+		SendGlobalPacket(&bs);
+		return true;
+	};
 
 	// Check
 	if (!cWorms)
 		return false;
-
 
 	// Reset the first blood
 	bFirstBlood = true;

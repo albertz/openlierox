@@ -42,7 +42,8 @@ class challenge_t { public:
 enum {
 	SVS_LOBBY=0,		// Lobby
 	SVS_GAME,			// Game, waiting for players to load
-	SVS_PLAYING			// Currently playing
+	SVS_PLAYING,		// Currently playing
+	SVS_PLAYING_OLXMOD	// Currently playing Olx mod - skip all simulation, just transit packets
 };
 
 // Client leaving reasons
@@ -237,6 +238,7 @@ public:
 	void		ParseWeaponList(CClient *cl, CBytestream *bs);
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
 	void		ParseSendFile(CClient *cl, CBytestream *bs);
+	void		ParseOlxModData(CClient *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);

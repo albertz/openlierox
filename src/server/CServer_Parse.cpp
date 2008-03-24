@@ -28,6 +28,8 @@
 #include "DedicatedControl.h"
 #include "AuxLib.h"
 #include "Version.h"
+#include "OLXModInterface.h"
+using namespace OlxMod;
 
 
 using namespace std;
@@ -117,6 +119,10 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 
 		case C2S_SENDFILE:
 			ParseSendFile(cl, bs);
+			break;
+
+		case C2S_OLXMOD_DATA:
+			ParseOlxModData(cl, bs);
 			break;
 
 		default:
@@ -850,6 +856,31 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			};
 			fwrite( cl->getUdpFileDownloader()->getData().c_str(), 1, cl->getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
+		};
+	};
+};
+
+void GameServer::ParseOlxModData(CClient *cl, CBytestream *bs)
+{
+	//printf("GameServer::ParseOlxModData()\n");
+	CBytestream data;
+	int packetSize = OlxMod_NetPacketSize();
+	int f;
+	for( f=0; f<packetSize; f++ )
+	{
+		data.writeByte(bs->readByte());
+	};
+
+	CClient *clSend;
+	for( f=0, clSend = cClients; f < MAX_CLIENTS; f++, clSend++ )
+	{
+		if( clSend != cl && clSend->getStatus() == NET_CONNECTED )
+		{
+			CBytestream dataSend;
+			dataSend.writeByte( S2C_OLXMOD_DATA );
+			dataSend.writeByte( cl->getWorm(0)->getID() );
+			dataSend.Append(&data);
+			SendPacket( &dataSend, clSend );
 		};
 	};
 };

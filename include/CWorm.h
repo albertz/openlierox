@@ -702,6 +702,16 @@ public:
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
 	float	fLastSimulationTime;
+	
+	CInput &	getInputUp()					{ return cUp; };
+	CInput &	getInputDown()					{ return cDown; };
+	CInput &	getInputLeft()					{ return cLeft; };
+	CInput &	getInputRight()					{ return cRight; };
+	CInput &	getInputShoot()					{ return cShoot; };
+	CInput &	getInputJump()					{ return cJump; };
+	CInput &	getInputWeapon()				{ return cSelWeapon; };
+	CInput &	getInputRope()					{ return cInpRope; };
+	CInput &	getInputStrafe()				{ return cStrafe; };
 };
 
 

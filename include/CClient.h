@@ -50,9 +50,10 @@
 enum {
 	NET_DISCONNECTED=0,
 	NET_CONNECTING,			// Server doesn't use this state, only client side
-	NET_CONNECTED,
-	NET_PLAYING,
-    NET_ZOMBIE              // Server side only state
+	NET_CONNECTED,			// Server usage: when client connected or playing, client usage: only when in server lobby
+	NET_PLAYING,			// Server doesn't use this state, only client side
+    NET_ZOMBIE,             // Server side only state - server won't accept any client packets and will send disconnect packets to client
+	NET_PLAYING_OLXMOD		// Client-only state
 };
 
 
@@ -386,8 +387,8 @@ private:
 
 
 	// Network
-	int			iServerFrame;
-	float		fServerTime;
+	int			iServerFrame;	// TODO: remove, not used anywhere
+	float		fServerTime;	// TODO: remove, not used anywhere
 	int			iNetSpeed;
 	int			iNetStatus;
 	std::string	strServerAddr;
@@ -493,6 +494,7 @@ public:
 
 	// Game
 	void		Simulation(void);
+	void		SimulationOlxMod();
 	void		SetupViewports(void);
 	void		SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2);
 	void		SendCarve(CVec pos);
@@ -608,6 +610,8 @@ public:
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
     void        ParseSendFile(CBytestream *bs);
+    void        ParseOlxModStart(CBytestream *bs);
+    void        ParseOlxModData(CBytestream *bs);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
