@@ -51,7 +51,7 @@ src_compile() {
 
 src_install() {
 	echo ">>> copying binary ..."
-	newgamesbin bin/openlierox openlierox || die "cannot copy binary"
+	dogamesbin bin/openlierox || die "cannot copy binary"
 
 	echo ">>> copying gamedata-files ..."
 	# HINT: the app uses case-insensitive file-handling
@@ -68,7 +68,11 @@ src_install() {
 
 	echo ">>> creating icon and desktop entry ..."
 	doicon share/OpenLieroX.svg
-	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg Game
+	doicon share/OpenLieroX.xpm
+	doicon share/OpenLieroX.16.png
+	doicon share/OpenLieroX.32.png
+	doicon share/OpenLieroX.64.png
+	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg "Game;ActionGame;ArcadeGame"
 
 	prepgamesdirs
 }
