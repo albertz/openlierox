@@ -50,29 +50,22 @@ src_compile() {
 }
 
 src_install() {
-	echo ">>> copying binary ..."
+	einfo "copying binary ..."
 	dogamesbin bin/openlierox || die "cannot copy binary"
 
-	echo ">>> copying gamedata-files ..."
+	einfo "copying gamedata-files ..."
 	# HINT: the app uses case-insensitive file-handling
 	insinto "${GAMES_DATADIR}"/${PN}/
 	doins -r share/gamedir/* || die "failed while copying gamedata"
 
-	echo ">>> installing doc ..."
-	dodoc doc/README
-	dodoc doc/ChangeLog
-	dodoc doc/Development
-	dodoc doc/TODO
+	einfo "installing doc ..."
+	dodoc doc/README doc/ChangeLog doc/Development doc/TODO
 	insinto "/usr/share/doc/${PF}"
 	doins -r doc/original_lx_docs
 
-	echo ">>> creating icon and desktop entry ..."
-	doicon share/OpenLieroX.svg
-	doicon share/OpenLieroX.xpm
-	doicon share/OpenLieroX.16.png
-	doicon share/OpenLieroX.32.png
-	doicon share/OpenLieroX.64.png
-	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg "Game;ActionGame;ArcadeGame"
+	einfo "creating icon and desktop entry ..."
+	doicon share/OpenLieroX.*
+	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg "Game;ActionGame;ArcadeGame;"
 
 	prepgamesdirs
 }
