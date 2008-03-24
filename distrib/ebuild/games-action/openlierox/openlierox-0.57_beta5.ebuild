@@ -46,7 +46,7 @@ src_compile() {
 	DEBUG=$(use debug && echo 1 || echo 0) \
 	X11CLIPBOARD=$(use X && echo 1 || echo 0) \
 	VERSION=${PV} \
-	./compile.sh || die "error(s) while compiling; please make a report"
+	./compile.sh || die "compilation failed"
 }
 
 src_install() {
