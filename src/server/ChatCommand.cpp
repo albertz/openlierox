@@ -364,7 +364,7 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 		CWorm *w = cl->getWorm(0);
 		for (int j=0; j < cl->getNumWorms(); ++j)  {
 			if (w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
-				cServer->SendText(cl, msg, TXT_TEAMPM);
+				cServer->SendText(cl, OldLxCompatibleString(msg), TXT_TEAMPM);
 				break;
 			}
 		}
