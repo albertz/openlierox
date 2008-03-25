@@ -88,8 +88,15 @@ First you have to install the dependencies:
 - SDL_mixer (1.2.6) (www.libsdl.org)
 
 Then simply open the corresponding project in build directory
-(msvc 6 - VC++ 6 (1998), msvc 2005 - VC++ 8 (2005), msvc 2008 - VC++ 9 (2008))
+(msvc 2005 - VC++ 8 (2005), msvc 2008 - VC++ 9 (2008))
 and press F5 or F7 to compile.
+
+MSVC6 is not supported anymore. MSVC6 doesn't correctly supports the C++
+standards and has therefore some problems. To make it work with MSVC6, you
+would need to hack the code a bit. Also, the project files of MSVC6 are
+not updated anymore. Therefore MSVC6 is not included in the release. If
+you are interested though in refreshing and using them, grab them from SVN
+revision 1999 in build/msvc.
 
 If you have trouble with getting dependencies or compiling, visit
 http://lxalliance.net/forum/index.php?topic=6444.0
