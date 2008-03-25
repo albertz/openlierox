@@ -1131,7 +1131,8 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			// Update the number of players on server/client
 			iNumPlayers--;
 			tGameInfo.iNumPlayers--;
-			cClient->RemoveWorm(w->getID());
+			if (w->getClient())
+				w->getClient()->RemoveWorm(w->getID());
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;

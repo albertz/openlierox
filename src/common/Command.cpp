@@ -253,8 +253,32 @@ void Cmd_Free(void)
 	Commands = NULL;
 }
 
+///////////////////
+// Converts ID as string to an integer, returns -1 on fail
+static int atoid(const std::string& str)
+{
+	// Ignore any non-numerical characters before the actual number, in most cases this is #
+	std::string::const_iterator it = str.begin();
+	while (it != str.end())  {
+		if (*it >= 48 && *it <= 57)
+			break;
 
+		it++;
+	}
 
+	// Convert the string to a number
+	std::string id = std::string(it, str.end());
+	if (id.size() == 0)
+		return -1;
+
+	bool fail;
+	int res = from_string<int>(id, fail);
+
+	if (fail)
+		return -1;
+	else
+		return res;
+}
 
 
 
@@ -271,7 +295,7 @@ void Cmd_Free(void)
 // Tell the server to kick someone
 void Cmd_Kick(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tGameInfo.iGameType == GME_JOIN)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -347,7 +371,7 @@ void Cmd_Unmute(void)
 // Tell the server to kick someone by ID
 void Cmd_KickId(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tGameInfo.iGameType == GME_JOIN)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -358,19 +382,9 @@ void Cmd_KickId(void)
         return;
     }
 
-	std::string arg = Cmd_GetArg(1);
-	char cID[6];
-	int ID;
-	size_t j = 0;
-	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
-		if (arg[i] >= 48 && arg[i] <= 57)  {
-			cID[j] = arg[i];
-			j++;
-		}
-
-	cID[j] = '\0';
-	arg = cID;
-	ID = atoi(arg);
+	int ID = atoid(Cmd_GetArg(1));
+	if (ID == -1)
+		return;
 
     if(cServer)
        cServer->kickWorm(ID);
@@ -391,19 +405,9 @@ void Cmd_BanId(void)
         return;
     }
 
-	char cID[6];
-	int ID;
-	std::string arg = Cmd_GetArg(1);
-	size_t j = 0;
-	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
-		if (arg[i] >= 48 && arg[i] <= 57)  {
-			cID[j] = arg[i];
-			j++;
-		}
-
-	cID[j] = '\0';
-	arg = cID;
-	ID = atoi(arg);
+	int ID = atoid(Cmd_GetArg(1));
+	if (ID == -1)
+		return;
 
     if(cServer)
        cServer->banWorm(ID);
@@ -424,19 +428,9 @@ void Cmd_MuteId(void)
         return;
     }
 
-	char cID[6];
-	int ID;
-	std::string arg = Cmd_GetArg(1);
-	size_t j = 0;
-	for (size_t i=0; i< arg.size() && j<6; i++) // TODO: iterators!
-		if (arg[i] >= 48 && arg[i] <= 57)  {
-			cID[j] = arg[i];
-			j++;
-		}
-
-	cID[j] = '\0';
-	arg = cID;
-	ID = atoi(arg);
+	int ID = atoid(Cmd_GetArg(1));
+	if (ID == -1)
+		return;
 
     if(cServer)
        cServer->muteWorm(ID);
@@ -457,19 +451,9 @@ void Cmd_UnmuteId(void)
         return;
     }
 
-	char cID[6];
-	int ID;
-	std::string arg = Cmd_GetArg(1);
-	size_t j = 0;
-	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
-		if (arg[i] >= 48 && arg[i] <= 57)  {
-			cID[j] = arg[i];
-			j++;
-		}
-
-	cID[j] = '\0';
-	arg = cID;
-	ID = atoi(arg);
+	int ID = atoid(Cmd_GetArg(1));
+	if (ID == -1)
+		return;
 
     if(cServer)
        cServer->unmuteWorm(ID);
@@ -510,20 +494,11 @@ void Cmd_Suicide(void)
 		// A number has been entered, suicide the specified number
 		else  {
 			// Get the number
-			char cNumber[6];
-			int number;
-			std::string arg = Cmd_GetArg(1);
-			size_t j = 0;
-			size_t i;
-			for (i=0; i< arg.size() && j<6; i++) // TODO: iterators!
-				if (arg[i] >= 48 && arg[i] <= 57)  {
-					cNumber[j] = arg[i];
-					j++;
-				}
+			bool fail;
+			int number = from_string<int>(Cmd_GetArg(1), fail);
+			if (fail)
+				number = 1;
 
-			cNumber[j] = '\0';
-			arg = cNumber;
-			number = atoi(arg);
 			if (number > tGameInfo.iLives+1)  // Safety, not needed really (should be covered in next condition)
 				number = tGameInfo.iLives+1;
 			if (number > w->getLives()+1)
@@ -533,7 +508,7 @@ void Cmd_Suicide(void)
 
 			// Suicide
 			if (w->isUsed() && w->getAlive())
-				for (i = 0; i<(uint)number; i++)
+				for (int i = 0; i < number; i++)
 					cClient->SendDeath(w->getID(), w->getID());
 		}
 	}

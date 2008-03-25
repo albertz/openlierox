@@ -380,6 +380,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
 		CClient *cl = cServer->getClient(iID); // TODO: why not this->getClient() ?
+		if (!cl)
+			return;
 		CWorm *w = cl->getWorm(0); // TODO: why not this ?
 
 		// Out of map
