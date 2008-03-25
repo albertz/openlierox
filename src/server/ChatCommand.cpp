@@ -332,6 +332,7 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 	}
 
 	// Send the message
+	msg = OldLxCompatibleString(msg);
 	cServer->SendText(recipient, msg, TXT_PRIVATE);
 	if (recipient != sender)
 		cServer->SendText(sender, msg, TXT_PRIVATE); // Send the message also back to the client
@@ -360,11 +361,12 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 
 	// Send the message to teammates
 	CClient *cl = cServer->getClients();
+	msg = OldLxCompatibleString(msg);
 	for (int i=0; i < MAX_WORMS; ++i, cl++)  {
 		CWorm *w = cl->getWorm(0);
 		for (int j=0; j < cl->getNumWorms(); ++j)  {
 			if (w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
-				cServer->SendText(cl, OldLxCompatibleString(msg), TXT_TEAMPM);
+				cServer->SendText(cl, msg, TXT_TEAMPM);
 				break;
 			}
 		}
