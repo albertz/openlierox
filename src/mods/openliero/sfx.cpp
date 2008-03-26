@@ -57,7 +57,7 @@ void Sfx::loadFromSND()
 			ptr[j] = int(temp[j]) * 30;
 		}
 	}
-	fclose( snd );
+	//fclose( snd );	// This file is cached internally by OpenLiero
 }
 
 void Sfx::play(int sound, int id, int loops)

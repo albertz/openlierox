@@ -31,22 +31,6 @@ struct Controls
 {
 	bool up, down, left, right;
 	bool fire, change, jump;
-	// ----- Changed when importing to OLX -----
-	// Helper to hook input back to OLX input system
-	bool & getByIndex(int i)
-	{
-		if( i == 0 ) return up;
-		if( i == 1 ) return down;
-		if( i == 2 ) return left;
-		if( i == 3 ) return right;
-		if( i == 4 ) return fire;
-		if( i == 5 ) return change;
-		if( i == 6 ) return jump;
-		static bool False;
-		False = false;
-		return False;
-	};
-	// ----- Changed when importing to OLX -----
 };
 
 struct WormWeapon
@@ -234,9 +218,7 @@ struct Worm
 	int hotspotX, hotspotY;      //Hotspots for laser, laser sight, etc.
 	fixed aimingAngle, aimingSpeed;
  
-	// ----- Changed when importing to OLX -----
-	Controls controls, controlsChanged;
-	// ----- Changed when importing to OLX -----
+	Controls controls;
 	bool ableToJump, ableToDig;   //The previous state of some keys
 	bool keyChangePressed;
 	bool movable;

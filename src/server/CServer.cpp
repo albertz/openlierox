@@ -278,7 +278,7 @@ int GameServer::StartGame()
 		
 		bs.writeByte(S2C_OLXMOD_START);
 		bs.writeString( sModName );
-		bs.writeInt( OlxMod_GameSpeed_Normal, 1 );
+		bs.writeInt( OlxMod_GameSpeed_Fast, 1 );
 		bs.writeInt( (unsigned long)time(NULL) + SDL_GetTicks(), 4 ); // Random seed
 		bs.writeInt( 0, 1 ); // Zero options for now
 		bs.writeInt( 0, 1 ); // Zero weapon banlist for now

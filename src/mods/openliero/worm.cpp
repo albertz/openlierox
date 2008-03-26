@@ -831,6 +831,10 @@ void Worm::beginRespawn()
 
 void Worm::doRespawning()
 {
+	// ----- Changed when importing to OLX -----
+	// Viewport size is changed in OLX
+	
+	/*
 	int destX = ftoi(x) - 80;
 	if(destX < 0)
 		destX = 0;
@@ -842,18 +846,26 @@ void Worm::doRespawning()
 		destY = 0;
 	if(destY > game.level.height - 158)
 		destY = game.level.height - 158;
+	*/
+	
+	int destX = ftoi(x) - viewport->centerX;
+	if( destX < 0 )
+		destX = 0;
+	if( destX > viewport->maxX )
+		destX = viewport->maxX;
+		
+	int destY = ftoi(y) - viewport->centerY;
+	if( destY < 0 )
+		destY = 0;
+	if( destY > viewport->maxY )
+		destY = viewport->maxY;
 
 	// ----- Changed when importing to OLX -----
-	// This is wrong now, 'cause viewport size is changed on OLX
-	/*
 	if(viewport->x < destX + 5
 	&& viewport->x > destX - 5
 	&& viewport->y < destY + 5
 	&& viewport->y > destY - 5
 	&& ready)
-	*/
-	if( ready )
-	// ----- Changed when importing to OLX -----
 	{
 		int ix = ftoi(x), iy = ftoi(y);
 		drawDirtEffect(0, ix - 7, iy - 7);

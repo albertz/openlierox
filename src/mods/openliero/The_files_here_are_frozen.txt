@@ -1,3 +1,6 @@
+
+--- Okay, for now you can change anything, that note will be valid only when lot of people will play this mod. ---
+
 You should not edit any source file in this dir, except for some non-compiling things,
 like changing "unsigned" to "size_t". If you'll change any for() or while(),
 the compatibility with previous clients will be dropped.

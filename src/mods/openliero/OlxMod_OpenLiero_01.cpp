@@ -41,6 +41,21 @@ int enabledWeaps = 0;
 int fadeAmount = 180;
 bool shutDown = false;
 
+// Keyboard hooks
+enum { MAX_KEYS = 7 };	// OpenLiero uses only 7 keys
+
+bool keys [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
+bool keysChanged [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
+
+bool & getKey( int worm, int key )
+{
+	return keys[ worm * MAX_KEYS + key ];
+};
+
+bool & getKeyChanged( int worm, int key )
+{
+	return keysChanged[ worm * MAX_KEYS + key ];
+};
 
 void OlxMod_InitFunc( int _numPlayers, int _localPlayer, 
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
@@ -51,7 +66,8 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	localPlayer = _localPlayer;
 	OLXOutput = bmpDest;
 
-	//gfx.rand.seed(Uint32(std::time(0)));
+	for( int f = 0; f < MAX_KEYS * OLXMOD_MAX_PLAYERS; f++ )
+		keys[f] = false;
 	
 	setLieroEXE("OpenLiero/LIERO.EXE");
 
@@ -77,7 +93,7 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	
 	gfx.lastFrame = 0;
 	gfx.screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
-	gfx.back = bmpDest;
+	gfx.back = gfx.screen;
 	gfx.screenPixels = static_cast<unsigned char*>(gfx.screen->pixels);
 	gfx.screenPitch = gfx.screen->pitch;
 	
@@ -95,7 +111,6 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	game.generateLevel();
 	game.resetWorms();
 	gfx.pal.clear();	
-
 
 	game.initGame_OlxMod_01();
 	game.cycles = 0;
@@ -131,6 +146,9 @@ struct savedState_t
 	
 	Worm worms[OLXMOD_MAX_PLAYERS];
 	Viewport viewports[OLXMOD_MAX_PLAYERS];
+	
+	bool keys [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
+	bool keysChanged [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
 };
 savedState_t savedState;
 
@@ -140,10 +158,13 @@ void OlxMod_DeInitFunc()
 	// TODO: doesn't free all allocated memory, check with some mem debug tool
 	savedState.game.viewports.clear();
 	savedState.game.worms.clear();
-	//closeAllCachedFiles();
+
+	game.clearViewports();
+	game.clearWorms();
+	closeAllCachedFiles();
 	SDL_FreeSurface(gfx.screen);
 	gfx.screen = NULL;
-	SDL_SetClipRect(OLXOutput, NULL);
+	//SDL_SetClipRect(OLXOutput, NULL);
 	OLXOutput = NULL;
 };
 
@@ -161,6 +182,11 @@ void OlxMod_SaveState()
 	{
 		savedState.worms[f] = *game.worms[f];
 		savedState.viewports[f] = *game.viewports[f];
+		for( int f1=0; f1<MAX_KEYS; f1++ )
+		{
+			savedState.keys[f1+f*MAX_KEYS] = keys[f1+f*MAX_KEYS];
+			savedState.keysChanged[f1+f*MAX_KEYS] = keysChanged[f1+f*MAX_KEYS];
+		};
 	};
 	// Hopefully I didn't miss something
 };
@@ -179,30 +205,12 @@ void OlxMod_RestoreState()
 	{
 		*game.worms[f] = savedState.worms[f];
 		*game.viewports[f] = savedState.viewports[f];
+		for( int f1=0; f1<MAX_KEYS; f1++ )
+		{
+			keys[f1+f*MAX_KEYS] = savedState.keys[f1+f*MAX_KEYS];
+			keysChanged[f1+f*MAX_KEYS] = savedState.keysChanged[f1+f*MAX_KEYS];
+		};
 	};
-};
-
-void copyControls( Controls & c, const OlxMod_KeyState_t & k )
-{
-	c.up = k.up;
-	c.down = k.down;
-	c.left = k.left;
-	c.right = k.right;
-	c.fire = k.shoot;
-	c.change = k.selweap;
-	c.jump = k.jump;
-	// Ignore k.rope and k.strafe
-};
-
-void eraseControls( Controls & c )
-{
-	c.up = false;
-	c.down = false;
-	c.left = false;
-	c.right = false;
-	c.fire = false;
-	c.change = false;
-	c.jump = false;
 };
 
 void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Event_t > &keys, bool fastCalculation )
@@ -215,14 +223,24 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 		//printf("OlxMod_CalculatePhysics: player %i keys %i%i%i%i%i%i%i%i changed %i%i%i%i%i%i%i%i\n", it->first, 
 		//it->second.keys.up, it->second.keys.down, it->second.keys.left, it->second.keys.right, it->second.keys.shoot, it->second.keys.selweap, it->second.keys.jump, it->second.keys.rope,
 		//it->second.keysChanged.up, it->second.keysChanged.down, it->second.keysChanged.left, it->second.keysChanged.right, it->second.keysChanged.shoot, it->second.keysChanged.selweap, it->second.keysChanged.jump, it->second.keysChanged.rope );
-		copyControls(game.worms[it->first]->controls, it->second.keys);
-		copyControls(game.worms[it->first]->controlsChanged, it->second.keysChanged);
+		getKeyChanged( it->first, 0 ) = getKey( it->first, 0 ) != it->second.keys.up;
+		getKeyChanged( it->first, 1 ) = getKey( it->first, 1 ) != it->second.keys.down;
+		getKeyChanged( it->first, 2 ) = getKey( it->first, 2 ) != it->second.keys.left;
+		getKeyChanged( it->first, 3 ) = getKey( it->first, 3 ) != it->second.keys.right;
+		getKeyChanged( it->first, 4 ) = getKey( it->first, 4 ) != it->second.keys.shoot;
+		getKeyChanged( it->first, 5 ) = getKey( it->first, 5 ) != it->second.keys.selweap;
+		getKeyChanged( it->first, 6 ) = getKey( it->first, 6 ) != it->second.keys.jump;
+		getKey( it->first, 0 ) = it->second.keys.up;
+		getKey( it->first, 1 ) = it->second.keys.down;
+		getKey( it->first, 2 ) = it->second.keys.left;
+		getKey( it->first, 3 ) = it->second.keys.right;
+		getKey( it->first, 4 ) = it->second.keys.shoot;
+		getKey( it->first, 5 ) = it->second.keys.selweap;
+		getKey( it->first, 6 ) = it->second.keys.jump;
 	};
 	while( currentTimeDiff > 0 )
 	{
 		game.gameLoop_OlxMod_01();
-		for( int f=0; f<numPlayers; f++ )
-			eraseControls( game.worms[f]->controlsChanged );
 		currentTimeDiff -= OlxMod_GameSpeed_Fastest; // Assume 10 ms frame, may be changed later
 	};
 	//printf("OlxMod_CalculatePhysics() exit\n");
@@ -232,18 +250,29 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 		unsigned f;
 		unsigned level=0;
 		for( f=0; f < game.level.data.size(); f++ )
-			level += game.level.data[f];
+			level += unsigned(game.level.data[f]) * unsigned(f+1);
 
 		unsigned worms=0;
 		for( f=0; f < game.worms.size(); f++ )
 		{
 			worms += game.worms[f]->x;
-			worms += game.worms[f]->y;
-			worms += game.worms[f]->velX;
-			worms += game.worms[f]->velY;
-			worms += game.worms[f]->aimingAngle;
+			worms += game.worms[f]->y*100;
+			worms += game.worms[f]->velX*10000;
+			worms += game.worms[f]->velY*1000000;
+			worms += game.worms[f]->aimingAngle*100000000;
 		}
-		printf( "OpenLiero debug: time %i sec, level checksum 0x%X, worms checksum 0x%X random 0x%X\n", gameTime / 1000, level, worms, game.rand() );
+
+		unsigned viewports=0;
+		for( f=0; f < game.viewports.size(); f++ )
+		{
+			viewports += game.viewports[f]->x;
+			viewports += game.viewports[f]->y*100;
+			viewports += game.viewports[f]->centerX*10000;
+			viewports += game.viewports[f]->centerY*1000000;
+		}
+		unsigned random = game.rand();
+		unsigned total = level + worms + viewports + random;
+		printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
 	};
 };
 
@@ -264,7 +293,7 @@ void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t 
 };
 
 
-bool OlxMod_registered = OlxMod_RegisterMod( "Orthodox v0.1", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
+bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.2", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
 							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
 
@@ -802,11 +831,8 @@ void Game::initGame_OlxMod_01()
 		//::viewportsCache[player] = ;
 		addViewport(new Viewport(Rect(0, 0, 158+160, 158), &w, 0, 504, 350));
 		
-		memset( &(w.controls), 0, sizeof(w.controls) );
-		memset( &(w.controlsChanged), 0, sizeof(w.controlsChanged) );
-		
-		for( f=0; f<7; f++ )
-			w.settings->controls[f] = player*7 + f;
+		for( f=0; f<MAX_KEYS; f++ )
+			w.settings->controls[f] = player*MAX_KEYS + f;
 	};
 	
 	
@@ -852,44 +878,54 @@ void Gfx::flip_OlxMod_01()
 		//bool state = dosKeys[key];
 		//dosKeys[key] = false;
 		//return state;
-		bool state = game.worms[ key/7 ]->controls.getByIndex( key%7 ) && game.worms[ key/7 ]->controlsChanged.getByIndex( key%7 );
-		//if( state )	
-		//	printf("Gfx::testKeyOnce() worm %u key %u state %i\n", key/7, key%7, state );
-		game.worms[ key/7 ]->controlsChanged.getByIndex( key%7 ) = false;
+		bool state = getKey( key / MAX_KEYS, key % MAX_KEYS ) && getKeyChanged( key / MAX_KEYS, key % MAX_KEYS );
+		if( state )	
+		{
+			getKeyChanged( key / MAX_KEYS, key % MAX_KEYS ) = false;
+			//printf("Gfx::testKeyOnce() worm %u key %u state %i\n", key/MAX_KEYS, key%MAX_KEYS, state );
+		}
 		return state;
 	}
 	
 	bool Gfx::testKey(Uint32 key)
 	{
 		//return dosKeys[key];
-		bool state = game.worms[ key/7 ]->controls.getByIndex( key%7);
+		bool state = getKey( key / MAX_KEYS, key % MAX_KEYS );
 		//if( state )	
-		//	printf("Gfx::testKey() worm %u key %u state %i\n", key/7, key%7, state );
+		//	printf("Gfx::testKey() worm %u key %u state %i\n", key/MAX_KEYS, key%MAX_KEYS, state );
 		return state;
 	}
 	
 	void Gfx::releaseKey(Uint32 key)
 	{
 		//dosKeys[key] = false;
+		getKeyChanged( key / MAX_KEYS, key % MAX_KEYS ) = false;
 	}
 	
 	void Gfx::pressKey(Uint32 key)
 	{
+		// Called only from bot AI
 		//dosKeys[key] = true;
+		//getKey( key / MAX_KEYS, key % MAX_KEYS ) = true;
 	}
 	
 	void Gfx::setKey(Uint32 key, bool state)
 	{
+		// Called only from bot AI
 		//dosKeys[key] = state;
+		//getKey( key / MAX_KEYS, key % MAX_KEYS ) = state;
 	}
 	
 	void Gfx::toggleKey(Uint32 key)
 	{
+		// Called only from bot AI
 		//dosKeys[key] = !dosKeys[key];
+		//getKey( key / MAX_KEYS, key % MAX_KEYS ) = ! getKey( key / MAX_KEYS, key % MAX_KEYS );
 	}
 	
 	bool Gfx::testSDLKeyOnce(SDLKey key)
 	{
+		// Called only from menus
 		//Uint32 k = SDLToDOSKey(key);
 		//return k ? testKeyOnce(k) : false;
 		int keynum = -1;
@@ -900,8 +936,8 @@ void Gfx::flip_OlxMod_01()
 		if( key == SDLK_RETURN ) keynum = 4;
 		if( keynum != -1 )
 		{
-			bool state = game.worms[ 0 ]->controls.getByIndex(keynum) && game.worms[ 0 ]->controlsChanged.getByIndex(keynum);
-			game.worms[ 0 ]->controlsChanged.getByIndex(keynum) = false;
+			bool state = getKey( 0, keynum );	// Only first player may change menu items
+			getKey( 0, keynum ) = false;
 			return state;
 		}
 		return false;
@@ -909,6 +945,7 @@ void Gfx::flip_OlxMod_01()
 	
 	bool Gfx::testSDLKey(SDLKey key)
 	{
+		// Called only from menus
 		//Uint32 k = SDLToDOSKey(key);
 		//return k ? testKey(k) : false;
 		int keynum = -1;
@@ -918,13 +955,22 @@ void Gfx::flip_OlxMod_01()
 		if( key == SDLK_RIGHT ) keynum = 3;
 		if( key == SDLK_RETURN ) keynum = 4;
 		if( keynum != -1 )
-			return game.worms[ 0 ]->controls.getByIndex(keynum);	// Only first player may browse menu
+			return getKey( 0, keynum );	// Only first player may change menu items
 		return false;
 	}
 	
 	void Gfx::releaseSDLKey(SDLKey key)
 	{
+		// Called only from menus
 		//Uint32 k = SDLToDOSKey(key);
 		//if(k)
 		//	dosKeys[k] = false;
+		int keynum = -1;
+		if( key == SDLK_UP ) keynum = 0;
+		if( key == SDLK_DOWN ) keynum = 1;
+		if( key == SDLK_LEFT ) keynum = 2;
+		if( key == SDLK_RIGHT ) keynum = 3;
+		if( key == SDLK_RETURN ) keynum = 4;
+		if( keynum != -1 )
+			getKey( 0, keynum ) = false;	// Only first player may change menu items
 	}
