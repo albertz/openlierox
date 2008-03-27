@@ -161,7 +161,76 @@ float VectorLength(CVec vec)
 	return (float)fastSQRT( vec.x*vec.x + vec.y*vec.y );
 }
 
+////////////////////
+// Create a parabola from three points
+Parabola::Parabola(CVec p1, CVec p2, CVec p3)
+{
+	const float m = p1.x;
+	const float n = p1.y;
+	const float o = p2.x;
+	const float p = p2.y;
+	const float q = p3.x;
+	const float r = p3.y;
 
+	const float denom = (pow(m,2)-m*(o+q)+o*q)*(o-q);
+	if (denom == 0)  {
+		a = b = c = 0;
+		return;
+	}
 
+	a = -(m*(p-r)+n*(q-o)+o*r-p*q)/denom;
+	b = (m*m*(p-r)+n*(o+q)*(q-o)+o*o*r-p*q*q)/denom;
+	c = (m*m*(o*r-p*q)+m*(p*q*q-o*o*r)+n*o*q*(o-q))/denom;
+}
+
+/////////////////////
+// Create a parabola from two points and a tangent angle in point p1
+Parabola::Parabola(CVec p1, float angleP1, CVec p2)
+{
+	const float p = p1.x;
+	const float r = p1.y;
+	const float s = p2.x;
+	const float t = p2.y;
+	const float cos_f = cos(angleP1);
+	const float sin_f = sin(angleP1);
+
+	const float denom = (p-s) * (p-s) * cos_f;
+	if (denom == 0)  {
+		a = b = c = 0;
+		return;
+	}
+
+	a = -((r-t)*cos_f+(s-p)*sin_f)/denom;
+	b = (2*p*(r-t)*cos_f+(p+s)*(s-p)*sin_f)/denom;
+	c = ((p*p*t-2*p*r*s+r*s*s)*cos_f+p*s*(p-s)*sin_f)/denom;	
+}
+
+/////////////////////
+// Get length of a parabola segment between points p1 and p2, p1 and p2 must be part of the parabola
+float Parabola::getLength(CVec p1, CVec p2)
+{
+	if (isPointAtParabola(p1) && isPointAtParabola(p2))
+		return getLength(p1.x, p2.x);
+	else
+		return -1;
+}
+
+float Parabola::getLength(float pa, float pb)
+{
+	// Check if we have a line
+	if (a == 0)  {
+		CVec x1(pa, b * pa + c);
+		CVec x2(pb, b * pb + c);
+		return (x2 - x1).GetLength();
+	}
+
+	float upper_u = 2*a*pa + b;
+	float lower_u = 2*a*pb + b;
+
+	float up = (log(sqrt(upper_u*upper_u + 1) + upper_u) + upper_u*sqrt(upper_u*upper_u + 1))/(4*a);
+	float low = (log(sqrt(lower_u*lower_u + 1) + lower_u) + lower_u*sqrt(lower_u*lower_u + 1))/(4*a);
+
+	return fabs(up - low);
+}
 
 //#endif  //  VEC2D

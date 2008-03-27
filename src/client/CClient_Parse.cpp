@@ -1710,6 +1710,11 @@ void CClient::ParseSendFile(CBytestream *bs)
 				tGameLobby.bHaveMap = true;
 				tGameLobby.szDecodedMapName = Menu_GetLevelName(tGameLobby.szMapName);
 
+				// Stop any pathfinding before destroying the map
+				if (cRemoteWorms && bGameReady)
+					for (int i = 0; i < MAX_WORMS; i++)
+						cRemoteWorms[i].AI_Shutdown();
+
 				if (cMap) delete cMap;
 
 				cMap = new CMap;
@@ -1719,6 +1724,11 @@ void CClient::ParseSendFile(CBytestream *bs)
 					Disconnect();
 					GotoNetMenu();
 				};
+				if (cRemoteWorms && bGameReady)
+					for (int i = 0; i < MAX_WORMS; i++)
+						cRemoteWorms[i].Prepare(cMap);
+
+
 				bJoin_Update = true;
 				bHost_Update = true;
 			};

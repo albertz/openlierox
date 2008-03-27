@@ -73,6 +73,7 @@ bool CClient::InitializeDrawing(void)
 			return false;
 
 		FillSurface(bmpIngameScoreBg, tLX->clScoreBackground);
+		//SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA | SDL_RLEACCEL, 128);
 		SetPerSurfaceAlpha(bmpIngameScoreBg, 128);
 	}
 	InitializeIngameScore(true);

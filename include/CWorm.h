@@ -329,6 +329,7 @@ private:
 	int			iAiTeamCTF;
 	int			iAiDiffLevel;
 	int			iRandomSpread;
+	CVec		vLastShootTargetPos;
 
 	float		fLastShoot;
 	float		fLastJump;

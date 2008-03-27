@@ -1075,9 +1075,9 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
    		if(bOnGround && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos))
    			cNinjaRope.Release();*/
 
-		// HINT: move to target gets us to better shooting position
-		NEW_AI_MoveToTarget();
-		tState.bShoot = true;
+		// Don't move when shooting
+		cNinjaRope.Release();
+		tState.bMove = false;
 
     } else {
 
@@ -2293,23 +2293,54 @@ int CWorm::AI_FindClearingWeapon(void)
 
 
 
-
 ////////////////////
 // Returns true, if the weapon can hit the target
+// WARNING: works only when fAngle == AI_GetAimingAngle, which means the target has to be aimed
 bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
 	if(!psAITarget)
 		return false;
 
-	CVec *from = &vPos;
-	CVec *to = &cTrgPos;
+	// DEBUG test
+	/*pcMap->ClearDebugImage();
+	while (!GetKeyboard()->KeyDown[SDLK_RETURN])  {
+		float alpha = PI/6;//DEG2RAD(fAngle);
+		CVec from(0, 20);
+		CVec to(150, 20);
+		DrawRectFill(pcMap->GetDebugImage(), (int)from.x*2,(int)from.y*2,(int)from.x*2+4, (int)from.y*2+4, tLX->clWhite);
+		DrawRectFill(pcMap->GetDebugImage(), (int)to.x*2,(int)to.y*2,(int)to.x*2+4, (int)to.y*2+4, tLX->clWhite);
+		for (int x = 0; x < 150; x++)  {
+			float fy = getYCoordFromParabolla(from, to, alpha, from.x + x, pcMap)*2;
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)from.x*2,(int)fy,tLX->clWhite);
+		}
 
-	// Convert the alpha to radians
-	float alpha = DEG2RAD(fAngle);
-	// Get the maximal X
-	int max_x = (int)(to->x - from->x);
+		from = CVec(60, 20);
+		to = CVec(0, 30);
+		DrawRectFill(pcMap->GetDebugImage(), (int)from.x*2,(int)from.y*2,(int)from.x*2+4, (int)from.y*2+4, MakeColour(255,0,0));
+		DrawRectFill(pcMap->GetDebugImage(), (int)to.x*2,(int)to.y*2,(int)to.x*2+4, (int)to.y*2+4, MakeColour(255,0,0));
+		for (int x = 0; x < 60; x++)  {
+			float fy = getYCoordFromParabolla(from, to, alpha, from.x - x, pcMap)*2;
+			PutPixel(pcMap->GetDebugImage(),-x*2+(int)from.x*2,(int)fy,MakeColour(255, 0, 0));
+		}
 
+		from = CVec(10, 30);
+		to = CVec(70, 35);
+		DrawRectFill(pcMap->GetDebugImage(), (int)from.x*2,(int)from.y*2,(int)from.x*2+4, (int)from.y*2+4, MakeColour(0,255,0));
+		DrawRectFill(pcMap->GetDebugImage(), (int)to.x*2,(int)to.y*2,(int)to.x*2+4, (int)to.y*2+4, MakeColour(0,255,0));
+		for (int x = 0; x < 60; x++)  {
+			float fy = getYCoordFromParabolla(from, to, alpha, from.x + x, pcMap)*2;
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)from.x*2,(int)fy,MakeColour(0, 255, 0));
+		}
+
+		ProcessEvents();
+		FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
+		DrawImage(SDL_GetVideoSurface(), pcMap->GetDebugImage(), 0, 0);
+		SDL_Flip(SDL_GetVideoSurface());
+		SDL_Delay(50);
+	}*/
+
+	// Get the projectile
 	wpnslot_t* wpnslot = getWeapon(getCurrentWeapon());
 	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
 	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
@@ -2318,103 +2349,55 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		return false;
 	}
 
-	// Get the maximal Y
-	int max_y = (int)(from->y-to->y);
+	// Exchange endpoints and velocity if needed
+	float x_vel = 1;
+	CVec from = vPos;
+	CVec to = cTrgPos;
+	if (from.x > to.x)  {
+		from = cTrgPos;
+		to = vPos;
+		x_vel = -1;
+	} else if (from.x == to.x)
+		return true;
 
-	/*if (max_y > 0)
-		alpha = 180-alpha;*/
+	// Get the parabolic trajectory
+	// TODO: this calculation is wrong in some cases, someone who knows how to work with fAngle please fix it
+	float alpha = DEG2RAD(fAngle);
+	if (cTrgPos.y > vPos.y)
+		alpha = -alpha;
+	Parabola p(vPos, alpha, cTrgPos);
+	if (p.a > 0.1f)
+		return false;
 
-	// Check the pixels in the projectile trajectory
-	int x,y;
-
-#ifdef _AI_DEBUG
+#ifdef DEBUG
 	//pcMap->ClearDebugImage();
-	//DrawRectFill(pcMap->GetDebugImage(),cTrgPos.x*2-2,cTrgPos.y*2-2,cTrgPos.x*2+2,cTrgPos.y*2+2,tLX->clWhite);
 #endif
 
+	// Check
+	float last_y = (p.a * (from.x + 5) * (from.x + 5) + p.b * (from.x + 5) + p.c);
+	for (float x = from.x + 5; x < to.x; x++)  {
+		float y = (p.a * x * x + p.b *x + p.c);
 
-	float tmp;
-	float cos_alpha = cos(alpha);
-	float tan_alpha = tan(alpha);
-	y = 0;
-	int dy;
+		// Rock or dirt, trajectory not free
+		if (CProjectile::CheckCollision(wpnproj, 1, pcMap, CVec(x, y), CVec(x_vel, y - last_y)))
+			return false;
 
-	if (max_x == 0) {
-		if(speed && fabs(cos_alpha)>0.1f) return false;
-		float fDist;
-		int nType = PX_EMPTY;
-		traceWeaponLine(cTrgPos,&fDist,&nType);
-		return (nType == PX_EMPTY);
+		last_y = y;
+
+#ifdef DEBUG
+		//PutPixel(pcMap->GetDebugImage(), CLAMP((int)x, 0, (int)pcMap->GetWidth()-1)*2, CLAMP((int)y, 0, (int)pcMap->GetHeight()-1)*2, MakeColour(0, 255, 0));
+#endif
 	}
 
-	if (max_x > 0)  {
-		for (x=0;x<max_x;x+=2)  {
-			tmp = (2*speed*speed*cos_alpha*cos_alpha);
-			if(tmp != 0)
-				dy = -x*(int)(tan_alpha+(gravity*x*x)/tmp) - y;
-			else
-				return false;
-			y += dy;
-
-			// If we have reached the target, the trajectory is free
-			if (max_y < 0)  {
-				if (y < max_y)
-					return true;
-			} else  {
-				if (y > max_y)
-					return true;
-			}
-
-			// Rock or dirt, trajectory not free
-			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
-				return false;
-			}*/
-			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec((float)x, (float)y),CVec(2.0f, (float)dy)))
-				return false;
-
-	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,tLX->clWhite);
-	#endif
-		}
-	}
-	else  {
-		for (x=0;x>max_x;x-=2)  {
-			tmp = (2*speed*speed*cos_alpha*cos_alpha);
-			if(tmp != 0)
-				dy = -x*(int)(tan_alpha+(gravity*x*x)/tmp) - y;
-			else
-				return false;
-			y += dy;
-
-			// If we have reached the target, the trajectory is free
-			if (max_y < 0)  {
-				if (y < max_y)
-					return true;
-			} else  {
-				if (y > max_y)
-					return true;
-			}
-
-			// Rock or dirt, trajectory not free
-			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
-				return false;
-			}*/
-			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec((float)x, (float)y), CVec(-2.0f, (float)dy)))
-				return false;
-
-	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,tLX->clWhite);
-	#endif
-		}
-	}
-
-	// Target reached
 	return true;
 }
 
 
 bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 {
+	// TODO: returns wron angles (too big) for mortars
+	// Is it a fault of wrong parameters or wrong calculations?
+
 	float v2 = v*v;
 	float x2 = x*x;
 	float g2 = (float)(g*g);
@@ -2543,7 +2526,7 @@ bool CWorm::AI_Shoot()
 	// If target is blocked by large amount of dirt, we can't shoot it
 	// But we can use a clearing weapon :)
 	if (nType & PX_DIRT)  {
-		if(d-fDist > 40.0f)  {
+		if(d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
 			int w = AI_FindClearingWeapon();
 			if (w == -1 || NEW_AI_GetRockBetween(vPos, cTrgPos, pcMap) > 3)
 				bDirect = false;
@@ -2555,15 +2538,9 @@ bool CWorm::AI_Shoot()
 	}
 
 	// In mortar game there must be enough of free cells around us
-	if (iAiGameType == GAM_MORTARS)  {
-		if (!NEW_AI_CheckFreeCells(1))  {
-//			bDirect = false;
-			//printf("not enough free cells\n");
+	if (iAiGameType == GAM_MORTARS)
+		if (!(nType & PX_EMPTY) && fDist <= 25)
 			return false;
-		}
-		if(bDirect && !traceWormLine(cTrgPos,vPos,pcMap))
-			bDirect = false;
-	}
 
     // Set the best weapon for the situation
     // If there is no good weapon, we can't shoot
@@ -2702,17 +2679,14 @@ bool CWorm::AI_Shoot()
 			// we already have bDirect==false, if we have no direct free way
 			bAim = bDirect;
 		}
-		else {
-			bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
-			//if(!bAim) printf("weapon can't hit target, g=%i, v=%f, x=%f, y=%f\n", g,v,x,y);
-		}
 
 		if (!bAim)
 			break;
 
 		bShoot = true;
 
-		if ((cTrgPos - vPos).GetLength2() >= 2500)  {
+		float trg_dist2 = (cTrgPos - vPos).GetLength2();
+		if (trg_dist2 >= 2500)  {
 			if (fabs(fAngle-alpha) > (5 + abs(iRandomSpread)))  {
 				// Move the angle at the same speed humans are allowed to move the angle
 				if(alpha > fAngle)
@@ -2731,13 +2705,22 @@ bool CWorm::AI_Shoot()
 				iDirection = DIR_LEFT;
 			else
 				iDirection = DIR_RIGHT;
-		} else  {
-			AI_SetAim(cTrgPos);
-			bAim = true; // We are so close, that we almost cannot miss, just shoot
+		} else if (trg_dist2 >= 100) {
+			bAim = AI_SetAim(cTrgPos);
+			if (iAiGameType != GAM_MORTARS) // Not in mortars - close shoot = suicide
+				bShoot = true; // We are so close, that we almost cannot miss, just shoot
 			break;
+		} else { // Too close, get away!
+			bAim = false;
+			bShoot = false;
+			nAIState = AI_MOVINGTOTARGET;
 		}
 
-		// Face the target
+		// Check if we can aim with this angle
+		// HINT: we have to do it here because weaponCanHit requires already finished aiming
+		if (bAim && g >= 10 && v <= 200)  {
+			bShoot = bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
+		}
 		
 
 		//if(bAim) printf("shooting!!!\n");
@@ -2801,6 +2784,7 @@ bool CWorm::AI_Shoot()
 	}*/
 
 	fBadAimTime = 0;
+	vLastShootTargetPos = cTrgPos;
 
     // Shoot
 	tState.bShoot = true;
@@ -4309,6 +4293,37 @@ void CWorm::NEW_AI_MoveToTarget()
     cPosTarget = AI_GetTargetPos();
 	if (nAITargetType == AIT_WORM && psAITarget)
 		cPosTarget = NEW_AI_FindShootingSpot();
+
+	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
+	// and move away!
+	if (iAiGameType == GAM_MORTARS)  {
+		if (SIGN(vVelocity.x) == SIGN(vLastShootTargetPos.x - vPos.x) && tLX->fCurTime - fLastShoot >= 0.2f && tLX->fCurTime - fLastShoot <= 1.0f)  {
+			if (cNinjaRope.isAttached() && SIGN(cNinjaRope.GetForce(vPos).x) == SIGN(vLastShootTargetPos.x - vPos.x)) 
+				cNinjaRope.Release();
+
+			iDirection = vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
+			ws->bMove = true;
+		}
+
+		// If there's some worm in sight and we are on ground, jump!
+		if (bOnGround)  {
+			for (int i = 0; i < MAX_WORMS; i++)  {
+				CWorm *w = &cOwner->getRemoteWorms()[i];
+				if (w->isUsed() && w->getAlive())  {
+					if ((vPos - w->getPos()).GetLength2() <= 2500)  {
+						float dist;
+						int type;
+						traceLine(w->getPos(), &dist, &type);
+						if (type & PX_EMPTY)
+							NEW_AI_Jump();
+					}
+				}
+			}
+		}
+
+		if (tLX->fCurTime - fLastShoot <= 1.0f)
+			return;
+	}
 
 /*
     // this don't make sense here; what if there is a wall between them?

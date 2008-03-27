@@ -150,5 +150,26 @@ public:
 };
 
 
+class Parabola  {
+public:
+	float a, b, c; // a*x^2 + b*x + c
+public:
+	Parabola() : a(0), b(0), c(0) {}
+	Parabola(float pa, float pb, float pc) : a(pa), b(pb), c(pc) {}
+	Parabola(const Parabola& p) { a = p.a; b = p.b; c = p.c; }
+	Parabola(CVec p1, CVec p2, CVec p3);
+	Parabola(CVec p1, float angleP1, CVec p2);
+
+	inline bool operator==(const Parabola& p) const {
+		return (a == p.a && b == p.b && c == p.c);
+	}
+
+	float getLength(CVec p1, CVec p2);
+	float getLength(float pa, float pb);
+	bool isPointAtParabola(CVec p1)  {
+		return (p1.y == (a * p1.x * p1.x ) + (b * p1.x) + c);
+	}
+};
+
 
 #endif  //  __MATHLIB_H__

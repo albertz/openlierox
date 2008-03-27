@@ -180,6 +180,9 @@ void CClient::MinorClear(void)
 		cRemoteWorms[i].setGameReady(false);
 		cRemoteWorms[i].setTagIT(false);
 		cRemoteWorms[i].setTagTime(0);
+
+		// Make sure the pathfinding ends
+		cRemoteWorms[i].AI_Shutdown();
 	}
 
 	for(i=0; i<MAX_PROJECTILES; i++)
