@@ -1075,8 +1075,17 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
    		if(bOnGround && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos))
    			cNinjaRope.Release();*/
 
-		// Don't move when shooting
-		cNinjaRope.Release();
+		// Don't move in the direction of projectiles when shooting
+		if (cNinjaRope.isAttached())  {
+			CVec force = cNinjaRope.GetForce(vPos);
+			float rope_angle = (float)atan(force.x / force.y);
+			if (force.x < 0 || force.y > 0)
+				rope_angle = -rope_angle;
+			rope_angle = RAD2DEG(rope_angle);
+
+			if (fabs(fAngle - rope_angle) <= 50)
+				cNinjaRope.Release();
+		}
 		tState.bMove = false;
 
     } else {
@@ -4304,12 +4313,14 @@ void CWorm::NEW_AI_MoveToTarget()
 			iDirection = vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
 		}
+	}
 
+	if (iAiGameType == GAM_MORTARS || iAiGameType == GAM_100LT)  {
 		// If there's some worm in sight and we are on ground, jump!
 		if (bOnGround)  {
 			for (int i = 0; i < MAX_WORMS; i++)  {
 				CWorm *w = &cOwner->getRemoteWorms()[i];
-				if (w->isUsed() && w->getAlive())  {
+				if (w->isUsed() && w->getAlive() && w->getID() != iID)  {
 					if ((vPos - w->getPos()).GetLength2() <= 2500)  {
 						float dist;
 						int type;
@@ -4320,7 +4331,10 @@ void CWorm::NEW_AI_MoveToTarget()
 				}
 			}
 		}
+	}
 
+	// Don't do anything crazy a while after shooting
+	if (iAiGameType == GAM_MORTARS)  {
 		if (tLX->fCurTime - fLastShoot <= 1.0f)
 			return;
 	}
