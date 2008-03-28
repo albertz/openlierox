@@ -164,7 +164,6 @@ void OlxMod_DeInitFunc()
 	closeAllCachedFiles();
 	SDL_FreeSurface(gfx.screen);
 	gfx.screen = NULL;
-	//SDL_SetClipRect(OLXOutput, NULL);
 	OLXOutput = NULL;
 };
 
@@ -187,6 +186,9 @@ void OlxMod_SaveState()
 			savedState.keys[f1+f*MAX_KEYS] = keys[f1+f*MAX_KEYS];
 			savedState.keysChanged[f1+f*MAX_KEYS] = keysChanged[f1+f*MAX_KEYS];
 		};
+		savedState.curSel[f] = curSel[f];
+		savedState.isReady[f] = isReady[f];
+		savedState.menus[f] = menus[f];
 	};
 	// Hopefully I didn't miss something
 };
@@ -210,6 +212,9 @@ void OlxMod_RestoreState()
 			keys[f1+f*MAX_KEYS] = savedState.keys[f1+f*MAX_KEYS];
 			keysChanged[f1+f*MAX_KEYS] = savedState.keysChanged[f1+f*MAX_KEYS];
 		};
+		curSel[f] = savedState.curSel[f];
+		isReady[f] = savedState.isReady[f];
+		menus[f] = savedState.menus[f];
 	};
 };
 
@@ -284,7 +289,8 @@ void OlxMod_Draw( bool showScoreboard )
 	for(int y = 160; y < 200; ++y)
 		for(int x = 0; x < 120; ++x)
 			gfx.screenPixels[ y * 320 + x ] = 0;
-	game.viewports[localPlayer]->draw();
+	if( ! bSelectingWeapons )
+		game.viewports[localPlayer]->draw();
 	gfx.flip_OlxMod_01();
 };
 
@@ -293,7 +299,7 @@ void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t 
 };
 
 
-bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.2", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
+bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.1", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
 							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
 
@@ -386,6 +392,7 @@ void selectWeaponsInit_OlxMod_01()
 	
 	fadeValue = 0;
 	
+	/*
 	// Skip weapon selection screen
 	{
 		bSelectingWeapons = false;
@@ -417,11 +424,10 @@ void selectWeaponsInit_OlxMod_01()
 		shutDown = false;
 
 	};
+	*/
 
 };
 
-// Ignored 'cause not working
-/*
 void selectWeaponsLoop_OlxMod_01()
 {
 	printf("selectWeaponsLoop_OlxMod_01()\n");
@@ -443,7 +449,7 @@ void selectWeaponsLoop_OlxMod_01()
 				
 				if(weapID >= 0 && weapID < game.settings.selectableWeapons)
 				{
-					if( worm.controls.left && worm.controlsChanged.left )
+					if( gfx.testKeyOnce(worm.keyLeft()) )
 					{
 						sfx.play(25, -1);
 						
@@ -460,7 +466,7 @@ void selectWeaponsLoop_OlxMod_01()
 						menus[i].items[curSel[i]].string = game.weapons[w].name;
 					}
 					
-					if( worm.controls.right && worm.controlsChanged.right )
+					if( gfx.testKeyOnce(worm.keyRight()) )
 					{
 						sfx.play(26, -1);
 						
@@ -478,21 +484,21 @@ void selectWeaponsLoop_OlxMod_01()
 					}
 				}
 				
-				if( worm.controls.up && worm.controlsChanged.up )
+				if( gfx.testKeyOnce(worm.keyUp()) )
 				{
 					sfx.play(26, -1);
 					int s = int(menus[i].items.size());
 					curSel[i] = (curSel[i] - 1 + s) % s;
 				}
 				
-				if( worm.controls.down && worm.controlsChanged.down )
+				if( gfx.testKeyOnce(worm.keyDown()) )
 				{
 					sfx.play(25, -1);
 					int s = int(menus[i].items.size());
 					curSel[i] = (curSel[i] + 1 + s) % s;
 				}
 				
-				if( worm.controls.fire && worm.controlsChanged.fire )
+				if( gfx.testKeyOnce(worm.keyFire()) )
 				{
 					if(curSel[i] == 0)
 					{
@@ -568,21 +574,15 @@ void selectWeaponsLoop_OlxMod_01()
 			}
 		}
 	};
-
-	printf("selectWeaponsLoop_OlxMod_01() exit\n");
 };
-
-*/
 
 
 void Game::gameLoop_OlxMod_01()
 {
 	//printf("Game::gameLoop_OlxMod_01()\n");
 	
-	/*
 	if(bSelectingWeapons)
 	{
-
 		selectWeaponsLoop_OlxMod_01();
 		
 		if( bSelectingWeapons )
@@ -601,9 +601,7 @@ void Game::gameLoop_OlxMod_01()
 	
 		fadeAmount = 180;
 		shutDown = false;
-	
 	}
-	*/
 	
 		++cycles;
 		

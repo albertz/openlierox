@@ -1,7 +1,8 @@
 #ifndef LIERO_SFX_HPP
 #define LIERO_SFX_HPP
 
-#include <SDL/SDL_mixer.h>
+#include <SDL.h>
+#include <SDL_mixer.h>
 #include <vector>
 #include <map>
 #include "OLXModInterface.h"

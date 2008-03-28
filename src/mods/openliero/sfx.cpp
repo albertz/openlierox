@@ -81,6 +81,9 @@ void Sfx::stop(int id)
 
 bool Sfx::isPlaying(int id)
 {
+	// That one will desync net, 'cause sounds are played in different speed on different machines
+	// and the NetSyncedRandom() will be called some extra times.
+	return false;
 	if( soundsPlaying.find(id) == soundsPlaying.end() )
 		return false;
 	bool playing = OlxMod_IsSoundSamplePlaying( soundsPlaying[id] );
