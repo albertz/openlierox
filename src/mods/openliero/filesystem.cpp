@@ -195,7 +195,7 @@ BOOST_HANDLE handle, BOOST_SYSTEM_DIRECTORY_TYPE & data )
 	{
 		if ( ::GetLastError() != ERROR_NO_MORE_FILES )
 		{
-			throw std::exception("Error iterating directory");
+			throw std::runtime_error("Error iterating directory");
 		}
 		else { return 0; } // end reached
 	}

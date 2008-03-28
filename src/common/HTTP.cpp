@@ -59,7 +59,8 @@ void AutoSetupHTTPProxy()
 	if (!tLXOptions->bAutoSetupHttpProxy)
 		return;
 
-#ifdef WIN32
+// DevCpp won't compile this - too old header files
+#if defined( WIN32 ) && defined( MSC_VER )
 	// Create the list of options we want to retrieve
 	INTERNET_PER_CONN_OPTION_LIST List;
 	INTERNET_PER_CONN_OPTION Options[2];

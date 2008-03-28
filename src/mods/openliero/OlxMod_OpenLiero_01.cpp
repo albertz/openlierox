@@ -430,7 +430,7 @@ void selectWeaponsInit_OlxMod_01()
 
 void selectWeaponsLoop_OlxMod_01()
 {
-	printf("selectWeaponsLoop_OlxMod_01()\n");
+	//printf("selectWeaponsLoop_OlxMod_01()\n");
 
 	{
 		std::memcpy(gfx.screen->pixels, &gfx.frozenScreen[0], gfx.frozenScreen.size());
