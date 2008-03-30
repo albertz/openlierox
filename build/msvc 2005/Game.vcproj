@@ -2025,6 +2025,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\OLXModInterface.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\OLXModInterface.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Physics.cpp"
 				>
 			</File>

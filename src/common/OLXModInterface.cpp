@@ -589,7 +589,7 @@ bool OlxMod_IsSoundSamplePlaying( int channel )
 {
 	if( OlxMod_SoundDisabled || OlxMod_QuickDirtyCalculation )
 		return false;
-	return Mix_Playing( channel );
+	return Mix_Playing( channel ) != 0;
 };
 
 void OlxMod_StopSoundSystem()
