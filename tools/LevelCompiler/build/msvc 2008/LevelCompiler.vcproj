@@ -60,9 +60,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib Rpcrt4.lib libs/zlibstat.lib libs/wxbase28ud.lib libs/wxmsw28ud_core.lib"
+				AdditionalDependencies="comctl32.lib Rpcrt4.lib libs/zlibstat.lib libs/wxbase28ud.lib libs/wxmsw28ud_core.lib libs/wxjpegd.lib libs/wxpngd.lib libs/wxtiffd.lib"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames="libc.lib"
+				IgnoreDefaultLibraryNames="libc.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -134,9 +134,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib Rpcrt4.lib libs/zlibstat.lib libs/wxbase28u.lib libs/wxmsw28u_core.lib"
+				AdditionalDependencies="comctl32.lib Rpcrt4.lib libs/zlibstat.lib libs/wxbase28u.lib libs/wxmsw28u_core.lib libs/wxjpeg.lib libs/wxpng.lib libs/wxtiff.lib"
 				LinkIncremental="1"
-				IgnoreDefaultLibraryNames="libc.lib"
+				IgnoreDefaultLibraryNames="libc.lib;msvcrtd.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

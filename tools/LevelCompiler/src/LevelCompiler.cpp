@@ -159,7 +159,7 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	txtMat = new wxTextCtrl(pnlMain, lc_Mat);
 	txtName = new wxTextCtrl(pnlMain, lc_Name);
 	dlgSelectFile = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString, 
-					_T("All supported files|*.bmp;*.png;*.jpg;*.gif;*.pcx;*.tif;*.tiff;*.pnm;*.xpm|Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|GIF Images (*.gif)|*.gif|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"));
+					_T("All supported files|*.bmp;*.png;*.jpg;*.gif;*.pcx;*.tif;*.tiff;*.pnm;*.xpm;*.tga|Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|GIF Images (*.gif)|*.gif|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|Targa Images (*.tga)|*.tga|All files (*.*)|*.*"));
 	dlgSaveFile = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString, 
 					_T("LieroX Level (*.lxl)|*.lxl|All files|*.*"), wxSAVE|wxOVERWRITE_PROMPT);
 
@@ -276,6 +276,7 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		throw Exception(_T("Could not create the output file."));
 
 	// Load the images
+	wxInitAllImageHandlers();
 	wxImage frontImage;
 	wxImage backImage;
 	wxImage matImage;
