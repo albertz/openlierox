@@ -74,7 +74,7 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 		
 	game.texts.loadFromEXE();
 	initKeys();
-	game.rand.seed(Uint32(std::time(0)));
+	//game.rand.seed(Uint32(std::time(0)));
 	loadConstantsFromEXE();
 	loadTablesFromEXE();
 

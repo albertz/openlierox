@@ -245,8 +245,13 @@ void OlxMod_ReCalculate()
 	OlxMod_CurrentTimeMs = OlxMod_BackupTime * OLXMOD_TICK_TIME;
 
 	// Clean up old events	
-	for( OlxMod_EventList_t::iterator it = OlxMod_Events.begin(), it1 = OlxMod_Events.lower_bound( OlxMod_BackupTime ); it != it1; it++ )
-		OlxMod_Events.erase(it);
+	for( OlxMod_EventList_t::iterator it = OlxMod_Events.begin(), 
+			it1 = OlxMod_Events.lower_bound( OlxMod_BackupTime ), it2; it != it1; )
+	{
+		it2 = it;
+		++it;
+		OlxMod_Events.erase(it2);
+	};
 
 	OlxMod_QuickDirtyCalculation = true;
 };
@@ -581,8 +586,12 @@ void OlxMod_StopSoundSample( int channel )
 
 	// Clean up old events	
 	for( std::map< unsigned long, std::map< void *, int > > ::iterator it = OlxMod_SoundsPlaying.begin(), 
-			it1 = OlxMod_SoundsPlaying.lower_bound( OlxMod_BackupTime ); it != it1; it++ )
-		OlxMod_SoundsPlaying.erase(it);
+			it1 = OlxMod_SoundsPlaying.lower_bound( OlxMod_BackupTime ), it2; it != it1; )
+	{
+		it2 = it;
+		++it;
+		OlxMod_SoundsPlaying.erase(it2);
+	};
 };
 
 bool OlxMod_IsSoundSamplePlaying( int channel )
