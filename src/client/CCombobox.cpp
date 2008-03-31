@@ -209,13 +209,11 @@ static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) 
 	int nat_cmp2 = from_string<int>(item2.sName, failed2);
 	
 	// First try, if we compare numbers
-	if (!failed1 && !failed2 && item1.sName.size() == item2.sName.size())  {
-		if(nat_cmp1 < nat_cmp2)
-			return -1;
-		else if(nat_cmp1 == nat_cmp2)
-			return 0;
+	if (!failed1 && !failed2)  {
+		if(nat_cmp1 == nat_cmp2)
+			return item1.sName.size() - item2.sName.size(); // because from_string("123456") == from_string("123456abcd")
 		else
-			return 1;
+			return nat_cmp1 - nat_cmp2;
 	// String comparison
 	} else {
 		return stringcasecmp(item1.sName, item2.sName);
