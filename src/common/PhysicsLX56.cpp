@@ -159,6 +159,8 @@ public:
 					clip |= 0x04;
 					if(fabs(vel->y) > 40)
 						vel->y *= -0.4f;
+					else
+						vel->y = (0);
 					continue;
 				}
 

@@ -328,7 +328,7 @@ void ucfirst(std::string& text)
 	if (text == "") return;
 
 	text[0] = toupper(text[0]);
-	bool wasalpha = isalpha(text[0]) != 0;
+	bool wasalpha = isalpha((uchar)text[0]) != 0;
 
 	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
 		if (isalpha(*it))  {
