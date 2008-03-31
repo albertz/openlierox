@@ -1,4 +1,4 @@
-#include <wx/wxprec.h>
+#include <wx/wx.h>
 #include <zlib.h>
 
 // Some basic defines
