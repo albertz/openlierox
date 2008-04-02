@@ -99,8 +99,8 @@ def Quit():
     print "quit"
 
 # Use this to force the server into lobby
-def startLobby():
-    print "startlobby"
+def startLobby(localWorm = "[CPU] Kamikazee!"):
+    print "startlobby " + localWorm
 
 # Force the server into starting the game (weapon selections screen)
 def startGame():
@@ -287,7 +287,7 @@ setvar("GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected
 setvar("GameServer.GameInfo.iNumPlayers", "10")
 
 setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
-setvar("GameServer.GameInfo.iLives", "4")
+setvar("GameServer.GameInfo.iLives", "10")
 setvar("GameServer.GameInfo.iKillLimit", "20")
 setvar("GameServer.GameInfo.fTimeLimit", "10")
 setvar("GameOptions.Advanced.WeaponSelectionMaxTime", "40" )

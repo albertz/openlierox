@@ -446,9 +446,20 @@ struct DedIntern {
 		cServer->UpdateGameLobby();
 	};
 	
-	void Cmd_StartLobby() {
+	void Cmd_StartLobby(std::string param) {
 		tGameInfo.iNumPlayers = 1; // for now...
-		tGameInfo.cPlayers[0] = FindProfile("[CPU] Kamikazee!"); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
+		std::string localWorm = "[CPU] Kamikazee!";
+		TrimSpaces(param);
+		if ( param != "" )
+		   localWorm = param;
+		
+		tGameInfo.cPlayers[0] = FindProfile(localWorm); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
+		if( tGameInfo.cPlayers[0] == NULL )
+		{
+			printf("ERROR: cannot find worm profile \"%s\"\n", localWorm.c_str());
+			Sig_ErrorStartLobby();
+			return;
+		}
 		
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
@@ -592,7 +603,7 @@ struct DedIntern {
 		else if(cmd == "sendlobbyupdate")
 			Cmd_SendLobbyUpdate();
 		else if(cmd == "startlobby")
-			Cmd_StartLobby();
+			Cmd_StartLobby(params);
 		else if(cmd == "startgame")
 			Cmd_StartGame();
 
