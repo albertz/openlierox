@@ -38,6 +38,7 @@ ChatCommand tKnownCommands[] = {
 	{"setmycolour",	"setmycolor",	3, 3,			(size_t)-1,	&ProcessSetMyColour},
 	{"setcolour",	"setcolor",		5, 5,			(size_t)-1,	&ProcessSetColour},
 	{"suicide",		"suicide",		0, 1,			(size_t)-1,	&ProcessSuicide},
+	{"spectate",	"spectate",		0, 0,			(size_t)-1,	&ProcessSpectate},
 };
 
 /////////////////////
@@ -640,3 +641,28 @@ std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id
 
 	return "";
 }
+
+std::string ProcessSpectate(const std::vector<std::string>& params, int sender_id)
+{
+	// Make sure we are playing
+	if (cServer->getState() != SVS_PLAYING)
+		return "Cannot spectate when not playing";
+
+	// Param check
+	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount || 
+		params.size() > GetCommand(&ProcessSuicide)->iMaxParamCount)
+		return "Invalid parameter count";
+
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Get the "victim"
+	CWorm *w = cServer->getWorms() + sender_id;
+	if (!w->isUsed())
+		return "The worm does not exist";
+
+	w->setLives(0);
+	cClient->SendDeath(sender_id, sender_id);
+	return "";
+};

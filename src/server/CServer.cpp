@@ -55,6 +55,17 @@ GameServer::GameServer() {
 	CScriptableVars::RegisterVars("GameServer")
 		( sWeaponRestFile, "WeaponRestrictionsFile" )
 		( sName, "ServerName" )
+		// TODO: Dunno if the following vars used, server seems to use tGameInfo struct instead - remove them then
+		( iMaxWorms, "MaxPlayers" )
+		( iGameType, "GameType" )
+		( iLives, "Lives" )
+		( iMaxKills, "MaxKills" )
+		( fTimeLimit, "TimeLimit" )
+		( iTagLimit, "TagLimit" )
+		( iTagLimit, "TagLimit" )
+		( bBonusesOn, "BonusesOn" )
+		( bShowBonusName, "ShowBonusName" )
+		( iLoadingTimes, "LoadingTime" )
 		;
 }
 
@@ -1009,6 +1020,9 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
+
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
 
         switch(reason) {
 

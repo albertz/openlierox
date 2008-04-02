@@ -31,7 +31,7 @@ extern "C" {
 #include <windows.h>
 
 // Added for OpenLieroX - Dev-Cpp workarounds
-#if defined(WIN32) && !defined(MSC_VER)
+#if defined(WIN32) && defined(__GNUC__)
 #define _tcscpy_s(D,N,S) _tcscpy(D,S)
 #define _tcscat_s(D,N,S) _tcscat(D,S)
 #endif

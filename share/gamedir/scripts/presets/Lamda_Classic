@@ -1,4 +1,3 @@
-#!/bin/bash
 
 setvar GameOptions.LastGame.LevelName           "LamdaBunker.lxl"
 setvar GameServer.GameInfo.sMapFile             "LamdaBunker.lxl"

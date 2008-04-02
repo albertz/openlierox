@@ -1,4 +1,3 @@
-#!/bin/bash
 
 setvar GameOptions.LastGame.LevelName           "CastleStrike.lxl"
 setvar GameServer.GameInfo.sMapFile             "CastleStrike.lxl"

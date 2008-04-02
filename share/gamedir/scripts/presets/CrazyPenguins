@@ -1,4 +1,3 @@
-#!/bin/bash
 
 setvar GameOptions.LastGame.LevelName           "HW-house.lxl"
 setvar GameServer.GameInfo.sMapFile             "HW-house.lxl"

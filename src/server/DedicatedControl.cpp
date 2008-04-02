@@ -254,19 +254,19 @@ struct DedIntern {
 		cout << "DedicatedControl: message: " << msg << endl;
 	}
 	
-	void Cmd_GetComputerWormList() {
-		profile_t *p = GetProfiles();
-		for(;p;p=p->tNext) {
-			if(p->iType == PRF_COMPUTER)
-				pipe.in() << "worm " << p->iID << ", " << p->sName << endl;
-		}
-		pipe.in() << "endwormlist" << endl;	
-	}
-
 	// adds a worm to the game
-	void Cmd_AddWorm(const std::string & params) {
+	void Cmd_AddBot(const std::string & params) {
 		// TODO ...
 		// also ensure here that we don't add human players
+	}
+
+	void Cmd_KillBots(const std::string & params) {
+		for( int f=0; f<cClient->getNumWorms(); f++ )
+			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
+			{
+				cServer->getWorms()[cClient->getWorm(f)->getID()].setLives(0);
+				cClient->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
+			}
 	}
 	
 	// Kick and ban will both function using ID
@@ -372,6 +372,37 @@ struct DedIntern {
 		cServer->muteWorm(id);
 	}
 
+	void Cmd_SetWormTeam(const std::string & params)
+	{
+		int id = 0;
+		id = atoi(params);
+		int team = 0;
+		if( params.find(" ") != std::string::npos )
+			team = atoi( params.substr( params.find(" ")+1 ) );
+
+		if(id <0 || id >= MAX_WORMS)
+		{
+			std::cout << "DedicatedControl: SetWormTeam: Faulty ID" << std::endl;
+			return;
+		}
+		CWorm *w = cServer->getWorms() + id;
+		if(!w->isUsed())
+		{
+			std::cout << "DedicatedControl: SetWormTeam: ID not in use" << std::endl;
+			return;
+		}
+		if( team < 0 || team > 3 )
+		{
+			std::cout << "DedicatedControl: SetWormTeam: invalid team number" << std::endl;
+			return;
+		}
+		
+		w->getLobby()->iTeam = team; 
+		w->setTeam(team);
+		cServer->UpdateWorms();
+		cServer->SendWormLobbyUpdate();
+	}
+
 	// This command just fits here perfectly
 	void Cmd_SetVar(const std::string& params) {
 		if( params.find(" ") == std::string::npos )
@@ -383,6 +414,10 @@ struct DedIntern {
 		std::string value = params.substr( params.find(" ")+1 );
 		TrimSpaces( var );
 		TrimSpaces( value );
+		// Strip quotes if they are
+		if( value.size() > 1 )
+			if( value[0] == '"' && value[value.size()-1] == '"' )
+				value = value.substr( 1, value.size()-2 );
 		CScriptableVars::ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL )
 		{
@@ -525,9 +560,19 @@ struct DedIntern {
 				Sig_WormList(w);
 			else if (w->getID() == id)
 				Sig_WormList(w);
-			
 		}
+		Sig_EndList();
 	}
+
+	void Cmd_GetComputerWormList() {
+		profile_t *p = GetProfiles();
+		for(;p;p=p->tNext) {
+			if(p->iType == PRF_COMPUTER)
+				Sig_ComputerWormList(p);
+		}
+		Sig_EndList();
+	}
+
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
@@ -551,8 +596,11 @@ struct DedIntern {
 		else if(cmd == "startgame")
 			Cmd_StartGame();
 
-		else if(cmd == "addworm")
-			Cmd_AddWorm(params);
+		else if(cmd == "addbot")
+			Cmd_AddBot(params);
+
+		else if(cmd == "killbots")
+			Cmd_KillBots(params);
 
 		else if(cmd == "kickworm")
 			Cmd_KickWorm(params);
@@ -560,6 +608,9 @@ struct DedIntern {
 			Cmd_BanWorm(params);
 		else if(cmd == "muteworm")
 			Cmd_MuteWorm(params);
+
+		else if(cmd == "setwormteam")
+			Cmd_SetWormTeam(params);
 
 		else if(cmd =="getwormlist")
 			Cmd_GetWormList(params);
@@ -591,8 +642,11 @@ struct DedIntern {
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
-	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }	
+	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
+	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
+	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << endl; }
+	void Sig_EndList() { pipe.in() << "endlist" << endl; }
 	
 	// TODO: Make other commands for requesting more infos to a worm. Don't spam wormlist.
 	// Suggesting IP, country (if turned on?) and more non-game/lobby specific.
@@ -647,13 +701,28 @@ bool DedicatedControl::Init_priv() {
 	std::vector<std::string> commandArgs( 1, command );
 	
 	#ifdef WIN32
-	// TODO: does this also works if scriptfn is not a bash-script? I want to change it later to Python
-	command = "msys/bin/bash.exe";
-	commandArgs.clear();
-	commandArgs.push_back(command);
-	commandArgs.push_back("-l");
-	commandArgs.push_back("-c");
-	commandArgs.push_back(scriptfn);
+	// Determine what interpreter to run for this script
+	FILE * ff = OpenGameFile(scriptfn, "r");
+	char t[128];
+	fgets( t, sizeof(t), ff );
+	fclose(ff);
+	if( std::string(t).find("bash") != std::string::npos )
+	{
+		command = "msys/bin/bash.exe";
+		commandArgs.clear();
+		commandArgs.push_back(command);
+		commandArgs.push_back("-l");
+		commandArgs.push_back("-c");
+		commandArgs.push_back(scriptfn);
+	}
+	else if( std::string(t).find("python") != std::string::npos )
+	{
+		command = "python/python.exe";
+		commandArgs.clear();
+		commandArgs.push_back(command);
+		commandArgs.push_back("-u");
+		commandArgs.push_back(scriptfn);
+	}
 	#endif
 		
 	DedIntern* dedIntern = new DedIntern;
@@ -682,6 +751,7 @@ void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
+void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
 
 // TODO: these are probably intended to be used for the scripts. though there are not used there atm
 // should be fixed before release or we will have no forward-compatibility

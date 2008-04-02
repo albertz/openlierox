@@ -1,108 +1,319 @@
-#!/bin/bash
+#!/usr/bin/python -u
+# Dedicated Control handler script for OpenLieroX
+# (http://openlierox.sourceforge.net)
+# Upon editing - keep good names and excessive comments
+# Written for easy editing by newcomers to python or programming in general
 
-CURDIR="`dirname $0`"
+# Needed for sleeping/pausing execution
+import time
+# Needed for directory access
+import os
+# Needed for running in non-blocking mode ? 
+#(Strike that, it's for some other reason ATM, as it ain't nonblocking, but i can't remember what.)
+import sys
+import threading
+#import string #deprecated
 
-function startlobby() {
-	echo "startlobby"
-}
+curdir = os.getcwd()
+# TODO: This is if it's started from start.sh - hack
+# Traceback (most recent call last):
+#  File "./scripts/dedicated_control", line 14, in ?
+#    print os.listdir(presetDir)
+# OSError: [Errno 2] No such file or directory: '/home_l/dos/OLX_Official_Testing/openlierox/share/gamedir/presets'
+curdir = os.path.join(curdir,"scripts")
+presetDir = os.path.join(curdir,"presets")
+#print os.listdir(presetDir)
+availiblePresets = list()
+maxPresets = 0
+curPreset = 0
 
-function startgame() {
-	echo "startgame"
-}
+## Global vars ##
 
-function msg() {
-	echo "msg $1"
-}
+worms = {} # List of all online worms
+bots = {}  # List of all possible bots
 
-function chatmsg() {
-	echo "chatmsg $1"
-}
+## Receiving functions ##
 
-function setvar() {
-	echo "setvar $1 $2"
-}
+# Non-blocking IO class
 
-function sendlobbyupdate() {
-	echo "sendlobbyupdate"
-}
+bufferedSignalsLock = threading.Lock()
+bufferedSignals = []
 
-function start_with_countdown() {
-	c=20
-	while [ "$c" -ge 1 ]; do
-		[ "$c" -ge 10 ] && d=2 || d=1
-		msg "$c ..."
-		chatmsg "$c ..."
-		sleep $d
-		c=$(expr "$c" - $d)
-	done
+class GetStdinThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.start()
 
-	startgame
-	if wait_for_gamestart; then
-		wait_for_gameend
-		return 0
-	fi
-	return 1
-}
+    def run(self):
+        global bufferedSignals, bufferedSignalsLock
+        while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
+            line = sys.stdin.readline()
+            bufferedSignalsLock.acquire()
+            bufferedSignals.append(line.strip())
+            bufferedSignalsLock.release()
 
-function wait_for_gamestart() {
-	local signal
-	while read signal; do
-		[ "$signal" == "gameloopstart" ] && {
-			chatmsg "prepare!"
-			return 0
-		}
-		[ "$signal" == "errorstartgame" ] && return 1
-		[ "$signal" == "quit" ] && exit
-	done
-}
+stdinInputThread = GetStdinThread()
 
-function wait_for_gameend() {
-	local signal
-	while read signal; do
-		msg "gameloop: $signal"
-		[ "$signal" == "backtolobby" ] && {
-			sleep 1
-			chatmsg "back in lobby, waiting ..."
-			return
-		}
-		[ "$signal" == "quit" ] && exit
-	done
-}
+def getSignal():
+    global bufferedSignals, bufferedSignalsLock
+    ret = ""
+    bufferedSignalsLock.acquire()
+    if len(bufferedSignals) > 0:
+        ret = bufferedSignals[0]
+        bufferedSignals = bufferedSignals[1:]
+    bufferedSignalsLock.release()
+    #if ret != "": msg("Got signal \"%s\"" % ret)
+    return ret
 
-function signal_handler() {
-	local signal
-	while read signal; do
-		msg "lobby: $signal"
-		[ "$signal" == "quit" ] && exit
-	done
-}
+def pushSignal(sig):
+    global bufferedSignals, bufferedSignalsLock
+    bufferedSignalsLock.acquire()
+    bufferedSignals.append(sig)
+    bufferedSignalsLock.release()
 
-preset=0
+def getResponce(cmd):
+    ret = []
+    extraSignals = []
+    resp = getSignal()
+    while resp != "endlist":
+        if resp.find(cmd+" ") == 0:
+            ret.append( resp[len(cmd)+1:] )
+        else:
+            if resp != "":
+                extraSignals.append(resp)
+            else:
+                time.sleep(0.01)
+        resp = getSignal()
+    for s in extraSignals:
+        pushSignal(s)
+    return ret
 
-function select_next_preset() {
-	p=0
-	for f in $CURDIR/presets/* ; do
-		if [ $p == $preset ] ; then
-			msg "Preset `basename $f`"
-			chatmsg "Preset `basename $f`"
-			. "$f"
-		fi
-		p=`expr $p '+' 1`
-	done
-	preset=`expr $preset '+' 1`
-	if [ $preset -ge $p ]; then
-		preset=0
-	fi
-	sendlobbyupdate
-}
+## Sending functions ##
 
-echo "getcomputerwormlist"
+# Set a server variable
+def setvar(what, data):
+    print "setvar %s %s" % (what,data)
+    
+# Use this to make the server quit
+def Quit():
+    print "quit"
 
-setvar GameServer.ServerName "Dedicated multimod"
+# Use this to force the server into lobby
+def startLobby():
+    print "startlobby"
 
-startlobby
+# Force the server into starting the game (weapon selections screen)
+def startGame():
+    print "startgame"
 
-while true; do
-	select_next_preset
-	until start_with_countdown; do sleep 1; done
-done
+# Use this to refresh lobby information - like level/mod et.c..
+def sendLobbyUpdate():
+    print "sendlobbyupdate"
+
+# Not implemented yet in OLX
+def addBot(name):
+    print "addbot " + name
+
+# Suicides all local bots - the game requires to have at least one worm which is bot by default
+def killBots():
+    print "killbots"
+
+# Both kick and ban uses the ingame identification code
+# for kicking/banning.
+def kickWorm(iID):
+    print "kickworm " + str(iID)
+
+def banWorm(iID):
+    print "banworm " + str(iID)
+
+def setWormTeam(iID, team):
+    print "setwormteam " + str(iID) + " " + str(team)
+
+# Use this to get ID number + name of all worms - updates worms list.
+def getWormList():
+    print "getwormlist"
+    resp = getResponce("wormlistinfo")
+    global worms
+    worms = {}
+    for r in resp:
+        iID = int(r[:r.find(" ")])
+        name = r[r.find(" ")+1:]
+        worms[iID] = name
+
+# Use this to get the list of all possible bots.
+def getComputerWormList():
+    print "getcomputerwormlist"
+    resp = getResponce("computerwormlistinfo")
+    global bots
+    bots = {}
+    for r in resp:
+        iID = int(r[:r.find(" ")])
+        name = r[r.find(" ")+1:]
+        bots[iID] = name
+
+# Use this to write to stdout (standard output
+def msg(string):
+    print "msg " + string
+
+# Send a chat message
+def chatMsg(string):
+    print "chatmsg " + string
+
+## High-level processing ##
+
+class Exc_Quit(Exception):
+    pass
+
+class Exc_BackToLobby(Exception):
+    pass
+
+def checkQuit(sig):
+    if sig == "quit" or sig == "errorstartlobby":
+        raise Exc_Quit
+    
+def checkInGame(sig):
+    checkQuit(sig)
+    if sig == "backtolobby" or sig == "errorstartgame":
+        raise Exc_BackToLobby
+
+def updateWorms(sig):
+    if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
+        getWormList()
+
+## Preset loading functions ##
+
+def initPresets():
+    global availiblePresets,maxPresets,presetDir
+
+    for f in os.listdir(presetDir):
+        if os.path.isdir(f):
+            msg("Ignoring \"%s\" - It's a directory" % f)
+            continue
+
+        availiblePresets.append(f)
+
+        maxPresets +=1
+
+    if (maxPresets == 0):
+        msg("There are no presets availible - nothing to do. Exiting.")
+        exit()
+
+# initPresets must be called before this - or it will crash
+# TODO: Try to make something nicer for the user which doesn't read this
+def selectNextPreset():
+    global curPreset,maxPresets,availiblePresets
+
+    msg("Preset " + availiblePresets[curPreset])
+    chatMsg("Preset " + availiblePresets[curPreset])
+
+    sFile = os.path.join(presetDir,availiblePresets[curPreset])
+    fPreset = file(sFile,"r")
+    for line in fPreset.readlines():
+        line = line.strip()
+        line = line.replace('"','')
+        print line
+    fPreset.close()
+
+    # curPreset + 1 to say "1 out of 2" "2 out of 2" instead of
+    # "0 out of 2" "1 out of 2"
+    msg("Current preset is: %d out of max %d" % (curPreset+1,maxPresets))
+
+    curPreset += 1
+    if curPreset >= maxPresets:
+        curPreset = 0
+
+    sendLobbyUpdate()
+
+def waitLobbyStarted():
+    while True:
+        sig = getSignal()
+        checkQuit(sig)
+        updateWorms(sig)
+        if sig == "lobbystarted":
+            return
+        time.sleep(1)
+
+## Functions for user to edit ##
+
+# Start the game - you may update this func to start with different conditions
+def startWithMinWorms(amount = 3, KillBots = True, maxWait = 60, messageWait = 20):
+    global worms
+    while True:
+        if maxWait <= 0:
+            msg("Noone came to play, changing preset")
+            return False
+        count = messageWait # How often the server will give the message
+        while (count >= 1) and (len(worms) < amount):
+            #chatMsg(str(count) + "...")
+            time.sleep(1)
+            count -= 1
+            maxWait -= 1
+            sig = getSignal()
+            checkQuit(sig)
+            updateWorms(sig)
+        if (len(worms) < amount):
+            chatMsg("Game will start with min " + str(amount) + " players")
+        else:
+            startGame()
+            try:
+                while True:
+                    sig = getSignal()
+                    checkInGame(sig)
+                    updateWorms(sig)
+                    if sig == "gamestarted" and KillBots:
+                        killBots()
+                    time.sleep(1)
+            except Exc_BackToLobby:
+                return True
+
+# Wait in the lobby after game finished
+def WaitInLobby(Time = 20):
+    while Time > 0:
+        time.sleep(1)
+        Time -= 1
+        sig = getSignal()
+        checkQuit(sig)
+        updateWorms(sig)
+
+## The game loop ##
+
+startLobby()
+
+initPresets()
+
+waitLobbyStarted()
+
+setvar("GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected - typing gogo useless")
+setvar("GameServer.GameInfo.iNumPlayers", "10")
+
+setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
+setvar("GameServer.GameInfo.iLives", "4")
+setvar("GameServer.GameInfo.iKillLimit", "20")
+setvar("GameServer.GameInfo.fTimeLimit", "10")
+setvar("GameOptions.Advanced.WeaponSelectionMaxTime", "40" )
+
+try:
+    selectNextPreset()
+    while True:
+        if startWithMinWorms(3):
+            selectNextPreset()
+            WaitInLobby(20) # Game was played, wait a bit
+
+            if len(worms) > 4: # 4 human worms - split in two teams
+                setvar("GameServer.GameInfo.iGameMode", "1")
+                sendLobbyUpdate() # Update game mode info
+                for w in worms.keys():
+                    setWormTeam( w, w % 2 )
+            else:
+                setvar("GameServer.GameInfo.iGameMode", "0")
+                sendLobbyUpdate() # Update game mode info
+
+        else:
+            selectNextPreset() # Game was not played
+        
+except Exc_Quit:
+    # Also kills the stdinInputThread
+    sys.exit()
+except Exception, e:
+    msg("Error in Python script: %s" % str(e))
+    sys.exit()

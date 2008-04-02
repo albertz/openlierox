@@ -53,6 +53,7 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 std::string ProcessSetMyColour(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSetColour(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id);
+std::string ProcessSpectate(const std::vector<std::string>& params, int sender_id);
 
 // List of known commands (filled in in ChatCommand.cpp)
 extern ChatCommand tKnownCommands[];
