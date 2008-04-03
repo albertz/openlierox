@@ -3,6 +3,10 @@
 # (http://openlierox.sourceforge.net)
 # Upon editing - keep good names and excessive comments
 # Written for easy editing by newcomers to python or programming in general
+# OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
+# As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
+# TODO: Config class
+# TODO: Outsorce some functions (lowlevel) into module?
 
 # Needed for sleeping/pausing execution
 import time
@@ -23,19 +27,31 @@ curdir = os.getcwd()
 curdir = os.path.join(curdir,"scripts")
 presetDir = os.path.join(curdir,"presets")
 #print os.listdir(presetDir)
+
+
+## Global vars ##
+
+# Preset stuffies
 availiblePresets = list()
 maxPresets = 0
 curPreset = 0
 
-## Global vars ##
-
 worms = {} # List of all online worms
 bots = {}  # List of all possible bots
+
+# TODO: Expand this class, use it.
+class Worm():
+	Name = ""
+	Country = ""
+	ip = ""
+	iID = ""
 
 ## Receiving functions ##
 
 # Non-blocking IO class
-
+# This is just technical mumbojumbo, not really interresting for the common user (you)
+# You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX, 
+# puts it in it's buffer, and delivers it to anyone who asks by getResponse().
 bufferedSignalsLock = threading.Lock()
 bufferedSignals = []
 
@@ -71,7 +87,7 @@ def pushSignal(sig):
     bufferedSignals.append(sig)
     bufferedSignalsLock.release()
 
-def getResponce(cmd):
+def getResponse(cmd):
     ret = []
     extraSignals = []
     resp = getSignal()
@@ -132,7 +148,7 @@ def setWormTeam(iID, team):
 # Use this to get ID number + name of all worms - updates worms list.
 def getWormList():
     print "getwormlist"
-    resp = getResponce("wormlistinfo")
+    resp = getResponse("wormlistinfo")
     global worms
     worms = {}
     for r in resp:
@@ -143,7 +159,7 @@ def getWormList():
 # Use this to get the list of all possible bots.
 def getComputerWormList():
     print "getcomputerwormlist"
-    resp = getResponce("computerwormlistinfo")
+    resp = getResponse("computerwormlistinfo")
     global bots
     bots = {}
     for r in resp:
@@ -242,6 +258,7 @@ def startWithMinWorms(amount = 3, KillBots = True, maxWait = 60, messageWait = 2
         if maxWait <= 0:
             msg("Noone came to play, changing preset")
             return False
+
         count = messageWait # How often the server will give the message
         while (count >= 1) and (len(worms) < amount):
             #chatMsg(str(count) + "...")
@@ -251,6 +268,7 @@ def startWithMinWorms(amount = 3, KillBots = True, maxWait = 60, messageWait = 2
             sig = getSignal()
             checkQuit(sig)
             updateWorms(sig)
+
         if (len(worms) < amount):
             chatMsg("Game will start with min " + str(amount) + " players")
         else:
@@ -283,7 +301,7 @@ initPresets()
 
 waitLobbyStarted()
 
-setvar("GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected - typing gogo useless")
+setvar("GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected - typing go/spamming is useless")
 setvar("GameServer.GameInfo.iNumPlayers", "10")
 
 setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
