@@ -239,6 +239,22 @@ struct DedIntern {
 		};
 	State state;
 	
+	// TODO: Move this?
+	CWorm* CheckWorm(int id, string caller)
+	{
+		if(id <0 || id >= MAX_WORMS)
+		{
+			std::cout << "DedicatedControl: " << caller << " : Faulty ID (got " << id << ")" << std::endl;
+			return NULL;
+		}
+		CWorm *w = cServer->getWorms() + id;
+		if(!w->isUsed())
+		{
+			std::cout << "DedicatedControl: " << caller << " : ID not in use" << std::endl;
+			return NULL;
+		}
+		return w;
+	}
 	// --------------------------------
 	// ---- commands ------------------
 	
@@ -275,7 +291,7 @@ struct DedIntern {
 	void Cmd_KickWorm(const std::string & params) 
 	{
 		std::string reason = "";
-		int id = 0;
+		int id = -1;
 		std::vector<std::string> sSplit = explode(params," ");
 
 		if (sSplit.size() == 1)
@@ -296,17 +312,8 @@ struct DedIntern {
 			return;
 		}
 
-		if(id <0 || id >= MAX_WORMS)
-		{
-			std::cout << "DedicatedControl: KickWorm: Faulty ID" << std::endl;
+		if(!CheckWorm(id, "KickWorm"))
 			return;
-		}
-		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed())
-		{
-			std::cout << "DedicatedControl: KickWorm: ID not in use" << std::endl;
-			return;
-		}
 
 		cServer->kickWorm(id,reason);	
 	}
@@ -314,7 +321,7 @@ struct DedIntern {
 	void Cmd_BanWorm(const std::string & params)
 	{
 		std::string reason = "";
-		int id = 0;
+		int id = -1;
 		std::vector<std::string> sSplit = explode(params," ");
 
 		if (sSplit.size() == 1)
@@ -334,18 +341,8 @@ struct DedIntern {
 			std::cout << "DedicatedControl: BanWorm: Wrong syntax" << std::endl;
 			return;
 		}
-
-		if(id <0 || id >= MAX_WORMS)
-		{
-			std::cout << "DedicatedControl: BanWorm: Faulty ID" << std::endl;
+		if(!CheckWorm(id, "BanWorm"))
 			return;
-		}
-		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed())
-		{
-			std::cout << "DedicatedControl: BanWorm: ID not in use" << std::endl;
-			return;
-		}
 
 		cServer->banWorm(id,reason);
 
@@ -354,43 +351,28 @@ struct DedIntern {
 	// TODO: Add name muting, if wanted.
 	void Cmd_MuteWorm(const std::string & params)
 	{
-		int id = 0;
+		int id = -1;
 		id = atoi(params);
-
-		if(id <0 || id >= MAX_WORMS)
-		{
-			std::cout << "DedicatedControl: MuteWorm: Faulty ID" << std::endl;
+		if(!CheckWorm(id, "MuteWorm"))
 			return;
-		}
-		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed())
-		{
-			std::cout << "DedicatedControl: MuteWorm: ID not in use" << std::endl;
-			return;
-		}
 
 		cServer->muteWorm(id);
 	}
 
 	void Cmd_SetWormTeam(const std::string & params)
 	{
-		int id = 0;
+		//TODO: Is this correct? Does atoi only catch the first number sequence?
+		int id = -1;
 		id = atoi(params);
-		int team = 0;
+		int team = -1;
 		if( params.find(" ") != std::string::npos )
 			team = atoi( params.substr( params.find(" ")+1 ) );
 
-		if(id <0 || id >= MAX_WORMS)
-		{
-			std::cout << "DedicatedControl: SetWormTeam: Faulty ID" << std::endl;
+
+		CWorm *w = CheckWorm(id,"SetWormTeam");
+		if (!w)
 			return;
-		}
-		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed())
-		{
-			std::cout << "DedicatedControl: SetWormTeam: ID not in use" << std::endl;
-			return;
-		}
+
 		if( team < 0 || team > 3 )
 		{
 			std::cout << "DedicatedControl: SetWormTeam: invalid team number" << std::endl;
@@ -535,7 +517,7 @@ struct DedIntern {
 
 	void Cmd_StartGame() {
 		if(cServer->getNumPlayers() <= 1) {
-			cout << "DedControl: cannot start game, too less players" << endl;
+			cout << "DedControl: cannot start game, too few players" << endl;
 			Sig_ErrorStartGame();
 			return;
 		}
@@ -554,7 +536,7 @@ struct DedIntern {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
 	}
 
-	// TODO: make it send more info.
+	// TODO: make it send more info. No.
 	void Cmd_GetWormList(const std::string& params)
 	{
 		int id = -1;
@@ -583,6 +565,45 @@ struct DedIntern {
 		}
 		Sig_EndList();
 	}
+	
+	void Cmd_GetWormIp(const std::string& params)
+	{
+		int id = -1;
+		id = atoi(params);
+		CWorm* w = CheckWorm(id, "GetWormIp");
+		if (!w)
+			return;
+		
+		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
+		std::string str_addr;
+		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
+		if (str_addr != "")
+			Sig_WormIp(w,str_addr);
+		else
+			std::cout << "DedicatedControl: GetWormIp: str_addr == \"\"" << std::endl;
+	}
+	
+	void Cmd_GetWormLocationInfo(const std::string& params)
+	{
+		int id = -1;
+		id = atoi(params);
+		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
+		if (!w)
+			return;
+		
+		std::string str_addr;
+		IpInfo info;
+		
+		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
+		if (str_addr != "")
+		{
+			info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+			Sig_WormLocationInfo(w,info.Continent,info.Country,info.CountryShortcut);
+		}
+		else
+			std::cout << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << std::endl;
+		
+	}
 
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
@@ -609,7 +630,6 @@ struct DedIntern {
 
 		else if(cmd == "addbot")
 			Cmd_AddBot(params);
-
 		else if(cmd == "killbots")
 			Cmd_KillBots(params);
 
@@ -627,6 +647,10 @@ struct DedIntern {
 			Cmd_GetWormList(params);
 		else if(cmd == "getcomputerwormlist")
 			Cmd_GetComputerWormList();
+		else if(cmd == "getwormip")
+			Cmd_GetWormIp(params);
+		else if(cmd == "getwormlocationinfo")
+			Cmd_GetWormLocationInfo(params);
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
@@ -658,9 +682,18 @@ struct DedIntern {
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
 	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << endl; }
 	void Sig_EndList() { pipe.in() << "endlist" << endl; }
+	void Sig_Message(CWorm* w, string message) { pipe.in() << "message " << w->getID() << " " << message << endl; }
+	void Sig_WormIp(CWorm* w, string ip) { pipe.in() << "wormip " << w->getID() << " " << ip << endl; }
+	// Continents don't have spaces in em.
+	// TODO: Bad forward compability. We might get new continents.
+	// CountryShortcuts don't have spaces in em.
+	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
+	void Sig_WormLocationInfo(CWorm* w,string continent, string country, string countryShortcut) {
+		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; } 
 	
-	// TODO: Make other commands for requesting more infos to a worm. Don't spam wormlist.
-	// Suggesting IP, country (if turned on?) and more non-game/lobby specific.
+	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
+	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)
+	// TODO: Send all kills/deaths/teamkills after each game? Could get ugly real fast thou.
 
 
 	
@@ -751,6 +784,7 @@ bool DedicatedControl::Init_priv() {
 
 	return true;
 }
+	
 
 // This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
@@ -763,6 +797,7 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
+void DedicatedControl::Message_Signal(CWorm* w,string message) { DedIntern::Get()->Sig_Message(w,message); }
 
 // TODO: these are probably intended to be used for the scripts. though there are not used there atm
 // should be fixed before release or we will have no forward-compatibility

@@ -29,6 +29,7 @@ public:
 	void WormLeft_Signal(CWorm* w);
 	void WeaponSelections_Signal();
 	void GameStarted_Signal();
+	void Message_Signal(CWorm* w,std::string message);
 	
 	void Menu_Frame();
 	void GameLoop_Frame();

@@ -28,7 +28,6 @@ curdir = os.path.join(curdir,"scripts")
 presetDir = os.path.join(curdir,"presets")
 #print os.listdir(presetDir)
 
-
 ## Global vars ##
 
 # Preset stuffies
@@ -42,9 +41,11 @@ bots = {}  # List of all possible bots
 # TODO: Expand this class, use it.
 class Worm():
 	Name = ""
+	Continent = ""
+	CountryShortcut = ""
 	Country = ""
 	ip = ""
-	iID = ""
+	iID = -1
 
 ## Receiving functions ##
 
@@ -87,6 +88,7 @@ def pushSignal(sig):
     bufferedSignals.append(sig)
     bufferedSignalsLock.release()
 
+# TODO: Comment this part (even i have trouble understanding it)
 def getResponse(cmd):
     ret = []
     extraSignals = []

@@ -652,6 +652,19 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			return;
 
 	SendGlobalText(buf, TXT_CHAT);
+	
+	if( DedicatedControl::Get() )
+	{
+		for(int i=0; i<cl->getNumWorms(); i++)
+		{
+			if (cl->getWorm(i)->isUsed())
+			{
+				DedicatedControl::Get()->Message_Signal(cl->getWorm(i),buf);
+				return;
+			}
+		}
+		
+	}
 }
 
 
