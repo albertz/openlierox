@@ -141,6 +141,9 @@ bool Menu_Initialize(bool *game)
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
 
+	// HACK: open an unreliable foo socket
+	// Some routers simply ignore first open socket and don't let any data through, this is a workaround
+	tMenu->tSocket[SCK_FOO] = OpenUnreliableSocket(0, false);
 	// Open a socket for broadcasting over a LAN (UDP)
 	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
 	// Open a socket for communicating over the net (UDP)
@@ -149,6 +152,13 @@ bool Menu_Initialize(bool *game)
 	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
 		SystemError("Error: Failed to open a socket for networking");
 		return false;
+	}
+
+	// Send some random data to some random IP
+	if (IsSocketStateValid(tMenu->tSocket[SCK_FOO]))  {
+		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
+		SetRemoteNetAddr(tMenu->tSocket[SCK_FOO], a);
+		WriteSocket(tMenu->tSocket[SCK_FOO], "foo");
 	}
 
 	// Add default widget IDs to the widget list
@@ -239,6 +249,10 @@ void Menu_Shutdown(void)
 		if(IsSocketStateValid(tMenu->tSocket[SCK_NET]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_NET]);
+		};
+		if(IsSocketStateValid(tMenu->tSocket[SCK_FOO]))
+		{
+			CloseSocket(tMenu->tSocket[SCK_FOO]);
 		};
 
 		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);

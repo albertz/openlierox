@@ -33,6 +33,7 @@
 // Menu sockets
 #define		SCK_LAN		0
 #define		SCK_NET		1
+#define		SCK_FOO		2
 
 // Serverlist timeout
 #define		SVRLIST_TIMEOUT		7000
@@ -247,7 +248,7 @@ class menu_t { public:
 	int				iReturnTo;
 
 	// Socket for pinging
-	NetworkSocket		tSocket[2];
+	NetworkSocket		tSocket[3];
 
 };
 
