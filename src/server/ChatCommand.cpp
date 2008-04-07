@@ -19,6 +19,7 @@
 #include "Protocol.h"
 #include "CServer.h"
 #include "CClient.h"
+#include "DedicatedControl.h"
 
 //////////////////
 // Known commands
@@ -337,6 +338,9 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 	cServer->SendText(recipient, msg, TXT_PRIVATE);
 	if (recipient != sender)
 		cServer->SendText(sender, msg, TXT_PRIVATE); // Send the message also back to the client
+
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->PrivateMessage_Signal(sender->getWorm(0), recipient->getWorm(0), msg.substr(sender->getWorm(0)->getName().length()+2));
 
 	return "";
 }

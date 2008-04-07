@@ -532,6 +532,11 @@ struct DedIntern {
 		tGameInfo.iGameType = GME_HOST;
 	}
 
+	void Cmd_GotoLobby()
+	{
+		cServer->gotoLobby();
+	};
+
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
 	}
@@ -627,6 +632,8 @@ struct DedIntern {
 			Cmd_StartLobby(params);
 		else if(cmd == "startgame")
 			Cmd_StartGame();
+		else if(cmd == "gotolobby")
+			Cmd_GotoLobby();
 
 		else if(cmd == "addbot")
 			Cmd_AddBot(params);
@@ -682,7 +689,9 @@ struct DedIntern {
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
 	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << endl; }
 	void Sig_EndList() { pipe.in() << "endlist" << endl; }
-	void Sig_Message(CWorm* w, string message) { pipe.in() << "message " << w->getID() << " " << message << endl; }
+	void Sig_ChatMessage(CWorm* w, string message) { pipe.in() << "chatmessage " << w->getID() << " " << message << endl; }
+	void Sig_PrivateMessage(CWorm* w, CWorm* to, string message) { pipe.in() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << endl; }
+	void Sig_WormDied(CWorm* died, CWorm* killer) { pipe.in() << "wormdied " << died->getID() << " " << killer->getID() << endl; }
 	void Sig_WormIp(CWorm* w, string ip) { pipe.in() << "wormip " << w->getID() << " " << ip << endl; }
 	// Continents don't have spaces in em.
 	// TODO: Bad forward compability. We might get new continents.
@@ -797,7 +806,9 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
-void DedicatedControl::Message_Signal(CWorm* w,string message) { DedIntern::Get()->Sig_Message(w,message); }
+void DedicatedControl::ChatMessage_Signal(CWorm* w,string message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
+void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
+void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 
 // TODO: these are probably intended to be used for the scripts. though there are not used there atm
 // should be fixed before release or we will have no forward-compatibility

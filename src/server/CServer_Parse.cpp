@@ -615,6 +615,10 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 
 	SendGlobalPacket(&byte);
+
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->WormDied_Signal(vict,kill);
+
 }
 
 
@@ -659,11 +663,10 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		{
 			if (cl->getWorm(i)->isUsed())
 			{
-				DedicatedControl::Get()->Message_Signal(cl->getWorm(i),buf);
+				DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(i),buf);
 				return;
 			}
 		}
-		
 	}
 }
 

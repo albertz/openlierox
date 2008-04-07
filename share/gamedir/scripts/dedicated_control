@@ -5,335 +5,56 @@
 # Written for easy editing by newcomers to python or programming in general
 # OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
 # As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
-# TODO: Config class
-# TODO: Outsorce some functions (lowlevel) into module?
 
-# Needed for sleeping/pausing execution
-import time
-# Needed for directory access
-import os
-# Needed for running in non-blocking mode ? 
-#(Strike that, it's for some other reason ATM, as it ain't nonblocking, but i can't remember what.)
-import sys
-import threading
-#import string #deprecated
+import os, sys, time # Useful imports
+sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
+sys.path.append(os.getcwd()+"/scripts") # Append current dir to Python imports search paths
 
-curdir = os.getcwd()
-# TODO: This is if it's started from start.sh - hack
-# Traceback (most recent call last):
-#  File "./scripts/dedicated_control", line 14, in ?
-#    print os.listdir(presetDir)
-# OSError: [Errno 2] No such file or directory: '/home_l/dos/OLX_Official_Testing/openlierox/share/gamedir/presets'
-curdir = os.path.join(curdir,"scripts")
-presetDir = os.path.join(curdir,"presets")
-#print os.listdir(presetDir)
+import dedicated_config  # Per-host config like admin password 
+import dedicated_control_functions # Low-level stuff
+cfg = dedicated_config # shortcut
+ded = dedicated_control_functions # shortcut
 
 ## Global vars ##
 
-# Preset stuffies
-availiblePresets = list()
-maxPresets = 0
-curPreset = 0
-
-worms = {} # List of all online worms
-bots = {}  # List of all possible bots
-
-# TODO: Expand this class, use it.
-class Worm():
-	Name = ""
-	Continent = ""
-	CountryShortcut = ""
-	Country = ""
-	ip = ""
-	iID = -1
-
-## Receiving functions ##
-
-# Non-blocking IO class
-# This is just technical mumbojumbo, not really interresting for the common user (you)
-# You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX, 
-# puts it in it's buffer, and delivers it to anyone who asks by getResponse().
-bufferedSignalsLock = threading.Lock()
-bufferedSignals = []
-
-class GetStdinThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.start()
-
-    def run(self):
-        global bufferedSignals, bufferedSignalsLock
-        while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
-            line = sys.stdin.readline()
-            bufferedSignalsLock.acquire()
-            bufferedSignals.append(line.strip())
-            bufferedSignalsLock.release()
-
-stdinInputThread = GetStdinThread()
-
-def getSignal():
-    global bufferedSignals, bufferedSignalsLock
-    ret = ""
-    bufferedSignalsLock.acquire()
-    if len(bufferedSignals) > 0:
-        ret = bufferedSignals[0]
-        bufferedSignals = bufferedSignals[1:]
-    bufferedSignalsLock.release()
-    #if ret != "": msg("Got signal \"%s\"" % ret)
-    return ret
-
-def pushSignal(sig):
-    global bufferedSignals, bufferedSignalsLock
-    bufferedSignalsLock.acquire()
-    bufferedSignals.append(sig)
-    bufferedSignalsLock.release()
-
-# TODO: Comment this part (even i have trouble understanding it)
-def getResponse(cmd):
-    ret = []
-    extraSignals = []
-    resp = getSignal()
-    while resp != "endlist":
-        if resp.find(cmd+" ") == 0:
-            ret.append( resp[len(cmd)+1:] )
-        else:
-            if resp != "":
-                extraSignals.append(resp)
-            else:
-                time.sleep(0.01)
-        resp = getSignal()
-    for s in extraSignals:
-        pushSignal(s)
-    return ret
-
-## Sending functions ##
-
-# Set a server variable
-def setvar(what, data):
-    print "setvar %s %s" % (what,data)
-    
-# Use this to make the server quit
-def Quit():
-    print "quit"
-
-# Use this to force the server into lobby
-def startLobby(localWorm = "[CPU] Kamikazee!"):
-    print "startlobby " + localWorm
-
-# Force the server into starting the game (weapon selections screen)
-def startGame():
-    print "startgame"
-
-# Use this to refresh lobby information - like level/mod et.c..
-def sendLobbyUpdate():
-    print "sendlobbyupdate"
-
-# Not implemented yet in OLX
-def addBot(name):
-    print "addbot " + name
-
-# Suicides all local bots - the game requires to have at least one worm which is bot by default
-def killBots():
-    print "killbots"
-
-# Both kick and ban uses the ingame identification code
-# for kicking/banning.
-def kickWorm(iID):
-    print "kickworm " + str(iID)
-
-def banWorm(iID):
-    print "banworm " + str(iID)
-
-def setWormTeam(iID, team):
-    print "setwormteam " + str(iID) + " " + str(team)
-
-# Use this to get ID number + name of all worms - updates worms list.
-def getWormList():
-    print "getwormlist"
-    resp = getResponse("wormlistinfo")
-    global worms
-    worms = {}
-    for r in resp:
-        iID = int(r[:r.find(" ")])
-        name = r[r.find(" ")+1:]
-        worms[iID] = name
-
-# Use this to get the list of all possible bots.
-def getComputerWormList():
-    print "getcomputerwormlist"
-    resp = getResponse("computerwormlistinfo")
-    global bots
-    bots = {}
-    for r in resp:
-        iID = int(r[:r.find(" ")])
-        name = r[r.find(" ")+1:]
-        bots[iID] = name
-
-# Use this to write to stdout (standard output
-def msg(string):
-    print "msg " + string
-
-# Send a chat message
-def chatMsg(string):
-    print "chatmsg " + string
-
-## High-level processing ##
-
-class Exc_Quit(Exception):
-    pass
-
-class Exc_BackToLobby(Exception):
-    pass
-
-def checkQuit(sig):
-    if sig == "quit" or sig == "errorstartlobby":
-        raise Exc_Quit
-    
-def checkInGame(sig):
-    checkQuit(sig)
-    if sig == "backtolobby" or sig == "errorstartgame":
-        raise Exc_BackToLobby
-
-def updateWorms(sig):
-    if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
-        getWormList()
-
-## Preset loading functions ##
-
-def initPresets():
-    global availiblePresets,maxPresets,presetDir
-
-    for f in os.listdir(presetDir):
-        if os.path.isdir(f):
-            msg("Ignoring \"%s\" - It's a directory" % f)
-            continue
-
-        availiblePresets.append(f)
-
-        maxPresets +=1
-
-    if (maxPresets == 0):
-        msg("There are no presets availible - nothing to do. Exiting.")
-        exit()
-
-# initPresets must be called before this - or it will crash
-# TODO: Try to make something nicer for the user which doesn't read this
-def selectNextPreset():
-    global curPreset,maxPresets,availiblePresets
-
-    msg("Preset " + availiblePresets[curPreset])
-    chatMsg("Preset " + availiblePresets[curPreset])
-
-    sFile = os.path.join(presetDir,availiblePresets[curPreset])
-    fPreset = file(sFile,"r")
-    for line in fPreset.readlines():
-        line = line.strip()
-        line = line.replace('"','')
-        print line
-    fPreset.close()
-
-    # curPreset + 1 to say "1 out of 2" "2 out of 2" instead of
-    # "0 out of 2" "1 out of 2"
-    msg("Current preset is: %d out of max %d" % (curPreset+1,maxPresets))
-
-    curPreset += 1
-    if curPreset >= maxPresets:
-        curPreset = 0
-
-    sendLobbyUpdate()
-
-def waitLobbyStarted():
-    while True:
-        sig = getSignal()
-        checkQuit(sig)
-        updateWorms(sig)
-        if sig == "lobbystarted":
-            return
-        time.sleep(1)
-
-## Functions for user to edit ##
-
-# Start the game - you may update this func to start with different conditions
-def startWithMinWorms(amount = 3, KillBots = True, maxWait = 60, messageWait = 20):
-    global worms
-    while True:
-        if maxWait <= 0:
-            msg("Noone came to play, changing preset")
-            return False
-
-        count = messageWait # How often the server will give the message
-        while (count >= 1) and (len(worms) < amount):
-            #chatMsg(str(count) + "...")
-            time.sleep(1)
-            count -= 1
-            maxWait -= 1
-            sig = getSignal()
-            checkQuit(sig)
-            updateWorms(sig)
-
-        if (len(worms) < amount):
-            chatMsg("Game will start with min " + str(amount) + " players")
-        else:
-            startGame()
-            try:
-                while True:
-                    sig = getSignal()
-                    checkInGame(sig)
-                    updateWorms(sig)
-                    if sig == "gamestarted" and KillBots:
-                        killBots()
-                    time.sleep(1)
-            except Exc_BackToLobby:
-                return True
-
-# Wait in the lobby after game finished
-def WaitInLobby(Time = 20):
-    while Time > 0:
-        time.sleep(1)
-        Time -= 1
-        sig = getSignal()
-        checkQuit(sig)
-        updateWorms(sig)
-
 ## The game loop ##
 
-startLobby()
+ded.msg("GameState = %s" % str(ded.gameState))
 
-initPresets()
+ded.startLobby(cfg.LOCAL_BOT_NAME)
 
-waitLobbyStarted()
+ded.initPresets()
 
-setvar("GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected - typing go/spamming is useless")
-setvar("GameServer.GameInfo.iNumPlayers", "10")
+ded.waitLobbyStarted()
 
-setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
-setvar("GameServer.GameInfo.iLives", "10")
-setvar("GameServer.GameInfo.iKillLimit", "20")
-setvar("GameServer.GameInfo.fTimeLimit", "10")
-setvar("GameOptions.Advanced.WeaponSelectionMaxTime", "40" )
+ded.setvar("GameServer.ServerName", cfg.SERVER_NAME)
 
-try:
-    selectNextPreset()
-    while True:
-        if startWithMinWorms(3):
-            selectNextPreset()
-            WaitInLobby(20) # Game was played, wait a bit
+ded.setvar("GameServer.GameInfo.sWelcomeMessage", cfg.WELCOME_MESSAGE)
+ded.setvar("GameServer.MaxPlayers", cfg.MAX_PLAYERS)
 
-            if len(worms) > 4: # 4 human worms - split in two teams
-                setvar("GameServer.GameInfo.iGameMode", "1")
-                sendLobbyUpdate() # Update game mode info
-                for w in worms.keys():
-                    setWormTeam( w, w % 2 )
-            else:
-                setvar("GameServer.GameInfo.iGameMode", "0")
-                sendLobbyUpdate() # Update game mode info
+ded.setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
+ded.setvar("GameServer.GameInfo.iLives", cfg.GAME_LIVES)
+ded.setvar("GameServer.GameInfo.iKillLimit", cfg.GAME_MAX_KILLS)
+ded.setvar("GameServer.GameInfo.fTimeLimit", cfg.GAME_MAX_TIME)
+ded.setvar("GameOptions.Advanced.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
 
-        else:
-            selectNextPreset() # Game was not played
-        
-except Exc_Quit:
-    # Also kills the stdinInputThread
-    sys.exit()
-except Exception, e:
-    msg("Error in Python script: %s" % str(e))
-    sys.exit()
+ded.selectNextPreset()
+
+while ded.gameState != ded.GAME_QUIT:
+    if ded.startWithMinWorms( cfg.MIN_PLAYERS, cfg.KILL_LOCAL_BOT, cfg.WAIT_BEFORE_GAME, cfg.WAIT_BEFORE_GAME*10,
+                          cfg.TOO_FEW_PLAYERS_MESSAGE, cfg.WAIT_BEFORE_GAME_MESSAGE ):
+        ded.WaitInLobby(cfg.WAIT_AFTER_GAME) # Game was played, wait a bit
+
+    ded.selectNextPreset() # Game was not played
+
+    if len(ded.worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
+        ded.setvar("GameServer.GameInfo.iGameMode", "1")
+        ded.sendLobbyUpdate() # Update game mode info
+        for w in ded.worms.keys():
+            ded.setWormTeam( w, w % 2 )
+    else:
+        ded.setvar("GameServer.GameInfo.iGameMode", "0")
+        ded.sendLobbyUpdate() # Update game mode info
+
+
+sys.exit() # Kill the stdin-input thread
