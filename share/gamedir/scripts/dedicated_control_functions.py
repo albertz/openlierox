@@ -13,6 +13,9 @@ import os
 import sys
 import threading
 
+import dedicated_config  # Per-host config like admin password 
+cfg = dedicated_config # shortcut
+
 curdir = os.getcwd()
 curdir = os.path.join(curdir,"scripts")
 presetDir = os.path.join(curdir,"presets")
@@ -24,8 +27,9 @@ availiblePresets = list()
 maxPresets = 0
 curPreset = 0
 
-worms = {} # List of all online worms
+worms = {} # List of all online worms - contains only worm name currently
 bots = {}  # List of all possible bots
+admins = [] # Indexes of admin worms
 
 # TODO: Expand this class, use it.
 class Worm():
@@ -67,12 +71,17 @@ class GetStdinThread(threading.Thread):
     def run(self):
         global bufferedSignals, bufferedSignalsLock
         try:
+            emptyLines = 0 # Hack to stdin being silently closed 
             while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
                 line = sys.stdin.readline()
-                bufferedSignalsLock.acquire()
-                bufferedSignals.append(line.strip())
-                bufferedSignalsLock.release()
-                if sys.stdin.closed:
+                if line.strip() != "":
+                    emptyLines = 0
+                    bufferedSignalsLock.acquire()
+                    bufferedSignals.append(line.strip())
+                    bufferedSignalsLock.release()
+                else:
+                    emptyLines += 1
+                if sys.stdin.closed or emptyLines > 100:
                     raise Exception, "stdin closed"
         except Exception:
             # OLX terminated, stdin = broken pipe, we should terminate also
@@ -178,11 +187,20 @@ def killBots():
 
 # Both kick and ban uses the ingame identification code
 # for kicking/banning.
-def kickWorm(iID):
-    print "kickworm " + str(iID)
+def kickWorm(iID, reason = ""):
+    if reason != "":
+        print "kickworm " + str(iID) + " " + reason
+    else:
+        print "kickworm " + str(iID)
 
-def banWorm(iID):
-    print "banworm " + str(iID)
+def banWorm(iID, reason = ""):
+    if reason != "":
+        print "banworm " + str(iID) + " " + reason
+    else:
+        print "banworm " + str(iID)
+
+def muteWorm(iID):
+    print "muteworm " + str(iID)
 
 def setWormTeam(iID, team):
     print "setwormteam " + str(iID) + " " + str(team)
@@ -252,11 +270,79 @@ def updateWorms(sig):
     if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
         getWormList()
 
+# Admin interface
+def updateAdminStuff(sig):
+    if sig.find("wormleft ") == 0:
+        wormidx = int( sig.split(" ")[1] )
+        while wormidx in admins:
+            admins.pop(admins.index(wormidx))
+            msg("Worm %i removed from admins" % wormidx)
+    if sig.find("privatemessage ") == 0:
+        wormidx = int( sig.split(" ")[1] )
+        to_idx = int( sig.split(" ")[2] )
+        if to_idx == 0:
+            if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
+                admins.append(wormidx)
+                msg("Worm %i added to admins" % wormidx)
+                chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx])
+    try: # Do not check on msg size or anything
+        if sig.find("chatmessage ") == 0:
+            wormidx = int( sig.split(" ")[1] )
+            msg( "Chat msg from worm %i: %s" % (wormidx, " ".join(sig.split(" ")[2:])) )
+            if wormidx in admins:
+                cmd = sig.split(" ")[2]
+                if cmd == "//help":
+                    chatMsg("Admin help:")
+                    chatMsg("//kick wormID [reason]")
+                    chatMsg("//ban wormID [reason]")
+                    chatMsg("//mute wormID")
+                    chatMsg("//mod modname")
+                    chatMsg("//map mapname")
+                    chatMsg("//lt loadingTime")
+                    chatMsg("//start - start game now")
+                    chatMsg("//stop - go to lobby")
+                    #chatMsg("//restart - restart server")
+                    chatMsg("//setvar varname value")
+                if cmd == "//kick":
+                    if len(sig.split(" ")) > 4: # Given some reason
+                        kickWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
+                    else:
+                        kickWorm( int( sig.split(" ")[3] ) )
+                if cmd == "//ban":
+                    if len(sig.split(" ")) > 4: # Given some reason
+                        banWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
+                    else:
+                        banWorm( int( sig.split(" ")[3] ) )
+                if cmd == "//mute":
+                    muteWorm( int( sig.split(" ")[3] ) )
+                if cmd == "//mod":
+                    setvar("GameServer.GameInfo.sModDir", " ".join(sig.split(" ")[3:])) # In case mod name contains spaces
+                    setvar("GameServer.GameInfo.sModName", " ".join(sig.split(" ")[3:]))
+                    sendLobbyUpdate()
+                if cmd == "//map":
+                    setvar("GameServer.GameInfo.sMapFile", " ".join(sig.split(" ")[3:]) + ".lxl") # In case map name contains spaces
+                    setvar("GameServer.GameInfo.sMapName", " ".join(sig.split(" ")[3:]))
+                    sendLobbyUpdate()
+                if cmd == "//lt":
+                    setvar("GameServer.GameInfo.iLoadingTimes", sig.split(" ")[3])
+                    sendLobbyUpdate()
+                if cmd == "//start":
+                    startGame()
+                if cmd == "//stop":
+                    gotoLobby()
+                #if cmd == "//restart":
+                #    startLobby(cfg.LOCAL_BOT_NAME)
+                if cmd == "//setvar":
+                    setvar(sig.split(" ")[3], " ".sig.split(" ")[4:]) # In case value contains spaces
+    except Exception:
+        chatMsg("Invalid admin command")
+
 # Updates all global vars
 def signalHandler(sig):
     global gameState
     checkInGame(sig)
     updateWorms(sig)
+    updateAdminStuff(sig)
 
 ## Preset loading functions ##
 

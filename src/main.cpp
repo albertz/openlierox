@@ -251,7 +251,8 @@ startpoint:
 #endif
 
 	// If the user wants to load the database on startup, do it
-	if (tLXOptions->bLoadDbAtStartup)  {
+	// For dedicated server the database should be loaded on startup or it will crash
+	if (tLXOptions->bLoadDbAtStartup || (bDedicated && tLXOptions->bUseIpToCountry) )  {
 		DrawLoading(80, "Loading IP To Country Database");
 
 		// Allocate & load

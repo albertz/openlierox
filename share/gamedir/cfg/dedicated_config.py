@@ -3,7 +3,7 @@
 # The reason this script resides in cfg/ folder is that the OLX file downloader will 
 # deny access to cfg/ folder, and we have admin password here
 
-ADMIN_PASSWORD = "secret" # Change it!
+ADMIN_PASSWORD = "secret" # Change it! should be single word without spaces, yet symbols ~!@#$%^&* are encouraged
 
 SERVER_NAME = "Dedicated server" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"

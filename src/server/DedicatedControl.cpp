@@ -301,6 +301,8 @@ struct DedIntern {
 			id = atoi(sSplit[0]);
 			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++)
 			{
+				if(it == sSplit.begin())
+					continue;
 				reason += *it;
 				if (it+1 != sSplit.end())
 					reason += " ";
@@ -331,6 +333,8 @@ struct DedIntern {
 			id = atoi(sSplit[0]);
 			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++)
 			{
+				if(it == sSplit.begin())
+					continue;
 				reason += *it;
 				if (it+1 != sSplit.end())
 					reason += " ";
@@ -535,6 +539,8 @@ struct DedIntern {
 	void Cmd_GotoLobby()
 	{
 		cServer->gotoLobby();
+		*bGame = false;
+		tMenu->bMenuRunning = true;
 	};
 
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
