@@ -592,7 +592,7 @@ void CClient::Frame(void)
 void CClient::ReadPackets(void)
 {
 	CBytestream		bs;
-
+		
 	while(bs.Read(tSocket)) {
 		// each bs.Read reads the next UDP packet and resets the bs
 		// UDP is packet-based that means, we will only get single packages, no stream

@@ -618,7 +618,7 @@ void GameServer::ReadPackets(void)
 
 		if (!IsSocketStateValid(pSock))
 			continue;
-
+		
 		while(bs.Read(pSock)) {
 			// Set out address to addr from where last packet was sent, used for NAT traverse
 			GetRemoteNetAddr(pSock, adrFrom);
@@ -1004,10 +1004,14 @@ void GameServer::CheckWeaponSelectionTime()
 void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 {
 	// Never ever drop a local client
-	if (cl->getWorm(0) && cl->getWorm(0)->getID() == 0)  {
-		printf("An attempt to drop a local client was ignored\n");
-		return;
-	}
+	// Well, yes, with a dedicated server - cause it ain't local.
+	// Don't know what will happen if you kick a bot thou. That's left as an exercise to the reader.
+	if (cl->getWorm(0))
+		if (!bDedicated)
+			if (cl->getWorm(0)->getID() == 0)  {
+				printf("An attempt to drop a local client was ignored\n");
+				return;
+			}
 
     std::string cl_msg;
 
@@ -1120,7 +1124,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 	}
 
-	if (!wormID)  {
+	if (!wormID && !bDedicated)  {
 		Con_Printf(CNC_NOTIFY, "You can't kick yourself!");
 		return;  // Don't kick ourself
 	}
@@ -1218,7 +1222,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
         return;
 	}
 
-	if (!wormID)  {
+	if (!wormID && !bDedicated)  {
 		Con_Printf(CNC_NOTIFY, "You can't ban yourself!");
 		return;  // Don't ban ourself
 	}

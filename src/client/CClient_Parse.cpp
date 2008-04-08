@@ -1160,8 +1160,8 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		bs->Skip(numworms);
 		return;
 	}
-	if(numworms == 0)
-		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");
+	/*if(numworms == 0)
+		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");*/
 
 	std::string HostName;
 

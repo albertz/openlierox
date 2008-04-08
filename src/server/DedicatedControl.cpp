@@ -270,10 +270,51 @@ struct DedIntern {
 		cout << "DedicatedControl: message: " << msg << endl;
 	}
 	
-	// adds a worm to the game
-	void Cmd_AddBot(const std::string & params) {
-		// TODO ...
-		// also ensure here that we don't add human players
+	// adds a worm to the game (By string - id is way to complicated)
+	void Cmd_AddBot(const std::string & params) 
+	{
+		// Default botname
+		// New variable so that we won't break const when we trim spaces.
+		std::string localWorm = "[CPU] Kamikazee!";
+		if (params != "")
+		{
+			localWorm = params;
+			TrimSpaces(localWorm);
+		}
+			
+		//Find an empty spot
+		for(int i=0;i < tGameInfo.iNumPlayers;i++) 
+		{
+			if (tGameInfo.cPlayers[i] == NULL)
+			{
+				tGameInfo.cPlayers[i] = FindProfile(localWorm);
+				tGameInfo.iNumPlayers++;
+				return;
+			}
+		}
+		// So that worm requested was not found -> let's find a new one.
+		profile_t *p = GetProfiles();
+		for(;p;p=p->tNext) 
+		{
+			if(p->iType == PRF_COMPUTER)
+			{
+				//Find an empty spot
+				for(int i=0;i < tGameInfo.iNumPlayers;i++) 
+				{
+					if (tGameInfo.cPlayers[i] == NULL)
+					{
+						tGameInfo.cPlayers[i] = p;
+						tGameInfo.iNumPlayers++;
+						return;
+					}
+				}
+				
+			}
+		}
+		printf("ERROR: Can't find ANY bot! (Or a free slot)");
+		// TODO: Perhaps send a signal back informing if we fail?
+		return;
+		
 	}
 
 	void Cmd_KillBots(const std::string & params) {
@@ -433,20 +474,6 @@ struct DedIntern {
 	};
 	
 	void Cmd_StartLobby(std::string param) {
-		tGameInfo.iNumPlayers = 1; // for now...
-		std::string localWorm = "[CPU] Kamikazee!";
-		TrimSpaces(param);
-		if ( param != "" )
-		   localWorm = param;
-		
-		tGameInfo.cPlayers[0] = FindProfile(localWorm); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
-		if( tGameInfo.cPlayers[0] == NULL )
-		{
-			printf("ERROR: cannot find worm profile \"%s\"\n", localWorm.c_str());
-			Sig_ErrorStartLobby();
-			return;
-		}
-		
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
 	
@@ -489,9 +516,8 @@ struct DedIntern {
 			Sig_ErrorStartLobby();
 			return;
 		}
-	
 		cClient->Connect("127.0.0.1");
-	
+		
 		// Set up the server's lobby details
 		game_lobby_t *gl = cServer->getLobby();
 		gl->bSet = true;

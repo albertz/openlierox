@@ -725,10 +725,11 @@ void GameServer::ParseDisconnect(CClient *cl) {
 
 	// Host cannot leave...
 	if (cl->getWorm(0))
-		if (cl->getWorm(0)->getID() == 0)  {
-			printf("WARNING: host tried to leave\n");
-			return;
-		}
+		if (!bDedicated)
+			if (cl->getWorm(0)->getID() == 0)  {
+				printf("WARNING: host tried to leave\n");
+				return;
+			}
 
 	DropClient(cl, CLL_QUIT);
 }

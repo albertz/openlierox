@@ -206,6 +206,9 @@ def setWormTeam(iID, team):
     print "setwormteam " + str(iID) + " " + str(team)
 
 # Use this to get ID number + name of all worms - updates worms list.
+# For some reason it entered resp for me once, but it didn't contain any data (or it had strange data) and int() returned a ValueError.
+# Please report when this happens and how it is caused. I tried to recreate but to no avail.
+# TODO: Perhaps write some kind of log for all exceptions?
 def getWormList():
     print "getwormlist"
     resp = getResponseList("wormlistinfo")
@@ -280,11 +283,11 @@ def updateAdminStuff(sig):
     if sig.find("privatemessage ") == 0:
         wormidx = int( sig.split(" ")[1] )
         to_idx = int( sig.split(" ")[2] )
-        if to_idx == 0:
-            if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
-                admins.append(wormidx)
-                msg("Worm %i added to admins" % wormidx)
-                chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx])
+	# Don't check for ID == 0 -here doesn't need to be a bot alive.
+        if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
+               admins.append(wormidx)
+               msg("Worm %i added to admins" % wormidx)
+               chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx])
     try: # Do not check on msg size or anything
         if sig.find("chatmessage ") == 0:
             wormidx = int( sig.split(" ")[1] )
