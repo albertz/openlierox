@@ -215,9 +215,18 @@ def getWormList():
     global worms
     worms = {}
     for r in resp:
-        iID = int(r[:r.find(" ")])
-        name = r[r.find(" ")+1:]
-        worms[iID] = name
+        try:
+            iID = int(r[:r.find(" ")])
+            name = r[r.find(" ")+1:]
+            worms[iID] = name
+        except ValueError:
+            f = open("dedicated_exceptions.log","a")
+            outline = time.strftime("%Y-%m-%d %H:%M:%S")
+            outline += ": ValueError in getWormList. \n"
+            f.write(outline)
+            f.close()
+    
+
 
 # Use this to get the list of all possible bots.
 def getComputerWormList():
