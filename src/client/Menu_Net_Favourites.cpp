@@ -72,7 +72,7 @@ bool Menu_Net_FavouritesInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		int index = PlayerSelection->addItem( 0, p->sName, p->sName );
+		int index = PlayerSelection->addItem( p->sName, p->sName );
 		PlayerSelection->setImage( p->bmpWorm, index );
 		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
 			validName=true;
