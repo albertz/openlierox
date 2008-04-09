@@ -238,6 +238,7 @@ public:
 		bForceWeaponsReady = false;
 		SetNetAddrValid( cServerAddr, false );
 		InvalidateSocketState(tSocket);
+		bLocalClient = false;
 
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
@@ -411,6 +412,7 @@ private:
 	bool		bHostAllowsStrafing;
 	Version		cClientVersion;
 	Version		cServerVersion;
+	bool		bLocalClient;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -729,6 +731,9 @@ public:
 	bool		isChatTyping()			{ return bChat_Typing; }
 	bool		isGameOver()			{ return bGameOver; }
 	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
+
+	bool		isLocalClient()			{ return bLocalClient; }
+	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
 
 };
 

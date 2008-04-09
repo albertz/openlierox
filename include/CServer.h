@@ -128,6 +128,7 @@ private:
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;
 	CHttp			tHttp;
+	bool			bLocalClientConnected;
 
 	CBanList	cBanList;
 	float		fLastUpdateSent;

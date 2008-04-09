@@ -362,7 +362,7 @@ void GameServer::SpawnBonus(void)
             break;
 
         wpn++;
-        if( wpn >= cGameScript.GetNumWeapons()-1 )
+        if( wpn >= cGameScript.GetNumWeapons())
             wpn=0;
 
         // No good weapons? Just leave with original choice

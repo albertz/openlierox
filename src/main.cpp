@@ -490,6 +490,7 @@ int InitializeLieroX(void)
     }
 
 	cClient->Clear();
+	cClient->setLocalClient(true);
 
 	cServer = new GameServer;
     if(cServer == NULL) {

@@ -102,6 +102,7 @@ void GameServer::Clear(void)
 	bServerRegistered = false;
 	fLastRegister = 0;
 	nPort = LX_PORT;
+	bLocalClientConnected = false;
 
 	bTournament = false;
 
@@ -137,7 +138,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	nPort = port;
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
-
+	bLocalClientConnected = false;
 
 
 	// Open the socket
@@ -943,12 +944,11 @@ void GameServer::CheckTimeouts(void)
 			continue;
 
 		// Don't disconnect the local client
-		if (cl->getWorm(0))
-			if (cl->getWorm(0)->getID() == 0)
-				continue;
+		if (cl->isLocalClient())
+			continue;
 
         // Check for a drop
-		if( cl->getLastReceived() < dropvalue && cl->getWorm(0)->getID() != 0 && ( cl->getStatus() != NET_ZOMBIE ) ) {
+		if( cl->getLastReceived() < dropvalue && ( cl->getStatus() != NET_ZOMBIE ) ) {
 			DropClient(cl, CLL_TIMEOUT);
 		}
 
@@ -990,7 +990,7 @@ void GameServer::CheckWeaponSelectionTime()
 			if( cl->getGameReady() )
 				continue;
 			if (!bDedicated)
-				if( cl->getWorm(0) && cl->getWorm(0)->getID() == 0 ) {
+				if( cl->isLocalClient() ) {
 					printf("forcing end of weapon selection for own client\n");
 					cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
 					continue;
@@ -1005,14 +1005,10 @@ void GameServer::CheckWeaponSelectionTime()
 void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 {
 	// Never ever drop a local client
-	// Well, yes, with a dedicated server - cause it ain't local.
-	// Don't know what will happen if you kick a bot thou. That's left as an exercise to the reader.
-	if (cl->getWorm(0))
-		if (!bDedicated)
-			if (cl->getWorm(0)->getID() == 0)  {
-				printf("An attempt to drop a local client was ignored\n");
-				return;
-			}
+	if (cl->isLocalClient())  {
+		printf("An attempt to drop a local client was ignored\n");
+		return;
+	}
 
     std::string cl_msg;
 

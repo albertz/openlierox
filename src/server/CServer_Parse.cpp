@@ -295,7 +295,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
-		if (cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
+		if (!cl->isLocalClient())  {
 			if (cl->OwnsWorm(vict->getID()))  {  // He wants to die, let's fulfill his dream ;)
 				CWorm *w = cClient->getRemoteWorms() + vict->getID();
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
@@ -311,7 +311,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		// or if the client is host (host can kill anyone - /suicide command in chat)
-		if (!cl->OwnsWorm(vict->getID()) && cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
+		if (!cl->OwnsWorm(vict->getID()) && !cl->isLocalClient())  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
 		}
@@ -724,12 +724,10 @@ void GameServer::ParseDisconnect(CClient *cl) {
 	}
 
 	// Host cannot leave...
-	if (cl->getWorm(0))
-		if (!bDedicated)
-			if (cl->getWorm(0)->getID() == 0)  {
-				printf("WARNING: host tried to leave\n");
-				return;
-			}
+	if (cl->isLocalClient())  {
+		printf("WARNING: host tried to leave\n");
+		return;
+	}
 
 	DropClient(cl, CLL_QUIT);
 }
@@ -1088,7 +1086,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 	}
 
-	// TODO: what happenes if we ignore this challenge verification?
+	// If we ignored this challenge verification, there could be double connections
 
 	// See if the challenge is valid
 	bool valid_challenge = false;
@@ -1215,8 +1213,20 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	// Connect
 	if (newcl) {
+		// If this is the first client connected, it is our local client
+		if (!bLocalClientConnected)  {
+			std::string addr;
+			NetAddrToString(adrFrom, addr);
+			if (addr.find("127.0.0.1") == 0)  { // Safety: check the IP
+				newcl->setLocalClient(true);
+				bLocalClientConnected = true;
+				printf("GameServer: our local client has connected\n");
+			}
+		} else {
+			newcl->setLocalClient(false);
+			printf("GameServer: new %s client connected\n", ClientVersion.c_str());
+		}
 
-		printf("GameServer: new %s client connected\n", ClientVersion.c_str());
 		newcl->setStatus(NET_CONNECTED);
 
 		newcl->getRights()->Nothing();  // Reset the rights here
@@ -1467,7 +1477,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bHost_Update = true;
 
 		// Make host authorised
-		if(newcl->getNumWorms() == 0 || newcl->getWorm(0)->getID() == 0)  // ID 0 = host
+		if(newcl->isLocalClient())
 			newcl->getRights()->Everything();
 	}
 }

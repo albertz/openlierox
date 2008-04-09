@@ -73,6 +73,7 @@ void CClient::Clear(void)
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
 	bForceWeaponsReady = false;
+	bLocalClient = false;
 
 	tGameLog = NULL;
 	iLastVictim = -1;
