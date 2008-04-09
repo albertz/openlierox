@@ -120,16 +120,24 @@ CVec GameServer::FindSpot(void)
     int     gw = cMap->getGridWidth();
     int     gh = cMap->getGridHeight();
 
-
-    // Find a random cell to start in
-    px = (int)(fabs(GetRandomNum()) * (float)cols);
-	py = (int)(fabs(GetRandomNum()) * (float)rows);
-
-    x = px; y = py;
-
-    // Start from the cell and go through until we get to an empty cell
 	uchar pf;
 	cMap->lockFlags();
+	
+	// Find a random cell to start in - retry if failed
+	for( int tries = 0; tries < 20; tries++ ) {
+	    px = (int)(fabs(GetRandomNum()) * (float)cols);
+		py = (int)(fabs(GetRandomNum()) * (float)rows);
+
+	    x = px; y = py;
+
+		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
+		if(!(pf & PX_ROCK))  {
+			cMap->unlockFlags();
+            return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
+		}
+	}
+
+    // Start from the cell and go through until we get to an empty cell
     while(true) {
         while(true) {
             // If we're on the original starting cell, and it's not the first move we have checked all cells
@@ -148,15 +156,16 @@ CVec GameServer::FindSpot(void)
                 return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 			}
 
-            if(++x >= cols) {
-                x = 0;
+            if(++y >= rows) {
+                y = 0;
                 break;
             }
         }
 
-        if(++y >= rows) {
-            y = 0;
+        if(++x >= cols) {
             x = 0;
+            y = 0;
+            break;
         }
     }
 	cMap->unlockFlags();
