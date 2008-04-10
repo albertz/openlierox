@@ -1192,7 +1192,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
 		printf("%s - Server Error report",GetTime().c_str());
-		printf("Numplayers is %i\n",numplayers);
+		printf("fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
 		cl = cClients;
 		std::string msg;
 		
@@ -1202,7 +1202,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		if(ErrorFile != NULL)
 		{
 			fprintf(ErrorFile,"%s - Server Error report",GetTime().c_str());
-			fprintf(ErrorFile,"Numplayers is %i\n",numplayers);
+			fprintf(ErrorFile,"fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
 		}
 		for (p = 0;p < MAX_CLIENTS;p++, cl++) 
 		{
@@ -1212,7 +1212,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			else if (cl->getStatus() == NET_CONNECTED)
 				msg += "Connected.";
 			else if (cl->getStatus() == NET_ZOMBIE)
-				msg += "Zombie.";
+				msg += "Zombie. Zombie time is " + ftoa(cl->getZombieTime()) + ".";
 			else
 				msg += "Odd.";
 			msg += "\n";
