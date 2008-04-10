@@ -1191,6 +1191,22 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Ran out of slots
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
+		printf("Numplayers is %i",numplayers);
+		cl = cClients;
+		std::string msg;
+		for (p = 0;p < MAX_CLIENTS;p++, cl++) 
+		{
+			msg = "Client id " + itoa(p) + ". Status: ";
+			if (cl->getStatus() == NET_DISCONNECTED) 
+				msg += "Disconnected.";
+			else if (cl->getStatus() == NET_CONNECTED)
+				msg += "Connected.";
+			else if (cl->getStatus() == NET_ZOMBIE)
+				msg += "Zombie.";
+			else
+				msg += "Odd.";
+		}
+		printf(msg.c_str());
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
