@@ -989,11 +989,10 @@ void GameServer::CheckWeaponSelectionTime()
 				continue;
 			if( cl->getGameReady() )
 				continue;
-			if (!bDedicated)
-				if( cl->isLocalClient() ) {
-					printf("forcing end of weapon selection for own client\n");
-					cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
-					continue;
+			if( cl->isLocalClient() ) {
+				printf("forcing end of weapon selection for own client\n");
+				cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
+				continue;
 			}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
 		};

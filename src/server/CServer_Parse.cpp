@@ -1191,9 +1191,19 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Ran out of slots
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
-		printf("Numplayers is %i",numplayers);
+		printf("%s - Server Error report",GetTime().c_str());
+		printf("Numplayers is %i\n",numplayers);
 		cl = cClients;
 		std::string msg;
+		
+		FILE* ErrorFile = OpenGameFile("Server_error.txt","at");
+		if(ErrorFile == NULL)
+			printf("Great. We can't even open a bloody file.\n");
+		if(ErrorFile != NULL)
+		{
+			fprintf(ErrorFile,"%s - Server Error report",GetTime().c_str());
+			fprintf(ErrorFile,"Numplayers is %i\n",numplayers);
+		}
 		for (p = 0;p < MAX_CLIENTS;p++, cl++) 
 		{
 			msg = "Client id " + itoa(p) + ". Status: ";
@@ -1205,8 +1215,19 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				msg += "Zombie.";
 			else
 				msg += "Odd.";
+			msg += "\n";
+			printf(msg.c_str());
+			if(ErrorFile != NULL)
+				fprintf(ErrorFile,"%s",msg.c_str());
 		}
-		printf(msg.c_str());
+		
+		if(ErrorFile)
+			fclose(ErrorFile);
+		ErrorFile = NULL;
+		
+		
+		
+	
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
