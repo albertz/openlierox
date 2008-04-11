@@ -1,6 +1,7 @@
 TODO
 (remember also to look at the bugs on SF)
 
+[ ] clean up the SVN (for example remove all */build/*/libs, they do not belong to SVN) (!!)
 [X] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 
 [ ] bot: fix building path (there is one rare case where the
