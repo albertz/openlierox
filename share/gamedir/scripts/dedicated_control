@@ -40,21 +40,80 @@ ded.setvar("GameOptions.Advanced.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_T
 
 ded.selectNextPreset()
 
+lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
+lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
+lobbyWaitAfterGame = 0
+lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+lobbyEnoughPlayers = False
+
+# nice state-machine for dedicated server
 while ded.gameState != ded.GAME_QUIT:
-    if ded.startWithMinWorms( cfg.MIN_PLAYERS, cfg.KILL_LOCAL_BOT, cfg.WAIT_BEFORE_GAME, cfg.WAIT_BEFORE_GAME*10,
-                          cfg.TOO_FEW_PLAYERS_MESSAGE, cfg.WAIT_BEFORE_GAME_MESSAGE ):
-        ded.WaitInLobby(cfg.WAIT_AFTER_GAME) # Game was played, wait a bit
 
-    ded.selectNextPreset() # Game was not played
+	time.sleep(1)
+	
+	oldState = ded.gameState
+	ded.signalHandler(ded.getSignal()) # Changes ded.gameState and ded.worms
 
-    if len(ded.worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-        ded.setvar("GameServer.GameInfo.iGameMode", "1")
-        ded.sendLobbyUpdate() # Update game mode info
-        for w in ded.worms.keys():
-            ded.setWormTeam( w, w % 2 )
-    else:
-        ded.setvar("GameServer.GameInfo.iGameMode", "0")
-        ded.sendLobbyUpdate() # Update game mode info
+	if ded.gameState == ded.GAME_LOBBY:
+		
+		lobbyChangePresetTimeout -= 1
+		
+		if oldState != ded.GAME_LOBBY or lobbyChangePresetTimeout <= 0:
+			lobbyChangePresetTimeout = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE*20
+			ded.selectNextPreset()
+			lobbyEnoughPlayers = False # reset the state
+			lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+			lobbyWaitAfterGame = 0
+			if oldState == ded.GAME_PLAYING:
+				lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME
+		
+		lobbyWaitAfterGame -= 1
+		
+		if lobbyWaitAfterGame <= 0:
+		
+			lobbyWaitGeneral -= 1
+			
+			if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
+				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+			
+			if not lobbyEnoughPlayers and len(ded.worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
+				lobbyEnoughPlayers = True
+				ded.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
+				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
+			
+			if lobbyEnoughPlayers and len(ded.worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
+				lobbyEnoughPlayers = False
+				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+			
+			if lobbyEnoughPlayers:
+				lobbyWaitBeforeGame -= 1
+				if lobbyWaitBeforeGame <= 0: # Start the game
+					
+					if len(ded.worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
+						ded.setvar("GameServer.GameInfo.iGameMode", "1")
+						ded.sendLobbyUpdate() # Update game mode info
+						counter = 0
+						for w in ded.worms.keys():
+							ded.setWormTeam( w, counter % 2 )
+							counter += 1
+					else:
+						ded.setvar("GameServer.GameInfo.iGameMode", "0")
+						ded.sendLobbyUpdate() # Update game mode info
+					
+					ded.startGame()
+					lobbyWaitAfterGame = 20 # Give our server 20 seconds to load up map
+					lobbyChangePresetTimeout = 20
+	
+	if ded.gameState == ded.GAME_WEAPONS:
+		
+		if len(ded.worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
+			ded.gotoLobby()
+	
+	if ded.gameState == ded.GAME_PLAYING:
+		
+		if oldState != ded.GAME_PLAYING and cfg.KILL_LOCAL_BOT:
+			ded.killBots()
 
 
 sys.exit() # Kill the stdin-input thread

@@ -10,14 +10,15 @@ WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is use
 LOCAL_BOT_NAME = "[CPU] Kamikazee!" # The name of a bot in server, make sure such bot exist in your OLX
 KILL_LOCAL_BOT = True # Kill local bot when game starts
 
-MIN_PLAYERS = 3 # including bot worm
+MIN_PLAYERS = 2 # including bot worm
+MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players (including bot worm)
 MAX_PLAYERS = 8 # Including bot worm
-MIN_PLAYERS_TEAMS = 5 # Players will be split in two teams automatically if there is enough players (including bot worm)
-TOO_FEW_PLAYERS_MESSAGE = "Game will start with %i players"
+TOO_FEW_PLAYERS_MESSAGE = "Game will start with %i players, %i or more players - team game" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
+WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 10 # Seconds to wait before another "Game will start with %i players" message
 
 WAIT_AFTER_GAME = 20 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
-WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds"
+WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 GAME_LIVES = 10
 GAME_MAX_KILLS = 20
