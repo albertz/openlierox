@@ -312,7 +312,17 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		// or if the client is host (host can kill anyone - /suicide command in chat)
 		if (!cl->OwnsWorm(vict->getID()) && !cl->isLocalClient())  {
-			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
+			std::string clientWorms;
+			for(int i=cl->getNumWorms();i > 0 && i <= 2;i++) {
+				CWorm* w = cl->getWorm(i);
+				if (w) {
+					if (!i%2)
+						clientWorms += " ";
+					clientWorms += itoa(w->getID()) + "," + w->getName() + ".";
+				}
+			}
+			printf("GameServer::ParseDeathPacket: victim (%i,%s) is not one of the client's worms (%s).\n",
+				   vict->getID(),vict->getName().c_str(),clientWorms.c_str());
 			return;
 		}
 	}

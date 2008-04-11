@@ -269,6 +269,7 @@ int GameServer::StartGame()
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
 	CBytestream bs;
+	float timer;
 	
 	iLives =		 tGameInfo.iLives;
 	iGameType =		 tGameInfo.iGameMode;
@@ -335,18 +336,22 @@ int GameServer::StartGame()
 
 	} else {
 
+		timer = SDL_GetTicks()/1000.0f;
 		sMapFilename = "levels/" + tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
 		}
+		printf("Map loadtime: %f seconds",(float)(SDL_GetTicks()/1000.0f) - timer);
 	}
 
 	// Load the game script
+	timer = SDL_GetTicks()/1000.0f;
 	if(!cGameScript.Load(tGameInfo.sModDir)) {
 		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
 		return false;
 	}
+	printf("Mod loadtime: %f seconds",(float)(SDL_GetTicks()/1000.0f) - timer);
 
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList(sWeaponRestFile);
