@@ -27,24 +27,35 @@ availiblePresets = list()
 maxPresets = 0
 curPreset = 0
 
-worms = {} # List of all online worms - contains only worm name currently
-bots = {}  # List of all possible bots
-admins = [] # Indexes of admin worms
+
+#worms = {} # Dictionary of all online worms - contains only worm name currently
+worms = {} # List of all worms on the server
+# Bots don't need to be itterated with the other ones.
+bots = {}  # Dictionary of all possible bots
+#admins = {} # Dictionary of all admin worms
 
 # TODO: Expand this class, use it.
 class Worm():
-	Name = ""
-	Continent = ""
-	CountryShortcut = ""
-	Country = ""
-	ip = ""
-	iID = -1
+	def __init__(self):
+		self.Name = ""
+		self.Continent = ""
+		self.CountryShortcut = ""
+		self.Country = ""
+		self.Ip = ""
+		self.iID = -1
+		self.isAdmin = False
 
 # Game states
 GAME_QUIT = 0
 GAME_LOBBY = 1
 GAME_WEAPONS = 2
 GAME_PLAYING = 3
+
+#Log Severity
+LOG_INFO = 0
+LOG_WARN = 1
+LOG_ERROR = 2
+LOG_CRITICAL = 3 # For things that you REALLY need to exit for.
 
 gameState = GAME_QUIT
 
@@ -85,6 +96,7 @@ class GetStdinThread(threading.Thread):
 				if sys.stdin.closed or emptyLines > 100:
 					raise Exception, "stdin closed"
 		except Exception:
+			messageLog("Broken Pipe -- exiting",LOG_CRITICAL)
 			# OLX terminated, stdin = broken pipe, we should terminate also
 			sys.exit()
 
@@ -163,6 +175,8 @@ def Quit():
 	print "quit"
 
 # Use this to force the server into lobby - it will kick all connected worms and restart the server
+# TODO: Why do we send this with startlobby? Server doesn't catch it, + it's bad style.
+# Use addWorm() instead
 def startLobby(localWorm = "[CPU] Kamikazee!"):
 	print "startlobby " + localWorm
 
@@ -182,7 +196,7 @@ def sendLobbyUpdate():
 def addBot(name):
 	print "addbot " + name
 
-# Suicides all local bots - the game requires to have at least one worm which is bot by default
+# Suicides all local bots
 def killBots():
 	print "killbots"
 
@@ -209,7 +223,9 @@ def setWormTeam(iID, team):
 # Use this to get ID number + name of all worms - updates worms list.
 # For some reason it entered resp for me once, but it didn't contain any data (or it had strange data) and int() returned a ValueError.
 # Please report when this happens and how it is caused. I tried to recreate but to no avail.
-# TODO: Perhaps write some kind of log for all exceptions?
+# It starts happening after a couple of hours running, and creates ValueErrors on every call, to what i can establish.
+
+# TODO: We should not use this. We should rely on newworm <id> and wormleft <id>. We should only request names after that.
 def getWormList():
 	print "getwormlist"
 	resp = getResponseList("wormlistinfo")
@@ -219,13 +235,19 @@ def getWormList():
 		try:
 			iID = int(r[:r.find(" ")])
 			name = r[r.find(" ")+1:]
-			worms[iID] = name
+			#worms[iID] = name
+			
+			try:
+				worm = worms[iID]
+			except KeyError: #Worm doesn't exist.
+				worm = Worm()
+			worm.Name = name
+			worm.iID = iID
+			worms[iID] = worm
 		except ValueError:
-			f = open("dedicated_exceptions.log","a")
-			outline = time.strftime("%Y-%m-%d %H:%M:%S")
-			outline += ": ValueError in getWormList. \n"
-			f.write(outline)
-			f.close()
+			mesg = "ValueError in getWormList. "
+			mesg += "r = " + r + " resp = " + str(resp)
+			messageLog(mesg,LOG_ERROR)
 	
 
 
@@ -248,7 +270,7 @@ def getWormLocationInfo(iID):
 	print "getwormlocationinfo"
 	return getResponse("wormlocationinfo %i" % iID)
 
-# Use this to write to stdout (standard output
+# Use this to write to stdout (standard output)
 def msg(string):
 	print "msg " + string
 
@@ -277,22 +299,27 @@ def updateWorms(sig):
 def updateAdminStuff(sig):
 	if sig.find("wormleft ") == 0:
 		wormidx = int( sig.split(" ")[1] )
-		while wormidx in admins:
-			admins.pop(admins.index(wormidx))
-			msg("Worm %i removed from admins" % wormidx)
+		try:
+			if worms[wormidx].isAdmin:
+				worms[wormidx].isAdmin = False
+				messageLog(("Worm %i (%s) removed from admins" % (wormidx,worms[wormidx].Name)),LOG_INFO)
+		except KeyError:
+			messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 	if sig.find("privatemessage ") == 0:
 		wormidx = int( sig.split(" ")[1] )
-		to_idx = int( sig.split(" ")[2] )
-	# Don't check for ID == 0 -here doesn't need to be a bot alive.
 		if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
-			   admins.append(wormidx)
-			   msg("Worm %i added to admins" % wormidx)
-			   chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx])
+			#admins.append(wormidx)
+			try:
+				worms[wormidx].isAdmin = True
+				messageLog(("Worm %i (%s) added to admins" % (wormidx,worms[wormidx].Name)),LOG_INFO)
+				chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx].Name)
+			except KeyError:
+				messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 	try: # Do not check on msg size or anything
 		if sig.find("chatmessage ") == 0:
 			wormidx = int( sig.split(" ")[1] )
 			msg( "Chat msg from worm %i: %s" % (wormidx, " ".join(sig.split(" ")[2:])) )
-			if wormidx in admins:
+			if worms[wormidx].isAdmin:
 				cmd = sig.split(" ")[2]
 				if cmd == "//help":
 					chatMsg("Admin help:")
@@ -305,53 +332,62 @@ def updateAdminStuff(sig):
 					chatMsg("//start - start game now")
 					chatMsg("//stop - go to lobby")
 					chatMsg("//setvar varname value")
-				if cmd == "//kick":
+					
+				elif cmd == "//kick":
 					if len(sig.split(" ")) > 4: # Given some reason
 						kickWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
 					else:
 						kickWorm( int( sig.split(" ")[3] ) )
-				if cmd == "//ban":
+				elif cmd == "//ban":
 					if len(sig.split(" ")) > 4: # Given some reason
 						banWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
 					else:
 						banWorm( int( sig.split(" ")[3] ) )
-				if cmd == "//mute":
+				elif cmd == "//mute":
 					muteWorm( int( sig.split(" ")[3] ) )
-				if cmd == "//mod":
+				elif cmd == "//mod":
 					setvar("GameServer.GameInfo.sModDir", " ".join(sig.split(" ")[3:])) # In case mod name contains spaces
 					setvar("GameServer.GameInfo.sModName", " ".join(sig.split(" ")[3:]))
 					sendLobbyUpdate()
-				if cmd == "//map":
+				elif cmd == "//map":
 					setvar("GameServer.GameInfo.sMapFile", " ".join(sig.split(" ")[3:]) + ".lxl") # In case map name contains spaces
 					setvar("GameServer.GameInfo.sMapName", " ".join(sig.split(" ")[3:]))
 					sendLobbyUpdate()
-				if cmd == "//lt":
+				elif cmd == "//lt":
 					setvar("GameServer.GameInfo.iLoadingTimes", sig.split(" ")[3])
 					sendLobbyUpdate()
-				if cmd == "//start":
+				elif cmd == "//start":
 					startGame()
-				if cmd == "//stop":
+				elif cmd == "//stop":
 					gotoLobby()
-				if cmd == "//setvar":
+				elif cmd == "//setvar":
 					setvar(sig.split(" ")[3], " ".sig.split(" ")[4:]) # In case value contains spaces
 	except Exception:
 		chatMsg("Invalid admin command")
-
+	except KeyError:
+		errorLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+		
 # Updates all global vars
+# But it SHOULD handle all signals coming in, and route to the right functions. 
+# (Just like when we parse networking in OLX, it's a good aproach imo)
 def signalHandler(sig):
 	global gameState
+	updateAdminStuff(sig)
 	checkGameState(sig)
 	updateWorms(sig)
-	updateAdminStuff(sig)
 
 ## Preset loading functions ##
 
 def initPresets():
 	global availiblePresets,maxPresets,presetDir
+	
+	# Reset - incase we get called a second time
+	del availiblePresets[:]
+	maxPresets = 0
 
 	for f in os.listdir(presetDir):
 		if os.path.isdir(f):
-			msg("Ignoring \"%s\" - It's a directory" % f)
+			messageLog(("initPresets: Ignoring \"%s\" - It's a directory" % f),LOG_INFO)
 			continue
 
 		availiblePresets.append(f)
@@ -359,7 +395,7 @@ def initPresets():
 		maxPresets +=1
 
 	if (maxPresets == 0):
-		msg("There are no presets availible - nothing to do. Exiting.")
+		messageLog("There are no presets availible - nothing to do. Exiting.",LOG_CRITICAL)
 		exit()
 
 # initPresets must be called before this - or it will crash
@@ -371,12 +407,24 @@ def selectNextPreset():
 	chatMsg("Preset " + availiblePresets[curPreset])
 
 	sFile = os.path.join(presetDir,availiblePresets[curPreset])
-	fPreset = file(sFile,"r")
-	for line in fPreset.readlines():
-		line = line.strip()
-		line = line.replace('"','')
-		print line
-	fPreset.close()
+	try:
+		fPreset = file(sFile,"r")
+		for line in fPreset.readlines():
+			line = line.strip()
+			line = line.replace('"','')
+			print line
+			fPreset.close()
+	except IOError:
+		# File does not exist, perhaps it was removed.
+		messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),LOG_WARN)
+		initPresets()
+		# Try to step back so we don't force people to replay old rotations.
+		while (curPreset >= maxPresets):
+			curPreset -= 1
+		# Re-call ourselves so that we do update the preset.
+		fPreset.close() # Just incase
+		selectNextPreset()
+		return # So that we don't double the messages
 
 	# curPreset + 1 to say "1 out of 2" "2 out of 2" instead of
 	# "0 out of 2" "1 out of 2"
@@ -395,3 +443,30 @@ def waitLobbyStarted():
 		if sig == "lobbystarted":
 			return
 		time.sleep(1)
+
+
+def messageLog(message,severity):
+	outline = time.strftime("%Y-%m-%d %H:%M:%S")
+	# Don't clutter the strftime call
+	outline += " -- "
+	if severity == LOG_INFO:
+		outline += "INFO"
+	elif severity == LOG_WARN:
+		outline += "WARN"
+	elif severity == LOG_ERROR:
+		outline += "ERROR"
+	elif severity == LOG_CRITICAL:
+		outline += "CRITICAL"
+	outline += " -- "
+	outline += message
+	try:
+		f = open(cfg.LOG_FILE,"a")
+		f.write((outline + "\n"))
+	except IOError:
+		msg("ERROR: Unable to open logfile.")
+	finally:
+		f.close()
+	try:
+		msg(outline)
+	except:
+		return #This happen when we've got a broken pipe, and we should exit cleanly.

@@ -5,6 +5,7 @@
 # Written for easy editing by newcomers to python or programming in general
 # OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
 # As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
+# TODO: Why don't we import dedicated_control_functions as this namespace? I don't get the point of current implementation.
 
 import os, sys, time # Useful imports
 sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
@@ -20,6 +21,7 @@ ded = dedicated_control_functions # shortcut
 ## The game loop ##
 
 ded.msg("GameState = %s" % str(ded.gameState))
+ded.messageLog("Dedicated_control started",ded.LOG_INFO)
 
 ded.startLobby(cfg.LOCAL_BOT_NAME)
 
@@ -115,5 +117,5 @@ while ded.gameState != ded.GAME_QUIT:
 		if oldState != ded.GAME_PLAYING and cfg.KILL_LOCAL_BOT:
 			ded.killBots()
 
-
+ded.messageLog("GameState is QUIT. Exiting.",LOG_INFO)
 sys.exit() # Kill the stdin-input thread

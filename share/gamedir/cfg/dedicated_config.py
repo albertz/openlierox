@@ -2,18 +2,23 @@
 
 # The reason this script resides in cfg/ folder is that the OLX file downloader will 
 # deny access to cfg/ folder, and we have admin password here
+# .. Why don't we deny access to everything except levels and mods (by checking if a directory
+# has got script.lgs in it). Current way sounds sucky to me.
 
 ADMIN_PASSWORD = "secret" # Change it! should be single word without spaces, yet symbols ~!@#$%^&* are encouraged
 
+# Where to log what is happening
+LOG_FILE = "dedicated_control.log"
+
 SERVER_NAME = "Dedicated server" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"
-LOCAL_BOT_NAME = "[CPU] Kamikazee!" # The name of a bot in server, make sure such bot exist in your OLX
+LOCAL_BOT_NAME = "[CPU] Kamikazee!" # The name of a bot in server, make sure such a bot exist in your OLX
 KILL_LOCAL_BOT = True # Kill local bot when game starts
 
 MIN_PLAYERS = 2 # including bot worm
 MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players (including bot worm)
 MAX_PLAYERS = 8 # Including bot worm
-TOO_FEW_PLAYERS_MESSAGE = "Game will start with %i players, %i or more players - team game" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
+TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 10 # Seconds to wait before another "Game will start with %i players" message
 
 WAIT_AFTER_GAME = 20 # Seconds to wait in lobby after round finished

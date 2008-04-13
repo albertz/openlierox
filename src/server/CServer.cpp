@@ -342,7 +342,7 @@ int GameServer::StartGame()
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
 		}
-		printf("Map loadtime: %f seconds",(float)(SDL_GetTicks()/1000.0f) - timer);
+		printf("Map loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
 	}
 
 	// Load the game script
@@ -351,7 +351,7 @@ int GameServer::StartGame()
 		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
 		return false;
 	}
-	printf("Mod loadtime: %f seconds",(float)(SDL_GetTicks()/1000.0f) - timer);
+	printf("Mod loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
 
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList(sWeaponRestFile);
