@@ -216,6 +216,7 @@ public:
 	}
 	
 	static int loaderMain(void* obj) {
+		float timer = 0.0f;
 		IpToCountryData* _this = (IpToCountryData*)obj;
 
 		std::ifstream* file = OpenGameFileR(_this->filename);
@@ -228,6 +229,7 @@ public:
 		_this->fileSize = file->tellg();
 		file->seekg(0, std::ios::beg);		
 		
+		timer = (float)(SDL_GetTicks()/1000.0f);
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
 		AddEntrysToDBData adder(_this->data);
 		typedef DBEntryHandler<AddEntrysToDBData, TSVar<size_t> > DBEH;
@@ -240,6 +242,7 @@ public:
 		} else {
 			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
 		}
+		cout << "IpToCountryDB: loadtime " << (float)((SDL_GetTicks()/1000.0f) / timer) << " seconds" << endl;
 		
 		file->close();
 		delete file;

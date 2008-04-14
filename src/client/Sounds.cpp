@@ -102,7 +102,7 @@ bool GetSongStopped(void) { return false; }
 bool GetSongFinished(void) { return false; }
 byte GetMusicVolume(void) { return 0; }
 
-#else
+#else //DEDICATED_ONLY
 
 ///////////////////
 // Load a sample

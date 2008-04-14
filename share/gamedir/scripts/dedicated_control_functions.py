@@ -35,7 +35,7 @@ bots = {}  # Dictionary of all possible bots
 #admins = {} # Dictionary of all admin worms
 
 # TODO: Expand this class, use it.
-class Worm():
+class Worm:
 	def __init__(self):
 		self.Name = ""
 		self.Continent = ""
@@ -44,6 +44,9 @@ class Worm():
 		self.Ip = ""
 		self.iID = -1
 		self.isAdmin = False
+		
+	def clear(self):
+		self.__init__()
 
 # Game states
 GAME_QUIT = 0
@@ -169,7 +172,7 @@ def getResponseList(cmd):
 # Set a server variable
 def setvar(what, data):
 	print "setvar %s %s" % (str(what), str(data))
-	
+
 # Use this to make the server quit
 def Quit():
 	print "quit"
@@ -220,35 +223,7 @@ def muteWorm(iID):
 def setWormTeam(iID, team):
 	print "setwormteam " + str(iID) + " " + str(team)
 
-# Use this to get ID number + name of all worms - updates worms list.
-# For some reason it entered resp for me once, but it didn't contain any data (or it had strange data) and int() returned a ValueError.
-# Please report when this happens and how it is caused. I tried to recreate but to no avail.
-# It starts happening after a couple of hours running, and creates ValueErrors on every call, to what i can establish.
 
-# TODO: We should not use this. We should rely on newworm <id> and wormleft <id>. We should only request names after that.
-def getWormList():
-	print "getwormlist"
-	resp = getResponseList("wormlistinfo")
-	global worms
-	worms = {}
-	for r in resp:
-		try:
-			iID = int(r[:r.find(" ")])
-			name = r[r.find(" ")+1:]
-			#worms[iID] = name
-			
-			try:
-				worm = worms[iID]
-			except KeyError: #Worm doesn't exist.
-				worm = Worm()
-			worm.Name = name
-			worm.iID = iID
-			worms[iID] = worm
-		except ValueError:
-			mesg = "ValueError in getWormList. "
-			mesg += "r = " + r + " resp = " + str(resp)
-			messageLog(mesg,LOG_ERROR)
-	
 
 
 # Use this to get the list of all possible bots.
@@ -280,104 +255,152 @@ def chatMsg(string):
 
 ## High-level processing ##
 
-def checkGameState(sig):
-	global gameState
-	if sig == "quit" or sig == "errorstartlobby":
-		gameState = GAME_QUIT
-	if sig == "backtolobby" or sig == "errorstartgame" or sig == "lobbystarted":
-		gameState = GAME_LOBBY
-	if sig == "weaponselections":
-		gameState = GAME_WEAPONS
-	if sig == "gamestarted":
-		gameState = GAME_PLAYING
-
 def updateWorms(sig):
 	if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
 		getWormList()
 
 # Admin interface
-def updateAdminStuff(sig):
-	if sig.find("wormleft ") == 0:
-		wormidx = int( sig.split(" ")[1] )
-		try:
-			if worms[wormidx].isAdmin:
-				worms[wormidx].isAdmin = False
-				messageLog(("Worm %i (%s) removed from admins" % (wormidx,worms[wormidx].Name)),LOG_INFO)
-		except KeyError:
-			messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
-	if sig.find("privatemessage ") == 0:
-		wormidx = int( sig.split(" ")[1] )
-		if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
-			#admins.append(wormidx)
-			try:
-				worms[wormidx].isAdmin = True
-				messageLog(("Worm %i (%s) added to admins" % (wormidx,worms[wormidx].Name)),LOG_INFO)
-				chatMsg("%s will banhaxkick everyone now! Type //help for commands info" % worms[wormidx].Name)
-			except KeyError:
-				messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
-	try: # Do not check on msg size or anything
-		if sig.find("chatmessage ") == 0:
-			wormidx = int( sig.split(" ")[1] )
-			msg( "Chat msg from worm %i: %s" % (wormidx, " ".join(sig.split(" ")[2:])) )
-			if worms[wormidx].isAdmin:
-				cmd = sig.split(" ")[2]
-				if cmd == "//help":
-					chatMsg("Admin help:")
-					chatMsg("//kick wormID [reason]")
-					chatMsg("//ban wormID [reason]")
-					chatMsg("//mute wormID")
-					chatMsg("//mod modname")
-					chatMsg("//map mapname")
-					chatMsg("//lt loadingTime")
-					chatMsg("//start - start game now")
-					chatMsg("//stop - go to lobby")
-					chatMsg("//setvar varname value")
-					
-				elif cmd == "//kick":
-					if len(sig.split(" ")) > 4: # Given some reason
-						kickWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
-					else:
-						kickWorm( int( sig.split(" ")[3] ) )
-				elif cmd == "//ban":
-					if len(sig.split(" ")) > 4: # Given some reason
-						banWorm( int( sig.split(" ")[3] ), " ".join(sig.split(" ")[4:]) )
-					else:
-						banWorm( int( sig.split(" ")[3] ) )
-				elif cmd == "//mute":
-					muteWorm( int( sig.split(" ")[3] ) )
-				elif cmd == "//mod":
-					setvar("GameServer.GameInfo.sModDir", " ".join(sig.split(" ")[3:])) # In case mod name contains spaces
-					setvar("GameServer.GameInfo.sModName", " ".join(sig.split(" ")[3:]))
-					sendLobbyUpdate()
-				elif cmd == "//map":
-					setvar("GameServer.GameInfo.sMapFile", " ".join(sig.split(" ")[3:]) + ".lxl") # In case map name contains spaces
-					setvar("GameServer.GameInfo.sMapName", " ".join(sig.split(" ")[3:]))
-					sendLobbyUpdate()
-				elif cmd == "//lt":
-					setvar("GameServer.GameInfo.iLoadingTimes", sig.split(" ")[3])
-					sendLobbyUpdate()
-				elif cmd == "//start":
-					startGame()
-				elif cmd == "//stop":
-					gotoLobby()
-				elif cmd == "//setvar":
-					setvar(sig.split(" ")[3], " ".sig.split(" ")[4:]) # In case value contains spaces
+def parseAdminCommand(wormid,message):
+	try: # Do not check on msg size or anything	
+		cmd = message.split(" ")[0]
+		if cmd.find(cfg.ADMIN_PREFIX) != -1:
+			cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
+			
+		# Unnecesary to split multiple times, this saves CPU.
+		params = message.split(" ")[1:]
+		
+		if cmd == "help":
+			chatMsg("Admin help:")
+			chatMsg("%skick wormID [reason]" % cfg.ADMIN_PREFIX) 
+			chatMsg("%sban wormID [reason]" % cfg.ADMIN_PREFIX)
+			chatMsg("%smute wormID" % cfg.ADMIN_PREFIX)
+			chatMsg("%smod modname" % cfg.ADMIN_PREFIX)
+			chatMsg("%smap mapname" % cfg.ADMIN_PREFIX)
+			chatMsg("%slt loadingTime" % cfg.ADMIN_PREFIX)
+			chatMsg("%sstart - start game now" % cfg.ADMIN_PREFIX)
+			chatMsg("%sstop - go to lobby" % cfg.ADMIN_PREFIX)
+			chatMsg("%ssetvar varname value" % cfg.ADMIN_PREFIX)
+			
+		# TODO: put adminhelp in it's own function. Check for if we don't get enough params for stuff, and send it.
+		elif cmd == "kick":
+			if len(params) > 1: # Given some reason
+				kickWorm( int( params[0] ), " ".join(params[1:]) )
+			else:
+				kickWorm( int( params[0] ) )
+		elif cmd == "ban":
+			if len(params) > 1: # Given some reason
+				banWorm( int( params[0] ), " ".join(params[1:]) )
+			else:
+				banWorm( int( params[0] ) )
+		elif cmd == "mute":
+			muteWorm( int( params[0] ) )
+		elif cmd == "mod":
+			setvar("GameServer.GameInfo.sModDir", " ".join(params[0:])) # In case mod name contains spaces
+			setvar("GameServer.GameInfo.sModName", " ".join(params[0:]))
+			sendLobbyUpdate()
+		elif cmd == "map":
+			setvar("GameServer.GameInfo.sMapFile", " ".join(params[0:]) + ".lxl") # In case map name contains spaces
+			setvar("GameServer.GameInfo.sMapName", " ".join(params[0:]))
+			sendLobbyUpdate()
+		elif cmd == "lt":
+			setvar("GameServer.GameInfo.iLoadingTimes", params[0])
+			sendLobbyUpdate()
+		elif cmd == "start":
+			startGame()
+		elif cmd == "stop":
+			gotoLobby()
+		elif cmd == "setvar":
+			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
+			
+				
 	except Exception:
 		chatMsg("Invalid admin command")
 	except KeyError:
-		errorLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+		messageLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 		
 # Updates all global vars
 # But it SHOULD handle all signals coming in, and route to the right functions. 
 # (Just like when we parse networking in OLX, it's a good aproach imo)
 def signalHandler(sig):
 	global gameState
-	updateAdminStuff(sig)
-	checkGameState(sig)
-	updateWorms(sig)
+	if sig == "":
+		return False #Didn't get anything
+	header = sig.split(" ")[0] # This makes sure we only get the first word, no matter if there's anything after it or not.
+	if header == "newworm":
+		parseNewWorm(sig)
+	elif header == "wormleft":
+		parseWormLeft(sig)
+	elif header == "privatemessage":
+		parsePrivateMessage(sig)
+	elif header == "chatmessage":
+		parseChatMessage(sig)
+	elif header == "wormdied":
+		pass
+	
+	## Check GameState ##
+	elif header == "quit" or header == "errorstartlobby":
+		gameState = GAME_QUIT
+	elif header == "backtolobby" or header == "errorstartgame" or header == "lobbystarted":
+		gameState = GAME_LOBBY		
+	elif header == "weaponselections":
+		gameState = GAME_WEAPONS
+	elif header == "gamestarted":
+		gameState = GAME_PLAYING
+		
+	#if sig != "":
+		#msg(sig)
+	return True
+
+def parseNewWorm(sig):
+	wormID = int(sig.split(" ")[1])
+	name = " ".join(sig.split(" ")[2:])
+	exists = False
+	try:
+		worm = worms[wormID]
+		exists = True
+	except KeyError: #Worm doesn't exist.
+		worm = Worm()
+	worm.Name = name
+	worm.iID = wormID
+	
+	if not exists:
+		worms[wormID] = worm
+
+def parseWormLeft(sig):
+	wormID = int(sig.split(" ")[1])
+	name = " ".join(sig.split(" ")[2:])
+	
+	try:
+		if worms[wormID].isAdmin:
+			messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),LOG_INFO)
+	except KeyError:
+		messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+			
+	# Call last, that way we still have the data active.		
+	worms[wormID].clear()
+	
+
+def parsePrivateMessage(sig):
+	wormID = int(sig.split(" ")[1])
+	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
+	if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
+		try:
+			if not worms[wormID].isAdmin:
+				worms[wormID].isAdmin = True
+				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
+				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
+				chatMsg("%s authenticated for admin! Type //help for commands info" % worms[wormID].Name)
+		except KeyError:
+			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+
+def parseChatMessage(sig):
+	wormID = int(sig.split(" ")[1])
+	message = " ".join(sig.split(" ")[2:])
+	msg( "Chat msg from worm %i: %s" % (wormID, message))
+	if worms[wormID].isAdmin:
+		parseAdminCommand(wormID,message)
 
 ## Preset loading functions ##
-
 def initPresets():
 	global availiblePresets,maxPresets,presetDir
 	
@@ -462,11 +485,10 @@ def messageLog(message,severity):
 	try:
 		f = open(cfg.LOG_FILE,"a")
 		f.write((outline + "\n"))
+		f.close()
 	except IOError:
 		msg("ERROR: Unable to open logfile.")
-	finally:
-		f.close()
-	try:
-		msg(outline)
-	except:
-		return #This happen when we've got a broken pipe, and we should exit cleanly.
+		
+	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
+	# so let python send out the ugly warning.
+	msg(outline)

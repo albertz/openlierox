@@ -34,7 +34,7 @@ typedef unsigned char byte;
 #	else
 #		define SDLMIXER_WORKAROUND_RESTART	0
 #	endif
-#endif
+#endif //DEDICATED_ONLY
 
 #define MUSIC_REPEAT_INFINITE -1
 
@@ -52,7 +52,7 @@ typedef unsigned char byte;
 struct SoundSample {
 #ifndef DEDICATED_ONLY	
 	Mix_Chunk* sample;
-#endif	
+#endif	//DEDICATED_ONLY
 	int maxsimulplays;
 // TODO: and other stuff
 };
@@ -62,7 +62,7 @@ struct SoundSample {
 struct SoundMusic {
 #ifndef DEDICATED_ONLY	
 	Mix_Music *sndMusic;
-#endif
+#endif //DEDICATED_ONLY
 };
 
 // General sounds

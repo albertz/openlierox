@@ -1337,7 +1337,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 	
 	return gd_image;
 }
-#endif
+#endif //DEDICATED_ONLY
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
@@ -1371,7 +1371,7 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 	#ifdef DEDICATED_ONLY
 	printf("WARNING: SaveSurface: cannot use something else than BMP in dedicated-only-mode\n");
 	return false;
-	#else
+	#else //DEDICATED_ONLY
 	
 	//
 	// JPG, PNG, GIF

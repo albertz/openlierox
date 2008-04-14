@@ -54,14 +54,16 @@ while ded.gameState != ded.GAME_QUIT:
 	time.sleep(1)
 	
 	oldState = ded.gameState
-	ded.signalHandler(ded.getSignal()) # Changes ded.gameState and ded.worms
+	# TODO: ATM we get max 1 signal/second. This can lead to huge delays... and a logfile full of junk.
+	#Perhaps outsource this, to read all availible signals (but perhaps with FPS limit?) before continuing on to the next rows?
+	ded.signalHandler(ded.getSignal())
 
 	if ded.gameState == ded.GAME_LOBBY:
 		
 		lobbyChangePresetTimeout -= 1
 		
 		if oldState != ded.GAME_LOBBY or lobbyChangePresetTimeout <= 0:
-			lobbyChangePresetTimeout = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE*20
+			lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
 			ded.selectNextPreset()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
@@ -97,15 +99,17 @@ while ded.gameState != ded.GAME_QUIT:
 						ded.sendLobbyUpdate() # Update game mode info
 						counter = 0
 						for w in ded.worms.keys():
-							ded.setWormTeam( w, counter % 2 )
-							counter += 1
+							if w.iID != -1:
+								ded.setWormTeam( w, counter % 2 )
+								counter += 1
 					else:
 						ded.setvar("GameServer.GameInfo.iGameMode", "0")
 						ded.sendLobbyUpdate() # Update game mode info
 					
 					ded.startGame()
-					lobbyWaitAfterGame = 20 # Give our server 20 seconds to load up map
-					lobbyChangePresetTimeout = 20
+					# TODO: Why is this here too, and up above?
+					#lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME # Give our server 20 seconds to load up map
+					#lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
 	
 	if ded.gameState == ded.GAME_WEAPONS:
 		

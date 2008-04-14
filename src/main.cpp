@@ -64,10 +64,10 @@ bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
 bool		bDedicated = true;
 bool		bJoystickSupport = false;
-#else
+#else //DEDICATED_ONLY
 bool		bDedicated = false;
 bool		bJoystickSupport = true;
-#endif
+#endif //DEDICATED_ONLY
 bool		bRestartGameAfterQuit = false;
 TStartFunction startFunction = NULL;
 void*		startFunctionData = NULL;
