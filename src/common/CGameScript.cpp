@@ -305,13 +305,10 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 int CGameScript::Load(const std::string& dir)
 {
 	// Try cache first
-	if(tLXOptions->bCacheMod)
-	{
-		CGameScript *cached = cCache.GetMod(dir);
-		if (cached != NULL)  {
-			CopyFrom(cached);
-			return GSE_OK;
-		}
+	CGameScript *cached = cCache.GetMod(dir);
+	if (cached != NULL)  {
+		CopyFrom(cached);
+		return GSE_OK;
 	}
 	
 	FILE *fp;
@@ -484,8 +481,7 @@ int CGameScript::Load(const std::string& dir)
 	fclose(fp);
 
 	// Save to cache
-	if(tLXOptions->bCacheMod)
-		cCache.SaveMod(dir, this);
+	cCache.SaveMod(dir, this);
 
 
 	return GSE_OK;

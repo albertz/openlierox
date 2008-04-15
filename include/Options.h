@@ -211,8 +211,6 @@ public:
 	bool	bServerSideHealth;
 	bool	bAllowFileDownload;
 	bool	bAllowDirtUpdates;	// For both client and server
-	bool	bCacheMap;
-	bool	bCacheMod;
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 
 	// Misc.

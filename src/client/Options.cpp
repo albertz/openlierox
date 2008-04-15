@@ -114,8 +114,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
 		( tLXOptions->bAllowDirtUpdates, "Advanced.AllowDirtUpdates", false )
-		( tLXOptions->bCacheMap, "Advanced.CacheMap", true )
-		( tLXOptions->bCacheMod, "Advanced.CacheMod", true )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )

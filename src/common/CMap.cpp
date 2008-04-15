@@ -1938,12 +1938,11 @@ bool CMap::Load(const std::string& filename)
 	FileName = filename;
 
 	// try loading a previously cached map
-	if (tLXOptions->bCacheMap)
-		if(LoadFromCache()) {
-			// everything is ok
-			printf("HINT: reusing cached map for %s\n", filename.c_str());
-			return true;
-		}
+	if(LoadFromCache()) {
+		// everything is ok
+		printf("HINT: reusing cached map for %s\n", filename.c_str());
+		return true;
+	}
 
 	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
@@ -2129,8 +2128,7 @@ bool CMap::Load(const std::string& filename)
     calculateGrid();
 
 	// Save the map to cache
-	if(tLXOptions->bCacheMap)
-		SaveToCache();
+	SaveToCache();
 
 	return true;
 }
@@ -2450,8 +2448,7 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
     calculateGrid();
 
 	// Save the map to cache
-	if(tLXOptions->bCacheMap)
-		SaveToCache();
+	SaveToCache();
 
 	return true;
 }
@@ -2609,8 +2606,7 @@ bool CMap::LoadOriginal(FILE *fp)
     calculateGrid();
 
 	// Cache this map
-	if(tLXOptions->bCacheMap)
-		SaveToCache();
+	SaveToCache();
 
 	return true;
 }
