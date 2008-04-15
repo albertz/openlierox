@@ -114,6 +114,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
 		( tLXOptions->bAllowDirtUpdates, "Advanced.AllowDirtUpdates", false )
+		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 500 ) // Should be enough for every mod (we have 2777 .png and .wav files total now)
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )

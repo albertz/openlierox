@@ -447,9 +447,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Clear any previous instances of the map
 	if(tGameInfo.iGameType == GME_JOIN) {
 		if(cMap) {
-			cMap->Shutdown();
-			delete cMap;
-			cMap = NULL;
+				cMap->Shutdown();
+				delete cMap;
+				cMap = NULL;
 		}
 	}
 
