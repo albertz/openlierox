@@ -23,6 +23,7 @@
 #include "windows.h"
 #endif //WIN32
 #include "CGuiSkin.h"
+#include "Cache.h"
 
 
 // Widget messages

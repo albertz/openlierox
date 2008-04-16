@@ -95,7 +95,7 @@ public:
 	int iLabelX;
 	int iLabelY;
 	Uint32 clLabel;
-	SDL_Surface *bmpBackground;
+	CachedDataPointer<SDL_Surface> bmpBackground;
 	CBar *cBar;
 };
 

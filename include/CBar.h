@@ -31,7 +31,7 @@ enum {
 class CBar {
 public:
 	CBar() {}
-	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states = 1, int num_bg_states = 1);
+	CBar(CachedDataPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states = 1, int num_bg_states = 1);
 
 private:
 	// Variables
@@ -47,7 +47,7 @@ private:
 	int  CurrentForeState;
 	int	 CurrentBgState;
 
-	SDL_Surface *bmpBar;
+	CachedDataPointer<SDL_Surface> bmpBar;
 
 	Uint32	bgColor;
 	Uint32	foreColor;

@@ -38,7 +38,7 @@ enum {
 class CInputbox : public CWidget {
 public:
 	// Constructor
-	CInputbox(int val, const std::string& _text, SDL_Surface *img, const std::string& name) {
+	CInputbox(int val, const std::string& _text, CachedDataPointer<SDL_Surface> img, const std::string& name) {
 		iKeyvalue = val;
 		sText = _text;
 		sName = name;
@@ -55,7 +55,7 @@ private:
 
 	int			iKeyvalue;
 	std::string	sText;
-	SDL_Surface	*bmpImage;
+	CachedDataPointer<SDL_Surface> bmpImage;
 	bool		bMouseOver;
 	std::string	sName;
 

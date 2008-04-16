@@ -47,7 +47,7 @@ std::string	ConfigFile;
 
 // Screen
 
-SDL_Surface *bmpIcon=NULL;
+CachedDataPointer<SDL_Surface> bmpIcon=NULL;
 
 
 SDL_PixelFormat defaultFallbackFormat = 

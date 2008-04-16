@@ -20,36 +20,36 @@
 
 // Gui graphics
 class gfxgui_t { public:
-	SDL_Surface		*bmpScrollbar;
-	SDL_Surface		*bmpSliderBut;
-	SDL_Surface		*bmpCommandBtn;
+	CachedDataPointer<SDL_Surface> bmpScrollbar;
+	CachedDataPointer<SDL_Surface> bmpSliderBut;
+	CachedDataPointer<SDL_Surface> bmpCommandBtn;
 };
 
 
 // Game graphics
 class gfxgame_t { public:
-	SDL_Surface		*bmpCrosshair;
-	SDL_Surface		*bmpMuzzle;
-	SDL_Surface		*bmpExplosion;
-	SDL_Surface		*bmpSmoke;
-	SDL_Surface		*bmpChemSmoke;
-	SDL_Surface		*bmpSpawn;
-	SDL_Surface		*bmpHook;
-	SDL_Surface		*bmpGameover;
-	SDL_Surface		*bmpInGame;
-	SDL_Surface		*bmpScoreboard;
-    SDL_Surface		*bmpViewportMgr;
-	SDL_Surface		*bmpSparkle;
-	SDL_Surface		*bmpInfinite;
-	SDL_Surface		*bmpLag;
-	SDL_Surface		*bmpGameNetBackground;
-	SDL_Surface		*bmpGameLocalBackground;
-	SDL_Surface		*bmpGameLocalTopBar;
-	SDL_Surface		*bmpGameNetTopBar;
-	SDL_Surface		*bmpTeamColours[4];
+	CachedDataPointer<SDL_Surface> bmpCrosshair;
+	CachedDataPointer<SDL_Surface> bmpMuzzle;
+	CachedDataPointer<SDL_Surface> bmpExplosion;
+	CachedDataPointer<SDL_Surface> bmpSmoke;
+	CachedDataPointer<SDL_Surface> bmpChemSmoke;
+	CachedDataPointer<SDL_Surface> bmpSpawn;
+	CachedDataPointer<SDL_Surface> bmpHook;
+	CachedDataPointer<SDL_Surface> bmpGameover;
+	CachedDataPointer<SDL_Surface> bmpInGame;
+	CachedDataPointer<SDL_Surface> bmpScoreboard;
+    CachedDataPointer<SDL_Surface> bmpViewportMgr;
+	CachedDataPointer<SDL_Surface> bmpSparkle;
+	CachedDataPointer<SDL_Surface> bmpInfinite;
+	CachedDataPointer<SDL_Surface> bmpLag;
+	CachedDataPointer<SDL_Surface> bmpGameNetBackground;
+	CachedDataPointer<SDL_Surface> bmpGameLocalBackground;
+	CachedDataPointer<SDL_Surface> bmpGameLocalTopBar;
+	CachedDataPointer<SDL_Surface> bmpGameNetTopBar;
+	CachedDataPointer<SDL_Surface> bmpTeamColours[4];
 
-	SDL_Surface		*bmpBonus;
-	SDL_Surface		*bmpHealth;
+	CachedDataPointer<SDL_Surface> bmpBonus;
+	CachedDataPointer<SDL_Surface> bmpHealth;
 };
 
 

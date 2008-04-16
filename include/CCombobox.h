@@ -61,7 +61,7 @@ enum  {
 class cb_item_t { public:
 	std::string	sIndex;
 	std::string	sName;
-	SDL_Surface *tImage;
+	CachedDataPointer<SDL_Surface> tImage;
 };
 
 
@@ -160,7 +160,7 @@ public:
     bool	selectNext();
     bool	selectPrev();
     int		findItem(UnicodeChar startLetter);
-	void	setImage(SDL_Surface *img, int ItemIndex);
+	void	setImage(CachedDataPointer<SDL_Surface> img, int ItemIndex);
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
 	bool	getDropped(void) { return bDropped; }

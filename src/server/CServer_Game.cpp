@@ -334,7 +334,7 @@ void GameServer::SpawnBonus(void)
 
 	// NOTE: Increase to 2 when we want to use the fullcharge bonus
 	int type = (GetRandomInt(999) >= tLXOptions->tGameinfo.fBonusHealthToWeaponChance * 1000.0f) ? BNS_HEALTH : BNS_WEAPON;
-	int wpn = GetRandomInt(cGameScript.GetNumWeapons()-1);
+	int wpn = GetRandomInt(cGameScript->GetNumWeapons()-1);
 
 
 	// Find a free bonus spot
@@ -356,13 +356,13 @@ void GameServer::SpawnBonus(void)
     // Check if the weapon chosen is enabled or a 'bonus' weapon in the restrictions
     int orig = wpn;
     while(1) {
-        int state = cWeaponRestrictions.getWeaponState( (cGameScript.GetWeapons()+wpn)->Name );
+        int state = cWeaponRestrictions.getWeaponState( (cGameScript->GetWeapons()+wpn)->Name );
 
         if( state != wpr_banned )
             break;
 
         wpn++;
-        if( wpn >= cGameScript.GetNumWeapons())
+        if( wpn >= cGameScript->GetNumWeapons())
             wpn=0;
 
         // No good weapons? Just leave with original choice
@@ -371,7 +371,7 @@ void GameServer::SpawnBonus(void)
     }
 
 
-	b->Spawn(pos, type, wpn, &cGameScript);
+	b->Spawn(pos, type, wpn, cGameScript);
 
 
 	// Send the spawn the everyone

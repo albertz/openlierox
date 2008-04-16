@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include "Color.h"
+#include "Cache.h"
 
 
 //
@@ -188,7 +189,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //////////////////
 // Load an image
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
+CachedDataPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha = false);
 
 /////////////////
 // Loads an image and quits with error if could not load
@@ -202,7 +203,7 @@ SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
 /////////////////////
 // Load an image, without alpha channel
-inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
+inline bool Load_Image(CachedDataPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -213,7 +214,7 @@ inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
 
 ////////////////////
 // Load an image with alpha channel
-inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
+inline bool Load_Image_WithAlpha(CachedDataPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name, true);
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -285,12 +286,12 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftw
 
 ////////////////////
 // Destroys a surface
-inline void gfxFreeSurface(SDL_Surface *& surf)  {
+inline void gfxFreeSurface(SDL_Surface *surf)  {
 	if (surf == NULL)
 		return;
 
 	SDL_FreeSurface(surf);
-	surf = NULL;
+	//surf = NULL; // That's a hack that won't fix anything
 }
 
 

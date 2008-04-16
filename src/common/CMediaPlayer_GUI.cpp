@@ -377,6 +377,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	// Restore and free the buffer
 	DrawImage(Screen,bmpBuffer,0,0);
 	gfxFreeSurface(bmpBuffer);
+	bmpBuffer = NULL;
 
 	// Free the GUI
 	cOpenGui.Shutdown();

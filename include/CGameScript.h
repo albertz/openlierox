@@ -148,7 +148,7 @@ class weapon_t { public:
 	gs_special_t tSpecial;
 
 #ifndef _CONSOLE
-	SoundSample*	smpSample;
+	CachedDataPointer<SoundSample> smpSample;
 #endif
 
 };
@@ -200,7 +200,7 @@ private:
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
-	void		CopyFrom(CGameScript *cg);
+	//void		CopyFrom(CGameScript *cg);	// Not needed with new cache system
 
 public:
 	// Methods
@@ -225,8 +225,8 @@ public:
     void        modLog(const std::string& text);
 
 #ifndef _CONSOLE
-	SDL_Surface* LoadGSImage(const std::string& dir, const std::string& filename);
-	SoundSample* LoadGSSample(const std::string& dir, const std::string& filename);
+	CachedDataPointer<SDL_Surface> LoadGSImage(const std::string& dir, const std::string& filename);
+	CachedDataPointer<SoundSample> LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
 

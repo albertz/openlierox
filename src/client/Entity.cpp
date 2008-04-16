@@ -71,7 +71,7 @@ void ClearEntities(void)
 
 ///////////////////
 // Spawn an entity
-void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Surface *img)
+void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, CachedDataPointer<SDL_Surface> img)
 {
 	entity_t *ent = tEntities;
 

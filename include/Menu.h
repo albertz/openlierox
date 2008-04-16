@@ -197,39 +197,39 @@ class frontendinfo_t { public:
 class menu_t { public:
 
 	// Graphics
-	//SDL_Surface		*bmpMainBack;
-    //SDL_Surface		*bmpMainBack_lg;
-    SDL_Surface		*bmpMainBack_wob;
-	SDL_Surface		*bmpMainBack_common;
+	//CachedDataPointer<SDL_Surface> bmpMainBack;
+    //CachedDataPointer<SDL_Surface> bmpMainBack_lg;
+    CachedDataPointer<SDL_Surface> bmpMainBack_wob;
+	CachedDataPointer<SDL_Surface> bmpMainBack_common;
 	SDL_Surface		*bmpBuffer;
 	SDL_Surface		*bmpScreen;
 	SDL_Surface		*bmpMsgBuffer;
     SDL_Surface     *bmpMiniMapBuffer;
 
-	SDL_Surface		*bmpLieroXtreme;
-	SDL_Surface		*bmpMainTitles;
-	SDL_Surface		*bmpTitles;
-	SDL_Surface		*bmpSubTitles;
-	SDL_Surface		*bmpButtons;
-	SDL_Surface		*bmpCheckbox;
-	SDL_Surface		*bmpInputbox;
+	CachedDataPointer<SDL_Surface> bmpLieroXtreme;
+	CachedDataPointer<SDL_Surface> bmpMainTitles;
+	CachedDataPointer<SDL_Surface> bmpTitles;
+	CachedDataPointer<SDL_Surface> bmpSubTitles;
+	CachedDataPointer<SDL_Surface> bmpButtons;
+	CachedDataPointer<SDL_Surface> bmpCheckbox;
+	CachedDataPointer<SDL_Surface> bmpInputbox;
 
-	SDL_Surface		*bmpMainLocal;
-	SDL_Surface		*bmpMainNet;
-	SDL_Surface		*bmpLobbyReady;
-	SDL_Surface		*bmpLobbyNotReady;
-	SDL_Surface		*bmpHost;
-	SDL_Surface		*bmpConnectionSpeeds[4];
-	SDL_Surface		*bmpSpeech;
-    SDL_Surface     *bmpHandicap;
+	CachedDataPointer<SDL_Surface> bmpMainLocal;
+	CachedDataPointer<SDL_Surface> bmpMainNet;
+	CachedDataPointer<SDL_Surface> bmpLobbyReady;
+	CachedDataPointer<SDL_Surface> bmpLobbyNotReady;
+	CachedDataPointer<SDL_Surface> bmpHost;
+	CachedDataPointer<SDL_Surface> bmpConnectionSpeeds[4];
+	CachedDataPointer<SDL_Surface> bmpSpeech;
+    CachedDataPointer<SDL_Surface> bmpHandicap;
 
-	SDL_Surface		*bmpTriangleUp;
-	SDL_Surface		*bmpTriangleDown;
+	CachedDataPointer<SDL_Surface> bmpTriangleUp;
+	CachedDataPointer<SDL_Surface> bmpTriangleDown;
 
-	SDL_Surface		*bmpAI;
-	SDL_Surface		*bmpWorm;
+	CachedDataPointer<SDL_Surface> bmpAI;
+	CachedDataPointer<SDL_Surface> bmpWorm;
 
-	SDL_Surface		*bmpMapEdTool;
+	CachedDataPointer<SDL_Surface> bmpMapEdTool;
 
 	// Other
 	bool			bMenuRunning;

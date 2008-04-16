@@ -905,7 +905,7 @@ int CCombobox::getIndexBySIndex(const std::string& szString) {
 
 ///////////////////
 // Set the image for the specified item
-void CCombobox::setImage(SDL_Surface *img, int ItemIndex)
+void CCombobox::setImage(CachedDataPointer<SDL_Surface> img, int ItemIndex)
 {
 	cb_item_t* item = getItemRW(ItemIndex);
 	if(item) item->tImage = img;

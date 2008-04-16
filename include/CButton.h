@@ -49,7 +49,7 @@ public:
 		iHeight = 18;
 	}
 
-	CButton(int imgid, SDL_Surface *image) {
+	CButton(int imgid, CachedDataPointer<SDL_Surface> image) {
 		iImageID = imgid;
 		bmpImage = image;
 		bMouseOver = false;
@@ -77,7 +77,7 @@ private:
 
 	bool		bMouseOver;
 	bool		bMouseDown;
-	SDL_Surface	*bmpImage;
+	CachedDataPointer<SDL_Surface> bmpImage;
 	int			iImageID;
     int         iGoodWidth;
 	int			iButtonType;

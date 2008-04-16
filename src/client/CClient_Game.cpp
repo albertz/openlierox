@@ -929,12 +929,12 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 	}
 
 	// Weird
-	if (!cGameScript.GetWeapons()) {
+	if (!cGameScript->GetWeapons()) {
 		printf("WARNING: weapons not loaded while a client was shooting\n");
 		return;
 	}
 
-	const weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = cGameScript->GetWeapons() + shot->nWeapon;
 
 	// Safety check
 	if (wpn->ID < 0)  {
@@ -1019,7 +1019,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 void CClient::ProcessShot_Beam(shoot_t *shot)
 {
 	CWorm *w = &cRemoteWorms[shot->nWormID];
-	const weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = cGameScript->GetWeapons() + shot->nWeapon;
 
 	// Trace a line from the worm to length or until it hits something
 	CVec dir;

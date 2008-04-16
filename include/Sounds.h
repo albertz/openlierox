@@ -67,17 +67,17 @@ struct SoundMusic {
 
 // General sounds
 typedef struct {
-	SoundSample*		smpClick;
-	SoundSample*		smpChat;
+	CachedDataPointer<SoundSample> smpClick;
+	CachedDataPointer<SoundSample> smpChat;
 } sfxgen_t;
 
 
 // Game sounds
 typedef struct {
-	SoundSample*		smpNinja;
-	SoundSample*		smpPickup;
-	SoundSample*		smpBump;
-	SoundSample*		smpDeath[3];
+	CachedDataPointer<SoundSample> smpNinja;
+	CachedDataPointer<SoundSample> smpPickup;
+	CachedDataPointer<SoundSample> smpBump;
+	CachedDataPointer<SoundSample> smpDeath[3];
 } sfxgame_t;
 
 // ID3 tag format
@@ -93,7 +93,7 @@ typedef struct id3v1_s {
 } id3v1_t;
 
 
-SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
+CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying);
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);
@@ -102,7 +102,7 @@ bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
 int		GetSoundVolume(void);
 bool	QuitSoundSystem();
-SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays);
+//SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays); // Not cached - used internally only
 bool	FreeSoundSample(SoundSample* sample);
 bool	PlaySoundSample(SoundSample* sample);
 

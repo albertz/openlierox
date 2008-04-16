@@ -169,7 +169,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		cLocalWorms[i] = &cRemoteWorms[id];
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
-		cLocalWorms[i]->setGameScript(&cGameScript); // TODO: why was this commented out?
+		cLocalWorms[i]->setGameScript(cGameScript); // TODO: why was this commented out?
 		//cLocalWorms[i]->setLoadingTime(fLoadingTime);  // TODO: why is this commented out?
 		cLocalWorms[i]->setProfile(tProfiles[i]);
 		cLocalWorms[i]->setTeam(tProfiles[i]->iTeam);
@@ -575,27 +575,32 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
-	int result = cGameScript.Load(sModName);
+	cGameScript = cCache.GetMod( sModName );
+	if( cGameScript == NULL )
+	{
+		CGameScript* gs = new CGameScript();
+		int result = gs->Load(sModName);
+		cGameScript = cCache.SaveMod( sModName, gs );
+		if(result != GSE_OK) {
 
-	if(result != GSE_OK) {
+			// Show any error messages
+			FillSurface(tMenu->bmpBuffer, tLX->clBlack);
+			std::string err("Error load game mod: ");
+			err += sModName + "\r\nError code: " + itoa(result);
+			Menu_MessageBox("Loading Error", err, LMB_OK);
+			bClientError = true;
 
-		// Show any error messages
-		FillSurface(tMenu->bmpBuffer, tLX->clBlack);
-		std::string err("Error load game mod: ");
-		err += sModName + "\r\nError code: " + itoa(result);
-		Menu_MessageBox("Loading Error", err, LMB_OK);
-        bClientError = true;
+			// Go back to the menu
+			GotoNetMenu();
+			bGameReady = false;
 
-		// Go back to the menu
-		GotoNetMenu();
-		bGameReady = false;
-
-		printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
-        return false;
-	}
+			printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
+    	    return false;
+		};
+	};
 
     // Read the weapon restrictions
-    cWeaponRestrictions.updateList(&cGameScript);
+    cWeaponRestrictions.updateList(cGameScript);
     cWeaponRestrictions.readList(bs);
 
 
@@ -646,7 +651,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Initialize the worms weapon selection menu & other stuff
 	ushort i;
 	for(i=0;i<iNumWorms;i++) {
-		cLocalWorms[i]->setGameScript(&cGameScript);
+		cLocalWorms[i]->setGameScript(cGameScript);
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
 		cLocalWorms[i]->Prepare(cMap);
 
@@ -669,7 +674,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			w->setLives(iLives);
             w->setKills(0);
 			w->setHealth(100);
-			w->setGameScript(&cGameScript);
+			w->setGameScript(cGameScript);
             w->setWpnRest(&cWeaponRestrictions);
 			w->setLoadingTime(fLoadingTime);
 
@@ -1044,7 +1049,7 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 
 	CVec p = CVec( (float)x, (float)y );
 
-	cBonuses[id].Spawn(p, type, wpn, &cGameScript);
+	cBonuses[id].Spawn(p, type, wpn, cGameScript);
 	cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);

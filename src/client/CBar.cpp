@@ -22,7 +22,7 @@
 
 //////////////
 // Constructor
-CBar::CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states, int num_bg_states)  {
+CBar::CBar(CachedDataPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states, int num_bg_states)  {
 	bmpBar = bmp;
 	X = x;
 	Y = y;

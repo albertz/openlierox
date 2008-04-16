@@ -304,12 +304,15 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 // Load the game script from a file (game)
 int CGameScript::Load(const std::string& dir)
 {
+	// Already cached externally
+	/*
 	// Try cache first
 	CGameScript *cached = cCache.GetMod(dir);
 	if (cached != NULL)  {
 		CopyFrom(cached);
 		return GSE_OK;
 	}
+	*/
 	
 	FILE *fp;
 	int n;	
@@ -480,9 +483,9 @@ int CGameScript::Load(const std::string& dir)
 
 	fclose(fp);
 
+	// Already cached externally
 	// Save to cache
-	cCache.SaveMod(dir, this);
-
+	//cCache.SaveMod(dir, this);
 
 	return GSE_OK;
 }
@@ -741,9 +744,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 ///////////////////
 // Load an image
-SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
+CachedDataPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
-	SDL_Surface *img = NULL;
+	CachedDataPointer<SDL_Surface> img = NULL;
 
 	// First, check the gfx directory in the mod dir
 	img = LoadImage(dir + "/gfx/" + filename, true);	
@@ -761,9 +764,9 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 
 ///////////////////
 // Load a sample
-SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
+CachedDataPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
-	SoundSample* smp = NULL;
+	CachedDataPointer<SoundSample> smp = NULL;
 
 	// First, check the sfx directory in the mod dir
 	smp = LoadSample(dir + "/sfx/" + filename, 10);
@@ -982,6 +985,8 @@ void CGameScript::modLog(const std::string& text)
 		fprintf(pModLog,"%s\n", text.c_str());
 }
 
+// Not needed with new caching system - game script won't ever change it's state during game
+/*
 ///////////////////
 // Copies infor from anothe gamescript
 void CGameScript::CopyFrom(CGameScript *cg)
@@ -999,3 +1004,4 @@ void CGameScript::CopyFrom(CGameScript *cg)
 	RestLength = cg->RestLength;
 	Strength = cg->Strength;
 }
+*/

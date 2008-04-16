@@ -65,7 +65,7 @@ class console_t { public:
 	int			iBlinkState; // 1 - displayed, 0 - hidden
 	float		fBlinkTime;  
 
-    SDL_Surface *bmpConPic;
+    CachedDataPointer<SDL_Surface> bmpConPic;
 
 };
 

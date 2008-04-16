@@ -885,8 +885,8 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 
 	// Setup according to top and bottom interface bars
-	SDL_Surface *topbar = NULL;
-	SDL_Surface *bottombar = NULL;
+	CachedDataPointer<SDL_Surface> topbar = NULL;
+	CachedDataPointer<SDL_Surface> bottombar = NULL;
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		bottombar = gfxGame.bmpGameLocalBackground;
 		topbar = gfxGame.bmpGameLocalTopBar;
@@ -999,7 +999,7 @@ void CClient::GetLogData(std::string& data)
 	levelfile = tGameInfo.sMapFile;
 	modfile = tGameInfo.sModDir;
 	level = cMap->getName();
-	mod = cGameScript.GetHeader()->ModName;
+	mod = cGameScript->GetHeader()->ModName;
 	xmlEntities(levelfile);
 	xmlEntities(modfile);
 	xmlEntities(level);

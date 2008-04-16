@@ -47,7 +47,7 @@ public:
 
 private:
     // Attributes
-	SDL_Surface	*tAnimation;
+	CachedDataPointer<SDL_Surface> tAnimation;
 	std::string	sPath;
 	std::vector<int> tFrameOffsets;
 	std::vector<int> tFrameWidths;
@@ -65,7 +65,7 @@ public:
 	void			Parse();
 
 	std::string		getPath(void)		{ return sPath; }
-	SDL_Surface		*getSurface(void)	{ return tAnimation; }
+	CachedDataPointer<SDL_Surface> getSurface(void)	{ return tAnimation; }
 	float			getFrameTime()		{ return fFrameTime; }
 	void			setFrameTime(float t) { fFrameTime = t; }
 	void			Change(const std::string& Path, float frametime);

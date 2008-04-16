@@ -126,8 +126,8 @@ class proj_t { public:
 
 
 #ifndef _CONSOLE
-	SDL_Surface*	bmpImage;
-	SoundSample*	smpSample;
+	CachedDataPointer<SDL_Surface> bmpImage;
+	CachedDataPointer<SoundSample> smpSample;
 #endif
 
 

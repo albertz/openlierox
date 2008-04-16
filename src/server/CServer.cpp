@@ -347,15 +347,24 @@ int GameServer::StartGame()
 
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
-	if(!cGameScript.Load(tGameInfo.sModDir)) {
-		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
+
+	cGameScript = cCache.GetMod( tGameInfo.sModDir );
+	if( cGameScript == NULL )
+	{
+		CGameScript* gs = new CGameScript();
+		int result = gs->Load( tGameInfo.sModDir );
+		cGameScript = cCache.SaveMod( tGameInfo.sModDir, gs );
+
+		if(result != GSE_OK) {
+		printf("Error: Could not load the '%s' game script\n", tGameInfo.sModDir.c_str());
 		return false;
+		};
 	}
 	printf("Mod loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
 
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList(sWeaponRestFile);
-    cWeaponRestrictions.updateList(&cGameScript);
+    cWeaponRestrictions.updateList(cGameScript);
 
 	// Setup the flags
 	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2;
@@ -388,7 +397,7 @@ int GameServer::StartGame()
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);
-			cWorms[i].setGameScript(&cGameScript);
+			cWorms[i].setGameScript(cGameScript);
             cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)iLoadingTimes / 100.0f );
 			cWorms[i].setKillsInRow(0);
@@ -464,7 +473,7 @@ int GameServer::StartGame()
 		bs.writeInt16(iTagLimit);
 	bs.writeString(tGameInfo.sModDir);
 
-    cWeaponRestrictions.sendList(&bs, &cGameScript);
+    cWeaponRestrictions.sendList(&bs, cGameScript);
 
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients

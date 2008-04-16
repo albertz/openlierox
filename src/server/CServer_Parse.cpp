@@ -787,7 +787,7 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 					if (curwpn >= 0 && curwpn < 5) {
 
 						wpnslot_t *wpn = w->getWeapon(curwpn);
-						wpn->Weapon = cGameScript.GetWeapons() + b->getWeapon();
+						wpn->Weapon = cGameScript->GetWeapons() + b->getWeapon();
 						wpn->Charge = 1;
 						wpn->Reloading = false;
 					}

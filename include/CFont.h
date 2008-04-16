@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "Unicode.h"
+#include "Cache.h"
 
 
 #define FIRST_CHARACTER 32 // space
@@ -42,7 +43,7 @@ public:
 private:
 	// Attributes
 
-	SDL_Surface						*bmpFont;
+	CachedDataPointer<SDL_Surface>	bmpFont;
 	bool							Colorize;
 	std::vector<int>				FontWidth;
 	std::vector<int>				CharacterOffset;

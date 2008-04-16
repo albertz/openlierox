@@ -61,7 +61,7 @@ void CImage::Change(const std::string& Path)
 	iHeight = tImage->h;
 }
 
-void CImage::Change(SDL_Surface *bmpImg)
+void CImage::Change(CachedDataPointer<SDL_Surface> bmpImg)
 {
 	// Just re-setup the image-related variables
 	sPath = "";

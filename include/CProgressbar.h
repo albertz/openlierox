@@ -25,7 +25,7 @@ public:
 	CProgressBar() {}
 
 	// Constructor
-	CProgressBar(SDL_Surface *bmp, int label_x, int label_y, bool label_visible, int numstates) {
+	CProgressBar( CachedDataPointer<SDL_Surface> bmp, int label_x, int label_y, bool label_visible, int numstates) {
 		cProgressBar = CBar(bmp, 0, 0, label_x, label_y, BAR_LEFTTORIGHT, numstates);
 		cProgressBar.SetLabelVisible(label_visible);
 		bRedrawMenu = true;

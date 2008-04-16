@@ -1247,13 +1247,14 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
+CachedDataPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha)
 {
 	// Try cache first
-	SDL_Surface* Image = cCache.GetImage(_filename);
-	if (Image)
-		return Image;
+	CachedDataPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);
+	if( ImageCache )
+		return ImageCache;
 
+	SDL_Surface * Image;
 	// Load the image
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
@@ -1300,9 +1301,7 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 	}
 
 	// Save to cache
-	cCache.SaveImage(_filename, Image);
-	
-	return Image;
+	return cCache.SaveImage(_filename, Image);
 }
 
 #ifndef DEDICATED_ONLY 

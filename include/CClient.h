@@ -303,7 +303,7 @@ private:
 	frame_t		tFrames[NUM_FRAMES];
 
 	// Game
-	CGameScript	cGameScript;
+	CachedDataPointer<CGameScript> cGameScript;
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;
@@ -333,8 +333,8 @@ private:
 	CBar		*cWeaponBar1;
 	CBar		*cWeaponBar2;
 	SDL_Surface *bmpBoxBuffer;
-	SDL_Surface *bmpBoxLeft;
-	SDL_Surface *bmpBoxRight;
+	CachedDataPointer<SDL_Surface> bmpBoxLeft;
+	CachedDataPointer<SDL_Surface> bmpBoxRight;
 	CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;

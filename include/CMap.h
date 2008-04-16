@@ -68,14 +68,14 @@ class CWorm;
 class theme_t { public:
 	std::string	name;
 	Uint32		iDefaultColour;
-	SDL_Surface	*bmpFronttile;
-	SDL_Surface	*bmpBacktile;
+	CachedDataPointer<SDL_Surface> bmpFronttile;
+	CachedDataPointer<SDL_Surface> bmpBacktile;
 
 	int			NumStones;
-	SDL_Surface	*bmpStones[16];
-	SDL_Surface	*bmpHoles[16];
+	CachedDataPointer<SDL_Surface> bmpStones[16];
+	CachedDataPointer<SDL_Surface> bmpHoles[16];
 	int			NumMisc;
-	SDL_Surface	*bmpMisc[32];
+	CachedDataPointer<SDL_Surface> bmpMisc[32];
 
 };
 
@@ -146,7 +146,7 @@ private:
 	SDL_Surface	*bmpDrawImage;
 	SDL_Surface	*bmpBackImage;    
 	SDL_Surface	*bmpMiniMap;
-    SDL_Surface *bmpGreenMask;
+    CachedDataPointer<SDL_Surface> bmpGreenMask;
 	uchar		*PixelFlags;  
     SDL_Surface *bmpShadowMap;
 #ifdef _AI_DEBUG

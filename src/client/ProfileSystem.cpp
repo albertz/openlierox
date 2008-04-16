@@ -530,7 +530,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 
     // Load the skin
     buf = "skins/"; buf += szSkin;
-    SDL_Surface *worm = LoadImage(buf, true);
+    CachedDataPointer<SDL_Surface> worm = LoadImage(buf, true);
     if( !worm ) {
         // If we can't load the skin, try the default skin
         worm = LoadImage("skins/default.png", true);

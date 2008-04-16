@@ -60,7 +60,7 @@ sfxgen_t	sfxGeneral;
 
 ///////////////////
 // Load a sample
-SoundSample* LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
+CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
 
 bool InitSoundSystem(int rate, int channels, int buffers) { return false; }
 bool StartSoundSystem() { return false; }
@@ -68,7 +68,7 @@ bool StopSoundSystem() { return false; }
 bool SetSoundVolume(int vol) { return false; }
 int GetSoundVolume(void) { return 0; }
 bool QuitSoundSystem() { return false; }
-SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
+CachedDataPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
 bool FreeSoundSample(SoundSample* sample) { return false; }
 bool PlaySoundSample(SoundSample* sample) { return false; }
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
@@ -105,13 +105,17 @@ byte GetMusicVolume(void) { return 0; }
 #else //DEDICATED_ONLY
 
 ///////////////////
-// Load a sample
-SoundSample* LoadSample(const std::string& _filename, int maxplaying)
+// Load a sample and cache it
+SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays);
+
+CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying)
 {
 	// Try cache first
-	SoundSample *Sample = cCache.GetSound(_filename);
-	if (Sample)
-		return Sample;
+	CachedDataPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
+	if (SampleCached)
+		return SampleCached;
+		
+	SoundSample *Sample;
 
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
@@ -119,11 +123,11 @@ SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 	
 	// Load the sample
 	Sample = LoadSoundSample(fullfname, maxplaying);
+	if( Sample == NULL )
+		return NULL;
 	
 	// Save to cache
-	cCache.SaveSound(_filename, Sample);
-
-	return Sample;
+	return cCache.SaveSound(_filename, Sample);
 }
 
 
@@ -233,7 +237,7 @@ bool QuitSoundSystem() {
 	return true;
 }
 
-SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
+SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(!SoundSystemAvailable) return NULL;
 
 	if(filename.size() > 0) {

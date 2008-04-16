@@ -35,7 +35,7 @@ enum {
 class CTitleButton : public CWidget {
 public:
 	// Constructor
-	CTitleButton(int imgid, SDL_Surface *image) {
+	CTitleButton(int imgid, CachedDataPointer<SDL_Surface> image) {
 		iImageID = imgid;
 		bmpImage = image;
 		bMouseOver = false;
@@ -47,7 +47,7 @@ private:
 
 	bool		bMouseOver;
 	int			iImageID;
-	SDL_Surface *bmpImage;
+	CachedDataPointer<SDL_Surface> bmpImage;
 	CGuiSkin::CallbackHandler cClick;
 
 public:

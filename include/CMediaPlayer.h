@@ -101,22 +101,22 @@ class player_gfx_t { public:
 		bmpProgressEnd = NULL;	
 	}
 	
-	SDL_Surface *bmpBackground;
-	SDL_Surface *bmpHide;
-	SDL_Surface *bmpWindow;
-	SDL_Surface *bmpPlay;
-	SDL_Surface *bmpPause;
-	SDL_Surface *bmpStop;
-	SDL_Surface *bmpNext;
-	SDL_Surface *bmpPrevious;
-	SDL_Surface *bmpSelectDir;
-	SDL_Surface *bmpRepeat;
-	SDL_Surface *bmpShuffle;
-	SDL_Surface *bmpMusicVolume;
-	SDL_Surface *bmpGameVolume;
-	SDL_Surface *bmpProgress;
-	SDL_Surface *bmpProgressStart;
-	SDL_Surface *bmpProgressEnd;
+	CachedDataPointer<SDL_Surface> bmpBackground;
+	CachedDataPointer<SDL_Surface> bmpHide;
+	CachedDataPointer<SDL_Surface> bmpWindow;
+	CachedDataPointer<SDL_Surface> bmpPlay;
+	CachedDataPointer<SDL_Surface> bmpPause;
+	CachedDataPointer<SDL_Surface> bmpStop;
+	CachedDataPointer<SDL_Surface> bmpNext;
+	CachedDataPointer<SDL_Surface> bmpPrevious;
+	CachedDataPointer<SDL_Surface> bmpSelectDir;
+	CachedDataPointer<SDL_Surface> bmpRepeat;
+	CachedDataPointer<SDL_Surface> bmpShuffle;
+	CachedDataPointer<SDL_Surface> bmpMusicVolume;
+	CachedDataPointer<SDL_Surface> bmpGameVolume;
+	CachedDataPointer<SDL_Surface> bmpProgress;
+	CachedDataPointer<SDL_Surface> bmpProgressStart;
+	CachedDataPointer<SDL_Surface> bmpProgressEnd;
 };
 
 // Widget ids

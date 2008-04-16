@@ -46,7 +46,7 @@ public:
 	CCursor(const std::string& filename, int type);
 	~CCursor();
 private:
-	SDL_Surface		*bmpCursor;
+	CachedDataPointer<SDL_Surface> bmpCursor;
 	CCursor			*cDown;
 	CCursor			*cUp;
 	int				iFrame;

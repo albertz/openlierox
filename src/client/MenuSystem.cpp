@@ -104,7 +104,7 @@ bool Menu_Initialize(bool *game)
 		return false;
     }
 
-	SDL_Surface *lobby_state = NULL;
+	CachedDataPointer<SDL_Surface> lobby_state = NULL;
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpSubTitles,"data/frontend/subtitles.png");

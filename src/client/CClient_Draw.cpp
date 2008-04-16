@@ -41,7 +41,7 @@
 
 using namespace std;
 
-SDL_Surface		*bmpMenuButtons = NULL;
+CachedDataPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
 
 
@@ -56,7 +56,7 @@ bool CClient::InitializeDrawing(void)
 	bmpBoxRight = LoadImage("data/frontend/box_right.png",true);
 
 	// Initialize the box buffer
-	SDL_Surface *box_middle = LoadImage("data/frontend/box_middle.png",true);
+	CachedDataPointer<SDL_Surface> box_middle = LoadImage("data/frontend/box_middle.png",true);
 	if (box_middle)  { // Doesn't have to exist
 		// Tile the buffer with the middle box part
 		bmpBoxBuffer = gfxCreateSurface(640,box_middle->h);

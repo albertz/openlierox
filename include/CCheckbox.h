@@ -56,7 +56,7 @@ public:
 private:
 	// Attributes
 	bool		bValue;
-	SDL_Surface	*bmpImage;
+	CachedDataPointer<SDL_Surface> bmpImage;
 	bool		*bVar;
 	int			*iVar;
 	CGuiSkin::CallbackHandler cClick;
