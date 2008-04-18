@@ -21,7 +21,7 @@
 
 ///////////////////
 // Draw the title button
-void CTitleButton::Draw(SDL_Surface *bmpDest)
+void CTitleButton::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (bRedrawMenu)
 		Menu_redrawBufferRect(iX,iY, bmpImage->w,39);

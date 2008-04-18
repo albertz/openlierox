@@ -145,7 +145,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	if (bLoadCancelled)
 		return false;
 
-	SDL_Surface *screen = SDL_GetVideoSurface();
+	SmartPointer<SDL_Surface> screen = GetVideoSurface();
 	if (!screen) return false;
 
 	ProcessEvents();
@@ -654,7 +654,7 @@ bool CMediaPlayer::InitializeGfx(void)
 
 ///////////////////////
 // Draws the player to the destination surface
-void CMediaPlayer::Draw(SDL_Surface *bmpDest)
+void CMediaPlayer::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Can't draw
 	if (!bGfxInitialized || !bDrawPlayer)
@@ -744,8 +744,8 @@ void CMediaPlayer::SetX(int x)
 	iX = x;
 
 	// Screen clipping
-	if (iX + GetWidth() >= SDL_GetVideoSurface()->w)
-		iX = SDL_GetVideoSurface()->w - GetWidth() - 1;
+	if (iX + GetWidth() >= GetVideoSurface()->w)
+		iX = GetVideoSurface()->w - GetWidth() - 1;
 	else if (iX < 0)
 		iX = 0;
 
@@ -759,8 +759,8 @@ void CMediaPlayer::SetY(int y)
 	iY = y;
 
 	// Screen clipping
-	if (iY + GetHeight() >= SDL_GetVideoSurface()->h)
-		iY = SDL_GetVideoSurface()->h - GetHeight() - 1;
+	if (iY + GetHeight() >= GetVideoSurface()->h)
+		iY = GetVideoSurface()->h - GetHeight() - 1;
 	else if (iY < 0)
 		iY = 0;
 

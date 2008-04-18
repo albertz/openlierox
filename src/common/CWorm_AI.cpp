@@ -37,7 +37,7 @@
 
 // we need it here for some debugging...
 // we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
-extern	SDL_Surface		*Screen;
+extern	SmartPointer<SDL_Surface> Screen;
 
 // used by searchpath algo
 static const unsigned short wormsize = 7;
@@ -964,8 +964,8 @@ void CWorm::AI_Shutdown(void)
 #ifdef _AI_DEBUG
 class debug_print_col {
 public:
-	SDL_Surface *bmpDest;
-	debug_print_col(SDL_Surface* dest=NULL) : bmpDest(dest) {}
+	SmartPointer<SDL_Surface> bmpDest;
+	debug_print_col(const SmartPointer<SDL_Surface> & dest=NULL) : bmpDest(dest) {}
 
 	bool operator()(int x, int y) const {
 		if(!bmpDest)
@@ -2343,9 +2343,9 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		}
 
 		ProcessEvents();
-		FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
-		DrawImage(SDL_GetVideoSurface(), pcMap->GetDebugImage(), 0, 0);
-		SDL_Flip(SDL_GetVideoSurface());
+		FillSurface(GetVideoSurface(), tLX->clBlack);
+		DrawImage(GetVideoSurface(), pcMap->GetDebugImage(), 0, 0);
+		SDL_Flip(GetVideoSurface());
 		SDL_Delay(50);
 	}*/
 
@@ -3748,7 +3748,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 	*/
 
 #ifdef _AI_DEBUG
-	//SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	//SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
 #endif
 
 	unsigned short i = 0;
@@ -3839,7 +3839,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction = -1)
 {
 #ifdef _AI_DEBUG
-//	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+//	SmartPointer<SDL_Surface> & bmpDest = pcMap->GetDebugImage();
 #endif
 
 	NormalizeVector(&vDirection);
@@ -3973,7 +3973,7 @@ void CWorm::NEW_AI_DrawPath()
 	if (!NEW_psPath)
 		return;
 
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
 	if (!bmpDest)
 		return;
 
@@ -4813,7 +4813,7 @@ find_one_visible_node:
 
 }
 
-void drawpoint(SDL_Surface *debug_surf, CVec point)
+void drawpoint(const SmartPointer<SDL_Surface> & debug_surf, CVec point)
 {
 	DrawRectFill(debug_surf, (int)point.x * 2, (int)point.y * 2, (int)point.x * 2 + 4, (int)point.y * 2 + 4, MakeColour(0, 255, 0));
 }

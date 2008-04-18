@@ -68,7 +68,7 @@ public:
 
 	void		Clear();
 
-	void		Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos);
+	void		Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, CVec ppos);
 	void		Shoot(CVec pos, CVec dir);
 
 	CVec		GetForce(CVec playerpos);

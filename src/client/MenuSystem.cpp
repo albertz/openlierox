@@ -104,7 +104,7 @@ bool Menu_Initialize(bool *game)
 		return false;
     }
 
-	CachedDataPointer<SDL_Surface> lobby_state = NULL;
+	SmartPointer<SDL_Surface> lobby_state = NULL;
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpSubTitles,"data/frontend/subtitles.png");
@@ -138,7 +138,7 @@ bool Menu_Initialize(bool *game)
 
 
     tMenu->bmpWorm = NULL;
-	tMenu->bmpScreen = SDL_GetVideoSurface();
+	tMenu->bmpScreen = GetVideoSurface();
 
 
 	// HACK: open an unreliable foo socket
@@ -231,17 +231,6 @@ void Menu_Shutdown(void)
 				break;
 		}
 
-		// Manually free some items
-		gfxFreeSurface(tMenu->bmpBuffer);
-
-		gfxFreeSurface(tMenu->bmpMsgBuffer);
-
-        gfxFreeSurface(tMenu->bmpMiniMapBuffer);
-
-		gfxFreeSurface(tMenu->bmpLobbyReady);
-
-		gfxFreeSurface(tMenu->bmpLobbyNotReady);
-
 		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_LAN]);
@@ -278,7 +267,7 @@ void Menu_Start(void)
 {
 	tMenu->bMenuRunning = true;
 	// User can switch video mode while playing
-	tMenu->bmpScreen = SDL_GetVideoSurface();
+	tMenu->bmpScreen = GetVideoSurface();
 
 	if(!bDedicated) {
 		if(!iSkipStart) {
@@ -425,7 +414,7 @@ void Menu_RedrawMouse(int total)
 
 ///////////////////
 // Draw a sub title
-void Menu_DrawSubTitle(SDL_Surface *bmpDest, int id)
+void Menu_DrawSubTitle(const SmartPointer<SDL_Surface> & bmpDest, int id)
 {
 	int x = tMenu->bmpScreen->w/2;
 	x -= tMenu->bmpSubTitles->w/2;
@@ -436,7 +425,7 @@ void Menu_DrawSubTitle(SDL_Surface *bmpDest, int id)
 
 ///////////////////
 // Draw a sub title advanced
-void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
+void Menu_DrawSubTitleAdv(const SmartPointer<SDL_Surface> & bmpDest, int id, int y)
 {
 	int x = tMenu->bmpScreen->w/2;
 	x -= tMenu->bmpSubTitles->w/2;
@@ -497,7 +486,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 
 ////////////////
 // Draws advanced box
-void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
+void Menu_DrawBoxAdv(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
 {
 	// First draw the background
 	if (BgColour != tLX->clPink)
@@ -539,7 +528,7 @@ void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 
 ///////////////////
 // Draw a box
-void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
+void Menu_DrawBox(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2)
 {
     Uint32 dark = tLX->clBoxDark;
     Uint32 light = tLX->clBoxLight;
@@ -563,7 +552,7 @@ void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 
 ///////////////////
 // Draw an inset box
-void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
+void Menu_DrawBoxInset(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2)
 {
 	// Clipping
 	if (x < 0) { x2 += x; x = 0; }
@@ -592,7 +581,7 @@ void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 
 ///////////////////
 // Draw a windows style button
-void Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down)
+void Menu_DrawWinButton(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int w, int h, bool down)
 {
     DrawRectFill(bmpDest, x,y, x+w, y+h, tLX->clWinBtnBody);
     Uint32 dark = tLX->clWinBtnDark;

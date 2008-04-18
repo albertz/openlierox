@@ -23,7 +23,7 @@
 #include "windows.h"
 #endif //WIN32
 #include "CGuiSkin.h"
-#include "Cache.h"
+#include "SmartPointer.h"
 
 
 // Widget messages
@@ -157,7 +157,7 @@ public:
 	virtual	int		KeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate) = 0;
 
 	virtual	void	LoadStyle(void) = 0;	// Not used anywhere
-	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
+	virtual	void	Draw(const SmartPointer<SDL_Surface> & bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
 	virtual DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) = 0;

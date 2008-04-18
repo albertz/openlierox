@@ -47,7 +47,7 @@ public:
 
 private:
     // Attributes
-	CachedDataPointer<SDL_Surface> tAnimation;
+	SmartPointer<SDL_Surface> tAnimation;
 	std::string	sPath;
 	std::vector<int> tFrameOffsets;
 	std::vector<int> tFrameWidths;
@@ -65,7 +65,7 @@ public:
 	void			Parse();
 
 	std::string		getPath(void)		{ return sPath; }
-	CachedDataPointer<SDL_Surface> getSurface(void)	{ return tAnimation; }
+	SmartPointer<SDL_Surface> getSurface(void)	{ return tAnimation; }
 	float			getFrameTime()		{ return fFrameTime; }
 	void			setFrameTime(float t) { fFrameTime = t; }
 	void			Change(const std::string& Path, float frametime);
@@ -83,7 +83,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 

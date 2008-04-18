@@ -151,7 +151,7 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	int localPlayer, unsigned long randomSeed,
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, SDL_Surface *bmpDest )
+	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest )
 {
 	if( OlxMod_list == NULL )
 		return false;

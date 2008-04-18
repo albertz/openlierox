@@ -59,7 +59,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return CLabel::SendMessage( iMsg, sStr, Param ); }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return CLabel::SendMessage( iMsg, sStr, Param ); }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

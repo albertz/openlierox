@@ -147,8 +147,11 @@ bool Menu_Net_HostInitialize(void)
 			continue;*/
 
 		cHostPly.SendMessage( hs_PlayerList, LVS_ADDITEM, "", p->iID);
-		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
-		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
+		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
+		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
+		CListview * w = (CListview *) cHostPly.getWidget(hs_PlayerList);
+		w->AddSubitem( LVS_IMAGE, "", p->bmpWorm, NULL );
+		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 
 	iHumanPlayers = 0;
@@ -1274,7 +1277,7 @@ void Menu_Net_HostLobbyShutdown(void)
 
 ///////////////////
 // Draw the host lobby screen
-void Menu_HostDrawLobby(SDL_Surface *bmpDest)
+void Menu_HostDrawLobby(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
 	if (!player_list) { // Weird, shouldn't happen

@@ -22,7 +22,7 @@
 
 //////////////
 // Constructor
-CBar::CBar(CachedDataPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states, int num_bg_states)  {
+CBar::CBar(SmartPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states, int num_bg_states)  {
 	bmpBar = bmp;
 	X = x;
 	Y = y;
@@ -43,7 +43,7 @@ CBar::CBar(CachedDataPointer<SDL_Surface> bmp, int x, int y, int label_x, int la
 
 //////////////
 // Draw the bar
-void CBar::Draw(SDL_Surface *dst)  {
+void CBar::Draw(const SmartPointer<SDL_Surface> & dst)  {
 	static std::string progress;
 	progress = itoa(Position) + " %";
 	int pos = CLAMP(Position, 0, 100);

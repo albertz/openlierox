@@ -49,7 +49,7 @@ public:
 		iHeight = 18;
 	}
 
-	CButton(int imgid, CachedDataPointer<SDL_Surface> image) {
+	CButton(int imgid, SmartPointer<SDL_Surface> image) {
 		iImageID = imgid;
 		bmpImage = image;
 		bMouseOver = false;
@@ -77,7 +77,7 @@ private:
 
 	bool		bMouseOver;
 	bool		bMouseDown;
-	CachedDataPointer<SDL_Surface> bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	int			iImageID;
     int         iGoodWidth;
 	int			iButtonType;
@@ -111,8 +111,8 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the button
-	void	Draw(SDL_Surface *bmpDest);
-    void	Draw2(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+    void	Draw2(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 
@@ -151,7 +151,7 @@ public:
 		return iImageID;
 	}
 
-	void setImage(SDL_Surface* theValue) {
+	void setImage(SmartPointer<SDL_Surface> theValue) {
 		bmpImage = theValue;
 		initWidthHeight();
 	}

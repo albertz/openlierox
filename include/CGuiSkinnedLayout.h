@@ -68,7 +68,7 @@ public:
 	void		SetOffset( int x, int y );
 
 	bool		Process(void);	// Called only for main layout -dispatches messages to children, returns false on exit layout
-	void		Draw(SDL_Surface *bmpDest);
+	void		Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void		Shutdown(void);
 

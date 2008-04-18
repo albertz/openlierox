@@ -43,7 +43,7 @@ private:
 	Uint32	iDarkColour;
 	Uint32	iBgColour;
 
-	SDL_Surface *bmpBuffer;
+	SmartPointer<SDL_Surface> bmpBuffer;
 
 
 public:
@@ -79,7 +79,7 @@ public:
 	int		CheckEvent(void);
 
 	void	PreDraw(void);
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void);
 	

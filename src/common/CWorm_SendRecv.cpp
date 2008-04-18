@@ -210,7 +210,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	// atm we only have the debugimage available if _AI_DEBUG is set
 	// this should be changed to DEBUG
 #ifdef _AI_DEBUG
-/*	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+/*	SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
 	if (bmpDest) {
 		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
 		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;

@@ -101,22 +101,22 @@ class player_gfx_t { public:
 		bmpProgressEnd = NULL;	
 	}
 	
-	CachedDataPointer<SDL_Surface> bmpBackground;
-	CachedDataPointer<SDL_Surface> bmpHide;
-	CachedDataPointer<SDL_Surface> bmpWindow;
-	CachedDataPointer<SDL_Surface> bmpPlay;
-	CachedDataPointer<SDL_Surface> bmpPause;
-	CachedDataPointer<SDL_Surface> bmpStop;
-	CachedDataPointer<SDL_Surface> bmpNext;
-	CachedDataPointer<SDL_Surface> bmpPrevious;
-	CachedDataPointer<SDL_Surface> bmpSelectDir;
-	CachedDataPointer<SDL_Surface> bmpRepeat;
-	CachedDataPointer<SDL_Surface> bmpShuffle;
-	CachedDataPointer<SDL_Surface> bmpMusicVolume;
-	CachedDataPointer<SDL_Surface> bmpGameVolume;
-	CachedDataPointer<SDL_Surface> bmpProgress;
-	CachedDataPointer<SDL_Surface> bmpProgressStart;
-	CachedDataPointer<SDL_Surface> bmpProgressEnd;
+	SmartPointer<SDL_Surface> bmpBackground;
+	SmartPointer<SDL_Surface> bmpHide;
+	SmartPointer<SDL_Surface> bmpWindow;
+	SmartPointer<SDL_Surface> bmpPlay;
+	SmartPointer<SDL_Surface> bmpPause;
+	SmartPointer<SDL_Surface> bmpStop;
+	SmartPointer<SDL_Surface> bmpNext;
+	SmartPointer<SDL_Surface> bmpPrevious;
+	SmartPointer<SDL_Surface> bmpSelectDir;
+	SmartPointer<SDL_Surface> bmpRepeat;
+	SmartPointer<SDL_Surface> bmpShuffle;
+	SmartPointer<SDL_Surface> bmpMusicVolume;
+	SmartPointer<SDL_Surface> bmpGameVolume;
+	SmartPointer<SDL_Surface> bmpProgress;
+	SmartPointer<SDL_Surface> bmpProgressStart;
+	SmartPointer<SDL_Surface> bmpProgressEnd;
 };
 
 // Widget ids
@@ -200,7 +200,7 @@ public:
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
-	 void			Draw(SDL_Surface *bmpDest);
+	 void			Draw(const SmartPointer<SDL_Surface> & bmpDest);
 	 void			Frame(void);
 	 void			SetDrawPlayer(bool _d);
 	 inline bool	GetDrawPlayer(void) { return bDrawPlayer; }
@@ -226,10 +226,10 @@ enum {
 // Button
 class CPlayerButton: public CWidget  {
 public:
-	CPlayerButton(SDL_Surface *image);
+	CPlayerButton(const SmartPointer<SDL_Surface> & image);
 
 private:
-	SDL_Surface		*bmpImage;
+	const SmartPointer<SDL_Surface> & bmpImage;
 	bool			bDown;
 
 public:
@@ -246,7 +246,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -257,13 +257,13 @@ public:
 // Slider
 class CPlayerSlider: public CWidget  {
 public:
-	CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max);
+	CPlayerSlider(const SmartPointer<SDL_Surface> & progress, const SmartPointer<SDL_Surface> & start, const SmartPointer<SDL_Surface> & end, const SmartPointer<SDL_Surface> & background, int max);
 
 private:
-	SDL_Surface *bmpProgress;
-	SDL_Surface *bmpStart;
-	SDL_Surface *bmpEnd;
-	SDL_Surface *bmpBackground;
+	SmartPointer<SDL_Surface> bmpProgress;
+	SmartPointer<SDL_Surface> bmpStart;
+	SmartPointer<SDL_Surface> bmpEnd;
+	SmartPointer<SDL_Surface> bmpBackground;
 	int			iValue;
 	int			iMax;
 
@@ -287,7 +287,7 @@ public:
 	inline int GetMax(void)  { return iMax; }
 	inline void SetMax(int _m) {iMax = _m; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -298,7 +298,7 @@ public:
 // Toggle button
 class CPlayerToggleBtn: public CWidget  {
 public:
-	CPlayerToggleBtn(SDL_Surface *image, bool enabled)  {
+	CPlayerToggleBtn(const SmartPointer<SDL_Surface> & image, bool enabled)  {
 		if (!image)
 			return;
 
@@ -307,7 +307,7 @@ public:
 	}
 
 private:
-	SDL_Surface *bmpImage;
+	const SmartPointer<SDL_Surface> & bmpImage;
 	bool		bEnabled;
 public:
 	// Methods
@@ -323,7 +323,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	inline bool isOn(void) { return bEnabled; }
 
@@ -364,7 +364,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }

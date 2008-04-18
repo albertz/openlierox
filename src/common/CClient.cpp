@@ -885,8 +885,8 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 
 	// Setup according to top and bottom interface bars
-	CachedDataPointer<SDL_Surface> topbar = NULL;
-	CachedDataPointer<SDL_Surface> bottombar = NULL;
+	SmartPointer<SDL_Surface> topbar = NULL;
+	SmartPointer<SDL_Surface> bottombar = NULL;
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		bottombar = gfxGame.bmpGameLocalBackground;
 		topbar = gfxGame.bmpGameLocalTopBar;
@@ -1180,11 +1180,9 @@ void CClient::Shutdown(void)
 	}
 
 	// Box buffer
-	gfxFreeSurface(bmpBoxBuffer);
 	bmpBoxBuffer = NULL;
 
 	// Ingame score background
-	gfxFreeSurface(bmpIngameScoreBg);
 	bmpIngameScoreBg = NULL;
 
 	// Bars

@@ -25,7 +25,7 @@ public:
 	CProgressBar() {}
 
 	// Constructor
-	CProgressBar( CachedDataPointer<SDL_Surface> bmp, int label_x, int label_y, bool label_visible, int numstates) {
+	CProgressBar( SmartPointer<SDL_Surface> bmp, int label_x, int label_y, bool label_visible, int numstates) {
 		cProgressBar = CBar(bmp, 0, 0, label_x, label_y, BAR_LEFTTORIGHT, numstates);
 		cProgressBar.SetLabelVisible(label_visible);
 		bRedrawMenu = true;
@@ -60,7 +60,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the line
-	inline void	Draw(SDL_Surface *bmpDest) {
+	inline void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
 		if( iVar )

@@ -36,56 +36,45 @@ float getCurrentTime()
 
 //////////////
 // Save an image to the cache
-CachedDataPointer<SDL_Surface> CCache::SaveImage(const std::string& file1, SDL_Surface *img)
+void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface> & img)
 {
 	if( ! tLXOptions )
-		return CachedDataPointer<SDL_Surface>(img);
+		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
-		return CachedDataPointer<SDL_Surface>(img);	// Cache is disabled
+		return;	// Cache is disabled
 	if (img == NULL)
-		return CachedDataPointer<SDL_Surface>(img);
+		return;
 
 	std::string file = file1;
 	stringlwr(file);
 	if( ImageCache.find(file) != ImageCache.end() )	// Error - already in cache
 	{
 		printf("Error: image %s already in cache - memleak\n", file.c_str() );
-		return CachedDataPointer<SDL_Surface>(img);
+		return;
 	};
-	ImageCache[file] = img;
-
-	ImageCache_ForRemoval[img] = ImageCache.find(file);
-	TimeLastAccessed[ std::make_pair( CT_Image, img ) ] = getCurrentTime();
-	ResourceRefCount[ std::make_pair( CT_Image, img ) ] = 0;
-	ResourcesNotUsedCount ++;	// Decreased when we're creating CachedDataPointer
-	return CachedDataPointer<SDL_Surface>(img);
+	//printf("CCache::SaveImage(): %p %s\n", img, file.c_str() );
+	ImageCache[file] = std::make_pair( img, getCurrentTime() );
 }
 
 //////////////
 // Save a sound sample to the cache
-CachedDataPointer<SoundSample> CCache::SaveSound(const std::string& file1, SoundSample *smp)
+void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample> & smp)
 {
 	if( ! tLXOptions )
-		return CachedDataPointer<SoundSample>(smp);
+		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
-		return CachedDataPointer<SoundSample>(smp);	// Cache is disabled
+		return;	// Cache is disabled
 	if (smp == NULL)
-		return CachedDataPointer<SoundSample>(smp);
+		return;
 
 	std::string file = file1;
 	stringlwr(file);
 	if( SoundCache.find(file) != SoundCache.end() )
 	{
 		printf("Error: sound %s already in cache - memleak\n", file.c_str() );
-		return CachedDataPointer<SoundSample>(smp);
+		return;
 	};
-	SoundCache[file] = smp;
-
-	SoundCache_ForRemoval[smp] = SoundCache.find(file);
-	TimeLastAccessed[ std::make_pair( CT_Sound, smp ) ] = getCurrentTime();
-	ResourceRefCount[ std::make_pair( CT_Sound, smp ) ] = 0;
-	ResourcesNotUsedCount ++;	// Decreased when we're creating CachedDataPointer
-	return CachedDataPointer<SoundSample>(smp);
+	SoundCache[file] = std::make_pair( smp, getCurrentTime() );
 }
 
 //////////////
@@ -103,7 +92,7 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 	stringlwr(file);
 	if( MapCache.find(file) != MapCache.end() )	// Error - already in cache
 	{
-		printf("Error: map %s already in cache - memleak\n", file.c_str() );
+		printf("Error: map %s already in cache\n", file.c_str() );
 		return;
 	};
 
@@ -115,307 +104,158 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 	if (!cached_map->NewFrom(map))
 		return;
 
-	MapCache[file] = cached_map;
-
-	MapCache_ForRemoval[cached_map] = MapCache.find(file);
-	TimeLastAccessed[ std::make_pair( CT_Map, cached_map ) ] = getCurrentTime();
-	ResourceRefCount[ std::make_pair( CT_Map, cached_map ) ] = 0;
-	ResourcesNotUsedCount ++;	// Map in cache is not used initially
+	MapCache[file] = std::make_pair( SmartPointer<CMap>(cached_map), getCurrentTime() );
 }
 
 //////////////
 // Save a mod to the cache
-CachedDataPointer<CGameScript> CCache::SaveMod(const std::string& file1, CGameScript *mod)
+void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> & mod)
 {
 	if( ! tLXOptions )
-		return CachedDataPointer<CGameScript>(mod);
+		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
-		return CachedDataPointer<CGameScript>(mod);	// Cache is disabled
+		return;	// Cache is disabled
 	if (mod == NULL)
-		return CachedDataPointer<CGameScript>(mod);
+		return;
 
 	std::string file = file1;
 	stringlwr(file);
 	if( ModCache.find(file) != ModCache.end() )	// Error - already in cache
 	{
 		printf("Error: mod %s already in cache - memleak\n", file.c_str() );
-		return CachedDataPointer<CGameScript>(mod);
+		return;
 	};
 
-	ModCache[file] = mod;
-
-	ModCache_ForRemoval[mod] = ModCache.find(file);
-	TimeLastAccessed[ std::make_pair( CT_Mod, mod ) ] = getCurrentTime();
-	ResourceRefCount[ std::make_pair( CT_Mod, mod ) ] = 0;
-	ResourcesNotUsedCount ++;	// Decreased when we're creating CachedDataPointer
-	return CachedDataPointer<CGameScript>(mod);
+	ModCache[file] = std::make_pair( mod, getCurrentTime() );
 }
 
 //////////////
 // Get an image from the cache
-CachedDataPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
+SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
 {
 	std::string file = file1;
 	stringlwr(file);
-	std::map<std::string, SDL_Surface *>::iterator item = ImageCache.find(file);
+	ImageCache_t::iterator item = ImageCache.find(file);
 	if(item != ImageCache.end())
 	{
-		TimeLastAccessed[ std::make_pair( CT_Image, item->second ) ] = getCurrentTime();
-		return CachedDataPointer<SDL_Surface>(item->second);
+		item->second.second = getCurrentTime();
+		return item->second.first;
 	};
-	return CachedDataPointer<SDL_Surface>(NULL);
+	return NULL;
 }
 
 //////////////
 // Get a sound sample from the cache
-CachedDataPointer<SoundSample> CCache::GetSound(const std::string& file1)
+SmartPointer<SoundSample> CCache::GetSound(const std::string& file1)
 {
 	std::string file = file1;
 	stringlwr(file);
-	std::map<std::string, SoundSample *>::iterator item = SoundCache.find(file);
+	SoundCache_t::iterator item = SoundCache.find(file);
 	if(item != SoundCache.end())
 	{
-		TimeLastAccessed[ std::make_pair( CT_Sound, item->second ) ] = getCurrentTime();
-		return CachedDataPointer<SoundSample>(item->second);
+		item->second.second = getCurrentTime();
+		return item->second.first;
 	};
-	return CachedDataPointer<SoundSample>(NULL);
+	return NULL;
 }
 
 //////////////
 // Get a map from the cache
-CachedDataPointer<CMap> CCache::GetMap(const std::string& file1)
+SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 {
 	std::string file = file1;
 	stringlwr(file);
-	std::map<std::string, CMap *>::iterator item = MapCache.find(file);
+	MapCache_t::iterator item = MapCache.find(file);
 	if(item != MapCache.end())
 	{
-		TimeLastAccessed[ std::make_pair( CT_Map, item->second ) ] = getCurrentTime();
-		return CachedDataPointer<CMap>(item->second);
+		item->second.second = getCurrentTime();
+		return item->second.first;
 	};
-	return CachedDataPointer<CMap>(NULL);
+	return NULL;
 }
 
 //////////////
 // Get a mod from the cache
-CachedDataPointer<CGameScript> CCache::GetMod(const std::string& file1)
+SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 {
 	std::string file = file1;
 	stringlwr(file);
-	std::map<std::string, CGameScript *>::iterator item = ModCache.find(file);
+	ModCache_t::iterator item = ModCache.find(file);
 	if(item != ModCache.end())
 	{
-		TimeLastAccessed[ std::make_pair( CT_Mod, item->second ) ] = getCurrentTime();
-		return CachedDataPointer<CGameScript>(item->second);
+		item->second.second = getCurrentTime();
+		return item->second.first;
 	};
-	return CachedDataPointer<CGameScript>(NULL);
+	return NULL;
 }
 
 //////////////
 // Free all allocated data
 void CCache::Clear()
 {
-	RecursionFlag = true;
-
-	// Free all the mods first, because they will use images and sounds which should be freed later
-	for (std::map<std::string, CGameScript *>::iterator mod = ModCache.begin();
-			mod != ModCache.end(); mod++)  {
-		mod->second->Shutdown();
-		delete mod->second;
-	}
 	ModCache.clear();
-
-	// Free all the maps
-	for (std::map<std::string, CMap *>::iterator map = MapCache.begin();
-			map != MapCache.end(); map++)  {
-		map->second->Shutdown();
-		delete map->second;
-	}
 	MapCache.clear();
-
-	// Free all the images
-	for (std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
-			img != ImageCache.end(); img++)
-		gfxFreeSurface(img->second);
 	ImageCache.clear();
-	
-	// Free all the samples
-	for (std::map<std::string, SoundSample *>::iterator snd = SoundCache.begin();
-			snd != SoundCache.end(); snd++)
-		FreeSoundSample(snd->second);
 	SoundCache.clear();
-	
-	
-	TimeLastAccessed.clear();
-	ResourceRefCount.clear();
-	ImageCache_ForRemoval.clear();
-	SoundCache_ForRemoval.clear();
-	MapCache_ForRemoval.clear();
-	ModCache_ForRemoval.clear();
-	ResourcesNotUsedCount = 0;
-	RecursionFlag = false;
 }
-
-
-void CCache::IncreaseRefCount(SDL_Surface * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Image, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		if( it->second == 0 )
-			ResourcesNotUsedCount --;
-		it->second ++;
-		//printf("CCache::IncreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, ImageCache_ForRemoval[p]->first.c_str() );
-	};
-};
-void CCache::IncreaseRefCount(SoundSample * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Sound, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		if( it->second == 0 )
-			ResourcesNotUsedCount --;
-		it->second ++;
-		//printf("CCache::IncreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, SoundCache_ForRemoval[p]->first.c_str() );
-	};
-};
-void CCache::IncreaseRefCount(CMap * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Map, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		if( it->second == 0 )
-			ResourcesNotUsedCount --;
-		it->second ++;
-		//printf("CCache::IncreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, MapCache_ForRemoval[p]->first.c_str() );
-	};
-};
-void CCache::IncreaseRefCount(CGameScript * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Mod, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		if( it->second == 0 )
-			ResourcesNotUsedCount --;
-		it->second ++;
-		//printf("CCache::IncreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, ModCache_ForRemoval[p]->first.c_str() );
-	};
-};
-
-void CCache::DecreaseRefCount(SDL_Surface * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Image, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		it->second --;
-		if( it->second == 0 )
-			ResourcesNotUsedCount ++;
-		//printf("CCache::DecreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, ImageCache_ForRemoval[p]->first.c_str() );
-	};
-	ClearExtraEntries();
-};
-void CCache::DecreaseRefCount(SoundSample * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Sound, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		it->second --;
-		if( it->second == 0 )
-			ResourcesNotUsedCount ++;
-		//printf("CCache::DecreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, SoundCache_ForRemoval[p]->first.c_str() );
-	};
-	ClearExtraEntries();
-};
-void CCache::DecreaseRefCount(CMap * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Map, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		it->second --;
-		if( it->second == 0 )
-			ResourcesNotUsedCount ++;
-		//printf("CCache::DecreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, MapCache_ForRemoval[p]->first.c_str() );
-	};
-	ClearExtraEntries();
-};
-void CCache::DecreaseRefCount(CGameScript * p)
-{
-	ResourceRefCount_t :: iterator it = ResourceRefCount.find( std::make_pair( CT_Mod, p ) );
-	if( it != ResourceRefCount.end() )
-	{
-		it->second --;
-		if( it->second == 0 )
-			ResourcesNotUsedCount ++;
-		//printf("CCache::DecreaseRefCount %i total %i: %s\n", it->second, ResourcesNotUsedCount, ModCache_ForRemoval[p]->first.c_str() );
-	};
-	ClearExtraEntries();
-};
 
 void CCache::ClearExtraEntries()
 {
-	if( ! tLXOptions || RecursionFlag )
+	if( ! tLXOptions )
 		return;
-	if( ResourcesNotUsedCount < tLXOptions->iMaxCachedEntries || tLXOptions->iMaxCachedEntries == 0 )
+	if( tLXOptions->iMaxCachedEntries == 0 )
 		return;
-	RecursionFlag = true;
-	// Clean up half of the cache at once - cleaning up is quite slow
-	// TODO: faster algorithm, and shorter templates
-	int clearCount = ResourcesNotUsedCount - tLXOptions->iMaxCachedEntries / 2;
-	// Sorted by last-access time, we can use iterators here - they are not invalidated in a map
-	// when one element is erased from it
-	std::multimap< float, std::pair< CachedType_t, void * > > TimeSorted; 
-	for( ResourceRefCount_t :: iterator it = ResourceRefCount.begin();
-			it != ResourceRefCount.end(); it++  )
-	{
-		if( it->second <= 0 )
-			TimeSorted.insert( std::make_pair( TimeLastAccessed[it->first], it->first ) );
+	if( (int)ImageCache.size() >= tLXOptions->iMaxCachedEntries )
+	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
+		typedef std::multimap< float, ImageCache_t :: iterator > TimeSorted_t;
+		TimeSorted_t TimeSorted;
+		for( ImageCache_t :: iterator it = ImageCache.begin(); it != ImageCache.end(); it++  )
+			TimeSorted.insert( std::make_pair( it->second.second, it ) );
+		int clearCount = ImageCache.size() - tLXOptions->iMaxCachedEntries / 2;
+		printf("CCache::ClearExtraEntries() clearing %i images\n", clearCount);
+		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			ImageCache.erase( it1->second );
 	};
-	printf("CCache::ClearExtraEntries removing %i items, %i total removable\n", clearCount, TimeSorted.size() );
-	for( std::multimap< float, std::pair< CachedType_t, void * > > :: iterator it1 = TimeSorted.begin();
-			it1 != TimeSorted.end() && clearCount > 0 ; it1++, clearCount-- )
-	{
-		// Uhh I just love such non-obvious constructs :P
-		if( it1->second.first == CT_Image )
-		{
-			//printf("CCache::ClearExtraEntries removing: %s\n", ImageCache_ForRemoval[(SDL_Surface *)it1->second.second]->first.c_str() );
-			gfxFreeSurface((SDL_Surface *)it1->second.second);
-			ImageCache.erase( ImageCache_ForRemoval[(SDL_Surface *)it1->second.second] );
-			ImageCache_ForRemoval.erase((SDL_Surface *)it1->second.second);
-		}
-		else if( it1->second.first == CT_Sound )
-		{
-			//printf("CCache::ClearExtraEntries removing: %s\n", SoundCache_ForRemoval[(SoundSample *)it1->second.second]->first.c_str() );
-			FreeSoundSample((SoundSample *)it1->second.second);
-			SoundCache.erase( SoundCache_ForRemoval[(SoundSample *)it1->second.second] );
-			SoundCache_ForRemoval.erase((SoundSample *)it1->second.second);
-		}
-		else if( it1->second.first == CT_Map )
-		{
-			//printf("CCache::ClearExtraEntries removing: %s\n", MapCache_ForRemoval[(CMap *)it1->second.second]->first.c_str() );
-			((CMap *)it1->second.second)->Shutdown();
-			delete ((CMap *)it1->second.second);
-			MapCache.erase( MapCache_ForRemoval[(CMap *)it1->second.second] );
-			MapCache_ForRemoval.erase((CMap *)it1->second.second);
-		}
-		else if( it1->second.first == CT_Mod )
-		{
-			//printf("CCache::ClearExtraEntries removing: %s\n", ModCache_ForRemoval[(CGameScript *)it1->second.second]->first.c_str() );
-			((CGameScript *)it1->second.second)->Shutdown();
-			delete ((CGameScript *)it1->second.second);
-			ModCache.erase( ModCache_ForRemoval[(CGameScript *)it1->second.second] );
-			ModCache_ForRemoval.erase((CGameScript *)it1->second.second);
-		}
-		else
-		{
-			printf("CCache::ClearExtraEntries() - corrupted cache, invalid resource type\n");
-		};
-		TimeLastAccessed.erase( it1->second );
-		ResourceRefCount.erase( it1->second );
-		ResourcesNotUsedCount --;
+	
+	if( (int)SoundCache.size() >= tLXOptions->iMaxCachedEntries )
+	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
+		typedef std::multimap< float, SoundCache_t :: iterator > TimeSorted_t;
+		TimeSorted_t TimeSorted;
+		for( SoundCache_t :: iterator it = SoundCache.begin(); it != SoundCache.end(); it++  )
+			TimeSorted.insert( std::make_pair( it->second.second, it ) );
+		int clearCount = SoundCache.size() - tLXOptions->iMaxCachedEntries / 2;
+		printf("CCache::ClearExtraEntries() clearing %i sounds\n", clearCount);
+		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			SoundCache.erase( it1->second );
 	};
-	if( clearCount > 0 )
-	{
-			printf("CCache::ClearExtraEntries() - corrupted cache, removed not all entries\n");
+	
+	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
+	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
+		typedef std::multimap< float, MapCache_t :: iterator > TimeSorted_t;
+		TimeSorted_t TimeSorted;
+		for( MapCache_t :: iterator it = MapCache.begin(); it != MapCache.end(); it++  )
+			TimeSorted.insert( std::make_pair( it->second.second, it ) );
+		int clearCount = MapCache.size() - tLXOptions->iMaxCachedEntries / 40;
+		printf("CCache::ClearExtraEntries() clearing %i maps\n", clearCount);
+		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			MapCache.erase( it1->second );
 	};
-	RecursionFlag = false;
+	
+	if( (int)ModCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
+	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
+		typedef std::multimap< float, ModCache_t :: iterator > TimeSorted_t;
+		TimeSorted_t TimeSorted;
+		for( ModCache_t :: iterator it = ModCache.begin(); it != ModCache.end(); it++  )
+			TimeSorted.insert( std::make_pair( it->second.second, it ) );
+		int clearCount = ModCache.size() - tLXOptions->iMaxCachedEntries / 40;
+		printf("CCache::ClearExtraEntries() clearing %i mods\n", clearCount);
+		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			ModCache.erase( it1->second );
+	};
+	
 };
+

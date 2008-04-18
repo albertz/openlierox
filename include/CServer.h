@@ -81,7 +81,7 @@ private:
 	bool		bShowBonusName;
 	int			iLoadingTimes;
 	std::string	sModName;
-	CachedDataPointer<CGameScript> cGameScript;
+	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;
 

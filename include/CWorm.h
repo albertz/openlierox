@@ -273,11 +273,11 @@ private:
 	byte		iLastCurWeapon;
 
 	// Graphics
-	SDL_Surface	*bmpWormRight;
-	SDL_Surface	*bmpWormLeft;
-	SDL_Surface	*bmpGibs;
-	SDL_Surface	*bmpPic;
-    SDL_Surface *bmpShadowPic;
+	SmartPointer<SDL_Surface> bmpWormRight;
+	SmartPointer<SDL_Surface> bmpWormLeft;
+	SmartPointer<SDL_Surface> bmpGibs;
+	SmartPointer<SDL_Surface> bmpPic;
+    SmartPointer<SDL_Surface> bmpShadowPic;
 	CBar		cHealthBar;
 	//CViewport	*pcViewport;
 
@@ -412,7 +412,7 @@ public:
 	void		SetupInputs(const controls_t& Inputs);
 	void		InitWeaponSelection(void);
 	void		GetRandomWeapons(void);
-	void		SelectWeapons(SDL_Surface *bmpDest, CViewport *v);
+	void		SelectWeapons(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
 	void		InitInputSystem();
 	void		StopInputSystem();
 
@@ -424,9 +424,9 @@ public:
 	void		LoadProfileGraphics();
 	void		DeactivateProfileGraphicsOnce() { ProfileGraphics = false; }
 	void		FreeGraphics(void);
-	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
-	void		Draw(SDL_Surface *bmpDest, CViewport *v);
-    void        DrawShadow(SDL_Surface *bmpDest, CViewport *v);
+	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, int team);
+	void		Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+    void        DrawShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
 	void		UpdateDrawPos();
 
 	//
@@ -631,8 +631,8 @@ public:
 	void		setTeam(int _t)				{ iTeam = _t; }
 	int			getTeam(void)				{ return iTeam; }
 
-	SDL_Surface	*getGibimg(void)			{ return bmpGibs; }
-	SDL_Surface	*getPicimg(void)			{ return bmpPic; }
+	SmartPointer<SDL_Surface> getGibimg(void)			{ return bmpGibs; }
+	SmartPointer<SDL_Surface> getPicimg(void)			{ return bmpPic; }
 
 	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
 

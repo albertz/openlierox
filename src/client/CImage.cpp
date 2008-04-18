@@ -16,7 +16,7 @@
 
 ///////////////////
 // Draw the image
-void CImage::Draw(SDL_Surface *bmpDest)
+void CImage::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Don't try to draw non-existing image
 	if (!tImage)
@@ -61,7 +61,7 @@ void CImage::Change(const std::string& Path)
 	iHeight = tImage->h;
 }
 
-void CImage::Change(CachedDataPointer<SDL_Surface> bmpImg)
+void CImage::Change(SmartPointer<SDL_Surface> bmpImg)
 {
 	// Just re-setup the image-related variables
 	sPath = "";

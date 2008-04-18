@@ -40,7 +40,7 @@ void CScrollbar::Create(void)
 
 ///////////////////
 // Draw the scrollbar
-void CScrollbar::Draw(SDL_Surface *bmpDest)
+void CScrollbar::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int x=0;
 	int length;

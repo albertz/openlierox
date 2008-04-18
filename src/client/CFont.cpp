@@ -67,8 +67,6 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 ///////////////////
 // Shutdown the font
 void CFont::Shutdown(void) {
-	gfxFreeSurface(bmpWhite);
-	gfxFreeSurface(bmpGreen);
 }
 
 
@@ -151,7 +149,7 @@ void CFont::Parse(void) {
 
 ///////////////////
 // Precalculate a font's colour
-void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
+void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour) {
 	Uint32 pixel;
 	int x, y;
 
@@ -213,7 +211,7 @@ int CFont::GetHeight(const std::string& buf) {
 ///////////////////
 // Draws a font at X, Y, but visible only in specified rect
 // HINT: not thread-safe
-void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
+void CFont::DrawInRect(const SmartPointer<SDL_Surface> & dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
 
 	SDL_Rect oldrect, newrect;
@@ -237,7 +235,7 @@ void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int
 
 ///////////////////
 // Draw a font (advanced)
-void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 
 	if (txt.size() == 0)
 		return;
@@ -257,7 +255,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 
 	// Look in the precached fonts if there's some for this color
-	SDL_Surface *bmpCached = NULL;
+	SmartPointer<SDL_Surface> bmpCached = NULL;
 	if (Colorize) {
 		// HINT: if we leave this disabled, the drawing will always be done manually
 		// this is a bit (not not much) slower but prevents from the usual errors with CFont (wrong color, invisible, so on)
@@ -425,12 +423,12 @@ int CFont::GetCharacterWidth(UnicodeChar c)
 
 ///////////////////
 // Draws the text in centre alignment
-void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
+void CFont::DrawCentre(const SmartPointer<SDL_Surface> & dst, int x, int y, Uint32 col, const std::string& txt) {
 	Draw(dst, x - GetWidth(txt) / 2, y, col, txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
-void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawCentreAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
 	DrawAdv(dst, MAX(min_x, x - GetWidth(txt) / 2), y, max_w, col, txt);
 }

@@ -174,7 +174,7 @@ void CGuiLayout::Shutdown(void)
 
 ///////////////////
 // Draw the widgets
-void CGuiLayout::Draw(SDL_Surface *bmpDest)
+void CGuiLayout::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Draw the widgets in reverse order
 	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)  {
@@ -549,7 +549,7 @@ gui_event_t *CGuiLayout::Process(void)
 		SetVideoMode();
 
 		// Update both menu and game screens
-		tMenu->bmpScreen = SDL_GetVideoSurface();
+		tMenu->bmpScreen = GetVideoSurface();
 
 		// Redraw the mouse
 		Menu_RedrawMouse(true);

@@ -65,7 +65,7 @@ private:
     float       m_fWind;
 
     // Graphics
-    SDL_Surface *m_psSnowPart;
+    SmartPointer<SDL_Surface> m_psSnowPart;
 
 
 public:
@@ -79,7 +79,7 @@ public:
     void        SimulateSnow(float dt, CMap *pcMap);
     void        SpawnParticle(int nType, int nType2, CVec cVel, CVec cPos);
 
-    void        Draw(SDL_Surface *psDest, CViewport *view);
+    void        Draw(const SmartPointer<SDL_Surface> & psDest, CViewport *view);
 
 };
 

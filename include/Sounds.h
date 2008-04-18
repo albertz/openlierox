@@ -67,17 +67,17 @@ struct SoundMusic {
 
 // General sounds
 typedef struct {
-	CachedDataPointer<SoundSample> smpClick;
-	CachedDataPointer<SoundSample> smpChat;
+	SmartPointer<SoundSample> smpClick;
+	SmartPointer<SoundSample> smpChat;
 } sfxgen_t;
 
 
 // Game sounds
 typedef struct {
-	CachedDataPointer<SoundSample> smpNinja;
-	CachedDataPointer<SoundSample> smpPickup;
-	CachedDataPointer<SoundSample> smpBump;
-	CachedDataPointer<SoundSample> smpDeath[3];
+	SmartPointer<SoundSample> smpNinja;
+	SmartPointer<SoundSample> smpPickup;
+	SmartPointer<SoundSample> smpBump;
+	SmartPointer<SoundSample> smpDeath[3];
 } sfxgame_t;
 
 // ID3 tag format
@@ -93,7 +93,7 @@ typedef struct id3v1_s {
 } id3v1_t;
 
 
-CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying);
+SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying);
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);

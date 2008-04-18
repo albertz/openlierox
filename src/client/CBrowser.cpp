@@ -310,7 +310,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 ///////////////////
 // Render the browser
-void CBrowser::Draw(SDL_Surface *bmpDest)
+void CBrowser::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// 3D Box
 	DrawRect(bmpDest, iX, iY, iX + iWidth, iY + iHeight, tLX->clBoxDark);
@@ -329,7 +329,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 
 //////////////////
 // Renders the textual content
-void CBrowser::RenderContent(SDL_Surface *bmpDest)
+void CBrowser::RenderContent(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int curX = iX + BORDER_SIZE;
 	int curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();

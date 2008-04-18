@@ -197,39 +197,39 @@ class frontendinfo_t { public:
 class menu_t { public:
 
 	// Graphics
-	//CachedDataPointer<SDL_Surface> bmpMainBack;
-    //CachedDataPointer<SDL_Surface> bmpMainBack_lg;
-    CachedDataPointer<SDL_Surface> bmpMainBack_wob;
-	CachedDataPointer<SDL_Surface> bmpMainBack_common;
-	SDL_Surface		*bmpBuffer;
-	SDL_Surface		*bmpScreen;
-	SDL_Surface		*bmpMsgBuffer;
-    SDL_Surface     *bmpMiniMapBuffer;
+	//SmartPointer<SDL_Surface> bmpMainBack;
+    //SmartPointer<SDL_Surface> bmpMainBack_lg;
+    SmartPointer<SDL_Surface> bmpMainBack_wob;
+	SmartPointer<SDL_Surface> bmpMainBack_common;
+	SmartPointer<SDL_Surface> bmpBuffer;
+	SmartPointer<SDL_Surface> bmpScreen;
+	SmartPointer<SDL_Surface> bmpMsgBuffer;
+    SmartPointer<SDL_Surface> bmpMiniMapBuffer;
 
-	CachedDataPointer<SDL_Surface> bmpLieroXtreme;
-	CachedDataPointer<SDL_Surface> bmpMainTitles;
-	CachedDataPointer<SDL_Surface> bmpTitles;
-	CachedDataPointer<SDL_Surface> bmpSubTitles;
-	CachedDataPointer<SDL_Surface> bmpButtons;
-	CachedDataPointer<SDL_Surface> bmpCheckbox;
-	CachedDataPointer<SDL_Surface> bmpInputbox;
+	SmartPointer<SDL_Surface> bmpLieroXtreme;
+	SmartPointer<SDL_Surface> bmpMainTitles;
+	SmartPointer<SDL_Surface> bmpTitles;
+	SmartPointer<SDL_Surface> bmpSubTitles;
+	SmartPointer<SDL_Surface> bmpButtons;
+	SmartPointer<SDL_Surface> bmpCheckbox;
+	SmartPointer<SDL_Surface> bmpInputbox;
 
-	CachedDataPointer<SDL_Surface> bmpMainLocal;
-	CachedDataPointer<SDL_Surface> bmpMainNet;
-	CachedDataPointer<SDL_Surface> bmpLobbyReady;
-	CachedDataPointer<SDL_Surface> bmpLobbyNotReady;
-	CachedDataPointer<SDL_Surface> bmpHost;
-	CachedDataPointer<SDL_Surface> bmpConnectionSpeeds[4];
-	CachedDataPointer<SDL_Surface> bmpSpeech;
-    CachedDataPointer<SDL_Surface> bmpHandicap;
+	SmartPointer<SDL_Surface> bmpMainLocal;
+	SmartPointer<SDL_Surface> bmpMainNet;
+	SmartPointer<SDL_Surface> bmpLobbyReady;
+	SmartPointer<SDL_Surface> bmpLobbyNotReady;
+	SmartPointer<SDL_Surface> bmpHost;
+	SmartPointer<SDL_Surface> bmpConnectionSpeeds[4];
+	SmartPointer<SDL_Surface> bmpSpeech;
+    SmartPointer<SDL_Surface> bmpHandicap;
 
-	CachedDataPointer<SDL_Surface> bmpTriangleUp;
-	CachedDataPointer<SDL_Surface> bmpTriangleDown;
+	SmartPointer<SDL_Surface> bmpTriangleUp;
+	SmartPointer<SDL_Surface> bmpTriangleDown;
 
-	CachedDataPointer<SDL_Surface> bmpAI;
-	CachedDataPointer<SDL_Surface> bmpWorm;
+	SmartPointer<SDL_Surface> bmpAI;
+	SmartPointer<SDL_Surface> bmpWorm;
 
-	CachedDataPointer<SDL_Surface> bmpMapEdTool;
+	SmartPointer<SDL_Surface> bmpMapEdTool;
 
 	// Other
 	bool			bMenuRunning;
@@ -329,12 +329,12 @@ void	Menu_Start(void);
 void	Menu_RedrawMouse(int total);
 void	Menu_Loop(void);
 void    Menu_SetSkipStart(int s);
-void	Menu_DrawSubTitle(SDL_Surface *bmpDest, int id);
-void    Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y);
-void	Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
-void	Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type);
-void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
-void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
+void	Menu_DrawSubTitle(const SmartPointer<SDL_Surface> & bmpDest, int id);
+void    Menu_DrawSubTitleAdv(const SmartPointer<SDL_Surface> & bmpDest, int id, int y);
+void	Menu_DrawBox(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2);
+void	Menu_DrawBoxAdv(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type);
+void    Menu_DrawBoxInset(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2);
+void    Menu_DrawWinButton(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int w, int h, bool down);
 bool	Menu_LoadWormGfx(profile_t *ply);
 int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type);
 void	Menu_AddDefaultWidgets(void);
@@ -398,14 +398,14 @@ void    Menu_Player_ViewPlayerInit(void);
 void	Menu_Player_NewPlayer(int mouse);
 void	Menu_Player_ViewPlayers(int mouse);
 void	Menu_Player_AddPlayer(const std::string& sName, Uint8 r, Uint8 g, Uint8 b);
-void    Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
+void    Menu_Player_DrawWormImage(const SmartPointer<SDL_Surface> & bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
 void	Menu_Player_DeletePlayer(int index);
 void    Menu_Player_FillSkinCombo(CCombobox *cb);
 void	Menu_PlayerShutdown(void);
 
 // Map editor
 bool	Menu_MapEdInitialize(void);
-void	Menu_MapEdFrame(SDL_Surface *bmpDest, int process);
+void	Menu_MapEdFrame(const SmartPointer<SDL_Surface> & bmpDest, int process);
 void	Menu_MapEd_New(void);
 void	Menu_MapEd_LoadSave(int save);
 bool	Menu_MapEd_OkSave(const std::string& szFilename);
@@ -475,7 +475,7 @@ void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown(void);
 std::string	Menu_Net_HostLobbyGetText(void);
-void	Menu_HostDrawLobby(SDL_Surface *bmpDest);
+void	Menu_HostDrawLobby(const SmartPointer<SDL_Surface> & bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
 

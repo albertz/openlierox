@@ -351,9 +351,9 @@ int GameServer::StartGame()
 	cGameScript = cCache.GetMod( tGameInfo.sModDir );
 	if( cGameScript == NULL )
 	{
-		CGameScript* gs = new CGameScript();
-		int result = gs->Load( tGameInfo.sModDir );
-		cGameScript = cCache.SaveMod( tGameInfo.sModDir, gs );
+		cGameScript = new CGameScript();
+		int result = cGameScript->Load( tGameInfo.sModDir );
+		cCache.SaveMod( tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
 		printf("Error: Could not load the '%s' game script\n", tGameInfo.sModDir.c_str());

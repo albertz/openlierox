@@ -71,7 +71,7 @@ void ClearEntities(void)
 
 ///////////////////
 // Spawn an entity
-void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, CachedDataPointer<SDL_Surface> img)
+void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const SmartPointer<SDL_Surface> & img)
 {
 	entity_t *ent = tEntities;
 
@@ -133,7 +133,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, CachedD
 
 ///////////////////
 // Draw the entities
-void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
+void DrawEntities(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
 	if (!iEntityCount)
 		return;

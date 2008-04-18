@@ -41,7 +41,7 @@
 
 using namespace std;
 
-CachedDataPointer<SDL_Surface> bmpMenuButtons = NULL;
+SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
 
 
@@ -56,7 +56,7 @@ bool CClient::InitializeDrawing(void)
 	bmpBoxRight = LoadImage("data/frontend/box_right.png",true);
 
 	// Initialize the box buffer
-	CachedDataPointer<SDL_Surface> box_middle = LoadImage("data/frontend/box_middle.png",true);
+	SmartPointer<SDL_Surface> box_middle = LoadImage("data/frontend/box_middle.png",true);
 	if (box_middle)  { // Doesn't have to exist
 		// Tile the buffer with the middle box part
 		bmpBoxBuffer = gfxCreateSurface(640,box_middle->h);
@@ -353,7 +353,7 @@ bool CClient::InitializeBar(byte number)  {
 
 //////////////////
 // Draw a box
-void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
+void CClient::DrawBox(const SmartPointer<SDL_Surface> & dst, int x, int y, int w)
 {
 	// Check
 	if (!bmpBoxBuffer || !bmpBoxLeft || !bmpBoxRight)  {
@@ -373,7 +373,7 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 
 ///////////////////
 // Main drawing routines
-void CClient::Draw(SDL_Surface *bmpDest)
+void CClient::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if( iNetStatus == NET_PLAYING_OLXMOD )
 		return;
@@ -409,7 +409,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	if(!bDedicated) {
 		// Local and network use different background images
-		SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
+		SmartPointer<SDL_Surface> bgImage = gfxGame.bmpGameNetBackground;
 		if (tGameInfo.iGameType == GME_LOCAL)
 			bgImage = gfxGame.bmpGameLocalBackground;
 
@@ -418,7 +418,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 			// Fill the viewport area with black
 			DrawRectFill(bmpDest, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0,
-				SDL_GetVideoSurface()->w, getBottomBarTop(), tLX->clBlack);
+				GetVideoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
 			if (tGameInfo.iGameType == GME_LOCAL)  {
 				if (bgImage)  // Doesn't have to exist (backward compatibility)
@@ -450,7 +450,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// Top bar
 		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
-			SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+			SmartPointer<SDL_Surface> top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 			if (top_bar)
 				DrawImage( bmpDest, top_bar, 0, 0);
 			else
@@ -705,7 +705,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw the chatter
-void CClient::DrawChatter(SDL_Surface *bmpDest)
+void CClient::DrawChatter(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int x = tInterfaceSettings.ChatterX;
 	int y = tInterfaceSettings.ChatterY;
@@ -732,7 +732,7 @@ void CClient::DrawChatter(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw a viewport
-void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
+void CClient::DrawViewport(const SmartPointer<SDL_Surface> & bmpDest, byte viewport_index)
 {
     // Check the parameters
 	if (viewport_index >= NUM_VIEWPORTS)
@@ -990,7 +990,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 ///////////////////
 // Draw the projectiles
-void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
+void CClient::DrawProjectiles(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
 	CProjectile *prj = cProjectiles;
 
@@ -1006,7 +1006,7 @@ void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
 
 ///////////////////
 // Draw the projectile shadows
-void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
+void CClient::DrawProjectileShadows(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
     CProjectile *prj = cProjectiles;
 
@@ -1054,7 +1054,7 @@ void CClient::SimulateHud(void)
 	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
 		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
 
-		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+		SmartPointer<SDL_Surface> topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 
 		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 		int top = toph;
@@ -1159,12 +1159,12 @@ void CClient::InitializeGameMenu()
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			SDL_Surface *pic = gfxGame.bmpTeamColours[iMatchWinner];
+			SmartPointer<SDL_Surface> pic = gfxGame.bmpTeamColours[iMatchWinner];
 			if (pic)
 				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		} else {
 			cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			SDL_Surface *pic = cRemoteWorms[iMatchWinner].getPicimg();
+			SmartPointer<SDL_Surface> pic = cRemoteWorms[iMatchWinner].getPicimg();
 			if (pic)
 				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
 		}
@@ -1194,7 +1194,7 @@ void CClient::InitializeGameMenu()
 
 ///////////////////
 // Draw the game menu/game over screen (the scoreboard)
-void CClient::DrawGameMenu(SDL_Surface *bmpDest)
+void CClient::DrawGameMenu(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Background
 	if (bGameOver)  {
@@ -1756,7 +1756,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
 ///////////////////
 // Draw the bonuses
-void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
+void CClient::DrawBonuses(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
 	if(!tGameInfo.bBonusesOn)
 		return;
@@ -1774,7 +1774,7 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 
 ///////////////////
 // Draw text that is shadowed
-void CClient::DrawText(SDL_Surface *bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf)
+void CClient::DrawText(const SmartPointer<SDL_Surface> & bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf)
 {
 	if(centre) {
 		//tLX->cOutlineFont.DrawCentre(bmpDest, x+1, y+1, 0,"%s", buf);
@@ -1789,7 +1789,7 @@ void CClient::DrawText(SDL_Surface *bmpDest, bool centre, int x, int y, Uint32 f
 
 ///////////////////
 // Draw the local chat
-void CClient::DrawLocalChat(SDL_Surface *bmpDest)
+void CClient::DrawLocalChat(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (cChatbox.getNumLines() == 0)
 		return;
@@ -1816,7 +1816,7 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw the remote chat
-void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
+void CClient::DrawRemoteChat(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (!cChatList)
 		return;
@@ -1853,7 +1853,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 																				// or when user is moving the mouse over the chat
 
 		// Local and net play use different backgrounds
-		SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
+		SmartPointer<SDL_Surface> bgImage = gfxGame.bmpGameNetBackground;
 		if (tGameInfo.iGameType == GME_LOCAL)
 			bgImage = gfxGame.bmpGameLocalBackground;
 
@@ -1974,9 +1974,11 @@ void CClient::InitializeViewportManager(void)
             continue;
 
 		ViewportMgr.SendMessage( v1_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
+		//ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
+		((CCombobox *) ViewportMgr.getWidget(v1_Target))->setImage( cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID() );
 		ViewportMgr.SendMessage( v2_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
+		//ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
+		((CCombobox *) ViewportMgr.getWidget(v2_Target))->setImage( cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID() );
     }
 
 	CWorm *trg = cViewports[0].getTarget();
@@ -2006,7 +2008,7 @@ void CClient::InitializeViewportManager(void)
 
 ///////////////////
 // Draw the viewport manager
-void CClient::DrawViewportManager(SDL_Surface *bmpDest)
+void CClient::DrawViewportManager(const SmartPointer<SDL_Surface> & bmpDest)
 {
     int x = 320-gfxGame.bmpViewportMgr->w/2;
     int y = 200-gfxGame.bmpViewportMgr->h/2;
@@ -2382,7 +2384,7 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 
 ////////////////////
 // Helper function for DrawPlayerWaiting
-void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num)
+void CClient::DrawPlayerWaitingColumn(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num)
 {
 	const int h = getBottomBarTop() - y;
 
@@ -2421,7 +2423,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, std::l
 
 ///////////////////
 // Draws a simple scoreboard when waiting for players
-void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
+void CClient::DrawPlayerWaiting(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int x = 0;
 	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
@@ -2442,7 +2444,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 	// Two columns
 	if (worms.size() > 16)  {
 		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), 16);
-		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), (int)worms.size() - 16);
+		DrawPlayerWaitingColumn(bmpDest, GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), (int)worms.size() - 16);
 
 	// One column
 	} else {
@@ -2454,7 +2456,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw the scoreboard
-void CClient::DrawScoreboard(SDL_Surface *bmpDest)
+void CClient::DrawScoreboard(const SmartPointer<SDL_Surface> & bmpDest)
 {
     bool bShowScore = false;
     bool bShowReady = false;
@@ -2487,7 +2489,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw the current game settings
-void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
+void CClient::DrawCurrentSettings(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	bCurrentSettings = true;
 
@@ -2551,7 +2553,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 ///////////////////
 // Draws the media player
 #ifdef WITH_MEDIAPLAYER
-void CClient::DrawMediaPlayer(SDL_Surface *bmpDest)
+void CClient::DrawMediaPlayer(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	cMediaPlayer.Draw(bmpDest);
 }

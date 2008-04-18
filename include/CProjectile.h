@@ -126,8 +126,8 @@ class proj_t { public:
 
 
 #ifndef _CONSOLE
-	CachedDataPointer<SDL_Surface> bmpImage;
-	CachedDataPointer<SoundSample> smpSample;
+	SmartPointer<SDL_Surface> bmpImage;
+	SmartPointer<SoundSample> smpSample;
 #endif
 
 
@@ -206,8 +206,8 @@ public:
 	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time, float ignoreWormCollBeforeTime);
 	int		Collision(uchar pf);
 
-    void	Draw(SDL_Surface *bmpDest, CViewport *view);
-    void	DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map);
+    void	Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view);
+    void	DrawShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, CMap *map);
 
 	int		CheckWormCollision(CWorm *worms);
 	int		ProjWormColl(CVec pos, CWorm *worms);

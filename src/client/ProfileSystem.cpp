@@ -213,7 +213,6 @@ void ShutdownProfiles(void)
 		SaveProfile(fp, p);
 
 		// Free the surface
-		gfxFreeSurface(p->bmpWorm);
 		p->bmpWorm = NULL;
 
 		// Free the actual profile
@@ -332,8 +331,8 @@ void DeleteProfile(int id)
 				tProfiles = p->tNext;
 
 			// Free me image
-			gfxFreeSurface(p->bmpWorm);
-
+			p->bmpWorm = NULL;
+			
 			// Free me
 			delete p;
 
@@ -492,7 +491,7 @@ profile_t *FindProfile(const std::string& name) {
 int LoadProfileGraphics(profile_t *p)
 {
     // Free the old surface
-    gfxFreeSurface(p->bmpWorm);
+	p->bmpWorm = NULL;
 
 	p->bmpWorm = gfxCreateSurfaceAlpha(18,16);
 	if(p->bmpWorm == NULL) {
@@ -503,34 +502,33 @@ int LoadProfileGraphics(profile_t *p)
     FillSurfaceTransparent(p->bmpWorm);
 
     // Draw the preview pic
-    SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
+    SmartPointer<SDL_Surface> w = LoadSkin(p->szSkin, p->R, p->G, p->B);
     if(w) {
         CopySurface(p->bmpWorm, w, 134,2,0,0, 18,16);
-        gfxFreeSurface(w);
     }
-	
+
 	// Apply a little cpu pic on the worm pic on ai players
-	SDL_Surface *ai = LoadImage("data/frontend/cpu.png");
+	SmartPointer<SDL_Surface> ai = LoadImage("data/frontend/cpu.png");
 	if(ai) {
 		SetColorKey(ai);
 		
         if(p->iType == PRF_COMPUTER)
             DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
 	}
-
+	
 	return true;
 }
 
 
 ///////////////////
 // General skin colouriser
-SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
+SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 {
 	std::string buf;
 
     // Load the skin
     buf = "skins/"; buf += szSkin;
-    CachedDataPointer<SDL_Surface> worm = LoadImage(buf, true);
+    SmartPointer<SDL_Surface> worm = LoadImage(buf, true);
     if( !worm ) {
         // If we can't load the skin, try the default skin
         worm = LoadImage("skins/default.png", true);
@@ -539,7 +537,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
     }
 	SetColorKey(worm);
 
-    SDL_Surface *skin = gfxCreateSurfaceAlpha(672,18);
+    SmartPointer<SDL_Surface> skin = gfxCreateSurfaceAlpha(672,18);
     if( !skin )
         return NULL;
 

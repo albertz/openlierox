@@ -23,7 +23,7 @@ namespace OlxMod_OpenLiero_01	// To avoid name collision with other mods
 
 int numPlayers = -1;
 int localPlayer = -1;
-SDL_Surface *OLXOutput = NULL;
+SmartPointer<SDL_Surface> OLXOutput = NULL;
 
 // Saved variables
 unsigned long currentTime = 0;
@@ -60,7 +60,7 @@ bool & getKeyChanged( int worm, int key )
 void OlxMod_InitFunc( int _numPlayers, int _localPlayer, 
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, SDL_Surface *bmpDest )
+	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest )
 {
 	numPlayers = _numPlayers;
 	localPlayer = _localPlayer;

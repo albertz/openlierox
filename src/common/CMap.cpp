@@ -185,7 +185,7 @@ void CMap::SaveToCache()
 // Try to load the map from cache
 bool CMap::LoadFromCache()
 {
-	CMap *cached = cCache.GetMap(FileName);
+	SmartPointer<CMap> cached = cCache.GetMap(FileName);
 	if (!cached)
 		return false;
 
@@ -466,7 +466,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 	LOCK_OR_FAIL(Theme.bmpFronttile);
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	UnlockSurface(Theme.bmpFronttile);
-	SDL_Surface *hole = Theme.bmpHoles[0];
+	SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
 	LOCK_OR_FAIL(hole);
 	Uint32 pixel = 0;
 	if(hole) {
@@ -713,7 +713,6 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 {
 	// If already created, reallocate
 	if (bmpMiniMap)  {
-		gfxFreeSurface(bmpMiniMap);
 		bmpMiniMap = gfxCreateSurface(_w, _h);
 		MinimapWidth = _w;
 		MinimapHeight = _h;
@@ -895,7 +894,7 @@ void CMap::CalculateDirtCount(void)
 
 ///////////////////
 // Draw the map
-void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
+void CMap::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view)
 {
 	if(!bmpDrawImage || !bmpDest) return; // safty
 
@@ -913,7 +912,7 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 ///////////////////
 // Draw an object's shadow
-void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
+void CMap::DrawObjectShadow(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
@@ -1000,7 +999,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 ///////////////////
 // Draw a pixel sized shadow
-void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy)
+void CMap::DrawPixelShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, int wx, int wy)
 {
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
@@ -1027,7 +1026,7 @@ int CMap::CarveHole(int size, CVec pos)
 	size = MIN(size, 4);
 
 	// Calculate half
-	SDL_Surface* hole = Theme.bmpHoles[size];
+	SmartPointer<SDL_Surface> hole = Theme.bmpHoles[size];
 	if (!hole)
 		return 0;
 
@@ -1146,10 +1145,10 @@ int CMap::CarveHole(int size, CVec pos)
 
 class CarveHole_PixelWalker {
 public:
-	CMap* map; SDL_Surface* hole; int& nNumDirt;
+	CMap* map; SmartPointer<SDL_Surface> hole; int& nNumDirt;
 	int map_left, map_top;
 
-	CarveHole_PixelWalker(CMap* map_, SDL_Surface* hole_, int& nNumDirt_, int map_left_, int map_top_) :
+	CarveHole_PixelWalker(CMap* map_, const SmartPointer<SDL_Surface> & hole_, int& nNumDirt_, int map_left_, int map_top_) :
 		map(map_), hole(hole_), nNumDirt(nNumDirt_), map_left(map_left_), map_top(map_top_) {}
 
 	inline bool operator()(int map_x, int map_y) {
@@ -1173,7 +1172,7 @@ int CMap::CarveHole(int size, CVec pos)
 	}
 
 	// Calculate half
-	SDL_Surface* hole = Theme.bmpHoles[size];
+	SmartPointer<SDL_Surface> hole = Theme.bmpHoles[size];
 	if (!hole)
 		return 0;
 
@@ -1229,7 +1228,7 @@ int CMap::CarveHole(int size, CVec pos)
 // Returns the number of dirt pixels placed
 int CMap::PlaceDirt(int size, CVec pos)
 {
-	SDL_Surface *hole;
+	SmartPointer<SDL_Surface> hole;
 	int dx,dy, sx,sy;
 	int x,y;
 	int w,h;
@@ -1539,7 +1538,7 @@ void CMap::CalculateShadowMap(void)
 // Place a stone
 void CMap::PlaceStone(int size, CVec pos)
 {
-	SDL_Surface *stone;
+	SmartPointer<SDL_Surface> stone;
 	short dy, sx,sy;
 	short x,y;
 	short w,h;
@@ -1632,7 +1631,7 @@ void CMap::PlaceStone(int size, CVec pos)
 void CMap::PlaceMisc(int id, CVec pos)
 {
 
-	SDL_Surface *misc;
+	SmartPointer<SDL_Surface> misc;
 	short dy,dx, sx,sy;
 	short x,y;
 	short w,h;
@@ -1834,7 +1833,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
+void CMap::DrawMiniMap(const SmartPointer<SDL_Surface> & bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
 {
 	int i,j;
 	float xstep,ystep;
@@ -2715,24 +2714,18 @@ void CMap::Shutdown(void)
 
 		//printf("some created map is shutting down...\n");
 
-		gfxFreeSurface(bmpImage);
 		bmpImage = NULL;
 
-		gfxFreeSurface(bmpDrawImage);
 		bmpDrawImage = NULL;
 
 #ifdef _AI_DEBUG
-		gfxFreeSurface(bmpDebugImage);
 		bmpDebugImage = NULL;
 #endif
 
-		gfxFreeSurface(bmpBackImage);
 		bmpBackImage = NULL;
 
-        gfxFreeSurface(bmpShadowMap);
 		bmpShadowMap = NULL;
 
-		gfxFreeSurface(bmpMiniMap);
 		bmpMiniMap = NULL;
 
 		if(PixelFlags)
@@ -3079,4 +3072,9 @@ bool CMap::RecvPartialDirtUpdate(const std::string &ss, std::string *old)
 
 	RecvDirtUpdate(*old);
 	return true;
+};
+
+template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
+{
+	delete obj;
 };

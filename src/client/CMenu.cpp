@@ -124,7 +124,7 @@ mnu_item_t *CMenu::getItem(int nID)
 
 ///////////////////
 // Draw the menu
-void CMenu::Draw(SDL_Surface *bmpDest)
+void CMenu::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int X = m_nPosX;
 	int Y = m_nPosY;

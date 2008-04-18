@@ -148,7 +148,7 @@ void Menu_Net_GotoHostLobby(void)
 	
 	tMenu->iMenuType = MNU_NETWORK;
 	tMenu->bMenuRunning = true;
-	tMenu->bmpScreen = SDL_GetVideoSurface();
+	tMenu->bmpScreen = GetVideoSurface();
 	iNetMode = net_host;
 
 	if(!bDedicated) {
@@ -181,7 +181,7 @@ void Menu_Net_GotoJoinLobby(void)
 {
     printf("Menu_Net_GotoJoinLobby()\n");
 
-	tMenu->bmpScreen = SDL_GetVideoSurface();
+	tMenu->bmpScreen = GetVideoSurface();
 	tMenu->bMenuRunning = true;
 
 	tMenu->iMenuType = MNU_NETWORK;

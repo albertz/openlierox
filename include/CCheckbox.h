@@ -56,7 +56,7 @@ public:
 private:
 	// Attributes
 	bool		bValue;
-	CachedDataPointer<SDL_Surface> bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	bool		*bVar;
 	int			*iVar;
 	CGuiSkin::CallbackHandler cClick;
@@ -95,7 +95,7 @@ public:
 
 
 	// Draw the title button
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void);
 

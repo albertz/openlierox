@@ -26,6 +26,8 @@
 #include <windows.h>
 #endif
 
+#include "SmartPointer.h"
+
 // Initialization sub-systems
 #define		AUX_INIT_SDL		0
 #define		AUX_INIT_2DVIDEO	1
@@ -46,7 +48,7 @@ bool		SetVideoMode();
 HWND		GetWindowHandle();
 #endif
 
-void        FlipScreen(SDL_Surface *psScreen);
+void        FlipScreen(const SmartPointer<SDL_Surface> & psScreen);
 void		CapFPS();
 
 std::string	GetGameName();

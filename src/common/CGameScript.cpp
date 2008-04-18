@@ -744,9 +744,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 ///////////////////
 // Load an image
-CachedDataPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
+SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
-	CachedDataPointer<SDL_Surface> img = NULL;
+	SmartPointer<SDL_Surface> img = NULL;
 
 	// First, check the gfx directory in the mod dir
 	img = LoadImage(dir + "/gfx/" + filename, true);	
@@ -764,9 +764,9 @@ CachedDataPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, 
 
 ///////////////////
 // Load a sample
-CachedDataPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
+SmartPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
-	CachedDataPointer<SoundSample> smp = NULL;
+	SmartPointer<SoundSample> smp = NULL;
 
 	// First, check the sfx directory in the mod dir
 	smp = LoadSample(dir + "/sfx/" + filename, 10);
@@ -1005,3 +1005,8 @@ void CGameScript::CopyFrom(CGameScript *cg)
 	Strength = cg->Strength;
 }
 */
+
+template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj )
+{
+	delete obj;
+};

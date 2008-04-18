@@ -80,7 +80,7 @@ bool CTextbox::HandleTimerEvent(Timer* sender, void* userData)
 
 ///////////////////
 // Draw the text box
-void CTextbox::Draw(SDL_Surface *bmpDest)
+void CTextbox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	std::string buf = "";
 	std::string text = sText;

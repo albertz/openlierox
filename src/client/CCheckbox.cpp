@@ -23,7 +23,7 @@
 
 ///////////////////
 // Draw the checkbox
-void CCheckbox::Draw(SDL_Surface *bmpDest)
+void CCheckbox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (bRedrawMenu)
 		Menu_redrawBufferRect( iX,iY, 17,17 );

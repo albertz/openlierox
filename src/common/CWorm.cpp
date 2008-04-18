@@ -182,19 +182,14 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	gfxFreeSurface(bmpWormLeft);
 	bmpWormLeft = NULL;
 
-	gfxFreeSurface(bmpWormRight);
 	bmpWormRight = NULL;
 
-	gfxFreeSurface(bmpPic);
 	bmpPic = NULL;
 
-    gfxFreeSurface(bmpShadowPic);
     bmpShadowPic = NULL;
 
-	gfxFreeSurface(bmpGibs);
 	bmpGibs = NULL;
 }
 
@@ -385,10 +380,10 @@ void CWorm::LoadProfileGraphics() {
 
 ///////////////////
 // Change the graphics of an image
-SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
+SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int team)
 {
-	SDL_Surface *img;
-	SDL_Surface *loaded;
+	SmartPointer<SDL_Surface> img;
+	SmartPointer<SDL_Surface> loaded;
 
 	// Load the image
 	loaded = LoadImage(filename);
@@ -615,7 +610,7 @@ void CWorm::GetRandomWeapons(void)
 
 ///////////////////
 // Draw/Process the weapon selection screen
-void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
+void CWorm::SelectWeapons(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
 	// TODO: this should also be used for selecting the weapons for the bot (but this in CWorm_AI then)
 	// TODO: reduce local variables in this function
@@ -763,7 +758,7 @@ int	RightMuzzle[14] = {2,3, 5,3, 4,0, 5,-8, 3,-9, 2,-13, -2,-12};
 int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 
 // TODO: what is this??
-void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y) {
+void DrawWormName(const SmartPointer<SDL_Surface> & dest, const std::string& name, Uint32 x, Uint32 y) {
 }
 
 
@@ -788,7 +783,7 @@ void CWorm::UpdateDrawPos() {
 
 
 #ifdef _AI_DEBUG
-/*		SDL_Surface *bmpDestDebug = pcMap->GetDebugImage();
+/*		SmartPointer<SDL_Surface> bmpDestDebug = pcMap->GetDebugImage();
 		if (bmpDestDebug) {
 			int node_x = (int)vPos.x*2, node_y = (int)vPos.y*2;
 
@@ -808,7 +803,7 @@ void CWorm::UpdateDrawPos() {
 
 ///////////////////
 // Draw the worm
-void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
+void CWorm::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
     if( !v )
         return;
@@ -1017,7 +1012,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 ///////////////////
 // Draw the worm's shadow
-void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
+void CWorm::DrawShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
 {
     if( tLXOptions->bShadows && v )
     	// HINT: the move by (-9,-5) is needed as it seems that the shadowpic has the worm on this position

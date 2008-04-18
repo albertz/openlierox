@@ -148,7 +148,7 @@ class weapon_t { public:
 	gs_special_t tSpecial;
 
 #ifndef _CONSOLE
-	CachedDataPointer<SoundSample> smpSample;
+	SmartPointer<SoundSample> smpSample;
 #endif
 
 };
@@ -167,7 +167,10 @@ public:
 		RestLength = 20;
 		Strength = 0.5f;
 	}
-
+	
+	~CGameScript() {
+		Shutdown();
+	}
 
 private:
 	// Attributes
@@ -196,7 +199,7 @@ private:
     FILE        *pModLog;
 
 private:
-	friend class CCache;  // Only cache can call Shutdown/CopyFrom (besides us of course)
+	//friend class CCache;  // Only cache can call Shutdown/CopyFrom (besides us of course)
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
@@ -225,8 +228,8 @@ public:
     void        modLog(const std::string& text);
 
 #ifndef _CONSOLE
-	CachedDataPointer<SDL_Surface> LoadGSImage(const std::string& dir, const std::string& filename);
-	CachedDataPointer<SoundSample> LoadGSSample(const std::string& dir, const std::string& filename);
+	SmartPointer<SDL_Surface> LoadGSImage(const std::string& dir, const std::string& filename);
+	SmartPointer<SoundSample> LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
 

@@ -26,7 +26,7 @@
 #include <assert.h>
 
 #include "Color.h"
-#include "Cache.h"
+#include "SmartPointer.h"
 
 
 //
@@ -44,13 +44,13 @@ extern	int		iSurfaceFormat;
 
 /////////////////////
 // Locking and unlocking routines, must be called before doing anything with pixels
-inline bool LockSurface(SDL_Surface *bmp)  {
+inline bool LockSurface(const SmartPointer<SDL_Surface> & bmp)  {
 	if (SDL_MUSTLOCK(bmp))
 		return SDL_LockSurface(bmp) != -1;
 	return true;
 }
 
-inline void UnlockSurface(SDL_Surface *bmp)  {
+inline void UnlockSurface(const SmartPointer<SDL_Surface> & bmp)  {
 	if (SDL_MUSTLOCK(bmp))
 		SDL_UnlockSurface(bmp);
 }
@@ -58,6 +58,8 @@ inline void UnlockSurface(SDL_Surface *bmp)  {
 #define LOCK_OR_QUIT(bmp)	{ if(!LockSurface(bmp)) return; }
 #define LOCK_OR_FAIL(bmp)	{ if(!LockSurface(bmp)) return false; }
 
+// Call this instead of SDL_GetVideoSurface()
+SmartPointer<SDL_Surface> GetVideoSurface();
 
 //
 // Clipping routines
@@ -65,7 +67,7 @@ inline void UnlockSurface(SDL_Surface *bmp)  {
 
 /////////////////////
 // Clip the line to the surface
-bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
+bool ClipLine(const SmartPointer<SDL_Surface> & dst, int * x1, int * y1, int * x2, int * y2);
 
 
 class SDLRectBasic : public SDL_Rect {
@@ -189,7 +191,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //////////////////
 // Load an image
-CachedDataPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha = false);
+SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha = false);
 
 /////////////////
 // Loads an image and quits with error if could not load
@@ -203,7 +205,7 @@ CachedDataPointer<SDL_Surface> LoadImage(const std::string& _filename, bool with
 
 /////////////////////
 // Load an image, without alpha channel
-inline bool Load_Image(CachedDataPointer<SDL_Surface>& bmp, const std::string& name)  {
+inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -214,7 +216,7 @@ inline bool Load_Image(CachedDataPointer<SDL_Surface>& bmp, const std::string& n
 
 ////////////////////
 // Load an image with alpha channel
-inline bool Load_Image_WithAlpha(CachedDataPointer<SDL_Surface>& bmp, const std::string& name)  {
+inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name, true);
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -225,7 +227,7 @@ inline bool Load_Image_WithAlpha(CachedDataPointer<SDL_Surface>& bmp, const std:
 
 ///////////////////
 // Save surface in the specified format
-bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, const std::string& Data);
+bool SaveSurface(const SmartPointer<SDL_Surface> & image, const std::string& FileName, int Format, const std::string& Data);
 
 
 //
@@ -234,13 +236,13 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 
 //////////////////
 // Creates a buffer with the same details as the screen
-inline SDL_Surface* gfxCreateSurface(int width, int height, bool forceSoftware = false) {
+inline SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoftware = false) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
 	SDL_PixelFormat* fmt = getMainPixelFormat();
 
-	SDL_Surface* result = SDL_CreateRGBSurface(
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
 			width, height, 
 			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
@@ -248,6 +250,10 @@ inline SDL_Surface* gfxCreateSurface(int width, int height, bool forceSoftware =
 	if (result)
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect(result, NULL, SDL_MapRGBA(result->format, 0, 0, 0, 255));
+
+	#ifdef DEBUG_SMARTPTR
+	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
+	#endif
 	
 	return result;
 }
@@ -255,11 +261,11 @@ inline SDL_Surface* gfxCreateSurface(int width, int height, bool forceSoftware =
 
 ///////////////////
 // Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
-inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false) {
+inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_Surface* result;
+	SmartPointer<SDL_Surface> result;
 	SDL_PixelFormat* fmt = getMainPixelFormat();
 	
 	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
@@ -281,19 +287,28 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftw
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect( result, NULL, SDL_MapRGB(result->format, 0, 0, 0));
 	
+	#ifdef DEBUG_SMARTPTR
+	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
+	#endif
+	
 	return result;
 }
 
 ////////////////////
 // Destroys a surface
-inline void gfxFreeSurface(SDL_Surface *surf)  {
+// Now with SmartPointer usage everywhere this function is forbidden!
+/*
+inline void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 	if (surf == NULL)
 		return;
 
+	#ifdef DEBUG_SMARTPTR
+	printf("gfxFreeSurface() %p\n", surf.get() );
+	#endif
 	SDL_FreeSurface(surf);
 	//surf = NULL; // That's a hack that won't fix anything
 }
-
+*/
 
 //
 // Image drawing
@@ -301,18 +316,18 @@ inline void gfxFreeSurface(SDL_Surface *surf)  {
 
 ///////////////
 // Copies one surface to another (not blitting, so the alpha values are kept!)
-void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h);
+void CopySurface(const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h);
 
 
 //////////////
 // Draw the image with a huge amount of options
-inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
+inline void DrawImageAdv(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
 	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 }
 
 //////////////
 // Draw the image with a huge amount of options
-inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+inline void DrawImageAdv(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	SDL_Rect r1 = { dx, dy, 0, 0 };
 	SDL_Rect r2 = { sx, sy, w, h };
 	DrawImageAdv( bmpDest, bmpSrc, r1, r2); 
@@ -321,19 +336,19 @@ inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 
 ///////////////
 // Draw the image, with more options
-inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
+inline void DrawImageEx(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y, int w, int h) {
 	DrawImageAdv(bmpDest, bmpSrc, 0, 0, x, y, w, h);
 }
 
 ///////////////
 // Simply draw the image
-inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect& rDest) {
+inline void DrawImage(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest) {
 	SDL_BlitSurface(bmpSrc, NULL, bmpDest, &rDest);
 }
 
 ///////////////
 // Simply draw the image
-inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
+inline void DrawImage(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {
 	SDL_Rect r = { x, y, 0, 0 };
 	DrawImage( bmpDest, bmpSrc, r);
 }
@@ -342,25 +357,25 @@ inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
 ///////////////
 // Draws image mirror flipped
 // WARNING: passing invalid source x/y/w/h causes a segfault
-void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageAdv_Mirror(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 
 ////////////////
 // Draws the image doubly stretched (fast)
-void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageStretch2(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 
 /////////////////
 // Draws the image doubly stretched while checking for colorkey
-void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageStretch2Key(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 
 /////////////////
 // Draws image doubly stretched, mirrored and checking for colorkey
 // WARNING: passing invalid source x/y/w/h causes a segfault
-void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageStretchMirrorKey(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 
 /////////////////
 // Creates a new surface of the same size and draws the image mirror flipped onto it
-inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
-	SDL_Surface* result = SDL_CreateRGBSurface(
+inline SmartPointer<SDL_Surface> GetMirroredImage(const SmartPointer<SDL_Surface> & bmpSrc)  {
+	const SmartPointer<SDL_Surface> & result = SDL_CreateRGBSurface(
 			bmpSrc->flags,
 			bmpSrc->w, bmpSrc->h,
 			bmpSrc->format->BitsPerPixel,
@@ -371,28 +386,31 @@ inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
 	if (!result)
 		return NULL;
 	DrawImageAdv_Mirror(result, bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
+	#ifdef DEBUG_SMARTPTR
+	printf("GetMirroredImage() %p\n", result.get() );
+	#endif
 	return result;
 }
 
 /////////////////
 // Draws a sprite doubly stretched but not so advanced
-inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy) {
+inline void	DrawImageStretch(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int dx, int dy) {
 	DrawImageStretch2(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h);
 }
 
 /////////////////
 // Draws a sprite doubly stretched, with a colour key and not so advanced
-inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy) {
+inline void	DrawImageStretchKey(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int dx, int dy) {
 	DrawImageStretch2Key(bmpDest, bmpSrc, 0, 0, dx, dy, bmpSrc->w, bmpSrc->h);
 }
 
 /////////////////
 // Draws the image resized according to ratios
-void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+void DrawImageResizedAdv( const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
 
 /////////////////
 // Draws the image nicely resampled, blur says how much the result should be blurred
-void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f);
+void DrawImageResampledAdv( const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f);
 
 
 //
@@ -415,7 +433,7 @@ inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 // Pixel drawing
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: bmpDest must be locked before calling this
-inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
+inline void PutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 color) {
 	PutPixelToAddr(
 			(Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel,
 			color,
@@ -441,7 +459,7 @@ inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 // Get a pixel from the surface
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: bmpSrc must be locked before calling this
-inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
+inline Uint32 GetPixel(const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
 			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
 			bmpSrc->format->BytesPerPixel);
@@ -452,7 +470,7 @@ inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 // WARNING: doesn't do clipping
 // NOTE: dst must be locked before calling this
 inline void CopyPixel_SameFormat(
-	SDL_Surface* dst, SDL_Surface* src,
+	const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_Surface> & src,
 	int dx, int dy, int sx, int sy) {
 	memcpy(
 		(Uint8*)dst->pixels + dy * dst->pitch + dx * dst->format->BytesPerPixel,
@@ -466,7 +484,7 @@ inline void CopyPixel_SameFormat(
 // WARNING: surfaces must have same format
 // NOTE: dst must be locked before calling his
 inline void CopyPixel_SameFormat(
-	SDL_Surface* dst, SDL_Surface* src, int x, int y) {
+	const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_Surface> & src, int x, int y) {
 	CopyPixel_SameFormat(dst, src, x, y, x, y);
 }
 
@@ -475,9 +493,9 @@ inline void CopyPixel_SameFormat(
 // Put pixel alpha blended with the background
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: dst must be locked before calling this
-void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a);
+void PutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour, float a);
 
-inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a) {
+inline void PutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour, Uint8 a) {
 	PutPixelA(bmpDest, x, y, colour, (float)a / 255.0f);
 }
 
@@ -496,7 +514,7 @@ inline void GetColour3(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g
 
 ////////////////
 // Returns true if the color is considered as (partly) transparent on the surface
-inline bool IsTransparent(SDL_Surface* surf, Uint32 color)  {
+inline bool IsTransparent(const SmartPointer<SDL_Surface> & surf, Uint32 color)  {
 	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
 		return true;
 	
@@ -517,23 +535,23 @@ inline bool IsTransparent(SDL_Surface* surf, Uint32 color)  {
 
 ///////////////////
 // Draw horizontal line
-void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
+void	DrawHLine(const SmartPointer<SDL_Surface> & bmpDest, int x, int x2, int y, Uint32 colour);
 
 ///////////////////
 // Draw vertical line
-void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
+void	DrawVLine(const SmartPointer<SDL_Surface> & bmpDest, int y, int y2, int x, Uint32 colour);
 
 ///////////////////
 // Draw a line
-void	DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+void	DrawLine(const SmartPointer<SDL_Surface> & dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
 
 //////////////////
 // Draw the line nicely antialiased
-void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8));
+void	AntiAliasedLine(const SmartPointer<SDL_Surface> & dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(const SmartPointer<SDL_Surface> &, int, int, Uint32, Uint8));
 
 /////////////////////
 // Draws a filled rectangle
-inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
+inline void	DrawRectFill(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, Uint32 color) {
 	SDL_Rect r;
 	r.x = x;
 	r.y = y;
@@ -544,13 +562,13 @@ inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uin
 
 ////////////////////
 // Fills the surface with specified colour
-inline void FillSurface(SDL_Surface* dst, Uint32 colour) {
+inline void FillSurface(const SmartPointer<SDL_Surface> & dst, Uint32 colour) {
 	SDL_FillRect(dst, NULL, colour);
 }
 
 ////////////////////
 // Fills the whole surface with a transparent color
-inline void FillSurfaceTransparent(SDL_Surface *dst)  {
+inline void FillSurfaceTransparent(const SmartPointer<SDL_Surface> & dst)  {
 	// check alpha first as it has priority (if set, colorkey is ignored)
 	if (dst->flags & SDL_SRCALPHA)
 		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
@@ -563,7 +581,7 @@ inline void FillSurfaceTransparent(SDL_Surface *dst)  {
 
 ////////////////////
 // Draws a rectangle
-inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
+inline void	DrawRect(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
 	DrawHLine(bmpDest, x, x2, y, colour);
 	DrawHLine(bmpDest, x, x2, y2, colour);
 	DrawVLine(bmpDest, y, y2, x, colour);
@@ -572,8 +590,8 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 
 ///////////////////
 // Draws a rectangle with transparency
-inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
-	SDL_Surface *tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
+inline void DrawRectFillA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
+	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
 	Uint8 r,g,b;
 	GetColour3(color,bmpDest->format,&r,&g,&b);
 	Uint32 friendly_col = SDL_MapRGBA(tmp->format,r,g,b,alpha);
@@ -581,13 +599,12 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 		// TODO: optimise
 		SDL_FillRect(tmp,NULL,friendly_col);
 		DrawImage(bmpDest,tmp,x,y);
-		SDL_FreeSurface(tmp);
 	}
 }
 
 //////////////////
 // Draw a triangle
-inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
+inline void DrawTriangle(const SmartPointer<SDL_Surface> & bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
 	DrawLine(bmpDest, x1, y1, x2, y2, colour);
 	DrawLine(bmpDest, x2, y2, x3, y3, colour);
 	DrawLine(bmpDest, x3, y3, x1, y1, colour);
@@ -599,9 +616,9 @@ inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, i
 // Special lines (rope, laser sight, beam)
 //
 
-void	DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
-void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
-void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void	DrawRope(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void	DrawBeam(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void	DrawLaserSight(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color);
 
 
 //
@@ -611,21 +628,21 @@ void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 // sets alpha in a safe way for both non-alpha-surfaces and alpha-surfaces
 // for non-alpha surfaces, it uses SDL_SetAlpha
 // for real alphablended surfaces, that means this multiplies a/255 to each a-value
-void SetPerSurfaceAlpha(SDL_Surface *dst, Uint8 a);
+void SetPerSurfaceAlpha(const SmartPointer<SDL_Surface> & dst, Uint8 a);
 
 // set colorkey for both alpha-blended and non-alpha surfaces
 // for non-alpha surfaces, SDL_SetAlpha is used
 // for alpha surfaces, it applies to every pixel
-void SetColorKey(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b);
+void SetColorKey(const SmartPointer<SDL_Surface> & dst, Uint8 r, Uint8 g, Uint8 b);
 
 //////////////////
 // Set's the game's default color key (pink) to the surface
 // Works for both alpha and nonalpha surfaces
-void SetColorKey(SDL_Surface* dst);
+void SetColorKey(const SmartPointer<SDL_Surface> & dst);
 
 //////////////////
 // Resets the alpha-channel and the colorkey
-inline void ResetAlpha(SDL_Surface* dst) {
+inline void ResetAlpha(const SmartPointer<SDL_Surface> & dst) {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
 	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
 

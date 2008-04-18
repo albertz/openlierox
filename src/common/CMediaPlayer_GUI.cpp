@@ -24,7 +24,7 @@
 
 ////////////////////
 // Constructor
-CPlayerButton::CPlayerButton(SDL_Surface *image) {
+CPlayerButton::CPlayerButton(const SmartPointer<SDL_Surface> & image) {
 	if (!image)
 		return;
 
@@ -34,7 +34,7 @@ CPlayerButton::CPlayerButton(SDL_Surface *image) {
 
 /////////////////////
 // Draws the button
-void CPlayerButton::Draw(SDL_Surface *bmpDest)
+void CPlayerButton::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int src_y = 0;
 	if (bDown)
@@ -64,7 +64,7 @@ int CPlayerButton::MouseUp(mouse_t *tMouse, int nDown)
 
 ///////////////////
 // Constructor
-CPlayerSlider::CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max)  {
+CPlayerSlider::CPlayerSlider(const SmartPointer<SDL_Surface> & progress, const SmartPointer<SDL_Surface> & start, const SmartPointer<SDL_Surface> & end, const SmartPointer<SDL_Surface> & background, int max)  {
 	if (!progress || !start || !end || !background)
 		return;
 	iValue = 0;
@@ -78,7 +78,7 @@ CPlayerSlider::CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surf
 
 ////////////////////
 // Draw the slider
-void CPlayerSlider::Draw(SDL_Surface *bmpDest)
+void CPlayerSlider::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Background
 	DrawImage(bmpDest,bmpBackground,iX,iY);
@@ -137,7 +137,7 @@ int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 
 /////////////////////////
 // Draws the toggle button
-void CPlayerToggleBtn::Draw(SDL_Surface *bmpDest)
+void CPlayerToggleBtn::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	int src_y = 0;
 	if (bEnabled)
@@ -172,7 +172,7 @@ CPlayerMarquee::CPlayerMarquee(const std::string& text, Uint32 col)  {
 
 /////////////////////
 // Draws the marquee
-void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
+void CPlayerMarquee::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (iTextWidth <= iWidth)  {
 		int x = iX + iWidth/2 - iTextWidth/2;
@@ -235,7 +235,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	bool done = false;
 	bool cancelled = false;
 
-	SDL_Surface *Screen = SDL_GetVideoSurface();
+	SmartPointer<SDL_Surface> Screen = GetVideoSurface();
 	keyboard_t *Keyboard = GetKeyboard();
 
 	// Initialize the GUI
@@ -267,7 +267,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	ReFillList(lv,default_dir);
 
 	// Save the area we are going to draw on in a buffer
-	SDL_Surface *bmpBuffer = gfxCreateSurface(Screen->w,Screen->h);
+	SmartPointer<SDL_Surface> bmpBuffer = gfxCreateSurface(Screen->w,Screen->h);
 	if (!bmpBuffer)
 		return NULL;
 
@@ -376,7 +376,6 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 
 	// Restore and free the buffer
 	DrawImage(Screen,bmpBuffer,0,0);
-	gfxFreeSurface(bmpBuffer);
 	bmpBuffer = NULL;
 
 	// Free the GUI

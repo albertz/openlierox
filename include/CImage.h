@@ -61,7 +61,7 @@ public:
 		}
 	}
 
-	CImage(CachedDataPointer<SDL_Surface> img) {
+	CImage(SmartPointer<SDL_Surface> img) {
 		iType = wid_Image;
 		sPath = "";
 		tImage = img;
@@ -74,7 +74,7 @@ public:
 
 private:
     // Attributes
-	CachedDataPointer<SDL_Surface> tImage;
+	SmartPointer<SDL_Surface> tImage;
 	std::string	sPath;
 	int cropX, cropY, cropW, cropH;
 	CGuiSkin::CallbackHandler cClick;
@@ -86,9 +86,9 @@ public:
 	void			Destroy(void)		{  }
 
 	inline std::string	getPath(void)		{ return sPath; }
-	CachedDataPointer<SDL_Surface> getSurface(void)	{ return tImage; }
+	SmartPointer<SDL_Surface> getSurface(void)	{ return tImage; }
 	void			Change(const std::string& Path);
-	void			Change(CachedDataPointer<SDL_Surface> bmpImg);
+	void			Change(SmartPointer<SDL_Surface> bmpImg);
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
@@ -103,7 +103,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 

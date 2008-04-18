@@ -303,7 +303,7 @@ private:
 	frame_t		tFrames[NUM_FRAMES];
 
 	// Game
-	CachedDataPointer<CGameScript> cGameScript;
+	SmartPointer<CGameScript> cGameScript;
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;
@@ -332,9 +332,9 @@ private:
 	CBar		*cHealthBar2;
 	CBar		*cWeaponBar1;
 	CBar		*cWeaponBar2;
-	SDL_Surface *bmpBoxBuffer;
-	CachedDataPointer<SDL_Surface> bmpBoxLeft;
-	CachedDataPointer<SDL_Surface> bmpBoxRight;
+	SmartPointer<SDL_Surface> bmpBoxBuffer;
+	SmartPointer<SDL_Surface> bmpBoxLeft;
+	SmartPointer<SDL_Surface> bmpBoxRight;
 	CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;
@@ -346,7 +346,7 @@ private:
 	float		fLastScoreUpdate;
 
 	// Ingame scoreboard
-	SDL_Surface *bmpIngameScoreBg;
+	SmartPointer<SDL_Surface> bmpIngameScoreBg;
 	CGuiLayout	cScoreLayout;
 
 	// Bonus's
@@ -531,37 +531,37 @@ public:
 	// Drawing
 	bool		InitializeDrawing(void);
 	bool		InitializeBar(byte number);
-	void		DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
-	void		DrawPlayerWaiting(SDL_Surface *bmpDest);
-	void		DrawBox(SDL_Surface *dst, int x, int y, int w);
-	void		Draw(SDL_Surface *bmpDest);
-	void		DrawViewport(SDL_Surface *bmpDest, byte viewport_index);
-	void		DrawProjectiles(SDL_Surface *bmpDest, CViewport *v);
-    void        DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v);
+	void		DrawPlayerWaitingColumn(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
+	void		DrawPlayerWaiting(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawBox(const SmartPointer<SDL_Surface> & dst, int x, int y, int w);
+	void		Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawViewport(const SmartPointer<SDL_Surface> & bmpDest, byte viewport_index);
+	void		DrawProjectiles(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+    void        DrawProjectileShadows(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
 	void		InitializeGameMenu();
-	void		DrawGameMenu(SDL_Surface *bmpDest);
-	void		DrawBonuses(SDL_Surface *bmpDest, CViewport *v);
+	void		DrawGameMenu(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawBonuses(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
 	void		UpdateScore(CListview *Left, CListview *Right);
 	void		UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForPlayers);
 	void		InitializeIngameScore(bool WaitForPlayers);
-	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
-	void		DrawReadyOverlay(SDL_Surface *bmpDest);
-	void		DrawText(SDL_Surface *bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
-	void		DrawLocalChat(SDL_Surface *bmpDest);
-	void		DrawRemoteChat(SDL_Surface *bmpDest);
-    void        DrawScoreboard(SDL_Surface *bmpDest);
-	void        DrawCurrentSettings(SDL_Surface *bmpDest);
+	void		DrawTime(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, float t);
+	void		DrawReadyOverlay(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawText(const SmartPointer<SDL_Surface> & bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
+	void		DrawLocalChat(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawRemoteChat(const SmartPointer<SDL_Surface> & bmpDest);
+    void        DrawScoreboard(const SmartPointer<SDL_Surface> & bmpDest);
+	void        DrawCurrentSettings(const SmartPointer<SDL_Surface> & bmpDest);
 #ifdef WITH_MEDIAPLAYER
-	void		DrawMediaPlayer(SDL_Surface *bmpDest);
+	void		DrawMediaPlayer(const SmartPointer<SDL_Surface> & bmpDest);
 #endif
     void        InitializeViewportManager(void);
-    void        DrawViewportManager(SDL_Surface *bmpDest);
+    void        DrawViewportManager(const SmartPointer<SDL_Surface> & bmpDest);
 	void		InitializeSpectatorViewportKeys();
 	void		ProcessSpectatorViewportKeys();	// Fast camera mode switching when local worm is dead
 	void		SimulateHud(void);
 	int			getTopBarBottom();
 	int			getBottomBarTop();
-	void		DrawChatter(SDL_Surface *bmpDest);
+	void		DrawChatter(const SmartPointer<SDL_Surface> & bmpDest);
 
 	// Network
 	void		Connect(const std::string& address);

@@ -60,7 +60,7 @@ sfxgen_t	sfxGeneral;
 
 ///////////////////
 // Load a sample
-CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
+SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
 
 bool InitSoundSystem(int rate, int channels, int buffers) { return false; }
 bool StartSoundSystem() { return false; }
@@ -68,7 +68,7 @@ bool StopSoundSystem() { return false; }
 bool SetSoundVolume(int vol) { return false; }
 int GetSoundVolume(void) { return 0; }
 bool QuitSoundSystem() { return false; }
-CachedDataPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
+SmartPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
 bool FreeSoundSample(SoundSample* sample) { return false; }
 bool PlaySoundSample(SoundSample* sample) { return false; }
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
@@ -108,14 +108,14 @@ byte GetMusicVolume(void) { return 0; }
 // Load a sample and cache it
 SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays);
 
-CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying)
+SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying)
 {
 	// Try cache first
-	CachedDataPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
+	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
 	if (SampleCached)
 		return SampleCached;
 		
-	SoundSample *Sample;
+	SmartPointer<SoundSample> Sample;
 
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
@@ -127,7 +127,8 @@ CachedDataPointer<SoundSample> LoadSample(const std::string& _filename, int maxp
 		return NULL;
 	
 	// Save to cache
-	return cCache.SaveSound(_filename, Sample);
+	cCache.SaveSound(_filename, Sample);
+	return Sample;
 }
 
 
@@ -554,3 +555,8 @@ id3v1_t GetMP3Info(const std::string& file)
 
 	return info;
 }
+
+template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj )
+{
+	FreeSoundSample(obj);
+};

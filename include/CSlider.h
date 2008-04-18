@@ -72,7 +72,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return SLD_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return SLD_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 

@@ -112,7 +112,7 @@ void Menu_MapEdShutdown(void)
 
 ///////////////////
 // Map editor frame
-void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
+void Menu_MapEdFrame(const SmartPointer<SDL_Surface> & bmpDest, int process)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
@@ -279,7 +279,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	//
 	// Place the objects on the map
 	//
-	SDL_Surface *MouseImg = NULL;
+	SmartPointer<SDL_Surface> MouseImg = NULL;
 	if(Mouse->X >= 22 && Mouse->X <= 618) {
 		if(Mouse->Y >= 148 && Mouse->Y <= 457) {
 

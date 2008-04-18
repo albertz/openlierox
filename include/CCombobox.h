@@ -43,7 +43,6 @@ enum {
 	CBM_SETCURSEL,
     CBS_SETCURSINDEX,
     CBM_SETCURINDEX,
-	CBM_SETIMAGE,
 	CBM_ISDROPPED,
 	CBM_SETSORTED,
 	CBM_SETUNIQUE
@@ -61,7 +60,7 @@ enum  {
 class cb_item_t { public:
 	std::string	sIndex;
 	std::string	sName;
-	CachedDataPointer<SDL_Surface> tImage;
+	SmartPointer<SDL_Surface> tImage;
 };
 
 
@@ -135,7 +134,7 @@ public:
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ bCanSearch = true; return CMB_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 	void	LoadStyle(void) {}
 	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
@@ -160,7 +159,7 @@ public:
     bool	selectNext();
     bool	selectPrev();
     int		findItem(UnicodeChar startLetter);
-	void	setImage(CachedDataPointer<SDL_Surface> img, int ItemIndex);
+	void	setImage(SmartPointer<SDL_Surface> img, int ItemIndex);
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
 	bool	getDropped(void) { return bDropped; }

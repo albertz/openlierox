@@ -67,7 +67,7 @@ void CAnimation::Parse()
 
 ///////////////////
 // Draw the image
-void CAnimation::Draw(SDL_Surface *bmpDest)
+void CAnimation::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	// Don't try to draw non-existing image
 	if (!tAnimation || !iNumFrames)

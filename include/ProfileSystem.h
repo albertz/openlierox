@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include <string>
 #include <stdlib.h>
+#include "SmartPointer.h"
 
 #define		PROFILE_VERSION		5
 
@@ -47,7 +48,7 @@ class profile_t { public:
 	Uint8			R,G,B;
 	std::string		sWeaponSlots[5];
 	int				iTeam;
-	SDL_Surface		*bmpWorm;
+	SmartPointer<SDL_Surface> bmpWorm;
 
 	profile_t *tNext;
 };
@@ -71,7 +72,7 @@ profile_t *FindProfile(int id);
 profile_t *FindProfile(const std::string& name);
 
 // General function for all to use
-SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB);
+SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG, int colB);
 
 
 

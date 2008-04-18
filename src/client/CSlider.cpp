@@ -23,7 +23,7 @@
 
 ///////////////////
 // Draw the slider
-void CSlider::Draw(SDL_Surface *bmpDest)
+void CSlider::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (bRedrawMenu)
 		Menu_redrawBufferRect(iX,iY, iWidth,iHeight);

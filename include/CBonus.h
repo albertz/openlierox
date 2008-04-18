@@ -65,7 +65,7 @@ public:
 
 	void	Spawn(CVec pos, int type, int weapon, CGameScript *gs);
 	
-	void	Draw(SDL_Surface *bmpDest, CViewport *v, int showname);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v, int showname);
 
 
 	// variables

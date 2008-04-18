@@ -22,7 +22,7 @@
 
 ///////////////////
 // Draw the input box
-void CInputbox::Draw(SDL_Surface *bmpDest)
+void CInputbox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	if (bRedrawMenu)
 		Menu_redrawBufferRect(iX,iY, bmpImage->w, MAX(bmpImage->h, tLX->cFont.GetHeight()));

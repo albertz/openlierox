@@ -74,7 +74,7 @@ void*		startFunctionData = NULL;
 
 
 keyboard_t	*kb = NULL;
-SDL_Surface	*Screen = NULL;
+SmartPointer<SDL_Surface> Screen = NULL;
 IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);
@@ -95,7 +95,7 @@ public:
 	int iLabelX;
 	int iLabelY;
 	Uint32 clLabel;
-	CachedDataPointer<SDL_Surface> bmpBackground;
+	SmartPointer<SDL_Surface> bmpBackground;
 	CBar *cBar;
 };
 
@@ -144,6 +144,10 @@ void test_Unicode_UTF8_Conversion() {
 int main(int argc, char *argv[])
 {
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+
+#ifdef DEBUG
+	setvbuf(stdout, NULL, _IOLBF, 0 );
+#endif
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
@@ -197,7 +201,7 @@ startpoint:
 	}
 
 	kb = GetKeyboard();
-	Screen = SDL_GetVideoSurface();
+	Screen = GetVideoSurface();
 	if (!bDedicated && !Screen) {
 		SystemError("Could not find screen.");
 		return -1;
@@ -303,7 +307,7 @@ startpoint:
 		}
 
 		// Pre-game initialization
-		Screen = SDL_GetVideoSurface();
+		Screen = GetVideoSurface();
 		if(!bDedicated) FillSurface(Screen, tLX->clBlack);
 		float oldtime = GetMilliSeconds();
 
@@ -313,6 +317,8 @@ startpoint:
 		tLX->bQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 
+		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
+		
 		cout << "GameLoopStart" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
@@ -347,6 +353,9 @@ startpoint:
 		cout << "GameLoopEnd" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
+
+		cCache.ClearExtraEntries(); // Game ended - clear cache
+
 	}
 
 	PhysicsEngine::UnInit();
@@ -460,7 +469,7 @@ int InitializeLieroX(void)
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
 
-	// Initialize the game colors (must be called after SDL_GetVideoSurface is not NULL and tLX is not NULL)
+	// Initialize the game colors (must be called after GetVideoSurface is not NULL and tLX is not NULL)
 	InitializeColors();
 
 	// Load the fonts (must be after colors, because colors are used inside CFont::Load)
@@ -587,7 +596,7 @@ void StartGame(void)
 {
     // Clear the screen
 	if(!bDedicated)
-		FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
+		FillSurface(GetVideoSurface(), tLX->clBlack);
 
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -635,7 +644,7 @@ void GameLoopFrame(void)
 		SetVideoMode();
 
 		// Update both menu and game screens
-		Screen = SDL_GetVideoSurface();
+		Screen = GetVideoSurface();
 		tMenu->bmpScreen = Screen;
 
 		cSwitchMode.reset();
@@ -723,7 +732,7 @@ void GotoNetMenu(void)
 void InitializeLoading()  {
 	if(bDedicated) return; // ignore this case
 
-	FillSurface(SDL_GetVideoSurface(), MakeColour(0,0,0));
+	FillSurface(GetVideoSurface(), MakeColour(0,0,0));
 
 	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
 	bool bar_visible;
@@ -779,19 +788,19 @@ void DrawLoading(byte percentage, const std::string &text)  {
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
 	int w = MAX(cLoading.bmpBackground->w, cLoading.cBar->GetWidth());
 	int h = MAX(cLoading.bmpBackground->h, cLoading.cBar->GetHeight());
-	DrawRectFill(SDL_GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
+	DrawRectFill(GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
 
 	if (cLoading.bmpBackground)
-		DrawImage(SDL_GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
+		DrawImage(GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
 
 	if (cLoading.cBar)  {
 		cLoading.cBar->SetPosition(percentage);
-		cLoading.cBar->Draw( SDL_GetVideoSurface() );
+		cLoading.cBar->Draw( GetVideoSurface() );
 	}
 
-	tLX->cFont.Draw(SDL_GetVideoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
+	tLX->cFont.Draw(GetVideoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
-	FlipScreen( SDL_GetVideoSurface() );
+	FlipScreen( GetVideoSurface() );
 }
 
 ////////////////////

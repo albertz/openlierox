@@ -715,7 +715,7 @@ void Menu_OptionsFrame(void)
 							// Set the new video mode
 							SetVideoMode();
 
-							tMenu->bmpScreen = SDL_GetVideoSurface();
+							tMenu->bmpScreen = GetVideoSurface();
 							Menu_RedrawMouse(true);
 							SDL_ShowCursor(SDL_DISABLE);
 						}

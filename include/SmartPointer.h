@@ -9,11 +9,39 @@
 
 #include <limits.h>
 #include <assert.h>
+#ifdef DEBUG_SMARTPTR
+#include <map>
+#ifdef __GLIBC__
+#include <execinfo.h>
+#endif
+#endif
+
+
 #include <SDL_thread.h>
 #include "Utils.h"
 
 template < typename _Type, typename _SpecificInitFunctor >
 class SmartPointer;
+
+// Default de-initialization action is to call operator delete, for each object type.
+template < typename _Type >
+void SmartPointer_ObjectDeinit( _Type * obj )
+{
+	delete obj;
+};
+
+// these forward-declaration are needed here
+struct SDL_Surface;
+struct SoundSample;
+class CMap;
+class CGameScript;
+
+// Specialized de-init functions, for each simple struct-like type that has no destructor
+template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj ); // Calls gfxFreeSurface(obj);
+template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj ); // Calls FreeSoundSample(obj);
+template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ); // Requires to be defined elsewhere
+template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); // Requires to be defined elsewhere
+
 
 /*
 	standard smartpointer based on simple refcounting
@@ -25,6 +53,11 @@ class SmartPointer;
 	thread safty on the pointer itself, you have to care
 	about this yourself.
 */
+
+#ifdef DEBUG_SMARTPTR
+extern std::map< void *, SDL_mutex * > SmartPointer_CollisionDetector;
+#endif
+
 template < typename _Type, typename _SpecificInitFunctor = NopFunctor<void*> >
 class SmartPointer {
 private:
@@ -33,22 +66,57 @@ private:
 	SDL_mutex* mutex;
 
 	void init(_Type* newObj) {
-		//printf("SmartPointer::init    (%10p %10p %10p %10p %3i) newObj %10p\n", this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
+		#ifdef DEBUG_SMARTPTR
+		printf("SmartPointer::init    (%10p %10p %10p %10p %3i) newObj %10p\n", this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
+		#endif
+		if( newObj == NULL )
+			return;
 		if(!mutex) {
 			mutex = SDL_CreateMutex();
 			obj = newObj;
 			refCount = new int;
 			*refCount = 1;
+			#ifdef DEBUG_SMARTPTR
+			if( SmartPointer_CollisionDetector.find(obj) != SmartPointer_CollisionDetector.end() )
+			{
+				printf("ERROR! SmartPointer collision detected, old mutex %10p, new ptr (%10p %10p %10p %10p %3i) new %10p\n", SmartPointer_CollisionDetector[obj], this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
+				#ifdef __GLIBC__
+				void *buffer[100];
+				int nptrs = backtrace(buffer, 100);
+				printf("backtrace() returned %d addresses\n", nptrs);
+				backtrace_symbols_fd(buffer, nptrs, fileno(stdout));
+				#endif
+			}
+			else
+				SmartPointer_CollisionDetector.insert( std::make_pair( obj, mutex ) );
+			#endif
 		}
 	}
 	
 	void reset() {
-		//printf("SmartPointer::reset   (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		#ifdef DEBUG_SMARTPTR
+		printf("SmartPointer::reset   (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		#endif
 		if(mutex) {
 			lock();
 			(*refCount)--;
 			if(*refCount == 0) {
-				delete obj; delete refCount; // Yay, works!
+				#ifdef DEBUG_SMARTPTR
+				if( SmartPointer_CollisionDetector.find(obj) == SmartPointer_CollisionDetector.end() )
+				{
+					printf("ERROR! SmartPointer already deleted reference (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+					#ifdef __GLIBC__
+					void *buffer[100];
+					int nptrs = backtrace(buffer, 100);
+					printf("backtrace() returned %d addresses\n", nptrs);
+					backtrace_symbols_fd(buffer, nptrs, fileno(stdout));
+					#endif
+				}
+				else
+					SmartPointer_CollisionDetector.erase(obj);
+				#endif
+				SmartPointer_ObjectDeinit( obj );
+				delete refCount; // Yay, works!
 				obj = NULL;
 				refCount = NULL;
 				unlock();
@@ -89,9 +157,11 @@ public:
 	// If you specify any template<> params here these funcs will be silently ignored by compiler
 	SmartPointer(const SmartPointer& pt) : obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
 	SmartPointer& operator=(const SmartPointer& pt) {
-		//printf("SmartPointer::op=Ptr  (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
 		if(mutex == pt.mutex) return *this; // ignore this case
 		reset();
+		#ifdef DEBUG_SMARTPTR
+		printf("SmartPointer::op=Ptr  (%10p %10p %10p %10p %3i) new (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99, &pt, pt.obj, pt.refCount, pt.mutex, pt.refCount?*pt.refCount:-99);
+		#endif
 		mutex = pt.mutex;
 		if(mutex) {
 			lock();
@@ -104,20 +174,24 @@ public:
 	
 	// WARNING: Be carefull, don't assing a pointer to different SmartPointer objects,
 	// else they will get freed twice in the end. Always copy the SmartPointer itself.
+	// In short: SmartPointer ptr(SomeObj); SmartPointer ptr1( ptr.get() ); // It's wrong, don't do that.
 	SmartPointer(_Type* pt): obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
 	SmartPointer& operator=(_Type* pt) {
-		//printf("SmartPointer::op=Type (%10p %10p %10p %3i)\n", obj, refCount, mutex, refCount?*refCount:-99);
-		assert(pt != NULL);
+		//printf("SmartPointer::op=Type (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		//assert(pt != NULL); // We can assign NULL to it
 		if(obj == pt) return *this; // ignore this case
 		reset();
 		init(pt);
 		return *this;
 	}
 	
-	_Type* get() { return obj; }
-	const _Type* get() const { return obj; }
-
-	friend class ScopedLock;
+	_Type* get() const { return obj; }	// The smartpointer itself won't change when returning address of obj, so it's const.
+	//const _Type* get() const { return obj; }	// Not needed, _Type* will be cast to const _Type* automatically
+	
+	// Convenient cast functions
+	operator _Type * () const { return obj; };
+	_Type * operator -> () const { return obj; };
+	
 };
 
 /*

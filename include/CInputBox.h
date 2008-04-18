@@ -38,7 +38,7 @@ enum {
 class CInputbox : public CWidget {
 public:
 	// Constructor
-	CInputbox(int val, const std::string& _text, CachedDataPointer<SDL_Surface> img, const std::string& name) {
+	CInputbox(int val, const std::string& _text, SmartPointer<SDL_Surface> img, const std::string& name) {
 		iKeyvalue = val;
 		sText = _text;
 		sName = name;
@@ -55,7 +55,7 @@ private:
 
 	int			iKeyvalue;
 	std::string	sText;
-	CachedDataPointer<SDL_Surface> bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	bool		bMouseOver;
 	std::string	sName;
 
@@ -96,7 +96,7 @@ public:
 	}
 
 	// Draw the title button
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	inline void	LoadStyle(void) {}
 
@@ -124,7 +124,7 @@ class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exac
 	CInputboxInput();
 	~CInputboxInput();
 	
-	void	Draw(SDL_Surface *bmpDest) {};
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {};
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	

@@ -779,7 +779,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 ///////////////////
 // Draw the worm image
-void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
+void Menu_Player_DrawWormImage(const SmartPointer<SDL_Surface> & bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
     if( !tMenu->bmpWorm )
         return;

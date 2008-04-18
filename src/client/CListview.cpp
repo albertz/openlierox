@@ -23,7 +23,7 @@
 
 ///////////////////
 // Draw the list view
-void CListview::Draw(SDL_Surface *bmpDest)
+void CListview::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	bNeedsRepaint = false; // We're repainting :)
 
@@ -378,13 +378,13 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 	bNeedsRepaint = true;
 }
 
-void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign) {
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign) {
 	AddSubitem(iType, sText, img, wid, iVAlign, tLX->clPink);
 }
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign, Uint32 iColour)
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour)
 {
 	// No last item
 	if (!tLastItem)  {
@@ -1518,16 +1518,6 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			return GetColumnWidth(Param1);
 			break;
 
-		// Add a sub item
-		case LVS_ADDSUBITEM:
-			if(Param2 == LVS_IMAGE)
-				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1, NULL); // TODO: 64bit unsafe (pointer cast)
-			else if (Param2 == LVS_WIDGET)
-				AddSubitem(LVS_WIDGET, "", NULL, (CWidget *)Param1); // TODO: 64bit unsafe (pointer cast)
-			else
-				printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
-			break;
-
 		default:
 			printf("Bad listview message\n");
 	}
@@ -1547,14 +1537,6 @@ DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 	// Add an item
 	case LVS_ADDITEM:
 		AddItem(sStr,Param,tLX->clListView);
-		break;
-
-	// Add a sub item
-	case LVS_ADDSUBITEM:
-		if(Param == LVS_TEXT)
-			AddSubitem(Param, sStr, NULL, NULL);
-		else
-			printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 		break;
 
 	default:

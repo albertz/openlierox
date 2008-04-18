@@ -43,7 +43,7 @@ public:
 private:
 	// Attributes
 
-	CachedDataPointer<SDL_Surface>	bmpFont;
+	SmartPointer<SDL_Surface>		bmpFont;
 	bool							Colorize;
 	std::vector<int>				FontWidth;
 	std::vector<int>				CharacterOffset;
@@ -53,8 +53,8 @@ private:
 	size_t							NumCharacters;
 
 	// Common colours
-	SDL_Surface		*bmpWhite;
-	SDL_Surface		*bmpGreen;
+	SmartPointer<SDL_Surface> bmpWhite;
+	SmartPointer<SDL_Surface> bmpGreen;
 
 	Uint32 f_white;
 	Uint32 f_green;
@@ -64,13 +64,13 @@ public:
 
 	int					Load(const std::string& fontname, bool _colour);
 
-	inline void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt)  {
+	inline void			Draw(const SmartPointer<SDL_Surface> & dst, int x, int y, Uint32 col, const std::string& txt)  {
 		DrawAdv(dst, x, y, 99999, col, txt);
 	}
-	void				DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
-	void				DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
-	void				DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
-	void				DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
+	void				DrawAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
+	void				DrawCentre(const SmartPointer<SDL_Surface> & dst, int x, int y, Uint32 col, const std::string& txt);
+	void				DrawCentreAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
+	void				DrawInRect(const SmartPointer<SDL_Surface> & dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
 
 	void				Shutdown(void);
 
@@ -117,7 +117,7 @@ public:
 private:
 	bool				IsColumnFree(int x);
 	void				Parse(void);
-	void				PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
+	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
 };
 
 

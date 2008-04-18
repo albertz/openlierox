@@ -35,7 +35,7 @@ enum {
 class CTitleButton : public CWidget {
 public:
 	// Constructor
-	CTitleButton(int imgid, CachedDataPointer<SDL_Surface> image) {
+	CTitleButton(int imgid, SmartPointer<SDL_Surface> image) {
 		iImageID = imgid;
 		bmpImage = image;
 		bMouseOver = false;
@@ -47,7 +47,7 @@ private:
 
 	bool		bMouseOver;
 	int			iImageID;
-	CachedDataPointer<SDL_Surface> bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	CGuiSkin::CallbackHandler cClick;
 
 public:
@@ -70,7 +70,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the title button
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 

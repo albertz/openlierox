@@ -47,7 +47,9 @@ std::string	ConfigFile;
 
 // Screen
 
-CachedDataPointer<SDL_Surface> bmpIcon=NULL;
+SmartPointer<SDL_Surface> bmpIcon=NULL;
+SmartPointer<SDL_Surface> VideoSurfacePtr = NULL;	// This surface must NOT be EVER freed!
+SmartPointer<SDL_Surface> GetVideoSurface() { return VideoSurfacePtr; };
 
 
 SDL_PixelFormat defaultFallbackFormat = 
@@ -343,6 +345,16 @@ bool SetVideoMode()
 	FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
 
 	cout << "video mode was set successfully" << endl;
+
+	if( SDL_GetVideoSurface() != VideoSurfacePtr )
+	{
+		// Do not ever free main video surface - SDL will make that for us when SDL_Quit() called.
+		// HACK - create dummy SmartPointer<SDL_Surface> and forget about it.
+		printf("SDL_GetVideoSurface() pointer memleak hack\n");
+		VideoSurfacePtr = SDL_GetVideoSurface();
+		SmartPointer<SDL_Surface> * MemLeakHack_NeverDeleteMe = new SmartPointer<SDL_Surface> (VideoSurfacePtr);
+	};
+
 	return true;
 }
 
@@ -398,7 +410,7 @@ void ProcessScreenshots()
 
 ///////////////////
 // Flip the screen
-void FlipScreen(SDL_Surface *psScreen)
+void FlipScreen(const SmartPointer<SDL_Surface> & psScreen)
 {
 	if(psScreen == NULL) return;
 	
@@ -507,7 +519,7 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 	}
 
 	// Save the surface
-	SaveSurface(SDL_GetVideoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
+	SaveSurface(GetVideoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
 }
 
 #ifdef WIN32

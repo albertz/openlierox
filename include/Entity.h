@@ -58,7 +58,7 @@ entity_t() : bUsed(false) {}
 	
 	float	fFrame;
 	float	fExtra;
-	CachedDataPointer<SDL_Surface> bmpSurf;
+	SmartPointer<SDL_Surface> bmpSurf;
 
 };
 
@@ -68,8 +68,8 @@ int		InitializeEntities(void);
 void	ShutdownEntities(void);
 void	ClearEntities(void);
 
-void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, CachedDataPointer<SDL_Surface> img);
-void	DrawEntities(SDL_Surface *bmpDest, CViewport *v);
+void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const SmartPointer<SDL_Surface> & img);
+void	DrawEntities(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
 void	SimulateEntities(float dt, CMap *map);
 void	EntityBounce(entity_t *ent);
 

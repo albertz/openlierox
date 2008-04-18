@@ -165,7 +165,7 @@ void CWeather::SpawnParticle(int nType, int nType2, CVec cVel, CVec cPos)
 
 ///////////////////
 // Draw the weather
-void CWeather::Draw(SDL_Surface *psDest, CViewport *view)
+void CWeather::Draw(const SmartPointer<SDL_Surface> & psDest, CViewport *view)
 {
     int wx = view->GetWorldX();
 	int wy = view->GetWorldY();

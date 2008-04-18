@@ -27,7 +27,7 @@
 
 ///////////////////
 // Draw the combo box
-void CCombobox::Draw(SDL_Surface *bmpDest)
+void CCombobox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 {
 	mouse_t *tMouse = GetMouse();
 
@@ -597,11 +597,6 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
             setCurItem(Param1);
             break;
 
-		// Set the image for the specified item
-		case CBM_SETIMAGE:
-			setImage((SDL_Surface *) Param2, Param1); // TODO: 64bit unsafe
-			break;
-
 		// Return true, if the combobox is dropped
 		case CBM_ISDROPPED:
 			return (int)bDropped;
@@ -905,7 +900,7 @@ int CCombobox::getIndexBySIndex(const std::string& szString) {
 
 ///////////////////
 // Set the image for the specified item
-void CCombobox::setImage(CachedDataPointer<SDL_Surface> img, int ItemIndex)
+void CCombobox::setImage(SmartPointer<SDL_Surface> img, int ItemIndex)
 {
 	cb_item_t* item = getItemRW(ItemIndex);
 	if(item) item->tImage = img;

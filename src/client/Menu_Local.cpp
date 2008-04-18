@@ -485,8 +485,11 @@ void Menu_LocalAddProfiles(void)
 
 	for(; p; p=p->tNext) {
 		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDITEM, "", p->iID);
-		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
-		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
+		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
+		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
+		CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
+		w->AddSubitem( LVS_IMAGE, "", p->bmpWorm, NULL );
+		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 
 	// Add players from previous game to playing list

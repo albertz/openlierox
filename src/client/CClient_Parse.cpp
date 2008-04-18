@@ -578,9 +578,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	cGameScript = cCache.GetMod( sModName );
 	if( cGameScript == NULL )
 	{
-		CGameScript* gs = new CGameScript();
-		int result = gs->Load(sModName);
-		cGameScript = cCache.SaveMod( sModName, gs );
+		cGameScript = new CGameScript();
+		int result = cGameScript->Load(sModName);
+		cCache.SaveMod( sModName, cGameScript );
 		if(result != GSE_OK) {
 
 			// Show any error messages
@@ -1825,7 +1825,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 				(unsigned long)(tLX->fCurTime*1000.0f), 
 				numPlayers, localWorm, randomSeed, 
 				options, weaponRestrictions, 
-				640, 480, SDL_GetVideoSurface() );	// TODO: don't use SDL_GetVideoSurface(), use some var to pass it
+				640, 480, GetVideoSurface() );	// TODO: don't use GetVideoSurface(), use some var to pass it
 	if( ret == true )
 	{
 		printf("CClient::ParseOlxModStart() random %lu, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
@@ -1836,7 +1836,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 		bJoin_Update = true;
 		getUdpFileDownloader()->reset();
 		cLocalWorms[0]->StartGame();
-		FillSurface( SDL_GetVideoSurface(), 0 );	// Clear screen
+		FillSurface( GetVideoSurface(), 0 );	// Clear screen
 	}
 	else
 	{

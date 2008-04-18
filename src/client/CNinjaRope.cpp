@@ -91,7 +91,7 @@ void CNinjaRope::Setup(CGameScript *gs)
 
 ///////////////////
 // Draw the thing
-void CNinjaRope::Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos)
+void CNinjaRope::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, CVec ppos)
 {
 	if(!Released)
 		return;

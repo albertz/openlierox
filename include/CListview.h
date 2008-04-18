@@ -38,7 +38,6 @@ enum {
 enum {
 	LVS_ADDCOLUMN=0,
 	LVS_ADDITEM,
-	LVS_ADDSUBITEM,
 	LVM_REMOVEITEM,
 	LVM_GETCURINDEX,
 	LVS_GETCURSINDEX,
@@ -88,7 +87,7 @@ class lv_subitem_t { public:
 
 	int			iType;
 	std::string	sText;
-	SDL_Surface	*bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	CWidget		*tWidget;
 	bool		bVisible;
 	int			iExtra;
@@ -206,7 +205,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
 
 	void	LoadStyle(void) {}
 
@@ -225,8 +224,8 @@ public:
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign, Uint32 iColour);
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour);
 
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
