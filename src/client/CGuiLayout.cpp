@@ -174,7 +174,7 @@ void CGuiLayout::Shutdown(void)
 
 ///////////////////
 // Draw the widgets
-void CGuiLayout::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CGuiLayout::Draw(SDL_Surface * bmpDest)
 {
 	// Draw the widgets in reverse order
 	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)  {

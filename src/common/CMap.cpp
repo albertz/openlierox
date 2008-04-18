@@ -894,7 +894,7 @@ void CMap::CalculateDirtCount(void)
 
 ///////////////////
 // Draw the map
-void CMap::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view)
+void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	if(!bmpDrawImage || !bmpDest) return; // safty
 
@@ -912,7 +912,7 @@ void CMap::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view)
 
 ///////////////////
 // Draw an object's shadow
-void CMap::DrawObjectShadow(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
+void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
@@ -999,7 +999,7 @@ void CMap::DrawObjectShadow(const SmartPointer<SDL_Surface> & bmpDest, const Sma
 
 ///////////////////
 // Draw a pixel sized shadow
-void CMap::DrawPixelShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, int wx, int wy)
+void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy)
 {
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
@@ -1833,7 +1833,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(const SmartPointer<SDL_Surface> & bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
+void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
 {
 	int i,j;
 	float xstep,ystep;

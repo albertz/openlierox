@@ -412,7 +412,7 @@ public:
 	void		SetupInputs(const controls_t& Inputs);
 	void		InitWeaponSelection(void);
 	void		GetRandomWeapons(void);
-	void		SelectWeapons(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+	void		SelectWeapons(SDL_Surface * bmpDest, CViewport *v);
 	void		InitInputSystem();
 	void		StopInputSystem();
 
@@ -425,8 +425,8 @@ public:
 	void		DeactivateProfileGraphicsOnce() { ProfileGraphics = false; }
 	void		FreeGraphics(void);
 	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, int team);
-	void		Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
-    void        DrawShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+	void		Draw(SDL_Surface * bmpDest, CViewport *v);
+    void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
 
 	//

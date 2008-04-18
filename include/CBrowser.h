@@ -46,7 +46,7 @@ private:
 	// Methods
 	void					Parse();
 	void					ParseTag(std::string::const_iterator& it, std::string::const_iterator& last, std::string& cur_line);
-	void					RenderContent(const SmartPointer<SDL_Surface> & bmpDest);
+	void					RenderContent(SDL_Surface * bmpDest);
 
 
 public:
@@ -69,7 +69,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 	void	LoadStyle(void) {}
 
 	void	Load(const std::string& url);

@@ -79,7 +79,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
     
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	void	LoadStyle(void) {}
 

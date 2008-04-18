@@ -346,7 +346,7 @@ void Con_AddHistory(const std::string& text)
 
 ///////////////////
 // Draw the console
-void Con_Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void Con_Draw(SDL_Surface * bmpDest)
 {
 	if(Console->iState == CON_HIDDEN)
 		return;

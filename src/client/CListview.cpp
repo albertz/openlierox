@@ -23,7 +23,7 @@
 
 ///////////////////
 // Draw the list view
-void CListview::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CListview::Draw(SDL_Surface * bmpDest)
 {
 	bNeedsRepaint = false; // We're repainting :)
 

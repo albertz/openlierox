@@ -41,7 +41,7 @@ void CBonus::Spawn(CVec pos, int type, int weapon, CGameScript *gs)
 
 ///////////////////
 // Draw the bonus
-void CBonus::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v, int showname)
+void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 {
 	int wx = v->GetWorldX();
 	int wy = v->GetWorldY();

@@ -37,7 +37,7 @@
 
 // we need it here for some debugging...
 // we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
-extern	SmartPointer<SDL_Surface> Screen;
+extern SDL_Surface * Screen;
 
 // used by searchpath algo
 static const unsigned short wormsize = 7;
@@ -4813,7 +4813,7 @@ find_one_visible_node:
 
 }
 
-void drawpoint(const SmartPointer<SDL_Surface> & debug_surf, CVec point)
+void drawpoint(SDL_Surface * debug_surf, CVec point)
 {
 	DrawRectFill(debug_surf, (int)point.x * 2, (int)point.y * 2, (int)point.x * 2 + 4, (int)point.y * 2 + 4, MakeColour(0, 255, 0));
 }

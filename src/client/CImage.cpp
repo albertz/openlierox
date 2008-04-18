@@ -16,7 +16,7 @@
 
 ///////////////////
 // Draw the image
-void CImage::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CImage::Draw(SDL_Surface * bmpDest)
 {
 	// Don't try to draw non-existing image
 	if (!tImage)

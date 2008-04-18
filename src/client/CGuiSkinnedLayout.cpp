@@ -94,7 +94,7 @@ void CGuiSkinnedLayout::Shutdown(void)
 
 ///////////////////
 // Draw the widgets
-void CGuiSkinnedLayout::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CGuiSkinnedLayout::Draw(SDL_Surface * bmpDest)
 {
 	if( ! cChildLayout || ( cChildLayout && ! bChildLayoutFullscreen ) )
 		for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)

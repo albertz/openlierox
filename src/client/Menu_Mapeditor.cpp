@@ -112,7 +112,7 @@ void Menu_MapEdShutdown(void)
 
 ///////////////////
 // Map editor frame
-void Menu_MapEdFrame(const SmartPointer<SDL_Surface> & bmpDest, int process)
+void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();

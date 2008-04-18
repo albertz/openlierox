@@ -414,7 +414,7 @@ void Menu_RedrawMouse(int total)
 
 ///////////////////
 // Draw a sub title
-void Menu_DrawSubTitle(const SmartPointer<SDL_Surface> & bmpDest, int id)
+void Menu_DrawSubTitle(SDL_Surface * bmpDest, int id)
 {
 	int x = tMenu->bmpScreen->w/2;
 	x -= tMenu->bmpSubTitles->w/2;
@@ -425,7 +425,7 @@ void Menu_DrawSubTitle(const SmartPointer<SDL_Surface> & bmpDest, int id)
 
 ///////////////////
 // Draw a sub title advanced
-void Menu_DrawSubTitleAdv(const SmartPointer<SDL_Surface> & bmpDest, int id, int y)
+void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 {
 	int x = tMenu->bmpScreen->w/2;
 	x -= tMenu->bmpSubTitles->w/2;
@@ -486,7 +486,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 
 ////////////////
 // Draws advanced box
-void Menu_DrawBoxAdv(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
+void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
 {
 	// First draw the background
 	if (BgColour != tLX->clPink)
@@ -528,7 +528,7 @@ void Menu_DrawBoxAdv(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, in
 
 ///////////////////
 // Draw a box
-void Menu_DrawBox(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2)
+void Menu_DrawBox(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
     Uint32 dark = tLX->clBoxDark;
     Uint32 light = tLX->clBoxLight;
@@ -552,7 +552,7 @@ void Menu_DrawBox(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x
 
 ///////////////////
 // Draw an inset box
-void Menu_DrawBoxInset(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int x2, int y2)
+void Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
 	// Clipping
 	if (x < 0) { x2 += x; x = 0; }
@@ -581,7 +581,7 @@ void Menu_DrawBoxInset(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, 
 
 ///////////////////
 // Draw a windows style button
-void Menu_DrawWinButton(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, int w, int h, bool down)
+void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool down)
 {
     DrawRectFill(bmpDest, x,y, x+w, y+h, tLX->clWinBtnBody);
     Uint32 dark = tLX->clWinBtnDark;

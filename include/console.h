@@ -78,7 +78,7 @@ void	Con_Toggle(void);
 void	Con_Process(float dt);
 void	Con_ProcessCharacter(const KeyboardEvent& input);
 void	Con_Hide(void);
-void	Con_Draw(const SmartPointer<SDL_Surface> & bmpDest);
+void	Con_Draw(SDL_Surface * bmpDest);
 
 void	Con_AddText(int colour, const std::string& text);
 void	Con_Printf(int colour, const std::string& txt); // same as Con_AddText

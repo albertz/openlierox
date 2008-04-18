@@ -57,7 +57,7 @@ public:
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 
 	// Draw the line
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {
+	void	Draw(SDL_Surface * bmpDest) {
 		DrawLine(bmpDest, iX, iY, iX + iWidth, iY + iHeight, iColour); 
 	}
 

@@ -1298,3 +1298,16 @@ void CClient::SimulationOlxMod()
 	};
 };
 
+bool CClient::RebindSocket()
+{
+	if(!IsSocketStateValid(tSocket))
+		return false;
+	CloseSocket(tSocket);
+	InvalidateSocketState(tSocket);
+	tSocket = OpenUnreliableSocket(0);
+	if(!IsSocketStateValid(tSocket)) {
+		SetError("Error: Could not open UDP socket!");
+		return false;
+	}
+	return true;
+};

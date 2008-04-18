@@ -90,7 +90,7 @@ void SetGameCursor(int c)  {
 
 /////////////////
 // Draw game cursor
-void DrawCursor(const SmartPointer<SDL_Surface> & dst) {
+void DrawCursor(SDL_Surface * dst) {
 	if (tCurrentCursor)
 		tCurrentCursor->Draw(dst);
 }
@@ -184,7 +184,7 @@ CCursor::~CCursor()
 
 //////////////////
 // Draw the cursor
-void CCursor::Draw(const SmartPointer<SDL_Surface> & dst)
+void CCursor::Draw(SDL_Surface * dst)
 {
 	// Check
 	if (!dst || !bmpCursor)

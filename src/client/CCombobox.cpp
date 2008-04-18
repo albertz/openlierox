@@ -27,7 +27,7 @@
 
 ///////////////////
 // Draw the combo box
-void CCombobox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CCombobox::Draw(SDL_Surface * bmpDest)
 {
 	mouse_t *tMouse = GetMouse();
 

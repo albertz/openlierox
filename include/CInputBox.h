@@ -96,7 +96,7 @@ public:
 	}
 
 	// Draw the title button
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	inline void	LoadStyle(void) {}
 
@@ -124,7 +124,7 @@ class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exac
 	CInputboxInput();
 	~CInputboxInput();
 	
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {};
+	void	Draw(SDL_Surface * bmpDest) {};
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	

@@ -211,7 +211,7 @@ int CFont::GetHeight(const std::string& buf) {
 ///////////////////
 // Draws a font at X, Y, but visible only in specified rect
 // HINT: not thread-safe
-void CFont::DrawInRect(const SmartPointer<SDL_Surface> & dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
+void CFont::DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
 
 	SDL_Rect oldrect, newrect;
@@ -235,7 +235,7 @@ void CFont::DrawInRect(const SmartPointer<SDL_Surface> & dst, int x, int y, int 
 
 ///////////////////
 // Draw a font (advanced)
-void CFont::DrawAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 
 	if (txt.size() == 0)
 		return;
@@ -423,12 +423,12 @@ int CFont::GetCharacterWidth(UnicodeChar c)
 
 ///////////////////
 // Draws the text in centre alignment
-void CFont::DrawCentre(const SmartPointer<SDL_Surface> & dst, int x, int y, Uint32 col, const std::string& txt) {
+void CFont::DrawCentre(SDL_Surface * dst, int x, int y, Uint32 col, const std::string& txt) {
 	Draw(dst, x - GetWidth(txt) / 2, y, col, txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
-void CFont::DrawCentreAdv(const SmartPointer<SDL_Surface> & dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
 	DrawAdv(dst, MAX(min_x, x - GetWidth(txt) / 2), y, max_w, col, txt);
 }

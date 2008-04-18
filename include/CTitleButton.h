@@ -70,7 +70,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the title button
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	void	LoadStyle(void) {}
 

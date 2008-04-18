@@ -34,7 +34,7 @@ CPlayerButton::CPlayerButton(const SmartPointer<SDL_Surface> & image) {
 
 /////////////////////
 // Draws the button
-void CPlayerButton::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CPlayerButton::Draw(SDL_Surface * bmpDest)
 {
 	int src_y = 0;
 	if (bDown)
@@ -78,7 +78,7 @@ CPlayerSlider::CPlayerSlider(const SmartPointer<SDL_Surface> & progress, const S
 
 ////////////////////
 // Draw the slider
-void CPlayerSlider::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CPlayerSlider::Draw(SDL_Surface * bmpDest)
 {
 	// Background
 	DrawImage(bmpDest,bmpBackground,iX,iY);
@@ -137,7 +137,7 @@ int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 
 /////////////////////////
 // Draws the toggle button
-void CPlayerToggleBtn::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CPlayerToggleBtn::Draw(SDL_Surface * bmpDest)
 {
 	int src_y = 0;
 	if (bEnabled)
@@ -172,7 +172,7 @@ CPlayerMarquee::CPlayerMarquee(const std::string& text, Uint32 col)  {
 
 /////////////////////
 // Draws the marquee
-void CPlayerMarquee::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CPlayerMarquee::Draw(SDL_Surface * bmpDest)
 {
 	if (iTextWidth <= iWidth)  {
 		int x = iX + iWidth/2 - iTextWidth/2;

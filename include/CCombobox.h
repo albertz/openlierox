@@ -134,7 +134,7 @@ public:
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ bCanSearch = true; return CMB_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 	void	LoadStyle(void) {}
 	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);

@@ -23,7 +23,7 @@ int		CTextButton::MouseOver(mouse_t *tMouse)
 	return TXB_MOUSEOVER;
 };
 
-void	CTextButton::Draw(const SmartPointer<SDL_Surface> & bmpDest) 
+void	CTextButton::Draw(SDL_Surface * bmpDest) 
 {
 	CLabel::ChangeColour( bMouseOver ? iColGlow : iColNormal );
 	bMouseOver = false;

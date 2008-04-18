@@ -93,7 +93,7 @@ public:
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 
 	// Draw the label
-	inline void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {
+	inline void	Draw(SDL_Surface * bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
 		if( bVar )

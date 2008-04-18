@@ -432,7 +432,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 ///////////////////
 // Draw the projectile
-void CProjectile::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view)
+void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
@@ -523,7 +523,7 @@ void CProjectile::Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *vie
 
 ///////////////////
 // Draw the projectiles shadow
-void CProjectile::DrawShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, CMap *map)
+void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view, CMap *map)
 {
 	if (tLX->fDeltaTime >= 0.1f) // Don't draw projectile shadows with FPS <= 10 to get a little better performance
 		return;

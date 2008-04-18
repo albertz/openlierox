@@ -234,7 +234,7 @@ void CBox::PreDraw(void)
 
 /////////////////
 // Draw the frame
-void CBox::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CBox::Draw(SDL_Surface * bmpDest)
 {
 	if (bmpBuffer)
 		DrawImage(bmpDest,bmpBuffer,iX,iY);

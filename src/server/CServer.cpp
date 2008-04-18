@@ -144,8 +144,16 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Open the socket
 	tSocket = OpenUnreliableSocket(port);
 	if(!IsSocketStateValid(tSocket)) {
-		SystemError("Error: Could not open UDP socket");
-		return false;
+		if( cClient->RebindSocket() ) {	// If client has taken that socket free it
+			tSocket = OpenUnreliableSocket(port);
+			if(!IsSocketStateValid(tSocket)) {
+				SystemError("Error: Could not open UDP socket");
+				return false;
+			}
+		} else {
+			SystemError("Error: Could not open UDP socket");
+			return false;
+		}
 	}
 	if(!ListenSocket(tSocket)) {
 		SystemError( "Error: cannot start listening" );

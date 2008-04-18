@@ -654,7 +654,7 @@ bool CMediaPlayer::InitializeGfx(void)
 
 ///////////////////////
 // Draws the player to the destination surface
-void CMediaPlayer::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CMediaPlayer::Draw(SDL_Surface * bmpDest)
 {
 	// Can't draw
 	if (!bGfxInitialized || !bDrawPlayer)

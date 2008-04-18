@@ -74,7 +74,7 @@ void*		startFunctionData = NULL;
 
 
 keyboard_t	*kb = NULL;
-SmartPointer<SDL_Surface> Screen = NULL;
+SDL_Surface * Screen = NULL;
 IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);

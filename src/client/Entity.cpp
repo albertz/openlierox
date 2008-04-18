@@ -133,7 +133,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const S
 
 ///////////////////
 // Draw the entities
-void DrawEntities(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v)
+void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 {
 	if (!iEntityCount)
 		return;

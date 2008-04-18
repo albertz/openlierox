@@ -54,7 +54,7 @@ private:
 
 public:
 	// Methods
-	void		Draw(const SmartPointer<SDL_Surface> & dst);
+	void		Draw(SDL_Surface * dst);
 	int			GetWidth();
 	int			GetHeight();
 	inline int	GetPosition()  { return Position; }

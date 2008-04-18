@@ -102,7 +102,7 @@ public:
 	void		Error(int ErrorCode, const std::string& text);
 
 	gui_event_t	*Process(void);
-	void		Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void		Draw(SDL_Surface * bmpDest);
 
 	void		Shutdown(void);
 

@@ -200,7 +200,7 @@ public:
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
-	 void			Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	 void			Draw(SDL_Surface * bmpDest);
 	 void			Frame(void);
 	 void			SetDrawPlayer(bool _d);
 	 inline bool	GetDrawPlayer(void) { return bDrawPlayer; }
@@ -246,7 +246,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -287,7 +287,7 @@ public:
 	inline int GetMax(void)  { return iMax; }
 	inline void SetMax(int _m) {iMax = _m; }
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -323,7 +323,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	inline bool isOn(void) { return bEnabled; }
 
@@ -364,7 +364,7 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
-	void	Draw(const SmartPointer<SDL_Surface> & bmpDest);
+	void	Draw(SDL_Surface * bmpDest);
 
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }

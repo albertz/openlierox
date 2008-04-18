@@ -531,37 +531,37 @@ public:
 	// Drawing
 	bool		InitializeDrawing(void);
 	bool		InitializeBar(byte number);
-	void		DrawPlayerWaitingColumn(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
-	void		DrawPlayerWaiting(const SmartPointer<SDL_Surface> & bmpDest);
-	void		DrawBox(const SmartPointer<SDL_Surface> & dst, int x, int y, int w);
-	void		Draw(const SmartPointer<SDL_Surface> & bmpDest);
-	void		DrawViewport(const SmartPointer<SDL_Surface> & bmpDest, byte viewport_index);
-	void		DrawProjectiles(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
-    void        DrawProjectileShadows(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+	void		DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
+	void		DrawPlayerWaiting(SDL_Surface * bmpDest);
+	void		DrawBox(SDL_Surface * dst, int x, int y, int w);
+	void		Draw(SDL_Surface * bmpDest);
+	void		DrawViewport(SDL_Surface * bmpDest, byte viewport_index);
+	void		DrawProjectiles(SDL_Surface * bmpDest, CViewport *v);
+    void        DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v);
 	void		InitializeGameMenu();
-	void		DrawGameMenu(const SmartPointer<SDL_Surface> & bmpDest);
-	void		DrawBonuses(const SmartPointer<SDL_Surface> & bmpDest, CViewport *v);
+	void		DrawGameMenu(SDL_Surface * bmpDest);
+	void		DrawBonuses(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateScore(CListview *Left, CListview *Right);
 	void		UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForPlayers);
 	void		InitializeIngameScore(bool WaitForPlayers);
-	void		DrawTime(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, float t);
-	void		DrawReadyOverlay(const SmartPointer<SDL_Surface> & bmpDest);
-	void		DrawText(const SmartPointer<SDL_Surface> & bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
-	void		DrawLocalChat(const SmartPointer<SDL_Surface> & bmpDest);
-	void		DrawRemoteChat(const SmartPointer<SDL_Surface> & bmpDest);
-    void        DrawScoreboard(const SmartPointer<SDL_Surface> & bmpDest);
-	void        DrawCurrentSettings(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawTime(SDL_Surface * bmpDest, int x, int y, float t);
+	void		DrawReadyOverlay(SDL_Surface * bmpDest);
+	void		DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
+	void		DrawLocalChat(SDL_Surface * bmpDest);
+	void		DrawRemoteChat(SDL_Surface * bmpDest);
+    void        DrawScoreboard(SDL_Surface * bmpDest);
+	void        DrawCurrentSettings(SDL_Surface * bmpDest);
 #ifdef WITH_MEDIAPLAYER
-	void		DrawMediaPlayer(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawMediaPlayer(SDL_Surface * bmpDest);
 #endif
     void        InitializeViewportManager(void);
-    void        DrawViewportManager(const SmartPointer<SDL_Surface> & bmpDest);
+    void        DrawViewportManager(SDL_Surface * bmpDest);
 	void		InitializeSpectatorViewportKeys();
 	void		ProcessSpectatorViewportKeys();	// Fast camera mode switching when local worm is dead
 	void		SimulateHud(void);
 	int			getTopBarBottom();
 	int			getBottomBarTop();
-	void		DrawChatter(const SmartPointer<SDL_Surface> & bmpDest);
+	void		DrawChatter(SDL_Surface * bmpDest);
 
 	// Network
 	void		Connect(const std::string& address);
@@ -626,6 +626,7 @@ public:
 	int			getStatus(void)				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
+	bool		RebindSocket();	// If client has taken the port on which server should start - free it
 
 	CMap*		getMap()					{ return cMap; }
 
@@ -734,7 +735,7 @@ public:
 
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
-
+	
 };
 
 extern	CClient			*cClient;

@@ -248,10 +248,10 @@ public:
 	bool		SendPartialDirtUpdate(std::string *ss, std::string *old);	// Will update old
 	bool		RecvPartialDirtUpdate(const std::string &ss, std::string *old);	// Will update old
 
-	void		Draw(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view);
-	void        DrawObjectShadow(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
-	void        DrawPixelShadow(const SmartPointer<SDL_Surface> & bmpDest, CViewport *view, int wx, int wy);
-	void		DrawMiniMap(const SmartPointer<SDL_Surface> & bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
+	void		Draw(SDL_Surface * bmpDest, CViewport *view);
+	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
+	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
+	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
 
 private:
 	// not thread-safe, therefore private	

@@ -22,7 +22,7 @@
 
 ///////////////////
 // Draw the button
-void CButton::Draw(const SmartPointer<SDL_Surface> & bmpDest)
+void CButton::Draw(SDL_Surface * bmpDest)
 {
 	// Don't draw empty image
 	if (!bmpImage)
@@ -59,7 +59,7 @@ void CButton::Draw(const SmartPointer<SDL_Surface> & bmpDest)
 
 ///////////////////
 // Draw the button, without the buffer update
-void CButton::Draw2(const SmartPointer<SDL_Surface> & bmpDest)
+void CButton::Draw2(SDL_Surface * bmpDest)
 {  
 	// Temporarily disable buffer update and draw
 	bool old_redraw = bRedrawMenu;

@@ -41,7 +41,7 @@ using namespace std;
 
 /////////////////
 // Put the pixel alpha blended with the background
-void PutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour, float a)  {
+void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, float a)  {
 	Uint8 R1, G1, B1, A1, R2, G2, B2; 	 
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel; 	 
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1); 	 
@@ -54,7 +54,7 @@ void PutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 c
 }
 
 
-static inline Uint32 GetReducedAlphaBlendedPixel(const SmartPointer<SDL_Surface> & bmpDest, Uint8* px, float a) {
+static inline Uint32 GetReducedAlphaBlendedPixel(SDL_Surface * bmpDest, Uint8* px, float a) {
 	Uint8 R1, G1, B1, A1; 	 
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
 	return SDL_MapRGBA(bmpDest->format, R1, G1, B1, (Uint8)(a * (float)A1));
@@ -63,7 +63,7 @@ static inline Uint32 GetReducedAlphaBlendedPixel(const SmartPointer<SDL_Surface>
 
 // for alpha surfaces
 // it multiplies each alpha-value per point with a
-static void SetPerSurface_Alpha(const SmartPointer<SDL_Surface> & dst, float a) {
+static void SetPerSurface_Alpha(SDL_Surface * dst, float a) {
 	// Just set transparent alpha to pixels that match the color key
 	Uint8* pxr = (Uint8*)dst->pixels;
 	Uint8* px;
@@ -81,7 +81,7 @@ static void SetPerSurface_Alpha(const SmartPointer<SDL_Surface> & dst, float a) 
 	UnlockSurface(dst);
 }
 
-void SetPerSurfaceAlpha(const SmartPointer<SDL_Surface> & dst, Uint8 a) {
+void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a) {
 	if(dst->flags & SDL_SRCALPHA)
 		SetPerSurface_Alpha( dst, (float)a / 255.0f );
 	else
@@ -91,7 +91,7 @@ void SetPerSurfaceAlpha(const SmartPointer<SDL_Surface> & dst, Uint8 a) {
 
 //////////////////////
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
-static void SetColorKey_Alpha(const SmartPointer<SDL_Surface> & dst, Uint8 r, Uint8 g, Uint8 b) {
+static void SetColorKey_Alpha(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 	LOCK_OR_QUIT(dst);
 
 	// Just set transparent alpha to pixels that match the color key
@@ -117,7 +117,7 @@ static void SetColorKey_Alpha(const SmartPointer<SDL_Surface> & dst, Uint8 r, Ui
 
 ///////////////////////
 // Set a pink color key
-void SetColorKey(const SmartPointer<SDL_Surface> & dst)  {
+void SetColorKey(SDL_Surface * dst)  {
 	// If there's already a colorkey set, don't set it again
 	// TODO: is this really safe? perhaps we want to set it to some other value
 	// or dst->format->colorkey is just uninitialised
@@ -154,7 +154,7 @@ void SetColorKey(const SmartPointer<SDL_Surface> & dst)  {
 		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
 }
 
-void SetColorKey(const SmartPointer<SDL_Surface> & dst, Uint8 r, Uint8 g, Uint8 b) {
+void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 	if(r == 255 && g == 0 && b == 255) { // pink
 		SetColorKey(dst); // use this function as it has a workaround included for some old broken mods
 		return;
@@ -211,7 +211,7 @@ static inline int clipEncode(int x, int y, int left, int top, int right, int bot
 
 /////////////////////
 // Clip the line to the surface
-bool ClipLine(const SmartPointer<SDL_Surface> & dst, int * x1, int * y1, int * x2, int * y2)
+bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 {
     int left, right, top, bottom;
     Uint32 code1, code2;
@@ -314,7 +314,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d)  {
 
 
 // TODO: not used, remove?
-inline void CopySurfaceFast(const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h) {
+inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h) {
 	LOCK_OR_QUIT(dst);
 	LOCK_OR_QUIT(src);
 
@@ -341,7 +341,7 @@ inline void CopySurfaceFast(const SmartPointer<SDL_Surface> & dst, const SmartPo
 
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
-void CopySurface(const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h)
+void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h)
 {	
 	// Copying is a normal blit without colorkey and alpha
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
@@ -379,7 +379,7 @@ void CopySurface(const SmartPointer<SDL_Surface> & dst, const SmartPointer<SDL_S
 
 ///////////////////
 // Draw the image mirrored with a huge amount of options
-void DrawImageAdv_Mirror(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// Warning: Both surfaces have to have same bpp!
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
@@ -426,7 +426,7 @@ void DrawImageAdv_Mirror(const SmartPointer<SDL_Surface> & bmpDest, const SmartP
 
 ///////////////////
 // Draws a sprite doubly stretched
-void DrawImageStretch2(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -488,7 +488,7 @@ void DrawImageStretch2(const SmartPointer<SDL_Surface> & bmpDest, const SmartPoi
 ///////////////////
 // Draws a sprite doubly stretched with colour key
 // HINT: doesn't work with alpha-surfaces
-void DrawImageStretch2Key(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -563,7 +563,7 @@ void DrawImageStretch2Key(const SmartPointer<SDL_Surface> & bmpDest, const Smart
 
 ///////////////////
 // Draws a sprite mirrored doubly stretched with colour key
-void DrawImageStretchMirrorKey(const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -632,7 +632,7 @@ void DrawImageStretchMirrorKey(const SmartPointer<SDL_Surface> & bmpDest, const 
 
 /////////////////////////
 // Draw the image resized
-void DrawImageResizedAdv( const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
+void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -701,7 +701,7 @@ void DrawImageResizedAdv( const SmartPointer<SDL_Surface> & bmpDest, const Smart
 ////////////////////////
 // Draws the image nicely resampled
 // blur - the greater the value is, the more will be the destination image blurred
-void DrawImageResampledAdv( const SmartPointer<SDL_Surface> & bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
+void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 
@@ -827,7 +827,7 @@ int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void RopePutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
+void RopePutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
 {
 	// Warning: lock the surface before calling this!
 	// Warning: passing NULL surface will cause a segfault
@@ -858,7 +858,7 @@ void RopePutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint
 
 // For compatibility with perform_line
 // NOTE: it's slightly different, to keep the rope looking the same
-void RopePutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour) {
+void RopePutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) {
 	ropealt = !ropealt;
 
 	if (ropealt)
@@ -878,7 +878,7 @@ void RopePutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint3
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void BeamPutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
+void BeamPutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
 {
 	// No alpha, use direct pixel access
 	if (alpha == 255)  {
@@ -897,7 +897,7 @@ void BeamPutPixelA(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint
 	}
 }
  
-void BeamPutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
+void BeamPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
 	BeamPutPixelA(bmpDest, x, y, colour, 255); }
 
 
@@ -905,7 +905,7 @@ int laseralt = 0;
 
 ///////////////////
 // Put a laser-sight pixel on the surface
-void LaserSightPutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y, Uint32 colour)
+void LaserSightPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour)
 {
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
@@ -932,7 +932,7 @@ void LaserSightPutPixel(const SmartPointer<SDL_Surface> & bmpDest, int x, int y,
 ////////////////////
 // Perform a line draw using a put pixel callback
 // Grabbed from allegro
-inline void perform_line(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(const SmartPointer<SDL_Surface> & , int, int, Uint32))
+inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface * , int, int, Uint32))
 {
    int dx = x2-x1;
    int dy = y2-y1;
@@ -1020,7 +1020,7 @@ inline void perform_line(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, 
 }
 
 
-inline void secure_perform_line(const SmartPointer<SDL_Surface> & bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(const SmartPointer<SDL_Surface> & , int, int, Uint32)) {
+inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
 
@@ -1028,7 +1028,7 @@ inline void secure_perform_line(const SmartPointer<SDL_Surface> & bmpDest, int x
 }
 
 // Draw horizontal line
-void DrawHLine(const SmartPointer<SDL_Surface> & bmpDest, int x, int x2, int y, Uint32 colour) {
+void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Uint32 colour) {
 
 	if (bmpDest->flags & SDL_HWSURFACE)  {
 		DrawRectFill(bmpDest, x, y, x2, y + 1, colour); // In hardware mode this is much faster, in software it is slower
@@ -1068,7 +1068,7 @@ void DrawHLine(const SmartPointer<SDL_Surface> & bmpDest, int x, int x2, int y, 
 }
 
 // Draw vertical line
-void DrawVLine(const SmartPointer<SDL_Surface> & bmpDest, int y, int y2, int x, Uint32 colour) {
+void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Uint32 colour) {
 	if (bmpDest->flags & SDL_HWSURFACE)  {
 		DrawRectFill(bmpDest, x, y, x + 1, y2, colour); // In hardware mode this is much faster, in software it is slower
 		return;
@@ -1107,14 +1107,14 @@ void DrawVLine(const SmartPointer<SDL_Surface> & bmpDest, int y, int y2, int x, 
 }
 
 // Line drawing
-void DrawLine(const SmartPointer<SDL_Surface> & dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
+void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
 	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
 }
 
 //////////////////////
 // Draw antialiased line with an putpixel callback
 // Code basis taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
-void AntiAliasedLine(const SmartPointer<SDL_Surface> & dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(const SmartPointer<SDL_Surface> & , int, int, Uint32, Uint8))
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8))
 {
 	// Calculate line params
 	int dx = (x2 - x1);
@@ -1196,7 +1196,7 @@ void AntiAliasedLine(const SmartPointer<SDL_Surface> & dst, int x1, int y1, int 
 
 ///////////////////
 // Draws a rope line
-void DrawRope(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	ropealt = 0;
 	ropecolour = 0;
@@ -1214,7 +1214,7 @@ void DrawRope(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int
 
 ///////////////////
 // Draws a beam
-void DrawBeam(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	// Clipping
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
@@ -1229,7 +1229,7 @@ void DrawBeam(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int
 
 ///////////////////
 // Draws a laser sight
-void DrawLaserSight(const SmartPointer<SDL_Surface> & bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	// Clipping
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
@@ -1310,7 +1310,7 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 #ifndef DEDICATED_ONLY 
 ///////////////////////
 // Converts the SDL_surface to gdImagePtr
-static gdImagePtr SDLSurface2GDImage(const SmartPointer<SDL_Surface> & src) {
+static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	gdImagePtr gd_image = gdImageCreateTrueColor(src->w,src->h);
 	if(!gd_image)
 		return NULL;
@@ -1343,7 +1343,7 @@ static gdImagePtr SDLSurface2GDImage(const SmartPointer<SDL_Surface> & src) {
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface(const SmartPointer<SDL_Surface> & image, const std::string& FileName, int Format, const std::string& Data)
+bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, const std::string& Data)
 {
 	//
 	// BMP
@@ -1454,5 +1454,6 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 	SDL_FreeSurface(obj);
 };
 
+#ifdef DEBUG_SMARTPTR
 std::map< void *, SDL_mutex * > SmartPointer_CollisionDetector;
-
+#endif

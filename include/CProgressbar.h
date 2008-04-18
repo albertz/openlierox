@@ -60,7 +60,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the line
-	inline void	Draw(const SmartPointer<SDL_Surface> & bmpDest) {
+	inline void	Draw(SDL_Surface * bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
 		if( iVar )

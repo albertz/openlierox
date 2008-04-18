@@ -56,7 +56,7 @@ private:
 	int				iNumFrames;
 	int				iType;
 public:
-	void			Draw(const SmartPointer<SDL_Surface> & dst);
+	void			Draw(SDL_Surface * dst);
 	inline bool		IsAnimated()  { return bAnimated; }
 	inline int		GetType()  { return iType; }
 	inline void		SetType(int _t)  { iType = _t; }
@@ -69,7 +69,7 @@ public:
 bool InitializeCursors();
 void ShutdownCursors();
 void SetGameCursor(int c);
-void DrawCursor(const SmartPointer<SDL_Surface> & dst);
+void DrawCursor(SDL_Surface * dst);
 int GetCursorHeight(int c);
 int GetCursorWidth(int c);
 inline int GetMaxCursorHeight()  { return iMaxCursorHeight; }
