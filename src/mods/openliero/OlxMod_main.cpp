@@ -99,8 +99,9 @@ try
 	Console::writeLine("5");
 	
 	Console::write(S[Init_DSPVersion]);
-	SDL_version const* mixerVer = Mix_Linked_Version();
-	Console::write(toString(mixerVer->major) + "." + toString(mixerVer->minor));
+
+	//SDL_version const* mixerVer = Mix_Linked_Version();
+	//Console::write(toString(mixerVer->major) + "." + toString(mixerVer->minor));
 	Console::write(S[Init_Colon]);
 	Console::write(S[Init_16bit]);
 	Console::writeLine(S[Init_Autoinit]);

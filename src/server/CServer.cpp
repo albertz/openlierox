@@ -831,8 +831,6 @@ void GameServer::RegisterServerUdp(void)
 		bs.writeByte(iState);
 
 		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Send(tSocket);
 		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
 		return;	// Only one UDP masterserver is supported
 	};

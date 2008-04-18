@@ -490,6 +490,18 @@ FILE* OlxMod_OpenGameFile(const char *path, const char *mode)
 };
 
 // ----- Sound system -----
+#ifdef DEDICATED_ONLY
+
+void OlxMod_InitSoundSystem(int rate, unsigned sample_format, int channels) { };
+int OlxMod_PlaySoundSample( void * data, unsigned len, int loops ) { return -1; };
+void OlxMod_StopSoundSample( int channel ) { };
+bool OlxMod_IsSoundSamplePlaying( int channel ) { return false; };
+void OlxMod_StopSoundSystem() { };
+
+#else // DEDICATED_ONLY
+
+// TODO: make use of Sounds.h, don't use SDL mixer directly
+// Add necessary functions to Sounds.h for that
 
 bool OlxMod_SoundDisabled = true;
 int OlxMod_SampleRateConvert;
@@ -610,5 +622,6 @@ void OlxMod_StopSoundSystem()
 	OlxMod_SoundCache.clear();
 };
 
-};
+#endif // DEDICATED_ONLY
 
+};
