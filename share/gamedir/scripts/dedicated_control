@@ -108,9 +108,10 @@ while ded.gameState != ded.GAME_QUIT:
 						ded.sendLobbyUpdate() # Update game mode info
 					
 					ded.startGame()
-					# TODO: Why is this here too, and up above?
-					#lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME # Give our server 20 seconds to load up map
-					#lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
+					# If this isn't here, it will send the start command again and again, 
+					# and on slow computers it will never start due to that.
+					lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME # Give our server x seconds to load up map
+					lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
 	
 	if ded.gameState == ded.GAME_WEAPONS:
 		

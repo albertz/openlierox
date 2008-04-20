@@ -389,7 +389,7 @@ def parsePrivateMessage(sig):
 				worms[wormID].isAdmin = True
 				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
-				chatMsg("%s authenticated for admin! Type //help for commands info" % worms[wormID].Name)
+				chatMsg("%s authenticated for admin! Type %shelp for command info" % (cfg.ADMIN_PREFIX, worms[wormID].Name))
 		except KeyError:
 			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 
