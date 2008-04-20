@@ -167,6 +167,16 @@ def getResponseList(cmd):
 		pushSignal(s)
 	return ret
 
+
+## Misc functions ##
+def getNumWorms():
+	global worms
+	i = 0
+	for w in worms.values():
+		if w.iID != -1:
+			i += 1
+			
+	return i
 ## Sending functions ##
 
 # Set a server variable

@@ -82,12 +82,12 @@ while ded.gameState != ded.GAME_QUIT:
 				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 			
-			if not lobbyEnoughPlayers and len(ded.worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
+			if not lobbyEnoughPlayers and ded.getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
 				lobbyEnoughPlayers = True
 				ded.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
 			
-			if lobbyEnoughPlayers and len(ded.worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
+			if lobbyEnoughPlayers and ded.getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
 				lobbyEnoughPlayers = False
 				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 			
@@ -95,13 +95,13 @@ while ded.gameState != ded.GAME_QUIT:
 				lobbyWaitBeforeGame -= 1
 				if lobbyWaitBeforeGame <= 0: # Start the game
 					
-					if len(ded.worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
+					if ded.getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
 						ded.setvar("GameServer.GameInfo.iGameMode", "1")
 						ded.sendLobbyUpdate() # Update game mode info
 						counter = 0
-						for w in ded.worms.keys():
+						for w in ded.worms.values():
 							if w.iID != -1:
-								ded.setWormTeam( w, counter % 2 )
+								ded.setWormTeam( w.iID, counter % 2 )
 								counter += 1
 					else:
 						ded.setvar("GameServer.GameInfo.iGameMode", "0")
@@ -115,7 +115,7 @@ while ded.gameState != ded.GAME_QUIT:
 	
 	if ded.gameState == ded.GAME_WEAPONS:
 		
-		if len(ded.worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
+		if ded.getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
 			ded.gotoLobby()
 	
 	if ded.gameState == ded.GAME_PLAYING:
