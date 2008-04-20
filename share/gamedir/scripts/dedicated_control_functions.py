@@ -318,9 +318,9 @@ def parseAdminCommand(wormid,message):
 	except KeyError:
 		messageLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 		
-# Updates all global vars
-# But it SHOULD handle all signals coming in, and route to the right functions. 
-# (Just like when we parse networking in OLX, it's a good aproach imo)
+
+# Parses all signals that are not 2 way (like getip info -> olx returns info)
+# Returns False if there's nothing to read
 def signalHandler(sig):
 	global gameState
 	if sig == "":
