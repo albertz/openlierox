@@ -455,7 +455,6 @@ def selectNextPreset():
 		while (curPreset >= maxPresets):
 			curPreset -= 1
 		# Re-call ourselves so that we do update the preset.
-		fPreset.close() # Just incase
 		selectNextPreset()
 		return # So that we don't double the messages
 
