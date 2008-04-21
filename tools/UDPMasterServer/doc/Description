@@ -1,10 +1,22 @@
-First, server registers on UDP masterserver by sending lx::queryreturn packet each 40 seconds. No de-registering is made yet, masterserver will remove entry in 2 minutes.
-Then client gets data from UDP masterserver (I've named packets lx::getserverlist and lx::serverlist)
-If client cannot ping the host from UDP masterserver list it considers that HOS behind NAT.
-When connecting to it client sends lx::traverse to UDP masterserver and waits for an answer from the same socket/port.
-When received lx::traverse masterserver will put there original source address and re-sends it to destination host.
-When host receives lx::traverse it opens another UDP socket (actually it's already open, just not used) and sends lx::traverse from this new socket to masterserver, then sends 3 lx::pong packets to the client external IP:port specified in first lx::traverse, thus opening it's NAT to client.
-When masterserver receives lx::traverse from host it re-sends it to client.
-Client will receive external host IP:port and will try to connect there.
+All packets here start with four leading "0xFF" symbols - that's non-reliable packet in CChannel class.
+First, OLX host registers on UDP masterserver by sending "lx::register" packet each 40 seconds, 
+server responds with "lx::registered" packet, so host can auto-switch to another masterserver 
+if it won't get responce (that's not done yet in Beta5). 
+If host won't register again for 2 minutes it is deleted from list.
+When host exits normally it sends "lx::deregister" packet - masterserver won't send any responce on it.
+Client gets data from UDP masterserver with packet "lx::getserverlist" - server responds with one 
+or several "lx::serverlist" packets - check out the packet format in source, it's simple.
+If client cannot ping the host from UDP masterserver list it considers that host is behind NAT.
+When connecting to it client sends "lx::traverse" to UDP masterserver and waits for an answer.
+When received "lx::traverse" masterserver will put there original source address and re-sends it to destination host.
+When host receives "lx::traverse" it opens another UDP socket (actually it's already open, just not used) 
+and sends "lx::traverse" from this new socket to masterserver, then sends "lx::pong" packets to the client external 
+IP:port specified in first "lx::traverse", thus opening it's NAT to client. After 3 second timeout host also
+sends "lx::connecthere" packet to client IP, to enable hosting from symmetric NAT to clients with external IP.
+When masterserver receives "lx::traverse" from host it re-sends it to client.
+Client will receive external host IP:port, either by "lx::traverse" from masterserver,
+or by "lx::connecthere" directly from host, and will try to connect there.
 
-That algorithm will work with port restricted NATs that will preserve port numbers when changing destination IP:port - http://en.wikipedia.org/wiki/UDP_hole_punching
+That algorithm will work with port restricted NATs that will preserve port numbers when changing destination IP:port - 
+http://en.wikipedia.org/wiki/UDP_hole_punching
+Also it will work for symmetric NAT hosts and external IP / portforwarded clients.
