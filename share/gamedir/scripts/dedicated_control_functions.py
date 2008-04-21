@@ -348,10 +348,18 @@ def signalHandler(sig):
 		pass
 	
 	## Check GameState ##
-	elif header == "quit" or header == "errorstartlobby":
+	elif header == "quit":
 		gameState = GAME_QUIT
-	elif header == "backtolobby" or header == "errorstartgame" or header == "lobbystarted":
-		gameState = GAME_LOBBY		
+	elif header == "errorstartlobby":
+		gameState = GAME_QUIT
+		messageLog("errorstartlobby",LOG_ERROR)
+		
+	elif header == "backtolobby" or header == "lobbystarted":
+		gameState = GAME_LOBBY
+	elif header == "errorstartgame":
+		gameState = GAME_LOBBY
+		messageLog("errorstartgame",LOG_ERROR)
+		
 	elif header == "weaponselections":
 		gameState = GAME_WEAPONS
 	elif header == "gamestarted":
