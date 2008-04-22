@@ -42,9 +42,8 @@ TODO
     Though mostly in this cases it's easy to go around so it
     doesn't make much trouble (mostly). But should be fixed though. (!)
     (assigned to Albert)
-[ ] write general event-based HttpClient class which uses TcpClient (!)
-    (assigned to Albert)
-[ ] write general TcpClient class which takes use of the general EventHandler (!)
+[ ] write general event-based HttpClient class which uses TcpClient or libcurl (!)
+[ ] write general TcpClient class which takes use of the general EventHandler
     (assigned to Albert)
 [ ] write general EventHandler (which could also be run in an own thread)
     which has an own EventQueue and each event has an EventCallback which
@@ -80,7 +79,6 @@ TODO
 [ ] new graphics engine (waytracing & pixelcache) (!)
 [ ] possibility to change options when playing
 [ ] uniform warning/notification/error system (!)
-[ ] standalone dedicated server (!)
 [ ] select different key for ingame console
 [?] fix lobby freeze (!)
 [?] make network more stable (!)
