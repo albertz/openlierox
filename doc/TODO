@@ -104,4 +104,5 @@ TODO
 minor things:
 [X] save selected player list in local play and return in this menu after
     playing (!)
-[ ] treat ZIP-files in game-directory as virtual searchpaths
+[ ] treat ZIP-files in game-directory as virtual searchpaths - check out http://zziplib.sourceforge.net/
+    This is essential if we want to download mods from HTTP servers, not only from host OLX like now.
