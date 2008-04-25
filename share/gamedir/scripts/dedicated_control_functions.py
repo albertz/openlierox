@@ -345,7 +345,7 @@ def signalHandler(sig):
 	elif header == "chatmessage":
 		parseChatMessage(sig)
 	elif header == "wormdied":
-		pass
+		parseWormDied(sig)
 	
 	## Check GameState ##
 	elif header == "quit":
@@ -417,6 +417,16 @@ def parseChatMessage(sig):
 	msg( "Chat msg from worm %i: %s" % (wormID, message))
 	if worms[wormID].isAdmin:
 		parseAdminCommand(wormID,message)
+		
+def parseWormDied(sig):
+	deaderID = int(sig.split(" ")[1])
+	killerID = int(sig.split(" ")[2])
+	try:
+		f = open("pwn0meter.txt","a")
+		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
+		f.close()
+	except IOError:
+		msg("ERROR: Unable to open pwn0meter.txt")
 
 ## Preset loading functions ##
 def initPresets():
