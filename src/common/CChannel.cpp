@@ -15,11 +15,13 @@
 // Jason Boettcher
 
 #include <iostream>
+#include <map>
 
 #include "LieroX.h"
 #include "CChannel.h"
 #include "StringUtils.h"
 #include "Timer.h"
+#include "MathLib.h"
 
 using namespace std;
 
@@ -30,10 +32,10 @@ using namespace std;
 
 ///////////////////
 // Setup the channel
-void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
+void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
 	RemoteAddr = *_adr;
-	iPort = _port;
+	//iPort = _port;
 	fLastPckRecvd = tLX->fCurTime;
 	Socket = _sock;
 	Reliable.Clear();
@@ -248,3 +250,176 @@ bool CChannel::Process(CBytestream *bs)
 
 	return true;
 }
+
+std::string printBinary(const std::string & s)
+{
+	std::string r;
+	char buf[10];
+	for(size_t f=0; f<s.size(); f++)
+	{
+		sprintf( buf, "%02X ", (unsigned)( (unsigned char)s[f] ) );
+		r += buf;
+	}
+	return r;
+};
+
+void TestCChannelRobustness()
+{
+	printf("Testing CBytestream\n");
+	CBytestream bsTest;
+	bsTest.Test();
+	printf("\n\n\n\nTesting CChannel robustness\n");
+	int lagMin = 100;
+	int lagMax = 300;
+	int packetLoss = 10; // In percents
+	int packetsPerSecond1 = 10; // One channel sends faster than another
+	int packetsPerSecond2 = 1;
+	
+	CChannel c1, c2;
+	NetworkSocket s1 = OpenUnreliableSocket(0);
+	NetworkSocket s2 = OpenUnreliableSocket(0);
+	NetworkSocket s1lag = OpenUnreliableSocket(0);
+	NetworkSocket s2lag = OpenUnreliableSocket(0);
+	NetworkAddr a1, a2, a1lag, a2lag;
+	GetLocalNetAddr( s1, a1 );
+	GetLocalNetAddr( s2, a2 );
+	GetLocalNetAddr( s1lag, a1lag );
+	GetLocalNetAddr( s2lag, a2lag );
+	c1.Create( &a1lag, s1 );
+	c2.Create( &a2lag, s2 );
+	SetRemoteNetAddr( s1lag, a2 );
+	SetRemoteNetAddr( s2lag, a1 );
+	
+	std::multimap< int, CBytestream > s1buf, s2buf;
+	
+	int i1=0, i2=0, i1r=0, i2r=0;
+	float packetDelay1 = 1000000;
+	if( packetsPerSecond1 > 0 )
+		packetDelay1 = 1000.0 / packetsPerSecond1;
+	float packetDelay2 = 1000000;
+	if( packetsPerSecond2 > 0 )
+		packetDelay2 = 1000.0 / packetsPerSecond2;
+	float nextPacket1 = 0;
+	float nextPacket2 = 0;
+	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
+	{
+		tLX->fCurTime = testtime / 1000.0;
+		
+		// Transmit number sequence and some unreliable info
+		CBytestream b1, b2, b1u, b2u;
+
+		if( nextPacket1 >= packetDelay1 )
+		{
+			nextPacket1 = 0;
+			i1++;
+			b1.writeInt(i1, 4);
+			c1.AddReliablePacketToSend(b1);
+		}
+		
+		if( nextPacket2 >= packetDelay2 )
+		{
+			nextPacket2 = 0;
+			i2++;
+			b2.writeInt(i2, 4);
+			c2.AddReliablePacketToSend(b2);
+		};
+
+		c1.Transmit( &b1u );
+		c2.Transmit( &b2u );
+		
+		b1.Clear();
+		b2.Clear();
+		
+		b1.Read(s1lag);
+		b2.Read(s2lag);
+		b1.ResetPosToBegin();
+		b2.ResetPosToBegin();
+		
+		// Add the lag
+		if( b1.GetLength() != 0 )
+		{
+			if( GetRandomInt(100) + 1 < packetLoss )
+				printf("%i: c1 sent packet - lost: %s\n", testtime, printBinary(b1.readData()).c_str() );
+			else
+			{
+				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
+				s1buf.insert( std::make_pair( lag, b1 ) );
+				printf("%i: c1 sent packet - lag %i: %s\n", testtime, lag, printBinary(b1.readData()).c_str() );
+			};
+		};
+		
+		for( std::multimap< int, CBytestream > :: iterator it = s1buf.lower_bound(testtime);
+				it != s1buf.upper_bound(testtime); it++ )
+		{
+			it->second.ResetPosToBegin();
+			it->second.ResetPosToBegin();
+			it->second.Send(s1lag);
+		};
+
+		if( b2.GetLength() != 0 )
+		{
+			if( GetRandomInt(100) + 1 < packetLoss )
+				printf("%i: c2 sent packet - lost: %s\n", testtime, printBinary(b2.readData()).c_str() );
+			else
+			{
+				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
+				s2buf.insert( std::make_pair( lag, b2 ) );
+				printf("%i: c2 sent packet - lag %i: %s\n", testtime, lag, printBinary(b2.readData()).c_str() );
+			};
+		};
+		
+		for( std::multimap< int, CBytestream > :: iterator it = s2buf.lower_bound(testtime);
+				it != s2buf.upper_bound(testtime); it++ )
+		{
+			it->second.ResetPosToBegin();
+			it->second.ResetPosToBegin();
+			it->second.Send(s2lag);
+		};
+		
+		// Receive and check number sequence and unreliable info
+		b1.Clear();
+		b2.Clear();
+		
+		b1.Read(s1);
+		b2.Read(s2);
+		b1.ResetPosToBegin();
+		b2.ResetPosToBegin();
+		
+		if( b1.GetLength() != 0 )
+		{
+			printf("%i: c1 recv packet: %s\n", testtime, printBinary(b1.readData()).c_str() );
+			b1.ResetPosToBegin();
+			if( c1.Process( &b1 ) )
+			{
+				while( b1.GetRestLen() != 0 )
+				{
+					int i1rr = b1.readInt(4);
+					printf("%i: c1 reliable packet, data %i expected %i - %s\n", testtime,
+							i1rr, i1r+1, i1rr == i1r+1 ? "good" : "ERROR!" );
+					i1r = i1rr;
+				};
+			}
+			else
+				printf("%i: c1 cannot parse packet\n", testtime);
+		};
+
+		if( b2.GetLength() != 0 )
+		{
+			printf("%i: c2 recv packet: %s\n", testtime, printBinary(b2.readData()).c_str() );
+			b2.ResetPosToBegin();
+			if( c2.Process( &b2 ) )
+			{
+				while( b2.GetRestLen() != 0 )
+				{
+					int i2rr = b2.readInt(4);
+					printf("%i: c2 reliable packet, data %i expected %i - %s\n", testtime,
+							i2rr, i2r+1, i2rr == i2r+1 ? "good" : "ERROR!" );
+					i2r = i2rr;
+				};
+			}
+			else
+				printf("%i: c2 cannot parse packet\n", testtime);
+		};
+	
+	};
+};

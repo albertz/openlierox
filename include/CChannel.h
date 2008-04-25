@@ -90,7 +90,7 @@ public:
 private:
 	// Attributes
 	NetworkAddr		RemoteAddr;
-	int				iPort;
+	//int				iPort;	// Not used
 	NetworkSocket	Socket;
 	bool			bNewReliablePacket;
 
@@ -138,11 +138,12 @@ private:
 
 public:
 	// Methods
-	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
+	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	bool		Process(CBytestream *bs);
 	void		Clear(void)				{ fLastPckRecvd = 0;
-										  iPort = LX_PORT; InvalidateSocketState(Socket);
+										  //iPort = LX_PORT; 
+										  InvalidateSocketState(Socket);
 										  iPacketsDropped = 0; iPacketsGood = 0; bNewReliablePacket = false;
 										  cIncomingRate.clear(); cOutgoingRate.clear(); }
 
@@ -151,7 +152,7 @@ public:
 	float		getLastReceived(void)	{ return fLastPckRecvd; }
 	float		getLastSent(void)		{ return fLastSent; }
 	NetworkAddr	getAddress(void)		{ return RemoteAddr; }
-	bool		gotNewReliablePacket()	{ return bNewReliablePacket; }
+	//bool		gotNewReliablePacket()	{ return bNewReliablePacket; }	// Reports wrong info! Packets should be considered reliable or not reliable by packet content only.
 
 	// Packets
 	void	AddReliablePacketToSend(CBytestream& bs);
@@ -175,16 +176,6 @@ public:
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };
 
-
-
-
-
-
-
-
-
-
-
-
+void TestCChannelRobustness();
 
 #endif  //  __CCHANNEL_H__

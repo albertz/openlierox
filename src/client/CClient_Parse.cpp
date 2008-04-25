@@ -190,7 +190,7 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	// Create my channel
 	GetRemoteNetAddr(tSocket, addr);
-	cNetChan.Create(&addr,0,tSocket);
+	cNetChan.Create(&addr,tSocket);
 
 	bJoin_Update = true;
 	bHost_Update = true;

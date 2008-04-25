@@ -1019,7 +1019,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	// Connection details
 	int		ProtocolVersion;
-	int		Port = LX_PORT;
+	//int		Port = LX_PORT;
 	int		ChallId;
 	int		iNetSpeed = 0;
 
@@ -1357,7 +1357,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.Send(tSocket);
 		}
 
-		newcl->getChannel()->Create(&adrFrom, Port, tSocket);
+		newcl->getChannel()->Create(&adrFrom, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);
 		newcl->setNetSpeed(iNetSpeed);
 

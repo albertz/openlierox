@@ -151,8 +151,8 @@ void CBytestream::Test()
 	writeBit(1);
 	writeBit(0);
 	writeBit(0);
-	writeBit(0);
 	writeBit(1);
+	std::cout << "Data.size() = " << Data.size() << " ";
 	std::cout << "Bits: (" << (unsigned)Data[0] << ", " << (unsigned)Data[1] << ") ";
 	ResetPosToBegin();
 	if(	
@@ -162,7 +162,6 @@ void CBytestream::Test()
 		readBit() != 1 ||
 		readBit() != 1 ||
 		readBit() != 1 ||
-		readBit() != 0 ||
 		readBit() != 0 ||
 		readBit() != 0 ||
 		readBit() != 1
@@ -186,6 +185,8 @@ void CBytestream::Test()
 
 	// Bit iterator
 	char bitData[10];
+	bitData[0] = 0;
+	bitData[1] = 0;
 	CBytestreamBitIterator bitIter(bitData);
 	bitIter.setBit(); ++bitIter;
 	bitIter.setBit(); ++bitIter;
@@ -193,7 +194,6 @@ void CBytestream::Test()
 	bitIter.setBit(); ++bitIter;
 	bitIter.setBit(); ++bitIter;
 	bitIter.setBit(); ++bitIter;
-	++bitIter;
 	++bitIter;
 	++bitIter;
 	bitIter.setBit(); ++bitIter;
@@ -206,7 +206,6 @@ void CBytestream::Test()
 		bitIter.readBit() != 1 ||
 		bitIter.readBit() != 1 ||
 		bitIter.readBit() != 1 ||
-		bitIter.readBit() != 0 ||
 		bitIter.readBit() != 0 ||
 		bitIter.readBit() != 0 ||
 		bitIter.readBit() != 1

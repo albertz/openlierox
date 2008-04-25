@@ -431,11 +431,23 @@ void ParseArguments(int argc, char *argv[])
      		printf("   -nosound      Disable sound\n");
      		printf("   -window       Run in window mode\n");
      		printf("   -fullscreen   Run in fullscreen mode\n");
+			#ifdef DEBUG
+     		printf("   -nettest      Test CChannel reliability\n");
+			#endif
 
 			// Shutdown and quit
 			ShutdownLieroX();
      		exit(0);
         }
+		#ifdef DEBUG
+		if( !stricmp(a, "-nettest") )
+		{
+			InitializeLieroX();
+			TestCChannelRobustness();
+			ShutdownLieroX();
+     		exit(0);
+		}
+		#endif
     }
 }
 
