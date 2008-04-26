@@ -4,7 +4,7 @@
 <title>OpenLieroX</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="author" content="Albert Zeyer, Karel Petránek, Martin Griffin, Pelya">
-<meta name="keywords" content="OpenLieroX,Liero,LieroX,LX,Worms,2D-Quake,Linux,Windows,MacOSX,Mac OS X,Mac,Albert Zeyer,Karel Petránek">
+<meta name="keywords" content="OpenLieroX,Liero,LieroX,realtime worms,extreme,Worms,2D-Quake,Linux,Windows,MacOSX,Mac OS X,Mac,Albert Zeyer,Karel Petránek">
 <meta name="description" content="OpenLieroX - extremely addictive realtime worms shoot-em-up backed by an active gamers community - like Liero">
 </head>
 
