@@ -540,7 +540,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			for(i=0;i<iNumWorms;i++)
 				cLocalWorms[i]->writeWeapons( &bs );
 
-			cNetChan.AddReliablePacketToSend(bs);
+			cNetChan->AddReliablePacketToSend(bs);
 		}
 	}
 

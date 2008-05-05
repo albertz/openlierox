@@ -30,42 +30,56 @@ using namespace std;
 #define MAX_PACKET_SIZE 512
 #define RELIABLE_HEADER_LEN 8
 
+void CChannel::Clear()
+{ 
+	InvalidateSocketState(Socket);
+	iPacketsDropped = 0; 
+	iPacketsGood = 0;
+	cIncomingRate.clear(); 
+	cOutgoingRate.clear();
+	iOutgoingBytes = 0; 
+	iIncomingBytes = 0; 
+	fLastSent = fLastPckRecvd = fLastPingSent = -9999; 
+	iCurrentIncomingBytes = 0;
+	iCurrentOutgoingBytes = 0;
+};
+
 ///////////////////
 // Setup the channel
 void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
+	Clear();
 	RemoteAddr = *_adr;
-	//iPort = _port;
 	fLastPckRecvd = tLX->fCurTime;
 	Socket = _sock;
-	Reliable.Clear();
-	Messages.clear();
-	iPacketsDropped=0;
-	iPacketsGood=0;
 	fLastSent = tLX->fCurTime-1;
 	fLastPingSent = fLastSent;
-	iCurrentIncomingBytes = 0;
-	iCurrentOutgoingBytes = 0;
-	iPongSequence = -1;
 	iPing = 0;
-	bNewReliablePacket = false;
+}
 
-	// Clear the sequences
-	iIncomingSequence = 0;
-	iIncomingAcknowledged = 0;
-	iIncoming_ReliableAcknowledged = 0;
-	iIncoming_ReliableSequence = 0;
+void CChannel_056b::Clear()
+{
+	CChannel::Clear();
 	iOutgoingSequence = 0;
 	iReliableSequence = 0;
 	iLast_ReliableSequence = 0;
+	iIncomingSequence = 0;
+	iIncomingAcknowledged = 0;
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
+	fLastSent = -9999;
+	bNewReliablePacket = false;
 }
 
+void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
+{
+	Clear();
+	CChannel::Create( _adr, _sock );
+};
 
 ////////////////////
 // Adds a packet to reliable queue
-void CChannel::AddReliablePacketToSend(CBytestream& bs)
+void CChannel_056b::AddReliablePacketToSend(CBytestream& bs)
 {
 	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
 		cout
@@ -92,7 +106,7 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 
 ///////////////////
 // Transmitt data, as well as handling reliable packets
-void CChannel::Transmit( CBytestream *bs )
+void CChannel_056b::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
 	Uint32 SendReliable = 0;
@@ -112,13 +126,12 @@ void CChannel::Transmit( CBytestream *bs )
 		if (Messages.size() > 0)  {
 			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());
+			// XOR the reliable sequence
+			iReliableSequence ^= 1;	// Do not XOR sequence when pinging - may cause packet loss!
 		}
 
 		// We got a reliable packet to send
 		SendReliable = 1;
-
-		// XOR the reliable sequence
-		iReliableSequence ^= 1;
 	}
 
 	// Create the reliable packet header
@@ -169,7 +182,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 ///////////////////
 // Process channel (after receiving data)
-bool CChannel::Process(CBytestream *bs)
+bool CChannel_056b::Process(CBytestream *bs)
 {
 	Uint32 Sequence, SequenceAck;
 	Uint32 ReliableAck, ReliableMessage;
@@ -274,8 +287,9 @@ void TestCChannelRobustness()
 	int packetLoss = 10; // In percents
 	int packetsPerSecond1 = 10; // One channel sends faster than another
 	int packetsPerSecond2 = 1;
+	int packetExtraData = 32; // Extra data in bytes to add to packet to check buffer overflows
 	
-	CChannel c1, c2;
+	CChannel_056b c1, c2;
 	NetworkSocket s1 = OpenUnreliableSocket(0);
 	NetworkSocket s2 = OpenUnreliableSocket(0);
 	NetworkSocket s1lag = OpenUnreliableSocket(0);
@@ -313,6 +327,8 @@ void TestCChannelRobustness()
 			nextPacket1 = 0;
 			i1++;
 			b1.writeInt(i1, 4);
+			for( int f=0; f<packetExtraData; f++ )
+				b1.writeByte(0);
 			c1.AddReliablePacketToSend(b1);
 		}
 		
@@ -321,6 +337,8 @@ void TestCChannelRobustness()
 			nextPacket2 = 0;
 			i2++;
 			b2.writeInt(i2, 4);
+			for( int f=0; f<packetExtraData; f++ )
+				b2.writeByte(0);
 			c2.AddReliablePacketToSend(b2);
 		};
 
@@ -339,12 +357,12 @@ void TestCChannelRobustness()
 		if( b1.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c1 sent packet - lost: %s\n", testtime, printBinary(b1.readData()).c_str() );
+				printf("%i: c1 sent packet - lost (%i in buf): %s\n", testtime, c1.Messages.size(), printBinary(b1.readData()).c_str() );
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s1buf.insert( std::make_pair( lag, b1 ) );
-				printf("%i: c1 sent packet - lag %i: %s\n", testtime, lag, printBinary(b1.readData()).c_str() );
+				printf("%i: c1 sent packet - lag %i (%i in buf): %s\n", testtime, lag, c1.Messages.size(), printBinary(b1.readData()).c_str() );
 			};
 		};
 		
@@ -359,12 +377,12 @@ void TestCChannelRobustness()
 		if( b2.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c2 sent packet - lost: %s\n", testtime, printBinary(b2.readData()).c_str() );
+				printf("%i: c2 sent packet - lost (%i in buf): %s\n", testtime, c2.Messages.size(), printBinary(b2.readData()).c_str() );
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s2buf.insert( std::make_pair( lag, b2 ) );
-				printf("%i: c2 sent packet - lag %i: %s\n", testtime, lag, printBinary(b2.readData()).c_str() );
+				printf("%i: c2 sent packet - lag %i (%i in buf): %s\n", testtime, lag, c2.Messages.size(), printBinary(b2.readData()).c_str() );
 			};
 		};
 		
@@ -397,6 +415,8 @@ void TestCChannelRobustness()
 					printf("%i: c1 reliable packet, data %i expected %i - %s\n", testtime,
 							i1rr, i1r+1, i1rr == i1r+1 ? "good" : "ERROR!" );
 					i1r = i1rr;
+					for( int f=0; f<packetExtraData; f++ )
+						b1.readByte();
 				};
 			}
 			else
@@ -415,6 +435,8 @@ void TestCChannelRobustness()
 					printf("%i: c2 reliable packet, data %i expected %i - %s\n", testtime,
 							i2rr, i2r+1, i2rr == i2r+1 ? "good" : "ERROR!" );
 					i2r = i2rr;
+					for( int f=0; f<packetExtraData; f++ )
+						b2.readByte();
 				};
 			}
 			else

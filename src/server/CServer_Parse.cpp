@@ -44,22 +44,27 @@ using namespace std;
 ///////////////////
 // Parses a general packet
 void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
-	CChannel *chan = cl->getChannel();
 
-	// Ensure the incoming sequence matchs the outgoing sequence
-	if (chan->getInSeq() >= chan->getOutSeq())  {
-		//if (chan->getInSeq() != chan->getOutSeq())
-		//	printf(cl->getWorm(0)->getName() + ": sequences not same (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
-		//else
-		//	printf(cl->getWorm(0)->getName() + ": sequences match!! (" + itoa(chan->getInSeq()) + ")\n");*/
-		chan->setOutSeq(chan->getInSeq());
-	} else {
-		// Sequences have slipped
-		// Karel said: it's bullshit from JasonB, so we can ignore this warning :)
-		//printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
-		// TODO: Set the player's send_data property to false
+	// TODO: That's hack, all processing should be done in CChannel_056b
+	// Maybe server will work without that code at all, should check against 0.56b
+	CChannel_056b *chan = dynamic_cast< CChannel_056b * > (cl->getChannel());
+	if( chan != NULL )
+	{
+		// Ensure the incoming sequence matchs the outgoing sequence
+		if (chan->getInSeq() >= chan->getOutSeq())  {
+			//if (chan->getInSeq() != chan->getOutSeq())
+			//	printf(cl->getWorm(0)->getName() + ": sequences not same (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+			//else
+			//	printf(cl->getWorm(0)->getName() + ": sequences match!! (" + itoa(chan->getInSeq()) + ")\n");*/
+			chan->setOutSeq(chan->getInSeq());
+		} else {
+			// Sequences have slipped
+			// Karel said: it's bullshit from JasonB, so we can ignore this warning :)
+			//printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+			// TODO: Set the player's send_data property to false
+		}
 	}
-
+	
 	cl->setLastReceived(tLX->fCurTime);
 
 

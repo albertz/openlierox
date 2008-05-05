@@ -93,7 +93,7 @@ void CClient::SendDeath(int victim, int killer)
 	bs.writeInt(victim,1);
 	bs.writeInt(killer,1);
 
-	cNetChan.AddReliablePacketToSend(bs);
+	cNetChan->AddReliablePacketToSend(bs);
 }
 
 
@@ -222,7 +222,7 @@ void CClient::SendTextInternal(const std::string& sText, const std::string& sWor
 	else
 		bs.writeString(sWormName + ": " + sText);
 
-	cNetChan.AddReliablePacketToSend(bs);
+	cNetChan->AddReliablePacketToSend(bs);
 }
 
 #ifdef FUZZY_ERROR_TESTING
@@ -238,7 +238,7 @@ void CClient::SendRandomPacket()
 	for (int i=0; i < random_length; i++)
 		bs.writeByte((uchar)GetRandomInt(255));
 
-	cNetChan.AddReliablePacketToSend(bs);
+	cNetChan->AddReliablePacketToSend(bs);
 }
 #endif
 

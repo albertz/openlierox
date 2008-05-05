@@ -221,7 +221,7 @@ public:
 
 		szServerName="";
 
-		cNetChan.Clear();
+		cNetChan = NULL;
 		iNetStatus = NET_DISCONNECTED;
 		bsUnreliable.Clear();
 		bBadConnection = false;
@@ -400,7 +400,7 @@ private:
 	int			iChallenge;
 	float		fLastReceived;
 	NetworkSocket	tSocket;
-	CChannel	cNetChan;
+	CChannel	* cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;
     float       fZombieTime;
@@ -622,7 +622,7 @@ public:
 
 
 	// Variables
-	CChannel	*getChannel(void)			{ return &cNetChan; }
+	CChannel	*getChannel(void)			{ return cNetChan; }
 	int			getStatus(void)				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
@@ -681,8 +681,8 @@ public:
 
 	ClientRights *getRights()				{ return &tRights; }
 
-	int	getPing(void)						{ return cNetChan.getPing(); }
-	void setPing(int _p)					{ cNetChan.setPing(_p); }
+	int	getPing(void)						{ return cNetChan->getPing(); }
+	void setPing(int _p)					{ cNetChan->setPing(_p); }
 
 	// Use only when iGameType == GME_JOIN
 	int getMyPing()							{ return iMyPing; }

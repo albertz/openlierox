@@ -59,7 +59,9 @@ void CClient::Clear(void)
 	cProjectiles = NULL;
 	cMap = NULL;
 	bMapGrabbed = false;
-	cNetChan.Clear();
+	if( cNetChan )
+		delete cNetChan;
+	cNetChan = NULL;
 	iNetStatus = NET_DISCONNECTED;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
@@ -309,7 +311,7 @@ int CClient::Initialize(void)
 
 
 	// Clear the network channel
-	cNetChan.Clear();
+	//cNetChan.Clear();
 
 	// Initialize the shooting list
 	cShootList.Initialize();
@@ -353,7 +355,7 @@ void CClient::StartLogging(int num_players)
 	tGameLog->iWinner = -1;
 	tGameLog->sGameStart = GetTime();
 	tGameLog->sServerName = szServerName;
-	NetAddrToString(cNetChan.getAddress(), tGameLog->sServerIP);
+	NetAddrToString(cNetChan->getAddress(), tGameLog->sServerIP);
 
 	// Allocate log worms
 	int i;
@@ -535,7 +537,7 @@ void CClient::ProcessMapDownloads()
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);
 		getUdpFileDownloader()->send(&bs);
-		cNetChan.AddReliablePacketToSend(bs);
+		cNetChan->AddReliablePacketToSend(bs);
 		fLastFileRequestPacketReceived = tLX->fCurTime;
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
 		return;
@@ -617,13 +619,13 @@ void CClient::ReadPackets(void)
 			continue;
 
 		// Parse the packet
-		if(cNetChan.Process(&bs))
+		if(cNetChan->Process(&bs))
 			ParsePacket(&bs);
 	}
 
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan.getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
+	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
 		// Time out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
@@ -661,7 +663,7 @@ void CClient::SendPackets(void)
 #endif
 
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING_OLXMOD)
-		cNetChan.Transmit(&bsUnreliable);
+		cNetChan->Transmit(&bsUnreliable);
 
 	bsUnreliable.Clear();
 }
@@ -823,7 +825,7 @@ void CClient::Disconnect(void)
 
 	// Send the pack a few times to make sure the server gets the packet
 	for(int i=0;i<3;i++)
-		cNetChan.Transmit(&bs);
+		cNetChan->Transmit(&bs);
 
 	iNetStatus = NET_DISCONNECTED;
 
@@ -1126,7 +1128,7 @@ void CClient::BotSelectWeapons(void)
 			for(i=0;i<iNumWorms;i++)
 				cLocalWorms[i]->writeWeapons(&bytes);
 
-			cNetChan.AddReliablePacketToSend(bytes);
+			cNetChan->AddReliablePacketToSend(bytes);
 		}
 	}
 }
@@ -1284,7 +1286,7 @@ void CClient::SimulationOlxMod()
 	bs.writeByte(C2S_OLXMOD_DATA);
 	if( OlxMod_Frame( (unsigned long)(tLX->fCurTime*1000.0f), keys, &bs, cShowScore.isDown() ) )
 	{
-		cNetChan.AddReliablePacketToSend(bs);
+		cNetChan->AddReliablePacketToSend(bs);
 	};
 	if( GetKeyboard()->KeyUp[SDLK_ESCAPE] )
 	{

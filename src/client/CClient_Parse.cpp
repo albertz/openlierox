@@ -190,7 +190,13 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	// Create my channel
 	GetRemoteNetAddr(tSocket, addr);
-	cNetChan.Create(&addr,tSocket);
+
+	if( cNetChan )	// Should not happen, just in case
+		delete cNetChan;
+	// TODO: Use getServerVersion() here to create needed CChannel subclass
+	// For now we have only CChannel_056b, maybe we'll have better one in future
+	cNetChan = new CChannel_056b();
+	cNetChan->Create(&addr,tSocket);
 
 	bJoin_Update = true;
 	bHost_Update = true;
@@ -1605,7 +1611,7 @@ void CClient::ParseGotoLobby(CBytestream *)
 		bs.Clear();
 		bs.writeByte(C2S_UPDATELOBBY);
 		bs.writeByte(0);
-		cNetChan.AddReliablePacketToSend(bs);
+		cNetChan->AddReliablePacketToSend(bs);
 
 
 		// Goto the join lobby
@@ -1682,7 +1688,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 				CBytestream bs;
 				bs.writeByte(C2S_SENDFILE);
 				getUdpFileDownloader()->send( &bs );	// Single packet
-				cNetChan.AddReliablePacketToSend(bs);
+				cNetChan->AddReliablePacketToSend(bs);
 				return;
 			};
 			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
@@ -1787,7 +1793,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);
 		getUdpFileDownloader()->sendPing( &bs );
-		cNetChan.AddReliablePacketToSend(bs);
+		cNetChan->AddReliablePacketToSend(bs);
 	};
 };
 
