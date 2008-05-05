@@ -69,6 +69,7 @@ void CChannel_056b::Clear()
 	iIncomingBytes = 0;
 	fLastSent = -9999;
 	bNewReliablePacket = false;
+	iPongSequence = -1;
 }
 
 void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
@@ -152,7 +153,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (iPongSequence == -1)  {
 			iPongSequence = iOutgoingSequence - 1;
-			fLastPingSent = GetMilliSeconds();
+			fLastPingSent = tLX->fCurTime; //GetMilliSeconds();
 		}
 
 	}
@@ -173,7 +174,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// Update statistics
 	iOutgoingBytes += outpack.GetLength();
 	iCurrentOutgoingBytes += outpack.GetLength();
-	fLastSent = GetMilliSeconds();
+	fLastSent = tLX->fCurTime; //GetMilliSeconds();
 
 	// Calculate the bytes per second
 	cOutgoingRate.addData( tLX->fCurTime, outpack.GetLength() );
@@ -285,8 +286,8 @@ void TestCChannelRobustness()
 	int lagMin = 100;
 	int lagMax = 300;
 	int packetLoss = 10; // In percents
-	int packetsPerSecond1 = 10; // One channel sends faster than another
-	int packetsPerSecond2 = 1;
+	float packetsPerSecond1 = 10; // One channel sends faster than another
+	float packetsPerSecond2 = 0.2;
 	int packetExtraData = 32; // Extra data in bytes to add to packet to check buffer overflows
 	
 	CChannel_056b c1, c2;
@@ -307,10 +308,10 @@ void TestCChannelRobustness()
 	std::multimap< int, CBytestream > s1buf, s2buf;
 	
 	int i1=0, i2=0, i1r=0, i2r=0;
-	float packetDelay1 = 1000000;
+	float packetDelay1 = 10000000;
 	if( packetsPerSecond1 > 0 )
 		packetDelay1 = 1000.0 / packetsPerSecond1;
-	float packetDelay2 = 1000000;
+	float packetDelay2 = 10000000;
 	if( packetsPerSecond2 > 0 )
 		packetDelay2 = 1000.0 / packetsPerSecond2;
 	float nextPacket1 = 0;
@@ -405,7 +406,7 @@ void TestCChannelRobustness()
 		
 		if( b1.GetLength() != 0 )
 		{
-			printf("%i: c1 recv packet: %s\n", testtime, printBinary(b1.readData()).c_str() );
+			printf("%i: c1 recv packet (ping %i): %s\n", testtime, c1.getPing(), printBinary(b1.readData()).c_str() );
 			b1.ResetPosToBegin();
 			if( c1.Process( &b1 ) )
 			{
@@ -425,7 +426,7 @@ void TestCChannelRobustness()
 
 		if( b2.GetLength() != 0 )
 		{
-			printf("%i: c2 recv packet: %s\n", testtime, printBinary(b2.readData()).c_str() );
+			printf("%i: c2 recv packet (ping %i): %s\n", testtime, c2.getPing(), printBinary(b2.readData()).c_str() );
 			b2.ResetPosToBegin();
 			if( c2.Process( &b2 ) )
 			{
