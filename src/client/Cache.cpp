@@ -209,52 +209,108 @@ void CCache::ClearExtraEntries()
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< float, ImageCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
+		int count = 0;
 		for( ImageCache_t :: iterator it = ImageCache.begin(); it != ImageCache.end(); it++  )
+		{
 			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-		int clearCount = ImageCache.size() - tLXOptions->iMaxCachedEntries / 2;
-		printf("CCache::ClearExtraEntries() clearing %i images\n", clearCount);
-		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
-				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
-			ImageCache.erase( it1->second );
+			if( it->second.first.getApproximateRefCount() <= 1 )
+				count ++;
+		};
+		if( count >= tLXOptions->iMaxCachedEntries )
+		{
+			int clearCount = count - tLXOptions->iMaxCachedEntries / 2;
+			printf("CCache::ClearExtraEntries() clearing %i images\n", clearCount);
+			for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+					it1 != TimeSorted.end() && clearCount > 0; it1++ )
+			{
+				if( it1->second->second.first.tryDeleteData() )
+				{
+					clearCount --;
+					ImageCache.erase( it1->second );
+				};
+			};
+		};
 	};
 	
 	if( (int)SoundCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< float, SoundCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
+		int count = 0;
 		for( SoundCache_t :: iterator it = SoundCache.begin(); it != SoundCache.end(); it++  )
+		{
 			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-		int clearCount = SoundCache.size() - tLXOptions->iMaxCachedEntries / 2;
-		printf("CCache::ClearExtraEntries() clearing %i sounds\n", clearCount);
-		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
-				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
-			SoundCache.erase( it1->second );
+			if( it->second.first.getApproximateRefCount() <= 1 )
+				count ++;
+		};
+		if( count >= tLXOptions->iMaxCachedEntries )
+		{
+			int clearCount = count - tLXOptions->iMaxCachedEntries / 2;
+			printf("CCache::ClearExtraEntries() clearing %i sounds\n", clearCount);
+			for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			{
+				if( it1->second->second.first.tryDeleteData() )
+				{
+					clearCount --;
+					SoundCache.erase( it1->second );
+				};
+			};
+		};
 	};
 	
 	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< float, MapCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
+		int count = 0;
 		for( MapCache_t :: iterator it = MapCache.begin(); it != MapCache.end(); it++  )
+		{
 			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-		int clearCount = MapCache.size() - tLXOptions->iMaxCachedEntries / 40;
-		printf("CCache::ClearExtraEntries() clearing %i maps\n", clearCount);
-		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
-				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
-			MapCache.erase( it1->second );
+			if( it->second.first.getApproximateRefCount() <= 1 )
+				count ++;
+		};
+		if( count >= tLXOptions->iMaxCachedEntries / 10 )
+		{
+			int clearCount = count - tLXOptions->iMaxCachedEntries / 20;
+			printf("CCache::ClearExtraEntries() clearing %i maps\n", clearCount);
+			for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			{
+				if( it1->second->second.first.tryDeleteData() )
+				{
+					clearCount --;
+					MapCache.erase( it1->second );
+				};
+			};
+		};
 	};
 	
 	if( (int)ModCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< float, ModCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
+		int count = 0;
 		for( ModCache_t :: iterator it = ModCache.begin(); it != ModCache.end(); it++  )
+		{
 			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-		int clearCount = ModCache.size() - tLXOptions->iMaxCachedEntries / 40;
-		printf("CCache::ClearExtraEntries() clearing %i mods\n", clearCount);
-		for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
-				it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
-			ModCache.erase( it1->second );
+			if( it->second.first.getApproximateRefCount() <= 1 )
+				count ++;
+		};
+		if( count >= tLXOptions->iMaxCachedEntries / 10 )
+		{
+			int clearCount = count - tLXOptions->iMaxCachedEntries / 20;
+			printf("CCache::ClearExtraEntries() clearing %i mods\n", clearCount);
+			for( TimeSorted_t :: iterator it1 = TimeSorted.begin(); 
+					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
+			{
+				if( it1->second->second.first.tryDeleteData() )
+				{
+					clearCount --;
+					ModCache.erase( it1->second );
+				};
+			};
+		};
 	};
 	
 };
