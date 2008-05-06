@@ -623,6 +623,7 @@ public:
 
 	// Variables
 	CChannel	*getChannel(void)			{ return cNetChan; }
+	CChannel	*createChannel(const Version& v);
 	int			getStatus(void)				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }

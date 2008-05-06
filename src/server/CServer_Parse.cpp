@@ -1279,6 +1279,19 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			printf("GameServer: new %s client connected\n", ClientVersion.c_str());
 		}
 
+		newcl->setClientVersion( ClientVersion );
+
+		if( ! newcl->createChannel( std::min( newcl->getClientVersion(), GetGameVersion() ) ) )
+		{	// This should not happen - just in case
+			printf("Cannot create CChannel for client - invalid client version %s\n", ClientVersion.c_str() );
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
+			bytestr.Send(tSocket);
+			return;
+		};
+
 		newcl->setStatus(NET_CONNECTED);
 
 		newcl->getRights()->Nothing();  // Reset the rights here
@@ -1286,8 +1299,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// Set the worm info
 		newcl->setNumWorms(numworms);
 		//newcl->SetupWorms(numworms, worms);
-
-		newcl->setClientVersion( ClientVersion );
 
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];

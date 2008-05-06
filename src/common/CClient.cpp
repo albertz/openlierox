@@ -1313,3 +1313,12 @@ bool CClient::RebindSocket()
 	}
 	return true;
 };
+
+CChannel * CClient::createChannel(const Version& v)
+{
+	// New reliable UDP network channels may be added here in future
+	if( cNetChan )
+		delete cNetChan;
+	cNetChan = new CChannel_056b();
+	return cNetChan;
+};

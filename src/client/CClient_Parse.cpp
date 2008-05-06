@@ -191,11 +191,12 @@ void CClient::ParseConnected(CBytestream *bs)
 	// Create my channel
 	GetRemoteNetAddr(tSocket, addr);
 
-	if( cNetChan )	// Should not happen, just in case
-		delete cNetChan;
-	// TODO: Use getServerVersion() here to create needed CChannel subclass
-	// For now we have only CChannel_056b, maybe we'll have better one in future
-	cNetChan = new CChannel_056b();
+	if( ! createChannel( std::min( getServerVersion(), GetGameVersion() ) ) )
+	{
+		bServerError = true;
+		strServerErrorMsg = "Your client is incompatible to this server";
+		return;
+	};
 	cNetChan->Create(&addr,tSocket);
 
 	bJoin_Update = true;
