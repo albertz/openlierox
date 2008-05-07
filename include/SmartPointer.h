@@ -193,8 +193,8 @@ public:
 	operator _Type * () const { return obj; };
 	_Type * operator -> () const { return obj; };
 
-	int getApproximateRefCount() // refcount may be changed from another thread, though if refcount==1 or 0 it won't change
-	{
+	// refcount may be changed from another thread, though if refcount==1 or 0 it won't change
+	int getRefCount() {
 		int ret = 0;
 		if(mutex) {
 			lock();
@@ -204,8 +204,8 @@ public:
 		return ret;
 	};
 
-	bool tryDeleteData() // Returns true only if the data is deleted (no other smartpointer used it), sets pointer to NULL then
-	{
+	// Returns true only if the data is deleted (no other smartpointer used it), sets pointer to NULL then
+	bool tryDeleteData() {
 		if(mutex) {
 			lock();
 			if( *refCount == 1 )
