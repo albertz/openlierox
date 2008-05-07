@@ -38,6 +38,7 @@ float getCurrentTime()
 // Save an image to the cache
 void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface> & img)
 {
+	ScopedLock lock(mutex);
 	if( ! tLXOptions )
 		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
@@ -60,6 +61,7 @@ void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface>
 // Save a sound sample to the cache
 void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample> & smp)
 {
+	ScopedLock lock(mutex);
 	if( ! tLXOptions )
 		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
@@ -81,6 +83,7 @@ void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample>
 // Save a map to the cache
 void CCache::SaveMap(const std::string& file1, CMap *map)
 {
+	ScopedLock lock(mutex);
 	if( ! tLXOptions )
 		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
@@ -111,6 +114,7 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 // Save a mod to the cache
 void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> & mod)
 {
+	ScopedLock lock(mutex);
 	if( ! tLXOptions )
 		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )
@@ -133,6 +137,7 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 // Get an image from the cache
 SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
 {
+	ScopedLock lock(mutex);
 	std::string file = file1;
 	stringlwr(file);
 	ImageCache_t::iterator item = ImageCache.find(file);
@@ -148,6 +153,7 @@ SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
 // Get a sound sample from the cache
 SmartPointer<SoundSample> CCache::GetSound(const std::string& file1)
 {
+	ScopedLock lock(mutex);
 	std::string file = file1;
 	stringlwr(file);
 	SoundCache_t::iterator item = SoundCache.find(file);
@@ -163,6 +169,7 @@ SmartPointer<SoundSample> CCache::GetSound(const std::string& file1)
 // Get a map from the cache
 SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 {
+	ScopedLock lock(mutex);
 	std::string file = file1;
 	stringlwr(file);
 	MapCache_t::iterator item = MapCache.find(file);
@@ -178,6 +185,7 @@ SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 // Get a mod from the cache
 SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 {
+	ScopedLock lock(mutex);
 	std::string file = file1;
 	stringlwr(file);
 	ModCache_t::iterator item = ModCache.find(file);
@@ -193,6 +201,7 @@ SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 // Free all allocated data
 void CCache::Clear()
 {
+	ScopedLock lock(mutex);
 	ModCache.clear();
 	MapCache.clear();
 	ImageCache.clear();
@@ -201,6 +210,7 @@ void CCache::Clear()
 
 void CCache::ClearExtraEntries()
 {
+	ScopedLock lock(mutex);
 	if( ! tLXOptions )
 		return;
 	if( tLXOptions->iMaxCachedEntries == 0 )

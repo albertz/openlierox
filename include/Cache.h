@@ -35,7 +35,8 @@ class CGameScript;
  
 class CCache  {
 public:
-	CCache() { }
+	CCache() { mutex = SDL_CreateMutex(); };
+	~CCache() { SDL_DestroyMutex(mutex); };
 	void Clear();
 	void ClearExtraEntries(); // Clears cache partially - should be called from time to time
 
@@ -63,7 +64,8 @@ private:
 	MapCache_t MapCache;
 	typedef std::map<std::string, std::pair< SmartPointer<CGameScript>, float > > ModCache_t;
 	ModCache_t ModCache;
-
+	
+	SDL_mutex* mutex;
 };
 
 extern CCache cCache;

@@ -196,7 +196,9 @@ public:
 	{
 		int ret = 0;
 		if(mutex) {
-			ret = *refCount; // Thread-unsafe but okay, since int is atomic data that cannot be corrupted when several threads change it
+			lock();
+			ret = *refCount;
+			unlock(); // Here the other thread may change refcount, that's why it's approximate
 		};
 		return ret;
 	};
