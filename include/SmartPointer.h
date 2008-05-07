@@ -45,7 +45,7 @@ template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); /
 
 /*
 	standard smartpointer based on simple refcounting
-	
+
 	The refcounting is multithreading safe in this class,
 	you can have copies of this object in different threads.
 	Though it's not designed to operate with the same
@@ -92,7 +92,7 @@ private:
 			#endif
 		}
 	}
-	
+
 	void reset() {
 		#ifdef DEBUG_SMARTPTR
 		printf("SmartPointer::reset   (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
@@ -116,11 +116,11 @@ private:
 					SmartPointer_CollisionDetector.erase(obj);
 				#endif
 				SmartPointer_ObjectDeinit( obj );
-				delete refCount; // Yay, works!
+				delete refCount; // save, because there is no other ref anymore
 				obj = NULL;
 				refCount = NULL;
 				unlock();
-				SDL_DestroyMutex(mutex);
+				SDL_DestroyMutex(mutex); // save because there is no other ref anymore
 		 	} else
 		 		unlock();
 		}
@@ -128,19 +128,19 @@ private:
 		refCount = NULL;
 		mutex = NULL;
 	}
-	
+
 	void incCounter() {
 		assert(*refCount > 0 && *refCount < INT_MAX);
 		(*refCount)++;
 	}
-	
-	void lock() { 
+
+	void lock() {
 		//printf("SmartPointer::lock    (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		SDL_mutexP(mutex); 
+		SDL_mutexP(mutex);
 	}
-	void unlock() { 
+	void unlock() {
 		//printf("SmartPointer::unlock  (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		SDL_mutexV(mutex); 
+		SDL_mutexV(mutex);
 	}
 
 public:
@@ -148,11 +148,11 @@ public:
 		//printf("SmartPointer::construc(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
 		_SpecificInitFunctor()(this);
 	}
-	~SmartPointer() { 
+	~SmartPointer() {
 		//printf("SmartPointer::destruct(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		reset(); 
+		reset();
 	}
-	
+
 	// Default copy constructor and operator=
 	// If you specify any template<> params here these funcs will be silently ignored by compiler
 	SmartPointer(const SmartPointer& pt) : obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
@@ -171,7 +171,7 @@ public:
 		} else { obj = NULL; refCount = NULL; }
 		return *this;
 	}
-	
+
 	// WARNING: Be carefull, don't assing a pointer to different SmartPointer objects,
 	// else they will get freed twice in the end. Always copy the SmartPointer itself.
 	// In short: SmartPointer ptr(SomeObj); SmartPointer ptr1( ptr.get() ); // It's wrong, don't do that.
@@ -184,14 +184,15 @@ public:
 		init(pt);
 		return *this;
 	}
-	
+
 	_Type* get() const { return obj; }	// The smartpointer itself won't change when returning address of obj, so it's const.
-	//const _Type* get() const { return obj; }	// Not needed, _Type* will be cast to const _Type* automatically
-	
-	// Convenient cast functions
+
+	// HINT: no convenient cast functions in this class to avoid error-prone automatic casts
+	// (which would lead to collisions!)
+	// TODO: please REMOVE them!
 	operator _Type * () const { return obj; };
 	_Type * operator -> () const { return obj; };
-	
+
 	int getApproximateRefCount() // refcount may be changed from another thread, though if refcount==1 or 0 it won't change
 	{
 		int ret = 0;
@@ -218,22 +219,22 @@ public:
 		}
 		return true;	// Data was already deleted
 	};
-	
+
 };
 
 /*
 	Locks the SDL mutex instance, allowing only one thread to access the data.
-	Usage: 
+	Usage:
 	struct SomeData { int i; float f; SDL_Mutex * mutex };
 	void func( SomeData * data )
 	{
-		DoSomething(); 
+		DoSomething();
 		ScopedLock lock( data->mutex ); // Access to data is tread-safe from now
 		if( data->i == 0 )
 			return; // Unlocks here
 		data->f = 3.14;
 	} // Auto-unlocks after closing brace
-	
+
 	// HINT: Design with SmartPointer ugly indeed, so removed SmartPoiner references.
 */
 
@@ -254,11 +255,11 @@ class ScopedLock
 		// called SDL_mutexP before (else you get serious trouble). Also never call SDL_mutexV when there
 		// was no SDL_mutexP before.
 	};
-	
+
 	~ScopedLock() {
-		SDL_mutexV(data_mutex); 
+		SDL_mutexV(data_mutex);
 	};
-	
+
 	SDL_mutex* getMutex() { return data_mutex; };	// For usage with SDL_CondWait(), DON'T call SDL_mutexP( lock.getMutex() );
 };
 
