@@ -202,7 +202,7 @@ class menu_t { public:
     SmartPointer<SDL_Surface> bmpMainBack_wob;
 	SmartPointer<SDL_Surface> bmpMainBack_common;
 	SmartPointer<SDL_Surface> bmpBuffer;
-	SmartPointer<SDL_Surface> bmpScreen;
+	SDL_Surface * bmpScreen;
 	SmartPointer<SDL_Surface> bmpMsgBuffer;
     SmartPointer<SDL_Surface> bmpMiniMapBuffer;
 
