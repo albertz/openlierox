@@ -57,7 +57,7 @@ public:
 		iType = wid_Button;
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
-		iHeight = image->h;
+		iHeight = image.get()->h;
 	}
 
 	CButton(const std::string& path) {
@@ -68,7 +68,7 @@ public:
 		iType = wid_Button;
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_TWOSTATES;
-		iHeight = bmpImage->h;
+		iHeight = bmpImage.get()->h;
 	}
 
 
@@ -88,7 +88,7 @@ private:
 		if (iButtonType == BUT_MENU)
 			iHeight = 18;
 		else
-			iHeight = bmpImage->h;    
+			iHeight = bmpImage.get()->h;    
 	}
 	
 public:

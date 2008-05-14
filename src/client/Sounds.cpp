@@ -112,7 +112,7 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 {
 	// Try cache first
 	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
-	if (SampleCached)
+	if (SampleCached.get())
 		return SampleCached;
 		
 	SmartPointer<SoundSample> Sample;
@@ -123,7 +123,7 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	
 	// Load the sample
 	Sample = LoadSoundSample(fullfname, maxplaying);
-	if( Sample == NULL )
+	if( Sample.get() == NULL )
 		return NULL;
 	
 	// Save to cache

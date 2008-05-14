@@ -81,7 +81,7 @@ public:
 	inline void SetBgColor(Uint32 _cl)  { bgColor = _cl; }
 	inline Uint32 GetForeColor()  { return foreColor; }
 	inline void SetForeColor(Uint32 _cl)  { foreColor = _cl; }
-	inline bool IsProperlyLoaded()  { return bmpBar != NULL; }
+	inline bool IsProperlyLoaded()  { return bmpBar.get() != NULL; }
 };
 
 #endif // __CBAR_H_

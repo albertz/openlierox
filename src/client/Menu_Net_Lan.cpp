@@ -410,14 +410,14 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
     CGuiLayout  cDetails;
 
     // Create the buffer
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+    DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
-	cLan.Draw(tMenu->bmpBuffer);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
+	cLan.Draw(tMenu->bmpBuffer.get());
 
 	for(int i=1;i<4;i++)
-		cNetButtons[i].Draw(tMenu->bmpBuffer);
+		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
 
 	Menu_RedrawMouse(true);
 
@@ -493,9 +493,9 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 
     // Redraw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	Menu_RedrawMouse(true);
 }

@@ -103,12 +103,18 @@ bool	SetSoundVolume(int vol);
 int		GetSoundVolume(void);
 bool	QuitSoundSystem();
 //SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays); // Not cached - used internally only
-bool	FreeSoundSample(SoundSample* sample);
+//bool	FreeSoundSample(SoundSample* sample);	// Should be avoided with cache system
 bool	PlaySoundSample(SoundSample* sample);
+inline bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
+	return PlaySoundSample(sample.get());
+};
 
 int		LoadSounds(void);
 void	ShutdownSounds(void);
 void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
+inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
+	StartSound(smp.get(), pos, local, volume, me);
+};
 
 // TODO: don't make them global
 extern float fCurSongStart;

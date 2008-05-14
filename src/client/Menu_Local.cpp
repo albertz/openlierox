@@ -68,13 +68,13 @@ void Menu_LocalInitialize(void)
 	bGameSettings = false;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_LOCAL,15);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 
     // Minimap box
-	Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 133,129, 266, 230);
 
 	Menu_RedrawMouse(true);
 
@@ -98,7 +98,7 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 22);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0]->w - 50);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
@@ -177,11 +177,11 @@ void Menu_LocalFrame(void)
 	if(bGameSettings) {
 		if(Menu_GameSettings_Frame()) {
 			// Re-do the buffer
-			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
+			DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_LOCAL,15);
 			if (tMenu->tFrontendInfo.bPageBoxes)
-				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
+				Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
+	        Menu_DrawBox(tMenu->bmpBuffer.get(), 133,129, 266, 230);
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -196,11 +196,11 @@ void Menu_LocalFrame(void)
     if(bWeaponRest) {
 		if(Menu_WeaponsRestrictions_Frame()) {
 			// Re-do the buffer
-			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
+			DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_LOCAL,15);
 			if (tMenu->tFrontendInfo.bPageBoxes)
-				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
+				Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
+	        Menu_DrawBox(tMenu->bmpBuffer.get(), 133,129, 266, 230);
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -361,7 +361,7 @@ void Menu_LocalFrame(void)
 			case ml_GameSettings:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cLocalMenu.Draw( tMenu->bmpBuffer );
+					cLocalMenu.Draw( tMenu->bmpBuffer.get() );
 
 					bGameSettings = true;
 					Menu_GameSettings();
@@ -373,7 +373,7 @@ void Menu_LocalFrame(void)
             case ml_WeaponOptions:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
 
-					cLocalMenu.Draw( tMenu->bmpBuffer );
+					cLocalMenu.Draw( tMenu->bmpBuffer.get() );
 
                     // Get the current mod
 					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
@@ -550,7 +550,7 @@ void Menu_LocalShowMinimap(bool bReload)
                 }
 
                 // Draw the minimap
-		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
+		        DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
 		        map.Shutdown();
             }
 
@@ -559,13 +559,13 @@ void Menu_LocalShowMinimap(bool bReload)
             if(map.Load("levels/" + buf)) {
 
 		        // Draw the minimap
-		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
+		        DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
 	        }
         }
     }
 
 	// Update the screen
-    DrawImage(tMenu->bmpBuffer, tMenu->bmpMiniMapBuffer, 136,132);
+    DrawImage(tMenu->bmpBuffer.get(), tMenu->bmpMiniMapBuffer, 136,132);
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 130,130,130,130,140,110);
 }
 
@@ -632,11 +632,11 @@ void Menu_LocalStartGame(void)
     } else {
 
 		// Couldn't find a mod to load
-		cLocalMenu.Draw(tMenu->bmpBuffer);
+		cLocalMenu.Draw(tMenu->bmpBuffer.get());
 		Menu_MessageBox("Error","Could not find a mod to load!", LMB_OK);
-		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-        Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-		Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_LOCAL);
+		DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+        Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_LOCAL);
 		Menu_RedrawMouse(true);
 		return;
 	}
@@ -790,8 +790,8 @@ void Menu_GameSettings(void)
 {
 	GameTabPane = 0;
 	// Setup the buffer
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 520,470);
-	DrawRectFillA(tMenu->bmpBuffer, 122,132, 518,468, tLX->clDialogBackground, 200);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,130, 520,470);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 122,132, 518,468, tLX->clDialogBackground, 200);
 
 	Menu_RedrawMouse(true);
 
@@ -1169,8 +1169,8 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 {
 
 	// Setup the buffer
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,150,120,150, 400,330);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,150, 520,470);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,150,120,150, 400,330);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,150, 520,470);
 	//DrawRectFillA(tMenu->bmpBuffer, 122,152, 518,438, 0, 100);
 
 
@@ -1386,7 +1386,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	CTextbox *t;
 
 	// Save the background
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpScreen, 0,0, 0,0, 640,480);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpScreen, 0,0, 0,0, 640,480);
 
 	Menu_RedrawMouse(true);
 
@@ -1422,7 +1422,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 		Menu_DrawBox(tMenu->bmpScreen, 170, 150, 470, 330);
 		DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
-		DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
+		DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 
 		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
 		if (save)
@@ -1505,7 +1505,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	}
 
 	// Redraw back to normal
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,150,122,152, 396,316);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,150,122,152, 396,316);
 	DrawImage(tMenu->bmpScreen,tMenu->bmpBuffer,0,0);
 
 	Menu_RedrawMouse(true);

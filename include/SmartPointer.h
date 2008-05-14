@@ -190,8 +190,10 @@ public:
 	// HINT: no convenient cast functions in this class to avoid error-prone automatic casts
 	// (which would lead to collisions!)
 	// TODO: please REMOVE them!
-	operator _Type * () const { return obj; };
-	_Type * operator -> () const { return obj; };
+	//operator _Type * () const { return obj; };
+	//_Type * operator -> () const { return obj; };
+	// bool is integral type convertible to int and to pointer, so this operator is unsafe
+	// operator bool () const { return obj != NULL; };
 
 	// refcount may be changed from another thread, though if refcount==1 or 0 it won't change
 	int getRefCount() {

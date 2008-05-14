@@ -25,10 +25,10 @@
 void CInputbox::Draw(SDL_Surface * bmpDest)
 {
 	if (bRedrawMenu)
-		Menu_redrawBufferRect(iX,iY, bmpImage->w, MAX(bmpImage->h, tLX->cFont.GetHeight()));
+		Menu_redrawBufferRect(iX,iY, bmpImage.get()->w, MAX(bmpImage.get()->h, tLX->cFont.GetHeight()));
 
 	int y = bMouseOver ? 17 : 0;
-	DrawImageAdv(bmpDest,bmpImage, 0, y, iX, iY, bmpImage->w, 17);
+	DrawImageAdv(bmpDest,bmpImage, 0, y, iX, iY, bmpImage.get()->w, 17);
 	bMouseOver = false;
     tLX->cFont.DrawCentre(bmpDest, iX+25, iY+1, tLX->clWhite, sText);
 }

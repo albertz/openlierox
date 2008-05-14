@@ -841,21 +841,19 @@ void Game::initGame_OlxMod_01()
 
 void Gfx::flip_OlxMod_01()
 {
-	//printf("Gfx::flip_OlxMod_01()\n");
-	
-	SDL_LockSurface(OLXOutput);
-	std::size_t destPitch = OLXOutput->pitch;
-	std::size_t destBpp = OLXOutput->format->BytesPerPixel;
+	SDL_LockSurface(OLXOutput.get());
+	std::size_t destPitch = OLXOutput.get()->pitch;
+	std::size_t destBpp = OLXOutput.get()->format->BytesPerPixel;
 	std::size_t srcPitch = screenPitch;
-	SDL_PixelFormat * destFmt = OLXOutput->format;
+	SDL_PixelFormat * destFmt = OLXOutput.get()->format;
 	Uint32 realPal[256];
 	for( int f=0; f<256; f++ )
 		realPal[f] = SDL_MapRGB(destFmt, pal.entries[f].r<<2, pal.entries[f].g<<2, pal.entries[f].b<<2);
 	for(int y = 0; y < 200; ++y)
 	{
 		PalIdx* src = screenPixels + y*srcPitch;
-		Uint8* dest = (Uint8*)OLXOutput->pixels + y*destPitch*2;
-		Uint8* dest1 = (Uint8*)OLXOutput->pixels + y*destPitch*2+destPitch;
+		Uint8* dest = (Uint8*)OLXOutput.get()->pixels + y*destPitch*2;
+		Uint8* dest1 = (Uint8*)OLXOutput.get()->pixels + y*destPitch*2+destPitch;
 		for(int x = 0; x < 320; ++x)
 		{
 			Uint32 color = realPal[src[x]];
@@ -865,7 +863,7 @@ void Gfx::flip_OlxMod_01()
 			memcpy( dest1 + x*destBpp*2+destBpp, &color, destBpp );
 		}
 	};
-	SDL_UnlockSurface(OLXOutput);
+	SDL_UnlockSurface(OLXOutput.get());
 	
 	//pal.activate();
 	//SDL_BlitSurface( screen, NULL, OLXOutput, NULL );	// Does not work! but should be faster

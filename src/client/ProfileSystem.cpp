@@ -494,26 +494,26 @@ int LoadProfileGraphics(profile_t *p)
 	p->bmpWorm = NULL;
 
 	p->bmpWorm = gfxCreateSurfaceAlpha(18,16);
-	if(p->bmpWorm == NULL) {
+	if(p->bmpWorm.get() == NULL) {
 		// Error
 		return false;
 	}
-	SetColorKey(p->bmpWorm);
-    FillSurfaceTransparent(p->bmpWorm);
+	SetColorKey(p->bmpWorm.get());
+    FillSurfaceTransparent(p->bmpWorm.get());
 
     // Draw the preview pic
     SmartPointer<SDL_Surface> w = LoadSkin(p->szSkin, p->R, p->G, p->B);
-    if(w) {
-        CopySurface(p->bmpWorm, w, 134,2,0,0, 18,16);
+    if(w.get()) {
+        CopySurface(p->bmpWorm.get(), w, 134,2,0,0, 18,16);
     }
 
 	// Apply a little cpu pic on the worm pic on ai players
 	SmartPointer<SDL_Surface> ai = LoadImage("data/frontend/cpu.png");
-	if(ai) {
-		SetColorKey(ai);
+	if(ai.get()) {
+		SetColorKey(ai.get());
 		
         if(p->iType == PRF_COMPUTER)
-            DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
+            DrawImageAdv(p->bmpWorm.get(), ai, p->nDifficulty*10,0, 0,p->bmpWorm.get()->h - ai.get()->h, 10,ai.get()->h);
 	}
 	
 	return true;
@@ -529,21 +529,21 @@ SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG
     // Load the skin
     buf = "skins/"; buf += szSkin;
     SmartPointer<SDL_Surface> worm = LoadImage(buf, true);
-    if( !worm ) {
+    if( !worm.get() ) {
         // If we can't load the skin, try the default skin
         worm = LoadImage("skins/default.png", true);
-        if( !worm )
+        if( !worm.get() )
             return NULL;
     }
-	SetColorKey(worm);
+	SetColorKey(worm.get());
 
     SmartPointer<SDL_Surface> skin = gfxCreateSurfaceAlpha(672,18);
-    if( !skin )
+    if( !skin.get() )
         return NULL;
 
     // Set the pink colour key & fill it with pink
-    SetColorKey(skin);
-    FillSurfaceTransparent(skin);
+    SetColorKey(skin.get());
+    FillSurfaceTransparent(skin.get());
 
 	if (!LockSurface(skin))
 		return NULL;
@@ -555,28 +555,28 @@ SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG
 	int x,y;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	const Uint32 black = SDL_MapRGB(worm->format, 0, 0, 0);
+	const Uint32 black = SDL_MapRGB(worm.get()->format, 0, 0, 0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
-		for(x=0; x<skin->w; x++) {
+		for(x=0; x<skin.get()->w; x++) {
 
-			pixel = GetPixel(worm,x,y);
-            mask = GetPixel(worm,x,y+18);
-			GetColour4(pixel,worm->format,&r,&g,&b,&a);
+			pixel = GetPixel(worm.get(),x,y);
+            mask = GetPixel(worm.get(),x,y+18);
+			GetColour4(pixel,worm.get()->format,&r,&g,&b,&a);
 
             //
             // Use the mask to check what colours to ignore
             //
             
             // Black means to just copy the colour but don't alter it
-            if( EqualRGB(mask, black, worm->format) ) {
-                PutPixel(skin, x,y, pixel);
+            if( EqualRGB(mask, black, worm.get()->format) ) {
+                PutPixel(skin.get(), x,y, pixel);
                 continue;
             }
 
             // Pink means just ignore the pixel completely
-            if( IsTransparent(worm,mask) )
+            if( IsTransparent(worm.get(),mask) )
                 continue;
 
             // Must be white (or some over unknown colour)
@@ -602,7 +602,7 @@ SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG
 			}
 
             // Put the colourised pixel
-			PutPixel(skin,x,y, SDL_MapRGBA(skin->format, (int)r2, (int)g2, (int)b2, a));
+			PutPixel(skin.get(),x,y, SDL_MapRGBA(skin.get()->format, (int)r2, (int)g2, (int)b2, a));
 		}
 	}
 

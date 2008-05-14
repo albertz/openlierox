@@ -33,7 +33,6 @@
 #include "Protocol.h"
 #include "Error.h"
 #include "MathLib.h"
-#include "stun.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
 #include "OLXModInterface.h"
@@ -357,10 +356,10 @@ int GameServer::StartGame()
 	timer = SDL_GetTicks()/1000.0f;
 
 	cGameScript = cCache.GetMod( tGameInfo.sModDir );
-	if( cGameScript == NULL )
+	if( cGameScript.get() == NULL )
 	{
 		cGameScript = new CGameScript();
-		int result = cGameScript->Load( tGameInfo.sModDir );
+		int result = cGameScript.get()->Load( tGameInfo.sModDir );
 		cCache.SaveMod( tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
@@ -372,7 +371,7 @@ int GameServer::StartGame()
 
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList(sWeaponRestFile);
-    cWeaponRestrictions.updateList(cGameScript);
+    cWeaponRestrictions.updateList(cGameScript.get());
 
 	// Setup the flags
 	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2;
@@ -405,7 +404,7 @@ int GameServer::StartGame()
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);
-			cWorms[i].setGameScript(cGameScript);
+			cWorms[i].setGameScript(cGameScript.get());
             cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)iLoadingTimes / 100.0f );
 			cWorms[i].setKillsInRow(0);
@@ -481,7 +480,7 @@ int GameServer::StartGame()
 		bs.writeInt16(iTagLimit);
 	bs.writeString(tGameInfo.sModDir);
 
-    cWeaponRestrictions.sendList(&bs, cGameScript);
+    cWeaponRestrictions.sendList(&bs, cGameScript.get());
 
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients

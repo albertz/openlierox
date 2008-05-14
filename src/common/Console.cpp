@@ -59,7 +59,7 @@ int Con_Initialize(void)
 		Console->History[n].strText = "";
 
     Console->bmpConPic = LoadImage("data/gfx/console.png");
-    if(!Console->bmpConPic)
+    if(!Console->bmpConPic.get())
         return false;
 
 	return true;
@@ -351,8 +351,8 @@ void Con_Draw(SDL_Surface * bmpDest)
 	if(Console->iState == CON_HIDDEN)
 		return;
 
-	int y = (int)(-Console->fPosition * (float)Console->bmpConPic->h);
-	int texty = y+Console->bmpConPic->h-28;
+	int y = (int)(-Console->fPosition * (float)Console->bmpConPic.get()->h);
+	int texty = y+Console->bmpConPic.get()->h-28;
 	static std::string buf;
 
 	const Uint32 Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,

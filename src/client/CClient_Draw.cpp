@@ -57,24 +57,24 @@ bool CClient::InitializeDrawing(void)
 
 	// Initialize the box buffer
 	SmartPointer<SDL_Surface> box_middle = LoadImage("data/frontend/box_middle.png",true);
-	if (box_middle)  { // Doesn't have to exist
+	if (box_middle.get())  { // Doesn't have to exist
 		// Tile the buffer with the middle box part
-		bmpBoxBuffer = gfxCreateSurface(640,box_middle->h);
-		for (int i=0; i < bmpBoxBuffer->w; i += box_middle->w)
-			DrawImage( bmpBoxBuffer, box_middle, i, 0);
+		bmpBoxBuffer = gfxCreateSurface(640,box_middle.get()->h);
+		for (int i=0; i < bmpBoxBuffer.get()->w; i += box_middle.get()->w)
+			DrawImage( bmpBoxBuffer.get(), box_middle, i, 0);
 	} else {
 		bmpBoxBuffer = NULL;
 	}
 
 	// Initialize the scoreboard
-	if (!bmpIngameScoreBg)  {  // Safety
+	if (!bmpIngameScoreBg.get())  {  // Safety
 		bmpIngameScoreBg = gfxCreateSurface(640, getBottomBarTop());
-		if (!bmpIngameScoreBg)
+		if (!bmpIngameScoreBg.get())
 			return false;
 
-		FillSurface(bmpIngameScoreBg, tLX->clScoreBackground);
+		FillSurface(bmpIngameScoreBg.get(), tLX->clScoreBackground);
 		//SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA | SDL_RLEACCEL, 128);
-		SetPerSurfaceAlpha(bmpIngameScoreBg, 128);
+		SetPerSurfaceAlpha(bmpIngameScoreBg.get(), 128);
 	}
 	InitializeIngameScore(true);
 
@@ -223,9 +223,9 @@ bool CClient::InitializeDrawing(void)
 int CClient::getTopBarBottom()
 {
 	if (tGameInfo.iGameType == GME_LOCAL)
-		return gfxGame.bmpGameLocalTopBar ? gfxGame.bmpGameLocalTopBar->h : tLX->cFont.GetHeight();
+		return gfxGame.bmpGameLocalTopBar.get() ? gfxGame.bmpGameLocalTopBar.get()->h : tLX->cFont.GetHeight();
 	else
-		return gfxGame.bmpGameNetTopBar ? gfxGame.bmpGameNetTopBar->h : tLX->cFont.GetHeight();
+		return gfxGame.bmpGameNetTopBar.get() ? gfxGame.bmpGameNetTopBar.get()->h : tLX->cFont.GetHeight();
 }
 
 /////////////////
@@ -233,9 +233,9 @@ int CClient::getTopBarBottom()
 int CClient::getBottomBarTop()
 {
 	if (tGameInfo.iGameType == GME_LOCAL)
-		return gfxGame.bmpGameLocalBackground ? 480 - gfxGame.bmpGameLocalBackground->h : 382;
+		return gfxGame.bmpGameLocalBackground.get() ? 480 - gfxGame.bmpGameLocalBackground.get()->h : 382;
 	else
-		return gfxGame.bmpGameNetBackground ? 480 - gfxGame.bmpGameNetBackground->h : 382;
+		return gfxGame.bmpGameNetBackground.get() ? 480 - gfxGame.bmpGameNetBackground.get()->h : 382;
 }
 
 /////////////////
@@ -356,19 +356,19 @@ bool CClient::InitializeBar(byte number)  {
 void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 {
 	// Check
-	if (!bmpBoxBuffer || !bmpBoxLeft || !bmpBoxRight)  {
+	if (!bmpBoxBuffer.get() || !bmpBoxLeft.get() || !bmpBoxRight.get())  {
 		DrawRect(dst, x, y, x+w, y+tLX->cFont.GetHeight(), tLX->clBoxLight); // backward compatibility
 		DrawRectFill(dst, x + 1, y + 1, x + w - 1, y + tLX->cFont.GetHeight() - 1, tLX->clBoxDark);
 		return;
 	}
 
-	int middle_w = w - bmpBoxLeft->w - bmpBoxRight->w;
+	int middle_w = w - bmpBoxLeft.get()->w - bmpBoxRight.get()->w;
 	if (middle_w < 0)  // Too small
 		return;
 
 	DrawImage(dst, bmpBoxLeft, x, y);  // Left part
-	DrawImageAdv(dst, bmpBoxBuffer, 0, 0, x + bmpBoxLeft->w, y, middle_w, bmpBoxBuffer->h);  // Middle part
-	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft->w + middle_w, y); // Right part
+	DrawImageAdv(dst, bmpBoxBuffer, 0, 0, x + bmpBoxLeft.get()->w, y, middle_w, bmpBoxBuffer.get()->h);  // Middle part
+	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft.get()->w + middle_w, y); // Right part
 }
 
 ///////////////////
@@ -394,7 +394,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			cout << "ERROR: servererror: " << strServerErrorMsg << endl;
 		} else {
 			// Show message box, shutdown and quit back to menu
-			DrawImage(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 0, 0);
+			DrawImage(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 0, 0);
 			Menu_RedrawMouse(true);
 			SDL_ShowCursor(SDL_DISABLE);
 
@@ -421,22 +421,22 @@ void CClient::Draw(SDL_Surface * bmpDest)
 				GetVideoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
 			if (tGameInfo.iGameType == GME_LOCAL)  {
-				if (bgImage)  // Doesn't have to exist (backward compatibility)
-					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
+				if (bgImage.get())  // Doesn't have to exist (backward compatibility)
+					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, 640, bgImage.get()->h);
 				else
 					DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
 			} else {
-				if (bgImage)  { // Doesn't have to exist (backward compatibility)
-					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
+				if (bgImage.get())  { // Doesn't have to exist (backward compatibility)
+					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, tInterfaceSettings.ChatBoxX, bgImage.get()->h);
 					DrawImageAdv(
 								bmpDest,
 								bgImage,
 								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
 								0,
 								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-								480 - bgImage->h,
+								480 - bgImage.get()->h,
 								640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-								bgImage->h);
+								bgImage.get()->h);
 				} else {
 					DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
 					DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
@@ -446,12 +446,12 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// if 2 viewports, draw special
 		if(cViewports[1].getUsed())
-			DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
+			DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
 		// Top bar
 		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
 			SmartPointer<SDL_Surface> top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
-			if (top_bar)
+			if (top_bar.get())
 				DrawImage( bmpDest, top_bar, 0, 0);
 			else
 				DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
@@ -918,7 +918,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, byte viewport_index)
 		break;
 	case WRM_UNLIM:
 		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
-		DrawImage(bmpDest, gfxGame.bmpInfinite, *LivesX + *LivesW - gfxGame.bmpInfinite->w, *LivesY); // Infinite
+		DrawImage(bmpDest, gfxGame.bmpInfinite, *LivesX + *LivesW - gfxGame.bmpInfinite.get()->w, *LivesY); // Infinite
 		break;
 	default:
 		if (worm->getLives() >= 0)  {
@@ -964,12 +964,12 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, byte viewport_index)
 
 	case GMT_TEAMDEATH:  {
 			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
-				int box_h = bmpBoxLeft ? bmpBoxLeft->h : tLX->cFont.GetHeight();
+				int box_h = bmpBoxLeft.get() ? bmpBoxLeft.get()->h : tLX->cFont.GetHeight();
 				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
 				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
 				DrawImage( bmpDest, gfxGame.bmpTeamColours[worm->getTeam()],
-						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2,
-						   *TeamY + MAX(1, box_h/2 - gfxGame.bmpTeamColours[worm->getTeam()]->h/2));
+						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()].get()->w - 2,
+						   *TeamY + MAX(1, box_h/2 - gfxGame.bmpTeamColours[worm->getTeam()].get()->h/2));
 			}
 		}
 	}
@@ -1056,7 +1056,7 @@ void CClient::SimulateHud(void)
 
 		SmartPointer<SDL_Surface> topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 
-		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
+		int toph = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 		int top = toph;
 		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
 			toph = -toph;
@@ -1160,13 +1160,13 @@ void CClient::InitializeGameMenu()
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			SmartPointer<SDL_Surface> pic = gfxGame.bmpTeamColours[iMatchWinner];
-			if (pic)
-				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
+			if (pic.get())
+				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
 		} else {
 			cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			SmartPointer<SDL_Surface> pic = cRemoteWorms[iMatchWinner].getPicimg();
-			if (pic)
-				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic->w, pic->h);
+			if (pic.get())
+				cGameMenuLayout.Add(new CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
 		}
 	}
 
@@ -1175,8 +1175,8 @@ void CClient::InitializeGameMenu()
 	// Player lists
 	CListview *Left = new CListview();
 	CListview *Right = new CListview();
-	cGameMenuLayout.Add(Left, gm_LeftList, 17, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard->h - 43);
-	cGameMenuLayout.Add(Right, gm_RightList, 318, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard->h - 43);
+	cGameMenuLayout.Add(Left, gm_LeftList, 17, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard.get()->h - 43);
+	cGameMenuLayout.Add(Right, gm_RightList, 318, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard.get()->h - 43);
 
 	Left->setDrawBorder(false);
 	Right->setDrawBorder(false);
@@ -1203,7 +1203,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 		DrawImage(bmpDest, gfxGame.bmpScoreboard, 0, 0);
 	}
 
-	if (GetMouse()->Y >= gfxGame.bmpScoreboard->h - GetMaxCursorHeight())
+	if (GetMouse()->Y >= gfxGame.bmpScoreboard.get()->h - GetMaxCursorHeight())
 		bShouldRepaintInfo = true;
 
 	// Update the coutdown
@@ -1857,16 +1857,16 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		if (tGameInfo.iGameType == GME_LOCAL)
 			bgImage = gfxGame.bmpGameLocalBackground;
 
-		if (bgImage)  // Due to backward compatibility, this doesn't have to exist
+		if (bgImage.get())  // Due to backward compatibility, this doesn't have to exist
 			DrawImageAdv(bmpDest,
 						 bgImage,
 						 tInterfaceSettings.ChatBoxX,
 						 0,
 						 tInterfaceSettings.ChatBoxX,
-						 480 - bgImage->h,
+						 480 - bgImage.get()->h,
 						 MIN(tInterfaceSettings.ChatBoxW + tInterfaceSettings.ChatBoxX + GetCursorWidth(CURSOR_ARROW),
 							 tInterfaceSettings.MiniMapX) - tInterfaceSettings.ChatBoxX,
-						 bgImage->h);
+						 bgImage.get()->h);
 		else
 			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
@@ -1912,9 +1912,9 @@ enum {
 // Initialize the viewport manager
 void CClient::InitializeViewportManager(void)
 {
-    int x = 320-gfxGame.bmpViewportMgr->w/2;
-    int y = 200-gfxGame.bmpViewportMgr->h/2;
-    int x2 = x+gfxGame.bmpViewportMgr->w/2+40;
+    int x = 320-gfxGame.bmpViewportMgr.get()->w/2;
+    int y = 200-gfxGame.bmpViewportMgr.get()->h/2;
+    int x2 = x+gfxGame.bmpViewportMgr.get()->w/2+40;
 
 
     bViewportMgr = true;
@@ -1943,7 +1943,7 @@ void CClient::InitializeViewportManager(void)
     ViewportMgr.Add( new CCheckbox(v2On),       v2_On,  x2,    y+80,  20,  20);
 	ViewportMgr.Add( new CCombobox(),           v2_Target,x2,    y+135, 150, 17);
     ViewportMgr.Add( new CCombobox(),           v2_Type,x2,    y+110, 150, 17);
-    ViewportMgr.Add( new CButton(BUT_OK, tMenu->bmpButtons),    v_ok,310,y+gfxGame.bmpViewportMgr->h-25,30,15);
+    ViewportMgr.Add( new CButton(BUT_OK, tMenu->bmpButtons),    v_ok,310,y+gfxGame.bmpViewportMgr.get()->h-25,30,15);
 
     // Fill in the combo boxes
 
@@ -2002,7 +2002,7 @@ void CClient::InitializeViewportManager(void)
 
 
     // Draw the background into the menu buffer
-    DrawImage(tMenu->bmpBuffer,gfxGame.bmpViewportMgr,x,y);
+    DrawImage(tMenu->bmpBuffer.get(),gfxGame.bmpViewportMgr,x,y);
 }
 
 
@@ -2010,8 +2010,8 @@ void CClient::InitializeViewportManager(void)
 // Draw the viewport manager
 void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 {
-    int x = 320-gfxGame.bmpViewportMgr->w/2;
-    int y = 200-gfxGame.bmpViewportMgr->h/2;
+    int x = 320-gfxGame.bmpViewportMgr.get()->w/2;
+    int y = 200-gfxGame.bmpViewportMgr.get()->h/2;
 
 	SetGameCursor(CURSOR_ARROW);
 	mouse_t *Mouse = GetMouse();
@@ -2020,7 +2020,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 	DrawImage(bmpDest,gfxGame.bmpViewportMgr,x,y);
 
     tLX->cFont.Draw(bmpDest, x+75,y+50, tLX->clNormalLabel,"Viewport 1");
-    tLX->cFont.Draw(bmpDest, x+gfxGame.bmpViewportMgr->w/2+40,y+50, tLX->clNormalLabel,"Viewport 2");
+    tLX->cFont.Draw(bmpDest, x+gfxGame.bmpViewportMgr.get()->w/2+40,y+50, tLX->clNormalLabel,"Viewport 2");
 
     ViewportMgr.Draw(bmpDest);
     gui_event_t *ev = ViewportMgr.Process();
@@ -2403,19 +2403,19 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 
 		// Ready
 		if (wrm->getGameReady())
-			DrawImage(bmpDest, tMenu->bmpLobbyReady, cur_x, cur_y + (wrm->getPicimg()->h - tMenu->bmpLobbyReady->h) / 2);
+			DrawImage(bmpDest, tMenu->bmpLobbyReady, cur_x, cur_y + (wrm->getPicimg().get()->h - tMenu->bmpLobbyReady.get()->h) / 2);
 		else
-			DrawImage(bmpDest, tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrm->getPicimg()->h - tMenu->bmpLobbyNotReady->h) / 2);
-		cur_x += tMenu->bmpLobbyReady->w;
+			DrawImage(bmpDest, tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrm->getPicimg().get()->h - tMenu->bmpLobbyNotReady.get()->h) / 2);
+		cur_x += tMenu->bmpLobbyReady.get()->w;
 
 		// Skin
 		DrawImage(bmpDest, wrm->getPicimg(), cur_x, cur_y);
-		cur_x += wrm->getPicimg()->w + 5; // 5 - leave some space
+		cur_x += wrm->getPicimg().get()->w + 5; // 5 - leave some space
 
 		// Name
 		tLX->cFont.Draw(bmpDest, cur_x, cur_y, tLX->clNormalLabel, wrm->getName());
 
-		cur_y += MAX(wrm->getPicimg()->h, tLX->cFont.GetHeight()) + 2;
+		cur_y += MAX(wrm->getPicimg().get()->h, tLX->cFont.GetHeight()) + 2;
 	}
 
 	SDL_SetClipRect(bmpDest, &oldclip);
@@ -2475,7 +2475,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
 
 	// Background
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
-				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg->w, bmpIngameScoreBg->h);
+				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg.get()->w, bmpIngameScoreBg.get()->h);
 
 	if (bUpdateScore || tLX->fCurTime - fLastScoreUpdate >= 2.0f)
 		UpdateIngameScore(((CListview *)cScoreLayout.getWidget(sb_Left)), ((CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
@@ -2530,14 +2530,14 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Lives:");
 	if (tGameInfo.iLives < 0)
-		DrawImage(bmpDest,gfxGame.bmpInfinite, x+95, cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite->h)/2);
+		DrawImage(bmpDest,gfxGame.bmpInfinite, x+95, cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite.get()->h)/2);
 	else
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLives));
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Max Kills:");
 	if (tGameInfo.iKillLimit < 0)
-		DrawImage(bmpDest,gfxGame.bmpInfinite,x+95,cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite->h)/2);
+		DrawImage(bmpDest,gfxGame.bmpInfinite,x+95,cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite.get()->h)/2);
 	else
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
 	cur_y += tLX->cFont.GetHeight();

@@ -456,7 +456,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 
 	case PRJ_IMAGE:  {
 
-		if(tProjInfo->bmpImage == NULL)
+		if(tProjInfo->bmpImage.get() == NULL)
 			return;
 
 		// Spinning projectile only when moving
@@ -509,10 +509,10 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		if(tProjInfo->Animating)
 			framestep = fFrame;
 
-		int size = tProjInfo->bmpImage->h;
+		int size = tProjInfo->bmpImage.get()->h;
 		int half = size/2;
         iFrameX = (int)framestep*size;
-		MOD(iFrameX, tProjInfo->bmpImage->w);
+		MOD(iFrameX, tProjInfo->bmpImage.get()->w);
 
 		DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
 	}
@@ -552,12 +552,12 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view, CMap *map)
 	// Image
 	case PRJ_IMAGE:  {
 
-			if(tProjInfo->bmpImage == NULL)
+			if(tProjInfo->bmpImage.get() == NULL)
 				return;
 
-			int size = tProjInfo->bmpImage->h;
+			int size = tProjInfo->bmpImage.get()->h;
 			int half = size/2;
-			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage.get(), iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
 		}
 		break;
     }

@@ -456,13 +456,13 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
     CGuiLayout  cDetails;
 
     // Create the buffer
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
-	cFavourites.Draw(tMenu->bmpBuffer);
+    DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+    Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
+	cFavourites.Draw(tMenu->bmpBuffer.get());
 
 	for(int i=0;i<4;i++)
-		cNetButtons[i].Draw(tMenu->bmpBuffer);
+		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
 
 	Menu_RedrawMouse(true);
 
@@ -482,7 +482,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = -9999;
 
-	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
+	DrawRectFillA(tMenu->bmpBuffer.get(),200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
 	// TODO: make this event-based (don't check GetKeyboard() directly)
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning) {
@@ -539,10 +539,10 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 	cDetails.Shutdown();
 
     // Redraw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	Menu_RedrawMouse(true);
 }
 
@@ -562,10 +562,10 @@ void Menu_Net_RenameServer(std::string& szName)
 
 
 	// Create the background
-	cFavourites.Draw( tMenu->bmpBuffer );
-	Menu_DrawBox(tMenu->bmpBuffer, 200, 210, 470, 340);
-	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,212,469,339,tLX->clDialogBackground);
+	cFavourites.Draw( tMenu->bmpBuffer.get() );
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 200, 210, 470, 340);
+	//DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack, 202,222, 202,222, 237,117);
+    DrawRectFill(tMenu->bmpBuffer.get(), 202,212,469,339,tLX->clDialogBackground);
 	Menu_RedrawMouse(true);
 
 
@@ -638,10 +638,10 @@ void Menu_Net_RenameServer(std::string& szName)
 	cRename.Shutdown();
 
 	// Re-draw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 	Menu_RedrawMouse(true);
 }
 
@@ -662,10 +662,10 @@ void Menu_Net_FavouritesAddServer(void)
 
 
 	// Create the background
-	cFavourites.Draw( tMenu->bmpBuffer );
-	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
-	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clDialogBackground);
+	cFavourites.Draw( tMenu->bmpBuffer.get() );
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 200, 220, 440, 340);
+	//DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack, 202,222, 202,222, 237,117);
+    DrawRectFill(tMenu->bmpBuffer.get(), 202,222,439,339,tLX->clDialogBackground);
 	Menu_RedrawMouse(true);
 
 
@@ -743,10 +743,10 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.Shutdown();
 
 	// Re-draw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 	Menu_RedrawMouse(true);
 }
 

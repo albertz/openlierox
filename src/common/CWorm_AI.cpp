@@ -968,11 +968,11 @@ public:
 	debug_print_col(const SmartPointer<SDL_Surface> & dest=NULL) : bmpDest(dest) {}
 
 	bool operator()(int x, int y) const {
-		if(!bmpDest)
+		if(!bmpDest.get())
 			return false;
-		if(x*2-4 >= 0 && x*2+4 < bmpDest->w
-		&& y*2-4 >= 0 && y*2+4 < bmpDest->h)
-			DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
+		if(x*2-4 >= 0 && x*2+4 < bmpDest.get()->w
+		&& y*2-4 >= 0 && y*2+4 < bmpDest.get()->h)
+			DrawRectFill(bmpDest.get(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
 		else
 			return false;
 		return true;
@@ -2018,13 +2018,13 @@ void CWorm::AI_DEBUG_DrawPath(ai_node_t *node)
     if(node->psPath) {
         int cx = node->psPath->nX * pcMap->getGridWidth();
         int cy = node->psPath->nY * pcMap->getGridHeight();
-        DrawLine(pcMap->GetDrawImage(), (x+pcMap->getGridWidth()/2)*2, (y+pcMap->getGridHeight()/2)*2,
+        DrawLine(pcMap->GetDrawImage().get(), (x+pcMap->getGridWidth()/2)*2, (y+pcMap->getGridHeight()/2)*2,
                                     (cx+pcMap->getGridWidth()/2)*2,(cy+pcMap->getGridHeight()/2)*2,
                                     tLX->clWhite);
     }
     else {
         // Final target
-        DrawRectFill(pcMap->GetDrawImage(), x*2-5,y*2-5,x*2+5,y*2+5, MakeColour(0,255,0));
+        DrawRectFill(pcMap->GetDrawImage().get(), x*2-5,y*2-5,x*2+5,y*2+5, MakeColour(0,255,0));
 
     }
 
@@ -3974,7 +3974,7 @@ void CWorm::NEW_AI_DrawPath()
 		return;
 
 	SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
-	if (!bmpDest)
+	if (!bmpDest.get())
 		return;
 
 	const int NodeColour = iColour;
@@ -3992,20 +3992,20 @@ void CWorm::NEW_AI_DrawPath()
 		node_y = Round(node->fY*2);
 
 		// Clipping
-		if (node_x-4 < 0 || node_x+4 > bmpDest->w)
+		if (node_x-4 < 0 || node_x+4 > bmpDest.get()->w)
 			continue;
-		if (node_y-4 < 0 || node_y+4 > bmpDest->h)
+		if (node_y-4 < 0 || node_y+4 > bmpDest.get()->h)
 			continue;
 
 		// Draw the node
 		if (node == NEW_psCurrentNode)
-			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4,HighColour);
+			DrawRectFill(bmpDest.get(),node_x-4,node_y-4,node_x+4,node_y+4,HighColour);
 		else
-			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4,NodeColour);
+			DrawRectFill(bmpDest.get(),node_x-4,node_y-4,node_x+4,node_y+4,NodeColour);
 
 		// Draw the line
 		if (node->psNext)
-			DrawLine(bmpDest,MIN(Round(node->psNext->fX*2),bmpDest->w),MIN(Round(node->psNext->fY*2),bmpDest->h),node_x,node_y,LineColour);
+			DrawLine(bmpDest.get(),MIN(Round(node->psNext->fX*2),bmpDest.get()->w),MIN(Round(node->psNext->fY*2),bmpDest.get()->h),node_x,node_y,LineColour);
 	}
 
 }

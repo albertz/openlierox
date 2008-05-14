@@ -89,10 +89,10 @@ void Menu_PlayerInitialize(void)
 	CListview *lv;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_PLAYER);
 
 	Menu_RedrawMouse(true);
 
@@ -285,8 +285,8 @@ void Menu_Player_NewPlayerInit(void)
 
     // Load the default skin
     tMenu->bmpWorm = LoadImage("skins/default.png", true);
-	if (tMenu->bmpWorm)
-		SetColorKey(tMenu->bmpWorm);
+	if (tMenu->bmpWorm.get())
+		SetColorKey(tMenu->bmpWorm.get());
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -303,7 +303,7 @@ void Menu_Player_ViewPlayerInit(void)
 	profile_t *p = GetProfiles();
 	for(; p; p=p->tNext) {
 		lv->AddItem("",p->iID,tLX->clListView);
-		if (p->bmpWorm)
+		if (p->bmpWorm.get())
 			lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
@@ -333,8 +333,8 @@ void Menu_Player_ViewPlayerInit(void)
 
         // Load the skin
         tMenu->bmpWorm = LoadImage("skins/"+p->szSkin, true);
-		if (tMenu->bmpWorm)
-			SetColorKey(tMenu->bmpWorm);
+		if (tMenu->bmpWorm.get())
+			SetColorKey(tMenu->bmpWorm.get());
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
     }
@@ -428,8 +428,8 @@ void Menu_Player_NewPlayer(int mouse)
                     // Load the skin
 					buf = "skins/"+buf;
 					tMenu->bmpWorm = LoadImage(buf, true);
-					if (tMenu->bmpWorm)
-						SetColorKey(tMenu->bmpWorm);
+					if (tMenu->bmpWorm.get())
+						SetColorKey(tMenu->bmpWorm.get());
                 }
                 break;
 		}
@@ -548,10 +548,10 @@ void Menu_Player_ViewPlayers(int mouse)
 							// Setup the buffer
 							Mouse->Button = Mouse->Up = Mouse->Down = 0;
 							Mouse->X = Mouse->Y = 0;
-							cViewPlayers.Draw(tMenu->bmpBuffer);
+							cViewPlayers.Draw(tMenu->bmpBuffer.get());
 
 							for(int i=0;i<2;i++)
-								cPlyButtons[i].Draw(tMenu->bmpBuffer);
+								cPlyButtons[i].Draw(tMenu->bmpBuffer.get());
 
 
 							// Ask if they are sure they wanna delete it
@@ -570,7 +570,7 @@ void Menu_Player_ViewPlayers(int mouse)
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
 									lv->AddItem("",p->iID,tLX->clListView);
-									if (p->bmpWorm)
+									if (p->bmpWorm.get())
 										lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
 									else
 										lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
@@ -598,10 +598,10 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 						// Re-draw the buffer again
-						DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+						DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 						if (tMenu->tFrontendInfo.bPageBoxes)
-							Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-						Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);
+							Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+						Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_PLAYER);
 						Menu_RedrawMouse(true);
 
 					}
@@ -674,8 +674,8 @@ void Menu_Player_ViewPlayers(int mouse)
                         static std::string buf;
                         buf = "skins/" + p->szSkin;
                         tMenu->bmpWorm = LoadImage(buf, true);
-						if (tMenu->bmpWorm)
-							SetColorKey(tMenu->bmpWorm);
+						if (tMenu->bmpWorm.get())
+							SetColorKey(tMenu->bmpWorm.get());
 
                         // Hide the AI stuff if it is a human type of player
                         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
@@ -705,8 +705,8 @@ void Menu_Player_ViewPlayers(int mouse)
                     // Load the skin
                     buf = "skins/"+buf;
                     tMenu->bmpWorm = LoadImage(buf, true);
-					if (tMenu->bmpWorm)
-						SetColorKey(tMenu->bmpWorm);
+					if (tMenu->bmpWorm.get())
+						SetColorKey(tMenu->bmpWorm.get());
                 }
                 break;
 		}
@@ -781,7 +781,7 @@ void Menu_Player_ViewPlayers(int mouse)
 // Draw the worm image
 void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
-    if( !tMenu->bmpWorm )
+    if( !tMenu->bmpWorm.get() )
         return;
 
 	LOCK_OR_QUIT(bmpDest);
@@ -791,28 +791,28 @@ void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy,
 	int x,y,sx;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	const Uint32 black = SDL_MapRGB(tMenu->bmpWorm->format, 0, 0, 0);
+	const Uint32 black = SDL_MapRGB(tMenu->bmpWorm.get()->format, 0, 0, 0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
 		for(x=Frame*32,sx=0; x<(Frame*32)+32; x++,sx++) {
 
-			pixel = GetPixel(tMenu->bmpWorm,x,y);
-            mask = GetPixel(tMenu->bmpWorm,x,y+18);
-			GetColour4(pixel,tMenu->bmpWorm->format,&r,&g,&b,&a);
+			pixel = GetPixel(tMenu->bmpWorm.get(),x,y);
+            mask = GetPixel(tMenu->bmpWorm.get(),x,y+18);
+			GetColour4(pixel,tMenu->bmpWorm.get()->format,&r,&g,&b,&a);
 
             //
             // Use the mask to check what colours to ignore
             //
 
             // Black means to just copy the colour but don't alter it
-            if( EqualRGB(mask, black, tMenu->bmpWorm->format) ) {
+            if( EqualRGB(mask, black, tMenu->bmpWorm.get()->format) ) {
                 PutPixel(bmpDest, sx+dx,y+dy, pixel);
                 continue;
             }
 
             // Colorkey means just ignore the pixel completely
-            if( IsTransparent(tMenu->bmpWorm, mask) )
+            if( IsTransparent(tMenu->bmpWorm.get(), mask) )
                 continue;
 
             // Must be white (or some over unknown colour)

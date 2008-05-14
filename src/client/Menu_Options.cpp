@@ -148,10 +148,10 @@ bool Menu_OptionsInitialize(void)
     int i;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);
 
@@ -836,22 +836,22 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	mouse_t *Mouse = GetMouse();
 
 	// Draw the back buffer
-	cOptions.Draw(tMenu->bmpBuffer);
-	cOpt_Controls.Draw(tMenu->bmpBuffer);
+	cOptions.Draw(tMenu->bmpBuffer.get());
+	cOpt_Controls.Draw(tMenu->bmpBuffer.get());
 
-	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 210, 170, 430, 310);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 212,172, 212,172, 217,137);
-    DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,tLX->clDialogBackground);
+    DrawRectFill(tMenu->bmpBuffer.get(), 212,172,429,309,tLX->clDialogBackground);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"Input for:");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),name);
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,180,MakeColour(128,200,255),"Input for:");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,205,MakeColour(255,255,255),name);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"Press any key/mouse");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"(Escape to cancel)");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,270,MakeColour(255,255,255),"Press any key/mouse");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,285,MakeColour(128,128,128),"(Escape to cancel)");
 
 	TopButtons[OptionsMode].MouseOver(Mouse);
 	for(ushort i=0;i<3;i++) {
-		TopButtons[i].Draw(tMenu->bmpBuffer);
+		TopButtons[i].Draw(tMenu->bmpBuffer.get());
 	}
 
 
@@ -895,10 +895,10 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Down = 0;
 	Mouse->Up = 0;
 
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);
 }

@@ -49,10 +49,16 @@ inline bool LockSurface(SDL_Surface * bmp)  {
 		return SDL_LockSurface(bmp) != -1;
 	return true;
 }
+inline bool LockSurface(const SmartPointer<SDL_Surface> & bmp)  {
+	return LockSurface(bmp.get());
+}
 
 inline void UnlockSurface(SDL_Surface * bmp)  {
 	if (SDL_MUSTLOCK(bmp))
 		SDL_UnlockSurface(bmp);
+}
+inline void UnlockSurface(const SmartPointer<SDL_Surface> & bmp)  {
+	UnlockSurface(bmp.get());
 }
 
 #define LOCK_OR_QUIT(bmp)	{ if(!LockSurface(bmp)) return; }
@@ -68,7 +74,9 @@ inline SDL_Surface * GetVideoSurface() { return SDL_GetVideoSurface(); };
 /////////////////////
 // Clip the line to the surface
 bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
-
+inline bool ClipLine(const SmartPointer<SDL_Surface> & bmp, int * x1, int * y1, int * x2, int * y2){
+	return ClipLine(bmp.get(), x1, y1, x2, y2);
+};
 
 class SDLRectBasic : public SDL_Rect {
 public:
@@ -207,7 +215,7 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 // Load an image, without alpha channel
 inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name); 
-	if (bmp == NULL)  { 
+	if (bmp.get() == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;
 	}
@@ -218,7 +226,7 @@ inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name) 
 // Load an image with alpha channel
 inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadImage(name, true);
-	if (bmp == NULL)  { 
+	if (bmp.get() == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;
 	}
@@ -228,7 +236,9 @@ inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::stri
 ///////////////////
 // Save surface in the specified format
 bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, const std::string& Data);
-
+inline bool SaveSurface(const SmartPointer<SDL_Surface> & image, const std::string& FileName, int Format, const std::string& Data){
+	return SaveSurface(image.get(), FileName, Format, Data);
+};
 
 //
 // Surface stuff
@@ -247,9 +257,9 @@ inline SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool fo
 			width, height, 
 			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
-	if (result)
+	if (result.get() != NULL)
 		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect(result, NULL, SDL_MapRGBA(result->format, 0, 0, 0, 255));
+		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
 
 	#ifdef DEBUG_SMARTPTR
 	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
@@ -283,9 +293,9 @@ inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bo
 				width, height, 32,
 				ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 
-	if (result)
+	if (result.get() != NULL)
 		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect( result, NULL, SDL_MapRGB(result->format, 0, 0, 0));
+		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
 	
 	#ifdef DEBUG_SMARTPTR
 	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
@@ -317,12 +327,17 @@ inline void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 ///////////////
 // Copies one surface to another (not blitting, so the alpha values are kept!)
 void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h);
-
+inline void CopySurface(SDL_Surface * dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h){
+	CopySurface(dst, src.get(), sx, sy, dx, dy, w, h);
+};
 
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
 	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+}
+inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
+	DrawImageAdv(bmpDest, bmpSrc.get(), rDest, rSrc);
 }
 
 //////////////
@@ -332,6 +347,9 @@ inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 	SDL_Rect r2 = { sx, sy, w, h };
 	DrawImageAdv( bmpDest, bmpSrc, r1, r2); 
 }
+inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageAdv(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+}
 
 
 ///////////////
@@ -339,11 +357,17 @@ inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 inline void DrawImageEx(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y, int w, int h) {
 	DrawImageAdv(bmpDest, bmpSrc, 0, 0, x, y, w, h);
 }
+inline void DrawImageEx(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y, int w, int h) {
+	DrawImageEx(bmpDest, bmpSrc.get(), x, y, w, h);
+}
 
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest) {
 	SDL_BlitSurface(bmpSrc, NULL, bmpDest, &rDest);
+}
+inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest) {
+	DrawImage(bmpDest, bmpSrc.get(), rDest);
 }
 
 ///////////////
@@ -352,30 +376,44 @@ inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int x, int y)
 	SDL_Rect r = { x, y, 0, 0 };
 	DrawImage( bmpDest, bmpSrc, r);
 }
-
+inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int x, int y) {
+	DrawImage(bmpDest, bmpSrc.get(), x, y);
+}
 
 ///////////////
 // Draws image mirror flipped
 // WARNING: passing invalid source x/y/w/h causes a segfault
 void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageAdv_Mirror(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageAdv_Mirror(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+};
 
 ////////////////
 // Draws the image doubly stretched (fast)
 void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageStretch2(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageStretch2(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+};
 
 /////////////////
 // Draws the image doubly stretched while checking for colorkey
 void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageStretch2Key(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageStretch2Key(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+};
 
 /////////////////
 // Draws image doubly stretched, mirrored and checking for colorkey
 // WARNING: passing invalid source x/y/w/h causes a segfault
 void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	DrawImageStretchMirrorKey(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+};
 
 /////////////////
 // Creates a new surface of the same size and draws the image mirror flipped onto it
 inline SmartPointer<SDL_Surface> GetMirroredImage(SDL_Surface * bmpSrc)  {
-	const SmartPointer<SDL_Surface> & result = SDL_CreateRGBSurface(
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 			bmpSrc->flags,
 			bmpSrc->w, bmpSrc->h,
 			bmpSrc->format->BitsPerPixel,
@@ -383,13 +421,16 @@ inline SmartPointer<SDL_Surface> GetMirroredImage(SDL_Surface * bmpSrc)  {
 			bmpSrc->format->Gmask,
 			bmpSrc->format->Bmask,
 			bmpSrc->format->Amask);
-	if (!result)
+	if (result.get() == NULL)
 		return NULL;
-	DrawImageAdv_Mirror(result, bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
+	DrawImageAdv_Mirror(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	#ifdef DEBUG_SMARTPTR
 	printf("GetMirroredImage() %p\n", result.get() );
 	#endif
 	return result;
+}
+inline SmartPointer<SDL_Surface> GetMirroredImage( const SmartPointer<SDL_Surface> & bmpSrc) {
+	return GetMirroredImage(bmpSrc.get());
 }
 
 /////////////////
@@ -397,20 +438,32 @@ inline SmartPointer<SDL_Surface> GetMirroredImage(SDL_Surface * bmpSrc)  {
 inline void	DrawImageStretch(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int dx, int dy) {
 	DrawImageStretch2(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h);
 }
+inline void	DrawImageStretch(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int dx, int dy) {
+	DrawImageStretch(bmpDest, bmpSrc.get(), dx, dy);
+}
 
 /////////////////
 // Draws a sprite doubly stretched, with a colour key and not so advanced
 inline void	DrawImageStretchKey(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int dx, int dy) {
 	DrawImageStretch2Key(bmpDest, bmpSrc, 0, 0, dx, dy, bmpSrc->w, bmpSrc->h);
 }
+inline void	DrawImageStretchKey(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int dx, int dy) {
+	DrawImageStretchKey(bmpDest, bmpSrc.get(), dx, dy);
+}
 
 /////////////////
 // Draws the image resized according to ratios
 void DrawImageResizedAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+inline void DrawImageResizedAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio) {
+	DrawImageResizedAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, xratio, yratio);
+}
 
 /////////////////
 // Draws the image nicely resampled, blur says how much the result should be blurred
 void DrawImageResampledAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f);
+inline void DrawImageResampledAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f) {
+	DrawImageResampledAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, xratio, yratio, blur );
+};
 
 
 //
@@ -459,6 +512,7 @@ inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 // Get a pixel from the surface
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: bmpSrc must be locked before calling this
+// This function doesn't have "const SmartPointer<SDL_Surface> &" interface because it will slow it down
 inline Uint32 GetPixel(SDL_Surface * bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
 			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
@@ -469,6 +523,7 @@ inline Uint32 GetPixel(SDL_Surface * bmpSrc, int x, int y) {
 // Copy pixel from one surface to another, both surfaces must have same format
 // WARNING: doesn't do clipping
 // NOTE: dst must be locked before calling this
+// This function doesn't have "const SmartPointer<SDL_Surface> &" interface because it will slow it down
 inline void CopyPixel_SameFormat(
 	SDL_Surface * dst, SDL_Surface * src,
 	int dx, int dy, int sx, int sy) {
@@ -483,6 +538,7 @@ inline void CopyPixel_SameFormat(
 // WARNING: doesn't do clipping
 // WARNING: surfaces must have same format
 // NOTE: dst must be locked before calling his
+// This function doesn't have "const SmartPointer<SDL_Surface> &" interface because it will slow it down
 inline void CopyPixel_SameFormat(
 	SDL_Surface * dst, SDL_Surface * src, int x, int y) {
 	CopyPixel_SameFormat(dst, src, x, y, x, y);
@@ -594,10 +650,10 @@ inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, U
 	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
 	Uint8 r,g,b;
 	GetColour3(color,bmpDest->format,&r,&g,&b);
-	Uint32 friendly_col = SDL_MapRGBA(tmp->format,r,g,b,alpha);
-	if (tmp)  {
+	if (tmp.get() != NULL)  {
 		// TODO: optimise
-		SDL_FillRect(tmp,NULL,friendly_col);
+		Uint32 friendly_col = SDL_MapRGBA(tmp.get()->format,r,g,b,alpha);
+		SDL_FillRect(tmp.get(),NULL,friendly_col);
 		DrawImage(bmpDest,tmp,x,y);
 	}
 }

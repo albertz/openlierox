@@ -1251,7 +1251,7 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 {
 	// Try cache first
 	SmartPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);
-	if( ImageCache )
+	if( ImageCache.get() )
 		return ImageCache;
 
 	SmartPointer<SDL_Surface> Image;
@@ -1271,20 +1271,20 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 	SmartPointer<SDL_Surface> img = IMG_Load(fullfname.c_str());
 #endif
 
-	if(!img)
+	if(!img.get())
 		return NULL;
 
 	if(GetVideoSurface()) {
 		// Convert the image to the screen's colour depth
 		if (withalpha)  {
-			Image = gfxCreateSurfaceAlpha(img->w, img->h);
-			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
+			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
+			CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
 		} else {
 			SDL_PixelFormat fmt = *(getMainPixelFormat());
-			img->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
-			img->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
-			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
-			Image->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
+			img.get()->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
+			img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
+			Image = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
+			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
 	
 	} else {
@@ -1294,7 +1294,7 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 		Image = img;
 	}
 	
-	if(!Image) {
+	if(!Image.get()) {
 		printf("ERROR: LoadImgBPP: cannot create new surface\n");
 		return NULL;
 	}
@@ -1320,19 +1320,19 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
 	
 	SmartPointer<SDL_Surface> formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
-	if(!formated)
+	if(!formated.get())
 		return NULL;
 	#ifdef DEBUG_SMARTPTR
 	printf("SDLSurface2GDImage() %p\n", formated.get() );
 	#endif
 	// convert it to the new format (32 bpp)
-	CopySurface(formated, src, 0, 0, 0, 0, src->w, src->h);
+	CopySurface(formated.get(), src, 0, 0, 0, 0, src->w, src->h);
 	
 	if (!LockSurface(formated))
 		return NULL;
 
 	for(int y = 0; y < src->h; y++) {
-		memcpy(gd_image->tpixels[y], (uchar*)formated->pixels + y*formated->pitch, formated->pitch);	
+		memcpy(gd_image->tpixels[y], (uchar*)formated.get()->pixels + y*formated.get()->pitch, formated.get()->pitch);	
 	}
 
 	UnlockSurface(formated);

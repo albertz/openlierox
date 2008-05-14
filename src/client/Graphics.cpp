@@ -65,17 +65,17 @@ bool LoadGraphics(void)
 		return false;
 
 	// Set the color keys
-	SetColorKey(gfxGame.bmpCrosshair);
-	SetColorKey(gfxGame.bmpMuzzle);
-	SetColorKey(gfxGame.bmpExplosion);
-	SetColorKey(gfxGame.bmpSmoke);
-	SetColorKey(gfxGame.bmpChemSmoke);
-	SetColorKey(gfxGame.bmpSpawn);
-	SetColorKey(gfxGame.bmpHook);
-	SetColorKey(gfxGame.bmpBonus);
-	SetColorKey(gfxGame.bmpHealth);
-	SetColorKey(gfxGame.bmpSparkle);
-	SetColorKey(gfxGame.bmpViewportMgr);
+	SetColorKey(gfxGame.bmpCrosshair.get());
+	SetColorKey(gfxGame.bmpMuzzle.get());
+	SetColorKey(gfxGame.bmpExplosion.get());
+	SetColorKey(gfxGame.bmpSmoke.get());
+	SetColorKey(gfxGame.bmpChemSmoke.get());
+	SetColorKey(gfxGame.bmpSpawn.get());
+	SetColorKey(gfxGame.bmpHook.get());
+	SetColorKey(gfxGame.bmpBonus.get());
+	SetColorKey(gfxGame.bmpHealth.get());
+	SetColorKey(gfxGame.bmpSparkle.get());
+	SetColorKey(gfxGame.bmpViewportMgr.get());
 
 	// Check that the default skin is available (game can crash without this skin!!)
 	if (!IsFileAvailable("skins/default.png"))

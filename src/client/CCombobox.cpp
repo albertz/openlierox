@@ -54,10 +54,10 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 		// Dropped down
 		if(getItemRW(iSelected))  {
 			buf = getItemRW(iSelected)->sName;
-			if (getItemRW(iSelected)->tImage)  {
+			if (getItemRW(iSelected)->tImage.get())  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf, iWidth - (6 + getItemRW(iSelected)->tImage->w + (bGotScrollbar ? 15 : 0)));
-				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDisabled, buf);
+				stripdot(buf, iWidth - (6 + getItemRW(iSelected)->tImage.get()->w + (bGotScrollbar ? 15 : 0)));
+				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage.get()->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDisabled, buf);
 			}
 			else  {
 				stripdot(buf,iWidth-(3 + bGotScrollbar ? 15 : 0));
@@ -117,15 +117,15 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 			bool stripped = false;
 
-			if (item->tImage)  {
+			if (item->tImage.get())  {
 				// Draw the image
 				DrawImage(bmpDest,item->tImage,iX+3,y);
-				stripped = stripdot(buf,iWidth - (6 + item->tImage->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+6+item->tImage->w, y, tLX->clDropDownText,buf);
+				stripped = stripdot(buf,iWidth - (6 + item->tImage.get()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+6+item->tImage.get()->w, y, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
-					int x1 = iX+4+item->tImage->w;
+					int x1 = iX+4+item->tImage.get()->w;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
-					int x2 = iX+4+item->tImage->w+tLX->cFont.GetWidth(item->sName)+4;
+					int x2 = iX+4+item->tImage.get()->w+tLX->cFont.GetWidth(item->sName)+4;
 					if (x2 > bmpDest->w)  {
 						x1 = bmpDest->w-x2-5;
 						x2 = bmpDest->w-5;
@@ -165,10 +165,10 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 		// Normal
 		if (getItemRW(iSelected))  {
 			buf = getItemRW(iSelected)->sName;
-			if (getItemRW(iSelected)->tImage)  {
+			if (getItemRW(iSelected)->tImage.get())  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf,iWidth - (6 + getItemRW(iSelected)->tImage->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
+				stripdot(buf,iWidth - (6 + getItemRW(iSelected)->tImage.get()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage.get()->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
 			else  {
 				stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
@@ -401,9 +401,9 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 int CCombobox::getItemHeight() {
 	int ItemHeight = tLX->cFont.GetHeight() + 1;
 	if(!tItems.empty())
-		if(tItems.begin()->tImage)
-			if ((tItems.begin()->tImage->h + 1) > ItemHeight)
-				ItemHeight = tItems.begin()->tImage->h + 1;
+		if(tItems.begin()->tImage.get())
+			if ((tItems.begin()->tImage.get()->h + 1) > ItemHeight)
+				ItemHeight = tItems.begin()->tImage.get()->h + 1;
 	return ItemHeight;
 }
 

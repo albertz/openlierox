@@ -548,16 +548,16 @@ bool Menu_Net_HostLobbyInitialize(void)
 void Menu_Net_HostLobbyDraw(void)
 {
     // Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
-	Menu_DrawBox(tMenu->bmpBuffer, 460,29, 593, 130);
-    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 5,5, 635, 475);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 460,29, 593, 130);
+    DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
 
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
+    DrawRectFill(tMenu->bmpBuffer.get(), 16, 270, 624, 417, tLX->clChatBoxBackground);
 
 	Menu_RedrawMouse(true);
 }
@@ -651,11 +651,11 @@ void Menu_Net_HostLobbyCreateGui(void)
 	if (player_list)  {
 		player_list->setShowSelect(false);
 		player_list->setOldStyle(true);
-		player_list->AddColumn("Players", gfxGUI.bmpCommandBtn->w / 2 + 2, tLX->clHeading);  // Command button/Player label
-		player_list->AddColumn("", tMenu->bmpLobbyReady->w + 2);  // Lobby ready
+		player_list->AddColumn("Players", gfxGUI.bmpCommandBtn.get()->w / 2 + 2, tLX->clHeading);  // Command button/Player label
+		player_list->AddColumn("", tMenu->bmpLobbyReady.get()->w + 2);  // Lobby ready
 		player_list->AddColumn("", 30);  // Skin
-		player_list->AddColumn("", 200 - gfxGame.bmpTeamColours[0]->w); // Name
-		player_list->AddColumn("", gfxGame.bmpTeamColours[0]->w + 10);  // Team
+		player_list->AddColumn("", 200 - gfxGame.bmpTeamColours[0].get()->w); // Name
+		player_list->AddColumn("", gfxGame.bmpTeamColours[0].get()->w + 10);  // Team
 		player_list->AddColumn("", -1); // Ping
 	}
 
@@ -979,8 +979,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Draw the lobby screen to the buffer
-					cHostLobby.Draw( tMenu->bmpBuffer);
-					Menu_HostDrawLobby(tMenu->bmpBuffer);
+					cHostLobby.Draw(tMenu->bmpBuffer.get());
+					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
 					Menu_GameSettings();
 					bHostGameSettings = true;
@@ -992,8 +992,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 if(ev->iEventMsg == BTN_MOUSEUP) {
 
                     // Draw the lobby screen to the buffer
-					cHostLobby.Draw( tMenu->bmpBuffer);
-					Menu_HostDrawLobby(tMenu->bmpBuffer);
+					cHostLobby.Draw(tMenu->bmpBuffer.get());
+					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
                     cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                     if(it) {
@@ -1007,8 +1007,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_Banned:
 				if(ev->iEventMsg == BTN_MOUSEUP)   {
                     // Draw the lobby screen to the buffer
-					cHostLobby.Draw( tMenu->bmpBuffer);
-					Menu_HostDrawLobby(tMenu->bmpBuffer);
+					cHostLobby.Draw(tMenu->bmpBuffer.get());
+					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
 	                bBanList = true;
 				    Menu_BanList();
@@ -1019,8 +1019,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_ServerSettings:
 				if(ev->iEventMsg == BTN_MOUSEUP)   {
                     // Draw the lobby screen to the buffer
-					cHostLobby.Draw( tMenu->bmpBuffer);
-					Menu_HostDrawLobby(tMenu->bmpBuffer);
+					cHostLobby.Draw(tMenu->bmpBuffer.get());
+					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
 	                bServerSettings = true;
 				    Menu_ServerSettings();
@@ -1328,7 +1328,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 			continue;
 		cmd_button->setType(BUT_TWOSTATES);
 		cmd_button->setRedrawMenu(false);
-		cmd_button->Setup(w->getID(), 0, 0, gfxGUI.bmpCommandBtn->w, gfxGUI.bmpCommandBtn->h);
+		cmd_button->Setup(w->getID(), 0, 0, gfxGUI.bmpCommandBtn.get()->w, gfxGUI.bmpCommandBtn.get()->h);
 
 		// Add the item
 		player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
@@ -1380,14 +1380,14 @@ void Menu_HostShowMinimap(void)
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
 	// Draw a background over the old minimap
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 463,32,463,32,128,96);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,32,463,32,128,96);
 
 	// Load the map
 	map.SetMinimapDimensions(128, 96);
 	if(map.Load("levels/"+buf)) {
 
 		// Draw the minimap
-		DrawImage(tMenu->bmpBuffer, map.GetMiniMap(), 463,32);
+		DrawImage(tMenu->bmpBuffer.get(), map.GetMiniMap(), 463,32);
 	}
 
 	// Update the screen
@@ -1417,13 +1417,13 @@ void Menu_Net_HostDeregister(void)
 	int cy = y+h/2;
 
 
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,60, 625, 465);
-	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,60, 625, 465);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), x, y, x+w, y+h);
+	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, "De-Registering server...");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, cy, tLX->clNormalLabel, "De-Registering server...");
 
 	Menu_RedrawMouse(true);
 
@@ -1488,8 +1488,8 @@ void Menu_ServerSettings(void)
 {
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,200);
-	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,445, tLX->clDialogBackground, 200);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,445);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 120,130, 490,445, tLX->clDialogBackground, 200);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,130, 490,445);
 
 	Menu_RedrawMouse(true);
 
@@ -1641,9 +1641,9 @@ enum {
 void Menu_BanList(void)
 {
 	// Setup the buffer
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,320);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 520,440);
-	//DrawRectFillA(tMenu->bmpBuffer, 125,155, 380,260, 0, 100);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,130,120,130, 400,320);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,130, 520,440);
+	//DrawRectFillA(tMenu->bmpBuffer.get(), 125,155, 380,260, 0, 100);
 
     CListview *tListBox = new CListview();
 

@@ -40,12 +40,12 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 	LOAD_IMAGE_WITHALPHA(bmpFont, fontname);
 
 	// Set the color key for this alpha surface
-	SetColorKey(bmpFont, 255, 0, 255);
+	SetColorKey(bmpFont.get(), 255, 0, 255);
 
 	Colorize = _colour;
 
-	bmpWhite = gfxCreateSurfaceAlpha(bmpFont->w, bmpFont->h);
-	bmpGreen = gfxCreateSurfaceAlpha(bmpFont->w, bmpFont->h);
+	bmpWhite = gfxCreateSurfaceAlpha(bmpFont.get()->w, bmpFont.get()->h);
+	bmpGreen = gfxCreateSurfaceAlpha(bmpFont.get()->w, bmpFont.get()->h);
 
 	// Calculate the width of each character and number of characters
 	Parse();
@@ -76,8 +76,8 @@ void CFont::Shutdown(void) {
 // NOTE: bmpFont must be locked before calling this
 bool CFont::IsColumnFree(int x) {
 	// it's only completelly see through
-	for (int y = 0; y < bmpFont->h; y++) {
-		if ((GetPixel(bmpFont, x, y) & ALPHASURFACE_AMASK) != 0)
+	for (int y = 0; y < bmpFont.get()->h; y++) {
+		if ((GetPixel(bmpFont.get(), x, y) & ALPHASURFACE_AMASK) != 0)
 			return false;
 	}
 
@@ -94,21 +94,21 @@ void CFont::Parse(void) {
 	// Lock the surface
 	LOCK_OR_QUIT(bmpFont);
 
-	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
+	Uint32 blue = SDL_MapRGB(bmpFont.get()->format, 0, 0, 255);
 
 	// a blue pixel always indicates a new char exept for the first
 
 	uint char_start = 0;
-	for (x = 0; x < bmpFont->w; x++) {
+	for (x = 0; x < bmpFont.get()->w; x++) {
 		// x is always one pixel behind a blue line or x==0
 
 		// Ignore any free pixel columns before the character
 		char_start = x;
-		while (IsColumnFree(x) && x < bmpFont->w)
+		while (IsColumnFree(x) && x < bmpFont.get()->w)
 			++x;
 
 		// If we stopped at next blue line/end, this must be a kind of space
-		if (GetPixel(bmpFont, x, 0) == blue || x == bmpFont->w)  {
+		if (GetPixel(bmpFont.get(), x, 0) == blue || x == bmpFont.get()->w)  {
 			cur_w = x - char_start;
 
 		// Non-blank character
@@ -118,7 +118,7 @@ void CFont::Parse(void) {
 
 			// Read until a blue pixel or end of the image
 			cur_w = 1;
-			while (GetPixel(bmpFont, x, 0) != blue && x < bmpFont->w) {
+			while (GetPixel(bmpFont.get(), x, 0) != blue && x < bmpFont.get()->w) {
 				++x;
 				++cur_w;
 			}
@@ -153,7 +153,7 @@ void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colou
 	Uint32 pixel;
 	int x, y;
 
-	FillSurface(bmpSurf, SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
+	FillSurface(bmpSurf.get(), SDL_MapRGBA(bmpSurf.get()->format, 255, 0, 255, 0));
 
 	// Lock the surfaces
 	LOCK_OR_QUIT(bmpSurf);
@@ -165,29 +165,29 @@ void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colou
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont) {
-		for (y = 0; y < bmpSurf->h; y++) {
-			for (x = 0; x < bmpSurf->w; x++) {
-				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
+		for (y = 0; y < bmpSurf.get()->h; y++) {
+			for (x = 0; x < bmpSurf.get()->w; x++) {
+				pixel = GetPixel(bmpFont.get(), x, y);
+				GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 				if (R == 255 && G == 255 && B == 255)    // White
-					PutPixel(bmpSurf, x, y,
-					         SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+					PutPixel(bmpSurf.get(), x, y,
+					         SDL_MapRGBA(bmpSurf.get()->format, sr, sg, sb, A));
 				else if (!R && !G && !B)   // Black
-					PutPixel(bmpSurf, x, y,
-					         SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
+					PutPixel(bmpSurf.get(), x, y,
+					         SDL_MapRGBA(bmpSurf.get()->format, 0, 0, 0, A));
 			}
 		}
 	// Not outline: replace black pixels with appropriate color
 	} else {
-		for (y = 0; y < bmpSurf->h; y++) {
-			for (x = 0; x < bmpSurf->w; x++) {
-				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
+		for (y = 0; y < bmpSurf.get()->h; y++) {
+			for (x = 0; x < bmpSurf.get()->w; x++) {
+				pixel = GetPixel(bmpFont.get(), x, y);
+				GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 				if (!R && !G && !B)   // Black
-					PutPixel(bmpSurf, x, y,
-					         SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+					PutPixel(bmpSurf.get(), x, y,
+					         SDL_MapRGBA(bmpSurf.get()->format, sr, sg, sb, A));
 			}
 		}
 	}
@@ -205,7 +205,7 @@ int CFont::GetHeight(const std::string& buf) {
 	int numlines = 1;
 	for (std::string::const_iterator i = buf.begin(); i != buf.end(); i++)
 		if (*i == '\n') numlines++;
-	return numlines * (bmpFont->h + VSpacing);
+	return numlines * (bmpFont.get()->h + VSpacing);
 }
 
 ///////////////////
@@ -277,7 +277,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 	// Lock the surfaces
 	// If we use cached font, we do not access the pixels
-	if (!bmpCached)  {
+	if (!bmpCached.get())  {
 		LOCK_OR_QUIT(dst);
 		LOCK_OR_QUIT(bmpFont);
 	}
@@ -290,7 +290,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 	// Position at destination surface
 	int char_y = y;
-	int char_h = bmpFont->h;
+	int char_h = bmpFont.get()->h;
 
 	// Vertical clipping
 	OneSideClip(char_y, char_h, newrect.y, newrect.h);
@@ -299,7 +299,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 		// Line break
 		if (*p == '\n') {
-			y += bmpFont->h + VSpacing;
+			y += bmpFont.get()->h + VSpacing;
 			char_y = y;
 			x = newrect.x;
 			p++;
@@ -324,8 +324,8 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 			continue;
 
 		// Precached fonts
-		if (bmpCached) {
-			DrawImageAdv(dst, bmpCached, CharacterOffset[l], 0, x, y, FontWidth[l], bmpFont->h);
+		if (bmpCached.get()) {
+			DrawImageAdv(dst, bmpCached, CharacterOffset[l], 0, x, y, FontWidth[l], bmpFont.get()->h);
 			x += FontWidth[l] + Spacing;
 			continue;
 		}
@@ -339,8 +339,8 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 		}
 
 
-		const short bpp = bmpFont->format->BytesPerPixel;
-		Uint8 *src = (Uint8 *) bmpFont->pixels + bmpFont->pitch * (char_y - y) +
+		const short bpp = bmpFont.get()->format->BytesPerPixel;
+		Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * (char_y - y) +
 						(CharacterOffset[l] + char_x - x) * bpp;
 		Uint8 *px;
 
@@ -351,7 +351,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 				for (int i = 0; i < char_w; ++i, px += bpp) {
 
 					Uint32 pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
+					GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 					// Put black pixels and colorize white ones
 					if (R == 255 && G == 255 && B == 255)    // White
@@ -359,7 +359,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 					else if (!R && !G && !B)    // Black
 						PutPixelA(dst, char_x + i, char_y + j, tLX->clBlack, A);
 				}
-				src += bmpFont->pitch;
+				src += bmpFont.get()->pitch;
 			}
 		}
 		// Not outline
@@ -369,13 +369,13 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 				for (int i = 0; i < char_w; ++i, px += bpp) {
 
 					Uint32 pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
+					GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
 
 					// Put only black pixels
 					if (!R && !G && !B)
 						PutPixelA(dst, char_x + i, char_y + j, col, A);
 				}
-				src += bmpFont->pitch;
+				src += bmpFont.get()->pitch;
 			}
 		}
 
@@ -387,7 +387,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 
 	// Unlock the surfaces
-	if (!bmpCached)  {
+	if (!bmpCached.get())  {
 		UnlockSurface(dst);
 		UnlockSurface(bmpFont);
 	}

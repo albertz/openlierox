@@ -56,8 +56,8 @@ void CListview::Draw(SDL_Surface * bmpDest)
 			}
 			Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
 			switch (col->iSorted)  {
-			case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp->w-9,iY+7); break;
-			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
+			case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp.get()->w-9,iY+7); break;
+			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown.get()->w-9,iY+7); break;
 			}
 
 			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x), tLX->clNormalLabel, col->sText);
@@ -191,12 +191,12 @@ void CListview::Draw(SDL_Surface * bmpDest)
 							break;
 
 						case VALIGN_BOTTOM:
-							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage->h);
+							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
 							break;
 
 						// Middle
 						default:
-							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage->h/2);
+							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
 							break;
 						}
 
@@ -418,12 +418,12 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 	// Set special info
 	switch (iType)  {
 	case LVS_IMAGE:
-		if (!img)  {
+		if (!img.get())  {
 			delete sub;
 			return;
 		}
 		sub->bmpImage = img;
-		tLastItem->iHeight = MAX(tLastItem->iHeight, img->h);
+		tLastItem->iHeight = MAX(tLastItem->iHeight, img.get()->h);
 		break;
 	case LVS_WIDGET:
 		if (!wid)  {
@@ -453,7 +453,7 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 	sub = tLastItem->tSubitems;
 	for(;sub;sub = sub->tNext) {
 		if(sub->iType == LVS_IMAGE) {
-			tLastItem->iHeight = MAX(tLastItem->iHeight,(sub->bmpImage->h+4));
+			tLastItem->iHeight = MAX(tLastItem->iHeight,(sub->bmpImage.get()->h+4));
 		}
 	}
 

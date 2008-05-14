@@ -52,11 +52,11 @@ void CBar::Draw(SDL_Surface * dst)  {
 	// Then there can be unlimited number of states for various purposes
 	// The last image is the background - fully unloaded image
 
-	if (bmpBar)  {  // We got a bitmap - many options and possibilities for drawing
+	if (bmpBar.get())  {  // We got a bitmap - many options and possibilities for drawing
 		int numstates = NumForeStates + NumBgStates;
 
-		int bar_h = (bmpBar->h - NumForeStates) / (numstates);
-		int bar_w = (bmpBar->w - NumForeStates) / (numstates);
+		int bar_h = (bmpBar.get()->h - NumForeStates) / (numstates);
+		int bar_w = (bmpBar.get()->w - NumForeStates) / (numstates);
 
 		Uint32 clLabel = tLX->clWhite;
 		
@@ -65,40 +65,40 @@ void CBar::Draw(SDL_Surface * dst)  {
 		switch (Direction)  {
 		case BAR_LEFTTORIGHT:
 			// Background
-			DrawImageAdv(dst, bmpBar, 0, bar_h * (NumForeStates + CurrentBgState), X, Y, bmpBar->w, bar_h);
+			DrawImageAdv(dst, bmpBar, 0, bar_h * (NumForeStates + CurrentBgState), X, Y, bmpBar.get()->w, bar_h);
 
-			DrawImageAdv(dst, bmpBar, 0,  bar_h * CurrentForeState, X, Y, (bmpBar->w * pos) / 100, bar_h);  // Progress
+			DrawImageAdv(dst, bmpBar, 0,  bar_h * CurrentForeState, X, Y, (bmpBar.get()->w * pos) / 100, bar_h);  // Progress
 			LOCK_OR_QUIT(bmpBar);
-			clLabel = GetPixel(bmpBar, MAX(0, (bmpBar->w*pos)/100 - 1), bmpBar->h - NumForeStates + CurrentForeState);
+			clLabel = GetPixel(bmpBar.get(), MAX(0, (bmpBar.get()->w*pos)/100 - 1), bmpBar.get()->h - NumForeStates + CurrentForeState);
 			UnlockSurface(bmpBar);
 			break;
 		case BAR_RIGHTTOLEFT:
 			// Background
-			DrawImageAdv(dst, bmpBar, 0, bar_h * (NumForeStates + CurrentBgState), X, Y, bmpBar->w, bar_h);
+			DrawImageAdv(dst, bmpBar, 0, bar_h * (NumForeStates + CurrentBgState), X, Y, bmpBar.get()->w, bar_h);
 
-			w = (bmpBar->w * pos) / 100;
-			DrawImageAdv(dst, bmpBar, bmpBar->w - w,  bar_h * CurrentForeState, X + bmpBar->w - w, Y, w, bar_h);  // Progress
+			w = (bmpBar.get()->w * pos) / 100;
+			DrawImageAdv(dst, bmpBar, bmpBar.get()->w - w,  bar_h * CurrentForeState, X + bmpBar.get()->w - w, Y, w, bar_h);  // Progress
 			LOCK_OR_QUIT(bmpBar);
-			clLabel = GetPixel(bmpBar, MIN(bmpBar->w - 1, bmpBar->w - w + 1), bmpBar->h - NumForeStates + CurrentForeState);
+			clLabel = GetPixel(bmpBar.get(), MIN(bmpBar.get()->w - 1, bmpBar.get()->w - w + 1), bmpBar.get()->h - NumForeStates + CurrentForeState);
 			UnlockSurface(bmpBar);
 			break;
 		case BAR_TOPTOBOTTOM: 
 			// Background
-			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar->h); // The last image is the empty one
+			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar.get()->h); // The last image is the empty one
 
-			DrawImageAdv(dst, bmpBar, bar_w * CurrentForeState, 0, X, Y, bar_w, (bmpBar->h / 100) * pos); // Progress
+			DrawImageAdv(dst, bmpBar, bar_w * CurrentForeState, 0, X, Y, bar_w, (bmpBar.get()->h / 100) * pos); // Progress
 			LOCK_OR_QUIT(bmpBar);
-			clLabel = GetPixel(bmpBar, bmpBar->w - NumForeStates + CurrentForeState, MAX(0, (bmpBar->h * pos)/100 - 1));
+			clLabel = GetPixel(bmpBar.get(), bmpBar.get()->w - NumForeStates + CurrentForeState, MAX(0, (bmpBar.get()->h * pos)/100 - 1));
 			UnlockSurface(bmpBar);
 			break;
 		case BAR_BOTTOMTOTOP:
 			// Background
-			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar->h); // The last image is the empty one
+			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar.get()->h); // The last image is the empty one
 
-			h = (bmpBar->w * pos) / 100;
-			DrawImageAdv(dst, bmpBar,  bar_w * CurrentForeState, bmpBar->h - h, X, Y + bmpBar->h - h, bar_w, h);  // Progress
+			h = (bmpBar.get()->w * pos) / 100;
+			DrawImageAdv(dst, bmpBar,  bar_w * CurrentForeState, bmpBar.get()->h - h, X, Y + bmpBar.get()->h - h, bar_w, h);  // Progress
 			LOCK_OR_QUIT(bmpBar);
-			clLabel = GetPixel(bmpBar, bmpBar->w - NumForeStates + CurrentForeState, MIN(bmpBar->h- 1, bmpBar->h - h - 1));
+			clLabel = GetPixel(bmpBar.get(), bmpBar.get()->w - NumForeStates + CurrentForeState, MIN(bmpBar.get()->h- 1, bmpBar.get()->h - h - 1));
 			UnlockSurface(bmpBar);
 			break;
 		default:
@@ -108,7 +108,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 
 		// bmpBar is an alpha surface so we need to convert the color from GetPixel
 		Uint8 r, g, b;
-		GetColour3(clLabel, bmpBar->format, &r, &g, &b);
+		GetColour3(clLabel, bmpBar.get()->format, &r, &g, &b);
 		clLabel = MakeColour(r, g, b);
 
 		if (LabelVisible)
@@ -130,17 +130,17 @@ void CBar::Draw(SDL_Surface * dst)  {
 // Get width of this bar
 int CBar::GetWidth()
 {
-	if (bmpBar) {
+	if (bmpBar.get()) {
 		int numstates = NumForeStates + NumBgStates;
 		switch (Direction)  {
 		case BAR_LEFTTORIGHT:
 		case BAR_RIGHTTOLEFT:
-			return bmpBar->w;
+			return bmpBar.get()->w;
 		case BAR_TOPTOBOTTOM:
 		case BAR_BOTTOMTOTOP:
-			return (bmpBar->w-numstates)/(numstates + 1);
+			return (bmpBar.get()->w-numstates)/(numstates + 1);
 		default:
-			return bmpBar->w;
+			return bmpBar.get()->w;
 		}
 	} else {
 		return 100;
@@ -151,17 +151,17 @@ int CBar::GetWidth()
 // Get width of this bar
 int CBar::GetHeight()
 {
-	if (bmpBar) {
+	if (bmpBar.get()) {
 		int numstates = NumForeStates + NumBgStates;
 		switch (Direction)  {
 		case BAR_LEFTTORIGHT:
 		case BAR_RIGHTTOLEFT:
-			return (bmpBar->h-NumForeStates)/(numstates);
+			return (bmpBar.get()->h-NumForeStates)/(numstates);
 		case BAR_TOPTOBOTTOM:
 		case BAR_BOTTOMTOTOP:
-			return bmpBar->h;
+			return bmpBar.get()->h;
 		default:
-			return bmpBar->h;
+			return bmpBar.get()->h;
 		}
 	} else {
 		return 10;

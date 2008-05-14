@@ -37,7 +37,7 @@ void CSlider::Draw(SDL_Surface * bmpDest)
 	int w = iWidth - 10;
 	int val = (int)( ((float)w/(float)iMax) * (float)iValue ) + x;
 
-	int y = (iY+iHeight/2) - gfxGUI.bmpSliderBut->h/2;
+	int y = (iY+iHeight/2) - gfxGUI.bmpSliderBut.get()->h/2;
 	DrawImage(bmpDest,gfxGUI.bmpSliderBut,val-3,y);
 }
 

@@ -39,25 +39,28 @@ public:
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
+		iWidth = iHeight = 0;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
+			if( !tImage.get() )
+				return;
 
 			if( cropW == 0 && cropX > 0 )
-				cropW = tImage->w - cropX;
+				cropW = tImage.get()->w - cropX;
 			if( cropH == 0 && cropY > 0 )
-				cropH = tImage->h - cropY;
-			if( cropW > tImage->w )
-				cropW = tImage->w;
-			if( cropH > tImage->h )
-				cropH = tImage->h;
+				cropH = tImage.get()->h - cropY;
+			if( cropW > tImage.get()->w )
+				cropW = tImage.get()->w;
+			if( cropH > tImage.get()->h )
+				cropH = tImage.get()->h;
 
-			iWidth = cropW > 0 ? cropW : tImage->w;
-			iHeight = cropH > 0 ? cropH : tImage->h;
+			iWidth = cropW > 0 ? cropW : tImage.get()->w;
+			iHeight = cropH > 0 ? cropH : tImage.get()->h;
 
-			if( cropX > tImage->w - iWidth )
-				cropX = tImage->w - iWidth;
-			if( cropY > tImage->h - iHeight )
-				cropY = tImage->h - iHeight;
+			if( cropX > tImage.get()->w - iWidth )
+				cropX = tImage.get()->w - iWidth;
+			if( cropY > tImage.get()->h - iHeight )
+				cropY = tImage.get()->h - iHeight;
 		}
 	}
 
@@ -66,9 +69,9 @@ public:
 		sPath = "";
 		tImage = img;
 		cropX = cropY = cropW = cropH = 0;
-		if (tImage)  {
-			iWidth = tImage->w;
-			iHeight = tImage->h;
+		if (tImage.get())  {
+			iWidth = tImage.get()->w;
+			iHeight = tImage.get()->h;
 		}
 	}
 

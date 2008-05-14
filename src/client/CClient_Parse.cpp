@@ -169,7 +169,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		cLocalWorms[i] = &cRemoteWorms[id];
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
-		cLocalWorms[i]->setGameScript(cGameScript); // TODO: why was this commented out?
+		cLocalWorms[i]->setGameScript(cGameScript.get()); // TODO: why was this commented out?
 		//cLocalWorms[i]->setLoadingTime(fLoadingTime);  // TODO: why is this commented out?
 		cLocalWorms[i]->setProfile(tProfiles[i]);
 		cLocalWorms[i]->setTeam(tProfiles[i]->iTeam);
@@ -527,7 +527,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			if(!cMap->Load(buf)) {
 				// Show a cannot load level error message
 
-				FillSurface(tMenu->bmpBuffer, tLX->clBlack);
+				FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
 				std::string err;
 				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
 
@@ -583,15 +583,15 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	cGameScript = cCache.GetMod( sModName );
-	if( cGameScript == NULL )
+	if( cGameScript.get() == NULL )
 	{
 		cGameScript = new CGameScript();
-		int result = cGameScript->Load(sModName);
+		int result = cGameScript.get()->Load(sModName);
 		cCache.SaveMod( sModName, cGameScript );
 		if(result != GSE_OK) {
 
 			// Show any error messages
-			FillSurface(tMenu->bmpBuffer, tLX->clBlack);
+			FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
 			std::string err("Error load game mod: ");
 			err += sModName + "\r\nError code: " + itoa(result);
 			Menu_MessageBox("Loading Error", err, LMB_OK);
@@ -607,7 +607,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	};
 
     // Read the weapon restrictions
-    cWeaponRestrictions.updateList(cGameScript);
+    cWeaponRestrictions.updateList(cGameScript.get());
     cWeaponRestrictions.readList(bs);
 
 
@@ -658,7 +658,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Initialize the worms weapon selection menu & other stuff
 	ushort i;
 	for(i=0;i<iNumWorms;i++) {
-		cLocalWorms[i]->setGameScript(cGameScript);
+		cLocalWorms[i]->setGameScript(cGameScript.get());
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
 		cLocalWorms[i]->Prepare(cMap);
 
@@ -681,7 +681,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			w->setLives(iLives);
             w->setKills(0);
 			w->setHealth(100);
-			w->setGameScript(cGameScript);
+			w->setGameScript(cGameScript.get());
             w->setWpnRest(&cWeaponRestrictions);
 			w->setLoadingTime(fLoadingTime);
 
@@ -1056,7 +1056,7 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 
 	CVec p = CVec( (float)x, (float)y );
 
-	cBonuses[id].Spawn(p, type, wpn, cGameScript);
+	cBonuses[id].Spawn(p, type, wpn, cGameScript.get());
 	cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);

@@ -24,12 +24,12 @@
 void CTitleButton::Draw(SDL_Surface * bmpDest)
 {
 	if (bRedrawMenu)
-		Menu_redrawBufferRect(iX,iY, bmpImage->w,39);
+		Menu_redrawBufferRect(iX,iY, bmpImage.get()->w,39);
 
 	int y = 10+iImageID*40;
 	if(bMouseOver)
 		y += 200;
-	DrawImageAdv(bmpDest,bmpImage, 10,y, iX,iY, bmpImage->w, 39);
+	DrawImageAdv(bmpDest,bmpImage, 10,y, iX,iY, bmpImage.get()->w, 39);
 	bMouseOver = false;
 }
 

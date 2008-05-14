@@ -19,11 +19,11 @@
 void CImage::Draw(SDL_Surface * bmpDest)
 {
 	// Don't try to draw non-existing image
-	if (!tImage)
+	if (!tImage.get())
 		return;
 
 	if (bRedrawMenu)
-		Menu_redrawBufferRect(iX,iY, tImage->w,tImage->h);
+		Menu_redrawBufferRect(iX,iY, tImage.get()->w,tImage.get()->h);
 
 	// Clipping
 	if(iX+iWidth > bmpDest->w)
@@ -57,8 +57,8 @@ void CImage::Change(const std::string& Path)
 	cropX = cropY = cropW = cropH = 0;
 	
 	// Update the width and height
-	iWidth = tImage->w;
-	iHeight = tImage->h;
+	iWidth = tImage.get()->w;
+	iHeight = tImage.get()->h;
 }
 
 void CImage::Change(SmartPointer<SDL_Surface> bmpImg)
@@ -66,8 +66,8 @@ void CImage::Change(SmartPointer<SDL_Surface> bmpImg)
 	// Just re-setup the image-related variables
 	sPath = "";
 	tImage = bmpImg;
-	iWidth = bmpImg->w;
-	iHeight = bmpImg->h;
+	iWidth = bmpImg.get()->w;
+	iHeight = bmpImg.get()->h;
 	cropX = cropY = cropW = cropH = 0;
 }
 

@@ -83,9 +83,7 @@ public:
 
 	int					GetWidth(const std::string& buf);
 	int					GetCharacterWidth(UnicodeChar c);
-	inline int			GetHeight(void)					{
-		return bmpFont->h + VSpacing;
-	}
+	inline int			GetHeight(void) { return bmpFont.get()->h + VSpacing; }
 	int					GetHeight(const std::string& buf);
 
 	// Translates the character to the position in Fontstr array, returns -1 if impossible

@@ -25,7 +25,7 @@
 void CButton::Draw(SDL_Surface * bmpDest)
 {
 	// Don't draw empty image
-	if (!bmpImage)
+	if (!bmpImage.get())
 		return;
 
 	if (iButtonType == BUT_MENU)  {
@@ -40,17 +40,17 @@ void CButton::Draw(SDL_Surface * bmpDest)
 		bMouseOver = false;	
 	} else { // Two state and three state buttons
 		if (bRedrawMenu)
-			Menu_redrawBufferRect(iX,iY, iGoodWidth, bmpImage->h);
+			Menu_redrawBufferRect(iX,iY, iGoodWidth, bmpImage.get()->h);
 
 		int numstates = iButtonType == BUT_TWOSTATES ? 2: 3;
 
 		int x2 = 0;
 		if (bMouseOver)
-			x2 = (numstates - 2) * bmpImage->w / numstates;
+			x2 = (numstates - 2) * bmpImage.get()->w / numstates;
 		if (bMouseDown)
-			x2 = (numstates - 1) * bmpImage->w / numstates;
+			x2 = (numstates - 1) * bmpImage.get()->w / numstates;
 
-		DrawImageAdv(bmpDest, bmpImage, x2, 0, iX, iY, bmpImage->w / numstates, bmpImage->h);
+		DrawImageAdv(bmpDest, bmpImage, x2, 0, iX, iY, bmpImage.get()->w / numstates, bmpImage.get()->h);
 
 		bMouseOver = false;
 	}
@@ -80,18 +80,18 @@ void CButton::Create(void)
     // Find the smallest width
 	LOCK_OR_QUIT(bmpImage);
     iGoodWidth = 0;
-    for( int y=y2; y<=y2+38 && y<bmpImage->h; y++) {
-        for( int x=0; x<bmpImage->w; x++ ) {
+    for( int y=y2; y<=y2+38 && y<bmpImage.get()->h; y++) {
+        for( int x=0; x<bmpImage.get()->w; x++ ) {
 
-            Uint32 pixel = GetPixel(bmpImage, x,y);
-            GetColour4(pixel, bmpImage->format, &r,&g,&b,&a);
+            Uint32 pixel = GetPixel(bmpImage.get(), x,y);
+            GetColour4(pixel, bmpImage.get()->format, &r,&g,&b,&a);
             if( a != 0 )
                 iGoodWidth = MAX(iGoodWidth,x);
         }
     }
 	UnlockSurface(bmpImage);
 
-    iGoodWidth = MIN(iGoodWidth+1,bmpImage->w);
+    iGoodWidth = MIN(iGoodWidth+1,bmpImage.get()->w);
     
     initWidthHeight();
 }

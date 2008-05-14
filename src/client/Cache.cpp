@@ -39,11 +39,7 @@ float getCurrentTime()
 void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface> & img)
 {
 	ScopedLock lock(mutex);
-	if( ! tLXOptions )
-		return;
-	if( tLXOptions->iMaxCachedEntries == 0 )
-		return;	// Cache is disabled
-	if (img == NULL)
+	if (img.get() == NULL)
 		return;
 
 	std::string file = file1;
@@ -62,11 +58,7 @@ void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface>
 void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample> & smp)
 {
 	ScopedLock lock(mutex);
-	if( ! tLXOptions )
-		return;
-	if( tLXOptions->iMaxCachedEntries == 0 )
-		return;	// Cache is disabled
-	if (smp == NULL)
+	if (smp.get() == NULL)
 		return;
 
 	std::string file = file1;
@@ -84,10 +76,6 @@ void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample>
 void CCache::SaveMap(const std::string& file1, CMap *map)
 {
 	ScopedLock lock(mutex);
-	if( ! tLXOptions )
-		return;
-	if( tLXOptions->iMaxCachedEntries == 0 )
-		return;	// Cache is disabled
 	if (map == NULL)
 		return;
 
@@ -115,11 +103,7 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> & mod)
 {
 	ScopedLock lock(mutex);
-	if( ! tLXOptions )
-		return;
-	if( tLXOptions->iMaxCachedEntries == 0 )
-		return;	// Cache is disabled
-	if (mod == NULL)
+	if (mod.get() == NULL)
 		return;
 
 	std::string file = file1;

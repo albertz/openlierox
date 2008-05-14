@@ -344,7 +344,7 @@ bool CWorm::LoadGraphics(int gametype)
 
     // Load the skin
     bmpWormRight = LoadSkin(szSkin, r,g,b);
-	if (!bmpWormRight)  {
+	if (!bmpWormRight.get())  {
 		// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
 		bmpWormLeft = NULL;
 		bmpPic = NULL;
@@ -355,17 +355,17 @@ bool CWorm::LoadGraphics(int gametype)
 
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
-    SetColorKey(bmpPic);
-    FillSurfaceTransparent(bmpPic);
-    CopySurface(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
+    SetColorKey(bmpPic.get());
+    FillSurfaceTransparent(bmpPic.get());
+    CopySurface(bmpPic.get(), bmpWormRight, 134,2,0,0, 18,16);
 
 
     // Shadow buffer
     bmpShadowPic = gfxCreateSurface(32,18);
-    SetColorKey(bmpShadowPic);
+    SetColorKey(bmpShadowPic.get());
 
-	return bmpWormRight != NULL && bmpWormLeft != NULL &&
-			bmpGibs != NULL && bmpPic != NULL && bmpShadowPic != NULL;
+	return bmpWormRight.get() != NULL && bmpWormLeft.get() != NULL &&
+			bmpGibs.get() != NULL && bmpPic.get() != NULL && bmpShadowPic.get() != NULL;
 }
 
 ///////////////////
@@ -387,20 +387,20 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 
 	// Load the image
 	loaded = LoadImage(filename);
-	if(loaded == NULL) {
+	if(loaded.get() == NULL) {
 		// Error: Couldn't load image
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
 
-	img = gfxCreateSurface(loaded->w,loaded->h);
-	if (img == NULL)  {
+	img = gfxCreateSurface(loaded.get()->w,loaded.get()->h);
+	if (img.get() == NULL)  {
 		printf("CWorm::ChangeGraphics: Not enough of memory.");
 		return NULL;
 	}
-	DrawImage(img,loaded,0,0); // Blit to the new surface
+	DrawImage(img.get(),loaded,0,0); // Blit to the new surface
 
-	SetColorKey(img);
+	SetColorKey(img.get());
 
 
 	// Set the colour of the img
@@ -427,14 +427,14 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 	if (!LockSurface(img))
 		return img;
 
-	for(y = 0; y < img->h; y++) {
-		for(x = 0; x < img->w; x++) {
+	for(y = 0; y < img.get()->h; y++) {
+		for(x = 0; x < img.get()->w; x++) {
 
-			pixel = GetPixel(img,x,y);
-			GetColour3(pixel,img->format,&r,&g,&b);
+			pixel = GetPixel(img.get(),x,y);
+			GetColour3(pixel,img.get()->format,&r,&g,&b);
 
 			// Ignore pink & gun colours
-			if(IsTransparent(img,pixel))
+			if(IsTransparent(img.get(),pixel))
 				continue;
 			else if(pixel == gun1)
 				continue;
@@ -461,7 +461,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 				b2=240;
 			}
 
-			PutPixel(img,x,y, MakeColour((int)r2, (int)g2, (int)b2));
+			PutPixel(img.get(),x,y, MakeColour((int)r2, (int)g2, (int)b2));
 		}
 	}
 
@@ -931,11 +931,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-    FillSurfaceTransparent(bmpShadowPic);
+    FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
-        CopySurface(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
+        CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
 	else
-        CopySurface(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
+        CopySurface(bmpShadowPic.get(), bmpWormLeft, bmpWormLeft.get()->w-f-32,0, 0,0, 32,18);
 
     DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 
@@ -1024,7 +1024,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 			// just don't draw it as a real shadow but show the real position instead (not the interpolated)
 			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vOldPosOfLastPaket.x-9 - SHADOW_DROP, (int) vOldPosOfLastPaket.y-5 - SHADOW_DROP);
         else */
-			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
+			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic.get(), 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
 

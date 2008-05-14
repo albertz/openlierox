@@ -319,16 +319,16 @@ void Menu_Net_JoinLobbyShutdown(void)
 void Menu_Net_JoinDrawLobby(void)
 {
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 5,5, 635, 475);
 
     // Title
-    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
+    DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
+    DrawRectFill(tMenu->bmpBuffer.get(), 16, 270, 624, 417, tLX->clChatBoxBackground);
 
 	Menu_RedrawMouse(true);
 }
@@ -357,7 +357,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	if (player_list)  {
 		player_list->setShowSelect(false);
 		player_list->setOldStyle(true);
-		player_list->AddColumn("Players", tMenu->bmpLobbyReady->w + 2, tLX->clHeading);  // Lobby ready/Players label
+		player_list->AddColumn("Players", tMenu->bmpLobbyReady.get()->w + 2, tLX->clHeading);  // Lobby ready/Players label
 		player_list->AddColumn("", 30);  // Skin
 		player_list->AddColumn("", 220); // Name
 		player_list->AddColumn("", -1); // Team
@@ -469,8 +469,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Check if the communication link between us & server is still ok
 	if(cClient->getServerError()) {
 		// Create the buffer
-		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-		Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_LOBBY);
+		DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_LOBBY);
 
 		Menu_MessageBox("Communication", cClient->getServerErrorMsg(), LMB_OK);
 

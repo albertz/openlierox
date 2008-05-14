@@ -496,8 +496,8 @@ public:
 			else
 				proj->frame() -= (float)pi->AnimRate * dt;
 
-			if(pi->bmpImage) {
-				int NumFrames = pi->bmpImage->w / pi->bmpImage->h;
+			if(pi->bmpImage.get()) {
+				int NumFrames = pi->bmpImage.get()->w / pi->bmpImage.get()->h;
 				if(proj->frame() >= NumFrames) {
 					switch(pi->AnimType) {
 					case ANI_ONCE:
@@ -883,7 +883,7 @@ public:
 		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning. 
 		// These conditions test for those projectiles and remove them
 		if (pi->Hit_Type == PJ_NOTHING && pi->PlyHit_Type == PJ_NOTHING && (pi->Timer_Type == PJ_NOTHING || pi->Timer_Time <= 0)) // Isn't destroyed by any event
-			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
+			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage.get() == NULL))) // Isn't destroyed after animation ends
 				if (!pi->Hit_Projectiles && !pi->PlyHit_Projectiles && !pi->Timer_Projectiles)  // Doesn't spawn any projectiles
 					deleteAfter = true;
 
@@ -1011,7 +1011,7 @@ public:
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Uint32 col = GetPixel(map->GetImage(), (int)rope->hookPos().x, (int)rope->hookPos().y);
+					Uint32 col = GetPixel(map->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y);
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}

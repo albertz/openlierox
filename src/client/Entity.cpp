@@ -304,12 +304,12 @@ void SimulateEntities(float dt, CMap *map)
 								int x = (int)ent->vPos.x;
 								int y = (int)ent->vPos.y;
 								LOCK_OR_QUIT(map->GetImage());
-								PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
+								PutPixel(map->GetImage().get(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
 								UnlockSurface(map->GetImage());
 
 								x *= 2;
 								y *= 2;
-								DrawRectFill(map->GetDrawImage(), x, y, x + 2, y + 2, ent->iColour);
+								DrawRectFill(map->GetDrawImage().get(), x, y, x + 2, y + 2, ent->iColour);
 							} break;
 
 						// Giblet
@@ -323,8 +323,8 @@ void SimulateEntities(float dt, CMap *map)
 								int x = (int)ent->vPos.x-1;
 								int y = (int)ent->vPos.y-1;
 
-								DrawImageAdv(map->GetImage(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
-								DrawImageStretch2(map->GetDrawImage(),map->GetImage(),x,y,x*2,y*2,4,4);
+								DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
+								DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
 							}
 							break;
 					}

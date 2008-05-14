@@ -51,7 +51,7 @@ bool CWeather::Initialize(int nType)
 
     // Load the graphics
     m_psSnowPart = LoadImage("data/gfx/snowpart.png");
-    if( !m_psSnowPart )
+    if( !m_psSnowPart.get() )
         return false;
 
     m_fNextSnow = -9999;

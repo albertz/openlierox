@@ -898,11 +898,11 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	}
 
 
-	int top = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
+	int top = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 	if (!tLXOptions->tGameinfo.bTopBarVisible)
 		top = 0;
 
-	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
+	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
 
 	// One worm
 	if(w2 == NULL) {
@@ -1001,7 +1001,7 @@ void CClient::GetLogData(std::string& data)
 	levelfile = tGameInfo.sMapFile;
 	modfile = tGameInfo.sModDir;
 	level = cMap->getName();
-	mod = cGameScript->GetHeader()->ModName;
+	mod = cGameScript.get()->GetHeader()->ModName;
 	xmlEntities(levelfile);
 	xmlEntities(modfile);
 	xmlEntities(level);

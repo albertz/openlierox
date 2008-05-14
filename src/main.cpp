@@ -792,17 +792,17 @@ void DrawLoading(byte percentage, const std::string &text)  {
 		return;
 	}
 
-	if (!cLoading.bmpBackground)
+	if (cLoading.bmpBackground.get() == NULL)
 		return;
 
 	// Update the repainted area
 	int x = MIN(cLoading.iBackgroundX, cLoading.cBar->GetX());
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
-	int w = MAX(cLoading.bmpBackground->w, cLoading.cBar->GetWidth());
-	int h = MAX(cLoading.bmpBackground->h, cLoading.cBar->GetHeight());
+	int w = MAX(cLoading.bmpBackground.get()->w, cLoading.cBar->GetWidth());
+	int h = MAX(cLoading.bmpBackground.get()->h, cLoading.cBar->GetHeight());
 	DrawRectFill(GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
 
-	if (cLoading.bmpBackground)
+	if (cLoading.bmpBackground.get() != NULL)
 		DrawImage(GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
 
 	if (cLoading.cBar)  {

@@ -413,7 +413,7 @@ CGuiSkinnedLayout * MainLayout = NULL;
 bool Menu_CGuiSkinInitialize(void)
 {
 	// TODO: don't hardcode window-size!
-	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
+	DrawRectFill(tMenu->bmpBuffer.get(), 0, 0, 640-1, 480-1, tLX->clBlack);
 	SetGameCursor(CURSOR_ARROW);
 	tMenu->iMenuType = MNU_GUISKIN;
 	MainLayout = CGuiSkin::GetLayout( "main" );
@@ -436,14 +436,14 @@ void Menu_CGuiSkinFrame(void)
 		Menu_MainInitialize();
 		return;
 	};
-	MainLayout->Draw(tMenu->bmpBuffer);
-	DrawCursor(tMenu->bmpBuffer);
+	MainLayout->Draw(tMenu->bmpBuffer.get());
+	DrawCursor(tMenu->bmpBuffer.get());
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
 };
 
 void Menu_CGuiSkinShutdown(void)
 {
-	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
+	DrawRectFill(tMenu->bmpBuffer.get(), 0, 0, 640-1, 480-1, tLX->clBlack);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
 	SetGameCursor(CURSOR_NONE);
 	MainLayout = NULL;

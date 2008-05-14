@@ -48,7 +48,7 @@ bool		SetVideoMode();
 HWND		GetWindowHandle();
 #endif
 
-void        FlipScreen(const SmartPointer<SDL_Surface> & psScreen);
+void        FlipScreen( SDL_Surface * psScreen);
 void		CapFPS();
 
 std::string	GetGameName();

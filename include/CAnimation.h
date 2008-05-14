@@ -31,9 +31,9 @@ public:
 		if (Path != "")  {
 			tAnimation = LoadImage(Path, true);
 
-			if (tAnimation)  {
-				iWidth = tAnimation->w;
-				iHeight = tAnimation->h;
+			if (tAnimation.get())  {
+				iWidth = tAnimation.get()->w;
+				iHeight = tAnimation.get()->h;
 			} else {
 				iWidth = iHeight = 0;
 			}

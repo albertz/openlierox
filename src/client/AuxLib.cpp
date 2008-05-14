@@ -153,8 +153,8 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	if(!bDedicated) {
 		bmpIcon = LoadImage("data/icon.png", true);
-		if(bmpIcon)
-			SDL_WM_SetIcon(bmpIcon, NULL);
+		if(bmpIcon.get())
+			SDL_WM_SetIcon(bmpIcon.get(), NULL);
 	}
 
 	// Initialize the keyboard & mouse
@@ -398,7 +398,7 @@ void ProcessScreenshots()
 
 ///////////////////
 // Flip the screen
-void FlipScreen(const SmartPointer<SDL_Surface> & psScreen)
+void FlipScreen( SDL_Surface * psScreen)
 {
 	if(psScreen == NULL) return;
 	

@@ -60,8 +60,8 @@ public:
 	inline bool		IsAnimated()  { return bAnimated; }
 	inline int		GetType()  { return iType; }
 	inline void		SetType(int _t)  { iType = _t; }
-	inline int		GetHeight()  { return bmpCursor ? bmpCursor->h : 0; }
-	inline int		GetWidth()  { return bmpCursor ? bmpCursor->w : 0; }
+	inline int		GetHeight()  { return bmpCursor.get() ? bmpCursor.get()->h : 0; }
+	inline int		GetWidth()  { return bmpCursor.get() ? bmpCursor.get()->w : 0; }
 };
 
 // Game cursors handling

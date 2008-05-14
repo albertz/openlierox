@@ -447,7 +447,7 @@ int CGameScript::Load(const std::string& dir)
 
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
-				if(wpn->smpSample == 0)
+				if(wpn->smpSample.get() == 0)
 					wpn->UseSound = false;
 			}
 		
@@ -548,7 +548,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
         proj->ImgFilename = readString(fp);
 		
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
-        if(!proj->bmpImage)
+        if(!proj->bmpImage.get())
             modLog("Could not open image '" + proj->ImgFilename + "'");
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
@@ -601,7 +601,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				// Load the sample
 				proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
 				
-				if(proj->smpSample == 0) {
+				if(proj->smpSample.get() == 0) {
 					proj->Hit_UseSound = false;
 					modLog("Could not open sound '" + proj->Hit_SndFilename + "'");
 				}
@@ -750,14 +750,14 @@ SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const
 
 	// First, check the gfx directory in the mod dir
 	img = LoadImage(dir + "/gfx/" + filename, true);	
-	if(img)  {
-		SetColorKey(img);
+	if(img.get())  {
+		SetColorKey(img.get());
 		return img;
 	}
 
 	// Check the gfx directory in the data dir
 	img = LoadImage("data/gfx/" + filename, true);
-	if(img) SetColorKey(img);
+	if(img.get()) SetColorKey(img.get());
 	return img;
 }
 
@@ -771,7 +771,7 @@ SmartPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, cons
 	// First, check the sfx directory in the mod dir
 	smp = LoadSample(dir + "/sfx/" + filename, 10);
 	
-	if(smp)
+	if(smp.get())
 		return smp;
 
 	// Check the sounds directory in the data dir

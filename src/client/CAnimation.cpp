@@ -19,9 +19,9 @@
 void CAnimation::Create()
 {
 	iType = wid_Image;
-	if (tAnimation)  {
-		iWidth = tAnimation->w;
-		iHeight = tAnimation->h;
+	if (tAnimation.get())  {
+		iWidth = tAnimation.get()->w;
+		iHeight = tAnimation.get()->h;
 	} else {
 		iWidth = iHeight = 0;
 	}
@@ -31,7 +31,7 @@ void CAnimation::Create()
 // Parse the animation
 void CAnimation::Parse()
 {
-	if (!tAnimation)
+	if (!tAnimation.get())
 		return;
 
 	tFrameOffsets.clear();
@@ -42,12 +42,12 @@ void CAnimation::Parse()
 	tFrameOffsets.push_back(0);
 
 	// Go through and look for pink frame dividing line
-	Uint8 *px = (Uint8 *)tAnimation->pixels;
+	Uint8 *px = (Uint8 *)tAnimation.get()->pixels;
 	int last_x = 0;
 	iNumFrames = 0;
-	Uint32 pink = SDL_MapRGB(tAnimation->format, 255, 0, 255); // Animation is alphasurface, cannot use MakeColour
-	for (int x = 0; x < tAnimation->w; x++, px += tAnimation->format->BytesPerPixel) {
-		if (EqualRGB(GetPixelFromAddr(px, tAnimation->format->BytesPerPixel), pink, tAnimation->format)) {
+	Uint32 pink = SDL_MapRGB(tAnimation.get()->format, 255, 0, 255); // Animation is alphasurface, cannot use MakeColour
+	for (int x = 0; x < tAnimation.get()->w; x++, px += tAnimation.get()->format->BytesPerPixel) {
+		if (EqualRGB(GetPixelFromAddr(px, tAnimation.get()->format->BytesPerPixel), pink, tAnimation.get()->format)) {
 			if (!x) continue; // Ignore lines at the beginning
 
 			tFrameOffsets.push_back(x + 1);
@@ -62,7 +62,7 @@ void CAnimation::Parse()
 
 	// Last frame
 	iNumFrames++;
-	tFrameWidths.push_back(tAnimation->w - last_x - 1);
+	tFrameWidths.push_back(tAnimation.get()->w - last_x - 1);
 }
 
 ///////////////////
@@ -70,11 +70,11 @@ void CAnimation::Parse()
 void CAnimation::Draw(SDL_Surface * bmpDest)
 {
 	// Don't try to draw non-existing image
-	if (!tAnimation || !iNumFrames)
+	if (!tAnimation.get() || !iNumFrames)
 		return;
 
 	if (bRedrawMenu)
-		Menu_redrawBufferRect(iX,iY, tAnimation->w,tAnimation->h);
+		Menu_redrawBufferRect(iX,iY, tAnimation.get()->w,tAnimation.get()->h);
 
 	// Check if it's time to change the frame
 	if (tLX->fCurTime - fLastFrameChange >= fFrameTime) {
@@ -85,7 +85,7 @@ void CAnimation::Draw(SDL_Surface * bmpDest)
 	}
 
 	// Draw the image
-	DrawImageAdv(bmpDest,tAnimation, tFrameOffsets[iCurFrame], 0, iX, iY, tFrameWidths[iCurFrame], tAnimation->h);
+	DrawImageAdv(bmpDest,tAnimation, tFrameOffsets[iCurFrame], 0, iX, iY, tFrameWidths[iCurFrame], tAnimation.get()->h);
 }
 
 ///////////////////
@@ -102,9 +102,9 @@ void CAnimation::Change(const std::string& Path, float frametime)
 	tAnimation = LoadImage(sPath, true);
 
 	// Update the width and height
-	if (tAnimation) {
-		iWidth = tAnimation->w;
-		iHeight = tAnimation->h;
+	if (tAnimation.get()) {
+		iWidth = tAnimation.get()->w;
+		iHeight = tAnimation.get()->h;
 	} else {
 		iWidth = iHeight = 0;
 	}

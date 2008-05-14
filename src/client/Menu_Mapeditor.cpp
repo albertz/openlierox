@@ -56,13 +56,13 @@ bool Menu_MapEdInitialize(void)
 	Menu_DrawBox(tMenu->bmpBuffer,20,171, 619,458);
 	Menu_DrawBox(tMenu->bmpBuffer,20,135, 54,169);*/
 
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-    Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
+    DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+    Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 
-    Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
-    Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,105, 54,139);      // Preview box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,146, 619,459);     // Level box
 
 
 
@@ -188,8 +188,8 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 		}
 
 
-		int w = t->bmpHoles[ tMenu->iCurHole ]->w;
-		int h = t->bmpHoles[ tMenu->iCurHole ]->h;
+		int w = t->bmpHoles[ tMenu->iCurHole ].get()->w;
+		int h = t->bmpHoles[ tMenu->iCurHole ].get()->h;
 
 		DrawImageStretch(bmpDest, t->bmpHoles[ tMenu->iCurHole ], 37-w, 122-h);
 	}
@@ -212,8 +212,8 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 		}
 
 
-		int w = t->bmpStones[ tMenu->iCurStone ]->w;
-		int h = t->bmpStones[ tMenu->iCurStone ]->h;
+		int w = t->bmpStones[ tMenu->iCurStone ].get()->w;
+		int h = t->bmpStones[ tMenu->iCurStone ].get()->h;
 
 		if(w > 17 || h > 17) {
 			w >>= 1;
@@ -243,8 +243,8 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 		}
 
 
-		int w = t->bmpMisc[ tMenu->iCurMisc ]->w;
-		int h = t->bmpMisc[ tMenu->iCurMisc ]->h;
+		int w = t->bmpMisc[ tMenu->iCurMisc ].get()->w;
+		int h = t->bmpMisc[ tMenu->iCurMisc ].get()->h;
 
 		DrawImageStretchKey(bmpDest, t->bmpMisc[ tMenu->iCurMisc ], 37-w, 122-h);
 	}
@@ -266,8 +266,8 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 				tMenu->iCurDirt = 4;
 		}
 
-		int w = t->bmpHoles[ tMenu->iCurDirt ]->w;
-		int h = t->bmpHoles[ tMenu->iCurDirt ]->h;
+		int w = t->bmpHoles[ tMenu->iCurDirt ].get()->w;
+		int h = t->bmpHoles[ tMenu->iCurDirt ].get()->h;
 
 		DrawImageStretch(bmpDest, t->bmpHoles[ tMenu->iCurDirt ], 37-w, 122-h);
 	}
@@ -450,9 +450,9 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
 
 	// Draw the mouse
-	if(MouseImg) {
-		int w = MouseImg->w;
-		int h = MouseImg->h;
+	if(MouseImg.get()) {
+		int w = MouseImg.get()->w;
+		int h = MouseImg.get()->h;
 		//if(tMenu->iEditMode == 0 || tMenu->iEditMode == 3)
 		DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h);
 		//else
@@ -506,12 +506,12 @@ void Menu_MapEd_New(void)
 	CTextbox *t1,*t2;
 
 	// Save the background
-	Menu_MapEdFrame(tMenu->bmpBuffer,false);
+	Menu_MapEdFrame(tMenu->bmpBuffer.get(),false);
 
-	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 212,172, 212,172, 217,137);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 210, 170, 430, 310);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 212,172, 212,172, 217,137);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 	//DrawRectFill(tMenu->bmpBuffer, 212, 172, 429, 309, tLX->clBlack);
 
 	Menu_RedrawMouse(true);
@@ -613,13 +613,13 @@ void Menu_MapEd_New(void)
 	}
 
 	// Redraw back to normal
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-    Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+    Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 
-    Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
-    Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,105, 54,139);      // Preview box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,146, 619,459);     // Level box
 
 	Menu_RedrawMouse(true);
 
@@ -703,10 +703,10 @@ void Menu_MapEd_LoadSave(int save)
 	CTextbox *t;
 
 	// Save the background
-	Menu_MapEdFrame(tMenu->bmpBuffer,false);
+	Menu_MapEdFrame(tMenu->bmpBuffer.get(),false);
 
-	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 170, 150, 470, 330);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 
 	Menu_RedrawMouse(true);
 
@@ -812,13 +812,13 @@ void Menu_MapEd_LoadSave(int save)
 	}
 
 	// Redraw back to normal
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-    Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+    Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
 
-    Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
-    Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,105, 54,139);      // Preview box
+    Menu_DrawBox(tMenu->bmpBuffer.get(),20,146, 619,459);     // Level box
 
 	Menu_RedrawMouse(true);
 
@@ -852,9 +852,9 @@ bool Menu_MapEd_OkSave(const std::string& szFilename)
 
 	// No overwrite
 	// Fix the screen up
-	Menu_MapEdFrame(tMenu->bmpBuffer,false);
-	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
+	Menu_MapEdFrame(tMenu->bmpBuffer.get(),false);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 170, 150, 470, 330);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 	Menu_RedrawMouse(true);
 
 	return false;

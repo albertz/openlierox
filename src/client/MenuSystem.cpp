@@ -81,25 +81,25 @@ bool Menu_Initialize(bool *game)
 
 	// bmpMainBack_common, for backward compatibility: if it doesn't exist, we use bmpMainBack_wob
 	tMenu->bmpMainBack_common = LoadImage("data/frontend/background_common.png");
-	if (!tMenu->bmpMainBack_common)
+	if (!tMenu->bmpMainBack_common.get())
 		tMenu->bmpMainBack_common = tMenu->bmpMainBack_wob;
 
 
 	tMenu->bmpBuffer = gfxCreateSurface(640,480);
-    if(tMenu->bmpBuffer == NULL) {
+    if(tMenu->bmpBuffer.get() == NULL) {
         SystemError("Error: Out of memory back buffer");
 		return false;
     }
 
 
 	tMenu->bmpMsgBuffer = gfxCreateSurface(640,480);
-    if(tMenu->bmpMsgBuffer == NULL) {
+    if(tMenu->bmpMsgBuffer.get() == NULL) {
         SystemError("Error: Out of memory in MsgBuffer");
 		return false;
 	}
 
     tMenu->bmpMiniMapBuffer = gfxCreateSurface(128,96);
-    if(tMenu->bmpMiniMapBuffer == NULL) {
+    if(tMenu->bmpMiniMapBuffer.get() == NULL) {
         SystemError("Error: Out of memory in MiniMapBuffer");
 		return false;
     }
@@ -122,19 +122,19 @@ bool Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
 	// Split up the lobby ready image
-	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state->w, 12);
-	if (!tMenu->bmpLobbyReady)  {
+	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);
+	if (!tMenu->bmpLobbyReady.get())  {
 		printf("Out of memory while creating tMenu->bmpLobbyReady\n");
 		return false;
 	}
-	CopySurface(tMenu->bmpLobbyReady, lobby_state, 0, 0, 0, 0, lobby_state->w, 12);
+	CopySurface(tMenu->bmpLobbyReady.get(), lobby_state, 0, 0, 0, 0, lobby_state.get()->w, 12);
 
-	tMenu->bmpLobbyNotReady = gfxCreateSurfaceAlpha(lobby_state->w, 12);
-	if (!tMenu->bmpLobbyNotReady)  {
+	tMenu->bmpLobbyNotReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);
+	if (!tMenu->bmpLobbyNotReady.get())  {
 		printf("Out of memory while creating tMenu->bmpLobbyNotReady\n");
 		return false;
 	}
-	CopySurface(tMenu->bmpLobbyNotReady, lobby_state, 0, 12, 0, 0, lobby_state->w, 12);
+	CopySurface(tMenu->bmpLobbyNotReady.get(), lobby_state, 0, 12, 0, 0, lobby_state.get()->w, 12);
 
 
     tMenu->bmpWorm = NULL;
@@ -394,7 +394,7 @@ void Menu_Loop(void)
 void Menu_RedrawMouse(int total)
 {
 	if(total) {
-		SDL_BlitSurface(tMenu->bmpBuffer,NULL,tMenu->bmpScreen,NULL);
+		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,tMenu->bmpScreen,NULL);
 		return;
 	}
 
@@ -417,9 +417,9 @@ void Menu_RedrawMouse(int total)
 void Menu_DrawSubTitle(SDL_Surface * bmpDest, int id)
 {
 	int x = tMenu->bmpScreen->w/2;
-	x -= tMenu->bmpSubTitles->w/2;
+	x -= tMenu->bmpSubTitles.get()->w/2;
 
-	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,30, tMenu->bmpSubTitles->w, 65);
+	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,30, tMenu->bmpSubTitles.get()->w, 65);
 }
 
 
@@ -428,9 +428,9 @@ void Menu_DrawSubTitle(SDL_Surface * bmpDest, int id)
 void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 {
 	int x = tMenu->bmpScreen->w/2;
-	x -= tMenu->bmpSubTitles->w/2;
+	x -= tMenu->bmpSubTitles.get()->w/2;
 
-	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,y, tMenu->bmpSubTitles->w, 65);
+	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,y, tMenu->bmpSubTitles.get()->w, 65);
 }
 
 ///////////////////
@@ -657,19 +657,19 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	}
 
 	// Store the old buffer into a temp buffer to keep it
-	SDL_BlitSurface(tMenu->bmpBuffer, NULL, tMenu->bmpMsgBuffer, NULL);
+	SDL_BlitSurface(tMenu->bmpBuffer.get(), NULL, tMenu->bmpMsgBuffer.get(), NULL);
 
 
 	// Draw to the buffer
 	//DrawImage(tMenu->bmpBuffer, shadow, 177,167);
-	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,tLX->clDialogCaption);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), x, y, x+w, y+h);
+	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
+	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+25,tLX->clDialogCaption);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, y+5, tLX->clNormalLabel,sTitle);
 	for (it=lines.begin(); it!=lines.end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
-		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, *it);
+		tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, cy, tLX->clNormalLabel, *it);
 		cy += tLX->cFont.GetHeight()+2;
 	}
 
@@ -752,7 +752,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	msgbox.Shutdown();
 
 	// Restore the old buffer
-	SDL_BlitSurface(tMenu->bmpMsgBuffer, NULL, tMenu->bmpBuffer, NULL);
+	SDL_BlitSurface(tMenu->bmpMsgBuffer.get(), NULL, tMenu->bmpBuffer.get(), NULL);
 	//Menu_RedrawMouse(true);
 	//FlipScreen(tMenu->bmpScreen);
 
@@ -1819,8 +1819,8 @@ CListview lvInfo;
 // Draw a 'server info' box
 void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 {
-	int y = tMenu->bmpBuffer->h/2 - h/2;
-	int x = tMenu->bmpBuffer->w/2 - w/2;
+	int y = tMenu->bmpBuffer.get()->h/2 - h/2;
+	int x = tMenu->bmpBuffer.get()->w/2 - w/2;
 
 	Menu_redrawBufferRect(x,y,w,h);
 
@@ -2014,7 +2014,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
 			int last_column_width = tLX->cFont.GetWidth("999"); // Kills width
 			lvInfo.AddColumn("", first_column_width);
-			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar->w); // The rest
+			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
 			lvInfo.AddColumn("", last_column_width);
 			lvInfo.AddColumn("", last_column_width);
 

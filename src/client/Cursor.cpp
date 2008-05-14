@@ -137,22 +137,22 @@ CCursor::CCursor(const std::string& filename, int type)
 
 	// Load the cursor
 	bmpCursor = LoadImage(filename,true);
-	if (bmpCursor)  {
-		if (bmpCursor->w >= 2*bmpCursor->h && (bmpCursor->w % bmpCursor->h) == 0)  {  // The file contains more frames
+	if (bmpCursor.get())  {
+		if (bmpCursor.get()->w >= 2*bmpCursor.get()->h && (bmpCursor.get()->w % bmpCursor.get()->h) == 0)  {  // The file contains more frames
 			bAnimated = true;
-			iFrameWidth = bmpCursor->h;
-			iNumFrames = bmpCursor->w / iFrameWidth;
+			iFrameWidth = bmpCursor.get()->h;
+			iNumFrames = bmpCursor.get()->w / iFrameWidth;
 			iFrame = 0;
 			
 		} else {  // Only one frame
 			bAnimated = false;
-			iFrameWidth = bmpCursor->w;
+			iFrameWidth = bmpCursor.get()->w;
 			iNumFrames = 1;
 			iFrame = 0;
 		}
 
 		// Set the color key
-		SetColorKey(bmpCursor);
+		SetColorKey(bmpCursor.get());
 	}
 
 	// Get the filename for the "down" cursor
@@ -187,7 +187,7 @@ CCursor::~CCursor()
 void CCursor::Draw(SDL_Surface * dst)
 {
 	// Check
-	if (!dst || !bmpCursor)
+	if (!dst || !bmpCursor.get())
 		return;
 
 	mouse_t *Mouse = GetMouse();
@@ -219,7 +219,7 @@ void CCursor::Draw(SDL_Surface * dst)
 		break;
 	case CUR_AIM:
 		X -= iFrameWidth / 2;
-		Y -= bmpCursor->h / 2;
+		Y -= bmpCursor.get()->h / 2;
 		break;
 	default:
 		printf("Warning: CCursor::Draw - unknown type");
@@ -235,5 +235,5 @@ void CCursor::Draw(SDL_Surface * dst)
 	}
 
 	// Draw the cursor
-	DrawImageAdv(dst,bmpCursor,iFrame*iFrameWidth,0,X,Y,iFrameWidth,bmpCursor->h);
+	DrawImageAdv(dst,bmpCursor,iFrame*iFrameWidth,0,X,Y,iFrameWidth,bmpCursor.get()->h);
 }

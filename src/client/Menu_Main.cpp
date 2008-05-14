@@ -61,11 +61,11 @@ void Menu_MainInitialize(void)
 	tMenu->iMenuType = MNU_MAIN;
 
 	// Create the buffer
-	assert(tMenu->bmpBuffer);
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);
+	assert(tMenu->bmpBuffer.get());
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme.get()->w/2, 10);
 	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 
 	Menu_RedrawMouse(true);
 
@@ -73,9 +73,9 @@ void Menu_MainInitialize(void)
 	lastimg = -1;
 
 	// Menu buttons
-	int titleheight = tMenu->bmpMainTitles->h/((mm_Quit-mm_LocalPlay)*2);
+	int titleheight = tMenu->bmpMainTitles.get()->h/((mm_Quit-mm_LocalPlay)*2);
 	for(i=mm_LocalPlay;i<mm_Quit;i++)
-		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, tMenu->tFrontendInfo.iMainTitlesLeft, tMenu->tFrontendInfo.iMainTitlesTop+i*(titleheight+tMenu->tFrontendInfo.iMainTitlesSpacing), tMenu->bmpMainTitles->w, titleheight);
+		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, tMenu->tFrontendInfo.iMainTitlesLeft, tMenu->tFrontendInfo.iMainTitlesTop+i*(titleheight+tMenu->tFrontendInfo.iMainTitlesSpacing), tMenu->bmpMainTitles.get()->w, titleheight);
 
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
@@ -177,7 +177,7 @@ void Menu_MainFrame(void)
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
 			        PlaySoundSample(sfxGeneral.smpClick);
 
-                    cMainMenu.Draw(tMenu->bmpBuffer);
+                    cMainMenu.Draw(tMenu->bmpBuffer.get());
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
 					    tMenu->bMenuRunning = false;
@@ -185,10 +185,10 @@ void Menu_MainFrame(void)
 				    } else {
 
 					    // Create the buffer
-					    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+					    DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_wob,0,0);
 						if (tMenu->tFrontendInfo.bPageBoxes)
-							Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-					    DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);
+							Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+					    DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme.get()->w/2, 10);
 					    Menu_RedrawMouse(true);
 				    }
 				    return;
