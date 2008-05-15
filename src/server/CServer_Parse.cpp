@@ -1725,9 +1725,11 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 		for( ; f1<MAX_CLIENTS; f1++ )
 		{
 			NetworkAddr addr1, addr2;
+			if( cClients[f1].getStatus() == NET_DISCONNECTED || cClients[f1].getChannel() == NULL )
+				continue;
 			GetLocalNetAddr( cClients[f1].getChannel()->getSocket(), addr1 );
 			GetLocalNetAddr( tNatTraverseSockets[f], addr2 );
-			if( cClients[f1].getStatus() != NET_DISCONNECTED && GetNetAddrPort(addr1) == GetNetAddrPort(addr2) )
+			if( GetNetAddrPort(addr1) == GetNetAddrPort(addr2) )
 				break;
 		};
 		if( f1 >= MAX_CLIENTS )

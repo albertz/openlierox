@@ -5,10 +5,10 @@
 #define OPENLIEROX_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"0.57.4.1"
+#define VER_STRING	"0.57.5.1"
 #define VER_MAJOR	0
 #define VER_MINOR	57
-#define VER_RELEASE	4
+#define VER_RELEASE	5
 #define VER_BUILD	1
 #define COMPANY_NAME	"http://openlierox.sourceforge.net"
 #define FILE_VERSION	""
@@ -18,6 +18,6 @@
 #define LEGAL_TRADEMARKS	""
 #define ORIGINAL_FILENAME	""
 #define PRODUCT_NAME	"OpenLieroX"
-#define PRODUCT_VERSION	"0.57 Beta 4"
+#define PRODUCT_VERSION	"0.57 Beta 5"
 
 #endif /*OPENLIEROX_PRIVATE_H*/
