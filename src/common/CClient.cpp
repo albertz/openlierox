@@ -824,8 +824,9 @@ void CClient::Disconnect(void)
 	bs.writeByte(C2S_DISCONNECT);
 
 	// Send the pack a few times to make sure the server gets the packet
-	for(int i=0;i<3;i++)
-		cNetChan->Transmit(&bs);
+	if( cNetChan != NULL)
+		for(int i=0;i<3;i++)
+			cNetChan->Transmit(&bs);
 
 	iNetStatus = NET_DISCONNECTED;
 

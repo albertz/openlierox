@@ -1576,7 +1576,10 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	bytestr.writeByte(iState);
+	int CompatibleState = iState;
+	if( CompatibleState == SVS_PLAYING_OLXMOD )
+		CompatibleState == SVS_PLAYING;
+	bytestr.writeByte(CompatibleState);
 	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);
@@ -1595,7 +1598,10 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 
 	bs.writeString(OldLxCompatibleString(sName));
 	bs.writeByte(iMaxWorms);
-	bs.writeByte(iState);
+	int CompatibleState = iState;
+	if( CompatibleState == SVS_PLAYING_OLXMOD )
+		CompatibleState == SVS_PLAYING;
+	bytestr.writeByte(CompatibleState);
 
 	// If in lobby
 	if (iState == SVS_LOBBY && gl->bSet) {
