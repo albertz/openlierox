@@ -246,10 +246,11 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 	while( currentTimeDiff > 0 )
 	{
 		game.gameLoop_OlxMod_01();
-		currentTimeDiff -= OlxMod_GameSpeed_Fastest; // Assume 10 ms frame, may be changed later
+		currentTimeDiff -= OlxMod_GameSpeed_Fastest; // 10 ms frame
 	};
 	//printf("OlxMod_CalculatePhysics() exit\n");
 	// Some debug
+	#ifdef DEBUG
 	if( ! fastCalculation && gameTime % 5000 == 0 )
 	{
 		unsigned f;
@@ -279,6 +280,7 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 		unsigned total = level + worms + viewports + random;
 		printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
 	};
+	#endif
 };
 
 void OlxMod_Draw( bool showScoreboard )
@@ -298,12 +300,9 @@ void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t 
 {
 };
 
-// Uncomment this only when OLX modding system will be good enough!
-#ifdef DEBUG
-bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.1", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
+bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.2", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
 							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
-#endif
 
 }; // namespace
 
@@ -447,7 +446,7 @@ void selectWeaponsLoop_OlxMod_01()
 			if(!isReady[i])
 			{
 				if( i == localPlayer )
-					menus[i].draw(ws.selWeapX - 2, 28, false, curSel[i]);
+					menus[i].draw( 140, 28, false, curSel[i]);
 				
 				if(weapID >= 0 && weapID < game.settings.selectableWeapons)
 				{
