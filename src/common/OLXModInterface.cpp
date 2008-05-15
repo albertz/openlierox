@@ -151,7 +151,7 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	int localPlayer, unsigned long randomSeed,
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest )
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest )
 {
 	if( OlxMod_list == NULL )
 		return false;
@@ -169,10 +169,6 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 			OlxMod_NetSyncedRandom_Save();
 			OlxMod_Random_Seed( ~ randomSeed );
 			OlxMod_Events.clear();
-			SDL_SetClipRect(bmpDest.get(), NULL);
-			for( int y=0; y<bmpDest.get()->h; y++ )
-			for( int x=0; x<bmpDest.get()->w; x++ )
-				memset( ((Uint8 *)bmpDest.get()->pixels) + y * bmpDest.get()->pitch + x, 0, bmpDest.get()->format->BytesPerPixel );
 			
 			(*OlxMod_list)[OlxMod_ActiveMod].init( numPlayers, localPlayer, options, weaponRestrictions, ScreenX, ScreenY, bmpDest );
 			(*OlxMod_list)[OlxMod_ActiveMod].save();

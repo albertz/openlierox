@@ -23,7 +23,7 @@ namespace OlxMod_OpenLiero_01	// To avoid name collision with other mods
 
 int numPlayers = -1;
 int localPlayer = -1;
-SmartPointer<SDL_Surface> OLXOutput = NULL;
+SDL_Surface * OLXOutput = NULL;
 
 // Saved variables
 unsigned long currentTime = 0;
@@ -60,7 +60,7 @@ bool & getKeyChanged( int worm, int key )
 void OlxMod_InitFunc( int _numPlayers, int _localPlayer, 
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest )
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest )
 {
 	numPlayers = _numPlayers;
 	localPlayer = _localPlayer;
@@ -298,10 +298,12 @@ void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t 
 {
 };
 
-
+// Uncomment this only when OLX modding system will be good enough!
+#ifdef DEBUG
 bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.1", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
 							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
+#endif
 
 }; // namespace
 
@@ -841,19 +843,20 @@ void Game::initGame_OlxMod_01()
 
 void Gfx::flip_OlxMod_01()
 {
-	SDL_LockSurface(OLXOutput.get());
-	std::size_t destPitch = OLXOutput.get()->pitch;
-	std::size_t destBpp = OLXOutput.get()->format->BytesPerPixel;
+	SDL_LockSurface(OLXOutput);
+	std::size_t destPitch = OLXOutput->pitch;
+	std::size_t destBpp = OLXOutput->format->BytesPerPixel;
 	std::size_t srcPitch = screenPitch;
-	SDL_PixelFormat * destFmt = OLXOutput.get()->format;
+	SDL_PixelFormat * destFmt = OLXOutput->format;
+	Uint8 * pixels = (Uint8*)OLXOutput->pixels;
 	Uint32 realPal[256];
 	for( int f=0; f<256; f++ )
 		realPal[f] = SDL_MapRGB(destFmt, pal.entries[f].r<<2, pal.entries[f].g<<2, pal.entries[f].b<<2);
 	for(int y = 0; y < 200; ++y)
 	{
 		PalIdx* src = screenPixels + y*srcPitch;
-		Uint8* dest = (Uint8*)OLXOutput.get()->pixels + y*destPitch*2;
-		Uint8* dest1 = (Uint8*)OLXOutput.get()->pixels + y*destPitch*2+destPitch;
+		Uint8* dest = pixels + y*destPitch*2;
+		Uint8* dest1 = pixels + y*destPitch*2+destPitch;
 		for(int x = 0; x < 320; ++x)
 		{
 			Uint32 color = realPal[src[x]];
@@ -863,10 +866,19 @@ void Gfx::flip_OlxMod_01()
 			memcpy( dest1 + x*destBpp*2+destBpp, &color, destBpp );
 		}
 	};
-	SDL_UnlockSurface(OLXOutput.get());
+	/*
+	for(int y = 400; y < 480; ++y)
+	{
+		Uint8* dest = pixels + y*destPitch*2;
+		for(int x = 0; x < 640; ++x)
+			memset( dest + x*destBpp*2, 0, destBpp );
+	};
+	*/
+	SDL_UnlockSurface(OLXOutput);
 	
+	// Does not work! but should be faster
 	//pal.activate();
-	//SDL_BlitSurface( screen, NULL, OLXOutput, NULL );	// Does not work! but should be faster
+	//SDL_BlitSurface( screen, NULL, OLXOutput, NULL );	
 }
 
 	bool Gfx::testKeyOnce(Uint32 key)

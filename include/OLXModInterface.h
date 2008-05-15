@@ -74,7 +74,7 @@ enum OlxMod_WeaponRestriction_t
 typedef void (*OlxMod_InitFunc_t)( int numPlayers, int localPlayer, 
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest );
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest );
 typedef void (*OlxMod_DeInitFunc_t)();
 
 // The mod should provide means to rollback mechanism - SaveState() should save all current game physics data,
@@ -165,7 +165,7 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	int localPlayer, unsigned long randomSeed,
 	std::map< std::string, CScriptableVars::ScriptVar_t > options,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
-	int ScreenX, int ScreenY, const SmartPointer<SDL_Surface> & bmpDest );
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest );
 
 int OlxMod_NetPacketSize();
 

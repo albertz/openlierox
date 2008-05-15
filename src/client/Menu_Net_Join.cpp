@@ -636,25 +636,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
 		if( dlButton )
 		{
-			bool bNeedDownloadButton = false;
 			if( ! cClient->getGameLobby()->bHaveMod || ! cClient->getGameLobby()->bHaveMap )
-				bNeedDownloadButton = true;
-			CWorm *w = cClient->getRemoteWorms();
-			for( int i=0; i<MAX_WORMS; i++, w++ )
-			{
-				if( ! w->isUsed() )
-					continue;
-				if( w->getSkin() == "" )
-					continue;
-				if( ! IsFileAvailable("skins/" + w->getSkin()) )
-					bNeedDownloadButton = true;
-			};
-			if( bNeedDownloadButton )
 			{
 				if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 					dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
 				else
-					dlButton->SendMessage( LBS_SETTEXT, "Download files from host", 0 );
+					dlButton->SendMessage( LBS_SETTEXT, "Download files", 0 );
 			}
 			else
 			{
@@ -767,19 +754,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						{
 							cClient->getUdpFileDownloader()->requestFile("levels/" + cClient->getGameLobby()->szMapName, true);
 							cClient->getUdpFileDownloader()->requestFileInfo("levels/" + cClient->getGameLobby()->szMapName, true); // To get valid progressbar
-						};
-
-						CWorm *w = cClient->getRemoteWorms();
-						for( int i=0; i<MAX_WORMS; i++, w++ )
-						{
-							if( ! w->isUsed() )
-								continue;
-							if( w->getSkin() == "" )
-								continue;
-							if( ! IsFileAvailable("skins/" + w->getSkin()) )
-							{
-								cClient->getUdpFileDownloader()->requestFile("skins/" + w->getSkin(), true); // Small, no need for file info
-							};
 						};
 					}
 				}

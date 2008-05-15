@@ -34,6 +34,7 @@
 #include "MathLib.h"
 #include "EndianSwap.h"
 #include "Physics.h"
+#include "AuxLib.h"
 #include "OLXModInterface.h"
 using namespace OlxMod;
 
@@ -1828,11 +1829,19 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 	std::map< std::string, CScriptableVars::ScriptVar_t > options;
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions;
 	
+	// Clean the screen up - just in case
+	SDL_SetClipRect(GetVideoSurface(), NULL);
+	FillSurfaceTransparent(GetVideoSurface());
+	FlipScreen(GetVideoSurface());
+	FillSurfaceTransparent(GetVideoSurface());
+	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
+	FillSurfaceTransparent(tMenu->bmpBuffer.get());
+	
 	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed, 
 				(unsigned long)(tLX->fCurTime*1000.0f), 
 				numPlayers, localWorm, randomSeed, 
 				options, weaponRestrictions, 
-				640, 480, GetVideoSurface() );	// TODO: don't use GetVideoSurface(), use some var to pass it
+				640, 480, GetVideoSurface() );
 	if( ret == true )
 	{
 		printf("CClient::ParseOlxModStart() random %lu, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
@@ -1843,7 +1852,6 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 		bJoin_Update = true;
 		getUdpFileDownloader()->reset();
 		cLocalWorms[0]->StartGame();
-		FillSurface( GetVideoSurface(), 0 );	// Clear screen
 	}
 	else
 	{

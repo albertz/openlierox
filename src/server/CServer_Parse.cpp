@@ -835,48 +835,11 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			cl->getUdpFileDownloader()->send(&bs);
 			SendPacket( &bs, cl );
 		}
-		else	// The only file server needs from client is the worm skin file
-		if( cl->getUdpFileDownloader()->isFinished() &&
-			cl->getUdpFileDownloader()->getFilename() == "GET:" &&
-			cl->getUdpFileDownloader()->getData().find("skins/") == 0 )
-		{	// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
-			std::string skin = cl->getUdpFileDownloader()->getData().substr(strlen("skins/"));
-			CWorm *w = cWorms;
-			for ( int i = 0; i < MAX_WORMS; i++, w++ )
-			{
-				if (!w->isUsed())
-					continue;
-				if( w->getSkin() == skin )
-				{
-					if( w->getClient()->getClientVersion() < OLXBetaVersion(4) )
-						cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file
-					else
-						w->getClient()->getUdpFileDownloader()->requestFile( "skins/" + skin, false );
-					break;
-				};
-			};
-		}
 		else
 		if( cl->getUdpFileDownloader()->isFinished() &&
 			( cl->getUdpFileDownloader()->getFilename() == "GET:" || cl->getUdpFileDownloader()->getFilename() == "STAT:" ) )
 		{
 			cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file or statistics on it
-		}
-		else
-		if( cl->getUdpFileDownloader()->isFinished() &&
-			CUdpFileDownloader::isPathValid( cl->getUdpFileDownloader()->getFilename() ) &&
-			! IsFileAvailable( cl->getUdpFileDownloader()->getFilename() ) &&
-			cl->getUdpFileDownloader()->getFilename().find("skins/") == 0 )
-		{
-			// Client sent us it's worm skin file we don't have - save it
-			FILE * ff=OpenGameFile( cl->getUdpFileDownloader()->getFilename(), "wb" );
-			if( ff == NULL )
-			{
-				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getUdpFileDownloader()->getFilename().c_str() );
-				return;
-			};
-			fwrite( cl->getUdpFileDownloader()->getData().c_str(), 1, cl->getUdpFileDownloader()->getData().size(), ff );
-			fclose(ff);
 		};
 	};
 };

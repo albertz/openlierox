@@ -30,6 +30,7 @@
 #include "EndianSwap.h"
 #include "Version.h"
 #include "CServer.h"
+#include "AuxLib.h"
 #include "OLXModInterface.h"
 using namespace OlxMod;
 
@@ -507,7 +508,6 @@ void CClient::ProcessMapDownloads()
 	}
 
 
-
   	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
 	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
 		bDownloadingMap = false;
@@ -532,7 +532,7 @@ void CClient::ProcessMapDownloads()
 		return;
 	}
 
-	// Server requested some file (wormskin) or we're sending file request
+	// Server requested some file (CRC check on our map) or we're sending file request
 	if( getUdpFileDownloader()->isSending() )	 {
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);
@@ -1291,6 +1291,14 @@ void CClient::SimulationOlxMod()
 	if( GetKeyboard()->KeyUp[SDLK_ESCAPE] )
 	{
 		OlxMod_EndRound();
+
+		SDL_SetClipRect(GetVideoSurface(), NULL);
+		FillSurfaceTransparent(tMenu->bmpBuffer.get());
+		FlipScreen(GetVideoSurface());
+		FillSurfaceTransparent(tMenu->bmpBuffer.get());
+		SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
+		FillSurfaceTransparent(tMenu->bmpBuffer.get());
+
 		if( tGameInfo.iGameType == GME_LOCAL )
 			GotoLocalMenu();
 		if( tGameInfo.iGameType == GME_HOST )

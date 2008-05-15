@@ -195,10 +195,6 @@ void CCache::Clear()
 void CCache::ClearExtraEntries()
 {
 	ScopedLock lock(mutex);
-	if( ! tLXOptions )
-		return;
-	if( tLXOptions->iMaxCachedEntries == 0 )
-		return;
 	if( (int)ImageCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< float, ImageCache_t :: iterator > TimeSorted_t;
@@ -213,7 +209,9 @@ void CCache::ClearExtraEntries()
 		if( count >= tLXOptions->iMaxCachedEntries )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 2;
+			#ifdef DEBUG
 			printf("CCache::ClearExtraEntries() clearing %i images\n", clearCount);
+			#endif
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++ )
 			{
@@ -240,7 +238,9 @@ void CCache::ClearExtraEntries()
 		if( count >= tLXOptions->iMaxCachedEntries )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 2;
+			#ifdef DEBUG
 			printf("CCache::ClearExtraEntries() clearing %i sounds\n", clearCount);
+			#endif
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
@@ -267,7 +267,9 @@ void CCache::ClearExtraEntries()
 		if( count >= tLXOptions->iMaxCachedEntries / 10 )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 20;
+			#ifdef DEBUG
 			printf("CCache::ClearExtraEntries() clearing %i maps\n", clearCount);
+			#endif
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
@@ -294,7 +296,9 @@ void CCache::ClearExtraEntries()
 		if( count >= tLXOptions->iMaxCachedEntries / 10 )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 20;
+			#ifdef DEBUG
 			printf("CCache::ClearExtraEntries() clearing %i mods\n", clearCount);
+			#endif
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
