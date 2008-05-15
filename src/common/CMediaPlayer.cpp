@@ -145,7 +145,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	if (bLoadCancelled)
 		return false;
 
-	SmartPointer<SDL_Surface> screen = GetVideoSurface();
+	SDL_Surface * screen = GetVideoSurface();
 	if (!screen) return false;
 
 	ProcessEvents();
@@ -661,24 +661,24 @@ void CMediaPlayer::Draw(SDL_Surface * bmpDest)
 		return;
 
 	// Clipping
-	if (iX+tPlayerGfx.bmpBackground->w >= bmpDest->w || iY+tPlayerGfx.bmpBackground->h >= bmpDest->h)
+	if (iX+tPlayerGfx.bmpBackground.get()->w >= bmpDest->w || iY+tPlayerGfx.bmpBackground.get()->h >= bmpDest->h)
 		return;
 	if (iX < 0 || iY < 0)
 		return;
 
 	// Update the widget positions according to the current coordinates
-	cPlayerGui.getWidget(mp_Next)->Setup(mp_Next,iX+150,iY+70,tPlayerGfx.bmpNext->w,tPlayerGfx.bmpNext->h/2);
-	cPlayerGui.getWidget(mp_Pause)->Setup(mp_Pause,iX+85,iY+60,tPlayerGfx.bmpPause->w,tPlayerGfx.bmpPause->h/2);
-	cPlayerGui.getWidget(mp_Play)->Setup(mp_Play,iX+85,iY+60,tPlayerGfx.bmpPlay->w,tPlayerGfx.bmpPlay->h/2);
-	cPlayerGui.getWidget(mp_Previous)->Setup(mp_Previous,iX+58,iY+70,tPlayerGfx.bmpPrevious->w,tPlayerGfx.bmpPrevious->h/2);
-	cPlayerGui.getWidget(mp_Repeat)->Setup(mp_Repeat,iX+208,iY+15,tPlayerGfx.bmpRepeat->w,tPlayerGfx.bmpRepeat->h/2);
-	cPlayerGui.getWidget(mp_Shuffle)->Setup(mp_Shuffle,iX+208,iY+30,tPlayerGfx.bmpShuffle->w,tPlayerGfx.bmpShuffle->h/2);
-	cPlayerGui.getWidget(mp_SelectDir)->Setup(mp_SelectDir,iX+10,iY+70,tPlayerGfx.bmpSelectDir->w,tPlayerGfx.bmpSelectDir->h/2);
-	cPlayerGui.getWidget(mp_Stop)->Setup(mp_Stop,iX+122,iY+70,tPlayerGfx.bmpStop->w,tPlayerGfx.bmpStop->h/2);
-	cPlayerGui.getWidget(mp_MusicVol)->Setup(mp_MusicVol,iX+5,iY+45,tPlayerGfx.bmpMusicVolume->w,tPlayerGfx.bmpMusicVolume->h);
-	cPlayerGui.getWidget(mp_GameVol)->Setup(mp_GameVol,iX+110,iY+45,tPlayerGfx.bmpGameVolume->w,tPlayerGfx.bmpGameVolume->h);
+	cPlayerGui.getWidget(mp_Next)->Setup(mp_Next,iX+150,iY+70,tPlayerGfx.bmpNext.get()->w,tPlayerGfx.bmpNext.get()->h/2);
+	cPlayerGui.getWidget(mp_Pause)->Setup(mp_Pause,iX+85,iY+60,tPlayerGfx.bmpPause.get()->w,tPlayerGfx.bmpPause.get()->h/2);
+	cPlayerGui.getWidget(mp_Play)->Setup(mp_Play,iX+85,iY+60,tPlayerGfx.bmpPlay.get()->w,tPlayerGfx.bmpPlay.get()->h/2);
+	cPlayerGui.getWidget(mp_Previous)->Setup(mp_Previous,iX+58,iY+70,tPlayerGfx.bmpPrevious.get()->w,tPlayerGfx.bmpPrevious.get()->h/2);
+	cPlayerGui.getWidget(mp_Repeat)->Setup(mp_Repeat,iX+208,iY+15,tPlayerGfx.bmpRepeat.get()->w,tPlayerGfx.bmpRepeat.get()->h/2);
+	cPlayerGui.getWidget(mp_Shuffle)->Setup(mp_Shuffle,iX+208,iY+30,tPlayerGfx.bmpShuffle.get()->w,tPlayerGfx.bmpShuffle.get()->h/2);
+	cPlayerGui.getWidget(mp_SelectDir)->Setup(mp_SelectDir,iX+10,iY+70,tPlayerGfx.bmpSelectDir.get()->w,tPlayerGfx.bmpSelectDir.get()->h/2);
+	cPlayerGui.getWidget(mp_Stop)->Setup(mp_Stop,iX+122,iY+70,tPlayerGfx.bmpStop.get()->w,tPlayerGfx.bmpStop.get()->h/2);
+	cPlayerGui.getWidget(mp_MusicVol)->Setup(mp_MusicVol,iX+5,iY+45,tPlayerGfx.bmpMusicVolume.get()->w,tPlayerGfx.bmpMusicVolume.get()->h);
+	cPlayerGui.getWidget(mp_GameVol)->Setup(mp_GameVol,iX+110,iY+45,tPlayerGfx.bmpGameVolume.get()->w,tPlayerGfx.bmpGameVolume.get()->h);
 	cPlayerGui.getWidget(mp_PlayingMarq)->Setup(mp_PlayingMarq,iX+42,iY+25,150,tLX->cFont.GetHeight());
-	cPlayerGui.getWidget(mp_Hide)->Setup(mp_Hide,iX+tPlayerGfx.bmpBackground->w-tPlayerGfx.bmpHide->w,iY,tPlayerGfx.bmpHide->w,tPlayerGfx.bmpHide->h/2);
+	cPlayerGui.getWidget(mp_Hide)->Setup(mp_Hide,iX+tPlayerGfx.bmpBackground.get()->w-tPlayerGfx.bmpHide.get()->w,iY,tPlayerGfx.bmpHide.get()->w,tPlayerGfx.bmpHide.get()->h/2);
 
 	if (Paused())  {
 		cPlayerGui.getWidget(mp_Pause)->setEnabled(false);
@@ -701,19 +701,19 @@ void CMediaPlayer::Draw(SDL_Surface * bmpDest)
 	// Draw the song info window background
 	int src_x = 0;  // Playing
 	if (Paused())   // Paused
-		src_x = tPlayerGfx.bmpWindow->h/3;
+		src_x = tPlayerGfx.bmpWindow.get()->h/3;
 	if (Stopped() || !Playing())  // Stopped
-		src_x = 2*tPlayerGfx.bmpWindow->h/3;
-	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,iX+5,iY+5,tPlayerGfx.bmpWindow->w,tPlayerGfx.bmpWindow->h/3);
+		src_x = 2*tPlayerGfx.bmpWindow.get()->h/3;
+	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,iX+5,iY+5,tPlayerGfx.bmpWindow.get()->w,tPlayerGfx.bmpWindow.get()->h/3);
 
 	// Draw the current time
 	if (IsSongLoading())  {
 		static int FontHalfWidth = tLX->cFont.GetWidth("Loading...")/2;
-		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2-FontHalfWidth,iY+10,tLX->clMPlayerTime,"Loading...");
+		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow.get()->w/2-FontHalfWidth,iY+10,tLX->clMPlayerTime,"Loading...");
 	} else {
 		int h,m,s;
 		ConvertTime(GetSongTime(), &h,&m,&s);
-		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,
+		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow.get()->w/2,iY+10,tLX->clMPlayerTime,
 			itoa(m) + ":" + (s<10 ? "0" : "") + itoa(s));
 	}
 

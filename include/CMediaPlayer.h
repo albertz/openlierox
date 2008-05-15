@@ -208,8 +208,8 @@ public:
 	 void			SetX(int x);
 	 inline int		GetY(void)  { return iY; }
 	 void			SetY(int y);
-	 inline int		GetWidth(void)   { if(tPlayerGfx.bmpBackground) {return tPlayerGfx.bmpBackground->w; } else return -1; }
-	 inline int		GetHeight(void)  { if(tPlayerGfx.bmpBackground) {return tPlayerGfx.bmpBackground->h; } else return -1; }
+	 inline int		GetWidth(void)   { if(tPlayerGfx.bmpBackground.get()) {return tPlayerGfx.bmpBackground.get()->w; } else return -1; }
+	 inline int		GetHeight(void)  { if(tPlayerGfx.bmpBackground.get()) {return tPlayerGfx.bmpBackground.get()->h; } else return -1; }
 };
 
 // Media player GUI
@@ -229,7 +229,7 @@ public:
 	CPlayerButton(const SmartPointer<SDL_Surface> & image);
 
 private:
-	const SmartPointer<SDL_Surface> & bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	bool			bDown;
 
 public:
@@ -299,7 +299,7 @@ public:
 class CPlayerToggleBtn: public CWidget  {
 public:
 	CPlayerToggleBtn(const SmartPointer<SDL_Surface> & image, bool enabled)  {
-		if (!image)
+		if (!image.get())
 			return;
 
 		bEnabled = enabled;
@@ -307,7 +307,7 @@ public:
 	}
 
 private:
-	const SmartPointer<SDL_Surface> & bmpImage;
+	SmartPointer<SDL_Surface> bmpImage;
 	bool		bEnabled;
 public:
 	// Methods

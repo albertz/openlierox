@@ -25,7 +25,7 @@
 ////////////////////
 // Constructor
 CPlayerButton::CPlayerButton(const SmartPointer<SDL_Surface> & image) {
-	if (!image)
+	if (!image.get())
 		return;
 
 	bmpImage = image;
@@ -38,8 +38,8 @@ void CPlayerButton::Draw(SDL_Surface * bmpDest)
 {
 	int src_y = 0;
 	if (bDown)
-		src_y = bmpImage->h/2;
-	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage->w,bmpImage->h/2);
+		src_y = bmpImage.get()->h/2;
+	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage.get()->w,bmpImage.get()->h/2);
 }
 
 //////////////////////
@@ -65,7 +65,7 @@ int CPlayerButton::MouseUp(mouse_t *tMouse, int nDown)
 ///////////////////
 // Constructor
 CPlayerSlider::CPlayerSlider(const SmartPointer<SDL_Surface> & progress, const SmartPointer<SDL_Surface> & start, const SmartPointer<SDL_Surface> & end, const SmartPointer<SDL_Surface> & background, int max)  {
-	if (!progress || !start || !end || !background)
+	if (!progress.get() || !start.get() || !end.get() || !background.get())
 		return;
 	iValue = 0;
 	iMax = max;
@@ -84,9 +84,9 @@ void CPlayerSlider::Draw(SDL_Surface * bmpDest)
 	DrawImage(bmpDest,bmpBackground,iX,iY);
 
 	// Get the width
-	int x = iX+5+bmpStart->w;
-	int w = bmpBackground->w - 5;
-	int val = (int)( ((float)w/(float)iMax) * (float)iValue ) + x-bmpStart->w;
+	int x = iX+5+bmpStart.get()->w;
+	int w = bmpBackground.get()->w - 5;
+	int val = (int)( ((float)w/(float)iMax) * (float)iValue ) + x-bmpStart.get()->w;
 
 	// Progress start
 	if (((float)iValue/(float)iMax) > 0.02)  {
@@ -94,8 +94,8 @@ void CPlayerSlider::Draw(SDL_Surface * bmpDest)
 	}
 
 	// Progress
-	int max = MIN(val,bmpBackground->w-10-bmpEnd->w+x);
-	for (int i=x;i<max;i+=bmpProgress->w)  {
+	int max = MIN(val,bmpBackground.get()->w-10-bmpEnd.get()->w+x);
+	for (int i=x;i<max;i+=bmpProgress.get()->w)  {
 		DrawImage(bmpDest,bmpProgress,i,iY+3);
 	}
 
@@ -141,8 +141,8 @@ void CPlayerToggleBtn::Draw(SDL_Surface * bmpDest)
 {
 	int src_y = 0;
 	if (bEnabled)
-		src_y = bmpImage->h/2;
-	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage->w,bmpImage->h/2);
+		src_y = bmpImage.get()->h/2;
+	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage.get()->w,bmpImage.get()->h/2);
 }
 
 ////////////////////////
@@ -235,7 +235,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	bool done = false;
 	bool cancelled = false;
 
-	SmartPointer<SDL_Surface> Screen = GetVideoSurface();
+	SDL_Surface * Screen = GetVideoSurface();
 	keyboard_t *Keyboard = GetKeyboard();
 
 	// Initialize the GUI
@@ -268,10 +268,10 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 
 	// Save the area we are going to draw on in a buffer
 	SmartPointer<SDL_Surface> bmpBuffer = gfxCreateSurface(Screen->w,Screen->h);
-	if (!bmpBuffer)
+	if (!bmpBuffer.get())
 		return NULL;
 
-	DrawImage(bmpBuffer,Screen,0,0);
+	DrawImage(bmpBuffer.get(),Screen,0,0);
 	float oldtime = GetMilliSeconds()-tLX->fDeltaTime;
 
 	while (!done)  {

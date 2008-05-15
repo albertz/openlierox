@@ -34,6 +34,11 @@ using namespace OlxMod;
 
 using namespace std;
 
+#ifdef _MSC_VER
+#undef min
+#undef max
+#endif
+
 /*
 =======================================
 		Connected Packets

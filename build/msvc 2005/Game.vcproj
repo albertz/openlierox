@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -176,7 +176,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -273,6 +273,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX_profile.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -369,7 +370,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1316,14 +1317,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\StringUtils.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\common\stun.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\stun.h"
 				>
 			</File>
 			<File
@@ -4484,15 +4477,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\mods\openliero\OlxMod_main.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\mods\openliero\OlxMod_OpenLiero_01.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\mods\openliero\OpenLiero_console.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\mods\openliero\OpenLiero_main.cpp"
 					>
 				</File>
 				<File

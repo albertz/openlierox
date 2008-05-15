@@ -250,7 +250,7 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 	};
 	//printf("OlxMod_CalculatePhysics() exit\n");
 	// Some debug
-	#ifdef DEBUG
+	//#ifdef DEBUG
 	if( ! fastCalculation && gameTime % 5000 == 0 )
 	{
 		unsigned f;
@@ -280,7 +280,7 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 		unsigned total = level + worms + viewports + random;
 		printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
 	};
-	#endif
+	//#endif
 };
 
 void OlxMod_Draw( bool showScoreboard )
