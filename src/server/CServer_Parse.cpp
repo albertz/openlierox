@@ -1601,7 +1601,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 	int CompatibleState = iState;
 	if( CompatibleState == SVS_PLAYING_OLXMOD )
 		CompatibleState == SVS_PLAYING;
-	bytestr.writeByte(CompatibleState);
+	bs.writeByte(CompatibleState);
 
 	// If in lobby
 	if (iState == SVS_LOBBY && gl->bSet) {
