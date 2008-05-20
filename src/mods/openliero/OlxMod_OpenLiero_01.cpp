@@ -300,10 +300,12 @@ void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t 
 {
 };
 
+// The OLX mod system is still too buggy to be released in next Beta
+#ifdef DEBUG
 bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.2", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
 							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
-
+#endif
 }; // namespace
 
 using namespace OlxMod_OpenLiero_01;

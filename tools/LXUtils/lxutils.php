@@ -9,7 +9,7 @@
 
 // Includes and defines
 require "HttpClient.class.php";
-require "GifEncoder.class.php";
+require "GIFEncoder.class.php";
 require "binaryfunctions.php";
 
 // Some defines
@@ -87,6 +87,7 @@ class WormInfo  {
 // $BonusesOn - bonuses on/off
 // $Worms - array of WormInfo structure
 class ServerInfo  {
+  var $Addr;
   var $Name;
   var $Ping;
   var $MaxPlayers;
@@ -100,12 +101,14 @@ class ServerInfo  {
   var $LoadingTime;
   var $BonusesOn;
   var $Worms;
+  var $NatType;
 }
 
 //////////////////////////
 // Fast server info (this one is shown in serverlist in LX)
 // The items have the same meaning as in the above structure
 class FastServerInfo  {
+  var $Addr;
   var $Name;
   var $Ping;
   var $MaxPlayers;
@@ -601,6 +604,8 @@ function LXServerInfo($ip, $timeout = 2000)
   $returnValue->LoadingTime = $loading;
   $returnValue->BonusesOn = $bonuses_on;
   $returnValue->Worms = $worms;
+  $returnValue->NatType = "No NAT";
+  $returnValue->Addr = $ip;
   
   return $returnValue;
 }
@@ -676,6 +681,9 @@ function LXFastInfo($ip, $timeout = 2000)
   $returnValue->NumPlayers = $num_players;
   $returnValue->MaxPlayers = $max_players;
   $returnValue->State = $state;
+  $returnValue->Addr = $ip;
+
+  return $returnValue;
 }
 
 ///////////////////////////
@@ -758,6 +766,176 @@ function LXGetServerList($masterservers)
   return $returnValue;
 }
 
+//////////////////////////
+// Private function, sends a packet to server and waits for one or more responce packets
+// Parameters:
+// $ip - ip[:port]
+// $packet - packet data
+// $timeout - timeout in milliseconds
+// Return value:
+// array with responces and remote addresses, false on failure
+function SendPacketAndWaitResponses($ip, $packet, $timeout)
+{
+  // Adjust the address
+  if (!strpos($ip, ":"))
+    $ip .= ":23400"; // Append default LX port
+       
+  // Open the socket
+  $errno = 0;
+  $errorstr = "";
+  $fp = stream_socket_server("udp://0.0.0.0:23456", $errno, $errorstr, STREAM_SERVER_BIND);
+  if (!$fp)
+    return false;
+    
+  // Setup the sent time for ping calculation
+  $sent_time = CurrentTime(); 
+  
+  // Send the packet 
+  stream_socket_sendto($fp, $packet, 0, $ip);
+//echo "Sent packet" . $packet . "<br>\n"; flush();
+
+  // Set the timeout
+  
+  // Read the response
+  $response = Array();
+  while( CurrentTime() - $sent_time < $timeout )
+  {
+  	// stream_set_timeout() does not work with stream_socket_recvfrom() - using select()
+    //stream_set_timeout($fp, 0, ( $timeout + $sent_time - CurrentTime() ) * 1000);
+	$r = Array($fp);
+	$w = NULL;
+	$e = NULL;
+	if( stream_select($r, $w, $e, 0, 500000) == 0 )
+		continue;
+	$remoteaddr = "";
+  	$resp = stream_socket_recvfrom($fp, 4096, 0, $remoteaddr);
+//echo "Got responce from " . $remoteaddr . ":" . $resp . "<br>\n"; flush();
+	if( $resp != false )
+		$response[] = Array( $resp, $remoteaddr );
+  }
+  
+  // Close the connection
+  fclose($fp);
+
+  if( $response == Array() )
+  	return false;
+  return $response;
+}
+
+
+///////////////////////////////
+// Gets the server list from specified UDP masterservers
+// Parameters:
+// $masterservers - array of masterserver addresses
+// Return value:
+// array of server IPs:ports and server info
+function LXGetUdpServerList( $masterservers, $timeout = 3000 )
+{
+	foreach ($masterservers as $ip)  
+	{
+		$packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF); // Header
+		$packet .= "lx::getserverlist" . chr(0x00);
+		
+		// Send the packet
+		$res = SendPacketAndWaitResponses($ip, $packet, $timeout);
+		if (!$res)
+		  return false;
+		$ret = Array();
+		  
+		foreach ( $res as $response2 )
+		{
+			$response = $response2[0];
+			// Check for connectionless header
+			if (ord($response[0]) != 0xFF && 
+			    ord($response[1]) != 0xFF &&
+			    ord($response[2]) != 0xFF &&
+			    ord($response[3]) != 0xFF)
+			    continue;
+			$response = substr($response, 4);
+			if( strpos($response, "lx::serverlist".chr(0x00)) !== 0 )
+				continue;
+			$response = substr( $response, strlen("lx::serverlist".chr(0x00))+1 );
+			while( strlen( $response ) > 0 )
+			{
+				$info = new FastServerInfo;
+				$info->Ping = 999;
+				$pos1 = strpos($response, chr(0x00));
+				$info->Addr = substr( $response, 0, $pos1 );
+				$pos1 += 1;
+				$pos2 = strpos($response, chr(0x00), $pos1);
+				$info->Name = substr( $response, $pos1, $pos2 - $pos1 );
+				$pos2 += 1;
+				$info->NumPlayers = ord($response[$pos2]);
+				$pos2 += 1;
+				$info->MaxPlayers = ord($response[$pos2]);
+				$pos2 += 1;
+				$info->State = ord($response[$pos2]);
+				$pos2 += 1;
+				$response = substr( $response, $pos2 );
+				$ret[] = $info;
+			}
+		}
+	}
+	if ($ret == Array())
+	  return false;
+	return $ret;
+}   
+
+/////////////////////////
+// Gets the server info for a server specified in $ip, using UDP masterserver in $master
+// Parameters:
+// $ip - IP address and (optionally) port separated by :
+// $master - IP address and (optionally) port separated by : of UDP masterserver
+// $timeout - how long (in milliseconds) to wait for a reply
+// Return value:
+// false on error
+// ServerInfo structure on success
+function LXUdpServerInfo($ip, $master, $timeout = 6000)
+{
+	if( LXPingServer($ip) !== false )
+		return LXServerInfo($ip);	// Server is NOT behind NAT
+	//echo "LXUdpServerInfo(".$ip.", ".$master.")<br>\n"; flush();
+	$packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF); // Header
+	$packet .= "lx::traverse" . chr(0x00);
+	$packet .= $ip;
+	$responses = SendPacketAndWaitResponses( $master, $packet, $timeout );
+	if( $responses == false )
+		return false;
+	$realAddr = $ip;
+	$traverseAddr = "";
+	$connechHereAddr = "";
+	foreach( $responses as $resp )
+	{
+		//echo "resp from ". $resp[1] .": " . $resp[0] . "<br>\n"; flush();
+		if( strpos($resp[0], chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::connect_here".chr(0x00) ) === 0 )
+		{
+			$connechHereAddr = $resp[1];
+		}
+		if( strpos($resp[0], chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::traverse".chr(0x00) ) === 0 )
+		{
+			$traverseAddr = substr($resp[0], strlen(chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::traverse".chr(0x00)));
+			$traverseAddr = substr($traverseAddr, 0, strpos($realAddr, chr(0x00)) );
+		}
+	}
+	if( $connechHereAddr != "" )
+	{
+		$realAddr = $connechHereAddr;
+	}
+	else if ( $traverseAddr != "" )
+	{
+		$realAddr = $traverseAddr;
+	};
+	//echo "realAddr ". $realAddr . "<br>\n"; flush();
+	$ret = LXServerInfo($realAddr);
+	if( $ret == false )
+		return false;
+	$ret->NatType = "Symmetric NAT";
+	if( $traverseAddr == $connechHereAddr && $traverseAddr != "" )
+		$ret->NatType = "Restricted NAT";
+	$ret->Addr = $realAddr;
+	return $ret;
+}
+    
 //////////////////////
 // Gets useful info about the mod
 // Parameters:
@@ -766,7 +944,7 @@ function LXGetServerList($masterservers)
 // false when failed
 // ModInfo structure on success
 function LXModInfo($path)
-{
+{ 
   // Check
   if (!$path)
     return false;

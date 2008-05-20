@@ -237,6 +237,63 @@
     else {
       echo "<b>Ping to " . $randomServer . ":</b> " . $ping;
     }
-    ?>    
+    ?> 
+
+    <h1>UDP Server List Test</h1>
+	<?php
+	
+	$udpmasterservers[0] = "server.az2000.de:23450";
+    $udpservers = LXGetUdpServerList($udpmasterservers);
+	echo "<b>Server list from UDP masterserver:</b><br>\n";
+    for ($i = 0; $i < count($udpservers); $i++)  
+	{
+      echo $udpservers[$i]->Addr . " " . $udpservers[$i]->Name . " " .
+	  		$udpservers[$i]->NumPlayers . "/" . $udpservers[$i]->MaxPlayers . " ";
+	  if ( $udpservers[$i]->State == 0 )
+	  	echo "open";
+	  else if ( $udpservers[$i]->State == 1 )
+	  	echo "loading";
+	  else
+	  	echo "playing";
+      echo "<br>\n";
+    }
+	?>
+    <h1>UDP Server Info Test</h1>
+	<?php
+	$randomServer = $udpservers[rand(0, count($udpservers) - 1)]->Addr;
+    $serverInfo = LXUdpServerInfo($randomServer, $udpmasterservers[0]);
+    if ($serverInfo === false)
+      echo "Could not get the UDP server info!<br>\n";
+    else {
+      echo "<b>Name:</b> " . $serverInfo->Name . "<br>\n";
+      echo "<b>Ping:</b> " . $serverInfo->Ping . "<br>\n";
+      echo "<b>Max players:</b> " . $serverInfo->MaxPlayers . "<br>\n";
+      echo "<b>Player count:</b> " . $serverInfo->NumPlayers . "<br>\n";
+      echo "<b>State:</b> " . $serverInfo->State . "<br>\n";
+      echo "<b>Map name:</b> " . $serverInfo->MapName . "<br>\n";
+      echo "<b>Mod name:</b> " . $serverInfo->ModName . "<br>\n";
+      echo "<b>Game Mode:</b> " . $serverInfo->GameMode . "<br>\n";
+      echo "<b>Lives:</b> " . $serverInfo->Lives . "<br>\n";
+      echo "<b>Max kills:</b> " . $serverInfo->MaxKills . "<br>\n";
+      echo "<b>Loading time:</b> " . $serverInfo->LoadingTime . " %<br>\n";
+      echo "<b>Bonuses:</b> " . ($serverInfo->BonusesOn ? "on" : "off") . "<br>\n";
+      echo "<b>Addr:</b> " . $serverInfo->Addr . "<br>\n";
+      echo "<b>NAT type:</b> " . $serverInfo->NatType . "<br>\n";
+      echo "<b>Worms:</b><br>\n";
+      for ($i = 0; $i < $serverInfo->NumPlayers; $i++)  {
+        echo "  <i>" . $serverInfo->Worms[$i]->Name . " </i>(";
+        echo $serverInfo->Worms[$i]->Kills . " kills, \n";
+        if ($serverInfo->Worms[$i]->Lives == "out")
+          echo "out of the game)\n";
+        else
+          echo $serverInfo->Worms[$i]->Lives . " lives)\n";
+          
+        $ip = $serverInfo->Worms[$i]->IP;
+        echo "[" . ($ip ? $ip : "unknown IP")  . "]<br>\n";
+      }
+    }
+	
+	?>
+	   
   </body>
 </html>

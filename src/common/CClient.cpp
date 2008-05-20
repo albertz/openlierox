@@ -1311,8 +1311,13 @@ void CClient::SimulationOlxMod()
 
 bool CClient::RebindSocket()
 {
+	printf("CClient::RebindSocket()\n");
 	if(!IsSocketStateValid(tSocket))
 		return false;
+	NetworkAddr addr;
+	GetLocalNetAddr( tSocket, addr );
+	printf("CClient::RebindSocket() old port %i\n", GetNetAddrPort(addr) );
+	RemoveSocketFromNotifierGroup(tSocket);
 	CloseSocket(tSocket);
 	InvalidateSocketState(tSocket);
 	tSocket = OpenUnreliableSocket(0);
@@ -1320,6 +1325,8 @@ bool CClient::RebindSocket()
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
+	GetLocalNetAddr( tSocket, addr );
+	printf("CClient::RebindSocket() new port %i\n", GetNetAddrPort(addr) );
 	return true;
 };
 

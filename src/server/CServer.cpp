@@ -146,16 +146,16 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		if( cClient->RebindSocket() ) {	// If client has taken that socket free it
 			tSocket = OpenUnreliableSocket(port);
 			if(!IsSocketStateValid(tSocket)) {
-				SystemError("Error: Could not open UDP socket");
+				SetError("Server Error: Could not open UDP socket");
 				return false;
 			}
 		} else {
-			SystemError("Error: Could not open UDP socket");
+			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
 	}
 	if(!ListenSocket(tSocket)) {
-		SystemError( "Error: cannot start listening" );
+		SetError( "Server Error: cannot start listening" );
 		return false;
 	}
 
@@ -253,7 +253,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 		// Initialize the shooting list
 		if( !cClients[i].getShootList()->Initialize() ) {
-			SystemError( "cannot initialize the shooting list of some client" );
+			SetError( "Server Error: cannot initialize the shooting list of some client" );
 			return false;
 		}
 	}
