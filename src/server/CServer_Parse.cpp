@@ -1578,7 +1578,7 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 	bytestr.writeByte(iMaxWorms);
 	int CompatibleState = iState;
 	if( CompatibleState == SVS_PLAYING_OLXMOD )
-		CompatibleState == SVS_PLAYING;
+		CompatibleState = SVS_PLAYING;
 	bytestr.writeByte(CompatibleState);
 	bytestr.writeByte(num);
 
@@ -1600,7 +1600,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket) {
 	bs.writeByte(iMaxWorms);
 	int CompatibleState = iState;
 	if( CompatibleState == SVS_PLAYING_OLXMOD )
-		CompatibleState == SVS_PLAYING;
+		CompatibleState = SVS_PLAYING;
 	bs.writeByte(CompatibleState);
 
 	// If in lobby

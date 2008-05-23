@@ -192,6 +192,9 @@
       echo "<b>Max kills:</b> " . $serverInfo->MaxKills . "<br>\n";
       echo "<b>Loading time:</b> " . $serverInfo->LoadingTime . " %<br>\n";
       echo "<b>Bonuses:</b> " . ($serverInfo->BonusesOn ? "on" : "off") . "<br>\n";
+      echo "<b>Addr:</b> " . $serverInfo->Addr . "<br>\n";
+      echo "<b>NAT type:</b> " . $serverInfo->NatType . "<br>\n";
+      echo "<b>Version:</b> " . $serverInfo->Version . "<br>\n";
       echo "<b>Worms:</b><br>\n";
       for ($i = 0; $i < $serverInfo->NumPlayers; $i++)  {
         echo "  <i>" . $serverInfo->Worms[$i]->Name . " </i>(";
@@ -244,6 +247,11 @@
 	
 	$udpmasterservers[0] = "server.az2000.de:23450";
     $udpservers = LXGetUdpServerList($udpmasterservers);
+	if(!$udpservers)
+	{
+		echo "<b>Could not get UDP server list:</b><br>\n</body></html>";
+		die();
+	}
 	echo "<b>Server list from UDP masterserver:</b><br>\n";
     for ($i = 0; $i < count($udpservers); $i++)  
 	{
@@ -279,6 +287,7 @@
       echo "<b>Bonuses:</b> " . ($serverInfo->BonusesOn ? "on" : "off") . "<br>\n";
       echo "<b>Addr:</b> " . $serverInfo->Addr . "<br>\n";
       echo "<b>NAT type:</b> " . $serverInfo->NatType . "<br>\n";
+      echo "<b>Version:</b> " . $serverInfo->Version . "<br>\n";
       echo "<b>Worms:</b><br>\n";
       for ($i = 0; $i < $serverInfo->NumPlayers; $i++)  {
         echo "  <i>" . $serverInfo->Worms[$i]->Name . " </i>(";

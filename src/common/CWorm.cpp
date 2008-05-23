@@ -220,6 +220,7 @@ void CWorm::Prepare(CMap *pcMap)
 
 void CWorm::StartGame() {
 	InitInputSystem();
+	fTimeofDeath = tLX->fCurTime;
 }
 
 

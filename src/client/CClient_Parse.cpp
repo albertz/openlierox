@@ -807,6 +807,17 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 		// we do this to get my own worm out of the game because we want only spectate the game
 		SendDeath( id, id );
 	}
+	else
+	{
+		// Lock viewport back on local worm, if it was screwed when spectating after death
+		if( iNumWorms > 0 )
+			if( cLocalWorms[0] == &cRemoteWorms[id] && cLocalWorms[0]->getType() == PRF_HUMAN )
+				SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+		if( iNumWorms >= 2 )
+			if (cLocalWorms[1]->getType() == PRF_HUMAN)
+				SetupViewports(cLocalWorms[0], cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
+		sSpectatorViewportMsg = "";
+	}
 }
 
 
