@@ -295,6 +295,8 @@ int GameServer::StartGame()
 		iState = SVS_PLAYING_OLXMOD;
 		iServerFrame = 0;
 	    bGameOver = false;
+		tOlxMod_DisconnectedClients.clear();
+		fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
 		
 		bs.writeByte(S2C_OLXMOD_START);
 		bs.writeString( sModName );
@@ -977,6 +979,7 @@ void GameServer::CheckTimeouts(void)
         }
 	}
 	CheckWeaponSelectionTime();	// This is kinda timeout too
+	OlxMod_ProcessDisconnectedClients();
 }
 
 void GameServer::CheckWeaponSelectionTime()
@@ -1015,6 +1018,26 @@ void GameServer::CheckWeaponSelectionTime()
 			}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
 		};
+	};
+};
+
+// Send empty packets for all disconnected clients to maintain playable OlxMod engine state
+void GameServer::OlxMod_ProcessDisconnectedClients()
+{
+	if( iState != SVS_PLAYING_OLXMOD )
+		return;
+	if( tLX->fCurTime - fOlxMod_DisconnectedClientsPacketSendTime < OlxMod_EmptyPacketTime() / 1000.0f )
+		return;
+	
+	fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
+	
+	for( unsigned f=0; f< tOlxMod_DisconnectedClients.size(); f++ )
+	{
+		CBytestream data;
+		data.writeByte( S2C_OLXMOD_DATA );
+		data.writeByte( tOlxMod_DisconnectedClients[f] );
+		OlxMod_AddEmptyPacket( (unsigned long)(tLX->fCurTime*1000.0f) , &data );
+		SendGlobalPacket(&data);
 	};
 };
 
@@ -1127,6 +1150,16 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
     // If we're waiting for players to be ready, check again
     if(iState == SVS_GAME)
         CheckReadyClient();
+		
+    if(iState == SVS_PLAYING_OLXMOD)
+	{
+		tOlxMod_DisconnectedClients.push_back(cl->getWorm(0)->getID());
+		CBytestream data;
+		data.writeByte( S2C_OLXMOD_DATA );
+		data.writeByte( cl->getWorm(0)->getID() );
+		OlxMod_AddEmptyPacket( (unsigned long)(tLX->fCurTime*1000.0f) , &data );
+		SendGlobalPacket(&data);
+	}
 }
 
 

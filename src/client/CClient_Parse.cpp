@@ -1879,6 +1879,13 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 void CClient::ParseOlxModData(CBytestream *bs)
 {
 	int wormId = bs->readByte();
-	OlxMod_ReceiveNetPacket( bs, wormId );
+	if( iNetStatus == NET_PLAYING_OLXMOD )
+	{
+		OlxMod_ReceiveNetPacket( bs, wormId );
+	}
+	else
+	{
+		bs->Skip(OlxMod_NetPacketSize());
+	};
 };
 

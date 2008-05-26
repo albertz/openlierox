@@ -144,6 +144,9 @@ private:
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
+	
+	std::vector<int>	tOlxMod_DisconnectedClients;
+	float		fOlxMod_DisconnectedClientsPacketSendTime;
 
 
 public:
@@ -210,6 +213,7 @@ public:
 	bool		ParseChatCommand(const std::string& message, CClient *cl);
 	bool		CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs );
 	bool		DropFakeZombieWormsToCleanUpLobby( CBytestream *bs );
+	void		OlxMod_ProcessDisconnectedClients();
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);

@@ -25,6 +25,7 @@
 
 ///////////////////
 // Get the number of milliseconds since SDL started the timer
+// TODO: Wrong function name - it returns seconds actually.
 inline float	GetMilliSeconds(void) { return (float)SDL_GetTicks() * 0.001f; }
 
 

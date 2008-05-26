@@ -851,8 +851,9 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 
 void GameServer::ParseOlxModData(CClient *cl, CBytestream *bs)
 {
-	//printf("GameServer::ParseOlxModData()\n");
 	CBytestream data;
+	data.writeByte( S2C_OLXMOD_DATA );
+	data.writeByte( cl->getWorm(0)->getID() );
 	int packetSize = OlxMod_NetPacketSize();
 	int f;
 	for( f=0; f<packetSize; f++ )
@@ -860,16 +861,15 @@ void GameServer::ParseOlxModData(CClient *cl, CBytestream *bs)
 		data.writeByte(bs->readByte());
 	};
 
-	CClient *clSend;
-	for( f=0, clSend = cClients; f < MAX_CLIENTS; f++, clSend++ )
+	if( iState == SVS_PLAYING_OLXMOD )
 	{
-		if( clSend != cl && clSend->getStatus() == NET_CONNECTED )
+		CClient *clSend;
+		for( f=0, clSend = cClients; f < MAX_CLIENTS; f++, clSend++ )
 		{
-			CBytestream dataSend;
-			dataSend.writeByte( S2C_OLXMOD_DATA );
-			dataSend.writeByte( cl->getWorm(0)->getID() );
-			dataSend.Append(&data);
-			SendPacket( &dataSend, clSend );
+			if( clSend != cl && clSend->getStatus() == NET_CONNECTED )
+			{
+				SendPacket( &data, clSend );
+			};
 		};
 	};
 };

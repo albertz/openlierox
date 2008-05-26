@@ -206,12 +206,6 @@ void OlxMod_EndRound()
 	OlxMod_StopSoundSystem();
 };
 
-int OlxMod_NetPacketSize()
-{
-	// Change here if you'll modify Receive()/Send()
-	return 4+1;	// First 4 bytes is time in 10-ms chunks, second 2 bytes is keypress mask
-};
-
 void OlxMod_ReCalculate()
 {
 	if( OlxMod_CurrentTimeMs - OlxMod_ReCalculationTimeMs < OlxMod_ReCalculationMinimumTimeMs || ! OlxMod_ReCalculationNeeded )
@@ -291,6 +285,35 @@ void OlxMod_Draw( unsigned long localTime, bool showScoreboard )
 
 	(*OlxMod_list)[OlxMod_ActiveMod].draw( showScoreboard );
 
+};
+
+int OlxMod_NetPacketSize()
+{
+	// Change here if you'll modify Receive()/Send()
+	return 4+1;	// First 4 bytes is time in 10-ms chunks, second 2 bytes is keypress mask
+};
+
+void OlxMod_AddEmptyPacket( unsigned long localTime, CBytestream * bs )
+{
+	localTime -= OlxMod_OlxTimeDiffMs;
+	localTime /= OLXMOD_TICK_TIME_DIV;
+	bs->writeInt( localTime, 4 );
+	bs->ResetBitPos();
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	bs->writeBit( 0 );
+	//bs->writeBit( 0 );	// TODO: adds second byte with just 1 bit used
+	bs->ResetBitPos();
+};
+
+unsigned OlxMod_EmptyPacketTime()
+{
+	return OlxMod_PingTimeMs;
 };
 
 // Returns true if data was re-calculated.

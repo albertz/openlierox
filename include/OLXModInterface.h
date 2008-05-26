@@ -168,12 +168,17 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	int ScreenX, int ScreenY, SDL_Surface * bmpDest );
 
 int OlxMod_NetPacketSize();
+// In case player disconnects the engine should emulate that player is present and won't press any buttons.
+void OlxMod_AddEmptyPacket( unsigned long localTime, CBytestream * bs );
+// How often to send empty packets
+unsigned OlxMod_EmptyPacketTime();
 
 // Returns true if data was re-calculated.
 bool OlxMod_ReceiveNetPacket( CBytestream * bs, int player );
 
 // Calculates and draws the mod, returns true if there's something to send. showScoreboard is passed to mod drawing func - the mod may ignore it.
 bool OlxMod_Frame( unsigned long localTime, OlxMod_KeyState_t keys, CBytestream * bs, bool showScoreboard );
+
 
 // ----- End of OLX internal API -----
 
