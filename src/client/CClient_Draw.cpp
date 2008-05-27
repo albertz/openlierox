@@ -992,14 +992,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, byte viewport_index)
 // Draw the projectiles
 void CClient::DrawProjectiles(SDL_Surface * bmpDest, CViewport *v)
 {
-	CProjectile *prj = cProjectiles;
-
-    prj = cProjectiles;
-	for(int p=0;p<nTopProjectile;p++,prj++) {
-		if(!prj->isUsed())
-			continue;
-
-		prj->Draw(bmpDest, v);
+	for(Iterator<CProjectile>::Ref i = cProjectiles.begin(); i->isValid(); i->next()) {
+		i->get().Draw(bmpDest, v);
 	}
 }
 
@@ -1008,14 +1002,9 @@ void CClient::DrawProjectiles(SDL_Surface * bmpDest, CViewport *v)
 // Draw the projectile shadows
 void CClient::DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v)
 {
-    CProjectile *prj = cProjectiles;
-
-    for(int p=0;p<nTopProjectile;p++,prj++) {
-        if(!prj->isUsed())
-            continue;
-
-        prj->DrawShadow(bmpDest, v, cMap);
-    }
+	for(Iterator<CProjectile>::Ref i = cProjectiles.begin(); i->isValid(); i->next()) {
+		i->get().DrawShadow(bmpDest, v, cMap);
+	}
 }
 
 

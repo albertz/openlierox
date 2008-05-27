@@ -53,7 +53,7 @@ int CGameScript::Save(const std::string& filename)
 
 	// Weapons
 	weapon_t *wpn = Weapons;
-	
+
 	for(n=0;n<NumWeapons;n++,wpn++) {
 
         writeString(wpn->Name, fp);
@@ -145,7 +145,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite(GetEndianSwapped(proj->Timer_TimeVar),sizeof(float),1,fp);
 	fwrite(GetEndianSwapped(proj->Trail),		sizeof(int),1,fp);
 	fwrite(GetEndianSwapped(proj->UseCustomGravity), sizeof(int), 1, fp);
-	
+
 	if(proj->UseCustomGravity)
 		fwrite(GetEndianSwapped(proj->Gravity),	sizeof(int), 1, fp);
 
@@ -203,7 +203,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Hit::Bounce
 	if(proj->Hit_Type == PJ_BOUNCE) {
 		fwrite(GetEndianSwapped(proj->Hit_BounceCoeff),	sizeof(float),	1,fp);
-		fwrite(GetEndianSwapped(proj->Hit_BounceExplode),sizeof(int),	1,fp); 
+		fwrite(GetEndianSwapped(proj->Hit_BounceExplode),sizeof(int),	1,fp);
 	}
 
 	// Hit::Carve
@@ -226,7 +226,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 			fwrite(GetEndianSwapped(proj->Timer_Shake),sizeof(int),1,fp);
 		}
 	}
-    
+
 
 	//
 	// Player hit
@@ -265,7 +265,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
     fwrite(GetEndianSwapped(proj->Tch_UseSound), sizeof(int), 1, fp);
     if(proj->Tch_UseSound)
         writeString(proj->Tch_SndFilename, fp);
-        
+
 
 
 	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
@@ -280,10 +280,10 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		SaveProjectile(proj->Projectile,fp);
 	}
 
-	
+
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
-		
+
 		fwrite(GetEndianSwapped(proj->PrjTrl_UsePrjVelocity),	sizeof(int),	1, fp);
 		fwrite(GetEndianSwapped(proj->PrjTrl_Delay),				sizeof(float),	1, fp);
 		fwrite(GetEndianSwapped(proj->PrjTrl_Amount),			sizeof(int),	1, fp);
@@ -298,8 +298,6 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 }
 
 
-#ifndef _CONSOLE
-
 ///////////////////
 // Load the game script from a file (game)
 int CGameScript::Load(const std::string& dir)
@@ -313,9 +311,9 @@ int CGameScript::Load(const std::string& dir)
 		return GSE_OK;
 	}
 	*/
-	
+
 	FILE *fp;
-	int n;	
+	int n;
 	std::string filename = dir + "/script.lgs";
 	sDirectory = dir;
 
@@ -332,7 +330,7 @@ int CGameScript::Load(const std::string& dir)
 	// for security
 	fix_markend(Header.ID);
 	fix_markend(Header.ModName);
-	
+
 	// Check ID
 	if(strcmp(Header.ID,"Liero Game Script") != 0) {
 		fclose(fp);
@@ -355,7 +353,7 @@ int CGameScript::Load(const std::string& dir)
 	fread(&NumWeapons,sizeof(int),1,fp);
 	EndianSwap(NumWeapons);
 	//modLog("  NumWeapons = %i", NumWeapons);
-	
+
 	// Do Allocations
 	Weapons = new weapon_t[NumWeapons];
 	if(Weapons == NULL) {
@@ -364,17 +362,17 @@ int CGameScript::Load(const std::string& dir)
 	}
 
 	// Weapons
-	weapon_t *wpn;	
+	weapon_t *wpn;
 	for(n=0;n<NumWeapons;n++) {
 		wpn = &Weapons[n];
-		
+
 		wpn->ID = n;
 		wpn->Projectile = NULL;
 
         wpn->Name = readString(fp);
 		fread(&wpn->Type,           sizeof(int),    1,fp);
 		EndianSwap(wpn->Type);
-		
+
 		// Special
 		if(wpn->Type == WPN_SPECIAL) {
 			fread(&wpn->Special,    sizeof(int),    1, fp);
@@ -450,7 +448,7 @@ int CGameScript::Load(const std::string& dir)
 				if(wpn->smpSample.get() == 0)
 					wpn->UseSound = false;
 			}
-		
+
 			wpn->Projectile = LoadProjectile(fp);
 		}
 
@@ -498,7 +496,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
 		return NULL;
-	
+
 
 	fread(&proj->Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Type);
@@ -511,10 +509,10 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread(&proj->UseCustomGravity, sizeof(int), 1, fp);
 	EndianSwap(proj->UseCustomGravity);
 	if(proj->UseCustomGravity)
-	{	
+	{
 		fread(&proj->Gravity,	sizeof(int), 1, fp);
 		EndianSwap(proj->Gravity);
-	}	
+	}
 	fread(&proj->Dampening,		sizeof(int),  1, fp);
 	EndianSwap(proj->Dampening);
 
@@ -527,7 +525,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Rotating = 0;
 	proj->RotIncrement = 0;
 	proj->Timer_Shake = 0;
-	
+
 	if(proj->Type == PRJ_PIXEL) {
 		fread(&proj->NumColours, sizeof(int), 1, fp);
 		EndianSwap(proj->NumColours);
@@ -546,7 +544,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 	else if(proj->Type == PRJ_IMAGE) {
         proj->ImgFilename = readString(fp);
-		
+
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
         if(!proj->bmpImage.get())
             modLog("Could not open image '" + proj->ImgFilename + "'");
@@ -595,12 +593,12 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		EndianSwap(proj->Hit_Shake);
 
 		if(proj->Hit_UseSound) {
-            proj->Hit_SndFilename = readString(fp);			
-			
+            proj->Hit_SndFilename = readString(fp);
+
 			if(!bDedicated) {
 				// Load the sample
 				proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
-				
+
 				if(proj->smpSample.get() == 0) {
 					proj->Hit_UseSound = false;
 					modLog("Could not open sound '" + proj->Hit_SndFilename + "'");
@@ -718,7 +716,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
-		
+
 		fread(&proj->PrjTrl_UsePrjVelocity,	sizeof(int),	1, fp);
 		EndianSwap(proj->PrjTrl_UsePrjVelocity);
 		fread(&proj->PrjTrl_Delay,			sizeof(float),	1, fp);
@@ -749,7 +747,7 @@ SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const
 	SmartPointer<SDL_Surface> img = NULL;
 
 	// First, check the gfx directory in the mod dir
-	img = LoadImage(dir + "/gfx/" + filename, true);	
+	img = LoadImage(dir + "/gfx/" + filename, true);
 	if(img.get())  {
 		SetColorKey(img.get());
 		return img;
@@ -770,15 +768,13 @@ SmartPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, cons
 
 	// First, check the sfx directory in the mod dir
 	smp = LoadSample(dir + "/sfx/" + filename, 10);
-	
+
 	if(smp.get())
 		return smp;
 
 	// Check the sounds directory in the data dir
 	return LoadSample("data/sounds/" + filename, 10);
 }
-
-#endif  //  _CONSOLE
 
 
 
@@ -825,12 +821,12 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
     if(szString == "") return;
 
 	size_t length = szString.size();
-	if(length > 255) {	
+	if(length > 255) {
 		printf("WARNING: i will cut the following string for writing: %s\n", szString.c_str());
 		length = 255;
 	}
 	uchar len = (uchar)length;
-	
+
     fwrite( &len, sizeof(uchar), 1, fp );
     fwrite( szString.c_str(),sizeof(char), length, fp );
 }
@@ -847,7 +843,7 @@ std::string CGameScript::readString(FILE *fp)
     fread( buf,sizeof(char), length, fp );
 
     buf[length] = '\0';
-	
+
     return buf;
 }
 
@@ -897,8 +893,8 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
 {
 	name = "";
-	
-	// Open it		
+
+	// Open it
 	FILE *fp = NULL;
 	if(abs_filename) {
 		std::string filename;
@@ -914,7 +910,7 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_f
 	memset(&head,0,sizeof(gs_header_t));
 	fread(&head,sizeof(gs_header_t),1,fp);
 	fclose(fp);
-	
+
 	EndianSwap(head.Version);
 	// for security
 	fix_markend(head.ID);
@@ -973,14 +969,14 @@ std::string CGameScript::getError(int code)
 void CGameScript::modLog(const std::string& text)
 {
 	std::cout << text << std::endl;
-	
+
 	if(!pModLog) {
 		pModLog = OpenGameFile("modlog.txt","wt");
 		if(!pModLog)
 			return;
 		fprintf(pModLog,"Log file for mod:\n%s\n--------------------------------\n",Header.ModName);
 	}
-	
+
 	if (text.size() != 0)
 		fprintf(pModLog,"%s\n", text.c_str());
 }

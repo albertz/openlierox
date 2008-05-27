@@ -35,6 +35,8 @@
 #include "InputEvents.h"
 #include "FileDownload.h"
 #include "Version.h"
+#include "CProjectile.h"
+#include "FastVector.h"
 
 
 #define		MAX_CLIENTS		32
@@ -194,7 +196,6 @@ public:
 	CClient() {
 		//printf("cl:Constructor\n");
 		cRemoteWorms = NULL;
-		cProjectiles = NULL;
 		cMap = NULL;
 		cBonuses = NULL;
 		bmpBoxBuffer = NULL;
@@ -207,7 +208,6 @@ public:
 		cWeaponBar2 = NULL;
 		iGameType = GMT_DEATHMATCH;
 		bGameReady = false;
-        nTopProjectile = 0;
 		bMapGrabbed = false;
 		cChatList = NULL;
 		bUpdateScore = true;
@@ -296,8 +296,8 @@ private:
 	bool		bMapGrabbed;
 
 	// Projectiles
-	CProjectile	*cProjectiles;
-    int         nTopProjectile;
+	typedef FastVector<CProjectile,MAX_PROJECTILES> Projectiles;
+	Projectiles	cProjectiles;
 
 	// Frames
 	frame_t		tFrames[NUM_FRAMES];
@@ -736,7 +736,7 @@ public:
 
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
-	
+
 };
 
 extern	CClient			*cClient;

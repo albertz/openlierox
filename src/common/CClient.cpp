@@ -57,7 +57,7 @@ void CClient::Clear(void)
 	for(i=0;i<MAX_PLAYERS;i++)
 		cLocalWorms[i] = NULL;
 	cRemoteWorms = NULL;
-	cProjectiles = NULL;
+	cProjectiles.clear();
 	cMap = NULL;
 	bMapGrabbed = false;
 	if( cNetChan )
@@ -69,7 +69,6 @@ void CClient::Clear(void)
 	fLoadingTime = 1;
 	iScorePlayers = 0;
 	cBonuses = NULL;
-    nTopProjectile = 0;
 	bUpdateScore = true;
 	fLastScoreUpdate = -9999;
 	cChatList = NULL;
@@ -189,9 +188,7 @@ void CClient::MinorClear(void)
 		cRemoteWorms[i].AI_Shutdown();
 	}
 
-	for(i=0; i<MAX_PROJECTILES; i++)
-		cProjectiles[i].setUnused();
-    nTopProjectile = 0;
+	cProjectiles.clear();
 
 	for(i=0; i<MAX_BONUSES; i++)
 		cBonuses[i].setUsed(false);
@@ -256,16 +253,6 @@ int CClient::Initialize(void)
 	}
 
 
-	// Initialize the projectiles
-	cProjectiles = new CProjectile[MAX_PROJECTILES];
-	if(cProjectiles == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
-		return false;
-	}
-    for(i=0; i<MAX_PROJECTILES;i++)
-        cProjectiles[i].setID(i);
-    nTopProjectile = 0;
-
 
 	// Initialize the bonuses
 	cBonuses = new CBonus[MAX_BONUSES];
@@ -280,7 +267,7 @@ int CClient::Initialize(void)
 		tSocket = OpenUnreliableSocket( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
 	}
 	if(!IsSocketStateValid(tSocket)) {	// If socket won't open that's not error - open another one on random port
-		tSocket = OpenUnreliableSocket(0);	
+		tSocket = OpenUnreliableSocket(0);
 	}
 	if(!IsSocketStateValid(tSocket)) {
 		SetError("Error: Could not open UDP socket!");
@@ -597,7 +584,7 @@ void CClient::Frame(void)
 void CClient::ReadPackets(void)
 {
 	CBytestream		bs;
-		
+
 	while(bs.Read(tSocket)) {
 		// each bs.Read reads the next UDP packet and resets the bs
 		// UDP is packet-based that means, we will only get single packages, no stream
@@ -1169,10 +1156,7 @@ void CClient::Shutdown(void)
 	}
 
 	// Projectiles
-	if(cProjectiles) {
-		delete[] cProjectiles;
-		cProjectiles = NULL;
-	}
+	cProjectiles.clear();
 
 	// Map
 	if(tGameInfo.iGameType == GME_JOIN) {

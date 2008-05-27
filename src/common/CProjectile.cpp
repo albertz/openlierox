@@ -23,6 +23,11 @@
 #include "MathLib.h"
 #include "CClient.h"
 
+void CProjectile::setUnused() {
+	bUsed = false;
+
+	onInvalidation.occurred( EventData(this) );
+}
 
 ///////////////////
 // Spawn the projectile

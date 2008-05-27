@@ -879,8 +879,8 @@ public:
 		}
 
 		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
-		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new 
-		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning. 
+		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
+		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
 		// These conditions test for those projectiles and remove them
 		if (pi->Hit_Type == PJ_NOTHING && pi->PlyHit_Type == PJ_NOTHING && (pi->Timer_Type == PJ_NOTHING || pi->Timer_Time <= 0)) // Isn't destroyed by any event
 			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage.get() == NULL))) // Isn't destroyed after animation ends
@@ -896,7 +896,7 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(CProjectile* projs, const int& count) {
+	virtual void simulateProjectiles(Iterator<CProjectile>::Ref projs) {
 		const static float dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
@@ -904,10 +904,9 @@ public:
 	simulateProjectilesStart:
 		if(client->fLastSimulationTime + dt > tLX->fCurTime) return;
 
-		CProjectile *prj = projs;
-		for(int p = 0; p < count; p++, prj++) {
-			if(prj->isUsed())
-				simulateProjectile( client->fLastSimulationTime, prj );
+		for(Iterator<CProjectile>::Ref i = projs; i->isValid(); i->next()) {
+			CProjectile* p = &i->get();
+			simulateProjectile( client->fLastSimulationTime, p );
 		}
 
 		client->fLastSimulationTime += dt;
@@ -924,7 +923,6 @@ public:
 			return;
 
 		float length2;
-		// TODO: why is int used as a boolean here?
 		bool firsthit = !rope->isAttached();
 		CVec force;
 

@@ -159,7 +159,7 @@ void CClient::Simulation(void)
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles, nTopProjectile);
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
@@ -552,22 +552,12 @@ void CClient::DrawBeam(CWorm *w)
 // Spawn a projectile
 void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float remotetime, float ignoreWormCollBeforeTime)
 {
-	CProjectile *proj = cProjectiles;
-	int p=0;
+	CProjectile* proj = cProjectiles.getNewObj();
 
-	for(p=0;p<MAX_PROJECTILES;p++,proj++) {
-		if(!proj->isUsed())
-			break;
-	}
-
-	if(p >= MAX_PROJECTILES-1) {
+	if(proj == NULL) {
 		// Warning: Out of space for a projectile
 		return;
 	}
-
-    if( p >= nTopProjectile )
-        nTopProjectile = p+1;
-    nTopProjectile = MIN(nTopProjectile,MAX_PROJECTILES);
 
     // Safety
     _random %= 255;

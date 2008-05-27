@@ -129,7 +129,7 @@ class weapon_t { public:
 	int		UseSound;
 	std::string	SndFilename; // (was 64b before)
 	int		LaserSight;
-	
+
 	// Projectile
 	int		ProjSpeed;
 	float	ProjSpread;
@@ -147,9 +147,7 @@ class weapon_t { public:
 	// Special
 	gs_special_t tSpecial;
 
-#ifndef _CONSOLE
 	SmartPointer<SoundSample> smpSample;
-#endif
 
 };
 
@@ -167,7 +165,7 @@ public:
 		RestLength = 20;
 		Strength = 0.5f;
 	}
-	
+
 	~CGameScript() {
 		Shutdown();
 	}
@@ -180,7 +178,7 @@ private:
 
 	// Header
 	gs_header_t	Header;
-	
+
 
 	// Weapons
 	int			NumWeapons;
@@ -210,10 +208,10 @@ public:
 
 	int			Load(const std::string& dir);
 	int			Save(const std::string& filename);
-	
-private:	
+
+private:
 	proj_t		*LoadProjectile(FILE *fp);
-	int			SaveProjectile(proj_t *proj, FILE *fp);	
+	int			SaveProjectile(proj_t *proj, FILE *fp);
     void        writeString(const std::string& szString, FILE *fp);
     std::string readString(FILE *fp);
 
@@ -254,7 +252,7 @@ public:
 	float		getStrength(void)				{ return Strength; }
 
 	const gs_worm_t	*getWorm(void)					{ return &Worm; }
-	
+
 
 };
 

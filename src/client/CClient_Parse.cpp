@@ -411,7 +411,7 @@ void CClient::ParsePacket(CBytestream *bs)
             case S2C_OLXMOD_START:
                 ParseOlxModStart(bs);
                 break;
-				
+
             case S2C_OLXMOD_DATA:
                 ParseOlxModData(bs);
                 break;
@@ -1023,9 +1023,7 @@ void CClient::ParseGameOver(CBytestream *bs)
 		tGameLog->iWinner = iMatchWinner;
 
     // Clear the projectiles
-    for(int i=0; i < MAX_PROJECTILES; i++)
-		cProjectiles[i].setUnused();
-    nTopProjectile = 0;
+    cProjectiles.clear();
 
 	UpdateScoreboard();
 	bShouldRepaintInfo = true;
@@ -1393,7 +1391,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
         gl->bHaveMap = false;
     else
         fclose(fp);
-		
+
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
 		std::string MapName = Menu_GetLevelName(gl->szMapName);
@@ -1829,10 +1827,10 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 		return;
 	};
 	int numPlayers = 0, localWorm = -1;
-	
+
 	CWorm *w;
 	int f;
-	
+
 	for( f = 0, w = cRemoteWorms; f < MAX_CLIENTS; f++, w++ )
 	{
 		if( ! w->isUsed() )
@@ -1845,7 +1843,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 	// empty by now
 	std::map< std::string, CScriptableVars::ScriptVar_t > options;
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions;
-	
+
 	// Clean the screen up - just in case
 	SDL_SetClipRect(GetVideoSurface(), NULL);
 	FillSurfaceTransparent(GetVideoSurface());
@@ -1853,11 +1851,11 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 	FillSurfaceTransparent(GetVideoSurface());
 	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
 	FillSurfaceTransparent(tMenu->bmpBuffer.get());
-	
-	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed, 
-				(unsigned long)(tLX->fCurTime*1000.0f), 
-				numPlayers, localWorm, randomSeed, 
-				options, weaponRestrictions, 
+
+	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed,
+				(unsigned long)(tLX->fCurTime*1000.0f),
+				numPlayers, localWorm, randomSeed,
+				options, weaponRestrictions,
 				640, 480, GetVideoSurface() );
 	if( ret == true )
 	{

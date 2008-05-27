@@ -20,6 +20,7 @@
 #include <string>
 #include "Sounds.h"
 #include "GfxPrimitives.h"
+#include "Event.h"
 
 
 #define		MAX_PROJECTILES	3000
@@ -125,10 +126,8 @@ class proj_t { public:
 
 
 
-#ifndef _CONSOLE
 	SmartPointer<SDL_Surface> bmpImage;
 	SmartPointer<SoundSample> smpSample;
-#endif
 
 
 };
@@ -137,9 +136,8 @@ class CProjectile {
 public:
 	// Constructor
 	CProjectile() {
-        iID = 0;
-		fSpeed = 0;
 		bUsed = false;
+		fSpeed = 0;
 		fLife = 0;
 		tProjInfo = NULL;
 		fLastTrailProj = 0;
@@ -154,7 +152,6 @@ public:
 private:
 	// Attributes
 
-    int         iID;
 	bool		bUsed;
 	int			iType;
 	float		fLife;
@@ -217,7 +214,7 @@ public:
 	void	Bounce(float fCoeff);
 
 	bool	isUsed(void)			{ return bUsed; }
-	void	setUnused()				{ bUsed = false; }
+	void	setUnused();
 
 	float	getLife(void)			{ return fLife; }
 	float&	life()					{ return fLife; }
@@ -244,9 +241,6 @@ public:
 	float	getRandomFloat(void);
 	int		getRandomIndex(void)	{ return iRandom; }
 
-    void    setID(int id)           { iID = id; }
-    int     getID(void)             { return iID; }
-
     void    setExplode(float t, bool _e)     { fExplodeTime = t; bExplode = _e; }
     void    setTouched(bool _t)      { bTouched = _t; }
 
@@ -258,6 +252,7 @@ public:
 	// simulation times (different times of spawning or remote projectiles)
 	float	fLastSimulationTime;
 
+	Event<> onInvalidation;
 };
 
 
