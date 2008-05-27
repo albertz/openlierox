@@ -287,7 +287,7 @@ void TestCChannelRobustness()
 	int lagMax = 300;
 	int packetLoss = 10; // In percents
 	float packetsPerSecond1 = 10; // One channel sends faster than another
-	float packetsPerSecond2 = 0.2;
+	float packetsPerSecond2 = 0.2f;
 	int packetExtraData = 32; // Extra data in bytes to add to packet to check buffer overflows
 	
 	CChannel_056b c1, c2;
@@ -310,15 +310,15 @@ void TestCChannelRobustness()
 	int i1=0, i2=0, i1r=0, i2r=0;
 	float packetDelay1 = 10000000;
 	if( packetsPerSecond1 > 0 )
-		packetDelay1 = 1000.0 / packetsPerSecond1;
+		packetDelay1 = 1000.0f / packetsPerSecond1;
 	float packetDelay2 = 10000000;
 	if( packetsPerSecond2 > 0 )
-		packetDelay2 = 1000.0 / packetsPerSecond2;
+		packetDelay2 = 1000.0f / packetsPerSecond2;
 	float nextPacket1 = 0;
 	float nextPacket2 = 0;
 	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
 	{
-		tLX->fCurTime = testtime / 1000.0;
+		tLX->fCurTime = testtime / 1000.0f;
 		
 		// Transmit number sequence and some unreliable info
 		CBytestream b1, b2, b1u, b2u;
