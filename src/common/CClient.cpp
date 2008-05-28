@@ -352,25 +352,27 @@ void CClient::StartLogging(int num_players)
 		return;
 
 	// Initialize the log worms
+	int j = 0;
 	for (i=0; i < MAX_WORMS; i++)  {
 		if (cRemoteWorms[i].isUsed())  {
-			tGameLog->tWorms[i].bLeft = false;
-			tGameLog->tWorms[i].iID = cRemoteWorms[i].getID();
-			tGameLog->tWorms[i].sName = cRemoteWorms[i].getName();
-			tGameLog->tWorms[i].sSkin = cRemoteWorms[i].getSkin();
-			tGameLog->tWorms[i].iKills = 0;
-			tGameLog->tWorms[i].iLives = tGameInfo.iLives;
-			tGameLog->tWorms[i].iSuicides = 0;
-			tGameLog->tWorms[i].iTeamKills = 0;
-			tGameLog->tWorms[i].iTeamDeaths = 0;
-			tGameLog->tWorms[i].bTagIT = false;
+			tGameLog->tWorms[j].bLeft = false;
+			tGameLog->tWorms[j].iID = cRemoteWorms[i].getID();
+			tGameLog->tWorms[j].sName = cRemoteWorms[i].getName();
+			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin();
+			tGameLog->tWorms[j].iKills = 0;
+			tGameLog->tWorms[j].iLives = tGameInfo.iLives;
+			tGameLog->tWorms[j].iSuicides = 0;
+			tGameLog->tWorms[j].iTeamKills = 0;
+			tGameLog->tWorms[j].iTeamDeaths = 0;
+			tGameLog->tWorms[j].bTagIT = false;
 			if (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)
-				tGameLog->tWorms[i].iTeam = cRemoteWorms[i].getTeam();
+				tGameLog->tWorms[j].iTeam = cRemoteWorms[i].getTeam();
 			else
-				tGameLog->tWorms[i].iTeam = -1;
-			tGameLog->tWorms[i].fTagTime = 0.0f;
-			tGameLog->tWorms[i].fTimeLeft = 0.0f;
-			tGameLog->tWorms[i].iType = cRemoteWorms[i].getType();
+				tGameLog->tWorms[j].iTeam = -1;
+			tGameLog->tWorms[j].fTagTime = 0.0f;
+			tGameLog->tWorms[j].fTimeLeft = 0.0f;
+			tGameLog->tWorms[j].iType = cRemoteWorms[i].getType();
+			j++;
 		}
 	}
 }

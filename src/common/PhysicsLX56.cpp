@@ -889,9 +889,8 @@ public:
 
 		if(deleteAfter) {
 			prj->setUnused();
+			return;
 		}
-
-		if(deleteAfter) return;
 
 		goto simulateProjectileStart;
 	}
