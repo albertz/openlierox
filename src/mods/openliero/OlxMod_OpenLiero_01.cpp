@@ -65,13 +65,23 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	numPlayers = _numPlayers;
 	localPlayer = _localPlayer;
 	OLXOutput = bmpDest;
+	fadeValue = 0;
+	enabledWeaps = 0;
+	fadeAmount = 180;
+	shutDown = false;
+	for( int f=0; f<OLXMOD_MAX_PLAYERS; f++)
+	{
+		curSel[f]=0;
+		isReady[f]=false;
+		menus[f]=Menu();
+	};
 
 	for( int f = 0; f < MAX_KEYS * OLXMOD_MAX_PLAYERS; f++ )
+	{
 		keys[f] = false;
+		keysChanged[f] = false;
+	}
 	
-	setLieroEXE("OpenLiero/LIERO.EXE");
-
-		
 	game.texts.loadFromEXE();
 	initKeys();
 	//game.rand.seed(Uint32(std::time(0)));
@@ -99,14 +109,7 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	
 	game.settingsFile = "LIERO";
 	
-	if(!fileExists(lieroOPT)) // NOTE: Liero doesn't seem to use the contents of LIERO.OPT for anything useful
-		game.settings = Settings();
-	else 
-		if(!game.loadSettings())
-		{
-			game.settingsFile = "LIERO";
-			game.settings = Settings();
-		};
+	game.settings = Settings();
 	
 	game.generateLevel();
 	game.resetWorms();
@@ -218,7 +221,7 @@ void OlxMod_RestoreState()
 	};
 };
 
-void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Event_t > &keys, bool fastCalculation )
+unsigned OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Event_t > &keys, bool fastCalculation, bool calculateChecksum )
 {
 	currentTimeDiff += gameTime - currentTime;
 	currentTime = gameTime;
@@ -251,12 +254,14 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 	//printf("OlxMod_CalculatePhysics() exit\n");
 	// Some debug
 	//#ifdef DEBUG
-	if( ! fastCalculation && gameTime % 5000 == 0 )
+	unsigned checksum = 0;
+	if( calculateChecksum )
 	{
 		unsigned f;
 		unsigned level=0;
 		for( f=0; f < game.level.data.size(); f++ )
 			level += unsigned(game.level.data[f]) * unsigned(f+1);
+		checksum += level;
 
 		unsigned worms=0;
 		for( f=0; f < game.worms.size(); f++ )
@@ -267,6 +272,7 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 			worms += game.worms[f]->velY*1000000;
 			worms += game.worms[f]->aimingAngle*100000000;
 		}
+		checksum += worms;
 
 		unsigned viewports=0;
 		for( f=0; f < game.viewports.size(); f++ )
@@ -276,11 +282,11 @@ void OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod_Eve
 			viewports += game.viewports[f]->centerX*10000;
 			viewports += game.viewports[f]->centerY*1000000;
 		}
-		unsigned random = game.rand();
-		unsigned total = level + worms + viewports + random;
-		printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
+		checksum += viewports;
+		checksum += game.rand();
+		//printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
 	};
-	//#endif
+	return checksum;
 };
 
 void OlxMod_Draw( bool showScoreboard )
@@ -298,14 +304,65 @@ void OlxMod_Draw( bool showScoreboard )
 
 void OlxMod_GetOptions( std::map< std::string, CScriptableVars::ScriptVarType_t > * options, std::vector<std::string> * WeaponList )
 {
+	options->clear();
+	(*options)["Lives"] = CScriptableVars::SVT_INT;
+	(*options)["LoadingTime"] = CScriptableVars::SVT_INT;
+	(*options)["Bonuses"] = CScriptableVars::SVT_BOOL;
+	(*options)["BonusNames"] = CScriptableVars::SVT_BOOL;
+	(*options)["LoadChange"] = CScriptableVars::SVT_BOOL;
+	(*options)["RandomLevel"] = CScriptableVars::SVT_BOOL;
+	(*options)["Level"] = CScriptableVars::SVT_STRING;
+	
+	WeaponList->clear();
+	game.loadWeapons();
+	for( unsigned f=0; f<sizeof(game.weapons)/sizeof(game.weapons[0]); f++ )
+	{
+		WeaponList->push_back(game.weapons[f].name);
+	};
+};
+
+void OlxMod_InitFunc_OpenLiero( int _numPlayers, int _localPlayer, 
+	std::map< std::string, CScriptableVars::ScriptVar_t > options,
+	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest )
+{
+	setLieroEXE("OpenLiero/LIERO.EXE");
+	OlxMod_InitFunc( _numPlayers, _localPlayer, options, weaponRestrictions, ScreenX, ScreenY, bmpDest);
+}
+
+void OlxMod_InitFunc_LieroToxicVans( int _numPlayers, int _localPlayer, 
+	std::map< std::string, CScriptableVars::ScriptVar_t > options,
+	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
+	int ScreenX, int ScreenY, SDL_Surface * bmpDest )
+{
+	setLieroEXE("Liero Toxic Vans/LIERO.EXE");
+	OlxMod_InitFunc( _numPlayers, _localPlayer, options, weaponRestrictions, ScreenX, ScreenY, bmpDest);
+}
+
+void OlxMod_GetOptions_OpenLiero( std::map< std::string, CScriptableVars::ScriptVarType_t > * options, std::vector<std::string> * WeaponList )
+{
+	setLieroEXE("OpenLiero/LIERO.EXE");
+	OlxMod_GetOptions(options, WeaponList);
+};
+
+void OlxMod_GetOptions_LieroToxicVans( std::map< std::string, CScriptableVars::ScriptVarType_t > * options, std::vector<std::string> * WeaponList )
+{
+	setLieroEXE("Liero Toxic Vans/LIERO.EXE");
+	OlxMod_GetOptions(options, WeaponList);
 };
 
 // The OLX mod system is still too buggy to be released in next Beta
-#ifdef DEBUG
-bool OlxMod_registered = OlxMod_RegisterMod( "Liero Orthodox v0.2", &OlxMod_InitFunc, &OlxMod_DeInitFunc,
+//#ifdef DEBUG
+bool OlxMod_registered_OpenLiero = OlxMod_RegisterMod( "Liero Orthodox v0.3", "OpenLiero",
+							&OlxMod_InitFunc_OpenLiero, &OlxMod_DeInitFunc,
 							&OlxMod_SaveState, &OlxMod_RestoreState,
-							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions );
-#endif
+							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions_OpenLiero );
+
+bool OlxMod_registered_LieroToxicVans = OlxMod_RegisterMod( "Liero Toxic Vans v0.3", "Liero Toxic Vans",
+							&OlxMod_InitFunc_LieroToxicVans, &OlxMod_DeInitFunc,
+							&OlxMod_SaveState, &OlxMod_RestoreState,
+							&OlxMod_CalculatePhysics, &OlxMod_Draw, &OlxMod_GetOptions_LieroToxicVans );
+//#endif
 }; // namespace
 
 using namespace OlxMod_OpenLiero_01;

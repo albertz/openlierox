@@ -29,7 +29,6 @@
 
 #include "AuxLib.h"
 #include "Error.h"
-#include "CServer.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "Cache.h"

@@ -614,6 +614,7 @@ public:
     void        ParseSendFile(CBytestream *bs);
     void        ParseOlxModStart(CBytestream *bs);
     void        ParseOlxModData(CBytestream *bs);
+	void		ParseOlxModChecksum(CBytestream *bs);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);

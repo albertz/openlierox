@@ -297,6 +297,8 @@ int GameServer::StartGame()
 	    bGameOver = false;
 		tOlxMod_DisconnectedClients.clear();
 		fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
+		iOlxMod_LastChecksumTime = 0;
+		fOlxMod_LastChecksumTimeDelay = 0;
 		
 		bs.writeByte(S2C_OLXMOD_START);
 		bs.writeString( sModName );
@@ -979,7 +981,8 @@ void GameServer::CheckTimeouts(void)
         }
 	}
 	CheckWeaponSelectionTime();	// This is kinda timeout too
-	OlxMod_ProcessDisconnectedClients();
+	OlxMod_ProcessDisconnectedClients(); // That's not timeout, but I on't know where to put it
+	OlxMod_SendChecksum();
 }
 
 void GameServer::CheckWeaponSelectionTime()
@@ -1040,6 +1043,30 @@ void GameServer::OlxMod_ProcessDisconnectedClients()
 		SendGlobalPacket(&data);
 	};
 };
+
+// Send game checksum to all clients
+void GameServer::OlxMod_SendChecksum()
+{
+	if( iState != SVS_PLAYING_OLXMOD )
+		return;
+	unsigned long checksumTime=0;
+	unsigned checksum = OlxMod_GetChecksum(&checksumTime);
+	
+	// Skip one server frame to allow local client to send it's keys
+	if( iOlxMod_LastChecksumTime != checksumTime )
+	{
+		if( tLX->fCurTime > fOlxMod_LastChecksumTimeDelay + OlxMod_EmptyPacketTime()*3/1000.0f )
+			fOlxMod_LastChecksumTimeDelay = tLX->fCurTime;
+		if( tLX->fCurTime <= fOlxMod_LastChecksumTimeDelay + OlxMod_EmptyPacketTime()/1000.0f )
+			return;
+		iOlxMod_LastChecksumTime = checksumTime;
+		CBytestream data;
+		data.writeByte( S2C_OLXMOD_CHECKSUM );
+		data.writeInt( checksumTime, 4 );
+		data.writeInt( checksum, 4 );
+		SendGlobalPacket(&data);
+	};
+}
 
 ///////////////////
 // Drop a client

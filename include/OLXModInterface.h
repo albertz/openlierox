@@ -51,6 +51,9 @@ struct OlxMod_KeyState_t
 	};
 };
 
+// Sets values in keysChanged which are not equal in both keys1 and keys2.
+void OlxMod_CompareKeysChanged( const OlxMod_KeyState_t & keys1, const OlxMod_KeyState_t & keys2, OlxMod_KeyState_t * keysChanged );
+
 struct OlxMod_Event_t
 {
 	OlxMod_Event_t( OlxMod_KeyState_t k = OlxMod_KeyState_t(), OlxMod_KeyState_t kC = OlxMod_KeyState_t() ):
@@ -95,7 +98,8 @@ typedef void (*OlxMod_RestoreState_t)();
 // routines in that case, as long as the game image on the screen will look smooth - OLX will discard that results anyway after Draw().
 // Keys is the state of keys (up/down and changed state) for given player.
 // OlxMod_PlaySoundSample should be called from Physics(), so intelligent rollback mechanism will stop all sounds caused by lag.
-typedef void (*OlxMod_CalculatePhysics_t)( unsigned gameTime, const std::map< int, OlxMod_Event_t > &keys, bool fastCalculation );
+// If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
+typedef unsigned (*OlxMod_CalculatePhysics_t)( unsigned gameTime, const std::map< int, OlxMod_Event_t > &keys, bool fastCalculation, bool calculateChecksum );
 
 // Draws the game screen (currently it's 640x480 only, scaling is planned)
 // showScoreboard is true when user presses scoreboard key (typically Tab) - mod may draw some info or just ignore it
@@ -106,7 +110,8 @@ typedef void (*OlxMod_Draw_t)( bool showScoreboard );
 typedef void (*OlxMod_GetOptions_t)( std::map< std::string, CScriptableVars::ScriptVarType_t > * options, std::vector<std::string> * WeaponList );
 
 // Register your mod (should be called once).
-bool OlxMod_RegisterMod( const char * name, OlxMod_InitFunc_t init, OlxMod_DeInitFunc_t deinit, 
+// If OLX cannot find dir "dirname" in searchpaths that means mod datafiles are not installed - mod is removed from list.
+bool OlxMod_RegisterMod( const char * name, const char * dirname, OlxMod_InitFunc_t init, OlxMod_DeInitFunc_t deinit, 
 							OlxMod_SaveState_t save, OlxMod_RestoreState_t restore,
 							OlxMod_CalculatePhysics_t calc, OlxMod_Draw_t draw, OlxMod_GetOptions_t options);
 
@@ -167,17 +172,30 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions,
 	int ScreenX, int ScreenY, SDL_Surface * bmpDest );
 
-int OlxMod_NetPacketSize();
-// In case player disconnects the engine should emulate that player is present and won't press any buttons.
-void OlxMod_AddEmptyPacket( unsigned long localTime, CBytestream * bs );
-// How often to send empty packets
-unsigned OlxMod_EmptyPacketTime();
-
 // Returns true if data was re-calculated.
 bool OlxMod_ReceiveNetPacket( CBytestream * bs, int player );
 
 // Calculates and draws the mod, returns true if there's something to send. showScoreboard is passed to mod drawing func - the mod may ignore it.
 bool OlxMod_Frame( unsigned long localTime, OlxMod_KeyState_t keys, CBytestream * bs, bool showScoreboard );
+
+// Returns S2C_OLXMOD_DATA packet size without player ID (currently 5 bytes).
+int OlxMod_NetPacketSize();
+
+// In case player disconnects the engine should emulate that player is present and won't press any buttons.
+void OlxMod_AddEmptyPacket( unsigned long localTime, CBytestream * bs );
+
+// How often to send empty packets
+unsigned OlxMod_EmptyPacketTime();
+
+// Returns mod checksum, and sets the time var to the time when that checksum was calculated
+unsigned OlxMod_GetChecksum( unsigned long * time = NULL );
+
+// These functions should be called only when game checksum won't match on client and server.
+// Returns the saved game state as string - OLX may re-calculate mod state from it.
+void OlxMod_SaveGameState( std::string * state, unsigned long time );
+
+// Re-calculates mod state from the string returned from OlxMod_SaveGameState() - it's slow!
+void OlxMod_LoadGameState( const std::string & state, unsigned long time );
 
 
 // ----- End of OLX internal API -----

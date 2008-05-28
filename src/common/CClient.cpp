@@ -817,6 +817,9 @@ void CClient::Disconnect(void)
 		for(int i=0;i<3;i++)
 			cNetChan->Transmit(&bs);
 
+	if( iNetStatus == NET_PLAYING_OLXMOD )
+		OlxMod_EndRound();
+
 	iNetStatus = NET_DISCONNECTED;
 
 	if (bDownloadingMap)

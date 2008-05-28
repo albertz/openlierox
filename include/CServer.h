@@ -147,6 +147,8 @@ private:
 	
 	std::vector<int>	tOlxMod_DisconnectedClients;
 	float		fOlxMod_DisconnectedClientsPacketSendTime;
+	unsigned long		iOlxMod_LastChecksumTime;
+	float		fOlxMod_LastChecksumTimeDelay;
 
 
 public:
@@ -214,6 +216,7 @@ public:
 	bool		CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs );
 	bool		DropFakeZombieWormsToCleanUpLobby( CBytestream *bs );
 	void		OlxMod_ProcessDisconnectedClients();
+	void		OlxMod_SendChecksum();
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);

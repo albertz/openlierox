@@ -73,6 +73,7 @@
 #define     S2C_SENDFILE        22
 #define     S2C_OLXMOD_START    23
 #define     S2C_OLXMOD_DATA     24
+#define     S2C_OLXMOD_CHECKSUM 25
 
 
 #endif  //  __PROTOCOL_H__

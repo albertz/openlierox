@@ -416,6 +416,10 @@ void CClient::ParsePacket(CBytestream *bs)
                 ParseOlxModData(bs);
                 break;
 
+            case S2C_OLXMOD_CHECKSUM:
+                ParseOlxModChecksum(bs);
+                break;
+
 			default:
 				printf("cl: Unknown packet\n");
 				return;
@@ -1614,6 +1618,9 @@ void CClient::ParseGotoLobby(CBytestream *)
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
 
+  	if( iNetStatus == NET_PLAYING_OLXMOD )
+	  	OlxMod_EndRound();
+
 	// Do a minor clean up
 	MinorClear();
 
@@ -1654,11 +1661,6 @@ void CClient::ParseDropped(CBytestream *bs)
 	// Not so much an error, but i message as to why i was dropped
 	bServerError = true;
 	strServerErrorMsg = Utf8String(bs->readString(256));
-
-	// Stop any file downloads
-	if (bDownloadingMap && cHttpDownloader)
-		cHttpDownloader->CancelFileDownload(sMapDownloadName);
-	getUdpFileDownloader()->reset();
 
 	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)
@@ -1859,7 +1861,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 				640, 480, GetVideoSurface() );
 	if( ret == true )
 	{
-		printf("CClient::ParseOlxModStart() random %lu, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
+		printf("CClient::ParseOlxModStart() random %lX, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
 		iNetStatus = NET_PLAYING_OLXMOD;
 		RemoveSocketFromNotifierGroup( tSocket );
 		bGameReady = true;
@@ -1887,3 +1889,28 @@ void CClient::ParseOlxModData(CBytestream *bs)
 	};
 };
 
+void CClient::ParseOlxModChecksum(CBytestream *bs)
+{
+	if( iNetStatus != NET_PLAYING_OLXMOD )
+	{
+		bs->Skip(8);
+		return;
+	};
+	unsigned time = bs->readInt(4);
+	unsigned checksum = bs->readInt(4);
+	unsigned long time1=0;
+	unsigned checksum1 = OlxMod_GetChecksum(&time1);
+	if( time != time1 )
+	{
+		printf("CClient::ParseOlxModChecksum() - invalid checksum time, remote %u local %lu - ignoring checksum\n", time, time1);
+		return;
+	};
+	if( checksum1 != checksum )
+	{
+		printf("CClient::ParseOlxModChecksum() - invalid checksum - remote 0x%X local 0x%X - disconnecting\n", checksum, checksum1 );
+		bServerError = true;
+		strServerErrorMsg = "Network is de-synced! Restarting both client and server may help.\nNew modding system is unfinished yet, sorry for inconvenience.";
+		return;
+	};
+	printf("CClient::ParseOlxModChecksum() - time %u checksum 0x%X match\n", time, checksum);
+};

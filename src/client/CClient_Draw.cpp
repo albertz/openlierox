@@ -375,8 +375,6 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 // Main drawing routines
 void CClient::Draw(SDL_Surface * bmpDest)
 {
-	if( iNetStatus == NET_PLAYING_OLXMOD )
-		return;
 	// TODO: clean this function up
 	// currently both control structure and the drawing itself is in here
 
@@ -389,6 +387,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// Check for any communication errors
 	if(bServerError) {
+
+		// Stop any file downloads
+		if (bDownloadingMap && cHttpDownloader)
+			cHttpDownloader->CancelFileDownload(sMapDownloadName);
+		getUdpFileDownloader()->reset();
 
 		if(bDedicated) {
 			cout << "ERROR: servererror: " << strServerErrorMsg << endl;
@@ -404,6 +407,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		GotoNetMenu();
 		return;
 	}
+
+	if( iNetStatus == NET_PLAYING_OLXMOD )
+		return;
 
 	bool bScoreboard = true;
 
