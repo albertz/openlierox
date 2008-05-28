@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
 #ifdef DEBUG
-	setvbuf(stdout, NULL, _IOLBF, 0 );
+	setvbuf(stdout, NULL, _IOLBF, 1024 );
 #endif
 
 #ifdef _MSC_VER

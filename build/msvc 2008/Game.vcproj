@@ -749,6 +749,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\Event.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\FastVector.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\FindFile.cpp"
 				>
 				<FileConfiguration
@@ -925,6 +933,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IpToCountryDB.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Iterator.h"
 				>
 			</File>
 			<File

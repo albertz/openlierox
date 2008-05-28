@@ -326,7 +326,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			for(int i=cl->getNumWorms();i > 0 && i <= 2;i++) {
 				CWorm* w = cl->getWorm(i);
 				if (w) {
-					if (!i%2)
+					if (i & 1)
 						clientWorms += " ";
 					clientWorms += itoa(w->getID()) + "," + w->getName() + ".";
 				}
