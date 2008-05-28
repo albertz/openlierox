@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -176,7 +176,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -273,7 +273,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX_profile.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -370,7 +370,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
