@@ -44,7 +44,7 @@ void CClient::Clear(void)
 {
 
 #ifdef DEBUG
-	if (cRemoteWorms || cProjectiles || cBonuses)  {
+	if (cRemoteWorms || cBonuses)  {
 #ifdef _MSC_VER
 		__asm int 3; // Breakpoint
 #endif
