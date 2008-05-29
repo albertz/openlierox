@@ -8,7 +8,7 @@ struct Worm;
 
 struct SObjectType
 {
-	void create(int x, int y, Worm* owner);
+	void create(int x, int y, int owner);
 	
 	int startSound;
 	int numSounds;
@@ -32,7 +32,7 @@ struct SObject : ObjectListBase
 	
 	fixed x, y;
 	int id; // type
-	Worm* owner;
+	int owner;
 	int curFrame;
 	int animDelay;
 };

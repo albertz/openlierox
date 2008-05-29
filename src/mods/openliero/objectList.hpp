@@ -14,6 +14,8 @@ struct ObjectListBase
 	ObjectListBase* next;*/
 };
 
+// This struct cannot be copied, 'cause it contains pointers, 
+// but it can be saved/restored, 'cause it contains only pointers to itself.
 template<typename T, int Limit>
 struct ObjectList
 {

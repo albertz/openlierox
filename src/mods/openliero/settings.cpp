@@ -47,13 +47,12 @@ Settings::Settings()
 , screenSync(true)
 {
 	std::memset(weapTable, 0, sizeof(weapTable));
-	
+	/*
 	wormSettings[0].colour = 32;
 	wormSettings[1].colour = 41;
 	
 	wormSettings[0].selWeapX = 50; // TODO: Read from exe
 	wormSettings[1].selWeapX = 210;
-	
 	unsigned char defControls[2][7] =
 	{
 		{0x13, 0x21, 0x20, 0x22, 0x1D, 0x2A, 0x38},
@@ -65,7 +64,7 @@ Settings::Settings()
 		{26, 26, 63},
 		{15, 43, 15}
 	};
-	
+
 	for(int i = 0; i < 2; ++i)
 	{
 		for(int j = 0; j < 7; ++j)
@@ -78,6 +77,7 @@ Settings::Settings()
 			wormSettings[i].rgb[j] = defRGB[i][j];
 		}
 	}
+	*/
 }
 
 template<int L, int H>
@@ -93,6 +93,7 @@ inline int limit(int v)
 
 bool Settings::load(std::string const& path)
 {
+	// This function won't work anymore - should save options using OLX mode system
 	FILE* opt = tolerantFOpen(path.c_str(), "rb");
 	
 	if(!opt)
@@ -111,8 +112,8 @@ bool Settings::load(std::string const& path)
 	
 	screenSync = readUint8(opt) != 0;
 	map = readUint8(opt) != 0;
-	wormSettings[0].controller = readUint8(opt) & 0x1;
-	wormSettings[1].controller = readUint8(opt) & 0x1;
+	//wormSettings[0].controller = readUint8(opt) & 0x1;
+	//wormSettings[1].controller = readUint8(opt) & 0x1;
 	randomLevel = readUint8(opt) != 0;
 	blood = readUint16(opt);
 	gameMode = readUint8(opt);
@@ -126,7 +127,7 @@ bool Settings::load(std::string const& path)
 	{
 		weapTable[i] = limit<0, 3>(fgetc(opt));
 	}
-	
+	/*
 	for(int i = 0; i < 2; ++i)
 	for(int j = 0; j < 3; ++j)
 		wormSettings[i].rgb[j] = readUint8(opt) & 63;
@@ -146,13 +147,13 @@ bool Settings::load(std::string const& path)
 	{
 		wormSettings[i].name = readPascalString(opt, 21);
 	}
-	
+	*/
 	//fgetc(opt); // What's this?
 	
 	loadChange = readUint8(opt) != 0;
 	
 	// 0x7B-83 is the string LIERO
-	
+	/*
 	fseek(opt, 0x84, SEEK_SET);
 	for(int i = 0; i < 2; ++i)
 	{
@@ -162,8 +163,6 @@ bool Settings::load(std::string const& path)
 		}
 	}
 	
-	levelFile = readPascalString(opt, 9);
-	
 	for(int i = 0; i < 2; ++i)
 	{
 		if(wormSettings[i].name.empty())
@@ -171,6 +170,9 @@ bool Settings::load(std::string const& path)
 		else
 			wormSettings[i].randomName = false;
 	}
+	*/
+
+	levelFile = readPascalString(opt, 9);
 	
 	fclose(opt);
 	
@@ -179,6 +181,7 @@ bool Settings::load(std::string const& path)
 
 void Settings::save(std::string const& path)
 {
+	// This function won't work anymore - should save options using OLX mode system
 	// ----- Changed when importing to OLX -----
 	FILE* opt = OlxMod_OpenGameFile(path.c_str(), "wb");
 	// ----- Changed when importing to OLX -----
@@ -191,8 +194,8 @@ void Settings::save(std::string const& path)
 	
 	writeUint8(opt, screenSync);
 	writeUint8(opt, map);
-	writeUint8(opt, wormSettings[0].controller);
-	writeUint8(opt, wormSettings[1].controller);
+	//writeUint8(opt, wormSettings[0].controller);
+	//writeUint8(opt, wormSettings[1].controller);
 	writeUint8(opt, randomLevel);
 	writeUint16(opt, blood);
 	writeUint8(opt, gameMode);
@@ -201,7 +204,7 @@ void Settings::save(std::string const& path)
 	writeUint8(opt, shadow);
 	
 	fwrite(weapTable, 1, 40, opt);
-	
+	/*
 	for(int i = 0; i < 2; ++i)
 	for(int j = 0; j < 3; ++j)
 		writeUint8(opt, wormSettings[i].rgb[j]);
@@ -213,10 +216,8 @@ void Settings::save(std::string const& path)
 			writeUint8(opt, wormSettings[i].weapons[j]);
 		}
 	}
-
 	writeUint16(opt, wormSettings[0].health);
 	writeUint16(opt, wormSettings[1].health);
-
 	for(int i = 0; i < 2; ++i)
 	{
 		if(wormSettings[i].randomName)
@@ -224,6 +225,7 @@ void Settings::save(std::string const& path)
 		else
 			writePascalString(opt, wormSettings[i].name, 21);
 	}
+	*/
 	
 	//fputc(0, opt); // What's this?
 	
@@ -232,7 +234,7 @@ void Settings::save(std::string const& path)
 	char const lieroStr[] = "\x05LIERO\0\0";
 	
 	fwrite(lieroStr, 1, sizeof(lieroStr), opt);
-	
+	/*
 	//fseek(opt, 0x84, SEEK_SET);
 	for(int i = 0; i < 2; ++i)
 	{
@@ -241,7 +243,7 @@ void Settings::save(std::string const& path)
 			writeUint8(opt, wormSettings[i].controls[j]);
 		}
 	}
-	
+	*/
 	writePascalString(opt, levelFile, 9);
 	
 	fclose(opt);

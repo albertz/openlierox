@@ -1,10 +1,11 @@
 #ifndef LIERO_WORM_HPP
 #define LIERO_WORM_HPP
 
-#include "math.hpp"
 #include <SDL/SDL.h>
 #include <string>
 #include <cstring>
+#include "math.hpp"
+#include "viewport.hpp"
 
 struct Worm;
 
@@ -13,13 +14,13 @@ struct Ninjarope
 	Ninjarope()
 	: out(false)
 	, attached(false)
-	, anchor(0)
+	, anchor(-1)
 	{
 	}
 	
 	bool out;            //Is the ninjarope out?
 	bool attached;
-	Worm* anchor;			// If non-zero, the worm the ninjarope is attached to
+	int anchor;			// If non-zero, the worm the ninjarope is attached to
 	fixed x, y, velX, velY; //Ninjarope props
 	// Not needed as far as I can tell: fixed forceX, forceY;
 	int length, curLen;
@@ -68,8 +69,10 @@ struct WormSettings
 		rgb[0] = 26;
 		rgb[1] = 26;
 		rgb[2] = 62;
+		selWeapX = 0;
 		
 		std::memset(weapons, 0, sizeof(weapons));
+		std::memset(controls, 0, sizeof(controls));
 	}
 	
 	int health;
@@ -126,7 +129,7 @@ struct Worm
 	};
 		
 	// ----- Changed when importing to OLX -----
-	Worm(WormSettings* settings=NULL, int index=-1, int wormSoundID=-1)
+	Worm(const WormSettings & settings, int index=-1, int wormSoundID=-1)
 	// ----- Changed when importing to OLX -----
 	: x(0), y(0), velX(0), velY(0)
 	, hotspotX(0), hotspotY(0)
@@ -152,7 +155,7 @@ struct Worm
 	, fireCone(0)
 	, leaveShellTimer(0)
 	, settings(settings)
-	, viewport(0)
+	//, viewport(0)
 	, index(index)
 	, wormSoundID(wormSoundID)
 	, direction(0)
@@ -163,37 +166,37 @@ struct Worm
 	
 	int keyLeft()
 	{
-		return settings->controls[WormSettings::Left];
+		return settings.controls[WormSettings::Left];
 	}
 	
 	int keyRight()
 	{
-		return settings->controls[WormSettings::Right];
+		return settings.controls[WormSettings::Right];
 	}
 	
 	int keyUp()
 	{
-		return settings->controls[WormSettings::Up];
+		return settings.controls[WormSettings::Up];
 	}
 	
 	int keyDown()
 	{
-		return settings->controls[WormSettings::Down];
+		return settings.controls[WormSettings::Down];
 	}
 	
 	int keyFire()
 	{
-		return settings->controls[WormSettings::Fire];
+		return settings.controls[WormSettings::Fire];
 	}
 	
 	int keyChange()
 	{
-		return settings->controls[WormSettings::Change];
+		return settings.controls[WormSettings::Change];
 	}
 	
 	int keyJump()
 	{
-		return settings->controls[WormSettings::Jump];
+		return settings.controls[WormSettings::Jump];
 	}
 	
 	void beginRespawn();
@@ -242,12 +245,12 @@ struct Worm
 	
 	int currentWeapon;           //The selected weapon
 	bool fireConeActive;          //Is the firecone showing
-	Worm* lastKilledBy;          // What worm that last killed this worm
+	int lastKilledBy;          // What worm that last killed this worm
 	int fireCone;                //How much is left of the firecone
 	int leaveShellTimer;         //Time until next shell drop
 	
-	WormSettings* settings;
-	Viewport* viewport;
+	WormSettings settings;
+	Viewport viewport;
 	int index; // 0 or 1
 	int wormSoundID;
 	

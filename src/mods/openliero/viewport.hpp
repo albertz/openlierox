@@ -2,12 +2,11 @@
 #define LIERO_VIEWPORT_HPP
 
 #include "rect.hpp"
-#include "worm.hpp"
 
 struct Viewport
 {
 	// ----- Changed when importing to OLX -----
-	Viewport(Rect rect = Rect(0,0,0,0), Worm* worm = NULL, int inGameX=0, int levwidth=0, int levheight=0)
+	Viewport(Rect rect = Rect(0,0,0,0), int worm = -1, int inGameX=0, int levwidth=0, int levheight=0)
 	// ----- Changed when importing to OLX -----
 	: worm(worm)
 	, bannerY(-8)
@@ -21,17 +20,13 @@ struct Viewport
 		x = 0;
 		y = 0;
 		shake = 0;
-		// ----- Changed when importing to OLX -----
-		if( worm )
-			worm->viewport = this;
-		// ----- Changed when importing to OLX -----
 	}
 	
 	int x, y;
 	int shake;
 	int maxX, maxY;
 	int centerX, centerY;
-	Worm* worm;
+	int worm;
 	int bannerY;
 	
 	int inGameX; // 0 for first, 218 for second

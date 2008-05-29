@@ -25,8 +25,8 @@ void selectWeapons()
 	{
 		bool weapUsed[256] = {};
 		
-		Worm& worm = *game.worms[i];
-		WormSettings& ws = *worm.settings;
+		Worm& worm = game.worms[i];
+		WormSettings& ws = worm.settings;
 		
 		menus[i].items.push_back(MenuItem(1, 1, game.texts.randomize));
 		
@@ -79,7 +79,7 @@ void selectWeapons()
 	
 	for(int i = 0; i < 2; ++i)
 	{
-		WormSettings& ws = game.settings.wormSettings[i];
+		WormSettings& ws = game.worms[i].settings;
 		int selWeapX = ws.selWeapX;
 		int width = gfx.font.getWidth(ws.name);
 		drawRoundedBox(selWeapX + 29 - width/2, 18, 0, 7, width);
@@ -107,8 +107,8 @@ void selectWeapons()
 		{
 			int weapID = curSel[i] - 1;
 			
-			Worm& worm = *game.worms[i];
-			WormSettings& ws = *worm.settings;
+			Worm& worm = game.worms[i];
+			WormSettings& ws = worm.settings;
 			
 			if(!isReady[i])
 			{
@@ -357,7 +357,7 @@ void selectWeapons()
 	
 	for(std::size_t i = 0; i < game.worms.size(); ++i)
 	{
-		Worm& worm = *game.worms[i];
+		Worm& worm = game.worms[i];
 		
 		worm.currentWeapon = 0; // It was 1 in OpenLiero A1
 		
@@ -368,7 +368,7 @@ void selectWeapons()
 		
 		for(int j = 0; j < 6; ++j)
 		{
-			gfx.releaseKey(worm.settings->controls[j]);
+			gfx.releaseKey(worm.settings.controls[j]);
 		}
 	}
 }

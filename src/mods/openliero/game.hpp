@@ -108,12 +108,10 @@ struct Game
 {
 	~Game();
 	
-	void clearViewports();
-	void addViewport(Viewport*);
 	void processViewports();
 	void drawViewports();
 	void clearWorms();
-	void addWorm(Worm*);
+	void addWorm(const Worm &);
 	void resetWorms();
 	void initGame();
 	void draw();
@@ -154,7 +152,7 @@ struct Game
 	std::string oldLevelFile;
 	
 	int cycles;
-	Worm* lastKilled; // Last killed worm
+	int lastKilled; // Last killed worm
 	bool gotChanged;
 	// ----- Changed when importing to OLX -----
 	NetSyncedRand rand;
@@ -162,8 +160,8 @@ struct Game
 
 	std::string settingsFile; // Currently loaded settings file
 	
-	std::vector<Viewport*> viewports;
-	std::vector<Worm*> worms;
+	std::vector<Viewport> viewports;
+	std::vector<Worm> worms;
 	
 	typedef ObjectList<Bonus, 99> BonusList;
 	typedef ObjectList<WObject, 600> WObjectList;

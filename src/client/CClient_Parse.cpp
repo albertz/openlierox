@@ -461,6 +461,40 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bForceWeaponsReady = false;
 
 	int random = bs->readInt(1);
+	std::string sMapName;
+	if(!random)
+		sMapName = bs->readString();
+
+	// Other game details
+	iGameType = bs->readInt(1);
+	iLives = bs->readInt16();
+	iMaxKills = bs->readInt16();
+	iTimeLimit = bs->readInt16();
+	int l = bs->readInt16();
+	fLoadingTime = (float)l/100.0f;
+	bBonusesOn = bs->readBool();
+	bShowBonusName = bs->readBool();
+
+	if(iGameType == GMT_TAG)
+		iTagLimit = bs->readInt16();
+
+	// Load the gamescript
+	sModName = bs->readString();
+
+	// Bad packet
+	if (sModName == "")  {
+		printf("CClient::ParsePrepareGame: invalid mod name (none)\n");
+		bGameReady = false;
+		return false;
+	}
+
+	if( OlxMod_IsModInList(sModName) )
+	{
+		printf("CClient::ParsePrepareGame: ignoring packet from OlxMod - it should kick old clients\n");
+		bs->Skip(2); // Weapon restrictions
+		bGameReady = false;
+		return true;
+	};
 
 	// Clear any previous instances of the map
 	if(tGameInfo.iGameType == GME_JOIN) {
@@ -524,10 +558,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	} else {
 
 		// Load the map from a file
-		std::string buf = bs->readString();
 
 		// Invalid packet
-		if (buf == "")  {
+		if (sMapName == "")  {
 			printf("CClient::ParsePrepareGame: bad map name (none)\n");
 			bGameReady = false;
 			return false;
@@ -535,12 +568,12 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		if(tGameInfo.iGameType == GME_JOIN) {
 			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-			if(!cMap->Load(buf)) {
+			if(!cMap->Load(sMapName)) {
 				// Show a cannot load level error message
 
 				FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
 				std::string err;
-				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
+				err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
 				Menu_MessageBox("Loading Error",err, LMB_OK);
                 bClientError = true;
@@ -549,7 +582,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				QuittoMenu();
 				bGameReady = false;
 
-				printf("CClient::ParsePrepareGame: could not load map "+buf+"\n");
+				printf("CClient::ParsePrepareGame: could not load map "+sMapName+"\n");
 				return false;
 			}
 		} else {
@@ -569,29 +602,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	PhysicsEngine::Get()->initGame(cMap, this);
-
-	// Other game details
-	iGameType = bs->readInt(1);
-	iLives = bs->readInt16();
-	iMaxKills = bs->readInt16();
-	iTimeLimit = bs->readInt16();
-	int l = bs->readInt16();
-	fLoadingTime = (float)l/100.0f;
-	bBonusesOn = bs->readBool();
-	bShowBonusName = bs->readBool();
-
-	if(iGameType == GMT_TAG)
-		iTagLimit = bs->readInt16();
-
-	// Load the gamescript
-	sModName = bs->readString();
-
-	// Bad packet
-	if (sModName == "")  {
-		printf("CClient::ParsePrepareGame: invalid mod name (none)\n");
-		bGameReady = false;
-		return false;
-	}
 
 	cGameScript = cCache.GetMod( sModName );
 	if( cGameScript.get() == NULL )

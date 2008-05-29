@@ -5,7 +5,7 @@
 #include "bobject.hpp"
 #include <iostream>
 
-void NObjectType::create1(fixed velX, fixed velY, int x, int y, int colour, Worm* owner)
+void NObjectType::create1(fixed velX, fixed velY, int x, int y, int colour, int owner)
 {
 	NObject& obj = *game.nobjects.newObjectReuse();
 
@@ -43,7 +43,7 @@ void NObjectType::create1(fixed velX, fixed velY, int x, int y, int colour, Worm
 	
 }
 
-void NObjectType::create2(int angle, fixed velX, fixed velY, fixed x, fixed y, int colour, Worm* owner)
+void NObjectType::create2(int angle, fixed velX, fixed velY, fixed x, fixed y, int colour, int owner)
 {
 	NObject& obj = *game.nobjects.newObjectReuse();
 
@@ -212,7 +212,7 @@ void NObject::process()
 		{
 			for(std::size_t i = 0; i < game.worms.size(); ++i)
 			{
-				Worm& w = *game.worms[i];
+				Worm& w = game.worms[i];
 				
 				if(checkForSpecWormHit(ftoi(x), ftoi(y), t.detectDistance, w))
 				{
@@ -348,9 +348,3 @@ void NObject::process()
 	}
 }
 
-/*
-
-
-   
-*/
-   

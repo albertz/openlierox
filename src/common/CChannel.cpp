@@ -284,11 +284,11 @@ void TestCChannelRobustness()
 	bsTest.Test();
 	printf("\n\n\n\nTesting CChannel robustness\n");
 	int lagMin = 100;
-	int lagMax = 300;
-	int packetLoss = 10; // In percents
-	float packetsPerSecond1 = 10; // One channel sends faster than another
+	int lagMax = 500;
+	int packetLoss = 15; // In percents
+	float packetsPerSecond1 = 5.0f; // One channel sends faster than another
 	float packetsPerSecond2 = 0.2f;
-	int packetExtraData = 32; // Extra data in bytes to add to packet to check buffer overflows
+	int packetExtraData = 0; // Extra data in bytes to add to packet to check buffer overflows
 	
 	CChannel_056b c1, c2;
 	NetworkSocket s1 = OpenUnreliableSocket(0);
@@ -316,7 +316,7 @@ void TestCChannelRobustness()
 		packetDelay2 = 1000.0f / packetsPerSecond2;
 	float nextPacket1 = 0;
 	float nextPacket2 = 0;
-	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
+	for( int testtime=0; testtime < 500000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
 	{
 		tLX->fCurTime = testtime / 1000.0f;
 		

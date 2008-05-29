@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include <iostream>
 
-void Weapon::fire(int angle, fixed velX, fixed velY, int speed, fixed x, fixed y, Worm* owner)
+void Weapon::fire(int angle, fixed velX, fixed velY, int speed, fixed x, fixed y, int owner)
 {
 	WObject* obj = game.wobjects.newObjectReuse();
 	
@@ -70,7 +70,7 @@ void Weapon::fire(int angle, fixed velX, fixed velY, int speed, fixed x, fixed y
 		obj->timeLeft -= game.rand(timeToExploV);
 }
 
-void WObject::blowUpObject(Worm* owner)
+void WObject::blowUpObject(int owner)
 {
 	Weapon& w = game.weapons[id];
 	
@@ -149,8 +149,8 @@ void WObject::process()
 			fixed newVelX = dirX * w.speed / 100;
 			fixed newVelY = dirY * w.speed / 100;
 			
-			if(owner->visible
-			&& gfx.testKey(owner->keyUp()))
+			if(game.worms[owner].visible
+			&& gfx.testKey(game.worms[owner].keyUp()))
 			{
 				newVelX += w.addSpeed * dirX / 100;
 				newVelY += w.addSpeed * dirY / 100;
@@ -348,7 +348,7 @@ void WObject::process()
 		
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& worm = *game.worms[i];
+			Worm& worm = game.worms[i];
 			
 			// TODO: The original tests wobjblood, which may not be 0 when w.bloodOnHit is.
 			// Change to use that here too.
@@ -369,7 +369,7 @@ void WObject::process()
 				
 				for(int i = 0; i < bloodAmount; ++i)
 				{
-					game.nobjectTypes[6].create2(game.rand(128), velX / 3, velY / 3, x, y, 0, &worm);
+					game.nobjectTypes[6].create2(game.rand(128), velX / 3, velY / 3, x, y, 0, worm.index);
 				}
 								
 				if(w.hitDamage > 0

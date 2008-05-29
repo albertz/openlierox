@@ -205,7 +205,7 @@ struct Gfx
 	bool doubleRes;
 	Uint32 lastFrame;
 	int menuCyclic;
-	Rand rand; // PRNG for things that don't affect the game
+	//Rand rand; // PRNG for things that don't affect the game
 };
 
 void fillRect(int x, int y, int w, int h, int colour);

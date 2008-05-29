@@ -455,10 +455,10 @@ void drawLaserSight(int fromX, int fromY, int toX, int toY)
 	
 	DO_LINE({
 		
-		if(gfx.rand(5) == 0)
+		if(game.rand(5) == 0)
 		{
 			if(isInside(clip, cx, cy))
-				ptr[cy*pitch + cx] = gfx.rand(2) + 83;
+				ptr[cy*pitch + cx] = game.rand(2) + 83;
 		}
 	});
 }

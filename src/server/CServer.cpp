@@ -264,7 +264,6 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	return true;
 }
 
-
 ///////////////////
 // Start the game
 int GameServer::StartGame()
@@ -291,15 +290,31 @@ int GameServer::StartGame()
 	printf("GameServer::StartGame() mod %s\n", sModName.c_str());
 	if( OlxMod_IsModInList(sModName) )
 	{
-		printf("GameServer::StartGame() mod %s - in OlxMod list\n", sModName.c_str());
+		// Kick old clients - they will see they don't have that mod and leave
+		bs.writeByte(S2C_PREPAREGAME);
+		bs.writeBool(false); // Map not random
+		bs.writeString("levels/Dirt Level.lxl");
+		// Game info - some random values
+		bs.writeInt(0,1); // Game type - free for all
+		bs.writeInt16(10);
+		bs.writeInt16(10);
+		bs.writeInt16((int)0);
+		bs.writeInt16(100);
+		bs.writeBool(true);
+		bs.writeBool(true);
+		bs.writeString(sModName); // The mod name - old clients won't have it!
+		bs.writeInt(0, 2); // Empty weapon restrictions
+		SendGlobalPacket(&bs);
+		
 		iState = SVS_PLAYING_OLXMOD;
 		iServerFrame = 0;
-	    bGameOver = false;
+		bGameOver = false;
 		tOlxMod_DisconnectedClients.clear();
 		fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
 		iOlxMod_LastChecksumTime = 0;
 		fOlxMod_LastChecksumTimeDelay = 0;
-		
+	
+		bs.Clear();
 		bs.writeByte(S2C_OLXMOD_START);
 		bs.writeString( sModName );
 		bs.writeInt( OlxMod_GameSpeed_Fast, 1 );
@@ -307,8 +322,10 @@ int GameServer::StartGame()
 		bs.writeInt( 0, 1 ); // Zero options for now
 		bs.writeInt( 0, 1 ); // Zero weapon banlist for now
 		SendGlobalPacket(&bs);
+
 		return true;
 	};
+
 
 	// Check
 	if (!cWorms)

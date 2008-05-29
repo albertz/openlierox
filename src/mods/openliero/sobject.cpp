@@ -11,7 +11,7 @@
 #include <cassert>
 #include <iostream> // TEMP
 
-void SObjectType::create(int x, int y, Worm* owner)
+void SObjectType::create(int x, int y, int owner)
 {
 	SObject& obj = *game.sobjects.newObjectReuse();
 	
@@ -22,7 +22,7 @@ void SObjectType::create(int x, int y, Worm* owner)
 		
 	for(std::size_t i = 0; i < game.viewports.size(); ++i)
 	{
-		Viewport& v = *game.viewports[i];
+		Viewport& v = game.worms[i].viewport;
 		
 		if(x > v.x
 		&& x < v.x + v.rect.width()
@@ -49,7 +49,7 @@ void SObjectType::create(int x, int y, Worm* owner)
 	{
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& w = *game.worms[i];
+			Worm& w = game.worms[i];
 			
 			int wix = ftoi(w.x);
 			int wiy = ftoi(w.y);
@@ -105,7 +105,7 @@ void SObjectType::create(int x, int y, Worm* owner)
 								w.velX / 3, w.velY / 3,
 								w.x, w.y,
 								0,
-								&w);
+								w.index);
 						}
 					}
 					

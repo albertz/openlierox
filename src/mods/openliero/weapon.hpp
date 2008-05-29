@@ -5,8 +5,6 @@
 #include "objectList.hpp"
 #include <string>
 
-struct Worm;
-
 struct Weapon
 {
 	enum
@@ -18,7 +16,7 @@ struct Weapon
 		STLaser
 	};
 	
-	void fire(int angle, fixed velX, fixed velY, int speed, fixed x, fixed y, Worm* owner);
+	void fire(int angle, fixed velX, fixed velY, int speed, fixed x, fixed y, int owner);
 
 	int detectDistance;
 	bool affectByWorm;
@@ -76,13 +74,13 @@ struct Weapon
 
 struct WObject : ObjectListBase
 {
-	void blowUpObject(Worm* owner);
+	void blowUpObject(int owner);
 	void process();
 	
 	fixed x, y;
 	fixed velX, velY;
 	int id;
-	Worm* owner;
+	int owner;
 	int curFrame;
 	int timeLeft;
 };

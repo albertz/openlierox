@@ -44,8 +44,6 @@ struct Settings
 	std::string levelFile;
 	bool map;
 	bool screenSync;
-	
-	WormSettings wormSettings[OLXMOD_MAX_PLAYERS];
 };
 
 #endif // LIERO_SETTINGS_HPP

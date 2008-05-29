@@ -90,14 +90,11 @@ void Texts::loadFromEXE()
 
 Game::~Game()
 {
-	clearViewports();
-	clearWorms();
 }
 
 void Game::initGame()
 {
 	clearWorms();
-	clearViewports();
 	
 	bonuses.clear();
 	wobjects.clear();
@@ -105,19 +102,21 @@ void Game::initGame()
 	bobjects.clear();
 	nobjects.clear();
 	
-	Worm* worm1 = new Worm(&game.settings.wormSettings[0], 0, 19);
-	Worm* worm2 = new Worm(&game.settings.wormSettings[1], 1, 20);
+	/*
+	Worm worm1(&game.settings.wormSettings[0], 0, 19);
+	Worm worm2(&game.settings.wormSettings[1], 1, 20);
 	
 	addViewport(new Viewport(Rect(0, 0, 158, 158), worm1, 0, 504, 350));
 	addViewport(new Viewport(Rect(160, 0, 158+160, 158), worm2, 218, 504, 350));
 	
 	addWorm(worm1);
 	addWorm(worm2);
+	*/
 	
 	// TODO: Move as much of this as possible into the Worm ctor
 	for(std::size_t i = 0; i < worms.size(); ++i)
 	{
-		Worm& w = *worms[i];
+		Worm& w = worms[i];
 		w.makeSightGreen = false;
 		w.lives = game.settings.lives;
 		w.ready = true;
@@ -134,7 +133,7 @@ void Game::initGame()
 			w.direction = 1;
 		}
 
-		w.health = w.settings->health;
+		w.health = w.settings.health;
 		w.visible = false;
 		w.killedTimer = 150;
 		
@@ -151,44 +150,28 @@ void Game::initGame()
 	}
 	
 	gotChanged = false;
-	lastKilled = 0;
+	lastKilled = -1;
 }
-
-void Game::clearViewports()
-{
-	for(std::size_t i = 0; i < viewports.size(); ++i)
-		delete viewports[i];
-	viewports.clear();
-}
-
-void Game::addViewport(Viewport* vp)
-{
-	viewports.push_back(vp);
-}
-
-
 
 void Game::processViewports()
 {
-	for(std::size_t i = 0; i < viewports.size(); ++i)
+	for(std::size_t i = 0; i < worms.size(); ++i)
 	{
-		viewports[i]->process();
+		worms[i].viewport.process();
 	}
 }
 
 void Game::drawViewports()
 {
 	gfx.clear();
-	for(std::size_t i = 0; i < viewports.size(); ++i)
+	for(std::size_t i = 0; i < worms.size(); ++i)
 	{
-		viewports[i]->draw();
+		worms[i].viewport.draw();
 	}
 }
 
 void Game::clearWorms()
 {
-	for(std::size_t i = 0; i < worms.size(); ++i)
-		delete worms[i];
 	worms.clear();
 }
 
@@ -196,8 +179,8 @@ void Game::resetWorms()
 {
 	for(std::size_t i = 0; i < worms.size(); ++i)
 	{
-		Worm& w = *worms[i];
-		w.health = w.settings->health;
+		Worm& w = worms[i];
+		w.health = w.settings.health;
 		w.lives = settings.lives; // Not in the original!
 		w.kills = 0;
 		w.visible = false;
@@ -207,7 +190,7 @@ void Game::resetWorms()
 	}
 }
 
-void Game::addWorm(Worm* worm)
+void Game::addWorm(const Worm & worm)
 {
 	worms.push_back(worm);
 }
@@ -597,8 +580,8 @@ void Game::startGame(bool isStartingGame)
 		
 		for(std::size_t i = 0; i < viewports.size(); ++i)
 		{
-			viewports[i]->x = 0;
-			viewports[i]->y = 0;
+			worms[i].viewport.x = 0;
+			worms[i].viewport.y = 0;
 		}
 
 		selectWeapons();
@@ -631,12 +614,12 @@ void Game::startGame(bool isStartingGame)
 			
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			worms[i]->process();
+			worms[i].process();
 		}
 		
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			worms[i]->ninjarope.process(*worms[i]);
+			worms[i].ninjarope.process(worms[i]);
 		}
 		
 		switch(game.settings.gameMode)
@@ -646,7 +629,7 @@ void Game::startGame(bool isStartingGame)
 			bool someInvisible = false;
 			for(std::size_t i = 0; i < worms.size(); ++i)
 			{
-				if(!worms[i]->visible)
+				if(!worms[i].visible)
 				{
 					someInvisible = true;
 					break;
@@ -656,9 +639,9 @@ void Game::startGame(bool isStartingGame)
 			if(!someInvisible
 			&& lastKilled
 			&& (cycles % 70) == 0
-			&& lastKilled->timer < settings.timeToLose)
+			&& worms[lastKilled].timer < settings.timeToLose)
 			{
-				++lastKilled->timer;
+				++worms[lastKilled].timer;
 			}
 		}
 		break;
@@ -674,13 +657,13 @@ void Game::startGame(bool isStartingGame)
 		
 		if((cycles & 1) == 0)
 		{
-			for(std::size_t i = 0; i < viewports.size(); ++i)
+			for(std::size_t i = 0; i < worms.size(); ++i)
 			{
-				Viewport& v = *viewports[i];
+				Viewport& v = worms[i].viewport;
 				
 				bool down = false;
 				
-				if(v.worm->killedTimer > 16)
+				if(worms[i].killedTimer > 16)
 					down = true;
 					
 				if(down)
@@ -748,10 +731,10 @@ void Game::startGame(bool isStartingGame)
 			shutDown = true;
 		}
 		
-		for(std::size_t i = 0; i < viewports.size(); ++i)
+		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			if(viewports[i]->shake > 0)
-				viewports[i]->shake -= 4000; // TODO: Read 4000 from exe?
+			if(worms[i].viewport.shake > 0)
+				worms[i].viewport.shake -= 4000; // TODO: Read 4000 from exe?
 		}
 		
 		if(gfx.testSDLKeyOnce(SDLK_ESCAPE)
@@ -787,7 +770,7 @@ bool Game::isGameOver()
 	{
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			if(worms[i]->lives <= 0)
+			if(worms[i].lives <= 0)
 				return true;
 		}
 	}
@@ -795,7 +778,7 @@ bool Game::isGameOver()
 	{
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			if(worms[i]->timer >= game.settings.timeToLose)
+			if(worms[i].timer >= game.settings.timeToLose)
 				return true;
 		}
 	}
@@ -804,7 +787,7 @@ bool Game::isGameOver()
 	{
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			if(worms[i]->flags >= game.settings.flagsToWin)
+			if(worms[i].flags >= game.settings.flagsToWin)
 				return true;
 		}
 	}

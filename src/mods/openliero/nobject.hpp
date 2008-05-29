@@ -4,12 +4,10 @@
 #include "math.hpp"
 #include "objectList.hpp"
 
-struct Worm;
-
 struct NObjectType
 {
-	void create1(fixed velX, fixed velY, int x, int y, int colour, Worm* owner);
-	void create2(int angle, fixed velX, fixed velY, fixed x, fixed y, int colour, Worm* owner);
+	void create1(fixed velX, fixed velY, int x, int y, int colour, int owner);
+	void create2(int angle, fixed velX, fixed velY, fixed x, fixed y, int colour, int owner);
 
 	int detectDistance;
 	fixed gravity;
@@ -51,7 +49,7 @@ struct NObject : ObjectListBase
 	fixed velX, velY;
 	int timeLeft;
 	int id;
-	Worm* owner;
+	int owner;
 	int curFrame;
 };
 

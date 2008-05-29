@@ -30,7 +30,7 @@ try
 {
 	// TODO: Better PRNG seeding
 	Console::init();
-	gfx.rand.seed(Uint32(std::time(0)));
+	//gfx.rand.seed(Uint32(std::time(0)));
 	
 	bool exeSet = false;
 	

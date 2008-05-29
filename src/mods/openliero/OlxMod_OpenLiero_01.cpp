@@ -1,6 +1,7 @@
 
 // Hooks in OpenLiero code for OLX modding system
 
+#include <new>	// for placement new operator
 #include "OLXModInterface.h"
 using namespace OlxMod;
 //#include "GfxPrimitives.h"
@@ -34,6 +35,8 @@ bool bSelectingWeapons = true;
 int curSel[OLXMOD_MAX_PLAYERS];
 bool isReady[OLXMOD_MAX_PLAYERS];
 Menu menus[OLXMOD_MAX_PLAYERS];
+int SelWeaponTimeout[OLXMOD_MAX_PLAYERS];
+static int SelWeaponTimeoutValue = 500; // 5 seconds, or so - if user won't press any key it's weapons will be selected
 int fadeValue = 0;
 int enabledWeaps = 0;
 
@@ -74,6 +77,7 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 		curSel[f]=0;
 		isReady[f]=false;
 		menus[f]=Menu();
+		SelWeaponTimeout[f] = 0;
 	};
 
 	for( int f = 0; f < MAX_KEYS * OLXMOD_MAX_PLAYERS; f++ )
@@ -81,6 +85,11 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 		keys[f] = false;
 		keysChanged[f] = false;
 	}
+	
+	// Clean up previous game state
+	game.~Game();
+	memset(&game, 0, sizeof(game));
+	new ( &game ) Game;
 	
 	game.texts.loadFromEXE();
 	initKeys();
@@ -111,11 +120,12 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	
 	game.settings = Settings();
 	
+	game.initGame_OlxMod_01();
+	
 	game.generateLevel();
 	game.resetWorms();
 	gfx.pal.clear();	
 
-	game.initGame_OlxMod_01();
 	game.cycles = 0;
 
 	bSelectingWeapons = true;
@@ -137,6 +147,7 @@ struct savedState_t
 	int curSel[OLXMOD_MAX_PLAYERS];
 	bool isReady[OLXMOD_MAX_PLAYERS];
 	Menu menus[OLXMOD_MAX_PLAYERS];
+	int SelWeaponTimeout[OLXMOD_MAX_PLAYERS];
 
 	int fadeValue;
 	int enabledWeaps;
@@ -146,9 +157,6 @@ struct savedState_t
 	
 	// Game
 	Game game;
-	
-	Worm worms[OLXMOD_MAX_PLAYERS];
-	Viewport viewports[OLXMOD_MAX_PLAYERS];
 	
 	bool keys [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
 	bool keysChanged [ MAX_KEYS * OLXMOD_MAX_PLAYERS ];
@@ -162,7 +170,6 @@ void OlxMod_DeInitFunc()
 	savedState.game.viewports.clear();
 	savedState.game.worms.clear();
 
-	game.clearViewports();
 	game.clearWorms();
 	closeAllCachedFiles();
 	SDL_FreeSurface(gfx.screen);
@@ -182,8 +189,6 @@ void OlxMod_SaveState()
 	savedState.game = game;	// Big big bulky copy - TODO: optimize that
 	for( int f=0; f<numPlayers; f++ )
 	{
-		savedState.worms[f] = *game.worms[f];
-		savedState.viewports[f] = *game.viewports[f];
 		for( int f1=0; f1<MAX_KEYS; f1++ )
 		{
 			savedState.keys[f1+f*MAX_KEYS] = keys[f1+f*MAX_KEYS];
@@ -192,6 +197,7 @@ void OlxMod_SaveState()
 		savedState.curSel[f] = curSel[f];
 		savedState.isReady[f] = isReady[f];
 		savedState.menus[f] = menus[f];
+		savedState.SelWeaponTimeout[f] = SelWeaponTimeout[f];
 	};
 	// Hopefully I didn't miss something
 };
@@ -208,8 +214,6 @@ void OlxMod_RestoreState()
 	game = savedState.game;
 	for( int f=0; f<numPlayers; f++ )
 	{
-		*game.worms[f] = savedState.worms[f];
-		*game.viewports[f] = savedState.viewports[f];
 		for( int f1=0; f1<MAX_KEYS; f1++ )
 		{
 			keys[f1+f*MAX_KEYS] = savedState.keys[f1+f*MAX_KEYS];
@@ -218,6 +222,7 @@ void OlxMod_RestoreState()
 		curSel[f] = savedState.curSel[f];
 		isReady[f] = savedState.isReady[f];
 		menus[f] = savedState.menus[f];
+		SelWeaponTimeout[f] = savedState.SelWeaponTimeout[f];
 	};
 };
 
@@ -266,23 +271,15 @@ unsigned OlxMod_CalculatePhysics( unsigned gameTime, const std::map< int, OlxMod
 		unsigned worms=0;
 		for( f=0; f < game.worms.size(); f++ )
 		{
-			worms += game.worms[f]->x;
-			worms += game.worms[f]->y*100;
-			worms += game.worms[f]->velX*10000;
-			worms += game.worms[f]->velY*1000000;
-			worms += game.worms[f]->aimingAngle*100000000;
+			worms += game.worms[f].x;
+			worms += game.worms[f].y*100;
+			worms += game.worms[f].velX*10000;
+			worms += game.worms[f].velY*1000000;
+			worms += game.worms[f].aimingAngle*100000000;
+			worms += game.worms[f].viewport.x*1000000;
+			worms += game.worms[f].viewport.y*100000000;
 		}
 		checksum += worms;
-
-		unsigned viewports=0;
-		for( f=0; f < game.viewports.size(); f++ )
-		{
-			viewports += game.viewports[f]->x;
-			viewports += game.viewports[f]->y*100;
-			viewports += game.viewports[f]->centerX*10000;
-			viewports += game.viewports[f]->centerY*1000000;
-		}
-		checksum += viewports;
 		checksum += game.rand();
 		//printf( "OpenLiero checksums for time %i sec: level 0x%X, worms 0x%X viewports 0x%X random 0x%X total 0x%X\n", gameTime / 1000, level, worms, viewports, random, total );
 	};
@@ -298,7 +295,7 @@ void OlxMod_Draw( bool showScoreboard )
 		for(int x = 0; x < 120; ++x)
 			gfx.screenPixels[ y * 320 + x ] = 0;
 	if( ! bSelectingWeapons )
-		game.viewports[localPlayer]->draw();
+		game.worms[localPlayer].viewport.draw();
 	gfx.flip_OlxMod_01();
 };
 
@@ -380,8 +377,8 @@ void selectWeaponsInit_OlxMod_01()
 	{
 		bool weapUsed[256] = {};
 		
-		Worm& worm = *game.worms[i];
-		WormSettings& ws = *worm.settings;
+		Worm& worm = game.worms[i];
+		WormSettings& ws = worm.settings;
 		
 		menus[i].items.clear();
 		menus[i].items.push_back(MenuItem(1, 1, game.texts.randomize));
@@ -433,7 +430,7 @@ void selectWeaponsInit_OlxMod_01()
 	
 	gfx.font.drawText(game.texts.selWeap, 116, 3, 50);
 	
-	WormSettings& ws = game.settings.wormSettings[0];
+	WormSettings& ws = game.worms[0].settings;
 	int selWeapX = ws.selWeapX;
 	int width = gfx.font.getWidth(ws.name);
 	drawRoundedBox(selWeapX + 29 - width/2, 18, 0, 7, width);
@@ -499,8 +496,8 @@ void selectWeaponsLoop_OlxMod_01()
 		{
 			int weapID = curSel[i] - 1;
 			
-			Worm& worm = *game.worms[i];
-			WormSettings& ws = *worm.settings;
+			Worm& worm = game.worms[i];
+			WormSettings& ws = worm.settings;
 			
 			if(!isReady[i])
 			{
@@ -524,6 +521,7 @@ void selectWeaponsLoop_OlxMod_01()
 						int w = game.weapOrder[ws.weapons[weapID]];
 						worm.weapons[weapID].id = w;
 						menus[i].items[curSel[i]].string = game.weapons[w].name;
+						SelWeaponTimeout[i] = 0;
 					}
 					
 					if( gfx.testKeyOnce(worm.keyRight()) )
@@ -541,6 +539,7 @@ void selectWeaponsLoop_OlxMod_01()
 						int w = game.weapOrder[ws.weapons[weapID]];
 						worm.weapons[weapID].id = w;
 						menus[i].items[curSel[i]].string = game.weapons[w].name;
+						SelWeaponTimeout[i] = 0;
 					}
 				}
 				
@@ -549,6 +548,7 @@ void selectWeaponsLoop_OlxMod_01()
 					sfx.play(26, -1);
 					int s = int(menus[i].items.size());
 					curSel[i] = (curSel[i] - 1 + s) % s;
+					SelWeaponTimeout[i] = 0;
 				}
 				
 				if( gfx.testKeyOnce(worm.keyDown()) )
@@ -556,6 +556,7 @@ void selectWeaponsLoop_OlxMod_01()
 					sfx.play(25, -1);
 					int s = int(menus[i].items.size());
 					curSel[i] = (curSel[i] + 1 + s) % s;
+					SelWeaponTimeout[i] = 0;
 				}
 				
 				if( gfx.testKeyOnce(worm.keyFire()) )
@@ -596,7 +597,16 @@ void selectWeaponsLoop_OlxMod_01()
 						sfx.play(27, -1);
 						isReady[i] = true;
 					}
+					SelWeaponTimeout[i] = 0;
 				}
+
+				if( SelWeaponTimeout[i] > SelWeaponTimeoutValue )
+				{
+					sfx.play(27, -1);
+					isReady[i] = true;
+				}
+
+				SelWeaponTimeout[i] ++;
 			}
 		}
 			
@@ -624,7 +634,7 @@ void selectWeaponsLoop_OlxMod_01()
 	
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& worm = *game.worms[i];
+			Worm& worm = game.worms[i];
 		
 			worm.currentWeapon = 0; // It was 1 in OpenLiero A1
 		
@@ -674,12 +684,12 @@ void Game::gameLoop_OlxMod_01()
 			
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			worms[i]->process();
+			worms[i].process();
 		}
 		
 		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			worms[i]->ninjarope.process(*worms[i]);
+			worms[i].ninjarope.process(worms[i]);
 		}
 		
 		switch(game.settings.gameMode)
@@ -689,7 +699,7 @@ void Game::gameLoop_OlxMod_01()
 			bool someInvisible = false;
 			for(std::size_t i = 0; i < worms.size(); ++i)
 			{
-				if(!worms[i]->visible)
+				if(!worms[i].visible)
 				{
 					someInvisible = true;
 					break;
@@ -697,11 +707,11 @@ void Game::gameLoop_OlxMod_01()
 			}
 			
 			if(!someInvisible
-			&& lastKilled
+			&& lastKilled != -1
 			&& (cycles % 70) == 0
-			&& lastKilled->timer < settings.timeToLose)
+			&& worms[lastKilled].timer < settings.timeToLose)
 			{
-				++lastKilled->timer;
+				++worms[lastKilled].timer;
 			}
 		}
 		break;
@@ -717,13 +727,13 @@ void Game::gameLoop_OlxMod_01()
 		
 		if((cycles & 1) == 0)
 		{
-			for(std::size_t i = 0; i < viewports.size(); ++i)
+			for(std::size_t i = 0; i < worms.size(); ++i)
 			{
-				Viewport& v = *viewports[i];
+				Viewport& v = worms[i].viewport;
 				
 				bool down = false;
 				
-				if(v.worm->killedTimer > 16)
+				if(worms[i].killedTimer > 16)
 					down = true;
 					
 				if(down)
@@ -791,10 +801,10 @@ void Game::gameLoop_OlxMod_01()
 			shutDown = true;
 		}
 		
-		for(std::size_t i = 0; i < viewports.size(); ++i)
+		for(std::size_t i = 0; i < worms.size(); ++i)
 		{
-			if(viewports[i]->shake > 0)
-				viewports[i]->shake -= 4000; // TODO: Read 4000 from exe?
+			if( worms[i].viewport.shake > 0)
+				worms[i].viewport.shake -= 4000; // TODO: Read 4000 from exe?
 		}
 		
 		/*
@@ -834,7 +844,6 @@ void Game::gameLoop_OlxMod_01()
 void Game::initGame_OlxMod_01()
 {
 	clearWorms();
-	clearViewports();
 	
 	bonuses.clear();
 	wobjects.clear();
@@ -845,29 +854,28 @@ void Game::initGame_OlxMod_01()
 	
 	for( int player = 0; player < numPlayers; player++ )
 	{
-		game.settings.wormSettings[player].controller = 0;	// Human
-		Settings::generateName(game.settings.wormSettings[player]);
-		game.settings.wormSettings[player].randomName = false;
+		WormSettings wormSettings;
+		wormSettings.controller = 0;	// Human
+		Settings::generateName(wormSettings);
+		wormSettings.randomName = false;
+		wormSettings.health = 100;
 		
 		// TODO: find out more palette colours for all 32 players
-		game.settings.wormSettings[player].colour = player % 2 ? 41 : 32;
+		wormSettings.colour = player % 2 ? 41 : 32;
 
 		int f;
 		for( f=0; f<3; f++ )
-			game.settings.wormSettings[player].rgb[f] = game.rand() & 63;
+			wormSettings.rgb[f] = game.rand() & 63;
 		for( f=0; f<5; f++ )
-			game.settings.wormSettings[player].weapons[f] = game.rand(1, 41);
+			wormSettings.weapons[f] = game.rand(1, 41);
 		
-		Worm* worm = new Worm(&game.settings.wormSettings[player], player, player % 2 ? 19 : 20 );
-		//Worm* worm2 = new Worm(&game.settings.wormSettings[1], 1, 20);
+		Worm worm(wormSettings, player, player % 2 ? 19 : 20 );
 		addWorm(worm);
 	
-		Worm& w = *worms[player];
+		Worm& w = worms[player];
 		w.makeSightGreen = false;
 		w.lives = game.settings.lives;
 		w.ready = false;
-		//w.visible = false;
-		//w.movable = true;
 		
 		if(game.rand(2) > 0)
 		{
@@ -880,23 +888,20 @@ void Game::initGame_OlxMod_01()
 			w.direction = 1;
 		}
 
-		w.health = w.settings->health;
+		w.health = w.settings.health;
 		w.visible = false;
 		w.killedTimer = 150;
 		
 		w.currentWeapon = 1; // This is later changed to 0, why is it here?
 
-		//::viewportsCache[player] = ;
-		addViewport(new Viewport(Rect(0, 0, 158+160, 158), &w, 0, 504, 350));
+		w.viewport = Viewport(Rect(0, 0, 158+160, 158), player, 0, 504, 350);
 		
 		for( f=0; f<MAX_KEYS; f++ )
-			w.settings->controls[f] = player*MAX_KEYS + f;
+			w.settings.controls[f] = player*MAX_KEYS + f;
 	};
 	
-	
 	gotChanged = false;
-	lastKilled = 0;
-
+	lastKilled = -1;
 }
 
 void Gfx::flip_OlxMod_01()

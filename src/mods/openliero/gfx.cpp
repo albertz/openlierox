@@ -383,20 +383,20 @@ void Gfx::updateSettingsMenu()
 
 void Gfx::updatePlayerMenu(int player)
 {
-	WormSettings const& ws = game.settings.wormSettings[player];
+	WormSettings const& ws = game.worms[player].settings;
 	
-	playerMenuValues.items[0].string = game.settings.wormSettings[player].name;
-	playerMenuValues.items[1].string = toString(game.settings.wormSettings[player].health) + '%';
-	playerMenuValues.items[2].string = toString(game.settings.wormSettings[player].rgb[0]);
-	playerMenuValues.items[3].string = toString(game.settings.wormSettings[player].rgb[1]);
-	playerMenuValues.items[4].string = toString(game.settings.wormSettings[player].rgb[2]);
+	playerMenuValues.items[0].string = game.worms[player].settings.name;
+	playerMenuValues.items[1].string = toString(game.worms[player].settings.health) + '%';
+	playerMenuValues.items[2].string = toString(game.worms[player].settings.rgb[0]);
+	playerMenuValues.items[3].string = toString(game.worms[player].settings.rgb[1]);
+	playerMenuValues.items[4].string = toString(game.worms[player].settings.rgb[2]);
 	
 	for(int i = 0; i < 7; ++i)
 	{
 		playerMenuValues.items[i + 5].string = game.texts.keyNames[ws.controls[i]];
 	}
 
-	playerMenuValues.items[12].string = game.texts.controllers[game.settings.wormSettings[player].controller];
+	playerMenuValues.items[12].string = game.texts.controllers[game.worms[player].settings.controller];
 }
 
 
@@ -404,11 +404,11 @@ void Gfx::setWormColours()
 {
 	int const b[2] = {0x58, 0x78}; // TODO: Read from EXE?
 
-	for(int i = 0; i < 2; ++i)
+	for(unsigned i = 0; i < game.worms.size() && i < 2; ++i) // std::min() screwed up somewhere
 	{
-		int idx = game.settings.wormSettings[i].colour;
+		int idx = game.worms[i].settings.colour;
 		
-		origpal.setWormColours(idx, game.settings.wormSettings[i].rgb);
+		origpal.setWormColours(idx, game.worms[i].settings.rgb);
 		
 		for(int j = 0; j < 6; ++j)
 		{
@@ -1017,7 +1017,7 @@ void Gfx::playerSettings(int player)
 	int curSel = 0;
 	int menuCyclic = 0;
 	
-	WormSettings& ws = game.settings.wormSettings[player];
+	WormSettings& ws = game.worms[player].settings;
 	
 	updatePlayerMenu(player);
 	
@@ -1040,14 +1040,14 @@ void Gfx::playerSettings(int player)
 
 				if(o == curSel)
 				{
-					drawRoundedBox(202, ypos + 20, 168, 7, game.settings.wormSettings[player].rgb[rgbcol] - 1);
+					drawRoundedBox(202, ypos + 20, 168, 7, game.worms[player].settings.rgb[rgbcol] - 1);
 				}
 				else // CE98
 				{
-					drawRoundedBox(202, ypos + 20, 0, 7, game.settings.wormSettings[player].rgb[rgbcol] - 1);
+					drawRoundedBox(202, ypos + 20, 0, 7, game.worms[player].settings.rgb[rgbcol] - 1);
 				}
 				
-				fillRect(203, ypos + 21, game.settings.wormSettings[player].rgb[rgbcol], 5, game.settings.wormSettings[player].colour);
+				fillRect(203, ypos + 21, game.worms[player].settings.rgb[rgbcol], 5, game.worms[player].settings.colour);
 			} // CED9
 			
 			

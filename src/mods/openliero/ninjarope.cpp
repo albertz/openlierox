@@ -14,15 +14,15 @@ void Ninjarope::process(Worm& owner)
 		
 		int ix = ftoi(x), iy = ftoi(y);
 		
-		anchor = 0;
+		anchor = -1;
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& w = *game.worms[i];
+			Worm& w = game.worms[i];
 			
 			if(&w != &owner
 			&& checkForSpecWormHit(ix, iy, 1, w))
 			{
-				anchor = &w;
+				anchor = i;
 				break;
 			}
 		}
@@ -61,7 +61,7 @@ void Ninjarope::process(Worm& owner)
 								0, 0,
 								x, y,
 								pix,
-								&owner);
+								owner.index);
 						}
 					}
 				}
@@ -71,7 +71,7 @@ void Ninjarope::process(Worm& owner)
 			velX = 0;
 			velY = 0;
 		}
-		else if(anchor)
+		else if(anchor != -1)
 		{
 			if(!attached)
 			{
@@ -81,14 +81,14 @@ void Ninjarope::process(Worm& owner)
 			
 			if(curLen > length)
 			{
-				anchor->velX -= forceX / curLen;
-				anchor->velY -= forceY / curLen;
+				game.worms[anchor].velX -= forceX / curLen;
+				game.worms[anchor].velY -= forceY / curLen;
 			}
 			
-			velX = anchor->velX;
-			velY = anchor->velY;
-			x = anchor->x;
-			y = anchor->y;
+			velX = game.worms[anchor].velX;
+			velY = game.worms[anchor].velY;
+			x = game.worms[anchor].x;
+			y = game.worms[anchor].y;
 		}
 		else
 		{

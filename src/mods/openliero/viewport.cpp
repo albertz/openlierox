@@ -26,6 +26,9 @@ struct PreserveClipRect
 
 void Viewport::process()
 {
+	if(this->worm == -1)
+		return;
+	Worm * worm = & game.worms[this->worm];
 	if(worm->killedTimer <= 0)
 	{
 		if(worm->visible)
@@ -41,7 +44,7 @@ void Viewport::process()
 			{
 				for(Game::WObjectList::iterator i = game.wobjects.begin(); i != game.wobjects.end(); ++i)
 				{
-					if(i->id == ww.id && i->owner == worm)
+					if(i->id == ww.id && i->owner == this->worm)
 					{
 						++objectsFound;
 						sumX += ftoi(i->x);
@@ -103,11 +106,14 @@ void Viewport::process()
 
 void Viewport::draw()
 {
-	if(worm) // Should not be necessary further on
+	if(this->worm == -1)
+		return;
+	Worm * worm = & game.worms[this->worm];
+	//if(worm) // Should not be necessary further on
 	{
 		if(worm->visible)
 		{
-			int lifebarWidth = worm->health * 100 / worm->settings->health;
+			int lifebarWidth = worm->health * 100 / worm->settings.health;
 			drawBar(inGameX, 161, lifebarWidth, lifebarWidth/10 + 234);
 		}
 		else
@@ -177,7 +183,7 @@ void Viewport::draw()
 		
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& w = *game.worms[i];
+			Worm& w = game.worms[i];
 			
 			if(&w != worm
 			&& w.timer >= worm->timer)
@@ -185,7 +191,7 @@ void Viewport::draw()
 		}
 		
 		int colour;
-		if(game.lastKilled == worm)
+		if(game.lastKilled == this->worm)
 			colour = stateColours[state];
 		else
 			colour = stateColours[state + 2];
@@ -231,20 +237,20 @@ void Viewport::draw()
 	
 	for(std::size_t i = 0; i < game.viewports.size(); ++i)
 	{
-		Viewport* v = game.viewports[i];
+		Viewport* v = &game.worms[i].viewport;
 		if(v != this
-		&& v->worm->health <= 0
+		&& game.worms[v->worm].health <= 0
 		&& v->bannerY > -8)
 		{
-			if(v->worm->lastKilledBy == worm)
+			if(game.worms[v->worm].lastKilledBy == this->worm)
 			{
-				std::string msg(S[KilledMsg] + v->worm->settings->name);
+				std::string msg(S[KilledMsg] + game.worms[v->worm].settings.name);
 				gfx.font.drawText(msg, rect.x1 + 3, v->bannerY + 1, 0);
 				gfx.font.drawText(msg, rect.x1 + 2, v->bannerY, 50);
 			}
 			else
 			{
-				std::string msg(v->worm->settings->name + S[CommittedSuicideMsg]);
+				std::string msg(game.worms[v->worm].settings.name + S[CommittedSuicideMsg]);
 				gfx.font.drawText(msg, rect.x1 + 3, v->bannerY + 1, 0);
 				gfx.font.drawText(msg, rect.x1 + 2, v->bannerY, 50);
 			}
@@ -468,7 +474,7 @@ void Viewport::draw()
 
 	for(std::size_t i = 0; i < game.worms.size(); ++i)
 	{
-		Worm& w = *game.worms[i];
+		Worm& w = game.worms[i];
 		
 		if(w.visible)
 		{
@@ -638,7 +644,7 @@ void Viewport::draw()
 		
 		for(std::size_t i = 0; i < game.worms.size(); ++i)
 		{
-			Worm& w = *game.worms[i];
+			Worm& w = game.worms[i];
 			
 			if(w.visible)
 			{

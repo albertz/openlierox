@@ -190,8 +190,8 @@ void Worm::processPhysics()
 
 void Worm::process()
 {
-	if(health > settings->health)
-		health = settings->health;
+	if(health > settings.health)
+		health = settings.health;
 	
 	if(game.settings.gameMode != Settings::GMKillEmAll
 	|| lives > 0)
@@ -295,12 +295,12 @@ void Worm::process()
 				{
 					if(i->frame == 1)
 					{
-						if(health < settings->health)
+						if(health < settings.health)
 						{
 							game.bonuses.free(i);
-							health += (game.rand(C[BonusHealthVar]) + C[BonusMinHealth]) * settings->health / 100; // TODO: Read from EXE
-							if(health > settings->health)
-								health = settings->health;
+							health += (game.rand(C[BonusHealthVar]) + C[BonusMinHealth]) * settings.health / 100; // TODO: Read from EXE
+							if(health > settings.health)
+								health = settings.health;
 						}
 					}
 					else if(i->frame == 0)
@@ -330,7 +330,7 @@ void Worm::process()
 							int bix = ftoi(i->x);
 							int biy = ftoi(i->y);
 							game.bonuses.free(i);
-							game.sobjectTypes[0].create(bix, biy, this);
+							game.sobjectTypes[0].create(bix, biy, this->index);
 						}
 					}
 				}
@@ -373,7 +373,7 @@ void Worm::process()
 			}
 
 
-			if(health < settings->health / 4)
+			if(health < settings.health / 4)
 			{
 				if(game.rand(health + 6) == 0)
 				{
@@ -385,7 +385,7 @@ void Worm::process()
 						}
 					}
 					
-					game.nobjectTypes[6].create1(velX, velY, x, y, 0, this);
+					game.nobjectTypes[6].create1(velX, velY, x, y, 0, this->index);
 				}
 			}
 			
@@ -416,7 +416,7 @@ void Worm::process()
 				} // 468D
 				*/
 
-				if(this == game.lastKilled)
+				if(this->index == game.lastKilled)
 				{
 					game.gotChanged = false;
 				}
@@ -428,7 +428,7 @@ void Worm::process()
 				leaveShellTimer = 0;
 				makeSightGreen = false;
 				// TODO: cGame::cWorm[w^1].makesightgreen = 0;
-				viewport->bannerY = -8;
+				viewport.bannerY = -8;
 				
 				Weapon& w = game.weapons[weapons[currentWeapon].id];
 				if(w.loopSound)
@@ -441,11 +441,11 @@ void Worm::process()
 				fireConeActive = 0;
 				ninjarope.out = false;
 				--lives;
-				game.lastKilled = this;
+				game.lastKilled = this->index;
 				
-				if(lastKilledBy && lastKilledBy != this)
+				if(lastKilledBy && lastKilledBy != this->index)
 				{
-					++lastKilledBy->kills;
+					++ game.worms[lastKilledBy].kills;
 				}
 				
 				visible = false;
@@ -462,7 +462,7 @@ void Worm::process()
 							velX / 3, velY / 3,
 							x, y,
 							0,
-							this);
+							this->index);
 					}
 				}
 				
@@ -474,7 +474,7 @@ void Worm::process()
 							velX / 3, velY / 3,
 							x, y,
 							0,
-							this);
+							this->index);
 				}
 #endif
 				/* TODO
@@ -506,8 +506,9 @@ void Worm::process()
 		else
 		{
 			// Worm is dead
-
-			if(gfx.testKeyOnce(keyFire()))
+			// Press any key to respawn - if it will be Fire key the worm will fire immediately,
+			// because testKeyOnce() works not as expected in OLX mods.
+			if(gfx.testKeyOnce(keyFire()) || gfx.testKeyOnce(keyJump()) || gfx.testKeyOnce(keyChange()))
 			{
 				ready = true;
 			}
@@ -523,7 +524,7 @@ void Worm::process()
 		}
 	}
 	
-	if(settings->controller == 1)
+	if(settings.controller == 1)
 		processLieroAI();
 }
 
@@ -538,7 +539,7 @@ void Worm::processLieroAI()
 	int minLen = 0;
 	for(std::size_t i = 0; i < game.worms.size(); ++i)
 	{
-		Worm* w = game.worms[i];
+		Worm* w = & game.worms[i];
 		if(w != this)
 		{
 			int len = sqrVectorLength(ftoi(x) - ftoi(w->x), ftoi(y) - ftoi(w->y));
@@ -800,8 +801,8 @@ void Worm::beginRespawn()
 	
 	if(game.worms.size() == 2)
 	{
-		enemyX = ftoi(game.worms[index ^ 1]->x);
-		enemyY = ftoi(game.worms[index ^ 1]->y);
+		enemyX = ftoi(game.worms[index ^ 1].x);
+		enemyY = ftoi(game.worms[index ^ 1].y);
 	}
 
 	int trials = 0;
@@ -831,40 +832,22 @@ void Worm::beginRespawn()
 
 void Worm::doRespawning()
 {
-	// ----- Changed when importing to OLX -----
-	// Viewport size is changed in OLX
-	
-	/*
-	int destX = ftoi(x) - 80;
-	if(destX < 0)
-		destX = 0;
-	else if(destX > game.level.width - 158)
-		destX = 346;
-		
-	int destY = ftoi(y) - 80;
-	if(destY < 0)
-		destY = 0;
-	if(destY > game.level.height - 158)
-		destY = game.level.height - 158;
-	*/
-	
-	int destX = ftoi(x) - viewport->centerX;
+	int destX = ftoi(x) - viewport.centerX;
 	if( destX < 0 )
 		destX = 0;
-	if( destX > viewport->maxX )
-		destX = viewport->maxX;
+	if( destX > viewport.maxX )
+		destX = viewport.maxX;
 		
-	int destY = ftoi(y) - viewport->centerY;
+	int destY = ftoi(y) - viewport.centerY;
 	if( destY < 0 )
 		destY = 0;
-	if( destY > viewport->maxY )
-		destY = viewport->maxY;
+	if( destY > viewport.maxY )
+		destY = viewport.maxY;
 
-	// ----- Changed when importing to OLX -----
-	if(viewport->x < destX + 5
-	&& viewport->x > destX - 5
-	&& viewport->y < destY + 5
-	&& viewport->y > destY - 5
+	if(viewport.x < destX + 5
+	&& viewport.x > destX - 5
+	&& viewport.y < destY + 5
+	&& viewport.y > destY - 5
 	&& ready)
 	{
 		int ix = ftoi(x), iy = ftoi(y);
@@ -878,7 +861,7 @@ void Worm::doRespawning()
 		fireConeActive = 0;
 		velX = 0;
 		velY = 0;
-		health = settings->health;
+		health = settings.health;
 		
 		// NOTE: This was done at death before, but doing it here seems to make more sense
 		if(game.rand() & 1)
@@ -935,7 +918,7 @@ void Worm::processWeapons()
 	{
 		if(--leaveShellTimer <= 0)
 		{
-			game.nobjectTypes[7].create1(game.rand(16000) - 8000, -int(game.rand(20000)), x, y, 0, this);
+			game.nobjectTypes[7].create1(game.rand(16000) - 8000, -int(game.rand(20000)), x, y, 0, this->index);
 		}
 	}
 }
@@ -1291,7 +1274,7 @@ void Worm::fire()
 					speed,
 					firingX,
 					firingY,
-					this);
+					this->index);
 			}
 		}
 	}
@@ -1310,7 +1293,7 @@ void Worm::fire()
 					w.speed,
 					firingX,
 					firingY,
-					this);
+					this->index);
 			}
 		}
 	}
@@ -1323,7 +1306,7 @@ bool checkForWormHit(int x, int y, int dist, Worm* ownWorm)
 {
 	for(std::size_t i = 0; i < game.worms.size(); ++i)
 	{
-		Worm& w = *game.worms[i];
+		Worm& w = game.worms[i];
 		
 		if(&w != ownWorm)
 		{
@@ -1399,7 +1382,7 @@ void Worm::processSteerables()
 	{
 		for(Game::WObjectList::iterator i = game.wobjects.begin(); i != game.wobjects.end(); ++i)
 		{
-			if(i->id == ww.id && i->owner == this)
+			if(i->id == ww.id && i->owner == this->index)
 			{
 				if(gfx.testKey(keyLeft()))
 					i->curFrame -= (game.cycles & 1) + 1;
