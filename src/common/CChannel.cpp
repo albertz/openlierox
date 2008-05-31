@@ -127,9 +127,10 @@ void CChannel_056b::Transmit( CBytestream *bs )
 		if (Messages.size() > 0)  {
 			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());
-			// XOR the reliable sequence
-			iReliableSequence ^= 1;	// Do not XOR sequence when pinging - may cause packet loss!
 		}
+
+		// XOR the reliable sequence
+		iReliableSequence ^= 1;
 
 		// We got a reliable packet to send
 		SendReliable = 1;

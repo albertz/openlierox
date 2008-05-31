@@ -373,6 +373,9 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].fTimeLeft = 0.0f;
 			tGameLog->tWorms[j].iType = cRemoteWorms[i].getType();
 			j++;
+
+			if (j >= num_players)
+				break;
 		}
 	}
 }
