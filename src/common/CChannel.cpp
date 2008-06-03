@@ -63,6 +63,7 @@ void CChannel_056b::Clear()
 	iOutgoingSequence = 0;
 	iReliableSequence = 0;
 	iLast_ReliableSequence = 0;
+	iIncoming_ReliableSequence = 0;
 	iIncomingSequence = 0;
 	iIncomingAcknowledged = 0;
 	iOutgoingBytes = 0;
@@ -115,7 +116,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
-//		printf("Remote side dropped a reliable packet, resending...\n");
+		//printf("Remote side dropped a reliable packet, resending...\n");
 		SendReliable = 1;
 	}
 
@@ -149,7 +150,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// If were sending a reliable message, send it first
 	if(SendReliable) {
 		outpack.Append(&Reliable);
-		iLast_ReliableSequence = iOutgoingSequence;
+		iLast_ReliableSequence = iOutgoingSequence - 1;
 
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (iPongSequence == -1)  {
