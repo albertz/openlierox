@@ -10,6 +10,7 @@
  * Changed a little bit for OpenLieroX.
  */
 
+#include "sex.h"
 #include "MathLib.h"
 #include "StringUtils.h"
 
@@ -222,15 +223,14 @@ static char     *twat[] = {
         "mouth.",               "nose.",                "cunt.",
 };
 
-struct table {
+struct Table {
         char    **item;
         short   len;
 };
 
-typedef struct table    TABLE;
 #define SZ(a)           sizeof(a) / sizeof(char *)
 
-TABLE   list[] = {
+Table   list[] = {
         {faster,         SZ(faster)},     {said,           SZ(said)},
         {the,            SZ(the)},        {fadj,           SZ(fadj)},
         {female,         SZ(female)},     {asthe,          SZ(asthe)},
@@ -245,7 +245,7 @@ TABLE   list[] = {
 };
 
 std::string sex(short wraplen) {
-	TABLE  *ttp;
+	Table  *ttp;
 	char *cp;
 	std::string buffer;
 	int pos = 0, lastword = 0;

@@ -12,7 +12,7 @@
 #define __STRINGUTILS_H__
 
 #include <SDL.h> // for Uint32
-#include <stdio.h> // for FILE
+#include <cstdio> // for FILE
 #include <string>
 #include <sstream>
 #include <vector>

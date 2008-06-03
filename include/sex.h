@@ -11,6 +11,8 @@
 #ifndef __SEX_H__
 #define __SEX_H__
 
+#include <string>
+
 std::string sex(short wraplen = 0);
 
 #endif
