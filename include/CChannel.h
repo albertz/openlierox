@@ -97,6 +97,9 @@ protected:
 	size_t			iCurrentOutgoingBytes;				// how many bytes sent since last bandwidth calculation
 	size_t			iOutgoingBytes;
 	size_t			iIncomingBytes;
+
+	// Packets
+	std::list<CBytestream>	Messages;					// List of reliable messages to be sent
 	
 public:
 	
@@ -108,9 +111,11 @@ public:
 	virtual void	Clear();
 
 	// Should be overridden by child class
-	virtual void	Transmit( CBytestream *bs ) = 0;
-	virtual bool	Process(CBytestream *bs) = 0;
-	virtual void	AddReliablePacketToSend(CBytestream& bs) = 0;
+	// This function will send reliable data from AddReliablePacketToSend() plus unreliable data in bs argument
+	virtual void	Transmit( CBytestream *unreliableData ) = 0;
+	// This function behaves differently for CChannel_UberPwnyReliable, see below
+	virtual bool	Process( CBytestream *bs ) = 0;
+	virtual void	AddReliablePacketToSend(CBytestream& bs);
 	
 	size_t			getPacketLoss(void)		{ return iPacketsDropped; }
 	float			getLastReceived(void)	{ return fLastPckRecvd; }
@@ -130,7 +135,7 @@ public:
 
 };
 
-
+// CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.
 class CChannel_056b: public CChannel {
 	
 private:
@@ -148,11 +153,7 @@ private:
 	Uint32		iReliableSequence;					// single bit
 	Uint32		iLast_ReliableSequence;				// sequence number of last send
 
-	// Packets
-	std::list<CBytestream>	Messages;							// Reliable message
-
 	CBytestream	Reliable;							// Reliable message waiting to be acknowledged
-
 
 	// Pinging
 	int			iPongSequence;						// expected pong sequence, -1 when not pinging
@@ -167,10 +168,9 @@ public:
 	// Methods
 	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
-	bool		Process(CBytestream *bs);
+	// This function just skips header in bs, non-reliable data is at the end of the stream, bs not modified.
+	bool		Process( CBytestream *bs );
 	void		Clear(void);
-
-	void		AddReliablePacketToSend(CBytestream& bs);
 
 	int			getInSeq(void)			{ return iIncomingSequence; }
 	int			getOutSeq(void)			{ return iOutgoingSequence; }
@@ -178,6 +178,41 @@ public:
 	void		setOutSeq(int _s)		{ iOutgoingSequence = _s; }
 
 	int			getInAck(void)			{ return iIncomingAcknowledged; }
+
+	friend void TestCChannelRobustness();
+};
+
+// Reliable and less messy CChannel implementation by pelya.
+class CChannel_UberPwnyReliable: public CChannel {
+	
+private:
+	typedef std::list< std::pair< CBytestream, int > > PacketList_t;
+	PacketList_t	ReliableOut;		// Reliable messages waiting to be acknowledged, with their ID-s
+	int				LastReliableOut;	// Last acknowledged packet from remote side
+
+	PacketList_t	ReliableIn;			// Reliable messages from the other side, not sorted, with their ID-s
+	int				LastReliableIn;		// Last packet acknowledged by me
+	
+	CBytestream		nonReliableData;	// Non-reliable packet
+
+	// Pinging
+	int			PongSequence;						// expected pong sequence, -1 when not pinging
+	
+	bool GetPacketFromBuffer(CBytestream *bs);
+
+public:
+
+	// Constructor
+	CChannel_UberPwnyReliable() { Clear(); }
+	
+	// Methods
+	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
+	void		Transmit( CBytestream *bs );
+	// This function will first return non-reliable data,
+	// and then one or many reliable packets - it will modify bs for that,
+	// so you should call it in a loop, clearing bs after each call.
+	bool		Process( CBytestream *bs );
+	void		Clear();
 
 	friend void TestCChannelRobustness();
 };

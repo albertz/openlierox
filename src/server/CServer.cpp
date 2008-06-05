@@ -700,13 +700,14 @@ void GameServer::ReadPackets(void)
 				if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
 					continue;
 
-				// Process the net channel
-	            if(cl->getChannel()->Process(&bs)) {
-
+				// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
+				while( cl->getChannel()->Process(&bs) )
+				{
     	            // Only process the actual packet for playing clients
         	        if( cl->getStatus() != NET_ZOMBIE )
 					    ParseClientPacket(cl, &bs);
-	            }
+					bs.Clear();
+				};
 			}
 		}
 	}

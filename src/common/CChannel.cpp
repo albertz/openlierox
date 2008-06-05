@@ -33,15 +33,17 @@ using namespace std;
 void CChannel::Clear()
 { 
 	InvalidateSocketState(Socket);
-	iPacketsDropped = 0; 
+	iPacketsDropped = 0;
 	iPacketsGood = 0;
-	cIncomingRate.clear(); 
+	cIncomingRate.clear();
 	cOutgoingRate.clear();
-	iOutgoingBytes = 0; 
-	iIncomingBytes = 0; 
-	fLastSent = fLastPckRecvd = fLastPingSent = -9999; 
+	iOutgoingBytes = 0;
+	iIncomingBytes = 0;
+	iPing = 0;
+	fLastSent = fLastPckRecvd = fLastPingSent = -9999;
 	iCurrentIncomingBytes = 0;
 	iCurrentOutgoingBytes = 0;
+	Messages.clear();
 };
 
 ///////////////////
@@ -56,6 +58,38 @@ void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 	fLastPingSent = fLastSent;
 	iPing = 0;
 }
+
+////////////////////
+// Adds a packet to reliable queue
+void CChannel::AddReliablePacketToSend(CBytestream& bs)
+{
+	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
+		cout
+			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength()
+			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
+			<< "), packet might not be sent at all!" << endl;
+		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
+		return;
+	}
+	
+	if(bs.GetLength() == 0)
+		return;
+
+	// If no messages at all, add the first one
+	if (Messages.size() == 0)  {
+		Messages.push_back(bs);
+		return;
+	}
+
+	// Some reliable messages already in queue, see if we should already split the packet
+	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE)
+		Messages.push_back(bs);
+	else
+		Messages.rbegin()->Append(&bs);
+}
+
+///////////////////
+// CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.
 
 void CChannel_056b::Clear()
 {
@@ -78,33 +112,6 @@ void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
 	Clear();
 	CChannel::Create( _adr, _sock );
 };
-
-////////////////////
-// Adds a packet to reliable queue
-void CChannel_056b::AddReliablePacketToSend(CBytestream& bs)
-{
-	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
-		cout
-			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength()
-			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
-			<< "), packet might not be sent at all!" << endl;
-		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
-		return;
-	}
-
-	// If no messages at all, add the first one
-	if (Messages.size() == 0)  {
-		Messages.push_back(bs);
-		return;
-	}
-
-	// Some reliable messages already in queue, see if we should already split the packet
-	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE)
-		Messages.push_back(bs);
-	else
-		Messages.rbegin()->Append(&bs);
-}
-
 
 ///////////////////
 // Transmitt data, as well as handling reliable packets
@@ -193,6 +200,8 @@ bool CChannel_056b::Process(CBytestream *bs)
 
 	// Start from the beginning of the packet
 	bs->ResetPosToBegin();
+	if( bs->GetLength() == 0 )
+		return false;
 
 	// Got a packet (good or bad), update the received time
 	fLastPckRecvd = tLX->fCurTime;
@@ -267,6 +276,306 @@ bool CChannel_056b::Process(CBytestream *bs)
 	return true;
 }
 
+
+///////////////////
+// Reliable CChannel implementation by pelya ( I hope it's less messy, though it has more code ).
+
+/*
+There are logical packets, each has it's own sequence number,
+multiple logical packets can be transmitted in single net packet.
+CChannel_UberPwnyReliable::Process(CBytestream *) will return the logical packets one by one, 
+without merging them in one packet, to increase robustness.
+It will modify CBytestream * argument for that.
+The net packet format is: 
+	Acknowledged Packet Index 1 - 2 bytes, highest bit = 1
+	...
+	Acknowledged Packet Index N - 2 bytes, highest bit = 1
+	Last Acknowledged Packet Index - 2 bytes, highest bit = 0 (marks end of acknowledged packets list) -
+		 should be the lowest acknowledged sequence, all packets with lower 
+		 sequences are considered acknowledged.
+	Packet Index 1 - 2 bytes, highest bit = 1
+	Packet Size 1 - 2 bytes
+	...
+	Packet Index N - 2 bytes, highest bit = 1
+	Packet Size N - 2 bytes
+	Last Packet Index - 2 bytes, highest bit = 0 (marks end of packets list)
+	Last Packet Size - 2 bytes, if we don't have reliable packet then Last Packet Size == 0, Last Packet Index ignored.
+	Packets data
+	Non-reliable packet data
+
+Only Last Acknowledged Packet Index and Last Packet Index are mandatory - 
+then CChannel will act like old CChannel_056b, when only one packet is allowed
+to be flying through network at any time.
+*/
+
+// SEQUENCE_WRAPAROUND is where sequence wraps to zero - sequence range is from 0 to SEQUENCE_WRAPAROUND-1.
+// All sequences (or packet indexes) used are wrapping around at this number
+// We cannot allow four leadinf 0xFF bytes in reliable packet, so SEQUENCE_WRAPAROUND
+// is slightly less than 0x7FFF.
+// SEQUENCE_SAFE_DIST is the max distance between two sequences when packets will
+// get ignored as erroneous ones.
+// MAX_NON_ACKNOWLEDGED_PACKETS is max amount of packets that can be flying through the net at the same time.
+// SEQUENCE_HIGHEST_BIT is highest bit in a 2-byte int.
+enum { 
+	SEQUENCE_WRAPAROUND = 32766,
+	SEQUENCE_SAFE_DIST = 100,
+	MAX_NON_ACKNOWLEDGED_PACKETS = 3,
+	SEQUENCE_HIGHEST_BIT = 0x8000
+};
+// Do not check "if( sequence1 < sequence2 )", use this function instead, it will handle wraparound issues.
+// SequenceDiff( 32765, 32764 ) equals to SequenceDiff( 0, 32765 ) equals to SequenceDiff( 1, 0 ) equals to 1.
+int SequenceDiff( int s1, int s2 )
+{
+	int diff = s1 - s2;
+	while( diff > SEQUENCE_WRAPAROUND / 2 - 1 )
+		diff -= SEQUENCE_WRAPAROUND;
+	while( diff < - (SEQUENCE_WRAPAROUND / 2) )
+		diff += SEQUENCE_WRAPAROUND;
+	return diff;
+}
+
+void CChannel_UberPwnyReliable::Clear()
+{
+	CChannel::Clear();
+	Messages.clear();
+	ReliableOut.clear();
+	ReliableIn.clear();
+	LastReliableOut = 0;
+	LastReliableIn = 0;
+	PongSequence = -1;
+};
+
+void CChannel_UberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
+{
+	Clear();
+	CChannel::Create( _adr, _sock );
+};
+
+// Get reliable packet from local buffer
+bool CChannel_UberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
+{
+	if( ReliableIn.size() == 0 )
+		return false;
+
+	int seqMin = LastReliableIn;
+	PacketList_t::iterator itMin = ReliableIn.end();
+	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )
+	{
+		if( SequenceDiff( seqMin, it->second ) >= 0 )
+		{
+			seqMin = it->second;
+			itMin = it;
+		};
+	};
+	if( itMin != ReliableIn.end() )
+	{
+		*bs = itMin->first;
+		ReliableIn.erase(itMin);
+		return true;
+	};
+	return false;
+}
+
+// This function will first return non-reliable data,
+// and then one or many reliable packets - it will modify bs for that,
+// so you should call it in a loop, clearing bs after each call.
+bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
+{
+	bs->ResetPosToBegin();
+	if( bs->GetLength() == 0 )
+		return GetPacketFromBuffer(bs);
+
+	// Got a packet (good or bad), update the received time
+	fLastPckRecvd = tLX->fCurTime;
+	// Update statistics - calculate the bytes per second
+	iIncomingBytes += bs->GetRestLen();
+	iCurrentIncomingBytes += bs->GetRestLen();
+	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
+
+	// Acknowledged packets info processing
+
+	// Read acknowledged packets indexes
+	unsigned seqAck = bs->readInt(2);
+	std::vector< int > seqAckList;
+	while( seqAck & SEQUENCE_HIGHEST_BIT )
+	{
+		seqAckList.push_back( seqAck & ~ SEQUENCE_HIGHEST_BIT );
+		seqAck = bs->readInt(2);
+	};
+	if( SequenceDiff( seqAck, LastReliableOut ) < 0 || SequenceDiff( seqAck, LastReliableOut ) > SEQUENCE_SAFE_DIST )
+	{
+		iPacketsDropped++;	// Update statistics
+		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
+	};
+
+	LastReliableOut = seqAck;
+
+	iPacketsGood++;	// Update statistics
+
+	// Delete acknowledged packets from buffer
+	for( PacketList_t::iterator it = ReliableOut.begin(), it1; it != ReliableOut.end(); )
+	{
+		bool erase = false;
+		if( SequenceDiff( LastReliableOut, it->second ) >= 0 )
+			erase = true;
+		for( unsigned f=0; f<seqAckList.size(); f++ )
+			if( seqAckList[f] == it->second )
+				erase = true;
+		if(erase)
+		{
+			it1 = it;
+			it++;
+			ReliableOut.erase(it1);
+		}
+		else
+			it++;
+	};
+
+	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
+	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
+	{
+		iPing = (tLX->fCurTime - fLastPingSent) * 1000;
+		PongSequence = -1;
+	};
+
+	// Processing of arrived data packets
+	
+	// Read packets info
+	std::vector< int > seqList;
+	std::vector< int > seqSizeList;
+	unsigned seq = bs->readInt(2);
+	while( seq & SEQUENCE_HIGHEST_BIT )
+	{
+		seqList.push_back( seq & ~ SEQUENCE_HIGHEST_BIT );
+		seqSizeList.push_back( bs->readInt(2) );
+		seq = bs->readInt(2);
+	};
+	seqList.push_back( seq );
+	seqSizeList.push_back( bs->readInt(2) );
+	
+	// Put packets in buffer
+	for( unsigned f=0; f<seqList.size(); f++ )
+	{
+		if( seqSizeList[f] == 0 ) // Last reliable packet may have size 0, if we're received non-reliable-only net packet
+			continue;	// Just skip it, it's fake packet
+			
+		bool addPacket = true;
+		for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end() && addPacket; it++ )
+			if( it->second == seqList[f] )
+				addPacket = false;
+		if( addPacket && SequenceDiff( seqList[f], LastReliableIn ) > 0 ) // Do not add packets from the past
+		{	// Packet not in buffer yet - add it
+			CBytestream bs1;
+			bs1.writeData( bs->readData(seqSizeList[f]) );
+			ReliableIn.push_back( std::make_pair( bs1, seqList[f] ) );
+		}
+		else	// Packet is in buffer already
+		{
+			// We may check here if arrived packet is the same as packet in buffer, and print errors.
+			bs->Skip( seqSizeList[f] );
+		};
+	}
+	
+	// Increase LastReliableIn until the first packet that is missing from sequence
+	while( true )	// I just love such constructs :P don't worry, I've put "break" inside the loop.
+	{
+		bool nextPacketFound = false;
+		int LastReliableInInc = LastReliableIn + 1;	// Next value of LastReliableIn
+		if( LastReliableInInc >= SEQUENCE_WRAPAROUND )
+			LastReliableInInc = 0;
+		for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end() && !nextPacketFound; it++ )
+			if( it->second == LastReliableInInc )
+				nextPacketFound = true;
+		if( nextPacketFound )
+			LastReliableIn = LastReliableInInc;
+		else
+			break;
+	};
+	
+	if( bs->GetRestLen() > 0 )	// Non-reliable data left in this packet
+		return true;	// Do not modify bs, allow user to read non-reliable data at the end of bs
+	
+	return GetPacketFromBuffer(bs);
+};
+
+void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
+{
+	CBytestream bs;
+	
+	// Add acknowledged packets indexes
+	
+	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )
+		if( SequenceDiff( it->second, LastReliableIn ) > 0 ) // Packets out of sequence
+			bs.writeInt( it->second | SEQUENCE_HIGHEST_BIT, 2 );
+
+	bs.writeInt( LastReliableIn, 2 );
+	
+	// Add packet headers
+	// TODO: for now we're sending only the first non-acknowledged packet, like in old CChannel_056b,
+	// I'll add support for multiple packets later
+	int packetToSendIdx = LastReliableOut + 1;
+	if( packetToSendIdx >= SEQUENCE_WRAPAROUND )
+		packetToSendIdx = 0;
+	
+	// Add reliable packet to ReliableOut buffer
+	if( ReliableOut.empty() && !Messages.empty() )
+	{
+		ReliableOut.push_back( std::make_pair( Messages.front(), packetToSendIdx ) );
+		Messages.pop_front();
+	};
+	
+	// Add packet headers and data
+	bool unreliableOnly = true;
+	CBytestream packetData;
+	for( PacketList_t::iterator it = ReliableOut.begin(); it != ReliableOut.end(); it++ )
+	{
+		if( it->second == packetToSendIdx )
+		{
+			unreliableOnly = false;
+			bs.writeInt( packetToSendIdx, 2 );
+			bs.writeInt( it->first.GetLength(), 2 );
+			packetData.Append( &it->first );
+		};
+	};
+	
+	bs.Append( &packetData );
+
+	if( unreliableOnly )
+	{
+		bs.writeInt( LastReliableOut, 2 );
+		bs.writeInt( 0, 2 );
+		bs.Append(unreliableData);
+	}
+	else
+	{
+		if( bs.GetLength() + unreliableData->GetLength() <= MAX_PACKET_SIZE )
+			bs.Append(unreliableData);
+
+		// If we are sending a reliable message, remember this time and use it for ping calculations
+		if (PongSequence == -1)  
+		{
+			PongSequence = packetToSendIdx;
+			fLastPingSent = tLX->fCurTime; //GetMilliSeconds();
+		};
+	};
+
+	// Send the packet
+	SetRemoteNetAddr(Socket, RemoteAddr);
+	bs.Send(Socket);
+
+	// Update statistics
+	iOutgoingBytes += bs.GetLength();
+	iCurrentOutgoingBytes += bs.GetLength();
+	fLastSent = tLX->fCurTime; //GetMilliSeconds();
+
+	// Calculate the bytes per second
+	cOutgoingRate.addData( tLX->fCurTime, bs.GetLength() );
+};
+
+
+///////////////////
+// Robustness test for CChannel
+
 std::string printBinary(const std::string & s)
 {
 	std::string r;
@@ -288,11 +597,11 @@ void TestCChannelRobustness()
 	int lagMin = 100;
 	int lagMax = 500;
 	int packetLoss = 15; // In percents
-	float packetsPerSecond1 = 5.0f; // One channel sends faster than another
+	float packetsPerSecond1 = 10.0f; // One channel sends faster than another
 	float packetsPerSecond2 = 0.2f;
 	int packetExtraData = 0; // Extra data in bytes to add to packet to check buffer overflows
 	
-	CChannel_056b c1, c2;
+	CChannel_UberPwnyReliable c1, c2;	//CChannel_056b c1, c2;
 	NetworkSocket s1 = OpenUnreliableSocket(0);
 	NetworkSocket s2 = OpenUnreliableSocket(0);
 	NetworkSocket s1lag = OpenUnreliableSocket(0);
@@ -345,6 +654,7 @@ void TestCChannelRobustness()
 			c2.AddReliablePacketToSend(b2);
 		};
 
+	
 		c1.Transmit( &b1u );
 		c2.Transmit( &b2u );
 		
@@ -410,7 +720,7 @@ void TestCChannelRobustness()
 		{
 			printf("%i: c1 recv packet (ping %i): %s\n", testtime, c1.getPing(), printBinary(b1.readData()).c_str() );
 			b1.ResetPosToBegin();
-			if( c1.Process( &b1 ) )
+			while( c1.Process( &b1 ) )
 			{
 				while( b1.GetRestLen() != 0 )
 				{
@@ -421,16 +731,15 @@ void TestCChannelRobustness()
 					for( int f=0; f<packetExtraData; f++ )
 						b1.readByte();
 				};
+				b1.Clear();
 			}
-			else
-				printf("%i: c1 cannot parse packet\n", testtime);
 		};
 
 		if( b2.GetLength() != 0 )
 		{
 			printf("%i: c2 recv packet (ping %i): %s\n", testtime, c2.getPing(), printBinary(b2.readData()).c_str() );
 			b2.ResetPosToBegin();
-			if( c2.Process( &b2 ) )
+			while( c2.Process( &b2 ) )
 			{
 				while( b2.GetRestLen() != 0 )
 				{
@@ -441,9 +750,8 @@ void TestCChannelRobustness()
 					for( int f=0; f<packetExtraData; f++ )
 						b2.readByte();
 				};
+				b2.Clear();
 			}
-			else
-				printf("%i: c2 cannot parse packet\n", testtime);
 		};
 	
 	};

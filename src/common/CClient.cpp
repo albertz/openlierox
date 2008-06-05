@@ -612,11 +612,13 @@ void CClient::ReadPackets(void)
 		if(iNetStatus == NET_DISCONNECTED || iNetStatus == NET_CONNECTING)
 			continue;
 
-		// Parse the packet
-		if(cNetChan->Process(&bs))
+		// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
+		while( cNetChan->Process(&bs) )
+		{
 			ParsePacket(&bs);
+			bs.Clear();
+		};
 	}
-
 
 	// Check if our connection with the server timed out
 	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
@@ -1305,12 +1307,10 @@ void CClient::SimulationOlxMod()
 
 bool CClient::RebindSocket()
 {
-	printf("CClient::RebindSocket()\n");
 	if(!IsSocketStateValid(tSocket))
 		return false;
 	NetworkAddr addr;
 	GetLocalNetAddr( tSocket, addr );
-	printf("CClient::RebindSocket() old port %i\n", GetNetAddrPort(addr) );
 	RemoveSocketFromNotifierGroup(tSocket);
 	CloseSocket(tSocket);
 	InvalidateSocketState(tSocket);
@@ -1320,15 +1320,16 @@ bool CClient::RebindSocket()
 		return false;
 	}
 	GetLocalNetAddr( tSocket, addr );
-	printf("CClient::RebindSocket() new port %i\n", GetNetAddrPort(addr) );
 	return true;
 };
 
 CChannel * CClient::createChannel(const Version& v)
 {
-	// New reliable UDP network channels may be added here in future
 	if( cNetChan )
 		delete cNetChan;
-	cNetChan = new CChannel_056b();
+	if( v >= Version("0.57_beta6") )
+		cNetChan = new CChannel_UberPwnyReliable();
+	else
+		cNetChan = new CChannel_056b();
 	return cNetChan;
 };

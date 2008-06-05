@@ -14,7 +14,7 @@
 #include "StringUtils.h"
 
 #ifndef		LX_VERSION
-#	define		LX_VERSION		"0.57_beta5"
+#	define		LX_VERSION		"0.57_beta6"
 #endif
 
 std::string GetFullGameName();
