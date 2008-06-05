@@ -318,7 +318,7 @@ startpoint:
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 
 		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
-		
+
 		cout << "GameLoopStart" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
@@ -436,7 +436,10 @@ void ParseArguments(int argc, char *argv[])
 			#endif
 
 			// Shutdown and quit
-			ShutdownLieroX();
+			// ShutdownLieroX() works only correct when everything was inited because ProcessEvents() is used.
+			// Therefore we just ignore a good clean up and just quit here.
+			// This is not nice but still nicer than getting a segfault.
+			// It is not worth to fix this in a nicer way as it is fixed anyway when we use the new engine system.
      		exit(0);
         }
 		#ifdef DEBUG

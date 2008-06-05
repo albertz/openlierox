@@ -1,8 +1,12 @@
-#include <stdio.h>
+#include <iostream>
+#include <cstdio>
 
 #include "Version.h"
 #include "LieroX.h"
 #include "AuxLib.h"
+
+using std::cout;
+using std::endl;
 
 
 std::string GetFullGameName() {
@@ -15,6 +19,13 @@ std::string GetFullGameName() {
 }
 
 
+inline void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {
+#ifdef DEBUG
+	if(version->asString() != versionStr) {
+		cout << "WARNING: Version::setByString: '" << versionStr << "' get parsed as '" << version->asString() << "'" << endl;
+	}
+#endif
+}
 
 void Version::setByString(const std::string& versionStr) {
 	std::string tmp = versionStr;
@@ -36,19 +47,19 @@ void Version::setByString(const std::string& versionStr) {
 	p = tmp.find(".");
 	bool fail = false;
 	num = from_string<int>(tmp.substr(0, p), fail);
-	if(fail) { num = 0; return; }
-	if(p == std::string::npos) return;
+	if(fail) { num = 0; setByString__optionalPostCheck(this,versionStr); return; }
+	if(p == std::string::npos) { setByString__optionalPostCheck(this,versionStr); return; }
 	tmp.erase(0, p + 1);
 
 	// subnum
 	p = tmp.find_first_of("._-");
 	subnum = from_string<int>(tmp.substr(0, p), fail);
-	if(fail) { subnum = 0; return; }
-	if(p == std::string::npos) return;
+	if(fail) { subnum = 0; setByString__optionalPostCheck(this,versionStr); return; }
+	if(p == std::string::npos) { setByString__optionalPostCheck(this,versionStr); return; }
 	tmp.erase(0, p + 1);
 
 	// releasetype
-	if(tmp == "") return;
+	if(tmp == "") { setByString__optionalPostCheck(this,versionStr); return; }
 	size_t nextNumP = tmp.find_first_of("0123456789");
 	if(nextNumP == 0)
 		releasetype = RT_NORMAL;
@@ -63,20 +74,22 @@ void Version::setByString(const std::string& versionStr) {
 	tmp.erase(0, nextNumP);
 
 	// subsubnum
-	if(tmp == "") return;
+	if(tmp == "") { setByString__optionalPostCheck(this,versionStr); return; }
 	if(tmp.find_first_of(".") == 0) tmp.erase(0, 1);
 	p = tmp.find_first_of("._-");
 	subsubnum = from_string<int>(tmp.substr(0, p), fail);
-	if(fail) { subsubnum = 0; return; }
-	if(p == std::string::npos) return;
+	if(fail) { subsubnum = 0; setByString__optionalPostCheck(this,versionStr); return; }
+	if(p == std::string::npos) { setByString__optionalPostCheck(this,versionStr); return; }
 	tmp.erase(0, p + 1);
 
 	// revnum
 	nextNumP = tmp.find_first_of("0123456789");
-	if(nextNumP == std::string::npos) return;
+	if(nextNumP == std::string::npos) { setByString__optionalPostCheck(this,versionStr); return; }
 	tmp.erase(0, nextNumP);
 	revnum = from_string<int>(tmp, fail);
 	if(fail) revnum = 0;
+
+	setByString__optionalPostCheck(this,versionStr); return;
 }
 
 
