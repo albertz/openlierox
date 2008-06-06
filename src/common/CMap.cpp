@@ -35,79 +35,6 @@
 
 
 
-
-// after a shutdown, save the data here; perhaps we can reuse it
-//CMap CachedMap;
-
-// reuse *this* map-data for the given map
-/*bool CMap::ReuseMapData(CMap* map) {
-	if(Created && !modified && map != this) {
-		map->Shutdown();
-
-		map->Name = Name;
-		map->FileName = FileName;
-		map->Type = Type;
-		map->Width = Width;
-		map->Height = Height;
-		map->MinimapWidth = MinimapWidth;
-		map->MinimapHeight = MinimapHeight;
-		map->Theme = Theme;
-		map->nTotalDirtCount = nTotalDirtCount;
-		map->Created = true;
-		map->modified = false;
-		map->nGridWidth = nGridWidth;
-		map->nGridHeight = nGridHeight;
-		map->nGridCols = nGridCols;
-		map->nGridRows = nGridRows;
-		map->sRandomLayout = sRandomLayout;
-		sRandomLayout.bUsed = false; // needed because we reuse possible allocated data here too
-		map->bMiniMapDirty = bMiniMapDirty;
-		map->NumObjects = NumObjects;
-
-		// reusing our allocated data
-		map->bmpImage = bmpImage;
-		map->bmpDrawImage = bmpDrawImage;
-		map->bmpBackImage = bmpBackImage;
-		map->bmpMiniMap = bmpMiniMap;
-		map->bmpGreenMask = bmpGreenMask;
-		map->PixelFlags = PixelFlags;
-		map->bmpShadowMap = bmpShadowMap;
-#ifdef _AI_DEBUG
-		map->bmpDebugImage = bmpDebugImage;
-#endif
-		map->GridFlags = GridFlags;
-		map->AbsoluteGridFlags = AbsoluteGridFlags;
-		map->Objects = Objects;
-
-		map->FlagSpawnX = FlagSpawnX;
-		map->FlagSpawnY = FlagSpawnY;
-		map->BaseStartX	= BaseStartX;
-		map->BaseStartY	= BaseStartY;
-		map->BaseEndX	= BaseEndX;
-		map->BaseEndY	= BaseEndY;
-
-		bmpImage = NULL;
-		bmpDrawImage = NULL;
-		bmpBackImage = NULL;
-		bmpMiniMap = NULL;
-		bmpGreenMask = NULL;
-		PixelFlags = NULL;
-		bmpShadowMap = NULL;
-#ifdef _AI_DEBUG
-		bmpDebugImage = NULL;
-#endif
-		GridFlags = NULL;
-		AbsoluteGridFlags = NULL;
-		Objects = NULL;
-
-		Created = false; // this map is now clean and more or less shutdowned
-
-		return true;
-	}
-
-	return false;
-}*/
-
 ////////////////////
 // Copies all info from the given map to this map
 bool CMap::NewFrom(CMap* map)
@@ -898,14 +825,15 @@ void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
-		//DEBUG_DrawPixelFlags();
-		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+	//DEBUG_DrawPixelFlags();
+	DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+
 #ifdef _AI_DEBUG
-		/*if (GetKeyboard()->KeyDown[SDLK_F2])
-			DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
-		else
-			ClearDebugImage();*/
-		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+	/*if (GetKeyboard()->KeyDown[SDLK_F2])
+		DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
+	else
+		ClearDebugImage();*/
+	DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
 }
 
