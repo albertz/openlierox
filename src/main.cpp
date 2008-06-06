@@ -144,6 +144,12 @@ void test_Unicode_UTF8_Conversion() {
 int main(int argc, char *argv[])
 {
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+#ifdef DEBUG
+	printf("HINT: This is a DEBUG build.\n");
+#endif
+#ifdef DEDICATED_ONLY
+	printf("HINT: This is a DEDICATED_ONLY build.\n");
+#endif
 
 #ifdef DEBUG
 	setvbuf(stdout, NULL, _IOLBF, 1024 );
