@@ -624,14 +624,102 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	UpdateMiniMapRect(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
 }
 
+
+
+inline Color Resample2_getColor(SDL_Surface* bmpSrc, int dx, int dy) {
+	if(dx < 0 || dx >= bmpSrc->w * 2 || dy < 0 || dy >= bmpSrc->h * 2) return Color(0.0,0.0,0.0);
+	return Color( GetPixel(bmpSrc, dx/2, dy/2), bmpSrc->format );
+}
+
+inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
+	Color baseC = Resample2_getColor(bmpSrc, dx, dy);
+	Color otherC;
+	int count = 0, otherColCount = 0;
+
+	Color curC;
+
+	for(short x = -1; x <= 1; x += 1) {
+		for(short y = (x == 0) ? -1 : 0; y <= 1; y += 2) {
+			curC = Resample2_getColor(bmpSrc, dx + x, dy + y);
+
+			if(baseC == curC) count++;
+			else {
+				if(otherC != curC) {
+					otherColCount++;
+					otherC = curC;
+				}
+			}
+
+		}
+	}
+
+	return count >= 3 || (count == 2 && otherColCount >= 2);
+}
+
+void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
+	static const float SQRT05 = 1.0 / 1.414213562373095049f;
+	int dx2 = sx*2 + w*2;
+	int dy2 = sy*2 + h*2;
+	for(int dy = sy*2; dy < dy2; dy++) {
+		for(int dx = sx*2; dx < dx2; dx++) {
+
+			Color col;
+			double pxsum = 0;
+			/* if(Resample2_isDominantColor(bmpSrc, dx, dy))
+				col = Resample2_getColor(bmpSrc, dx, dy);
+			else { */
+
+			if(cMap->GetPixelFlag(dx/2, dy/2) & (PX_DIRT|PX_ROCK)) {
+//				col = Resample2_getColor(bmpSrc, dx, dy);
+
+				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 1) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 0) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx + 0, dy - 1) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 0) * 1.0; pxsum += 1.0;
+
+				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 0) * 2.0; pxsum += 2.0;
+
+				col = col / pxsum;
+
+			} else {
+				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 1) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 0) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx + 0, dy - 1) * 1.0; pxsum += 1.0;
+				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 0) * 1.0; pxsum += 1.0;
+
+				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 1) * SQRT05; pxsum += SQRT05;
+				col = col + Resample2_getColor(bmpSrc, dx + 1, dy - 1) * SQRT05; pxsum += SQRT05;
+				col = col + Resample2_getColor(bmpSrc, dx - 1, dy - 1) * SQRT05; pxsum += SQRT05;
+				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 1) * SQRT05; pxsum += SQRT05;
+
+				col = col / pxsum;
+			}
+
+			//}
+
+			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
+			PutPixelToAddr(dst_px, col.pixel(bmpDest->format), bmpDest->format->BytesPerPixel);
+		}
+	}
+}
+
 ////////////////////
 // Updates the bmpDrawImage with data from bmpImage
 // X, Y, W, H apply to bmpImage, not bmpDrawImage
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
-	// HINT: we're not using DrawImageResampled when antialiasing is enabled because
-	// the blurred level looks weird
-	DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
+	if(tLXOptions->bAntiAliasing) {
+		// HINT: we're not using DrawImageResampled when antialiasing is enabled because
+		// the blurred level looks weird
+		//DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
+
+		//DrawImageResampledAdv(bmpDrawImage.get(), bmpImage.get(), x, y, x*2, y*2, w, h, 2.0f, 2.0f, 1.0f);
+
+		DrawImageResampled2(this, bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
+
+	} else
+		DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
+
 }
 
 ////////////////
@@ -1707,7 +1795,7 @@ void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 	if(x >= Width || y >= Height)
 		return;
 
-    DrawRectFill(bmpDrawImage.get(), x, y, x + 1, y + 1, colour);
+    DrawRectFill(bmpImage.get(), x, y, x + 1, y + 1, colour);
 
 	x *= 2;
 	y *= 2;
