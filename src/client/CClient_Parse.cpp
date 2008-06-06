@@ -121,7 +121,8 @@ void CClient::ParseChallenge(CBytestream *bs)
 	if( ! bs->isPosAtEnd() ) {
 		setServerVersion( bs->readString(128) );
 		printf("CClient: connected to %s server\n", getServerVersion().asString().c_str());
-	}
+	} else
+		printf("CClient: connected to old (<= OLX beta3) server\n");
 
 	// TODO: move this out here
 	// Tell the server we are connecting, and give the server our details
