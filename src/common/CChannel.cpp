@@ -343,6 +343,7 @@ void CChannel_UberPwnyReliable::Clear()
 	LastReliableOut = 0;
 	LastReliableIn = 0;
 	PongSequence = -1;
+	LastReliableIn_SentWithLastPacket = SEQUENCE_WRAPAROUND - 1;
 };
 
 void CChannel_UberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
@@ -387,6 +388,7 @@ bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
 
 	// Got a packet (good or bad), update the received time
 	fLastPckRecvd = tLX->fCurTime;
+
 	// Update statistics - calculate the bytes per second
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
@@ -495,7 +497,12 @@ bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
 	if( bs->GetRestLen() > 0 )	// Non-reliable data left in this packet
 		return true;	// Do not modify bs, allow user to read non-reliable data at the end of bs
 	
-	return GetPacketFromBuffer(bs);
+	if( GetPacketFromBuffer(bs) )	// We can return some reliable packet
+		return true;
+	
+	// We've got valid empty packet, or packet from future, return empty packet - bs->GetRestLen() == 0 here.
+	// It is required to update server statistics, so clients that don't send packets won't timeout.
+	return true;	
 };
 
 void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
@@ -552,17 +559,29 @@ void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
 			bs.Append(unreliableData);
 
 		// If we are sending a reliable message, remember this time and use it for ping calculations
-		if (PongSequence == -1)  
+		if (PongSequence == -1)
 		{
 			PongSequence = packetToSendIdx;
 			fLastPingSent = tLX->fCurTime; //GetMilliSeconds();
 		};
 	};
-
+	
+	if( packetData.GetLength() == 0 && unreliableData->GetLength() == 0 )
+	{
+		// Nothing to send really, send one empty packet per halfsecond so we won't timeout,
+		// but always send first packet with acknowledges, or other side will flood 
+		// non-acknowledged packets for halfsecond.
+		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
+		if( tLX->fCurTime - fLastSent < 0.5 && LastReliableIn == LastReliableIn_SentWithLastPacket )
+			return;
+	}
+	LastReliableIn_SentWithLastPacket = LastReliableIn;
+	
 	// Send the packet
 	SetRemoteNetAddr(Socket, RemoteAddr);
 	bs.Send(Socket);
 
+	
 	// Update statistics
 	iOutgoingBytes += bs.GetLength();
 	iCurrentOutgoingBytes += bs.GetLength();

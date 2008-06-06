@@ -114,6 +114,7 @@ public:
 	// This function will send reliable data from AddReliablePacketToSend() plus unreliable data in bs argument
 	virtual void	Transmit( CBytestream *unreliableData ) = 0;
 	// This function behaves differently for CChannel_UberPwnyReliable, see below
+	// It should return empty data from time to time when channel is inactive, so clients won't timeout.
 	virtual bool	Process( CBytestream *bs ) = 0;
 	virtual void	AddReliablePacketToSend(CBytestream& bs);
 	
@@ -193,10 +194,11 @@ private:
 	PacketList_t	ReliableIn;			// Reliable messages from the other side, not sorted, with their ID-s
 	int				LastReliableIn;		// Last packet acknowledged by me
 	
-	CBytestream		nonReliableData;	// Non-reliable packet
-
 	// Pinging
-	int			PongSequence;						// expected pong sequence, -1 when not pinging
+	int				PongSequence;						// expected pong sequence, -1 when not pinging
+	
+	// Misc vars to shape packet flow
+	int				LastReliableIn_SentWithLastPacket;	// Required to check if we need to send empty packet with acknowledges
 	
 	bool GetPacketFromBuffer(CBytestream *bs);
 

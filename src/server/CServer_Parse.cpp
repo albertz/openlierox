@@ -656,7 +656,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
 		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
-	printf("Chat: "); printf(buf); printf("\n");
+	//printf("Chat: "); printf(buf); printf("\n"); // It is saved in Conversations.log anyway, don't need to print it to dbg console
 
 	// Check for special commands
 	if (command_buf.size() > 2)
