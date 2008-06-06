@@ -2040,7 +2040,7 @@ bool CMap::Load(const std::string& filename)
 	ApplyShadow(0, 0, Width, Height);
 
 	// Update the draw image
-	DrawImageStretch(bmpDrawImage.get(), bmpImage, 0, 0);
+	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
 
 	// Update the minimap
 	UpdateMiniMap(true);
