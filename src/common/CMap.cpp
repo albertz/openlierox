@@ -1789,6 +1789,7 @@ void CMap::DeleteStone(object_t *obj)
 
 ///////////////////
 // Put a pixel onto the front image buffer
+// TODO: atm, this isnt used at all; some outcommented usage is in debug parts of AI; so shouldn't we put the pixel on the debug image then?
 void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 {
     // Checking edges
