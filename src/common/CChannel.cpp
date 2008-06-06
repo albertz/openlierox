@@ -333,7 +333,7 @@ const float KeepAlivePacketTimeout = 0.5;
 // if packets rarely get lost over net it will decrease bandwidth dramatically, for little lag tradeoff.
 // Set to 0 to flood net with packets instantly as in CChannel_056b.
 // If any new data available to send, or unreliable data present, packet is sent anyway.
-const float DataPacketTimeout = 0.05;
+const float DataPacketTimeout = 0.05f;
 
 // Do not check "if( sequence1 < sequence2 )", use this function instead, it will handle wraparound issues.
 // SequenceDiff( 32765, 32764 ) equals to SequenceDiff( 0, 32765 ) equals to SequenceDiff( 1, 0 ) equals to 1.
