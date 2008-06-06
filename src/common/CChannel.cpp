@@ -308,20 +308,33 @@ then CChannel will act like old CChannel_056b, when only one packet is allowed
 to be flying through network at any time.
 */
 
+enum { 
+
 // SEQUENCE_WRAPAROUND is where sequence wraps to zero - sequence range is from 0 to SEQUENCE_WRAPAROUND-1.
 // All sequences (or packet indexes) used are wrapping around at this number
 // We cannot allow four leadinf 0xFF bytes in reliable packet, so SEQUENCE_WRAPAROUND
 // is slightly less than 0x7FFF.
-// SEQUENCE_SAFE_DIST is the max distance between two sequences when packets will
-// get ignored as erroneous ones.
-// MAX_NON_ACKNOWLEDGED_PACKETS is max amount of packets that can be flying through the net at the same time.
-// SEQUENCE_HIGHEST_BIT is highest bit in a 2-byte int.
-enum {
 	SEQUENCE_WRAPAROUND = 32766,
+
+// SEQUENCE_SAFE_DIST is the max distance between two sequences when packets will get ignored as erroneous ones.
 	SEQUENCE_SAFE_DIST = 100,
-	MAX_NON_ACKNOWLEDGED_PACKETS = 3,
+
+// MAX_NON_ACKNOWLEDGED_PACKETS is max amount of packets that can be flying through the net at the same time.
+	MAX_NON_ACKNOWLEDGED_PACKETS = 3,	// 1 is minimum - it behaves like old CChannel then.
+
+// SEQUENCE_HIGHEST_BIT is highest bit in a 2-byte int, for convenience.
 	SEQUENCE_HIGHEST_BIT = 0x8000
 };
+
+// How much to wait before sending another empty keep-alive packet, sec.
+const float KeepAlivePacketTimeout = 0.5;	
+
+// How much to wait before sending data packet again, sec - 
+// if packets rarely get lost over net it will decrease bandwidth dramatically, for little lag tradeoff.
+// Set to 0 to flood net with packets instantly as in CChannel_056b.
+// If any new data available to send, or unreliable data present, packet is sent anyway.
+const float DataPacketTimeout = 0.05;
+
 // Do not check "if( sequence1 < sequence2 )", use this function instead, it will handle wraparound issues.
 // SequenceDiff( 32765, 32764 ) equals to SequenceDiff( 0, 32765 ) equals to SequenceDiff( 1, 0 ) equals to 1.
 int SequenceDiff( int s1, int s2 )
@@ -341,8 +354,11 @@ void CChannel_UberPwnyReliable::Clear()
 	ReliableOut.clear();
 	ReliableIn.clear();
 	LastReliableOut = 0;
+	LastAddedToOut = 0;
 	LastReliableIn = 0;
 	PongSequence = -1;
+	LastReliablePacketSent = SEQUENCE_WRAPAROUND - 1;
+	NextReliablePacketToSend = 0;
 	LastReliableIn_SentWithLastPacket = SEQUENCE_WRAPAROUND - 1;
 };
 
@@ -517,42 +533,68 @@ void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
 
 	bs.writeInt( LastReliableIn, 2 );
 
-	// Add packet headers
-	// TODO: for now we're sending only the first non-acknowledged packet, like in old CChannel_056b,
-	// I'll add support for multiple packets later
-	int packetToSendIdx = LastReliableOut + 1;
-	if( packetToSendIdx >= SEQUENCE_WRAPAROUND )
-		packetToSendIdx = 0;
-
 	// Add reliable packet to ReliableOut buffer
-	if( ReliableOut.empty() && !Messages.empty() )
+	while( ReliableOut.size() < MAX_NON_ACKNOWLEDGED_PACKETS && !Messages.empty() )
 	{
-		ReliableOut.push_back( std::make_pair( Messages.front(), packetToSendIdx ) );
+		LastAddedToOut ++ ;
+		if( LastAddedToOut >= SEQUENCE_WRAPAROUND )
+			LastAddedToOut = 0;
+		ReliableOut.push_back( std::make_pair( Messages.front(), LastAddedToOut ) );
 		Messages.pop_front();
 	};
 
-	// Add packet headers and data
-	bool unreliableOnly = true;
+	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
+	// and roll NextReliablePacketToSend back to LastReliableOut.
+	if( ! ReliableOut.empty() )
+	{
+		for( PacketList_t::iterator it = ReliableOut.begin(), it1 = it++; it != ReliableOut.end(); it1 = it++ )
+		{
+			if( SequenceDiff( it->second, it1->second ) != 1 )
+				NextReliablePacketToSend = LastReliableOut;
+		};
+		if( ReliableOut.back().second != LastAddedToOut )
+			NextReliablePacketToSend = LastReliableOut;
+	};
+	
+	// Add packet headers and data - send all packets with indexes greater than LastReliablePacketSent.
+	// Add older packets to the output first.
+	// NextReliablePacketToSend points to the last packet, which is re-sent continuously each frame.
+	// TODO: Add some delay after sending all packets, to decrease bandwidth
 	CBytestream packetData;
+	bool unreliableOnly = true;
+	bool firstPacket = true;	// Always send first packet, even if it bigger than MAX_PACKET_SIZE
+	int packetIndex = LastReliableOut;
+	int packetSize = 0;
+	
 	for( PacketList_t::iterator it = ReliableOut.begin(); it != ReliableOut.end(); it++ )
 	{
-		if( it->second == packetToSendIdx )
+		if( SequenceDiff( it->second, NextReliablePacketToSend ) >= 0 )
 		{
+			if( !firstPacket )
+			{
+				bs.writeInt( packetIndex | SEQUENCE_HIGHEST_BIT, 2 );
+				bs.writeInt( packetSize, 2 );
+			};
+			packetIndex = it->second;
+			packetSize = it->first.GetLength();
+
+			if( bs.GetLength() + packetData.GetLength() > MAX_PACKET_SIZE && !firstPacket )
+				break;
+			firstPacket = false;
 			unreliableOnly = false;
-			bs.writeInt( packetToSendIdx, 2 );
-			bs.writeInt( it->first.GetLength(), 2 );
+			NextReliablePacketToSend = it->second;
+
 			packetData.Append( &it->first );
 		};
 	};
 
+	bs.writeInt( packetIndex, 2 );
+	bs.writeInt( packetSize, 2 );
+	
 	bs.Append( &packetData );
 
 	if( unreliableOnly )
-	{
-		bs.writeInt( LastReliableOut, 2 );
-		bs.writeInt( 0, 2 );
 		bs.Append(unreliableData);
-	}
 	else
 	{
 		if( bs.GetLength() + unreliableData->GetLength() <= MAX_PACKET_SIZE )
@@ -561,26 +603,37 @@ void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (PongSequence == -1)
 		{
-			PongSequence = packetToSendIdx;
-			fLastPingSent = tLX->fCurTime; //GetMilliSeconds();
+			PongSequence = NextReliablePacketToSend;
+			fLastPingSent = tLX->fCurTime;
 		};
 	};
 
-	if( packetData.GetLength() == 0 && unreliableData->GetLength() == 0 )
+	if( unreliableData->GetLength() == 0 &&
+		LastReliablePacketSent == LastAddedToOut &&
+		tLX->fCurTime - fLastSent < DataPacketTimeout )
+	{
+		// No unreliable data to send, and we've just sent the same packet -
+		// send it again after some timeout, don't flood net.
+		return;
+	};
+	
+	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
+		LastReliableIn == LastReliableIn_SentWithLastPacket &&
+		tLX->fCurTime - fLastSent < KeepAlivePacketTimeout )
 	{
 		// Nothing to send really, send one empty packet per halfsecond so we won't timeout,
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
-		if( tLX->fCurTime - fLastSent < 0.5 && LastReliableIn == LastReliableIn_SentWithLastPacket )
-			return;
-	}
-	LastReliableIn_SentWithLastPacket = LastReliableIn;
+		return;
+	};
 
 	// Send the packet
 	SetRemoteNetAddr(Socket, RemoteAddr);
 	bs.Send(Socket);
 
+	LastReliableIn_SentWithLastPacket = LastReliableIn;
+	LastReliablePacketSent = NextReliablePacketToSend;
 
 	// Update statistics
 	iOutgoingBytes += bs.GetLength();

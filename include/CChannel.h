@@ -188,8 +188,9 @@ class CChannel_UberPwnyReliable: public CChannel {
 	
 private:
 	typedef std::list< std::pair< CBytestream, int > > PacketList_t;
-	PacketList_t	ReliableOut;		// Reliable messages waiting to be acknowledged, with their ID-s
+	PacketList_t	ReliableOut;		// Reliable messages waiting to be acknowledged, with their ID-s, sorted
 	int				LastReliableOut;	// Last acknowledged packet from remote side
+	int				LastAddedToOut;		// Last packet that was added to ReliableOut buf
 
 	PacketList_t	ReliableIn;			// Reliable messages from the other side, not sorted, with their ID-s
 	int				LastReliableIn;		// Last packet acknowledged by me
@@ -199,6 +200,8 @@ private:
 	
 	// Misc vars to shape packet flow
 	int				LastReliableIn_SentWithLastPacket;	// Required to check if we need to send empty packet with acknowledges
+	int				LastReliablePacketSent;				// To make packet flow smooth
+	int				NextReliablePacketToSend;			// To make packet flow smooth
 	
 	bool GetPacketFromBuffer(CBytestream *bs);
 
