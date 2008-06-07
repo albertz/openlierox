@@ -660,45 +660,12 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)cMap->GetImage().get()->clip_rect))
 		return;
 
-	static const float SQRT05 = 1.0f / 1.414213562373095049f;
 	int dx2 = sx*2 + w*2;
 	int dy2 = sy*2 + h*2;
 	for(int dy = sy*2; dy < dy2; dy++) {
 		for(int dx = sx*2; dx < dx2; dx++) {
 
 			Color col;
-			double pxsum = 0;
-			/* if(Resample2_isDominantColor(bmpSrc, dx, dy))
-				col = Resample2_getColor(bmpSrc, dx, dy);
-			else { */
-
-/*			if(cMap->GetPixelFlag(dx/2, dy/2) & (PX_DIRT|PX_ROCK)) {
-//				col = Resample2_getColor(bmpSrc, dx, dy);
-
-				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 1) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 0) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx + 0, dy - 1) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 0) * 1.0; pxsum += 1.0;
-
-				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 0) * 2.0; pxsum += 2.0;
-
-				col = col / pxsum;
-
-			} else {
-				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 1) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 0) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx + 0, dy - 1) * 1.0; pxsum += 1.0;
-				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 0) * 1.0; pxsum += 1.0;
-
-				col = col + Resample2_getColor(bmpSrc, dx + 1, dy + 1) * SQRT05; pxsum += SQRT05;
-				col = col + Resample2_getColor(bmpSrc, dx + 1, dy - 1) * SQRT05; pxsum += SQRT05;
-				col = col + Resample2_getColor(bmpSrc, dx - 1, dy - 1) * SQRT05; pxsum += SQRT05;
-				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 1) * SQRT05; pxsum += SQRT05;
-
-				col = col / pxsum;
-			} */
-
-			//}
 
 			if(dx % 2 == 0 && dy % 2 == 0)
 				{ col = Resample2_getColor(bmpSrc, dx, dy); }
