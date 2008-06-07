@@ -738,6 +738,8 @@ public:
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
 
+	std::string	debugName();
+
 };
 
 extern	CClient			*cClient;

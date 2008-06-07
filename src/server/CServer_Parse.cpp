@@ -69,7 +69,7 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 			// TODO: Set the player's send_data property to false
 		}
 	}
-	
+
 	cl->setLastReceived(tLX->fCurTime);
 
 
@@ -645,18 +645,26 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
-	if(cl->getNumWorms() == 0) return;
-
 	std::string buf = bs->readString(256);
 
-	if (buf == "")  // Ignore empty messages
+	if(cl->getNumWorms() == 0) {
+		printf("WARNING: %s with no worms sends message '%s'\n", cl->debugName().c_str(), buf.c_str());
 		return;
+	}
+
+	if (buf == "") { // Ignore empty messages
+		printf("WARNING: %s sends empty message\n", cl->debugName().c_str());
+		return;
+	}
+
+	// TODO: is it correct that we check here only for worm 0 ?
+	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
 	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
 		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
-	//printf("Chat: "); printf(buf); printf("\n"); // It is saved in Conversations.log anyway, don't need to print it to dbg console
+	printf("CHAT: "); printf(buf); printf("\n");
 
 	// Check for special commands
 	if (command_buf.size() > 2)
@@ -667,16 +675,17 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
-		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
+		SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
 	}
 
 	// Don't send text from muted players
-	if (cl)
-		if (cl->getMuted())
-			return;
+	if (cl->getMuted()) {
+		printf("ignored message from muted %s\n", cl->debugName().c_str());
+		return;
+	}
 
 	SendGlobalText(buf, TXT_CHAT);
-	
+
 	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
 		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
 }
@@ -1178,7 +1187,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		printf("fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
 		cl = cClients;
 		std::string msg;
-		
+
 		FILE* ErrorFile = OpenGameFile("Server_error.txt","at");
 		if(ErrorFile == NULL)
 			printf("Great. We can't even open a bloody file.\n");
@@ -1187,10 +1196,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			fprintf(ErrorFile,"%s - Server Error report",GetTime().c_str());
 			fprintf(ErrorFile,"fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
 		}
-		for (p = 0;p < MAX_CLIENTS;p++, cl++) 
+		for (p = 0;p < MAX_CLIENTS;p++, cl++)
 		{
 			msg = "Client id " + itoa(p) + ". Status: ";
-			if (cl->getStatus() == NET_DISCONNECTED) 
+			if (cl->getStatus() == NET_DISCONNECTED)
 				msg += "Disconnected.";
 			else if (cl->getStatus() == NET_CONNECTED)
 				msg += "Connected.";
@@ -1203,14 +1212,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			if(ErrorFile != NULL)
 				fprintf(ErrorFile,"%s",msg.c_str());
 		}
-		
+
 		if(ErrorFile)
 			fclose(ErrorFile);
 		ErrorFile = NULL;
-		
-		
-		
-	
+
+
+
+
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");

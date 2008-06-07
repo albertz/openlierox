@@ -31,6 +31,7 @@
 #include "Version.h"
 #include "CServer.h"
 #include "AuxLib.h"
+#include "Networking.h"
 #include "OLXModInterface.h"
 using namespace OlxMod;
 
@@ -1257,7 +1258,7 @@ void CClient::Shutdown(void)
 void CClient::setClientVersion(const std::string & _s)
 {
 	cClientVersion.setByString(_s);
-	printf("Client is using " + cClientVersion.asString() + "\n");
+	printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
 }
 
 void CClient::setServerVersion(const std::string & _s)
@@ -1333,3 +1334,28 @@ CChannel * CClient::createChannel(const Version& v)
 		cNetChan = new CChannel_056b();
 	return cNetChan;
 };
+
+std::string CClient::debugName() {
+	std::string adr = "?.?.?.?";
+	NetworkAddr netAdr;
+	if(!getChannel())
+		printf("WARNING: CClient::debugName(): getChannel() == NULL\n");
+	else if(!GetRemoteNetAddr(getChannel()->getSocket(), netAdr))
+		printf("WARNING: CClient::debugName(): GetRemoteNetAddr failed\n");
+	else if(!NetAddrToString(netAdr, adr))
+		printf("WARNING: CClient::debugName(): NetAddrToString failed\n");
+
+	std::string worms = "no worms";
+	if(getNumWorms() > 0) {
+		worms = "";
+		for(int i = 0; i < getNumWorms(); ++i) {
+			if(i > 0) worms += ", ";
+			worms += itoa(getWorm(i)->getID());
+			worms += " '";
+			worms += getWorm(i)->getName();
+			worms += "'";
+		}
+	}
+
+	return "CClient(" + adr +") with " + worms;
+}
