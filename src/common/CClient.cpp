@@ -1338,9 +1338,9 @@ CChannel * CClient::createChannel(const Version& v)
 std::string CClient::debugName() {
 	std::string adr = "?.?.?.?";
 	NetworkAddr netAdr;
-	if(!getChannel())
-		printf("WARNING: CClient::debugName(): getChannel() == NULL\n");
-	else if(!GetRemoteNetAddr(getChannel()->getSocket(), netAdr))
+	if(isLocalClient())
+		adr = "local";
+	else if(!GetRemoteNetAddr(tSocket, netAdr))
 		printf("WARNING: CClient::debugName(): GetRemoteNetAddr failed\n");
 	else if(!NetAddrToString(netAdr, adr))
 		printf("WARNING: CClient::debugName(): NetAddrToString failed\n");
