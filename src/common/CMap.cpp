@@ -669,7 +669,7 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 				col = Resample2_getColor(bmpSrc, dx, dy);
 			else { */
 
-			if(cMap->GetPixelFlag(dx/2, dy/2) & (PX_DIRT|PX_ROCK)) {
+/*			if(cMap->GetPixelFlag(dx/2, dy/2) & (PX_DIRT|PX_ROCK)) {
 //				col = Resample2_getColor(bmpSrc, dx, dy);
 
 				col = col + Resample2_getColor(bmpSrc, dx + 0, dy + 1) * 1.0; pxsum += 1.0;
@@ -693,9 +693,21 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 				col = col + Resample2_getColor(bmpSrc, dx - 1, dy + 1) * SQRT05; pxsum += SQRT05;
 
 				col = col / pxsum;
-			}
+			} */
 
 			//}
+
+			if(dx % 2 == 0 && dy % 2 == 0)
+				{ col = Resample2_getColor(bmpSrc, dx, dy); }
+			else if(dx % 2 == 1 && dy % 2 == 0)
+				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx + 1, dy) * 0.5; }
+			else if(dx % 2 == 0 && dy % 2 == 1)
+				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx, dy + 1) * 0.5; }
+			else
+				{ col =
+					Resample2_getColor(bmpSrc, dx, dy) * 0.25 + Resample2_getColor(bmpSrc, dx, dy + 1) * 0.25 +
+					Resample2_getColor(bmpSrc, dx + 1, dy) * 0.25 + Resample2_getColor(bmpSrc, dx + 1, dy + 1) * 0.25;
+				}
 
 			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
 			PutPixelToAddr(dst_px, col.pixel(bmpDest->format), bmpDest->format->BytesPerPixel);
