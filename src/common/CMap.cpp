@@ -657,7 +657,10 @@ inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
 }
 
 void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
-	static const float SQRT05 = 1.0 / 1.414213562373095049f;
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)cMap->GetImage().get()->clip_rect))
+		return;
+
+	static const float SQRT05 = 1.0f / 1.414213562373095049f;
 	int dx2 = sx*2 + w*2;
 	int dy2 = sy*2 + h*2;
 	for(int dy = sy*2; dy < dy2; dy++) {
