@@ -30,7 +30,6 @@
 #include "Physics.h"
 #include "Version.h"
 #include "OLXModInterface.h"
-using namespace OlxMod;
 
 
 #ifndef WIN32
@@ -320,7 +319,7 @@ startpoint:
 		ClearEntities();
 
 		ProcessEvents();
-		tLX->bQuitEngine = false;
+		ResetQuitEngineFlag();
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 
 		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
@@ -717,7 +716,7 @@ void GameLoopFrame(void)
 // Quit back to the menu
 void QuittoMenu(void)
 {
-	tLX->bQuitEngine = true;
+	SetQuitEngineFlag("QuittoMenu");
     Menu_SetSkipStart(false);
 	cClient->Disconnect();
 }
@@ -726,7 +725,7 @@ void QuittoMenu(void)
 // Go to local menu
 void GotoLocalMenu(void)
 {
-	tLX->bQuitEngine = true;
+	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
 	Menu_SetSkipStart(true);
 	Menu_LocalInitialize();
@@ -742,7 +741,7 @@ void GotoNetMenu(void)
 	}
 
 	std::cout << "GotoNetMenu" << std::endl;
-	tLX->bQuitEngine = true;
+	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();
 	Menu_SetSkipStart(true);
 	Menu_NetInitialize();
@@ -928,10 +927,33 @@ void ShutdownLieroX(void)
 	if(!bRestartGameAfterQuit)
 	{
 		CScriptableVars::DeInit();
-		OlxMod_DeleteModList();
+		OlxMod::OlxMod_DeleteModList();
 	};
 
 	xmlCleanupParser();
 
 	printf("Everything was shut down\n");
+}
+
+
+
+std::string quitEngineFlagReason;
+
+void ResetQuitEngineFlag() {
+	tLX->bQuitEngine = false;
+}
+
+void SetQuitEngineFlag(const std::string& reason) {
+	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
+	quitEngineFlagReason = reason;
+	tLX->bQuitEngine = true;
+}
+
+bool Warning_QuitEngineFlagSet(const std::string& preText) {
+	if(tLX->bQuitEngine) {
+		printf(preText);
+		printf("WARNING: bQuitEngine is set because: " + quitEngineFlagReason + "\n");
+		return true;
+	}
+	return false;
 }

@@ -187,7 +187,7 @@ void HandleNextEvent() {
 	case SDL_QUIT:
 		// Quit
 		tLX->bQuitGame = true;
-		tLX->bQuitEngine = true;
+		SetQuitEngineFlag("SDL_QUIT event");
 		tMenu->bMenuRunning = false;
 		break;
 

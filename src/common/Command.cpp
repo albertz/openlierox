@@ -615,7 +615,7 @@ void Cmd_BadWord() {
 }
 
 void Cmd_Quit() {
-	tLX->bQuitEngine = true;
+	SetQuitEngineFlag("Console Cmd_Quit");
 }
 
 ///////////////////

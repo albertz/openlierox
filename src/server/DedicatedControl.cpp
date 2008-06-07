@@ -77,7 +77,7 @@ struct pstream_pipe_t
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
-		if(p) 
+		if(p)
 			delete p;
 		if( params.size() == 0 )
 			params.push_back(cmd);
@@ -136,7 +136,7 @@ void DedicatedControl::Uninit() {
 
 static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 	cmd = ""; rest = "";
-	
+
 	char c;
 	while( true ) {
 		c = s.get();
@@ -155,62 +155,62 @@ static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 	}
 }
 
-struct DedIntern {	
+struct DedIntern {
 	SDL_Thread* pipeThread;
 	SDL_Thread* stdinThread;
 	pstream_pipe_t pipe;
 	SDL_mutex* pipeOutputMutex;
 	stringstream pipeOutput;
 	bool quitSignal;
-	
+
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 	DedIntern() : quitSignal(false), state(S_NORMAL) {}
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
-		
+
 		printf("waiting for stdinThread ...\n");
 		SDL_WaitThread(stdinThread, NULL);
-		
+
 		printf("waiting for pipeThread ...\n");
 		pipe.close();
 		SDL_WaitThread(pipeThread, NULL);
-				
+
 		SDL_DestroyMutex(pipeOutputMutex);
 		printf("DedicatedControl destroyed\n");
 	}
-	
+
 	// reading lines from pipe-out and put them to pipeOutput
 	static int pipeThreadFunc(void*) {
 		DedIntern* data = Get();
-		
+
 		while(!data->pipe.out().eof()) {
 			string buf;
 			getline(data->pipe.out(), buf);
-			
+
 			SDL_mutexP(data->pipeOutputMutex);
 			data->pipeOutput << buf << endl;
 	 		SDL_mutexV(data->pipeOutputMutex);
 		}
 		return 0;
 	}
-	
+
 	// reading lines from stdin and put them to pipeOutput
 	static int stdinThreadFunc(void*) {
 		DedIntern* data = Get();
-		
+
 #ifndef WIN32
 		// TODO: there's no fcntl for Windows!
 		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
 #endif
 			cout << "ERROR setting standard input into non-blocking mode" << endl;
-		
-		while(true) {			
+
+		while(true) {
 			string buf;
 			while(true) {
 				SDL_Delay(10); // TODO: maxfps here
 				if(data->quitSignal) return 0;
-				
+
 				char c;
 
 				if(read(0, &c, 1) >= 0) {
@@ -218,18 +218,18 @@ struct DedIntern {
 					buf += c;
 				}
 			}
-			
+
 			SDL_mutexP(data->pipeOutputMutex);
 			data->pipeOutput << buf << endl;
 	 		SDL_mutexV(data->pipeOutputMutex);
 		}
 		return 0;
 	}
-	
+
 	// -------------------------------
 	// ------- state -----------------
 
-	
+
 	enum State {
 		S_NORMAL, // server was not started
 		S_LOBBY, // in lobby
@@ -238,7 +238,7 @@ struct DedIntern {
 		S_PLAYING // in game: playing
 		};
 	State state;
-	
+
 	// TODO: Move this?
 	CWorm* CheckWorm(int id, string caller)
 	{
@@ -257,21 +257,21 @@ struct DedIntern {
 	}
 	// --------------------------------
 	// ---- commands ------------------
-	
+
 	void Cmd_Quit() {
 		*bGame = false; // this means if we were in menu => quit
 		tMenu->bMenuRunning = false; // if we were in menu, quit menu
-		
+
 		tLX->bQuitGame = true; // quit main-main-loop
-		tLX->bQuitEngine = true; // quit main-game-loop
+		SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
 	}
-	
+
 	void Cmd_Message(const std::string& msg) {
 		cout << "DedicatedControl: message: " << msg << endl;
 	}
-	
+
 	// adds a worm to the game (By string - id is way to complicated)
-	void Cmd_AddBot(const std::string & params) 
+	void Cmd_AddBot(const std::string & params)
 	{
 		// Default botname
 		// New variable so that we won't break const when we trim spaces.
@@ -281,9 +281,9 @@ struct DedIntern {
 			localWorm = params;
 			TrimSpaces(localWorm);
 		}
-			
+
 		//Find an empty spot
-		for(int i=0;i < tGameInfo.iNumPlayers;i++) 
+		for(int i=0;i < tGameInfo.iNumPlayers;i++)
 		{
 			if (tGameInfo.cPlayers[i] == NULL)
 			{
@@ -294,12 +294,12 @@ struct DedIntern {
 		}
 		// So that worm requested was not found -> let's find a new one.
 		profile_t *p = GetProfiles();
-		for(;p;p=p->tNext) 
+		for(;p;p=p->tNext)
 		{
 			if(p->iType == PRF_COMPUTER)
 			{
 				//Find an empty spot
-				for(int i=0;i < tGameInfo.iNumPlayers;i++) 
+				for(int i=0;i < tGameInfo.iNumPlayers;i++)
 				{
 					if (tGameInfo.cPlayers[i] == NULL)
 					{
@@ -308,13 +308,13 @@ struct DedIntern {
 						return;
 					}
 				}
-				
+
 			}
 		}
 		printf("ERROR: Can't find ANY bot! (Or a free slot)");
 		// TODO: Perhaps send a signal back informing if we fail?
 		return;
-		
+
 	}
 
 	void Cmd_KillBots(const std::string & params) {
@@ -325,11 +325,11 @@ struct DedIntern {
 				cClient->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
 			}
 	}
-	
+
 	// Kick and ban will both function using ID
-	// It's up to the control-program to supply the ID 
+	// It's up to the control-program to supply the ID
 	// - if it sends a string atoi will fail at converting it to something sensible
-	void Cmd_KickWorm(const std::string & params) 
+	void Cmd_KickWorm(const std::string & params)
 	{
 		std::string reason = "";
 		int id = -1;
@@ -358,7 +358,7 @@ struct DedIntern {
 		if(!CheckWorm(id, "KickWorm"))
 			return;
 
-		cServer->kickWorm(id,reason);	
+		cServer->kickWorm(id,reason);
 	}
 
 	void Cmd_BanWorm(const std::string & params)
@@ -423,8 +423,8 @@ struct DedIntern {
 			std::cout << "DedicatedControl: SetWormTeam: invalid team number" << std::endl;
 			return;
 		}
-		
-		w->getLobby()->iTeam = team; 
+
+		w->getLobby()->iTeam = team;
 		w->setTeam(team);
 		cServer->UpdateWorms();
 		cServer->SendWormLobbyUpdate();
@@ -453,10 +453,10 @@ struct DedIntern {
 			return;
 		};
 		CScriptableVars::SetVarByString(varptr, value);
-		
+
 		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
 	}
-	
+
 	void Cmd_SendLobbyUpdate() {
 		// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
 		cServer->getLobby()->nGameMode = tGameInfo.iGameMode;
@@ -472,23 +472,23 @@ struct DedIntern {
 
 		cServer->UpdateGameLobby();
 	};
-	
+
 	void Cmd_StartLobby(std::string param) {
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
-	
+
 		tLXOptions->tGameinfo.iMaxPlayers = 8;
 		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-		//tLXOptions->tGameinfo.bRegServer = false; 
+		//tLXOptions->tGameinfo.bRegServer = false;
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
 		tLXOptions->tGameinfo.bWantsJoinBanned = false;
 		tLXOptions->tGameinfo.bAllowRemoteBots = true;
 		tLXOptions->tGameinfo.bAllowNickChange = false;
 		tLXOptions->bServerSideHealth = false;
-	
+
 		tGameInfo.iGameType = GME_HOST;
-		
+
 		// Fill in some game details
 		tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
 		tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
@@ -497,10 +497,10 @@ struct DedIntern {
 		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
 		tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 		tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = 10;
-		
+
 		cClient->Shutdown();
 		cClient->Clear();
-		
+
 		// Start the server
 		if(!cServer->StartServer( tGameInfo.sServername, tLXOptions->iNetworkPort, tLXOptions->tGameinfo.iMaxPlayers, tLXOptions->tGameinfo.bRegServer )) {
 			// Crappy
@@ -508,7 +508,7 @@ struct DedIntern {
 			Sig_ErrorStartLobby();
 			return;
 		}
-	
+
 		// Lets connect me to the server
 		if(!cClient->Initialize()) {
 			// Crappy
@@ -517,7 +517,7 @@ struct DedIntern {
 			return;
 		}
 		cClient->Connect("127.0.0.1");
-		
+
 		// Set up the server's lobby details
 		game_lobby_t *gl = cServer->getLobby();
 		gl->bSet = true;
@@ -541,7 +541,7 @@ struct DedIntern {
 		tLXOptions->tGameinfo.sMapFilename = "CastleStrike.lxl";
 		tGameInfo.sMapFile = tLXOptions->tGameinfo.sMapFilename;
 		tGameInfo.sMapName = Menu_GetLevelName(tGameInfo.sMapFile);
-		
+
 		Sig_LobbyStarted();
 	}
 
@@ -551,7 +551,7 @@ struct DedIntern {
 			Sig_ErrorStartGame();
 			return;
 		}
-		
+
 		// Start the game
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		cServer->StartGame();	// start in dedicated mode
@@ -570,7 +570,7 @@ struct DedIntern {
 	};
 
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
-		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
+		cServer->SendGlobalText(OldLxCompatibleString(msg), type);
 	}
 
 	// TODO: make it send more info. No.
@@ -581,7 +581,7 @@ struct DedIntern {
 			id = atoi(params);
 
 		CWorm *w = cServer->getWorms();
-		for(int i=0; i < MAX_WORMS; i++, w++) 
+		for(int i=0; i < MAX_WORMS; i++, w++)
 		{
 			if(!w->isUsed())
 				continue;
@@ -602,7 +602,7 @@ struct DedIntern {
 		}
 		Sig_EndList();
 	}
-	
+
 	void Cmd_GetWormIp(const std::string& params)
 	{
 		int id = -1;
@@ -610,7 +610,7 @@ struct DedIntern {
 		CWorm* w = CheckWorm(id, "GetWormIp");
 		if (!w)
 			return;
-		
+
 		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
 		std::string str_addr;
 		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
@@ -619,7 +619,7 @@ struct DedIntern {
 		else
 			std::cout << "DedicatedControl: GetWormIp: str_addr == \"\"" << std::endl;
 	}
-	
+
 	void Cmd_GetWormLocationInfo(const std::string& params)
 	{
 		int id = -1;
@@ -627,10 +627,10 @@ struct DedIntern {
 		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
 		if (!w)
 			return;
-		
+
 		std::string str_addr;
 		IpInfo info;
-		
+
 		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
 		if (str_addr != "")
 		{
@@ -639,16 +639,16 @@ struct DedIntern {
 		}
 		else
 			std::cout << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << std::endl;
-		
+
 	}
 
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
 		if(cmd == "") return;
-		
+
 #ifdef DEBUG
-		cout << "DedicatedControl: exec: " << cmd << " " << params << endl;		
+		cout << "DedicatedControl: exec: " << cmd << " " << params << endl;
 #endif
 		if(cmd == "quit")
 			Cmd_Quit();
@@ -696,7 +696,7 @@ struct DedIntern {
 
 	// ----------------------------------
 	// ----------- signals --------------
-	
+
 	// Keep up with how THIS recieves signals - "params" are split by space, use same when sending.
 	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }
 	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PREPARING; }
@@ -730,27 +730,27 @@ struct DedIntern {
 	// CountryShortcuts don't have spaces in em.
 	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
 	void Sig_WormLocationInfo(CWorm* w,string continent, string country, string countryShortcut) {
-		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; } 
-	
+		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; }
+
 	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
 	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)
 	// TODO: Send all kills/deaths/teamkills after each game? Could get ugly real fast thou.
 
 
-	
+
 	// ----------------------------------
 	// ---------- frame handlers --------
-	
+
 	void Frame_Lobby() {
 		// Process the server & client frames
 		cServer->Frame();
 		cClient->Frame();
 	}
-	
+
 	void Frame_Playing() {
 		// we don't have to process server/client frames here as it is done already by the main loop
 	}
-	
+
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
 		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
@@ -762,7 +762,7 @@ struct DedIntern {
 			SDL_mutexP(pipeOutputMutex);
 		}
 		SDL_mutexV(pipeOutputMutex);
-		
+
 		switch(state) {
 		case S_LOBBY: Frame_Lobby(); break;
 		case S_PLAYING: Frame_Playing(); break;
@@ -780,11 +780,11 @@ bool DedicatedControl::Init_priv() {
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
 	if(!IsFileAvailable(scriptfn, true)) {
 		printf("ERROR: %s not found\n", scriptfn_rel.c_str());
-		return false;		
+		return false;
 	}
 	std::string command = scriptfn;
 	std::vector<std::string> commandArgs( 1, command );
-	
+
 	#ifdef WIN32
 	// Determine what interpreter to run for this script
 	FILE * ff = OpenGameFile(scriptfn, "r");
@@ -809,7 +809,7 @@ bool DedicatedControl::Init_priv() {
 		commandArgs.push_back(scriptfn);
 	}
 	#endif
-		
+
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
 	if( ! dedIntern->pipe.open(command, commandArgs) )
@@ -825,7 +825,7 @@ bool DedicatedControl::Init_priv() {
 
 	return true;
 }
-	
+
 
 // This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }

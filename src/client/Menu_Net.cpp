@@ -81,10 +81,10 @@ bool Menu_NetInitialize(void)
 	// Get the loading rect (used for redrawing)
 	tLoadingRect.x = MIN(tMenu->tFrontendInfo.iLoadingLabelLeft, MIN(tMenu->tFrontendInfo.iLoadingAnimLeft, tMenu->tFrontendInfo.iLoadingBarLeft));
 	tLoadingRect.y = MIN(tMenu->tFrontendInfo.iLoadingLabelTop, MIN(tMenu->tFrontendInfo.iLoadingAnimTop, tMenu->tFrontendInfo.iLoadingBarTop));
-	tLoadingRect.w = MAX(cIpToCountryLabel.getX() + cIpToCountryLabel.getWidth(), 
+	tLoadingRect.w = MAX(cIpToCountryLabel.getX() + cIpToCountryLabel.getWidth(),
 					 MAX(cIpToCountryAnim.getX() + cIpToCountryAnim.getWidth(),
 						 cIpToCountryProgress.getX() + cIpToCountryProgress.getWidth())) - tLoadingRect.x;
-	tLoadingRect.h = MAX(cIpToCountryLabel.getY() + cIpToCountryLabel.getHeight(), 
+	tLoadingRect.h = MAX(cIpToCountryLabel.getY() + cIpToCountryLabel.getHeight(),
 					 MAX(cIpToCountryAnim.getY() + cIpToCountryAnim.getHeight(),
 						 cIpToCountryProgress.getY() + cIpToCountryProgress.getHeight())) - tLoadingRect.y;
 
@@ -95,7 +95,7 @@ bool Menu_NetInitialize(void)
     	cNetButtons[i].setImageID(image_ids[i]);
         cNetButtons[i].Create();
     }
-	
+
 	cNetButtons[mn_Internet].Setup(mn_Internet, 95, 110, 95, 15);
 	cNetButtons[mn_LAN].Setup(mn_LAN, 210, 110, 40, 15);
 	cNetButtons[mn_Host].Setup(mn_Host, 275, 110, 50, 15);
@@ -135,7 +135,7 @@ bool Menu_NetInitialize(void)
 	default:
 		Menu_Net_NETInitialize();
 	}
-	
+
 	return true;
 }
 
@@ -145,7 +145,7 @@ bool Menu_NetInitialize(void)
 void Menu_Net_GotoHostLobby(void)
 {
 	cout << "Menu_Net_GotoHostLobby" << endl;
-	
+
 	tMenu->iMenuType = MNU_NETWORK;
 	tMenu->bMenuRunning = true;
 	tMenu->bmpScreen = GetVideoSurface();
@@ -158,8 +158,8 @@ void Menu_Net_GotoHostLobby(void)
 			Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 		Menu_RedrawMouse(true);
-	
-		
+
+
 		cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
 		cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
 		cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
@@ -170,7 +170,7 @@ void Menu_Net_GotoHostLobby(void)
 
 	Menu_Net_HostGotoLobby();
 
-	tLX->bQuitEngine = true;
+	SetQuitEngineFlag("Menu_Net_GotoHostLobby");
 	iSkipStart = true;
 }
 
@@ -193,7 +193,7 @@ void Menu_Net_GotoJoinLobby(void)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	Menu_RedrawMouse(true);
-	
+
 	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
 	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
 	cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
@@ -201,9 +201,9 @@ void Menu_Net_GotoJoinLobby(void)
 	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 
 	Menu_Net_JoinGotoLobby();
-	
-	tLX->bQuitEngine = true;
-	iSkipStart = true;	
+
+	SetQuitEngineFlag("Menu_Net_GotoJoinLobby");
+	iSkipStart = true;
 }
 
 
@@ -226,7 +226,7 @@ void Menu_NetFrame(void)
 
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
 		for(int i=mn_Internet; i<=mn_News; i++) {
-		
+
 			cNetButtons[i].Draw(tMenu->bmpScreen);
 
 			if( i == iNetMode-1 )
@@ -235,7 +235,7 @@ void Menu_NetFrame(void)
 			if( cNetButtons[i].InBox(Mouse->X, Mouse->Y) ) {
 				cNetButtons[i].MouseOver(Mouse);
 				mouse = 1;
-				if(Mouse->Up) {					
+				if(Mouse->Up) {
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Call a shutdown on all the highest net menu's
@@ -253,7 +253,7 @@ void Menu_NetFrame(void)
 
 					// Initialize the appropriate menu
 					switch(iNetMode) {
-					
+
 						// Main
 						case 0:
 							Menu_Net_MainInitialize();

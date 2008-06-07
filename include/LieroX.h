@@ -281,7 +281,9 @@ void	QuittoMenu(void);
 void	GotoLocalMenu(void);
 void	GotoNetMenu(void);
 
-
+void	SetQuitEngineFlag(const std::string& reason);
+void	ResetQuitEngineFlag();
+bool	Warning_QuitEngineFlagSet(const std::string& preText = "");
 
 // Miscellanous routines
 float	GetFixedRandomNum(uchar index);

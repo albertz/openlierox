@@ -436,9 +436,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 {
 	printf("Got ParsePrepareGame\n");
 
-	if(tLX->bQuitEngine) {
+	if(Warning_QuitEngineFlagSet("CClient::ParsePrepareGame: ")) {
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
-		tLX->bQuitEngine = false;
+		ResetQuitEngineFlag();
 	}
 
 	// We've already got this packet
