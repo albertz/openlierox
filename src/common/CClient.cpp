@@ -33,7 +33,6 @@
 #include "AuxLib.h"
 #include "Networking.h"
 #include "OLXModInterface.h"
-using namespace OlxMod;
 
 
 const float fDownloadRetryTimeout = 5.0;	// 5 seconds
@@ -826,7 +825,7 @@ void CClient::Disconnect(void)
 			cNetChan->Transmit(&bs);
 
 	if( iNetStatus == NET_PLAYING_OLXMOD )
-		OlxMod_EndRound();
+		OlxMod::OlxMod_EndRound();
 
 	iNetStatus = NET_DISCONNECTED;
 
@@ -1269,7 +1268,7 @@ void CClient::setServerVersion(const std::string & _s)
 
 void CClient::SimulationOlxMod()
 {
-	OlxMod_KeyState_t keys;
+	OlxMod::OlxMod_KeyState_t keys;
 	keys.up = cLocalWorms[0]->getInputUp().isDown();
 	keys.down = cLocalWorms[0]->getInputDown().isDown();
 	keys.left = cLocalWorms[0]->getInputLeft().isDown();
@@ -1288,7 +1287,7 @@ void CClient::SimulationOlxMod()
 	};
 	if( GetKeyboard()->KeyUp[SDLK_ESCAPE] )
 	{
-		OlxMod_EndRound();
+		OlxMod::OlxMod_EndRound();
 
 		SDL_SetClipRect(GetVideoSurface(), NULL);
 		FillSurfaceTransparent(tMenu->bmpBuffer.get());

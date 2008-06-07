@@ -10,15 +10,44 @@
 		23026E520D5D1BC50021934B /* PhysicsLX56.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23026E510D5D1BC50021934B /* PhysicsLX56.cpp */; };
 		23026E570D5D1D4C0021934B /* Physics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23026E560D5D1D4C0021934B /* Physics.cpp */; };
 		230668390D40B44D005B4451 /* IniReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230668380D40B44D005B4451 /* IniReader.cpp */; };
+		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		235D28180CF7C1230067BA4F /* CGuiSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28160CF7C1230067BA4F /* CGuiSkin.cpp */; };
 		235D28190CF7C1230067BA4F /* CGuiSkinnedLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
-		235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281C0CF7C13B0067BA4F /* stun.cpp */; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
+		239324570DFB0DE200049723 /* blit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393241F0DFB0DE200049723 /* blit.cpp */; };
+		239324580DFB0DE200049723 /* bobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324200DFB0DE200049723 /* bobject.cpp */; };
+		239324590DFB0DE200049723 /* bonus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324220DFB0DE200049723 /* bonus.cpp */; };
+		2393245A0DFB0DE200049723 /* constants.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324260DFB0DE200049723 /* constants.cpp */; };
+		2393245B0DFB0DE200049723 /* filesystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324280DFB0DE200049723 /* filesystem.cpp */; };
+		2393245C0DFB0DE200049723 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393242A0DFB0DE200049723 /* font.cpp */; };
+		2393245D0DFB0DE200049723 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393242C0DFB0DE200049723 /* game.cpp */; };
+		2393245E0DFB0DE200049723 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393242E0DFB0DE200049723 /* gfx.cpp */; };
+		2393245F0DFB0DE200049723 /* keys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324300DFB0DE200049723 /* keys.cpp */; };
+		239324600DFB0DE200049723 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324320DFB0DE200049723 /* level.cpp */; };
+		239324610DFB0DE200049723 /* math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324340DFB0DE200049723 /* math.cpp */; };
+		239324620DFB0DE200049723 /* menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324360DFB0DE200049723 /* menu.cpp */; };
+		239324630DFB0DE200049723 /* ninjarope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324380DFB0DE200049723 /* ninjarope.cpp */; };
+		239324640DFB0DE200049723 /* nobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324390DFB0DE200049723 /* nobject.cpp */; };
+		239324650DFB0DE200049723 /* OlxMod_OpenLiero_01.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393243C0DFB0DE200049723 /* OlxMod_OpenLiero_01.cpp */; };
+		239324660DFB0DE200049723 /* OpenLiero_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393243D0DFB0DE200049723 /* OpenLiero_console.cpp */; };
+		239324670DFB0DE200049723 /* OpenLiero_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393243E0DFB0DE200049723 /* OpenLiero_main.cpp */; };
+		239324680DFB0DE200049723 /* rand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324400DFB0DE200049723 /* rand.cpp */; };
+		239324690DFB0DE200049723 /* reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324420DFB0DE200049723 /* reader.cpp */; };
+		2393246A0DFB0DE200049723 /* settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324450DFB0DE200049723 /* settings.cpp */; };
+		2393246B0DFB0DE200049723 /* sfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324470DFB0DE200049723 /* sfx.cpp */; };
+		2393246C0DFB0DE200049723 /* sobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324490DFB0DE200049723 /* sobject.cpp */; };
+		2393246D0DFB0DE200049723 /* sys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393244B0DFB0DE200049723 /* sys.cpp */; };
+		2393246E0DFB0DE200049723 /* text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393244D0DFB0DE200049723 /* text.cpp */; };
+		2393246F0DFB0DE200049723 /* viewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2393244F0DFB0DE200049723 /* viewport.cpp */; };
+		239324700DFB0DE200049723 /* weapon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324510DFB0DE200049723 /* weapon.cpp */; };
+		239324710DFB0DE200049723 /* weapsel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324530DFB0DE200049723 /* weapsel.cpp */; };
+		239324720DFB0DE200049723 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324550DFB0DE200049723 /* worm.cpp */; };
+		239324930DFB0FA400049723 /* OLXModInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239324920DFB0FA400049723 /* OLXModInterface.cpp */; };
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
@@ -197,6 +226,8 @@
 		23026E560D5D1D4C0021934B /* Physics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Physics.cpp; sourceTree = "<group>"; };
 		230668360D40B434005B4451 /* IniReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IniReader.h; sourceTree = "<group>"; };
 		230668380D40B44D005B4451 /* IniReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IniReader.cpp; sourceTree = "<group>"; };
+		230E9C4F0D8C406F00BFB500 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
+		230E9C500D8C407B00BFB500 /* Version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version.cpp; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		235D280C0CF7C10C0067BA4F /* CGuiSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkin.h; sourceTree = "<group>"; };
 		235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkinnedLayout.h; sourceTree = "<group>"; };
@@ -207,12 +238,72 @@
 		235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGuiSkinnedLayout.cpp; sourceTree = "<group>"; };
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
-		235D281C0CF7C13B0067BA4F /* stun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stun.cpp; sourceTree = "<group>"; };
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
 		2389FB650D2D5A4700358F27 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
 		238E1F390D60DC500008FDC5 /* nl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nl.h; path = ../../hawknl/include/nl.h; sourceTree = SOURCE_ROOT; };
+		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
+		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
+		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
+		2393240D0DFB0D3500049723 /* OLXModInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXModInterface.h; sourceTree = "<group>"; };
+		2393241F0DFB0DE200049723 /* blit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = blit.cpp; path = mods/openliero/blit.cpp; sourceTree = "<group>"; };
+		239324200DFB0DE200049723 /* bobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bobject.cpp; path = mods/openliero/bobject.cpp; sourceTree = "<group>"; };
+		239324210DFB0DE200049723 /* bobject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bobject.hpp; path = mods/openliero/bobject.hpp; sourceTree = "<group>"; };
+		239324220DFB0DE200049723 /* bonus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bonus.cpp; path = mods/openliero/bonus.cpp; sourceTree = "<group>"; };
+		239324230DFB0DE200049723 /* bonus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bonus.hpp; path = mods/openliero/bonus.hpp; sourceTree = "<group>"; };
+		239324240DFB0DE200049723 /* colour.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = colour.hpp; path = mods/openliero/colour.hpp; sourceTree = "<group>"; };
+		239324250DFB0DE200049723 /* console.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = console.hpp; path = mods/openliero/console.hpp; sourceTree = "<group>"; };
+		239324260DFB0DE200049723 /* constants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = constants.cpp; path = mods/openliero/constants.cpp; sourceTree = "<group>"; };
+		239324270DFB0DE200049723 /* constants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = constants.hpp; path = mods/openliero/constants.hpp; sourceTree = "<group>"; };
+		239324280DFB0DE200049723 /* filesystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = filesystem.cpp; path = mods/openliero/filesystem.cpp; sourceTree = "<group>"; };
+		239324290DFB0DE200049723 /* filesystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = filesystem.hpp; path = mods/openliero/filesystem.hpp; sourceTree = "<group>"; };
+		2393242A0DFB0DE200049723 /* font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = font.cpp; path = mods/openliero/font.cpp; sourceTree = "<group>"; };
+		2393242B0DFB0DE200049723 /* font.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = font.hpp; path = mods/openliero/font.hpp; sourceTree = "<group>"; };
+		2393242C0DFB0DE200049723 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = game.cpp; path = mods/openliero/game.cpp; sourceTree = "<group>"; };
+		2393242D0DFB0DE200049723 /* game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = game.hpp; path = mods/openliero/game.hpp; sourceTree = "<group>"; };
+		2393242E0DFB0DE200049723 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gfx.cpp; path = mods/openliero/gfx.cpp; sourceTree = "<group>"; };
+		2393242F0DFB0DE200049723 /* gfx.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = gfx.hpp; path = mods/openliero/gfx.hpp; sourceTree = "<group>"; };
+		239324300DFB0DE200049723 /* keys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = keys.cpp; path = mods/openliero/keys.cpp; sourceTree = "<group>"; };
+		239324310DFB0DE200049723 /* keys.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = keys.hpp; path = mods/openliero/keys.hpp; sourceTree = "<group>"; };
+		239324320DFB0DE200049723 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = level.cpp; path = mods/openliero/level.cpp; sourceTree = "<group>"; };
+		239324330DFB0DE200049723 /* level.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = level.hpp; path = mods/openliero/level.hpp; sourceTree = "<group>"; };
+		239324340DFB0DE200049723 /* math.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = math.cpp; path = mods/openliero/math.cpp; sourceTree = "<group>"; };
+		239324350DFB0DE200049723 /* math.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = math.hpp; path = mods/openliero/math.hpp; sourceTree = "<group>"; };
+		239324360DFB0DE200049723 /* menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = menu.cpp; path = mods/openliero/menu.cpp; sourceTree = "<group>"; };
+		239324370DFB0DE200049723 /* menu.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = menu.hpp; path = mods/openliero/menu.hpp; sourceTree = "<group>"; };
+		239324380DFB0DE200049723 /* ninjarope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ninjarope.cpp; path = mods/openliero/ninjarope.cpp; sourceTree = "<group>"; };
+		239324390DFB0DE200049723 /* nobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nobject.cpp; path = mods/openliero/nobject.cpp; sourceTree = "<group>"; };
+		2393243A0DFB0DE200049723 /* nobject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = nobject.hpp; path = mods/openliero/nobject.hpp; sourceTree = "<group>"; };
+		2393243B0DFB0DE200049723 /* objectList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = objectList.hpp; path = mods/openliero/objectList.hpp; sourceTree = "<group>"; };
+		2393243C0DFB0DE200049723 /* OlxMod_OpenLiero_01.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OlxMod_OpenLiero_01.cpp; path = mods/openliero/OlxMod_OpenLiero_01.cpp; sourceTree = "<group>"; };
+		2393243D0DFB0DE200049723 /* OpenLiero_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenLiero_console.cpp; path = mods/openliero/OpenLiero_console.cpp; sourceTree = "<group>"; };
+		2393243E0DFB0DE200049723 /* OpenLiero_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenLiero_main.cpp; path = mods/openliero/OpenLiero_main.cpp; sourceTree = "<group>"; };
+		2393243F0DFB0DE200049723 /* platform.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = platform.hpp; path = mods/openliero/platform.hpp; sourceTree = "<group>"; };
+		239324400DFB0DE200049723 /* rand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rand.cpp; path = mods/openliero/rand.cpp; sourceTree = "<group>"; };
+		239324410DFB0DE200049723 /* rand.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rand.hpp; path = mods/openliero/rand.hpp; sourceTree = "<group>"; };
+		239324420DFB0DE200049723 /* reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = reader.cpp; path = mods/openliero/reader.cpp; sourceTree = "<group>"; };
+		239324430DFB0DE200049723 /* reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = reader.hpp; path = mods/openliero/reader.hpp; sourceTree = "<group>"; };
+		239324440DFB0DE200049723 /* rect.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rect.hpp; path = mods/openliero/rect.hpp; sourceTree = "<group>"; };
+		239324450DFB0DE200049723 /* settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = settings.cpp; path = mods/openliero/settings.cpp; sourceTree = "<group>"; };
+		239324460DFB0DE200049723 /* settings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = settings.hpp; path = mods/openliero/settings.hpp; sourceTree = "<group>"; };
+		239324470DFB0DE200049723 /* sfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sfx.cpp; path = mods/openliero/sfx.cpp; sourceTree = "<group>"; };
+		239324480DFB0DE200049723 /* sfx.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = sfx.hpp; path = mods/openliero/sfx.hpp; sourceTree = "<group>"; };
+		239324490DFB0DE200049723 /* sobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sobject.cpp; path = mods/openliero/sobject.cpp; sourceTree = "<group>"; };
+		2393244A0DFB0DE200049723 /* sobject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = sobject.hpp; path = mods/openliero/sobject.hpp; sourceTree = "<group>"; };
+		2393244B0DFB0DE200049723 /* sys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sys.cpp; path = mods/openliero/sys.cpp; sourceTree = "<group>"; };
+		2393244C0DFB0DE200049723 /* sys.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = sys.hpp; path = mods/openliero/sys.hpp; sourceTree = "<group>"; };
+		2393244D0DFB0DE200049723 /* text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = text.cpp; path = mods/openliero/text.cpp; sourceTree = "<group>"; };
+		2393244E0DFB0DE200049723 /* text.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = text.hpp; path = mods/openliero/text.hpp; sourceTree = "<group>"; };
+		2393244F0DFB0DE200049723 /* viewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = viewport.cpp; path = mods/openliero/viewport.cpp; sourceTree = "<group>"; };
+		239324500DFB0DE200049723 /* viewport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = viewport.hpp; path = mods/openliero/viewport.hpp; sourceTree = "<group>"; };
+		239324510DFB0DE200049723 /* weapon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = weapon.cpp; path = mods/openliero/weapon.cpp; sourceTree = "<group>"; };
+		239324520DFB0DE200049723 /* weapon.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = weapon.hpp; path = mods/openliero/weapon.hpp; sourceTree = "<group>"; };
+		239324530DFB0DE200049723 /* weapsel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = weapsel.cpp; path = mods/openliero/weapsel.cpp; sourceTree = "<group>"; };
+		239324540DFB0DE200049723 /* weapsel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = weapsel.hpp; path = mods/openliero/weapsel.hpp; sourceTree = "<group>"; };
+		239324550DFB0DE200049723 /* worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = worm.cpp; path = mods/openliero/worm.cpp; sourceTree = "<group>"; };
+		239324560DFB0DE200049723 /* worm.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = worm.hpp; path = mods/openliero/worm.hpp; sourceTree = "<group>"; };
+		239324920DFB0FA400049723 /* OLXModInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OLXModInterface.cpp; sourceTree = "<group>"; };
 		23A0CDB40D5B0A31002A33A4 /* CScriptableVars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScriptableVars.h; sourceTree = "<group>"; };
 		23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadVar.h; sourceTree = "<group>"; };
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
@@ -497,6 +588,77 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2393241D0DFB0DAE00049723 /* mods */ = {
+			isa = PBXGroup;
+			children = (
+				2393241E0DFB0DC000049723 /* openliero */,
+			);
+			name = mods;
+			sourceTree = "<group>";
+		};
+		2393241E0DFB0DC000049723 /* openliero */ = {
+			isa = PBXGroup;
+			children = (
+				2393241F0DFB0DE200049723 /* blit.cpp */,
+				239324200DFB0DE200049723 /* bobject.cpp */,
+				239324210DFB0DE200049723 /* bobject.hpp */,
+				239324220DFB0DE200049723 /* bonus.cpp */,
+				239324230DFB0DE200049723 /* bonus.hpp */,
+				239324240DFB0DE200049723 /* colour.hpp */,
+				239324250DFB0DE200049723 /* console.hpp */,
+				239324260DFB0DE200049723 /* constants.cpp */,
+				239324270DFB0DE200049723 /* constants.hpp */,
+				239324280DFB0DE200049723 /* filesystem.cpp */,
+				239324290DFB0DE200049723 /* filesystem.hpp */,
+				2393242A0DFB0DE200049723 /* font.cpp */,
+				2393242B0DFB0DE200049723 /* font.hpp */,
+				2393242C0DFB0DE200049723 /* game.cpp */,
+				2393242D0DFB0DE200049723 /* game.hpp */,
+				2393242E0DFB0DE200049723 /* gfx.cpp */,
+				2393242F0DFB0DE200049723 /* gfx.hpp */,
+				239324300DFB0DE200049723 /* keys.cpp */,
+				239324310DFB0DE200049723 /* keys.hpp */,
+				239324320DFB0DE200049723 /* level.cpp */,
+				239324330DFB0DE200049723 /* level.hpp */,
+				239324340DFB0DE200049723 /* math.cpp */,
+				239324350DFB0DE200049723 /* math.hpp */,
+				239324360DFB0DE200049723 /* menu.cpp */,
+				239324370DFB0DE200049723 /* menu.hpp */,
+				239324380DFB0DE200049723 /* ninjarope.cpp */,
+				239324390DFB0DE200049723 /* nobject.cpp */,
+				2393243A0DFB0DE200049723 /* nobject.hpp */,
+				2393243B0DFB0DE200049723 /* objectList.hpp */,
+				2393243C0DFB0DE200049723 /* OlxMod_OpenLiero_01.cpp */,
+				2393243D0DFB0DE200049723 /* OpenLiero_console.cpp */,
+				2393243E0DFB0DE200049723 /* OpenLiero_main.cpp */,
+				2393243F0DFB0DE200049723 /* platform.hpp */,
+				239324400DFB0DE200049723 /* rand.cpp */,
+				239324410DFB0DE200049723 /* rand.hpp */,
+				239324420DFB0DE200049723 /* reader.cpp */,
+				239324430DFB0DE200049723 /* reader.hpp */,
+				239324440DFB0DE200049723 /* rect.hpp */,
+				239324450DFB0DE200049723 /* settings.cpp */,
+				239324460DFB0DE200049723 /* settings.hpp */,
+				239324470DFB0DE200049723 /* sfx.cpp */,
+				239324480DFB0DE200049723 /* sfx.hpp */,
+				239324490DFB0DE200049723 /* sobject.cpp */,
+				2393244A0DFB0DE200049723 /* sobject.hpp */,
+				2393244B0DFB0DE200049723 /* sys.cpp */,
+				2393244C0DFB0DE200049723 /* sys.hpp */,
+				2393244D0DFB0DE200049723 /* text.cpp */,
+				2393244E0DFB0DE200049723 /* text.hpp */,
+				2393244F0DFB0DE200049723 /* viewport.cpp */,
+				239324500DFB0DE200049723 /* viewport.hpp */,
+				239324510DFB0DE200049723 /* weapon.cpp */,
+				239324520DFB0DE200049723 /* weapon.hpp */,
+				239324530DFB0DE200049723 /* weapsel.cpp */,
+				239324540DFB0DE200049723 /* weapsel.hpp */,
+				239324550DFB0DE200049723 /* worm.cpp */,
+				239324560DFB0DE200049723 /* worm.hpp */,
+			);
+			name = openliero;
+			sourceTree = "<group>";
+		};
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
@@ -511,6 +673,7 @@
 			children = (
 				EABBC2580C5A5718003884A9 /* MacMain.m */,
 				EA430C3D0BEFCEB400C6547E /* main.cpp */,
+				2393241D0DFB0DAE00049723 /* mods */,
 				EA430BED0BEFCEB400C6547E /* client */,
 				EA430C3E0BEFCEB400C6547E /* server */,
 				EA430C200BEFCEB400C6547E /* common */,
@@ -587,13 +750,14 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				239324920DFB0FA400049723 /* OLXModInterface.cpp */,
+				230E9C500D8C407B00BFB500 /* Version.cpp */,
 				23026E560D5D1D4C0021934B /* Physics.cpp */,
 				23026E510D5D1BC50021934B /* PhysicsLX56.cpp */,
 				23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */,
 				230668380D40B44D005B4451 /* IniReader.cpp */,
 				235D281A0CF7C13B0067BA4F /* FileDownload.cpp */,
 				235D281B0CF7C13B0067BA4F /* HTTP.cpp */,
-				235D281C0CF7C13B0067BA4F /* stun.cpp */,
 				EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */,
 				EA430C210BEFCEB400C6547E /* CBonus.cpp */,
 				EA430C220BEFCEB400C6547E /* CBytestream.cpp */,
@@ -644,6 +808,11 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2393240A0DFB0D3500049723 /* Event.h */,
+				2393240B0DFB0D3500049723 /* FastVector.h */,
+				2393240C0DFB0D3500049723 /* Iterator.h */,
+				2393240D0DFB0D3500049723 /* OLXModInterface.h */,
+				230E9C4F0D8C406F00BFB500 /* Version.h */,
 				23026E540D5D1CDD0021934B /* PhysicsLX56.h */,
 				23026E4F0D5D175E0021934B /* Physics.h */,
 				23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */,
@@ -945,6 +1114,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				239324660DFB0DE200049723 /* OpenLiero_console.cpp in Sources */,
+				239324670DFB0DE200049723 /* OpenLiero_main.cpp in Sources */,
+				239324690DFB0DE200049723 /* reader.cpp in Sources */,
+				239324680DFB0DE200049723 /* rand.cpp in Sources */,
+				2393245F0DFB0DE200049723 /* keys.cpp in Sources */,
+				239324700DFB0DE200049723 /* weapon.cpp in Sources */,
+				2393245A0DFB0DE200049723 /* constants.cpp in Sources */,
+				2393245B0DFB0DE200049723 /* filesystem.cpp in Sources */,
+				2393246E0DFB0DE200049723 /* text.cpp in Sources */,
+				239324580DFB0DE200049723 /* bobject.cpp in Sources */,
+				239324710DFB0DE200049723 /* weapsel.cpp in Sources */,
+				239324630DFB0DE200049723 /* ninjarope.cpp in Sources */,
+				2393246D0DFB0DE200049723 /* sys.cpp in Sources */,
+				239324600DFB0DE200049723 /* level.cpp in Sources */,
+				239324620DFB0DE200049723 /* menu.cpp in Sources */,
+				2393245E0DFB0DE200049723 /* gfx.cpp in Sources */,
+				2393246A0DFB0DE200049723 /* settings.cpp in Sources */,
+				239324640DFB0DE200049723 /* nobject.cpp in Sources */,
+				239324610DFB0DE200049723 /* math.cpp in Sources */,
+				2393246C0DFB0DE200049723 /* sobject.cpp in Sources */,
+				2393245C0DFB0DE200049723 /* font.cpp in Sources */,
+				239324570DFB0DE200049723 /* blit.cpp in Sources */,
+				239324720DFB0DE200049723 /* worm.cpp in Sources */,
+				2393246F0DFB0DE200049723 /* viewport.cpp in Sources */,
+				239324650DFB0DE200049723 /* OlxMod_OpenLiero_01.cpp in Sources */,
+				239324590DFB0DE200049723 /* bonus.cpp in Sources */,
+				2393246B0DFB0DE200049723 /* sfx.cpp in Sources */,
+				2393245D0DFB0DE200049723 /* game.cpp in Sources */,
 				EABBC2590C5A5718003884A9 /* MacMain.m in Sources */,
 				EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */,
 				EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */,
@@ -1037,7 +1234,6 @@
 				235D28190CF7C1230067BA4F /* CGuiSkinnedLayout.cpp in Sources */,
 				235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */,
 				235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */,
-				235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */,
 				23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */,
 				23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */,
 				2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */,
@@ -1046,6 +1242,8 @@
 				23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */,
 				23026E520D5D1BC50021934B /* PhysicsLX56.cpp in Sources */,
 				23026E570D5D1D4C0021934B /* Physics.cpp in Sources */,
+				230E9C510D8C407B00BFB500 /* Version.cpp in Sources */,
+				239324930DFB0FA400049723 /* OLXModInterface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

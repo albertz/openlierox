@@ -742,12 +742,12 @@ void TestCChannelRobustness()
 		if( b1.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c1 sent packet - lost (%i in buf): %s\n", testtime, c1.Messages.size(), printBinary(b1.readData()).c_str() );
+				printf("%i: c1 sent packet - lost (%lu in buf): %s\n", testtime, c1.Messages.size(), printBinary(b1.readData()).c_str() );
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s1buf.insert( std::make_pair( lag, b1 ) );
-				printf("%i: c1 sent packet - lag %i (%i in buf): %s\n", testtime, lag, c1.Messages.size(), printBinary(b1.readData()).c_str() );
+				printf("%i: c1 sent packet - lag %i (%lu in buf): %s\n", testtime, lag, c1.Messages.size(), printBinary(b1.readData()).c_str() );
 			};
 		};
 
@@ -762,12 +762,12 @@ void TestCChannelRobustness()
 		if( b2.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c2 sent packet - lost (%i in buf): %s\n", testtime, c2.Messages.size(), printBinary(b2.readData()).c_str() );
+				printf("%i: c2 sent packet - lost (%lu in buf): %s\n", testtime, c2.Messages.size(), printBinary(b2.readData()).c_str() );
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s2buf.insert( std::make_pair( lag, b2 ) );
-				printf("%i: c2 sent packet - lag %i (%i in buf): %s\n", testtime, lag, c2.Messages.size(), printBinary(b2.readData()).c_str() );
+				printf("%i: c2 sent packet - lag %i (%lu in buf): %s\n", testtime, lag, c2.Messages.size(), printBinary(b2.readData()).c_str() );
 			};
 		};
 
