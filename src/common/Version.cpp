@@ -28,6 +28,8 @@ inline void setByString__optionalPostCheck(const Version* version, const std::st
 }
 
 void Version::setByString(const std::string& versionStr) {
+	if(versionStr == "") { reset(); setByString__optionalPostCheck(this,versionStr); return; }
+
 	std::string tmp = versionStr;
 
 	size_t p = tmp.find_first_of(" /\\");

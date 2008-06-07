@@ -1255,9 +1255,9 @@ void CClient::Shutdown(void)
 	}
 }
 
-void CClient::setClientVersion(const std::string & _s)
+void CClient::setClientVersion(const Version& v)
 {
-	cClientVersion.setByString(_s);
+	cClientVersion = v;
 	printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
 }
 
@@ -1340,7 +1340,9 @@ std::string CClient::debugName() {
 	NetworkAddr netAdr;
 	if(isLocalClient())
 		adr = "local";
-	else if(!GetRemoteNetAddr(tSocket, netAdr))
+	else if(!getChannel())
+		printf("WARNING: CClient::debugName(): getChannel() == NULL\n");
+	else if(!GetRemoteNetAddr(getChannel()->getSocket(), netAdr))
 		printf("WARNING: CClient::debugName(): GetRemoteNetAddr failed\n");
 	else if(!NetAddrToString(netAdr, adr))
 		printf("WARNING: CClient::debugName(): NetAddrToString failed\n");

@@ -1126,7 +1126,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		return;
 	}
 
-	const std::string & ClientVersion = tChallenges[i].sClientVersion;
+	const std::string & clientVersionStr = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
 	/*cl = cClients;
@@ -1242,25 +1242,28 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	// Connect
 	if (newcl) {
+
+		Version clientVersion = clientVersionStr;
+
+		std::string addrFromStr;
+		NetAddrToString(adrFrom, addrFromStr);
+
+		// TODO: this is a bad hack, fix it
 		// If this is the first client connected, it is our local client
 		if (!bLocalClientConnected)  {
-			std::string addr;
-			NetAddrToString(adrFrom, addr);
-			if (addr.find("127.0.0.1") == 0)  { // Safety: check the IP
+			if (addrFromStr.find("127.0.0.1") == 0)  { // Safety: check the IP
 				newcl->setLocalClient(true);
 				bLocalClientConnected = true;
 				printf("GameServer: our local client has connected\n");
 			}
 		} else {
 			newcl->setLocalClient(false);
-			printf("GameServer: new %s client connected\n", ClientVersion.c_str());
+			printf("GameServer: new %s client connected from %s\n", clientVersion.asString().c_str(), addrFromStr.c_str());
 		}
 
-		newcl->setClientVersion( ClientVersion );
-
-		if( ! newcl->createChannel( std::min( newcl->getClientVersion(), GetGameVersion() ) ) )
+		if( ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
 		{	// This should not happen - just in case
-			printf("Cannot create CChannel for client - invalid client version %s\n", ClientVersion.c_str() );
+			printf("Cannot create CChannel for client - invalid client version %s\n", clientVersion.asString().c_str() );
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
@@ -1268,6 +1271,12 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.Send(tSocket);
 			return;
 		};
+
+		newcl->getChannel()->Create(&adrFrom, tSocket);
+		newcl->setLastReceived(tLX->fCurTime);
+		newcl->setNetSpeed(iNetSpeed);
+
+		newcl->setClientVersion( clientVersion );
 
 		newcl->setStatus(NET_CONNECTED);
 
@@ -1349,10 +1358,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeString("lx:strafingAllowed");
 			bytestr.Send(tSocket);
 		}
-
-		newcl->getChannel()->Create(&adrFrom, tSocket);
-		newcl->setLastReceived(tLX->fCurTime);
-		newcl->setNetSpeed(iNetSpeed);
 
 
 		// Tell all the connected clients the info about these worm(s)

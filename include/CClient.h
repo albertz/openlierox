@@ -698,7 +698,7 @@ public:
 	int getGameType()					{ return iGameType; }
 
 	const Version& getClientVersion()				{ return cClientVersion; }
-	void setClientVersion(const std::string & _s);
+	void setClientVersion(const Version& v);
 	const Version& getServerVersion()				{ return cServerVersion; }
 	void setServerVersion(const std::string & _s);
 
