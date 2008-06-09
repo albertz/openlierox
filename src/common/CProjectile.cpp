@@ -559,10 +559,10 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view, CMap *map)
 
 			if(tProjInfo->bmpImage.get() == NULL)
 				return;
-			if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
+			/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
 				map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
 				return;
-			}
+			}*/
 
 			int size = tProjInfo->bmpImage.get()->h;
 			int half = size / 2;

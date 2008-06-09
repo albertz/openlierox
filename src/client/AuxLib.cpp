@@ -191,6 +191,11 @@ bool SetVideoMode()
 		return true; // ignore this case
 	}
 
+	if (!tLXOptions)  {
+		printf("Don't know what video mode to set, ignoring\n");
+		return false;
+	}
+
 	// Check if already running
 	if (SDL_GetVideoSurface())  {
 		printf("resetting video mode\n");

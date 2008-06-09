@@ -2585,12 +2585,6 @@ bool CMap::LoadOriginal(FILE *fp)
 
 	fclose(fp);
 
-	// Update the minimap
-	UpdateMiniMap(true);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage.get()->w, bmpImage.get()->h);
-
     // Calculate the total dirt count
     CalculateDirtCount();
 
@@ -2599,6 +2593,12 @@ bool CMap::LoadOriginal(FILE *fp)
 
 	// Apply shadow
 	ApplyShadow(0,0,Width,Height);
+
+	// Update the minimap
+	UpdateMiniMap(true);
+
+	// Update the draw image
+	UpdateDrawImage(0, 0, bmpImage.get()->w, bmpImage.get()->h);
 
     // Calculate the grid
     calculateGrid();
