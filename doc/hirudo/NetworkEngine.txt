@@ -3,7 +3,6 @@ I think OpenTNL would be a good choice for the new protocol.
 
 We should also think about preventing sending unnecassary information. For example the clients will probably do also the physic-simulation theirself (which is needed to provide a smoother game-feeling for them). Then they could send sort of a checksum over the physics-world and if this is to different from the correct one they will get an update.
 
-After the game-start the network engine will inform the clients about the current configuration of the server (for example: which physic-engine is used), this should include everything possible, for example gametype names !!! Gametypes can work like an ordinary DM on the client side, but the server is handling special events like people standing in special point-zones.
 
 -----------------------------
 
@@ -22,8 +21,20 @@ An overview what features a new protocol should be able to handle:
 - client can request current state ( is dead, position, current weapon, whatever)
 - server can update clients state
 
+- use different physics engine ( so the server has to tell which one is used )
+[ - physic engines that are not present on client ?? ]
+
+- server should inform about gametype name (like DM or whatever)
+- though all the handling of gametype is done server side, this includes:
+	- counting points
+	- finishing game + show results
+	- defining teams
+
 - special game-objects should be handled by server, that includes position-updates, behaviour and graphics
 ( Therefore a server could have some new game-objects and clients don't have to know about them. Usefull for modding. )
+
+- set control to other object ( like remote projectile; but could be abstracted to control also other vehicles )
+
 
 ------------------------
 
