@@ -3,7 +3,7 @@ I think OpenTNL would be a good choice for the new protocol.
 
 We should also think about preventing sending unnecassary information. For example the clients will probably do also the physic-simulation theirself (which is needed to provide a smoother game-feeling for them). Then they could send sort of a checksum over the physics-world and if this is to different from the correct one they will get an update.
 
-After the game-start the network engine will inform the clients about the current configuration of the server (for example: which physic-engine is used).
+After the game-start the network engine will inform the clients about the current configuration of the server (for example: which physic-engine is used), this should include everything possible, for example gametype names !!! Gametypes can work like an ordinary DM on the client side, but the server is handling special events like people standing in special point-zones.
 
 -----------------------------
 
@@ -32,4 +32,4 @@ As said, still some things have to be made client-side.
 Here some ideas for security against cheating when handled client-side:
 
 1. Health
-Clients can collect information where the projectiles have passed and what damage they made. Server will calculate the health based on that information and handle the deaths. Server can also check if the damages and the behaviour of the projectiles are sane/correct.
+Clients can collect information where the projectiles have passed and what damage they made. Server will calculate the health based on that information and handle the deaths. Server can also check if the damages and the behaviour of the projectiles are sane/correct. <- Doesn't this go under the checksum for physics? If the client is kept up-to-date with the server, then this would be obsolete as the server knows who got hit and who didn't?
