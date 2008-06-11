@@ -1,16 +1,14 @@
 #!/usr/bin/python -u
+
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
-# Upon editing - keep good names and excessive comments
-# Written for easy editing by newcomers to python or programming in general
-# OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
-# As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
+
 # TODO: Why don't we import dedicated_control_functions as this namespace? I don't get the point of current implementation.
 
-import os, sys, time # Useful imports
+import os, sys, time
+
 sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
 sys.path.append(os.getcwd()+"/scripts") # Append current dir to Python imports search paths
-
 import dedicated_config  # Per-host config like admin password 
 import dedicated_control_functions # Low-level stuff
 cfg = dedicated_config # shortcut
