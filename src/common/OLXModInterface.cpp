@@ -1,6 +1,5 @@
 
 #include <string>
-#include <SDL_mixer.h>
 
 #include "OLXModInterface.h"
 #include "MathLib.h"
@@ -40,7 +39,7 @@ struct OlxMod_t
 	OlxMod_DeInitFunc_t deinit;
 	OlxMod_SaveState_t save;
 	OlxMod_RestoreState_t restore;
-	OlxMod_CalculatePhysics_t calc; 
+	OlxMod_CalculatePhysics_t calc;
 	OlxMod_Draw_t draw;
 	OlxMod_GetOptions_t options;
 };
@@ -49,8 +48,8 @@ std::vector<OlxMod_t> * OlxMod_list = NULL;
 
 int OlxMod_ActiveMod = -1;
 
-bool OlxMod_RegisterMod( const char * name, const char * dirname, 
-							OlxMod_InitFunc_t init, OlxMod_DeInitFunc_t deinit, 
+bool OlxMod_RegisterMod( const char * name, const char * dirname,
+							OlxMod_InitFunc_t init, OlxMod_DeInitFunc_t deinit,
 							OlxMod_SaveState_t save, OlxMod_RestoreState_t restore,
 							OlxMod_CalculatePhysics_t calc, OlxMod_Draw_t draw, OlxMod_GetOptions_t options )
 {
@@ -234,10 +233,10 @@ void OlxMod_ReCalculate()
 		return; // Limit recalculation - it is CPU-intensive
 	//if( ! OlxMod_ReCalculationNeeded )
 	//	return;
-	
+
 	OlxMod_ReCalculationTimeMs = OlxMod_CurrentTimeMs;
 	OlxMod_ReCalculationNeeded = false;
-	
+
 	// Re-calculate physics if the packet received is from the most laggy client
 	unsigned long timeMin = OlxMod_LastPacketTime[0];
 	for( int f=1; f<OlxMod_NumPlayers; f++ )
@@ -261,7 +260,7 @@ void OlxMod_ReCalculate()
 		OlxMod_BackupTime++;
 		OlxMod_CurrentTimeMs = OlxMod_BackupTime * OLXMOD_TICK_TIME_DIV;
 		bool calculateChecksum = OlxMod_CurrentTimeMs % OlxMod_CalculateChecksumTime == 0;
-		unsigned checksum = (*OlxMod_list)[OlxMod_ActiveMod].calc( 
+		unsigned checksum = (*OlxMod_list)[OlxMod_ActiveMod].calc(
 			OlxMod_CurrentTimeMs * OLXMOD_TICK_TIME_DIV / OlxMod_TickTime,
 			OlxMod_Events.find(OlxMod_BackupTime) != OlxMod_Events.end() ? OlxMod_Events[OlxMod_BackupTime] : emptyEvent,
 			false, calculateChecksum );	// Do the true thorough calculations
@@ -276,7 +275,7 @@ void OlxMod_ReCalculate()
 	OlxMod_NetSyncedRandom_Save();
 	(*OlxMod_list)[OlxMod_ActiveMod].save();
 	OlxMod_CurrentTimeMs = OlxMod_BackupTime * OLXMOD_TICK_TIME_DIV;
-	
+
 	// Clean up old events - do not clean them if we're the server, clients may ask for them.
 	if( OlxMod_BackupTime - ClearEventsLastTime > 100 && OlxMod_LocalPlayer != 0 )
 	{
@@ -301,7 +300,7 @@ void OlxMod_Draw( unsigned long localTime, bool showScoreboard )
 	{
 		OlxMod_CurrentTimeMs += OLXMOD_TICK_TIME_DIV;
 		(*OlxMod_list)[OlxMod_ActiveMod].calc( OlxMod_CurrentTimeMs * OLXMOD_TICK_TIME_DIV / OlxMod_TickTime ,
-			OlxMod_Events.find(OlxMod_CurrentTimeMs / OLXMOD_TICK_TIME_DIV) != OlxMod_Events.end() ? 
+			OlxMod_Events.find(OlxMod_CurrentTimeMs / OLXMOD_TICK_TIME_DIV) != OlxMod_Events.end() ?
 			OlxMod_Events[OlxMod_CurrentTimeMs / OLXMOD_TICK_TIME_DIV] : emptyEvent,
 			true, false );	// Do fast inexact calculations
 	};
@@ -396,7 +395,7 @@ bool OlxMod_ReceiveNetPacket( CBytestream * bs, int player )
 
 	OlxMod_Events[ fullTime ] [ player ] = OlxMod_Event_t( keys, changedKeys );
 	OlxMod_LastPacketTime[ player ] = fullTime;
-	
+
 	OlxMod_ReCalculationNeeded = true;
 	OlxMod_ReCalculate();
 
@@ -411,10 +410,10 @@ bool OlxMod_ReceiveNetPacket( CBytestream * bs, int player )
 		//printf("Time %lu", it->first );
 		checksum += it->first * 10000;
 		for( std::map< int, OlxMod_Event_t > :: iterator it1 = it->second.begin(); it1 != it->second.end(); it1++ )
-			checksum += (it1->first*0x120+1) * (it1->second.keys.up*1 + it1->second.keys.down*2 + 
-				it1->second.keys.left*4 + it1->second.keys.right*8 + it1->second.keys.shoot*16 + 
+			checksum += (it1->first*0x120+1) * (it1->second.keys.up*1 + it1->second.keys.down*2 +
+				it1->second.keys.left*4 + it1->second.keys.right*8 + it1->second.keys.shoot*16 +
 				it1->second.keys.selweap*32 + it1->second.keys.jump*64 + it1->second.keys.rope*128 );
-			//printf(" player %i keys %i%i%i%i%i%i%i%i", it1->first, it1->second.keys.up, it1->second.keys.down, 
+			//printf(" player %i keys %i%i%i%i%i%i%i%i", it1->first, it1->second.keys.up, it1->second.keys.down,
 			//	it1->second.keys.left, it1->second.keys.right, it1->second.keys.shoot, it1->second.keys.selweap, it1->second.keys.jump, it1->second.keys.rope );
 		if( it->first / 500 > checksumTime )
 		{
@@ -423,7 +422,7 @@ bool OlxMod_ReceiveNetPacket( CBytestream * bs, int player )
 		};
 	};
 	*/
-	
+
 	return true;
 };
 
@@ -435,12 +434,12 @@ bool OlxMod_SendNetPacket( unsigned long localTime, OlxMod_KeyState_t keys, CByt
 	localTime -= OlxMod_OlxTimeDiffMs;
 	localTime /= OLXMOD_TICK_TIME_DIV;
 
-	// Ignore too frequent keypresses, or we'll get net desync 
+	// Ignore too frequent keypresses, or we'll get net desync
 	// The keypress will be processed on the next frame if user holds the key long enough (e.x. for 20 ms)
 	if( localTime == OlxMod_CurrentTimeMs / OLXMOD_TICK_TIME_DIV )
-		return false;	
+		return false;
 
-	if( keys == OlxMod_OldKeys[ OlxMod_LocalPlayer ].keys && 
+	if( keys == OlxMod_OldKeys[ OlxMod_LocalPlayer ].keys &&
 		localTime - OlxMod_LastPacketTime[ OlxMod_LocalPlayer ] < OlxMod_PingTimeMs / OLXMOD_TICK_TIME_DIV ) // Do not flood the net
 		return false;
 
@@ -479,7 +478,7 @@ void OlxMod_SaveGameState( std::string * state, unsigned long time )
 	if(state == NULL)
 		return;
 	CBytestream bs;
-	for( OlxMod_EventList_t::const_iterator it = OlxMod_Events.begin(), 
+	for( OlxMod_EventList_t::const_iterator it = OlxMod_Events.begin(),
 		it1 = OlxMod_Events.upper_bound( time ); it != it1; ++it )
 	{
 		if( it->second.size() == 0 )
@@ -507,7 +506,7 @@ void OlxMod_LoadGameState( const std::string & state, unsigned long time )
 	std::vector< OlxMod_Event_t > OldKeys_old = OlxMod_OldKeys;
 	OlxMod_OldKeys.clear();
 	OlxMod_OldKeys.resize( OLXMOD_MAX_PLAYERS );
-	
+
 	CBytestream bs;
 	bs.writeData(state);
 	bs.ResetPosToBegin();
@@ -529,10 +528,10 @@ void OlxMod_LoadGameState( const std::string & state, unsigned long time )
 		events.insert( std::make_pair( time1, events1 ) );
 	};
 	std::vector< unsigned long > LastPacketTime_old = OlxMod_LastPacketTime;
-	OlxMod_ActivateMod( (*OlxMod_list)[ActiveMod_old].name, (OlxMod_GameSpeed_t)OlxMod_TickTime, 
+	OlxMod_ActivateMod( (*OlxMod_list)[ActiveMod_old].name, (OlxMod_GameSpeed_t)OlxMod_TickTime,
 						OlxMod_OlxTimeDiffMs, OlxMod_NumPlayers,
 						OlxMod_LocalPlayer, OlxMod_InitialRandomSeed,
-						OlxMod_Options, OlxMod_WeaponRestrictions, 
+						OlxMod_Options, OlxMod_WeaponRestrictions,
 						OlxMod_ScreenX, OlxMod_ScreenY, OlxMod_bmpDest );
 	bool SoundDisabled_old = OlxMod_SoundDisabled;
 	OlxMod_SoundDisabled = true;
@@ -579,7 +578,7 @@ void OlxMod___Random_Seed__(unsigned long s, OlxMod_taus113_state_t & NetSyncedR
   OlxMod_NetSyncedRandom();
   OlxMod_NetSyncedRandom();
   OlxMod_NetSyncedRandom();
-  
+
   return;
 };
 
@@ -718,9 +717,9 @@ void OlxMod_StopSoundSample( int channel )
 		return;
 	Mix_HaltChannel( channel );
 
-	// Clean up old events	
+	// Clean up old events
 	if( OlxMod_BackupTime > OlxMod_DrawDelayMs / OLXMOD_TICK_TIME_DIV )
-		for( std::map< unsigned long, std::map< void *, int > > ::iterator it = OlxMod_SoundsPlaying.begin(), 
+		for( std::map< unsigned long, std::map< void *, int > > ::iterator it = OlxMod_SoundsPlaying.begin(),
 			it1 = OlxMod_SoundsPlaying.lower_bound( OlxMod_BackupTime - OlxMod_DrawDelayMs / OLXMOD_TICK_TIME_DIV ), it2; it != it1; )
 	{
 		it2 = it;
