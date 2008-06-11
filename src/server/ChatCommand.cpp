@@ -84,7 +84,7 @@ static inline std::string ReadQuotedParam(const std::string& str, int *param_siz
 
 	for (; it != str.end(); it++, (*param_size)++)  {
 		switch (*it)  {
-			case '\\': 
+			case '\\':
 				if (was_backslash)  {
 					result += '\\';
 					was_backslash = false;
@@ -180,7 +180,7 @@ std::string CheckIDParams(const std::vector<std::string>& params, ChatCommand::t
 	ChatCommand *me = GetCommand(func);
 	if (params.size() < me->iMinParamCount || params.size() > me->iMaxParamCount)
 		return "Invalid parameter count";
-	
+
 	// ID presence check
 	if (stringcasecmp(params[0], "id") != 0)
 		return "Please specify a worm ID";
@@ -201,6 +201,14 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
+	// Nice how we released at least 1 major version, most likely 2, without actually checking for rights..
+	CClient *sender = cServer->getClient(sender_id);
+	if (sender)
+	{
+		if (!sender->getRights()->Authorize)
+			cServer->SendText(sender,"You don't have the privilieges to do this.", TXT_NORMAL);
+	}
+
 	// Authorise the client
 	CClient *remote_cl = cServer->getClient(id);
 	if (remote_cl)  {
@@ -208,7 +216,7 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 		cServer->SendGlobalText((cServer->getWorms() + id)->getName() + " has been authorised", TXT_NORMAL);
 		return "";
 	}
-	
+
 	return "No corresponding client found";
 }
 
@@ -230,7 +238,7 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
-	if (id == 0)
+	if(cServer->getClient(id)->isLocalClient())
 		return action == ACT_KICK ? "Cannot kick host" : "Cannot ban host";
 
 	// Get the reason if specified
@@ -544,9 +552,9 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 }
 
 std::string ProcessSetMyColour(const std::vector<std::string>& params, int sender_id)
-{	
+{
 	// Param check
-	if (params.size() < GetCommand(&ProcessSetMyColour)->iMinParamCount || 
+	if (params.size() < GetCommand(&ProcessSetMyColour)->iMinParamCount ||
 		params.size() > GetCommand(&ProcessSetMyColour)->iMaxParamCount)
 		return "Invalid parameter count, use /setcolor R G B";
 
@@ -619,7 +627,7 @@ std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id
 		return "Cannot suicide when not playing";
 
 	// Param check
-	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount || 
+	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount ||
 		params.size() > GetCommand(&ProcessSuicide)->iMaxParamCount)
 		return "Invalid parameter count";
 
@@ -653,7 +661,7 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 		return "Cannot spectate when not playing";
 
 	// Param check
-	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount || 
+	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount ||
 		params.size() > GetCommand(&ProcessSuicide)->iMaxParamCount)
 		return "Invalid parameter count";
 
