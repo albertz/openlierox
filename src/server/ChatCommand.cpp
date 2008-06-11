@@ -201,12 +201,11 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
-	// Nice how we released at least 1 major version, most likely 2, without actually checking for rights..
+	// Is the player authorized?
 	CClient *sender = cServer->getClient(sender_id);
-	if (sender)
-	{
+	if (sender)  {
 		if (!sender->getRights()->Authorize)
-			cServer->SendText(sender,"You don't have the privilieges to do this.", TXT_NORMAL);
+			return "You do not have enough privileges to authorize a player.";
 	}
 
 	// Authorise the client
