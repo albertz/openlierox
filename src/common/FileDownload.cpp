@@ -163,6 +163,7 @@ void CHttpDownloader::ProcessDownload()
 		// Delete the file
 		if (tFile)  {
 			fclose(tFile);
+			tFile = NULL;
 			remove(GetFullFileName(sDestPath).c_str());
 		}
 
@@ -503,8 +504,6 @@ void CUdpFileDownloader::sendPing( CBytestream * bs ) const
 
 void CUdpFileDownloader::allowFileRequest( bool allow )
 {
-	if( ! bAllowFileRequest )
-		reset();	// Stop uploading any files
 	bAllowFileRequest = allow;
 };
 
@@ -556,6 +555,23 @@ void CUdpFileDownloader::requestFileInfo( const std::string & path, bool retryIf
 			tRequestedFiles.push_back( "STAT:" + path );
 	};
 	sLastFileRequested = path;
+};
+
+void CUdpFileDownloader::removeFileFromRequest( const std::string & path )
+{
+	if( sLastFileRequested == path )
+	{
+		std::vector< std::string > oldRequestedFiles = tRequestedFiles;
+		reset();
+		tRequestedFiles = oldRequestedFiles;
+	}
+	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
+			it != tRequestedFiles.end(); it++ )
+		if( *it == path )
+		{
+			tRequestedFiles.erase(it);
+			return;
+		}
 };
 
 void CUdpFileDownloader::abortDownload()

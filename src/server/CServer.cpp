@@ -249,7 +249,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Initialize the clients
 	for(i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].Clear();
-		cClients[i].getUdpFileDownloader()->allowFileRequest(tLXOptions->bAllowFileDownload);
+		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
 
 		// Initialize the shooting list
 		if( !cClients[i].getShootList()->Initialize() ) {
@@ -451,9 +451,6 @@ int GameServer::StartGame()
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
 		cClients[i].getUdpFileDownloader()->allowFileRequest(false);
-		cClients[i].setPartialDirtUpdateCount(0);
-		*cClients[i].getPreviousDirtMap() = "";
-		cMap->SendDirtUpdate(cClients[i].getPreviousDirtMap());
 	}
 
 

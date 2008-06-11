@@ -242,12 +242,6 @@ public:
 
 	void		Send(CBytestream *bs);
 	
-	bool		SendDirtUpdate(std::string *ss);
-	bool		RecvDirtUpdate(const std::string &ss);
-
-	bool		SendPartialDirtUpdate(std::string *ss, std::string *old);	// Will update old
-	bool		RecvPartialDirtUpdate(const std::string &ss, std::string *old);	// Will update old
-
 	void		Draw(SDL_Surface * bmpDest, CViewport *view);
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);

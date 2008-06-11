@@ -256,7 +256,7 @@ public:
 			iTeamScores[i] = 0;
 
 		bHostAllowsMouse = false;
-		fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
+		fLastFileRequest = tLX->fCurTime;
 
 		bDownloadingMap = false;
 		cHttpDownloader = NULL;
@@ -448,9 +448,6 @@ private:
 	std::string	cIConnectedBuf;
 
 	CUdpFileDownloader	cUdpFileDownloader;
-	float		fLastDirtUpdate;
-	int			iPartialDirtUpdateCount;
-	std::string	cPreviousDirtMap;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
 	struct		cSpectatorViewportKeys_t {
@@ -616,9 +613,11 @@ public:
     void        ParseOlxModData(CBytestream *bs);
 	void		ParseOlxModChecksum(CBytestream *bs);
 
+	// These functions are for HTTP downloading only, for UDP use getUdpFileDownloader()
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
 	void		ProcessMapDownloads();
+	void		AbortMapDownloads();
 	void		ShutdownDownloads();
 
 
@@ -710,15 +709,13 @@ public:
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 	int			getDownloadMethod()				{ return iDownloadMethod; }
+	bool		getDownloadingMapError()		{ return bMapDlError; }
+	void		clearDownloadingMapError()		{ bMapDlError = false; }
+	std::string	getDownloadingMapErrorMessage()	{ return sMapDlError; }
 
 	CViewport * getViewports()					{ return cViewports; }
 
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
-	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
-	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
-	int			getPartialDirtUpdateCount()				{ return iPartialDirtUpdateCount; };
-	void		setPartialDirtUpdateCount( int _i )		{ iPartialDirtUpdateCount = _i; };
-	std::string * getPreviousDirtMap()					{ return &cPreviousDirtMap; };
 	float		getLastFileRequest()					{ return fLastFileRequest; };
 	void		setLastFileRequest( float _f ) 			{ fLastFileRequest = _f; };
 	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };

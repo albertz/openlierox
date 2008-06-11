@@ -210,8 +210,6 @@ bool GameServer::SendUpdate()
 					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
 			}
-
-			SendDirtUpdate( cl );
 		}
 	}
 
@@ -405,45 +403,6 @@ void GameServer::SendRandomPacket()
 }
 #endif
 
-void GameServer::SendDirtUpdate( CClient * cl )
-{
-	if( ! tLXOptions->bAllowDirtUpdates ||
-		cl->getClientVersion() < OLXBetaVersion(4) ||
-		cl == & cClients[0] )	// Do not update dirt for local client
-		return;
-
-	if( ! cl->getUdpFileDownloader()->isSending() )
-	{
-		// Send dirt update once in 7 seconds (I believe that's not too often)
-		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
-			return;
-		if( cl->getPreviousDirtMap()->size() == 0 )
-		{
-			cl->setPartialDirtUpdateCount(0);
-			cMap->SendDirtUpdate(cl->getPreviousDirtMap());
-			cl->getUdpFileDownloader()->setDataToSend( "dirt:", *cl->getPreviousDirtMap() );
-		}
-		else
-		{
-			std::string partial;
-			cMap->SendPartialDirtUpdate(&partial, cl->getPreviousDirtMap());
-			cl->getUdpFileDownloader()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), partial );
-			cl->setPartialDirtUpdateCount( cl->getPartialDirtUpdateCount() + 1 );
-		};
-	};
-	if( cl->getUdpFileDownloader()->isSending() )
-	{
-		// If client is laggy send packets rarely - this coefficient is some random value, change if packet overflood occurs
-		if( cl->getLastDirtUpdate() + cl->getPing()*1.2f/1000.0f > tLX->fCurTime )
-			return;
-		CBytestream bs;
-		bs.writeByte( S2C_SENDFILE );
-		cl->getUdpFileDownloader()->send( &bs );
-		SendPacket( &bs, cl );
-		cl->setLastDirtUpdate( tLX->fCurTime );
-	};
-}
-
 void GameServer::SendFiles()
 {
 
@@ -479,7 +438,7 @@ void GameServer::SendFiles()
 		Timer( &Timer::DummyHandler, NULL, int(MaxPacketDelay*1000.0), true ).startHeadless();
 };
 
-void GameServer::sendEmptyWeaponsOnRespawn( CWorm * Worm )
+void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
 	CBytestream bs;
 	CClient * cl = Worm->getClient();

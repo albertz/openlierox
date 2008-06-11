@@ -230,9 +230,8 @@ public:
 #ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
 #endif
-	void		SendDirtUpdate( CClient * cl );
 	void		SendFiles();
-	void		sendEmptyWeaponsOnRespawn( CWorm * Worm );
+	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);

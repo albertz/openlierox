@@ -135,9 +135,7 @@ void CClient::Clear(void)
 	bMapDlError = false;
 	sMapDlError = "";
 	iMapDlProgress = 0;
-	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
-	iPartialDirtUpdateCount = 0;
-	cPreviousDirtMap = "";
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
@@ -198,9 +196,7 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
-	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
-	iPartialDirtUpdateCount = 0;
-	cPreviousDirtMap = "";
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
@@ -411,6 +407,7 @@ void CClient::ShutdownDownloads()
 // Download a map
 void CClient::DownloadMap(const std::string& mapname)
 {
+	printf("CClient::DownloadMap() %s\n", mapname.c_str());
 	// Initialize if not initialized
 	InitializeDownloads();
 
@@ -425,6 +422,21 @@ void CClient::DownloadMap(const std::string& mapname)
 	sMapDownloadName = mapname;
 	bDownloadingMap = true;
 	iDownloadMethod = DL_HTTP; // We start with HTTP
+
+	// Request file downloading with UDP - it won't start until HTTP won't finish
+	getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
+	getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
+	printf("CClient::DownloadMap() exit %s\n", sMapDownloadName.c_str());
+}
+
+void CClient::AbortMapDownloads()
+{
+	if( ! bDownloadingMap )
+		return;
+	bDownloadingMap = false;
+	InitializeDownloads();
+	cHttpDownloader->CancelFileDownload(sMapDownloadName);
+	getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
 }
 
 /////////////////
@@ -448,6 +460,7 @@ void CClient::ProcessMapDownloads()
 			if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
 				tGameLobby.bHaveMap = true;
 				tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+				getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
 
 				// If playing, load the map
 				if (iNetStatus == NET_PLAYING)  {
@@ -487,9 +500,6 @@ void CClient::ProcessMapDownloads()
 			// HTTP failed, let's try UDP
 			if( getServerVersion() > OLXBetaVersion(4) )
 			{
-				printf("Could not download the map via HTTP, trying UDP...\n");
-				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
-				getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
 				iDownloadMethod = DL_UDP;
 			} else {
 				bDownloadingMap = false;
@@ -499,10 +509,11 @@ void CClient::ProcessMapDownloads()
 
 		// Get the progress
 		iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
+		return; // Skip UDP downloading if HTTP downloading active
 	}
 
 
-  	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
+  	// UDP file download used for maps and mods - we can download map via HTTP and mod via UDP from host
 	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
 		bDownloadingMap = false;
 		sMapDownloadName = "";
@@ -514,10 +525,11 @@ void CClient::ProcessMapDownloads()
 			fLastFileRequestPacketReceived = tLX->fCurTime;
 			if( ! getUdpFileDownloader()->requestFilesPending() )  { // More files to receive
 				bMapDlError = true;
+				sMapDlError = sMapDownloadName + " downloading error: timeout";
 				bDownloadingMap = false;
 			}
 		}
-		if( getUdpFileDownloader()->getFileDownloading() == "levels/" + cClient->getGameLobby()->szMapName ) {
+		if( getUdpFileDownloader()->getFileDownloading() == "levels/" + getGameLobby()->szMapName ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		};
@@ -541,6 +553,14 @@ void CClient::ProcessMapDownloads()
 	if( getUdpFileDownloader()->wasError() )  {
 		getUdpFileDownloader()->clearError();
 		bMapDlError = true;
+		sMapDlError = sMapDownloadName + " downloading error: checksum failed";
+		bDownloadingMap = false;
+	}
+
+	if( getUdpFileDownloader()->wasAborted() )  {
+		getUdpFileDownloader()->clearAborted();
+		bMapDlError = true;
+		sMapDlError = sMapDownloadName + " downloading error: server aborted download";
 		bDownloadingMap = false;
 	}
 

@@ -723,10 +723,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bJoin_Update = true;
 
 	getUdpFileDownloader()->reset();
-	*getPreviousDirtMap() = "";
-	if( cMap )
-		cMap->SendDirtUpdate( getPreviousDirtMap() );
-	setPartialDirtUpdateCount( 0 );
 
     return true;
 }
@@ -1697,35 +1693,6 @@ void CClient::ParseSendFile(CBytestream *bs)
 	fLastFileRequestPacketReceived = tLX->fCurTime;
 	if( getUdpFileDownloader()->receive(bs) )
 	{
-		if( getUdpFileDownloader()->getFilename() == "dirt:" &&
-			getUdpFileDownloader()->isFinished() &&
-			tLXOptions->bAllowDirtUpdates )
-		{	// Parse a full dirt mask
-			setPartialDirtUpdateCount(0);
-			*getPreviousDirtMap() = getUdpFileDownloader()->getData();
-			if( cMap )
-				cMap->RecvDirtUpdate( *getPreviousDirtMap() );
-		}
-		else
-		if( getUdpFileDownloader()->getFilename().find( "dirt:" ) == 0 &&
-			getUdpFileDownloader()->isFinished() &&
-			tLXOptions->bAllowDirtUpdates )
-		{	// Parse a partial dirt mask
-			int updateCount = atoi(getUdpFileDownloader()->getFilename().substr(strlen("dirt:")));
-			if( updateCount != getPartialDirtUpdateCount() )
-			{	// Request full dirt mask
-				getUdpFileDownloader()->setDataToSend("dirt:", "");
-				CBytestream bs;
-				bs.writeByte(C2S_SENDFILE);
-				getUdpFileDownloader()->send( &bs );	// Single packet
-				cNetChan->AddReliablePacketToSend(bs);
-				return;
-			};
-			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
-			if( cMap )
-				cMap->RecvPartialDirtUpdate( getUdpFileDownloader()->getData(), getPreviousDirtMap() );
-		}
-		else
 		if( CUdpFileDownloader::isPathValid( getUdpFileDownloader()->getFilename() ) &&
 			! IsFileAvailable( getUdpFileDownloader()->getFilename() ) &&
 			getUdpFileDownloader()->isFinished() )

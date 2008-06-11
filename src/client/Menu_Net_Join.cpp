@@ -623,9 +623,11 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
-	if( tLXOptions->bAllowFileDownload )
 	{
-		if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
+		if( cClient->getDownloadingMap() )
+			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
+			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapName );
+		else if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
 			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
 			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
 			cClient->getUdpFileDownloader()->getFileDownloading() );
@@ -636,17 +638,26 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
 		if( dlButton )
 		{
-			if( ! cClient->getGameLobby()->bHaveMod || ! cClient->getGameLobby()->bHaveMap )
+			if( ! cClient->getGameLobby()->bHaveMap || 
+				( ! cClient->getGameLobby()->bHaveMod && cClient->getServerVersion() >= OLXBetaVersion(4) ) )
 			{
-				if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+				if( cClient->getDownloadingMap() || cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 					dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
 				else
 					dlButton->SendMessage( LBS_SETTEXT, "Download files", 0 );
 			}
 			else
-			{
 				dlButton->SendMessage( LBS_SETTEXT, "", 0 );
-			};
+		};
+		
+		if( cClient->getDownloadingMapError() )
+		{
+			// Put notice about downloaded file in chatbox
+			cClient->clearDownloadingMapError();
+			CBytestream bs;
+			bs.writeByte(TXT_NETWORK);
+			bs.writeString( cClient->getDownloadingMapErrorMessage() );
+			cClient->ParseText( &bs );
 		};
 	};
 
@@ -733,28 +744,25 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				if(ev->iEventMsg == TXB_MOUSEUP) {
 					if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 					{
-						cClient->getUdpFileDownloader()->abortDownload();
-						CBytestream bs;
-						bs.writeByte(C2S_SENDFILE);
-						cClient->getUdpFileDownloader()->send(&bs);
-						cClient->getChannel()->AddReliablePacketToSend(bs);
-						cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+						cClient->AbortMapDownloads();
+						if( ! cClient->getUdpFileDownloader()->isFinished() || 
+							cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+						{
+							cClient->getUdpFileDownloader()->abortDownload();
+							CBytestream bs;
+							bs.writeByte(C2S_SENDFILE);
+							cClient->getUdpFileDownloader()->send(&bs);
+							cClient->getChannel()->AddReliablePacketToSend(bs);
+							cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+						}
 					}
 					else
 					{
 						cClient->setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
-						// The last requested file will be downloaded first, so putting these in reverse order
 						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
 							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);
-
-						// Do not request map if already downloading with HTTP
-						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" &&
-							( ! cClient->getDownloadingMap() ||
-							( cClient->getDownloadingMap() && cClient->getDownloadMethod() == DL_UDP ) ) )
-						{
-							cClient->getUdpFileDownloader()->requestFile("levels/" + cClient->getGameLobby()->szMapName, true);
-							cClient->getUdpFileDownloader()->requestFileInfo("levels/" + cClient->getGameLobby()->szMapName, true); // To get valid progressbar
-						};
+						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" )
+							cClient->DownloadMap(cClient->getGameLobby()->szMapName);	// Download map with HTTP, then try UDP
 					}
 				}
 				break;

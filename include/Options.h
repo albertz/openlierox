@@ -209,8 +209,6 @@ public:
 	int		iJpegQuality;
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
-	bool	bAllowFileDownload;
-	bool	bAllowDirtUpdates;	// For both client and server
 	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 

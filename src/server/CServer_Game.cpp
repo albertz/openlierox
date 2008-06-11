@@ -58,7 +58,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 	bs.writeInt( (int)pos.y, 2);
 	SendGlobalPacket(&bs);
 	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
-		sendEmptyWeaponsOnRespawn(Worm);
+		SendEmptyWeaponsOnRespawn(Worm);
 }
 
 
@@ -80,7 +80,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 	bs.writeInt( (int)pos.y, 2);
 	SendPacket(&bs, cl);
 	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn && Worm->getClient() == cl )
-		sendEmptyWeaponsOnRespawn(Worm);
+		SendEmptyWeaponsOnRespawn(Worm);
 }
 
 
@@ -628,7 +628,7 @@ void GameServer::gotoLobby(void)
 	Menu_Net_GotoHostLobby();
 
 	for( i=0; i<MAX_CLIENTS; i++ )
-		cClients[i].getUdpFileDownloader()->allowFileRequest(tLXOptions->bAllowFileDownload);
+		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
 
 	// HINT: the gamescript is shut down by the cache
 }

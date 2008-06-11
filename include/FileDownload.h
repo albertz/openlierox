@@ -194,6 +194,7 @@ public:
 	void		allowFileRequest( bool allow );
 	void		requestFile( const std::string & path, bool retryIfFail );
 	bool		requestFilesPending(); // Re-send file request if downloading fails
+	void		removeFileFromRequest( const std::string & path );
 	static bool	isPathValid( const std::string & path );	// Check if someone tries to access /etc/shadow to get system passwords
 	
 	struct		StatInfo

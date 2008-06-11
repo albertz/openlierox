@@ -375,14 +375,6 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
-	#ifdef DEBUG
-	cOpt_Game.Add( new CLabel("Allow dirt updates from server",tLX->clNormalLabel), Static, 330, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowDirtUpdates),og_AllowDirtUpdates, 550, 270, 17,17);
-
-	cOpt_Game.Add( new CLabel("Allow file download from server",tLX->clNormalLabel), Static, 330, 300, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 300, 17,17);
-	#endif
-
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);
 
@@ -632,17 +624,6 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAntilagMovementPrediction = cOpt_Game.SendMessage(og_AntilagMovementPrediction, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
-
-				case og_AllowFileDownload:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bAllowFileDownload = cOpt_Game.SendMessage(og_AllowFileDownload, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
-				case og_AllowDirtUpdates:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bAllowDirtUpdates = cOpt_Game.SendMessage(og_AllowDirtUpdates, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
 			}
 		}
 

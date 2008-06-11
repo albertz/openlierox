@@ -112,8 +112,6 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
-		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
-		( tLXOptions->bAllowDirtUpdates, "Advanced.AllowDirtUpdates", false )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now)
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 

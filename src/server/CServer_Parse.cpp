@@ -833,23 +833,6 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
-		if(	cl->getUdpFileDownloader()->isFinished() &&
-			cl->getUdpFileDownloader()->getFilename() == "dirt:" )
-		{	// Dirt comes first - it is processed even if server disabled file downloading
-			cl->setPartialDirtUpdateCount(0);
-			*cl->getPreviousDirtMap() = "";
-			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
-		}
-		else
-		if( ! tLXOptions->bAllowFileDownload )
-		{	// Server disabled file downloading - send ABORT on each client request
-			cl->getUdpFileDownloader()->abortDownload();
-			CBytestream bs;
-			bs.writeByte(S2C_SENDFILE);
-			cl->getUdpFileDownloader()->send(&bs);
-			SendPacket( &bs, cl );
-		}
-		else
 		if( cl->getUdpFileDownloader()->isFinished() &&
 			( cl->getUdpFileDownloader()->getFilename() == "GET:" || cl->getUdpFileDownloader()->getFilename() == "STAT:" ) )
 		{
