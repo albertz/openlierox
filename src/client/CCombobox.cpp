@@ -668,9 +668,9 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 }
 
 
-int CCombobox::addItem(const std::string& sindex, const std::string& name)
+int CCombobox::addItem(const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img, int tag)
 {
-	return addItem(-1, sindex, name);
+	return addItem(-1, sindex, name, img, tag);
 }
 
 ////////////////////////
@@ -765,14 +765,15 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 
 ///////////////////
 // Add an item to the combo box
-int CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
+int CCombobox::addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img, int tag)
 {
 	cb_item_t item;
 
 	// Fill in the info
 	item.sIndex = sindex;
 	item.sName = name;
-	item.tImage = NULL;
+	item.tImage = img;
+	item.iTag = tag;
 
 	//
 	// Add it to the list

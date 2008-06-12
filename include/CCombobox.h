@@ -61,6 +61,7 @@ class cb_item_t { public:
 	std::string	sIndex;
 	std::string	sName;
 	SmartPointer<SDL_Surface> tImage;
+	int iTag;
 };
 
 
@@ -142,8 +143,8 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
-	int		addItem(const std::string& sindex, const std::string& name);
-	int		addItem(int index, const std::string& sindex, const std::string& name);
+	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
+	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
 	const std::list<cb_item_t>& getItems()	{ return tItems; }
 	const cb_item_t* getItem(int index) const;
 	int getItemIndex(const cb_item_t* item);	

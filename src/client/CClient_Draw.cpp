@@ -1931,14 +1931,17 @@ void CClient::InitializeViewportManager(void)
     if( count <= 1 )
         v2On = false;
 
+	CCombobox *v1Target = new CCombobox();
+	CCombobox *v2Target = new CCombobox();
+
     // Viewport 1
     ViewportMgr.Add( new CLabel("Used",tLX->clNormalLabel), -1,     x+15,  y+80,  0,   0);
     ViewportMgr.Add( new CLabel("Type",tLX->clNormalLabel), -1,     x+15,  y+110,  0,   0);
     //ViewportMgr.Add( new CCheckbox(true),       v1_On,  x+75,  y+80,  20,  20);
-	ViewportMgr.Add( new CCombobox(),           v1_Target,x+75,    y+135, 150, 17);
+	ViewportMgr.Add( v1Target,           v1_Target,x+75,    y+135, 150, 17);
     ViewportMgr.Add( new CCombobox(),           v1_Type,x+75,  y+110, 150, 17);
     ViewportMgr.Add( new CCheckbox(v2On),       v2_On,  x2,    y+80,  20,  20);
-	ViewportMgr.Add( new CCombobox(),           v2_Target,x2,    y+135, 150, 17);
+	ViewportMgr.Add( v2Target,           v2_Target,x2,    y+135, 150, 17);
     ViewportMgr.Add( new CCombobox(),           v2_Type,x2,    y+110, 150, 17);
     ViewportMgr.Add( new CButton(BUT_OK, tMenu->bmpButtons),    v_ok,310,y+gfxGame.bmpViewportMgr.get()->h-25,30,15);
 
@@ -1965,31 +1968,33 @@ void CClient::InitializeViewportManager(void)
         ViewportMgr.SendMessage( v2_Type, CBS_ADDITEM, "Action Cam",VW_ACTIONCAM);
     }
 
-	// Fill in the target worms boxes
-    for(i=0; i<MAX_WORMS; i++ ) {
-        if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
-            continue;
-
-		ViewportMgr.SendMessage( v1_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		//ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
-		((CCombobox *) ViewportMgr.getWidget(v1_Target))->setImage( cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID() );
-		ViewportMgr.SendMessage( v2_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
-		//ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg()); // TODO: 64bit unsafe (pointer cast)
-		((CCombobox *) ViewportMgr.getWidget(v2_Target))->setImage( cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID() );
-    }
-
+	// Get the targets
+	int v1trg = 0, v2trg = 0;
 	CWorm *trg = cViewports[0].getTarget();
 	if (trg)  {
-		ViewportMgr.SendMessage( v1_Target, CBM_SETCURINDEX, trg->getID(), 0);
+		v1trg = trg->getID();
     }
 
 	if (cViewports[1].getUsed())  {
 		trg = cViewports[1].getTarget();
 		if (trg)
-			ViewportMgr.SendMessage( v2_Target, CBM_SETCURINDEX, trg->getID(), 0);
+			v2trg = trg->getID();
 	}
 
+	// Fill in the target worms boxes
+    for(i=0; i<MAX_WORMS; i++ ) {
+        if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
+            continue;
 
+		v1Target->addItem(cRemoteWorms[i].getName(), cRemoteWorms[i].getName(), cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID());
+		v2Target->addItem(cRemoteWorms[i].getName(), cRemoteWorms[i].getName(), cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID());
+
+		if (cRemoteWorms[i].getID() == v1trg)
+			v1Target->setCurItem(v1Target->getLastItem());
+
+		if (cRemoteWorms[i].getID() == v2trg)
+			v2Target->setCurItem(v2Target->getLastItem());
+    }
 
     // Restore old settings
     ViewportMgr.SendMessage( v1_Type, CBM_SETCURINDEX, cViewports[0].getType(), 0);
@@ -2058,12 +2063,15 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
                 if( Wormcount <= 1 )
                     ViewportMgr.SendMessage(v2_On, CKM_SETCHECK,(DWORD)0,0);
 
+				CCombobox *v1Target = (CCombobox *)ViewportMgr.getWidget(v1_Target);
+				CCombobox *v2Target = (CCombobox *)ViewportMgr.getWidget(v2_Target);
+
                 // Grab settings
                 int a_type = ViewportMgr.SendMessage(v1_Type, CBM_GETCURINDEX, (DWORD)0,0);
                 int b_on = ViewportMgr.SendMessage(v2_On, CKM_GETCHECK, (DWORD)0,0);
                 int b_type = ViewportMgr.SendMessage(v2_Type, CBM_GETCURINDEX, (DWORD)0,0);
-				int v1_target = ViewportMgr.SendMessage(v1_Target, CBM_GETCURINDEX, (DWORD)0,0);
-				int v2_target = ViewportMgr.SendMessage(v2_Target, CBM_GETCURINDEX, (DWORD)0,0);
+				int v1_target = v1Target->getSelectedItem()->iTag;
+				int v2_target = v2Target->getSelectedItem()->iTag;
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
                     cViewports[i].setUsed(false);
