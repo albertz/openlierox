@@ -29,6 +29,7 @@
 #include "Protocol.h"
 #include "Physics.h"
 #include "CClient.h"
+#include <iostream>
 
 
 CClient		*cClient = NULL;
@@ -388,7 +389,7 @@ void CClient::PlayerShoot(CWorm *w)
 		return;
 
 	if(!Slot->Weapon) {
-		printf("ERROR: Slot->Weapon not set\n");
+		std::cout << "ERROR(PlayerShoot): Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << std::endl;
 		return;
 	}
 
@@ -424,7 +425,10 @@ void CClient::ShootSpecial(CWorm *w)
 
 	// Safety
 	if(!Slot->Weapon)
+	{
+		std::cout << "ERROR(ShootSpecial): Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << std::endl;
 		return;
+	}
 
 	switch(Slot->Weapon->Special) {
 
@@ -459,7 +463,10 @@ void CClient::DrawBeam(CWorm *w)
 
 	// Safety
 	if(!Slot->Weapon)
+	{
+		std::cout << "ERROR(DrawBeam): Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << std::endl;
 		return;
+	}
 
 	if(Slot->Reloading)
 		return;
@@ -556,6 +563,7 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 
 	if(proj == NULL) {
 		// Warning: Out of space for a projectile
+		std::cout << "Warning: Out of space for SpawnProjectile" << std::endl;
 		return;
 	}
 
@@ -794,7 +802,10 @@ void CClient::LaserSight(CWorm *w)
 
 	// Safety
 	if(!Slot->Weapon)
+	{
+		std::cout << "ERROR(LaserSight): Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << std::endl;
 		return;
+	}
 
 	// Only show the sight if the player is NOT reloading
 	if(Slot->Reloading)
@@ -928,7 +939,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 
 	// Safety check
 	if (wpn->ID < 0)  {
-		printf("WARNING: weapon ID less than zero\n");
+		printf("WARNING: weapon ID less than zero. Guilty worm: %i with name %s\n",w->getID(),w->getName().c_str());
 		return;
 	}
 
