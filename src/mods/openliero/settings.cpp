@@ -14,6 +14,7 @@ int const Settings::wormAnimTab[] =
 	14
 };
 
+/*
 int maxBonuses;
 int blood;
 int timeToLose;
@@ -29,6 +30,7 @@ bool randomLevel;
 std::string levelFile;
 bool map;
 bool screenSync;
+*/
 
 Settings::Settings()
 : maxBonuses(4)

@@ -662,10 +662,12 @@ std::string printBinary(const std::string & s)
 
 void TestCChannelRobustness()
 {
-	printf("Testing CBytestream\n");
+	using std::cout;
+	using std::endl;
+	cout << "Testing CBytestream" << endl;
 	CBytestream bsTest;
 	bsTest.Test();
-	printf("\n\n\n\nTesting CChannel robustness\n");
+	cout << "\n\n\n\nTesting CChannel robustness" << endl;
 	int lagMin = 100;
 	int lagMax = 500;
 	int packetLoss = 15; // In percents
@@ -742,12 +744,14 @@ void TestCChannelRobustness()
 		if( b1.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c1 sent packet - lost (%lu in buf): %s\n", testtime, c1.Messages.size(), printBinary(b1.readData()).c_str() );
+				cout << testtime << ": c1 sent packet - lost (" << c1.Messages.size() << 
+						" in buf): " << printBinary(b1.readData()) << endl;
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s1buf.insert( std::make_pair( lag, b1 ) );
-				printf("%i: c1 sent packet - lag %i (%lu in buf): %s\n", testtime, lag, c1.Messages.size(), printBinary(b1.readData()).c_str() );
+				cout<< testtime << ": c1 sent packet - lag " << lag << " (" << c1.Messages.size() << 
+						" in buf): " << printBinary(b1.readData()) << endl;
 			};
 		};
 
@@ -762,12 +766,14 @@ void TestCChannelRobustness()
 		if( b2.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				printf("%i: c2 sent packet - lost (%lu in buf): %s\n", testtime, c2.Messages.size(), printBinary(b2.readData()).c_str() );
+				cout << testtime << ": c2 sent packet - lost (" << c2.Messages.size() <<
+						" in buf): " << printBinary(b2.readData()) << endl;
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s2buf.insert( std::make_pair( lag, b2 ) );
-				printf("%i: c2 sent packet - lag %i (%lu in buf): %s\n", testtime, lag, c2.Messages.size(), printBinary(b2.readData()).c_str() );
+				cout << testtime << ": c2 sent packet - lag " << lag << " (" << c2.Messages.size() <<
+						" in buf): " << printBinary(b2.readData()) << endl;
 			};
 		};
 
@@ -790,15 +796,15 @@ void TestCChannelRobustness()
 
 		if( b1.GetLength() != 0 )
 		{
-			printf("%i: c1 recv packet (ping %i): %s\n", testtime, c1.getPing(), printBinary(b1.readData()).c_str() );
+			cout << testtime << ": c1 recv packet (ping " << c1.getPing() << "): " << printBinary(b1.readData()) << endl;
 			b1.ResetPosToBegin();
 			while( c1.Process( &b1 ) )
 			{
 				while( b1.GetRestLen() != 0 )
 				{
 					int i1rr = b1.readInt(4);
-					printf("%i: c1 reliable packet, data %i expected %i - %s\n", testtime,
-							i1rr, i1r+1, i1rr == i1r+1 ? "good" : "ERROR!" );
+					cout << testtime << ": c1 reliable packet, data " << i1rr << 
+							" expected " << i1r+1 << " - " << (i1rr == i1r+1 ? "good" : "ERROR!") << endl;
 					i1r = i1rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b1.readByte();
@@ -809,15 +815,15 @@ void TestCChannelRobustness()
 
 		if( b2.GetLength() != 0 )
 		{
-			printf("%i: c2 recv packet (ping %i): %s\n", testtime, c2.getPing(), printBinary(b2.readData()).c_str() );
+			cout << testtime << ": c2 recv packet (ping " << c2.getPing() << "): " << printBinary(b2.readData()) << endl;
 			b2.ResetPosToBegin();
 			while( c2.Process( &b2 ) )
 			{
 				while( b2.GetRestLen() != 0 )
 				{
 					int i2rr = b2.readInt(4);
-					printf("%i: c2 reliable packet, data %i expected %i - %s\n", testtime,
-							i2rr, i2r+1, i2rr == i2r+1 ? "good" : "ERROR!" );
+					cout << testtime << ": c2 reliable packet, data " << i2rr << 
+							" expected " << i2r+1 << " - " << (i2rr == i2r+1 ? "good" : "ERROR!") << endl;
 					i2r = i2rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b2.readByte();

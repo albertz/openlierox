@@ -739,8 +739,20 @@ void OlxMod_StopSoundSystem()
 {
 	if( OlxMod_SoundDisabled )
 		return;
+	for( std::map< unsigned long, std::map< void *, int > > ::iterator it = OlxMod_SoundsPlaying.begin();
+			it != OlxMod_SoundsPlaying.end(); it++ )
+	{
+		for( std::map< void *, int > ::iterator it1 = it->second.begin();
+				it1 != it->second.end(); it1++ )
+		{
+			Mix_HaltChannel( it1->second );
+		}
+	};
+	OlxMod_SoundsPlaying.clear();
 	for( std::map< void *, Mix_Chunk > :: iterator it = OlxMod_SoundCache.begin(); it != OlxMod_SoundCache.end(); it++ )
+	{
 		delete [] ( Uint8 * ) ( it->second.abuf );
+	};
 	OlxMod_SoundCache.clear();
 };
 

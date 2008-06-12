@@ -15,7 +15,7 @@
 struct Viewport;
 struct Worm;
 
-extern int stoneTab[3][4];
+extern const int stoneTab[3][4];
 
 struct Material
 {

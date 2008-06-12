@@ -17,7 +17,7 @@ ds:0000 is 0x 1AE80
 
 Gfx gfx;
 
-int Gfx::fireConeOffset[2][7][2] =
+const int Gfx::fireConeOffset[2][7][2] =
 {
 	{{-3, 1}, {-4, 0}, {-4, -2}, {-4, -4}, {-3, -5}, {-2, -6}, {0, -6}},
 	{{3, 1}, {4, 0}, {4, -2}, {4, -4}, {3, -5}, {2, -6}, {0, -6}},
@@ -539,6 +539,8 @@ void Gfx::flip()
 	
 	if(game.settings.screenSync)
 	{
+		SDL_Delay(0);
+		/*
 		static unsigned int const delay = 14u;
 		
 		while((SDL_GetTicks() - lastFrame) < delay)
@@ -548,6 +550,7 @@ void Gfx::flip()
 		
 		while((SDL_GetTicks() - lastFrame) >= delay)
 			lastFrame += delay;
+		*/
 	}
 	else
 		SDL_Delay(0);

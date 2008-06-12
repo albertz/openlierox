@@ -13,7 +13,7 @@
 
 Game game;
 
-int stoneTab[3][4] =
+const int stoneTab[3][4] =
 {
 	{98, 60, 61, 62},
 	{63, 75, 85, 86},

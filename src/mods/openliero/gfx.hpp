@@ -83,7 +83,7 @@ struct Gfx
 {
 	Gfx();
 	
-	static int fireConeOffset[2][7][2];
+	static const int fireConeOffset[2][7][2];
 		
 	void init();
 	void setVideoMode();

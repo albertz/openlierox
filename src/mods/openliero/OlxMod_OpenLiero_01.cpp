@@ -36,7 +36,7 @@ int curSel[OLXMOD_MAX_PLAYERS];
 bool isReady[OLXMOD_MAX_PLAYERS];
 Menu menus[OLXMOD_MAX_PLAYERS];
 int SelWeaponTimeout[OLXMOD_MAX_PLAYERS];
-static int SelWeaponTimeoutValue = 500; // 5 seconds, or so - if user won't press any key it's weapons will be selected
+const int SelWeaponTimeoutValue = 500; // 5 seconds, or so - if user won't press any key it's weapons will be selected
 int fadeValue = 0;
 int enabledWeaps = 0;
 
@@ -90,6 +90,27 @@ void OlxMod_InitFunc( int _numPlayers, int _localPlayer,
 	game.~Game();
 	memset(&game, 0, sizeof(game));
 	new ( &game ) Game;
+	
+	gfx.~Gfx();
+	memset(&gfx, 0, sizeof(gfx));
+	new ( &gfx ) Gfx;
+
+	sfx.~Sfx();
+	memset(&sfx, 0, sizeof(sfx));
+	new ( &sfx ) Sfx;
+	
+	for( unsigned f=0; f<sizeof(C)/sizeof(C[0]); f++ )
+		C[f] = 0;
+	for( unsigned f=0; f<sizeof(S)/sizeof(S[0]); f++ )
+		S[f] = "";
+	for( unsigned f=0; f<sizeof(H)/sizeof(H[0]); f++ )
+		H[f] = false;
+	for( unsigned f=0; f<sizeof(sinTable)/sizeof(sinTable[0]); f++ )
+		sinTable[f] = 0;
+	for( unsigned f=0; f<sizeof(cosTable)/sizeof(cosTable[0]); f++ )
+		cosTable[f] = 0;
+	
+	// Init new game state
 	
 	game.texts.loadFromEXE();
 	initKeys();
