@@ -976,6 +976,8 @@ void CClient::RemoveWorm(int id)
 				for (j=i;j<MAX_PLAYERS-2;j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
+
+				break;
 			}
 		}
 	}

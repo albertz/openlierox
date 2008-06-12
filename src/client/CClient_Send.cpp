@@ -37,7 +37,6 @@ void CClient::SendWormDetails(void)
 			return; */
 
 	CBytestream bs;
-	CWorm *w;
 	uint i;
 
 	// If all my worms are dead, don't send
@@ -75,9 +74,8 @@ void CClient::SendWormDetails(void)
 	// Write the update
 	bs.writeByte(C2S_UPDATE);
 
-	w = cLocalWorms[0];
-	for(i = 0; i < iNumWorms; i++, w++)
-		w->writePacket(&bs, false, NULL);
+	for(i = 0; i < iNumWorms; i++)
+		cLocalWorms[i]->writePacket(&bs, false, NULL);
 
 	bsUnreliable.Append(&bs);
 }

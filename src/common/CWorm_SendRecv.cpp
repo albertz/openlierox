@@ -378,29 +378,28 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 
 	// Prevent a wall hack
-	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
-		CClient *cl = cServer->getClient(iID); // TODO: why not this->getClient() ?
-		if (!cl)
-			return;
-		CWorm *w = cl->getWorm(0); // TODO: why not this ?
+	// HINT: commented out because it could lead to another cheating
+	// When you call Spawn() on a worm, it will get a full health
+	// It means that people with old LX could limit their FPS and whenever they would need to
+	// recover their health they would simply find some thinner wall and try to fly through it
+	/*if (tGameInfo.iGameType == GME_HOST && cServer->getMap() && cOwner)  {
 
 		// Out of map
-		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
+		if(x >= (short)cServer->getMap()->GetWidth() || y >= (short)cServer->getMap()->GetHeight())
 		{
 			vPos=vLastPos;
-			cServer->SpawnWorm(w, vPos, cl);
+			cServer->SpawnWorm(this, vPos, cOwner);
 		}
 
 		// In rock
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_ROCK)
 		{
 			vPos=vLastPos;
-			cServer->SpawnWorm(w, vPos, cl);
+			cServer->SpawnWorm(this, vPos, cOwner);
 		}
 
-		// TODO: isn't vLastPos intendent to be the same as vOldPos? if so, remove it
 		vLastPos = vPos;
-	}
+	}*/
 }
 
 ////////////////
