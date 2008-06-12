@@ -237,8 +237,10 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
-	if(cServer->getClient(id)->isLocalClient())
-		return action == ACT_KICK ? "Cannot kick host" : "Cannot ban host";
+	CClient *target = cServer->getClient(id);
+	if(target)
+		if (target->isLocalClient())
+			return action == ACT_KICK ? "Cannot kick host" : "Cannot ban host";
 
 	// Get the reason if specified
 	std::string reason;
