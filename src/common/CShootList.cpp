@@ -417,7 +417,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 
 ///////////////////
 // Read a single shot packet
-void CShootList::readSingle( CBytestream *bs )
+void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 {
 	// Clear the list
 	Clear();
@@ -432,7 +432,7 @@ void CShootList::readSingle( CBytestream *bs )
 	flags = bs->readByte();
 	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS - 1); // Used for indexing
 	psShot->fTime = bs->readFloat();
-	psShot->nWeapon = bs->readByte();
+	psShot->nWeapon = CLAMP((int)bs->readByte(), 0, max_weapon_id); // Used for indexing
 	bs->read2Int12( x, y );	
 	vx = bs->readInt16();
 	vy = bs->readInt16();
@@ -467,7 +467,7 @@ void CShootList::readSingle( CBytestream *bs )
 
 ///////////////////
 // Read a multi shot packet
-void CShootList::readMulti( CBytestream *bs )
+void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
 {
 	// Clear the list
 	Clear();
@@ -482,7 +482,7 @@ void CShootList::readMulti( CBytestream *bs )
 	flags = bs->readByte();
 	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS - 1); // Used for indexing
 	psShot->fTime = bs->readFloat();
-	psShot->nWeapon = bs->readByte();
+	psShot->nWeapon = CLAMP((int)bs->readByte(), 0, max_weapon_id);
 	num = MIN(bs->readByte(), MAX_SHOOTINGS - 1);
 	bs->read2Int12( x, y );
 	vx = bs->readInt16();

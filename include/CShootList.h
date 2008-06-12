@@ -112,11 +112,11 @@ public:
 	void		writeMulti(CBytestream *bs, int index);
 	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 
-	void		readSingle(CBytestream *bs);
+	void		readSingle(CBytestream *bs, int max_weapon_id);
 	static bool skipSingle(CBytestream *bs)  {
 		return bs->Skip(17);
 	}
-	void		readMulti(CBytestream *bs);
+	void		readMulti(CBytestream *bs, int max_weapon_id);
 	static bool skipMulti(CBytestream *bs)  {
 		bs->Skip(7);
 		byte num = bs->readByte();

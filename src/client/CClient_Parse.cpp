@@ -1539,7 +1539,7 @@ void CClient::ParseSingleShot(CBytestream *bs)
 		return;
 	}
 
-	cShootList.readSingle(bs);
+	cShootList.readSingle(bs, cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
 	ProcessServerShotList();
@@ -1557,7 +1557,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 		return;
 	}
 
-	cShootList.readMulti(bs);
+	cShootList.readMulti(bs, cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
 	ProcessServerShotList();
