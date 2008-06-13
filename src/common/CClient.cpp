@@ -681,6 +681,28 @@ void CClient::SendPackets(void)
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING_OLXMOD)
 		cNetChan->Transmit(&bsUnreliable);
 
+
+
+	if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
+	{
+		bool notReady = true;
+		fSendWait += tLX->fDeltaTime;
+		for(unsigned int i=0;i<iNumWorms;i++)
+			notReady = notReady && !cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady();
+		// getGameReady = what server thinks. getWeaponsReady = what we know.
+
+		if (notReady)
+		{
+			fSendWait += tLX->fDeltaTime;
+			if (fSendWait > 1.0)
+			{
+				printf("CClient::SendPackets::Re-sending ready packet Delta: %f fSendWait: %f\n", tLX->fDeltaTime, fSendWait);
+				fSendWait = 0.0f;
+				SendGameReady();
+			}
+		}
+	}
+
 	bsUnreliable.Clear();
 }
 

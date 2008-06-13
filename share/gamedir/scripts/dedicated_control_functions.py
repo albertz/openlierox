@@ -13,7 +13,7 @@ import os
 import sys
 import threading
 
-import dedicated_config  # Per-host config like admin password 
+import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
 curdir = os.getcwd()
@@ -44,7 +44,7 @@ class Worm:
 		self.Ip = ""
 		self.iID = -1
 		self.isAdmin = False
-		
+
 	def clear(self):
 		self.__init__()
 
@@ -62,6 +62,8 @@ LOG_CRITICAL = 3 # For things that you REALLY need to exit for.
 
 gameState = GAME_QUIT
 
+sentStartGame = False
+
 ## Receiving functions ##
 
 # Non-blocking IO class
@@ -71,7 +73,7 @@ gameState = GAME_QUIT
 
 
 # This is just technical mumbojumbo, not really interresting for the common user (you)
-# You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX, 
+# You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX,
 # puts it in it's buffer, and delivers it to anyone who asks by getResponse().
 
 bufferedSignalsLock = threading.Lock()
@@ -86,7 +88,7 @@ class GetStdinThread(threading.Thread):
 	def run(self):
 		global bufferedSignals, bufferedSignalsLock
 		try:
-			emptyLines = 0 # Hack to stdin being silently closed 
+			emptyLines = 0 # Hack to stdin being silently closed
 			while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
 				line = sys.stdin.readline()
 				if line.strip() != "":
@@ -175,7 +177,7 @@ def getNumWorms():
 	for w in worms.values():
 		if w.iID != -1:
 			i += 1
-			
+
 	return i
 ## Sending functions ##
 
@@ -190,16 +192,21 @@ def Quit():
 # Use this to force the server into lobby - it will kick all connected worms and restart the server
 # TODO: Why do we send this with startlobby? Server doesn't catch it, + it's bad style.
 # Use addWorm() instead
-def startLobby(localWorm = "[CPU] Kamikazee!"):
-	print "startlobby " + localWorm
+#def startLobby(localWorm = "[CPU] Kamikazee!"):
+#	print "startlobby " + localWorm
+def startLobby():
+	print "startlobby"
+	sentStartGame = False
 
 # Force the server into starting the game (weapon selections screen)
 def startGame():
 	print "startgame"
-	
+	sentStartGame = True
+
 # Use this to force the server into lobby - it will abort current game but won't kick connected worms
 def gotoLobby():
 	print "gotolobby"
+	sentStartGame = False
 
 # Use this to refresh lobby information - like level/mod et.c..
 def sendLobbyUpdate():
@@ -271,17 +278,17 @@ def updateWorms(sig):
 
 # Admin interface
 def parseAdminCommand(wormid,message):
-	try: # Do not check on msg size or anything	
+	try: # Do not check on msg size or anything
 		cmd = message.split(" ")[0]
 		if cmd.find(cfg.ADMIN_PREFIX) != -1:
 			cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
-			
+
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
-		
+
 		if cmd == "help":
 			chatMsg("Admin help:")
-			chatMsg("%skick wormID [reason]" % cfg.ADMIN_PREFIX) 
+			chatMsg("%skick wormID [reason]" % cfg.ADMIN_PREFIX)
 			chatMsg("%sban wormID [reason]" % cfg.ADMIN_PREFIX)
 			chatMsg("%smute wormID" % cfg.ADMIN_PREFIX)
 			chatMsg("%smod modname" % cfg.ADMIN_PREFIX)
@@ -290,7 +297,7 @@ def parseAdminCommand(wormid,message):
 			chatMsg("%sstart - start game now" % cfg.ADMIN_PREFIX)
 			chatMsg("%sstop - go to lobby" % cfg.ADMIN_PREFIX)
 			chatMsg("%ssetvar varname value" % cfg.ADMIN_PREFIX)
-			
+
 		# TODO: put adminhelp in it's own function. Check for if we don't get enough params for stuff, and send it.
 		elif cmd == "kick":
 			if len(params) > 1: # Given some reason
@@ -321,13 +328,13 @@ def parseAdminCommand(wormid,message):
 			gotoLobby()
 		elif cmd == "setvar":
 			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
-			
-				
+
+
 	except Exception:
 		chatMsg("Invalid admin command")
 	except KeyError:
 		messageLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
-		
+
 
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
@@ -346,25 +353,29 @@ def signalHandler(sig):
 		parseChatMessage(sig)
 	elif header == "wormdied":
 		parseWormDied(sig)
-	
+
 	## Check GameState ##
 	elif header == "quit":
 		gameState = GAME_QUIT
 	elif header == "errorstartlobby":
 		gameState = GAME_QUIT
 		messageLog("errorstartlobby",LOG_ERROR)
-		
+
 	elif header == "backtolobby" or header == "lobbystarted":
 		gameState = GAME_LOBBY
+		sentGameStarted = False
 	elif header == "errorstartgame":
 		gameState = GAME_LOBBY
 		messageLog("errorstartgame",LOG_ERROR)
-		
+		sentGameStarted = False
+
 	elif header == "weaponselections":
 		gameState = GAME_WEAPONS
+		sentGameStarted = False
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
-		
+		sentGameStarted = False
+
 	#if sig != "":
 		#msg(sig)
 	return True
@@ -380,23 +391,23 @@ def parseNewWorm(sig):
 		worm = Worm()
 	worm.Name = name
 	worm.iID = wormID
-	
+
 	if not exists:
 		worms[wormID] = worm
 
 def parseWormLeft(sig):
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
-	
+
 	try:
 		if worms[wormID].isAdmin:
 			messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),LOG_INFO)
 	except KeyError:
 		messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
-			
-	# Call last, that way we still have the data active.		
+
+	# Call last, that way we still have the data active.
 	worms[wormID].clear()
-	
+
 
 def parsePrivateMessage(sig):
 	wormID = int(sig.split(" ")[1])
@@ -407,7 +418,7 @@ def parsePrivateMessage(sig):
 				worms[wormID].isAdmin = True
 				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
-				chatMsg("%s authenticated for admin! Type %shelp for command info" % (cfg.ADMIN_PREFIX, worms[wormID].Name))
+				chatMsg("%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
 		except KeyError:
 			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 
@@ -417,7 +428,7 @@ def parseChatMessage(sig):
 	msg( "Chat msg from worm %i: %s" % (wormID, message))
 	if worms[wormID].isAdmin:
 		parseAdminCommand(wormID,message)
-		
+
 def parseWormDied(sig):
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
@@ -431,7 +442,7 @@ def parseWormDied(sig):
 ## Preset loading functions ##
 def initPresets():
 	global availiblePresets,maxPresets,presetDir
-	
+
 	# Reset - incase we get called a second time
 	del availiblePresets[:]
 	maxPresets = 0
@@ -515,7 +526,7 @@ def messageLog(message,severity):
 		f.close()
 	except IOError:
 		msg("ERROR: Unable to open logfile.")
-		
+
 	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
 	# so let python send out the ugly warning.
 	msg(outline)

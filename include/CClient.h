@@ -565,6 +565,7 @@ public:
 	void		Connecting(bool force = false);
 	void		ReadPackets(void);
 	void		SendPackets(void);
+	void		SendGameReady();
 	void		SendDeath(int victim, int killer);
 	void		SendText(const std::string& sText, std::string sWormName);
 	void		Disconnect(void);

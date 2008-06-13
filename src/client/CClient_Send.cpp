@@ -79,6 +79,18 @@ void CClient::SendWormDetails(void)
 
 	bsUnreliable.Append(&bs);
 }
+void CClient::SendGameReady()
+{
+	CBytestream bs;
+	bs.writeByte(C2S_IMREADY);
+	bs.writeByte(iNumWorms);
+
+	// Send my worm's weapon details
+	for(unsigned int i=0;i<iNumWorms;i++)
+		cLocalWorms[i]->writeWeapons( &bs );
+
+	cNetChan->AddReliablePacketToSend(bs);
+}
 
 
 ///////////////////

@@ -536,17 +536,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if(ready && !bReadySent && !bDownloadingMap) {
 			cout << "Client: we are ready, waiting now for start game signal" << endl;
 			bReadySent = true;
-
-			// TODO: move this out here
-			CBytestream bs;
-			bs.writeByte(C2S_IMREADY);
-			bs.writeByte(iNumWorms);
-
-			// Send my worm's weapon details
-			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons( &bs );
-
-			cNetChan->AddReliablePacketToSend(bs);
+			SendGameReady();
 		}
 	}
 
