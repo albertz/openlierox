@@ -696,7 +696,7 @@ void CClient::SendPackets(void)
 			fSendWait += tLX->fDeltaTime;
 			if (fSendWait > 1.0)
 			{
-				printf("CClient::SendPackets::Re-sending ready packet Delta: %f fSendWait: %f\n", tLX->fDeltaTime, fSendWait);
+				printf("CClient::SendPackets::Re-sending ready packet\n");
 				fSendWait = 0.0f;
 				SendGameReady();
 			}

@@ -21,7 +21,7 @@ ded = dedicated_control_functions # shortcut
 ded.msg("GameState = %s" % str(ded.gameState))
 ded.messageLog("Dedicated_control started",ded.LOG_INFO)
 
-ded.startLobby(cfg.LOCAL_BOT_NAME)
+ded.startLobby()
 
 ded.initPresets()
 
