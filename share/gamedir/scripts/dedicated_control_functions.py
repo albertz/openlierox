@@ -195,16 +195,19 @@ def Quit():
 #def startLobby(localWorm = "[CPU] Kamikazee!"):
 #	print "startlobby " + localWorm
 def startLobby():
+	global sentStartGame
 	print "startlobby"
 	sentStartGame = False
 
 # Force the server into starting the game (weapon selections screen)
 def startGame():
+	global sentStartGame
 	print "startgame"
 	sentStartGame = True
 
 # Use this to force the server into lobby - it will abort current game but won't kick connected worms
 def gotoLobby():
+	global sentStartGame
 	print "gotolobby"
 	sentStartGame = False
 
@@ -530,3 +533,4 @@ def messageLog(message,severity):
 	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
 	# so let python send out the ugly warning.
 	msg(outline)
+
