@@ -49,7 +49,7 @@ std::string	ConfigFile;
 SmartPointer<SDL_Surface> bmpIcon=NULL;
 
 
-SDL_PixelFormat defaultFallbackFormat = 
+SDL_PixelFormat defaultFallbackFormat =
 	{
          NULL, //SDL_Palette *palette;
          32, //Uint8  BitsPerPixel;
@@ -77,7 +77,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	if(getenv("SDL_VIDEODRIVER"))
 		printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
-	
+
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
 	if(!getenv("SDL_VIDEODRIVER")) {
@@ -95,16 +95,16 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		bDisableSound = true;
 		bJoystickSupport = false;
 	}
-	
+
 	if(SDL_Init(SDLflags) == -1) {
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: " + std::string(SDL_GetError()));
 #ifdef WIN32
-		// retry it with any available video driver	
+		// retry it with any available video driver
 		unsetenv("SDL_VIDEODRIVER");
 		if(SDL_Init(SDLflags) != -1)
 			printf("... but we have success with the any driver\n");
 		else
-#endif		
+#endif
 		return false;
 	}
 
@@ -121,7 +121,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
-	
+
 	// Enable unicode and key repeat
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(200,20);
@@ -134,12 +134,12 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		    printf("Warning: Failed the initialize the sound system\n");
 			bDisableSound = true;
 		}
-    } 	
+    }
 	if(bDisableSound) {
 		printf("soundsystem completly disabled\n");
 		tLXOptions->bSoundOn = false;
 	}
-	
+
 	if( tLXOptions->bSoundOn ) {
 		StartSoundSystem();
 	}
@@ -158,13 +158,13 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	// Initialize the keyboard & mouse
 	InitEventSystem();
-	
+
 #ifdef DEBUG
 	// Cache
 	InitCacheDebug();
 #endif
 
-	
+
 	return true;
 }
 
@@ -220,7 +220,7 @@ bool SetVideoMode()
 		}
 #endif
 	}
-	
+
 #ifdef WIN32
 	bool HardwareAcceleration = false;
 #else
@@ -278,7 +278,7 @@ bool SetVideoMode()
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
-	} 
+	}
 
 	if(HardwareAcceleration)  {
 		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
@@ -337,7 +337,7 @@ bool SetVideoMode()
 	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		cout << "using doublebuffering" << endl;
-	
+
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
@@ -374,7 +374,7 @@ void CapFPS() {
 	const float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
 	const float fCurTime = GetMilliSeconds();
 	// tLX->fCurTime is old time
-	
+
 	// Cap the FPS
 	if(fCurTime - tLX->fCurTime < fMaxFrameTime)
 		SDL_Delay((int)((fMaxFrameTime - fCurTime + tLX->fCurTime)*1000));
@@ -410,13 +410,13 @@ void ProcessScreenshots()
 void FlipScreen( SDL_Surface * psScreen)
 {
 	if(psScreen == NULL) return;
-	
+
     // Take a screenshot?
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them
     ProcessScreenshots();
 
-	SDL_Flip( psScreen );	
+	SDL_Flip( psScreen );
 
 	if (tLXOptions->bOpenGL)
 		SDL_GL_SwapBuffers();
@@ -429,11 +429,11 @@ void ShutdownAuxLib()
 {
 	// Process the last events (mainly because of timers that will free the allocated memory)
 	ProcessEvents();
-	
+
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
 	cCache.Clear();
-	
+
 	// quit video at this point to not get stuck in a fullscreen not responding game in case that it crashes in further quitting
 	// in the case it wasn't inited at this point, this also doesn't hurt
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
@@ -456,7 +456,7 @@ void ShutdownAuxLib()
 		// quit everything but audio
 		SDL_QuitSubSystem( SDL_WasInit(0) & (~SDL_INIT_AUDIO) );
 	else
-#endif		
+#endif
 		SDL_Quit();
 }
 
@@ -485,6 +485,8 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 {
 	if (scr_path.empty()) // Check
 		return;
+
+	cout << "Save screenshot to " << scr_path << endl;
 
 	std::string	picname;
 	std::string	fullname;
@@ -571,7 +573,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 //////////////////////
 // unsetenv for WIN32, taken from libc source
-int unsetenv(const char *name)  
+int unsetenv(const char *name)
 {
   size_t len;
   char **ep;
