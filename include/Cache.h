@@ -54,6 +54,7 @@ public:
 	void	SaveMod(const std::string& dir, const SmartPointer<CGameScript> & mod);
 	// Map is copied to cache, 'cause it will be modified during game - you should free your data yourself.
 	void	SaveMap(const std::string& file, CMap *map);
+	size_t	GetCacheSize();
 
 private:
 	typedef std::map<std::string, std::pair< SmartPointer<SDL_Surface>, float > > ImageCache_t;
@@ -69,5 +70,11 @@ private:
 };
 
 extern CCache cCache;
+
+// Debug functions
+#ifdef DEBUG
+void InitCacheDebug();
+void ShutdownCacheDebug();
+#endif
 
 #endif  //  __CACHE_H__

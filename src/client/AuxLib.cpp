@@ -159,6 +159,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	// Initialize the keyboard & mouse
 	InitEventSystem();
 	
+#ifdef DEBUG
+	// Cache
+	InitCacheDebug();
+#endif
+
 	
 	return true;
 }

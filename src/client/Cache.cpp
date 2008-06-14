@@ -25,6 +25,41 @@
 #include "CGameScript.h"
 #include "CMap.h"
 #include "StringUtils.h"
+#include "Timer.h"
+
+#ifdef DEBUG
+Timer *timer = NULL;
+
+bool CacheTimer(Timer* sender, void* userData)  {
+	std::string unit = "B";
+	size_t size = cCache.GetCacheSize();
+	if (size >= 1024 * 1024 * 1024)  {
+		size /= 1024 * 1024 * 1024;
+		unit = "GB";
+	} else if (size >= 1024 * 1024)  {
+		size /= 1024 * 1024;
+		unit = "MB";
+	} else if (size >= 1024)  {
+		size /= 1024;
+		unit = "KB";
+	}
+
+	printf("Current cache size: " + to_string<size_t>(size) + " " + unit + "\n");
+	return true;
+}
+
+void InitCacheDebug()
+{
+	timer = new Timer(&CacheTimer, NULL, 10000);
+	timer->start();
+}
+
+void ShutdownCacheDebug()
+{
+	timer->stop();
+	delete timer;
+}
+#endif
 
 CCache cCache;
 float getCurrentTime()
@@ -190,6 +225,27 @@ void CCache::Clear()
 	MapCache.clear();
 	ImageCache.clear();
 	SoundCache.clear();
+}
+
+///////////////////////
+// Get the number of memory occupied (in bytes)
+size_t CCache::GetCacheSize()
+{
+	size_t res = sizeof(CCache);
+	for (ImageCache_t::iterator it = ImageCache.begin(); it != ImageCache.end(); it++)
+		res += GetSurfaceMemorySize(it->second.first.get()) + it->first.size();
+
+	for (ModCache_t::iterator it = ModCache.begin(); it != ModCache.end(); it++)
+		res += it->second.first.get()->GetMemorySize() + it->first.size();
+
+	for (MapCache_t::iterator it = MapCache.begin(); it != MapCache.end(); it++)
+		res += it->second.first.get()->GetMemorySize() + it->first.size();
+
+	// TODO: not exact
+	for (SoundCache_t::iterator it = SoundCache.begin(); it != SoundCache.end(); it++)
+		res += it->first.size() + sizeof(SoundSample);
+
+	return res;
 }
 
 void CCache::ClearExtraEntries()

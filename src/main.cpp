@@ -932,6 +932,10 @@ void ShutdownLieroX(void)
 
 	xmlCleanupParser();
 
+#ifdef DEBUG
+	ShutdownCacheDebug();
+#endif
+
 	printf("Everything was shut down\n");
 }
 

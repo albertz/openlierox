@@ -119,6 +119,24 @@ bool CMap::LoadFromCache()
 	return NewFrom(cached.get());
 }
 
+/////////////////////
+// Returns number of bytes that the map takes in memory
+size_t CMap::GetMemorySize()
+{
+	size_t res = sizeof(CMap) +
+		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpDirtImage.get()) + 
+		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
+		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) + 
+		Width * Height + // Pixel flags
+		2 * nGridCols * nGridRows + // Grids
+		Name.size() + FileName.size() +
+		Theme.name.size();
+#ifdef _AI_DEBUG
+	res += GetSurfaceMemorySize(bmpDebugImage.get());
+#endif
+	return res;
+}
+
 ///////////////////
 // Allocate a new map
 bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)

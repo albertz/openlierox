@@ -847,6 +847,34 @@ std::string CGameScript::readString(FILE *fp)
     return buf;
 }
 
+// Helper function
+static size_t GetProjSize(proj_t *prj)
+{
+	if (prj)
+		return 	prj->Exp_SndFilename.size() + prj->filename.size() +
+				prj->Hit_SndFilename.size() + prj->ImgFilename.size() +
+				GetProjSize(prj->Projectile) + prj->Tch_SndFilename.size() +
+				/*GetSurfaceMemorySize(prj->bmpImage.get()) + */
+				sizeof(proj_t);
+	else
+		return 0;
+}
+
+//////////////////
+// Returns the memory occupied by this gamescript
+size_t CGameScript::GetMemorySize()
+{
+	size_t res = sizeof(CGameScript) + sDirectory.size();
+	weapon_t *it = Weapons;
+	for (int i = 0; i < NumWeapons; i++, it++)  {
+		res += sizeof(weapon_t) + sizeof(SoundSample);
+		res += it->SndFilename.size();
+		res += GetProjSize(it->Projectile);
+	}
+
+	return res;
+}
+
 
 ///////////////////
 // Shutdown the game script

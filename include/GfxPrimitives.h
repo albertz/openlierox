@@ -67,6 +67,15 @@ inline void UnlockSurface(const SmartPointer<SDL_Surface> & bmp)  {
 // Call this instead of SDL_GetVideoSurface()
 inline SDL_Surface * GetVideoSurface() { return SDL_GetVideoSurface(); };
 
+////////////////////
+// Returns number of bytes the surface takes in memory
+inline size_t GetSurfaceMemorySize(SDL_Surface *surf)  { 
+	if (surf)
+		return sizeof(SDL_Surface) + sizeof(SDL_PixelFormat) + surf->w * surf->h * surf->format->BytesPerPixel;
+	else
+		return 0;
+}
+
 //
 // Clipping routines
 //

@@ -216,6 +216,7 @@ private:
     std::string readString(FILE *fp);
 
 public:
+	size_t		GetMemorySize();
 	std::string	getError(int code);
 
 	const weapon_t	*FindWeapon(const std::string& name);

@@ -259,6 +259,9 @@ private:
 	}
 
 public:	
+
+	size_t GetMemorySize();
+
 	inline uchar GetPixelFlag(uint x, uint y)
 	{
 		// Checking edges
