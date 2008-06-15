@@ -690,11 +690,11 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 			else if(dx % 2 == 1 && dy % 2 == 0)
 				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx + 1, dy) * 0.5; }
 			else if(dx % 2 == 0 && dy % 2 == 1)
-				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx, dy + 1) * 0.5; }
+				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx, dy - 1) * 0.5; }
 			else
 				{ col =
-					Resample2_getColor(bmpSrc, dx, dy) * 0.25 + Resample2_getColor(bmpSrc, dx, dy + 1) * 0.25 +
-					Resample2_getColor(bmpSrc, dx + 1, dy) * 0.25 + Resample2_getColor(bmpSrc, dx + 1, dy + 1) * 0.25;
+					Resample2_getColor(bmpSrc, dx, dy) * 0.25 + Resample2_getColor(bmpSrc, dx, dy - 1) * 0.25 +
+					Resample2_getColor(bmpSrc, dx + 1, dy) * 0.25 + Resample2_getColor(bmpSrc, dx + 1, dy - 1) * 0.25;
 				}
 
 			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
