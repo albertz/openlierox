@@ -129,6 +129,7 @@ private:
 	CShootList		cShootList;
 	CHttp			tHttp;
 	bool			bLocalClientConnected;
+	int				iSuicidesInPacket;
 
 	CBanList	cBanList;
 	float		fLastUpdateSent;

@@ -300,6 +300,21 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		return;
 	}
 
+	// A small hack: multiple-suiciding can lag down the game, check if
+	// the packet contains another death (with same killer and victim), if so, just
+	// increase the suicide variable and proceed
+	if (killer == victim)  {
+		iSuicidesInPacket++;
+		if (bs->peekByte() == C2S_DEATH)  {
+			std::string s = bs->peekData(3);
+			if (s.size() == 3)  {
+				s.erase(s.begin()); // The C2S_DEATH byte
+				if (((uchar)s[0] == (uchar)victim) && ((uchar)s[1] == (uchar)killer))
+					return;
+			}
+		}
+	}
+
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
 
@@ -337,6 +352,12 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	}
 
+	// Adjust the score if there were multiple suicides
+	if (iSuicidesInPacket > 1)  {
+		if (tGameInfo.iLives != WRM_UNLIM) // Substracting from infinite makes no sense
+			vict->setLives(MAX(WRM_OUT, vict->getLives() - iSuicidesInPacket + 1)); // HINT: +1 because one live is substracted in vict->Kill()
+	}
+
 	// Cheat prevention, game behaves weird if this happens
 	if (vict->getLives() < 0 && iLives >= 0)  {
 		vict->setLives(WRM_OUT);  // Safety
@@ -352,7 +373,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			replacemax(networkTexts->sKilled, "<killer>", kill->getName(), buf, 1);
 			replacemax(buf, "<victim>", vict->getName(), buf, 1);
 		} else
-			replacemax(networkTexts->sCommitedSuicide, "<player>", vict->getName(), buf, 1);
+			replacemax(networkTexts->sCommitedSuicide + (iSuicidesInPacket > 1 ? " (" + itoa(iSuicidesInPacket) + "x)" : ""),
+			"<player>", vict->getName(), buf, 1);
 
 		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 	}
@@ -373,8 +395,10 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	}
 
+	// Update victim statistics
 	vict->setKillsInRow(0);
-	vict->addDeathInRow();
+	if (iSuicidesInPacket <= 1)  // HINT: don't add death in row for multi-suicides because the dying spree messages are not adequate for console suicides
+		vict->addDeathInRow();
 
 	// Kills don't count in capture the flag
 	if (killer != victim && (iGameType != GMT_CTF && iGameType != GMT_TEAMCTF))  {

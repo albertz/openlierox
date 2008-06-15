@@ -467,6 +467,7 @@ std::string CBytestream::readString(size_t maxlen) {
 	return result;
 }
 
+////////////////////
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {
 	ushort dat[3];
@@ -478,6 +479,7 @@ void CBytestream::read2Int12(short& x, short& y) {
 	y = (short)(((dat[1] & 0xf0) >> 4) + (dat[2] << 4));
 }
 
+///////////////////
 // cast 1 byte to 2 int4
 void CBytestream::read2Int4(short& x, short& y) {
 	uchar tmp = readByte();
@@ -486,6 +488,8 @@ void CBytestream::read2Int4(short& x, short& y) {
 }
 
 
+////////////////////
+// Read one bit from the bytestream
 bool CBytestream::readBit()
 {
 	if( isPosAtEnd() )
@@ -501,15 +505,38 @@ bool CBytestream::readBit()
 		pos ++;
 	};
 	return ret;
-};
+}
 
+/////////////////////
+// Get data from the bytestream
 std::string CBytestream::readData( size_t size )
 {
 	size = MIN( size, GetLength() - pos );
 	size_t oldpos = pos;
 	pos += size;
 	return Data.substr( oldpos, size );
-};
+}
+
+
+/////////////////////
+// Read a byte but don't change the position
+uchar CBytestream::peekByte()
+{
+	if (!isPosAtEnd())
+		return Data[GetPos()];
+	printf("CBytestream::peekByte(): reading from stream beyond end\n");
+	return 0;
+}
+
+///////////////////////
+// Peek data from the bytestream
+std::string CBytestream::peekData(size_t len)
+{
+	if (GetPos() + len <= GetLength())
+		return Data.substr(GetPos(), len);
+	return "";
+}
+
 
 // Skips a string, including the terminating character
 // Returns true if we're at the end of the stream after the skip

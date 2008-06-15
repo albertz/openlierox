@@ -111,6 +111,7 @@ void GameServer::Clear(void)
 	cShootList.Clear();
 
 	bFirstBlood = true;
+	iSuicidesInPacket = 0;
 
 	for(i=0; i<MAX_CHALLENGES; i++) {
 		SetNetAddrValid(tChallenges[i].Address, false);
@@ -680,6 +681,9 @@ void GameServer::ReadPackets(void)
 				continue;
 			}
 			bs.ResetPosToBegin();
+
+			// Reset the suicide packet count
+			iSuicidesInPacket = 0;
 
 			// Read packets
 			CClient *cl = cClients;

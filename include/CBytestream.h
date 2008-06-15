@@ -95,6 +95,10 @@ public:
 	bool		readBit();
 	std::string	readData( size_t size = (size_t)(-1) );
 
+	// Peeks
+	uchar		peekByte();
+	std::string	peekData(size_t len);
+
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip
 	bool		Skip(size_t num);
@@ -145,7 +149,7 @@ class CBytestreamBitIterator
 			pos ++;
 		}
 		else
-			bitMask <<= 1;	// bitMask *= 2;
+			bitMask *= 2;
 	};
 
 	bool getBit() const
