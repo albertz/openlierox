@@ -124,9 +124,9 @@ bool CMap::LoadFromCache()
 size_t CMap::GetMemorySize()
 {
 	size_t res = sizeof(CMap) +
-		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpDirtImage.get()) + 
+		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpDirtImage.get()) +
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
-		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) + 
+		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) +
 		Width * Height + // Pixel flags
 		2 * nGridCols * nGridRows + // Grids
 		Name.size() + FileName.size() +
@@ -644,9 +644,9 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 
 
-inline Color Resample2_getColor(SDL_Surface* bmpSrc, int dx, int dy) {
-	if(dx < 0 || dx >= bmpSrc->w * 2 || dy < 0 || dy >= bmpSrc->h * 2) return Color(0.0,0.0,0.0);
-	return Color( GetPixel(bmpSrc, dx/2, dy/2), bmpSrc->format );
+inline Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
+	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0.0,0.0,0.0);
+	return Color( GetPixel(bmpSrc, sx, sy), bmpSrc->format );
 }
 
 inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
@@ -674,8 +674,8 @@ inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
 	return count >= 3 || (count == 2 && otherColCount >= 2);
 }
 
-void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
-	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)cMap->GetImage().get()->clip_rect))
+void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 	int dx2 = sx*2 + w*2;
@@ -686,15 +686,15 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 			Color col;
 
 			if(dx % 2 == 0 && dy % 2 == 0)
-				{ col = Resample2_getColor(bmpSrc, dx, dy); }
+				{ col = Resample2_getColor(bmpSrc, dx/2, dy/2); }
 			else if(dx % 2 == 1 && dy % 2 == 0)
-				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx + 1, dy) * 0.5; }
+				{ col = Resample2_getColor(bmpSrc, dx/2, dy/2) * 0.5 + Resample2_getColor(bmpSrc, (dx + 1)/2, dy/2) * 0.5; }
 			else if(dx % 2 == 0 && dy % 2 == 1)
-				{ col = Resample2_getColor(bmpSrc, dx, dy) * 0.5 + Resample2_getColor(bmpSrc, dx, dy - 1) * 0.5; }
+				{ col = Resample2_getColor(bmpSrc, dx/2, dy/2) * 0.5 + Resample2_getColor(bmpSrc, dx/2, (dy - 1)/2) * 0.5; }
 			else
 				{ col =
-					Resample2_getColor(bmpSrc, dx, dy) * 0.25 + Resample2_getColor(bmpSrc, dx, dy - 1) * 0.25 +
-					Resample2_getColor(bmpSrc, dx + 1, dy) * 0.25 + Resample2_getColor(bmpSrc, dx + 1, dy - 1) * 0.25;
+					Resample2_getColor(bmpSrc, dx/2, dy/2) * 0.25 + Resample2_getColor(bmpSrc, dx/2, (dy - 1)/2) * 0.25 +
+					Resample2_getColor(bmpSrc, (dx + 1)/2, dy/2) * 0.25 + Resample2_getColor(bmpSrc, (dx + 1)/2, (dy - 1)/2) * 0.25;
 				}
 
 			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
@@ -702,6 +702,50 @@ void DrawImageResampled2(CMap* cMap, SDL_Surface* bmpDest, SDL_Surface* bmpSrc, 
 		}
 	}
 }
+
+// This algo is taken from http://scale2x.sourceforge.net/algorithm.html
+// Thanks goes to the AdvanceMAME team!
+void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	int sx2 = sx + w;
+	int sy2 = sy + h;
+	for(; sy < sy2; ++sy) {
+		for(sx = sx2 - w; sx < sx2; ++sx) {
+			Color A,B,C,D,E,F,G,H,I;
+			A = Resample2_getColor(bmpSrc, sx-1, sy-1);
+			B = Resample2_getColor(bmpSrc, sx, sy-1);
+			C = Resample2_getColor(bmpSrc, sx+1, sy-1);
+			D = Resample2_getColor(bmpSrc, sx-1, sy);
+			E = Resample2_getColor(bmpSrc, sx, sy);
+			F = Resample2_getColor(bmpSrc, sx+1, sy);
+			G = Resample2_getColor(bmpSrc, sx-1, sy+1);
+			H = Resample2_getColor(bmpSrc, sx, sy+1);
+			I = Resample2_getColor(bmpSrc, sx-1, sy+1);
+
+			Color dstE[4];
+			if (B != H && D != F) {
+				dstE[0] = D == B ? D : E;
+				dstE[1] = B == F ? F : E;
+				dstE[2] = D == H ? D : E;
+				dstE[3] = H == F ? F : E;
+			} else {
+				dstE[0] = E;
+				dstE[1] = E;
+				dstE[2] = E;
+				dstE[3] = E;
+			}
+
+			for(int dy = 0; dy < 2; ++dy)
+				for(int dx = 0; dx < 2; ++dx) {
+					Uint8* dst_px = (Uint8 *)bmpDest->pixels + (sy*2 + dy) * bmpDest->pitch + (sx*2 + dx) * bmpDest->format->BytesPerPixel;
+					PutPixelToAddr(dst_px, dstE[dy*2 + dx].pixel(bmpDest->format), bmpDest->format->BytesPerPixel);
+				}
+		}
+	}
+}
+
 
 ////////////////////
 // Updates the bmpDrawImage with data from bmpImage
@@ -715,7 +759,9 @@ void CMap::UpdateDrawImage(int x, int y, int w, int h)
 
 		//DrawImageResampledAdv(bmpDrawImage.get(), bmpImage.get(), x, y, x*2, y*2, w, h, 2.0f, 2.0f, 1.0f);
 
-		DrawImageResampled2(this, bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
+		//DrawImageResampled2(bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
+
+		DrawImageScale2x(bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
 
 	} else
 		DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
