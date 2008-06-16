@@ -71,18 +71,18 @@ test_include_file gd.h || \
 
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
 	HAWKNL_GCC_PARAM="\
-		hawknl/src/crc.c \
-		hawknl/src/errorstr.c \
-		hawknl/src/nl.c \
-		hawknl/src/sock.c \
-		hawknl/src/group.c \
-		hawknl/src/loopback.c \
-		hawknl/src/err.c \
-		hawknl/src/thread.c \
-		hawknl/src/mutex.c \
-		hawknl/src/condition.c \
-		hawknl/src/nltime.c \
- 		-I hawknl/include"
+		libs/hawknl/src/crc.c \
+		libs/hawknl/src/errorstr.c \
+		libs/hawknl/src/nl.c \
+		libs/hawknl/src/sock.c \
+		libs/hawknl/src/group.c \
+		libs/hawknl/src/loopback.c \
+		libs/hawknl/src/err.c \
+		libs/hawknl/src/thread.c \
+		libs/hawknl/src/mutex.c \
+		libs/hawknl/src/condition.c \
+		libs/hawknl/src/nltime.c \
+ 		-I libs/hawknl/include"
 else
 	test_include_file nl.h || \
 	test_include_file hawknl/nl.h || \
@@ -122,7 +122,7 @@ echo ">>> compiling now, this could take some time ..."
 mkdir -p bin
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp src/mods/*/*.cpp \
 	$HAWKNL_GCC_PARAM \
-	-I include -I pstreams \
+	-I include -I libs/pstreams \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
 	$(build_param_str -L "$LIB_PATH") \
 	$($sdlconfig --cflags) \
