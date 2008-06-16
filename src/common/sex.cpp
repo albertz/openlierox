@@ -15,7 +15,7 @@
 #include "StringUtils.h"
 
 
-static char     *faster[] = {
+static const char     *faster[] = {
   "\"Let the games begin!\"",             "\"Sweet Jesus!\"",
   "\"Not that!\"",                        "\"At last!\"",
   "\"Land o' Goshen!\"",                  "\"Is that all?\"",
@@ -34,7 +34,7 @@ static char     *faster[] = {
   "\"The animals will hear!\"",           "\"Not in public!\"",
 };
 
-static char     *said[] = {
+static const char     *said[] = {
         "bellowed",             "yelped",               "croaked",
         "growled",              "panted",               "moaned",
         "grunted",              "laughed",              "warbled",
@@ -45,11 +45,11 @@ static char     *said[] = {
         "said",
 };
 
-static char     *the[] = {
+static const char     *the[] = {
         "the",
 };
 
-static char     *fadj[] = {
+static const char     *fadj[] = {
         "saucy",                "wanton",               "unfortunate",
         "lust-crazed",          "nine-year-old",        "bull-dyke",
         "bisexual",             "gorgeous",             "sweet",
@@ -62,7 +62,7 @@ static char     *fadj[] = {
 };
 
 
-static char     *female[] = {
+static const char     *female[] = {
    "baggage",              "hussy",                "woman",
    "Duchess",              "female impersonator",  "nymphomaniac",
    "virgin",               "leather freak",        "home-coming queen",
@@ -76,11 +76,11 @@ static char     *female[] = {
    "housewife",
 };
 
-static char     *asthe[] = {
+static const char     *asthe[] = {
         "as the",
 };
 
-static char     *madjec[] = {
+static const char     *madjec[] = {
    "thrashing",            "slurping",             "insatiable",
    "rabid",                "satanic",              "corpulent",
    "nose-grooming",        "tripe-fondling",       "dribbling",
@@ -92,7 +92,7 @@ static char     *madjec[] = {
    "clam shucking",        "egg-sucking",          "bicycle seat sniffing",
 };
 
-static char     *male[] = {
+static const char     *male[] = {
    "rakehell",             "hunchback",            "lecherous lickspittle",
    "archduke",             "midget",               "hired hand",
    "great Dane",           "stallion",             "donkey",
@@ -104,7 +104,7 @@ static char     *male[] = {
    "dentist",              "judge",                "social worker",
 };
 
-static char     *diddled[] = {
+static const char     *diddled[] = {
    "diddled",              "devoured",             "fondled",
    "mouthed",              "tongued",              "lashed",
    "tweaked",              "violated",             "defiled",
@@ -114,11 +114,11 @@ static char     *diddled[] = {
    "grudge fucked",        "masturbated with",     "slurped",
 };
 
-char *her[] = {
+const char *her[] = {
         "her",
 };
 
-static char     *titadj[] = {
+static const char     *titadj[] = {
         "alabaster",            "pink-tipped",          "creamy",
         "rosebud",              "moist",                "throbbing",
         "juicy",                "heaving",              "straining",
@@ -129,7 +129,7 @@ static char     *titadj[] = {
         "pendulous",            "muscular",             "bovine",
 };
 
-static char     *knockers[] = {
+static const char     *knockers[] = {
         "globes",               "melons",               "mounds",
         "buds",                 "paps",                 "chubbies",
         "protuberances",        "treasures",            "buns",
@@ -142,11 +142,11 @@ static char     *knockers[] = {
         "bazooms",              "mammaries",
 };
 
-char *_and[] = {
+const char *_and[] = {
         "and",
 };
 
-static char     *thrust[] = {
+static const char     *thrust[] = {
         "plunged",              "thrust",               "squeezed",
         "pounded",              "drove",                "eased",
         "slid",                 "hammered",             "squished",
@@ -156,11 +156,11 @@ static char     *thrust[] = {
         "ripped",               "forced",               "wrenched",
 };
 
-static char     *his[] = {
+static const char     *his[] = {
         "his",
 };
 
-static char     *dongadj[] = {
+static const char     *dongadj[] = {
         "bursting",             "jutting",              "glistening",
         "Brobdingnagian",       "prodigious",           "purple",
         "searing",              "swollen",              "rigid",
@@ -175,7 +175,7 @@ static char     *dongadj[] = {
         "swelling",             "miniscule",            "boney",
 };
 
-static char     *dong[] = {
+static const char     *dong[] = {
    "intruder",             "prong",                "stump",
    "member",               "meat loaf",            "majesty",
    "bowsprit",             "earthmover",           "jackhammer",
@@ -191,11 +191,11 @@ static char     *dong[] = {
    "stick shift",          "dong",                 "Linda Lovelace choker",
 };
 
-static char     *intoher[] = {
+static const char     *intoher[] = {
         "into her",
 };
 
-static char     *twatadj[] = {
+static const char     *twatadj[] = {
         "pulsing",              "hungry",               "hymeneal",
         "palpitating",          "gaping",               "slavering",
         "welcoming",            "glutted",              "gobbling",
@@ -209,7 +209,7 @@ static char     *twatadj[] = {
         "grateful",             "festering",
 };
 
-static char     *twat[] = {
+static const char     *twat[] = {
         "swamp.",               "honeypot.",            "jam jar.",
         "butterbox.",           "furburger.",           "cherry pie.",
         "cush.",                "slot.",                "slit.",
@@ -224,8 +224,8 @@ static char     *twat[] = {
 };
 
 struct Table {
-        char    **item;
-        short   len;
+        const char    **item;
+        short         len;
 };
 
 #define SZ(a)           sizeof(a) / sizeof(char *)
@@ -241,12 +241,12 @@ Table   list[] = {
         {his,            SZ(his)},        {dongadj,        SZ(dongadj)},
         {dong,           SZ(dong)},       {intoher,        SZ(intoher)},
         {twatadj,        SZ(twatadj)},    {twat,           SZ(twat)},
-        {(char **)NULL,  (short)NULL},
+        {(const char **)NULL,  (short)NULL},
 };
 
 std::string sex(short wraplen) {
 	Table  *ttp;
-	char *cp;
+	const char *cp;
 	std::string buffer;
 	int pos = 0, lastword = 0;
 	short lwidth = 0;
