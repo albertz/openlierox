@@ -1144,6 +1144,8 @@ void CClient::ParseCLReady(CBytestream *bs)
 
 	if((numworms < 1 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
 		// bad packet
+		// ^ Might not be! A client is always connected to the dedicated server, does not need to carry worms.
+		// How should we solve this?
 		printf("CClient::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
 		// Skip to get the right position
 		for (short i=0;i<numworms;i++)  {

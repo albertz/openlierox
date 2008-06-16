@@ -343,6 +343,7 @@ def parseAdminCommand(wormid,message):
 # Returns False if there's nothing to read
 def signalHandler(sig):
 	global gameState
+	global sentStartGame
 	if sig == "":
 		return False #Didn't get anything
 	header = sig.split(" ")[0] # This makes sure we only get the first word, no matter if there's anything after it or not.
@@ -366,18 +367,18 @@ def signalHandler(sig):
 
 	elif header == "backtolobby" or header == "lobbystarted":
 		gameState = GAME_LOBBY
-		sentGameStarted = False
+		sentStartGame = False
 	elif header == "errorstartgame":
 		gameState = GAME_LOBBY
 		messageLog("errorstartgame",LOG_ERROR)
-		sentGameStarted = False
+		sentStartGame = False
 
 	elif header == "weaponselections":
 		gameState = GAME_WEAPONS
-		sentGameStarted = False
+		sentStartGame = False
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
-		sentGameStarted = False
+		sentStartGame = False
 
 	#if sig != "":
 		#msg(sig)
