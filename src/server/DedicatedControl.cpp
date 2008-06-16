@@ -71,9 +71,9 @@ struct pstream_pipe_t
 {
 	boost::process::child *p;
 	pstream_pipe_t(): p(NULL) {};
-	std::ostream & in(){ return p->get_stdin(); };
-	std::istream & out(){ return p->get_stdout(); };
-	void close_in(){ p->get_stdin().close(); };
+	std::ostream & in() { return p->get_stdin(); };
+	std::istream & out() { return p->get_stdout(); };
+	void close_in() { p->get_stdin().close(); };
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
@@ -103,8 +103,8 @@ struct pstream_pipe_t
 struct pstream_pipe_t
 {
 	redi::pstream p;
-	std::ostream & in(){ return p; };
-	std::istream & out(){ return p.out(); };
+	std::ostream & in() { return p; };
+	std::istream & out() { return p.out(); };
 	void close_in(){ p << redi::peof; };
 	void close() {
 		close_in();
@@ -164,6 +164,7 @@ struct DedIntern {
 	bool quitSignal;
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
+
 	DedIntern() : quitSignal(false), state(S_NORMAL) {}
 	~DedIntern() {
 		Sig_Quit();

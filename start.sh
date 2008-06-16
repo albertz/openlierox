@@ -28,5 +28,5 @@ bin=bin/openlierox
 ../../$bin "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
 
 # game was exited, check for core-files (if crashed)
-[ -e core* ] && get_backtrace ../../bin/openlierox core* && mv core* ../../
+[ -e core* ] && get_backtrace ../../bin/openlierox core*
 rm core* 2>/dev/null
