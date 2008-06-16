@@ -14,12 +14,18 @@ An overview what features a new protocol should be able to handle:
 
 - force random weapons ( or predefined special set of weapons )
 ( -> server should be able to update clients weapons )
-- in-game joining
+- in-game joining of clients
+- in-game adding/removing of worms to any client
+- allow clients with 0 worms (spectators)
+( -> on a connect, the client always has 0 worms first and can add the worms then )
+
+- it should be easily checkable for a client, if a server function is available or not
+( for example on a client: user clicks on 'add new bot worm', server says 'unknown command' (or other message), client makes message 'not possible on this server' + server msg )
 
 - see others correct health
 
-- client can request current state ( is dead, position, current weapon, whatever)
-- server can update clients state
+- client can request current state of worm ( is dead, position, current weapon, whatever)
+- server can update clients worms states
 
 - use different physics engine ( so the server has to tell which one is used )
 [ - physic engines that are not present on client ?? ]
