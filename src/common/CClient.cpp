@@ -685,17 +685,16 @@ void CClient::SendPackets(void)
 
 	if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
 	{
-		bool ready = false;
-		fSendWait += tLX->fDeltaTime;
+		bool serverThinksWeAreNotReadyWhenWeAre = false;
 		for(unsigned int i=0;i<iNumWorms;i++)
 		{
 			// getGameReady = what server thinks. getWeaponsReady = what we know.
-			ready = ready || (!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady());
+			serverThinksWeAreNotReadyWhenWeAre = serverThinksWeAreNotReadyWhenWeAre || (!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady());
 		}
 
 
 		// ready as in localclient == ready, server thinks we are not.
-		if (ready)
+		if (serverThinksWeAreNotReadyWhenWeAre)
 		{
 			fSendWait += tLX->fDeltaTime;
 			if (fSendWait > 1.0)
