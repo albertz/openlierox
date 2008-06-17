@@ -12,6 +12,7 @@ import time
 import os
 import sys
 import threading
+import traceback
 
 import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
@@ -55,14 +56,29 @@ GAME_WEAPONS = 2
 GAME_PLAYING = 3
 
 #Log Severity
-LOG_INFO = 0
-LOG_WARN = 1
-LOG_ERROR = 2
-LOG_CRITICAL = 3 # For things that you REALLY need to exit for.
+LOG_CRITICAL = 0 # For things that you REALLY need to exit for.
+LOG_ERROR = 1
+LOG_WARN = 2
+LOG_INFO = 3
+# Categories for specific things, perhaps put in a new file?
+# These are not in direct relation to the script.
+LOG_ADMIN = 4
 
 gameState = GAME_QUIT
 
 sentStartGame = False
+
+
+# Stolen from http://www.linuxjournal.com/article/5821
+def formatExceptionInfo(maxTBlevel=5):
+	cla, exc, trbk = sys.exc_info()
+	excName = cla.__name__
+	try:
+		excArgs = exc.__dict__["args"]
+	except KeyError:
+		excArgs = "<no args>"
+	excTb = traceback.format_tb(trbk, maxTBlevel)
+	return (excName, excArgs, excTb)
 
 ## Receiving functions ##
 
@@ -279,29 +295,36 @@ def updateWorms(sig):
 	if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
 		getWormList()
 
+def adminCommandHelp(wormid): # Future safe, incase we pm it
+	chatMsg("Admin help:")
+	chatMsg("%skick wormID [reason]" % cfg.ADMIN_PREFIX)
+	chatMsg("%sban wormID [reason]" % cfg.ADMIN_PREFIX)
+	chatMsg("%smute wormID" % cfg.ADMIN_PREFIX)
+	chatMsg("%smod modname" % cfg.ADMIN_PREFIX)
+	chatMsg("%smap mapname" % cfg.ADMIN_PREFIX)
+	chatMsg("%slt loadingTime" % cfg.ADMIN_PREFIX)
+	chatMsg("%sstart - start game now" % cfg.ADMIN_PREFIX)
+	chatMsg("%sstop - go to lobby" % cfg.ADMIN_PREFIX)
+	chatMsg("%ssetvar varname value" % cfg.ADMIN_PREFIX)
+
 # Admin interface
 def parseAdminCommand(wormid,message):
-	try: # Do not check on msg size or anything
+	global worms
+	try: # Do not check on msg size or anything, exception handling is further down
+		#if cmd.find(cfg.ADMIN_PREFIX) == -1: # Didn't find admin prefix
+		if (not message.startswith(cfg.ADMIN_PREFIX)):
+			return # normal chat
+
 		cmd = message.split(" ")[0]
-		if cmd.find(cfg.ADMIN_PREFIX) != -1:
-			cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
+		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
+
+		messageLog("%i:%s issued %s" % (wormid,worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),LOG_ADMIN)
 
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
 
 		if cmd == "help":
-			chatMsg("Admin help:")
-			chatMsg("%skick wormID [reason]" % cfg.ADMIN_PREFIX)
-			chatMsg("%sban wormID [reason]" % cfg.ADMIN_PREFIX)
-			chatMsg("%smute wormID" % cfg.ADMIN_PREFIX)
-			chatMsg("%smod modname" % cfg.ADMIN_PREFIX)
-			chatMsg("%smap mapname" % cfg.ADMIN_PREFIX)
-			chatMsg("%slt loadingTime" % cfg.ADMIN_PREFIX)
-			chatMsg("%sstart - start game now" % cfg.ADMIN_PREFIX)
-			chatMsg("%sstop - go to lobby" % cfg.ADMIN_PREFIX)
-			chatMsg("%ssetvar varname value" % cfg.ADMIN_PREFIX)
-
-		# TODO: put adminhelp in it's own function. Check for if we don't get enough params for stuff, and send it.
+			adminCommandHelp(wormid)
 		elif cmd == "kick":
 			if len(params) > 1: # Given some reason
 				kickWorm( int( params[0] ), " ".join(params[1:]) )
@@ -332,11 +355,13 @@ def parseAdminCommand(wormid,message):
 		elif cmd == "setvar":
 			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
 
-
-	except Exception:
-		chatMsg("Invalid admin command")
 	except KeyError:
 		messageLog("AdminCommands: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+	except IndexError: # 0 or too few params to function
+		adminCommandHelp(wormid)
+	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
+		chatMsg("Invalid admin command")
+		messageLog(formatExceptionInfo(),LOG_ERROR) #Helps to fix errors
 
 
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
@@ -385,6 +410,7 @@ def signalHandler(sig):
 	return True
 
 def parseNewWorm(sig):
+	global worms
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
 	exists = False
@@ -400,12 +426,13 @@ def parseNewWorm(sig):
 		worms[wormID] = worm
 
 def parseWormLeft(sig):
+	global worms
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
 
 	try:
 		if worms[wormID].isAdmin:
-			messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),LOG_INFO)
+			messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),LOG_ADMIN)
 	except KeyError:
 		messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 
@@ -414,26 +441,29 @@ def parseWormLeft(sig):
 
 
 def parsePrivateMessage(sig):
+	global worms
 	wormID = int(sig.split(" ")[1])
 	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
 	if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
 		try:
 			if not worms[wormID].isAdmin:
 				worms[wormID].isAdmin = True
-				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
+				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_ADMIN)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
 				chatMsg("%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
 		except KeyError:
 			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 
 def parseChatMessage(sig):
+	global worms
 	wormID = int(sig.split(" ")[1])
 	message = " ".join(sig.split(" ")[2:])
-	msg( "Chat msg from worm %i: %s" % (wormID, message))
+	msg("Chat msg from worm %i: %s" % (wormID, message))
 	if worms[wormID].isAdmin:
 		parseAdminCommand(wormID,message)
 
 def parseWormDied(sig):
+	global worms
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
 	try:
@@ -511,19 +541,23 @@ def waitLobbyStarted():
 
 
 def messageLog(message,severity):
+	# TODO: Allow setting what loglevels you want logged
 	outline = time.strftime("%Y-%m-%d %H:%M:%S")
 	# Don't clutter the strftime call
 	outline += " -- "
-	if severity == LOG_INFO:
-		outline += "INFO"
-	elif severity == LOG_WARN:
-		outline += "WARN"
+	if severity == LOG_CRITICAL:
+		outline += "CRITICAL"
 	elif severity == LOG_ERROR:
 		outline += "ERROR"
-	elif severity == LOG_CRITICAL:
-		outline += "CRITICAL"
+	elif severity == LOG_WARN:
+		outline += "WARN"
+	elif severity == LOG_INFO:
+		outline += "INFO"
+	elif severity == LOG_ADMIN: #Log to another file?
+		outline += "ADMIN"
+
 	outline += " -- "
-	outline += message
+	outline += str(message) #incase we get anything other than string
 	try:
 		f = open(cfg.LOG_FILE,"a")
 		f.write((outline + "\n"))
