@@ -29,7 +29,7 @@ public:
 		sPath = Path;
 		tAnimation = NULL;
 		if (Path != "")  {
-			tAnimation = LoadImage(Path, true);
+			tAnimation = LoadGameImage(Path, true);
 
 			if (tAnimation.get())  {
 				iWidth = tAnimation.get()->w;

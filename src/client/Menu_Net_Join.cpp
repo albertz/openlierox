@@ -533,9 +533,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			lobby_worm = w->getLobby();
 
 			// Reload the worm graphics
-			w->setProfileGraphics(false);
 			w->setTeam(lobby_worm->iTeam);
-			w->LoadGraphics(gl->nGameMode);
+			w->ChangeGraphics(gl->nGameMode);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);

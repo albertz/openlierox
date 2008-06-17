@@ -39,7 +39,7 @@ void CCheckbox::Draw(SDL_Surface * bmpDest)
 // Create
 void CCheckbox::Create(void)
 {
-    bmpImage = LoadImage("data/frontend/checkbox.png");
+    bmpImage = LoadGameImage("data/frontend/checkbox.png");
 }
 
 ///////////////////
@@ -59,7 +59,7 @@ void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 	for(;prop;prop=prop->tNext) {
 		// Image
 		if (!stringcasecmp(prop->sName,"image"))  {
-			bmpImage = LoadImage(prop->sValue);
+			bmpImage = LoadGameImage(prop->sValue);
 		}
 		// Image width
 		if (!stringcasecmp(prop->sName,"image-width"))  {

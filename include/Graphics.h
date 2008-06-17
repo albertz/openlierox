@@ -47,6 +47,7 @@ class gfxgame_t { public:
 	SmartPointer<SDL_Surface> bmpGameLocalTopBar;
 	SmartPointer<SDL_Surface> bmpGameNetTopBar;
 	SmartPointer<SDL_Surface> bmpTeamColours[4];
+	SmartPointer<SDL_Surface> bmpAI;
 
 	SmartPointer<SDL_Surface> bmpBonus;
 	SmartPointer<SDL_Surface> bmpHealth;

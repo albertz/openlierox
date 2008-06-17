@@ -62,7 +62,7 @@ public:
 
 	CButton(const std::string& path) {
 		iImageID = 0;
-		bmpImage = LoadImage(path);
+		bmpImage = LoadGameImage(path);
 		bMouseOver = false;
 		bMouseDown = false;
 		iType = wid_Button;

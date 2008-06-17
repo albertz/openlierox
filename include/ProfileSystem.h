@@ -21,6 +21,7 @@
 #include <string>
 #include <stdlib.h>
 #include "SmartPointer.h"
+#include "CWormSkin.h"
 
 #define		PROFILE_VERSION		5
 
@@ -37,18 +38,19 @@
 
 // Player profile structure
 class profile_t { public:
+	profile_t() : iID(0), iType(PRF_HUMAN), nDifficulty(AI_EASY), R(0), G(0), B(0), iTeam(0), tNext(NULL) {}
+
 	int				iID;
 
 	int				iType;
 	std::string		sName;
-	std::string     szSkin;
     int             nDifficulty;
 	std::string		sUsername;
 	std::string		sPassword;
 	Uint8			R,G,B;
 	std::string		sWeaponSlots[5];
 	int				iTeam;
-	SmartPointer<SDL_Surface> bmpWorm;
+	CWormSkin		cSkin;
 
 	profile_t *tNext;
 };
@@ -65,14 +67,10 @@ void    AddProfile(const std::string& name, const std::string& skin, const std::
 void	LoadProfile(FILE *fp, int id);
 int		FindProfileID(void);
 void	DeleteProfile(int id);
-int		LoadProfileGraphics(profile_t *p);
 
 profile_t *GetProfiles(void);
 profile_t *FindProfile(int id);
 profile_t *FindProfile(const std::string& name);
-
-// General function for all to use
-SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG, int colB);
 
 
 

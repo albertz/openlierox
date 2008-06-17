@@ -52,11 +52,11 @@ bool CClient::InitializeDrawing(void)
 	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
 
 	// Load the right and left part of box
-	bmpBoxLeft = LoadImage("data/frontend/box_left.png",true);
-	bmpBoxRight = LoadImage("data/frontend/box_right.png",true);
+	bmpBoxLeft = LoadGameImage("data/frontend/box_left.png",true);
+	bmpBoxRight = LoadGameImage("data/frontend/box_right.png",true);
 
 	// Initialize the box buffer
-	SmartPointer<SDL_Surface> box_middle = LoadImage("data/frontend/box_middle.png",true);
+	SmartPointer<SDL_Surface> box_middle = LoadGameImage("data/frontend/box_middle.png",true);
 	if (box_middle.get())  { // Doesn't have to exist
 		// Tile the buffer with the middle box part
 		bmpBoxBuffer = gfxCreateSurface(640,box_middle.get()->h);
@@ -339,7 +339,7 @@ bool CClient::InitializeBar(byte number)  {
 		return false;
 
 	// Create the bar
-	*bar = new CBar(LoadImage(fname, true), x, y, label_x, label_y, direction, numforestates, numbgstates);
+	*bar = new CBar(LoadGameImage(fname, true), x, y, label_x, label_y, direction, numforestates, numbgstates);
 	if ( !(*bar) )
 		return false;
 

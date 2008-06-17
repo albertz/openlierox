@@ -143,7 +143,7 @@ void CClient::ParseChallenge(CBytestream *bs)
 		bytestr.writeString(RemoveSpecialChars(tProfiles[i]->sName));
 		bytestr.writeInt(tProfiles[i]->iType,1);
 		bytestr.writeInt(tProfiles[i]->iTeam,1);
-        bytestr.writeString(tProfiles[i]->szSkin);
+		bytestr.writeString(tProfiles[i]->cSkin.getFileName());
 		bytestr.writeInt(tProfiles[i]->R,1);
 		bytestr.writeInt(tProfiles[i]->G,1);
 		bytestr.writeInt(tProfiles[i]->B,1);
@@ -697,7 +697,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	int num_worms = 0;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
-			w->LoadGraphics(iGameType);
+			w->ChangeGraphics(iGameType);
 
 			// Also set some game details
 			w->setLives(iLives);
@@ -849,7 +849,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	cRemoteWorms[id].readInfo(bs);
 
 	// Load the worm graphics
-	if(!cRemoteWorms[id].LoadGraphics(iGameType)) {
+	if(!cRemoteWorms[id].ChangeGraphics(iGameType)) {
         printf("CClient::ParseWormInfo(): LoadGraphics() failed\n");
 	}
 

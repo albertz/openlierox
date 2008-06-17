@@ -409,7 +409,7 @@ int GameServer::StartGame()
 			cWorms[i].setupLobby();
 			cWorms[i].setFlag(true);
 			cWorms[i].setName("Flag "+itoa(flags));
-			cWorms[i].setSkin("flag.png");
+			cWorms[i].setSkin(CWormSkin("flag.png"));
 			cWorms[i].setColour(255, 255, 255);
 			cWorms[i].setTeam(flags-1);
 			bytestr.writeByte(S2C_WORMINFO);

@@ -99,7 +99,7 @@ void CAnimation::Change(const std::string& Path, float frametime)
 	sPath = Path;
 
 	// Load the new image
-	tAnimation = LoadImage(sPath, true);
+	tAnimation = LoadGameImage(sPath, true);
 
 	// Update the width and height
 	if (tAnimation.get()) {

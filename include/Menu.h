@@ -29,6 +29,7 @@
 #include "CListview.h"
 #include "CWpnRest.h"
 #include "CClient.h" // for MAX_PLAYERS
+#include "CWormSkin.h"
 
 // Menu sockets
 #define		SCK_LAN		0
@@ -231,7 +232,7 @@ class menu_t { public:
 	SmartPointer<SDL_Surface> bmpTriangleDown;
 
 	SmartPointer<SDL_Surface> bmpAI;
-	SmartPointer<SDL_Surface> bmpWorm;
+	CWormSkin cSkin;
 
 	SmartPointer<SDL_Surface> bmpMapEdTool;
 

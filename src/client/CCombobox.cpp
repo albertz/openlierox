@@ -34,10 +34,10 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 	// Strip text buffer
 	std::string buf;
 
-	int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);  // 16 - arrow height
-
 	// Count the item height
 	int ItemHeight = getItemHeight();
+
+	int mainbitheight = MAX(ItemHeight, MAX(tLX->cFont.GetHeight()+1, 16));  // 16 - arrow height
 	
 	if (bRedrawMenu)
 		Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
@@ -56,8 +56,8 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage.get())  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf, iWidth - (6 + getItemRW(iSelected)->tImage.get()->w + (bGotScrollbar ? 15 : 0)));
-				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage.get()->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDisabled, buf);
+				stripdot(buf, iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + (bGotScrollbar ? 15 : 0)));
+				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight - tLX->cFont.GetHeight()) / 2, tLX->clDisabled, buf);
 			}
 			else  {
 				stripdot(buf,iWidth-(3 + bGotScrollbar ? 15 : 0));
@@ -79,7 +79,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			bGotScrollbar = true;
 			iHeight = (int)(ItemHeight*(display_count+1)+5);
 		}
-		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-tLX->cFont.GetHeight()-6);
+		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-mainbitheight-6);
 
 
 		Menu_DrawBox(bmpDest, iX, iY+ItemHeight+2, iX+iWidth, iY+iHeight);
@@ -120,8 +120,8 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			if (item->tImage.get())  {
 				// Draw the image
 				DrawImage(bmpDest,item->tImage,iX+3,y);
-				stripped = stripdot(buf,iWidth - (6 + item->tImage.get()->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+6+item->tImage.get()->w, y, tLX->clDropDownText,buf);
+				stripped = stripdot(buf,iWidth - (8 + item->tImage.get()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+8+item->tImage.get()->w, y + (ItemHeight-tLX->cFont.GetHeight())/2, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
 					int x1 = iX+4+item->tImage.get()->w;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
@@ -134,7 +134,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 					DrawRect(bmpDest,x1-1,y1-1,x2,y2, tLX->clComboboxShowAllBorder);
 					DrawRectFill(bmpDest,x1,y1,x2,y2, tLX->clComboboxShowAllMain);
-					tLX->cFont.Draw(bmpDest, x1+2, y1-1, tLX->clDropDownText,item->sName);
+					tLX->cFont.Draw(bmpDest, x1+2, y1-1 + (ItemHeight - tLX->cFont.GetHeight())/2, tLX->clDropDownText,item->sName);
 				}
 			}
 			else  {
@@ -167,8 +167,8 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage.get())  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf,iWidth - (6 + getItemRW(iSelected)->tImage.get()->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage.get()->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
+				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
 			else  {
 				stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
@@ -183,7 +183,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 	int x=0;
 	if(bArrowDown)
 		x = 15;
-	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2, 15,14);
+	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2+(ItemHeight-2-tLX->cFont.GetHeight())/2, 15,14);
 
 	if(!bFocused)  {
 		bDropped = false;
@@ -403,7 +403,7 @@ int CCombobox::getItemHeight() {
 	if(!tItems.empty())
 		if(tItems.begin()->tImage.get())
 			if ((tItems.begin()->tImage.get()->h + 1) > ItemHeight)
-				ItemHeight = tItems.begin()->tImage.get()->h + 1;
+				ItemHeight = MAX(ItemHeight, tItems.begin()->tImage.get()->h + 1);
 	return ItemHeight;
 }
 

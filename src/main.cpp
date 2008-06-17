@@ -784,12 +784,12 @@ void InitializeLoading()  {
 
 
 	// Allocate bar
-	cLoading.cBar = new CBar(LoadImage("./data/frontend/loading_bar.png",true), bar_x, bar_y, bar_label_x, bar_label_y, bar_dir);
+	cLoading.cBar = new CBar(LoadGameImage("./data/frontend/loading_bar.png",true), bar_x, bar_y, bar_label_x, bar_label_y, bar_dir);
 	if (cLoading.cBar)
 		cLoading.cBar->SetLabelVisible(bar_visible);
 
 	// Load the background
-	cLoading.bmpBackground = LoadImage("./data/frontend/background_loading.png", true);
+	cLoading.bmpBackground = LoadGameImage("./data/frontend/background_loading.png", true);
 }
 
 /////////////////////

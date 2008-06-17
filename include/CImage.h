@@ -41,7 +41,7 @@ public:
 		tImage = NULL;
 		iWidth = iHeight = 0;
 		if (Path != "")  {
-			tImage = LoadImage(Path);
+			tImage = LoadGameImage(Path);
 			if( !tImage.get() )
 				return;
 

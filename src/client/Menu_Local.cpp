@@ -84,7 +84,7 @@ void Menu_LocalInitialize(void)
 
 	cLocalMenu.Add( new CButton(BUT_BACK, tMenu->bmpButtons), ml_Back, 27,440, 50,15);
 	cLocalMenu.Add( new CButton(BUT_START, tMenu->bmpButtons), ml_Start, 555,440, 60,15);
-	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 120);
+	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 126);
 	cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
 
 	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, 310, 170,15);
@@ -97,13 +97,13 @@ void Menu_LocalInitialize(void)
     cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 22);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 24);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
 
-	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 22);
+	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 24);
 	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
 
 	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -310,7 +310,7 @@ void Menu_LocalFrame(void)
 
 						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
 						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						tMenu->sLocalPlayers[ev->iControlID].LoadGraphics(iGameType);
+						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(iGameType);
 
 						// Reload the skin
 						sub = lv->getSubItem(it, 0);
@@ -340,7 +340,7 @@ void Menu_LocalFrame(void)
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							tMenu->sLocalPlayers[it->iIndex].LoadGraphics(iGameType);
+							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(iGameType);
 							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
 						}
 
@@ -424,9 +424,8 @@ void Menu_LocalAddPlaying(int index)
 
 	// Reload the graphics in case the gametype has changed
 	tMenu->sLocalPlayers[index].setProfile(ply);
-	tMenu->sLocalPlayers[index].setSkin(ply->szSkin);
-	tMenu->sLocalPlayers[index].setColour(ply->R, ply->G, ply->B);
-	tMenu->sLocalPlayers[index].LoadGraphics(iGameType);
+	tMenu->sLocalPlayers[index].setSkin(ply->cSkin);
+	tMenu->sLocalPlayers[index].ChangeGraphics(iGameType);
 
 
 	// Add the item
@@ -469,9 +468,10 @@ void Menu_LocalRemovePlaying(int index)
 
 	// Add the player into the players list
 	if(ply) {
+		ply->cSkin.RemoveColorization();
 		lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
 		lv->AddItem("", index, tLX->clListView);
-		lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+		lv->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 		lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 	}
 }
@@ -488,7 +488,7 @@ void Menu_LocalAddProfiles(void)
 		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
 		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->bmpWorm, NULL );
+		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
 		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 

@@ -516,7 +516,6 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 
 	// Set the skin
 	worm->setSkin(params[0]);
-	worm->DeactivateProfileGraphicsOnce();
 	cServer->UpdateWorms();
 
 	return "";
@@ -546,7 +545,6 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 
 	// Set the skin
 	worm->setSkin(params[2]);
-	worm->DeactivateProfileGraphicsOnce();
 	cServer->UpdateWorms();
 
 	return "";
@@ -579,8 +577,8 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 		return "Cannot change colour of a non-existing worm";
 
 	// Set the colour
+	worm->getSkin().setDefaultColor(MakeColour(r, g, b));
 	worm->setColour(r, g, b);
-	worm->DeactivateProfileGraphicsOnce();
 	cServer->UpdateWorms();
 
 	return "";
@@ -615,7 +613,6 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 
 	// Set the colour
 	worm->setColour(r, g, b);
-	worm->DeactivateProfileGraphicsOnce();
 	cServer->UpdateWorms();
 
 	return "";

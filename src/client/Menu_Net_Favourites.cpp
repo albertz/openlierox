@@ -73,7 +73,7 @@ bool Menu_Net_FavouritesInitialize(void)
 			continue;*/
 
 		int index = PlayerSelection->addItem( p->sName, p->sName );
-		PlayerSelection->setImage( p->bmpWorm, index );
+		PlayerSelection->setImage( p->cSkin.getPreview(), index );
 		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
 			validName=true;
 	}

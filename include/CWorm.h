@@ -170,9 +170,6 @@ private:
 	bool		bLocal;
 	int			iTeam;
 	std::string	sName;
-    std::string szSkin;
-	Uint32		iColour;
-	bool		ProfileGraphics;
 	int			iRanking;
 	int			iKillsInRow;
 	int			iDeathsInRow;
@@ -273,11 +270,8 @@ private:
 	byte		iLastCurWeapon;
 
 	// Graphics
-	SmartPointer<SDL_Surface> bmpWormRight;
-	SmartPointer<SDL_Surface> bmpWormLeft;
+	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
-	SmartPointer<SDL_Surface> bmpPic;
-    SmartPointer<SDL_Surface> bmpShadowPic;
 	CBar		cHealthBar;
 	//CViewport	*pcViewport;
 
@@ -420,9 +414,7 @@ public:
 	//
 	// Graphics
 	//
-	bool		LoadGraphics(int gametype);
-	void		LoadProfileGraphics();
-	void		DeactivateProfileGraphicsOnce() { ProfileGraphics = false; }
+	bool		ChangeGraphics(int gametype);
 	void		FreeGraphics(void);
 	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
@@ -549,11 +541,11 @@ public:
 		case GMT_TEAMCTF:
 			return tLX->clTeamColors[iTeam];
 		default:
-			return iColour;
+			return cSkin.getDefaultColor();
 		}
 	}
-	void		setColour(Uint32 c)			{ iColour = c; }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
+	void		setColour(Uint32 c)			{ cSkin.Colorize(c); }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b) {cSkin.Colorize(MakeColour(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal(void)				{ return bLocal; }
@@ -632,7 +624,7 @@ public:
 	int			getTeam(void)				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg(void)			{ return bmpGibs; }
-	SmartPointer<SDL_Surface> getPicimg(void)			{ return bmpPic; }
+	SmartPointer<SDL_Surface> getPicimg(void)			{ return cSkin.getPreview(); }
 
 	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
 
@@ -653,8 +645,9 @@ public:
 	void		setTagTime(float _t)		{ fTagTime = _t; }
 	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
-	std::string getSkin(void)				{ return szSkin; }
-	void		setSkin(const std::string& skin)	{ szSkin = skin; }
+	CWormSkin&	getSkin(void)				{ return cSkin; }
+	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
+	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
 
 	void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
 	int			getKillsInRow(void)			{ return iKillsInRow; }
@@ -666,8 +659,6 @@ public:
 
 	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
 	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
-
-	void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
 	bool		isShooting()				{ return tState.bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }

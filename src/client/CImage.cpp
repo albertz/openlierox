@@ -53,7 +53,7 @@ void CImage::Change(const std::string& Path)
 	sPath = Path;
 
 	// Load the new image
-	tImage = LoadImage(sPath);
+	tImage = LoadGameImage(sPath);
 	cropX = cropY = cropW = cropH = 0;
 	
 	// Update the width and height

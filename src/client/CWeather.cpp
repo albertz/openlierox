@@ -50,7 +50,7 @@ bool CWeather::Initialize(int nType)
         m_psParticles[i].bUsed = false;
 
     // Load the graphics
-    m_psSnowPart = LoadImage("data/gfx/snowpart.png");
+    m_psSnowPart = LoadGameImage("data/gfx/snowpart.png");
     if( !m_psSnowPart.get() )
         return false;
 

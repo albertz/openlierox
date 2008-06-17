@@ -208,7 +208,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //////////////////
 // Load an image
-SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha = false);
+SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha = false);
 
 /////////////////
 // Loads an image and quits with error if could not load
@@ -223,7 +223,7 @@ SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha
 /////////////////////
 // Load an image, without alpha channel
 inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
-	bmp = LoadImage(name); 
+	bmp = LoadGameImage(name); 
 	if (bmp.get() == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;
@@ -234,7 +234,7 @@ inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name) 
 ////////////////////
 // Load an image with alpha channel
 inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
-	bmp = LoadImage(name, true);
+	bmp = LoadGameImage(name, true);
 	if (bmp.get() == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;

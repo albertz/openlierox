@@ -135,9 +135,9 @@ bool Menu_Net_HostInitialize(void)
     //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
-	cHostPly.SendMessage( hs_PlayerList,   LVS_ADDCOLUMN, "Players",22);
+	cHostPly.SendMessage( hs_PlayerList,   LVS_ADDCOLUMN, "Players",24);
 	cHostPly.SendMessage( hs_PlayerList,   LVS_ADDCOLUMN, "",60);
-	cHostPly.SendMessage( hs_Playing,      LVS_ADDCOLUMN, "Playing",22);
+	cHostPly.SendMessage( hs_Playing,      LVS_ADDCOLUMN, "Playing",24);
 	cHostPly.SendMessage( hs_Playing,      LVS_ADDCOLUMN, "",60);
 
 	// Add players to the list
@@ -150,7 +150,7 @@ bool Menu_Net_HostInitialize(void)
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cHostPly.getWidget(hs_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->bmpWorm, NULL );
+		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
 		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 
@@ -252,7 +252,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						if(ply) {
 							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
-								lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 								if (ply->iType == PRF_HUMAN)
 									iHumanPlayers++;
@@ -282,7 +282,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					if(ply) {
 						lv2->AddItem("",index,tLX->clListView);
-						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 						if (ply->iType == PRF_HUMAN)
 							iHumanPlayers--;
@@ -1317,10 +1317,8 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		lobby_worm = w->getLobby();
 
 		// Reload the worm graphics
-		if(gl->nLastGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
-			w->setProfileGraphics(true);
 		w->setTeam(lobby_worm->iTeam);
-		w->LoadGraphics(cClient->getGameLobby()->nGameMode);
+		w->ChangeGraphics(cClient->getGameLobby()->nGameMode);
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);

@@ -284,9 +284,7 @@ void Menu_Player_NewPlayerInit(void)
     Menu_Player_FillSkinCombo( (CCombobox *)cNewPlayer.getWidget(np_PlySkin) );
 
     // Load the default skin
-    tMenu->bmpWorm = LoadImage("skins/default.png", true);
-	if (tMenu->bmpWorm.get())
-		SetColorKey(tMenu->bmpWorm.get());
+	tMenu->cSkin.Change("skins/default.png");
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -303,8 +301,8 @@ void Menu_Player_ViewPlayerInit(void)
 	profile_t *p = GetProfiles();
 	for(; p; p=p->tNext) {
 		lv->AddItem("",p->iID,tLX->clListView);
-		if (p->bmpWorm.get())
-			lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+		if (p->cSkin.getPreview().get())
+			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview().get(), NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
@@ -325,16 +323,14 @@ void Menu_Player_ViewPlayerInit(void)
 	    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE, p->B, 0);
         cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
-        cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->szSkin, 0);
+		cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
         // Hide the AI stuff if it is a human type of player
         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
 	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
 
         // Load the skin
-        tMenu->bmpWorm = LoadImage("skins/"+p->szSkin, true);
-		if (tMenu->bmpWorm.get())
-			SetColorKey(tMenu->bmpWorm.get());
+		tMenu->cSkin = p->cSkin;
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
     }
@@ -422,14 +418,11 @@ void Menu_Player_NewPlayer(int mouse)
             // Skin
             case np_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    static std::string buf;
+                    std::string buf;
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
-					buf = "skins/"+buf;
-					tMenu->bmpWorm = LoadImage(buf, true);
-					if (tMenu->bmpWorm.get())
-						SetColorKey(tMenu->bmpWorm.get());
+					tMenu->cSkin.Change(buf);
                 }
                 break;
 		}
@@ -570,8 +563,8 @@ void Menu_Player_ViewPlayers(int mouse)
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
 									lv->AddItem("",p->iID,tLX->clListView);
-									if (p->bmpWorm.get())
-										lv->AddSubitem(LVS_IMAGE, "", p->bmpWorm, NULL);
+									if (p->cSkin.getPreview().get())
+										lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 									else
 										lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 									lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
@@ -624,16 +617,17 @@ void Menu_Player_ViewPlayers(int mouse)
                         p->B = (Uint8)cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
                         p->iType = cViewPlayers.SendMessage(vp_Type, CBM_GETCURINDEX,(DWORD)0,0);
                         p->nDifficulty = cViewPlayers.SendMessage(vp_AIDiff, SLM_GETVALUE,(DWORD)0,0);
-                        cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, &p->szSkin, 0);
 
-                        // Re-load the profile's graphics
-                        LoadProfileGraphics(p);
+						// Reload the graphics
+						std::string buf;
+						cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, buf, 0);
+						p->cSkin.Change(buf);
 
                         // Update the item
                         lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, (DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                         if(it) {
                             if(it->tSubitems) {
-                                it->tSubitems->bmpImage = p->bmpWorm;
+								it->tSubitems->bmpImage = p->cSkin.getPreview();
                                 if(it->tSubitems->tNext)
                                     it->tSubitems->tNext->sText = p->sName;
                             }
@@ -668,14 +662,10 @@ void Menu_Player_ViewPlayers(int mouse)
 	                    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE,   p->B, 0);
                         cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
                         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
-                        cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->szSkin, 0);
+						cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
                         // Load the skin
-                        static std::string buf;
-                        buf = "skins/" + p->szSkin;
-                        tMenu->bmpWorm = LoadImage(buf, true);
-						if (tMenu->bmpWorm.get())
-							SetColorKey(tMenu->bmpWorm.get());
+						tMenu->cSkin = p->cSkin;
 
                         // Hide the AI stuff if it is a human type of player
                         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
@@ -699,14 +689,11 @@ void Menu_Player_ViewPlayers(int mouse)
             // Skin
             case vp_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    static std::string buf;
+                    std::string buf;
                     cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
-                    buf = "skins/"+buf;
-                    tMenu->bmpWorm = LoadImage(buf, true);
-					if (tMenu->bmpWorm.get())
-						SetColorKey(tMenu->bmpWorm.get());
+					tMenu->cSkin.Change(buf);
                 }
                 break;
 		}
@@ -781,69 +768,8 @@ void Menu_Player_ViewPlayers(int mouse)
 // Draw the worm image
 void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
-    if( !tMenu->bmpWorm.get() )
-        return;
-
-	LOCK_OR_QUIT(bmpDest);
-	LOCK_OR_QUIT(tMenu->bmpWorm);
-
-    // Set the colour of the worm
-	int x,y,sx;
-	Uint8 r,g,b,a;
-	Uint32 pixel, mask;
-	const Uint32 black = SDL_MapRGB(tMenu->bmpWorm.get()->format, 0, 0, 0);
-	float r2,g2,b2;
-
-	for(y=0; y<18; y++) {
-		for(x=Frame*32,sx=0; x<(Frame*32)+32; x++,sx++) {
-
-			pixel = GetPixel(tMenu->bmpWorm.get(),x,y);
-            mask = GetPixel(tMenu->bmpWorm.get(),x,y+18);
-			GetColour4(pixel,tMenu->bmpWorm.get()->format,&r,&g,&b,&a);
-
-            //
-            // Use the mask to check what colours to ignore
-            //
-
-            // Black means to just copy the colour but don't alter it
-            if( EqualRGB(mask, black, tMenu->bmpWorm.get()->format) ) {
-                PutPixel(bmpDest, sx+dx,y+dy, pixel);
-                continue;
-            }
-
-            // Colorkey means just ignore the pixel completely
-            if( IsTransparent(tMenu->bmpWorm.get(), mask) )
-                continue;
-
-            // Must be white (or some over unknown colour)
-			float dr, dg, db;
-
-			dr = (float)r / 96.0f;
-			dg = (float)g / 156.0f;
-			db = (float)b / 252.0f;
-
-			r2 = (float)ColR * dr;
-			g2 = (float)ColG * dg;
-			b2 = (float)ColB * db;
-
-			r2 = MIN((float)255,r2);
-			g2 = MIN((float)255,g2);
-			b2 = MIN((float)255,b2);
-
-
-			// Bit of a hack to make sure it isn't completey pink (see through)
-			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
-				r2=240;
-				b2=240;
-			}
-
-            // Put the colourised pixel
-			PutPixelA(bmpDest,sx+dx,y+dy, MakeColour((int)r2, (int)g2, (int)b2), a);
-		}
-	}
-
-	UnlockSurface(bmpDest);
-	UnlockSurface(tMenu->bmpWorm);
+	tMenu->cSkin.Colorize(MakeColour(ColR, ColG, ColB));
+	tMenu->cSkin.Draw(bmpDest, dx + 4, dy, Frame, false, false);
 }
 
 

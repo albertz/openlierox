@@ -38,7 +38,6 @@ void CWorm::Clear(void)
 	iRanking = 0;
 	iClientID = 0;
 	iClientWormID = 0;
-    szSkin = "";
 	cOwner = NULL;
 	bSpectating = false;
 
@@ -118,11 +117,7 @@ void CWorm::Clear(void)
 	NEW_psLastNode = NULL;
 	pathSearcher = NULL;
 
-	bmpWormLeft = NULL;
-	bmpWormRight = NULL;
 	bmpGibs = NULL;
-	bmpPic = NULL;
-    bmpShadowPic = NULL;
 
 	// Lobby
 	tLobbyState.bHost = false;
@@ -141,10 +136,9 @@ void CWorm::Clear(void)
 	fLastCompleting = -9999;
 
 	// Graphics
-	cHealthBar = CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
+	cHealthBar = CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
 
-	ProfileGraphics = true;
 	bAlreadyKilled = false;
 
 	bNoShooting = false;
@@ -182,14 +176,6 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	bmpWormLeft = NULL;
-
-	bmpWormRight = NULL;
-
-	bmpPic = NULL;
-
-    bmpShadowPic = NULL;
-
 	bmpGibs = NULL;
 }
 
@@ -313,7 +299,7 @@ void CWorm::Respawn(CVec position) {
 
 ///////////////////
 // Load the graphics
-bool CWorm::LoadGraphics(int gametype)
+bool CWorm::ChangeGraphics(int gametype)
 {
 	// TODO: create some good way to allow custom colors
 
@@ -323,13 +309,7 @@ bool CWorm::LoadGraphics(int gametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-	// Only load the profile graphics once
-	if(ProfileGraphics) {
-		LoadProfileGraphics();
-		ProfileGraphics = false;
-	}
-
-	Uint32 colour = iColour;
+	Uint32 colour = cSkin.getDefaultColor();
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH || gametype == GMT_VIP) {
 		team = true;
@@ -343,40 +323,10 @@ bool CWorm::LoadGraphics(int gametype)
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
-    // Load the skin
-    bmpWormRight = LoadSkin(szSkin, r,g,b);
-	if (!bmpWormRight.get())  {
-		// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
-		bmpWormLeft = NULL;
-		bmpPic = NULL;
-		bmpShadowPic = NULL;
-		return false;
-	}
-	bmpWormLeft = GetMirroredImage(bmpWormRight);
+    // Colourise the skin
+	cSkin.Colorize(colour);
 
-    // Create the minipic
-    bmpPic = gfxCreateSurface(18,16);
-    SetColorKey(bmpPic.get());
-    FillSurfaceTransparent(bmpPic.get());
-    CopySurface(bmpPic.get(), bmpWormRight, 134,2,0,0, 18,16);
-
-
-    // Shadow buffer
-    bmpShadowPic = gfxCreateSurface(32,18);
-    SetColorKey(bmpShadowPic.get());
-
-	return bmpWormRight.get() != NULL && bmpWormLeft.get() != NULL &&
-			bmpGibs.get() != NULL && bmpPic.get() != NULL && bmpShadowPic.get() != NULL;
-}
-
-///////////////////
-// Load the graphics
-void CWorm::LoadProfileGraphics() {
-    if(tProfile) {
-		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
-        szSkin = tProfile->szSkin;
-    }/* else
-    	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");*/
+	return bmpGibs.get() != NULL;
 }
 
 ///////////////////
@@ -387,7 +337,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 	SmartPointer<SDL_Surface> loaded;
 
 	// Load the image
-	loaded = LoadImage(filename);
+	loaded = LoadGameImage(filename);
 	if(loaded.get() == NULL) {
 		// Error: Couldn't load image
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
@@ -409,7 +359,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 	Uint8 r,g,b;
 	Uint32 pixel;
 
-	Uint32 colour = iColour;
+	Uint32 colour = cSkin.getColor();
 	if (team)
 		colour = tLX->clTeamColors[iTeam];
 
@@ -920,10 +870,9 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	y = (int) ( (vDrawPos.y - v->GetWorldY()) * 2 + t );
 
 	// Find the right pic
-	f = ((int)fFrame*7)*32;
+	f = ((int)fFrame*7);
 	ang = (int)( (fAngle+90)/151 * 7 );
-	//f+=ang*16;
-	f+=ang*32;
+	f += ang;
 
 
 	// Snap the position to a slighter bigger pixel grid (2x2)
@@ -932,13 +881,14 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-    FillSurfaceTransparent(bmpShadowPic.get());
+	cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
+    /*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
         CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
 	else
         CopySurface(bmpShadowPic.get(), bmpWormLeft, bmpWormLeft.get()->w-f-32,0, 0,0, 32,18);
 
-    DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
+    DrawImage(bmpDest, bmpShadowPic, x-18,y-10);*/
 
 
 
@@ -1015,17 +965,27 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
-    if( tLXOptions->bShadows && v )
-    	// HINT: the move by (-9,-5) is needed as it seems that the shadowpic has the worm on this position
-    	// TODO: is the above hint correct?
-    	// HINT: we don't use vDrawPos but vPos here to give a hint where the player is really atm (if interpolation is too slow)
-    	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
-		// FIXME: just tested it, I was on a high-ping server and it was horrible! The shadow should be always synced with the worm image!
-/*        if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) )
-			// just don't draw it as a real shadow but show the real position instead (not the interpolated)
-			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vOldPosOfLastPaket.x-9 - SHADOW_DROP, (int) vOldPosOfLastPaket.y-5 - SHADOW_DROP);
-        else */
-			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic.get(), 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
+	if( tLXOptions->bShadows && v )  {
+    	static const int drop = 4;
+
+		// Copied from ::Draw
+		// TODO: a separate function for this
+		int f = ((int)fFrame*7);
+		int ang = (int)( (fAngle+90)/151 * 7 );
+		f += ang;
+
+		// Draw the shadow
+		
+		// NOTE: the cSkin.DrawShadow function draws a shadow over solid objects
+		// Later we should render the world layer by layer so this trouble will be gone
+		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
+		// objects?
+		//cSkin.DrawShadow(bmpDest, x, y, f, iDirection == DIR_LEFT);
+		if (iDirection == DIR_RIGHT)
+			pcMap->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+		else
+			pcMap->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+	}
 }
 
 

@@ -212,9 +212,6 @@ void ShutdownProfiles(void)
 		// Save the profile
 		SaveProfile(fp, p);
 
-		// Free the surface
-		p->bmpWorm = NULL;
-
 		// Free the actual profile
 		assert(p);
 		delete p;
@@ -233,22 +230,24 @@ void LoadProfile(FILE *fp, int id)
 {
 	profile_t	*p;
 
-	p = new profile_t;
+	p = new profile_t();
 	if(p == NULL)
 		return;
 
 	p->iID = id;
 	p->tNext = NULL;
-    p->bmpWorm = NULL;
 
 
 	// Name
 	p->sName = freadfixedcstr(fp, 32);
-    p->szSkin = freadfixedcstr(fp, 128);
+	p->cSkin.Change(freadfixedcstr(fp, 128));
     fread(&p->iType,    sizeof(int),    1,  fp);
     EndianSwap(p->iType);
     fread(&p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
+
+	if (p->iType == PRF_COMPUTER)
+		p->cSkin.setBotIcon(p->nDifficulty);
 	
 	// Multiplayer
 	p->sUsername = freadfixedcstr(fp,16);
@@ -261,15 +260,13 @@ void LoadProfile(FILE *fp, int id)
 	EndianSwap(p->G);
 	fread(&p->B,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->B);
+
+	p->cSkin.setDefaultColor(MakeColour(p->R, p->G, p->B));
+	p->cSkin.Colorize(p->cSkin.getDefaultColor());
 	
 	// Weapons
 	for(int i=0; i<5; i++)
 		p->sWeaponSlots[i] = freadfixedcstr(fp,64);
-
-
-	// Load the image
-	LoadProfileGraphics(p);
-
 
 	// Add the profile onto the list
 	if(tProfiles) {
@@ -292,7 +289,7 @@ void SaveProfile(FILE *fp, profile_t *p)
 {
 	// Name & Type
 	fwrite(p->sName,	32,	fp);
-    fwrite(p->szSkin,    128,fp);
+	fwrite(p->cSkin.getFileName(),    128,fp);
     fwrite(GetEndianSwapped(p->iType),   sizeof(int),    1,  fp);
     fwrite(GetEndianSwapped(p->nDifficulty),sizeof(int), 1,  fp);
 
@@ -329,9 +326,6 @@ void DeleteProfile(int id)
 				prv->tNext = p->tNext;
 			else
 				tProfiles = p->tNext;
-
-			// Free me image
-			p->bmpWorm = NULL;
 			
 			// Free me
 			delete p;
@@ -357,7 +351,7 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 {
 	profile_t	*p;
 
-	p = new profile_t;
+	p = new profile_t();
 	if(p == NULL)
 		return;
 
@@ -368,10 +362,9 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->iType = type;
     p->nDifficulty = difficulty;
 	p->tNext = NULL;
-    p->bmpWorm = NULL;
 
 	p->sName = name;
-    p->szSkin = skin;
+	p->cSkin.Change(skin);
 	p->R = R;
 	p->G = G;
 	p->B = B;
@@ -386,10 +379,6 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->sWeaponSlots[2] = "blaster";
 	p->sWeaponSlots[3] = "gauss gun";
 	p->sWeaponSlots[4] = "big nuke";
-
-
-	// Load the image
-	LoadProfileGraphics(p);
 
 
 	// Add the profile onto the list
@@ -483,131 +472,4 @@ profile_t *FindProfile(const std::string& name) {
 	}
 
 	return NULL;
-}
-
-
-///////////////////
-// Load a worm's graphics
-int LoadProfileGraphics(profile_t *p)
-{
-    // Free the old surface
-	p->bmpWorm = NULL;
-
-	p->bmpWorm = gfxCreateSurfaceAlpha(18,16);
-	if(p->bmpWorm.get() == NULL) {
-		// Error
-		return false;
-	}
-	SetColorKey(p->bmpWorm.get());
-    FillSurfaceTransparent(p->bmpWorm.get());
-
-    // Draw the preview pic
-    SmartPointer<SDL_Surface> w = LoadSkin(p->szSkin, p->R, p->G, p->B);
-    if(w.get()) {
-        CopySurface(p->bmpWorm.get(), w, 134,2,0,0, 18,16);
-    }
-
-	// Apply a little cpu pic on the worm pic on ai players
-	SmartPointer<SDL_Surface> ai = LoadImage("data/frontend/cpu.png");
-	if(ai.get()) {
-		SetColorKey(ai.get());
-		
-        if(p->iType == PRF_COMPUTER)
-            DrawImageAdv(p->bmpWorm.get(), ai, p->nDifficulty*10,0, 0,p->bmpWorm.get()->h - ai.get()->h, 10,ai.get()->h);
-	}
-	
-	return true;
-}
-
-
-///////////////////
-// General skin colouriser
-SmartPointer<SDL_Surface> LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
-{
-	std::string buf;
-
-    // Load the skin
-    buf = "skins/"; buf += szSkin;
-    SmartPointer<SDL_Surface> worm = LoadImage(buf, true);
-    if( !worm.get() ) {
-        // If we can't load the skin, try the default skin
-        worm = LoadImage("skins/default.png", true);
-        if( !worm.get() )
-            return NULL;
-    }
-	SetColorKey(worm.get());
-
-    SmartPointer<SDL_Surface> skin = gfxCreateSurfaceAlpha(672,18);
-    if( !skin.get() )
-        return NULL;
-
-    // Set the pink colour key & fill it with pink
-    SetColorKey(skin.get());
-    FillSurfaceTransparent(skin.get());
-
-	if (!LockSurface(skin))
-		return NULL;
-	if (!LockSurface(worm))
-		return NULL;
-
-
-    // Set the colour of the worm
-	int x,y;
-	Uint8 r,g,b,a;
-	Uint32 pixel, mask;
-	const Uint32 black = SDL_MapRGB(worm.get()->format, 0, 0, 0);
-	float r2,g2,b2;
-
-	for(y=0; y<18; y++) {
-		for(x=0; x<skin.get()->w; x++) {
-
-			pixel = GetPixel(worm.get(),x,y);
-            mask = GetPixel(worm.get(),x,y+18);
-			GetColour4(pixel,worm.get()->format,&r,&g,&b,&a);
-
-            //
-            // Use the mask to check what colours to ignore
-            //
-            
-            // Black means to just copy the colour but don't alter it
-            if( EqualRGB(mask, black, worm.get()->format) ) {
-                PutPixel(skin.get(), x,y, pixel);
-                continue;
-            }
-
-            // Pink means just ignore the pixel completely
-            if( IsTransparent(worm.get(),mask) )
-                continue;
-
-            // Must be white (or some over unknown colour)
-			float dr, dg, db;
-
-			dr = (float)r / 96.0f;
-			dg = (float)g / 156.0f;
-			db = (float)b / 252.0f;
-
-			r2 = (float)colR * dr;
-			g2 = (float)colG * dg;
-			b2 = (float)colB * db;
-
-			r2 = MIN((float)255,r2);
-			g2 = MIN((float)255,g2);
-			b2 = MIN((float)255,b2);
-
-
-			// Bit of a hack to make sure it isn't completey pink (see through)
-			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
-				r2=240;
-				b2=240;
-			}
-
-            // Put the colourised pixel
-			PutPixel(skin.get(),x,y, SDL_MapRGBA(skin.get()->format, (int)r2, (int)g2, (int)b2, a));
-		}
-	}
-
-	UnlockSurface(worm);
-	UnlockSurface(skin);
-
-    return skin;
 }

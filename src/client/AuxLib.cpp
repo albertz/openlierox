@@ -151,7 +151,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	srand((unsigned int)time(NULL));
 
 	if(!bDedicated) {
-		bmpIcon = LoadImage("data/icon.png", true);
+		bmpIcon = LoadGameImage("data/icon.png", true);
 		if(bmpIcon.get())
 			SDL_WM_SetIcon(bmpIcon.get(), NULL);
 	}

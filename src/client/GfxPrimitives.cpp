@@ -119,9 +119,9 @@ static void SetColorKey_Alpha(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 // Set a pink color key
 void SetColorKey(SDL_Surface * dst)  {
 	// If there's already a colorkey set, don't set it again
-	// TODO: is this really safe? perhaps we want to set it to some other value
-	// or dst->format->colorkey is just uninitialised
-	if (dst->format->colorkey != 0)
+	if ((dst->flags & SDL_SRCCOLORKEY) && 
+		((dst->format->colorkey == SDL_MapRGB(dst->format, 255, 0, 255)) || 
+		(dst->format->colorkey == SDL_MapRGB(dst->format, 254, 0, 254))))
 		return;
 
 	// Because some graphic editors (old Photoshop and GIMP and possibly more) contain a bug that rounds 255 to 254
@@ -1247,7 +1247,7 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 co
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SmartPointer<SDL_Surface> LoadImage(const std::string& _filename, bool withalpha)
+SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha)
 {
 	// Try cache first
 	SmartPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);

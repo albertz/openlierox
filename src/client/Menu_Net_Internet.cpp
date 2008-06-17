@@ -87,7 +87,7 @@ bool Menu_Net_NETInitialize(void)
 			continue;*/
 
 		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
-		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->bmpWorm, i);
+		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->cSkin.getPreview(), i);
 		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
 			validName=true;
 	}

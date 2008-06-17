@@ -55,10 +55,11 @@ bool LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
 
 	// These files don't have to be present (backward compatibility)
-	gfxGame.bmpGameNetBackground = LoadImage("data/frontend/background_netgame.png",false);
-	gfxGame.bmpGameLocalBackground = LoadImage("data/frontend/background_localgame.png",false);
-	gfxGame.bmpGameLocalTopBar = LoadImage("data/frontend/top_bar_local.png",false);
-	gfxGame.bmpGameNetTopBar = LoadImage("data/frontend/top_bar_net.png",false);
+	gfxGame.bmpGameNetBackground = LoadGameImage("data/frontend/background_netgame.png",false);
+	gfxGame.bmpGameLocalBackground = LoadGameImage("data/frontend/background_localgame.png",false);
+	gfxGame.bmpGameLocalTopBar = LoadGameImage("data/frontend/top_bar_local.png",false);
+	gfxGame.bmpGameNetTopBar = LoadGameImage("data/frontend/top_bar_net.png",false);
+	gfxGame.bmpAI = LoadGameImage("data/frontend/cpu.png",false);
 
 	// Cursors
 	if (!InitializeCursors())
@@ -76,6 +77,7 @@ bool LoadGraphics(void)
 	SetColorKey(gfxGame.bmpHealth.get());
 	SetColorKey(gfxGame.bmpSparkle.get());
 	SetColorKey(gfxGame.bmpViewportMgr.get());
+	SetColorKey(gfxGame.bmpAI.get());
 
 	// Check that the default skin is available (game can crash without this skin!!)
 	if (!IsFileAvailable("skins/default.png"))

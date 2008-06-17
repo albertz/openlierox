@@ -3977,9 +3977,9 @@ void CWorm::NEW_AI_DrawPath()
 	if (!bmpDest.get())
 		return;
 
-	const int NodeColour = iColour;
-	const int HighColour = MakeColour(255, 0, 0);
-	const int LineColour = tLX->clWhite;
+	const Uint32 NodeColour = cSkin.getColor();
+	const Uint32 HighColour = MakeColour(255, 0, 0);
+	const Uint32 LineColour = tLX->clWhite;
 
 	// Go down the path
 	NEW_ai_node_t *node = NEW_psCurrentNode;

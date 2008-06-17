@@ -66,7 +66,7 @@ bool Menu_NetInitialize(void)
 	cIpToCountryAnim.Create();
 
 	// Setup the progressbar
-	cIpToCountryProgress = CProgressBar(LoadImage("data/frontend/iploading_progress.png",true), 0, 0, false, 1);
+	cIpToCountryProgress = CProgressBar(LoadGameImage("data/frontend/iploading_progress.png",true), 0, 0, false, 1);
 	cIpToCountryProgress.Setup(-1, tMenu->tFrontendInfo.iLoadingBarLeft, tMenu->tFrontendInfo.iLoadingBarTop, 0, 0);
 	cIpToCountryProgress.SetPosition(0);
 	cIpToCountryProgress.Create();

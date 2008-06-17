@@ -354,7 +354,7 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].bLeft = false;
 			tGameLog->tWorms[j].iID = cRemoteWorms[i].getID();
 			tGameLog->tWorms[j].sName = cRemoteWorms[i].getName();
-			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin();
+			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin().getFileName();
 			tGameLog->tWorms[j].iKills = 0;
 			tGameLog->tWorms[j].iLives = tGameInfo.iLives;
 			tGameLog->tWorms[j].iSuicides = 0;

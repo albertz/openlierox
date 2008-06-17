@@ -63,6 +63,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				UndefinePreprocessorDefinitions="LoadImage"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1946,6 +1947,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\client\CWormSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CWormSkin.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CWpnRest.cpp"

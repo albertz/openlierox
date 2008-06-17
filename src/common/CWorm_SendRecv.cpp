@@ -32,10 +32,10 @@ void CWorm::writeInfo(CBytestream *bs)
 	bs->writeString(RemoveSpecialChars(sName));
 	bs->writeInt(iType, 1);
 	bs->writeInt(iTeam, 1);
-    bs->writeString(szSkin);
+	bs->writeString(cSkin.getFileName());
 
 	Uint8 rgb[3];
-    GetColour3(iColour, getMainPixelFormat(), &rgb[0], &rgb[1], &rgb[2]);
+    GetColour3(cSkin.getDefaultColor(), getMainPixelFormat(), &rgb[0], &rgb[1], &rgb[2]);
 
 	for(short i = 0; i < 3; i++)
 		bs->writeInt(rgb[i], 1);
@@ -50,13 +50,14 @@ void CWorm::readInfo(CBytestream *bs)
 
 	iType = bs->readInt(1) ? 1 : 0;
 	iTeam = CLAMP(bs->readInt(1), 0, 3);
-    szSkin = bs->readString();
+	cSkin.Change(bs->readString());
 
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();
 	Uint8 b = bs->readByte();
 
-	iColour = MakeColour(r, g, b);
+	cSkin.setDefaultColor(MakeColour(r, g, b));
+	cSkin.Colorize(cSkin.getDefaultColor());
 }
 
 

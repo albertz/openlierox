@@ -747,14 +747,14 @@ SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const
 	SmartPointer<SDL_Surface> img = NULL;
 
 	// First, check the gfx directory in the mod dir
-	img = LoadImage(dir + "/gfx/" + filename, true);
+	img = LoadGameImage(dir + "/gfx/" + filename, true);
 	if(img.get())  {
 		SetColorKey(img.get());
 		return img;
 	}
 
 	// Check the gfx directory in the data dir
-	img = LoadImage("data/gfx/" + filename, true);
+	img = LoadGameImage("data/gfx/" + filename, true);
 	if(img.get()) SetColorKey(img.get());
 	return img;
 }

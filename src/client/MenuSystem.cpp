@@ -80,7 +80,7 @@ bool Menu_Initialize(bool *game)
     LOAD_IMAGE(tMenu->bmpMainBack_wob,"data/frontend/background_wob.png");
 
 	// bmpMainBack_common, for backward compatibility: if it doesn't exist, we use bmpMainBack_wob
-	tMenu->bmpMainBack_common = LoadImage("data/frontend/background_common.png");
+	tMenu->bmpMainBack_common = LoadGameImage("data/frontend/background_common.png");
 	if (!tMenu->bmpMainBack_common.get())
 		tMenu->bmpMainBack_common = tMenu->bmpMainBack_wob;
 
@@ -137,7 +137,6 @@ bool Menu_Initialize(bool *game)
 	CopySurface(tMenu->bmpLobbyNotReady.get(), lobby_state, 0, 12, 0, 0, lobby_state.get()->w, 12);
 
 
-    tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = GetVideoSurface();
 
 
@@ -1928,7 +1927,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
                     // Worms
                     nNumPlayers = inbs.readByte();
-					if (nNumPlayers <= 0)  {
+					if (nNumPlayers < 0)  {
 						bOldLxBug = true;
 					}
 

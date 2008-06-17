@@ -136,7 +136,7 @@ CCursor::CCursor(const std::string& filename, int type)
 
 
 	// Load the cursor
-	bmpCursor = LoadImage(filename,true);
+	bmpCursor = LoadGameImage(filename,true);
 	if (bmpCursor.get())  {
 		if (bmpCursor.get()->w >= 2*bmpCursor.get()->h && (bmpCursor.get()->w % bmpCursor.get()->h) == 0)  {  // The file contains more frames
 			bAnimated = true;
