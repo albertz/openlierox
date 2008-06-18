@@ -172,7 +172,7 @@ void Menu_PlayerInitialize(void)
 	cViewPlayers.Initialize();
 
 	cViewPlayers.Add( new CButton(BUT_BACK, tMenu->bmpButtons),     vp_Back,   25, 440, 50, 15);
-	cViewPlayers.Add( new CListview(),                              vp_Players,40, 150, 200,165);
+	cViewPlayers.Add( new CListview(),                              vp_Players,40, 150, 200,170);
     cViewPlayers.Add( new CLabel("Name", tLX->clNormalLabel),                   Static, 350,172, 0,  0);
     cViewPlayers.Add( new CTextbox(),                               vp_Name,  400,170, 120,tLX->cFont.GetHeight());
 	cViewPlayers.Add( new CButton(BUT_DELETE, tMenu->bmpButtons),   vp_Delete, 330,340, 70, 15);
@@ -203,7 +203,7 @@ void Menu_PlayerInitialize(void)
 
 
 	lv = (CListview *)cViewPlayers.getWidget(vp_Players);
-	lv->AddColumn("Players",22);
+	lv->AddColumn("Players",24);
 	lv->AddColumn("",60);
 
     cViewPlayers.SendMessage( vp_Type, CBS_ADDITEM, "Human", PRF_HUMAN );
@@ -302,7 +302,7 @@ void Menu_Player_ViewPlayerInit(void)
 	for(; p; p=p->tNext) {
 		lv->AddItem("",p->iID,tLX->clListView);
 		if (p->cSkin.getPreview().get())
-			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview().get(), NULL);
+			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);

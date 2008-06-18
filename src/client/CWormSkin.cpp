@@ -17,6 +17,7 @@
 #include "Graphics.h"
 #include "StringUtils.h"
 #include "MathLib.h"
+#include "LieroX.h" // for bDedicated
 
 #define FRAME_WIDTH 32
 #define FRAME_HEIGHT 18
@@ -26,11 +27,21 @@
 // Constructors
 CWormSkin::CWormSkin(const std::string &file)
 {
-	bmpSurface = LoadGameImage("skins/" + file, true);
-	if (!bmpSurface.get()) // Try to load the default skin if the given one failed
-		bmpSurface = LoadGameImage("skins/default.png", true);
-	if (bmpSurface.get())
-		SetColorKey(bmpSurface.get());
+	if (bDedicated)  { // No skins in dedicated mode
+		bmpSurface = NULL;
+	} else {
+		bmpSurface = LoadGameImage("skins/" + file, true);
+		if (!bmpSurface.get()) // Try to load the default skin if the given one failed
+			bmpSurface = LoadGameImage("skins/default.png", true);
+		if (bmpSurface.get())
+			SetColorKey(bmpSurface.get());
+	}
+	bmpMirrored = NULL;
+	bmpShadow = NULL;
+	bmpMirroredShadow = NULL;
+	bmpPreview = NULL;
+	bmpNormal = NULL;
+
 	sFileName = file;
 	iDefaultColor = iColor = MakeColour(128, 128, 128);
 	bColorized = false;
@@ -72,11 +83,15 @@ CWormSkin::~CWormSkin()
 // Change the skin
 void CWormSkin::Change(const std::string &file)
 {
-	bmpSurface = LoadGameImage("skins/" + file, true);
-	if (!bmpSurface.get()) // Try to load the default skin if the given one failed
-		bmpSurface = LoadGameImage("skins/default.png", true);
-	if (bmpSurface.get())
-		SetColorKey(bmpSurface.get());
+	if (bDedicated)  {
+		bmpSurface = NULL;
+	} else {
+		bmpSurface = LoadGameImage("skins/" + file, true);
+		if (!bmpSurface.get()) // Try to load the default skin if the given one failed
+			bmpSurface = LoadGameImage("skins/default.png", true);
+		if (bmpSurface.get())
+			SetColorKey(bmpSurface.get());
+	}
 	sFileName = file;
 
 	GenerateNormalSurface();
@@ -97,7 +112,7 @@ void CWormSkin::Change(const std::string &file)
 bool CWormSkin::PrepareNormalSurface()
 {
 	// Check
-	if (!bmpSurface.get())
+	if (!bmpSurface.get() || bDedicated)
 		return false;
 
 	// Allocate
@@ -128,7 +143,7 @@ void CWormSkin::GenerateNormalSurface()
 bool CWormSkin::PrepareMirrorSurface()
 {
 	// Check
-	if (!bmpSurface.get())
+	if (!bmpSurface.get() || bDedicated)
 		return false;
 
 	// Allocate
@@ -157,6 +172,10 @@ void CWormSkin::GenerateMirroredImage()
 // Prepares the preview surface, returns false when there was some error
 bool CWormSkin::PreparePreviewSurface()
 {
+	// No surfaces in dedicated mode
+	if (bDedicated)
+		return false;
+
 	// Allocate
 	if (!bmpPreview.get())  {
 		bmpPreview = gfxCreateSurfaceAlpha(SKIN_WIDTH, SKIN_HEIGHT);
@@ -167,7 +186,7 @@ bool CWormSkin::PreparePreviewSurface()
 	// Fill with pink
 	FillSurfaceTransparent(bmpPreview.get());
 
-	return bmpSurface.get() != NULL;
+	return bmpNormal.get() != NULL;
 }
 
 /////////////////////
@@ -193,7 +212,7 @@ void CWormSkin::GeneratePreview()
 bool CWormSkin::PrepareShadowSurface()
 {
 	// Make sure we have something to create the shadow from
-	if (!bmpSurface.get())
+	if (!bmpSurface.get() || bDedicated)
 		return false;
 	if (bmpSurface->h < FRAME_HEIGHT)
 		return false;
@@ -207,7 +226,7 @@ bool CWormSkin::PrepareShadowSurface()
 
 	// Allocate the shadow mirror image
 	if (!bmpMirroredShadow.get())  {
-		bmpMirroredShadow = gfxCreateSurface(bmpSurface.get()->w, FRAME_HEIGHT);
+		bmpMirroredShadow = gfxCreateSurface(bmpSurface->w, FRAME_HEIGHT);
 		if (!bmpMirroredShadow.get())
 			return false;
 	}
@@ -235,6 +254,7 @@ void CWormSkin::GenerateShadow()
 	// Lock the surface & get the pixels
 	LOCK_OR_QUIT(bmpSurface);
 	LOCK_OR_QUIT(bmpShadow);
+	LOCK_OR_QUIT(bmpMirroredShadow);
 	Uint8 *srcrow = (Uint8 *)bmpSurface.get()->pixels;
 	Uint8 *srcpix = NULL;
 	int srcbpp = bmpSurface->format->BytesPerPixel;
@@ -248,7 +268,7 @@ void CWormSkin::GenerateShadow()
 		for (int x = 0; x < bmpSurface->w; ++x)  {
 			if (!IsTransparent(bmpSurface.get(), GetPixelFromAddr(srcpix, srcbpp)))  {
 				PutPixel(bmpShadow.get(), x, y, black);
-				PutPixel(bmpMirroredShadow.get(), bmpMirroredShadow->w - x, y, black);
+				PutPixel(bmpMirroredShadow.get(), bmpMirroredShadow->w - x - 1, y, black);
 			}
 			srcpix += srcbpp;
 		}
@@ -259,12 +279,19 @@ void CWormSkin::GenerateShadow()
 	// Unlock
 	UnlockSurface(bmpSurface);
 	UnlockSurface(bmpShadow);
+	UnlockSurface(bmpMirroredShadow);
 }
 
 //////////////////
 // Helper function for the assignment operator
 static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surface>& from)
 {
+	// NULL check
+	if (!from.get())  {
+		to = NULL;
+		return;
+	}
+
 	// Create if doesn't exist
 	if (!to.get())
 		to = gfxCreateSurface(from->w, from->h);
@@ -283,16 +310,18 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 CWormSkin& CWormSkin::operator =(const CWormSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
-		// NOTE: the assignment is safe because of smartpointer
-		// HINT: the bmpSurface never changes, so it's safe to assign it like this
-		bmpSurface = oth.bmpSurface;
+		if (!bDedicated)  {
+			// NOTE: the assignment is safe because of smartpointer
+			// HINT: the bmpSurface never changes, so it's safe to assign it like this
+			bmpSurface = oth.bmpSurface;
 
-		// Other surfaces
-		copy_surf(bmpShadow, oth.bmpShadow);
-		copy_surf(bmpMirrored, oth.bmpMirrored);
-		copy_surf(bmpMirroredShadow, oth.bmpMirroredShadow);
-		copy_surf(bmpPreview, oth.bmpPreview);
-		copy_surf(bmpNormal, oth.bmpNormal);
+			// Other surfaces
+			copy_surf(bmpShadow, oth.bmpShadow);
+			copy_surf(bmpMirrored, oth.bmpMirrored);
+			copy_surf(bmpMirroredShadow, oth.bmpMirroredShadow);
+			copy_surf(bmpPreview, oth.bmpPreview);
+			copy_surf(bmpNormal, oth.bmpNormal);
+		}
 		
 		// Other details
 		sFileName = oth.sFileName;
@@ -318,6 +347,10 @@ bool CWormSkin::operator ==(const CWormSkin &oth)
 // Draw the worm skin at the specified coordinates
 void CWormSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored)
 {
+	// No skins in dedicated mode
+	if (bDedicated)
+		return;
+
 	// Get the correct frame
 	int sx = frame * FRAME_WIDTH + FRAME_SPACING;
 	int sy = (FRAME_HEIGHT - SKIN_HEIGHT);
@@ -325,7 +358,7 @@ void CWormSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	// Draw the skin
 	if (mirrored)  {
 		if (bmpMirrored.get())
-			DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - SKIN_WIDTH, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
+			DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - SKIN_WIDTH - 1, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
 	} else {
 		if (bmpNormal.get())
 			DrawImageAdv(surf, bmpNormal.get(), sx, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
@@ -342,6 +375,10 @@ void CWormSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 // Draw the worm skin shadow
 void CWormSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored)
 {
+	// No skins in dedicated mode
+	if (bDedicated)
+		return;
+
 	// Get the correct frame
 	int sx = frame * FRAME_WIDTH + FRAME_SPACING;
 	int sy = (FRAME_HEIGHT - SKIN_HEIGHT);
@@ -349,7 +386,7 @@ void CWormSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 	// Draw the shadow
 	if (mirrored)  {
 		if (bmpMirroredShadow.get())
-			DrawImageAdv(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - SKIN_WIDTH, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
+			DrawImageAdv(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - SKIN_WIDTH - 1, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
 	} else {
 		if (bmpShadow.get())
 			DrawImageAdv(surf, bmpShadow.get(), sx, sy, x, y, SKIN_WIDTH, SKIN_HEIGHT);
@@ -360,10 +397,16 @@ void CWormSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 // Colorize the skin
 void CWormSkin::Colorize(Uint32 col)
 {
+	// No skins in dedicated mode
+	if (bDedicated)
+		return;
+
 	// Check if we need to change the color
 	if (bColorized && col == iColor)
 		return;
 	if (!bmpSurface.get() || !bmpNormal.get() || !bmpMirrored.get())
+		return;
+	if (bmpSurface->h < 2 * FRAME_HEIGHT || bmpNormal->w != bmpSurface->w || bmpMirrored->w != bmpSurface->w)
 		return;
 
 	bColorized = true;
@@ -374,7 +417,7 @@ void CWormSkin::Colorize(Uint32 col)
 	LOCK_OR_QUIT(bmpNormal);
 	LOCK_OR_QUIT(bmpMirrored);
 
-	// Get the color 
+	// Get the color
 	Uint8 colR, colG, colB;
 	GetColour3(col, getMainPixelFormat(), &colR, &colG, &colB);
 
