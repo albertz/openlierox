@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 	RootNamespace="OpenLieroX"
@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;../../hawknl/src"
+				AdditionalIncludeDirectories="../../include;../../libs/hawknl/src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -149,7 +149,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../include,blast,../../hawknl/src/"
+				AdditionalIncludeDirectories="../../include,blast,../../libs/hawknl/src/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -343,7 +343,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../include,blast,../../hawknl/src/,../../boost_process"
+				AdditionalIncludeDirectories="../../include,blast,../../libs/hawknl/src/,../../libs/boost_process"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER;HAVE_BOOST"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -2447,6 +2447,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\client\CWormSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CWormSkin.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CWpnRest.cpp"

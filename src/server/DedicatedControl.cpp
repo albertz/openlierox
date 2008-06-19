@@ -73,7 +73,7 @@ struct pstream_pipe_t
 	pstream_pipe_t(): p(NULL) {};
 	std::ostream & in() { return p->get_stdin(); };
 	std::istream & out() { return p->get_stdout(); };
-	void close_in() { p->get_stdin().close(); };
+	void close_in() { if (p) { p->get_stdin().close(); } };
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
@@ -165,7 +165,8 @@ struct DedIntern {
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
-	DedIntern() : quitSignal(false), state(S_NORMAL) {}
+	DedIntern() : quitSignal(false), state(S_NORMAL), pipeThread(NULL), stdinThread(NULL),
+		pipeOutputMutex(NULL) { pipe.p = NULL; }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -715,7 +716,7 @@ struct DedIntern {
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
+	void Sig_Quit() { if (pipe.p) {pipe.in() << "quit" << endl; pipe.close_in(); } state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
