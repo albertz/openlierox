@@ -71,8 +71,8 @@ struct pstream_pipe_t
 {
 	boost::process::child *p;
 	pstream_pipe_t(): p(NULL) {};
-	std::ostream & in() { return p->get_stdin(); };
-	std::istream & out() { return p->get_stdout(); };
+	std::ostream & in() { if (p) return p->get_stdin(); static ostringstream os; return os; };
+	std::istream & out() { if (p) return p->get_stdout(); static istringstream is; return is; };
 	void close_in() { if (p) { p->get_stdin().close(); } };
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
@@ -84,22 +84,19 @@ struct pstream_pipe_t
 		boost::process::context ctx;
 		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
 		ctx.m_stdout_behavior = boost::process::capture_stream();
-		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it should directly be forwarded to console
+		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it is not outputted anywhere, sadly
 		try
 		{
-			std::string shell = "\"" + cmd + "\"";
-			for (std::vector<std::string>::iterator i = params.begin(); i != params.end(); i++)
-				shell += " " + *i;
-			p = new boost::process::child(boost::process::launch_shell(shell, ctx)); // Throws exception on error
+			p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
 		}
 		catch( const std::exception & e )
 		{
-			printf("%s\n", e.what());
+			printf("Error running command %s: %s\n", cmd.c_str(), e.what());
 			return false;
 		};
 		return true;
 	};
-	~pstream_pipe_t(){ if(p) delete p; };
+	~pstream_pipe_t(){ close(); if(p) delete p; };
 };
 
 #else
@@ -170,7 +167,7 @@ struct DedIntern {
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
 	DedIntern() : quitSignal(false), state(S_NORMAL), pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL) { pipe.p = NULL; }
+		pipeOutputMutex(NULL) { }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -720,7 +717,7 @@ struct DedIntern {
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
-	void Sig_Quit() { if (pipe.p) {pipe.in() << "quit" << endl; pipe.close_in(); } state = S_NORMAL; }
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
@@ -793,36 +790,71 @@ bool DedicatedControl::Init_priv() {
 
 	#ifdef WIN32
 	// Determine what interpreter to run for this script
+	// Interpreter should be with full path specified, or it won't run correctly on Windows
+	// so we'll read it's path from Windows registry - executing Windows shell failed last time
 	FILE * ff = OpenGameFile(scriptfn, "r");
 	char t[128];
 	fgets( t, sizeof(t), ff );
 	fclose(ff);
-	if( std::string(t).find("bash") != std::string::npos )
-	{
-		command = "bash.exe";
-		commandArgs.clear();
-		commandArgs.push_back("-l");
-		commandArgs.push_back("-c");
-		commandArgs.push_back(scriptfn);
-	}
-	else if( std::string(t).find("python") != std::string::npos )
+	std::string cmdPathRegKey = "";
+	std::string cmdPathRegValue = "";
+	if( std::string(t).find("python") != std::string::npos )
 	{
 		command = "python.exe";
 		commandArgs.clear();
 		commandArgs.push_back("-u");
 		commandArgs.push_back(scriptfn);
+		cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
+	}
+	else if( std::string(t).find("bash") != std::string::npos )
+	{
+		command = "bash.exe";
+		commandArgs.clear();
+		//commandArgs.push_back("-l");	// Not needed for Cygwin
+		commandArgs.push_back("-c");
+		commandArgs.push_back(scriptfn);
+		cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
+		cmdPathRegValue = "native";
+	}
+	else
+	{
+		printf("ERROR: scripts/dedicated_control file should be Python or Bash script, ask devs to add other interpreters for Windows build\n");
+		return false;
+	}
+
+	if( cmdPathRegKey != "" )
+	{
+		HKEY hKey;
+		LONG returnStatus;
+		DWORD dwType=REG_SZ;
+		char lszCmdPath[256]="";
+		DWORD dwSize=255;
+		returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_ALL_ACCESS, &hKey);
+		if (returnStatus != ERROR_SUCCESS)
+		{
+			printf("ERROR: registry key %s not found - make sure Python 2.5 or Cygwin is installed\n", cmdPathRegKey.c_str());
+			return false;
+		}
+		returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
+		RegCloseKey(hKey);
+		if (returnStatus != ERROR_SUCCESS)
+		{
+			printf( "Error: registry key %s not found - make sure Python 2.5 or Cygwin is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+			return false;
+		}
+		command = std::string(lszCmdPath) + "\\" + command;
 	}
 	#endif
 
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
+	printf("Dedicated server: running command \"%s\"\n", command.c_str());
 	if( ! dedIntern->pipe.open(command, commandArgs) )
 	{
-		cout << "ERROR: cannot start dedicated server - cannot run: " << scriptfn << endl;
-		// TODO: print error msg (the reason) here
+		printf( "ERROR: cannot start dedicated server - cannot run script %s\n", scriptfn.c_str() );
 		return false;
 	};
-	dedIntern->pipe.in() << "hello world\n" << flush; // just a test
+	dedIntern->pipe.in() << "init" << endl;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
 	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
