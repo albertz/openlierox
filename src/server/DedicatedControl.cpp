@@ -87,10 +87,14 @@ struct pstream_pipe_t
 		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it should directly be forwarded to console
 		try
 		{
-			p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
+			std::string shell = "\"" + cmd + "\"";
+			for (std::vector<std::string>::iterator i = params.begin(); i != params.end(); i++)
+				shell += " " + *i;
+			p = new boost::process::child(boost::process::launch_shell(shell, ctx)); // Throws exception on error
 		}
 		catch( const std::exception & e )
 		{
+			printf("%s\n", e.what());
 			return false;
 		};
 		return true;
@@ -795,18 +799,16 @@ bool DedicatedControl::Init_priv() {
 	fclose(ff);
 	if( std::string(t).find("bash") != std::string::npos )
 	{
-		command = "msys/bin/bash.exe";
+		command = "bash.exe";
 		commandArgs.clear();
-		commandArgs.push_back(command);
 		commandArgs.push_back("-l");
 		commandArgs.push_back("-c");
 		commandArgs.push_back(scriptfn);
 	}
 	else if( std::string(t).find("python") != std::string::npos )
 	{
-		command = "python/python.exe";
+		command = "python.exe";
 		commandArgs.clear();
-		commandArgs.push_back(command);
 		commandArgs.push_back("-u");
 		commandArgs.push_back(scriptfn);
 	}
