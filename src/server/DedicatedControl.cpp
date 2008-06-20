@@ -802,6 +802,7 @@ bool DedicatedControl::Init_priv() {
 	{
 		command = "python.exe";
 		commandArgs.clear();
+		commandArgs.push_back(command);
 		commandArgs.push_back("-u");
 		commandArgs.push_back(scriptfn);
 		cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
@@ -810,15 +811,26 @@ bool DedicatedControl::Init_priv() {
 	{
 		command = "bash.exe";
 		commandArgs.clear();
+		commandArgs.push_back(command);
 		//commandArgs.push_back("-l");	// Not needed for Cygwin
 		commandArgs.push_back("-c");
 		commandArgs.push_back(scriptfn);
 		cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
 		cmdPathRegValue = "native";
 	}
+	else if( std::string(t).find("php") != std::string::npos )
+	{
+		command = "php.exe";
+		commandArgs.clear();
+		commandArgs.push_back(command);
+		commandArgs.push_back("-f");
+		commandArgs.push_back(scriptfn);
+		cmdPathRegKey = "SOFTWARE\\PHP";
+		cmdPathRegValue = "InstallDir";
+	}
 	else
 	{
-		printf("ERROR: scripts/dedicated_control file should be Python or Bash script, ask devs to add other interpreters for Windows build\n");
+		printf("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
 		return false;
 	}
 
@@ -832,17 +844,18 @@ bool DedicatedControl::Init_priv() {
 		returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_ALL_ACCESS, &hKey);
 		if (returnStatus != ERROR_SUCCESS)
 		{
-			printf("ERROR: registry key %s not found - make sure Python 2.5 or Cygwin is installed\n", cmdPathRegKey.c_str());
+			printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
 			return false;
 		}
 		returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
 		RegCloseKey(hKey);
 		if (returnStatus != ERROR_SUCCESS)
 		{
-			printf( "Error: registry key %s not found - make sure Python 2.5 or Cygwin is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+			printf( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
 			return false;
 		}
 		command = std::string(lszCmdPath) + "\\" + command;
+		commandArgs[0] = command;
 	}
 	#endif
 

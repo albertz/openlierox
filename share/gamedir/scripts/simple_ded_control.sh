@@ -6,6 +6,10 @@ function startlobby() {
 	echo "startlobby"
 }
 
+function updatelobby() {
+	echo "sendlobbyupdate"
+}
+
 function startgame() {
 	echo "startgame"
 }
@@ -77,7 +81,10 @@ function signal_handler() {
 	done
 }
 
-#echo "getcomputerwormlist"
+
+# ------------- start game here ----
+
+startlobby
 
 setvar GameServer.ServerName "- simple dedicated server -"
 
@@ -94,10 +101,7 @@ setvar GameServer.GameInfo.iLoadingTimes        "20"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
-
-# ------------- start game here ----
-
-startlobby
+updatelobby
 
 while true; do
 	until start_with_countdown; do sleep 1; done
