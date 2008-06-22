@@ -875,12 +875,29 @@ void CClient::ParseWormInfo(CBytestream *bs)
 		return;
 	}
 
-	cRemoteWorms[id].setUsed(true);
+	// A new worm?
+	if (!cRemoteWorms[id].isUsed())  {
+		printf("Warning: a new worm joined in an unusual way\n");
+
+		cRemoteWorms[id].Clear();
+		cRemoteWorms[id].setUsed(true);
+		cRemoteWorms[id].setClient(this);
+		cRemoteWorms[id].setLocal(false);
+		cRemoteWorms[id].setGameScript(cGameScript.get()); // TODO: why was this commented out?
+		if (iNetStatus == NET_PLAYING || bGameReady)  {
+			cRemoteWorms[id].Prepare(cMap);
+		}
+	}
+
 	cRemoteWorms[id].readInfo(bs);
+
+	// Safety
+	if (iNetStatus == NET_PLAYING || bGameReady)
+		cRemoteWorms[id].setMap(cMap);
 
 	// Load the worm graphics
 	if(!cRemoteWorms[id].ChangeGraphics(iGameType)) {
-        printf("CClient::ParseWormInfo(): LoadGraphics() failed\n");
+        printf("CClient::ParseWormInfo(): ChangeGraphics() failed\n");
 	}
 
 	UpdateScoreboard();
@@ -1316,7 +1333,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		}
 
 		w = &cRemoteWorms[id];
-		if(w) {
+		if(!w->getLocal()) { // Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
 			w->setUsed(false);
 			w->setAlive(false);
 			w->getLobby()->iType = LBY_OPEN;
@@ -1329,7 +1346,8 @@ void CClient::ParseClientLeft(CBytestream *bs)
 					l->fTimeLeft = tLX->fCurTime;
 				}
 			}
-
+		} else {
+			printf("Warning: server says we've left but that is not true\n");
 		}
 	}
 

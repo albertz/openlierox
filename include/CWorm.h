@@ -528,6 +528,7 @@ public:
 	void		setUsed(bool _u)			{ bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime; }
 
 	CMap*		getMap()					{ return pcMap; }
+	void		setMap(CMap *map)			{ pcMap = map; }
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 	CInput*		getStrafeInput()			{ return &cStrafe; }
 	CInput*		getShootInput()				{ return &cShoot; }

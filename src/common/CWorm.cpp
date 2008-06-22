@@ -147,6 +147,7 @@ void CWorm::Clear(void)
 
 	fLastSimulationTime = tLX->fCurTime;
 	fLastGoBack = -9999;
+	pcMap = NULL;
 }
 
 
@@ -433,6 +434,12 @@ void CWorm::InitWeaponSelection(void)
 	iNumWeaponSlots = 5;
 
 	clearInput();
+
+	// Safety
+	if (!tProfile)  {
+		printf("ERROR: InitWeaponSelection called and tProfile is not set\n");
+		return;
+	}
 
 	// Load previous settings from profile
 	short i;
