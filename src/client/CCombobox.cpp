@@ -422,7 +422,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 	int ItemHeight = getItemHeight();
 
 	// Go through the items checking for a mouse click
-	int y = iY+tLX->cFont.GetHeight()+4;
+	int y = iY+ItemHeight+4;
 	int w = iX+iWidth-1;
 	if(bGotScrollbar)
 		w -= 16;

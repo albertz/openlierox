@@ -92,8 +92,8 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CButton(BUT_BACK, tMenu->bmpButtons), hs_Back,	25, 440,50, 15);
 	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
-	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,100);
-	cHostPly.Add( new CListview(),							hs_Playing,		360,270,200,100);
+	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,105);
+	cHostPly.Add( new CListview(),							hs_Playing,		360,275,200,105);
 	cHostPly.Add( new CLabel("Server name",	tLX->clNormalLabel),		-1,			40, 178,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,tLX->cFont.GetHeight());
 	cHostPly.Add( new CLabel("Max Players",	tLX->clNormalLabel),		-1,			40,	208,0,  0);
@@ -245,6 +245,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					std::string num_players;
 					cHostPly.SendMessage(hs_MaxPlayers, TXS_GETTEXT, &num_players, 0);
 					if(lv2->getItemCount() < MIN(MAX_PLAYERS, atoi(num_players))) {
+						lv->SaveScrollbarPos();
 
 						// Get the profile
 						ply = FindProfile(index);
@@ -262,6 +263,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 							}
 						}
 
+						lv->RestoreScrollbarPos();
+
 					}
 				}
 				break;
@@ -275,6 +278,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv2 = (CListview *)cHostPly.getWidget(hs_PlayerList);
 					int index = lv->getCurIndex();
 
+					lv->SaveScrollbarPos();
+
 					// Remove the item from the list
 					lv->RemoveItem(index);
 
@@ -287,6 +292,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						if (ply->iType == PRF_HUMAN)
 							iHumanPlayers--;
 					}
+
+					lv->RestoreScrollbarPos();
 				}
 				break;
 
