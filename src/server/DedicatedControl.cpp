@@ -841,7 +841,7 @@ bool DedicatedControl::Init_priv() {
 		DWORD dwType=REG_SZ;
 		char lszCmdPath[256]="";
 		DWORD dwSize=255;
-		returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_ALL_ACCESS, &hKey);
+		returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
 		if (returnStatus != ERROR_SUCCESS)
 		{
 			printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
