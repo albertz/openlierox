@@ -426,6 +426,21 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bFullscreen = true;
         } else
 
+#ifdef WIN32
+		// -console
+		// Attaches a console window to the main LX window
+		if (stricmp(a, "-console") == 0)  {
+			if (AllocConsole())  {
+			  FILE *con = freopen("CONOUT$", "w", stdout);
+			  if (con) {
+				*stdout = *con;
+				setvbuf(stdout, NULL, _IONBF, 0);
+			  }
+			  SetConsoleTitle("OpenLieroX Console");
+			}
+		} else
+#endif
+
 		// -help
 		// Displays help and quits
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {
@@ -436,6 +451,9 @@ void ParseArguments(int argc, char *argv[])
      		printf("   -nosound      Disable sound\n");
      		printf("   -window       Run in window mode\n");
      		printf("   -fullscreen   Run in fullscreen mode\n");
+			#ifdef WIN32
+			printf("   -console      Attach a console window to the main OpenLieroX window\n");
+			#endif
 			#ifdef DEBUG
      		printf("   -nettest      Test CChannel reliability\n");
 			#endif
