@@ -63,9 +63,14 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
-		iNetStatus = NET_DISCONNECTED;
-		bBadConnection = true;
-		strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
+		// If we are already connected, ignore this
+		if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
+			printf("CClient::ParseConnectionlessPacket: already connected, ignoring\n");
+		} else {
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
+		}
 	}
 
 	// Host has OpenLX Beta 3+
@@ -115,6 +120,12 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 // Parse a challenge packet
 void CClient::ParseChallenge(CBytestream *bs)
 {
+	// If we are already connected, ignore this
+	if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
+		printf("CClient::ParseChallenge: already connected, ignoring\n");
+		return;
+	}
+
 	CBytestream bytestr;
 	bytestr.Clear();
 	iChallenge = bs->readInt(4);
@@ -162,6 +173,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	// If already connected, ignore this
 	if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
 		bs->Skip(iNumWorms);
+		printf("CClient::ParseConnected: already connected, ignoring\n");
 		return;
 	}
 
@@ -422,7 +434,9 @@ void CClient::ParsePacket(CBytestream *bs)
                 break;
 
 			default:
+#ifndef FUZZY_ERROR_TESTING
 				printf("cl: Unknown packet\n");
+#endif
 				return;
 
 		}
@@ -571,16 +585,22 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
 			if(!cMap->Load(sMapName)) {
 				// Show a cannot load level error message
+				// If this is a host/local game, something is pretty wrong but if we display the message, things could
+				// go even worse
+				if (tGameInfo.iGameType == GME_JOIN)  {
+					FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+					std::string err;
+					err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
-				FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
-				std::string err;
-				err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
+					Menu_MessageBox("Loading Error",err, LMB_OK);
+					bClientError = true;
 
-				Menu_MessageBox("Loading Error",err, LMB_OK);
-                bClientError = true;
+					// Go back to the menu
+					QuittoMenu();
+				} else {
+					printf("ERROR: load map error for a local game!\n"); 
+				}
 
-				// Go back to the menu
-				QuittoMenu();
 				bGameReady = false;
 
 				printf("CClient::ParsePrepareGame: could not load map "+sMapName+"\n");
@@ -613,14 +633,18 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		if(result != GSE_OK) {
 
 			// Show any error messages
-			FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
-			std::string err("Error load game mod: ");
-			err += sModName + "\r\nError code: " + itoa(result);
-			Menu_MessageBox("Loading Error", err, LMB_OK);
-			bClientError = true;
+			if (tGameInfo.iGameType == GME_JOIN)  {
+				FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+				std::string err("Error load game mod: ");
+				err += sModName + "\r\nError code: " + itoa(result);
+				Menu_MessageBox("Loading Error", err, LMB_OK);
+				bClientError = true;
 
-			// Go back to the menu
-			GotoNetMenu();
+				// Go back to the menu
+				GotoNetMenu();
+			} else {
+				printf("ERROR: load mod error for a local game!\n"); 
+			}
 			bGameReady = false;
 
 			printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
@@ -735,6 +759,12 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// Already got this
 	if (iNetStatus == NET_PLAYING)  {
 		printf("CClient::ParseStartGame: already playing - ignoring\n");
+		return;
+	}
+
+	// Check that the game is ready
+	if (!bGameReady)  {
+		printf("CClient::ParseStartGame: cannot start the game because the game is not ready\n");
 		return;
 	}
 
@@ -1315,8 +1345,11 @@ void CClient::ParseClientLeft(CBytestream *bs)
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
 	byte count = bs->readByte();
-	if (count >= MAX_WORMS)  {
-		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
+	if (count >= MAX_WORMS || iNetStatus != NET_PLAYING)  {
+		if (iNetStatus != NET_PLAYING)
+			printf("CClient::ParseUpdateWorms: not playing, ignored\n");
+		else
+			printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
 
 		// Skip to the right position
 		for (byte i=0;i<count;i++)  {
@@ -1825,12 +1858,13 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions;
 
 	// Clean the screen up - just in case
-	SDL_SetClipRect(GetVideoSurface(), NULL);
+	// HINT: don't do that, because someone could send a fake packet and cause a DoS (the screen goes black)
+	/*SDL_SetClipRect(GetVideoSurface(), NULL);
 	FillSurfaceTransparent(GetVideoSurface());
 	FlipScreen(GetVideoSurface());
 	FillSurfaceTransparent(GetVideoSurface());
 	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
-	FillSurfaceTransparent(tMenu->bmpBuffer.get());
+	FillSurfaceTransparent(tMenu->bmpBuffer.get());*/
 
 	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed,
 				(unsigned long)(tLX->fCurTime*1000.0f),

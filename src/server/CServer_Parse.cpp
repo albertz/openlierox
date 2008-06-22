@@ -160,7 +160,9 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 				}
 
 			// Really a bad packet
+#ifndef FUZZY_ERROR_TESTING
 			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
+#endif
 		}
 	}
 }

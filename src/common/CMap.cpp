@@ -2877,7 +2877,7 @@ int CarveHole(CMap *cMap, CVec pos)
 		if((uint)x >= cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage().get(),x,(int)pos.y);
+			Colour = GetPixel(cMap->GetImage().get(), x, y);
 			for(short n=0; n<3; n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;

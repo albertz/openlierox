@@ -378,7 +378,9 @@ uchar CBytestream::readByte(void) {
 	if(!isPosAtEnd())
 		return Data[pos++];
 	else {
+#ifndef FUZZY_ERROR_TESTING
 		printf("WARNING: reading from stream behind end\n");
+#endif
 		return 0;
 	}
 }

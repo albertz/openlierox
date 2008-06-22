@@ -240,8 +240,6 @@ void CClient::SendTextInternal(const std::string& sText, const std::string& sWor
 // Send a random packet to server (used for debugging)
 void CClient::SendRandomPacket()
 {
-	printf("Sending a random packet to server\n");
-
 	CBytestream bs;
 
 	int random_length = GetRandomInt(50);
@@ -249,6 +247,20 @@ void CClient::SendRandomPacket()
 		bs.writeByte((uchar)GetRandomInt(255));
 
 	cNetChan->AddReliablePacketToSend(bs);
+
+	bs.Clear();
+
+	// Test connectionless packets
+	if (GetRandomInt(100) >= 75)  {
+		bs.writeInt(-1, 4);
+		static const std::string commands[] = { "lx::getchallenge", "lx::connect", "lx::ping", "lx::query",
+			"lx::getinfo", "lx::wantsjoin", "lx::traverse", "lx::registered"};
+		bs.writeString(commands[GetRandomInt(500) % (sizeof(commands)/sizeof(std::string))]);
+		for (int i=0; i < random_length; i++)
+			bs.writeByte((uchar)GetRandomInt(255));
+		SetRemoteNetAddr(tSocket, cNetChan->getAddress());
+		bs.Send(tSocket);
+	}
 }
 #endif
 

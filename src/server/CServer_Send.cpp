@@ -399,7 +399,6 @@ void GameServer::SendRandomPacket()
 		bs.writeByte((uchar)GetRandomInt(255));
 
 	SendGlobalPacket(&bs);
-	printf("A random packet has been sent to all clients\n");
 }
 #endif
 
