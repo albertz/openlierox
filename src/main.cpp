@@ -30,6 +30,7 @@
 #include "Physics.h"
 #include "Version.h"
 #include "OLXModInterface.h"
+#include "OLXG15.h"
 
 
 #ifndef WIN32
@@ -197,7 +198,19 @@ startpoint:
     // Parse the arguments
 	// do it after the loading of the options as this can
 	// overwrite the default options
-    ParseArguments(argc, argv);
+	ParseArguments(argc, argv);
+
+	// Start the G15 support, it's suitable that the display is showing while loading.
+#ifdef WITH_G15
+	OLXG15 = new OLXG15_t;
+	// TODO: Why do we check for NULL all the time? new should not return NULL, it should throw std::bad_alloc!
+	if (!OLXG15->init())
+	{
+		// Error when initialising, can't use it.
+		delete OLXG15;
+		OLXG15 = NULL;
+	}
+#endif //WITH_G15
 
 	// Initialize LX
 	if(!InitializeLieroX())  {
@@ -522,53 +535,54 @@ int InitializeLieroX(void)
 	DrawLoading(0, "Initializing network");
 
 	// Initialize the network
-    if(!InitNetworkSystem()) {
-        SystemError("Error: Failed to initialize the network library");
+	if(!InitNetworkSystem()) {
+		SystemError("Error: Failed to initialize the network library");
 		return false;
-    }
+	}
 
 	DrawLoading(5, "Initializing client and server");
 
 	// Allocate the client & server
 	cClient = new CClient;
-    if(cClient == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory");
+	if(cClient == NULL) {
+		SystemError("Error: InitializeLieroX() Out of memory");
 		return false;
-    }
-
+	}
 	cClient->Clear();
 	cClient->setLocalClient(true);
 
+
+
 	cServer = new GameServer;
-    if(cServer == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory on creating GameServer");
+	if(cServer == NULL) {
+		SystemError("Error: InitializeLieroX() Out of memory on creating GameServer");
 		return false;
-    }
+	}
 
 	DrawLoading(10, "Initializing game entities");
 
 	// Initialize the entities
-    if(!InitializeEntities()) {
-        SystemError("Error: InitializeEntities() Out of memory on initializing the entities");
+	if(!InitializeEntities()) {
+		SystemError("Error: InitializeEntities() Out of memory on initializing the entities");
 		return false;
-    }
+	}
 
 	DrawLoading(15, "Loading graphics");
 
 
 	// Load the graphics
-    if(!LoadGraphics()) {
-        SystemError("Error: Error loading graphics");
+	if(!LoadGraphics()) {
+		SystemError("Error: Error loading graphics");
 		return false;
-    }
+	}
 
 	DrawLoading(40, "Initializing console");
 
-    // Initialize the console
-    if(!Con_Initialize()) {
-        SystemError("Error: Could not initialize the console");
-        return false;
-    }
+	// Initialize the console
+	if(!Con_Initialize()) {
+		SystemError("Error: Could not initialize the console");
+		return false;
+	}
 
 	// TODO: move to console
     // Add some console commands
@@ -915,6 +929,13 @@ void ShutdownLieroX(void)
 		cServer = NULL;
 	}
 
+#ifdef WITH_G15
+	if (OLXG15)
+	{
+		delete OLXG15;
+		OLXG15 = NULL;
+	}
+#endif //WITH_G15
 	// Entitites
 	ShutdownEntities();
 
