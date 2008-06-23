@@ -877,8 +877,8 @@ void CClient::ParseWormInfo(CBytestream *bs)
 
 	// A new worm?
 	if (!cRemoteWorms[id].isUsed())  {
-		printf("Warning: a new worm joined in an unusual way\n");
-
+		//printf("Warning: a new worm joined in an unusual way\n"); // Do we have another "usual" way of remote worms joining?
+		
 		cRemoteWorms[id].Clear();
 		cRemoteWorms[id].setUsed(true);
 		cRemoteWorms[id].setClient(this);
@@ -887,6 +887,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 		if (iNetStatus == NET_PLAYING || bGameReady)  {
 			cRemoteWorms[id].Prepare(cMap);
 		}
+		cRemoteWorms[id].setID(id);
 	}
 
 	cRemoteWorms[id].readInfo(bs);
