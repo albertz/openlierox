@@ -31,20 +31,26 @@
 Timer *timer = NULL;
 
 bool CacheTimer(Timer* sender, void* userData)  {
+	static size_t last_size = 0;
+
 	std::string unit = "B";
 	size_t size = cCache.GetCacheSize();
-	if (size >= 1024 * 1024 * 1024)  {
-		size /= 1024 * 1024 * 1024;
-		unit = "GB";
-	} else if (size >= 1024 * 1024)  {
-		size /= 1024 * 1024;
-		unit = "MB";
-	} else if (size >= 1024)  {
-		size /= 1024;
-		unit = "KB";
-	}
+	if (size != last_size)  {
+		last_size = size;
 
-	printf("Current cache size: " + to_string<size_t>(size) + " " + unit + "\n");
+		if (size >= 1024 * 1024 * 1024)  {
+			size /= 1024 * 1024 * 1024;
+			unit = "GB";
+		} else if (size >= 1024 * 1024)  {
+			size /= 1024 * 1024;
+			unit = "MB";
+		} else if (size >= 1024)  {
+			size /= 1024;
+			unit = "KB";
+		}
+
+		printf("Current cache size: " + to_string<size_t>(size) + " " + unit + "\n");
+	}
 	return true;
 }
 
