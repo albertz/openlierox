@@ -166,8 +166,8 @@ struct DedIntern {
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
-	DedIntern() : quitSignal(false), state(S_NORMAL), pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL) { }
+	DedIntern() : pipeThread(NULL), stdinThread(NULL),
+		pipeOutputMutex(NULL), quitSignal(false), state(S_NORMAL) { }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;

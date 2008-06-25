@@ -478,3 +478,4 @@ void CWormSkin::Colorize(Uint32 col)
 	// Regenerate the preview
 	GeneratePreview();
 }
+
