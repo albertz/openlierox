@@ -35,6 +35,7 @@
 #include "CButton.h"
 #include "CMediaPlayer.h"
 #include "DedicatedControl.h"
+#include "OLXG15.h"
 
 using namespace std;
 
@@ -301,6 +302,11 @@ void Menu_Frame() {
 	// Media player frame
 	cMediaPlayer.Frame();
 #endif
+
+#ifdef WITH_G15
+	if (OLXG15)
+		OLXG15->menuFrame();
+#endif //WITH_G15
 
 	switch(tMenu->iMenuType) {
 

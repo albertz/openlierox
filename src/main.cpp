@@ -707,6 +707,11 @@ void GameLoopFrame(void)
 	cMediaPlayer.Frame();
 #endif
 
+#ifdef WITH_G15
+	if (OLXG15)
+		OLXG15->gameFrame();
+#endif //WITH_G15
+
 	// Local
 	switch (tGameInfo.iGameType)  {
 	case GME_LOCAL:

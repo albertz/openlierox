@@ -22,6 +22,7 @@
 //#include <libg15.h>
 #include <libg15render.h>
 
+const float G15FRAMETIME = 0.25f; // 4 frames/second, we shouldn't need more
 class OLXG15_weapon_t
 {
 // To let it access chargeIndicator
@@ -52,12 +53,23 @@ private:
 	g15canvas canvas;
 	OLXG15_weapon_t Weapons[5];
 
+	timeval startTime;
+	bool showingSplash;
+	float lastFrame;
+	float timeShown; // For splash screen, perhaps for some kill message too?
+
+
+	void frame();
+
 public:
 	OLXG15_t();
 	~OLXG15_t();
 
 	bool init();
-	void frame();
+
+	void menuFrame() { frame(); };
+	void gameFrame() { frame(); };
+
 
 	void drawBounds(const int& size);
 
@@ -78,6 +90,9 @@ public:
 
 	// Variables
 	OLXG15_weapon_t* getWeapon(const int& num)		{ return &Weapons[num]; }
+
+
+	// TODO: Ripped from my personal G15 header file, perhaps put in it's own headerfile here too?
 
 	// Small can take up to 40 characters. 3 pix wide 1 pix spacing 6 pix high (4x6)
 	// Medium can take up to 32 characters. 4 pix wide 1 pix spacing 7 pix high (5x7)
@@ -107,7 +122,7 @@ public:
 		}
 	}
 
-	// TODO: Ripped from my personal G15 header file, perhaps put in it's own headerfile here too?
+
 	// Returns what X pixel to start on to get the specified effect
 	int centerAlign(const std::string& txt, const int& size)
 	{

@@ -19,7 +19,28 @@ ENDIF (DEBUG)
 
 IF (DEDICATED_ONLY)
 	SET(X11CLIPBOARD No)
+	SET(WITH_G15 No)
 ENDIF (DEDICATED_ONLY)
+
+# Platform specific things can be put here
+# Compilers and other specific variables can be found here:
+# http://www.cmake.org/Wiki/CMake_Useful_Variables
+IF(UNIX)
+	IF(APPLE)
+	ELSE(APPLE)
+	ENDIF(APPLE)
+
+	IF (CYGWIN)
+		SET(WITH_G15 No) # Linux library as of now
+	ELSE (CYGWIN)
+	ENDIF (CYGWIN)
+ELSE(UNIX)
+	IF(WIN32)
+		SET(WITH_G15 No)
+	ELSE(WIN32)
+	ENDIF(WIN32)
+ENDIF(UNIX)
+
 
 MESSAGE( "DEBUG = ${DEBUG}" )
 MESSAGE( "DEDICATED_ONLY = ${DEDICATED_ONLY}" )

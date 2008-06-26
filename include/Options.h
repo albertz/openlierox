@@ -229,6 +229,12 @@ public:
 	int		iMPlayerTop;
 	int		iMusicVolume;
 
+	// G15
+#ifdef WITH_G15
+	float	fG15SplashScreenTime;
+	int		iG15FontSize;
+#endif //WITH_G15
+
 	// Last used game details
 	class GameInfo {
 	public:

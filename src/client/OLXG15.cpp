@@ -11,7 +11,10 @@
 //
 #ifdef WITH_G15
 #include <cmath>
+#include <sys/time.h>
 #include "StringUtils.h"
+#include "Options.h"
+#include "LieroX.h"
 #include "OLXG15.h"
 #include "OLX_g15logo_ver4.xbm"
 
@@ -21,6 +24,8 @@ OLXG15_t::OLXG15_t()
 	screenfd = -1;
 	curScreen = -1;
 	screenVer = 0;
+	showingSplash = false;
+	lastFrame = 0.0f;
 }
 OLXG15_t::~OLXG15_t()
 {
@@ -29,6 +34,7 @@ OLXG15_t::~OLXG15_t()
 }
 bool OLXG15_t::init()
 {
+	gettimeofday(&startTime,NULL);
 	screenfd = new_g15_screen(G15_G15RBUF);
 	if(screenfd < 0)
 	{
@@ -51,28 +57,6 @@ bool OLXG15_t::init()
 		g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 	}
 	*/
-
-
-	//g15r_clearScreen (&canvas, G15_COLOR_WHITE);
-
-
-
-	/*
-	nanosleep(&sleepTime,NULL);
-	g15r_clearScreen (&canvas, G15_COLOR_WHITE);
-	testWeaponScreen(G15_TEXT_SMALL);
-	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
-
-	nanosleep(&sleepTime,NULL);
-	g15r_clearScreen (&canvas, G15_COLOR_WHITE);
-	testWeaponScreen(G15_TEXT_MED);
-	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
-
-	nanosleep(&sleepTime,NULL);
-	g15r_clearScreen (&canvas, G15_COLOR_WHITE);
-	testWeaponScreen(G15_TEXT_LARGE);
-	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);*/
-
 
 	/*
 	unsigned int keystate = 0;
@@ -120,6 +104,30 @@ bool OLXG15_t::init()
 
 void OLXG15_t::frame()
 {
+	lastFrame += tLX->fRealDeltaTime;
+	if (lastFrame < G15FRAMETIME)
+		return;
+	lastFrame = 0.0f;
+
+	// TODO: Sucks if we add more of these things.
+	if (showingSplash)
+	{
+		// To show as close to our time-limit as possible, even if loading took longer
+		timeval curTime;
+		gettimeofday(&curTime,NULL);
+
+		timeShown += tLX->fRealDeltaTime;
+		if (timeShown >= tLXOptions->fG15SplashScreenTime || startTime.tv_sec + 5 < curTime.tv_sec)
+		{
+			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
+			g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
+			showingSplash = false;
+			timeShown = 0.0f;
+			return;
+		}
+	}
+
+
 	// This is the only function that's going to get called from OLX regulary (except info-setting)
 	// Handles everything
 
@@ -294,25 +302,29 @@ void OLXG15_t::clearReload(const int& row, const int& size)
 	// (loadage - getCharWidth(size)*2) to loadage. S:137 - 143 M:133 - 140 L:116 - 128
 	// void g15r_pixelBox (g15canvas *canvas, int x1, int y1, int x2, int y2,int color, int thick, int fill)
 	int y1 = row*getCharHeight(size);
+	int y2 = y1 + getCharHeight(size)-2;
 	//std::cout << "y1 = " << y1 << " for row " << row << ". charHeight is " << getCharHeight(size) << std::endl;
 
 	// -2 is to remove the usual padding issued by it, we don't need to clear that, it won't be written in.
 	switch (size)
 	{
 		case G15_TEXT_MED:
-			g15r_pixelBox(&canvas,133,y1,140,y1+getCharHeight(size)-2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
+			g15r_pixelBox(&canvas,133,y1,140,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 			return;
 		case G15_TEXT_LARGE:
-			g15r_pixelBox(&canvas,116,y1,128,y1+getCharHeight(size)-2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
+			g15r_pixelBox(&canvas,116,y1,128,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 			return;
 		default: // + G15_TEXT_SMALL
-			g15r_pixelBox(&canvas,137,y1,143,y1+getCharHeight(size)-2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
+			g15r_pixelBox(&canvas,137,y1,143,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 			return;
 	}
 }
 
 void OLXG15_t::showSplashScreen()
 {
+	if (tLXOptions->fG15SplashScreenTime == 0.0f)
+		return;
 	drawXBM(&canvas,OLX_g15logo_ver4_bits,OLX_g15logo_ver4_width,OLX_g15logo_ver4_height,0,0);
+	showingSplash = true;
 }
 #endif //WITH_G15
