@@ -224,7 +224,7 @@ class menu_t { public:
 	SmartPointer<SDL_Surface> bmpLobbyReady;
 	SmartPointer<SDL_Surface> bmpLobbyNotReady;
 	SmartPointer<SDL_Surface> bmpHost;
-	SmartPointer<SDL_Surface> bmpConnectionSpeeds[4];
+	SmartPointer<SDL_Surface> bmpConnectionSpeeds[5];
 	SmartPointer<SDL_Surface> bmpSpeech;
     SmartPointer<SDL_Surface> bmpHandicap;
 
@@ -367,6 +367,7 @@ void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs);
 void		Menu_SvrList_RefreshList(void);
 void        Menu_SvrList_RefreshServer(server_t *s);
 void		Menu_SvrList_UpdateList(void);
+void		Menu_SvrList_UpdateUDPList();
 void		Menu_SvrList_FillList(CListview *lv);
 void        Menu_SvrList_SaveList(const std::string& szFilename);
 void        Menu_SvrList_LoadList(const std::string& szFilename);

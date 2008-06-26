@@ -119,6 +119,7 @@ bool Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[4], "data/frontend/con_nat.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
@@ -1257,6 +1258,8 @@ void Menu_SvrList_RefreshList(void)
 
         Menu_SvrList_RefreshServer(s);
 	}
+
+	Menu_SvrList_UpdateUDPList();
 }
 
 
@@ -1264,6 +1267,9 @@ void Menu_SvrList_RefreshList(void)
 // Refresh a single server
 void Menu_SvrList_RefreshServer(server_t *s)
 {
+	if (Menu_SvrList_ServerBehindNat(s->szAddress))
+		return;
+
     s->bProcessing = true;
 	s->bgotPong = false;
 	s->bgotQuery = false;
@@ -1424,12 +1430,14 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Ping Image
 		int num = 3;
-		if(s->nPing < 700)  num=2;
-		if(s->nPing < 400)  num=1;
-		if(s->nPing < 200)  num=0;
+		if(s->nPing < 700)  num = 2;
+		if(s->nPing < 400)  num = 1;
+		if(s->nPing < 200)  num = 0;
 
 		if(s->bIgnore || s->bProcessing)
 			num = 3;
+
+		if(s->nPing == -2)	num = 4; // Server behind a NAT
 
 		// Address
 		//GetRemoteNetAddr(tMenu->tSocket, &s->sAddress);
@@ -1477,7 +1485,10 @@ void Menu_SvrList_FillList(CListview *lv)
 					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
 					   NULL, NULL);
 
-		lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
+		if (s->nPing == -2) // Server behind a NAT
+			lv->AddSubitem(LVS_TEXT, "N/A", NULL, NULL);
+		else
+			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
 		// as long as there isn't enough place to show both, the address is more important
 		// TODO: fix this later after we have a new menu implemented
 		/* if (tLXOptions->bUseIpToCountry)  {
@@ -1709,6 +1720,55 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
         svr->nPing = 999;
 }
 
+void Menu_SvrList_UpdateUDPList()
+{
+	if(!tLXOptions->bNatTraverse)
+		return;
+
+	// Open the masterservers file
+	FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
+	if(!fp1)
+		return;
+
+	while( !feof(fp1) ) {
+		std::string szLine = ReadUntil(fp1);
+		TrimSpaces(szLine);
+
+		if( szLine.length() == 0 )
+			continue;
+
+		NetworkAddr addr;
+		if( szLine.find(":") == std::string::npos )
+			continue;
+		std::string domain = szLine.substr( 0, szLine.find(":") );
+		int port = atoi(szLine.substr( szLine.find(":") + 1 ));
+		if( !GetNetAddrFromName(domain, addr) )
+			continue;
+		SetNetAddrPort( addr, port );
+		SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
+
+		CBytestream bs;
+
+		for(int f=0; f<3; f++)
+		{
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
+			bs.Send(tMenu->tSocket[SCK_NET]);
+			bs.Clear();
+		}
+
+		bs.writeInt(-1,4);
+		bs.writeString("lx::getserverlist");
+		bs.Send(tMenu->tSocket[SCK_NET]);
+
+		printf("Sent getserverlist to %s\n", szLine.c_str());
+
+		break;	// Only one UDP masterserver supported
+	}
+	
+	fclose(fp1);
+}
+
 void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 {
 	// Look the the list and find which server returned the ping
@@ -1730,7 +1790,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		svr->nNumPlayers = players;
 		svr->nMaxPlayers = maxplayers;
 		svr->nState = state;
-		svr->nPing = 999;
+		svr->nPing = -2;
 		svr->nQueries = 0;
 		svr->bgotPong = false;
 		svr->bgotQuery = false;

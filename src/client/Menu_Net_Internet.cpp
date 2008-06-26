@@ -557,50 +557,8 @@ void Menu_Net_NETUpdateList(void)
     // Clear the server list
     Menu_SvrList_ClearAuto();
 
-	if( tLXOptions->bNatTraverse )
-	{
-	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
-		if( fp1 )  {
-
-			while( !feof(fp1) ) {
-    			szLine = ReadUntil(fp1);
-				TrimSpaces(szLine);
-
-				if( szLine.length() == 0 )
-					continue;
-
-				NetworkAddr addr;
-				if( szLine.find(":") == std::string::npos )
-					continue;
-				std::string domain = szLine.substr( 0, szLine.find(":") );
-				int port = atoi(szLine.substr( szLine.find(":") + 1 ));
-				if( !GetNetAddrFromName(domain, addr) )
-					continue;
-				SetNetAddrPort( addr, port );
-				SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
-
-				CBytestream bs;
-
-				for(int f=0; f<3; f++)
-				{
-					bs.writeInt(-1,4);
-					bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-					bs.Send(tMenu->tSocket[SCK_NET]);
-					bs.Clear();
-				}
-
-				bs.writeInt(-1,4);
-				bs.writeString("lx::getserverlist");
-				bs.Send(tMenu->tSocket[SCK_NET]);
-
-				printf("Sent getserverlist to %s\n", szLine.c_str());
-
-				break;	// Only one UDP masterserver supported
-			}
-			
-			fclose(fp1);
-		}
-	}
+	// UDP list
+	Menu_SvrList_UpdateUDPList();
 
     //
     // Get the number of master servers for a progress bar

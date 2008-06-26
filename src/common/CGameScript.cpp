@@ -788,7 +788,7 @@ const weapon_t *CGameScript::FindWeapon(const std::string& name)
 	weapon_t *wpn = Weapons;
 	for(n=0;n<NumWeapons;n++,wpn++) {
 
-		if(stringcasecmp(wpn->Name, name) == 0)
+		if(stringcaseequal(wpn->Name, name))
 			return wpn;
 	}
 
