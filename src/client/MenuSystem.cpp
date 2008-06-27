@@ -1267,9 +1267,6 @@ void Menu_SvrList_RefreshList(void)
 // Refresh a single server
 void Menu_SvrList_RefreshServer(server_t *s)
 {
-	if (Menu_SvrList_ServerBehindNat(s->szAddress))
-		return;
-
     s->bProcessing = true;
 	s->bgotPong = false;
 	s->bgotQuery = false;

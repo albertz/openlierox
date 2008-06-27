@@ -126,8 +126,10 @@ bool GameOptions::Init() {
 		( tLXOptions->iMPlayerTop, "MediaPlayer.Top", 240 )
 		( tLXOptions->iMusicVolume, "MediaPlayer.MusicVolume", 50 )
 
+#ifdef WITH_G15
 		( tLXOptions->fG15SplashScreenTime, "G15.SplashScreenTime", 5.0f)
 		( tLXOptions->iG15FontSize, "G15.FontSize", 1) // 0-2, small,medium,large
+#endif
 		;
 
 	unsigned i;

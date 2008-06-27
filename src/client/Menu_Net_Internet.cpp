@@ -116,6 +116,7 @@ bool Menu_Net_NETInitialize(void)
     // Load the list
     Menu_SvrList_LoadList("cfg/svrlist.dat");
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+	Menu_SvrList_UpdateUDPList();
 	
 	Timer(&Timer::DummyHandler, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
