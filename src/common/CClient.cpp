@@ -600,7 +600,10 @@ void CClient::Frame(void)
 	SendPackets();
 
 	// Connecting process
-	Connecting();
+	if (bConnectingBehindNat)
+		ConnectingBehindNAT();
+	else
+		Connecting();
 }
 
 
@@ -720,6 +723,10 @@ void CClient::Connect(const std::string& address)
 	bBadConnection = false;
 	cServerVersion.reset();
 	fConnectTime = tLX->fCurTime;
+	bConnectingBehindNat = false;
+	iNatTraverseState = NAT_RESOLVING_DNS;
+	fLastTraverseSent = -9999;
+	fLastChallengeSent = -9999;
 
 	if(!StringToNetAddr(address, cServerAddr)) {
 
@@ -733,9 +740,168 @@ void CClient::Connect(const std::string& address)
 		}
 	}
 
-	bNatTraverseState = false;
-	// send a challenge packet immediatly (if possible)
-	Connecting(true);
+	// Connecting to a server behind a NAT?
+	if( tLXOptions->bNatTraverse && Menu_SvrList_ServerBehindNat( strServerAddr ) )  {
+		bConnectingBehindNat = true;
+
+		// Start UDP NAT traversal immediately - we know for sure that
+		// the host is registered on UDP masterserver and won't respond on ping
+
+
+		iNatTraverseState = NAT_RESOLVING_DNS;
+
+		ConnectingBehindNAT();
+
+	} else {  // Normal server
+
+		// send a challenge packet immediatly (if possible)
+		Connecting(true);
+	}
+}
+
+/////////////////////
+// Connecting to a server behind a NAT
+void CClient::ConnectingBehindNAT()
+{
+#define TRAVERSE_TIMEOUT 3
+#define CHALLENGE_TIMEOUT 3
+
+	// Check if we are connecting
+	if(iNetStatus != NET_CONNECTING || !bConnectingBehindNat)
+		return;
+
+	// To make sure we get called again
+	Timer(&Timer::DummyHandler, NULL, 100, true).startHeadless();
+
+	switch (iNatTraverseState)  {
+	case NAT_RESOLVING_DNS:  {
+
+		// Get the first UDP masterserver
+		std::string address;
+		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
+		if(fp1)  {
+			while( !feof(fp1) )  {
+				std::string line = ReadUntil(fp1);
+				TrimSpaces(line);
+
+				if( line.length() == 0 )
+					continue;
+
+				if( line.find(":") == std::string::npos )
+					continue;
+				address = line;
+				break;
+			}
+			fclose(fp1);
+		}
+
+		// Resolve the UDP master server address
+		SetNetAddrValid(cServerAddr, false);
+		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Unknown error while resolving address";
+			return;
+		}
+
+		// Check for a DNS timeout
+		if (!IsNetAddrValid(cServerAddr))  {
+			if (tLX->fCurTime - fConnectTime >= DNS_TIMEOUT)  {
+				iNetStatus = NET_DISCONNECTED;
+				bBadConnection = true;
+				strBadConnectMsg = "Could not find the master server.";
+				return;
+			}
+
+			return; // Wait for DNS resolution
+
+		// The address is valid, send the traverse
+		} else {
+			CBytestream bs;
+			SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of UDP master server
+
+			bs.writeInt(-1,4);
+			bs.writeString("lx::dummypacket");
+			bs.Send(tSocket);	// So NAT will open port
+			bs.Send(tSocket);
+			bs.Send(tSocket);
+			bs.Clear();
+
+			// The traverse packet
+			bs.writeInt(-1,4);
+			bs.writeString("lx::traverse");
+			bs.writeString(strServerAddr);	// Old address specified in connect()
+			bs.Send(tSocket);
+
+			fLastTraverseSent = tLX->fCurTime;
+			iNatTraverseState = NAT_WAIT_TRAVERSE_REPLY;
+		}
+	} break;
+
+	case NAT_WAIT_TRAVERSE_REPLY:
+		// Check for timeouts
+		if (tLX->fCurTime - fLastTraverseSent >= TRAVERSE_TIMEOUT)  {
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Cannot connect to the master server.";
+			printf("The UDP master server did not reply to the traverse packet.\n");
+			return;			
+		}
+	break;
+
+	case NAT_SEND_CHALLENGE:  {
+		// Buld the packet
+		CBytestream bs;
+		bs.writeInt(-1,4);
+		bs.writeString("lx::getchallenge");
+		bs.writeString(GetFullGameName());
+
+		// Send the packet to few ports around the given one to increase the probability
+		static const int p[] = {0, 2, 1, 3, 4, -1, -2}; // Sorted by the probability to speed up the joining process
+		int port = GetNetAddrPort(cServerAddr);
+
+		for (int i = 0; i < sizeof(p)/sizeof(int); i++)  {
+			SetNetAddrPort(cServerAddr, (ushort)(port + p[CLAMP(i, 0, (int)(sizeof(p)/sizeof(int)) - 1)]));
+			SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
+
+			// As we use this tSocket both for sending and receiving,
+			// it's safer to reset the address here.
+			bs.Send(tSocket);
+		}
+		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
+
+		// Print it to the console
+		std::string str;
+		NetAddrToString(cServerAddr, str);
+		printf("HINT: sending challenge to %s\n", str.c_str());
+
+		fLastChallengeSent = tLX->fCurTime;
+		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
+	} break;
+
+	case NAT_WAIT_CHALLENGE_REPLY:  {
+		// Check for timeouts
+		if (tLX->fCurTime - fLastChallengeSent >= CHALLENGE_TIMEOUT)  {
+
+			printf("The server behind a NAT did not reply to our challenge.\n");
+
+			// If we've tried 5 times, give up
+			if (iNumConnects >= 5)  {
+				iNetStatus = NET_DISCONNECTED;
+				bBadConnection = true;
+				strBadConnectMsg = "Cannot connect to the server.";
+			}
+			iNumConnects++;
+
+			// Start from scratch
+			iNatTraverseState = NAT_RESOLVING_DNS;
+			fLastTraverseSent = -9999;
+			fLastChallengeSent = -9999;
+
+			return;
+		}
+	} break;
+	}
 }
 
 
@@ -766,38 +932,7 @@ void CClient::Connecting(bool force)
 		return;
 	}
 
-	if( tLXOptions->bNatTraverse && iNumConnects == 0 && Menu_SvrList_ServerBehindNat( strServerAddr ) )
-	{	// Start UDP NAT traversal immediately - we know for sure that
-		// the host is registered on UDP masterserver and won't respond on ping
-		std::string address;
-	    FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
-    	if( !fp1 )
-        	return;
-	    while( !feof(fp1) )
-		{
-    	    std::string line = ReadUntil(fp1);
-			TrimSpaces(line);
-
-	        if( line.length() == 0 )
-				continue;
-
-			if( line.find(":") == std::string::npos )
-				continue;
-			address = line;
-			break;
-	    };
-		fclose(fp1);
-
-		SetNetAddrValid(cServerAddr, false);
-		fConnectTime = tLX->fCurTime;	// To disable DNS timeout
-		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
-			iNetStatus = NET_DISCONNECTED;
-			bBadConnection = true;
-			strBadConnectMsg = "Unknown error while resolving address";
-		}
-		bNatTraverseState = true;
-	}
-
+	// Check for DNS timeout
 	if(!IsNetAddrValid(cServerAddr)) {
 		if(tLX->fCurTime - fConnectTime >= DNS_TIMEOUT) { // timeout
 			iNetStatus = NET_DISCONNECTED;
@@ -807,6 +942,7 @@ void CClient::Connecting(bool force)
 		return;
 	}
 
+	// Check that we have a port
 	if(GetNetAddrPort(cServerAddr) == 0)  {
 		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
 			SetNetAddrPort(cServerAddr, LX_PORT);  // Try the default port if no port specified
@@ -814,6 +950,7 @@ void CClient::Connecting(bool force)
 			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
 	}
 
+	// Update the server address
 	std::string rawServerAddr;
 	NetAddrToString( cServerAddr, rawServerAddr );
 	if( rawServerAddr != strServerAddr )
@@ -826,28 +963,13 @@ void CClient::Connecting(bool force)
 	CBytestream bs;
 	SetRemoteNetAddr(tSocket, cServerAddr);
 
-	if( bNatTraverseState )
-	{
-		bs.writeInt(-1,4);
-		bs.writeString("lx::dummypacket");
-		bs.Send(tSocket);	// So NAT will open port
-		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Clear();
-		bs.writeInt(-1,4);
-		bs.writeString("lx::traverse");
-		bs.writeString(strServerAddr);	// Old address specified in connect()
-		bs.Send(tSocket);
-	}
-	else
-	{
-		bs.writeInt(-1,4);
-		bs.writeString("lx::getchallenge");
-		bs.writeString(GetFullGameName());
-		// As we use this tSocket both for sending and receiving,
-		// it's saver to reset the address here.
-		bs.Send(tSocket);
-	};
+	// Send the challengle packet
+	bs.writeInt(-1,4);
+	bs.writeString("lx::getchallenge");
+	bs.writeString(GetFullGameName());
+	// As we use this tSocket both for sending and receiving,
+	// it's saver to reset the address here.
+	bs.Send(tSocket);
 
 
 	Timer(&Timer::DummyHandler, NULL, 1000, true).startHeadless();

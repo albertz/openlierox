@@ -126,6 +126,11 @@ void CClient::ParseChallenge(CBytestream *bs)
 		return;
 	}
 
+#ifdef DEBUG
+	if (bConnectingBehindNat)
+		printf("Got a challenge from the server.\n");
+#endif
+
 	CBytestream bytestr;
 	bytestr.Clear();
 	iChallenge = bs->readInt(4);
@@ -160,6 +165,9 @@ void CClient::ParseChallenge(CBytestream *bs)
 		bytestr.writeInt(tProfiles[i]->B,1);
 	}
 
+	NetworkAddr addr;
+	GetRemoteNetAddr(tSocket, addr);
+	SetRemoteNetAddr(tSocket, addr);
 	bytestr.Send(tSocket);
 }
 
@@ -244,31 +252,44 @@ void CClient::ParsePong(void)
 	}
 }
 
+//////////////////
+// Parse a NAT traverse packet
 void CClient::ParseTraverse(CBytestream *bs)
 {
-	bNatTraverseState = false;
+	iNatTraverseState = NAT_SEND_CHALLENGE;
 	std::string addr = bs->readString();
 	if( addr.find(":") == std::string::npos )
 		return;
-	StringToNetAddr(addr, cServerAddr);
+	StringToNetAddr(addr, cServerAddr); // HINT: this changes the address so the lx::challenge in CClient::ConnectingBehindNat is sent to the real server
 	int port = atoi( addr.substr( addr.find(":") + 1 ) );
 	SetNetAddrPort(cServerAddr, port);
 	NetAddrToString( cServerAddr, addr );
 
-	SetRemoteNetAddr(tSocket, cServerAddr);
+	// Send a ping towards the real server and open a hole in our NAT
 	CBytestream bs1;
 	bs1.writeInt(-1,4);
-	bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
-	bs1.Send(tSocket);
-	bs1.Send(tSocket);
-	bs1.Send(tSocket);
+	bs1.writeString("lx::ping");
+
+	// Send it to few ports around the given one to increase probability
+	for (int i = -2; i <= 4; i++)  {
+		SetNetAddrPort(cServerAddr, (ushort)(port + i));
+		SetRemoteNetAddr(tSocket, cServerAddr);
+
+		// So NAT/firewall will understand we really want to connect there
+		bs1.Send(tSocket);
+		bs1.Send(tSocket);
+		bs1.Send(tSocket);
+	}
+	SetNetAddrPort(cServerAddr, (ushort)port); // Restore the original port
 
 	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
 };
 
+/////////////////////
+// Parse a connect-here packet (when a public-ip client connects to a symmetric-nat server)
 void CClient::ParseConnectHere(CBytestream *bs)
 {
-	bNatTraverseState = false;
+	iNatTraverseState = NAT_SEND_CHALLENGE;
 
 	NetworkAddr addr;
 	GetRemoteNetAddr(tSocket, addr);

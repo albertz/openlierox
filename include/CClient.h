@@ -189,6 +189,13 @@ enum {
 	DL_UDP
 };
 
+enum  {
+	NAT_RESOLVING_DNS = 0,
+	NAT_WAIT_TRAVERSE_REPLY,
+	NAT_SEND_CHALLENGE,
+	NAT_WAIT_CHALLENGE_REPLY
+};
+
 
 class CClient {
 public:
@@ -456,7 +463,10 @@ private:
 	std::string	sSpectatorViewportMsg;
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
-	bool		bNatTraverseState;
+	int			iNatTraverseState;
+	bool		bConnectingBehindNat;
+	float		fLastChallengeSent;
+	float		fLastTraverseSent;
 
 public:
 	// HINT: saves the current time of the simulation
@@ -563,6 +573,7 @@ public:
 	// Network
 	void		Connect(const std::string& address);
 	void		Connecting(bool force = false);
+	void		ConnectingBehindNAT();
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendGameReady();

@@ -872,6 +872,10 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	if(getNLaddr(addr) == NULL)
 		return false;
 
+	if (StringToNetAddr(name, addr))  {
+		return true;
+	}
+
 	if(GetFromDnsCache(name, addr)) {
 		SetNetAddrValid(addr, true);
 		return true;

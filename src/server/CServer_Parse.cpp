@@ -939,6 +939,8 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	int			ChallengeToSet = -1;
 	CBytestream	bs;
 
+	//printf("Got GetChallenge packet\n");
+
 	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// If were in the game, deny challenges
@@ -1007,6 +1009,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	int				i, p, player = -1;
 	int				numplayers;
 	CClient			*cl, *newcl;
+
+	//printf("Got Connect packet\n");
 
 	// Connection details
 	int		ProtocolVersion;
@@ -1792,11 +1796,20 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.Clear();
 	bs1.writeInt(-1, 4);
 	bs1.writeString("lx::pong");
-	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
-	// Send 3 times - first packet may be ignored by remote NAT
-	bs1.Send(tNatTraverseSockets[socknum]);
-	bs1.Send(tNatTraverseSockets[socknum]);
-	bs1.Send(tNatTraverseSockets[socknum]);
+
+	int port = GetNetAddrPort(adrClient);
+	for (short i = -2; i <= 4; i++)  {
+		SetNetAddrPort(adrClient, (ushort)(port + i));
+		SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
+
+		// Send 3 times - first packet may be ignored by remote NAT
+		bs1.Send(tNatTraverseSockets[socknum]);
+		bs1.Send(tNatTraverseSockets[socknum]);
+		bs1.Send(tNatTraverseSockets[socknum]);
+	}
+	SetNetAddrPort(adrClient, (ushort)port);
+
+
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
 	Timer( &SendConnectHereAfterTimeout,
 			new SendConnectHereAfterTimeout_Data(tNatTraverseSockets[socknum], adrClient), 3000, true ).startHeadless();
