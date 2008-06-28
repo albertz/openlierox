@@ -307,12 +307,14 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// increase the suicide variable and proceed
 	if (killer == victim)  {
 		iSuicidesInPacket++;
-		if (bs->peekByte() == C2S_DEATH)  {
-			std::string s = bs->peekData(3);
-			if (s.size() == 3)  {
-				s.erase(s.begin()); // The C2S_DEATH byte
-				if (((uchar)s[0] == (uchar)victim) && ((uchar)s[1] == (uchar)killer))
-					return;
+		if (!bs->isPosAtEnd())  {
+			if (bs->peekByte() == C2S_DEATH)  {
+				std::string s = bs->peekData(3);
+				if (s.size() == 3)  {
+					s.erase(s.begin()); // The C2S_DEATH byte
+					if (((uchar)s[0] == (uchar)victim) && ((uchar)s[1] == (uchar)killer))
+						return;
+				}
 			}
 		}
 	}
