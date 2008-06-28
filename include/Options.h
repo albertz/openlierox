@@ -231,7 +231,6 @@ public:
 
 	// G15
 #ifdef WITH_G15
-	float	fG15SplashScreenTime;
 	int		iG15FontSize;
 #endif //WITH_G15
 

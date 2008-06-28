@@ -23,6 +23,7 @@
 #include <libg15render.h>
 
 const float G15FRAMETIME = 0.25f; // 4 frames/second, we shouldn't need more
+const float G15SPLASHTIME = 5.0f;
 class OLXG15_weapon_t
 {
 // To let it access chargeIndicator

@@ -117,9 +117,12 @@ void OLXG15_t::frame()
 		gettimeofday(&curTime,NULL);
 
 		timeShown += tLX->fRealDeltaTime;
-		if (timeShown >= tLXOptions->fG15SplashScreenTime || startTime.tv_sec + 5 < curTime.tv_sec)
+		if (timeShown >= G15SPLASHTIME || startTime.tv_sec + (int) G15SPLASHTIME < curTime.tv_sec)
 		{
 			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
+			// Temporary incase someone compiles it with G15
+			std::string tmp = "This is all it can do so far :(";
+			g15r_renderString (&canvas, (unsigned char*)tmp.c_str(), 0, G15_TEXT_MED, centerAlign(tmp,G15_TEXT_MED), yAlign(G15_HEIGHT/2,G15_TEXT_MED));
 			g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 			showingSplash = false;
 			timeShown = 0.0f;
@@ -322,8 +325,6 @@ void OLXG15_t::clearReload(const int& row, const int& size)
 
 void OLXG15_t::showSplashScreen()
 {
-	if (tLXOptions->fG15SplashScreenTime == 0.0f)
-		return;
 	drawXBM(&canvas,OLX_g15logo_ver4_bits,OLX_g15logo_ver4_width,OLX_g15logo_ver4_height,0,0);
 	showingSplash = true;
 }
