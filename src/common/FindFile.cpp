@@ -567,7 +567,12 @@ std::ifstream* OpenGameFileR(const std::string& path) {
 	if(fullfn.size() != 0) {
 		try {
 			std::ifstream* f = new std::ifstream(fullfn.c_str(), std::ios::in | std::ios::binary);
-			return f;
+			if (f->is_open())
+				return f;
+			else {
+				delete f;
+				return NULL;
+			}
 		} catch(...) {}
 		return NULL;
 	}
