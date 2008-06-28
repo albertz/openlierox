@@ -1425,13 +1425,15 @@ void Menu_SvrList_FillList(CListview *lv)
 
 	for(; s; s=s->psNext) {
 
+		bool processing = s->bProcessing && !Menu_SvrList_ServerBehindNat( s->szAddress );
+
 		// Ping Image
 		int num = 3;
 		if(s->nPing < 700)  num = 2;
 		if(s->nPing < 400)  num = 1;
 		if(s->nPing < 200)  num = 0;
 
-		if(s->bIgnore || s->bProcessing)
+		if(s->bIgnore || processing)
 			num = 3;
 
 		if(s->nPing == -2)	num = 4; // Server behind a NAT
@@ -1457,7 +1459,7 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Colour
 		int colour = tLX->clListView;
-		if(s->bProcessing)
+		if(processing)
 			colour = tLX->clDisabled;
 
 
@@ -1465,12 +1467,12 @@ void Menu_SvrList_FillList(CListview *lv)
 		lv->AddItem(s->szAddress, 0, colour);
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
-        if(s->bProcessing) {
+        if(processing) {
 			if(IsNetAddrValid(s->sAddress))
 				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
 			else
 				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);
-        } else if( num == 3 && ! Menu_SvrList_ServerBehindNat( s->szAddress ) )
+        } else if( num == 3 )
             lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
@@ -1791,7 +1793,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		svr->nQueries = 0;
 		svr->bgotPong = false;
 		svr->bgotQuery = false;
-		svr->bProcessing = true;
+		svr->bProcessing = false;
 		StringToNetAddr( addr, svr->sAddress );
 		tServersBehindNat.insert(addr);
 	};
