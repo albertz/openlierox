@@ -863,8 +863,8 @@ void CClient::ConnectingBehindNAT()
 		static const int p[] = {0, 2, 1, 3, 4, -1, -2}; // Sorted by the probability to speed up the joining process
 		int port = GetNetAddrPort(cServerAddr);
 
-		for (int i = 0; i < sizeof(p)/sizeof(int); i++)  {
-			SetNetAddrPort(cServerAddr, (ushort)(port + p[CLAMP(i, 0, (int)(sizeof(p)/sizeof(int)) - 1)]));
+		for (size_t i = 0; i < sizeof(p)/sizeof(int); i++)  {
+			SetNetAddrPort(cServerAddr, (ushort)(port + p[i]));
 			SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
 
 			// As we use this tSocket both for sending and receiving,

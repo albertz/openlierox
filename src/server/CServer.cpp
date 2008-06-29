@@ -1628,8 +1628,6 @@ void GameServer::Shutdown(void)
 	};
 
 	if(cClients) {
-		for(i=0;i<MAX_CLIENTS;i++)
-			cClients[i].Shutdown();
 		delete[] cClients;
 		cClients = NULL;
 	}
