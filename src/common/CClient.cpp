@@ -770,9 +770,6 @@ void CClient::ConnectingBehindNAT()
 	if(iNetStatus != NET_CONNECTING || !bConnectingBehindNat)
 		return;
 
-	// To make sure we get called again
-	Timer(&Timer::DummyHandler, NULL, 100, true).startHeadless();
-
 	switch (iNatTraverseState)  {
 	case NAT_RESOLVING_DNS:  {
 
@@ -813,6 +810,9 @@ void CClient::ConnectingBehindNAT()
 				return;
 			}
 
+			// To make sure we get called again
+			Timer(&Timer::DummyHandler, NULL, 40, true).startHeadless();
+
 			return; // Wait for DNS resolution
 
 		// The address is valid, send the traverse
@@ -835,6 +835,9 @@ void CClient::ConnectingBehindNAT()
 
 			fLastTraverseSent = tLX->fCurTime;
 			iNatTraverseState = NAT_WAIT_TRAVERSE_REPLY;
+
+			// To make sure we get called again
+			Timer(&Timer::DummyHandler, NULL, (Uint32)(TRAVERSE_TIMEOUT * 1000), true).startHeadless();
 		}
 	} break;
 
@@ -875,6 +878,9 @@ void CClient::ConnectingBehindNAT()
 		NetAddrToString(cServerAddr, str);
 		printf("HINT: sending challenge to %s\n", str.c_str());
 
+		// To make sure we get called again
+		Timer(&Timer::DummyHandler, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
+
 		fLastChallengeSent = tLX->fCurTime;
 		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
 	} break;
@@ -897,6 +903,9 @@ void CClient::ConnectingBehindNAT()
 			iNatTraverseState = NAT_RESOLVING_DNS;
 			fLastTraverseSent = -9999;
 			fLastChallengeSent = -9999;
+
+			// To make sure we get called again
+			Timer(&Timer::DummyHandler, NULL, 10, true).startHeadless();
 
 			return;
 		}
