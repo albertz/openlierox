@@ -139,6 +139,7 @@ public:
 		bUsed = false;
 		fSpeed = 0;
 		fLife = 0;
+		fSpawnTime = 0;
 		tProjInfo = NULL;
 		fLastTrailProj = 0;
 		iColour = 0;
@@ -154,6 +155,7 @@ private:
 
 	bool		bUsed;
 	int			iType;
+	float		fSpawnTime;
 	float		fLife;
 	float		fExtra;
 	int			iOwner;

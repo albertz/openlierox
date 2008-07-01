@@ -56,6 +56,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;
+	fSpawnTime = time;
 
 	fSpeed = _vel.GetLength();
 
@@ -267,6 +268,12 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		vVelocity = vOldVel;
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
+
+	// Make wallshooting possible
+	// NOTE: wallshooting is a bug in old LX physics that many players got used to
+	const float time_no_col = 0.01f + GetRandomNum() / 1000;
+	if (tLX->fCurTime - fSpawnTime <= time_no_col)
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
 	int grid_w = map->getGridWidth();
