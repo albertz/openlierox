@@ -2575,172 +2575,189 @@ bool CWorm::AI_Shoot()
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	const weapon_t *weap = getCurWeapon()->Weapon;
-	if(weap && weap->Projectile) switch (weap->Projectile->Hit_Type)  {
-	//case PJ_NOTHING:
-	//case PJ_CARVE:
-	case PJ_DIRT:
-	case PJ_GREENDIRT:
-		//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
-		// don't shoot this shit
-		break;
-	default:
-		CVec direction = (psAITarget->getPos() - vPos).Normalize();
-		// speed of target in the direction (moving away from us)
-		float targ_speed = direction.Scalar(*psAITarget->getVelocity());
-		float my_speed = direction.Scalar(vVelocity);
-
-		// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
-		float v = (float)weap->ProjSpeed/* *weap->Projectile->Dampening */ + weap->ProjSpeedVar*100.0f + my_speed;
-		if(v < 0) {
-			// we have high velocities, danger to shot...
-			// if v<0, we would shoot in the wrong direction
-			//printf("velocities(%f) too high...\n", v);
-		/*	printf("  ProjSpeed = %f\n", (float)weap->ProjSpeed);
-			printf("  Dampening = %f\n", (float)weap->Projectile->Dampening);
-			printf("  ProjSpeedVar = %f\n", weap->ProjSpeedVar);
-			printf("  my_speed = %f\n", my_speed);
-			printf("  targ_speed = %f\n", targ_speed); */
-			bAim = false;
-			break;
-		}
-
-		// Distance
-		float x = (cTrgPos.x-vPos.x);
-		float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
-
-		// Count with the gravity of the target worm
-		/*if (iAiGameType == GAM_RIFLES && psAITarget->CheckOnGround(pcMap))  {
-			float flight_time = x*x+y*y/v;
-			CVec trg_arriv_speed = CVec(psAITarget->getVelocity()->x,psAITarget->getVelocity()->y+wd->Gravity*flight_time/2);
-			v += targ_speed;  // Get rid of the old target speed
-
-			// Add the new target speed
-			direction = (psAITarget->getPos() - vPos).Normalize();
-			targ_speed =  direction.Scalar(trg_arriv_speed);
-			v -= targ_speed;
-		}*/
-
-
-		// how long it takes for hitting the target
-		float apriori_time = v ? sqrt(x*x + y*y) / v : 0;
-		apriori_time *= 0.7f; // it's no direct line but a polynom, so this could give better results :)
-		if(apriori_time < 0) {
-			// target is faster than the projectile
-			// shoot somewhere in the other direction
-//			v = -v; apriori_time = -apriori_time;
-//			x = -x; y = -y;
-			// perhaps, this is good
-//			tState.bJump = true;
-			printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
-
-		} else { // apriori_time >= 0
-			// where the target would be
-			x += apriori_time*psAITarget->getVelocity()->x;
-			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
-		}
-
-		// Gravity
-		int	g = 100;
-		if(weap->Projectile->UseCustomGravity)
-			g = weap->Projectile->Gravity;
-
-		proj_t *tmp = weap->Projectile;
-		while(tmp)  {
-			if (tmp->UseCustomGravity)  {
-				if (tmp->Gravity > g)
-					g = tmp->Gravity;
-			} else
-				if (g < 100)
-					g = 100;
-
-			// If there are any other projectiles, that are spawned with the main one, try their gravity
-			if (tmp->Timer_Projectiles)  {
-				if (tmp->Timer_Time >= 0.5f)
-					break;
-			}
-			else if (tmp->Hit_Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
+	if(weap && weap->Projectile)  {
+		switch (weap->Projectile->Hit_Type)  {
+			//case PJ_NOTHING:
+			//case PJ_CARVE:
+			case PJ_DIRT:
+			case PJ_GREENDIRT:
+				//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
+				// don't shoot this shit
 				break;
+			default:
+				CVec direction = (psAITarget->getPos() - vPos).Normalize();
+				// speed of target in the direction (moving away from us)
+				float targ_speed = direction.Scalar(*psAITarget->getVelocity());
+				float my_speed = direction.Scalar(vVelocity);
 
-			tmp = tmp->Projectile;
-		}
+				// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
+				float v = (float)weap->ProjSpeed/* *weap->Projectile->Dampening */ + weap->ProjSpeedVar*100.0f + my_speed;
+				if(v < 0) {
+					// we have high velocities, danger to shot...
+					// if v<0, we would shoot in the wrong direction
+					//printf("velocities(%f) too high...\n", v);
+				/*	printf("  ProjSpeed = %f\n", (float)weap->ProjSpeed);
+					printf("  Dampening = %f\n", (float)weap->Projectile->Dampening);
+					printf("  ProjSpeedVar = %f\n", weap->ProjSpeedVar);
+					printf("  my_speed = %f\n", my_speed);
+					printf("  targ_speed = %f\n", targ_speed); */
+					bAim = false;
+					break;
+				}
 
-		// Get the alpha
-		bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
-		if (!bAim) {
-			//printf("cannot calc the alpha, v=%f, g=%i, x=%f, y=%f\n", v,g,x,y);
-			break;
-		}
+				// Distance
+				float x = (cTrgPos.x-vPos.x);
+				float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
 
-		// AI diff level
-		// Don't shoot so exactly on easier skill levels
-		static const int diff[4] = {13,8,3,0};
+				// Count with the gravity of the target worm
+				/*if (iAiGameType == GAM_RIFLES && psAITarget->CheckOnGround(pcMap))  {
+					float flight_time = x*x+y*y/v;
+					CVec trg_arriv_speed = CVec(psAITarget->getVelocity()->x,psAITarget->getVelocity()->y+wd->Gravity*flight_time/2);
+					v += targ_speed;  // Get rid of the old target speed
 
-		if (tLX->fCurTime-fLastRandomChange >= 0.5f)  {
-			iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
-			fLastRandomChange = tLX->fCurTime;
-		}
+					// Add the new target speed
+					direction = (psAITarget->getPos() - vPos).Normalize();
+					targ_speed =  direction.Scalar(trg_arriv_speed);
+					v -= targ_speed;
+				}*/
 
-		alpha += iRandomSpread;
 
-		// Can we hit the target?
-		//printf("proj-speed: %f\n", v);
-		if (g <= 10 || v >= 200)  {
-			// we already have bDirect==false, if we have no direct free way
-			bAim = bDirect;
-		}
+				// how long it takes for hitting the target
+				float apriori_time = v ? sqrt(x*x + y*y) / v : 0;
+				apriori_time *= 0.7f; // it's no direct line but a polynom, so this could give better results :)
+				if(apriori_time < 0) {
+					// target is faster than the projectile
+					// shoot somewhere in the other direction
+		//			v = -v; apriori_time = -apriori_time;
+		//			x = -x; y = -y;
+					// perhaps, this is good
+		//			tState.bJump = true;
+					printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
 
-		if (!bAim)
-			break;
+				} else { // apriori_time >= 0
+					// where the target would be
+					x += apriori_time*psAITarget->getVelocity()->x;
+					y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
+				}
 
-		bShoot = true;
+				// Gravity
+				int	g = 100;
+				if(weap->Projectile->UseCustomGravity)
+					g = weap->Projectile->Gravity;
 
-		float trg_dist2 = (cTrgPos - vPos).GetLength2();
-		if (trg_dist2 >= 2500)  {
-			if (fabs(fAngle-alpha) > (5 + abs(iRandomSpread)))  {
-				// Move the angle at the same speed humans are allowed to move the angle
-				if(alpha > fAngle)
-					fAngle += wd->AngleSpeed * tLX->fDeltaTime;
-				else if(alpha < fAngle)
-					fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
-				// still aiming ...
-				bAim = fabs(fAngle-alpha) <= (5 + abs(iRandomSpread));
+				proj_t *tmp = weap->Projectile;
+				while(tmp)  {
+					if (tmp->UseCustomGravity)  {
+						if (tmp->Gravity > g)
+							g = tmp->Gravity;
+					} else
+						if (g < 100)
+							g = 100;
+
+					// If there are any other projectiles, that are spawned with the main one, try their gravity
+					if (tmp->Timer_Projectiles)  {
+						if (tmp->Timer_Time >= 0.5f)
+							break;
+					}
+					else if (tmp->Hit_Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
+						break;
+
+					tmp = tmp->Projectile;
+				}
+
+				// Get the alpha
+				bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
+				if (!bAim) {
+					//printf("cannot calc the alpha, v=%f, g=%i, x=%f, y=%f\n", v,g,x,y);
+					break;
+				}
+
+				// AI diff level
+				// Don't shoot so exactly on easier skill levels
+				static const int diff[4] = {13,8,3,0};
+
+				if (tLX->fCurTime-fLastRandomChange >= 0.5f)  {
+					iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
+					fLastRandomChange = tLX->fCurTime;
+				}
+
+				alpha += iRandomSpread;
+
+				// Can we hit the target?
+				//printf("proj-speed: %f\n", v);
+				if (g <= 10 || v >= 200)  {
+					// we already have bDirect==false, if we have no direct free way
+					bAim = bDirect;
+				}
+
+				if (!bAim)
+					break;
+
+				bShoot = true;
+
+				float trg_dist2 = (cTrgPos - vPos).GetLength2();
+				if (trg_dist2 >= 2500)  {
+					if (fabs(fAngle-alpha) > (5 + abs(iRandomSpread)))  {
+						// Move the angle at the same speed humans are allowed to move the angle
+						if(alpha > fAngle)
+							fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+						else if(alpha < fAngle)
+							fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
+						// still aiming ...
+						bAim = fabs(fAngle-alpha) <= (5 + abs(iRandomSpread));
+					}
+					else  {
+						bAim = true;
+						fAngle = alpha;
+					}
+
+					if (x < 0)
+						iDirection = DIR_LEFT;
+					else
+						iDirection = DIR_RIGHT;
+				} else if (trg_dist2 >= 100) {
+					bAim = AI_SetAim(cTrgPos);
+					if (iAiGameType != GAM_MORTARS) // Not in mortars - close shoot = suicide
+						bShoot = true; // We are so close, that we almost cannot miss, just shoot
+					break;
+				} else { // Too close, get away!
+					bAim = false;
+					bShoot = false;
+					nAIState = AI_MOVINGTOTARGET;
+				}
+
+				// Check if we can aim with this angle
+				// HINT: we have to do it here because weaponCanHit requires already finished aiming
+				if (bAim && g >= 10 && v <= 200)  {
+					bShoot = bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
+				}
+				
+
+				//if(bAim) printf("shooting!!!\n");
+
+				/*strcpy(tLX->debug_string,weap->Name);
+				if (tLX->fCurTime-flast > 1.0f)  {
+					tLX->debug_float = alpha;
+					flast = tLX->fCurTime;
+				}*/
+				break;
+				//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
 			}
+
+	// Not a projectile weapon
+	} else {
+		// Beam
+		if (weap->Type == WPN_BEAM)  {
+			int dist = (int)(cTrgPos - vPos).GetLength();
+			if (bDirect && weap->Bm_Length >= dist) // Check that the beam can reach the target
+				bShoot = bAim = AI_SetAim(cTrgPos) || dist <= 25;
 			else  {
-				bAim = true;
-				fAngle = alpha;
+				if (bDirect)
+					AI_SetAim(cTrgPos); // Aim - when we come closer, we won't have to aim anymore
+				bShoot = bAim = false;
 			}
-
-			if (x < 0)
-				iDirection = DIR_LEFT;
-			else
-				iDirection = DIR_RIGHT;
-		} else if (trg_dist2 >= 100) {
-			bAim = AI_SetAim(cTrgPos);
-			if (iAiGameType != GAM_MORTARS) // Not in mortars - close shoot = suicide
-				bShoot = true; // We are so close, that we almost cannot miss, just shoot
-			break;
-		} else { // Too close, get away!
-			bAim = false;
-			bShoot = false;
-			nAIState = AI_MOVINGTOTARGET;
 		}
 
-		// Check if we can aim with this angle
-		// HINT: we have to do it here because weaponCanHit requires already finished aiming
-		if (bAim && g >= 10 && v <= 200)  {
-			bShoot = bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
-		}
-		
-
-		//if(bAim) printf("shooting!!!\n");
-
-		/*strcpy(tLX->debug_string,weap->Name);
-		if (tLX->fCurTime-flast > 1.0f)  {
-			tLX->debug_float = alpha;
-			flast = tLX->fCurTime;
-		}*/
-		break;
-		//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
 	}
 
 	//

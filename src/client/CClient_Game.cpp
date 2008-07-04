@@ -563,7 +563,7 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 
 	if(proj == NULL) {
 		// Warning: Out of space for a projectile
-		std::cout << "Warning: Out of space for SpawnProjectile" << std::endl;
+		//std::cout << "Warning: Out of space for SpawnProjectile" << std::endl;
 		return;
 	}
 
