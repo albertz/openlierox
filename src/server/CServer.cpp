@@ -243,7 +243,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
     fLastRegister = -99999;
-	fLastRegisterUdp = tLX->fCurTime - 500;
+	fLastRegisterUdp = tLX->fCurTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
 
@@ -509,6 +509,9 @@ int GameServer::StartGame()
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
 
+	// Re-register the server to reflect the state change
+	RegisterServerUdp();
+
 	return true;
 }
 
@@ -578,6 +581,9 @@ void GameServer::BeginMatch(void)
 
 	// perhaps the state is already bad
 	RecheckGame();
+
+	// Re-register the server to reflect the state change in the serverlist
+	RegisterServerUdp();
 }
 
 
