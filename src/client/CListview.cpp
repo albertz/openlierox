@@ -1083,7 +1083,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		}
 
 		y+=h;
-		if(y>=iY+iHeight)
+		if(y > iY+iHeight)
 			break;
 	}
 
@@ -1229,7 +1229,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 		}
 
 		y+=h;
-		if(y>=iY+iHeight-h)
+		if(y>=iY+iHeight)
 			break;
 	}
 
