@@ -93,7 +93,7 @@ void EndError(void)
 void SystemError(const std::string& text)
 {
 
-	SDL_ShowCursor(SDL_ENABLE);	
+	// SDL_ShowCursor(SDL_ENABLE);	// Commented out because of a bug in SDL that causes a crash when SDL_SetVideoMode fails
 	// TODO: uniform message system
 	if (text.size() != 0)
 		printf("SystemError: %s\n", text.c_str());

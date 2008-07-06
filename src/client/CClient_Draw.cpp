@@ -2060,6 +2060,9 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
                 int a_type = ViewportMgr.SendMessage(v1_Type, CBM_GETCURINDEX, (DWORD)0,0);
                 int b_on = ViewportMgr.SendMessage(v2_On, CKM_GETCHECK, (DWORD)0,0);
                 int b_type = ViewportMgr.SendMessage(v2_Type, CBM_GETCURINDEX, (DWORD)0,0);
+				if (!v1Target->getSelectedItem() || !v2Target->getSelectedItem())
+					return;
+
 				int v1_target = v1Target->getSelectedItem()->iTag;
 				int v2_target = v2Target->getSelectedItem()->iTag;
 
