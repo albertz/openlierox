@@ -527,7 +527,8 @@ void Menu_LocalShowMinimap(bool bReload)
 
         // Create a random map
         if( buf == "_random_" ) {
-            if( map.New(504,350,map.findRandomTheme()) ) {
+            if( map.Create(504,350,map.findRandomTheme(), 128, 96) ) {
+				map.TileMap();
 			    map.ApplyRandom();
 
                 // Free any old random map object list

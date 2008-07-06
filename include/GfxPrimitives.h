@@ -462,18 +462,25 @@ inline void	DrawImageStretchKey(SDL_Surface * bmpDest, const SmartPointer<SDL_Su
 
 /////////////////
 // Draws the image resized according to ratios
-void DrawImageResizedAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
-inline void DrawImageResizedAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio) {
+void DrawImageResizedAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+void DrawImageResizedAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, int dw, int dh);
+inline void DrawImageResizedAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio) {
 	DrawImageResizedAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, xratio, yratio);
+}
+inline void DrawImageResizedAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, int dw, int dh) {
+	DrawImageResizedAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, dw, dh);
 }
 
 /////////////////
 // Draws the image nicely resampled, blur says how much the result should be blurred
-void DrawImageResampledAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f);
-inline void DrawImageResampledAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f) {
-	DrawImageResampledAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, xratio, yratio, blur );
-};
-
+void DrawImageResampledAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+void DrawImageResampledAdv( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, int dw, int dh);
+inline void DrawImageResampledAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio) {
+	DrawImageResampledAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, xratio, yratio );
+}
+inline void DrawImageResampledAdv( SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, int dw, int dh)  {
+	DrawImageResampledAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, dw, dh );
+}
 
 //
 // Pixel and color routines

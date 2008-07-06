@@ -187,14 +187,13 @@ private:
 
 	friend void CCache::SaveMap(const std::string& file, CMap *map);
 
-	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h);
 	bool		NewFrom(CMap *map);
 	void		SaveToCache();
 	bool		LoadFromCache();
 
 public:
 	// Methods
-
+	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
 	bool		LoadOriginal(FILE *fp);

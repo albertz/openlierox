@@ -250,6 +250,9 @@ void CMap::ApplyRandom(void)
 		return;
 	}
 
+	// Repaint the minimap after this
+	bMiniMapDirty = true;
+
 	// Spawn 15 random rocks
 	for(n = 0; n < nNumRocks; n++) {
 		x = (int)(fabs(GetRandomNum()) * (float)Width);
@@ -307,7 +310,7 @@ void CMap::ApplyRandom(void)
     // Calculate the total dirt count
     CalculateDirtCount();
 
-	// No need to update the minimap, it's updated in CarveHole and PlaceXXX
+	UpdateMiniMap();
 }
 
 
@@ -639,7 +642,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	UpdateDrawImage(x, y, w, h);
 
 	// Update minimap
-	UpdateMiniMapRect(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
+	UpdateMiniMapRect(x - shadow_update - 10, y - shadow_update - 10, w + 2 * shadow_update + 20, h + 2 * shadow_update + 20);
 }
 
 
@@ -932,7 +935,7 @@ void CMap::TileMap(void)
     CalculateShadowMap();
 
     // Calculate the total dirt count
-    CalculateDirtCount();
+    nTotalDirtCount = Width * Height;
 
 	bMiniMapDirty = true;
 }
@@ -1774,7 +1777,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 	// Update the draw image
 	UpdateDrawImage(sx, sy, clip_w, clip_h);
 
-	UpdateMiniMapRect(sx, sy, clip_w, clip_h);
+	bMiniMapDirty = true;
 }
 
 
@@ -1857,14 +1860,10 @@ void CMap::UpdateMiniMap(bool force)
 	if(!bMiniMapDirty && !force)
 		return;
 
-	// Calculate ratios
-	float xratio = (float)bmpMiniMap.get()->w / (float)bmpImage.get()->w;
-	float yratio = (float)bmpMiniMap.get()->h / (float)bmpImage.get()->h;
-
 	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0.0f, 0.0f, 0, 0, bmpImage.get()->w, bmpImage.get()->h, xratio, yratio, MINIMAP_BLUR);
+		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 	else
-		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0.0f, 0.0f, 0, 0, bmpImage.get()->w, bmpImage.get()->h, xratio, yratio);
+		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
@@ -1875,22 +1874,21 @@ void CMap::UpdateMiniMap(bool force)
 // X, Y, W and H apply to the bmpImage, not bmpMinimap
 void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 {
+	// If the minimap is going to be fully repainted, just move on
+	if (bMiniMapDirty)
+		return;
+
 	// Calculate ratios
 	const float xratio = (float)bmpMiniMap.get()->w / (float)bmpImage.get()->w;
 	const float yratio = (float)bmpMiniMap.get()->h / (float)bmpImage.get()->h;
 
-	const float sx = (float)((int)(x * xratio) / xratio);
-	const float sy = (float)((int)(y * yratio) / yratio);
 	const int dx = (int)((float)x * xratio);
 	const int dy = (int)((float)y * yratio);
 
 	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, sx, sy, dx, dy, w, h, xratio, yratio, MINIMAP_BLUR);
+		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 	else
-		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, sx, sy, dx, dy, w, h, xratio, yratio);
-
-	// Not dirty anymore
-	bMiniMapDirty = false;
+		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 }
 
 
