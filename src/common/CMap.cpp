@@ -706,69 +706,16 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 	}
 }
 
-// This algo is taken from http://scale2x.sourceforge.net/algorithm.html
-// Thanks goes to the AdvanceMAME team!
-void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int w, int h) {
-	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
-		return;
-
-	int sx2 = sx + w;
-	int sy2 = sy + h;
-	for(; sy < sy2; ++sy) {
-		for(sx = sx2 - w; sx < sx2; ++sx) {
-			Color A,B,C,D,E,F,G,H,I;
-			A = Resample2_getColor(bmpSrc, sx-1, sy-1);
-			B = Resample2_getColor(bmpSrc, sx, sy-1);
-			C = Resample2_getColor(bmpSrc, sx+1, sy-1);
-			D = Resample2_getColor(bmpSrc, sx-1, sy);
-			E = Resample2_getColor(bmpSrc, sx, sy);
-			F = Resample2_getColor(bmpSrc, sx+1, sy);
-			G = Resample2_getColor(bmpSrc, sx-1, sy+1);
-			H = Resample2_getColor(bmpSrc, sx, sy+1);
-			I = Resample2_getColor(bmpSrc, sx-1, sy+1);
-
-			Color dstE[4];
-			if (B != H && D != F) {
-				dstE[0] = D == B ? D : E;
-				dstE[1] = B == F ? F : E;
-				dstE[2] = D == H ? D : E;
-				dstE[3] = H == F ? F : E;
-			} else {
-				dstE[0] = E;
-				dstE[1] = E;
-				dstE[2] = E;
-				dstE[3] = E;
-			}
-
-			for(int dy = 0; dy < 2; ++dy)
-				for(int dx = 0; dx < 2; ++dx) {
-					Uint8* dst_px = (Uint8 *)bmpDest->pixels + (sy*2 + dy) * bmpDest->pitch + (sx*2 + dx) * bmpDest->format->BytesPerPixel;
-					PutPixelToAddr(dst_px, dstE[dy*2 + dx].pixel(bmpDest->format), bmpDest->format->BytesPerPixel);
-				}
-		}
-	}
-}
-
 
 ////////////////////
 // Updates the bmpDrawImage with data from bmpImage
 // X, Y, W, H apply to bmpImage, not bmpDrawImage
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
-	if(tLXOptions->bAntiAliasing) {
-		// HINT: we're not using DrawImageResampled when antialiasing is enabled because
-		// the blurred level looks weird
-		//DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
-
-		//DrawImageResampledAdv(bmpDrawImage.get(), bmpImage.get(), x, y, x*2, y*2, w, h, 2.0f, 2.0f, 1.0f);
-
-		//DrawImageResampled2(bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
-
-		DrawImageScale2x(bmpDrawImage.get(), bmpImage.get(), x, y, w, h);
-
-	} else
+	if(tLXOptions->bAntiAliasing)
+		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
+	else
 		DrawImageStretch2(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
-
 }
 
 ////////////////

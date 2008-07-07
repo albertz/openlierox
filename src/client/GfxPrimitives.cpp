@@ -712,6 +712,195 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 		SDL_SoftStretch(bmpSrc, &src, bmpDest, &dst);
 }
 
+//
+// Helper functions for the Scale2x algorithm
+//
+
+/*
+	[A] [B] [C]
+	[D] [E] [F]
+	[G] [H] [I]
+*/
+
+// HINT: the A, C, G, I pixels are not used by the Scale2x algorithm
+enum { B = 0, D, E, F, H };
+
+////////////////////
+// Does the source and destination surface clipping
+static bool Clip2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int& sx, int& sy, int& dx, int& dy, int& w, int& h)
+{
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+		return false;
+
+	int dw = w * 2;
+	int dh = h * 2;
+
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+		return false;
+
+	w = MIN(w, dw/2);
+	h = MIN(h, dh/2);
+
+	return true;
+}
+
+static void Scale2xPixel(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 *colors)
+{
+	// Get the four colors to put on the dest surface
+	Uint32 dstE[4];
+	if (colors[B] != colors[H] && colors[D] != colors[F]) {
+		dstE[0] = colors[D] == colors[B] ? colors[D] : colors[E];
+		dstE[1] = colors[B] == colors[F] ? colors[F] : colors[E];
+		dstE[2] = colors[D] == colors[H] ? colors[D] : colors[E];
+		dstE[3] = colors[H] == colors[F] ? colors[F] : colors[E];
+	} else {
+		dstE[0] = dstE[1] = dstE[2] = dstE[3] = colors[E];
+	}
+
+	// Put the 2x2 square on the dest surface
+	int bpp = bmpDest->format->BytesPerPixel;
+
+	Uint8 *pixel = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bpp;
+	PutPixelToAddr(pixel, dstE[0], bpp);
+	PutPixelToAddr(pixel + bpp, dstE[1], bpp);
+
+	pixel += bmpDest->pitch;
+	PutPixelToAddr(pixel, dstE[2], bpp);
+	PutPixelToAddr(pixel + bpp, dstE[3], bpp);
+}
+
+static void Scale2xPixel_FF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[B] = colors[D] = colors[E] = GetPixel(bmpSrc, sx, sy);;
+	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
+	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+static void Scale2xPixel_LF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[B] = colors[E] = colors[F] = GetPixel(bmpSrc, sx, sy);
+	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
+	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+static void Scale2xPixel_FL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[D] = colors[E] = colors[H] = GetPixel(bmpSrc, sx, sy);
+	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
+	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+static void Scale2xPixel_LL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[E] = colors[F] = colors[H] = GetPixel(bmpSrc, sx, sy);
+	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
+	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+static void Scale2xPixel_F(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[D] = colors[E] = GetPixel(bmpSrc, sx, sy);
+	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
+	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
+	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+{
+	Uint32 colors[5];
+	colors[E] = colors[F] = GetPixel(bmpSrc, sx, sy);
+	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
+	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
+	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+}
+
+/////////////////////////
+// Draws the image double-sized using the scale2x algorithm
+// This algo is taken from http://scale2x.sourceforge.net/algorithm.html
+// Thanks go to the AdvanceMAME team!
+void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h) 
+{
+	// Lock
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	// Clipping
+	if (!Clip2x(bmpDest, bmpSrc, sx, sy, dx, dy, w, h))
+		return;
+
+	// Variables
+	int sx2 = sx + w - 1;
+	int sy2 = sy + h - 1;
+
+	Uint32 colors[5];
+
+	// First pixel, first line
+	Scale2xPixel_FF(bmpDest, bmpSrc, sx, sy, dx, dy);
+
+	// Last pixel, first line
+	Scale2xPixel_LF(bmpDest, bmpSrc, sx2, sy, dx + w * 2 - 2, dy);
+
+	// First line
+	for(int x = 1; x < w - 1; ++x)  {
+		colors[B] = colors[E] = GetPixel(bmpSrc, sx + x, sy);
+		colors[D] = GetPixel(bmpSrc, sx + x - 1, sy);
+		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy);
+		colors[H] = GetPixel(bmpSrc, sx + x, sy + 1);
+
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy, colors);	
+	}
+
+	// First pixel, last line
+	Scale2xPixel_FL(bmpDest, bmpSrc, sx, sy2, dx, dy + h * 2 - 2);
+
+	// Last pixel, last line
+	Scale2xPixel_LL(bmpDest, bmpSrc, sx2, sy2, dx + w * 2 - 2, dy + h * 2 - 2);
+
+
+	// Last line
+	for(int x = 1; x < w - 1; ++x)  {
+		colors[E] = colors[H] = GetPixel(bmpSrc, sx + x, sy2);
+		colors[B] = GetPixel(bmpSrc, sx + x, sy2 - 1);
+		colors[D] = GetPixel(bmpSrc, sx + x - 1, sy2);
+		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy2);
+
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + h * 2 - 2, colors);	
+	}
+
+	// Rest of the image
+	for(int y = 1; y < h - 1; ++y) {
+		// First & last pixel
+		Scale2xPixel_F(bmpDest, bmpSrc, sx, sy + y, dx, dy + y * 2);
+		Scale2xPixel_L(bmpDest, bmpSrc, sx2, sy + y, dx + w * 2 - 2, dy + y * 2);
+
+		// Rest of the line
+		for(int x = 1; x < w - 1; ++x) {
+			colors[B] = GetPixel(bmpSrc, sx + x		, sy + y - 1);
+			colors[D] = GetPixel(bmpSrc, sx + x - 1	, sy + y);
+			colors[E] = GetPixel(bmpSrc, sx + x		, sy + y);
+			colors[F] = GetPixel(bmpSrc, sx + x + 1	, sy + y);
+			colors[H] = GetPixel(bmpSrc, sx + x		, sy + y + 1);
+
+			Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + y * 2, colors);
+		}
+	}
+
+	// Unlock
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+}
+
 /////////////////
 //
 // Special line and pixel drawing

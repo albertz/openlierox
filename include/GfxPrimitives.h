@@ -482,6 +482,13 @@ inline void DrawImageResampledAdv( SDL_Surface * bmpDest, const SmartPointer<SDL
 	DrawImageResampledAdv( bmpDest, bmpSrc.get(), sx, sy, dx, dy, sw, sh, dw, dh );
 }
 
+//////////////////
+// Draws the image in double size using the scale2x algorithm
+void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+inline void DrawImageScale2x(SDL_Surface* bmpDest, const SmartPointer<SDL_Surface>& bmpSrc, int sx, int sy, int dx, int dy, int w, int h)  {
+	DrawImageScale2x(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
+}
+
 //
 // Pixel and color routines
 //
