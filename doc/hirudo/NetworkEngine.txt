@@ -26,6 +26,7 @@ An overview what features a new protocol should be able to handle:
 
 - client can request current state of worm ( is dead, position, current weapon, whatever)
 - server can update clients worms states
+- server should inform about respawn time when worm is waiting for respawn
 
 - use different physics engine ( so the server has to tell which one is used )
 [ - physic engines that are not present on client ?? ]
