@@ -660,7 +660,7 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 
 	// Resize
 	int dest_y = 0;
-	for (float src_y = (float)sx; dest_y < dh; dest_y++)  {
+	for (float src_y = (float)sy; dest_y < dh; dest_y++)  {
 		Uint8 *src_pxrow = (Uint8 *)bmpSrc->pixels + (int)(src_y) * bmpSrc->pitch;
 		dst_px = dst_pxrow;
 
