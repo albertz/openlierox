@@ -211,6 +211,17 @@ bool CClient::InitializeDrawing(void)
 		if (!InitializeBar(i))
 			return false;
 
+	// Setup the map loading bar
+	SmartPointer<SDL_Surface> s = LoadGameImage("downloadbar_game.png", true);
+	if (s.get())
+		cMapDownloadBar = new CBar(s, (640 - s->w)/2, getBottomBarTop() - s->h - 5, 0, 0, BAR_LEFTTORIGHT);
+	else
+		cMapDownloadBar = new CBar(NULL, 270, getBottomBarTop() - 15, 0, 0, BAR_LEFTTORIGHT);
+
+	cMapDownloadBar->SetLabelVisible(false);
+	cMapDownloadBar->SetBgColor(MakeColour(0, 0, 50));
+	cMapDownloadBar->SetForeColor(MakeColour(0, 0, 200));
+
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 	InitializeIngameScore(true);
 
@@ -481,7 +492,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Draw the viewports
 		// HINT: before we get packet with map info and load the map, cMap is undefined
 		// bGameReady says if the game (including cMap) has been initialized
-		if((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) {
+		if(((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
 
 			// Draw the viewports
 			for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -502,6 +513,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			}
 
 		}
+
+		// If waiting for the map/mod to finish downloading, draw the progress
+		if (bWaitingForMap || bWaitingForMod)  {
+			DrawRectFill(bmpDest, 10, getBottomBarTop() - cMapDownloadBar->GetHeight() - tLX->cFont.GetHeight() - 5, 630, getBottomBarTop(), tLX->clBlack);
+			cMapDownloadBar->SetPosition(bWaitingForMap ? iMapDlProgress : iModDlProgress);
+			tLX->cFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cMapDownloadBar->GetHeight() - tLX->cFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading the map " + sMapDownloadName);
+			cMapDownloadBar->Draw(bmpDest);
+		}
 	}
 
 	//
@@ -511,26 +530,29 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		bool ready = true;
 
 		// Go through and draw the first two worms select menus
-		for(i=0;i<num;i++) {
+		if (!bWaitingForMod) {
+			for(i=0;i<num;i++) {
 
-			// Select weapons
-			if(!cLocalWorms[i]->getWeaponsReady()) {
-				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+				// Select weapons
+				if(!cLocalWorms[i]->getWeaponsReady()) {
+					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
 
-				// Forced to finish weapon selection
-				if (bForceWeaponsReady)  {
-					cLocalWorms[i]->setWeaponsReady(true);
+					// Forced to finish weapon selection
+					if (bForceWeaponsReady)  {
+						cLocalWorms[i]->setWeaponsReady(true);
+					}
+
+					if(cLocalWorms[i]->getWeaponsReady()) {
+						cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
+						if(bDownloadingMap)
+							cout << "but we still have to wait for the download process" << endl;
+					}
+
+					ready = ready && cLocalWorms[i]->getWeaponsReady();
 				}
-
-				if(cLocalWorms[i]->getWeaponsReady()) {
-					cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
-					if(bDownloadingMap)
-						cout << "but we still have to wait for the download process" << endl;
-				}
-
-				ready = ready && cLocalWorms[i]->getWeaponsReady();
 			}
-		}
+		} else // Waiting for a mod to download
+			ready = false;
 
 		// If we're ready, let the server know
 		if(ready && !bReadySent && !bDownloadingMap) {

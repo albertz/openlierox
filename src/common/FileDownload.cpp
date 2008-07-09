@@ -53,29 +53,37 @@ const std::string sDownloadErrors[] =  {
 // Start the transfer
 void CHttpDownloader::Start(const std::string& filename, const std::string& dest_dir)
 {
+	Lock();
+
 	// Checks
 	if (filename.size() == 0)  {
+		Unlock();
 		SetDlError(FILEDL_ERROR_NO_FILE);
 		return;
 	}
 
 	if (dest_dir.size() == 0)  {
+		Unlock();
 		SetDlError(FILEDL_ERROR_NO_DEST);
 		return;
 	}
 
 	if (tDownloadServers == NULL)  {
+		Unlock();
 		SetDlError(FILEDL_ERROR_NO_SERVER);
 		return;
 	}
 
 	if (tDownloadServers->empty())  {
+		Unlock();
 		SetDlError(FILEDL_ERROR_NO_SERVER);
 		return;
 	}
 
 	// Stop & clear any previous download
+	Unlock();
 	Stop();
+	Lock();
 
 	// Fill in the info
 	sFileName = filename;
@@ -87,6 +95,7 @@ void CHttpDownloader::Start(const std::string& filename, const std::string& dest
 	// Create the file
 	tFile = OpenGameFile(sDestPath, "wb");
 	if (tFile == NULL)  {
+		Unlock();
 		SetDlError(FILEDL_ERROR_SAVING);
 		return;
 	}
@@ -97,12 +106,16 @@ void CHttpDownloader::Start(const std::string& filename, const std::string& dest
 
 	// Set the state to initializing
 	iState = FILEDL_INITIALIZING;
+
+	Unlock();
 }
 
 /////////////////
 // Stop the transfer and clear everything
 void CHttpDownloader::Stop()
 {
+	Lock();
+
 	// Cancel the transfer
 	if (tHttp.RequestedData())
 		tHttp.CancelProcessing();
@@ -118,6 +131,8 @@ void CHttpDownloader::Stop()
 	iCurrentServer = 0;
 	iState = FILEDL_NO_FILE;
 
+	Unlock();
+
 	SetDlError(FILEDL_ERROR_NO_ERROR);
 }
 
@@ -125,8 +140,11 @@ void CHttpDownloader::Stop()
 // Process the downloading
 void CHttpDownloader::ProcessDownload()
 {
+	Lock();
+
 	// Check that there has been no error yet
 	if (tError.iError != FILEDL_ERROR_NO_ERROR)  {
+		Unlock();
 		return;
 	}
 
@@ -157,15 +175,17 @@ void CHttpDownloader::ProcessDownload()
 			}
 		}
 
-		SetHttpError(tHttp.GetError());
-		iState = FILEDL_ERROR;
-
 		// Delete the file
 		if (tFile)  {
 			fclose(tFile);
 			tFile = NULL;
 			remove(GetFullFileName(sDestPath).c_str());
 		}
+
+		Unlock();
+		SetHttpError(tHttp.GetError());
+		Lock();
+		iState = FILEDL_ERROR;
 
 		break;
 
@@ -180,30 +200,38 @@ void CHttpDownloader::ProcessDownload()
 			fclose(tFile);
 			tFile = NULL;
 		} else {
+			Unlock();
 			SetDlError(FILEDL_ERROR_SAVING);
 		}
 
 		break;
 	}
 
+	Unlock();
 }
 
 /////////////////
 // Set downloading error
 void CHttpDownloader::SetDlError(int id)
 {
+	Lock();
+
 	tError.iError = id;
 	tError.sErrorMsg = sDownloadErrors[id];
 	tError.tHttpError = tHttp.GetError();
 
 	if (id != FILEDL_ERROR_NO_ERROR)
 		std::cout << "HTTP Download Error: " << tError.sErrorMsg << std::endl;
+
+	Unlock();
 }
 
 /////////////////
 // Set downloading error (HTTP problem)
 void CHttpDownloader::SetHttpError(HttpError err)
 {
+	Lock();
+
 	tError.iError = FILEDL_ERROR_HTTP;
 	tError.sErrorMsg = "HTTP Error: " + err.sErrorMsg;
 	tError.tHttpError.iError = err.iError;
@@ -211,27 +239,90 @@ void CHttpDownloader::SetHttpError(HttpError err)
 
 	if (err.iError != HTTP_NO_ERROR)
 		std::cout << "HTTP Download Error: " << tError.sErrorMsg << std::endl;
+
+	Unlock();
 }
 
 ////////////////
 // Get the file downloading progress
 byte CHttpDownloader::GetProgress()
 {
+	Lock();
 	byte res = 0;
 	if (tHttp.GetDataLength() != 0)
 		res = (byte)MIN((size_t)100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
+	Unlock();
 
 	return res;
+}
+
+//////////////////
+// Get the currently processed filename
+std::string	CHttpDownloader::GetFileName()
+{
+	Lock();
+	std::string tmp = sFileName;
+	Unlock();
+	return tmp;
+}
+
+////////////////////
+// Get the current state
+int	CHttpDownloader::GetState()
+{
+	Lock();
+	int tmp = iState;
+	Unlock();
+	return tmp;
+}
+
+////////////////////
+// Get the current ID
+size_t CHttpDownloader::GetID()
+{
+	Lock();
+	size_t tmp = iID;
+	Unlock();
+	return iID;
+}
+
+////////////////////////
+// Get the download error
+DownloadError CHttpDownloader::GetError()
+{
+	Lock();
+	DownloadError tmp = tError;
+	Unlock();
+	return tmp;
 }
 
 //
 // File downloader
 //
 
+/////////////
+// The main function for the threaded downloading
+int ManagerMain(void *param)
+{
+	CHttpDownloadManager *_this = (CHttpDownloadManager *)param;
+
+	while (!_this->bBreakThread)  {
+		_this->ProcessDownloads();
+
+		// Sleep if nothing to do
+		if (_this->iActiveDownloads == 0)
+			SDL_Delay(50);
+	}
+
+	return 0;
+}
+
 /////////////////
 // Constructor
 CHttpDownloadManager::CHttpDownloadManager()
 {
+	iActiveDownloads = 0;
+
 	// Load the list of available servers
 	FILE *fp = OpenGameFile("cfg/downloadservers.txt", "r");
 	if (fp)  {
@@ -249,57 +340,102 @@ CHttpDownloadManager::CHttpDownloadManager()
 			// Trim & add the server
 			TrimSpaces(server);
 			tDownloadServers.push_back(server);
-
-			// Skip the LF character
-			fseek(fp, ftell(fp)+1, SEEK_SET);
 		}
 	}
+
+	// Create the thread
+	bBreakThread = false;
+	tMutex = SDL_CreateMutex();
+	tThread = SDL_CreateThread(&ManagerMain, (void *)this);
 }
 
 ///////////////
 // Destructor
 CHttpDownloadManager::~CHttpDownloadManager()
 {
+	bBreakThread = true;
+	SDL_WaitThread(tThread, NULL);
+
+	Lock();
+
 	// Stop the downloads
 	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
 		(*i)->Stop();
 		delete (*i);
 	}
+	iActiveDownloads = 0;
+
+	Unlock();
+
+	SDL_DestroyMutex(tMutex);
 }
 
 //////////////
 // Add and start a download
 void CHttpDownloadManager::StartFileDownload(const std::string& filename, const std::string& dest_dir)
 {
+	Lock();
+
 	// Add and start the download
 	CHttpDownloader *new_dl = new CHttpDownloader(&tDownloadServers, tDownloads.size());
 	new_dl->Start(filename, dest_dir);
 
 	tDownloads.push_back(new_dl);
+
+	Unlock();
 }
 
 /////////////
 // Cancel a download
 void CHttpDownloadManager::CancelFileDownload(const std::string& filename)
 {
+	Lock();
+
 	// Find the download and remove it, the destructor will stop the download automatically
 	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
 		if ((*i)->GetFileName() == filename)  {
+			if ((*i)->GetState() == FILEDL_INITIALIZING || (*i)->GetState() == FILEDL_RECEIVING)
+				iActiveDownloads = iActiveDownloads > 0 ? iActiveDownloads - 1 : 0;
 			(*i)->Stop();
 			delete (*i);
 			tDownloads.erase(i);
 			break;
 		}
+
+	Unlock();
+}
+
+void CHttpDownloadManager::RemoveFileDownload(const std::string &filename)
+{
+	Lock();
+
+	// Find the download and remove it, the destructor will stop the download automatically
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)  {
+			if ((*i)->GetState() == FILEDL_FINISHED || (*i)->GetState() == FILEDL_ERROR)  {
+				delete (*i);
+				tDownloads.erase(i);
+				break;
+			}
+		}
+
+	Unlock();
 }
 
 //////////////
 // Returns true if the file has been successfully downloaded
 bool CHttpDownloadManager::IsFileDownloaded(const std::string& filename)
 {
-	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if ((*i)->GetFileName() == filename)
-			return (*i)->GetState() == FILEDL_FINISHED;
+	Lock();
 
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)  {
+			bool finished = (*i)->GetState() == FILEDL_FINISHED;
+			Unlock();
+			return finished;
+		}
+
+	Unlock();
 	return false;
 }
 
@@ -307,9 +443,16 @@ bool CHttpDownloadManager::IsFileDownloaded(const std::string& filename)
 // Returns the download error for the specified file
 DownloadError CHttpDownloadManager::FileDownloadError(const std::string& filename)
 {
-	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if ((*i)->GetFileName() == filename)
+	Lock();
+
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
+		if ((*i)->GetFileName() == filename)  {
+			Unlock();
 			return (*i)->GetError();
+		}
+	}
+
+	Unlock();
 
 	// Not found, create a default "no error"
 	DownloadError err;
@@ -324,20 +467,33 @@ DownloadError CHttpDownloadManager::FileDownloadError(const std::string& filenam
 // Get the file download progress in percents
 byte CHttpDownloadManager::GetFileProgress(const std::string& filename)
 {
+	Lock();
 	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if ((*i)->GetFileName() == filename)
+		if ((*i)->GetFileName() == filename)  {
+			Unlock();
 			return (*i)->GetProgress();
+		}
 
+	Unlock();
 	return 0;
 }
 
+////////////////////
+// Process all the downloads
 void CHttpDownloadManager::ProcessDownloads()
 {
+	Lock();
+
 	// Process the downloads
+	iActiveDownloads = 0;
 	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
-		if ((*i)->GetState() == FILEDL_INITIALIZING || (*i)->GetState() == FILEDL_RECEIVING)
+		if ((*i)->GetState() == FILEDL_INITIALIZING || (*i)->GetState() == FILEDL_RECEIVING)  {
+			iActiveDownloads++;
 			(*i)->ProcessDownload();
+		}
 	}
+
+	Unlock();
 }
 
 
@@ -349,6 +505,7 @@ void CHttpDownloadManager::ProcessDownloads()
 void CUdpFileDownloader::reset()
 {
 	iPos = 0;
+	tPrevState = S_FINISHED;
 	tState = S_FINISHED;
 	sFilename = "";
 	sData = "";
@@ -367,6 +524,7 @@ void CUdpFileDownloader::setDataToSend( const std::string & name, const std::str
 		bWasError = true;
 		return;
 	};
+	tPrevState = tState;
 	tState = S_SEND;
 	iPos = 0;
 	sFilename = name;
@@ -413,6 +571,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		return false;
 	if( tState == S_FINISHED )
 	{
+		tPrevState = tState;
 		tState = S_RECEIVE;
 		iPos = 0;
 		sFilename = "";
@@ -431,6 +590,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		bWasError = true;
 		std::string data, unpacked;
 		data.append( bs->readData(chunkSize) );
+		cout << "CFileDownloaderInGame::receive() - error, not receiving!" << endl;
 		if( Decompress( data, &unpacked ) )
 			if( unpacked.find( "ABORT:" ) == 0 )
 			{
@@ -439,10 +599,11 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 			};
 		return true;	// Receive finished (due to error)
 	};
-	//cout << "CFileDownloaderInGame::receive() chunk " << chunkSize << endl;
+	cout << "CFileDownloaderInGame::receive() chunk " << chunkSize << endl;
 	sData.append( bs->readData(chunkSize) );
 	if( Finished )
 	{
+		tPrevState = tState;
 		tState = S_FINISHED;
 		iPos = 0;
 		bool error = true;
@@ -490,6 +651,7 @@ bool CUdpFileDownloader::send( CBytestream * bs )
 	//cout << "CFileDownloaderInGame::send() " << iPos << "/" << sData.size() << endl;
 	if( chunkSize != MAX_DATA_CHUNK )
 	{
+		tPrevState = tState;
 		tState = S_FINISHED;
 		iPos = 0;
 		return true;	// Send finished
@@ -681,6 +843,7 @@ void CUdpFileDownloader::processFileRequests()
 		if( ! tRequestedFiles.empty() )
 			tRequestedFiles.pop_back();
 		iPos = 0;
+		tPrevState = tState;
 		tState = S_FINISHED;
 		sFilename = "";
 		sData = "";

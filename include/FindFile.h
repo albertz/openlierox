@@ -196,6 +196,8 @@ bool	FileCopy(const std::string& src, const std::string& dest);
 // returns true, if we can write to the dir
 bool	CanWriteToDir(const std::string& dir);
 
+size_t	FileSize(const std::string& path);
+
 // returns the home-directory (used by ReplaceFileVariables)
 std::string	GetHomeDir();
 // returns the system-data-dir (under Linux, usually /usr/share)

@@ -57,6 +57,15 @@ class DownloadError  { public:
 	std::string	sErrorMsg;
 	int			iError;
 	HttpError	tHttpError;
+
+	DownloadError& operator= (const DownloadError& oth)  {
+		if (&oth != this)  {
+			sErrorMsg = oth.sErrorMsg;
+			iError = oth.iError;
+			tHttpError = oth.tHttpError;
+		}
+		return *this;
+	}
 };
 
 
@@ -69,18 +78,21 @@ public:
 		tDownloadServers(NULL),
 		iState(FILEDL_NO_FILE),
 		iID(0)
-		{ }
+		{ tMutex = SDL_CreateMutex(); }
 
 	CHttpDownloader(std::vector<std::string> *download_servers, size_t id) :
 		tFile(NULL),
 		tDownloadServers(download_servers),
 		iState(FILEDL_NO_FILE),
 		iID(id)
-		{ }
+		{ tMutex = SDL_CreateMutex(); }
 
-	~CHttpDownloader()  { Stop();}
+	~CHttpDownloader()  { Stop(); SDL_DestroyMutex(tMutex); }
 
 	CHttpDownloader& operator=(const CHttpDownloader& dl) {
+		if (&dl == this)
+			return *this;
+
 		sFileName = dl.sFileName;
 		sDestPath = dl.sDestPath;
 		tFile = dl.tFile;
@@ -89,10 +101,7 @@ public:
 		iState = dl.iState;
 		iID = dl.iID;
 		tHttp = dl.tHttp; // HINT: safe, CHttp has a copy operator defined
-		tError.sErrorMsg = dl.tError.sErrorMsg;
-		tError.iError = dl.tError.iError;
-		tError.tHttpError.sErrorMsg = dl.tError.tHttpError.sErrorMsg;
-		tError.tHttpError.iError = dl.tError.tHttpError.iError;
+		tError = dl.tError;
 		return *this;
 	}
 
@@ -106,6 +115,7 @@ private:
 	size_t			iID;
 	CHttp			tHttp;
 	DownloadError	tError;
+	SDL_mutex		*tMutex;
 
 private:
 	void			SetHttpError(HttpError err);
@@ -115,11 +125,13 @@ public:
 	void				Start(const std::string& filename, const std::string& dest_dir);
 	void				Stop();
 	void				ProcessDownload();
-	std::string			GetFileName()	{ return sFileName; }
-	int					GetState()		{ return iState; }
-	size_t				GetID()			{ return iID; }
+	std::string			GetFileName();
+	int					GetState();
+	size_t				GetID();
 	byte				GetProgress();
-	DownloadError		GetError()		{ return tError; }
+	DownloadError		GetError();
+	void				Lock()			{ SDL_LockMutex(tMutex); }
+	void				Unlock()		{ SDL_UnlockMutex(tMutex); }
 };
 
 
@@ -132,14 +144,23 @@ public:
 private:
 	std::list<CHttpDownloader *> tDownloads;
 	std::vector<std::string>	 tDownloadServers;
+	SDL_Thread					*tThread;
+	SDL_mutex					*tMutex;
+	size_t						 iActiveDownloads;
+
+	friend int ManagerMain(void *param);
+	bool						bBreakThread;
 
 public:
 	void						ProcessDownloads();
 	void						StartFileDownload(const std::string& filename, const std::string& dest_dir);
 	void						CancelFileDownload(const std::string& filename);
+	void						RemoveFileDownload(const std::string& filename);
 	bool						IsFileDownloaded(const std::string& filename);
 	DownloadError				FileDownloadError(const std::string& filename);
 	byte						GetFileProgress(const std::string& filename);
+	void						Lock()	 { SDL_LockMutex(tMutex); }
+	void						Unlock()	{ SDL_UnlockMutex(tMutex); }
 	std::list<CHttpDownloader *> *GetDownloads()		{ return &tDownloads; }
 };
 
@@ -176,6 +197,8 @@ public:
 	bool		isSending() { return tState == S_SEND; };
 	bool		isReceiving() { return tState == S_RECEIVE; };
 	bool		isFinished() { return tState == S_FINISHED; };
+	bool		wasSending() { return tPrevState == S_SEND; };
+	bool		wasReceiving() { return tPrevState == S_RECEIVE; };
 
 	bool		wasError() const { return bWasError; };
 	void		clearError() { bWasError = false; };
@@ -226,6 +249,7 @@ private:
 	std::string		sData;
 	size_t			iPos;
 
+	State_t			tPrevState;
 	State_t			tState;
 	bool			bWasError;
 	bool			bWasAborted;

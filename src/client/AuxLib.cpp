@@ -201,8 +201,11 @@ bool SetVideoMode()
 		return false;
 	}
 
+	bool resetting = false;
+
 	// Check if already running
 	if (SDL_GetVideoSurface())  {
+		resetting = true;
 		printf("resetting video mode\n");
 
 		// seems to be a win-only problem, it works without problems here under MacOSX
@@ -310,8 +313,17 @@ bool SetVideoMode()
 #endif
 
 	if( SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL) {
-		SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
-		return false;
+		if (resetting)  {
+			printf("Failed to reset video mode, let's wait a bit and retry.\n");
+			SDL_Delay(500);
+			if (SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL)  {
+				SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+				return false;
+			}
+		} else {
+			SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+			return false;
+		}
 	}
 
 	SDL_WM_SetCaption(GameName.c_str(),NULL);

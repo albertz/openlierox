@@ -78,6 +78,14 @@ public:
 class HttpError  { public:
 	std::string sErrorMsg;
 	int			iError;
+
+	HttpError& operator=(const HttpError& oth)  {
+		if (&oth != this)  {
+			sErrorMsg = oth.sErrorMsg;
+			iError = oth.iError;
+		}
+		return *this;
+	}
 };
 
 // HTTP errors
@@ -135,6 +143,7 @@ public:
 		bChunkedTransfer = http.bChunkedTransfer;
 		fResolveTime = http.fResolveTime;
 		fConnectTime = http.fConnectTime;
+		fReceiveTime = http.fReceiveTime;
 		tSocket = http.tSocket;
 		tRemoteIP = http.tRemoteIP;
 		sProxyUser = http.sProxyUser;
@@ -171,6 +180,7 @@ private:
 	bool			bChunkedTransfer;
 	float			fResolveTime;
 	float			fConnectTime;
+	float			fReceiveTime;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 

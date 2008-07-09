@@ -213,6 +213,7 @@ public:
 		cHealthBar2 = NULL;
 		cWeaponBar1 = NULL;
 		cWeaponBar2 = NULL;
+		cMapDownloadBar = NULL;
 		iGameType = GMT_DEATHMATCH;
 		bGameReady = false;
 		bMapGrabbed = false;
@@ -339,6 +340,7 @@ private:
 	CBar		*cHealthBar2;
 	CBar		*cWeaponBar1;
 	CBar		*cWeaponBar2;
+	CBar		*cMapDownloadBar;
 	SmartPointer<SDL_Surface> bmpBoxBuffer;
 	SmartPointer<SDL_Surface> bmpBoxLeft;
 	SmartPointer<SDL_Surface> bmpBoxRight;
@@ -429,6 +431,13 @@ private:
 	std::string	sMapDlError;
 	byte		iMapDlProgress;
 	int			iDownloadMethod;  // HTTP or UDP
+	bool		bWaitingForMap;  // In game and waiting for the map to finish downloading
+
+	// Mod downloading
+	bool		bDownloadingMod;
+	std::string	sModDownloadName;
+	byte		iModDlProgress;
+	bool		bWaitingForMod;
 
 	bool		bReadySent;
 
@@ -625,12 +634,15 @@ public:
     void        ParseOlxModData(CBytestream *bs);
 	void		ParseOlxModChecksum(CBytestream *bs);
 
-	// These functions are for HTTP downloading only, for UDP use getUdpFileDownloader()
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
 	void		ProcessMapDownloads();
-	void		AbortMapDownloads();
+	void		AbortDownloads();
 	void		ShutdownDownloads();
+	void		FinishMapDownloads();
+	void		DownloadMod(const std::string& modname);
+	void		ProcessModDownloads();
+	void		FinishModDownloads();
 
 
 	// Variables
@@ -720,6 +732,8 @@ public:
 
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
+	bool		getDownloadingMod()				{ return bDownloadingMod; }
+	byte		getModDlProgress()				{ return (byte)(cUdpFileDownloader.getFileDownloadingProgress() * 100); }
 	int			getDownloadMethod()				{ return iDownloadMethod; }
 	bool		getDownloadingMapError()		{ return bMapDlError; }
 	void		clearDownloadingMapError()		{ bMapDlError = false; }

@@ -31,6 +31,7 @@
 #include "CCheckbox.h"
 #include "CLabel.h"
 #include "CTextButton.h"
+#include "CProgressBar.h"
 
 using namespace std;
 
@@ -257,7 +258,8 @@ enum {
 	jl_Favourites,
 	jl_PlayerList,
 	jl_Spectate,
-	jl_StartStopUdpFileDownload
+	jl_CancelDownload,
+	jl_DownloadProgress
 };
 
 
@@ -349,9 +351,15 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
-	// The button will pop up when some file is not available, disabled by default
-	if( cClient->getServerVersion() >= OLXBetaVersion(4) )
-		cJoinLobby.Add( new CTextButton( "", tLX->clError, tLX->clNormalLabel), jl_StartStopUdpFileDownload, 360, 195, 0, 0 );
+
+	// Downloading stuff
+	CProgressBar *dl = new CProgressBar(LoadGameImage("data/frontend/downloadbar_lobby.png", true), 0, 0, false, 1);
+	CButton *cancel = new CButton(BUT_CANCEL, tMenu->bmpButtons);
+	cJoinLobby.Add( dl, jl_DownloadProgress, 360, 195, 0, 0);
+	cJoinLobby.Add( cancel, jl_CancelDownload, 360 + dl->getWidth() + 5, 195 + (dl->getHeight() - 20)/2, 0, 0);
+	dl->setEnabled(false);
+	cancel->setEnabled(false);
+
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 	if (player_list)  {
@@ -589,7 +597,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
 		} else {  // Don't have the map
 			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName + " (" + itoa(cClient->getMapDlProgress()) + "%)");
+				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 			} else { // Not downloading
 				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 				if (MouseInRect(x2, y+20, 640-x2, tLX->cFont.GetHeight()))  {
@@ -606,8 +614,18 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel,  "Mod:");
         if(gl->bHaveMod)
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel,  gl->szModName);
-        else
+		else {
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
+
+			if (MouseInRect(x2, y+60, 640-x2, tLX->cFont.GetHeight()))  {
+				SetGameCursor(CURSOR_HAND);
+				if (GetMouse()->Up)  {
+					cClient->DownloadMod(cClient->getGameLobby()->szModDir);
+				}
+			} else {
+				SetGameCursor(CURSOR_ARROW);
+			}
+		}
 
 		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "Lives:");
 		if(gl->nLives >= 0)
@@ -623,7 +641,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	{
-		if( cClient->getDownloadingMap() )
+		/*if( cClient->getDownloadingMap() )
 			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
 			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapName );
 		else if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
@@ -657,8 +675,23 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			bs.writeByte(TXT_NETWORK);
 			bs.writeString( cClient->getDownloadingMapErrorMessage() );
 			cClient->ParseText( &bs );
-		};
-	};
+		};*/
+
+		CButton *cancel = (CButton *)cJoinLobby.getWidget(jl_CancelDownload);
+		CProgressBar *progress = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
+		if (cClient->getDownloadingMap() || cClient->getDownloadingMod())  {
+
+			progress->setEnabled(true);
+			cancel->setEnabled(true);
+			if (cClient->getDownloadingMap())
+				progress->SetPosition(cClient->getMapDlProgress());
+			else
+				progress->SetPosition(cClient->getModDlProgress());
+		} else {
+			progress->setEnabled(false);
+			cancel->setEnabled(false);	
+		}
+	}
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER
@@ -711,6 +744,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 				break;
 
+			// Cancel file transfers
+			case jl_CancelDownload:
+				if (ev->iEventMsg == BTN_MOUSEUP)  {
+					cClient->AbortDownloads();
+				}
+				break;
+
 
 			// Chat textbox
 			case jl_ChatText:
@@ -739,7 +779,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 				break;
 
-			case jl_StartStopUdpFileDownload:
+			/*case jl_StartStopUdpFileDownload:
 				if(ev->iEventMsg == TXB_MOUSEUP) {
 					if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 					{
@@ -764,7 +804,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 							cClient->DownloadMap(cClient->getGameLobby()->szMapName);	// Download map with HTTP, then try UDP
 					}
 				}
-				break;
+				break;*/
 		}
 	}
 

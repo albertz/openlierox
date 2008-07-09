@@ -130,6 +130,7 @@ void CClient::Clear(void)
 	bHostAllowsStrafing = false;
 
 	bDownloadingMap = false;
+	bDownloadingMod = false;
 	cHttpDownloader = NULL;
 	sMapDownloadName = "";
 	bMapDlError = false;
@@ -140,6 +141,8 @@ void CClient::Clear(void)
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 	bSpectate = false;
+	bWaitingForMap = false;
+	bWaitingForMod = false;
 }
 
 
@@ -158,6 +161,8 @@ void CClient::MinorClear(void)
 	fLastScoreUpdate = -9999;
 	bCurrentSettings = false;
 	bForceWeaponsReady = false;
+	bWaitingForMap = false;
+	bWaitingForMod = false;
 
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;
@@ -383,6 +388,7 @@ void CClient::InitializeDownloads()
 	if (!cHttpDownloader)
 		cHttpDownloader = new CHttpDownloadManager();
 	bDownloadingMap = false;
+	bDownloadingMod = false;
 	bMapDlError = false;
 	iMapDlProgress = 0;
 	sMapDlError = "";
@@ -397,6 +403,7 @@ void CClient::ShutdownDownloads()
 		delete cHttpDownloader;
 	cHttpDownloader = NULL;
 	bDownloadingMap = false;
+	bDownloadingMod = false;
 	bMapDlError = false;
 	iMapDlProgress = 0;
 	sMapDlError = "";
@@ -423,20 +430,153 @@ void CClient::DownloadMap(const std::string& mapname)
 	bDownloadingMap = true;
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
-	// Request file downloading with UDP - it won't start until HTTP won't finish
-	getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
-	getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
-	printf("CClient::DownloadMap() exit %s\n", sMapDownloadName.c_str());
+	// TODO: why is this needed?
+	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
 }
 
-void CClient::AbortMapDownloads()
+///////////////////
+// Download a mod
+void CClient::DownloadMod(const std::string &modname)
 {
-	if( ! bDownloadingMap )
+	if (modname.size() == 0)
 		return;
-	bDownloadingMap = false;
+
+	sModDownloadName = modname;
+	bDownloadingMod = true;
+
+	cUdpFileDownloader.clearAborted();
+	cUdpFileDownloader.requestFileInfo(modname, true);  // Download the mod
+}
+
+///////////////////
+// Abort any map downloading
+void CClient::AbortDownloads()
+{
+	if (bDownloadingMap)  {
+		bDownloadingMap = false;
+		if (cHttpDownloader)
+			cHttpDownloader->CancelFileDownload(sMapDownloadName);
+		getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
+	}
+
+	bDownloadingMod = false;
+
+	// Cancel any UDP downloads
+	if (getUdpFileDownloader()->getFilesPendingAmount() > 0 || getUdpFileDownloader()->isReceiving())  {
+		getUdpFileDownloader()->abortDownload();
+
+		CBytestream bs;
+		bs.writeByte(C2S_SENDFILE);
+		getUdpFileDownloader()->send(&bs);
+		getChannel()->AddReliablePacketToSend(bs);
+	}
+
+	// TODO: why is this needed?
+	setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+
 	InitializeDownloads();
-	cHttpDownloader->CancelFileDownload(sMapDownloadName);
-	getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
+}
+
+////////////////
+// Finish downloading of the map
+void CClient::FinishMapDownloads()
+{
+	// Check that the file exists
+	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
+		if (tGameLobby.szMapName == sMapDownloadName)  {
+			tGameLobby.bHaveMap = true;
+			tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+		}
+
+		// If downloaded via HTTP, don't try UDP
+		if (iDownloadMethod == DL_HTTP)
+			getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
+
+		if (cHttpDownloader)
+			cHttpDownloader->RemoveFileDownload(sMapDownloadName);
+
+		// If playing, load the map
+		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
+			if (cMap && cMap->getCreated())  {
+				printf("HINT: Finished map downloading but another map is already loaded.\n");
+				return;
+			}
+
+			if (!cMap)
+				cMap = new CMap;
+
+			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
+				// Weird
+				printf("Could not load the downloaded map!\n");
+				Disconnect();
+				GotoNetMenu();
+			}
+		}
+	} else {  // Inaccessible
+
+		// HACK because of a bad code design in UDP file downloader
+		// We can get here after receiving a file ACK which is 100% ok
+		// and we should continue in map downloading
+		// Sadly, there's no way to distinguish between a normal file download finish and receiving an ACK
+		if (iDownloadMethod == DL_UDP)  {
+			bDownloadingMap = true;
+			return;
+		}
+
+		printf("Cannot access the downloaded map!\n");
+		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
+			Disconnect();
+			GotoNetMenu();
+		}
+	}
+}
+
+////////////////////
+// Finish downloading of a mod
+void CClient::FinishModDownloads()
+{
+	// Check that the script.lgs file is available
+	if (!IsFileAvailable(sModDownloadName + "/script.lgs", false))  {
+		printf("Cannot access the downloaded mod!\n");
+
+		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+			Disconnect();
+			GotoNetMenu();
+		}
+
+		return;
+	}
+
+	// Update the lobby
+	if (tGameLobby.szModDir == sModDownloadName)  {
+		bDownloadingMod = false;
+		tGameLobby.bHaveMod = true;
+	}
+
+	// Load the mod if playing
+	if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+		bWaitingForMod = false;
+
+		if (cGameScript->GetNumWeapons() > 0)  {
+			printf("Finished downloading the mod but another mod is already loaded.\n");
+			return;
+		}
+
+		if (stringcaseequal(sModName, sModDownloadName))  {
+			if (cGameScript->Load(sModDownloadName) != GSE_OK)  {
+				printf("ERROR: Could not load the downloaded mod.\n");
+				Disconnect();
+				GotoNetMenu();
+				return;
+			}
+			bWaitingForMod = false;
+		} else {
+			printf("The downloaded mod is not the one we are waiting for.\n");
+			Disconnect();
+			GotoNetMenu();
+			return;
+		}
+	}
 }
 
 /////////////////
@@ -446,9 +586,6 @@ void CClient::ProcessMapDownloads()
 
 	if( bDownloadingMap && iDownloadMethod == DL_HTTP && cHttpDownloader )  {
 
-		// Process
-		cHttpDownloader->ProcessDownloads();
-
 		// Download finished
 		if (cHttpDownloader->IsFileDownloaded(sMapDownloadName))  {
 			bDownloadingMap = false;
@@ -456,38 +593,10 @@ void CClient::ProcessMapDownloads()
 			sMapDlError = "";
 			iMapDlProgress = 100;
 
-			// Check that the file exists (it should!)
-			if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
-				tGameLobby.bHaveMap = true;
-				tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
-				getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
-
-				// If playing, load the map
-				if (iNetStatus == NET_PLAYING)  {
-					if (cMap)  {
-						printf("WARNING: Finished map downloading but another map is already loaded.\n");
-						return;
-					}
-
-					cMap = new CMap;
-					if (cMap)  {
-						if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
-							// Weird
-							printf("Could not load the downloaded map!\n");
-							Disconnect();
-							GotoNetMenu();
-						}
-					}
-				}
-			} else {  // Inaccessible
-				printf("Cannot access the downloaded map!\n");
-				if (iNetStatus == NET_PLAYING)  {
-					Disconnect();
-					GotoNetMenu();
-				}
-			}
+			FinishMapDownloads();;
 
 			sMapDownloadName = "";
+			bWaitingForMap = false;
 
 			return;
 		}
@@ -497,21 +606,38 @@ void CClient::ProcessMapDownloads()
 		if (error.iError != FILEDL_ERROR_NO_ERROR)  {
 			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
+			if (bWaitingForMap)  {
+				Disconnect();
+				GotoNetMenu();
+				return;
+			}
+
 			// HTTP failed, let's try UDP
 			if( getServerVersion() > OLXBetaVersion(4) )
 			{
 				iDownloadMethod = DL_UDP;
+				bDownloadingMap = true;
+				iMapDlProgress = 0;
+				cHttpDownloader->RemoveFileDownload(sMapDownloadName);
+
+				// Request file downloading with UDP - it won't start until HTTP won't finish
+				getUdpFileDownloader()->clearAborted();
+				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
+				getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
+
 			} else {
 				bDownloadingMap = false;
 				sMapDownloadName = "";
+				getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
+				return;
 			}
+		} else {  // No error
+
+			// Get the progress
+			iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
+			return; // Skip UDP downloading if HTTP downloading active
 		}
-
-		// Get the progress
-		iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
-		return; // Skip UDP downloading if HTTP downloading active
 	}
-
 
   	// UDP file download used for maps and mods - we can download map via HTTP and mod via UDP from host
 	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
@@ -525,16 +651,25 @@ void CClient::ProcessMapDownloads()
 			fLastFileRequestPacketReceived = tLX->fCurTime;
 			if( ! getUdpFileDownloader()->requestFilesPending() )  { // More files to receive
 				bMapDlError = true;
-				sMapDlError = sMapDownloadName + " downloading error: timeout";
+				sMapDlError = sMapDownloadName + " downloading error: UDP timeout";
 				bDownloadingMap = false;
+
+				// If waiting for the map ingame, just quit
+				if (bWaitingForMap)  {
+					Disconnect();
+					GotoNetMenu();
+					return;
+				}
 			}
 		}
 		if( getUdpFileDownloader()->getFileDownloading() == "levels/" + getGameLobby()->szMapName ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
-		};
+		}
+
 		if( bDownloadingMap && iDownloadMethod == DL_UDP )
 			iMapDlProgress = (int)(getUdpFileDownloader()->getFileDownloadingProgress() * 100.0f);
+
 		return;
 	}
 
@@ -550,22 +685,30 @@ void CClient::ProcessMapDownloads()
 	}
 
 	// Download finished
-	if( getUdpFileDownloader()->wasError() )  {
+	if( getUdpFileDownloader()->wasError() && bDownloadingMap )  {
 		getUdpFileDownloader()->clearError();
 		bMapDlError = true;
 		sMapDlError = sMapDownloadName + " downloading error: checksum failed";
 		bDownloadingMap = false;
 	}
 
-	if( getUdpFileDownloader()->wasAborted() )  {
+	if( getUdpFileDownloader()->wasAborted() && bDownloadingMap )  {
 		getUdpFileDownloader()->clearAborted();
 		bMapDlError = true;
 		sMapDlError = sMapDownloadName + " downloading error: server aborted download";
 		bDownloadingMap = false;
 	}
 
-	if( bDownloadingMap && iDownloadMethod == DL_UDP )
+	// If finished only sending of a request/file, don't continue further
+	if (getUdpFileDownloader()->wasSending())
+		return;
+
+	if( bDownloadingMap && iDownloadMethod == DL_UDP )  {
 		bDownloadingMap = false;
+		FinishMapDownloads();
+		bWaitingForMap = false;
+		sMapDownloadName = "";
+	}
 
 	if( fLastFileRequest > tLX->fCurTime )
 		return;
@@ -574,6 +717,81 @@ void CClient::ProcessMapDownloads()
 	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; // Request another file from server after little timeout
 
 	getUdpFileDownloader()->requestFilesPending(); // More files to receive?
+}
+
+/////////////////////
+// Process mod downloading
+void CClient::ProcessModDownloads()
+{
+	if (!bDownloadingMod)
+		return;
+
+  	// Can we download anything at all?
+	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+		bDownloadingMod = false;
+		sModDownloadName = "";
+		return;
+	}
+
+	// Finished?
+	if (cUdpFileDownloader.getFilesPendingAmount() == 0 && cUdpFileDownloader.isFinished())  {
+		FinishModDownloads();
+		bDownloadingMod = false;
+		sModDownloadName = "";
+
+		return;
+	}
+	// Aborted?
+	if (cUdpFileDownloader.wasAborted())  {
+		printf("Mod downloading aborted.\n");
+		bDownloadingMod = false;
+		sModDownloadName = "";
+
+		if (bWaitingForMod)  {
+			Disconnect();
+			GotoNetMenu();
+			return;
+		}
+	}
+
+	// Receiving
+	if(cUdpFileDownloader.isReceiving())	 {
+		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
+			fLastFileRequestPacketReceived = tLX->fCurTime;
+			if(!cUdpFileDownloader.requestFilesPending())  { // More files to receive
+				bDownloadingMod = false;
+				printf("Mod download error: connection timeout\n");
+
+				// If waiting for the map ingame, just quit
+				if (bWaitingForMod)  {
+					Disconnect();
+					GotoNetMenu();
+					return;
+				}
+			}
+		}
+
+		return;
+	}
+
+	// Server requested some file (CRC check on our map) or we're sending file request
+	if( getUdpFileDownloader()->isSending() )	 {
+		CBytestream bs;
+		bs.writeByte(C2S_SENDFILE);
+		getUdpFileDownloader()->send(&bs);
+		cNetChan->AddReliablePacketToSend(bs);
+		fLastFileRequestPacketReceived = tLX->fCurTime;
+		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		return;
+	}
+
+	// Request another file from server after little timeout
+	if( fLastFileRequest <= tLX->fCurTime )  {
+		fLastFileRequestPacketReceived = tLX->fCurTime;
+		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; 
+
+		getUdpFileDownloader()->requestFilesPending(); // More files to receive?
+	}
 }
 
 ///////////////////
@@ -586,15 +804,16 @@ void CClient::Frame(void)
 	}
 
 	ProcessMapDownloads();
+	ProcessModDownloads();
 
 	ReadPackets();
 
 	SimulateHud();
 
-	if(iNetStatus == NET_PLAYING)
+	if(iNetStatus == NET_PLAYING && !bWaitingForMap && !bWaitingForMod)
 		Simulation();
 
-	if(iNetStatus == NET_PLAYING_OLXMOD)
+	if(iNetStatus == NET_PLAYING_OLXMOD && !bWaitingForMap && !bWaitingForMod)
 		SimulationOlxMod();
 
 	SendPackets();
@@ -1371,8 +1590,10 @@ void CClient::Shutdown(void)
 		delete cWeaponBar1;
 	if (cWeaponBar2)
 		delete cWeaponBar2;
+	if (cMapDownloadBar)
+		delete cMapDownloadBar;
 
-	cHealthBar1 = cHealthBar2 = cWeaponBar1 = cWeaponBar2 = NULL;
+	cHealthBar1 = cHealthBar2 = cWeaponBar1 = cWeaponBar2 = cMapDownloadBar = NULL;
 
 	// Shooting list
 	cShootList.Shutdown();

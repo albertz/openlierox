@@ -426,6 +426,20 @@ std::string GetFirstSearchPath() {
 		return GetHomeDir();
 }
 
+size_t FileSize(const std::string& path)
+{
+	FILE *fp = fopen(path.c_str(), "rb");
+	if (!fp)  {
+		fp = OpenGameFile(path, "rb");
+		if (!fp)
+			return 0;
+	}
+	fseek(fp, 0, SEEK_END);
+	size_t size = ftell(fp);
+	fclose(fp);
+	return size;
+}
+
 
 
 static std::string specialSearchPathForTheme = "";

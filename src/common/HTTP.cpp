@@ -299,6 +299,7 @@ void CHttp::Clear()
 	bChunkedTransfer = false;
 	fResolveTime = -9999;
 	fConnectTime = -9999;
+	fReceiveTime = -9999;
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
@@ -746,7 +747,20 @@ int CHttp::ProcessRequest()
 	}
 
 	// Check for HTTP timeout
-	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected)  {
+	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested)  {
+		// If using proxy, try direct connection
+		if (sProxyHost.size() != 0)  {
+			printf("HINT: proxy failed, trying a direct connection\n");
+			RequestData(sHost + sUrl);
+			return HTTP_PROC_PROCESSING;
+		} else { // Not using proxy, there's no other possibility to obtain the data
+			SetHttpError(HTTP_ERROR_TIMEOUT);
+			return HTTP_PROC_ERROR;
+		}
+	}
+
+	// This can happen when the server stops responding in the middle of the transfer
+	if (bRequested && GetMilliSeconds() - fReceiveTime >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			printf("HINT: proxy failed, trying a direct connection\n");
@@ -770,6 +784,8 @@ int CHttp::ProcessRequest()
 	// Send a request
 	if(bSocketReady && bConnected && !bRequested) {
 		bRequested = true;
+		fReceiveTime = GetMilliSeconds();
+
 		if(!SendRequest()) {
             SetHttpError(HTTP_ERROR_SENDING_REQ);
 			return HTTP_PROC_ERROR;
@@ -832,6 +848,7 @@ int CHttp::ProcessRequest()
 			sData.append(tBuffer, count);
 			iDataReceived += count;
 			ProcessData();
+			fReceiveTime = GetMilliSeconds();
 		}
 	}
 

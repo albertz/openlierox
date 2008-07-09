@@ -603,30 +603,37 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 
 		if(tGameInfo.iGameType == GME_JOIN) {
-			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-			if(!cMap->Load(sMapName)) {
-				// Show a cannot load level error message
-				// If this is a host/local game, something is pretty wrong but if we display the message, things could
-				// go even worse
-				if (tGameInfo.iGameType == GME_JOIN)  {
-					FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
-					std::string err;
-					err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
-					Menu_MessageBox("Loading Error",err, LMB_OK);
-					bClientError = true;
+			// If we are downloading a map, wait until it finishes
+			if (!bDownloadingMap)  {
+				bWaitingForMap = false;
 
-					// Go back to the menu
-					QuittoMenu();
-				} else {
-					printf("ERROR: load map error for a local game!\n"); 
+				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
+				if(!cMap->Load(sMapName)) {
+					// Show a cannot load level error message
+					// If this is a host/local game, something is pretty wrong but if we display the message, things could
+					// go even worse
+					if (tGameInfo.iGameType == GME_JOIN)  {
+						FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+						std::string err;
+						err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
+
+						Menu_MessageBox("Loading Error",err, LMB_OK);
+						bClientError = true;
+
+						// Go back to the menu
+						QuittoMenu();
+					} else {
+						printf("ERROR: load map error for a local game!\n"); 
+					}
+
+					bGameReady = false;
+
+					printf("CClient::ParsePrepareGame: could not load map "+sMapName+"\n");
+					return false;
 				}
-
-				bGameReady = false;
-
-				printf("CClient::ParsePrepareGame: could not load map "+sMapName+"\n");
-				return false;
-			}
+			} else
+				bWaitingForMap = true;
 		} else {
 			assert(cServer);
 
@@ -649,29 +656,36 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if( cGameScript.get() == NULL )
 	{
 		cGameScript = new CGameScript();
-		int result = cGameScript.get()->Load(sModName);
-		cCache.SaveMod( sModName, cGameScript );
-		if(result != GSE_OK) {
 
-			// Show any error messages
-			if (tGameInfo.iGameType == GME_JOIN)  {
-				FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
-				std::string err("Error load game mod: ");
-				err += sModName + "\r\nError code: " + itoa(result);
-				Menu_MessageBox("Loading Error", err, LMB_OK);
-				bClientError = true;
+		if (bDownloadingMod)
+			bWaitingForMod = true;
+		else {
+			bWaitingForMod = false;
 
-				// Go back to the menu
-				GotoNetMenu();
-			} else {
-				printf("ERROR: load mod error for a local game!\n"); 
+			int result = cGameScript.get()->Load(sModName);
+			cCache.SaveMod( sModName, cGameScript );
+			if(result != GSE_OK) {
+
+				// Show any error messages
+				if (tGameInfo.iGameType == GME_JOIN)  {
+					FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+					std::string err("Error load game mod: ");
+					err += sModName + "\r\nError code: " + itoa(result);
+					Menu_MessageBox("Loading Error", err, LMB_OK);
+					bClientError = true;
+
+					// Go back to the menu
+					GotoNetMenu();
+				} else {
+					printf("ERROR: load mod error for a local game!\n"); 
+				}
+				bGameReady = false;
+
+				printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
+    			return false;
 			}
-			bGameReady = false;
-
-			printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
-    	    return false;
-		};
-	};
+		}
+	}
 
     // Read the weapon restrictions
     cWeaponRestrictions.updateList(cGameScript.get());
@@ -766,8 +780,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bShouldRepaintInfo = true;
 
 	bJoin_Update = true;
-
-	getUdpFileDownloader()->reset();
 
     return true;
 }
@@ -1761,6 +1773,7 @@ void CClient::ParseDropped(CBytestream *bs)
 // Server sent us some file
 void CClient::ParseSendFile(CBytestream *bs)
 {
+
 	fLastFileRequestPacketReceived = tLX->fCurTime;
 	if( getUdpFileDownloader()->receive(bs) )
 	{
