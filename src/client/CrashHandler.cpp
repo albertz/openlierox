@@ -71,16 +71,15 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
-		checkname = "bug_reports/report" + itoa(i) + ".dmp";
-		if (!IsFileAvailable("bug_reports/report" + itoa(i) + ".dmp", true))
+		checkname = "./bug_reports/report" + itoa(i) + ".dmp";
+		if (!IsFileAvailable(checkname, true))
 			break;
 	}
 
 	mkdir("bug_reports", 0);
 
 	// Open the file
-	std::string wffn = GetAbsolutePath(checkname);
-	HANDLE hFile = CreateFile((LPCSTR)wffn.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	HANDLE hFile = CreateFile((LPCSTR)checkname.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 
 
 	// Write the minidump
@@ -102,11 +101,11 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
 
 
-	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
+	snprintf(buf,sizeof(buf),"\"%s\"",checkname.c_str()); fix_markend(buf);
 	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
 
-	std::string ffn = GetFullFileName("BugReport.exe");
-	ShellExecute(NULL,"open",wffn.c_str(),buf,NULL,SW_SHOWNORMAL);
+	//std::string ffn = "BugReport.exe";
+	ShellExecute(NULL,"open","BugReport.exe",buf,NULL,SW_SHOWNORMAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
