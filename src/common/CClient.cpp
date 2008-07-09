@@ -577,6 +577,10 @@ void CClient::FinishModDownloads()
 				return;
 			}
 			bWaitingForMod = false;
+			
+			// Initialize the weapon selection
+			for (size_t i = 0; i < iNumWorms; i++)
+				cLocalWorms[i]->InitWeaponSelection();
 		} else {
 			printf("The downloaded mod is not the one we are waiting for.\n");
 			Disconnect();
@@ -653,6 +657,10 @@ void CClient::ProcessMapDownloads()
 		return;
 	}
 
+	// If not downloading the map, quit
+	if (!bDownloadingMap)
+		return;
+
 	if( getUdpFileDownloader()->isReceiving() )	 {
 		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
 			fLastFileRequestPacketReceived = tLX->fCurTime;
@@ -705,10 +713,6 @@ void CClient::ProcessMapDownloads()
 		sMapDlError = sMapDownloadName + " downloading error: server aborted download";
 		bDownloadingMap = false;
 	}
-
-	// Check that we're still downloading
-	if (!bDownloadingMap)
-		return;
 
 	// HINT: gets finished in CClient::ParseSendFile
 
@@ -1594,10 +1598,10 @@ void CClient::Shutdown(void)
 		delete cWeaponBar1;
 	if (cWeaponBar2)
 		delete cWeaponBar2;
-	if (cMapDownloadBar)
-		delete cMapDownloadBar;
+	if (cDownloadBar)
+		delete cDownloadBar;
 
-	cHealthBar1 = cHealthBar2 = cWeaponBar1 = cWeaponBar2 = cMapDownloadBar = NULL;
+	cHealthBar1 = cHealthBar2 = cWeaponBar1 = cWeaponBar2 = cDownloadBar = NULL;
 
 	// Shooting list
 	cShootList.Shutdown();

@@ -213,7 +213,7 @@ public:
 		cHealthBar2 = NULL;
 		cWeaponBar1 = NULL;
 		cWeaponBar2 = NULL;
-		cMapDownloadBar = NULL;
+		cDownloadBar = NULL;
 		iGameType = GMT_DEATHMATCH;
 		bGameReady = false;
 		bMapGrabbed = false;
@@ -340,7 +340,7 @@ private:
 	CBar		*cHealthBar2;
 	CBar		*cWeaponBar1;
 	CBar		*cWeaponBar2;
-	CBar		*cMapDownloadBar;
+	CBar		*cDownloadBar;
 	SmartPointer<SDL_Surface> bmpBoxBuffer;
 	SmartPointer<SDL_Surface> bmpBoxLeft;
 	SmartPointer<SDL_Surface> bmpBoxRight;
@@ -436,7 +436,6 @@ private:
 	// Mod downloading
 	bool		bDownloadingMod;
 	std::string	sModDownloadName;
-	byte		iModDlProgress;
 	bool		bWaitingForMod;
 
 	bool		bReadySent;

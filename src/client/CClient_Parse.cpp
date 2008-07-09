@@ -743,7 +743,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
 		cLocalWorms[i]->Prepare(cMap);
 
-		cLocalWorms[i]->InitWeaponSelection();
+		if (!bWaitingForMod)
+			cLocalWorms[i]->InitWeaponSelection();
 	}
 
 

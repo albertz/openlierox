@@ -212,15 +212,16 @@ bool CClient::InitializeDrawing(void)
 			return false;
 
 	// Setup the map loading bar
-	SmartPointer<SDL_Surface> s = LoadGameImage("downloadbar_game.png", true);
-	if (s.get())
-		cMapDownloadBar = new CBar(s, (640 - s->w)/2, getBottomBarTop() - s->h - 5, 0, 0, BAR_LEFTTORIGHT);
-	else
-		cMapDownloadBar = new CBar(NULL, 270, getBottomBarTop() - 15, 0, 0, BAR_LEFTTORIGHT);
+	SmartPointer<SDL_Surface> s = LoadGameImage("data/frontend/downloadbar_game.png", true);
+	if (s.get())  {
+		cDownloadBar = new CBar(s, (640 - s->w)/2, getBottomBarTop() - 5, 0, 0, BAR_LEFTTORIGHT);
+		cDownloadBar->SetY(getBottomBarTop() - cDownloadBar->GetHeight() - 5);
+	} else
+		cDownloadBar = new CBar(NULL, 270, getBottomBarTop() - 15, 0, 0, BAR_LEFTTORIGHT);
 
-	cMapDownloadBar->SetLabelVisible(false);
-	cMapDownloadBar->SetBgColor(MakeColour(0, 0, 50));
-	cMapDownloadBar->SetForeColor(MakeColour(0, 0, 200));
+	cDownloadBar->SetLabelVisible(false);
+	cDownloadBar->SetBgColor(MakeColour(0, 0, 50));
+	cDownloadBar->SetForeColor(MakeColour(0, 0, 200));
 
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 	InitializeIngameScore(true);
@@ -516,10 +517,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// If waiting for the map/mod to finish downloading, draw the progress
 		if (bWaitingForMap || bWaitingForMod)  {
-			DrawRectFill(bmpDest, 10, getBottomBarTop() - cMapDownloadBar->GetHeight() - tLX->cFont.GetHeight() - 5, 630, getBottomBarTop(), tLX->clBlack);
-			cMapDownloadBar->SetPosition(bWaitingForMap ? iMapDlProgress : iModDlProgress);
-			tLX->cFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cMapDownloadBar->GetHeight() - tLX->cFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading the map " + sMapDownloadName);
-			cMapDownloadBar->Draw(bmpDest);
+			cDownloadBar->SetPosition(bWaitingForMap ? getMapDlProgress() : getModDlProgress());
+			tLX->cOutlineFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
+			cDownloadBar->Draw(bmpDest);
 		}
 	}
 
