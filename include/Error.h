@@ -43,14 +43,6 @@ void FatalError(const std::string& text) {}*/
 void LxSetLastError(const std::string& desc);
 std::string LxGetLastError(void);
 
-// WIN32 exception handling
-#ifdef _MSC_VER
-LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
-void InstallExceptionFilter(void);
-#endif
-
-
-
 
 
 #endif  //  __ERROR_H__

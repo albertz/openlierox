@@ -106,7 +106,7 @@ void SystemError(const std::string& text)
 
 #ifdef WIN32
 	if (text.size() != 0)
-		MessageBox(NULL,text.c_str(),GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(NULL,text.c_str(), GAMENAME,MB_OK | MB_ICONEXCLAMATION);
 #endif
 
 
@@ -138,75 +138,3 @@ std::string LxGetLastError(void)
 {
 	return LastError;
 }
-
-#ifdef _MSC_VER
-
-///////////////////
-// This callback function is called whenever an unhandled exception occurs
-LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
-{
-	// Set the exception info for the minidump
-	MINIDUMP_EXCEPTION_INFORMATION eInfo;
-	eInfo.ThreadId = GetCurrentThreadId();
-	eInfo.ExceptionPointers = pExInfo;
-	eInfo.ClientPointers = FALSE;
-
-	// Set the minidump info
-	MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
-	cbMiniDump.CallbackRoutine = NULL;
-	cbMiniDump.CallbackParam = 0;
-
-	// Get the file name
-	static std::string checkname;
-
-	FILE *f = NULL;
-	for (int i=1;1;i++)  {
-		checkname = "bug_reports/report" + itoa(i) + ".dmp";
-		f = OpenGameFile(checkname,"r");
-		if (!f)
-			break;
-		else
-			fclose(f);
-	}
-
-
-	// Open the file
-	std::string wffn = GetWriteFullFileName(checkname,true);
-	HANDLE hFile = CreateFile((LPCSTR)wffn.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
-
-
-	// Write the minidump
-	if (hFile)
-		MiniDumpWriteDump(GetCurrentProcess(),GetCurrentProcessId(),hFile,MiniDumpScanMemory,&eInfo,NULL,&cbMiniDump);
-
-	// Close the file
-	CloseHandle(hFile);
-
-	// Quit SDL
-	SDL_Quit();
-
-	// Close all opened files
-	fcloseall();
-
-	// Notify the user
-	char buf[1024];  // Static not needed here
-	//sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
-	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
-
-
-	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
-	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
-
-	std::string ffn = GetFullFileName("BugReport.exe");
-	ShellExecute(NULL,"open",ffn.c_str(),buf,NULL,SW_SHOWNORMAL);
-
-	return EXCEPTION_EXECUTE_HANDLER;
-}
-
-////////////////////
-// Initializes the unhandled exception filter
-void InstallExceptionFilter(void)
-{
-	SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
-}
-#endif

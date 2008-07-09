@@ -600,6 +600,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 			} else { // Not downloading
 				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
+				if (tMenu->bmpDownload.get())
+					DrawImage(tMenu->bmpScreen, tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + 20 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+
 				if (MouseInRect(x2, y+20, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)
@@ -615,15 +618,21 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         if(gl->bHaveMod)
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel,  gl->szModName);
 		else {
-            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
+			if (cClient->getDownloadingMod())
+				f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
+			else {
+				f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
+				if (tMenu->bmpDownload.get())
+					DrawImage(tMenu->bmpScreen, tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + 60 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
-			if (MouseInRect(x2, y+60, 640-x2, tLX->cFont.GetHeight()))  {
-				SetGameCursor(CURSOR_HAND);
-				if (GetMouse()->Up)  {
-					cClient->DownloadMod(cClient->getGameLobby()->szModDir);
+				if (MouseInRect(x2, y+60, 640-x2, tLX->cFont.GetHeight()))  {
+					SetGameCursor(CURSOR_HAND);
+					if (GetMouse()->Up)  {
+						cClient->DownloadMod(cClient->getGameLobby()->szModDir);
+					}
+				} else {
+					SetGameCursor(CURSOR_ARROW);
 				}
-			} else {
-				SetGameCursor(CURSOR_ARROW);
 			}
 		}
 

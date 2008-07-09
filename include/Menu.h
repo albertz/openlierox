@@ -227,6 +227,7 @@ class menu_t { public:
 	SmartPointer<SDL_Surface> bmpConnectionSpeeds[5];
 	SmartPointer<SDL_Surface> bmpSpeech;
     SmartPointer<SDL_Surface> bmpHandicap;
+	SmartPointer<SDL_Surface> bmpDownload;
 
 	SmartPointer<SDL_Surface> bmpTriangleUp;
 	SmartPointer<SDL_Surface> bmpTriangleDown;

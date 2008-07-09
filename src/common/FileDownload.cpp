@@ -600,7 +600,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 			};
 		return true;	// Receive finished (due to error)
 	};
-	cout << "CFileDownloaderInGame::receive() chunk " << chunkSize << endl;
+	//cout << "CFileDownloaderInGame::receive() chunk " << chunkSize << endl;
 	sData.append( bs->readData(chunkSize) );
 	if( Finished )
 	{
@@ -619,7 +619,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				cout << "CFileDownloaderInGame::receive() filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
+				//cout << "CFileDownloaderInGame::receive() filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
 			};
 		};
 		if( error )

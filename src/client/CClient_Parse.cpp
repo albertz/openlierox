@@ -1790,36 +1790,14 @@ void CClient::ParseSendFile(CBytestream *bs)
 			};
 			fwrite( getUdpFileDownloader()->getData().c_str(), 1, getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
-			// Put notice about downloaded file in chatbox
-			CBytestream bs;
-			bs.writeByte(TXT_NETWORK);
-			bs.writeString( "Downloaded file \"" + getUdpFileDownloader()->getFilename() +
-								"\" size " + to_string<size_t>( getUdpFileDownloader()->getData().size() ) );
-			ParseText( &bs );
+
 			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
 					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
 			{
-				tGameLobby.bHaveMap = true;
-				tGameLobby.szDecodedMapName = Menu_GetLevelName(tGameLobby.szMapName);
-
-				// Stop any pathfinding before destroying the map
-				if (cRemoteWorms && bGameReady)
-					for (int i = 0; i < MAX_WORMS; i++)
-						cRemoteWorms[i].AI_Shutdown();
-
-				if (cMap) delete cMap;
-
-				cMap = new CMap;
-				if (!cMap->Load("levels/" + tGameLobby.szMapName))
-				{
-					printf("Could not load the downloaded map!\n");
-					Disconnect();
-					GotoNetMenu();
-				};
-				if (cRemoteWorms && bGameReady)
-					for (int i = 0; i < MAX_WORMS; i++)
-						cRemoteWorms[i].Prepare(cMap);
-
+				bDownloadingMap = false;
+				bWaitingForMap = false;
+				FinishMapDownloads();
+				sMapDownloadName = "";
 
 				bJoin_Update = true;
 				bHost_Update = true;
@@ -1833,12 +1811,13 @@ void CClient::ParseSendFile(CBytestream *bs)
 			if( ! tGameLobby.bHaveMod &&
 				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 )
 			{
-				tGameLobby.bHaveMod = true;
-			    FILE * fp = OpenGameFile(tGameLobby.szModDir + "/script.lgs", "rb");
-			    if(!fp)
-			        tGameLobby.bHaveMod = false;
-    			else
-			        fclose(fp);
+				if (getUdpFileDownloader()->getFilesPendingAmount() == 0)  {
+					bDownloadingMod = false;
+					bWaitingForMod = false;
+					FinishModDownloads();
+					sModDownloadName = "";
+				}
+
 				bJoin_Update = true;
 				bHost_Update = true;
 			};

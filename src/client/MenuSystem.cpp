@@ -122,6 +122,7 @@ bool Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[4], "data/frontend/con_nat.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
+	tMenu->bmpDownload = LoadGameImage("data/frontend/download.png", true); // Doesn't have to exist
 
 	// Split up the lobby ready image
 	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);

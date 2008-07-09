@@ -393,6 +393,7 @@ void CClient::InitializeDownloads()
 	iMapDlProgress = 0;
 	sMapDlError = "";
 	sMapDownloadName = "";
+	sModDownloadName = "";
 }
 
 /////////////////
@@ -408,6 +409,7 @@ void CClient::ShutdownDownloads()
 	iMapDlProgress = 0;
 	sMapDlError = "";
 	sMapDownloadName = "";
+	sModDownloadName = "";
 }
 
 /////////////////
@@ -415,8 +417,6 @@ void CClient::ShutdownDownloads()
 void CClient::DownloadMap(const std::string& mapname)
 {
 	printf("CClient::DownloadMap() %s\n", mapname.c_str());
-	// Initialize if not initialized
-	InitializeDownloads();
 
 	// Check
 	if (!cHttpDownloader)  {
@@ -502,8 +502,15 @@ void CClient::FinishMapDownloads()
 				return;
 			}
 
-			if (!cMap)
+			if (!cMap)  {
+				printf("WARNING: in game and cMap is not allocated.\n");
 				cMap = new CMap;
+
+				// Make sure the remote worms have a correct pointer
+				if (cRemoteWorms)
+					for (int i = 0; i < MAX_WORMS; i++)
+						cRemoteWorms[i].setMap(cMap);
+			}
 
 			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
 				// Weird
@@ -627,8 +634,8 @@ void CClient::ProcessMapDownloads()
 
 			} else {
 				bDownloadingMap = false;
-				sMapDownloadName = "";
 				getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
+				sMapDownloadName = "";
 				return;
 			}
 		} else {  // No error
@@ -699,16 +706,11 @@ void CClient::ProcessMapDownloads()
 		bDownloadingMap = false;
 	}
 
-	// If finished only sending of a request/file, don't continue further
-	if (getUdpFileDownloader()->wasSending())
+	// Check that we're still downloading
+	if (!bDownloadingMap)
 		return;
 
-	if( bDownloadingMap && iDownloadMethod == DL_UDP )  {
-		bDownloadingMap = false;
-		FinishMapDownloads();
-		bWaitingForMap = false;
-		sMapDownloadName = "";
-	}
+	// HINT: gets finished in CClient::ParseSendFile
 
 	if( fLastFileRequest > tLX->fCurTime )
 		return;
@@ -733,14 +735,8 @@ void CClient::ProcessModDownloads()
 		return;
 	}
 
-	// Finished?
-	if (cUdpFileDownloader.getFilesPendingAmount() == 0 && cUdpFileDownloader.isFinished())  {
-		FinishModDownloads();
-		bDownloadingMod = false;
-		sModDownloadName = "";
+	// HINT: the downloading gets finished in CClient::ParseSendFile
 
-		return;
-	}
 	// Aborted?
 	if (cUdpFileDownloader.wasAborted())  {
 		printf("Mod downloading aborted.\n");
@@ -787,6 +783,12 @@ void CClient::ProcessModDownloads()
 
 	// Request another file from server after little timeout
 	if( fLastFileRequest <= tLX->fCurTime )  {
+
+		// Re-request the file if the request failed
+		if (cUdpFileDownloader.getFilesPendingAmount() == 0)  {
+			cUdpFileDownloader.requestFileInfo(sModDownloadName, true);
+		}
+
 		fLastFileRequestPacketReceived = tLX->fCurTime;
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; 
 
@@ -946,6 +948,8 @@ void CClient::Connect(const std::string& address)
 	iNatTraverseState = NAT_RESOLVING_DNS;
 	fLastTraverseSent = -9999;
 	fLastChallengeSent = -9999;
+
+	InitializeDownloads();
 
 	if(!StringToNetAddr(address, cServerAddr)) {
 
@@ -1196,7 +1200,7 @@ void CClient::Connecting(bool force)
 	bs.writeString("lx::getchallenge");
 	bs.writeString(GetFullGameName());
 	// As we use this tSocket both for sending and receiving,
-	// it's saver to reset the address here.
+	// it's safer to reset the address here.
 	bs.Send(tSocket);
 
 

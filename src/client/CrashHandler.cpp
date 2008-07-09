@@ -11,11 +11,19 @@
 #include "StringUtils.h"
 #include "Version.h"
 #include "AuxLib.h"
+#include "LieroX.h" // for nameThread
 #include <iostream>
 
 using namespace std;
 
+//
+// WIN 32
+//
+
 #if defined(_MSC_VER)
+
+#include <DbgHelp.h>
+#include "FindFile.h" // for IsFileAvailable and mkdir
 
 // Leak checking
 #ifdef _DEBUG
@@ -24,6 +32,9 @@ using namespace std;
 #include <crtdbg.h>
 #endif // _DEBUG
 
+LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
+
+// Crash handling
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
@@ -31,13 +42,78 @@ public:
 		_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif // _DEBUG
 
-		InstallExceptionFilter();
+		SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
 		nameThread(-1,"Main game thread");
 
 		cout << "Win32 Exception Filter installed" << endl;
 	}
+
+
 };
 
+///////////////////
+// This callback function is called whenever an unhandled exception occurs
+LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
+{
+	// Set the exception info for the minidump
+	MINIDUMP_EXCEPTION_INFORMATION eInfo;
+	eInfo.ThreadId = GetCurrentThreadId();
+	eInfo.ExceptionPointers = pExInfo;
+	eInfo.ClientPointers = FALSE;
+
+	// Set the minidump info
+	MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
+	cbMiniDump.CallbackRoutine = NULL;
+	cbMiniDump.CallbackParam = 0;
+
+	// Get the file name
+	static std::string checkname;
+
+	FILE *f = NULL;
+	for (int i=1;1;i++)  {
+		checkname = "bug_reports/report" + itoa(i) + ".dmp";
+		if (!IsFileAvailable("bug_reports/report" + itoa(i) + ".dmp", true))
+			break;
+	}
+
+	mkdir("bug_reports", 0);
+
+	// Open the file
+	std::string wffn = GetAbsolutePath(checkname);
+	HANDLE hFile = CreateFile((LPCSTR)wffn.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+
+
+	// Write the minidump
+	if (hFile)
+		MiniDumpWriteDump(GetCurrentProcess(),GetCurrentProcessId(),hFile,MiniDumpScanMemory,&eInfo,NULL,&cbMiniDump);
+
+	// Close the file
+	CloseHandle(hFile);
+
+	// Quit SDL
+	SDL_Quit();
+
+	// Close all opened files
+	fcloseall();
+
+	// Notify the user
+	char buf[1024];  // Static not needed here
+	//sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
+	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
+
+
+	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
+	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
+
+	std::string ffn = GetFullFileName("BugReport.exe");
+	ShellExecute(NULL,"open",wffn.c_str(),buf,NULL,SW_SHOWNORMAL);
+
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+//
+// Linux
+//
 
 #elif !defined(WIN32) && !defined(MACOSX)
 

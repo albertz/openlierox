@@ -4119,6 +4119,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\CrashHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CrashHandler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\CScriptableVars.cpp"
 				>
 			</File>
