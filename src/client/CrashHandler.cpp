@@ -69,7 +69,7 @@ public:
 
 		// Our pid
 		int MyPid = getpid();
-		printf("CrashHandler trigger MyPid=%i'n", MyPid);
+		printf("CrashHandler trigger MyPid=%i\n", MyPid);
 
 		// Fork to run the crash handler
 		pid_t Pid = fork();
