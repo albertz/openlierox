@@ -195,8 +195,9 @@ void CHttpDownloader::ProcessDownload()
 
 		// Save the data in the file
 		if (tFile)  {
-			if (fwrite(tHttp.GetData().data(), tHttp.GetData().size(), 1, tFile) != 1)
-				SetDlError(FILEDL_ERROR_SAVING);
+			if (tHttp.GetData().size() > 0)
+				if (fwrite(tHttp.GetData().data(), tHttp.GetData().size(), 1, tFile) != 1)
+					SetDlError(FILEDL_ERROR_SAVING);
 			fclose(tFile);
 			tFile = NULL;
 		} else {
