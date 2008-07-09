@@ -38,9 +38,6 @@
 #include "Sounds.h"
 
 
-// Game info
-std::string	GameName;
-
 // Config file
 std::string	ConfigFile;
 
@@ -68,11 +65,8 @@ using namespace std;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
+int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 {
-	// Set the game info
-	GameName=gname;
-
 	ConfigFile=config;
 
 	if(getenv("SDL_VIDEODRIVER"))
@@ -326,7 +320,7 @@ bool SetVideoMode()
 		}
 	}
 
-	SDL_WM_SetCaption(GameName.c_str(),NULL);
+	SDL_WM_SetCaption(GAMENAME " " LX_VERSION,NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
 #ifdef WIN32
@@ -473,13 +467,6 @@ void ShutdownAuxLib()
 }
 
 
-
-///////////////////
-// Return the game name
-std::string GetGameName(void)
-{
-	return GameName;
-}
 
 
 

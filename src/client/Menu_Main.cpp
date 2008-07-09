@@ -179,7 +179,7 @@ void Menu_MainFrame(void)
 
                     cMainMenu.Draw(tMenu->bmpBuffer.get());
 
-                    if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
+                    if( Menu_MessageBox(GAMENAME,"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
 					    tMenu->bMenuRunning = false;
 					    Menu_MainShutdown();
 				    } else {
@@ -233,7 +233,7 @@ void Menu_MainFrame(void)
 
 	// Credits
 
-	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
+	static const std::string credits1 = "  " GAMENAME " v" LX_VERSION;
 
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"

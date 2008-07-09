@@ -58,8 +58,8 @@ public:
 
 #define INTERNDATA_CLASS_END \
 	private: \
-		void init(); \
-		void reset(); \
+		void INTERNDATA__init(); \
+		void INTERNDATA__reset(); \
 	};
 
 #define DEFINE_INTERNDATA_CLASS(_classname) \
@@ -67,18 +67,18 @@ public:
 	INTERNDATA_CLASS_END
 
 #define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
-	_classname::_classname() { init(); } \
-	void _classname::init() { \
+	_classname::_classname() { INTERNDATA__init(); } \
+	void _classname::INTERNDATA__init() { \
 		intern_data = new _datatype; \
 	} \
-	_classname::~_classname() { reset(); } \
-	void _classname::reset() { \
+	_classname::~_classname() { INTERNDATA__reset(); } \
+	void _classname::INTERNDATA__reset() { \
 		if(!intern_data) return; \
 		delete (_datatype*)intern_data; \
 		intern_data = NULL; \
 	} \
 	_classname::_classname(const _classname& b) { \
-		init(); \
+		INTERNDATA__init(); \
 		if (intern_data) \
 			*(_datatype*)intern_data = *(const _datatype*)b.intern_data; \
 	} \

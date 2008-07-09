@@ -2,7 +2,7 @@
 	OpenLieroX
 
 	reader for IpToCountry database
-	
+
 	code under LGPL
 	by Albert Zeyer and Dark Charlie
 */
@@ -46,7 +46,7 @@ typedef std::map<Ip,DBEntry> DBData;
 
 /*
 	_handler has to be a functor, which is compatible to:
-	
+
 	(called after we have a new entry)
 		bool _handler(const DBEntry& dbentry);
 	whereby
@@ -56,10 +56,10 @@ template<typename _handler>
 class CountryCsvReaderHandler {
 public:
 	_handler& handler;
-	
+
 	bool finished_entry;
 	DBEntry entry;
-	
+
 	CountryCsvReaderHandler(_handler& h)
 		: handler(h), finished_entry(false) {}
 
@@ -68,11 +68,11 @@ public:
 		case 0:
 			entry.RangeFrom = from_string<Ip>(token);
 			return true;
-			
+
 		case 1:
 			entry.RangeTo = from_string<Ip>(token);
 			return true;
-		
+
 		case 2:
 			if (token == "IANA")
 				entry.Info.Continent = "Local Network";
@@ -89,37 +89,37 @@ public:
 			else
 				entry.Info.Continent = token;
 			return true;
-			
+
 		case 3:
 		case 5:
 			// ignore
 			return true;
 
-		case 4: 
+		case 4:
 			entry.Info.CountryShortcut = token;
 			return true;
-			
+
 		case 6:
 			entry.Info.Country = token;
 			ucfirst(entry.Info.Country);
 			// Small hack, Australia is considered as Asia by the database
 			if(entry.Info.Country == "Australia")
 				entry.Info.Continent = "Australia";
-				
+
 			finished_entry = true;
 			return false;
-		
+
 		default:
 			return false;
 		}
 	}
-	
+
 	bool operator()() {
 		if(finished_entry) {
-			if(!handler(entry)) return false;		
+			if(!handler(entry)) return false;
 			finished_entry = false;
 		}
-		
+
 		return true;
 	}
 
@@ -138,7 +138,7 @@ public:
 	_PosType& filePos;
 	DBEntryHandler(_handler& h, bool& b, ifstream* f, _PosType& fp)
 		: handler(h), breakSignal(b), file(f), filePos(fp) {}
-	
+
 	inline bool operator()(const DBEntry& entry) {
 		if(breakSignal) return false;
 		filePos = file->tellg();
@@ -150,7 +150,7 @@ class AddEntrysToDBData {
 public:
 	DBData& data;
 	AddEntrysToDBData(DBData& d) : data(d) {}
-	
+
 	bool operator()(const DBEntry& entry) {
 		data[entry.RangeTo] = entry;
 		return true;
@@ -166,12 +166,12 @@ public:
 	TSVar<size_t>	filePos;
 	bool			dbReady; // false, if loaderThread is running
 	bool			loaderBreakSignal;
-	
+
 	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false)
 	{
 		filePos = 0;
 	}
-	
+
 	virtual ~IpToCountryData() {
 		breakLoaderThread();
 		data.clear();
@@ -188,7 +188,7 @@ public:
 			loaderBreakSignal = true;
 			while(!dbReady) { SDL_Delay(100); }
 		}
-		
+
 		SDL_WaitThread(loader, NULL); // This destroys the thread
 
 		// Cleanup
@@ -208,13 +208,13 @@ public:
 		breakLoaderThread();
 		dbReady = false;
 		loaderBreakSignal = false;
-		
+
 		filename = fn;
 		data.clear();
-		
+
 		loader = SDL_CreateThread(loaderMain, this);
 	}
-	
+
 	static int loaderMain(void* obj) {
 		float timer = 0.0f;
 		IpToCountryData* _this = (IpToCountryData*)obj;
@@ -227,8 +227,8 @@ public:
 		}
 		file->seekg(0, std::ios::end);
 		_this->fileSize = file->tellg();
-		file->seekg(0, std::ios::beg);		
-		
+		file->seekg(0, std::ios::beg);
+
 		timer = (float)(SDL_GetTicks()/1000.0f);
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
 		AddEntrysToDBData adder(_this->data);
@@ -243,10 +243,10 @@ public:
 			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
 		}
 		cout << "IpToCountryDB: loadtime " << (float)((SDL_GetTicks()/1000.0f) / timer) << " seconds" << endl;
-		
+
 		file->close();
 		delete file;
-		
+
 		_this->dbReady = true;
 
 		// Notify that the DB has been loaded
@@ -256,10 +256,10 @@ public:
 		ev.user.data1 = NULL;
 		ev.user.data2 = NULL;
 		SDL_PushEvent(&ev);
-		
+
 		return 0;
 	}
-	
+
 	const DBEntry* getEntry(Ip ip) {
 		if(!dbReady) {
 			cout << "IpToCountryDB getEntry: " << filename << " is still loading ..." << endl;
@@ -273,19 +273,19 @@ public:
 			return NULL;
 	}
 
-	
+
 	inline int getProgress() {
 		if(fileSize == 0) return 100;
 		return (int)(((float)filePos / (float)fileSize) * 100.0f);
 	}
-	
+
 };
 
 DECLARE_INTERNDATA_CLASS(IpToCountryDB, IpToCountryData);
 
 
 IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
-	init(); // needed INTERNCLASS-init function
+	INTERNDATA__init(); // needed INTERNCLASS-init function
 	LoadDBFile(dbfile);
 }
 
@@ -330,12 +330,12 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	const DBEntry* entry = IpToCountryDBData(this)->getEntry(ip);
 	if(entry == NULL) {
 		Result.Continent = "unknown continent";
-		Result.Country = "unknown country";	
+		Result.Country = "unknown country";
 	} else {
 		Result = entry->Info;
 	}
-	
-	return Result;	
+
+	return Result;
 }
 
 int IpToCountryDB::GetProgress()  {

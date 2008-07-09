@@ -25,6 +25,7 @@
 #include "Error.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "Version.h"
 
 
 int		GotError = false;
@@ -48,12 +49,12 @@ void SetError(const std::string& text)
 		ErrorFile = OpenGameFile("Error.txt","wt");
 		if(ErrorFile == NULL)
 			return;
-		fprintf(ErrorFile,"%s error file\n----------------------\n",GetGameName().c_str());
+		fprintf(ErrorFile,GAMENAME " error file\n----------------------\n");
 	}
-	
+
 	fprintf(ErrorFile,"%s\n", text.c_str());
 	//printf("Error: %s\n", ErrorMsg);
-	
+
 }
 
 

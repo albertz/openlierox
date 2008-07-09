@@ -40,7 +40,7 @@
 
 
 // Routines
-int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
+int			InitializeAuxLib(const std::string& config, int bpp, int vidflags);
 void		ShutdownAuxLib();
 bool		SetVideoMode();
 
@@ -52,6 +52,7 @@ void        FlipScreen( SDL_Surface * psScreen);
 void		CapFPS();
 
 std::string	GetGameName();
+char*		GetAppPath();
 
 std::string GetConfigFile();
 

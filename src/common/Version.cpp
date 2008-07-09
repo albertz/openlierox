@@ -10,12 +10,7 @@ using std::endl;
 
 
 std::string GetFullGameName() {
-	std::string name = GetGameName();
-	if(name == "") {
-		printf("WARNING: gamename still undefined\n");
-		name = "OpenLieroX";
-	}
-	return name + "/" + LX_VERSION;
+	return GAMENAME "/" LX_VERSION;
 }
 
 

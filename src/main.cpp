@@ -31,6 +31,7 @@
 #include "Version.h"
 #include "OLXModInterface.h"
 #include "OLXG15.h"
+#include "CrashHandler.h"
 
 
 #ifndef WIN32
@@ -38,14 +39,6 @@
 #include <sys/stat.h>
 #endif
 
-// Leak checking
-#ifdef _MSC_VER
-#ifdef _DEBUG
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif // _DEBUG
-#endif // _MSC_VER
 #include <libxml/parser.h>
 
 // TODO: i hate globals ...
@@ -138,12 +131,15 @@ void test_Unicode_UTF8_Conversion() {
 	IncUtf8StringIterator(i, tmp.end());*/
 }
 
+char* apppath = NULL;
+
+char* GetAppPath() { return apppath; }
 
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
 {
-	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+	printf(GAMENAME " " LX_VERSION " is starting ...\n");
 #ifdef DEBUG
 	printf("HINT: This is a DEBUG build.\n");
 #endif
@@ -155,17 +151,6 @@ int main(int argc, char *argv[])
 	setvbuf(stdout, NULL, _IOLBF, 1024 );
 #endif
 
-#ifdef _MSC_VER
-#ifdef _DEBUG
-	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif // _DEBUG
-
-	InstallExceptionFilter();
-	nameThread(-1,"Main game thread");
-#else
-	// TODO: same/similar for other systems
-#endif // _MSC_VER
-
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
 	assert(sizeof(char) == 1);
@@ -175,12 +160,15 @@ int main(int argc, char *argv[])
 
     bool startgame = false;
 
+	apppath = argv[0];
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)
 		binary_dir.erase(slashpos);
 	else
 		binary_dir = "."; // TODO get exact path of binary
+
+	CrashHandler::init();
 
 startpoint:
 
@@ -500,7 +488,7 @@ int InitializeLieroX(void)
 	LIBXML_TEST_VERSION;
 
 	// Initialize the aux library
-	if(!InitializeAuxLib("OpenLieroX","config.cfg",16,0)) {
+	if(!InitializeAuxLib("config.cfg",16,0)) {
         SystemError("strange problems with the aux library");
 		return false;
 	}
