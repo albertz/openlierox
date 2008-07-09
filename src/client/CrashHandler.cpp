@@ -53,6 +53,7 @@ public:
 	CrashHandlerImpl() {
 		// TODO: check if drkonqi exists
 		// TODO: check if other crash handlers are present; check at least also for Appart and bug-buddy
+		// (bug-buddy usage is very similar to drkonqi)
 		signal(SIGSEGV, &DrKonqiSignalHandler);
 		cout << "registered KCrash signal handler" << endl;
 	}
