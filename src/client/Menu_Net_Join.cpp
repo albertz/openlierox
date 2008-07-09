@@ -31,7 +31,7 @@
 #include "CCheckbox.h"
 #include "CLabel.h"
 #include "CTextButton.h"
-#include "CProgressBar.h"
+#include "CProgressbar.h"
 
 using namespace std;
 
@@ -655,7 +655,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
 		if( dlButton )
 		{
-			if( ! cClient->getGameLobby()->bHaveMap || 
+			if( ! cClient->getGameLobby()->bHaveMap ||
 				( ! cClient->getGameLobby()->bHaveMod && cClient->getServerVersion() >= OLXBetaVersion(4) ) )
 			{
 				if( cClient->getDownloadingMap() || cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
@@ -666,7 +666,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			else
 				dlButton->SendMessage( LBS_SETTEXT, "", 0 );
 		};
-		
+
 		if( cClient->getDownloadingMapError() )
 		{
 			// Put notice about downloaded file in chatbox
@@ -689,7 +689,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				progress->SetPosition(cClient->getModDlProgress());
 		} else {
 			progress->setEnabled(false);
-			cancel->setEnabled(false);	
+			cancel->setEnabled(false);
 		}
 	}
 
@@ -784,7 +784,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 					{
 						cClient->AbortMapDownloads();
-						if( ! cClient->getUdpFileDownloader()->isFinished() || 
+						if( ! cClient->getUdpFileDownloader()->isFinished() ||
 							cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 						{
 							cClient->getUdpFileDownloader()->abortDownload();
