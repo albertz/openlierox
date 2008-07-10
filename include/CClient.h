@@ -475,6 +475,7 @@ private:
 	bool		bConnectingBehindNat;
 	float		fLastChallengeSent;
 	float		fLastTraverseSent;
+	int			iNatTryPort;
 
 public:
 	// HINT: saves the current time of the simulation

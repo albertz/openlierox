@@ -257,6 +257,7 @@ void CClient::ParsePong(void)
 void CClient::ParseTraverse(CBytestream *bs)
 {
 	iNatTraverseState = NAT_SEND_CHALLENGE;
+	iNatTryPort = 0;
 	std::string addr = bs->readString();
 	if( addr.find(":") == std::string::npos )
 		return;
@@ -265,22 +266,7 @@ void CClient::ParseTraverse(CBytestream *bs)
 	SetNetAddrPort(cServerAddr, port);
 	NetAddrToString( cServerAddr, addr );
 
-	// Send a ping towards the real server and open a hole in our NAT
-	CBytestream bs1;
-	bs1.writeInt(-1,4);
-	bs1.writeString("lx::ping");
-
-	// Send it to few ports around the given one to increase probability
-	for (int i = -2; i <= 4; i++)  {
-		SetNetAddrPort(cServerAddr, (ushort)(port + i));
-		SetRemoteNetAddr(tSocket, cServerAddr);
-
-		// So NAT/firewall will understand we really want to connect there
-		bs1.Send(tSocket);
-		bs1.Send(tSocket);
-		bs1.Send(tSocket);
-	}
-	SetNetAddrPort(cServerAddr, (ushort)port); // Restore the original port
+	// HINT: the connecting process now continues by sending a challenge in CClient::ConnectingBehindNAT()
 
 	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
 };
@@ -290,6 +276,7 @@ void CClient::ParseTraverse(CBytestream *bs)
 void CClient::ParseConnectHere(CBytestream *bs)
 {
 	iNatTraverseState = NAT_SEND_CHALLENGE;
+	iNatTryPort = 0;
 
 	NetworkAddr addr;
 	GetRemoteNetAddr(tSocket, addr);

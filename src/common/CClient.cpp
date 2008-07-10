@@ -991,7 +991,8 @@ void CClient::Connect(const std::string& address)
 void CClient::ConnectingBehindNAT()
 {
 #define TRAVERSE_TIMEOUT 3
-#define CHALLENGE_TIMEOUT 3
+#define CHALLENGE_TIMEOUT 1.5f
+#define TRY_PORT_COUNT 7 // Number of ports around the given one we try
 
 	// Check if we are connecting
 	if(iNetStatus != NET_CONNECTING || !bConnectingBehindNat)
@@ -1080,43 +1081,60 @@ void CClient::ConnectingBehindNAT()
 	break;
 
 	case NAT_SEND_CHALLENGE:  {
-		// Buld the packet
-		CBytestream bs;
-		bs.writeInt(-1,4);
-		bs.writeString("lx::getchallenge");
-		bs.writeString(GetFullGameName());
+		// Build the packet
+		CBytestream chall;
+		chall.writeInt(-1,4);
+		chall.writeString("lx::getchallenge");
+		chall.writeString(GetFullGameName());
+
+		// For buggy NATs we send a ping before the challenge, in case the first packet gets ignored
+		CBytestream ping;
+		ping.writeInt(-1,4);
+		ping.writeString("lx::ping");
 
 		// Send the packet to few ports around the given one to increase the probability
 		static const int p[] = {0, 2, 1, 3, 4, -1, -2}; // Sorted by the probability to speed up the joining process
 		int port = GetNetAddrPort(cServerAddr);
 
-		for (size_t i = 0; i < sizeof(p)/sizeof(int); i++)  {
-			SetNetAddrPort(cServerAddr, (ushort)(port + p[i]));
-			SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
+		SetNetAddrPort(cServerAddr, (ushort)(port + p[iNatTryPort]));
+		SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
 
-			// As we use this tSocket both for sending and receiving,
-			// it's safer to reset the address here.
-			bs.Send(tSocket);
-		}
-		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
+		// As we use this tSocket both for sending and receiving,
+		// it's safer to reset the address here.
+		ping.Send(tSocket);
+		chall.Send(tSocket);
 
 		// Print it to the console
 		std::string str;
 		NetAddrToString(cServerAddr, str);
 		printf("HINT: sending challenge to %s\n", str.c_str());
 
+		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
+
 		// To make sure we get called again
 		Timer(&Timer::DummyHandler, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
 
 		fLastChallengeSent = tLX->fCurTime;
 		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
+		iNatTryPort++;
 	} break;
 
 	case NAT_WAIT_CHALLENGE_REPLY:  {
 		// Check for timeouts
 		if (tLX->fCurTime - fLastChallengeSent >= CHALLENGE_TIMEOUT)  {
 
-			printf("The server behind a NAT did not reply to our challenge.\n");
+			// If trying ports around the given one
+			if (iNatTryPort >= TRY_PORT_COUNT)  {
+				printf("The server behind a NAT did not reply to our challenge.\n");
+				iNatTryPort = 0;
+			} else {
+				iNatTraverseState = NAT_SEND_CHALLENGE;
+				
+				// To make sure we get called again
+				Timer(&Timer::DummyHandler, NULL, 10, true).startHeadless();
+				return;
+			}
+
 
 			// If we've tried 5 times, give up
 			if (iNumConnects >= 5)  {

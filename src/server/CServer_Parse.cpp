@@ -1735,6 +1735,12 @@ bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
 		bs.Send(data->sock);
 		bs.Send(data->sock);
 		bs.Send(data->sock);
+
+		SetNetAddrPort(addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
+		SetRemoteNetAddr(data->sock, addr);
+		bs.Send(data->sock);
+		bs.Send(data->sock);
+		bs.Send(data->sock);
 	};
 	delete data;
 	return false;
@@ -1799,18 +1805,13 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.writeInt(-1, 4);
 	bs1.writeString("lx::pong");
 
-	int port = GetNetAddrPort(adrClient);
-	for (short i = -2; i <= 4; i++)  {
-		SetNetAddrPort(adrClient, (ushort)(port + i));
-		SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
+	//SetNetAddrPort(adrClient, (ushort)(port + i));
+	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
 
-		// Send 3 times - first packet may be ignored by remote NAT
-		bs1.Send(tNatTraverseSockets[socknum]);
-		bs1.Send(tNatTraverseSockets[socknum]);
-		bs1.Send(tNatTraverseSockets[socknum]);
-	}
-	SetNetAddrPort(adrClient, (ushort)port);
-
+	// Send 3 times - first packet may be ignored by remote NAT
+	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(tNatTraverseSockets[socknum]);
 
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
 	Timer( &SendConnectHereAfterTimeout,
