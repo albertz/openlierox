@@ -1,0 +1,334 @@
+This file describes a draft of a file transfer protocol for future versions of OLX or Hirudo. Feel free to modify it :-)
+
+Contents
+========
+
+1. General Notes
+2. Types of Transfer
+3. File Transfers
+  3.1 Initializing a Transfer
+  3.2 Transfer
+  3.3 Finishing the Transfer
+  3.4 General Notes
+4. Folder Transfers
+  4.1 Initializing a Transfer
+  4.2 Transfer
+  4.3 Finishing the Transfer
+  4.4 General Notes
+5. File STATing
+  5.1 Requesting a File STAT
+  5.2 Reply to a File STAT
+6. Folder STATing
+  6.1 Initializing a Folder STAT
+  6.2 Transferring the Folder STAT
+  6.3 Finishing the Folder STAT
+7. Other packets
+  7.1 The KeepAlive Packet
+  7.2 The Capabilities Packet
+8. Dealing with Errors
+9. Used Abbreviations
+
+
+1. General notes
+================
+
+The concept relies on a reliable network which will deliver all the packets and in a correct order.
+
+The file names and folder names are always case-insensitive. On case-sensitive systems, the first file/folder found should be used.
+
+All the file names and folder names must be encoded in UTF-8.
+
+The default timeout should be set to 3 seconds for all transfer phases.
+
+The compression mentioned in this document should be done using the DEFLATE algorithm (for example zlib) and the checksums are Adler32 checksums.
+
+The client/server in this document don't necessarily mean the game's client/server. In the OLX/Hirudo code both server and client should be able to act as a trasfer client or a transfer server.
+
+
+2.Types of Transfer
+===================
+
+There are four types of transfer available:
+1) Single file transfer
+This type of transfer will be used mainly for level transferring and skin transferring.
+
+2) Folder transfer
+This type of transfer should be used for mod transfers.
+
+3) File STATing
+Can be used for getting information about a file availability on the server/client or for obtaining control checksums of the files.
+
+4) Folder STATing
+Can be used for getting contents of a folder. Useful when server wants to check that a client got all necessary data or when a client wants to know the list of levels/mods available on the server.
+
+
+3. File Transfers
+=================
+
+
+3.1 Initializing a Transfer
+---------------------------
+
+When a client needs a file, it should start the file transfer with a RequestTransfer packet with the following structure:
+[UINT16] - packet length in bytes, excluding this length field
+[BYTE] - the packet identifier, must be 0
+[BYTE] - 0 - Says that we want to download a file and not a folder or a STAT
+[UINT16] - bit flags containing client capabilities
+  1st bit - client supports simultaneous transfers (yes - 1, no - 0)
+  2nd bit - client supports file transfers (yes - 1, no - 0)
+  3rd bit - client supports folder transfers (yes - 1, no - 0)
+  4th bit - client supports file STATing (yes - 1, no - 0)
+  5th bit - client supports folder STATing (yes - 1, no - 0)
+  6th - 16th bits are reserved for future use and must be zero
+[UINT16] - transfer ID - an unique identifier that will be used for identifying this particular transfer
+[STRING] - requested file name including a possible relative path
+
+The server responds to this packet with a RequestReply packet:
+[UINT16] - packet length in bytes, excluding this length field
+[BYTE] - the packet identifier, must be 1
+[BYTE] - 0 - says that it's a file transfer, not a folder transfer or a STAT
+[UINT16] - bit flags containing server capabilities
+  1st bit - server supports simultaneous transfers (yes - 1, no - 0)
+  2nd bit - client supports file transfers (yes - 1, no - 0)
+  3rd bit - server supports folder transfers (yes - 1, no - 0)
+  4th bit - server supports file STATing (yes - 1, no - 0)
+  5th bit - client supports folder STATing (yes - 1, no - 0)
+  6th - 16th bits are reserved for future use and must be zero
+[BYTE] - says, if the transfer was accepted (0), declined (1), the file does not exist on the server (2), the file exists but is unavailable (3), invalid transfer type (4), invalid request (5)
+[UINT16] - transfer ID - copied from the RequestTransfer packet, the server must create a new transfer entry as from now on all the packets will be identified using this ID
+[STRING] - the file name and path requested (should be copied from the RequestTransfer packet)
+
+The following fields are present only if the transfer was accepted (i.e. the 4th field is set to 0):
+[BYTE] - boolean that says if the file is compressed or not
+[UINT32] - size of the data to be transferred
+[UINT32] - file checksum
+[STRING] - mime type
+
+NOTE 1: If the file is not available or does not exist, client should not request it again 
+NOTE 2: If a client receives a RequestReply packet with a file it did not request, it must ignore the packet.
+NOTE 3: The client is responsible for choosing an unique ID (must be unique for the session with the server); if a server receives a RequestTransfer packet with an invalid ID, it must ignore it
+
+After a client receives the RequestReply packet with the fourth byte set to "accepted", the transfer is considered active and the server must start sending the data.
+
+
+3.2 Transfer
+------------
+
+After the initialization phase the server starts sending packets with the actual file contents. Structure of that packet is the following:
+[UINT16] - packet length in bytes, excluding this length field
+[BYTE] - packet identifier, must be 2
+[UINT16] - transfer ID
+[BYTE] - 0 - says, that it's a file transfer, not a folder transfer or a STAT
+[UINT32] - number of bytes transferred so far (without this packet), is zero for the first data packet
+[UINT32] - number of bytes to be transferred (again, not counting the current packet), is zero for the last data packet
+[BYTE] - data length - maximum length can be 255 bytes (this length is enough because sending bigger chunks via UDP might lead to a bigger packet loss and therefore a bigger network load)
+[N BYTEs] - data, N is the length from the previous field
+
+The client must check if the number of transferred data bytes specified in the packet corresponds with the number of bytes it actually received. If the numbers don't match (most probably a failure of the reliable network system), it must send an AbortTransfer packet with reason set to "size check failed" (3), see below.
+
+Anytime AFTER the first data packet and BEFORE the last data packet both the server and client can send an AbortTransfer packet:
+[UINT16] - packet length in bytes, excluding this length field, should be 5
+[BYTE] - packet identifier, must be 3
+[UINT16] - transfer ID
+[BYTE] - 0 - says, that it's a file transfer, not a folder transfer or a STAT
+[BYTE] - reason of the abort - user cancelled (0), connection timeout (1), size check failed (2), internal error (3)
+
+After sending such a packet, the sender must remove the transfer from the table as well as all data that has been transferred. Similarly, if a client/server receives the AbortTransfer packet, it must remove the transfer and any corresponding data.
+If the AbortTransfer packet is received during the initialization or finalization state, it must be ignored.
+
+
+NOTE 1: client doesn't send any ACKs, this is left up on the reliable network
+NOTE 2: if server hasn't sent any data packet for more than 5 seconds, client should send an AbortTransfer packet with the last field set to "connection timeout" (1); optionally it can request the file again by sending the RequestTransfer packet
+
+
+3.3 Finishing the Transfer
+--------------------------
+
+After sending the last data packet, server should send a TransferEnd packet that will "officially" finish the transfer:
+[UINT16] - packet length in bytes, excluding this length field, should be 8
+[BYTE] - packet identifier, must be 4
+[UINT16] - transfer ID
+[BYTE] - 0 - identifies a file transfer
+[UINT32] - total number of data packets sent (initialization packet and finalization packets don't count)
+
+
+After a transfer finishes, client should verify, that the transferred size matches the size specified in the initialization packet and
+verify the checksum. If the checks are OK, the client should save the file, else discard the data. Optionally it can perform a check if the packet count specified in server's TransferEnd packet matches the number of packets received. After the data verification, client
+should send a TransferFinishAck packet:
+[UINT16] - packet length in bytes, excluding this length field, should be 5
+[BYTE] - packet identifier, must be 5
+[UINT16] - transfer ID
+[BYTE] - 0 - identifies a file transfer
+[BYTE] - boolean that says if the transfer was successful (1) or failed (0)
+
+
+In every case, the client should remove the transfer entry to free up the ID.
+
+After the server receives the FinishAck packet, it should remove the transfer entry and free up the ID.
+
+NOTE: if the client receives the last data packet (i.e. packet with rest length 0) but not the TransferEnd packet, it's up to the client how it handles it. If the size and checksum are OK, the client can save the file and use it.
+
+3.4 General Notes
+-----------------
+
+When the connection is aborted or lost anytime during the negoiation, both server and client must clear the transfer table and delete data from the unfinished transfers.
+
+Both sides should check the packet length and count the number of bytes read from the packet. If after reading a whole packet the read length is smaller than the length specified packet, all the data up to the length specified in the packet must be ignored. This ensures an easy extensibility of the protocol without breaking the possible backward compatibility. 
+If, on the other hand, the read length is bigger than the length specified in  the packet, the whole UDP packet should be discarded as it is most probably corrupted or wrongly parsed.
+
+If the other side does not support simultaneous transfers (specified in the bit flags in the initialization packets), the transfer must not be started until all active transfers are finished (counting both uploads and downloads).
+
+
+4. Folder Transfers
+===================
+
+Transferring a folder means simply compressing it and sending it as one file.
+
+4.1 Initializing a Transfer
+---------------------------
+
+When a client requests a file, it sends the RequestTransfer packet, only the third byte is set to 1 which means a folder transfer.
+
+Similarly, the server responds with a RequestReply packet, where 3rd byte is set to 1. 8th field (the compression) must be always set to 1 and the mime-type must be set to the type of compression used, for example multipart/x-zip for a zip compression.
+
+The compressed file must have the same name as the folder, for example when a client requests a folder named FooFolder, the file name must be FooFolder.zip.
+
+The folder structure within the compressed file should look like this:
+Requested Folder
+  /Subfolder1
+  /Subfolder2
+  /some_file.foo
+For example when a client requests the Classic mod folder, the compressed file must look like this:
+Classic
+  /gfx
+    /banana.png
+    / (more files)
+  /sfx
+    /bazooka.wav
+    / (more files)
+  /script.lgs
+
+4.2 Transfer
+------------
+
+Transfer itself is exactly the same as a file transfer, only the transfer type identificator bytes must be set to 1 to identify a folder transfer.
+
+4.3 Finishing the Transfer
+--------------------------
+
+Again, this works exactly the same way as finishing a file transfer, only the transfer type identificators must be set to 1 to identify a folder transfer.
+
+HINT: After a transfer finishes, the server should keep the compressed file because other clients might want to download it as well. It should be removed after the program quits.
+
+4.4 General Notes
+-----------------
+
+See the section 3.4, all notes stated there apply to this transfer type as well.
+
+
+5. File STATing
+===============
+
+5.1 Requesting a File STAT
+--------------------------
+
+Client requesting a file STAT uses the same packet as for initializing a file transfer with these modifications:
+- The "transfer type" field must be set to 2 to identify a file STAT
+
+5.2 Reply to a File STAT
+------------------------
+
+When server becomes the RequestTransfer packet with the "transfer type" set to file STAT, it must reply with a RequestReply packet which is the same as in file transfer initialization (see 3.1) with these modifications:
+- The "transfer type" field must be set to 2 to identify a file STAT 
+- The "transfer ID" field must be set to 0xFFFF
+- The "compressed" field must be set to 0 (false)
+- The "transfer size" field must contain the file size (uncompressed)
+- The "file checksum" field must contain the file checksum (of the uncompressed file)
+
+The server must not create any entry in the trasfers table nor allocate any transfer ID.
+After sending the reply the transfer is considered finished and the server must not send any further packets.
+
+
+6. Folder STATing
+=================
+
+Folder STATing works very similarly to file transfers. Because the directory listings can be large, it uses the TransferPackets to transfer all the data.
+
+
+6.1 Initializing the Folder STAT
+--------------------------------
+
+Client requesting a folder STAT uses the same packet as for initializing a file transfer with these modifications:
+- The "transfer type" field must be set to 3 to identify a folder STAT
+
+After the server receives the initializing packet, it should find the requested directory and recursively (i.e. with all subdirectories) create a directory listing of it with the following format:
+[UINT32] - total number of files
+[UINT32] - total number of directories
+
+For each file/folder then:
+[BYTE] - type - either file (0) or directory (1)
+[STRING] - file/directory name + relative path (for example: file.foo; or subdir/file2.foo; or subdir/subsubdir/subsubsubdir)
+[UINT32] - size of the file/directory
+
+IMPORTANT: the first entry of the list must always be the "." directory and its size must represent the whole directory size
+NOTE: the server does not necessarily have to include all files or subdirectories (from security reasons for example). However, if it does not include a file or directory, it must not include its size anywhere.
+
+Server replies with the RequestReply packet (see 3.1) with these modifications:
+- The transfer type field must be set to 3 to identify a folder STAT
+- The "compression" field says if the file and folder list in the STAT is compressed
+- The size field says the length of the STAT, if the "compression" is set to true, this field contains the compressed size
+- The checksum field contains the checksum of the transferred data
+
+6.2 Transferring the Folder STAT
+--------------------------------
+
+This is the same as transferring a file (see 3.2), only the transfer type fields must be set to 3 to identify the folder STAT.
+
+6.3 Finishing the Folder STAT
+-----------------------------
+
+Again, this is the same as finishing the file transfer, only the transfer type fields must be set to 3 to identify the folder STAT.
+
+7. Other packets
+================
+
+7.1 The KeepAlive Packet
+------------------------
+
+This packet is used for avoiding timeouts. Because creating a full directory listing or even packing a whole directory might be a time-consuming operation which could lead to timeouts, a KeepAlive packet can be sent to postpone the timeout:
+[UINT16] - packet length, excluding this length field
+[BYTE] - packet identifier, must be 6
+[UINT16] - transfer ID to which the KeepAlive packet applies
+
+7.2 The Capabilities Packet
+---------------------------
+
+This packet can be used for determining the other side transfer capabilities:
+[UINT16] - packet length, excluding this length field
+[BYTE] - packet identifier, must be 7
+[UINT16] - current capability flags, same as in the initialization packets (see 3.1)
+
+The other side replies with another Capabilities packet.
+
+
+8. Dealing with Errors
+======================
+
+If a client/server receives an unknown packet, it should skip it - all the packets have reserved first two bytes for the packet length that can be used for a safe skipping.
+
+If a client/server receives a known packet but in an incorrect phase (for example ABORT during the initialisation phase), it must ignore it.
+
+If a client/server receives a packet with an invalid transaction ID, it must ignore it.
+
+The packet length must be checked every time and in case there are some unknown bytes in the packet, these must be skipped. If, on the other hand, the packet length is less than expected, the whole packet must be ignored.
+
+See the previous sections of this file for phase-specific error resolving.
+
+
+9. Used Abbreviations
+=====================
+
+BYTE - one byte
+UINT16 - 2 bytes long unsigned integer
+UINT32 - 4 bytes long unsigned integer
+STRING - variable length NULL-terminated C string
