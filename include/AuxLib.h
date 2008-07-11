@@ -50,11 +50,16 @@ void		ProcessScreenshots();
 void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
 
 
+
 class VideoPostProcessor {
 protected:
 	static SDL_Surface* m_videoSurface;
+	static SDL_Surface* m_videoBufferSurface;
 	static VideoPostProcessor* instance;
-	static void flipRealVideo();
+
+public:
+	// HINT: don't call this yourself! used in video thread
+	void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
 
 public:
 	virtual ~VideoPostProcessor() {}
@@ -62,13 +67,13 @@ public:
 	static void init();
 	static void uninit();
 
-	virtual void resetVideo() { m_videoSurface = SDL_GetVideoSurface(); } // this dummy just uses the real video surface directly; it is called from SetVideoMode
-	virtual void processToScreen() {} // should process m_videoSurface to real video surface
+	virtual void resetVideo() { m_videoSurface = m_videoBufferSurface = SDL_GetVideoSurface(); } // this dummy just uses the real video surface directly; it is called from SetVideoMode
+	virtual void processToScreen() {} // should process m_videoSurface to real video surface; this is run within an own thread
 	virtual int screenWidth() { return 640; }
 	virtual int screenHeight() { return 480; }
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
-	static void process() { ProcessScreenshots(); get()->processToScreen(); flipRealVideo(); }
+	static void process();
 
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };

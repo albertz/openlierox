@@ -437,11 +437,12 @@ void ProcessScreenshots()
 VideoPostProcessor voidVideoPostProcessor; // this one does nothing
 
 SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
+SDL_Surface* VideoPostProcessor::m_videoBufferSurface = NULL;
 VideoPostProcessor* VideoPostProcessor::instance = &voidVideoPostProcessor;
 
 ///////////////////
 // Flip the screen
-void VideoPostProcessor::flipRealVideo() {
+static void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
 
@@ -451,30 +452,53 @@ void VideoPostProcessor::flipRealVideo() {
 		SDL_GL_SwapBuffers();
 }
 
-class StretchHalfPostProc : public VideoPostProcessor {
+// base class for your video post processor
+// this base manages the video surface and its buffer
+class BasicVideoPostProcessor : public VideoPostProcessor {
+public:
+	SmartPointer<SDL_Surface> m_screenBuf[2];
+
+	virtual void resetVideo() {
+		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
+		if(!m_screenBuf[0].get()) {
+			m_screenBuf[0] = gfxCreateSurface(640, 480);
+			m_screenBuf[1] = gfxCreateSurface(640, 480);
+		}
+
+		m_videoSurface = m_screenBuf[0].get();
+		m_videoBufferSurface = m_screenBuf[1].get();
+	}
+};
+
+// There is one usage of this: If you want to let OLX manage the double buffering.
+// In this case, all the flipping and copying is done in the video thread.
+// Without a post processor, the flipping is done in the main thread.
+// There are some rare situations where the flipping of the screen surface is slow
+// and in this situations, it can be faster to use this dummy post processor.
+class DummyVideoPostProc : public BasicVideoPostProcessor {
+public:
+	DummyVideoPostProc() {
+		cout << "using Dummy video post processor" << endl;
+	}
+
+	virtual void processToScreen() {
+		DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
+	}
+
+};
+
+class StretchHalfPostProc : public BasicVideoPostProcessor {
 public:
 	static const int W = 320;
 	static const int H = 240;
-
-	SmartPointer<SDL_Surface> m_screenBuf;
 
 	StretchHalfPostProc() {
 		cout << "using StretchHalf video post processor" << endl;
 	}
 
-	virtual void resetVideo() {
-		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-		if(!m_screenBuf.get())
-			m_screenBuf = gfxCreateSurface(640, 480);
-
-		m_videoSurface = m_screenBuf.get();
-	}
-
 	virtual void processToScreen() {
-		DrawImageScaleHalf(SDL_GetVideoSurface(), m_screenBuf.get());
-
+		DrawImageScaleHalf(SDL_GetVideoSurface(), m_videoBufferSurface);
 		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
-
 		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
 	}
 
@@ -483,27 +507,17 @@ public:
 
 };
 
-class Scale2XPostProc : public VideoPostProcessor {
+class Scale2XPostProc : public BasicVideoPostProcessor {
 public:
 	static const int W = 640 * 2;
 	static const int H = 480 * 2;
-
-	SmartPointer<SDL_Surface> m_screenBuf;
 
 	Scale2XPostProc() {
 		cout << "using Scale2x video post processor" << endl;
 	}
 
-	virtual void resetVideo() {
-		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-		if(!m_screenBuf.get())
-			m_screenBuf = gfxCreateSurface(640, 480);
-
-		m_videoSurface = m_screenBuf.get();
-	}
-
 	virtual void processToScreen() {
-		DrawImageScale2x(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480);
+		DrawImageScale2x(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
 	}
 
 	virtual int screenWidth() { return W; }
@@ -512,8 +526,66 @@ public:
 };
 
 
+#include <SDL_thread.h>
+
+static SDL_Thread* videoThread = NULL;
+static SDL_mutex* videoWaitMutex = NULL; // for videoThreadState; it's nearly always locked by main thread
+static enum { VTS_WAITING, VTS_WORKING, VTS_INVALID } videoThreadState = VTS_INVALID;
+
+void videoCoreFrame() {
+	ProcessScreenshots();
+	VideoPostProcessor::get()->processToScreen();
+	flipRealVideo();
+}
+
+int videoThreadFct(void*) {
+	while(true) {
+		// this will make us sleep because the main thread should have locked this
+		SDL_mutexP(videoWaitMutex);
+		while(videoThreadState != VTS_WAITING) {
+			if(videoThreadState == VTS_INVALID) {
+				SDL_mutexV(videoWaitMutex);
+				printf("Video thread gets killed\n");
+				return 0;
+			}
+
+			// normally, we should not get here
+			// if it happens though, just wait and give other threads the chance to change our state
+			SDL_mutexV(videoWaitMutex);
+			SDL_Delay(10);
+			SDL_mutexP(videoWaitMutex);
+		}
+
+		// we get the signal that another thread is waiting for us to start the work
+		videoThreadState = VTS_WORKING;
+		VideoPostProcessor::get()->flipBuffers(); // the caller process() is waiting for us, therefore this is safe
+		SDL_mutexV(videoWaitMutex); // release state var
+
+		videoCoreFrame();
+	}
+}
+
+// WARNING: this has to be called from main thread!
+// (because of the mutex which was locked in same thread as init())
+void VideoPostProcessor::process() {
+	if(instance == &voidVideoPostProcessor) {
+		videoCoreFrame();
+		return;
+	}
+
+	videoThreadState = VTS_WAITING;
+	SDL_mutexV(videoWaitMutex); // release state var (we should have locked it ourself before)
+	while(videoThreadState == VTS_WAITING) {} // wait thread has started working and flipped its buffers
+	SDL_mutexP(videoWaitMutex); // lock state var
+}
+
 void VideoPostProcessor::init() {
 	cout << "VideoPostProcessor initialisation ... " << flush;
+
+	videoWaitMutex = SDL_CreateMutex();
+	videoThreadState = VTS_WAITING;
+	SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
+	videoThread = SDL_CreateThread(&videoThreadFct, NULL);
 
 	std::string vppName = tLXOptions->sVideoPostProcessor;
 	TrimSpaces(vppName); stringlwr(vppName);
@@ -521,6 +593,8 @@ void VideoPostProcessor::init() {
 		instance = new StretchHalfPostProc();
 	else if(vppName == "scale2x")
 		instance = new Scale2XPostProc();
+	else if(vppName == "dummy")
+		instance = new DummyVideoPostProc();
 	else {
 		if(vppName != "")
 			cout << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
@@ -530,9 +604,17 @@ void VideoPostProcessor::init() {
 }
 
 void VideoPostProcessor::uninit() {
+	if(videoThread) {
+		videoThreadState = VTS_INVALID;
+		SDL_mutexV(videoWaitMutex); // release state var
+		SDL_WaitThread(videoThread, NULL);
+		videoThread = NULL;
+	}
+
 	if(instance != &voidVideoPostProcessor && instance != NULL)
 		delete instance;
 	instance = &voidVideoPostProcessor;
+
 	m_videoSurface = NULL; // should never be used before resetVideo() is called
 }
 
@@ -561,10 +643,10 @@ void ShutdownAuxLib()
 	// HINT: we have to do it before we uninit the specific engines
 	cCache.Clear();
 
+	VideoPostProcessor::uninit();
 	// quit video at this point to not get stuck in a fullscreen not responding game in case that it crashes in further quitting
 	// in the case it wasn't inited at this point, this also doesn't hurt
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
-	VideoPostProcessor::uninit();
 
 	QuitSoundSystem();
 
