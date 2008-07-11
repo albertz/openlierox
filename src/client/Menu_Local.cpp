@@ -1499,7 +1499,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		DrawCursor(GetVideoSurface());
 
 		// Display the dialog
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 
 		CapFPS();
 		WaitForNextEvent();

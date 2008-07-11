@@ -413,8 +413,9 @@ void ProcessScreenshots()
 
 ///////////////////
 // Flip the screen
-void FlipScreen( SDL_Surface * psScreen)
+void FlipScreen()
 {
+	SDL_Surface* psScreen = GetVideoSurface();
 	if(psScreen == NULL) return;
 
     // Take a screenshot?

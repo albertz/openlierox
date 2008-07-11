@@ -485,7 +485,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 #endif
 
         DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
     }
 

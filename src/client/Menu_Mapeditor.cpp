@@ -607,7 +607,7 @@ void Menu_MapEd_New(void)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -806,7 +806,7 @@ void Menu_MapEd_LoadSave(int save)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 		WaitForNextEvent();
 	}

@@ -532,7 +532,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 #endif
 
         DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
     }
 
@@ -629,7 +629,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -734,7 +734,7 @@ void Menu_Net_FavouritesAddServer(void)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 		WaitForNextEvent();
 	}

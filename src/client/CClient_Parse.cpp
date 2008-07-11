@@ -1879,7 +1879,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 	// HINT: don't do that, because someone could send a fake packet and cause a DoS (the screen goes black)
 	/*SDL_SetClipRect(GetVideoSurface(), NULL);
 	FillSurfaceTransparent(GetVideoSurface());
-	FlipScreen(GetVideoSurface());
+	FlipScreen();
 	FillSurfaceTransparent(GetVideoSurface());
 	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
 	FillSurfaceTransparent(tMenu->bmpBuffer.get());*/

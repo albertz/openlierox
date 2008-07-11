@@ -354,7 +354,7 @@ void Menu_Frame() {
 		tLX->cFont.Draw(GetVideoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
 	}
 #endif
-	FlipScreen(GetVideoSurface());
+	FlipScreen();
 }
 
 
@@ -742,7 +742,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 		if(!kb->KeyUp[SDLK_ESCAPE] && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(GetVideoSurface());
-			FlipScreen(GetVideoSurface());
+			FlipScreen();
 			CapFPS();
 			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
 			WaitForNextEvent();
@@ -756,7 +756,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Restore the old buffer
 	SDL_BlitSurface(tMenu->bmpMsgBuffer.get(), NULL, tMenu->bmpBuffer.get(), NULL);
 	//Menu_RedrawMouse(true);
-	//FlipScreen(GetVideoSurface());
+	//FlipScreen();
 
 	return ret;
 }

@@ -860,7 +860,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 			break;
 		}
 
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 		WaitForNextEvent();
 	}

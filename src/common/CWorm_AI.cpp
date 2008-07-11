@@ -649,7 +649,7 @@ public:
 
 /*			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
 			cClient->Draw(GetVideoSurface()); // dirty dirty...
-			FlipScreen(GetVideoSurface());
+			FlipScreen();
 			SDL_Delay(10); */
 #endif
 			// and search

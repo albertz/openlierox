@@ -528,7 +528,7 @@ void Menu_Net_NETAddServer(void)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 	}
 
@@ -686,7 +686,7 @@ void Menu_Net_NETUpdateList(void)
 
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 	}
 
@@ -832,7 +832,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 #endif
 
         DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
     }
 

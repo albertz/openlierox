@@ -346,7 +346,7 @@ startpoint:
 			// Main frame
 			GameLoopFrame();
 
-			FlipScreen(GetVideoSurface());
+			FlipScreen();
 
 			CapFPS();
 		}
@@ -838,7 +838,7 @@ void DrawLoading(byte percentage, const std::string &text)  {
 
 	tLX->cFont.Draw(GetVideoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
-	FlipScreen( GetVideoSurface() );
+	FlipScreen();
 }
 
 ////////////////////

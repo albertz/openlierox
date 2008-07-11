@@ -1452,7 +1452,7 @@ void Menu_Net_HostDeregister(void)
 		}
 
 		DrawCursor(GetVideoSurface());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		CapFPS();
 	}
 }

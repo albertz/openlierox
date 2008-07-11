@@ -1716,7 +1716,7 @@ void CClient::SimulationOlxMod()
 
 		SDL_SetClipRect(GetVideoSurface(), NULL);
 		FillSurfaceTransparent(tMenu->bmpBuffer.get());
-		FlipScreen(GetVideoSurface());
+		FlipScreen();
 		FillSurfaceTransparent(tMenu->bmpBuffer.get());
 		SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
 		FillSurfaceTransparent(tMenu->bmpBuffer.get());

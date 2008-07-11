@@ -191,7 +191,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	DrawCursor(GetVideoSurface());
 
 	// Flip the screen
-	FlipScreen(GetVideoSurface());
+	FlipScreen();
 	CapFPS();
 
 	// Redraw the menu
