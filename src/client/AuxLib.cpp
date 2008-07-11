@@ -483,15 +483,15 @@ public:
 
 };
 
-class Stretch2XPostProc : public VideoPostProcessor {
+class Scale2XPostProc : public VideoPostProcessor {
 public:
 	static const int W = 640 * 2;
 	static const int H = 480 * 2;
 
 	SmartPointer<SDL_Surface> m_screenBuf;
 
-	Stretch2XPostProc() {
-		cout << "using Stretch2x video post processor" << endl;
+	Scale2XPostProc() {
+		cout << "using Scale2x video post processor" << endl;
 	}
 
 	virtual void resetVideo() {
@@ -519,8 +519,8 @@ void VideoPostProcessor::init() {
 	TrimSpaces(vppName); stringlwr(vppName);
 	if(vppName == "stretchhalf")
 		instance = new StretchHalfPostProc();
-	else if(vppName == "stretch2x")
-		instance = new Stretch2XPostProc();
+	else if(vppName == "scale2x")
+		instance = new Scale2XPostProc();
 	else {
 		if(vppName != "")
 			cout << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
