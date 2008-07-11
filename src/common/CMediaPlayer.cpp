@@ -58,15 +58,15 @@ public:
 			tStackTop = iter;
 		}
 	}
-	inline bool Pop(std::string& dir)  { 
+	inline bool Pop(std::string& dir)  {
 		if (tStackTop == NULL) {
-			return false; 
+			return false;
 		} else {
 			dir = tStackTop->str;
 			iter = tStackTop->prev;
 			delete tStackTop;
 			tStackTop = iter;
-			return true; 
+			return true;
 		}
 	}
 };
@@ -145,14 +145,13 @@ bool CPlayList::DrawLoadingProgress(void)
 	if (bLoadCancelled)
 		return false;
 
-	SDL_Surface * screen = GetVideoSurface();
-	if (!screen) return false;
+	if (!GetVideoSurface()) return false;
 
 	ProcessEvents();
 
 	mouse_t *mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();
-	static CButton btnCancel(BUT_CANCEL,tMenu->bmpButtons);
+	static CButton btnCancel(BUT_CANCEL,tMenu->bmpButtons); // TODO: what the hell? a static CButton??
 
 	bool result = true;
 
@@ -169,7 +168,7 @@ bool CPlayList::DrawLoadingProgress(void)
 			btnCancel.MouseDown(mouse,true);
 		else if (mouse->Up)
 			result = btnCancel.MouseUp(mouse,false) != BTN_MOUSEUP;
-		else 
+		else
 			btnCancel.MouseOver(mouse);
 	}
 	// TODO: make this event-based (don't check GetKeyboard() directly)
@@ -185,16 +184,16 @@ bool CPlayList::DrawLoadingProgress(void)
 	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
 	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa((int)tSongList.size()));
 
-	btnCancel.Draw2(screen);
+	btnCancel.Draw2(GetVideoSurface());
 
 	// Draw mouse
 	SetGameCursor(CURSOR_ARROW);
 	DrawCursor(GetVideoSurface());
 
 	// Flip the screen
-	FlipScreen(screen);
+	FlipScreen(GetVideoSurface());
 	CapFPS();
-	
+
 	// Redraw the menu
 	if (tMenu->bMenuRunning)  {
 		Menu_redrawBufferRect(x,y,w+1,h+1);
@@ -414,7 +413,7 @@ void CMediaPlayer::Clear() {
 	bGrabbed = false;
 	iLastMouseX = 0;
 	iLastMouseY = 0;
-	
+
 	tPlayerGfx.Clear();
 }
 

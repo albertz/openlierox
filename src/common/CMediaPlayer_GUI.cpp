@@ -235,7 +235,6 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	bool done = false;
 	bool cancelled = false;
 
-	SDL_Surface * Screen = GetVideoSurface();
 	keyboard_t *Keyboard = GetKeyboard();
 
 	// Initialize the GUI
@@ -370,7 +369,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		// Draw the mouse
 		SetGameCursor(CURSOR_ARROW);
 		DrawCursor(GetVideoSurface());
-		FlipScreen(Screen);
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 	}
 

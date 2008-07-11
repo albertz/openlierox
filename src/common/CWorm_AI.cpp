@@ -271,7 +271,7 @@ public:
 				return a->expected_min_total_dist() < b->expected_min_total_dist();
 			}
 		};
-		
+
 		searchpath_base* base;
 
 		// this will save the state, if we still have to check a specific end
@@ -286,7 +286,7 @@ public:
 		SquareMatrix<int> area;
 		area_item* lastArea; // the area where we came from
 		double dist_from_source; // distance from startpoint
-		
+
 		void initChecklists() {
 			VectorD2<int> size = area.v2 - area.v1;
 			// ensure here, that the starts are not 0
@@ -315,7 +315,7 @@ public:
 
 		VectorD2<int> getConnectorPointForArea(area_item* otherArea) const {
 			if(otherArea == NULL) return area.getCenter();
-			
+
 			SquareMatrix<int> intersection = area.getInsersectionWithArea(otherArea->area);
 			return intersection.getCenter();
 			/*
@@ -325,14 +325,14 @@ public:
 			else
 				return VectorD2<int>(area.getCenter().x, otherCenter.y); */
 		}
-		
+
 		double getDistToArea(area_item* otherArea) const {
 			VectorD2<int> conPoint = getConnectorPointForArea(otherArea);
 			return
 				(otherArea->area.getCenter() - conPoint).GetLength() +
 				(area.getCenter() - conPoint).GetLength();
 		}
-		
+
 		area_item(searchpath_base* b) :
 			base(b),
 			checklistRows(0),
@@ -353,7 +353,7 @@ public:
 		void forEachChecklistItem(_action action) {
 			int i;
 			VectorD2<int> p, dist;
-			
+
 			// TODO: this sorting is not needed anymore here
 			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_set;
 			// the set point here defines, where the 'best' point is (the sorting depends on it)
@@ -556,43 +556,43 @@ private:
 		if(it == areas_stack.end()) return NULL;
 		return *it;
 	}
-	
-	NEW_ai_node_t* buildPath(area_item* lastArea) {		
+
+	NEW_ai_node_t* buildPath(area_item* lastArea) {
 		NEW_ai_node_t* last_node = createNewAiNode(target);
 		nodes.insert(last_node);
 		area_item* a = lastArea;
-		
+
 		while(a != NULL) {
 			NEW_ai_node_t* node = createNewAiNode(a->area.getCenter());
 			node->psNext = last_node;
 			last_node->psPrev = node;
-			nodes.insert(node);			
+			nodes.insert(node);
 			last_node = node;
-			
+
 			node = createNewAiNode(a->getConnectorPointForArea(a->lastArea));
 			node->psNext = last_node;
 			last_node->psPrev = node;
 			nodes.insert(node);
 			last_node = node;
-			
+
 			a = a->lastArea;
 		}
-		
+
 		return last_node;
 	}
-	
+
 	// it searches for the path (recursive algo)
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
-		areas_stack.clear();		
+		areas_stack.clear();
 		addAreaNode(start, NULL);
-		
+
 		while(areas_stack.size() > 0) {
 			SDL_Delay(1); // lower priority to this thread
 			if(shouldBreakThread() || shouldRestartThread() || !pcMap->getCreated()) return NULL;
-			
+
 			area_item* a = getBestArea();
 			areas_stack.erase(a);
-			
+
 			// can we just finish with the search?
 			pcMap->lockFlags(false);
 			if(traceWormLine(target, a->area.getCenter(), pcMap)) {
@@ -601,14 +601,14 @@ private:
 				return buildPath(a);
 			}
 			pcMap->unlockFlags(false);
-			
+
 			a->process();
 		}
-		
+
 		return NULL;
 	}
 
-public:	
+public:
 
 	// add new area as a node to path
 	// start is location (so an area surrounding start is searched)
@@ -648,8 +648,8 @@ public:
 			printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
 
 /*			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
-			cClient->Draw(Screen); // dirty dirty...
-			FlipScreen(Screen);
+			cClient->Draw(GetVideoSurface()); // dirty dirty...
+			FlipScreen(GetVideoSurface());
 			SDL_Delay(10); */
 #endif
 			// and search
@@ -694,10 +694,10 @@ private:
 
 			base->resulted_path = NULL;
 			base->clear(); // this is save and important here, else we would have invalid pointers
-			
+
 			// start the main search
 			ret = base->findPath(base->start);
-			
+
 			// finishing the result
 			base->completeNodesInfo(ret);
 			base->simplifyPath(ret);
@@ -762,7 +762,7 @@ private:
 	int break_thread_signal;
 	int restart_thread_searching_signal;
 	class start_target_pair { public:
-		VectorD2<int> start, target; 
+		VectorD2<int> start, target;
 	} restart_thread_searching_newdata;
 
 	inline void breakThreadSignal() {
@@ -1095,20 +1095,20 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 
 		// Process depending on our current state
 		switch(nAIState) {
-	
+
 			// Think; We spawn in this state
 			case AI_THINK:
 				AI_Think(gametype, teamgame, taggame);
 				break;
-	
+
 			// Moving towards a target
 			case AI_MOVINGTOTARGET:
 				NEW_AI_MoveToTarget();
 				break;
 		}
-    
+
     }
-    
+
     // we have no strafing for bots at the moment
     iMoveDirection = iDirection;
 }
@@ -1590,7 +1590,7 @@ ai_node_t *CWorm::AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int ta
     for(i=0; i<8; i++) {
         int h,v;
         h = v = 0;
-        
+
         // Up/Down
         if(horDir == 0) {
             h = upCase[i*2];
@@ -2731,7 +2731,7 @@ bool CWorm::AI_Shoot()
 				if (bAim && g >= 10 && v <= 200)  {
 					bShoot = bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
 				}
-				
+
 
 				//if(bAim) printf("shooting!!!\n");
 
@@ -3377,7 +3377,7 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 					WormsPos[WormCount++] = w->getPos();
 			}
 		}
-	}		
+	}
 
 
 	// Trace the line
@@ -3616,7 +3616,7 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 		bPathFinished = false;
 		fSearchStartTime = tLX->fCurTime;
 		((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
-		
+
 		return false;
 	}
 
@@ -4035,10 +4035,10 @@ public:
 	CVec aimDir;
 	CVec target, best;
 	float best_value;
-	
+
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
         target.y -= 10.0f; // a bit higher is always better
-         
+
         aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
 	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
 	    if(worm->getDirection() == DIR_LEFT)
@@ -4062,11 +4062,11 @@ public:
 		float len = (worm->getPos() - suggestion).GetLength2();
 		len = -len * (len - 100.0f); // 0 is bad and everything behind 50.0f also
 		if(len < 0) len = 0.0f;
-		
+
 		// HINT: these constant multiplicators are the critical values in the calculation
 		float value = (float)(trg_dist * 100000.0f + angle_dif * 10000.0f + len * 0.001f);
 		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
-		
+
 		// FIX: if we want to go up, then ignore angle and len
 		if(worm->getPos().y - target.y > 10.0f)
 			value = trg_dist;
@@ -4075,7 +4075,7 @@ public:
 			best_value = value;
 			best = CVec((float)x, (float)y);
 		}
-		
+
 		return false;
 	}
 };
@@ -4269,7 +4269,7 @@ void CWorm::NEW_AI_MoveToTarget()
 	// if we are walking through a tunnel and we are passing some other
 	// target than our current one, it will stop walking with this,
 	// because the passed target is "nearer"; this is absolutly not wanted here
-	
+
 	// Better target?
 	CWorm *newtrg = findTarget(iAiGame, iAiTeams, iAiTag, pcMap);
 	if (psAITarget && newtrg)
@@ -4324,7 +4324,7 @@ void CWorm::NEW_AI_MoveToTarget()
 	// and move away!
 	if (iAiGameType == GAM_MORTARS)  {
 		if (SIGN(vVelocity.x) == SIGN(vLastShootTargetPos.x - vPos.x) && tLX->fCurTime - fLastShoot >= 0.2f && tLX->fCurTime - fLastShoot <= 1.0f)  {
-			if (cNinjaRope.isAttached() && SIGN(cNinjaRope.GetForce(vPos).x) == SIGN(vLastShootTargetPos.x - vPos.x)) 
+			if (cNinjaRope.isAttached() && SIGN(cNinjaRope.GetForce(vPos).x) == SIGN(vLastShootTargetPos.x - vPos.x))
 				cNinjaRope.Release();
 
 			iDirection = vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
@@ -4395,9 +4395,9 @@ void CWorm::NEW_AI_MoveToTarget()
 	// TODO: this doesn't work that good atm; so it's better to ignore it at all than to go away in a situation where shooting would be better
 	if (false)  {
 		// TODO: improve this
-		
+
 		// just temp here as I removed it globally, we should try to get a collection of projectiles here automatically (not only one)
-		CProjectile* psHeadingProjectile = NULL; 
+		CProjectile* psHeadingProjectile = NULL;
 
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastFace >= 0.5f)  {
@@ -4529,7 +4529,7 @@ find_one_visible_node:
 	// release rope, if it forces us to the wrong direction
 	if(cNinjaRope.isAttached() && (cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2()) {
 		cNinjaRope.Release();
-		fRopeAttachedTime = 0;	
+		fRopeAttachedTime = 0;
 	}
 
 
@@ -4611,7 +4611,7 @@ find_one_visible_node:
 					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 			}
 
-		// HINT: atm, fireNinja is always false here		
+		// HINT: atm, fireNinja is always false here
 		// if there is dirt in the way (and close to us), then don't use ninja rope
 		if(!fireNinja && !direct_traceLine_possible && (type & PX_DIRT) && length < 10) {
 			// HINT: as we always carve, we don't need to do it here specially
@@ -4625,7 +4625,7 @@ find_one_visible_node:
 				NEW_AI_Jump();
 
 //			ws->bMove = true;
-				
+
 		} else  { // no dirt or something close, just some free way infront of us
 			// use ninja rope in general, it's faster
 			fireNinja = true;
@@ -4664,7 +4664,7 @@ find_one_visible_node:
 		fireNinja = false;
 	}
 */
-	
+
 	// It has no sense to shoot the rope on short distances
 	// TODO: it make sense, only not for realy short distances; i try it first now completly without this check
 	// also, we shouldn't relay on ropespot here but better on nodePos; GetBestRopeSpot should get a good ropespot if nodePos is good
@@ -4741,7 +4741,7 @@ find_one_visible_node:
 	if (cNinjaRope.isAttached() && !bOnGround && (cNinjaRope.getHookPos().y > vPos.y) && (NEW_psCurrentNode->fY < vPos.y)
 		&& fabs(cNinjaRope.getHookPos().x - vPos.x) <= 50 && vVelocity.y <= 0)  {
 		CVec force;
-		
+
 		// Air drag (Mainly to dampen the ninja rope)
 		// float Drag = cGameScript->getWorm()->AirFriction; // TODO: not used
 
@@ -4798,7 +4798,7 @@ find_one_visible_node:
         bStuck = false;
         fStuckTime = 0;
         cStuckPos = vPos;
-    
+
     }
 
 	// only move if we are away from the next node
