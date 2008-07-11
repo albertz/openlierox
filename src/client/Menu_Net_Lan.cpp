@@ -147,7 +147,7 @@ void Menu_Net_LANFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cLan.Process();
-	cLan.Draw( GetVideoSurface() );
+	cLan.Draw( VideoPostProcessor::videoSurface() );
 
 
 	// Process the server list
@@ -361,7 +361,7 @@ void Menu_Net_LANFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 
@@ -421,8 +421,8 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 	Menu_RedrawMouse(true);
 
-	int center = GetVideoSurface()->w/2;
-	int y = GetVideoSurface()->h/2 - INFO_H/2;
+	int center = VideoPostProcessor::videoSurface()->w/2;
+	int y = VideoPostProcessor::videoSurface()->h/2 - INFO_H/2;
 
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  ld_Refresh,	center - 105, y+INFO_H-20, 85,15);
@@ -443,7 +443,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		//DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 #ifdef WITH_MEDIAPLAYER
 		cMediaPlayer.Frame();
@@ -451,7 +451,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(GetVideoSurface());
+        cDetails.Draw(VideoPostProcessor::videoSurface());
         gui_event_t *ev = NULL;
 #ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
@@ -481,11 +481,11 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
         }
 
 #ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(GetVideoSurface());
+		cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
 #endif
 
-        DrawCursor(GetVideoSurface());
-		FlipScreen();
+        DrawCursor(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		CapFPS();
     }
 

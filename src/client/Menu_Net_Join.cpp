@@ -32,6 +32,7 @@
 #include "CLabel.h"
 #include "CTextButton.h"
 #include "CProgressbar.h"
+#include "AuxLib.h"
 
 using namespace std;
 
@@ -166,7 +167,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	Menu_redrawBufferRect(0,180,640,tLX->cFont.GetHeight());
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(GetVideoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
+	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 180, tLX->clNormalLabel, "Connecting to " + cClient->getServerAddr_HumanReadable());
 	cClient->Frame();
 
 
@@ -206,7 +207,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cConnecting.Process();
-	cConnecting.Draw( GetVideoSurface() );
+	cConnecting.Draw( VideoPostProcessor::videoSurface() );
 
 
 	// Process any events
@@ -232,7 +233,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 
@@ -591,17 +592,17 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.iLives = gl->nLives;
 		tGameInfo.iLoadingTimes = gl->nLoadingTime;
 
-		f->Draw(GetVideoSurface(), x, y,  tLX->clHeading, "Game Details");
-		f->Draw(GetVideoSurface(), x, y+20,  tLX->clNormalLabel, "Level:");
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
+		f->Draw(VideoPostProcessor::videoSurface(), x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
-			f->Draw(GetVideoSurface(), x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
 		} else {  // Don't have the map
 			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(GetVideoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
 			} else { // Not downloading
-				f->Draw(GetVideoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
 				if (tMenu->bmpDownload.get())
-					DrawImage(GetVideoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + 20 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + 20 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
 				if (MouseInRect(x2, y+20, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
@@ -612,18 +613,18 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 			}
 		}
-		f->Draw(GetVideoSurface(), x, y+40, tLX->clNormalLabel, "Game Mode:");
-		f->Draw(GetVideoSurface(), x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
-        f->Draw(GetVideoSurface(), x, y+60, tLX->clNormalLabel,  "Mod:");
+		f->Draw(VideoPostProcessor::videoSurface(), x, y+40, tLX->clNormalLabel, "Game Mode:");
+		f->Draw(VideoPostProcessor::videoSurface(), x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
+        f->Draw(VideoPostProcessor::videoSurface(), x, y+60, tLX->clNormalLabel,  "Mod:");
         if(gl->bHaveMod)
-            f->Draw(GetVideoSurface(), x2, y+60, tLX->clNormalLabel,  gl->szModName);
+            f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clNormalLabel,  gl->szModName);
 		else {
 			if (cClient->getDownloadingMod())
-				f->Draw(GetVideoSurface(), x2, y+60, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clError, gl->szModName);
 			else {
-				f->Draw(GetVideoSurface(), x2, y+60, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clError, gl->szModName);
 				if (tMenu->bmpDownload.get())
-					DrawImage(GetVideoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + 60 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + 60 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
 				if (MouseInRect(x2, y+60, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
@@ -636,29 +637,29 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			}
 		}
 
-		f->Draw(GetVideoSurface(), x, y+80, tLX->clNormalLabel, "Lives:");
+		f->Draw(VideoPostProcessor::videoSurface(), x, y+80, tLX->clNormalLabel, "Lives:");
 		if(gl->nLives >= 0)
-			f->Draw(GetVideoSurface(), x2, y+80, tLX->clNormalLabel, itoa(gl->nLives));
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y+80, tLX->clNormalLabel, itoa(gl->nLives));
 
-		f->Draw(GetVideoSurface(), x, y+100, tLX->clNormalLabel, "Max Kills:");
+		f->Draw(VideoPostProcessor::videoSurface(), x, y+100, tLX->clNormalLabel, "Max Kills:");
 		if(gl->nMaxKills >= 0)
-			f->Draw(GetVideoSurface(), x2, y+100, tLX->clNormalLabel, itoa(gl->nMaxKills));
-		f->Draw(GetVideoSurface(),     x, y+120, tLX->clNormalLabel, "Loading time:");
-		f->Draw(GetVideoSurface(),     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
-        f->Draw(GetVideoSurface(),     x, y+140, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(GetVideoSurface(),     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y+100, tLX->clNormalLabel, itoa(gl->nMaxKills));
+		f->Draw(VideoPostProcessor::videoSurface(),     x, y+120, tLX->clNormalLabel, "Loading time:");
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
+        f->Draw(VideoPostProcessor::videoSurface(),     x, y+140, tLX->clNormalLabel, "Bonuses:");
+        f->Draw(VideoPostProcessor::videoSurface(),     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
 	{
 		/*if( cClient->getDownloadingMap() )
-			tLX->cFont.Draw(GetVideoSurface(),     410, 195, tLX->clNormalLabel,
+			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
 			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapName );
 		else if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
-			tLX->cFont.Draw(GetVideoSurface(),     410, 195, tLX->clNormalLabel,
+			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
 			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
 			cClient->getUdpFileDownloader()->getFileDownloading() );
 		else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
-			tLX->cFont.Draw(GetVideoSurface(),     410, 195, tLX->clNormalLabel,
+			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
 			to_string<size_t>( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
 
 		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
@@ -708,7 +709,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 #endif
 		ev = cJoinLobby.Process();
 
-	cJoinLobby.Draw( GetVideoSurface() );
+	cJoinLobby.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process any events
 	if(ev) {
@@ -818,5 +819,5 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }

@@ -43,7 +43,10 @@ std::string	ConfigFile;
 
 // Screen
 
-SmartPointer<SDL_Surface> bmpIcon=NULL;
+// TODO: it is unsafe to use SmartPointer globally!
+SmartPointer<SDL_Surface> bmpIcon = NULL;
+
+SDL_Surface* videoSurface = NULL;
 
 
 SDL_PixelFormat defaultFallbackFormat =
@@ -67,6 +70,8 @@ using namespace std;
 // Initialize the standard Auxiliary Library
 int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 {
+	// We have already loaded all options from the config file at this time.
+
 	ConfigFile=config;
 
 	if(getenv("SDL_VIDEODRIVER"))
@@ -108,6 +113,8 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 			bJoystickSupport = false;
 		}
 	}
+
+	VideoPostProcessor::init();
 
 	if(!bDedicated && !SetVideoMode())
 		return false;
@@ -198,14 +205,14 @@ bool SetVideoMode()
 	bool resetting = false;
 
 	// Check if already running
-	if (SDL_GetVideoSurface())  {
+	if (VideoPostProcessor::videoSurface())  {
 		resetting = true;
 		printf("resetting video mode\n");
 
 		// seems to be a win-only problem, it works without problems here under MacOSX
 #ifdef WIN32
 		// using hw surfaces?
-		if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0) {
+		if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0) {
 			printf("WARNING: cannot change video mode because current mode uses hardware surfaces\n");
 			// TODO: you would have to reset whole game, this is not enough!
 			// The problem is in all allocated surfaces - they are hardware and when you switch
@@ -306,16 +313,18 @@ bool SetVideoMode()
 	}
 #endif
 
-	if( SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL) {
+	int scrW = VideoPostProcessor::get()->screenWidth();
+	int scrH = VideoPostProcessor::get()->screenHeight();
+	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
 			printf("Failed to reset video mode, let's wait a bit and retry.\n");
 			SDL_Delay(500);
-			if (SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL)  {
-				SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+			if (SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL)  {
+				SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 				return false;
 			}
 		} else {
-			SystemError("Failed to set the video mode 640x480x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+				SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 			return false;
 		}
 	}
@@ -339,13 +348,14 @@ bool SetVideoMode()
 	if (tLX)
 		tLX->bVideoModeChanged = true;
 
-	mainPixelFormat = SDL_GetVideoSurface()->format;
+	VideoPostProcessor::get()->resetVideo();
+	mainPixelFormat = VideoPostProcessor::videoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
-	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
+	if(VideoPostProcessor::videoSurface()->flags & SDL_DOUBLEBUF)
 		cout << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
+	if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		printf("using hardware surfaces\n");
 	} else {
@@ -355,7 +365,7 @@ bool SetVideoMode()
 		printf("using software surfaces\n");
 	}
 
-	FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
+	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
 	cout << "video mode was set successfully" << endl;
 	return true;
@@ -411,23 +421,32 @@ void ProcessScreenshots()
 }
 
 
+VideoPostProcessor voidVideoPostProcessor; // this one does nothing
+
+SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
+VideoPostProcessor* VideoPostProcessor::instance = &voidVideoPostProcessor;
+
 ///////////////////
 // Flip the screen
-void FlipScreen()
-{
-	SDL_Surface* psScreen = GetVideoSurface();
+void VideoPostProcessor::flipRealVideo() {
+	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
-
-    // Take a screenshot?
-    // We do this here, because there are so many graphics loops, but this function is common
-    // to all of them
-    ProcessScreenshots();
 
 	SDL_Flip( psScreen );
 
 	if (tLXOptions->bOpenGL)
 		SDL_GL_SwapBuffers();
 }
+
+void VideoPostProcessor::init() {
+}
+
+void VideoPostProcessor::uninit() {
+	if(instance != &voidVideoPostProcessor && instance != NULL)
+		delete instance;
+	instance = &voidVideoPostProcessor;
+}
+
 
 
 ///////////////////
@@ -444,6 +463,7 @@ void ShutdownAuxLib()
 	// quit video at this point to not get stuck in a fullscreen not responding game in case that it crashes in further quitting
 	// in the case it wasn't inited at this point, this also doesn't hurt
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
+	VideoPostProcessor::uninit();
 
 	QuitSoundSystem();
 
@@ -518,7 +538,7 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 	}
 
 	// Save the surface
-	SaveSurface(GetVideoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
+	SaveSurface(VideoPostProcessor::videoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
 }
 
 #ifdef WIN32

@@ -210,7 +210,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cHostPly.Process();
-	cHostPly.Draw( GetVideoSurface() );
+	cHostPly.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process any events
 	if(ev) {
@@ -391,7 +391,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 //////////////
@@ -868,14 +868,14 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 
     // Draw the host lobby details
-	Menu_HostDrawLobby(GetVideoSurface());
+	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cHostLobby.Process();
-	cHostLobby.Draw( GetVideoSurface() );
+	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
 
 	bool bStartPressed = false;
 
@@ -1186,7 +1186,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	}
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( tLX->fCurTime - fStartDedicatedSecondsPassed );
 	static int secondsAnnounced = -1;
@@ -1396,7 +1396,7 @@ void Menu_HostShowMinimap(void)
 	}
 
 	// Update the screen
-	DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);
 }
 
 
@@ -1451,8 +1451,8 @@ void Menu_Net_HostDeregister(void)
 			break;
 		}
 
-		DrawCursor(GetVideoSurface());
-		FlipScreen();
+		DrawCursor(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		CapFPS();
 	}
 }
@@ -1545,14 +1545,14 @@ bool Menu_ServerSettings_Frame(void)
 {
 	gui_event_t *ev = NULL;
 
-	DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cServerSettings.Process();
-	cServerSettings.Draw(GetVideoSurface());
+	cServerSettings.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
 
@@ -1608,7 +1608,7 @@ bool Menu_ServerSettings_Frame(void)
 	}
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 
 	return false;
 }
@@ -1693,14 +1693,14 @@ bool Menu_BanList_Frame(void)
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 
-	DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cBanListGui.Process();
-	cBanListGui.Draw(GetVideoSurface());
+	cBanListGui.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
 
@@ -1740,7 +1740,7 @@ bool Menu_BanList_Frame(void)
 	}
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 
 	return false;
 }

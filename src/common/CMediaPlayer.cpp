@@ -145,7 +145,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	if (bLoadCancelled)
 		return false;
 
-	if (!GetVideoSurface()) return false;
+	if (!VideoPostProcessor::videoSurface()) return false;
 
 	ProcessEvents();
 
@@ -184,14 +184,14 @@ bool CPlayList::DrawLoadingProgress(void)
 	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
 	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa((int)tSongList.size()));
 
-	btnCancel.Draw2(GetVideoSurface());
+	btnCancel.Draw2(VideoPostProcessor::videoSurface());
 
 	// Draw mouse
 	SetGameCursor(CURSOR_ARROW);
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 
 	// Flip the screen
-	FlipScreen();
+	VideoPostProcessor::process();
 	CapFPS();
 
 	// Redraw the menu
@@ -721,7 +721,7 @@ void CMediaPlayer::Draw(SDL_Surface * bmpDest)
 
 	// Draw the mouse
 	SetGameCursor(CURSOR_ARROW);
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 //////////////////////
@@ -743,8 +743,8 @@ void CMediaPlayer::SetX(int x)
 	iX = x;
 
 	// Screen clipping
-	if (iX + GetWidth() >= GetVideoSurface()->w)
-		iX = GetVideoSurface()->w - GetWidth() - 1;
+	if (iX + GetWidth() >= VideoPostProcessor::videoSurface()->w)
+		iX = VideoPostProcessor::videoSurface()->w - GetWidth() - 1;
 	else if (iX < 0)
 		iX = 0;
 
@@ -758,8 +758,8 @@ void CMediaPlayer::SetY(int y)
 	iY = y;
 
 	// Screen clipping
-	if (iY + GetHeight() >= GetVideoSurface()->h)
-		iY = GetVideoSurface()->h - GetHeight() - 1;
+	if (iY + GetHeight() >= VideoPostProcessor::videoSurface()->h)
+		iY = VideoPostProcessor::videoSurface()->h - GetHeight() - 1;
 	else if (iY < 0)
 		iY = 0;
 

@@ -26,6 +26,7 @@
 #include "CTextbox.h"
 #include "CSlider.h"
 #include "CMediaPlayer.h"
+#include "AuxLib.h"
 
 
 CGuiLayout	cNewPlayer;
@@ -230,15 +231,15 @@ void Menu_PlayerFrame(void)
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
 
-	DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
-	DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 140,110,  140,110,  400,30);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 140,110,  140,110,  400,30);
 
 
 	// Process the top buttons
 	cPlyButtons[iPlayerMode].MouseOver(Mouse);
 	for(int i=0;i<2;i++) {
 
-		cPlyButtons[i].Draw(GetVideoSurface());
+		cPlyButtons[i].Draw(VideoPostProcessor::videoSurface());
 
 		if(i==iPlayerMode)
 			continue;
@@ -349,7 +350,7 @@ void Menu_Player_NewPlayer(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cNewPlayer.Process();
-	cNewPlayer.Draw(GetVideoSurface());
+	cNewPlayer.Draw(VideoPostProcessor::videoSurface());
 
 	Uint8 r = ((CSlider *)cNewPlayer.getWidget(np_Red))->getValue();
 	Uint8 g = ((CSlider *)cNewPlayer.getWidget(np_Green))->getValue();
@@ -430,16 +431,16 @@ void Menu_Player_NewPlayer(int mouse)
 
 
 	// Draw the colour
-	//DrawRectFill(GetVideoSurface(), 260, 230, 280, 250, MakeColour(r,g,b));
-	DrawRectFill(GetVideoSurface(),  255, 195, 285, 225, tLX->clBlack);
-	Menu_DrawBox(GetVideoSurface(),  255, 195, 285, 225);
-	//DrawRect(GetVideoSurface(),		255, 195, 285, 225, MakeColour(128,128,128));
+	//DrawRectFill(VideoPostProcessor::videoSurface(), 260, 230, 280, 250, MakeColour(r,g,b));
+	DrawRectFill(VideoPostProcessor::videoSurface(),  255, 195, 285, 225, tLX->clBlack);
+	Menu_DrawBox(VideoPostProcessor::videoSurface(),  255, 195, 285, 225);
+	//DrawRect(VideoPostProcessor::videoSurface(),		255, 195, 285, 225, MakeColour(128,128,128));
 
 
 	// Draw the colour component values
-	tLX->cFont.Draw(GetVideoSurface(), 250, 303, tLX->clNormalLabel, itoa(r));
-	tLX->cFont.Draw(GetVideoSurface(), 250, 323, tLX->clNormalLabel, itoa(g));
-	tLX->cFont.Draw(GetVideoSurface(), 250, 343, tLX->clNormalLabel, itoa(b));
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250, 303, tLX->clNormalLabel, itoa(r));
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250, 323, tLX->clNormalLabel, itoa(g));
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250, 343, tLX->clNormalLabel, itoa(b));
 
 	if(MouseInRect(255,195,30,30) && Mouse->Up)  {
 		if (bPlayerSkinAnimation)  {
@@ -451,7 +452,7 @@ void Menu_Player_NewPlayer(int mouse)
 		}
 	}
 
-	Menu_Player_DrawWormImage(GetVideoSurface(), (int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 257, 200, r,g,b);
+	Menu_Player_DrawWormImage(VideoPostProcessor::videoSurface(), (int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 257, 200, r,g,b);
 
 	if(bPlayerSkinAnimation)  {
 		if (bAimingUp)
@@ -479,12 +480,12 @@ void Menu_Player_NewPlayer(int mouse)
     if( type == PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
-        tLX->cFont.Draw(GetVideoSurface(), 250,363,tLX->clNormalLabel,difflevels[level]);
+        tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250,363,tLX->clNormalLabel,difflevels[level]);
 
     }
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 
@@ -501,7 +502,7 @@ void Menu_Player_ViewPlayers(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cViewPlayers.Process();
-	cViewPlayers.Draw(GetVideoSurface());
+	cViewPlayers.Draw(VideoPostProcessor::videoSurface());
 
 
 	if(ev) {
@@ -711,15 +712,15 @@ void Menu_Player_ViewPlayers(int mouse)
 	    Uint8 g = ((CSlider *)cViewPlayers.getWidget(vp_Green))->getValue();
 	    Uint8 b = ((CSlider *)cViewPlayers.getWidget(vp_Blue))->getValue();
 
-        tLX->cFont.Draw(GetVideoSurface(), 530, 253, tLX->clNormalLabel, itoa(r));
-	    tLX->cFont.Draw(GetVideoSurface(), 530, 273, tLX->clNormalLabel, itoa(g));
-	    tLX->cFont.Draw(GetVideoSurface(), 530, 293, tLX->clNormalLabel, itoa(b));
+        tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530, 253, tLX->clNormalLabel, itoa(r));
+	    tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530, 273, tLX->clNormalLabel, itoa(g));
+	    tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530, 293, tLX->clNormalLabel, itoa(b));
 
 		// Draw the worm image
-		DrawRectFill(GetVideoSurface(),  300, 165, 330, 195, tLX->clBlack);
-		Menu_DrawBox(GetVideoSurface(),  300, 165, 330, 195);
+		DrawRectFill(VideoPostProcessor::videoSurface(),  300, 165, 330, 195, tLX->clBlack);
+		Menu_DrawBox(VideoPostProcessor::videoSurface(),  300, 165, 330, 195);
 
-		Menu_Player_DrawWormImage(GetVideoSurface(),(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);
+		Menu_Player_DrawWormImage(VideoPostProcessor::videoSurface(),(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);
 		if(MouseInRect(300,165,30,30) && Mouse->Up)  {
 			if (bPlayerSkinAnimation)  {
 				bPlayerSkinAnimation = false;
@@ -755,12 +756,12 @@ void Menu_Player_ViewPlayers(int mouse)
     if( type == PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = (DWORD)CLAMP(cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0), (DWORD)0, (DWORD)3);
-        tLX->cFont.Draw(GetVideoSurface(), 530,313,tLX->clNormalLabel, difflevels[level]);
+        tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530,313,tLX->clNormalLabel, difflevels[level]);
     }
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 

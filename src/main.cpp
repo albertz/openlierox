@@ -206,7 +206,7 @@ startpoint:
 	}
 
 	kb = GetKeyboard();
-	if (!bDedicated && !GetVideoSurface()) {
+	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
 		SystemError("Could not find screen.");
 		return -1;
 	}
@@ -311,7 +311,7 @@ startpoint:
 		}
 
 		// Pre-game initialization
-		if(!bDedicated) FillSurface(GetVideoSurface(), tLX->clBlack);
+		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 		float oldtime = GetMilliSeconds();
 
 		ClearEntities();
@@ -346,7 +346,7 @@ startpoint:
 			// Main frame
 			GameLoopFrame();
 
-			FlipScreen();
+			VideoPostProcessor::process();
 
 			CapFPS();
 		}
@@ -633,7 +633,7 @@ void StartGame(void)
 {
     // Clear the screen
 	if(!bDedicated)
-		FillSurface(GetVideoSurface(), tLX->clBlack);
+		FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -705,7 +705,7 @@ void GameLoopFrame(void)
 				cServer->StartGame();
 		}
 
-		cClient->Draw(GetVideoSurface());
+		cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 
@@ -714,13 +714,13 @@ void GameLoopFrame(void)
 		cClient->Frame();
 		cServer->Frame();
 
-		cClient->Draw(GetVideoSurface());
+		cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 	// Joined
 	case GME_JOIN:
 		cClient->Frame();
-		cClient->Draw(GetVideoSurface());
+		cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 	} // SWITCH
@@ -770,7 +770,7 @@ void GotoNetMenu(void)
 void InitializeLoading()  {
 	if(bDedicated) return; // ignore this case
 
-	FillSurface(GetVideoSurface(), MakeColour(0,0,0));
+	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0,0,0));
 
 	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
 	bool bar_visible;
@@ -826,19 +826,19 @@ void DrawLoading(byte percentage, const std::string &text)  {
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
 	int w = MAX(cLoading.bmpBackground.get()->w, cLoading.cBar->GetWidth());
 	int h = MAX(cLoading.bmpBackground.get()->h, cLoading.cBar->GetHeight());
-	DrawRectFill(GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
+	DrawRectFill(VideoPostProcessor::videoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
 
 	if (cLoading.bmpBackground.get() != NULL)
-		DrawImage(GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
+		DrawImage(VideoPostProcessor::videoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
 
 	if (cLoading.cBar)  {
 		cLoading.cBar->SetPosition(percentage);
-		cLoading.cBar->Draw( GetVideoSurface() );
+		cLoading.cBar->Draw( VideoPostProcessor::videoSurface() );
 	}
 
-	tLX->cFont.Draw(GetVideoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
-	FlipScreen();
+	VideoPostProcessor::process();
 }
 
 ////////////////////

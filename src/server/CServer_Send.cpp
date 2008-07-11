@@ -421,7 +421,7 @@ void GameServer::SendFiles()
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 		// That's a bit floody algorithm, it can be optimized I think
-		if( cl->getUdpFileDownloader()->isSending() && 
+		if( cl->getUdpFileDownloader()->isSending() &&
 			( cl->getChannel()->getBufferEmpty() ||
 				! cl->getChannel()->getBufferFull() &&
 				cl->getChannel()->getPing() != 0 &&
@@ -439,7 +439,7 @@ void GameServer::SendFiles()
 	};
 
 	if( startTimer )
-		Timer( &Timer::DummyHandler, NULL, minPing / pingCoeff, true ).startHeadless();
+		Timer( &Timer::DummyHandler, NULL, (Uint32)(minPing / pingCoeff), true ).startHeadless();
 };
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )

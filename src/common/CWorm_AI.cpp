@@ -648,8 +648,8 @@ public:
 			printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
 
 /*			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
-			cClient->Draw(GetVideoSurface()); // dirty dirty...
-			FlipScreen();
+			cClient->Draw(VideoPostProcessor::videoSurface()); // dirty dirty...
+			VideoPostProcessor::process();
 			SDL_Delay(10); */
 #endif
 			// and search
@@ -2343,9 +2343,9 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		}
 
 		ProcessEvents();
-		FillSurface(GetVideoSurface(), tLX->clBlack);
-		DrawImage(GetVideoSurface(), pcMap->GetDebugImage(), 0, 0);
-		SDL_Flip(GetVideoSurface());
+		FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
+		DrawImage(VideoPostProcessor::videoSurface(), pcMap->GetDebugImage(), 0, 0);
+		SDL_Flip(VideoPostProcessor::videoSurface());
 		SDL_Delay(50);
 	}*/
 

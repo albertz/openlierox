@@ -1877,10 +1877,10 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 
 	// Clean the screen up - just in case
 	// HINT: don't do that, because someone could send a fake packet and cause a DoS (the screen goes black)
-	/*SDL_SetClipRect(GetVideoSurface(), NULL);
-	FillSurfaceTransparent(GetVideoSurface());
-	FlipScreen();
-	FillSurfaceTransparent(GetVideoSurface());
+	/*SDL_SetClipRect(VideoPostProcessor::videoSurface(), NULL);
+	FillSurfaceTransparent(VideoPostProcessor::videoSurface());
+	VideoPostProcessor::process();
+	FillSurfaceTransparent(VideoPostProcessor::videoSurface());
 	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
 	FillSurfaceTransparent(tMenu->bmpBuffer.get());*/
 
@@ -1888,7 +1888,7 @@ void CClient::ParseOlxModStart(CBytestream *bs)
 				(unsigned long)(tLX->fCurTime*1000.0f),
 				numPlayers, localWorm, randomSeed,
 				options, weaponRestrictions,
-				640, 480, GetVideoSurface() );
+				640, 480, VideoPostProcessor::videoSurface() );
 	if( ret == true )
 	{
 		printf("CClient::ParseOlxModStart() random %lX, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);

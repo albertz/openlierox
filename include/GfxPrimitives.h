@@ -64,12 +64,10 @@ inline void UnlockSurface(const SmartPointer<SDL_Surface> & bmp)  {
 #define LOCK_OR_QUIT(bmp)	{ if(!LockSurface(bmp)) return; }
 #define LOCK_OR_FAIL(bmp)	{ if(!LockSurface(bmp)) return false; }
 
-// Call this instead of SDL_GetVideoSurface()
-inline SDL_Surface * GetVideoSurface() { return SDL_GetVideoSurface(); };
 
 ////////////////////
 // Returns number of bytes the surface takes in memory
-inline size_t GetSurfaceMemorySize(SDL_Surface *surf)  { 
+inline size_t GetSurfaceMemorySize(SDL_Surface *surf)  {
 	if (surf)
 		return sizeof(SDL_Surface) + sizeof(SDL_PixelFormat) + surf->w * surf->h * surf->format->BytesPerPixel;
 	else
@@ -91,12 +89,12 @@ class SDLRectBasic : public SDL_Rect {
 public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
-	
+
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
 	TypeS& width() { return this->SDL_Rect::w; }
 	TypeS& height() { return this->SDL_Rect::h; }
-	
+
 	Type x() const { return this->SDL_Rect::x; }
 	Type y() const { return this->SDL_Rect::y; }
 	TypeS width() const { return this->SDL_Rect::w; }
@@ -118,12 +116,12 @@ public:
 	}
 	RefRectBasic(Type& x_, Type& y_, TypeS& w_, TypeS& h_)
 	: m_x(&x_), m_y(&y_), m_w(&w_), m_h(&h_) {}
-	
+
 	Type& x() { return *m_x; }
 	Type& y() { return *m_y; }
 	TypeS& width() { return *m_w; }
 	TypeS& height() { return *m_h; }
-	
+
 	Type x() const { return *m_x; }
 	Type y() const { return *m_y; }
 	TypeS width() const { return *m_w; }
@@ -142,7 +140,7 @@ public:
 template<typename _RectBasic>
 class Rect : public _RectBasic {
 public:
-	
+
 	class AssignX2 : private _RectBasic {
 	public:
 		AssignX2& operator=(const typename _RectBasic::Type& v)
@@ -152,7 +150,7 @@ public:
 	};
 	AssignX2& x2() { return (AssignX2&)*this; }
 	const AssignX2& x2() const { return (const AssignX2&)*this; }
-	
+
 	class AssignY2 : private _RectBasic {
 	public:
 		AssignY2& operator=(const typename _RectBasic::Type& v)
@@ -162,7 +160,7 @@ public:
 	};
 	AssignY2& y2() { return (AssignY2&)*this; }
 	const AssignY2& y2() const { return (AssignY2&)*this; }
-	
+
 	template<typename _ClipRect>
 	bool clipWith(const _ClipRect& clip) {
 		// Horizontal
@@ -174,13 +172,13 @@ public:
 		}
 
 		// Vertical
-		{		
+		{
 			typename Rect::Type orig_y2 = this->Rect::y2();
 			this->Rect::y() = MAX( (typename Rect::Type)this->Rect::y(), (typename Rect::Type)clip.y() );
 			this->Rect::y2() = MIN( orig_y2, (typename Rect::Type)clip.y2() );
 			this->Rect::y2() = MAX( this->Rect::y(), (typename Rect::Type)this->Rect::y2() );
 		}
-				
+
 		return (this->Rect::width() && this->Rect::height());
 	}
 };
@@ -223,9 +221,9 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 /////////////////////
 // Load an image, without alpha channel
 inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
-	bmp = LoadGameImage(name); 
-	if (bmp.get() == NULL)  { 
-		printf("WARNING: could not load image %s\n", name.c_str()); 
+	bmp = LoadGameImage(name);
+	if (bmp.get() == NULL)  {
+		printf("WARNING: could not load image %s\n", name.c_str());
 		return false;
 	}
 	return true;
@@ -235,8 +233,8 @@ inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name) 
 // Load an image with alpha channel
 inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadGameImage(name, true);
-	if (bmp.get() == NULL)  { 
-		printf("WARNING: could not load image %s\n", name.c_str()); 
+	if (bmp.get() == NULL)  {
+		printf("WARNING: could not load image %s\n", name.c_str());
 		return false;
 	}
 	return true;
@@ -263,7 +261,7 @@ inline SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool fo
 
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
-			width, height, 
+			width, height,
 			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if (result.get() != NULL)
@@ -273,7 +271,7 @@ inline SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool fo
 	#ifdef DEBUG_SMARTPTR
 	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
 	#endif
-	
+
 	return result;
 }
 
@@ -286,7 +284,7 @@ inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bo
 
 	SmartPointer<SDL_Surface> result;
 	SDL_PixelFormat* fmt = getMainPixelFormat();
-	
+
 	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
 	// (else the blitting is wrong)
 	// it seems that for other BPP this is not the case
@@ -295,7 +293,7 @@ inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bo
 				iSurfaceFormat | SDL_SRCALPHA,
 				width, height,
 				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-	
+
 	else // no native alpha blending or forced software, so create a software alpha blended surface
 		result = SDL_CreateRGBSurface(
 				SDL_SWSURFACE | SDL_SRCALPHA,
@@ -305,11 +303,11 @@ inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bo
 	if (result.get() != NULL)
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
-	
+
 	#ifdef DEBUG_SMARTPTR
 	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
 	#endif
-	
+
 	return result;
 }
 
@@ -354,7 +352,7 @@ inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> 
 inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	SDL_Rect r1 = { dx, dy, 0, 0 };
 	SDL_Rect r2 = { sx, sy, w, h };
-	DrawImageAdv( bmpDest, bmpSrc, r1, r2); 
+	DrawImageAdv( bmpDest, bmpSrc, r1, r2);
 }
 inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageAdv(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
@@ -500,7 +498,7 @@ inline void DrawImageScale2x(SDL_Surface* bmpDest, const SmartPointer<SDL_Surfac
 inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	memcpy(p, (Uint8*)&color + 4 - bpp, bpp);
-#else	
+#else
 	memcpy(p, &color, bpp);
 #endif
 }
@@ -527,7 +525,7 @@ inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 	memcpy((Uint8*)&result + 4 - bpp, p, bpp);
 #else
 	memcpy(&result, p, bpp);
-#endif	
+#endif
 	return result;
 }
 
@@ -596,11 +594,11 @@ inline void GetColour3(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g
 inline bool IsTransparent(SDL_Surface * surf, Uint32 color)  {
 	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
 		return true;
-	
+
 	// TODO: should this check be done, if SDL_SRCALPHA was set? SDL/OpenGL possibly will ignore it
 	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(color, COLORKEY(surf), surf->format)))
 		return true;
-		
+
 	return false;
 }
 
@@ -726,7 +724,7 @@ inline void ResetAlpha(SDL_Surface * dst) {
 	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
 
 	LOCK_OR_QUIT(dst);
-	
+
 	int x, y;
 	for(y = 0; y < dst->h; y++)
 		for(x = 0; x < dst->w; x++)

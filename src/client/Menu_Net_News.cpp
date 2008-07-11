@@ -24,6 +24,7 @@
 #include "CListview.h"
 #include "HTTP.h"
 #include "StringUtils.h"
+#include "AuxLib.h"
 
 
 static CGuiLayout	cNews;
@@ -62,7 +63,7 @@ bool Menu_Net_NewsInitialize(void)
 	// Load the news
 	CBrowser *b = (CBrowser *)cNews.getWidget(nw_NewsBrowser);
 	b->Load(strNewsPage);
- 
+
 
 	return true;
 }
@@ -90,7 +91,7 @@ void Menu_Net_NewsFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cNews.Process();
-	cNews.Draw( GetVideoSurface() );
+	cNews.Draw( VideoPostProcessor::videoSurface() );
 
 
 	// Process any events
@@ -108,7 +109,7 @@ void Menu_Net_NewsFrame(int mouse)
 					// Shutdown
 					Menu_Net_NewsShutdown();
 
-					// Back to main menu					
+					// Back to main menu
 					Menu_MainInitialize();
 				}
 				break;
@@ -129,6 +130,6 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 

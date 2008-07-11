@@ -23,6 +23,7 @@
 #include "CAnimation.h"
 #include "CProgressbar.h"
 #include "CLabel.h"
+#include "AuxLib.h"
 
 using namespace std;
 
@@ -214,8 +215,8 @@ void Menu_NetFrame(void)
 
 
 	// Refresh the main window of the screen
-	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
-	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 120,110, 120,110, 420,30);
+	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,110, 120,110, 420,30);
 
 
 	// Process the top buttons
@@ -225,7 +226,7 @@ void Menu_NetFrame(void)
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
 		for(int i=mn_Internet; i<=mn_News; i++) {
 
-			cNetButtons[i].Draw(GetVideoSurface());
+			cNetButtons[i].Draw(VideoPostProcessor::videoSurface());
 
 			if( i == iNetMode-1 )
 				continue;
@@ -247,7 +248,7 @@ void Menu_NetFrame(void)
                     iNetMode = i+1;
 
                     // Redraw the window section
-                    DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+                    DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
 
 					// Initialize the appropriate menu
 					switch(iNetMode) {
@@ -293,14 +294,14 @@ void Menu_NetFrame(void)
 		if (!tIpToCountryDB->Loaded())  {
 
 			// Draw the animation
-			cIpToCountryAnim.Draw( GetVideoSurface() );
+			cIpToCountryAnim.Draw( VideoPostProcessor::videoSurface() );
 
 			// Draw the label
-			cIpToCountryLabel.Draw( GetVideoSurface() );
+			cIpToCountryLabel.Draw( VideoPostProcessor::videoSurface() );
 
 			// Setup and draw the progressbar
 			cIpToCountryProgress.SetPosition(tIpToCountryDB->GetProgress());
-			cIpToCountryProgress.Draw( GetVideoSurface() );
+			cIpToCountryProgress.Draw( VideoPostProcessor::videoSurface() );
 		}
 	}
 

@@ -157,7 +157,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cFavourites.Process();
-	cFavourites.Draw( GetVideoSurface() );
+	cFavourites.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process the server list
 	if( Menu_SvrList_Process() ) {
@@ -290,7 +290,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
-					//DrawImage(tMenu->bmpBuffer,GetVideoSurface(),0,0);
+					//DrawImage(tMenu->bmpBuffer,VideoPostProcessor::videoSurface(),0,0);
 					addr = "";
 					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					server_t *sv = Menu_SvrList_FindServerStr(addr);
@@ -403,7 +403,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	}
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
 ///////////////////
@@ -466,8 +466,8 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 	Menu_RedrawMouse(true);
 
-	int center = GetVideoSurface()->w/2;
-	int y = GetVideoSurface()->h/2 - INFO_H/2;
+	int center = VideoPostProcessor::videoSurface()->w/2;
+	int y = VideoPostProcessor::videoSurface()->h/2 - INFO_H/2;
 
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  fd_Refresh,	center - 105, y+INFO_H-20, 85,15);
@@ -490,7 +490,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		//DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 #ifdef WITH_MEDIAPLAYER
 		cMediaPlayer.Frame();
@@ -498,7 +498,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(GetVideoSurface());
+        cDetails.Draw(VideoPostProcessor::videoSurface());
         gui_event_t *ev = NULL;
 #ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
@@ -528,11 +528,11 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
         }
 
 #ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(GetVideoSurface());
+		cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
 #endif
 
-        DrawCursor(GetVideoSurface());
-		FlipScreen();
+        DrawCursor(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		CapFPS();
     }
 
@@ -583,7 +583,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
-		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
 		if( Menu_SvrList_Process() ) {
@@ -592,7 +592,7 @@ void Menu_Net_RenameServer(std::string& szName)
 		}
 
 
-		cRename.Draw( GetVideoSurface() );
+		cRename.Draw( VideoPostProcessor::videoSurface() );
 		ev = cRename.Process();
 
 		// Process any events
@@ -628,8 +628,8 @@ void Menu_Net_RenameServer(std::string& szName)
 		}
 
 
-		DrawCursor(GetVideoSurface());
-		FlipScreen();
+		DrawCursor(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -685,7 +685,7 @@ void Menu_Net_FavouritesAddServer(void)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
-		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
 		if( Menu_SvrList_Process() ) {
@@ -693,7 +693,7 @@ void Menu_Net_FavouritesAddServer(void)
 			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 		}
 
-		cAddSvr.Draw( GetVideoSurface() );
+		cAddSvr.Draw( VideoPostProcessor::videoSurface() );
 		ev = cAddSvr.Process();
 
 		// Process any events
@@ -733,8 +733,8 @@ void Menu_Net_FavouritesAddServer(void)
 		}
 
 
-		DrawCursor(GetVideoSurface());
-		FlipScreen();
+		DrawCursor(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		CapFPS();
 		WaitForNextEvent();
 	}

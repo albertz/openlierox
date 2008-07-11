@@ -329,7 +329,7 @@ void Menu_Frame() {
 
 		// Map editor
 		case MNU_MAPED:
-			Menu_MapEdFrame(GetVideoSurface(),true);
+			Menu_MapEdFrame(VideoPostProcessor::videoSurface(),true);
 			break;
 
 		// Options
@@ -344,17 +344,17 @@ void Menu_Frame() {
 
 #ifdef WITH_MEDIAPLAYER
 	// At last draw the media player
-	cMediaPlayer.Draw(GetVideoSurface());
+	cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
 #endif
 
 	// DEBUG: show FPS
 #ifdef DEBUG
 	if(tLX->fDeltaTime != 0) {
 		Menu_redrawBufferRect(0, 0, 100, 20);
-		tLX->cFont.Draw(GetVideoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
 	}
 #endif
-	FlipScreen();
+	VideoPostProcessor::process();
 }
 
 
@@ -396,7 +396,7 @@ void Menu_Loop(void)
 void Menu_RedrawMouse(int total)
 {
 	if(total) {
-		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,GetVideoSurface(),NULL);
+		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,VideoPostProcessor::videoSurface(),NULL);
 		return;
 	}
 
@@ -404,7 +404,7 @@ void Menu_RedrawMouse(int total)
 	int hh = GetMaxCursorHeight() / 2 - 1;
 
 	mouse_t *m = GetMouse();
-	DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer,
+	DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer,
 				m->X - hw - m->deltaX,
 				m->Y - hh - m->deltaY,
 
@@ -418,7 +418,7 @@ void Menu_RedrawMouse(int total)
 // Draw a sub title
 void Menu_DrawSubTitle(SDL_Surface * bmpDest, int id)
 {
-	int x = GetVideoSurface()->w/2;
+	int x = VideoPostProcessor::videoSurface()->w/2;
 	x -= tMenu->bmpSubTitles.get()->w/2;
 
 	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,30, tMenu->bmpSubTitles.get()->w, 65);
@@ -429,7 +429,7 @@ void Menu_DrawSubTitle(SDL_Surface * bmpDest, int id)
 // Draw a sub title advanced
 void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 {
-	int x = GetVideoSurface()->w/2;
+	int x = VideoPostProcessor::videoSurface()->w/2;
 	x -= tMenu->bmpSubTitles.get()->w/2;
 
 	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,y, tMenu->bmpSubTitles.get()->w, 65);
@@ -694,11 +694,11 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 		SetGameCursor(CURSOR_ARROW);
 
-		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, x,y, x,y, w, h);
+		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, x,y, x,y, w, h);
 
 		// Process the gui
 		ev = msgbox.Process();
-		msgbox.Draw(GetVideoSurface());
+		msgbox.Draw(VideoPostProcessor::videoSurface());
 
 		if(ev) {
 
@@ -741,8 +741,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 
 		if(!kb->KeyUp[SDLK_ESCAPE] && !tLX->bQuitGame && ret == -1) {
-			DrawCursor(GetVideoSurface());
-			FlipScreen();
+			DrawCursor(VideoPostProcessor::videoSurface());
+			VideoPostProcessor::process();
 			CapFPS();
 			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
 			WaitForNextEvent();
@@ -756,7 +756,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Restore the old buffer
 	SDL_BlitSurface(tMenu->bmpMsgBuffer.get(), NULL, tMenu->bmpBuffer.get(), NULL);
 	//Menu_RedrawMouse(true);
-	//FlipScreen();
+	//VideoPostProcessor::process();
 
 	return ret;
 }
@@ -1083,7 +1083,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 // Redraw a section from the buffer to the screen
 void Menu_redrawBufferRect(int x, int y, int w, int h)
 {
-    DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, x,y, x,y, w,h);
+    DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, x,y, x,y, w,h);
 }
 
 
@@ -1884,9 +1884,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	Menu_redrawBufferRect(x,y,w,h);
 
-    Menu_DrawBox(GetVideoSurface(), x,y, x+w, y+h);
-	DrawRectFillA(GetVideoSurface(), x+2,y+2, x+w-2, y+h-2, tLX->clDialogBackground, 230);
-    tLX->cFont.DrawCentre(GetVideoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
+    Menu_DrawBox(VideoPostProcessor::videoSurface(), x,y, x+w, y+h);
+	DrawRectFillA(VideoPostProcessor::videoSurface(), x+2,y+2, x+w-2, y+h-2, tLX->clDialogBackground, 230);
+    tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
 
@@ -1896,7 +1896,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 		if(IsNetAddrValid(svr->sAddress))
 			origAddr = svr->sAddress;
 		else {
-			tLX->cFont.DrawCentre(GetVideoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
+			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
 			return;
 		}
 	} else {
@@ -1905,7 +1905,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 		if(!StringToNetAddr(tmp_addr, origAddr)) {
 			// TODO: this happens also, if the server is not in the serverlist
 			// we should do the domain resolving also here by ourselfs
-			tLX->cFont.DrawCentre(GetVideoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
+			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
 			return;
 		}
 	}
@@ -1935,7 +1935,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
     if(nTries < 3 && !bGotDetails && !bOldLxBug) {
 
-		tLX->cFont.DrawCentre(GetVideoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
+		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
 
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
@@ -2214,13 +2214,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	// No details, server down
     if(!bGotDetails) {
-        tLX->cFont.DrawCentre(GetVideoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "Unable to query server");
+        tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "Unable to query server");
         return;
     }
 
 	// Old bug
     if(bOldLxBug) {
-        tLX->cFont.Draw(GetVideoSurface(), x+15,y+tLX->cFont.GetHeight()+10, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
+        tLX->cFont.Draw(VideoPostProcessor::videoSurface(), x+15,y+tLX->cFont.GetHeight()+10, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
         return;
     }
 
@@ -2240,5 +2240,5 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	}
 
 	// All ok, draw the details
-	lvInfo.Draw( GetVideoSurface() );
+	lvInfo.Draw( VideoPostProcessor::videoSurface() );
 }

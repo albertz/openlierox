@@ -22,6 +22,7 @@
 #include "CBrowser.h"
 #include "CLabel.h"
 #include "CMediaPlayer.h"
+#include "AuxLib.h"
 
 
 CGuiLayout	cMain;
@@ -50,9 +51,9 @@ bool Menu_Net_MainInitialize(void)
 	// Load the news
 	CBrowser *b = (CBrowser *)cMain.getWidget(nm_NewsBrowser);
 	b->Load("cfg/news.txt");
- 
+
 	/*cMain.Add( new CListview(),								PlayerList, 40,150,150,150);
-	
+
 
 	cMain.SendMessage(PlayerList,	LVM_ADDCOLUMN, (DWORD)"Players", 22);
 	cMain.SendMessage(PlayerList,	LVM_ADDCOLUMN, (DWORD)"", 60);
@@ -96,7 +97,7 @@ void Menu_Net_MainFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cMain.Process();
-	cMain.Draw( GetVideoSurface() );
+	cMain.Draw( VideoPostProcessor::videoSurface() );
 
 
 	// Process any events
@@ -114,7 +115,7 @@ void Menu_Net_MainFrame(int mouse)
 					// Shutdown
 					cMain.Shutdown();
 
-					// Back to main menu					
+					// Back to main menu
 					Menu_MainInitialize();
 				}
 				break;
@@ -124,5 +125,5 @@ void Menu_Net_MainFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(GetVideoSurface());
+	DrawCursor(VideoPostProcessor::videoSurface());
 }

@@ -28,6 +28,7 @@
 #include "Cache.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "AuxLib.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -1360,7 +1361,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	if(!img.get())
 		return NULL;
 
-	if(GetVideoSurface()) {
+	if(VideoPostProcessor::videoSurface()) {
 		// Convert the image to the screen's colour depth
 		if (withalpha)  {
 			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);

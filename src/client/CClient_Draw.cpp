@@ -37,6 +37,7 @@
 #include "CCombobox.h"
 #include "CCheckbox.h"
 #include "InputEvents.h"
+#include "AuxLib.h"
 
 
 using namespace std;
@@ -436,7 +437,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 			// Fill the viewport area with black
 			DrawRectFill(bmpDest, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0,
-				GetVideoSurface()->w, getBottomBarTop(), tLX->clBlack);
+				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
 			if (tGameInfo.iGameType == GME_LOCAL)  {
 				if (bgImage.get())  // Doesn't have to exist (backward compatibility)
@@ -2475,7 +2476,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface * bmpDest)
 	// Two columns
 	if (worms.size() > 16)  {
 		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), 16);
-		DrawPlayerWaitingColumn(bmpDest, GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), (int)worms.size() - 16);
+		DrawPlayerWaitingColumn(bmpDest, VideoPostProcessor::videoSurface()->w - WAIT_COL_W, y, it, worms.end(), (int)worms.size() - 16);
 
 	// One column
 	} else {
