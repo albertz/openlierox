@@ -317,18 +317,23 @@ bool SetVideoMode()
 
 	int scrW = VideoPostProcessor::get()->screenWidth();
 	int scrH = VideoPostProcessor::get()->screenHeight();
+setvideomode:
 	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
 			printf("Failed to reset video mode, let's wait a bit and retry.\n");
 			SDL_Delay(500);
-			if (SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL)  {
-				SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
-				return false;
-			}
-		} else {
-				SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
-			return false;
+			resetting = false;
+			goto setvideomode;
 		}
+
+		if(vidflags & SDL_FULLSCREEN) {
+			printf("Failed to set full screen video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + " (ErrorMsg: " + std::string(SDL_GetError()) + "), trying window mode ...\n");
+			vidflags &= ~SDL_FULLSCREEN;
+			goto setvideomode;
+		}
+
+		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
+		return false;
 	}
 
 	SDL_WM_SetCaption(GAMENAME " " LX_VERSION,NULL);
