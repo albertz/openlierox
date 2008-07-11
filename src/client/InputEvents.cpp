@@ -351,6 +351,9 @@ static void HandleMouseState() {
 		int oldX = Mouse.X;
 		int oldY = Mouse.Y;
 		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
+
+		VideoPostProcessor::transformCoordinates_ScreenToVideo(Mouse.X, Mouse.Y);
+
 		Mouse.deltaX = Mouse.X-oldX;
 		Mouse.deltaY = Mouse.Y-oldY;
 		Mouse.Up = 0;

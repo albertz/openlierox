@@ -72,13 +72,15 @@ bool GameOptions::Init() {
 #else
 			false )
 #endif
-		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->iColourDepth, "Video.ColourDepth",
 #ifndef WIN32
 			32 )
 #else
 			16 )
 #endif
+		( tLXOptions->sResolution, "Video.Resolution", "" )
+		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
+
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_MODEM )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )

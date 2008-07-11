@@ -487,6 +487,8 @@ inline void DrawImageScale2x(SDL_Surface* bmpDest, const SmartPointer<SDL_Surfac
 	DrawImageScale2x(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
 }
 
+void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc);
+
 //
 // Pixel and color routines
 //

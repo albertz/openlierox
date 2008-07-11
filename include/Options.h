@@ -165,6 +165,7 @@ public:
 	bool	bShowFPS;
 	bool	bOpenGL;
 	std::string	sResolution;
+	std::string sVideoPostProcessor;
 	int		iColourDepth;
 
 	// Network

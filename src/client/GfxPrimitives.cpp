@@ -902,6 +902,34 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 	UnlockSurface(bmpSrc);
 }
 
+void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
+	// TODO: optimise
+
+	// Lock
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	int w = bmpSrc->w / 2;
+	int h = bmpSrc->h / 2;
+	for(int x = 0; x < w; ++x)
+		for(int y = 0; y < h; ++y) {
+			Color c;
+			c = Color(GetPixel(bmpSrc, 2*x, 2*y), bmpSrc->format) * 0.25;
+			c = c + Color(GetPixel(bmpSrc, 2*x+1, 2*y), bmpSrc->format) * 0.25;
+			c = c + Color(GetPixel(bmpSrc, 2*x, 2*y+1), bmpSrc->format) * 0.25;
+			c = c + Color(GetPixel(bmpSrc, 2*x+1, 2*y+1), bmpSrc->format) * 0.25;
+			PutPixel(bmpDest, x, y, c.pixel(bmpDest->format));
+		}
+
+	// Unlock
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+
+}
+
+
+
+
 /////////////////
 //
 // Special line and pixel drawing

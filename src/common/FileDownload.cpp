@@ -284,7 +284,7 @@ size_t CHttpDownloader::GetID()
 	Lock();
 	size_t tmp = iID;
 	Unlock();
-	return iID;
+	return tmp;
 }
 
 ////////////////////////
@@ -608,7 +608,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		tState = S_FINISHED;
 		iPos = 0;
 		bool error = true;
-		size_t compressedSize = sData.size();
+//		size_t compressedSize = sData.size(); // TODO: unused
 		if( Decompress( sData, &sFilename ) )
 		{
 			error = false;
@@ -728,7 +728,7 @@ void CUdpFileDownloader::removeFileFromRequest( const std::string & path )
 		reset();
 		tRequestedFiles = oldRequestedFiles;
 	}
-	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
+	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin();
 			it != tRequestedFiles.end(); it++ )
 		if( *it == path )
 		{

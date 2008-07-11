@@ -198,7 +198,7 @@ bool SetVideoMode()
 	}
 
 	if (!tLXOptions)  {
-		printf("Don't know what video mode to set, ignoring\n");
+		printf("WARNING: SetVideoMode: Don't know what video mode to set, ignoring\n");
 		return false;
 	}
 
@@ -223,6 +223,8 @@ bool SetVideoMode()
 			return false;
 		}
 #endif
+	} else {
+		printf("setting video mode\n");
 	}
 
 #ifdef WIN32
@@ -348,14 +350,13 @@ bool SetVideoMode()
 	if (tLX)
 		tLX->bVideoModeChanged = true;
 
-	VideoPostProcessor::get()->resetVideo();
-	mainPixelFormat = VideoPostProcessor::videoSurface()->format;
+	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
-	if(VideoPostProcessor::videoSurface()->flags & SDL_DOUBLEBUF)
+	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		cout << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0)  {
+	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		printf("using hardware surfaces\n");
 	} else {
@@ -365,6 +366,7 @@ bool SetVideoMode()
 		printf("using software surfaces\n");
 	}
 
+	VideoPostProcessor::get()->resetVideo();
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
 	cout << "video mode was set successfully" << endl;
@@ -421,6 +423,12 @@ void ProcessScreenshots()
 }
 
 
+
+
+
+
+// ---------------- VideoPostProcessor ---------------------------------------------------------
+
 VideoPostProcessor voidVideoPostProcessor; // this one does nothing
 
 SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
@@ -438,14 +446,72 @@ void VideoPostProcessor::flipRealVideo() {
 		SDL_GL_SwapBuffers();
 }
 
+class StretchHalfVPostProc : public VideoPostProcessor {
+public:
+	static const int W = 320;
+	static const int H = 240;
+
+	SmartPointer<SDL_Surface> m_screenBuf;
+
+	StretchHalfVPostProc() {
+		cout << "using StretchHalf video post processor" << endl;
+	}
+
+	virtual void resetVideo() {
+		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
+		if(!m_screenBuf.get())
+			m_screenBuf = gfxCreateSurface(640, 480);
+
+		m_videoSurface = m_screenBuf.get();
+	}
+
+	virtual void processToScreen() {
+		DrawImageScaleHalf(SDL_GetVideoSurface(), m_screenBuf.get());
+
+		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
+
+		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
+	}
+
+	virtual int screenWidth() { return W; }
+	virtual int screenHeight() { return H; }
+
+};
+
+
 void VideoPostProcessor::init() {
+	cout << "VideoPostProcessor initialisation ... " << flush;
+
+	std::string vppName = tLXOptions->sVideoPostProcessor;
+	TrimSpaces(vppName); stringlwr(vppName);
+	if(vppName == "stretchhalf")
+		instance = new StretchHalfVPostProc();
+	else {
+		if(vppName != "")
+			cout << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
+		cout << "none used, drawing directly on screen" << endl;
+		instance = &voidVideoPostProcessor;
+	}
 }
 
 void VideoPostProcessor::uninit() {
 	if(instance != &voidVideoPostProcessor && instance != NULL)
 		delete instance;
 	instance = &voidVideoPostProcessor;
+	m_videoSurface = NULL; // should never be used before resetVideo() is called
 }
+
+
+
+void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {
+	x = (int)((float)x * 640.0f / (float)get()->screenWidth());
+	y = (int)((float)y * 480.0f / (float)get()->screenHeight());
+}
+
+
+// ---------------------------------------------------------------------------------------------
+
+
 
 
 

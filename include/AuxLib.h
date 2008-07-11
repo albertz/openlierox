@@ -51,7 +51,7 @@ void        TakeScreenshot(const std::string& scr_path, const std::string& addit
 
 
 class VideoPostProcessor {
-private:
+protected:
 	static SDL_Surface* m_videoSurface;
 	static VideoPostProcessor* instance;
 	static void flipRealVideo();
@@ -69,6 +69,8 @@ public:
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
 	static void process() { ProcessScreenshots(); get()->processToScreen(); flipRealVideo(); }
+
+	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };
 
 
