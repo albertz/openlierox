@@ -147,6 +147,8 @@ bool CPlayList::DrawLoadingProgress(void)
 
 	if (!VideoPostProcessor::videoSurface()) return false;
 
+	SDL_Surface *screen = VideoPostProcessor::videoSurface();
+
 	ProcessEvents();
 
 	mouse_t *mouse = GetMouse();

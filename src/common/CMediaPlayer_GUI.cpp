@@ -230,6 +230,8 @@ enum  {
 // Runs the dialog, returns the directory user selected
 std::string COpenAddDir::Execute(const std::string& default_dir)
 {
+	SDL_Surface *Screen = VideoPostProcessor::get()->videoSurface();
+
 	szDir = default_dir;
 
 	bool done = false;

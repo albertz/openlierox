@@ -1136,8 +1136,8 @@ void CClient::ConnectingBehindNAT()
 			}
 
 
-			// If we've tried 5 times, give up
-			if (iNumConnects >= 5)  {
+			// If we've tried 3 times, give up
+			if (iNumConnects >= 3)  {
 				iNetStatus = NET_DISCONNECTED;
 				bBadConnection = true;
 				strBadConnectMsg = "Cannot connect to the server.";
