@@ -122,6 +122,12 @@ public:
 	float			getLastReceived(void)	{ return fLastPckRecvd; }
 	float			getLastSent(void)		{ return fLastSent; }
 	NetworkAddr		getAddress(void)		{ return RemoteAddr; }
+	// Returns true if CChannel has sent all pending packets, and got acknowledges about them.
+	// That includes only packets after last Transmit() call, 
+	// calling AddReliablePacketToSend() won't change the value this function returns.
+	virtual bool	getBufferEmpty(void) = 0;
+	// Not the same as "! getBufferEmpty()" for new CChannel implementation - it can buffer up multiple packets.
+	virtual bool	getBufferFull(void) = 0;
 
 	size_t			getOutoing(void)		{ return iOutgoingBytes; }
 	size_t			getIncoming(void)		{ return iIncomingBytes; }
@@ -173,6 +179,8 @@ public:
 	bool		Process( CBytestream *bs );
 	void		Clear(void);
 
+	bool		getBufferEmpty(void)	{ return Reliable.GetLength() == 0; };
+	bool		getBufferFull(void)		{ return ! getBufferEmpty(); };
 	int			getInSeq(void)			{ return iIncomingSequence; }
 	int			getOutSeq(void)			{ return iOutgoingSequence; }
 	void		setInSeq(int _s)		{ iIncomingSequence = _s; }
@@ -203,6 +211,18 @@ private:
 	int				LastReliablePacketSent;				// To make packet flow smooth
 	int				NextReliablePacketToSend;			// To make packet flow smooth
 	
+	// Constants to shape packet flow - in the future we may want to change them dynamically from connection characteristics
+	
+	// How much to wait before sending another empty keep-alive packet, sec (doesn't really matter much).
+	float			KeepAlivePacketTimeout;
+	// How much to wait before sending data packet again, sec - 
+	// if packets rarely get lost over net it will decrease bandwidth dramatically, for little lag tradeoff.
+	// Set to 0 to flood net with packets instantly as in CChannel_056b.
+	// If any new data available to send, or unreliable data present, packet is sent anyway.
+	float			DataPacketTimeout;
+	// Max amount of packets that can be flying through the net at the same time.
+	int				MaxNonAcknowledgedPackets;
+	
 	bool GetPacketFromBuffer(CBytestream *bs);
 
 public:
@@ -218,6 +238,9 @@ public:
 	// so you should call it in a loop, clearing bs after each call.
 	bool		Process( CBytestream *bs );
 	void		Clear();
+
+	bool		getBufferEmpty(void)	{ return ReliableOut.empty(); };
+	bool		getBufferFull(void)		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
 
 	friend void TestCChannelRobustness();
 };

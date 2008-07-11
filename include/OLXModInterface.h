@@ -195,7 +195,7 @@ unsigned OlxMod_GetChecksum( unsigned long * time = NULL );
 void OlxMod_SaveGameState( std::string * state, unsigned long time );
 
 // Re-calculates mod state from the string returned from OlxMod_SaveGameState() - it's slow!
-void OlxMod_LoadGameState( const std::string & state, unsigned long time );
+void OlxMod_LoadGameState( const std::string & state );
 
 
 // ----- End of OLX internal API -----

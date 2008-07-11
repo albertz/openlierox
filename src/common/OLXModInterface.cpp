@@ -169,6 +169,9 @@ int OlxMod_ScreenX, OlxMod_ScreenY;
 SDL_Surface * OlxMod_bmpDest;
 bool OlxMod_SoundDisabled = true;
 
+CInput *LoadGameStateKey = NULL;
+CInput *SaveGameStateKey = NULL;
+
 bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 	unsigned long localTime, int numPlayers,
 	int localPlayer, unsigned long randomSeed,
@@ -211,6 +214,14 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 			OlxMod_Random_Seed( ~ randomSeed );
 			(*OlxMod_list)[OlxMod_ActiveMod].init( numPlayers, localPlayer, options, weaponRestrictions, ScreenX, ScreenY, bmpDest );
 			(*OlxMod_list)[OlxMod_ActiveMod].save();
+			
+			#ifdef DEBUG
+			LoadGameStateKey = new CInput();
+			SaveGameStateKey = new CInput();
+			SaveGameStateKey->Setup("F9");
+			LoadGameStateKey->Setup("F10");
+			#endif
+			
 			return true;
 		};
 	return false;
@@ -225,6 +236,12 @@ void OlxMod_EndRound()
 	(*OlxMod_list)[OlxMod_ActiveMod].deinit();
 	OlxMod_ActiveMod = -1;
 	OlxMod_StopSoundSystem();
+	#ifdef DEBUG
+	delete LoadGameStateKey;
+	delete SaveGameStateKey;
+	LoadGameStateKey = NULL;
+	SaveGameStateKey = NULL;
+	#endif
 };
 
 void OlxMod_ReCalculate()
@@ -238,12 +255,12 @@ void OlxMod_ReCalculate()
 	OlxMod_ReCalculationNeeded = false;
 
 	// Re-calculate physics if the packet received is from the most laggy client
-	unsigned long timeMin = OlxMod_LastPacketTime[0];
+	unsigned long timeMin = OlxMod_LastPacketTime[OlxMod_LocalPlayer];
 	for( int f=1; f<OlxMod_NumPlayers; f++ )
 		if( OlxMod_LastPacketTime[f] < timeMin )
 			timeMin = OlxMod_LastPacketTime[f];
 
-	//printf("OlxMod_ReceiveNetPacket(): OlxMod_BackupTime %lu timeMin %lu\n", OlxMod_BackupTime, timeMin);
+	//printf("OlxMod_ReCalculate(): OlxMod_BackupTime %lu timeMin %lu\n", OlxMod_BackupTime, timeMin);
 	if( OlxMod_BackupTime /* + OlxMod_DrawDelayMs / OLXMOD_TICK_TIME_DIV */ + 1 >= timeMin )
 		return;
 
@@ -454,6 +471,34 @@ bool OlxMod_SendNetPacket( unsigned long localTime, OlxMod_KeyState_t keys, CByt
 	OlxMod_OldKeys[ OlxMod_LocalPlayer ] = keys;
 
 	OlxMod_LastPacketTime[ OlxMod_LocalPlayer ] = localTime;
+	
+	if( OlxMod_NumPlayers == 1 )
+		OlxMod_ReCalculationNeeded = true;
+	
+	#ifdef DEBUG
+	if( SaveGameStateKey->isDownOnce() )
+	{
+		std::string data;
+		OlxMod_SaveGameState( &data, OlxMod_BackupTime );
+		FILE * ff = OpenGameFile("SavedGameState.sav", "wb");
+		fwrite( data.c_str(), 1, data.size(), ff );
+		fclose(ff);
+	}
+	else
+	if( LoadGameStateKey->isDownOnce() )
+	{
+		std::string data;
+		FILE * ff = OpenGameFile("SavedGameState.sav", "rb");
+		char t[1024];
+		while( ! feof(ff) )
+		{
+			int readed = fread( t, 1, 1024, ff );
+			data.append( t, readed );
+		};
+		fclose(ff);
+		OlxMod_LoadGameState( data );
+	};
+	#endif
 
 	return true;
 };
@@ -474,10 +519,10 @@ unsigned OlxMod_GetChecksum( unsigned long * time )
 
 void OlxMod_SaveGameState( std::string * state, unsigned long time )
 {
-	printf("OlxMod_SaveGameState()\n");
 	if(state == NULL)
 		return;
 	CBytestream bs;
+	bs.writeInt( time, 4 );
 	for( OlxMod_EventList_t::const_iterator it = OlxMod_Events.begin(),
 		it1 = OlxMod_Events.upper_bound( time ); it != it1; ++it )
 	{
@@ -494,22 +539,26 @@ void OlxMod_SaveGameState( std::string * state, unsigned long time )
 	};
 	bs.ResetPosToBegin();
 	*state = bs.readData();
+	printf("OlxMod_SaveGameState() size %i\n", state->size());
 };
 
-void OlxMod_LoadGameState( const std::string & state, unsigned long time )
+void OlxMod_LoadGameState( const std::string & state )
 {
-	printf("OlxMod_LoadGameState()\n");
-	int ActiveMod_old = OlxMod_ActiveMod;
-	OlxMod_Events.erase(OlxMod_Events.begin(), OlxMod_Events.upper_bound( time ));
-	OlxMod_EventList_t events = OlxMod_Events;
-	OlxMod_EndRound();
-	std::vector< OlxMod_Event_t > OldKeys_old = OlxMod_OldKeys;
-	OlxMod_OldKeys.clear();
-	OlxMod_OldKeys.resize( OLXMOD_MAX_PLAYERS );
+	printf("OlxMod_LoadGameState() size %i\n", state.size());
 
 	CBytestream bs;
 	bs.writeData(state);
 	bs.ResetPosToBegin();
+	int OlxMod_BackupTime_new = bs.readInt(4);
+
+	int ActiveMod_old = OlxMod_ActiveMod;
+	OlxMod_Events.erase(OlxMod_Events.begin(), OlxMod_Events.upper_bound( OlxMod_BackupTime_new ));
+	OlxMod_EventList_t events = OlxMod_Events;
+	OlxMod_EndRound();
+	//std::vector< OlxMod_Event_t > OlxMod_OldKeys_old = OlxMod_OldKeys;
+	OlxMod_OldKeys.clear();
+	OlxMod_OldKeys.resize( OLXMOD_MAX_PLAYERS );
+
 	while( !bs.isPosAtEnd() )
 	{
 		std::map< int, OlxMod_Event_t > events1;
@@ -527,7 +576,7 @@ void OlxMod_LoadGameState( const std::string & state, unsigned long time )
 		};
 		events.insert( std::make_pair( time1, events1 ) );
 	};
-	std::vector< unsigned long > LastPacketTime_old = OlxMod_LastPacketTime;
+	std::vector< OlxMod_Event_t > OlxMod_OldKeys_new = OlxMod_OldKeys;
 	OlxMod_ActivateMod( (*OlxMod_list)[ActiveMod_old].name, (OlxMod_GameSpeed_t)OlxMod_TickTime,
 						OlxMod_OlxTimeDiffMs, OlxMod_NumPlayers,
 						OlxMod_LocalPlayer, OlxMod_InitialRandomSeed,
@@ -537,8 +586,10 @@ void OlxMod_LoadGameState( const std::string & state, unsigned long time )
 	OlxMod_SoundDisabled = true;
 	OlxMod_ReCalculationNeeded = true;
 	OlxMod_Events = events;
-	OlxMod_LastPacketTime = LastPacketTime_old;
-	OlxMod_OldKeys = OldKeys_old;
+	for( int f=0; f<OlxMod_NumPlayers; f++ )
+		OlxMod_LastPacketTime[f] = OlxMod_BackupTime_new;
+	OlxMod_OldKeys = OlxMod_OldKeys_new; //OlxMod_OldKeys = OlxMod_OldKeys_old;
+	OlxMod_CurrentTimeMs = OlxMod_BackupTime_new * OLXMOD_TICK_TIME_DIV;
 	OlxMod_ReCalculate();
 	OlxMod_SoundDisabled = SoundDisabled_old;
 };

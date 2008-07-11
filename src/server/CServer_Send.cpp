@@ -408,11 +408,11 @@ void GameServer::SendFiles()
 	if(iState != SVS_LOBBY)
 		return;
 
-	// Server will keep min rate of 1 kbyte/second - send each second 4 packets of 256 bytes each.
-	// If client sends ping packets server will send packets faster.
-	const float MaxPacketDelay = 0.25; // Modify this to get higher packet rate, though it may overflood laggy clients
-
+	// To keep sending packets if no acknowledge received from client -
+	// process will pause for a long time otherwise, 'cause we're in GUI part
 	bool startTimer = false;
+	int minPing = 200;
+	float pingCoeff = 1.5f;	// Send another packet in minPing/pingCoeff milliseconds
 
 	CClient *cl = cClients;
 
@@ -420,9 +420,12 @@ void GameServer::SendFiles()
 	{
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
-
-		if( cl->getUdpFileDownloader()->isSending() &&
-			cl->getLastFileRequestPacketReceived() + MaxPacketDelay <= tLX->fCurTime )
+		// That's a bit floody algorithm, it can be optimized I think
+		if( cl->getUdpFileDownloader()->isSending() && 
+			( cl->getChannel()->getBufferEmpty() ||
+				! cl->getChannel()->getBufferFull() &&
+				cl->getChannel()->getPing() != 0 &&
+				tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff ) )
 		{
 			startTimer = true;
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
@@ -430,11 +433,13 @@ void GameServer::SendFiles()
 			bs.writeByte(S2C_SENDFILE);
 			cl->getUdpFileDownloader()->send(&bs);
 			SendPacket( &bs, cl );
+			if( cl->getChannel()->getPing() < minPing && cl->getChannel()->getPing() != 0 )
+				minPing = cl->getChannel()->getPing();
 		};
 	};
 
 	if( startTimer )
-		Timer( &Timer::DummyHandler, NULL, int(MaxPacketDelay*1000.0), true ).startHeadless();
+		Timer( &Timer::DummyHandler, NULL, minPing / pingCoeff, true ).startHeadless();
 };
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
