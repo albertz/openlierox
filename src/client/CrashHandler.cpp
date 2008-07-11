@@ -79,7 +79,7 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 			}
 		}
 		buffer[bufsize - 1] = '\0';
-	} catch (...) 
+	} catch (...)
 	{ return buffer; }
 
 	return buffer;
@@ -342,10 +342,9 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		// TODO: check if drkonqi exists
-		// TODO: check if other crash handlers are present; check at least also for Appart and bug-buddy
-		// (bug-buddy usage is very similar to drkonqi)
-		signal(SIGSEGV, &DrKonqiSignalHandler);
+		// TODO: check if other crash handlers are present
+		// check at least for drkonqi, Appart and bug-buddy
+		signal(SIGSEGV, &BugBuddySignalHandler);
 		cout << "registered KCrash signal handler" << endl;
 	}
 
@@ -405,6 +404,54 @@ public:
 			_exit(253);
 		}
 	}
+
+	// Attempts to cleanup and call bug-buddy to process the crash
+	static void BugBuddySignalHandler(int Sig) {
+		// Don't get into an infinite loop
+		signal(SIGSEGV, SIG_DFL);
+
+		// Our pid
+		int MyPid = getpid();
+		printf("CrashHandler trigger MyPid=%i\n", MyPid);
+
+		// Fork to run the crash handler
+		pid_t Pid = fork();
+		if (Pid <= 0)
+		{
+			// Pass our state down to the crash handler...
+			int Args = 0;
+			char *Arg[32];
+			memset(Arg, 0, sizeof(Arg));
+			char SigName[16], PidName[16];
+
+			sprintf(SigName, "%i", Sig);
+			sprintf(PidName, "%i", MyPid);
+
+			Arg[Args++] = "bug-buddy";
+			//Arg[Args++] = "--display";
+			//Arg[Args++] = XDisplayString(o.XDisplay());
+			Arg[Args++] = "--appname";
+			Arg[Args++] = GAMENAME " " LX_VERSION;
+			Arg[Args++] = "--pid";
+			Arg[Args++] = PidName;
+			Arg[Args++] = "--name";
+			Arg[Args++] = "Albert Zeyer";
+			Arg[Args++] = "--email";
+			Arg[Args++] = "openlierox@az2000.de";
+
+			setgid(getgid());
+			setuid(getuid());
+
+			execvp("bug-buddy", Arg);
+		}
+		else
+		{
+			// Wait for child to exit
+			waitpid(Pid, NULL, 0);
+			_exit(253);
+		}
+	}
+
 
 };
 

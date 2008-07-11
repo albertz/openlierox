@@ -20,6 +20,7 @@ TODO
 	[?] others (!!)
 [X] CChannel calculates wrong pings (too high) (!)
 [ ] remove *_WidgetRegistered hacks
+[ ] build own crashreporter based on Breakpad for backtrace generation which fills bugreports at SF
 
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
 [?] fix network interpolation (is currently not optimal) (!!)
