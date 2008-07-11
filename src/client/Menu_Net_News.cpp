@@ -90,7 +90,7 @@ void Menu_Net_NewsFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cNews.Process();
-	cNews.Draw( tMenu->bmpScreen );
+	cNews.Draw( GetVideoSurface() );
 
 
 	// Process any events
@@ -129,6 +129,6 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 }
 

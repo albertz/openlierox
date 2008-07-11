@@ -148,7 +148,6 @@ void Menu_Net_GotoHostLobby(void)
 
 	tMenu->iMenuType = MNU_NETWORK;
 	tMenu->bMenuRunning = true;
-	tMenu->bmpScreen = GetVideoSurface();
 	iNetMode = net_host;
 
 	if(!bDedicated) {
@@ -181,7 +180,6 @@ void Menu_Net_GotoJoinLobby(void)
 {
     printf("Menu_Net_GotoJoinLobby()\n");
 
-	tMenu->bmpScreen = GetVideoSurface();
 	tMenu->bMenuRunning = true;
 
 	tMenu->iMenuType = MNU_NETWORK;
@@ -216,8 +214,8 @@ void Menu_NetFrame(void)
 
 
 	// Refresh the main window of the screen
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140,  20,140,  620,340);
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,110, 120,110, 420,30);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 120,110, 120,110, 420,30);
 
 
 	// Process the top buttons
@@ -227,7 +225,7 @@ void Menu_NetFrame(void)
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
 		for(int i=mn_Internet; i<=mn_News; i++) {
 
-			cNetButtons[i].Draw(tMenu->bmpScreen);
+			cNetButtons[i].Draw(GetVideoSurface());
 
 			if( i == iNetMode-1 )
 				continue;
@@ -249,7 +247,7 @@ void Menu_NetFrame(void)
                     iNetMode = i+1;
 
                     // Redraw the window section
-                    DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+                    DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
 
 					// Initialize the appropriate menu
 					switch(iNetMode) {
@@ -295,14 +293,14 @@ void Menu_NetFrame(void)
 		if (!tIpToCountryDB->Loaded())  {
 
 			// Draw the animation
-			cIpToCountryAnim.Draw( tMenu->bmpScreen );
+			cIpToCountryAnim.Draw( GetVideoSurface() );
 
 			// Draw the label
-			cIpToCountryLabel.Draw( tMenu->bmpScreen );
+			cIpToCountryLabel.Draw( GetVideoSurface() );
 
 			// Setup and draw the progressbar
 			cIpToCountryProgress.SetPosition(tIpToCountryDB->GetProgress());
-			cIpToCountryProgress.Draw( tMenu->bmpScreen );
+			cIpToCountryProgress.Draw( GetVideoSurface() );
 		}
 	}
 

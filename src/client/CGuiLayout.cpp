@@ -188,7 +188,7 @@ void CGuiLayout::Draw(SDL_Surface * bmpDest)
 void CGuiLayout_ReadEvents(CGuiLayout* gui, xmlNodePtr Node, generic_events_t *Events)
 {
 	// TODO: this function was a member function before; this is now gui
-	
+
 	// Load the values
 	xmlChar *evs[NumEvents];
 	evs[OnMouseOver] = xmlGetProp(Node,(const xmlChar *)"onmouseover");
@@ -548,9 +548,6 @@ gui_event_t *CGuiLayout::Process(void)
 		// Set the new video mode
 		SetVideoMode();
 
-		// Update both menu and game screens
-		tMenu->bmpScreen = GetVideoSurface();
-
 		// Redraw the mouse
 		Menu_RedrawMouse(true);
 
@@ -579,7 +576,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 
 		if (cFocused)  {
-			
+
 			// Check the characters
 			for(int i = 0; i < Keyboard->queueLength; i++) {
 				const KeyboardEvent& kbev = Keyboard->keyQueue[i];
@@ -832,7 +829,7 @@ void CGuiLayout::SetGlobalProperty(int property, int value)
 	}
 
 #undef FOREACH
-		
+
 }
 
 

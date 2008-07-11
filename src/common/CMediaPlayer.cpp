@@ -189,7 +189,7 @@ bool CPlayList::DrawLoadingProgress(void)
 
 	// Draw mouse
 	SetGameCursor(CURSOR_ARROW);
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 
 	// Flip the screen
 	FlipScreen(screen);
@@ -722,7 +722,7 @@ void CMediaPlayer::Draw(SDL_Surface * bmpDest)
 
 	// Draw the mouse
 	SetGameCursor(CURSOR_ARROW);
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 }
 
 //////////////////////

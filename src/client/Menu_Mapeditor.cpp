@@ -454,12 +454,12 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 		int w = MouseImg.get()->w;
 		int h = MouseImg.get()->h;
 		//if(tMenu->iEditMode == 0 || tMenu->iEditMode == 3)
-		DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h);
+		DrawImageStretchKey(GetVideoSurface(),MouseImg, Mouse->X-w, Mouse->Y-h);
 		//else
-		//	DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h, tLX->clPink);
+		//	DrawImageStretchKey(GetVideoSurface(),MouseImg, Mouse->X-w, Mouse->Y-h, tLX->clPink);
 	}
 	else
-		DrawCursor(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
 }
 
 
@@ -553,15 +553,15 @@ void Menu_MapEd_New(void)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
+		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 175, tLX->clNormalLabel, "Level details");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 202, tLX->clNormalLabel, "Width");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 232, tLX->clNormalLabel, "Height");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 262, tLX->clNormalLabel, "Theme");
+		tLX->cFont.DrawCentre(GetVideoSurface(), 320, 175, tLX->clNormalLabel, "Level details");
+		tLX->cFont.Draw(GetVideoSurface(), 220, 202, tLX->clNormalLabel, "Width");
+		tLX->cFont.Draw(GetVideoSurface(), 220, 232, tLX->clNormalLabel, "Height");
+		tLX->cFont.Draw(GetVideoSurface(), 220, 262, tLX->clNormalLabel, "Theme");
 
 		ev = cg.Process();
-		cg.Draw(tMenu->bmpScreen);
+		cg.Draw(GetVideoSurface());
 
 		// Process the widgets
 		if(ev) {
@@ -606,8 +606,8 @@ void Menu_MapEd_New(void)
 			break;
 
 
-		DrawCursor(tMenu->bmpScreen);
-		FlipScreen(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -737,13 +737,13 @@ void Menu_MapEd_LoadSave(int save)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
+		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
-		tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel, "Level name");
+		tLX->cFont.DrawCentre(GetVideoSurface(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
+		tLX->cFont.Draw(GetVideoSurface(), 180,288,tLX->clNormalLabel, "Level name");
 
 		ev = cg.Process();
-		cg.Draw(tMenu->bmpScreen);
+		cg.Draw(GetVideoSurface());
 
 		// Process the widgets
 		if(ev) {
@@ -805,8 +805,8 @@ void Menu_MapEd_LoadSave(int save)
 		}
 
 
-		DrawCursor(tMenu->bmpScreen);
-		FlipScreen(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 		WaitForNextEvent();
 	}

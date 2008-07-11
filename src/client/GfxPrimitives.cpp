@@ -42,20 +42,20 @@ using namespace std;
 /////////////////
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, float a)  {
-	Uint8 R1, G1, B1, A1, R2, G2, B2; 	 
-	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel; 	 
-	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1); 	 
-	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2); 	 
-	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format, 	 
-			(Uint8) CLAMP(R1 * (1.0f - a) + R2 * a, 0.0f, 255.0f), 	 
-			(Uint8) CLAMP(G1 * (1.0f - a) + G2 * a, 0.0f, 255.0f), 	 
-			(Uint8) CLAMP(B1 * (1.0f - a) + B2 * a, 0.0f, 255.0f), 	 
+	Uint8 R1, G1, B1, A1, R2, G2, B2;
+	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
+	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
+	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
+	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
+			(Uint8) CLAMP(R1 * (1.0f - a) + R2 * a, 0.0f, 255.0f),
+			(Uint8) CLAMP(G1 * (1.0f - a) + G2 * a, 0.0f, 255.0f),
+			(Uint8) CLAMP(B1 * (1.0f - a) + B2 * a, 0.0f, 255.0f),
 			A1), bmpDest->format->BytesPerPixel);
 }
 
 
 static inline Uint32 GetReducedAlphaBlendedPixel(SDL_Surface * bmpDest, Uint8* px, float a) {
-	Uint8 R1, G1, B1, A1; 	 
+	Uint8 R1, G1, B1, A1;
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
 	return SDL_MapRGBA(bmpDest->format, R1, G1, B1, (Uint8)(a * (float)A1));
 }
@@ -119,15 +119,15 @@ static void SetColorKey_Alpha(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 // Set a pink color key
 void SetColorKey(SDL_Surface * dst)  {
 	// If there's already a colorkey set, don't set it again
-	if ((dst->flags & SDL_SRCCOLORKEY) && 
-		((dst->format->colorkey == SDL_MapRGB(dst->format, 255, 0, 255)) || 
+	if ((dst->flags & SDL_SRCCOLORKEY) &&
+		((dst->format->colorkey == SDL_MapRGB(dst->format, 255, 0, 255)) ||
 		(dst->format->colorkey == SDL_MapRGB(dst->format, 254, 0, 254))))
 		return;
 
 	// Because some graphic editors (old Photoshop and GIMP and possibly more) contain a bug that rounds 255 to 254
 	// and some mods have such bugged images. To fix it we have to make a little hack here :(
 	Uint32 bugged_colorkey = SDL_MapRGB(dst->format, 254, 0, 254);
-	
+
 	// If one of the pixels in edges matches the bugged colorkey, we suppose whole image is bugged
 	// Not the best method, but it is fast and works for all cases I have discovered
 	LOCK_OR_QUIT(dst);
@@ -146,12 +146,12 @@ void SetColorKey(SDL_Surface * dst)  {
 		else
 			SetColorKey_Alpha(dst, 255, 0, 255);
 	}
-	
+
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
 	if (bugged)
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey); 
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey);
 	else
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255));
 }
 
 void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
@@ -159,13 +159,13 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 		SetColorKey(dst); // use this function as it has a workaround included for some old broken mods
 		return;
 	}
-	
+
 	if (dst->flags & SDL_SRCALPHA)
 		// HINT: The behaviour with SDL_SRCALPHA is different
 		// and not as you would expect it. The problem is that while blitting to a surface with RGBA,
 		// the alpha channel of the destination is untouched (see manpage to SDL_SetAlpha).
 		SetColorKey_Alpha(dst, r, g, b);
-		
+
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
 }
@@ -223,7 +223,7 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 	if (*x1 == *x2 && *y1 == *y2)
 		return false;
 
-    // Get clipping boundary 
+    // Get clipping boundary
     left = dst->clip_rect.x;
     right = dst->clip_rect.x + dst->clip_rect.w - 1;
     top = dst->clip_rect.y;
@@ -249,13 +249,13 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 				code2 = code1;
 				code1 = swaptmp;
 			}
-			
+
 			if (*x2 != *x1) {
 				m = (*y2 - *y1) / (float) (*x2 - *x1);
 			} else {
 				m = 1.0f;
 			}
-			
+
 			if (code1 & CLIP_LEFT_EDGE) {
 				*y1 += (int) ((left - *x1) * m);
 				*x1 = left;
@@ -326,7 +326,7 @@ inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 		+ (sy * src_pitch) + (sx * src->format->BytesPerPixel);
 	Uint8* dstrow = (Uint8 *)dst->pixels
 		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
-	
+
 	// Copy row by row
 	for (register int i = 0; i < h; ++i)  {
 		memcpy(dstrow, srcrow, byte_bound);
@@ -342,7 +342,7 @@ inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
 void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h)
-{	
+{
 	// Copying is a normal blit without colorkey and alpha
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
@@ -429,9 +429,9 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
-	
+
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
-	
+
 	int x,y;
 	int dw = w * 2;
 	int dh = h * 2;
@@ -491,7 +491,7 @@ void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int 
 void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
-	
+
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
 	int x,y;
@@ -566,9 +566,9 @@ void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, i
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
-	
+
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
-	
+
 	int x,y;
 
 	int dw = w * 2;
@@ -687,8 +687,8 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Draw the image resized
 void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
-	int dw = Round((float)sw * xratio);	
-	int dh = Round((float)sh * yratio);	
+	int dw = Round((float)sw * xratio);
+	int dh = Round((float)sh * yratio);
 	DrawImageResizedAdv(bmpDest, bmpSrc, sx, sy, dx, dy, sw, sh, dw, dh);
 }
 
@@ -829,7 +829,7 @@ static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 // Draws the image double-sized using the scale2x algorithm
 // This algo is taken from http://scale2x.sourceforge.net/algorithm.html
 // Thanks go to the AdvanceMAME team!
-void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h) 
+void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// Lock
 	LOCK_OR_QUIT(bmpDest);
@@ -858,7 +858,7 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy);
 		colors[H] = GetPixel(bmpSrc, sx + x, sy + 1);
 
-		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy, colors);	
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy, colors);
 	}
 
 	// First pixel, last line
@@ -875,7 +875,7 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 		colors[D] = GetPixel(bmpSrc, sx + x - 1, sy2);
 		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy2);
 
-		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + h * 2 - 2, colors);	
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + h * 2 - 2, colors);
 	}
 
 	// Rest of the image
@@ -982,7 +982,7 @@ void BeamPutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 alp
 		PutPixelA(bmpDest, x+1, y+1, colour, alpha);
 	}
 }
- 
+
 void BeamPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
 	BeamPutPixelA(bmpDest, x, y, colour, 255); }
 
@@ -1145,10 +1145,10 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Uint32 colour) {
 	LOCK_OR_QUIT(bmpDest);
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
-	
+
 	for (uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
 		PutPixelToAddr((Uint8 *)px, friendly_col, bpp);
-	
+
 	UnlockSurface(bmpDest);
 
 }
@@ -1269,7 +1269,7 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 		for (ys=y1+1; ys<y2; ++ys)
 		{
 			proc(dst, xt / 256, ys, color, (Uint8) (255 - distance));
-			proc(dst, xt / 256 + 1, ys, color, (Uint8) distance);			
+			proc(dst, xt / 256 + 1, ys, color, (Uint8) distance);
 
 			xt += k;
 			distance = xt & 255;  // Same as: xt % 256
@@ -1372,14 +1372,14 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 			Image = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
 			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
-	
+
 	} else {
 		// we haven't initialized the screen yet
 		if(!bDedicated)
 			printf("WARNING: screen not initialized yet while loading image\n");
 		Image = img;
 	}
-	
+
 	if(!Image.get()) {
 		printf("ERROR: LoadImgBPP: cannot create new surface\n");
 		return NULL;
@@ -1393,7 +1393,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	return Image;
 }
 
-#ifndef DEDICATED_ONLY 
+#ifndef DEDICATED_ONLY
 ///////////////////////
 // Converts the SDL_surface to gdImagePtr
 static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
@@ -1404,7 +1404,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	Uint32 rmask, gmask, bmask;
 	// format of gdImage
 	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
-	
+
 	SmartPointer<SDL_Surface> formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
 	if(!formated.get())
 		return NULL;
@@ -1413,16 +1413,16 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	#endif
 	// convert it to the new format (32 bpp)
 	CopySurface(formated.get(), src, 0, 0, 0, 0, src->w, src->h);
-	
+
 	if (!LockSurface(formated))
 		return NULL;
 
 	for(int y = 0; y < src->h; y++) {
-		memcpy(gd_image->tpixels[y], (uchar*)formated.get()->pixels + y*formated.get()->pitch, formated.get()->pitch);	
+		memcpy(gd_image->tpixels[y], (uchar*)formated.get()->pixels + y*formated.get()->pitch, formated.get()->pitch);
 	}
 
 	UnlockSurface(formated);
-	
+
 	return gd_image;
 }
 #endif //DEDICATED_ONLY
@@ -1459,8 +1459,8 @@ bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, c
 	#ifdef DEDICATED_ONLY
 	printf("WARNING: SaveSurface: cannot use something else than BMP in dedicated-only-mode\n");
 	return false;
-	#else //DEDICATED_ONLY
-	
+	#endif //DEDICATED_ONLY
+
 	//
 	// JPG, PNG, GIF
 	//
@@ -1518,16 +1518,15 @@ bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, c
 
 	// Close the file and quit
 	return fclose(out) == 0;
-	#endif
 }
 
 
 void test_Clipper() {
 	SDL_Rect r1 = {52, 120, 7, 14};
 	SDL_Rect r2 = {52, 162, 558, 258};
-	
+
 	ClipRefRectWith(r1, (SDLRect&)r2);
-	
+
 	cout << r1.x << "," << r1.y << "," << r1.w << "," << r1.h << endl;
 }
 
@@ -1536,7 +1535,7 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 	#ifdef DEBUG_SMARTPTR
 	printf("SmartPointer_ObjectDeinit<SDL_Surface>() %p\n", obj);
 	#endif
-	
+
 	SDL_FreeSurface(obj);
 };
 

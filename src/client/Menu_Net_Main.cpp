@@ -96,7 +96,7 @@ void Menu_Net_MainFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cMain.Process();
-	cMain.Draw( tMenu->bmpScreen );
+	cMain.Draw( GetVideoSurface() );
 
 
 	// Process any events
@@ -124,5 +124,5 @@ void Menu_Net_MainFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 }

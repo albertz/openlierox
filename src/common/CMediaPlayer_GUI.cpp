@@ -369,7 +369,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 
 		// Draw the mouse
 		SetGameCursor(CURSOR_ARROW);
-		DrawCursor(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
 		FlipScreen(Screen);
 		CapFPS();
 	}

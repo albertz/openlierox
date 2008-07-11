@@ -67,7 +67,6 @@ void*		startFunctionData = NULL;
 
 
 keyboard_t	*kb = NULL;
-SDL_Surface * Screen = NULL;
 IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);
@@ -207,8 +206,7 @@ startpoint:
 	}
 
 	kb = GetKeyboard();
-	Screen = GetVideoSurface();
-	if (!bDedicated && !Screen) {
+	if (!bDedicated && !GetVideoSurface()) {
 		SystemError("Could not find screen.");
 		return -1;
 	}
@@ -313,8 +311,7 @@ startpoint:
 		}
 
 		// Pre-game initialization
-		Screen = GetVideoSurface();
-		if(!bDedicated) FillSurface(Screen, tLX->clBlack);
+		if(!bDedicated) FillSurface(GetVideoSurface(), tLX->clBlack);
 		float oldtime = GetMilliSeconds();
 
 		ClearEntities();
@@ -349,7 +346,7 @@ startpoint:
 			// Main frame
 			GameLoopFrame();
 
-			FlipScreen(Screen);
+			FlipScreen(GetVideoSurface());
 
 			CapFPS();
 		}
@@ -683,10 +680,6 @@ void GameLoopFrame(void)
 		// Set the new video mode
 		SetVideoMode();
 
-		// Update both menu and game screens
-		Screen = GetVideoSurface();
-		tMenu->bmpScreen = Screen;
-
 		cSwitchMode.reset();
 	}
 
@@ -712,7 +705,7 @@ void GameLoopFrame(void)
 				cServer->StartGame();
 		}
 
-		cClient->Draw(Screen);
+		cClient->Draw(GetVideoSurface());
 		break;
 
 
@@ -721,13 +714,13 @@ void GameLoopFrame(void)
 		cClient->Frame();
 		cServer->Frame();
 
-		cClient->Draw(Screen);
+		cClient->Draw(GetVideoSurface());
 		break;
 
 	// Joined
 	case GME_JOIN:
 		cClient->Frame();
-		cClient->Draw(Screen);
+		cClient->Draw(GetVideoSurface());
 		break;
 
 	} // SWITCH

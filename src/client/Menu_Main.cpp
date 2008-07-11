@@ -101,15 +101,15 @@ void Menu_MainFrame(void)
 {
 	gui_event_t *ev = NULL;
 
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 50,160, 50,160, 320,290);
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,430, 20,430, 60,40);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 50,160, 50,160, 320,290);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,430, 20,430, 60,40);
 
 	// Process the buttons
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cMainMenu.Process();
-	cMainMenu.Draw(tMenu->bmpScreen);
+	cMainMenu.Draw(GetVideoSurface());
 
 	int mouseover = false;
 	int img = lastimg;
@@ -217,14 +217,14 @@ void Menu_MainFrame(void)
 
 	if(alpha) {
 
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 410,260, 410,260, 200,64);
+		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 410,260, 410,260, 200,64);
 
 		switch(img) {
 			case 0:
-				//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainLocal, 0,y, 410, 260, tMenu->bmpMainLocal->w,64);
+				//DrawImageAdv(GetVideoSurface(), tMenu->bmpMainLocal, 0,y, 410, 260, tMenu->bmpMainLocal->w,64);
 				break;
 			case 1:
-				//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainNet, 0,y, 410, 260, tMenu->bmpMainNet->w,64);
+				//DrawImageAdv(GetVideoSurface(), tMenu->bmpMainNet, 0,y, 410, 260, tMenu->bmpMainNet->w,64);
 				break;
 		}
 		lastimg = img;
@@ -265,8 +265,8 @@ void Menu_MainFrame(void)
 		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2) + 4;
 
 	Menu_redrawBufferRect(x, y, w, h);
-	tLX->cFont.Draw(tMenu->bmpScreen, x, y, tLX->clCredits1, credits1);
-	tLX->cFont.Draw(tMenu->bmpScreen, x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
+	tLX->cFont.Draw(GetVideoSurface(), x, y, tLX->clCredits1, credits1);
+	tLX->cFont.Draw(GetVideoSurface(), x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
 
 
 	// Restore the original spacing
@@ -274,7 +274,7 @@ void Menu_MainFrame(void)
 
 
 	// Draw the mouse
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 }
 
 

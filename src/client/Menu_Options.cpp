@@ -417,8 +417,8 @@ void Menu_OptionsFrame(void)
 	CCheckbox	*c,*c2;
 	//CSlider		*s;
 
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer,  180,110,  180,110,  300,30);
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer,  180,110,  180,110,  300,30);
+	//DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
 
 	// Process the top buttons
@@ -426,7 +426,7 @@ void Menu_OptionsFrame(void)
 	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
 	for(int i=op_Controls;i<=op_System;i++) {
 
-		TopButtons[i].Draw(tMenu->bmpScreen);
+		TopButtons[i].Draw(GetVideoSurface());
 
 		if(i==OptionsMode)
 			continue;
@@ -434,7 +434,7 @@ void Menu_OptionsFrame(void)
 		if(TopButtons[i].InBox(Mouse->X,Mouse->Y)) {
 			TopButtons[i].MouseOver(Mouse);
 			if(Mouse->Up) {
-                DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
+                DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				OptionsMode = i;
 				PlaySoundSample(sfxGeneral.smpClick);
 			}
@@ -448,7 +448,7 @@ void Menu_OptionsFrame(void)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 	ev = cOptions.Process();
-	cOptions.Draw(tMenu->bmpScreen);
+	cOptions.Draw(GetVideoSurface());
 
 	if(ev) {
 
@@ -479,7 +479,7 @@ void Menu_OptionsFrame(void)
 		if (!cMediaPlayer.GetDrawPlayer())
 #endif
 			ev = cOpt_Controls.Process();
-		cOpt_Controls.Draw(tMenu->bmpScreen);
+		cOpt_Controls.Draw(GetVideoSurface());
 
 		if(ev) {
 
@@ -518,16 +518,16 @@ void Menu_OptionsFrame(void)
 		if (!cMediaPlayer.GetDrawPlayer())
 #endif
 			ev = cOpt_Game.Process();
-		cOpt_Game.Draw(tMenu->bmpScreen);
+		cOpt_Game.Draw(GetVideoSurface());
 
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
-        DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,40);
-		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel, itoa(val)+"%");
+        DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
+		tLX->cFont.Draw(GetVideoSurface(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
-        //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
-		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,Difficulties[val]);
+        //DrawImageAdv(GetVideoSurface(), tMenu->bmpBuffer, 285,260, 285,260, 100,50);
+		//tLX->cFont.Draw(GetVideoSurface(),285, 268, tLX->clNormalLabel,Difficulties[val]);
 
 
 
@@ -659,7 +659,7 @@ void Menu_OptionsFrame(void)
 		if (!cMediaPlayer.GetDrawPlayer())
 #endif
 			ev = cOpt_System.Process();
-		cOpt_System.Draw(tMenu->bmpScreen);
+		cOpt_System.Draw(GetVideoSurface());
 
 		if(ev) {
 
@@ -696,7 +696,6 @@ void Menu_OptionsFrame(void)
 							// Set the new video mode
 							SetVideoMode();
 
-							tMenu->bmpScreen = GetVideoSurface();
 							Menu_RedrawMouse(true);
 							SDL_ShowCursor(SDL_DISABLE);
 						}
@@ -795,7 +794,7 @@ void Menu_OptionsFrame(void)
 
 		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
-			cOpt_System.getWidget(os_Apply)->Draw( tMenu->bmpScreen );
+			cOpt_System.getWidget(os_Apply)->Draw( GetVideoSurface() );
         } else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
 			cOpt_System.getWidget(os_Apply)->redrawBuffer();
@@ -804,7 +803,7 @@ void Menu_OptionsFrame(void)
 
 
 	// Draw the mouse
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 }
 
 
@@ -848,7 +847,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	while(!tLX->bQuitGame) {
 		Menu_RedrawMouse(false);
 
-		DrawCursor(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
 
 		// Escape quits the wait for user input
 		// TODO: make this event-based (don't check GetKeyboard() directly)
@@ -861,7 +860,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 			break;
 		}
 
-		FlipScreen(tMenu->bmpScreen);
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 		WaitForNextEvent();
 	}

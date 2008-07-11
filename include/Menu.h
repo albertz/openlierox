@@ -203,11 +203,7 @@ class menu_t { public:
     SmartPointer<SDL_Surface> bmpMainBack_wob;
 	SmartPointer<SDL_Surface> bmpMainBack_common;
 	SmartPointer<SDL_Surface> bmpBuffer;
-	
-	// This is main SDL video surface returned by GetVideoSurface() -
-	// it should never be freed, that's why it's not SmartPointer.
-	SDL_Surface * bmpScreen; 
-	
+
 	SmartPointer<SDL_Surface> bmpMsgBuffer;
     SmartPointer<SDL_Surface> bmpMiniMapBuffer;
 
@@ -279,7 +275,7 @@ class server_t { public:
 	server_t() {
 		SetNetAddrValid(sAddress, false);
 	}
-	
+
 	bool	bIgnore;
 	bool	bProcessing;
     bool    bManual;

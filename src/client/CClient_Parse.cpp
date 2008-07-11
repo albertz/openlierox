@@ -611,7 +611,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 						// Go back to the menu
 						QuittoMenu();
 					} else {
-						printf("ERROR: load map error for a local game!\n"); 
+						printf("ERROR: load map error for a local game!\n");
 					}
 
 					bGameReady = false;
@@ -664,7 +664,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 					// Go back to the menu
 					GotoNetMenu();
 				} else {
-					printf("ERROR: load mod error for a local game!\n"); 
+					printf("ERROR: load mod error for a local game!\n");
 				}
 				bGameReady = false;
 

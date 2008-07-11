@@ -162,7 +162,7 @@ void Menu_Net_NETFrame(int mouse)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cInternet.Process();
-	cInternet.Draw( tMenu->bmpScreen );
+	cInternet.Draw( GetVideoSurface() );
 
 
 	// Process the server list
@@ -401,7 +401,7 @@ void Menu_Net_NETFrame(int mouse)
 		Menu_Net_NETUpdateList();
 
 	// Draw the mouse
-	DrawCursor(tMenu->bmpScreen);
+	DrawCursor(GetVideoSurface());
 
 }
 
@@ -479,7 +479,7 @@ void Menu_Net_NETAddServer(void)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		ProcessEvents();
 
@@ -489,7 +489,7 @@ void Menu_Net_NETAddServer(void)
 			Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 		}
 
-		cAddSvr.Draw( tMenu->bmpScreen );
+		cAddSvr.Draw( GetVideoSurface() );
 		ev = cAddSvr.Process();
 
 		// Process any events
@@ -527,8 +527,8 @@ void Menu_Net_NETAddServer(void)
 		}
 
 
-		DrawCursor(tMenu->bmpScreen);
-		FlipScreen(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 	}
 
@@ -608,11 +608,11 @@ void Menu_Net_NETUpdateList(void)
 
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
         if( SvrCount > 0 ) {
-            DrawRectFill(tMenu->bmpScreen, 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, tLX->clProgress);
-            tLX->cOutlineFont.DrawCentre(tMenu->bmpScreen, 320,283,tLX->clWhite, itoa(CurServer) + "/" + itoa(SvrCount));
+            DrawRectFill(GetVideoSurface(), 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, tLX->clProgress);
+            tLX->cOutlineFont.DrawCentre(GetVideoSurface(), 320,283,tLX->clWhite, itoa(CurServer) + "/" + itoa(SvrCount));
         }
 
         // Do the HTTP requests of the master servers
@@ -669,7 +669,7 @@ void Menu_Net_NETUpdateList(void)
 		}
 
 
-		cListUpdate.Draw( tMenu->bmpScreen );
+		cListUpdate.Draw( GetVideoSurface() );
 		ev = cListUpdate.Process();
 
 		// Process any events
@@ -685,8 +685,8 @@ void Menu_Net_NETUpdateList(void)
 		}
 
 
-		DrawCursor(tMenu->bmpScreen);
-		FlipScreen(tMenu->bmpScreen);
+		DrawCursor(GetVideoSurface());
+		FlipScreen(GetVideoSurface());
 		CapFPS();
 	}
 
@@ -766,8 +766,8 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
 	Menu_RedrawMouse(true);
 
-	int center = tMenu->bmpScreen->w/2;
-	int y = tMenu->bmpScreen->h/2 - INFO_H/2;
+	int center = GetVideoSurface()->w/2;
+	int y = GetVideoSurface()->h/2 - INFO_H/2;
 	
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  nd_Refresh,	center - 105, y+INFO_H-20, 85,15);
@@ -788,7 +788,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(GetVideoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 #ifdef WITH_MEDIAPLAYER
 		cMediaPlayer.Frame();
@@ -796,7 +796,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
-        cDetails.Draw(tMenu->bmpScreen);
+        cDetails.Draw(GetVideoSurface());
         gui_event_t *ev = NULL;
 #ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
@@ -828,11 +828,11 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
         }
 
 #ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(tMenu->bmpScreen);
+		cMediaPlayer.Draw(GetVideoSurface());
 #endif
 
-        DrawCursor(tMenu->bmpScreen);
-		FlipScreen(tMenu->bmpScreen);
+        DrawCursor(GetVideoSurface());
+		FlipScreen(GetVideoSurface());
 		CapFPS();
     }
 
