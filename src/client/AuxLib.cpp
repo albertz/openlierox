@@ -446,14 +446,14 @@ void VideoPostProcessor::flipRealVideo() {
 		SDL_GL_SwapBuffers();
 }
 
-class StretchHalfVPostProc : public VideoPostProcessor {
+class StretchHalfPostProc : public VideoPostProcessor {
 public:
 	static const int W = 320;
 	static const int H = 240;
 
 	SmartPointer<SDL_Surface> m_screenBuf;
 
-	StretchHalfVPostProc() {
+	StretchHalfPostProc() {
 		cout << "using StretchHalf video post processor" << endl;
 	}
 
@@ -478,6 +478,34 @@ public:
 
 };
 
+class Stretch2XPostProc : public VideoPostProcessor {
+public:
+	static const int W = 640 * 2;
+	static const int H = 480 * 2;
+
+	SmartPointer<SDL_Surface> m_screenBuf;
+
+	Stretch2XPostProc() {
+		cout << "using Stretch2x video post processor" << endl;
+	}
+
+	virtual void resetVideo() {
+		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
+		if(!m_screenBuf.get())
+			m_screenBuf = gfxCreateSurface(640, 480);
+
+		m_videoSurface = m_screenBuf.get();
+	}
+
+	virtual void processToScreen() {
+		DrawImageScale2x(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480);
+	}
+
+	virtual int screenWidth() { return W; }
+	virtual int screenHeight() { return H; }
+
+};
+
 
 void VideoPostProcessor::init() {
 	cout << "VideoPostProcessor initialisation ... " << flush;
@@ -485,7 +513,9 @@ void VideoPostProcessor::init() {
 	std::string vppName = tLXOptions->sVideoPostProcessor;
 	TrimSpaces(vppName); stringlwr(vppName);
 	if(vppName == "stretchhalf")
-		instance = new StretchHalfVPostProc();
+		instance = new StretchHalfPostProc();
+	else if(vppName == "stretch2x")
+		instance = new Stretch2XPostProc();
 	else {
 		if(vppName != "")
 			cout << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
