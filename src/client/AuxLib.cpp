@@ -202,9 +202,6 @@ bool SetVideoMode()
 
 	bool resetting = false;
 
-	int scrW = VideoPostProcessor::get()->screenWidth();
-	int scrH = VideoPostProcessor::get()->screenHeight();
-
 	// Check if already running
 	if (VideoPostProcessor::videoSurface())  {
 		resetting = true;
@@ -226,11 +223,6 @@ bool SetVideoMode()
 #endif
 	} else {
 		printf("setting video mode\n");
-
-		// Get the correct screen dimensions
-		VideoPostProcessor::init();
-		scrW = VideoPostProcessor::get()->screenWidth();
-		scrH = VideoPostProcessor::get()->screenHeight();
 	}
 
 	// uninit first to ensure that the video thread is not running
@@ -324,6 +316,9 @@ bool SetVideoMode()
 	}
 #endif
 
+	VideoPostProcessor::init();
+	int scrW = VideoPostProcessor::get()->screenWidth();
+	int scrH = VideoPostProcessor::get()->screenHeight();
 setvideomode:
 	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
@@ -378,7 +373,6 @@ setvideomode:
 		printf("using software surfaces\n");
 	}
 
-	VideoPostProcessor::init();
 	VideoPostProcessor::get()->resetVideo();
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
@@ -609,7 +603,7 @@ void VideoPostProcessor::init() {
 	// only start video thread when we have a post processor
 	if(instance != &voidVideoPostProcessor) {
 		videoWaitMutex = SDL_CreateMutex();
-		videoThreadState = VTS_WAITING;
+		videoThreadState = VTS_INVALID;
 		SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
 		videoThread = SDL_CreateThread(&videoThreadFct, NULL);
 	}
