@@ -114,8 +114,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 		}
 	}
 
-	VideoPostProcessor::init();
-
 	if(!bDedicated && !SetVideoMode())
 		return false;
 
@@ -226,6 +224,9 @@ bool SetVideoMode()
 	} else {
 		printf("setting video mode\n");
 	}
+
+	// uninit first to ensure that the video thread is not running
+	VideoPostProcessor::uninit();
 
 #ifdef WIN32
 	bool HardwareAcceleration = false;
@@ -371,6 +372,7 @@ setvideomode:
 		printf("using software surfaces\n");
 	}
 
+	VideoPostProcessor::init();
 	VideoPostProcessor::get()->resetVideo();
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
