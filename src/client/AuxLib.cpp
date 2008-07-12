@@ -316,6 +316,7 @@ bool SetVideoMode()
 	}
 #endif
 
+	VideoPostProcessor::init();
 	int scrW = VideoPostProcessor::get()->screenWidth();
 	int scrH = VideoPostProcessor::get()->screenHeight();
 setvideomode:
@@ -372,7 +373,6 @@ setvideomode:
 		printf("using software surfaces\n");
 	}
 
-	VideoPostProcessor::init();
 	VideoPostProcessor::get()->resetVideo();
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
