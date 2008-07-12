@@ -902,23 +902,44 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 	UnlockSurface(bmpSrc);
 }
 
+///////////////////////
+// Helper function for HalfImageScaleHalf
+static Uint32 HalfBlendPixel(Uint32 p1, Uint32 p2, Uint32 p3, Uint32 p4, SDL_PixelFormat *fmt)
+{
+/*#define PIXEL_IMPACT(pixel, channel) (((pixel & fmt->##channel##mask) >> fmt->##channel##shift)/4)
+	return ((PIXEL_IMPACT(p1, R) + PIXEL_IMPACT(p2, R) + PIXEL_IMPACT(p3, R) + PIXEL_IMPACT(p4, R)) << fmt->Rshift) |
+		((PIXEL_IMPACT(p1, G) + PIXEL_IMPACT(p2, G) + PIXEL_IMPACT(p3, G) + PIXEL_IMPACT(p4, G)) << fmt->Gshift) |
+		((PIXEL_IMPACT(p1, B) + PIXEL_IMPACT(p2, B) + PIXEL_IMPACT(p3, B) + PIXEL_IMPACT(p4, B)) << fmt->Bshift);*/
+
+	// TODO: does this work on big endian systems? (there could be an overflow in the red channel)
+#define PIXEL_CHANNEL(pixel, channel) (pixel & fmt->##channel##mask)
+	return ((((PIXEL_CHANNEL(p1, R) + PIXEL_CHANNEL(p2, R) + PIXEL_CHANNEL(p3, R) + PIXEL_CHANNEL(p4, R))) / 4) & fmt->Rmask) |
+		((((PIXEL_CHANNEL(p1, G) + PIXEL_CHANNEL(p2, G) + PIXEL_CHANNEL(p3, G) + PIXEL_CHANNEL(p4, G))) / 4) & fmt->Gmask) |
+		((((PIXEL_CHANNEL(p1, B) + PIXEL_CHANNEL(p2, B) + PIXEL_CHANNEL(p3, B) + PIXEL_CHANNEL(p4, B))) / 4) & fmt->Bmask);
+}
+
 void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
-	// TODO: optimise
 
 	// Lock
 	LOCK_OR_QUIT(bmpDest);
 	LOCK_OR_QUIT(bmpSrc);
 
+	short bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *srcpx_1 = (Uint8 *)bmpSrc->pixels;
+	Uint8 *srcpx_2 = (Uint8 *)bmpSrc->pixels + bmpSrc->pitch;
+	int srcgap = bmpSrc->pitch * 2 - bmpSrc->w * bmpSrc->format->BytesPerPixel; // *2 because we skip two lines on the source surface
+	Uint8 *dstpx = (Uint8 *)bmpDest->pixels;
+	int dstgap = bmpDest->pitch - bmpDest->w * bmpDest->format->BytesPerPixel;
+
 	int w = bmpSrc->w / 2;
 	int h = bmpSrc->h / 2;
-	for(int x = 0; x < w; ++x)
-		for(int y = 0; y < h; ++y) {
-			Color c;
-			c = Color(GetPixel(bmpSrc, 2*x, 2*y), bmpSrc->format) * 0.25;
-			c = c + Color(GetPixel(bmpSrc, 2*x+1, 2*y), bmpSrc->format) * 0.25;
-			c = c + Color(GetPixel(bmpSrc, 2*x, 2*y+1), bmpSrc->format) * 0.25;
-			c = c + Color(GetPixel(bmpSrc, 2*x+1, 2*y+1), bmpSrc->format) * 0.25;
-			PutPixel(bmpDest, x, y, c.pixel(bmpDest->format));
+	for(int y = h; y; --y, srcpx_1 += srcgap, srcpx_2 += srcgap, dstpx += dstgap)
+		for(int x = w; x; --x, srcpx_1 += bpp * 2, srcpx_2 += bpp * 2, dstpx += bpp) {
+			const Uint32 px1 = GetPixelFromAddr(srcpx_1, bpp);  // x, y
+			const Uint32 px2 = GetPixelFromAddr(srcpx_1 + bpp, bpp); // x + 1, y
+			const Uint32 px3 = GetPixelFromAddr(srcpx_2, bpp);  // x, y + 1
+			const Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
+			PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
 		}
 
 	// Unlock

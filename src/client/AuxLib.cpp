@@ -477,6 +477,7 @@ public:
 // Without a post processor, the flipping is done in the main thread.
 // There are some rare situations where the flipping of the screen surface is slow
 // and in this situations, it can be faster to use this dummy post processor.
+// TODO: why not use SDL_ASYNCBLIT flag instead?
 class DummyVideoPostProc : public BasicVideoPostProcessor {
 public:
 	DummyVideoPostProc() {
