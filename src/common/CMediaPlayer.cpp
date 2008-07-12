@@ -147,8 +147,6 @@ bool CPlayList::DrawLoadingProgress(void)
 
 	if (!VideoPostProcessor::videoSurface()) return false;
 
-	SDL_Surface *screen = VideoPostProcessor::videoSurface();
-
 	ProcessEvents();
 
 	mouse_t *mouse = GetMouse();
@@ -160,8 +158,8 @@ bool CPlayList::DrawLoadingProgress(void)
 	// Position
 	static const int w = 270;
 	static const int h = 90;
-	static const int x = screen->w/2-w/2;
-	static const int y = screen->h/2-h/2;
+	static const int x = VideoPostProcessor::videoSurface()->w/2-w/2;
+	static const int y = VideoPostProcessor::videoSurface()->h/2-h/2;
 	btnCancel.Setup(0,x+w/2-40,y+h-20,60,20);
 
 	// Process events
@@ -177,14 +175,14 @@ bool CPlayList::DrawLoadingProgress(void)
 	result = result || kb->KeyDown[SDLK_ESCAPE];
 
 	// Draw Player
-	cMediaPlayer.Draw(screen);
+	cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
 
 	// Draw the dialog
-	DrawRectFill(screen,x,y,x+w,y+h,tLX->clBlack);
-	Menu_DrawBox(screen,x,y,x+w,y+h);
+	DrawRectFill(VideoPostProcessor::videoSurface(),x,y,x+w,y+h,tLX->clBlack);
+	Menu_DrawBox(VideoPostProcessor::videoSurface(),x,y,x+w,y+h);
 
-	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
-	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa((int)tSongList.size()));
+	tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(),x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
+	tLX->cFont.Draw(VideoPostProcessor::videoSurface(),x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa((int)tSongList.size()));
 
 	btnCancel.Draw2(VideoPostProcessor::videoSurface());
 

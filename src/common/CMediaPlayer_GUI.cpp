@@ -230,8 +230,6 @@ enum  {
 // Runs the dialog, returns the directory user selected
 std::string COpenAddDir::Execute(const std::string& default_dir)
 {
-	SDL_Surface *Screen = VideoPostProcessor::get()->videoSurface();
-
 	szDir = default_dir;
 
 	bool done = false;
@@ -268,11 +266,11 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	ReFillList(lv,default_dir);
 
 	// Save the area we are going to draw on in a buffer
-	SmartPointer<SDL_Surface> bmpBuffer = gfxCreateSurface(Screen->w,Screen->h);
+	SmartPointer<SDL_Surface> bmpBuffer = gfxCreateSurface(VideoPostProcessor::videoSurface()->w,VideoPostProcessor::videoSurface()->h);
 	if (!bmpBuffer.get())
 		return NULL;
 
-	DrawImage(bmpBuffer.get(),Screen,0,0);
+	DrawImage(bmpBuffer.get(),VideoPostProcessor::videoSurface(),0,0);
 	float oldtime = GetMilliSeconds()-tLX->fDeltaTime;
 
 	while (!done)  {
@@ -283,18 +281,18 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		ProcessEvents();
 
 		// Restore the original screen before drawing
-		DrawImage(Screen,bmpBuffer,0,0);
+		DrawImage(VideoPostProcessor::videoSurface(),bmpBuffer,0,0);
 
 		// Background
-		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+iHeight,tLX->clBlack);
+		DrawRectFill(VideoPostProcessor::videoSurface(),iX,iY,iX+iWidth,iY+iHeight,tLX->clBlack);
 
 		// Title bar
-		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+22,MakeColour(0,0,64));
+		DrawRectFill(VideoPostProcessor::videoSurface(),iX,iY,iX+iWidth,iY+22,MakeColour(0,0,64));
 
 		// Border
-		Menu_DrawBox(Screen,iX,iY,iX+iWidth,iY+iHeight);
+		Menu_DrawBox(VideoPostProcessor::videoSurface(),iX,iY,iX+iWidth,iY+iHeight);
 
-		cOpenGui.Draw(Screen);
+		cOpenGui.Draw(VideoPostProcessor::videoSurface());
 		ev = cOpenGui.Process();
 		if (ev)  {
 			switch(ev->iControlID)  {
@@ -376,7 +374,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	}
 
 	// Restore and free the buffer
-	DrawImage(Screen,bmpBuffer,0,0);
+	DrawImage(VideoPostProcessor::videoSurface(),bmpBuffer,0,0);
 	bmpBuffer = NULL;
 
 	// Free the GUI
