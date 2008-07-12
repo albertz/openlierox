@@ -559,7 +559,7 @@ int videoThreadFct(void*) {
 		// we get the signal that another thread is waiting for us to start the work
 		videoThreadState = VTS_WORKING;
 		VideoPostProcessor::get()->flipBuffers(); // the caller process() is waiting for us, therefore this is safe
-		SDL_mutexV(videoWaitMutex); // release state var
+		SDL_mutexV(videoWaitMutex); // release state var, this will quit the current process()
 
 		videoCoreFrame();
 	}
@@ -576,16 +576,11 @@ void VideoPostProcessor::process() {
 	videoThreadState = VTS_WAITING;
 	SDL_mutexV(videoWaitMutex); // release state var (we should have locked it ourself before)
 	while(videoThreadState == VTS_WAITING) {} // wait thread has started working and flipped its buffers
-	SDL_mutexP(videoWaitMutex); // lock state var
+	SDL_mutexP(videoWaitMutex); // lock state var, will wait until video thread has released this
 }
 
 void VideoPostProcessor::init() {
 	cout << "VideoPostProcessor initialisation ... " << flush;
-
-	videoWaitMutex = SDL_CreateMutex();
-	videoThreadState = VTS_WAITING;
-	SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
-	videoThread = SDL_CreateThread(&videoThreadFct, NULL);
 
 	std::string vppName = tLXOptions->sVideoPostProcessor;
 	TrimSpaces(vppName); stringlwr(vppName);
@@ -601,6 +596,14 @@ void VideoPostProcessor::init() {
 		cout << "none used, drawing directly on screen" << endl;
 		instance = &voidVideoPostProcessor;
 	}
+
+	// only start video thread when we have a post processor
+	if(instance != &voidVideoPostProcessor) {
+		videoWaitMutex = SDL_CreateMutex();
+		videoThreadState = VTS_WAITING;
+		SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
+		videoThread = SDL_CreateThread(&videoThreadFct, NULL);
+	}
 }
 
 void VideoPostProcessor::uninit() {
@@ -608,6 +611,8 @@ void VideoPostProcessor::uninit() {
 		videoThreadState = VTS_INVALID;
 		SDL_mutexV(videoWaitMutex); // release state var
 		SDL_WaitThread(videoThread, NULL);
+		SDL_DestroyMutex(videoWaitMutex);
+		videoWaitMutex = NULL;
 		videoThread = NULL;
 	}
 
