@@ -202,6 +202,9 @@ bool SetVideoMode()
 
 	bool resetting = false;
 
+	int scrW = VideoPostProcessor::get()->screenWidth();
+	int scrH = VideoPostProcessor::get()->screenHeight();
+
 	// Check if already running
 	if (VideoPostProcessor::videoSurface())  {
 		resetting = true;
@@ -223,6 +226,11 @@ bool SetVideoMode()
 #endif
 	} else {
 		printf("setting video mode\n");
+
+		// Get the correct screen dimensions
+		VideoPostProcessor::init();
+		scrW = VideoPostProcessor::get()->screenWidth();
+		scrH = VideoPostProcessor::get()->screenHeight();
 	}
 
 	// uninit first to ensure that the video thread is not running
@@ -316,9 +324,6 @@ bool SetVideoMode()
 	}
 #endif
 
-	VideoPostProcessor::init();
-	int scrW = VideoPostProcessor::get()->screenWidth();
-	int scrH = VideoPostProcessor::get()->screenHeight();
 setvideomode:
 	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
@@ -373,6 +378,7 @@ setvideomode:
 		printf("using software surfaces\n");
 	}
 
+	VideoPostProcessor::init();
 	VideoPostProcessor::get()->resetVideo();
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
 
@@ -644,6 +650,10 @@ void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib()
 {
+#ifdef WIN32
+	UnSubclassWindow();
+#endif
+
 	// Process the last events (mainly because of timers that will free the allocated memory)
 	ProcessEvents();
 
