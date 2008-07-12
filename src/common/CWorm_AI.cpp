@@ -2345,7 +2345,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		ProcessEvents();
 		FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 		DrawImage(VideoPostProcessor::videoSurface(), pcMap->GetDebugImage(), 0, 0);
-		SDL_Flip(VideoPostProcessor::videoSurface());
+		VideoPostProcessor::process();
 		SDL_Delay(50);
 	}*/
 

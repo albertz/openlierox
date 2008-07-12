@@ -59,7 +59,7 @@ protected:
 
 public:
 	// HINT: don't call this yourself! used in video thread
-	void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
+	static void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
 
 public:
 	virtual ~VideoPostProcessor() {}
@@ -73,6 +73,7 @@ public:
 	virtual int screenHeight() { return 480; }
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
+	static SDL_Surface* videoBufferSurface() { return m_videoBufferSurface; };
 	static void process();
 
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );

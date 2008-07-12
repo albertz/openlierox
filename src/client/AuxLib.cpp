@@ -558,7 +558,7 @@ int videoThreadFct(void*) {
 
 		// we get the signal that another thread is waiting for us to start the work
 		videoThreadState = VTS_WORKING;
-		VideoPostProcessor::get()->flipBuffers(); // the caller process() is waiting for us, therefore this is safe
+		VideoPostProcessor::flipBuffers(); // the caller process() is waiting for us, therefore this is safe
 		SDL_mutexV(videoWaitMutex); // release state var, this will quit the current process()
 
 		videoCoreFrame();
@@ -574,8 +574,8 @@ void VideoPostProcessor::process() {
 	}
 
 	videoThreadState = VTS_WAITING;
-	SDL_mutexV(videoWaitMutex); // release state var (we should have locked it ourself before)
-	while(videoThreadState == VTS_WAITING) {} // wait thread has started working and flipped its buffers
+	SDL_mutexV(videoWaitMutex); // release state var (we should have locked it ourself before), that starts the next round in the video thread
+	while(videoThreadState == VTS_WAITING) {} // wait until thread has started working and flipped its buffers
 	SDL_mutexP(videoWaitMutex); // lock state var, will wait until video thread has released this
 }
 
@@ -726,7 +726,7 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 	}
 
 	// Save the surface
-	SaveSurface(VideoPostProcessor::videoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
+	SaveSurface(VideoPostProcessor::videoBufferSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
 }
 
 #ifdef WIN32
