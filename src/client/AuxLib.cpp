@@ -374,7 +374,7 @@ setvideomode:
 	}
 
 	VideoPostProcessor::get()->resetVideo();
-	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0, 0, 0));
+	FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
 
 	cout << "video mode was set successfully" << endl;
 	return true;
