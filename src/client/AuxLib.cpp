@@ -568,10 +568,18 @@ int videoThreadFct(void*) {
 	}
 }
 
+
 // WARNING: this has to be called from main thread!
 // (because of the mutex which was locked in same thread as init())
 void VideoPostProcessor::process() {
 	if(instance == &voidVideoPostProcessor) {
+		videoCoreFrame();
+		return;
+	}
+
+	static const bool multithreaded = false;
+	if(!multithreaded) {
+		VideoPostProcessor::flipBuffers();
 		videoCoreFrame();
 		return;
 	}
