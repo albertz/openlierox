@@ -21,9 +21,9 @@
 </td></tr></table>
 <hr height="1">
 <p>
-	<h2>Nominate OpenLieroX for SourceForge Community Choice Awards!</h2>
-	<a href="http://sourceforge.net/awards/cca/?group_id=180059">
-	<img src="http://sourceforge.net/awards/cca/badge_img.php?group_id=180059&style=5" border="0">
+	<h2>Vore for OpenLieroX at Hackontest!</h2>
+	<a href="http://hackontest.org/index.php?action=Root-projectDetail(123)">
+	<img src="HackontestBanner_468x60-02.jpg" border="0">
 	</a>
 </p>
 <p>
