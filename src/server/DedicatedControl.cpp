@@ -433,6 +433,16 @@ struct DedIntern {
 		cServer->SendWormLobbyUpdate();
 	}
 
+	void Cmd_AuthorizeWorm(const std::string & params)
+	{
+		int id = -1;
+		id = atoi(params);
+		if(!CheckWorm(id, "AuthorizeWorm"))
+			return;
+
+		cServer->authorizeWorm(id);
+	}
+
 	// This command just fits here perfectly
 	void Cmd_SetVar(const std::string& params) {
 		if( params.find(" ") == std::string::npos )
@@ -576,6 +586,20 @@ struct DedIntern {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);
 	}
 
+	void Cmd_PrivateMessage(const std::string& params, int type = TXT_NOTICE) {
+		int id = -1;
+		id = atoi(params);
+		CWorm *w = CheckWorm(id, "PrivateMessage");
+		if( !w || ! w->getClient() )
+			return;
+
+		std::string msg;
+		if( params.find(" ") != std::string::npos )
+			msg = params.substr( params.find(" ")+1 );
+		
+		cServer->SendText(w->getClient(), OldLxCompatibleString(msg), type);
+	}
+
 	// TODO: make it send more info. No.
 	void Cmd_GetWormList(const std::string& params)
 	{
@@ -661,6 +685,8 @@ struct DedIntern {
 			Cmd_Message(params);
 		else if(cmd == "chatmsg")
 			Cmd_ChatMessage(params);
+		else if(cmd == "privatemsg")
+			Cmd_PrivateMessage(params);
 		else if(cmd == "sendlobbyupdate")
 			Cmd_SendLobbyUpdate();
 		else if(cmd == "startlobby")
@@ -684,6 +710,9 @@ struct DedIntern {
 
 		else if(cmd == "setwormteam")
 			Cmd_SetWormTeam(params);
+			
+		else if(cmd == "authorizeworm")
+			Cmd_AuthorizeWorm(params);
 
 		else if(cmd =="getwormlist")
 			Cmd_GetWormList(params);

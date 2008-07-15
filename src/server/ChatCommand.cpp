@@ -401,7 +401,7 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 		return "Name could not be changed";
 
 	// Check if we can change the name
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
+	if (!sender->getRights()->NameChange && !tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override)
 		return "You don't have sufficient privileges to change your nick";
 
 	// Get the name
@@ -452,8 +452,8 @@ std::string ProcessSetName(const std::vector<std::string>& params, int sender_id
 		return "Name could not be changed";
 
 	// Check if we can change the name
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
-		return "You don't have sufficient privileges to change your nick";
+	if (!sender->getRights()->NameChange && !sender->getRights()->Override)
+		return "You don't have sufficient privileges to change user nick";
 
 	// Get the name
 	std::string name;
@@ -506,8 +506,8 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 		return "Cannot change the skin";
 
 	// Changing others skin can only authorized users
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
-		return "You do not have sufficient rights to change the skin";
+	if (!sender->getRights()->NameChange && !tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override)
+		return "You do not have sufficient rights to change your skin";
 
 	// Get the worm
 	CWorm *worm = sender->getWorm(0);
@@ -535,8 +535,8 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 		return "Cannot change the skin";
 
 	// Changing others skin can only authorized users
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
-		return "You do not have sufficient rights to change the skin";
+	if (!sender->getRights()->NameChange && !sender->getRights()->Override)
+		return "You do not have sufficient rights to change user skin";
 
 	// Get the worm
 	CWorm *worm = cServer->getWorms() + p_id; // HINT: this is safe because CheckIDParams makes a range check
@@ -563,8 +563,8 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 		return "Cannot change the skin";
 
 	// Changing others colour can only authorized users
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
-		return "You do not have sufficient rights to change the skin";
+	if (!sender->getRights()->NameChange && !tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override)
+		return "You do not have sufficient rights to change your skin";
 
 	// The profile graphics are only loaded once
 	Uint8 r, g, b;
@@ -598,8 +598,8 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 		return "Cannot change the skin";
 
 	// Changing others colour can only authorized users
-	if (!sender->getRights()->NameChange || (!tLXOptions->tGameinfo.bAllowNickChange && !sender->getRights()->Override))
-		return "You do not have sufficient rights to change the skin";
+	if (!sender->getRights()->NameChange && !sender->getRights()->Override)
+		return "You do not have sufficient rights to change user skin";
 
 	// The profile graphics are only loaded once
 	Uint8 r, g, b;

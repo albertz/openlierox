@@ -210,6 +210,7 @@ public:
 	void		muteWorm(const std::string& szWormName);
 	void		unmuteWorm(int wormID);
 	void		unmuteWorm(const std::string& szWormName);
+	void		authorizeWorm(int wormID);
     void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload();

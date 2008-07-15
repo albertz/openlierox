@@ -1549,6 +1549,33 @@ void GameServer::unmuteWorm(const std::string& szWormName)
     Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
+void GameServer::authorizeWorm(int wormID)
+{
+    if( wormID < 0 || wormID >= MAX_PLAYERS )  {
+		if (Con_IsUsed())
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+        return;
+	}
+
+    // Get the worm
+    CWorm *w = cWorms + wormID;
+	if (!w)
+		return;
+
+    if( !w->isUsed() )  {
+		if (Con_IsUsed())
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+        return;
+	}
+
+    // Get the client
+    CClient *cl = getClient(wormID);
+    if( !cl )
+        return;
+
+	cl->getRights()->Everything();
+	cServer->SendGlobalText((getWorms() + wormID)->getName() + " has been authorised", TXT_NORMAL);
+}
 
 ///////////////////
 // Notify the host about stuff

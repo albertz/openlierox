@@ -259,8 +259,8 @@ def muteWorm(iID):
 def setWormTeam(iID, team):
 	print "setwormteam " + str(iID) + " " + str(team)
 
-
-
+def authorizeWorm(iID):
+	print "authorizeworm " + str(iID)
 
 # Use this to get the list of all possible bots.
 def getComputerWormList():
@@ -288,6 +288,10 @@ def msg(string):
 # Send a chat message
 def chatMsg(string):
 	print "chatmsg " + string
+
+# Send a private chat message
+def privateMsg(iID, string):
+	print "privatemsg %i %s" % ( iID, string )
 
 ## High-level processing ##
 
@@ -450,7 +454,8 @@ def parsePrivateMessage(sig):
 				worms[wormID].isAdmin = True
 				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_ADMIN)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
-				chatMsg("%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
+				authorizeWorm(wormID)
+				privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
 		except KeyError:
 			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 
