@@ -16,7 +16,7 @@
 <body>
 <table width="100%" border="0" vspace="0" hspace="0">
 <tr><td>
-<img src="pics/olx.png" align="left">
+<img src="pics/olx_icon.png" align="left">
 <h1><font color="green">This is the homepage of <i>OpenLieroX</i>.</font></h1>
 </td></tr></table>
 <hr height="1">
@@ -46,9 +46,11 @@
 </p>
 <p>
 	<h2>Screenshots</h2>
-	<img src="pics/Bild%2017.png"><br><br>
-	<img src="pics/lierox3.png"><br><br>
-	<img src="pics/lierox31.png">
+	<nobr>&emsp;&emsp;<img src="pics/olx5.png">&emsp;&emsp;&emsp;
+	<img src="pics/olx7.png"></nobr><br><br>
+	<nobr><img src="pics/Bild%2017.png">
+	<img src="pics/Bild%2014.png"></nobr><br><br>
+	&emsp;&emsp;<img src="pics/lierox31.png">
 </p>
 <p>
 	<h2>Downloads</h2>
