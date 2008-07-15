@@ -74,6 +74,7 @@ void CBrowser::ProcessHTTP()
 		break;
 	case HTTP_PROC_ERROR:
 		tLines.push_back("An error occured while loading: " + cHttp.GetError().sErrorMsg);
+		bFinished = true;
 		break;
 	case HTTP_PROC_FINISHED:
 		Parse();
