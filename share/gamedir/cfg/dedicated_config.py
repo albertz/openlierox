@@ -10,6 +10,8 @@ ADMIN_PREFIX = "//" # What kind of prefix you want for admin commands. Example: 
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
+# If you modify dedicated_control Python will write errors here
+ERROR_FILE = "dedicated_control_errors.log"
 
 SERVER_NAME = "Dedicated server" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"

@@ -602,6 +602,8 @@ extern "C"  {
 
 #if defined(WIN32) && (! defined(_MSC_VER))
 extern "C" void NL_APIENTRY nlSetError(NLenum err); // For Dev-Cpp
+#elif (_MSC_VER == 1400) //MSVC 2005 hax
+extern "C" void nlSetError(NLenum err);
 #else
 extern "C" {
 	NL_EXP void NL_APIENTRY nlSetError(NLenum err);
