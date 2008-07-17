@@ -110,7 +110,7 @@ NL_EXP NLenum NL_APIENTRY nlGetError(void)
     }
     else
     {
-        result = (NLenum)pthread_getspecific(key);
+        result = (NLenum)((long)pthread_getspecific(key));
         return result;
     }
 #endif
