@@ -283,6 +283,7 @@ Game-logic:
 CServer, CClient, CGameScript
 
 Important for physics:
+Physics*
 CMap, CWorm, CProjectile, Entity, CNinjaRope
 
 Other important things:
