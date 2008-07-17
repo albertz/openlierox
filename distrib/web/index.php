@@ -16,7 +16,7 @@
 <body>
 <table width="100%" border="0" vspace="0" hspace="0">
 <tr><td>
-<img src="pics/olx_icon.png" align="left">
+<img src="pics/olx.png" align="left">
 <h1><font color="green">This is the homepage of <i>OpenLieroX</i>.</font></h1>
 </td></tr></table>
 <hr height="1">
