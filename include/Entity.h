@@ -19,6 +19,7 @@
 
 #include "CViewport.h"
 #include "CMap.h"
+#include "Event.h"
 
 
 #define		MAX_ENTITIES	1024
@@ -45,7 +46,10 @@ enum {
 
 class entity_t { public:
 entity_t() : bUsed(false) {}
+private:
 	bool	bUsed;
+
+public:
 	int		iType;
 	int		iType2;
 	float	fLife;
@@ -59,6 +63,14 @@ entity_t() : bUsed(false) {}
 	float	fFrame;
 	float	fExtra;
 	SmartPointer<SDL_Surface> bmpSurf;
+
+	bool isUsed()	{ return bUsed; }
+	void Spawn()	{ bUsed = true; }
+	void setUnused()  { 
+		bUsed = false;
+		onInvalidation.occurred(EventData(this)); 
+	}
+	Event<> onInvalidation;
 
 };
 

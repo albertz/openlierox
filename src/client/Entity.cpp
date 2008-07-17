@@ -19,10 +19,10 @@
 #include "Graphics.h"
 #include "Entity.h"
 #include "MathLib.h"
+#include "FastVector.h"
 
-
-entity_t *tEntities = NULL;
-unsigned int iEntityCount=0;
+typedef FastVector<entity_t,MAX_ENTITIES> Entities;
+Entities tEntities;
 
 Uint32 doomsday[4];
 
@@ -30,11 +30,7 @@ Uint32 doomsday[4];
 // Initialzie the entity system
 int InitializeEntities(void)
 {
-	tEntities = new entity_t[MAX_ENTITIES];
-	if(tEntities == NULL)
-		return false;
-
-	iEntityCount = 0;
+	tEntities.clear();
 
     // Pre-calculate the doomsday colour
     doomsday[0] = MakeColour(244,244,112);
@@ -50,11 +46,7 @@ int InitializeEntities(void)
 // Shutdown the entity system
 void ShutdownEntities(void)
 {
-	if(tEntities) {
-		delete[] tEntities;
-		tEntities = NULL;
-	}
-	iEntityCount = 0;
+	tEntities.clear();
 }
 
 
@@ -62,10 +54,7 @@ void ShutdownEntities(void)
 // Clear all the entities
 void ClearEntities(void)
 {
-	// Set all the entities to false
-	for(ushort i=0;i<MAX_ENTITIES;i++)
-		tEntities[i].bUsed = false;
-	iEntityCount = 0;
+	tEntities.clear();
 }
 
 
@@ -73,8 +62,6 @@ void ClearEntities(void)
 // Spawn an entity
 void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const SmartPointer<SDL_Surface> & img)
 {
-	entity_t *ent = tEntities;
-
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->bParticles) {
 		if(type == ENT_PARTICLE ||
@@ -82,27 +69,13 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const S
 			return;
 	}
 
-	// Are there any free entitiy slots?
-	if (iEntityCount >= MAX_ENTITIES)  {
-		iEntityCount = MAX_ENTITIES;  // Safety
-		return;
-	}
+	entity_t *ent = tEntities.getNewObj();
 
-	// Find a free entity
-	bool found = false;
-	for(int e = 0; e < MAX_ENTITIES; e++, ent++) {
-		if(!ent->bUsed) {
-			found = true;
-			break;
-		}
-	}
-	if(!found)  {  // nothing free (weird, shouldn't happen)
-		printf("Warning: Wrong iEntityCount in SpawnEntity.");
-		iEntityCount = MAX_ENTITIES;
-		return; 
-	}
+	// Are there any free entitiy slots?
+	if (!ent)
+		return;
 	
-	ent->bUsed = true;
+	ent->Spawn();
 	ent->iType = type;
 	ent->iType2 = type2;
 	ent->vPos = pos;
@@ -126,8 +99,6 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const S
 	case ENT_JETPACKSPRAY:
 		ent->fLife = 3;
 	}
-
-	iEntityCount++;
 }
 
 
@@ -135,10 +106,6 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const S
 // Draw the entities
 void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 {
-	if (!iEntityCount)
-		return;
-
-	entity_t *ent = tEntities;
 	CVec end;
 
 	int wx = v->GetWorldX();
@@ -149,97 +116,91 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 	int x,y;
 	int x2,y2;
-	uint curcount, e;
 		
-	for(e=0, curcount=0; e < MAX_ENTITIES; ent++, e++) {
-		if(ent->bUsed)  {
-			curcount++;
+	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
-			x=((int)ent->vPos.x - wx)*2 + l;
-			y=((int)ent->vPos.y - wy)*2 + t;
+		entity_t *ent = &e->get();
 
-			// Clipping
-			if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
-				if((x<l || x>l+v->GetVirtW()))
-					continue;
-				if((y<t || y>t+v->GetVirtH()))
-					continue;
-			}
+		x=((int)ent->vPos.x - wx)*2 + l;
+		y=((int)ent->vPos.y - wy)*2 + t;
 
-			switch(ent->iType) {
-
-				// Particle & Blood
-				case ENT_PARTICLE:
-				case ENT_BLOOD:				// Fallthrough
-				case ENT_BLOODDROPPER:		// Fallthrough
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,ent->iColour);
-					break;
-
-				// Explosion
-				case ENT_EXPLOSION:
-					DrawImageAdv(bmpDest,gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
-					break;
-
-				// Smoke
-				case ENT_SMOKE:
-					DrawImageAdv(bmpDest, gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
-					break;
-
-				// Chemical smoke
-				case ENT_CHEMSMOKE:
-					DrawImageAdv(bmpDest, gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
-					break;
-
-				// Spawn
-				case ENT_SPAWN:
-					DrawImageAdv(bmpDest, gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
-					break;
-
-				// Giblet
-				case ENT_GIB:
-					DrawImageAdv(bmpDest,ent->bmpSurf,(int)ent->iRotation*8,0,x-2,y-2,8,8);
-					break;
-
-				// Sparkle
-				case ENT_SPARKLE:
-					DrawImageAdv(bmpDest, gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
-					break;
-
-				// Doomsday
-				case ENT_DOOMSDAY:
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,doomsday[(int)ent->fFrame]);
-					break;
-
-				// Jetpack spray
-				case ENT_JETPACKSPRAY:
-					static Uint8 r,g,b;
-					r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
-					g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
-					b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
-					break;
-
-				// Beam
-				case ENT_BEAM:
-					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.x-wx)*2+l;
-					y2=((int)end.y-wy)*2+t;
-					DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
-					break;
-
-				// Laser Sight
-				case ENT_LASERSIGHT:
-					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.x-wx)*2+l;
-					y2=((int)end.y-wy)*2+t;
-					DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
-					break;
-			}
+		// Clipping
+		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
+			if((x<l || x>l+v->GetVirtW()))
+				continue;
+			if((y<t || y>t+v->GetVirtH()))
+				continue;
 		}
 
-		// All entites already simulated, so no need to check the rest
-		if (curcount >= iEntityCount)
-			break;
+		switch(ent->iType) {
+
+			// Particle & Blood
+			case ENT_PARTICLE:
+			case ENT_BLOOD:				// Fallthrough
+			case ENT_BLOODDROPPER:		// Fallthrough
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,ent->iColour);
+				break;
+
+			// Explosion
+			case ENT_EXPLOSION:
+				DrawImageAdv(bmpDest,gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
+				break;
+
+			// Smoke
+			case ENT_SMOKE:
+				DrawImageAdv(bmpDest, gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
+				break;
+
+			// Chemical smoke
+			case ENT_CHEMSMOKE:
+				DrawImageAdv(bmpDest, gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
+				break;
+
+			// Spawn
+			case ENT_SPAWN:
+				DrawImageAdv(bmpDest, gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
+				break;
+
+			// Giblet
+			case ENT_GIB:
+				DrawImageAdv(bmpDest,ent->bmpSurf,(int)ent->iRotation*8,0,x-2,y-2,8,8);
+				break;
+
+			// Sparkle
+			case ENT_SPARKLE:
+				DrawImageAdv(bmpDest, gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
+				break;
+
+			// Doomsday
+			case ENT_DOOMSDAY:
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,doomsday[(int)ent->fFrame]);
+				break;
+
+			// Jetpack spray
+			case ENT_JETPACKSPRAY:
+				static Uint8 r,g,b;
+				r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
+				g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
+				b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
+				break;
+
+			// Beam
+			case ENT_BEAM:
+				end = ent->vPos + ent->vVel*(float)ent->iType2;
+				x2=((int)end.x-wx)*2+l;
+				y2=((int)end.y-wy)*2+t;
+				DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
+				break;
+
+			// Laser Sight
+			case ENT_LASERSIGHT:
+				end = ent->vPos + ent->vVel*(float)ent->iType2;
+				x2=((int)end.x-wx)*2+l;
+				y2=((int)end.y-wy)*2+t;
+				DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
+				break;
+		}
 	}
 }
 
@@ -248,27 +209,16 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 // Simulate the entities
 void SimulateEntities(float dt, CMap *map)
 {
-	if (!iEntityCount)
-		return;
-
 	if (!map) { // Weird
 		printf("WARNING. SimulateEntities gots no map\n");
 		return;
 	}
 
 	float realdt = tLX->fRealDeltaTime;
-	
-	uint OriginalCount = iEntityCount;
-	uint curcount = 0;
 
-	entity_t *ent = tEntities;
+	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
-	for(int e=0; e < MAX_ENTITIES; e++, ent++) {
-		if(!ent->bUsed)
-			continue;
-
-		curcount++;
-
+		entity_t *ent = &e->get();
 
 		// Collisions and stuff
 		switch(ent->iType) {
@@ -287,7 +237,7 @@ void SimulateEntities(float dt, CMap *map)
 	
 				// Clipping
 				if((uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
-					ent->bUsed = false;
+					ent->setUnused();
 					break;
 				}
 
@@ -295,7 +245,6 @@ void SimulateEntities(float dt, CMap *map)
 				uchar pf = map->GetPixelFlag((uint)ent->vPos.x, (uint)ent->vPos.y);
 
 				if((pf & (PX_ROCK|PX_DIRT))) {
-					ent->bUsed = false;
 
 					switch(ent->iType) {
 
@@ -310,23 +259,31 @@ void SimulateEntities(float dt, CMap *map)
 								x *= 2;
 								y *= 2;
 								DrawRectFill(map->GetDrawImage().get(), x, y, x + 2, y + 2, ent->iColour);
+
+								ent->setUnused();
 							} break;
 
 						// Giblet
 						case ENT_GIB:
 							if((int)ent->vVel.GetLength2() > 25600)  {
 								EntityBounce(ent);
-								ent->bUsed = true; // Still alive
+								// Still alive
 							}
 							else {
+
 								// Add the gib to the map
 								int x = (int)ent->vPos.x-1;
 								int y = (int)ent->vPos.y-1;
 
 								DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 								DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
+
+								ent->setUnused();
 							}
 							break;
+
+						default:
+							ent->setUnused();
 					}
 				}
 				break;
@@ -339,7 +296,7 @@ void SimulateEntities(float dt, CMap *map)
 			// Explosion
 			case ENT_EXPLOSION:
 				ent->fFrame += realdt * 40;
-				if(ent->fFrame > 15) ent->bUsed = false;
+				if(ent->fFrame > 15) ent->setUnused();
 				break;
 
 			// Smoke
@@ -347,38 +304,38 @@ void SimulateEntities(float dt, CMap *map)
 				// Fallthrough
 			case ENT_CHEMSMOKE:
 				ent->fFrame += realdt * 15;
-				if((int)ent->fFrame > 4) ent->bUsed = false;
+				if((int)ent->fFrame > 4) ent->setUnused();
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
 				ent->fFrame += realdt * 15;
-				if((int)ent->fFrame > 3) ent->bUsed = false;
+				if((int)ent->fFrame > 3) ent->setUnused();
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
 				ent->fFrame += realdt * 15;
-				if((int)ent->fFrame > 5) ent->bUsed = false;
+				if((int)ent->fFrame > 5) ent->setUnused();
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
 				ent->vPos = ent->vPos + CVec(0, 5.0f * dt);
 				ent->fFrame += realdt * 5;
-				if((int)ent->fFrame > 2) ent->bUsed = false;
+				if((int)ent->fFrame > 2) ent->setUnused();
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
 				ent->fFrame += realdt * 200;
-				if((int)ent->fFrame > 150) ent->bUsed = false;
+				if((int)ent->fFrame > 150) ent->setUnused();
 				break;
 
 			// Beam & Laser Sight
 			case ENT_BEAM:
 			case ENT_LASERSIGHT:
-				if((int)ent->fFrame == 1) ent->bUsed = false;
+				if((int)ent->fFrame == 1) ent->setUnused();
 				ent->fFrame++;
 				break;
 
@@ -393,12 +350,6 @@ void SimulateEntities(float dt, CMap *map)
 				ent->fExtra += dt;
 				break;
 		}
-
-		if(!ent->bUsed) iEntityCount--;
-
-		// All used entities already simulated, no need to check the rest
-		if (curcount >= OriginalCount)
-			break;
 	}
 }
 

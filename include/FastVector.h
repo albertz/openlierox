@@ -55,7 +55,7 @@ protected:
 	}
 
 	void onObjectInvalidation(EventData data) {
-		int i = (int)((_Obj*)data.owner - &m_objects[0]) / sizeof(_Obj);
+		int i = (int)((_Obj*)data.owner - &m_objects[0]);
 		refreshObj(i);
 	}
 
