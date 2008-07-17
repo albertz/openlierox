@@ -87,19 +87,52 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 void GameServer::SpawnWave()	// Respawn all dead worms at once
 {
 	CVec TeamSpawnPoints[4];
-	for( int i=0; i<4; i++ )
-		TeamSpawnPoints[i] = FindSpot();
-
+	float team_dist = 0;
 	CWorm *w = cWorms;
 	int i ;
+	
+	if( tLXOptions->tGameinfo.bRespawnGroupTeams && 
+		( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
+	{
+		bool TeamsAlive[4] = {false, false, false, false};
+		for(i=0;i<MAX_WORMS;i++,w++) 
+		{
+			if(!w->isUsed())
+				continue;
+			if(!w->getAlive() && w->getLives() != WRM_OUT)
+				TeamsAlive[w->getTeam()] = true;
+		};
 
-	for(i=0;i<MAX_WORMS;i++,w++) {
+		// Spawn all teams as far away from each other as possible
+		for( i=0; i<500; i++ )
+		{
+			CVec TeamSpawnPoints1[4];
+			float team_dist1 = 0;
+			for( int j=0; j<4; j++ )
+				TeamSpawnPoints1[j] = FindSpot();
+			for( int j=0; j<4; j++ )
+				for( int k=0; k<4; k++ )
+					if( TeamsAlive[j] == true && TeamsAlive[k] == true )
+						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[k] ).GetLength() );
+						// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+						// The sum will get considerably smaller if any two teams are on short dist
+			if( team_dist1 > team_dist )
+			{
+				team_dist = team_dist1;
+				for( int j=0; j<4; j++ )
+					TeamSpawnPoints[j] = TeamSpawnPoints1[j];
+			}
+		}
+	}
+
+	w = cWorms;
+	for(i=0;i<MAX_WORMS;i++,w++) 
+	{
 		if(!w->isUsed())
 			continue;
 		if(!w->getAlive() && w->getLives() != WRM_OUT)
 		{
 			if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
-				w->getTeam() >= 0 && w->getTeam() < 4 &&
 				( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
 				SpawnWorm(w, & TeamSpawnPoints[w->getTeam()]);
 			else
