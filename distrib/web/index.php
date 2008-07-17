@@ -21,7 +21,7 @@
 </td></tr></table>
 <hr height="1">
 <p>
-	<h2>Vore for OpenLieroX at Hackontest!</h2>
+	<h2>Vote for OpenLieroX at Hackontest!</h2>
 	<a href="http://hackontest.org/index.php?action=Root-projectDetail(123)">
 	<img src="HackontestBanner_468x60-02.jpg" border="0">
 	</a>
@@ -248,7 +248,7 @@
 	<a href="http://gusanos.sourceforge.net/">Gusanos</a><br>
 	<a href="http://vermes.dubdot.com/">Vermes</a>
 	<hr>
-	<a href="http://www.az2000.de/">Alberts homepage</a><br>
+	<a href="http://www.az2000.de/">Albert's homepage</a><br>
 </p>
 </body>
 </html>

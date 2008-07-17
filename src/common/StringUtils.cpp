@@ -541,7 +541,7 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 		return "";
 
 	// Skip any blanks at the beginning
-	while (isspace((uchar)*it) && it != str.end())
+	while (it != str.end() && isspace((uchar)*it))
 		it++;
 
 	// Check

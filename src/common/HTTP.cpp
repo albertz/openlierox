@@ -31,7 +31,7 @@
 #include "StringUtils.h"
 #include "types.h"
 #include "Version.h"
-#include "Utils.h"
+#include "MathLib.h"
 
 
 // List of errors, MUST match error IDs in HTTP.h
@@ -175,7 +175,7 @@ bool CChunkParser::ParseNext(char c)
 			iCurLength = from_string<size_t>(sChunkLenStr, std::hex, failed);
 			if (failed)  {
 #ifdef DEBUG
-				std::cout << "ParseChunks - atoi failed: \"" << sChunkLenStr << "\", " << itoa((uint)c) << std::endl;
+				//std::cout << "ParseChunks - atoi failed: \"" << sChunkLenStr << "\", " << itoa((uint)c) << std::endl;
 #endif
 				iCurLength = 0;
 				return false;  // Still processing
@@ -537,15 +537,22 @@ void CHttp::ProcessData()
 
 	// Find the end of the header
 	uchar header_end_len = 2;
-	size_t header_end = sData.find("\n\n");  // Two LFs...
-	if (header_end == std::string::npos)  {
-		header_end = sData.find("\r\n\r\n"); // ... or two CR/LFs
+	size_t header_end1 = sData.find("\n\n");  // Two LFs...
+	size_t header_end2 = sData.find("\r\n\r\n"); // ... or two CR/LFs
+	size_t header_end3 = sData.find("\n\r\n\r"); // ... or two LF/CRs
+
+	if (header_end1 == std::string::npos) header_end1 = sData.size();
+	if (header_end2 == std::string::npos) header_end2 = sData.size();
+	if (header_end3 == std::string::npos) header_end3 = sData.size();
+	size_t header_end = MIN(MIN(header_end1, header_end2), header_end3);
+
+	// Found the end of the header?
+	if (header_end == sData.size())
+		return;
+
+	if (header_end == header_end2 || header_end == header_end3)
 		header_end_len = 4;
-	}
-	if (header_end == std::string::npos)  {
-		header_end = sData.find("\n\r\n\r"); // ... or two LF/CRs
-		header_end_len = 4;
-	}
+	
 
 	if (header_end == std::string::npos)  {  // No header is present
 		return;
@@ -600,7 +607,14 @@ std::string CHttp::GetPropertyFromHeader(const std::string& prop)
 				// Does it continue on next line?
 				std::string::iterator i2 = i;
 				i2++;
-				if (*i2 == '\n') i2++;
+				if (i2 == sHeader.end())
+					break;
+
+				if (*i2 == '\n')   {
+					i2++;
+					if (i2 == sHeader.end())
+						break;
+				}
 
 				if (*i2 != ' ' && *i2 != '\t')  // Not beginning with space or tab, it's a real end
 					break;
@@ -702,7 +716,7 @@ void CHttp::ParseHeader()
 	//
 	// Check for a chunked connection
 	//
-	bChunkedTransfer = stringcasecmp(GetPropertyFromHeader("Transfer-Encoding"), "chunked") == 0;
+	bChunkedTransfer = stringcaseequal(GetPropertyFromHeader("Transfer-Encoding"), "chunked");
 }
 
 /////////////////
