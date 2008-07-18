@@ -298,7 +298,7 @@ public:
 
 	inline theme_t		*GetTheme(void)		{ return &Theme; }
 
-	void		DEBUG_DrawPixelFlags(void);
+	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
 
     inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
 

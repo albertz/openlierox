@@ -909,7 +909,6 @@ void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
-	//DEBUG_DrawPixelFlags();
 	DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 
 #ifdef _AI_DEBUG
@@ -917,6 +916,7 @@ void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 		DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
 	else
 		ClearDebugImage();*/
+	//DEBUG_DrawPixelFlags(0, 0, Width, Height);
 	DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
 }
@@ -1628,8 +1628,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	}
 
 	// Recalculate the grid
-	for (y = clip_y; y < clip_h; y += nGridHeight)
-		for (x = clip_x; x < clip_w; x += nGridWidth)
+	for (y = sy; y < sy + stone->h + nGridHeight; y += nGridHeight)
+		for (x = sx; x < sx + stone->w + nGridWidth; x += nGridWidth)
 			calculateGridCell(x, y, false);
 
 	unlockFlags();
@@ -2628,10 +2628,8 @@ bool CMap::LoadOriginal(FILE *fp)
 
 ///////////////////
 // DEBUG: Draw the pixel flags
-void CMap::DEBUG_DrawPixelFlags(void)
+void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 {
-	//int x,y;
-
 
     /*for(y=0;y<Height;y+=30) {
 		for(x=0;x<Width;x+=30) {
@@ -2654,20 +2652,37 @@ void CMap::DEBUG_DrawPixelFlags(void)
 			n++;
 		}
 	}*/
+	/*SDL_Rect oldrect = bmpDrawImage->clip_rect;
+	SDL_Rect newrect = { x * 2, y * 2, w * 2, h * 2 };
+	SDL_SetClipRect(bmpDrawImage.get(), &newrect);*/
+#ifdef _AI_DEBUG
 
-    /*for(y=0; y<nGridRows; y++) {
-        for(x=0; x<nGridCols; x++) {
+	int xstart = MAX(0, x / nGridWidth);
+	int ystart = MAX(0, y / nGridHeight);
+	int xend = MIN((x + w) / nGridWidth, nGridCols - 1);
+	int yend = MIN((y + h) / nGridHeight, nGridRows - 1);
 
-            if(GridFlags[y*nGridCols+x] == PX_EMPTY)
-                DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(0,0,128));
-            if(GridFlags[y*nGridCols+x] & PX_DIRT)
-                DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(255,0,0));
-            if(GridFlags[y*nGridCols+x] & PX_ROCK)
-                DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(128,128,128));
+
+    for(int py = ystart; py <= yend; py++) {
+        for(int px = xstart; px <= xend; px++) {
+			uchar pf = GridFlags[py * nGridCols + px];
+
+            if(pf & PX_ROCK)
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(128,128,128));
+            else if(pf & PX_DIRT)
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(255,0,0));
+            else if(pf & PX_EMPTY)
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(0,0,128));
             //DrawRect(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, 0);
 			//DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
         }
-    }*/
+    }
+
+	SDL_SetAlpha(bmpDebugImage.get(), SDL_SRCALPHA, 128);
+
+#endif
+
+	//SDL_SetClipRect(bmpDrawImage.get(), &oldrect);
 }
 
 

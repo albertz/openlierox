@@ -1402,7 +1402,7 @@ void CWorm::AI_InitMoveToTarget()
         return;
 
 #ifdef _AI_DEBUG
-    pcMap->DEBUG_DrawPixelFlags();
+//    pcMap->DEBUG_DrawPixelFlags();
     AI_DEBUG_DrawPath(psPath);
 #endif // _AI_DEBUG
 
@@ -1760,7 +1760,7 @@ void CWorm::AI_MoveToTarget()
 
     if(psCurrentNode == NULL || psPath == NULL) {
         #ifdef _AI_DEBUG
-          pcMap->DEBUG_DrawPixelFlags();
+//          pcMap->DEBUG_DrawPixelFlags();
           AI_DEBUG_DrawPath(psPath);
 		#endif // _AI_DEBUG
 
@@ -1795,7 +1795,7 @@ void CWorm::AI_MoveToTarget()
             psCurrentNode = node;
 
 			#ifdef _AI_DEBUG
-				pcMap->DEBUG_DrawPixelFlags();
+//				pcMap->DEBUG_DrawPixelFlags();
 				AI_DEBUG_DrawPath(node);
 			#endif  // _AI_DEBUG
             continue;
@@ -1809,7 +1809,7 @@ void CWorm::AI_MoveToTarget()
         if(dist < fCurDist) {
             psCurrentNode = node;
 			#ifdef _AI_DEBUG
-				pcMap->DEBUG_DrawPixelFlags();
+//				pcMap->DEBUG_DrawPixelFlags();
 				AI_DEBUG_DrawPath(node);
 			#endif  // _AI_DEBUG
         }
