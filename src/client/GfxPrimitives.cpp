@@ -840,6 +840,11 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 	if (!Clip2x(bmpDest, bmpSrc, sx, sy, dx, dy, w, h))
 		return;
 
+	if (w < 2 || h < 2)  {
+		DrawImageStretch2(bmpDest, bmpSrc, sx, sy, dx, dy, w, h);
+		return;
+	}
+
 	// Variables
 	int sx2 = sx + w - 1;
 	int sy2 = sy + h - 1;
