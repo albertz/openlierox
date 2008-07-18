@@ -463,7 +463,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 
     switch (tProjInfo->Type) {
 	case PRJ_PIXEL:
-		DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,iColour);
+		DrawRectFill2x2(bmpDest, x - 1, y - 1,iColour);
         return;
 
 	case PRJ_IMAGE:  {

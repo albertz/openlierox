@@ -640,6 +640,11 @@ inline void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Ui
 }
 
 ////////////////////
+// Very fast routine for drawing 2x2 rects
+void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color);
+void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color);
+
+////////////////////
 // Fills the surface with specified colour
 inline void FillSurface(SDL_Surface * dst, Uint32 colour) {
 	SDL_FillRect(dst, NULL, colour);

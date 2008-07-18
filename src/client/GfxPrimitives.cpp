@@ -1244,9 +1244,59 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Uint32 colour) {
 	UnlockSurface(bmpDest);
 }
 
+///////////////////
 // Line drawing
 void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
 	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
+}
+
+//////////////////
+// Fast routine for drawing 2x2 filled rects
+void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color)
+{
+	LOCK_OR_QUIT(bmpDest);
+
+	Uint8 *row1 = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
+	Uint8 *row2 = row1 + bmpDest->pitch;
+
+	switch (bmpDest->format->BytesPerPixel)  {
+	case 1: // HINT: 8bit mode is not used atm.
+		*row1 = (Uint8) color; ++row1;
+		*row1 = (Uint8) color;
+		*row2 = (Uint8) color; ++row2;
+		*row2 = (Uint8) color;
+	case 2: // 16 bpp
+		*(Uint16 *)row1 = (Uint16) color; row1 += 2;
+		*(Uint16 *)row1 = (Uint16) color;
+		*(Uint16 *)row2 = (Uint16) color; row2 += 2;
+		*(Uint16 *)row2 = (Uint16) color;
+	break;
+    case 3: // 24 bpp
+        *row1 = (&color)[0]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[2]; ++row1;
+		*row1 = (&color)[0]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[2];
+        *row2 = (&color)[0]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[2]; ++row2;
+		*row2 = (&color)[0]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[2];
+	case 4:  // 32 bpp
+		*(Uint32 *)row1 = color; row1 += 4;
+		*(Uint32 *)row1 = color;
+		*(Uint32 *)row2 = color; row2 += 4;
+		*(Uint32 *)row2 = color;
+	break;
+	}
+
+	UnlockSurface(bmpDest);
+}
+
+///////////////////////
+// Draws the 2x2 filled rectangle, does clipping
+void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color)
+{
+	if (x < 0 || x + 2 >= bmpDest->clip_rect.x + bmpDest->clip_rect.w)
+		return;
+	if (y < 0 || y + 2 >= bmpDest->clip_rect.y + bmpDest->clip_rect.h)
+		return;
+
+	DrawRectFill2x2_NoClip(bmpDest, x, y, color);
 }
 
 //////////////////////

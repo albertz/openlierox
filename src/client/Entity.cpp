@@ -138,7 +138,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 			case ENT_PARTICLE:
 			case ENT_BLOOD:				// Fallthrough
 			case ENT_BLOODDROPPER:		// Fallthrough
-				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,ent->iColour);
+				DrawRectFill2x2(bmpDest, x - 1, y - 1, ent->iColour);
 				break;
 
 			// Explosion
@@ -173,7 +173,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Doomsday
 			case ENT_DOOMSDAY:
-				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,doomsday[(int)ent->fFrame]);
+				DrawRectFill2x2(bmpDest, x - 1, y - 1, doomsday[(int)ent->fFrame]);
 				break;
 
 			// Jetpack spray
@@ -182,7 +182,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
 				g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
 				b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));
-				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
+				DrawRectFill2x2(bmpDest, x - 1, y - 1, MakeColour(r, g, b));
 				break;
 
 			// Beam
@@ -258,7 +258,7 @@ void SimulateEntities(float dt, CMap *map)
 
 								x *= 2;
 								y *= 2;
-								DrawRectFill(map->GetDrawImage().get(), x, y, x + 2, y + 2, ent->iColour);
+								DrawRectFill2x2(map->GetDrawImage().get(), x, y, ent->iColour);
 
 								ent->setUnused();
 							} break;

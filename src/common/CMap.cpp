@@ -1018,12 +1018,17 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 
 	// HINT: Clipping is done by DrawImageAdv/GetPixelFlag
 
-	// Get real coordinatesf
+	// Get real coordinates
     int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
     int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
 
-    if( GetPixelFlag(wx, wy) & PX_EMPTY )  // We should check all the 4 pixels, but no one will ever notice it
-        DrawImageAdv( bmpDest, bmpShadowMap, wx, wy,  x, y, 2, 2 );
+	if( GetPixelFlag(wx, wy) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
+		LOCK_OR_QUIT(bmpShadowMap);
+		Uint32 color = GetPixel(bmpShadowMap.get(), wx, wy);
+		UnlockSurface(bmpShadowMap);
+
+		DrawRectFill2x2(bmpDest, x, y, color);
+	}
 }
 
 
@@ -1792,11 +1797,13 @@ void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 	if(x >= Width || y >= Height)
 		return;
 
-    DrawRectFill(bmpImage.get(), x, y, x + 1, y + 1, colour);
+	LOCK_OR_QUIT(bmpImage)
+    PutPixel(bmpImage.get(), x, y, colour);
+	UnlockSurface(bmpImage);
 
 	x *= 2;
 	y *= 2;
-	DrawRectFill(bmpDrawImage.get(), x, y, x + 2, y + 2, colour);
+	DrawRectFill2x2_NoClip(bmpDrawImage.get(), x, y, colour);
 }
 
 
@@ -1908,7 +1915,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 		col = MakeColour(r,g,b);
 
 		//PutPixel(bmpMiniMap,x,y,col);
-		DrawRectFill(bmpDest, MAX((int)x, i-1), MAX((int)y, j-1), i+1,j+1, col);
+		DrawRectFill2x2(bmpDest, MAX((int)x, i-1), MAX((int)y, j-1), col);
 
 		// Our worms are bigger
 		big = false;
