@@ -25,6 +25,7 @@ An overview what features a new protocol should be able to handle:
 - see others correct health
 
 - client can request current state of worm ( is dead, position, current weapon, whatever)
+- client can also have state: is_typing
 - server can update clients worms states
 - server should inform about respawn time when worm is waiting for respawn
 
