@@ -195,6 +195,7 @@ void CWorm::Prepare(CMap *pcMap)
 	cNinjaRope.Setup(cGameScript);
 
 	iCurrentWeapon = 0;
+	fLastCarve = -999;
 
     // If this is an AI worm, initialize the AI stuff
     if(iType == PRF_COMPUTER && bLocal)
@@ -703,10 +704,15 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 
 	if(!bChat_Typing) {
 		// move selection up or down
-		int change = cDown.wasDown() - cUp.wasDown();
-		iCurrentWeapon += change;
-		iCurrentWeapon %= iNumWeaponSlots + 2;
-		if(iCurrentWeapon < 0) iCurrentWeapon += iNumWeaponSlots + 2;
+		if (cDown.isJoystickThrottle() || cUp.isJoystickThrottle())  {
+			iCurrentWeapon = (cUp.getJoystickValue() + 32768) * (iNumWeaponSlots + 2) / 65536; // We have 7 rows and 65536 throttle states
+
+		} else {
+			int change = cDown.wasDown() - cUp.wasDown();
+			iCurrentWeapon += change;
+			iCurrentWeapon %= iNumWeaponSlots + 2;
+			if(iCurrentWeapon < 0) iCurrentWeapon += iNumWeaponSlots + 2;
+		}
 	}
 }
 

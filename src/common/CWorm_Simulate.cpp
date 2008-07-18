@@ -74,11 +74,26 @@ void CWorm::getInput()
 
 	// angle section
 	{
+		static const float joystickCoeff = 150.0f/65536.0f;
+		static const float joystickShift = 15; // 15 degrees
+
+		// Joystick up
+		if (cDown.isJoystickThrottle())  {
+			fAngleSpeed = 0;
+			fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
+		}
+
+		// Joystick down
+		if (cDown.isJoystickThrottle())  {
+			fAngleSpeed = 0;
+			fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
+		}
+
 		// Up
-		if(cUp.isDown()) {
+		if(cUp.isDown() && !cUp.isJoystickThrottle()) {
 			// HINT: 500 is the original value here (rev 1)
 			fAngleSpeed -= 500 * dt;
-		} else if(cDown.isDown()) { // Down
+		} else if(cDown.isDown() && !cDown.isJoystickThrottle()) { // Down
 			// HINT: 500 is the original value here (rev 1)
 			fAngleSpeed += 500 * dt;
 		} else {
@@ -187,26 +202,25 @@ void CWorm::getInput()
 			}
 		} */
 
-		const float movetimed_min = 0.08f;
-		const float movetimed_max = CLAMP(dt * 10.0f, 0.2f, 1.0f);
+		const float carveDelay = 0.2f;
 
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_LEFT)
-		|| ( /*cLeft.isJoystick() && */ cLeft.isDown())) {
-			float movetimed = tLX->fCurTime - lastMoveTime;
-			//printf("movetimed: %f\n", movetimed);
-			if(movetimed_min < movetimed && movetimed < movetimed_max) {
+			|| ( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) {
+
+			if(tLX->fCurTime - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
+				fLastCarve = tLX->fCurTime;
 			}
 		}
 
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_RIGHT)
-		|| ( /*cRight.isJoystick() && */ cRight.isDown())) {
-			float movetimed = tLX->fCurTime - lastMoveTime;
-			//printf("movetimed: %f\n", movetimed);
-			if(movetimed_min < movetimed && movetimed < movetimed_max) {
+			|| ( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) {
+
+			if(tLX->fCurTime - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
+				fLastCarve = tLX->fCurTime;
 			}
 		}
 	}
@@ -223,6 +237,12 @@ void CWorm::getInput()
 		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
 		iCurrentWeapon += change;
 		MOD(iCurrentWeapon, iNumWeaponSlots);
+
+		// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
+		if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
+			iCurrentWeapon++;
+			MOD(iCurrentWeapon, iNumWeaponSlots);
+		}
 	}
 
 
@@ -294,6 +314,7 @@ void CWorm::getInput()
 
 			if(rightOnce) {
 				ws->bCarve = true;
+				fLastCarve = tLX->fCurTime;
 			}
 		}
 
@@ -308,6 +329,7 @@ void CWorm::getInput()
 
 			if(leftOnce) {
 				ws->bCarve = true;
+				fLastCarve = tLX->fCurTime;
 			}
 		}
 

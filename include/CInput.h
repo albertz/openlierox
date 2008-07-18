@@ -37,6 +37,10 @@
 #define		JOY_LEFT			2
 #define		JOY_RIGHT			3
 #define		JOY_BUTTON			4
+#define		JOY_TURN_LEFT		5
+#define		JOY_TURN_RIGHT		6
+#define		JOY_THROTTLE_LEFT	7
+#define		JOY_THROTTLE_RIGHT	8
 
 struct KeyboardEvent;
 
@@ -84,6 +88,9 @@ public:
 	bool	isKeyboard() { return Type == INP_KEYBOARD; }
 	void	setResetEachFrame(bool r)	{ resetEachFrame = r; }
 	bool	getResetEachFrame()			{ return resetEachFrame; }
+	int		getJoystickValue();
+	bool	isJoystickAxis();
+	bool	isJoystickThrottle();
 
 	bool	isUp(void);
 	bool	isDown(void);
@@ -126,6 +133,7 @@ class joystick_t { public:
 #endif
 	int		value;
 	int		extra;
+	int		axis;
 };
 
 

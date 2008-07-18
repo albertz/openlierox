@@ -423,6 +423,8 @@ bool WaitForNextEvent() {
 	return ret;
 }
 
+// Declared in CInput.cpp
+extern void updateAxisStates();
 
 ///////////////////
 // Process the events
@@ -456,7 +458,10 @@ bool ProcessEvents()
 
 	HandleMouseState();
 	HandleKeyboardState();
-	if(bJoystickSupport) SDL_JoystickUpdate();
+	if(bJoystickSupport)  {
+		SDL_JoystickUpdate();
+		updateAxisStates();
+	}
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
 

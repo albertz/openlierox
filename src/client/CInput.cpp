@@ -140,39 +140,105 @@ keys_t Keys[] = {
 	{ "F12", SDLK_F12 }
 	};
 
+// Joystick axes
+// TODO: these are set up according to my joystick, are they general enough?
+enum {
+	axis_None = -1,
+	axis_X = 0,
+	axis_Y = 1,
+	axis_Z = 3,
+	axis_Throttle = 2
+};
 
 joystick_t Joysticks[] = {
-	{ "joy1_up",JOY_UP,0},
-	{ "joy1_down",JOY_DOWN,0},
-	{ "joy1_left",JOY_LEFT,0},
-	{ "joy1_right",JOY_RIGHT,0},
-	{ "joy1_but1",JOY_BUTTON,0},
-	{ "joy1_but2",JOY_BUTTON,1},
-	{ "joy1_but3",JOY_BUTTON,2},
-	{ "joy1_but4",JOY_BUTTON,3},
-	{ "joy1_but5",JOY_BUTTON,4},
-	{ "joy1_but6",JOY_BUTTON,5},
-	{ "joy1_but7",JOY_BUTTON,6},
-	{ "joy1_but8",JOY_BUTTON,7},
-	{ "joy1_but9",JOY_BUTTON,8},
-	{ "joy2_up",JOY_UP,0},
-	{ "joy2_down",JOY_DOWN,0},
-	{ "joy2_left",JOY_LEFT,0},
-	{ "joy2_right",JOY_RIGHT,0},
-	{ "joy2_but1",JOY_BUTTON,0},
-	{ "joy2_but2",JOY_BUTTON,1},
-	{ "joy2_but3",JOY_BUTTON,2},
-	{ "joy2_but4",JOY_BUTTON,3},
-	{ "joy2_but5",JOY_BUTTON,4},
-	{ "joy2_but6",JOY_BUTTON,5},
-	{ "joy2_but7",JOY_BUTTON,6},
-	{ "joy2_but8",JOY_BUTTON,7},
-	{ "joy2_but9",JOY_BUTTON,8},
+	{ "joy1_up",JOY_UP,0, axis_Y},
+	{ "joy1_down",JOY_DOWN,0, axis_Y},
+	{ "joy1_left",JOY_LEFT,0, axis_X},
+	{ "joy1_right",JOY_RIGHT,0, axis_X},
+	{ "joy1_but1",JOY_BUTTON,0, axis_None},
+	{ "joy1_but2",JOY_BUTTON,1, axis_None},
+	{ "joy1_but3",JOY_BUTTON,2, axis_None},
+	{ "joy1_but4",JOY_BUTTON,3, axis_None},
+	{ "joy1_but5",JOY_BUTTON,4, axis_None},
+	{ "joy1_but6",JOY_BUTTON,5, axis_None},
+	{ "joy1_but7",JOY_BUTTON,6, axis_None},
+	{ "joy1_but8",JOY_BUTTON,7, axis_None},
+	{ "joy1_but9",JOY_BUTTON,8, axis_None},
+	{ "joy1_but10",JOY_BUTTON,9, axis_None},
+	{ "joy1_but11",JOY_BUTTON,10, axis_None},
+	{ "joy1_but12",JOY_BUTTON,11, axis_None},
+	{ "joy1_turnleft",JOY_TURN_LEFT,0, axis_Z},
+	{ "joy1_turnright",JOY_TURN_RIGHT,0, axis_Z},
+	{ "joy1_thr_up",JOY_THROTTLE_LEFT,0, axis_Throttle},
+	{ "joy1_thr_down",JOY_THROTTLE_RIGHT,0, axis_Throttle},
+	{ "joy2_up",JOY_UP,0, axis_Y},
+	{ "joy2_down",JOY_DOWN,0, axis_Y},
+	{ "joy2_left",JOY_LEFT,0, axis_X},
+	{ "joy2_right",JOY_RIGHT,0, axis_X},
+	{ "joy2_but1",JOY_BUTTON,0, axis_None},
+	{ "joy2_but2",JOY_BUTTON,1, axis_None},
+	{ "joy2_but3",JOY_BUTTON,2, axis_None},
+	{ "joy2_but4",JOY_BUTTON,3, axis_None},
+	{ "joy2_but5",JOY_BUTTON,4, axis_None},
+	{ "joy2_but6",JOY_BUTTON,5, axis_None},
+	{ "joy2_but7",JOY_BUTTON,6, axis_None},
+	{ "joy2_but8",JOY_BUTTON,7, axis_None},
+	{ "joy2_but9",JOY_BUTTON,8, axis_None},
+	{ "joy2_but10",JOY_BUTTON,9, axis_None},
+	{ "joy2_but11",JOY_BUTTON,10, axis_None},
+	{ "joy2_but12",JOY_BUTTON,11, axis_None},
+	{ "joy2_turnleft",JOY_TURN_LEFT,0, axis_Z},
+	{ "joy2_turnright",JOY_TURN_RIGHT,0, axis_Z},
+	{ "joy2_thr_up",JOY_THROTTLE_LEFT,0, axis_Throttle},
+	{ "joy2_thr_down",JOY_THROTTLE_RIGHT,0, axis_Throttle},
 };
 
 static SDL_Joystick* joys[2] = {NULL, NULL};
+static short oldJoystickAxisValues[2][4]; // Used for checking if any of the joystick axes changed its value
 
-bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
+///////////////////
+// Updates the oldJoystickAcisValues array
+void updateAxisStates()
+{
+	for (int i = 0; i < sizeof(joys)/sizeof(SDL_Joystick *); i++)  {
+		oldJoystickAxisValues[i][axis_X] = SDL_JoystickGetAxis(joys[i], axis_X);
+		oldJoystickAxisValues[i][axis_Y] = SDL_JoystickGetAxis(joys[i], axis_Y);
+		oldJoystickAxisValues[i][axis_Z] = SDL_JoystickGetAxis(joys[i], axis_Z);
+		oldJoystickAxisValues[i][axis_Throttle] = SDL_JoystickGetAxis(joys[i], axis_Throttle);
+	}
+}
+
+int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
+{
+	switch(flag) {
+		case JOY_UP:
+			return SDL_JoystickGetAxis(joy, axis_Y);
+		case JOY_DOWN:
+			return SDL_JoystickGetAxis(joy, axis_Y);
+		case JOY_LEFT:
+			return SDL_JoystickGetAxis(joy, axis_X);
+		case JOY_RIGHT:
+			return SDL_JoystickGetAxis(joy, axis_X);
+		case JOY_BUTTON:
+			return SDL_JoystickGetButton(joy, extra);
+		case JOY_TURN_LEFT:
+			return SDL_JoystickGetAxis(joy, axis_Z);
+		case JOY_TURN_RIGHT:
+			return SDL_JoystickGetAxis(joy, axis_Z);
+		case JOY_THROTTLE_LEFT:
+			return SDL_JoystickGetAxis(joy, axis_Throttle);
+		case JOY_THROTTLE_RIGHT:
+			return SDL_JoystickGetAxis(joy, axis_Throttle);
+
+		default:
+			printf("WARNING: getJoystickValue: unknown flag\n");
+	}
+
+	return 0;
+}
+
+bool checkJoystickState(int flag, int extra, int j_index) {
+	SDL_Joystick *joy = joys[j_index];
 	if(!bJoystickSupport) return false;
 	if(joy == NULL) return false;
 
@@ -181,22 +247,22 @@ bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
 	// TODO: atm these limits are hardcoded; make them constants (or perhaps also configurable)
 	switch(flag) {
 		case JOY_UP:
-			val = SDL_JoystickGetAxis(joy,1);
+			val = SDL_JoystickGetAxis(joy, axis_Y);
 			if(val < -3200)
 				return true;
 			break;
 		case JOY_DOWN:
-			val = SDL_JoystickGetAxis(joy,1);
+			val = SDL_JoystickGetAxis(joy, axis_Y);
 			if(val > 3200)
 				return true;
 			break;
 		case JOY_LEFT:
-			val = SDL_JoystickGetAxis(joy,0);
+			val = SDL_JoystickGetAxis(joy, axis_X);
 			if(val < -3200)
 				return true;
 			break;
 		case JOY_RIGHT:
-			val = SDL_JoystickGetAxis(joy,0);
+			val = SDL_JoystickGetAxis(joy, axis_X);
 			if(val > 3200)
 				return true;
 			break;
@@ -204,10 +270,32 @@ bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
 			if(SDL_JoystickGetButton(joy,extra))
 				return true;
 			break;
+		case JOY_TURN_LEFT:
+			val = SDL_JoystickGetAxis(joy, axis_Z);
+			if (val < -3200)
+				return true;
+			break;
+		case JOY_TURN_RIGHT:
+			val = SDL_JoystickGetAxis(joy, axis_Z);
+			if (val > 3200)
+				return true;
+			break;
+
+		// HINT: throttle is "static", i.e. it doesn't return back to a default position
+		// Therefore we check if the value has changed instead of getting the state
+		case JOY_THROTTLE_LEFT:
+			if (SDL_JoystickGetAxis(joy, axis_Throttle) - oldJoystickAxisValues[j_index][axis_Throttle] < -50)
+				return true;
+			break;
+		case JOY_THROTTLE_RIGHT:
+			if (SDL_JoystickGetAxis(joy, axis_Throttle) - oldJoystickAxisValues[j_index][axis_Throttle] > 50)
+				return true;
+			break;
 
 		default:
 			printf("WARNING: checkJoystickState: unknown flag\n");
 	}
+
 
 	return false;
 }
@@ -230,6 +318,11 @@ void initJoystick(int i, bool isTemp) {
 		} else
 			printf("WARNING: could not open joystick\n");
 	}
+
+	// Save the initial axis values
+	SDL_Delay(40); // Small hack: this little delay is needed here for the joysticks to initialize correctly (bug in SDL?)
+	SDL_JoystickUpdate();
+	updateAxisStates();
 
 	if(!isTemp) joysticks_inited_temp[i] = false;
 }
@@ -345,7 +438,9 @@ int CInput::Wait(std::string& strText)
 	// TODO: more joysticks
 	for(n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
 		int i = Joysticks[n].text[3] - '1'; // at pos 3, there is the number ("joy1_...")
-		if(joys[i] != NULL && checkJoystickState(Joysticks[n].value, Joysticks[n].extra, joys[i])) {
+
+		// Check if any of the axes has been moved or a button press occured
+		if(joys[i] != NULL && checkJoystickState(Joysticks[n].value, Joysticks[n].extra, i)) {
 			strText = Joysticks[n].text;
 			return true;
 		}
@@ -445,6 +540,39 @@ int CInput::Setup(const std::string& string)
 	return false;
 }
 
+////////////////////
+// Returns the "force" value for a joystick axis
+int CInput::getJoystickValue()
+{
+	switch (Type)  {
+	case INP_JOYSTICK1:
+		return getJoystickControlValue(Data, Extra, joys[0]);
+	case INP_JOYSTICK2:
+		return getJoystickControlValue(Data, Extra, joys[1]);
+	default:
+		return 0;
+	}
+	return 0;
+}
+
+/////////////////////
+// Returns true if this input is a joystick axis
+bool CInput::isJoystickAxis()
+{
+	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
+		return Data != JOY_BUTTON;
+	return false;
+}
+
+////////////////////
+// Returns true if this joystick is a throttle
+bool CInput::isJoystickThrottle()
+{
+	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
+		return (Data == JOY_THROTTLE_LEFT) || (Data == JOY_THROTTLE_RIGHT);
+	return false;
+}
+
 
 ///////////////////
 // Returns if the input has just been released
@@ -496,9 +624,9 @@ bool CInput::isDown(void)
 
 		// Joystick
 		case INP_JOYSTICK1:
-			return checkJoystickState(Data, Extra, joys[0]);
+			return checkJoystickState(Data, Extra, 0);
 		case INP_JOYSTICK2:
-			return checkJoystickState(Data, Extra, joys[1]);
+			return checkJoystickState(Data, Extra, 1);
 
 	}
 
