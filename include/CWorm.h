@@ -134,6 +134,7 @@ public:
 
 };
 
+
 class NEW_ai_node_t {
 public:
 	float fX, fY;
@@ -467,7 +468,6 @@ public:
     CVec        AI_GetTargetPos(void);
 
     void        AI_InitMoveToTarget();
-    void        AI_MoveToTarget();
     void        AI_SimpleMove(bool bHaveTarget=true);
 //    void        AI_PreciseMove();
 
@@ -494,21 +494,21 @@ public:
 	bool		IsEmpty(int Cell);
     //void        moveToTarget(CWorm *pcTarget);
 
-	CVec		NEW_AI_GetBestRopeSpot(CVec trg);
-	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint);
-	bool		NEW_AI_CheckFreeCells(int Num);
-	bool		NEW_AI_IsInAir(CVec pos, int area_a=3);
-	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction);
-	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
-	int			NEW_AI_CreatePath(bool force_break = false);
-	void		NEW_AI_MoveToTarget();
-	CVec		NEW_AI_GetNearestRopeSpot(CVec trg);
-	void		NEW_AI_Carve();
-	bool		NEW_AI_Jump();
-	CVec		NEW_AI_FindShootingSpot();
-	int			NEW_AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap);
+	CVec		AI_GetBestRopeSpot(CVec trg);
+	CVec		AI_FindClosestFreeCell(CVec vPoint);
+	bool		AI_CheckFreeCells(int Num);
+	bool		AI_IsInAir(CVec pos, int area_a=3);
+	CVec		AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction);
+	CVec		AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
+	int			AI_CreatePath(bool force_break = false);
+	void		AI_MoveToTarget();
+	CVec		AI_GetNearestRopeSpot(CVec trg);
+	void		AI_Carve();
+	bool		AI_Jump();
+	CVec		AI_FindShootingSpot();
+	int			AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap);
 #ifdef _AI_DEBUG
-	void		NEW_AI_DrawPath();
+	void		AI_DrawPath();
 #endif
 
 

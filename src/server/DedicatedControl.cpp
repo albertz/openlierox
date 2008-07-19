@@ -31,10 +31,6 @@
 #include "Protocol.h"
 #include "CScriptableVars.h"
 
-#ifdef WIN32
-#undef S_NORMAL // TODO: This is a reserved constant under WIN32, rename the constant(s) in this file
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(disable: 4996)
 #endif
@@ -167,7 +163,7 @@ struct DedIntern {
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
 	DedIntern() : pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL), quitSignal(false), state(S_NORMAL) { }
+		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE) { }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -234,7 +230,7 @@ struct DedIntern {
 
 
 	enum State {
-		S_NORMAL, // server was not started
+		S_INACTIVE, // server was not started
 		S_LOBBY, // in lobby
 		S_PREPARING, // in game: just started, will go to S_WEAPONS
 		S_WEAPONS, // in game: in weapon selection
@@ -739,14 +735,14 @@ struct DedIntern {
 								 // BackToLobby-signal before; if we didn't get such a signal and
 								 // the gameloop was ended, that means that the game was stopped
 								 // completely
-			state = S_NORMAL;
+			state = S_INACTIVE;
 	}
 	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS; }
 	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
-	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
+	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_INACTIVE; }
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_INACTIVE; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
