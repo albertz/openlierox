@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #endif
 
+#include "LieroX.h"
 #include "Options.h"
 #include "HTTP.h"
 #include "Timer.h"
@@ -44,7 +45,8 @@ static const std::string sHttpErrors[] = {
 	"Error sending HTTP request",
 	"Could not connect to the server",
 	"Connection timed out",
-	"Network error: "
+	"Network error: ",
+	"Server sent an unsupported code: "
 };
 
 //
@@ -297,6 +299,8 @@ void CHttp::Clear()
 	bGotHttpHeader = false;
 	bSocketReady = false;
 	bChunkedTransfer = false;
+	bRedirecting = false;
+	iRedirectCode = 0;
 	fResolveTime = -9999;
 	fConnectTime = -9999;
 	fReceiveTime = -9999;
@@ -324,7 +328,7 @@ void CHttp::CancelProcessing()
 	}
 
 	// If we got DNS reply, just quit
-	if (bRequested && IsSocketStateValid(tSocket))  {
+	if ((bConnected || bRequested) && IsSocketStateValid(tSocket))  {
 		CloseSocket(tSocket);
 		InvalidateSocketState(tSocket);
 	}
@@ -402,11 +406,15 @@ void CHttp::ParseAddress(const std::string& addr)
     sUrl = "";
 
 	size_t p = addr.find('/');
-	if(p == std::string::npos)
+	if(p == std::string::npos)  {
 		sHost = addr;
-	else {
+		sUrl = "/";
+	} else {
 		sHost = addr.substr(0, p);
 		sUrl = addr.substr(p);
+
+		if (sUrl.size() == 0)
+			sUrl = "/";
 	}
 }
 
@@ -652,6 +660,93 @@ void CHttp::ParseChunks()
 	// There could be still some footers, but we don't care about them
 }
 
+//////////////////
+// Reads the redirect information from HTTP header
+void CHttp::HandleRedirect(int code)
+{
+	// Check
+	if (code < 300 || code >= 400)  {
+		SetHttpError(HTTP_BAD_RESPONSE);
+		tError.sErrorMsg += "Wrong redirect code " + itoa(code);
+		return;
+	}
+
+	// If the transfer is not yet finished, wait
+	if (!bTransferFinished)  {
+		bRedirecting = true;
+		iRedirectCode = code;
+		return;
+	}
+
+	// All the 3XX messages may contain the Location field with a preferred address
+	std::string location = GetPropertyFromHeader("Location");
+
+	// Process depending on the code
+	switch (code)  {
+	case 300: // Multiple choices
+
+		// First try the Location field
+		if (location.size() != 0)  {
+			RequestData(location, tLXOptions->sHttpProxy);
+			return;
+		}
+		
+		// Multiple Choices, these are listed in the message body
+
+		// Got any data?
+		if (sPureData.size() == 0)  {
+			SetHttpError(HTTP_BAD_RESPONSE);
+			tError.sErrorMsg = "No redirect address specified in the redirect message";
+			return;
+		}
+
+		// Read the first location (assuming that there's one location per line)
+		location = ReadUntil(sPureData, '\n');
+		TrimSpaces(location);
+
+		if (location.size())  {
+			printf("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
+			RequestData(location, tLXOptions->sHttpProxy);
+		} else {
+			SetHttpError(HTTP_BAD_RESPONSE);
+			tError.sErrorMsg = "No redirect address specified in the redirect message";
+		}
+	break;
+	case 301: // Moved Permanently
+	case 302: // Found
+	case 303: // See Other
+	case 307: // Temporary Redirect; TODO: according to the RFC we must ask the user if he/she allows the redirect...
+
+		// New location should be stored in the Location field
+		if (location.size() != 0)  {
+			printf("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
+			RequestData(location, tLXOptions->sHttpProxy);
+			return;
+		} else { // No location has been given, just quit...
+			SetHttpError(HTTP_BAD_RESPONSE);
+			tError.sErrorMsg = "No redirect address specified in the redirect message";
+		}
+	break;
+
+	case 304: // Not Modified
+		// We should never get this as we don't use conditional requests
+		SetHttpError(HTTP_BAD_RESPONSE);
+		tError.sErrorMsg = "Got a Not Modified response on a non-conditional request";
+	break;
+
+	case 305: // Use Proxy
+		// The proxy address is given in the location field
+		if (location.size())  {
+			RequestData(sHost + sUrl, location);
+			printf("HTTP notice: accessing the desired location using proxy: " + location + "\n");
+		} else {
+			SetHttpError(HTTP_BAD_RESPONSE);
+			tError.sErrorMsg = "No redirect address specified in the redirect message";
+		}
+	break;
+	}
+}
+
 ////////////////
 // Parses the header
 void CHttp::ParseHeader()
@@ -672,7 +767,7 @@ void CHttp::ParseHeader()
 	// Get the code
 	std::string code;
 	while (i != sHeader.end())  {
-		if (*i == ' ')  {
+		if (*i == ' ' || *i == '\t')  {
 			i++;
 			break;
 		}
@@ -682,16 +777,37 @@ void CHttp::ParseHeader()
 	}
 
 	// Check the code
-	if (code[0] != '2') {  // 2XX = success
-		if (code == "100")  {  // 100 Continue - we should wait for a real header
+	switch (code[0]) { 
+	case '1': // 100 Continue - we should wait for a real header
+		if (code.substr(0, 3) == "100")  {
 			bGotHttpHeader = false;
 			return;
+		} else {
+			SetHttpError(HTTP_BAD_RESPONSE);
+			tError.sErrorMsg += code;
+			CloseSocket(tSocket);
+			return;
 		}
+	break;
+
+	case '2': // 2XX = success
+	break;
+
+	case '3': // 3XX = redirect
+		HandleRedirect(atoi(code));
+	break;
+
+	case '4': // 4XX = error
+	case '5': // 5XX = server error
 
 		// Other errors
 		tError.iError = atoi(code);
-		tError.sErrorMsg = std::string(i, PositionToIterator(sHeader, sHeader.find('\n')));  // From error code to the end of the line
-		return;
+		if (i != sHeader.end())
+			tError.sErrorMsg = std::string(i, PositionToIterator(sHeader, sHeader.find('\n')));  // From error code to the end of the line
+		else
+			tError.sErrorMsg = "Unknown Error";
+
+		// HINT: continue parsing the message, there could be a useful info in the message body that the client wants to know
 	}
 
 
@@ -878,7 +994,7 @@ int CHttp::ProcessRequest()
 			// Complete!
 			bTransferFinished = true;
 			bActive = false;
-			return HTTP_PROC_FINISHED;
+
 		} else {
 			// Error
 			SetHttpError(HTTP_NET_ERROR);
@@ -887,9 +1003,20 @@ int CHttp::ProcessRequest()
 		}
 	}
 
-	// Transfer fininshed (can get here if chunk message end happened)
+	// Transfer fininshed
 	if (bTransferFinished)  {
-		return HTTP_PROC_FINISHED;
+
+		// If we have been waiting for redirect, handle it now
+		if (bRedirecting)  {
+			HandleRedirect(iRedirectCode);
+
+			if (tError.iError != HTTP_NO_ERROR) // Any errors?
+				return HTTP_PROC_ERROR;
+			else
+				return HTTP_PROC_PROCESSING;
+		}
+
+		return HTTP_PROC_FINISHED; // Really finished
 	}
 
 	// Still processing

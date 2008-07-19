@@ -728,7 +728,7 @@ int GetSocketErrorNr() {
 }
 
 std::string GetSocketErrorStr(int errnr) {
-	return std::string(nlGetErrorStr(errnr));
+	return GetLastErrorStr();
 }
 
 std::string GetLastErrorStr()  {

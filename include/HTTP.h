@@ -100,6 +100,7 @@ enum  {
 	HTTP_NO_CONNECTION,
 	HTTP_ERROR_TIMEOUT,
 	HTTP_NET_ERROR,
+	HTTP_BAD_RESPONSE,
 	HTTP_FILE_NOT_FOUND = 404
 	// HINT: Add more if you need them
 };
@@ -138,6 +139,8 @@ public:
 		bTransferFinished = http.bTransferFinished;
 		bConnected = http.bConnected;
 		bRequested = http.bRequested;
+		bRedirecting = http.bRedirecting;
+		iRedirectCode = http.iRedirectCode;
 		bSocketReady = http.bSocketReady;
 		bGotHttpHeader = http.bGotHttpHeader;
 		bChunkedTransfer = http.bChunkedTransfer;
@@ -181,6 +184,8 @@ private:
 	float			fResolveTime;
 	float			fConnectTime;
 	float			fReceiveTime;
+	bool			bRedirecting;
+	int				iRedirectCode;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 
@@ -196,6 +201,7 @@ private:
 	void				ParseProxyAddress(const std::string& proxy);
 	std::string			GetBasicAuthentication(const std::string &user, const std::string &passwd);
 	void				FinishTransfer();
+	void				HandleRedirect(int code);
 
 public:
 	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
