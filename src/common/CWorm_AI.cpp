@@ -4204,23 +4204,44 @@ bool CWorm::NEW_AI_IsInAir(CVec pos, int area_a)
 	int startX = (int) (pos.x)/pcMap->getGridWidth()-(int)floor((double)area_a/2);
 	int startY = (int) (pos.y)/pcMap->getGridHeight()-(int)floor((double)area_a/2);
 
+	// Clipping means rock
+	if (startX < 0 || startY < 0)
+		return false;
+
 	int x,y,i;
 	x=startX;
 	y=startY;
 
+	pcMap->lockFlags();
 	for (i=0;i<area_a*area_a;i++) {
+
+		// Clipping means rock
+		if (x >= pcMap->getGridCols())  {
+			pcMap->unlockFlags();
+			return false;
+		}
+
 		if (x > area_a)  {
 			x = startX;
 			y++;
+
+			// Clipping means rock
+			if (y >= pcMap->getGridRows())  {
+				pcMap->unlockFlags();
+				return false;
+			}
 		}
 
 		// Rock or dirt - not in air
 		tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
-		if(tmp_pf & (PX_ROCK|PX_DIRT))
+		if(tmp_pf & (PX_ROCK|PX_DIRT))  {
+			pcMap->unlockFlags();
 			return false;
+		}
 
 		x++;
 	}
+	pcMap->unlockFlags();
 
 	return true;
 
