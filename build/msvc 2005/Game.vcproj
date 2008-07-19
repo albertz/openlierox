@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 	RootNamespace="OpenLieroX"
@@ -148,7 +148,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="../../include,blast,../../libs/hawknl/src/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				StringPooling="true"
@@ -157,7 +160,7 @@
 				PrecompiledHeaderFile=".\obj/Release/Game.pch"
 				AssemblerListingLocation=".\obj/Release/"
 				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName=".\obj/Release/"
+				ProgramDataBaseFileName="..\..\distrib\win32\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -183,7 +186,11 @@
 				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
+				GenerateMapFile="true"
+				MapFileName="..\..\distrib\win32\OpenLieroX.map"
+				MapExports="true"
 				SubSystem="2"
+				LinkTimeCodeGeneration="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -342,7 +349,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="../../include,blast,../../libs/hawknl/src/,../../libs/boost_process"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER;HAVE_BOOST"
 				StringPooling="true"
@@ -351,7 +361,7 @@
 				PrecompiledHeaderFile=".\obj/Release/Game.pch"
 				AssemblerListingLocation=".\obj/Release/"
 				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName=".\obj/Release/"
+				ProgramDataBaseFileName="..\..\distrib\win32\"
 				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -377,7 +387,11 @@
 				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
+				GenerateMapFile="true"
+				MapFileName="..\..\distrib\win32\OpenLieroX.map"
+				MapExports="true"
 				SubSystem="2"
+				LinkTimeCodeGeneration="1"
 				TargetMachine="1"
 			/>
 			<Tool
