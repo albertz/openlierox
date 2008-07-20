@@ -1,1629 +1,2536 @@
 # depslib dependency file v1.0
-1171820730 source:/home/az/Programmierung/openlierox/src/client/AuxLib.cpp
-	"defs.h"
-	<SDL/SDL_syswm.h>
-	"LieroX.h"
+1216328002 source:c:\moje\programovani\openlierox\src\client\auxlib.cpp
+	<iostream>
+	<iomanip>
+	<time.h>
+	<SDL.h>
+	<SDL_syswm.h>
+	<stdlib.h>
+	"AuxLib.h"
+	"Error.h"
 	"Menu.h"
+	"GfxPrimitives.h"
+	"Cache.h"
+	"FindFile.h"
+	"InputEvents.h"
+	"StringUtils.h"
+	"Sounds.h"
+	<SDL_thread.h>
 
-1172112777 /home/az/Programmierung/openlierox/include/defs.h
-	<assert.h>
+1200148578 c:\dev-cpp\include\sdl\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
 	<stdio.h>
 	<stdlib.h>
+	<stddef.h>
 	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
 	<string.h>
-	<math.h>
-	<time.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
 	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_config.h
+	"SDL_platform.h"
+	<stdarg.h>
+
+1200148578 c:\dev-cpp\include\sdl\sdl_platform.h
+
+1200148578 c:\dev-cpp\include\sdl\begin_code.h
+
+1200148578 c:\dev-cpp\include\sdl\close_code.h
+
+1200148578 c:\dev-cpp\include\sdl\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_endian.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_active.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_keysym.h
+
+1200148578 c:\dev-cpp\include\sdl\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_syswm.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_version.h"
+	"begin_code.h"
+	<X11/Xlib.h>
+	<X11/Xatom.h>
+	<microwin/nano-X.h>
+	<windows.h>
+	<sys/neutrino.h>
+	<Ph.h>
+	"close_code.h"
+
+1216327996 c:\moje\programovani\openlierox\include\auxlib.h
+	<SDL.h>
 	<string>
+	<windows.h>
+	"SmartPointer.h"
+
+1212771090 c:\moje\programovani\openlierox\include\smartpointer.h
+	<limits.h>
+	<assert.h>
+	<map>
+	<execinfo.h>
+	<SDL_thread.h>
+	"Utils.h"
+
+1216327996 c:\moje\programovani\openlierox\include\utils.h
+	<stddef.h>
+
+1216327996 c:\moje\programovani\openlierox\include\error.h
+	<dbghelp.h>
+	<string>
+
+1216327996 c:\moje\programovani\openlierox\include\menu.h
+	<SDL.h>
+	<string>
+	"CWidgetList.h"
+	"CssParser.h"
+	"CCombobox.h"
+	"CInputBox.h"
+	"Networking.h"
+	"CBytestream.h"
+	"CListview.h"
+	"CWpnRest.h"
+	"CClient.h"
+	"CWormSkin.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cwidgetlist.h
+
+1212771090 c:\moje\programovani\openlierox\include\cssparser.h
+	<SDL.h>
+	<string>
+
+1214166356 c:\moje\programovani\openlierox\include\ccombobox.h
+	<list>
+	"StringUtils.h"
+	"InputEvents.h"
+	"CScrollbar.h"
+
+1212771090 c:\moje\programovani\openlierox\include\stringutils.h
+	<SDL.h>
+	<cstdio>
+	<string>
+	<sstream>
+	<vector>
+	"types.h"
+
+1212771090 c:\moje\programovani\openlierox\include\types.h
+
+1212771090 c:\moje\programovani\openlierox\include\inputevents.h
+	<vector>
+	"Unicode.h"
+
+1212771090 c:\moje\programovani\openlierox\include\unicode.h
+	<SDL.h>
+	<string>
+	"Utils.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cscrollbar.h
+	"InputEvents.h"
+	"CWidget.h"
+	"CGuiLayout.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cwidget.h
+	"InputEvents.h"
+	"types.h"
+	"windows.h"
+	"CGuiSkin.h"
+	"SmartPointer.h"
+
+1212771089 c:\moje\programovani\openlierox\include\cguiskin.h
+	<string>
+	<map>
 	<vector>
 	<list>
-	<sstream>
-	<windows.h>
-	<io.h>
-	<direct.h>
-	<sys/types.h>
-	<sys/stat.h>
-	<sys/dir.h>
-	<unistd.h>
-	<SDL/SDL.h>
-	<SDL/SDL_image.h>
-	<SDL/SDL_thread.h>
-	<nl.h>
-	<endian.h>
-	"Networking.h"
-	<libxml/xmlmemory.h>
-	<libxml/parser.h>
-	"types.h"
-	"AuxLib.h"
-	"Cache.h"
-	"Error.h"
-	"GfxPrimitives.h"
-	"Timer.h"
-	"Options.h"
-	"FindFile.h"
-	"CInput.h"
-	"CVec.h"
-	"CBytestream.h"
-	"CChannel.h"
-	"ConfigHandler.h"
-	"MathLib.h"
-	"CFont.h"
-	"CssParser.h"
+	"CScriptableVars.h"
 
-1172111658 /home/az/Programmierung/openlierox/include/Networking.h
-
-1170698263 /usr/include/libxml2/libxml/xmlmemory.h
-	<stdio.h>
-	<libxml/xmlversion.h>
-	<libxml/threads.h>
-	<libxml/globals.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlversion.h
-	<libxml/xmlexports.h>
-	<ansidecl.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlexports.h
-
-1170698263 /usr/include/libxml2/libxml/threads.h
-	<libxml/xmlversion.h>
-	<libxml/globals.h>
-
-1170698263 /usr/include/libxml2/libxml/globals.h
-	<libxml/xmlversion.h>
-	<libxml/parser.h>
-	<libxml/xmlerror.h>
-	<libxml/SAX.h>
-	<libxml/SAX2.h>
-	<libxml/xmlmemory.h>
-	<libxml/threads.h>
-
-1170698263 /usr/include/libxml2/libxml/parser.h
-	<stdarg.h>
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-	<libxml/dict.h>
-	<libxml/hash.h>
-	<libxml/valid.h>
-	<libxml/entities.h>
-	<libxml/xmlerror.h>
-	<libxml/xmlstring.h>
-	<libxml/encoding.h>
-	<libxml/xmlIO.h>
-	<libxml/globals.h>
-
-1170698263 /usr/include/libxml2/libxml/tree.h
-	<stdio.h>
-	<libxml/xmlversion.h>
-	<libxml/xmlstring.h>
-	<libxml/xmlregexp.h>
-	<libxml/xmlmemory.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlstring.h
-	<stdarg.h>
-	<libxml/xmlversion.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlregexp.h
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-	<libxml/dict.h>
-
-1170698263 /usr/include/libxml2/libxml/dict.h
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-
-1170698263 /usr/include/libxml2/libxml/hash.h
-	<libxml/xmlversion.h>
-	<libxml/parser.h>
-	<libxml/dict.h>
-
-1170698263 /usr/include/libxml2/libxml/valid.h
-	<libxml/xmlversion.h>
-	<libxml/xmlerror.h>
-	<libxml/tree.h>
-	<libxml/list.h>
-	<libxml/xmlautomata.h>
-	<libxml/xmlregexp.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlerror.h
-	<libxml/parser.h>
-
-1170698263 /usr/include/libxml2/libxml/list.h
-	<libxml/xmlversion.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlautomata.h
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-	<libxml/xmlregexp.h>
-
-1170698263 /usr/include/libxml2/libxml/entities.h
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-
-1170698263 /usr/include/libxml2/libxml/encoding.h
-	<libxml/xmlversion.h>
-	<iconv.h>
-	<libxml/tree.h>
-
-1170698263 /usr/include/libxml2/libxml/xmlIO.h
-	<stdio.h>
-	<libxml/xmlversion.h>
-	<libxml/globals.h>
-	<libxml/tree.h>
-	<libxml/parser.h>
-	<libxml/encoding.h>
-
-1170698263 /usr/include/libxml2/libxml/SAX.h
-	<stdio.h>
-	<stdlib.h>
-	<libxml/xmlversion.h>
-	<libxml/parser.h>
-	<libxml/xlink.h>
-
-1170698263 /usr/include/libxml2/libxml/xlink.h
-	<libxml/xmlversion.h>
-	<libxml/tree.h>
-
-1170698263 /usr/include/libxml2/libxml/SAX2.h
-	<stdio.h>
-	<stdlib.h>
-	<libxml/xmlversion.h>
-	<libxml/parser.h>
-	<libxml/xlink.h>
-
-1171158877 /home/az/Programmierung/openlierox/include/types.h
-
-1171820631 /home/az/Programmierung/openlierox/include/AuxLib.h
-
-1172168056 /home/az/Programmierung/openlierox/include/Cache.h
-
-1171845715 /home/az/Programmierung/openlierox/include/Error.h
-	<dbghelp.h>
-
-1172112967 /home/az/Programmierung/openlierox/include/GfxPrimitives.h
-
-1172085032 /home/az/Programmierung/openlierox/include/Timer.h
-
-1172189513 /home/az/Programmierung/openlierox/include/CInput.h
-
-1172202054 /home/az/Programmierung/openlierox/include/CVec.h
-
-1171814341 /home/az/Programmierung/openlierox/include/CBytestream.h
-
-1171158486 /home/az/Programmierung/openlierox/include/CChannel.h
-
-1172078836 /home/az/Programmierung/openlierox/include/ConfigHandler.h
-
-1171158876 /home/az/Programmierung/openlierox/include/MathLib.h
-
-1172081057 /home/az/Programmierung/openlierox/include/CFont.h
-
-1172203826 /home/az/Programmierung/openlierox/include/FindFile.h
+1212771090 c:\moje\programovani\openlierox\include\cscriptablevars.h
+	<string>
+	<map>
 	<vector>
+	<list>
+	"Color.h"
 
-1171159033 /home/az/Programmierung/openlierox/include/CssParser.h
+1212779855 c:\moje\programovani\openlierox\include\color.h
+	<SDL.h>
 
-1172192368 /home/az/Programmierung/openlierox/include/LieroX.h
-	<stdlib.h>
-	<crtdbg.h>
-	"ProfileSystem.h"
-	"Networking.h"
-	"CGameScript.h"
-	"CChatBox.h"
-	"Frame.h"
-	"CViewport.h"
-	"CMap.h"
-	"CSimulation.h"
-	"CNinjaRope.h"
-	"Command.h"
-	"CBonus.h"
-	"CWpnRest.h"
-	"CWorm.h"
-	"CProjectile.h"
-	"CShootList.h"
-	"Entity.h"
-	"CWeather.h"
-	"CClient.h"
-	"CServer.h"
-	"Sounds.h"
-	"Graphics.h"
-	"Protocol.h"
-	"Options.h"
+1212771090 c:\moje\programovani\openlierox\include\cguilayout.h
+	"CWidget.h"
 
-1171838133 /home/az/Programmierung/openlierox/include/ProfileSystem.h
+1212771089 c:\moje\programovani\openlierox\include\cinputbox.h
+	"InputEvents.h"
+	"CGuiSkinnedLayout.h"
 
-1171893094 /home/az/Programmierung/openlierox/include/CGameScript.h
-
-1172258375 /home/az/Programmierung/openlierox/include/CChatBox.h
-	<vector>
-
-1171157900 /home/az/Programmierung/openlierox/include/Frame.h
-
-1172164181 /home/az/Programmierung/openlierox/include/CViewport.h
-
-1171988518 /home/az/Programmierung/openlierox/include/CMap.h
-	"ReadWriteLock.h"
-
-1171157731 /home/az/Programmierung/openlierox/include/ReadWriteLock.h
-	<SDL/SDL_thread.h>
-
-1171157899 /home/az/Programmierung/openlierox/include/CSimulation.h
-
-1171158168 /home/az/Programmierung/openlierox/include/CNinjaRope.h
-
-1171157899 /home/az/Programmierung/openlierox/include/Command.h
-
-1171929946 /home/az/Programmierung/openlierox/include/CBonus.h
-
-1171929946 /home/az/Programmierung/openlierox/include/CWpnRest.h
-
-1172164248 /home/az/Programmierung/openlierox/include/CWorm.h
-	"CProjectile.h"
-
-1171157901 /home/az/Programmierung/openlierox/include/CProjectile.h
-
-1171157899 /home/az/Programmierung/openlierox/include/CShootList.h
-
-1171157900 /home/az/Programmierung/openlierox/include/Entity.h
-
-1171157899 /home/az/Programmierung/openlierox/include/CWeather.h
-
-1172258531 /home/az/Programmierung/openlierox/include/CClient.h
-
-1171827445 /home/az/Programmierung/openlierox/include/CServer.h
-	"CBanList.h"
-
-1172189513 /home/az/Programmierung/openlierox/include/CBanList.h
-
-1171816074 /home/az/Programmierung/openlierox/include/Sounds.h
-	"CViewport.h"
-	"CMap.h"
-	<SDL/SDL_mixer.h>
-
-1171157900 /home/az/Programmierung/openlierox/include/Graphics.h
-
-1171157900 /home/az/Programmierung/openlierox/include/Protocol.h
-
-1172163962 /home/az/Programmierung/openlierox/include/Options.h
-
-1172112059 /home/az/Programmierung/openlierox/include/Menu.h
+1212771090 c:\moje\programovani\openlierox\include\cguiskinnedlayout.h
 	"CWidget.h"
 	"CGuiLayout.h"
 	"CWidgetList.h"
-	"CTitleButton.h"
-	"CButton.h"
-	"CScrollbar.h"
-	"CListview.h"
-	"CTextbox.h"
-	"CLabel.h"
-	"CLine.h"
-	"CSlider.h"
-	"CCheckbox.h"
-	"CInputBox.h"
-	"CBrowser.h"
-	"CCombobox.h"
-	"CMenu.h"
-	"CImage.h"
-	"CBox.h"
-	"CMediaPlayer.h"
-
-1172108298 /home/az/Programmierung/openlierox/include/CWidget.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CGuiLayout.h
-
-1171995515 /home/az/Programmierung/openlierox/include/CWidgetList.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CTitleButton.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CButton.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CScrollbar.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CListview.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CTextbox.h
-
-1172112732 /home/az/Programmierung/openlierox/include/CLabel.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CLine.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CSlider.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CCheckbox.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CInputBox.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CBrowser.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CCombobox.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CMenu.h
-
-1172258429 /home/az/Programmierung/openlierox/include/CImage.h
-
-1172108298 /home/az/Programmierung/openlierox/include/CBox.h
-
-1171159679 source:/home/az/Programmierung/openlierox/src/client/CBox.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171293695 source:/home/az/Programmierung/openlierox/src/client/CButton.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172261991 source:/home/az/Programmierung/openlierox/src/client/CChatBox.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/CCheckbox.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172165942 source:/home/az/Programmierung/openlierox/src/client/CClient_Send.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172258983 source:/home/az/Programmierung/openlierox/src/client/CFont.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171845716 source:/home/az/Programmierung/openlierox/src/client/CImage.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172189514 source:/home/az/Programmierung/openlierox/src/client/CInput.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172081691 source:/home/az/Programmierung/openlierox/src/client/CInputBox.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172195023 source:/home/az/Programmierung/openlierox/src/client/CListview.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172108301 source:/home/az/Programmierung/openlierox/src/client/CMenu.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171158168 source:/home/az/Programmierung/openlierox/src/client/CNinjaRope.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/CScrollbar.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/CSlider.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172259394 source:/home/az/Programmierung/openlierox/src/client/CTextbox.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/CTitleButton.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172164203 source:/home/az/Programmierung/openlierox/src/client/CViewport.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/CWeather.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171929947 source:/home/az/Programmierung/openlierox/src/client/CWidget.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171995515 source:/home/az/Programmierung/openlierox/src/client/CWidgetList.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171808995 source:/home/az/Programmierung/openlierox/src/client/Cache.cpp
-	"defs.h"
-	"LieroX.h"
-	"Sounds.h"
-
-1171157898 source:/home/az/Programmierung/openlierox/src/client/Entity.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172165869 source:/home/az/Programmierung/openlierox/src/client/Error.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171809336 source:/home/az/Programmierung/openlierox/src/client/GfxPrimitives.cpp
-	"defs.h"
-	"LieroX.h"
-	<gd.h>
-
-1171845716 source:/home/az/Programmierung/openlierox/src/client/Graphics.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172260733 source:/home/az/Programmierung/openlierox/src/client/MenuSystem.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172259744 source:/home/az/Programmierung/openlierox/src/client/Menu_Local.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-	"CListview.h"
-
-1172081677 source:/home/az/Programmierung/openlierox/src/client/Menu_Main.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172259769 source:/home/az/Programmierung/openlierox/src/client/Menu_Mapeditor.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171157899 source:/home/az/Programmierung/openlierox/src/client/Menu_Net.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172112289 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Favourites.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172260545 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Host.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172192223 source:/home/az/Programmierung/openlierox/src/client/CBrowser.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172258961 source:/home/az/Programmierung/openlierox/src/client/CClient_Game.cpp
-	"defs.h"
-	"LieroX.h"
-	"console.h"
-
-1172084591 /home/az/Programmierung/openlierox/include/console.h
-	"con_cmd.h"
-
-1172111328 /home/az/Programmierung/openlierox/include/con_cmd.h
-
-1172258912 source:/home/az/Programmierung/openlierox/src/client/CClient_Parse.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-	"console.h"
-
-1172165704 source:/home/az/Programmierung/openlierox/src/client/CCombobox.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172258499 source:/home/az/Programmierung/openlierox/src/client/CGuiLayout.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172258876 source:/home/az/Programmierung/openlierox/src/client/CClient_Draw.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-	"console.h"
-
-1172189514 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Internet.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171318307 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Main.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1171318307 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_News.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172260011 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Join.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172108301 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Lan.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172165930 source:/home/az/Programmierung/openlierox/src/client/Menu_Options.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172192972 source:/home/az/Programmierung/openlierox/src/client/ProfileSystem.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172166357 source:/home/az/Programmierung/openlierox/src/common/CBonus.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171819959 source:/home/az/Programmierung/openlierox/src/common/CBytestream.cpp
-	"defs.h"
-
-1171158467 source:/home/az/Programmierung/openlierox/src/common/CChannel.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172189513 source:/home/az/Programmierung/openlierox/src/common/CClient.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-	"console.h"
-
-1172079629 source:/home/az/Programmierung/openlierox/src/common/CGameScript.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171157897 source:/home/az/Programmierung/openlierox/src/common/CShootList.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171157897 source:/home/az/Programmierung/openlierox/src/common/CSimulation.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172189513 source:/home/az/Programmierung/openlierox/src/common/CWorm.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171826955 source:/home/az/Programmierung/openlierox/src/common/CWorm_SendRecv.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171402760 source:/home/az/Programmierung/openlierox/src/common/CWorm_Simulate.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172193317 source:/home/az/Programmierung/openlierox/src/common/CWpnRest.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172260998 source:/home/az/Programmierung/openlierox/src/common/Command.cpp
-	"defs.h"
-	"LieroX.h"
-	"console.h"
-
-1172261009 source:/home/az/Programmierung/openlierox/src/common/ConfigHandler.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172194424 source:/home/az/Programmierung/openlierox/src/common/Console.cpp
-	"defs.h"
-	"LieroX.h"
-	"console.h"
-
-1172193122 source:/home/az/Programmierung/openlierox/src/common/CssParser.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-
-1172206078 source:/home/az/Programmierung/openlierox/src/common/FindFile.cpp
-	"defs.h"
-	"LieroX.h"
-	<shlobj.h>
-	<pwd.h>
-	<sys/types.h>
-
-1171158875 source:/home/az/Programmierung/openlierox/src/common/MathLib.cpp
-	"defs.h"
-
-1172261019 source:/home/az/Programmierung/openlierox/src/common/Misc.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172112935 source:/home/az/Programmierung/openlierox/src/common/Networking.cpp
-	"defs.h"
-	"LieroX.h"
+	<string>
 	<map>
-	"RandomNumberList.h"
 
-1162044053 /home/az/Programmierung/openlierox/include/RandomNumberList.h
+1212771090 c:\moje\programovani\openlierox\include\networking.h
+	<string>
+	<SDL.h>
+	"Utils.h"
 
-1172112103 source:/home/az/Programmierung/openlierox/src/common/Timer.cpp
-	"defs.h"
+1214166356 c:\moje\programovani\openlierox\include\cbytestream.h
+	<SDL.h>
+	<string>
+	"types.h"
+	"Networking.h"
 
-1172203926 source:/home/az/Programmierung/openlierox/src/common/sex.cpp
-	"defs.h"
+1212771090 c:\moje\programovani\openlierox\include\clistview.h
+	<string>
+	"CWidget.h"
+	"CScrollbar.h"
 
-1172189514 source:/home/az/Programmierung/openlierox/src/main.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
-	"console.h"
-	<sys/dir.h>
-	<sys/stat.h>
+1212771090 c:\moje\programovani\openlierox\include\cwpnrest.h
+	"CGameScript.h"
+	"CBytestream.h"
 
-1171846432 source:/home/az/Programmierung/openlierox/src/server/CBanList.cpp
-	"defs.h"
-	"LieroX.h"
+1214166356 c:\moje\programovani\openlierox\include\cgamescript.h
+	"Sounds.h"
+	"GfxPrimitives.h"
+	"CProjectile.h"
 
-1172193336 source:/home/az/Programmierung/openlierox/src/server/CServer.cpp
-	"defs.h"
-	"LieroX.h"
-	"console.h"
-	"CBanList.h"
+1212771089 c:\moje\programovani\openlierox\include\sounds.h
+	"CViewport.h"
+	"CMap.h"
+	"Timer.h"
+	<SDL_mixer.h>
 
-1172261041 source:/home/az/Programmierung/openlierox/src/server/CServer_Game.cpp
-	"defs.h"
-	"LieroX.h"
+1212771090 c:\moje\programovani\openlierox\include\cviewport.h
+	<SDL.h>
+	"CInput.h"
+	"CVec.h"
+	"Options.h"
+	"SmartPointer.h"
 
-1171989176 source:/home/az/Programmierung/openlierox/src/server/CServer_Parse.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
+1216500105 c:\moje\programovani\openlierox\include\cinput.h
+	<string>
 
-1172204387 source:/home/az/Programmierung/openlierox/src/server/CServer_Send.cpp
-	"defs.h"
-	"LieroX.h"
+1212771090 c:\moje\programovani\openlierox\include\cvec.h
+	<math.h>
 
-1172165716 source:/home/az/Programmierung/openlierox/src/client/Menu_Player.cpp
-	"defs.h"
-	"LieroX.h"
-	"Menu.h"
+1216327996 c:\moje\programovani\openlierox\include\options.h
+	<map>
+	<vector>
+	<string>
+	<cassert>
+	"FindFile.h"
 
-1172260150 source:/home/az/Programmierung/openlierox/src/client/Options.cpp
-	"defs.h"
-	"LieroX.h"
-
-1172077561 source:/home/az/Programmierung/openlierox/src/client/Sounds.cpp
-	"defs.h"
-	"LieroX.h"
-
-1171994169 source:/home/az/Programmierung/openlierox/src/common/CMap.cpp
-	<zlib.h>
+1216327996 c:\moje\programovani\openlierox\include\findfile.h
+	<fstream>
+	<string>
 	<list>
-	"defs.h"
-	"LieroX.h"
+	<vector>
+	"Unicode.h"
+	<sys/dir.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<windows.h>
+	<io.h>
+	<direct.h>
 
-1171472718 source:/home/az/Programmierung/openlierox/src/common/CProjectile.cpp
-	"defs.h"
+1216500105 c:\moje\programovani\openlierox\include\cmap.h
+	<SDL.h>
+	<string>
 	"LieroX.h"
+	"ReadWriteLock.h"
+	"types.h"
+	"CViewport.h"
+	"Cache.h"
+	"GfxPrimitives.h"
+	"CBytestream.h"
 
-1172194479 source:/home/az/Programmierung/openlierox/src/common/CWorm_AI.cpp
+1213129565 c:\moje\programovani\openlierox\include\lierox.h
+	<list>
+	<string>
+	"ProfileSystem.h"
+	"CFont.h"
+	"CVec.h"
+	"CInput.h"
+	"types.h"
+	"IpToCountryDB.h"
+	<windows.h>
+
+1214166356 c:\moje\programovani\openlierox\include\profilesystem.h
+	<SDL.h>
+	<string>
+	<stdlib.h>
+	"SmartPointer.h"
+	"CWormSkin.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cwormskin.h
+	"GfxPrimitives.h"
+	"SmartPointer.h"
+
+1216500105 c:\moje\programovani\openlierox\include\gfxprimitives.h
+	<SDL.h>
+	<SDL_image.h>
+	<string>
+	<assert.h>
+	"Color.h"
+	"SmartPointer.h"
+
+1147827554 c:\dev-cpp\include\sdl\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cfont.h
+	<vector>
+	"Unicode.h"
+	"Cache.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cache.h
+	<SDL.h>
+	<vector>
+	<map>
 	<set>
 	<list>
-	"defs.h"
-	"LieroX.h"
+	"SmartPointer.h"
 
-1172197992 /usr/include/stlport/assert.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_prolog.h
-	<stl/config/features.h>
-	<stl/config/_prolog.h>
-
-1172197992 /usr/include/stlport/stl/config/features.h
-	<stl/_stlport_version.h>
-	<stl/config/user_config.h>
-	<stl/config/compat.h>
-	<stl/config/host.h>
-	<stl/config/_system.h>
-	<stl/config/stl_confix.h>
-	<stl/_check_config.h>
-	<stl/config/_native_headers.h>
-	<afx.h>
-	<windows.h>
-	<isynonym.hpp>
-	<yvals.h>
-	<stl/_abbrevs.h>
-
-1172197992 /usr/include/stlport/stl/_stlport_version.h
-
-1172197992 /usr/include/stlport/stl/config/user_config.h
-
-1172197992 /usr/include/stlport/stl/config/compat.h
-
-1172197992 /usr/include/stlport/stl/config/host.h
-
-1172197992 /usr/include/stlport/stl/config/_system.h
-	<stl/config/_solaris.h>
-	<stl/config/_gcc.h>
-	<stl/config/_sunprocc.h>
-	<stl/config/_kai.h>
-	<stl/config/_apcc.h>
-	<stl/config/_fujitsu.h>
-	<stl/config/_hpux.h>
-	<stl/config/_gcc.h>
-	<stl/config/_hpacc.h>
-	<stl/config/_linux.h>
-	<stl/config/_icc.h>
-	<stl/config/_gcc.h>
-	<stl/config/_kai.h>
-	<stl/config/_freebsd.h>
-	<stl/config/_gcc.h>
-	<stl/config/_openbsd.h>
-	<stl/config/_gcc.h>
-	<stl/config/_netware.h>
-	<stl/config/_mwccnlm.h>
-	<stl/config/_gcc.h>
-	<stl/config/_sgi.h>
-	<stl/config/_gcc.h>
-	<stl/config/_as400.h>
-	<stl/config/_aix.h>
-	<stl/config/_ibm.h>
-	<config/_cray.h>
-	<stl/config/_dec_vms.h>
-	<stl/config/_dec.h>
-	<stl/config/_mac.h>
-	<stl/config/_mwerks.h>
-	<stl/config/_apple.h>
-	<stl/config/_macosx.h>
-	<stl/config/_gcc.h>
-	<stl/config/_cygwin.h>
-	<stl/config/_gcc.h>
-	<stl/config/_gcc.h>
-	<stl/config/_windows.h>
-	<stl/config/_bc.h>
-	<stl/config/_watcom.h>
-	<stl/config/_como.h>
-	<stl/config/_dm.h>
-	<stl/config/_symantec.h>
-	<stl/config/_intel.h>
-	<stl/config/_mwerks.h>
-	<stl/config/_evc.h>
-	<stl/config/_msvc.h>
-	<stl/config/_windows.h>
-	<stl/config/stl_mycomp.h>
-
-1172197992 /usr/include/stlport/stl/config/_solaris.h
-	<sys/feature_tests.h>
-
-1172197992 /usr/include/stlport/stl/config/_gcc.h
-
-1172197992 /usr/include/stlport/stl/config/_sunprocc.h
-
-1172197992 /usr/include/stlport/stl/config/_kai.h
-	<standards.h>
-
-1172197992 /usr/include/stlport/stl/config/_apcc.h
-
-1172197992 /usr/include/stlport/stl/config/_fujitsu.h
-
-1172197992 /usr/include/stlport/stl/config/_hpux.h
-
-1172197992 /usr/include/stlport/stl/config/_hpacc.h
-
-1172197992 /usr/include/stlport/stl/config/_linux.h
-	<features.h>
-	<endian.h>
-
-1172197992 /usr/include/stlport/stl/config/_icc.h
-
-1172197992 /usr/include/stlport/stl/config/_freebsd.h
-
-1172197992 /usr/include/stlport/stl/config/_openbsd.h
-
-1172197992 /usr/include/stlport/stl/config/_netware.h
-
-1172197992 /usr/include/stlport/stl/config/_mwccnlm.h
-	<mslGlobals.h>
-	<ansi_parms.h>
-
-1172197992 /usr/include/stlport/stl/config/_sgi.h
-	<standards.h>
-
-1172197992 /usr/include/stlport/stl/config/_as400.h
-
-1172197992 /usr/include/stlport/stl/config/_aix.h
-
-1172197992 /usr/include/stlport/stl/config/_ibm.h
-
-1172197992 /usr/include/stlport/stl/config/_dec_vms.h
-
-1172197992 /usr/include/stlport/stl/config/_dec.h
-
-1172197992 /usr/include/stlport/stl/config/_mac.h
-
-1172197992 /usr/include/stlport/stl/config/_mwerks.h
-	<mslGlobals.h>
-	<ansi_parms.h>
-	<msl_utility>
-
-1172197992 /usr/include/stlport/stl/config/_apple.h
-	<CoreSwitches_AC.h>
-	<ConditionalMacros_AC.h>
-	<Types_AC.h>
-	<ConditionalMacros.h>
-	<Types.h>
-	<ConditionalMacros.h>
-	<Types.h>
-
-1172197992 /usr/include/stlport/stl/config/_macosx.h
-
-1172197992 /usr/include/stlport/stl/config/_cygwin.h
-
-1172197992 /usr/include/stlport/stl/config/_windows.h
-	<afx.h>
-	<windows.h>
-	<windef.h>
-	<winbase.h>
-
-1172197992 /usr/include/stlport/stl/config/_bc.h
-	<stl/config/_detect_dll_or_lib.h>
-	<stl/config/_auto_link.h>
-
-1172197992 /usr/include/stlport/stl/config/_detect_dll_or_lib.h
-
-1172197992 /usr/include/stlport/stl/config/_auto_link.h
-
-1172197992 /usr/include/stlport/stl/config/_watcom.h
-
-1172197992 /usr/include/stlport/stl/config/_como.h
-	<stl/config/_native_headers.h>
-	<math.h>
-	<math.h>
-	<sys/cdefs.h>
-	<sys/cdefs.h>
-	<stddef.h>
-	<math.h>
-	<stdexcept.stdh>
-
-1172197992 /usr/include/stlport/stl/config/_native_headers.h
-
-1172197992 /usr/include/stlport/math.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_epilog.h
-	<stl/config/_epilog.h>
-	<stl/_config_compat_post.h>
-
-1172197992 /usr/include/stlport/stl/config/_epilog.h
-
-1172197992 /usr/include/stlport/stl/_config_compat_post.h
-
-1172197992 /usr/include/stlport/stddef.h
-	<stl/_prolog.h>
-	"errno.h"
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/errno.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/config/_dm.h
-	<stl/config/_detect_dll_or_lib.h>
-	<stl/config/_auto_link.h>
-
-1172197992 /usr/include/stlport/stl/config/_symantec.h
-
-1172197992 /usr/include/stlport/stl/config/_intel.h
-	<stl/config/_msvc.h>
-
-1172197992 /usr/include/stlport/stl/config/_msvc.h
-	<stl/config/_detect_dll_or_lib.h>
-	<stl/config/_auto_link.h>
-
-1172197992 /usr/include/stlport/stl/config/_evc.h
-	<stl/config/_msvc.h>
-	<stl/config/_native_headers.h>
-
-1172197992 /usr/include/stlport/stl/config/stl_mycomp.h
-
-1172197992 /usr/include/stlport/stl/config/stl_confix.h
-	<mcompile.h>
-
-1172197992 /usr/include/stlport/stl/_check_config.h
-
-1172197992 /usr/include/stlport/stl/_abbrevs.h
-
-1172197992 /usr/include/stlport/stl/config/_prolog.h
-	<stl/config/_warnings_off.h>
-	<stl/config/_warnings_off.h>
-
-1172197992 /usr/include/stlport/stl/config/_warnings_off.h
-
-1172197992 /usr/include/stlport/stdio.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stdlib.h
-	<stl/_prolog.h>
-	"errno.h"
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stdarg.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/string.h
-	<stl/_prolog.h>
-	<using/cstring>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/using/cstring
-
-1172197992 /usr/include/stlport/time.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/ctype.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/string
-	<stl/_prolog.h>
-	<stl/_string.h>
-	<stl/_string_hash.h>
-	<stl/_string_io.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_string.h
-	<stl/_alloc.h>
-	<stl/_string_fwd.h>
-	<stl/_function_base.h>
-	<stl/_algobase.h>
-	<stl/_iterator.h>
-	<stl/_uninitialized.h>
-	<stl/_string_sum.h>
-	<stl/msl_string.h>
-	<stl/_string_base.h>
-	<stl/_string_npos.h>
-	<stl/_string_sum_methods.h>
-	<stl/_string_workaround.h>
-	<stl/debug/_string.h>
-	<stl/_string_operators.h>
-	<stl/_string.c>
-
-1172197992 /usr/include/stlport/stl/_alloc.h
-	<stl/_cstddef.h>
-	<stl/debug/_debug.h>
-	<stl/_cstdlib.h>
-	<stl/_cstring.h>
-	<stl/_algobase.h>
-	<stl/_cstdio.h>
-	<stl/_new.h>
-	<stl/_construct.h>
-	<stl/_pthread_alloc.h>
-	<stl/_alloc_old.h>
-	<stl/_alloc.c>
-
-1172197992 /usr/include/stlport/stl/_cstddef.h
-	<stddef.h>
-
-1172197992 /usr/include/stlport/stl/debug/_debug.h
-	<stl/type_traits.h>
-	<stl/_threads.h>
-	<stl/_iterator_base.h>
-	<stl/debug/_debug.c>
-
-1172197992 /usr/include/stlport/stl/type_traits.h
-	<stl/_cwchar.h>
-	<stl/type_manips.h>
-	<stl/boost_type_traits.h>
-	<boost/type_traits/add_reference.hpp>
-	<boost/type_traits/add_const.hpp>
-
-1172197992 /usr/include/stlport/stl/_cwchar.h
-	<stl/_mbstate_t.h>
-	<wchar.h>
-	<stl/_mbstate_t.h>
-
-1172197992 /usr/include/stlport/stl/_mbstate_t.h
-
-1172197992 /usr/include/stlport/wchar.h
-	<stl/_prolog.h>
-	<cstring>
-	<unicode.h>
-	<stl/_mbstate_t.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/cstring
-	<stl/_prolog.h>
-	<stl/_cstring.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_cstring.h
-	<using/cstring>
-
-1172197992 /usr/include/stlport/stl/type_manips.h
-	<bits/cpp_type_traits.h>
-
-1172197992 /usr/include/stlport/stl/boost_type_traits.h
-	<boost/type_traits/is_integral.hpp>
-	<boost/type_traits/is_float.hpp>
-	<boost/type_traits/has_trivial_constructor.hpp>
-	<boost/type_traits/has_trivial_copy.hpp>
-	<boost/type_traits/has_trivial_assign.hpp>
-	<boost/type_traits/has_trivial_destructor.hpp>
-	<boost/type_traits/is_pod.hpp>
-	<boost/type_traits/is_pointer.hpp>
-	<boost/type_traits/is_reference.hpp>
-	<boost/type_traits/remove_cv.hpp>
-	<boost/type_traits/is_same.hpp>
-
-1172197992 /usr/include/stlport/stl/_threads.h
-	<stl/_cstddef.h>
-	<stl/_cstdlib.h>
-	<mutex.h>
-	<pthread.h>
-	<spinlock.h>
-	<machine/builtins.h>
-	<stl/_sparc_atomic.h>
-	<stl/_ctime.h>
-	<synch.h>
-	<cstdio>
-	<cwchar>
-	<OS.h>
-	<cassert>
-	<stdio.h>
-	<nwthread.h>
-	<nwsemaph.h>
-	<os2.h>
-	<stl/_threads.c>
-
-1172197992 /usr/include/stlport/stl/_cstdlib.h
-	<stdlib.h>
-	<process.h>
-	<stl/_cmath.h>
-
-1172197992 /usr/include/stlport/stl/_cmath.h
-	<math.h>
-	<stl/_cstdlib.h>
-
-1172197992 /usr/include/stlport/pthread.h
-	<stl/_prolog.h>
-	"/usr/include/pthread.h"
-	<stl/_epilog.h>
-
-1171510367 /usr/include/pthread.h
-	<features.h>
-	<sched.h>
-	<time.h>
-	<signal.h>
-	<bits/pthreadtypes.h>
-	<bits/setjmp.h>
-	<bits/wordsize.h>
-
-1172197992 /usr/include/stlport/signal.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_sparc_atomic.h
-
-1172197992 /usr/include/stlport/stl/_ctime.h
-
-1172197992 /usr/include/stlport/cstdio
-	<stl/_prolog.h>
-	<stl/_cstdio.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_cstdio.h
-
-1172197992 /usr/include/stlport/cwchar
-	<stl/_prolog.h>
-	<stl/_cwchar.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/cassert
-	<stl/_prolog.h>
-	<assert.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_threads.c
-	<stl/_threads.h>
-	<time.h>
-	<stl/_ctime.h>
-	<sys/time.h>
-
-1172197992 /usr/include/stlport/stl/_iterator_base.h
-	<stl/_cstddef.h>
-	<stl/type_traits.h>
-	<stl/_ptrs_specialize.h>
-	<stl/debug/_debug.h>
-
-1172197992 /usr/include/stlport/stl/_ptrs_specialize.h
-	<stl/type_traits.h>
-
-1172197992 /usr/include/stlport/stl/debug/_debug.c
-	<stl/_cstdlib.h>
-	<stl/_cstdlib.h>
-	<stl/_cstdarg.h>
-	<stl/_cstdio.h>
-	<stl/_range_errors.h>
-
-1172197992 /usr/include/stlport/stl/_cstdarg.h
-
-1172197992 /usr/include/stlport/stl/_range_errors.h
-	<stl/_stdexcept.h>
+1212771090 c:\moje\programovani\openlierox\include\iptocountrydb.h
 	<string>
-	<stl/_cstdlib.h>
-	<stl/_cstdio.h>
-
-1172197992 /usr/include/stlport/stl/_stdexcept.h
-	<stl/_stdexcept_base.h>
-
-1172197992 /usr/include/stlport/stl/_stdexcept_base.h
-	<stl/_exception.h>
-	<stl/_cstring.h>
-	<stl/_string_fwd.h>
-
-1172197992 /usr/include/stlport/stl/_exception.h
-	<stl/config/_warnings_off.h>
-
-1172197992 /usr/include/stlport/stl/_string_fwd.h
-	<iosfwd>
-
-1172197992 /usr/include/stlport/iosfwd
-	<stl/_prolog.h>
-	<stl/_cwchar.h>
-	<stl/_iosfwd.h>
-	<stl/char_traits.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_iosfwd.h
-	<stl/char_traits.h>
-
-1172197992 /usr/include/stlport/stl/char_traits.h
-	<stl/_cstddef.h>
-	<stl/_cstring.h>
-	<sys/types.h>
-	<stl/_construct.h>
-	<stl/_cwchar.h>
-
-1172197992 /usr/include/stlport/stl/_construct.h
-	<stl/_cstring.h>
-	<stl/_new.h>
-	<stl/_iterator_base.h>
-	<stl/_move_construct_fwk.h>
-
-1172197992 /usr/include/stlport/stl/_new.h
-	<stl/_cstddef.h>
-	<new.h>
-	<stl/_exception.h>
-
-1172197992 /usr/include/stlport/new.h
-	<stl/_prolog.h>
-	<new>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/new
-	<stl/_prolog.h>
-	<stl/_new.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_move_construct_fwk.h
-	<stl/type_traits.h>
-
-1172197992 /usr/include/stlport/stl/_algobase.h
-	<stl/_cstddef.h>
-	<stl/_cstring.h>
-	<climits>
-	<stl/_cstdlib.h>
-	<stl/_pair.h>
-	<stl/_iterator_base.h>
-	<stl/type_traits.h>
-	<stl/_algobase.c>
-
-1172197992 /usr/include/stlport/climits
-	<stl/_prolog.h>
-	</usr/include/limits.h>
-	<limits.h>
-	<stl/_epilog.h>
-
-1171510367 /usr/include/limits.h
-	<features.h>
-	<bits/wordsize.h>
-	<bits/posix1_lim.h>
-	<bits/posix2_lim.h>
-	<bits/xopen_lim.h>
-
-1172197992 /usr/include/stlport/limits.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_pair.h
-	<stl/type_traits.h>
-	<stl/_move_construct_fwk.h>
-
-1172197992 /usr/include/stlport/stl/_algobase.c
-	<stl/_algobase.h>
-	<stl/_iterator.h>
-
-1172197992 /usr/include/stlport/stl/_iterator.h
-	<stl/_iterator_base.h>
-	<stl/_iterator_old.h>
-
-1172197992 /usr/include/stlport/stl/_iterator_old.h
-	<stl/_iterator_base.h>
-
-1172197992 /usr/include/stlport/stl/_pthread_alloc.h
-	<stl/_alloc.h>
-
-1172197992 /usr/include/stlport/stl/_alloc_old.h
-
-1172197992 /usr/include/stlport/stl/_alloc.c
-	<stl/_alloc.h>
-
-1172197992 /usr/include/stlport/stl/_function_base.h
-	<stl/type_traits.h>
-
-1172197992 /usr/include/stlport/stl/_uninitialized.h
-	<stl/_cstring.h>
-	<stl/_algobase.h>
-	<stl/_construct.h>
-
-1172197992 /usr/include/stlport/stl/_string_sum.h
-
-1172197992 /usr/include/stlport/stl/msl_string.h
-
-1172197992 /usr/include/stlport/stl/_string_base.h
-
-1172197992 /usr/include/stlport/stl/_string_npos.h
-
-1172197992 /usr/include/stlport/stl/_string_sum_methods.h
-
-1172197992 /usr/include/stlport/stl/_string_workaround.h
-	<stl/_string_sum_methods.h>
-
-1172197992 /usr/include/stlport/stl/debug/_string.h
-	<stl/debug/_iterator.h>
-	<stl/_string_npos.h>
-	<stl/debug/_string_sum_methods.h>
-
-1172197992 /usr/include/stlport/stl/debug/_iterator.h
-	<stl/_pair.h>
-	<stl/_alloc.h>
-
-1172197992 /usr/include/stlport/stl/debug/_string_sum_methods.h
-
-1172197992 /usr/include/stlport/stl/_string_operators.h
-
-1172197992 /usr/include/stlport/stl/_string.c
-	<stl/_string.h>
-	<stl/_ctraits_fns.h>
-	<stl/_range_errors.h>
-
-1172197992 /usr/include/stlport/stl/_ctraits_fns.h
-	<stl/_function_base.h>
-
-1172197992 /usr/include/stlport/stl/_string_hash.h
-	<stl/_hash_fun.h>
-	<stl/_string.h>
-
-1172197992 /usr/include/stlport/stl/_hash_fun.h
-	<stl/_cstddef.h>
-
-1172197992 /usr/include/stlport/stl/_string_io.h
-	<stl/_ostream.h>
-	<stl/_istream.h>
-	<stl/_string_io.c>
-
-1172197992 /usr/include/stlport/stl/_ostream.h
-	<stl/_ios.h>
-	<stl/_ostreambuf_iterator.h>
-	<stl/_exception.h>
-	<stl/_ostream.c>
-
-1172197992 /usr/include/stlport/stl/_ios.h
-	<stl/_ios_base.h>
-	<stl/_ctype.h>
-	<stl/_numpunct.h>
-	<stl/_ios.c>
-
-1172197992 /usr/include/stlport/stl/_ios_base.h
-	<stl/_stdexcept_base.h>
-	<utility>
-	<stl/_locale.h>
-	<stl/_string.h>
-
-1172197992 /usr/include/stlport/utility
-	<stl/_prolog.h>
-	<stl/type_traits.h>
-	<stl/debug/_debug.h>
-	<stl/_pair.h>
-	<stl/_iterator.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_locale.h
-	<stl/_cstdlib.h>
-	<stl/_cwchar.h>
-	<stl/_threads.h>
-	<stl/_string_fwd.h>
-
-1172197992 /usr/include/stlport/stl/_ctype.h
-	<stl/c_locale.h>
-	<stl/_locale.h>
-	<stl/_algobase.h>
-
-1172197992 /usr/include/stlport/stl/c_locale.h
-	<sgidefs.h>
-	<standards.h>
-	<wchar.h>
-	<ctype.h>
-	<sgidefs.h>
-	<standards.h>
-	<stddef.h>
-	<wchar.h>
-	<ctype.h>
-
-1172197992 /usr/include/stlport/stl/_numpunct.h
-	<stl/_ios_base.h>
-	<stl/c_locale.h>
-	<stl/_string.h>
-
-1172197992 /usr/include/stlport/stl/_ios.c
-	<stl/_ios.h>
-	<stl/_streambuf.h>
-	<stl/_numpunct.h>
-
-1172197992 /usr/include/stlport/stl/_streambuf.h
-	<stl/_ios_base.h>
-	<stl/_streambuf.c>
-
-1172197992 /usr/include/stlport/stl/_streambuf.c
-	<stl/_streambuf.h>
-
-1172197992 /usr/include/stlport/stl/_ostreambuf_iterator.h
-	<stl/_streambuf.h>
-
-1172197992 /usr/include/stlport/stl/_ostream.c
-	<stl/_ostream.h>
-	<stl/_num_put.h>
-
-1172197992 /usr/include/stlport/stl/_num_put.h
-	<stl/_numpunct.h>
-	<stl/_ctype.h>
-	<stl/_ostreambuf_iterator.h>
-	<stl/_iostream_string.h>
-	<stl/_num_put.c>
-
-1172197992 /usr/include/stlport/stl/_iostream_string.h
-	<stl/_alloc.h>
-	<stl/_string.h>
-
-1172197992 /usr/include/stlport/stl/_num_put.c
-	<stl/_num_put.h>
-	<stl/_limits.h>
-
-1172197992 /usr/include/stlport/stl/_limits.h
-	<climits>
-	<cfloat>
-	<stl/_cwchar.h>
-	<stl/_limits.c>
-
-1172197992 /usr/include/stlport/cfloat
-	<stl/_prolog.h>
-	<float.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/float.h
-	<stl/_prolog.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_limits.c
-	<stl/_limits.h>
-
-1172197992 /usr/include/stlport/stl/_istream.h
-	<stl/_cwchar.h>
-	<stl/_ios.h>
-	<stl/_ostream.h>
-	<stl/_istreambuf_iterator.h>
-	<stl/_ctraits_fns.h>
-	<stl/_istream.c>
-
-1172197992 /usr/include/stlport/stl/_istreambuf_iterator.h
-	<stl/_iterator_base.h>
-	<stl/_streambuf.h>
-
-1172197992 /usr/include/stlport/stl/_istream.c
-	<stl/_istream.h>
-	<stl/_limits.h>
-	<stl/_num_get.h>
-
-1172197992 /usr/include/stlport/stl/_num_get.h
-	<stl/_istreambuf_iterator.h>
-	<stl/c_locale.h>
-	<stl/_numpunct.h>
-	<stl/_ctype.h>
-	<stl/_iostream_string.h>
-	<stl/_num_get.c>
-
-1172197992 /usr/include/stlport/stl/_num_get.c
-	<stl/_num_get.h>
-	<stl/_limits.h>
-
-1172197992 /usr/include/stlport/stl/_string_io.c
-	<stl/_string_io.h>
-	<stl/_ctype.h>
-
-1172197992 /usr/include/stlport/vector
-	<stl/_prolog.h>
-	<stl/_algobase.h>
-	<stl/_vector.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_vector.h
-	<stl/_algobase.h>
-	<stl/_alloc.h>
-	<stl/_iterator.h>
-	<stl/_uninitialized.h>
-	<stl/_vector.c>
-	<stl/pointers/_vector.h>
-	<stl/_bvector.h>
-	<stl/debug/_vector.h>
-	<stl/_relops_cont.h>
-
-1172197992 /usr/include/stlport/stl/_vector.c
-	<stl/_vector.h>
-	<stl/_range_errors.h>
-
-1172197992 /usr/include/stlport/stl/pointers/_vector.h
-	<stl/pointers/_tools.h>
-
-1172197992 /usr/include/stlport/stl/pointers/_tools.h
-	<stl/type_traits.h>
-
-1172197992 /usr/include/stlport/stl/_bvector.h
-	<stl/_vector.h>
-	<stl/_relops_cont.h>
-
-1172197992 /usr/include/stlport/stl/_relops_cont.h
-
-1172197992 /usr/include/stlport/stl/debug/_vector.h
-	<stl/debug/_iterator.h>
-
-1172197992 /usr/include/stlport/list
-	<stl/_prolog.h>
-	<stl/_list.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_list.h
-	<stl/_algobase.h>
-	<stl/_alloc.h>
-	<stl/_iterator.h>
-	<stl/_construct.h>
-	<stl/_function_base.h>
-	<stl/_list.c>
-	<stl/pointers/_list.h>
-	<stl/debug/_list.h>
-	<stl/_relops_cont.h>
-
-1172197992 /usr/include/stlport/stl/_list.c
-	<stl/_list.h>
-	<stl/_carray.h>
-	<stl/_range_errors.h>
-
-1172197992 /usr/include/stlport/stl/_carray.h
-	<stl/_construct.h>
-
-1172197992 /usr/include/stlport/stl/pointers/_list.h
-	<stl/pointers/_tools.h>
-
-1172197992 /usr/include/stlport/stl/debug/_list.h
-	<stl/_algo.h>
-	<stl/debug/_iterator.h>
-
-1172197992 /usr/include/stlport/stl/_algo.h
-	<stl/_algobase.h>
-	<stl/_heap.h>
-	<stl/_iterator.h>
-	<stl/_function_base.h>
-	<stl/_cstdio.h>
-	<stl/_algo.c>
-
-1172197992 /usr/include/stlport/stl/_heap.h
-	<stl/_heap.c>
-
-1172197992 /usr/include/stlport/stl/_heap.c
-	<stl/_heap.h>
-	<stl/_iterator_base.h>
-
-1172197992 /usr/include/stlport/stl/_algo.c
-	<stl/_algo.h>
-	<stl/_tempbuf.h>
-
-1172197992 /usr/include/stlport/stl/_tempbuf.h
-	<climits>
-	<stl/_cstdlib.h>
-	<stl/_uninitialized.h>
-	<stl/_tempbuf.c>
-
-1172197992 /usr/include/stlport/stl/_tempbuf.c
-	<stl/_tempbuf.h>
-
-1172197992 /usr/include/stlport/sstream
-	<stl/_prolog.h>
-	<stl/_ioserr.h>
-	<stl/_sstream.h>
-	<stl/_epilog.h>
-
-1172197992 /usr/include/stlport/stl/_ioserr.h
-
-1172197992 /usr/include/stlport/stl/_sstream.h
-	<stl/_streambuf.h>
-	<stl/_istream.h>
-	<stl/_string.h>
-	<stl/_sstream.c>
-
-1172197992 /usr/include/stlport/stl/_sstream.c
-	<stl/_sstream.h>
-
-1172260587 /home/az/Programmierung/openlierox/include/CMediaPlayer.h
+	"Utils.h"
+
+1212771090 c:\moje\programovani\openlierox\include\readwritelock.h
+	<SDL.h>
+	<SDL_thread.h>
+
+1212771090 c:\moje\programovani\openlierox\include\timer.h
+	<string>
+	<SDL.h>
+
+1147855552 c:\dev-cpp\include\sdl\sdl_mixer.h
+	"SDL_types.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_byteorder.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_types.h
+	"SDL_stdinc.h"
+
+1200148578 c:\dev-cpp\include\sdl\sdl_byteorder.h
+	"SDL_endian.h"
+
+1216327996 c:\moje\programovani\openlierox\include\cprojectile.h
+	<string>
+	"Sounds.h"
+	"GfxPrimitives.h"
+	"Event.h"
+
+1212771089 c:\moje\programovani\openlierox\include\event.h
+	"Utils.h"
+
+1216327996 c:\moje\programovani\openlierox\include\cclient.h
+	"CChannel.h"
+	"FileDownload.h"
+	"CGameScript.h"
+	"CWpnRest.h"
+	"CChatBox.h"
+	"CWeather.h"
+	"CViewport.h"
+	"Frame.h"
+	"CBonus.h"
+	"CShootList.h"
+	"CBar.h"
+	"CGuiLayout.h"
+	"CListview.h"
+	"InputEvents.h"
+	"FileDownload.h"
+	"Version.h"
+	"CProjectile.h"
+	"FastVector.h"
+
+1216327996 c:\moje\programovani\openlierox\include\cchannel.h
+	"CBytestream.h"
+	<list>
+
+1216327996 c:\moje\programovani\openlierox\include\filedownload.h
+	<list>
+	<vector>
+	<string>
+	<map>
+	<stdio.h>
+	<SDL_thread.h>
+	<SDL_mutex.h>
+	"HTTP.h"
+	"types.h"
+	"CBytestream.h"
+
+1216500105 c:\moje\programovani\openlierox\include\http.h
+	"Networking.h"
+
+1212771089 c:\moje\programovani\openlierox\include\cchatbox.h
+	<SDL.h>
+	<list>
+
+1212771090 c:\moje\programovani\openlierox\include\cweather.h
+	<SDL.h>
+	"CVec.h"
+	"CMap.h"
+	"CViewport.h"
+
+1212771090 c:\moje\programovani\openlierox\include\frame.h
+	<SDL.h>
+
+1212771090 c:\moje\programovani\openlierox\include\cbonus.h
+	"LieroX.h"
+	"CGameScript.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cshootlist.h
+	"CBytestream.h"
+	"CWorm.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cworm.h
+	"LieroX.h"
+	"CProjectile.h"
+	"CGameScript.h"
+	"CNinjaRope.h"
+	"CWpnRest.h"
+	"Options.h"
+	"Utils.h"
+	"Frame.h"
+	"CBar.h"
+	"CBytestream.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cninjarope.h
+	"CGameScript.h"
+	"CBytestream.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cbar.h
+	<SDL.h>
+	"MathLib.h"
+
+1212771090 c:\moje\programovani\openlierox\include\mathlib.h
+	<cmath>
+	"CVec.h"
+	"Utils.h"
+
+1216327996 c:\moje\programovani\openlierox\include\version.h
+	<string>
+	"StringUtils.h"
+
+1216327996 c:\moje\programovani\openlierox\include\fastvector.h
+	"Iterator.h"
+	"Event.h"
+
+1212771090 c:\moje\programovani\openlierox\include\iterator.h
+	"Utils.h"
+
+1214166337 source:c:\moje\programovani\openlierox\src\client\canimation.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CAnimation.h"
+
+1214166356 c:\moje\programovani\openlierox\include\canimation.h
+	"InputEvents.h"
+	"GfxPrimitives.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cbar.cpp
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"CBar.h"
+	"StringUtils.h"
+	"MathLib.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cbox.cpp
+	"LieroX.h"
+	"MathLib.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CBox.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cbox.h
+	"InputEvents.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\cbrowser.cpp
+	<stack>
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CBrowser.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cbrowser.h
+	"InputEvents.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cbutton.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cbutton.h
+	"InputEvents.h"
+	"GfxPrimitives.h"
+	"Cursor.h"
+
+1212771089 c:\moje\programovani\openlierox\include\cursor.h
+	<string>
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cchatbox.cpp
+	"LieroX.h"
+	"StringUtils.h"
+	"CChatBox.h"
+
+1214166336 source:c:\moje\programovani\openlierox\src\client\ccheckbox.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CCheckbox.h"
+
+1212771089 c:\moje\programovani\openlierox\include\ccheckbox.h
+	"InputEvents.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\cclient_draw.cpp
+	<iostream>
+	"LieroX.h"
+	"ConfigHandler.h"
+	"CClient.h"
+	"CServer.h"
+	"Graphics.h"
+	"CMediaPlayer.h"
+	"Menu.h"
+	"console.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CBar.h"
+	"CWorm.h"
+	"Protocol.h"
+	"Entity.h"
+	"Cursor.h"
+	"CButton.h"
+	"CLabel.h"
+	"CImage.h"
+	"CLine.h"
+	"CCombobox.h"
+	"CCheckbox.h"
+	"InputEvents.h"
+	"AuxLib.h"
+
+1212771090 c:\moje\programovani\openlierox\include\confighandler.h
+	<string>
+	"CVec.h"
+
+1216327996 c:\moje\programovani\openlierox\include\cserver.h
+	<string>
+	"CWorm.h"
+	"CBanList.h"
+	"CBonus.h"
+	"CClient.h"
+	"CBytestream.h"
+	"HTTP.h"
+	"FileDownload.h"
+	"CScriptableVars.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cbanlist.h
+
+1214166356 c:\moje\programovani\openlierox\include\graphics.h
+
+1212771090 c:\moje\programovani\openlierox\include\cmediaplayer.h
+	<vector>
+	<string>
+	"InputEvents.h"
+	"CGuiLayout.h"
+	"CListview.h"
+	"Sounds.h"
+
+1212771089 c:\moje\programovani\openlierox\include\console.h
+	"con_cmd.h"
+	"Unicode.h"
+	"InputEvents.h"
+
+1212771089 c:\moje\programovani\openlierox\include\con_cmd.h
+	<string>
+
+1212771090 c:\moje\programovani\openlierox\include\protocol.h
+
+1216327996 c:\moje\programovani\openlierox\include\entity.h
+	"CViewport.h"
+	"CMap.h"
+	"Event.h"
+
+1212771089 c:\moje\programovani\openlierox\include\clabel.h
+	"InputEvents.h"
+	"StringUtils.h"
+
+1214166356 c:\moje\programovani\openlierox\include\cimage.h
+	"InputEvents.h"
+	"GfxPrimitives.h"
+
+1212771090 c:\moje\programovani\openlierox\include\cline.h
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\cclient_game.cpp
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"MathLib.h"
+	"CClient.h"
+	"CServer.h"
+	"CBonus.h"
+	"console.h"
+	"GfxPrimitives.h"
+	"Graphics.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Entity.h"
+	"Protocol.h"
+	"Physics.h"
+	"CClient.h"
+	<iostream>
+
+1212771090 c:\moje\programovani\openlierox\include\clipboard.h
+	<string>
+	<SDL.h>
+
+1212771090 c:\moje\programovani\openlierox\include\physics.h
+	<string>
+	"CVec.h"
+	"Iterator.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\cclient_parse.cpp
+	<assert.h>
+	<iostream>
+	<time.h>
+	"LieroX.h"
+	"CClient.h"
+	"CServer.h"
+	"Menu.h"
+	"console.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"Protocol.h"
+	"CWorm.h"
+	"Error.h"
+	"Entity.h"
+	"MathLib.h"
+	"EndianSwap.h"
+	"Physics.h"
+	"AuxLib.h"
+	"OLXModInterface.h"
+
+1212771090 c:\moje\programovani\openlierox\include\endianswap.h
+	<SDL.h>
+
+1216327996 c:\moje\programovani\openlierox\include\olxmodinterface.h
+	<SDL.h>
+	<string>
+	<vector>
+	<map>
+	"CScriptableVars.h"
+	"CBytestream.h"
+	"SmartPointer.h"
+
+1214166337 source:c:\moje\programovani\openlierox\src\client\cclient_send.cpp
+	"LieroX.h"
+	"StringUtils.h"
+	"CClient.h"
+	"Protocol.h"
+	"CWorm.h"
+	"MathLib.h"
+	"ChatCommand.h"
+	"EndianSwap.h"
+	"CServer.h"
+
+1212771089 c:\moje\programovani\openlierox\include\chatcommand.h
+	<string>
 	<vector>
 
-1172197992 /usr/include/stlport/set
-	<stl/_prolog.h>
-	<stl/_set.h>
-	<stl/_epilog.h>
+1214166337 source:c:\moje\programovani\openlierox\src\client\ccombobox.cpp
+	<assert.h>
+	<algorithm>
+	"CCombobox.h"
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
 
-1172197992 /usr/include/stlport/stl/_set.h
-	<stl/_tree.h>
-	<stl/pointers/_set.h>
-	<stl/_relops_cont.h>
-	<stl/_relops_cont.h>
+1212771105 source:c:\moje\programovani\openlierox\src\client\cfont.cpp
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"Unicode.h"
+	"MathLib.h"
 
-1172197992 /usr/include/stlport/stl/_tree.h
-	<stl/_algobase.h>
-	<stl/_alloc.h>
-	<stl/_iterator.h>
-	<stl/_construct.h>
-	<stl/_function_base.h>
-	<stl/_tree.c>
-	<stl/debug/_tree.h>
-	<stl/_relops_cont.h>
+1216328002 source:c:\moje\programovani\openlierox\src\client\cguilayout.cpp
+	<assert.h>
+	<iostream>
+	"LieroX.h"
+	"AuxLib.h"
+	"Menu.h"
+	"StringUtils.h"
+	"CBox.h"
+	"CImage.h"
+	"CButton.h"
+	"CCheckbox.h"
+	"CLabel.h"
+	"CSlider.h"
+	"CTextbox.h"
+	<libxml/xmlmemory.h>
+	<libxml/parser.h>
 
-1172197992 /usr/include/stlport/stl/_tree.c
-	<stl/_tree.h>
+1212771089 c:\moje\programovani\openlierox\include\cslider.h
+	<string>
+	"InputEvents.h"
 
-1172197992 /usr/include/stlport/stl/debug/_tree.h
-	<stl/debug/_iterator.h>
-	<stl/_function_base.h>
-	<stl/_alloc.h>
+1212771090 c:\moje\programovani\openlierox\include\ctextbox.h
+	"InputEvents.h"
+	"Cursor.h"
+	"Timer.h"
 
-1172197992 /usr/include/stlport/stl/pointers/_set.h
-	<stl/pointers/_tools.h>
+1216328002 source:c:\moje\programovani\openlierox\src\client\cguiskin.cpp
+	"CGuiSkin.h"
+	"CGuiSkinnedLayout.h"
+	"CWidget.h"
+	"CWidgetList.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"Menu.h"
+	"StringUtils.h"
+	"Cursor.h"
+	<iostream>
+	<sstream>
+	<libxml/xmlmemory.h>
+	<libxml/parser.h>
+	"CAnimation.h"
+	"CBox.h"
+	"CLabel.h"
+	"CLine.h"
+	"CProgressbar.h"
 
-1172260379 source:/home/az/Programmierung/openlierox/src/common/CMediaPlayer_GUI.cpp
-	"defs.h"
+1214166356 c:\moje\programovani\openlierox\include\cprogressbar.h
+	"CBar.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cguiskinnedlayout.cpp
+	<iostream>
+	"CGuiSkinnedLayout.h"
+	"CGuiSkin.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"Menu.h"
+	"StringUtils.h"
+	"CBox.h"
+	"CImage.h"
+	"CButton.h"
+	"CCheckbox.h"
+	"CLabel.h"
+	"CSlider.h"
+	"CTextbox.h"
+
+1214166337 source:c:\moje\programovani\openlierox\src\client\cimage.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CImage.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\client\cinput.cpp
+	<assert.h>
+	<iostream>
+	"LieroX.h"
+	"AuxLib.h"
+	"Error.h"
+	"ConfigHandler.h"
+	"InputEvents.h"
+	"StringUtils.h"
+	"CInput.h"
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\cinputbox.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CInput.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\clistview.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"Cursor.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cmenu.cpp
+	<assert.h>
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CMenu.h"
+
+1212771089 c:\moje\programovani\openlierox\include\cmenu.h
+	"InputEvents.h"
+	<list>
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\cninjarope.cpp
+	<assert.h>
+	"LieroX.h"
+	"Graphics.h"
+	"GfxPrimitives.h"
+	"CWorm.h"
+	"MathLib.h"
+	"Entity.h"
+	"CClient.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cscrollbar.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\cslider.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CSlider.h"
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\ctextbutton.cpp
+	"LieroX.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CTextButton.h"
+	"Cursor.h"
+
+1212771089 c:\moje\programovani\openlierox\include\ctextbutton.h
+	"CLabel.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\ctextbox.cpp
+	<string>
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CTextbox.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\ctitlebutton.cpp
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CTitleButton.h"
+
+1212771090 c:\moje\programovani\openlierox\include\ctitlebutton.h
+	"InputEvents.h"
+	"Cursor.h"
+	"CWidget.h"
+	"types.h"
+	"CGuiLayout.h"
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\cviewport.cpp
+	<iostream>
+	"LieroX.h"
+	"CClient.h"
+	"Options.h"
+	"CWorm.h"
+	"MathLib.h"
+
+1214166337 source:c:\moje\programovani\openlierox\src\client\cweather.cpp
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"CViewport.h"
+	"CWeather.h"
+	"MathLib.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cwidget.cpp
+	"LieroX.h"
+	"Menu.h"
+	"StringUtils.h"
+
+1212771105 source:c:\moje\programovani\openlierox\src\client\cwidgetlist.cpp
 	"LieroX.h"
 	"Menu.h"
 
-1172197992 /usr/include/stlport/map
-	<stl/_prolog.h>
-	<stl/_map.h>
-	<stl/_epilog.h>
+1216328002 source:c:\moje\programovani\openlierox\src\client\cache.cpp
+	"LieroX.h"
+	"Sounds.h"
+	"Cache.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"CGameScript.h"
+	"CMap.h"
+	"StringUtils.h"
+	"Timer.h"
 
-1172197992 /usr/include/stlport/stl/_map.h
-	<stl/_tree.h>
-	<stl/_relops_cont.h>
-	<stl/_relops_cont.h>
+1212771105 source:c:\moje\programovani\openlierox\src\client\clipboard.cpp
+	<iostream>
+	<algorithm>
+	"Clipboard.h"
+	<X11/Xlib.h>
+	<unistd.h>
+	<SDL_syswm.h>
+	<windows.h>
+	"StringUtils.h"
+	<Clipboard.h>
+	<Carbon/Carbon.h>
 
-1172260957 source:/home/az/Programmierung/openlierox/src/common/CMediaPlayer.cpp
-	"defs.h"
+1214166337 source:c:\moje\programovani\openlierox\src\client\cursor.cpp
+	"LieroX.h"
+	"FindFile.h"
+	"InputEvents.h"
+	"GfxPrimitives.h"
+	"ConfigHandler.h"
+	"Cursor.h"
+	"types.h"
+
+1216500395 source:c:\moje\programovani\openlierox\src\client\entity.cpp
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"Graphics.h"
+	"Entity.h"
+	"MathLib.h"
+	"FastVector.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\error.cpp
+	<stdarg.h>
+	<iostream>
+	"LieroX.h"
+	"AuxLib.h"
+	"Error.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"Version.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\client\gfxprimitives.cpp
+	<iostream>
+	<assert.h>
+	<gd.h>
+	"LieroX.h"
+	"MathLib.h"
+	"GfxPrimitives.h"
+	"CServer.h"
+	"Cache.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"AuxLib.h"
+
+1214166336 source:c:\moje\programovani\openlierox\src\client\graphics.cpp
+	"LieroX.h"
+	"FindFile.h"
+	"GfxPrimitives.h"
+	"Graphics.h"
+	"Cursor.h"
+	"ConfigHandler.h"
+
+1216500395 source:c:\moje\programovani\openlierox\src\client\inputevents.cpp
+	<SDL_syswm.h>
+	<iostream>
+	<set>
+	"Clipboard.h"
+	"LieroX.h"
+	"InputEvents.h"
+	"AuxLib.h"
+	"Menu.h"
+	"Timer.h"
+	"CInput.h"
+	"MathLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menusystem.cpp
+	<assert.h>
+	<iostream>
+	<set>
+	"LieroX.h"
+	"EndianSwap.h"
+	"AuxLib.h"
+	"Error.h"
+	"ConfigHandler.h"
+	"CClient.h"
+	"IpToCountryDB.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Cursor.h"
+	"CButton.h"
+	"CMediaPlayer.h"
+	"DedicatedControl.h"
+	"OLXG15.h"
+
+1212771090 c:\moje\programovani\openlierox\include\dedicatedcontrol.h
+
+1216327996 c:\moje\programovani\openlierox\include\olxg15.h
+	<iostream>
+	<sys/types.h>
+	<sys/stat.h>
+	<cstdio>
+	<g15daemon_client.h>
+	<libg15render.h>
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_local.cpp
+	<assert.h>
+	<string>
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"CClient.h"
+	"Menu.h"
+	"CListview.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CButton.h"
+	"CLabel.h"
+	"CImage.h"
+	"CTextbox.h"
+	"CSlider.h"
+	"CCheckbox.h"
+	"CMediaPlayer.h"
+	"CTextButton.h"
+	"OLXModInterface.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_main.cpp
+	<assert.h>
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CTitleButton.h"
+	"CButton.h"
+	"CMediaPlayer.h"
+	"CGuiSkin.h"
+	"CLabel.h"
+	"CCombobox.h"
+	"CCheckbox.h"
+	"CBrowser.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_mapeditor.cpp
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CButton.h"
+	"CTextbox.h"
+	"CMediaPlayer.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net.cpp
+	<iostream>
+	"LieroX.h"
+	"Error.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+	"CAnimation.h"
+	"CProgressbar.h"
+	"CLabel.h"
+	"AuxLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_favourites.cpp
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"CClient.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+	"CListview.h"
+	"CLabel.h"
+	"CMenu.h"
+	"CTextbox.h"
+	"CMediaPlayer.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_host.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"CClient.h"
+	"CServer.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Protocol.h"
+	"AuxLib.h"
+	"CLabel.h"
+	"CButton.h"
+	"CListview.h"
+	"CTextbox.h"
+	"CCheckbox.h"
+	"CMenu.h"
+	"CImage.h"
+	"CMediaPlayer.h"
+	"CGuiSkin.h"
+	"MathLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_internet.cpp
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"HTTP.h"
+	"Graphics.h"
+	"CClient.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CButton.h"
+	"CListview.h"
+	"CLabel.h"
+	"CCombobox.h"
+	"CMenu.h"
+	"CTextbox.h"
+	"CMediaPlayer.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_join.cpp
+	<iostream>
+	"LieroX.h"
+	"CClient.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Protocol.h"
+	"CButton.h"
+	"CTextbox.h"
+	"CImage.h"
+	"CMediaPlayer.h"
+	"CCheckbox.h"
+	"CLabel.h"
+	"CTextButton.h"
+	"CProgressbar.h"
+	"AuxLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_lan.cpp
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"CClient.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+	"CLabel.h"
+	"CMenu.h"
+	"CMediaPlayer.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_main.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+	"CBrowser.h"
+	"CLabel.h"
+	"CMediaPlayer.h"
+	"AuxLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_net_news.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"CButton.h"
+	"CBrowser.h"
+	"CMediaPlayer.h"
+	"CListview.h"
+	"HTTP.h"
+	"StringUtils.h"
+	"AuxLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_options.cpp
+	"LieroX.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CButton.h"
+	"CLabel.h"
+	"CCheckbox.h"
+	"CTextbox.h"
+	"CSlider.h"
+	"CMediaPlayer.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\menu_player.cpp
+	"LieroX.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CGuiLayout.h"
+	"CButton.h"
+	"CLabel.h"
+	"CTextbox.h"
+	"CSlider.h"
+	"CMediaPlayer.h"
+	"AuxLib.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\options.cpp
+	<ctype.h>
+	<iostream>
+	"LieroX.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"Options.h"
+	"ConfigHandler.h"
+	"CScriptableVars.h"
+	"IniReader.h"
+	"Version.h"
+
+1212771090 c:\moje\programovani\openlierox\include\inireader.h
+	<string>
+
+1214166337 source:c:\moje\programovani\openlierox\src\client\profilesystem.cpp
+	<assert.h>
+	"LieroX.h"
+	"EndianSwap.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+
+1212771106 source:c:\moje\programovani\openlierox\src\client\sounds.cpp
+	<SDL.h>
+	<stdlib.h>
+	"LieroX.h"
+	"AuxLib.h"
+	"Cache.h"
+	"StringUtils.h"
+	"Sounds.h"
+	"MathLib.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\cbonus.cpp
+	"LieroX.h"
+	"CBonus.h"
+	"Graphics.h"
+	"GfxPrimitives.h"
+
+1214166335 source:c:\moje\programovani\openlierox\src\common\cbytestream.cpp
+	<assert.h>
+	<stdarg.h>
+	<iostream>
+	<iomanip>
+	"CBytestream.h"
+	"EndianSwap.h"
+	"StringUtils.h"
+	"MathLib.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\cchannel.cpp
+	<iostream>
+	<map>
+	"LieroX.h"
+	"CChannel.h"
+	"StringUtils.h"
+	"Timer.h"
+	"MathLib.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\cclient.cpp
+	"LieroX.h"
+	"CClient.h"
+	"CBonus.h"
+	"Menu.h"
+	"console.h"
+	"FindFile.h"
+	"Graphics.h"
+	"CBar.h"
+	"CWorm.h"
+	"Error.h"
+	"Protocol.h"
+	"StringUtils.h"
+	"MathLib.h"
+	"EndianSwap.h"
+	"Version.h"
+	"CServer.h"
+	"AuxLib.h"
+	"Networking.h"
+	"OLXModInterface.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\cgamescript.cpp
+	<stdarg.h>
+	<iostream>
+	"EndianSwap.h"
+	"LieroX.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CGameScript.h"
+	"Error.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\cmap.cpp
+	<assert.h>
+	<zlib.h>
+	<list>
+	<iostream>
+	"CMap.h"
+	"EndianSwap.h"
+	"LieroX.h"
+	"MathLib.h"
+	"Error.h"
+	"ConfigHandler.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"InputEvents.h"
+	"CWorm.h"
+	"Entity.h"
+	"CServer.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\cmediaplayer.cpp
+	"LieroX.h"
+	"InputEvents.h"
+	"MathLib.h"
+	"AuxLib.h"
+	"Graphics.h"
+	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CMediaPlayer.h"
+	"CButton.h"
+	"Menu.h"
+	"Cursor.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\cmediaplayer_gui.cpp
+	"LieroX.h"
+	"AuxLib.h"
+	"Menu.h"
+	"Graphics.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CMediaPlayer.h"
+	"CButton.h"
+	"CLabel.h"
+	"CCheckbox.h"
+	"Cursor.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\cprojectile.cpp
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"CProjectile.h"
+	"Protocol.h"
+	"CWorm.h"
+	"Entity.h"
+	"MathLib.h"
+	"CClient.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\cscriptablevars.cpp
+	"CScriptableVars.h"
+	"StringUtils.h"
+	<iostream>
+	<sstream>
+
+1214166335 source:c:\moje\programovani\openlierox\src\common\cshootlist.cpp
+	<assert.h>
+	"CShootList.h"
+	"LieroX.h"
+	"CWorm.h"
+	"Protocol.h"
+	"MathLib.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\cworm.cpp
+	<iostream>
+	<assert.h>
+	"LieroX.h"
+	"CClient.h"
+	"CServer.h"
+	"Graphics.h"
+	"GfxPrimitives.h"
+	"CWorm.h"
+	"CBar.h"
+	"MathLib.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\cworm_ai.cpp
+	<assert.h>
+	<set>
+	"LieroX.h"
+	"MathLib.h"
+	"CClient.h"
+	"CBonus.h"
+	"GfxPrimitives.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"AuxLib.h"
+
+1214166335 source:c:\moje\programovani\openlierox\src\common\cworm_sendrecv.cpp
+	<iostream>
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"CWorm.h"
+	"Protocol.h"
+	"CServer.h"
+	"MathLib.h"
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\cworm_simulate.cpp
+	<iostream>
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"InputEvents.h"
+	"CWorm.h"
+	"MathLib.h"
+	"Entity.h"
+	"CClient.h"
+	"Utils.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\cwpnrest.cpp
+	<assert.h>
+	"LieroX.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CWpnRest.h"
+	"CBytestream.h"
+	"MathLib.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\command.cpp
+	<iostream>
+	"LieroX.h"
+	"CServer.h"
+	"CClient.h"
+	"console.h"
+	"StringUtils.h"
+	"sex.h"
+	"CWorm.h"
+	"AuxLib.h"
+	"Version.h"
+
+1212771089 c:\moje\programovani\openlierox\include\sex.h
+	<string>
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\confighandler.cpp
+	"LieroX.h"
+	"ConfigHandler.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"MathLib.h"
+
+1214166335 source:c:\moje\programovani\openlierox\src\common\console.cpp
+	<iostream>
+	"Clipboard.h"
+	"LieroX.h"
+	"AuxLib.h"
+	"console.h"
+	"GfxPrimitives.h"
+	"InputEvents.h"
+	"StringUtils.h"
+	"Options.h"
+	"MathLib.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\cssparser.cpp
+	<iostream>
+	<string.h>
 	"LieroX.h"
 	"Menu.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\filedownload.cpp
+	<iostream>
+	"StringUtils.h"
+	"FindFile.h"
+	"EndianSwap.h"
+	"FileDownload.h"
+	"MathLib.h"
+	"Options.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\findfile.cpp
+	<iostream>
+	"FindFile.h"
+	"StringUtils.h"
+	"Options.h"
+	<shlobj.h>
+	<ext/hash_set>
+	<hash_set>
+	<pwd.h>
+	<sys/param.h>
+	<unistd.h>
+	<SDL.h>
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\http.cpp
+	<iostream>
+	<assert.h>
+	<windows.h>
+	<wininet.h>
+	<stdlib.h>
+	"LieroX.h"
+	"Options.h"
+	"HTTP.h"
+	"Timer.h"
+	"StringUtils.h"
+	"types.h"
+	"Version.h"
+	"MathLib.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\inireader.cpp
+	<iostream>
+	"IniReader.h"
+	"FindFile.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\iptocountrydb.cpp
+	<SDL.h>
+	<SDL_thread.h>
+	<iostream>
+	<map>
+	"Options.h"
+	"TSVar.h"
+	"IpToCountryDB.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CsvReader.h"
+
+1212771090 c:\moje\programovani\openlierox\include\tsvar.h
+
+1212771090 c:\moje\programovani\openlierox\include\csvreader.h
+	<istream>
+	<string>
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\mathlib.cpp
+	<stdlib.h>
+	<math.h>
+	"Utils.h"
+	"MathLib.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\misc.cpp
+	<stdarg.h>
+	<iostream>
+	<assert.h>
+	"LieroX.h"
+	"GfxPrimitives.h"
+	"InputEvents.h"
+	"StringUtils.h"
+	"RandomNumberList.h"
+
+1212771090 c:\moje\programovani\openlierox\include\randomnumberlist.h
+
+1216500394 source:c:\moje\programovani\openlierox\src\common\networking.cpp
+	<SDL_syswm.h>
+	<SDL_thread.h>
+	<signal.h>
+	"LieroX.h"
+	"Options.h"
+	"Error.h"
+	"Networking.h"
+	"Utils.h"
+	"StringUtils.h"
+	"SmartPointer.h"
+	"Timer.h"
+	"Utils.h"
+	"ThreadVar.h"
+	"MathLib.h"
+	<map>
+	<nl.h>
+	<memory.h>
+	<stdio.h>
+	<string.h>
+	<errno.h>
+	"wsock.h"
+	<Types.h>
+	<stdio.h>
+	<fcntl.h>
+	<sys/ioctl.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<string.h>
+	<sys/time.h>
+	<LowMem.h>
+	<sys/filio.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/time.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netinet/tcp.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<sys/ioctl.h>
+
+1212771090 c:\moje\programovani\openlierox\include\threadvar.h
+	"ReadWriteLock.h"
+
+1214166360 c:\moje\programovani\openlierox\libs\hawknl\src\wsock.h
+	"../include/nl.h"
+	<winsock.h>
+
+1214166358 c:\moje\programovani\openlierox\libs\hawknl\include\nl.h
+	<string.h>
+	<stdlib.h>
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\olxmodinterface.cpp
+	<string>
+	"OLXModInterface.h"
+	"MathLib.h"
+	"Sounds.h"
+	"FindFile.h"
+	"CBytestream.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\physics.cpp
+	<iostream>
+	"Physics.h"
+	"PhysicsLX56.h"
+
+1212771090 c:\moje\programovani\openlierox\include\physicslx56.h
+	"Physics.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\physicslx56.cpp
+	<iostream>
+	"Physics.h"
+	"CGameScript.h"
+	"Frame.h"
+	"MathLib.h"
+	"CWorm.h"
+	"Entity.h"
+	"CBonus.h"
+	"CClient.h"
+	"console.h"
+	"LieroX.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\stringutils.cpp
+	"LieroX.h"
+	"StringUtils.h"
+	"Utils.h"
+	"GfxPrimitives.h"
+	"CFont.h"
+	"ConfigHandler.h"
+	"FindFile.h"
+	"MathLib.h"
+	<libxml/xmlmemory.h>
+	<libxml/HTMLparser.h>
+	<zlib.h>
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\timer.cpp
+	<SDL_thread.h>
+	<time.h>
+	<assert.h>
+	"Timer.h"
+
+1212771100 source:c:\moje\programovani\openlierox\src\common\unicode.cpp
+	"Unicode.h"
+	"MathLib.h"
+
+1216327998 source:c:\moje\programovani\openlierox\src\common\version.cpp
+	<iostream>
+	<cstdio>
+	"Version.h"
+	"LieroX.h"
+	"AuxLib.h"
+
+1214166335 source:c:\moje\programovani\openlierox\src\common\sex.cpp
+	"sex.h"
+	"MathLib.h"
+	"StringUtils.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\main.cpp
+	<iostream>
+	<assert.h>
+	"LieroX.h"
+	"AuxLib.h"
+	"CClient.h"
+	"CServer.h"
+	"CBar.h"
+	"ConfigHandler.h"
+	"Graphics.h"
+	"Menu.h"
+	"console.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"InputEvents.h"
+	"StringUtils.h"
+	"Entity.h"
+	"Error.h"
+	"CMediaPlayer.h"
+	"DedicatedControl.h"
+	"Physics.h"
+	"Version.h"
+	"OLXModInterface.h"
+	"OLXG15.h"
+	"CrashHandler.h"
+	<sys/dir.h>
+	<sys/stat.h>
+	<libxml/parser.h>
+
+1216327996 c:\moje\programovani\openlierox\include\crashhandler.h
+
+1214166333 source:c:\moje\programovani\openlierox\src\mods\openliero\olxmod_openliero_01.cpp
+	<new>
+	"OLXModInterface.h"
+	"gfx.hpp"
+	"sfx.hpp"
+	"game.hpp"
+	"weapsel.hpp"
+	"reader.hpp"
+	"viewport.hpp"
+	"worm.hpp"
+	"filesystem.hpp"
+	"gfx.hpp"
+	"sfx.hpp"
+	"weapsel.hpp"
+	"constants.hpp"
+
+1214166333 c:\moje\programovani\openlierox\src\mods\openliero\gfx.hpp
+	<SDL/SDL.h>
+	<cstdio>
+	<cassert>
+	"font.hpp"
+	"menu.hpp"
+	"colour.hpp"
+	"rect.hpp"
+	"rand.hpp"
+	"keys.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\font.hpp
+	<vector>
+	<string>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\menu.hpp
+	<cstddef>
+	<string>
+	<cstdio>
+	<vector>
+	"colour.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\colour.hpp
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\rect.hpp
+	"vec.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\rand.hpp
+	<SDL/SDL.h>
+	"OLXModInterface.h"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\keys.hpp
+	<SDL/SDL.h>
+
+1213215727 c:\moje\programovani\openlierox\src\mods\openliero\sfx.hpp
+	<SDL.h>
+	<SDL_mixer.h>
+	<vector>
+	<map>
+	"OLXModInterface.h"
+
+1214166333 c:\moje\programovani\openlierox\src\mods\openliero\game.hpp
+	<vector>
+	"level.hpp"
+	"settings.hpp"
+	"weapon.hpp"
+	"sobject.hpp"
+	"nobject.hpp"
+	"bobject.hpp"
+	"rand.hpp"
+	"bonus.hpp"
+	<string>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\level.hpp
+	<vector>
+	<string>
+	<cstdio>
+	"rect.hpp"
+	<SDL/SDL.h>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\settings.hpp
+	"worm.hpp"
+	<string>
+	<cstring>
+	"OLXModInterface.h"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\worm.hpp
+	<SDL/SDL.h>
+	<string>
+	<cstring>
+	"math.hpp"
+	"viewport.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\math.hpp
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\viewport.hpp
+	"rect.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\weapon.hpp
+	"math.hpp"
+	"objectList.hpp"
+	<string>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\objectlist.hpp
+	<cstddef>
+	<cassert>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\sobject.hpp
+	"math.hpp"
+	"objectList.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\nobject.hpp
+	"math.hpp"
+	"objectList.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\bobject.hpp
+	"math.hpp"
+	"objectList.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\bonus.hpp
+	"math.hpp"
+	"objectList.hpp"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\weapsel.hpp
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\reader.hpp
+	<cstdio>
+	<string>
+	<SDL/SDL.h>
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\filesystem.hpp
+	<string>
+	<cstdio>
+	<memory>
+	"OLXModInterface.h"
+
+1212771096 c:\moje\programovani\openlierox\src\mods\openliero\constants.hpp
+	<string>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\openliero_console.cpp
+	"console.hpp"
+	"game.hpp"
+	"constants.hpp"
+	"platform.hpp"
+	<iostream>
+	"windows.h"
+
+1212771095 c:\moje\programovani\openlierox\src\mods\openliero\console.hpp
+	<string>
+
+1212771096 c:\moje\programovani\openlierox\src\mods\openliero\platform.hpp
+
+1212771096 source:c:\moje\programovani\openlierox\src\mods\openliero\blit.cpp
+	"gfx.hpp"
+	"game.hpp"
+	"rect.hpp"
+	"constants.hpp"
+	<cstring>
+	<cassert>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\bobject.cpp
+	"bobject.hpp"
+	"colour.hpp"
+	"game.hpp"
+	"constants.hpp"
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\bonus.cpp
+	"bonus.hpp"
+	"game.hpp"
+	"constants.hpp"
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\constants.cpp
+	"constants.hpp"
+	"reader.hpp"
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\filesystem.cpp
+	"filesystem.hpp"
+	"platform.hpp"
+	<stdexcept>
+	<cassert>
+	<cctype>
+	"windows.h"
+	"utime.h"
+	"sys/utime.h"
+	"dirent.h"
+	"unistd.h"
+	"fcntl.h"
+	"utime.h"
+	<errno.h>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\font.cpp
+	"font.hpp"
+	"reader.hpp"
+	"gfx.hpp"
+	"colour.hpp"
+	<iostream>
+
+1214166333 source:c:\moje\programovani\openlierox\src\mods\openliero\game.cpp
+	"game.hpp"
+	"reader.hpp"
+	"viewport.hpp"
+	"worm.hpp"
+	"filesystem.hpp"
+	"gfx.hpp"
+	"sfx.hpp"
+	"weapsel.hpp"
+	"constants.hpp"
+	<iostream>
+
+1214166333 source:c:\moje\programovani\openlierox\src\mods\openliero\gfx.cpp
+	"gfx.hpp"
+	"reader.hpp"
+	"game.hpp"
+	"sfx.hpp"
+	"text.hpp"
+	"keys.hpp"
+	"filesystem.hpp"
+	<cstring>
+	<cassert>
+	<cctype>
+	<SDL/SDL.h>
+	<iostream>
+
+1212771096 c:\moje\programovani\openlierox\src\mods\openliero\text.hpp
+	<string>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\keys.cpp
+	<SDL/SDL.h>
+	"platform.hpp"
+	<cstddef>
+	<cassert>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\level.cpp
+	"level.hpp"
+	"game.hpp"
+	"gfx.hpp"
+	"colour.hpp"
+	"filesystem.hpp"
+	<cstring>
+
+1212771096 source:c:\moje\programovani\openlierox\src\mods\openliero\math.cpp
+	"math.hpp"
+	"reader.hpp"
+	<cmath>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\menu.cpp
+	"menu.hpp"
+	"gfx.hpp"
+	"reader.hpp"
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\ninjarope.cpp
+	"worm.hpp"
+	"constants.hpp"
+	"game.hpp"
+	"colour.hpp"
+	"math.hpp"
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\nobject.cpp
+	"nobject.hpp"
+	"game.hpp"
+	"gfx.hpp"
+	"sfx.hpp"
+	"bobject.hpp"
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\rand.cpp
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\reader.cpp
+	"reader.hpp"
+	"filesystem.hpp"
+	<SDL/SDL.h>
+	<map>
+	<stdexcept>
+
+1214166333 source:c:\moje\programovani\openlierox\src\mods\openliero\settings.cpp
+	"settings.hpp"
+	"reader.hpp"
+	"keys.hpp"
+	"gfx.hpp"
+	"game.hpp"
+	"filesystem.hpp"
+
+1213215727 source:c:\moje\programovani\openlierox\src\mods\openliero\sfx.cpp
+	"sfx.hpp"
+	"reader.hpp"
+	"console.hpp"
+	<vector>
+	<cassert>
+	<SDL/SDL.h>
+	<iostream>
+	<SDL_mixer.h>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\sobject.cpp
+	"sobject.hpp"
+	"worm.hpp"
+	"game.hpp"
+	"viewport.hpp"
+	"gfx.hpp"
+	"sfx.hpp"
+	"console.hpp"
+	"text.hpp"
+	<cmath>
+	<cassert>
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\sys.cpp
+	"sys.hpp"
+	<windows.h>
+
+1212771096 c:\moje\programovani\openlierox\src\mods\openliero\sys.hpp
+	"platform.hpp"
+
+1212771096 source:c:\moje\programovani\openlierox\src\mods\openliero\text.cpp
+	"text.hpp"
+	<cctype>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\viewport.cpp
+	"viewport.hpp"
+	"gfx.hpp"
+	"game.hpp"
+	"text.hpp"
+	"math.hpp"
+	"constants.hpp"
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\weapon.cpp
+	"weapon.hpp"
+	"game.hpp"
+	"sfx.hpp"
+	"math.hpp"
+	"gfx.hpp"
+	"constants.hpp"
+	<iostream>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\weapsel.cpp
+	"gfx.hpp"
+	"game.hpp"
+	"worm.hpp"
+	"text.hpp"
+	"menu.hpp"
+	"sfx.hpp"
+	<SDL/SDL.h>
+
+1212771095 source:c:\moje\programovani\openlierox\src\mods\openliero\worm.cpp
+	"worm.hpp"
+	"game.hpp"
+	"sfx.hpp"
+	"gfx.hpp"
+	"viewport.hpp"
+	"constants.hpp"
+	"console.hpp"
+	<iostream>
+
+1212771096 source:c:\moje\programovani\openlierox\src\server\cbanlist.cpp
+	"LieroX.h"
+	"FindFile.h"
+	"CBanList.h"
+	"StringUtils.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\cserver.cpp
+	<stdarg.h>
+	<vector>
+	<sstream>
+	<iostream>
+	<time.h>
+	"LieroX.h"
+	"CClient.h"
+	"CServer.h"
+	"console.h"
+	"CBanList.h"
+	"GfxPrimitives.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Protocol.h"
+	"Error.h"
+	"MathLib.h"
+	"DedicatedControl.h"
+	"Physics.h"
+	"OLXModInterface.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\cserver_game.cpp
+	<iostream>
+	"LieroX.h"
+	"CServer.h"
+	"CClient.h"
+	"StringUtils.h"
+	"Protocol.h"
+	"CWorm.h"
+	"MathLib.h"
+	"DedicatedControl.h"
+	"Physics.h"
+	"Menu.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\cserver_parse.cpp
+	<iostream>
+	"LieroX.h"
+	"Menu.h"
+	"CServer.h"
+	"CClient.h"
+	"CChannel.h"
+	"StringUtils.h"
+	"CWorm.h"
+	"Protocol.h"
+	"ConfigHandler.h"
+	"ChatCommand.h"
+	"DedicatedControl.h"
+	"AuxLib.h"
+	"Version.h"
+	"OLXModInterface.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\cserver_send.cpp
+	<vector>
+	"LieroX.h"
+	"StringUtils.h"
+	"CServer.h"
+	"CClient.h"
+	"Protocol.h"
+	"CWorm.h"
+	"MathLib.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\chatcommand.cpp
+	"StringUtils.h"
+	"Utils.h"
+	"ChatCommand.h"
+	"Protocol.h"
+	"CServer.h"
+	"CClient.h"
+	"DedicatedControl.h"
+
+1216327997 source:c:\moje\programovani\openlierox\src\server\dedicatedcontrol.cpp
+	<iostream>
+	<string>
+	<sstream>
+	<stdexcept>
+	<SDL_thread.h>
+	<fcntl.h>
+	"DedicatedControl.h"
+	"LieroX.h"
+	"FindFile.h"
+	"StringUtils.h"
+	"Menu.h"
+	"ProfileSystem.h"
+	"CClient.h"
+	"CServer.h"
+	"CWorm.h"
+	"CGameScript.h"
+	"Unicode.h"
+	"Protocol.h"
+	"CScriptableVars.h"
+	<boost/process.hpp>
+	<pstream.h>
+
+1214166358 c:\moje\programovani\openlierox\libs\boost_process\boost\process.hpp
+	<boost/process/config.hpp>
+	<boost/process/child.hpp>
+	<boost/process/context.hpp>
+	<boost/process/operations.hpp>
+	<boost/process/pistream.hpp>
+	<boost/process/postream.hpp>
+	<boost/process/process.hpp>
+	<boost/process/self.hpp>
+	<boost/process/status.hpp>
+	<boost/process/posix_child.hpp>
+	<boost/process/posix_context.hpp>
+	<boost/process/posix_operations.hpp>
+	<boost/process/posix_status.hpp>
+	<boost/process/win32_child.hpp>
+	<boost/process/win32_context.hpp>
+	<boost/process/win32_operations.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\config.hpp
+	<boost/config.hpp>
+	<boost/process/detail/config.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\config.hpp
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\child.hpp
+	<boost/process/config.hpp>
+	<sys/types.h>
+	<sys/wait.h>
+	<cerrno>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+	<windows.h>
+	<map>
+	<vector>
+	<boost/assert.hpp>
+	<boost/process/detail/pipe.hpp>
+	<boost/process/pistream.hpp>
+	<boost/process/postream.hpp>
+	<boost/process/process.hpp>
+	<boost/process/status.hpp>
+	<boost/shared_ptr.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\exceptions.hpp
+	<boost/process/config.hpp>
+	<cstring>
+	<windows.h>
+	<boost/assert.hpp>
+	<stdexcept>
+	<string>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\pipe.hpp
+	<boost/process/config.hpp>
+	<unistd.h>
+	<cerrno>
+	<windows.h>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\file_handle.hpp
+	<boost/process/config.hpp>
+	<unistd.h>
+	<cerrno>
+	<windows.h>
+	<boost/assert.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\pistream.hpp
+	<istream>
+	<boost/noncopyable.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/systembuf.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\systembuf.hpp
+	<boost/process/config.hpp>
+	<unistd.h>
+	<windows.h>
+	<streambuf>
+	<boost/assert.hpp>
+	<boost/noncopyable.hpp>
+	<boost/scoped_array.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\postream.hpp
+	<ostream>
+	<boost/noncopyable.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/systembuf.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\process.hpp
+	<boost/process/config.hpp>
+	<sys/types.h>
+	<signal.h>
+	<cerrno>
+	<windows.h>
+	<cstdlib>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\status.hpp
+	<boost/process/config.hpp>
+	<sys/wait.h>
+	<boost/assert.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\context.hpp
+	<boost/process/config.hpp>
+	<errno.h>
+	<tchar.h>
+	<windows.h>
+	<string>
+	<vector>
+	<boost/assert.hpp>
+	<boost/process/environment.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/process/stream_behavior.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\environment.hpp
+	<boost/process/config.hpp>
+	<cstring>
+	<tchar.h>
+	<windows.h>
+	<map>
+	<string>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\stream_behavior.hpp
+	<boost/process/config.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\operations.hpp
+	<boost/process/config.hpp>
+	<boost/process/detail/posix_ops.hpp>
+	<tchar.h>
+	<windows.h>
+	<boost/process/detail/win32_ops.hpp>
+	<string>
+	<vector>
+	<boost/assert.hpp>
+	<boost/process/child.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\posix_ops.hpp
+	<boost/process/config.hpp>
+	<fcntl.h>
+	<unistd.h>
+	<cerrno>
+	<cstdlib>
+	<cstring>
+	<map>
+	<set>
+	<utility>
+	<boost/optional.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/pipe.hpp>
+	<boost/process/detail/stream_info.hpp>
+	<boost/process/environment.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/process/stream_behavior.hpp>
+	<boost/scoped_array.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\stream_info.hpp
+	<string>
+	<boost/assert.hpp>
+	<boost/optional.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/pipe.hpp>
+	<boost/process/stream_behavior.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\detail\win32_ops.hpp
+	<boost/process/config.hpp>
+	<tchar.h>
+	<windows.h>
+	<boost/optional.hpp>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/pipe.hpp>
+	<boost/process/detail/stream_info.hpp>
+	<boost/process/environment.hpp>
+	<boost/process/exceptions.hpp>
+	<boost/process/stream_behavior.hpp>
+	<boost/scoped_ptr.hpp>
+	<boost/shared_array.hpp>
+	<boost/throw_exception.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\self.hpp
+	<boost/process/config.hpp>
+	<sys/types.h>
+	<unistd.h>
+	<windows.h>
+	<boost/noncopyable.hpp>
+	<boost/process/environment.hpp>
+	<boost/process/process.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\posix_child.hpp
+	<boost/process/config.hpp>
+	<cstdlib>
+	<map>
+	<boost/process/child.hpp>
+	<boost/process/detail/pipe.hpp>
+	<boost/process/detail/posix_ops.hpp>
+	<boost/process/pistream.hpp>
+	<boost/process/postream.hpp>
+	<boost/shared_ptr.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\posix_context.hpp
+	<boost/process/config.hpp>
+	<unistd.h>
+	<map>
+	<set>
+	<utility>
+	<boost/process/context.hpp>
+	<boost/process/environment.hpp>
+	<boost/process/stream_behavior.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\posix_operations.hpp
+	<boost/process/config.hpp>
+	<cstdlib>
+	<boost/process/detail/posix_ops.hpp>
+	<boost/process/posix_child.hpp>
+	<boost/process/posix_context.hpp>
+	<boost/process/stream_behavior.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\posix_status.hpp
+	<boost/process/config.hpp>
+	<boost/process/status.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\win32_child.hpp
+	<boost/process/config.hpp>
+	<windows.h>
+	<boost/process/child.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\win32_context.hpp
+	<boost/process/config.hpp>
+	<windows.h>
+	<string>
+	<boost/process/context.hpp>
+
+1214166357 c:\moje\programovani\openlierox\libs\boost_process\boost\process\win32_operations.hpp
+	<boost/process/config.hpp>
+	<windows.h>
+	<boost/process/detail/file_handle.hpp>
+	<boost/process/detail/stream_info.hpp>
+	<boost/process/detail/win32_ops.hpp>
+	<boost/process/win32_child.hpp>
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\cwormskin.cpp
+	"CWormSkin.h"
+	"Graphics.h"
+	"StringUtils.h"
+	"MathLib.h"
+	"LieroX.h"
+
+1216328002 source:c:\moje\programovani\openlierox\src\client\crashhandler.cpp
+	"CrashHandler.h"
+	"StringUtils.h"
+	"Version.h"
+	"AuxLib.h"
+	"LieroX.h"
+	"StringUtils.h"
+	"CClient.h"
+	"CServer.h"
+	<iostream>
+	<DbgHelp.h>
+	<ShlObj.h>
+	"FindFile.h"
+	<stdlib.h>
+	<crtdbg.h>
+	<stdio.h>
+	<stdlib.h>
+	<signal.h>
+	<sys/types.h>
+	<sys/wait.h>
+	<ctype.h>
 

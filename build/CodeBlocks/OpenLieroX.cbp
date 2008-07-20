@@ -5,193 +5,572 @@
 		<Option title="OpenLieroX" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="Frontend\;Game Files\;Game Core\;Mods\;Mods\OpenLiero\;" />
 		<Build>
+			<Target title="Release">
+				<Option output="..\..\distrib\win32\OpenLieroX" prefix_auto="1" extension_auto="1" />
+				<Option object_output="objs" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-O1" />
+					<Add option="-O" />
+					<Add directory="..\..\libs\hawknl\src" />
+					<Add directory="..\..\libs\boost_process" />
+				</Compiler>
+			</Target>
 			<Target title="Debug">
-				<Option output="bin/Debug/OpenLieroX" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="..\..\distrib\win32\OpenLieroX" prefix_auto="1" extension_auto="1" />
+				<Option object_output="objs" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="..\..\libs\hawknl\src" />
+					<Add directory="..\..\libs\boost_process" />
 				</Compiler>
-			</Target>
-			<Target title="Release">
-				<Option output="bin/Release/OpenLieroX" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-O2" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
-			<Add directory="/usr/include/stlport" />
-			<Add directory="../../include" />
-			<Add directory="/usr/include/libxml2" />
+			<Add option="-DUSE_RWOPS" />
+			<Add directory="..\..\hawknl\include" />
+			<Add directory="..\..\include" />
+			<Add directory="..\..\hawknl\src" />
+			<Add directory="..\..\boost_process" />
 		</Compiler>
 		<Linker>
+			<Add library="mingw32" />
+			<Add library="SDLmain" />
 			<Add library="SDL" />
-			<Add library="SDL_image" />
 			<Add library="SDL_mixer" />
+			<Add library="SDL_image" />
+			<Add library="wsock32" />
+			<Add library="ws2_32" />
+			<Add library="..\DevCpp\libs\bgd.lib" />
+			<Add library="..\DevCpp\libs\HawkNL.lib" />
+			<Add library="..\DevCpp\libs\libxml2.lib" />
 			<Add library="z" />
-			<Add library="xml2" />
-			<Add library="gd" />
-			<Add library="stlportstlg" />
-			<Add library="NL" />
+			<Add library="C:\Program Files\CodeBlocks\MinGW\lib\libws2_32.a" />
+			<Add directory="..\DevCpp\libs" />
 		</Linker>
-		<Unit filename="../../include/AuxLib.h" />
-		<Unit filename="../../include/CBanList.h" />
-		<Unit filename="../../include/CBonus.h" />
-		<Unit filename="../../include/CBox.h" />
-		<Unit filename="../../include/CBrowser.h" />
-		<Unit filename="../../include/CButton.h" />
-		<Unit filename="../../include/CBytestream.h" />
-		<Unit filename="../../include/CChannel.h" />
-		<Unit filename="../../include/CChatBox.h" />
-		<Unit filename="../../include/CCheckbox.h" />
-		<Unit filename="../../include/CClient.h" />
-		<Unit filename="../../include/CCombobox.h" />
-		<Unit filename="../../include/CFont.h" />
-		<Unit filename="../../include/CGameScript.h" />
-		<Unit filename="../../include/CGuiLayout.h" />
-		<Unit filename="../../include/CImage.h" />
-		<Unit filename="../../include/CInput.h" />
-		<Unit filename="../../include/CInputBox.h" />
-		<Unit filename="../../include/CLabel.h" />
-		<Unit filename="../../include/CLine.h" />
-		<Unit filename="../../include/CListview.h" />
-		<Unit filename="../../include/CMap.h" />
-		<Unit filename="../../include/CMediaPlayer.h" />
-		<Unit filename="../../include/CMenu.h" />
-		<Unit filename="../../include/CNinjaRope.h" />
-		<Unit filename="../../include/CProjectile.h" />
-		<Unit filename="../../include/CScrollbar.h" />
-		<Unit filename="../../include/CServer.h" />
-		<Unit filename="../../include/CShootList.h" />
-		<Unit filename="../../include/CSimulation.h" />
-		<Unit filename="../../include/CSlider.h" />
-		<Unit filename="../../include/CTextbox.h" />
-		<Unit filename="../../include/CTitleButton.h" />
-		<Unit filename="../../include/CVec.h" />
-		<Unit filename="../../include/CViewport.h" />
-		<Unit filename="../../include/CWeather.h" />
-		<Unit filename="../../include/CWidget.h" />
-		<Unit filename="../../include/CWidgetList.h" />
-		<Unit filename="../../include/CWorm.h" />
-		<Unit filename="../../include/CWpnRest.h" />
-		<Unit filename="../../include/Cache.h" />
-		<Unit filename="../../include/Command.h" />
-		<Unit filename="../../include/ConfigHandler.h" />
-		<Unit filename="../../include/CssParser.h" />
-		<Unit filename="../../include/Entity.h" />
-		<Unit filename="../../include/Error.h" />
-		<Unit filename="../../include/FindFile.h" />
-		<Unit filename="../../include/Frame.h" />
-		<Unit filename="../../include/GfxPrimitives.h" />
-		<Unit filename="../../include/Graphics.h" />
-		<Unit filename="../../include/LieroX.h" />
-		<Unit filename="../../include/MathLib.h" />
-		<Unit filename="../../include/Menu.h" />
-		<Unit filename="../../include/Networking.h" />
-		<Unit filename="../../include/Options.h" />
-		<Unit filename="../../include/ProfileSystem.h" />
-		<Unit filename="../../include/Protocol.h" />
-		<Unit filename="../../include/RandomNumberList.h" />
-		<Unit filename="../../include/ReadWriteLock.h" />
-		<Unit filename="../../include/Sounds.h" />
-		<Unit filename="../../include/Timer.h" />
-		<Unit filename="../../include/con_cmd.h" />
-		<Unit filename="../../include/console.h" />
-		<Unit filename="../../include/defs.h" />
-		<Unit filename="../../include/types.h" />
-		<Unit filename="../../src/client/AuxLib.cpp" />
-		<Unit filename="../../src/client/CBox.cpp" />
-		<Unit filename="../../src/client/CBrowser.cpp" />
-		<Unit filename="../../src/client/CButton.cpp" />
-		<Unit filename="../../src/client/CChatBox.cpp" />
-		<Unit filename="../../src/client/CCheckbox.cpp" />
-		<Unit filename="../../src/client/CClient_Draw.cpp" />
-		<Unit filename="../../src/client/CClient_Game.cpp" />
-		<Unit filename="../../src/client/CClient_Parse.cpp" />
-		<Unit filename="../../src/client/CClient_Send.cpp" />
-		<Unit filename="../../src/client/CCombobox.cpp" />
-		<Unit filename="../../src/client/CFont.cpp" />
-		<Unit filename="../../src/client/CGuiLayout.cpp" />
-		<Unit filename="../../src/client/CImage.cpp" />
-		<Unit filename="../../src/client/CInput.cpp" />
-		<Unit filename="../../src/client/CInputBox.cpp" />
-		<Unit filename="../../src/client/CListview.cpp" />
-		<Unit filename="../../src/client/CMenu.cpp" />
-		<Unit filename="../../src/client/CNinjaRope.cpp" />
-		<Unit filename="../../src/client/CScrollbar.cpp" />
-		<Unit filename="../../src/client/CSlider.cpp" />
-		<Unit filename="../../src/client/CTextbox.cpp" />
-		<Unit filename="../../src/client/CTitleButton.cpp" />
-		<Unit filename="../../src/client/CViewport.cpp" />
-		<Unit filename="../../src/client/CWeather.cpp" />
-		<Unit filename="../../src/client/CWidget.cpp" />
-		<Unit filename="../../src/client/CWidgetList.cpp" />
-		<Unit filename="../../src/client/Cache.cpp" />
-		<Unit filename="../../src/client/Entity.cpp" />
-		<Unit filename="../../src/client/Error.cpp" />
-		<Unit filename="../../src/client/GfxPrimitives.cpp" />
-		<Unit filename="../../src/client/Graphics.cpp" />
-		<Unit filename="../../src/client/MenuSystem.cpp" />
-		<Unit filename="../../src/client/Menu_Local.cpp" />
-		<Unit filename="../../src/client/Menu_Main.cpp" />
-		<Unit filename="../../src/client/Menu_Mapeditor.cpp" />
-		<Unit filename="../../src/client/Menu_Net.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Favourites.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Host.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Internet.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Join.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Lan.cpp" />
-		<Unit filename="../../src/client/Menu_Net_Main.cpp" />
-		<Unit filename="../../src/client/Menu_Net_News.cpp" />
-		<Unit filename="../../src/client/Menu_Options.cpp" />
-		<Unit filename="../../src/client/Menu_Player.cpp" />
-		<Unit filename="../../src/client/Options.cpp" />
-		<Unit filename="../../src/client/ProfileSystem.cpp" />
-		<Unit filename="../../src/client/Sounds.cpp" />
-		<Unit filename="../../src/common/CBonus.cpp" />
-		<Unit filename="../../src/common/CBytestream.cpp" />
-		<Unit filename="../../src/common/CChannel.cpp" />
-		<Unit filename="../../src/common/CClient.cpp" />
-		<Unit filename="../../src/common/CGameScript.cpp" />
-		<Unit filename="../../src/common/CMap.cpp" />
-		<Unit filename="../../src/common/CMediaPlayer.cpp" />
-		<Unit filename="../../src/common/CMediaPlayer_GUI.cpp" />
-		<Unit filename="../../src/common/CProjectile.cpp" />
-		<Unit filename="../../src/common/CShootList.cpp" />
-		<Unit filename="../../src/common/CSimulation.cpp" />
-		<Unit filename="../../src/common/CWorm.cpp" />
-		<Unit filename="../../src/common/CWorm_AI.cpp" />
-		<Unit filename="../../src/common/CWorm_SendRecv.cpp" />
-		<Unit filename="../../src/common/CWorm_Simulate.cpp" />
-		<Unit filename="../../src/common/CWpnRest.cpp" />
-		<Unit filename="../../src/common/Command.cpp" />
-		<Unit filename="../../src/common/ConfigHandler.cpp" />
-		<Unit filename="../../src/common/Console.cpp" />
-		<Unit filename="../../src/common/CssParser.cpp" />
-		<Unit filename="../../src/common/FindFile.cpp" />
-		<Unit filename="../../src/common/MathLib.cpp" />
-		<Unit filename="../../src/common/Misc.cpp" />
-		<Unit filename="../../src/common/Networking.cpp" />
-		<Unit filename="../../src/common/Timer.cpp" />
-		<Unit filename="../../src/common/sex.cpp" />
-		<Unit filename="../../src/main.cpp" />
-		<Unit filename="../../src/server/CBanList.cpp" />
-		<Unit filename="../../src/server/CServer.cpp" />
-		<Unit filename="../../src/server/CServer_Game.cpp" />
-		<Unit filename="../../src/server/CServer_Parse.cpp" />
-		<Unit filename="../../src/server/CServer_Send.cpp" />
+		<Unit filename="..\..\include\AuxLib.h" />
+		<Unit filename="..\..\include\CAnimation.h" />
+		<Unit filename="..\..\include\CBanList.h" />
+		<Unit filename="..\..\include\CBar.h" />
+		<Unit filename="..\..\include\CBonus.h" />
+		<Unit filename="..\..\include\CBox.h" />
+		<Unit filename="..\..\include\CBrowser.h" />
+		<Unit filename="..\..\include\CButton.h" />
+		<Unit filename="..\..\include\CBytestream.h" />
+		<Unit filename="..\..\include\CChannel.h" />
+		<Unit filename="..\..\include\CChatBox.h" />
+		<Unit filename="..\..\include\CCheckbox.h" />
+		<Unit filename="..\..\include\CClient.h" />
+		<Unit filename="..\..\include\CCombobox.h" />
+		<Unit filename="..\..\include\CFont.h" />
+		<Unit filename="..\..\include\CGameScript.h" />
+		<Unit filename="..\..\include\CGuiLayout.h" />
+		<Unit filename="..\..\include\CGuiSkin.h" />
+		<Unit filename="..\..\include\CGuiSkinnedLayout.h" />
+		<Unit filename="..\..\include\CImage.h" />
+		<Unit filename="..\..\include\CInput.h" />
+		<Unit filename="..\..\include\CInputBox.h" />
+		<Unit filename="..\..\include\CLabel.h" />
+		<Unit filename="..\..\include\CLine.h" />
+		<Unit filename="..\..\include\CListview.h" />
+		<Unit filename="..\..\include\CMap.h" />
+		<Unit filename="..\..\include\CMediaPlayer.h" />
+		<Unit filename="..\..\include\CMenu.h" />
+		<Unit filename="..\..\include\CNinjaRope.h" />
+		<Unit filename="..\..\include\CProgressbar.h" />
+		<Unit filename="..\..\include\CProjectile.h" />
+		<Unit filename="..\..\include\CScriptableVars.h" />
+		<Unit filename="..\..\include\CScrollbar.h" />
+		<Unit filename="..\..\include\CServer.h" />
+		<Unit filename="..\..\include\CShootList.h" />
+		<Unit filename="..\..\include\CSlider.h" />
+		<Unit filename="..\..\include\CTextButton.h" />
+		<Unit filename="..\..\include\CTextbox.h" />
+		<Unit filename="..\..\include\CTitleButton.h" />
+		<Unit filename="..\..\include\CVec.h" />
+		<Unit filename="..\..\include\CViewport.h" />
+		<Unit filename="..\..\include\CWeather.h" />
+		<Unit filename="..\..\include\CWidget.h" />
+		<Unit filename="..\..\include\CWidgetList.h" />
+		<Unit filename="..\..\include\CWorm.h" />
+		<Unit filename="..\..\include\CWormSkin.h" />
+		<Unit filename="..\..\include\CWpnRest.h" />
+		<Unit filename="..\..\include\Cache.h" />
+		<Unit filename="..\..\include\ChatCommand.h" />
+		<Unit filename="..\..\include\Clipboard.h" />
+		<Unit filename="..\..\include\Color.h" />
+		<Unit filename="..\..\include\Command.h" />
+		<Unit filename="..\..\include\ConfigHandler.h" />
+		<Unit filename="..\..\include\CrashHandler.h" />
+		<Unit filename="..\..\include\CssParser.h" />
+		<Unit filename="..\..\include\Cursor.h" />
+		<Unit filename="..\..\include\DedicatedControl.h" />
+		<Unit filename="..\..\include\Entity.h" />
+		<Unit filename="..\..\include\Error.h" />
+		<Unit filename="..\..\include\FileDownload.h" />
+		<Unit filename="..\..\include\FindFile.h" />
+		<Unit filename="..\..\include\Frame.h" />
+		<Unit filename="..\..\include\GfxPrimitives.h" />
+		<Unit filename="..\..\include\Graphics.h" />
+		<Unit filename="..\..\include\HTTP.h" />
+		<Unit filename="..\..\include\IniReader.h" />
+		<Unit filename="..\..\include\InputEvents.h" />
+		<Unit filename="..\..\include\IpToCountryDB.h" />
+		<Unit filename="..\..\include\LieroX.h" />
+		<Unit filename="..\..\include\MathLib.h" />
+		<Unit filename="..\..\include\Menu.h" />
+		<Unit filename="..\..\include\Networking.h" />
+		<Unit filename="..\..\include\OLXModInterface.h" />
+		<Unit filename="..\..\include\Options.h" />
+		<Unit filename="..\..\include\Physics.h" />
+		<Unit filename="..\..\include\PhysicsLX56.h" />
+		<Unit filename="..\..\include\ProfileSystem.h" />
+		<Unit filename="..\..\include\Protocol.h" />
+		<Unit filename="..\..\include\RandomNumberList.h" />
+		<Unit filename="..\..\include\ReadWriteLock.h" />
+		<Unit filename="..\..\include\SmartPointer.h" />
+		<Unit filename="..\..\include\Sounds.h" />
+		<Unit filename="..\..\include\StringUtils.h" />
+		<Unit filename="..\..\include\ThreadVar.h" />
+		<Unit filename="..\..\include\Timer.h" />
+		<Unit filename="..\..\include\UCString.h" />
+		<Unit filename="..\..\include\Unicode.h" />
+		<Unit filename="..\..\include\Utils.h" />
+		<Unit filename="..\..\include\Version.h" />
+		<Unit filename="..\..\include\con_cmd.h" />
+		<Unit filename="..\..\include\console.h" />
+		<Unit filename="..\..\include\sex.h" />
+		<Unit filename="..\..\include\types.h" />
+		<Unit filename="..\..\src\client\AuxLib.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CAnimation.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CBar.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CBox.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CBrowser.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CButton.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CChatBox.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CCheckbox.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CClient_Draw.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CClient_Game.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CClient_Parse.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CClient_Send.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CCombobox.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CFont.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CGuiLayout.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CGuiSkin.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CGuiSkinnedLayout.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CImage.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CInput.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CInputBox.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CListview.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CMenu.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CNinjaRope.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CScrollbar.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CSlider.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CTextButton.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CTextbox.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CTitleButton.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CViewport.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CWeather.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CWidget.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CWidgetList.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CWormSkin.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Cache.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Clipboard.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\CrashHandler.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Cursor.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Entity.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Error.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\GfxPrimitives.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Graphics.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\InputEvents.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\MenuSystem.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Local.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Main.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Mapeditor.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Favourites.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Host.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Internet.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Join.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Lan.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_Main.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Net_News.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Options.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Menu_Player.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Options.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\ProfileSystem.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\client\Sounds.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CBonus.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CBytestream.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CChannel.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CClient.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CGameScript.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CMap.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CMediaPlayer.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CMediaPlayer_GUI.cpp">
+			<Option virtualFolder="Frontend\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CProjectile.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CScriptableVars.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CShootList.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CWorm.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CWorm_AI.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CWorm_SendRecv.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CWorm_Simulate.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CWpnRest.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Command.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\ConfigHandler.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Console.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\CssParser.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\FileDownload.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\FindFile.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\HTTP.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\IniReader.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\IpToCountryDB.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\MathLib.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Misc.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Networking.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\OLXModInterface.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Physics.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\PhysicsLX56.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\common\StringUtils.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Timer.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Unicode.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\Version.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\common\sex.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\main.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\OlxMod_OpenLiero_01.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\OpenLiero_console.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\blit.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\bobject.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\bobject.hpp" />
+		<Unit filename="..\..\src\mods\openliero\bonus.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\bonus.hpp" />
+		<Unit filename="..\..\src\mods\openliero\colour.hpp" />
+		<Unit filename="..\..\src\mods\openliero\console.hpp" />
+		<Unit filename="..\..\src\mods\openliero\constants.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\constants.hpp" />
+		<Unit filename="..\..\src\mods\openliero\filesystem.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\filesystem.hpp" />
+		<Unit filename="..\..\src\mods\openliero\font.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\font.hpp" />
+		<Unit filename="..\..\src\mods\openliero\game.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\game.hpp" />
+		<Unit filename="..\..\src\mods\openliero\gfx.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\gfx.hpp" />
+		<Unit filename="..\..\src\mods\openliero\keys.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\keys.hpp" />
+		<Unit filename="..\..\src\mods\openliero\level.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\level.hpp" />
+		<Unit filename="..\..\src\mods\openliero\math.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\math.hpp" />
+		<Unit filename="..\..\src\mods\openliero\menu.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\menu.hpp" />
+		<Unit filename="..\..\src\mods\openliero\ninjarope.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\nobject.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\nobject.hpp" />
+		<Unit filename="..\..\src\mods\openliero\objectList.hpp" />
+		<Unit filename="..\..\src\mods\openliero\platform.hpp" />
+		<Unit filename="..\..\src\mods\openliero\rand.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\rand.hpp" />
+		<Unit filename="..\..\src\mods\openliero\reader.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\reader.hpp" />
+		<Unit filename="..\..\src\mods\openliero\rect.hpp" />
+		<Unit filename="..\..\src\mods\openliero\settings.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\settings.hpp" />
+		<Unit filename="..\..\src\mods\openliero\sfx.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\sfx.hpp" />
+		<Unit filename="..\..\src\mods\openliero\sobject.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\sobject.hpp" />
+		<Unit filename="..\..\src\mods\openliero\sys.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\sys.hpp" />
+		<Unit filename="..\..\src\mods\openliero\text.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\text.hpp" />
+		<Unit filename="..\..\src\mods\openliero\viewport.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\viewport.hpp" />
+		<Unit filename="..\..\src\mods\openliero\weapon.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\weapon.hpp" />
+		<Unit filename="..\..\src\mods\openliero\weapsel.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\weapsel.hpp" />
+		<Unit filename="..\..\src\mods\openliero\worm.cpp">
+			<Option virtualFolder="Mods\OpenLiero\" />
+		</Unit>
+		<Unit filename="..\..\src\mods\openliero\worm.hpp" />
+		<Unit filename="..\..\src\server\CBanList.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\CServer.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\CServer_Game.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\CServer_Parse.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\CServer_Send.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\ChatCommand.cpp">
+			<Option virtualFolder="Game Files\" />
+		</Unit>
+		<Unit filename="..\..\src\server\DedicatedControl.cpp">
+			<Option virtualFolder="Game Core\" />
+		</Unit>
 		<Extensions>
 			<code_completion />
+			<envvars />
+			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
