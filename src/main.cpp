@@ -162,9 +162,10 @@ int main(int argc, char *argv[])
 	apppath = argv[0];
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)
+	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
-	else
+		binary_dir = SystemNativeToUtf8(binary_dir);
+	} else
 		binary_dir = "."; // TODO get exact path of binary
 
 	CrashHandler::init();

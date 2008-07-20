@@ -83,13 +83,11 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 		abs_f.erase(abs_f.size()-1);
 	}
 
+	abs_f = Utf8ToSystemNative(abs_f);
+
 	// HINT: this should also work on WIN32, as we have _stat here
 	struct stat s;
-#ifdef WIN32  // uses UTF16
-	if(wstat((wchar_t *)Utf8ToUtf16(abs_f).c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
-#else // not win32
 	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
-#endif
 		// it's not stat-able or not a reg file
 		return false;
 	}
@@ -520,16 +518,6 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(path.size() == 0)
 		return NULL;
 
-#ifdef WIN32
-	// Convert the mode to wide char for wfopen
-	wchar_t wide_mode[32];
-	for (int i=0; i < (int)strlen(mode) && i < (int)(sizeof(wide_mode)/sizeof(wchar_t))-1;)  {
-		wide_mode[i] = (wchar_t)mode[i];
-		wide_mode[++i] = 0;
-	}
-#endif
-
-
 	std::string fullfn = GetFullFileName(path);
 
 	bool write_mode = strchr(mode, 'w') != 0;
@@ -550,20 +538,11 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 			}
 		}
 		//printf("opening file for writing (mode %s): %s\n", mode, writefullname);
-#ifdef WIN32 // uses UTF16
-		return wfopen((wchar_t *)Utf8ToUtf16(writefullname).c_str(), wide_mode);
-#else // other systems
-		return fopen(writefullname.c_str(), mode);
-#endif
+		return fopen(Utf8ToSystemNative(writefullname).c_str(), mode);
 	}
 
 	if(fullfn.size() != 0) {
-		//printf("open file for reading (mode %s): %s\n", mode, fullfn);
-#ifdef WIN32 // uses UTF16
-		return wfopen((wchar_t *)Utf8ToUtf16(fullfn).c_str(), wide_mode);
-#else // uses Unicode
-		return fopen(fullfn.c_str(), mode);
-#endif
+		return fopen(Utf8ToSystemNative(fullfn).c_str(), mode);
 	}
 
 	return NULL;
@@ -638,13 +617,19 @@ std::string GetHomeDir() {
 	}
 	return home;
 #else
-	static wchar_t tmp[1024];
-	if (!SHGetSpecialFolderPathW(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
-		// TODO: get dynamicaly another possible path
-		// the following is only a workaround!
-		return "C:\\OpenLieroX";
+	static std::string result = "";
+	if (result.size() == 0)  {  // Only do this once
+		char tmp[1024];
+		if (!SHGetSpecialFolderPath(NULL, tmp, CSIDL_PERSONAL,FALSE))  {
+			// TODO: get dynamicaly another possible path
+			// the following is only a workaround!
+			return "C:\\OpenLieroX";
+		}
+		fix_markend(tmp);
+
+		result = SystemNativeToUtf8(tmp);
 	}
-	return Utf16ToUtf8((Utf16Char *)(&tmp[0]));
+	return result;
 #endif
 }
 
@@ -670,12 +655,12 @@ std::string GetTempDir() {
 #ifndef WIN32
 	return "/tmp"; // year, it's so simple :)
 #else
-	static wchar_t buf[256] = L"";
-	if(buf[0] == L'\0') { // only do this once
-		GetTempPathW(sizeof(buf)/sizeof(wchar_t),buf);
+	static char buf[1024] = "";
+	if(buf[0] == '\0') { // only do this once
+		GetTempPath(sizeof(buf), buf);
 		fix_markend(buf);
 	}
-	return Utf16ToUtf8((Utf16Char *)(&buf[0]));
+	return SystemNativeToUtf8(buf);
 #endif
 }
 
@@ -698,23 +683,16 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
-	// TODO: remove this #if here and create a common function
-#ifdef WIN32 // uses UTF16
-	FILE* src_f = wfopen((wchar_t *)Utf8ToUtf16(src).c_str(), L"rb");
-#else // other systems
-	FILE* src_f = fopen(src.c_str(), "rb");
-#endif
+
+	FILE* src_f = fopen(Utf8ToSystemNative(src).c_str(), "rb");
+
 	if(!src_f) {
 		printf("FileCopy: ERROR: cannot open source\n");
 		return false;
 	}
 
-	// TODO: remove this #if here and create a common function
-#ifdef WIN32 // uses UTF16
-	FILE* dest_f = wfopen((wchar_t *)Utf8ToUtf16(dest).c_str(), L"wb");
-#else // other systems
-	FILE* dest_f = fopen(dest.c_str(), "wb");
-#endif
+	FILE* dest_f = fopen(Utf8ToSystemNative(dest).c_str(), "wb");
+
 	if(!dest_f) {
 		fclose(src_f);
 		printf("  ERROR: cannot open destination\n");
@@ -748,19 +726,13 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 bool CanWriteToDir(const std::string& dir) {
 	// TODO: we have to make this a lot better!
 	std::string fname = dir + "/.some_stupid_temp_file";
-	// TODO: remove this #if here and create a common function
-#ifdef WIN32 // uses UTF16
-	FILE* fp = wfopen((wchar_t *)Utf8ToUtf16(fname).c_str(), L"w");
-#else // other systems
-	FILE* fp = fopen(fname.c_str(), "w");
-#endif
+
+	FILE* fp = fopen(Utf8ToSystemNative(fname).c_str(), "w");
+
 	if(fp) {
 		fclose(fp);
-#ifdef WIN32 // uses UTF16
-		wremove((wchar_t *)Utf8ToUtf16(fname).c_str());
-#else // other systems
-		remove(fname.c_str());
-#endif
+		remove(Utf8ToSystemNative(fname).c_str());
+
 		return true;
 	}
 	return false;
@@ -769,12 +741,11 @@ bool CanWriteToDir(const std::string& dir) {
 
 std::string GetAbsolutePath(const std::string& path) {
 #ifdef WIN32
-	static wchar_t buf[1024];
-	static int len;
-	len = GetFullPathNameW((wchar_t *)Utf8ToUtf16(path).c_str(),sizeof(buf)/sizeof(wchar_t),buf,NULL);
+	static char buf[2048];
+	int len = GetFullPathName(Utf8ToSystemNative(path).c_str(), sizeof(buf), buf, NULL);
 	fix_markend(buf);
 	if (len)
-		return Utf16ToUtf8((Utf16Char *)(&buf[0]));
+		return SystemNativeToUtf8(buf);
 	else  // Failed
 		return path;
 #else

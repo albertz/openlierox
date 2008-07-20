@@ -1453,19 +1453,12 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	if(fullfname.size() == 0)
 		return NULL;
 
-#ifdef WIN32
-	FILE *fp = _wfopen((wchar_t *)(Utf8ToUtf16(fullfname).c_str()), L"rb");
-	if (!fp)
-		return NULL;
-	SDL_RWops *rw = RWopsFromFP(fp, false);
-	SmartPointer<SDL_Surface> img = IMG_Load_RW(rw, false);
-	fclose(fp);
-#else
-	SmartPointer<SDL_Surface> img = IMG_Load(fullfname.c_str());
-#endif
+	SmartPointer<SDL_Surface> img = IMG_Load(Utf8ToSystemNative(fullfname).c_str());
 
-	if(!img.get())
+	if(!img.get())  {
+		char *err = SDL_GetError();
 		return NULL;
+	}
 
 	if(VideoPostProcessor::videoSurface()) {
 		// Convert the image to the screen's colour depth

@@ -158,5 +158,12 @@ std::string Utf16ToUtf8(const Utf16String& str);
 Utf16String Utf8ToUtf16(const std::string& str);
 std::string UnicodeToUtf8(const UnicodeString& str);
 UnicodeString Utf8ToUnicode(const std::string& str);
+#ifdef WIN32
+std::string Utf8ToSystemNative(const std::string& utf8str);
+std::string SystemNativeToUtf8(const std::string& natstr);
+#else // Other platforms use natively utf8 (at least we suppose so)
+inline std::string Utf8ToSystemNative(const std::string& utf8str) { return utf8str; }
+inline std::string SystemNativeToUtf8(const std::string& natstr) { return natstr; }
+#endif
 
 #endif

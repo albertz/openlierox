@@ -1050,3 +1050,45 @@ UnicodeString Utf8ToUnicode(const std::string& str)
 	return result;
 }
 
+
+#ifdef WIN32
+
+#include <windows.h>
+
+//////////////////////////
+// Convert a UTF-8 string to system native encoding
+std::string Utf8ToSystemNative(const std::string& utf8str)
+{
+	const Utf16String& u16str = Utf8ToUtf16(utf8str);
+	char *buf = new char[u16str.size() + 128]; // 128 - just in case...
+	int len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS, (LPCWSTR) u16str.c_str(), u16str.size(), buf, u16str.size() + 128, NULL, NULL);
+	if (len == 0 && GetLastError() == ERROR_INVALID_FLAGS)  {
+		len = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR) u16str.c_str(), u16str.size(), buf, u16str.size() + 128, NULL, NULL);
+		if (len == 0)
+			return "";
+	}
+	buf[MIN(len, u16str.size() + 127)] = '\0';
+
+	std::string res(buf);
+	delete[] buf;
+	return res;
+}
+
+///////////////////////
+// Convert a system-native string to UTF-8
+std::string SystemNativeToUtf8(const std::string& natstr)
+{
+	if (natstr.size() == 0)	
+		return "";
+
+	wchar_t *buf = new wchar_t[natstr.size() + 128]; // 128 for safety
+	int len = MultiByteToWideChar(CP_ACP, 0, natstr.c_str(), natstr.size(), buf, natstr.size() + 128);
+	if (len == 0)
+		return "";
+	buf[MIN(len, natstr.size() + 127)] = 0;
+	std::string res = Utf16ToUtf8(Utf16String((Utf16Char *)buf));
+	delete[] buf;
+	return res;
+}
+
+#endif

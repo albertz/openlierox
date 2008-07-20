@@ -269,9 +269,11 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	} else  {
 		size_t len = strnlen(buf, sizeof(buf));
 		if (buf[len - 1] != '\\' && buf[len - 1] != '/')
-			strncat(buf, "\\OpenLieroX\\bug_reports", sizeof(buf));
+			strncat(buf, "\\OpenLieroX", sizeof(buf));
 		else
-			strncat(buf, "OpenLieroX\\bug_reports", sizeof(buf));
+			strncat(buf, "OpenLieroX", sizeof(buf));
+		CreateDirectory(buf, NULL); // If the crash occurs at first startup, the OpenLieroX dir doesn't have to exist
+		strncat(buf, "\\bug_reports", sizeof(buf));
 		fix_markend(buf);
 	}
 	CreateDirectory(buf, NULL);

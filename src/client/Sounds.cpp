@@ -242,7 +242,7 @@ SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(!SoundSystemAvailable) return NULL;
 
 	if(filename.size() > 0) {
-		Mix_Chunk* sample = Mix_LoadWAV(filename.c_str());
+		Mix_Chunk* sample = Mix_LoadWAV(Utf8ToSystemNative(filename).c_str());
 		if(!sample) {
 //			printf("LoadSoundSample: Error while loading %s: %s\n", filename.c_str(), Mix_GetError());
 			return NULL;
@@ -410,16 +410,7 @@ SoundMusic *LoadMusic(const std::string& file)
 	if (!new_music)
 		return NULL;
 
-#ifndef WIN32  // linux, mac and others support UTF8 natively
-	new_music->sndMusic = Mix_LoadMUS(file.c_str());
-#else // WIN32
-	// HINT: we have to convert the filename to ANSI because Mix_LoadMUS_RW doesn't work for MP3
-	Utf16String u16file = Utf8ToUtf16(file);
-	char ansifile[1024];
-	int len = WideCharToMultiByte(CP_ACP, 0, (wchar_t *)(u16file.c_str()), (int)u16file.size(), ansifile, sizeof(ansifile), NULL, NULL);
-	ansifile[len] = '\0';
-	new_music->sndMusic = Mix_LoadMUS(ansifile);
-#endif
+	new_music->sndMusic = Mix_LoadMUS(Utf8ToSystemNative(file).c_str());
 
 	if (!new_music->sndMusic)  {
 		delete new_music;
