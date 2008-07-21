@@ -245,56 +245,18 @@ void CWorm::getInput()
 		}
 	}
 
-
-	// Use keys 1-5 and 6-0 for fast weapon changing
-	// TODO: in network game iID == 0 only for server owner, so these keys won't work
-	if( tLXOptions->bUseNumericKeysToSwitchWeapons )
-    switch (iID) {
-
-	// If this is the first worm, let the user use the 1-5 keys for weapon shortcuts
-	// Also use mouse wheel to switch weapons and aim with mouse if this option is selected
-	case 0:  {
-			keyboard_t *kb = GetKeyboard();
-			for(int i = SDLK_1; i <= SDLK_5; i++ ) {
-				if( kb->KeyDown[i] ) {
-
-					iCurrentWeapon = i - SDLK_1;
-
-					// Let the weapon name show up for a short moment
-					bForceWeapon_Name = true;
-					fForceWeapon_Time = tLX->fCurTime + 0.75f;
-				}
-			}
-
+	// Process weapon quick-selection keys
+	for(int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]); i++ ) 
+	{
+		if( cWeapons[i].isDown() ) 
+		{
+			iCurrentWeapon = i;
+			// Let the weapon name show up for a short moment
+			bForceWeapon_Name = true;
+			fForceWeapon_Time = tLX->fCurTime + 0.75f;
 		}
-		break;
-
-	// If this is the second worm, let the user use the 6-0 keys for weapon shortcuts
-	case 1:  {
-			keyboard_t *kb = GetKeyboard();
-			for(int i = SDLK_6; i <= SDLK_9; i++ ) {
-				if( kb->KeyDown[i] ) {
-
-					iCurrentWeapon = i - SDLK_6;
-
-					// Let the weapon name show up for a short moment
-					bForceWeapon_Name = true;
-					fForceWeapon_Time = tLX->fCurTime + 0.75f;
-				}
-			}
-
-			// 0 has to be separate, its keysym is not SDLK_9 + 1
-			if (kb->KeyDown[SDLK_0])  {
-				iCurrentWeapon = 5;
-
-				// Let the weapon name show up for a short moment
-				bForceWeapon_Name = true;
-				fForceWeapon_Time = tLX->fCurTime + 0.75f;
-			}
-
-		}
-		break;
 	}
+
 
 	// Safety: clamp the current weapon
 	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
@@ -405,6 +367,8 @@ void CWorm::getInput()
 	cSelWeapon.reset();
 	cInpRope.reset();
 	cStrafe.reset();
+	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].reset();
 }
 
 
@@ -430,6 +394,8 @@ void CWorm::clearInput(void)
 	cSelWeapon.reset();
 	cInpRope.reset();
 	cStrafe.reset();
+	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].reset();
 }
 
 
@@ -458,6 +424,9 @@ void CWorm::SetupInputs(const controls_t& Inputs)
 	cInpRope.Setup(	Inputs[SIN_ROPE] );
 
 	cStrafe.Setup( Inputs[SIN_STRAFE] );
+
+	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].Setup(Inputs[SIN_WEAPON1 + i]);
 }
 
 
@@ -471,6 +440,8 @@ void CWorm::InitInputSystem() {
 	cSelWeapon.setResetEachFrame( false );
 	cInpRope.setResetEachFrame( false );
 	cStrafe.setResetEachFrame( false );
+	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].setResetEachFrame( false );
 }
 
 void CWorm::StopInputSystem() {
@@ -483,4 +454,6 @@ void CWorm::StopInputSystem() {
 	cSelWeapon.setResetEachFrame( true );
 	cInpRope.setResetEachFrame( true );
 	cStrafe.setResetEachFrame( true );
+	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].setResetEachFrame( true );
 }

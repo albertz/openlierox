@@ -184,7 +184,7 @@ private:
 	// Input
 	CInput		cUp, cDown, cLeft, cRight,
 				cShoot, cJump, cSelWeapon, cInpRope,
-				cStrafe;
+				cStrafe, cWeapons[5];
 	bool		bUsesMouse;
 
 	// last time we moved left or right

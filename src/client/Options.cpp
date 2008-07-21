@@ -32,14 +32,14 @@ NetworkTexts	*networkTexts = NULL;
 
 static const std::string OptionsFileName = "cfg/options.cfg";
 
-const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
+const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
 const std::string    ply_def1[] =
 #ifdef MACOSX
-	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c"};
+	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c", "1", "2", "3", "4", "5" };
 #else
-	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
+	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "1", "2", "3", "4", "5" };
 #endif
-const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp enter", "kp 0", "kp -", "kp ."};
+const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp enter", "kp 0", "kp -", "kp .", "6", "7", "8", "9", "0" };
 const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"MediaPlayer"};
 const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "o",			"F3"};
 
@@ -107,7 +107,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
 		( tLXOptions->bAllowStrafing, "Game.AllowStrafing", true )
-		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )

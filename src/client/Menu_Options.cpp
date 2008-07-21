@@ -78,7 +78,6 @@ enum {
 	og_MouseAiming,
 	og_AllowMouseAiming,
 	og_MatchLogging,
-	og_UseNumericKeysToSwitchWeapons,
 	og_AntilagMovementPrediction,
 	og_AllowFileDownload,
 	og_AllowDirtUpdates
@@ -94,6 +93,11 @@ enum {
 	oc_Ply1_Selweapon,
 	oc_Ply1_Rope,
 	oc_Ply1_Strafe,
+	oc_Ply1_Weapon1,
+	oc_Ply1_Weapon2,
+	oc_Ply1_Weapon3,
+	oc_Ply1_Weapon4,
+	oc_Ply1_Weapon5,
 
 	oc_Ply2_Up,
 	oc_Ply2_Down,
@@ -104,6 +108,11 @@ enum {
 	oc_Ply2_Selweapon,
 	oc_Ply2_Rope,
 	oc_Ply2_Strafe,
+	oc_Ply2_Weapon1,
+	oc_Ply2_Weapon2,
+	oc_Ply2_Weapon3,
+	oc_Ply2_Weapon4,
+	oc_Ply2_Weapon5,
 
 	oc_Gen_Chat,
     oc_Gen_Score,
@@ -184,65 +193,75 @@ bool Menu_OptionsInitialize(void)
 
 
 	// Controls
-	cOpt_Controls.Add( new CLabel("Player Controls", tLX->clHeading), Static, 40,  150, 0,0);
-	cOpt_Controls.Add( new CLabel("Player 1",tLX->clSubHeading),      Static, 163, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("Player 2",tLX->clSubHeading),      Static, 268, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 380, 150, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 1", tLX->clHeading, true), Static, 192,  150, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 2", tLX->clHeading, true), Static, 312,  150, 0,0);
+	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading, true),Static, 482, 150, 0,0);
+	cOpt_Controls.Add( new CLabel("Keys",tLX->clSubHeading, true), Static, 165, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Weapons",tLX->clSubHeading, true), Static, 220, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Keys",tLX->clSubHeading, true), Static, 285, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Weapons",tLX->clSubHeading, true), Static, 340, 170, 0,0);
 
 	int y = 190;
 	for(i=0;i<9;i++,y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               oc_Ply1_Up+i, 165, y, 50,17);
-
+			               oc_Ply1_Up+i, 140, y, 50,17);
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[1][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               oc_Ply2_Up+i, 270, y, 50,17);
+			               oc_Ply2_Up+i, 260, y, 50,17);
+
+		if( i < 5 )
+		{
+			cOpt_Controls.Add( new CInputbox(SIN_WEAPON1+i, tLXOptions->sPlayerControls[0][SIN_WEAPON1+i], tMenu->bmpInputbox, "Weapon " + itoa(i+1) ),
+				               oc_Ply1_Weapon1+i, 195, y, 50,17);
+			cOpt_Controls.Add( new CInputbox(SIN_WEAPON1+i, tLXOptions->sPlayerControls[1][SIN_WEAPON1+i], tMenu->bmpInputbox, "Weapon " + itoa(i+1) ),
+				               oc_Ply2_Weapon1+i, 315, y, 50,17);
+		}
 	}
 
 	// General Controls
-	cOpt_Controls.Add( new CLabel("Chat", tLX->clNormalLabel), Static, 380, 190, 0,0);
+	cOpt_Controls.Add( new CLabel("Chat", tLX->clNormalLabel), Static, 390, 190, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_CHAT, tLXOptions->sGeneralControls[SIN_CHAT], tMenu->bmpInputbox, "Chat"),
-						   oc_Gen_Chat, 515, 190, 50,17);
+						   oc_Gen_Chat, 525, 190, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Scoreboard", tLX->clNormalLabel), Static, 380, 215, 0,0);
+    cOpt_Controls.Add( new CLabel("Scoreboard", tLX->clNormalLabel), Static, 390, 215, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCORE, tLXOptions->sGeneralControls[SIN_SCORE], tMenu->bmpInputbox, "Scoreboard"),
-						   oc_Gen_Score, 515, 215, 50,17);
+						   oc_Gen_Score, 525, 215, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Health Bar", tLX->clNormalLabel), Static, 380, 240, 0,0);
+    cOpt_Controls.Add( new CLabel("Health Bar", tLX->clNormalLabel), Static, 390, 240, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health Bar"),
-						   oc_Gen_Health, 515, 240, 50,17);
+						   oc_Gen_Health, 525, 240, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Current Settings", tLX->clNormalLabel), Static, 380, 265, 0,0);
+    cOpt_Controls.Add( new CLabel("Current Settings", tLX->clNormalLabel), Static, 390, 265, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current Settings"),
-						   oc_Gen_CurSettings, 515, 265, 50,17);
+						   oc_Gen_CurSettings, 525, 265, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Take Screenshot", tLX->clNormalLabel), Static, 380, 290, 0,0);
+    cOpt_Controls.Add( new CLabel("Take Screenshot", tLX->clNormalLabel), Static, 390, 290, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCREENSHOTS, tLXOptions->sGeneralControls[SIN_SCREENSHOTS], tMenu->bmpInputbox, "Take Screenshot"),
-						   oc_Gen_TakeScreenshot, 515, 290, 50,17);
+						   oc_Gen_TakeScreenshot, 525, 290, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Viewport Manager", tLX->clNormalLabel), Static, 380, 315, 0,0);
+    cOpt_Controls.Add( new CLabel("Viewport Manager", tLX->clNormalLabel), Static, 390, 315, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_VIEWPORTS, tLXOptions->sGeneralControls[SIN_VIEWPORTS], tMenu->bmpInputbox, "Viewport Manager"),
-						   oc_Gen_ViewportManager, 515, 315, 50,17);
+						   oc_Gen_ViewportManager, 525, 315, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Switch Video Mode", tLX->clNormalLabel), Static, 380, 340, 0,0);
+    cOpt_Controls.Add( new CLabel("Switch Video Mode", tLX->clNormalLabel), Static, 390, 340, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch Video Mode"),
-						   oc_Gen_SwitchMode, 515, 340, 50,17);
+						   oc_Gen_SwitchMode, 525, 340, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Toggle Top Bar", tLX->clNormalLabel), Static, 380, 365, 0,0);
+    cOpt_Controls.Add( new CLabel("Toggle Top Bar", tLX->clNormalLabel), Static, 390, 365, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_TOGGLETOPBAR, tLXOptions->sGeneralControls[SIN_TOGGLETOPBAR], tMenu->bmpInputbox, "Toggle Top Bar"),
-						   oc_Gen_ToggleTopBar, 515, 365, 50,17);
+						   oc_Gen_ToggleTopBar, 525, 365, 50,17);
 
 
 #ifdef WITH_MEDIAPLAYER
-	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 380, 390, 0,0);
+	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 390, 390, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
-						   oc_Gen_MediaPlayer, 515, 390, 50,17);
+						   oc_Gen_MediaPlayer, 525, 390, 50,17);
 #endif
 
-	cOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 380, 415, 0,0);
+	cOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 390, 415, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_TEAMCHAT, tLXOptions->sGeneralControls[SIN_TEAMCHAT], tMenu->bmpInputbox, "Teamchat"),
-						   oc_Gen_TeamChat, 515, 415, 50,17);
+						   oc_Gen_TeamChat, 525, 415, 50,17);
 
 
 
@@ -384,9 +403,6 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Allow strafing (Server)",tLX->clNormalLabel), Static, 330, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(&tLXOptions->bAllowStrafing), Static, 550, 390, 17,17);
 
-	cOpt_Game.Add( new CLabel("Use 1-5 keys to switch weapons", tLX->clNormalLabel), Static, 330, 420, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bUseNumericKeysToSwitchWeapons),og_UseNumericKeysToSwitchWeapons, 550, 420, 17,17);
-
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
 
 	// Set the values
@@ -488,7 +504,7 @@ void Menu_OptionsFrame(void)
 				if(ev->iEventMsg == INB_MOUSEUP) {
 
 					int ply = 0;
-					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Strafe)
+					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Weapon5)
 						ply = 1;
 					if(ev->iControlID >= oc_Gen_Chat)
 						ply = -1;
@@ -613,11 +629,6 @@ void Menu_OptionsFrame(void)
 				case og_MatchLogging:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->tGameinfo.bMatchLogging = cOpt_Game.SendMessage(og_MatchLogging, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
-				case og_UseNumericKeysToSwitchWeapons:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bUseNumericKeysToSwitchWeapons = cOpt_Game.SendMessage(og_UseNumericKeysToSwitchWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				case og_AntilagMovementPrediction:

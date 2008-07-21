@@ -700,6 +700,7 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "jump/ninja: " + cJump.getEventName() + "/" + cInpRope.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "quick select weapon: " + cWeapons[0].getEventName() + " " + cWeapons[1].getEventName() + " " + cWeapons[2].getEventName() + " " + cWeapons[3].getEventName() + " " + cWeapons[4].getEventName() );
 
 
 	if(!bChat_Typing) {
@@ -1145,7 +1146,12 @@ bool CWorm::CanType(void)
 			cJump.getData() == kb->keyQueue[i].sym ||
 			cSelWeapon.getData() == kb->keyQueue[i].sym ||
 			cInpRope.getData() == kb->keyQueue[i].sym ||
-			cStrafe.getData() == kb->keyQueue[i].sym)
+			cStrafe.getData() == kb->keyQueue[i].sym ||
+			cWeapons[0].getData() == kb->keyQueue[i].sym ||
+			cWeapons[1].getData() == kb->keyQueue[i].sym ||
+			cWeapons[2].getData() == kb->keyQueue[i].sym ||
+			cWeapons[3].getData() == kb->keyQueue[i].sym ||
+			cWeapons[4].getData() == kb->keyQueue[i].sym)
 				return false;
 	}
 	return true;

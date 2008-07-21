@@ -37,7 +37,13 @@ enum {
 	SIN_SELWEAP,
 	SIN_ROPE,
 
-	SIN_STRAFE
+	SIN_STRAFE,
+	
+	SIN_WEAPON1,
+	SIN_WEAPON2,
+	SIN_WEAPON3,
+	SIN_WEAPON4,
+	SIN_WEAPON5
 };
 
 // General controls
@@ -76,7 +82,7 @@ enum {
 // input controls structure (for local players)
 class controls_t {
 private:
-	std::string ctrl[10];
+	std::string ctrl[14];
 public:
 	std::string& operator[] (const short i) { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
 	const std::string& operator[] (const short i) const { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
@@ -201,7 +207,6 @@ public:
 	bool	bMouseAiming;
 	bool	bAllowMouseAiming;
 	bool	bAllowStrafing;
-	bool	bUseNumericKeysToSwitchWeapons;
 	bool	bAntilagMovementPrediction;
 	std::string sTheme;
 
