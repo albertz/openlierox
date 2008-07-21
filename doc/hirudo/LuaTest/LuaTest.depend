@@ -1,0 +1,35 @@
+# depslib dependency file v1.0
+1216605053 source:/home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/src/LuaTest.cpp
+	"luainc.h"
+
+1216604901 /home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/src/luainc.h
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+
+1199374874 /home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/lua/include/lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1200676068 /home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/lua/include/luaconf.h
+	<limits.h>
+	<stddef.h>
+	<unistd.h>
+	<io.h>
+	<stdio.h>
+	<stdio.h>
+	<readline/readline.h>
+	<readline/history.h>
+	<assert.h>
+	<math.h>
+	<unistd.h>
+
+1198760544 /home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/lua/include/lualib.h
+	"lua.h"
+
+1198760544 /home/jonanin/Documents/LXDev/openlierox/doc/hirudo/LuaTest/lua/include/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+

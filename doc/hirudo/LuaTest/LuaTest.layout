@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="x64" />
+	<File name="compile.sh" open="0" top="0" tabpos="0">
+		<Cursor position="1" topLine="0" />
+	</File>
+	<File name="readme.txt" open="1" top="0" tabpos="1">
+		<Cursor position="266" topLine="0" />
+	</File>
+	<File name="src/LuaTest.cpp" open="1" top="1" tabpos="2">
+		<Cursor position="801" topLine="9" />
+	</File>
+	<File name="src/luainc.h" open="1" top="0" tabpos="3">
+		<Cursor position="120" topLine="0" />
+	</File>
+	<File name="test.lua" open="0" top="0" tabpos="0">
+		<Cursor position="1" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
