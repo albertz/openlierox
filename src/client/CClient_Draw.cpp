@@ -484,7 +484,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 				cMap->ClearDebugImage();
 				for (int i = 0; i < (int)iNumWorms; i++)  {
 					if (cLocalWorms[i]->getType() == PRF_COMPUTER)
-						cLocalWorms[i]->NEW_AI_DrawPath();
+						cLocalWorms[i]->AI_DrawPath();
 				}
 				last = tLX->fCurTime;
 			}
