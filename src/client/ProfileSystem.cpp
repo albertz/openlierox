@@ -368,6 +368,7 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->R = R;
 	p->G = G;
 	p->B = B;
+	p->cSkin.Colorize(MakeColour(R, G, B));
 
 	p->sUsername = username;
 	p->sPassword = password;
