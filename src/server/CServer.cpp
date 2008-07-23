@@ -826,6 +826,10 @@ void GameServer::ProcessRegister(void)
 
 void GameServer::RegisterServerUdp(void)
 {
+	// Don't register a local play
+	if (tGameInfo.iGameType == GME_LOCAL)
+		return;
+
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
 		NetworkAddr addr;

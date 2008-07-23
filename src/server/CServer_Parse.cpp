@@ -1545,7 +1545,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 ///////////////////
 // Parse a ping packet
-void GameServer::ParsePing(NetworkSocket tSocket) {
+void GameServer::ParsePing(NetworkSocket tSocket) 
+{
+	// Ignore pings in local
+	// HINT: this can happen when you quit your server and go play local immediatelly - some
+	// people have not updated their serverlist yet and try to ping and query the server
+	if (tGameInfo.iGameType != GME_HOST)
+		return;
+
 	NetworkAddr		adrFrom;
 	GetRemoteNetAddr(tSocket, adrFrom);
 
@@ -1567,6 +1574,12 @@ void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const st
 
 	std::string Nick = bs->readString();
 
+	// Ignore wants to join in local
+	// HINT: this can happen when you quit your server and go play local immediatelly - some
+	// people have not updated their serverlist yet and try to ping and query the server
+	if (tGameInfo.iGameType != GME_HOST)
+		return;
+
 	// Allowed?
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
@@ -1586,12 +1599,18 @@ void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const st
 
 ///////////////////
 // Parse a query packet
-void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) {
-	static CBytestream bytestr;
+void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) 
+{
+	CBytestream bytestr;
 
 	int num = bs->readByte();
 
-	bytestr.Clear();
+	// Ignore queries in local
+	// HINT: this can happen when you quit your server and go play local immediatelly - some
+	// people have not updated their serverlist yet and try to ping and query the server
+	if (tGameInfo.iGameType != GME_HOST)
+		return;
+
 	bytestr.writeInt(-1, 4);
 	bytestr.writeString("lx::queryreturn");
 
@@ -1617,7 +1636,14 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 
 ///////////////////
 // Parse a get_info packet
-void GameServer::ParseGetInfo(NetworkSocket tSocket) {
+void GameServer::ParseGetInfo(NetworkSocket tSocket) 
+{
+	// Ignore queries in local
+	// HINT: this can happen when you quit your server and go play local immediatelly - some
+	// people have not updated their serverlist yet and try to ping and query the server
+	if (tGameInfo.iGameType != GME_HOST)
+		return;
+
 	CBytestream     bs;
 	game_lobby_t    *gl = &tGameLobby;
 
