@@ -1144,22 +1144,22 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	const std::string & clientVersionStr = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
-	/*cl = cClients;
+	cl = cClients;
 	for(p=0;p<MAX_CLIENTS;p++,cl++) {
 
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		if(AreNetAddrEqual(&adrFrom, cl->getChannel()->getAddress())) {
+		if(AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress())) {
 
-			// Must not have got the connection good packet, tis ok though
+			// Must not have got the connection good packet
 			if(cl->getStatus() == NET_CONNECTED) {
-				//conprintf("Duplicate connection\n");
+				printf("Duplicate connection\n");
 
 				// Resend the 'good connection' packet
 				bytestr.Clear();
 				bytestr.writeInt(-1,4);
-				bytestr.writeString("%s","lx::goodconnection");
+				bytestr.writeString("lx::goodconnection");
 	               // Send the worm ids
 	               for( int i=0; i<cl->getNumWorms(); i++ )
 	                   bytestr.writeInt(cl->getWorm(i)->getID(), 1);
@@ -1174,7 +1174,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				return;
 			}
 		}
-	}*/
+	}
 
 	// Find a spot for the client
 	player = -1;
