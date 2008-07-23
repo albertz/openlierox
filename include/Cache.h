@@ -57,13 +57,54 @@ public:
 	size_t	GetCacheSize();
 
 private:
-	typedef std::map<std::string, std::pair< SmartPointer<SDL_Surface>, float > > ImageCache_t;
+	class CacheItem_t { public:
+		CacheItem_t() : fSaveTime(0), iFileTimeStamp(0) {}
+		CacheItem_t(const CacheItem_t& oth)  { operator=(oth); }
+		CacheItem_t(float savetime, Uint64 timestamp) : fSaveTime(savetime), iFileTimeStamp(timestamp) {}
+		virtual CacheItem_t& operator=(const CacheItem_t& oth)  { if (&oth != this) { fSaveTime = oth.fSaveTime; iFileTimeStamp = oth.iFileTimeStamp; } return *this; }
+		float	fSaveTime;
+		Uint64	iFileTimeStamp;
+	};
+
+	class ImageItem_t : public CacheItem_t { public:
+		ImageItem_t() : CacheItem_t() { bmpSurf = NULL; }
+		ImageItem_t(const ImageItem_t& oth) { operator=(oth); }
+		ImageItem_t(SmartPointer<SDL_Surface> img, float savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { bmpSurf = img; }
+		ImageItem_t& operator=(const ImageItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { bmpSurf = oth.bmpSurf; } return *this; }
+		SmartPointer<SDL_Surface> bmpSurf;
+	};
+
+	class SoundItem_t : public CacheItem_t { public:
+		SoundItem_t() : CacheItem_t() { sndSample = NULL; }
+		SoundItem_t(const SoundItem_t& oth) { operator=(oth); }
+		SoundItem_t(SmartPointer<SoundSample> snd, float savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { sndSample = snd; }
+		SoundItem_t& operator=(const SoundItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { sndSample = oth.sndSample; } return *this; }
+		SmartPointer<SoundSample> sndSample;
+	};
+
+	class MapItem_t : public CacheItem_t { public:
+		MapItem_t() : CacheItem_t() { tMap = NULL; }
+		MapItem_t(const MapItem_t& oth) { operator=(oth); }
+		MapItem_t(SmartPointer<CMap> map, float savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMap = map; }
+		MapItem_t& operator=(const MapItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { tMap = oth.tMap; } return *this; }
+		SmartPointer<CMap> tMap;
+	};
+
+	class ModItem_t : public CacheItem_t { public:
+		ModItem_t() : CacheItem_t() { tMod = NULL; }
+		ModItem_t(const ModItem_t& oth) { operator=(oth); }
+		ModItem_t(SmartPointer<CGameScript> mod, float savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMod = mod; }
+		ModItem_t& operator=(const ModItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { tMod = oth.tMod; } return *this; }
+		SmartPointer<CGameScript> tMod;
+	};
+
+	typedef std::map<std::string, ImageItem_t > ImageCache_t;
 	ImageCache_t ImageCache;
-	typedef std::map<std::string, std::pair< SmartPointer<SoundSample>, float > > SoundCache_t;
+	typedef std::map<std::string, SoundItem_t > SoundCache_t;
 	SoundCache_t SoundCache;
-	typedef std::map<std::string, std::pair< SmartPointer<CMap>, float > > MapCache_t;
+	typedef std::map<std::string, MapItem_t > MapCache_t;
 	MapCache_t MapCache;
-	typedef std::map<std::string, std::pair< SmartPointer<CGameScript>, float > > ModCache_t;
+	typedef std::map<std::string, ModItem_t > ModCache_t;
 	ModCache_t ModCache;
 	
 	SDL_mutex* mutex;

@@ -91,7 +91,7 @@ void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface>
 		return;
 	};
 	//printf("CCache::SaveImage(): %p %s\n", img, file.c_str() );
-	ImageCache[file] = std::make_pair( img, getCurrentTime() );
+	ImageCache[file] = ImageItem_t(img, getCurrentTime(), 0);
 }
 
 //////////////
@@ -109,7 +109,7 @@ void CCache::SaveSound(const std::string& file1, const SmartPointer<SoundSample>
 		printf("Error: sound %s already in cache - memleak\n", file.c_str() );
 		return;
 	};
-	SoundCache[file] = std::make_pair( smp, getCurrentTime() );
+	SoundCache[file] = SoundItem_t( smp, getCurrentTime(), 0 );
 }
 
 //////////////
@@ -136,7 +136,9 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 	if (!cached_map->NewFrom(map))
 		return;
 
-	MapCache[file] = std::make_pair( SmartPointer<CMap>(cached_map), getCurrentTime() );
+	struct stat st;
+	StatFile(file1, &st);
+	MapCache[file] = MapItem_t( SmartPointer<CMap>(cached_map), getCurrentTime(), st.st_mtime );
 }
 
 //////////////
@@ -155,7 +157,9 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 		return;
 	};
 
-	ModCache[file] = std::make_pair( mod, getCurrentTime() );
+	struct stat st;
+	StatFile(file1 + "/script.lgs", &st);
+	ModCache[file] = ModItem_t( mod, getCurrentTime(), st.st_mtime );
 }
 
 //////////////
@@ -168,8 +172,8 @@ SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
 	ImageCache_t::iterator item = ImageCache.find(file);
 	if(item != ImageCache.end())
 	{
-		item->second.second = getCurrentTime();
-		return item->second.first;
+		item->second.fSaveTime = getCurrentTime();
+		return item->second.bmpSurf;
 	};
 	return NULL;
 }
@@ -184,8 +188,8 @@ SmartPointer<SoundSample> CCache::GetSound(const std::string& file1)
 	SoundCache_t::iterator item = SoundCache.find(file);
 	if(item != SoundCache.end())
 	{
-		item->second.second = getCurrentTime();
-		return item->second.first;
+		item->second.fSaveTime = getCurrentTime();
+		return item->second.sndSample;
 	};
 	return NULL;
 }
@@ -200,8 +204,17 @@ SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 	MapCache_t::iterator item = MapCache.find(file);
 	if(item != MapCache.end())
 	{
-		item->second.second = getCurrentTime();
-		return item->second.first;
+		// If the file has changed, don't consider it as found and erase it from the cache
+		struct stat st;
+		StatFile(item->first, &st);
+		if (item->second.iFileTimeStamp != st.st_mtime)  {
+			item->second.tMap = NULL;
+			MapCache.erase(item);
+			return NULL;
+		}
+
+		item->second.fSaveTime = getCurrentTime();
+		return item->second.tMap;
 	};
 	return NULL;
 }
@@ -216,8 +229,17 @@ SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 	ModCache_t::iterator item = ModCache.find(file);
 	if(item != ModCache.end())
 	{
-		item->second.second = getCurrentTime();
-		return item->second.first;
+		// If the file has changed, don't consider it as found and erase it from the cache
+		struct stat st;
+		StatFile(item->first + "/script.lgs", &st);
+		if (item->second.iFileTimeStamp != st.st_mtime)  {
+			item->second.tMod = NULL;
+			ModCache.erase(item);
+			return NULL;
+		}
+
+		item->second.fSaveTime = getCurrentTime();
+		return item->second.tMod;
 	};
 	return NULL;
 }
@@ -239,13 +261,13 @@ size_t CCache::GetCacheSize()
 {
 	size_t res = sizeof(CCache);
 	for (ImageCache_t::iterator it = ImageCache.begin(); it != ImageCache.end(); it++)
-		res += GetSurfaceMemorySize(it->second.first.get()) + it->first.size();
+		res += GetSurfaceMemorySize(it->second.bmpSurf.get()) + it->first.size();
 
 	for (ModCache_t::iterator it = ModCache.begin(); it != ModCache.end(); it++)
-		res += it->second.first.get()->GetMemorySize() + it->first.size();
+		res += it->second.tMod.get()->GetMemorySize() + it->first.size();
 
 	for (MapCache_t::iterator it = MapCache.begin(); it != MapCache.end(); it++)
-		res += it->second.first.get()->GetMemorySize() + it->first.size();
+		res += it->second.tMap.get()->GetMemorySize() + it->first.size();
 
 	// TODO: not exact
 	for (SoundCache_t::iterator it = SoundCache.begin(); it != SoundCache.end(); it++)
@@ -264,8 +286,8 @@ void CCache::ClearExtraEntries()
 		int count = 0;
 		for( ImageCache_t :: iterator it = ImageCache.begin(); it != ImageCache.end(); it++  )
 		{
-			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-			if( it->second.first.getRefCount() <= 1 )
+			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
+			if( it->second.bmpSurf.getRefCount() <= 1 )
 				count ++;
 		};
 		if( count >= tLXOptions->iMaxCachedEntries )
@@ -277,7 +299,7 @@ void CCache::ClearExtraEntries()
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++ )
 			{
-				if( it1->second->second.first.tryDeleteData() )
+				if( it1->second->second.bmpSurf.tryDeleteData() )
 				{
 					clearCount --;
 					ImageCache.erase( it1->second );
@@ -293,8 +315,8 @@ void CCache::ClearExtraEntries()
 		int count = 0;
 		for( SoundCache_t :: iterator it = SoundCache.begin(); it != SoundCache.end(); it++  )
 		{
-			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-			if( it->second.first.getRefCount() <= 1 )
+			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
+			if( it->second.sndSample.getRefCount() <= 1 )
 				count ++;
 		};
 		if( count >= tLXOptions->iMaxCachedEntries )
@@ -306,7 +328,7 @@ void CCache::ClearExtraEntries()
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
-				if( it1->second->second.first.tryDeleteData() )
+				if( it1->second->second.sndSample.tryDeleteData() )
 				{
 					clearCount --;
 					SoundCache.erase( it1->second );
@@ -322,8 +344,8 @@ void CCache::ClearExtraEntries()
 		int count = 0;
 		for( MapCache_t :: iterator it = MapCache.begin(); it != MapCache.end(); it++  )
 		{
-			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-			if( it->second.first.getRefCount() <= 1 )
+			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
+			if( it->second.tMap.getRefCount() <= 1 )
 				count ++;
 		};
 		if( count >= tLXOptions->iMaxCachedEntries / 10 )
@@ -335,7 +357,7 @@ void CCache::ClearExtraEntries()
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
-				if( it1->second->second.first.tryDeleteData() )
+				if( it1->second->second.tMap.tryDeleteData() )
 				{
 					clearCount --;
 					MapCache.erase( it1->second );
@@ -351,8 +373,8 @@ void CCache::ClearExtraEntries()
 		int count = 0;
 		for( ModCache_t :: iterator it = ModCache.begin(); it != ModCache.end(); it++  )
 		{
-			TimeSorted.insert( std::make_pair( it->second.second, it ) );
-			if( it->second.first.getRefCount() <= 1 )
+			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
+			if( it->second.tMod.getRefCount() <= 1 )
 				count ++;
 		};
 		if( count >= tLXOptions->iMaxCachedEntries / 10 )
@@ -364,7 +386,7 @@ void CCache::ClearExtraEntries()
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
 					it1 != TimeSorted.end() && clearCount > 0; it1++, clearCount-- )
 			{
-				if( it1->second->second.first.tryDeleteData() )
+				if( it1->second->second.tMod.tryDeleteData() )
 				{
 					clearCount --;
 					ModCache.erase( it1->second );
