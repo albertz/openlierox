@@ -1,0 +1,171 @@
+#!/usr/bin/python -u
+# The Python presets are detected from non-Python ones by first line which shouild contain "python" string
+
+setvar( "GameOptions.LastGame.LevelName", "LieroFactory(Revisited).lxl" )
+setvar( "GameServer.GameInfo.sMapFile",   "LieroFactory(Revisited).lxl" )
+setvar( "GameServer.GameInfo.sMapName",   "LFr" )
+
+setvar( "GameOptions.LastGame.ModName",   "Classic" )
+setvar( "GameServer.GameInfo.sModDir",    "Classic" )
+setvar( "GameServer.GameInfo.sModName",   "Classic" )
+
+setvar( "GameOptions.LastGame.LoadingTime", 100 )
+setvar( "GameServer.GameInfo.iLoadingTimes", 100 )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
+
+setvar( "GameServer.ServerName", "Dedicated - TeamArena" )
+
+setvar("GameServer.GameInfo.iGameMode", 1)
+setvar("GameOptions.LastGame.GameType", 1)
+
+setvar("GameServer.GameInfo.iLives", 0)
+setvar("GameOptions.LastGame.Lives", 0)
+
+setvar("GameOptions.LastGame.RespawnInWaves", 1)
+
+setvar("GameOptions.LastGame.RespawnGroupTeams", 1)
+
+setvar("GameOptions.Advanced.CountTeamkills", 0)
+
+sendLobbyUpdate() # Update game mode info
+if cfg.ALLOW_TEAM_CHANGE:
+	chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+
+def controlHandlerTeamArena():
+
+	MaxTeamArenaRounds = 5
+
+	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, sentStartGame
+	global TeamArenaScore, TeamArenaRound
+	try:
+		temp = TeamArenaScore
+	except NameError:
+		TeamArenaScore = [0,0,0,0]
+	try:
+		temp = TeamArenaRound
+	except NameError:
+		TeamArenaRound = -1
+	
+	time.sleep(1)
+
+	oldGameState = gameState
+	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
+	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
+	while signalHandler(getSignal()):
+		pass # Continue with the next iteration
+
+	#messageLog("controlHandlerTeamArena() gameState " + str(gameState) + " TeamArenaRound " + str(TeamArenaRound), LOG_INFO)
+	
+	if gameState == GAME_LOBBY:
+
+		# Do not check ping in lobby - it's wrong
+		if TeamArenaRound >= MaxTeamArenaRounds:
+			chatMsg("Final score: blue %i red %i green %i yellow %i" % ( TeamArenaScore[0], TeamArenaScore[1], TeamArenaScore[2], TeamArenaScore[3] ))
+			TeamArenaRound = -1
+			TeamArenaScore = [0,0,0,0]
+			
+		if TeamArenaRound >= 0:
+			if not sentStartGame:
+				for i in worms.keys():
+					if worms[i].iID == -1:
+						continue
+					worms[i].Lives = 0
+				startGame()
+				chatMsg("Round %i: blue %i red %i green %i yellow %i" % ( TeamArenaRound, TeamArenaScore[0], TeamArenaScore[1], TeamArenaScore[2], TeamArenaScore[3] ))
+
+		else:
+		
+			lobbyChangePresetTimeout -= 1
+    
+			if oldGameState != GAME_LOBBY or lobbyChangePresetTimeout <= 0:
+				lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
+				selectNextPreset()
+				lobbyEnoughPlayers = False # reset the state
+				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+				lobbyWaitAfterGame = 0
+				if oldGameState == GAME_PLAYING:
+					lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME
+    
+			lobbyWaitAfterGame -= 1
+    
+			if lobbyWaitAfterGame <= 0:
+    
+				lobbyWaitGeneral -= 1
+    
+				if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
+					lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+					chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+    
+				if not lobbyEnoughPlayers and getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
+					lobbyEnoughPlayers = True
+					chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
+					lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
+    
+				if lobbyEnoughPlayers and getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+					lobbyEnoughPlayers = False
+					chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+    
+				if lobbyEnoughPlayers and not sentStartGame:
+					lobbyWaitBeforeGame -= 1
+					if lobbyWaitBeforeGame <= 0: # Start the game
+    
+						sendLobbyUpdate() # Update game mode info
+						
+						if not cfg.ALLOW_TEAM_CHANGE:
+							counter = 0
+							for w in worms.values():
+								if w.iID != -1:
+									setWormTeam( w.iID, counter % 2 )
+									counter += 1
+						
+						for i in worms.keys():
+							if worms[i].iID == -1:
+								continue
+							worms[i].Lives = 0
+						
+						TeamArenaRound = 0
+						TeamArenaScore = [0,0,0,0]
+						startGame()
+						if cfg.ALLOW_TEAM_CHANGE:
+							chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+
+	if gameState == GAME_WEAPONS:
+	
+		#checkMaxPing()
+
+		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+			TeamArenaRound == -1
+			gotoLobby()
+
+	if gameState == GAME_PLAYING:
+
+		checkMaxPing()
+
+		teamAlive = [0,0,0,0]
+		for i in worms.keys():
+			if worms[i].iID == -1:
+				continue
+			#messageLog("controlHandlerTeamArena() worm " + str(i) + " team " + str(worms[i].Team) + " lives " + str(worms[i].Lives), LOG_INFO)
+			if worms[i].Lives >= 0:
+				teamAlive[worms[i].Team] += 1
+		teamAliveCount = 0
+		teamAliveIdx = -1
+		#messageLog("controlHandlerTeamArena() teamAlive " + str(teamAlive), LOG_INFO)
+		for i in range(4):
+			if teamAlive[i] > 0:
+				teamAliveCount += 1
+				teamAliveIdx = i
+		if teamAliveCount == 1:
+			TeamArenaRound += 1
+			TeamArenaScore[teamAliveIdx] += 1
+			gotoLobby()
+		if teamAliveCount == 0:
+			gotoLobby()
+			
+		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+			TeamArenaRound == -1
+			gotoLobby()
+
+global controlHandler
+controlHandler = controlHandlerTeamArena

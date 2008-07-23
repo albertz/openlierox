@@ -12,5 +12,5 @@ setvar GameServer.GameInfo.iLoadingTimes        "100"
 
 setvar GameServer.WeaponRestrictionsFile        ""
 
-setvar GameServer.ServerName "Crazy Penguins dedicated server"
+setvar GameServer.ServerName "dedicated - Crazy Penguins"
 

@@ -1742,8 +1742,8 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 
 struct SendConnectHereAfterTimeout_Data
 {
-	SendConnectHereAfterTimeout_Data( NetworkSocket _sock, NetworkAddr _addr ):
-		sock(_sock), addr(_addr) {};
+	SendConnectHereAfterTimeout_Data( NetworkSocket _sock, NetworkAddr _addr )
+		{ sock = _sock; addr = _addr; };
 	NetworkSocket sock;
 	NetworkAddr addr;
 };
@@ -1752,21 +1752,34 @@ bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
 {
 	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) userData;
 	NetworkAddr addr;
+	ResetNetAddr(addr);
 	GetRemoteNetAddr( data->sock, addr );
-	if( AreNetAddrEqual( addr, data->addr ) && GetNetAddrPort(addr) == GetNetAddrPort(data->addr) )
+	std::string s1, s2;
+	NetAddrToString( addr, s1 );
+	NetAddrToString( data->addr, s2 );
+	printf("SendConnectHereAfterTimeout() %s:%i - %s:%i\n", s1.c_str(), GetNetAddrPort(addr), s2.c_str(), GetNetAddrPort(data->addr) );
+	if( AreNetAddrEqual( addr, data->addr ) || ( s1 == "0.0.0.0" && GetNetAddrPort(addr) == 0 ) )
 	{	// This socket wasn't used 'till we set timer routine
 		CBytestream bs;
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::connect_here");// In case server behind symmetric NAT and client has IP-restricted NAT or above
-		bs.Send(data->sock);
-		bs.Send(data->sock);
-		bs.Send(data->sock);
 
-		SetNetAddrPort(addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
-		SetRemoteNetAddr(data->sock, addr);
+		int oldPort = GetNetAddrPort(data->addr);
+		SetNetAddrPort(data->addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
+		SetRemoteNetAddr( data->sock, data->addr);
 		bs.Send(data->sock);
 		bs.Send(data->sock);
 		bs.Send(data->sock);
+		SetNetAddrPort(data->addr, oldPort);
+		SetRemoteNetAddr( data->sock, data->addr);
+		bs.Send(data->sock);
+		bs.Send(data->sock);
+		bs.Send(data->sock);
+	}
+	else
+	{
+		printf("SendConnectHereAfterTimeout() socket is used by another client %s:%i - %s:%i\n", 
+				s1.c_str(), GetNetAddrPort(addr), s2.c_str(), GetNetAddrPort(data->addr) );
 	};
 	delete data;
 	return false;
@@ -1837,6 +1850,11 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	// Send 3 times - first packet may be ignored by remote NAT
 	bs1.Send(tNatTraverseSockets[socknum]);
 	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(tNatTraverseSockets[socknum]);
+
+	bs1.Clear();
+	bs1.writeInt(-1, 4);
+	bs1.writeString("lx::connect_here");
 	bs1.Send(tNatTraverseSockets[socknum]);
 
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP

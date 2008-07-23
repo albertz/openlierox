@@ -15,12 +15,10 @@ ERROR_FILE = "dedicated_control_errors.log"
 
 SERVER_NAME = "Dedicated server" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"
-LOCAL_BOT_NAME = "[CPU] Kamikazee!" # The name of a bot in server, make sure such a bot exist in your OLX
-KILL_LOCAL_BOT = True # Kill local bot when game starts
 
-MIN_PLAYERS = 2 # including bot worm
-MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players (including bot worm)
-MAX_PLAYERS = 8 # Including bot worm
+MIN_PLAYERS = 2
+MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players
+MAX_PLAYERS = 8
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
@@ -36,3 +34,9 @@ GAME_MAX_KILLS = 20
 GAME_MAX_TIME = 10 # In minutes
 WEAPON_SELECTION_TIME = 40 # In seconds
 
+MAX_PING = 400 # Max ping to auto-kick player
+
+# Users can enter some commands too
+USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "//"
+ALLOW_TEAM_CHANGE = True # Player should type "//b", "//r", "//g", or "//y" to set it's own team
+TEAM_CHANGE_MESSAGE = "Set your team with %sb %sr %sg %sy command" % (USER_PREFIX, USER_PREFIX, USER_PREFIX, USER_PREFIX)

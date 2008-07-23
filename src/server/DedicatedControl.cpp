@@ -665,6 +665,17 @@ struct DedIntern {
 
 	}
 
+	void Cmd_GetWormPing(const std::string& params)
+	{
+		int id = -1;
+		id = atoi(params);
+		CWorm* w = CheckWorm(id, "GetWormPing");
+		if (!w)
+			return;
+
+		Sig_WormPing(w,w->getClient()->getChannel()->getPing());
+	}
+
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
@@ -718,6 +729,8 @@ struct DedIntern {
 			Cmd_GetWormIp(params);
 		else if(cmd == "getwormlocationinfo")
 			Cmd_GetWormLocationInfo(params);
+		else if(cmd == "getwormping")
+			Cmd_GetWormPing(params);
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
@@ -759,6 +772,8 @@ struct DedIntern {
 	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
 	void Sig_WormLocationInfo(CWorm* w,string continent, string country, string countryShortcut) {
 		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; }
+
+	void Sig_WormPing(CWorm* w, int ping) {	pipe.in() << "wormping " << w->getID() << " " << ping << endl; }
 
 	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
 	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)

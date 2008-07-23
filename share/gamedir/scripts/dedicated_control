@@ -9,21 +9,21 @@ import os, sys, time
 
 sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
 sys.path.append(os.getcwd()+"/scripts") # Append current dir to Python imports search paths
-import dedicated_config  # Per-host config like admin password
 import dedicated_control_functions # Low-level stuff
-cfg = dedicated_config # shortcut
+import dedicated_config  # Per-host config like admin password
 ded = dedicated_control_functions # shortcut
+cfg = dedicated_config # shortcut
 
 ## Global vars ##
 
 ## The game loop ##
 
+ded.init()
+
 ded.msg("GameState = %s" % str(ded.gameState))
 ded.messageLog("Dedicated_control started",ded.LOG_INFO)
 
 ded.startLobby()
-
-ded.initPresets()
 
 ded.waitLobbyStarted()
 
@@ -32,7 +32,7 @@ ded.setvar("GameServer.ServerName", cfg.SERVER_NAME)
 ded.setvar("GameServer.GameInfo.sWelcomeMessage", cfg.WELCOME_MESSAGE)
 ded.setvar("GameServer.MaxPlayers", cfg.MAX_PLAYERS)
 
-ded.setvar("GameServer.GameInfo.iGameMode", "0") # 0 - DM, 1 - Team DM
+ded.setvar("GameServer.GameInfo.iGameMode", 0) # 0 - DM, 1 - Team DM
 ded.setvar("GameServer.GameInfo.iLives", cfg.GAME_LIVES)
 ded.setvar("GameServer.GameInfo.iKillLimit", cfg.GAME_MAX_KILLS)
 ded.setvar("GameServer.GameInfo.fTimeLimit", cfg.GAME_MAX_TIME)
@@ -40,86 +40,10 @@ ded.setvar("GameOptions.Advanced.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_T
 
 ded.selectNextPreset()
 
-lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
-lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
-lobbyWaitAfterGame = 0
-lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-lobbyEnoughPlayers = False
-
 # nice state-machine for dedicated server
 while ded.gameState != ded.GAME_QUIT:
 
-	time.sleep(1)
-
-	oldState = ded.gameState
-	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
-	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
-	while ded.signalHandler(ded.getSignal()):
-		pass # Continue with the next iteration
-
-	if ded.gameState == ded.GAME_LOBBY:
-
-		lobbyChangePresetTimeout -= 1
-
-		if oldState != ded.GAME_LOBBY or lobbyChangePresetTimeout <= 0:
-			lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
-			ded.selectNextPreset()
-			lobbyEnoughPlayers = False # reset the state
-			lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-			lobbyWaitAfterGame = 0
-			if oldState == ded.GAME_PLAYING:
-				lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME
-
-		lobbyWaitAfterGame -= 1
-
-		if lobbyWaitAfterGame <= 0:
-
-			lobbyWaitGeneral -= 1
-
-			if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
-				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
-
-			if not lobbyEnoughPlayers and ded.getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
-				lobbyEnoughPlayers = True
-				ded.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
-				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
-
-			if lobbyEnoughPlayers and ded.getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-				lobbyEnoughPlayers = False
-				ded.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
-
-			if lobbyEnoughPlayers and not ded.sentStartGame:
-				lobbyWaitBeforeGame -= 1
-				if lobbyWaitBeforeGame <= 0: # Start the game
-
-					if ded.getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-						ded.setvar("GameServer.GameInfo.iGameMode", "1")
-						ded.sendLobbyUpdate() # Update game mode info
-						counter = 0
-						for w in ded.worms.values():
-							if w.iID != -1:
-								ded.setWormTeam( w.iID, counter % 2 )
-								counter += 1
-					else:
-						ded.setvar("GameServer.GameInfo.iGameMode", "0")
-						ded.sendLobbyUpdate() # Update game mode info
-
-					ded.startGame()
-					# If this isn't here, it will send the start command again and again,
-					# and on slow computers it will never start due to that.
-					#lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME # Give our server x seconds to load up map
-					#lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
-
-	if ded.gameState == ded.GAME_WEAPONS:
-
-		if ded.getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-			ded.gotoLobby()
-
-	if ded.gameState == ded.GAME_PLAYING:
-
-		if oldState != ded.GAME_PLAYING and cfg.KILL_LOCAL_BOT:
-			ded.killBots()
+	ded.controlHandler()
 
 ded.messageLog("GameState is QUIT. Exiting.",LOG_INFO)
 sys.exit() # Kill the stdin-input thread

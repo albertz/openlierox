@@ -1,0 +1,63 @@
+#!/usr/bin/python -u
+# The Python presets are detected from non-Python ones by first line which shouild contain "python" string
+# This file contains default settings for all presets, 
+# it will be executed before any preset to clean up after previous preset
+
+global controlHandler
+controlHandler = controlHandlerDefault
+
+setvar( "GameOptions.LastGame.LevelName", "LieroFactory(Revisited).lxl" )
+setvar( "GameServer.GameInfo.sMapFile",   "LieroFactory(Revisited).lxl" )
+setvar( "GameServer.GameInfo.sMapName",   "LFr" )
+
+setvar( "GameOptions.LastGame.ModName",   "Classic" )
+setvar( "GameServer.GameInfo.sModDir",    "Classic" )
+setvar( "GameServer.GameInfo.sModName",   "Classic" )
+
+setvar( "GameOptions.LastGame.LoadingTime", 100 )
+setvar( "GameServer.GameInfo.iLoadingTimes", 100 )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
+
+setvar( "GameServer.ServerName", "Dedicated" )
+
+setvar("GameServer.GameInfo.iGameMode", 0) # 0 - Deathmatch, 1 - TDM
+setvar("GameOptions.LastGame.GameType", 0)
+
+setvar("GameServer.GameInfo.iNumPlayers", cfg.MAX_PLAYERS)
+setvar("GameOptions.LastGame.MaxPlayers", cfg.MAX_PLAYERS)
+
+setvar("GameServer.GameInfo.iLives", cfg.GAME_LIVES)
+setvar("GameOptions.LastGame.Lives", cfg.GAME_LIVES)
+
+setvar("GameServer.GameInfo.iKillLimit", cfg.GAME_MAX_KILLS)
+setvar("GameOptions.LastGame.KillLimit", cfg.GAME_MAX_KILLS)
+
+setvar("GameServer.GameInfo.fTimeLimit", cfg.GAME_MAX_TIME)
+setvar("GameOptions.LastGame.TimeLimit", cfg.GAME_MAX_TIME)
+
+setvar("GameServer.GameInfo.bBonusesOn", 1)
+setvar("GameOptions.LastGame.Bonuses", 1)
+
+setvar("GameServer.GameInfo.bShowBonusName", 1)
+setvar("GameOptions.LastGame.BonusNames", 1)
+
+setvar("GameOptions.LastGame.BonusFrequency", 30)
+
+setvar("GameOptions.LastGame.BonusLife", 60)
+
+setvar("GameOptions.LastGame.BonusHealthToWeaponChance", 0.5) # 0 - all healths, 1 - all weapons
+
+setvar("GameOptions.LastGame.RespawnTime", 2.5)
+
+setvar("GameOptions.LastGame.RespawnInWaves", 0)
+
+setvar("GameOptions.LastGame.RespawnGroupTeams", 0)
+
+setvar("GameOptions.LastGame.GroupTeamScore", 0)
+
+setvar("GameOptions.LastGame.SuicideDecreasesScore", 0)
+
+setvar("GameOptions.LastGame.EmptyWeaponsOnRespawn", 0)
+
+setvar("GameOptions.Advanced.CountTeamkills", 0)
