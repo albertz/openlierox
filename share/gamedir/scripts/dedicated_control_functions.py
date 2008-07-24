@@ -14,13 +14,13 @@ import sys
 import threading
 import traceback
 
+import dedicated_config  # Per-host config like admin password
+cfg = dedicated_config # shortcut
+
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
 if sys.platform == "win32":
 	sys.stderr = open(cfg.ERROR_FILE, "w", 0)
-
-import dedicated_config  # Per-host config like admin password
-cfg = dedicated_config # shortcut
 
 from dedicated_control_io import *
 
