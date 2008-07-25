@@ -1,4 +1,5 @@
 #include <wx/wx.h>
+#include <wx/cmdline.h>
 #include <zlib.h>
 
 // Some basic defines
@@ -18,6 +19,14 @@
 class LevelCompilerApp : public wxApp
 {
 	virtual bool OnInit();
+	virtual void OnInitCmdLine(wxCmdLineParser& parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+	
+	wxString commandLineFront;
+	wxString commandLineBack;
+	wxString commandLineMat;
+	wxString commandLineName;
+	wxString commandLineOut;
 };
 
 // The function that does all the work :)
@@ -125,12 +134,56 @@ bool LevelCompilerApp::OnInit()
 {
 	if (!wxApp::OnInit())
 		return false;
-
+	
+	if( commandLineFront != "" )
+	{
+		CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
+		return false;
+	}
 	wxFrame *frame = new LevelCompilerFrame(_T("LieroX Level Compiler"));
 	frame->Show();
 
 	return true;
 }
+
+void LevelCompilerApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	static const wxCmdLineEntryDesc cmdLineDesc [] =
+	{
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("FrontImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("BackImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("MaterialImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("\"Level Name\""), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("OutputFile"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_NONE }
+	};
+
+	parser.SetDesc(cmdLineDesc);
+	wxApp::OnInitCmdLine(parser);
+}
+
+bool LevelCompilerApp::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+	if (parser.GetParamCount() >= 4)  
+	{
+		commandLineFront = parser.GetParam(0);
+		commandLineBack = parser.GetParam(1);
+		commandLineMat = parser.GetParam(2);
+		commandLineName = parser.GetParam(3);
+	
+		if(parser.GetParamCount() >= 5)
+			commandLineOut = parser.GetParam(4);
+		else
+			commandLineOut = commandLineName + ".lxl";
+	}
+	else if(parser.GetParamCount() > 0)
+	{
+		printf("First 4 parameters are required\n");
+	}
+		
+	return true;
+}
+
 
 // Window constructor
 LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, title,

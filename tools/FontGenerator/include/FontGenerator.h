@@ -37,8 +37,9 @@ struct arguments_t {
 	bool Bold;
 	bool Italic;
 	bool Underline;
-	size_t Size;
 	bool Antialiased;
+	size_t Size;
+	size_t LastChar;
 };
 
 ///////////////////////

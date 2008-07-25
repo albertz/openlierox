@@ -1,4 +1,5 @@
 #include <wx/wx.h>
+#include <wx/cmdline.h>
 #include <zlib.h>
 
 // Some basic defines
@@ -18,6 +19,10 @@
 class LevelDecompilerApp : public wxApp
 {
 	virtual bool OnInit();
+	virtual void OnInitCmdLine(wxCmdLineParser& parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+	
+	wxString commandLineFile;
 };
 
 // The function that does all the work :)
@@ -108,10 +113,48 @@ bool LevelDecompilerApp::OnInit()
 {
 	if (!wxApp::OnInit())
 		return false;
-
+	
+	if( commandLineFile != "" )
+	{
+		wxString outFile;
+#ifdef WIN32
+		outFile += ".\\";
+#else
+		outFile += "./";
+#endif
+		outFile += commandLineFile.Mid( 0, commandLineFile.Len() - 4 ) + ".bmp";
+		DecompileLevel( commandLineFile, outFile );
+		return false;
+	}
+	
 	wxFrame *frame = new LevelDecompilerFrame(_T("LieroX Level Decompiler"));
 	frame->Show();
 
+	return true;
+}
+
+void LevelDecompilerApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	static const wxCmdLineEntryDesc cmdLineDesc [] =
+	{
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("LevelFile.lxl"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_NONE }
+	};
+
+	parser.SetDesc(cmdLineDesc);
+	wxApp::OnInitCmdLine(parser);
+}
+
+bool LevelDecompilerApp::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+	if (parser.GetParamCount() > 0)  {
+		wxString path, name, ext;
+		wxSplitPath(parser.GetParam(0), &path, &name, &ext);
+		if (ext.CmpNoCase(_T("lxl")) != 0)
+			return true;
+		commandLineFile = parser.GetParam(0);
+	}
+		
 	return true;
 }
 

@@ -15,6 +15,10 @@
 
 #include "FontGenerator.h"
 
+#ifndef MAX
+#define MAX(x,y) ( (x) > (y) ? (x) : (y) )
+#endif
+
 SDL_Surface* Screen = NULL;
 
 using namespace std;
@@ -80,14 +84,15 @@ int main(int argc, char *argv[])
 	// Prepare for rendering
 	//
 	Output << "Preparing for compilation" << endl;
+	if( Arguments.LastChar > 65535 )
+		Arguments.LastChar = 65535;
+		
+	Uint16 * Characters = new Uint16[(Arguments.LastChar-FIRST_CHARACTER)+1];
 
-	Uint16 Characters[(LAST_CHARACTER-FIRST_CHARACTER)+1];
-
-	register Uint16 c;
-	for (c=0;c<(LAST_CHARACTER-FIRST_CHARACTER);c++)  {
+	for (size_t c=0;c<(Arguments.LastChar-FIRST_CHARACTER);c++)  {
 		Characters[c] = c+FIRST_CHARACTER;
 	}
-	Characters[(LAST_CHARACTER-FIRST_CHARACTER)] = 0; // Terminating
+	Characters[(Arguments.LastChar-FIRST_CHARACTER)] = 0; // Terminating
 
 
 	//
@@ -96,7 +101,7 @@ int main(int argc, char *argv[])
 
 	Output << "Rendering the font." << endl;
 
-	SDL_Surface *OutBmp = RenderText(Font,Characters,(LAST_CHARACTER-FIRST_CHARACTER),Arguments.Outline,Arguments.Antialiased);
+	SDL_Surface *OutBmp = RenderText(Font,Characters,(Arguments.LastChar-FIRST_CHARACTER),Arguments.Outline,Arguments.Antialiased);
 	if (!OutBmp)  {
 		TTF_CloseFont(Font);
 		Quit();
@@ -115,6 +120,7 @@ int main(int argc, char *argv[])
 	//
 	// Quit
 	//
+	delete [] Characters;
 	Output << "Successfully finished! :)" << endl;
 	SDL_FreeSurface(OutBmp);
 	TTF_CloseFont(Font);
@@ -307,7 +313,7 @@ void ApplyOutline(SDL_Surface *BitmapText)
 void DisplayHelp(const std::string& ExeName)
 {
 	Output << "Usage:" << endl
-	<< ExeName << " " << "<input file> [<output file>] [-bold] [-italic] [-underline] [-outline] [-antialiasing]" << endl;
+	<< ExeName << " " << "<input file> [<output file>] [-bold] [-italic] [-underline] [-outline] [-antialiasing] [-size:number] [-amount:number]" << endl;
 
 #ifdef WIN32
 	Output << endl << endl;
@@ -322,6 +328,7 @@ arguments_t ParseArguments(int argc,char *argv[])
 	Result.InputFile = "";
 	Result.OutputFile = "";
 	Result.Size = DEF_FONTSIZE;
+	Result.LastChar = LAST_CHARACTER;
 	Result.Bold = false;
 	Result.Italic = false;
 	Result.Underline = false;
@@ -355,9 +362,13 @@ arguments_t ParseArguments(int argc,char *argv[])
 			Result.Outline = true;
 		// Size
 		} else if (strstr(strlwr(argv[i]),"-size:"))  {
-			Result.Size = atoi(argv[i]+6); // 6 == strlen("size:")
+			Result.Size = atoi(argv[i]+strlen("size:"));
 			if (Result.Size == 0)
 				Result.Size = DEF_FONTSIZE;
+		} else if (strstr(strlwr(argv[i]),"-amount:"))  {
+			Result.LastChar = atoi(argv[i]+strlen("-amount:"));
+			if (Result.LastChar == 0)
+				Result.LastChar = LAST_CHARACTER;
 		// Antialiasing
 		} else if (strstr(strlwr(argv[i]),"-antialiasing"))  {
 			Result.Antialiased = true;
