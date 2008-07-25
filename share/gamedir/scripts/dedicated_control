@@ -43,7 +43,16 @@ ded.selectNextPreset()
 # nice state-machine for dedicated server
 while ded.gameState != ded.GAME_QUIT:
 
-	ded.controlHandler()
+	time.sleep(1)
+
+	ded.oldGameState = ded.gameState
+	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
+	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
+	while ded.signalHandler(ded.getSignal()):
+		pass # Continue with the next iteration
+
+	if not ded.scriptPaused:
+		ded.controlHandler()
 
 ded.messageLog("GameState is QUIT. Exiting.",LOG_INFO)
 sys.exit() # Kill the stdin-input thread

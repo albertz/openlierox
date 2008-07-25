@@ -85,6 +85,7 @@ gameState = GAME_QUIT
 
 sentStartGame = False
 
+scriptPaused = False
 
 # Stolen from http://www.linuxjournal.com/article/5821
 def formatExceptionInfo(maxTBlevel=5):
@@ -127,6 +128,11 @@ def setWormTeam(iID, team):
 		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
 
 
+adminCommandHelp_Preset = None
+parseAdminCommand_Preset = None
+userCommandHelp_Preset = None
+parseUserCommand_Preset = None
+
 def adminCommandHelp(wormid):
 	privateMsg(wormid, "Admin help:")
 	privateMsg(wormid, "%skick wormID [reason]" % cfg.ADMIN_PREFIX)
@@ -139,11 +145,15 @@ def adminCommandHelp(wormid):
 	privateMsg(wormid, "%steam wormID teamID (0123 or brgy)" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sstop - go to lobby" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%spause - pause ded script" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%sunpause - resume ded script" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%ssetvar varname value" % cfg.ADMIN_PREFIX)
+	if adminCommandHelp_Preset:
+		adminCommandHelp_Preset(wormid)
 
 # Admin interface
 def parseAdminCommand(wormid,message):
-	global worms, curPreset, availiblePresets, availibleLevels, availibleMods
+	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, parseAdminCommand_Preset
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.ADMIN_PREFIX)):
 			return False # normal chat
@@ -177,7 +187,7 @@ def parseAdminCommand(wormid,message):
 					mod = m
 					break
 			if mod == "":
-				chatMsg("Invalid mod name")
+				privateMsg(wormid,"Invalid mod name")
 			else:
 				setvar("GameServer.GameInfo.sModDir", mod) # In case mod name contains spaces
 				setvar("GameServer.GameInfo.sModName", mod)
@@ -189,7 +199,7 @@ def parseAdminCommand(wormid,message):
 					level = l
 					break
 			if level == "":
-				chatMsg("Invalid level name")
+				privateMsg(wormid,"Invalid map name")
 			else:
 				setvar("GameServer.GameInfo.sMapFile", level) # In case map name contains spaces
 				setvar("GameServer.GameInfo.sMapName", level[:-3])
@@ -201,7 +211,7 @@ def parseAdminCommand(wormid,message):
 					preset = p
 					break
 			if preset == -1:
-				chatMsg("Invalid preset name")
+				privateMsg(wormid,"Invalid preset name")
 			else:
 				curPreset = preset
 				selectNextPreset()
@@ -212,8 +222,16 @@ def parseAdminCommand(wormid,message):
 			startGame()
 		elif cmd == "stop":
 			gotoLobby()
+		elif cmd == "pause":
+			privateMsg(wormid,"Ded script paused")
+			scriptPaused = True
+		elif cmd == "unpause":
+			privateMsg(wormid,"Ded script continues")
+			scriptPaused = False
 		elif cmd == "setvar":
 			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
+		elif parseAdminCommand_Preset and parseAdminCommand_Preset(wormid, cmd, params):
+			pass
 		else:
 			raise Exception, "Invalid admin command"
 
@@ -227,12 +245,22 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		privateMsg(wormid, "%sb %sr %sg %sy - set blue, red, green or yellow team" % (cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX, cfg.USER_PREFIX ))
+		msg = "%sb %sr" % (cfg.USER_PREFIX, cfg.USER_PREFIX)
+		if cfg.MAX_TEAMS >= 3:
+			msg += " %sg" % (cfg.USER_PREFIX)
+		if cfg.MAX_TEAMS >= 4:
+			msg += " %sy" % (cfg.USER_PREFIX)
+		privateMsg(wormid, msg + " - set your team")
+		if userCommandHelp_Preset:
+			userCommandHelp_Preset(wormid)
 	else:
-		privateMsg(wormid, "No user commands avaliable")
+		if userCommandHelp_Preset:
+			userCommandHelp_Preset(wormid)
+		else:
+			privateMsg(wormid, "No user commands avaliable")
 
 def parseUserCommand(wormid,message):
-	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, gameState
+	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, gameState, parseUserCommand_Preset
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.USER_PREFIX)):
 			return False # normal chat
@@ -247,17 +275,16 @@ def parseUserCommand(wormid,message):
 
 		if cmd == "help":
 			userCommandHelp(wormid)
-		elif cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			if cmd == "b":
-				setWormTeam(wormid, 0)
-			elif cmd == "r":
-				setWormTeam(wormid, 1)
-			elif cmd == "g":
-				setWormTeam(wormid, 2)
-			elif cmd == "y":
-				setWormTeam(wormid, 3)
-			else:
-				raise Exception, "Invalid user command"
+		elif cmd == "b" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+			setWormTeam(wormid, 0)
+		elif cmd == "r" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+			setWormTeam(wormid, 1)
+		elif cmd == "g" and cfg.MAX_TEAMS >= 3 and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+			setWormTeam(wormid, 2)
+		elif cmd == "y" and cfg.MAX_TEAMS >= 4 and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+			setWormTeam(wormid, 3)
+		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
+			pass
 		else:
 			raise Exception, "Invalid user command"
 
@@ -536,14 +563,6 @@ def controlHandlerDefault():
 	
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
 	
-	time.sleep(1)
-
-	oldGameState = gameState
-	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
-	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
-	while signalHandler(getSignal()):
-		pass # Continue with the next iteration
-	
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong
@@ -589,7 +608,7 @@ def controlHandlerDefault():
 							counter = 0
 							for w in worms.values():
 								if w.iID != -1:
-									setWormTeam( w.iID, counter % 2 )
+									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 					else:
 						setvar("GameServer.GameInfo.iGameMode", "0")

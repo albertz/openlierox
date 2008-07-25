@@ -16,25 +16,22 @@ setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
 setvar( "GameServer.ServerName", "Dedicated - TeamArena" )
 
-setvar("GameServer.GameInfo.iGameMode", 1)
+setvar("GameServer.GameInfo.iGameMode", 1) # Required for this gamemode
 setvar("GameOptions.LastGame.GameType", 1)
 
-setvar("GameServer.GameInfo.iLives", 0)
+setvar("GameServer.GameInfo.iLives", 0) # Required for this gamemode
 setvar("GameOptions.LastGame.Lives", 0)
 
-setvar("GameOptions.LastGame.RespawnInWaves", 1)
+setvar("GameOptions.LastGame.RespawnInWaves", 1) # Required for this gamemode
 
-setvar("GameOptions.LastGame.RespawnGroupTeams", 1)
+setvar("GameOptions.LastGame.RespawnGroupTeams", 1) # Required for this gamemode
 
 setvar("GameOptions.Advanced.CountTeamkills", 0)
 
-sendLobbyUpdate() # Update game mode info
-if cfg.ALLOW_TEAM_CHANGE:
-	chatMsg(cfg.TEAM_CHANGE_MESSAGE)
-
 def controlHandlerTeamArena():
 
-	MaxTeamArenaRounds = 5
+	RoundsToWin = 5 # You may change this var
+	WaitInLobbyBeforeNextRound = cfg.WAIT_BEFORE_GAME # You may change this var, it can be zero
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, sentStartGame
 	global TeamArenaScore, TeamArenaRound
@@ -47,32 +44,41 @@ def controlHandlerTeamArena():
 	except NameError:
 		TeamArenaRound = -1
 	
-	time.sleep(1)
-
-	oldGameState = gameState
-	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
-	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
-	while signalHandler(getSignal()):
-		pass # Continue with the next iteration
-
-	#messageLog("controlHandlerTeamArena() gameState " + str(gameState) + " TeamArenaRound " + str(TeamArenaRound), LOG_INFO)
-	
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong
-		if TeamArenaRound >= MaxTeamArenaRounds:
-			chatMsg("Final score: blue %i red %i green %i yellow %i" % ( TeamArenaScore[0], TeamArenaScore[1], TeamArenaScore[2], TeamArenaScore[3] ))
-			TeamArenaRound = -1
-			TeamArenaScore = [0,0,0,0]
-			
+		# End round if some team reaches max score or if only 1 worm left
+		for i in range(4):
+			if TeamArenaScore[i] >= RoundsToWin or ( TeamArenaRound >= 0 and getNumWorms() <= 1 ):
+				msg = "Final score: blue %i red %i" % ( TeamArenaScore[0], TeamArenaScore[1] )
+				if cfg.MAX_TEAMS >= 3:
+					msg += " green %i" % TeamArenaScore[2]
+				if cfg.MAX_TEAMS >= 4:
+					msg += " yellow %i" % TeamArenaScore[3]
+				chatMsg(msg)
+				TeamArenaRound = -1
+				TeamArenaScore = [0,0,0,0]
+
 		if TeamArenaRound >= 0:
-			if not sentStartGame:
-				for i in worms.keys():
-					if worms[i].iID == -1:
-						continue
-					worms[i].Lives = 0
-				startGame()
-				chatMsg("Round %i: blue %i red %i green %i yellow %i" % ( TeamArenaRound, TeamArenaScore[0], TeamArenaScore[1], TeamArenaScore[2], TeamArenaScore[3] ))
+
+			msg = "Round %i: blue %i red %i" % ( TeamArenaRound, TeamArenaScore[0], TeamArenaScore[1] )
+			if cfg.MAX_TEAMS >= 3:
+				msg += " green %i" % TeamArenaScore[2]
+			if cfg.MAX_TEAMS >= 4:
+				msg += " yellow %i" % TeamArenaScore[3]
+
+			if lobbyWaitBeforeGame == WaitInLobbyBeforeNextRound:
+				chatMsg(msg)
+			lobbyWaitBeforeGame -= 1
+
+			if lobbyWaitBeforeGame <= 0 and getNumWorms() >= cfg.MIN_PLAYERS:
+				if not sentStartGame:
+					for i in worms.keys():
+						if worms[i].iID == -1:
+							continue
+						worms[i].Lives = 0
+					startGame()
+					chatMsg(msg)
 
 		else:
 		
@@ -116,7 +122,7 @@ def controlHandlerTeamArena():
 							counter = 0
 							for w in worms.values():
 								if w.iID != -1:
-									setWormTeam( w.iID, counter % 2 )
+									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 						
 						for i in worms.keys():
@@ -132,10 +138,7 @@ def controlHandlerTeamArena():
 
 	if gameState == GAME_WEAPONS:
 	
-		#checkMaxPing()
-
 		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-			TeamArenaRound == -1
 			gotoLobby()
 
 	if gameState == GAME_PLAYING:
@@ -146,12 +149,11 @@ def controlHandlerTeamArena():
 		for i in worms.keys():
 			if worms[i].iID == -1:
 				continue
-			#messageLog("controlHandlerTeamArena() worm " + str(i) + " team " + str(worms[i].Team) + " lives " + str(worms[i].Lives), LOG_INFO)
 			if worms[i].Lives >= 0:
 				teamAlive[worms[i].Team] += 1
+
 		teamAliveCount = 0
 		teamAliveIdx = -1
-		#messageLog("controlHandlerTeamArena() teamAlive " + str(teamAlive), LOG_INFO)
 		for i in range(4):
 			if teamAlive[i] > 0:
 				teamAliveCount += 1
@@ -159,13 +161,70 @@ def controlHandlerTeamArena():
 		if teamAliveCount == 1:
 			TeamArenaRound += 1
 			TeamArenaScore[teamAliveIdx] += 1
+			lobbyWaitBeforeGame = WaitInLobbyBeforeNextRound
 			gotoLobby()
 		if teamAliveCount == 0:
+			lobbyWaitBeforeGame = WaitInLobbyBeforeNextRound
 			gotoLobby()
 			
-		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-			TeamArenaRound == -1
-			gotoLobby()
+def adminCommandHelpTeamArena(wormid):
+	privateMsg(wormid, "%sreset - resets TeamArena state" % cfg.ADMIN_PREFIX)
 
-global controlHandler
+def parseAdminCommandTeamArena(wormid, cmd, params):
+	global TeamArenaScore, TeamArenaRound
+	try:
+		temp = TeamArenaScore
+		temp = TeamArenaRound
+	except NameError:
+		return False
+
+	if cmd == "reset":
+		gotoLobby()
+		msg = "Final score: blue %i red %i" % ( TeamArenaScore[0], TeamArenaScore[1] )
+		if cfg.MAX_TEAMS >= 3:
+			msg += " green %i" % TeamArenaScore[2]
+		if cfg.MAX_TEAMS >= 4:
+			msg += " yellow %i" % TeamArenaScore[3]
+		time.sleep(1)
+		chatMsg(msg)
+		TeamArenaRound = -1
+		TeamArenaScore = [0,0,0,0]
+		
+		return True
+	
+	return False
+
+
+def userCommandHelpTeamArena(wormid):
+	privateMsg(wormid, "%sscore - prints TeamArena score" % cfg.USER_PREFIX)
+
+def parseUserCommandTeamArena(wormid, cmd, params):
+	global TeamArenaScore, TeamArenaRound
+	try:
+		temp = TeamArenaScore
+		temp = TeamArenaRound
+	except NameError:
+		return False
+
+	if cmd == "score":
+		msg = "Round %i: blue %i red %i" % ( TeamArenaRound, TeamArenaScore[0], TeamArenaScore[1] )
+		if cfg.MAX_TEAMS >= 3:
+			msg += " green %i" % TeamArenaScore[2]
+		if cfg.MAX_TEAMS >= 4:
+			msg += " yellow %i" % TeamArenaScore[3]
+		privateMsg(wormid, msg)
+		
+		return True
+	
+	return False
+
+global controlHandler, adminCommandHelp_Preset, parseAdminCommand_Preset, userCommandHelp_Preset, parseUserCommand_Preset
 controlHandler = controlHandlerTeamArena
+adminCommandHelp_Preset = adminCommandHelpTeamArena
+parseAdminCommand_Preset = parseAdminCommandTeamArena
+userCommandHelp_Preset = userCommandHelpTeamArena
+parseUserCommand_Preset = parseUserCommandTeamArena
+
+sendLobbyUpdate() # Update game mode info
+if cfg.ALLOW_TEAM_CHANGE:
+	chatMsg(cfg.TEAM_CHANGE_MESSAGE)

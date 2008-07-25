@@ -3,8 +3,13 @@
 # This file contains default settings for all presets, 
 # it will be executed before any preset to clean up after previous preset
 
-global controlHandler
+global controlHandler, adminCommandHelp_Preset, parseAdminCommand_Preset, userCommandHelp_Preset, parseUserCommand_Preset
 controlHandler = controlHandlerDefault
+adminCommandHelp_Preset = None
+parseAdminCommand_Preset = None
+userCommandHelp_Preset = None
+parseUserCommand_Preset = None
+
 
 setvar( "GameOptions.LastGame.LevelName", "LieroFactory(Revisited).lxl" )
 setvar( "GameServer.GameInfo.sMapFile",   "LieroFactory(Revisited).lxl" )
