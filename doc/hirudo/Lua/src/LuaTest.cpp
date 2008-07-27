@@ -5,8 +5,10 @@
 #include "Common.h"
 #include "LuaInterface.h"
 #include "LuaArgument.h"
+#include <list>
 
 int main() {
+
 
 
     LuaInterface lu;
@@ -16,7 +18,7 @@ int main() {
 
     // arguments for lua function
     LuaArgument largs[] = { LuaArgument(5) };
-    /* index, function name,  args array,  number of args, number of results (return args), return args vector */
+    // index, function name,  args array,  number of args, number of results (return args), return args vector
     lu.CallLua(LUA_GLOBALSINDEX, "doStuff", largs, 1, 4, &retargs);
 
     int i = 0;
@@ -25,5 +27,4 @@ int main() {
         it->PrintDebug();
         printf("\n");
     }
-
 }

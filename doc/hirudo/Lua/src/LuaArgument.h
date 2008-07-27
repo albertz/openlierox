@@ -24,6 +24,9 @@ class LuaArgument {
         LuaArgument ( bool arg );                           // ARG_BOOL
         LuaArgument ( const string& arg );                  // ARG_STRING
         LuaArgument ( map<LuaArgument, LuaArgument>& arg ); // ARG_TABLE
+        LuaArgument ( const LuaArgument& m1 );
+
+        LuaArgument& operator= ( const LuaArgument& m1 );
 
         void SetInt    ( int arg );
         void SetDouble ( double arg );

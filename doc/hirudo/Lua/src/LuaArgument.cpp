@@ -14,7 +14,28 @@
 
 // FIXME: I THINK I know how pointers work... but DC makes an idiot out of me every time!!!
 
-LuaArgument::LuaArgument() {}
+LuaArgument::LuaArgument (const LuaArgument& m1) {
+    operator=(m1);
+}
+
+LuaArgument& LuaArgument::operator= (const LuaArgument& m1) {
+    if (&m1 == this)
+        return *this;
+
+    sortint  = m1.sortint;
+    m_table  = m1.m_table;
+    m_string = m1.m_string;
+    m_bool   = m1.m_bool;
+    m_int    = m1.m_int;
+    m_double = m1.m_double;
+    m_type   = m1.m_type;
+
+    return *this;
+}
+
+LuaArgument::LuaArgument() {
+    Clear();
+}
 
 LuaArgument::LuaArgument (int arg) {
     SetInt(arg);
