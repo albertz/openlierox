@@ -4,8 +4,7 @@
 #include "luainc.h"
 #include "Common.h"
 #include "LuaInterface.h"
-#include "LuaArgument.h"
-#include <list>
+#include "LuaArgument.h"s
 
 int main() {
 
