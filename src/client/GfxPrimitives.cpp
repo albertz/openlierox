@@ -34,24 +34,63 @@ int iSurfaceFormat = SDL_SWSURFACE;
 
 using namespace std;
 
+// Used in various alpha-blending routines, internal
+struct RGBA  {
+	Uint8 r, g, b, a;
+};
+
 /////////////////////////
 //
 // Misc routines
 //
 //////////////////////////
 
+///////////////////////
+// Helper function
+static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
+	RGBA res;
+	const Uint32 tmp = (255 - s_p.a) * d_p.a / 255;
+	res.r = ((Uint32)d_p.r * tmp + (Uint32)s_p.r * s_p.a) / 255;
+	res.g = ((Uint32)d_p.g * tmp + (Uint32)s_p.g * s_p.a) / 255;
+	res.b = ((Uint32)d_p.b * tmp + (Uint32)s_p.b * s_p.a) / 255;
+	res.a = MIN(255, d_p.a + s_p.a);
+	return res;
+}
+
 /////////////////
 // Put the pixel alpha blended with the background
-void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, float a)  {
-	Uint8 R1, G1, B1, A1, R2, G2, B2;
+void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
-	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
-	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
-			(Uint8) CLAMP(R1 * (1.0f - a) + R2 * a, 0.0f, 255.0f),
-			(Uint8) CLAMP(G1 * (1.0f - a) + G2 * a, 0.0f, 255.0f),
-			(Uint8) CLAMP(B1 * (1.0f - a) + B2 * a, 0.0f, 255.0f),
-			A1), bmpDest->format->BytesPerPixel);
+	
+	RGBA s_p; SDL_GetRGBA(colour, bmpDest->format, &s_p.r, &s_p.g, &s_p.b, &s_p.a);
+	s_p.a = (Uint8)((Uint32)a * s_p.a / 255);
+	RGBA d_p;
+
+	switch (bmpDest->format->BytesPerPixel)  {
+		case 2: // 16 bpp
+		{
+			SDL_GetRGBA(*(Uint16 *)px, bmpDest->format, &d_p.r, &d_p.g, &d_p.b, &d_p.a);
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			*(Uint16 *)px = SDL_MapRGBA(bmpDest->format, res.r, res.g, res.b, res.a);
+		} break;
+		case 3: // 24 bpp
+		{
+			d_p.r = px[bmpDest->format->Rshift/8];
+			d_p.g = px[bmpDest->format->Gshift/8];
+			d_p.b = px[bmpDest->format->Bshift/8];
+			d_p.a = SDL_ALPHA_OPAQUE; // HINT: 24bit surfaces don't have any alpha
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			px[bmpDest->format->Rshift/8] = res.r;
+			px[bmpDest->format->Gshift/8] = res.g;
+			px[bmpDest->format->Bshift/8] = res.b;
+		} break;
+		case 4: // 32 bpp
+		{
+			SDL_GetRGBA(*(Uint32 *)px, bmpDest->format, &d_p.r, &d_p.g, &d_p.b, &d_p.a);
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			*(Uint32 *)px = SDL_MapRGBA(bmpDest->format, res.r, res.g, res.b, res.a);
+		} break;
+	}
 }
 
 
@@ -169,6 +208,86 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
+}
+
+//////////////////////////////
+// Create a surface without any alpha channel
+SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoftware)
+{
+	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
+		return NULL;
+
+	SDL_PixelFormat* fmt = getMainPixelFormat();
+
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
+			width, height,
+			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+
+	if (result.get() != NULL)  {
+		// OpenGL strictly requires the surface to be cleared
+		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
+		SDL_SetAlpha(result.get(), 0, 0); // Remove any alpha
+	}
+
+	#ifdef DEBUG_SMARTPTR
+	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
+	#endif
+
+	return result;
+}
+
+/////////////////////////
+// Create a surface with an alpha channel
+SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware)
+{
+	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
+		return NULL;
+
+	SmartPointer<SDL_Surface> result;
+	SDL_PixelFormat* fmt = getMainPixelFormat();
+
+	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
+	// (else the blitting is wrong)
+	// it seems that for other BPP this is not the case
+	if(!forceSoftware && (iSurfaceFormat == SDL_HWSURFACE || fmt->BitsPerPixel != 32) && fmt->Amask != 0) // the main pixel format supports alpha blending
+		result = SDL_CreateRGBSurface(
+				iSurfaceFormat | SDL_SRCALPHA,
+				width, height,
+				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+
+	else // no native alpha blending or forced software, so create a software alpha blended surface
+		result = SDL_CreateRGBSurface(
+				SDL_SWSURFACE | SDL_SRCALPHA,
+				width, height, 32,
+				ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
+
+	if (result.get() != NULL)
+		// OpenGL strictly requires the surface to be cleared
+		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
+
+	#ifdef DEBUG_SMARTPTR
+	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
+	#endif
+
+	return result;
+}
+
+//////////////////
+// Resets the alpha-channel and the colorkey
+void ResetAlpha(SDL_Surface * dst)
+{
+	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
+	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
+
+	LOCK_OR_QUIT(dst);
+
+	int x, y;
+	for(y = 0; y < dst->h; y++)
+		for(x = 0; x < dst->w; x++)
+			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
+
+	UnlockSurface(dst);
 }
 
 
@@ -375,6 +494,121 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
 	if (HasColorkey)
 		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
+}
+
+/////////////////////
+// Performs a "correct" blit between two RGBA surfaces
+static void DrawRGBAtoRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+{
+	// RGBA surfaces are only 32bit
+	assert(bmpSrc->format->BytesPerPixel == 4 && bmpDest->format->BytesPerPixel == 4);
+
+	// Clip
+	if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	rDest.w = rSrc.w;
+	rDest.h = rSrc.h;
+	if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
+		return;
+
+#define BPP 4
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	Uint8 *src = ((Uint8 *)bmpSrc->pixels + rSrc.y * bmpSrc->pitch + rSrc.x * BPP);
+	Uint8 *dst = ((Uint8 *)bmpDest->pixels + rDest.y * bmpDest->pitch + rDest.x * BPP);
+	int srcgap = bmpSrc->pitch - rDest.w * BPP;
+	int dstgap = bmpDest->pitch - rDest.w * BPP;
+
+	// ARGB -> ARGB or ABGR -> ABGR (optimized (a bit))
+	if (bmpSrc->format->Amask == 0xFF000000 && bmpDest->format->Amask == 0xFF000000 &&
+		bmpSrc->format->Rmask == bmpDest->format->Rmask)  {
+		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+			for (int x = rDest.w; x; --x, dst += BPP, src += BPP)  {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+				*(RGBA *)dst = BlendRGBAPixels(*(RGBA *)dst, *(RGBA *)src);
+#else
+				RGBA s_p = { src[3], src[2], src[1], src[0] };
+				RGBA d_p = { dst[3], dst[2], dst[1], dst[0] };
+				const RGBA& res = BlendRGBAPixels*(RGBA *)dst, *(RGBA *)src);
+				dst[0] = res[3]; dst[1] = res[2]; dst[2] = res[1]; dst[3] = res[0];
+#endif
+			}
+
+	// Other
+	} else  {
+		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+			for (int x = rDest.w; x; --x, dst += BPP, src += BPP)  {
+				// HINT: endian independent
+				const RGBA s_p = {(*(Uint32 *)src) >> bmpSrc->format->Rshift,
+							(*(Uint32 *)src) >> bmpSrc->format->Gshift,
+							(*(Uint32 *)src) >> bmpSrc->format->Bshift,
+							(*(Uint32 *)src) >> bmpSrc->format->Ashift };
+				const RGBA d_p = {(*(Uint32 *)dst) >> bmpDest->format->Rshift,
+							(*(Uint32 *)dst) >> bmpDest->format->Gshift,
+							(*(Uint32 *)dst) >> bmpDest->format->Bshift,
+							(*(Uint32 *)dst) >> bmpDest->format->Ashift };
+				const RGBA& res = BlendRGBAPixels(d_p, s_p);
+				*(Uint32 *)dst =	(res.r << bmpDest->format->Rshift) |
+									(res.g << bmpDest->format->Gshift) |
+									(res.b << bmpDest->format->Bshift) |
+									(res.a << bmpDest->format->Ashift);
+			}
+	}
+
+
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+
+#undef BPP
+}
+
+/////////////////////
+// Draws the image
+void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+{
+	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
+	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
+
+	// RGBA -> RGB
+	// RGB -> RGB
+	// RGB -> RGBA
+	if (!dst_isrgba || !src_isrgba)  {
+		SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+
+	// RGBA -> RGBA
+	} else {
+		DrawRGBAtoRGBA(bmpDest, bmpSrc, rDest, rSrc);
+	}
+}
+
+/////////////////////////
+// Draw the image tiled on the dest surface
+void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
+{
+	// Place the tiles
+	for (int y = 0; y < dh; y += sh)
+		for (int x = 0; x < dw; x += sw)
+			DrawImageAdv(bmpDest, bmpSrc, sx, sy, dx + x, dy + y, sw, sh);
+}
+
+/////////////////////////
+// Draw the image tiled on the dest surface, only in the X direction
+void DrawImageTiledX(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
+{
+	// Place the tiles
+	for (int x = 0; x < dw; x += sw)
+		DrawImageAdv(bmpDest, bmpSrc, sx, sy, dx + x, dy, sw, MIN(dh, sh));
+}
+
+/////////////////////////
+// Draw the image tiled on the dest surface, only in the Y direction
+void DrawImageTiledY(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
+{
+	// Place the tiles
+	for (int y = 0; y < dh; y += sh)
+		DrawImageAdv(bmpDest, bmpSrc, sx, sy, dx, dy + y, MIN(dw, sw), sh);
 }
 
 
@@ -1384,6 +1618,53 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 	}
 
 	UnlockSurface(dst);
+}
+
+/////////////////////
+// Draws a simple linear gradient
+void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32 cl1, Uint32 cl2, GradientDirection dir)
+{
+	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)bmpDest->clip_rect))
+		return;
+
+	Uint8 r1, g1, b1, a1;
+	Uint8 r2, g2, b2, a2;
+	GetColour4(cl1, getMainPixelFormat(), &r1, &g1, &b1, &a1);
+	GetColour4(cl2, getMainPixelFormat(), &r2, &g2, &b2, &a2);
+
+	float rstep, gstep, bstep, astep;
+
+	switch (dir)  {
+		case grdVertical:
+			rstep = (float)(r2 - r1) / (float)h;
+			gstep = (float)(g2 - g1) / (float)h;
+			bstep = (float)(b2 - b1) / (float)h;
+			astep = (float)(a2 - a1) / (float)h;
+
+			for (int gy = 0; gy < h; gy++)  {
+				Uint8 r = r1 + Round(gy * rstep);
+				Uint8 g = g1 + Round(gy * gstep);
+				Uint8 b = b1 + Round(gy * bstep);
+				Uint8 a = a1 + Round(gy * astep);
+				DrawHLine(bmpDest, x, x + w - 1, y + gy, SDL_MapRGBA(bmpDest->format, r, g, b, a));
+			}
+		break;
+
+		case grdHorizontal:
+			rstep = (float)(r2 - r1) / (float)w;
+			gstep = (float)(g2 - g1) / (float)w;
+			bstep = (float)(b2 - b1) / (float)w;
+			astep = (float)(a2 - a1) / (float)w;
+
+			for (int gx = 0; gx < w; gx++)  {
+				Uint8 r = r1 + Round(gx * rstep);
+				Uint8 g = g1 + Round(gx * gstep);
+				Uint8 b = b1 + Round(gx * bstep);
+				Uint8 a = a1 + Round(gx * astep);
+				DrawVLine(bmpDest, y, y + h - 1, x + gx, SDL_MapRGBA(bmpDest->format, r, g, b, a));
+			}
+		break;
+	}
 }
 
 

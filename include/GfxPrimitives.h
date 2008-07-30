@@ -42,6 +42,12 @@ extern	int		iSurfaceFormat;
 #define ALPHASURFACE_BMASK 0x000000ff
 #define ALPHASURFACE_AMASK 0xff000000
 
+// Gradient direction
+enum GradientDirection  {
+	grdHorizontal,
+	grdVertical
+};
+
 /////////////////////
 // Locking and unlocking routines, must be called before doing anything with pixels
 inline bool LockSurface(SDL_Surface * bmp)  {
@@ -200,6 +206,30 @@ bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
 
 bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
+////////////////
+// Create a SDL rect
+inline SDL_Rect MakeRect(int x, int y, int w, int h)
+{
+	SDL_Rect r = {x, y, w, h};
+	return r;
+}
+
+////////////////
+// Returns true if the given point is in the given rect (including "borders")
+inline bool PointInRect(int x, int y, const SDL_Rect& r)
+{
+	return	(r.x <= x) && (x <= (r.x + r.w)) &&
+			(r.y <= y) && (y <= (r.y + r.h));
+}
+
+//////////////////////
+// Returns true if rect1 contains rect2
+inline bool ContainsRect(const SDL_Rect& rect1, const SDL_Rect& rect2)
+{
+	return (rect1.x <= rect2.x) && (rect1.x + rect1.w >= rect2.x + rect2.w) && 
+			(rect1.y <= rect2.y) && (rect1.y + rect1.h >= rect2.y + rect2.h);
+}
+
 //
 // Image loading and saving
 //
@@ -253,63 +283,12 @@ inline bool SaveSurface(const SmartPointer<SDL_Surface> & image, const std::stri
 
 //////////////////
 // Creates a buffer with the same details as the screen
-inline SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoftware = false) {
-	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
-		return NULL;
-
-	SDL_PixelFormat* fmt = getMainPixelFormat();
-
-	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
-			width, height,
-			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
-	if (result.get() != NULL)
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect(result.get(), NULL, SDL_MapRGBA(result.get()->format, 0, 0, 0, 255));
-
-	#ifdef DEBUG_SMARTPTR
-	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
-	#endif
-
-	return result;
-}
+SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoftware = false);
 
 
 ///////////////////
 // Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
-inline SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false) {
-	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
-		return NULL;
-
-	SmartPointer<SDL_Surface> result;
-	SDL_PixelFormat* fmt = getMainPixelFormat();
-
-	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
-	// (else the blitting is wrong)
-	// it seems that for other BPP this is not the case
-	if(!forceSoftware && (iSurfaceFormat == SDL_HWSURFACE || fmt->BitsPerPixel != 32) && fmt->Amask != 0) // the main pixel format supports alpha blending
-		result = SDL_CreateRGBSurface(
-				iSurfaceFormat | SDL_SRCALPHA,
-				width, height,
-				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
-	else // no native alpha blending or forced software, so create a software alpha blended surface
-		result = SDL_CreateRGBSurface(
-				SDL_SWSURFACE | SDL_SRCALPHA,
-				width, height, 32,
-				ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
-
-	if (result.get() != NULL)
-		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
-
-	#ifdef DEBUG_SMARTPTR
-	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
-	#endif
-
-	return result;
-}
+SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false); 
 
 ////////////////////
 // Destroys a surface
@@ -340,9 +319,8 @@ inline void CopySurface(SDL_Surface * dst, const SmartPointer<SDL_Surface> & src
 
 //////////////
 // Draw the image with a huge amount of options
-inline void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
-	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
-}
+void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc);
+
 inline void DrawImageAdv(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
 	DrawImageAdv(bmpDest, bmpSrc.get(), rDest, rSrc);
 }
@@ -489,6 +467,12 @@ inline void DrawImageScale2x(SDL_Surface* bmpDest, const SmartPointer<SDL_Surfac
 
 void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc);
 
+///////////////////
+// Tiles the source image onto the dest image
+void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
+void DrawImageTiledX(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
+void DrawImageTiledY(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
+
 //
 // Pixel and color routines
 //
@@ -572,11 +556,7 @@ inline void CopyPixel_SameFormat(
 // Put pixel alpha blended with the background
 // WARNING: passing invalid coordinates will cause a segfault
 // NOTE: dst must be locked before calling this
-void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, float a);
-
-inline void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a) {
-	PutPixelA(bmpDest, x, y, colour, (float)a / 255.0f);
-}
+void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
 
 ////////////////
@@ -643,6 +623,10 @@ inline void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Ui
 // Very fast routine for drawing 2x2 rects
 void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color);
 void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color);
+
+/////////////////////
+// Draws a simple linear gradient
+void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32 cl1, Uint32 cl2, GradientDirection dir);
 
 ////////////////////
 // Fills the surface with specified colour
@@ -726,18 +710,6 @@ void SetColorKey(SDL_Surface * dst);
 
 //////////////////
 // Resets the alpha-channel and the colorkey
-inline void ResetAlpha(SDL_Surface * dst) {
-	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
-
-	LOCK_OR_QUIT(dst);
-
-	int x, y;
-	for(y = 0; y < dst->h; y++)
-		for(x = 0; x < dst->w; x++)
-			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
-
-	UnlockSurface(dst);
-}
+void ResetAlpha(SDL_Surface * dst);
 
 #endif  //  __GFXPRIMITIVES_H__
