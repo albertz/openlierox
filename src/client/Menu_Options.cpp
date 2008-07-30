@@ -93,11 +93,6 @@ enum {
 	oc_Ply1_Selweapon,
 	oc_Ply1_Rope,
 	oc_Ply1_Strafe,
-	oc_Ply1_Weapon1,
-	oc_Ply1_Weapon2,
-	oc_Ply1_Weapon3,
-	oc_Ply1_Weapon4,
-	oc_Ply1_Weapon5,
 
 	oc_Ply2_Up,
 	oc_Ply2_Down,
@@ -108,11 +103,6 @@ enum {
 	oc_Ply2_Selweapon,
 	oc_Ply2_Rope,
 	oc_Ply2_Strafe,
-	oc_Ply2_Weapon1,
-	oc_Ply2_Weapon2,
-	oc_Ply2_Weapon3,
-	oc_Ply2_Weapon4,
-	oc_Ply2_Weapon5,
 
 	oc_Gen_Chat,
     oc_Gen_Score,
@@ -193,30 +183,20 @@ bool Menu_OptionsInitialize(void)
 
 
 	// Controls
-	cOpt_Controls.Add( new CLabel("Player 1", tLX->clHeading, true), Static, 192,  150, 0,0);
-	cOpt_Controls.Add( new CLabel("Player 2", tLX->clHeading, true), Static, 312,  150, 0,0);
-	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading, true),Static, 482, 150, 0,0);
-	cOpt_Controls.Add( new CLabel("Keys",tLX->clSubHeading, true), Static, 165, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("Weapons",tLX->clSubHeading, true), Static, 220, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("Keys",tLX->clSubHeading, true), Static, 285, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("Weapons",tLX->clSubHeading, true), Static, 340, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Player Controls", tLX->clHeading), Static, 40,  150, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 1",tLX->clSubHeading),      Static, 163, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 2",tLX->clSubHeading),      Static, 268, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 390, 150, 0,0);
 
 	int y = 190;
 	for(i=0;i<9;i++,y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               oc_Ply1_Up+i, 140, y, 50,17);
+			               oc_Ply1_Up+i, 165, y, 50,17);
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[1][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               oc_Ply2_Up+i, 260, y, 50,17);
+			               oc_Ply2_Up+i, 270, y, 50,17);
 
-		if( i < 5 )
-		{
-			cOpt_Controls.Add( new CInputbox(SIN_WEAPON1+i, tLXOptions->sPlayerControls[0][SIN_WEAPON1+i], tMenu->bmpInputbox, "Weapon " + itoa(i+1) ),
-				               oc_Ply1_Weapon1+i, 195, y, 50,17);
-			cOpt_Controls.Add( new CInputbox(SIN_WEAPON1+i, tLXOptions->sPlayerControls[1][SIN_WEAPON1+i], tMenu->bmpInputbox, "Weapon " + itoa(i+1) ),
-				               oc_Ply2_Weapon1+i, 315, y, 50,17);
-		}
 	}
 
 	// General Controls
@@ -504,7 +484,7 @@ void Menu_OptionsFrame(void)
 				if(ev->iEventMsg == INB_MOUSEUP) {
 
 					int ply = 0;
-					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Weapon5)
+					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Strafe)
 						ply = 1;
 					if(ev->iControlID >= oc_Gen_Chat)
 						ply = -1;
@@ -882,6 +862,28 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		tLXOptions->sPlayerControls[ply][b->getValue()] = b->getText();
 	} else
 		tLXOptions->sGeneralControls[b->getValue()] = b->getText();
+
+	// Disable quick weapon selection keys if they collide with other keys
+	for( int ply1 = 0; ply1 < 2; ply1 ++ )
+	{
+		for( int key1 = SIN_WEAPON1; key1 <= SIN_WEAPON5; key1 ++ )
+		{
+			for( int ply2 = 0; ply2 < 2; ply2 ++ )
+				for( int key2 = SIN_UP; key2 < SIN_WEAPON1; key2 ++ )
+					if( tLXOptions->sPlayerControls[ply1][key1] == 
+						tLXOptions->sPlayerControls[ply2][key2] )
+						tLXOptions->sPlayerControls[ply1][key1] = "";
+			int lastkey = SIN_TEAMCHAT;
+#ifdef WITH_MEDIAPLAYER
+			lastkey = SIN_MEDIAPLAYER;
+#endif
+			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
+				if( tLXOptions->sPlayerControls[ply1][key1] == 
+					tLXOptions->sGeneralControls[key2] )
+					tLXOptions->sPlayerControls[ply1][key1] = "";
+		};
+	};
+					
 
 	Mouse->Down = 0;
 	Mouse->Up = 0;
