@@ -877,6 +877,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	if (StringToNetAddr(name, addr))  {
 		return true;
 	}
+	ResetSocketError(); // Clear the bad address error
 
 	if(GetFromDnsCache(name, addr)) {
 		SetNetAddrValid(addr, true);
