@@ -1331,17 +1331,19 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	// Down arrow
 	if (keysym == SDLK_UP)  {
 		lv_item_t *i = tItems;
-		for (;i->tNext;i=i->tNext)  {
-			if (i->tNext == tSelected) {
-				if (tSelected)
-					tSelected->bSelected = false;
-				tSelected = i;
-				tSelected->bSelected = true;
-				iLastChar = SDLK_UP;
-				if (bGotScrollbar)
-					if (cScrollbar.getValue() > tSelected->_iID)
-						cScrollbar.setValue( cScrollbar.getValue()-1 );
-				return LV_NONE;
+		if (tItems)  {
+			for (;i->tNext;i=i->tNext)  {
+				if (i->tNext == tSelected) {
+					if (tSelected)
+						tSelected->bSelected = false;
+					tSelected = i;
+					tSelected->bSelected = true;
+					iLastChar = SDLK_UP;
+					if (bGotScrollbar)
+						if (cScrollbar.getValue() > tSelected->_iID)
+							cScrollbar.setValue( cScrollbar.getValue()-1 );
+					return LV_NONE;
+				}
 			}
 		}
 	}
