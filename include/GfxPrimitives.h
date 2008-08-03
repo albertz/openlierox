@@ -95,7 +95,8 @@ class SDLRectBasic : public SDL_Rect {
 public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
-
+	
+	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {};
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
 	TypeS& width() { return this->SDL_Rect::w; }
@@ -146,6 +147,8 @@ public:
 template<typename _RectBasic>
 class Rect : public _RectBasic {
 public:
+
+	Rect(const _RectBasic & r): _RectBasic(r) {};
 
 	class AssignX2 : private _RectBasic {
 	public:
@@ -473,6 +476,17 @@ void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, i
 void DrawImageTiledX(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
 void DrawImageTiledY(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
 
+inline void DrawImageTiled(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface>& bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)  {
+	DrawImageTiled(bmpDest, bmpSrc.get(), sx, sy, sw, sh, dx, dy, dw, dh);
+}
+inline void DrawImageTiledX(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface>& bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)  {
+	DrawImageTiledX(bmpDest, bmpSrc.get(), sx, sy, sw, sh, dx, dy, dw, dh);
+}
+
+inline void DrawImageTiledY(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface>& bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)  {
+	DrawImageTiledX(bmpDest, bmpSrc.get(), sx, sy, sw, sh, dx, dy, dw, dh);
+}
+
 //
 // Pixel and color routines
 //
@@ -610,14 +624,7 @@ void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 
 /////////////////////
 // Draws a filled rectangle
-inline void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color) {
-	SDL_Rect r;
-	r.x = x;
-	r.y = y;
-	r.w = x2-x;
-	r.h = y2-y;
-	SDL_FillRect(bmpDest,&r,color);
-}
+void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color);
 
 ////////////////////
 // Very fast routine for drawing 2x2 rects

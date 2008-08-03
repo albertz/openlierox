@@ -48,12 +48,19 @@ struct RGBA  {
 ///////////////////////
 // Helper function
 static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
+	if (!d_p.a)
+		return s_p;
+
+
 	RGBA res;
-	const Uint32 tmp = (255 - s_p.a) * d_p.a / 255;
-	res.r = ((Uint32)d_p.r * tmp + (Uint32)s_p.r * s_p.a) / 255;
-	res.g = ((Uint32)d_p.g * tmp + (Uint32)s_p.g * s_p.a) / 255;
-	res.b = ((Uint32)d_p.b * tmp + (Uint32)s_p.b * s_p.a) / 255;
-	res.a = MIN(255, d_p.a + s_p.a);
+
+	res.a = MIN(255, s_p.a + d_p.a);
+
+#define BLEND1(x) ((res.a - s_p.a) * d_p.x + s_p.a * s_p.x) / res.a;
+	res.r = BLEND1(r); 
+	res.g = BLEND1(g);
+	res.b = BLEND1(b);
+
 	return res;
 }
 
@@ -504,12 +511,15 @@ static void DrawRGBAtoRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect
 	assert(bmpSrc->format->BytesPerPixel == 4 && bmpDest->format->BytesPerPixel == 4);
 
 	// Clip
-	if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
-		return;
-
+	int old_x = rDest.x;
+	int old_y = rDest.y;
 	rDest.w = rSrc.w;
 	rDest.h = rSrc.h;
 	if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
+		return;
+	rSrc.x += rDest.x - old_x;
+	rSrc.y += rDest.y - old_y;
+	if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 #define BPP 4
@@ -1618,6 +1628,46 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 	}
 
 	UnlockSurface(dst);
+}
+
+static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Uint32 color)
+{
+	// Clipping
+	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
+		return;
+
+	RGBA s_p; SDL_GetRGBA(color, bmpDest->format, &s_p.r, &s_p.g, &s_p.b, &s_p.a);
+
+	const int bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
+	int step = bmpDest->pitch - r.w * bpp;
+
+	// Draw the fill rect
+	for (int y = r.h; y; --y, px += step)
+		for (int x = r.w; x; --x, px += bpp)  {
+			RGBA d_p; SDL_GetRGBA(GetPixelFromAddr(px, bpp), bmpDest->format, &d_p.r, &d_p.g, &d_p.b, &d_p.a);
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format, res.r, res.g, res.b, res.a), bpp);
+		}
+
+}
+
+//////////////////////
+// Draws a filled rectangle
+void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color)
+{
+	Uint8 alpha = bmpDest->format->Amask ? GetA(color, bmpDest->format) : SDL_ALPHA_OPAQUE;
+	SDL_Rect r = { x, y, x2 - x, y2 - y };
+
+	switch (alpha)  {
+	case SDL_ALPHA_OPAQUE:
+		SDL_FillRect(bmpDest,&r,color);
+	break;
+	case SDL_ALPHA_TRANSPARENT:
+	break;
+	default:
+		DrawRectFill_Overlay(bmpDest, r, color);
+	}
 }
 
 /////////////////////
