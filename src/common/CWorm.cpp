@@ -106,11 +106,9 @@ void CWorm::Clear(void)
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
 
-    psPath = NULL;
     cWeaponRest = NULL;
     nAIState = AI_THINK;
 	fLastCarve = -9999;
-    pnOpenCloseGrid = NULL;
     //fLastWeaponSwitch = -9999;
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;

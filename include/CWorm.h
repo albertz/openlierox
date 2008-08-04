@@ -118,23 +118,6 @@ enum {
 };
 
 
-// Path finding node
-class ai_node_t {
-public:
-
-    int     nX, nY;
-    int     nCost;
-    int     nFound;
-    int     nCount;
-    //int     *nOpenClose;
-
-    ai_node_t    *psParent;
-    ai_node_t    *psPath;
-    ai_node_t    *psChildren[8];
-
-};
-
-
 class NEW_ai_node_t {
 public:
 	float fX, fY;
@@ -341,9 +324,6 @@ private:
 
     // Path Finding
     int         nGridCols, nGridRows;
-    ai_node_t   *psPath;
-    int         *pnOpenCloseGrid;
-    ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	bool		bPathFinished;
 	float		fSearchStartTime;
@@ -471,8 +451,6 @@ public:
     void        AI_SimpleMove(bool bHaveTarget=true);
 //    void        AI_PreciseMove();
 
-    ai_node_t   *AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
-    void        AI_CleanupPath(ai_node_t *node);
     void		AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
 
@@ -483,8 +461,6 @@ public:
     int         cycleWeapons();
 	void		AI_SetGameType(int type)  { iAiGameType = type; }
 	int			AI_GetGameType()  { return iAiGameType; }
-
-    void        AI_DEBUG_DrawPath(ai_node_t *node);
 
     CWorm       *findTarget(int gametype, int teamgame, int taggame);
     int         traceLine(CVec target, float *fDist, int *nType, int divs = 5);

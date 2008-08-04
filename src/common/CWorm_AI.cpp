@@ -872,12 +872,6 @@ bool CWorm::AI_Initialize() {
     nGridCols = pcMap->getGridCols();
     nGridRows = pcMap->getGridRows();
 
-    pnOpenCloseGrid = new int[nGridCols*nGridRows];
-    if(!pnOpenCloseGrid)
-        return false;
-
-    psPath = NULL;
-    psCurrentNode = NULL;
     fLastCarve = -9999;
     cStuckPos = CVec(-999,-999);
     fStuckTime = -9999;
@@ -926,15 +920,9 @@ void CWorm::AI_Shutdown(void)
 	// in every case, the nodes of the current path are not handled by pathSearcher
 	delete_ai_nodes(NEW_psPath);
 
-    AI_CleanupPath(psPath);
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
-    psPath = NULL;
-    psCurrentNode = NULL;
-    if(pnOpenCloseGrid)
-        delete[] pnOpenCloseGrid;
-    pnOpenCloseGrid = NULL;
 }
 
 
@@ -1345,19 +1333,6 @@ void CWorm::AI_ReloadWeapons(void)
             iCurrentWeapon = i;
             break;
         }
-    }
-}
-
-
-
-///////////////////
-// Cleanup a path
-void CWorm::AI_CleanupPath(ai_node_t *node)
-{
-    if(node) {
-
-        AI_CleanupPath(node->psPath);
-        delete node;
     }
 }
 
