@@ -253,8 +253,8 @@ extern	lierox_t		*tLX;
 extern  IpToCountryDB	*tIpToCountryDB;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
-extern  CInput			cTakeScreenshot;
-extern  CInput			cSwitchMode;
+extern  CInput			*cTakeScreenshot;
+extern  CInput			*cSwitchMode;
 extern  bool			bDisableSound;
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
@@ -266,7 +266,7 @@ extern  TStartFunction	startFunction;
 extern	void*			startFunctionData;
 
 #ifdef WITH_MEDIAPLAYER
-extern	CInput			cToggleMediaPlayer;
+extern	CInput			*cToggleMediaPlayer;
 #endif
 
 

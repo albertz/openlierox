@@ -779,7 +779,7 @@ void CMediaPlayer::Frame() {
 	//}
 
 	// Handle the toggle key
-	if (cToggleMediaPlayer.wasDown())  {
+	if (cToggleMediaPlayer->wasDown())  {
 		SetDrawPlayer(!bDrawPlayer);
 	}
 

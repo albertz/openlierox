@@ -1209,10 +1209,10 @@ void CClient::processChatter(void)
 				cShowSettings.isDown() ||
 				cToggleTopBar.isDown() ||
 #ifdef WITH_MEDIAPLAYER
-				cToggleMediaPlayer.isDown() ||
+				cToggleMediaPlayer->isDown() ||
 #endif
 				(input.sym == SDLK_BACKQUOTE) ||
-				cTakeScreenshot.isDown();
+				cTakeScreenshot->isDown();
 
 			if(controls) continue;
 

@@ -214,14 +214,14 @@ bool OlxMod_ActivateMod( const std::string & mod, OlxMod_GameSpeed_t speed,
 			OlxMod_Random_Seed( ~ randomSeed );
 			(*OlxMod_list)[OlxMod_ActiveMod].init( numPlayers, localPlayer, options, weaponRestrictions, ScreenX, ScreenY, bmpDest );
 			(*OlxMod_list)[OlxMod_ActiveMod].save();
-			
+
 			#ifdef DEBUG
 			LoadGameStateKey = new CInput();
 			SaveGameStateKey = new CInput();
 			SaveGameStateKey->Setup("F9");
 			LoadGameStateKey->Setup("F10");
 			#endif
-			
+
 			return true;
 		};
 	return false;
@@ -471,10 +471,10 @@ bool OlxMod_SendNetPacket( unsigned long localTime, OlxMod_KeyState_t keys, CByt
 	OlxMod_OldKeys[ OlxMod_LocalPlayer ] = keys;
 
 	OlxMod_LastPacketTime[ OlxMod_LocalPlayer ] = localTime;
-	
+
 	if( OlxMod_NumPlayers == 1 )
 		OlxMod_ReCalculationNeeded = true;
-	
+
 	#ifdef DEBUG
 	if( SaveGameStateKey->isDownOnce() )
 	{
@@ -539,12 +539,12 @@ void OlxMod_SaveGameState( std::string * state, unsigned long time )
 	};
 	bs.ResetPosToBegin();
 	*state = bs.readData();
-	printf("OlxMod_SaveGameState() size %i\n", state->size());
+	printf("OlxMod_SaveGameState() size %i\n", (int)state->size());
 };
 
 void OlxMod_LoadGameState( const std::string & state )
 {
-	printf("OlxMod_LoadGameState() size %i\n", state.size());
+	printf("OlxMod_LoadGameState() size %i\n", (int)state.size());
 
 	CBytestream bs;
 	bs.writeData(state);

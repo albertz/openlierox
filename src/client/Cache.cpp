@@ -207,7 +207,7 @@ SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 		// If the file has changed, don't consider it as found and erase it from the cache
 		struct stat st;
 		StatFile(item->first, &st);
-		if (item->second.iFileTimeStamp != st.st_mtime)  {
+		if (item->second.iFileTimeStamp != (Uint64)st.st_mtime)  {
 			item->second.tMap = NULL;
 			MapCache.erase(item);
 			return NULL;
@@ -232,7 +232,7 @@ SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 		// If the file has changed, don't consider it as found and erase it from the cache
 		struct stat st;
 		StatFile(item->first + "/script.lgs", &st);
-		if (item->second.iFileTimeStamp != st.st_mtime)  {
+		if (item->second.iFileTimeStamp != (Uint64)st.st_mtime)  {
 			item->second.tMod = NULL;
 			ModCache.erase(item);
 			return NULL;

@@ -246,9 +246,9 @@ void CWorm::getInput()
 	}
 
 	// Process weapon quick-selection keys
-	for(int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]); i++ ) 
+	for(size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]); i++ )
 	{
-		if( cWeapons[i].isDown() ) 
+		if( cWeapons[i].isDown() )
 		{
 			iCurrentWeapon = i;
 			// Let the weapon name show up for a short moment
@@ -367,7 +367,7 @@ void CWorm::getInput()
 	cSelWeapon.reset();
 	cInpRope.reset();
 	cStrafe.reset();
-	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].reset();
 }
 
@@ -394,7 +394,7 @@ void CWorm::clearInput(void)
 	cSelWeapon.reset();
 	cInpRope.reset();
 	cStrafe.reset();
-	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].reset();
 }
 
@@ -425,7 +425,7 @@ void CWorm::SetupInputs(const controls_t& Inputs)
 
 	cStrafe.Setup( Inputs[SIN_STRAFE] );
 
-	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].Setup(Inputs[SIN_WEAPON1 + i]);
 }
 
@@ -440,7 +440,7 @@ void CWorm::InitInputSystem() {
 	cSelWeapon.setResetEachFrame( false );
 	cInpRope.setResetEachFrame( false );
 	cStrafe.setResetEachFrame( false );
-	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].setResetEachFrame( false );
 }
 
@@ -454,6 +454,6 @@ void CWorm::StopInputSystem() {
 	cSelWeapon.setResetEachFrame( true );
 	cInpRope.setResetEachFrame( true );
 	cStrafe.setResetEachFrame( true );
-	for( int i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].setResetEachFrame( true );
 }

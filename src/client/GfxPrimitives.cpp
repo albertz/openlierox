@@ -57,7 +57,7 @@ static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
 	res.a = MIN(255, s_p.a + d_p.a);
 
 #define BLEND1(x) ((res.a - s_p.a) * d_p.x + s_p.a * s_p.x) / res.a;
-	res.r = BLEND1(r); 
+	res.r = BLEND1(r);
 	res.g = BLEND1(g);
 	res.b = BLEND1(b);
 
@@ -68,7 +68,7 @@ static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-	
+
 	RGBA s_p; SDL_GetRGBA(colour, bmpDest->format, &s_p.r, &s_p.g, &s_p.b, &s_p.a);
 	s_p.a = (Uint8)((Uint32)a * s_p.a / 255);
 	RGBA d_p;
@@ -1787,7 +1787,6 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	SmartPointer<SDL_Surface> img = IMG_Load(Utf8ToSystemNative(fullfname).c_str());
 
 	if(!img.get())  {
-		char *err = SDL_GetError();
 		return NULL;
 	}
 

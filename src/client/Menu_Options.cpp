@@ -494,12 +494,12 @@ void Menu_OptionsFrame(void)
 					Menu_OptionsWaitInput(ply, b->getName(), b);
 					// Re-setup the Take Screenshot, Switch Mode and Media Player keys
 					if (ev->iControlID == oc_Gen_TakeScreenshot)
-						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+						cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 					if (ev->iControlID == oc_Gen_SwitchMode)
-						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+						cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 #ifdef WITH_MEDIAPLAYER
 					if (ev->iControlID == oc_Gen_MediaPlayer)
-						cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
+						cToggleMediaPlayer->Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 				}
 			}
@@ -870,7 +870,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		{
 			for( int ply2 = 0; ply2 < 2; ply2 ++ )
 				for( int key2 = SIN_UP; key2 < SIN_WEAPON1; key2 ++ )
-					if( tLXOptions->sPlayerControls[ply1][key1] == 
+					if( tLXOptions->sPlayerControls[ply1][key1] ==
 						tLXOptions->sPlayerControls[ply2][key2] )
 						tLXOptions->sPlayerControls[ply1][key1] = "";
 			int lastkey = SIN_TEAMCHAT;
@@ -878,12 +878,12 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 			lastkey = SIN_MEDIAPLAYER;
 #endif
 			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
-				if( tLXOptions->sPlayerControls[ply1][key1] == 
+				if( tLXOptions->sPlayerControls[ply1][key1] ==
 					tLXOptions->sGeneralControls[key2] )
 					tLXOptions->sPlayerControls[ply1][key1] = "";
 		};
 	};
-					
+
 
 	Mouse->Down = 0;
 	Mouse->Up = 0;

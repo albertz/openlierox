@@ -341,6 +341,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <sys/wait.h>
 #include <ctype.h>
 
+typedef const char * cchar;
+
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
@@ -369,10 +371,11 @@ public:
 		{
 			// Pass our state down to the crash handler...
 			int Args = 0;
-			char *Arg[32];
+			cchar Arg[32];
 			memset(Arg, 0, sizeof(Arg));
 			char SigName[16], PidName[16];
 
+			// TODO: sprintf allocates memory on the heap internally, is it safe to do it here?
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
 
@@ -397,7 +400,7 @@ public:
 			setgid(getgid());
 			setuid(getuid());
 
-			execvp("drkonqi", Arg);
+			execvp("drkonqi", (char* const*)Arg);
 		}
 		else
 		{
@@ -422,7 +425,7 @@ public:
 		{
 			// Pass our state down to the crash handler...
 			int Args = 0;
-			char *Arg[32];
+			cchar Arg[32];
 			memset(Arg, 0, sizeof(Arg));
 			char SigName[16], PidName[16];
 
@@ -444,7 +447,7 @@ public:
 			setgid(getgid());
 			setuid(getuid());
 
-			execvp("bug-buddy", Arg);
+			execvp("bug-buddy", (char* const*)Arg);
 		}
 		else
 		{

@@ -46,10 +46,10 @@
 
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
-CInput		cTakeScreenshot;
-CInput		cSwitchMode;
+CInput		*cTakeScreenshot = NULL;
+CInput		*cSwitchMode = NULL;
 #ifdef WITH_MEDIAPLAYER
-CInput		cToggleMediaPlayer;
+CInput		*cToggleMediaPlayer = NULL;
 CMediaPlayer cMediaPlayer;
 #endif
 
@@ -252,11 +252,17 @@ startpoint:
 		}
 	}
 
-	// Setup the global keys
-	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cTakeScreenshot = new CInput();
+	cSwitchMode = new CInput();
 #ifdef WITH_MEDIAPLAYER
-	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
+	cToggleMediaPlayer = new CInput();
+#endif
+
+	// Setup the global keys
+	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+#ifdef WITH_MEDIAPLAYER
+	cToggleMediaPlayer->Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 
 	// If the user wants to load the database on startup, do it
@@ -674,14 +680,14 @@ void GameLoopFrame(void)
         return;
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode.isUp() )  {
+	if( cSwitchMode->isUp() )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		SetVideoMode();
 
-		cSwitchMode.reset();
+		cSwitchMode->reset();
 	}
 
 #ifdef WITH_MEDIAPLAYER
@@ -943,6 +949,12 @@ void ShutdownLieroX(void)
 
 	// Save and clear options
 	ShutdownOptions();
+
+	delete cTakeScreenshot; cTakeScreenshot = NULL;
+	delete cSwitchMode; cSwitchMode = NULL;
+#ifdef WITH_MEDIAPLAYER
+	delete cToggleMediaPlayer; cToggleMediaPlayer = NULL;
+#endif
 
 	// Only do the deregistration for variables if we are not restarting.
 	// The problem is that we have registered most vars globally (not by any init-function)

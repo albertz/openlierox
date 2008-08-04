@@ -200,7 +200,7 @@ static short oldJoystickAxisValues[2][4]; // Used for checking if any of the joy
 // Updates the oldJoystickAcisValues array
 void updateAxisStates()
 {
-	for (int i = 0; i < sizeof(joys)/sizeof(SDL_Joystick *); i++)  {
+	for (size_t i = 0; i < sizeof(joys)/sizeof(SDL_Joystick *); i++)  {
 		oldJoystickAxisValues[i][axis_X] = SDL_JoystickGetAxis(joys[i], axis_X);
 		oldJoystickAxisValues[i][axis_Y] = SDL_JoystickGetAxis(joys[i], axis_Y);
 		oldJoystickAxisValues[i][axis_Z] = SDL_JoystickGetAxis(joys[i], axis_Z);

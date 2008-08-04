@@ -114,18 +114,18 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
 	if (SampleCached.get())
 		return SampleCached;
-		
+
 	SmartPointer<SoundSample> Sample;
 
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
 		return NULL;
-	
+
 	// Load the sample
 	Sample = LoadSoundSample(fullfname, maxplaying);
 	if( Sample.get() == NULL )
 		return NULL;
-	
+
 	// Save to cache
 	cCache.SaveSound(_filename, Sample);
 	return Sample;
@@ -143,7 +143,8 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 #if !defined(WIN32) && !defined(MACOSX)
 	if(!getenv("SDL_AUDIODRIVER")) {
 		printf("SDL_AUDIODRIVER not set, setting to ALSA\n");
-		putenv("SDL_AUDIODRIVER=alsa");	
+		char audio[32] = "SDL_AUDIODRIVER=alsa";
+		putenv(audio);
 	}
 #endif
 
@@ -159,7 +160,7 @@ initSoundSystem:
 		} else
 			return false;
 	}
-	
+
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
 		if(getenv("SDL_AUDIODRIVER")) {
@@ -168,10 +169,10 @@ initSoundSystem:
 			goto initSoundSystem;
 		} else
 			return false;
-	}		
-	
+	}
+
 	int allocChanNum = Mix_AllocateChannels(1000); // TODO: enough?
-	
+
 	SoundSystemAvailable = true;
 	printf("SoundSystem initialised, %i channels allocated\n", allocChanNum);
 	return true;
@@ -211,7 +212,7 @@ bool SetSoundVolume(int vol) {
 
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -230,10 +231,10 @@ bool QuitSoundSystem() {
 		return false;
 	}
 #endif
-	
+
 	if(!SoundSystemAvailable) return false;
 	SoundSystemAvailable = false;
-	
+
 	Mix_CloseAudio();
 	return true;
 }
@@ -439,11 +440,11 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 	bSongStopped = false;
 }
 
-void StopMusic(void) 
+void StopMusic(void)
 {
 	byte oldvolume = GetMusicVolume();
 	SetMusicVolume(0);
-	Mix_HaltMusic(); 
+	Mix_HaltMusic();
 	if (Mix_PausedMusic())
 		Mix_ResumeMusic();
 	fCurSongStart = 0;
@@ -462,8 +463,8 @@ float GetCurrentMusicTime(void)
 	if (fTimePaused)
 		return fTimePaused-fCurSongStart;
 	// Not paused
-	else 
-		return GetMilliSeconds()-fCurSongStart; 
+	else
+		return GetMilliSeconds()-fCurSongStart;
 }
 
 void SetMusicVolume(byte vol)
