@@ -1670,6 +1670,22 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 col
 	}
 }
 
+////////////////////////
+// Draws a filled rectangle alpha-blended with the background
+void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)
+{
+	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2 - x, y2 - y);
+	if (!tmp.get())
+		return;
+
+	Uint8 r, g, b;
+	GetColour3(color,bmpDest->format, &r, &g, &b);
+	SDL_FillRect(tmp.get(), NULL, SDL_MapRGBA(tmp->format, r, g, b, alpha));
+
+	// TODO: optimise
+	DrawImageAdv(bmpDest, tmp.get(), 0, 0, x, y, tmp->w, tmp->h);
+}
+
 /////////////////////
 // Draws a simple linear gradient
 void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32 cl1, Uint32 cl2, GradientDirection dir)

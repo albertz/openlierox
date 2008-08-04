@@ -95,7 +95,7 @@ class SDLRectBasic : public SDL_Rect {
 public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
-	
+
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {};
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
@@ -229,7 +229,7 @@ inline bool PointInRect(int x, int y, const SDL_Rect& r)
 // Returns true if rect1 contains rect2
 inline bool ContainsRect(const SDL_Rect& rect1, const SDL_Rect& rect2)
 {
-	return (rect1.x <= rect2.x) && (rect1.x + rect1.w >= rect2.x + rect2.w) && 
+	return (rect1.x <= rect2.x) && (rect1.x + rect1.w >= rect2.x + rect2.w) &&
 			(rect1.y <= rect2.y) && (rect1.y + rect1.h >= rect2.y + rect2.h);
 }
 
@@ -291,7 +291,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 
 ///////////////////
 // Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
-SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false); 
+SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false);
 
 ////////////////////
 // Destroys a surface
@@ -665,17 +665,7 @@ inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32
 
 ///////////////////
 // Draws a rectangle with transparency
-inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
-	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
-	Uint8 r,g,b;
-	GetColour3(color,bmpDest->format,&r,&g,&b);
-	if (tmp.get() != NULL)  {
-		// TODO: optimise
-		Uint32 friendly_col = SDL_MapRGBA(tmp.get()->format,r,g,b,alpha);
-		SDL_FillRect(tmp.get(),NULL,friendly_col);
-		DrawImage(bmpDest,tmp,x,y);
-	}
-}
+void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha);
 
 //////////////////
 // Draw a triangle
