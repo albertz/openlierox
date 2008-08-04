@@ -69,11 +69,13 @@ bool CClient::InitializeDrawing(void)
 
 	// Initialize the scoreboard
 	if (!bmpIngameScoreBg.get())  {  // Safety
-		bmpIngameScoreBg = gfxCreateSurface(640, getBottomBarTop());
+		bmpIngameScoreBg = gfxCreateSurfaceAlpha(640, getBottomBarTop());
 		if (!bmpIngameScoreBg.get())
 			return false;
 
-		FillSurface(bmpIngameScoreBg.get(), tLX->clScoreBackground);
+		Uint8 r,g,b;
+		GetColour3(tLX->clScoreBackground, getMainPixelFormat(), &r, &g, &b);
+		FillSurface(bmpIngameScoreBg.get(), SDL_MapRGBA(bmpIngameScoreBg->format, r, g, b, 128));
 		//SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA | SDL_RLEACCEL, 128);
 		SetPerSurfaceAlpha(bmpIngameScoreBg.get(), 128);
 	}
