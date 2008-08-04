@@ -2,7 +2,7 @@
 #define LIERO_MAIN_HPP
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_getenv.h>
+#include <stdlib.h>
 
 #include "gfx.hpp"
 #include "sfx.hpp"
@@ -25,7 +25,7 @@
 
 //#undef main
 
-int gameEntry(int argc, char* argv[])
+int gameEntry(int argc, char* argv[]) {
 try
 {
 	// TODO: Better PRNG seeding
@@ -41,8 +41,8 @@ try
 			switch(argv[i][1])
 			{
 			case 'v':
-				// SDL_putenv seems to take char* in linux, STOOPID
-				SDL_putenv(const_cast<char*>((std::string("SDL_VIDEODRIVER=") + &argv[i][2]).c_str()));
+				// putenv seems to take char* in linux, STOOPID
+				putenv(const_cast<char*>((std::string("SDL_VIDEODRIVER=") + &argv[i][2]).c_str()));
 			break;
 			}
 		}
@@ -181,6 +181,7 @@ catch(std::exception& ex)
 	Console::writeLine(std::string("EXCEPTION: ") + ex.what());
 	Console::waitForAnyKey();
 	return 1;
+}
 }
 
 #endif // LIERO_MAIN_HPP

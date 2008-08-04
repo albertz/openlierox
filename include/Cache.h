@@ -58,6 +58,7 @@ public:
 
 private:
 	class CacheItem_t { public:
+		virtual ~CacheItem_t() {}
 		CacheItem_t() : fSaveTime(0), iFileTimeStamp(0) {}
 		CacheItem_t(const CacheItem_t& oth)  { operator=(oth); }
 		CacheItem_t(float savetime, Uint64 timestamp) : fSaveTime(savetime), iFileTimeStamp(timestamp) {}

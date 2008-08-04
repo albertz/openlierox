@@ -96,7 +96,8 @@ public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
 
-	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {};
+	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
+	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
 	Type& x() { return this->SDL_Rect::x; }
 	Type& y() { return this->SDL_Rect::y; }
 	TypeS& width() { return this->SDL_Rect::w; }

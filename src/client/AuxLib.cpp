@@ -81,7 +81,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 #ifdef WIN32
 	if(!getenv("SDL_VIDEODRIVER")) {
 		printf("SDL_VIDEODRIVER not set, setting to directx\n");
-		putenv("SDL_VIDEODRIVER=directx");
+		putenv((char*)"SDL_VIDEODRIVER=directx");
 	}
 #endif
 
