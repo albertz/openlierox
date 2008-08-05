@@ -716,7 +716,7 @@ private:
 	}
 
 public:
-	inline bool isReady() {
+	bool isReady() {
 		bool ret = false;
 		lock();
 		ret = thread_is_ready;
@@ -726,18 +726,18 @@ public:
 
 	// HINT: threadSearch is the only function, who should set this to true again!
 	// a set to false means for threadSearch, that it should start the search now
-	inline void setReady(bool state) {
+	void setReady(bool state) {
 		lock();
 		thread_is_ready = state;
 		unlock();
 	}
 
 	// WARNING: not thread safe; call isReady before
-	inline NEW_ai_node_t* resultedPath() {
+	NEW_ai_node_t* resultedPath() {
 		return resulted_path;
 	}
 
-	inline void restartThreadSearch(VectorD2<int> newstart, VectorD2<int> newtarget) {
+	void restartThreadSearch(VectorD2<int> newstart, VectorD2<int> newtarget) {
 		// set signal
 		lock();
 		thread_is_ready = false;
@@ -759,26 +759,26 @@ private:
 		VectorD2<int> start, target;
 	} restart_thread_searching_newdata;
 
-	inline void breakThreadSignal() {
+	void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail
 		break_thread_signal = 1;
 	}
 
-	inline bool shouldBreakThread() {
+	bool shouldBreakThread() {
 		return (break_thread_signal != 0);
 	}
 
 public:
-	inline bool shouldRestartThread() {
+	bool shouldRestartThread() {
 		return (restart_thread_searching_signal != 0);
 	}
 
 private:
-	inline void lock() {
+	void lock() {
 		SDL_mutexP(thread_mut);
 	}
 
-	inline void unlock() {
+	void unlock() {
 		SDL_mutexV(thread_mut);
 	}
 

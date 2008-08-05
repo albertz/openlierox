@@ -183,12 +183,7 @@ void CClient::MinorClear(void)
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
-		cRemoteWorms[i].setGameReady(false);
-		cRemoteWorms[i].setTagIT(false);
-		cRemoteWorms[i].setTagTime(0);
-
-		// Make sure the pathfinding ends
-		cRemoteWorms[i].AI_Shutdown();
+		cRemoteWorms[i].Unprepare();
 	}
 
 	cProjectiles.clear();
@@ -1386,15 +1381,14 @@ void CClient::RemoveWorm(int id)
 	if (cRemoteWorms)  {
 		for (i=0;i<MAX_WORMS;i++) {
 			if (cRemoteWorms[i].getID() == id)  {
+				cRemoteWorms[i].Unprepare();
+				// TODO: why not a Clear() here?
 				cRemoteWorms[i].setUsed(false);
 				cRemoteWorms[i].setAlive(false);
 				cRemoteWorms[i].setKills(0);
 				cRemoteWorms[i].setLives(WRM_OUT);
 				cRemoteWorms[i].setProfile(NULL);
-				if (cRemoteWorms[i].getType() == PRF_COMPUTER)  {
-					cRemoteWorms[i].AI_Shutdown();
-					cRemoteWorms[i].setType(PRF_HUMAN);
-				}
+				cRemoteWorms[i].setType(PRF_HUMAN);
 				cRemoteWorms[i].setLocal(false);
 				cRemoteWorms[i].setTagIT(false);
 				cRemoteWorms[i].setTagTime(0);

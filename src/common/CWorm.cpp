@@ -25,12 +25,17 @@
 #include "CBar.h"
 #include "MathLib.h"
 
+using std::cout;
+using std::endl;
+
+
 
 ///////////////////
 // Clear the worm details
 void CWorm::Clear(void)
 {
 	bUsed = false;
+	bIsPrepared = false;
 	iID = 0;
 	iTeam = 0;
 	bLocal = false;
@@ -163,11 +168,8 @@ void CWorm::Init(void)
 // Shutdown the worm
 void CWorm::Shutdown(void)
 {
+	Unprepare();
 	FreeGraphics();
-
-    // Shutdown the AI
-    if(iType == PRF_COMPUTER && bLocal)
-        AI_Shutdown();
 }
 
 
@@ -187,6 +189,12 @@ void CWorm::Prepare(CMap *pcMap)
 {
 	assert(cGameScript);
 
+	if(bIsPrepared) {
+		cout << "WARNING: worm was already prepared! ";
+		if(this->pcMap != pcMap) cout << "AND pcMap differs!";
+		cout << endl;
+	}
+	
 	this->pcMap = pcMap;
 
 	// Setup the rope
@@ -201,8 +209,20 @@ void CWorm::Prepare(CMap *pcMap)
 
     // we use the normal init system first after the weapons are selected and we are ready
 	StopInputSystem();
+	
+	bIsPrepared = true;
 }
 
+void CWorm::Unprepare() {
+	setGameReady(false);
+	setTagIT(false);
+	setTagTime(0);
+	
+	// Make sure the pathfinding ends
+	AI_Shutdown();
+	
+	bIsPrepared = false;
+}
 
 void CWorm::StartGame() {
 	InitInputSystem();

@@ -295,6 +295,8 @@ int GameServer::StartGame()
 		bs.writeByte(S2C_PREPAREGAME);
 		bs.writeBool(false); // Map not random
 		bs.writeString("levels/Dirt Level.lxl");
+		// TODO: what are all these writeInt for?
+		// TODO: move that out here!
 		// Game info - some random values
 		bs.writeInt(0,1); // Game type - free for all
 		bs.writeInt16(10);
@@ -329,11 +331,24 @@ int GameServer::StartGame()
 
 
 	// Check
-	if (!cWorms)
-		return false;
+	if (!cWorms) { printf("ERROR: StartGame(): Worms not initialized\n"); return false; }
 
 	// Reset the first blood
 	bFirstBlood = true;
+
+	
+	CWorm *w = cWorms;
+	for (int p = 0; p < MAX_WORMS; p++, w++) {
+		if(w->isPrepared()) {
+			cout << "WARNING: StartGame(): worm " << p << " was already prepared! ";
+			if(!w->isUsed()) cout << "AND it is even not used!";
+			cout << endl;
+			w->Unprepare();
+		}
+	}
+	
+	// TODO: why delete + create new map instead of simply shutdown/clear map?
+	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
 
 	// Shutdown any previous map instances
 	if(cMap) {
@@ -348,7 +363,8 @@ int GameServer::StartGame()
 		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
 		return false;
 	}
-
+	
+	
 	bRandomMap = false;
 	if(stringcasecmp(tGameInfo.sMapFile,"_random_") == 0)
 		bRandomMap = true;
@@ -396,7 +412,7 @@ int GameServer::StartGame()
     cWeaponRestrictions.updateList(cGameScript.get());
 
 	// Setup the flags
-	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2;
+	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2; // TODO: uh?
 	CBytestream bytestr;
 	bytestr.Clear();
 

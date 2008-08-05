@@ -446,7 +446,7 @@ private:
 	float		fGameOverTime;
 
 	bool		bLobbyReady;
-	bool		bGameReady;
+	bool		bGameReady; // bGameReady says if the game (including cMap) has been initialized
 
 	game_lobby_t tGameLobby;
 

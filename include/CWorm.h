@@ -268,6 +268,7 @@ private:
 
 	// Arsenal
 	bool		bWeaponsReady;
+	bool		bIsPrepared;
 	bool		bGameReady;
 	CGameScript	*cGameScript;
     CWpnRest    *cWeaponRest;
@@ -411,7 +412,9 @@ public:
 	//
 	// Game
 	//
+	bool		isPrepared() { return bIsPrepared; }
 	void		Prepare(CMap *pcMap);
+	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
 	void		Respawn(CVec position);

@@ -522,9 +522,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Clear any previous instances of the map
 	if(tGameInfo.iGameType == GME_JOIN) {
 		if(cMap) {
-				cMap->Shutdown();
-				delete cMap;
-				cMap = NULL;
+			cMap->Shutdown();
+			delete cMap;
+			cMap = NULL;
 		}
 	}
 
@@ -902,7 +902,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 		cRemoteWorms[id].setUsed(true);
 		cRemoteWorms[id].setClient(this);
 		cRemoteWorms[id].setLocal(false);
-		cRemoteWorms[id].setGameScript(cGameScript.get()); // TODO: why was this commented out?
+		cRemoteWorms[id].setGameScript(cGameScript.get());
 		if (iNetStatus == NET_PLAYING || bGameReady)  {
 			cRemoteWorms[id].Prepare(cMap);
 		}
