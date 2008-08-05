@@ -487,15 +487,19 @@ public:
 		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
 		thread = SDL_CreateThread(threadSearch, this);
+		if(!thread)
+			printf("ERROR: could not create AI thread\n");
 	}
 
 	~searchpath_base() {
 		// thread cleaning up
 		breakThreadSignal();
-		SDL_WaitThread(thread, NULL);
+		if(thread) SDL_WaitThread(thread, NULL);
+		else printf("WARNING: AI thread already uninitialized\n");
 		thread = NULL;
-		SDL_DestroyMutex(thread_mut);
-
+		if(thread_mut) SDL_DestroyMutex(thread_mut);
+		thread_mut = NULL;
+		
 		clear();
 	}
 
