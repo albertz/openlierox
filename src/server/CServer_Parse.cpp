@@ -1078,21 +1078,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Get user info
 	int numworms = bs->readInt(1);
 	numworms = CLAMP(numworms, 0, MAX_PLAYERS);
-	CWorm worms[MAX_PLAYERS];
-	for (i = 0;i < numworms;i++) {
-		worms[i].readInfo(bs);
-		// If bots aren't allowed, disconnect the client
-		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
-			printf("Bot was trying to connect\n");
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
-			bytestr.Send(tSocket);
-			return;
-		}
-	}
-
+	
 	// If we ignored this challenge verification, there could be double connections
 
 	// See if the challenge is valid
@@ -1144,6 +1130,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	const std::string & clientVersionStr = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
+	// TODO: should we really do this? when there are multiple people behind a router?
 	cl = cClients;
 	for(p=0;p<MAX_CLIENTS;p++,cl++) {
 
@@ -1187,7 +1174,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 	}
 
-	// Calculate number of players
+	
+	// Calculate number of current players on this server
 	numplayers = 0;
 	CWorm *w = cWorms;
 	for (p = 0;p < MAX_WORMS;p++, w++) {
@@ -1301,6 +1289,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		newcl->setNumWorms(numworms);
 		//newcl->SetupWorms(numworms, worms);
 
+		
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;
@@ -1312,7 +1301,20 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				if (w->isUsed())
 					continue;
 
-				*w = worms[i]; // TODO: recode this, it's unsafe!
+				w->readInfo(bs);
+				// If bots aren't allowed, disconnect the client
+				if (w->getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
+					printf("Bot was trying to connect\n");
+					bytestr.Clear();
+					bytestr.writeInt(-1, 4);
+					bytestr.writeString("lx::badconnect");
+					bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
+					bytestr.Send(tSocket);
+					
+					RemoveClient(newcl);
+					return;
+				}
+				
 				w->setID(p);
 				id = p;
 				w->setClient(newcl);
@@ -1323,12 +1325,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				newcl->setWorm(i, w);
 				ids[i] = p;
 
-				if( DedicatedControl::Get() )
-					DedicatedControl::Get()->NewWorm_Signal(w);
 				break;
 			}
 		}
-
+		
+		for (i = 0;i < numworms;i++) {
+			if( DedicatedControl::Get() )
+				DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
+		}
 
 		iNumPlayers = numplayers + numworms;
 
@@ -1347,9 +1351,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
-		// TODO: or should we just drop compatibility with Beta3 and leave this out?
-		// TODO: All these messages are sent over unreliable protocol and may be lost, we should use reliable CChannel.
-		// Server version is added to challenge packet so client will receive it for sure (or won't connect at all).
+		// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
 		bytestr.writeString("lx::openbeta3");
 		// sadly we have to send this for Beta4
 		// we are sending the version string already in the challenge
@@ -1377,14 +1379,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 		// Tell all the connected clients the info about these worm(s)
 		bytestr.Clear();
-		/*for(i=0;i<numworms;i++) {
-			w = &cWorms[ids[i]];
-
-			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt(w->getID(),1);
-			w->writeInfo(&bytestr);
-		}*/
-
 
 		//
 		// Resend data about all worms to everybody
@@ -1409,7 +1403,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
 			for (i = 0;i < numworms;i++) {
-				buf = replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1);
+				buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
 				SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
 			}
 		}
@@ -1426,8 +1420,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 			// Country
 			if (buf.find("<country>") != std::string::npos)  {
-				static IpInfo info;
-				static std::string str_addr;
+				IpInfo info;
+				std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
 					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
@@ -1437,8 +1431,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 			// Continent
 			if (buf.find("<continent>") != std::string::npos)  {
-				static IpInfo info;
-				static std::string str_addr;
+				IpInfo info;
+				std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
 					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
@@ -1459,76 +1453,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			for (int i = 0; i < numworms; i++)  {
 				// Player name
 				// Send the welcome message
-				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", worms[i].getName(), 1)),
+				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1)),
 								TXT_NETWORK);
 			}
 		}
 
-		// it doesn't make sense to save the nicks permanently on a IP-base
-		// also it's very annoying to get my olx-config-dir spammed with hundreds of files
-		// TODO: remove this or do it in another way
-		// why do we need this at all? where is it used? what is the sense to have multiple nicks?
-		/*
-		// Address
-		std::string str_addr;
-		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-		// Remove port
-		size_t pos = str_addr.rfind(':');
-		if (pos != std::string::npos)
-			str_addr.erase(pos);
-
-		// Load Player Details
-		std::string f = "netplay/" + str_addr + ".dat";
-		int aliascount = 0;
-		ReadInteger(f, "Player", "Nicks", &aliascount, 0);
-		// Setup the default settings if the player is new
-		if(aliascount == 0) {
-			FILE *fp = OpenGameFile(f, "wt");
-			fprintf(fp, "[Player]\n");
-			fprintf(fp, "Nicks = 1\n");
-			fprintf(fp, "Nick 0 = %s", worms[0].getName().c_str());
-			fclose(fp);
-		}
-		else {
-			bool newnick = true;
-			std::string curnick;
-			std::list<std::string> nicks;
-			std::list<std::string>::iterator nick_it;
-			for(i=0;i<aliascount;i++) {
-				ReadString(f, "Player", "Nick "+itoa(i), curnick, "");
-				if(!stringcasecmp(curnick, worms[0].getName()))
-					newnick = false;
-				nicks.push_back(curnick);
-			}
-			buf = replacemax("<player> is also known as: ", "<player>", worms[0].getName(), 1);
-			for(nick_it=nicks.begin();nick_it != nicks.end();nick_it++)
-				if(stringcasecmp(*nick_it, worms[0].getName()))
-					buf = buf + *nick_it + ", ";
-			buf.erase(buf.length()-2);
-			if(aliascount+newnick > 1 && stringcasecmp(str_addr, "127.0.0.1"))
-				SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
-			if(newnick) {
-				FILE *fp = OpenGameFile(f, "wt");
-				fprintf(fp, "[Player]\n");
-				fprintf(fp, "Nicks = %d\n", aliascount+1);
-				for(i=0,nick_it=nicks.begin();nick_it!=nicks.end(),i<aliascount;i++,nick_it++)
-					fprintf(fp, "Nick %d = %s\n", i, (*nick_it).c_str());
-				fprintf(fp, "Nick %d = %s\n", i, worms[0].getName().c_str());
-				fclose(fp);
-			}
-
-			// It's really useless.
-			// If the worm has more than 5 names, ban it
-			//if(aliascount>5) {
-			//	banWorm(id);
-			//	SendGlobalText(worms[0].getName()+" had too many nicks", TXT_NETWORK);
-			//}
-		}
-		*/
-
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
-		// TODO: if connecting during game update game lobby only for new client
+		// TODO: if connecting during game, update game lobby only for new client
 		UpdateGameLobby();
 		if (tGameInfo.iGameType != GME_LOCAL)
 			SendWormLobbyUpdate();

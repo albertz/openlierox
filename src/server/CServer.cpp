@@ -1114,13 +1114,10 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 	bs.writeByte(S2C_CLLEFT);
 	bs.writeByte(cl->getNumWorms());
 
-	static std::string buf;
+	std::string buf;
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
-
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
 
         switch(reason) {
 
@@ -1168,15 +1165,10 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 		// Send only if the text isn't <none>
 		if(buf != "<none>")
 			SendGlobalText(OldLxCompatibleString(buf),TXT_NETWORK);
-
-		// Reset variables
-		cl->setMuted(false);
-		cl->getWorm(i)->setUsed(false);
-		cl->getWorm(i)->setAlive(false);
-		cl->getWorm(i)->setSpectating(false);
 	}
 
-
+	RemoveClient(cl);
+	
     // Go into a zombie state for a while so the reliable channel can still get the
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
@@ -1192,21 +1184,6 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
     cl->getChannel()->AddReliablePacketToSend(bs);
 
 
-	// Re-Calculate number of players
-	iNumPlayers=0;
-	CWorm *w = cWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) {
-		if(w->isUsed())
-			iNumPlayers++;
-	}
-
-    // Now that a player has left, re-check the game status
-    RecheckGame();
-
-    // If we're waiting for players to be ready, check again
-    if(iState == SVS_GAME)
-        CheckReadyClient();
-		
     if(iState == SVS_PLAYING_OLXMOD)
 	{
 		tOlxMod_DisconnectedClients.push_back(cl->getWorm(0)->getID());
@@ -1216,6 +1193,47 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 		OlxMod_AddEmptyPacket( (unsigned long)(tLX->fCurTime*1000.0f) , &data );
 		SendGlobalPacket(&data);
 	}
+}
+
+void GameServer::RemoveClient(CClient* cl) {
+	// Never ever drop a local client
+	if (cl->isLocalClient())  {
+		printf("An attempt to remove a local client was ignored\n");
+		return;
+	}
+	
+	int i;
+	for(i=0; i<cl->getNumWorms(); i++) {
+		if(!cl->getWorm(i)) continue;
+		if(!cl->getWorm(i)->isUsed()) continue;
+		
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
+		
+		// Reset variables
+		cl->setMuted(false);
+		cl->getWorm(i)->setUsed(false);
+		cl->getWorm(i)->setAlive(false);
+		cl->getWorm(i)->setSpectating(false);
+		cl->setWorm(i, NULL);
+	}
+	
+	cl->setStatus(NET_DISCONNECTED);
+
+	// Re-Calculate number of players
+	iNumPlayers=0;
+	CWorm *w = cWorms;
+	for(i=0;i<MAX_WORMS;i++,w++) {
+		if(w->isUsed())
+			iNumPlayers++;
+	}
+
+    // Now that a player has left, re-check the game status
+	RecheckGame();
+
+    // If we're waiting for players to be ready, check again
+	if(iState == SVS_GAME)
+		CheckReadyClient();
 }
 
 

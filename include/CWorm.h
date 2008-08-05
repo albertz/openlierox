@@ -17,6 +17,7 @@
 #ifndef __CWORM_H__
 #define __CWORM_H__
 
+#include <cassert>
 #include "LieroX.h" // for MAX_WORMS, _AI_DEBUG
 #include "CProjectile.h"
 #include "CGameScript.h"
@@ -144,6 +145,11 @@ public:
 		Shutdown();
 	}
 
+private:
+	// disallow these!
+	CWorm(const CWorm&) { assert(false); }
+	CWorm& operator=(const CWorm&) { assert(false); }
+	
 private:
 	// Attributes
 

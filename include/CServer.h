@@ -202,6 +202,7 @@ public:
 	void		CheckTimeouts(void);
 	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CClient *cl, int reason, const std::string& sReason = "");
+	void		RemoveClient(CClient *cl);
 	void		kickWorm(int wormID, const std::string& sReason = "");
     void        kickWorm(const std::string& szWormName, const std::string& sReason = "");
 	void		banWorm(int wormID, const std::string& sReason = "");
