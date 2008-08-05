@@ -723,35 +723,24 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 
-	// Initialize the worms weapon selection menu & other stuff
-	ushort i;
-	for(i=0;i<iNumWorms;i++) {
-		cLocalWorms[i]->setGameScript(cGameScript.get());
-        cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
-		cLocalWorms[i]->Prepare(cMap);
-
-		if (!bWaitingForMod)
-			cLocalWorms[i]->InitWeaponSelection();
-	}
-
-
-
+	
 	// (If this is a local game?), we need to reload the worm graphics
 	// We do this again because we've only just found out what type of game it is
     // Team games require changing worm colours to match the team colour
 	// Inefficient, but i'm not going to redesign stuff for a simple gametype
 	CWorm *w = cRemoteWorms;
 	int num_worms = 0;
+	ushort i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
 			w->ChangeGraphics(iGameType);
 
 			// Also set some game details
 			w->setLives(iLives);
-            w->setKills(0);
+			w->setKills(0);
 			w->setHealth(100);
 			w->setGameScript(cGameScript.get());
-            w->setWpnRest(&cWeaponRestrictions);
+			w->setWpnRest(&cWeaponRestrictions);
 			w->setLoadingTime(fLoadingTime);
 
 			// Prepare for battle!
@@ -760,6 +749,16 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			num_worms++;
 		}
 	}
+	
+
+	// Initialize the worms weapon selection menu & other stuff
+	for(i=0;i<iNumWorms;i++) {
+		// we already prepared all the worms (cRemoteWorms) above
+		
+		if (!bWaitingForMod)
+			cLocalWorms[i]->InitWeaponSelection();
+	}
+
 
 	// Start the game logging
 	StartLogging(num_worms);
