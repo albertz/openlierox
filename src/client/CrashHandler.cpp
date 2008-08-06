@@ -15,6 +15,7 @@
 #include "StringUtils.h"
 #include "CClient.h"
 #include "CServer.h"
+#include "DedicatedControl.h"
 #include <iostream>
 
 using namespace std;
@@ -24,6 +25,8 @@ using namespace std;
 //
 
 #if defined(_MSC_VER)
+
+#define itoa _itoa
 
 #include <DbgHelp.h>
 #include <ShlObj.h>
@@ -58,7 +61,7 @@ public:
 void *ReadGameStateForReport(char *buffer, size_t bufsize)
 {
 	memset(buffer, 0, bufsize);
-	try {
+	__try {
 		if (cClient)  {
 			strncat(buffer, "Game state:\n", bufsize);
 			if (cClient->getStatus() == NET_CONNECTED)  {
@@ -79,7 +82,7 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 			}
 		}
 		buffer[bufsize - 1] = '\0';
-	} catch (...)
+	} __except (EXCEPTION_EXECUTE_HANDLER)
 	{ return buffer; }
 
 	return buffer;
@@ -88,7 +91,8 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 {
 	memset(buffer, 0, bufsize);
-	try  {
+	char tmp[32];
+	__try  {
 
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
@@ -103,7 +107,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 			strncat(buffer, "GME_JOIN", bufsize);
 			break;
 		default:
-			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, itoa(tGameInfo.iGameType).c_str(), bufsize);
+			itoa(tGameInfo.iGameType, tmp, 10);
+			fix_markend(tmp);
+			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, tmp, bufsize);
 		}
 		strncat(buffer, "\n", bufsize);
 
@@ -132,7 +138,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 			strncat(buffer, "GMT_VIP", bufsize);
 			break;
 		default:
-			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, itoa(tGameInfo.iGameMode).c_str(), bufsize);
+			itoa(tGameInfo.iGameMode, tmp, 10);
+			fix_markend(tmp);
+			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, tmp, bufsize);
 		}
 		strncat(buffer, "\n", bufsize);
 
@@ -161,8 +169,10 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Loading time
+		itoa(tGameInfo.iLoadingTimes, tmp, 10);
+		fix_markend(tmp);
 		strncat(buffer, "iLoadingTimes = ", bufsize);
-		strncat(buffer, itoa(tGameInfo.iLoadingTimes).c_str(), bufsize);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Server name
@@ -183,18 +193,24 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Lives
+		itoa(tGameInfo.iLives, tmp, 10);
+		fix_markend(tmp);
 		strncat(buffer, "iLives = ", bufsize);
-		strncat(buffer, itoa(tGameInfo.iLives).c_str(), bufsize);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Max kills
+		itoa(tGameInfo.iKillLimit, tmp, 10);
+		fix_markend(tmp);
 		strncat(buffer, "iKillLimit = ", bufsize);
-		strncat(buffer, itoa(tGameInfo.iKillLimit).c_str(), bufsize);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Time limit
+		itoa((int)(tGameInfo.fTimeLimit * 10), tmp, 10);
+		fix_markend(tmp);
 		strncat(buffer, "fTimeLimit = ", bufsize);
-		strncat(buffer, ftoa(tGameInfo.fTimeLimit).c_str(), bufsize);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Bonuses on
@@ -208,12 +224,14 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Number of players
+		itoa(tGameInfo.iNumPlayers, tmp, 10);
+		fix_markend(tmp);
 		strncat(buffer, "iNumPlayers = ", bufsize);
-		strncat(buffer, itoa(tGameInfo.iNumPlayers).c_str(), bufsize);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		buffer[bufsize - 1] = '\0';
-	} catch (...) {
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return buffer;
 	}
 	return buffer;
@@ -280,19 +298,25 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	strncat(buf, "\\", sizeof(buf));
 
 	// Get the file name
-	std::string checkname;
+	char checkname[1024];
 
+	char tmp[32];
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
-		checkname = std::string(buf) + "report" + itoa(i) + ".dmp";
-		f = fopen(checkname.c_str(), "rb");
+		itoa(i, tmp, 10);
+		fix_markend(tmp);
+		strncpy(checkname, buf, sizeof(checkname));
+		strncat(checkname, "report", sizeof(checkname));
+		strncat(checkname, tmp, sizeof(checkname));
+		strncat(checkname, ".dmp", sizeof(checkname));
+		f = fopen(checkname, "rb");
 		if (!f)
 			break;
 		fclose(f);
 	}
 
 	// Open the file
-	HANDLE hFile = CreateFile((LPCSTR)checkname.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	HANDLE hFile = CreateFile((LPCSTR)checkname,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 
 
 	// Write the minidump
@@ -305,25 +329,37 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	CloseHandle(hFile);
 
 	// Try to free the cache, it eats a lot of memory
-	try {
+	__try {
 		cCache.Clear();
-	} catch(...) {}
+	} 
+	__except(EXCEPTION_EXECUTE_HANDLER) {}
 
 	// Quit SDL
-	try  {
+	__try  {
 		SDL_Quit();
-	} catch(...) {}
+	} 
+	__except(EXCEPTION_EXECUTE_HANDLER) {}
 
 	// Close all opened files
 	fcloseall();
 
 
-	strncpy(&buf[1], checkname.c_str(), sizeof(buf) - 1);
+	strncpy(&buf[1], checkname, sizeof(buf) - 1);
 	buf[0] = '\"';
 	strncat(buf, "\"", sizeof(buf));
 	fix_markend(buf);
 
 	ShellExecute(NULL,"open","BugReport.exe",buf,NULL,SW_SHOWNORMAL);
+
+	// If running as a dedicated server, restart the application (there usually isn't any person sitting
+	// at the computer to fix this problem)
+#ifdef DEDICATED_ONLY
+	ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
+#else
+	if (bDedicated)  {
+		ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
+	}
+#endif
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
