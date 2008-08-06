@@ -1130,7 +1130,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	const std::string & clientVersionStr = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
-	// TODO: should we really do this? when there are multiple people behind a router?
+	// HINT: this works in every case, even if there are two people behind one router
+	// because the address ports are checked as well (router assigns a different port for each person)
 	cl = cClients;
 	for(p=0;p<MAX_CLIENTS;p++,cl++) {
 
