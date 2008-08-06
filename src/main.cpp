@@ -398,6 +398,13 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bOpenGL = true;
         } else
 
+        // -nojoystick
+        // Turns joystick off
+        if( stricmp(a, "-nojoystick") == 0 ) {
+            bJoystickSupport = false;
+        } else
+
+
         // -noopengl
         // Turns OpenGL off
         if( stricmp(a, "-noopengl") == 0 ) {
@@ -453,6 +460,7 @@ void ParseArguments(int argc, char *argv[])
      		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");
      		printf("   -noopengl     Explicitly disable using OpenGL\n");
      		printf("   -dedicated    Dedicated mode\n");
+     		printf("   -nojoystick   Disable Joystick support\n");
      		printf("   -nosound      Disable sound\n");
      		printf("   -window       Run in window mode\n");
      		printf("   -fullscreen   Run in fullscreen mode\n");
