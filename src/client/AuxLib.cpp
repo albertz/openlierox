@@ -589,7 +589,7 @@ void VideoPostProcessor::process() {
 		return;
 	}
 
-	static const bool multithreaded = false;
+	static const bool multithreaded = true;
 	if(!multithreaded) {
 		VideoPostProcessor::flipBuffers();
 		videoCoreFrame();
