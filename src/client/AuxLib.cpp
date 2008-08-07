@@ -322,18 +322,31 @@ bool SetVideoMode()
 setvideomode:
 	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
-			printf("Failed to reset video mode, let's wait a bit and retry.\n");
+			cout << "Failed to reset video mode"
+					<< " (ErrorMsg: " << SDL_GetError() << "),"
+					<< " let's wait a bit and retry" << endl;
 			SDL_Delay(500);
 			resetting = false;
 			goto setvideomode;
 		}
 
+		if(tLXOptions->iColourDepth != 0) {
+			cout << "Failed to use " << tLXOptions->iColourDepth << " bpp"
+					<< " (ErrorMsg: " << SDL_GetError() << "),"
+					<< " trying automatic bpp detection ..." << endl;
+			tLXOptions->iColourDepth = 0;
+			goto setvideomode;
+		}
+		
 		if(vidflags & SDL_FULLSCREEN) {
-			printf("Failed to set full screen video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + " (ErrorMsg: " + std::string(SDL_GetError()) + "), trying window mode ...\n");
+			cout << "Failed to set full screen video mode "
+					<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
+					<< " (ErrorMsg: " << SDL_GetError() << "),"
+					<< " trying window mode ..." << endl;
 			vidflags &= ~SDL_FULLSCREEN;
 			goto setvideomode;
 		}
-
+	
 		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 		return false;
 	}
@@ -576,7 +589,7 @@ void VideoPostProcessor::process() {
 		return;
 	}
 
-	static const bool multithreaded = true;
+	static const bool multithreaded = false;
 	if(!multithreaded) {
 		VideoPostProcessor::flipBuffers();
 		videoCoreFrame();
