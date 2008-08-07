@@ -205,6 +205,7 @@ public:
 	std::string	sSkinPath;
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
+	int		iMouseSensity;
 	bool	bAllowMouseAiming;
 	bool	bAllowStrafing;
 	bool	bAntilagMovementPrediction;

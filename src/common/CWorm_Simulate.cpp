@@ -56,7 +56,8 @@ void CWorm::getInput()
 	ws->bShoot = false;
 	ws->bJump = false;
 
-	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
+	const bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
+	const float mouseSensity = tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
 
 	// TODO: here are width/height of the window hardcoded
 	int mouse_dx = ms->X - 640/2;
@@ -104,21 +105,17 @@ void CWorm::getInput()
 				RESET_SMALL(fAngleSpeed, 5.0f);
 
 			} else { // mouseControl for angle
-				static const float mult_Y = 200; // how sensitive is the mouse in Y-dir
 				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
-				float diff = mouse_dy * mult_Y * dt;
-				fAngleSpeed += diff;
+				float diff = mouse_dy * mouseSensity;
+				CLAMP_DIRECT(diff, -500.0f, 500.0f); // same limit as keyboard
+				fAngleSpeed += diff * dt;
 
-				// this tries to be like keyboard, this code is only applied if up/down is not pressed
+				// this tries to be like keyboard where this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
 					CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
 					REDUCE_CONST(fAngleSpeed, 200*dt);
 					RESET_SMALL(fAngleSpeed, 5.0f);
 				}
-
-/*				REDUCE_CONST(fAngleSpeed, 200*dt);
-				RESET_SMALL(fAngleSpeed, 5.0f);
-				CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f); */
 			}
 		}
 
@@ -137,9 +134,8 @@ void CWorm::getInput()
 
 	// basic mouse control (moving)
 	if(mouseControl) {
-
-		static const float mult_X = 2; // how sensitive is the mouse in X-dir
-		fMoveSpeedX += mouse_dx * mult_X;
+		// no dt here, it's like the keyboard; and the value will be limited by dt later
+		fMoveSpeedX += mouse_dx * mouseSensity * 0.01;
 
 		REDUCE_CONST(fMoveSpeedX, 1000*dt);
 		//RESET_SMALL(fMoveSpeedX, 5.0f);
