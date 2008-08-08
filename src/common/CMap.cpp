@@ -929,6 +929,8 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
 
+	assert(bmpDest->format->BytesPerPixel == bmpShadowMap->format->BytesPerPixel);
+
 	// Calculate positions and clipping
 	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
 	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
@@ -968,11 +970,11 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	Uint8 *ShadowmapPxRow;  // We draw shadowmap doubly stretched so we cannot use step there
 
 	dest_px		   = (Uint8 *)bmpDest->pixels + (dest_real_y * bmpDest->pitch) + (dest_real_x * bpp);
-	obj_px		   = (Uint8 *)bmpObj->pixels + (object_real_y * bmpObj->pitch) + (object_real_x * bpp);
+	obj_px		   = (Uint8 *)bmpObj->pixels + (object_real_y * bmpObj->pitch) + (object_real_x * bmpObj->format->BytesPerPixel);
 	ShadowmapPxRow = (Uint8 *)bmpShadowMap.get()->pixels + (shadowmap_real_y * bmpShadowMap.get()->pitch) + (shadowmap_real_x * bpp);
 
 	DestRowStep	 = bmpDest->pitch - (w * bpp);
-	ObjRowStep	 = bmpObj->pitch - (w * bpp);
+	ObjRowStep	 = bmpObj->pitch - (w * bmpObj->format->BytesPerPixel);
 
 	// Draw the shadow
 	for (int loop_y = h; loop_y; --loop_y)  {
@@ -984,13 +986,13 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 			if ( (*PixelFlag & PX_EMPTY))  { // Don't draw shadow on solid objects
 
 				// Put pixel if not tranparent
-				if (!IsTransparent(bmpObj, GetPixelFromAddr(obj_px, bpp)))
+				if (!IsTransparent(bmpObj, GetPixelFromAddr(obj_px, bmpObj->format->BytesPerPixel)))
 					memcpy(dest_px, shadowmap_px, bpp);
 			}
 
 			// Update the pixels & flag
 			dest_px		 += bpp;
-			obj_px		 += bpp;
+			obj_px		 += bmpObj->format->BytesPerPixel;
 			shadowmap_px += bpp * (loop_x & 1); // We draw the shadow doubly stretched -> only 1/2 pixel on shadowmap
 			PixelFlag	 += loop_x & 1;
 		}
