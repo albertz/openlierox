@@ -1514,24 +1514,20 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color)
 		*row1 = (Uint8) color;
 		*row2 = (Uint8) color; ++row2;
 		*row2 = (Uint8) color;
+	break;
 	case 2: // 16 bpp
 		*(Uint16 *)row1 = (Uint16) color; row1 += 2;
 		*(Uint16 *)row1 = (Uint16) color;
 		*(Uint16 *)row2 = (Uint16) color; row2 += 2;
 		*(Uint16 *)row2 = (Uint16) color;
 	break;
-    case 3: // 24 bpp
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        *row1 = (&color)[0]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[2]; ++row1;
-		*row1 = (&color)[0]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[2];
-        *row2 = (&color)[0]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[2]; ++row2;
-		*row2 = (&color)[0]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[2];
-#else // Big endian
-        *row1 = (&color)[2]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[0]; ++row1;
-		*row1 = (&color)[2]; ++row1; *row1 = (&color)[1]; ++row1; *row1 = (&color)[0];
-        *row2 = (&color)[2]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[0]; ++row2;
-		*row2 = (&color)[2]; ++row2; *row2 = (&color)[1]; ++row2; *row2 = (&color)[0];
-#endif
+	case 3:  { // 24 bpp
+		const char c[3] = { ((Uint8 *)(&color))[0], ((Uint8 *)(&color))[1], ((Uint8 *)(&color))[2] };
+		*row1 = c[0]; ++row1; *row1 = c[1]; ++row1; *row1 = c[2]; ++row1;
+		*row1 = c[0]; ++row1; *row1 = c[1]; ++row1; *row1 = c[2];
+		*row2 = c[0]; ++row2; *row2 = c[1]; ++row2; *row2 = c[2]; ++row2;
+		*row2 = c[0]; ++row2; *row2 = c[1]; ++row2; *row2 = c[2];
+	} break;
 	case 4:  // 32 bpp
 		*(Uint32 *)row1 = color; row1 += 4;
 		*(Uint32 *)row1 = color;

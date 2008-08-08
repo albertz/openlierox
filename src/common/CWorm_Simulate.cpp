@@ -57,7 +57,7 @@ void CWorm::getInput()
 	ws->bJump = false;
 
 	const bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
-	const float mouseSensity = tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
+	const float mouseSensity = (float)tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
 
 	// TODO: here are width/height of the window hardcoded
 	int mouse_dx = ms->X - 640/2;
@@ -135,7 +135,7 @@ void CWorm::getInput()
 	// basic mouse control (moving)
 	if(mouseControl) {
 		// no dt here, it's like the keyboard; and the value will be limited by dt later
-		fMoveSpeedX += mouse_dx * mouseSensity * 0.01;
+		fMoveSpeedX += mouse_dx * mouseSensity * 0.01f;
 
 		REDUCE_CONST(fMoveSpeedX, 1000*dt);
 		//RESET_SMALL(fMoveSpeedX, 5.0f);
