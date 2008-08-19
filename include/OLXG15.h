@@ -58,6 +58,7 @@ private:
 	bool showingSplash;
 	float lastFrame;
 	float timeShown; // For splash screen, perhaps for some kill message too?
+	int oldGameState;
 
 
 	void frame();

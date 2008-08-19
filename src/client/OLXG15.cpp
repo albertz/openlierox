@@ -29,6 +29,7 @@ OLXG15_t::OLXG15_t()
 	screenVer = 0;
 	showingSplash = false;
 	lastFrame = 0.0f;
+	oldGameState = NET_DISCONNECTED;
 }
 OLXG15_t::~OLXG15_t()
 {
@@ -102,6 +103,7 @@ bool OLXG15_t::init()
 		nanosleep(&sleepTime,NULL);
 	}
 	*/
+	std::cout << "OLXG15 ready" << std::endl;
 	return true;
 }
 
@@ -125,19 +127,35 @@ void OLXG15_t::frame()
 			// TODO: ATM it looks better to show the logo until a game starts.
 			// Perhaps have a message here when in lobby and selecting weapons? (incase minimized?)
 			//g15r_clearScreen (&canvas, G15_COLOR_WHITE);
+			//showingSplash = false;
+			//timeShown = 0.0f;
 			// Temporary incase someone compiles it with G15
 			/*
 			std::string tmp = "This is all it can do so far :(";
 			g15r_renderString (&canvas, (unsigned char*)tmp.c_str(), 0, G15_TEXT_MED, centerAlign(tmp,G15_TEXT_MED), yAlign(G15_HEIGHT/2,G15_TEXT_MED));
 			g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 			*/
-			showingSplash = false;
-			timeShown = 0.0f;
-			return;
+			//return;
 		}
 	}
 
 
+	switch (cClient->getStatus())
+	{
+		// TODO: Lobby in net play
+		// Weapon selections in local
+		case NET_CONNECTED:
+			if (oldGameState == NET_CONNECTED)
+				break;
+			std::cout << "Status: " << itoa(cClient->getStatus()) << "/" << itoa(oldGameState) << std::endl;
+			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
+			showingSplash = false;
+			timeShown = 0.0f;
+		case NET_PLAYING:
+			if (oldGameState == NET_PLAYING)
+				break;
+			break;
+	}
 
 
 	// This is the only function that's going to get called from OLX regulary (except info-setting)
@@ -159,6 +177,8 @@ void OLXG15_t::frame()
 		Weapons[i].changed = false;
 	}
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
+
+	oldGameState = cClient->getStatus();
 
 }
 void OLXG15_t::updateWeapon(const int& slotID)
@@ -187,11 +207,16 @@ void OLXG15_t::updateWeapon(const int& slotID)
 		Weapons[slotID].changed = true;
 	}
 
-	if (Weapons[slotID].reloading)
+	if (Weapons[slotID].reloading != wpn->Reloading)
 	{
+		std::cout << "Reloading" << std::endl;
 		Weapons[slotID].reloading = wpn->Reloading;
 		Weapons[slotID].changed = true;
+	}
 
+	if (Weapons[slotID].reloading)
+	{
+		Weapons[slotID].changed = true;
 		if (Weapons[slotID].chargeIndicator == 3)
 			Weapons[slotID].chargeIndicator = 0;
 
@@ -310,6 +335,7 @@ void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int&
 	// Re-using chargeMsg
 	if (weapon.reloading)
 	{
+		std::cout << "Rendering reload!" << std::endl;
 		if (weapon.chargeIndicator == 1)
 			chargeMsg = ">>";
 		else
@@ -319,10 +345,8 @@ void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int&
 		g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), row, size,
 							rightAlign(chargeMsg,size)-( (4*getCharWidth(size))-size ), 0);
 	}
-	//else
-	//	clearReload(row,size);
-
-
+	else
+		clearReload(row,size);
 
 	return;
 }
