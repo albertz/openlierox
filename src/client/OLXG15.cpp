@@ -15,6 +15,9 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "LieroX.h"
+#include "CWorm.h"
+#include "CClient.h"
+
 #include "OLXG15.h"
 #include "OLX_g15logo_ver4.xbm"
 
@@ -119,16 +122,22 @@ void OLXG15_t::frame()
 		timeShown += tLX->fRealDeltaTime;
 		if (timeShown >= G15SPLASHTIME || startTime.tv_sec + (int) G15SPLASHTIME < curTime.tv_sec)
 		{
-			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
+			// TODO: ATM it looks better to show the logo until a game starts.
+			// Perhaps have a message here when in lobby and selecting weapons? (incase minimized?)
+			//g15r_clearScreen (&canvas, G15_COLOR_WHITE);
 			// Temporary incase someone compiles it with G15
+			/*
 			std::string tmp = "This is all it can do so far :(";
 			g15r_renderString (&canvas, (unsigned char*)tmp.c_str(), 0, G15_TEXT_MED, centerAlign(tmp,G15_TEXT_MED), yAlign(G15_HEIGHT/2,G15_TEXT_MED));
 			g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
+			*/
 			showingSplash = false;
 			timeShown = 0.0f;
 			return;
 		}
 	}
+
+
 
 
 	// This is the only function that's going to get called from OLX regulary (except info-setting)
@@ -143,11 +152,55 @@ void OLXG15_t::frame()
 	// 0 to Charge indicators. S:0 - 135 M:0 - 131 L:0 - 114
 	for (int i=0; i < 5;++i)
 	{
+		updateWeapon(i);
 		if (!Weapons[i].changed)
-			continue;
+			continue; // It hasn't changed, no need to update
 		renderWeapon(Weapons[i],G15_TEXT_MED,i);
+		Weapons[i].changed = false;
 	}
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
+
+}
+void OLXG15_t::updateWeapon(const int& slotID)
+{
+	//int			getCurrentWeapon(void)
+	// TODO: Make it customizable to show worm 0/1?
+	CWorm *worm = cClient->getWorm(0);
+	if (!worm)
+		return;
+	wpnslot_t *wpn = worm->getWeapon(slotID);
+
+	// TODO: can this get nulled after game (most likely?)
+	// If so, perhaps make it so the weapon has been changed.
+	// No weapon yet
+	if (!wpn->Weapon)
+		return;
+	if (Weapons[slotID].name != wpn->Weapon->Name)
+	{
+		Weapons[slotID].name = wpn->Weapon->Name;
+		Weapons[slotID].changed = true;
+	}
+
+	if (Weapons[slotID].charge != (int)(wpn->Charge * 100))
+	{
+		Weapons[slotID].charge = (int)(wpn->Charge * 100);
+		Weapons[slotID].changed = true;
+	}
+
+	if (Weapons[slotID].reloading)
+	{
+		Weapons[slotID].reloading = wpn->Reloading;
+		Weapons[slotID].changed = true;
+
+		if (Weapons[slotID].chargeIndicator == 3)
+			Weapons[slotID].chargeIndicator = 0;
+
+		++Weapons[slotID].chargeIndicator;
+	}
+	else
+		Weapons[slotID].chargeIndicator = 0; // To clear for next reload
+
+	return;
 
 }
 void OLXG15_t::drawBounds(const int& size)
@@ -225,7 +278,7 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	Weapons[1].reloading = true;
 	Weapons[1].chargeIndicator = 1;
 
-	Weapons[2].name = "Handgun with a dick slapping you silly";
+	Weapons[2].name = "Handgun with a really long name";
 	Weapons[2].charge = 45;
 
 	Weapons[3].name = "Cannon";
@@ -242,6 +295,7 @@ void OLXG15_t::testWeaponScreen(const int& size)
 // Renders 1 weapon row
 void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& row)
 {
+	clearRow(row,size);
 	// Name
 	drawWpnName(weapon.name,row,size);
 	//g15r_renderString (&canvas, (unsigned char*)weapon.name.c_str(), row, size, 0, 0);
@@ -260,19 +314,13 @@ void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int&
 			chargeMsg = ">>";
 		else
 			chargeMsg = "> ";
-		if (weapon.chargeIndicator == 3)
-			weapon.chargeIndicator = 0;
-		++weapon.chargeIndicator;
+
 		// (100% = 4 letters - keep out of normal reading zone) -4*getCharWidth moves 4 letters left.
 		g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), row, size,
 							rightAlign(chargeMsg,size)-( (4*getCharWidth(size))-size ), 0);
 	}
-	else
-	{
-		// Reset for next reload
-		weapon.chargeIndicator = 0;
-		clearReload(row,size);
-	}
+	//else
+	//	clearReload(row,size);
 
 
 
@@ -297,6 +345,12 @@ void OLXG15_t::drawWpnName(const std::string& name, const int& row, const int& s
 		return;
 	}
 	g15r_renderString (&canvas, (unsigned char*)name.c_str(), row, size, 0, 0);
+}
+void OLXG15_t::clearRow(const int& row, const int& size)
+{
+	int y1 = row * getCharHeight(size);
+	int y2 = y1 + getCharHeight(size)-1; // Magical number, else it clears too much.
+	g15r_pixelBox(&canvas,0,y1,G15_LCD_WIDTH,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 }
 void OLXG15_t::clearReload(const int& row, const int& size)
 {

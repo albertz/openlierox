@@ -72,9 +72,11 @@ public:
 	void gameFrame() { frame(); };
 
 
+	void updateWeapon(const int& slotID);
 	void drawBounds(const int& size);
 
 	void drawWpnName(const std::string& name, const int& row, const int& size);
+	void clearRow(const int& row, const int& size);
 	void clearReload(const int& row, const int& size);
 	void sayHi();
 	void testWeaponScreen(const int& size);
@@ -89,16 +91,12 @@ public:
 		}
 	}
 
-	// Variables
-	OLXG15_weapon_t* getWeapon(const int& num)		{ return &Weapons[num]; }
-
-
 	// TODO: Ripped from my personal G15 header file, perhaps put in it's own headerfile here too?
 
 	// Small can take up to 40 characters. 3 pix wide 1 pix spacing 6 pix high (4x6)
 	// Medium can take up to 32 characters. 4 pix wide 1 pix spacing 7 pix high (5x7)
 	// Large can take up to 20 characters. 7 pix wide 1 pix spacing 8 pix high (8x8)
-	int getCharWidth(const int& size)
+	inline int getCharWidth(const int& size)
 	{
 		switch (size)
 		{
@@ -110,7 +108,7 @@ public:
 					return 4;
 		}
 	}
-	int getCharHeight(const int& size)
+	inline int getCharHeight(const int& size)
 	{
 		switch (size)
 		{
@@ -125,21 +123,21 @@ public:
 
 
 	// Returns what X pixel to start on to get the specified effect
-	int centerAlign(const std::string& txt, const int& size)
+	inline int centerAlign(const std::string& txt, const int& size)
 	{
 		return (G15_LCD_WIDTH/2) - (txt.length()*getCharWidth(size))/2;
 	}
 	// Last pixel is actually #159 (starts on 0), but this removes the spacing (1pix).
 	// For some unknown reason it's 161 instead of 160 to remove spacing?? (new: most likely front spacing)
 	// Returns what X pixel to start on to get the specified effect
-	int rightAlign(const std::string& txt, const int& size)
+	inline int rightAlign(const std::string& txt, const int& size)
 	{
 		return (G15_LCD_WIDTH+1) - (txt.length()*getCharWidth(size));
 	}
 	// Returns what Y pixel to start on to center text at pixel y, will place them all on the same line
 	// if bottom, returns pixel for getting the bottom of the text at pixel y;
 	// This description sucks, just try it out, ok?
-	int yAlign(const int& y,const int& size, const bool& bottom = false)
+	inline int yAlign(const int& y,const int& size, const bool& bottom = false)
 	{
 		int height = getCharHeight(size);
 		switch (size)
@@ -150,12 +148,12 @@ public:
 					return bottom?(y - height):(y - height/2); //4
 		}
 	}
-	void drawXBM(g15canvas* canvas, unsigned char* data, const int& width, const int& height ,const int& pos_x, const int& pos_y)
+	inline void drawXBM(g15canvas* canvas, unsigned char* data, const int& width, const int& height ,const int& pos_x, const int& pos_y)
 	{
 		int y = 0;
 		int z = 0;
 		unsigned char byte;
-		int bytes_per_row = ceil((double) width / 8);
+		int bytes_per_row = (int) ceil((double) width / 8);
 
 		int bits_left = width;
 		int current_bit = 0;
