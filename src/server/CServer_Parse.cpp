@@ -28,9 +28,6 @@
 #include "DedicatedControl.h"
 #include "AuxLib.h"
 #include "Version.h"
-#include "OLXModInterface.h"
-using namespace OlxMod;
-
 
 using namespace std;
 
@@ -129,10 +126,6 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 
 		case C2S_SENDFILE:
 			ParseSendFile(cl, bs);
-			break;
-
-		case C2S_OLXMOD_DATA:
-			ParseOlxModData(cl, bs);
 			break;
 
 		default:
@@ -869,31 +862,6 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 	};
 };
 
-void GameServer::ParseOlxModData(CClient *cl, CBytestream *bs)
-{
-	CBytestream data;
-	data.writeByte( S2C_OLXMOD_DATA );
-	data.writeByte( cl->getWorm(0)->getID() );
-	int packetSize = OlxMod_NetPacketSize();
-	int f;
-	for( f=0; f<packetSize; f++ )
-	{
-		data.writeByte(bs->readByte());
-	};
-
-	if( iState == SVS_PLAYING_OLXMOD )
-	{
-		CClient *clSend;
-		for( f=0, clSend = cClients; f < MAX_CLIENTS; f++, clSend++ )
-		{
-			if( clSend != cl && clSend->getStatus() == NET_CONNECTED )
-			{
-				SendPacket( &data, clSend );
-			};
-		};
-	};
-};
-
 
 /*
 ===========================
@@ -1557,10 +1525,7 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	int CompatibleState = iState;
-	if( CompatibleState == SVS_PLAYING_OLXMOD )
-		CompatibleState = SVS_PLAYING;
-	bytestr.writeByte(CompatibleState);
+	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);
@@ -1586,10 +1551,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 
 	bs.writeString(OldLxCompatibleString(sName));
 	bs.writeByte(iMaxWorms);
-	int CompatibleState = iState;
-	if( CompatibleState == SVS_PLAYING_OLXMOD )
-		CompatibleState = SVS_PLAYING;
-	bs.writeByte(CompatibleState);
+	bs.writeByte(iState);
 
 	// If in lobby
 	if (iState == SVS_LOBBY && gl->bSet) {

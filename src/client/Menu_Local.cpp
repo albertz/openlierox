@@ -34,8 +34,6 @@
 #include "CCheckbox.h"
 #include "CMediaPlayer.h"
 #include "CTextButton.h"
-#include "OLXModInterface.h"
-using namespace OlxMod;
 
 
 CGuiLayout cLocalMenu;
@@ -716,13 +714,6 @@ void Menu_Local_FillModList( CCombobox *cb )
 	cb->setUnique(true);
 	ModAdder adder(cb);
 	FindFiles(adder,".",false,FM_DIR);
-	
-	//if( tGameInfo.iGameType == GME_HOST )
-	{
-		std::vector<std::string> srcMods = OlxMod_GetModList();
-		for( unsigned f=0; f<srcMods.size(); f++ )
-			cb->addItem( srcMods[f], srcMods[f] );
-	};
 	
 	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 }

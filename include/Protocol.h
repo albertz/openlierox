@@ -43,8 +43,7 @@
 #define		C2S_UPDATELOBBY		6
 #define		C2S_DISCONNECT		7
 #define		C2S_GRABBONUS		8
-#define     C2S_SENDFILE        9
-#define     C2S_OLXMOD_DATA     10
+#define     C2S_SENDFILE        9 // Beta4+ only, enabled only in Beta6+
 
 
 // Server->Client
@@ -70,10 +69,7 @@
 #define		S2C_GOTOLOBBY		19
 #define		S2C_DESTROYBONUS	20
 #define     S2C_DROPPED         21
-#define     S2C_SENDFILE        22
-#define     S2C_OLXMOD_START    23
-#define     S2C_OLXMOD_DATA     24
-#define     S2C_OLXMOD_CHECKSUM 25
+#define     S2C_SENDFILE        22 // Beta4+ only, enabled only in Beta6+
 
 
 #endif  //  __PROTOCOL_H__

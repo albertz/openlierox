@@ -32,7 +32,6 @@
 #include "CServer.h"
 #include "AuxLib.h"
 #include "Networking.h"
-#include "OLXModInterface.h"
 
 
 const float fDownloadRetryTimeout = 5.0;	// 5 seconds
@@ -814,9 +813,6 @@ void CClient::Frame(void)
 	if(iNetStatus == NET_PLAYING && !bWaitingForMap && !bWaitingForMod)
 		Simulation();
 
-	if(iNetStatus == NET_PLAYING_OLXMOD && !bWaitingForMap && !bWaitingForMod)
-		SimulationOlxMod();
-
 	SendPackets();
 
 	// Connecting process
@@ -901,7 +897,7 @@ void CClient::SendPackets(void)
 		SendRandomPacket();
 #endif
 
-	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING_OLXMOD)
+	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
 
 
@@ -1239,9 +1235,6 @@ void CClient::Disconnect(void)
 	if( cNetChan != NULL)
 		for(int i=0;i<3;i++)
 			cNetChan->Transmit(&bs);
-
-	if( iNetStatus == NET_PLAYING_OLXMOD )
-		OlxMod::OlxMod_EndRound();
 
 	iNetStatus = NET_DISCONNECTED;
 
@@ -1684,45 +1677,6 @@ void CClient::setServerVersion(const std::string & _s)
 	cServerVersion.setByString(_s);
 	printf("Server is using " + cServerVersion.asString() + "\n");
 }
-
-void CClient::SimulationOlxMod()
-{
-	OlxMod::OlxMod_KeyState_t keys;
-	keys.up = cLocalWorms[0]->getInputUp().isDown();
-	keys.down = cLocalWorms[0]->getInputDown().isDown();
-	keys.left = cLocalWorms[0]->getInputLeft().isDown();
-	keys.right = cLocalWorms[0]->getInputRight().isDown();
-	keys.shoot = cLocalWorms[0]->getInputShoot().isDown();
-	keys.jump = cLocalWorms[0]->getInputJump().isDown();
-	keys.selweap = cLocalWorms[0]->getInputWeapon().isDown();
-	keys.rope = cLocalWorms[0]->getInputRope().isDown();
-	keys.strafe = cLocalWorms[0]->getInputStrafe().isDown();
-	cLocalWorms[0]->clearInput();
-	CBytestream bs;
-	bs.writeByte(C2S_OLXMOD_DATA);
-	if( OlxMod_Frame( (unsigned long)(tLX->fCurTime*1000.0f), keys, &bs, cShowScore.isDown() ) )
-	{
-		cNetChan->AddReliablePacketToSend(bs);
-	};
-	if( GetKeyboard()->KeyUp[SDLK_ESCAPE] )
-	{
-		OlxMod::OlxMod_EndRound();
-
-		SDL_SetClipRect(VideoPostProcessor::videoSurface(), NULL);
-		FillSurfaceTransparent(tMenu->bmpBuffer.get());
-		VideoPostProcessor::process();
-		FillSurfaceTransparent(tMenu->bmpBuffer.get());
-		SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
-		FillSurfaceTransparent(tMenu->bmpBuffer.get());
-
-		if( tGameInfo.iGameType == GME_LOCAL )
-			GotoLocalMenu();
-		if( tGameInfo.iGameType == GME_HOST )
-			cServer->gotoLobby();
-		if( tGameInfo.iGameType == GME_JOIN )
-			GotoNetMenu();
-	};
-};
 
 bool CClient::RebindSocket()
 {

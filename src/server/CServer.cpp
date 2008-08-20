@@ -35,9 +35,6 @@
 #include "MathLib.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
-#include "OLXModInterface.h"
-using namespace OlxMod;
-
 
 using namespace std;
 
@@ -289,46 +286,6 @@ int GameServer::StartGame()
 	bShowBonusName = tGameInfo.bShowBonusName;
 
 	printf("GameServer::StartGame() mod %s\n", sModName.c_str());
-	if( OlxMod_IsModInList(sModName) )
-	{
-		// Kick old clients - they will see they don't have that mod and leave
-		bs.writeByte(S2C_PREPAREGAME);
-		bs.writeBool(false); // Map not random
-		bs.writeString("levels/Dirt Level.lxl");
-		// TODO: what are all these writeInt for?
-		// TODO: move that out here!
-		// Game info - some random values
-		bs.writeInt(0,1); // Game type - free for all
-		bs.writeInt16(10);
-		bs.writeInt16(10);
-		bs.writeInt16((int)0);
-		bs.writeInt16(100);
-		bs.writeBool(true);
-		bs.writeBool(true);
-		bs.writeString(sModName); // The mod name - old clients won't have it!
-		bs.writeInt(0, 2); // Empty weapon restrictions
-		SendGlobalPacket(&bs);
-		
-		iState = SVS_PLAYING_OLXMOD;
-		iServerFrame = 0;
-		bGameOver = false;
-		tOlxMod_DisconnectedClients.clear();
-		fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
-		iOlxMod_LastChecksumTime = 0;
-		fOlxMod_LastChecksumTimeDelay = 0;
-	
-		bs.Clear();
-		bs.writeByte(S2C_OLXMOD_START);
-		bs.writeString( sModName );
-		bs.writeInt( OlxMod_GameSpeed_Fast, 1 );
-		bs.writeInt( (unsigned long)time(NULL) + SDL_GetTicks(), 4 ); // Random seed
-		bs.writeInt( 0, 1 ); // Zero options for now
-		bs.writeInt( 0, 1 ); // Zero weapon banlist for now
-		SendGlobalPacket(&bs);
-
-		return true;
-	};
-
 
 	// Check
 	if (!cWorms) { printf("ERROR: StartGame(): Worms not initialized\n"); return false; }
@@ -1026,8 +983,6 @@ void GameServer::CheckTimeouts(void)
         }
 	}
 	CheckWeaponSelectionTime();	// This is kinda timeout too
-	OlxMod_ProcessDisconnectedClients(); // That's not timeout, but I on't know where to put it
-	OlxMod_SendChecksum();
 }
 
 void GameServer::CheckWeaponSelectionTime()
@@ -1068,50 +1023,6 @@ void GameServer::CheckWeaponSelectionTime()
 		};
 	};
 };
-
-// Send empty packets for all disconnected clients to maintain playable OlxMod engine state
-void GameServer::OlxMod_ProcessDisconnectedClients()
-{
-	if( iState != SVS_PLAYING_OLXMOD )
-		return;
-	if( tLX->fCurTime - fOlxMod_DisconnectedClientsPacketSendTime < OlxMod_EmptyPacketTime() / 1000.0f )
-		return;
-	
-	fOlxMod_DisconnectedClientsPacketSendTime = tLX->fCurTime;
-	
-	for( unsigned f=0; f< tOlxMod_DisconnectedClients.size(); f++ )
-	{
-		CBytestream data;
-		data.writeByte( S2C_OLXMOD_DATA );
-		data.writeByte( tOlxMod_DisconnectedClients[f] );
-		OlxMod_AddEmptyPacket( (unsigned long)(tLX->fCurTime*1000.0f) , &data );
-		SendGlobalPacket(&data);
-	};
-};
-
-// Send game checksum to all clients
-void GameServer::OlxMod_SendChecksum()
-{
-	if( iState != SVS_PLAYING_OLXMOD )
-		return;
-	unsigned long checksumTime=0;
-	unsigned checksum = OlxMod_GetChecksum(&checksumTime);
-	
-	// Skip one server frame to allow local client to send it's keys
-	if( iOlxMod_LastChecksumTime != checksumTime )
-	{
-		if( tLX->fCurTime > fOlxMod_LastChecksumTimeDelay + OlxMod_EmptyPacketTime()*3/1000.0f )
-			fOlxMod_LastChecksumTimeDelay = tLX->fCurTime;
-		if( tLX->fCurTime <= fOlxMod_LastChecksumTimeDelay + OlxMod_EmptyPacketTime()/1000.0f )
-			return;
-		iOlxMod_LastChecksumTime = checksumTime;
-		CBytestream data;
-		data.writeByte( S2C_OLXMOD_CHECKSUM );
-		data.writeInt( checksumTime, 4 );
-		data.writeInt( checksum, 4 );
-		SendGlobalPacket(&data);
-	};
-}
 
 ///////////////////
 // Drop a client
@@ -1199,16 +1110,6 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
     bs.writeString(OldLxCompatibleString(cl_msg));
     cl->getChannel()->AddReliablePacketToSend(bs);
 
-
-    if(iState == SVS_PLAYING_OLXMOD)
-	{
-		tOlxMod_DisconnectedClients.push_back(cl->getWorm(0)->getID());
-		CBytestream data;
-		data.writeByte( S2C_OLXMOD_DATA );
-		data.writeByte( cl->getWorm(0)->getID() );
-		OlxMod_AddEmptyPacket( (unsigned long)(tLX->fCurTime*1000.0f) , &data );
-		SendGlobalPacket(&data);
-	}
 }
 
 void GameServer::RemoveClient(CClient* cl) {

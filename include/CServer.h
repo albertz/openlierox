@@ -42,8 +42,7 @@ class challenge_t { public:
 enum {
 	SVS_LOBBY=0,		// Lobby
 	SVS_GAME,			// Game, waiting for players to load
-	SVS_PLAYING,		// Currently playing
-	SVS_PLAYING_OLXMOD	// Currently playing Olx mod - skip all simulation, just transit packets
+	SVS_PLAYING			// Currently playing
 };
 
 // Client leaving reasons
@@ -146,12 +145,6 @@ private:
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
 	
-	std::vector<int>	tOlxMod_DisconnectedClients;
-	float		fOlxMod_DisconnectedClientsPacketSendTime;
-	unsigned long		iOlxMod_LastChecksumTime;
-	float		fOlxMod_LastChecksumTimeDelay;
-
-
 public:
 	// Methods
 
@@ -216,10 +209,6 @@ public:
 	float		GetDownload();
 	float		GetUpload();
 	bool		ParseChatCommand(const std::string& message, CClient *cl);
-	bool		CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs );
-	bool		DropFakeZombieWormsToCleanUpLobby( CBytestream *bs );
-	void		OlxMod_ProcessDisconnectedClients();
-	void		OlxMod_SendChecksum();
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);
@@ -248,7 +237,6 @@ public:
 	void		ParseWeaponList(CClient *cl, CBytestream *bs);
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
 	void		ParseSendFile(CClient *cl, CBytestream *bs);
-	void		ParseOlxModData(CClient *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);

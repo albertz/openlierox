@@ -29,7 +29,6 @@
 #include "DedicatedControl.h"
 #include "Physics.h"
 #include "Version.h"
-#include "OLXModInterface.h"
 #include "OLXG15.h"
 #include "CrashHandler.h"
 
@@ -973,7 +972,6 @@ void ShutdownLieroX(void)
 	if(!bRestartGameAfterQuit)
 	{
 		CScriptableVars::DeInit();
-		OlxMod::OlxMod_DeleteModList();
 	};
 
 	xmlCleanupParser();

@@ -423,9 +423,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		return;
 	}
 
-	if( iNetStatus == NET_PLAYING_OLXMOD )
-		return;
-
 	bool bScoreboard = true;
 
 	if(!bDedicated) {
@@ -1035,8 +1032,6 @@ void CClient::SimulateHud(void)
 {
     if(bDedicated)
         return;
-	if(iNetStatus == NET_PLAYING_OLXMOD)
-		return;
 
 	//float dt = tLX->fDeltaTime; // TODO: not used
 	//float ScrollSpeed=5; // TODO: not used

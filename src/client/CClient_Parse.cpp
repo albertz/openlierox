@@ -35,8 +35,6 @@
 #include "EndianSwap.h"
 #include "Physics.h"
 #include "AuxLib.h"
-#include "OLXModInterface.h"
-using namespace OlxMod;
 
 using namespace std;
 
@@ -429,18 +427,6 @@ void CClient::ParsePacket(CBytestream *bs)
                 ParseSendFile(bs);
                 break;
 
-            case S2C_OLXMOD_START:
-                ParseOlxModStart(bs);
-                break;
-
-            case S2C_OLXMOD_DATA:
-                ParseOlxModData(bs);
-                break;
-
-            case S2C_OLXMOD_CHECKSUM:
-                ParseOlxModChecksum(bs);
-                break;
-
 			default:
 #ifndef FUZZY_ERROR_TESTING
 				printf("cl: Unknown packet\n");
@@ -510,14 +496,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		bGameReady = false;
 		return false;
 	}
-
-	if( OlxMod_IsModInList(sModName) )
-	{
-		printf("CClient::ParsePrepareGame: ignoring packet from OlxMod - it should kick old clients\n");
-		bs->Skip(2); // Weapon restrictions
-		bGameReady = false;
-		return true;
-	};
 
 	// Clear any previous instances of the map
 	if(tGameInfo.iGameType == GME_JOIN) {
@@ -1486,9 +1464,6 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
-	if( OlxMod_IsModInList(gl->szModDir) )
-	    gl->bHaveMod = true;
-
 	bJoin_Update = true;
 	bHost_Update = true;
 }
@@ -1695,9 +1670,6 @@ void CClient::ParseGotoLobby(CBytestream *)
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
 
-  	if( iNetStatus == NET_PLAYING_OLXMOD )
-	  	OlxMod_EndRound();
-
 	// Do a minor clean up
 	MinorClear();
 
@@ -1844,102 +1816,3 @@ void CClient::ParseSendFile(CBytestream *bs)
 	};
 };
 
-void CClient::ParseOlxModStart(CBytestream *bs)
-{
-	std::string modName = bs->readString();
-	int gameSpeed = bs->readInt(1);
-	unsigned long randomSeed = bs->readInt(4);
-	int optionsNum = bs->readInt(1);
-	int banlistNum = bs->readInt(1);
-	if( optionsNum != 0 || banlistNum != 0 )
-	{
-		printf("CClient::ParseOlxModStart(): error, options and banlist not supported yet");
-		return;
-	};
-	int numPlayers = 0, localWorm = -1;
-
-	CWorm *w;
-	int f;
-
-	for( f = 0, w = cRemoteWorms; f < MAX_CLIENTS; f++, w++ )
-	{
-		if( ! w->isUsed() )
-			continue;
-		if( w->getLocal() && localWorm == -1 )
-			localWorm = numPlayers;
-		numPlayers ++;
-	};
-
-	// empty by now
-	std::map< std::string, CScriptableVars::ScriptVar_t > options;
-	std::map< std::string, OlxMod_WeaponRestriction_t > weaponRestrictions;
-
-	// Clean the screen up - just in case
-	// HINT: don't do that, because someone could send a fake packet and cause a DoS (the screen goes black)
-	/*SDL_SetClipRect(VideoPostProcessor::videoSurface(), NULL);
-	FillSurfaceTransparent(VideoPostProcessor::videoSurface());
-	VideoPostProcessor::process();
-	FillSurfaceTransparent(VideoPostProcessor::videoSurface());
-	SDL_SetClipRect(tMenu->bmpBuffer.get(), NULL);
-	FillSurfaceTransparent(tMenu->bmpBuffer.get());*/
-
-	bool ret = OlxMod_ActivateMod( modName, (OlxMod_GameSpeed_t)gameSpeed,
-				(unsigned long)(tLX->fCurTime*1000.0f),
-				numPlayers, localWorm, randomSeed,
-				options, weaponRestrictions,
-				640, 480, VideoPostProcessor::videoSurface() );
-	if( ret == true )
-	{
-		printf("CClient::ParseOlxModStart() random %lX, mod %s, speed %i clients %i local client %i\n", randomSeed, modName.c_str(), gameSpeed, numPlayers, localWorm);
-		iNetStatus = NET_PLAYING_OLXMOD;
-		RemoveSocketFromNotifierGroup( tSocket );
-		bGameReady = true;
-		bShouldRepaintInfo = true;
-		bJoin_Update = true;
-		getUdpFileDownloader()->reset();
-		cLocalWorms[0]->StartGame();
-	}
-	else
-	{
-		printf("OlxMod_ActivateMod() failed\n");
-	};
-};
-
-void CClient::ParseOlxModData(CBytestream *bs)
-{
-	int wormId = bs->readByte();
-	if( iNetStatus == NET_PLAYING_OLXMOD )
-	{
-		OlxMod_ReceiveNetPacket( bs, wormId );
-	}
-	else
-	{
-		bs->Skip(OlxMod_NetPacketSize());
-	};
-};
-
-void CClient::ParseOlxModChecksum(CBytestream *bs)
-{
-	if( iNetStatus != NET_PLAYING_OLXMOD )
-	{
-		bs->Skip(8);
-		return;
-	};
-	unsigned time = bs->readInt(4);
-	unsigned checksum = bs->readInt(4);
-	unsigned long time1=0;
-	unsigned checksum1 = OlxMod_GetChecksum(&time1);
-	if( time != time1 )
-	{
-		printf("CClient::ParseOlxModChecksum() - invalid checksum time, remote %u local %lu - ignoring checksum\n", time, time1);
-		return;
-	};
-	if( checksum1 != checksum )
-	{
-		printf("CClient::ParseOlxModChecksum() - invalid checksum - remote 0x%X local 0x%X - disconnecting\n", checksum, checksum1 );
-		bServerError = true;
-		strServerErrorMsg = "Network is de-synced! Restarting both client and server may help.\nNew modding system is unfinished yet, sorry for inconvenience.";
-		return;
-	};
-	printf("CClient::ParseOlxModChecksum() - time %u checksum 0x%X match\n", time, checksum);
-};
