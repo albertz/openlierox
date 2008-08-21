@@ -105,7 +105,6 @@ public:
 		PixelFlags = NULL;
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
-		bmpDirtImage = NULL;
         GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		
@@ -121,6 +120,11 @@ public:
 		BaseStartY = -1;
 		BaseEndX   = -1;
 		BaseEndY   = -1;
+		
+		bMapSavingToMemory = false;
+		bmpSavedImage = NULL;
+		savedPixelFlags = NULL;
+		savedMapCoords.clear();
    	}
 
 	~CMap() {
@@ -152,7 +156,6 @@ private:
 #ifdef _AI_DEBUG
 	SmartPointer<SDL_Surface> bmpDebugImage;
 #endif
-	SmartPointer<SDL_Surface> bmpDirtImage; // Save dirt image to restore some pixels correctly on dirt update
 
     // AI Grid
     int         nGridWidth, nGridHeight;
@@ -177,6 +180,25 @@ private:
 	short		BaseStartY;
 	short		BaseEndX;
 	short		BaseEndY;
+
+	// Save/restore from memory, for commit/rollback net mechanism
+	bool		bMapSavingToMemory;
+	SmartPointer<SDL_Surface> bmpSavedImage;
+	uchar *		savedPixelFlags;
+	enum { MAP_SAVE_CHUNK = 16 };
+	struct SavedMapCoord_t {
+		SavedMapCoord_t( int _X=0, int _Y=0 ): X(_X), Y(_Y) {};
+		int X;
+		int Y;
+		bool operator < (const SavedMapCoord_t & m) const
+		{
+			if( Y < m.Y ) return true;
+			else if( Y > m.Y ) return false;
+			else if( X < m.X ) return true;
+			else return false;
+		};
+	};
+	std::set< SavedMapCoord_t > savedMapCoords;
 
 private:
 	// Update functions
@@ -239,13 +261,11 @@ public:
 
     void        PutImagePixel(uint x, uint y, Uint32 colour);
 
-	void		Send(CBytestream *bs);
-	
 	void		Draw(SDL_Surface * bmpDest, CViewport *view);
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
 	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
-
+	
 private:
 	// not thread-safe, therefore private	
 	inline void	SetPixelFlag(uint x, uint y, uchar flag)	
@@ -256,6 +276,10 @@ private:
 	
 		PixelFlags[y * Width + x] = flag;
 	}
+	
+	// Saves region of map to savebuffer for RestoreFromMemory() - called from CarveHole()/PlaceDirt()/PlaceGreenDirt()
+	void SaveToMemoryInternal(int x, int y, int w, int h);
+
 
 public:	
 
@@ -284,8 +308,6 @@ public:
 	void		ClearDebugImage();
 #endif
 
-	void		AddObject(int type, int size, CVec pos);
-
 	int 		CarveHole(int size, CVec pos);
 	int 		PlaceDirt(int size, CVec pos);
 	void		PlaceStone(int size, CVec pos);
@@ -293,8 +315,9 @@ public:
     int         PlaceGreenDirt(CVec pos);
 	void		ApplyShadow(int sx, int sy, int w, int h);
 
-	void		DeleteObject(CVec pos);
-	void		DeleteStone(object_t *obj);
+	// Save/restore from memory, for commit/rollback net mechanism
+	void		SaveToMemory();
+	void		RestoreFromMemory();
 
 	inline theme_t		*GetTheme(void)		{ return &Theme; }
 
@@ -339,7 +362,6 @@ public:
 			for(int x = r.x(); x < r.x2(); x++)
 				if(!walker(x, y)) return;
 	}
-	
 };
 
 

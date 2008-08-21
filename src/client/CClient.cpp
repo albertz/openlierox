@@ -34,7 +34,7 @@
 #include "Networking.h"
 
 
-const float fDownloadRetryTimeout = 5.0;	// 5 seconds
+const float fDownloadRetryTimeout = 7.0;	// 7 seconds, in case server should calculate CRC for large amount of files, like mod dir
 
 
 ///////////////////

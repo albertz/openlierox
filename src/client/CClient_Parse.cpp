@@ -1794,14 +1794,20 @@ void CClient::ParseSendFile(CBytestream *bs)
 				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
 					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
 					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
+				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
+					fLastFileRequest = tLX->fCurTime + 1.5;	// Small delay so server will be able to send all the info
+				}
 			};
 			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
 				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
 					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
 					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
+				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
+					fLastFileRequest = tLX->fCurTime + 1.5;	// Small delay so server will be able to send all the info
+				}
 			};
 		};
 	};

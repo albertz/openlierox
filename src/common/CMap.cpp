@@ -73,7 +73,6 @@ bool CMap::NewFrom(CMap* map)
 #ifdef _AI_DEBUG
 	DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
 #endif
-	DrawImage(bmpDirtImage.get(), map->bmpDirtImage, 0, 0);
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
@@ -95,6 +94,13 @@ bool CMap::NewFrom(CMap* map)
 	BaseEndX	= map->BaseEndX;
 	BaseEndY	= map->BaseEndY;
 
+	bMapSavingToMemory = false;
+	bmpSavedImage = NULL;
+	if( savedPixelFlags )
+		delete[] savedPixelFlags;
+	savedPixelFlags = NULL;
+	savedMapCoords.clear();
+	
 	Created = true;
 
 	return true;
@@ -124,7 +130,7 @@ bool CMap::LoadFromCache()
 size_t CMap::GetMemorySize()
 {
 	size_t res = sizeof(CMap) +
-		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpDirtImage.get()) +
+		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpImage.get()) +
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
 		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) +
 		Width * Height + // Pixel flags
@@ -134,6 +140,8 @@ size_t CMap::GetMemorySize()
 #ifdef _AI_DEBUG
 	res += GetSurfaceMemorySize(bmpDebugImage.get());
 #endif
+	if( bmpSavedImage.get() != NULL )
+		res += GetSurfaceMemorySize(bmpSavedImage.get()) + Width * Height; // Saved pixel flags
 	return res;
 }
 
@@ -560,12 +568,6 @@ bool CMap::CreateSurface(void)
     bmpShadowMap = gfxCreateSurface(Width, Height);
 	if(bmpShadowMap.get() == NULL) {
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
-		return false;
-	}
-
-	bmpDirtImage = gfxCreateSurface(Width, Height);
-	if(bmpDirtImage.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpDirtImage creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -1058,6 +1060,8 @@ int CMap::CarveHole(int size, CVec pos)
 	// Clipping
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
 		return 0;
+		
+	SaveToMemoryInternal( map_x, map_y, w, h );
 
 	// Variables
 	int hx, hy;
@@ -1292,6 +1296,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int hole_clip_y = -MIN(sy,(int)0);
 	int hole_clip_x = -MIN(sx,(int)0);
+	
+	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	lockFlags();
 
@@ -1401,6 +1407,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int clip_w = MIN(sx+w, bmpImage.get()->w);
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
+	
+	SaveToMemoryInternal( clip_x, clip_y, clip_w, clip_h );
 
 	short screenbpp = getMainPixelFormat()->BytesPerPixel;
 
@@ -1732,61 +1740,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 	UpdateDrawImage(sx, sy, clip_w, clip_h);
 
 	bMiniMapDirty = true;
-}
-
-
-///////////////////
-// Delete an object
-void CMap::DeleteObject(CVec pos)
-{
-	int w=0,h=0;
-
-	// Go through the objects, last to first and see if one is under the mouse
-	for(int o=NumObjects-1;o>=0;o--) {
-		object_t *obj = &Objects[o];
-
-		switch(obj->Type) {
-
-			// Stone
-			case OBJ_STONE:
-				w = Theme.bmpStones[obj->Size].get()->w << 1;
-				h = Theme.bmpStones[obj->Size].get()->h << 1;
-				break;
-
-			// Misc
-			case OBJ_MISC:
-				w = Theme.bmpMisc[obj->Size].get()->w << 1;
-				h = Theme.bmpMisc[obj->Size].get()->h << 1;
-				break;
-		}
-
-		if((int)fabs(pos.x - obj->X) < w &&
-			(int)fabs(pos.y - obj->Y) < h) {
-
-			if(obj->Type == OBJ_STONE)
-				DeleteStone(obj);
-
-			// Remove this object from this list
-			for(int i=o;i<NumObjects-1;i++)
-				Objects[i] = Objects[i+1];
-			NumObjects--;
-
-
-			break;
-		}
-	}
-
-	bMiniMapDirty = true;
-}
-
-
-///////////////////
-// Delete a stone from the map
-void CMap::DeleteStone(object_t *obj)
-{
-	// Replace the stone pixels with dirt pixels
-
-	// TODO: why is no code here?
 }
 
 
@@ -2405,29 +2358,6 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	UnlockSurface(bmpBackImage);
 	UnlockSurface(bmpImage);
 
-	// Fill in dirt image
-	DrawImage(bmpDirtImage.get(), bmpImage, 0, 0);
-	LOCK_OR_FAIL(bmpDirtImage);
-	lockFlags();
-	curpixel = (Uint8 *)bmpDirtImage.get()->pixels;
-	PixelRow = curpixel;
-	n=0;
-	for(y=0; y<Height; y++, PixelRow+=bmpDirtImage.get()->pitch)
-	{
-		for(x=0; x<Width; x++, curpixel+=bmpDirtImage.get()->format->BytesPerPixel)
-		{
-			if( PixelFlags[n] & PX_EMPTY )
-			{
-				PutPixelToAddr(curpixel, Theme.iDefaultColour, bmpDirtImage.get()->format->BytesPerPixel);	// Dirt color
-			};
-			n++;
-		};
-	};
-
-	unlockFlags();
-	UnlockSurface(bmpDirtImage);
-
-
 	// Load the CTF gametype variables
 	if (ctf)  {
 		fread(&FlagSpawnX	,sizeof(short),1,fp);
@@ -2688,52 +2618,118 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 }
 
 
-///////////////////
-// Send the map data to clients
-void CMap::Send(CBytestream *bs)
+void CMap::SaveToMemory()
 {
-	// At the moment, just write the data to a file and compress it to see how big it is
-	FILE *fp;
-	fp = OpenGameFile("tempmap.dat","wb");
-
-	uint n;
-
-	for(n=0;n<Width*Height;) {
-		uchar t = 0;
-
-		for(ushort i=0;i<8;i++) {
-			uchar value = (PixelFlags[n++] & PX_EMPTY);
-			t |= (value << i);
+	if( bMapSavingToMemory )
+	{
+		printf("Error: calling CMap::SaveToMemory() twice\n");
+		return;
+	};
+	bMapSavingToMemory = true;
+	if( bmpSavedImage.get() == NULL )
+	{
+		bmpSavedImage = gfxCreateSurface(Width, Height);
+		if( bmpSavedImage.get() == NULL )
+		{
+			printf("Error: CMap::SaveToMemory(): cannot allocate GFX surface\n");
+			return;
 		}
+		savedPixelFlags = new uchar[Width * Height];
+	};
+	
+	savedMapCoords.clear();
+};
 
-		fwrite(&t,sizeof(uchar),1,fp);
+void CMap::RestoreFromMemory()
+{
+	if( ! bMapSavingToMemory )
+	{
+		printf("Error: calling CMap::RestoreFromMemory() twice\n");
+		return;
+	};
+	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
+	{
+		printf("Error: CMap::RestoreFromMemory(): bmpSavedImage is NULL\n");
+		return;
+	};
+	
+	for( std::set< SavedMapCoord_t > :: iterator it = savedMapCoords.begin();
+			it != savedMapCoords.end(); it++ )
+	{
+		int startX = it->X*MAP_SAVE_CHUNK;
+		int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+		int startY = it->Y*MAP_SAVE_CHUNK;
+		int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
+
+		LOCK_OR_QUIT(bmpImage);
+		LOCK_OR_QUIT(bmpSavedImage);
+		lockFlags();
+	
+		DrawImageAdv( bmpImage.get(), bmpSavedImage, startX, startY, startX, startY, sizeX, sizeY );
+
+		for( int y=startY; y<startY+sizeY; y++ )
+			memcpy( PixelFlags + y*Width + startX, savedPixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
+	
+		unlockFlags();
+		UnlockSurface(bmpSavedImage);
+		UnlockSurface(bmpImage);
+		
+		if( tLXOptions->bShadows )
+		{
+			UpdateArea(startX, startY, sizeX, sizeY, true);
+		}
+		else
+		{
+			UpdateDrawImage(startX, startY, sizeX, sizeY);
+			UpdateMiniMapRect(startX-10, startY-10, sizeX+20, sizeY+20);
+		}
 	}
 
-	// 100 objects
-	for(n=0;n<100;n++) {
-		uchar b;
+	bMapSavingToMemory = false;
+	savedMapCoords.clear();
+};
 
-		b = (int)(fabs(GetRandomNum())*10.0f);
+void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
+{
+	if( ! bMapSavingToMemory )
+		return;
+	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
+	{
+		printf("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
+		return;
+	};
 
-		unsigned short p1,p2;
-		p1 = (int)(fabs(GetRandomNum())*1024.0f);
-		p2 = (int)(fabs(GetRandomNum())*1024.0f);
+	int gridX = x / MAP_SAVE_CHUNK;
+	int gridMaxX = 1 + (x+w) / MAP_SAVE_CHUNK;
+	
+	int gridY = y / MAP_SAVE_CHUNK;
+	int gridMaxY = 1 + (y+h) / MAP_SAVE_CHUNK;
 
+	for( int fy = gridY; fy < gridMaxY; fy++ )
+		for( int fx = gridX; fx < gridMaxX; fx++ )
+			if( savedMapCoords.count( SavedMapCoord_t( fx, fy ) ) == 0 )
+			{
+				savedMapCoords.insert( SavedMapCoord_t( fx, fy ) );
+				
+				int startX = fx*MAP_SAVE_CHUNK;
+				int sizeX = MIN( MAP_SAVE_CHUNK, Width - startX );
+				int startY = fy*MAP_SAVE_CHUNK;
+				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
 
-		fwrite(&b,sizeof(uchar),1,fp);
-		fwrite(GetEndianSwapped(p1),sizeof(unsigned short),1,fp);
-		fwrite(GetEndianSwapped(p2),sizeof(unsigned short),1,fp);
+				LOCK_OR_QUIT(bmpImage);
+				LOCK_OR_QUIT(bmpSavedImage);
+				lockFlags();
+				
+				DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
 
-	}
-	uchar b;
+				for( int y=startY; y<startY+sizeY; y++ )
+					memcpy( savedPixelFlags + y*Width + startX, PixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
 
-	// TODO: what the f*?
-	for(n=0;n<3;n++)
-		fwrite(&b,sizeof(uchar),1,fp);
-
-	fclose(fp);
-
-}
+				unlockFlags();
+				UnlockSurface(bmpSavedImage);
+				UnlockSurface(bmpImage);
+			};
+};
 
 
 ///////////////////
@@ -2747,17 +2743,12 @@ void CMap::Shutdown(void)
 		//printf("some created map is shutting down...\n");
 
 		bmpImage = NULL;
-
 		bmpDrawImage = NULL;
-
 #ifdef _AI_DEBUG
 		bmpDebugImage = NULL;
 #endif
-
 		bmpBackImage = NULL;
-
 		bmpShadowMap = NULL;
-
 		bmpMiniMap = NULL;
 
 		if(PixelFlags)
@@ -2772,20 +2763,10 @@ void CMap::Shutdown(void)
             delete[] AbsoluteGridFlags;
         AbsoluteGridFlags = NULL;
 
-
 		if(Objects)
 			delete[] Objects;
 		Objects = NULL;
 		NumObjects = 0;
-
-/*
-		if (m_pnWater1)
-			delete[] m_pnWater1;
-		if (m_pnWater2)
-			delete[] m_pnWater2;
-		m_pnWater1 = NULL;
-		m_pnWater2 = NULL;
-*/
 
         if( sRandomLayout.bUsed ) {
             sRandomLayout.bUsed = false;
@@ -2794,6 +2775,12 @@ void CMap::Shutdown(void)
             sRandomLayout.psObjects = NULL;
         }
 
+		bMapSavingToMemory = false;
+		bmpSavedImage = NULL;
+		if( savedPixelFlags )
+			delete[] savedPixelFlags;
+		savedPixelFlags = NULL;
+		savedMapCoords.clear();
 	}
 	// Safety
 	else  {
@@ -2810,6 +2797,10 @@ void CMap::Shutdown(void)
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
 		sRandomLayout.psObjects = NULL;
+		bMapSavingToMemory = false;
+		bmpSavedImage = NULL;
+		savedPixelFlags = NULL;
+		savedMapCoords.clear();
 	}
 
 	Created = false;
