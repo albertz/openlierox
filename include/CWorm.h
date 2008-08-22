@@ -26,7 +26,7 @@
 #include "Options.h" // for control_t
 #include "Utils.h"
 #include "Frame.h"
-#include "CBar.h"
+#include "DeprecatedGUI/CBar.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -262,7 +262,7 @@ private:
 	// Graphics
 	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
-	CBar		cHealthBar;
+	DeprecatedGUI::CBar		cHealthBar;
 	//CViewport	*pcViewport;
 
 

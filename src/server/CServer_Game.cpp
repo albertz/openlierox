@@ -24,7 +24,7 @@
 #include "MathLib.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 
 
 using namespace std;
@@ -658,7 +658,7 @@ void GameServer::gotoLobby(void)
 		DedicatedControl::Get()->BackToLobby_Signal();
 
 	// Goto the host lobby
-	Menu_Net_GotoHostLobby();
+	DeprecatedGUI::Menu_Net_GotoHostLobby();
 
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getUdpFileDownloader()->allowFileRequest(true);

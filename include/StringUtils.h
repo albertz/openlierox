@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include "types.h"
+#include "Color.h" // for StrToCol
 
 //
 // C-string handling routines
@@ -117,12 +118,14 @@ bool			stripdot(std::string& text, int width);
 void			ucfirst(std::string& text);
 std::string		ReadUntil(const std::string& text, char until_character = '\n');
 std::string		ReadUntil(FILE* fp, char until_character = '\n');
-Uint32			StrToCol(const std::string& str);
+Color			StrToCol(const std::string& str);
+Color			StrToCol(const std::string& str, bool& fail);
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
 void			freadstr(std::string& result, size_t maxlen, FILE *fp);
 size_t			fwrite(const std::string& txt, size_t len, FILE* fp);
 size_t			findLastPathSep(const std::string& path);
 void			stringlwr(std::string& txt);
+std::string		stringtolower(const std::string& txt);
 bool			strincludes(const std::string& str, const std::string& what);
 short			stringcasecmp(const std::string& s1, const std::string& s2);
 bool			stringcaseequal(const std::string& s1, const std::string& s2);

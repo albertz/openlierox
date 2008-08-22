@@ -1,0 +1,198 @@
+body  {
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+table.menu {
+  background-color: #DCEDFF;
+  background-position: center center;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  width: 100%;
+  margin-top: 2px;
+}
+
+td.menuitem {
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-left: 1px solid blue;
+}
+
+td.menuselected  {
+  text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-left: 1px solid blue;
+  background-color: #F1EDC4;
+}
+
+p  {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+td.menuend {
+  border-left: 1px solid blue;
+}
+
+a.menulink  {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+td.header_left  {
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid #000000;
+  background-color: #FFDD88;
+}
+
+td.header  {
+  text-align: center;
+  font-weight: bold;  
+  border-right: 1px solid #000000;
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  background-color: #FFDD88;
+}
+
+td.header_smallhilite  {
+  text-align: center;
+  font-weight: bold;  
+  border-right: 1px solid #000000;
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  background-color: #DCEDFF;
+}
+
+td.header_hilite  {
+  text-align: center;
+  font-weight: bold;  
+  border-right: 1px solid #000000;
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  background-color: #AAFFAA;
+}
+
+td.sem_td_left  {
+  text-align: center;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+}
+
+td.sem_td  {
+  text-align: center;
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
+}  
+
+table.seminaries  {
+  border-color: #000000;
+}
+
+tr.sem_odd  {
+  background-color: #FFFFFF;
+}
+
+tr.sem_norm  {
+  background-color: #EEEEEE;
+}
+
+p.author  {
+  font-style: italics;
+}
+
+table.current_sem  {
+  border: 2px solid #ffcc00;
+}
+
+td.current_title  {
+  font-size: 18pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+p.title  {
+  font-size: 18pt;
+  font-weight: bold;
+  margin-bottom: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+p.comment  {
+  text-align: justify;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+p.author  {
+  margin-top: 0px;
+  margin-bottom: 30px;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+table.prihlaska  {
+  border: 2px dashed #cc9900;
+}
+
+td.years {
+  color: #333399;
+  padding-left: 10px;
+  padding-top: 5px;
+  font: 11pt Verdana;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+td.desc  {
+  font: 11pt Verdana;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  vertical-align: top;
+}
+
+h2.about_head  {
+  font: 16pt Verdana;
+  font-weight: bold;
+  font-style: italic;
+  margin: 0px;
+  padding: 0px;
+}
+
+table.places_table  {
+  border: 1px solid black;
+  width: 500px;
+}
+
+td.places_title  {
+  text-align: center;
+  font-size: 16pt;
+  font-weight: bold;
+}
+
+td.places_left  {
+  width: 50px;
+  white-space: nowrap;
+  padding-right: 10px;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+h2  {
+  font-size: 16pt;
+  color: #222222;
+}

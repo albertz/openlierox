@@ -18,7 +18,9 @@
 
 #include "Color.h"
 
+namespace DeprecatedGUI {
 class CWidget;
+};
 
 // Do not confuse this with game script - these vars mainly for GUI frontend and options
 class CScriptableVars	// Singletone
@@ -26,7 +28,7 @@ class CScriptableVars	// Singletone
 public:
 
 	// It's called ScriptCallback but it's used only for widgets, so contains link to widget that raised an event.
-	typedef void ( * ScriptCallback_t ) ( const std::string & param, CWidget * source );
+	typedef void ( * ScriptCallback_t ) ( const std::string & param, DeprecatedGUI::CWidget * source );
 	typedef Uint32 Color_t;
 
 	enum ScriptVarType_t

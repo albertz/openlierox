@@ -19,10 +19,10 @@
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 #include "CWorm.h"
-#include "CBar.h"
+#include "DeprecatedGUI/CBar.h"
 #include "MathLib.h"
 
 using std::cout;
@@ -139,7 +139,7 @@ void CWorm::Clear(void)
 	fLastCompleting = -9999;
 
 	// Graphics
-	cHealthBar = CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
+	cHealthBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
 
 	bAlreadyKilled = false;
@@ -893,7 +893,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	if(bLocal)
-		DrawImageAdv(bmpDest, gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
+		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
 
 	//
 	// Draw the worm
@@ -948,7 +948,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			ang = (int)( (fAngle+90)/151 * 7 );
 			ang = 6-ang;
 			f = ang*16;
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
+			DrawImageStretch2Key(bmpDest, DeprecatedGUI::gfxGame.bmpMuzzle, f, 0,
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
 				16,16);
@@ -957,7 +957,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		case DIR_LEFT:
 			ang = (int)( (fAngle+90)/151 * 7 );
 			f = (ang+7)*16;
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
+			DrawImageStretch2Key(bmpDest, DeprecatedGUI::gfxGame.bmpMuzzle, f, 0,
 				(x-21)+LeftMuzzle[ang*2],
 				(y-10)+LeftMuzzle[ang*2+1],
 				16,16);

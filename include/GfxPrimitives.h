@@ -95,7 +95,7 @@ class SDLRectBasic : public SDL_Rect {
 public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
-
+	
 	SDLRectBasic() { this->SDL_Rect::x = this->SDL_Rect::y = this->SDL_Rect::w = this->SDL_Rect::h = 0; }
 	SDLRectBasic(const SDL_Rect & r): SDL_Rect(r) {}
 	Type& x() { return this->SDL_Rect::x; }
@@ -219,7 +219,7 @@ inline SDL_Rect MakeRect(int x, int y, int w, int h)
 }
 
 ////////////////
-// Returns true if the given point is in the given rect (including "borders")
+// Returns true if the given point is in the given rect
 inline bool PointInRect(int x, int y, const SDL_Rect& r)
 {
 	return	(r.x <= x) && (x <= (r.x + r.w)) &&
@@ -230,7 +230,7 @@ inline bool PointInRect(int x, int y, const SDL_Rect& r)
 // Returns true if rect1 contains rect2
 inline bool ContainsRect(const SDL_Rect& rect1, const SDL_Rect& rect2)
 {
-	return (rect1.x <= rect2.x) && (rect1.x + rect1.w >= rect2.x + rect2.w) &&
+	return (rect1.x <= rect2.x) && (rect1.x + rect1.w >= rect2.x + rect2.w) && 
 			(rect1.y <= rect2.y) && (rect1.y + rect1.h >= rect2.y + rect2.h);
 }
 
@@ -292,7 +292,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 
 ///////////////////
 // Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
-SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false);
+SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false); 
 
 ////////////////////
 // Destroys a surface
@@ -609,35 +609,39 @@ inline bool IsTransparent(SDL_Surface * surf, Uint32 color)  {
 
 ///////////////////
 // Draw horizontal line
-void	DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Uint32 colour);
+void	DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour);
 
 ///////////////////
 // Draw vertical line
-void	DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Uint32 colour);
+void	DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour);
 
 ///////////////////
 // Draw a line
-void	DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+void	DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color);
 
 //////////////////
 // Draw the line nicely antialiased
-void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8));
+void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8));
 
 /////////////////////
 // Draws a filled rectangle
-void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color);
+void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color color);
 
 ////////////////////
 // Very fast routine for drawing 2x2 rects
-void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color);
-void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color);
+void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Color color);
+void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color);
 
 /////////////////////
 // Draws a simple linear gradient
-void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32 cl1, Uint32 cl2, GradientDirection dir);
+void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color cl1, Color cl2, GradientDirection dir);
 
 ////////////////////
 // Fills the surface with specified colour
+inline void FillSurface(SDL_Surface * dst, Color colour) {
+	SDL_FillRect(dst, NULL, colour.get(dst));
+}
+
 inline void FillSurface(SDL_Surface * dst, Uint32 colour) {
 	SDL_FillRect(dst, NULL, colour);
 }
@@ -657,7 +661,7 @@ inline void FillSurfaceTransparent(SDL_Surface * dst)  {
 
 ////////////////////
 // Draws a rectangle
-inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
+inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color colour) {
 	DrawHLine(bmpDest, x, x2, y, colour);
 	DrawHLine(bmpDest, x, x2, y2, colour);
 	DrawVLine(bmpDest, y, y2, x, colour);
@@ -666,11 +670,21 @@ inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32
 
 ///////////////////
 // Draws a rectangle with transparency
-void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha);
+inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
+	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
+	Uint8 r,g,b;
+	GetColour3(color,bmpDest->format,&r,&g,&b);
+	if (tmp.get() != NULL)  {
+		// TODO: optimise
+		Uint32 friendly_col = SDL_MapRGBA(tmp.get()->format,r,g,b,alpha);
+		SDL_FillRect(tmp.get(),NULL,friendly_col);
+		DrawImage(bmpDest,tmp,x,y);
+	}
+}
 
 //////////////////
 // Draw a triangle
-inline void DrawTriangle(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
+inline void DrawTriangle(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Color colour) {
 	DrawLine(bmpDest, x1, y1, x2, y2, colour);
 	DrawLine(bmpDest, x2, y2, x3, y3, colour);
 	DrawLine(bmpDest, x3, y3, x1, y1, colour);
@@ -682,9 +696,9 @@ inline void DrawTriangle(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, 
 // Special lines (rope, laser sight, beam)
 //
 
-void	DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color);
-void	DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color);
-void	DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void	DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color);
+void	DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color);
+void	DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color);
 
 
 //

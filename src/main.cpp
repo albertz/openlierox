@@ -14,10 +14,7 @@
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "CBar.h"
 #include "ConfigHandler.h"
-#include "Graphics.h"
-#include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
@@ -25,12 +22,21 @@
 #include "StringUtils.h"
 #include "Entity.h"
 #include "Error.h"
-#include "CMediaPlayer.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
 #include "Version.h"
 #include "OLXG15.h"
 #include "CrashHandler.h"
+#include "Cursor.h"
+#include "CssParser.h"
+#include "FontHandling.h"
+
+#include "DeprecatedGUI/CBar.h"
+#include "DeprecatedGUI/Graphics.h"
+#include "DeprecatedGUI/Menu.h"
+#include "DeprecatedGUI/CMediaPlayer.h"
+
+#include "SkinnedGUI/CGuiSkin.h"
 
 
 #ifndef WIN32
@@ -45,11 +51,14 @@
 
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
-CInput		*cTakeScreenshot = NULL;
-CInput		*cSwitchMode = NULL;
+
+CInput		cTakeScreenshot;
+CInput		cSwitchMode;
 #ifdef WITH_MEDIAPLAYER
-CInput		*cToggleMediaPlayer = NULL;
+CInput		cToggleMediaPlayer;
+namespace DeprecatedGUI {
 CMediaPlayer cMediaPlayer;
+};
 #endif
 
 bool        bDisableSound = false;
@@ -87,7 +96,7 @@ public:
 	int iLabelY;
 	Uint32 clLabel;
 	SmartPointer<SDL_Surface> bmpBackground;
-	CBar *cBar;
+	DeprecatedGUI::CBar *cBar;
 };
 
 LoadingScreen cLoading;
@@ -106,32 +115,11 @@ void print_binary_string(const std::string& txt) {
 	}
 }
 
-void test_Unicode_UTF8_Conversion() {
-/*	std::string tmp;
-	std::string::const_iterator tmpbegin;
-	for(UnicodeChar c = 1; c != 0; c++) {
-		//if(c % 0x100000 == 0) std::cout << std::hex << c << " ..." << std::endl;
-//		std::cout << std::hex << c << " -> ";
-		tmp = GetUtf8FromUnicode(c);
-//		print_binary_string(tmp);
-		tmpbegin = tmp.begin();
-//		std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
-		if(GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) != c) {
-			//std::cout << std::hex << c << " -> ";
-			print_binary_string(tmp);
-			//std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) << std::endl;
-		}
-	}*/
-
-	/*char buf[5] = { 0xF1, 0xE1, 0xC3, 0x81, 0x00 };
-	std::string tmp = buf;
-	std::string::iterator i = tmp.begin();
-	IncUtf8StringIterator(i, tmp.end());*/
-}
 
 char* apppath = NULL;
 
 char* GetAppPath() { return apppath; }
+
 
 ///////////////////
 // Main entry point
@@ -182,6 +170,8 @@ startpoint:
 		return -1;
 	}
 
+	CSSParser::test_css();
+
     // Parse the arguments
 	// do it after the loading of the options as this can
 	// overwrite the default options
@@ -211,10 +201,32 @@ startpoint:
 		return -1;
 	}
 
+	if (!InitializeCursors())
+		return -1;
+
+	tLX->fCurTime = GetMilliSeconds();
+
+	if( tLXOptions->bNewSkinnedGUI )
+	{
+		// Just for test - it's not real handler yet
+		SkinnedGUI::cMainSkin->Load("default");
+		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
+		while (!tLX->bQuitGame)  {
+			tLX->fDeltaTime = GetMilliSeconds() - tLX->fCurTime;
+			tLX->fCurTime = GetMilliSeconds();
+
+			WaitForNextEvent();
+			SkinnedGUI::cMainSkin->Frame();
+		}
+
+		ShutdownLieroX();
+		return 0;
+	};
+
 	DrawLoading(60, "Initializing menu system");
 
 	// Initialize menu
-	if(!Menu_Initialize(&startgame)) {
+	if(!DeprecatedGUI::Menu_Initialize(&startgame)) {
         SystemError("Error: Could not initialize the menu system.\nError when loading graphics files");
 		return -1;
 	}
@@ -227,13 +239,13 @@ startpoint:
 	InitializeMusic();
 
 	// Initialize the media player
-	if (!cMediaPlayer.Initialize())  {
+	if (!DeprecatedGUI::cMediaPlayer.Initialize())  {
 		printf("Warning: Media Player could not be initialized");
 		// Don't quit, we can quite well play without music
 	}
 
 	// Load the playlist
-	cMediaPlayer.LoadPlaylistFromFile("cfg/playlist.dat");
+	DeprecatedGUI::cMediaPlayer.LoadPlaylistFromFile("cfg/playlist.dat");
 #endif
 
 	// TODO: abstract the logging, make an uniform message system
@@ -251,17 +263,11 @@ startpoint:
 		}
 	}
 
-	cTakeScreenshot = new CInput();
-	cSwitchMode = new CInput();
-#ifdef WITH_MEDIAPLAYER
-	cToggleMediaPlayer = new CInput();
-#endif
-
 	// Setup the global keys
-	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 #ifdef WITH_MEDIAPLAYER
-	cToggleMediaPlayer->Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
+	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 
 	// If the user wants to load the database on startup, do it
@@ -304,7 +310,7 @@ startpoint:
 
 		startgame = false; // the menu has a reference to this variable
 
-		Menu_Start();	// Start the menu
+		DeprecatedGUI::Menu_Start();	// Start the menu
 
 		if(startgame) {
 			// Start the game
@@ -437,6 +443,18 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bFullscreen = true;
         } else
 
+        // -skin
+        // Turns new skinned GUI on
+        if( stricmp(a, "-skin") == 0 ) {
+            tLXOptions->bNewSkinnedGUI = true;
+        } else
+
+        // -noskin
+        // Turns new skinned GUI off
+        if( stricmp(a, "-noskin") == 0 ) {
+            tLXOptions->bNewSkinnedGUI = false;
+        } else
+
 #ifdef WIN32
 		// -console
 		// Attaches a console window to the main LX window
@@ -469,6 +487,8 @@ void ParseArguments(int argc, char *argv[])
 			#ifdef DEBUG
      		printf("   -nettest      Test CChannel reliability\n");
 			#endif
+     		printf("   -skin         Turns on new skinned GUI - it's unfinished yet\n");
+     		printf("   -noskin       Turns off new skinned GUI\n");
 
 			// Shutdown and quit
 			// ShutdownLieroX() works only correct when everything was inited because ProcessEvents() is used.
@@ -519,11 +539,14 @@ int InitializeLieroX(void)
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
 
-	// Initialize the game colors (must be called after GetVideoSurface is not NULL and tLX is not NULL)
-	InitializeColors();
+	if (!SkinnedGUI::InitializeGuiSkinning())
+		return false;
+
+	// Initialize the game colors (must be called after SDL_GetVideoSurface is not NULL and tLX is not NULL)
+	DeprecatedGUI::InitializeColors();
 
 	// Load the fonts (must be after colors, because colors are used inside CFont::Load)
-	if (!LoadFonts())  {
+	if (!DeprecatedGUI::LoadFonts())  {
 		SystemError("Could not load the fonts");
 		return false;
 	}
@@ -570,7 +593,7 @@ int InitializeLieroX(void)
 
 
 	// Load the graphics
-	if(!LoadGraphics()) {
+	if(!DeprecatedGUI::LoadGraphics()) {
 		SystemError("Error: Error loading graphics");
 		return false;
 	}
@@ -687,19 +710,19 @@ void GameLoopFrame(void)
         return;
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode->isUp() )  {
+	if( cSwitchMode.isUp() )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		SetVideoMode();
 
-		cSwitchMode->reset();
+		cSwitchMode.reset();
 	}
 
 #ifdef WITH_MEDIAPLAYER
 	// Media player
-	cMediaPlayer.Frame();
+	DeprecatedGUI::cMediaPlayer.Frame();
 #endif
 
 #ifdef WITH_G15
@@ -749,7 +772,7 @@ void GameLoopFrame(void)
 void QuittoMenu(void)
 {
 	SetQuitEngineFlag("QuittoMenu");
-    Menu_SetSkipStart(false);
+    DeprecatedGUI::Menu_SetSkipStart(false);
 	cClient->Disconnect();
 }
 
@@ -759,8 +782,8 @@ void GotoLocalMenu(void)
 {
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
-	Menu_SetSkipStart(true);
-	Menu_LocalInitialize();
+	DeprecatedGUI::Menu_SetSkipStart(true);
+	DeprecatedGUI::Menu_LocalInitialize();
 }
 
 //////////////////
@@ -775,8 +798,8 @@ void GotoNetMenu(void)
 	std::cout << "GotoNetMenu" << std::endl;
 	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();
-	Menu_SetSkipStart(true);
-	Menu_NetInitialize();
+	DeprecatedGUI::Menu_SetSkipStart(true);
+	DeprecatedGUI::Menu_NetInitialize();
 }
 
 ////////////////////
@@ -804,19 +827,19 @@ void InitializeLoading()  {
 
 	// Convert the loading direction
 	if (!stringcasecmp(bar_direction,"lefttoright"))
-		bar_dir = BAR_LEFTTORIGHT;
+		bar_dir = DeprecatedGUI::BAR_LEFTTORIGHT;
 	else if (!stringcasecmp(bar_direction,"righttoleft"))
-		bar_dir = BAR_RIGHTTOLEFT;
+		bar_dir = DeprecatedGUI::BAR_RIGHTTOLEFT;
 	else if (!stringcasecmp(bar_direction,"toptobottom"))
-		bar_dir = BAR_TOPTOBOTTOM;
+		bar_dir = DeprecatedGUI::BAR_TOPTOBOTTOM;
 	else if (!stringcasecmp(bar_direction,"bottomtotop"))
-		bar_dir = BAR_BOTTOMTOTOP;
+		bar_dir = DeprecatedGUI::BAR_BOTTOMTOTOP;
 	else
-		bar_dir = BAR_LEFTTORIGHT;
+		bar_dir = DeprecatedGUI::BAR_LEFTTORIGHT;
 
 
 	// Allocate bar
-	cLoading.cBar = new CBar(LoadGameImage("./data/frontend/loading_bar.png",true), bar_x, bar_y, bar_label_x, bar_label_y, bar_dir);
+	cLoading.cBar = new DeprecatedGUI::CBar(LoadGameImage("./data/frontend/loading_bar.png",true), bar_x, bar_y, bar_label_x, bar_label_y, bar_dir);
 	if (cLoading.cBar)
 		cLoading.cBar->SetLabelVisible(bar_visible);
 
@@ -887,23 +910,25 @@ void ShutdownLieroX(void)
 
 	ShutdownMusic();
 #ifdef WITH_MEDIAPLAYER
-	cMediaPlayer.SavePlaylistToFile("cfg/playlist.dat");
-	cMediaPlayer.Shutdown();
+	DeprecatedGUI::cMediaPlayer.SavePlaylistToFile("cfg/playlist.dat");
+	DeprecatedGUI::cMediaPlayer.Shutdown();
 #endif
 
     Con_Shutdown();
 
 	ShutdownLoading();  // In case we're called when an error occured
 
+	DeprecatedGUI::ShutdownGraphics();
 	// Only do the deregistration for widgets if we are not restarting.
 	// The problem is that we have registered most widgets globally (not by any init-function)
 	// so we would not reinit them.
 	if(!bRestartGameAfterQuit)
-		CGuiSkin::DeInit();
+		DeprecatedGUI::CGuiSkin::DeInit();
+	SkinnedGUI::ShutdownGuiSkinning();
 
-	ShutdownGraphics();
+	ShutdownFontCache();
 
-	Menu_Shutdown();
+	DeprecatedGUI::Menu_Shutdown();
 	ShutdownProfiles();
 
 	// Free the IP to Country DB
@@ -956,12 +981,6 @@ void ShutdownLieroX(void)
 
 	// Save and clear options
 	ShutdownOptions();
-
-	delete cTakeScreenshot; cTakeScreenshot = NULL;
-	delete cSwitchMode; cSwitchMode = NULL;
-#ifdef WITH_MEDIAPLAYER
-	delete cToggleMediaPlayer; cToggleMediaPlayer = NULL;
-#endif
 
 	// Only do the deregistration for variables if we are not restarting.
 	// The problem is that we have registered most vars globally (not by any init-function)

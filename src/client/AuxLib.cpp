@@ -29,7 +29,7 @@
 
 #include "AuxLib.h"
 #include "Error.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "Cache.h"
 #include "FindFile.h"
@@ -426,7 +426,7 @@ void CapFPS() {
 void ProcessScreenshots()
 {
 	// Check if user pressed screenshot key
-	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
+	if (cTakeScreenshot.isDownOnce())  {
 		screenshot_t scr;
 		scr.sData = "";
 		scr.sDir = "scrshots";

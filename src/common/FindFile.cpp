@@ -776,6 +776,89 @@ bool PathListIncludes(const std::list<std::string>& pathlist, const std::string&
 	return false;
 }
 
+///////////////////////
+// Returns the file contents as a string
+std::string GetFileContents(const std::string& path, bool absolute)
+{
+	FILE *fp = NULL;
+	if (absolute)
+		fp = fopen(/*Utf8ToSystemNative(path)*/path.c_str(), "rb");
+	else
+		fp = OpenGameFile(path, "rb");
+
+	if (!fp)
+		return "";
+
+	fseek(fp, 0, SEEK_END);
+	size_t size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	if (!size)  {
+		fclose(fp);
+		return "";
+	}
+
+	char *buf = new char[size];
+	size = fread(buf, 1, size, fp);
+	if (!size)  {
+		delete[] buf;
+		fclose(fp);
+		return "";
+	}
+
+	std::string result;
+	result.append(buf, size);
+	delete[] buf;
+	fclose(fp);
+
+	return result;
+}
+
+////////////////
+// Extract the directory part from a path
+std::string ExtractDirectory(const std::string& path)
+{
+	if (path.size() == 0)
+		return "";
+
+	size_t pos = findLastPathSep(path);
+	if (pos == std::string::npos)
+		return path + '/';
+	else
+		return path.substr(0, pos);
+}
+
+///////////////////
+// Merges two parts of a path into one, for example JoinPath("./test/", "/file.fil") gives "./test/file.fil"
+std::string JoinPaths(const std::string& path1, const std::string& path2)
+{
+	if (path1.size() == 0)
+		return path2;
+	if (path2.size() == 0)
+		return path1;
+
+	std::string result = path1;
+	if (*path1.rbegin() == '/' || *path1.rbegin() == '\\')  {
+		if (*path2.begin() == '/' || *path2.begin() == '\\')  {
+			result.erase(result.size() - 1);
+			result += path2;
+			return result;
+		} else {
+			result += path2;
+			return result;
+		}
+	} else {
+		if (*path2.begin() == '/' || *path2.begin() == '\\')  {
+			result += path2;
+			return result;
+		} else {
+			result += '/';
+			result += path2;
+			return result;
+		}
+	}
+}
+
 //////////////////////////////
 // Creating SDL_RWops structure from a file pointer
 // We cannot use SDL's function for this under WIN32 because it doesn't allow

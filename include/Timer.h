@@ -22,6 +22,7 @@
 
 #include <string>
 #include <SDL.h>
+#include "SDLEvents.h"
 
 ///////////////////
 // Get the number of milliseconds since SDL started the timer
@@ -38,9 +39,6 @@ std::string		GetTime();
 	---------------------------------
 	event-driven Timer class
 */
-
-// SDL-event number for timer events
-enum	{ SDL_USEREVENT_TIMER = SDL_USEREVENT + 2 };
 
 /*
 	Timer class

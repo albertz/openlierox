@@ -21,7 +21,6 @@ extern	bool			bActivated;
 #define     MAX_KEYQUEUE        32
 #define     MAX_MOUSEBUTTONS    8 // SDL_GetMouseState returns UInt8 bitmask
 
-
 // State of modifier keys (ctrl, alt and shift)
 struct ModifiersState  { 
 	ModifiersState() { clear(); }
@@ -80,6 +79,24 @@ struct mouse_t {
 	std::vector<MouseEvent> mouseQueue;
 };
 
+enum MouseButton  {
+	mbLeft,
+	mbRight,
+	mbMiddle,
+	mbExtra1,
+	mbExtra2
+};
+
+MouseButton SDLButtonToMouseButton(int sdlbut);
+
+// Override this class and add your listener to using the AddEventListener class
+class EventListener  { public:
+	virtual void OnEvent(SDL_Event *ev) = 0;
+};
+
+void		AddEventListener(EventListener *lst);
+void		RemoveEventListener(EventListener *lst);
+
 
 void 		InitEventSystem();
 bool		ProcessEvents(); // returns false if no new event
@@ -88,6 +105,7 @@ bool		WaitForNextEvent(); // waits for next event and handles all of then; retur
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
 SDL_Event	*GetEvent();
+ModifiersState *GetCurrentModstate();
 
 class CInput;
 void		RegisterCInput(CInput* input);

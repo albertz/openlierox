@@ -14,7 +14,7 @@
 // Karel Petranek
 
 #include "CWormSkin.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
 #include "MathLib.h"
 #include "LieroX.h" // for bDedicated
@@ -202,9 +202,9 @@ void CWormSkin::GeneratePreview()
 	CopySurface(bmpPreview.get(), bmpNormal.get(), sx, 0, 0, 0, bmpPreview->w, bmpPreview->h);
 
 	// CPU image
-	if (iBotIcon >= 0 && gfxGame.bmpAI.get())
-		DrawImageAdv(bmpPreview.get(), gfxGame.bmpAI.get(),
-			iBotIcon * CPU_WIDTH, 0, 0, SKIN_HEIGHT - gfxGame.bmpAI->h, CPU_WIDTH, gfxGame.bmpAI->h); 
+	if (iBotIcon >= 0 && DeprecatedGUI::gfxGame.bmpAI.get())
+		DrawImageAdv(bmpPreview.get(), DeprecatedGUI::gfxGame.bmpAI.get(),
+			iBotIcon * CPU_WIDTH, 0, 0, SKIN_HEIGHT - DeprecatedGUI::gfxGame.bmpAI->h, CPU_WIDTH, DeprecatedGUI::gfxGame.bmpAI->h); 
 }
 
 //////////////////
@@ -365,9 +365,9 @@ void CWormSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	}
 
 	// Bot icon?
-	if (iBotIcon >= 0 && draw_cpu && gfxGame.bmpAI.get())  {
-		DrawImageAdv(surf, gfxGame.bmpAI.get(),
-		iBotIcon * CPU_WIDTH, 0, 0, SKIN_HEIGHT - gfxGame.bmpAI->h, CPU_WIDTH, gfxGame.bmpAI->h); 
+	if (iBotIcon >= 0 && draw_cpu && DeprecatedGUI::gfxGame.bmpAI.get())  {
+		DrawImageAdv(surf, DeprecatedGUI::gfxGame.bmpAI.get(),
+		iBotIcon * CPU_WIDTH, 0, 0, SKIN_HEIGHT - DeprecatedGUI::gfxGame.bmpAI->h, CPU_WIDTH, DeprecatedGUI::gfxGame.bmpAI->h); 
 	}
 }
 

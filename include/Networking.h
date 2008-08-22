@@ -21,6 +21,7 @@
 #include <SDL.h>
 
 #include "Utils.h"
+#include "SDLEvents.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -50,8 +51,6 @@
 #define		LX_SVTIMEOUT	35
 #define		LX_CLTIMEOUT	30
 #define     DNS_TIMEOUT		10
-
-enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
 
 // socket address; this type will be given around as pointer
 DEFINE_INTERNDATA_CLASS(NetworkAddr);

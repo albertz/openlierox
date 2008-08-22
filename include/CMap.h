@@ -261,7 +261,9 @@ public:
 
     void        PutImagePixel(uint x, uint y, Uint32 colour);
 
-	void		Draw(SDL_Surface * bmpDest, CViewport *view);
+	void		Draw(SDL_Surface *bmpDest, CViewport *view);
+	void		Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worldY);	// For CMapEditor
+	
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
 	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);

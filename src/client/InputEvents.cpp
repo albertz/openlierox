@@ -16,7 +16,7 @@
 #include "LieroX.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
-#include "Menu.h"
+//#include "Menu.h"
 #include "Timer.h"
 #include "CInput.h"
 #include "MathLib.h"
@@ -29,11 +29,37 @@ using namespace std;
 static keyboard_t	Keyboard;
 static mouse_t		Mouse;
 static SDL_Event	SDLEvent;
-static ModifiersState keyModifiersState;
+static ModifiersState evtModifiersState;
 
 static int         nFocus = true;
 bool		bActivated = false;
 
+std::list<EventListener *>	tEventListeners;
+
+///////////////////
+// Adds an event listener
+void AddEventListener(EventListener *lst)
+{
+	tEventListeners.push_back(lst);
+}
+
+///////////////////
+// Removes the event listener from the internal list
+void RemoveEventListener(EventListener *lst)
+{
+	for (std::list<EventListener *>::iterator it = tEventListeners.begin(); it != tEventListeners.end(); it++)
+		if (*it == lst)  {
+			tEventListeners.erase(it);
+			break;
+		}
+}
+
+///////////////////
+// Returns the current state of the modifier keys (alt, ctrl etc.)
+ModifiersState *GetCurrentModstate()
+{
+	return &evtModifiersState;
+}
 
 ///////////////////
 // Return the keyboard structure
@@ -57,6 +83,31 @@ SDL_Event *GetEvent(void)
 	// TODO: this should not be used like it is atm because it only returns the last event
 	// but in ProcessEvents() could be more than one Event get passed
 	return &SDLEvent;
+}
+
+///////////////////////
+// Converts SDL button to a mouse button
+MouseButton SDLButtonToMouseButton(int sdlbut)
+{
+	if (sdlbut & SDL_BUTTON_LEFT)
+		return mbLeft;
+
+	if (sdlbut & SDL_BUTTON_RIGHT)
+		return mbRight;
+
+	if (sdlbut & SDL_BUTTON_MIDDLE)
+		return mbMiddle;
+
+// There is no SDL_BUTTON_X1 and SDL_BUTTON_X2 in my SDL headers, only SDL_BUTTON_WHEELUP/WHEELDOWN -
+// on Linux wheel up/down is emulated by 4th and 5th mouse buttons.
+/*
+	if (sdlbut & SDL_BUTTON_X1)
+		return mbExtra1;
+
+	if (sdlbut & SDL_BUTTON_X2)
+		return mbExtra2;
+*/
+	return mbLeft; // Default
 }
 
 
@@ -188,7 +239,7 @@ void HandleNextEvent() {
 		// Quit
 		tLX->bQuitGame = true;
 		SetQuitEngineFlag("SDL_QUIT event");
-		tMenu->bMenuRunning = false;
+		//tMenu->bMenuRunning = false;
 		break;
 
 	// Mouse wheel scroll
@@ -301,21 +352,21 @@ void HandleNextEvent() {
 			// handle modifier state
 			switch (kbev.sym)  {
 			case SDLK_LALT: case SDLK_RALT:
-				keyModifiersState.bAlt = kbev.down;
+				evtModifiersState.bAlt = kbev.down;
 				break;
 			case SDLK_LCTRL: case SDLK_RCTRL:
-				keyModifiersState.bCtrl = kbev.down;
+				evtModifiersState.bCtrl = kbev.down;
 				break;
 			case SDLK_LSHIFT: case SDLK_RSHIFT:
-				keyModifiersState.bShift = kbev.down;
+				evtModifiersState.bShift = kbev.down;
 				break;
 			case SDLK_LSUPER: case SDLK_RSUPER:
-				keyModifiersState.bSuper = kbev.down;
+				evtModifiersState.bSuper = kbev.down;
 				break;
 			}
 
 			// copy it
-			kbev.state = keyModifiersState;
+			kbev.state = evtModifiersState;
 
 			HandleCInputs_KeyEvent(kbev);
 
@@ -343,6 +394,10 @@ void HandleNextEvent() {
 		//std::cout << "WARNING: unhandled event " << Event.type << std::endl;
 		break;
 	}
+
+	// Notify the event listeners
+	for (std::list<EventListener *>::iterator it = tEventListeners.begin(); it != tEventListeners.end(); it++)
+		(*it)->OnEvent(&SDLEvent);
 }
 
 static void HandleMouseState() {

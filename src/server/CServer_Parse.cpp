@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "CChannel.h"
@@ -1435,7 +1435,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			SendWormLobbyUpdate();
 
 		// Update players listbox
-		bHost_Update = true;
+		DeprecatedGUI::bHost_Update = true;
 
 		// Make host authorised
 		if(newcl->isLocalClient())

@@ -21,7 +21,7 @@
 #include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "ProfileSystem.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -258,8 +258,8 @@ struct DedIntern {
 	// ---- commands ------------------
 
 	void Cmd_Quit() {
-		*bGame = false; // this means if we were in menu => quit
-		tMenu->bMenuRunning = false; // if we were in menu, quit menu
+		*DeprecatedGUI::bGame = false; // this means if we were in menu => quit
+		DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
 
 		tLX->bQuitGame = true; // quit main-main-loop
 		SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
@@ -549,7 +549,7 @@ struct DedIntern {
 
 		tLXOptions->tGameinfo.sMapFilename = "CastleStrike.lxl";
 		tGameInfo.sMapFile = tLXOptions->tGameinfo.sMapFilename;
-		tGameInfo.sMapName = Menu_GetLevelName(tGameInfo.sMapFile);
+		tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
 	}
@@ -566,16 +566,16 @@ struct DedIntern {
 		cServer->StartGame();	// start in dedicated mode
 
 		// Leave the frontend
-		*bGame = true;
-		tMenu->bMenuRunning = false;
+		*DeprecatedGUI::bGame = true;
+		DeprecatedGUI::tMenu->bMenuRunning = false;
 		tGameInfo.iGameType = GME_HOST;
 	}
 
 	void Cmd_GotoLobby()
 	{
 		cServer->gotoLobby();
-		*bGame = false;
-		tMenu->bMenuRunning = true;
+		*DeprecatedGUI::bGame = false;
+		DeprecatedGUI::tMenu->bMenuRunning = true;
 	};
 
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {

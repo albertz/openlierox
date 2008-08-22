@@ -57,7 +57,7 @@ static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
 	res.a = MIN(255, s_p.a + d_p.a);
 
 #define BLEND1(x) ((res.a - s_p.a) * d_p.x + s_p.a * s_p.x) / res.a;
-	res.r = BLEND1(r);
+	res.r = BLEND1(r); 
 	res.g = BLEND1(g);
 	res.b = BLEND1(b);
 
@@ -68,7 +68,7 @@ static RGBA BlendRGBAPixels(const RGBA& d_p, const RGBA& s_p)  {
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-
+	
 	RGBA s_p; SDL_GetRGBA(colour, bmpDest->format, &s_p.r, &s_p.g, &s_p.b, &s_p.a);
 	s_p.a = (Uint8)((Uint32)a * s_p.a / 255);
 	RGBA d_p;
@@ -129,9 +129,9 @@ static void SetPerSurface_Alpha(SDL_Surface * dst, float a) {
 }
 
 void SetPerSurfaceAlpha(SDL_Surface * dst, Uint8 a) {
-	if(dst->flags & SDL_SRCALPHA)
+	/*if(dst->flags & SDL_SRCALPHA)
 		SetPerSurface_Alpha( dst, (float)a / 255.0f );
-	else
+	else*/
 		SDL_SetAlpha(dst, SDL_SRCALPHA, a);
 }
 
@@ -531,41 +531,23 @@ static void DrawRGBAtoRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect
 	int srcgap = bmpSrc->pitch - rDest.w * BPP;
 	int dstgap = bmpDest->pitch - rDest.w * BPP;
 
-	// ARGB -> ARGB or ABGR -> ABGR (optimized (a bit))
-	if (bmpSrc->format->Amask == 0xFF000000 && bmpDest->format->Amask == 0xFF000000 &&
-		bmpSrc->format->Rmask == bmpDest->format->Rmask)  {
-		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
-			for (int x = rDest.w; x; --x, dst += BPP, src += BPP)  {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-				*(RGBA *)dst = BlendRGBAPixels(*(RGBA *)dst, *(RGBA *)src);
-#else
-				RGBA s_p = { src[3], src[2], src[1], src[0] };
-				RGBA d_p = { dst[3], dst[2], dst[1], dst[0] };
-				const RGBA& res = BlendRGBAPixels*(RGBA *)dst, *(RGBA *)src);
-				dst[0] = res[3]; dst[1] = res[2]; dst[2] = res[1]; dst[3] = res[0];
-#endif
-			}
-
-	// Other
-	} else  {
-		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
-			for (int x = rDest.w; x; --x, dst += BPP, src += BPP)  {
-				// HINT: endian independent
-				const RGBA s_p = {(*(Uint32 *)src) >> bmpSrc->format->Rshift,
-							(*(Uint32 *)src) >> bmpSrc->format->Gshift,
-							(*(Uint32 *)src) >> bmpSrc->format->Bshift,
-							(*(Uint32 *)src) >> bmpSrc->format->Ashift };
-				const RGBA d_p = {(*(Uint32 *)dst) >> bmpDest->format->Rshift,
-							(*(Uint32 *)dst) >> bmpDest->format->Gshift,
-							(*(Uint32 *)dst) >> bmpDest->format->Bshift,
-							(*(Uint32 *)dst) >> bmpDest->format->Ashift };
-				const RGBA& res = BlendRGBAPixels(d_p, s_p);
-				*(Uint32 *)dst =	(res.r << bmpDest->format->Rshift) |
-									(res.g << bmpDest->format->Gshift) |
-									(res.b << bmpDest->format->Bshift) |
-									(res.a << bmpDest->format->Ashift);
-			}
-	}
+	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+		for (int x = rDest.w; x; --x, dst += BPP, src += BPP)  {
+			// HINT: endian independent
+			const RGBA s_p = {(*(Uint32 *)src) >> bmpSrc->format->Rshift,
+						(*(Uint32 *)src) >> bmpSrc->format->Gshift,
+						(*(Uint32 *)src) >> bmpSrc->format->Bshift,
+						(((*(Uint32 *)src) >> bmpSrc->format->Ashift) * bmpSrc->format->alpha) / 255 }; // Handle the per-surface alpha
+			const RGBA d_p = {(*(Uint32 *)dst) >> bmpDest->format->Rshift,
+						(*(Uint32 *)dst) >> bmpDest->format->Gshift,
+						(*(Uint32 *)dst) >> bmpDest->format->Bshift,
+						(*(Uint32 *)dst) >> bmpDest->format->Ashift };
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			*(Uint32 *)dst =	(res.r << bmpDest->format->Rshift) |
+								(res.g << bmpDest->format->Gshift) |
+								(res.b << bmpDest->format->Bshift) |
+								(res.a << bmpDest->format->Ashift);
+		}
 
 
 	UnlockSurface(bmpDest);
@@ -575,17 +557,76 @@ static void DrawRGBAtoRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect
 }
 
 /////////////////////
+// Performs a RGBA -> RGB blit that uses per-surface alpha 
+static void DrawRGBAtoRGB(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+{
+	// RGBA surfaces are only 32bit
+	assert(bmpSrc->format->BytesPerPixel == 4);
+
+	// Clip
+	int old_x = rDest.x;
+	int old_y = rDest.y;
+	rDest.w = rSrc.w;
+	rDest.h = rSrc.h;
+	if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
+		return;
+	rSrc.x += rDest.x - old_x;
+	rSrc.y += rDest.y - old_y;
+	if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	static const int sbpp = 4;
+	const int dbpp = bmpDest->format->BytesPerPixel;
+	Uint8 *src = ((Uint8 *)bmpSrc->pixels + rSrc.y * bmpSrc->pitch + rSrc.x * sbpp);
+	Uint8 *dst = ((Uint8 *)bmpDest->pixels + rDest.y * bmpDest->pitch + rDest.x * dbpp);
+	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
+	int dstgap = bmpDest->pitch - rDest.w * dbpp;
+
+	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
+			// HINT: endian independent
+			// TODO: optimize
+			const RGBA s_p = {(*(Uint32 *)src) >> bmpSrc->format->Rshift,
+						(*(Uint32 *)src) >> bmpSrc->format->Gshift,
+						(*(Uint32 *)src) >> bmpSrc->format->Bshift,
+						(((*(Uint32 *)src) >> bmpSrc->format->Ashift) * bmpSrc->format->alpha) / 255 }; // Handle the per-surface alpha
+			RGBA d_p; d_p.a = SDL_ALPHA_OPAQUE;
+			SDL_GetRGB(GetPixelFromAddr(dst, dbpp), bmpDest->format, &d_p.r, &d_p.g, &d_p.b);
+			const RGBA& res = BlendRGBAPixels(d_p, s_p);
+			PutPixelToAddr(dst, SDL_MapRGB(bmpDest->format, res.r, res.g, res.b), dbpp);
+		}
+
+
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+}
+
+/////////////////////
 // Draws the image
 void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
 	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
 	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
 
-	// RGBA -> RGB
 	// RGB -> RGB
 	// RGB -> RGBA
-	if (!dst_isrgba || !src_isrgba)  {
+	if (!src_isrgba)  {
 		SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+
+	// RGBA -> RGB
+	} else if (src_isrgba && !dst_isrgba)  {
+		switch (bmpSrc->format->alpha)  {
+		case SDL_ALPHA_OPAQUE:
+			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+		break;
+		case SDL_ALPHA_TRANSPARENT:
+		return;
+		default:
+			DrawRGBAtoRGB(bmpDest, bmpSrc, rDest, rSrc); // To handle the per-surface alpha correctly
+		}
 
 	// RGBA -> RGBA
 	} else {
@@ -1407,15 +1448,15 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int 
 }
 
 
-inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
+inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
 
-	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
+	perform_line(bmpDest, x1, y1, x2, y2, color.get(bmpDest), proc);
 }
 
 // Draw horizontal line
-void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Uint32 colour) {
+void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
 	if (bmpDest->flags & SDL_HWSURFACE)  {
 		DrawRectFill(bmpDest, x, y, x2, y + 1, colour); // In hardware mode this is much faster, in software it is slower
@@ -1438,24 +1479,23 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Uint32 colour) {
 		x2 = tmp;
 	}
 
-	Uint8 r,g,b;
-	GetColour3(colour,getMainPixelFormat(),&r,&g,&b);
-	Uint32 friendly_col = SDLColourToNativeColour(
-		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
-
 	LOCK_OR_QUIT(bmpDest);
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
-	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
+	Uint8 *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
+	RGBA s_p = { colour.r, colour.g, colour.b, colour.a };
 
-	for (uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
-		PutPixelToAddr((Uint8 *)px, friendly_col, bpp);
+	for (Uint8* px = (Uint8*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)  {
+		RGBA d_p; SDL_GetRGBA(GetPixelFromAddr(px, bpp), bmpDest->format, &d_p.r, &d_p.g, &d_p.b, &d_p.a);
+		const RGBA& rg = BlendRGBAPixels(d_p, s_p);
+		PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format, rg.r, rg.g, rg.b, rg.a), bpp);
+	}
 
 	UnlockSurface(bmpDest);
 
 }
 
 // Draw vertical line
-void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Uint32 colour) {
+void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 	if (bmpDest->flags & SDL_HWSURFACE)  {
 		DrawRectFill(bmpDest, x, y, x + 1, y2, colour); // In hardware mode this is much faster, in software it is slower
 		return;
@@ -1477,62 +1517,63 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Uint32 colour) {
 		y2 = tmp;
 	}
 
-	Uint8 r,g,b;
-	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
-	Uint32 friendly_col = SDLColourToNativeColour(
-		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
-
 	LOCK_OR_QUIT(bmpDest);
 	ushort pitch = (ushort)bmpDest->pitch;
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
-	uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
+	Uint8 *px2 = (Uint8 *)bmpDest->pixels+pitch*y2+bpp*x;
+	RGBA s_p = { colour.r, colour.g, colour.b, colour.a };
 
-	for (uchar *px= (uchar *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
-		PutPixelToAddr((Uint8 *)px, friendly_col, bpp);
+	for (Uint8 *px= (Uint8 *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)  {
+		RGBA d_p; SDL_GetRGBA(GetPixelFromAddr(px, bpp), bmpDest->format, &d_p.r, &d_p.g, &d_p.b, &d_p.a);
+		const RGBA& rg = BlendRGBAPixels(d_p, s_p);
+		PutPixelToAddr((Uint8 *)px, SDL_MapRGBA(bmpDest->format, rg.r, rg.g, rg.b, rg.a), bpp);
+	}
 
 	UnlockSurface(bmpDest);
 }
 
 ///////////////////
 // Line drawing
-void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
+void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color) {
+	secure_perform_line(dst, x1, y1, x2, y2, color.get(dst), PutPixel);
 }
 
 //////////////////
 // Fast routine for drawing 2x2 filled rects
-void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color)
+void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color)
 {
 	LOCK_OR_QUIT(bmpDest);
 
 	Uint8 *row1 = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
 	Uint8 *row2 = row1 + bmpDest->pitch;
 
+	const Uint32 packed_color = color.get(bmpDest);
+
 	switch (bmpDest->format->BytesPerPixel)  {
 	case 1: // HINT: 8bit mode is not used atm.
-		*row1 = (Uint8) color; ++row1;
-		*row1 = (Uint8) color;
-		*row2 = (Uint8) color; ++row2;
-		*row2 = (Uint8) color;
+		*row1 = (Uint8) packed_color; ++row1;
+		*row1 = (Uint8) packed_color;
+		*row2 = (Uint8) packed_color; ++row2;
+		*row2 = (Uint8) packed_color;
 	break;
 	case 2: // 16 bpp
-		*(Uint16 *)row1 = (Uint16) color; row1 += 2;
-		*(Uint16 *)row1 = (Uint16) color;
-		*(Uint16 *)row2 = (Uint16) color; row2 += 2;
-		*(Uint16 *)row2 = (Uint16) color;
+		*(Uint16 *)row1 = (Uint16) packed_color; row1 += 2;
+		*(Uint16 *)row1 = (Uint16) packed_color;
+		*(Uint16 *)row2 = (Uint16) packed_color; row2 += 2;
+		*(Uint16 *)row2 = (Uint16) packed_color;
 	break;
 	case 3:  { // 24 bpp
-		const char c[3] = { ((Uint8 *)(&color))[0], ((Uint8 *)(&color))[1], ((Uint8 *)(&color))[2] };
+		const char c[3] = { ((Uint8 *)(&packed_color))[0], ((Uint8 *)(&packed_color))[1], ((Uint8 *)(&packed_color))[2] };
 		*row1 = c[0]; ++row1; *row1 = c[1]; ++row1; *row1 = c[2]; ++row1;
 		*row1 = c[0]; ++row1; *row1 = c[1]; ++row1; *row1 = c[2];
 		*row2 = c[0]; ++row2; *row2 = c[1]; ++row2; *row2 = c[2]; ++row2;
 		*row2 = c[0]; ++row2; *row2 = c[1]; ++row2; *row2 = c[2];
 	} break;
 	case 4:  // 32 bpp
-		*(Uint32 *)row1 = color; row1 += 4;
-		*(Uint32 *)row1 = color;
-		*(Uint32 *)row2 = color; row2 += 4;
-		*(Uint32 *)row2 = color;
+		*(Uint32 *)row1 = packed_color; row1 += 4;
+		*(Uint32 *)row1 = packed_color;
+		*(Uint32 *)row2 = packed_color; row2 += 4;
+		*(Uint32 *)row2 = packed_color;
 	break;
 	}
 
@@ -1541,7 +1582,7 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Uint32 color)
 
 ///////////////////////
 // Draws the 2x2 filled rectangle, does clipping
-void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color)
+void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Color color)
 {
 	if (x < 0 || x + 2 >= bmpDest->clip_rect.x + bmpDest->clip_rect.w)
 		return;
@@ -1554,7 +1595,7 @@ void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Uint32 color)
 //////////////////////
 // Draw antialiased line with an putpixel callback
 // Code basis taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
-void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8))
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8))
 {
 	// Calculate line params
 	int dx = (x2 - x1);
@@ -1564,8 +1605,10 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 
 	LOCK_OR_QUIT(dst);
 
+	Uint32 packed_c = color.get(dst);
+
 	// Set start pixel
-	proc(dst, x1, y1, color, 255);
+	proc(dst, x1, y1, packed_c, 255);
 
 	// X-dominant line
 	if (abs(dx) > abs(dy))
@@ -1591,8 +1634,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 		distance = 0;
 		for (xs = x1 + 1; xs < x2; ++xs)
 		{
-			proc(dst, xs, yt / 256, color, (Uint8) (255 - distance));
-			proc(dst, xs, yt / 256 + 1, color, (Uint8) distance);
+			proc(dst, xs, yt / 256, packed_c, (Uint8) (255 - distance));
+			proc(dst, xs, yt / 256 + 1, packed_c, (Uint8) distance);
 
 			yt += k;
 			distance = yt & 255; // Same as: yt % 256
@@ -1622,8 +1665,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 		distance = 0;
 		for (ys=y1+1; ys<y2; ++ys)
 		{
-			proc(dst, xt / 256, ys, color, (Uint8) (255 - distance));
-			proc(dst, xt / 256 + 1, ys, color, (Uint8) distance);
+			proc(dst, xt / 256, ys, packed_c, (Uint8) (255 - distance));
+			proc(dst, xt / 256 + 1, ys, packed_c, (Uint8) distance);
 
 			xt += k;
 			distance = xt & 255;  // Same as: xt % 256
@@ -1633,13 +1676,13 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 	UnlockSurface(dst);
 }
 
-static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Uint32 color)
+static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color color)
 {
 	// Clipping
 	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
 		return;
 
-	RGBA s_p; SDL_GetRGBA(color, bmpDest->format, &s_p.r, &s_p.g, &s_p.b, &s_p.a);
+	RGBA s_p = { color.r, color.g, color.b, color.a };
 
 	const int bpp = bmpDest->format->BytesPerPixel;
 	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
@@ -1657,14 +1700,13 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Uint32
 
 //////////////////////
 // Draws a filled rectangle
-void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color)
+void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color color)
 {
-	Uint8 alpha = bmpDest->format->Amask ? GetA(color, bmpDest->format) : SDL_ALPHA_OPAQUE;
 	SDL_Rect r = { x, y, x2 - x, y2 - y };
 
-	switch (alpha)  {
+	switch (color.a)  {
 	case SDL_ALPHA_OPAQUE:
-		SDL_FillRect(bmpDest,&r,color);
+		SDL_FillRect(bmpDest,&r,color.get(bmpDest));
 	break;
 	case SDL_ALPHA_TRANSPARENT:
 	break;
@@ -1673,64 +1715,43 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 col
 	}
 }
 
-////////////////////////
-// Draws a filled rectangle alpha-blended with the background
-void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)
-{
-	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2 - x, y2 - y);
-	if (!tmp.get())
-		return;
-
-	Uint8 r, g, b;
-	GetColour3(color,bmpDest->format, &r, &g, &b);
-	SDL_FillRect(tmp.get(), NULL, SDL_MapRGBA(tmp->format, r, g, b, alpha));
-
-	// TODO: optimise
-	DrawImageAdv(bmpDest, tmp.get(), 0, 0, x, y, tmp->w, tmp->h);
-}
-
 /////////////////////
 // Draws a simple linear gradient
-void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32 cl1, Uint32 cl2, GradientDirection dir)
+void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color cl1, Color cl2, GradientDirection dir)
 {
 	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)bmpDest->clip_rect))
 		return;
-
-	Uint8 r1, g1, b1, a1;
-	Uint8 r2, g2, b2, a2;
-	GetColour4(cl1, getMainPixelFormat(), &r1, &g1, &b1, &a1);
-	GetColour4(cl2, getMainPixelFormat(), &r2, &g2, &b2, &a2);
 
 	float rstep, gstep, bstep, astep;
 
 	switch (dir)  {
 		case grdVertical:
-			rstep = (float)(r2 - r1) / (float)h;
-			gstep = (float)(g2 - g1) / (float)h;
-			bstep = (float)(b2 - b1) / (float)h;
-			astep = (float)(a2 - a1) / (float)h;
+			rstep = (float)(cl2.r - cl1.r) / (float)h;
+			gstep = (float)(cl2.g - cl1.g) / (float)h;
+			bstep = (float)(cl2.b - cl1.b) / (float)h;
+			astep = (float)(cl2.a - cl1.a) / (float)h;
 
 			for (int gy = 0; gy < h; gy++)  {
-				Uint8 r = r1 + Round(gy * rstep);
-				Uint8 g = g1 + Round(gy * gstep);
-				Uint8 b = b1 + Round(gy * bstep);
-				Uint8 a = a1 + Round(gy * astep);
-				DrawHLine(bmpDest, x, x + w - 1, y + gy, SDL_MapRGBA(bmpDest->format, r, g, b, a));
+				Uint8 r = cl1.r + Round(gy * rstep);
+				Uint8 g = cl1.g + Round(gy * gstep);
+				Uint8 b = cl1.b + Round(gy * bstep);
+				Uint8 a = cl1.a + Round(gy * astep);
+				DrawHLine(bmpDest, x, x + w - 1, y + gy, Color(r, g, b, a));
 			}
 		break;
 
 		case grdHorizontal:
-			rstep = (float)(r2 - r1) / (float)w;
-			gstep = (float)(g2 - g1) / (float)w;
-			bstep = (float)(b2 - b1) / (float)w;
-			astep = (float)(a2 - a1) / (float)w;
+			rstep = (float)(cl2.r - cl1.r) / (float)w;
+			gstep = (float)(cl2.g - cl1.g) / (float)w;
+			bstep = (float)(cl2.b - cl1.b) / (float)w;
+			astep = (float)(cl2.a - cl1.a) / (float)w;
 
 			for (int gx = 0; gx < w; gx++)  {
-				Uint8 r = r1 + Round(gx * rstep);
-				Uint8 g = g1 + Round(gx * gstep);
-				Uint8 b = b1 + Round(gx * bstep);
-				Uint8 a = a1 + Round(gx * astep);
-				DrawVLine(bmpDest, y, y + h - 1, x + gx, SDL_MapRGBA(bmpDest->format, r, g, b, a));
+				Uint8 r = cl1.r + Round(gx * rstep);
+				Uint8 g = cl1.g + Round(gx * gstep);
+				Uint8 b = cl1.b + Round(gx * bstep);
+				Uint8 a = cl1.a + Round(gx * astep);
+				DrawVLine(bmpDest, y, y + h - 1, x + gx, Color(r, g, b, a));
 			}
 		break;
 	}
@@ -1739,7 +1760,7 @@ void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Uint32
 
 ///////////////////
 // Draws a rope line
-void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 {
 	ropealt = 0;
 	ropecolour = 0;
@@ -1751,13 +1772,13 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
 	else
-		perform_line(bmp, x1, y1, x2, y2, color, RopePutPixel);
+		perform_line(bmp, x1, y1, x2, y2, color.get(bmp), RopePutPixel);
 }
 
 
 ///////////////////
 // Draws a beam
-void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 {
 	// Clipping
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
@@ -1766,19 +1787,19 @@ void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
 	else
-		perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
+		perform_line(bmp, x1, y1, x2, y2, color.get(bmp), BeamPutPixel);
 }
 
 
 ///////////////////
 // Draws a laser sight
-void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Uint32 color)
+void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 {
 	// Clipping
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
 		return;
 
-	perform_line(bmp, x1, y1, x2, y2, color, LaserSightPutPixel);
+	perform_line(bmp, x1, y1, x2, y2, color.get(bmp), LaserSightPutPixel);
 }
 
 
@@ -1806,6 +1827,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	SmartPointer<SDL_Surface> img = IMG_Load(Utf8ToSystemNative(fullfname).c_str());
 
 	if(!img.get())  {
+		char *err = SDL_GetError();
 		return NULL;
 	}
 

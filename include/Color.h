@@ -11,6 +11,7 @@
 #define __COLOR_H__
 
 #include <SDL.h>
+#include "SmartPointer.h"
 
 
 ///////////////////
@@ -77,29 +78,39 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return SDL_MapRGB(getMainPixelFormat(), r, g, b);
 }
 
+///////////////
+// Creates a int colour based on the 4 components
+// HINT: format is that one from videosurface!
+inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	return SDL_MapRGBA(getMainPixelFormat(), r, g, b, a);
+}
 
-struct Color {
-	double r, g, b;
 
-	Color(Uint8 r_ = 0, Uint8 g_ = 0, Uint8 b_ = 0) : r(r_/255.0), g(g_/255.0), b(b_/255.0) {}
-	Color(double r_, double g_, double b_) : r(r_), g(g_), b(b_) {}
-	Color(Uint32 px, SDL_PixelFormat* fmt) {
-		r = GetR(px, fmt) / 255.0;
-		g = GetG(px, fmt) / 255.0;
-		b = GetB(px, fmt) / 255.0;
-	}
 
-	Color operator+(const Color& c) const { return Color(r+c.r, g+c.g, b+c.b); }
-	Color operator-(const Color& c) const { return (*this) + c * -1.0; }
-	Color operator*(double f) const { return Color(r*f, g*f, b*f); }
-	Color operator/(double f) const { return (*this) * (1.0/f); }
-	bool operator==(const Color& c) const { return r==c.r && g==c.g && b==c.b; }
-	bool operator!=(const Color& c) const { return ! ((*this) == c); }
+// Device-independent color
+class Color  { public:
+	Color() : r(0), g(0), b(0), a(0) {}
+	Color(Uint8 _r, Uint8 _g, Uint8 _b) : r(_r), g(_g), b(_b), a(SDL_ALPHA_OPAQUE) {}
+	Color(Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
+	Color(SDL_Surface *s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
+	Color(const SmartPointer<SDL_Surface>& s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
+	Color(Uint32 cl)	{ set(SDL_GetVideoSurface(), cl); }
 
-	Uint8 r8() const { if(r >= 1.0) return 255; else if(r <= 0.0f) return 0; else return (Uint8)(r * 255.0f); }
-	Uint8 g8() const { if(g >= 1.0) return 255; else if(g <= 0.0f) return 0; else return (Uint8)(g * 255.0f); }
-	Uint8 b8() const { if(b >= 1.0) return 255; else if(b <= 0.0f) return 0; else return (Uint8)(b * 255.0f); }
-	Uint32 pixel(SDL_PixelFormat* fmt) const { return SDL_MapRGB(fmt, r8(), g8(), b8()); }
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+
+	Uint32 get(SDL_Surface *s)  { return SDL_MapRGBA(s->format, r, g, b, a); }
+	Uint32 get(const SmartPointer<SDL_Surface>& s)  { return SDL_MapRGBA(s->format, r, g, b, a); }
+	void set(SDL_Surface *s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
+	void set(const SmartPointer<SDL_Surface>& s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
+	
+	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
+	bool operator != ( const Color & c ) const { return ! ( *this == c ); };
+	
+	Color operator * ( float f ) const { return Color( Uint8(r*f), Uint8(g*f), Uint8(b*f), a ); };
+	Color operator + ( const Color & c ) const { return Color( r+c.r, g+c.g, b+c.b, (a+c.a)/2 ); };
 };
 
 #endif

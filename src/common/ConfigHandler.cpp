@@ -154,7 +154,7 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 	if(!GetString(filename,section,key,string))
 		return false;
 
-	*value = StrToCol(string);
+	*value = StrToCol(string).get(SDL_GetVideoSurface());
 
 	return true;
 

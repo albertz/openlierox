@@ -16,7 +16,7 @@
 
 #include <assert.h>
 #include "LieroX.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 #include "CWorm.h"
 #include "MathLib.h"
@@ -136,7 +136,7 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	   hy>=t && hy<=t+view->GetVirtH()) {
 
 		// Hook
-		DrawImage(bmpDest,gfxGame.bmpHook,hx-2,hy-2);
+		DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpHook,hx-2,hy-2);
 	}
 
 	// The clipping on the viewport is done in the line function

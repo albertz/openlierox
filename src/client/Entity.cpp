@@ -16,7 +16,7 @@
 
 #include "LieroX.h"
 #include "GfxPrimitives.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "Entity.h"
 #include "MathLib.h"
 #include "FastVector.h"
@@ -143,22 +143,22 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Explosion
 			case ENT_EXPLOSION:
-				DrawImageAdv(bmpDest,gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
 				break;
 
 			// Smoke
 			case ENT_SMOKE:
-				DrawImageAdv(bmpDest, gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
 				break;
 
 			// Chemical smoke
 			case ENT_CHEMSMOKE:
-				DrawImageAdv(bmpDest, gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
-				DrawImageAdv(bmpDest, gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
 				break;
 
 			// Giblet
@@ -168,7 +168,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Sparkle
 			case ENT_SPARKLE:
-				DrawImageAdv(bmpDest, gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
 				break;
 
 			// Doomsday
@@ -190,7 +190,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				end = ent->vPos + ent->vVel*(float)ent->iType2;
 				x2=((int)end.x-wx)*2+l;
 				y2=((int)end.y-wy)*2+t;
-				DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
+				DrawBeam(bmpDest, x,y, x2,y2, Color(ent->iColour));
 				break;
 
 			// Laser Sight
@@ -198,7 +198,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				end = ent->vPos + ent->vVel*(float)ent->iType2;
 				x2=((int)end.x-wx)*2+l;
 				y2=((int)end.y-wy)*2+t;
-				DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
+				DrawLaserSight(bmpDest, x,y, x2,y2, Color(ent->iColour));
 				break;
 		}
 	}

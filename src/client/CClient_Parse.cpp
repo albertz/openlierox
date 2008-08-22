@@ -22,7 +22,7 @@
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
@@ -225,8 +225,8 @@ void CClient::ParseConnected(CBytestream *bs)
 	};
 	cNetChan->Create(&addr,tSocket);
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 
 	bHostAllowsMouse = false;
 	bHostAllowsStrafing = false;
@@ -518,7 +518,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			// Disconnect
 			Disconnect();
 
-			Menu_MessageBox("Out of memory","Out of memory when allocating the map.",LMB_OK);
+			DeprecatedGUI::Menu_MessageBox("Out of memory", "Out of memory when allocating the map.", DeprecatedGUI::LMB_OK);
 
 			bGameReady = false;
 
@@ -579,11 +579,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 					// If this is a host/local game, something is pretty wrong but if we display the message, things could
 					// go even worse
 					if (tGameInfo.iGameType == GME_JOIN)  {
-						FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+						FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 						std::string err;
 						err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
-						Menu_MessageBox("Loading Error",err, LMB_OK);
+						DeprecatedGUI::Menu_MessageBox("Loading Error",err, DeprecatedGUI::LMB_OK);
 						bClientError = true;
 
 						// Go back to the menu
@@ -633,10 +633,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 				// Show any error messages
 				if (tGameInfo.iGameType == GME_JOIN)  {
-					FillSurface(tMenu->bmpBuffer.get(), tLX->clBlack);
+					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 					std::string err("Error load game mod: ");
 					err += sModName + "\r\nError code: " + itoa(result);
-					Menu_MessageBox("Loading Error", err, LMB_OK);
+					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
 					bClientError = true;
 
 					// Go back to the menu
@@ -666,10 +666,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Copy the chat text from lobby to ingame chatbox
 	switch (tGameInfo.iGameType)  {
 	case GME_HOST:
-		sChat_Text = Menu_Net_HostLobbyGetText();
+		sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
 		break;
 	case GME_JOIN:
-		sChat_Text = Menu_Net_JoinLobbyGetText();
+		sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 		break;
 	}
 
@@ -682,7 +682,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	cChatbox.setWidth(tInterfaceSettings.ChatBoxW - 4);
 
 	// Load the chat
-	CListview *lv = (CListview *)cChatList;
+	DeprecatedGUI::CListview *lv = (DeprecatedGUI::CListview *)cChatList;
 	if (lv)  {
 		lv->Clear();
 		lines_iterator it = cChatbox.At((int)cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
@@ -693,7 +693,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			// Add only chat text
 			if (it->iColour == tLX->clChatText)  {
 				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, it->strLine, NULL, NULL);
 				id++;
 			}
 		}
@@ -744,7 +744,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	UpdateScoreboard();
 	bShouldRepaintInfo = true;
 
-	bJoin_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
 
     return true;
 }
@@ -901,8 +901,8 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	if (cRemoteWorms[id].getLocal())
 		bShouldRepaintInfo = true;
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 }
 
 
@@ -1024,8 +1024,8 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 
 	UpdateScoreboard();
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 }
 
 
@@ -1271,8 +1271,8 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	}
 
 	// Update lobby
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 
 	// Log the conversation
 	if (tLXOptions->bLogConvos)  {
@@ -1348,8 +1348,8 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		}
 	}
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 
 	UpdateScoreboard();
 }
@@ -1397,8 +1397,8 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 
 	}
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 }
 
 
@@ -1453,7 +1453,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
-		std::string MapName = Menu_GetLevelName(gl->szMapName);
+		std::string MapName = DeprecatedGUI::Menu_GetLevelName(gl->szMapName);
 		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapName;
 	}
 
@@ -1464,8 +1464,8 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
-	bJoin_Update = true;
-	bHost_Update = true;
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 }
 
 
@@ -1688,7 +1688,7 @@ void CClient::ParseGotoLobby(CBytestream *)
 
 
 		// Goto the join lobby
-		Menu_Net_GotoJoinLobby();
+		DeprecatedGUI::Menu_Net_GotoJoinLobby();
 	}
 
 	ShutdownLog();
@@ -1758,14 +1758,14 @@ void CClient::ParseSendFile(CBytestream *bs)
 				FinishMapDownloads();
 				sMapDownloadName = "";
 
-				bJoin_Update = true;
-				bHost_Update = true;
+				DeprecatedGUI::bJoin_Update = true;
+				DeprecatedGUI::bHost_Update = true;
 			};
 			if( getUdpFileDownloader()->getFilename().find("skins/") == 0 )
 			{
 				// Loads skin from disk automatically on next frame
-				bJoin_Update = true;
-				bHost_Update = true;
+				DeprecatedGUI::bJoin_Update = true;
+				DeprecatedGUI::bHost_Update = true;
 			};
 			if( ! tGameLobby.bHaveMod &&
 				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 )
@@ -1777,8 +1777,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 					sModDownloadName = "";
 				}
 
-				bJoin_Update = true;
-				bHost_Update = true;
+				DeprecatedGUI::bJoin_Update = true;
+				DeprecatedGUI::bHost_Update = true;
 			};
 		}
 		else

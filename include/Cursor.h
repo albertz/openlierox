@@ -44,9 +44,10 @@ extern int iMaxCursorHeight;
 class CCursor  {
 public:
 	CCursor(const std::string& filename, int type);
+	CCursor(SmartPointer<SDL_Surface> image, int type);
 	~CCursor();
 private:
-	SmartPointer<SDL_Surface> bmpCursor;
+	SmartPointer<SDL_Surface>	bmpCursor;
 	CCursor			*cDown;
 	CCursor			*cUp;
 	int				iFrame;
@@ -55,13 +56,15 @@ private:
 	bool			bAnimated;
 	int				iNumFrames;
 	int				iType;
+
+	void			Init(int type);
 public:
-	void			Draw(SDL_Surface * dst);
+	void			Draw(SDL_Surface *dst);
 	inline bool		IsAnimated()  { return bAnimated; }
 	inline int		GetType()  { return iType; }
 	inline void		SetType(int _t)  { iType = _t; }
-	inline int		GetHeight()  { return bmpCursor.get() ? bmpCursor.get()->h : 0; }
-	inline int		GetWidth()  { return bmpCursor.get() ? bmpCursor.get()->w : 0; }
+	inline int		GetHeight()  { return bmpCursor.get() ? bmpCursor->h : 0; }
+	inline int		GetWidth()  { return bmpCursor.get() ? bmpCursor->w : 0; }
 };
 
 // Game cursors handling
@@ -69,7 +72,8 @@ public:
 bool InitializeCursors();
 void ShutdownCursors();
 void SetGameCursor(int c);
-void DrawCursor(SDL_Surface * dst);
+void SetGameCursor(CCursor *c);
+void DrawCursor(SDL_Surface *dst);
 int GetCursorHeight(int c);
 int GetCursorWidth(int c);
 inline int GetMaxCursorHeight()  { return iMaxCursorHeight; }

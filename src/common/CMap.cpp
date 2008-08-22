@@ -651,7 +651,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 inline Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
 	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0.0,0.0,0.0);
-	return Color( GetPixel(bmpSrc, sx, sy), bmpSrc->format );
+	return Color( bmpSrc, GetPixel(bmpSrc, sx, sy) );
 }
 
 inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
@@ -703,7 +703,7 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 				}
 
 			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
-			PutPixelToAddr(dst_px, col.pixel(bmpDest->format), bmpDest->format->BytesPerPixel);
+			PutPixelToAddr(dst_px, col.get(bmpDest), bmpDest->format->BytesPerPixel);
 		}
 	}
 }
@@ -914,12 +914,20 @@ void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
 	DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 
 #ifdef _AI_DEBUG
-	/*if (GetKeyboard()->KeyDown[SDLK_F2])
-		DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
-	else
-		ClearDebugImage();*/
-	//DEBUG_DrawPixelFlags(0, 0, Width, Height);
 	DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+#endif
+}
+
+///////////////////
+// Draw the map
+void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worldY)
+{
+	if(!bmpDrawImage.get() || !bmpDest) return; // safty
+
+	DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
+
+#ifdef _AI_DEBUG
+	DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #endif
 }
 

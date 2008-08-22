@@ -88,6 +88,13 @@ void SetGameCursor(int c)  {
 		tCurrentCursor = tCursors[c];
 }
 
+////////////////
+// Set the current cursor
+void SetGameCursor(CCursor *c)
+{
+	tCurrentCursor = c;
+}
+
 /////////////////
 // Draw game cursor
 void DrawCursor(SDL_Surface * dst) {
@@ -121,8 +128,37 @@ int GetCursorWidth(int c)  {
 //
 
 /////////////////
-// Constructor
+// Constructors
 CCursor::CCursor(const std::string& filename, int type)
+{
+	bmpCursor = LoadGameImage(filename,true);
+
+	Init(type);
+
+	// Get the filename for the "down" cursor
+	std::string down_filename = filename.substr(0,filename.rfind('.')) + "_down.png";
+
+	// Get the filename for the "up" cursor
+	std::string up_filename = filename.substr(0,filename.rfind('.')) + "_up.png";
+
+	// Load up and down states if they're present
+	if (IsFileAvailable(down_filename))
+		cDown = new CCursor(down_filename,iType);
+	if (IsFileAvailable(up_filename))
+		cUp = new CCursor(up_filename,iType);
+}
+
+CCursor::CCursor(SmartPointer<SDL_Surface> image, int type)
+{
+	bmpCursor = image;
+
+	Init(type);
+}
+
+
+/////////////////////
+// Common code for both constructors
+void CCursor::Init(int type)
 {
 	// Defaults
 	iType = type;
@@ -134,9 +170,7 @@ CCursor::CCursor(const std::string& filename, int type)
 	cUp = NULL;
 	cDown = NULL;
 
-
 	// Load the cursor
-	bmpCursor = LoadGameImage(filename,true);
 	if (bmpCursor.get())  {
 		if (bmpCursor.get()->w >= 2*bmpCursor.get()->h && (bmpCursor.get()->w % bmpCursor.get()->h) == 0)  {  // The file contains more frames
 			bAnimated = true;
@@ -154,18 +188,6 @@ CCursor::CCursor(const std::string& filename, int type)
 		// Set the color key
 		SetColorKey(bmpCursor.get());
 	}
-
-	// Get the filename for the "down" cursor
-	std::string down_filename = filename.substr(0,filename.rfind('.')) + "_down.png";
-
-	// Get the filename for the "up" cursor
-	std::string up_filename = filename.substr(0,filename.rfind('.')) + "_up.png";
-
-	// Load up and down states if they're present
-	if (IsFileAvailable(down_filename))
-		cDown = new CCursor(down_filename,iType);
-	if (IsFileAvailable(up_filename))
-		cUp = new CCursor(up_filename,iType);
 }
 
 ////////////////

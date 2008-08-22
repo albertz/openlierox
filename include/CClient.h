@@ -29,9 +29,9 @@
 #include "Frame.h"
 #include "CBonus.h"
 #include "CShootList.h"
-#include "CBar.h"
-#include "CGuiLayout.h"
-#include "CListview.h"
+#include "DeprecatedGUI/CBar.h"
+#include "DeprecatedGUI/CGuiLayout.h"
+#include "DeprecatedGUI/CListview.h"
 #include "InputEvents.h"
 #include "FileDownload.h"
 #include "Version.h"
@@ -335,15 +335,15 @@ private:
 
 	// Interface
 	interface_sett tInterfaceSettings;
-	CBar		*cHealthBar1;
-	CBar		*cHealthBar2;
-	CBar		*cWeaponBar1;
-	CBar		*cWeaponBar2;
-	CBar		*cDownloadBar;
+	DeprecatedGUI::CBar		*cHealthBar1;
+	DeprecatedGUI::CBar		*cHealthBar2;
+	DeprecatedGUI::CBar		*cWeaponBar1;
+	DeprecatedGUI::CBar		*cWeaponBar2;
+	DeprecatedGUI::CBar		*cDownloadBar;
 	SmartPointer<SDL_Surface> bmpBoxBuffer;
 	SmartPointer<SDL_Surface> bmpBoxLeft;
 	SmartPointer<SDL_Surface> bmpBoxRight;
-	CGuiLayout  cGameMenuLayout;
+	DeprecatedGUI::CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bCurrentSettings;
 
@@ -355,7 +355,7 @@ private:
 
 	// Ingame scoreboard
 	SmartPointer<SDL_Surface> bmpIngameScoreBg;
-	CGuiLayout	cScoreLayout;
+	DeprecatedGUI::CGuiLayout	cScoreLayout;
 
 	// Bonus's
 	CBonus		*cBonuses;
@@ -555,8 +555,8 @@ public:
 	void		InitializeGameMenu();
 	void		DrawGameMenu(SDL_Surface * bmpDest);
 	void		DrawBonuses(SDL_Surface * bmpDest, CViewport *v);
-	void		UpdateScore(CListview *Left, CListview *Right);
-	void		UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForPlayers);
+	void		UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right);
+	void		UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right, bool WaitForPlayers);
 	void		InitializeIngameScore(bool WaitForPlayers);
 	void		DrawTime(SDL_Surface * bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface * bmpDest);

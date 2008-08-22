@@ -173,6 +173,10 @@ FILE*	OpenGameFile(const std::string& path, const char *mode);
 
 std::ifstream* OpenGameFileR(const std::string& path);
 
+std::string GetFileContents(const std::string& path, bool absolute = false);
+std::string ExtractDirectory(const std::string& path);
+std::string JoinPaths(const std::string& path1, const std::string& path2);
+
 bool IsFileAvailable(const std::string& f, bool absolute = false);
 
 // the dir will be created recursivly

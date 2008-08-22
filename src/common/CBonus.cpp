@@ -16,7 +16,7 @@
 
 #include "LieroX.h"
 #include "CBonus.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 
 
@@ -62,12 +62,12 @@ void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 
 		// Health
 		case BNS_HEALTH:
-			DrawImage(bmpDest,gfxGame.bmpHealth,x-5,y-5);
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpHealth,x-5,y-5);
 			break;
 
 		// Weapon
 		case BNS_WEAPON:
-			DrawImage(bmpDest, gfxGame.bmpBonus, x-5,y-5);
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpBonus, x-5,y-5);
 			
 			if(showname)
 				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-20, tLX->clPlayerName, sWeapon);

@@ -1,577 +1,647 @@
-/////////////////////////////////////////
-//
-//   OpenLieroX
-//
-//   Auxiliary Software class library
-//
-//   based on the work of JasonB
-//   enhanced by Dark Charlie and Albert Zeyer
-//
-//   code under LGPL
-//
-/////////////////////////////////////////
+// OpenLieroX
 
-#include <iostream>
-#include <string.h>
-
-#include "LieroX.h"
-#include "Menu.h"
-#include "GfxPrimitives.h"
-#include "FindFile.h"
+#include <assert.h>
+#include <algorithm>
+#include "CssParser.h"
 #include "StringUtils.h"
+#include "Timer.h"
+#include "FindFile.h"
 
-using namespace std;
+//
+// Css parser class
+//
 
-
-/////////////////////
-// Clears the parser
-void CCssParser::Clear(void)
+/////////////////////////
+// Set the attribute value and parse it
+void CSSParser::Attribute::setValue(const std::string &value)
 {
-	iLength = 0;
-	iPos = 0;
-	sData = "";
+	// Remove multiple blank characters and turn all blank characters to spaces
+	StringBuf val = value;
 
-	// Already freed
-	if (!tNodes)
-		return;
+	// Check if the value is function-like (for example url(some path.png) or rgb(0 , 50, 0)
+	if (val.str().find('(') != std::string::npos && val.str().find(')') != std::string::npos)  {
+		std::string func_name = val.readUntil('(');
+		TrimSpaces(func_name);
 
-	node_t *node = tNodes;
-	node_t *next = NULL;
-	for(; node; node = next) {
+		// Check the name
+		bool is_valid_name = true;
+		for (std::string::iterator it = func_name.begin(); it != func_name.end(); it++)
+			if (!isalnum((uchar)*it) && *it != '_' && *it != '-')
+				is_valid_name = false;
 
-		// Free the node properties
-		next = node->tNext;
-		property_t *property = node->tProperties;
-		property_t *next_prop = NULL;
-		if (!property)
-			continue;
-
-		for(;property;property = next_prop)  {
-			next_prop = property->tNext;
-			delete property;
+		if (is_valid_name)  {
+			tParsedValue.push_back(Value(value)); // Just put the whole "function" as a first (and only) value
+			return;
 		}
-
-		// Free the node
-		delete node;
+		// Not a function, proceed further
 	}
 
-	tNodes = NULL;
-}
+	// Parse the value
+	std::vector<std::string> tokens = val.splitByBlank();
 
-////////////////////
-// Adds a node to the list
-bool CCssParser::AddNode(node_t *tNode)
-{
-	if (!tNode)
-		return false;
+	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)  {
+		
+		// String value
+		tParsedValue.push_back(Value(*it));
+	}
 
-	tNode->tNext = tNodes;
-	tNodes = tNode;
-
-	return true;
-}
-
-////////////////////
-// Adds a property to the node
-bool CCssParser::AddProperty(property_t *tProperty, node_t *tNode)
-{
-	if (!tNode || !tProperty)
-		return false;
-
-	tProperty->tNext = tNode->tProperties;
-	tNode->tProperties = tProperty;
-
-	return true;
-}
-
-////////////////////
-// Finds the specified CSS class, returns NULL when not found
-node_t *CCssParser::FindClass(const std::string& sClassName)
-{
-	// Check for valid parameters
-	if (!tNodes)
-		return NULL;
-
-	// Find the class
-	node_t *node = tNodes;
-	for(; node; node=node->tNext)
-		if (node->sName == sClassName && node->bClass)
-			return node;
-
-	// Not found
-	return NULL;
-}
-
-///////////////////
-// Finds the specified node, returns NULL when not found
-node_t *CCssParser::FindNode(const std::string& sNodeName)
-{
-	// Check for valid parameters
-	if (!tNodes)
-		return NULL;
-
-	// Find the node
-	node_t *node = tNodes;
-	for(; node; node = node->tNext)
-		if (node->sName == sNodeName)
-			return node;
-
-	// Not found
-	return NULL;
+	sValue = val.str();
 }
 
 /////////////////////
-// Finds the Property in Node, returns NULL if the node doesn't contain the property
-property_t *CCssParser::GetProperty(const std::string& sPropertyName, node_t *tNode)
+// Returns the value represented as a string, converts it to lower case
+std::string CSSParser::Attribute::Value::getString(const std::string& def) const
 {
-	// Check for valid parameters
-	if (!tNode)
-		return NULL;
-
-	property_t *property = tNode->tProperties;
-	if (!property)
-		return NULL;
-
-	// Find the property
-	for(; property; property = property->tNext)  {
-		if (!stringcasecmp(sPropertyName, property->sName))
-			return property;
-	}
-
-	// Not found
-	return NULL;
+	if (sValue.size())
+		return stringtolower(sValue);
+	else
+		return def;
 }
 
-////////////////
-// Skips blank characters
-bool CCssParser::SkipBlank(void)
+/////////////////////
+// Returns the value represented as float
+float CSSParser::Attribute::Value::getFloat(float def) const
 {
-	if (iPos >= iLength)
+	bool fail = false;
+	float res = from_string<float>(sValue, fail);
+	if (fail)
+		return def;
+	else
+		return res;
+}
+
+/////////////////////
+// Returns the value represented as integer
+int CSSParser::Attribute::Value::getInteger(int def) const
+{
+	bool fail = false;
+	int res = from_string<int>(sValue, fail);
+	if (fail)
+		return def;
+	else
+		return res;
+}
+
+/////////////////////
+// Returns the value represented as boolean
+bool CSSParser::Attribute::Value::getBool(bool def) const
+{
+	if (stringcaseequal(sValue, "true") || stringcaseequal(sValue, "yes") || sValue == "1")
+		return true;
+	else if (stringcaseequal(sValue, "false") || stringcaseequal(sValue, "no") || sValue == "0")
+		return false;
+	else
+		return def;
+}
+
+/////////////////////
+// Returns the value represented as URL
+std::string CSSParser::Attribute::Value::getURL(const std::string& def) const
+{
+	std::string res = sValue;
+	StripQuotes(res); // Get rid of quotes
+
+	// Check if it is url()
+	if (res.size() >= 5)  {
+		if (stringcaseequal(res.substr(0, 3), "url"))  {
+			if (res[3] == '(' && *res.rbegin() == ')')  {
+				res.erase(0, 4);
+				res.erase(res.size() - 1);
+				StripQuotes(res); // Strip the quotes if any
+			}
+		}
+	}
+
+	if (res.size())
+		return res;
+	else
+		return def;
+}
+
+/////////////////////
+// Returns the value represented as a color
+Color CSSParser::Attribute::Value::getColor(const Color& def) const
+{
+	bool fail = false;
+	Color res = StrToCol(sValue, fail);
+	if (fail)
+		return def;
+	else
+		return res;
+}
+
+/////////////////////
+// Returns the value's unit
+std::string CSSParser::Attribute::Value::getUnit(const std::string& def) const
+{
+	// Must be an integer/float value
+	bool fail1 = false, fail2 = false;
+	from_string<int>(sValue, fail1);
+	from_string<float>(sValue, fail2);
+	if (fail1 && fail2)
+		return def;
+
+	// Get the unit
+	std::string res;
+	for (std::string::const_reverse_iterator it = sValue.rbegin(); it != sValue.rend(); it++)  {
+		if (isdigit((uchar)*it) || *it == '.')
+			break;
+		res += tolower((uchar)*it);
+	}
+	std::reverse(res.begin(), res.end());
+
+	if (res.size())
+		return res;
+	else
+		return def;
+}
+
+////////////////////
+// Compare operator for Context
+bool CSSParser::Selector::Context::operator ==(const CSSParser::Selector::Context &c2) const
+{
+	// Must have same size
+	if (getSize() != c2.getSize())
 		return false;
 
-	// Read until blank characters are present
-	while (sData[iPos] == ' ' || sData[iPos] == '\n' || sData[iPos] == '\r' || sData[iPos] == '\t') {
-		// End of data
-		if (iPos >= iLength)
+	// Must have same context selectors
+	std::list<CSSParser::Selector>::const_iterator it1 = tContextSelectors.begin();
+	std::list<CSSParser::Selector>::const_iterator it2 = c2.tContextSelectors.begin();
+	for (; it1 != tContextSelectors.end(); it1++, it2++)
+		if (!(*it1 == *it2))
 			return false;
-		iPos++;
-	}
 
 	return true;
 }
 
-////////////////
-// Skips the comment
-bool CCssParser::SkipComments(void)
+////////////////////
+// Returns true if this is part of context c2
+bool CSSParser::Selector::Context::isPartOf(const CSSParser::Selector::Context& c2) const
 {
-	if (iPos >= iLength)
+	// c2 has bo be wider (or at least equal) to contain us
+	if (getSize() > c2.getSize())
 		return false;
 
-	bool bAllSkipped = false;
-
-	while (!bAllSkipped)  {
-		// Skip any blanks
-		if (!SkipBlank())
+	// Must have same context selectors
+	std::list<CSSParser::Selector>::const_reverse_iterator it1 = tContextSelectors.rbegin();
+	std::list<CSSParser::Selector>::const_reverse_iterator it2 = c2.tContextSelectors.rbegin();
+	for (; it2 != c2.tContextSelectors.rend(); it1++, it2++)
+		if (!(*it1 == *it2))
 			return false;
 
-		// End of data
-		if (iPos+1 >= iLength)
-			return false;
+	return true;
+}
 
-		// One line comment
-		if (sData[iPos] == '/' && sData[iPos+1] == '/')  {
-			iPos += 2;
-			// Read until new line
-			while(true)  {
-				// End of data
-				if (iPos >= iLength)
-					return false;
-				if(sData[iPos] == '\n')
-					break;
-				iPos++;
-			}
-		}
-		// Block comment
-		else if (sData[iPos] == '/' && sData[iPos+1] == '*')  {
-			iPos += 2;
-			// Read until the end of comment
-			while (true)  {
-				// End of data
-				if (iPos+1 >= iLength)
-					return false;
-				if(sData[iPos] == '*' || sData[iPos+1] == '/')
-					break;
-				iPos++;
-			}
+/////////////////////
+// Compare operator for two selectors
+bool CSSParser::Selector::operator ==(const CSSParser::Selector &s2) const
+{
+	// If there's some ID, ignore everything else
+	if (sID.size())
+		return sID == s2.sID && sPseudoClass == s2.sPseudoClass;
+		
+	// If there's element and class, compare everything
+	return sElement == s2.sElement && sClass == s2.sClass && sPseudoClass == s2.sPseudoClass && tContext == s2.tContext;
+}
 
-			// Skip the comment ending (*/)
-			iPos += 2;
-		}
-		// No comment
-		else
-			bAllSkipped = true;
+////////////////////////////
+// Returns true if the Selector s2 should inherit our attributes
+bool CSSParser::Selector::isParentOf(const CSSParser::Selector& s2) const
+{
+	/*bool psClassOK = (sPseudoClass.size() == 0) || (sPseudoClass == s2.sPseudoClass);
+	if (sID.size())
+		return psClassOK && sID == s2.sID;
+	bool classOK = (sClass.size() == 0) || (sClass == s2.sClass);
+	
+	if (s2.sID.size())  {
+		return ((s2.sElement == sElement) || s2.sElement.size() == 0) && classOK && psClassOK;
 	}
 
+	return ((sElement == s2.sElement) || sElement.size() == 0) && classOK && psClassOK;*/
+	// The priority is the following:
+	// Pseudoclass
+	// ID
+	// Class
+	// Element
+
+	if (sPseudoClass.size() != 0 && s2.sPseudoClass.size() == 0)
+		return false;
+	if (sPseudoClass != s2.sPseudoClass && sPseudoClass.size() != 0)
+		return false;
+
+	if (sID.size() != 0 && s2.sID.size() == 0)
+		return false;
+	if (sID != s2.sID && sID.size() != 0)
+		return false;
+
+	if (sClass.size() != 0 && s2.sClass.size() == 0)
+		return false;
+	if (sClass != s2.sClass && sClass.size() != 0)
+		return false;
+
+	if (sElement.size() != 0 && s2.sElement.size() == 0)
+		return false;
+	if (sElement != s2.sElement && sElement.size() != 0)
+		return false;
 
 	return true;
 }
 
 /////////////////////////
-// Reads one property
-property_t *CCssParser::ReadProperty(void)
+// Finds an attribute based on its name
+CSSParser::Attribute *CSSParser::Selector::findAttribute(const std::string& name)
 {
-	if (iPos >= iLength)
-		return NULL;
+	for (std::list<Attribute>::iterator it = tAttributes.begin(); it != tAttributes.end(); it++)
+		if (it->getName() == name)
+			return &(*it);
 
-	// Ending character of the node, no property can be read
-	if (sData[iPos] == '}')
-		return NULL;
-
-	// Skip blank space and comments
-	if (!SkipBlank())
-		return NULL;
-	if (!SkipComments())
-		return NULL;
-
-	// Allocate the property
-	property_t *Property = new property_t;
-	if (!Property)
-		return NULL;
-
-	Property->sName = "";
-	Property->sValue = "";
-	Property->bImportant = false;
-	Property->tNext = NULL;
-
-	// TODO: use std::string
-	// HINT: and change sizeof(buf) later
-	std::string buf;
-
-	unsigned int i=0;
-
-	//
-	//	Property name
-	//
-	while (true)  {
-		// End of data
-		if (iPos >= iLength)
-			return Property;
-		if(sData[iPos] == ':')
-			break;
-
-		// Skip any blank characters
-		if (!SkipBlank())  {
-			delete Property;
-			return NULL;
-		}
-
-		// After skipping blank characters, this can happen
-		if (sData[iPos] == ':')
-			break;
-
-		// Check for syntax errors
-		if (sData[iPos] < 65 || sData[iPos] > 90)
-			if (sData[iPos] < 97 || sData[iPos] > 122)
-				if (sData[iPos] != '_' && sData[iPos] != '-')  {
-					cout
-						<< "Syntax error: invalid character '"
-						<< sData[iPos]
-						<< "' on position " << iPos << endl;
-					delete Property;
-					Property = NULL;
-					return NULL;
-				}
-
-		// Too long name
-		// HINT: this magic constant 64 was the buffer-length before
-		// TODO: should we remove this limit? (perhaps this engine works better with some limit)
-		if (i >= 64)  {
-			delete Property;
-			return NULL;
-		}
-
-		i++;
-		buf += sData[iPos];
-		iPos++;
-	}
-
-	// Trim spaces
-	TrimSpaces(buf);
-
-	// Skip the ':' character
-	iPos++;
-
-	// Copy the property name
-	Property->sName = buf;
-
-	//
-	//	Property value
-	//
-	buf = "";
-	i = 0;
-
-	// Skip comments and blank characters
-	if (!SkipBlank() || !SkipComments())  {
-		Property->sName = "";
-		delete Property;
-		Property = NULL;
-		return NULL;
-	}
-
-
-	while (true)  {
-		// End of data
-		if (iPos >= iLength)
-			return Property;
-		if(sData[iPos] == ';' || sData[iPos] == '}')
-			break;
-			
-		// Skip linebreaks
-		if (sData[iPos] == '\n' || sData[iPos] == '\r')  {
-			iPos++;
-			continue;
-		}
-
-		// Check for !important
-		if (iPos > 0 && sData[iPos] == '!' && sData[iPos-1] == ' ')  {
-			iPos++;
-			const int imp_length = 9; // "important".size
-
-			// Is the string equal to "important"?
-			if (!stringcasecmp("important", sData.substr(iPos, imp_length)))  {
-				Property->bImportant = true;
-				iPos += imp_length;
-				continue;
-			}
-		}
-
-
-		// Too long value
-		// HINT: and again, we have this magic constant; see above ...
-		if (i > 64) {
-			Property->sName = "";
-			delete Property;
-			Property = NULL;
-			return NULL;
-		}
-
-		i++;
-		buf += sData[iPos];
-		iPos++;
-	}
-
-	// Trim spaces
-	TrimSpaces(buf);
-
-	// Skip the ending character (only ;, NOT } because it's handled by ReadNode)
-	if (iPos < iLength && sData[iPos] == ';')
-		iPos++;
-
-	// Copy the value
-	Property->sValue = buf;
-
-	return Property;
+	return NULL;
 }
 
-/////////////////
-// Reads one node, returns NULL when error or end of data
-node_t *CCssParser::ReadNode(void)
+/////////////////////////
+// Merges this selector with another one (adds attributes that are missing in this selector)
+void CSSParser::Selector::inheritFrom(const CSSParser::Selector &s2)
 {
-	if (iPos >= iLength)
-		return NULL;
+	for (std::list<Attribute>::const_iterator it = s2.tAttributes.begin(); it != s2.tAttributes.end(); it++)  {
+		CSSParser::Attribute *a = findAttribute(it->getName());
+		if (a == NULL) // The attribute does not exist, add it
+			addAttribute(*it);
+	}
+}
 
-	// Skip blank space and comments
-	if (!SkipBlank())
-		return NULL;
-	if (!SkipComments())
-		return NULL;
+////////////////////////////
+// Add an attribute to the selector
+void CSSParser::Selector::addAttribute(const CSSParser::Attribute& a)
+{
+	Attribute *attr = findAttribute(a.getName());
+	if (attr)
+		*attr = a; // Overwrite it
+	else
+		tAttributes.push_back(a);
+}
 
-	// Allocate the node
-	node_t *node = new node_t;
-	if (!node)
-		return NULL;
-	node->sName = "";
-	node->bClass = false;
-	node->tProperties = NULL;
-	node->tNext = NULL;
+////////////////////////
+// Get the error message nicely formatted
+std::string CSSParser::Error::getFullMessage() const
+{
+	return "Parse error on line " + to_string<size_t>(iLine) + ": " + sMessage;
+}
 
-	std::string buf;
+/////////////////////////
+// Throws a parse error, if fatal is true, the parsing will stop
+void CSSParser::throwError(const std::string &msg, bool fatal)
+{
+	tParseErrors.push_back(Error(iLine, msg, fatal));
+	if (fatal)
+		throw Error(iLine, msg, fatal);
+}
 
-	unsigned int i=0;
-	while(true)  {
-		// End of data
-		if (iPos >= iLength) {
-			delete node;
-			return NULL;
-		}
-		if(sData[iPos] == '{')
-			break;
-			
-		// Skip any blank characters
-		if (!SkipBlank())  {
-			delete node;
-			return NULL;
-		}
 
-		// After blank skipping, this can happen
-		if (sData[iPos] == '{')
-			break;
+//////////////////////////
+// Read a selector
+void CSSParser::readSelector()
+{
+	// Selector ends with an {
+	StringBuf s = tCss.readUntil('{');
+	if (tCss.atEnd())
+		throwError("Unexpected end of file found", true);
 
-		// Dot means a class
-		if (sData[iPos] == '.')  {
-			i = 0;
-			iPos++;
-			node->bClass = true;
+	// Trim any spaces
+	s.trimBlank();
+
+	// Unnamed selector?
+	if (s.empty())  {
+		throwError("Unnamed selector found, \"default\" assumed");
+		s = "default";
+	}
+
+	// There can be more selectors delimited with commas, for example:
+	// TEXTBOX, IMAGE, MINIMAP { border: 1px solid black; }
+	std::list<Selector> selectors;
+
+	std::vector<std::string> tokens = s.splitBy(',');
+	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)  {
+		// Initialize variables
+		StringBuf selector_str = *it;
+		selector_str.trimBlank();
+
+		// Empty one?
+		if (selector_str.empty())  {
+			throwError("Unnamed selector found, \"default\" assumed");
+			selectors.push_back(Selector("default", "", "", "", sCSSPath));
 			continue;
 		}
 
-		// Check for syntax errors
-		if (sData[iPos] < 'A' || sData[iPos] > 'Z')
-			if (sData[iPos] < 'a' || sData[iPos] > 'z')
-				if (sData[iPos] != '_' && sData[iPos] != '-')  {
-					cout
-						<< "Syntax error: invalid character '"
-						<< sData[iPos]
-						<< "' on position " << iPos << endl;
-					delete node;
-					return NULL;
-				}
+		// The selector can have so called context delimited by spaces, for example:
+		// DIALOG LISTVIEW SCROLLBAR
+		std::vector<std::string> context = selector_str.splitByBlank();
+		size_t i = 0;
 
-		// Too long name
-		// HINT: again the magic constant...; see above ...
-		if (i > 64)  {
-			delete node;
-			return NULL;
+		Selector current_sel;
+		current_sel.setFilePos(tSelectors.size() + selectors.size());
+		for (std::vector<std::string>::iterator c_it = context.begin(); c_it != context.end(); c_it++, i++)  {
+
+			StringBuf cont = *c_it;
+			
+
+			// If the selector starts with a sharp (#), it means an ID
+			if (cont.getC() == '#')  {
+				cont.incPos(); // Skip the sharp
+
+				// Also split by ':' in case of a pseudo class (#selector:pseudoclass)
+				if (i == context.size() - 1)  { // The last element is the real selector
+					current_sel.setID(cont.readUntil(':'));
+					current_sel.setPseudoClass(stringtolower(cont.getRestStr()));
+				} else
+					current_sel.addContextSelector(Selector("", cont.readUntil(':'), "", stringtolower(cont.getRestStr()), sCSSPath));
+
+				continue;
+			}
+			cont.resetPos();
+
+			// If the selector starts with a dot (.), it means a pure class
+			if (cont.getC()  == '.')  {
+				cont.incPos(); // Skip the dot
+
+				// Also split by ':' in case of a pseudo class (.selector:pseudoclass)
+				if (i == context.size() - 1)  { // The last element is the real selector
+					current_sel.setClass(cont.readUntil(':'));
+					current_sel.setPseudoClass(stringtolower(cont.getRestStr()));
+				} else
+					current_sel.addContextSelector(Selector("", "", cont.readUntil(':'), stringtolower(cont.getRestStr()), sCSSPath));
+
+				continue;
+			}
+			cont.resetPos();
+
+			// Normal selector
+			if (i == context.size() - 1)  { // The last element is the real selector
+				// Can have this format:
+				// SELECTOR.CLASS:PSEUDOCLASS
+				if (cont.str().find('.') != std::string::npos)  {
+					current_sel.setElement(stringtolower(cont.readUntil('.')));
+					current_sel.setClass(cont.readUntil(':'));
+				} else
+					current_sel.setElement(stringtolower(cont.readUntil(':')));
+				current_sel.setPseudoClass(stringtolower(cont.getRestStr()));
+			} else
+				current_sel.addContextSelector(Selector(stringtolower(cont.readUntil('.')), "", cont.readUntil(':'), stringtolower(cont.getRestStr()), sCSSPath));
 		}
 
-		i++;
-		buf += sData[iPos];
-		iPos++;
+		// Add the selector
+		selectors.push_back(current_sel);
 	}
 
-	// Trim the spaces
-	TrimSpaces(buf);
+	// Read the attributes and add them to all the selectors we've read
+	StringBuf attributes = tCss.readUntil('}');
+	while (!attributes.atEnd())  {
+		const Attribute& a = readAttribute(attributes);
+		for (std::list<Selector>::iterator s_it = selectors.begin(); s_it != selectors.end(); s_it++)
+			s_it->addAttribute(a);
 
-	// Skip the { character
-	iPos++;
+		// Skip any blank space after the attribute
+		// This avoids getting a blank attribute if there are some blank characters after the last
+		// attribute (i.e. the attribute before } )
+		attributes.skipBlank();
+	}
 
-	// Copy the name
-	node->sName = buf;
+	// Add the selectors to the global selector list
+	for (std::list<Selector>::iterator i = selectors.begin(); i != selectors.end(); i++)
+		addSelector(*i);
 
-	// Read & add the properties
-	while (AddProperty(ReadProperty(), node))
-		continue;
+	// Skip any blank spaces after the selector
+	tCss.skipBlank();
+}
 
-	// Skip the node ending character ('}')
-	iPos++;
+/////////////////////
+// Read an attribute
+CSSParser::Attribute CSSParser::readAttribute(StringBuf& buf)
+{
+	// An attribute can ends with a semicolon
+	StringBuf attr = buf.readUntil(';');
 
-	return node;
+	// Trim
+	attr.trimBlank();
+
+	// Check for !important
+	bool important = false;
+	for(size_t i = 0; !attr.atEnd(); ++i, attr.incPos())  {
+		if (attr.getC() == '!')  {
+			size_t len = 1;
+			len += attr.skipBlank(); // Skip any blank characters between ! and "important"
+			std::string im = attr.read(9); // Read the "important" string (9 = strlen(important))
+			len += 9;
+			if (stringcaseequal(im, "important"))  { // Found?
+				important = true;
+				attr.erase(i, len);
+				break;
+			}
+		}
+	}
+	attr.resetPos();
+
+	// Split to name and value (delimited by ':')
+	StringBuf name = attr.readUntil(':');
+	StringBuf value = attr.getRestStr();
+
+	// Adjust
+	name.trimBlank();
+	name.toLower();
+	value.trimBlank();
+
+	// Fill in the attribute
+	return Attribute(name.str(), value.str(), CSS_PRIORITY, important);
+}
+
+///////////////////////
+// Find a selector by a name
+CSSParser::Selector *CSSParser::findSelector(const Selector &another)
+{
+	for (std::list<Selector>::iterator it = tSelectors.begin(); it != tSelectors.end(); it++)
+		if (*it == another)
+			return &(*it);
+
+	return NULL;
+}
+
+///////////////////////
+// Add a selector to the list
+void CSSParser::addSelector(CSSParser::Selector &s)
+{
+	// Add it
+	tSelectors.push_back(s);
 }
 
 ////////////////////
-// Parses the specified file
-bool CCssParser::Parse(const std::string& sFilename)
+// Sort predicate to get the correct inheritance order
+bool parent_sort_pred(CSSParser::Selector s1, CSSParser::Selector s2)
 {
-	// Clear previous data
-	Clear();
+	if (s1 == s2)
+		return s1.getFilePos() < s2.getFilePos();
+	return s2.isParentOf(s1);
+}
 
-	// Check parameters
-	if (sFilename == "")
-		return false;
+//////////////////////////
+// Returns a style for the specified element
+CSSParser::Selector CSSParser::getStyleForElement(const std::string& element, const std::string& id,
+		const std::string& cl, const std::string& pscl, const Selector::Context& context) const
+{
+	// We have to know what element we are looking for
+	assert(element.size() != 0);
 
-	// Open the file
-	FILE *fp = OpenGameFile(sFilename, "rb");
-	if (!fp)
-		return false;
+	// Create the resulting selector
+	Selector result(element, id, cl, pscl, sCSSPath);
+	result.setContext(context);
 
-	// Get file size
-	if (fseek(fp,0,SEEK_END))  {
-		fclose(fp);
+	// Go through the selectors and check, if we can inherit attributes from it
+	std::vector<Selector> parents;
+	for (std::list<Selector>::const_iterator it = tSelectors.begin(); it != tSelectors.end(); it++)  {
+		if (it->isParentOf(result))  {
+			Selector tmp;
+			tmp = *it;
+			tmp.setElement(element);
+			parents.push_back(tmp);
+		}
+	}
+
+	// Sort the parents by their specialization
+	//std::sort(parents.begin(), parents.end(), parent_sort_pred);
+	bool sorted = false;
+	while (!sorted)  {
+		sorted = true;
+		for (int i=0; i < (int)parents.size() - 1; i++)  {
+			if (parents[i + 1].isParentOf(parents[i]))  {
+				Selector tmp = parents[i];
+				parents[i] = parents[i+1];
+				parents[i+1] = tmp;
+				sorted = false;
+			}
+		}
+	}
+
+	// Inherit the values
+	for (std::vector<Selector>::reverse_iterator it = parents.rbegin(); it != parents.rend(); it++)
+		result.inheritFrom(*it);
+
+	return result;
+}
+
+/////////////////////
+// Removes CSS comments from the string being parsed
+void CSSParser::removeComments()
+{
+	while (true)  {
+		// Erase everything between /* and */
+		size_t comment_start = tCss.str().find("/*");
+		if (comment_start == std::string::npos)
+			break;
+		size_t comment_end = tCss.str().find("*/", comment_start);
+		tCss.erase(comment_start, comment_end - comment_start + 2);
+	}
+}
+
+/////////////////
+// Clear the parser
+void CSSParser::clear()
+{
+	tCss = "";
+	tParseErrors.clear();
+	tSelectors.clear();
+	sCSSPath = "";
+	iLine = 0;
+}
+
+///////////////////
+// Main parsing function
+// HINT: nothing is cleared here, the caller is responsible for clearing the parser if necessary
+bool CSSParser::parse(const std::string &css, const std::string& path)
+{
+
+	// Init the variables
+	tCss = css;
+	sCSSPath = path;
+
+
+	// Remove comments from the file
+	removeComments();
+
+	// Read all the selectors
+	try {
+		while (!tCss.atEnd())
+			readSelector();
+	} catch (...) {
+		tCss = "";
 		return false;
 	}
-	iLength = ftell(fp);
-	if (fseek(fp,0,SEEK_SET))  {
-		fclose(fp);
+	tCss = "";
+
+	return true; // Successfully parsed
+}
+
+/////////////////////
+// Parses the part inside the given selector, for example:
+// <tag style="the css here will be parsed with this function">
+bool CSSParser::parseInSelector(CSSParser::Selector &sel, const std::string &css, size_t priority)
+{
+	// Read the attributes and add them to all the selectors we've read
+	StringBuf attributes = css;
+	try  {
+		while (!attributes.atEnd())  {
+			Attribute a = readAttribute(attributes);
+			a.setPriority(priority);
+			sel.addAttribute(a);
+
+			// Skip any blank space after the attribute
+			// This avoids getting a blank attribute if there are some blank characters after the last
+			// attribute (i.e. the attribute before } )
+			attributes.skipBlank();
+		}
+	} catch (...)  {
 		return false;
 	}
-
-	// Get the data
-	freadstr(sData, iLength, fp);
-
-	// Set the properties
-	iPos = 0;
-
-	// Parse the file
-	while (AddNode(ReadNode()))
-		continue;
-
-	// Free the data
-	sData = "";
-	iPos = 0;
-	iLength = 0;
 
 	return true;
 }
 
-/////////////////
-// Parses border properties from a string
-void CCssParser::BorderProperties(const std::string& val, int *border, Uint32 *LightColour, Uint32 *DarkColour, char *type)
+void CSSParser::test_css()
 {
-	// Defaults
-	*border = 2;
-	*LightColour = MakeColour(200,200,200);
-	*DarkColour = MakeColour(64,64,64);
-	*type = BX_OUTSET; // Outset
+	return;
+	float start = GetMilliSeconds();
 
-	// Trim spaces
-	std::string tmp = val;
-	TrimSpaces(tmp);
+	CSSParser c;
+	c.parse(GetFileContents("default.css"), ".");
 
-	// Remove duplicate spaces
-	while (replace(tmp,"  "," ",tmp))
-		continue;
-	
-	size_t tok = tmp.find(" ");
-	if(tok == tmp.npos)
-		return;
+	printf("==== CSS TEST ====\n");
+	printf("Selectors in the file: \n");
+	/*for (std::list<CSSParser::Selector>::const_iterator it = c.getSelectors().begin();
+		it != c.getSelectors().end(); it++)  {
+		// Element info
+		printf("  ");
+		if (it->getElement().size())
+			printf("Element: " + it->getElement() + "  ");
+		if (it->getClass().size())
+			printf("Class: " + it->getClass() + "  ");
+		if (it->getID().size())
+			printf("ID: " + it->getID() + "  ");
+		if (it->getPseudoClass().size())
+			printf("Pseudo class: " + it->getPseudoClass() + "  ");
+		printf("\n");
 
-	// Border width
-	*border = atoi(tmp.substr(0, tok));
-	tmp.erase(tok);
-	tok = tmp.find(" ");
-	if(tok == tmp.npos)
-		return;
-
-	// Border type
-	if (!stringcasecmp("solid", tmp.substr(0, tok)))
-		*type = BX_SOLID;
-	else if (!stringcasecmp("inset", tmp.substr(0, tok)))
-		*type = BX_INSET;
-	else
-		*type = BX_OUTSET;
-	
-	tmp.erase(tok);
-	tok = tmp.find(" ");
-	if(tok == tmp.npos)
-		return;
-
-	// Dark colour
-	*DarkColour = StrToCol(tmp.substr(0, tok));
-	tmp.erase(tok);
-	tok = tmp.find(" ");
-	if(tok == tmp.npos)
-		return;
-
-	// Light colour
-	if (*type != BX_SOLID)  {
-		*LightColour = StrToCol(tmp.substr(0, tok));
+		// Attributes
+		for (std::list<CSSParser::Attribute>::const_iterator at = it->getAttributes().begin();
+			at != it->getAttributes().end(); at++)  {
+			printf("    ");
+			printf(at->getName());
+			printf("\n");
+		}
+	}*/
+	CSSParser::Selector s = c.getStyleForElement("p", "", "title", "active", CSSParser::Selector::Context());
+	c.parseInSelector(s, "some_added_attribute: 20px;some_added_attribute2:15.6px", TAG_CSS_PRIORITY);
+	for (std::list<CSSParser::Attribute>::const_iterator at = s.getAttributes().begin();
+		at != s.getAttributes().end(); at++)  {
+			printf( (at->getName() +  ": " + at->getUnparsedValue()).c_str() );
+			printf("\n");
 	}
-	else
-		*LightColour = *DarkColour;
+	printf("Parsing took %f sec\n", GetMilliSeconds() - start);
+	printf("==== CSS TEST END ====\n");
 }
-
-// Enable the warning
-#ifdef _MSC_VER
-#pragma warning(default: 4996)
-#endif
-

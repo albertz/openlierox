@@ -17,11 +17,11 @@
 #include "LieroX.h"
 #include "CClient.h"
 #include "CBonus.h"
-#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "console.h"
 #include "FindFile.h"
-#include "Graphics.h"
-#include "CBar.h"
+#include "DeprecatedGUI/Graphics.h"
+#include "DeprecatedGUI/CBar.h"
 #include "CWorm.h"
 #include "Error.h"
 #include "Protocol.h"
@@ -178,7 +178,7 @@ void CClient::MinorClear(void)
 	fSendWait = 0;
 
 	iChat_Numlines = 0;
-	((CListview *)cChatList)->Clear();
+	((DeprecatedGUI::CListview *)cChatList)->Clear();
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
@@ -274,19 +274,19 @@ int CClient::Initialize(void)
 		return false;
 
 	// Initialize chat box (must be after drawing because of interface settings)
-	cChatList = (void *)(new CListview);
+	cChatList = (void *)(new DeprecatedGUI::CListview);
 	if (!cChatList)
 		return false;
-	((CListview *)cChatList)->Clear();
-	((CListview *)cChatList)->setShowSelect(false);
-	((CListview *)cChatList)->setRedrawMenu(false);
-	((CListview *)cChatList)->setDrawBorder(false);
-	((CListview *)cChatList)->Setup(0,
+	((DeprecatedGUI::CListview *)cChatList)->Clear();
+	((DeprecatedGUI::CListview *)cChatList)->setShowSelect(false);
+	((DeprecatedGUI::CListview *)cChatList)->setRedrawMenu(false);
+	((DeprecatedGUI::CListview *)cChatList)->setDrawBorder(false);
+	((DeprecatedGUI::CListview *)cChatList)->Setup(0,
 									tInterfaceSettings.ChatBoxX,
 									tInterfaceSettings.ChatBoxY,
 									tInterfaceSettings.ChatBoxW,
 									tInterfaceSettings.ChatBoxH);
-	((CListview *)cChatList)->SetupScrollbar(tInterfaceSettings.ChatboxScrollbarX,
+	((DeprecatedGUI::CListview *)cChatList)->SetupScrollbar(tInterfaceSettings.ChatboxScrollbarX,
 											 tInterfaceSettings.ChatboxScrollbarY,
 											 tInterfaceSettings.ChatboxScrollbarH,
 											 tInterfaceSettings.ChatboxScrollbarAlwaysVisible);
@@ -479,7 +479,7 @@ void CClient::FinishMapDownloads()
 	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
 		if (tGameLobby.szMapName == sMapDownloadName)  {
 			tGameLobby.bHaveMap = true;
-			tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+			tGameLobby.szDecodedMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
 		}
 
 		// If downloaded via HTTP, don't try UDP
@@ -959,7 +959,7 @@ void CClient::Connect(const std::string& address)
 	}
 
 	// Connecting to a server behind a NAT?
-	if( tLXOptions->bNatTraverse && Menu_SvrList_ServerBehindNat( strServerAddr ) )  {
+	if( tLXOptions->bNatTraverse && DeprecatedGUI::Menu_SvrList_ServerBehindNat( strServerAddr ) )  {
 		bConnectingBehindNat = true;
 
 		// Start UDP NAT traversal immediately - we know for sure that
@@ -1065,8 +1065,8 @@ void CClient::ConnectingBehindNAT()
 		if (tLX->fCurTime - fLastTraverseSent >= TRAVERSE_TIMEOUT)  {
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
-			strBadConnectMsg = "Cannot connect to the master server.";
-			printf("The UDP master server did not reply to the traverse packet.\n");
+			strBadConnectMsg = "No reply from the server."; // Previous message always made me think that masterserver is down, when there's just no reply
+			printf("The UDP master server did not reply to the traverse packet - target server inaccessible.\n");
 			return;			
 		}
 	break;
@@ -1299,11 +1299,11 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	SmartPointer<SDL_Surface> topbar = NULL;
 	SmartPointer<SDL_Surface> bottombar = NULL;
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		bottombar = gfxGame.bmpGameLocalBackground;
-		topbar = gfxGame.bmpGameLocalTopBar;
+		bottombar = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
+		topbar = DeprecatedGUI::gfxGame.bmpGameLocalTopBar;
 	} else {
-		bottombar = gfxGame.bmpGameNetBackground;
-		topbar = gfxGame.bmpGameNetTopBar;
+		bottombar = DeprecatedGUI::gfxGame.bmpGameNetBackground;
+		topbar = DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 	}
 
 
@@ -1626,9 +1626,9 @@ void CClient::Shutdown(void)
 
 	// Chatlist
 	if (cChatList)  {
-		((CListview *)cChatList)->Clear();
-		((CListview *)cChatList)->Destroy();
-		delete (CListview *)cChatList;
+		((DeprecatedGUI::CListview *)cChatList)->Clear();
+		((DeprecatedGUI::CListview *)cChatList)->Destroy();
+		delete (DeprecatedGUI::CListview *)cChatList;
 		cChatList = NULL;
 	}
 

@@ -22,7 +22,7 @@
 #include "CBonus.h"
 #include "console.h"
 #include "GfxPrimitives.h"
-#include "Graphics.h"
+#include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Entity.h"
@@ -1209,10 +1209,10 @@ void CClient::processChatter(void)
 				cShowSettings.isDown() ||
 				cToggleTopBar.isDown() ||
 #ifdef WITH_MEDIAPLAYER
-				cToggleMediaPlayer->isDown() ||
+				cToggleMediaPlayer.isDown() ||
 #endif
 				(input.sym == SDLK_BACKQUOTE) ||
-				cTakeScreenshot->isDown();
+				cTakeScreenshot.isDown();
 
 			if(controls) continue;
 

@@ -20,6 +20,7 @@
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
 #include "FindFile.h"
 #include "MathLib.h"
+#include "StringBuf.h"
 
 
 // HTML parsing library for StripHtmlTags()
@@ -138,41 +139,196 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 }
 
 
+//////////////////////////
+// Contains a definition of some common colors, used internally by StrToCol
+Color GetColorByName(const std::string& str, bool& fail)
+{
+	fail = false;
+
+	struct ColorEntry  {
+		std::string sName;
+		Uint8 r, g, b, a;
+	};
+#define OP SDL_ALPHA_OPAQUE
+#define TR SDL_ALPHA_TRANSPARENT
+
+	// TODO: more? These are taken from the HTML specification
+	static ColorEntry predefined[] = {
+		{ "white", 255, 255, 255,OP },
+		{ "black", 0, 0, 0, OP },
+		{ "red", 255, 0, 0, OP },
+		{ "green", 0, 127, 0, OP },
+		{ "blue", 0, 0, 255, OP },
+		{ "silver", 0xC0, 0xC0, 0xC0, OP },
+		{ "gray", 127, 127, 127, OP },
+		{ "grey", 127, 127, 127, OP },
+		{ "purple", 127, 0, 127, OP },
+		{ "fuchsia", 255, 0, 255, OP },
+		{ "pink", 255, 0, 255, OP },
+		{ "lime", 0, 255, 0, OP },
+		{ "olive", 127, 127, 0, OP },
+		{ "yellow", 255, 255, 0, OP },
+		{ "navy", 0, 0, 127, OP },
+		{ "teal", 0, 127, 127, OP },
+		{ "aqua", 0, 255, 255, OP },
+		{ "gold", 255, 215, 0, OP },
+		{ "transparent", 0, 0, 0, TR }
+	};
+
+	for (size_t i = 0; i < sizeof(predefined) / sizeof(ColorEntry); ++i)
+		if (stringcaseequal(str, predefined[i].sName))
+			return Color(predefined[i].r, predefined[i].g, predefined[i].b, predefined[i].a);
+
+	fail = true;
+
+	return Color();
+}
+
+/////////////////////
+// Helper function for HexToCol, accepts only adjusted values
+static void HexToCol_Pure(const std::string& hex, Color& col, bool& fail)
+{
+	col.r = MIN(from_string<int>(hex.substr(0,2), std::hex, fail), 255);
+	col.g = MIN(from_string<int>(hex.substr(2,2), std::hex, fail), 255);
+	col.b = MIN(from_string<int>(hex.substr(4,2), std::hex, fail), 255);
+	if (hex.size() >= 8)
+		col.a = MIN(from_string<int>(hex.substr(6,2), std::hex, fail), 255);
+	else
+		col.a = SDL_ALPHA_OPAQUE;
+}
+
+////////////////////////
+// Helper function for StrToCol
+static Color HexToCol(const std::string& hex, bool& fail)
+{
+	fail = false;
+	Color res;
+
+	// For example FFF for white
+	if (hex.size() == 3)  {
+		std::string tmp;
+		tmp += hex[0]; tmp += hex[0];
+		tmp += hex[1]; tmp += hex[1];
+		tmp += hex[2]; tmp += hex[2];
+		
+		HexToCol_Pure(tmp, res, fail);
+
+		return res;
+	}
+
+	// Same as the above but with alpha
+	if (hex.size() == 4)  {
+		std::string tmp;
+		tmp += hex[0]; tmp += hex[0];
+		tmp += hex[1]; tmp += hex[1];
+		tmp += hex[2]; tmp += hex[2];
+		tmp += hex[3]; tmp += hex[3];
+		
+		HexToCol_Pure(tmp, res, fail);
+
+		return res;
+	}
+
+	// For example FFFFFF for white
+	if (hex.size() == 6)  {
+		HexToCol_Pure(hex, res, fail);
+		return res;
+	}
+
+	// Same as the above but with alpha
+	if (hex.size() >= 8)  {
+		HexToCol_Pure(hex, res, fail);
+		return res;
+	}
+
+	fail = true;
+	return Color();
+}
+
+//////////////////////
+// Returns true if the value ends with a percent sign
+static bool is_percent(const std::string& str)
+{
+	if (!str.size())
+		return false;
+	return (*(str.rbegin())) == '%';
+}
+
+///////////////////
+// Returns a color defined function-like: rgba(0, 0, 0, 0)
+static Color ColFromFunc(const std::string& func, bool& fail)
+{
+	StringBuf tmp(func);
+
+	tmp.trimBlank();
+	tmp.adjustBlank();
+	std::string func_name = tmp.readUntil('(');
+	TrimSpaces(func_name);
+
+	// Get the params
+	StringBuf params = tmp.readUntil(')');
+	std::vector<std::string> tokens = params.splitBy(',');
+	if (tokens.size() < 3)  {
+		fail = true;
+		return Color();
+	}
+
+	// Adjust the tokens
+	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)  {
+		TrimSpaces(*it);
+	}
+
+	// The param count is >= 3
+	Color res;
+	res.r = MIN(255, from_string<int>(tokens[0], fail)); if (is_percent(tokens[0])) res.r = (Uint8)MIN(255.0f, (float)res.r * 2.55f);
+	res.g = MIN(255, from_string<int>(tokens[1], fail)); if (is_percent(tokens[1])) res.g = (Uint8)MIN(255.0f, (float)res.g * 2.55f);
+	res.b = MIN(255, from_string<int>(tokens[2], fail)); if (is_percent(tokens[2])) res.b = (Uint8)MIN(255.0f, (float)res.b * 2.55f);
+	if (tokens.size() >= 4 && stringcaseequal(func_name, "rgba"))  {
+		res.a = MIN(255, from_string<int>(tokens[3], fail)); if (is_percent(tokens[3])) res.a = (Uint8)MIN(255.0f, (float)res.a * 2.55f);
+	} else
+		res.a = SDL_ALPHA_OPAQUE;
+
+	return res;
+}
+
 //////////////////
 // Converts a string to a colour
 // HINT: it uses MakeColour
-Uint32 StrToCol(const std::string& str) {
-	if (str == "")
-		return tLX->clPink;
+Color StrToCol(const std::string& str, bool& fail) {
+	fail = false;
+
+	// Check for a blank string
+	if (str.size() == 0)  {
+		fail = true;
+		return Color();
+	}
 
 	// Create the temp and copy it there
-	static std::string temp;
-	temp = str;
+	std::string temp = str;
 
 	// Is the # character present?
-	if (temp[0] == '#') // str != "" here
+	if (temp[0] == '#')  { // str != "" here
 		temp.erase(0,1);
-	else	// Try searching color in data/frontend/colours.cfg
-	{
-		Uint32 col;
-		ReadColour( "data/frontend/colours.cfg", "Colours", temp, &col, tLX->clPink );
-		return col;
-	};
+		stringlwr(temp);
+		return HexToCol(temp, fail);
+	}
 
-	// Check
-	if (temp.length() < 6)
-		return tLX->clPink;
+	// Is the function-style present?
+	if (temp.size() >= 4)
+		if (stringcaseequal(temp.substr(0, 4), "rgba"))
+			return ColFromFunc(temp, fail);
+	if (temp.size() >= 3)
+		if (stringcaseequal(temp.substr(0, 3), "rgb"))
+			return ColFromFunc(temp, fail);
 
-	// Convert to lowercase
-	stringlwr(temp);
+	// Check if it's a known predefined color
+	return GetColorByName(str, fail);
+}
 
-	// Convert
-	Uint8 r,g,b;
-	r = MIN(from_string<int>(temp.substr(0,2),std::hex),255);
-	g = MIN(from_string<int>(temp.substr(2,2),std::hex),255);
-	b = MIN(from_string<int>(temp.substr(4,2),std::hex),255);
-
-	return MakeColour(r,g,b);
+Color StrToCol(const std::string& str)
+{
+	bool fail = false;
+	return StrToCol(str, fail);
 }
 
 short stringcasecmp(const std::string& s1, const std::string& s2) {
@@ -265,7 +421,15 @@ size_t findLastPathSep(const std::string& path) {
 
 void stringlwr(std::string& txt) {
 	for(std::string::iterator i = txt.begin(); i != txt.end(); i++)
-		*i = tolower(*i);
+		*i = tolower((uchar)*i);
+}
+
+std::string stringtolower(const std::string& txt)
+{
+	std::string res;
+	for(std::string::const_iterator i = txt.begin(); i != txt.end(); i++)
+		res += tolower((uchar)*i);
+	return res;
 }
 
 

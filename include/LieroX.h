@@ -19,12 +19,13 @@
 
 // HINT: for AI debug define _AI_DEBUG in your IDE/compiler
 
-#define		LX_PORT			23400
-#define		SPAWN_HOLESIZE	4
-#define		LX_ENDWAIT		9.0f
+enum {	
+		LX_PORT = 23400, 
+		SPAWN_HOLESIZE = 4,
+		MAX_WORMS = 32
+};
 
-
-#define		MAX_WORMS			32
+static const float LX_ENDWAIT = 9.0f;
 
 
 // Game types
@@ -253,8 +254,8 @@ extern	lierox_t		*tLX;
 extern  IpToCountryDB	*tIpToCountryDB;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
-extern  CInput			*cTakeScreenshot;
-extern  CInput			*cSwitchMode;
+extern  CInput			cTakeScreenshot;
+extern  CInput			cSwitchMode;
 extern  bool			bDisableSound;
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
@@ -266,7 +267,7 @@ extern  TStartFunction	startFunction;
 extern	void*			startFunctionData;
 
 #ifdef WITH_MEDIAPLAYER
-extern	CInput			*cToggleMediaPlayer;
+extern	CInput			cToggleMediaPlayer;
 #endif
 
 
