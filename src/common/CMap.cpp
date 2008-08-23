@@ -650,7 +650,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 
 inline Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
-	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0.0,0.0,0.0);
+	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0,0,0);
 	return Color( bmpSrc, GetPixel(bmpSrc, sx, sy) );
 }
 

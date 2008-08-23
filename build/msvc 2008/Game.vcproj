@@ -693,90 +693,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\common\CMediaPlayer.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\CMediaPlayer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\common\CMediaPlayer_GUI.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\include\Color.h"
 				>
 			</File>
@@ -1057,50 +973,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Graphics.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\Graphics.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\IniReader.cpp"
 				>
 			</File>
@@ -1249,6 +1121,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\SDLEvents.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\sex.cpp"
 				>
 				<FileConfiguration
@@ -1290,6 +1166,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\sex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\StringBuf.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\StringBuf.h"
 				>
 			</File>
 			<File
@@ -1436,6 +1320,14 @@
 				RelativePath="..\..\include\Unicode.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\common\XMLutils.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\XMLutils.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Game files"
@@ -1483,50 +1375,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\CBanList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CBar.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\CBar.h"
 				>
 			</File>
 			<File
@@ -1618,44 +1466,8 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\common\CClient.cpp"
+				RelativePath="..\..\src\client\CClient.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CClient.h"
@@ -2639,27 +2451,19 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Frontend"
-			Filter="cpp; h"
+			Name="New GUI"
 			>
 			<File
-				RelativePath="..\..\src\client\CAnimation.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CAnimation.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CBox.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CAnimation.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2667,8 +2471,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2676,8 +2480,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2685,25 +2490,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CBox.h"
+				RelativePath="..\..\include\SkinnedGUI\CAnimation.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CBrowser.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CBackground.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2711,8 +2518,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2720,8 +2527,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2729,25 +2537,31 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CBrowser.h"
+				RelativePath="..\..\include\SkinnedGUI\CBackground.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CButton.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CBar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CBorder.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2755,8 +2569,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2764,8 +2578,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2773,25 +2588,35 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CButton.h"
+				RelativePath="..\..\include\SkinnedGUI\CBorder.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CCheckbox.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CBox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\SkinnedGUI\CBrowser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CButton.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2799,8 +2624,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2808,8 +2633,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2817,25 +2643,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CCheckbox.h"
+				RelativePath="..\..\include\SkinnedGUI\CButton.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CCombobox.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CCheckbox.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2843,8 +2671,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2852,8 +2680,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2861,25 +2690,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CCombobox.h"
+				RelativePath="..\..\include\SkinnedGUI\CCheckbox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CGuiLayout.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CCombobox.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2887,8 +2718,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2896,8 +2727,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2905,41 +2737,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CGuiLayout.h"
+				RelativePath="..\..\include\SkinnedGUI\CCombobox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CGuiSkin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CGuiSkin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CGuiSkinnedLayout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CGuiSkinnedLayout.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CImage.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CDialog.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2947,8 +2765,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2956,8 +2774,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2965,25 +2784,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CImage.h"
+				RelativePath="..\..\include\SkinnedGUI\CDialog.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CInputBox.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CGuiSkin.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2991,8 +2812,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3000,8 +2821,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3009,33 +2831,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CInputBox.h"
+				RelativePath="..\..\include\SkinnedGUI\CGuiSkin.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\CLabel.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CLine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CListview.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CGuiSkinnedLayout.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3043,8 +2859,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3052,8 +2868,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3061,25 +2878,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CListview.h"
+				RelativePath="..\..\include\SkinnedGUI\CGuiSkinnedLayout.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CMenu.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CImage.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3087,8 +2906,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3096,8 +2915,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3105,29 +2925,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CMenu.h"
+				RelativePath="..\..\include\SkinnedGUI\CImage.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\CProgressbar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CScrollbar.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CImageButton.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3135,8 +2953,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3144,8 +2962,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3153,25 +2972,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CScrollbar.h"
+				RelativePath="..\..\include\SkinnedGUI\CImageButton.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CSlider.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CInputBox.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3179,8 +3000,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3188,8 +3009,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3197,25 +3019,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CSlider.h"
+				RelativePath="..\..\include\SkinnedGUI\CInputBox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CTextbox.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CItem.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3223,8 +3047,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3232,8 +3056,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3241,33 +3066,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CTextbox.h"
+				RelativePath="..\..\include\SkinnedGUI\CItem.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CTextButton.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CTextButton.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\CTitleButton.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CLabel.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3275,8 +3094,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3284,8 +3103,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3293,25 +3113,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CTitleButton.h"
+				RelativePath="..\..\include\SkinnedGUI\CLabel.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CWidget.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CLine.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3319,8 +3141,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3328,8 +3150,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3337,25 +3160,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CWidget.h"
+				RelativePath="..\..\include\SkinnedGUI\CLine.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CWidgetList.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CListview.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3363,8 +3188,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3372,8 +3197,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3381,29 +3207,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\CWidgetList.h"
+				RelativePath="..\..\include\SkinnedGUI\CListview.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\Menu.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\Menu_Local.cpp"
+				RelativePath="..\..\src\client\SkinnedGUI\CMapEditor.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3411,8 +3235,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3420,8 +3244,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3429,21 +3254,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Main.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CMapEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CMarquee.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3451,8 +3282,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3460,8 +3291,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3469,21 +3301,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Mapeditor.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CMarquee.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CMenu.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3491,8 +3329,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3500,8 +3338,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3509,21 +3348,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CMenu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CMinimap.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3531,8 +3376,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3540,8 +3385,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3549,21 +3395,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Favourites.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CMinimap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CommonDialogs.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3571,8 +3423,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3580,8 +3432,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3589,21 +3442,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Host.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CommonDialogs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CProgressbar.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3611,8 +3470,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3620,8 +3479,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3629,21 +3489,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Internet.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CProgressbar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CScrollbar.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3651,8 +3517,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3660,8 +3526,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3669,21 +3536,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Join.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CScrollbar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CSlider.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3691,8 +3564,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3700,8 +3573,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3709,21 +3583,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Lan.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CTabControl.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3731,8 +3611,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3740,8 +3620,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3749,21 +3630,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_Main.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CTabControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CTextbox.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3771,8 +3658,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3780,8 +3667,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3789,21 +3677,35 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Net_News.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CTextbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\SkinnedGUI\CTextButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\SkinnedGUI\CTitleButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CToggleButton.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3811,8 +3713,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3820,8 +3722,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3829,21 +3732,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Options.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CToggleButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\SkinnedGUI\CWidget.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3851,8 +3760,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3860,8 +3769,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3869,21 +3779,31 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Menu_Player.cpp"
+				RelativePath="..\..\include\SkinnedGUI\CWidget.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\SkinnedGUI\CWidgetEffect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\FontHandling.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3891,8 +3811,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3900,8 +3820,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3909,21 +3830,27 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\client\MenuSystem.cpp"
+				RelativePath="..\..\include\FontHandling.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\GuiPrimitives.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3931,8 +3858,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
+						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3940,8 +3867,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/debug/SkinnedGUI/"
+						ObjectFile=".\obj/debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3949,10 +3877,15 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
+						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
+						ObjectFile=".\obj/Debug/SkinnedGUI/"
+						ProgramDataBaseFileName=".\obj/Debug/SkinnedGUI/"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\GuiPrimitives.h"
+				>
 			</File>
 		</Filter>
 		<Filter
@@ -4375,9 +4308,268 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Blast"
-			Filter="cpp, h"
+			Name="Deprecated GUI"
 			>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CAnimation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CAnimation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CBar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CBar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CBox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CBrowser.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CBrowser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CCheckbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CCheckbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CCombobox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CCombobox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CGuiLayout.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CGuiLayout.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CGuiSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CGuiSkin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CGuiSkinnedLayout.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CGuiSkinnedLayout.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CImage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CImage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CInputBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CInputBox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CLabel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CLine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CListview.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CListview.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CMediaPlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CMediaPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CMediaPlayer_GUI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CMenu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CProgressbar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CScrollbar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CScrollbar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CSlider.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CTextbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CTextbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CTextButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CTextButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CTitleButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CTitleButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CWidget.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CWidget.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CWidgetList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CWidgetList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Graphics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\Graphics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\Menu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Local.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Mapeditor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Favourites.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Host.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Internet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Join.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Lan.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_News.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Options.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Player.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\MenuSystem.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

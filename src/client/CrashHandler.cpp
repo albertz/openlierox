@@ -75,8 +75,6 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 				strncat(buffer, "Connecting to a server.", bufsize);
 			} else if (cClient->getStatus() == NET_DISCONNECTED)  {
 				strncat(buffer, "Disconnected.\n", bufsize);
-			} else if (cClient->getStatus() == NET_PLAYING_OLXMOD)  {
-				strncat(buffer, "Playing an OLX MOD.\n", bufsize);
 			} else {
 				strncat(buffer, "Unknown state.\n", bufsize);
 			}

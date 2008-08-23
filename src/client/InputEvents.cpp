@@ -16,7 +16,7 @@
 #include "LieroX.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
-//#include "Menu.h"
+#include "DeprecatedGUI/Menu.h"
 #include "Timer.h"
 #include "CInput.h"
 #include "MathLib.h"
@@ -239,7 +239,7 @@ void HandleNextEvent() {
 		// Quit
 		tLX->bQuitGame = true;
 		SetQuitEngineFlag("SDL_QUIT event");
-		//tMenu->bMenuRunning = false;
+		DeprecatedGUI::tMenu->bMenuRunning = false;
 		break;
 
 	// Mouse wheel scroll

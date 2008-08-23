@@ -46,11 +46,7 @@ namespace SkinnedGUI {
 
 CGuiSkin *cMainSkin = NULL;
 
-#ifdef WIN32
-#define SKIN_DIRECTORY (std::string("gui_skins\\"))
-#else
 #define SKIN_DIRECTORY (std::string("gui_skins/"))
-#endif
 
 ///////////////
 // Initialize skinning

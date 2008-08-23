@@ -164,7 +164,7 @@ public:
 // Assertion and breakpoint in the code
 #ifdef DEBUG
 #	ifdef _MSC_VER
-#		define	DEBUGASSERT() { printf("Assertion: %s in %s:%i\n", __FUNCSIG__, __FILE__, __LINE__); __asm int 3; }
+#		define	DEBUGASSERT() { printf("Assertion: %s in %s:%i\n", (__FUNCSIG__), (__FILE__), (__LINE__)); __asm  { int 3 }; }
 #	else
 #		ifdef __GNUC__
 #			define	DEBUGASSERT() { printf("Assertion: %s in %s:%i\n", __FUNCTION__, __FILE__, __LINE__); __asm__("int $3"); }

@@ -1796,7 +1796,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
 				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					fLastFileRequest = tLX->fCurTime + 1.5;	// Small delay so server will be able to send all the info
+					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
 				}
 			};
 			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
@@ -1806,7 +1806,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					fLastFileRequest = tLX->fCurTime + 1.5;	// Small delay so server will be able to send all the info
+					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
 				}
 			};
 		};
