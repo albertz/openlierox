@@ -1221,6 +1221,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\StyleVar.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\ThreadVar.h"
 				>
 			</File>
