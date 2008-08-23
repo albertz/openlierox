@@ -49,6 +49,7 @@ class CListviewItem;
 class CListviewSubitem : public CItem  {
 public:
 	CListviewSubitem(SubitemType type) : CItem("") { cItem = NULL; iType = type; }
+	//CListviewSubitem(const CListviewSubitem& oth) : CItem("")	{ operator=(oth); }
 	virtual ~CListviewSubitem() {}
 protected:
 	SubitemType iType;
@@ -93,6 +94,7 @@ public:
 	CImageSubitem(const CImageSubitem *oth) : CListviewSubitem(sub_Image) { *this = *oth; }
 	CImageSubitem(CListviewItem *item, SDL_Surface *image) : CListviewSubitem(sub_Image)  
 		{ cItem = item; setImage(image); }
+	CImageSubitem(const CImageSubitem& sub) : CListviewSubitem(sub_Image)	{ operator=(sub); }
 
 	// Operators
 	CImageSubitem& operator= (const CImageSubitem& s2)  {
@@ -109,6 +111,7 @@ public:
 	CTextSubitem(CTextSubitem *oth) : CListviewSubitem(sub_Text) { *this = *oth; }
 	CTextSubitem(CListviewItem *item, const std::string& text) : CListviewSubitem(sub_Text)
 		{ cItem = item; setName(text); }
+	CTextSubitem(const CTextSubitem& sub) : CListviewSubitem(sub_Text)	{ operator=(sub); }
 
 	// Operators
 	CTextSubitem& operator= (const CTextSubitem& s2)  {
@@ -124,13 +127,14 @@ class CWidgetSubitem : public CListviewSubitem  {
 public:
 	CWidgetSubitem(CWidgetSubitem *oth) : CListviewSubitem(sub_Widget) { *this = *oth; }
 	CWidgetSubitem(CListviewItem *item, CWidget *widget);
+	CWidgetSubitem(const CWidgetSubitem& sub) : CListviewSubitem(sub_Widget)	{ operator=(sub); }
 	~CWidgetSubitem();
 
 private:
 	CWidget *cWidget;
 
 public:
-	CWidgetSubitem& operator=(CWidgetSubitem& i2)  {
+	CWidgetSubitem& operator=(const CWidgetSubitem& i2)  {
 		CListviewSubitem::operator =(i2);
 		if (&i2 != this)  {
 			cWidget = i2.cWidget;
@@ -151,26 +155,39 @@ public:
 // Item structure
 class CListviewItem : public CItem {
 public:
-	CListviewItem(CListview *parent) : CItem("") { cParent = parent; bVisible = true; }
+	CListviewItem(CListview *parent) : CItem("") 
+		{ cParent = parent; bVisible = true; bSelected = false; bSelectedInactive = false; }
+	CListviewItem(const CListviewItem& it) : CItem("")  { operator=(it); }
+
 	~CListviewItem();
 
 private:
 	CListview *cParent;
 	std::list<CListviewSubitem *> tSubitems;
 	bool bVisible;
+	bool bSelected;
+	bool bSelectedInactive;
 
 private:
 	friend class CListview;
 	void setParent(CListview *parent)  { cParent = parent; }
 
 public:
+	CItemStyle	cSelectedStyle;
+	CItemStyle	cSelectedInactiveStyle; // For selected item when the listview is not focused
+
+public:
 	// Operators
-	CListviewItem& operator=(CListviewItem& i2)  {
+	CListviewItem& operator=(const CListviewItem& i2)  {
 		CItem::operator =(i2);
 		if (&i2 != this)  {
 			tSubitems = i2.tSubitems;
 			cParent = i2.cParent;
 			bVisible = i2.bVisible;
+			bSelected = i2.bSelected;
+			bSelectedInactive = i2.bSelectedInactive;
+			cSelectedStyle = i2.cSelectedStyle;
+			cSelectedInactiveStyle = i2.cSelectedInactiveStyle;
 		}
 		return *this;
 	}
@@ -181,6 +198,11 @@ public:
 	CListview *getParent()		{ return cParent; }
 	void setVisible(bool _v)	{ bVisible = _v; RepaintParent(); }
 	bool isVisible()			{ return bVisible; }
+	void setSelected(bool _s)	{ bSelected = _s; }
+	bool isSelected()			{ return bSelected; }
+	void setSelectedInactive(bool _s)	{ bSelectedInactive = _s; }
+	bool isSelectedInactive()	{ return bSelectedInactive; }
+	CItemStyle *getCurrentStyle();
 
 	// Methods
 	void AppendSubitem(const std::string& text);
@@ -321,7 +343,6 @@ private:
 
 	// Scrollbar
 	CScrollbar		*cScrollbar;
-	bool			bGotScrollbar;
 	int				iSavedScrollbarPos;
 
 	// Style
@@ -331,6 +352,8 @@ private:
 	CListviewItem::CItemStyle		cNormalItem;
 	CListviewItem::CItemStyle		cActiveItem;
 	CListviewItem::CItemStyle		cClickedItem;
+	CListviewItem::CItemStyle		cSelectedItem;
+	CListviewItem::CItemStyle		cSelectedInactiveItem;
 	CListviewSubitem::CItemStyle	cNormalSubitem;
 	CListviewSubitem::CItemStyle	cActiveSubitem;
 	CListviewSubitem::CItemStyle	cClickedSubitem;
@@ -339,6 +362,7 @@ private:
 	UnicodeChar		iLastChar;
 	CWidget			*tFocusedSubWidget;
 	CWidget			*tMouseOverSubWidget;
+	CListviewItem	*tMouseOverItem;
 
 	friend class CListviewColumn;
 	CBorder			cBorder;
@@ -354,6 +378,7 @@ private:
 	void	ReadjustItemArea();
 	void	ReadjustScrollbar();
 
+	int DoMouseLeave(int x, int y, int dx, int dy, const ModifiersState& modstate);
 	int DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate);
 	int DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);
 	int DoMouseDown(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);
@@ -361,6 +386,8 @@ private:
 	int DoMouseWheelDown(int x, int y, int dx, int dy, const ModifiersState& modstate);
 	int DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	int DoKeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate);
+	int	DoLoseFocus(CWidget *new_focused);
+	int DoFocus(CWidget *prev_focused);
 
 	void DoRepaint();
 	int DoCreate();

@@ -44,11 +44,21 @@ select  {
 }
 
 item  {
-  background-color: #00FFFF;
+  background-color: #0000BB;
 }
 
 item:hover  {
-  background-color: #000080;
+  background-color: #4444BB;
+}
+
+item:selected  {
+  border: 1px solid white;
+  background-color: blue;
+}
+
+item:selected-inactive  {
+  background-color: black;
+  border: solid grey;
 }
 </style>
 <label x="100" y="100" class="green" id="blue">An ordinary label</label>
@@ -75,6 +85,14 @@ item:hover  {
 </select>
 <list x="80" y="80" width="100" height="100" style="background-color: black">
 <item style="color: white;">test</item>
+<item style="color: white;">test 1</item>
+<item style="color: white;">test 2</item>
+<item style="color: white;">test 1</item>
+<item style="color: white;">test 2</item>
+<item style="color: white;">test 1</item>
+<item style="color: white;">test 2</item>
+<item style="color: white;">test 1</item>
+<item style="color: white;">test 2</item>
 </list>
 <scrollbar height="150" x="450" width="150" y="0" color="blue" bgcolor="#00002280" dir="horizontal" max="100" highcolor="white" shadowcolor="#0000AA"  />
 </layout>

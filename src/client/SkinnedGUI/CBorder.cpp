@@ -231,9 +231,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int ly = r.y; ly < r.y + h_thick; ly++, i++)  {
 				cl = Color(h_in.r + Round(i * h_rstep), h_in.g + Round(i * h_gstep), h_in.b + Round(i * h_bstep), h_in.a + Round(i * h_astep)).get(dest);
 				for (int lx = r.x + Round(i * h_ln_step); lx < r.x + v_thick; lx++)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 
@@ -242,9 +241,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int lx = r.x; lx < r.x + v_thick; lx++, i++)  {
 				cl = Color(v_in.r + Round(i * v_rstep), v_in.g + Round(i * v_gstep), v_in.b + Round(i * v_bstep), v_in.a + Round(i * v_astep)).get(dest);
 				for (int ly = r.y + Round(i * v_ln_step); ly < r.y + h_thick; ly++)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 		} break;
@@ -255,9 +253,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int ly = r.y; ly < r.y + h_thick; ly++, i++)  {
 				cl = Color(h_in.r + Round(i * h_rstep), h_in.g + Round(i * h_gstep), h_in.b + Round(i * h_bstep), h_in.a + Round(i * h_astep)).get(dest);
 					for (int lx = r.x + v_thick - Round(i * h_ln_step) - 1; lx >= r.x; lx--)  {
-						if (!PointInRect(lx, ly, dest->clip_rect))
-							DEBUGASSERT();
-						PutPixel(dest, lx, ly, cl);
+						if (PointInRect(lx, ly, dest->clip_rect))
+							PutPixel(dest, lx, ly, cl);
 					}
 			}
 
@@ -266,9 +263,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int lx = r.x; lx < r.x + v_thick; lx++, i++)  {
 				cl = Color(v_out.r - Round(i * v_rstep), v_out.g - Round(i * v_gstep), v_out.b - Round(i * v_bstep), v_out.a - Round(i * v_astep)).get(dest);
 				for (int ly = r.y + h_thick - Round(i * v_ln_step); ly < r.y + h_thick; ly++)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 		} break;
@@ -279,9 +275,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int ly = r.y; ly < r.y + h_thick; ly++, i++)  {
 				cl = Color(h_out.r - Round(i * h_rstep), h_out.g - Round(i * h_gstep), h_out.b - Round(i * h_bstep), h_out.a - Round(i * h_astep)).get(dest);
 					for (int lx = r.x + v_thick - Round(i * h_ln_step) - 1; lx < r.x + r.w; lx++)  {
-						if (!PointInRect(lx, ly, dest->clip_rect))
-							DEBUGASSERT();
-						PutPixel(dest, lx, ly, cl);
+						if (PointInRect(lx, ly, dest->clip_rect))
+							PutPixel(dest, lx, ly, cl);
 					}
 			}
 
@@ -290,9 +285,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int lx = r.x; lx < r.x + v_thick; lx++, i++)  {
 				cl = Color(v_in.r + Round(i * v_rstep), v_in.g + Round(i * v_gstep), v_in.b + Round(i * v_bstep), v_in.a + Round(i * v_astep)).get(dest);
 				for (int ly = r.y + Round((v_thick - i) * v_ln_step) - 1; ly >= r.y; ly--)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 		} break;
@@ -303,9 +297,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int ly = r.y; ly < r.y + h_thick; ly++, i++)  {
 				cl = Color(h_out.r - Round(i * h_rstep), h_out.g - Round(i * h_gstep), h_out.b - Round(i * h_bstep), h_out.a - Round(i * h_astep)).get(dest);
 				for (int lx = r.x + Round(i * h_ln_step); lx >= r.x; lx--)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 
@@ -314,9 +307,8 @@ void DrawBorderCorner(SDL_Surface *dest, const SDL_Rect& r, int round, int v_thi
 			for (int lx = r.x; lx < r.x + v_thick; lx++, i++)  {
 				cl = Color(v_out.r - Round(i * v_rstep), v_out.g - Round(i * v_gstep), v_out.b - Round(i * v_bstep), v_out.a - Round(i * v_astep)).get(dest);
 				for (int ly = r.y +  Round(i * v_ln_step); ly >= r.y; ly--)  {
-					if (!PointInRect(lx, ly, dest->clip_rect))
-						DEBUGASSERT();
-					PutPixel(dest, lx, ly, cl);
+					if (PointInRect(lx, ly, dest->clip_rect))
+						PutPixel(dest, lx, ly, cl);
 				}
 			}
 		} break;

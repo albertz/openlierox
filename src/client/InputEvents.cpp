@@ -239,7 +239,8 @@ void HandleNextEvent() {
 		// Quit
 		tLX->bQuitGame = true;
 		SetQuitEngineFlag("SDL_QUIT event");
-		DeprecatedGUI::tMenu->bMenuRunning = false;
+		if (DeprecatedGUI::tMenu)
+			DeprecatedGUI::tMenu->bMenuRunning = false;
 		break;
 
 	// Mouse wheel scroll

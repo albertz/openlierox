@@ -529,6 +529,7 @@ int CScrollbar::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, cons
 	bSliderGrabbed = false;
 	bTopButtonDown = bBotButtonDown = bSliderDown = bBackgroundDown = false;
 	tTimer->stop();
+	Repaint();
 	CWidget::DoMouseUp(x, y, dx, dy, button, modstate);
 	return WID_PROCESSED;
 }
@@ -619,6 +620,7 @@ int CScrollbar::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, co
 
 		// Move up
 		ScrollUp();
+		Repaint();
 		CWidget::DoMouseDown(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
 	} else
@@ -634,6 +636,7 @@ int CScrollbar::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, co
 
 		// Move down
 		ScrollDown();
+		Repaint();
 		CWidget::DoMouseDown(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
 	} else

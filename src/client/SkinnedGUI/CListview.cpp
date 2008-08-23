@@ -304,6 +304,21 @@ void CListviewItem::Draw(SDL_Surface *bmpDest, const SDL_Rect &r)
 	SDL_SetClipRect(bmpDest, &oldrect);
 }
 
+///////////////////////
+// Get the current style for drawing
+CListviewItem::CItemStyle *CListviewItem::getCurrentStyle()
+{
+	if (bDown)
+		return &cClickedStyle;
+	if (bActive)
+		return &cActiveStyle;
+	if (bSelected)
+		return &cSelectedStyle;
+	if (bSelectedInactive)
+		return &cSelectedInactiveStyle;
+	return &cNormalStyle;
+}
+
 //
 // Column
 //
@@ -501,10 +516,14 @@ void CListview::AddItem(CListviewItem& item)
 		newit->cNormalStyle = cNormalItem;
 		newit->cActiveStyle = cActiveItem;
 		newit->cClickedStyle = cClickedItem;
+		newit->cSelectedStyle = cSelectedItem;
+		newit->cSelectedInactiveStyle = cSelectedInactiveItem;
 	} else { // The item has a special style or class specified
 		LoadItemStyle(newit->cNormalStyle, *cLayoutCSS, "item", newit->getCSSID(), newit->getCSSClass(), "");
 		LoadItemStyle(newit->cActiveStyle, *cLayoutCSS, "item", newit->getCSSID(), newit->getCSSClass(), "hover");
 		LoadItemStyle(newit->cClickedStyle, *cLayoutCSS, "item", newit->getCSSID(), newit->getCSSClass(), "down");
+		LoadItemStyle(newit->cSelectedStyle, *cLayoutCSS, "item", newit->getCSSID(), newit->getCSSClass(), "selected");
+		LoadItemStyle(newit->cSelectedInactiveStyle, *cLayoutCSS, "item", newit->getCSSID(), newit->getCSSClass(), "selected-inactive");
 	}
 
 	// Style the subitems
@@ -579,6 +598,8 @@ void CListview::ApplyCSS(CSSParser& css)
 	LoadItemStyle(cNormalItem, css, "item", "", "", "");
 	LoadItemStyle(cActiveItem, css, "item", "", "", "hover");
 	LoadItemStyle(cClickedSubitem, css, "item", "", "", "down");
+	LoadItemStyle(cSelectedItem, css, "item", "", "", "selected");
+	LoadItemStyle(cSelectedInactiveItem, css, "item", "", "", "selected-inactive");
 	LoadItemStyle(cNormalSubitem, css, "subitem", "", "", "");
 	LoadItemStyle(cActiveSubitem, css, "subitem", "", "", "hover");
 	LoadItemStyle(cClickedItem, css, "subitem", "", "", "down");
@@ -593,10 +614,14 @@ void CListview::ApplyCSS(CSSParser& css)
 			(*it)->cNormalStyle = cNormalItem;
 			(*it)->cActiveStyle = cActiveItem;
 			(*it)->cClickedStyle = cClickedItem;
+			(*it)->cSelectedStyle = cSelectedItem;
+			(*it)->cSelectedInactiveStyle = cSelectedInactiveItem;
 		} else {
 			LoadItemStyle((*it)->cNormalStyle, css, "item", (*it)->getCSSID(), (*it)->getCSSClass(), "");
 			LoadItemStyle((*it)->cActiveStyle, css, "item", (*it)->getCSSID(), (*it)->getCSSClass(), "hover");
 			LoadItemStyle((*it)->cClickedStyle, css, "item", (*it)->getCSSID(), (*it)->getCSSClass(), "down");
+			LoadItemStyle((*it)->cSelectedStyle, css, "item", (*it)->getCSSID(), (*it)->getCSSClass(), "selected");
+			LoadItemStyle((*it)->cSelectedInactiveStyle, css, "item", (*it)->getCSSID(), (*it)->getCSSClass(), "selected-inactive");
 		}
 
 		// Subitems
@@ -734,7 +759,7 @@ void CListview::DoRepaint()
 
 	// Items
 	int i = 0;
-	int scroll_w = ((bGotScrollbar || bAlwaysVisibleScrollbar) ? cScrollbar->getWidth() : 0);
+	int scroll_w = ((cScrollbar->getVisible() || bAlwaysVisibleScrollbar) ? cScrollbar->getWidth() : 0);
 	for (std::list<CListviewItem *>::iterator it = tItems.begin(); it != tItems.end(); it++, i++)  {
 		// Item above the displayed area
 		if (i < cScrollbar->getValue())
@@ -759,6 +784,34 @@ void CListview::DoRepaint()
 
 	// Border
 	cBorder.Draw(bmpBuffer, 0, 0, getWidth(), getHeight());
+}
+
+//////////////////////
+// Lose focus event
+int CListview::DoLoseFocus(CWidget *new_focused)
+{
+	if (tSelected)  {
+		tSelected->setSelected(false);
+		tSelected->setSelectedInactive(true);
+		Repaint();
+	}
+
+	CContainerWidget::DoLoseFocus(new_focused);
+	return WID_PROCESSED;
+}
+
+////////////////////
+// Focus event
+int CListview::DoFocus(CWidget *prev_focused)
+{
+	if (tSelected)  {
+		tSelected->setSelectedInactive(false);
+		tSelected->setSelected(true);
+		Repaint();
+	}
+
+	CContainerWidget::DoFocus(prev_focused);
+	return WID_PROCESSED;
 }
 
 ////////////////////
@@ -794,7 +847,6 @@ void CListview::ReadjustScrollbar()
 		cScrollbar->setItemsperbox(0);
 		cScrollbar->setValue(0);
 		cScrollbar->setVisible(false);
-		bGotScrollbar = false;
 
 		// Return to prevent a divide-by-zero
 		return;
@@ -809,8 +861,7 @@ void CListview::ReadjustScrollbar()
     cScrollbar->setMax(count);
     cScrollbar->setValue(0);
 
-	bGotScrollbar = count > h;
-	cScrollbar->setVisible(bGotScrollbar);
+	cScrollbar->setVisible(count > h);
 }
 
 
@@ -822,11 +873,15 @@ void CListview::RemoveItem(int index)
 	if (index < 0 || index >= (int)tItems.size())
 		return;
 
-	// Remove the item
+	// Get the item
 	std::list<CListviewItem *>::iterator it = tItems.begin();
 	std::list<CListviewItem *>::iterator next = it, prev = it;
 	std::advance(it, index);
 	if (it != tItems.end())  {
+		// If the item was mouse over, clear the item
+		if ((*it) == tMouseOverItem)
+			tMouseOverItem = NULL;
+
 		next = it++;
 		prev = ((it == tItems.begin()) ? it : it--);
 		delete (*it); // Free it
@@ -889,15 +944,18 @@ void CListview::setSelected(const std::list<CListviewItem *>::iterator& item, in
 		return;
 
 	iSelected = index;
-	if (iSelected > 0 && item != tItems.end())  {
+	if (iSelected >= 0 && item != tItems.end())  {
 		// Take off focus from the old item
 		if (tSelected)  {
-			tSelected->setActive(false);
-			tSelected->setDown(false);
+			tSelected->setSelected(false);
+			tSelected->setSelectedInactive(false);
 		}
 
 		tSelected = (*item);
-		tSelected->setActive(true);
+		if (getFocused())
+			tSelected->setSelected(true);
+		else
+			tSelected->setSelectedInactive(true);
 
 	} else  {
 		iSelected = -1;
@@ -1065,6 +1123,7 @@ void CListview::Clear()
 	for (std::list<CListviewItem *>::iterator it = tItems.begin(); it != tItems.end(); it++)
 		delete (*it);
 	tItems.clear();
+	tMouseOverItem = NULL;
 
 	// Remove selection
 	setSelected(-1);
@@ -1087,12 +1146,12 @@ CListview::CListview(COMMON_PARAMS) : CContainerWidget(name, parent)
 {
 	setSelected(-1);
 	setSelectedSub(NULL, -1);
-	bGotScrollbar = false;
 	iType = wid_Listview;
 	fLastMouseUp = -99999;
 	iColumnHeight = 0;
     bShowSelect.set(true, DEFAULT_PRIORITY);
 	bShowColumnHeaders.set(true, DEFAULT_PRIORITY);
+	tMouseOverItem = NULL;
 	tItemArea = MakeRect(0, 0, 0, 0);
 	iGrabbed = 0;
 	iSavedScrollbarPos = 0;
@@ -1141,13 +1200,39 @@ int CListview::DoCreate()
 	return WID_PROCESSED;
 }
 
+///////////////////
+// Mouse leave event
+int CListview::DoMouseLeave(int x, int y, int dx, int dy, const ModifiersState &modstate)
+{
+	CContainerWidget::DoMouseLeave(x, y, dx, dy, modstate);
+	if (tMouseOverItem)  {
+		tMouseOverItem->setActive(false);
+		tMouseOverItem->setDown(false);
+		tMouseOverItem = NULL;
+	}
+
+	return WID_PROCESSED;
+}
+
 
 ///////////////////
 // Mouse over event
 int	CListview::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate)
 {
-	if(bGotScrollbar && cScrollbar->getGrabbed())  {
-		cScrollbar->DoMouseMove(x, y, dx, dy, down, button, modstate);
+	if(cScrollbar->getVisible() && (cScrollbar->getGrabbed() || cScrollbar->InBox(x, y)))  {
+		cScrollbar->DoMouseMove(x - cScrollbar->getX(), y - cScrollbar->getY(), dx, dy, down, button, modstate);
+
+		CContainerWidget::DoMouseMove(x, y, dx, dy, down, button, modstate);
+		return WID_PROCESSED;
+	}
+
+	// Check that the mouse is inside the listview
+	if (!RelInBox(x, y))  {
+		if (tMouseOverItem)  {
+			tMouseOverItem->setActive(false);
+			tMouseOverItem->setDown(false);
+			tMouseOverItem = NULL;
+		}
 
 		CContainerWidget::DoMouseMove(x, y, dx, dy, down, button, modstate);
 		return WID_PROCESSED;
@@ -1186,6 +1271,7 @@ int	CListview::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton 
 					(*it)->setMouseDown(false);
 					Repaint();
 				}
+			}
 		}
 
 		// Is any of the columns grabbed? Move it
@@ -1214,6 +1300,12 @@ int	CListview::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton 
 
 	// Go through items and subitems, processing the widgets
 	tMouseOverSubWidget = NULL;
+	if (tMouseOverItem)  {
+		tMouseOverItem->setActive(false);
+		tMouseOverItem->setDown(false);
+		tMouseOverItem = NULL;
+		Repaint();
+	}
 
 	int cur_y = tItemArea.y;
 	int count = 0;
@@ -1226,6 +1318,23 @@ int	CListview::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton 
 
 			if (count++ < cScrollbar->getValue())
 				continue;
+
+			// Reset the style
+			(*item)->setActive(false);
+			(*item)->setDown(false);
+
+			// Check if the item is under the mouse
+			if (y < cur_y || y >= cur_y + (*item)->getHeight())  {
+				cur_y += (*item)->getHeight();
+				if (cur_y >= tItemArea.y + tItemArea.h)
+					break;
+				continue;
+			}
+
+			// Change the style
+			(*item)->setActive(true);
+			(*item)->setDown(down);
+			tMouseOverItem = (*item);
 
 			std::list<CListviewSubitem *>::iterator subitem = (*item)->getSubitems().begin();
 			std::vector<CListviewColumn *>::iterator col = tColumns.begin();
@@ -1268,10 +1377,11 @@ int	CListview::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton 
 					cur_x += (*col)->getWidth();
 			}
 
+			Repaint();
+
 			cur_y += (*item)->getHeight();
 			if (cur_y >= tItemArea.y + tItemArea.h)
 				break;
-		}
 	}
 
 	CContainerWidget::DoMouseMove(x, y, dx, dy, down, button, modstate);
@@ -1285,7 +1395,7 @@ int	CListview::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, con
 {
 	// Scrollbar
 	if(cScrollbar->InBox(x, y)) {
-		cScrollbar->DoMouseDown(x, y, dx, dy, button, modstate);
+		cScrollbar->DoMouseDown(x - cScrollbar->getX(), y - cScrollbar->getY(), dx, dy, button, modstate);
 
 		CContainerWidget::DoMouseDown(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
@@ -1414,9 +1524,9 @@ int	CListview::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, con
 // Mouse up event
 int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate)
 {
-	if(cScrollbar->getGrabbed() && bGotScrollbar)  {
-		cScrollbar->DoMouseUp(x, y, dx, dy, button, modstate);
-		CWidget::DoMouseUp(x, y, dx, dy, button, modstate);
+	if(cScrollbar->isMouseDown() && cScrollbar->getVisible())  {
+		cScrollbar->DoMouseUp(x - cScrollbar->getX(), y - cScrollbar->getY(), dx, dy, button, modstate);
+		CContainerWidget::DoMouseUp(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
 	} else {
 		fLastMouseUp = -9999;
@@ -1539,7 +1649,7 @@ int	CListview::DoMouseWheelDown(int x, int y, int dx, int dy, const ModifiersSta
 	}
 
 	// Scrollbar
-	if(bGotScrollbar)  {
+	if(cScrollbar->getVisible())  {
 		cScrollbar->DoMouseWheelDown(x, y, dx, dy, modstate);
 	}
 
@@ -1560,7 +1670,7 @@ int	CListview::DoMouseWheelUp(int x, int y, int dx, int dy, const ModifiersState
 	}
 
 	// Scrollbar
-	if(bGotScrollbar)  {
+	if(cScrollbar->getVisible())  {
 		cScrollbar->DoMouseWheelUp(x, y, dx, dy, modstate);
 	}
 
@@ -1642,7 +1752,7 @@ int CListview::DoChildNeedsRepaint(CWidget *child)
 // Scroll to the last item
 void CListview::scrollLast(void)
 {
-	if (bGotScrollbar)  {
+	if (cScrollbar->getVisible())  {
 		cScrollbar->setValue(cScrollbar->getMax());
 		cScrollbar->UpdatePos();
 	}
