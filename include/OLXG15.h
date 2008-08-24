@@ -53,6 +53,7 @@ private:
 	int screenVer;
 	g15canvas canvas;
 	OLXG15_weapon_t Weapons[5];
+	int rows[5];
 
 	timeval startTime;
 	bool showingSplash;
@@ -77,11 +78,11 @@ public:
 	void drawBounds(const int& size);
 
 	void drawWpnName(const std::string& name, const int& row, const int& size);
-	void clearRow(const int& row, const int& size);
+	void clearRow(const int& row);
 	void clearReload(const int& row, const int& size);
 	void sayHi();
 	void testWeaponScreen(const int& size);
-	void renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& row);
+	void renderWeapon(OLXG15_weapon_t& weapon, const int& size, int row);
 	void showSplashScreen();
 
 	int wpnSpace(const int& size) {

@@ -30,6 +30,15 @@ OLXG15_t::OLXG15_t()
 	showingSplash = false;
 	lastFrame = 0.0f;
 	oldGameState = NET_DISCONNECTED;
+
+	// Max text size is 8 px
+	// Always start on 8's for drawing -
+	// ensures all the 3 font sizes will work in combination with eachother
+	rows[0] = 0;
+	rows[1] = 8;
+	rows[2] = 16;
+	rows[3] = 24;
+	rows[4] = 32;
 }
 OLXG15_t::~OLXG15_t()
 {
@@ -50,17 +59,9 @@ bool OLXG15_t::init()
 	//sayHi();
 
 
-	showSplashScreen();
+	//showSplashScreen();
+	testWeaponScreen(G15_TEXT_LARGE);
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
-	/*
-	for (int i = 0; i < 3; ++i)
-	{
-		g15r_clearScreen (&canvas, G15_COLOR_WHITE);
-		testWeaponScreen(i);
-		//drawBounds(i);
-		g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
-	}
-	*/
 
 	/*
 	unsigned int keystate = 0;
@@ -92,21 +93,12 @@ bool OLXG15_t::init()
 	}
 	*/
 
-	/*
-	g15r_drawLine (&canvas, 0, 0, 130, 0, G15_COLOR_BLACK);
-
-	for (int x = 130; x <= 170;++x)
-	{
-		g15r_setPixel (&canvas, x, 0,G15_COLOR_BLACK);
-		g15r_renderString(&canvas, (unsigned char*)itoa(x).c_str(),2,G15_TEXT_LARGE,80,0);
-		g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
-		nanosleep(&sleepTime,NULL);
-	}
-	*/
 	std::cout << "OLXG15 ready" << std::endl;
 	return true;
 }
 
+// This is the only function that's going to get called from OLX regulary
+// Handles everything
 void OLXG15_t::frame()
 {
 	lastFrame += tLX->fRealDeltaTime;
@@ -158,8 +150,7 @@ void OLXG15_t::frame()
 	}
 
 
-	// This is the only function that's going to get called from OLX regulary (except info-setting)
-	// Handles everything
+
 
 	// Areas of the screen:
 	// Loadage:
@@ -173,7 +164,7 @@ void OLXG15_t::frame()
 		updateWeapon(i);
 		if (!Weapons[i].changed)
 			continue; // It hasn't changed, no need to update
-		renderWeapon(Weapons[i],G15_TEXT_MED,i);
+		renderWeapon(Weapons[i],tLXOptions->iG15FontSize,i);
 		Weapons[i].changed = false;
 	}
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
@@ -316,18 +307,23 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	{
 		renderWeapon(Weapons[i],size,i);
 	}
+	//renderWeapon(Weapons[3],G15_TEXT_LARGE,3);
+	//renderWeapon(Weapons[4],G15_TEXT_SMALL,4);
 }
 // Renders 1 weapon row
-void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& row)
+void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, int wepNum)
 {
-	clearRow(row,size);
+	// To allow multiple font sizes at the same time.
+	// No left/right changes, only y axis.
+
+	clearRow(wepNum);
 	// Name
-	drawWpnName(weapon.name,row,size);
+	drawWpnName(weapon.name,wepNum,size);
 	//g15r_renderString (&canvas, (unsigned char*)weapon.name.c_str(), row, size, 0, 0);
 
 	// % loaded
 	std::string chargeMsg = itoa(weapon.charge) + "%";
-	g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), row, size, rightAlign(chargeMsg,size), 0);
+	g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), 0, size, rightAlign(chargeMsg,size), rows[wepNum]);
 
 
 
@@ -342,11 +338,11 @@ void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int&
 			chargeMsg = "> ";
 
 		// (100% = 4 letters - keep out of normal reading zone) -4*getCharWidth moves 4 letters left.
-		g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), row, size,
-							rightAlign(chargeMsg,size)-( (4*getCharWidth(size))-size ), 0);
+		g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), 0, size,
+							rightAlign(chargeMsg,size)-((4*getCharWidth(size))-size), rows[wepNum]);
 	}
 	else
-		clearReload(row,size);
+		clearReload(wepNum,size);
 
 	return;
 }
@@ -365,15 +361,19 @@ void OLXG15_t::drawWpnName(const std::string& name, const int& row, const int& s
 		// Remove enough for 3 dots = 3 characters.
 		std::string cutoff = name.substr(0,wpnSpace(size)/getCharWidth(size)-3);
 		cutoff += "...";
-		g15r_renderString (&canvas, (unsigned char*)cutoff.c_str(), row, size, 0, 0);
+		g15r_renderString (&canvas, (unsigned char*)cutoff.c_str(), 0, size, 0, rows[row]);
 		return;
 	}
-	g15r_renderString (&canvas, (unsigned char*)name.c_str(), row, size, 0, 0);
+	g15r_renderString (&canvas, (unsigned char*)name.c_str(), 0, size, 0, rows[row]);
 }
-void OLXG15_t::clearRow(const int& row, const int& size)
+void OLXG15_t::clearRow(const int& row)
 {
-	int y1 = row * getCharHeight(size);
-	int y2 = y1 + getCharHeight(size)-1; // Magical number, else it clears too much.
+	int y1 = rows[row];
+	int y2 = 0;
+	if (row == 4)
+		y2 = G15_LCD_HEIGHT;
+	else
+		y2 = rows[row+1];
 	g15r_pixelBox(&canvas,0,y1,G15_LCD_WIDTH,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 }
 void OLXG15_t::clearReload(const int& row, const int& size)
@@ -382,8 +382,12 @@ void OLXG15_t::clearReload(const int& row, const int& size)
 	// Charge indicators:
 	// (loadage - getCharWidth(size)*2) to loadage. S:137 - 143 M:133 - 140 L:116 - 128
 	// void g15r_pixelBox (g15canvas *canvas, int x1, int y1, int x2, int y2,int color, int thick, int fill)
-	int y1 = row*getCharHeight(size);
-	int y2 = y1 + getCharHeight(size)-2;
+	int y1 = rows[row];
+	int y2 = 0;
+	if (row == 4)
+		y2 = G15_LCD_HEIGHT;
+	else
+		y2 = rows[row+1];
 	//std::cout << "y1 = " << y1 << " for row " << row << ". charHeight is " << getCharHeight(size) << std::endl;
 
 	// -2 is to remove the usual padding issued by it, we don't need to clear that, it won't be written in.
