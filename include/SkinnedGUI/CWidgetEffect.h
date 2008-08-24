@@ -32,7 +32,7 @@ struct EffectExpand  {
 class CWidgetEffect  {
 public:
 	CWidgetEffect(CWidget *w) : cWidget(w) {};
-	~CWidgetEffect();
+	virtual ~CWidgetEffect();
 
 private:
 	CWidget	*cWidget;

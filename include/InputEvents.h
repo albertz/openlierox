@@ -92,6 +92,7 @@ MouseButton SDLButtonToMouseButton(int sdlbut);
 // Override this class and add your listener to using the AddEventListener class
 class EventListener  { public:
 	virtual void OnEvent(SDL_Event *ev) = 0;
+	virtual ~EventListener() {}
 };
 
 void		AddEventListener(EventListener *lst);

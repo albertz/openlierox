@@ -76,8 +76,6 @@ bool CClient::InitializeDrawing(void)
 		Uint8 r,g,b;
 		GetColour3(tLX->clScoreBackground, getMainPixelFormat(), &r, &g, &b);
 		FillSurface(bmpIngameScoreBg.get(), SDL_MapRGBA(bmpIngameScoreBg->format, r, g, b, 128));
-		//SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA | SDL_RLEACCEL, 128);
-		SetPerSurfaceAlpha(bmpIngameScoreBg.get(), 128);
 	}
 	InitializeIngameScore(true);
 

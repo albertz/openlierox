@@ -492,6 +492,41 @@ inline void DrawImageTiledY(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface
 // Pixel and color routines
 //
 
+// Basic prototype of the copy pixel functor
+class PixelCopy  {
+public:
+	virtual void put(Uint8 *addr, Uint32 color) = 0;
+};
+
+// Basic prototype of the alpha-blended putpixel functor
+class PixelPutAlpha  { public:
+	virtual void put(Uint8 *addr, const SDL_PixelFormat *dstfmt, const Color& col) = 0;
+};
+
+// Basic prototype of the getpixel functor
+class PixelGet  {
+public:
+	virtual Uint32	get(Uint8 *addr) = 0;
+};
+
+/////////////////////
+// Returns a putpixel functor for the given surface
+PixelCopy& getPixelCopy(const SDL_Surface *surf);
+
+/////////////////////
+// Returns a getpixel functor for the given surface
+PixelGet& getPixelGetter(const SDL_Surface *surf);
+
+/////////////////////
+// Returns an alpha putpixel functor for the given surface (slower than the above one)
+PixelPutAlpha& getAlphaPut(const SDL_Surface *surf);
+
+////////////////////
+// Get address of a pixel
+inline Uint8 *GetPixelAddr(const SDL_Surface *surf, int x, int y) {
+	return (Uint8 *)surf->pixels + y * surf->pitch + x * surf->format->BytesPerPixel;
+}
+
 /////////////////
 // Put pixel to a specified address
 // WARNING: passing an invalid adress will cause a segfault

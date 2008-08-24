@@ -75,6 +75,7 @@ public:
 		}
 
 		virtual void ApplySelector(const CSSParser::Selector& sel, const std::string& prefix = "");
+		virtual ~CItemStyle() {}
 	};
 
 protected:

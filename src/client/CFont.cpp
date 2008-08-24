@@ -282,15 +282,17 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 		LOCK_OR_QUIT(bmpFont);
 	}
 
-	Uint8 R, G, B, A;
-
-	// Adjust the color to the dest-suface format
-	GetColour3(col, getMainPixelFormat(), &R, &G, &B);
-	col = SDL_MapRGB(dst->format, R, G, B);
+	// Get the color values
+	// TODO: this function should accept a device-independent color, change it asap!
+	Color font_cl(col);
 
 	// Position at destination surface
 	int char_y = y;
 	int char_h = bmpFont.get()->h;
+
+	// Get the putpixel & getpixel functors
+	PixelPutAlpha& putter = getAlphaPut(dst);
+	PixelGet& getter = getPixelGetter(bmpFont.get());
 
 	// Vertical clipping
 	OneSideClip(char_y, char_h, newrect.y, newrect.h);
@@ -349,15 +351,16 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 			for (int j = 0; j < char_h; ++j) {
 				px = src;
 				for (int i = 0; i < char_w; ++i, px += bpp) {
-
-					Uint32 pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
+					Uint8 R, G, B, A;
+					GetColour4(getter.get(px), bmpFont->format, &R, &G, &B, &A);
 
 					// Put black pixels and colorize white ones
-					if (R == 255 && G == 255 && B == 255)    // White
-						PutPixelA(dst, char_x + i, char_y + j, col, A);    // Put the pixel and blend it with background
-					else if (!R && !G && !B)    // Black
-						PutPixelA(dst, char_x + i, char_y + j, tLX->clBlack, A);
+					if (R == 255 && G == 255 && B == 255)  {    // White
+						Color current_cl = font_cl;
+						current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
+						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, current_cl);
+					} else if (!R && !G && !B)    // Black
+						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, Color(0, 0, 0, (A * font_cl.a) / 255));
 				}
 				src += bmpFont.get()->pitch;
 			}
@@ -367,13 +370,15 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 			for (int j = 0; j < char_h; ++j) {
 				px = src;
 				for (int i = 0; i < char_w; ++i, px += bpp) {
-
-					Uint32 pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont.get()->format, &R, &G, &B, &A);
+					Uint8 R, G, B, A;
+					GetColour4(getter.get(px), bmpFont.get()->format, &R, &G, &B, &A);
 
 					// Put only black pixels
-					if (!R && !G && !B)
-						PutPixelA(dst, char_x + i, char_y + j, col, A);
+					if (!R && !G && !B)  {
+						Color current_cl = font_cl;
+						current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
+						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, current_cl);
+					}
 				}
 				src += bmpFont.get()->pitch;
 			}
