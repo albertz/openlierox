@@ -82,7 +82,7 @@ public:
 	void clearReload(const int& row, const int& size);
 	void sayHi();
 	void testWeaponScreen(const int& size);
-	void renderWeapon(OLXG15_weapon_t& weapon, const int& size, int row);
+	void renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& wepNum);
 	void showSplashScreen();
 
 	int wpnSpace(const int& size) {

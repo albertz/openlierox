@@ -45,6 +45,10 @@ OLXG15_t::~OLXG15_t()
 	if (screenfd != -1)
 		g15_close_screen(screenfd);
 }
+
+
+// TODO: When you're out - don't show weapons
+// TODO: When you've left a game - don't show weapons
 bool OLXG15_t::init()
 {
 	gettimeofday(&startTime,NULL);
@@ -59,8 +63,8 @@ bool OLXG15_t::init()
 	//sayHi();
 
 
-	//showSplashScreen();
-	testWeaponScreen(G15_TEXT_LARGE);
+	showSplashScreen();
+	//testWeaponScreen(G15_TEXT_LARGE);
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 
 	/*
@@ -248,9 +252,6 @@ void OLXG15_t::drawBounds(const int& size)
 			g15r_drawLine(&canvas, 0, 32, 113, 32, G15_COLOR_BLACK);
 			break;
 	}
-	//g15r_drawLine(&canvas, 1, 41, 158, 41, G15_COLOR_BLACK);
-	//g15r_drawLine(&canvas, 0, 42, 159, 42, G15_COLOR_BLACK);
-	//g15r_drawLine(&canvas, 0, 40, 160, 40, G15_COLOR_BLACK);
 }
 
 void OLXG15_t::sayHi()
@@ -311,7 +312,7 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	//renderWeapon(Weapons[4],G15_TEXT_SMALL,4);
 }
 // Renders 1 weapon row
-void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, int wepNum)
+void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& wepNum)
 {
 	// To allow multiple font sizes at the same time.
 	// No left/right changes, only y axis.
@@ -381,7 +382,6 @@ void OLXG15_t::clearReload(const int& row, const int& size)
 	// Areas of the screen:
 	// Charge indicators:
 	// (loadage - getCharWidth(size)*2) to loadage. S:137 - 143 M:133 - 140 L:116 - 128
-	// void g15r_pixelBox (g15canvas *canvas, int x1, int y1, int x2, int y2,int color, int thick, int fill)
 	int y1 = rows[row];
 	int y2 = 0;
 	if (row == 4)
@@ -390,7 +390,6 @@ void OLXG15_t::clearReload(const int& row, const int& size)
 		y2 = rows[row+1];
 	//std::cout << "y1 = " << y1 << " for row " << row << ". charHeight is " << getCharHeight(size) << std::endl;
 
-	// -2 is to remove the usual padding issued by it, we don't need to clear that, it won't be written in.
 	switch (size)
 	{
 		case G15_TEXT_MED:
