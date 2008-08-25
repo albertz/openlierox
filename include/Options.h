@@ -38,7 +38,7 @@ enum {
 	SIN_ROPE,
 
 	SIN_STRAFE,
-	
+
 	SIN_WEAPON1,
 	SIN_WEAPON2,
 	SIN_WEAPON3,
@@ -237,10 +237,6 @@ public:
 	int		iMPlayerTop;
 	int		iMusicVolume;
 
-	// G15
-#ifdef WITH_G15
-	int		iG15FontSize;
-#endif //WITH_G15
 
 	// Last used game details
 	class GameInfo {

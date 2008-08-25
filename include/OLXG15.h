@@ -55,6 +55,8 @@ private:
 	OLXG15_weapon_t Weapons[5];
 	int rows[5];
 
+	int curWeapon;
+
 	timeval startTime;
 	bool showingSplash;
 	float lastFrame;

@@ -39,6 +39,8 @@ OLXG15_t::OLXG15_t()
 	rows[2] = 16;
 	rows[3] = 24;
 	rows[4] = 32;
+
+	curWeapon = -1;
 }
 OLXG15_t::~OLXG15_t()
 {
@@ -163,12 +165,21 @@ void OLXG15_t::frame()
 	// (loadage - getCharWidth(size)*2) to loadage. S:137 - 143 M:133 - 140 L:116 - 128
 	// Weapon name:
 	// 0 to Charge indicators. S:0 - 135 M:0 - 131 L:0 - 114
+
 	for (int i=0; i < 5;++i)
 	{
+		// This following line is magical, even thou it is commented, it is in effect.
+		// DO NOT REMOVE. PS. It actually does work :O
+		//curWeapon = i;
 		updateWeapon(i);
 		if (!Weapons[i].changed)
 			continue; // It hasn't changed, no need to update
-		renderWeapon(Weapons[i],tLXOptions->iG15FontSize,i);
+
+		if (i == curWeapon)
+			renderWeapon(Weapons[i],G15_TEXT_LARGE,i);
+		else
+			renderWeapon(Weapons[i],G15_TEXT_MED,i);
+
 		Weapons[i].changed = false;
 	}
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
@@ -178,7 +189,6 @@ void OLXG15_t::frame()
 }
 void OLXG15_t::updateWeapon(const int& slotID)
 {
-	//int			getCurrentWeapon(void)
 	// TODO: Make it customizable to show worm 0/1?
 	CWorm *worm = cClient->getWorm(0);
 	if (!worm)
@@ -204,7 +214,6 @@ void OLXG15_t::updateWeapon(const int& slotID)
 
 	if (Weapons[slotID].reloading != wpn->Reloading)
 	{
-		std::cout << "Reloading" << std::endl;
 		Weapons[slotID].reloading = wpn->Reloading;
 		Weapons[slotID].changed = true;
 	}
@@ -220,6 +229,21 @@ void OLXG15_t::updateWeapon(const int& slotID)
 	else
 		Weapons[slotID].chargeIndicator = 0; // To clear for next reload
 
+
+
+	if (worm->getCurrentWeapon() != curWeapon)
+	{
+		if (curWeapon >= 0 && curWeapon < 5)
+			Weapons[curWeapon].changed = true;
+
+		curWeapon = worm->getCurrentWeapon();
+		if (curWeapon < 0 || curWeapon > 4)
+		{
+			std::cout << "Invalid curWeapon" << std::endl;
+			return;
+		}
+		Weapons[curWeapon].changed = true;
+	}
 	return;
 
 }
@@ -304,9 +328,10 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	Weapons[4].name = "Doomsday";
 	Weapons[4].charge = 6;
 
-	for (int i =0; i < 5;++i)
+	renderWeapon(Weapons[0],G15_TEXT_LARGE,0);
+	for (int i =1; i < 5;++i)
 	{
-		renderWeapon(Weapons[i],size,i);
+		renderWeapon(Weapons[i],G15_TEXT_MED,i);
 	}
 	//renderWeapon(Weapons[3],G15_TEXT_LARGE,3);
 	//renderWeapon(Weapons[4],G15_TEXT_SMALL,4);
@@ -332,7 +357,6 @@ void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int&
 	// Re-using chargeMsg
 	if (weapon.reloading)
 	{
-		std::cout << "Rendering reload!" << std::endl;
 		if (weapon.chargeIndicator == 1)
 			chargeMsg = ">>";
 		else
@@ -374,7 +398,7 @@ void OLXG15_t::clearRow(const int& row)
 	if (row == 4)
 		y2 = G15_LCD_HEIGHT;
 	else
-		y2 = rows[row+1];
+		y2 = rows[row+1]-1;
 	g15r_pixelBox(&canvas,0,y1,G15_LCD_WIDTH,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 }
 void OLXG15_t::clearReload(const int& row, const int& size)
