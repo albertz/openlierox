@@ -178,7 +178,7 @@ void OLXG15_t::frame()
 	oldGameState = cClient->getStatus();
 
 }
-void OLXG15_t::updateWeapon(const int& slotID)
+void OLXG15_t::updateWeapon(const int slotID)
 {
 	// TODO: Make it customizable to show worm 0/1?
 	CWorm *worm = cClient->getWorm(0);
@@ -238,7 +238,7 @@ void OLXG15_t::updateWeapon(const int& slotID)
 	return;
 
 }
-void OLXG15_t::drawBounds(const int& size)
+void OLXG15_t::drawBounds(const int size)
 {
 	switch (size)
 	{
@@ -300,7 +300,7 @@ void OLXG15_t::sayHi()
 	//g15r_renderString (&canvas, (unsigned char*)"abcdefghijklmnopqrstuvwxyz1234567890,._-", 3, G15_TEXT_SMALL, 0, 0);
 }
 
-void OLXG15_t::testWeaponScreen(const int& size)
+void OLXG15_t::testWeaponScreen(const int size)
 {
 	Weapons[0].name = "Super Shotgun";
 	Weapons[0].charge = 100;
@@ -327,7 +327,7 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	//renderWeapon(Weapons[4],G15_TEXT_SMALL,4);
 }
 // Renders 1 weapon row
-void OLXG15_t::renderWeapon(const int& wepNum, const int& size)
+void OLXG15_t::renderWeapon(const int wepNum, const int size)
 {
 	// To allow multiple font sizes at the same time.
 	// No left/right changes, only y axis.
@@ -360,7 +360,7 @@ void OLXG15_t::renderWeapon(const int& wepNum, const int& size)
 
 	return;
 }
-void OLXG15_t::drawWpnName(const std::string& name, const int& row, const int& size)
+void OLXG15_t::drawWpnName(const std::string& name, const int row, const int size)
 {
 	// Areas of the screen:
 	// Weapon name:
@@ -380,17 +380,17 @@ void OLXG15_t::drawWpnName(const std::string& name, const int& row, const int& s
 	}
 	g15r_renderString (&canvas, (unsigned char*)name.c_str(), 0, size, 0, rows[row]);
 }
-void OLXG15_t::clearRow(const int& row)
+void OLXG15_t::clearRow(const int row)
 {
 	int y1 = rows[row];
 	int y2 = 0;
 	if (row == 4)
 		y2 = G15_LCD_HEIGHT;
 	else
-		y2 = rows[row+1]-1;
+		y2 = rows[row+1]-1; // Magical number, else it clears too much.
 	g15r_pixelBox(&canvas,0,y1,G15_LCD_WIDTH,y2,G15_COLOR_WHITE,1,G15_PIXEL_FILL);
 }
-void OLXG15_t::clearReload(const int& row, const int& size)
+void OLXG15_t::clearReload(const int row, const int size)
 {
 	// Areas of the screen:
 	// Charge indicators:
