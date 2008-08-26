@@ -50,7 +50,6 @@ class OLXG15_t
 private:
 	int screenfd;
 	int curScreen;
-	int screenVer;
 	g15canvas canvas;
 	OLXG15_weapon_t Weapons[5];
 	int rows[5];
@@ -84,7 +83,7 @@ public:
 	void clearReload(const int& row, const int& size);
 	void sayHi();
 	void testWeaponScreen(const int& size);
-	void renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& wepNum);
+	void renderWeapon(const int& wepNum, const int& size);
 	void showSplashScreen();
 
 	int wpnSpace(const int& size) {

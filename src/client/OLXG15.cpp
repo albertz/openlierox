@@ -26,7 +26,6 @@ OLXG15_t::OLXG15_t()
 {
 	screenfd = -1;
 	curScreen = -1;
-	screenVer = 0;
 	showingSplash = false;
 	lastFrame = 0.0f;
 	oldGameState = NET_DISCONNECTED;
@@ -66,12 +65,10 @@ bool OLXG15_t::init()
 
 
 	showSplashScreen();
-	//testWeaponScreen(G15_TEXT_LARGE);
 	g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 
 	/*
 	unsigned int keystate = 0;
-	nanosleep(&sleepTime,NULL);
 	for (int i = 0; i <= 3;++i)
 	{
 		g15_recv(screenfd,(char*)&keystate,4);
@@ -127,10 +124,7 @@ void OLXG15_t::frame()
 			//g15r_clearScreen (&canvas, G15_COLOR_WHITE);
 			//showingSplash = false;
 			//timeShown = 0.0f;
-			// Temporary incase someone compiles it with G15
-			/*
-			std::string tmp = "This is all it can do so far :(";
-			g15r_renderString (&canvas, (unsigned char*)tmp.c_str(), 0, G15_TEXT_MED, centerAlign(tmp,G15_TEXT_MED), yAlign(G15_HEIGHT/2,G15_TEXT_MED));
+			/*;
 			g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
 			*/
 			//return;
@@ -168,17 +162,14 @@ void OLXG15_t::frame()
 
 	for (int i=0; i < 5;++i)
 	{
-		// This following line is magical, even thou it is commented, it is in effect.
-		// DO NOT REMOVE. PS. It actually does work :O
-		//curWeapon = i;
 		updateWeapon(i);
 		if (!Weapons[i].changed)
 			continue; // It hasn't changed, no need to update
 
 		if (i == curWeapon)
-			renderWeapon(Weapons[i],G15_TEXT_LARGE,i);
+			renderWeapon(i,G15_TEXT_LARGE);
 		else
-			renderWeapon(Weapons[i],G15_TEXT_MED,i);
+			renderWeapon(i,G15_TEXT_MED);
 
 		Weapons[i].changed = false;
 	}
@@ -328,36 +319,34 @@ void OLXG15_t::testWeaponScreen(const int& size)
 	Weapons[4].name = "Doomsday";
 	Weapons[4].charge = 6;
 
-	renderWeapon(Weapons[0],G15_TEXT_LARGE,0);
-	for (int i =1; i < 5;++i)
+	for (int i =0; i < 5;++i)
 	{
-		renderWeapon(Weapons[i],G15_TEXT_MED,i);
+		renderWeapon(i,G15_TEXT_MED);
 	}
 	//renderWeapon(Weapons[3],G15_TEXT_LARGE,3);
 	//renderWeapon(Weapons[4],G15_TEXT_SMALL,4);
 }
 // Renders 1 weapon row
-void OLXG15_t::renderWeapon(OLXG15_weapon_t& weapon, const int& size, const int& wepNum)
+void OLXG15_t::renderWeapon(const int& wepNum, const int& size)
 {
 	// To allow multiple font sizes at the same time.
 	// No left/right changes, only y axis.
 
 	clearRow(wepNum);
 	// Name
-	drawWpnName(weapon.name,wepNum,size);
-	//g15r_renderString (&canvas, (unsigned char*)weapon.name.c_str(), row, size, 0, 0);
+	drawWpnName(Weapons[wepNum].name,wepNum,size);
 
 	// % loaded
-	std::string chargeMsg = itoa(weapon.charge) + "%";
+	std::string chargeMsg = itoa(Weapons[wepNum].charge) + "%";
 	g15r_renderString (&canvas, (unsigned char*)chargeMsg.c_str(), 0, size, rightAlign(chargeMsg,size), rows[wepNum]);
 
 
 
 	// Reloading? If so, blink >>/>
 	// Re-using chargeMsg
-	if (weapon.reloading)
+	if (Weapons[wepNum].reloading)
 	{
-		if (weapon.chargeIndicator == 1)
+		if (Weapons[wepNum].chargeIndicator == 1)
 			chargeMsg = ">>";
 		else
 			chargeMsg = "> ";
