@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
+#include <SDL_timer.h>
 
 #include "Utils.h" // for MIN
 #include "MathLib.h"
@@ -233,4 +235,7 @@ float Parabola::getLength(float pa, float pb)
 	return fabs(up - low);
 }
 
-//#endif  //  VEC2D
+unsigned long SyncedRandom::getRandomSeed()
+{
+	return (unsigned long)time(NULL) + ~ SDL_GetTicks();
+}
