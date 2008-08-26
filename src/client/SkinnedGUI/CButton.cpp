@@ -59,7 +59,7 @@ CButton::CButton(COMMON_PARAMS) : CWidget(name, parent)
 void CButton::UpdateSize()
 {
 	if (bAutoSize)  {
-		Resize(getX(), getY(), 
+		Resize(getX(), getY(),
 			GetTextWidth(cFont, sText) + 2*SPACING + (bmpGlyph.get().get() ? bmpGlyph->w + SPACING : 0), // Width
 		MAX(bmpGlyph.get().get() ? bmpGlyph->h : 0, GetTextHeight(cFont, sText))); // Height
 	} else {
@@ -124,6 +124,7 @@ void CButton::DoRepaint()
 		// Draw the glyph in front of the text
 		int img_x = x;
 		switch (cText.iHAlignment)  {
+		case algJustify:
 		case algLeft:
 			break;
 		case algCenter:

@@ -42,12 +42,11 @@ namespace SkinnedGUI {
 void CComboItem::Draw(SDL_Surface *bmpDest, const SDL_Rect& r)
 {
 	CItemStyle *style = getCurrentStyle();
-	
+
 	// Background
 	style->cBackground.Draw(bmpDest, r.x, r.y, r.w, r.h);
 
 	// Image
-	int cur_x = r.x + ITEM_SPACING;
 	DrawItemImage(bmpDest, r);
 
 	// Text
@@ -83,7 +82,7 @@ CComboItemList::CComboItemList(CCombobox *parent) : CContainerWidget("_CitemLst_
 	iActiveItem = -1;
 	sCSSClass = cCombo->getCSSClass();
 	cBackground.setColor(Color(255, 255, 255), DEFAULT_PRIORITY); // Default background color is black
-	
+
 	// A 1px black border as a default value
 	CBorder::BorderLineSettings sett;
 	sett.clDark.set(Color(0, 0, 0), DEFAULT_PRIORITY);
@@ -383,7 +382,7 @@ int CComboItemList::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& m
 			setActiveItem(cCombo->tItems.begin(), 0, false);
 		}
 		break;
-	
+
 	case SDLK_UP:
 		if (iActiveItem > 0 && cCombo->tItems.size() > 0)  {
 			std::list<CComboItem>::iterator tmp = cActiveItem;
@@ -444,7 +443,7 @@ void CCombobox::DoRepaint()
 
 		// Image
 		if (cSelectedItem->getImage().get())  {
-			DrawImageAdv(bmpBuffer.get(), cSelectedItem->getImage(), 0, 0, x, 
+			DrawImageAdv(bmpBuffer.get(), cSelectedItem->getImage(), 0, 0, x,
 				MAX(cBorder.getTopW(), cBorder.getTopW() + (getHeight() - cSelectedItem->getImage()->h)/2),
 				MIN(cSelectedItem->getImage()->w, getWidth() - bmpExpand->w/3 - cBorder.getLeftW() - cBorder.getRightW()),
 				MIN(cSelectedItem->getImage()->h, getHeight() - cBorder.getTopW() - cBorder.getBottomW()));
@@ -600,7 +599,7 @@ static inline int compare_items(const CComboItem& item1, const CComboItem& item2
 	bool failed1,failed2;
 	int nat_cmp1 = from_string<int>(item1.getName(), failed1);
 	int nat_cmp2 = from_string<int>(item2.getName(), failed2);
-	
+
 	// First try, if we compare numbers
 	if (!failed1 && !failed2)  {
 		if(nat_cmp1 == nat_cmp2)
@@ -839,7 +838,7 @@ int CCombobox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modsta
 // Find an item based on its start letter
 int CCombobox::findItem(UnicodeChar startLetter) {
 	if(startLetter <= 31) return -1;
-	
+
 	bool letterAlreadySelected = false;
 	int first = -1; // save first found index here
 	int index = 0; // current index for loop
@@ -853,7 +852,7 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 			if(index == iSelected) letterAlreadySelected = true;
 		}
 	}
-	
+
 	return first;
 }
 
@@ -905,7 +904,7 @@ std::list<CComboItem>::iterator CCombobox::lowerBound(const CComboItem& item, in
 ////////////////////////
 // Returns the upper bound iterator for the item
 std::list<CComboItem>::iterator CCombobox::upperBound(const CComboItem& item, int *index, bool *equal)
-{ 
+{
 	if (tItems.size() == 0) return tItems.end();
 
 	size_t n = tItems.size();
@@ -978,7 +977,7 @@ int CCombobox::AddItem(const CComboItem& item1)
 	//
 	// Add it to the list
 	//
-	
+
 	CComboItem * itemPtr = NULL;
 
 	// First item
@@ -1014,7 +1013,7 @@ int CCombobox::AddItem(const CComboItem& item1)
 		if (bUnique)
 			if (getItem(item.getName()))
 				return 0;
-	
+
 		index = (int)tItems.size();
 		tItems.push_back(item);
 		itemPtr = & tItems.back();
@@ -1140,9 +1139,9 @@ void CCombobox::setImage(SmartPointer<SDL_Surface> img, int ItemIndex)
 ///////////////////
 // Clear the data
 void CCombobox::Clear(void)
-{	
+{
 	tItems.clear();
-	setCurItem(NULL);
+	setCurItem((const SkinnedGUI::CComboItem *)NULL);
 	if (cItemList)
 		cItemList->Readjust();
 }
@@ -1198,8 +1197,8 @@ const CComboItem* CCombobox::getSIndexItem(const std::string& sIndex) const {
 
 //////////////////
 // Get the index of the selected item (-1 if no item selected)
-int CCombobox::getSelectedIndex() 
-{ 
+int CCombobox::getSelectedIndex()
+{
 	return iSelected;
 }
 
@@ -1229,7 +1228,7 @@ int CCombobox::getItemIndex(const CComboItem* item) {
 		if(&*it == item)
 			return index;
 	}
-	
+
 	return -1;
 }
 

@@ -177,7 +177,7 @@ void CScrollbar::DoRepaintVertical()
 		int pos = iScrollPos;
 		if(pos+length > getHeight() - top_h - bot_h)
 			pos = getHeight() - top_h - bot_h - length;
-		if (pos < 0)  
+		if (pos < 0)
 			pos = 0;
 
 		// Have bitmaps?
@@ -257,7 +257,7 @@ void CScrollbar::DoRepaintHorizontal()
 		int pos = iScrollPos;
 		if(pos+length > getWidth() - left_w - right_w)
 			pos = getWidth() - left_w - right_w - length;
-		if (pos < 0)  
+		if (pos < 0)
 			pos = 0;
 
 		// Have bitmaps?
@@ -302,10 +302,6 @@ void CScrollbar::DoRepaint()
 
 	CWidget::DoRepaint();
 
-	static const int MIN_LENGTH = 0;
-
-	int x=0;
-
 	// Background
 	if (bmpBackground.get().get())  {
 		int sx = 0;
@@ -317,7 +313,7 @@ void CScrollbar::DoRepaint()
 	} else {
 		DrawRectFill(bmpBuffer.get(), 0, 0, getWidth(), getHeight(), iBackgroundColor);
 	}
-    
+
 	switch (iDirection)  {
 	case scrVertical:  {
 			DoRepaintVertical();
@@ -565,7 +561,7 @@ int CScrollbar::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton
 				if (w > 0)
 					newval = CLAMP(((iMax + 1) * (x - getTopH())) / w, 0, iMax);
 			}
-			
+
 			// Scroll event
 			if (newval != iValue)  {
 				bool cancel = false;
@@ -579,7 +575,7 @@ int CScrollbar::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton
 	}
 
 	Repaint();
-	
+
 	CWidget::DoMouseMove(x, y, dx, dy, down, button, modstate);
 	return WID_PROCESSED;
 }
@@ -595,7 +591,7 @@ int CScrollbar::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, co
 		top_h = bmpTop.get().get() ? bmpTop->w/3 : getHeight();
 		bot_h = bmpBottom.get().get() ? bmpBottom->w/3 : getHeight();
 	}
-	
+
 	if(InSlider(x, y)) {
 		bSliderDown = true;
 		if(!bSliderGrabbed) {
@@ -648,7 +644,7 @@ int CScrollbar::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, co
 
 	int length = (int)((float)iItemsperbox/(float)iMax * scroll_size - top_h - bot_h);
     length = MAX(length, MIN_SLIDER_LENGTH);
-        
+
 	// Background click
 	bBackgroundDown = true;
 	int pos = iScrollPos;

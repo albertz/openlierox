@@ -52,8 +52,8 @@ struct RGBA  {
 
 // TODO: put these to Color.h or somewhere there and use them instead of SDL_MapRGBA and GetRGBA (the functions below are faster)
 
-Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  { 
-	return Color(fmt->palette->colors[px].r, fmt->palette->colors[px].g, fmt->palette->colors[px].b); 
+Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  {
+	return Color(fmt->palette->colors[px].r, fmt->palette->colors[px].g, fmt->palette->colors[px].b);
 }
 
 // Unpacks the color, the surface contains alpha information
@@ -167,7 +167,7 @@ inline Uint32 GetPixel_24(Uint8 *addr)  {
 		color[2] = addr[2];
 		color[1] = addr[1];
 		color[0] = addr[0];
-		color[3] = 0;		
+		color[3] = 0;
 #endif
 		return *((Uint32 *)(&color[0]));
 }
@@ -286,7 +286,7 @@ class PixelPutAlpha_AlphaBg_32 : public PixelPutAlpha  {
 		if (!col.a) // Prevent div by zero error
 			return;
 
-		Color& dest_cl = Unpack_alpha(GetPixel_32(addr), dstfmt);
+		Color dest_cl = Unpack_alpha(GetPixel_32(addr), dstfmt);
 
 		// Blend and save to dest_cl
 		dest_cl.a = 255 - (255 - col.a) * (255 - dest_cl.a) / 255; // Same as MIN(255, dest_cl.a + col.a) but faster (no condition)
@@ -335,7 +335,7 @@ PixelPutAlpha& getAlphaPut(const SDL_Surface *surf)  {
 // TODO: this function is now obsolete, remove it
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-	
+
 	PixelPutAlpha& putter = getAlphaPut(bmpDest);
 	Color c = Unpack_solid(colour, bmpDest->format); c.a = a;
 	putter.put(px, bmpDest->format, c);
@@ -729,8 +729,6 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	assert(bmpSrc->format->BytesPerPixel == 4);
 
 	// Clip
-	int old_x = rDest.x;
-	int old_y = rDest.y;
 	rDest.w = rSrc.w;
 	rDest.h = rSrc.h;
 	if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
@@ -754,7 +752,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
 		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
-			Color& c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
+			Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
 			c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
 			putter.put(dst, bmpDest->format, c);
 		}
@@ -1645,7 +1643,7 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
 	// Draw depending on the alpha
 	switch (colour.a)  {
-	case SDL_ALPHA_OPAQUE:  
+	case SDL_ALPHA_OPAQUE:
 	{
 		// Solid (no alpha) drawing
 		PixelCopy& putter = getPixelCopy(bmpDest);
@@ -1698,7 +1696,7 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 
 	// Draw depending on the alpha
 	switch (colour.a)  {
-	case SDL_ALPHA_OPAQUE:  
+	case SDL_ALPHA_OPAQUE:
 	{
 		// Solid (no alpha) drawing
 		PixelCopy& putter = getPixelCopy(bmpDest);
@@ -1848,8 +1846,6 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color 
 	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
 		return;
 
-	RGBA s_p = { color.r, color.g, color.b, color.a };
-
 	const int bpp = bmpDest->format->BytesPerPixel;
 	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
 	int step = bmpDest->pitch - r.w * bpp;
@@ -1992,7 +1988,6 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	SmartPointer<SDL_Surface> img = IMG_Load(Utf8ToSystemNative(fullfname).c_str());
 
 	if(!img.get())  {
-		char *err = SDL_GetError();
 		return NULL;
 	}
 

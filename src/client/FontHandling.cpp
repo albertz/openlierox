@@ -20,7 +20,7 @@
 #include "MathLib.h"
 
 ///////////////////
-// Apply CSS to the font style 
+// Apply CSS to the font style
 void CFontStyle::ApplySelector(const CSSParser::Selector& sel, const std::string& prefix)
 {
 	FOR_EACH_ATTRIBUTE(sel, it)  {
@@ -99,10 +99,10 @@ void CTextProperties::ApplySelector(const CSSParser::Selector &sel, const std::s
 }
 
 /**************************
-/*
-/* Font handling
-/*
-/***************************/
+*
+* Font handling
+*
+***************************/
 
 #include <map>
 
@@ -189,7 +189,9 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 		case algRight:
 			x = fontrect.x + fontrect.w - fnt->GetWidth(text);
 			break;
+		case algJustify:
 		// TODO: justify
+			break;
 	}
 
 	int y = fontrect.y;
@@ -205,8 +207,13 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 			break;
 	}
 
+	std::string txt = text;
+	if (prop.bThreeDotsEnd)  {
+		StripTextWithDots(txt, fnt, fontrect.w);
+	}
+
 	// Draw it
-	fnt->Draw(bmpDest, x, y, style.iColor.get().get(SDL_GetVideoSurface()), text);
+	fnt->Draw(bmpDest, x, y, style.iColor.get().get(SDL_GetVideoSurface()), txt);
 
 	// Restore the clipping
 	SDL_SetClipRect(bmpDest, &oldrect);
