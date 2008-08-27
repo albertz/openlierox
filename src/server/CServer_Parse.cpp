@@ -1244,6 +1244,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			return;
 		};
 
+		newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
+
 		newcl->getChannel()->Create(&adrFrom, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);
 		newcl->setNetSpeed(iNetSpeed);

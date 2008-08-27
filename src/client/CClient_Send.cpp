@@ -21,6 +21,7 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "ChatCommand.h"
+#include "Command.h"
 #include "EndianSwap.h"
 #include "CServer.h"
 
@@ -118,10 +119,13 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 
 	// TODO: why is this function so complicated?
 
-	if (chat_command)  {
+	if (chat_command && sText.find("/me ") != 0) { // Ignores "/me" special command
 		// Don't allow sending commands to servers that don't support it
-		if (getServerVersion() < OLXBetaVersion(3))  {
-			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
+		if (getServerVersion() < OLXBetaVersion(3)) {
+			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
+			if( ! Cmd_ParseLine(sText.substr(1)) ) {
+				cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
+			}
 			return;
 		}
 
@@ -138,6 +142,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 			return;
 		}
 
+		// TODO: Why do we need to split the chat command and join it back? Let's send it as-is.
 		// The message cannot be split
 		cannot_split = chat_cmd->iParamsToRepeat == (size_t)-1;
 

@@ -1,43 +1,80 @@
 /////////////////////////////////////////
 //
-//             OpenLieroX
+//   OpenLieroX
 //
-// code under LGPL, based on JasonBs work,
-// enhanced by Dark Charlie and Albert Zeyer
+//   Auxiliary Software class library
 //
+//   based on the work of JasonB
+//   enhanced by Dark Charlie and Albert Zeyer
+//
+//   code under LGPL
 //
 /////////////////////////////////////////
 
 
-// Command structure
-// Created 22/7/02
+// Command/variable parsing header
+// Created 9/4/02
 // Jason Boettcher
 
 
-#ifndef __COMMAND_H__
-#define __COMMAND_H__
+#ifndef __CON_COMMAND_H__
+#define __CON_COMMAND_H__
+
+#include <string>
 
 
-// Command flags
-#define		CMD_POSITION	0x01
-#define		CMD_ANGLE		0x02
+#define		MAX_ARGS		32
+#define		MAX_ARGLENGTH	128
 
 
 // Command structure
-/*class command_t { public:
+class command_t { public:
+	std::string		strName;
+	void			(*func) ( void );
+	bool			bHidden;
 
-	int		iFlags;
-
-	int		iDirection;
-	int		iCarve;
-	int		iShoot;
-	int		iWeapon;
-	int		iX, iY;
-	int		iAngle;
-
-};*/
+	command_t	*Next;
+};
 
 
+// Arguments
+int		Cmd_GetNumArgs(void);
+void	Cmd_AddArg(const std::string& text);
+std::string Cmd_GetArg(int a);
 
 
-#endif  //  __COMMAND_H__
+
+// Command routines
+command_t	*Cmd_GetCommand(const std::string& strName);
+bool	Cmd_ParseLine(const std::string& text);
+int		Cmd_AutoComplete(std::string& strVar);
+int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide = false);
+void	Cmd_Initialize();
+void	Cmd_Free(void);
+
+
+// User commands
+void    Cmd_Kick();
+void	Cmd_Ban();
+void	Cmd_KickId();
+void	Cmd_BanId();
+void    Cmd_Mute();
+void	Cmd_MuteId();
+void	Cmd_Unmute();
+void	Cmd_UnmuteId();
+void	Cmd_Crash();
+void	Cmd_Suicide();
+void	Cmd_Unstuck();
+void	Cmd_WantsJoin();
+void	Cmd_RenameServer();
+void	Cmd_Help();
+void	Cmd_About();
+void	Cmd_BadWord();
+void	Cmd_Quit();
+void	Cmd_Volume();
+void	Cmd_Sound();
+void	Cmd_ServerSideHealth();
+
+
+
+#endif  //  __CON_COMMAND_H__

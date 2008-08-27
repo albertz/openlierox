@@ -600,44 +600,14 @@ int InitializeLieroX(void)
 
 	DrawLoading(40, "Initializing console");
 
-	// Initialize the console
+	// Initialize the console GUI
 	if(!Con_Initialize()) {
 		SystemError("Error: Could not initialize the console");
 		return false;
 	}
 
-	// TODO: move to console
-    // Add some console commands
-    Cmd_AddCommand("kick", Cmd_Kick);
-	Cmd_AddCommand("ban", Cmd_Ban);
-	Cmd_AddCommand("mute", Cmd_Mute);
-	Cmd_AddCommand("unmute", Cmd_Unmute);
-    Cmd_AddCommand("kickid", Cmd_KickId);
-	Cmd_AddCommand("banid", Cmd_BanId);
-	Cmd_AddCommand("muteid", Cmd_MuteId);
-	Cmd_AddCommand("unmuteid", Cmd_UnmuteId);
-	Cmd_AddCommand("crash", Cmd_Crash, true);
-	Cmd_AddCommand("suicide", Cmd_Suicide);
-	Cmd_AddCommand("unstuck", Cmd_Unstuck);
-	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
-	Cmd_AddCommand("servername", Cmd_RenameServer);
-	Cmd_AddCommand("help", Cmd_Help);
-	Cmd_AddCommand("version", Cmd_About);
-	Cmd_AddCommand("about", Cmd_About);
-	Cmd_AddCommand("fuck", Cmd_BadWord, true);
-	Cmd_AddCommand("ass", Cmd_BadWord, true);
-	Cmd_AddCommand("bitch", Cmd_BadWord, true);
-	Cmd_AddCommand("sex", Cmd_BadWord, true);
-	Cmd_AddCommand("quit", Cmd_Quit);
-	Cmd_AddCommand("exit", Cmd_Quit);
-	Cmd_AddCommand("volume", Cmd_Volume);
-	Cmd_AddCommand("sound", Cmd_Sound);
-	Cmd_AddCommand("setname", Cmd_SetName);
-	Cmd_AddCommand("setskin", Cmd_SetSkin);
-	Cmd_AddCommand("setcolour", Cmd_SetColour, true);
-	Cmd_AddCommand("setcolor", Cmd_SetColour);
-	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
-
+	Cmd_Initialize();	// Initialize console commands
+	
 	DrawLoading(45, "Loading sounds");
 
 	// Load the sounds

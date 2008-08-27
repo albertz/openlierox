@@ -690,8 +690,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		for (; it != cChatbox.End(); it++)  {
 
-			// Add only chat text
-			if (it->iColour == tLX->clChatText)  {
+			// Add only chat text (PM and Team PM messages too)
+			if (it->iColour == tLX->clChatText || it->iColour == tLX->clPrivateText ||
+					it->iColour == tLX->clTeamColors[cLocalWorms[0]->getTeam()] )  {
 				lv->AddItem("", id, it->iColour);
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, it->strLine, NULL, NULL);
 				id++;

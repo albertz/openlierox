@@ -69,7 +69,7 @@ std::string Cmd_GetArg(int a)
 
 ///////////////////
 // Parse a line of text
-void Cmd_ParseLine(const std::string& text)
+bool Cmd_ParseLine(const std::string& text)
 {
 	bool quote = false;
 	std::string	token;
@@ -130,7 +130,7 @@ void Cmd_ParseLine(const std::string& text)
 	}
 
 	if(!NumArgs)
-		return;
+		return false;
 
 
 	// Translate the first token
@@ -149,11 +149,12 @@ void Cmd_ParseLine(const std::string& text)
 		// Run the command
 		if(cmd->func)
 			cmd->func();
-		return;
+		return true;
 	}
 
 	std::string tmp = Cmd_GetArg(0);
 	Con_Printf(CNC_NOTIFY, "Unknown command '" + tmp + "'");
+	return false;
 }
 
 
@@ -491,7 +492,7 @@ void Cmd_Suicide(void)
 		// Without arguments, just commit one suicide
 		if (Cmd_GetNumArgs() == 1)  {
 			if(w->isUsed())
-				cClient->InjureWorm(w, w->getHealth() + 1, w->getID());
+				cClient->SendDeath(w->getID(), w->getID());
 		}
 		// A number has been entered, suicide the specified number
 		else  {
@@ -509,7 +510,7 @@ void Cmd_Suicide(void)
 				number = 1;
 
 			// Suicide
-			if (w->isUsed() && w->getAlive())
+			if (w->isUsed())
 				for (int i = 0; i < number; i++)
 					cClient->SendDeath(w->getID(), w->getID());
 		}
@@ -656,79 +657,6 @@ void Cmd_Sound()  {
 	}
 }
 
-//////////////////
-// Change name (only if host in on beta 3)
-void Cmd_SetName() {
-	if(bDedicated) {
-		Con_Printf(CNC_NORMAL, "Cannot change name in dedicated mode!");
-		return;
-	}
-
-	// Check arguments
-	if(Cmd_GetNumArgs() == 1) {
-		Con_Printf(CNC_NORMAL, "Usage: setname \"<name>\"");
-		return;
-	}
-
-	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
-		return;
-	}
-
-	std::string name = Cmd_GetArg(1);
-	cClient->SendText("/setname \"" + name + "\"", cClient->getWorm(0)->getName());
-}
-
-
-//////////////////
-// Change skin (only if host in on beta 3)
-void Cmd_SetSkin() {
-	if(bDedicated) {
-		Con_Printf(CNC_NORMAL, "Cannot change skin in dedicated mode!");
-		return;
-	}
-
-	// Check arguments
-	if(Cmd_GetNumArgs() == 1) {
-		Con_Printf(CNC_NORMAL, "Usage: setskin \"<skin_filename>\"");
-		return;
-	}
-
-	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
-		return;
-	}
-
-	std::string skin = Cmd_GetArg(1);
-	cClient->SendText("/setskin \"" + skin + "\"", cClient->getWorm(0)->getName());
-}
-
-
-//////////////////
-// Change colour (only if host in on beta 3)
-void Cmd_SetColour() {
-	if(bDedicated) {
-		Con_Printf(CNC_NORMAL, "Cannot change color in dedicated mode!");
-		return;
-	}
-
-	// Check arguments
-	if(Cmd_GetNumArgs() < 4) {
-		Con_Printf(CNC_NORMAL, "Usage: setcolour <red> <green> <blue>");
-		return;
-	}
-
-	// Check if the host is on beta 3
-	if(cClient->getServerVersion() < OLXBetaVersion(3)) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
-		return;
-	}
-
-	cClient->SendText("/setcolour " + Cmd_GetArg(1) + " " + Cmd_GetArg(2) + " " + Cmd_GetArg(3), cClient->getWorm(0)->getName());
-}
-
 /////////////////
 // Turn on/off server-side health
 void Cmd_ServerSideHealth()  {
@@ -743,4 +671,35 @@ void Cmd_ServerSideHealth()  {
 	}
 
 	Con_Printf(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
+}
+
+void Cmd_Initialize() {
+
+    // Add some console commands
+    Cmd_AddCommand("kick", Cmd_Kick);
+	Cmd_AddCommand("ban", Cmd_Ban);
+	Cmd_AddCommand("mute", Cmd_Mute);
+	Cmd_AddCommand("unmute", Cmd_Unmute);
+    Cmd_AddCommand("kickid", Cmd_KickId);
+	Cmd_AddCommand("banid", Cmd_BanId);
+	Cmd_AddCommand("muteid", Cmd_MuteId);
+	Cmd_AddCommand("unmuteid", Cmd_UnmuteId);
+	Cmd_AddCommand("crash", Cmd_Crash, true);
+	Cmd_AddCommand("suicide", Cmd_Suicide);
+	Cmd_AddCommand("unstuck", Cmd_Unstuck);
+	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
+	Cmd_AddCommand("servername", Cmd_RenameServer);
+	Cmd_AddCommand("help", Cmd_Help);
+	Cmd_AddCommand("version", Cmd_About);
+	Cmd_AddCommand("about", Cmd_About);
+	Cmd_AddCommand("fuck", Cmd_BadWord, true);
+	Cmd_AddCommand("ass", Cmd_BadWord, true);
+	Cmd_AddCommand("bitch", Cmd_BadWord, true);
+	Cmd_AddCommand("sex", Cmd_BadWord, true);
+	Cmd_AddCommand("quit", Cmd_Quit);
+	Cmd_AddCommand("exit", Cmd_Quit);
+	Cmd_AddCommand("volume", Cmd_Volume);
+	Cmd_AddCommand("sound", Cmd_Sound);
+	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
+
 }

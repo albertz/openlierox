@@ -46,6 +46,7 @@ std::string ProcessMute(const std::vector<std::string>& params, int sender_id);
 std::string ProcessUnmute(const std::vector<std::string>& params, int sender_id);
 std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id);
 std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_id);
+std::string ProcessMe(const std::vector<std::string>& params, int sender_id); // "/me" command for old clients
 std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSetName(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_id);

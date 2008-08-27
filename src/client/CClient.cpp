@@ -1497,20 +1497,6 @@ log_worm_t *CClient::GetLogWorm(int id)
 }
 
 
-///////////////////
-// Setup the worms (server func)
-void CClient::SetupWorms(int numworms, CWorm *worms)
-{
-	/*iNumWorms = numworms;
-
-	cLocalWorms = new CWorm[iNumWorms];
-	if(cLocalWorms == NULL)
-		return;
-
-	for(int i=0;i<iNumWorms;i++)
-		cLocalWorms[i] = worms[i];*/
-}
-
 ////////////////////////
 // Select weapons for client handling local bots in net play
 // Normally, this is done in CClient::Draw

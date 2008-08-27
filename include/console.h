@@ -19,7 +19,7 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-#include "con_cmd.h"
+#include "Command.h"
 #include "Unicode.h"
 #include "InputEvents.h"
 

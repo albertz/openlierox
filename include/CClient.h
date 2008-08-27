@@ -505,8 +505,6 @@ public:
 	log_worm_t	*GetLogWorm(int id);
 	void		GetLogData(std::string& data);
 
-	// Server editing of the client
-	void		SetupWorms(int numworms, CWorm *worms);
 	void		RemoveWorm(int id);
 
 	// Game

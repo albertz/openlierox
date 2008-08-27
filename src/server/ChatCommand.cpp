@@ -32,6 +32,7 @@ ChatCommand tKnownCommands[] = {
 	{"unmute",		"unmute",		2, 2,			(size_t)-1,	&ProcessUnmute},
 	{"private",		"pm",			3, (size_t)-1,	2,			&ProcessPrivate},
 	{"teamchat",	"teampm",		1, (size_t)-1,	0,			&ProcessTeamChat},
+	{"me",			"me",			1, (size_t)-1,	0,			&ProcessMe},
 	{"setmyname",	"setmyname",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMyName},
 	{"setname",		"setname",		3, (size_t)-1,	(size_t)-1,	&ProcessSetName},
 	{"setmyskin",	"setmyskin",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMySkin},
@@ -385,6 +386,32 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 			}
 		}
 	}
+
+	return "";
+}
+
+std::string ProcessMe(const std::vector<std::string>& params, int sender_id)
+{
+	// Param check
+	if (params.size() < GetCommand(&ProcessMe)->iMinParamCount)
+		return "Not enough parameters";
+
+	// Get the sender
+	CClient *sender = cServer->getClient(sender_id);
+	if (!sender)
+		return "Message could not be sent";
+
+	// Get the message
+	std::string msg = sender->getWorm(0)->getName() + " ";
+	std::vector<std::string>::const_iterator it = params.begin();
+	for (; it != params.end(); it++)  {
+		msg += *it;
+		msg += ' ';
+	}
+
+	// Send the message to everyone
+	msg = OldLxCompatibleString(msg);
+	cServer->SendGlobalText(msg, TXT_CHAT);
 
 	return "";
 }
