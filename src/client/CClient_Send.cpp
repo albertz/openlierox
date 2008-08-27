@@ -117,7 +117,16 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 	std::string command;  // this should be repeated before every chunk
 	bool cannot_split = false;
 
-	// TODO: why is this function so complicated?
+	// HINT: since beta 4 the chat can have an unlimited length and is internally split up into chunks
+	// This works fine for normal chat but for chat commands like /teamchat or /pm it makes trouble
+	// because if the message is split into more pieces, all the pieces except for the first one are sent
+	// as a normal chat, for example:
+	// /teamchat some ultra long text that will be split for sure!
+	// would get split to "/teamchat some ultra long", "text that will be split", "for sure!"
+	// and the chunks would be sent as a chat. The second and third chunk don't containt the /teamchat command
+	// and will therefore be interpreted as a normal chat by the server
+	// This function is so complicated because it avoids this kind of trouble and splits the chat command
+	// messages correctly.
 
 	if (chat_command && sText.find("/me ") != 0) { // Ignores "/me" special command
 		// Don't allow sending commands to servers that don't support it
@@ -142,7 +151,6 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 			return;
 		}
 
-		// TODO: Why do we need to split the chat command and join it back? Let's send it as-is.
 		// The message cannot be split
 		cannot_split = chat_cmd->iParamsToRepeat == (size_t)-1;
 
