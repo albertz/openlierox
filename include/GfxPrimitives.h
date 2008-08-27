@@ -492,34 +492,54 @@ inline void DrawImageTiledY(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface
 // Pixel and color routines
 //
 
-// Basic prototype of the copy pixel functor
-class PixelCopy  {
+// Basic prototype of the put pixel functor
+class PixelPut  {
 public:
 	virtual void put(Uint8 *addr, Uint32 color) = 0;
+	virtual ~PixelPut() {}
+};
+
+// Basic prototype of the pixel copy functor (copying pixels between surfaces)
+class PixelCopy  {
+protected:
+	SDL_PixelFormat *sfmt; // Source surface format
+	SDL_PixelFormat *dfmt; // Dest surface format
+public:
+	PixelCopy() : sfmt(NULL), dfmt(NULL) {}
+	void setformats(SDL_PixelFormat *srcf, SDL_PixelFormat *dstf) { sfmt = srcf; dfmt = dstf; }
+	virtual void copy(Uint8 *dstaddr, const Uint8 *srcaddr) = 0;
+	virtual ~PixelCopy() {}
 };
 
 // Basic prototype of the alpha-blended putpixel functor
-class PixelPutAlpha  { public:
+class PixelPutAlpha  { 
+public:
 	virtual void put(Uint8 *addr, const SDL_PixelFormat *dstfmt, const Color& col) = 0;
+	virtual ~PixelPutAlpha() {}
 };
 
 // Basic prototype of the getpixel functor
 class PixelGet  {
 public:
 	virtual Uint32	get(Uint8 *addr) = 0;
+	virtual ~PixelGet() {}
 };
 
 /////////////////////
 // Returns a putpixel functor for the given surface
-PixelCopy& getPixelCopy(const SDL_Surface *surf);
+PixelPut& getPixelPutFunc(const SDL_Surface *surf);
+
+/////////////////////
+// Returns a pixel copy functor for the given surface
+PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *dest_surf);
 
 /////////////////////
 // Returns a getpixel functor for the given surface
-PixelGet& getPixelGetter(const SDL_Surface *surf);
+PixelGet& getPixelGetFunc(const SDL_Surface *surf);
 
 /////////////////////
 // Returns an alpha putpixel functor for the given surface (slower than the above one)
-PixelPutAlpha& getAlphaPut(const SDL_Surface *surf);
+PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf);
 
 ////////////////////
 // Get address of a pixel

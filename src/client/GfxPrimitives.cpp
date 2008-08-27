@@ -52,8 +52,8 @@ struct RGBA  {
 
 // TODO: put these to Color.h or somewhere there and use them instead of SDL_MapRGBA and GetRGBA (the functions below are faster)
 
-Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  {
-	return Color(fmt->palette->colors[px].r, fmt->palette->colors[px].g, fmt->palette->colors[px].b);
+Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  { 
+	return Color(fmt->palette->colors[px].r, fmt->palette->colors[px].g, fmt->palette->colors[px].b); 
 }
 
 // Unpacks the color, the surface contains alpha information
@@ -101,23 +101,23 @@ Uint32 Pack(const Color& c, const SDL_PixelFormat *fmt)	{
 
 
 //
-// Pixel copy (ignoring alpha)
+// Pixel put (ignoring alpha)
 //
 
 // 8-bit PutPixel, currently unused
-inline void CopyPixel_8(Uint8 *addr, Uint32 color)  { *addr = (Uint8)color; }
-class PixelCopy_8 : public PixelCopy  {
-	void put(Uint8 *addr, Uint32 color)  { CopyPixel_8(addr, color); }
+inline void PutPixel_8(Uint8 *addr, Uint32 color)  { *addr = (Uint8)color; }
+class PixelPut_8 : public PixelPut  {
+	void put(Uint8 *addr, Uint32 color)  { PutPixel_8(addr, color); }
 };
 
 // 16-bit PutPixel
-inline void CopyPixel_16(Uint8 *addr, Uint32 color)  { *(Uint16 *)addr = (Uint16)color; }
-class PixelCopy_16 : public PixelCopy {
-	void put(Uint8 *addr, Uint32 color)	{ CopyPixel_16(addr, color); }
+inline void PutPixel_16(Uint8 *addr, Uint32 color)  { *(Uint16 *)addr = (Uint16)color; }
+class PixelPut_16 : public PixelPut {
+	void put(Uint8 *addr, Uint32 color)	{ PutPixel_16(addr, color); }
 };
 
 // 24-bit PutPixel
-inline void CopyPixel_24(Uint8 *addr, Uint32 color)  {
+inline void PutPixel_24(Uint8 *addr, Uint32 color)  {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		addr[0] = ((Uint8 *)&color)[3];
 		addr[1] = ((Uint8 *)&color)[2];
@@ -129,66 +129,23 @@ inline void CopyPixel_24(Uint8 *addr, Uint32 color)  {
 #endif
 }
 
-class PixelCopy_24 : public PixelCopy {
-	void put(Uint8 *addr, Uint32 color)	{ CopyPixel_24(addr, color); }
+class PixelPut_24 : public PixelPut {
+	void put(Uint8 *addr, Uint32 color)	{ PutPixel_24(addr, color); }
 };
 
 // 32-bit PutPixel
-inline void CopyPixel_32(Uint8 *addr, Uint32 color)  { *(Uint32 *)addr = color; }
-class PixelCopy_32 : public PixelCopy {
-	void put(Uint8 *addr, Uint32 color)	{ CopyPixel_32(addr, color); }
-};
-
-//
-// Get pixel
-//
-
-// 8-bit getpixel, returns palette index, not the color; currently unused
-inline Uint32 GetPixel_8(Uint8 *addr)  { return *addr; }
-class PixelGet_8 : public PixelGet {
-	Uint32 get(Uint8 *addr)  { return GetPixel_8(addr); }
-};
-
-// 16-bit getpixel
-inline Uint32 GetPixel_16(Uint8 *addr)  { return *(Uint16 *)addr; }
-class PixelGet_16 : public PixelGet {
-	Uint32 get(Uint8 *addr)	{ return GetPixel_16(addr); }
-};
-
-// 24-bit getpixel
-inline Uint32 GetPixel_24(Uint8 *addr)  {
-		char color[4];
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		color[0] = addr[0];
-		color[1] = addr[1];
-		color[2] = addr[2];
-		color[3] = 0;
-#else
-		color[2] = addr[2];
-		color[1] = addr[1];
-		color[0] = addr[0];
-		color[3] = 0;
-#endif
-		return *((Uint32 *)(&color[0]));
-}
-
-class PixelGet_24 : public PixelGet  {
-	Uint32 get(Uint8 *addr) { return GetPixel_24(addr); }
-};
-
-// 32-bit getpixel
-inline Uint32 GetPixel_32(Uint8 *addr)  { return *(Uint32 *)addr; }
-class PixelGet_32 : public PixelGet {
-	Uint32 get(Uint8 *addr)	{ return GetPixel_32(addr); }
+inline void PutPixel_32(Uint8 *addr, Uint32 color)  { *(Uint32 *)addr = color; }
+class PixelPut_32 : public PixelPut {
+	void put(Uint8 *addr, Uint32 color)	{ PutPixel_32(addr, color); }
 };
 
 ////////////////////////
-// Get the copy pixel functor for the given surface
-PixelCopy& getPixelCopy(const SDL_Surface *surf)  {
-	static PixelCopy_8 px8;
-	static PixelCopy_16 px16;
-	static PixelCopy_24 px24;
-	static PixelCopy_32 px32;
+// Get the "put pixel" functor for the given surface
+PixelPut& getPixelPutFunc(const SDL_Surface *surf)  {
+	static PixelPut_8 px8;
+	static PixelPut_16 px16;
+	static PixelPut_24 px24;
+	static PixelPut_32 px32;
 
 	switch (surf->format->BytesPerPixel)  {
 	case 1:
@@ -206,9 +163,53 @@ PixelCopy& getPixelCopy(const SDL_Surface *surf)  {
 	return px32; // Should not happen
 }
 
+
+//
+// Get pixel
+//
+
+// 8-bit getpixel, returns palette index, not the color; currently unused
+inline Uint32 GetPixel_8(const Uint8 *addr)  { return *addr; }
+class PixelGet_8 : public PixelGet {
+	Uint32 get(Uint8 *addr)  { return GetPixel_8(addr); }
+};
+
+// 16-bit getpixel
+inline Uint32 GetPixel_16(const Uint8 *addr)  { return *(Uint16 *)addr; }
+class PixelGet_16 : public PixelGet {
+	Uint32 get(Uint8 *addr)	{ return GetPixel_16(addr); }
+};
+
+// 24-bit getpixel
+inline Uint32 GetPixel_24(const Uint8 *addr)  {
+		char color[4];
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		color[0] = addr[0];
+		color[1] = addr[1];
+		color[2] = addr[2];
+		color[3] = 0;
+#else
+		color[2] = addr[2];
+		color[1] = addr[1];
+		color[0] = addr[0];
+		color[3] = 0;		
+#endif
+		return *((Uint32 *)(&color[0]));
+}
+
+class PixelGet_24 : public PixelGet  {
+	Uint32 get(Uint8 *addr) { return GetPixel_24(addr); }
+};
+
+// 32-bit getpixel
+inline Uint32 GetPixel_32(const Uint8 *addr)  { return *(Uint32 *)addr; }
+class PixelGet_32 : public PixelGet {
+	Uint32 get(Uint8 *addr)	{ return GetPixel_32(addr); }
+};
+
 ////////////////////////
 // Get the "get pixel" functor for the given surface
-PixelGet& getPixelGetter(const SDL_Surface *surf)  {
+PixelGet& getPixelGetFunc(const SDL_Surface *surf)  {
 	static PixelGet_8 px8;
 	static PixelGet_16 px16;
 	static PixelGet_24 px24;
@@ -230,6 +231,148 @@ PixelGet& getPixelGetter(const SDL_Surface *surf)  {
 	return px32; // Should not happen
 }
 
+
+
+//
+// Copy pixel (from one surface to another)
+//
+class PixelCopy_8_8 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *dstaddr = *srcaddr; }
+};
+
+class PixelCopy_16_16 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *(Uint16 *)dstaddr = *(Uint16 *)srcaddr; }
+};
+
+class PixelCopy_24_24 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { dstaddr[0] = srcaddr[0]; dstaddr[1] = srcaddr[1]; dstaddr[2] = srcaddr[2]; }
+};
+
+class PixelCopy_32_32 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *(Uint32 *)dstaddr = *(Uint32 *)srcaddr; }
+};
+
+class PixelCopy_8_32 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint32 *)dstaddr = Pack(Color(sfmt->palette->colors[*srcaddr]), dfmt);
+	}
+};
+
+class PixelCopy_8_24 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		PutPixel_24(dstaddr, Pack(Color(sfmt->palette->colors[*srcaddr]), dfmt));
+	}
+};
+
+class PixelCopy_8_16 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint16 *)dstaddr = (Uint16)Pack(Color(sfmt->palette->colors[*srcaddr]), dfmt);
+	}
+};
+
+class PixelCopy_16_32 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint32 *)dstaddr = Pack(Unpack_solid(*(Uint16 *)srcaddr, sfmt), dfmt);
+	}
+};
+
+class PixelCopy_16_24 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		PutPixel_24(dstaddr, Pack(Unpack_solid(*(Uint16 *)srcaddr, sfmt), dfmt));
+	}
+};
+
+class PixelCopy_16_8 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  {
+		Color c = Unpack_solid(*(Uint16 *)srcaddr, sfmt);
+		*dstaddr = (Uint8)SDL_MapRGB(dfmt, c.r, c.g, c.b);
+	}
+};
+
+class PixelCopy_24_32 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint32 *)dstaddr = Pack(Unpack_solid(GetPixel_24(srcaddr), sfmt), dfmt);
+	}
+};
+
+class PixelCopy_24_16 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint16 *)dstaddr = Pack(Unpack_solid(GetPixel_24(srcaddr), sfmt), dfmt);
+	}
+};
+
+class PixelCopy_24_8 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  {
+		Color c = Unpack_solid(GetPixel_24(srcaddr), sfmt);
+		*dstaddr = (Uint8)SDL_MapRGB(dfmt, c.r, c.g, c.b);
+	}
+};
+
+class PixelCopy_32_8 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  {
+		Color c = Unpack_solid(*(Uint32 *)srcaddr, sfmt);
+		*dstaddr = (Uint8)SDL_MapRGB(dfmt, c.r, c.g, c.b);
+	}
+};
+
+class PixelCopy_32_16 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		*(Uint16 *)dstaddr = Pack(Unpack_solid(*(Uint32 *)srcaddr, sfmt), dfmt);
+	}
+};
+
+class PixelCopy_32_24 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
+		PutPixel_24(dstaddr, Pack(Unpack_solid(*(Uint32 *)srcaddr, sfmt), dfmt));
+	}
+};
+
+/////////////////////
+// Returns a pixel copy functor for the given surface
+PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *dest_surf)
+{
+	static PixelCopy_8_8	copy_8_8;	copy_8_8.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_8_16	copy_8_16;	copy_8_16.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_8_24	copy_8_24;	copy_8_24.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_8_32	copy_8_32;	copy_8_32.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_16_8	copy_16_8;	copy_16_8.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_16_16	copy_16_16;	copy_16_16.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_16_24	copy_16_24;	copy_16_24.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_16_32	copy_16_32;	copy_16_32.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_24_8	copy_24_8;	copy_24_8.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_24_16	copy_24_16;	copy_24_16.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_24_24	copy_24_24;	copy_24_24.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_24_32	copy_24_32;	copy_24_32.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_32_8	copy_32_8;	copy_32_8.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_32_16	copy_32_16;	copy_32_16.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_32_24	copy_32_24;	copy_32_24.setformats(source_surf->format, dest_surf->format);
+	static PixelCopy_32_32	copy_32_32;	copy_32_32.setformats(source_surf->format, dest_surf->format);
+
+#define DEST_SWITCH(sourcebpp)  switch (dest_surf->format->BytesPerPixel)  {\
+	case 1: return copy_##sourcebpp##_8;  \
+	case 2: return copy_##sourcebpp##_16;  \
+	case 3: return copy_##sourcebpp##_24;  \
+	case 4: return copy_##sourcebpp##_32;  \
+	}
+
+	switch (source_surf->format->BytesPerPixel)  {
+	case 1:
+		DEST_SWITCH(8);
+	break;
+	case 2:
+		DEST_SWITCH(16);
+	break;
+	case 3:
+		DEST_SWITCH(24);
+	break;
+	case 4:
+		DEST_SWITCH(32);
+	break;
+	}
+
+	return copy_8_8; // Should not happen
+}
+
 //
 // Special pixel drawing (with alpha)
 //
@@ -246,7 +389,7 @@ class PixelPutAlpha_SolidBg_16 : public PixelPutAlpha  {
 		dest_cl.r = BLEND_CHANN_SOLID(r, dest_cl, col);
 		dest_cl.g = BLEND_CHANN_SOLID(g, dest_cl, col);
 		dest_cl.b = BLEND_CHANN_SOLID(b, dest_cl, col);
-		CopyPixel_16(addr, Pack(dest_cl, dstfmt));
+		PutPixel_16(addr, Pack(dest_cl, dstfmt));
 	}
 };
 
@@ -259,7 +402,7 @@ class PixelPutAlpha_SolidBg_24 : public PixelPutAlpha  {
 		dest_cl.r = BLEND_CHANN_SOLID(r, dest_cl, col);
 		dest_cl.g = BLEND_CHANN_SOLID(g, dest_cl, col);
 		dest_cl.b = BLEND_CHANN_SOLID(b, dest_cl, col);
-		CopyPixel_24(addr, Pack(dest_cl, dstfmt));
+		PutPixel_24(addr, Pack(dest_cl, dstfmt));
 	}
 };
 
@@ -272,7 +415,7 @@ class PixelPutAlpha_SolidBg_32 : public PixelPutAlpha  {
 		dest_cl.r = BLEND_CHANN_SOLID(r, dest_cl, col);
 		dest_cl.g = BLEND_CHANN_SOLID(g, dest_cl, col);
 		dest_cl.b = BLEND_CHANN_SOLID(b, dest_cl, col);
-		CopyPixel_32(addr, Pack(dest_cl, dstfmt));
+		PutPixel_32(addr, Pack(dest_cl, dstfmt));
 	}
 };
 
@@ -293,13 +436,13 @@ class PixelPutAlpha_AlphaBg_32 : public PixelPutAlpha  {
 		dest_cl.r = BLEND_CHANN_ALPHA(r, dest_cl, col, dest_cl.a);
 		dest_cl.g = BLEND_CHANN_ALPHA(g, dest_cl, col, dest_cl.a);
 		dest_cl.b = BLEND_CHANN_ALPHA(b, dest_cl, col, dest_cl.a);
-		CopyPixel_32(addr, Pack(dest_cl, dstfmt));
+		PutPixel_32(addr, Pack(dest_cl, dstfmt));
 	}
 };
 
 //////////////////////////
 // Get the alpha pixel putter for the surface
-PixelPutAlpha& getAlphaPut(const SDL_Surface *surf)  {
+PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 	static PixelPutAlpha_SolidBg_16 px16;
 	static PixelPutAlpha_SolidBg_24 px24;
 	static PixelPutAlpha_SolidBg_32 px32;
@@ -335,8 +478,8 @@ PixelPutAlpha& getAlphaPut(const SDL_Surface *surf)  {
 // TODO: this function is now obsolete, remove it
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-
-	PixelPutAlpha& putter = getAlphaPut(bmpDest);
+	
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 	Color c = Unpack_solid(colour, bmpDest->format); c.a = a;
 	putter.put(px, bmpDest->format, c);
 }
@@ -500,8 +643,8 @@ void ResetAlpha(SDL_Surface * dst)
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
 	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
 
-	PixelCopy& putter = getPixelCopy(dst);
-	PixelGet& getter = getPixelGetter(dst);
+	PixelPut& putter = getPixelPutFunc(dst);
+	PixelGet& getter = getPixelGetFunc(dst);
 
 	LOCK_OR_QUIT(dst);
 	Uint8 *px = (Uint8 *)dst->pixels;
@@ -748,7 +891,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
 	int dstgap = bmpDest->pitch - rDest.w * dbpp;
 
-	PixelPutAlpha& putter = getAlphaPut(bmpDest);
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 
 	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
 		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
@@ -871,52 +1014,50 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Draws a sprite doubly stretched
 void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	// HINT: since the new copy-functors have been available, this function accepts surfaces of any format
+	// However, passing surfaces with same format (bpp) makes this function faster
 
-	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+	// Clipping
+	{
+		int dw = w * 2;
+		int dh = h * 2;
 
-	int x,y;
-	int dw = w * 2;
-	int dh = h * 2;
+		// Source clipping
+		if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+			return;
+
+		// Dest clipping
+		if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+			return;
+
+		w = MIN(w, dw/2);
+		h = MIN(h, dh/2);
+	}
 
 	// Lock the surfaces
 	LOCK_OR_QUIT(bmpDest);
 	LOCK_OR_QUIT(bmpSrc);
 
-	// Source clipping
-	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
-		return;
-
-	// Dest clipping
-	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
-		return;
-
-	w = MIN(w, dw/2);
-	h = MIN(h, dh/2);
-
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp_x,*tp_y;
 	int doublepitch = bmpDest->pitch*2;
-	byte bpp = bmpDest->format->BytesPerPixel;
+	int sbpp = bmpSrc->format->BytesPerPixel;
+	int dbpp = bmpDest->format->BytesPerPixel;
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc, bmpDest);
 
-    for(y = h; y; --y) {
+    for(int y = h; y; --y) {
 
-		sp = SrcPix;
-		tp_x = TrgPix;
-		tp_y = tp_x+bmpDest->pitch;
-		for(x = w; x; --x) {
+		Uint8 *sp = SrcPix;
+		Uint8 *tp_x1 = TrgPix;
+		Uint8 *tp_x2 = tp_x1 + bmpDest->pitch;
+		for(int x = w; x; --x) {
             // Copy the 1 source pixel into a 4 pixel block on the destination surface
-			memcpy(tp_x,sp,bpp);
-			tp_x += bpp;
-			memcpy(tp_x,sp,bpp);
-			memcpy(tp_y,sp,bpp);
-			tp_y += bpp;
-			memcpy(tp_y,sp,bpp);
-			tp_x += bpp;
-			tp_y += bpp;
-			sp+=bpp;
+			copier.copy(tp_x1, sp); tp_x1 += dbpp;
+			copier.copy(tp_x1, sp); tp_x1 += dbpp;
+			copier.copy(tp_x2, sp); tp_x2 += dbpp;
+			copier.copy(tp_x2, sp); tp_x2 += dbpp;
+			sp += sbpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
@@ -1643,10 +1784,10 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 
 	// Draw depending on the alpha
 	switch (colour.a)  {
-	case SDL_ALPHA_OPAQUE:
+	case SDL_ALPHA_OPAQUE:  
 	{
 		// Solid (no alpha) drawing
-		PixelCopy& putter = getPixelCopy(bmpDest);
+		PixelPut& putter = getPixelPutFunc(bmpDest);
 		Uint32 packed_cl = Pack(colour, bmpDest->format);
 		for (Uint8* px = (Uint8*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
 			putter.put(px, packed_cl);
@@ -1656,7 +1797,7 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 	default:
 	{
 		// Draw the line alpha-blended with the background
-		PixelPutAlpha& putter = getAlphaPut(bmpDest);
+		PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 		for (Uint8* px = (Uint8*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
 			putter.put(px, bmpDest->format, colour);
 	}
@@ -1696,10 +1837,10 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 
 	// Draw depending on the alpha
 	switch (colour.a)  {
-	case SDL_ALPHA_OPAQUE:
+	case SDL_ALPHA_OPAQUE:  
 	{
 		// Solid (no alpha) drawing
-		PixelCopy& putter = getPixelCopy(bmpDest);
+		PixelPut& putter = getPixelPutFunc(bmpDest);
 		Uint32 packed_cl = Pack(colour, bmpDest->format);
 		for (Uint8 *px= (Uint8 *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
 			putter.put(px, packed_cl);
@@ -1709,7 +1850,7 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 	default:
 	{
 		// Draw the line alpha-blended with the background
-		PixelPutAlpha& putter = getAlphaPut(bmpDest);
+		PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 		for (Uint8 *px= (Uint8 *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
 			putter.put(px, bmpDest->format, colour);
 	}
@@ -1735,7 +1876,7 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color)
 
 	const Uint32 packed_color = Pack(color, bmpDest->format);
 
-	PixelCopy& putter = getPixelCopy(bmpDest);
+	PixelPut& putter = getPixelPutFunc(bmpDest);
 	putter.put(row1, packed_color);
 	putter.put(row1 + bmpDest->format->BytesPerPixel, packed_color);
 	putter.put(row2, packed_color);
@@ -1851,7 +1992,7 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color 
 	int step = bmpDest->pitch - r.w * bpp;
 
 	// Draw the fill rect
-	PixelPutAlpha& putter = getAlphaPut(bmpDest);
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 	for (int y = r.h; y; --y, px += step)
 		for (int x = r.w; x; --x, px += bpp)  {
 			putter.put(px, bmpDest->format, color);

@@ -291,8 +291,8 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 	int char_h = bmpFont.get()->h;
 
 	// Get the putpixel & getpixel functors
-	PixelPutAlpha& putter = getAlphaPut(dst);
-	PixelGet& getter = getPixelGetter(bmpFont.get());
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(dst);
+	PixelGet& getter = getPixelGetFunc(bmpFont.get());
 
 	// Vertical clipping
 	OneSideClip(char_y, char_h, newrect.y, newrect.h);

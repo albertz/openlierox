@@ -95,6 +95,7 @@ class Color  { public:
 	Color(SDL_Surface *s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
 	Color(const SmartPointer<SDL_Surface>& s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
 	Color(Uint32 cl)	{ set(SDL_GetVideoSurface(), cl); }
+	Color(const SDL_Color& cl) { r = cl.r; g = cl.g; b = cl.b; }
 
 	Uint8 r;
 	Uint8 g;
