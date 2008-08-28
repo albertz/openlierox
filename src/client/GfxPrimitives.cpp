@@ -1435,8 +1435,6 @@ static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
 // Thanks go to the AdvanceMAME team!
 void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	float start = GetMilliSeconds();
-
 	PixelPut& putter = getPixelPutFunc(bmpDest);
 	PixelGet& getter = getPixelGetFunc(bmpSrc);
 	const unsigned sbpp = bmpSrc->format->BytesPerPixel;
@@ -1522,8 +1520,6 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 	// Unlock
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
-
-	printf("Optimized scale2x longed %f sec\n", GetMilliSeconds() - start);
 }
 
 ///////////////////////
