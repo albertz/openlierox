@@ -1081,27 +1081,25 @@ void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int 
 // HINT: doesn't work with alpha-surfaces
 void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	// HINT: since the new copy-functors have been available, this function accepts surfaces of any format
+	// However, passing surfaces with same format (bpp) makes this function faster
 
-	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+	// Clipping
+	{
+		int dw = w * 2;
+		int dh = h * 2;
 
-	int x,y;
+		// Source clipping
+		if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+			return;
 
-	int dw = w * 2;
-	int dh = h * 2;
+		// Dest clipping
+		if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+			return;
 
-	// Source clipping
-	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
-		return;
-
-	// Dest clipping
-	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
-		return;
-
-
-	w = MIN(w, dw/2);
-	h = MIN(h, dh/2);
-
+		w = MIN(w, dw/2);
+		h = MIN(h, dh/2);
+	}
 
 	// Lock the surfaces
 	LOCK_OR_QUIT(bmpDest);
@@ -1110,41 +1108,34 @@ void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, i
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	register Uint8 *sp, *tp_x, *tp_y;
+	int doublepitch = bmpDest->pitch*2;
+	int sbpp = bmpSrc->format->BytesPerPixel;
+	int dbpp = bmpDest->format->BytesPerPixel;
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc, bmpDest);
+	PixelGet& getter = getPixelGetFunc(bmpSrc);
 
-	// Pre-calculate some things, so the loop is faster
-	int doublepitch = bmpDest->pitch * 2;
-	byte bpp = bmpDest->format->BytesPerPixel;
-	byte doublebpp = (byte)(bpp * 2);
+    for(int y = h; y; --y) {
 
-    for(y=h; y ; --y) {
-
-		sp = SrcPix;
-		tp_x = TrgPix;
-		tp_y = tp_x+bmpDest->pitch;
-		for(x = w; x; --x) {
-			if (IsTransparent(bmpSrc, GetPixelFromAddr(sp, bpp)))  {
+		Uint8 *sp = SrcPix;
+		Uint8 *tp_x1 = TrgPix;
+		Uint8 *tp_x2 = tp_x1 + bmpDest->pitch;
+		for(int x = w; x; --x) {
+			if (IsTransparent(bmpSrc, getter.get(sp)))  {
 				// Skip the transparent pixel
-				sp += bpp;
-				tp_x += doublebpp;
-				tp_y += doublebpp;
+				tp_x1 += dbpp * 2;
+				tp_x2 += dbpp * 2;
 			} else {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x,sp,bpp);
-				tp_x += bpp;
-				memcpy(tp_x,sp,bpp);
-				tp_x += bpp;
-				memcpy(tp_y,sp,bpp);
-				tp_y += bpp;
-				memcpy(tp_y,sp,bpp);
-				tp_y += bpp;
-				sp += bpp;
+				copier.copy(tp_x1, sp); tp_x1 += dbpp;
+				copier.copy(tp_x1, sp); tp_x1 += dbpp;
+				copier.copy(tp_x2, sp); tp_x2 += dbpp;
+				copier.copy(tp_x2, sp); tp_x2 += dbpp;
 			}
+			sp += sbpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
 	}
-
 
 	// Unlock em
 	UnlockSurface(bmpDest);
@@ -1156,24 +1147,23 @@ void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, i
 // Draws a sprite mirrored doubly stretched with colour key
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	// Clipping
+	{
+		int dw = w * 2;
+		int dh = h * 2;
 
-	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+		// Source clipping
+		if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+			return;
 
-	int x,y;
+		// Clipping on dest surface
+		if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+			return;
 
-	int dw = w * 2;
-	int dh = h * 2;
-
-	// Warning: Doesn't do clipping on the source surface
-
-	// Clipping on dest surface
-	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
-		return;
-
-	// Clipping could change w or h
-	w = dw / 2;
-	h = dh / 2;
+		// Clipping could change w or h
+		w = MIN(w, dw / 2);
+		h = MIN(h, dh / 2);
+	}
 
 
 	// Lock the surfaces
@@ -1184,32 +1174,33 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface * bmpSrc, int s
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	Uint8 *sp,*tp_x,*tp_y;
-
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	byte bpp = bmpDest->format->BytesPerPixel;
-	byte doublebpp = (byte)(bpp*2);
-	int realw = w*bpp;
+	int sbpp = bmpSrc->format->BytesPerPixel;
+	int dbpp = bmpDest->format->BytesPerPixel;
+	
+	PixelGet& getter = getPixelGetFunc(bmpSrc);
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc, bmpDest);
 
-    for(y = h; y; --y) {
+    for(int y = h; y; --y) {
 
-		sp = SrcPix;
-		tp_x = TrgPix+realw;
-		tp_y = tp_x+bmpDest->pitch;
-		for(x = w; x; --x) {
-			if (!IsTransparent(bmpSrc, GetPixelFromAddr(sp, bpp)))  {
+		Uint8 *sp = SrcPix;
+		Uint8 *tp_x1 = TrgPix + w * 2 * dbpp;
+		Uint8 *tp_x2 = tp_x1 + bmpDest->pitch;
+		for(int x = w; x; --x) {
+			if (!IsTransparent(bmpSrc, getter.get(sp)))  {
 				// Non-transparent
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x,sp,bpp);
-				memcpy(tp_x,sp,bpp);
-				memcpy(tp_y,sp,bpp);
-				memcpy(tp_y,sp,bpp);
+				copier.copy(tp_x1, sp); tp_x1 -= dbpp;
+				copier.copy(tp_x1, sp); tp_x1 -= dbpp;
+				copier.copy(tp_x2, sp); tp_x2 -= dbpp;
+				copier.copy(tp_x2, sp); tp_x2 -= dbpp;
+			} else {
+				// Skip to next pixel
+				tp_x1 -= dbpp * 2;
+				tp_x2 -= dbpp * 2;
 			}
-			// Skip to next pixel
-			sp+=bpp;
-			tp_x -= doublebpp;
-			tp_y -= doublebpp;
+			sp += sbpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
@@ -1247,7 +1238,9 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 	// Pixels
 	Uint8 *dst_px = NULL;
 	Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
-	int bpp = (byte)bmpDest->format->BytesPerPixel;
+	int sbpp = bmpSrc->format->BytesPerPixel;
+	int dbpp = bmpDest->format->BytesPerPixel;
+	PixelCopy& copier = getPixelCopyFunc(bmpSrc, bmpDest);
 
 	// Resize
 	int dest_y = 0;
@@ -1255,14 +1248,14 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 		Uint8 *src_pxrow = (Uint8 *)bmpSrc->pixels + (int)(src_y) * bmpSrc->pitch;
 		dst_px = dst_pxrow;
 
-		int dest_x = 0;
+		int dest_x = dw;
 
 		// Copy the row
-		for (float src_x = (float)sx; dest_x < dw; dest_x++)  {
-			Uint8 *src_px = src_pxrow + (int)(src_x) * bpp;
-			memcpy(dst_px, src_px, bpp);
+		for (float src_x = (float)sx; dest_x; --dest_x)  {
+			const Uint8 *src_px = src_pxrow + (int)(src_x) * sbpp;
+			copier.copy(dst_px, src_px);
 			src_x += xstep;
-			dst_px += bpp;
+			dst_px += dbpp;
 		}
 
 		src_y += ystep;
@@ -1335,8 +1328,13 @@ static bool Clip2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int& sx, int& sy, 
 	return true;
 }
 
-static void Scale2xPixel(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 *colors)
+static void Scale2xPixel(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 *colors, PixelPut& putter)
 {
+	// Put the 2x2 square on the dest surface
+	const int bpp = bmpDest->format->BytesPerPixel;
+
+	Uint8 *pixel = GetPixelAddr(bmpDest, dx, dy);
+
 	// Get the four colors to put on the dest surface
 	Uint32 dstE[4];
 	if (colors[B] != colors[H] && colors[D] != colors[F]) {
@@ -1344,76 +1342,91 @@ static void Scale2xPixel(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int 
 		dstE[1] = colors[B] == colors[F] ? colors[F] : colors[E];
 		dstE[2] = colors[D] == colors[H] ? colors[D] : colors[E];
 		dstE[3] = colors[H] == colors[F] ? colors[F] : colors[E];
+
+		// Put the four pixels
+		putter.put(pixel, dstE[0]);
+		putter.put(pixel + bpp, dstE[1]);
+
+		pixel += bmpDest->pitch;
+		putter.put(pixel, dstE[2]);
+		putter.put(pixel + bpp, dstE[3]);
 	} else {
-		dstE[0] = dstE[1] = dstE[2] = dstE[3] = colors[E];
+		// One, solid pixel
+		putter.put(pixel, colors[E]);
+		putter.put(pixel + bpp, colors[E]);
+
+		pixel += bmpDest->pitch;
+		putter.put(pixel, colors[E]);
+		putter.put(pixel + bpp, colors[E]);
 	}
-
-	// Put the 2x2 square on the dest surface
-	int bpp = bmpDest->format->BytesPerPixel;
-
-	Uint8 *pixel = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bpp;
-	PutPixelToAddr(pixel, dstE[0], bpp);
-	PutPixelToAddr(pixel + bpp, dstE[1], bpp);
-
-	pixel += bmpDest->pitch;
-	PutPixelToAddr(pixel, dstE[2], bpp);
-	PutPixelToAddr(pixel + bpp, dstE[3], bpp);
 }
 
-static void Scale2xPixel_FF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_FF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, 
+							int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[B] = colors[D] = colors[E] = GetPixel(bmpSrc, sx, sy);;
-	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
-	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[B] = colors[D] = colors[E] = getter.get(addr);
+	colors[F] = getter.get(addr + bmpSrc->format->BytesPerPixel); // x + 1
+	colors[H] = getter.get(addr + bmpSrc->pitch);  // y + 1
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
-static void Scale2xPixel_LF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_LF(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
+							int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[B] = colors[E] = colors[F] = GetPixel(bmpSrc, sx, sy);
-	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
-	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[B] = colors[E] = colors[F] = getter.get(addr);
+	colors[D] = getter.get(addr - bmpSrc->format->BytesPerPixel);
+	colors[H] = getter.get(addr + bmpSrc->pitch);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
-static void Scale2xPixel_FL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_FL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
+							int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[D] = colors[E] = colors[H] = GetPixel(bmpSrc, sx, sy);
-	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
-	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[D] = colors[E] = colors[H] = getter.get(addr);
+	colors[B] = getter.get(addr - bmpSrc->pitch);
+	colors[F] = getter.get(addr + bmpSrc->format->BytesPerPixel);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
-static void Scale2xPixel_LL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_LL(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
+							int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[E] = colors[F] = colors[H] = GetPixel(bmpSrc, sx, sy);
-	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
-	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[E] = colors[F] = colors[H] = getter.get(addr);
+	colors[B] = getter.get(addr - bmpSrc->pitch);
+	colors[D] = getter.get(addr - bmpSrc->format->BytesPerPixel);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
-static void Scale2xPixel_F(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_F(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
+						   int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[D] = colors[E] = GetPixel(bmpSrc, sx, sy);
-	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
-	colors[F] = GetPixel(bmpSrc, sx + 1, sy);
-	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[D] = colors[E] = getter.get(addr);
+	colors[B] = getter.get(addr - bmpSrc->pitch);
+	colors[F] = getter.get(addr + bmpSrc->format->BytesPerPixel);
+	colors[H] = getter.get(addr + bmpSrc->pitch);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
-static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy)
+static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
+						   int sx, int sy, int dx, int dy, PixelGet& getter, PixelPut& putter)
 {
+	Uint8 *addr = GetPixelAddr(bmpSrc, sx, sy);
 	Uint32 colors[5];
-	colors[E] = colors[F] = GetPixel(bmpSrc, sx, sy);
-	colors[B] = GetPixel(bmpSrc, sx, sy - 1);
-	colors[D] = GetPixel(bmpSrc, sx - 1, sy);
-	colors[H] = GetPixel(bmpSrc, sx, sy + 1);
-	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors);
+	colors[E] = colors[F] = getter.get(addr);
+	colors[B] = getter.get(addr - bmpSrc->pitch);
+	colors[D] = getter.get(addr - bmpSrc->format->BytesPerPixel);
+	colors[H] = getter.get(addr + bmpSrc->pitch);
+	Scale2xPixel(bmpDest, bmpSrc, dx, dy, colors, putter);
 }
 
 /////////////////////////
@@ -1422,6 +1435,13 @@ static void Scale2xPixel_L(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 // Thanks go to the AdvanceMAME team!
 void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
+	float start = GetMilliSeconds();
+
+	PixelPut& putter = getPixelPutFunc(bmpDest);
+	PixelGet& getter = getPixelGetFunc(bmpSrc);
+	const unsigned sbpp = bmpSrc->format->BytesPerPixel;
+	Uint8 *px1, *px2;
+
 	// Lock
 	LOCK_OR_QUIT(bmpDest);
 	LOCK_OR_QUIT(bmpSrc);
@@ -1442,59 +1462,68 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 	Uint32 colors[5];
 
 	// First pixel, first line
-	Scale2xPixel_FF(bmpDest, bmpSrc, sx, sy, dx, dy);
+	Scale2xPixel_FF(bmpDest, bmpSrc, sx, sy, dx, dy, getter, putter);
 
 	// Last pixel, first line
-	Scale2xPixel_LF(bmpDest, bmpSrc, sx2, sy, dx + w * 2 - 2, dy);
+	Scale2xPixel_LF(bmpDest, bmpSrc, sx2, sy, dx + w * 2 - 2, dy, getter, putter);
 
 	// First line
-	for(int x = 1; x < w - 1; ++x)  {
-		colors[B] = colors[E] = GetPixel(bmpSrc, sx + x, sy);
-		colors[D] = GetPixel(bmpSrc, sx + x - 1, sy);
-		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy);
-		colors[H] = GetPixel(bmpSrc, sx + x, sy + 1);
+	px1 = GetPixelAddr(bmpSrc, sx + 1, sy);
+	px2 = px1 + bmpSrc->pitch;
+	for(int x = 1; x < w - 1; ++x, px1 += sbpp, px2 += sbpp)  {
+		colors[B] = colors[E] = getter.get(px1);
+		colors[D] = getter.get(px1 - sbpp);
+		colors[F] = getter.get(px1 + sbpp);
+		colors[H] = getter.get(px2);
 
-		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy, colors);
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy, colors, putter);
 	}
 
 	// First pixel, last line
-	Scale2xPixel_FL(bmpDest, bmpSrc, sx, sy2, dx, dy + h * 2 - 2);
+	Scale2xPixel_FL(bmpDest, bmpSrc, sx, sy2, dx, dy + h * 2 - 2, getter, putter);
 
 	// Last pixel, last line
-	Scale2xPixel_LL(bmpDest, bmpSrc, sx2, sy2, dx + w * 2 - 2, dy + h * 2 - 2);
+	Scale2xPixel_LL(bmpDest, bmpSrc, sx2, sy2, dx + w * 2 - 2, dy + h * 2 - 2, getter, putter);
 
 
 	// Last line
-	for(int x = 1; x < w - 1; ++x)  {
-		colors[E] = colors[H] = GetPixel(bmpSrc, sx + x, sy2);
-		colors[B] = GetPixel(bmpSrc, sx + x, sy2 - 1);
-		colors[D] = GetPixel(bmpSrc, sx + x - 1, sy2);
-		colors[F] = GetPixel(bmpSrc, sx + x + 1, sy2);
+	px1 = GetPixelAddr(bmpSrc, sx + 1, sy2 - 1);
+	px2 = px1 + bmpSrc->pitch;
+	for(int x = 1; x < w - 1; ++x, px1 += sbpp, px2 += sbpp)  {
+		colors[E] = colors[H] = getter.get(px2);
+		colors[B] = getter.get(px1);
+		colors[D] = getter.get(px2 - sbpp);
+		colors[F] = getter.get(px2 + sbpp);
 
-		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + h * 2 - 2, colors);
+		Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + h * 2 - 2, colors, putter);
 	}
 
 	// Rest of the image
 	for(int y = 1; y < h - 1; ++y) {
+		const int y2 = y * 2;
+
 		// First & last pixel
-		Scale2xPixel_F(bmpDest, bmpSrc, sx, sy + y, dx, dy + y * 2);
-		Scale2xPixel_L(bmpDest, bmpSrc, sx2, sy + y, dx + w * 2 - 2, dy + y * 2);
+		Scale2xPixel_F(bmpDest, bmpSrc, sx, sy + y, dx, dy + y2, getter, putter);
+		Scale2xPixel_L(bmpDest, bmpSrc, sx2, sy + y, dx + w * 2 - 2, dy + y2, getter, putter);
 
 		// Rest of the line
-		for(int x = 1; x < w - 1; ++x) {
-			colors[B] = GetPixel(bmpSrc, sx + x		, sy + y - 1);
-			colors[D] = GetPixel(bmpSrc, sx + x - 1	, sy + y);
-			colors[E] = GetPixel(bmpSrc, sx + x		, sy + y);
-			colors[F] = GetPixel(bmpSrc, sx + x + 1	, sy + y);
-			colors[H] = GetPixel(bmpSrc, sx + x		, sy + y + 1);
+		Uint8 *px = GetPixelAddr(bmpSrc, sx + w - 2, sy + y);
+		for(int x = w - 2; x; --x, px -= sbpp) {
+			colors[B] = getter.get(px - bmpSrc->pitch);
+			colors[D] = getter.get(px - sbpp);
+			colors[E] = getter.get(px);
+			colors[F] = getter.get(px + sbpp);
+			colors[H] = getter.get(px + bmpSrc->pitch);
 
-			Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + y * 2, colors);
+			Scale2xPixel(bmpDest, bmpSrc, dx + x * 2 + 2, dy + y2, colors, putter);
 		}
 	}
 
 	// Unlock
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
+
+	printf("Optimized scale2x longed %f sec\n", GetMilliSeconds() - start);
 }
 
 ///////////////////////
