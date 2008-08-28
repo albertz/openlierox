@@ -241,7 +241,7 @@ void Menu_MainFrame(void)
 		"- Original code by Jason Boettcher\n"
 		"- Ported and enhanced by\n"
 		"  K. Petránek, Albert Zeyer, Daniel Sjoholm,\n" // In order of joining
-		"  Martin Griffin, Pelya\n"
+		"  Martin Griffin, Sergiy Pylypenko\n"
 		"- Supported by the [RIP] clan\n"
 		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
 		)

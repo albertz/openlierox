@@ -661,12 +661,12 @@ void GameServer::ReadPackets(void)
 			}
 			bs.ResetPosToBegin();
 
-			// Reset the suicide packet count
-			iSuicidesInPacket = 0;
-
 			// Read packets
 			CClient *cl = cClients;
 			for(c=0;c<MAX_CLIENTS;c++,cl++) {
+
+				// Reset the suicide packet count
+				iSuicidesInPacket = 0;
 
 				// Player not connected
 				if(cl->getStatus() == NET_DISCONNECTED)

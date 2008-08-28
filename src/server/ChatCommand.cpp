@@ -673,8 +673,19 @@ std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id
 	lives = CLAMP(lives, 0, w->getLives() + 1);
 
 	// Make sure the client suicides themselves
+	// Use ParseDeathPacket() function with correct client instance to work around security restrictions
+	CBytestream bs;
 	for(int i=0; i < lives; ++i)
-		cClient->SendDeath(sender_id, sender_id);
+	{
+		bs.writeByte(C2S_DEATH);
+		bs.writeInt(sender_id,1);
+		bs.writeInt(sender_id,1);
+	};
+	while( !bs.isPosAtEnd() )	// ParseDeathPacket() has special processing for multiple suicides
+	{
+		bs.readByte();	// Read C2S_DEATH
+		cServer->ParseDeathPacket( w->getClient(), &bs );
+	};
 
 	return "";
 }

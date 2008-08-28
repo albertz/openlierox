@@ -586,7 +586,6 @@ public:
 	void		SendText(const std::string& sText, std::string sWormName);
 	void		Disconnect(void);
 	int			OwnsWorm(int id);
-	void		StartDemoReplay(const std::string& filename);
 
 	// Sending
 	void		SendWormDetails(void);

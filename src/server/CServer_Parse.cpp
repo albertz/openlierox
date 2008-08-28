@@ -332,8 +332,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
-		// or if the client is host (host can kill anyone - /suicide command in chat)
-		if (!cl->OwnsWorm(vict->getID()) && !cl->isLocalClient())  {
+		if (!cl->OwnsWorm(vict->getID()))  {
 			std::string clientWorms;
 			for(int i=cl->getNumWorms();i > 0 && i <= 2;i++) {
 				CWorm* w = cl->getWorm(i);
@@ -660,6 +659,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WormDied_Signal(vict,kill);
 
+	iSuicidesInPacket = 0; // Reset counter, so /suicide chat command will work correctly
 }
 
 
