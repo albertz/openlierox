@@ -4003,10 +4003,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\include\con_cmd.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\Console.cpp"
 				>
 				<FileConfiguration

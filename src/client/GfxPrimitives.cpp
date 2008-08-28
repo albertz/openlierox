@@ -872,14 +872,21 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	assert(bmpSrc->format->BytesPerPixel == 4);
 
 	// Clip
-	rDest.w = rSrc.w;
-	rDest.h = rSrc.h;
-	if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
-		return;
-	if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
-		return;
-	rDest.w = MIN(rSrc.w, rDest.w);
-	rDest.h = MIN(rSrc.h, rDest.h);
+	{
+		int old_x = rDest.x;
+		int old_y = rDest.y;
+		rDest.w = rSrc.w;
+		rDest.h = rSrc.h;
+		if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
+			return;
+
+		rSrc.x += rDest.x - old_x;
+		rSrc.y += rDest.y - old_y;
+		if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
+			return;
+		rDest.w = MIN(rSrc.w, rDest.w);
+		rDest.h = MIN(rSrc.h, rDest.h);
+	}
 
 	LOCK_OR_QUIT(bmpDest);
 	LOCK_OR_QUIT(bmpSrc);

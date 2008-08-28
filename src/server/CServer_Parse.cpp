@@ -352,7 +352,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// Adjust the score if there were multiple suicides
 	if (iSuicidesInPacket > 1)  {
 		if (tGameInfo.iLives != WRM_UNLIM) // Substracting from infinite makes no sense
-			vict->setLives(MAX(WRM_OUT, vict->getLives() - iSuicidesInPacket + 1)); // HINT: +1 because one live is substracted in vict->Kill()
+			vict->setLives(MAX(WRM_OUT, vict->getLives() - iSuicidesInPacket + 1)); // HINT: +1 because one life is substracted in vict->Kill()
 	}
 
 	// Cheat prevention, game behaves weird if this happens
