@@ -123,7 +123,11 @@ bool LevelDecompilerApp::OnInit()
 		outFile += "./";
 #endif
 		outFile += commandLineFile.Mid( 0, commandLineFile.Len() - 4 ) + ".bmp";
-		DecompileLevel( commandLineFile, outFile );
+		try {
+			DecompileLevel( commandLineFile, outFile );
+		} catch ( const Exception & e )	{
+			printf("Error: %s\n", e.message.c_str());
+		}
 		return false;
 	}
 	

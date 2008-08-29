@@ -137,7 +137,12 @@ bool LevelCompilerApp::OnInit()
 	
 	if( commandLineFront != "" )
 	{
-		CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
+		try {
+			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
+		} catch (Exception &e) {
+			printf("An error occured while compiling: %s\n", e.message.c_str());
+		}
+
 		return false;
 	}
 	wxFrame *frame = new LevelCompilerFrame(_T("LieroX Level Compiler"));
@@ -425,7 +430,7 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 				fclose(fp);
 				wxRemove(out);
 				delete[] pxFlags;
-				throw Exception(_T("Unknown color in the material image."));
+				throw Exception(_T("Unknown color in the material image.", ));
 			}
 		}
 	}
