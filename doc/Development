@@ -56,6 +56,9 @@ You need the following frameworks (directories) in /Library/Frameworks/:
 	GD.framework
 	FreeType.framework
 	UnixImageIO.framework
+I created a ZIP-package containing all these frameworks. You can download it here: https://sourceforge.net/project/showfiles.php?group_id=180059&package_id=289742
+
+You can also download all the files yourself:
 Download SDL: http://www.libsdl.org/release/SDL-1.2.12.dmg
 Download SDL_image: http://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.6.dmg
 Download SDL_mixer: http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.8.dmg

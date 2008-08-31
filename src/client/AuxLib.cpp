@@ -36,6 +36,7 @@
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "Sounds.h"
+#include "Version.h"
 
 
 // Config file
