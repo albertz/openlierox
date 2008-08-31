@@ -140,7 +140,7 @@ public:
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 	
-	void	recheckSeqs() {}
+	virtual void	recheckSeqs() {}
 
 };
 
