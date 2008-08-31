@@ -278,6 +278,23 @@ bool CChannel_056b::Process(CBytestream *bs)
 }
 
 
+void CChannel_056b::recheckSeqs() {
+	// Ensure the incoming sequence matchs the outgoing sequence
+	if (this->getInSeq() >= this->getOutSeq())  {
+		//if (chan->getInSeq() != chan->getOutSeq())
+		//	printf(cl->getWorm(0)->getName() + ": sequences not same (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+		//else
+		//	printf(cl->getWorm(0)->getName() + ": sequences match!! (" + itoa(chan->getInSeq()) + ")\n");*/
+		this->setOutSeq(this->getInSeq());
+	} else {
+		// Sequences have slipped
+		// Karel said: it's bullshit from JasonB, so we can ignore this warning :)
+		//printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+		// TODO: Set the player's send_data property to false
+	}
+}
+
+
 ///////////////////
 // Reliable CChannel implementation by pelya ( I hope it's less messy, though it has more code ).
 

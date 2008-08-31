@@ -139,6 +139,8 @@ public:
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
+	
+	void	recheckSeqs() {}
 
 };
 
@@ -188,9 +190,12 @@ public:
 
 	int			getInAck(void)			{ return iIncomingAcknowledged; }
 
+	void		recheckSeqs();
+
 	friend void TestCChannelRobustness();
 };
 
+// TODO: rename this class
 // Reliable and less messy CChannel implementation by pelya.
 class CChannel_UberPwnyReliable: public CChannel {
 	
