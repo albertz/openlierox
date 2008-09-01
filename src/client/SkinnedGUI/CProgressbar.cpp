@@ -123,7 +123,7 @@ void CProgressBar::DoRepaint()
 			// Background
 			DrawImageAdv(bmpBuffer.get(), bmpBar, bar_w * (iNumForeStates + iCurrentBgState), 0, 0, 0, bar_w, bmpBar->h); // The last image is the empty one
 
-			h = (bmpBar->w * pos) / 100;
+			h = (bmpBar->h * pos) / 100;
 			DrawImageAdv(bmpBuffer.get(), bmpBar,  bar_w * iCurrentForeState, bmpBar->h - h, 0, bmpBar->h - h, bar_w, h);  // Progress
 			LOCK_OR_QUIT(bmpBar);
 			clLabel = GetPixel(bmpBar.get().get(), bmpBar->w - iNumForeStates + iCurrentForeState, MIN(bmpBar->h - 1, bmpBar->h - h - 1));
