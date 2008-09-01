@@ -97,7 +97,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 			// Background
 			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar.get()->h); // The last image is the empty one
 
-			h = (bmpBar.get()->w * pos) / 100;
+			h = (bmpBar.get()->h * pos) / 100;
 			DrawImageAdv(dst, bmpBar,  bar_w * CurrentForeState, bmpBar.get()->h - h, X, Y + bmpBar.get()->h - h, bar_w, h);  // Progress
 			LOCK_OR_QUIT(bmpBar);
 			clLabel = GetPixel(bmpBar.get(), bmpBar.get()->w - NumForeStates + CurrentForeState, MIN(bmpBar.get()->h- 1, bmpBar.get()->h - h - 1));
