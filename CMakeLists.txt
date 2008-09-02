@@ -2,6 +2,9 @@
 # this file is not intendent (yet) as a system for building final releases
 # use compile.sh instead
 
+cmake_minimum_required(VERSION 2.4)
+cmake_policy(SET CMP0005 OLD)
+
 OPTION(DEBUG "enable debug build" Yes)
 OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 OPTION(WITH_G15 "G15 support" No)
@@ -102,7 +105,10 @@ IF(DEBUG)
 	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 ENDIF(DEBUG)
 
-ADD_DEFINITIONS("-DLX_VERSION=\\\"`cat VERSION`_r`svn info | grep \"Revision:\" | cut -d \" \" -f 2`\\\"")
+EXEC_PROGRAM(sh ARGS get_version.sh OUTPUT_VARIABLE OLXVER)
+string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
+MESSAGE( "OLX_VERSION = ${OLXVER}" )
+ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"")
 IF(X11CLIPBOARD)
 	ADD_DEFINITIONS("-DX11CLIPBOARD")
 ENDIF(X11CLIPBOARD)
@@ -124,7 +130,9 @@ ENDIF(CFLAGS)
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
-TARGET_LINK_LIBRARIES(openlierox `sdl-config --libs` SDL SDL_image pthread z xml2)
+EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
+string(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
+TARGET_LINK_LIBRARIES(openlierox ${SDLLIBS} SDL SDL_image pthread z xml2)
 
 IF (NOT DEDICATED_ONLY)
 	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)
