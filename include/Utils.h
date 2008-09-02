@@ -33,6 +33,8 @@ public:
 	_ValueType operator*() { return base[pos]; }
 };
 
+/*
+// WARNING: name conflicts with some implementations of STL (eg STLport)
 template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
 class reverse_iterator : public iterator<_RandomAccessType, _ValueType, _PosType> {
 public:
@@ -40,7 +42,7 @@ public:
 	void operator++() { this->pos--; }
 	void operator--() { this->pos++; }
 };
-
+*/
 
 /*
 	helpers for declaration/definition of classes
