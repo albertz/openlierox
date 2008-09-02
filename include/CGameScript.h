@@ -147,7 +147,7 @@ class weapon_t { public:
 	// Special
 	gs_special_t tSpecial;
 
-	SmartPointer<SoundSample> smpSample;
+	SoundSample * smpSample;	// Read-only var, managed by game script, no need in smartpointer
 
 };
 
@@ -195,13 +195,15 @@ private:
 
     // Mod log file
     FILE        *pModLog;
+	
+	std::vector< SmartPointer<SDL_Surface> > CachedImages;	// To safely delete the vars, along with CGameScript.
+	std::vector< SmartPointer<SoundSample> > CachedSamples;	// To safely delete the vars, along with CGameScript.
 
 private:
 	//friend class CCache;  // Only cache can call Shutdown/CopyFrom (besides us of course)
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
-	//void		CopyFrom(CGameScript *cg);	// Not needed with new cache system
 
 public:
 	// Methods
@@ -227,8 +229,8 @@ public:
     void        modLog(const std::string& text);
 
 #ifndef _CONSOLE
-	SmartPointer<SDL_Surface> LoadGSImage(const std::string& dir, const std::string& filename);
-	SmartPointer<SoundSample> LoadGSSample(const std::string& dir, const std::string& filename);
+	SDL_Surface * LoadGSImage(const std::string& dir, const std::string& filename);
+	SoundSample * LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
 

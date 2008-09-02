@@ -445,7 +445,7 @@ int CGameScript::Load(const std::string& dir)
 
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
-				if(wpn->smpSample.get() == 0)
+				if(wpn->smpSample == NULL)
 					wpn->UseSound = false;
 			}
 
@@ -546,7 +546,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
         proj->ImgFilename = readString(fp);
 
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
-        if(!proj->bmpImage.get())
+        if(!proj->bmpImage)
             modLog("Could not open image '" + proj->ImgFilename + "'");
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
@@ -599,7 +599,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				// Load the sample
 				proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
 
-				if(proj->smpSample.get() == 0) {
+				if(proj->smpSample == NULL) {
 					proj->Hit_UseSound = false;
 					modLog("Could not open sound '" + proj->Hit_SndFilename + "'");
 				}
@@ -742,7 +742,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 ///////////////////
 // Load an image
-SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
+SDL_Surface * CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
 	SmartPointer<SDL_Surface> img = NULL;
 
@@ -750,19 +750,24 @@ SmartPointer<SDL_Surface> CGameScript::LoadGSImage(const std::string& dir, const
 	img = LoadGameImage(dir + "/gfx/" + filename, true);
 	if(img.get())  {
 		SetColorKey(img.get());
-		return img;
+		CachedImages.push_back(img);
+		return img.get();
 	}
 
 	// Check the gfx directory in the data dir
 	img = LoadGameImage("data/gfx/" + filename, true);
-	if(img.get()) SetColorKey(img.get());
-	return img;
+	if(img.get())
+	{ 
+		SetColorKey(img.get());
+		CachedImages.push_back(img);
+	}
+	return img.get();
 }
 
 
 ///////////////////
 // Load a sample
-SmartPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
+SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
 	SmartPointer<SoundSample> smp = NULL;
 
@@ -770,10 +775,16 @@ SmartPointer<SoundSample> CGameScript::LoadGSSample(const std::string& dir, cons
 	smp = LoadSample(dir + "/sfx/" + filename, 10);
 
 	if(smp.get())
-		return smp;
+	{
+		CachedSamples.push_back(smp);
+		return smp.get();
+	}
 
 	// Check the sounds directory in the data dir
-	return LoadSample("data/sounds/" + filename, 10);
+	smp = LoadSample("data/sounds/" + filename, 10);
+	if(smp.get())
+		CachedSamples.push_back(smp);
+	return smp.get();
 }
 
 

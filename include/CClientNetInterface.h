@@ -31,21 +31,30 @@ public:
 
 	~CClientNetInterface() { }
 
+	void		Connect(const std::string& address);
+	void		Connecting(bool force = false);
+	void		ConnectingBehindNAT();
+	void		Disconnect();
+
+	virtual void		ReadPackets(void);
+	virtual void		SendPackets(void);
+
+protected:
+
 	// Sending
-	virtual void		SendGameReady();
-	virtual void		SendDeath(int victim, int killer);
-	virtual void		SendText(const std::string& sText, std::string sWormName);
-	virtual void		Disconnect(void);
-	virtual void		SendWormDetails(void);
+	void		SendGameReady();
+	void		SendDeath(int victim, int killer);
+	void		SendText(const std::string& sText, std::string sWormName);
+	void		Disconnect(void);
+	void		SendWormDetails(void);
 #ifdef FUZZY_ERROR_TESTING
-	virtual void		SendRandomPacket();
+	void		SendRandomPacket();
 #endif
 
 	// Parsing
-	virtual void		ParseConnectionlessPacket(CBytestream *bs);
-	virtual void		ParsePacket(CBytestream *bs);
+	void		ParseConnectionlessPacket(CBytestream *bs);
+	void		ParsePacket(CBytestream *bs);
 
-protected:
 	// Internal details
 	void		ParseChallenge(CBytestream *bs);
 	void		ParseConnected(CBytestream *bs);

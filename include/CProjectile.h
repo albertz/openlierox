@@ -125,11 +125,8 @@ class proj_t { public:
 	proj_t	*PrjTrl_Proj;
 
 
-
-	SmartPointer<SDL_Surface> bmpImage;
-	SmartPointer<SoundSample> smpSample;
-
-
+	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
+	SoundSample * smpSample;
 };
 
 class CProjectile {
