@@ -34,9 +34,6 @@
 #include "Networking.h"
 
 
-const float fDownloadRetryTimeout = 7.0;	// 7 seconds, in case server should calculate CRC for large amount of files, like mod dir
-
-
 ///////////////////
 // Clear the client details
 void CClient::Clear(void)
@@ -585,6 +582,8 @@ void CClient::FinishModDownloads()
 	}
 }
 
+const float fDownloadRetryTimeout = 4.0;	// Server should calculate CRC for large amount of files, like mod dir
+
 /////////////////
 // Process map downloading
 void CClient::ProcessMapDownloads()
@@ -672,7 +671,7 @@ void CClient::ProcessMapDownloads()
 				}
 			}
 		}
-		if( getUdpFileDownloader()->getFileDownloading() == "levels/" + getGameLobby()->szMapName ) {
+		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->szMapName ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}
@@ -691,6 +690,9 @@ void CClient::ProcessMapDownloads()
 		cNetChan->AddReliablePacketToSend(bs);
 		fLastFileRequestPacketReceived = tLX->fCurTime;
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
+		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
+			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
 		return;
 	}
 
@@ -748,7 +750,7 @@ void CClient::ProcessModDownloads()
 			return;
 		}
 	}
-
+	
 	// Receiving
 	if(cUdpFileDownloader.isReceiving())	 {
 		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
@@ -777,6 +779,9 @@ void CClient::ProcessModDownloads()
 		cNetChan->AddReliablePacketToSend(bs);
 		fLastFileRequestPacketReceived = tLX->fCurTime;
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
+		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
+			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
 		return;
 	}
 
@@ -789,11 +794,20 @@ void CClient::ProcessModDownloads()
 		}
 
 		fLastFileRequestPacketReceived = tLX->fCurTime;
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; 
+		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
 
 		getUdpFileDownloader()->requestFilesPending(); // More files to receive?
 	}
 }
+
+byte CClient::getModDlProgress()
+{
+	if( cUdpFileDownloader.getFilesPendingSize() < cUdpFileDownloader.getFilesPendingSize() )
+		return byte(cUdpFileDownloader.getFileDownloadingProgress() * 100);
+	bool downloadStarted = ( cUdpFileDownloader.getFilename() != "" && cUdpFileDownloader.getFilename() != "STAT:" );
+	return byte( ( downloadStarted ? 5.0f : 0.0f ) + 95.0f - 95.0f / iModDownloadingSize * 
+			(cUdpFileDownloader.getFilesPendingSize() - cUdpFileDownloader.getFileDownloadingProgressBytes()) );
+};
 
 ///////////////////
 // Main frame
@@ -1716,10 +1730,3 @@ std::string CClient::debugName() {
 	return "CClient(" + adr +") with " + worms;
 }
 
-byte CClient::getModDlProgress()
-{
-	if( cUdpFileDownloader.getFilesPendingSize() < cUdpFileDownloader.getFilesPendingSize() )
-		return byte(cUdpFileDownloader.getFileDownloadingProgress() * 100);
-	return byte( 100.0f - 100.0f / iModDownloadingSize * 
-			(cUdpFileDownloader.getFilesPendingSize() - cUdpFileDownloader.getFileDownloadingProgressBytes()) );
-};

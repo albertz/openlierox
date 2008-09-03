@@ -358,6 +358,10 @@ const float DATA_PACKET_TIMEOUT = 0.2f;
 // the bigger that value is, the more often channel will re-send data delayed in network.
 const float DATA_PACKET_TIMEOUT_PING_COEFF = 1.5f;
 
+#ifdef DEBUG
+const float DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY = 0.0f; // Self-explanatory
+#endif
+
 // Do not check "if( sequence1 < sequence2 )", use this function instead, it will handle wraparound issues.
 // SequenceDiff( 32765, 32764 ) equals to SequenceDiff( 0, 32765 ) equals to SequenceDiff( 1, 0 ) equals to 1.
 int SequenceDiff( int s1, int s2 )
@@ -387,6 +391,10 @@ void CChannel_UberPwnyReliable::Clear()
 	KeepAlivePacketTimeout = KEEP_ALIVE_PACKET_TIMEOUT;
 	DataPacketTimeout = DATA_PACKET_TIMEOUT;
 	MaxNonAcknowledgedPackets = MAX_NON_ACKNOWLEDGED_PACKETS;
+
+	#ifdef DEBUG
+	DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime;
+	#endif
 };
 
 void CChannel_UberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
@@ -553,8 +561,18 @@ bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
 
 void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
 {
-	CBytestream bs;
 
+	#ifdef DEBUG
+	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
+	if( DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY > 0.0f )
+	{
+		if( DebugSimulateLaggyConnectionSendDelay > tLX->fCurTime )
+			return;
+		DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
+	}
+	#endif
+
+	CBytestream bs;
 	// Add acknowledged packets indexes
 
 	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )

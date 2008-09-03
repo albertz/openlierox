@@ -227,8 +227,12 @@ private:
 	float			DataPacketTimeout;
 	// Max amount of packets that can be flying through the net at the same time.
 	int				MaxNonAcknowledgedPackets;
-	
-	bool GetPacketFromBuffer(CBytestream *bs);
+
+	#ifdef DEBUG
+	float			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	#endif
+
+	bool			GetPacketFromBuffer(CBytestream *bs);
 
 public:
 

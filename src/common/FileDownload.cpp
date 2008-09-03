@@ -29,6 +29,7 @@
 #include "FileDownload.h"
 #include "MathLib.h"
 #include "Options.h"
+#include "LieroX.h"
 
 
 using namespace std;
@@ -533,7 +534,7 @@ void CUdpFileDownloader::setDataToSend( const std::string & name, const std::str
 	data1.append( 1, '\0' );
 	data1.append(data);
 	Compress( data1, &sData, noCompress );
-	cout << "CFileDownloaderInGame::setDataToSend() filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
+	cout << "CFileDownloaderInGame::setDataToSend() " << tLX->fCurTime << " filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
 };
 
 void CUdpFileDownloader::setFileToSend( const std::string & path )
@@ -577,6 +578,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		iPos = 0;
 		sFilename = "";
 		sData = "";
+		cout << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " started receiving " << sLastFileRequested << endl;
 	};
 	bool Finished = false;
 	if( chunkSize != MAX_DATA_CHUNK )
@@ -591,11 +593,11 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		bWasError = true;
 		std::string data, unpacked;
 		data.append( bs->readData(chunkSize) );
-		cout << "CFileDownloaderInGame::receive() - error, not receiving!" << endl;
+		cout << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " - error, not receiving!" << endl;
 		if( Decompress( data, &unpacked ) )
 			if( unpacked.find( "ABORT:" ) == 0 )
 			{
-				cout << "CFileDownloaderInGame::receive() - abort received" << endl;
+				cout << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " - abort received" << endl;
 				bWasAborted = true;
 			};
 		return true;	// Receive finished (due to error)
@@ -608,7 +610,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		tState = S_FINISHED;
 		iPos = 0;
 		bool error = true;
-//		size_t compressedSize = sData.size(); // TODO: unused
+		size_t compressedSize = sData.size(); // TODO: unused
 		if( Decompress( sData, &sFilename ) )
 		{
 			error = false;
@@ -619,11 +621,14 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				//cout << "CFileDownloaderInGame::receive() filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
+				cout << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
 			};
 		};
 		if( error )
+		{
+			cout << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " error after " << sData.size() << " bytes" << endl;
 			reset();
+		}
 		bWasError = error;
 		processFileRequests();
 		return true;	// Receive finished
@@ -753,9 +758,9 @@ void CUdpFileDownloader::processFileRequests()
 			it != tRequestedFiles.end(); )
 	{
 		bool erase = false;
-		if( * it == getFilename() )
+		if( * it == sFilename )
 			erase = true;
-		if( it->find("STAT:") == 0 && getFilename() == "STAT_ACK:" )
+		if( it->find("STAT:") == 0 && sFilename == "STAT_ACK:" )
 		{
 			if( getData().find( it->substr(strlen("STAT:")) ) == 0 )
 				erase = true;
@@ -772,7 +777,7 @@ void CUdpFileDownloader::processFileRequests()
 	// Process file sending requests
 	if( ! bAllowFileRequest )
 		return;
-	if( getFilename() == "GET:" )
+	if( sFilename == "GET:" )
 	{
 		if( ! isPathValid( getData() ) )
 		{
@@ -796,7 +801,7 @@ void CUdpFileDownloader::processFileRequests()
 			return;
 		};
 	};
-	if( getFilename() == "STAT:" )
+	if( sFilename == "STAT:" )
 	{
 		if( ! isPathValid( getData() ) )
 		{
@@ -806,7 +811,7 @@ void CUdpFileDownloader::processFileRequests()
 		setDataToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
 		return;
 	};
-	if( getFilename() == "STAT_ACK:" )
+	if( sFilename == "STAT_ACK:" )
 	{
 		for( std::string::size_type f = 0, f1 = 0; f < getData().size(); )
 		{
@@ -837,7 +842,7 @@ void CUdpFileDownloader::processFileRequests()
 			cStatInfoCache[ cStatInfo[ff].filename ] = cStatInfo[ff];
 		};
 	};
-	if( getFilename() == "ABORT:" )
+	if( sFilename == "ABORT:" )
 	{
 		cout << "CFileDownloaderInGame::processFileRequests() - abort received" << endl;
 		// Server sent us ABORT instead of file - abort only failed request (the last one), leave other requests
@@ -983,15 +988,6 @@ std::string getStatPacketRecursive( const std::string & path )
 		return "";
 };
 
-std::string CUdpFileDownloader::getFileDownloading() const
-{
-	if( getState() != S_RECEIVE )
-		return "";
-	if( sLastFileRequested == "STAT:" )
-		return "directory info";
-	return sLastFileRequested;
-};
-
 float CUdpFileDownloader::getFileDownloadingProgress() const
 {
 	if( getState() != S_RECEIVE )
@@ -1022,7 +1018,7 @@ size_t CUdpFileDownloader::getFilesPendingAmount() const
 size_t CUdpFileDownloader::getFilesPendingSize() const
 {
 	size_t sum = 0;
-	for( int f = 0; f < tRequestedFiles.size(); f++ )
+	for( unsigned f = 0; f < tRequestedFiles.size(); f++ )
 		if( cStatInfoCache.find(tRequestedFiles[f]) != cStatInfoCache.end() )
 			sum += cStatInfoCache.find(tRequestedFiles[f])->second.compressedSize;
 	return sum;

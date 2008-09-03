@@ -177,8 +177,8 @@ public:
 	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED };
 
 	// Basic functions for file download
-	// Contains garbage when download not finished yet, or when uploading a file
-	const std::string & getFilename() const { return sFilename; };
+	const std::string & getFilename() const { return isReceiving() ? sLastFileRequested : sFilename; };
+	// getData() contains garbage when download not finished yet, or when uploading a file
 	const std::string & getData() const { return sData; } ;
 
 	// Should be called when received S2C_SENDFILE or C2S_SENDFILE msg - read needed amount of bytes from bytestream
@@ -194,11 +194,11 @@ public:
 
 	State_t		getState() const { return tState; };
 
-	bool		isSending() { return tState == S_SEND; };
-	bool		isReceiving() { return tState == S_RECEIVE; };
-	bool		isFinished() { return tState == S_FINISHED; };
-	bool		wasSending() { return tPrevState == S_SEND; };
-	bool		wasReceiving() { return tPrevState == S_RECEIVE; };
+	bool		isSending() const { return tState == S_SEND; };
+	bool		isReceiving() const { return tState == S_RECEIVE; };
+	bool		isFinished() const { return tState == S_FINISHED; };
+	bool		wasSending() const { return tPrevState == S_SEND; };
+	bool		wasReceiving() const { return tPrevState == S_RECEIVE; };
 
 	bool		wasError() const { return bWasError; };
 	void		clearError() { bWasError = false; };
@@ -237,7 +237,6 @@ public:
 	
 	// Additional functionality to show download progress - inexact, server may send any file and we should accept it,
 	// yet current implementation will send only files we will request
-	std::string	getFileDownloading() const;
 	float		getFileDownloadingProgress() const; // Downloading progress of current file, in range 0.0-1.0
 	size_t		getFileDownloadingProgressBytes() const;
 	size_t		getFilesPendingAmount() const;

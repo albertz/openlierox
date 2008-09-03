@@ -632,7 +632,6 @@ public:
 	void		ProcessModDownloads();
 	void		FinishModDownloads();
 
-
 	// Variables
 	CChannel	*getChannel(void)			{ return cNetChan; }
 	CChannel	*createChannel(const Version& v);

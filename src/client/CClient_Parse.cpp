@@ -1746,7 +1746,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 			};
 			fwrite( getUdpFileDownloader()->getData().c_str(), 1, getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
-
+			
 			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
 					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
 			{
@@ -1777,6 +1777,10 @@ void CClient::ParseSendFile(CBytestream *bs)
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
 			};
+
+			getUdpFileDownloader()->requestFilesPending(); // Immediately request another file
+			fLastFileRequest = tLX->fCurTime;
+
 		}
 		else
 		if( getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
