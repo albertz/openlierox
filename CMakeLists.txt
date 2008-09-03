@@ -3,7 +3,10 @@
 # use compile.sh instead
 
 cmake_minimum_required(VERSION 2.4)
-cmake_policy(SET CMP0005 OLD)
+IF (VERSION GREATER 2.4)
+	cmake_policy(SET CMP0005 OLD)
+ENDIF (VERSION GREATER 2.4)
+
 
 OPTION(DEBUG "enable debug build" Yes)
 OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
@@ -105,7 +108,7 @@ IF(DEBUG)
 	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 ENDIF(DEBUG)
 
-EXEC_PROGRAM(sh ARGS get_version.sh OUTPUT_VARIABLE OLXVER)
+EXEC_PROGRAM(bash ARGS get_version.sh OUTPUT_VARIABLE OLXVER)
 string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 MESSAGE( "OLX_VERSION = ${OLXVER}" )
 ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"")
