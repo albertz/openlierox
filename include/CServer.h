@@ -205,6 +205,7 @@ public:
 	void		unmuteWorm(int wormID);
 	void		unmuteWorm(const std::string& szWormName);
 	void		authorizeWorm(int wormID);
+	void		killWorm(int victimID, int killerID, int suicidesCount = 0); // suicidesCount is ignored if victimID != killerID
     void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload();

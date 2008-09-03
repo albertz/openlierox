@@ -252,7 +252,6 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		return;
 	}
 
-	CBytestream byte;
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
 
@@ -262,25 +261,51 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		return;
 	}
 
-	// Team names
-	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
-	int TeamCount[4];
-
 	// If the game is already over, ignore this
 	if (bGameOver)  {
-		printf("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
+		printf("GameServer::killWorm: Game is over, ignoring.\n");
 		return;
 	}
-
-
 	// Safety check
 	if (victim < 0 || victim >= MAX_WORMS)  {
-		printf("GameServer::ParseDeathPacket: victim ID out of bounds.\n");
+		printf("GameServer::killWorm: victim ID out of bounds.\n");
 		return;
 	}
 	if (killer < 0 || killer >= MAX_WORMS)  {
-		printf("GameServer::ParseDeathPacket: killer ID out of bounds.\n");
+		printf("GameServer::killWorm: killer ID out of bounds.\n");
 		return;
+	}
+
+	if (tLXOptions->bServerSideHealth)  {
+		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
+		if (!cl->isLocalClient())  {
+			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
+				CWorm *w = cClient->getRemoteWorms() + victim;
+				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
+					cClient->SendDeath(victim, killer);
+			} else {
+				printf("GameServer::ParseDeathPacket: victim %i is not one of the client's worms.\n", victim);
+			}
+
+			// The client on this machine will send the death again, then we'll parse it
+			return;
+		}
+	} else {
+		// Cheat prevention check: make sure the victim is one of the client's worms
+		if (!cl->OwnsWorm(victim))  {
+			std::string clientWorms;
+			for(int i=cl->getNumWorms();i > 0 && i <= 2;i++) {
+				CWorm* w = cl->getWorm(i);
+				if (w) {
+					if (i & 1)
+						clientWorms += " ";
+					clientWorms += itoa(w->getID()) + "," + w->getName() + ".";
+				}
+			}
+			printf("GameServer::ParseDeathPacket: victim (%i) is not one of the client's worms (%s).\n",
+						victim, clientWorms.c_str());
+			return;
+		}
 	}
 
 	// A small hack: multiple-suiciding can lag down the game, check if
@@ -300,354 +325,9 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	}
 
-	CWorm *vict = &cWorms[victim];
-	CWorm *kill = &cWorms[killer];
-
-	if (tLXOptions->bServerSideHealth)  {
-		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
-		if (!cl->isLocalClient())  {
-			if (cl->OwnsWorm(vict->getID()))  {  // He wants to die, let's fulfill his dream ;)
-				CWorm *w = cClient->getRemoteWorms() + vict->getID();
-				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
-					cClient->SendDeath(victim, killer);
-			} else {
-				printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
-			}
-
-
-			// The client on this machine will send the death again, then we'll parse it
-			return;
-		}
-	} else {
-		// Cheat prevention check: make sure the victim is one of the client's worms
-		if (!cl->OwnsWorm(vict->getID()))  {
-			std::string clientWorms;
-			for(int i=cl->getNumWorms();i > 0 && i <= 2;i++) {
-				CWorm* w = cl->getWorm(i);
-				if (w) {
-					if (i & 1)
-						clientWorms += " ";
-					clientWorms += itoa(w->getID()) + "," + w->getName() + ".";
-				}
-			}
-			printf("GameServer::ParseDeathPacket: victim (%i,%s) is not one of the client's worms (%s).\n",
-				   vict->getID(),vict->getName().c_str(),clientWorms.c_str());
-			return;
-		}
-	}
-
-	// Adjust the score if there were multiple suicides
-	if (iSuicidesInPacket > 1)  {
-		if (tGameInfo.iLives != WRM_UNLIM) // Substracting from infinite makes no sense
-			vict->setLives(MAX(WRM_OUT, vict->getLives() - iSuicidesInPacket + 1)); // HINT: +1 because one life is substracted in vict->Kill()
-	}
-
-	// Cheat prevention, game behaves weird if this happens
-	if (vict->getLives() < 0 && iLives >= 0)  {
-		vict->setLives(WRM_OUT);  // Safety
-		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
-		return;
-	}
-
-	std::string buf;
-
-	// Kill
-	if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
-		if (killer != victim)  {
-			replacemax(networkTexts->sKilled, "<killer>", kill->getName(), buf, 1);
-			replacemax(buf, "<victim>", vict->getName(), buf, 1);
-		} else
-			replacemax(networkTexts->sCommitedSuicide + (iSuicidesInPacket > 1 ? " (" + itoa(iSuicidesInPacket) + "x)" : ""),
-			"<player>", vict->getName(), buf, 1);
-
-		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-	}
-
-	// First blood
-	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
-		replacemax(networkTexts->sFirstBlood, "<player>", kill->getName(), buf, 1);
-		bFirstBlood = false;
-		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-	}
-
-	// Teamkill
-	if ((iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() && killer != victim)  {
-		//Take care of the <none> tag
-		if (networkTexts->sTeamkill != "<none>")  {
-			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-	}
-
-	// Update victim statistics
-	vict->setKillsInRow(0);
-	if (iSuicidesInPacket <= 1)  // HINT: don't add death in row for multi-suicides because the dying spree messages are not adequate for console suicides
-		vict->addDeathInRow();
-
-	// Kills don't count in capture the flag
-	if (killer != victim && (iGameType != GMT_CTF && iGameType != GMT_TEAMCTF))  {
-		// Don't add a kill for teamkilling (if enabled in options)
-		// Client's score and scoreboard is controlled by the server which makes this backward compatible
-		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
-			kill->addKillInRow();
-			kill->AddKill();
-			kill->setDeathsInRow(0);
-		}
-	}
-
-	// Suicided or killed team member - decrease score if selected in options
-	if( tLXOptions->tGameinfo.bSuicideDecreasesScore && ( killer == victim ||
-		( (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
-			if( kill->getKills() > 0 )
-				kill->setKills( kill->getKills() - 1 );
-
-	// If the flag was attached to the dead worm then release the flag
-	for(int j=0;j<MAX_WORMS;j++)
-		if(getFlagHolder(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
-			setFlagHolder(-1, j);
-
-	// Killing spree message
-	switch (kill->getKillsInRow())  {
-	case 3:
-		if (networkTexts->sSpree1 != "<none>")  {
-			replacemax(networkTexts->sSpree1, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 5:
-		if (networkTexts->sSpree2 != "<none>")  {
-			replacemax(networkTexts->sSpree2, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 7:
-		if (networkTexts->sSpree3 != "<none>")  {
-			replacemax(networkTexts->sSpree3, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 9:
-		if (networkTexts->sSpree4 != "<none>")  {
-			replacemax(networkTexts->sSpree4, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 10:
-		if (networkTexts->sSpree5 != "<none>")  {
-			replacemax(networkTexts->sSpree5, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	}
-
-	// Dying spree message
-	switch (vict->getDeathsInRow()) {
-	case 3:
-		if (networkTexts->sDSpree1 != "<none>")  {
-			replacemax(networkTexts->sDSpree1, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 5:
-		if (networkTexts->sDSpree2 != "<none>")  {
-			replacemax(networkTexts->sDSpree2, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 7:
-		if (networkTexts->sDSpree3 != "<none>")  {
-			replacemax(networkTexts->sDSpree3, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 9:
-		if (networkTexts->sDSpree4 != "<none>")  {
-			replacemax(networkTexts->sDSpree4, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	case 10:
-		if (networkTexts->sDSpree5 != "<none>")  {
-			replacemax(networkTexts->sDSpree5, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-		break;
-	}
-
-
-	if (vict->Kill()) {
-
-
-		// This worm is out of the game
-		if (networkTexts->sPlayerOut != "<none>") {
-			replacemax(networkTexts->sPlayerOut, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-		}
-
-		// Check if only one person is left
-		int wormsleft = 0;
-		int wormid = 0;
-		CWorm *w = cWorms;
-		int i;
-		for (i = 0;i < MAX_WORMS;i++, w++) {
-			if (w->isUsed() && w->getLives() != WRM_OUT) {
-				wormsleft++;
-				wormid = i;
-			}
-		}
-
-		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)
-			// Declare the winner
-			switch (iGameType)  {
-			case GMT_DEATHMATCH:
-				if (networkTexts->sPlayerHasWon != "<none>")  {
-					CWorm *winner = cWorms + wormid;
-					replacemax(networkTexts->sPlayerHasWon, "<player>", winner->getName(), buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-				}
-				break;  // DEATHMATCH
-			case GMT_TAG:
-				// Get the worm with greatest tag time
-				float fMaxTagTime = 0;
-				wormid = 0;
-				CWorm *w = cWorms;
-				for (int i = 0;i < MAX_WORMS;i++)
-					if (w->isUsed())
-						if (w->getTagTime() > fMaxTagTime)  {
-							fMaxTagTime = w->getTagTime();
-							wormid = i;
-						}
-
-				// Worm with greatest tag time
-				w = cWorms + wormid;
-
-				// Send the text
-				if (networkTexts->sPlayerHasWon != "<none>")  {
-					replacemax(networkTexts->sPlayerHasWon, "<player>", w->getName(), buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-				}
-				break;  // TAG
-
-				// TEAM DEATHMATCH is handled below
-			}
-
-			cout << "only one player left" << endl;
-			GameOver(wormid);
-		}
-
-
-
-		// If the game is still going and this is a teamgame, check if the team this worm was in still
-		// exists
-		if (!bGameOver && iGameType == GMT_TEAMDEATH) {
-			int team = vict->getTeam();
-			int teamcount = 0;
-
-			for (i = 0;i < 4;i++)
-				TeamCount[i] = 0;
-
-			// Check if anyone else is left on the team
-			w = cWorms;
-			for (i = 0;i < MAX_WORMS;i++, w++) {
-				if (w->isUsed()) {
-					if (w->getLives() != WRM_OUT && w->getTeam() == team)
-						teamcount++;
-
-					if (w->getLives() != WRM_OUT)
-						TeamCount[w->getTeam()]++;
-				}
-			}
-
-			// No-one left in the team
-			if (teamcount == 0) {
-				if (networkTexts->sTeamOut != "<none>")  {
-					replacemax(networkTexts->sTeamOut, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-				}
-			}
-
-			// If there is only 1 team left, declare the last team the winner
-			int teamsleft = 0;
-			team = 0;
-			for (i = 0;i < 4;i++) {
-				if (TeamCount[i]) {
-					teamsleft++;
-					team = i;
-				}
-			}
-
-			if (teamsleft <= 1) { // There can be also 0 teams left (you play TDM alone and suicide)
-				if (networkTexts->sTeamHasWon != "<none>")  {
-					replacemax(networkTexts->sTeamHasWon, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
-				}
-
-				cout << "no other team left" << endl;
-				GameOver(team);
-			}
-		}
-		if (!bGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
-			RecheckGame();
-	}
-
-
-	// Check if the max kills has been reached
-	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills) {
-		cout << "max kills reached" << endl;
-
-		// Game over (max kills reached)
-		GameOver(kill->getID());
-	}
-
-
-	// If the worm killed is IT, then make the killer now IT
-	if (iGameType == GMT_TAG && !bGameOver)  {
-		if (killer != victim) {
-			if (vict->getTagIT()) {
-				vict->setTagIT(false);
-
-				// If the killer is dead, tag a worm randomly
-				if (!kill->getAlive() || kill->getLives() == WRM_OUT)
-					TagRandomWorm();
-				else
-					TagWorm(kill->getID());
-			}
-		} else {
-			// If it's a suicide and the worm was it, tag a random person
-			if (vict->getTagIT()) {
-				vict->setTagIT(false);
-				TagRandomWorm();
-			}
-		}
-	}
-
-	// Update everyone on the victims & killers score
-	vict->writeScore(&byte);
-	if (killer != victim)
-		kill->writeScore(&byte);
-	if( tLXOptions->tGameinfo.bGroupTeamScore && (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) )
-	{	// All worms in the same team will have same grouped kill count
-		CWorm *w = cWorms;
-		for( int f = 0; f < MAX_WORMS; f++, w++ )
-			if( w->isUsed() && f != killer )
-				if ( w->getLives() != WRM_OUT && w->getTeam() == kill->getTeam() )
-				{
-					w->setKills( kill->getKills() );
-					w->writeScore(&byte);
-				}
-	}
-
-	// Let everyone know that the worm is now dead
-	byte.writeByte(S2C_WORMDOWN);
-	byte.writeByte(victim);
-
-
-	SendGlobalPacket(&byte);
-
-	if( DedicatedControl::Get() )
-		DedicatedControl::Get()->WormDied_Signal(vict,kill);
-
-	iSuicidesInPacket = 0; // Reset counter, so /suicide chat command will work correctly
+	killWorm(victim, killer, iSuicidesInPacket);
+	
+	iSuicidesInPacket = 0; // Reset counter, so next /suicide command will work correctly
 }
 
 
