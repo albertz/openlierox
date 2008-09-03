@@ -238,8 +238,10 @@ public:
 	// Additional functionality to show download progress - inexact, server may send any file and we should accept it,
 	// yet current implementation will send only files we will request
 	std::string	getFileDownloading() const;
-	float		getFileDownloadingProgress() const;
+	float		getFileDownloadingProgress() const; // Downloading progress of current file, in range 0.0-1.0
+	size_t		getFileDownloadingProgressBytes() const;
 	size_t		getFilesPendingAmount() const;
+	size_t		getFilesPendingSize() const; // Calculates compressed size of all pending files, incluing the one currently downloading
 
 private:
 	void			processFileRequests();

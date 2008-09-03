@@ -437,6 +437,7 @@ void CClient::DownloadMod(const std::string &modname)
 
 	sModDownloadName = modname;
 	bDownloadingMod = true;
+	iModDownloadingSize = 0;
 
 	cUdpFileDownloader.clearAborted();
 	cUdpFileDownloader.requestFileInfo(modname, true);  // Download the mod
@@ -798,11 +799,6 @@ void CClient::ProcessModDownloads()
 // Main frame
 void CClient::Frame(void)
 {
-	if(iNetStatus == NET_PLAYING) {
-		iServerFrame++;
-		fServerTime += tLX->fRealDeltaTime;
-	}
-
 	ProcessMapDownloads();
 	ProcessModDownloads();
 
@@ -1719,3 +1715,11 @@ std::string CClient::debugName() {
 
 	return "CClient(" + adr +") with " + worms;
 }
+
+byte CClient::getModDlProgress()
+{
+	if( cUdpFileDownloader.getFilesPendingSize() < cUdpFileDownloader.getFilesPendingSize() )
+		return byte(cUdpFileDownloader.getFileDownloadingProgress() * 100);
+	return byte( 100.0f - 100.0f / iModDownloadingSize * 
+			(cUdpFileDownloader.getFilesPendingSize() - cUdpFileDownloader.getFileDownloadingProgressBytes()) );
+};

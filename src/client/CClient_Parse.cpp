@@ -775,10 +775,6 @@ void CClient::ParseStartGame(CBytestream *bs)
 	for(uint i=0;i<iNumWorms;i++)
 		cLocalWorms[i]->setAlive(false);
 
-	// Initialize some variables
-	iServerFrame = 0;
-	fServerTime = 0;
-
 	// Re-initialize the ingame scoreboard
 	InitializeIngameScore(false);
 	bUpdateScore = true;
@@ -1798,6 +1794,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
 					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					iModDownloadingSize = getUdpFileDownloader()->getFilesPendingSize();
 				}
 			};
 			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
@@ -1808,6 +1805,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 				{
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
 					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					iModDownloadingSize = getUdpFileDownloader()->getFilesPendingSize();
 				}
 			};
 		};

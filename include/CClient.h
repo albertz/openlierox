@@ -389,15 +389,10 @@ private:
 
 	bool		bMuted;
 
-
     // Viewport manager
     bool        bViewportMgr;
 
-
-
 	// Network
-	int			iServerFrame;	// TODO: remove, not used anywhere
-	float		fServerTime;	// TODO: remove, not used anywhere
 	int			iNetSpeed;
 	int			iNetStatus;
 	std::string	strServerAddr;
@@ -464,6 +459,7 @@ private:
 	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
+	size_t		iModDownloadingSize;	// For progress bar
 	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
@@ -725,7 +721,7 @@ public:
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 	bool		getDownloadingMod()				{ return bDownloadingMod; }
-	byte		getModDlProgress()				{ return (byte)(cUdpFileDownloader.getFileDownloadingProgress() * 100); }
+	byte		getModDlProgress();
 	int			getDownloadMethod()				{ return iDownloadMethod; }
 	bool		getDownloadingMapError()		{ return bMapDlError; }
 	void		clearDownloadingMapError()		{ bMapDlError = false; }

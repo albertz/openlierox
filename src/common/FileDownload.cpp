@@ -1006,7 +1006,24 @@ float CUdpFileDownloader::getFileDownloadingProgress() const
 	return ret;
 };
 
+size_t CUdpFileDownloader::getFileDownloadingProgressBytes() const
+{
+	if( getState() != S_RECEIVE )
+		return 0;
+	return sData.size();
+};
+
 size_t CUdpFileDownloader::getFilesPendingAmount() const
 {
 	return tRequestedFiles.size();
+};
+
+// Calculates the size of all pending files, if there is info asbout them in cache
+size_t CUdpFileDownloader::getFilesPendingSize() const
+{
+	size_t sum = 0;
+	for( int f = 0; f < tRequestedFiles.size(); f++ )
+		if( cStatInfoCache.find(tRequestedFiles[f]) != cStatInfoCache.end() )
+			sum += cStatInfoCache.find(tRequestedFiles[f])->second.compressedSize;
+	return sum;
 };
