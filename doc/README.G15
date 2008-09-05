@@ -1,0 +1,33 @@
+As of 2008/09/05, OLX has got support for the Logitech G15 keyboard, 
+to use the display on the keyboard for displaying ingame information.
+If you are reading this file, it means the sourcecode for your binary is capable of this.
+
+In order to enable this functionality, you need a few prerequisites.
+1) A capable OS. It will only work under the same OSes that g15tools does
+ - which at the time of writing means Linux, Solaris or Mac OS-X (Leopard & Tiger).
+ see www.g15tools.com for more.
+
+2) g15tools installed and functioning, which means that the 
+g15daemon, libg15 and libg15render packages must all be installed, together with the -dev files for them.
+
+3) A Logitech G15 keyboard :)
+
+
+---:::: GETTING THE SOURCE ::::---
+To enable the g15 functionality, you will need to aquire a source version of OLX, 
+together with needed -dev files for compiling it, zlib, gd, SDL (actually, you will probably need extra stuff like SDL-image and such), hawknl, libxml2.
+
+---:::: COMPILING ::::---
+See README for instructions on compiling if this is your first time. (Cmake way is prefered)
+
+Now that you know how to get a fresh working self-compilated version of OLX, it's time to enable the G15 code.
+run cmake -D WITH_G15=on . inside the OLX directory.
+Now just run a make, and you should have your g15-enabled binary.
+
+Happy playing :)
+
+Feature requests should be posted here: http://sourceforge.net/tracker/?group_id=180059&atid=891651
+Bug reports here: http://sourceforge.net/tracker/?group_id=180059&atid=891648
+
+Please tag anything related to the G15 parts with G15, so that i (SteelSide) can take care of them,
+and the other devs do not need to waste their time reading reports.
