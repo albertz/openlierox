@@ -47,9 +47,6 @@ OLXG15_t::~OLXG15_t()
 		g15_close_screen(screenfd);
 }
 
-
-// TODO: When you're out - don't show weapons
-// TODO: When you've left a game - don't show weapons
 bool OLXG15_t::init()
 {
 	gettimeofday(&startTime,NULL);
@@ -100,9 +97,25 @@ bool OLXG15_t::init()
 	return true;
 }
 
-// This is the only function that's going to get called from OLX regulary
+// These are the only 2 functions that are going to get called from OLX regulary
 // Handles everything
-void OLXG15_t::frame()
+
+void OLXG15_t::menuFrame()
+{
+	lastFrame += tLX->fRealDeltaTime;
+	if (lastFrame < G15FRAMETIME)
+		return;
+	lastFrame = 0.0f;
+
+	if (!showingSplash)
+	{
+		g15r_clearScreen(&canvas, G15_COLOR_WHITE);
+		showSplashScreen();
+		g15_send(screenfd,(char *)canvas.buffer,G15_BUFFER_LEN);
+	}
+
+}
+void OLXG15_t::gameFrame()
 {
 	lastFrame += tLX->fRealDeltaTime;
 	if (lastFrame < G15FRAMETIME)
@@ -139,17 +152,35 @@ void OLXG15_t::frame()
 		case NET_CONNECTED:
 			if (oldGameState == NET_CONNECTED)
 				break;
-			std::cout << "Status: " << itoa(cClient->getStatus()) << "/" << itoa(oldGameState) << std::endl;
+// 			std::cout << "Status: " << itoa(cClient->getStatus()) << "/" << itoa(oldGameState) << std::endl;
 			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
 			showingSplash = false;
 			timeShown = 0.0f;
+
+			for (int i=0; i < 5; ++i)
+			{
+				Weapons[i].changed = true;
+			}
 		case NET_PLAYING:
-			if (oldGameState == NET_PLAYING)
-				break;
 			break;
 	}
 
+	if (showingSplash)
+		return;
 
+	CWorm *worm = cClient->getWorm(0);
+	if (worm)
+	{
+		if (worm->getLives() == WRM_OUT)
+		{
+// 			std::cout << "Worm is out! clearing screen." << std::endl;
+
+			g15r_clearScreen(&canvas, G15_COLOR_WHITE);
+			showSplashScreen();
+			g15_send(screenfd, (char *) canvas.buffer, G15_BUFFER_LEN);
+			return;
+		}
+	}
 
 
 	// Areas of the screen:
@@ -186,8 +217,6 @@ void OLXG15_t::updateWeapon(const int slotID)
 		return;
 	wpnslot_t *wpn = worm->getWeapon(slotID);
 
-	// TODO: can this get nulled after game (most likely?)
-	// If so, perhaps make it so the weapon has been changed.
 	// No weapon yet
 	if (!wpn->Weapon)
 		return;
@@ -230,7 +259,7 @@ void OLXG15_t::updateWeapon(const int slotID)
 		curWeapon = worm->getCurrentWeapon();
 		if (curWeapon < 0 || curWeapon > 4)
 		{
-			std::cout << "Invalid curWeapon" << std::endl;
+			std::cout << "OLXG15: Invalid curWeapon" << std::endl;
 			return;
 		}
 		Weapons[curWeapon].changed = true;
@@ -369,9 +398,6 @@ void OLXG15_t::drawWpnName(const std::string& name, const int row, const int siz
 
 	if (width > wpnSpace(size))
 	{
-
-		//std::cout << "(Row "<< row << ") Length is " << (name.length()) << " we need max " << wpnSpace(size)/getCharWidth(size) << std::endl;
-
 		// Remove enough for 3 dots = 3 characters.
 		std::string cutoff = name.substr(0,wpnSpace(size)/getCharWidth(size)-3);
 		cutoff += "...";
@@ -401,7 +427,6 @@ void OLXG15_t::clearReload(const int row, const int size)
 		y2 = G15_LCD_HEIGHT;
 	else
 		y2 = rows[row+1];
-	//std::cout << "y1 = " << y1 << " for row " << row << ". charHeight is " << getCharHeight(size) << std::endl;
 
 	switch (size)
 	{

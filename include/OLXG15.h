@@ -62,17 +62,14 @@ private:
 	float timeShown; // For splash screen, perhaps for some kill message too?
 	int oldGameState;
 
-
-	void frame();
-
 public:
 	OLXG15_t();
 	~OLXG15_t();
 
 	bool init();
 
-	void menuFrame() { frame(); };
-	void gameFrame() { frame(); };
+	void menuFrame();
+	void gameFrame();
 
 
 	void updateWeapon(const int slotID);
