@@ -870,3 +870,23 @@ std::string Base64Encode(const std::string &data)
   return dest;
 }
 
+// Substitute space with + and all non-alphanum symbols with %XX
+std::string UrlEncode(const std::string &data)
+{
+	std::string ret;
+	for( size_t f=0; f<data.size(); f++ )
+	{
+		char c = data[f];
+		if( c == ' ' )
+			ret += '+';
+		else if( isalnum(c) || c == '.' || c == '-' || c == '_' )
+			ret += c;
+		else
+		{
+			char t[10];
+			sprintf(t, "%%%02X", unsigned((unsigned char)c) );
+			ret += t;
+		};
+	};
+	return ret;
+}; 

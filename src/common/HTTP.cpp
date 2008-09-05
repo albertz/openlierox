@@ -473,8 +473,10 @@ void CHttp::ParseProxyAddress(const std::string& proxy)
 // Adjust the given URL
 bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 {
+	// We don't need that piece of code - we have UrlEncode() function which should be used by user of this class
+	/*
 	dest = "";
-
+	
 	static const std::string dont_encode = "-_.!~*'()&?/="; // Characters that won't be encoded in any way
 
 	// Go through the url, encoding the characters
@@ -496,6 +498,14 @@ bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 	if (dest.size() > 9)
 		if (stringcasecmp(dest.substr(0, 9), "http%3a//") == 0)  {  // HINT - ":" is already URL-encoded
 			dest.erase(0, 9);
+		}
+	*/
+	
+	dest = url;
+	// Remove http:// (not needed, we know we use http)
+	if (dest.size() > 7)
+		if (stringcasecmp(dest.substr(0, 7), "http://") == 0)  {
+			dest.erase(0, 7);
 		}
 
 	// Remove double slashes

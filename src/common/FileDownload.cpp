@@ -103,7 +103,7 @@ void CHttpDownloader::Start(const std::string& filename, const std::string& dest
 
 	// Try to download from first server in the list
 	iCurrentServer = 0;
-	tHttp.RequestData((*tDownloadServers)[iCurrentServer] + filename, tLXOptions->sHttpProxy);
+	tHttp.RequestData((*tDownloadServers)[iCurrentServer] + UrlEncode(filename), tLXOptions->sHttpProxy);
 
 	// Set the state to initializing
 	iState = FILEDL_INITIALIZING;
