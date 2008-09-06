@@ -354,8 +354,10 @@ class CContainerWidget : public CWidget
 protected:
 	// TODO: why do this class not manage the list itself? what is the advantage that you do that in a sub-classes?
 
-	friend class CWidget;
+	friend class CWidget; // TODO: why is this needed?
 	CContainerWidget(COMMON_PARAMS) : CALL_DEFAULT_CONSTRUCTOR {}
+	// TODO: these functions should be pure virtual, else it doesn't make sense to be a CContainerWidget
+	// (OR we manage the list ourself here in this class which makes more sense anyway.)
 	virtual void Add(CWidget *w) {} // Called by the widget's constructor/parent setter; widgets add themselves to the containers
 	virtual void DeregisterWidget(CWidget *w) {} // Removes the widget from an internal list but doesn't destroy it, used when moving widget from one container to another
 
