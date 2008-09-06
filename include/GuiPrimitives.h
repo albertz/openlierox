@@ -2,19 +2,18 @@
 //
 //   OpenLieroX
 //
-//   Auxiliary Software class library
+//   Primitives for Graphics User Interface
 //
 //   based on the work of JasonB
-//   enhanced by Dark Charlie and Albert Zeyer
+//   enhanced by Karel Petranek and Albert Zeyer
+//
+//   Created 12/08/08
+//   By Karel Petranek
 //
 //   code under LGPL
 //
 /////////////////////////////////////////
 
-
-// Primitives for Graphics User Interface
-// Created 12/08/08
-// By Karel Petranek
 
 
 #ifndef __GUIPRIMITIVES_H__
