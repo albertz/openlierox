@@ -331,11 +331,13 @@ public:
 	virtual int		DoDestroy(bool immediate);
 	virtual void	DoRepaint();
 	virtual int		DoCreate();
+	// TODO: what is this for? why are the parent w/h given as parameters? (what is the difference to cParent.w/h?)
 	virtual int		DoParentResize(int& new_parent_w, int& new_parent_h);
 	virtual int		DoFocus(CWidget *prev_focused);
 	virtual int		DoLoseFocus(CWidget *new_focused);
 	virtual void	DoEffectFinished(CWidgetEffect *e);
 
+	// TODO: Why do we need both Draw() and DoRepaint() ?
 	virtual	void	Draw(SDL_Surface *bmpDest, int drawX, int drawY);
 
 	// This function is called before Draw and allows the widget to perform
@@ -350,6 +352,8 @@ public:
 class CContainerWidget : public CWidget
 {
 protected:
+	// TODO: why do this class not manage the list itself? what is the advantage that you do that in a sub-classes?
+
 	friend class CWidget;
 	CContainerWidget(COMMON_PARAMS) : CALL_DEFAULT_CONSTRUCTOR {}
 	virtual void Add(CWidget *w) {} // Called by the widget's constructor/parent setter; widgets add themselves to the containers

@@ -36,8 +36,9 @@ public:
 
 private:
 	// Attributes
-
+	
 	std::list<CWidget *>	cWidgets;
+	
 	CWidget			*cFocused;
 	int				iModalsRunning; // Number of modal widgets active
 
@@ -93,7 +94,7 @@ protected:
 	void		DoChildDestroyEvent(CWidget *child);
 
 	// Does the children repainting (to the internal buffer)
-	virtual void DoRepaintChildren();
+	virtual void DoRepaintChildren(); // TODO: why would somebody want to overload this (why virtual?)
 	void DoRepaintRect(const SDL_Rect& r);
 
 	void	Add(CWidget *widget);
