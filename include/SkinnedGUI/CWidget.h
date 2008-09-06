@@ -37,12 +37,17 @@ typedef void(CWidget::*MouseWheelHandler)(CWidget *sender, int x, int y, int dx,
 typedef void(CWidget::*MouseEnterLeaveHandler)(CWidget *sender, int x, int y, int dx, int dy, const ModifiersState& modstate);
 typedef void(CWidget::*MouseMoveHandler)(CWidget *sender, int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate);
 
-#define DECLARE_EVENT(name, handler) Delegate<handler> name
-#define CLEAR_EVENT(name) name.Clear()
-#define EVENT_SETGET(name, handler) virtual void set##name(const Delegate<handler>& _h)  { name = _h; } \
-									Delegate<handler>& get##name() { return name; }
-#define CALL_EVENT(name, params) if (name) ((name.object)->*(name.handler))params; else (void)0
-#define SET_EVENT(widget, type, handler, func) (widget)->set##type(Delegate<handler>(this, (handler)(func)))
+#define DECLARE_EVENT(name, handler) Delegate<handler> m_##name
+
+// TODO: why do we need this? why not just use it directly? this should not be changed anyway in the class
+#define CLEAR_EVENT(name) m_##name.clear()
+
+//#define EVENT_SETGET(name, handler) virtual void set##name(const Delegate<handler>& _h)  { name = _h; } \
+//									Delegate<handler>& get##name() { return name; }
+
+#define EVENT_SETGET(name, handler)	Delegate<handler>& name() { return m_##name; }
+#define CALL_EVENT(name, params) { if (m_##name.isSet()) ((m_##name.object)->*(m_##name.handler)) params; }
+#define SET_EVENT(widget, name, handler, func) { (widget)->name() = Delegate<handler>(this, (handler)(func)); }
 
 // Widget event set macros
 #define SET_MOUSEENTER(widget, func)	SET_EVENT(widget, OnMouseEnter, MouseEnterLeaveHandler, func)
@@ -57,12 +62,15 @@ typedef void(CWidget::*MouseMoveHandler)(CWidget *sender, int x, int y, int dx, 
 
 class CWidget;
 
+// TODO: move this out here
+
 // Class for event handling
 template<typename _EventHandler>
 class Delegate  {
 public:
 	// Constructors
 	Delegate() : object(NULL), handler(NULL) {}
+	Delegate(const Delegate& d) : object(NULL), handler(NULL) { (*this) = d; }
 	Delegate(CWidget *this_pointer, _EventHandler function) :
 		object(this_pointer), handler(function) {}
 
@@ -75,9 +83,9 @@ public:
 		return *this;
 	}
 
-	operator bool() { return object != NULL && handler != NULL; }
+	bool isSet() { return object != NULL && handler != NULL; }
 
-	void Clear() { object = NULL; handler = NULL; }
+	void clear() { object = NULL; handler = NULL; }
 
 	// Attributes
 	CWidget *object;
