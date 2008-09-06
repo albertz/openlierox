@@ -16,6 +16,8 @@
 #	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
 #					( disabled by default )
 #	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
+#
+#       WITH_G15        - if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( activated by default )
 #	VERSION			- version number; like 0.57_beta2
 #					  if not set, the function functions.sh:get_olx_version
@@ -29,6 +31,7 @@ source ./functions.sh
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
 [ "$X11CLIPBOARD" == "" ] && X11CLIPBOARD=1
+[ "$WITH_G15" == "" ] && WITH_G15=0
 [ "$VERSION" == "" ] && VERSION=$(get_olx_version)
 
 # add standards to include path list
@@ -68,6 +71,13 @@ test_include_file zlib.h || \
 	{ echo "ERROR: zlib header not found" >&2; ALL_FINE=0; }
 test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
+
+if [ "$WITH_G15" == "1" ]; then
+    test_include_file g15daemon_client.h || \
+	{ echo "ERROR: g15daemon_client header not found" >&2; ALL_FINE=0; }
+    test_include_file libg15render.h || \
+	{ echo "ERROR: libg15render header not found" >&2; ALL_FINE=0; }
+fi
 
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
 	HAWKNL_GCC_PARAM="\
@@ -112,6 +122,9 @@ echo "* $COMPILER will be used for compilation"
 [ "$X11CLIPBOARD" == "1" ] && \
 	echo "* X11 clipboard support is activated" || \
 	echo "* X11 clipboard support is not activated"
+[ "$WITH_G15" == "1" ] && \
+        echo "* G15 support is activated" || \
+        echo "* G15 support is not activated"
 [ "$HAWKNL_BUILTIN" == "1" ] && \
 	echo "* HawkNL support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
@@ -135,6 +148,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/client/DeprecatedGUI/*.cpp src/clien
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
 	$( [ "$ACTIVATE_GDB" == "1" ] && echo "-g" ) \
 	$( [ "$X11CLIPBOARD" == "1" ] && echo "-DX11CLIPBOARD -lX11" ) \
+	$( [ "$WITH_G15" == "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
 	$CXXFLAGS \
 	$LDFLAGS \
 	-o bin/openlierox
