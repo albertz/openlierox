@@ -63,7 +63,6 @@ typedef void(CWidget::*MouseMoveHandler)(CWidget *sender, int x, int y, int dx, 
 class CWidget;
 
 // TODO: move this out here
-
 // Class for event handling
 template<typename _EventHandler>
 class Delegate  {
@@ -98,9 +97,12 @@ enum  {
 	WID_PROCESSED = 0  // The event was handled by this widget and other widgets should not get it
 };
 
+// TODO: what nr is this? is this the SDL msg nr? then 1 should not be used!
+// TODO: also, why is this implementation detail needed in the header?
 // The repaint message for SDL queue
 enum { WGT_REPAINT = 1 };
 
+// TODO: why do we need this? such type-nrs should never be needed in OOP
 // Widget types
 enum WidgetType {
 	wid_None=-1,
@@ -131,28 +133,29 @@ enum WidgetType {
 	wid_Marquee
 };
 
+// TODO: what is this for? and labels have also events like OnClick (or they should have...)
 // Name for widgets that don't have any events assigned (usually labels)
 static const std::string STATIC = "Static";
 
 // Common parameters for a widget constructor, used to save typing a bit
-#define COMMON_PARAMS const std::string& name, CContainerWidget *parent
-#define CALL_DEFAULT_CONSTRUCTOR CWidget(name, parent)
+#define COMMON_PARAMS				const std::string& name, CContainerWidget *parent
+#define CALL_DEFAULT_CONSTRUCTOR	CWidget(name, parent)
 
 
 // This simple macro checks if bmpBuffer is not null and quits the function if it is
 // Use this macro before any actions in DoRepaint!
 #ifdef _MSC_VER
 #define CHECK_BUFFER \
-	if (bmpBuffer.get() == NULL)  {\
+	{ if (bmpBuffer.get() == NULL)  {\
 		printf("Warning: %s in %s:%i : bmpBuffer is NULL\n", __FUNCSIG__, __FILE__, __LINE__); \
 		return; \
-	} else (void)0
+	} }
 #else
 #define CHECK_BUFFER \
-	if (bmpBuffer.get() == NULL)  {\
+	{ if (bmpBuffer.get() == NULL)  {\
 		printf("Warning: %s in %s:%i : bmpBuffer is NULL\n", __FUNCTION__, __FILE__, __LINE__); \
 		return; \
-	} else (void)0
+	} }
 #endif
 
 class CContainerWidget;
@@ -162,8 +165,7 @@ public:
 	// Constructor
 	CWidget(COMMON_PARAMS);
 
-    virtual ~CWidget() 
-	{}
+    virtual ~CWidget() {}
 
 private:
 	// Attributes
@@ -174,6 +176,12 @@ private:
 	StyleVar<int>	iWidth, iHeight;
 
 protected:
+	// TODO: Most of this stuff here do not belong in the public header.
+	// Only the common interfaces (that are all public functions, nothing else) belongs here.
+	// All stuff needed for the concrete implementation does not belong here.
+
+	// TODO: Is this the buffer only for the widget itself or is this the buffer used
+	//		in the drawing process, therefore contains also all sub-widgets?
 	// The buffer used for repainting
 	SmartPointer<SDL_Surface> bmpBuffer;
 
@@ -182,28 +190,31 @@ protected:
 	int		iMinHeight;
 
 	bool	bFocused;
-	WidgetType iType;
+	WidgetType iType; // TODO: why is the prefix i?
 	std::string sName; // Identifier
 	bool	bEnabled; // If false, the widget won't receive any keyboard/mouse events but will be visible
 	bool	bModal; // If true, the parent widget won't process any keyboard/mouse events
 
 	StyleVar<bool>	bVisible; // If false, the widget won't be visible nor it will receive any keyboad/mouse events
-	StyleVar<int>	iOpacity;
+	StyleVar<int>	iOpacity; // TODO: what does int mean here? 0-255? why not use a float which is easier to handle?
 
 	// Mainly for dialogs and menus, they don't necessarily have to be in parent's rectangle
 	// Therefore they are not drawn on the buffer surface
 	bool	bOverlap;
 
 	CContainerWidget	*cParent; // The parent, NULL if this is the top-most widget (i.e. some GUI layout)
-	int		iTag; // Reserved for user-defined data
+	int		iTag; // Reserved for user-defined data // TODO: why int? in other frameworks, this is often long (to be able to store a pointer in it) or Variant (better also for our case)
 
+	// TODO: merge these 3 vars in one single var (like m_state); this makes it easier to handle and reduces possible errors (what when all of them are true?)
 	bool	bDestroying; // After calling DoDestroy from the parent, there can be some close effects in progress
 	bool	bDestroyed; // True if all effects are processed and the widget can be destroyed
 	bool	bCreated;  // After all info is loaded from the skin files
+	
 	bool	bNeedsRepaint; // True if the parent should call DoRepaint on us
 
 	// Handy variables
 	bool	bMouseOver; // True if the mouse cursor is over this widget
+	// TODO: if the user click on the widget and holds down and moves the cursor out of the widget, shouldn't this stay true like in other widget systems?
 	bool	bMouseDown; // True if the mouse cursor is over this widget and the mouse is clicked
 
 	// CSS things
@@ -231,10 +242,13 @@ protected:
 	// Relative InBox - returns true if the given *relative* coordinates are in the widget's rect
 	bool			RelInBox(int x, int y);
 
+	// TODO: When is this needed? And why? And why is it not called automatically on a resize? (I assume that it is needed on a resize).
 	void			ReallocBuffer(int w, int h);
 
 	// These functions should return true when the widget changes its appearance when
 	// the corresponding event returns (override them in your widget when necessary)
+	// TODO: Appearance means only the picture? And the "change" is related to this?
+	// TODO: Why is this needed? Isn't bNeedsRepaint enough for this?
 	virtual bool	changeOnActivate()  { return false; }
 	virtual bool	changeOnMouseDown()	{ return false; }
 
