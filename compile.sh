@@ -16,6 +16,7 @@
 #	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
 #					( disabled by default )
 #	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
+#                                       ( activated by default )
 #
 #	G15		- if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( disabled by default )
