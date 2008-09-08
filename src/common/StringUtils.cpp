@@ -23,6 +23,8 @@
 #include "StringBuf.h"
 
 
+#include <sstream>
+#include <iomanip>
 // HTML parsing library for StripHtmlTags()
 #include <libxml/xmlmemory.h>
 #include <libxml/HTMLparser.h>
@@ -877,15 +879,14 @@ std::string UrlEncode(const std::string &data)
 	for( size_t f=0; f<data.size(); f++ )
 	{
 		char c = data[f];
-		if( c == ' ' )
-			ret += '+';
-		else if( isalnum(c) || c == '.' || c == '-' || c == '_' )
+		if( isalnum(c) || c == '.' || c == '-' || c == '_' )
 			ret += c;
 		else
 		{
-			char t[10];
-			sprintf(t, "%%%02X", unsigned((unsigned char)c) );
-			ret += t;
+			std::ostringstream os;
+			// unsigned(c) will produce numbers like 0xFFFFFF80 for value -128, so I'm using unsigned((unsigned char)c)
+			os << "%" << std::hex << std::setw(2) << std::setfill('0') << unsigned((unsigned char)c); 
+			ret += os.str();
 		};
 	};
 	return ret;
