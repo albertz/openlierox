@@ -60,6 +60,12 @@ item:selected-inactive  {
   background-color: black;
   border: solid grey;
 }
+
+checkbox  {
+ color: white;
+ border: 0px solid red;
+ image: url("checkbox_new.png");
+}
 </style>
 <label x="100" y="100" class="green" id="blue">An ordinary label</label>
 <marquee x="200" y="200" width="40">Hello world!</marquee>
@@ -97,4 +103,8 @@ item:selected-inactive  {
 <item style="color: white;">test 2</item>
 </list>
 <scrollbar height="150" x="450" width="150" y="0" color="blue" bgcolor="#00002280" dir="horizontal" max="100" highcolor="white" shadowcolor="#0000AA"  />
+
+<checkbox checked="true" x="50" image="checkbox.png" />
+<checkbox x="70" />
+<checkbox x="90" checked="yes" />
 </layout>

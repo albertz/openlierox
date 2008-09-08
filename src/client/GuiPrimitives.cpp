@@ -68,3 +68,24 @@ void DrawArrow(SDL_Surface *bmpDest, int x, int y, int w, int h, ArrowDirection 
 	}
 }
 
+/////////////////////////
+// Draws a check (for example for checkbox)
+void DrawCheck(SDL_Surface *bmpDest, int x, int y, int w, int h, Color col)
+{
+	int starty = y + h / 2;
+	int startx = x;
+	int endy = y + h - 1;
+	int endx = x + w / 2 - 1;
+
+	DrawLine(bmpDest, startx, starty, endx, endy, col);
+	DrawLine(bmpDest, startx, starty + 1, endx - 1, endy, col);
+
+	starty = y + h - 1;
+	startx = endx;
+	endy = y;
+	endx = x + w - 1;
+
+	DrawLine(bmpDest, startx, starty, endx, endy, col);
+	DrawLine(bmpDest, startx - 1, starty, endx - 1, endy, col);
+}
+

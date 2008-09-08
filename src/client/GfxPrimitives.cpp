@@ -1930,10 +1930,14 @@ void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Color color)
 }
 
 //////////////////////
-// Draw antialiased line with an putpixel callback
+// Draw antialiased line with a putpixel callback
 // Code basis taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
 void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8))
 {
+	// Clipping
+	if (!ClipLine(dst, &x1, &y1, &x2, &y2))
+		return;
+
 	// Calculate line params
 	int dx = (x2 - x1);
 	int dy = (y2 - y1);

@@ -18,6 +18,8 @@
 #define __CCHECKBOX_H__SKINNED_GUI__
 
 #include "SkinnedGUI/CWidget.h"
+#include "SkinnedGUI/CBorder.h"
+#include "SkinnedGUI/CBackground.h"
 
 
 namespace SkinnedGUI {
@@ -38,11 +40,15 @@ private:
 	// Attributes
 	StyleVar<bool>			bValue;
 	StyleVar<SmartPointer<SDL_Surface> > bmpImage;
+	CBackground				cBackground;
+	CBorder					cBorder;
+	StyleVar<Color>			clCheck;
 	
 	// Events
 	DECLARE_EVENT(OnChange, CheckChangeHandler);
 
 	int			DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);
+	int			DoCreate();
 	void		DoRepaint();
 	void		ApplySelector(const CSSParser::Selector& sel, const std::string& prefix);
 	void		ApplyTag(xmlNodePtr node);
