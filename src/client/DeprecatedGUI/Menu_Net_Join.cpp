@@ -695,10 +695,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			progress->setEnabled(true);
 			cancel->setEnabled(true);
-			if (cClient->getDownloadingMap())
-				progress->SetPosition(cClient->getMapDlProgress());
-			else
-				progress->SetPosition(cClient->getModDlProgress());
+			progress->SetPosition(cClient->getDlProgress());
 		} else {
 			progress->setEnabled(false);
 			cancel->setEnabled(false);

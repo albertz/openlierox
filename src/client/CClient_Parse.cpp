@@ -1765,14 +1765,13 @@ void CClient::ParseSendFile(CBytestream *bs)
 				DeprecatedGUI::bHost_Update = true;
 			};
 			if( ! tGameLobby.bHaveMod &&
-				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 )
+				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 &&
+				IsFileAvailable(tGameLobby.szModDir + "/script.lgs", false) )
 			{
-				if (getUdpFileDownloader()->getFilesPendingAmount() == 0)  {
-					bDownloadingMod = false;
-					bWaitingForMod = false;
-					FinishModDownloads();
-					sModDownloadName = "";
-				}
+				bDownloadingMod = false;
+				bWaitingForMod = false;
+				FinishModDownloads();
+				sModDownloadName = "";
 
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;

@@ -36,3 +36,8 @@ tested versions: 1.2.3
 Gentoo: dev-libs/libxml2
 Debian: libxml2-dev
 tested versions: 2.6.26
+
+-- libzip
+Gentoo: ?
+Debian: libzip-dev
+tested versions: 0.8

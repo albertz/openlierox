@@ -357,7 +357,7 @@ inline bool StatFile( const std::string & file, struct stat * st )
 	std::string fname;
 	if( ! GetExactFileName( file, fname ) )
 		return false;
-
+	fname = GetFullFileName( fname );
 	if( stat( Utf8ToSystemNative(fname).c_str(), st ) != 0 )
 		return false;
 

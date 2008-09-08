@@ -515,7 +515,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// If waiting for the map/mod to finish downloading, draw the progress
 		if (bWaitingForMap || bWaitingForMod)  {
-			cDownloadBar->SetPosition(bWaitingForMap ? getMapDlProgress() : getModDlProgress());
+			cDownloadBar->SetPosition( getDlProgress() );
 			tLX->cOutlineFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
 			cDownloadBar->Draw(bmpDest);
 		}

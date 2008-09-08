@@ -33,6 +33,7 @@
 #include "AuxLib.h"
 #include "Networking.h"
 
+#include <zip.h> // For unzipping downloaded mod
 
 ///////////////////
 // Clear the client details
@@ -129,9 +130,9 @@ void CClient::Clear(void)
 	bDownloadingMod = false;
 	cHttpDownloader = NULL;
 	sMapDownloadName = "";
-	bMapDlError = false;
-	sMapDlError = "";
-	iMapDlProgress = 0;
+	bDlError = false;
+	sDlError = "";
+	iDlProgress = 0;
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
@@ -380,9 +381,9 @@ void CClient::InitializeDownloads()
 		cHttpDownloader = new CHttpDownloadManager();
 	bDownloadingMap = false;
 	bDownloadingMod = false;
-	bMapDlError = false;
-	iMapDlProgress = 0;
-	sMapDlError = "";
+	bDlError = false;
+	iDlProgress = 0;
+	sDlError = "";
 	sMapDownloadName = "";
 	sModDownloadName = "";
 }
@@ -396,9 +397,9 @@ void CClient::ShutdownDownloads()
 	cHttpDownloader = NULL;
 	bDownloadingMap = false;
 	bDownloadingMod = false;
-	bMapDlError = false;
-	iMapDlProgress = 0;
-	sMapDlError = "";
+	bDlError = false;
+	iDlProgress = 0;
+	sDlError = "";
 	sMapDownloadName = "";
 	sModDownloadName = "";
 }
@@ -411,8 +412,8 @@ void CClient::DownloadMap(const std::string& mapname)
 
 	// Check
 	if (!cHttpDownloader)  {
-		sMapDlError = "Could not initialize the downloader";
-		bMapDlError = true;
+		sDlError = "Could not initialize the downloader";
+		bDlError = true;
 		return;
 	}
 
@@ -421,8 +422,7 @@ void CClient::DownloadMap(const std::string& mapname)
 	bDownloadingMap = true;
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
-	// TODO: why is this needed?
-	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
+	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -432,12 +432,20 @@ void CClient::DownloadMod(const std::string &modname)
 	if (modname.size() == 0)
 		return;
 
-	sModDownloadName = modname;
-	bDownloadingMod = true;
-	iModDownloadingSize = 0;
+	// Check
+	if (!cHttpDownloader)  {
+		sDlError = "Could not initialize the downloader";
+		bDlError = true;
+		return;
+	}
 
-	cUdpFileDownloader.clearAborted();
-	cUdpFileDownloader.requestFileInfo(modname, true);  // Download the mod
+	sModDownloadName = modname;
+	cHttpDownloader->StartFileDownload(sModDownloadName + ".zip", "./");
+	bDownloadingMod = true;
+	iDownloadMethod = DL_HTTP; // We start with HTTP
+
+	iModDownloadingSize = 0;
+	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -451,7 +459,11 @@ void CClient::AbortDownloads()
 		getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
 	}
 
-	bDownloadingMod = false;
+	if (bDownloadingMod)  {
+		bDownloadingMod = false;
+		if (cHttpDownloader)
+			cHttpDownloader->CancelFileDownload(sModDownloadName + ".zip");
+	}
 
 	// Cancel any UDP downloads
 	if (getUdpFileDownloader()->getFilesPendingAmount() > 0 || getUdpFileDownloader()->isReceiving())  {
@@ -511,22 +523,6 @@ void CClient::FinishMapDownloads()
 				GotoNetMenu();
 			}
 		}
-	} else {  // Inaccessible
-
-		// HACK because of a bad code design in UDP file downloader
-		// We can get here after receiving a file ACK which is 100% ok
-		// and we should continue in map downloading
-		// Sadly, there's no way to distinguish between a normal file download finish and receiving an ACK
-		if (iDownloadMethod == DL_UDP)  {
-			bDownloadingMap = true;
-			return;
-		}
-
-		printf("Cannot access the downloaded map!\n");
-		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
-			Disconnect();
-			GotoNetMenu();
-		}
 	}
 }
 
@@ -534,6 +530,57 @@ void CClient::FinishMapDownloads()
 // Finish downloading of a mod
 void CClient::FinishModDownloads()
 {
+	if ( !IsFileAvailable(sModDownloadName + "/script.lgs", false) && 
+			IsFileAvailable(sModDownloadName + ".zip", false) )
+	{
+		// Unzip mod file
+		std::string fname;
+		GetExactFileName( sModDownloadName + ".zip", fname );
+		fname = GetFullFileName( fname );
+
+		zip * zipfile = zip_open( Utf8ToSystemNative(fname).c_str(), 0, NULL );
+		if( zipfile == NULL ) {
+			printf("Cannot access the downloaded mod!\n");
+			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+				Disconnect();
+				GotoNetMenu();
+			}
+			return;
+		}
+
+		if( zip_name_locate(zipfile, (sModDownloadName + "/script.lgs").c_str(), ZIP_FL_NOCASE) == -1 )
+		{
+			printf("Cannot access the downloaded mod!\n");
+			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+				Disconnect();
+				GotoNetMenu();
+			}
+			return;
+		}
+		
+		for( int f = 0; f < zip_get_num_files(zipfile); f++ )
+		{
+			const char * fname = zip_get_name(zipfile, f, 0);
+			// Check if file is valid and is inside mod dir and not already exist
+			if( fname == NULL || std::string(fname).find("..") != std::string::npos ||
+				stringtolower( fname ).find( stringtolower(sModDownloadName) ) != 0 ||
+				IsFileAvailable(fname, false) )
+				continue;
+			zip_file * fileInZip = zip_fopen_index(zipfile, f, 0);
+			FILE * fileWrite = OpenGameFile(fname, "wb");
+			if( fileInZip == NULL || fileWrite == NULL )
+				continue;
+			char buf[4096];
+			int readed;
+			while( ( readed = zip_fread(fileInZip, buf, sizeof(buf)) ) > 0 )
+				fwrite( buf, 1, readed, fileWrite );
+			fclose(fileWrite);
+			zip_fclose(fileInZip);
+		};
+		
+		zip_close(zipfile);
+	}
+
 	// Check that the script.lgs file is available
 	if (!IsFileAvailable(sModDownloadName + "/script.lgs", false))  {
 		printf("Cannot access the downloaded mod!\n");
@@ -584,19 +631,35 @@ void CClient::FinishModDownloads()
 
 const float fDownloadRetryTimeout = 4.0;	// Server should calculate CRC for large amount of files, like mod dir
 
+void CClient::ProcessUdpUploads()
+{
+	// Server requested some file (CRC check on our map) or we're sending file request
+	if( getUdpFileDownloader()->isSending() ) 
+	{
+		CBytestream bs;
+		bs.writeByte(C2S_SENDFILE);
+		getUdpFileDownloader()->send(&bs);
+		cNetChan->AddReliablePacketToSend(bs);
+		fLastFileRequestPacketReceived = tLX->fCurTime;
+		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
+		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
+			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
+	}
+}
+
 /////////////////
 // Process map downloading
 void CClient::ProcessMapDownloads()
 {
-
 	if( bDownloadingMap && iDownloadMethod == DL_HTTP && cHttpDownloader )  {
 
 		// Download finished
 		if (cHttpDownloader->IsFileDownloaded(sMapDownloadName))  {
 			bDownloadingMap = false;
-			bMapDlError = false;
-			sMapDlError = "";
-			iMapDlProgress = 100;
+			bDlError = false;
+			sDlError = "";
+			iDlProgress = 100;
 
 			FinishMapDownloads();;
 
@@ -609,7 +672,7 @@ void CClient::ProcessMapDownloads()
 		// Error check
 		DownloadError error = cHttpDownloader->FileDownloadError(sMapDownloadName);
 		if (error.iError != FILEDL_ERROR_NO_ERROR)  {
-			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
+			sDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
 			if (bWaitingForMap)  {
 				Disconnect();
@@ -622,7 +685,7 @@ void CClient::ProcessMapDownloads()
 			{
 				iDownloadMethod = DL_UDP;
 				bDownloadingMap = true;
-				iMapDlProgress = 0;
+				iDlProgress = 0;
 				cHttpDownloader->RemoveFileDownload(sMapDownloadName);
 
 				// Request file downloading with UDP - it won't start until HTTP won't finish
@@ -639,7 +702,7 @@ void CClient::ProcessMapDownloads()
 		} else {  // No error
 
 			// Get the progress
-			iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
+			iDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
 			return; // Skip UDP downloading if HTTP downloading active
 		}
 	}
@@ -659,8 +722,8 @@ void CClient::ProcessMapDownloads()
 		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
 			fLastFileRequestPacketReceived = tLX->fCurTime;
 			if( ! getUdpFileDownloader()->requestFilesPending() )  { // More files to receive
-				bMapDlError = true;
-				sMapDlError = sMapDownloadName + " downloading error: UDP timeout";
+				bDlError = true;
+				sDlError = sMapDownloadName + " downloading error: UDP timeout";
 				bDownloadingMap = false;
 
 				// If waiting for the map ingame, just quit
@@ -671,43 +734,29 @@ void CClient::ProcessMapDownloads()
 				}
 			}
 		}
+		
 		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->szMapName ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}
 
-		if( bDownloadingMap && iDownloadMethod == DL_UDP )
-			iMapDlProgress = (int)(getUdpFileDownloader()->getFileDownloadingProgress() * 100.0f);
+		iDlProgress = (int)(getUdpFileDownloader()->getFileDownloadingProgress() * 100.0f);
 
-		return;
-	}
-
-	// Server requested some file (CRC check on our map) or we're sending file request
-	if( getUdpFileDownloader()->isSending() )	 {
-		CBytestream bs;
-		bs.writeByte(C2S_SENDFILE);
-		getUdpFileDownloader()->send(&bs);
-		cNetChan->AddReliablePacketToSend(bs);
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
-		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
-		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
-			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
 		return;
 	}
 
 	// Download finished
 	if( getUdpFileDownloader()->wasError() && bDownloadingMap )  {
 		getUdpFileDownloader()->clearError();
-		bMapDlError = true;
-		sMapDlError = sMapDownloadName + " downloading error: checksum failed";
+		bDlError = true;
+		sDlError = sMapDownloadName + " downloading error: checksum failed";
 		bDownloadingMap = false;
 	}
 
 	if( getUdpFileDownloader()->wasAborted() && bDownloadingMap )  {
 		getUdpFileDownloader()->clearAborted();
-		bMapDlError = true;
-		sMapDlError = sMapDownloadName + " downloading error: server aborted download";
+		bDlError = true;
+		sDlError = sMapDownloadName + " downloading error: server aborted download";
 		bDownloadingMap = false;
 	}
 
@@ -726,6 +775,58 @@ void CClient::ProcessMapDownloads()
 // Process mod downloading
 void CClient::ProcessModDownloads()
 {
+	if( bDownloadingMod && iDownloadMethod == DL_HTTP && cHttpDownloader )  {
+
+		// Download finished
+		if (cHttpDownloader->IsFileDownloaded(sModDownloadName + ".zip"))  {
+			bDownloadingMod = false;
+			bDlError = false;
+			sDlError = "";
+			iDlProgress = 100;
+
+			FinishModDownloads();;
+
+			sModDownloadName = "";
+			bWaitingForMod = false;
+
+			return;
+		}
+
+		// Error check
+		DownloadError error = cHttpDownloader->FileDownloadError(sModDownloadName + ".zip");
+		if (error.iError != FILEDL_ERROR_NO_ERROR)  {
+			sDlError = sModDownloadName + ".zip" + " downloading error: " + error.sErrorMsg;
+
+			if (bWaitingForMod)  {
+				Disconnect();
+				GotoNetMenu();
+				return;
+			}
+
+			// HTTP failed, let's try UDP
+			if( getServerVersion() > OLXBetaVersion(4) )
+			{
+				iDownloadMethod = DL_UDP;
+				bDownloadingMod = true;
+				iDlProgress = 0;
+				cHttpDownloader->RemoveFileDownload(sModDownloadName + ".zip");
+				
+				// Request file downloading with UDP - it won't start until HTTP won't finish
+				getUdpFileDownloader()->requestFileInfo(sModDownloadName, true); // To get valid progressbar
+
+			} else {
+				bDownloadingMod = false;
+				sModDownloadName = "";
+				return;
+			}
+		} else {  // No error
+
+			// Get the progress
+			iDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
+			return; // Skip UDP downloading if HTTP downloading active
+		}
+	}
+
 	if (!bDownloadingMod)
 		return;
 
@@ -750,6 +851,13 @@ void CClient::ProcessModDownloads()
 			return;
 		}
 	}
+
+	// Update download progress
+	if( iModDownloadingSize == 0 )
+		iDlProgress = byte(cUdpFileDownloader.getFileDownloadingProgress() * 100);
+	bool downloadStarted = ( cUdpFileDownloader.getFilename() != "" && cUdpFileDownloader.getFilename() != "STAT:" );
+	iDlProgress = byte( ( downloadStarted ? 5.0f : 0.0f ) + 95.0f - 95.0f / iModDownloadingSize * 
+					(cUdpFileDownloader.getFilesPendingSize() - cUdpFileDownloader.getFileDownloadingProgressBytes()) );
 	
 	// Receiving
 	if(cUdpFileDownloader.isReceiving())	 {
@@ -771,20 +879,6 @@ void CClient::ProcessModDownloads()
 		return;
 	}
 
-	// Server requested some file (CRC check on our map) or we're sending file request
-	if( getUdpFileDownloader()->isSending() )	 {
-		CBytestream bs;
-		bs.writeByte(C2S_SENDFILE);
-		getUdpFileDownloader()->send(&bs);
-		cNetChan->AddReliablePacketToSend(bs);
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
-		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
-		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
-			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
-		return;
-	}
-
 	// Request another file from server after little timeout
 	if( fLastFileRequest <= tLX->fCurTime )  {
 
@@ -800,23 +894,15 @@ void CClient::ProcessModDownloads()
 	}
 }
 
-byte CClient::getModDlProgress()
-{
-	if( cUdpFileDownloader.getFilesPendingSize() < cUdpFileDownloader.getFilesPendingSize() )
-		return byte(cUdpFileDownloader.getFileDownloadingProgress() * 100);
-	bool downloadStarted = ( cUdpFileDownloader.getFilename() != "" && cUdpFileDownloader.getFilename() != "STAT:" );
-	return byte( ( downloadStarted ? 5.0f : 0.0f ) + 95.0f - 95.0f / iModDownloadingSize * 
-			(cUdpFileDownloader.getFilesPendingSize() - cUdpFileDownloader.getFileDownloadingProgressBytes()) );
-};
-
 ///////////////////
 // Main frame
 void CClient::Frame(void)
 {
+	ReadPackets();
+
 	ProcessMapDownloads();
 	ProcessModDownloads();
-
-	ReadPackets();
+	ProcessUdpUploads();
 
 	SimulateHud();
 

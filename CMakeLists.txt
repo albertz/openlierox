@@ -135,7 +135,7 @@ SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
 EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 string(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
-TARGET_LINK_LIBRARIES(openlierox ${SDLLIBS} SDL SDL_image pthread z xml2)
+TARGET_LINK_LIBRARIES(openlierox ${SDLLIBS} SDL SDL_image pthread z xml2 zip)
 
 IF (NOT DEDICATED_ONLY)
 	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)

@@ -143,7 +143,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/client/DeprecatedGUI/*.cpp src/clien
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd -pthread \
+	-lSDL_image -lSDL_mixer -lgd -pthread -lzip -lz\
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \

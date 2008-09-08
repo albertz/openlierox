@@ -268,9 +268,9 @@ public:
 		bDownloadingMap = false;
 		cHttpDownloader = NULL;
 		sMapDownloadName = "";
-		bMapDlError = false;
-		sMapDlError = "";
-		iMapDlProgress = 0;
+		bDlError = false;
+		sDlError = "";
+		iDlProgress = 0;
 	}
 
 	~CClient()  {
@@ -421,9 +421,9 @@ private:
 	bool		bDownloadingMap;
 	CHttpDownloadManager *cHttpDownloader;
 	std::string	sMapDownloadName;
-	bool		bMapDlError;
-	std::string	sMapDlError;
-	byte		iMapDlProgress;
+	bool		bDlError;
+	std::string	sDlError;
+	byte		iDlProgress;
 	int			iDownloadMethod;  // HTTP or UDP
 	bool		bWaitingForMap;  // In game and waiting for the map to finish downloading
 
@@ -431,6 +431,11 @@ private:
 	bool		bDownloadingMod;
 	std::string	sModDownloadName;
 	bool		bWaitingForMod;
+
+	CUdpFileDownloader	cUdpFileDownloader;
+	float		fLastFileRequest;
+	float		fLastFileRequestPacketReceived;
+	size_t		iModDownloadingSize;	// For progress bar, UDP only
 
 	bool		bReadySent;
 
@@ -456,10 +461,6 @@ private:
     bool		bInServer;
 	std::string	cIConnectedBuf;
 
-	CUdpFileDownloader	cUdpFileDownloader;
-	float		fLastFileRequest;
-	float		fLastFileRequestPacketReceived;
-	size_t		iModDownloadingSize;	// For progress bar
 	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
@@ -631,6 +632,7 @@ public:
 	void		DownloadMod(const std::string& modname);
 	void		ProcessModDownloads();
 	void		FinishModDownloads();
+	void		ProcessUdpUploads();
 
 	// Variables
 	CChannel	*getChannel(void)			{ return cNetChan; }
@@ -717,14 +719,13 @@ public:
 
 	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 
-	byte		getMapDlProgress()				{ return iMapDlProgress; }
+	byte		getDlProgress()					{ return iDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 	bool		getDownloadingMod()				{ return bDownloadingMod; }
-	byte		getModDlProgress();
 	int			getDownloadMethod()				{ return iDownloadMethod; }
-	bool		getDownloadingMapError()		{ return bMapDlError; }
-	void		clearDownloadingMapError()		{ bMapDlError = false; }
-	std::string	getDownloadingMapErrorMessage()	{ return sMapDlError; }
+	bool		getDownloadingError()			{ return bDlError; }
+	void		clearDownloadingError()			{ bDlError = false; }
+	std::string	getDownloadingErrorMessage()	{ return sDlError; }
 
 	CViewport * getViewports()					{ return cViewports; }
 
