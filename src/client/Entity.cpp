@@ -60,7 +60,7 @@ void ClearEntities(void)
 
 ///////////////////
 // Spawn an entity
-void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, const SmartPointer<SDL_Surface> & img)
+void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Surface * img)
 {
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->bParticles) {
