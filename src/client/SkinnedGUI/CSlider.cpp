@@ -21,9 +21,12 @@
 #include "GfxPrimitives.h"
 #include "SkinnedGUI/CSlider.h"
 #include "XMLutils.h"
+#include "GuiPrimitives.h"
 
 
 namespace SkinnedGUI {
+
+#define BUTTON_W 5
 
 ////////////////////
 // Create
@@ -33,6 +36,9 @@ CSlider::CSlider(COMMON_PARAMS, int max, int min)  : CWidget(name, parent)
 	iMin = min;
 	iValue = 0;
 	iType = wid_Slider;
+	clButFace.set(Color(191, 191, 191), DEFAULT_PRIORITY);
+	clButLight.set(Color(255, 255, 255), DEFAULT_PRIORITY);
+	clButDark.set(Color(127, 127, 127), DEFAULT_PRIORITY);
 	CLEAR_EVENT(OnChange);
 }
 
@@ -40,6 +46,9 @@ CSlider::CSlider(const std::string &name, CContainerWidget *parent) : CWidget(na
 {
 	iMax = iMin = iValue = 0;
 	iType = wid_Slider;
+	clButFace.set(Color(191, 191, 191), DEFAULT_PRIORITY);
+	clButLight.set(Color(255, 255, 255), DEFAULT_PRIORITY);
+	clButDark.set(Color(127, 127, 127), DEFAULT_PRIORITY);
 	CLEAR_EVENT(OnChange);
 }
 
@@ -48,20 +57,27 @@ CSlider::CSlider(const std::string &name, CContainerWidget *parent) : CWidget(na
 void CSlider::DoRepaint()
 {
 	CHECK_BUFFER;
-	if (!bmpButton.get().get())
-		return;
+	CWidget::DoRepaint();
 
-	DrawHLine( bmpBuffer.get(), bmpButton->w/2, getWidth() - bmpButton->w/2, getHeight()/2 - 1, clDark.get().get(bmpBuffer));
-	DrawHLine( bmpBuffer.get(), bmpButton->w/2, getWidth() - bmpButton->w/2, getHeight()/2, clLight.get().get(bmpBuffer));
-	DrawHLine( bmpBuffer.get(), bmpButton->w/2, getWidth() - bmpButton->w/2, getHeight()/2 + 1, clDark.get().get(bmpBuffer));
+	const int button_w = bmpButton.get().get() ? bmpButton->w / 2 : BUTTON_W;
+
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 - 1, clDark.get().get(bmpBuffer));
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2, clLight.get().get(bmpBuffer));
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 + 1, clDark.get().get(bmpBuffer));
 
 	// Draw the button
-	int x = bmpButton->w/2;
-	int w = getWidth() - bmpButton->w;
-	int val = (int)( ((float)w/(float)iMax) * (float)iValue ) + x;
+	if (bmpButton.get().get())  {
+		int x = button_w / 2;
+		int w = getWidth() - button_w;
+		int val = (int)( ((float)w/(float)iMax) * (float)iValue );
 
-	int y = (getHeight() - bmpButton->h)/2;
-	DrawImage(bmpBuffer.get(), bmpButton, val-bmpButton->w/2, y);
+		int y = (getHeight() - bmpButton->h)/2;
+		DrawImageAdv(bmpBuffer.get(), bmpButton, bMouseOver ? button_w : 0, 0, val, y, button_w, bmpButton->h);
+	} else {
+		int w = getWidth() - button_w;
+		int val = (int)( ((float)w/(float)iMax) * (float)iValue );
+		DrawSimpleButton(bmpBuffer.get(), val - button_w / 2, 0, button_w, getHeight(), clButFace, clButLight, clButDark, false);
+	}
 }
 
 //////////////////
@@ -77,6 +93,12 @@ void CSlider::ApplySelector(const CSSParser::Selector& sel, const std::string& p
 			clLight.set(it->getFirstValue().getColor(clLight), it->getPriority());
 		} else if (it->getName() == prefix + "shadow-color" || it->getName() == prefix + "shadow-colour") {
 			clLight.set(it->getFirstValue().getColor(clDark), it->getPriority());
+		} else if (it->getName() == prefix + "button-highlight-color" || it->getName() == prefix + "button-highlight-colour")  {
+			clButLight.set(it->getFirstValue().getColor(clButLight), it->getPriority());
+		} else if (it->getName() == prefix + "button-shadow-color" || it->getName() == prefix + "button-shadow-colour")  {
+			clButDark.set(it->getFirstValue().getColor(clButDark), it->getPriority());
+		} else if (it->getName() == prefix + "button-color" || it->getName() == prefix + "button-colour")  {
+			clButFace.set(it->getFirstValue().getColor(clButFace), it->getPriority());
 		}
 	}
 }
@@ -103,14 +125,16 @@ void CSlider::ApplyTag(xmlNodePtr node)
 // Moves the slider, takes mouse coordinates
 void CSlider::DoMove(int ms_x, int ms_y)
 {
-	int x = bmpButton->w/2;
-	int w = getWidth() - bmpButton->w;
+	const int button_w = bmpButton.get().get() ? bmpButton->w / 2 : BUTTON_W;
+
+	int x = button_w / 2;
+	int w = getWidth() - button_w;
 
 	int val = (int)( (float)iMax / ( (float)w / (float)(ms_x - x)) );
 
 	if(ms_x > x + w)
 		val = iMax;
-	if(ms_x < x)
+	if(ms_x <= x)
 		val = 0;
 
 	// Clamp the value
@@ -119,8 +143,10 @@ void CSlider::DoMove(int ms_x, int ms_y)
 	if (val != iValue)  {
 		bool cancel = false;
 		CALL_EVENT(OnChange, (this, val, cancel));
-		if (!cancel)
+		if (!cancel)  {
 			iValue = val;
+			Repaint();
+		}
 	}
 }
 
@@ -142,6 +168,22 @@ int	CSlider::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton bu
 	}
 
 	CWidget::DoMouseMove(x, y, dx, dy, down, button, modstate);
+	return WID_PROCESSED;
+}
+
+//////////////////
+// Create event
+int CSlider::DoCreate()
+{
+	CWidget::DoCreate();
+
+	if (getWidth() == 0 || getHeight() == 0)  {
+		if (bmpButton.get().get())
+			Resize(getX(), getY(), 100, bmpButton->h);
+		else
+			Resize(getX(), getY(), 100, 10);
+	}
+
 	return WID_PROCESSED;
 }
 

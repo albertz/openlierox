@@ -44,12 +44,16 @@ private:
 
 	StyleVar<Color>		clLight;
 	StyleVar<Color>		clDark;
+	StyleVar<Color>		clButLight;
+	StyleVar<Color>		clButDark;
+	StyleVar<Color>		clButFace;
 	StyleVar<SmartPointer<SDL_Surface> > bmpButton;
 
 	int		DoMouseDown(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);
 	int		DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate);
 	void	DoMove(int ms_x, int ms_y);
 	void	DoRepaint();
+	int		DoCreate();
 	void	ApplySelector(const CSSParser::Selector& sel, const std::string& prefix = "");
 	void	ApplyTag(xmlNodePtr node);
 

@@ -107,4 +107,5 @@ checkbox  {
 <checkbox checked="true" x="50" image="checkbox.png" />
 <checkbox x="70" />
 <checkbox x="90" checked="yes" />
+<slider max="100" y="200" button="slider.png" />
 </layout>
