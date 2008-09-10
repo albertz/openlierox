@@ -123,8 +123,7 @@ inline void PutPixel_24(Uint8 *addr, Uint32 color)  {
 		addr[1] = ((Uint8 *)&color)[2];
 		addr[2] = ((Uint8 *)&color)[1];
 #else
-		addr[0] = ((Uint8 *)&color)[0];
-		addr[1] = ((Uint8 *)&color)[1];
+		*(Uint16 *)addr = *((Uint16 *)&color);
 		addr[2] = ((Uint8 *)&color)[2];
 #endif
 }
@@ -189,10 +188,8 @@ inline Uint32 GetPixel_24(const Uint8 *addr)  {
 		color[2] = addr[2];
 		color[3] = 0;
 #else
-		color[2] = addr[2];
-		color[1] = addr[1];
-		color[0] = addr[0];
-		color[3] = 0;		
+		*(Uint16 *)(&color[0]) = *(Uint16 *)addr;
+		*(Uint16 *)(&color[2]) = (Uint16)addr[2];
 #endif
 		return *((Uint32 *)(&color[0]));
 }
