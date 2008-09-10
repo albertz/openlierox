@@ -134,16 +134,17 @@ echo "* $COMPILER will be used for compilation"
 
 echo ">>> compiling now, this could take some time ..."
 mkdir -p bin
-if $COMPILER src/*.cpp src/client/*.cpp src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp src/common/*.cpp src/server/*.cpp \
+if $COMPILER	src/*.cpp src/client/*.cpp src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
+				src/common/*.cpp src/server/*.cpp libs/libzip/*.c \
 	$HAWKNL_GCC_PARAM \
-	-I include -I libs/pstreams \
+	-I include -I libs/pstreams -I libs/libzip \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
 	$(build_param_str -L "$LIB_PATH") \
 	$($sdlconfig --cflags) \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd -pthread -lz\
+	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lzzip\
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \

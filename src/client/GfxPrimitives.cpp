@@ -88,7 +88,7 @@ Color Unpack(Uint32 px, const SDL_PixelFormat *fmt)  {
 		return Unpack_solid(px, fmt);
 }
 
-Uint8 Pack_8(const Color& c, const SDL_PixelFormat *fmt)  { return SDL_MapRGB(fmt, c.r, c.g, c.b); }
+Uint8 Pack_8(const Color& c, SDL_PixelFormat *fmt)  { return SDL_MapRGB(fmt, c.r, c.g, c.b); }
 
 // Pack the color, for 16, 24 and 32bit modes
 Uint32 Pack(const Color& c, const SDL_PixelFormat *fmt)	{

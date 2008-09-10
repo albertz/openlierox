@@ -33,6 +33,8 @@
 #include "AuxLib.h"
 #include "Networking.h"
 
+#include <zip.h> // For unzipping downloaded mod
+
 ///////////////////
 // Clear the client details
 void CClient::Clear(void)
@@ -531,7 +533,52 @@ void CClient::FinishModDownloads()
 	if ( !IsFileAvailable(sModDownloadName + "/script.lgs", false) && 
 			IsFileAvailable(sModDownloadName + ".zip", false) )
 	{
-		// TODO: Unzip mod file
+		// Unzip mod file
+		std::string fname;
+		GetExactFileName( sModDownloadName + ".zip", fname );
+		fname = GetFullFileName( fname );
+
+		zip * zipfile = zip_open( Utf8ToSystemNative(fname).c_str(), 0, NULL );
+		if( zipfile == NULL ) {
+			printf("Cannot access the downloaded mod!\n");
+			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+				Disconnect();
+				GotoNetMenu();
+			}
+			return;
+		}
+
+		if( zip_name_locate(zipfile, (sModDownloadName + "/script.lgs").c_str(), ZIP_FL_NOCASE) == -1 )
+		{
+			printf("Cannot access the downloaded mod!\n");
+			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+				Disconnect();
+				GotoNetMenu();
+			}
+			return;
+		}
+		
+		for( int f = 0; f < zip_get_num_files(zipfile); f++ )
+		{
+			const char * fname = zip_get_name(zipfile, f, 0);
+			// Check if file is valid and is inside mod dir and not already exist
+			if( fname == NULL || std::string(fname).find("..") != std::string::npos ||
+				stringtolower( fname ).find( stringtolower(sModDownloadName) ) != 0 ||
+				IsFileAvailable(fname, false) )
+				continue;
+			zip_file * fileInZip = zip_fopen_index(zipfile, f, 0);
+			FILE * fileWrite = OpenGameFile(fname, "wb");
+			if( fileInZip == NULL || fileWrite == NULL )
+				continue;
+			char buf[4096];
+			int readed;
+			while( ( readed = zip_fread(fileInZip, buf, sizeof(buf)) ) > 0 )
+				fwrite( buf, 1, readed, fileWrite );
+			fclose(fileWrite);
+			zip_fclose(fileInZip);
+		};
+		
+		zip_close(zipfile);
 	}
 
 	// Check that the script.lgs file is available
