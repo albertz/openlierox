@@ -698,6 +698,6 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 		return "The worm does not exist";
 
 	w->setLives(0);
-	cClient->SendDeath(sender_id, sender_id);
+	cClient->getNetEngine()->SendDeath(sender_id, sender_id);
 	return "";
 };

@@ -26,9 +26,10 @@
 #include "CServer.h"
 
 
+
 ///////////////////
 // Send the worm details
-void CClient::SendWormDetails(void)
+void CClientNetEngine::SendWormDetails(void)
 {
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update
@@ -42,8 +43,8 @@ void CClient::SendWormDetails(void)
 
 	// If all my worms are dead, don't send
 	bool Alive = false;
-	for(i=0;i<iNumWorms;i++) {
-		if(cLocalWorms[i]->getAlive()) {
+	for(i=0;i<client->iNumWorms;i++) {
+		if(client->cLocalWorms[i]->getAlive()) {
 			Alive = true;
 			break;
 		}
@@ -67,36 +68,36 @@ void CClient::SendWormDetails(void)
 		return;
 */
 	if(	tGameInfo.iGameType == GME_JOIN // we are a client in a netgame
-	&& !GameServer::checkUploadBandwidth(this->getChannel()->getOutgoingRate()) )
+	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
-	fLastUpdateSent = tLX->fCurTime;
+	client->fLastUpdateSent = tLX->fCurTime;
 
 	// Write the update
 	bs.writeByte(C2S_UPDATE);
 
-	for(i = 0; i < iNumWorms; i++)
-		cLocalWorms[i]->writePacket(&bs, false, NULL);
+	for(i = 0; i < client->iNumWorms; i++)
+		client->cLocalWorms[i]->writePacket(&bs, false, NULL);
 
-	bsUnreliable.Append(&bs);
+	client->bsUnreliable.Append(&bs);
 }
-void CClient::SendGameReady()
+void CClientNetEngine::SendGameReady()
 {
 	CBytestream bs;
 	bs.writeByte(C2S_IMREADY);
-	bs.writeByte(iNumWorms);
+	bs.writeByte(client->iNumWorms);
 
 	// Send my worm's weapon details
-	for(unsigned int i=0;i<iNumWorms;i++)
-		cLocalWorms[i]->writeWeapons( &bs );
+	for(unsigned int i=0;i<client->iNumWorms;i++)
+		client->cLocalWorms[i]->writeWeapons( &bs );
 
-	cNetChan->AddReliablePacketToSend(bs);
+	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
 
 ///////////////////
 // Send a death
-void CClient::SendDeath(int victim, int killer)
+void CClientNetEngine::SendDeath(int victim, int killer)
 {
 	CBytestream bs;
 
@@ -104,13 +105,13 @@ void CClient::SendDeath(int victim, int killer)
 	bs.writeInt(victim,1);
 	bs.writeInt(killer,1);
 
-	cNetChan->AddReliablePacketToSend(bs);
+	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
 
 ///////////////////
 // Send a string of text
-void CClient::SendText(const std::string& sText, std::string sWormName)
+void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 {
 	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
 	std::string message;
@@ -130,10 +131,10 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 
 	if (chat_command && sText.find("/me ") != 0) { // Ignores "/me" special command
 		// Don't allow sending commands to servers that don't support it
-		if (getServerVersion() < OLXBetaVersion(3)) {
+		if (client->getServerVersion() < OLXBetaVersion(3)) {
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
 			if( ! Cmd_ParseLine(sText.substr(1)) ) {
-				cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
+				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
 			}
 			return;
 		}
@@ -207,7 +208,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 	// If the part we should repeat before each message is longer than the limit, just quit
 	// HINT: should not happen
 	if (command.size() + sWormName.size() >= 64)  {
-		cChatbox.AddText("Could not send the message.", tLX->clNotice, tLX->fCurTime);
+		client->cChatbox.AddText("Could not send the message.", tLX->clNotice, tLX->fCurTime);
 		return;
 	}
 
@@ -216,7 +217,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 	int name_w = tLX->cFont.GetWidth(sWormName + ": ");
 	size_t repeat_length = command.size() ? (command.size() + sWormName.size()) : 0;  // length of repeated string
 	const std::vector<std::string>& split = splitstring(message, 63 - repeat_length,
-		iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) :
+		client->iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) :
 		300 - (command.size() ? name_w : 0), tLX->cFont);
 
 	// Check
@@ -236,7 +237,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 
 /////////////////////
 // Internal function for text sending, does not do any checks or parsing
-void CClient::SendTextInternal(const std::string& sText, const std::string& sWormName)
+void CClientNetEngine::SendTextInternal(const std::string& sText, const std::string& sWormName)
 {
 	CBytestream bs;
 	bs.writeByte(C2S_CHATTEXT);
@@ -245,13 +246,13 @@ void CClient::SendTextInternal(const std::string& sText, const std::string& sWor
 	else
 		bs.writeString(sWormName + ": " + sText);
 
-	cNetChan->AddReliablePacketToSend(bs);
+	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
 #ifdef FUZZY_ERROR_TESTING
 //////////////////
 // Send a random packet to server (used for debugging)
-void CClient::SendRandomPacket()
+void CClientNetEngine::SendRandomPacket()
 {
 	CBytestream bs;
 
@@ -259,7 +260,7 @@ void CClient::SendRandomPacket()
 	for (int i=0; i < random_length; i++)
 		bs.writeByte((uchar)GetRandomInt(255));
 
-	cNetChan->AddReliablePacketToSend(bs);
+	client->cNetChan->AddReliablePacketToSend(bs);
 
 	bs.Clear();
 
@@ -271,7 +272,7 @@ void CClient::SendRandomPacket()
 		bs.writeString(commands[GetRandomInt(500) % (sizeof(commands)/sizeof(std::string))]);
 		for (int i=0; i < random_length; i++)
 			bs.writeByte((uchar)GetRandomInt(255));
-		SetRemoteNetAddr(tSocket, cNetChan->getAddress());
+		SetRemoteNetAddr(tSocket, client->cNetChan->getAddress());
 		bs.Send(tSocket);
 	}
 }

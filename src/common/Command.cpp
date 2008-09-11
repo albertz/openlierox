@@ -492,7 +492,7 @@ void Cmd_Suicide(void)
 		// Without arguments, just commit one suicide
 		if (Cmd_GetNumArgs() == 1)  {
 			if(w->isUsed())
-				cClient->SendDeath(w->getID(), w->getID());
+				cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
 		}
 		// A number has been entered, suicide the specified number
 		else  {
@@ -512,7 +512,7 @@ void Cmd_Suicide(void)
 			// Suicide
 			if (w->isUsed())
 				for (int i = 0; i < number; i++)
-					cClient->SendDeath(w->getID(), w->getID());
+					cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
 		}
 	}
 }

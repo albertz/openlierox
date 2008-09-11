@@ -920,7 +920,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, "", 0);
 
 					// Send
-					cClient->SendText(text, cClient->getWorm(0)->getName());
+					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
 				}
 				break;
 
@@ -1195,7 +1195,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	{
 		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
-			cClient->SendText( OldLxCompatibleString( "Game will start when " +
+			cClient->getNetEngine()->SendText( OldLxCompatibleString( "Game will start when " +
 					itoa(iStartDedicatedMinPlayers) + " players connect" ), "");
 			fStartDedicatedSecondsPassed = tLX->fCurTime;
 			secondsAnnounced = -1;
@@ -1207,7 +1207,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				secondsAnnounced == -1 ) )
 	{
 		if( secondsTillGameStart > 0 )
-			cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ), "" );
+			cClient->getNetEngine()->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ), "" );
 		secondsAnnounced = secondsTillGameStart;
 	};
 

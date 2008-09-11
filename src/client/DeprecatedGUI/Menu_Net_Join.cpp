@@ -778,7 +778,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, "",0);
 
 					// Send
-					cClient->SendText(text, cClient->getWorm(0)->getName());
+					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
 				}
 				break;
 

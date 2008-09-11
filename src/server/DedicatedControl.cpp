@@ -321,7 +321,7 @@ struct DedIntern {
 			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
 			{
 				cServer->getWorms()[cClient->getWorm(f)->getID()].setLives(0);
-				cClient->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
+				cClient->getNetEngine()->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
 			}
 	}
 

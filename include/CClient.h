@@ -37,6 +37,7 @@
 #include "Version.h"
 #include "CProjectile.h"
 #include "FastVector.h"
+#include "CClientNetEngine.h"
 
 
 #define		MAX_CLIENTS		32
@@ -228,6 +229,7 @@ public:
 
 		szServerName="";
 
+		cNetEngine = new CClientNetEngine(this);
 		cNetChan = NULL;
 		iNetStatus = NET_DISCONNECTED;
 		bsUnreliable.Clear();
@@ -276,8 +278,11 @@ public:
 	~CClient()  {
 		Shutdown();
 		Clear();
+		if(cNetEngine) 
+			delete cNetEngine;
 	}
 
+	friend class CClientNetEngine;
 
 private:
 	// Attributes
@@ -393,6 +398,7 @@ private:
     bool        bViewportMgr;
 
 	// Network
+	CClientNetEngine * cNetEngine;	// Should never be NULL, to skip some checks
 	int			iNetSpeed;
 	int			iNetStatus;
 	std::string	strServerAddr;
@@ -484,9 +490,6 @@ public:
 	float	fLastSimulationTime;
 
 
-private:
-	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
-
 public:
 	// Methods
 
@@ -572,56 +575,17 @@ public:
 	int			getBottomBarTop();
 	void		DrawChatter(SDL_Surface * bmpDest);
 
-	// Network
+	CClientNetEngine * getNetEngine() { return cNetEngine; };
+	void		setOldNetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngine(this); };
+	void		setBeta6NetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngineBeta6(this); };
+
 	void		Connect(const std::string& address);
 	void		Connecting(bool force = false);
 	void		ConnectingBehindNAT();
+	void		Disconnect();
+
 	void		ReadPackets(void);
 	void		SendPackets(void);
-	void		SendGameReady();
-	void		SendDeath(int victim, int killer);
-	void		SendText(const std::string& sText, std::string sWormName);
-	void		Disconnect(void);
-	int			OwnsWorm(int id);
-
-	// Sending
-	void		SendWormDetails(void);
-#ifdef FUZZY_ERROR_TESTING
-	void		SendRandomPacket();
-#endif
-
-	// Parsing & network
-	void		ParseConnectionlessPacket(CBytestream *bs);
-	void		ParseChallenge(CBytestream *bs);
-	void		ParseConnected(CBytestream *bs);
-	void		ParsePong(void);
-	void		ParseTraverse(CBytestream *bs);
-	void		ParseConnectHere(CBytestream *bs);
-
-	void		ParsePacket(CBytestream *bs);
-	bool		ParsePrepareGame(CBytestream *bs);
-	void		ParseStartGame(CBytestream *bs);
-	void		ParseSpawnWorm(CBytestream *bs);
-	void		ParseWormInfo(CBytestream *bs);
-	void		ParseText(CBytestream *bs);
-	void		ParseScoreUpdate(CBytestream *bs);
-	void		ParseGameOver(CBytestream *bs);
-	void		ParseSpawnBonus(CBytestream *bs);
-	void		ParseTagUpdate(CBytestream *bs);
-	void		ParseCLReady(CBytestream *bs);
-	void		ParseUpdateLobby(CBytestream *bs);
-	void		ParseClientLeft(CBytestream *bs);
-	void		ParseUpdateWorms(CBytestream *bs);
-	void		ParseUpdateLobbyGame(CBytestream *bs);
-	void		ParseWormDown(CBytestream *bs);
-	void		ParseServerLeaving(CBytestream *bs);
-	void		ParseSingleShot(CBytestream *bs);
-	void		ParseMultiShot(CBytestream *bs);
-	void		ParseUpdateStats(CBytestream *bs);
-	void		ParseDestroyBonus(CBytestream *bs);
-	void		ParseGotoLobby(CBytestream *bs);
-    void        ParseDropped(CBytestream *bs);
-    void        ParseSendFile(CBytestream *bs);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
@@ -644,6 +608,7 @@ public:
 
 	CMap*		getMap()					{ return cMap; }
 
+	int			OwnsWorm(int id);
 	int			getNumWorms(void)			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
 

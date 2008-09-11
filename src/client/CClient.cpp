@@ -939,7 +939,7 @@ void CClient::ReadPackets(void)
 			// (but only for new net-commands).
 			// Same thing in CServer.cpp in ReadPackets
 			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
-				ParseConnectionlessPacket(&bs);
+				cNetEngine->ParseConnectionlessPacket(&bs);
 			continue;
 		}
 		bs.ResetPosToBegin();
@@ -950,7 +950,7 @@ void CClient::ReadPackets(void)
 		// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
 		while( cNetChan->Process(&bs) )
 		{
-			ParsePacket(&bs);
+			cNetEngine->ParsePacket(&bs);
 			bs.Clear();
 		};
 	}
@@ -984,13 +984,13 @@ void CClient::SendPackets(void)
 
 	// Playing packets
 	if(iNetStatus == NET_PLAYING)
-		SendWormDetails();
+		cNetEngine->SendWormDetails();
 
 
 	// Randomly send a random packet
 #ifdef FUZZY_ERROR_TESTING
 	if (GetRandomInt(50) > 24 && iNetStatus == NET_CONNECTED)
-		SendRandomPacket();
+		cNetEngine->SendRandomPacket();
 #endif
 
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
@@ -1016,7 +1016,7 @@ void CClient::SendPackets(void)
 			{
 				printf("CClient::SendPackets::Re-sending ready packet\n");
 				fSendWait = 0.0f;
-				SendGameReady();
+				cNetEngine->SendGameReady();
 			}
 		}
 	}

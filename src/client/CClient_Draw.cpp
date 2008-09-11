@@ -556,7 +556,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if(ready && !bReadySent && !bDownloadingMap) {
 			cout << "Client: we are ready, waiting now for start game signal" << endl;
 			bReadySent = true;
-			SendGameReady();
+			cNetEngine->SendGameReady();
 		}
 	}
 

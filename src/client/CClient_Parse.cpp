@@ -46,7 +46,7 @@ using namespace std;
 
 ///////////////////
 // Parse a connectionless packet
-void CClient::ParseConnectionlessPacket(CBytestream *bs)
+void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 {
 	std::string cmd = bs->readString(128);
 
@@ -62,12 +62,12 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
 		// If we are already connected, ignore this
-		if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
-			printf("CClient::ParseConnectionlessPacket: already connected, ignoring\n");
+		if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
+			printf("CClientNetEngine::ParseConnectionlessPacket: already connected, ignoring\n");
 		} else {
-			iNetStatus = NET_DISCONNECTED;
-			bBadConnection = true;
-			strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
+			client->iNetStatus = NET_DISCONNECTED;
+			client->bBadConnection = true;
+			client->strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
 		}
 	}
 
@@ -76,8 +76,8 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		if (cmd.size() > 12)  {
 			int betaver = MAX(0, atoi(cmd.substr(12)));
 			Version version = OLXBetaVersion(betaver);
-			if(cServerVersion < version) {
-				cServerVersion = version;
+			if(client->cServerVersion < version) {
+				client->cServerVersion = version;
 				cout << "HINT: host is at least using OLX Beta3" << endl;
 			}
 		}
@@ -88,17 +88,17 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::version")  {
 		std::string versionStr = bs->readString();
 		Version version(versionStr);
-		if(version > cServerVersion) { // only update if this version is really newer than what we know already
-			cServerVersion = version;
+		if(version > client->cServerVersion) { // only update if this version is really newer than what we know already
+			client->cServerVersion = version;
 			cout << "HINT: Host is using " << versionStr << endl;
 		}
 	}
 
 	else if (cmd == "lx:mouseAllowed")
-		bHostAllowsMouse = true;
+		client->bHostAllowsMouse = true;
 
 	else if (cmd == "lx:strafingAllowed")
-		bHostAllowsStrafing = true;
+		client->bHostAllowsStrafing = true;
 
 	else if(cmd == "lx::traverse")
 		ParseTraverse(bs);
@@ -108,7 +108,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Unknown
 	else  {
-		cout << "CClient::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
+		cout << "CClientNetEngine::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -116,25 +116,25 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 ///////////////////
 // Parse a challenge packet
-void CClient::ParseChallenge(CBytestream *bs)
+void CClientNetEngine::ParseChallenge(CBytestream *bs)
 {
 	// If we are already connected, ignore this
-	if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
-		printf("CClient::ParseChallenge: already connected, ignoring\n");
+	if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
+		printf("CClientNetEngine::ParseChallenge: already connected, ignoring\n");
 		return;
 	}
 
 #ifdef DEBUG
-	if (bConnectingBehindNat)
+	if (client->bConnectingBehindNat)
 		printf("Got a challenge from the server.\n");
 #endif
 
 	CBytestream bytestr;
 	bytestr.Clear();
-	iChallenge = bs->readInt(4);
+	client->iChallenge = bs->readInt(4);
 	if( ! bs->isPosAtEnd() ) {
-		setServerVersion( bs->readString(128) );
-		printf("CClient: connected to %s server\n", getServerVersion().asString().c_str());
+		client->setServerVersion( bs->readString(128) );
+		printf("CClient: connected to %s server\n", client->getServerVersion().asString().c_str());
 	} else
 		printf("CClient: connected to old (<= OLX beta3) server\n");
 
@@ -143,153 +143,153 @@ void CClient::ParseChallenge(CBytestream *bs)
 	bytestr.writeInt(-1,4);
 	bytestr.writeString("lx::connect");
 	bytestr.writeInt(PROTOCOL_VERSION,1);
-	bytestr.writeInt(iChallenge,4);
-	bytestr.writeInt(iNetSpeed,1);
-	bytestr.writeInt(iNumWorms, 1);
+	bytestr.writeInt(client->iChallenge,4);
+	bytestr.writeInt(client->iNetSpeed,1);
+	bytestr.writeInt(client->iNumWorms, 1);
 
 	// Send my worms info
     //
     // __MUST__ match the layout in CWorm::writeInfo() !!!
     //
 
-	for(uint i=0;i<iNumWorms;i++) {
+	for(uint i=0;i<client->iNumWorms;i++) {
 		// TODO: move this out here
-		bytestr.writeString(RemoveSpecialChars(tProfiles[i]->sName));
-		bytestr.writeInt(tProfiles[i]->iType,1);
-		bytestr.writeInt(tProfiles[i]->iTeam,1);
-		bytestr.writeString(tProfiles[i]->cSkin.getFileName());
-		bytestr.writeInt(tProfiles[i]->R,1);
-		bytestr.writeInt(tProfiles[i]->G,1);
-		bytestr.writeInt(tProfiles[i]->B,1);
+		bytestr.writeString(RemoveSpecialChars(client->tProfiles[i]->sName));
+		bytestr.writeInt(client->tProfiles[i]->iType,1);
+		bytestr.writeInt(client->tProfiles[i]->iTeam,1);
+		bytestr.writeString(client->tProfiles[i]->cSkin.getFileName());
+		bytestr.writeInt(client->tProfiles[i]->R,1);
+		bytestr.writeInt(client->tProfiles[i]->G,1);
+		bytestr.writeInt(client->tProfiles[i]->B,1);
 	}
 
 	NetworkAddr addr;
-	GetRemoteNetAddr(tSocket, addr);
-	SetRemoteNetAddr(tSocket, addr);
-	bytestr.Send(tSocket);
+	GetRemoteNetAddr(client->tSocket, addr);
+	SetRemoteNetAddr(client->tSocket, addr);
+	bytestr.Send(client->tSocket);
 }
 
 
 ///////////////////
 // Parse a connected packet
-void CClient::ParseConnected(CBytestream *bs)
+void CClientNetEngine::ParseConnected(CBytestream *bs)
 {
 	NetworkAddr addr;
 
 	// If already connected, ignore this
-	if (iNetStatus == NET_CONNECTED || iNetStatus == NET_PLAYING)  {
-		bs->Skip(iNumWorms);
-		printf("CClient::ParseConnected: already connected, ignoring\n");
+	if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
+		bs->Skip(client->iNumWorms);
+		printf("CClientNetEngine::ParseConnected: already connected, ignoring\n");
 		return;
 	}
 
 	// Setup the client
-	iNetStatus = NET_CONNECTED;
+	client->iNetStatus = NET_CONNECTED;
 
 	// Get the id's
 	int id=0;
-	for(ushort i=0;i<iNumWorms;i++) {
+	for(ushort i=0;i<client->iNumWorms;i++) {
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
-		cLocalWorms[i] = &cRemoteWorms[id];
-		cLocalWorms[i]->setUsed(true);
-		cLocalWorms[i]->setClient(this);
-		cLocalWorms[i]->setGameScript(cGameScript.get()); // TODO: why was this commented out?
-		//cLocalWorms[i]->setLoadingTime(fLoadingTime);  // TODO: why is this commented out?
-		cLocalWorms[i]->setProfile(tProfiles[i]);
-		cLocalWorms[i]->setTeam(tProfiles[i]->iTeam);
-		cLocalWorms[i]->setLocal(true);
-        cLocalWorms[i]->setType(tProfiles[i]->iType);
+		client->cLocalWorms[i] = &client->cRemoteWorms[id];
+		client->cLocalWorms[i]->setUsed(true);
+		client->cLocalWorms[i]->setClient(client);
+		client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
+		//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
+		client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
+		client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
+		client->cLocalWorms[i]->setLocal(true);
+        client->cLocalWorms[i]->setType(client->tProfiles[i]->iType);
 	}
 
 	if(!bDedicated) {
 		// Setup the viewports
-		SetupViewports();
+		client->SetupViewports();
 
 		// Setup the controls
-		cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
+		client->cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
 		// TODO: setup also more viewports
-		if(iNumWorms >= 2)
-			cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
+		if(client->iNumWorms >= 2)
+			client->cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
 	}
 
 	// Create my channel
-	GetRemoteNetAddr(tSocket, addr);
+	GetRemoteNetAddr(client->tSocket, addr);
 
-	if( ! createChannel( std::min( getServerVersion(), GetGameVersion() ) ) )
+	if( ! client->createChannel( std::min( client->getServerVersion(), GetGameVersion() ) ) )
 	{
-		bServerError = true;
-		strServerErrorMsg = "Your client is incompatible to this server";
+		client->bServerError = true;
+		client->strServerErrorMsg = "Your client is incompatible to this server";
 		return;
 	};
-	cNetChan->Create(&addr,tSocket);
+	client->cNetChan->Create(&addr,client->tSocket);
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 
-	bHostAllowsMouse = false;
-	bHostAllowsStrafing = false;
+	client->bHostAllowsMouse = false;
+	client->bHostAllowsStrafing = false;
 
 }
 
 //////////////////
 // Parse the server's ping reply
-void CClient::ParsePong(void)
+void CClientNetEngine::ParsePong(void)
 {
-	if (fMyPingSent > 0)  {
-		int png = (int) ((tLX->fCurTime-fMyPingSent)*1000);
+	if (client->fMyPingSent > 0)  {
+		int png = (int) ((tLX->fCurTime-client->fMyPingSent)*1000);
 
 		// Make the ping slighter
-		if (png - iMyPing > 5 && iMyPing && png)
-			png = (png + iMyPing + iMyPing)/3;
-		if (iMyPing - png > 5 && iMyPing && png)
-			png = (png + png + iMyPing)/3;
+		if (png - client->iMyPing > 5 && client->iMyPing && png)
+			png = (png + client->iMyPing + client->iMyPing)/3;
+		if (client->iMyPing - png > 5 && client->iMyPing && png)
+			png = (png + png + client->iMyPing)/3;
 
-		iMyPing = png;
+		client->iMyPing = png;
 	}
 }
 
 //////////////////
 // Parse a NAT traverse packet
-void CClient::ParseTraverse(CBytestream *bs)
+void CClientNetEngine::ParseTraverse(CBytestream *bs)
 {
-	iNatTraverseState = NAT_SEND_CHALLENGE;
-	iNatTryPort = 0;
+	client->iNatTraverseState = NAT_SEND_CHALLENGE;
+	client->iNatTryPort = 0;
 	std::string addr = bs->readString();
 	if( addr.find(":") == std::string::npos )
 		return;
-	StringToNetAddr(addr, cServerAddr); // HINT: this changes the address so the lx::challenge in CClient::ConnectingBehindNat is sent to the real server
+	StringToNetAddr(addr, client->cServerAddr); // HINT: this changes the address so the lx::challenge in CClientNetEngine::ConnectingBehindNat is sent to the real server
 	int port = atoi( addr.substr( addr.find(":") + 1 ) );
-	SetNetAddrPort(cServerAddr, port);
-	NetAddrToString( cServerAddr, addr );
+	SetNetAddrPort(client->cServerAddr, port);
+	NetAddrToString( client->cServerAddr, addr );
 
-	// HINT: the connecting process now continues by sending a challenge in CClient::ConnectingBehindNAT()
+	// HINT: the connecting process now continues by sending a challenge in CClientNetEngine::ConnectingBehindNAT()
 
-	printf("CClient::ParseTraverse() %s port %i\n", addr.c_str(), port);
+	printf("CClientNetEngine::ParseTraverse() %s port %i\n", addr.c_str(), port);
 };
 
 /////////////////////
 // Parse a connect-here packet (when a public-ip client connects to a symmetric-nat server)
-void CClient::ParseConnectHere(CBytestream *bs)
+void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 {
-	iNatTraverseState = NAT_SEND_CHALLENGE;
-	iNatTryPort = 0;
+	client->iNatTraverseState = NAT_SEND_CHALLENGE;
+	client->iNatTryPort = 0;
 
 	NetworkAddr addr;
-	GetRemoteNetAddr(tSocket, addr);
+	GetRemoteNetAddr(client->tSocket, addr);
 	std::string a1, a2;
-	NetAddrToString( cServerAddr, a1 );
+	NetAddrToString( client->cServerAddr, a1 );
 	NetAddrToString( addr, a2 );
-	printf("CClient::ParseConnectHere(): addr %s to %s %s\n", a1.c_str(), a2.c_str(), a1 != a2 ? "- server behind symmetric NAT" : "" );
+	printf("CClientNetEngine::ParseConnectHere(): addr %s to %s %s\n", a1.c_str(), a2.c_str(), a1 != a2 ? "- server behind symmetric NAT" : "" );
 
-	GetRemoteNetAddr(tSocket, cServerAddr);
+	GetRemoteNetAddr(client->tSocket, client->cServerAddr);
 	CBytestream bs1;
 	bs1.writeInt(-1,4);
 	bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
-	bs1.Send(tSocket);
-	bs1.Send(tSocket);
-	bs1.Send(tSocket);
+	bs1.Send(client->tSocket);
+	bs1.Send(client->tSocket);
+	bs1.Send(client->tSocket);
 };
 
 
@@ -302,7 +302,7 @@ void CClient::ParseConnectHere(CBytestream *bs)
 
 ///////////////////
 // Parse a packet
-void CClient::ParsePacket(CBytestream *bs)
+void CClientNetEngine::ParsePacket(CBytestream *bs)
 {
 	uchar cmd;
 
@@ -440,34 +440,34 @@ void CClient::ParsePacket(CBytestream *bs)
 
 ///////////////////
 // Parse a prepare game packet
-bool CClient::ParsePrepareGame(CBytestream *bs)
+bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	printf("Got ParsePrepareGame\n");
 
-	if(Warning_QuitEngineFlagSet("CClient::ParsePrepareGame: ")) {
+	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
 		ResetQuitEngineFlag();
 	}
 
 	// We've already got this packet
-	if (bGameReady)  {
-		printf("CClient::ParsePrepareGame: we already got this\n");
+	if (client->bGameReady)  {
+		printf("CClientNetEngine::ParsePrepareGame: we already got this\n");
 		return false;
 	}
 
 	// If we're playing, the game has to be ready
-	if (iNetStatus == NET_PLAYING)  {
-		printf("CClient::ParsePrepareGame: playing, had to get this\n");
-		bGameReady = true;
+	if (client->iNetStatus == NET_PLAYING)  {
+		printf("CClientNetEngine::ParsePrepareGame: playing, had to get this\n");
+		client->bGameReady = true;
 		return false;
 	}
 
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	RemoveSocketFromNotifierGroup( tSocket );
+	RemoveSocketFromNotifierGroup( client->tSocket );
 
-	bGameReady = true;
-	bForceWeaponsReady = false;
+	client->bGameReady = true;
+	client->bForceWeaponsReady = false;
 
 	int random = bs->readInt(1);
 	std::string sMapName;
@@ -475,34 +475,34 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		sMapName = bs->readString();
 
 	// Other game details
-	iGameType = bs->readInt(1);
-	iLives = bs->readInt16();
-	iMaxKills = bs->readInt16();
-	iTimeLimit = bs->readInt16();
+	client->iGameType = bs->readInt(1);
+	client->iLives = bs->readInt16();
+	client->iMaxKills = bs->readInt16();
+	client->iTimeLimit = bs->readInt16();
 	int l = bs->readInt16();
-	fLoadingTime = (float)l/100.0f;
-	bBonusesOn = bs->readBool();
-	bShowBonusName = bs->readBool();
+	client->fLoadingTime = (float)l/100.0f;
+	client->bBonusesOn = bs->readBool();
+	client->bShowBonusName = bs->readBool();
 
-	if(iGameType == GMT_TAG)
-		iTagLimit = bs->readInt16();
+	if(client->iGameType == GMT_TAG)
+		client->iTagLimit = bs->readInt16();
 
 	// Load the gamescript
-	sModName = bs->readString();
+	client->sModName = bs->readString();
 
 	// Bad packet
-	if (sModName == "")  {
-		printf("CClient::ParsePrepareGame: invalid mod name (none)\n");
-		bGameReady = false;
+	if (client->sModName == "")  {
+		printf("CClientNetEngine::ParsePrepareGame: invalid mod name (none)\n");
+		client->bGameReady = false;
 		return false;
 	}
 
 	// Clear any previous instances of the map
 	if(tGameInfo.iGameType == GME_JOIN) {
-		if(cMap) {
-			cMap->Shutdown();
-			delete cMap;
-			cMap = NULL;
+		if(client->cMap) {
+			client->cMap->Shutdown();
+			delete client->cMap;
+			client->cMap = NULL;
 		}
 	}
 
@@ -512,17 +512,17 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 
 	if(tGameInfo.iGameType == GME_JOIN) {
-		cMap = new CMap;
-		if(cMap == NULL) {
+		client->cMap = new CMap;
+		if(client->cMap == NULL) {
 
 			// Disconnect
-			Disconnect();
+			client->Disconnect();
 
 			DeprecatedGUI::Menu_MessageBox("Out of memory", "Out of memory when allocating the map.", DeprecatedGUI::LMB_OK);
 
-			bGameReady = false;
+			client->bGameReady = false;
 
-			printf("CClient::ParsePrepareGame: out of memory when allocating map\n");
+			printf("CClientNetEngine::ParsePrepareGame: out of memory when allocating map\n");
 
 			return false;
 		}
@@ -535,24 +535,24 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// If we're remotely joining a server, we need to load the map
 		// Note: This shouldn't happen, coz network games can't use random maps
 		if(tGameInfo.iGameType == GME_JOIN) {
-			if(!cMap->New(504,350,"dirt",tInterfaceSettings.MiniMapW,tInterfaceSettings.MiniMapH)) {
-				Disconnect();
-				bGameReady = false;
-				printf("CClient::ParsePrepareGame: could not create random map\n");
+			if(!client->cMap->New(504,350,"dirt",client->tInterfaceSettings.MiniMapW,client->tInterfaceSettings.MiniMapH)) {
+				client->Disconnect();
+				client->bGameReady = false;
+				printf("CClientNetEngine::ParsePrepareGame: could not create random map\n");
 				return false;
 			}
-			cMap->ApplyRandom();
+			client->cMap->ApplyRandom();
 		} else {
 			// Otherwise, grab the server's copy
 			assert(cServer);
 
-			cMap = cServer->getMap();
-			if (!cMap)  {  // Bad packet
-				bGameReady = false;
+			client->cMap = cServer->getMap();
+			if (!client->cMap)  {  // Bad packet
+				client->bGameReady = false;
 				return false;
 			} else {
-				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-				bMapGrabbed = true;
+				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+				client->bMapGrabbed = true;
 			}
 		}
 
@@ -562,19 +562,19 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		// Invalid packet
 		if (sMapName == "")  {
-			printf("CClient::ParsePrepareGame: bad map name (none)\n");
-			bGameReady = false;
+			printf("CClientNetEngine::ParsePrepareGame: bad map name (none)\n");
+			client->bGameReady = false;
 			return false;
 		}
 
 		if(tGameInfo.iGameType == GME_JOIN) {
 
 			// If we are downloading a map, wait until it finishes
-			if (!bDownloadingMap)  {
-				bWaitingForMap = false;
+			if (!client->bDownloadingMap)  {
+				client->bWaitingForMap = false;
 
-				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-				if(!cMap->Load(sMapName)) {
+				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+				if(!client->cMap->Load(sMapName)) {
 					// Show a cannot load level error message
 					// If this is a host/local game, something is pretty wrong but if we display the message, things could
 					// go even worse
@@ -584,7 +584,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 						err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
 						DeprecatedGUI::Menu_MessageBox("Loading Error",err, DeprecatedGUI::LMB_OK);
-						bClientError = true;
+						client->bClientError = true;
 
 						// Go back to the menu
 						QuittoMenu();
@@ -592,107 +592,107 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 						printf("ERROR: load map error for a local game!\n");
 					}
 
-					bGameReady = false;
+					client->bGameReady = false;
 
-					printf("CClient::ParsePrepareGame: could not load map "+sMapName+"\n");
+					printf("CClientNetEngine::ParsePrepareGame: could not load map "+sMapName+"\n");
 					return false;
 				}
 			} else
-				bWaitingForMap = true;
+				client->bWaitingForMap = true;
 		} else {
 			assert(cServer);
 
             // Grab the server's copy of the map
-			cMap = cServer->getMap();
-			if (!cMap)  {  // Bad packet
-				bGameReady = false;
+			client->cMap = cServer->getMap();
+			if (!client->cMap)  {  // Bad packet
+				client->bGameReady = false;
 				return false;
 			} else {
-				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-				bMapGrabbed = true;
+				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+				client->bMapGrabbed = true;
 			}
 		}
 
 	}
 
-	PhysicsEngine::Get()->initGame(cMap, this);
+	PhysicsEngine::Get()->initGame(client->cMap, client);
 
-	cGameScript = cCache.GetMod( sModName );
-	if( cGameScript.get() == NULL )
+	client->cGameScript = cCache.GetMod( client->sModName );
+	if( client->cGameScript.get() == NULL )
 	{
-		cGameScript = new CGameScript();
+		client->cGameScript = new CGameScript();
 
-		if (bDownloadingMod)
-			bWaitingForMod = true;
+		if (client->bDownloadingMod)
+			client->bWaitingForMod = true;
 		else {
-			bWaitingForMod = false;
+			client->bWaitingForMod = false;
 
-			int result = cGameScript.get()->Load(sModName);
-			cCache.SaveMod( sModName, cGameScript );
+			int result = client->cGameScript.get()->Load(client->sModName);
+			cCache.SaveMod( client->sModName, client->cGameScript );
 			if(result != GSE_OK) {
 
 				// Show any error messages
 				if (tGameInfo.iGameType == GME_JOIN)  {
 					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 					std::string err("Error load game mod: ");
-					err += sModName + "\r\nError code: " + itoa(result);
+					err += client->sModName + "\r\nError code: " + itoa(result);
 					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-					bClientError = true;
+					client->bClientError = true;
 
 					// Go back to the menu
 					GotoNetMenu();
 				} else {
 					printf("ERROR: load mod error for a local game!\n");
 				}
-				bGameReady = false;
+				client->bGameReady = false;
 
-				printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
+				printf("CClientNetEngine::ParsePrepareGame: error loading mod "+client->sModName+"\n");
     			return false;
 			}
 		}
 	}
 
     // Read the weapon restrictions
-    cWeaponRestrictions.updateList(cGameScript.get());
-    cWeaponRestrictions.readList(bs);
+    client->cWeaponRestrictions.updateList(client->cGameScript.get());
+    client->cWeaponRestrictions.readList(bs);
 
 
 	// TODO: Load any other stuff
-	bGameReady = true;
+	client->bGameReady = true;
 
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
-	InitializeIngameScore(true);
+	client->InitializeIngameScore(true);
 
 	// Copy the chat text from lobby to ingame chatbox
 	switch (tGameInfo.iGameType)  {
 	case GME_HOST:
-		sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
+		client->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
 		break;
 	case GME_JOIN:
-		sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+		client->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 		break;
 	}
 
-	if (!sChat_Text.empty())  {
-		bChat_Typing = true;
-		bChat_CursorVisible = true;
-		iChat_Pos = sChat_Text.size();
+	if (!client->sChat_Text.empty())  {
+		client->bChat_Typing = true;
+		client->bChat_CursorVisible = true;
+		client->iChat_Pos = client->sChat_Text.size();
 	}
 
-	cChatbox.setWidth(tInterfaceSettings.ChatBoxW - 4);
+	client->cChatbox.setWidth(client->tInterfaceSettings.ChatBoxW - 4);
 
 	// Load the chat
-	DeprecatedGUI::CListview *lv = (DeprecatedGUI::CListview *)cChatList;
+	DeprecatedGUI::CListview *lv = (DeprecatedGUI::CListview *)client->cChatList;
 	if (lv)  {
 		lv->Clear();
-		lines_iterator it = cChatbox.At((int)cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+		lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
-		for (; it != cChatbox.End(); it++)  {
+		for (; it != client->cChatbox.End(); it++)  {
 
 			// Add only chat text (PM and Team PM messages too)
 			if (it->iColour == tLX->clChatText || it->iColour == tLX->clPrivateText ||
-					it->iColour == tLX->clTeamColors[cLocalWorms[0]->getTeam()] )  {
+					it->iColour == tLX->clTeamColors[client->cLocalWorms[0]->getTeam()] )  {
 				lv->AddItem("", id, it->iColour);
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, it->strLine, NULL, NULL);
 				id++;
@@ -707,23 +707,23 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// We do this again because we've only just found out what type of game it is
     // Team games require changing worm colours to match the team colour
 	// Inefficient, but i'm not going to redesign stuff for a simple gametype
-	CWorm *w = cRemoteWorms;
+	CWorm *w = client->cRemoteWorms;
 	int num_worms = 0;
 	ushort i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
-			w->ChangeGraphics(iGameType);
+			w->ChangeGraphics(client->iGameType);
 
 			// Also set some game details
-			w->setLives(iLives);
+			w->setLives(client->iLives);
 			w->setKills(0);
 			w->setHealth(100);
-			w->setGameScript(cGameScript.get());
-			w->setWpnRest(&cWeaponRestrictions);
-			w->setLoadingTime(fLoadingTime);
+			w->setGameScript(client->cGameScript.get());
+			w->setWpnRest(&client->cWeaponRestrictions);
+			w->setLoadingTime(client->fLoadingTime);
 
 			// Prepare for battle!
-			w->Prepare(cMap);
+			w->Prepare(client->cMap);
 
 			num_worms++;
 		}
@@ -731,19 +731,19 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	
 
 	// Initialize the worms weapon selection menu & other stuff
-	for(i=0;i<iNumWorms;i++) {
+	for(i=0;i<client->iNumWorms;i++) {
 		// we already prepared all the worms (cRemoteWorms) above
 		
-		if (!bWaitingForMod)
-			cLocalWorms[i]->InitWeaponSelection();
+		if (!client->bWaitingForMod)
+			client->cLocalWorms[i]->InitWeaponSelection();
 	}
 
 
 	// Start the game logging
-	StartLogging(num_worms);
+	client->StartLogging(num_worms);
 
-	UpdateScoreboard();
-	bShouldRepaintInfo = true;
+	client->UpdateScoreboard();
+	client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
 
@@ -753,91 +753,91 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 ///////////////////
 // Parse a start game packet
-void CClient::ParseStartGame(CBytestream *bs)
+void CClientNetEngine::ParseStartGame(CBytestream *bs)
 {
 	// Already got this
-	if (iNetStatus == NET_PLAYING)  {
-		printf("CClient::ParseStartGame: already playing - ignoring\n");
+	if (client->iNetStatus == NET_PLAYING)  {
+		printf("CClientNetEngine::ParseStartGame: already playing - ignoring\n");
 		return;
 	}
 
 	// Check that the game is ready
-	if (!bGameReady)  {
-		printf("CClient::ParseStartGame: cannot start the game because the game is not ready\n");
+	if (!client->bGameReady)  {
+		printf("CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready\n");
 		return;
 	}
 
 	printf("Client: get start game signal\n");
-	fLastSimulationTime = tLX->fCurTime;
-	iNetStatus = NET_PLAYING;
+	client->fLastSimulationTime = tLX->fCurTime;
+	client->iNetStatus = NET_PLAYING;
 
 	// Set the local players to dead so we wait until the server spawns us
-	for(uint i=0;i<iNumWorms;i++)
-		cLocalWorms[i]->setAlive(false);
+	for(uint i=0;i<client->iNumWorms;i++)
+		client->cLocalWorms[i]->setAlive(false);
 
 	// Re-initialize the ingame scoreboard
-	InitializeIngameScore(false);
-	bUpdateScore = true;
+	client->InitializeIngameScore(false);
+	client->bUpdateScore = true;
 
 
 	// let our worms know that the game starts know
-	for(uint i=0;i<iNumWorms;i++) {
-		cLocalWorms[i]->StartGame();
+	for(uint i=0;i<client->iNumWorms;i++) {
+		client->cLocalWorms[i]->StartGame();
 	}
 }
 
 
 ///////////////////
 // Parse a spawn worm packet
-void CClient::ParseSpawnWorm(CBytestream *bs)
+void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 {
 	int id = bs->readByte();
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
 
 	// Check
-	if (iNetStatus != NET_PLAYING)  {
-		printf("CClient::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)\n");
+	if (client->iNetStatus != NET_PLAYING)  {
+		printf("CClientNetEngine::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)\n");
 		return;
 	}
 
-	if (!cMap)
+	if (!client->cMap)
 		return;
 
 	// Is the spawnpoint in the map?
-	if (x > (int)cMap->GetWidth() || x < 0)  {
-		printf("CClient::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
+	if (x > (int)client->cMap->GetWidth() || x < 0)  {
+		printf("CClientNetEngine::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
 	}
-	if (y > (int)cMap->GetHeight() || y < 0)  {
-		printf("CClient::ParseSpawnWorm: Y-coordinate not in map ("+itoa(y)+")\n");
+	if (y > (int)client->cMap->GetHeight() || y < 0)  {
+		printf("CClientNetEngine::ParseSpawnWorm: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
 	}
 
 	CVec p = CVec( (float)x, (float)y );
 
 	if (id < 0 || id >= MAX_PLAYERS)  {
-		printf("CClient::ParseSpawnWorm: invalid ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseSpawnWorm: invalid ID ("+itoa(id)+")\n");
 		return;
 	}
 
-	cRemoteWorms[id].setAlive(true);
-	cRemoteWorms[id].Spawn(p);
+	client->cRemoteWorms[id].setAlive(true);
+	client->cRemoteWorms[id].Spawn(p);
 
-	cMap->CarveHole(SPAWN_HOLESIZE,p);
+	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	// Show a spawn entity
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 
-	UpdateScoreboard();
-	if (cRemoteWorms[id].getLocal())
-		bShouldRepaintInfo = true;
+	client->UpdateScoreboard();
+	if (client->cRemoteWorms[id].getLocal())
+		client->bShouldRepaintInfo = true;
 
-	if( bSpectate
-		&& iNumWorms > 0
-		&& cLocalWorms[0] == &cRemoteWorms[id]
-		&& cLocalWorms[0]->getType() == PRF_HUMAN
-		&& cRemoteWorms[id].getLives() != WRM_UNLIM)
+	if( client->bSpectate
+		&& client->iNumWorms > 0
+		&& client->cLocalWorms[0] == &client->cRemoteWorms[id]
+		&& client->cLocalWorms[0]->getType() == PRF_HUMAN
+		&& client->cRemoteWorms[id].getLives() != WRM_UNLIM)
 	{
 		// Suicide myself as long as I spawned
 		// we do this to get my own worm out of the game because we want only spectate the game
@@ -846,57 +846,57 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	else
 	{
 		// Lock viewport back on local worm, if it was screwed when spectating after death
-		if( iNumWorms > 0 )
-			if( cLocalWorms[0] == &cRemoteWorms[id] && cLocalWorms[0]->getType() == PRF_HUMAN )
-				SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
-		if( iNumWorms >= 2 )
-			if (cLocalWorms[1]->getType() == PRF_HUMAN)
-				SetupViewports(cLocalWorms[0], cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
-		sSpectatorViewportMsg = "";
+		if( client->iNumWorms > 0 )
+			if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
+				client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+		if( client->iNumWorms >= 2 )
+			if (client->cLocalWorms[1]->getType() == PRF_HUMAN)
+				client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
+		client->sSpectatorViewportMsg = "";
 	}
 }
 
 
 ///////////////////
 // Parse a worm info packet
-void CClient::ParseWormInfo(CBytestream *bs)
+void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 {
 	int id = bs->readInt(1);
 
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
-		printf("CClient::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
 		CWorm::skipInfo(bs); // Skip not to break other packets
 		return;
 	}
 
 	// A new worm?
-	if (!cRemoteWorms[id].isUsed())  {
-		cRemoteWorms[id].Clear();
-		cRemoteWorms[id].setUsed(true);
-		cRemoteWorms[id].setClient(this);
-		cRemoteWorms[id].setLocal(false);
-		cRemoteWorms[id].setGameScript(cGameScript.get());
-		if (iNetStatus == NET_PLAYING || bGameReady)  {
-			cRemoteWorms[id].Prepare(cMap);
+	if (!client->cRemoteWorms[id].isUsed())  {
+		client->cRemoteWorms[id].Clear();
+		client->cRemoteWorms[id].setUsed(true);
+		client->cRemoteWorms[id].setClient(client);
+		client->cRemoteWorms[id].setLocal(false);
+		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
+		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
+			client->cRemoteWorms[id].Prepare(client->cMap);
 		}
-		cRemoteWorms[id].setID(id);
+		client->cRemoteWorms[id].setID(id);
 	}
 
-	cRemoteWorms[id].readInfo(bs);
+	client->cRemoteWorms[id].readInfo(bs);
 
 	// Safety
-	if (iNetStatus == NET_PLAYING || bGameReady)
-		cRemoteWorms[id].setMap(cMap);
+	if (client->iNetStatus == NET_PLAYING || client->bGameReady)
+		client->cRemoteWorms[id].setMap(client->cMap);
 
 	// Load the worm graphics
-	if(!cRemoteWorms[id].ChangeGraphics(iGameType)) {
-        printf("CClient::ParseWormInfo(): ChangeGraphics() failed\n");
+	if(!client->cRemoteWorms[id].ChangeGraphics(client->iGameType)) {
+        printf("CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed\n");
 	}
 
-	UpdateScoreboard();
-	if (cRemoteWorms[id].getLocal())
-		bShouldRepaintInfo = true;
+	client->UpdateScoreboard();
+	if (client->cRemoteWorms[id].getLocal())
+		client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
@@ -905,12 +905,12 @@ void CClient::ParseWormInfo(CBytestream *bs)
 
 ///////////////////
 // Parse a text packet
-void CClient::ParseText(CBytestream *bs)
+void CClientNetEngine::ParseText(CBytestream *bs)
 {
 	int type = bs->readInt(1);
 
 	Uint32 col = tLX->clWhite;
-	int	t = bDedicated ? 0 : cLocalWorms[0]->getTeam();
+	int	t = bDedicated ? 0 : client->cLocalWorms[0]->getTeam();
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;
@@ -941,13 +941,13 @@ void CClient::ParseText(CBytestream *bs)
 
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
-	cChatbox.AddText(buf, col, tLX->fCurTime);
+	client->cChatbox.AddText(buf, col, tLX->fCurTime);
 
 
 	// Log the conversation
 	if (tLXOptions->bLogConvos)  {
-		if(!bInServer)  {
-			cIConnectedBuf = buf;
+		if(!client->bInServer)  {
+			client->cIConnectedBuf = buf;
 			return;
 		}
 
@@ -981,45 +981,45 @@ void CClient::ParseText(CBytestream *bs)
 
 ///////////////////
 // Parse a score update packet
-void CClient::ParseScoreUpdate(CBytestream *bs)
+void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 {
 	short id = bs->readInt(1);
 
 	if(id >= 0 && id < MAX_WORMS)  {
-		log_worm_t *l = GetLogWorm(id);
+		log_worm_t *l = client->GetLogWorm(id);
 
 		// Update the score
-		cRemoteWorms[id].readScore(bs);
-		if (cRemoteWorms[id].getLocal())
-			bShouldRepaintInfo = true;
+		client->cRemoteWorms[id].readScore(bs);
+		if (client->cRemoteWorms[id].getLocal())
+			client->bShouldRepaintInfo = true;
 
 		// Logging
 		if (l)  {
 			// Check if the stats changed
 			bool stats_changed = false;
-			if (l->iLives != cRemoteWorms[id].getLives())  {
-				l->iLives = cRemoteWorms[id].getLives();
-				iLastVictim = id;
+			if (l->iLives != client->cRemoteWorms[id].getLives())  {
+				l->iLives = client->cRemoteWorms[id].getLives();
+				client->iLastVictim = id;
 				stats_changed = true;
 			}
 
-			if (l->iKills != cRemoteWorms[id].getKills())  {
-				l->iKills = cRemoteWorms[id].getKills();
-				iLastKiller = id;
+			if (l->iKills != client->cRemoteWorms[id].getKills())  {
+				l->iKills = client->cRemoteWorms[id].getKills();
+				client->iLastKiller = id;
 				stats_changed = true;
 			}
 
 			// If the update was sent but no changes made -> this is a killer that made a teamkill
 			// See CServer::ParseDeathPacket for more info
 			if (!stats_changed)
-				iLastKiller = id;
+				client->iLastKiller = id;
 		}
 	}
 	else
 		// do this to get the right position in net stream
 		CWorm::skipScore(bs);
 
-	UpdateScoreboard();
+	client->UpdateScoreboard();
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
@@ -1028,26 +1028,26 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 
 ///////////////////
 // Parse a game over packet
-void CClient::ParseGameOver(CBytestream *bs)
+void CClientNetEngine::ParseGameOver(CBytestream *bs)
 {
 	// Check
-	if (bGameOver)  {
-		printf("CClient::ParseGameOver: the game is already over, ignoring");
+	if (client->bGameOver)  {
+		printf("CClientNetEngine::ParseGameOver: the game is already over, ignoring");
 		bs->Skip(1);
 		return;
 	}
 
-	iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
+	client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
 	if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
 
 		if (tGameInfo.iKillLimit != -1)  {
-			iMatchWinner = cRemoteWorms[iMatchWinner].getTeam();
+			client->iMatchWinner = client->cRemoteWorms[client->iMatchWinner].getTeam();
 		} else if (tGameInfo.iLives != -2)  {
 			for (int i=0; i < MAX_WORMS; i++)  {
-				if (cRemoteWorms[i].getLives() >= 0)  {
-					iMatchWinner = cRemoteWorms[i].getTeam();
+				if (client->cRemoteWorms[i].getLives() >= 0)  {
+					client->iMatchWinner = client->cRemoteWorms[i].getTeam();
 					break;
 				}
 			}
@@ -1059,32 +1059,32 @@ void CClient::ParseGameOver(CBytestream *bs)
 		float max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
-			if (cRemoteWorms[i].isUsed() && cRemoteWorms[i].getTagTime() > max)  {
-				max = cRemoteWorms[i].getTagTime();
-				iMatchWinner = i;
+			if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
+				max = client->cRemoteWorms[i].getTagTime();
+				client->iMatchWinner = i;
 			}
 		}
 	}
 
 	// Game over
 	cout << "the game is over" << endl;
-	bGameOver = true;
-	fGameOverTime = tLX->fCurTime;
+	client->bGameOver = true;
+	client->fGameOverTime = tLX->fCurTime;
 
-	if (tGameLog)
-		tGameLog->iWinner = iMatchWinner;
+	if (client->tGameLog)
+		client->tGameLog->iWinner = client->iMatchWinner;
 
     // Clear the projectiles
-    cProjectiles.clear();
+    client->cProjectiles.clear();
 
-	UpdateScoreboard();
-	bShouldRepaintInfo = true;
+	client->UpdateScoreboard();
+	client->bShouldRepaintInfo = true;
 }
 
 
 ///////////////////
 // Parse a spawn bonus packet
-void CClient::ParseSpawnBonus(CBytestream *bs)
+void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 {
 	int wpn = 0;
 	int type = MAX(0,MIN((int)bs->readByte(),2));
@@ -1097,35 +1097,35 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Check
-	if (iNetStatus != NET_PLAYING)  {
-		printf("CClient::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)\n");
+	if (client->iNetStatus != NET_PLAYING)  {
+		printf("CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)\n");
 		return;
 	}
 
 	if (id < 0 || id >= MAX_BONUSES)  {
-		printf("CClient::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
 		return;
 	}
 
-	if (!cMap) { // Weird
-		printf("WARNING: CClient::ParseSpawnBonus: cMap not set\n");
+	if (!client->cMap) { // Weird
+		printf("WARNING: CClientNetEngine::ParseSpawnBonus: cMap not set\n");
 		return;
 	}
 
-	if (x > (int)cMap->GetWidth() || x < 0)  {
-		printf("CClient::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");
+	if (x > (int)client->cMap->GetWidth() || x < 0)  {
+		printf("CClientNetEngine::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
 	}
 
-	if (y > (int)cMap->GetHeight() || y < 0)  {
-		printf("CClient::ParseSpawnBonus: Y-coordinate not in map ("+itoa(y)+")\n");
+	if (y > (int)client->cMap->GetHeight() || y < 0)  {
+		printf("CClientNetEngine::ParseSpawnBonus: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
 	}
 
 	CVec p = CVec( (float)x, (float)y );
 
-	cBonuses[id].Spawn(p, type, wpn, cGameScript.get());
-	cMap->CarveHole(SPAWN_HOLESIZE,p);
+	client->cBonuses[id].Spawn(p, type, wpn, client->cGameScript.get());
+	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 }
@@ -1133,10 +1133,10 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 
 ///////////////////
 // Parse a tag update packet
-void CClient::ParseTagUpdate(CBytestream *bs)
+void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 {
-	if (iNetStatus != NET_PLAYING || bGameOver)  {
-		printf("CClient::ParseTagUpdate: not playing - ignoring\n");
+	if (client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+		printf("CClientNetEngine::ParseTagUpdate: not playing - ignoring\n");
 		return;
 	}
 
@@ -1145,31 +1145,31 @@ void CClient::ParseTagUpdate(CBytestream *bs)
 
 	// Safety check
 	if(id <0 || id >= MAX_WORMS)  {
-		printf("CClient::ParseTagUpdate: invalid worm ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseTagUpdate: invalid worm ID ("+itoa(id)+")\n");
 		return;
 	}
 
 	if (tGameInfo.iGameMode != GMT_TAG)  {
-		printf("CClient::ParseTagUpdate: game mode is not tag - ignoring\n");
+		printf("CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring\n");
 		return;
 	}
 
 	// Set all the worms 'tag' property to false
-	CWorm *w = cRemoteWorms;
+	CWorm *w = client->cRemoteWorms;
 	for(int i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed())
 			w->setTagIT(false);
 	}
 
 	// Tag the worm
-	cRemoteWorms[id].setTagIT(true);
-	cRemoteWorms[id].setTagTime(time);
+	client->cRemoteWorms[id].setTagIT(true);
+	client->cRemoteWorms[id].setTagTime(time);
 
 	// Log it
-	log_worm_t *l = GetLogWorm(id);
+	log_worm_t *l = client->GetLogWorm(id);
 	if (l)  {
-		for (int i=0; i < tGameLog->iNumWorms; i++)
-			tGameLog->tWorms[i].bTagIT = false;
+		for (int i=0; i < client->tGameLog->iNumWorms; i++)
+			client->tGameLog->tWorms[i].bTagIT = false;
 
 		l->fTagTime = time;
 		l->bTagIT = true;
@@ -1179,13 +1179,13 @@ void CClient::ParseTagUpdate(CBytestream *bs)
 
 ///////////////////
 // Parse client-ready packet
-void CClient::ParseCLReady(CBytestream *bs)
+void CClientNetEngine::ParseCLReady(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 
 	if((numworms < 0 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
 		// bad packet
-		printf("CClient::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
+		printf("CClientNetEngine::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
 		// Skip to get the right position
 		for (short i=0;i<numworms;i++)  {
 			bs->Skip(1); // id
@@ -1201,11 +1201,11 @@ void CClient::ParseCLReady(CBytestream *bs)
 		id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
-			printf("CClient::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
+			printf("CClientNetEngine::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		w = &cRemoteWorms[id];
+		w = &client->cRemoteWorms[id];
 		if(w) {
 			w->setGameReady(true);
 
@@ -1219,29 +1219,29 @@ void CClient::ParseCLReady(CBytestream *bs)
 
 	}
 
-	bUpdateScore = true; // Change the ingame scoreboard
+	client->bUpdateScore = true; // Change the ingame scoreboard
 }
 
 
 ///////////////////
 // Parse an update-lobby packet
-void CClient::ParseUpdateLobby(CBytestream *bs)
+void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 	bool ready = bs->readBool();
 
-	if (iNetStatus != NET_CONNECTED || numworms < 0 || numworms > MAX_WORMS)  {
-		if (iNetStatus != NET_CONNECTED)
-			printf("CClient::ParseUpdateLobby: not in lobby - ignoring\n");
+	if (client->iNetStatus != NET_CONNECTED || numworms < 0 || numworms > MAX_WORMS)  {
+		if (client->iNetStatus != NET_CONNECTED)
+			printf("CClientNetEngine::ParseUpdateLobby: not in lobby - ignoring\n");
 		else
-			printf("CClient::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
+			printf("CClientNetEngine::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
 
 		// Skip to get the right position in stream
 		bs->Skip(numworms);
 		return;
 	}
 	/*if(numworms == 0)
-		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");*/
+		printf("CClientNetEngine::ParseUpdateLobby: warning: numworms == 0\n");*/
 
 	std::string HostName;
 
@@ -1252,12 +1252,12 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
 		if( id >= MAX_WORMS) {
-			printf("CClient::ParseUpdateLobby: invalid worm ID ("+itoa(id)+")\n");
+			printf("CClientNetEngine::ParseUpdateLobby: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
 
-		w = &cRemoteWorms[id];
+		w = &client->cRemoteWorms[id];
         if(w) {
 			w->getLobby()->bReady = ready;
             w->getLobby()->iTeam = team;
@@ -1273,10 +1273,10 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 
 	// Log the conversation
 	if (tLXOptions->bLogConvos)  {
-		if(bInServer)
+		if(client->bInServer)
 			return;
 
-		bInServer = true;
+		client->bInServer = true;
 
 		FILE *f;
 
@@ -1287,11 +1287,11 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		fputs(HostName.c_str(),f);
 		std::string cTime = GetTime();
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
-		if(cIConnectedBuf != "")  {
+		if(client->cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
-			fputs(cIConnectedBuf.c_str(),f);
+			fputs(client->cIConnectedBuf.c_str(),f);
 			fputs("\" />\r\n",f);
-			cIConnectedBuf = "";
+			client->cIConnectedBuf = "";
 		}
 		fclose(f);
 	}
@@ -1301,13 +1301,13 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 
 ///////////////////
 // Parse a 'client-left' packet
-void CClient::ParseClientLeft(CBytestream *bs)
+void CClientNetEngine::ParseClientLeft(CBytestream *bs)
 {
 	byte numworms = bs->readByte();
 
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
-		printf("CClient::ParseClientLeft: bad numworms count ("+itoa(numworms)+")\n");
+		printf("CClientNetEngine::ParseClientLeft: bad numworms count ("+itoa(numworms)+")\n");
 
 		// Skip to the right position
 		bs->Skip(numworms);
@@ -1322,19 +1322,19 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
-			printf("CClient::ParseClientLeft: invalid worm ID ("+itoa(id)+")\n");
+			printf("CClientNetEngine::ParseClientLeft: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		w = &cRemoteWorms[id];
+		w = &client->cRemoteWorms[id];
 		if(!w->getLocal()) { // Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
 			w->setUsed(false);
 			w->setAlive(false);
 			w->getLobby()->iType = LBY_OPEN;
 
 			// Log this
-			if (tGameLog)  {
-				log_worm_t *l = GetLogWorm(id);
+			if (client->tGameLog)  {
+				log_worm_t *l = client->GetLogWorm(id);
 				if (l)  {
 					l->bLeft = true;
 					l->fTimeLeft = tLX->fCurTime;
@@ -1348,20 +1348,20 @@ void CClient::ParseClientLeft(CBytestream *bs)
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 
-	UpdateScoreboard();
+	client->UpdateScoreboard();
 }
 
 
 ///////////////////
 // Parse an 'update-worms' packet
-void CClient::ParseUpdateWorms(CBytestream *bs)
+void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 {
 	byte count = bs->readByte();
-	if (count >= MAX_WORMS || iNetStatus != NET_PLAYING)  {
-		if (iNetStatus != NET_PLAYING)
-			printf("CClient::ParseUpdateWorms: not playing, ignored\n");
+	if (count >= MAX_WORMS || client->iNetStatus != NET_PLAYING)  {
+		if (client->iNetStatus != NET_PLAYING)
+			printf("CClientNetEngine::ParseUpdateWorms: not playing, ignored\n");
 		else
-			printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
+			printf("CClientNetEngine::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
 
 		// Skip to the right position
 		for (byte i=0;i<count;i++)  {
@@ -1378,7 +1378,7 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 		id = bs->readByte();
 
 		if (id >= MAX_WORMS)  {
-			printf("CClient::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
+			printf("CClientNetEngine::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
 			if (CWorm::skipPacketState(bs))  {  // Skip not to lose the right position
 				break;
 			}
@@ -1390,7 +1390,7 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 			continue;
 		}*/
 
-		cRemoteWorms[id].readPacketState(bs,cRemoteWorms);
+		client->cRemoteWorms[id].readPacketState(bs,client->cRemoteWorms);
 
 	}
 
@@ -1401,10 +1401,10 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 
 ///////////////////
 // Parse an 'update game lobby' packet
-void CClient::ParseUpdateLobbyGame(CBytestream *bs)
+void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 {
-	if (iNetStatus != NET_CONNECTED)  {
-		printf("CClient::ParseUpdateLobbyGame: not in lobby - ignoring\n");
+	if (client->iNetStatus != NET_CONNECTED)  {
+		printf("CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring\n");
 
 		// Skip to get the right position
 		bs->Skip(1);
@@ -1416,13 +1416,13 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 	}
 
-	game_lobby_t    *gl = &tGameLobby;
+	game_lobby_t    *gl = &client->tGameLobby;
     FILE            *fp = NULL;
 
 	if (!gl)  {
 		//TODO: uniform message system
 		//MessageBox(0,"Could not find lobby","Error",MB_OK);
-		printf("CClient::ParseUpdateLobbyGame: Could not find lobby\n");
+		printf("CClientNetEngine::ParseUpdateLobbyGame: Could not find lobby\n");
 		return;
 	}
 
@@ -1468,11 +1468,11 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 ///////////////////
 // Parse a 'worm down' packet
-void CClient::ParseWormDown(CBytestream *bs)
+void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
-	if (iNetStatus != NET_PLAYING)  {
-		printf("CClient::ParseWormDown: not playing - ignoring\n");
+	if (client->iNetStatus != NET_PLAYING)  {
+		printf("CClientNetEngine::ParseWormDown: not playing - ignoring\n");
 		bs->Skip(1);  // ID
 		return;
 	}
@@ -1484,16 +1484,16 @@ void CClient::ParseWormDown(CBytestream *bs)
 	short i;
 
 	if(id < MAX_WORMS) {
-		cRemoteWorms[id].setAlive(false);
-		if (cRemoteWorms[id].getLocal() && cRemoteWorms[id].getType() == PRF_HUMAN)
-			cRemoteWorms[id].clearInput();
+		client->cRemoteWorms[id].setAlive(false);
+		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
+			client->cRemoteWorms[id].clearInput();
 
 		// Make a death sound
 		int s = GetRandomInt(2);
-		StartSound( sfxGame.smpDeath[s], cRemoteWorms[id].getPos(), cRemoteWorms[id].getLocal(), -1, cLocalWorms[0]);
+		StartSound( sfxGame.smpDeath[s], client->cRemoteWorms[id].getPos(), client->cRemoteWorms[id].getLocal(), -1, client->cLocalWorms[0]);
 
 		// Spawn some giblets
-		w = &cRemoteWorms[id];
+		w = &client->cRemoteWorms[id];
 
 		for(n=0;n<7;n++)
 			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg().get());
@@ -1507,17 +1507,17 @@ void CClient::ParseWormDown(CBytestream *bs)
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 		}
 	} else {
-		printf("CClient::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
 	}
 
 	// Someone has been killed, log it
-	if (iLastVictim != -1)  {
-		log_worm_t *l_vict = GetLogWorm(iLastVictim);
+	if (client->iLastVictim != -1)  {
+		log_worm_t *l_vict = client->GetLogWorm(client->iLastVictim);
 		log_worm_t *l_kill = l_vict;
 
 		// If we haven't received killer's update score, it has been a suicide
-		if (iLastKiller != -1)
-			l_kill = GetLogWorm(iLastKiller);
+		if (client->iLastKiller != -1)
+			l_kill = client->GetLogWorm(client->iLastKiller);
 
 		if (l_kill && l_vict)  {
 			// HINT: lives and kills are updated in ParseScoreUpdate
@@ -1528,7 +1528,8 @@ void CClient::ParseWormDown(CBytestream *bs)
 			}
 
 			// Teamkill
-			else if (cRemoteWorms[iLastKiller].getTeam() == cRemoteWorms[iLastVictim].getTeam())  {
+			else if (client->cRemoteWorms[client->iLastKiller].getTeam() == 
+						client->cRemoteWorms[client->iLastVictim].getTeam())  {
 				l_kill->iTeamKills++;
 				l_vict->iTeamDeaths++;
 			}
@@ -1536,13 +1537,13 @@ void CClient::ParseWormDown(CBytestream *bs)
 	}
 
 	// Reset
-	iLastVictim = iLastKiller = -1;
+	client->iLastVictim = client->iLastKiller = -1;
 }
 
 
 ///////////////////
 // Parse a 'server left' packet
-void CClient::ParseServerLeaving(CBytestream *bs)
+void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 {
 	// Set the server error details
 
@@ -1552,11 +1553,11 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 	}
 
 	// Not so much an error, but rather a disconnection of communication between us & server
-	bServerError = true;
-	strServerErrorMsg = "Server has quit";
+	client->bServerError = true;
+	client->strServerErrorMsg = "Server has quit";
 
 	if (tLXOptions->bLogConvos)  {
-		if(!bInServer)
+		if(!client->bInServer)
 			return;
 
 		FILE *f;
@@ -1565,7 +1566,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 		if (!f)
 			return;
 		fputs("  </server>\r\n",f);
-		bInServer = false;
+		client->bInServer = false;
 		fclose(f);
 	}
 }
@@ -1573,57 +1574,57 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 
 ///////////////////
 // Parse a 'single shot' packet
-void CClient::ParseSingleShot(CBytestream *bs)
+void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING || bGameOver)  {
-		printf("CClient::ParseSingleShot: not playing - ignoring\n");
+	if(client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+		printf("CClientNetEngine::ParseSingleShot: not playing - ignoring\n");
 		CShootList::skipSingle(bs); // Skip to get to the correct position
 		return;
 	}
 
-	cShootList.readSingle(bs, cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readSingle(bs, client->cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
-	ProcessServerShotList();
+	client->ProcessServerShotList();
 
 }
 
 
 ///////////////////
 // Parse a 'multi shot' packet
-void CClient::ParseMultiShot(CBytestream *bs)
+void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING || bGameOver)  {
-		printf("CClient::ParseMultiShot: not playing - ignoring\n");
+	if(client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+		printf("CClientNetEngine::ParseMultiShot: not playing - ignoring\n");
 		CShootList::skipMulti(bs); // Skip to get to the correct position
 		return;
 	}
 
-	cShootList.readMulti(bs, cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readMulti(bs, client->cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
-	ProcessServerShotList();
+	client->ProcessServerShotList();
 }
 
 
 ///////////////////
 // Update the worms stats
-void CClient::ParseUpdateStats(CBytestream *bs)
+void CClientNetEngine::ParseUpdateStats(CBytestream *bs)
 {
 	byte num = bs->readByte();
 	if (num > MAX_PLAYERS)
-		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
+		printf("CClientNetEngine::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
 
 	short oldnum = num;
 	num = (byte)MIN(num,MAX_PLAYERS);
 
 	short i;
 	for(i=0; i<num; i++)
-		if (getWorm(i))  {
-			if (getWorm(i)->getLocal())
-				bShouldRepaintInfo = true;
+		if (client->getWorm(i))  {
+			if (client->getWorm(i)->getLocal())
+				client->bShouldRepaintInfo = true;
 
-			getWorm(i)->readStatUpdate(bs);
+			client->getWorm(i)->readStatUpdate(bs);
 		}
 
 	// Skip if there were some clamped worms
@@ -1635,25 +1636,25 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 
 ///////////////////
 // Parse a 'destroy bonus' packet
-void CClient::ParseDestroyBonus(CBytestream *bs)
+void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 {
 	byte id = bs->readByte();
 
-	if (iNetStatus != NET_PLAYING)  {
-		printf("CClient::ParseDestroyBonus: Ignoring, the game is not running.\n");
+	if (client->iNetStatus != NET_PLAYING)  {
+		printf("CClientNetEngine::ParseDestroyBonus: Ignoring, the game is not running.\n");
 		return;
 	}
 
 	if( id < MAX_BONUSES )
-		cBonuses[id].setUsed(false);
+		client->cBonuses[id].setUsed(false);
 	else
-		printf("CClient::ParseDestroyBonus: invalid bonus ID ("+itoa(id)+")\n");
+		printf("CClientNetEngine::ParseDestroyBonus: invalid bonus ID ("+itoa(id)+")\n");
 }
 
 
 ///////////////////
 // Parse a 'goto lobby' packet
-void CClient::ParseGotoLobby(CBytestream *)
+void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
 	printf("Client: received gotoLobby signal\n");
 
@@ -1665,10 +1666,10 @@ void CClient::ParseGotoLobby(CBytestream *)
 	}
 
 	// in lobby we need the events again
-	AddSocketToNotifierGroup( tSocket );
+	AddSocketToNotifierGroup( client->tSocket );
 
 	// Do a minor clean up
-	MinorClear();
+	client->MinorClear();
 
 	// Hide the console
 	Con_Hide();
@@ -1681,20 +1682,20 @@ void CClient::ParseGotoLobby(CBytestream *)
 		bs.Clear();
 		bs.writeByte(C2S_UPDATELOBBY);
 		bs.writeByte(0);
-		cNetChan->AddReliablePacketToSend(bs);
+		client->cNetChan->AddReliablePacketToSend(bs);
 
 
 		// Goto the join lobby
 		DeprecatedGUI::Menu_Net_GotoJoinLobby();
 	}
 
-	ShutdownLog();
+	client->ShutdownLog();
 }
 
 
 ///////////////////
 // Parse a 'dropped' packet
-void CClient::ParseDropped(CBytestream *bs)
+void CClientNetEngine::ParseDropped(CBytestream *bs)
 {
     // Set the server error details
 
@@ -1705,11 +1706,11 @@ void CClient::ParseDropped(CBytestream *bs)
 	}
 
 	// Not so much an error, but i message as to why i was dropped
-	bServerError = true;
-	strServerErrorMsg = Utf8String(bs->readString(256));
+	client->bServerError = true;
+	client->strServerErrorMsg = Utf8String(bs->readString(256));
 
 	if (tLXOptions->bLogConvos)  {
-		if(!bInServer)
+		if(!client->bInServer)
 			return;
 
 		FILE *f;
@@ -1718,109 +1719,109 @@ void CClient::ParseDropped(CBytestream *bs)
 		if (!f)
 			return;
 		fputs("    <message type=\"NETWORK\" text=\"",f);
-		fputs(strServerErrorMsg.c_str(),f);
+		fputs(client->strServerErrorMsg.c_str(),f);
 		fputs("\" />",f);
 		fputs("  </server>\r\n",f);
-		bInServer = false;
+		client->bInServer = false;
 		fclose(f);
 	}
 }
 
 // Server sent us some file
-void CClient::ParseSendFile(CBytestream *bs)
+void CClientNetEngine::ParseSendFile(CBytestream *bs)
 {
 
-	fLastFileRequestPacketReceived = tLX->fCurTime;
-	if( getUdpFileDownloader()->receive(bs) )
+	client->fLastFileRequestPacketReceived = tLX->fCurTime;
+	if( client->getUdpFileDownloader()->receive(bs) )
 	{
-		if( CUdpFileDownloader::isPathValid( getUdpFileDownloader()->getFilename() ) &&
-			! IsFileAvailable( getUdpFileDownloader()->getFilename() ) &&
-			getUdpFileDownloader()->isFinished() )
+		if( CUdpFileDownloader::isPathValid( client->getUdpFileDownloader()->getFilename() ) &&
+			! IsFileAvailable( client->getUdpFileDownloader()->getFilename() ) &&
+			client->getUdpFileDownloader()->isFinished() )
 		{
 			// Server sent us some file we don't have - okay, save it
-			FILE * ff=OpenGameFile( getUdpFileDownloader()->getFilename(), "wb" );
+			FILE * ff=OpenGameFile( client->getUdpFileDownloader()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
-				printf("CClient::ParseSendFile(): cannot write file %s\n", getUdpFileDownloader()->getFilename().c_str() );
+				printf("CClientNetEngine::ParseSendFile(): cannot write file %s\n", client->getUdpFileDownloader()->getFilename().c_str() );
 				return;
 			};
-			fwrite( getUdpFileDownloader()->getData().c_str(), 1, getUdpFileDownloader()->getData().size(), ff );
+			fwrite( client->getUdpFileDownloader()->getData().c_str(), 1, client->getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
 			
-			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
-					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
+			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
+					IsFileAvailable( "levels/" + client->tGameLobby.szMapName ) )
 			{
-				bDownloadingMap = false;
-				bWaitingForMap = false;
-				FinishMapDownloads();
-				sMapDownloadName = "";
+				client->bDownloadingMap = false;
+				client->bWaitingForMap = false;
+				client->FinishMapDownloads();
+				client->sMapDownloadName = "";
 
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
 			};
-			if( getUdpFileDownloader()->getFilename().find("skins/") == 0 )
+			if( client->getUdpFileDownloader()->getFilename().find("skins/") == 0 )
 			{
 				// Loads skin from disk automatically on next frame
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
 			};
-			if( ! tGameLobby.bHaveMod &&
-				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 &&
-				IsFileAvailable(tGameLobby.szModDir + "/script.lgs", false) )
+			if( ! client->tGameLobby.bHaveMod &&
+				client->getUdpFileDownloader()->getFilename().find( client->tGameLobby.szModDir ) == 0 &&
+				IsFileAvailable(client->tGameLobby.szModDir + "/script.lgs", false) )
 			{
-				bDownloadingMod = false;
-				bWaitingForMod = false;
-				FinishModDownloads();
-				sModDownloadName = "";
+				client->bDownloadingMod = false;
+				client->bWaitingForMod = false;
+				client->FinishModDownloads();
+				client->sModDownloadName = "";
 
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
 			};
 
-			getUdpFileDownloader()->requestFilesPending(); // Immediately request another file
-			fLastFileRequest = tLX->fCurTime;
+			client->getUdpFileDownloader()->requestFilesPending(); // Immediately request another file
+			client->fLastFileRequest = tLX->fCurTime;
 
 		}
 		else
-		if( getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
-			getUdpFileDownloader()->getFileInfo().size() > 0 &&
-			! tGameLobby.bHaveMod &&
-			getUdpFileDownloader()->isFinished() )
+		if( client->getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
+			client->getUdpFileDownloader()->getFileInfo().size() > 0 &&
+			! client->tGameLobby.bHaveMod &&
+			client->getUdpFileDownloader()->isFinished() )
 		{
 			// Got filenames list of mod dir - push "script.lgs" to the end of list to download all other data before
 			uint f;
-			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
+			for( f=0; f<client->getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
-					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
-					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
+				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( client->getUdpFileDownloader()->getFileInfo()[f].filename ) &&
+					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
 				{
-					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
-					iModDownloadingSize = getUdpFileDownloader()->getFilesPendingSize();
+					client->getUdpFileDownloader()->requestFile( client->getUdpFileDownloader()->getFileInfo()[f].filename, true );
+					client->fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					client->iModDownloadingSize = client->getUdpFileDownloader()->getFilesPendingSize();
 				}
 			};
-			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
+			for( f=0; f<client->getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
-					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
-					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
+				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( client->getUdpFileDownloader()->getFileInfo()[f].filename ) &&
+					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 				{
-					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
-					iModDownloadingSize = getUdpFileDownloader()->getFilesPendingSize();
+					client->getUdpFileDownloader()->requestFile( client->getUdpFileDownloader()->getFileInfo()[f].filename, true );
+					client->fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					client->iModDownloadingSize = client->getUdpFileDownloader()->getFilesPendingSize();
 				}
 			};
 		};
 	};
-	if( getUdpFileDownloader()->isReceiving() )
+	if( client->getUdpFileDownloader()->isReceiving() )
 	{
 		// TODO: move this out here
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);
-		getUdpFileDownloader()->sendPing( &bs );
-		cNetChan->AddReliablePacketToSend(bs);
+		client->getUdpFileDownloader()->sendPing( &bs );
+		client->cNetChan->AddReliablePacketToSend(bs);
 	};
 };
 

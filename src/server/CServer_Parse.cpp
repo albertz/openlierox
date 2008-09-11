@@ -282,7 +282,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
 				CWorm *w = cClient->getRemoteWorms() + victim;
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
-					cClient->SendDeath(victim, killer);
+					cClient->getNetEngine()->SendDeath(victim, killer);
 			} else {
 				printf("GameServer::ParseDeathPacket: victim %i is not one of the client's worms.\n", victim);
 			}

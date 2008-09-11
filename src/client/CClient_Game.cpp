@@ -321,7 +321,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
             w->clearInput();
 
 			// Let the server know that i am dead
-			SendDeath(w->getID(), owner);
+			cNetEngine->SendDeath(w->getID(), owner);
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
@@ -1334,9 +1334,9 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
-				SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName());
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName());
 			else
-				SendText(sChat_Text, cLocalWorms[0]->getName());
+				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName());
 		}
 		sChat_Text = "";
         return;
