@@ -47,6 +47,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef _MSC_VER
+#include <io.h>
+#endif
+
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
@@ -55,7 +59,7 @@
 int
 _zip_mkstemp(char *path)
 {
-	#ifdef WIN32
+	#ifdef _MSC_VER
 
 	mktemp(path);  
 	return open(path, O_RDWR|O_BINARY|O_CREAT|O_EXCL|_O_SHORT_LIVED, _S_IREAD|_S_IWRITE); 

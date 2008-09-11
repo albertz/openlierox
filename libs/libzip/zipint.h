@@ -38,12 +38,16 @@
 
 
 #ifdef _MSC_VER
-// Static linking for OpenLieroX
+#ifndef ZIP_EXTERN
+#ifdef ZIP_USE_DLL
+#define ZIP_EXTERN __declspec(dllexport)
+#else
 #define ZIP_EXTERN
-//#define ZIP_EXTERN __declspec(dllimport)
+#endif
+#endif
 #define snprintf _snprintf
 #define strcasecmp _stricmp
-#pragma warning( error: 4013 ) // Undefined function
+#pragma warning( error: 4013 ) // Undefined function treated as error
 #endif
 
 #include "zip.h"

@@ -36,12 +36,13 @@
 
 
 
-// Static linking for OpenLieroX
-#define ZIP_EXTERN
-
 #ifndef ZIP_EXTERN
 #ifdef _MSC_VER
-#define ZIP_EXTERN __declspec(dllexport)
+#ifdef ZIP_USE_DLL
+#define ZIP_EXTERN __declspec(dllimport)
+#else
+#define ZIP_EXTERN
+#endif
 #else
 #define ZIP_EXTERN
 #endif
@@ -56,8 +57,8 @@ extern "C" {
 #include <stdio.h>
 #include <time.h>
 
-#ifdef WIN32
-typedef size_t ssize_t;
+#ifdef _MSC_VER
+typedef long ssize_t;
 #endif
 
 /* flags for zip_open */
