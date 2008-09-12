@@ -32,6 +32,11 @@ Gentoo: sys-libs/zlib
 Debian: zlib1g-dev
 tested versions: 1.2.3
 
+-- libzip
+Gentoo: dev-libs/libzip
+Debian: ?
+tested version: 0.8
+
 -- libxml2
 Gentoo: dev-libs/libxml2
 Debian: libxml2-dev

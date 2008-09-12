@@ -103,6 +103,16 @@ else
 	HAWKNL_GCC_PARAM="-lNL"
 fi
 
+if [ "$LIBZIP_BUILTIN" == "1" ]; then
+	LIBZIP_GCC_PARAM="libs/libzip/*.c"
+else
+	test_include_file zip.h || \
+		{	echo "ERROR: libzip header not found" >&2;
+			echo "try the following: export LIBZIP_BUILTIN=1";
+			ALL_FINE=0; }
+	LIBZIP_GCC_PARAM="-lzip"
+fi
+
 [ $ALL_FINE == 0 ] && \
 	{ echo "errors detected, exiting"; exit -1; }
 
@@ -129,13 +139,19 @@ echo "* $COMPILER will be used for compilation"
 [ "$HAWKNL_BUILTIN" == "1" ] && \
 	echo "* HawkNL support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
+[ "$LIBZIP_BUILTIN" == "1" ] && \
+	echo "* libzip support will be built into the binary" || \
+	echo "* the binary will be linked dynamically against libzip"
 
 
 
 echo ">>> compiling now, this could take some time ..."
 mkdir -p bin
-if $COMPILER	src/*.cpp src/client/*.cpp src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
-				src/common/*.cpp src/server/*.cpp libs/libzip/*.c \
+if $COMPILER \
+	src/*.cpp src/client/*.cpp \
+	src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
+	src/common/*.cpp src/server/*.cpp \
+	$LIBZIP_GCC_PARAM \
 	$HAWKNL_GCC_PARAM \
 	-I include -I libs/pstreams -I libs/libzip \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
