@@ -19,7 +19,7 @@ tested versions: 1.2.5
 
 -- hawknl
 Gentoo: dev-games/hawknl
-Debian: no deb-package found, you have to install it manually
+Debian: no deb-package found, you have to install it manually, or use built-in hawknl
 tested versions: 1.68
 
 -- gd
@@ -34,7 +34,7 @@ tested versions: 1.2.3
 
 -- libzip
 Gentoo: dev-libs/libzip
-Debian: ?
+Debian: libzip-dev
 tested version: 0.8
 
 -- libxml2
