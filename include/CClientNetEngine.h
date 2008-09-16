@@ -10,8 +10,8 @@
 
 
 
-#ifndef __CCLIENT_NET_INTERFACE_H__
-#define __CCLIENT_NET_INTERFACE_H__
+#ifndef __CCLIENT_NET_ENGINE_H__
+#define __CCLIENT_NET_ENGINE_H__
 
 #include "CBytestream.h"
 #include "Version.h"
@@ -90,4 +90,4 @@ public:
 };
 
 
-#endif  //  __CCLIENT_NET_INTERFACE_H__
+#endif  //  __CCLIENT_NET_ENGINE_H__

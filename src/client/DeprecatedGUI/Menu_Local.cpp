@@ -1244,11 +1244,17 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
         int y = 190 + (j++)*20;
         Uint32 Colour = tLX->clNormalLabel;
+		Uint32 StateColour = Colour;
+		if( (*it)->psLink->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
+			StateColour = tLX->clSubHeading;
+		if( (*it)->psLink->nState == wpr_banned )
+			StateColour = tLX->clHeading;
 
         // If a mouse is over the line, highlight it
         if( Mouse->X > 150 && Mouse->X < 450 ) {
             if( Mouse->Y > y && Mouse->Y < y+20 ) {
                 Colour = tLX->clMouseOver;
+				StateColour = tLX->clMouseOver;
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
@@ -1261,7 +1267,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 		std::string buf = (*it)->psLink->szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 150, y, Colour, buf );
-        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, Colour, szStates[(*it)->psLink->nState] );
+        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it)->psLink->nState] );
 	}
 
     // Adjust the scrollbar
