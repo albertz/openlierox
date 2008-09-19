@@ -18,7 +18,7 @@
 #include "LieroX.h"
 #include "StringUtils.h"
 #include "CServer.h"
-#include "CClient.h"
+#include "CServerConnection.h"
 #include "Protocol.h"
 #include "CWorm.h"
 #ifdef DEBUG
@@ -29,7 +29,7 @@ using namespace std;
 
 ///////////////////
 // Send a client a packet
-void GameServer::SendPacket(CBytestream *bs, CClient *cl)
+void GameServer::SendPacket(CBytestream *bs, CServerConnection *cl)
 {
 	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 		return;
@@ -42,7 +42,7 @@ void GameServer::SendPacket(CBytestream *bs, CClient *cl)
 void GameServer::SendGlobalPacket(CBytestream *bs)
 {
 	// Assume reliable
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
@@ -69,7 +69,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		bs.writeString(*it);
 	}
 
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
@@ -81,7 +81,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 
 ///////////////////
 // Send a client a string of text
-void GameServer::SendText(CClient *cl, const std::string& text, int type) {
+void GameServer::SendText(CServerConnection *cl, const std::string& text, int type) {
 	CBytestream bs;
 
 	bs.writeByte(S2C_TEXT);
@@ -122,7 +122,7 @@ bool GameServer::SendUpdate()
 
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
-			CClient* cl = &cClients[ (i + iServerFrame) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+			CServerConnection* cl = &cClients[ (i + iServerFrame) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
@@ -221,7 +221,7 @@ bool GameServer::SendUpdate()
 ///////////////////
 // Check if we have gone over the clients bandwidth rating
 // Returns true if we are under the bandwidth
-bool GameServer::checkBandwidth(CClient *cl)
+bool GameServer::checkBandwidth(CServerConnection *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
 	if( tGameInfo.iGameType != GME_LOCAL )
@@ -311,7 +311,7 @@ void GameServer::SendWormLobbyUpdate(void)
     CBytestream bytestr;
     short c,i;
 
-    CClient *cl = cClients;
+    CServerConnection *cl = cClients;
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {
         if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
             continue;
@@ -354,7 +354,7 @@ void GameServer::SendWormLobbyUpdate(void)
 // Tell all the clients that we're disconnecting
 void GameServer::SendDisconnect(void)
 {
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 	if (!cl)
 		return;
 
@@ -414,7 +414,7 @@ void GameServer::SendFiles()
 	int minPing = 200;
 	float pingCoeff = 1.5f;	// Send another packet in minPing/pingCoeff milliseconds
 
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 	{
@@ -445,7 +445,7 @@ void GameServer::SendFiles()
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
 	CBytestream bs;
-	CClient * cl = Worm->getClient();
+	CServerConnection * cl = Worm->getClient();
 	int i, j, curWeapon = Worm->getCurrentWeapon();
 	for( i = 0; i < 5; i++ )
 	{

@@ -242,7 +242,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setTeam(0);
 		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
-		cRemoteWorms[i].setClient(this);
+		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
 	}
 
 

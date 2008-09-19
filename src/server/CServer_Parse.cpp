@@ -18,7 +18,7 @@
 #include "LieroX.h"
 #include "DeprecatedGUI/Menu.h"
 #include "CServer.h"
-#include "CClient.h"
+#include "CServerConnection.h"
 #include "CChannel.h"
 #include "StringUtils.h"
 #include "CWorm.h"
@@ -45,7 +45,7 @@ using namespace std;
 
 ///////////////////
 // Parses a general packet
-void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
+void GameServer::ParseClientPacket(CServerConnection *cl, CBytestream *bs) {
 
 	// TODO: That's hack, all processing should be done in CChannel_056b
 	// Maybe server will work without that code at all, should check against 0.56b
@@ -69,7 +69,7 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a packet
-void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
+void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
@@ -151,7 +151,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a 'im ready' packet
-void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
+void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 	if ( iState != SVS_GAME )
 	{
 		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
@@ -226,7 +226,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse an update packet
-void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
+void GameServer::ParseUpdate(CServerConnection *cl, CBytestream *bs) {
 	for (short i = 0; i < cl->getNumWorms(); i++) {
 		CWorm *w = cl->getWorm(i);
 
@@ -241,7 +241,7 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a death packet
-void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
+void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
 	// No kills in lobby
 	if (iState != SVS_PLAYING)  {
 		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
@@ -333,7 +333,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a chat text packet
-void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
+void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	std::string buf = bs->readString(256);
 
 	if(cl->getNumWorms() == 0) {
@@ -382,7 +382,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a 'update lobby' packet
-void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
+void GameServer::ParseUpdateLobby(CServerConnection *cl, CBytestream *bs) {
 	// Must be in lobby
 	if ( iState != SVS_LOBBY )  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
@@ -434,7 +434,7 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a disconnect packet
-void GameServer::ParseDisconnect(CClient *cl) {
+void GameServer::ParseDisconnect(CServerConnection *cl) {
 	// Check if the client hasn't already left
 	if (cl->getStatus() == NET_DISCONNECTED)  {
 		printf("GameServer::ParseDisconnect: Client has already disconnected.\n");
@@ -453,7 +453,7 @@ void GameServer::ParseDisconnect(CClient *cl) {
 
 ///////////////////
 // Parse a weapon list packet
-void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs) {
+void GameServer::ParseWeaponList(CServerConnection *cl, CBytestream *bs) {
 	int id = bs->readByte();
 
 	if (id >= 0 && id < MAX_WORMS)
@@ -467,7 +467,7 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a 'grab bonus' packet
-void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
+void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
 	int id = bs->readByte();
 	int wormid = bs->readByte();
 	int curwpn = bs->readByte();
@@ -517,7 +517,7 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 	}
 }
 
-void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
+void GameServer::ParseSendFile(CServerConnection *cl, CBytestream *bs)
 {
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
@@ -646,7 +646,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	NetworkAddr		adrFrom;
 	int				i, p, player = -1;
 	int				numplayers;
-	CClient			*cl, *newcl;
+	CServerConnection			*cl, *newcl;
 
 	//printf("Got Connect packet\n");
 
@@ -1436,7 +1436,7 @@ void GameServer::ParseServerRegistered(NetworkSocket tSocket)
 
 /////////////////
 // Parse a command from chat
-bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
+bool GameServer::ParseChatCommand(const std::string& message, CServerConnection *cl)
 {
 	// Parse the message
 	const std::vector<std::string>& parsed = ParseCommandMessage(message, false);

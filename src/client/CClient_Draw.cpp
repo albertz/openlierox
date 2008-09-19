@@ -1370,7 +1370,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			// Ping
 			if (tGameInfo.iGameType == GME_HOST)  {
-				CClient *remoteClient = cServer->getClient(p->getID());
+				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 			}
@@ -1461,7 +1461,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			// Ping
 			if (tGameInfo.iGameType == GME_HOST)  {
-				CClient *remoteClient = cServer->getClient(p->getID());
+				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 			}
@@ -1546,7 +1546,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
-					CClient *remoteClient = cServer->getClient(p->getID());
+					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 				}
@@ -1591,7 +1591,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			// Ping
 			if (tGameInfo.iGameType == GME_HOST)  {
-				CClient *remoteClient = cServer->getClient(p->getID());
+				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 			}
@@ -1669,7 +1669,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
-					CClient *remoteClient = cServer->getClient(p->getID());
+					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 				}
@@ -1748,7 +1748,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
-					CClient *remoteClient = cServer->getClient(p->getID());
+					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 				}
@@ -2397,7 +2397,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 
 		// Ping
 		if(tGameInfo.iGameType == GME_HOST)  {
-			CClient *remoteClient = cServer->getClient(p->getID());
+			CServerConnection *remoteClient = cServer->getClient(p->getID());
 			if (remoteClient && p->getID())
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 		}

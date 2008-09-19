@@ -1059,7 +1059,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						if (!w->isUsed())
 							break;
 
-						CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
+						CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
 						mouse_t *Mouse = GetMouse();
 
 						CMenu *mnu = new CMenu(Mouse->X, Mouse->Y);
@@ -1120,7 +1120,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Mute/unmute
 					case MNU_USER+2:
 						if ( g_nLobbyWorm > 0 )  {
-							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
+							CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
 							if (remote_cl)  {
 								if (remote_cl->getMuted())
 									cServer->unmuteWorm(g_nLobbyWorm);
@@ -1132,7 +1132,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 					// Authorize
 					case MNU_USER+3:  {
-							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
+							CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
 							if (remote_cl)
 								remote_cl->getRights()->Everything();
 						} break;
@@ -1297,7 +1297,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	CWorm *w = cClient->getRemoteWorms() + 1;
 	int i;
 	for (i=1; i < MAX_PLAYERS; i++, w++)  {  // Start from 1 (exclude host)
-		CClient *client = cServer->getClient(w->getID());
+		CServerConnection *client = cServer->getClient(w->getID());
 		if (client)  {
 			lv_subitem_t *subit = player_list->getSubItem(i, 5);
 			if (subit)
@@ -1363,7 +1363,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		}
 
 		// Ping
-		CClient *cl = cServer->getClient(w->getID());
+		CServerConnection *cl = cServer->getClient(w->getID());
 		int ping = 0;
 		if (cl)	ping = cl->getPing();
 		player_list->AddSubitem(LVS_TEXT, w->getID() != 0 ? itoa(ping) : "", NULL, NULL); // Don't draw for host

@@ -43,7 +43,7 @@ GameServer	*cServer = NULL;
 
 
 // Bots' clients
-CClient *cBots = NULL;
+CServerConnection *cBots = NULL;
 
 
 GameServer::GameServer() {
@@ -177,7 +177,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 
 	// Initialize the clients
-	cClients = new CClient[MAX_CLIENTS];
+	cClients = new CServerConnection[MAX_CLIENTS];
 	if(cClients==NULL) {
 		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
 		return false;
@@ -662,7 +662,7 @@ void GameServer::ReadPackets(void)
 			bs.ResetPosToBegin();
 
 			// Read packets
-			CClient *cl = cClients;
+			CServerConnection *cl = cClients;
 			for(c=0;c<MAX_CLIENTS;c++,cl++) {
 
 				// Reset the suicide packet count
@@ -699,7 +699,7 @@ void GameServer::ReadPackets(void)
 void GameServer::SendPackets(void)
 {
 	int c;
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 
 	// If we are playing, send update to the clients
 	if (iState == SVS_PLAYING)
@@ -962,7 +962,7 @@ void GameServer::CheckTimeouts(void)
 	float dropvalue = tLX->fCurTime - LX_SVTIMEOUT;
 
 	// Cycle through clients
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 	for(c = 0; c < MAX_CLIENTS; c++, cl++) {
 		// Client not connected or no worms
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getNumWorms() == 0)
@@ -1007,7 +1007,7 @@ void GameServer::CheckWeaponSelectionTime()
 	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->iWeaponSelectionMaxTime )
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
-		CClient *cl = cClients;
+		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 		{
 			if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
@@ -1026,7 +1026,7 @@ void GameServer::CheckWeaponSelectionTime()
 
 ///////////////////
 // Drop a client
-void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
+void GameServer::DropClient(CServerConnection *cl, int reason, const std::string& sReason)
 {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
@@ -1112,7 +1112,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 
 }
 
-void GameServer::RemoveClient(CClient* cl) {
+void GameServer::RemoveClient(CServerConnection* cl) {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
 		printf("An attempt to remove a local client was ignored\n");
@@ -1219,7 +1219,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	}
 
     // Get the client
-    CClient *cl = w->getClient();
+    CServerConnection *cl = w->getClient();
     if( !cl ) {
     	Con_Printf(CNC_ERROR, "This worm cannot be kicked, the client is unknown");
         return;
@@ -1278,7 +1278,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 	}
 
     // Get the client
-    CClient *cl = w->getClient();
+    CServerConnection *cl = w->getClient();
     if( !cl )
         return;
 
@@ -1380,7 +1380,7 @@ void GameServer::muteWorm(int wormID)
 	}
 
     // Get the client
-    CClient *cl = w->getClient();
+    CServerConnection *cl = w->getClient();
     if( !cl )
         return;
 
@@ -1452,7 +1452,7 @@ void GameServer::unmuteWorm(int wormID)
 	}
 
     // Get the client
-    CClient *cl = w->getClient();
+    CServerConnection *cl = w->getClient();
     if( !cl )
         return;
 
@@ -1508,7 +1508,7 @@ void GameServer::authorizeWorm(int wormID)
 	}
 
     // Get the client
-    CClient *cl = getClient(wormID);
+    CServerConnection *cl = getClient(wormID);
     if( !cl )
         return;
 
@@ -1532,7 +1532,7 @@ void GameServer::notifyLog(const std::string& msg)
 
 //////////////////
 // Get the client owning this worm
-CClient *GameServer::getClient(int iWormID)
+CServerConnection *GameServer::getClient(int iWormID)
 {
 	if (iWormID < 0 || iWormID > MAX_WORMS)
 		return NULL;
@@ -1554,7 +1554,7 @@ CClient *GameServer::getClient(int iWormID)
 float GameServer::GetDownload()
 {
 	float result = 0;
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 
 	// Sum downloads from all clients
 	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
@@ -1570,7 +1570,7 @@ float GameServer::GetDownload()
 float GameServer::GetUpload()
 {
 	float result = 0;
-	CClient *cl = cClients;
+	CServerConnection *cl = cClients;
 
 	// Sum downloads from all clients
 	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {

@@ -18,7 +18,7 @@
 #include "ChatCommand.h"
 #include "Protocol.h"
 #include "CServer.h"
-#include "CClient.h"
+#include "CServerConnection.h"
 #include "DedicatedControl.h"
 
 //////////////////
@@ -203,14 +203,14 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 		return ch;
 
 	// Is the player authorized?
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (sender)  {
 		if (!sender->getRights()->Authorize)
 			return "You do not have enough privileges to authorize a player.";
 	}
 
 	// Authorise the client
-	CClient *remote_cl = cServer->getClient(id);
+	CServerConnection *remote_cl = cServer->getClient(id);
 	if (remote_cl)  {
 		remote_cl->getRights()->Everything();
 		cServer->SendGlobalText((cServer->getWorms() + id)->getName() + " has been authorised", TXT_NORMAL);
@@ -238,7 +238,7 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
-	CClient *target = cServer->getClient(id);
+	CServerConnection *target = cServer->getClient(id);
 	if(target)
 		if (target->isLocalClient())
 			return action == ACT_KICK ? "Cannot kick host" : "Cannot ban host";
@@ -255,7 +255,7 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	}
 
 	// Kick/ban
-	CClient *remote_cl = cServer->getClient(sender_id);
+	CServerConnection *remote_cl = cServer->getClient(sender_id);
 	if (remote_cl)  {
 		bool rights = action == ACT_KICK ? remote_cl->getRights()->Kick : remote_cl->getRights()->Ban;
 		if (rights)
@@ -295,7 +295,7 @@ std::string ProcessMuteUnmute(const std::vector<std::string>& params, int sender
 		return ch;
 
 	// (un)mute
-	CClient *remote_cl = cServer->getClient(sender_id);
+	CServerConnection *remote_cl = cServer->getClient(sender_id);
 	if (remote_cl)  {
 		if (remote_cl->getRights()->Mute)
 			if (mute)
@@ -329,8 +329,8 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 		return ch;
 
 	// Get the sender & recipient
-	CClient *sender = cServer->getClient(sender_id);
-	CClient *recipient = cServer->getClient(p_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
+	CServerConnection *recipient = cServer->getClient(p_id);
 	if (!sender || !recipient)
 		return "Message could not be sent";
 
@@ -362,7 +362,7 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 		return "Not enough parameters";
 
 	// Get the sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Message could not be sent";
 
@@ -375,7 +375,7 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	}
 
 	// Send the message to teammates
-	CClient *cl = cServer->getClients();
+	CServerConnection *cl = cServer->getClients();
 	msg = OldLxCompatibleString(msg);
 	for (int i=0; i < MAX_WORMS; ++i, cl++)  {
 		CWorm *w = cl->getWorm(0);
@@ -397,7 +397,7 @@ std::string ProcessMe(const std::vector<std::string>& params, int sender_id)
 		return "Not enough parameters";
 
 	// Get the sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Message could not be sent";
 
@@ -423,7 +423,7 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 		return "Not enough parameters";
 
 	// Get the sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Name could not be changed";
 
@@ -474,7 +474,7 @@ std::string ProcessSetName(const std::vector<std::string>& params, int sender_id
 		return ch;
 
 	// Get the sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Name could not be changed";
 
@@ -528,7 +528,7 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 		return "Not enough parameters";
 
 	// Sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Cannot change the skin";
 
@@ -557,7 +557,7 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 		return ch;
 
 	// Sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Cannot change the skin";
 
@@ -585,7 +585,7 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 		return "Invalid parameter count, use /setcolor R G B";
 
 	// Sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Cannot change the skin";
 
@@ -620,7 +620,7 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 		return ch;
 
 	// Sender
-	CClient *sender = cServer->getClient(sender_id);
+	CServerConnection *sender = cServer->getClient(sender_id);
 	if (!sender)
 		return "Cannot change the skin";
 

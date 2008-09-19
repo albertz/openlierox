@@ -268,7 +268,7 @@ bool SetVideoMode()
 	if (opengl) {
 		printf("HINT: using OpenGL\n");
 		vidflags |= SDL_OPENGL;
-		vidflags |= SDL_OPENGLBLIT;
+		vidflags |= SDL_OPENGLBLIT; // Without that flag SDL_GetVideoSurface()->pixels will be NULL, which is weird
 
 		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
 		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX

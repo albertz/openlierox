@@ -167,23 +167,6 @@ class interface_sett { public:
 	// NOTE: bars are handled in CBar class
 };
 
-// Client rights on a server
-class ClientRights { public:
-	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false) {}
-	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = true; }
-	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = false; }
-
-	bool NameChange;
-	bool Kick;
-	bool Ban;
-	bool Mute;
-	bool ChooseLevel;
-	bool ChooseMod;
-	bool StartGame;
-	bool Authorize;
-	bool Override;
-};
-
 enum {
 	DL_HTTP = 0,
 	DL_UDP
@@ -416,7 +399,6 @@ private:
 	float		fSendWait;
 	float		fLastUpdateSent;
 	std::string	szServerName;
-	ClientRights tRights;
 	bool		bHostAllowsMouse;
 	bool		bHostAllowsStrafing;
 	Version		cClientVersion;
@@ -657,8 +639,6 @@ public:
 
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
-
-	ClientRights *getRights()				{ return &tRights; }
 
 	int	getPing(void)						{ return cNetChan->getPing(); }
 	void setPing(int _p)					{ cNetChan->setPing(_p); }

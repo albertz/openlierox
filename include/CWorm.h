@@ -76,7 +76,7 @@ struct randweapons_t {
 // the files have to be included yourself later
 // they are used here; but their headers depends on this header
 // TODO: remove the usage of these in this header
-class CClient;
+class CServerConnection;
 class CBonus;
 
 
@@ -239,7 +239,7 @@ private:
 
 
 	// Owner client
-	CClient		*cOwner;
+	CServerConnection *cOwner;
 
 	// Network
 	float		fFrameTimes[NUM_FRAMES];
@@ -367,7 +367,7 @@ public:
 	static bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
-	void		writePacket(CBytestream *bs, bool fromServer, CClient* receiver);
+	void		writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver);
 	void		readPacket(CBytestream *bs, CWorm *worms);
 	void		net_updatePos(const CVec& newpos);
 	static bool	skipPacket(CBytestream *bs);
@@ -557,8 +557,8 @@ public:
 	float		getTimeofDeath(void)		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
-	void		setClient(CClient *cl)		{ cOwner = cl; }
-    CClient     *getClient(void)            { return cOwner; }
+	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
+    CServerConnection     *getClient(void)            { return cOwner; }
 
 	CInput		*getShoot(void)				{ return &cShoot; }
 

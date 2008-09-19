@@ -25,6 +25,7 @@
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"
+#include "CServerConnection.h"
 #include "Utils.h"
 
 
@@ -56,7 +57,7 @@ void CWorm::getInput()
 	ws->bShoot = false;
 	ws->bJump = false;
 
-	const bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
+	const bool mouseControl = tLXOptions->bMouseAiming && ( cClient->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL);
 	const float mouseSensity = (float)tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
 
 	// TODO: here are width/height of the window hardcoded
@@ -150,7 +151,7 @@ void CWorm::getInput()
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
 			}
 			ws->bMove = true;
-			if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = iMoveDirection;
+			if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = iMoveDirection;
 
 		} else {
 			ws->bMove = false;
@@ -266,7 +267,7 @@ void CWorm::getInput()
 			lastMoveTime = tLX->fCurTime;
 
 			if(!cRight.isDown()) {
-				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
 				iMoveDirection = DIR_LEFT;
 			}
 
@@ -281,7 +282,7 @@ void CWorm::getInput()
 			lastMoveTime = tLX->fCurTime;
 
 			if(!cLeft.isDown()) {
-				if(!cOwner->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
 				iMoveDirection = DIR_RIGHT;
 			}
 
@@ -292,7 +293,7 @@ void CWorm::getInput()
 		}
 
 		// inform player about disallowed strafing
-		if(!cOwner->isHostAllowingStrafing() && cStrafe.isDownOnce())
+		if(!cClient->isHostAllowingStrafing() && cStrafe.isDownOnce())
 			// TODO: perhaps in chat?
 			printf("HINT: strafing is not allowed on this server.\n");
 	}

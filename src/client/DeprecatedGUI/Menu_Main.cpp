@@ -111,6 +111,7 @@ void Menu_MainFrame(void)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 		ev = cMainMenu.Process();
+		
 	cMainMenu.Draw(VideoPostProcessor::videoSurface());
 
 	int mouseover = false;

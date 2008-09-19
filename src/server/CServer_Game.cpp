@@ -17,7 +17,7 @@
 
 #include "LieroX.h"
 #include "CServer.h"
-#include "CClient.h"
+#include "CServerConnection.h"
 #include "StringUtils.h"
 #include "Protocol.h"
 #include "CWorm.h"
@@ -64,7 +64,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 
 ///////////////////
 // (Re)Spawn a worm
-void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
+void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl)
 {
 	if (bGameOver || Worm->isSpectating())
 		return;
@@ -916,10 +916,10 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 		CVec vel = *w->getVelocity();
 		speed = NormalizeVector( &vel );
 	}
-
+	
 	if(gameserver) {
 		// Add the shot to ALL the connected clients shootlist
-		CClient *cl = gameserver->getClients();
+		CServerConnection *cl = gameserver->getClients();
 		for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 			if(cl->getStatus() == NET_DISCONNECTED)
 				continue;
@@ -927,7 +927,7 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 			cl->getShootList()->addShoot( gameserver->getServerTime(), speed, (int)Angle, w);
 		}
 	}
-
+	
 
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
@@ -1346,7 +1346,7 @@ void GameServer::CheckReadyClient(void)
         return;
 
 	bool allready = true;
-	CClient *client = cClients;
+	CServerConnection *client = cClients;
 	for(c=0; c<MAX_CLIENTS; c++, client++) {
 		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE || client->getNumWorms() == 0)
 			continue;

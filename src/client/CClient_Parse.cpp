@@ -194,7 +194,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			continue;
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
 		client->cLocalWorms[i]->setUsed(true);
-		client->cLocalWorms[i]->setClient(client);
+		client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
 		client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
 		//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
 		client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
@@ -874,7 +874,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	if (!client->cRemoteWorms[id].isUsed())  {
 		client->cRemoteWorms[id].Clear();
 		client->cRemoteWorms[id].setUsed(true);
-		client->cRemoteWorms[id].setClient(client);
+		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
 		client->cRemoteWorms[id].setLocal(false);
 		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {

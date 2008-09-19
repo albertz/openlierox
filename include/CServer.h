@@ -21,7 +21,7 @@
 #include "CWorm.h"
 #include "CBanList.h"
 #include "CBonus.h"
-#include "CClient.h"
+#include "CServerConnection.h"
 #include "CBytestream.h"
 #include "HTTP.h"
 #include "FileDownload.h"
@@ -93,7 +93,7 @@ private:
 	bool		bFirstBlood;	// True if no-one has been killed yet
 
 	// Clients
-	CClient		*cClients;		// TODO: use std::list or vector
+	CServerConnection *cClients;		// TODO: use std::list or vector
 
 	// Worms
 	int			iNumPlayers;
@@ -162,7 +162,7 @@ public:
 	void		GameOver(int winner);
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL);
-	void		SpawnWorm(CWorm *Worm, CVec pos, CClient *cl);
+	void		SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl);
 	void		SpawnWave();	// Respawn all dead worms at once
 	void		SimulateGame(void);
 	// TODO: Give this a better name (I couldn't think of what to call it)
@@ -183,7 +183,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	bool		SendUpdate();
-	bool		checkBandwidth(CClient *cl);
+	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	void		RegisterServer(void);
 	void		RegisterServerUdp(void);
@@ -194,8 +194,8 @@ public:
 	bool		ProcessDeRegister(void);
 	void		CheckTimeouts(void);
 	void		CheckWeaponSelectionTime(void);
-	void		DropClient(CClient *cl, int reason, const std::string& sReason = "");
-	void		RemoveClient(CClient *cl);
+	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
+	void		RemoveClient(CServerConnection *cl);
 	void		kickWorm(int wormID, const std::string& sReason = "");
     void        kickWorm(const std::string& szWormName, const std::string& sReason = "");
 	void		banWorm(int wormID, const std::string& sReason = "");
@@ -209,12 +209,12 @@ public:
     void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload();
-	bool		ParseChatCommand(const std::string& message, CClient *cl);
+	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
 
 	// Sending
-	void		SendPacket(CBytestream *bs, CClient *cl);
+	void		SendPacket(CBytestream *bs, CServerConnection *cl);
 	void		SendGlobalPacket(CBytestream *bs);
-	void		SendText(CClient *cl, const std::string& text, int type);
+	void		SendText(CServerConnection *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
@@ -227,17 +227,17 @@ public:
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 
 	// Parsing
-	void		ParseClientPacket(CClient *cl, CBytestream *bs);
-	void		ParsePacket(CClient *cl, CBytestream *bs);
-	void		ParseImReady(CClient *cl, CBytestream *bs);
-	void		ParseUpdate(CClient *cl, CBytestream *bs);
-	void		ParseDeathPacket(CClient *cl, CBytestream *bs);
-	void		ParseChatText(CClient *cl, CBytestream *bs);
-	void		ParseUpdateLobby(CClient *cl, CBytestream *bs);
-	void		ParseDisconnect(CClient *cl);
-	void		ParseWeaponList(CClient *cl, CBytestream *bs);
-	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
-	void		ParseSendFile(CClient *cl, CBytestream *bs);
+	void		ParseClientPacket(CServerConnection *cl, CBytestream *bs);
+	void		ParsePacket(CServerConnection *cl, CBytestream *bs);
+	void		ParseImReady(CServerConnection *cl, CBytestream *bs);
+	void		ParseUpdate(CServerConnection *cl, CBytestream *bs);
+	void		ParseDeathPacket(CServerConnection *cl, CBytestream *bs);
+	void		ParseChatText(CServerConnection *cl, CBytestream *bs);
+	void		ParseUpdateLobby(CServerConnection *cl, CBytestream *bs);
+	void		ParseDisconnect(CServerConnection *cl);
+	void		ParseWeaponList(CServerConnection *cl, CBytestream *bs);
+	void		ParseGrabBonus(CServerConnection *cl, CBytestream *bs);
+	void		ParseSendFile(CServerConnection *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
@@ -256,7 +256,7 @@ public:
 	game_lobby_t	*getLobby(void)			{ return &tGameLobby; }
 	CMap			*getMap(void)			{ return cMap; }
 	CBanList		*getBanList(void)		{ return &cBanList; }
-	CClient			*getClient(int iWormID);
+	CServerConnection *getClient(int iWormID);
 	std::string		getName(void)			{ return sName; }
 	void			setName(const std::string& _name){ sName = _name; }
 	int				getMaxWorms(void)		{ return iMaxWorms; }
@@ -264,7 +264,7 @@ public:
 	bool			getGameOver(void)		{ return bGameOver; }
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
-	CClient *getClients() { return cClients; }
+	CServerConnection *getClients() { return cClients; }
 	float	getServerTime() { return fServertime; }
 
 	// TODO: change the name of these functions; the sense should be clear

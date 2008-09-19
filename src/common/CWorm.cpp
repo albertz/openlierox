@@ -529,7 +529,7 @@ void CWorm::InitWeaponSelection(void)
 		tWeapons[n].LastFire = 0;
 	}
 	// Skip weapon selection dialog if we're spectating
-	if( getClient()->getSpectate() )
+	if( cClient->getSpectate() )
 		bWeaponsReady = true;
 }
 
@@ -1141,7 +1141,7 @@ int CWorm::GetMyPing(void)
 {
 	if (!cServer)
 		return 0;
-	CClient *cl = cServer->getClient(getID());
+	CServerConnection *cl = cServer->getClient(getID());
 	if (!cl)
 		return 0;
 	return cl->getPing();

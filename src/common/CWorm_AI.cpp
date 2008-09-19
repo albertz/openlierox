@@ -3451,7 +3451,7 @@ void CWorm::AI_MoveToTarget()
 		// If there's some worm in sight and we are on ground, jump!
 		if (bOnGround)  {
 			for (int i = 0; i < MAX_WORMS; i++)  {
-				CWorm *w = &cOwner->getRemoteWorms()[i];
+				CWorm *w = &cClient->getRemoteWorms()[i];
 				if (w->isUsed() && w->getAlive() && w->getID() != iID)  {
 					if ((vPos - w->getPos()).GetLength2() <= 2500)  {
 						float dist;

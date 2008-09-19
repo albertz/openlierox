@@ -97,7 +97,7 @@ void CWorm::readScore(CBytestream *bs)
 
 ///////////////////
 // Write a packet out
-void CWorm::writePacket(CBytestream *bs, bool fromServer, CClient* receiver)
+void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver)
 {
 	short x, y;
 
@@ -136,7 +136,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CClient* receiver)
 
 
 	// Velocity
-	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : getClient()->getServerVersion();
+	const Version& versionOfReceiver = fromServer ? receiver->getClientVersion() : cClient->getServerVersion();
 	if(tState.bShoot || versionOfReceiver >= OLXBetaVersion(5)) {
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
@@ -473,7 +473,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		iCurrentWeapon = 0;
 	}
 
-	const Version& versionOfSender = getClient()->getServerVersion();
+	const Version& versionOfSender = cClient->getServerVersion();
 	bool gotVelocity = tState.bShoot || versionOfSender >= OLXBetaVersion(5);
 
 	// Update the position
