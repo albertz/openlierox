@@ -24,6 +24,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CsvReader.h"
+#include "Timer.h"
 
 #ifdef _MSC_VER  // MSVC 6 has problems with from_string<Uint32>
 typedef unsigned int Ip;
@@ -41,7 +42,7 @@ struct DBEntry {
 
 
 // key-value is ending-ip (RangeTo) of representing ip-range
-typedef std::map<Ip,DBEntry> DBData;
+typedef std::vector<DBEntry> DBData;
 
 
 /*
@@ -56,93 +57,62 @@ template<typename _handler>
 class CountryCsvReaderHandler {
 public:
 	_handler& handler;
-
-	bool finished_entry;
-	DBEntry entry;
+	size_t line;
 
 	CountryCsvReaderHandler(_handler& h)
-		: handler(h), finished_entry(false) {}
+		: handler(h), line(0) {}
 
-	bool operator()(int tindex, const std::string& token) {
-		switch(tindex) {
-		case 0:
-			entry.RangeFrom = from_string<Ip>(token);
-			return true;
+	void setHandler(_handler& h) { handler = h; }
 
-		case 1:
-			entry.RangeTo = from_string<Ip>(token);
-			return true;
-
-		case 2:
-			if (token == "IANA")
-				entry.Info.Continent = "Local Network";
-			else if (token == "ARIN")
-				entry.Info.Continent = "North America";
-			else if (token == "LACNIC")
-				entry.Info.Continent = "South America";
-			else if (token == "AFRINIC")
-				entry.Info.Continent = "Africa";
-			else if (token == "RIPE")
-				entry.Info.Continent = "Europe";
-			else if (token == "APNIC")
-				entry.Info.Continent = "Asia";
-			else
-				entry.Info.Continent = token;
-			return true;
-
-		case 3:
-		case 5:
-			// ignore
-			return true;
-
-		case 4:
-			entry.Info.CountryShortcut = token;
-			return true;
-
-		case 6:
-			entry.Info.Country = token;
-			ucfirst(entry.Info.Country);
-			// Small hack, Australia is considered as Asia by the database
-			if(entry.Info.Country == "Australia")
-				entry.Info.Continent = "Australia";
-
-			finished_entry = true;
-			return false;
-
-		default:
-			return false;
-		}
-	}
-
-	bool operator()() {
-		if(finished_entry) {
-			if(!handler(entry)) return false;
-			finished_entry = false;
+	bool operator()(const std::list<std::string>& entries) {
+		if (entries.size() < 7)  {
+			printf("IpToCountry loader warning: number of entries is less than 7, ignoring the line %i: \n", line);
+			if (entries.size())  {
+				printf("\"%s\"", entries.begin()->c_str());
+				std::list<std::string>::const_iterator it = entries.begin(); it++;
+				for (; it != entries.end(); it++)  {
+					printf(",\"%s\"", it->c_str());
+				}
+			}
+			printf("\n");
+			return true; // Not a critical error, just move on
 		}
 
-		return true;
-	}
+		line++;
 
+		DBEntry entry;
+		std::list<std::string>::const_iterator it = entries.begin();
+		entry.RangeFrom = from_string<Ip>(*it);
+		it++;
+		entry.RangeTo = from_string<Ip>(*it);
+		it++;
+		entry.Info.Continent = *it;
+		it++;
+		it++;
+		entry.Info.CountryShortcut = *it;
+		it++;
+		it++;
+		entry.Info.Country = *it;
+
+		return handler(entry);
+	}
 
 };
 
 
 using namespace std;
 
-template<typename _handler, typename _PosType>
+template<typename _handler>
 class DBEntryHandler {
 public:
 	_handler& handler;
 	bool& breakSignal;
 	ifstream* file;
-	_PosType& filePos;
-	DBEntryHandler(_handler& h, bool& b, ifstream* f, _PosType& fp)
-		: handler(h), breakSignal(b), file(f), filePos(fp) {}
+	DBEntryHandler(_handler& h, bool& b, ifstream* f)
+		: handler(h), breakSignal(b), file(f) {}
 
 	inline bool operator()(const DBEntry& entry) {
-		if(breakSignal) return false;
-		filePos = file->tellg();
-		return handler(entry);
+		return !breakSignal && handler(entry);
 	}
 };
 
@@ -152,7 +122,7 @@ public:
 	AddEntrysToDBData(DBData& d) : data(d) {}
 
 	bool operator()(const DBEntry& entry) {
-		data[entry.RangeTo] = entry;
+		data.push_back(entry);
 		return true;
 	}
 };
@@ -162,15 +132,15 @@ public:
 	std::string		filename;
 	DBData			data;
 	SDL_Thread*		loader;
-	size_t			fileSize;
-	TSVar<size_t>	filePos;
 	bool			dbReady; // false, if loaderThread is running
 	bool			loaderBreakSignal;
 
-	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false)
-	{
-		filePos = 0;
-	}
+	typedef DBEntryHandler<AddEntrysToDBData> DBEH;
+	typedef CountryCsvReaderHandler<DBEH> CCRH;
+	CsvReader<CCRH> csvReader;
+
+	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false)
+	{}
 
 	virtual ~IpToCountryData() {
 		breakLoaderThread();
@@ -225,24 +195,22 @@ public:
 			_this->dbReady = true;
 			return 0; // TODO: other return? who got this?
 		}
-		file->seekg(0, std::ios::end);
-		_this->fileSize = file->tellg();
-		file->seekg(0, std::ios::beg);
 
-		timer = (float)(SDL_GetTicks()/1000.0f);
+		timer = GetMilliSeconds();
+		_this->data.reserve(90000); // There are about 90 000 entries in the file, do this to avoid reallocations
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
 		AddEntrysToDBData adder(_this->data);
-		typedef DBEntryHandler<AddEntrysToDBData, TSVar<size_t> > DBEH;
-		DBEH dbEntryHandler(adder, _this->loaderBreakSignal, file, _this->filePos);
-		typedef CountryCsvReaderHandler<DBEH> CCRH;
+		DBEH dbEntryHandler(adder, _this->loaderBreakSignal, file);
 		CCRH csvReaderHandler(dbEntryHandler);
-		CsvReader<CCRH> csvReader(file, csvReaderHandler);
-		if(csvReader.read()) {
+		_this->csvReader.setStream(file);
+		_this->csvReader.setHandler(&csvReaderHandler);
+
+		if(_this->csvReader.read()) {
 			cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
 		} else {
 			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
 		}
-		cout << "IpToCountryDB: loadtime " << (float)((SDL_GetTicks()/1000.0f) / timer) << " seconds" << endl;
+		cout << "IpToCountryDB: loadtime " << (GetMilliSeconds() - timer) << " seconds" << endl;
 
 		file->close();
 		delete file;
@@ -260,23 +228,55 @@ public:
 		return 0;
 	}
 
-	const DBEntry* getEntry(Ip ip) {
+	const DBEntry getEntry(Ip ip) {
+		float start = GetMilliSeconds();
 		if(!dbReady) {
 			cout << "IpToCountryDB getEntry: " << filename << " is still loading ..." << endl;
-			while(!dbReady) { SDL_Delay(100); }
+			throw "The database is still loading...";
 		}
 
-		DBData::const_iterator it = data.lower_bound(ip);
-		if(it != data.end() && it->second.RangeFrom <= ip) // in range?
-			return &it->second;
-		else
-			return NULL;
+		// Find the correct entry
+		DBData::const_iterator it = data.begin();
+		for (; it != data.end(); it++)  {
+			if (it->RangeFrom <= ip && it->RangeTo >= ip)
+				break;
+		}
+
+		if(it != data.end())  { // in range?
+			DBEntry result = *it;
+
+			ucfirst(result.Info.Country);
+
+			// Small hack, Australia is considered as Asia by the database
+			if(result.Info.Country == "Australia")
+				result.Info.Continent = "Australia";
+
+			// Convert the IANA code to a continent
+			else if (result.Info.Continent == "IANA")
+				result.Info.Continent = "Local Network";
+			else if (result.Info.Continent == "ARIN")
+				result.Info.Continent = "North America";
+			else if (result.Info.Continent == "LACNIC")
+				result.Info.Continent = "South America";
+			else if (result.Info.Continent == "AFRINIC")
+				result.Info.Continent = "Africa";
+			else if (result.Info.Continent == "RIPE")
+				result.Info.Continent = "Europe";
+			else if (result.Info.Continent == "APNIC")
+				result.Info.Continent = "Asia";
+
+			printf("Getting the entry took %f\n", GetMilliSeconds() - start);
+
+			return result;
+
+		} else
+			throw "The IP was not found in the database";
 	}
 
 
 	inline int getProgress() {
-		if(fileSize == 0) return 100;
-		return (int)(((float)filePos / (float)fileSize) * 100.0f);
+		if(csvReader.bufLen == 0) return 100;
+		return (int)(((float)csvReader.bufPos / (float)csvReader.bufLen) * 100.0f);
 	}
 
 };
@@ -327,12 +327,13 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	// Convert the IP to the numeric representation
 	Ip ip = from_string<Ip>(ip_e[0]) * 16777216 + from_string<Ip>(ip_e[1]) * 65536 + from_string<Ip>(ip_e[2]) * 256 + from_string<Ip>(ip_e[3]);
 
-	const DBEntry* entry = IpToCountryDBData(this)->getEntry(ip);
-	if(entry == NULL) {
-		Result.Continent = "unknown continent";
-		Result.Country = "unknown country";
-	} else {
-		Result = entry->Info;
+	DBEntry entry;
+	try  {
+		entry = IpToCountryDBData(this)->getEntry(ip);
+		Result = entry.Info;
+	} catch (...)  {
+		Result.Continent = "Unknown continent";
+		Result.Country = "Unknown country";
 	}
 
 	return Result;

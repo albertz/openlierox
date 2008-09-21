@@ -40,6 +40,12 @@ public:
 		return *this;
 	}
 
+	StringBuf& operator=(const char *s)  {
+		sStr = s;
+		tPos = sStr.begin();
+		return *this;
+	}
+
 	char getC()		{ return tPos == sStr.end() ? 0 : *tPos; }
 	void setC(char c) { if (!atEnd()) *tPos = c; }
 	void incPos()	{ tPos++; }
