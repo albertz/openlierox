@@ -497,7 +497,7 @@ void ucfirst(std::string& text)
 	bool wasalpha = isalpha((uchar)text[0]) != 0;
 
 	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
-		if (isalpha(*it))  {
+		if (isalpha((uchar)*it))  {
 			if (wasalpha)
 				*it = tolower((uchar)*it);
 			else

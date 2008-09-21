@@ -152,7 +152,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../include,blast,../../libs/hawknl/src/"
+				AdditionalIncludeDirectories="../../include;blast;../../libs/hawknl/src/;../../libs/libzip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -165,6 +165,7 @@
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4204"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1986,6 +1987,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\server\CServerConnection.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\CShootList.cpp"
 				>
 				<FileConfiguration
@@ -2388,6 +2393,18 @@
 			<File
 				RelativePath="..\..\include\InputEvents.h"
 				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\iptocountry_new.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\Physics.cpp"
@@ -3913,6 +3930,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\msvc\libs\libzip.lib"
+				>
+			</File>
+			<File
 				RelativePath="..\msvc\libs\lua5.1.lib"
 				>
 			</File>
@@ -3938,6 +3959,10 @@
 			</File>
 			<File
 				RelativePath="..\msvc\libs\SDLmain.lib"
+				>
+			</File>
+			<File
+				RelativePath="..\msvc\libs\zlib.lib"
 				>
 			</File>
 			<File
