@@ -141,9 +141,9 @@ public:
 	bool read() {
 
 		// Get length of file:
-		stream->seekg(0, ios::end);
+		stream->seekg(0, std::ios::end);
 		bufLen = stream->tellg();
-		stream->seekg(0, ios::beg);
+		stream->seekg(0, std::ios::beg);
 
 		// Allocate memory
 		buffer = new char[bufLen];

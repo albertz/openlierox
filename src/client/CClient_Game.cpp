@@ -745,14 +745,7 @@ void CClient::DestroyBonus(int id, bool local, int wormid)
 
 	// Tell the server the bonus is gone if we grabbed it
 	if(local) {
-		// TODO: move this out here
-		CBytestream bs;
-		bs.writeByte(C2S_GRABBONUS);
-		bs.writeByte(id);
-		bs.writeByte(wormid);
-		bs.writeByte(cRemoteWorms[wormid].getCurrentWeapon());
-
-		cNetChan->AddReliablePacketToSend(bs);
+		cNetEngine->SendGrabBonus(id, wormid);
 	}
 }
 

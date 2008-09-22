@@ -732,12 +732,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			case jl_Ready:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Let the server know that my worms are now ready
-					CBytestream bs;
-					bs.Clear();
-					bs.writeByte(C2S_UPDATELOBBY);
-					bs.writeByte(1);
-					cClient->getChannel()->AddReliablePacketToSend(bs);
-
+					cClient->getNetEngine()->SendUpdateLobby();
 
 					// Hide the ready button
 					CButton *btn = (CButton *)cJoinLobby.getWidget(jl_Ready);
@@ -797,10 +792,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 							cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
 						{
 							cClient->getUdpFileDownloader()->abortDownload();
-							CBytestream bs;
-							bs.writeByte(C2S_SENDFILE);
-							cClient->getUdpFileDownloader()->send(&bs);
-							cClient->getChannel()->AddReliablePacketToSend(bs);
+							cClient->getNetEngine()->SendFileData();
 							cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
 						}
 					}

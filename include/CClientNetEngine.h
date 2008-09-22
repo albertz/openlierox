@@ -40,6 +40,10 @@ public:
 	virtual void		SendDeath(int victim, int killer);
 	virtual void		SendText(const std::string& sText, std::string sWormName);
 	virtual void		SendWormDetails(void);
+	virtual void		SendGrabBonus(int id, int wormid);
+	virtual void		SendUpdateLobby(bool ready = true);
+	virtual void		SendDisconnect();
+	virtual void		SendFileData();
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif

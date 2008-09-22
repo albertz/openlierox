@@ -278,3 +278,42 @@ void CClientNetEngine::SendRandomPacket()
 }
 #endif
 
+void CClientNetEngine::SendGrabBonus(int id, int wormid)
+{
+	CBytestream bs;
+	bs.writeByte(C2S_GRABBONUS);
+	bs.writeByte(id);
+	bs.writeByte(wormid);
+	bs.writeByte(client->cRemoteWorms[wormid].getCurrentWeapon());
+
+	client->cNetChan->AddReliablePacketToSend(bs);
+};
+
+void CClientNetEngine::SendUpdateLobby(bool ready)
+{
+	CBytestream bs;
+	bs.writeByte(C2S_UPDATELOBBY);
+	bs.writeByte(1);
+	client->getChannel()->AddReliablePacketToSend(bs);
+};
+
+void CClientNetEngine::SendDisconnect()
+{
+	CBytestream bs;
+
+	bs.writeByte(C2S_DISCONNECT);
+
+	// Send the pack a few times to make sure the server gets the packet
+	if( client->cNetChan != NULL)
+		for(int i=0;i<3;i++)
+			client->cNetChan->Transmit(&bs);
+};
+
+void CClientNetEngine::SendFileData()
+{
+	CBytestream bs;
+	bs.writeByte(C2S_SENDFILE);
+	client->getUdpFileDownloader()->send(&bs);
+	client->getChannel()->AddReliablePacketToSend(bs);
+};
+

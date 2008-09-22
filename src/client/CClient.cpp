@@ -469,14 +469,11 @@ void CClient::AbortDownloads()
 	if (getUdpFileDownloader()->getFilesPendingAmount() > 0 || getUdpFileDownloader()->isReceiving())  {
 		getUdpFileDownloader()->abortDownload();
 
-		CBytestream bs;
-		bs.writeByte(C2S_SENDFILE);
-		getUdpFileDownloader()->send(&bs);
-		getChannel()->AddReliablePacketToSend(bs);
+		cNetEngine->SendFileData();
 	}
 
-	// TODO: why is this needed?
-	setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+	// Disable file download for current session, if server sent ABORT do not try to re-download
+	setLastFileRequest( tLX->fCurTime + 10000.0f ); 
 
 	InitializeDownloads();
 }
@@ -636,10 +633,8 @@ void CClient::ProcessUdpUploads()
 	// Server requested some file (CRC check on our map) or we're sending file request
 	if( getUdpFileDownloader()->isSending() ) 
 	{
-		CBytestream bs;
-		bs.writeByte(C2S_SENDFILE);
-		getUdpFileDownloader()->send(&bs);
-		cNetChan->AddReliablePacketToSend(bs);
+		cNetEngine->SendFileData();
+		
 		fLastFileRequestPacketReceived = tLX->fCurTime;
 		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
 		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
@@ -1323,14 +1318,7 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect(void)
 {
-	CBytestream bs;
-
-	bs.writeByte(C2S_DISCONNECT);
-
-	// Send the pack a few times to make sure the server gets the packet
-	if( cNetChan != NULL)
-		for(int i=0;i<3;i++)
-			cNetChan->Transmit(&bs);
+	cNetEngine->SendDisconnect();
 
 	iNetStatus = NET_DISCONNECTED;
 
@@ -1611,16 +1599,7 @@ void CClient::BotSelectWeapons(void)
 		// If we're ready, let the server know
 		if(!bReadySent) {
 			bReadySent = true;
-			// TODO: move this out here
-			CBytestream bytes;
-			bytes.writeByte(C2S_IMREADY);
-			bytes.writeByte(iNumWorms);
-
-			// Send my worm's weapon details
-			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons(&bytes);
-
-			cNetChan->AddReliablePacketToSend(bytes);
+			cNetEngine->SendGameReady();
 		}
 	}
 }
