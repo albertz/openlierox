@@ -275,8 +275,9 @@ public:
 
 
 	inline int getProgress() {
-		if(csvReader.bufLen == 0) return 100;
-		return (int)(((float)csvReader.bufPos / (float)csvReader.bufLen) * 100.0f);
+		/*if(csvReader.bufLen == 0) return 100;
+		return (int)(((float)csvReader.bufPos / (float)csvReader.bufLen) * 100.0f);*/
+		return 0;
 	}
 
 };

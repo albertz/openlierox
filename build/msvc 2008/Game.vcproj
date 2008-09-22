@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;../../libs/hawknl/src"
+				AdditionalIncludeDirectories="../../include;../../libs/hawknl/src;../../libs/libzip/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER,DEBUG,_AI_DEBUG"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -3962,11 +3962,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\msvc\libs\zlib.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\zlibstat.lib"
+				RelativePath="..\msvc\libs\zlibstat_msvc2005.lib"
 				>
 			</File>
 		</Filter>
