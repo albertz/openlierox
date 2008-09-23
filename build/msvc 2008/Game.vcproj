@@ -2395,18 +2395,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\common\iptocountry_new.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\src\common\Physics.cpp"
 				>
 			</File>

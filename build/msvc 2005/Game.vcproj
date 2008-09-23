@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 	RootNamespace="OpenLieroX"
@@ -123,6 +123,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -180,7 +181,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
-				OutputFile="../../distrib/win32/OpenLieroX.exe"
+				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC"
@@ -1981,6 +1982,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\server\CServerConnection.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CShootList.cpp"

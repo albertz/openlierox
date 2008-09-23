@@ -470,7 +470,7 @@ void Cmd_Crash(void)
 	//		I got an access violation. Perhaps the hoster of an important
 	//		clan war does it...)
 	// IMPORTANT TODO: remove this before Beta6 release! (it's for testing the new CrashHandler)
-	(*(int*)0x13) = 42;
+	//(*(int*)0x13) = 42;
 }
 
 ///////////////////
