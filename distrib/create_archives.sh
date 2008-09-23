@@ -1,12 +1,33 @@
 #!/bin/bash
 
-[ "$VERSION" == "" ] && VERSION=0.57_cur$(date +%Y%m%d) && ISCURRELEASE=1
+function usage() {
+	echo "$0 [--win32zip] [--srctarbz] [--all]"
+	exit
+}
+
+ENABLE_WIN32ZIP=0
+ENABLE_SRCTARBZ=0
+
+for arg in $*; do
+	case $arg in
+		--help) usage;;
+		--win32zip) ENABLE_WIN32ZIP=1;;
+		--srctarbz) ENABLE_SRCTARBZ=1;;
+		--all) ENABLE_WIN32ZIP=1; ENABLE_SRCTARBZ=1;;
+		*) usage;;
+	esac
+done
+
+if [ $ENABLE_WIN32ZIP == 0 ] && [ $ENABLE_SRCTARBZ == 0 ]; then
+	echo "you have to enable at least one target"
+	usage
+fi
+
+VERSION="$(cat ../VERSION)"
 echo ">>> preparing $VERSION archives ..."
 
 cd ..
-echo $VERSION > VERSION
-
-SRC_FILES="src include hawknl pstreams boost_process"
+SRC_FILES="src include libs"
 STD_FILES="VERSION CMakeLists.txt *.sh *.bat build/Xcode debian"
 DOC_FILES="COPYING.LIB DEPS doc"
 DAT_FILES="share"
@@ -18,16 +39,13 @@ export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
 export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 
-if [ "$ISCURRELEASE" == "1" ]; then
-	echo ">>> deleting previous archives ..."
-	rm distrib/tarball/OpenLieroX_0.57_cur*
-fi
-
 # cleaning up
 rm -rf distrib/OpenLieroX 2>/dev/null
 rm ${SRC_PREFIX}.tar* 2>/dev/null
 rm ${WIN32_PREFIX}.zip 2>/dev/null
+mkdir -p distrib/tarball
 
+if [ $ENABLE_SRCTARBZ == 1 ]; then
 echo ">>> creating source tar.bz ..."
 ln -s .. distrib/OpenLieroX
 for FILE in $SRC_RELEASE; do
@@ -40,6 +58,7 @@ for FILE in $SRC_RELEASE; do
 done
 rm distrib/OpenLieroX
 bzip2 -9 ${SRC_PREFIX}.tar
+fi
 
 # echo ">>> creating source zip ..."
 # [ -d distrib/srctmp ] && rm -rf distrib/srctmp
@@ -50,6 +69,7 @@ bzip2 -9 ${SRC_PREFIX}.tar
 # cd ../..
 # rm -rf distrib/srctmp
 
+if [ $ENABLE_WIN32ZIP == 1 ]; then
 echo ">>> creating win32 zip ..."
 cd distrib
 [ -d OpenLieroX ] && rm -rf OpenLieroX
@@ -65,5 +85,4 @@ cd ..
 zip -r -9 ../${WIN32_PREFIX}.zip OpenLieroX >/dev/null
 rm -rf OpenLieroX
 # we are now in distrib again
-
-[ "$ISCURRELEASE" == "1" ] && echo $VERSION > web/VERSION
+fi
