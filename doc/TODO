@@ -13,11 +13,6 @@ TODO
 [ ] bot avoid projectiles (!)
 [ ] bot: improve shooting
 [ ] fill documentation (README) (!)
-[ ] Fix segfaults
-	[X] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels) (!)
-      TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
-	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
-	[?] others (!!)
 [X] CChannel calculates wrong pings (too high) (!)
 [ ] remove *_WidgetRegistered hacks
 [ ] build own crashreporter based on Breakpad for backtrace generation which fills bugreports at SF
