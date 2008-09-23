@@ -943,6 +943,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 	}
 
 
+	// calculate the target position of the projectile of the shoot
 	CVec dir;
 	GetAngles(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos + dir*8;

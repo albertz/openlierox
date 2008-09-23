@@ -75,6 +75,7 @@ shoot_t *CShootList::getShot( int index )
 
 ///////////////////
 // Add a shot to the list
+// (done on server-side from GameServer::WormShoot)
 bool CShootList::addShoot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm )
 {
 	assert( pcWorm );
@@ -143,7 +144,7 @@ bool CShootList::writePacket( CBytestream *bs )
 void CShootList::writeSingle( CBytestream *bs, int index )
 {
 	byte	flags = 0;
-	shoot_t *psShot = &m_psShoot[index];	
+	shoot_t *psShot = &m_psShoot[index];
 
 	// Set the flags
 	if( psShot->nAngle > 255 )
@@ -158,7 +159,7 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	short y = (short)psShot->cPos.y;
 	short vx = (short)psShot->cWormVel.x;
 	short vy = (short)psShot->cWormVel.y;
-	
+
 	// Write the packet
 	bs->writeByte( S2C_SINGLESHOOT );
 	bs->writeByte( flags );
@@ -169,12 +170,12 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	bs->writeInt16( vx );
 	bs->writeInt16( vy );
 	bs->writeByte( psShot->nRandom );
-	
+
 	if( flags & SMF_LARGEANGLE )
 		bs->writeByte( psShot->nAngle-255 );
 	else
 		bs->writeByte( psShot->nAngle );
-	
+
 	if( flags & SMF_LARGESPEED )
 		bs->writeByte( psShot->nSpeed-255 );
 	else if( flags & SMF_NEGSPEED ) {
@@ -191,7 +192,7 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 ///////////////////
 // A multiple shot packet
 void CShootList::writeMulti( CBytestream *bs, int index )
-{	
+{
 	// If index is over the limit, exit
 	if( index >= m_nNumShootings )
 		return;
@@ -237,10 +238,10 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 		return;
 	}
 
-	
+
 	// Write out the header
 	byte	flags = 0;
-	shoot_t *psShot = &m_psShoot[index];	
+	shoot_t *psShot = &m_psShoot[index];
 
 	// Set the flags
 	if( psShot->nAngle > 255 )
@@ -267,14 +268,14 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	bs->writeInt16( vx );
 	bs->writeInt16( vy );
 	bs->writeByte( psShot->nRandom );
-	
+
 	if( flags & SMF_LARGEANGLE )
 		bs->writeByte( psShot->nAngle-255 );
 	else
 		bs->writeByte( psShot->nAngle );
 
 	int speed = psShot->nSpeed;
-	
+
 	if( flags & SMF_LARGESPEED )
 		speed = psShot->nSpeed-255;
 	if( flags & SMF_NEGSPEED ) {
@@ -306,7 +307,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 
 	shoot_t	*psShot = &m_psShoot[index];
 
-	
+
 	int xoff = (int)( psShot->cPos.x - psFirst->cPos.x );
 	int yoff = (int)( psShot->cPos.x - psFirst->cPos.x );
 	xoff = abs(xoff);
@@ -375,7 +376,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 		bs->writeByte( extraflags );
 	if( flags & SHF_TIMEOFF )
 		bs->writeByte( (int)( (psShot->fTime - psFirst->fTime) * 1000.0f) );
-	
+
 	// X offset
 	if( flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF ) {
 		if( extraflags & SHF_LARGEXOFF )
@@ -401,7 +402,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 		bs->writeByte( psFirst->nAngle - psShot->nAngle );
 	if( extraflags & SHF_NG_SPEEDOFF )
 		bs->writeByte( psFirst->nSpeed - psShot->nSpeed );
-	
+
 	// Worm velocity
 	if( extraflags & SHF_XWRMVEL )
 		bs->writeByte( (int)psShot->cWormVel.x - (int)psFirst->cWormVel.x );
@@ -421,7 +422,7 @@ void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 {
 	// Clear the list
 	Clear();
-	
+
 	byte	flags = 0;
 	short	vx, vy;
 	short x, y;
@@ -433,7 +434,7 @@ void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS - 1); // Used for indexing
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = CLAMP((int)bs->readByte(), 0, max_weapon_id); // Used for indexing
-	bs->read2Int12( x, y );	
+	bs->read2Int12( x, y );
 	vx = bs->readInt16();
 	vy = bs->readInt16();
 	psShot->nRandom = bs->readByte();
@@ -441,7 +442,7 @@ void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 	psShot->nAngle = bs->readByte();
 	int speed = bs->readByte();
 	psShot->nSpeed = speed;
-	
+
 	if( flags & SMF_LARGEANGLE )
 		psShot->nAngle += 255;
 
@@ -458,7 +459,7 @@ void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 	// Convert the pos
 	psShot->cPos = CVec( (float)x, (float)y );
 
-	// Convert the velocity	
+	// Convert the velocity
 	psShot->cWormVel = CVec( (float)vx, (float)vy );
 
 	m_nNumShootings++;
@@ -478,7 +479,7 @@ void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
 	int		i;
 	int		num = 0;
 	shoot_t *psShot = m_psShoot;
-	
+
 	flags = bs->readByte();
 	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS - 1); // Used for indexing
 	psShot->fTime = bs->readFloat();
@@ -492,7 +493,7 @@ void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
 	psShot->nAngle = bs->readByte();
 	int speed = bs->readByte();
 	psShot->nSpeed = speed;
-	
+
 	if( flags & SMF_LARGEANGLE )
 		psShot->nAngle += 255;
 
@@ -503,7 +504,7 @@ void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
 			psShot->nSpeed = -(speed+255);
 		else
 			psShot->nSpeed = -speed;
-	}	
+	}
 
 	// Convert the pos
 	psShot->cPos = CVec( (float)x, (float)y );
@@ -571,7 +572,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	if( flags & SHF_NG_YPOSOFF )
 		y = -y;
 
-	
+
 	if( flags & SHF_ANGLEOFF ) {
 		int angle = bs->readByte();
 		psShot->nAngle += angle;
@@ -624,15 +625,15 @@ bool CShootList::skipSmallShot(CBytestream *bs)
 	if (flags & SHF_TIMEOFF)
 		bs->Skip(1);
 
-	if( flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF ) 
+	if( flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF )
 		if( extraflags & SHF_LARGEXOFF )
 			bs->Skip(1);
 
-	if( flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF ) 
+	if( flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF )
 		if( extraflags & SHF_LARGEYOFF )
 			bs->Skip(1);
 
-	if( (flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF) && (flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF) ) 
+	if( (flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF) && (flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF) )
 		if( !(extraflags & SHF_LARGEXOFF) && !(extraflags & SHF_LARGEYOFF) )
 			bs->Skip(1);
 
