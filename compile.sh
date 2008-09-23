@@ -106,7 +106,7 @@ else
 fi
 
 if [ "$LIBZIP_BUILTIN" == "1" ]; then
-	LIBZIP_GCC_PARAM="libs/libzip/*.c"
+	LIBZIP_GCC_PARAM="libs/libzip/*.c -I libs/libzip"
 else
 	test_include_file zip.h || \
 		{	echo "ERROR: libzip header not found" >&2;
@@ -155,14 +155,14 @@ if $COMPILER \
 	src/common/*.cpp src/server/*.cpp \
 	$LIBZIP_GCC_PARAM \
 	$HAWKNL_GCC_PARAM \
-	-I include -I libs/pstreams -I libs/libzip \
+	-I include -I libs/pstreams \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
 	$(build_param_str -L "$LIB_PATH") \
 	$($sdlconfig --cflags) \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lzzip\
+	-lSDL_image -lSDL_mixer -lgd -pthread -lz \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
