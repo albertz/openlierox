@@ -45,6 +45,8 @@ struct DBEntry {
 typedef std::vector<DBEntry> DBData;
 
 
+// TODO: remove all printf usage here
+
 /*
 	_handler has to be a functor, which is compatible to:
 
@@ -65,8 +67,9 @@ public:
 	void setHandler(_handler& h) { handler = h; }
 
 	bool operator()(const std::list<std::string>& entries) {
+		using namespace std;
 		if (entries.size() < 7)  {
-			printf("IpToCountry loader warning: number of entries is less than 7, ignoring the line %i: \n", line);
+			cout << "IpToCountry loader warning: number of entries is less than 7, ignoring the line " << line << endl;
 			if (entries.size())  {
 				printf("\"%s\"", entries.begin()->c_str());
 				std::list<std::string>::const_iterator it = entries.begin(); it++;
