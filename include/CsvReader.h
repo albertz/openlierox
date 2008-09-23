@@ -106,22 +106,6 @@ public:
 	void setHandler(_handler* h)  { handler = h; }
 	
 private:
-	// Returns true if we should skip the line
-	/*inline bool lineStart()
-	{
-		if (bufPos == bufLen)
-			return true;
-
-		// Check for a comment/blank line
-		if (buffer[bufPos] == '#')  {
-			while (bufPos != bufLen && buffer[bufPos] != '\n')
-				++bufPos;
-			return true;
-		}
-
-		return false;
-	}*/
-
 	bool endEntry(std::list<std::string>& entries)  {
 		bool res = (*handler)(entries);
 		entries.clear();

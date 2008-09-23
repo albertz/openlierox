@@ -28,7 +28,7 @@ echo ">>> preparing $VERSION archives ..."
 
 cd ..
 SRC_FILES="src include libs"
-STD_FILES="VERSION CMakeLists.txt *.sh *.bat build/Xcode debian"
+STD_FILES="VERSION CMakeLists.txt *.sh *.bat build/Xcode/OpenLieroX-Info.plist build/Xcode/OpenLieroX.xcodeproj debian"
 DOC_FILES="COPYING.LIB DEPS doc"
 DAT_FILES="share"
 
