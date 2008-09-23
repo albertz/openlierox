@@ -15,10 +15,12 @@
 #					  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
 #					( disabled by default )
+#	LIBZIP_BUILTIN	- if set to 1, libzip will be builtin
+#					( disabled by default )
 #	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
-#                                       ( activated by default )
+#					( activated by default )
 #
-#	G15		- if set to 1, G15 support will be builtin (and linked against required libraries)
+#	G15				- if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( disabled by default )
 #	VERSION			- version number; like 0.57_beta2
 #					  if not set, the function functions.sh:get_olx_version

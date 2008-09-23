@@ -67,7 +67,7 @@ void CSlider::DoRepaint()
 
 	// Draw the button
 	if (bmpButton.get().get())  {
-		int x = button_w / 2;
+		//int x = button_w / 2; // TODO: unused
 		int w = getWidth() - button_w;
 		int val = (int)( ((float)w/(float)iMax) * (float)iValue );
 

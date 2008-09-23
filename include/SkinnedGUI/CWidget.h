@@ -42,9 +42,6 @@ typedef void(CWidget::*MouseMoveHandler)(CWidget *sender, int x, int y, int dx, 
 // TODO: why do we need this? why not just use it directly? this should not be changed anyway in the class
 #define CLEAR_EVENT(name) m_##name.clear()
 
-//#define EVENT_SETGET(name, handler) virtual void set##name(const Delegate<handler>& _h)  { name = _h; } \
-//									Delegate<handler>& get##name() { return name; }
-
 #define EVENT_SETGET(name, handler)	Delegate<handler>& name() { return m_##name; }
 #define CALL_EVENT(name, params) { if (m_##name.isSet()) ((m_##name.object)->*(m_##name.handler)) params; }
 #define SET_EVENT(widget, name, handler, func) { (widget)->name() = Delegate<handler>(this, (handler)(func)); }
@@ -209,7 +206,7 @@ protected:
 	bool	bDestroying; // After calling DoDestroy from the parent, there can be some close effects in progress
 	bool	bDestroyed; // True if all effects are processed and the widget can be destroyed
 	bool	bCreated;  // After all info is loaded from the skin files
-	
+
 	bool	bNeedsRepaint; // True if the parent should call DoRepaint on us
 
 	// Handy variables
