@@ -1,3 +1,28 @@
+0.57_beta6
+==========
+- fixed crashing in DBZ mod
+- improved connecting to servers behind firewall/NAT
+- reduced the loading time of IP to Country database a bit
+- added support for G15 keyboards
+- improved downloading, added mod downloading
+- fixed a security bug in the authorise command
+- added video post processors that change the final appearance of the screen
+- updated joystick control
+- recovered compatibility with Windows 98/ME
+- faster projectile simulation
+- fixed spawning in rock in random maps
+- fixed duplicate joining
+- fixed weird game behavior when kicking bot
+- fixed crashes in the viewport manager dialog
+- added map anti-aliasing
+- fixed crashes in the News tab
+- improved crash reporting tool
+- fixed bots not shooting with beam weapons
+- fixes in physics (wallshooting, self-shooting, flying at the top of the level)
+- server displays only one message on multiple suicides
+- optionally attach a console window using -console under Windows
+
+
 0.57_beta5
 ==========
 - fast and easy theme switching
