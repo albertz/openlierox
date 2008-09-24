@@ -1145,7 +1145,7 @@ void CClient::InitializeGameMenu()
 	cGameMenuLayout.Shutdown();
 	bUpdateScore = true;
 
-	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 400, 360, 80, 20);
+	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 300, 360, 80, 20);
 
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		if (bGameOver)
@@ -1303,6 +1303,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 		case gm_Options:
 			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+				DeprecatedGUI::Menu_FloatingOptionsInitialize();
 				bShowFloatingOptions = true;
 			}
 		break;

@@ -265,12 +265,11 @@ bool Menu_FloatingOptionsInitialize(void)
 	// System
 	cFloatingOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
-	/*
-	cFloatingOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
+	
+	//cFloatingOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
-	cFloatingOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
-	*/
+	//cFloatingOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
+	//cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
