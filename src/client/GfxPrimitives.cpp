@@ -1510,7 +1510,7 @@ void DrawImageScale2x(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy,
 			colors[F] = getter.get(px + sbpp);
 			colors[H] = getter.get(px + bmpSrc->pitch);
 
-			Scale2xPixel(bmpDest, bmpSrc, dx + x * 2 + 2, dy + y2, colors, putter);
+			Scale2xPixel(bmpDest, bmpSrc, dx + x * 2, dy + y2, colors, putter);
 		}
 	}
 
