@@ -485,6 +485,7 @@ void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown(void);
 std::string	Menu_Net_HostLobbyGetText(void);
+void Menu_Net_HostLobbySetText(const std::string& str);
 void	Menu_HostDrawLobby(SDL_Surface * bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
@@ -530,7 +531,8 @@ bool	Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
-std::string	Menu_Net_JoinLobbyGetText(void);
+std::string	Menu_Net_JoinLobbyGetText();
+void	Menu_Net_JoinLobbySetText(const std::string& str);
 void	Menu_Net_JoinLobbyFrame(int mouse);
 void	Menu_Net_JoinLobbyShutdown(void);
 

@@ -688,6 +688,13 @@ std::string Menu_Net_HostLobbyGetText(void)
 	}
 }
 
+
+void Menu_Net_HostLobbySetText(const std::string& str) {
+	cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, str, 0);
+}
+
+
+
 ///////////////////
 // Go straight to the lobby, without clearing the server & client
 // TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
@@ -933,6 +940,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Send
 					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
 				}
+				else if(ev->iEventMsg == TXT_TAB) {
+					if(strSeemsLikeChatCommand(Menu_Net_HostLobbyGetText())) {
+						cClient->getNetEngine()->SendChatCommandCompletionRequest(Menu_Net_HostLobbyGetText().substr(1));
+						return;
+					}
+				}
+
 				break;
 
 			// Level change

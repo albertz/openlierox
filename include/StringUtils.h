@@ -149,6 +149,9 @@ std::string		Base64Encode(const std::string &data);
 std::string		UrlEncode(const std::string &data); // Substitute space with + and all non-alphanum symbols with %XX
 
 
+bool			strSeemsLikeChatCommand(const std::string& str);
+
+
 ////////////////////
 // Read a fixed-length C-string from a file
 inline std::string freadfixedcstr(FILE *fp, size_t maxlen) {

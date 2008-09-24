@@ -21,6 +21,8 @@
 #include "InputEvents.h"
 #include "Cursor.h"
 #include "Timer.h"
+#include "Event.h"
+
 
 namespace DeprecatedGUI {
 
@@ -29,7 +31,8 @@ enum {
 	TXT_NONE=-1,
 	TXT_CHANGE=0,
 	TXT_MOUSEOVER,
-	TXT_ENTER
+	TXT_ENTER,
+	TXT_TAB
 };
 
 
@@ -121,6 +124,7 @@ private:
 	float		*fVar;
 	std::string	*sVar;
 	CGuiSkin::CallbackHandler cClick;
+
 
 public:
 	// Methods

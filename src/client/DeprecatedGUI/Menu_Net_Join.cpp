@@ -415,7 +415,7 @@ void Menu_Net_JoinGotoLobby(void)
 	}
 
 	// Add the ingame chatter text to lobby chatter
-	cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, cClient->chatterText(), 0);
+	Menu_Net_JoinLobbySetText(cClient->chatterText());
 
     iJoinSpeaking = 0; // The first player is always speaking
 	tMenu->sSavedChatText = "";
@@ -423,7 +423,7 @@ void Menu_Net_JoinGotoLobby(void)
 
 //////////////////////
 // Get the content of the chatbox
-std::string Menu_Net_JoinLobbyGetText(void)
+std::string Menu_Net_JoinLobbyGetText()
 {
 	if (tMenu->bMenuRunning)  {
 		std::string buf;
@@ -432,6 +432,10 @@ std::string Menu_Net_JoinLobbyGetText(void)
 	} else {
 		return tMenu->sSavedChatText;
 	}
+}
+
+void Menu_Net_JoinLobbySetText(const std::string& str) {
+	cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, str, 0);
 }
 
 
@@ -715,7 +719,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 	// Process any events
 	if(ev) {
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -777,6 +780,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Send
 					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
+				} else
+				if(ev->iEventMsg == TXT_TAB) {
+					if(strSeemsLikeChatCommand(Menu_Net_JoinLobbyGetText())) {
+						cClient->getNetEngine()->SendChatCommandCompletionRequest(Menu_Net_JoinLobbyGetText().substr(1));
+						return;
+					}
 				}
 				break;
 

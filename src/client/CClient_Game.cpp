@@ -1248,19 +1248,9 @@ void CClient::processChatter(void)
 
 
 
-static bool strSeemsLikeCommand(const std::string& str) {
-	if(str.size() == 0) return false;
-	if(str[0] == '/') {
-		if(str.size() == 1) return true;
-		if(str[1] == '/') return false;
-		return true;
-	}
-	return false;
-}
-
 
 std::string CClient::getChatterCommand() {
-	if(strSeemsLikeCommand(sChat_Text))
+	if(strSeemsLikeChatCommand(sChat_Text))
 		return sChat_Text.substr(1);
 	else
 		return "";
@@ -1376,7 +1366,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
 	// Tab key
 	if(input.ch == SDLK_TAB) {
-		if(strSeemsLikeCommand(sChat_Text)) {
+		if(strSeemsLikeChatCommand(sChat_Text)) {
 			cNetEngine->SendChatCommandCompletionRequest(getChatterCommand());
 			return;
 		}

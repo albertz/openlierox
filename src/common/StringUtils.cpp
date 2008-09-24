@@ -919,3 +919,16 @@ std::string UrlEncode(const std::string &data)
 	};
 	return ret;
 }; 
+
+
+
+
+bool strSeemsLikeChatCommand(const std::string& str) {
+	if(str.size() == 0) return false;
+	if(str[0] == '/') {
+		if(str.size() == 1) return true;
+		if(str[1] == '/') return false;
+		return true;
+	}
+	return false;
+}

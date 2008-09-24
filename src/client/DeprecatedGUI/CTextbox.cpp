@@ -17,7 +17,7 @@
 	HINT: all string-positions used in this code are interpreted as the position if it were an Utf8 encoded string (and of course also the Draw-functions handle it like this)
 */
 
-
+#include <iostream>
 #include <string>
 
 #include "Clipboard.h"
@@ -27,6 +27,8 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "DeprecatedGUI/CTextbox.h"
+
+using namespace std;
 
 
 namespace DeprecatedGUI {
@@ -324,6 +326,10 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		return TXT_ENTER;
 	}
 
+	if(c == SDLK_TAB) {
+		return TXT_TAB;
+	}
+
     // Ctrl-v or Super-v (paste)
     if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_v) {
         PasteText();
@@ -350,7 +356,6 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	} else {  // Alt not pressed
 		sAltKey = "";
 	}
-
 
 	// No visible character
 	if (c == 0)

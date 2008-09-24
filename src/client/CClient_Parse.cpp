@@ -36,6 +36,8 @@
 #include "Physics.h"
 #include "AuxLib.h"
 
+
+
 using namespace std;
 
 #ifdef _MSC_VER
@@ -974,8 +976,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 		case TXT_TEAMPM:	col = tLX->clTeamColors[t];	break;
 	}
 
-	static std::string buf;
-	buf = bs->readString();
+	std::string buf = bs->readString();
 
 	// If we are playing a local game, discard network messages
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -1030,9 +1031,29 @@ void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	std::string startStr = bs->readString();
 	std::string solution = bs->readString();
 	
-	if(stringcaseequal(startStr, client->getChatterCommand())) {
-		client->chatterText() = "/" + solution;
-		client->setChatPos( 1 + Utf8StringSize(solution) );
+	std::string chatCmd;
+	
+	if(client->iNetStatus == NET_PLAYING)
+		chatCmd = client->chatterText();
+	else if(tGameInfo.iGameType == GME_HOST)
+		chatCmd = DeprecatedGUI::Menu_Net_HostLobbyGetText();
+	else if(tGameInfo.iGameType == GME_JOIN)
+		chatCmd = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+	
+	if(strSeemsLikeChatCommand(chatCmd))
+		chatCmd = chatCmd.substr(1);
+	else
+		chatCmd = "";
+	
+	if(stringcaseequal(startStr, chatCmd)) {
+		if(client->iNetStatus == NET_PLAYING) {
+			client->chatterText() = "/" + solution;
+			client->setChatPos( 1 + Utf8StringSize(solution) );
+		} else if(tGameInfo.iGameType == GME_HOST) {
+			DeprecatedGUI::Menu_Net_HostLobbySetText( "/" + solution );
+		} else if(tGameInfo.iGameType == GME_JOIN) {
+			DeprecatedGUI::Menu_Net_JoinLobbySetText( "/" + solution );		
+		}
 	}
 }
 
