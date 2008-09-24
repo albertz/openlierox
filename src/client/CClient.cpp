@@ -1698,6 +1698,10 @@ void CClient::Shutdown(void)
 	// Shutdown logging
 	ShutdownLog();
 
+	// If the game options are running, shut them down as well
+	if (DeprecatedGUI::bShowFloatingOptions)
+		DeprecatedGUI::Menu_FloatingOptionsShutdown();
+
 	// Log this
 	if (tLXOptions->bLogConvos)  {
 		FILE *f;

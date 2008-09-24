@@ -1734,6 +1734,8 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	// Hide the console
 	Con_Hide();
 
+	DeprecatedGUI::Menu_FloatingOptionsShutdown();
+
 
 	if(tGameInfo.iGameType == GME_JOIN) {
 
