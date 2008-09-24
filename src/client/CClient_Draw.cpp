@@ -658,11 +658,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 	#endif*/
 
-		if (DeprecatedGUI::bShowFloatingOptions)  {
-			DeprecatedGUI::Menu_FloatingOptionsFrame();
-			return; // No other dialogs should be shown
-		}
-
 		// Game over
 		// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 		static bool was_gameovermenu = false;
@@ -705,6 +700,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Game menu
 		if(bGameMenu)
 			DrawGameMenu(bmpDest);
+
+		// Options dialog
+		if (DeprecatedGUI::bShowFloatingOptions)  {
+			DeprecatedGUI::Menu_FloatingOptionsFrame();
+		}
 
 		// Chatter
 		if(bChat_Typing)  {

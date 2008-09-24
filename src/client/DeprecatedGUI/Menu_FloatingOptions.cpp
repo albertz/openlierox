@@ -65,17 +65,10 @@ enum {
 
 enum {
 	os_Fullscreen,
-	//os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
-	//os_NetworkPort,
 	os_NetworkSpeed,
-	//os_UseIpToCountry,
-	//os_LoadDbAtStartup,
-	//os_NatTraverse,
-	//os_HttpProxy,
 	os_ShowFPS,
-	//os_OpenGL,
 	os_ShowPing,
 	os_LogConvos,
 	os_ScreenshotFormat,
@@ -148,12 +141,6 @@ std::string sFloatingOpt_InputNames[] = {
 	"Strafe"
 };
 
-std::string sFloatingOpt_NetworkSpeeds[] = {
-	"Modem",
-	"ISDN",
-	"LAN"
-};
-
 
 ///////////////////
 // Initialize the options
@@ -163,15 +150,8 @@ bool Menu_FloatingOptionsInitialize(void)
     int i;
 
 	// Background image is redrawn each frame, so commented this out
-	/*
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
-
-	Menu_RedrawMouse(true);
-	*/
+	DrawImage(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common,0,0);
 
 	// Setup the top buttons
 	cFloatingOpt_TopButtons[op_Controls] =	CButton(BUT_CONTROLS,	tMenu->bmpButtons);
@@ -198,8 +178,6 @@ bool Menu_FloatingOptionsInitialize(void)
 
 
 	// Add the controls
-	cFloatingOptions.Add( new CButton(BUT_OK, tMenu->bmpButtons), op_Ok, 590,440, 40,20);
-
 
 	// Controls
 	cFloatingOpt_Controls.Add( new CLabel("Player Controls", tLX->clHeading), Static, 40,  150, 0,0);
@@ -276,20 +254,19 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
 	cFloatingOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
 
-	cFloatingOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
-	cFloatingOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, 385, 17,17);
-	cFloatingOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, 415, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,415,17,17);
-	cFloatingOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 415, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,415,17,17);
-	cFloatingOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
-	cFloatingOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
-	cFloatingOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
+	cFloatingOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 265, 0,0);
+	cFloatingOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 285, 0,0);
+	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, 285, 17,17);
+	cFloatingOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, 315, 0,0);
+	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,315,17,17);
+	cFloatingOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 315, 0,0);
+	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,315,17,17);
+	cFloatingOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,285, 0,0);
+	cFloatingOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,285, 0,0);
+	cFloatingOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 283, 50,tLX->cFont.GetHeight());
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
-	cFloatingOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
-	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
+	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 283, 70,17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_SoundVolume);
@@ -297,10 +274,6 @@ bool Menu_FloatingOptionsInitialize(void)
 
 	CTextbox *t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
-
-	// Network speed
-	for(i=0; i<3; i++)
-		cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, sFloatingOpt_NetworkSpeeds[i], i);
 
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);
@@ -345,6 +318,9 @@ bool Menu_FloatingOptionsInitialize(void)
 
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
 
+	// The OK button
+	cFloatingOptions.Add( new CButton(BUT_OK, tMenu->bmpButtons), op_Ok, 540,440, 40,20);
+
 	// Set the values
 	cFloatingOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 
@@ -365,10 +341,15 @@ void Menu_FloatingOptionsFrame(void)
 
 	CCheckbox	*c;
 
+	// Box dimensions
+	static const int x = 30;
+	static const int y = 20;
+	static const int w = 565;
+	static const int h = 450;
+
 	// Redraw background image
-	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(VideoPostProcessor::videoSurface(), 15, 130, 625, 465);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common, x, y, x, y, w, h);
+	Menu_DrawBox(VideoPostProcessor::videoSurface(), x, y, x + w, y + h);
 	Menu_DrawSubTitle(VideoPostProcessor::videoSurface(), SUB_OPTIONS);
 
 	// Process the top buttons
@@ -384,7 +365,6 @@ void Menu_FloatingOptionsFrame(void)
 		if(cFloatingOpt_TopButtons[i].InBox(Mouse->X,Mouse->Y)) {
 			cFloatingOpt_TopButtons[i].MouseOver(Mouse);
 			if(Mouse->Up) {
-                DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				iFloatingOptionsMode = i;
 				PlaySoundSample(sfxGeneral.smpClick);
 			}
@@ -401,7 +381,6 @@ void Menu_FloatingOptionsFrame(void)
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
 	ev = cFloatingOptions.Process();
-	cFloatingOptions.Draw(VideoPostProcessor::videoSurface());
 	if (ev)  {
 		switch (ev->iControlID)  {
 
@@ -422,11 +401,11 @@ void Menu_FloatingOptionsFrame(void)
 
 					// Set the new video mode
 					SetVideoMode();
-					Menu_RedrawMouse(true);
 					SDL_ShowCursor(SDL_DISABLE);
 				}
 
 				Menu_FloatingOptionsShutdown();
+				return;
 			}
 			break;
 
@@ -647,6 +626,9 @@ void Menu_FloatingOptionsFrame(void)
 		bChangedVideoMode = (fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS);
 	}
 
+	// Draw the OK button
+	cFloatingOptions.Draw(VideoPostProcessor::videoSurface());
+
 
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
@@ -662,6 +644,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	mouse_t *Mouse = GetMouse();
 
 	// Draw the back buffer
+	DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
 	cFloatingOptions.Draw(tMenu->bmpBuffer.get());
 	cFloatingOpt_Controls.Draw(tMenu->bmpBuffer.get());
 
@@ -680,8 +663,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 		cFloatingOpt_TopButtons[i].Draw(tMenu->bmpBuffer.get());
 	}
 
-
-	Menu_RedrawMouse(true);
+	Menu_redrawBufferRect(0, 0, VideoPostProcessor::get()->screenWidth(), VideoPostProcessor::get()->screenHeight());
 
 	Mouse->Up = 0;
 	Mouse->Down = 0;
@@ -744,11 +726,6 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	Mouse->Up = 0;
 
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_OPTIONS);
-
-	Menu_RedrawMouse(true);
 }
 
 
