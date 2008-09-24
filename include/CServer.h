@@ -208,10 +208,13 @@ public:
 	void		unmuteWorm(const std::string& szWormName);
 	void		authorizeWorm(int wormID);
 	void		killWorm(int victimID, int killerID, int suicidesCount = 0); // suicidesCount is ignored if victimID != killerID
-    void        CheckReadyClient(void);
+    void		cloneWeaponsToAllWorms(CWorm* worm);
+	
+	void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload();
 	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
+
 
 	void		checkVersionCompatibilities();
 	bool		checkVersionCompatibility(CServerConnection* cl);

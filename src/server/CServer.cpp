@@ -274,11 +274,16 @@ int GameServer::StartGame()
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
 	// HINT:
-	// At the moment, the only case where we need the bServerChoosesWeapons is when we enable bForceRandomWeapons.
+	// At the moment, the only cases where we need the bServerChoosesWeapons are:
+	// - bForceRandomWeapons
+	// - bSameWeaponsAsHostWorm
 	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
-	tGameInfo.bServerChoosesWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-
+	tGameInfo.bServerChoosesWeapons =
+		tLXOptions->tGameinfo.bForceRandomWeapons ||
+		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm
+		
 	checkVersionCompatibilities();
+
 
 	CBytestream bs;
 	float timer;
@@ -500,19 +505,29 @@ int GameServer::StartGame()
 	RegisterServerUdp();
 
 
-	if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+	// initial server side weapon handling
+	if(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+		if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+			cClient->getWorm(0)->GetRandomWeapons();
+			cClient->getWorm(0)->setWeaponsReady(true);
+			
+			cloneWeaponsToAllWorms( cClient->getWorm(0) );
+		}
+		// we do the clone right after we selected the weapons for this worm
+		// we cannot do anything here at this time
+	}
+	else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
 		for(int i=0;i<MAX_WORMS;i++) {
 			if(!cWorms[i].isUsed())
 				continue;
 			cWorms[i].GetRandomWeapons();
 			cWorms[i].setWeaponsReady(true);
 		}
-	}
-	
-	if(tGameInfo.bServerChoosesWeapons) {
+		
+		// the other players will get the preparegame first and have therefore already called InitWeaponSelection, therefore it is save to send this here
 		sendWeapons();
 	}
-
+	
 
 	return true;
 }
@@ -1589,6 +1604,22 @@ void GameServer::authorizeWorm(int wormID)
 	cl->getRights()->Everything();
 	cServer->SendGlobalText((getWorms() + wormID)->getName() + " has been authorised", TXT_NORMAL);
 }
+
+
+void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
+	CWorm *w = cWorms;
+	for (int i = 0; i < MAX_WORMS; i++, w++) {
+		if(w->isUsed()) {
+			for(int wp = 0; wp < 5; wp++)
+				w->getWeapon(wp)->Weapon = worm->getWeapon(wp)->Weapon;
+		}
+	}
+
+	sendWeapons();
+}
+
+
+
 
 ///////////////////
 // Notify the host about stuff

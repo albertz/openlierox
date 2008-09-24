@@ -475,7 +475,9 @@ void CWorm::InitWeaponSelection(void)
 
 
 	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
-	if(!tGameInfo.bServerChoosesWeapons && iType == PRF_COMPUTER && bLocal) {
+	bool iAmTheHostWorm = cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	bool doSelection = !tGameInfo.bServerChoosesWeapons || (iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
+	if(doSelection && iType == PRF_COMPUTER && bLocal) {
 
 		// TODO: move this to CWorm_AI
 		bool bRandomWeaps = true;
@@ -519,6 +521,9 @@ void CWorm::InitWeaponSelection(void)
 		}
 
 		setWeaponsReady(true);
+		
+		if(iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm)
+			cServer->cloneWeaponsToAllWorms(this);
 	}
 
 
@@ -621,7 +626,9 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
 	
-	if(tGameInfo.bServerChoosesWeapons) {
+	bool iAmTheHostWorm = cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	bool doSelection = !tGameInfo.bServerChoosesWeapons || (iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
+	if(!doSelection) {
 		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
 		return;
 	}
@@ -691,6 +698,9 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 		// Fire on the done button?
 		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
 		if((cShoot.isUp()) && !bChat_Typing) {
+			if(iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm) {
+				cServer->cloneWeaponsToAllWorms(this);
+			}
 			bWeaponsReady = true;
 			iCurrentWeapon = 0;
 

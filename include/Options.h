@@ -277,7 +277,7 @@ public:
 		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
 		float	fGameSpeed; // game-speed multiplicator; 1 is the normal speed; if !=1, only >=Beta7 is supported
 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
-		
+		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
 	} tGameinfo;
 
 	// not specified options found in options-file
