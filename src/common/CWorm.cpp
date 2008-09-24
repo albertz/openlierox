@@ -475,7 +475,7 @@ void CWorm::InitWeaponSelection(void)
 
 
 	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
-	bool iAmTheHostWorm = tGameInfo.iGameType == GME_HOST && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	bool iAmTheHostWorm = tGameInfo.iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
 	bool doSelection = !tGameInfo.bServerChoosesWeapons || (iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
 
 
@@ -635,7 +635,7 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
 	
-	bool iAmTheHostWorm =  tGameInfo.iGameType == GME_HOST && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	bool iAmTheHostWorm = tGameInfo.iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
 	bool doSelection = !tGameInfo.bServerChoosesWeapons || (iAmTheHostWorm && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
 	if(!doSelection) {
 		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
