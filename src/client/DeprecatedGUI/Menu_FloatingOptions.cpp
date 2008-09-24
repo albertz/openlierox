@@ -31,6 +31,9 @@
 
 namespace DeprecatedGUI {
 
+bool bChangedVideoMode = false;
+bool bShowFloatingOptions = false;
+
 void SetupGameInputs()
 {
 	// Setup global keys
@@ -53,7 +56,7 @@ CButton		cFloatingOpt_TopButtons[3];
 
 // Control id's
 enum {
-	op_Back = -2,
+	op_Ok = -2,
 	Static = -1,
 	op_Controls=0,
 	op_Game,
@@ -76,8 +79,7 @@ enum {
 	os_ShowPing,
 	os_LogConvos,
 	os_ScreenshotFormat,
-	os_MaxFPS,
-	os_Apply
+	os_MaxFPS
 };
 
 enum {
@@ -196,7 +198,7 @@ bool Menu_FloatingOptionsInitialize(void)
 
 
 	// Add the controls
-	cFloatingOptions.Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 25,440, 50,15);
+	cFloatingOptions.Add( new CButton(BUT_OK, tMenu->bmpButtons), op_Ok, 600,440, 50,15);
 
 
 	// Controls
@@ -304,8 +306,6 @@ bool Menu_FloatingOptionsInitialize(void)
 
 	cFloatingOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
 
-	cFloatingOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
-
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cFloatingOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
@@ -367,7 +367,7 @@ bool Menu_FloatingOptionsInitialize(void)
 
 
 	// Disable apply for now
-	cFloatingOpt_System.getWidget(os_Apply)->setEnabled(false);
+	//cFloatingOpt_System.getWidget(os_Apply)->setEnabled(false);
 
 
 	// Game
@@ -409,6 +409,7 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 	//cFloatingOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
+	bChangedVideoMode = false;
 
 	return true;
 }
@@ -463,28 +464,6 @@ void Menu_FloatingOptionsFrame(void)
 #endif
 	ev = cFloatingOptions.Process();
 	cFloatingOptions.Draw(VideoPostProcessor::videoSurface());
-
-	if(ev) {
-
-		switch(ev->iControlID) {
-
-			// Back button
-			case op_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
-
-					// Shutdown & save
-					Menu_OptionsShutdown();
-					tLXOptions->SaveToDisc();
-
-					// Leave
-					PlaySoundSample(sfxGeneral.smpClick);
-					Menu_MainInitialize();
-					return;
-				}
-				break;
-		}
-	}
-
 
 	if(iFloatingOptionsMode == 0) {
 
@@ -653,24 +632,27 @@ void Menu_FloatingOptionsFrame(void)
 			switch(ev->iControlID) {
 
 				// Apply
-				case os_Apply:
+				case op_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						// Set to fullscreen
-						tLXOptions->bFullscreen = fullscr;
+						if (bChangedVideoMode)  {
+							tLXOptions->bFullscreen = fullscr;
 
-						CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
-						bool fail = false;
-						tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-						tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
-						t->setText(itoa(tLXOptions->nMaxFPS));
-						PlaySoundSample(sfxGeneral.smpClick);
+							CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+							bool fail = false;
+							tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+							tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
+							t->setText(itoa(tLXOptions->nMaxFPS));
+							PlaySoundSample(sfxGeneral.smpClick);
 
-						// Set the new video mode
-						SetVideoMode();
-						Menu_RedrawMouse(true);
-						SDL_ShowCursor(SDL_DISABLE);
-						
+							// Set the new video mode
+							SetVideoMode();
+							Menu_RedrawMouse(true);
+							SDL_ShowCursor(SDL_DISABLE);
+						}
+
+						Menu_FloatingOptionsShutdown();
 					}
 					break;
 
@@ -764,13 +746,7 @@ void Menu_FloatingOptionsFrame(void)
 		// FPS and fullscreen
 		t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
 
-		if(fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
-			cFloatingOpt_System.getWidget(os_Apply)->setEnabled(true);
-			cFloatingOpt_System.getWidget(os_Apply)->Draw( VideoPostProcessor::videoSurface() );
-        } else {
-			cFloatingOpt_System.getWidget(os_Apply)->setEnabled(false);
-			cFloatingOpt_System.getWidget(os_Apply)->redrawBuffer();
-        }
+		bChangedVideoMode = (fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS);
 	}
 
 
@@ -886,6 +862,7 @@ void Menu_FloatingOptionsShutdown(void)
 	cFloatingOpt_Controls.Shutdown();
 	cFloatingOpt_System.Shutdown();
 	cFloatingOpt_Game.Shutdown();
+	bShowFloatingOptions = false;
 }
 
 }; // namespace DeprecatedGUI

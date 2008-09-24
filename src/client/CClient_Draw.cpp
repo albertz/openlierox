@@ -44,7 +44,6 @@ using namespace std;
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
-bool bShowFloatingOptions = false;
 
 
 ///////////////////
@@ -659,7 +658,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 	#endif*/
 
-		if (bShowFloatingOptions)  {
+		if (DeprecatedGUI::bShowFloatingOptions)  {
 			DeprecatedGUI::Menu_FloatingOptionsFrame();
 			return; // No other dialogs should be shown
 		}
@@ -1304,7 +1303,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 		case gm_Options:
 			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
 				DeprecatedGUI::Menu_FloatingOptionsInitialize();
-				bShowFloatingOptions = true;
+				DeprecatedGUI::bShowFloatingOptions = true;
 			}
 		break;
 		}
