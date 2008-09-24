@@ -44,6 +44,7 @@ using namespace std;
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
+bool bShowFloatingOptions = false;
 
 
 ///////////////////
@@ -658,6 +659,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 	#endif*/
 
+		if (bShowFloatingOptions)  {
+			DeprecatedGUI::Menu_FloatingOptionsFrame();
+			return; // No other dialogs should be shown
+		}
+
 		// Game over
 		// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 		static bool was_gameovermenu = false;
@@ -1125,7 +1131,8 @@ enum {
 	gm_TopSkin,
 	gm_Winner,
 	gm_LeftList,
-	gm_RightList
+	gm_RightList,
+	gm_Options
 };
 
 void CClient::InitializeGameMenu()
@@ -1137,6 +1144,8 @@ void CClient::InitializeGameMenu()
 	// Shutdown any previous instances
 	cGameMenuLayout.Shutdown();
 	bUpdateScore = true;
+
+	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 400, 360, 80, 20);
 
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		if (bGameOver)
@@ -1290,6 +1299,13 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				SetGameCursor(CURSOR_NONE);
 			}
 			break;
+
+
+		case gm_Options:
+			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+				bShowFloatingOptions = true;
+			}
+		break;
 		}
 	}
 

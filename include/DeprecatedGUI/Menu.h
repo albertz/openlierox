@@ -321,6 +321,7 @@ extern	bool		bGotDetails;
 extern	bool		bOldLxBug;
 extern	int			nTries;
 extern	float		fStart;
+extern bool		bShowFloatingOptions;
 
 
 // Routines
