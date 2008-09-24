@@ -449,6 +449,12 @@ void	Menu_OptionsShutdown(void);
 void	Menu_OptionsFrame(void);
 void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
+// Floating Options
+bool	Menu_FloatingOptionsInitialize(void);
+void	Menu_FloatingOptionsShutdown(void);
+void	Menu_FloatingOptionsFrame(void);
+void	Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *b);
+
 
 // Main net
 bool	Menu_NetInitialize(void);
