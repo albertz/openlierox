@@ -64,7 +64,7 @@ enum {
 
 enum {
 	os_Fullscreen,
-	os_ColourDepth,
+	//os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
 	os_NetworkPort,
@@ -74,7 +74,7 @@ enum {
 	os_NatTraverse,
 	os_HttpProxy,
 	os_ShowFPS,
-	os_OpenGL,
+	//os_OpenGL,
 	os_ShowPing,
 	os_LogConvos,
 	os_ScreenshotFormat,
@@ -267,10 +267,12 @@ bool Menu_FloatingOptionsInitialize(void)
 	// System
 	cFloatingOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
+	/*
 	cFloatingOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
 	cFloatingOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
+	*/
 
 	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
@@ -644,22 +646,6 @@ void Menu_FloatingOptionsFrame(void)
 		// Fullscreen value
 		c = (CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen);
 		bool fullscr = c->getValue();
-		// OpenGL accel value
-		c2 = (CCheckbox *)cFloatingOpt_System.getWidget(os_OpenGL);
-		bool opengl = c2->getValue () != 0;
-		// Color depth
-		int cdepth = ((CCombobox *)cFloatingOpt_System.getWidget(os_ColourDepth))->getSelectedIndex();
-		switch (cdepth)  {
-		case 0: cdepth = 0; break;
-		case 1: cdepth = 16; break;
-		case 2: cdepth = 24; break;
-		case 3: cdepth = 32; break;
-		default: cdepth = 16;
-		}
-
-		// FIXME: WARNING! If OpenGL acceleration is not supported,
-		//                 this could lead to a crash!
-
 
 
 		// System
