@@ -312,7 +312,7 @@ bool Menu_FloatingOptionsInitialize(void)
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cFloatingOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	cFloatingOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17);
+	//cFloatingOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_SoundVolume);
@@ -341,12 +341,13 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
 	cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
 
+	/*
 	// Color depth
 	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "Automatic", 0);
 	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "High Color (16 bit)", 1);
 	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (24 bit)", 2);
 	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (32 bit)", 3);
-
+	
 	switch (tLXOptions->iColourDepth) {
 	case 0:  // Automatic
 		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)0, 0);
@@ -365,6 +366,7 @@ bool Menu_FloatingOptionsInitialize(void)
 		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)3, 0);
 		break;
 	}
+	*/
 
 
 	// Disable apply for now
@@ -424,7 +426,7 @@ void Menu_FloatingOptionsFrame(void)
 	gui_event_t *ev = NULL;
 	int			val;
 
-	CCheckbox	*c,*c2;
+	CCheckbox	*c;
 	//CSlider		*s;
 
 	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer,  180,110,  180,110,  300,30);
@@ -771,7 +773,7 @@ void Menu_FloatingOptionsFrame(void)
 		// FPS and fullscreen
 		t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
 
-		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
+		if(fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
 			cFloatingOpt_System.getWidget(os_Apply)->setEnabled(true);
 			cFloatingOpt_System.getWidget(os_Apply)->Draw( VideoPostProcessor::videoSurface() );
         } else {
