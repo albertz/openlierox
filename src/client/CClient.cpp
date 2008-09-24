@@ -1505,6 +1505,7 @@ void CClient::GetLogData(std::string& data)
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
 			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
 			"loading=\"" + itoa(tGameInfo.iLoadingTimes) + "\" " +
+			"gamespeed=\"" + ftoa(tGameInfo.fGameSpeed) + "\" " +
 			"lives=\"" + itoa(tGameInfo.iLives) + "\" " +
 			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " +
 			"bonuses=\"" + (tGameInfo.bBonusesOn ? "1" : "0") + "\" " +

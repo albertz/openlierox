@@ -593,7 +593,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.iKillLimit = gl->nMaxKills;
 		tGameInfo.iLives = gl->nLives;
 		tGameInfo.iLoadingTimes = gl->nLoadingTime;
-
+		tGameInfo.fGameSpeed = gl->fGameSpeed;
+		
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
 		f->Draw(VideoPostProcessor::videoSurface(), x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
@@ -648,8 +649,10 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			f->Draw(VideoPostProcessor::videoSurface(), x2, y+100, tLX->clNormalLabel, itoa(gl->nMaxKills));
 		f->Draw(VideoPostProcessor::videoSurface(),     x, y+120, tLX->clNormalLabel, "Loading time:");
 		f->Draw(VideoPostProcessor::videoSurface(),     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
-        f->Draw(VideoPostProcessor::videoSurface(),     x, y+140, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(VideoPostProcessor::videoSurface(),     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
+		f->Draw(VideoPostProcessor::videoSurface(),     x, y+140, tLX->clNormalLabel, "Game speed:");
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y+140, tLX->clNormalLabel, ftoa(gl->fGameSpeed));
+        f->Draw(VideoPostProcessor::videoSurface(),     x, y+160, tLX->clNormalLabel, "Bonuses:");
+        f->Draw(VideoPostProcessor::videoSurface(),     x2, y+160, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
 	{

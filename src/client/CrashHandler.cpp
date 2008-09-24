@@ -173,6 +173,13 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
+		// Game speed
+		ftoa(tGameInfo.iLoadingTimes, tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, "fGameSpeed = ", bufsize);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
 		// Server name
 		strncat(buffer, "sServerName = ", bufsize);
 		if (tGameInfo.sServername.size())

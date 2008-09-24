@@ -201,7 +201,7 @@ class maprandom_t { public:
 };
 
 
-// TODO: merge this class with GameOptions::GameInfo (Options.h)
+// TODO: merge this class with GameOptions::GameInfo (Options.h) and game_lobby_t (this file)
 // Game structure
 class game_t { public:
 	int			iGameType;		// Local, remote, etc
@@ -230,6 +230,7 @@ class game_t { public:
 };
 
 
+// TODO: merge this with game_t (this file) and GameOptions::GameInfo (Options.h)
 // TODO: move this somewhere else
 // Game lobby structure
 class game_lobby_t { public:
@@ -240,6 +241,7 @@ class game_lobby_t { public:
 	int		nMaxWorms;
 	int		nMaxKills;
 	int		nLoadingTime;
+	float	fGameSpeed;
 	bool	bBonuses;
 	std::string	szMapName;
 	std::string	szDecodedMapName;

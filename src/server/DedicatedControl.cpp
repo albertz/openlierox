@@ -470,6 +470,7 @@ struct DedIntern {
 		// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
 		cServer->getLobby()->nGameMode = tGameInfo.iGameMode;
 		cServer->getLobby()->nLives = tGameInfo.iLives;
+		cServer->getLobby()->fGameSpeed = tGameInfo.fGameSpeed;		
 		cServer->getLobby()->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
 		cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
 		cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
@@ -535,6 +536,7 @@ struct DedIntern {
 		gl->nLives = tLXOptions->tGameinfo.iLives;
 		gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 		gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
+		gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 		gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
 
 		tGameInfo.sModDir = "MW 1.0";

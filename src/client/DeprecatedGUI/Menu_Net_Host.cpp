@@ -480,6 +480,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
@@ -521,6 +522,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
+	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
     gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
 
 
@@ -702,6 +704,7 @@ void Menu_Net_HostGotoLobby(void)
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
@@ -717,6 +720,7 @@ void Menu_Net_HostGotoLobby(void)
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
+	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 
     if(!bDedicated) {
 	    // Create the GUI
@@ -774,6 +778,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			cServer->getLobby()->nLives = tGameInfo.iLives;
 			cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
 			cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
+			cServer->getLobby()->fGameSpeed = tGameInfo.fGameSpeed;
             cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
 			cServer->UpdateGameLobby();
 		}

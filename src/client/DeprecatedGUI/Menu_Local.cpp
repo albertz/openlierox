@@ -138,6 +138,7 @@ void Menu_LocalInitialize(void)
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
@@ -1069,7 +1070,7 @@ void Menu_GameSettings_GrabInfo(void)
 	// General
 
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	tGameInfo.fGameSpeed = Menu_getGameSpeed();
+	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed = Menu_getGameSpeed();
 	
 	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
 	if(buf != "")

@@ -2555,6 +2555,10 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
 	cur_y += tLX->cFont.GetHeight();
 
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Speed:");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,ftoa(tGameInfo.fGameSpeed));
+	cur_y += tLX->cFont.GetHeight();
+
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Lives:");
 	if (tGameInfo.iLives < 0)
 		DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpInfinite, x+95, cur_y + (tLX->cFont.GetHeight() - DeprecatedGUI::gfxGame.bmpInfinite.get()->h)/2);
