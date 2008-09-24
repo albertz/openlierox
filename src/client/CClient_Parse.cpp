@@ -343,6 +343,11 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 				ParseText(bs);
 				break;
 
+			// Chat command completion solution
+			case S2C_CHATCMDCOMPLSOL:
+				ParseChatCommandCompletionSolution(bs);
+				break;
+				
 			// Worm score
 			case S2C_SCOREUPDATE:
 				ParseScoreUpdate(bs);
@@ -1020,6 +1025,17 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 		fclose(f);
 	}
 }
+
+void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
+	std::string startStr = bs->readString();
+	std::string solution = bs->readString();
+	
+	if(stringcaseequal(startStr, client->getChatterCommand())) {
+		client->chatterText() = "/" + solution;
+		client->setChatPos( 1 + Utf8StringSize(solution) );
+	}
+}
+
 
 
 ///////////////////

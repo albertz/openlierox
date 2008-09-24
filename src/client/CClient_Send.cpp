@@ -13,7 +13,7 @@
 // Created 22/7/02
 // Jason Boettcher
 
-
+#include "CClientNetEngine.h"
 #include "LieroX.h"
 #include "StringUtils.h"
 #include "CClient.h"
@@ -233,6 +233,14 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	for (std::vector<std::string>::const_iterator it=split.begin() + 1; it != split.end(); it++)
 		SendTextInternal(command + (*it), command.size() ? sWormName : ""); // in command messages
 																			// the name has to be repeated for all chunks
+}
+
+void CClientNetEngine::SendChatCommandCompletionRequest(const std::string& startStr) {
+	CBytestream bs;
+	bs.writeByte(C2S_CHATCMDCOMPLREQ);
+	bs.writeString(startStr);
+
+	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
 /////////////////////

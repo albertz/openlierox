@@ -91,6 +91,17 @@ void GameServer::SendText(CServerConnection *cl, const std::string& text, int ty
 	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
+void GameServer::SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution) {
+	CBytestream bs;
+
+	bs.writeByte(S2C_CHATCMDCOMPLSOL);
+	bs.writeString(startStr);
+	bs.writeString(solution);
+
+	cl->getChannel()->AddReliablePacketToSend(bs);	
+}
+
+
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update

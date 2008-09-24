@@ -415,7 +415,7 @@ void Menu_Net_JoinGotoLobby(void)
 	}
 
 	// Add the ingame chatter text to lobby chatter
-	cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
+	cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, cClient->chatterText(), 0);
 
     iJoinSpeaking = 0; // The first player is always speaking
 	tMenu->sSavedChatText = "";

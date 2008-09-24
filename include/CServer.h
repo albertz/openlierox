@@ -225,6 +225,7 @@ public:
 	void		SendGlobalPacket(CBytestream *bs);
 	void		SendText(CServerConnection *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
+	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
@@ -242,6 +243,7 @@ public:
 	void		ParseUpdate(CServerConnection *cl, CBytestream *bs);
 	void		ParseDeathPacket(CServerConnection *cl, CBytestream *bs);
 	void		ParseChatText(CServerConnection *cl, CBytestream *bs);
+	void		ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs);	
 	void		ParseUpdateLobby(CServerConnection *cl, CBytestream *bs);
 	void		ParseDisconnect(CServerConnection *cl);
 	void		ParseGrabBonus(CServerConnection *cl, CBytestream *bs);

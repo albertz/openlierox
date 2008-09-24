@@ -751,7 +751,7 @@ void Menu_Net_HostGotoLobby(void)
 		}
 
 		// Add the ingame chatter text to lobby chatter
-		cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
+		cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->chatterText(), 0);
 	}
 
 	cServer->UpdateGameLobby();

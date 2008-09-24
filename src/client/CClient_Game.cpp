@@ -1247,6 +1247,27 @@ void CClient::processChatter(void)
 }
 
 
+
+static bool strSeemsLikeCommand(const std::string& str) {
+	if(str.size() == 0) return false;
+	if(str[0] == '/') {
+		if(str.size() == 1) return true;
+		if(str[1] == '/') return false;
+		return true;
+	}
+	return false;
+}
+
+
+std::string CClient::getChatterCommand() {
+	if(strSeemsLikeCommand(sChat_Text))
+		return sChat_Text.substr(1);
+	else
+		return "";
+}
+
+
+
 ///////////////////
 // Process a single character chat
 void CClient::processChatCharacter(const KeyboardEvent& input)
@@ -1351,6 +1372,15 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 		Utf8Insert(sChat_Text, iChat_Pos, buf);
 		iChat_Pos += Utf8StringSize(buf);
 		return;
+	}
+
+	// Tab key
+	if(input.ch == SDLK_TAB) {
+		if(strSeemsLikeCommand(sChat_Text)) {
+			cNetEngine->SendChatCommandCompletionRequest(getChatterCommand());
+			return;
+		}
+		// handle the key like a normal key
 	}
 
     // Normal key

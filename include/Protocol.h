@@ -44,6 +44,7 @@
 #define		C2S_DISCONNECT		7
 #define		C2S_GRABBONUS		8
 #define     C2S_SENDFILE        9 // Beta4+ only, enabled only in Beta6+
+#define		C2S_CHATCMDCOMPLREQ	10 // since Beta7
 
 
 // Server->Client
@@ -71,6 +72,7 @@
 #define     S2C_DROPPED         21
 #define     S2C_SENDFILE        22 // Beta4+ only, enabled only in Beta6+
 #define		S2C_WORMWEAPONINFO	23 // >=Beta7
+#define		S2C_CHATCMDCOMPLSOL	24 // since Beta7
 
 
 #endif  //  __PROTOCOL_H__

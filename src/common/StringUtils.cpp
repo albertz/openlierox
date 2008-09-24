@@ -361,6 +361,34 @@ bool stringcaseequal(const std::string& s1, const std::string& s2) {
 	return stringcasecmp(s1, s2) == 0;
 }
 
+bool subStrEqual(const std::string& s1, const std::string s2, size_t p) {
+	if((s1.size() < p || s2.size() < p) && s1.size() != s2.size()) return false; 
+	for(size_t i = 0; i < p && i < s1.size(); i++)
+		if(s1[i] != s2[i]) return false;
+	return true;
+}
+
+size_t maxStartingEqualStr(const std::list<std::string>& strs) {
+	if(strs.size() == 0) return 0;
+	
+	size_t l = 0;
+	while(true) {
+		int i = 0;
+		char c;
+		for(std::list<std::string>::const_iterator it = strs.begin(); it != strs.end(); ++it, ++i) {
+			if(it->size() <= l) return l;
+			if(i == 0)
+				c = (*it)[l];
+			else {
+				if((*it)[l] != c) return l;
+			}
+		}
+		
+		l++;
+	}
+}
+
+
 // HINT: it returns a reference
 // TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {

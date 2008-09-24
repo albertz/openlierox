@@ -29,6 +29,7 @@
 #include "AuxLib.h"
 #include "Version.h"
 
+
 using namespace std;
 
 #ifdef _MSC_VER
@@ -95,6 +96,10 @@ void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
 			// Chat text
 		case C2S_CHATTEXT:
 			ParseChatText(cl, bs);
+			break;
+
+		case C2S_CHATCMDCOMPLREQ:
+			ParseChatCommandCompletionRequest(cl, bs);	
 			break;
 
 			// Update lobby
@@ -377,6 +382,47 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 
 	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
 		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
+}
+
+void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs) {
+	std::list<std::string> possibilities;
+	
+	std::string startStr = bs->readString();
+	TrimSpaces(startStr);
+	stringlwr(startStr);
+		
+	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i) {
+		if(subStrEqual(startStr, tKnownCommands[i].sName, startStr.size()))
+			possibilities.push_back(tKnownCommands[i].sName);
+		else if(subStrEqual(startStr, tKnownCommands[i].sAlias, startStr.size()))
+			possibilities.push_back(tKnownCommands[i].sAlias);
+	}
+	
+	if(possibilities.size() == 0) {
+		SendText(cl, "Chat auto completion: unknown command", TXT_NETWORK);
+		return;
+	}
+	
+	if(possibilities.size() == 1) {
+		// we have exactly one solution
+		SendChatCommandCompletionSolution(cl, startStr, possibilities.front() + " ");
+		return;
+	}
+	
+	size_t l = maxStartingEqualStr(possibilities);
+	if(l > startStr.size()) {
+		// we can complete to some longer sequence
+		SendChatCommandCompletionSolution(cl, startStr, possibilities.front().substr(0, l));
+		return;
+	}
+	
+	// send list of all possibilities
+	std::string posStr;
+	for(std::list<std::string>::iterator it = possibilities.begin(); it != possibilities.end(); ++it) {
+		if(it != possibilities.begin()) posStr += " ";
+		posStr += *it;
+	}
+	SendText(cl, posStr, TXT_NETWORK);
 }
 
 

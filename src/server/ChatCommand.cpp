@@ -41,13 +41,14 @@ ChatCommand tKnownCommands[] = {
 	{"setcolour",	"setcolor",		5, 5,			(size_t)-1,	&ProcessSetColour},
 	{"suicide",		"suicide",		0, 1,			(size_t)-1,	&ProcessSuicide},
 	{"spectate",	"spectate",		0, 0,			(size_t)-1,	&ProcessSpectate},
+	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
 /////////////////////
 // Get the command based on name
 ChatCommand *GetCommand(const std::string& name)
 {
-	for (uint i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
+	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i)
 		if (stringcasecmp(name, tKnownCommands[i].sName) == 0 ||
 			stringcasecmp(name, tKnownCommands[i].sAlias) == 0)
 			return &tKnownCommands[i];
@@ -60,7 +61,7 @@ ChatCommand *GetCommand(const std::string& name)
 // Get the command based on function
 ChatCommand *GetCommand(ChatCommand::tProcFunc_t func)
 {
-	for (uint i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
+	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i)
 		if (tKnownCommands[i].tProcFunc == func)
 			return &tKnownCommands[i];
 

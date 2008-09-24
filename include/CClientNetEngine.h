@@ -44,6 +44,7 @@ public:
 	virtual void		SendUpdateLobby(bool ready = true);
 	virtual void		SendDisconnect();
 	virtual void		SendFileData();
+	virtual void		SendChatCommandCompletionRequest(const std::string& startStr);
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif
@@ -85,7 +86,8 @@ protected:
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
     void        ParseSendFile(CBytestream *bs);
-
+	void		ParseChatCommandCompletionSolution(CBytestream* bs);
+	
 };
 
 class CClientNetEngineBeta6: public CClientNetEngine {
