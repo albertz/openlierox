@@ -3,9 +3,9 @@
 # use compile.sh instead
 
 cmake_minimum_required(VERSION 2.4)
-IF (VERSION GREATER 2.4)
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(SET CMP0005 OLD)
-ENDIF (VERSION GREATER 2.4)
+ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 
 
 OPTION(DEBUG "enable debug build" Yes)
