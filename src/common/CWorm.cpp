@@ -620,6 +620,8 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 
 	if(bDedicated) return; // just for safty; atm this function only handles non-bot players
 
+	if(iType == PRF_COMPUTER) return; // we can get here when we are waiting for host worm weapon selection
+
 	int l = 0;
 	int t = 0;
 	short i;
