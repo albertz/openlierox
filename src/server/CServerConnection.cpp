@@ -172,7 +172,7 @@ void CServerConnection::RemoveWorm(int id)
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
 				cLocalWorms[i] = NULL;
-				for (uint j=i; j<MAX_PLAYERS-2; j++)  {
+				for (uint j=i; j<MAX_PLAYERS-1; j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
 
@@ -182,6 +182,8 @@ void CServerConnection::RemoveWorm(int id)
 		} else
 			cout << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
 	}
+
+	--iNumWorms;
 
 	if(!found)
 		cout << "WARNING: cannot find worm " << id << " for removal" << endl;

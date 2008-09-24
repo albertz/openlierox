@@ -223,8 +223,8 @@ void CListview::Draw(SDL_Surface * bmpDest)
 							w->Setup(w->getID(), x, y + item->iHeight/2 - w->getHeight()/2, w->getWidth(), w->getHeight());
 							break;
 						}
-
-						w->Draw(bmpDest);
+						if (w->getEnabled())
+							w->Draw(bmpDest);
 					break;
 					}
 				}
@@ -895,7 +895,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 		subitem = item->tSubitems;
 		for (; subitem; subitem = subitem->tNext)  {
 			if (subitem->iType == LVS_WIDGET)
-				if (subitem->tWidget->InBox(tMouse->X, tMouse->Y))  {
+				if (subitem->tWidget->getEnabled() && subitem->tWidget->InBox(tMouse->X, tMouse->Y))  {
 					tLastWidgetEvent.cWidget = subitem->tWidget;
 					tLastWidgetEvent.iControlID = subitem->tWidget->getID();
 					tLastWidgetEvent.iEventMsg = subitem->tWidget->MouseOver(tMouse);
@@ -1042,7 +1042,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 				// Process any widget
 				if (sub->tWidget && sub->iType == LVS_WIDGET)  {
-					if (sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
+					if (sub->tWidget->getEnabled() && sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
 						bool go_event = false; // True if we should process the event
 						if (tFocusedSubWidget)
 							go_event = tFocusedSubWidget->CanLoseFocus() || tFocusedSubWidget == sub->tWidget;
@@ -1191,7 +1191,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 				// Process any widget
 				if (sub->tWidget && sub->iType == LVS_WIDGET)  {
-					if (sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
+					if (sub->tWidget->getEnabled() && sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
 						bool go_event = false;
 						if (tFocusedSubWidget)
 							go_event = tFocusedSubWidget->CanLoseFocus() || tFocusedSubWidget == sub->tWidget;

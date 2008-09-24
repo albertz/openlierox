@@ -22,6 +22,7 @@
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/Menu.h"
+#include "DeprecatedGUI/CMenu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
@@ -44,6 +45,7 @@ using namespace std;
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
+int				iSelectedPlayer = -1;
 
 
 ///////////////////
@@ -1103,8 +1105,9 @@ void CClient::SimulateHud(void)
 // Adds default columns to a scoreboard listview, used internally by InitializeGameMenu
 inline void AddColumns(DeprecatedGUI::CListview *lv)
 {
+	lv->AddColumn("", 15); // Command button
 	lv->AddColumn("", 25); // Skin
-	lv->AddColumn("", 180); // Player
+	lv->AddColumn("", 160); // Player
 	lv->AddColumn("", 30); // Lives
 	if (tGameInfo.iGameMode == GMT_DEMOLITION)
 		lv->AddColumn("", 40); // Dirt count
@@ -1127,7 +1130,8 @@ enum {
 	gm_Winner,
 	gm_LeftList,
 	gm_RightList,
-	gm_Options
+	gm_Options,
+	gm_PopupMenu
 };
 
 void CClient::InitializeGameMenu()
@@ -1303,6 +1307,92 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				DeprecatedGUI::bShowFloatingOptions = true;
 			}
 		break;
+
+		case gm_LeftList:
+		case gm_RightList:
+			if (ev->iEventMsg == DeprecatedGUI::LV_WIDGETEVENT)  {
+				ev = ((DeprecatedGUI::CListview *)ev->cWidget)->getWidgetEvent();
+
+				// Do not display the host menu when not hosting
+				if (tGameInfo.iGameType == GME_JOIN)
+					break;
+
+				// Click on the command button
+				if (ev->cWidget->getType() == DeprecatedGUI::wid_Button && ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+					// Remove old popup menu
+					cGameMenuLayout.removeWidget(gm_PopupMenu);
+
+					int worm_id = ev->cWidget->getID();  // Widget ID is the same as player ID
+					if (worm_id < 0 || worm_id >= MAX_WORMS)
+						break;
+					CWorm *w = &cServer->getWorms()[worm_id];
+					if (!w->isUsed())
+						break;
+
+					CServerConnection *remote_cl = cServer->getClient(worm_id);
+					mouse_t *Mouse = GetMouse();
+
+					if (worm_id > 0)  {  // These items make no sense for host
+						DeprecatedGUI::CMenu *mnu = new DeprecatedGUI::CMenu(Mouse->X, Mouse->Y);
+						iSelectedPlayer = worm_id;
+						cGameMenuLayout.Add(mnu, gm_PopupMenu, 0,0, 640,480 );
+					
+						mnu->addItem(0, "Kick player");
+						mnu->addItem(1, "Ban player");
+						if (remote_cl)  {
+							if (remote_cl->getMuted())
+								mnu->addItem(2, "Unmute player");
+							else
+								mnu->addItem(2, "Mute player");
+						}
+						mnu->addItem(3, "Authorise player");
+					}
+				}
+			}
+		break;
+
+		case gm_PopupMenu:  {
+			DeprecatedGUI::CMenu *mnu = (DeprecatedGUI::CMenu *)cGameMenuLayout.getWidget(gm_PopupMenu);
+			int worm_id = iSelectedPlayer;
+            switch( ev->iEventMsg ) {
+
+                // Kick the player
+				case DeprecatedGUI::MNU_USER+0:
+                    if( worm_id > 0 )
+                        cServer->kickWorm( worm_id );
+                    break;
+
+				// Ban the player
+				case DeprecatedGUI::MNU_USER+1:
+					if ( worm_id > 0 )
+						cServer->banWorm( worm_id );
+					break;
+
+				// Mute/unmute
+				case DeprecatedGUI::MNU_USER+2:
+					if ( worm_id > 0 )  {
+						CServerConnection *remote_cl = cServer->getClient(worm_id);
+						if (remote_cl)  {
+							if (remote_cl->getMuted())
+								cServer->unmuteWorm(worm_id);
+							else
+								cServer->muteWorm(worm_id);
+						}
+					}
+					break;
+
+				// Authorize
+				case DeprecatedGUI::MNU_USER+3:  {
+						CServerConnection *remote_cl = cServer->getClient(worm_id);
+						if (remote_cl)
+							remote_cl->getRights()->Everything();
+					} break;
+            }
+
+            // Remove the menu widget
+            cGameMenuLayout.SendMessage( gm_PopupMenu, DeprecatedGUI::MNM_REDRAWBUFFER, (DWORD)0, 0);
+            cGameMenuLayout.removeWidget(gm_PopupMenu);
+			} break;
 		}
 	}
 
@@ -1355,9 +1445,17 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+			cmd_button->setRedrawMenu(false);
+			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+			cmd_button->setID(p->getID());
+			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Add the command button
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
@@ -1403,6 +1501,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+			cmd_button->setRedrawMenu(false);
+			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+			cmd_button->setID(p->getID());
+			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
@@ -1444,6 +1547,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+			cmd_button->setRedrawMenu(false);
+			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+			cmd_button->setID(p->getID());
+			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 			if(p->getTagIT())
 				lv->AddItem(p->getName(), i, tLX->clTagHighlight);
@@ -1533,6 +1641,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				if(p->getTeam() != team)
 					continue;
 
+				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+				cmd_button->setRedrawMenu(false);
+				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+				cmd_button->setID(p->getID());
+				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
 				// Skin
@@ -1577,6 +1691,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+			cmd_button->setRedrawMenu(false);
+			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+			cmd_button->setID(p->getID());
+			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
@@ -1656,6 +1775,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				if(p->getTeam() != team)
 					continue;
 
+				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+				cmd_button->setRedrawMenu(false);
+				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+				cmd_button->setID(p->getID());
+				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
 				// Skin
@@ -1734,6 +1859,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 				if(p->getTeam() != team && (p->getTeam()!=2 || team !=0))
 					continue;
+
+				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
+				cmd_button->setRedrawMenu(false);
+				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
+				cmd_button->setID(p->getID());
+				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 

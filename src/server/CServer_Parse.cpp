@@ -214,13 +214,17 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 		// Otherwise, 0.56b would not parse the packet correctly
 	} else {
 		int written = 0;
+		int id = 0;
 		while (written < cl->getNumWorms())  {
-			bytes.writeByte(S2C_CLREADY);
-			bytes.writeByte(1);
-			cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
-			SendGlobalPacket(&bytes);
-			bytes.Clear();
-			written++;
+			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
+				bytes.writeByte(S2C_CLREADY);
+				bytes.writeByte(1);
+				cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
+				SendGlobalPacket(&bytes);
+				bytes.Clear();
+				written++;
+			}
+			id++;
 		}
 	}
 
