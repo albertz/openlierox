@@ -1140,7 +1140,8 @@ void CClient::InitializeGameMenu()
 	cGameMenuLayout.Shutdown();
 	bUpdateScore = true;
 
-	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 300, 360, 80, 20);
+	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 260, 360, 80, 20);
+	cGameMenuLayout.getWidget(gm_Options)->setEnabled(!bGameOver); // Hide on game over
 
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		if (bGameOver)

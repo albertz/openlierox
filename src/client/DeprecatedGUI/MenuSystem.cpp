@@ -1979,7 +1979,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	                nLives = inbs.readInt16();
 	                nMaxKills = inbs.readInt16();
 	                nLoadingTime = inbs.readInt16();
-					if(nLoadingTime < 0 || nLoadingTime > 500)  {
+					if(nLoadingTime < 0)  {
 						bOldLxBug = true;
 					}
                     nBonuses = inbs.readByte();

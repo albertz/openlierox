@@ -14,6 +14,8 @@
 // Jason Boettcher
 
 
+#define DEFAULT_LOADING_TIME 500
+
 #include <assert.h>
 #include <string>
 
@@ -734,20 +736,6 @@ void Menu_Local_FillModList( CCombobox *cb )
 =======================
 */
 
-enum
-{
-	gs_Ok,
-	gs_Default,
-	gs_btnGenTab,
-	gs_btnBonusTab
-};
-
-enum
-{
-	gs_GenTab = 0,
-	gs_BonusTab
-};
-
 short			GameTabPane = 0;
 CGuiLayout		cGameSettings;
 CGuiLayout		cGeneralSettings;
@@ -755,6 +743,14 @@ CGuiLayout		cBonusSettings;
 
 // Game Settings
 enum {
+	gs_GenTab = 0,
+	gs_BonusTab,
+
+	gs_Ok,
+	gs_Default,
+	gs_btnGenTab,
+	gs_btnBonusTab,
+
 	gs_Lives,
 	gs_MaxKills,
 	gs_LoadingTime,
@@ -819,10 +815,10 @@ void Menu_GameSettings(void)
 
 	// Game settings, stuff on each pane.
 
-	cGameSettings.Add( new CButton(BUT_GENERAL, tMenu->bmpButtons),	gs_btnGenTab, 240, 165, 0, 0);
-	cGameSettings.Add( new CButton(BUT_BONUS, tMenu->bmpButtons),	gs_btnBonusTab, 340, 165, 0, 0);
-	cGameSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
-    cGameSettings.Add( new CButton(BUT_DEFAULT, tMenu->bmpButtons), gs_Default, 350,445, 80,15);
+	cGameSettings.Add( new CButton(BUT_GENERAL, DeprecatedGUI::tMenu->bmpButtons),	gs_btnGenTab, 240, 165, 0, 0);
+	cGameSettings.Add( new CButton(BUT_BONUS, DeprecatedGUI::tMenu->bmpButtons),	gs_btnBonusTab, 340, 165, 0, 0);
+	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
+    cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 350,445, 80,15);
 
 
 
@@ -841,7 +837,7 @@ void Menu_GameSettings(void)
 		cGeneralSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iKillLimit), 0);
 
 	cGeneralSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        140,260, 0, 0);
-	cGeneralSettings.Add( new CSlider(500),									gs_LoadingTime,	295,257, 160,20);
+	cGeneralSettings.Add( new CSlider(DEFAULT_LOADING_TIME),									gs_LoadingTime,	295,257, 160,20);
 	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 260, 0, 0);
 	cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
 
@@ -958,6 +954,12 @@ bool Menu_GameSettings_Frame(void)
 
 		ev = cGameSettings.Process();
 
+	// The maximum loading time depends on the multiplikator
+	// For fast games you can set higher loading times to make less spammy games
+	CSlider *lt = (CSlider *)(cGeneralSettings.getWidget(gs_LoadingTime));
+	CSlider *speed = (CSlider *)(cGeneralSettings.getWidget(gs_GameSpeed));
+	int max_loadingtime = (int) (DEFAULT_LOADING_TIME * Menu_getGameSpeed());
+	lt->setMax(max_loadingtime);
 
 	if(ev)
 	{

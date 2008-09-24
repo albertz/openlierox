@@ -31,7 +31,7 @@ static mouse_t		Mouse;
 static SDL_Event	SDLEvent;
 static ModifiersState evtModifiersState;
 
-static int         nFocus = true;
+static bool         nFocus = true;
 bool		bActivated = false;
 
 std::list<EventListener *>	tEventListeners;
@@ -270,7 +270,7 @@ void HandleNextEvent() {
 	// Activation and deactivation
 	case SDL_ACTIVEEVENT:
 		if(!(SDLEvent.active.state & SDL_APPMOUSEFOCUS))  {
-				nFocus = SDLEvent.active.gain;
+				nFocus = SDLEvent.active.gain != 0;
 				bActivated = nFocus != 0;
 
 				// HINT: Reset the mouse state - this should avoid the mouse staying pressed
