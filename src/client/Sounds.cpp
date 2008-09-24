@@ -44,7 +44,9 @@ int LoadSounds(void)
 
 	//sfxGeneral.smpChat = LoadSample("data/sounds/chat.wav",2);
 	sfxGeneral.smpClick = LoadSample("data/sounds/click.wav",2);
-
+	sfxGeneral.smpNotify = LoadSample("data/sounds/notify.wav",2);
+	if( sfxGeneral.smpNotify.get() == NULL )
+		sfxGeneral.smpNotify = LoadSample("data/sounds/dirt.wav",2);	// Very funny sound
 
 	return true;
 }

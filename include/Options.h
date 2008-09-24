@@ -220,6 +220,7 @@ public:
 	bool	bServerSideHealth;
 	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
+	bool	bNotifyUserOnEvent;		// Beeps when the game starts
 
 	// Misc.
 	bool    bLogConvos;

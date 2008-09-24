@@ -839,3 +839,16 @@ int unsetenv(const char *name)
   return 0;
 }
 #endif
+
+// Make the sound, and blink the game window (platform-dependent)
+void NotifyUserOnEvent()
+{
+	static float lastNotification = -9999.0f;
+	if( tLX->fCurTime - lastNotification < 3.0f )
+		return;
+		
+	lastNotification = tLX->fCurTime;
+	
+	PlaySoundSample(sfxGeneral.smpNotify);
+	
+};

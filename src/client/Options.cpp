@@ -117,6 +117,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
+		( tLXOptions->bNotifyUserOnEvent, "Advanced.NotifyUserOnEvent", true )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )

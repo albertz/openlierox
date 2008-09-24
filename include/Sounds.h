@@ -69,6 +69,7 @@ struct SoundMusic {
 typedef struct {
 	SmartPointer<SoundSample> smpClick;
 	SmartPointer<SoundSample> smpChat;
+	SmartPointer<SoundSample> smpNotify;
 } sfxgen_t;
 
 

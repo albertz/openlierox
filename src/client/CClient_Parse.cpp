@@ -448,7 +448,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	printf("Got ParsePrepareGame\n");
-
+	
 	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
 		ResetQuitEngineFlag();
@@ -467,6 +467,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
+	if( tLXOptions->bNotifyUserOnEvent )
+		NotifyUserOnEvent();
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( client->tSocket );
@@ -799,6 +801,9 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	for(uint i=0;i<client->iNumWorms;i++) {
 		client->cLocalWorms[i]->StartGame();
 	}
+
+	if( tLXOptions->bNotifyUserOnEvent )
+		NotifyUserOnEvent();
 }
 
 
@@ -1589,7 +1594,6 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		printf("WARNING: got local server leaving packet, ignoring...\n");
 		return;
 	}
-
 	// Not so much an error, but rather a disconnection of communication between us & server
 	client->bServerError = true;
 	client->strServerErrorMsg = "Server has quit";
@@ -1607,6 +1611,10 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		client->bInServer = false;
 		fclose(f);
 	}
+	
+	if( tLXOptions->bNotifyUserOnEvent )
+		NotifyUserOnEvent();
+	
 }
 
 
@@ -1728,6 +1736,10 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	}
 
 	client->ShutdownLog();
+	
+	if( tLXOptions->bNotifyUserOnEvent )
+		NotifyUserOnEvent();
+
 }
 
 
@@ -1763,6 +1775,10 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 		client->bInServer = false;
 		fclose(f);
 	}
+	
+	if( tLXOptions->bNotifyUserOnEvent )
+		NotifyUserOnEvent();
+
 }
 
 // Server sent us some file
