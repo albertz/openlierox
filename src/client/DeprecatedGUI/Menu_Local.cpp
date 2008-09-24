@@ -960,6 +960,7 @@ bool Menu_GameSettings_Frame(void)
 	CSlider *speed = (CSlider *)(cGeneralSettings.getWidget(gs_GameSpeed));
 	int max_loadingtime = (int) (DEFAULT_LOADING_TIME * Menu_getGameSpeed());
 	lt->setMax(max_loadingtime);
+	lt->setValue(MIN(max_loadingtime, lt->getValue()));
 
 	if(ev)
 	{
