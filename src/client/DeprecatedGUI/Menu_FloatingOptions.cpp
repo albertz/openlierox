@@ -31,20 +31,18 @@
 
 namespace DeprecatedGUI {
 
-void UpdateGameInputs()
+void SetupGameInputs()
 {
-	// Setup the controls
-	cClient->getWorm(0)->SetupInputs( tLXOptions->sPlayerControls[0] );
-	// TODO: setup also more viewports
-	if(cClient->getNumWorms() >= 2)
-		cClient->getWorm(1)->SetupInputs( tLXOptions->sPlayerControls[1] );
-	
-    cClient->getViewports()[0].setupInputs( tLXOptions->sPlayerControls[0] );
-    cClient->getViewports()[1].setupInputs( tLXOptions->sPlayerControls[1] );
+	// Setup global keys
+	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+#ifdef WITH_MEDIAPLAYER
+	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
+#endif
 
-}
+	cClient->SetupGameInputs();
+};
 
-// TODO: rename Options to FloatingOptions
 
 int iFloatingOptionsMode = 0;
 CGuiLayout	cFloatingOptions;
@@ -512,16 +510,10 @@ void Menu_FloatingOptionsFrame(void)
 
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
-					Menu_OptionsWaitInput(ply, b->getName(), b);
-					// Re-setup the Take Screenshot, Switch Mode and Media Player keys
-					if (ev->iControlID == oc_Gen_TakeScreenshot)
-						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-					if (ev->iControlID == oc_Gen_SwitchMode)
-						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-#ifdef WITH_MEDIAPLAYER
-					if (ev->iControlID == oc_Gen_MediaPlayer)
-						cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
-#endif
+					Menu_FloatingOptionsWaitInput(ply, b->getName(), b);
+					
+					SetupGameInputs();
+
 				}
 			}
 		}

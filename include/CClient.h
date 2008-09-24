@@ -556,7 +556,8 @@ public:
 	int			getTopBarBottom();
 	int			getBottomBarTop();
 	void		DrawChatter(SDL_Surface * bmpDest);
-
+	void		SetupGameInputs(); // Re-setup inputs for worms, viewports and all game actions
+	
 	CClientNetEngine * getNetEngine() { return cNetEngine; };
 	void		setOldNetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngine(this); };
 	void		setBeta6NetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngineBeta6(this); };

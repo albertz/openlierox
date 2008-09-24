@@ -297,22 +297,10 @@ int CClient::Initialize(void)
 	// Initialize the shooting list
 	cShootList.Initialize();
 
-	// General key shortcuts
-	cChat_Input.Setup(tLXOptions->sGeneralControls[SIN_CHAT]);
-	cTeamChat_Input.Setup(tLXOptions->sGeneralControls[SIN_TEAMCHAT]);
-    cShowScore.Setup(tLXOptions->sGeneralControls[SIN_SCORE]);
-	cShowHealth.Setup(tLXOptions->sGeneralControls[SIN_HEALTH]);
-	cShowSettings.Setup(tLXOptions->sGeneralControls[SIN_SETTINGS]);
-	cViewportMgr.Setup(tLXOptions->sGeneralControls[SIN_VIEWPORTS]);
-	cToggleTopBar.Setup(tLXOptions->sGeneralControls[SIN_TOGGLETOPBAR]);
-
-	// Clear the frames
-
-
+	SetupGameInputs();
+	
     // Initialize the weather
     //cWeather.Initialize(wth_snow);
-
-	InitializeSpectatorViewportKeys();
 
 	return true;
 }
@@ -1796,3 +1784,29 @@ std::string CClient::debugName() {
 	return "CClient(" + adr +") with " + worms;
 }
 
+
+void CClient::SetupGameInputs()
+{
+	// Setup the controls
+	if(getNumWorms() >= 1)
+		getWorm(0)->SetupInputs( tLXOptions->sPlayerControls[0] );
+	// TODO: setup also more viewports
+	if(getNumWorms() >= 2)
+		getWorm(1)->SetupInputs( tLXOptions->sPlayerControls[1] );
+	
+    getViewports()[0].setupInputs( tLXOptions->sPlayerControls[0] );
+    getViewports()[1].setupInputs( tLXOptions->sPlayerControls[1] );
+	
+
+	// General key shortcuts
+	cChat_Input.Setup(tLXOptions->sGeneralControls[SIN_CHAT]);
+	cTeamChat_Input.Setup(tLXOptions->sGeneralControls[SIN_TEAMCHAT]);
+    cShowScore.Setup(tLXOptions->sGeneralControls[SIN_SCORE]);
+	cShowHealth.Setup(tLXOptions->sGeneralControls[SIN_HEALTH]);
+	cShowSettings.Setup(tLXOptions->sGeneralControls[SIN_SETTINGS]);
+	cViewportMgr.Setup(tLXOptions->sGeneralControls[SIN_VIEWPORTS]);
+	cToggleTopBar.Setup(tLXOptions->sGeneralControls[SIN_TOGGLETOPBAR]);
+
+	InitializeSpectatorViewportKeys();
+
+}
