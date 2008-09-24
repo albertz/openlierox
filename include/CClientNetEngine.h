@@ -65,6 +65,7 @@ protected:
 	void		ParseStartGame(CBytestream *bs);
 	void		ParseSpawnWorm(CBytestream *bs);
 	void		ParseWormInfo(CBytestream *bs);
+	void		ParseWormWeaponInfo(CBytestream *bs);
 	void		ParseText(CBytestream *bs);
 	void		ParseScoreUpdate(CBytestream *bs);
 	void		ParseGameOver(CBytestream *bs);

@@ -451,19 +451,6 @@ void GameServer::ParseDisconnect(CServerConnection *cl) {
 }
 
 
-///////////////////
-// Parse a weapon list packet
-void GameServer::ParseWeaponList(CServerConnection *cl, CBytestream *bs) {
-	int id = bs->readByte();
-
-	if (id >= 0 && id < MAX_WORMS)
-		cWorms[id].readWeapons(bs);
-	else  {
-		printf("GameServer::ParseWeaponList: worm ID out of bounds.\n");
-		CWorm::skipWeapons(bs);  // Skip to get to the right position in the stream
-	}
-}
-
 
 ///////////////////
 // Parse a 'grab bonus' packet

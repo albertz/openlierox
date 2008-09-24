@@ -61,6 +61,8 @@ void CWorm::readInfo(CBytestream *bs)
 }
 
 
+
+
 ///////////////////
 // Write my score
 void CWorm::writeScore(CBytestream *bs)
@@ -530,8 +532,10 @@ void CWorm::writeWeapons(CBytestream *bs)
 	for(ushort i=0; i<5; i++) {
 		if(tWeapons[i].Weapon)
 			bs->writeByte(tWeapons[i].Weapon->ID);
-		else
-			printf("tWeapons[%d].Weapon not set\n",i);
+		else {
+			bs->writeByte(0);
+			printf("ERROR: tWeapons[%d].Weapon not set\n",i);
+		}
 	}
 }
 
@@ -540,6 +544,8 @@ void CWorm::writeWeapons(CBytestream *bs)
 // Read the weapon list
 void CWorm::readWeapons(CBytestream *bs)
 {
+	cout << "getting weapons for worm (" << iID << ") " << sName << endl;
+
 	ushort i;
 	int id;
 
@@ -567,6 +573,8 @@ void CWorm::readWeapons(CBytestream *bs)
 		tWeapons[i].SlotNum = i;
 		tWeapons[i].LastFire = 0;
 	}
+	
+	bWeaponsReady = true;
 }
 
 /////////////

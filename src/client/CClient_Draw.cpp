@@ -535,10 +535,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 				if(!cLocalWorms[i]->getWeaponsReady()) {
 					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
 
-					// Forced to finish weapon selection
-					if (bForceWeaponsReady)  {
-						cLocalWorms[i]->setWeaponsReady(true);
-					}
 
 					if(cLocalWorms[i]->getWeaponsReady()) {
 						cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
@@ -2571,9 +2567,11 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
 	cur_y += tLX->cFont.GetHeight();
 
-	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Speed:");
+	// TODO: this takes too much place in the small info
+/*	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Speed:");
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,ftoa(tGameInfo.fGameSpeed));
 	cur_y += tLX->cFont.GetHeight();
+*/
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Lives:");
 	if (tGameInfo.iLives < 0)

@@ -273,6 +273,11 @@ int GameServer::StartGame()
 		if(IsSocketStateValid(tNatTraverseSockets[f]))
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
+	// HINT:
+	// At the moment, the only case where we need the bServerChoosesWeapons is when we enable bForceRandomWeapons.
+	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
+	tGameInfo.bServerChoosesWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
+
 	checkVersionCompatibilities();
 
 	CBytestream bs;
@@ -287,6 +292,7 @@ int GameServer::StartGame()
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	bBonusesOn =	 tGameInfo.bBonusesOn;
 	bShowBonusName = tGameInfo.bShowBonusName;
+	
 
 	printf("GameServer::StartGame() mod %s\n", sModName.c_str());
 
@@ -479,7 +485,8 @@ int GameServer::StartGame()
 
 	// doing this since Beta7
 	bs.writeFloat( tGameInfo.fGameSpeed );
-
+	bs.writeBool( tGameInfo.bServerChoosesWeapons );
+	
 	
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
@@ -491,6 +498,21 @@ int GameServer::StartGame()
 
 	// Re-register the server to reflect the state change
 	RegisterServerUdp();
+
+
+	if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+		for(int i=0;i<MAX_WORMS;i++) {
+			if(!cWorms[i].isUsed())
+				continue;
+			cWorms[i].GetRandomWeapons();
+			cWorms[i].setWeaponsReady(true);
+		}
+	}
+	
+	if(tGameInfo.bServerChoosesWeapons) {
+		sendWeapons();
+	}
+
 
 	return true;
 }
@@ -548,6 +570,7 @@ void GameServer::BeginMatch(void)
 	// For spectators: set their lives to out and tell clients about it
 	bs.Clear();
 	for (i = 0; i < MAX_WORMS; i++)  {
+		// TODO: how can a worm spectate? spectating is something a client is doing (spectating client = client without any worm)
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating())  {
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
@@ -556,6 +579,7 @@ void GameServer::BeginMatch(void)
 	}
 	if (bs.GetLength() != 0) // Send only if there are some spectators
 		SendGlobalPacket(&bs);
+
 
 	// No need to kill local worms for dedicated server - they will suicide by themselves
 
@@ -1022,8 +1046,13 @@ void GameServer::CheckWeaponSelectionTime()
 			if( cl->getGameReady() )
 				continue;
 			if( cl->isLocalClient() ) {
-				printf("forcing end of weapon selection for own client\n");
-				cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
+				for(int i = 0; i < cl->getNumWorms(); i++) {
+					if(!cl->getWorm(i)->getWeaponsReady()) {
+						cout << "WARNING: own worm " << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
+						cl->getWorm(i)->GetRandomWeapons();
+						cl->getWorm(i)->setWeaponsReady(true);
+					}
+				}
 				continue;
 			}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
@@ -1180,6 +1209,10 @@ void GameServer::checkVersionCompatibilities() {
 bool GameServer::checkVersionCompatibility(CServerConnection* cl) {
 	if(tGameInfo.fGameSpeed != 1.0f) {
 		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used")) return false;		
+	}
+	
+	if(tGameInfo.bServerChoosesWeapons) {
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons")) return false;	
 	}
 	
 	return true;

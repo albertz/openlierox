@@ -165,6 +165,7 @@
 		23ECBE720E894D48007B8D55 /* zip_unchange_data.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBE330E894D03007B8D55 /* zip_unchange_data.c */; };
 		23ECBE7A0E894DC0007B8D55 /* libLibZip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23ECBE390E894D1A007B8D55 /* libLibZip.a */; };
 		23ECBE7F0E894E4F007B8D55 /* CServerConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBE7E0E894E4F007B8D55 /* CServerConnection.cpp */; };
+		23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
 		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
 		EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
@@ -542,6 +543,7 @@
 		23ECBE7E0E894E4F007B8D55 /* CServerConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CServerConnection.cpp; sourceTree = "<group>"; };
 		23ECBE800E894E6B007B8D55 /* CClientNetEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CClientNetEngine.h; sourceTree = "<group>"; };
 		23ECBE810E894E6B007B8D55 /* CServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerConnection.h; sourceTree = "<group>"; };
+		23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_FloatingOptions.cpp; sourceTree = "<group>"; };
 		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
 		EA38B0360C467967008ABAAE /* EndianSwap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndianSwap.h; sourceTree = "<group>"; };
 		EA38B0370C467967008ABAAE /* TSVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSVar.h; sourceTree = "<group>"; };
@@ -831,6 +833,7 @@
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
 			isa = PBXGroup;
 			children = (
+				23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */,
 				239ACA550E6AD44F00C4216A /* CAnimation.cpp */,
 				239ACA560E6AD44F00C4216A /* CBar.cpp */,
 				239ACA570E6AD44F00C4216A /* CBox.cpp */,
@@ -1611,6 +1614,7 @@
 				239ACAE50E6AD46900C4216A /* StringBuf.cpp in Sources */,
 				239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */,
 				23ECBE7F0E894E4F007B8D55 /* CServerConnection.cpp in Sources */,
+				23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

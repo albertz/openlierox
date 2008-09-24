@@ -184,6 +184,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	bool		SendUpdate();
+	void		sendWeapons();
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	void		RegisterServer(void);
@@ -240,7 +241,6 @@ public:
 	void		ParseChatText(CServerConnection *cl, CBytestream *bs);
 	void		ParseUpdateLobby(CServerConnection *cl, CBytestream *bs);
 	void		ParseDisconnect(CServerConnection *cl);
-	void		ParseWeaponList(CServerConnection *cl, CBytestream *bs);
 	void		ParseGrabBonus(CServerConnection *cl, CBytestream *bs);
 	void		ParseSendFile(CServerConnection *cl, CBytestream *bs);
 

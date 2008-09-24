@@ -1927,6 +1927,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	bool			bHaveGameSpeed = false;
 	float			fGameSpeed;
 	
+	
     CBytestream inbs;
     NetworkAddr   addr;
 

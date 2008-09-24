@@ -217,6 +217,20 @@ bool GameServer::SendUpdate()
 	return true;
 }
 
+void GameServer::sendWeapons() {
+	CBytestream bs;
+	
+	CWorm* w = cWorms;
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if(!w->isUsed())
+			continue;
+		bs.writeByte(S2C_WORMWEAPONINFO);
+		w->writeWeapons(&bs);
+	}
+	
+	SendGlobalPacket(&bs);
+}
+
 
 ///////////////////
 // Check if we have gone over the clients bandwidth rating

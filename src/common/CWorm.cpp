@@ -474,8 +474,8 @@ void CWorm::InitWeaponSelection(void)
 	}
 
 
-	// If this is an AI worm, lets give him a preset or random arsenal
-	if(iType == PRF_COMPUTER && bLocal) {
+	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
+	if(!tGameInfo.bServerChoosesWeapons && iType == PRF_COMPUTER && bLocal) {
 
 		// TODO: move this to CWorm_AI
 		bool bRandomWeaps = true;
@@ -609,7 +609,7 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 	int l = 0;
 	int t = 0;
 	short i;
-	int centrex = 320; // TODO: hardcoded width here
+	int centrex = 320; // TODO: hardcoded screen width here
 
     if( v ) {
         if( v->getUsed() ) {
@@ -620,6 +620,12 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
     }
 
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
+	
+	if(tGameInfo.bServerChoosesWeapons) {
+		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
+		return;
+	}
+	
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+66, tLX->clWeaponSelectionTitle, "(Go to 'Done' and press shoot then.)");
 	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");

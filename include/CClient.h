@@ -227,7 +227,6 @@ public:
 		cIConnectedBuf = "";
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
-		bForceWeaponsReady = false;
 		SetNetAddrValid( cServerAddr, false );
 		InvalidateSocketState(tSocket);
 		bLocalClient = false;
@@ -309,7 +308,6 @@ private:
 	bool		bBonusesOn;
 	bool		bShowBonusName;
     CWpnRest    cWeaponRestrictions;
-	bool		bForceWeaponsReady;
 
 	// Ping below FPS
 	float		fMyPingSent;
@@ -683,9 +681,6 @@ public:
 
 	bool		getSpectate()							{ return bSpectate; };
 	void		setSpectate( bool _b )					{ bSpectate = _b; };
-
-	bool		getForceWeaponsReady()					{ return bForceWeaponsReady; }
-	void		setForceWeaponsReady(bool _r)			{ bForceWeaponsReady = _r; }
 
 	bool		isGameMenu()			{ return bGameMenu; }
 	bool		isChatTyping()			{ return bChat_Typing; }

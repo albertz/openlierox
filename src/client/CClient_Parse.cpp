@@ -333,6 +333,11 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 				ParseWormInfo(bs);
 				break;
 
+			// Worm weapon info
+			case S2C_WORMWEAPONINFO:
+				ParseWormWeaponInfo(bs);
+				break;
+
 			// Text
 			case S2C_TEXT:
 				ParseText(bs);
@@ -467,7 +472,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	RemoveSocketFromNotifierGroup( client->tSocket );
 
 	client->bGameReady = true;
-	client->bForceWeaponsReady = false;
 
 	int random = bs->readInt(1);
 	std::string sMapName;
@@ -660,6 +664,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		tGameInfo.fGameSpeed = bs->readFloat();
 	else
 		tGameInfo.fGameSpeed = 1.0f;
+
+	if(!bs->isPosAtEnd()) // >=Beta7 is sending this
+		tGameInfo.bServerChoosesWeapons = bs->readBool();
+	else
+		tGameInfo.bServerChoosesWeapons = false;
+
 
 
 	// TODO: Load any other stuff
@@ -906,6 +916,28 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 }
+
+///////////////////
+// Parse a worm info packet
+void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
+{
+	int id = bs->readInt(1);
+
+	// Validate the id
+	if (id < 0 || id >= MAX_WORMS)  {
+		printf("CClientNetEngine::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
+		CWorm::skipWeapons(bs); // Skip not to break other packets
+		return;
+	}
+
+	client->cRemoteWorms[id].readWeapons(bs);
+
+	client->UpdateScoreboard();
+	if (client->cRemoteWorms[id].getLocal())
+		client->bShouldRepaintInfo = true;
+}
+
+
 
 
 ///////////////////
@@ -1473,6 +1505,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 
 ///////////////////
 // Parse a 'worm down' packet
+// TODO: what exactly is this?
 void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby

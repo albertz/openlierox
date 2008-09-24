@@ -71,7 +71,6 @@ void CClient::Clear(void)
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
-	bForceWeaponsReady = false;
 	bLocalClient = false;
 
 	tGameLog = NULL;
@@ -157,7 +156,6 @@ void CClient::MinorClear(void)
 	bUpdateScore = true;
 	fLastScoreUpdate = -9999;
 	bCurrentSettings = false;
-	bForceWeaponsReady = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
 

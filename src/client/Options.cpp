@@ -174,6 +174,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
 		( tLXOptions->tGameinfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
 		( tLXOptions->tGameinfo.fGameSpeed, "GameSpeed", 1.0f )
+		( tLXOptions->tGameinfo.bForceRandomWeapons, "ForceRandomWeapons", false )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

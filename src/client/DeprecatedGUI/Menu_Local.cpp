@@ -763,6 +763,7 @@ enum {
 	gs_GameSpeedLabel,
 	gs_TimeLimit,
 	gs_RespawnTime,
+	gs_ForceRandomWeapons,
 	gs_RespawnInWaves,
 	gs_RespawnGroupTeams,
 	gs_SuicideDecreasesScore,
@@ -853,6 +854,10 @@ void Menu_GameSettings(void)
 	cGeneralSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
 	if(tLXOptions->tGameinfo.fTimeLimit > 0)
 		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
+
+	cGeneralSettings.Add( new CLabel("Force random", tLX->clNormalLabel),			-1,	        350,300, 0, 0);
+	cGeneralSettings.Add( new CLabel("weapon selection", tLX->clNormalLabel),		-1,	        350,315, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bForceRandomWeapons),	gs_ForceRandomWeapons, 470,307,17,17);
 
 	cGeneralSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,340, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_RespawnTime,	300,337, 30,tLX->cFont.GetHeight());
@@ -1087,6 +1092,8 @@ void Menu_GameSettings_GrabInfo(void)
 	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
 		tLXOptions->tGameinfo.fRespawnTime = atof(buf);
+
+	tLXOptions->tGameinfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bRespawnInWaves = cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
