@@ -1302,6 +1302,9 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	// Write out my version (we do this since Beta5)
 	bs.writeString(GetFullGameName());
 
+	// since Beta7
+	bs.writeFloat(tGameInfo.fGameSpeed);
+
 	bs.Send(tSocket);
 }
 

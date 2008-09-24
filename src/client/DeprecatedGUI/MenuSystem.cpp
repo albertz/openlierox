@@ -1924,7 +1924,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	bool			bHaveLives = false;
 	bool			bHaveVersion = false;
 	std::string		sServerVersion;
-
+	bool			bHaveGameSpeed = false;
+	float			fGameSpeed;
+	
     CBytestream inbs;
     NetworkAddr   addr;
 
@@ -2020,6 +2022,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 						sServerVersion = inbs.readString();
 					}
 
+					if(!inbs.isPosAtEnd())  {
+						bHaveGameSpeed = true;
+						fGameSpeed = inbs.readFloat();
+					}
+
                 }
             }
         }
@@ -2033,6 +2040,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
             // Send a getinfo request
             SetRemoteNetAddr(tMenu->tSocket[SCK_NET], origAddr);
 
+			// TODO: move that out here
 	        CBytestream bs;
 	        bs.writeInt(-1,4);
 	        bs.writeString("lx::getinfo");
@@ -2141,6 +2149,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL, NULL);
 
+			if(bHaveGameSpeed) {
+				// Loading times
+				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
+				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
+			}
+			
 			// Bonuses
 			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
 			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
