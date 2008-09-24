@@ -202,7 +202,7 @@ void CWorm::getInput()
 		const float carveDelay = 0.2f;
 
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_LEFT)
-			|| ( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) {
+			|| ((( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) && !cSelWeapon.isDown())) {
 
 			if(tLX->fCurTime - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
@@ -212,7 +212,7 @@ void CWorm::getInput()
 		}
 
 		if((mouseControl && ws->bMove && iMoveDirection == DIR_RIGHT)
-			|| ( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) {
+			|| ((( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) && !cSelWeapon.isDown())) {
 
 			if(tLX->fCurTime - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
