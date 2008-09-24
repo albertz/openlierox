@@ -865,7 +865,7 @@ void NotifyUserOnEvent()
 	
 	//printf("NotifyUserOnEvent() %i\n", ApplicationHasFocus());
 
-	if( ! ApplicationHasFocus() )
+	if( ApplicationHasFocus() )
 		return;
 	
 	PlaySoundSample(sfxGeneral.smpNotify);
