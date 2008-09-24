@@ -198,7 +198,7 @@ bool Menu_FloatingOptionsInitialize(void)
 
 
 	// Add the controls
-	cFloatingOptions.Add( new CButton(BUT_OK, tMenu->bmpButtons), op_Ok, 600,440, 50,15);
+	cFloatingOptions.Add( new CButton(BUT_OK, tMenu->bmpButtons), op_Ok, 590,440, 40,20);
 
 
 	// Controls
@@ -456,6 +456,9 @@ void Menu_FloatingOptionsFrame(void)
 		}
 	}
 
+	// Fullscreen value
+	c = (CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen);
+	bool fullscr = c->getValue();
 
 
 	// Process the gui layout
@@ -464,6 +467,36 @@ void Menu_FloatingOptionsFrame(void)
 #endif
 	ev = cFloatingOptions.Process();
 	cFloatingOptions.Draw(VideoPostProcessor::videoSurface());
+	if (ev)  {
+		switch (ev->iControlID)  {
+
+		// Ok
+		case op_Ok:
+			if(ev->iEventMsg == BTN_MOUSEUP) {
+
+				// Set to fullscreen
+				if (bChangedVideoMode)  {
+					tLXOptions->bFullscreen = fullscr;
+
+					CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+					bool fail = false;
+					tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+					tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
+					t->setText(itoa(tLXOptions->nMaxFPS));
+					PlaySoundSample(sfxGeneral.smpClick);
+
+					// Set the new video mode
+					SetVideoMode();
+					Menu_RedrawMouse(true);
+					SDL_ShowCursor(SDL_DISABLE);
+				}
+
+				Menu_FloatingOptionsShutdown();
+			}
+			break;
+
+		}
+	}
 
 	if(iFloatingOptionsMode == 0) {
 
@@ -615,11 +648,6 @@ void Menu_FloatingOptionsFrame(void)
 	// Process the different pages
 	if(iFloatingOptionsMode == 2) {
 
-		// Fullscreen value
-		c = (CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen);
-		bool fullscr = c->getValue();
-
-
 		// System
 #ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
@@ -630,31 +658,6 @@ void Menu_FloatingOptionsFrame(void)
 		if(ev) {
 
 			switch(ev->iControlID) {
-
-				// Apply
-				case op_Ok:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
-
-						// Set to fullscreen
-						if (bChangedVideoMode)  {
-							tLXOptions->bFullscreen = fullscr;
-
-							CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
-							bool fail = false;
-							tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-							tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
-							t->setText(itoa(tLXOptions->nMaxFPS));
-							PlaySoundSample(sfxGeneral.smpClick);
-
-							// Set the new video mode
-							SetVideoMode();
-							Menu_RedrawMouse(true);
-							SDL_ShowCursor(SDL_DISABLE);
-						}
-
-						Menu_FloatingOptionsShutdown();
-					}
-					break;
 
 				// Sound on/off
 				case os_SoundOn:
