@@ -769,7 +769,8 @@ enum {
 	gs_SuicideDecreasesScore,
 	gs_GroupTeamScore,
 	gs_EmptyWeaponsOnRespawn,
-
+	gs_SameWeaponsAsHostWorm,
+	
 	gs_Bonuses,
 	gs_ShowBonusNames,
 	gs_BonusSpawnTime,
@@ -868,18 +869,28 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,345, 0, 0);
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,337,17,17);
 
-	cGeneralSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,370, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,367,17,17);
+	int y = 370;
 
-	cGeneralSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,370, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,367,17,17);
+	cGeneralSettings.Add( new CLabel("Same weapons as", tLX->clNormalLabel),			-1,	        350,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("host worm", tLX->clNormalLabel),		-1,	        350,y+5, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm),	gs_SameWeaponsAsHostWorm, 470,y-3,17,17);
 
-	cGeneralSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,390, 0, 0);
-	cGeneralSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,405, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,397,17,17);
+	y += 30;
 
-	cGeneralSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,400, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,397,17,17);
+	cGeneralSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,y, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,y-3,17,17);
+
+	cGeneralSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,y, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
+
+	y += 30;
+		
+	cGeneralSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,y-3,17,17);
+
+	cGeneralSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,y, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,y-3,17,17);
 
 
 
@@ -1104,6 +1115,9 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
+
+	tLXOptions->tGameinfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
+
 
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);

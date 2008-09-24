@@ -507,14 +507,9 @@ int GameServer::StartGame()
 
 	// initial server side weapon handling
 	if(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
-		if(tLXOptions->tGameinfo.bForceRandomWeapons) {
-			cClient->getWorm(0)->GetRandomWeapons();
-			cClient->getWorm(0)->setWeaponsReady(true);
-			
-			cloneWeaponsToAllWorms( cClient->getWorm(0) );
-		}
 		// we do the clone right after we selected the weapons for this worm
 		// we cannot do anything here at this time
+		// bForceRandomWeapons is handled from the client code
 	}
 	else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
 		for(int i=0;i<MAX_WORMS;i++) {
