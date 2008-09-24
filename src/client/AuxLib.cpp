@@ -880,9 +880,10 @@ void NotifyUserOnEvent()
 	info.info.x11.lock_func();
 	//XLockDisplay( info.info.x11.display );
 	
-	Status status = XRaiseWindow( info.info.x11.display, info.info.x11.window );
-	if( status != Success )
-		printf("XRaiseWindow() fails %i\n", status);
+	// It fails anyway, whatever I've tried
+	//Status status = XRaiseWindow( info.info.x11.display, info.info.x11.window );
+	//if( status != Success )
+	//	printf("XRaiseWindow() fails %i\n", status);
 	
 	//XUnlockDisplay( info.info.x11.display );
 	info.info.x11.unlock_func();
