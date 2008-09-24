@@ -112,4 +112,6 @@ class CInput;
 void		RegisterCInput(CInput* input);
 void		UnregisterCInput(CInput* input);
 
+bool		ApplicationHasFocus();
+
 #endif

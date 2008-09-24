@@ -1626,9 +1626,6 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		fclose(f);
 	}
 	
-	if( tLXOptions->bNotifyUserOnEvent )
-		NotifyUserOnEvent();
-	
 }
 
 
@@ -1753,9 +1750,6 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 
 	client->ShutdownLog();
 	
-	if( tLXOptions->bNotifyUserOnEvent )
-		NotifyUserOnEvent();
-
 }
 
 
@@ -1792,9 +1786,6 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 		fclose(f);
 	}
 	
-	if( tLXOptions->bNotifyUserOnEvent )
-		NotifyUserOnEvent();
-
 }
 
 // Server sent us some file

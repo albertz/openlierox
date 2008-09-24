@@ -524,3 +524,7 @@ bool ProcessEvents()
 	return ret;
 }
 
+bool ApplicationHasFocus()
+{
+	return nFocus;
+};
