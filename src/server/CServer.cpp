@@ -273,6 +273,8 @@ int GameServer::StartGame()
 		if(IsSocketStateValid(tNatTraverseSockets[f]))
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
+	checkVersionCompatibilities();
+
 	CBytestream bs;
 	float timer;
 	
@@ -475,6 +477,10 @@ int GameServer::StartGame()
 
     cWeaponRestrictions.sendList(&bs, cGameScript.get());
 
+	// doing this since Beta7
+	bs.writeFloat( tGameInfo.fGameSpeed );
+
+	
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
 
@@ -1155,6 +1161,39 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 }
 
 
+void GameServer::checkVersionCompatibilities() {
+	// Cycle through clients
+	CServerConnection *cl = cClients;
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+		// Client not connected or no worms
+		if(cl->getStatus() == NET_DISCONNECTED)
+			continue;
+
+		// HINT: It doesn't really make sense to check local clients, though we can just do it to check for strange errors.
+		//if (cl->isLocalClient())
+		//	continue;
+		
+		checkVersionCompatibility(cl);
+	}
+}
+
+bool GameServer::checkVersionCompatibility(CServerConnection* cl) {
+	if(tGameInfo.fGameSpeed != 1.0f) {
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used")) return false;		
+	}
+	
+	return true;
+}
+
+bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason) {
+	if(cl->getClientVersion() < ver) {
+		DropClient(cl, CLL_KICK, "version " + cl->getClientVersion().asString() + " too old: " + reason);
+		return false;
+	}
+	return true;
+}
+
+
 ///////////////////
 // Kick a worm out of the server
 void GameServer::kickWorm(int wormID, const std::string& sReason)
@@ -1226,8 +1265,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
         return;
 	}
 
-    // Drop the client
-    DropClient(cl, CLL_KICK, sReason);
+	// Drop the whole client
+	// TODO: only kick this worm, not the whole client
+	DropClient(cl, CLL_KICK, sReason);
 }
 
 

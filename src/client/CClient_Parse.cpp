@@ -656,6 +656,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
+	if(!bs->isPosAtEnd()) // >=Beta7 is sending this
+		tGameInfo.fGameSpeed = bs->readFloat();
+	else
+		tGameInfo.fGameSpeed = 1.0f;
+
 
 	// TODO: Load any other stuff
 	client->bGameReady = true;

@@ -67,6 +67,7 @@ private:
 	std::string	sName;
 	int			iState;
 
+	// TODO: merge this with game_t (tGameInfo variable)
 	// Game rules
 	bool		bGameOver;
 	float		fGameOverTime;
@@ -210,6 +211,10 @@ public:
 	float		GetDownload();
 	float		GetUpload();
 	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
+
+	void		checkVersionCompatibilities();
+	bool		checkVersionCompatibility(CServerConnection* cl);
+	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason);
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CServerConnection *cl);
