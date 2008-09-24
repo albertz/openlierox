@@ -758,6 +758,8 @@ enum {
 	gs_MaxKills,
 	gs_LoadingTime,
 	gs_LoadingTimeLabel,
+	gs_GameSpeed,
+	gs_GameSpeedLabel,
 	gs_TimeLimit,
 	gs_RespawnTime,
 	gs_RespawnInWaves,
@@ -777,6 +779,18 @@ enum {
 };
 
 
+
+
+static void Menu_setGameSpeed(float speed) {
+	int v = (int)(speed * 10.0f) - 1;
+	cGeneralSettings.SendMessage(gs_GameSpeed, SLM_SETVALUE, v, 0);
+}
+
+static float Menu_getGameSpeed() {
+	int v = cGeneralSettings.SendMessage(gs_GameSpeed, SLM_GETVALUE, 100, 0);
+	// 0-99 values possible, map to 0.1,0.2,...0.9,1.0,1.1,...,2.0,...,10.0
+	return (float)(v + 1) * 0.1f;
+}
 
 ///////////////////
 // Initialize the game settings
@@ -828,9 +842,13 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 260, 0, 0);
 	cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
 
+	cGeneralSettings.Add( new CLabel("Game Speed", tLX->clNormalLabel),		    -1,	        140,285, 0, 0);
+	cGeneralSettings.Add( new CSlider(99),									gs_GameSpeed,	295,282, 160,20);
+	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_GameSpeedLabel, 470, 285, 0, 0);
+	Menu_setGameSpeed( tLXOptions->tGameinfo.fGameSpeed );
 
-	cGeneralSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,300, 0, 0);
-	cGeneralSettings.Add( new CTextbox(),										gs_TimeLimit,	300,297, 30,tLX->cFont.GetHeight());
+	cGeneralSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,310, 0, 0);
+	cGeneralSettings.Add( new CTextbox(),										gs_TimeLimit,	300,307, 30,tLX->cFont.GetHeight());
 	cGeneralSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
 	if(tLXOptions->tGameinfo.fTimeLimit > 0)
 		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
@@ -901,6 +919,8 @@ void Menu_GameSettingsShutdown(void)
 	cGeneralSettings.Shutdown();
 	cBonusSettings.Shutdown();
 }
+
+
 
 
 ///////////////////
@@ -990,8 +1010,10 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	static std::string lstr; lstr = itoa(l)+"%";
+	std::string lstr = itoa(l)+"%";
 	cGeneralSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
+
+	cGeneralSettings.SendMessage(gs_GameSpeedLabel, LBS_SETTEXT, ftoa(Menu_getGameSpeed()) , 0);
 
 	}
 
@@ -1047,7 +1069,8 @@ void Menu_GameSettings_GrabInfo(void)
 	// General
 
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-
+	tGameInfo.fGameSpeed = Menu_getGameSpeed();
+	
 	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
 		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = atoi(buf);

@@ -201,7 +201,7 @@ class maprandom_t { public:
 };
 
 
-
+// TODO: merge this class with GameOptions::GameInfo (Options.h)
 // Game structure
 class game_t { public:
 	int			iGameType;		// Local, remote, etc
@@ -223,7 +223,8 @@ class game_t { public:
 	int			iTagLimit;
 	bool		bBonusesOn;
 	bool		bShowBonusName;
-
+	float		fGameSpeed;
+	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
 };

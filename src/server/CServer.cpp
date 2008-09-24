@@ -51,6 +51,7 @@ GameServer::GameServer() {
 	CScriptableVars::RegisterVars("GameServer")
 		( sWeaponRestFile, "WeaponRestrictionsFile" )
 		( sName, "ServerName" )
+		// TODO: this is incomplete
 		// TODO: Dunno if the following vars used, server seems to use tGameInfo struct instead - remove them then
 		( iMaxWorms, "MaxPlayers" )
 		( iGameType, "GameType" )

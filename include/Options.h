@@ -212,6 +212,7 @@ public:
 	bool	bAntilagMovementPrediction;
 	std::string sTheme;
 
+
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
@@ -238,6 +239,7 @@ public:
 	int		iMusicVolume;
 
 
+	// TODO: merge this class with game_t (LieroX.h)
 	// Last used game details
 	class GameInfo {
 	public:
@@ -272,6 +274,7 @@ public:
 		bool	bSuicideDecreasesScore;	// When you suicide or made teamkill your killcount will decrease
 		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
 		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
+		float	fGameSpeed; // game-speed multiplicator; 1 is the normal speed
 	} tGameinfo;
 
 	// not specified options found in options-file

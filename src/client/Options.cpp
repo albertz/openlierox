@@ -173,6 +173,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
 		( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
 		( tLXOptions->tGameinfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
+		( tLXOptions->tGameinfo.fGameSpeed, "GameSpeed", 1.0f )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

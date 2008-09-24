@@ -506,7 +506,8 @@ struct DedIntern {
 		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
 		tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 		tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = 10;
-
+		tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
+		
 		cClient->Shutdown();
 		cClient->Clear();
 
@@ -932,6 +933,7 @@ void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 
 // TODO: these are probably intended to be used for the scripts. though there are not used there atm
+// TODO: this is incomplete (for example fGameSpeed is missing)
 // should be fixed before release or we will have no forward-compatibility
 static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
 	( tGameInfo.iGameMode, "iGameMode" )
