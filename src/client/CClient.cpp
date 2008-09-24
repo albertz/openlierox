@@ -1788,11 +1788,17 @@ std::string CClient::debugName() {
 void CClient::SetupGameInputs()
 {
 	// Setup the controls
-	if(getNumWorms() >= 1)
-		getWorm(0)->SetupInputs( tLXOptions->sPlayerControls[0] );
+	if(getNumWorms() >= 1)  {
+		CWorm *wrm = getWorm(0);
+		if (wrm)
+			wrm->SetupInputs( tLXOptions->sPlayerControls[0] );
+	}
 	// TODO: setup also more viewports
-	if(getNumWorms() >= 2)
-		getWorm(1)->SetupInputs( tLXOptions->sPlayerControls[1] );
+	if(getNumWorms() >= 2)  {
+		CWorm *wrm = getWorm(1);
+		if (wrm)
+			wrm->SetupInputs( tLXOptions->sPlayerControls[1] );
+	}
 	
     getViewports()[0].setupInputs( tLXOptions->sPlayerControls[0] );
     getViewports()[1].setupInputs( tLXOptions->sPlayerControls[1] );
