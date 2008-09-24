@@ -1352,7 +1352,6 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 		break;
 
 		case gm_PopupMenu:  {
-			DeprecatedGUI::CMenu *mnu = (DeprecatedGUI::CMenu *)cGameMenuLayout.getWidget(gm_PopupMenu);
 			int worm_id = iSelectedPlayer;
             switch( ev->iEventMsg ) {
 
