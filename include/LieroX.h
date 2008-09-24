@@ -250,6 +250,8 @@ class game_lobby_t { public:
 	std::string	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
+	bool	bForceRandomWeapons;
+	bool	bSameWeaponsAsHostWorm;
 };
 
 

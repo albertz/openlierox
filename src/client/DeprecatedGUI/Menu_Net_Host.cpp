@@ -524,6 +524,8 @@ bool Menu_Net_HostLobbyInitialize(void)
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
 	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
     gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
+	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
+	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 
 
 	// Clear the saved chat text
@@ -721,6 +723,8 @@ void Menu_Net_HostGotoLobby(void)
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
 	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
+	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
+	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 
     if(!bDedicated) {
 	    // Create the GUI
@@ -780,6 +784,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
 			cServer->getLobby()->fGameSpeed = tGameInfo.fGameSpeed;
             cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
+			cServer->getLobby()->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
+			cServer->getLobby()->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 			cServer->UpdateGameLobby();
 		}
 		return;

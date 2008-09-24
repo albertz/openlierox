@@ -662,15 +662,16 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
-	if(!bs->isPosAtEnd()) // >=Beta7 is sending this
+	if(this->client->cServerVersion >= OLXBetaVersion(7)) {
+		// >=Beta7 is sending this
 		tGameInfo.fGameSpeed = bs->readFloat();
-	else
-		tGameInfo.fGameSpeed = 1.0f;
-
-	if(!bs->isPosAtEnd()) // >=Beta7 is sending this
 		tGameInfo.bServerChoosesWeapons = bs->readBool();
-	else
+	}
+	else {
+		tGameInfo.fGameSpeed = 1.0f;
 		tGameInfo.bServerChoosesWeapons = false;
+	}
+		
 
 
 
@@ -1478,6 +1479,19 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	gl->nMaxKills = bs->readInt16();
 	gl->nLoadingTime = bs->readInt16();
     gl->bBonuses = bs->readBool();
+	
+	if(this->client->cServerVersion >= OLXBetaVersion(7)) {
+		// since Beta7
+		gl->fGameSpeed = bs->readFloat();
+		gl->bForceRandomWeapons = bs->readBool();
+		gl->bSameWeaponsAsHostWorm = bs->readBool();
+	}
+	else {
+		gl->fGameSpeed = 1.0f;
+		gl->bForceRandomWeapons = false;
+		gl->bSameWeaponsAsHostWorm = false;
+	}
+	
 
     // Check if we have the level & mod
     gl->bHaveMap = true;

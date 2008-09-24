@@ -313,6 +313,11 @@ void GameServer::UpdateGameLobby(void)
 	bs.writeInt16(gl->nMaxKills);
 	bs.writeInt16(gl->nLoadingTime);
     bs.writeByte(gl->bBonuses);
+	
+	// since Beta7
+	bs.writeFloat(gl->fGameSpeed);
+	bs.writeBool(gl->bForceRandomWeapons);
+	bs.writeBool(gl->bSameWeaponsAsHostWorm);
 
 	SendGlobalPacket(&bs);
 }
