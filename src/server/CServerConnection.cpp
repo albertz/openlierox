@@ -167,13 +167,12 @@ void CServerConnection::RemoveWorm(int id)
 		return;
 	}
 	
-	int i,j;
 	bool found = false;
-	for (i=0;i<iNumWorms;i++)  {
+	for (uint i=0;i<iNumWorms;i++)  {
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
 				cLocalWorms[i] = NULL;
-				for (j=i; j<MAX_PLAYERS-2; j++)  {
+				for (uint j=i; j<MAX_PLAYERS-2; j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
 
@@ -188,7 +187,7 @@ void CServerConnection::RemoveWorm(int id)
 		cout << "WARNING: cannot find worm " << id << " for removal" << endl;
 
 	if (cRemoteWorms)  {
-		for (i=0;i<MAX_WORMS;i++) {
+		for (uint i=0;i<MAX_WORMS;i++) {
 			if (cRemoteWorms[i].getID() == id)  {
 				cRemoteWorms[i].Unprepare();
 				// TODO: why not a Clear() here?

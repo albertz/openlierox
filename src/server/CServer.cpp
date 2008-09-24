@@ -1205,7 +1205,7 @@ void GameServer::checkVersionCompatibilities() {
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
 		// Client not connected or no worms
-		if(cl->getStatus() == NET_DISCONNECTED)
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
 		// HINT: It doesn't really make sense to check local clients, though we can just do it to check for strange errors.
