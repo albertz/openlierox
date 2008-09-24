@@ -16,6 +16,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "DedicatedControl.h"
+#include "StringUtils.h"
 #include <iostream>
 
 using namespace std;
@@ -174,7 +175,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Game speed
-		ftoa(tGameInfo.iLoadingTimes, tmp, 10);
+		itoa((int)(tGameInfo.fGameSpeed * 100), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "fGameSpeed = ", bufsize);
 		strncat(buffer, tmp, bufsize);

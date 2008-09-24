@@ -2808,6 +2808,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_FloatingOptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Local.cpp"
 				>
 			</File>
