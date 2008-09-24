@@ -531,6 +531,16 @@ void CWorm::InitWeaponSelection(void)
 	// Skip weapon selection dialog if we're spectating
 	if( cClient->getSpectate() )
 		bWeaponsReady = true;
+	
+	// Skip the dialog if there's only one weapon available
+	int enabledWeaponsAmount = 0;
+	for( int f = 0; f < cGameScript->GetNumWeapons(); f++ )
+		if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[f].Name ) )
+			enabledWeaponsAmount++;
+
+	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
+		bWeaponsReady = true;
+	
 }
 
 ///////////////////
