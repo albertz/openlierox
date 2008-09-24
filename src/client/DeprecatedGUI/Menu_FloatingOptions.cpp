@@ -68,12 +68,12 @@ enum {
 	//os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
-	os_NetworkPort,
+	//os_NetworkPort,
 	os_NetworkSpeed,
-	os_UseIpToCountry,
-	os_LoadDbAtStartup,
-	os_NatTraverse,
-	os_HttpProxy,
+	//os_UseIpToCountry,
+	//os_LoadDbAtStartup,
+	//os_NatTraverse,
+	//os_HttpProxy,
 	os_ShowFPS,
 	//os_OpenGL,
 	os_ShowPing,
@@ -96,8 +96,8 @@ enum {
 	og_AllowMouseAiming,
 	og_MatchLogging,
 	og_AntilagMovementPrediction,
-	og_AllowFileDownload,
-	og_AllowDirtUpdates
+	//og_AllowFileDownload,
+	//og_AllowDirtUpdates
 };
 
 enum {
@@ -268,29 +268,13 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	
-	//cFloatingOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
-	//cFloatingOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
-	//cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 225, 17,17);
 	cFloatingOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
 	cFloatingOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
-
-	cFloatingOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
-	cFloatingOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
-	cFloatingOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
-	cFloatingOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
-	cFloatingOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
-	cFloatingOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
-	cFloatingOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
-	cFloatingOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,310,17,17);
-	cFloatingOpt_System.Add( new CLabel("Use UDP masterserver",tLX->clNormalLabel),     Static, 330, 340, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bNatTraverse),  os_NatTraverse, 530,340,17,17);
 
 	cFloatingOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -303,24 +287,16 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
 	cFloatingOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
 
-
-	cFloatingOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
-
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cFloatingOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	//cFloatingOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
 
-	CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_NetworkPort);
-	t->setText( itoa(tLXOptions->iNetworkPort) );
-	t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
+	CTextbox *t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
-	t = (CTextbox *)(cFloatingOpt_System.getWidget(os_HttpProxy));
-	t->setText(tLXOptions->sHttpProxy);
 
 	// Network speed
 	for(i=0; i<3; i++)
@@ -338,38 +314,6 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
 	cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
 
-	/*
-	// Color depth
-	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "Automatic", 0);
-	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "High Color (16 bit)", 1);
-	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (24 bit)", 2);
-	cFloatingOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (32 bit)", 3);
-	
-	switch (tLXOptions->iColourDepth) {
-	case 0:  // Automatic
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)0, 0);
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)0, 0);
-		break;
-	case 16:  // 16 bit
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)1, 0);
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)1, 0);
-		break;
-	case 24:  // 24 bit
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)2, 0);
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)2, 0);
-		break;
-	case 32:  // 32 bit
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)3, 0);
-		cFloatingOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)3, 0);
-		break;
-	}
-	*/
-
-
-	// Disable apply for now
-	//cFloatingOpt_System.getWidget(os_Apply)->setEnabled(false);
-
-
 	// Game
 	cFloatingOpt_Game.Add( new CLabel("Blood Amount",tLX->clNormalLabel),       Static, 40, 150, 0,0);
 	cFloatingOpt_Game.Add( new CSlider(5000),                       og_BloodAmount, 175, 147, 210, 20);
@@ -379,16 +323,12 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bParticles),   og_Particles, 280, 210, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Classic Rope throw",tLX->clNormalLabel), Static, 40, 240, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bOldSkoolRope),og_OldSkoolRope, 280, 240, 17,17);
-	//cFloatingOpt_Game.Add( new CLabel("Show worm's health",tLX->clNormalLabel), Static, 40, 270, 0,0);
-	//cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bShowHealth),  og_ShowWormHealth, 280, 270, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Colorize nicks by teams",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Start typing after any key press",tLX->clNormalLabel), Static, 40, 300, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAutoTyping),og_AutoTyping, 280, 300, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Use antialiasing (slow)",tLX->clNormalLabel), Static, 40, 330, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntiAliasing),og_Antialiasing, 280, 330, 17,17);
-	//cFloatingOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
-	//cFloatingOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
 	cFloatingOpt_Game.Add( new CLabel("Enable mouse control (Player 1)",tLX->clNormalLabel), Static, 40, 360, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 360, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
@@ -407,7 +347,6 @@ bool Menu_FloatingOptionsInitialize(void)
 
 	// Set the values
 	cFloatingOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
-	//cFloatingOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
 	bChangedVideoMode = false;
 
@@ -425,10 +364,6 @@ void Menu_FloatingOptionsFrame(void)
 	int			val;
 
 	CCheckbox	*c;
-	//CSlider		*s;
-
-	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer,  180,110,  180,110,  300,30);
-	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
 	// Redraw background image
 	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpMainBack_common,0,0);
@@ -541,13 +476,8 @@ void Menu_FloatingOptionsFrame(void)
 		cFloatingOpt_Game.Draw(VideoPostProcessor::videoSurface());
 
 		val = cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
-		//s = (CSlider *)cFloatingOpt_Game.getWidget(og_BloodAmount);
         DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 385,140, 385,140, 70,40);
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(),385, 148, tLX->clNormalLabel, itoa(val)+"%");
-
-		//val = cFloatingOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
-        //DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 285,260, 285,260, 100,50);
-		//tLX->cFont.Draw(VideoPostProcessor::videoSurface(),285, 268, tLX->clNormalLabel,Difficulties[val]);
 
 
 
@@ -579,26 +509,12 @@ void Menu_FloatingOptionsFrame(void)
 					}
 					break;
 
-				// AI Difficulty
-				/*case og_AIDifficulty:
-					if(ev->iEventMsg == SLD_CHANGE) {
-						val = cFloatingOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
-						tLXOptions->iAIDifficulty = val;
-					}
-					break;*/
-
 				// Old skool rope throw
 				case og_OldSkoolRope:
 					if(ev->iEventMsg == CHK_CHANGED) {
 						tLXOptions->bOldSkoolRope = cFloatingOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,(DWORD)0,0) != 0;
 					}
 					break;
-
-				// Show the worm's health below name
-/*				case og_ShowWormHealth:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowHealth = cFloatingOpt_Game.SendMessage(og_ShowWormHealth, CKM_GETCHECK, (DWORD)0, 0);
-					break;*/
 
 				// TDM nick colorizing
 				case og_ColorizeNicks:
@@ -717,37 +633,16 @@ void Menu_FloatingOptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bShowPing = cFloatingOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
-
-				// Use Ip To Country
-				case os_UseIpToCountry:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bUseIpToCountry = cFloatingOpt_System.SendMessage(os_UseIpToCountry, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
-				// Load Database at Startup
-				case os_LoadDbAtStartup:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bLoadDbAtStartup = cFloatingOpt_System.SendMessage(os_LoadDbAtStartup, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
-				case os_NatTraverse:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bNatTraverse = cFloatingOpt_System.SendMessage(os_NatTraverse, CKM_GETCHECK, (DWORD)0, 0) != 0;
 			}
 		}
 
 
 		// Get the values
-		CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_NetworkPort);
-		tLXOptions->iNetworkPort = atoi(t->getText());
-		t = (CTextbox *)cFloatingOpt_System.getWidget(os_HttpProxy);
-		tLXOptions->sHttpProxy = t->getText();
-
 		tLXOptions->iNetworkSpeed = cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 		tLXOptions->iScreenshotFormat = cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
 		// FPS and fullscreen
-		t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+		CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
 
 		bChangedVideoMode = (fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS);
 	}
