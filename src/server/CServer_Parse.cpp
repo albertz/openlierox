@@ -633,7 +633,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	NetworkAddr		adrFrom;
 	int				i, p, player = -1;
 	int				numplayers;
-	CServerConnection			*cl, *newcl;
+	CServerConnection		/*	*cl,*/ *newcl;
 
 	//printf("Got Connect packet\n");
 
@@ -755,8 +755,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Check if this ip isn't already connected
 	// HINT: this works in every case, even if there are two people behind one router
 	// because the address ports are checked as well (router assigns a different port for each person)
-	cl = cClients;
-	for(p=0;p<MAX_CLIENTS;p++,cl++) {
+	p=0;
+	for(CServerConnection* cl = cClients;p<MAX_CLIENTS;p++,cl++) {
 
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
@@ -789,9 +789,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	// Find a spot for the client
 	player = -1;
-	cl = cClients;
 	newcl = NULL;
-	for (p = 0;p < MAX_CLIENTS;p++, cl++) {
+	p=0;
+	for (CServerConnection* cl = cClients; p < MAX_CLIENTS; p++, cl++) {
 		if (cl->getStatus() == NET_DISCONNECTED) {
 			newcl = cl;
 			break;
@@ -806,13 +806,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		if (w->isUsed())
 			numplayers++;
 	}
+	if(numplayers != iNumPlayers)
+		cout << "WARNING: stored player count " << iNumPlayers << " is different from recalculated player count " << numplayers << endl;
 
 	// Ran out of slots
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
 		printf("%s - Server Error report",GetTime().c_str());
 		printf("fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
-		cl = cClients;
 		std::string msg;
 
 		FILE* ErrorFile = OpenGameFile("Server_error.txt","at");
@@ -823,7 +824,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			fprintf(ErrorFile,"%s - Server Error report",GetTime().c_str());
 			fprintf(ErrorFile,"fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
 		}
-		for (p = 0;p < MAX_CLIENTS;p++, cl++)
+		p = 0;
+		for (CServerConnection* cl = cClients;p < MAX_CLIENTS;p++, cl++)
 		{
 			msg = "Client id " + itoa(p) + ". Status: ";
 			if (cl->getStatus() == NET_DISCONNECTED)
@@ -946,7 +948,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
-				if (tGameInfo.iGameType == GME_HOST)
+				if (tGameInfo.iGameType == GME_HOST) // TODO: why only when hosting?
 					w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;

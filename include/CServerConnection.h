@@ -80,7 +80,7 @@ private:
 	// Attributes
 	GameServer 	*server;
 	
-	// Local Worms (pointers to the remote worms)
+	// Local Worms (pointers to specific CServer::cWorms)
 	uint		iNumWorms;
 	CWorm		*cLocalWorms[MAX_PLAYERS];
 

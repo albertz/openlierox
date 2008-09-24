@@ -28,6 +28,11 @@
 #include "AuxLib.h"
 #include "Networking.h"
 
+#include <iostream>
+
+using namespace std;
+
+
 ///////////////////
 // Clear the client details
 void CServerConnection::Clear(void)
@@ -81,6 +86,9 @@ void CServerConnection::MinorClear(void)
 // Initialize the client
 int CServerConnection::Initialize(void)
 {
+	// TODO: where is this function used? it's totally messed up and does not make much sense at various places
+	assert(false);
+	
 	uint i;
 
 	// Shutdown & clear any old client data
@@ -95,7 +103,7 @@ int CServerConnection::Initialize(void)
 
 
 	// Initialize the local worms
-	iNumWorms = tGameInfo.iNumPlayers;
+	iNumWorms = tGameInfo.iNumPlayers; // TODO: wtf?
 
 	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i] = NULL;
@@ -154,21 +162,30 @@ int CServerConnection::OwnsWorm(int id)
 // Remove the worm
 void CServerConnection::RemoveWorm(int id)
 {
-	iNumWorms--;
-
+	if(iNumWorms == 0) {
+		cout << "WARNING: cannot remove worm because this client has no worms" << endl;
+		return;
+	}
+	
 	int i,j;
-	for (i=0;i<MAX_PLAYERS;i++)  {
+	bool found = false;
+	for (i=0;i<iNumWorms;i++)  {
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
 				cLocalWorms[i] = NULL;
-				for (j=i;j<MAX_PLAYERS-2;j++)  {
+				for (j=i; j<MAX_PLAYERS-2; j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
 
+				found = true;
 				break;
 			}
-		}
+		} else
+			cout << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
 	}
+
+	if(!found)
+		cout << "WARNING: cannot find worm " << id << " for removal" << endl;
 
 	if (cRemoteWorms)  {
 		for (i=0;i<MAX_WORMS;i++) {
