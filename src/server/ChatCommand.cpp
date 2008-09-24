@@ -375,13 +375,13 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	}
 
 	// Send the message to teammates
-	CServerConnection *cl = cServer->getClients();
+	CServerConnection *client = cServer->getClients();
 	msg = OldLxCompatibleString(msg);
-	for (int i=0; i < MAX_WORMS; ++i, cl++)  {
-		CWorm *w = cl->getWorm(0);
-		for (int j=0; j < cl->getNumWorms(); ++j)  {
+	for (int i=0; i < MAX_WORMS; ++i, client++)  {
+		CWorm *w = client->getWorm(0);
+		for (int j=0; j < client->getNumWorms(); ++j)  {
 			if (w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
-				cServer->SendText(cl, msg, TXT_TEAMPM);
+				cServer->SendText(client, msg, TXT_TEAMPM);
 				break;
 			}
 		}
