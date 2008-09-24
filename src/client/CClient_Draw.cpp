@@ -1307,7 +1307,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 	// TODO: why is processing events in a draw-function? move it out here
 	// Process the keyboard
-	if (!bChat_Typing)  {
+	if (!bChat_Typing && !DeprecatedGUI::bShowFloatingOptions)  {
 		keyboard_t *Keyboard = GetKeyboard();
 
 		if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {

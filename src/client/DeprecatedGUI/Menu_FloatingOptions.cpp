@@ -718,8 +718,8 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 				if( tLXOptions->sPlayerControls[ply1][key1] ==
 					tLXOptions->sGeneralControls[key2] )
 					tLXOptions->sPlayerControls[ply1][key1] = "";
-		};
-	};
+		}
+	}
 
 
 	Mouse->Down = 0;
