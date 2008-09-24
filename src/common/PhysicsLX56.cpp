@@ -551,7 +551,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay;
+				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay * tGameInfo.fGameSpeed;
 
 				*projspawn = true;
 			}
