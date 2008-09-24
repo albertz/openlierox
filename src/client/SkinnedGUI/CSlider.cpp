@@ -61,9 +61,9 @@ void CSlider::DoRepaint()
 
 	const int button_w = bmpButton.get().get() ? bmpButton->w / 2 : BUTTON_W;
 
-	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 - 1, clDark.get().get(bmpBuffer));
-	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2, clLight.get().get(bmpBuffer));
-	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 + 1, clDark.get().get(bmpBuffer));
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 - 1, clDark.get().get(bmpBuffer->format));
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2, clLight.get().get(bmpBuffer->format));
+	DrawHLine( bmpBuffer.get(), button_w / 2, getWidth() - button_w, getHeight()/2 + 1, clDark.get().get(bmpBuffer->format));
 
 	// Draw the button
 	if (bmpButton.get().get())  {

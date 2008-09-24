@@ -231,7 +231,7 @@ void CTextbox::DoRepaint()
 			DrawRectFill(
 				bmpBuffer.get(),
 				x1, cBorder.getTopW(), x2, getHeight() - cBorder.getBottomW(),
-				clSelection.get().get(bmpBuffer));
+				clSelection.get().get(bmpBuffer->format));
 	}
 
 	// Draw text
@@ -250,7 +250,7 @@ void CTextbox::DoRepaint()
 			DrawVLine(
 				bmpBuffer.get(),
 				cBorder.getTopW(), getHeight() - cBorder.getBottomW(), MIN(x, getWidth() - cBorder.getRightW()),
-				clCaret.get().get(bmpBuffer));
+				clCaret.get().get(bmpBuffer->format));
 		}
 	}
 

@@ -651,7 +651,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 inline Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
 	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0,0,0);
-	return Color( bmpSrc, GetPixel(bmpSrc, sx, sy) );
+	return Color( bmpSrc->format, GetPixel(bmpSrc, sx, sy) );
 }
 
 inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
@@ -703,7 +703,7 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 				}
 
 			Uint8* dst_px = (Uint8 *)bmpDest->pixels + dy * bmpDest->pitch + dx * bmpDest->format->BytesPerPixel;
-			PutPixelToAddr(dst_px, col.get(bmpDest), bmpDest->format->BytesPerPixel);
+			PutPixelToAddr(dst_px, col.get(bmpDest->format), bmpDest->format->BytesPerPixel);
 		}
 	}
 }

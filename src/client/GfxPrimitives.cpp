@@ -1779,7 +1779,7 @@ inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, i
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
 
-	perform_line(bmpDest, x1, y1, x2, y2, color.get(bmpDest), proc);
+	perform_line(bmpDest, x1, y1, x2, y2, color.get(bmpDest->format), proc);
 }
 
 ////////////////////////
@@ -1891,7 +1891,7 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 ///////////////////
 // Line drawing
 void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color) {
-	secure_perform_line(dst, x1, y1, x2, y2, color.get(dst), PutPixel);
+	secure_perform_line(dst, x1, y1, x2, y2, color.get(dst->format), PutPixel);
 }
 
 //////////////////
@@ -1943,7 +1943,7 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color co
 
 	LOCK_OR_QUIT(dst);
 
-	Uint32 packed_c = color.get(dst);
+	Uint32 packed_c = color.get(dst->format);
 
 	// Set start pixel
 	proc(dst, x1, y1, packed_c, 255);
@@ -2041,7 +2041,7 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color colo
 
 	switch (color.a)  {
 	case SDL_ALPHA_OPAQUE:
-		SDL_FillRect(bmpDest,&r,color.get(bmpDest));
+		SDL_FillRect(bmpDest,&r,color.get(bmpDest->format));
 	break;
 	case SDL_ALPHA_TRANSPARENT:
 	break;
@@ -2107,7 +2107,7 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
 	else
-		perform_line(bmp, x1, y1, x2, y2, color.get(bmp), RopePutPixel);
+		perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), RopePutPixel);
 }
 
 
@@ -2122,7 +2122,7 @@ void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
 	else
-		perform_line(bmp, x1, y1, x2, y2, color.get(bmp), BeamPutPixel);
+		perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), BeamPutPixel);
 }
 
 
@@ -2134,7 +2134,7 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
 		return;
 
-	perform_line(bmp, x1, y1, x2, y2, color.get(bmp), LaserSightPutPixel);
+	perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), LaserSightPutPixel);
 }
 
 

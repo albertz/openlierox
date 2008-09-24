@@ -147,14 +147,14 @@ int ReadFloat(const std::string& filename, const std::string& section, const std
 // converts it into screensurface->format
 int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv)
 {
-	static std::string string;
+	std::string string;
 
 	*value = defaultv;
 
 	if(!GetString(filename,section,key,string))
 		return false;
 
-	*value = StrToCol(string).get(SDL_GetVideoSurface());
+	*value = StrToCol(string).get();
 
 	return true;
 

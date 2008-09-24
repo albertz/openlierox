@@ -213,7 +213,7 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 	}
 
 	// Draw it
-	fnt->Draw(bmpDest, x, y, style.iColor.get().get(SDL_GetVideoSurface()), txt);
+	fnt->Draw(bmpDest, x, y, style.iColor.get().get(), txt);
 
 	// Restore the clipping
 	SDL_SetClipRect(bmpDest, &oldrect);

@@ -87,7 +87,7 @@ Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
 	// Get the value
 	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 
-	Uint32 result = StrToCol((char*)sValue).get(SDL_GetVideoSurface());
+	Uint32 result = StrToCol((char*)sValue).get();
 
 	xmlFree(sValue);
 	return result;

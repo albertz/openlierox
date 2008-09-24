@@ -286,7 +286,7 @@ Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name)
 	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
 		return tLX->clPink;
-	Uint32 result = StrToCol((char*)sValue).get(SDL_GetVideoSurface());
+	Uint32 result = StrToCol((char*)sValue).get();
 	xmlFree(sValue);
 	return result;
 }

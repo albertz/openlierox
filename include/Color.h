@@ -92,9 +92,8 @@ class Color  { public:
 	Color() : r(0), g(0), b(0), a(0) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b) : r(_r), g(_g), b(_b), a(SDL_ALPHA_OPAQUE) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
-	Color(SDL_Surface *s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
-	Color(const SmartPointer<SDL_Surface>& s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
-	Color(Uint32 cl)	{ set(SDL_GetVideoSurface(), cl); }
+	Color(SDL_PixelFormat *f, Uint32 cl)	{ SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
+	Color(Uint32 cl)	{ set(getMainPixelFormat(), cl); }
 	Color(const SDL_Color& cl) { r = cl.r; g = cl.g; b = cl.b; }
 
 	Uint8 r;
@@ -102,10 +101,9 @@ class Color  { public:
 	Uint8 b;
 	Uint8 a;
 
-	Uint32 get(SDL_Surface *s)  { return SDL_MapRGBA(s->format, r, g, b, a); }
-	Uint32 get(const SmartPointer<SDL_Surface>& s)  { return SDL_MapRGBA(s->format, r, g, b, a); }
-	void set(SDL_Surface *s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
-	void set(const SmartPointer<SDL_Surface>& s, Uint32 cl)	{ SDL_GetRGBA(cl, s->format, &r, &g, &b, &a); }
+	Uint32 get() { return get(getMainPixelFormat()); }
+	Uint32 get(SDL_PixelFormat *f)  { return SDL_MapRGBA(f, r, g, b, a); }
+	void set(SDL_PixelFormat *f, Uint32 cl)	{ SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	
 	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
 	bool operator != ( const Color & c ) const { return ! ( *this == c ); };

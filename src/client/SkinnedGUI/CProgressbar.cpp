@@ -86,7 +86,7 @@ void CProgressBar::DoRepaint()
 		int bar_h = (bmpBar->h - iNumForeStates) / (numstates);
 		int bar_w = (bmpBar->w - iNumForeStates) / (numstates);
 
-		Uint32 clLabel = cLabel ? cLabel->getColor().get(bmpBuffer) : SDL_MapRGB(bmpBuffer->format, 255, 255, 255);
+		Uint32 clLabel = cLabel ? cLabel->getColor().get(bmpBuffer->format) : SDL_MapRGB(bmpBuffer->format, 255, 255, 255);
 		
 		// Draw the progress bitmap over the background depending on progress direction
 		int w, h;
@@ -136,7 +136,7 @@ void CProgressBar::DoRepaint()
 
 		// Set the label color
 		if (cLabel)
-			cLabel->setColor(Color(bmpBuffer, clLabel));
+			cLabel->setColor(Color(bmpBuffer->format, clLabel));
 
 		
 	} else {  // No bitmap, just draw the simplest bar without any options

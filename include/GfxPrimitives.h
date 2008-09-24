@@ -694,7 +694,7 @@ void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color 
 ////////////////////
 // Fills the surface with specified colour
 inline void FillSurface(SDL_Surface * dst, Color colour) {
-	SDL_FillRect(dst, NULL, colour.get(dst));
+	SDL_FillRect(dst, NULL, colour.get(dst->format));
 }
 
 inline void FillSurface(SDL_Surface * dst, Uint32 colour) {
