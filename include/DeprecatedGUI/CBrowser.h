@@ -20,6 +20,7 @@
 
 #include "InputEvents.h"
 #include <libxml/HTMLparser.h>
+#include <stack>
 
 namespace DeprecatedGUI {
 
@@ -50,6 +51,14 @@ private:
 	htmlDocPtr				tHtmlDocument;
 	htmlNodePtr				tRootNode;
 	std::list<std::string>	tPureText;
+
+	// Parsing temps
+	FontFormat				tCurrentFormat;
+	std::stack<FontFormat>	tFormatStack;
+	int						curX;
+	int						curY;
+	std::string				sCurLine;
+	SDL_Surface				*tDestSurface;
 
 	// Window attributes
 	CScrollbar				cScrollbar;
@@ -84,6 +93,8 @@ public:
 	void	Draw(SDL_Surface * bmpDest);
 	int		TextW(const std::string& text, FontFormat& fmt);
 	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text, std::string& line);
+	void	TraverseNodes(xmlNodePtr node);
+	void	BrowseChildren(xmlNodePtr node);
 	void	LoadStyle(void) {}
 
 	void	LoadFromHTTP(const std::string& url);

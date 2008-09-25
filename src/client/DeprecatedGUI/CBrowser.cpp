@@ -247,20 +247,44 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 	if (!text.size())
 		return;
 
+	//std::string buffer = text;
+
 	// Text
+	bool was_space = false;
 	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
+		// Handle spaces & newlines
+		if (*it == '\r')  {
+			it++;
+			continue;
+		}
+
+		if ((*it == '\n' || *it == ' ' || *it == '\t') && sCurLine.size() != 0)  {
+			if (!was_space)
+				curX += tLX->cFont.GetWidth(" ");
+			was_space = true;
+			it++;
+			continue;
+		}
+
+		was_space = false;
+		
+		// Ignore empty words
 		std::string word = GetNextWord(it, text);
-		if (curX + TextW(word, fmt) >= maxX)  {
+		if (word.size() == 0)  {
+			it++;
+			continue;
+		}
+
+		int width = TextW(word, fmt);
+		if (curX + width >= maxX)  {
 			curY += tLX->cFont.GetHeight();
-			tPureText.push_back(line);
+			tPureText.push_back(sCurLine);
 			line.clear();
 			curX = iX + BORDER_SIZE;
 		}
-		line += word;
+		sCurLine += word;
 		it += word.size();
 
-		word += " ";
-		int width = TextW(word, fmt);
 		tLX->cFont.Draw(bmpDest, curX, curY, fmt.color.get(bmpDest->format), word);
 		if (fmt.underline)
 			DrawHLine(bmpDest, curX, curX + width, curY + tLX->cFont.GetHeight() - 3, fmt.color);
@@ -271,6 +295,74 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 	}
 }
 
+void CBrowser::BrowseChildren(xmlNodePtr node)
+{
+	// Process the children
+	if (node->children)  {
+		xmlNodePtr child = node->children;
+		while (child)  {
+			TraverseNodes(child);
+			child = child->next;
+		}
+	}
+}
+
+void CBrowser::TraverseNodes(xmlNodePtr node)
+{
+	if (!node)
+		return;
+
+	const int maxX = iX + iWidth - BORDER_SIZE - 16;
+
+	if (!xmlStrcmp(node->name, (xmlChar *)"style")) {}
+	else if (!xmlStrcmp(node->name, (xmlChar *)"script")) {}
+	else if (!xmlStrcmp(node->name, (xmlChar *)"embed")) {}
+	else if (!xmlStrcmp(node->name, (xmlChar *)"object")) {}
+
+	// Bold
+	else if (!xmlStrcmp(node->name, (xmlChar *)"b"))  {
+		tFormatStack.push(tCurrentFormat);
+		tCurrentFormat.bold = true;
+		BrowseChildren(node);
+		tCurrentFormat = tFormatStack.top();
+		tFormatStack.pop();
+		return;
+	}
+
+	// Underline
+	else if (!xmlStrcmp(node->name, (xmlChar *)"u"))  {
+		tFormatStack.push(tCurrentFormat);
+		tCurrentFormat.underline = true;
+		BrowseChildren(node);
+		tCurrentFormat = tFormatStack.top();
+		tFormatStack.pop();
+		return;
+	}
+
+	// Color
+	else if (!xmlStrcmp(node->name, (xmlChar *)"font"))  {
+		tFormatStack.push(tCurrentFormat);
+		tCurrentFormat.color = xmlGetColour(node, "color");
+		BrowseChildren(node);
+		tCurrentFormat = tFormatStack.top();
+		tFormatStack.pop();
+		return;
+	}
+
+	else if (!xmlStrcmp(node->name, (xmlChar *)"br"))  {
+		tPureText.push_back(sCurLine);
+		sCurLine.clear();
+		curY += tLX->cFont.GetHeight();
+		curX = iX + BORDER_SIZE;
+		return;
+	}
+
+	else if (!xmlStrcmp(node->name, (xmlChar *)"text") && node->content)
+		RenderText(tDestSurface, tCurrentFormat, curX, curY, maxX, (const char *)node->content, sCurLine);
+
+	BrowseChildren(node);
+}
+
 //////////////////
 // Renders the textual content
 void CBrowser::RenderContent(SDL_Surface * bmpDest)
@@ -279,80 +371,30 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	if (!tHtmlDocument || !tRootNode)
 		return;
 
-	int curX = iX + BORDER_SIZE;
-	int curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
-	int maxX = iX + iWidth - BORDER_SIZE - 16;
-	FontFormat currentFormat ={ false, false, Color() };
-	std::stack<FontFormat> formatStack;
+	tPureText.clear();
+
+	curX = iX + BORDER_SIZE;
+	curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
+	tDestSurface = bmpDest;
+	tCurrentFormat.bold = false; tCurrentFormat.underline = false;
+	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
 	// Setup the clipping
 	SDL_Rect clip = {iX + BORDER_SIZE, iY + BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
 	SDL_SetClipRect(bmpDest, &clip);
 
 	// Go through the document
-	std::string line;
-	xmlNodePtr node = tRootNode->children;
-	while (node)  {
-		if (!xmlStrcmp(node->name, (xmlChar *)"style"))
-			continue;
-		if (!xmlStrcmp(node->name, (xmlChar *)"script"))
-			continue;
-		if (!xmlStrcmp(node->name, (xmlChar *)"embed"))
-			continue;
-		if (!xmlStrcmp(node->name, (xmlChar *)"object"))
-			continue;
+	sCurLine.clear();
+	TraverseNodes(tRootNode);
 
-		// Bold
-		if (!xmlStrcmp(node->name, (xmlChar *)"b"))  {
-			formatStack.push(currentFormat);
-			currentFormat.bold = true;
-			RenderText(bmpDest, currentFormat, curX, curY, maxX, xmlNodeText(node, ""), line);
-			currentFormat = formatStack.top();
-			formatStack.pop();
-		}
+	if ((int)tPureText.size() >= iWidth / tLX->cFont.GetHeight())  {
+		cScrollbar.setMax(tPureText.size());
+		cScrollbar.setItemsperbox(iWidth / tLX->cFont.GetHeight());
+		bUseScroll = true;
+	} else
+		bUseScroll = false;
 
-		// Underline
-		if (!xmlStrcmp(node->name, (xmlChar *)"u"))  {
-			formatStack.push(currentFormat);
-			currentFormat.underline = true;
-			RenderText(bmpDest, currentFormat, curX, curY, maxX, xmlNodeText(node, ""), line);
-			currentFormat = formatStack.top();
-			formatStack.pop();
-		}
-
-		// Color
-		if (!xmlStrcmp(node->name, (xmlChar *)"font"))  {
-			formatStack.push(currentFormat);
-			currentFormat.color = xmlGetColour(node, "color");
-			RenderText(bmpDest, currentFormat, curX, curY, maxX, xmlNodeText(node, ""), line);
-			currentFormat = formatStack.top();
-			formatStack.pop();
-		}
-
-		if (!xmlStrcmp(node->name, (xmlChar *)"br"))  {
-			tPureText.push_back(line);
-			line.clear();
-			curY += tLX->cFont.GetHeight();
-			curX = iX + BORDER_SIZE;
-		}
-
-		RenderText(bmpDest, currentFormat, curX, curY, maxX, xmlNodeText(node, ""), line);
-
-		// Skip to next node
-		if (node->children)  {
-			node = node->children;
-		} else if (node->next)  {
-			node = node->next;
-		} else if (node->parent)  {
-			if (node->parent->next)
-				node = node->parent->next;
-			else
-				break;  // End of the file
-		} else {
-			break; // End of the file
-		}
-
-	}
+	tDestSurface = NULL;
 
 	// Restore clipping
 	SDL_SetClipRect(bmpDest, NULL);
