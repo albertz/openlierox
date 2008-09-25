@@ -164,8 +164,6 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseDown(tMouse, nDown);
 
-	size_t last_curcol = iCursorColumn;
-	size_t last_curlin = iCursorLine;
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
 
 	if (bSelectionGrabbed)  {
