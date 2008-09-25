@@ -39,6 +39,12 @@ enum {
 	GMT_TEAMCTF
 };
 
+enum AFK_TYPE {
+	AFK_BACK_ONLINE,
+	AFK_TYPING_CHAT,
+	AFK_AWAY
+};
+
 
 const float	D2R(1.745329e-2f); // degrees to radians
 const float	R2D(5.729578e+1f); // radians to degrees

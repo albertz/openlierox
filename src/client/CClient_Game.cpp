@@ -1146,6 +1146,8 @@ void CClient::processChatter(void)
 				kb->KeyDown[SDLK_ESCAPE] = false;
 				kb->KeyUp[SDLK_ESCAPE] = false;
 
+				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+
 				break;
 			}
 
@@ -1175,6 +1177,8 @@ void CClient::processChatter(void)
 
 		// Clear the input
 		clearHumanWormInputs();
+		
+		cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 
 		return;
 	}
@@ -1240,6 +1244,9 @@ void CClient::processChatter(void)
 			iChat_Lastchar = 0;
 			bChat_Holding = false;
 			fChat_TimePushed = -9999;
+
+			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+
 		}
 
         processChatCharacter(input);
@@ -1336,12 +1343,16 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         bChat_Typing = false;
 		clearHumanWormInputs();
 
+		cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName());
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", 
+					cLocalWorms[0]->getAFK() == AFK_BACK_ONLINE ? cLocalWorms[0]->getName() : cLocalWorms[0]->getAFKOriginalName() );
 			else
-				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName());
+				cNetEngine->SendText(sChat_Text, 
+					cLocalWorms[0]->getAFK() == AFK_BACK_ONLINE ? cLocalWorms[0]->getName() : cLocalWorms[0]->getAFKOriginalName() );
 		}
 		sChat_Text = "";
         return;

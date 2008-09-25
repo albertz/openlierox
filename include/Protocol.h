@@ -45,6 +45,7 @@
 #define		C2S_GRABBONUS		8
 #define     C2S_SENDFILE        9 // Beta4+ only, enabled only in Beta6+
 #define		C2S_CHATCMDCOMPLREQ	10 // since Beta7
+#define		C2S_AFK				11 // since Beta7, if client away from keyboard
 
 
 // Server->Client

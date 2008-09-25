@@ -45,6 +45,7 @@ void CWorm::Clear(void)
 	iClientWormID = 0;
 	cOwner = NULL;
 	bSpectating = false;
+	iAFK = AFK_BACK_ONLINE;
 
 	iKills = 0;
 	iDeaths = 0;
@@ -1219,4 +1220,21 @@ void CWorm::setUsed(bool _u)
 		return;
 	fLastSimulationTime = tLX->fCurTime; 
 	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
+}
+
+void CWorm::setAFK(AFK_TYPE afkType)
+{
+	if( iAFK != AFK_BACK_ONLINE && afkType != AFK_BACK_ONLINE ) // Changing from Chatting to Away
+		sName = sAFKOldName;
+	
+	iAFK = afkType;
+	if( iAFK != AFK_BACK_ONLINE )
+	{
+		sAFKOldName = sName;
+		sName += afkType == AFK_TYPING_CHAT ? " (typing)" : " (AFK)";
+	}
+	else
+	{
+		sName = sAFKOldName;
+	}
 }

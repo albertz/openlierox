@@ -244,6 +244,7 @@ public:
 	void		ParseDeathPacket(CServerConnection *cl, CBytestream *bs);
 	void		ParseChatText(CServerConnection *cl, CBytestream *bs);
 	void		ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs);	
+	void		ParseAFK(CServerConnection *cl, CBytestream *bs);
 	void		ParseUpdateLobby(CServerConnection *cl, CBytestream *bs);
 	void		ParseDisconnect(CServerConnection *cl);
 	void		ParseGrabBonus(CServerConnection *cl, CBytestream *bs);

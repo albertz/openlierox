@@ -124,6 +124,7 @@ public:
 	std::string sFirstBlood ;
 	std::string sTeamkill ;
 	std::string sHasScored;
+	std::string sKilledAFK ;
 
 	std::string sPlayerOut ;
 	std::string sPlayerHasWon ;

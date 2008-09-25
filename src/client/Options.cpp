@@ -482,6 +482,7 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "FirstBlood",	  sFirstBlood,		"<player> drew first blood");
 	ReadString (f, "NetworkTexts", "TeamKill",		  sTeamkill,		"<player> is an ugly teamkiller");
 	ReadString (f, "NetworkTexts", "CTFScore",		  sHasScored,		"<player> has scored");
+	ReadString (f, "NetworkTexts", "KilledAFK",	      sKilledAFK,		"<killer> typekilled <victim>");
 
 	ReadString (f, "NetworkTexts", "PlayerOut",		  sPlayerOut,		"<player> is out of the game");
 	ReadString (f, "NetworkTexts", "TeamOut",		  sTeamOut,			"The <team> team is out of the game");

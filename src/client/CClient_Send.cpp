@@ -243,6 +243,22 @@ void CClientNetEngine::SendChatCommandCompletionRequest(const std::string& start
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
+void CClientNetEngine::SendAFK(int wormid, AFK_TYPE afkType) {
+	if( client->getServerVersion() < OLXBetaVersion(7) )
+		return;
+	
+	for( int i=0; i < client->getNumWorms(); i++ )
+		if(	client->getWorm(i)->getID() == wormid )
+			client->getWorm(i)->setAFK(afkType);
+	
+	CBytestream bs;
+	bs.writeByte(C2S_AFK);
+	bs.writeByte(wormid);
+	bs.writeByte(afkType);
+
+	client->cNetChan->AddReliablePacketToSend(bs);
+}
+
 /////////////////////
 // Internal function for text sending, does not do any checks or parsing
 void CClientNetEngine::SendTextInternal(const std::string& sText, const std::string& sWormName)

@@ -283,6 +283,8 @@ private:
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 	bool		bNoShooting;
     bool		bFlag;
+	AFK_TYPE	iAFK;
+	std::string	sAFKOldName;
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
@@ -664,6 +666,10 @@ public:
 	// TODO: the sense of this isn't clear; so make it clear
 	bool		getFlag(void)				{ return bFlag; }
 	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
+
+	AFK_TYPE	getAFK(void)				{ return iAFK; }
+	std::string	getAFKOriginalName(void)	{ return sAFKOldName; }
+	void		setAFK(AFK_TYPE _f);
 
 	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
 	int		getTotalWins(void)				{ return iTotalWins; }

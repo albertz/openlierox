@@ -16,6 +16,7 @@
 
 // application has focus
 extern	bool			bActivated;
+extern	bool			bDeactivated;
 
 
 #define     MAX_KEYQUEUE        32

@@ -15,6 +15,7 @@
 
 #include "CBytestream.h"
 #include "Version.h"
+#include "LieroX.h"
 
 
 class CClient;
@@ -45,6 +46,7 @@ public:
 	virtual void		SendDisconnect();
 	virtual void		SendFileData();
 	virtual void		SendChatCommandCompletionRequest(const std::string& startStr);
+	virtual void		SendAFK(int wormid, AFK_TYPE afkType);
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif

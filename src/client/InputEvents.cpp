@@ -32,6 +32,7 @@ static ModifiersState evtModifiersState;
 
 static bool         nFocus = true;
 bool		bActivated = false;
+bool		bDeactivated = false;
 
 std::list<EventListener *>	tEventListeners;
 
@@ -220,6 +221,7 @@ static void ResetCurrentEventStorage() {
 //	}
 
 	bActivated = false;
+	bDeactivated = false;
 }
 
 // main function for handling next event
@@ -271,6 +273,7 @@ void HandleNextEvent() {
 		if(!(SDLEvent.active.state & SDL_APPMOUSEFOCUS))  {
 				nFocus = SDLEvent.active.gain != 0;
 				bActivated = nFocus != 0;
+				bDeactivated = nFocus == 0;
 
 				// HINT: Reset the mouse state - this should avoid the mouse staying pressed
 				Mouse.Button = 0;
@@ -278,6 +281,7 @@ void HandleNextEvent() {
 				Mouse.FirstDown = 0;
 				Mouse.Up = 0;
 		}
+		printf("nFocus %i bActivated %i bDeactivated %i\n", nFocus, bActivated, bDeactivated);
 		break;
 
 	// Keyboard events

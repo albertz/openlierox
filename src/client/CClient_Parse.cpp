@@ -703,6 +703,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->bChat_Typing = true;
 		client->bChat_CursorVisible = true;
 		client->iChat_Pos = client->sChat_Text.size();
+		SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 	}
 
 	client->cChatbox.setWidth(client->tInterfaceSettings.ChatBoxW - 4);

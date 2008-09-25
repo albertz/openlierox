@@ -252,16 +252,28 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	std::string buf;
 
 	// Kill
-	if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
-		if (killer != victim)  {
-			replacemax(networkTexts->sKilled, "<killer>", kill->getName(), buf, 1);
-			replacemax(buf, "<victim>", vict->getName(), buf, 1);
-		} else
-			replacemax(networkTexts->sCommitedSuicide + (suicidesCount > 1 ? " (" + itoa(suicidesCount) + "x)" : ""),
-			"<player>", vict->getName(), buf, 1);
-
-		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+	if( vict->getAFK() && killer != victim )
+	{
+		if (networkTexts->sKilledAFK != "<none>") // Take care of the <none> tag
+		{
+			replacemax(networkTexts->sKilledAFK, "<killer>", kill->getName(), buf, 1);
+			replacemax(buf, "<victim>", vict->getAFKOriginalName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
 	}
+	else
+	{
+		if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
+			if (killer != victim)  {
+				replacemax(networkTexts->sKilled, "<killer>", kill->getName(), buf, 1);
+				replacemax(buf, "<victim>", vict->getName(), buf, 1);
+			} else
+				replacemax(networkTexts->sCommitedSuicide + (suicidesCount > 1 ? " (" + itoa(suicidesCount) + "x)" : ""),
+				"<player>", vict->getName(), buf, 1);
+	
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+	};
 
 	// First blood
 	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
@@ -973,13 +985,18 @@ void GameServer::gotoLobby(void)
 
 	// Clear the info
 	iState = SVS_LOBBY;
-
+	bool bUpdateWorms = false;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].getLobby()->bReady = false;
 			cWorms[i].setGameReady(false);
 			cWorms[i].setTagIT(false);
 			cWorms[i].setTagTime(0);
+			if( cWorms[i].getAFK() == AFK_TYPING_CHAT )
+			{
+				cWorms[i].setAFK(AFK_BACK_ONLINE);
+				bUpdateWorms = true;
+			}
 		}
 		if(cWorms[i].getFlag()) {
 			cWorms[i].setUsed(false);
@@ -1002,6 +1019,9 @@ void GameServer::gotoLobby(void)
 	fGameOverTime = -9999;
 
 	SendWormLobbyUpdate();
+	
+	if(bUpdateWorms)
+		UpdateWorms();
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->BackToLobby_Signal();

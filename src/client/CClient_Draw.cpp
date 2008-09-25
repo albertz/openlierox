@@ -1100,6 +1100,12 @@ void CClient::SimulateHud(void)
 		if(!con)
 			processChatter();
 	}
+	
+	if( bActivated )
+		cNetEngine->SendAFK( cLocalWorms[0]->getID(), bChat_Typing ? AFK_TYPING_CHAT : AFK_BACK_ONLINE );
+	if( bDeactivated )
+		cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_AWAY );
+
 }
 
 

@@ -103,6 +103,10 @@ void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
 			ParseChatCommandCompletionRequest(cl, bs);	
 			break;
 
+		case C2S_AFK:
+			ParseAFK(cl, bs);	
+			break;
+
 			// Update lobby
 		case C2S_UPDATELOBBY:
 			ParseUpdateLobby(cl, bs);
@@ -360,8 +364,9 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
-	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
-		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
+	std::string wormName = cl->getWorm(0)->getAFK() == AFK_BACK_ONLINE ? cl->getWorm(0)->getName() : cl->getWorm(0)->getAFKOriginalName();
+	if (buf.size() > wormName.size() + 2)
+		command_buf = Utf8String(buf.substr(wormName.size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	printf("CHAT: "); printf(buf); printf("\n");
 
@@ -385,8 +390,8 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 
 	SendGlobalText(buf, TXT_CHAT);
 
-	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
-		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
+	if( DedicatedControl::Get() && buf.size() > wormName.size() + 2 )
+		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(wormName.size() + 2));
 }
 
 void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs) {
@@ -428,6 +433,22 @@ void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytes
 		posStr += *it;
 	}
 	SendText(cl, posStr, TXT_NETWORK);
+}
+
+void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
+
+	int wormid = bs->readByte();
+	int afkType = bs->readByte();
+	if (wormid < 0 || wormid >= MAX_WORMS)
+		return;
+	
+	CWorm *w = &cWorms[wormid];
+	if( ! w->isUsed() || w->getClient() != cl )
+		return;
+	
+	w->setAFK( (AFK_TYPE)afkType );
+	
+	UpdateWorms();		
 }
 
 
