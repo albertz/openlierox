@@ -248,23 +248,25 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		return;
 
 	// Text
-	for (std::string::const_iterator it = text.begin(); it != text.end(); it++)  {
+	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
 		std::string word = GetNextWord(it, text);
 		if (curX + TextW(word, fmt) >= maxX)  {
 			curY += tLX->cFont.GetHeight();
 			tPureText.push_back(line);
 			line.clear();
+			curX = iX + BORDER_SIZE;
 		}
 		line += word;
-		curX = iX + BORDER_SIZE;
+		it += word.size();
 
 		word += " ";
-		const int width = TextW(word, fmt);
+		int width = TextW(word, fmt);
 		tLX->cFont.Draw(bmpDest, curX, curY, fmt.color.get(bmpDest->format), word);
 		if (fmt.underline)
 			DrawHLine(bmpDest, curX, curX + width, curY + tLX->cFont.GetHeight() - 3, fmt.color);
-		if (fmt.bold)
+		if (fmt.bold)  {
 			tLX->cFont.Draw(bmpDest, curX + 1, curY, fmt.color.get(bmpDest->format), word);
+		}
 		curX += width;
 	}
 }
