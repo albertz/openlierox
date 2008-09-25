@@ -64,7 +64,7 @@ bool Menu_Net_NewsInitialize(void)
 
 	// Load the news
 	CBrowser *b = (CBrowser *)cNews.getWidget(nw_NewsBrowser);
-	b->Load(strNewsPage);
+	b->LoadFromHTTP(strNewsPage);
 
 
 	return true;
@@ -123,7 +123,7 @@ void Menu_Net_NewsFrame(int mouse)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					((CBrowser *)cNews.getWidget(nw_NewsBrowser))->Load(strNewsPage);
+					((CBrowser *)cNews.getWidget(nw_NewsBrowser))->LoadFromHTTP(strNewsPage);
 				}
 				break;
 		}

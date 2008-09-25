@@ -1114,6 +1114,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\NotifyUser.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\RandomNumberList.h"
 				>
 			</File>

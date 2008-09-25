@@ -52,7 +52,7 @@ bool Menu_Net_MainInitialize(void)
 
 	// Load the news
 	CBrowser *b = (CBrowser *)cMain.getWidget(nm_NewsBrowser);
-	b->Load("cfg/news.txt");
+	b->LoadFromFile("cfg/news.txt");
 
 	/*cMain.Add( new CListview(),								PlayerList, 40,150,150,150);
 

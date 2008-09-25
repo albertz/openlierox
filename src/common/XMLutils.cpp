@@ -130,9 +130,16 @@ bool xmlGetBool(xmlNodePtr node, const std::string& name, bool def)
 // Get a text from the node
 std::string xmlNodeText(xmlNodePtr node, const std::string& def)
 {
-	if (node->doc && node->children)
-		return (const char *)xmlNodeListGetString(node->doc, node->children, 1);
-	else
+	if (node->doc && node->children)  {
+		const char *str = (const char *)xmlNodeListGetString(node->doc, node->children, 1);
+		if (str)  {
+			std::string res = str;
+			xmlFree((xmlChar *)str);
+			return res;
+		} else {
+			return def;
+		}
+	} else
 		return def;
 }
 

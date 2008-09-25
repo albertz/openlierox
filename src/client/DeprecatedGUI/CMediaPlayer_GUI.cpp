@@ -16,6 +16,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "Cursor.h"
+#include "Timer.h"
 
 
 namespace DeprecatedGUI {

@@ -19,12 +19,19 @@
 
 
 #include "InputEvents.h"
+#include <libxml/HTMLparser.h>
 
 namespace DeprecatedGUI {
 
 // Browser messages
 enum {
 	BRW_NONE = -1
+};
+
+struct FontFormat  {
+	bool bold;
+	bool underline;
+	Color color;
 };
 
 
@@ -35,10 +42,14 @@ public:
 private:
 	// Attributes
 	CHttp					cHttp;
-	std::list<std::string>	tLines;
+	std::string				tData;
+	std::string				sURL;
 	bool					bFinished;
 	int						iClientWidth;
 	int						iClientHeight;
+	htmlDocPtr				tHtmlDocument;
+	htmlNodePtr				tRootNode;
+	std::list<std::string>	tPureText;
 
 	// Window attributes
 	CScrollbar				cScrollbar;
@@ -55,7 +66,7 @@ public:
 
 
 	void	Create(void);
-	void	Destroy(void) {}
+	void	Destroy(void);
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -71,9 +82,14 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
+	int		TextW(const std::string& text, FontFormat& fmt);
+	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text, std::string& line);
 	void	LoadStyle(void) {}
 
-	void	Load(const std::string& url);
+	void	LoadFromHTTP(const std::string& url);
+	void	LoadFromFile(const std::string& file);
+	void	LoadFromString(const std::string& data);
+	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
 };
 
