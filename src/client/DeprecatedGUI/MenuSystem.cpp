@@ -1926,7 +1926,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	bool			bHaveVersion = false;
 	std::string		sServerVersion;
 	bool			bHaveGameSpeed = false;
-	float			fGameSpeed;
+	float			fGameSpeed = 1.0f;
 	
 	
     CBytestream inbs;

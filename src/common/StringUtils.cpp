@@ -374,7 +374,7 @@ size_t maxStartingEqualStr(const std::list<std::string>& strs) {
 	size_t l = 0;
 	while(true) {
 		int i = 0;
-		char c;
+		char c = 0;
 		for(std::list<std::string>::const_iterator it = strs.begin(); it != strs.end(); ++it, ++i) {
 			if(it->size() <= l) return l;
 			if(i == 0)

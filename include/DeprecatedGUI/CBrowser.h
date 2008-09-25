@@ -21,6 +21,7 @@
 #include "InputEvents.h"
 #include <libxml/HTMLparser.h>
 #include <stack>
+#include "LieroX.h"
 
 namespace DeprecatedGUI {
 
@@ -56,7 +57,11 @@ public:
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
 	  bSelectionGrabbed(false)
-	  {}
+	  {
+	  	tCurrentFormat.bold = false;
+	  	tCurrentFormat.underline = false;
+	  	tCurrentFormat.color = Color(0,0,0);
+	  }
 
 private:
 	// Attributes

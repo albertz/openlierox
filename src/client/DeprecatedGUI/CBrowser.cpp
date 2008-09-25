@@ -264,6 +264,7 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 // Draws a selection
 void CBrowser::DrawSelection(SDL_Surface *bmpDest)
 {
+	return;
 	Color cl(0, 0, 255);
 
 	size_t sel_start_line = iSelectionStartLine;
@@ -419,7 +420,16 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		}
 		sCurLine += word;
 		it += word.size();
-
+		
+		Color clSelection(0, 255, 255);
+		size_t charsX, charsY;
+		MousePosToCursorPos( curX, curY, charsX, charsY);
+		// TODO: select portions of lines, select by rect
+		//if( iSelectionStartColumn <= charsX && iSelectionEndColumn >= charsX &&
+		if(	iSelectionStartLine <= charsY && iSelectionEndLine > charsY )
+			DrawRectFill(bmpDest, curX, curY, curX + width + was_space ? tLX->cFont.GetWidth(" ") : 0, 
+							curY + tLX->cFont.GetHeight(), clSelection);
+		
 		tLX->cFont.Draw(bmpDest, curX, curY, fmt.color.get(bmpDest->format), word);
 		if (fmt.underline)
 			DrawHLine(bmpDest, curX, curX + width, curY + tLX->cFont.GetHeight() - 3, fmt.color);
