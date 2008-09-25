@@ -997,7 +997,7 @@ void GameServer::gotoLobby(void)
 				cWorms[i].setAFK(AFK_BACK_ONLINE, "");
 				CBytestream bs;
 				bs.writeByte( S2C_AFK );
-				bs.writeByte( i );
+				bs.writeByte( (uchar)i );
 				bs.writeByte( AFK_BACK_ONLINE );
 				bs.writeString( "" );
 	
