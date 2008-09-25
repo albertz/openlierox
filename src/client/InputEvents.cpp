@@ -281,7 +281,6 @@ void HandleNextEvent() {
 				Mouse.FirstDown = 0;
 				Mouse.Up = 0;
 		}
-		printf("nFocus %i bActivated %i bDeactivated %i\n", nFocus, bActivated, bDeactivated);
 		break;
 
 	// Keyboard events
