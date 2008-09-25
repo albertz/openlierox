@@ -1078,64 +1078,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 					// Click on the command button
 					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_MOUSEUP)  {
-						// Remove old popup menu
-						cHostLobby.removeWidget(hl_PopupMenu);
-						cHostLobby.removeWidget(hl_PopupPlayerInfo);
-
-						g_nLobbyWorm = ev->cWidget->getID();  // Widget ID is the same as player ID
-						if (g_nLobbyWorm < 0 || g_nLobbyWorm >= MAX_WORMS)
-							break;
-						CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
-						if (!w->isUsed())
-							break;
-
-						CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
-						mouse_t *Mouse = GetMouse();
-
-						CMenu *mnu = new CMenu(Mouse->X, Mouse->Y);
-						cHostLobby.Add(mnu, hl_PopupMenu, 0, 0, 640, 480 );
-						if (g_nLobbyWorm > 0)  {  // These items make no sense for host
-							mnu->addItem(0, "Kick player");
-							mnu->addItem(1, "Ban player");
-							if (remote_cl)  {
-								if (remote_cl->getMuted())
-									mnu->addItem(2, "Unmute player");
-								else
-									mnu->addItem(2, "Mute player");
-							}
-							mnu->addItem(3, "Authorise player");
-						}
-						mnu->addItem(4, "Spectator", true, w->isSpectating());
-
-						CMenu * info = new CMenu( Mouse->X + mnu->getMenuWidth() + 10, Mouse->Y );
-						cHostLobby.Add(info, hl_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
-
-						NetworkAddr addr;
-						GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
-						std::string addrStr;
-						NetAddrToString(addr, addrStr);
-						info->addItem(0, "IP: " + addrStr);
-						
-						if( tIpToCountryDB->Loaded() )
-							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
-
-						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
-						
-						// Update the menu clickable area - all items below are not clickable, they just for info
-						info->Setup(hl_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), info->getMenuWidth(), info->getMenuHeight()-2);
-
-						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
-						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
-						info->addItem(5, "Connected for " + 
-							itoa( (int)((tLX->fCurTime - w->getClient()->getConnectTime()) / 60.0f)) + " minutes");
-						info->addItem(6, "Total " + 
-							itoa( w->getTotalKills() ) + " kills / " +
-							itoa( w->getTotalDeaths() ) + " deaths / " +
-							itoa( w->getTotalSuicides() ) + " suicides / " +
-							itoa( w->getTotalWins() + w->getTotalLosses() ) + " games / " +
-							itoa( w->getTotalWins() ) + " wins" );
-						
-						
+						g_nLobbyWorm = ev->cWidget->getID();
+						Menu_HostActionsPopupMenuInitialize(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo,  g_nLobbyWorm);
 					// Click on the team mark
 					} else if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
 						int id = ev->cWidget->getID();
@@ -1161,102 +1105,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
             // Popup menu
 			case hl_PopupMenu:  {
-				CMenu *mnu = (CMenu *)cHostLobby.getWidget(hl_PopupMenu);
-                switch( ev->iEventMsg ) {
-
-                    // Kick the player
-                    case MNU_USER+0:
-                        if( g_nLobbyWorm > 0 )
-                            cServer->kickWorm( g_nLobbyWorm );
-                        break;
-
-					// Ban the player
-					case MNU_USER+1:
-						if ( g_nLobbyWorm > 0 )
-							cServer->banWorm( g_nLobbyWorm );
-						break;
-
-					// Mute/unmute
-					case MNU_USER+2:
-						if ( g_nLobbyWorm > 0 )  {
-							CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
-							if (remote_cl)  {
-								if (remote_cl->getMuted())
-									cServer->unmuteWorm(g_nLobbyWorm);
-								else
-									cServer->muteWorm(g_nLobbyWorm);
-							}
-						}
-						break;
-
-					// Authorize
-					case MNU_USER+3:  {
-							CServerConnection *remote_cl = cServer->getClient(g_nLobbyWorm);
-							if (remote_cl)
-								remote_cl->getRights()->Everything();
-						} break;
-
-					// Spectate
-					case MNU_USER+4:  {
-						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && g_nLobbyWorm < MAX_WORMS)  {
-							bool spec = mnu->getItem(4)->bChecked;
-							CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
-							w->setSpectating(spec);
-							std::string buf;
-							if (spec)  {
-								if (networkTexts->sIsSpectating != "<none>")
-									cServer->SendGlobalText(replacemax(networkTexts->sIsSpectating, "<player>", w->getName(), buf, 1), TXT_NETWORK);
-							} else {
-								if (networkTexts->sIsPlaying != "<none>")
-									cServer->SendGlobalText(replacemax(networkTexts->sIsPlaying, "<player>", w->getName(), buf, 1), TXT_NETWORK);
-							}
-						}
-						} break;
-                }
-
-                // Remove the menu widget
-                cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
-                cHostLobby.removeWidget(hl_PopupMenu);
-                //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
-				cHostLobby.removeWidget(hl_PopupPlayerInfo);
+					Menu_HostActionsPopupMenuClick(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo, g_nLobbyWorm, ev->iEventMsg);
 				} 
 				break;
 
 			case hl_PopupPlayerInfo:  {
-
-				if (g_nLobbyWorm < 0 || g_nLobbyWorm >= MAX_WORMS)
-					break;
-				CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
-				if (!w->isUsed())
-					break;
-
-				NetworkAddr addr;
-				GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
-				std::string addrStr;
-				NetAddrToString(addr, addrStr);
-
-                switch( ev->iEventMsg ) {
-
-                    case MNU_USER+0:
-						copy_to_clipboard(addrStr);
-                        break;
-
-                    case MNU_USER+1:
-						if( tIpToCountryDB->Loaded() )
-							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).Country);
-                        break;
-						
-                    case MNU_USER+2:
-						copy_to_clipboard(w->getClient()->getClientVersion().asString());
-						break;
-
-				};
-
-                // Remove the menu widget
-                cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
-                cHostLobby.removeWidget(hl_PopupMenu);
-                //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
-				cHostLobby.removeWidget(hl_PopupPlayerInfo);
+					Menu_HostActionsPopupPlayerInfoClick(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo, g_nLobbyWorm, ev->iEventMsg);
 				} 
 				break;
 
@@ -1854,5 +1708,176 @@ void Menu_BanListShutdown(void)
 		cBanList->saveList(cBanList->getPath());
 	cBanListGui.Shutdown();
 }
+
+void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid )
+{
+						// Remove old popup menu
+						layout.removeWidget(id_PopupMenu);
+						cHostLobby.removeWidget(id_PopupPlayerInfo);
+
+						if (wormid < 0 || wormid >= MAX_WORMS)
+							return;
+						CWorm *w = &cServer->getWorms()[wormid];
+						if (!w->isUsed())
+							return;
+
+						CServerConnection *remote_cl = cServer->getClient(wormid);
+						mouse_t *Mouse = GetMouse();
+						
+						CMenu *mnu = NULL;
+
+						if( !( cServer->getState() == SVS_PLAYING && wormid == 0 ) )	// Do not add the empty menu
+						{
+							mnu = new CMenu(Mouse->X, Mouse->Y);
+							layout.Add(mnu, id_PopupMenu, 0, 0, 640, 480 );
+							if (wormid > 0)  {  // These items make no sense for host
+								mnu->addItem(0, "Kick player");
+								mnu->addItem(1, "Ban player");
+								if (remote_cl)  {
+									if (remote_cl->getMuted())
+										mnu->addItem(2, "Unmute player");
+									else
+										mnu->addItem(2, "Mute player");
+								}
+								mnu->addItem(3, "Authorise player");
+							}
+							if( cServer->getState() != SVS_PLAYING )
+								mnu->addItem(4, "Spectator", true, w->isSpectating());
+						}
+
+						CMenu * info = new CMenu( Mouse->X + (mnu ? mnu->getMenuWidth() : 0) + 10, Mouse->Y );
+						if( cServer->getState() == SVS_PLAYING && wormid == 0 ) // Player info is the only popup menu
+							layout.Add(info, id_PopupPlayerInfo, 0, 0, 640, 480 );
+						else
+							layout.Add(info, id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
+
+						NetworkAddr addr;
+						GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+						std::string addrStr;
+						NetAddrToString(addr, addrStr);
+						info->addItem(0, "IP: " + addrStr);
+						
+						if( tIpToCountryDB->Loaded() )
+							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
+
+						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
+						
+						// Update the menu clickable area - all items below are not clickable, they just for info
+						if( !( cServer->getState() == SVS_PLAYING && wormid == 0 ) )
+							info->Setup(id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), info->getMenuWidth(), info->getMenuHeight()-2);
+
+						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
+						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
+						info->addItem(5, "Connected for " + 
+							itoa( (int)((tLX->fCurTime - w->getClient()->getConnectTime()) / 60.0f)) + " minutes");
+						info->addItem(6, "Total " + 
+							itoa( w->getTotalKills() ) + " kills / " +
+							itoa( w->getTotalDeaths() ) + " deaths / " +
+							itoa( w->getTotalSuicides() ) + " suicides / " +
+							itoa( w->getTotalWins() + w->getTotalLosses() ) + " games / " +
+							itoa( w->getTotalWins() ) + " wins" );
+}
+
+void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid, int menuItem)
+{
+				CMenu *mnu = (CMenu *)layout.getWidget(id_PopupMenu);
+                switch( menuItem ) {
+
+                    // Kick the player
+                    case MNU_USER+0:
+                        if( wormid > 0 )
+                            cServer->kickWorm( wormid );
+                        break;
+
+					// Ban the player
+					case MNU_USER+1:
+						if ( wormid > 0 )
+							cServer->banWorm( wormid );
+						break;
+
+					// Mute/unmute
+					case MNU_USER+2:
+						if ( wormid > 0 )  {
+							CServerConnection *remote_cl = cServer->getClient(wormid);
+							if (remote_cl)  {
+								if (remote_cl->getMuted())
+									cServer->unmuteWorm(wormid);
+								else
+									cServer->muteWorm(wormid);
+							}
+						}
+						break;
+
+					// Authorize
+					case MNU_USER+3:  {
+							CServerConnection *remote_cl = cServer->getClient(wormid);
+							if (remote_cl)
+								remote_cl->getRights()->Everything();
+						} break;
+
+					// Spectate
+					case MNU_USER+4:  {
+						if( cServer->getState() == SVS_PLAYING )
+							break;
+
+						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && wormid < MAX_WORMS)  {
+							bool spec = mnu->getItem(4)->bChecked;
+							CWorm *w = &cServer->getWorms()[wormid];
+							w->setSpectating(spec);
+							std::string buf;
+							if (spec)  {
+								if (networkTexts->sIsSpectating != "<none>")
+									cServer->SendGlobalText(replacemax(networkTexts->sIsSpectating, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+							} else {
+								if (networkTexts->sIsPlaying != "<none>")
+									cServer->SendGlobalText(replacemax(networkTexts->sIsPlaying, "<player>", w->getName(), buf, 1), TXT_NETWORK);
+							}
+						}
+						} break;
+                }
+
+                // Remove the menu widget
+                layout.SendMessage( id_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
+                layout.removeWidget(id_PopupMenu);
+                layout.SendMessage( id_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+				layout.removeWidget(id_PopupPlayerInfo);
+};
+
+void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid, int menuItem)
+{
+				if (wormid < 0 || wormid >= MAX_WORMS)
+					return;
+				CWorm *w = &cServer->getWorms()[wormid];
+				if (!w->isUsed())
+					return;
+
+				NetworkAddr addr;
+				GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+				std::string addrStr;
+				NetAddrToString(addr, addrStr);
+
+                switch( menuItem ) {
+
+                    case MNU_USER+0:
+						copy_to_clipboard(addrStr);
+                        break;
+
+                    case MNU_USER+1:
+						if( tIpToCountryDB->Loaded() )
+							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).Country);
+                        break;
+						
+                    case MNU_USER+2:
+						copy_to_clipboard(w->getClient()->getClientVersion().asString());
+						break;
+
+				};
+
+                // Remove the menu widget
+                layout.SendMessage( id_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
+                layout.removeWidget(id_PopupMenu);
+                layout.SendMessage( id_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+				layout.removeWidget(id_PopupPlayerInfo);
+};
 
 }; // namespace DeprecatedGUI
