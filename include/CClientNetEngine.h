@@ -46,7 +46,7 @@ public:
 	virtual void		SendDisconnect();
 	virtual void		SendFileData();
 	virtual void		SendChatCommandCompletionRequest(const std::string& startStr);
-	virtual void		SendAFK(int wormid, AFK_TYPE afkType);
+	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "");
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif
@@ -89,6 +89,7 @@ protected:
     void        ParseDropped(CBytestream *bs);
     void        ParseSendFile(CBytestream *bs);
 	void		ParseChatCommandCompletionSolution(CBytestream* bs);
+	void		ParseAFK(CBytestream* bs);
 	
 };
 

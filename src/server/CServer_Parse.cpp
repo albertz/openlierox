@@ -364,9 +364,8 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
-	std::string wormName = cl->getWorm(0)->getAFK() == AFK_BACK_ONLINE ? cl->getWorm(0)->getName() : cl->getWorm(0)->getAFKOriginalName();
-	if (buf.size() > wormName.size() + 2)
-		command_buf = Utf8String(buf.substr(wormName.size() + 2));  // Special buffer used for parsing special commands (begin with /)
+	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
+		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	printf("CHAT: "); printf(buf); printf("\n");
 
@@ -390,8 +389,8 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 
 	SendGlobalText(buf, TXT_CHAT);
 
-	if( DedicatedControl::Get() && buf.size() > wormName.size() + 2 )
-		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(wormName.size() + 2));
+	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
+		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
 }
 
 void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs) {
@@ -439,6 +438,7 @@ void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
 
 	int wormid = bs->readByte();
 	int afkType = bs->readByte();
+	std::string message = bs->readString(128);
 	if (wormid < 0 || wormid >= MAX_WORMS)
 		return;
 	
@@ -446,9 +446,20 @@ void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
 	if( ! w->isUsed() || w->getClient() != cl )
 		return;
 	
-	w->setAFK( (AFK_TYPE)afkType );
+	w->setAFK( (AFK_TYPE)afkType, message );
+
+	CBytestream bs1;
+	bs1.writeByte( S2C_AFK );
+	bs1.writeByte( wormid );
+	bs1.writeByte( afkType );
+	bs1.writeString( message );
 	
-	UpdateWorms();		
+	CServerConnection *cl1;
+	int i;
+	for( i=0, cl1=cClients; i < MAX_CLIENTS; i++, cl1++ )
+		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(7) )
+			SendPacket( &bs1, cl1 );
+		
 }
 
 

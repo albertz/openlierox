@@ -74,6 +74,7 @@
 #define     S2C_SENDFILE        22 // Beta4+ only, enabled only in Beta6+
 #define		S2C_WORMWEAPONINFO	23 // >=Beta7
 #define		S2C_CHATCMDCOMPLSOL	24 // since Beta7
+#define		S2C_AFK				25 // since Beta7, if client away from keyboard
 
 
 #endif  //  __PROTOCOL_H__

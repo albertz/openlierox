@@ -350,6 +350,11 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_CHATCMDCOMPLSOL:
 				ParseChatCommandCompletionSolution(bs);
 				break;
+
+			// AFK message
+			case S2C_AFK:
+				ParseAFK(bs);
+				break;
 				
 			// Worm score
 			case S2C_SCOREUPDATE:
@@ -1058,6 +1063,27 @@ void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	}
 }
 
+
+///////////////////
+// Parse AFK packet
+void CClientNetEngine::ParseAFK(CBytestream *bs)
+{
+	int id = bs->readByte();
+	AFK_TYPE afkType = (AFK_TYPE)bs->readByte();
+	std::string message = bs->readString(128);
+
+	// Validate the id
+	if (id < 0 || id >= MAX_WORMS)  {
+		printf("CClientNetEngine::ParseAFK: invalid ID ("+itoa(id)+")\n");
+		return;
+	}
+
+	if( ! client->cRemoteWorms[id].isUsed() )
+		return;
+		
+	client->cRemoteWorms[id].setAFK(afkType, message);
+	
+}
 
 
 ///////////////////

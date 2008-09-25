@@ -46,6 +46,7 @@ void CWorm::Clear(void)
 	cOwner = NULL;
 	bSpectating = false;
 	iAFK = AFK_BACK_ONLINE;
+	sAFKMessage = "";
 
 	iKills = 0;
 	iDeaths = 0;
@@ -1019,14 +1020,16 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
     }
 
 	// Draw the worm's name
+	std::string WormName = sName;
+	if( sAFKMessage != "" )
+		WormName += " " + sAFKMessage;
 	if(!bLocal || (bLocal && iType != PRF_HUMAN)) {
-		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
 		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,sName);
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
 		} // if
 		else
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
 	}
 }
 
@@ -1222,19 +1225,8 @@ void CWorm::setUsed(bool _u)
 	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
 }
 
-void CWorm::setAFK(AFK_TYPE afkType)
+void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 {
-	if( iAFK != AFK_BACK_ONLINE && afkType != AFK_BACK_ONLINE ) // Changing from Chatting to Away
-		sName = sAFKOldName;
-	
 	iAFK = afkType;
-	if( iAFK != AFK_BACK_ONLINE )
-	{
-		sAFKOldName = sName;
-		sName += afkType == AFK_TYPING_CHAT ? " (typing)" : " (AFK)";
-	}
-	else
-	{
-		sName = sAFKOldName;
-	}
+	sAFKMessage = msg;
 }

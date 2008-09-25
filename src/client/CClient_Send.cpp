@@ -243,19 +243,33 @@ void CClientNetEngine::SendChatCommandCompletionRequest(const std::string& start
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
-void CClientNetEngine::SendAFK(int wormid, AFK_TYPE afkType) {
+void CClientNetEngine::SendAFK(int wormid, AFK_TYPE afkType, const std::string & message ) {
 	if( client->getServerVersion() < OLXBetaVersion(7) )
 		return;
 	
+	std::string msg = message;
+	if( msg == "" )
+	{
+		if( afkType == AFK_TYPING_CHAT )
+			msg = "(typing)";
+		else
+		if( afkType == AFK_AWAY )
+			msg = "(away)";
+	};
+
+
 	for( int i=0; i < client->getNumWorms(); i++ )
 		if(	client->getWorm(i)->getID() == wormid )
-			client->getWorm(i)->setAFK(afkType);
+			client->getWorm(i)->setAFK(afkType, msg);
 	
 	CBytestream bs;
 	bs.writeByte(C2S_AFK);
 	bs.writeByte(wormid);
 	bs.writeByte(afkType);
-
+	if(msg.size() > 127)
+		msg = msg.substr(0, 127);
+	bs.writeString(msg);
+		
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 

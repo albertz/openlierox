@@ -284,7 +284,7 @@ private:
 	bool		bNoShooting;
     bool		bFlag;
 	AFK_TYPE	iAFK;
-	std::string	sAFKOldName;
+	std::string	sAFKMessage;
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
@@ -668,8 +668,8 @@ public:
 	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 
 	AFK_TYPE	getAFK(void)				{ return iAFK; }
-	std::string	getAFKOriginalName(void)	{ return sAFKOldName; }
-	void		setAFK(AFK_TYPE _f);
+	const std::string & getAFKMessage()		{ return sAFKMessage; }
+	void		setAFK(AFK_TYPE _f, const std::string & msg);
 
 	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
 	int		getTotalWins(void)				{ return iTotalWins; }

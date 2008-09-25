@@ -1348,11 +1348,9 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", 
-					cLocalWorms[0]->getAFK() == AFK_BACK_ONLINE ? cLocalWorms[0]->getName() : cLocalWorms[0]->getAFKOriginalName() );
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
 			else
-				cNetEngine->SendText(sChat_Text, 
-					cLocalWorms[0]->getAFK() == AFK_BACK_ONLINE ? cLocalWorms[0]->getName() : cLocalWorms[0]->getAFKOriginalName() );
+				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
 		}
 		sChat_Text = "";
         return;

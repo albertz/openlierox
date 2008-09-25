@@ -257,7 +257,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		if (networkTexts->sKilledAFK != "<none>") // Take care of the <none> tag
 		{
 			replacemax(networkTexts->sKilledAFK, "<killer>", kill->getName(), buf, 1);
-			replacemax(buf, "<victim>", vict->getAFKOriginalName(), buf, 1);
+			replacemax(buf, "<victim>", vict->getName(), buf, 1);
 			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 	}
@@ -994,8 +994,18 @@ void GameServer::gotoLobby(void)
 			cWorms[i].setTagTime(0);
 			if( cWorms[i].getAFK() == AFK_TYPING_CHAT )
 			{
-				cWorms[i].setAFK(AFK_BACK_ONLINE);
-				bUpdateWorms = true;
+				cWorms[i].setAFK(AFK_BACK_ONLINE, "");
+				CBytestream bs;
+				bs.writeByte( S2C_AFK );
+				bs.writeByte( i );
+				bs.writeByte( AFK_BACK_ONLINE );
+				bs.writeString( "" );
+	
+				CServerConnection *cl;
+				int i;
+				for( i=0, cl=cClients; i < MAX_CLIENTS; i++, cl++ )
+					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
+						SendPacket( &bs, cl );
 			}
 		}
 		if(cWorms[i].getFlag()) {
