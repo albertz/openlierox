@@ -19,6 +19,7 @@
 #include "Timer.h"
 #include "CInput.h"
 #include "MathLib.h"
+#include "NotifyUser.h"
 
 
 using namespace std;
@@ -271,6 +272,7 @@ void HandleNextEvent() {
 	// Activation and deactivation
 	case SDL_ACTIVEEVENT:
 		if(!(SDLEvent.active.state & SDL_APPMOUSEFOCUS))  {
+				bool hadFocusBefore = nFocus;
 				nFocus = SDLEvent.active.gain != 0;
 				bActivated = nFocus != 0;
 				bDeactivated = nFocus == 0;
@@ -280,6 +282,10 @@ void HandleNextEvent() {
 				Mouse.Down = 0;
 				Mouse.FirstDown = 0;
 				Mouse.Up = 0;
+
+				if(!hadFocusBefore && nFocus) {
+					ClearUserNotify();
+				}
 		}
 		break;
 
