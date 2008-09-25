@@ -279,6 +279,10 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		}
 	}
 
+	vict->addTotalDeaths();
+	if (suicidesCount >= 1)
+		vict->addTotalSuicides(); // Do not count multiple suicides from /suicide command
+
 	// Update victim statistics
 	vict->setKillsInRow(0);
 	if (suicidesCount <= 1)  // HINT: don't add death in row for multi-suicides because the dying spree messages are not adequate for console suicides
@@ -292,6 +296,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			kill->addKillInRow();
 			kill->AddKill();
 			kill->setDeathsInRow(0);
+			kill->addTotalKills();
 		}
 	}
 
@@ -299,7 +304,10 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	if( tLXOptions->tGameinfo.bSuicideDecreasesScore && ( killer == victim ||
 		( (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
 			if( kill->getKills() > 0 )
+			{
 				kill->setKills( kill->getKills() - 1 );
+				kill->addTotalKills(-1);
+			}
 
 	// If the flag was attached to the dead worm then release the flag
 	for(int j=0;j<MAX_WORMS;j++)
@@ -376,7 +384,6 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 
 	if (vict->Kill()) {
-
 
 		// This worm is out of the game
 		if (networkTexts->sPlayerOut != "<none>") {

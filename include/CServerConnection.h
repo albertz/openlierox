@@ -67,8 +67,7 @@ public:
 		
 		bGameReady = false;
 
-		fLastFileRequest = tLX->fCurTime;
-
+		fLastFileRequest = fConnectTime = tLX->fCurTime;
 	}
 
 	~CServerConnection()  {
@@ -93,8 +92,6 @@ private:
 	int			iNetSpeed;
 	int			iNetStatus;
 
-	float		fConnectTime;
-
 	float		fLastReceived;
 	NetworkSocket	tSocket;
 	CChannel	* cNetChan;
@@ -115,7 +112,8 @@ private:
 	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
-
+	
+	float		fConnectTime;
 
 public:
 	// Methods
@@ -156,6 +154,9 @@ public:
     void        setZombieTime(float z)      { fZombieTime = z; }
     float       getZombieTime(void)         { return fZombieTime; }
 
+    void        setConnectTime(float z)      { fConnectTime = z; }
+    float       getConnectTime(void)         { return fConnectTime; }
+
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
@@ -175,7 +176,7 @@ public:
 
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
-
+	
 	std::string	debugName();
 };
 

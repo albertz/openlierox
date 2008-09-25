@@ -1149,6 +1149,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// Make host authorised
 		if(newcl->isLocalClient())
 			newcl->getRights()->Everything();
+			
+		newcl->setConnectTime(tLX->fCurTime);
 	}
 }
 

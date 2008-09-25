@@ -1211,3 +1211,12 @@ bool CWorm::CanType(void)
 	}
 	return true;
 }
+
+void CWorm::setUsed(bool _u)
+{ 
+	bUsed = _u; 
+	if( ! _u ) 
+		return;
+	fLastSimulationTime = tLX->fCurTime; 
+	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
+}

@@ -200,6 +200,7 @@ private:
 	int			iTotalLosses;
 	int			iTotalKills;
 	int			iTotalDeaths;
+	int			iTotalSuicides;
 	std::string	sAddressList;
 	std::string sAliasList;
 
@@ -510,7 +511,7 @@ public:
 	// Variables
 	//
 	bool		isUsed(void)				{ return bUsed; }
-	void		setUsed(bool _u)			{ bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime; }
+	void		setUsed(bool _u);
 
 	CMap*		getMap()					{ return pcMap; }
 	void		setMap(CMap *map)			{ pcMap = map; }
@@ -659,14 +660,16 @@ public:
 	bool		getFlag(void)				{ return bFlag; }
 	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 
-	void	addTotalWins(int _w)			{ iTotalWins += _w; }
+	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
 	int		getTotalWins(void)				{ return iTotalWins; }
-	void	addTotalLosses(int _l)			{ iTotalLosses += _l; }
+	void	addTotalLosses(int _l = 1)		{ iTotalLosses += _l; }
 	int		getTotalLosses(void)			{ return iTotalLosses; }
-	void	addTotalKills(int _k)			{ iTotalKills += _k; }
+	void	addTotalKills(int _k = 1)		{ iTotalKills += _k; }
 	int		getTotalKills(void)				{ return iTotalKills; }
-	void	addTotalDeaths(int _d)			{ iTotalWins += _d; }
+	void	addTotalDeaths(int _d = 1)		{ iTotalDeaths += _d; }
 	int		getTotalDeaths(void)			{ return iTotalDeaths; }
+	void	addTotalSuicides(int _d = 1)	{ iTotalSuicides += _d; }
+	int		getTotalSuicides(void)			{ return iTotalSuicides; }
 
 	std::string		getAddresses(void)			{ return sAddressList; }
 	void			setAddresses(std::string _s){ sAddressList = _s; }

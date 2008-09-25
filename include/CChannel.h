@@ -129,7 +129,7 @@ public:
 	// Not the same as "! getBufferEmpty()" for new CChannel implementation - it can buffer up multiple packets.
 	virtual bool	getBufferFull(void) = 0;
 
-	size_t			getOutoing(void)		{ return iOutgoingBytes; }
+	size_t			getOutgoing(void)		{ return iOutgoingBytes; }
 	size_t			getIncoming(void)		{ return iIncomingBytes; }
 
 	int				getPing()			{ return iPing; }

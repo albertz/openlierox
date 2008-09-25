@@ -32,7 +32,10 @@
 #include "DeprecatedGUI/CImage.h"
 #include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CGuiSkin.h"
+#include "DeprecatedGUI/CBox.h"
+#include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "MathLib.h"
+#include "Clipboard.h"
 
 
 /*
@@ -429,6 +432,7 @@ enum {
 	hl_GameSettings,
     hl_WeaponOptions,
     hl_PopupMenu,
+	hl_PopupPlayerInfo,
 	hl_Banned,
 	hl_ServerSettings,
 	hl_StartDedicated,
@@ -1076,6 +1080,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_MOUSEUP)  {
 						// Remove old popup menu
 						cHostLobby.removeWidget(hl_PopupMenu);
+						cHostLobby.removeWidget(hl_PopupPlayerInfo);
 
 						g_nLobbyWorm = ev->cWidget->getID();  // Widget ID is the same as player ID
 						if (g_nLobbyWorm < 0 || g_nLobbyWorm >= MAX_WORMS)
@@ -1088,7 +1093,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						mouse_t *Mouse = GetMouse();
 
 						CMenu *mnu = new CMenu(Mouse->X, Mouse->Y);
-						cHostLobby.Add(mnu, hl_PopupMenu, 0,0, 640,480 );
+						cHostLobby.Add(mnu, hl_PopupMenu, 0, 0, 640, 480 );
 						if (g_nLobbyWorm > 0)  {  // These items make no sense for host
 							mnu->addItem(0, "Kick player");
 							mnu->addItem(1, "Ban player");
@@ -1102,6 +1107,35 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						}
 						mnu->addItem(4, "Spectator", true, w->isSpectating());
 
+						CMenu * info = new CMenu( Mouse->X + mnu->getMenuWidth() + 10, Mouse->Y );
+						cHostLobby.Add(info, hl_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
+
+						NetworkAddr addr;
+						GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+						std::string addrStr;
+						NetAddrToString(addr, addrStr);
+						info->addItem(0, "IP: " + addrStr);
+						
+						if( tIpToCountryDB->Loaded() )
+							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
+
+						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
+						
+						// Update the menu clickable area - all items below are not clickable, they just for info
+						info->Setup(hl_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), info->getMenuWidth(), info->getMenuHeight()-2);
+
+						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
+						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
+						info->addItem(5, "Connected for " + 
+							itoa( (tLX->fCurTime - w->getClient()->getConnectTime()) / 60.0f) + " minutes");
+						info->addItem(6, "Total " + 
+							itoa( w->getTotalKills() ) + " kills / " +
+							itoa( w->getTotalDeaths() ) + " deaths / " +
+							itoa( w->getTotalSuicides() ) + " suicides / " +
+							itoa( w->getTotalWins() + w->getTotalLosses() ) + " games / " +
+							itoa( w->getTotalWins() ) + " wins" );
+						
+						
 					// Click on the team mark
 					} else if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
 						int id = ev->cWidget->getID();
@@ -1183,6 +1217,45 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 // Remove the menu widget
                 cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
                 cHostLobby.removeWidget(hl_PopupMenu);
+                //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+				cHostLobby.removeWidget(hl_PopupPlayerInfo);
+				} break;
+
+			case hl_PopupPlayerInfo:  {
+
+				if (g_nLobbyWorm < 0 || g_nLobbyWorm >= MAX_WORMS)
+					break;
+				CWorm *w = &cServer->getWorms()[g_nLobbyWorm];
+				if (!w->isUsed())
+					break;
+
+				NetworkAddr addr;
+				GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+				std::string addrStr;
+				NetAddrToString(addr, addrStr);
+
+                switch( ev->iEventMsg ) {
+
+                    case MNU_USER+0:
+						copy_to_clipboard(addrStr);
+                        break;
+
+                    case MNU_USER+1:
+						if( tIpToCountryDB->Loaded() )
+							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).Country);
+                        break;
+						
+                    case MNU_USER+2:
+						copy_to_clipboard(w->getClient()->getClientVersion().asString());
+						break;
+
+				};
+
+                // Remove the menu widget
+                cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
+                cHostLobby.removeWidget(hl_PopupMenu);
+                //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+				cHostLobby.removeWidget(hl_PopupPlayerInfo);
 				} break;
 
 			case hl_StartDedicated:

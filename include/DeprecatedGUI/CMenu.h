@@ -87,6 +87,11 @@ public:
 
     void    addItem(int nID, const std::string& szName, bool checkable = false, bool checked = false);
 	mnu_item_t *getItem(int nID);
+	
+	int		getMenuWidth() const { return m_nWidth; }
+	int		getMenuHeight() const { return m_nHeight; }
+	int		getMenuX() const { return m_nPosX; }
+	int		getMenuY() const { return m_nPosY; }
 
 };
 

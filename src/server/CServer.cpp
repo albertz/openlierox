@@ -628,6 +628,21 @@ void GameServer::GameOver(int winner)
 			continue;
 
 		w->clearInput();
+		
+		if( iGameType == GMT_DEATHMATCH || iGameType == GMT_CTF || iGameType == GMT_TAG || GMT_DEMOLITION )
+		{
+			if( w->getID() == winner )
+				w->addTotalWins();
+			else
+				w->addTotalLosses();
+		}
+		else	// winner == team id
+		{
+			if( w->getTeam() == winner )
+				w->addTotalWins();
+			else
+				w->addTotalLosses();
+		}
 	}
 }
 
