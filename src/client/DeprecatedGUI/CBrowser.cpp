@@ -164,7 +164,21 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseDown(tMouse, nDown);
 
+	size_t last_curcol = iCursorColumn;
+	size_t last_curlin = iCursorLine;
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
+
+	if (bSelectionGrabbed)  {
+		iSelectionStartColumn = iSelectionGrabColumn;
+		iSelectionStartLine = iSelectionGrabLine;
+		iSelectionEndLine = iCursorLine;
+		iSelectionEndColumn = iCursorColumn;
+	} else {
+		iSelectionGrabColumn = iCursorColumn;
+		iSelectionGrabLine = iCursorLine;
+	}
+
+	bSelectionGrabbed = true;
 
 	return BRW_NONE;
 }
@@ -198,6 +212,13 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 	return BRW_NONE;
 }
 
+int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
+{
+	bSelectionGrabbed = false;
+
+	return BRW_NONE;
+}
+
 //////////////////
 // Mouse wheel down event
 int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
@@ -226,6 +247,8 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	// Background (white)
 	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clWhite);
 
+	DrawSelection(bmpDest);
+
 	// Render the content
 	RenderContent(bmpDest);
 
@@ -237,6 +260,41 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	// Scrollbar
 	if (bUseScroll)
 		cScrollbar.Draw(bmpDest);
+}
+
+//////////////////////
+// Draws a selection
+void CBrowser::DrawSelection(SDL_Surface *bmpDest)
+{
+	Color cl(0, 0, 255);
+
+	size_t sel_start_line = iSelectionStartLine;
+	size_t sel_end_line = iSelectionEndLine;
+	if (sel_start_line > sel_end_line)  {
+		size_t tmp = sel_start_line;
+		sel_start_line = sel_end_line;
+		sel_end_line = tmp;
+	}
+
+	if (sel_start_line >= tPureText.size() || sel_end_line >= tPureText.size())
+		return;
+
+	size_t col = iSelectionStartColumn;
+	size_t lin = iSelectionStartLine;
+	for (size_t i = 0; i <= sel_end_line - sel_start_line; ++i)  {
+		int start_x, start_y;
+		CursorPosToMousePos(col, lin, start_x, start_y);
+		int end_x, end_y;
+		if (i == sel_end_line - sel_start_line)  {
+			CursorPosToMousePos(iSelectionEndColumn, iSelectionEndLine, end_x, end_y);
+			end_y += tLX->cFont.GetHeight();
+		} else  {
+			end_x = iX + BORDER_SIZE + tLX->cFont.GetWidth(tPureText[sel_start_line + i]);
+			end_y = start_y + (i + 1) * tLX->cFont.GetHeight();
+		}
+
+		DrawRectFill(bmpDest, start_x, start_y, end_x, end_y, cl);
+	}
 }
 
 /////////////////////

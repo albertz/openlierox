@@ -50,7 +50,13 @@ public:
 	  curY(0),
 	  tDestSurface(NULL),
 	  iCursorColumn(0),
-	  iCursorLine(0)  {}
+	  iCursorLine(0),
+	  iSelectionStartLine(0),
+	  iSelectionStartColumn(0),
+	  iSelectionEndLine(0),
+	  iSelectionEndColumn(0),
+	  bSelectionGrabbed(false)
+	  {}
 
 private:
 	// Attributes
@@ -75,6 +81,14 @@ private:
 	// Selection
 	size_t					iCursorColumn;
 	size_t					iCursorLine;
+	size_t					iSelectionStartLine;
+	size_t					iSelectionStartColumn;
+	size_t					iSelectionEndLine;
+	size_t					iSelectionEndColumn;
+
+	size_t					iSelectionGrabLine;
+	size_t					iSelectionGrabColumn;
+	bool					bSelectionGrabbed;
 
 	// Window attributes
 	CScrollbar				cScrollbar;
@@ -95,7 +109,7 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ return BRW_NONE; }
+	int		MouseUp(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
 	int		MouseDown(mouse_t *tMouse, int nDown);
@@ -107,6 +121,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
+	void	DrawSelection(SDL_Surface *bmpDest);
 	int		TextW(const std::string& text, FontFormat& fmt);
 	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
 	void	TraverseNodes(xmlNodePtr node);
