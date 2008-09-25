@@ -17,7 +17,7 @@
 #					( disabled by default )
 #	LIBZIP_BUILTIN	- if set to 1, libzip will be builtin
 #					( disabled by default )
-#	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
+#	X11				- if set to 1, X11 clipboard/notifying will be used (and linked against libX11)
 #					( activated by default )
 #
 #	G15				- if set to 1, G15 support will be builtin (and linked against required libraries)
@@ -33,7 +33,7 @@ source ./functions.sh
 [ "$DEBUG" == "" ] && DEBUG=0
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
-[ "$X11CLIPBOARD" == "" ] && X11CLIPBOARD=1
+[ "$X11" == "" ] && X11=1
 [ "$G15" == "" ] && G15=0
 [ "$VERSION" == "" ] && VERSION=$(get_olx_version)
 
@@ -132,9 +132,9 @@ echo "* $COMPILER will be used for compilation"
 [ "$CXXFLAGS" == "" ] && \
 	echo "* none additional compiler-flags will be used" || \
 	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
-[ "$X11CLIPBOARD" == "1" ] && \
-	echo "* X11 clipboard support is activated" || \
-	echo "* X11 clipboard support is not activated"
+[ "$X11" == "1" ] && \
+	echo "* X11 clipboard/notify support is activated" || \
+	echo "* X11 clipboard/notify support is not activated"
 [ "$G15" == "1" ] && \
         echo "* G15 support is activated" || \
         echo "* G15 support is not activated"
@@ -167,7 +167,7 @@ if $COMPILER \
 	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
 	$( [ "$ACTIVATE_GDB" == "1" ] && echo "-g" ) \
-	$( [ "$X11CLIPBOARD" == "1" ] && echo "-DX11CLIPBOARD -lX11" ) \
+	$( [ "$X11" == "1" ] && echo "-DX11 -lX11" ) \
 	$( [ "$G15" == "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
 	$CXXFLAGS \
 	$LDFLAGS \

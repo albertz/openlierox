@@ -31,7 +31,7 @@
 #include <algorithm>
 #include "Clipboard.h"
 
-#if defined(X11CLIPBOARD) && !defined(__APPLE__)
+#if defined(X11) && !defined(__APPLE__)
 
 #define CLIPBOARD_FUNCS_DEFINED
 
