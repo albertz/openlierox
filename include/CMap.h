@@ -202,7 +202,6 @@ private:
 
 private:
 	// Update functions
-	void		UpdateDrawImage(int x, int y, int w, int h);
 	void		UpdateMiniMap(bool force = false);
 	void		UpdateMiniMapRect(int x, int y, int w, int h);
 	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
@@ -226,6 +225,8 @@ public:
 
     void		ApplyRandom(void);
     void        ApplyRandomLayout(maprandom_t *psRandom);
+
+	void		UpdateDrawImage(int x, int y, int w, int h);
 
 	void		Shutdown(void);
 

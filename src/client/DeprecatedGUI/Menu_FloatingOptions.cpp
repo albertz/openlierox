@@ -32,6 +32,7 @@
 namespace DeprecatedGUI {
 
 bool bChangedVideoMode = false;
+bool bChangedAntiAliasing = false;
 bool bShowFloatingOptions = false;
 
 void SetupGameInputs()
@@ -330,10 +331,39 @@ bool Menu_FloatingOptionsInitialize(void)
 }
 
 
+void Menu_FloatingOptionsOkClose()
+{
+	// Process video mode switch
+	if (bChangedVideoMode)  {
+		tLXOptions->bFullscreen = ((CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen))->getValue();
+
+		CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+		bool fail = false;
+		tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+		tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
+		t->setText(itoa(tLXOptions->nMaxFPS));
+		PlaySoundSample(sfxGeneral.smpClick);
+
+		// Set the new video mode
+		SetVideoMode();
+		SDL_ShowCursor(SDL_DISABLE);
+	}
+
+	// Process anti-aliasing switch
+	if (bChangedAntiAliasing)  {
+		// HINT: options are already updated here
+
+		if (cClient->getMap())
+			cClient->getMap()->UpdateDrawImage(0, 0, cClient->getMap()->GetWidth(), cClient->getMap()->GetHeight());
+	}
+
+	Menu_FloatingOptionsShutdown();	
+}
+
 
 ///////////////////
 // Options main frame
-void Menu_FloatingOptionsFrame(void)
+void Menu_FloatingOptionsFrame()
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
@@ -374,6 +404,8 @@ void Menu_FloatingOptionsFrame(void)
 	// Fullscreen value
 	c = (CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen);
 	bool fullscr = c->getValue();
+	c = (CCheckbox *)cFloatingOpt_System.getWidget(og_Antialiasing);
+	bool aa = c->getValue();
 
 
 	// Process the gui layout
@@ -387,24 +419,7 @@ void Menu_FloatingOptionsFrame(void)
 		// Ok
 		case op_Ok:
 			if(ev->iEventMsg == BTN_MOUSEUP) {
-
-				// Set to fullscreen
-				if (bChangedVideoMode)  {
-					tLXOptions->bFullscreen = fullscr;
-
-					CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
-					bool fail = false;
-					tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-					tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
-					t->setText(itoa(tLXOptions->nMaxFPS));
-					PlaySoundSample(sfxGeneral.smpClick);
-
-					// Set the new video mode
-					SetVideoMode();
-					SDL_ShowCursor(SDL_DISABLE);
-				}
-
-				Menu_FloatingOptionsShutdown();
+				Menu_FloatingOptionsOkClose();
 				return;
 			}
 			break;
@@ -620,10 +635,10 @@ void Menu_FloatingOptionsFrame(void)
 		tLXOptions->iNetworkSpeed = cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 		tLXOptions->iScreenshotFormat = cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
-		// FPS and fullscreen
-		CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+		// Anti-aliasing and fullscreen
 
-		bChangedVideoMode = (fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS);
+		bChangedVideoMode = fullscr != tLXOptions->bFullscreen;
+		bChangedAntiAliasing = (aa != tLXOptions->bAntiAliasing);
 	}
 
 	// Draw the OK button
