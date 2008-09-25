@@ -350,6 +350,12 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_CHATCMDCOMPLSOL:
 				ParseChatCommandCompletionSolution(bs);
 				break;
+			
+			// chat command completion list
+			case S2C_CHATCMDCOMPLLST:
+				ParseChatCommandCompletionList(bs);
+				break;
+			
 
 			// AFK message
 			case S2C_AFK:
@@ -1063,6 +1069,22 @@ void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	}
 }
 
+void CClientNetEngine::ParseChatCommandCompletionList(CBytestream* bs) {
+	std::string startStr = bs->readString();
+	
+	std::list<std::string> possibilities;
+	uint n = bs->readInt(4);
+	for(uint i = 0; i < n; i++)
+		possibilities.push_back(bs->readString());
+		
+	std::string posStr;
+	for(std::list<std::string>::iterator it = possibilities.begin(); it != possibilities.end(); ++it) {
+		if(it != possibilities.begin()) posStr += " ";
+		posStr += *it;
+	}
+
+	client->cChatbox.AddText(posStr, tLX->clNotice, tLX->fCurTime);
+}
 
 ///////////////////
 // Parse AFK packet

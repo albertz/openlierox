@@ -89,6 +89,7 @@ protected:
     void        ParseDropped(CBytestream *bs);
     void        ParseSendFile(CBytestream *bs);
 	void		ParseChatCommandCompletionSolution(CBytestream* bs);
+	void		ParseChatCommandCompletionList(CBytestream* bs);
 	void		ParseAFK(CBytestream* bs);
 	
 };

@@ -226,6 +226,7 @@ public:
 	void		SendText(CServerConnection *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
+	void		SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);

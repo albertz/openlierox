@@ -102,6 +102,19 @@ void GameServer::SendChatCommandCompletionSolution(CServerConnection* cl, const 
 	cl->getChannel()->AddReliablePacketToSend(bs);	
 }
 
+void GameServer::SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions) {
+	CBytestream bs;
+
+	bs.writeByte(S2C_CHATCMDCOMPLLST);
+	bs.writeString(startStr);
+	bs.writeInt((uint)solutions.size(), 4);
+	for(std::list<std::string>::const_iterator it = solutions.begin(); it != solutions.end(); ++it)
+		bs.writeString(*it);
+
+	cl->getChannel()->AddReliablePacketToSend(bs);	
+
+}
+
 
 ///////////////////
 // Update all the client about the playing worms

@@ -426,12 +426,7 @@ void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytes
 	}
 	
 	// send list of all possibilities
-	std::string posStr;
-	for(std::list<std::string>::iterator it = possibilities.begin(); it != possibilities.end(); ++it) {
-		if(it != possibilities.begin()) posStr += " ";
-		posStr += *it;
-	}
-	SendText(cl, posStr, TXT_NETWORK);
+	SendChatCommandCompletionList(cl, startStr, possibilities);
 }
 
 void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {

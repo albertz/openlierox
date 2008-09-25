@@ -75,6 +75,7 @@
 #define		S2C_WORMWEAPONINFO	23 // >=Beta7
 #define		S2C_CHATCMDCOMPLSOL	24 // since Beta7
 #define		S2C_AFK				25 // since Beta7, if client away from keyboard
+#define		S2C_CHATCMDCOMPLLST	26 // since Beta7
 
 
 #endif  //  __PROTOCOL_H__
