@@ -16,6 +16,7 @@
 #include <windows.h>
 #elif defined(X11)
 #include <X11/Xlib.h>
+
 #endif
 
 #include <iostream>
@@ -32,14 +33,6 @@ using namespace std;
 // Make the sound, and blink the game window (platform-dependent)
 void NotifyUserOnEvent()
 {
-/*	static float lastNotification = -9999.0f;
-	if( tLX->fCurTime - lastNotification < 3.0f )
-		return;
-	lastNotification = tLX->fCurTime;
-	*/
-
-	//printf("NotifyUserOnEvent() %i\n", ApplicationHasFocus());
-
 	if( ApplicationHasFocus() )
 		return;
 
@@ -82,18 +75,29 @@ void NotifyUserOnEvent()
 
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if( SDL_GetWMInfo(&info) != 1 )
-		return;
+	SDL_GetWMInfo(&info);
 
 	info.info.x11.lock_func();
-	XLockDisplay( info.info.x11.display );
 
-	// It fails anyway, whatever I've tried
-	Status status = XRaiseWindow( info.info.x11.display, info.info.x11.window );
-	if( status != Success )
-		printf("XRaiseWindow() fails %i\n", status);
+	// they will stay always the same as long as X11 is running
+	static Atom demandsAttention = XInternAtom(info.info.x11.display, "_NET_WM_STATE_DEMANDS_ATTENTION", true);
+	static Atom wmState = XInternAtom(info.info.x11.display, "_NET_WM_STATE", true);
 
-	XUnlockDisplay( info.info.x11.display );
+	XEvent e;
+	e.xclient.type = ClientMessage;
+	e.xclient.message_type = wmState;
+	e.xclient.display = info.info.x11.display; //info.info.x11.display;
+	e.xclient.window = info.info.x11.wmwindow;  // glparent; //winId;
+	e.xclient.format = 32;
+	e.xclient.data.l[0] = 1; // 1 enables it, 0 disables it
+	e.xclient.data.l[1] = demandsAttention;
+	e.xclient.data.l[2] = 0l;
+	e.xclient.data.l[3] = 0l;
+	e.xclient.data.l[4] = 0l;
+	
+	XChangeProperty(info.info.x11.display, info.info.x11.wmwindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&demandsAttention, 1); 	
+	XSendEvent(info.info.x11.display, DefaultRootWindow(info.info.x11.display), False, (SubstructureRedirectMask | SubstructureNotifyMask), &e);
+	
 	info.info.x11.unlock_func();
 
 #else
