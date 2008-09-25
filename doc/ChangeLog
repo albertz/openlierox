@@ -1,3 +1,15 @@
+0.57_beta7
+==========
+- Game-speed multiplicator
+- Options editable from everywhere in the game
+- Force random weapon selection (with the extensions to have the same weapon for all players)
+- Automatic weapon selection if only one weapon is available
+- Notify application window on events when application is minimised
+- Auto-completing for chat commands
+- Command button for host in game
+- Show player online/chatting/away status
+- Client info dialog for host
+
 0.57_beta6
 ==========
 - fixed crashing in DBZ mod
