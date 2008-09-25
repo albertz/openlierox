@@ -283,7 +283,10 @@ void CBrowser::DrawSelection(SDL_Surface *bmpDest)
 	size_t lin = iSelectionStartLine;
 	for (size_t i = 0; i <= sel_end_line - sel_start_line; ++i)  {
 		int start_x, start_y;
-		CursorPosToMousePos(col, lin, start_x, start_y);
+		CursorPosToMousePos(col, lin + i, start_x, start_y);
+		if (i != 0)
+			start_x = iX + BORDER_SIZE;
+
 		int end_x, end_y;
 		if (i == sel_end_line - sel_start_line)  {
 			CursorPosToMousePos(iSelectionEndColumn, iSelectionEndLine, end_x, end_y);
@@ -356,7 +359,7 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 	// Get the X coordinate
 	std::string::iterator end = tPureText[cur_y].begin();
 	SafeAdvance(end, cur_x, tPureText[cur_y].end());
-	std::string tmp(tPureText[cur_y].begin(), tPureText[cur_y].begin() + cur_x);
+	std::string tmp(tPureText[cur_y].begin(), end);
 	int x = tLX->cFont.GetWidth(tmp);
 
 	ms_x = iX + BORDER_SIZE + x;
