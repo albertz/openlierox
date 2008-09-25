@@ -33,6 +33,7 @@
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "AuxLib.h"
+#include "Timer.h"
 
 
 // we need it here for some debugging...

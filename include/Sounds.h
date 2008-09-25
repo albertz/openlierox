@@ -20,9 +20,13 @@
 // TODO: remove this here! i wonder that we didn't get trouble because of this
 typedef unsigned char byte;
 
-#include "CViewport.h"
-#include "CMap.h"
-#include "Timer.h"
+//#include "CViewport.h"
+//#include "CMap.h"
+//#include "Timer.h"
+
+#include "CVec.h"
+#include "SmartPointer.h"
+
 
 #ifndef DEDICATED_ONLY
 // we are using SDL_mixer at the moment
@@ -109,6 +113,9 @@ bool	PlaySoundSample(SoundSample* sample);
 inline bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
 	return PlaySoundSample(sample.get());
 };
+
+
+class CWorm;
 
 int		LoadSounds(void);
 void	ShutdownSounds(void);

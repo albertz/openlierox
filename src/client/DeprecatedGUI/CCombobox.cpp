@@ -23,6 +23,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "Timer.h"
 
 
 namespace DeprecatedGUI {

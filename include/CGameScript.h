@@ -111,7 +111,7 @@ struct gs_worm_t {
 
 
 
-
+class proj_t;
 
 
 

@@ -36,6 +36,7 @@
 #include "DeprecatedGUI/CMediaPlayer.h"
 #include "DedicatedControl.h"
 #include "OLXG15.h"
+#include "Timer.h"
 
 using namespace std;
 

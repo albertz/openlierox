@@ -8,7 +8,6 @@
 	by Albert Zeyer and Dark Charlie
 */
 
-#include <SDL_syswm.h>
 #include <iostream>
 #include <set>
 

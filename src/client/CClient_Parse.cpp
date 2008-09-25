@@ -35,7 +35,8 @@
 #include "EndianSwap.h"
 #include "Physics.h"
 #include "AuxLib.h"
-
+#include "NotifyUser.h"
+#include "Timer.h"
 
 
 using namespace std;
@@ -474,8 +475,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
-	if( tLXOptions->bNotifyUserOnEvent )
-		NotifyUserOnEvent();
+	NotifyUserOnEvent();
+
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( client->tSocket );
@@ -810,8 +811,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		client->cLocalWorms[i]->StartGame();
 	}
 
-	if( tLXOptions->bNotifyUserOnEvent )
-		NotifyUserOnEvent();
+	NotifyUserOnEvent();
 }
 
 

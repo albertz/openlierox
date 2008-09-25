@@ -27,14 +27,6 @@
 #include <SDL_syswm.h>
 #include <stdlib.h>
 
-#ifdef linux
-#include <X11/Xlib.h>
-#endif
-
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 
 #include "AuxLib.h"
 #include "Error.h"
@@ -46,6 +38,7 @@
 #include "StringUtils.h"
 #include "Sounds.h"
 #include "Version.h"
+#include "Timer.h"
 
 
 // Config file
@@ -854,52 +847,6 @@ int unsetenv(const char *name)
 }
 #endif
 
-// Make the sound, and blink the game window (platform-dependent)
-void NotifyUserOnEvent()
-{
-	static float lastNotification = -9999.0f;
-	if( tLX->fCurTime - lastNotification < 3.0f )
-		return;
-		
-	lastNotification = tLX->fCurTime;
-	
-	//printf("NotifyUserOnEvent() %i\n", ApplicationHasFocus());
 
-	if( ApplicationHasFocus() )
-		return;
-	
-	PlaySoundSample(sfxGeneral.smpNotify);
-	
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if( SDL_GetWMInfo(&info) != 1 )
-		return;
 
-#ifdef linux
-	
-	info.info.x11.lock_func();
-	//XLockDisplay( info.info.x11.display );
-	
-	// It fails anyway, whatever I've tried
-	//Status status = XRaiseWindow( info.info.x11.display, info.info.x11.window );
-	//if( status != Success )
-	//	printf("XRaiseWindow() fails %i\n", status);
-	
-	//XUnlockDisplay( info.info.x11.display );
-	info.info.x11.unlock_func();
 
-#endif
-
-#ifdef WIN32
-	
-	FLASHWINFO flash;
-	flash.cbSize = sizeof(flash);
-	flash.hwnd = info.window;
-	flash.dwFlags = FLASHW_ALL;
-	flash.uCount = 3;
-	flash.dwTimeout = 0;
-	FlashWindowEx( &flash );
-	
-#endif
-	
-};

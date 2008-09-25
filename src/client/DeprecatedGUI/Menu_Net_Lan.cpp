@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CMediaPlayer.h"
+#include "Timer.h"
 
 
 namespace DeprecatedGUI {

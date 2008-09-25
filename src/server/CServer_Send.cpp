@@ -21,6 +21,7 @@
 #include "CServerConnection.h"
 #include "Protocol.h"
 #include "CWorm.h"
+#include "Timer.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif

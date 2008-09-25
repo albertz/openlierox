@@ -39,6 +39,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
+#include "Timer.h"
 #include "Clipboard.h"
 
 

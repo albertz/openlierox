@@ -28,6 +28,7 @@
 #include "DedicatedControl.h"
 #include "AuxLib.h"
 #include "Version.h"
+#include "Timer.h"
 
 
 using namespace std;

@@ -27,6 +27,7 @@
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
+		238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238800E30E8B150100B94DC0 /* NotifyUser.cpp */; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
@@ -392,6 +393,8 @@
 		235D280F0CF7C10C0067BA4F /* HTTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTP.h; sourceTree = "<group>"; };
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
+		238800E20E8B14F600B94DC0 /* NotifyUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotifyUser.h; sourceTree = "<group>"; };
+		238800E30E8B150100B94DC0 /* NotifyUser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotifyUser.cpp; sourceTree = "<group>"; };
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
@@ -1000,6 +1003,7 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				238800E30E8B150100B94DC0 /* NotifyUser.cpp */,
 				239ACA510E6AD44F00C4216A /* CClient.cpp */,
 				239ACA520E6AD44F00C4216A /* CrashHandler.cpp */,
 				239ACA530E6AD44F00C4216A /* CWormSkin.cpp */,
@@ -1094,6 +1098,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				238800E20E8B14F600B94DC0 /* NotifyUser.h */,
 				23ECBE800E894E6B007B8D55 /* CClientNetEngine.h */,
 				23ECBE810E894E6B007B8D55 /* CServerConnection.h */,
 				2306CC040E6AC55E00132D3B /* SkinnedGUI */,
@@ -1615,6 +1620,7 @@
 				239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */,
 				23ECBE7F0E894E4F007B8D55 /* CServerConnection.cpp in Sources */,
 				23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */,
+				238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

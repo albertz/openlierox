@@ -28,6 +28,9 @@
 #include "StringUtils.h"
 #include "Sounds.h"
 #include "MathLib.h"
+#include "Timer.h"
+#include "Options.h"
+#include "FindFile.h"
 
 
 

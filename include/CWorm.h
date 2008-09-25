@@ -20,13 +20,14 @@
 #include <cassert>
 #include "LieroX.h" // for MAX_WORMS, _AI_DEBUG
 #include "CProjectile.h"
-#include "CGameScript.h"
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
 #include "Options.h" // for control_t
 #include "Utils.h"
 #include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
+#include "CMap.h"
+
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -58,6 +59,10 @@
 #define		CELL_LEFTUP			7
 #define		CELL_RIGHTUP		8
 
+
+class CWpnRest;
+class CGameScript;
+class weapon_t;
 
 // Weapon slot structure
 struct wpnslot_t {

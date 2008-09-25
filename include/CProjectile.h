@@ -21,6 +21,8 @@
 #include "Sounds.h"
 #include "GfxPrimitives.h"
 #include "Event.h"
+#include "CViewport.h"
+#include "CWorm.h"
 
 
 #define		MAX_PROJECTILES	3000

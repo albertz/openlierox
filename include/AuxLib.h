@@ -91,6 +91,5 @@ void		UnSubclassWindow();
 int unsetenv(const char *name);
 #endif
 
-void NotifyUserOnEvent();	// Blink the window titlebar and produce the sound when game starts or going to lobby
 
 #endif  //  __AUXLIB_H__

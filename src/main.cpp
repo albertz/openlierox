@@ -30,6 +30,7 @@
 #include "Cursor.h"
 #include "CssParser.h"
 #include "FontHandling.h"
+#include "Timer.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"

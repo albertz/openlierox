@@ -32,6 +32,7 @@
 #include "CServer.h"
 #include "AuxLib.h"
 #include "Networking.h"
+#include "Timer.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
