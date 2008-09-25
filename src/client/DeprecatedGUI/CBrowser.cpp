@@ -284,7 +284,6 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	int maxX = iX + iWidth - BORDER_SIZE - 16;
 	FontFormat currentFormat ={ false, false, Color() };
 	std::stack<FontFormat> formatStack;
-	int lines = 0;
 
 	// Setup the clipping
 	SDL_Rect clip = {iX + BORDER_SIZE, iY + BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};

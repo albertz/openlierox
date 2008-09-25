@@ -35,8 +35,8 @@ void x11_SetDemandsAttention( bool v ) {
 	XEvent e;
 	e.xclient.type = ClientMessage;
 	e.xclient.message_type = wmState;
-	e.xclient.display = info.info.x11.display; //info.info.x11.display;
-	e.xclient.window = info.info.x11.wmwindow;  // glparent; //winId;
+	e.xclient.display = info.info.x11.display;
+	e.xclient.window = info.info.x11.wmwindow;
 	e.xclient.format = 32;
 	e.xclient.data.l[0] = v ? 1 : 0;
 	e.xclient.data.l[1] = demandsAttention;
@@ -59,11 +59,14 @@ void x11_SetDemandsAttention( bool v ) {
 
 using namespace std;
 
+// HINT: I don't include LieroX.h directly as it declares Rect<>, which is already declared by Carbon
+extern bool bDedicated;
+
 
 // Make the sound, and blink the game window (platform-dependent)
 void NotifyUserOnEvent()
 {
-	if( ApplicationHasFocus() )
+	if( bDedicated || ApplicationHasFocus() )
 		return;
 
 	cout << "Notifying busy user" << endl;
@@ -114,6 +117,7 @@ void NotifyUserOnEvent()
 }
 
 void ClearUserNotify() {
+	if(bDedicated) return;
 #if defined(__APPLE__)
 #elif defined(WIN32)
 #elif defined(X11)
