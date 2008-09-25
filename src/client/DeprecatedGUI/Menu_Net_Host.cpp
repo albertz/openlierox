@@ -1219,7 +1219,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 cHostLobby.removeWidget(hl_PopupMenu);
                 //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
 				cHostLobby.removeWidget(hl_PopupPlayerInfo);
-				} break;
+				} 
+				break;
 
 			case hl_PopupPlayerInfo:  {
 
@@ -1256,7 +1257,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 cHostLobby.removeWidget(hl_PopupMenu);
                 //cHostLobby.SendMessage( hl_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
 				cHostLobby.removeWidget(hl_PopupPlayerInfo);
-				} break;
+				} 
+				break;
 
 			case hl_StartDedicated:
 				if(ev->iEventMsg == CHK_CHANGED) {

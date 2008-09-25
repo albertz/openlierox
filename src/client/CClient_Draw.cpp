@@ -39,6 +39,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
+#include "Clipboard.h"
 
 
 using namespace std;
@@ -1131,7 +1132,8 @@ enum {
 	gm_LeftList,
 	gm_RightList,
 	gm_Options,
-	gm_PopupMenu
+	gm_PopupMenu,
+	gm_PopupPlayerInfo
 };
 
 void CClient::InitializeGameMenu()
@@ -1321,6 +1323,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				if (ev->cWidget->getType() == DeprecatedGUI::wid_Button && ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
 					// Remove old popup menu
 					cGameMenuLayout.removeWidget(gm_PopupMenu);
+					cGameMenuLayout.removeWidget(gm_PopupPlayerInfo);
 
 					int worm_id = ev->cWidget->getID();  // Widget ID is the same as player ID
 					if (worm_id < 0 || worm_id >= MAX_WORMS)
@@ -1346,6 +1349,34 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 								mnu->addItem(2, "Mute player");
 						}
 						mnu->addItem(3, "Authorise player");
+						
+						DeprecatedGUI::CMenu * info = new DeprecatedGUI::CMenu( Mouse->X + mnu->getMenuWidth() + 10, Mouse->Y );
+						cGameMenuLayout.Add(info, gm_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
+
+						NetworkAddr addr;
+						GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+						std::string addrStr;
+						NetAddrToString(addr, addrStr);
+						info->addItem(0, "IP: " + addrStr);
+						
+						if( tIpToCountryDB->Loaded() )
+							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
+
+						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
+						
+						// Update the menu clickable area - all items below are not clickable, they just for info
+						info->Setup(gm_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), info->getMenuWidth(), info->getMenuHeight()-2);
+
+						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
+						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
+						info->addItem(5, "Connected for " + 
+							itoa( (tLX->fCurTime - w->getClient()->getConnectTime()) / 60.0f) + " minutes");
+						info->addItem(6, "Total " + 
+							itoa( w->getTotalKills() ) + " kills / " +
+							itoa( w->getTotalDeaths() ) + " deaths / " +
+							itoa( w->getTotalSuicides() ) + " suicides / " +
+							itoa( w->getTotalWins() + w->getTotalLosses() ) + " games / " +
+							itoa( w->getTotalWins() ) + " wins" );
 					}
 				}
 			}
@@ -1391,7 +1422,46 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
             // Remove the menu widget
             cGameMenuLayout.SendMessage( gm_PopupMenu, DeprecatedGUI::MNM_REDRAWBUFFER, (DWORD)0, 0);
             cGameMenuLayout.removeWidget(gm_PopupMenu);
-			} break;
+			//cGameMenuLayout.SendMessage( gm_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+			cGameMenuLayout.removeWidget(gm_PopupPlayerInfo);
+			} 
+			break;
+			
+		case gm_PopupPlayerInfo:  {
+
+				CWorm *w = &cServer->getWorms()[iSelectedPlayer];
+				if (!w->isUsed())
+					break;
+
+				NetworkAddr addr;
+				GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+				std::string addrStr;
+				NetAddrToString(addr, addrStr);
+
+                switch( ev->iEventMsg ) {
+
+                    case DeprecatedGUI::MNU_USER+0:
+						copy_to_clipboard(addrStr);
+                        break;
+
+                    case DeprecatedGUI::MNU_USER+1:
+						if( tIpToCountryDB->Loaded() )
+							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).Country);
+                        break;
+						
+                    case DeprecatedGUI::MNU_USER+2:
+						copy_to_clipboard(w->getClient()->getClientVersion().asString());
+						break;
+
+				};
+
+                // Remove the menu widget
+                cGameMenuLayout.SendMessage( gm_PopupMenu, DeprecatedGUI::MNM_REDRAWBUFFER, (DWORD)0, 0);
+                cGameMenuLayout.removeWidget(gm_PopupMenu);
+				//cGameMenuLayout.SendMessage( gm_PopupPlayerInfo, MNM_REDRAWBUFFER, (DWORD)0, 0);
+				cGameMenuLayout.removeWidget(gm_PopupPlayerInfo);
+			} 
+			break;
 		}
 	}
 
