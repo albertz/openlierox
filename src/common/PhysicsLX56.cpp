@@ -551,7 +551,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay * tGameInfo.fGameSpeed;
+				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / tGameInfo.fGameSpeed;
 
 				*projspawn = true;
 			}
@@ -674,6 +674,7 @@ public:
 		// Check if the timer is up
 		f = prj->getTimeVarRandom();
 		if(pi->Timer_Time > 0 && (pi->Timer_Time + pi->Timer_TimeVar * f) < prj->getLife()) {
+			// HINT: all the following actions will delete this projectile after
 
 			// Run the end timer function
 			switch (pi->Timer_Type) {
