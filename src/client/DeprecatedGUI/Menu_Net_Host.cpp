@@ -1757,7 +1757,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						NetAddrToString(addr, addrStr);
 						info->addItem(0, "IP: " + addrStr);
 						
-						if( tIpToCountryDB->Loaded() )
+						if( tIpToCountryDB && tIpToCountryDB->Loaded() )
 							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
 
 						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
