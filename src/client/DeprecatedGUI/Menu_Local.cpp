@@ -788,7 +788,11 @@ static void Menu_setGameSpeed(float speed) {
 static float Menu_getGameSpeed() {
 	int v = cGeneralSettings.SendMessage(gs_GameSpeed, SLM_GETVALUE, 100, 0);
 	// 0-99 values possible, map to 0.1,0.2,...0.9,1.0,1.1,...,2.0,...,10.0
-	return (float)(v + 1) * 0.1f;
+	float gs = (float)(v + 1) * 0.1f;
+	if( fabs(gs - 1.0f) < 0.001f )
+		return 1.0f;
+	else
+		return gs;
 }
 
 ///////////////////
