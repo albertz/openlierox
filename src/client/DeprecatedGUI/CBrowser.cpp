@@ -164,6 +164,8 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseDown(tMouse, nDown);
 
+	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
+
 	return BRW_NONE;
 }
 
@@ -227,22 +229,96 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	// Render the content
 	RenderContent(bmpDest);
 
+	// Draw the cursor
+	int x, y;
+	CursorPosToMousePos(iCursorColumn, iCursorLine, x, y);
+	DrawVLine(bmpDest, y, y + tLX->cFont.GetHeight(), x, Color(255, 0, 0));
+
 	// Scrollbar
 	if (bUseScroll)
 		cScrollbar.Draw(bmpDest);
 }
 
-static const float boldCoeff = 1.1f;
+/////////////////////
+// Converts mouse position to cursor position
+void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cur_y)
+{
+	cur_x = cur_y = 0;
 
+	if (tPureText.empty())
+		return;
+
+	int x = ms_x - iX - BORDER_SIZE;
+	int y = ms_y - iY - BORDER_SIZE;
+
+	// Get the line
+	size_t line = y / tLX->cFont.GetHeight();
+	if (line >= tPureText.size())
+		line = tPureText.size() - 1;
+
+	// Get the column
+	size_t column = 0;
+	int width = 0;
+	int width2 = 0;
+	std::string tmp;
+	std::string::iterator it = tPureText[line].begin();
+	while (it != tPureText[line].end())  {
+		if (width <= x && x <= width2)
+			break;
+		tmp += *it;
+		width = tLX->cFont.GetWidth(tmp);
+		it++;
+		if (it == tPureText[line].end())  {
+			cur_y = line;
+			cur_x = tPureText[line].size();
+			return;
+		}
+		width2 = tLX->cFont.GetWidth(tmp + *it);
+		++column;
+	}
+
+	cur_x = column;
+	cur_y = line;
+}
+
+
+////////////////////////
+// Converts cursor position to a mouse (screen) position
+void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& ms_y)
+{
+	ms_x = iX + BORDER_SIZE;
+	ms_y = iY + BORDER_SIZE;
+
+	int y = (int)cur_y * tLX->cFont.GetHeight();
+
+	// Get the Y coordinate
+	if (cur_y >= tPureText.size())
+		return;
+
+	// Get the X coordinate
+	std::string::iterator end = tPureText[cur_y].begin();
+	SafeAdvance(end, cur_x, tPureText[cur_y].end());
+	std::string tmp(tPureText[cur_y].begin(), tPureText[cur_y].begin() + cur_x);
+	int x = tLX->cFont.GetWidth(tmp);
+
+	ms_x = iX + BORDER_SIZE + x;
+	ms_y = iY + BORDER_SIZE + y;
+}
+
+//////////////////////
+// Returns width of the given text
 int CBrowser::TextW(const std::string& text, FontFormat& fmt)
 {
 	if (fmt.bold)
-		return (int)ceil((float)tLX->cFont.GetWidth(text) * boldCoeff);
+		return tLX->cFont.GetWidth(text) + 1;
 	else
 		return tLX->cFont.GetWidth(text);
 }
 
-void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text, std::string& line)
+
+///////////////////////////
+// Renders a chunk of text with the given style
+void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text)
 {
 	if (!text.size())
 		return;
@@ -279,7 +355,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		if (curX + width >= maxX)  {
 			curY += tLX->cFont.GetHeight();
 			tPureText.push_back(sCurLine);
-			line.clear();
+			sCurLine.clear();
 			curX = iX + BORDER_SIZE;
 		}
 		sCurLine += word;
@@ -295,6 +371,9 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 	}
 }
 
+
+//////////////////////
+// Helper function for TraverseNodes below
 void CBrowser::BrowseChildren(xmlNodePtr node)
 {
 	// Process the children
@@ -307,6 +386,9 @@ void CBrowser::BrowseChildren(xmlNodePtr node)
 	}
 }
 
+
+////////////////////////
+// Recursivelly walks through the nodes and renders them
 void CBrowser::TraverseNodes(xmlNodePtr node)
 {
 	if (!node)
@@ -358,7 +440,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	}
 
 	else if (!xmlStrcmp(node->name, (xmlChar *)"text") && node->content)
-		RenderText(tDestSurface, tCurrentFormat, curX, curY, maxX, (const char *)node->content, sCurLine);
+		RenderText(tDestSurface, tCurrentFormat, curX, curY, maxX, (const char *)node->content);
 
 	BrowseChildren(node);
 }

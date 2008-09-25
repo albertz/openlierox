@@ -39,6 +39,18 @@ struct FontFormat  {
 // Browser class
 class CBrowser : public CWidget {
 public:
+	CBrowser() :
+	  bFinished(false),
+	  iClientWidth(0),
+	  iClientHeight(0),
+	  tHtmlDocument(NULL),
+	  tRootNode(NULL),
+	  tPureText(NULL),
+	  curX(0),
+	  curY(0),
+	  tDestSurface(NULL),
+	  iCursorColumn(0),
+	  iCursorLine(0)  {}
 
 private:
 	// Attributes
@@ -50,7 +62,7 @@ private:
 	int						iClientHeight;
 	htmlDocPtr				tHtmlDocument;
 	htmlNodePtr				tRootNode;
-	std::list<std::string>	tPureText;
+	std::vector<std::string>	tPureText;
 
 	// Parsing temps
 	FontFormat				tCurrentFormat;
@@ -59,6 +71,10 @@ private:
 	int						curY;
 	std::string				sCurLine;
 	SDL_Surface				*tDestSurface;
+
+	// Selection
+	size_t					iCursorColumn;
+	size_t					iCursorLine;
 
 	// Window attributes
 	CScrollbar				cScrollbar;
@@ -92,10 +108,13 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 	int		TextW(const std::string& text, FontFormat& fmt);
-	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text, std::string& line);
+	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
 	void	TraverseNodes(xmlNodePtr node);
 	void	BrowseChildren(xmlNodePtr node);
 	void	LoadStyle(void) {}
+
+	void	MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cur_y);
+	void	CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& ms_y);
 
 	void	LoadFromHTTP(const std::string& url);
 	void	LoadFromFile(const std::string& file);
