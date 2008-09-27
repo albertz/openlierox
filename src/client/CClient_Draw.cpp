@@ -1460,6 +1460,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
+			// Add the command button
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
+
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
 
@@ -1507,6 +1510,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddItem(p->getName(), i, tLX->clTagHighlight);
 			else
 				lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Add the command button
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
@@ -1572,6 +1578,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			lv->AddItem(teamnames[team], n + 1024, colour);
 
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL);  // Empty (in place of the command button)
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
@@ -1598,6 +1605,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Add the command button
+				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 				// Skin
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
@@ -1648,6 +1658,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Add the command button
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
@@ -1706,6 +1719,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			lv->AddItem(teamnames[team], n + 1024, colour);
 
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL);  // In the place of the command button
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
@@ -1732,6 +1746,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Add the command button
+				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 				// Skin
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
@@ -1791,6 +1808,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			lv->AddItem(VIPteamnames[team], n + 1024, colour);
 
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL); // In the place of the command button
 			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, VIPteamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
@@ -1817,6 +1835,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Add the command button
+				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
 
 				// Skin
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
