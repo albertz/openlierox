@@ -1651,6 +1651,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+			// Do not list flags
+			if (p->getFlag())
+				continue;
+
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1737,6 +1742,10 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				p = &cRemoteWorms[iScoreboard[i]];
 
 				if(p->getTeam() != team)
+					continue;
+
+				// Do not list flags
+				if (p->getFlag())
 					continue;
 
 				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
