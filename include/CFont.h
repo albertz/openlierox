@@ -71,6 +71,7 @@ public:
 	void				DrawCentre(SDL_Surface * dst, int x, int y, Uint32 col, const std::string& txt);
 	void				DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
 	void				DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
+	void				DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c);
 
 	void				Shutdown(void);
 
@@ -116,6 +117,8 @@ private:
 	bool				IsColumnFree(int x);
 	void				Parse(void);
 	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
+	void				DrawGlyphNormal_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
+	void				DrawGlyphOutline_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
 };
 
 

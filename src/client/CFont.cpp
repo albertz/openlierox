@@ -297,6 +297,12 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 	// Vertical clipping
 	OneSideClip(char_y, char_h, newrect.y, newrect.h);
 
+	// Get the correct drawing function
+	typedef void(CFont::*GlyphBlitter)(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
+	GlyphBlitter func = &CFont::DrawGlyphNormal_Internal;
+	if (OutlineFont)
+		func = &CFont::DrawGlyphOutline_Internal;
+
 	for (std::string::const_iterator p = txt.begin(); p != txt.end();) {
 
 		// Line break
@@ -340,49 +346,8 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 			continue;
 		}
 
-
-		const short bpp = bmpFont.get()->format->BytesPerPixel;
-		Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * (char_y - y) +
-						(CharacterOffset[l] + char_x - x) * bpp;
-		Uint8 *px;
-
-		// Outline font
-		if (OutlineFont) {
-			for (int j = 0; j < char_h; ++j) {
-				px = src;
-				for (int i = 0; i < char_w; ++i, px += bpp) {
-					Uint8 R, G, B, A;
-					GetColour4(getter.get(px), bmpFont->format, &R, &G, &B, &A);
-
-					// Put black pixels and colorize white ones
-					if (R == 255 && G == 255 && B == 255)  {    // White
-						Color current_cl = font_cl;
-						current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
-						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, current_cl);
-					} else if (!R && !G && !B)    // Black
-						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, Color(0, 0, 0, (A * font_cl.a) / 255));
-				}
-				src += bmpFont.get()->pitch;
-			}
-		}
-		// Not outline
-		else {
-			for (int j = 0; j < char_h; ++j) {
-				px = src;
-				for (int i = 0; i < char_w; ++i, px += bpp) {
-					Uint8 R, G, B, A;
-					GetColour4(getter.get(px), bmpFont.get()->format, &R, &G, &B, &A);
-
-					// Put only black pixels
-					if (!R && !G && !B)  {
-						Color current_cl = font_cl;
-						current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
-						putter.put(GetPixelAddr(dst, char_x + i, char_y + j), dst->format, current_cl);
-					}
-				}
-				src += bmpFont.get()->pitch;
-			}
-		}
+		// Draw the glyph
+		(this->*(func))(dst, MakeRect(char_x, char_y, char_w, char_h), char_x - x, char_y - y, font_cl, l, putter, getter);
 
 		x += FontWidth[l] + Spacing;
 	}
@@ -396,6 +361,88 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 		UnlockSurface(dst);
 		UnlockSurface(bmpFont);
 	}
+}
+
+/////////////////////////
+// Draws an outlined character
+void CFont::DrawGlyphOutline_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
+{
+	const short bpp = bmpFont->format->BytesPerPixel;
+	Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * sy +
+					(CharacterOffset[glyph_index] + sx) * bpp;
+
+	// Draw the glyph
+	for (int j = 0; j < r.h; ++j) {
+		Uint8 *px = src;
+		for (int i = 0; i < r.w; ++i, px += bpp) {
+			Uint8 R, G, B, A;
+			GetColour4(getter.get(px), bmpFont->format, &R, &G, &B, &A);
+
+			// Put black pixels and colorize white ones
+			if (R == 255 && G == 255 && B == 255)  {    // White
+				Color current_cl = col;
+				current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
+				putter.put(GetPixelAddr(dst, r.x + i, r.y + j), dst->format, current_cl);
+			} else if (!R && !G && !B)    // Black
+				putter.put(GetPixelAddr(dst, r.x + i, r.y + j), dst->format, Color(0, 0, 0, (A * col.a) / 255));
+		}
+		src += bmpFont.get()->pitch;
+	}
+}
+
+//////////////////////////
+// Draws a character
+void CFont::DrawGlyphNormal_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
+{
+	const short bpp = bmpFont->format->BytesPerPixel;
+	Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * sy +
+					(CharacterOffset[glyph_index] + sx) * bpp;
+
+	// Draw the glyph
+	for (int j = 0; j < r.h; ++j) {
+		Uint8 *px = src;
+		for (int i = 0; i < r.w; ++i, px += bpp) {
+			Uint8 R, G, B, A;
+			GetColour4(getter.get(px), bmpFont.get()->format, &R, &G, &B, &A);
+
+			// Put only black pixels
+			if (!R && !G && !B)  {
+				Color current_cl = col;
+				current_cl.a = (current_cl.a * A) / 255; // Add the alpha from the font
+				putter.put(GetPixelAddr(dst, r.x + i, r.y + j), dst->format, current_cl);
+			}
+		}
+		src += bmpFont.get()->pitch;
+	}
+}
+
+
+/////////////////////
+// Draws one character to the dest surface
+void CFont::DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c)
+{
+	// Don't draw spaces
+	if (isspace((unsigned char)c))
+		return;
+
+	int index = TranslateCharacter(c);
+	if (index == -1) // Unknown character
+		return;
+
+	// Clipping
+	SDL_Rect r = { x, y, FontWidth[index], bmpFont->h };
+	if (!ClipRefRectWith((SDLRect &)r, (SDLRect &)dst->clip_rect))
+		return;
+
+	// Get the putpixel & getpixel functors
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(dst);
+	PixelGet& getter = getPixelGetFunc(bmpFont.get());
+
+	// Draw the glyph
+	if (OutlineFont)
+		DrawGlyphOutline_Internal(dst, r, x - r.x, y - r.y, col, index, putter, getter);
+	else
+		DrawGlyphNormal_Internal(dst, r, x - r.x, y - r.y, col, index, putter, getter);
 }
 
 
