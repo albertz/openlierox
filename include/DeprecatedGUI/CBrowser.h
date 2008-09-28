@@ -103,6 +103,12 @@ private:
 	void					Parse();
 	void					ParseTag(std::string::const_iterator& it, std::string::const_iterator& last, std::string& cur_line);
 	void					RenderContent(SDL_Surface * bmpDest);
+	int						TextW(const std::string& text, FontFormat& fmt);
+	void					RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
+	void					TraverseNodes(xmlNodePtr node);
+	void					BrowseChildren(xmlNodePtr node);
+	bool					InSelection(size_t line, size_t column);
+	void					EndLine();
 
 
 public:
@@ -126,11 +132,6 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
-	void	DrawSelection(SDL_Surface *bmpDest);
-	int		TextW(const std::string& text, FontFormat& fmt);
-	void	RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
-	void	TraverseNodes(xmlNodePtr node);
-	void	BrowseChildren(xmlNodePtr node);
 	void	LoadStyle(void) {}
 
 	void	MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cur_y);

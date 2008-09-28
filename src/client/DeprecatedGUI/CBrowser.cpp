@@ -26,6 +26,7 @@
 namespace DeprecatedGUI {
 
 #define BORDER_SIZE 2
+#define LIST_SPACING 10
 
 ///////////////////
 // The create event
@@ -171,9 +172,28 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		iSelectionStartLine = iSelectionGrabLine;
 		iSelectionEndLine = iCursorLine;
 		iSelectionEndColumn = iCursorColumn;
+
+		// Swap the ends if necessary
+		if (iSelectionStartLine > iSelectionEndLine)  {
+			size_t tmp = iSelectionStartLine;
+			iSelectionStartLine = iSelectionEndLine;
+			iSelectionEndLine = tmp;
+
+			tmp = iSelectionStartColumn;
+			iSelectionStartColumn = iSelectionEndColumn;
+			iSelectionEndColumn = tmp;
+		} else if (iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn > iSelectionEndColumn)  {
+			size_t tmp = iSelectionStartColumn;
+			iSelectionStartColumn = iSelectionEndColumn;
+			iSelectionEndColumn = tmp;
+		}
 	} else {
 		iSelectionGrabColumn = iCursorColumn;
 		iSelectionGrabLine = iCursorLine;
+
+		// Destroy any previous selection
+		iSelectionStartColumn = iSelectionEndColumn = iCursorColumn;
+		iSelectionStartLine = iSelectionEndLine = iCursorLine;
 	}
 
 	bSelectionGrabbed = true;
@@ -243,60 +263,14 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	DrawRect(bmpDest, iX + 1, iY + 1, iX + iWidth - 1, iY + iHeight - 1, tLX->clBoxLight);
 	
 	// Background (white)
-	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clWhite);
-
-	DrawSelection(bmpDest);
+	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, Color(255, 255, 255));
 
 	// Render the content
 	RenderContent(bmpDest);
 
-	// Draw the cursor
-	int x, y;
-	CursorPosToMousePos(iCursorColumn, iCursorLine, x, y);
-	DrawVLine(bmpDest, y, y + tLX->cFont.GetHeight(), x, Color(255, 0, 0));
-
 	// Scrollbar
 	if (bUseScroll)
 		cScrollbar.Draw(bmpDest);
-}
-
-//////////////////////
-// Draws a selection
-void CBrowser::DrawSelection(SDL_Surface *bmpDest)
-{
-	return;
-	Color cl(0, 0, 255);
-
-	size_t sel_start_line = iSelectionStartLine;
-	size_t sel_end_line = iSelectionEndLine;
-	if (sel_start_line > sel_end_line)  {
-		size_t tmp = sel_start_line;
-		sel_start_line = sel_end_line;
-		sel_end_line = tmp;
-	}
-
-	if (sel_start_line >= tPureText.size() || sel_end_line >= tPureText.size())
-		return;
-
-	size_t col = iSelectionStartColumn;
-	size_t lin = iSelectionStartLine;
-	for (size_t i = 0; i <= sel_end_line - sel_start_line; ++i)  {
-		int start_x, start_y;
-		CursorPosToMousePos(col, lin + i, start_x, start_y);
-		if (i != 0)
-			start_x = iX + BORDER_SIZE;
-
-		int end_x, end_y;
-		if (i == sel_end_line - sel_start_line)  {
-			CursorPosToMousePos(iSelectionEndColumn, iSelectionEndLine, end_x, end_y);
-			end_y += tLX->cFont.GetHeight();
-		} else  {
-			end_x = iX + BORDER_SIZE + tLX->cFont.GetWidth(tPureText[sel_start_line + i]);
-			end_y = start_y + (i + 1) * tLX->cFont.GetHeight();
-		}
-
-		DrawRectFill(bmpDest, start_x, start_y, end_x, end_y, cl);
-	}
 }
 
 /////////////////////
@@ -305,6 +279,8 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 {
 	cur_x = cur_y = 0;
 
+	size_t scroll_val = (bUseScroll ? cScrollbar.getValue() : 0);
+
 	if (tPureText.empty())
 		return;
 
@@ -312,29 +288,31 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 	int y = ms_y - iY - BORDER_SIZE;
 
 	// Get the line
-	size_t line = y / tLX->cFont.GetHeight();
-	if (line >= tPureText.size())
-		line = tPureText.size() - 1;
+	size_t line = 0;
+	if (y > 0)  {
+		line = y / tLX->cFont.GetHeight() + scroll_val;
+		if (line >= tPureText.size())
+			line = tPureText.size() - 1;
+	}
 
 	// Get the column
 	size_t column = 0;
-	int width = 0;
-	int width2 = 0;
-	std::string tmp;
-	std::string::iterator it = tPureText[line].begin();
-	while (it != tPureText[line].end())  {
-		if (width <= x && x <= width2)
-			break;
-		tmp += *it;
-		width = tLX->cFont.GetWidth(tmp);
-		it++;
-		if (it == tPureText[line].end())  {
-			cur_y = line;
-			cur_x = tPureText[line].size();
-			return;
+	if (x > 0)  {
+		int width = 0;
+		int next_width = 0;
+
+		std::string::iterator it = tPureText[line].begin();
+		while (it != tPureText[line].end())  {
+
+			UnicodeChar c = GetNextUnicodeFromUtf8(it, tPureText[line].end());
+			width = next_width;
+			next_width += tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
+
+			if (width <= x && x <= next_width)
+				break;
+
+			++column;
 		}
-		width2 = tLX->cFont.GetWidth(tmp + *it);
-		++column;
 	}
 
 	cur_x = column;
@@ -375,6 +353,28 @@ int CBrowser::TextW(const std::string& text, FontFormat& fmt)
 		return tLX->cFont.GetWidth(text);
 }
 
+////////////////////
+// Creates a new line and pushes the current one to the pure text stack
+void CBrowser::EndLine()
+{
+	// Trim trailing space if present
+	if (sCurLine.size())
+		if (*sCurLine.rbegin() == ' ')  {
+			sCurLine.resize(sCurLine.size() - 1);
+			curX -= tLX->cFont.GetCharacterWidth(' ') + 1;
+		}
+
+	// Check if the cursor is at the end of the line
+	if (tPureText.size() == iCursorLine && iCursorColumn >= Utf8StringSize(sCurLine))
+		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, Color(255, 0, 0));
+
+	// Add the line to the pure text and start a new line
+	tPureText.push_back(sCurLine);
+	sCurLine.clear();
+	curY += tLX->cFont.GetHeight();
+	curX = iX + BORDER_SIZE;
+}
+
 
 ///////////////////////////
 // Renders a chunk of text with the given style
@@ -383,10 +383,9 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 	if (!text.size())
 		return;
 
-	//std::string buffer = text;
-
 	// Text
-	bool was_space = false;
+	bool was_space = sCurLine.size() > 0 ? (*sCurLine.rbegin() == ' ') : false;
+	size_t current_column = sCurLine.size();
 	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
 		// Handle spaces & newlines
 		if (*it == '\r')  {
@@ -394,50 +393,98 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			continue;
 		}
 
+		std::string word;
+
+		// Handle multiple blank characters
 		if ((*it == '\n' || *it == ' ' || *it == '\t') && sCurLine.size() != 0)  {
-			if (!was_space)
-				curX += tLX->cFont.GetWidth(" ");
-			was_space = true;
-			it++;
-			continue;
+			if (!was_space)  {
+				word = " ";
+			} else {
+				it++;
+				was_space = true;
+				continue;
+			}
+
+		// Normal word
+		} else {
+			was_space = false;
+			
+			// Ignore empty words
+			word = GetNextWord(it, text);
+			if (word.size() == 0)  {
+				it++;
+				continue;
+			}
 		}
 
-		was_space = false;
-		
-		// Ignore empty words
-		std::string word = GetNextWord(it, text);
-		if (word.size() == 0)  {
-			it++;
-			continue;
-		}
-
+		// Word wrap
 		int width = TextW(word, fmt);
 		if (curX + width >= maxX)  {
-			curY += tLX->cFont.GetHeight();
-			tPureText.push_back(sCurLine);
-			sCurLine.clear();
-			curX = iX + BORDER_SIZE;
+			EndLine();
+			current_column = 0;
 		}
 		sCurLine += word;
 		it += word.size();
-		
-		Color clSelection(0, 255, 255);
-		size_t charsX, charsY;
-		MousePosToCursorPos( curX, curY, charsX, charsY);
-		// TODO: select portions of lines, select by rect
-		//if( iSelectionStartColumn <= charsX && iSelectionEndColumn >= charsX &&
-		if(	iSelectionStartLine <= charsY && iSelectionEndLine > charsY )
-			DrawRectFill(bmpDest, curX, curY, curX + width + was_space ? tLX->cFont.GetWidth(" ") : 0, 
-							curY + tLX->cFont.GetHeight(), clSelection);
-		
-		tLX->cFont.Draw(bmpDest, curX, curY, fmt.color.get(bmpDest->format), word);
-		if (fmt.underline)
-			DrawHLine(bmpDest, curX, curX + width, curY + tLX->cFont.GetHeight() - 3, fmt.color);
-		if (fmt.bold)  {
-			tLX->cFont.Draw(bmpDest, curX + 1, curY, fmt.color.get(bmpDest->format), word);
+
+
+		// Don't draw the line if it's not visible
+		if (bUseScroll && ((int)tPureText.size() < cScrollbar.getValue() ||
+			(int)tPureText.size() > cScrollbar.getValue() + cScrollbar.getItemsperbox()))  {
+			current_column += word.size();
+			continue;
 		}
-		curX += width;
+
+		// Render the word
+		std::string::iterator word_it = word.begin();
+		while (word_it != word.end())  {
+
+			// Get the character
+			UnicodeChar c = GetNextUnicodeFromUtf8(word_it, word.end());
+			int w = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
+
+			// Draw selection
+			if (InSelection(tPureText.size(), current_column))  {
+				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), Color(0, 255, 255));
+			}
+
+			// Draw the character
+			tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
+
+			// Bold
+			if (fmt.bold)
+				tLX->cFont.DrawGlyph(bmpDest, curX + 1, curY, fmt.color, c);
+
+			// Underline
+			if (fmt.underline)
+				DrawHLine(bmpDest, curX, curX + w, curY + tLX->cFont.GetHeight() - 2, fmt.color);
+
+			// Cursor
+			if (tPureText.size() == iCursorLine && current_column == iCursorColumn)
+				DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, Color(255, 0, 0));
+
+			curX += w;
+			++current_column;
+		}
+
+
+		was_space = ((*word.rbegin()) == ' ');  // HINT: word.size() != 0 here
 	}
+}
+
+////////////////////
+// Returns true if the given position is inside the selection
+bool CBrowser::InSelection(size_t line, size_t column)
+{
+	if (line >= iSelectionStartLine && line <= iSelectionEndLine)  {
+		if (line == iSelectionStartLine && line == iSelectionEndLine)
+			return column >= iSelectionStartColumn && column < iSelectionEndColumn;
+		if (line == iSelectionStartLine)
+			return column >= iSelectionStartColumn;
+		if (line == iSelectionEndLine)
+			return column < iSelectionEndColumn;
+		return true;
+	}
+	return false;
 }
 
 
@@ -471,7 +518,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	else if (!xmlStrcmp(node->name, (xmlChar *)"object")) {}
 
 	// Bold
-	else if (!xmlStrcmp(node->name, (xmlChar *)"b"))  {
+	else if (!xmlStrcmp(node->name, (xmlChar *)"b") || !xmlStrcmp(node->name, (xmlChar *)"strong"))  {
 		tFormatStack.push(tCurrentFormat);
 		tCurrentFormat.bold = true;
 		BrowseChildren(node);
@@ -500,11 +547,47 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		return;
 	}
 
+	// Newline
 	else if (!xmlStrcmp(node->name, (xmlChar *)"br"))  {
-		tPureText.push_back(sCurLine);
-		sCurLine.clear();
-		curY += tLX->cFont.GetHeight();
-		curX = iX + BORDER_SIZE;
+		EndLine();
+		return;
+	}
+
+	// Common block elements
+	else if (!xmlStrcmp(node->name, (xmlChar *)"p") || !xmlStrcmp(node->name, (xmlChar *)"div")
+		|| !xmlStrcmp(node->name, (xmlChar *)"ul") || !xmlStrcmp(node->name, (xmlChar *)"ol"))  {
+		EndLine();
+		BrowseChildren(node);
+		return;
+	}
+
+	// List item
+	else if (!xmlStrcmp(node->name, (xmlChar *)"li"))  {
+		EndLine();
+		curX += LIST_SPACING;
+		tLX->cFont.DrawGlyph(tDestSurface, curX, curY, tCurrentFormat.color, 0xA4);
+		tLX->cFont.DrawGlyph(tDestSurface, curX + 1, curY, tCurrentFormat.color, 0xA4);
+		curX += tLX->cFont.GetCharacterWidth(0xA4) + LIST_SPACING;
+		BrowseChildren(node);
+		return;
+	}
+
+	// Headings (h1 - h6)
+	else if (xmlStrlen(node->name) == 2 && node->name[0] == 'h' && node->name[1] >= '1' && node->name[1] <= '6')  {
+		tFormatStack.push(tCurrentFormat);
+		tCurrentFormat.bold = true;
+		EndLine();
+		BrowseChildren(node);
+		tCurrentFormat = tFormatStack.top();
+		tFormatStack.pop();
+		return;
+	}
+
+	// Horizontal rule
+	else if (!xmlStrcmp(node->name, (xmlChar *)"hr"))  {
+		EndLine();
+		DrawHLine(tDestSurface, curX + 5, iX + iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
+		EndLine();
 		return;
 	}
 
@@ -538,9 +621,10 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	sCurLine.clear();
 	TraverseNodes(tRootNode);
 
-	if ((int)tPureText.size() >= iWidth / tLX->cFont.GetHeight())  {
+	int linesperbox = iHeight / tLX->cFont.GetHeight();
+	if ((int)tPureText.size() >= linesperbox)  {
 		cScrollbar.setMax(tPureText.size());
-		cScrollbar.setItemsperbox(iWidth / tLX->cFont.GetHeight());
+		cScrollbar.setItemsperbox(linesperbox - 1);
 		bUseScroll = true;
 	} else
 		bUseScroll = false;
