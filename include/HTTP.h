@@ -216,6 +216,9 @@ public:
 	size_t				GetDataLength()			{ return iDataLength; }
 	size_t				GetReceivedDataLen()	{ return iDataReceived; }
 	bool				RequestedData()			{ return bRequested; }
+
+	const std::string&	GetHostName()			{ return sHost; }
+	const std::string&	GetUrl()				{ return sUrl; }
 };
 
 #endif  // __HTTP_H__

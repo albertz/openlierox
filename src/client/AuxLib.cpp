@@ -27,10 +27,6 @@
 #include <SDL_syswm.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#include <shellapi.h>
-#endif
-
 #include "AuxLib.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"

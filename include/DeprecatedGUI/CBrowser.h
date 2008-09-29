@@ -72,17 +72,20 @@ public:
 	public:
 		typedef void(CBrowser::*ActiveAreaHandler)(CActiveArea *);
 	public:
-		CActiveArea(CBrowser *parent, const SDL_Rect& rect, ActiveAreaHandler click_func, const std::string s_data = "", int i_data = 0) :
+		CActiveArea(CBrowser *parent, const SDL_Rect& rect, ActiveAreaHandler click_func, ActiveAreaHandler move_func,
+			const std::string s_data = "", int i_data = 0) :
 		  tRect(rect),
 		  sData(s_data),
 		  iData(i_data),
 		  tClickFunc(click_func),
+		  tMouseMoveFunc(move_func),
 		  tParent(parent)
 		  {}
 
 		CActiveArea() :
 		  iData(0),
 		  tClickFunc(NULL),
+		  tMouseMoveFunc(NULL),
 		  tParent(NULL)
 		  { tRect = MakeRect(0, 0, 0, 0); }
 
@@ -94,14 +97,13 @@ public:
 		std::string	sData;
 		int			iData;
 		ActiveAreaHandler tClickFunc;
+		ActiveAreaHandler tMouseMoveFunc;
 		CBrowser	*tParent;
 
 	public:
 		bool	InBox(int x, int y) const  { return x >= tRect.x && x < (tRect.x + tRect.w) 
 			&& y >= tRect.y && y < (tRect.y + tRect.h); }
-		void	DoMouseMove(int x, int y)  { /* TODO */ }
-		void	DoMouseEnter() { /* TODO */ }
-		void	DoMouseEnd() { /* TODO */ }
+		void	DoMouseMove(int x, int y);
 		void	DoMouseDown(int x, int y) { /* TODO */ }
 		void	DoClick(int x, int y);
 
@@ -110,7 +112,7 @@ public:
 		CBrowser *getParent()				{ return tParent; }
 
 		void Clear()  { tRect = MakeRect(0, 0, 0, 0); sData.clear();
-						iData = 0; tClickFunc = NULL; tParent = NULL; }
+						iData = 0; tClickFunc = NULL; tMouseMoveFunc = NULL; tParent = NULL; }
 
 		CActiveArea& operator=(const CActiveArea& oth)  {
 			if (&oth != this)  {
@@ -118,6 +120,7 @@ public:
 				sData = oth.sData;
 				iData = oth.iData;
 				tClickFunc = oth.tClickFunc;
+				tMouseMoveFunc = oth.tMouseMoveFunc;
 				tParent = oth.tParent;
 			}
 			return *this;
@@ -130,6 +133,7 @@ private:
 	CHttp					cHttp;
 	std::string				tData;
 	std::string				sURL;
+	std::string				sHostName;
 	bool					bFinished;
 	int						iClientWidth;
 	int						iClientHeight;
@@ -184,6 +188,7 @@ private:
 	void					EndLink();
 	std::string				GetFullURL(const std::string& url);
 	void					LinkClickHandler(CActiveArea *area);
+	void					LinkMouseMoveHandler(CActiveArea *area);
 
 
 public:

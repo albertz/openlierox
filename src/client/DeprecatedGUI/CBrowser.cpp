@@ -69,8 +69,9 @@ void CBrowser::LoadFromHTTP(const std::string& url)
 	// Send the HTTP request
 	bFinished = false;
 	tData.clear();
-	sURL = url;
 	cHttp.RequestData(url, tLXOptions->sHttpProxy);
+	sHostName = cHttp.GetHostName();
+	sURL = cHttp.GetUrl();
 }
 
 void CBrowser::LoadFromFile(const std::string& file)
@@ -236,6 +237,16 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 {
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseOver(tMouse);
+
+	// Check if any of the active areas has been clicked
+	if (sTextSelection.size() != 0 || !tMouse->Down)  {
+		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
+			if (it->InBox(tMouse->X, tMouse->Y))  {
+				it->DoMouseMove(tMouse->X, tMouse->Y);
+				break;
+			}
+		}
+	}
 
 	return BRW_NONE;
 }
@@ -440,26 +451,30 @@ void CBrowser::EndLine()
 std::string CBrowser::GetFullURL(const std::string& url)
 {
 	// Absolute URL
-	std::string link_url;
-	if (url.size() > 7)
-		if (stringcaseequal(url.substr(0, 7), "http://") || stringcaseequal(url.substr(0, 4), "www"))
-			link_url = url;
+	if (url.size() > 8)  {
+		if (stringcaseequal(url.substr(0, 7), "http://") ||
+			stringcaseequal(url.substr(0, 8), "https://") || stringcaseequal(url.substr(0, 6), "ftp://") ||
+			stringcaseequal(url.substr(0, 7), "mailto:"))
+			return url;
+
+		if (stringcaseequal(url.substr(0, 4), "www."))
+			return "http://" + url;
+	}
 
 	// Relative URL
-	if (!link_url.size())  {
-		// Remove any slashes at the beginning of the given URL
-		link_url = url;
-		if (link_url.size())
-			if (*link_url.begin() == '/')
-				link_url.erase(0);
 
-		// Find the last slash of the base URL
-		size_t slashpos = sURL.rfind('/');
-		if (slashpos == std::string::npos)
-			link_url = sURL + "/" + url; // No slash in the base URL, just append the given URL
-		else
-			link_url = sURL.substr(0, slashpos) + url; // Remove the filename from the base URL and append the given URL instead
-	}
+	// Remove any slashes at the beginning of the given URL
+	std::string link_url = url;
+	if (link_url.size())
+		if (*link_url.begin() == '/')
+			link_url.erase(0);
+
+	// Find the last slash of the base URL
+	size_t slashpos = sURL.rfind('/');
+	if (slashpos == std::string::npos)
+		link_url = sHostName + "/" + sURL + "/" + url; // No slash in the base URL, just append the given URL
+	else
+		link_url = sHostName + "/" + sURL.substr(0, slashpos) + url; // Remove the filename from the base URL and append the given URL instead
 
 	// Prepend HTTP if not present
 	if (link_url.size() > 7)
@@ -488,6 +503,7 @@ void CBrowser::StartLink(const std::string& url)
 	cCurrentLink.sData = GetFullURL(url);
 	cCurrentLink.tParent = this;
 	cCurrentLink.tClickFunc = &CBrowser::LinkClickHandler;
+	cCurrentLink.tMouseMoveFunc = &CBrowser::LinkMouseMoveHandler;
 }
 
 //////////////////////////
@@ -857,6 +873,12 @@ void CBrowser::LinkClickHandler(CBrowser::CActiveArea *area)
 	OpenLinkInExternBrowser( area->getStringData() );
 }
 
+/////////////////////////
+// A callback function that gets called when the user moves a mouse over a link
+void CBrowser::LinkMouseMoveHandler(CBrowser::CActiveArea *area)
+{
+	SetGameCursor(CURSOR_HAND);
+}
 
 //
 // CActiveArea class
@@ -868,6 +890,14 @@ void CBrowser::CActiveArea::DoClick(int x, int y)
 {
 	if (tClickFunc)
 		(tParent->*tClickFunc)(this);
+}
+
+///////////////////
+// Mouse moving over the area
+void CBrowser::CActiveArea::DoMouseMove(int x, int y)
+{
+	if (tMouseMoveFunc)
+		(tParent->*tMouseMoveFunc)(this);
 }
 
 

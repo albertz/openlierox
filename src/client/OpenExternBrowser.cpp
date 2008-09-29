@@ -17,6 +17,12 @@
 #include <CoreServices/CoreServices.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
+
 
 // declared in AuxLib.h; we are not including this to avoid problems with Rect
 void OpenLinkInExternBrowser(const std::string& url) {
