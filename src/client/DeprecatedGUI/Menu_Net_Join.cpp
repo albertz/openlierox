@@ -599,19 +599,24 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.iLoadingTimes = gl->nLoadingTime;
 		tGameInfo.fGameSpeed = gl->fGameSpeed;
 		
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
-		f->Draw(VideoPostProcessor::videoSurface(), x, y+20,  tLX->clNormalLabel, "Level:");
+		const int lineheight = 18;
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details"); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Server name:");
+		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getServerName()); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Server version:");
+		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getServerVersion().asString()); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gl->szDecodedMapName);
 		} else {  // Don't have the map
 			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapName);
 			} else { // Not downloading
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y+20,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapName);
 				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + 20 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
-				if (MouseInRect(x2, y+20, 640-x2, tLX->cFont.GetHeight()))  {
+				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)
 						cClient->DownloadMap(gl->szMapName); // Download the map
@@ -620,12 +625,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 			}
 		}
-		f->Draw(VideoPostProcessor::videoSurface(), x, y+40, tLX->clNormalLabel, "Game Mode:");
-		f->Draw(VideoPostProcessor::videoSurface(), x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
-        f->Draw(VideoPostProcessor::videoSurface(), x, y+60, tLX->clNormalLabel,  "Mod:");
-        if(gl->bHaveMod)
-            f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clNormalLabel,  gl->szModName);
-		else {
+		y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Game Mode:");
+		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gamemodes[gl->nGameMode]); y += lineheight;
+        f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel,  "Mod:");
+        if(gl->bHaveMod) {
+            f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel,  gl->szModName);
+		} else {
 			if (cClient->getDownloadingMod())
 				f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clError, gl->szModName);
 			else {
@@ -643,20 +649,23 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 			}
 		}
-
-		f->Draw(VideoPostProcessor::videoSurface(), x, y+80, tLX->clNormalLabel, "Lives:");
+		y += lineheight;
+		
+		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Lives:");
 		if(gl->nLives >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y+80, tLX->clNormalLabel, itoa(gl->nLives));
-
-		f->Draw(VideoPostProcessor::videoSurface(), x, y+100, tLX->clNormalLabel, "Max Kills:");
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(gl->nLives));
+		y += lineheight;
+		
+		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Max Kills:");
 		if(gl->nMaxKills >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y+100, tLX->clNormalLabel, itoa(gl->nMaxKills));
-		f->Draw(VideoPostProcessor::videoSurface(),     x, y+120, tLX->clNormalLabel, "Loading time:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
-		f->Draw(VideoPostProcessor::videoSurface(),     x, y+140, tLX->clNormalLabel, "Game speed:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y+140, tLX->clNormalLabel, ftoa(gl->fGameSpeed));
-        f->Draw(VideoPostProcessor::videoSurface(),     x, y+160, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(VideoPostProcessor::videoSurface(),     x2, y+160, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(gl->nMaxKills));
+		y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Loading time:");
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%"); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Game speed:");
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(gl->fGameSpeed)); y += lineheight;
+        f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Bonuses:");
+        f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off"); y += lineheight;
 	}
 
 	{
