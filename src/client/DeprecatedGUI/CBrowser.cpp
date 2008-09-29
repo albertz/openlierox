@@ -823,6 +823,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	// Go through the document
 	sCurLine.clear();
 	TraverseNodes(tRootNode);
+	tPureText.push_back(sCurLine); // Add the last parsed line
 
 	int linesperbox = iHeight / tLX->cFont.GetHeight();
 	if ((int)tPureText.size() >= linesperbox)  {
