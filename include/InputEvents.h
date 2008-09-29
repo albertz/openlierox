@@ -17,6 +17,7 @@
 
 
 // application has focus
+// These vars are like events, they got true once in a frame when the specific event occured.
 extern	bool			bActivated;
 extern	bool			bDeactivated;
 
