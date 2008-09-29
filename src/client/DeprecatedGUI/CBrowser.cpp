@@ -397,9 +397,15 @@ void CBrowser::EndLine()
 			curX -= tLX->cFont.GetCharacterWidth(' ') + 1;
 		}
 
+	size_t cur_line_size = Utf8StringSize(sCurLine);
+
 	// Check if the cursor is at the end of the line
-	if (tPureText.size() == iCursorLine && iCursorColumn >= Utf8StringSize(sCurLine))
+	if (tPureText.size() == iCursorLine && iCursorColumn >= cur_line_size)
 		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, Color(255, 0, 0));
+
+	// Add a newline to the selected text if necessary
+	if (InSelection(tPureText.size(), cur_line_size))
+		sTextSelection += '\n';
 
 	// Add the line to the pure text and start a new line
 	tPureText.push_back(sCurLine);
