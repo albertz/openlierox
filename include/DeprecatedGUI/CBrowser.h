@@ -46,7 +46,6 @@ public:
 	  iClientHeight(0),
 	  tHtmlDocument(NULL),
 	  tRootNode(NULL),
-	  tPureText(NULL),
 	  curX(0),
 	  curY(0),
 	  tDestSurface(NULL),

@@ -919,7 +919,7 @@ bool isDataAvailable(NetworkSocket sock) {
 	int ret = nlPollGroup( group, NL_READ_STATUS, sock_out, 1, 0 );
 	nlGroupDestroy(group);
 	return ret > 0;
-};
+}
 
 
 
