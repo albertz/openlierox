@@ -56,8 +56,9 @@ public:
 	  iSelectionStartColumn(0),
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
-	  bSelectionGrabbed(false),
-	  bInLink(false)
+	  fLastMouseScroll(0),
+	  bInLink(false),
+	  bSelectionGrabbed(false)
 	  {
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;
@@ -141,6 +142,7 @@ private:
 	htmlNodePtr				tRootNode;
 	std::vector<std::string>	tPureText;
 	std::list<CActiveArea>	tActiveAreas;
+	float					fLastMouseScroll;
 
 	// Parsing temps
 	FontFormat				tCurrentFormat;

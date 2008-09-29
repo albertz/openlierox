@@ -196,6 +196,11 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		return BRW_NONE;
 	}
 
+	// Clear the selection when clicked
+	if (sTextSelection.size() != 0 && tMouse->FirstDown & SDL_BUTTON(1))  {
+		bSelectionGrabbed = false;
+	}
+
 	if (bSelectionGrabbed)  {
 		iSelectionStartColumn = iSelectionGrabColumn;
 		iSelectionStartLine = iSelectionGrabLine;
@@ -223,6 +228,16 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		// Destroy any previous selection
 		iSelectionStartColumn = iSelectionEndColumn = iCursorColumn;
 		iSelectionStartLine = iSelectionEndLine = iCursorLine;
+	}
+
+	// Scroll down/up if necessary
+	if (bUseScroll && tLX->fCurTime - fLastMouseScroll >= 0.1f)  {
+		if ((int)iCursorLine >= cScrollbar.getValue() + cScrollbar.getItemsperbox())
+			cScrollbar.setValue((int)iCursorLine - cScrollbar.getItemsperbox() + 1);
+		else if ((int)iCursorLine < cScrollbar.getValue())
+			cScrollbar.setValue(iCursorLine);
+
+		fLastMouseScroll = tLX->fCurTime;
 	}
 
 	bSelectionGrabbed = true;
@@ -346,12 +361,11 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 	int y = ms_y - iY - BORDER_SIZE;
 
 	// Get the line
-	size_t line = 0;
-	if (y > 0)  {
-		line = y / tLX->cFont.GetHeight() + scroll_val;
-		if (line >= tPureText.size())
-			line = tPureText.size() - 1;
-	}
+	int line = y / tLX->cFont.GetHeight() + scroll_val;
+	if (line >= (int)tPureText.size())
+		line = tPureText.size() - 1;
+	if (line < 0)
+		line = 0;
 
 	// Get the column
 	size_t column = 0;
