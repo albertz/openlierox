@@ -23,7 +23,6 @@
 #include "StringUtils.h"
 #include "XMLutils.h"
 #include "FindFile.h"
-#include "SDLEvents.h"
 
 
 namespace SkinnedGUI {
@@ -91,7 +90,7 @@ void CGuiSkinnedLayout::Add(CWidget *widget)
 
 	// Send a "Widget added" message to call DoCreate
 	if (bCreated)
-		SendSDLUserEvent(&cMainSkin->OnAddWidget, CGuiSkin::WidgetData(this, widget));
+		SendSDLUserEvent(&cMainSkin->onAddWidget, CGuiSkin::WidgetData(this, widget));
 }
 
 
@@ -412,7 +411,7 @@ int CGuiSkinnedLayout::DoChildDestroyed(CWidget *child)
 
 	// We cannot destroy the child now because it called us (i.e. its function is still running)
 	// Just send a self-reminder
-	SendSDLUserEvent(&cMainSkin->OnDestoryWidget, CGuiSkin::WidgetData(this, child));
+	SendSDLUserEvent(&cMainSkin->onDestoryWidget, CGuiSkin::WidgetData(this, child));
 
 	return WID_PROCESSED;
 }

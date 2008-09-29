@@ -35,6 +35,7 @@ public:
 		virtual ~Handler() {}
 		virtual void operator()(_Data data) = 0;
 		virtual bool operator==(const Handler& hndl) = 0;
+		virtual Handler* copy() const = 0;
 	};
 
 protected:
@@ -42,6 +43,7 @@ protected:
 	public:
 		virtual void operator()(_Data) {}
 		virtual bool operator==(const Handler& hndl) { return simple_dyn_cast(&hndl, this) != NULL; }
+		virtual Handler* copy() const { return new Handler_NoOp(); }
 	};
 	
 	class Handler_Joined : public Handler {
@@ -55,6 +57,7 @@ protected:
 			if(hPtr == NULL) return false;
 			return m_handler1.get() == hPtr->m_handler1.get() && m_handler2.get() == hPtr->m_handler2.get();
 		}
+		virtual Handler* copy() const { return new Handler_Joined(m_handler1->copy(), m_handler2->copy()); }
 	};
 	
 	class HandlerAccessor : protected Event<_Data> {
@@ -89,6 +92,8 @@ protected:
 			delete h;
 			return *this;
 		}
+		
+		Handler& get() { return m_handler.get(); } 
 	};
 	
 private:
@@ -119,6 +124,7 @@ public:
 		if(hPtr == NULL) return false;
 		return hPtr->m_obj == m_obj && hPtr->m_fct == m_fct;
 	}
+	virtual typename Event<_Data>::Handler* copy() const { return new MemberFunction(m_obj, m_fct); }
 };
 
 
@@ -138,6 +144,7 @@ public:
 		if(hPtr == NULL) return false;
 		return hPtr->m_fct == m_fct;
 	}
+	virtual typename Event<_Data>::Handler* copy() const { return new StaticFunction(m_fct); }
 };
 
 

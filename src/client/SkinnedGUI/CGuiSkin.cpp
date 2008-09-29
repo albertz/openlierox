@@ -14,7 +14,6 @@
 #include "StringUtils.h"
 #include "AuxLib.h"
 #include "Cursor.h"
-#include "SDLEvents.h"
 
 #include "SkinnedGUI/CWidget.h"
 
@@ -87,8 +86,8 @@ CGuiSkin::CGuiSkin()
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
 	
-	OnAddWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnAddWidget);;
-	OnDestoryWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestoryWidget);
+	onAddWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnAddWidget);;
+	onDestoryWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestoryWidget);
 }
 
 //////////////

@@ -51,7 +51,7 @@ private:
 	void DoRepaint();
 	int DoCreate();
 	void AutoSize();
-	static bool OnTimer(Timer* sender, void* userData);
+	void OnTimer(Timer::EventData ev);
 	void	ApplySelector(const CSSParser::Selector& sel, const std::string& prefix = "");
 	void	ApplyTag(xmlNodePtr node);
 

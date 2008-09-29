@@ -22,7 +22,7 @@
 
 #include <string>
 #include <SDL.h>
-#include "SDLEvents.h"
+#include "Event.h"
 
 ///////////////////
 // Get the number of milliseconds since SDL started the timer
@@ -76,13 +76,20 @@ std::string		GetTime();
 */
 class Timer {
 public:
-	typedef bool (*OnTimerProc) (Timer* sender, void* userData);
+	struct EventData {
+		Timer* sender;
+		void* userData;
+		bool& shouldContinue;
+		EventData(Timer* s, void* d, bool& c) : sender(s), userData(d), shouldContinue(c) {}
+	};
 
 	Timer();
-	Timer(OnTimerProc ontim, void* dat = NULL, Uint32 t = 1000, bool o = false);
-	~Timer();	
+	Timer(Null n, void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(void (*fct)(EventData dat), void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(Event<EventData>::Handler* hndl, void* dat = NULL, Uint32 t = 1000, bool o = false);
+	~Timer();
 
-	OnTimerProc onTimer;
+	Event<EventData> onTimer;
 	void* userData; // forwarded to the event-function
 	Uint32 interval; // how often an event is pushed in the SDL queue
 	bool once; // the event is only pushed once and then it quits
@@ -91,15 +98,7 @@ public:
 	bool start();
 	bool startHeadless(); // start independent timer
 	void stop();
-
-	// this is called by the main-loop in HandleNextEvent()
-	static void handleEvent(SDL_Event* ev);
 	
-	// this handler just does nothing and returns false
-	// This is usefull if you want to push an SDL-event later
-	// to wake up the game.
-	static bool DummyHandler(Timer* sender, void* userData);
-
 private:
 	bool m_running;
 	void* m_lastData;	// it's TimerData* intern

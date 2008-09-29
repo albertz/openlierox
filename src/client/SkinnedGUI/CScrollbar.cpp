@@ -74,7 +74,7 @@ void CScrollbar::Init()
 	bBackgroundOver = false;
 	iDirection.set(scrVertical, DEFAULT_PRIORITY);
 	pTimerData = new TimerData(this, false, 0);
-	tTimer = new Timer(OnTimer, pTimerData, 120);
+	tTimer = new Timer(getEventHandler(this, &CScrollbar::OnTimer), pTimerData, 120);
 
 	bmpTop.set(NULL, DEFAULT_PRIORITY);
 	bmpBottom.set(NULL, DEFAULT_PRIORITY);
@@ -756,10 +756,10 @@ void CScrollbar::UpdatePos(void)
 	Repaint();
 }
 
-bool CScrollbar::OnTimer(Timer *sender, void *data)
+void CScrollbar::OnTimer(Timer::EventData ev)
 {
-	if (data)  {
-		TimerData *d = (TimerData *)data;
+	if (ev.userData)  {
+		TimerData *d = (TimerData *)ev.userData;
 		if (d->down)  {
 			for (int i=0; i < d->step; i++)
 				d->scr->ScrollDown();
@@ -768,8 +768,6 @@ bool CScrollbar::OnTimer(Timer *sender, void *data)
 				d->scr->ScrollUp();
 		}
 	}
-
-	return true;
 }
 
 }; // namespace SkinnedGUI

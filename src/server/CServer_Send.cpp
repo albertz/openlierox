@@ -494,7 +494,7 @@ void GameServer::SendFiles()
 	};
 
 	if( startTimer )
-		Timer( &Timer::DummyHandler, NULL, (Uint32)(minPing / pingCoeff), true ).startHeadless();
+		Timer( null, NULL, (Uint32)(minPing / pingCoeff), true ).startHeadless();
 };
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )

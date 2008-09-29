@@ -88,7 +88,7 @@ private:
 	void	Delete(void);
 	void	SelectWord(void);
 	void	Insert(UnicodeChar c);
-	static bool HandleTimerEvent(Timer* sender, void* userData);
+	void OnTimerEvent(Timer::EventData ev);
 
 	int		DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate);
 	int		DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);

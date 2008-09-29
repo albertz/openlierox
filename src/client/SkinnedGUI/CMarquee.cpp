@@ -29,7 +29,7 @@ CMarquee::CMarquee(COMMON_PARAMS, const std::string& text) : CWidget(name, paren
 	iDirection = 1;
 	iTextWidth = 0;
 	bAtEnd = false;
-	tTimer = new Timer(OnTimer, this, (Uint32)(MARQUEE_TIME * 1000));
+	tTimer = new Timer(getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));
 }
 
 CMarquee::CMarquee(const std::string &name, CContainerWidget *parent) : CWidget(name, parent)
@@ -39,7 +39,7 @@ CMarquee::CMarquee(const std::string &name, CContainerWidget *parent) : CWidget(
 	iDirection = 1;
 	iTextWidth = 0;
 	bAtEnd = false;
-	tTimer = new Timer(OnTimer, this, (Uint32)(MARQUEE_TIME * 1000));	
+	tTimer = new Timer(getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));	
 }
 
 ///////////////////
@@ -143,52 +143,46 @@ void CMarquee::Resize(int x, int y, int w, int h)
 
 ////////////////////
 // Timer event
-bool CMarquee::OnTimer(Timer *sender, void *userData)
+void CMarquee::OnTimer(Timer::EventData ev)
 {
-	CMarquee *m = (CMarquee *)userData;
-	if (!m) // Weird...
-		return false;
-
 	// This occurs when we should leave the "At End" state
-	if (m->bAtEnd)  {
-		m->iDirection = -m->iDirection;
-		m->bAtEnd = false;
+	if (bAtEnd)  {
+		iDirection = -iDirection;
+		bAtEnd = false;
 
 		// Change the timer interval
-		m->tTimer->stop();
-		m->tTimer->interval = (Uint32)(MARQUEE_TIME * 1000);
-		m->tTimer->start();
+		tTimer->stop();
+		tTimer->interval = (Uint32)(MARQUEE_TIME * 1000);
+		tTimer->start();
 
-		return true;
+		return;
 	}
 
 	// Move
-	m->iFrame += MARQUEE_STEP * m->iDirection;
+	iFrame += MARQUEE_STEP * iDirection;
 
 	// Reached the right end?
-	if (m->iFrame + m->getWidth() >= m->iTextWidth + 4)  {  // Leave some space behind, looks better
+	if (iFrame + getWidth() >= iTextWidth + 4)  {  // Leave some space behind, looks better
 		// Change the timer interval
-		m->tTimer->stop();
-		m->tTimer->interval = (Uint32)(MARQUEE_ENDWAIT * 1000);
-		m->tTimer->start();
+		tTimer->stop();
+		tTimer->interval = (Uint32)(MARQUEE_ENDWAIT * 1000);
+		tTimer->start();
 
-		m->bAtEnd = true;
+		bAtEnd = true;
 	}
 
 	// Reached the left end?
-	if (m->iFrame <= 0 && m->iDirection == -1)  {
+	if (iFrame <= 0 && iDirection == -1)  {
 		// Change the timer interval
-		m->tTimer->stop();
-		m->tTimer->interval = (Uint32)(MARQUEE_ENDWAIT * 1000);
-		m->tTimer->start();
+		tTimer->stop();
+		tTimer->interval = (Uint32)(MARQUEE_ENDWAIT * 1000);
+		tTimer->start();
 
-		m->bAtEnd = true;
+		bAtEnd = true;
 	}
 
 	// Repaint
-	m->Repaint();
-
-	return true;
+	Repaint();
 }
 
 }; // namespace SkinnedGUI

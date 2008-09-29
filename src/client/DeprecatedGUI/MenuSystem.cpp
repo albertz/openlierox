@@ -1210,7 +1210,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
 
-	Timer(&Timer::DummyHandler, NULL, PingWait + 100, true).startHeadless();
+	Timer(null, NULL, PingWait + 100, true).startHeadless();
 }
 
 ///////////////////
@@ -1244,7 +1244,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
 
-	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
+	Timer(null, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1294,7 +1294,7 @@ void Menu_SvrList_RefreshServer(server_t *s)
 			SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
 		} else
 			SetNetAddrPort(s->sAddress, LX_PORT);
-		Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
+		Timer(null, NULL, PingWait, true).startHeadless();
 	}
 }
 

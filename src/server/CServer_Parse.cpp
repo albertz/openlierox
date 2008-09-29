@@ -1385,9 +1385,9 @@ struct SendConnectHereAfterTimeout_Data
 	NetworkAddr addr;
 };
 
-bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
+void SendConnectHereAfterTimeout (Timer::EventData ev)
 {
-	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) userData;
+	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) ev.userData;
 	NetworkAddr addr;
 	ResetNetAddr(addr);
 	GetRemoteNetAddr( data->sock, addr );
@@ -1419,7 +1419,7 @@ bool SendConnectHereAfterTimeout (Timer* sender, void* userData)
 				s1.c_str(), GetNetAddrPort(addr), s2.c_str(), GetNetAddrPort(data->addr) );
 	};
 	delete data;
-	return false;
+	ev.shouldContinue = false;
 };
 
 // Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]

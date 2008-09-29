@@ -98,7 +98,7 @@ private:
 	bool InTop(int x, int y);
 	bool InBottom(int x, int y);
 
-	static bool	OnTimer(Timer *sender, void *data);
+	void	OnTimer(Timer::EventData ev);
 
 public:
 	EVENT_SETGET(OnScroll, ScrollHandler);

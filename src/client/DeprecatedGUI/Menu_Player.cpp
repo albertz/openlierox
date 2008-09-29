@@ -76,9 +76,7 @@ enum {
 	vp_PlySkin
 };
 
-bool TimerHandler(Timer* sender, void* userData) {
-	return true; // we want only a repaint, which is done automatically
-}
+
 
 ///////////////////
 // Initialize the player menu
@@ -99,7 +97,7 @@ void Menu_PlayerInitialize(void)
 
 	Menu_RedrawMouse(true);
 
-	tAnimTimer = new Timer(TimerHandler, NULL, 25, false);
+	tAnimTimer = new Timer(null, NULL, 25, false);
 
 	// Setup the top buttons
 	cPlyButtons[pp_NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);

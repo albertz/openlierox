@@ -21,7 +21,6 @@
 #include <SDL.h>
 
 #include "Utils.h"
-#include "SDLEvents.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)

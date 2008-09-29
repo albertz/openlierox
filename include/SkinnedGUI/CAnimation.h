@@ -49,7 +49,7 @@ private:
 	void		ParseAnimation();
 	void		DoRepaint();
 	int			DoCreate();
-	static bool	OnTimer(Timer* sender, void* userData);
+	void	OnTimer(Timer::EventData ev);
 
 	int			DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const ModifiersState& modstate);
 
@@ -73,7 +73,7 @@ public:
 	int				getFrame()			{ return iCurFrame; }
 	int				getNumFrames()		{ return iNumFrames; }
 
-	static const std::string tagName()	{ return "img"; }
+	static std::string tagName()	{ return "img"; }
 	const std::string	getTagName()	{ return CAnimation::tagName(); }
 
 };

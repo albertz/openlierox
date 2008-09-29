@@ -34,7 +34,7 @@ CAnimation::CAnimation(COMMON_PARAMS, const std::string& Path) : CALL_DEFAULT_CO
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(OnTimer, this);
+	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
@@ -46,7 +46,7 @@ CAnimation::CAnimation(COMMON_PARAMS, SmartPointer<SDL_Surface> img) : CALL_DEFA
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(OnTimer, this);
+	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
@@ -59,7 +59,7 @@ CAnimation::CAnimation(const std::string &name, CContainerWidget *parent) : CWid
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(OnTimer, this);
+	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
@@ -244,11 +244,9 @@ int	CAnimation::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, cons
 	return WID_PROCESSED;
 }
 
-bool CAnimation::OnTimer(Timer *sender, void *userData)
+void CAnimation::OnTimer(Timer::EventData ev)
 {
-	if (userData)
-		((CAnimation *)userData)->incFrame();
-	return true;
+	incFrame();
 }
 
 }; // namespace SkinnedGUI

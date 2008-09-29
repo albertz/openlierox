@@ -53,8 +53,7 @@ void CTextbox::Create(void)
 		if (tTimer)  {
 			tTimer->interval = 500;
 			tTimer->once = false;
-			tTimer->onTimer = &CTextbox::HandleTimerEvent;
-			tTimer->userData = (void *)this;
+			tTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
 			tTimer->start();
 		}
 	}
@@ -71,14 +70,9 @@ void CTextbox::Destroy()
 
 //////////////////
 // Handles an event coming from the timer
-bool CTextbox::HandleTimerEvent(Timer* sender, void* userData)
+void CTextbox::OnTimerEvent(Timer::EventData ev)
 {
-	if (userData != NULL)  {
-		CTextbox *t = (CTextbox *)userData;
-		t->bDrawCursor = !t->bDrawCursor;
-	}
-
-	return true;
+	bDrawCursor = !bDrawCursor;
 }
 
 

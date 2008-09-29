@@ -120,7 +120,7 @@ bool Menu_Net_NETInitialize(void)
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	Menu_SvrList_UpdateUDPList();
 	
-	Timer(&Timer::DummyHandler, NULL, SVRLIST_TIMEOUT, true).startHeadless();
+	Timer(null, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
 	return true;
 }

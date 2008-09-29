@@ -221,7 +221,7 @@ public:
 		_this->dbReady = true;
 
 		// Notify that the DB has been loaded
-		SendSDLUserEvent(&OnDummyEvent, EventData());
+		SendSDLUserEvent(&onDummyEvent, EventData());
 
 		return 0;
 	}

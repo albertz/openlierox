@@ -54,8 +54,8 @@ public:
 		CWidget* widget;
 		WidgetData(void* o, CWidget* w) : owner(o), widget(w) {}
 	};
-	Event<WidgetData> OnAddWidget;
-	Event<WidgetData> OnDestoryWidget;
+	Event<WidgetData> onAddWidget;
+	Event<WidgetData> onDestoryWidget;
 
 	// Event handlers
 	void SDL_OnKeyDown(SDL_Event *ev);

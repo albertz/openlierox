@@ -126,7 +126,7 @@ struct NetActivityData {
 	NLsocket* socket;
 	NetActivityData(uint t, NLsocket* s) : type(t), socket(s) {}
 };
-Event<NetActivityData> OnNetActivity;
+Event<NetActivityData> onNetActivity;
 
 static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
@@ -165,7 +165,7 @@ static int SdlNetEventThreadMain( void * param )
 		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
-				SendSDLUserEvent(&OnNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
+				SendSDLUserEvent(&onNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
 			}
 			else
 				printf("WARNING: net-event-system: invalid socket\n");
@@ -838,7 +838,7 @@ struct NLaddress_ex_t {
 };
 
 
-Event<> OnDnsReady;
+Event<> onDnsReady;
 
 // copied from HawkNL sock.c and modified for usage of SmartPointer
 static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
@@ -854,7 +854,7 @@ static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
 
 	if(SdlNetEvent_Inited) {
 		// push a net event
-		SendSDLUserEvent(&OnDnsReady, EventData());
+		SendSDLUserEvent(&onDnsReady, EventData());
     }
 
     delete address;

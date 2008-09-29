@@ -21,6 +21,7 @@
 #include <time.h>
 #include <assert.h>
 #include "Timer.h"
+#include "InputEvents.h"
 
 int		Frames = 0;
 float	OldFPSTime = 0;
@@ -66,7 +67,7 @@ std::string GetTime()
 // Timer data, contains almost the same info as the timer class
 struct TimerData {
 	Timer*				timer;
-	Timer::OnTimerProc	onTimer;
+	Ref<Event<Timer::EventData>::Handler> onTimerHandler;
 	void*				userData;
 	Uint32				interval;
 	bool				once;
@@ -74,15 +75,52 @@ struct TimerData {
 	SDL_TimerID			timerID;
 };
 
+
+struct InternTimerEventData {
+	TimerData* data; // for intern struct TimerData
+	bool lastEvent;
+	InternTimerEventData(TimerData* d, bool le) : data(d), lastEvent(le) {}
+};
+Event<InternTimerEventData> onInternTimerSignal;
+static bool timerSystem_inited = false;
+
+
+static void Timer_handleEvent(InternTimerEventData data);
+
+static void InitTimerSystem() {
+	if(timerSystem_inited) return;
+	onInternTimerSignal.handler() = getEventHandler(&Timer_handleEvent);
+	timerSystem_inited = true;
+}
+
 ////////////////
 // Constructors
 Timer::Timer() : 
-	onTimer(NULL), userData(NULL), interval(1000),
-	once(false), m_running(false), m_lastData(NULL) {}
+	userData(NULL), interval(1000),
+	once(false), m_running(false), m_lastData(NULL) {
+	InitTimerSystem();
+}
 
-Timer::Timer(OnTimerProc ontim, void* dat, Uint32 t, bool o) :
-	onTimer(ontim), userData(dat), interval(t),
-	once(o), m_running(false), m_lastData(NULL) {}
+Timer::Timer(Null, void* dat, Uint32 t, bool o) :
+	userData(dat), interval(t),
+	once(o), m_running(false), m_lastData(NULL) {
+	InitTimerSystem();
+}
+
+Timer::Timer(void (*fct)(EventData dat), void* dat, Uint32 t, bool o) :
+	userData(dat), interval(t),
+	once(o), m_running(false), m_lastData(NULL) {
+	onTimer.handler() = getEventHandler(fct);
+	InitTimerSystem();
+}
+
+Timer::Timer(Event<EventData>::Handler* hndl, void* dat, Uint32 t, bool o) :
+	userData(dat), interval(t),
+	once(o), m_running(false), m_lastData(NULL) {
+	onTimer.handler() = hndl;
+	InitTimerSystem();
+}
+
 
 ////////////////
 // Destructor
@@ -98,6 +136,8 @@ Timer::~Timer()
 	stop();
 }
 
+
+
 ///////////////////
 // Handle the timer callback, called from SDL
 static Uint32 Timer_handleCallback(Uint32 interval, void *param)
@@ -106,14 +146,8 @@ static Uint32 Timer_handleCallback(Uint32 interval, void *param)
 	
 	bool lastEvent = timer_data->once || timer_data->quitSignal;
 	
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT_TIMER;
-	ev.user.code = 0;
-	ev.user.data1 = (void *) timer_data;
-	ev.user.data2 = (void *) lastEvent; // signal if event is last one
-	// HINT: ev.user.data2 is a void* by definition, but we use it as a bool here
+	SendSDLUserEvent(&onInternTimerSignal, InternTimerEventData(timer_data, lastEvent));
 
-	SDL_PushEvent(&ev);
 
 	if(lastEvent) {
 		// we have to call it here to ensure that this callback is never called again
@@ -148,7 +182,7 @@ bool Timer::start()
 	m_lastData = (void *)data;
 	
 	data->timer = this;
-	data->onTimer = onTimer;
+	data->onTimerHandler = NULL;
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
@@ -172,7 +206,8 @@ bool Timer::startHeadless()
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
 	data->timer = NULL;
-	data->onTimer = onTimer;
+	data->onTimerHandler = onTimer.handler().get().copy();
+	onTimer.handler() = null; // TODO: this is invalid after we overtook the handlers; set null to avoid crashes though 
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
@@ -201,24 +236,29 @@ void Timer::stop()
 }
 
 
+
 ///////////////
 // Handle the timer event, called from HandleNextEvent
-void Timer::handleEvent(SDL_Event* ev)
+static void Timer_handleEvent(InternTimerEventData data)
 {
-	TimerData* timer_data = (TimerData*)ev->user.data1;
+	TimerData* timer_data = data.data;
 	assert(timer_data != NULL);
 	
 	// Run the client function (if no quitSignal) and quit the timer if it returns false
 	// Also quit if we got last event signal
-	if( !timer_data->quitSignal )
-	if( !timer_data->onTimer(timer_data->timer, timer_data->userData) ) { // false returned => stop
-		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
-			timer_data->timer->stop();
-		else
-			timer_data->quitSignal = true;
+	if( !timer_data->quitSignal ) {
+		Event<Timer::EventData>::Handler& handler = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler.get();
+		bool shouldContinue = true;
+		handler( Timer::EventData(timer_data->timer, timer_data->userData, shouldContinue) );
+		if( !shouldContinue ) {
+			if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
+				timer_data->timer->stop();
+			else
+				timer_data->quitSignal = true;
+		}
 	}
 	
-	if(ev->user.data2)  { // last-event-signal
+	if(data.lastEvent)  { // last-event-signal
 		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
 			timer_data->timer->stop();
 				
@@ -227,6 +267,3 @@ void Timer::handleEvent(SDL_Event* ev)
 	}
 }
 
-bool Timer::DummyHandler(Timer* sender, void* userData) {
-	return false;
-}

@@ -30,7 +30,7 @@
 #ifdef DEBUG
 Timer *timer = NULL;
 
-bool CacheTimer(Timer* sender, void* userData)  {
+void CacheTimer(Timer::EventData data)  {
 	static size_t last_size = 0;
 
 	std::string unit = "B";
@@ -51,12 +51,11 @@ bool CacheTimer(Timer* sender, void* userData)  {
 
 		printf("Current cache size: " + to_string<size_t>(size) + " " + unit + "\n");
 	}
-	return true;
 }
 
 void InitCacheDebug()
 {
-	timer = new Timer(&CacheTimer, NULL, 10000);
+	timer = new Timer(getEventHandler(&CacheTimer), NULL, 10000);
 	timer->start();
 }
 

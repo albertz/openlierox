@@ -68,7 +68,7 @@ CTextbox::CTextbox(COMMON_PARAMS) : CWidget(name, parent)
 	tTimer = new Timer;
 	tTimer->interval = 500;
 	tTimer->once = false;
-	tTimer->onTimer = &CTextbox::HandleTimerEvent;
+	tTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
 	tTimer->userData = (void *)this;
 	tTimer->start();
 }
@@ -82,15 +82,10 @@ CTextbox::~CTextbox()
 
 //////////////////
 // Handles an event coming from the timer
-bool CTextbox::HandleTimerEvent(Timer* sender, void* userData)
+void CTextbox::OnTimerEvent(Timer::EventData ev)
 {
-	if (userData != NULL)  {
-		CTextbox *t = (CTextbox *)userData;
-		t->bDrawCursor = !t->bDrawCursor;
-		t->Repaint();
-	}
-
-	return true;
+	bDrawCursor = !bDrawCursor;
+	Repaint();
 }
 
 

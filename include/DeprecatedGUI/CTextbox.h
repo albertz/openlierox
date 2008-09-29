@@ -162,7 +162,7 @@ public:
     void    PasteText(void);
 	void	CopyText(void);
 
-	static bool HandleTimerEvent(Timer* sender, void* userData);
+	void OnTimerEvent(Timer::EventData ev);
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);

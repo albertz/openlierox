@@ -1027,7 +1027,7 @@ void CClient::Connect(const std::string& address)
 	if(!StringToNetAddr(address, cServerAddr)) {
 
 		strServerAddr_HumanReadable = strServerAddr + " (...)";
-		Timer(&Timer::DummyHandler, NULL, DNS_TIMEOUT * 1000, true).startHeadless();
+		Timer(null, NULL, DNS_TIMEOUT * 1000, true).startHeadless();
 
 		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
 			iNetStatus = NET_DISCONNECTED;
@@ -1108,7 +1108,7 @@ void CClient::ConnectingBehindNAT()
 			}
 
 			// To make sure we get called again
-			Timer(&Timer::DummyHandler, NULL, 40, true).startHeadless();
+			Timer(null, NULL, 40, true).startHeadless();
 
 			return; // Wait for DNS resolution
 
@@ -1134,7 +1134,7 @@ void CClient::ConnectingBehindNAT()
 			iNatTraverseState = NAT_WAIT_TRAVERSE_REPLY;
 
 			// To make sure we get called again
-			Timer(&Timer::DummyHandler, NULL, (Uint32)(TRAVERSE_TIMEOUT * 1000), true).startHeadless();
+			Timer(null, NULL, (Uint32)(TRAVERSE_TIMEOUT * 1000), true).startHeadless();
 		}
 	} break;
 
@@ -1181,7 +1181,7 @@ void CClient::ConnectingBehindNAT()
 		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
 
 		// To make sure we get called again
-		Timer(&Timer::DummyHandler, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
+		Timer(null, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
 
 		fLastChallengeSent = tLX->fCurTime;
 		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
@@ -1200,7 +1200,7 @@ void CClient::ConnectingBehindNAT()
 				iNatTraverseState = NAT_SEND_CHALLENGE;
 				
 				// To make sure we get called again
-				Timer(&Timer::DummyHandler, NULL, 10, true).startHeadless();
+				Timer(null, NULL, 10, true).startHeadless();
 				return;
 			}
 
@@ -1219,7 +1219,7 @@ void CClient::ConnectingBehindNAT()
 			fLastChallengeSent = -9999;
 
 			// To make sure we get called again
-			Timer(&Timer::DummyHandler, NULL, 10, true).startHeadless();
+			Timer(null, NULL, 10, true).startHeadless();
 
 			return;
 		}
@@ -1295,7 +1295,7 @@ void CClient::Connecting(bool force)
 	bs.Send(tSocket);
 
 
-	Timer(&Timer::DummyHandler, NULL, 1000, true).startHeadless();
+	Timer(null, NULL, 1000, true).startHeadless();
 
 	printf("HINT: sending challenge request to %s\n", rawServerAddr.c_str());
 }

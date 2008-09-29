@@ -146,7 +146,7 @@ inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
 	SDL_PushEvent(&ev);
 }
 
-extern Event<> OnDummyEvent;
+extern Event<> onDummyEvent;
 
 
 #endif
