@@ -851,5 +851,12 @@ int unsetenv(const char *name)
 #endif
 
 
+void OpenLinkInExternBrowser(const std::string& url) {
+
+
+#ifdef WIN32
+	ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_MAXIMIZE);
+#endif
+}
 
 

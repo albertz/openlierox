@@ -25,6 +25,8 @@
 #include "Clipboard.h"
 #include "Cursor.h"
 #include "Timer.h"
+#include "AuxLib.h"
+
 
 namespace DeprecatedGUI {
 
@@ -854,10 +856,8 @@ void CBrowser::DelayedClickHandler(Timer::EventData dat)
 
 	CBrowser::CActiveArea *area = (CBrowser::CActiveArea *)(dat.userData);
 
-#ifdef WIN32
 	SetGameCursor(CURSOR_HAND);
-	ShellExecute(NULL, "open", area->getStringData().c_str(), NULL, NULL, SW_MAXIMIZE);
-#endif
+	OpenLinkInExternBrowser( area->getStringData() );
 }
 
 /////////////////////////

@@ -50,6 +50,8 @@ void		ProcessScreenshots();
 void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
 
 
+void		OpenLinkInExternBrowser(const std::string& url);
+
 
 class VideoPostProcessor {
 protected:

@@ -207,7 +207,6 @@ bool Timer::startHeadless()
 	TimerData* data = new TimerData;
 	data->timer = NULL;
 	data->onTimerHandler = onTimer.handler().get().copy();
-	onTimer.handler() = null; // TODO: this is invalid after we overtook the handlers; set null to avoid crashes though 
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
