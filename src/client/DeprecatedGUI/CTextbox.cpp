@@ -315,12 +315,6 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		return TXT_NONE;
 	}
 
-	// Delete
-	if(keysym == SDLK_DELETE) {
-		Delete();
-		return TXT_CHANGE;
-	}
-
 	// Enter
 	if(keysym == SDLK_RETURN || keysym == SDLK_KP_ENTER) {
 		return TXT_ENTER;
@@ -330,24 +324,33 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		return TXT_TAB;
 	}
 
-    // Ctrl-v or Super-v (paste)
-    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_v) {
+    // Ctrl-v or Super-v or Shift-Insert (paste)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_v ||
+		( modstate.bShift && keysym == SDLK_INSERT )) {
         PasteText();
         return TXT_CHANGE;
     }
 
-    // Ctrl-c or Super-c (copy)
-    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c) {
+    // Ctrl-c or Super-c or Ctrl-insert (copy)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c ||
+		( (modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT )) {
         CopyText();
         return TXT_NONE;
     }
 
-    // Ctrl-x or Super-x (cut)
-    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_x) {
+    // Ctrl-x or Super-x or Shift-Delete (cut)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_x ||
+		( modstate.bShift && keysym == SDLK_DELETE )) {
         CopyText();
 		Delete();
         return TXT_CHANGE;
     }
+
+	// Delete
+	if(keysym == SDLK_DELETE) {
+		Delete();
+		return TXT_CHANGE;
+	}
 
 	// Alt + numbers
 	if(modstate.bAlt)  {
@@ -406,7 +409,12 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	bDrawCursor = true;
 
 	if (sText == "")
+	{
+		// Paste with 2nd or 3rd mouse button
+		if( tMouse->FirstDown & SDL_BUTTON(2) || tMouse->FirstDown & SDL_BUTTON(3) )
+			PasteText();
 		return TXT_MOUSEOVER;
+	}
 
 	// Scroll the textbox using mouse
 	fScrollTime += tLX->fDeltaTime;
@@ -495,6 +503,11 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		// We can lose focus now
 		bCanLoseFocus = true;
 	}
+
+	// Paste with 2nd or 3rd mouse button
+	if( ! bHoldingMouse && 
+		( tMouse->FirstDown & SDL_BUTTON(2) || tMouse->FirstDown & SDL_BUTTON(3) ) )
+		PasteText();
 
 	// Set up the variables for selection
 	//iLastCurpos = iCurpos;

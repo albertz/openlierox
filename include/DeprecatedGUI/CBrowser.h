@@ -61,6 +61,7 @@ public:
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;
 	  	tCurrentFormat.color = Color(0,0,0);
+	  	tBgColor = Color(255,255,255);
 	  }
 
 private:
@@ -78,10 +79,12 @@ private:
 	// Parsing temps
 	FontFormat				tCurrentFormat;
 	std::stack<FontFormat>	tFormatStack;
+	Color					tBgColor;
 	int						curX;
 	int						curY;
 	std::string				sCurLine;
 	SDL_Surface				*tDestSurface;
+	std::string				sTextSelection;
 
 	// Selection
 	size_t					iCursorColumn;

@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "XMLutils.h"
+#include "Clipboard.h"
 
 namespace DeprecatedGUI {
 
@@ -147,7 +148,21 @@ void CBrowser::Parse()
 
 	// Get the root element
 	htmlNodePtr node = xmlDocGetRootElement(document);
-	if (!node)  {
+	if (!node || !node->children)  {
+		xmlFreeDoc(document);
+		htmlFreeParserCtxt(context);
+		return;
+	}
+
+	// Get the <body> element, to easily get "bgcolor" attr from it
+	node = node->children;
+	while (node)  {
+		if( !xmlStrcasecmp(node->name, (xmlChar *)"body") )
+			break;
+		node = node->next;
+	}
+
+	if (!node || !node->children)  {
 		xmlFreeDoc(document);
 		htmlFreeParserCtxt(context);
 		return;
@@ -166,6 +181,15 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		return cScrollbar.MouseDown(tMouse, nDown);
 
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
+
+	// Copy to clipboard with 2-nd or 3-rd mouse button
+	if( sTextSelection != "" && 
+		(tMouse->FirstDown & SDL_BUTTON(2) || tMouse->FirstDown & SDL_BUTTON(3)) )
+	{
+        copy_to_clipboard(sTextSelection);
+		bSelectionGrabbed = false;
+		return BRW_NONE;
+	}
 
 	if (bSelectionGrabbed)  {
 		iSelectionStartColumn = iSelectionGrabColumn;
@@ -232,6 +256,11 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 
 int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
+	// Copy to clipboard with 2-nd or 3-rd mouse button
+	if( bSelectionGrabbed && 
+		(tMouse->Up & SDL_BUTTON(2) || tMouse->Up & SDL_BUTTON(3)) )
+        copy_to_clipboard(sTextSelection);
+
 	bSelectionGrabbed = false;
 
 	return BRW_NONE;
@@ -250,6 +279,13 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		}
 	}
 
+    // Ctrl-c or Super-c or Ctrl-Insert (copy)
+    if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c ||
+		((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT )) {
+        copy_to_clipboard(sTextSelection);
+        return BRW_NONE;
+    }
+
 	return BRW_NONE;
 }
 
@@ -262,9 +298,6 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	DrawRect(bmpDest, iX, iY, iX + iWidth, iY + iHeight, tLX->clBoxDark);
 	DrawRect(bmpDest, iX + 1, iY + 1, iX + iWidth - 1, iY + iHeight - 1, tLX->clBoxLight);
 	
-	// Background (white)
-	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, Color(255, 255, 255));
-
 	// Render the content
 	RenderContent(bmpDest);
 
@@ -443,8 +476,10 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			int w = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
 
 			// Draw selection
-			if (InSelection(tPureText.size(), current_column))
+			if (InSelection(tPureText.size(), current_column)) {
 				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), Color(0, 255, 255));
+				sTextSelection += GetUtf8FromUnicode(c);
+			}
 
 			// Draw the character
 			tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
@@ -511,13 +546,13 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 
 	const int maxX = iX + iWidth - BORDER_SIZE - 16;
 
-	if (!xmlStrcmp(node->name, (xmlChar *)"style")) {}
-	else if (!xmlStrcmp(node->name, (xmlChar *)"script")) {}
-	else if (!xmlStrcmp(node->name, (xmlChar *)"embed")) {}
-	else if (!xmlStrcmp(node->name, (xmlChar *)"object")) {}
+	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) {}
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) {}
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"embed")) {}
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"object")) {}
 
 	// Bold
-	else if (!xmlStrcmp(node->name, (xmlChar *)"b") || !xmlStrcmp(node->name, (xmlChar *)"strong"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"b") || !xmlStrcasecmp(node->name, (xmlChar *)"strong"))  {
 		tFormatStack.push(tCurrentFormat);
 		tCurrentFormat.bold = true;
 		BrowseChildren(node);
@@ -527,7 +562,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	}
 
 	// Underline
-	else if (!xmlStrcmp(node->name, (xmlChar *)"u"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"u"))  {
 		tFormatStack.push(tCurrentFormat);
 		tCurrentFormat.underline = true;
 		BrowseChildren(node);
@@ -537,7 +572,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	}
 
 	// Color
-	else if (!xmlStrcmp(node->name, (xmlChar *)"font"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"font"))  {
 		tFormatStack.push(tCurrentFormat);
 		tCurrentFormat.color = xmlGetColour(node, "color");
 		BrowseChildren(node);
@@ -547,21 +582,21 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	}
 
 	// Newline
-	else if (!xmlStrcmp(node->name, (xmlChar *)"br"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"br"))  {
 		EndLine();
 		return;
 	}
 
 	// Common block elements
-	else if (!xmlStrcmp(node->name, (xmlChar *)"p") || !xmlStrcmp(node->name, (xmlChar *)"div")
-		|| !xmlStrcmp(node->name, (xmlChar *)"ul") || !xmlStrcmp(node->name, (xmlChar *)"ol"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"p") || !xmlStrcasecmp(node->name, (xmlChar *)"div")
+		|| !xmlStrcasecmp(node->name, (xmlChar *)"ul") || !xmlStrcasecmp(node->name, (xmlChar *)"ol"))  {
 		EndLine();
 		BrowseChildren(node);
 		return;
 	}
 
 	// List item
-	else if (!xmlStrcmp(node->name, (xmlChar *)"li"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"li"))  {
 		EndLine();
 		curX += LIST_SPACING;
 		tLX->cFont.DrawGlyph(tDestSurface, curX, curY, tCurrentFormat.color, 0xA4);
@@ -583,14 +618,14 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	}
 
 	// Horizontal rule
-	else if (!xmlStrcmp(node->name, (xmlChar *)"hr"))  {
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		EndLine();
 		DrawHLine(tDestSurface, curX + 5, iX + iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
 		EndLine();
 		return;
 	}
 
-	else if (!xmlStrcmp(node->name, (xmlChar *)"text") && node->content)
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"text") && node->content)
 		RenderText(tDestSurface, tCurrentFormat, curX, curY, maxX, (const char *)node->content);
 
 	BrowseChildren(node);
@@ -602,14 +637,26 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 {
 	// Nothing to draw
 	if (!tHtmlDocument || !tRootNode)
+	{
+		// Backgorund 
+		DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
 		return;
-
+	}
+	
 	tPureText.clear();
-
+	sTextSelection.clear();
+	
 	curX = iX + BORDER_SIZE;
 	curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
 	tDestSurface = bmpDest;
-	tCurrentFormat.bold = false; tCurrentFormat.underline = false;
+	tCurrentFormat.bold = false; 
+	tCurrentFormat.underline = false;
+  	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clChatText);
+	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
+
+	// Background
+	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tBgColor);
+	
 	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
 	// Setup the clipping
