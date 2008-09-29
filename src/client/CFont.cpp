@@ -422,7 +422,7 @@ void CFont::DrawGlyphNormal_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx
 void CFont::DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c)
 {
 	// Don't draw spaces
-	if (isspace((unsigned char)c))
+	if (c == ' ' || c == '\r' || c == '\n' || c == '\t')
 		return;
 
 	int index = TranslateCharacter(c);
