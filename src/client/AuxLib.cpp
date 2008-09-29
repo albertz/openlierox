@@ -45,6 +45,8 @@
 #include "types.h"
 
 
+
+
 Null null;
 
 // Config file
@@ -852,16 +854,4 @@ int unsetenv(const char *name)
   return 0;
 }
 #endif
-
-
-////////////////////////
-// Opens the URL in an external browser
-void OpenLinkInExternBrowser(const std::string& url) {
-
-
-#ifdef WIN32
-	ShellExecute(NULL, "open", url.c_str(), NULL, NULL, SW_MAXIMIZE);
-#endif
-}
-
 
