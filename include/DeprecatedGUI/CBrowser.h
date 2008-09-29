@@ -21,6 +21,7 @@
 #include "InputEvents.h"
 #include <libxml/HTMLparser.h>
 #include <stack>
+#include <string>
 #include "LieroX.h"
 
 namespace DeprecatedGUI {
@@ -144,6 +145,11 @@ public:
 	void	LoadFromString(const std::string& data);
 	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
+	
+	// Chatbox routines
+	void	InitializeChatbox();	// Clears content and creates simple HTML header
+	void	AddChatBoxLine(const std::string & text, Color color, bool bold = false, bool underline = false);
+	std::string GetChatBoxText();	// Returns chatbox text in HTML form
 };
 
 }; // namespace DeprecatedGUI

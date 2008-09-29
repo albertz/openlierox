@@ -162,7 +162,7 @@ void CBrowser::Parse()
 		node = node->next;
 	}
 
-	if (!node || !node->children)  {
+	if (!node)  {
 		xmlFreeDoc(document);
 		htmlFreeParserCtxt(context);
 		return;
@@ -661,7 +661,8 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
-	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tBgColor);
+	if( tBgColor != tLX->clPink ) // If not transparent
+		DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tBgColor);
 	
 	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
@@ -685,6 +686,47 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 
 	// Restore clipping
 	SDL_SetClipRect(bmpDest, NULL);
+}
+
+	// Chatbox routines
+void CBrowser::InitializeChatbox()
+{
+	tData = "<html><body bgcolor=\"#ff00ff\"></body></html>"; // Transparent background
+	Parse();
+}
+
+void CBrowser::AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline)
+{
+	if (!tHtmlDocument || !tRootNode)
+		return;
+		
+	xmlNewChild( tRootNode, NULL, (const xmlChar *)"<br>", NULL );
+
+	xmlNodePtr line = tRootNode;
+
+	if( bold )
+		line = xmlNewChild( line, NULL, (const xmlChar *)"<b>", NULL );
+	if( underline )
+		line = xmlNewChild( line, NULL, (const xmlChar *)"<u>", NULL );
+
+	line = xmlNewTextChild( line, NULL, (const xmlChar *)"<font>", (const xmlChar *)text.c_str() );
+	char t[20];
+	sprintf(t, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
+	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
+}
+
+std::string CBrowser::GetChatBoxText()
+{
+	if (!tHtmlDocument || !tRootNode)
+		return "";
+
+	xmlChar *xmlbuff = NULL;
+	int buffersize = 0;
+	xmlDocDumpFormatMemory(tHtmlDocument, &xmlbuff, &buffersize, 1);
+	std::string ret( (const char *) xmlbuff );
+	xmlFree(xmlbuff);
+
+	return ret;
 }
 
 }; // namespace DeprecatedGUI
