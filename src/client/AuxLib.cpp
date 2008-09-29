@@ -27,6 +27,9 @@
 #include <SDL_syswm.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+#include <shellapi.h>
+#endif
 
 #include "AuxLib.h"
 #include "Error.h"
@@ -851,6 +854,8 @@ int unsetenv(const char *name)
 #endif
 
 
+////////////////////////
+// Opens the URL in an external browser
 void OpenLinkInExternBrowser(const std::string& url) {
 
 

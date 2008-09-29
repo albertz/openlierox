@@ -266,10 +266,12 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
         copy_to_clipboard(sTextSelection);
 
 	// Check if any of the active areas has been clicked
-	if (tMouse->deltaX == 0 && tMouse->deltaY == 0)  {
+	if (sTextSelection.size() == 0)  {
 		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
-			if (it->InBox(tMouse->X, tMouse->Y))
+			if (it->InBox(tMouse->X, tMouse->Y))  {
 				it->DoClick(tMouse->X, tMouse->Y);
+				break;
+			}
 		}
 	}
 
@@ -768,6 +770,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	
 	tPureText.clear();
 	sTextSelection.clear();
+	tActiveAreas.clear();
 	
 	curX = iX + BORDER_SIZE;
 	curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
@@ -846,27 +849,12 @@ std::string CBrowser::GetChatBoxText()
 	return ret;
 }
 
-
-/////////////////////////
-// Opens a browser window with the given link
-void CBrowser::DelayedClickHandler(Timer::EventData dat)
-{
-	if (!dat.sender || !dat.userData)
-		return;
-
-	CBrowser::CActiveArea *area = (CBrowser::CActiveArea *)(dat.userData);
-
-	SetGameCursor(CURSOR_HAND);
-	OpenLinkInExternBrowser( area->getStringData() );
-}
-
 /////////////////////////
 // A callback function that gets called when the user clicks on a link
 void CBrowser::LinkClickHandler(CBrowser::CActiveArea *area)
 {
-	// NOTE: we have to run the actual handler with a little delay because of a bug in SDL
-	// which causes the Click event to be sent all the time when the application doesn't have a focus
-	Timer(getEventHandler(this, &CBrowser::DelayedClickHandler), (void *)area, 500, true).startHeadless();
+	SetGameCursor(CURSOR_HAND);
+	OpenLinkInExternBrowser( area->getStringData() );
 }
 
 

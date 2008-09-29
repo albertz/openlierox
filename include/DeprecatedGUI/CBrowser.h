@@ -183,7 +183,6 @@ private:
 	void					StartLink(const std::string& url);
 	void					EndLink();
 	std::string				GetFullURL(const std::string& url);
-	void					DelayedClickHandler(Timer::EventData dat);
 	void					LinkClickHandler(CActiveArea *area);
 
 
