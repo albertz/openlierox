@@ -54,6 +54,7 @@
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				RuntimeTypeInfo="false"
 				PrecompiledHeaderFile=".\obj/Debug/Game.pch"
 				AssemblerListingLocation=".\obj/Debug/"
 				ObjectFile=".\obj/Debug/"
