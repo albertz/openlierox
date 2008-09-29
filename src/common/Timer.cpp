@@ -203,9 +203,9 @@ void Timer::stop()
 
 ///////////////
 // Handle the timer event, called from HandleNextEvent
-void Timer::handleEvent(SDL_Event& ev)
+void Timer::handleEvent(SDL_Event* ev)
 {
-	TimerData* timer_data = (TimerData*)ev.user.data1;
+	TimerData* timer_data = (TimerData*)ev->user.data1;
 	assert(timer_data != NULL);
 	
 	// Run the client function (if no quitSignal) and quit the timer if it returns false
@@ -218,7 +218,7 @@ void Timer::handleEvent(SDL_Event& ev)
 			timer_data->quitSignal = true;
 	}
 	
-	if(ev.user.data2)  { // last-event-signal
+	if(ev->user.data2)  { // last-event-signal
 		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
 			timer_data->timer->stop();
 				

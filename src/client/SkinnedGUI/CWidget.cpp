@@ -23,6 +23,8 @@
 
 namespace SkinnedGUI {
 
+const std::string STATIC = "Static";
+
 /////////////////
 // Create the widget
 CWidget::CWidget(COMMON_PARAMS)
@@ -180,7 +182,7 @@ void CWidget::Repaint()
 {
 	// Send the repaint message
 	if (!bNeedsRepaint)  { // Send only one repaint per frame (more don't make sense anyway)
-		SendEvent(SDL_USEREVENT_REPAINT, this, cParent);
+		SendSDLUserEvent(&OnNeedRepaint, SDLUserEventData(this));
 		bNeedsRepaint = true;
 
 		// Notify the parent

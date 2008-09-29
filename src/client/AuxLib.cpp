@@ -39,7 +39,10 @@
 #include "Sounds.h"
 #include "Version.h"
 #include "Timer.h"
+#include "types.h"
 
+
+Null null;
 
 // Config file
 std::string	ConfigFile;

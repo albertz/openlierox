@@ -25,7 +25,7 @@ class CGuiSkinnedLayout;
 bool	InitializeGuiSkinning();
 void	ShutdownGuiSkinning();
 
-class CGuiSkin : public EventListener
+class CGuiSkin
 {
 public:
 	CGuiSkin();
@@ -48,8 +48,18 @@ public:
 	const std::string& getAuthor()	{ return sAuthor; }
 	std::string getSkinFilePath(const std::string& file);
 
-	// Event listener
-	void OnEvent(SDL_Event *ev);
+	// Event handlers
+	void SDL_OnKeyDown(SDL_Event *ev);
+	void SDL_OnKeyUp(SDL_Event *ev);
+	void SDL_OnMouseMotion(SDL_Event* ev);
+	void SDL_OnMouseButtonDown(SDL_Event* ev);
+	void SDL_OnMouseButtonUp(SDL_Event* ev);
+	void SDL_OnAddWidget(SDLUserEventData ev);
+	void SDL_OnDestoryWidget(SDLUserEventData ev);
+
+	// public events
+	SDLUserEvent OnAddWidget;
+	SDLUserEvent OnDestoryWidget;
 
 	void Frame();
 

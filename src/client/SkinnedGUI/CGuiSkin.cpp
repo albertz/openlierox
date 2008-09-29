@@ -81,15 +81,25 @@ CGuiSkin::CGuiSkin()
 	cPreviousLayout = NULL;
 
 	// Listen to the events
-	AddEventListener(this);
+	sdlEvents[SDL_KEYDOWN].handler() += getEventHandler(this, &CGuiSkin::SDL_OnKeyDown);
+	sdlEvents[SDL_KEYUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnKeyUp);
+	sdlEvents[SDL_MOUSEMOTION].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseMotion);
+	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonDown);
+	sdlEvents[SDL_MOUSEBUTTONUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
+	
+	OnAddWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnAddWidget);;
+	OnDestoryWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestoryWidget);
 }
 
 //////////////
 // Destructor
 CGuiSkin::~CGuiSkin()
 {
-	// Stop listening to events
-	RemoveEventListener(this);
+	sdlEvents[SDL_KEYDOWN].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnKeyDown);
+	sdlEvents[SDL_KEYUP].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnKeyUp);
+	sdlEvents[SDL_MOUSEMOTION].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseMotion);
+	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonDown);
+	sdlEvents[SDL_MOUSEBUTTONUP].handler() -= getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
 
 	// No effects, just destroy
 	if (cActiveLayout)
@@ -228,75 +238,65 @@ void CGuiSkin::Frame()
 	VideoPostProcessor::process();
 }
 
-/////////////////////
-// Gets called from InputEvents
-void CGuiSkin::OnEvent(SDL_Event *ev)
-{
-	// Nothing to do
-	if (!cActiveLayout)
-		return;
+void CGuiSkin::SDL_OnKeyDown(SDL_Event *ev) {
+	if(!cActiveLayout) return;
+	// TODO: This is a hack and could not work later anymore. Please fix that.
+	// (Any event handler should *never* depend on a state, like GetKeyboard().)
+	const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
+	cActiveLayout->DoKeyDown(key.ch, key.sym, key.state);
+}
 
-	switch (ev->type)  {
+void CGuiSkin::SDL_OnKeyUp(SDL_Event *ev) {
+	if(!cActiveLayout) return;
+	// TODO: This is a hack and could not work later anymore. Please fix that.
+	// (Any event handler should *never* depend on a state, like GetKeyboard().)
+	const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
+	cActiveLayout->DoKeyUp(key.ch, key.sym, key.state);
+}
 
-		// Keyboard
-		// The key is at the top of the key queue
-		// HINT: we could get it from the event as well, but it's useless as we have it preprocessed from InputEvents
-		case SDL_KEYUP:  {
-			const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
-			cActiveLayout->DoKeyUp(key.ch, key.sym, key.state);
-		} break;
+void CGuiSkin::SDL_OnMouseMotion(SDL_Event* ev) {
+	if(!cActiveLayout) return;
+	cActiveLayout->DoMouseMove(ev->motion.x, ev->motion.y, ev->motion.xrel, ev->motion.yrel, 
+		ev->motion.state != 0, SDLButtonToMouseButton(ev->motion.state), *GetCurrentModstate());
+}
 
-		case SDL_KEYDOWN:  {
-			const KeyboardEvent& key = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
-			cActiveLayout->DoKeyDown(key.ch, key.sym, key.state);
-		} break;
+void CGuiSkin::SDL_OnMouseButtonDown(SDL_Event* ev) {
+	if(!cActiveLayout) return;
+	// Get the button
+	switch (ev->button.button)  {
 
-		// Mouse
-		case SDL_MOUSEBUTTONDOWN:  {
-			// Get the button
-			switch (ev->button.button)  {
-
-			// HINT: mouse scroll up/down are reported as "clicks"
-			case SDL_BUTTON_WHEELDOWN:
-				cActiveLayout->DoMouseWheelDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
-			return;
-			case SDL_BUTTON_WHEELUP:
-				cActiveLayout->DoMouseWheelUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
-			return;
-			
-			// Normal button
-			default:
-				cActiveLayout->DoMouseDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
-					SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
-			}
-			
-		} break;
-
-		case SDL_MOUSEBUTTONUP:
-			if (ev->button.button == SDL_BUTTON_WHEELDOWN || ev->button.button == SDL_BUTTON_WHEELUP)
-				break; // Wheel gets handled in mouse down event
-			cActiveLayout->DoMouseUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
-				SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
-		break;
-
-		case SDL_MOUSEMOTION:
-			cActiveLayout->DoMouseMove(ev->motion.x, ev->motion.y, ev->motion.xrel, ev->motion.yrel, 
-				ev->motion.state != 0, SDLButtonToMouseButton(ev->motion.state), *GetCurrentModstate());
-		break;
-
-		// TODO: move these to CGuiSkinnedLayout
-		case SDL_USEREVENT_ADDWIDGET:
-			cActiveLayout->DoChildAddEvent((CWidget *)ev->user.data1);
-		break;
-
-		case SDL_USEREVENT_DESTROYWIDGET:
-			cActiveLayout->DoChildDestroyEvent((CWidget *)ev->user.data1);
-		break;
-
-		// TODO: joystick
-		// TODO: activate/deactivate
-		// TODO: user events
+	// HINT: mouse scroll up/down are reported as "clicks"
+	case SDL_BUTTON_WHEELDOWN:
+		cActiveLayout->DoMouseWheelDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
+	return;
+	case SDL_BUTTON_WHEELUP:
+		cActiveLayout->DoMouseWheelUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY, *GetCurrentModstate());
+	return;
+	
+	// Normal button
+	default:
+		cActiveLayout->DoMouseDown(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
+			SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
 	}
+}
+
+void CGuiSkin::SDL_OnMouseButtonUp(SDL_Event* ev) {
+	if(!cActiveLayout) return;
+	if (ev->button.button == SDL_BUTTON_WHEELDOWN || ev->button.button == SDL_BUTTON_WHEELUP)
+		return; // Wheel gets handled in mouse down event
+	cActiveLayout->DoMouseUp(ev->button.x, ev->button.y, GetMouse()->deltaX, GetMouse()->deltaY,
+		SDLButtonToMouseButton(ev->button.button), *GetCurrentModstate());
+
+}
+
+void CGuiSkin::SDL_OnAddWidget(SDLUserEventData ev) {
+	if(!cActiveLayout) return;
+	cActiveLayout->DoChildAddEvent((CWidget *)ev.data);	
+}
+
+void CGuiSkin::SDL_OnDestoryWidget(SDLUserEventData ev) {
+	if(!cActiveLayout) return;
+	cActiveLayout->DoChildDestroyEvent((CWidget *)ev.data);
 }
 
 }; // namespace SkinnedGUI

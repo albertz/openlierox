@@ -36,5 +36,10 @@ typedef uchar byte;
 typedef unsigned short ushort;
 #endif
 
+// Class for having a null point, to allow overwriting a function which takes null.
+// HINT: Don't ever use this class for something different. Every use of this function
+// interprets it to have this parameter null.
+class Null {}; extern Null null;
+
 #endif  // __TYPES_H__
 

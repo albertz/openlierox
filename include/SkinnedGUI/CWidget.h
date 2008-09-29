@@ -132,7 +132,7 @@ enum WidgetType {
 
 // TODO: what is this for? and labels have also events like OnClick (or they should have...)
 // Name for widgets that don't have any events assigned (usually labels)
-static const std::string STATIC = "Static";
+extern const std::string STATIC;
 
 // Common parameters for a widget constructor, used to save typing a bit
 #define COMMON_PARAMS				const std::string& name, CContainerWidget *parent
@@ -261,6 +261,8 @@ public:
 
 	// Repaint the widget
 	void Repaint();
+
+	SDLUserEvent OnNeedRepaint;
 
 	// Destroy the widget
 	void Destroy();

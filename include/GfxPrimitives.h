@@ -244,8 +244,9 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 
 /////////////////
 // Loads an image and quits with error if could not load
-#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
-#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
+#define		LOAD_IMAGE(bmp,name)			{ if (!Load_Image(bmp,name)) return false; }
+#define		LOAD_IMAGE_WITHALPHA(bmp,name)	{ if (!Load_Image_WithAlpha(bmp,name)) return false; }
+#define		LOAD_IMAGE_WITHALPHA2(bmp,name1,name2)	{ if (!Load_Image_WithAlpha(bmp,name1) && !Load_Image_WithAlpha(bmp,name2)) return false; }
 
 /////////////////
 // Gets the colorkey from the surface

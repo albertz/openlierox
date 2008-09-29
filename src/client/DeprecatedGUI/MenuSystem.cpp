@@ -122,7 +122,7 @@ bool Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[4], "data/frontend/con_nat.png");
+	LOAD_IMAGE_WITHALPHA2(tMenu->bmpConnectionSpeeds[4], "data/frontend/con_nat.png", "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 	tMenu->bmpDownload = LoadGameImage("data/frontend/download.png", true); // Doesn't have to exist

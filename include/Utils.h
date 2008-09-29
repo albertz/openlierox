@@ -111,7 +111,7 @@ private:
 	void clear() { if(m_obj) delete m_obj; m_obj = NULL; }
 
 public:
-	Ref(_Obj* obj) : m_obj(obj) {}
+	Ref(_Obj* obj = NULL) : m_obj(obj) {}
 	Ref(const Ref& ref) { m_obj = ref->copy(); }
 	~Ref() { clear(); }
 
@@ -121,6 +121,8 @@ public:
 	_Obj* operator->() { return m_obj; }
 	const _Obj* operator->() const { return m_obj; }
 	_Obj& get() { return *m_obj; }
+	const _Obj& get() const { return *m_obj; }	
+	_Obj* overtake() { _Obj* r = m_obj; m_obj = NULL; return r; } // this resets the Ref and returns the old pointer without deleting it
 };
 
 

@@ -93,7 +93,7 @@ public:
 	void stop();
 
 	// this is called by the main-loop in HandleNextEvent()
-	static void handleEvent(SDL_Event& ev);
+	static void handleEvent(SDL_Event* ev);
 	
 	// this handler just does nothing and returns false
 	// This is usefull if you want to push an SDL-event later

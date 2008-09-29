@@ -13,6 +13,8 @@
 
 #include <vector>
 #include "Unicode.h"
+#include "Event.h"
+
 
 // application has focus
 extern	bool			bActivated;
@@ -90,14 +92,13 @@ enum MouseButton  {
 
 MouseButton SDLButtonToMouseButton(int sdlbut);
 
-// Override this class and add your listener to using the AddEventListener class
-class EventListener  { public:
-	virtual void OnEvent(SDL_Event *ev) = 0;
-	virtual ~EventListener() {}
-};
+typedef Event<SDL_Event*> SDLEvent;
 
-void		AddEventListener(EventListener *lst);
-void		RemoveEventListener(EventListener *lst);
+// All main SDL events. You can add your own global handlers here. Though that should
+// not be needed in most cases.
+// If you want to add a user event, DON'T add the handler here. Use SendSDLUserEvent()
+// and your event will get called automatically. 
+extern SDLEvent sdlEvents[SDL_NUMEVENTS];
 
 
 void 		InitEventSystem();
@@ -114,5 +115,23 @@ void		RegisterCInput(CInput* input);
 void		UnregisterCInput(CInput* input);
 
 bool		ApplicationHasFocus();
+
+
+struct SDLUserEventData {
+	void* data;
+	SDLUserEventData(void* d = NULL) : data(d) {}
+};
+
+typedef Event<SDLUserEventData> SDLUserEvent;
+
+inline void SendSDLUserEvent(SDLUserEvent* event, SDLUserEventData data) {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = 0;
+	ev.user.data1 = event;
+	ev.user.data2 = data.data;
+	SDL_PushEvent(&ev);
+}
+
 
 #endif

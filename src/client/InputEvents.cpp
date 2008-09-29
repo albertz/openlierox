@@ -20,6 +20,7 @@
 #include "CInput.h"
 #include "MathLib.h"
 #include "NotifyUser.h"
+#include "Event.h"
 
 
 using namespace std;
@@ -28,32 +29,14 @@ using namespace std;
 // Keyboard, Mouse, & Event
 static keyboard_t	Keyboard;
 static mouse_t		Mouse;
-static SDL_Event	SDLEvent;
+static SDL_Event	sdl_event;
 static ModifiersState evtModifiersState;
 
 static bool         nFocus = true;
 bool		bActivated = false;
 bool		bDeactivated = false;
 
-std::list<EventListener *>	tEventListeners;
 
-///////////////////
-// Adds an event listener
-void AddEventListener(EventListener *lst)
-{
-	tEventListeners.push_back(lst);
-}
-
-///////////////////
-// Removes the event listener from the internal list
-void RemoveEventListener(EventListener *lst)
-{
-	for (std::list<EventListener *>::iterator it = tEventListeners.begin(); it != tEventListeners.end(); it++)
-		if (*it == lst)  {
-			tEventListeners.erase(it);
-			break;
-		}
-}
 
 ///////////////////
 // Returns the current state of the modifier keys (alt, ctrl etc.)
@@ -83,7 +66,7 @@ SDL_Event *GetEvent(void)
 {
 	// TODO: this should not be used like it is atm because it only returns the last event
 	// but in ProcessEvents() could be more than one Event get passed
-	return &SDLEvent;
+	return &sdl_event;
 }
 
 ///////////////////////
@@ -112,17 +95,9 @@ MouseButton SDLButtonToMouseButton(int sdlbut)
 }
 
 
-void InitEventSystem() {
-	ProcessEvents();
-	for(int k = 0;k<SDLK_LAST;k++)
-		GetKeyboard()->KeyUp[k] = false;
 
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
-	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
-}
+SDLEvent sdlEvents[SDL_NUMEVENTS];
+
 
 static std::set<CInput*> cInputs;
 
@@ -225,6 +200,197 @@ static void ResetCurrentEventStorage() {
 	bDeactivated = false;
 }
 
+typedef void (*EventHandlerFct) (SDL_Event* ev);
+
+
+static void EvHndl_ActiveEvent(SDL_Event* ev) {
+	if(!(ev->active.state & SDL_APPMOUSEFOCUS))  {
+			bool hadFocusBefore = nFocus;
+			nFocus = sdl_event.active.gain != 0;
+			bActivated = nFocus != 0;
+			bDeactivated = nFocus == 0;
+
+			// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+			Mouse.Button = 0;
+			Mouse.Down = 0;
+			Mouse.FirstDown = 0;
+			Mouse.Up = 0;
+
+			if(!hadFocusBefore && nFocus) {
+				ClearUserNotify();
+			}
+	}
+}
+
+static void EvHndl_KeyDownUp(SDL_Event* ev) {
+	// Check the characters
+	if(ev->key.state == SDL_PRESSED || ev->key.state == SDL_RELEASED) {
+
+		UnicodeChar input = ev->key.keysym.unicode;
+		if (input == 0)
+			switch (ev->key.keysym.sym) {
+			case SDLK_HOME:
+				input = 2;
+				break;
+			case SDLK_END:
+				input = 3;
+				break;
+			case SDLK_KP0:
+			case SDLK_KP1:
+			case SDLK_KP2:
+			case SDLK_KP3:
+			case SDLK_KP4:
+			case SDLK_KP5:
+			case SDLK_KP6:
+			case SDLK_KP7:
+			case SDLK_KP8:
+			case SDLK_KP9:
+			case SDLK_KP_MULTIPLY:
+			case SDLK_KP_MINUS:
+			case SDLK_KP_PLUS:
+			case SDLK_KP_EQUALS:
+				input = (uchar) (ev->key.keysym.sym - 208);
+				break;
+			case SDLK_KP_PERIOD:
+			case SDLK_KP_DIVIDE:
+				input = (uchar) (ev->key.keysym.sym - 220);
+				break;
+			case SDLK_KP_ENTER:
+				input = '\r';
+				break;
+			default:
+				// nothing
+				break;
+		}  // switch
+
+		// If we're going to over the queue length, shift the list down and remove the oldest key
+		if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
+			for(int i=0; i<Keyboard.queueLength-1; i++)
+				Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
+			Keyboard.queueLength--;
+			printf("warning: keyboard queue full\n");
+		}
+
+		KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
+
+		// Key down
+		if(ev->type == SDL_KEYDOWN)
+			kbev.down = true;
+
+		// Key up
+		else if(ev->type == SDL_KEYUP || ev->key.state == SDL_RELEASED)
+			kbev.down = false;
+
+		else
+			return; // don't save and handle it
+
+		// save info
+		kbev.ch = input;
+		kbev.sym = ev->key.keysym.sym;
+		Keyboard.queueLength++;
+
+		// handle modifier state
+		switch (kbev.sym)  {
+		case SDLK_LALT: case SDLK_RALT:
+			evtModifiersState.bAlt = kbev.down;
+			break;
+		case SDLK_LCTRL: case SDLK_RCTRL:
+			evtModifiersState.bCtrl = kbev.down;
+			break;
+		case SDLK_LSHIFT: case SDLK_RSHIFT:
+			evtModifiersState.bShift = kbev.down;
+			break;
+		case SDLK_LSUPER: case SDLK_RSUPER:
+			evtModifiersState.bSuper = kbev.down;
+			break;
+		}
+
+		// copy it
+		kbev.state = evtModifiersState;
+
+		HandleCInputs_KeyEvent(kbev);
+
+		/*
+		if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
+			// I don't want to track keyrepeats here; but works only for special keys
+			cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
+		else if(!kbev.down)
+			cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
+		*/
+
+	} else
+		printf("strange Event.key.state = %i\n", ev->key.state);
+
+}
+
+static void EvHndl_MouseMotion(SDL_Event*) {}
+
+static void EvHndl_MouseButtonDown(SDL_Event* ev) {
+	switch(ev->button.button) {
+		case SDL_BUTTON_WHEELUP:
+			Mouse.WheelScrollUp = true;
+			break;
+		case SDL_BUTTON_WHEELDOWN:
+			Mouse.WheelScrollDown  = true;
+			break;
+	}  // switch
+
+	{
+		MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, true };
+		Mouse.mouseQueue.push_back( mev );
+	}
+}
+
+static void EvHndl_MouseButtonUp(SDL_Event* ev) {		
+	MouseEvent mev = { ev->button.x, ev->button.y, ev->button.button, false };
+	Mouse.mouseQueue.push_back( mev );
+}
+
+static void EvHndl_Quit(SDL_Event*) {
+	tLX->bQuitGame = true;
+	SetQuitEngineFlag("SDL_QUIT event");
+	if (DeprecatedGUI::tMenu)
+		DeprecatedGUI::tMenu->bMenuRunning = false;
+}
+
+static void EvHndl_SysWmEvent(SDL_Event* ev) {
+	handle_system_event(*ev);
+}
+
+static void EvHndl_VideoExpose(SDL_Event*) {}
+
+static void EvHndl_UserEvent(SDL_Event* ev) {
+	((SDLUserEvent*)ev->user.data1)->occurred( SDLUserEventData(ev->user.data2) );
+}
+
+void InitEventSystem() {
+	ProcessEvents();
+	for(int k = 0;k<SDLK_LAST;k++)
+		GetKeyboard()->KeyUp[k] = false;
+
+	GetMouse()->Button = 0;
+	GetMouse()->Down = 0;
+	GetMouse()->FirstDown = 0;
+	GetMouse()->Up = 0;
+	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
+
+	sdlEvents[SDL_ACTIVEEVENT].handler() = getEventHandler(&EvHndl_ActiveEvent);
+	sdlEvents[SDL_KEYDOWN].handler() = getEventHandler(&EvHndl_KeyDownUp);
+	sdlEvents[SDL_KEYUP].handler() = getEventHandler(&EvHndl_KeyDownUp);
+	sdlEvents[SDL_MOUSEMOTION].handler() = getEventHandler(&EvHndl_MouseMotion);
+	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() = getEventHandler(&EvHndl_MouseButtonDown);
+	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
+	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
+	sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent);
+	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
+	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
+	
+	// TODO: remove this later
+	sdlEvents[SDL_USEREVENT_TIMER].handler() = getEventHandler(&Timer::handleEvent);
+	
+}
+
+
 // main function for handling next event
 // HINT: we are using the global variable Event here atm
 // in both cases where we call this function this is correct
@@ -234,179 +400,7 @@ void HandleNextEvent() {
 	if (tLX == NULL)
 		return;
 
-	switch(SDLEvent.type) {
-
-	// Quit event
-	case SDL_QUIT:
-		// Quit
-		tLX->bQuitGame = true;
-		SetQuitEngineFlag("SDL_QUIT event");
-		if (DeprecatedGUI::tMenu)
-			DeprecatedGUI::tMenu->bMenuRunning = false;
-		break;
-
-	// Mouse wheel scroll
-	case SDL_MOUSEBUTTONDOWN:
-		switch(SDLEvent.button.button) {
-			case SDL_BUTTON_WHEELUP:
-				Mouse.WheelScrollUp = true;
-				break;
-			case SDL_BUTTON_WHEELDOWN:
-				Mouse.WheelScrollDown  = true;
-				break;
-		}  // switch
-
-		{
-			MouseEvent mev = { SDLEvent.button.x, SDLEvent.button.y, SDLEvent.button.button, true };
-			Mouse.mouseQueue.push_back( mev );
-		}
-		break;
-
-	case SDL_MOUSEBUTTONUP:
-		{
-			MouseEvent mev = { SDLEvent.button.x, SDLEvent.button.y, SDLEvent.button.button, false };
-			Mouse.mouseQueue.push_back( mev );
-		}
-		break;
-
-	// Activation and deactivation
-	case SDL_ACTIVEEVENT:
-		if(!(SDLEvent.active.state & SDL_APPMOUSEFOCUS))  {
-				bool hadFocusBefore = nFocus;
-				nFocus = SDLEvent.active.gain != 0;
-				bActivated = nFocus != 0;
-				bDeactivated = nFocus == 0;
-
-				// HINT: Reset the mouse state - this should avoid the mouse staying pressed
-				Mouse.Button = 0;
-				Mouse.Down = 0;
-				Mouse.FirstDown = 0;
-				Mouse.Up = 0;
-
-				if(!hadFocusBefore && nFocus) {
-					ClearUserNotify();
-				}
-		}
-		break;
-
-	// Keyboard events
-	case SDL_KEYUP: case SDL_KEYDOWN:
-
-		// Check the characters
-		if(SDLEvent.key.state == SDL_PRESSED || SDLEvent.key.state == SDL_RELEASED) {
-
-			UnicodeChar input = SDLEvent.key.keysym.unicode;
-			if (input == 0)
-				switch (SDLEvent.key.keysym.sym) {
-				case SDLK_HOME:
-					input = 2;
-					break;
-				case SDLK_END:
-					input = 3;
-					break;
-				case SDLK_KP0:
-				case SDLK_KP1:
-				case SDLK_KP2:
-				case SDLK_KP3:
-				case SDLK_KP4:
-				case SDLK_KP5:
-				case SDLK_KP6:
-				case SDLK_KP7:
-				case SDLK_KP8:
-				case SDLK_KP9:
-				case SDLK_KP_MULTIPLY:
-				case SDLK_KP_MINUS:
-				case SDLK_KP_PLUS:
-				case SDLK_KP_EQUALS:
-					input = (uchar) (SDLEvent.key.keysym.sym - 208);
-					break;
-				case SDLK_KP_PERIOD:
-				case SDLK_KP_DIVIDE:
-					input = (uchar) (SDLEvent.key.keysym.sym - 220);
-					break;
-				case SDLK_KP_ENTER:
-					input = '\r';
-					break;
-				default:
-					// nothing
-					break;
-			}  // switch
-
-			// If we're going to over the queue length, shift the list down and remove the oldest key
-			if(Keyboard.queueLength+1 >= MAX_KEYQUEUE) {
-				for(int i=0; i<Keyboard.queueLength-1; i++)
-					Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
-				Keyboard.queueLength--;
-				printf("warning: keyboard queue full\n");
-			}
-
-			KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
-
-			// Key down
-			if(SDLEvent.type == SDL_KEYDOWN)
-				kbev.down = true;
-
-			// Key up
-			else if(SDLEvent.type == SDL_KEYUP || SDLEvent.key.state == SDL_RELEASED)
-				kbev.down = false;
-
-			else
-				break; // don't save and handle it
-
-			// save info
-			kbev.ch = input;
-			kbev.sym = SDLEvent.key.keysym.sym;
-			Keyboard.queueLength++;
-
-			// handle modifier state
-			switch (kbev.sym)  {
-			case SDLK_LALT: case SDLK_RALT:
-				evtModifiersState.bAlt = kbev.down;
-				break;
-			case SDLK_LCTRL: case SDLK_RCTRL:
-				evtModifiersState.bCtrl = kbev.down;
-				break;
-			case SDLK_LSHIFT: case SDLK_RSHIFT:
-				evtModifiersState.bShift = kbev.down;
-				break;
-			case SDLK_LSUPER: case SDLK_RSUPER:
-				evtModifiersState.bSuper = kbev.down;
-				break;
-			}
-
-			// copy it
-			kbev.state = evtModifiersState;
-
-			HandleCInputs_KeyEvent(kbev);
-
-			/*
-			if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
-				// I don't want to track keyrepeats here; but works only for special keys
-				cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
-			else if(!kbev.down)
-				cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
-			*/
-
-		} else
-			printf("strange Event.key.state = %i\n", SDLEvent.key.state);
-		break;
-
-	case SDL_SYSWMEVENT:
-		handle_system_event(SDLEvent);
-		break;
-
-	case SDL_USEREVENT_TIMER:
-		Timer::handleEvent(SDLEvent);
-		break;
-
-	default:
-		//std::cout << "WARNING: unhandled event " << Event.type << std::endl;
-		break;
-	}
-
-	// Notify the event listeners
-	for (std::list<EventListener *>::iterator it = tEventListeners.begin(); it != tEventListeners.end(); it++)
-		(*it)->OnEvent(&SDLEvent);
+	sdlEvents[sdl_event.type].occurred(&sdl_event);
 }
 
 static void HandleMouseState() {
@@ -465,7 +459,7 @@ bool WaitForNextEvent() {
 	ResetCurrentEventStorage();
 
 	bool ret = false;
-	if(SDL_WaitEvent(&SDLEvent)) {
+	if(SDL_WaitEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -473,7 +467,7 @@ bool WaitForNextEvent() {
 	// Perhaps there are more events in the queue.
 	// In this case, handle all of them. we want an empty
 	// queue after
-	while(SDL_PollEvent(&SDLEvent)) {
+	while(SDL_PollEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -497,7 +491,7 @@ bool ProcessEvents()
 	ResetCurrentEventStorage();
 
 	bool ret = false;
-	while(SDL_PollEvent(&SDLEvent)) {
+	while(SDL_PollEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -535,4 +529,4 @@ bool ProcessEvents()
 bool ApplicationHasFocus()
 {
 	return nFocus;
-};
+}
