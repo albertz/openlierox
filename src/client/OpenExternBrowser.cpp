@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <list>
+#include <cstdlib>
 
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
