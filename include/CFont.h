@@ -117,8 +117,10 @@ private:
 	bool				IsColumnFree(int x);
 	void				Parse(void);
 	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
-	void				DrawGlyphNormal_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
-	void				DrawGlyphOutline_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
+	
+	// TODO: why do we need this?
+	void				DrawGlyphNormal_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
+	void				DrawGlyphOutline_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
 };
 
 

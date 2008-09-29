@@ -301,7 +301,7 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 		int width = 0;
 		int next_width = 0;
 
-		std::string::iterator it = tPureText[line].begin();
+		std::string::const_iterator it = tPureText[line].begin();
 		while (it != tPureText[line].end())  {
 
 			UnicodeChar c = GetNextUnicodeFromUtf8(it, tPureText[line].end());
@@ -435,7 +435,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		}
 
 		// Render the word
-		std::string::iterator word_it = word.begin();
+		std::string::const_iterator word_it = word.begin();
 		while (word_it != word.end())  {
 
 			// Get the character

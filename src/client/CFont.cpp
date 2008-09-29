@@ -298,7 +298,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 	OneSideClip(char_y, char_h, newrect.y, newrect.h);
 
 	// Get the correct drawing function
-	typedef void(CFont::*GlyphBlitter)(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
+	typedef void(CFont::*GlyphBlitter)(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
 	GlyphBlitter func = &CFont::DrawGlyphNormal_Internal;
 	if (OutlineFont)
 		func = &CFont::DrawGlyphOutline_Internal;
@@ -365,7 +365,7 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 /////////////////////////
 // Draws an outlined character
-void CFont::DrawGlyphOutline_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
+void CFont::DrawGlyphOutline_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
 {
 	const short bpp = bmpFont->format->BytesPerPixel;
 	Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * sy +
@@ -392,7 +392,7 @@ void CFont::DrawGlyphOutline_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int
 
 //////////////////////////
 // Draws a character
-void CFont::DrawGlyphNormal_Internal(SDL_Surface *dst, SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
+void CFont::DrawGlyphNormal_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
 {
 	const short bpp = bmpFont->format->BytesPerPixel;
 	Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * sy +
