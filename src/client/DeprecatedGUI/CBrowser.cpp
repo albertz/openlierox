@@ -385,7 +385,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 	// Text
 	bool was_space = sCurLine.size() > 0 ? (*sCurLine.rbegin() == ' ') : false;
-	size_t current_column = sCurLine.size();
+	size_t current_column = Utf8StringSize(sCurLine);
 	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
 		// Handle spaces & newlines
 		if (*it == '\r')  {
@@ -443,9 +443,8 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			int w = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
 
 			// Draw selection
-			if (InSelection(tPureText.size(), current_column))  {
+			if (InSelection(tPureText.size(), current_column))
 				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), Color(0, 255, 255));
-			}
 
 			// Draw the character
 			tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
