@@ -21,8 +21,8 @@
 #include "InputEvents.h"
 #include <libxml/HTMLparser.h>
 #include <stack>
-#include <string>
 #include "LieroX.h"
+#include "Timer.h"
 
 namespace DeprecatedGUI {
 
@@ -56,6 +56,7 @@ public:
 	  iSelectionStartColumn(0),
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
+	  bInLink(false),
 	  bSelectionGrabbed(false)
 	  {
 	  	tCurrentFormat.bold = false;
@@ -63,6 +64,66 @@ public:
 	  	tCurrentFormat.color = Color(0,0,0);
 	  	tBgColor = Color(255,255,255);
 	  }
+
+public:
+
+	// Handler for the active (interacting) areas of the browser (for example links)
+	class CActiveArea  {
+	public:
+		typedef void(CBrowser::*ActiveAreaHandler)(CActiveArea *);
+	public:
+		CActiveArea(CBrowser *parent, const SDL_Rect& rect, ActiveAreaHandler click_func, const std::string s_data = "", int i_data = 0) :
+		  tRect(rect),
+		  sData(s_data),
+		  iData(i_data),
+		  tClickFunc(click_func),
+		  tParent(parent)
+		  {}
+
+		CActiveArea() :
+		  iData(0),
+		  tClickFunc(NULL),
+		  tParent(NULL)
+		  { tRect = MakeRect(0, 0, 0, 0); }
+
+		CActiveArea(const CActiveArea& oth)  { operator=(oth); }
+
+	private:
+		friend class CBrowser;
+		SDL_Rect	tRect;
+		std::string	sData;
+		int			iData;
+		ActiveAreaHandler tClickFunc;
+		CBrowser	*tParent;
+
+	public:
+		bool	InBox(int x, int y) const  { return x >= tRect.x && x < (tRect.x + tRect.w) 
+			&& y >= tRect.y && y < (tRect.y + tRect.h); }
+		void	DoMouseMove(int x, int y)  { /* TODO */ }
+		void	DoMouseEnter() { /* TODO */ }
+		void	DoMouseEnd() { /* TODO */ }
+		void	DoMouseDown(int x, int y) { /* TODO */ }
+		void	DoClick(int x, int y);
+
+		const std::string& getStringData()	{ return sData; }
+		int	getIntData()					{ return iData; }
+		CBrowser *getParent()				{ return tParent; }
+
+		void Clear()  { tRect = MakeRect(0, 0, 0, 0); sData.clear();
+						iData = 0; tClickFunc = NULL; tParent = NULL; }
+
+		CActiveArea& operator=(const CActiveArea& oth)  {
+			if (&oth != this)  {
+				tRect = oth.tRect;
+				sData = oth.sData;
+				iData = oth.iData;
+				tClickFunc = oth.tClickFunc;
+				tParent = oth.tParent;
+			}
+			return *this;
+		}
+
+	};
 
 private:
 	// Attributes
@@ -75,6 +136,7 @@ private:
 	htmlDocPtr				tHtmlDocument;
 	htmlNodePtr				tRootNode;
 	std::vector<std::string>	tPureText;
+	std::list<CActiveArea>	tActiveAreas;
 
 	// Parsing temps
 	FontFormat				tCurrentFormat;
@@ -98,6 +160,10 @@ private:
 	size_t					iSelectionGrabColumn;
 	bool					bSelectionGrabbed;
 
+	// Links
+	bool					bInLink;
+	CActiveArea				cCurrentLink;
+
 	// Window attributes
 	CScrollbar				cScrollbar;
 	bool					bUseScroll;
@@ -112,6 +178,13 @@ private:
 	void					BrowseChildren(xmlNodePtr node);
 	bool					InSelection(size_t line, size_t column);
 	void					EndLine();
+
+	// Link helper functions
+	void					StartLink(const std::string& url);
+	void					EndLink();
+	std::string				GetFullURL(const std::string& url);
+	void					DelayedClickHandler(Timer::EventData dat);
+	void					LinkClickHandler(CActiveArea *area);
 
 
 public:
@@ -145,11 +218,10 @@ public:
 	void	LoadFromString(const std::string& data);
 	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
-	
-	// Chatbox routines
-	void	InitializeChatbox();	// Clears content and creates simple HTML header
-	void	AddChatBoxLine(const std::string & text, Color color, bool bold = false, bool underline = false);
-	std::string GetChatBoxText();	// Returns chatbox text in HTML form
+
+	void	InitializeChatbox();
+	void	AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline);
+	std::string GetChatBoxText();
 };
 
 }; // namespace DeprecatedGUI

@@ -23,6 +23,8 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "XMLutils.h"
 #include "Clipboard.h"
+#include "Cursor.h"
+#include "Timer.h"
 
 namespace DeprecatedGUI {
 
@@ -261,6 +263,14 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 		(tMouse->Up & SDL_BUTTON(2) || tMouse->Up & SDL_BUTTON(3)) )
         copy_to_clipboard(sTextSelection);
 
+	// Check if any of the active areas has been clicked
+	if (tMouse->deltaX == 0 && tMouse->deltaY == 0)  {
+		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
+			if (it->InBox(tMouse->X, tMouse->Y))
+				it->DoClick(tMouse->X, tMouse->Y);
+		}
+	}
+
 	bSelectionGrabbed = false;
 
 	return BRW_NONE;
@@ -407,6 +417,13 @@ void CBrowser::EndLine()
 	if (InSelection(tPureText.size(), cur_line_size))
 		sTextSelection += '\n';
 
+	// Multiline link? Split it into multiple links
+	if (bInLink)  {
+		std::string url = cCurrentLink.getStringData();
+		EndLink();
+		StartLink(url);
+	}
+
 	// Add the line to the pure text and start a new line
 	tPureText.push_back(sCurLine);
 	sCurLine.clear();
@@ -414,6 +431,77 @@ void CBrowser::EndLine()
 	curX = iX + BORDER_SIZE;
 }
 
+////////////////////
+// Converts the given URL to a standard format (accepts both absolute and relative URLs)
+std::string CBrowser::GetFullURL(const std::string& url)
+{
+	// Absolute URL
+	std::string link_url;
+	if (url.size() > 7)
+		if (stringcaseequal(url.substr(0, 7), "http://") || stringcaseequal(url.substr(0, 4), "www"))
+			link_url = url;
+
+	// Relative URL
+	if (!link_url.size())  {
+		// Remove any slashes at the beginning of the given URL
+		link_url = url;
+		if (link_url.size())
+			if (*link_url.begin() == '/')
+				link_url.erase(0);
+
+		// Find the last slash of the base URL
+		size_t slashpos = sURL.rfind('/');
+		if (slashpos == std::string::npos)
+			link_url = sURL + "/" + url; // No slash in the base URL, just append the given URL
+		else
+			link_url = sURL.substr(0, slashpos) + url; // Remove the filename from the base URL and append the given URL instead
+	}
+
+	// Prepend HTTP if not present
+	if (link_url.size() > 7)
+		if (!stringcaseequal(link_url.substr(0, 7), "http://"))
+			link_url = "http://" + link_url;
+
+	return link_url;
+}
+
+//////////////////////////
+// Starts a link area
+void CBrowser::StartLink(const std::string& url)
+{
+	// Already in a link, ignore
+	if (bInLink)
+		return;
+
+	bInLink = true;
+
+	cCurrentLink.Clear();
+
+
+	// Setup the information
+	cCurrentLink.tRect.x = curX;
+	cCurrentLink.tRect.y = curY;
+	cCurrentLink.sData = GetFullURL(url);
+	cCurrentLink.tParent = this;
+	cCurrentLink.tClickFunc = &CBrowser::LinkClickHandler;
+}
+
+//////////////////////////
+// Ends the link area
+void CBrowser::EndLink()
+{
+	bInLink = false;
+
+	// Finish the rect
+	cCurrentLink.tRect.w = curX - cCurrentLink.tRect.x;
+	cCurrentLink.tRect.h = curY - cCurrentLink.tRect.y + tLX->cFont.GetHeight();
+
+	// Add it to the list
+	tActiveAreas.push_back(cCurrentLink);
+
+	// Cleanup
+	cCurrentLink.Clear();
+}
 
 ///////////////////////////
 // Renders a chunk of text with the given style
@@ -623,6 +711,33 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		return;
 	}
 
+	// Link (<a href= ...)
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"a"))  {
+
+		std::string url = xmlGetString(node, "href");
+		if (url.size() && !bInLink)  {	
+			// Setup the format (blue underlined text by default)
+			tFormatStack.push(tCurrentFormat);
+			tCurrentFormat.color = Color(0, 0, 255);
+			tCurrentFormat.underline = true;
+
+			StartLink(url);
+		}
+
+		// Get the content of the link
+		BrowseChildren(node);
+
+		// End the link
+		if (bInLink)
+			EndLink();
+
+		// Restore the old format
+		tCurrentFormat = tFormatStack.top();
+		tFormatStack.pop();
+
+		return;
+	}
+
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		EndLine();
@@ -728,5 +843,44 @@ std::string CBrowser::GetChatBoxText()
 
 	return ret;
 }
+
+
+/////////////////////////
+// Opens a browser window with the given link
+void CBrowser::DelayedClickHandler(Timer::EventData dat)
+{
+	if (!dat.sender || !dat.userData)
+		return;
+
+	CBrowser::CActiveArea *area = (CBrowser::CActiveArea *)(dat.userData);
+
+#ifdef WIN32
+	SetGameCursor(CURSOR_HAND);
+	ShellExecute(NULL, "open", area->getStringData().c_str(), NULL, NULL, SW_MAXIMIZE);
+#endif
+}
+
+/////////////////////////
+// A callback function that gets called when the user clicks on a link
+void CBrowser::LinkClickHandler(CBrowser::CActiveArea *area)
+{
+	// NOTE: we have to run the actual handler with a little delay because of a bug in SDL
+	// which causes the Click event to be sent all the time when the application doesn't have a focus
+	Timer(getEventHandler(this, &CBrowser::DelayedClickHandler), (void *)area, 500, true).startHeadless();
+}
+
+
+//
+// CActiveArea class
+//
+
+///////////////////
+// Click on the active area
+void CBrowser::CActiveArea::DoClick(int x, int y)
+{
+	if (tClickFunc)
+		(tParent->*tClickFunc)(this);
+}
+
 
 }; // namespace DeprecatedGUI
