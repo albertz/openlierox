@@ -66,6 +66,13 @@ bool Menu_Initialize(bool *game)
 		return false;
     }
 
+	// Invalidate the sockets
+	// This is here because of possible failure - when this function fails, Menu_Shutdown is called
+	// which when freeing the sockets checks for the invalid state flag
+	InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
+	InvalidateSocketState(tMenu->tSocket[SCK_NET]);
+	InvalidateSocketState(tMenu->tSocket[SCK_FOO]);
+
 	// Load the frontend info
 	Menu_LoadFrontendInfo();
 
@@ -242,6 +249,7 @@ void Menu_Shutdown(void)
 
 		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
 		InvalidateSocketState(tMenu->tSocket[SCK_NET]);
+		InvalidateSocketState(tMenu->tSocket[SCK_FOO]);
 
 		// The rest get free'd in the cache
 		assert(tMenu);
