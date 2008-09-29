@@ -1792,15 +1792,7 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 		return;
 	}
 
-	if (x < 0) x = 0;
-	else if (x >= bmpDest->w) x=bmpDest->w-1;
-
-	if (x2 < 0) x2 = 0;
-	else if (x2 >= bmpDest->w) x2=bmpDest->w-1;
-
-	if (y < 0) y = 0;
-	else if (y >= bmpDest->h) y=bmpDest->h-1;
-
+	// Swap the ends if necessary
 	if (x2 < x)  {
 		int tmp;
 		tmp = x;
@@ -1808,6 +1800,24 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 		x2 = tmp;
 	}
 
+	const SDL_Rect& r = bmpDest->clip_rect;
+
+	// Clipping
+	if (y < r.y) return;
+	if (y >= (r.y + r.h)) return;
+
+	if (x < r.x) { 
+		if (r.x >= x2) 
+			return;
+		x2 -= r.x - x;
+		y = r.x;
+	}
+	else if (x >= (r.x + r.w)) return;
+
+	if (x2 < r.x) return;
+	else if (x2 >= (r.x + r.w)) x2 = r.x + r.w - 1;
+
+	// Lock
 	LOCK_OR_QUIT(bmpDest);
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	Uint8 *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
@@ -1844,21 +1854,30 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 		return;
 	}
 
-	if (x < 0) x = 0;
-	else if (x >= bmpDest->w) x=bmpDest->w-1;
-
-	if (y < 0) y = 0;
-	else if (y >= bmpDest->h) y=bmpDest->h-1;
-
-	if (y2 < 0) y2 = 0;
-	else if (y2 >= bmpDest->h) y2=bmpDest->h-1;
-
+	// Swap the ends if necessary
 	if (y2 < y)  {
 		int tmp;
 		tmp = y;
 		y = y2;
 		y2 = tmp;
 	}
+
+	const SDL_Rect& r = bmpDest->clip_rect;
+
+	// Clipping
+	if (x < r.x) return;
+	if (x >= (r.x + r.w)) return;
+
+	if (y < r.y) { 
+		if (r.y >= y2) 
+			return;
+		y2 -= r.y - y;
+		y = r.y;
+	}
+	else if (y >= (r.y + r.h)) return;
+
+	if (y2 < r.y) return;
+	else if (y2 >= (r.y + r.h)) y2 = r.y + r.h - 1;
 
 	LOCK_OR_QUIT(bmpDest);
 	ushort pitch = (ushort)bmpDest->pitch;
