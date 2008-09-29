@@ -30,6 +30,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Clipboard.h"
+#include "Unicode.h"  // for Utf8ToSystemNative
 
 #if defined(X11) && !defined(__APPLE__)
 
@@ -377,6 +378,9 @@ void copy_to_clipboard(const std::string& text)
 	replace(text, "\n", "\r\n", str);
 	replace(str, "\r\r", "\r", str);
 
+	// Convert to system native encoding
+	str = Utf8ToSystemNative(str);
+
 	const HGLOBAL hglb = GlobalAlloc(GMEM_MOVEABLE, (str.size() + 1) * sizeof(TCHAR));
 	if(hglb == NULL) {
 		CloseClipboard();
@@ -409,7 +413,7 @@ std::string copy_from_clipboard()
 
 	GlobalUnlock(hglb);
 	CloseClipboard();
-	return std::string(buffer);
+	return SystemNativeToUtf8(std::string(buffer));
 }
 
 #endif
