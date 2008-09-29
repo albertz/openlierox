@@ -1119,6 +1119,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\OpenExternBrowser.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\RandomNumberList.h"
 				>
 			</File>
