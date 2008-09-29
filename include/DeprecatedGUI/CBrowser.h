@@ -152,7 +152,6 @@ private:
 	int						curY;
 	std::string				sCurLine;
 	SDL_Surface				*tDestSurface;
-	std::string				sTextSelection;
 
 	// Selection
 	size_t					iCursorColumn;
@@ -183,6 +182,8 @@ private:
 	void					TraverseNodes(xmlNodePtr node);
 	void					BrowseChildren(xmlNodePtr node);
 	bool					InSelection(size_t line, size_t column);
+	std::string				GetSelectedText();
+	bool					IsSelectionEmpty();
 	void					EndLine();
 
 	// Link helper functions

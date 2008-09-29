@@ -188,16 +188,17 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
 
 	// Copy to clipboard with 2-nd or 3-rd mouse button
-	if( sTextSelection != "" && 
+	std::string sel = GetSelectedText();
+	if( sel.size() != 0 && 
 		(tMouse->FirstDown & SDL_BUTTON(2) || tMouse->FirstDown & SDL_BUTTON(3)) )
 	{
-        copy_to_clipboard(sTextSelection);
+        copy_to_clipboard(sel);
 		bSelectionGrabbed = false;
 		return BRW_NONE;
 	}
 
 	// Clear the selection when clicked
-	if (sTextSelection.size() != 0 && tMouse->FirstDown & SDL_BUTTON(1))  {
+	if (sel.size() != 0 && tMouse->FirstDown & SDL_BUTTON(1))  {
 		bSelectionGrabbed = false;
 	}
 
@@ -221,6 +222,8 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 			iSelectionStartColumn = iSelectionEndColumn;
 			iSelectionEndColumn = tmp;
 		}
+
+		bCanLoseFocus = false;
 	} else {
 		iSelectionGrabColumn = iCursorColumn;
 		iSelectionGrabLine = iCursorLine;
@@ -254,7 +257,7 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 		return cScrollbar.MouseOver(tMouse);
 
 	// Check if any of the active areas has been clicked
-	if (sTextSelection.size() != 0 || !tMouse->Down)  {
+	if (!tMouse->Down)  {
 		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
 			if (it->InBox(tMouse->X, tMouse->Y))  {
 				it->DoMouseMove(tMouse->X, tMouse->Y);
@@ -284,15 +287,19 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 	return BRW_NONE;
 }
 
+//////////////////
+// Mouse up event
 int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
+	std::string sel = GetSelectedText();
+
 	// Copy to clipboard with 2-nd or 3-rd mouse button
-	if( bSelectionGrabbed && 
+	if( sel.size() != 0 && bSelectionGrabbed && 
 		(tMouse->Up & SDL_BUTTON(2) || tMouse->Up & SDL_BUTTON(3)) )
-        copy_to_clipboard(sTextSelection);
+        copy_to_clipboard(sel);
 
 	// Check if any of the active areas has been clicked
-	if (sTextSelection.size() == 0)  {
+	if (sel.size() == 0)  {
 		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
 			if (it->InBox(tMouse->X, tMouse->Y))  {
 				it->DoClick(tMouse->X, tMouse->Y);
@@ -302,6 +309,7 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 	}
 
 	bSelectionGrabbed = false;
+	bCanLoseFocus = true;
 
 	return BRW_NONE;
 }
@@ -322,7 +330,8 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
     if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c ||
 		((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT )) {
-        copy_to_clipboard(sTextSelection);
+		if (!IsSelectionEmpty())
+			copy_to_clipboard(GetSelectedText());
         return BRW_NONE;
     }
 
@@ -441,10 +450,6 @@ void CBrowser::EndLine()
 	// Check if the cursor is at the end of the line
 	if (tPureText.size() == iCursorLine && iCursorColumn >= cur_line_size)
 		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, tLX->clTextboxCursor);
-
-	// Add a newline to the selected text if necessary
-	if (InSelection(tPureText.size(), cur_line_size))
-		sTextSelection += '\n';
 
 	// Multiline link? Split it into multiple links
 	if (bInLink)  {
@@ -606,7 +611,6 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			// Draw selection
 			if (InSelection(tPureText.size(), current_column)) {
 				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), tLX->clSelection);
-				sTextSelection += GetUtf8FromUnicode(c);
 			}
 
 			// Draw the character
@@ -647,6 +651,54 @@ bool CBrowser::InSelection(size_t line, size_t column)
 		return true;
 	}
 	return false;
+}
+
+////////////////////
+// Get text of the current selection
+std::string CBrowser::GetSelectedText()
+{
+	// One line selection
+	if (iSelectionStartLine == iSelectionEndLine)  {
+		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)
+			if (iSelectionStartColumn < tPureText[iSelectionStartLine].size() && iSelectionEndColumn < tPureText[iSelectionStartLine].size())
+				return Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
+
+	// More lines
+	} else {
+		// Safety checks
+		if (iSelectionStartLine > iSelectionEndLine || iSelectionStartLine >= tPureText.size() ||
+			iSelectionEndLine >= tPureText.size())
+			return "";
+
+		std::string res;
+
+		// First line
+		if (iSelectionStartColumn < tPureText[iSelectionStartLine].size())  {
+			res += Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn);
+			res += '\n';
+		}
+
+		// All other lines
+		int diff = iSelectionEndLine - iSelectionStartLine;
+		for (int i = 1; i < diff; ++i)  {
+			res += tPureText[iSelectionStartLine + i] + "\n";
+		}
+
+		// Last line
+		if (iSelectionEndColumn < tPureText[iSelectionEndLine].size())
+			res += Utf8SubStr(tPureText[iSelectionEndLine], 0, iSelectionEndColumn);
+
+		return res;
+	}
+
+	return "";
+}
+
+///////////////////////
+// Returns true if no text is selected
+bool CBrowser::IsSelectionEmpty()
+{
+	return iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn == iSelectionEndColumn;
 }
 
 
@@ -799,7 +851,6 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	}
 	
 	tPureText.clear();
-	sTextSelection.clear();
 	tActiveAreas.clear();
 	
 	curX = iX + BORDER_SIZE;
@@ -823,7 +874,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	// Go through the document
 	sCurLine.clear();
 	TraverseNodes(tRootNode);
-	tPureText.push_back(sCurLine); // Add the last parsed line
+	EndLine(); // Add the last parsed line
 
 	int linesperbox = iHeight / tLX->cFont.GetHeight();
 	if ((int)tPureText.size() >= linesperbox)  {
