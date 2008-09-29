@@ -313,8 +313,6 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(void)
 {
-	CBytestream bs;
-
 	game_lobby_t *gl = &tGameLobby;
 
 	// Check if the details have been set yet
@@ -322,29 +320,42 @@ void GameServer::UpdateGameLobby(void)
 		return;
 
 	// TODO: move this code out here
-	bs.writeByte(S2C_UPDATELOBBYGAME);
-	bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
-	bs.writeString(gl->szMapName);
-    bs.writeString(gl->szModName);
-    bs.writeString(gl->szModDir);
-	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
-	if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
-		bs.writeByte(GMT_TEAMDEATH);
-	else if(gl->nGameMode == GMT_CTF)
-		bs.writeByte(GMT_DEATHMATCH);
-	else
-		bs.writeByte(gl->nGameMode);
-	bs.writeInt16(gl->nLives);
-	bs.writeInt16(gl->nMaxKills);
-	bs.writeInt16(gl->nLoadingTime);
-    bs.writeByte(gl->bBonuses);
-	
-	// since Beta7
-	bs.writeFloat(gl->fGameSpeed);
-	bs.writeBool(gl->bForceRandomWeapons);
-	bs.writeBool(gl->bSameWeaponsAsHostWorm);
 
-	SendGlobalPacket(&bs);
+	CServerConnection *cl = cClients;
+
+	for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
+		if(cl->getStatus() != NET_CONNECTED)
+			continue;
+
+		CBytestream bs;
+		bs.writeByte(S2C_UPDATELOBBYGAME);
+		bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
+		bs.writeString(gl->szMapName);
+	    bs.writeString(gl->szModName);
+	    bs.writeString(gl->szModDir);
+		// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
+		if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
+			bs.writeByte(GMT_TEAMDEATH);
+		else if(gl->nGameMode == GMT_CTF)
+			bs.writeByte(GMT_DEATHMATCH);
+		else
+			bs.writeByte(gl->nGameMode);
+		bs.writeInt16(gl->nLives);
+		bs.writeInt16(gl->nMaxKills);
+		bs.writeInt16(gl->nLoadingTime);
+	    bs.writeByte(gl->bBonuses);
+		
+		// since Beta7
+		if( cl->getClientVersion() >= OLXBetaVersion(7) )
+		{
+			bs.writeFloat(gl->fGameSpeed);
+			bs.writeBool(gl->bForceRandomWeapons);
+			bs.writeBool(gl->bSameWeaponsAsHostWorm);
+		}
+
+		SendPacket(&bs, cl);
+	}
+
 }
 
 
