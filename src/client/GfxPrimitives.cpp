@@ -20,6 +20,7 @@
 #include <iostream>
 #include <assert.h>
 #include <gd.h>
+#include <SDL.h>
 
 #include "LieroX.h"
 #include "MathLib.h"

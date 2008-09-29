@@ -30,6 +30,7 @@
 #include "Utils.h"
 #include "ThreadVar.h"
 #include "MathLib.h"
+#include "InputEvents.h"
 
 
 #ifdef _MSC_VER
@@ -120,6 +121,13 @@ SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
 int SdlNetEventSocketCount = 0;
 
+struct NetActivityData {
+	uint type;
+	NLsocket* socket;
+	NetActivityData(uint t, NLsocket* s) : type(t), socket(s) {}
+};
+Event<NetActivityData> OnNetActivity;
+
 static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
 	NLint len = NL_MAX_GROUP_SOCKETS;
@@ -143,15 +151,7 @@ static int SdlNetEventThreadMain( void * param )
 {
 	int buffer_size = MAX(2, SdlNetEventSocketCount);
 	NLsocket *sock_out = new NLsocket[buffer_size];
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT_NET_ACTIVITY;
-	ev.user.code = 0;
 	// save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
-	// HINT: We are casting the number to a void* because that is the type of data1
-	// It is *not* used as a pointer, it's still the number.
-	// I know this is bad, but much more easier and less error prone.
-	ev.user.data1 = (void*) (long) *(uint*)param;
-	ev.user.data2 = NULL;
 
 	// When restarting, this can happen, we wait for options to initialize
 	while (tLXOptions == NULL && !SdlNetEventThreadExit)
@@ -165,8 +165,7 @@ static int SdlNetEventThreadMain( void * param )
 		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
-				ev.user.data2 = (void*) sock_out; // save socket-nr to forward it later to the specific event-handler for this socket
-				SDL_PushEvent( &ev );
+				SendSDLUserEvent(&OnNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
 			}
 			else
 				printf("WARNING: net-event-system: invalid socket\n");
@@ -839,8 +838,10 @@ struct NLaddress_ex_t {
 };
 
 
+Event<> OnDnsReady;
+
 // copied from HawkNL sock.c and modified for usage of SmartPointer
-static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
+static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
 {
     NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
 
@@ -853,12 +854,7 @@ static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 
 	if(SdlNetEvent_Inited) {
 		// push a net event
-		SDL_Event ev;
-		ev.type = SDL_USEREVENT_NET_ACTIVITY;
-		ev.user.code = 0;
-		ev.user.data1 = NULL;
-		ev.user.data2 = NULL;
-		SDL_PushEvent( &ev );
+		SendSDLUserEvent(&OnDnsReady, EventData());
     }
 
     delete address;
@@ -893,7 +889,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
     addr_ex->name = name;
     addr_ex->address = *NetworkAddrData(&addr);
 
-	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsyncInt, addr_ex, true);
+	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsync_Internal, addr_ex, true);
     if(thread == NULL)
         return false;
     return true;

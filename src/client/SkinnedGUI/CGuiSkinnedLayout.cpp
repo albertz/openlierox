@@ -91,7 +91,7 @@ void CGuiSkinnedLayout::Add(CWidget *widget)
 
 	// Send a "Widget added" message to call DoCreate
 	if (bCreated)
-		SendSDLUserEvent(&cMainSkin->OnAddWidget, SDLUserEventData(widget));
+		SendSDLUserEvent(&cMainSkin->OnAddWidget, CGuiSkin::WidgetData(this, widget));
 }
 
 
@@ -412,7 +412,7 @@ int CGuiSkinnedLayout::DoChildDestroyed(CWidget *child)
 
 	// We cannot destroy the child now because it called us (i.e. its function is still running)
 	// Just send a self-reminder
-	SendSDLUserEvent(&cMainSkin->OnDestoryWidget, SDLUserEventData(child));
+	SendSDLUserEvent(&cMainSkin->OnDestoryWidget, CGuiSkin::WidgetData(this, child));
 
 	return WID_PROCESSED;
 }

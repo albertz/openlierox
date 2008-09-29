@@ -99,6 +99,7 @@ public:
 	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }
 
 	void occurred(_Data data) { m_handler.get()(data); }
+	void occurred_general(void* data) {  }
 };
 
 

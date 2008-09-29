@@ -289,14 +289,14 @@ void CGuiSkin::SDL_OnMouseButtonUp(SDL_Event* ev) {
 
 }
 
-void CGuiSkin::SDL_OnAddWidget(SDLUserEventData ev) {
+void CGuiSkin::SDL_OnAddWidget(WidgetData ev) {
 	if(!cActiveLayout) return;
-	cActiveLayout->DoChildAddEvent((CWidget *)ev.data);	
+	cActiveLayout->DoChildAddEvent(ev.widget);	
 }
 
-void CGuiSkin::SDL_OnDestoryWidget(SDLUserEventData ev) {
+void CGuiSkin::SDL_OnDestoryWidget(WidgetData ev) {
 	if(!cActiveLayout) return;
-	cActiveLayout->DoChildDestroyEvent((CWidget *)ev.data);
+	cActiveLayout->DoChildDestroyEvent(ev.widget);
 }
 
 }; // namespace SkinnedGUI

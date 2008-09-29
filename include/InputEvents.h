@@ -117,21 +117,36 @@ void		UnregisterCInput(CInput* input);
 bool		ApplicationHasFocus();
 
 
-struct SDLUserEventData {
-	void* data;
-	SDLUserEventData(void* d = NULL) : data(d) {}
+
+class SDLUserEventHandler {
+public:
+	virtual void handle() = 0;
+	virtual ~SDLUserEventHandler() {}
 };
 
-typedef Event<SDLUserEventData> SDLUserEvent;
+template< typename _Data = EventData >
+class SDLSpecificUserEventHandler : public SDLUserEventHandler {
+public:
+	Event<_Data>* m_event;
+	_Data m_data;
+	SDLSpecificUserEventHandler(Event<_Data>* e, _Data d) : m_event(e), m_data(d) {}
+	virtual void handle() {
+		m_event->occurred( m_data );
+	}
+};
 
-inline void SendSDLUserEvent(SDLUserEvent* event, SDLUserEventData data) {
+
+template< typename _Data >
+inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = 0;
-	ev.user.data1 = event;
-	ev.user.data2 = data.data;
+	ev.user.data1 = new SDLSpecificUserEventHandler<_Data>(event, data); // TODO: we should use an own allocator here to improve performance
+	ev.user.data2 = NULL;
 	SDL_PushEvent(&ev);
 }
+
+extern Event<> OnDummyEvent;
 
 
 #endif

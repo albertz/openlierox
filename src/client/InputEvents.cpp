@@ -98,6 +98,7 @@ MouseButton SDLButtonToMouseButton(int sdlbut)
 
 SDLEvent sdlEvents[SDL_NUMEVENTS];
 
+Event<> OnDummyEvent;
 
 static std::set<CInput*> cInputs;
 
@@ -360,7 +361,8 @@ static void EvHndl_SysWmEvent(SDL_Event* ev) {
 static void EvHndl_VideoExpose(SDL_Event*) {}
 
 static void EvHndl_UserEvent(SDL_Event* ev) {
-	((SDLUserEvent*)ev->user.data1)->occurred( SDLUserEventData(ev->user.data2) );
+	((SDLUserEventHandler*)ev->user.data1)->handle();
+	delete (SDLUserEventHandler*)ev->user.data1;
 }
 
 void InitEventSystem() {

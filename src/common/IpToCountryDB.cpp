@@ -25,14 +25,14 @@
 #include "StringUtils.h"
 #include "CsvReader.h"
 #include "Timer.h"
+#include "InputEvents.h"
+
 
 #ifdef _MSC_VER  // MSVC 6 has problems with from_string<Uint32>
 typedef unsigned int Ip;
 #else
 typedef Uint32 Ip;
 #endif
-
-enum { SDL_USEREVENT_IPDBLOADED = SDL_USEREVENT + 3 };
 
 struct DBEntry {
 	Ip			RangeFrom;
@@ -221,12 +221,7 @@ public:
 		_this->dbReady = true;
 
 		// Notify that the DB has been loaded
-		SDL_Event ev;
-		ev.type = SDL_USEREVENT_IPDBLOADED;
-		ev.user.code = 0;
-		ev.user.data1 = NULL;
-		ev.user.data2 = NULL;
-		SDL_PushEvent(&ev);
+		SendSDLUserEvent(&OnDummyEvent, EventData());
 
 		return 0;
 	}

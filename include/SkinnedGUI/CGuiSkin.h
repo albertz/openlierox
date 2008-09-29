@@ -48,18 +48,23 @@ public:
 	const std::string& getAuthor()	{ return sAuthor; }
 	std::string getSkinFilePath(const std::string& file);
 
+	// public events
+	struct WidgetData {
+		void* owner;
+		CWidget* widget;
+		WidgetData(void* o, CWidget* w) : owner(o), widget(w) {}
+	};
+	Event<WidgetData> OnAddWidget;
+	Event<WidgetData> OnDestoryWidget;
+
 	// Event handlers
 	void SDL_OnKeyDown(SDL_Event *ev);
 	void SDL_OnKeyUp(SDL_Event *ev);
 	void SDL_OnMouseMotion(SDL_Event* ev);
 	void SDL_OnMouseButtonDown(SDL_Event* ev);
 	void SDL_OnMouseButtonUp(SDL_Event* ev);
-	void SDL_OnAddWidget(SDLUserEventData ev);
-	void SDL_OnDestoryWidget(SDLUserEventData ev);
-
-	// public events
-	SDLUserEvent OnAddWidget;
-	SDLUserEvent OnDestoryWidget;
+	void SDL_OnAddWidget(WidgetData ev);
+	void SDL_OnDestoryWidget(WidgetData ev);
 
 	void Frame();
 

@@ -262,7 +262,7 @@ public:
 	// Repaint the widget
 	void Repaint();
 
-	SDLUserEvent OnNeedRepaint;
+	Event<> OnNeedRepaint;
 
 	// Destroy the widget
 	void Destroy();
