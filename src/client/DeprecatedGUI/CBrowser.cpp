@@ -906,7 +906,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 // Initialize as a chatbox
 void CBrowser::InitializeChatbox()
 {
-	tData = "<html><body bgcolor=\"#ff00ff\"></body></html>"; // Transparent background
+	tData = "<html><body bgcolor=\"transparent\"></body></html>"; // Transparent background
 	Parse();
 }
 
