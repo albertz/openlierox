@@ -401,7 +401,7 @@ void CBrowser::EndLine()
 
 	// Check if the cursor is at the end of the line
 	if (tPureText.size() == iCursorLine && iCursorColumn >= cur_line_size)
-		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, Color(255, 0, 0));
+		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, tLX->clTextboxCursor);
 
 	// Add a newline to the selected text if necessary
 	if (InSelection(tPureText.size(), cur_line_size))
@@ -483,7 +483,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 			// Draw selection
 			if (InSelection(tPureText.size(), current_column)) {
-				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), Color(0, 255, 255));
+				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), tLX->clSelection);
 				sTextSelection += GetUtf8FromUnicode(c);
 			}
 
@@ -500,7 +500,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 			// Cursor
 			if (tPureText.size() == iCursorLine && current_column == iCursorColumn)
-				DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, Color(255, 0, 0));
+				DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, tLX->clTextboxCursor);
 
 			curX += w;
 			++current_column;
@@ -657,7 +657,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	tDestSurface = bmpDest;
 	tCurrentFormat.bold = false; 
 	tCurrentFormat.underline = false;
-  	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clChatText);
+	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
 	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
