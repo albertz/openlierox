@@ -118,7 +118,8 @@ private:
 	void				Parse(void);
 	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
 	
-	// TODO: why do we need this?
+	// Internal functions for glyph drawing, first one for normal fonts, second one for outline fonts
+	// These do the fast glyph blit without any additional checks or clipping
 	void				DrawGlyphNormal_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
 	void				DrawGlyphOutline_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter);
 };
