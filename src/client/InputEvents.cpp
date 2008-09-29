@@ -205,7 +205,7 @@ typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 
 static void EvHndl_ActiveEvent(SDL_Event* ev) {
-	if(!(ev->active.state & SDL_APPMOUSEFOCUS))  {
+	if(ev->active.state & ~SDL_APPMOUSEFOCUS)  {
 			bool hadFocusBefore = nFocus;
 			nFocus = sdl_event.active.gain != 0;
 			bActivated = nFocus != 0;
@@ -218,7 +218,10 @@ static void EvHndl_ActiveEvent(SDL_Event* ev) {
 			Mouse.Up = 0;
 
 			if(!hadFocusBefore && nFocus) {
+				//cout << "OpenLieroX got the focus" << endl;
 				ClearUserNotify();
+			} else if(hadFocusBefore && !nFocus) {
+				//cout << "OpenLieroX lost the focus" << endl;
 			}
 	}
 }

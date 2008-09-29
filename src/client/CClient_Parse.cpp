@@ -1712,6 +1712,8 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		fclose(f);
 	}
 	
+	NotifyUserOnEvent();
+	
 }
 
 
