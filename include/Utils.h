@@ -125,6 +125,22 @@ public:
 	_Obj* overtake() { _Obj* r = m_obj; m_obj = NULL; return r; } // this resets the Ref and returns the old pointer without deleting it
 };
 
+template <typename _dst, typename _src>
+_dst* simple_dyn_cast(_src* ptr) {
+	_dst tmp;
+	if(memcmp(ptr, &tmp, sizeof(_src)) == 0) { // compare vtable and stuff
+		return (_dst*)ptr;
+	}
+	return NULL;
+}
+
+template <typename _dst, typename _src>
+_dst* simple_dyn_cast(_src* ptr, _dst* base) {
+	if(memcmp(ptr, base, sizeof(_src)) == 0) { // compare vtable and stuff
+		return (_dst*)ptr;
+	}
+	return NULL;
+}
 
 
 /*

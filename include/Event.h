@@ -41,17 +41,17 @@ protected:
 	class Handler_NoOp : public Handler {
 	public:
 		virtual void operator()(_Data) {}
-		virtual bool operator==(const Handler& hndl) { return dynamic_cast<const Handler_NoOp*>(&hndl) != NULL; }
+		virtual bool operator==(const Handler& hndl) { return simple_dyn_cast(&hndl, this) != NULL; }
 	};
 	
 	class Handler_Joined : public Handler {
 	public:
 		Ref<Handler> m_handler1, m_handler2;
 
-		Handler_Joined(Handler* h1, Handler* h2) : m_handler1(h1), m_handler2(h2) {}
+		Handler_Joined(Handler* h1 = NULL, Handler* h2 = NULL) : m_handler1(h1), m_handler2(h2) {}
 		virtual void operator()(_Data data) { m_handler1.get()(data); m_handler2.get()(data); }
 		virtual bool operator==(const Handler& hndl) {
-			const Handler_Joined* hPtr = dynamic_cast<const Handler_Joined*>(&hndl);
+			const Handler_Joined* hPtr = simple_dyn_cast(&hndl, this);
 			if(hPtr == NULL) return false;
 			return m_handler1.get() == hPtr->m_handler1.get() && m_handler2.get() == hPtr->m_handler2.get();
 		}
@@ -67,7 +67,7 @@ protected:
 		HandlerAccessor& operator-=(Handler* h) {			
 			Ref<Handler>* base = &m_handler;
 			Handler_Joined* joined;
-			while((joined = dynamic_cast<Handler_Joined*>(&base->get())) != NULL) {
+			while((joined = simple_dyn_cast<Handler_Joined>(&base->get())) != NULL) {
 				if(joined->m_handler2.get() == *h) {
 					*base = joined->m_handler1.overtake();
 					delete h;
@@ -115,7 +115,7 @@ public:
 
 	virtual void operator()(_Data data) { (*m_obj.*m_fct)(data); }
 	virtual bool operator==(const typename Event<_Data>::Handler& hndl) {
-		const MemberFunction* hPtr = dynamic_cast<const MemberFunction*>(&hndl);
+		const MemberFunction* hPtr = simple_dyn_cast(&hndl, this);
 		if(hPtr == NULL) return false;
 		return hPtr->m_obj == m_obj && hPtr->m_fct == m_fct;
 	}
@@ -134,7 +134,7 @@ public:
 
 	virtual void operator()(_Data data) { (m_fct)(data); }
 	virtual bool operator==(const typename Event<_Data>::Handler& hndl) {
-		const StaticFunction* hPtr = dynamic_cast<const StaticFunction*>(&hndl);
+		const StaticFunction* hPtr = simple_dyn_cast(&hndl, this);
 		if(hPtr == NULL) return false;
 		return hPtr->m_fct == m_fct;
 	}
