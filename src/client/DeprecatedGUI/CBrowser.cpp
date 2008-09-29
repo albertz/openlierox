@@ -74,6 +74,8 @@ void CBrowser::LoadFromHTTP(const std::string& url)
 	sURL = cHttp.GetUrl();
 }
 
+/////////////////////////
+// Load the contents from a file
 void CBrowser::LoadFromFile(const std::string& file)
 {
 	tData.clear();
@@ -83,6 +85,7 @@ void CBrowser::LoadFromFile(const std::string& file)
 		return;
 
 	sURL = file;
+	sHostName = "";
 	(*fp) >> tData;
 
 	fp->close();
@@ -92,14 +95,19 @@ void CBrowser::LoadFromFile(const std::string& file)
 	Parse();
 }
 
+////////////////////////
+// Load the contents from a data string
 void CBrowser::LoadFromString(const std::string& data)
 {
+	sHostName = "";
 	sURL = "";
 	tData = data;
 	bFinished = true;
 	Parse();
 }
 
+/////////////////////////
+// Append data to the browser
 void CBrowser::AppendData(const std::string& data)
 {
 	tData += data;
@@ -890,13 +898,20 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	SDL_SetClipRect(bmpDest, NULL);
 }
 
-	// Chatbox routines
+//
+// Chatbox routines
+//
+
+//////////////////////////
+// Initialize as a chatbox
 void CBrowser::InitializeChatbox()
 {
 	tData = "<html><body bgcolor=\"#ff00ff\"></body></html>"; // Transparent background
 	Parse();
 }
 
+///////////////////////////////
+// Add a new line to the browser
 void CBrowser::AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline)
 {
 	if (!tHtmlDocument || !tRootNode)
@@ -917,6 +932,8 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, bool bold, 
 	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
 }
 
+//////////////////////
+// Get all the text from the chatbox browser
 std::string CBrowser::GetChatBoxText()
 {
 	if (!tHtmlDocument || !tRootNode)
