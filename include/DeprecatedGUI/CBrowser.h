@@ -56,8 +56,8 @@ public:
 	  iSelectionStartColumn(0),
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
-	  bInLink(false),
-	  bSelectionGrabbed(false)
+	  bSelectionGrabbed(false),
+	  bInLink(false)
 	  {
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;
