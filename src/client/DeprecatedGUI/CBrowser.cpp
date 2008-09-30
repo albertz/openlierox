@@ -211,6 +211,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 
 	// Clear the selection when clicked
 	if (sel.size() != 0 && tMouse->FirstDown & SDL_BUTTON(1))  {
+		ClearSelection();
 		bSelectionGrabbed = false;
 	}
 
@@ -241,19 +242,11 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		iSelectionGrabLine = iCursorLine;
 
 		// Destroy any previous selection
-		iSelectionStartColumn = iSelectionEndColumn = iCursorColumn;
-		iSelectionStartLine = iSelectionEndLine = iCursorLine;
+		ClearSelection();
 	}
 
-	// Scroll down/up if necessary
-	if (bUseScroll && tLX->fCurTime - fLastMouseScroll >= 0.1f)  {
-		if ((int)iCursorLine >= cScrollbar.getValue() + cScrollbar.getItemsperbox())
-			cScrollbar.setValue((int)iCursorLine - cScrollbar.getItemsperbox() + 1);
-		else if ((int)iCursorLine < cScrollbar.getValue())
-			cScrollbar.setValue(iCursorLine);
-
-		fLastMouseScroll = tLX->fCurTime;
-	}
+	// Scroll if necessary
+	AdjustScrollbar(true);
 
 	bSelectionGrabbed = true;
 
@@ -330,17 +323,92 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 // Mouse wheel down event
 int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
+	size_t oldline = iCursorLine;
+	size_t oldcol = iCursorColumn;
+
 	switch (keysym)  {
 	case SDLK_DOWN:
 		if (iCursorLine < tPureText.size() - 1)  {
 			++iCursorLine;
 			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
+			AdjustScrollbar();
+
+			if (modstate.bShift)  {
+				// TODO: selection
+			} else {
+				ClearSelection();
+			}
 		}
 	return BRW_NONE;
 	case SDLK_UP:
 		if (iCursorLine > 0)  {
 			--iCursorLine;
 			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
+			AdjustScrollbar();
+
+			if (modstate.bShift)  {
+				// TODO: selection
+			} else {
+				ClearSelection();
+			}
+		}
+	return BRW_NONE;
+
+	case SDLK_RIGHT:
+		if (iCursorLine < tPureText.size())  {
+			if (iCursorColumn >= tPureText[iCursorLine].size())  {
+				if  (iCursorLine < tPureText.size() - 1)  {
+					iCursorColumn = 0;
+					++iCursorLine;
+					AdjustScrollbar();
+				}
+			} else {
+				++iCursorColumn;
+			}
+
+			if (modstate.bShift)  {
+				// There is a selection and the cursor is at the beginning of it
+				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionStartLine = iCursorLine;
+					iSelectionStartColumn = iCursorColumn;
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionEndLine = iCursorLine;
+					iSelectionEndColumn = iCursorColumn;
+				}
+			} else {
+				ClearSelection();
+			}
+		}
+	return BRW_NONE;
+
+	case SDLK_LEFT:
+		if (iCursorLine >= 0)  {
+			if (iCursorColumn == 0)  {
+				if  (iCursorLine > 0)  {
+					--iCursorLine;
+					iCursorColumn = MAX(0, (int)tPureText[iCursorLine].size() - 1);
+					AdjustScrollbar();
+				}
+			} else {
+				--iCursorColumn;
+			}
+
+			if (modstate.bShift)  {
+				// There is a selection and the cursor is at the end of it
+				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionEndLine = iCursorLine;
+					iSelectionEndColumn = iCursorColumn;
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionStartLine = iCursorLine;
+					iSelectionStartColumn = iCursorColumn;
+				}
+			} else {
+				ClearSelection();
+			}
 		}
 	return BRW_NONE;
 	}
@@ -412,6 +480,8 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 
 			++column;
 		}
+
+		//column = MAX((size_t)0, MIN(column, tPureText[line].size() - 1));
 	}
 
 	cur_x = column;
@@ -678,7 +748,7 @@ std::string CBrowser::GetSelectedText()
 	// One line selection
 	if (iSelectionStartLine == iSelectionEndLine)  {
 		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)
-			if (iSelectionStartColumn < tPureText[iSelectionStartLine].size() && iSelectionEndColumn < tPureText[iSelectionStartLine].size())
+			if (iSelectionStartColumn < tPureText[iSelectionStartLine].size() && iSelectionEndColumn <= tPureText[iSelectionStartLine].size())
 				return Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
 
 	// More lines
@@ -712,11 +782,41 @@ std::string CBrowser::GetSelectedText()
 	return "";
 }
 
+
+//////////////////////
+// Destroys any selection
+void CBrowser::ClearSelection()
+{
+	iSelectionStartLine = iSelectionEndLine = iSelectionGrabLine = iCursorLine;
+	iSelectionStartColumn = iSelectionEndColumn = iSelectionGrabColumn = iCursorColumn;
+}
+
 ///////////////////////
 // Returns true if no text is selected
 bool CBrowser::IsSelectionEmpty()
 {
 	return iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn == iSelectionEndColumn;
+}
+
+////////////////////////
+// Makes sure that the line with the cursor is visible
+void CBrowser::AdjustScrollbar(bool mouse)
+{
+	if (!bUseScroll)
+		return;
+
+	// If scrolling using mouse, don't scroll so fast
+	if (mouse && tLX->fCurTime - fLastMouseScroll <= 0.1f)
+		return;
+
+	// Scroll down/up if necessary
+	if ((int)iCursorLine >= cScrollbar.getValue() + cScrollbar.getItemsperbox())
+		cScrollbar.setValue((int)iCursorLine - cScrollbar.getItemsperbox() + 1);
+	else if ((int)iCursorLine < cScrollbar.getValue())
+		cScrollbar.setValue(iCursorLine);
+
+	if (mouse)
+		fLastMouseScroll = tLX->fCurTime;
 }
 
 

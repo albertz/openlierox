@@ -186,7 +186,9 @@ private:
 	bool					InSelection(size_t line, size_t column);
 	std::string				GetSelectedText();
 	bool					IsSelectionEmpty();
+	void					ClearSelection();
 	void					EndLine();
+	void					AdjustScrollbar(bool mouse = false);
 
 	// Link helper functions
 	void					StartLink(const std::string& url);
