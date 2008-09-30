@@ -23,6 +23,7 @@
 #include "CWorm.h"
 #include "CShootList.h"
 #include "CClient.h"
+#include "CServerNetEngine.h"
 
 
 class GameServer;
@@ -68,6 +69,8 @@ public:
 		bGameReady = false;
 
 		fLastFileRequest = fConnectTime = tLX->fCurTime;
+		
+		cNetEngine = new CServerNetEngine( server, this );
 	}
 
 	~CServerConnection()  {
@@ -78,6 +81,7 @@ public:
 private:
 	// Attributes
 	GameServer 	*server;
+	CServerNetEngine *cNetEngine;
 	
 	// Local Worms (pointers to specific CServer::cWorms)
 	uint		iNumWorms;
@@ -128,6 +132,12 @@ public:
 	// Variables
 	CChannel	*getChannel(void)			{ return cNetChan; }
 	CChannel	*createChannel(const Version& v);
+	
+	CServerNetEngine * getNetEngine()		{ return cNetEngine; }
+	void		setNetEngineFromClientVersion();
+	void		setOldNetEngine()	{ if(cNetEngine) delete cNetEngine; cNetEngine = new CServerNetEngine( server, this ); };
+	void		setBeta7NetEngine()	{ if(cNetEngine) delete cNetEngine; cNetEngine = new CServerNetEngineBeta7( server, this ); };
+	
 	int			getStatus(void)				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }

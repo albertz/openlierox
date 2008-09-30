@@ -1764,12 +1764,10 @@ void CClient::setNetEngineFromServerVersion()
 {
 	if( getServerVersion() >= OLXBetaVersion(7) )
 	{
-		printf("Set Beta7 net engine\n");
 		setBeta7NetEngine();
 	}
 	else
 	{
-		printf("Set pre-Beta7 net engine\n");
 		setOldNetEngine();
 	}
 };

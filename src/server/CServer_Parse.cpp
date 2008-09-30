@@ -47,7 +47,7 @@ using namespace std;
 
 ///////////////////
 // Parses a general packet
-void GameServer::ParseClientPacket(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseClientPacket(CBytestream *bs) {
 
 	// TODO: That's hack, all processing should be done in CChannel_056b
 	// Maybe server will work without that code at all, should check against 0.56b
@@ -65,13 +65,13 @@ void GameServer::ParseClientPacket(CServerConnection *cl, CBytestream *bs) {
 		return;
 
 	// Parse the packet messages
-	ParsePacket(cl, bs);
+	ParsePacket(bs);
 }
 
 
 ///////////////////
 // Parse a packet
-void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParsePacket(CBytestream *bs) {
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
@@ -81,49 +81,49 @@ void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
 
 			// Client is ready
 		case C2S_IMREADY:
-			ParseImReady(cl, bs);
+			server->ParseImReady(cl, bs);
 			break;
 
 			// Update packet
 		case C2S_UPDATE:
-			ParseUpdate(cl, bs);
+			server->ParseUpdate(cl, bs);
 			break;
 
 			// Death
 		case C2S_DEATH:
-			ParseDeathPacket(cl, bs);
+			server->ParseDeathPacket(cl, bs);
 			break;
 
 			// Chat text
 		case C2S_CHATTEXT:
-			ParseChatText(cl, bs);
+			server->ParseChatText(cl, bs);
 			break;
 
 		case C2S_CHATCMDCOMPLREQ:
-			ParseChatCommandCompletionRequest(cl, bs);	
+			server->ParseChatCommandCompletionRequest(cl, bs);	
 			break;
 
 		case C2S_AFK:
-			ParseAFK(cl, bs);	
+			server->ParseAFK(cl, bs);	
 			break;
 
 			// Update lobby
 		case C2S_UPDATELOBBY:
-			ParseUpdateLobby(cl, bs);
+			server->ParseUpdateLobby(cl, bs);
 			break;
 
 			// Disconnect
 		case C2S_DISCONNECT:
-			ParseDisconnect(cl);
+			server->ParseDisconnect(cl);
 			break;
 
 			// Bonus grabbed
 		case C2S_GRABBONUS:
-			ParseGrabBonus(cl, bs);
+			server->ParseGrabBonus(cl, bs);
 			break;
 
 		case C2S_SENDFILE:
-			ParseSendFile(cl, bs);
+			server->ParseSendFile(cl, bs);
 			break;
 
 		default:
@@ -146,7 +146,7 @@ void GameServer::ParsePacket(CServerConnection *cl, CBytestream *bs) {
 				if (bs->readInt(3) == 0xffffff) {
 					std::string address;
 					NetAddrToString(cl->getChannel()->getAddress(), address);
-					ParseConnectionlessPacket(cl->getChannel()->getSocket(), bs, address);
+					server->ParseConnectionlessPacket(cl->getChannel()->getSocket(), bs, address);
 					break;
 				}
 
@@ -948,238 +948,240 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 
 	// Connect
-	if (newcl) {
+	if (!newcl)
+		return;
 
-		Version clientVersion = clientVersionStr;
+	Version clientVersion = clientVersionStr;
 
-		std::string addrFromStr;
-		NetAddrToString(adrFrom, addrFromStr);
+	std::string addrFromStr;
+	NetAddrToString(adrFrom, addrFromStr);
 
-		// TODO: this is a bad hack, fix it
-		// If this is the first client connected, it is our local client
-		if (!bLocalClientConnected)  {
-			if (addrFromStr.find("127.0.0.1") == 0)  { // Safety: check the IP
-				newcl->setLocalClient(true);
-				bLocalClientConnected = true;
-				printf("GameServer: our local client has connected\n");
-			}
-		} else {
-			newcl->setLocalClient(false);
-			printf("GameServer: new %s client connected from %s\n", clientVersion.asString().c_str(), addrFromStr.c_str());
+	// TODO: this is a bad hack, fix it
+	// If this is the first client connected, it is our local client
+	if (!bLocalClientConnected)  {
+		if (addrFromStr.find("127.0.0.1") == 0)  { // Safety: check the IP
+			newcl->setLocalClient(true);
+			bLocalClientConnected = true;
+			printf("GameServer: our local client has connected\n");
 		}
+	} else {
+		newcl->setLocalClient(false);
+		printf("GameServer: new %s client connected from %s\n", clientVersion.asString().c_str(), addrFromStr.c_str());
+	}
 
-		if( ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
-		{	// This should not happen - just in case
-			printf("Cannot create CChannel for client - invalid client version %s\n", clientVersion.asString().c_str() );
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
-			bytestr.Send(tSocket);
-			return;
-		};
-
-		newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
-
-		newcl->getChannel()->Create(&adrFrom, tSocket);
-		newcl->setLastReceived(tLX->fCurTime);
-		newcl->setNetSpeed(iNetSpeed);
-
-		newcl->setClientVersion( clientVersion );
-
-		newcl->setStatus(NET_CONNECTED);
-
-		newcl->getRights()->Nothing();  // Reset the rights here
-
-		// Set the worm info
-		newcl->setNumWorms(numworms);
-		//newcl->SetupWorms(numworms, worms);
-
-		
-		// Find spots in our list for the worms
-		int ids[MAX_PLAYERS];
-		int i;
-		int id = 0;
-		for (i = 0;i < numworms;i++) {
-
-			w = cWorms;
-			for (p = 0;p < MAX_WORMS;p++, w++) {
-				if (w->isUsed())
-					continue;
-
-				w->readInfo(bs);
-				// If bots aren't allowed, disconnect the client
-				if (w->getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
-					printf("Bot was trying to connect\n");
-					bytestr.Clear();
-					bytestr.writeInt(-1, 4);
-					bytestr.writeString("lx::badconnect");
-					bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
-					bytestr.Send(tSocket);
-					
-					RemoveClient(newcl);
-					return;
-				}
-				
-				w->setID(p);
-				id = p;
-				w->setClient(newcl);
-				w->setUsed(true);
-				w->setupLobby();
-				if (tGameInfo.iGameType == GME_HOST) // TODO: why only when hosting?
-					w->setTeam(0);
-				newcl->setWorm(i, w);
-				ids[i] = p;
-
-				break;
-			}
-		}
-		
-		for (i = 0;i < numworms;i++) {
-			if( DedicatedControl::Get() )
-				DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
-		}
-
-		iNumPlayers = numplayers + numworms;
-
-		// Let em know they connected good
+	if( ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
+	{	// This should not happen - just in case
+		printf("Cannot create CChannel for client - invalid client version %s\n", clientVersion.asString().c_str() );
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::goodconnection");
-
-		// Tell the client the id's of the worms
-		for (i = 0;i < numworms;i++)
-			bytestr.writeInt(ids[i], 1);
-
+		bytestr.writeString("lx::badconnect");
+		bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
 		bytestr.Send(tSocket);
+		return;
+	};
 
-		// Let them know our version
-		bytestr.Clear();
-		bytestr.writeInt(-1, 4);
-		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
-		// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
-		bytestr.writeString("lx::openbeta3");
-		// sadly we have to send this for Beta4
-		// we are sending the version string already in the challenge
-		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::version");
-		bytestr.writeString(GetFullGameName());
-		bytestr.Send(tSocket);
+	newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
 
-		if (tLXOptions->bAllowMouseAiming)
-		{
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx:mouseAllowed");
-			bytestr.Send(tSocket);
-		}
+	newcl->getChannel()->Create(&adrFrom, tSocket);
+	newcl->setLastReceived(tLX->fCurTime);
+	newcl->setNetSpeed(iNetSpeed);
 
-		if (tLXOptions->bAllowStrafing)
-		{
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx:strafingAllowed");
-			bytestr.Send(tSocket);
-		}
+	newcl->setClientVersion( clientVersion );
 
+	newcl->setStatus(NET_CONNECTED);
 
-		// Tell all the connected clients the info about these worm(s)
-		bytestr.Clear();
+	newcl->getRights()->Nothing();  // Reset the rights here
 
-		//
-		// Resend data about all worms to everybody
-		// This is so the new client knows about all the worms
-		// And the current client knows about the new worms
-		//
+	// Set the worm info
+	newcl->setNumWorms(numworms);
+	//newcl->SetupWorms(numworms, worms);
+
+	
+	// Find spots in our list for the worms
+	int ids[MAX_PLAYERS];
+	int id = 0;
+	for (i = 0;i < numworms;i++) {
+
 		w = cWorms;
-		for (i = 0;i < MAX_WORMS;i++, w++) {
-
-			if (!w->isUsed())
+		for (p = 0;p < MAX_WORMS;p++, w++) {
+			if (w->isUsed())
 				continue;
 
-			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt(w->getID(), 1);
-			w->writeInfo(&bytestr);
+			w->readInfo(bs);
+			// If bots aren't allowed, disconnect the client
+			if (w->getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
+				printf("Bot was trying to connect\n");
+				bytestr.Clear();
+				bytestr.writeInt(-1, 4);
+				bytestr.writeString("lx::badconnect");
+				bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
+				bytestr.Send(tSocket);
+				
+				RemoveClient(newcl);
+				return;
+			}
+			
+			w->setID(p);
+			id = p;
+			w->setClient(newcl);
+			w->setUsed(true);
+			w->setupLobby();
+			if (tGameInfo.iGameType == GME_HOST) // TODO: why only when hosting?
+				w->setTeam(0);
+			newcl->setWorm(i, w);
+			ids[i] = p;
+
+			break;
 		}
+	}
+	
+	for (i = 0;i < numworms;i++) {
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
+	}
 
-		SendGlobalPacket(&bytestr);
+	iNumPlayers = numplayers + numworms;
+
+	// Let em know they connected good
+	bytestr.Clear();
+	bytestr.writeInt(-1, 4);
+	bytestr.writeString("lx::goodconnection");
+
+	// Tell the client the id's of the worms
+	for (i = 0;i < numworms;i++)
+		bytestr.writeInt(ids[i], 1);
+
+	bytestr.Send(tSocket);
+
+	// Let them know our version
+	bytestr.Clear();
+	bytestr.writeInt(-1, 4);
+	// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
+	// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
+	bytestr.writeString("lx::openbeta3");
+	// sadly we have to send this for Beta4
+	// we are sending the version string already in the challenge
+	bytestr.writeInt(-1, 4);
+	bytestr.writeString("lx::version");
+	bytestr.writeString(GetFullGameName());
+	bytestr.Send(tSocket);
+
+	if (tLXOptions->bAllowMouseAiming)
+	{
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx:mouseAllowed");
+		bytestr.Send(tSocket);
+	}
+
+	if (tLXOptions->bAllowStrafing)
+	{
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx:strafingAllowed");
+		bytestr.Send(tSocket);
+	}
 
 
-		std::string buf;
-		// "Has connected" message
-		if (networkTexts->sHasConnected != "<none>")  {
-			for (i = 0;i < numworms;i++) {
-				buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
-				SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
-			}
+	// Tell all the connected clients the info about these worm(s)
+	bytestr.Clear();
+
+	//
+	// Resend data about all worms to everybody
+	// This is so the new client knows about all the worms
+	// And the current client knows about the new worms
+	//
+	w = cWorms;
+	for (i = 0;i < MAX_WORMS;i++, w++) {
+
+		if (!w->isUsed())
+			continue;
+
+		bytestr.writeByte(S2C_WORMINFO);
+		bytestr.writeInt(w->getID(), 1);
+		w->writeInfo(&bytestr);
+	}
+
+	SendGlobalPacket(&bytestr);
+
+
+	std::string buf;
+	// "Has connected" message
+	if (networkTexts->sHasConnected != "<none>")  {
+		for (i = 0;i < numworms;i++) {
+			buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
 		}
+	}
 
-		// Welcome message
-		buf = tGameInfo.sWelcomeMessage;
-		if (buf.size() > 0)  {
+	// Welcome message
+	buf = tGameInfo.sWelcomeMessage;
+	if (buf.size() > 0)  {
 
-			// Server name3
-			replacemax(buf, "<server>", tGameInfo.sServername, buf, 1);
+		// Server name3
+		replacemax(buf, "<server>", tGameInfo.sServername, buf, 1);
 
-			// Host name
-			replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
+		// Host name
+		replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
 
-			// Country
-			if (buf.find("<country>") != std::string::npos)  {
-				IpInfo info;
-				std::string str_addr;
-				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-				if (str_addr != "")  {
-					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-					replacemax(buf, "<country>", info.Country, buf, 1);
-				}
-			}
-
-			// Continent
-			if (buf.find("<continent>") != std::string::npos)  {
-				IpInfo info;
-				std::string str_addr;
-				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-				if (str_addr != "")  {
-					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-					replacemax(buf, "<continent>", info.Continent, buf, 1);
-				}
-			}
-
-
-			// Address
+		// Country
+		if (buf.find("<country>") != std::string::npos)  {
+			IpInfo info;
 			std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-			// Remove port
-			size_t pos = str_addr.rfind(':');
-			if (pos != std::string::npos)
-				str_addr.erase(pos);
-			replacemax(buf, "<ip>", str_addr, buf, 1);
-
-			for (int i = 0; i < numworms; i++)  {
-				// Player name
-				// Send the welcome message
-				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1)),
-								TXT_NETWORK);
+			if (str_addr != "")  {
+				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+				replacemax(buf, "<country>", info.Country, buf, 1);
 			}
 		}
 
-		// Tell the client the game lobby details
-		// Note: This sends a packet to ALL clients, not just the new client
-		// TODO: if connecting during game, update game lobby only for new client
-		UpdateGameLobby();
-		if (tGameInfo.iGameType != GME_LOCAL)
-			SendWormLobbyUpdate();
+		// Continent
+		if (buf.find("<continent>") != std::string::npos)  {
+			IpInfo info;
+			std::string str_addr;
+			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+			if (str_addr != "")  {
+				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+				replacemax(buf, "<continent>", info.Continent, buf, 1);
+			}
+		}
 
-		// Update players listbox
-		DeprecatedGUI::bHost_Update = true;
 
-		// Make host authorised
-		if(newcl->isLocalClient())
-			newcl->getRights()->Everything();
-			
-		newcl->setConnectTime(tLX->fCurTime);
+		// Address
+		std::string str_addr;
+		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+		// Remove port
+		size_t pos = str_addr.rfind(':');
+		if (pos != std::string::npos)
+			str_addr.erase(pos);
+		replacemax(buf, "<ip>", str_addr, buf, 1);
+
+		for (int i = 0; i < numworms; i++)  {
+			// Player name
+			// Send the welcome message
+			SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1)),
+							TXT_NETWORK);
+		}
 	}
+
+	// Tell the client the game lobby details
+	// Note: This sends a packet to ALL clients, not just the new client
+	// TODO: if connecting during game, update game lobby only for new client
+	UpdateGameLobby();
+	if (tGameInfo.iGameType != GME_LOCAL)
+		SendWormLobbyUpdate();
+
+	// Update players listbox
+	DeprecatedGUI::bHost_Update = true;
+
+	// Make host authorised
+	if(newcl->isLocalClient())
+		newcl->getRights()->Everything();
+		
+	newcl->setConnectTime(tLX->fCurTime);
+	
+	newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
+	// If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
 }
 
 

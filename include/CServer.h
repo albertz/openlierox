@@ -146,6 +146,9 @@ private:
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
 	
+	friend class CServerNetEngine;
+	friend class CServerNetEngineBeta7;
+	
 public:
 	// Methods
 
@@ -238,8 +241,6 @@ public:
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 
 	// Parsing
-	void		ParseClientPacket(CServerConnection *cl, CBytestream *bs);
-	void		ParsePacket(CServerConnection *cl, CBytestream *bs);
 	void		ParseImReady(CServerConnection *cl, CBytestream *bs);
 	void		ParseUpdate(CServerConnection *cl, CBytestream *bs);
 	void		ParseDeathPacket(CServerConnection *cl, CBytestream *bs);

@@ -1334,7 +1334,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (keysym == SDLK_UP)  {
 		lv_item_t *i = tItems;
 		if (tItems)  {
-			for (;i->tNext;i=i->tNext)  {
+			for ( ; i && i->tNext; i=i->tNext )  {
 				if (i->tNext == tSelected) {
 					if (tSelected)
 						tSelected->bSelected = false;

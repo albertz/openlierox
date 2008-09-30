@@ -240,6 +240,18 @@ void CServerConnection::setClientVersion(const Version& v)
 	printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
 }
 
+void CServerConnection::setNetEngineFromClientVersion()
+{
+	if( getClientVersion() >= OLXBetaVersion(7) )
+	{
+		setBeta7NetEngine();
+	}
+	else
+	{
+		setOldNetEngine();
+	}
+};
+
 CChannel * CServerConnection::createChannel(const Version& v)
 {
 	if( cNetChan )
