@@ -29,6 +29,7 @@
 #include "AuxLib.h"
 #include "Version.h"
 #include "Timer.h"
+#include "NotifyUser.h"
 
 
 using namespace std;
@@ -1081,6 +1082,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeString("lx:strafingAllowed");
 		bytestr.Send(tSocket);
 	}
+	
+	NotifyUserOnEvent(); // new player connected; if user is away, notify him
 
 
 	// Tell all the connected clients the info about these worm(s)

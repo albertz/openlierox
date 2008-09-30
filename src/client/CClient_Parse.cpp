@@ -1212,6 +1212,9 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 
 	client->UpdateScoreboard();
 	client->bShouldRepaintInfo = true;
+
+	// if we are away (perhaps waiting because we were out), notify us
+	NotifyUserOnEvent();
 }
 
 
