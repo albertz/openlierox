@@ -488,12 +488,21 @@ int GameServer::StartGame()
 
     cWeaponRestrictions.sendList(&bs, cGameScript.get());
 
-	// doing this since Beta7
-	bs.writeFloat( tGameInfo.fGameSpeed );
-	bs.writeBool( tGameInfo.bServerChoosesWeapons );
+	for( int i = 0; i < MAX_CLIENTS; i++ )
+	{
+		if( cClients[i].getStatus() != NET_CONNECTED )
+			continue;
+		if( cClients[i].getClientVersion() >= OLXBetaVersion(7) )
+		{
+			CBytestream bs1(bs);
+			bs1.writeFloat( tGameInfo.fGameSpeed );
+			bs1.writeBool( tGameInfo.bServerChoosesWeapons );
+			SendPacket( &bs1, & cClients[i] );
+		}
+		else
+			SendPacket( &bs, & cClients[i] );
+	}
 	
-	
-	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
 
 	PhysicsEngine::Get()->initGame( cMap, cClient );

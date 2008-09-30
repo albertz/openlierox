@@ -170,6 +170,8 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	GetRemoteNetAddr(client->tSocket, addr);
 	SetRemoteNetAddr(client->tSocket, addr);
 	bytestr.Send(client->tSocket);
+	
+	client->setNetEngineFromServerVersion(); // *this may be deleted here! so it's the last command
 }
 
 
@@ -681,18 +683,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
-	if(this->client->cServerVersion >= OLXBetaVersion(7)) {
-		// >=Beta7 is sending this
-		tGameInfo.fGameSpeed = bs->readFloat();
-		tGameInfo.bServerChoosesWeapons = bs->readBool();
-	}
-	else {
-		tGameInfo.fGameSpeed = 1.0f;
-		tGameInfo.bServerChoosesWeapons = false;
-	}
-		
-
-
+	tGameInfo.fGameSpeed = 1.0f;
+	tGameInfo.bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
 	client->bGameReady = true;
@@ -787,6 +779,18 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
     return true;
 }
+
+bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
+{
+	if( ! CClientNetEngine::ParsePrepareGame(bs) )
+		return false;
+
+	// >=Beta7 is sending this
+	tGameInfo.fGameSpeed = bs->readFloat();
+	tGameInfo.bServerChoosesWeapons = bs->readBool();
+
+    return true;
+};
 
 
 ///////////////////
@@ -1039,7 +1043,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	}
 }
 
-void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
+void CClientNetEngineBeta7::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	std::string startStr = bs->readString();
 	std::string solution = bs->readString();
 	
@@ -1069,7 +1073,7 @@ void CClientNetEngine::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	}
 }
 
-void CClientNetEngine::ParseChatCommandCompletionList(CBytestream* bs) {
+void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 	std::string startStr = bs->readString();
 	
 	std::list<std::string> possibilities;
@@ -1088,7 +1092,7 @@ void CClientNetEngine::ParseChatCommandCompletionList(CBytestream* bs) {
 
 ///////////////////
 // Parse AFK packet
-void CClientNetEngine::ParseAFK(CBytestream *bs)
+void CClientNetEngineBeta7::ParseAFK(CBytestream *bs)
 {
 	int id = bs->readByte();
 	AFK_TYPE afkType = (AFK_TYPE)bs->readByte();
@@ -1566,18 +1570,9 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	gl->nLoadingTime = bs->readInt16();
     gl->bBonuses = bs->readBool();
 	
-	if(this->client->cServerVersion >= OLXBetaVersion(7)) {
-		// since Beta7
-		gl->fGameSpeed = bs->readFloat();
-		gl->bForceRandomWeapons = bs->readBool();
-		gl->bSameWeaponsAsHostWorm = bs->readBool();
-	}
-	else {
-		gl->fGameSpeed = 1.0f;
-		gl->bForceRandomWeapons = false;
-		gl->bSameWeaponsAsHostWorm = false;
-	}
-	
+	gl->fGameSpeed = 1.0f;
+	gl->bForceRandomWeapons = false;
+	gl->bSameWeaponsAsHostWorm = false;
 
     // Check if we have the level & mod
     gl->bHaveMap = true;
@@ -1607,6 +1602,16 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 }
 
+void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
+{
+	CClientNetEngine::ParseUpdateLobbyGame(bs);
+
+	game_lobby_t    *gl = &client->tGameLobby;
+	
+	gl->fGameSpeed = bs->readFloat();
+	gl->bForceRandomWeapons = bs->readBool();
+	gl->bSameWeaponsAsHostWorm = bs->readBool();
+};
 
 ///////////////////
 // Parse a 'worm down' packet

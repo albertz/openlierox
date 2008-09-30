@@ -265,6 +265,7 @@ public:
 	}
 
 	friend class CClientNetEngine;
+	friend class CClientNetEngineBeta7;
 
 private:
 	// Attributes
@@ -557,8 +558,9 @@ public:
 	void		SetupGameInputs(); // Re-setup inputs for worms, viewports and all game actions
 	
 	CClientNetEngine * getNetEngine() { return cNetEngine; };
+	void		setNetEngineFromServerVersion();
 	void		setOldNetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngine(this); };
-	void		setBeta6NetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngineBeta6(this); };
+	void		setBeta7NetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngineBeta7(this); };
 
 	void		Connect(const std::string& address);
 	void		Connecting(bool force = false);

@@ -235,7 +235,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 																			// the name has to be repeated for all chunks
 }
 
-void CClientNetEngine::SendChatCommandCompletionRequest(const std::string& startStr) {
+void CClientNetEngineBeta7::SendChatCommandCompletionRequest(const std::string& startStr) {
 	CBytestream bs;
 	bs.writeByte(C2S_CHATCMDCOMPLREQ);
 	bs.writeString(startStr);
@@ -243,7 +243,7 @@ void CClientNetEngine::SendChatCommandCompletionRequest(const std::string& start
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
-void CClientNetEngine::SendAFK(int wormid, AFK_TYPE afkType, const std::string & message ) {
+void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::string & message ) {
 	if( client->getServerVersion() < OLXBetaVersion(7) )
 		return;
 	

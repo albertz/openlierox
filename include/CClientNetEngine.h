@@ -45,8 +45,8 @@ public:
 	virtual void		SendUpdateLobby(bool ready = true);
 	virtual void		SendDisconnect();
 	virtual void		SendFileData();
-	virtual void		SendChatCommandCompletionRequest(const std::string& startStr);
-	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "");
+	virtual void		SendChatCommandCompletionRequest(const std::string& startStr) { return; };
+	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "") { return; };
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif
@@ -64,7 +64,7 @@ protected:
 	void		ParseTraverse(CBytestream *bs);
 	void		ParseConnectHere(CBytestream *bs);
 
-	bool		ParsePrepareGame(CBytestream *bs);
+	virtual bool ParsePrepareGame(CBytestream *bs);
 	void		ParseStartGame(CBytestream *bs);
 	void		ParseSpawnWorm(CBytestream *bs);
 	void		ParseWormInfo(CBytestream *bs);
@@ -78,7 +78,7 @@ protected:
 	void		ParseUpdateLobby(CBytestream *bs);
 	void		ParseClientLeft(CBytestream *bs);
 	void		ParseUpdateWorms(CBytestream *bs);
-	void		ParseUpdateLobbyGame(CBytestream *bs);
+	virtual void ParseUpdateLobbyGame(CBytestream *bs);
 	void		ParseWormDown(CBytestream *bs);
 	void		ParseServerLeaving(CBytestream *bs);
 	void		ParseSingleShot(CBytestream *bs);
@@ -88,16 +88,25 @@ protected:
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
     void        ParseSendFile(CBytestream *bs);
-	void		ParseChatCommandCompletionSolution(CBytestream* bs);
-	void		ParseChatCommandCompletionList(CBytestream* bs);
-	void		ParseAFK(CBytestream* bs);
+	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; };
+	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; };
+	virtual void ParseAFK(CBytestream* bs) { return; };
 	
 };
 
-class CClientNetEngineBeta6: public CClientNetEngine {
+// TODO: maybe add CClientNetEngineBeta5 for map/mod downloading - SendFileData() and ParseSendFile() funcs
+class CClientNetEngineBeta7: public CClientNetEngine {
 public:
-	CClientNetEngineBeta6( CClient * _client ): CClientNetEngine( _client ) { }
-	// Empty for now, I'll add my super-leet net engine later, hehe
+	CClientNetEngineBeta7( CClient * _client ): CClientNetEngine( _client ) { }
+
+	virtual void SendChatCommandCompletionRequest(const std::string& startStr);
+	virtual void SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "");
+
+	virtual bool ParsePrepareGame(CBytestream *bs);
+	virtual void ParseUpdateLobbyGame(CBytestream *bs);
+	virtual void ParseChatCommandCompletionSolution(CBytestream* bs);
+	virtual void ParseChatCommandCompletionList(CBytestream* bs);
+	virtual void ParseAFK(CBytestream* bs);
 };
 
 

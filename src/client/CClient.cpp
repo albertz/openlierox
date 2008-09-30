@@ -1760,6 +1760,20 @@ CChannel * CClient::createChannel(const Version& v)
 	return cNetChan;
 };
 
+void CClient::setNetEngineFromServerVersion()
+{
+	if( getServerVersion() >= OLXBetaVersion(7) )
+	{
+		printf("Set Beta7 net engine\n");
+		setBeta7NetEngine();
+	}
+	else
+	{
+		printf("Set pre-Beta7 net engine\n");
+		setOldNetEngine();
+	}
+};
+
 std::string CClient::debugName() {
 	std::string adr = "?.?.?.?";
 	NetworkAddr netAdr;
