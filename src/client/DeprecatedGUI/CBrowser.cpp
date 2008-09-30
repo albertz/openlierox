@@ -86,7 +86,11 @@ void CBrowser::LoadFromFile(const std::string& file)
 
 	sURL = file;
 	sHostName = "";
-	(*fp) >> tData;
+	while (!fp->eof())  {
+		std::string tmp;
+		std::getline(*fp, tmp);
+		tData += tmp;
+	}
 
 	fp->close();
 	delete fp;
@@ -326,13 +330,19 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 // Mouse wheel down event
 int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
-	if (bUseScroll)  {
-		switch (keysym)  {
-		case SDLK_DOWN:
-			return cScrollbar.MouseWheelDown(GetMouse());
-		case SDLK_UP:
-			return cScrollbar.MouseWheelUp(GetMouse());
+	switch (keysym)  {
+	case SDLK_DOWN:
+		if (iCursorLine < tPureText.size() - 1)  {
+			++iCursorLine;
+			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
 		}
+	return BRW_NONE;
+	case SDLK_UP:
+		if (iCursorLine > 0)  {
+			--iCursorLine;
+			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
+		}
+	return BRW_NONE;
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
