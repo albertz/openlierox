@@ -278,11 +278,6 @@ typedef bool (*TStartFunction) (void* data);
 extern  TStartFunction	startFunction;
 extern	void*			startFunctionData;
 
-#ifdef WITH_MEDIAPLAYER
-extern	CInput			cToggleMediaPlayer;
-#endif
-
-
 
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);

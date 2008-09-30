@@ -30,7 +30,6 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CImage.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CBox.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
@@ -210,10 +209,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 	profile_t	*ply;
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cHostPly.Process();
+	ev = cHostPly.Process();
 	cHostPly.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process any events
@@ -894,10 +890,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cHostLobby.Process();
+	ev = cHostLobby.Process();
 	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
 
 	bool bStartPressed = false;
@@ -1503,10 +1496,7 @@ bool Menu_ServerSettings_Frame(void)
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cServerSettings.Process();
+	ev = cServerSettings.Process();
 	cServerSettings.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
@@ -1651,10 +1641,7 @@ bool Menu_BanList_Frame(void)
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cBanListGui.Process();
+	ev = cBanListGui.Process();
 	cBanListGui.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {

@@ -23,7 +23,6 @@
 #include "StringUtils.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 
 
 namespace DeprecatedGUI {
@@ -123,10 +122,7 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 	// Re-draw the buffer over buttons
 	//DrawImageAdv(bmpDest, tMenu->bmpBuffer, 230,140, 230,140, 410,50);
 
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cMaped.Process();
+	ev = cMaped.Process();
 	cMaped.Draw(bmpDest);
 
 

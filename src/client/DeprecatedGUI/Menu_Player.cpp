@@ -25,7 +25,6 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "AuxLib.h"
 
 
@@ -346,10 +345,7 @@ void Menu_Player_NewPlayer(int mouse)
 	mouse_t *Mouse = GetMouse();
 
 	// Process & draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cNewPlayer.Process();
+	ev = cNewPlayer.Process();
 	cNewPlayer.Draw(VideoPostProcessor::videoSurface());
 
 	Uint8 r = ((CSlider *)cNewPlayer.getWidget(np_Red))->getValue();
@@ -498,10 +494,7 @@ void Menu_Player_ViewPlayers(int mouse)
 	static std::string buf;
 
 	// Process & draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cViewPlayers.Process();
+	ev = cViewPlayers.Process();
 	cViewPlayers.Draw(VideoPostProcessor::videoSurface());
 
 

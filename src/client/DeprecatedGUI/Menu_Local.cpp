@@ -34,7 +34,6 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CCheckbox.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CTextButton.h"
 
 
@@ -246,10 +245,7 @@ void Menu_LocalFrame(void)
     }
 
 
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cLocalMenu.Process();
+	ev = cLocalMenu.Process();
 	cLocalMenu.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
@@ -952,11 +948,7 @@ bool Menu_GameSettings_Frame(void)
 	cGameSettings.Draw(VideoPostProcessor::videoSurface());
 
 
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-
-		ev = cGameSettings.Process();
+	ev = cGameSettings.Process();
 
 	// The maximum loading time depends on the multiplikator
 	// For fast games you can set higher loading times to make less spammy games
@@ -1006,9 +998,6 @@ bool Menu_GameSettings_Frame(void)
 	}
 
 
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
 
 	if (GameTabPane == gs_GenTab)
 	{
@@ -1330,10 +1319,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 
 
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cWeaponsRest.Process();
+	ev = cWeaponsRest.Process();
 	cWeaponsRest.Draw(VideoPostProcessor::videoSurface());
 
 	if(ev) {
@@ -1479,18 +1465,11 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		if (save)
 			tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 180,288,tLX->clNormalLabel,"Preset name");
 
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cWpnPresets.Process();
+		ev = cWpnPresets.Process();
 		cWpnPresets.Draw(VideoPostProcessor::videoSurface());
 
 		// Process the widgets
-#ifdef WITH_MEDIAPLAYER
-		if(ev && !cMediaPlayer.GetDrawPlayer()) {
-#else
 		if(ev)  {
-#endif
 
 			switch(ev->iControlID) {
 				// Cancel

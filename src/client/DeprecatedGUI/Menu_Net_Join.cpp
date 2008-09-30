@@ -27,7 +27,6 @@
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CImage.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CTextButton.h"
@@ -205,10 +204,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cConnecting.Process();
+	ev = cConnecting.Process();
 	cConnecting.Draw( VideoPostProcessor::videoSurface() );
 
 
@@ -719,10 +715,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cJoinLobby.Process();
+	ev = cJoinLobby.Process();
 
 	cJoinLobby.Draw( VideoPostProcessor::videoSurface() );
 

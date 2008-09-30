@@ -26,7 +26,6 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 
 
 namespace DeprecatedGUI {
@@ -40,9 +39,6 @@ void SetupGameInputs()
 	// Setup global keys
 	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-#ifdef WITH_MEDIAPLAYER
-	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
-#endif
 
 	cClient->SetupGameInputs();
 };
@@ -124,9 +120,6 @@ enum {
 	oc_Gen_SwitchMode,
 	oc_Gen_ToggleTopBar,
 	oc_Gen_TeamChat,
-#ifdef WITH_MEDIAPLAYER
-	oc_Gen_MediaPlayer
-#endif
 };
 
 
@@ -231,15 +224,9 @@ bool Menu_FloatingOptionsInitialize(void)
 						   oc_Gen_ToggleTopBar, 525, 365, 50,17);
 
 
-#ifdef WITH_MEDIAPLAYER
-	cFloatingOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 390, 390, 0,0);
-	cFloatingOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
-						   oc_Gen_MediaPlayer, 525, 390, 50,17);
-#endif
-
-	cFloatingOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 390, 415, 0,0);
+	cFloatingOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 390, 390, 0,0);
 	cFloatingOpt_Controls.Add( new CInputbox(SIN_TEAMCHAT, tLXOptions->sGeneralControls[SIN_TEAMCHAT], tMenu->bmpInputbox, "Teamchat"),
-						   oc_Gen_TeamChat, 525, 415, 50,17);
+						   oc_Gen_TeamChat, 525, 390, 50,17);
 
 
 
@@ -409,9 +396,6 @@ void Menu_FloatingOptionsFrame()
 
 
 	// Process the gui layout
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
 	ev = cFloatingOptions.Process();
 	if (ev)  {
 		switch (ev->iControlID)  {
@@ -430,10 +414,7 @@ void Menu_FloatingOptionsFrame()
 	if(iFloatingOptionsMode == 0) {
 
 		// Controls
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cFloatingOpt_Controls.Process();
+		ev = cFloatingOpt_Controls.Process();
 		cFloatingOpt_Controls.Draw(VideoPostProcessor::videoSurface());
 
 		if(ev) {
@@ -463,10 +444,7 @@ void Menu_FloatingOptionsFrame()
 	if(iFloatingOptionsMode == 1) {
 
 		// Game
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cFloatingOpt_Game.Process();
+		ev = cFloatingOpt_Game.Process();
 		cFloatingOpt_Game.Draw(VideoPostProcessor::videoSurface());
 
 		val = cFloatingOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
@@ -559,10 +537,7 @@ void Menu_FloatingOptionsFrame()
 	if(iFloatingOptionsMode == 2) {
 
 		// System
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cFloatingOpt_System.Process();
+		ev = cFloatingOpt_System.Process();
 		cFloatingOpt_System.Draw(VideoPostProcessor::videoSurface());
 
 		if(ev) {
@@ -726,9 +701,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 						tLXOptions->sPlayerControls[ply2][key2] )
 						tLXOptions->sPlayerControls[ply1][key1] = "";
 			int lastkey = SIN_TEAMCHAT;
-#ifdef WITH_MEDIAPLAYER
-			lastkey = SIN_MEDIAPLAYER;
-#endif
+
 			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
 				if( tLXOptions->sPlayerControls[ply1][key1] ==
 					tLXOptions->sGeneralControls[key2] )

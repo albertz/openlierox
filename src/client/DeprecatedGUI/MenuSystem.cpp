@@ -33,7 +33,6 @@
 #include "CWorm.h"
 #include "Cursor.h"
 #include "DeprecatedGUI/CButton.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DedicatedControl.h"
 #include "OLXG15.h"
 #include "Timer.h"
@@ -299,11 +298,6 @@ void Menu_Frame() {
 
 	Menu_RedrawMouse(true);
 
-#ifdef WITH_MEDIAPLAYER
-	// Media player frame
-	cMediaPlayer.Frame();
-#endif
-
 #ifdef WITH_G15
 	if (OLXG15)
 		OLXG15->menuFrame();
@@ -345,11 +339,6 @@ void Menu_Frame() {
 			Menu_CGuiSkinFrame();
 			break;
 	}
-
-#ifdef WITH_MEDIAPLAYER
-	// At last draw the media player
-	cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
-#endif
 
 	// DEBUG: show FPS
 #ifdef DEBUG

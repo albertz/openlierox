@@ -123,10 +123,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 
-		( tLXOptions->bRepeatPlaylist, "MediaPlayer.Repeat", true )
-		( tLXOptions->bShufflePlaylist, "MediaPlayer.Shuffle", false )
-		( tLXOptions->iMPlayerLeft, "MediaPlayer.Left", 350 )
-		( tLXOptions->iMPlayerTop, "MediaPlayer.Top", 240 )
 		( tLXOptions->iMusicVolume, "MediaPlayer.MusicVolume", 50 )
 		;
 

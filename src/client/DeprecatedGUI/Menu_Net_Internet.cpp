@@ -30,7 +30,6 @@
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 
 
 namespace DeprecatedGUI {
@@ -160,10 +159,7 @@ void Menu_Net_NETFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cInternet.Process();
+	ev = cInternet.Process();
 	cInternet.Draw( VideoPostProcessor::videoSurface() );
 
 
@@ -792,18 +788,12 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 		ProcessEvents();
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Frame();
-#endif
-
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
         cDetails.Draw(VideoPostProcessor::videoSurface());
         gui_event_t *ev = NULL;
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cDetails.Process();
+
+		ev = cDetails.Process();
         if(ev) {
 
 			// Ok
@@ -828,10 +818,6 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 				break;
 			}
         }
-
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
-#endif
 
         DrawCursor(VideoPostProcessor::videoSurface());
 		VideoPostProcessor::process();

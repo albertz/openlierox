@@ -544,9 +544,7 @@ public:
 	void		DrawRemoteChat(SDL_Surface * bmpDest);
     void        DrawScoreboard(SDL_Surface * bmpDest);
 	void        DrawCurrentSettings(SDL_Surface * bmpDest);
-#ifdef WITH_MEDIAPLAYER
-	void		DrawMediaPlayer(SDL_Surface * bmpDest);
-#endif
+
     void        InitializeViewportManager(void);
     void        DrawViewportManager(SDL_Surface * bmpDest);
 	void		InitializeSpectatorViewportKeys();

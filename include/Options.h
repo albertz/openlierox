@@ -56,10 +56,7 @@ enum {
 	SIN_VIEWPORTS,
 	SIN_SWITCHMODE,
 	SIN_TOGGLETOPBAR,
-	SIN_TEAMCHAT,
-#ifdef WITH_MEDIAPLAYER
-	SIN_MEDIAPLAYER
-#endif
+	SIN_TEAMCHAT
 };
 
 
@@ -233,10 +230,6 @@ public:
 	int		iFavouritesList[6];
 
 	// Media player
-	bool	bRepeatPlaylist;
-	bool	bShufflePlaylist;
-	int		iMPlayerLeft;
-	int		iMPlayerTop;
 	int		iMusicVolume;
 
 

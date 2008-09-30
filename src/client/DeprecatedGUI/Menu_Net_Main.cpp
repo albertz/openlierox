@@ -21,7 +21,6 @@
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "DeprecatedGUI/CLabel.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "AuxLib.h"
 
 
@@ -95,10 +94,7 @@ void Menu_Net_MainFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cMain.Process();
+	ev = cMain.Process();
 	cMain.Draw( VideoPostProcessor::videoSurface() );
 
 

@@ -20,7 +20,6 @@
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CBrowser.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CListview.h"
 #include "HTTP.h"
 #include "StringUtils.h"
@@ -89,10 +88,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cNews.Process();
+	ev = cNews.Process();
 	cNews.Draw( VideoPostProcessor::videoSurface() );
 
 

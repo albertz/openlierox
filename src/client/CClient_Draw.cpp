@@ -20,7 +20,6 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "DeprecatedGUI/Graphics.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "console.h"
@@ -710,10 +709,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if(bChat_Typing)  {
 			DrawChatter(bmpDest);
 		}
-
-#ifdef WITH_MEDIAPLAYER
-		DrawMediaPlayer(bmpDest);
-#endif
 
 		// Console
 		Con_Draw(bmpDest);
@@ -2707,13 +2702,4 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"Off");
 
 }
-
-///////////////////
-// Draws the media player
-#ifdef WITH_MEDIAPLAYER
-void CClient::DrawMediaPlayer(SDL_Surface * bmpDest)
-{
-	DeprecatedGUI::cMediaPlayer.Draw(bmpDest);
-}
-#endif
 

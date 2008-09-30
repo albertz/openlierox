@@ -24,7 +24,6 @@
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CMenu.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "Timer.h"
 
 
@@ -146,10 +145,7 @@ void Menu_Net_LANFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cLan.Process();
+	ev = cLan.Process();
 	cLan.Draw( VideoPostProcessor::videoSurface() );
 
 
@@ -448,18 +444,12 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 		ProcessEvents();
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Frame();
-#endif
-
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
         cDetails.Draw(VideoPostProcessor::videoSurface());
         gui_event_t *ev = NULL;
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cDetails.Process();
+
+		ev = cDetails.Process();
         if(ev) {
 
 			// Ok
@@ -482,10 +472,6 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 				break;
 			}
         }
-
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
-#endif
 
         DrawCursor(VideoPostProcessor::videoSurface());
 		VideoPostProcessor::process();

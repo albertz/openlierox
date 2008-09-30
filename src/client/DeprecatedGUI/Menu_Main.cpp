@@ -23,7 +23,6 @@
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/CTitleButton.h"
 #include "DeprecatedGUI/CButton.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CCombobox.h"
@@ -107,10 +106,7 @@ void Menu_MainFrame(void)
 	//DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,430, 20,430, 60,40);
 
 	// Process the buttons
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cMainMenu.Process();
+	ev = cMainMenu.Process();
 		
 	cMainMenu.Draw(VideoPostProcessor::videoSurface());
 

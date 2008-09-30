@@ -1206,9 +1206,6 @@ void CClient::processChatter(void)
 				cShowHealth.isDown() ||
 				cShowSettings.isDown() ||
 				cToggleTopBar.isDown() ||
-#ifdef WITH_MEDIAPLAYER
-				cToggleMediaPlayer.isDown() ||
-#endif
 				(input.sym == SDLK_BACKQUOTE) ||
 				cTakeScreenshot.isDown();
 

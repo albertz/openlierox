@@ -26,7 +26,6 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 
 
 namespace DeprecatedGUI {
@@ -155,10 +154,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 
 	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cFavourites.Process();
+	ev = cFavourites.Process();
 	cFavourites.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process the server list
@@ -494,18 +490,13 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 		ProcessEvents();
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Frame();
-#endif
 
 		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
         cDetails.Draw(VideoPostProcessor::videoSurface());
         gui_event_t *ev = NULL;
-#ifdef WITH_MEDIAPLAYER
-		if (!cMediaPlayer.GetDrawPlayer())
-#endif
-			ev = cDetails.Process();
+
+		ev = cDetails.Process();
         if(ev) {
 			// Ok
             if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
@@ -528,10 +519,6 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 				break;
 			}
         }
-
-#ifdef WITH_MEDIAPLAYER
-		cMediaPlayer.Draw(VideoPostProcessor::videoSurface());
-#endif
 
         DrawCursor(VideoPostProcessor::videoSurface());
 		VideoPostProcessor::process();

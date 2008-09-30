@@ -4444,18 +4444,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\DeprecatedGUI\CMediaPlayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\DeprecatedGUI\CMediaPlayer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\client\DeprecatedGUI\CMediaPlayer_GUI.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\CMenu.cpp"
 				>
 			</File>

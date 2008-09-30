@@ -35,7 +35,6 @@
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
-#include "DeprecatedGUI/CMediaPlayer.h"
 
 #include "SkinnedGUI/CGuiSkin.h"
 
@@ -55,12 +54,6 @@ game_t		tGameInfo;
 
 CInput		cTakeScreenshot;
 CInput		cSwitchMode;
-#ifdef WITH_MEDIAPLAYER
-CInput		cToggleMediaPlayer;
-namespace DeprecatedGUI {
-CMediaPlayer cMediaPlayer;
-};
-#endif
 
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
@@ -232,23 +225,6 @@ startpoint:
 		return -1;
 	}
 
-
-#ifdef WITH_MEDIAPLAYER
-	DrawLoading(70, "Initializing Media Player");
-
-	// Initialize the music system
-	InitializeMusic();
-
-	// Initialize the media player
-	if (!DeprecatedGUI::cMediaPlayer.Initialize())  {
-		printf("Warning: Media Player could not be initialized");
-		// Don't quit, we can quite well play without music
-	}
-
-	// Load the playlist
-	DeprecatedGUI::cMediaPlayer.LoadPlaylistFromFile("cfg/playlist.dat");
-#endif
-
 	// TODO: abstract the logging, make an uniform message system
 	// Log the game start
 	if (tLXOptions->bLogConvos)  {
@@ -267,9 +243,6 @@ startpoint:
 	// Setup the global keys
 	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-#ifdef WITH_MEDIAPLAYER
-	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
-#endif
 
 	// If the user wants to load the database on startup, do it
 	// For dedicated server the database should be loaded on startup or it will crash
@@ -694,11 +667,6 @@ void GameLoopFrame(void)
 		cSwitchMode.reset();
 	}
 
-#ifdef WITH_MEDIAPLAYER
-	// Media player
-	DeprecatedGUI::cMediaPlayer.Frame();
-#endif
-
 #ifdef WITH_G15
 	if (OLXG15)
 		OLXG15->gameFrame();
@@ -883,10 +851,6 @@ void ShutdownLieroX(void)
 		DedicatedControl::Uninit();
 
 	ShutdownMusic();
-#ifdef WITH_MEDIAPLAYER
-	DeprecatedGUI::cMediaPlayer.SavePlaylistToFile("cfg/playlist.dat");
-	DeprecatedGUI::cMediaPlayer.Shutdown();
-#endif
 
     Con_Shutdown();
 
