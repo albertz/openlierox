@@ -994,7 +994,7 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 		else
 		{
 			std::string divClass = xmlGetString( node, "class", "CHAT" );
-			for( int i = 0; i < removedText.size(); i++ )
+			for( size_t i = 0; i < removedText.size(); i++ )
 				if( txtTypeNames[removedText[i]] == divClass )
 				{
 					xmlUnlinkNode(node);
