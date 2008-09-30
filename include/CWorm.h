@@ -153,7 +153,7 @@ public:
 private:
 	// disallow these!
 	CWorm(const CWorm&) { assert(false); }
-	CWorm& operator=(const CWorm&) { assert(false); }
+	CWorm& operator=(const CWorm&) { assert(false); return *this; }
 	
 private:
 	// Attributes
