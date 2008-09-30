@@ -853,8 +853,8 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	// Nothing to draw
 	if (!tHtmlDocument || !tRootNode)
 	{
-		// Backgorund 
-		DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
+		// Backgorund (transparent by default)
+		//DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
 		return;
 	}
 	
@@ -870,7 +870,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
-	if( tBgColor != tLX->clPink ) // If not transparent
+	if( tBgColor.a != SDL_ALPHA_TRANSPARENT )
 		DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tBgColor);
 	
 	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
@@ -902,34 +902,49 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 // Chatbox routines
 //
 
+static const char * txtTypeNames[] = {
+	"CHAT",
+	"NORMAL",
+	"NOTICE",
+	"IMPORTANT",
+	"NETWORK",
+	"PRIVATE",
+	"TEAMPM"
+};
+
 //////////////////////////
 // Initialize as a chatbox
-void CBrowser::InitializeChatbox()
+void CBrowser::InitializeChatBox( const std::string & initText )
 {
-	tData = "<html><body bgcolor=\"transparent\"></body></html>"; // Transparent background
+	tData = initText;
+	if( tData == "" )
+		tData = "<html><body bgcolor=\"transparent\"></body></html>"; // Transparent background
 	Parse();
 }
 
 ///////////////////////////////
 // Add a new line to the browser
-void CBrowser::AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline)
+void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline)
 {
-	if (!tHtmlDocument || !tRootNode)
+	if (!tHtmlDocument || !tRootNode || textType < TXT_CHAT || textType > TXT_TEAMPM)
 		return;
 		
-	xmlNewChild( tRootNode, NULL, (const xmlChar *)"<br>", NULL );
+	xmlNodePtr line = xmlNewChild( tRootNode, NULL, (const xmlChar *)"<div>", NULL );
 
-	xmlNodePtr line = tRootNode;
+	xmlNewProp( line, (const xmlChar *)"class", (const xmlChar *)txtTypeNames[textType] );
+
+	line = xmlNewChild( line, NULL, (const xmlChar *)"<font>", NULL );
+
+	char t[20];
+	sprintf(t, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
+	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
 
 	if( bold )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"<b>", NULL );
 	if( underline )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"<u>", NULL );
-
-	line = xmlNewTextChild( line, NULL, (const xmlChar *)"<font>", (const xmlChar *)text.c_str() );
-	char t[20];
-	sprintf(t, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
-	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
+		
+	xmlNodeAddContent( line, (const xmlChar *)text.c_str() );
 }
 
 //////////////////////
@@ -946,6 +961,47 @@ std::string CBrowser::GetChatBoxText()
 	xmlFree(xmlbuff);
 
 	return ret;
+}
+
+//////////////////////
+// Remove all network messages from chatbox, and remove extra lines if more than 127 lines
+void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount )
+{
+	if (!tHtmlDocument || !tRootNode)
+		return;
+	
+	int lineCount = 0;
+	for( xmlNodePtr node = tRootNode->children; node != NULL; )
+	{
+		xmlNodePtr nextNode = node->next;
+		lineCount ++;
+		if( xmlStrcasecmp(node->name, (xmlChar *)"div") != 0 )
+		{
+			xmlUnlinkNode(node);
+			xmlFreeNode(node);
+			lineCount --;
+		}
+		else
+		{
+			std::string divClass = xmlGetString( node, "class", "CHAT" );
+			for( int i = 0; i < removedText.size(); i++ )
+				if( txtTypeNames[removedText[i]] == divClass )
+				{
+					xmlUnlinkNode(node);
+					xmlFreeNode(node);
+					lineCount --;
+					break;
+				}
+		}
+	
+		node = nextNode;
+	}
+	
+	for( xmlNodePtr node = tRootNode->children; node != NULL && lineCount > maxLineCount; lineCount -- )
+	{
+		xmlUnlinkNode(node);
+		xmlFreeNode(node);
+	};
 }
 
 /////////////////////////

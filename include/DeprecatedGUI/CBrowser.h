@@ -23,6 +23,8 @@
 #include <stack>
 #include "LieroX.h"
 #include "Timer.h"
+#include "Protocol.h"
+
 
 namespace DeprecatedGUI {
 
@@ -47,6 +49,7 @@ public:
 	  iClientHeight(0),
 	  tHtmlDocument(NULL),
 	  tRootNode(NULL),
+	  fLastMouseScroll(0),
 	  curX(0),
 	  curY(0),
 	  tDestSurface(NULL),
@@ -56,9 +59,8 @@ public:
 	  iSelectionStartColumn(0),
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
-	  fLastMouseScroll(0),
-	  bInLink(false),
-	  bSelectionGrabbed(false)
+	  bSelectionGrabbed(false),
+	  bInLink(false)
 	  {
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;
@@ -226,9 +228,11 @@ public:
 	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
 
-	void	InitializeChatbox();
-	void	AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline);
+	void	InitializeChatBox( const std::string & initText = "" );
+	void	AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline);
 	std::string GetChatBoxText();
+	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
+
 };
 
 }; // namespace DeprecatedGUI

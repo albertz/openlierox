@@ -18,64 +18,71 @@
 #define __PROTOCOL_H__
 
 
-#define		PROTOCOL_VERSION	8
+// enum pwns #define
 
+enum {
+	PROTOCOL_VERSION = 8
+};
 
 
 // Text type
-#define		TXT_CHAT			0
-#define		TXT_NORMAL			1
-#define		TXT_NOTICE			2
-#define		TXT_IMPORTANT		3
-#define		TXT_NETWORK			4
-#define		TXT_PRIVATE			5
-#define		TXT_TEAMPM			6
-
+enum TXT_TYPE {
+	TXT_CHAT			= 0,
+	TXT_NORMAL			= 1,
+	TXT_NOTICE			= 2,
+	TXT_IMPORTANT		= 3,
+	TXT_NETWORK			= 4,
+	TXT_PRIVATE			= 5,
+	TXT_TEAMPM			= 6
+};
 
 
 // Client->Server
-#define		C2S_TXTCOMMAND		0
-#define		C2S_IMREADY			1
-#define		C2S_CARVE			2
-#define		C2S_UPDATE			3
-#define		C2S_DEATH			4
-#define		C2S_CHATTEXT		5
-#define		C2S_UPDATELOBBY		6
-#define		C2S_DISCONNECT		7
-#define		C2S_GRABBONUS		8
-#define     C2S_SENDFILE        9 // Beta4+ only, enabled only in Beta6+
-#define		C2S_CHATCMDCOMPLREQ	10 // since Beta7
-#define		C2S_AFK				11 // since Beta7, if client away from keyboard
-
+enum C2S_MESSAGES {
+	C2S_TXTCOMMAND		= 0,
+	C2S_IMREADY			= 1,
+	C2S_CARVE			= 2,
+	C2S_UPDATE			= 3,
+	C2S_DEATH			= 4,
+	C2S_CHATTEXT		= 5,
+	C2S_UPDATELOBBY		= 6,
+	C2S_DISCONNECT		= 7,
+	C2S_GRABBONUS		= 8,
+	C2S_SENDFILE        = 9, // Beta4+ only, enabled only in Beta6+
+	C2S_CHATCMDCOMPLREQ	= 10, // since Beta7
+	C2S_AFK				= 11 // since Beta7, if client away from keyboard
+};
 
 // Server->Client
-#define		S2C_PREPAREGAME		0
-#define		S2C_STARTGAME		1
-#define		S2C_SPAWNWORM		2
-#define		S2C_WORMINFO		3
-#define		S2C_TEXT			4
-#define		S2C_SCOREUPDATE		5
-#define		S2C_GAMEOVER		6
-#define		S2C_SPAWNBONUS		7
-#define		S2C_TAGUPDATE		8
-#define		S2C_CLREADY			9
-#define		S2C_UPDATELOBBY		10
-#define		S2C_CLLEFT			11
-#define		S2C_UPDATEWORMS		12
-#define		S2C_UPDATELOBBYGAME	13
-#define		S2C_WORMDOWN		14
-#define		S2C_LEAVING			15
-#define		S2C_SINGLESHOOT		16
-#define		S2C_MULTISHOOT		17
-#define		S2C_UPDATESTATS		18
-#define		S2C_GOTOLOBBY		19
-#define		S2C_DESTROYBONUS	20
-#define     S2C_DROPPED         21
-#define     S2C_SENDFILE        22 // Beta4+ only, enabled only in Beta6+
-#define		S2C_WORMWEAPONINFO	23 // >=Beta7
-#define		S2C_CHATCMDCOMPLSOL	24 // since Beta7
-#define		S2C_AFK				25 // since Beta7, if client away from keyboard
-#define		S2C_CHATCMDCOMPLLST	26 // since Beta7
+enum S2C_MESSAGES {
+	S2C_PREPAREGAME		= 0,
+	S2C_STARTGAME		= 1,
+	S2C_SPAWNWORM		= 2,
+	S2C_WORMINFO		= 3,
+	S2C_TEXT			= 4,
+	S2C_SCOREUPDATE		= 5,
+	S2C_GAMEOVER		= 6,
+	S2C_SPAWNBONUS		= 7,
+	S2C_TAGUPDATE		= 8,
+	S2C_CLREADY			= 9,
+	S2C_UPDATELOBBY		= 10,
+	S2C_CLLEFT			= 11,
+	S2C_UPDATEWORMS		= 12,
+	S2C_UPDATELOBBYGAME	= 13,
+	S2C_WORMDOWN		= 14,
+	S2C_LEAVING			= 15,
+	S2C_SINGLESHOOT		= 16,
+	S2C_MULTISHOOT		= 17,
+	S2C_UPDATESTATS		= 18,
+	S2C_GOTOLOBBY		= 19,
+	S2C_DESTROYBONUS	= 20,
+	S2C_DROPPED         = 21,
+	S2C_SENDFILE        = 22, // Beta4+ only, enabled only in Beta6+
+	S2C_WORMWEAPONINFO	= 23, // >=Beta7
+	S2C_CHATCMDCOMPLSOL	= 24, // since Beta7
+	S2C_AFK				= 25, // since Beta7, if client away from keyboard
+	S2C_CHATCMDCOMPLLST	= 26 // since Beta7
+};
 
 
 #endif  //  __PROTOCOL_H__
