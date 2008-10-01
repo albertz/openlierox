@@ -33,6 +33,7 @@
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CBox.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
+#include "DeprecatedGUI/CBrowser.h"
 #include "MathLib.h"
 #include "Clipboard.h"
 
@@ -535,20 +536,17 @@ bool Menu_Net_HostLobbyInitialize(void)
     Menu_Net_HostLobbyCreateGui();
 
 	// Add the chat
-	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
 	if (lv)  {
+		lv->InitializeChatBox();
 		CChatBox *Chatbox = cClient->getChatbox();
 		lines_iterator it = Chatbox->Begin();
 
 		// Copy the chat text
 		for (int id = 0; it != Chatbox->End(); it++, id++)  {
-			lv->AddItem("", id, it->iColour);
-			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+			lv->AddChatBoxLine(it->strLine, it->iColour);
 			id++;
 		}
-
-		lv->scrollLast();
-		lv->setShowSelect(false);
 	}
 
 	return true;
@@ -589,7 +587,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
-    cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  268, 610, 150);
+    cHostLobby.Add( new CBrowser(),                          hl_ChatList, 15,  268, 610, 150);
 
 	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
     cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
@@ -642,9 +640,11 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 	Menu_HostShowMinimap();
 
+	CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
+	lv->InitializeChatBox();
+
 	// Don't show chat box selection
-	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
-	lv->setShowSelect(false);
+	//lv->setShowSelect(false);
 
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
 	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
@@ -738,23 +738,23 @@ void Menu_Net_HostGotoLobby(void)
     	Menu_Net_HostLobbyCreateGui();
 
 		// Add the chat to the chatbox
-		CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+		CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
 		if (lv)  {
+			lv->InitializeChatBox();
 			CChatBox *Chatbox = cClient->getChatbox();
 			lines_iterator it = Chatbox->At((int)Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-			int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+			//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 			// Copy the chat text
 			for (; it != Chatbox->End(); it++)  {
 				if (it->iColour == tLX->clChatText)  {  // Add only chat messages
-					lv->AddItem("", id, it->iColour);
-					lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-					id++;
+					lv->AddChatBoxLine(it->strLine, it->iColour);
+					//id++;
 				}
 			}
 
-			lv->scrollLast();
-			lv->setShowSelect(false);
+			//lv->scrollLast();
+			//lv->setShowSelect(false);
 		}
 
 		// Add the ingame chatter text to lobby chatter
@@ -858,24 +858,21 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 
     // Add chat to the listbox
-	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
 	line_t *l = NULL;
+
 	while((l = cClient->getChatbox()->GetNewLine()) != NULL) {
 
-        if(lv->getLastItem() != NULL)
-            lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-        else
-            lv->AddItem("", 0, l->iColour);
-        lv->AddSubitem(LVS_TEXT, l->strLine, NULL, NULL);
-        lv->setShowSelect(false);
+        //if(lv->getLastItem() != NULL)
+        lv->AddChatBoxLine(l->strLine, l->iColour);
 
         // If there are too many lines, remove the top one
-        if(lv->getItemCount() > 256) {
-            if(lv->getItems())
-                lv->RemoveItem(lv->getItems()->iIndex);
-        }
+        //if(lv->getItemCount() > 256) {
+        //    if(lv->getItems())
+        //        lv->RemoveItem(lv->getItems()->iIndex);
+        //}
 
-        lv->scrollLast();
+        //lv->scrollLast();
 	}
 
 

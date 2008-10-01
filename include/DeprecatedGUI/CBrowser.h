@@ -232,8 +232,10 @@ public:
 
 	void	InitializeChatBox( const std::string & initText = "" );
 	void	AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline);
+	void	AddChatBoxLine(const std::string & text, Color color, bool bold = false, bool underline = false);
 	std::string GetChatBoxText();
 	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
+	// TODO: add function for getting individual text lines & their color
 
 };
 
