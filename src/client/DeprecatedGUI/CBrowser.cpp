@@ -813,7 +813,7 @@ std::string CBrowser::GetSelectedText()
 		}
 
 		// Last line
-		if (iSelectionEndColumn < tPureText[iSelectionEndLine].size())
+		if (iSelectionEndColumn <= tPureText[iSelectionEndLine].size())
 			res += Utf8SubStr(tPureText[iSelectionEndLine], 0, iSelectionEndColumn);
 
 		return res;
