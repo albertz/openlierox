@@ -388,12 +388,13 @@ typedef const char * cchar;
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		// TODO: This is disabled for the Beta6 release. Put in again when this is more tested.
+		// TODO: This is disabled for the Beta6/7/8 release. Put in again when this is more tested.
 		
 		// TODO: check if other crash handlers are present
 		// check at least for drkonqi, Appart and bug-buddy
 		//signal(SIGSEGV, &BugBuddySignalHandler);
 		//cout << "registered KCrash signal handler" << endl;
+		cout << "no crash handler in this release" << endl;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

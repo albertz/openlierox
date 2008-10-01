@@ -154,9 +154,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
         // Check if the target is out of the game or has died
         if( pcTargetWorm ) {
-            if( pcTargetWorm->getLives() == WRM_OUT || !pcTargetWorm->getAlive() ) {
+			if( pcTargetWorm->getLives() == WRM_OUT )
 				cout << "find new worm for viewport because current is out of game" << endl;
-                
+
+			if( pcTargetWorm->getLives() == WRM_OUT || !pcTargetWorm->getAlive() ) {
                 // Setup the timer to wait 0.5 seconds before changing targets
                 if( fTimer == -1 )
                     fTimer = tLX->fCurTime + 0.5f;
@@ -175,12 +176,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
                         pcTargetWorm = t;
                         fTimer = -1;
                     } else {
-
                         // If we didn't find a new worm, go into freelook mode
                         pcTargetWorm = NULL;
                         nType = VW_FREELOOK;
                         fTimer = -1;
-                        return;
+						cout << "no worm found, going into freelook mode" << endl;
+						return;
                     }
                 }
             }
