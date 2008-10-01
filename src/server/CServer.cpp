@@ -1255,7 +1255,8 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl) {
 
 bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason) {
 	if(cl->getClientVersion() < ver) {
-		DropClient(cl, CLL_KICK, "version " + cl->getClientVersion().asString() + " too old: " + reason);
+		std::string kickReason = cl->getClientVersion().asString() + " is too old: " + reason;
+		DropClient(cl, CLL_KICK, kickReason);
 		return false;
 	}
 	return true;
