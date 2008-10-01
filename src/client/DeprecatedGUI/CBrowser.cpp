@@ -188,6 +188,8 @@ void CBrowser::Parse()
 	// Success
 	tHtmlDocument = document;
 	tRootNode = node;
+
+	bNeedsRender = true;
 }
 
 ///////////////////
@@ -249,6 +251,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	AdjustScrollbar(true);
 
 	bSelectionGrabbed = true;
+	bNeedsRender = true;
 
 	return BRW_NONE;
 }
@@ -278,8 +281,10 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 // Mouse wheel down event
 int CBrowser::MouseWheelDown(mouse_t *tMouse)
 {
-	if(bUseScroll)
+	if(bUseScroll)  {
+		bNeedsRender = true;
 		return cScrollbar.MouseWheelDown(tMouse);
+	}
 	return BRW_NONE;
 }
 
@@ -287,8 +292,10 @@ int CBrowser::MouseWheelDown(mouse_t *tMouse)
 // Mouse wheel up event
 int CBrowser::MouseWheelUp(mouse_t *tMouse)
 {
-	if(bUseScroll)
+	if(bUseScroll)  {
+		bNeedsRender = true;
 		return cScrollbar.MouseWheelUp(tMouse);
+	}
 	return BRW_NONE;
 }
 
@@ -325,6 +332,8 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	size_t oldline = iCursorLine;
 	size_t oldcol = iCursorColumn;
+
+	bNeedsRender = true;
 
 	switch (keysym)  {
 	case SDLK_DOWN:
@@ -429,16 +438,10 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 // Render the browser
 void CBrowser::Draw(SDL_Surface * bmpDest)
 {
-	// 3D Box
-	DrawRect(bmpDest, iX, iY, iX + iWidth, iY + iHeight, tLX->clBoxDark);
-	DrawRect(bmpDest, iX + 1, iY + 1, iX + iWidth - 1, iY + iHeight - 1, tLX->clBoxLight);
-	
-	// Render the content
-	RenderContent(bmpDest);
+	if (bNeedsRender)
+		ReRender();
 
-	// Scrollbar
-	if (bUseScroll)
-		cScrollbar.Draw(bmpDest);
+	DrawImage(bmpDest, bmpBuffer.get(), iX, iY);
 }
 
 /////////////////////
@@ -550,7 +553,7 @@ void CBrowser::EndLine()
 	tPureText.push_back(sCurLine);
 	sCurLine.clear();
 	curY += tLX->cFont.GetHeight();
-	curX = iX + BORDER_SIZE;
+	curX = BORDER_SIZE;
 }
 
 ////////////////////
@@ -628,6 +631,43 @@ void CBrowser::EndLink()
 
 	// Cleanup
 	cCurrentLink.Clear();
+}
+
+/////////////////////////////
+// Newly renders the content
+void CBrowser::ReRender()
+{
+	// Adjust the buffer size if necessary
+	if (!bmpBuffer.get())  {
+		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
+		if (!bmpBuffer.get())
+			return;
+	}
+
+	if (bmpBuffer->w != iWidth || bmpBuffer->h != iHeight)  {
+		bmpBuffer = NULL;
+		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
+		if (!bmpBuffer.get())
+			return;
+	}
+
+	FillSurfaceTransparent(bmpBuffer.get());
+
+	// 3D Box
+	DrawRect(bmpBuffer.get(), 0, 0, iWidth, iHeight, tLX->clBoxDark);
+	DrawRect(bmpBuffer.get(), 1, 1, iWidth - 1, iHeight - 1, tLX->clBoxLight);
+	
+	// Render the content
+	RenderContent();
+
+	// Scrollbar
+	if (bUseScroll)  {
+		cScrollbar.Setup(cScrollbar.getID(), iWidth - cScrollbar.getWidth() - BORDER_SIZE,
+			BORDER_SIZE, cScrollbar.getWidth(), cScrollbar.getHeight());
+		cScrollbar.Draw(bmpBuffer.get());
+	}
+
+	bNeedsRender = false;
 }
 
 ///////////////////////////
@@ -789,6 +829,7 @@ void CBrowser::ClearSelection()
 {
 	iSelectionStartLine = iSelectionEndLine = iSelectionGrabLine = iCursorLine;
 	iSelectionStartColumn = iSelectionEndColumn = iSelectionGrabColumn = iCursorColumn;
+	bNeedsRender = true;
 }
 
 ///////////////////////
@@ -817,6 +858,8 @@ void CBrowser::AdjustScrollbar(bool mouse)
 
 	if (mouse)
 		fLastMouseScroll = tLX->fCurTime;
+
+	bNeedsRender = true;
 }
 
 
@@ -842,7 +885,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	if (!node)
 		return;
 
-	const int maxX = iX + iWidth - BORDER_SIZE - 16;
+	const int maxX = iWidth - BORDER_SIZE - 16;
 
 	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) {}
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) {}
@@ -945,7 +988,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		EndLine();
-		DrawHLine(tDestSurface, curX + 5, iX + iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
+		DrawHLine(tDestSurface, curX + 5, iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
 		EndLine();
 		return;
 	}
@@ -958,12 +1001,12 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 
 //////////////////
 // Renders the textual content
-void CBrowser::RenderContent(SDL_Surface * bmpDest)
+void CBrowser::RenderContent()
 {
 	// Nothing to draw
 	if (!tHtmlDocument || !tRootNode)
 	{
-		// Backgorund (transparent by default)
+		// Background (transparent by default)
 		//DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
 		return;
 	}
@@ -971,23 +1014,22 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	tPureText.clear();
 	tActiveAreas.clear();
 	
-	curX = iX + BORDER_SIZE;
-	curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
-	tDestSurface = bmpDest;
+	curX = BORDER_SIZE;
+	curY = BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
+	tDestSurface = bmpBuffer.get();
 	tCurrentFormat.bold = false; 
 	tCurrentFormat.underline = false;
 	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
 	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
-	if( tBgColor.a != SDL_ALPHA_TRANSPARENT )
-		DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tBgColor);
+	DrawRectFill(bmpBuffer.get(), BORDER_SIZE, BORDER_SIZE, iWidth, iHeight, tBgColor);
 	
 	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
 	// Setup the clipping
-	SDL_Rect clip = {iX + BORDER_SIZE, iY + BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
-	SDL_SetClipRect(bmpDest, &clip);
+	SDL_Rect clip = {BORDER_SIZE, BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
+	SDL_SetClipRect(bmpBuffer.get(), &clip);
 
 	// Go through the document
 	sCurLine.clear();
@@ -1005,7 +1047,7 @@ void CBrowser::RenderContent(SDL_Surface * bmpDest)
 	tDestSurface = NULL;
 
 	// Restore clipping
-	SDL_SetClipRect(bmpDest, NULL);
+	SDL_SetClipRect(bmpBuffer.get(), NULL);
 }
 
 //
@@ -1055,6 +1097,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
 		
 	xmlNodeAddContent( line, (const xmlChar *)text.c_str() );
+	bNeedsRender = true;
 }
 
 ///////////////////////////////
@@ -1136,6 +1179,8 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 		xmlUnlinkNode(node);
 		xmlFreeNode(node);
 	};
+
+	bNeedsRender = true;
 }
 
 /////////////////////////

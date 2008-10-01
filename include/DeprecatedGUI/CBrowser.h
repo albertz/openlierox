@@ -60,6 +60,8 @@ public:
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
 	  bSelectionGrabbed(false),
+	  bNeedsRender(false),
+	  bmpBuffer(NULL),
 	  bInLink(false)
 	  {
 	  	tCurrentFormat.bold = false;
@@ -175,10 +177,14 @@ private:
 	CScrollbar				cScrollbar;
 	bool					bUseScroll;
 
+	// Other
+	SmartPointer<SDL_Surface>	bmpBuffer;
+	bool					bNeedsRender;
+
 	// Methods
 	void					Parse();
 	void					ParseTag(std::string::const_iterator& it, std::string::const_iterator& last, std::string& cur_line);
-	void					RenderContent(SDL_Surface * bmpDest);
+	void					RenderContent();
 	int						TextW(const std::string& text, FontFormat& fmt);
 	void					RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
 	void					TraverseNodes(xmlNodePtr node);
@@ -189,6 +195,7 @@ private:
 	void					ClearSelection();
 	void					EndLine();
 	void					AdjustScrollbar(bool mouse = false);
+	void					ReRender();
 
 	// Link helper functions
 	void					StartLink(const std::string& url);
