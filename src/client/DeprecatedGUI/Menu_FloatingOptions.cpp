@@ -41,7 +41,7 @@ void SetupGameInputs()
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 
 	cClient->SetupGameInputs();
-};
+}
 
 
 int iFloatingOptionsMode = 0;

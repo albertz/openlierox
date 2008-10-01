@@ -1043,34 +1043,45 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	}
 }
 
+
+static std::string getChatText(CClient* client) {
+	if(client->getStatus() == NET_PLAYING)
+		return client->chatterText();
+	else if(tGameInfo.iGameType == GME_HOST)
+		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
+	else if(tGameInfo.iGameType == GME_JOIN)
+		return DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+
+	cout << "WARNING: getChatText(): cannot find chat source" << endl;
+	return "";
+}
+
+static void setChatText(CClient* client, const std::string& txt) {
+	if(client->getStatus() == NET_PLAYING) {
+		client->chatterText() = txt;
+		client->setChatPos( Utf8StringSize(txt) );
+	} else if(tGameInfo.iGameType == GME_HOST) {
+		DeprecatedGUI::Menu_Net_HostLobbySetText( txt );
+	} else if(tGameInfo.iGameType == GME_JOIN) {
+		DeprecatedGUI::Menu_Net_JoinLobbySetText( txt );
+	} else
+		cout << "WARNING: setChatText(): cannot find chat source" << endl;
+}
+
+
 void CClientNetEngineBeta7::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	std::string startStr = bs->readString();
 	std::string solution = bs->readString();
 	
-	std::string chatCmd;
-	
-	if(client->iNetStatus == NET_PLAYING)
-		chatCmd = client->chatterText();
-	else if(tGameInfo.iGameType == GME_HOST)
-		chatCmd = DeprecatedGUI::Menu_Net_HostLobbyGetText();
-	else if(tGameInfo.iGameType == GME_JOIN)
-		chatCmd = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+	std::string chatCmd = getChatText(client);
 	
 	if(strSeemsLikeChatCommand(chatCmd))
 		chatCmd = chatCmd.substr(1);
 	else
-		chatCmd = "";
+		return;
 	
-	if(stringcaseequal(startStr, chatCmd)) {
-		if(client->iNetStatus == NET_PLAYING) {
-			client->chatterText() = "/" + solution;
-			client->setChatPos( 1 + Utf8StringSize(solution) );
-		} else if(tGameInfo.iGameType == GME_HOST) {
-			DeprecatedGUI::Menu_Net_HostLobbySetText( "/" + solution );
-		} else if(tGameInfo.iGameType == GME_JOIN) {
-			DeprecatedGUI::Menu_Net_JoinLobbySetText( "/" + solution );		
-		}
-	}
+	if(stringcaseequal(startStr, chatCmd))
+		setChatText(client, "/" + solution);
 }
 
 void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
@@ -1080,7 +1091,17 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 	uint n = bs->readInt(4);
 	for(uint i = 0; i < n; i++)
 		possibilities.push_back(bs->readString());
-		
+	
+	std::string chatCmd = getChatText(client);
+	
+	if(strSeemsLikeChatCommand(chatCmd))
+		chatCmd = chatCmd.substr(1);
+	else
+		return;
+	
+	if(!stringcaseequal(startStr, chatCmd))
+		return;
+	
 	std::string posStr;
 	for(std::list<std::string>::iterator it = possibilities.begin(); it != possibilities.end(); ++it) {
 		if(it != possibilities.begin()) posStr += " ";
