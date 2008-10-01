@@ -42,7 +42,7 @@ protected:
 	class Handler_NoOp : public Handler {
 	public:
 		virtual void operator()(_Data) {}
-		virtual bool operator==(const Handler& hndl) { return simple_dyn_cast(&hndl, this) != NULL; }
+		virtual bool operator==(const Handler& hndl) { return isSameType(hndl, *this); }
 		virtual Handler* copy() const { return new Handler_NoOp(); }
 	};
 	

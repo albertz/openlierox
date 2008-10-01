@@ -47,8 +47,6 @@
 		239ACAA80E6AD45000C4216A /* CImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA5F0E6AD44F00C4216A /* CImage.cpp */; };
 		239ACAA90E6AD45000C4216A /* CInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA600E6AD44F00C4216A /* CInputBox.cpp */; };
 		239ACAAA0E6AD45000C4216A /* CListview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA610E6AD44F00C4216A /* CListview.cpp */; };
-		239ACAAB0E6AD45000C4216A /* CMediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA620E6AD44F00C4216A /* CMediaPlayer.cpp */; };
-		239ACAAC0E6AD45000C4216A /* CMediaPlayer_GUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA630E6AD44F00C4216A /* CMediaPlayer_GUI.cpp */; };
 		239ACAAD0E6AD45000C4216A /* CMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA640E6AD44F00C4216A /* CMenu.cpp */; };
 		239ACAAE0E6AD45000C4216A /* CScrollbar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA650E6AD44F00C4216A /* CScrollbar.cpp */; };
 		239ACAAF0E6AD45000C4216A /* CSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA660E6AD44F00C4216A /* CSlider.cpp */; };
@@ -331,7 +329,6 @@
 		2306CBEE0E6AC55E00132D3B /* CLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLabel.h; sourceTree = "<group>"; };
 		2306CBEF0E6AC55E00132D3B /* CLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLine.h; sourceTree = "<group>"; };
 		2306CBF00E6AC55E00132D3B /* CListview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CListview.h; sourceTree = "<group>"; };
-		2306CBF10E6AC55E00132D3B /* CMediaPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMediaPlayer.h; sourceTree = "<group>"; };
 		2306CBF20E6AC55E00132D3B /* CMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMenu.h; sourceTree = "<group>"; };
 		2306CBF30E6AC55E00132D3B /* CProgressbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CProgressbar.h; sourceTree = "<group>"; };
 		2306CBF40E6AC55E00132D3B /* CScrollbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScrollbar.h; sourceTree = "<group>"; };
@@ -419,8 +416,6 @@
 		239ACA5F0E6AD44F00C4216A /* CImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CImage.cpp; sourceTree = "<group>"; };
 		239ACA600E6AD44F00C4216A /* CInputBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CInputBox.cpp; sourceTree = "<group>"; };
 		239ACA610E6AD44F00C4216A /* CListview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CListview.cpp; sourceTree = "<group>"; };
-		239ACA620E6AD44F00C4216A /* CMediaPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CMediaPlayer.cpp; sourceTree = "<group>"; };
-		239ACA630E6AD44F00C4216A /* CMediaPlayer_GUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CMediaPlayer_GUI.cpp; sourceTree = "<group>"; };
 		239ACA640E6AD44F00C4216A /* CMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CMenu.cpp; sourceTree = "<group>"; };
 		239ACA650E6AD44F00C4216A /* CScrollbar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScrollbar.cpp; sourceTree = "<group>"; };
 		239ACA660E6AD44F00C4216A /* CSlider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSlider.cpp; sourceTree = "<group>"; };
@@ -778,7 +773,6 @@
 				2306CBEE0E6AC55E00132D3B /* CLabel.h */,
 				2306CBEF0E6AC55E00132D3B /* CLine.h */,
 				2306CBF00E6AC55E00132D3B /* CListview.h */,
-				2306CBF10E6AC55E00132D3B /* CMediaPlayer.h */,
 				2306CBF20E6AC55E00132D3B /* CMenu.h */,
 				2306CBF30E6AC55E00132D3B /* CProgressbar.h */,
 				2306CBF40E6AC55E00132D3B /* CScrollbar.h */,
@@ -852,8 +846,6 @@
 				239ACA5F0E6AD44F00C4216A /* CImage.cpp */,
 				239ACA600E6AD44F00C4216A /* CInputBox.cpp */,
 				239ACA610E6AD44F00C4216A /* CListview.cpp */,
-				239ACA620E6AD44F00C4216A /* CMediaPlayer.cpp */,
-				239ACA630E6AD44F00C4216A /* CMediaPlayer_GUI.cpp */,
 				239ACA640E6AD44F00C4216A /* CMenu.cpp */,
 				239ACA650E6AD44F00C4216A /* CScrollbar.cpp */,
 				239ACA660E6AD44F00C4216A /* CSlider.cpp */,
@@ -1563,8 +1555,6 @@
 				239ACAA80E6AD45000C4216A /* CImage.cpp in Sources */,
 				239ACAA90E6AD45000C4216A /* CInputBox.cpp in Sources */,
 				239ACAAA0E6AD45000C4216A /* CListview.cpp in Sources */,
-				239ACAAB0E6AD45000C4216A /* CMediaPlayer.cpp in Sources */,
-				239ACAAC0E6AD45000C4216A /* CMediaPlayer_GUI.cpp in Sources */,
 				239ACAAD0E6AD45000C4216A /* CMenu.cpp in Sources */,
 				239ACAAE0E6AD45000C4216A /* CScrollbar.cpp in Sources */,
 				239ACAAF0E6AD45000C4216A /* CSlider.cpp in Sources */,

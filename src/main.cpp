@@ -31,6 +31,8 @@
 #include "CssParser.h"
 #include "FontHandling.h"
 #include "Timer.h"
+#include "Utils.h"
+
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -109,6 +111,34 @@ void print_binary_string(const std::string& txt) {
 	}
 }
 
+class SystemCheck_isSameType {
+public:
+	class Base { public: virtual void func() {} };
+	class Derived1 : public Base { public: virtual void func() {} };
+	class Derived2 : public Base { public: virtual void func() {} };
+
+	static void doCheck() {
+		// these checks also implies a working simple_dyn_cast for simple types as class Base
+		Base a1, a2; Derived1 b1; Derived2 b2;
+		assert(isSameType(a1, a2));
+		assert(!isSameType(a1, b1));
+		assert(!isSameType(a2, b2));
+		assert(!isSameType(b1, b2));		
+	}
+};
+
+
+static void DoSystemChecks() {
+	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
+	// TODO: fix this issue
+	assert(sizeof(char) == 1);
+	assert(sizeof(short) == 2);
+	assert(sizeof(int) == 4);
+	assert(sizeof(float) == 4);
+
+	SystemCheck_isSameType::doCheck();
+}
+
 
 char* apppath = NULL;
 
@@ -131,12 +161,7 @@ int main(int argc, char *argv[])
 	setvbuf(stdout, NULL, _IOLBF, 1024 );
 #endif
 
-	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
-	// TODO: fix this issue
-	assert(sizeof(char) == 1);
-	assert(sizeof(short) == 2);
-	assert(sizeof(int) == 4);
-	assert(sizeof(float) == 4);
+	DoSystemChecks();
 
     bool startgame = false;
 

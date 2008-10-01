@@ -142,6 +142,12 @@ _dst* simple_dyn_cast(_src* ptr, _dst* base) {
 	return NULL;
 }
 
+template <typename _dst, typename _src>
+bool isSameType(const _src& obj1, const _dst& obj2) {
+	if(sizeof(_dst) < sizeof(_src)) return isSameType(obj2, obj1);
+	return simple_dyn_cast(&obj1, &obj2) != NULL;
+}
+
 
 /*
 	some very basic math functions
