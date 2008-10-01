@@ -367,6 +367,9 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	if (!sender)
 		return "Message could not be sent";
 
+	if(sender->getNumWorms() == 0)
+		return "Message sent from client with no worms";
+	
 	// Get the message
 	std::string msg = sender->getWorm(0)->getName() + ": ";
 	std::vector<std::string>::const_iterator it = params.begin();
@@ -378,9 +381,9 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	// Send the message to teammates
 	CServerConnection *client = cServer->getClients();
 	msg = OldLxCompatibleString(msg);
-	for (int i=0; i < MAX_WORMS; ++i, client++)  {
-		CWorm *w = client->getWorm(0);
+	for (int i=0; i < MAX_CLIENTS; ++i, client++)  {
 		for (int j=0; j < client->getNumWorms(); ++j)  {
+			CWorm *w = client->getWorm(j);
 			if (w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
 				cServer->SendText(client, msg, TXT_TEAMPM);
 				break;

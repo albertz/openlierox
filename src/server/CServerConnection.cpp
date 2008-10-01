@@ -183,9 +183,9 @@ void CServerConnection::RemoveWorm(int id)
 			cout << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
 	}
 
-	--iNumWorms;
-
-	if(!found)
+	if(found)
+		--iNumWorms;
+	else
 		cout << "WARNING: cannot find worm " << id << " for removal" << endl;
 
 	if (cRemoteWorms)  {
@@ -214,6 +214,10 @@ void CServerConnection::Shutdown(void)
 {
 	int i;
 
+	iNumWorms = 0;
+	for(int i = 0; i < MAX_PLAYERS; ++i)
+		cLocalWorms[i] = NULL;
+	
 	// Remote worms
 	if(cRemoteWorms) {
 		for(i=0;i<MAX_WORMS;i++)

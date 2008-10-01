@@ -576,7 +576,7 @@ void CWorm::GetRandomWeapons(void)
         // Cycle through weapons starting from the random one until we get an enabled weapon
         n=num;
 		lastenabled = 0;
-		while(1) {
+		while(true) {
 			// Wrap around
 			if(n >= cGameScript->GetNumWeapons())
  			   n = 0;
@@ -600,7 +600,7 @@ void CWorm::GetRandomWeapons(void)
 			n++;
 
 			// We made a whole loop
-			if(n == num) {
+			if(n >= num) {
 			   n = lastenabled;
 			   break;
 			}
