@@ -1206,6 +1206,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 	}
 	
 	cl->setStatus(NET_DISCONNECTED);
+	cl->setNumWorms(0); // No worms are present anymore
 
 	// Re-Calculate number of players
 	iNumPlayers=0;

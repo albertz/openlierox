@@ -384,7 +384,7 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	for (int i=0; i < MAX_CLIENTS; ++i, client++)  {
 		for (int j=0; j < client->getNumWorms(); ++j)  {
 			CWorm *w = client->getWorm(j);
-			if (w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
+			if (w && w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
 				cServer->SendText(client, msg, TXT_TEAMPM);
 				break;
 			}
