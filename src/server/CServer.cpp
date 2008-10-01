@@ -1030,7 +1030,7 @@ void GameServer::CheckTimeouts(void)
 	CServerConnection *cl = cClients;
 	for(c = 0; c < MAX_CLIENTS; c++, cl++) {
 		// Client not connected or no worms
-		if(cl->getStatus() == NET_DISCONNECTED || cl->getNumWorms() == 0)
+		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
 		// Don't disconnect the local client
