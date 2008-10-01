@@ -113,7 +113,7 @@ void print_binary_string(const std::string& txt) {
 
 class SystemCheck_isSameType {
 public:
-	class Base { public: virtual void func() {} };
+	class Base { public: virtual void func() {} virtual ~Base() {} };
 	class Derived1 : public Base { public: virtual void func() {} };
 	class Derived2 : public Base { public: virtual void func() {} };
 
