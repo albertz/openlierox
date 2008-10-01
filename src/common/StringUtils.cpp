@@ -299,15 +299,21 @@ static Color ColFromFunc(const std::string& func, bool& fail)
 Color StrToCol(const std::string& str, bool& fail) {
 	fail = false;
 
+	// Create the temp and copy it there
+	std::string temp = str;
+	TrimSpaces(temp);
+	
+	if(temp.size() > 0 && temp[temp.size()-1] == ';') {
+		temp.erase(temp.size()-1);
+		TrimSpaces(temp);
+	}
+	
 	// Check for a blank string
-	if (str.size() == 0)  {
+	if (temp.size() == 0)  {
 		fail = true;
 		return Color();
 	}
-
-	// Create the temp and copy it there
-	std::string temp = str;
-
+	
 	// Is the # character present?
 	if (temp[0] == '#')  { // str != "" here
 		temp.erase(0,1);

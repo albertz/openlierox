@@ -183,11 +183,11 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
 {
 	FILE	*config;
-	static std::string	Line;
-	static std::string	tmpLine;
-	static std::string	curSection;
-	static std::string	temp;
-	static std::string	curKey;
+	std::string	Line;
+	std::string	tmpLine;
+	std::string	curSection;
+	std::string	temp;
+	std::string	curKey;
 	size_t	chardest = 0;
 	int		Position;
 	int		found = false;
