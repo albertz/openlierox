@@ -1193,7 +1193,11 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		if(!cl->getWorm(i)) continue;
-		if(!cl->getWorm(i)->isUsed()) continue;
+		if(!cl->getWorm(i)->isUsed()) {
+			cout << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
+			cl->setWorm(i, NULL);
+			continue;
+		}
 		
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
