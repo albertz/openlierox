@@ -230,9 +230,10 @@ public:
 	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
 
+	// TODO: create a descendant chatbox class and move the chatbox things there, they do not belong to browser
 	void	InitializeChatBox( const std::string & initText = "" );
 	void	AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline);
-	void	AddChatBoxLine(const std::string & text, Color color, bool bold = false, bool underline = false);
+	void	AddChatBoxLine(const std::string & text, Color color, bool bold = false, bool underline = false); // TODO: get rid of this
 	std::string GetChatBoxText();
 	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
 	// TODO: add function for getting individual text lines & their color
