@@ -269,7 +269,7 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 	if(msg.size() > 127)
 		msg = msg.substr(0, 127);
 	bs.writeString(msg);
-		
+
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 

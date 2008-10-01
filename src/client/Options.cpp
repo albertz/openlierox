@@ -268,6 +268,9 @@ bool GameOptions::LoadFromDisc()
 		}
 	}
 
+	cout << "Reading game options from " << GetFullFileName("cfg/options.cfg") << endl;
+	cout << "Will write game options to " << GetWriteFullFileName("cfg/options.cfg", true) << endl;
+	
 	// define parser handler
 	class MyIniReader : public IniReader {
 	public:

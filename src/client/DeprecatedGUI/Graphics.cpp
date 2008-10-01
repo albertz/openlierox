@@ -27,6 +27,18 @@ namespace DeprecatedGUI {
 gfxgui_t	gfxGUI;
 gfxgame_t	gfxGame;
 
+static SmartPointer<SDL_Surface> getAlternativeCommandButtonGfx() {
+	SmartPointer<SDL_Surface> gfx = gfxCreateSurface(24, 12);
+	if(!gfx.get()) return NULL;
+	
+	// very simple, but it's not that important to have something nice here
+	DrawRectFill(gfx.get(), 0, 0, 11, 11, tLX->clBoxLight);
+	DrawRectFill(gfx.get(), 12, 0, 23, 11, tLX->clBoxDark);
+	
+	return gfx;
+}
+
+
 ///////////////////
 // Load the graphics
 bool LoadGraphics(void)
@@ -34,7 +46,7 @@ bool LoadGraphics(void)
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
-	LOAD_IMAGE_WITHALPHA(gfxGUI.bmpCommandBtn,"data/frontend/commandbtn.png");
+	LOAD_IMAGE_WITHALPHA__OR(gfxGUI.bmpCommandBtn, "data/frontend/commandbtn.png", getAlternativeCommandButtonGfx());
 
 	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
 	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");

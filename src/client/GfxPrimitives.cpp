@@ -1806,16 +1806,15 @@ void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour) {
 	if (y < r.y) return;
 	if (y >= (r.y + r.h)) return;
 
-	if (x < r.x) { 
-		if (r.x >= x2) 
-			return;
-		x2 -= r.x - x;
-		y = r.x;
-	}
-	else if (x >= (r.x + r.w)) return;
+	if (x < r.x)
+		x = r.x;
+	else if (x >= (r.x + r.w))
+		return;
 
-	if (x2 < r.x) return;
-	else if (x2 >= (r.x + r.w)) x2 = r.x + r.w - 1;
+	if (x2 < r.x)
+		return;
+	else if (x2 >= (r.x + r.w))
+		x2 = r.x + r.w - 1;
 
 	// Lock
 	LOCK_OR_QUIT(bmpDest);
@@ -1868,16 +1867,15 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 	if (x < r.x) return;
 	if (x >= (r.x + r.w)) return;
 
-	if (y < r.y) { 
-		if (r.y >= y2) 
-			return;
-		y2 -= r.y - y;
+	if (y < r.y)
 		y = r.y;
-	}
-	else if (y >= (r.y + r.h)) return;
+	else if (y >= (r.y + r.h))
+		return;
 
-	if (y2 < r.y) return;
-	else if (y2 >= (r.y + r.h)) y2 = r.y + r.h - 1;
+	if (y2 < r.y)
+		return;
+	else if (y2 >= (r.y + r.h))
+		y2 = r.y + r.h - 1;
 
 	LOCK_OR_QUIT(bmpDest);
 	ushort pitch = (ushort)bmpDest->pitch;
