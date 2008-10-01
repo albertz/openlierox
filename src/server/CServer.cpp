@@ -1170,6 +1170,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
+	cl->setNumWorms(0);
 
 	SendGlobalPacket(&bs);
 
