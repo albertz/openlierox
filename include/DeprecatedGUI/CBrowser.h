@@ -60,9 +60,9 @@ public:
 	  iSelectionEndLine(0),
 	  iSelectionEndColumn(0),
 	  bSelectionGrabbed(false),
-	  bNeedsRender(false),
+	  bInLink(false),
 	  bmpBuffer(NULL),
-	  bInLink(false)
+	  bNeedsRender(false)
 	  {
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;

@@ -354,8 +354,8 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	// Downloading stuff
 	CProgressBar *dl = new CProgressBar(LoadGameImage("data/frontend/downloadbar_lobby.png", true), 0, 0, false, 1);
 	CButton *cancel = new CButton(BUT_CANCEL, tMenu->bmpButtons);
-	cJoinLobby.Add( dl, jl_DownloadProgress, 360, 195, 0, 0);
-	cJoinLobby.Add( cancel, jl_CancelDownload, 360 + dl->getWidth() + 5, 195 + (dl->getHeight() - 20)/2, 0, 0);
+	cJoinLobby.Add( dl, jl_DownloadProgress, 360, 245, 0, 0);
+	cJoinLobby.Add( cancel, jl_CancelDownload, 360 + dl->getWidth() + 5, 245 + (dl->getHeight() - 20)/2, 0, 0);
 	dl->setEnabled(false);
 	cancel->setEnabled(false);
 
@@ -629,13 +629,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
             f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel,  gl->szModName);
 		} else {
 			if (cClient->getDownloadingMod())
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, gl->szModName);
 			else {
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y+60, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, gl->szModName);
 				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + 60 + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
-				if (MouseInRect(x2, y+60, 640-x2, tLX->cFont.GetHeight()))  {
+				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)  {
 						cClient->DownloadMod(cClient->getGameLobby()->szModDir);
