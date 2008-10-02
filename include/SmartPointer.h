@@ -242,7 +242,7 @@ class ScopedLock
 	private:
 	SDL_mutex* data_mutex;
 	// Non-copyable
-	ScopedLock( const ScopedLock & ) { assert(false); };
+	ScopedLock( const ScopedLock & ) : data_mutex(NULL) { assert(false); };
 	ScopedLock & operator= ( const ScopedLock & ) { assert(false); return *this; };
 
 	public:

@@ -83,6 +83,11 @@ class theme_t { public:
 class CPlayer;
 
 class CMap {
+private:
+	// just don't do that
+	CMap(const CMap&) { assert(false); }
+	CMap& operator=(const CMap&) { assert(false); return *this; }
+	
 public:
 	// Constructor
 	CMap() {

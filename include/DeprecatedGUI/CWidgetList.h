@@ -33,10 +33,7 @@ class widget_item_t { public:
 // Widget list class
 class CWidgetList {
 public:
-	CWidgetList() {
-		tItems = NULL;
-		iCount = 0;
-	}
+	CWidgetList() : tItems(NULL), iCount(0) {}
 
 private:
 	// Attributes

@@ -28,8 +28,8 @@ public:
 	void operator==(const iterator<_RandomAccessType, _ValueType2, _PosType2>& it) {
 		return base == it->base && (pos == it->pos || MIN(pos,it->pos) >= base.size()); }
 
-	void operator++() { pos++; }
-	void operator--() { pos--; }
+	iterator& operator++() { pos++; return *this; }
+	iterator& operator--() { pos--; return *this; }
 	_ValueType operator*() { return base[pos]; }
 };
 
