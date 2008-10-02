@@ -1147,7 +1147,8 @@ void CClient::processChatter(void)
 				kb->KeyDown[SDLK_ESCAPE] = false;
 				kb->KeyUp[SDLK_ESCAPE] = false;
 
-				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+				if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
+					cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
 
 				break;
 			}
@@ -1179,7 +1180,8 @@ void CClient::processChatter(void)
 		// Clear the input
 		clearHumanWormInputs();
 		
-		cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
+			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 
 		return;
 	}
@@ -1243,7 +1245,8 @@ void CClient::processChatter(void)
 			bChat_Holding = false;
 			fChat_TimePushed = -9999;
 
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
+				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 
 		}
 
@@ -1341,7 +1344,8 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         bChat_Typing = false;
 		clearHumanWormInputs();
 
-		cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
+			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
 
         // Send chat message to the server
 		if(sChat_Text != "") {

@@ -1096,7 +1096,7 @@ void CClient::SimulateHud(void)
 			processChatter();
 	}
 	
-	if( iNumWorms > 0 && cLocalWorms[0] ) {	
+	if( iNumWorms > 0 && cLocalWorms[0] && cLocalWorms[0]->getType() != PRF_COMPUTER) {	
 		if( bActivated )
 			cNetEngine->SendAFK( cLocalWorms[0]->getID(), bChat_Typing ? AFK_TYPING_CHAT : AFK_BACK_ONLINE );
 		if( bDeactivated )
