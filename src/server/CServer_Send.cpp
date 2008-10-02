@@ -111,8 +111,7 @@ void GameServer::SendChatCommandCompletionList(CServerConnection* cl, const std:
 	for(std::list<std::string>::const_iterator it = solutions.begin(); it != solutions.end(); ++it)
 		bs.writeString(*it);
 
-	cl->getChannel()->AddReliablePacketToSend(bs);	
-
+	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
 

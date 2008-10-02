@@ -677,7 +677,7 @@
 		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
 		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
+		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
 		EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvReader.h; sourceTree = "<group>"; };
 		EAE7662A0C4793C800788523 /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cursor.h; sourceTree = "<group>"; };
 		EAE766380C4794C200788523 /* IfyouDontLikeItThenIWillEatYourSoul.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = IfyouDontLikeItThenIWillEatYourSoul.svg; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.svg; sourceTree = SOURCE_ROOT; };

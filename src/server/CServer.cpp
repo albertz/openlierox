@@ -282,7 +282,7 @@ int GameServer::StartGame()
 		tLXOptions->tGameinfo.bForceRandomWeapons ||
 		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm
 		
-	checkVersionCompatibilities();
+	dropOutIncompatibleClients();
 
 
 	CBytestream bs;
@@ -1230,7 +1230,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 }
 
 
-void GameServer::checkVersionCompatibilities() {
+void GameServer::dropOutIncompatibleClients() {
 	// Cycle through clients
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -1242,26 +1242,31 @@ void GameServer::checkVersionCompatibilities() {
 		//if (cl->isLocalClient())
 		//	continue;
 		
-		checkVersionCompatibility(cl);
+		checkVersionCompatibility(cl, true);
 	}
 }
 
-bool GameServer::checkVersionCompatibility(CServerConnection* cl) {
+bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut) {
 	if(tGameInfo.fGameSpeed != 1.0f) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used")) return false;		
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used", dropOut))
+			return false;		
 	}
 	
 	if(tGameInfo.bServerChoosesWeapons) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons")) return false;	
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut))
+			return false;	
 	}
 	
 	return true;
 }
 
-bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason) {
+bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut) {
 	if(cl->getClientVersion() < ver) {
 		std::string kickReason = cl->getClientVersion().asString() + " is too old: " + reason;
-		DropClient(cl, CLL_KICK, kickReason);
+		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
+		if(dropOut)
+			DropClient(cl, CLL_KICK, kickReason);
+		SendGlobalText(OldLxCompatibleString(playerName + " is too old for: " + reason), TXT_NETWORK);
 		return false;
 	}
 	return true;
