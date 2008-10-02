@@ -263,6 +263,18 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	return true;
 }
 
+
+bool GameServer::serverChoosesWeapons() {
+	// HINT:
+	// At the moment, the only cases where we need the bServerChoosesWeapons are:
+	// - bForceRandomWeapons
+	// - bSameWeaponsAsHostWorm
+	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
+	return
+		tLXOptions->tGameinfo.bForceRandomWeapons ||
+		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm	
+}
+
 ///////////////////
 // Start the game
 int GameServer::StartGame()
@@ -273,14 +285,6 @@ int GameServer::StartGame()
 		if(IsSocketStateValid(tNatTraverseSockets[f]))
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
-	// HINT:
-	// At the moment, the only cases where we need the bServerChoosesWeapons are:
-	// - bForceRandomWeapons
-	// - bSameWeaponsAsHostWorm
-	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
-	tGameInfo.bServerChoosesWeapons =
-		tLXOptions->tGameinfo.bForceRandomWeapons ||
-		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm
 		
 	checkVersionCompatibilities(true);
 
@@ -496,7 +500,7 @@ int GameServer::StartGame()
 		{
 			CBytestream bs1(bs);
 			bs1.writeFloat( tGameInfo.fGameSpeed );
-			bs1.writeBool( tGameInfo.bServerChoosesWeapons );
+			bs1.writeBool( serverChoosesWeapons() );
 			SendPacket( &bs1, & cClients[i] );
 		}
 		else
@@ -1246,27 +1250,28 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 	}
 }
 
-bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut) {
+bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg) {
 	if(tGameInfo.fGameSpeed != 1.0f) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used", dropOut))
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used", dropOut, makeMsg))
 			return false;		
 	}
 	
-	if(tGameInfo.bServerChoosesWeapons) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut))
+	if(serverChoosesWeapons()) {
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut, makeMsg))
 			return false;	
 	}
 	
 	return true;
 }
 
-bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut) {
+bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg) {
 	if(cl->getClientVersion() < ver) {
 		std::string kickReason = cl->getClientVersion().asString() + " is too old: " + reason;
 		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
-		SendGlobalText(OldLxCompatibleString(playerName + " is too old: " + reason), TXT_NOTICE);
+		if(makeMsg)
+			SendGlobalText(OldLxCompatibleString(playerName + " is too old: " + reason), TXT_NOTICE);
 		return false;
 	}
 	return true;

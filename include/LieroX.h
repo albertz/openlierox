@@ -230,7 +230,6 @@ class game_t { public:
 	bool		bBonusesOn;
 	bool		bShowBonusName;
 	float		fGameSpeed;
-	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];

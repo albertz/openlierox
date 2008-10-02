@@ -309,6 +309,7 @@ private:
 	bool		bBonusesOn;
 	bool		bShowBonusName;
     CWpnRest    cWeaponRestrictions;
+	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 
 	// Ping below FPS
 	float		fMyPingSent;
@@ -596,6 +597,8 @@ public:
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
+	bool		serverChoosesWeapons()		{ return bServerChoosesWeapons; }
+	
 	void		clearHumanWormInputs();
 	void		clearLocalWormInputs();
 

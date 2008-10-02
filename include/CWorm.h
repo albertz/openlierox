@@ -447,7 +447,10 @@ public:
 	//
 	bool		CanType(void);
 
-
+	bool		isHostWorm();
+	bool		shouldDoOwnWeaponSelection();
+	
+	
 
     //
     // AI

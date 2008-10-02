@@ -220,8 +220,8 @@ public:
 
 
 	void		checkVersionCompatibilities(bool dropOut);
-	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut);
-	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut);
+	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true);
+	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true);
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CServerConnection *cl);
@@ -285,6 +285,8 @@ public:
 	void	setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
 
 	int		getNumPlayers(void)			{ return iNumPlayers; }
+	
+	bool	serverChoosesWeapons();
 };
 
 extern	GameServer		*cServer;

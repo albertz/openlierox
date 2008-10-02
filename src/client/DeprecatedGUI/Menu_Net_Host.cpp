@@ -1293,7 +1293,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		
 		bool compatible = true;
 		CServerConnection *client = cServer->getClient(w->getID());
-		if(client && !cServer->checkVersionCompatibility(client, false)) compatible = false;
+		if(client && !cServer->checkVersionCompatibility(client, false, false)) compatible = false;
 		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL, VALIGN_MIDDLE,
 								compatible ? tLX->clPink : tLX->clError);  // Name
 

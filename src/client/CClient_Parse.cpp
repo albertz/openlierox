@@ -684,7 +684,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.readList(bs);
 
 	tGameInfo.fGameSpeed = 1.0f;
-	tGameInfo.bServerChoosesWeapons = false;
+	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
 	client->bGameReady = true;
@@ -787,7 +787,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 	// >=Beta7 is sending this
 	tGameInfo.fGameSpeed = bs->readFloat();
-	tGameInfo.bServerChoosesWeapons = bs->readBool();
+	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
 };
