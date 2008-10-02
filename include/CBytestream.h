@@ -28,11 +28,7 @@
 
 class CBytestream {
 public:
-	CBytestream()  {
-		pos = 0;
-		bitPos = 0;
-		Data = "";
-	}
+	CBytestream() : pos(0), bitPos(0), Data("") {}
 
 	CBytestream(const CBytestream& bs) {
 		operator=(bs);
@@ -126,7 +122,7 @@ class CBytestreamBitIterator
 
 	public:
 
-	CBytestreamBitIterator(char * Data): data(Data) 
+	CBytestreamBitIterator(char * Data): data(Data)
 	{ 
 		resetPos();
 	};
@@ -141,7 +137,7 @@ class CBytestreamBitIterator
 		bitMask = 1;
 	};
 
-	void operator ++()
+	CBytestreamBitIterator& operator ++()
 	{
 		if( bitMask >= 128 )
 		{
@@ -150,6 +146,7 @@ class CBytestreamBitIterator
 		}
 		else
 			bitMask *= 2;
+		return *this;
 	};
 
 	bool getBit() const

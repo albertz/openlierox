@@ -27,17 +27,11 @@ template<typename _T>
 class VectorD2 {
 public:
 	// Constructor
-	VectorD2() {
-		x=y=0;
-	}
-
-	VectorD2(_T _x, _T _y) {
-		x=_x;
-		y=_y;
-	}
+	VectorD2() : x(0), y(0) {}
+	VectorD2(_T _x, _T _y) : x(_x), y(_y) {}
+	
 	
 	// Attributes
-
 	_T	x, y;
 
 

@@ -87,6 +87,8 @@ public:
 	Timer(Null n, void* dat = NULL, Uint32 t = 1000, bool o = false);
 	Timer(void (*fct)(EventData dat), void* dat = NULL, Uint32 t = 1000, bool o = false);
 	Timer(Event<EventData>::Handler* hndl, void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(const Timer& t) { (*this) = t; }
+	Timer& operator=(const Timer& t) { onTimer = t.onTimer; userData = t.userData; interval = t.interval; once = t.once; return *this; }
 	~Timer();
 
 	Event<EventData> onTimer;

@@ -563,8 +563,6 @@ void CBrowser::EndLine()
 			curX -= tLX->cFont.GetCharacterWidth(' ') + 1;
 		}
 
-	size_t cur_line_size = Utf8StringSize(sCurLine);
-
 	// Multiline link? Split it into multiple links
 	if (bInLink)  {
 		std::string url = cCurrentLink.getStringData();

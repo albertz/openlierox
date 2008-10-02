@@ -101,6 +101,8 @@ private:
 
 public:
 	Event() { handler() = null; }
+	Event(const Event& e) { (*this) = e; }
+	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); return *this; }
 	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }
 
 	void occurred(_Data data) { m_handler.get()(data); }
