@@ -197,7 +197,11 @@ void CBrowser::Parse()
 int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
-		return cScrollbar.MouseDown(tMouse, nDown);
+	{
+		if( cScrollbar.MouseDown(tMouse, nDown) == SCR_CHANGE )
+			bNeedsRender = true;
+		return BRW_NONE;
+	}
 
 	MousePosToCursorPos(tMouse->X, tMouse->Y, iCursorColumn, iCursorLine);
 
@@ -262,7 +266,11 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 int CBrowser::MouseOver(mouse_t *tMouse)
 {
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
-		return cScrollbar.MouseOver(tMouse);
+	{
+		if( cScrollbar.MouseOver(tMouse) == SCR_CHANGE )
+			bNeedsRender = true;
+		return BRW_NONE;
+	}
 
 	// Check if any of the active areas has been clicked
 	if (!tMouse->Down)  {
@@ -283,7 +291,7 @@ int CBrowser::MouseWheelDown(mouse_t *tMouse)
 {
 	if(bUseScroll)  {
 		bNeedsRender = true;
-		return cScrollbar.MouseWheelDown(tMouse);
+		cScrollbar.MouseWheelDown(tMouse);
 	}
 	return BRW_NONE;
 }
@@ -294,7 +302,7 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 {
 	if(bUseScroll)  {
 		bNeedsRender = true;
-		return cScrollbar.MouseWheelUp(tMouse);
+		cScrollbar.MouseWheelUp(tMouse);
 	}
 	return BRW_NONE;
 }
@@ -303,6 +311,13 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 // Mouse up event
 int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
+	if(bUseScroll && tMouse->X > iX+iWidth-20)
+	{
+		if( cScrollbar.MouseUp(tMouse, nDown) == SCR_CHANGE )
+			bNeedsRender = true;
+		return BRW_NONE;
+	}
+
 	std::string sel = GetSelectedText();
 
 	// Copy to clipboard with 2-nd or 3-rd mouse button
@@ -1037,8 +1052,8 @@ void CBrowser::RenderContent()
 	EndLine(); // Add the last parsed line
 
 	int linesperbox = iHeight / tLX->cFont.GetHeight();
-	if ((int)tPureText.size() >= linesperbox)  {
-		cScrollbar.setMax(tPureText.size());
+	if ((int)tPureText.size() >= linesperbox + 1)  {
+		cScrollbar.setMax(tPureText.size() - 1);
 		cScrollbar.setItemsperbox(linesperbox - 1);
 		bUseScroll = true;
 	} else
@@ -1100,32 +1115,8 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	bNeedsRender = true;
 }
 
-///////////////////////////////
-// Add a new line to the browser (compatible version, guessing textType from color
-void CBrowser::AddChatBoxLine(const std::string & text, Color color, bool bold, bool underline)
-{
-	TXT_TYPE textType = TXT_CHAT;
-	if( color.get() == tLX->clChatText )
-		textType = TXT_CHAT;
-	else if( color.get() == tLX->clNormalText )
-		textType = TXT_NORMAL;
-	else if( color.get() == tLX->clNotice )
-		textType = TXT_NOTICE;
-	else if( color.get() == tLX->clNetworkText )
-		textType = TXT_NETWORK;
-	else if( color.get() == tLX->clPrivateText )
-		textType = TXT_PRIVATE;
-	else if( 	color.get() == tLX->clTeamColors[0] ||
-				color.get() == tLX->clTeamColors[1] ||
-				color.get() == tLX->clTeamColors[2] ||
-				color.get() == tLX->clTeamColors[3] )
-		textType = TXT_TEAMPM;
-	
-	AddChatBoxLine(text, color, textType, bold, underline);
-}
-
 //////////////////////
-// Get all the text from the chatbox browser
+// Get all the text from the chatbox browser, as HTML
 std::string CBrowser::GetChatBoxText()
 {
 	if (!tHtmlDocument || !tRootNode)
@@ -1183,6 +1174,17 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 	bNeedsRender = true;
 }
 
+void CBrowser::ScrollToLastLine(void)
+{
+	if( bNeedsRender )
+		ReRender();
+	if( bUseScroll )
+	{
+		cScrollbar.setValue(cScrollbar.getMax());
+		bNeedsRender = true;
+	};
+};
+
 /////////////////////////
 // A callback function that gets called when the user clicks on a link
 void CBrowser::LinkClickHandler(CBrowser::CActiveArea *area)
@@ -1217,6 +1219,5 @@ void CBrowser::CActiveArea::DoMouseMove(int x, int y)
 	if (tMouseMoveFunc)
 		(tParent->*tMouseMoveFunc)(this);
 }
-
 
 }; // namespace DeprecatedGUI

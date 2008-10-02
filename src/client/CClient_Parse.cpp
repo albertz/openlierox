@@ -974,6 +974,10 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 void CClientNetEngine::ParseText(CBytestream *bs)
 {
 	int type = bs->readInt(1);
+	if( type < TXT_CHAT )
+		type = TXT_CHAT;
+	if( type > TXT_TEAMPM )
+		type = TXT_TEAMPM;
 
 	Uint32 col = tLX->clWhite;
 	int	t = bDedicated ? 0 : client->cLocalWorms[0]->getTeam();
@@ -1006,7 +1010,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
-	client->cChatbox.AddText(buf, col, tLX->fCurTime);
+	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->fCurTime);
 
 
 	// Log the conversation
@@ -1108,7 +1112,7 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 		posStr += *it;
 	}
 
-	client->cChatbox.AddText(posStr, tLX->clNotice, tLX->fCurTime);
+	client->cChatbox.AddText(posStr, tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
 }
 
 ///////////////////

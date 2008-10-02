@@ -544,7 +544,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 		// Copy the chat text
 		for (int id = 0; it != Chatbox->End(); it++, id++)  {
-			lv->AddChatBoxLine(it->strLine, it->iColour);
+			lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 			id++;
 		}
 	}
@@ -747,13 +747,13 @@ void Menu_Net_HostGotoLobby(void)
 
 			// Copy the chat text
 			for (; it != Chatbox->End(); it++)  {
-				if (it->iColour == tLX->clChatText)  {  // Add only chat messages
-					lv->AddChatBoxLine(it->strLine, it->iColour);
+				if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM )  {  // Add only chat messages
+					lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 					//id++;
 				}
 			}
 
-			//lv->scrollLast();
+			lv->ScrollToLastLine();
 			//lv->setShowSelect(false);
 		}
 
@@ -864,7 +864,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	while((l = cClient->getChatbox()->GetNewLine()) != NULL) {
 
         //if(lv->getLastItem() != NULL)
-        lv->AddChatBoxLine(l->strLine, l->iColour);
+        lv->AddChatBoxLine(l->strLine, l->iColour, l->iTextType);
 
         // If there are too many lines, remove the top one
         //if(lv->getItemCount() > 256) {
@@ -872,7 +872,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
         //        lv->RemoveItem(lv->getItems()->iIndex);
         //}
 
-        //lv->scrollLast();
+        lv->ScrollToLastLine();
 	}
 
 

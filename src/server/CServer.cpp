@@ -1661,7 +1661,7 @@ void GameServer::notifyLog(const std::string& msg)
     if(cClient) {
         CChatBox *c = cClient->getChatbox();
         if(c)
-            c->AddText(msg, tLX->clNetworkText, tLX->fCurTime);
+            c->AddText(msg, tLX->clNetworkText, TXT_NETWORK, tLX->fCurTime);
     }
 
 }

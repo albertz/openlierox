@@ -134,7 +134,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 		if (client->getServerVersion() < OLXBetaVersion(3)) {
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
 			if( ! Cmd_ParseLine(sText.substr(1)) ) {
-				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
+				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
 			}
 			return;
 		}
@@ -208,7 +208,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	// If the part we should repeat before each message is longer than the limit, just quit
 	// HINT: should not happen
 	if (command.size() + sWormName.size() >= 64)  {
-		client->cChatbox.AddText("Could not send the message.", tLX->clNotice, tLX->fCurTime);
+		client->cChatbox.AddText("Could not send the message.", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
 		return;
 	}
 

@@ -35,7 +35,7 @@ void CChatBox::Clear(void)
 
 ///////////////////
 // Add a line of text to the chat box
-void CChatBox::AddText(const std::string& txt, int colour, float time)
+void CChatBox::AddText(const std::string& txt, int colour, TXT_TYPE TextType, float time)
 {
 	if (txt == "")
 		return;
@@ -45,6 +45,7 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 
 	newline.fTime = time;
 	newline.iColour = colour;
+	newline.iTextType = TextType;
 	newline.strLine = txt;
 	newline.iID = Lines.size();
 
@@ -55,13 +56,13 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 		Lines.pop_front();
 
 	// Add to wrapped lines
-	AddWrapped(txt,colour,time,WrappedLines,true);
+	AddWrapped( txt, colour, TextType, time, WrappedLines, true );
 }
 
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new)
+void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, TXT_TYPE TextType, float time, ct_lines_t &lines, bool mark_as_new)
 {
 	// Split it to the lines
 	const std::vector<std::string>& tmp = splitstring(txt, (size_t)-1, nWidth, tLX->cFont);
@@ -71,6 +72,7 @@ void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_
 		line_t newline;
 		newline.fTime = time;
 		newline.iColour = colour;
+		newline.iTextType = TextType;
 		newline.strLine = *it;
 		newline.iID = WrappedLines.size();
 
@@ -98,13 +100,13 @@ void CChatBox::setWidth(int w)
 
 	// Recalculate the wrapped lines
 	for (i=Lines.begin();i!=Lines.end();i++)
-		AddWrapped(i->strLine,i->iColour,i->fTime, WrappedLines, false);
+		AddWrapped(i->strLine,i->iColour, i->iTextType, i->fTime, WrappedLines, false);
 
 	// Recalculate new lines
 	if (!NewLines.empty())  {
 		ct_lines_t wrapped_newlines;
 		for (i=NewLines.begin();i!=NewLines.end();i++)
-			AddWrapped(i->strLine, i->iColour, i->fTime, wrapped_newlines, false);
+			AddWrapped(i->strLine, i->iColour, i->iTextType, i->fTime, wrapped_newlines, false);
 		NewLines.clear();
 		NewLines = wrapped_newlines;
 	}

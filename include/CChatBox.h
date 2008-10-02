@@ -19,6 +19,7 @@
 
 #include <SDL.h>
 #include <list>
+#include "Protocol.h"
 
 
 #define MAX_LLENGTH		128
@@ -28,6 +29,7 @@
 class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
+	TXT_TYPE iTextType;
 	float	fTime;
 	size_t iID;
 };
@@ -55,12 +57,12 @@ private:
     unsigned int	nWidth;
 
 	// Methods
-	void	AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new);
+	void	AddWrapped(const std::string& txt, Uint32 colour, TXT_TYPE TextType, float time, ct_lines_t &lines, bool mark_as_new);
 
 public:
 	// Methods
 	void	Clear(void);
-	void    AddText(const std::string& txt, int colour, float time);
+	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, float time);
 
     // Variables
 	lines_iterator Begin()  { return WrappedLines.begin(); }
