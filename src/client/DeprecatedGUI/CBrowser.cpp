@@ -45,9 +45,8 @@ void CBrowser::Create(void)
 	iClientHeight = iHeight - 2*BORDER_SIZE;
 
 	// Setup the scrollbar
-	cScrollbar.Create();
-
 	cScrollbar.Setup(0, iX+iWidth-15, iY+BORDER_SIZE, 14, iHeight-BORDER_SIZE);
+	cScrollbar.Create();
 	cScrollbar.setMin(0);
 	cScrollbar.setValue(0);
 	cScrollbar.setItemsperbox(iHeight);
@@ -198,8 +197,8 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 	{
-		if( cScrollbar.MouseDown(tMouse, nDown) == SCR_CHANGE )
-			bNeedsRender = true;
+		cScrollbar.MouseDown(tMouse, nDown);
+		bNeedsRender = true; // Always redraw, scrollbar may change it's image
 		return BRW_NONE;
 	}
 
@@ -290,8 +289,8 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 int CBrowser::MouseWheelDown(mouse_t *tMouse)
 {
 	if(bUseScroll)  {
-		bNeedsRender = true;
-		cScrollbar.MouseWheelDown(tMouse);
+		if( cScrollbar.MouseWheelDown(tMouse) == SCR_CHANGE )
+			bNeedsRender = true;
 	}
 	return BRW_NONE;
 }
@@ -301,8 +300,8 @@ int CBrowser::MouseWheelDown(mouse_t *tMouse)
 int CBrowser::MouseWheelUp(mouse_t *tMouse)
 {
 	if(bUseScroll)  {
-		bNeedsRender = true;
-		cScrollbar.MouseWheelUp(tMouse);
+		if( cScrollbar.MouseWheelUp(tMouse) == SCR_CHANGE )
+			bNeedsRender = true;
 	}
 	return BRW_NONE;
 }
@@ -313,8 +312,8 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 	{
-		if( cScrollbar.MouseUp(tMouse, nDown) == SCR_CHANGE )
-			bNeedsRender = true;
+		cScrollbar.MouseUp(tMouse, nDown);
+		bNeedsRender = true; // Always redraw, scrollbar may change it's image
 		return BRW_NONE;
 	}
 
@@ -680,6 +679,7 @@ void CBrowser::ReRender()
 		cScrollbar.Setup(cScrollbar.getID(), iWidth - cScrollbar.getWidth() - BORDER_SIZE,
 			BORDER_SIZE, cScrollbar.getWidth(), cScrollbar.getHeight());
 		cScrollbar.Draw(bmpBuffer.get());
+		cScrollbar.Setup(0, iX+iWidth-15, iY+BORDER_SIZE, 14, iHeight-BORDER_SIZE);
 	}
 
 	bNeedsRender = false;
@@ -1177,7 +1177,7 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 void CBrowser::ScrollToLastLine(void)
 {
 	if( bNeedsRender )
-		ReRender();
+		ReRender(); // To update scrollbar max size
 	if( bUseScroll )
 	{
 		cScrollbar.setValue(cScrollbar.getMax());

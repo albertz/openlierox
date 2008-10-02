@@ -31,6 +31,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CTextButton.h"
 #include "DeprecatedGUI/CProgressbar.h"
+#include "DeprecatedGUI/CBrowser.h"
 #include "AuxLib.h"
 
 using namespace std;
@@ -272,20 +273,18 @@ bool Menu_Net_JoinLobbyInitialize(void)
     Menu_Net_JoinLobbyCreateGui();
 
 	// Add the chat
-	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	CBrowser *lv = (CBrowser *)cJoinLobby.getWidget(jl_ChatList);
 	if (lv)  {
+		lv->InitializeChatBox();
 		CChatBox *Chatbox = cClient->getChatbox();
 		lines_iterator it = Chatbox->Begin();
 
 		// Copy the chat text
-		for (int id = 0; it != Chatbox->End(); it++, id++)  {
-			lv->AddItem("", id, it->iColour);
-			lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-			id++;
+		for ( ; it != Chatbox->End(); it++ )  {
+			lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 		}
 
-		lv->scrollLast();
-		lv->setShowSelect(false);
+		lv->ScrollToLastLine();
 	}
 
 	iNetMode = net_join;
@@ -346,7 +345,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);
 	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
-    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
+    cJoinLobby.Add( new CBrowser(),                           jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
@@ -391,23 +390,21 @@ void Menu_Net_JoinGotoLobby(void)
 	cClient->getChatbox()->setWidth(570);
 
 	// Add the chat
-	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	CBrowser *lv = (CBrowser *)cJoinLobby.getWidget(jl_ChatList);
 	if (lv)  {
+		lv->InitializeChatBox();
 		CChatBox *Chatbox = cClient->getChatbox();
 		lines_iterator it = Chatbox->At((int)Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+		//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 		// Copy the chat text
 		for (; it != Chatbox->End(); it++)  {
-			if (it->iColour == tLX->clChatText)  {  // Add only chat messages
-				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-				id++;
+			if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM)  {  // Add only chat messages
+				lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 			}
 		}
 
-		lv->scrollLast();
-		lv->setShowSelect(false);
+		lv->ScrollToLastLine();
 	}
 
 	// Add the ingame chatter text to lobby chatter
@@ -500,24 +497,11 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// Add chat to the listbox
-	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	CBrowser *lv = (CBrowser *)cJoinLobby.getWidget(jl_ChatList);
     line_t *ln = NULL;
 	while((ln = cClient->getChatbox()->GetNewLine()) != NULL) {
-
-        if(lv->getLastItem())
-            lv->AddItem("", lv->getLastItem()->iIndex+1, ln->iColour);
-        else
-            lv->AddItem("", 0, ln->iColour);
-        lv->AddSubitem(LVS_TEXT, ln->strLine, NULL, NULL);
-        lv->setShowSelect(false);
-
-        // If there are too many lines, remove the top line
-        if(lv->getItemCount() > 256) {
-            if(lv->getItems())
-                lv->RemoveItem(lv->getItems()->iIndex);
-        }
-
-        lv->scrollLast();
+		lv->AddChatBoxLine(ln->strLine, ln->iColour, ln->iTextType);
+        lv->ScrollToLastLine();
 	}
 
 
