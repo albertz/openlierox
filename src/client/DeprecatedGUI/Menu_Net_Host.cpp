@@ -794,6 +794,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			cServer->getLobby()->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
 			cServer->getLobby()->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 			cServer->UpdateGameLobby();
+			
+			cServer->checkVersionCompatibilities(false);
 		}
 		return;
 	}
@@ -1163,7 +1165,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 		// Get the mod
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
 		if(it) {
 			tGameInfo.sModName = it->sName;
 			tGameInfo.sModDir = it->sIndex;
@@ -1288,7 +1290,12 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		else
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
 		player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
-		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
+		
+		bool compatible = true;
+		CServerConnection *client = cServer->getClient(w->getID());
+		if(client && !cServer->checkVersionCompatibility(client, false)) compatible = false;
+		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL, VALIGN_MIDDLE,
+								compatible ? tLX->clPink : tLX->clError);  // Name
 
 		// Display the team mark if TDM
 		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)  {

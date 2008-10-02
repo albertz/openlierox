@@ -1166,6 +1166,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 							TXT_NETWORK);
 		}
 	}
+	
+	// just inform everybody in case the client is not compatible
+	checkVersionCompatibility(newcl, false);
 
 	// Tell the client the game lobby details
 	// Note: This sends a packet to ALL clients, not just the new client

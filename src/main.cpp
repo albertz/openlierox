@@ -135,6 +135,8 @@ static void DoSystemChecks() {
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
+	// sometimes the return value of SendMessage is used as a pointer
+	assert(sizeof(DWORD) == sizeof(void*));
 
 	SystemCheck_isSameType::doCheck();
 }

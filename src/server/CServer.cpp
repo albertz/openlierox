@@ -282,7 +282,7 @@ int GameServer::StartGame()
 		tLXOptions->tGameinfo.bForceRandomWeapons ||
 		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm
 		
-	dropOutIncompatibleClients();
+	checkVersionCompatibilities(true);
 
 
 	CBytestream bs;
@@ -1230,7 +1230,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 }
 
 
-void GameServer::dropOutIncompatibleClients() {
+void GameServer::checkVersionCompatibilities(bool dropOut) {
 	// Cycle through clients
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -1242,7 +1242,7 @@ void GameServer::dropOutIncompatibleClients() {
 		//if (cl->isLocalClient())
 		//	continue;
 		
-		checkVersionCompatibility(cl, true);
+		checkVersionCompatibility(cl, dropOut);
 	}
 }
 
@@ -1266,7 +1266,7 @@ bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, cons
 		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
-		SendGlobalText(OldLxCompatibleString(playerName + " is too old for: " + reason), TXT_NETWORK);
+		SendGlobalText(OldLxCompatibleString(playerName + " is too old: " + reason), TXT_NOTICE);
 		return false;
 	}
 	return true;

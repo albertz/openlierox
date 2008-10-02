@@ -219,9 +219,9 @@ public:
 	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
 
 
-	void		dropOutIncompatibleClients();
-	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut = false);
-	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut = false);
+	void		checkVersionCompatibilities(bool dropOut);
+	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut);
+	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut);
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CServerConnection *cl);
