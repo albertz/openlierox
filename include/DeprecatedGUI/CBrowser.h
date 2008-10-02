@@ -62,6 +62,7 @@ public:
 	  bSelectionGrabbed(false),
 	  bInLink(false),
 	  bmpBuffer(NULL),
+	  bDrawCursor(true),
 	  bNeedsRender(false)
 	  {
 	  	tCurrentFormat.bold = false;
@@ -157,7 +158,7 @@ private:
 	std::string				sCurLine;
 	SDL_Surface				*tDestSurface;
 
-	// Selection
+	// Selection & caret
 	size_t					iCursorColumn;
 	size_t					iCursorLine;
 	size_t					iSelectionStartLine;
@@ -168,6 +169,7 @@ private:
 	size_t					iSelectionGrabLine;
 	size_t					iSelectionGrabColumn;
 	bool					bSelectionGrabbed;
+	bool					bDrawCursor;
 
 	// Links
 	bool					bInLink;
@@ -196,6 +198,7 @@ private:
 	void					EndLine();
 	void					AdjustScrollbar(bool mouse = false);
 	void					ReRender();
+	void					DrawCursor(SDL_Surface *bmpDest);
 
 	// Link helper functions
 	void					StartLink(const std::string& url);

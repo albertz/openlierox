@@ -448,6 +448,18 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 }
 
 
+////////////////////////
+// Draws the cursor
+void CBrowser::DrawCursor(SDL_Surface *bmpDest)
+{
+	if (bFocused && bDrawCursor)  {
+		int x, y;
+		CursorPosToMousePos(iCursorColumn, iCursorLine, x, y);
+		DrawVLine(bmpDest, y, y + tLX->cFont.GetHeight(), x, tLX->clTextboxCursor);
+	}
+}
+
+
 ///////////////////
 // Render the browser
 void CBrowser::Draw(SDL_Surface * bmpDest)
@@ -456,6 +468,7 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 		ReRender();
 
 	DrawImage(bmpDest, bmpBuffer.get(), iX, iY);
+	DrawCursor(bmpDest);
 }
 
 /////////////////////
@@ -551,10 +564,6 @@ void CBrowser::EndLine()
 		}
 
 	size_t cur_line_size = Utf8StringSize(sCurLine);
-
-	// Check if the cursor is at the end of the line
-	if (tPureText.size() == iCursorLine && iCursorColumn >= cur_line_size)
-		DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, tLX->clTextboxCursor);
 
 	// Multiline link? Split it into multiple links
 	if (bInLink)  {
@@ -766,10 +775,6 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			// Underline
 			if (fmt.underline)
 				DrawHLine(bmpDest, curX, curX + w, curY + tLX->cFont.GetHeight() - 2, fmt.color);
-
-			// Cursor
-			if (tPureText.size() == iCursorLine && current_column == iCursorColumn)
-				DrawVLine(tDestSurface, curY, curY + tLX->cFont.GetHeight(), curX, tLX->clTextboxCursor);
 
 			curX += w;
 			++current_column;
