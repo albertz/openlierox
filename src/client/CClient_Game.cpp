@@ -1359,7 +1359,12 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
     }
 
 	// Paste
-	if (input.ch == 22)  {
+	if (input.ch == 22) { // TODO: add Shift-Insert, following commented-out code doesn't work :(
+		/*
+		(input.sym == SDLK_v && ( GetKeyboard()->KeyDown[SDLK_RCTRL] || GetKeyboard()->KeyDown[SDLK_LCTRL] ||
+									GetKeyboard()->KeyDown[SDLK_RMETA] || GetKeyboard()->KeyDown[SDLK_LMETA]) ) || 
+		(input.sym == SDLK_INSERT && ( GetKeyboard()->KeyDown[SDLK_RSHIFT] || GetKeyboard()->KeyDown[SDLK_LSHIFT] ))) {
+		*/
 		size_t text_len = Utf8StringSize(sChat_Text);
 
 		// Safety

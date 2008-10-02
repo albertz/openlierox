@@ -175,7 +175,7 @@ void CClient::MinorClear(void)
 	fSendWait = 0;
 
 	iChat_Numlines = 0;
-	((DeprecatedGUI::CListview *)cChatList)->Clear();
+	cChatList->InitializeChatBox();
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
@@ -271,23 +271,14 @@ int CClient::Initialize(void)
 		return false;
 
 	// Initialize chat box (must be after drawing because of interface settings)
-	cChatList = (void *)(new DeprecatedGUI::CListview);
+	cChatList = new DeprecatedGUI::CBrowser;
 	if (!cChatList)
 		return false;
-	((DeprecatedGUI::CListview *)cChatList)->Clear();
-	((DeprecatedGUI::CListview *)cChatList)->setShowSelect(false);
-	((DeprecatedGUI::CListview *)cChatList)->setRedrawMenu(false);
-	((DeprecatedGUI::CListview *)cChatList)->setDrawBorder(false);
-	((DeprecatedGUI::CListview *)cChatList)->Setup(0,
-									tInterfaceSettings.ChatBoxX,
-									tInterfaceSettings.ChatBoxY,
-									tInterfaceSettings.ChatBoxW,
-									tInterfaceSettings.ChatBoxH);
-	((DeprecatedGUI::CListview *)cChatList)->SetupScrollbar(tInterfaceSettings.ChatboxScrollbarX,
-											 tInterfaceSettings.ChatboxScrollbarY,
-											 tInterfaceSettings.ChatboxScrollbarH,
-											 tInterfaceSettings.ChatboxScrollbarAlwaysVisible);
-
+	cChatList->InitializeChatBox();
+	cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
+						tInterfaceSettings.ChatBoxY,
+						tInterfaceSettings.ChatBoxW,
+						tInterfaceSettings.ChatBoxH);
 
 
 	// Clear the network channel
@@ -1675,9 +1666,8 @@ void CClient::Shutdown(void)
 
 	// Chatlist
 	if (cChatList)  {
-		((DeprecatedGUI::CListview *)cChatList)->Clear();
-		((DeprecatedGUI::CListview *)cChatList)->Destroy();
-		delete (DeprecatedGUI::CListview *)cChatList;
+		cChatList->InitializeChatBox();
+		delete cChatList;
 		cChatList = NULL;
 	}
 

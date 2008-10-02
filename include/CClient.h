@@ -32,6 +32,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/CGuiLayout.h"
 #include "DeprecatedGUI/CListview.h"
+#include "DeprecatedGUI/CBrowser.h"
 #include "InputEvents.h"
 #include "FileDownload.h"
 #include "Version.h"
@@ -353,7 +354,7 @@ private:
 	chat_line_t	tChatLines[MAX_CHATLINES];
 
 	CChatBox	cChatbox;		// Our chatbox
-	void		*cChatList;		// Ingame chatlist (this is the type of CListview)
+	DeprecatedGUI::CBrowser	*cChatList;		// Ingame chatlist
 	bool		bRepaintChatbox;
 
 	// Send chat

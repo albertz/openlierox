@@ -243,6 +243,8 @@ public:
 	std::string GetChatBoxText();
 	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
 	void	ScrollToLastLine(void);
+	inline bool	NeedsRepaint()  { return bNeedsRender; }
+
 
 	// TODO: add function for getting individual text lines & their color
 

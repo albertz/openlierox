@@ -712,23 +712,20 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->cChatbox.setWidth(client->tInterfaceSettings.ChatBoxW - 4);
 
 	// Load the chat
-	DeprecatedGUI::CListview *lv = (DeprecatedGUI::CListview *)client->cChatList;
+	DeprecatedGUI::CBrowser *lv = client->cChatList;
 	if (lv)  {
-		lv->Clear();
+		lv->InitializeChatBox();
 		lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+		//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 		for (; it != client->cChatbox.End(); it++)  {
 
 			// Add only chat text (PM and Team PM messages too)
-			if (it->iColour == tLX->clChatText || it->iColour == tLX->clPrivateText ||
-					it->iColour == tLX->clTeamColors[client->cLocalWorms[0]->getTeam()] )  {
-				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, it->strLine, NULL, NULL);
-				id++;
+			if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
+				lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 			}
 		}
-		lv->scrollLast();
+		lv->ScrollToLastLine();
 	}
 
 

@@ -1947,27 +1947,26 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	if (!cChatList)
 		return;
 
-	DeprecatedGUI::CListview *lv = (DeprecatedGUI::CListview *)cChatList;
+	DeprecatedGUI::CBrowser *lv = cChatList;
 
 	// Get any new lines
 	line_t *l = NULL;
-	int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+	//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 	while((l = cChatbox.GetNewLine()) != NULL) {
 
-		lv->AddItem("", id, l->iColour);
-        lv->AddSubitem(DeprecatedGUI::LVS_TEXT, l->strLine, NULL, NULL);
-		lv->scrollLast();
-		id++;
+		lv->AddChatBoxLine(l->strLine, l->iColour, l->iTextType);
+		lv->ScrollToLastLine();
 	}
 
     // If there are too many lines, remove the top one
+	/*
 	if (lv->getItems())
 		while(lv->getItemCount() > 256) {
 			lv->RemoveItem(lv->getItems()->iIndex);
 			lv->scrollLast();
 		}
-
+	*/
 	mouse_t *Mouse = GetMouse();
 
 	// Small hack: count the mouse height so we avoid "freezing"
