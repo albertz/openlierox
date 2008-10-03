@@ -835,6 +835,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Check if this ip isn't already connected
 	// HINT: this works in every case, even if there are two people behind one router
 	// because the address ports are checked as well (router assigns a different port for each person)
+	newcl = NULL;
 	p=0;
 	for(CServerConnection* cl = cClients;p<MAX_CLIENTS;p++,cl++) {
 
@@ -843,6 +844,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 		if(AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress())) {
 
+			// HINT: just let the client connect again
+			newcl = cl;
+			if(cl->isLocalClient())
+				bLocalClientConnected = false; // because we are reconnecting the client
+			break;
+			
+			/*
 			// Must not have got the connection good packet
 			if(cl->getStatus() == NET_CONNECTED) {
 				printf("Duplicate connection\n");
@@ -858,19 +866,21 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				return;
 			}
 
+			// TODO: does this make sense? the already connected client tries to connect again while playing?
 			// Trying to connect while playing? Drop the client
 			if(cl->getStatus() == NET_PLAYING) {
 				//conprintf("Client tried to reconnect\n");
 				//DropClient(&players[p]);
 				return;
 			}
+			*/
 		}
 	}
 
 	// Find a spot for the client
 	player = -1;
-	newcl = NULL;
 	p=0;
+	if(newcl == NULL)
 	for (CServerConnection* cl = cClients; p < MAX_CLIENTS; p++, cl++) {
 		if (cl->getStatus() == NET_DISCONNECTED) {
 			newcl = cl;

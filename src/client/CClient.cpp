@@ -1299,7 +1299,7 @@ void CClient::Connecting(bool force)
 
 ///////////////////
 // Disconnect
-void CClient::Disconnect(void)
+void CClient::Disconnect()
 {
 	cNetEngine->SendDisconnect();
 
