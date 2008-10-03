@@ -1172,6 +1172,61 @@ void CBrowser::ResetScrollbar() {
 	} else
 		bUseScroll = false;	
 }
+
+////////////////////////
+// Checks for standalone < and > and replaces them with the corresponding entities
+std::string CBrowser::HtmlEntityUnpairedBrackets(const std::string &txt)
+{
+	// Check
+	if (!txt.size())
+		return "";
+
+	// Get the positions of unclosed brackets
+	bool wait_for_close = false;
+	size_t wait_for_close_pos = 0;
+	std::list<size_t> unpaired_pos;
+	size_t curpos = 0;
+	for (std::string::const_iterator it = txt.begin(); it != txt.end(); it++, curpos++)  {
+		if (*it == '<')  {
+			if (wait_for_close)
+				unpaired_pos.push_back(wait_for_close_pos);
+			wait_for_close = true;
+			wait_for_close_pos = curpos;
+		}
+
+		// One character after the < character
+		if (wait_for_close && curpos == wait_for_close_pos + 1)  {
+			// Make sure it's a a-z A-Z letter or a slash
+			if (!((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '/'))
+				unpaired_pos.push_back(wait_for_close_pos);
+			wait_for_close = false;
+			wait_for_close_pos = 0;
+		}
+
+		// Closing bracket
+		if (wait_for_close && *it == '>')  {
+			wait_for_close = false;
+			wait_for_close_pos = 0;
+		}
+	}
+
+	if (wait_for_close)
+		unpaired_pos.push_back(wait_for_close_pos);
+
+	// Replace the unclosed brackets with html entities
+	std::string result;
+	size_t startpos = 0;
+	for (std::list<size_t>::iterator it = unpaired_pos.begin(); it != unpaired_pos.end(); it++)  {
+		result += txt.substr(startpos, *it - startpos) + "&lt;";
+		startpos = *it + 1;
+	}
+
+	// Last chunk
+	if (startpos < txt.size())
+		result += txt.substr(startpos);
+
+	return result;
+}
 	
 //
 // Chatbox routines
@@ -1226,7 +1281,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	const bool useHtml = true;	
 	if(useHtml) {
 		// Parse the line as HTML and insert the nodes
-		std::string doc = "<html><body>" + text + "</body></html>";
+		std::string doc = "<html><body>" + HtmlEntityUnpairedBrackets(text) + "</body></html>";
 
 		htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
 		if (!line_doc || !xmlDocGetRootElement(line_doc))  {
