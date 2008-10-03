@@ -195,6 +195,7 @@ private:
 	std::string				GetSelectedText();
 	bool					IsSelectionEmpty();
 	void					ClearSelection();
+	void					SwapSelectionEnds();
 	void					EndLine();
 	void					AdjustScrollbar(bool mouse = false);
 	void					ReRender();

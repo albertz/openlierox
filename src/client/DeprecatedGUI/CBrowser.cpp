@@ -227,19 +227,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 		iSelectionEndColumn = iCursorColumn;
 
 		// Swap the ends if necessary
-		if (iSelectionStartLine > iSelectionEndLine)  {
-			size_t tmp = iSelectionStartLine;
-			iSelectionStartLine = iSelectionEndLine;
-			iSelectionEndLine = tmp;
-
-			tmp = iSelectionStartColumn;
-			iSelectionStartColumn = iSelectionEndColumn;
-			iSelectionEndColumn = tmp;
-		} else if (iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn > iSelectionEndColumn)  {
-			size_t tmp = iSelectionStartColumn;
-			iSelectionStartColumn = iSelectionEndColumn;
-			iSelectionEndColumn = tmp;
-		}
+		SwapSelectionEnds();
 
 		bCanLoseFocus = false;
 	} else {
@@ -353,11 +341,21 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_DOWN:
 		if (iCursorLine < tPureText.size() - 1)  {
 			++iCursorLine;
-			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
+			iCursorColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
-				// TODO: selection
+				// There is a selection and the cursor is at the beginning of it
+				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionStartLine = iCursorLine;
+					iSelectionStartColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					SwapSelectionEnds();
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionEndLine = iCursorLine;
+					iSelectionEndColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+				}
 			} else {
 				ClearSelection();
 			}
@@ -366,11 +364,21 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_UP:
 		if (iCursorLine > 0)  {
 			--iCursorLine;
-			iCursorColumn = MIN(tPureText[iCursorLine].size() - 1, iCursorColumn);
+			iCursorColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
-				// TODO: selection
+				// There is a selection and the cursor is at the end of it
+				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionEndLine = iCursorLine;
+					iSelectionEndColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					SwapSelectionEnds();
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionStartLine = iCursorLine;
+					iSelectionStartColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+				}
 			} else {
 				ClearSelection();
 			}
@@ -855,6 +863,26 @@ void CBrowser::ClearSelection()
 bool CBrowser::IsSelectionEmpty()
 {
 	return iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn == iSelectionEndColumn;
+}
+
+
+////////////////////////
+// Exchanges the start and end points of the selection of necessary
+void CBrowser::SwapSelectionEnds()
+{
+	if (iSelectionStartLine > iSelectionEndLine)  {
+		size_t tmp = iSelectionStartLine;
+		iSelectionStartLine = iSelectionEndLine;
+		iSelectionEndLine = tmp;
+
+		tmp = iSelectionStartColumn;
+		iSelectionStartColumn = iSelectionEndColumn;
+		iSelectionEndColumn = tmp;
+	} else if (iSelectionStartLine == iSelectionEndLine && iSelectionStartColumn > iSelectionEndColumn)  {
+		size_t tmp = iSelectionStartColumn;
+		iSelectionStartColumn = iSelectionEndColumn;
+		iSelectionEndColumn = tmp;
+	}
 }
 
 ////////////////////////
