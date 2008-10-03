@@ -262,7 +262,7 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 	// Check if any of the active areas has been clicked
 	if (!tMouse->Down)  {
 		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
-			if (it->InBox(tMouse->X, tMouse->Y))  {
+			if (it->InBox(tMouse->X - iX, tMouse->Y - iY))  {
 				it->DoMouseMove(tMouse->X, tMouse->Y);
 				break;
 			}
@@ -315,7 +315,7 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 	// Check if any of the active areas has been clicked
 	if (sel.size() == 0)  {
 		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
-			if (it->InBox(tMouse->X, tMouse->Y))  {
+			if (it->InBox(tMouse->X - iX, tMouse->Y - iY))  {
 				it->DoClick(tMouse->X, tMouse->Y);
 				break;
 			}
@@ -1187,15 +1187,19 @@ void CBrowser::InitializeChatBox( const std::string & initText )
 // Add a new line to the browser
 void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline)
 {
-	if (!tHtmlDocument || !tRootNode || textType < TXT_CHAT || textType > TXT_TEAMPM)
+	if (!tHtmlDocument || !tRootNode)
 		return;
+	if (textType < TXT_CHAT || textType > TXT_TEAMPM)
+		textType = TXT_NOTICE; // Default
 		
+	// Create the new line node
 	xmlNodePtr line = xmlNewChild( tRootNode, NULL, (const xmlChar *)"div", NULL );
 
 	xmlNewProp( line, (const xmlChar *)"class", (const xmlChar *)txtTypeNames[textType] );
 
 	line = xmlNewChild( line, NULL, (const xmlChar *)"font", NULL );
 
+	// Format
 	char t[20];
 	sprintf(t, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
 	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
@@ -1204,9 +1208,35 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 		line = xmlNewChild( line, NULL, (const xmlChar *)"b", NULL );
 	if( underline )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
-		
-	xmlNodeAddContent( line, (const xmlChar *)text.c_str() );
+
 	bNeedsRender = true;
+
+	// Parse the line as HTML and insert the nodes
+	std::string doc = "<html><body>" + text + "</body></html>";
+
+	htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
+	if (!line_doc || !xmlDocGetRootElement(line_doc))  {
+		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
+		return;
+	}
+
+	// Add all the nodes to the line node
+	xmlNodePtr node = xmlDocGetRootElement(line_doc);
+	node = node->children;
+
+	if (!node)  {
+		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
+		return;
+	}
+
+	while (node)  {
+		xmlNodePtr copy = xmlCopyNode(node, true);
+		if (copy)
+			xmlAddChild(line, copy);
+		node = node->next;
+	}
+
+	xmlFreeDoc(line_doc);
 }
 
 //////////////////////
