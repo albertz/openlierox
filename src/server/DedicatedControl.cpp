@@ -296,6 +296,24 @@ struct DedIntern {
 	// adds a worm to the game (By string - id is way to complicated)
 	void Cmd_AddBot(const std::string & params)
 	{
+		profile_t** player = NULL;
+		
+		//Find an empty spot
+		if(tGameInfo.iNumPlayers < MAX_WORMS)
+		for(int i=0;i < MAX_WORMS;i++)
+		{
+			if (tGameInfo.cPlayers[i] == NULL)
+			{
+				player = &tGameInfo.cPlayers[i];
+				break;
+			}
+		}
+		
+		if(player == NULL) {
+			cout << "ERROR: no free slot available" << endl;
+			return;
+		}
+		
 		// Default botname
 		// New variable so that we won't break const when we trim spaces.
 		std::string localWorm = "[CPU] Kamikazee!";
@@ -304,43 +322,24 @@ struct DedIntern {
 			localWorm = params;
 			TrimSpaces(localWorm);
 		}
-
-		//Find an empty spot
-		for(int i=0;i < tGameInfo.iNumPlayers;i++)
+		
+		// try to find the requested worm or find any other worm
+		profile_t *p = FindProfile(localWorm);
+		if(!p) p = GetProfiles();
+		for(;p;p=p->tNext)
 		{
-			if (tGameInfo.cPlayers[i] == NULL)
+			if(p->iType == PRF_COMPUTER)
 			{
-				tGameInfo.cPlayers[i] = FindProfile(localWorm);
+				// we found a bot, so add it
+				*player = p;
 				tGameInfo.iNumPlayers++;
 				cServer->UpdateWorms();
 				cServer->SendWormLobbyUpdate();
 				return;
 			}
 		}
-		// So that worm requested was not found -> let's find a new one.
-		profile_t *p = GetProfiles();
-		for(;p;p=p->tNext)
-		{
-			if(p->iType == PRF_COMPUTER)
-			{
-				//Find an empty spot
-				for(int i=0;i < tGameInfo.iNumPlayers;i++)
-				{
-					if (tGameInfo.cPlayers[i] == NULL)
-					{
-						tGameInfo.cPlayers[i] = p;
-						tGameInfo.iNumPlayers++;
-						cServer->UpdateWorms();
-						cServer->SendWormLobbyUpdate();
-						return;
-					}
-				}
-
-			}
-		}
 		
-		printf("ERROR: Can't find ANY bot! (Or a free slot)");
-		// TODO: Perhaps send a signal back informing if we fail?
+		cout << "ERROR: Can't find ANY bot!" << endl;
 		return;
 	}
 
