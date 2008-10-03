@@ -341,20 +341,20 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_DOWN:
 		if (iCursorLine < tPureText.size() - 1)  {
 			++iCursorLine;
-			iCursorColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the beginning of it
 				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -364,20 +364,20 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_UP:
 		if (iCursorLine > 0)  {
 			--iCursorLine;
-			iCursorColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the end of it
 				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(tPureText[iCursorLine].size(), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -387,7 +387,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 	case SDLK_RIGHT:
 		if (iCursorLine < tPureText.size())  {
-			if (iCursorColumn >= tPureText[iCursorLine].size())  {
+			if (iCursorColumn >= Utf8StringSize(tPureText[iCursorLine]))  {
 				if  (iCursorLine < tPureText.size() - 1)  {
 					iCursorColumn = 0;
 					++iCursorLine;
@@ -415,11 +415,11 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_NONE;
 
 	case SDLK_LEFT:
-		if (iCursorLine >= 0)  {
+		if (tPureText.size() > 0)  {
 			if (iCursorColumn == 0)  {
 				if  (iCursorLine > 0)  {
 					--iCursorLine;
-					iCursorColumn = MAX(0, (int)tPureText[iCursorLine].size() - 1);
+					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[iCursorLine]));
 					AdjustScrollbar();
 				}
 			} else {
@@ -442,6 +442,56 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 			}
 		}
 	return BRW_NONE;
+
+	case SDLK_HOME:
+		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
+			iCursorColumn = 0;
+
+			if (modstate.bShift)  {
+				// There is a selection and the cursor is at the end of it
+				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionEndColumn = iCursorColumn;
+					SwapSelectionEnds();
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionStartLine = iCursorLine;
+					iSelectionStartColumn = iCursorColumn;
+					if (IsSelectionEmpty())  { // If there's no selection, the new selection can be only one-line
+						iSelectionEndLine = iCursorLine;
+						iSelectionEndColumn = oldcol;
+					}
+				}
+			} else {
+				ClearSelection();
+			}
+		}
+	return BRW_NONE;
+
+	case SDLK_END:
+		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
+			iCursorColumn = Utf8StringSize(tPureText[iCursorLine]);
+
+			if (modstate.bShift)  {
+				// There is a selection and the cursor is at the beginning of it
+				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
+					iSelectionStartColumn = iCursorColumn;
+					SwapSelectionEnds();
+
+				// No selection or cursor at the end of the selection
+				} else {
+					iSelectionEndLine = iCursorLine;
+					iSelectionEndColumn = iCursorColumn;
+					if (IsSelectionEmpty())  { // If there's no selection, the new selection can be only one-line
+						iSelectionStartLine = iCursorLine;
+						iSelectionStartColumn = oldcol;
+					}
+				}
+			} else {
+				ClearSelection();
+			}
+		}
+	return BRW_NONE;
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
@@ -458,7 +508,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		iSelectionStartColumn = 0;
 		if (tPureText.size())  {
 			iCursorLine = iSelectionEndLine = tPureText.size() - 1;
-			iCursorColumn = iSelectionEndColumn = tPureText[iSelectionEndLine].size();
+			iCursorColumn = iSelectionEndColumn = Utf8StringSize(tPureText[iSelectionEndLine]);
 		} else {
 			iCursorLine = iCursorColumn = iSelectionEndLine = iSelectionEndColumn = 0;
 		}
@@ -531,8 +581,6 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 
 			++column;
 		}
-
-		//column = MAX((size_t)0, MIN(column, tPureText[line].size() - 1));
 	}
 
 	cur_x = column;
@@ -826,9 +874,11 @@ std::string CBrowser::GetSelectedText()
 {
 	// One line selection
 	if (iSelectionStartLine == iSelectionEndLine)  {
-		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)
-			if (iSelectionStartColumn < tPureText[iSelectionStartLine].size() && iSelectionEndColumn <= tPureText[iSelectionStartLine].size())
+		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)  {
+			size_t len = Utf8StringSize(tPureText[iSelectionStartLine]);
+			if (iSelectionStartColumn < len && iSelectionEndColumn <= len)
 				return Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
+		}
 
 	// More lines
 	} else {
@@ -840,7 +890,7 @@ std::string CBrowser::GetSelectedText()
 		std::string res;
 
 		// First line
-		if (iSelectionStartColumn < tPureText[iSelectionStartLine].size())  {
+		if (iSelectionStartColumn < Utf8StringSize(tPureText[iSelectionStartLine]))  {
 			res += Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn);
 			res += '\n';
 		}
@@ -852,7 +902,7 @@ std::string CBrowser::GetSelectedText()
 		}
 
 		// Last line
-		if (iSelectionEndColumn <= tPureText[iSelectionEndLine].size())
+		if (iSelectionEndColumn <= Utf8StringSize(tPureText[iSelectionEndLine]))
 			res += Utf8SubStr(tPureText[iSelectionEndLine], 0, iSelectionEndColumn);
 
 		return res;
