@@ -595,7 +595,8 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 	ms_x = iX + BORDER_SIZE;
 	ms_y = iY + BORDER_SIZE;
 
-	int y = (int)cur_y * tLX->cFont.GetHeight();
+	int scroll = (bUseScroll ? cScrollbar.getValue() : 0);
+	int y = MAX(0, ((int)cur_y - scroll) * tLX->cFont.GetHeight());
 
 	// Get the Y coordinate
 	if (cur_y >= tPureText.size())
