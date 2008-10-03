@@ -199,6 +199,17 @@ void CClient::MinorClear(void)
 }
 
 
+void CClient::ReinitLocalWorms() {
+	// Initialize the local worms
+	iNumWorms = tGameInfo.iNumPlayers;
+
+	for(uint i=0;i<iNumWorms;i++) {
+		cLocalWorms[i] = NULL;
+		tProfiles[i] = tGameInfo.cPlayers[i];
+	}
+
+}
+
 ///////////////////
 // Initialize the client
 int CClient::Initialize(void)
@@ -217,14 +228,8 @@ int CClient::Initialize(void)
 		iNetSpeed = NST_LOCAL;
 
 
-	// Initialize the local worms
-	iNumWorms = tGameInfo.iNumPlayers;
-
-	for(i=0;i<iNumWorms;i++) {
-		cLocalWorms[i] = NULL;
-		tProfiles[i] = tGameInfo.cPlayers[i];
-	}
-
+	ReinitLocalWorms();
+	
 	// Initialize the remote worms
 	cRemoteWorms = new CWorm[MAX_WORMS];
 	if(cRemoteWorms == NULL) {

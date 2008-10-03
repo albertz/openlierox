@@ -333,8 +333,13 @@ struct DedIntern {
 				// we found a bot, so add it
 				*player = p;
 				tGameInfo.iNumPlayers++;
-				cServer->UpdateWorms();
-				cServer->SendWormLobbyUpdate();
+				
+				// TODO: this is really hacky, but currently there is no better way to do so
+				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
+				cClient->Disconnect();
+				cClient->ReinitLocalWorms();
+				cClient->Connect("127.0.0.1");
+				
 				return;
 			}
 		}

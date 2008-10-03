@@ -459,12 +459,13 @@ public:
 public:
 	// Methods
 
-	void		Clear(void);
-	void		MinorClear(void);
-	int			Initialize(void);
-	void		Shutdown(void);
-	void		FinishGame(void);
-
+	void		Clear();
+	void		MinorClear();
+	int			Initialize();
+	void		Shutdown();
+	void		FinishGame();
+	void		ReinitLocalWorms();
+	
 	// Logging
 	void		StartLogging(int num_players);
 	void		ShutdownLog();
@@ -474,19 +475,19 @@ public:
 	void		RemoveWorm(int id);
 
 	// Game
-	void		Simulation(void);
-	void		SetupViewports(void);
+	void		Simulation();
+	void		SetupViewports();
 	void		SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2);
 	void		SendCarve(CVec pos);
 	void		PlayerShoot(CWorm *w);
 	void		ShootSpecial(CWorm *w);
 	void		DrawBeam(CWorm *w);
-	void		ProcessServerShotList(void);
+	void		ProcessServerShotList();
 	void		DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
 	void		ProcessShot(shoot_t *shot, float fSpawnTime);
 	void		ProcessShot_Beam(shoot_t *shot);
 
-	void		BotSelectWeapons(void);
+	void		BotSelectWeapons();
 
 	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float time, float ignoreWormCollBeforeTime);
     void        disableProjectile(CProjectile *prj);
@@ -504,10 +505,10 @@ public:
 	CVec		FindNearestSpot(CWorm *w);
 
 	// Main
-	void		Frame(void);
+	void		Frame();
 
 	// Drawing
-	bool		InitializeDrawing(void);
+	bool		InitializeDrawing();
 	bool		InitializeBar(byte number);
 	void		DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
 	void		DrawPlayerWaiting(SDL_Surface * bmpDest);
