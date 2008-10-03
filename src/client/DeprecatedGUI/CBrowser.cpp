@@ -341,20 +341,20 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_DOWN:
 		if (iCursorLine < tPureText.size() - 1)  {
 			++iCursorLine;
-			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the beginning of it
 				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -364,20 +364,20 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	case SDLK_UP:
 		if (iCursorLine > 0)  {
 			--iCursorLine;
-			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the end of it
 				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine]), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -387,7 +387,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 	case SDLK_RIGHT:
 		if (iCursorLine < tPureText.size())  {
-			if (iCursorColumn >= Utf8StringSize(tPureText[iCursorLine]))  {
+			if (iCursorColumn >= Utf8StringSize(tPureText[iCursorLine].sText))  {
 				if  (iCursorLine < tPureText.size() - 1)  {
 					iCursorColumn = 0;
 					++iCursorLine;
@@ -419,7 +419,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 			if (iCursorColumn == 0)  {
 				if  (iCursorLine > 0)  {
 					--iCursorLine;
-					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[iCursorLine]));
+					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[iCursorLine].sText));
 					AdjustScrollbar();
 				}
 			} else {
@@ -470,7 +470,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 	case SDLK_END:
 		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
-			iCursorColumn = Utf8StringSize(tPureText[iCursorLine]);
+			iCursorColumn = Utf8StringSize(tPureText[iCursorLine].sText);
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the beginning of it
@@ -508,7 +508,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		iSelectionStartColumn = 0;
 		if (tPureText.size())  {
 			iCursorLine = iSelectionEndLine = tPureText.size() - 1;
-			iCursorColumn = iSelectionEndColumn = Utf8StringSize(tPureText[iSelectionEndLine]);
+			iCursorColumn = iSelectionEndColumn = Utf8StringSize(tPureText[iSelectionEndLine].sText);
 		} else {
 			iCursorLine = iCursorColumn = iSelectionEndLine = iSelectionEndColumn = 0;
 		}
@@ -572,15 +572,15 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 	if (tPureText.empty())
 		return;
 
-	int x = ms_x - iX - BORDER_SIZE;
-	int y = ms_y - iY - BORDER_SIZE;
-
 	// Get the line
+	int y = ms_y - iY - BORDER_SIZE;
 	int line = y / tLX->cFont.GetHeight() + scroll_val;
 	if (line >= (int)tPureText.size())
 		line = tPureText.size() - 1;
 	if (line < 0)
 		line = 0;
+
+	int x = ms_x - iX - BORDER_SIZE - tPureText[line].iLeftMargin;
 
 	// Get the column
 	size_t column = 0;
@@ -588,10 +588,10 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 		int width = 0;
 		int next_width = 0;
 
-		std::string::const_iterator it = tPureText[line].begin();
-		while (it != tPureText[line].end())  {
+		std::string::const_iterator it = tPureText[line].sText.begin();
+		while (it != tPureText[line].sText.end())  {
 
-			UnicodeChar c = GetNextUnicodeFromUtf8(it, tPureText[line].end());
+			UnicodeChar c = GetNextUnicodeFromUtf8(it, tPureText[line].sText.end());
 			width = next_width;
 			next_width += tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
 
@@ -622,12 +622,11 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 		return;
 
 	// Get the X coordinate
-	std::string::iterator end = tPureText[cur_y].begin();
-	SafeAdvance(end, cur_x, tPureText[cur_y].end());
-	std::string tmp(tPureText[cur_y].begin(), end);
+	size_t count = MIN(cur_x, Utf8StringSize(tPureText[cur_y].sText));
+	std::string tmp = Utf8SubStr(tPureText[cur_y].sText, 0, count);
 	int x = tLX->cFont.GetWidth(tmp);
 
-	ms_x = iX + BORDER_SIZE + x;
+	ms_x = iX + BORDER_SIZE + x + tPureText[cur_y].iLeftMargin;
 	ms_y = iY + BORDER_SIZE + y;
 }
 
@@ -660,10 +659,10 @@ void CBrowser::EndLine()
 	}
 
 	// Add the line to the pure text and start a new line
-	tPureText.push_back(sCurLine);
+	tPureText.push_back(CPureLine(sCurLine, iCurIndent));
 	sCurLine.clear();
 	curY += tLX->cFont.GetHeight();
-	curX = BORDER_SIZE;
+	curX = BORDER_SIZE + iCurIndent;
 }
 
 ////////////////////
@@ -885,9 +884,9 @@ std::string CBrowser::GetSelectedText()
 	// One line selection
 	if (iSelectionStartLine == iSelectionEndLine)  {
 		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)  {
-			size_t len = Utf8StringSize(tPureText[iSelectionStartLine]);
+			size_t len = Utf8StringSize(tPureText[iSelectionStartLine].sText);
 			if (iSelectionStartColumn < len && iSelectionEndColumn <= len)
-				return Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
+				return Utf8SubStr(tPureText[iSelectionStartLine].sText, iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
 		}
 
 	// More lines
@@ -900,20 +899,20 @@ std::string CBrowser::GetSelectedText()
 		std::string res;
 
 		// First line
-		if (iSelectionStartColumn < Utf8StringSize(tPureText[iSelectionStartLine]))  {
-			res += Utf8SubStr(tPureText[iSelectionStartLine], iSelectionStartColumn);
+		if (iSelectionStartColumn < Utf8StringSize(tPureText[iSelectionStartLine].sText))  {
+			res += Utf8SubStr(tPureText[iSelectionStartLine].sText, iSelectionStartColumn);
 			res += '\n';
 		}
 
 		// All other lines
 		int diff = iSelectionEndLine - iSelectionStartLine;
 		for (int i = 1; i < diff; ++i)  {
-			res += tPureText[iSelectionStartLine + i] + "\n";
+			res += tPureText[iSelectionStartLine + i].sText + "\n";
 		}
 
 		// Last line
-		if (iSelectionEndColumn <= Utf8StringSize(tPureText[iSelectionEndLine]))
-			res += Utf8SubStr(tPureText[iSelectionEndLine], 0, iSelectionEndColumn);
+		if (iSelectionEndColumn <= Utf8StringSize(tPureText[iSelectionEndLine].sText))
+			res += Utf8SubStr(tPureText[iSelectionEndLine].sText, 0, iSelectionEndColumn);
 
 		return res;
 	}
@@ -1057,12 +1056,15 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 
 	// List item
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"li"))  {
-		EndLine();
 		curX += LIST_SPACING;
 		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX, curY, tCurrentFormat.color, 0xA4);
 		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX + 1, curY, tCurrentFormat.color, 0xA4);
 		curX += tLX->cFont.GetCharacterWidth(0xA4) + LIST_SPACING;
+		iCurIndent = 2 * LIST_SPACING + tLX->cFont.GetCharacterWidth(0xA4);
 		BrowseChildren(node);
+		EndLine();
+		iCurIndent = 0; // Back to normal indentation
+		curX = BORDER_SIZE;
 		return;
 	}
 
@@ -1094,12 +1096,13 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		BrowseChildren(node);
 
 		// End the link
-		if (bInLink)
+		if (bInLink)  {
 			EndLink();
 
-		// Restore the old format
-		tCurrentFormat = tFormatStack.top();
-		tFormatStack.pop();
+			// Restore the old format
+			tCurrentFormat = tFormatStack.top();
+			tFormatStack.pop();
+		}
 
 		return;
 	}

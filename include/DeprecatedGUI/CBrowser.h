@@ -62,7 +62,8 @@ public:
 	  bDrawCursor(true),
 	  bInLink(false),
 	  bmpBuffer(NULL),
-	  bNeedsRender(false)
+	  bNeedsRender(false),
+	  iCurIndent(0)
 	  {
 	  	tCurrentFormat.bold = false;
 	  	tCurrentFormat.underline = false;
@@ -134,6 +135,27 @@ public:
 	};
 
 private:
+	class CPureLine  {
+	public:
+		CPureLine(const std::string& text) : sText(text), iLeftMargin(0) {}
+		CPureLine(const std::string& text, int margin) : sText(text), iLeftMargin(margin) {}
+
+		CPureLine(const CPureLine& oth)  { operator=(oth); }
+		CPureLine& operator=(const CPureLine& oth)  {
+			if (&oth != this)  {
+				sText = oth.sText;
+				iLeftMargin = oth.iLeftMargin;
+			}
+			return *this;
+		}
+	public:
+		std::string sText;
+		int			iLeftMargin;
+
+		size_t size()	{ return sText.size(); }
+	};
+
+private:
 	// Attributes
 	CHttp					cHttp;
 	std::string				tData;
@@ -144,7 +166,7 @@ private:
 	int						iClientHeight;
 	htmlDocPtr				tHtmlDocument;
 	htmlNodePtr				tRootNode;
-	std::vector<std::string>	tPureText;
+	std::vector<CPureLine>	tPureText;
 	std::list<CActiveArea>	tActiveAreas;
 	float					fLastMouseScroll;
 
@@ -155,6 +177,7 @@ private:
 	int						curX;
 	int						curY;
 	std::string				sCurLine;
+	int						iCurIndent; // Where the new lines should start (left margin)
 
 	// Selection & caret
 	size_t					iCursorColumn;
@@ -208,6 +231,8 @@ private:
 	std::string				GetFullURL(const std::string& url);
 	void					LinkClickHandler(CActiveArea *area);
 	void					LinkMouseMoveHandler(CActiveArea *area);
+	std::string				AutoDetectLinks(const std::string text);
+	std::string				HtmlEntityUnpairedBrackets(const std::string& txt);
 
 
 public:
