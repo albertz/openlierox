@@ -1122,6 +1122,10 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 		if(w->getID() == iID)
 			continue;
 
+		// don't target AFK worms
+		if(w->getAFK() != AFK_BACK_ONLINE)
+			continue;
+		
 		// If this is a team game, don't target my team mates
 		// BUT, if there is only one team, play it like deathmatch
 		if(teamgame && w->getTeam() == iTeam && NumTeams > 1)
@@ -1248,7 +1252,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
     // Our target already on high ground?
     if(cPosTarget.y < pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
-		printf("something in thinking\n");
+		//printf("something in thinking\n");
 		// Nothing todo, so go find some health if we even slightly need it
 		if(iHealth < 100) {
 			if(AI_FindHealth())
@@ -1261,7 +1265,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
     int     rows = pcMap->getGridRows()-1;       // level size
 
     // Find a random spot to go to high in the level
-    printf("I don't find any target, so let's get somewhere (high)\n");
+    //printf("I don't find any target, so let's get somewhere (high)\n");
     int x, y, c;
     for(c=0; c<10; c++) {
 		x = (int)(fabs(GetRandomNum()) * (float)cols);
@@ -1690,7 +1694,7 @@ bool CWorm::AI_Shoot()
         return false;
 
     // Make sure the worm is good
-    if(!psAITarget || !psAITarget->getAlive() || !psAITarget->isUsed()) {
+    if(!psAITarget || !psAITarget->isUsed() || !psAITarget->getAlive() || (psAITarget->getAFK() != AFK_BACK_ONLINE)) {
         nAIState = AI_THINK;
         return false;
     }

@@ -652,7 +652,6 @@
 		EA430CA40BEFCFA600C6547E /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README; path = ../../doc/README; sourceTree = SOURCE_ROOT; };
 		EA430CA50BEFCFA600C6547E /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../../doc/TODO; sourceTree = SOURCE_ROOT; };
 		EA430CA70BEFCFD300C6547E /* create_archives.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_archives.sh; path = ../../distrib/create_archives.sh; sourceTree = SOURCE_ROOT; };
-		EA430CA80BEFCFD300C6547E /* create_snapshot.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_snapshot.sh; path = ../../distrib/create_snapshot.sh; sourceTree = SOURCE_ROOT; };
 		EA430CA90BEFCFD300C6547E /* distrib_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = distrib_files.sh; path = ../../distrib/distrib_files.sh; sourceTree = SOURCE_ROOT; };
 		EA430DD20BEFEA8900C6547E /* libHawkNL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHawkNL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
@@ -1212,7 +1211,6 @@
 			isa = PBXGroup;
 			children = (
 				EA430CA70BEFCFD300C6547E /* create_archives.sh */,
-				EA430CA80BEFCFD300C6547E /* create_snapshot.sh */,
 				EA430CA90BEFCFD300C6547E /* distrib_files.sh */,
 			);
 			name = distrib;
