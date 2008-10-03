@@ -1227,6 +1227,97 @@ std::string CBrowser::HtmlEntityUnpairedBrackets(const std::string &txt)
 
 	return result;
 }
+
+//////////////////////////
+// Automatically find hyperlinks in the given text and encapsulate them with <a> and </a>
+std::string CBrowser::AutoDetectLinks(const std::string text)
+{
+	static const std::string prefixes[] = { "www.", "http://", "https://", "mailto:", "ftp://" };
+
+	std::string result;
+	size_t pos = 0;
+	bool in_tag = false;
+	for (std::string::const_iterator it = text.begin(); it != text.end(); it++, pos++)  {
+		if (*it == '<')  {
+			in_tag = true;
+			result += *it;
+			continue;
+		}
+
+		if (*it == '>')  {
+			in_tag = false;
+			result += *it;
+			continue;
+		}
+
+		// Do not search inside html tags
+		if (in_tag)  {
+			result += *it;
+			continue;
+		}
+
+		for (int i = 0; i < sizeof(prefixes)/sizeof(std::string); ++i)  {
+			if (text.size() - pos > prefixes[i].size() + 4)  {  // 4 = minimum length of the address, for example a.de
+				if (stringcaseequal(text.substr(pos, prefixes[i].size()), prefixes[i]))  {
+
+					// Get the link
+					std::string link;
+					bool was_dot = false;
+					bool was_ques = false;
+					for (; it != text.end(); it++, pos++)  {
+						// Breaking characters
+						if (!isalnum((uchar)*it) && *it != '/' && *it != '%' && *it != '=' && *it != '@' && *it != '&' && *it != '?' && *it != '.')  {
+							if (was_ques)  {
+								link.resize(link.size() - 1);
+							}
+							break;
+						}
+
+						// Multiple question marks
+						if (*it == '?')  {
+							if (was_ques)  {
+								link.resize(link.size() - 1);
+								was_ques = false;
+								break;
+							}
+							was_ques = true;
+						} else
+							was_ques = false;
+
+						// Multiple dots
+						if (*it == '.')  {
+							if (was_dot)  {
+								link.resize(link.size() - 1);
+								was_dot = false;
+								break;
+							}
+							was_dot = true;
+						} else
+							was_dot = false;
+
+						link += *it;
+					}
+
+					if ((was_ques || was_dot) && link.size())  {
+						link.resize(link.size() - 1);
+					}
+
+					// Add the link
+					TrimSpaces(link);
+					result += "<a href=\"" + link + "\">" + link + "</a>";
+					break;
+				}
+			}
+		}
+
+		if (it != text.end())
+			result += *it;
+		else
+			break;
+	}
+
+	return result;
+}
 	
 //
 // Chatbox routines
@@ -1281,7 +1372,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	const bool useHtml = true;	
 	if(useHtml) {
 		// Parse the line as HTML and insert the nodes
-		std::string doc = "<html><body>" + HtmlEntityUnpairedBrackets(text) + "</body></html>";
+		std::string doc = "<html><body>" + AutoDetectLinks(HtmlEntityUnpairedBrackets(text)) + "</body></html>";
 
 		htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
 		if (!line_doc || !xmlDocGetRootElement(line_doc))  {
