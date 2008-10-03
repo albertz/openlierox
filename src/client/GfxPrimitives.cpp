@@ -2279,11 +2279,12 @@ bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, c
 		return true;
 	}
 
-	#ifdef DEDICATED_ONLY
+#ifdef DEDICATED_ONLY
 	printf("WARNING: SaveSurface: cannot use something else than BMP in dedicated-only-mode\n");
 	return false;
-	#endif //DEDICATED_ONLY
 
+#else
+	
 	//
 	// JPG, PNG, GIF
 	//
@@ -2341,6 +2342,7 @@ bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, c
 
 	// Close the file and quit
 	return fclose(out) == 0;
+#endif // !DEDICATED_ONLY
 }
 
 
