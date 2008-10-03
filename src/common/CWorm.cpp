@@ -1035,6 +1035,10 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		} // if
 		else
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
+	} else { // local human worm
+		if(iAFK != AFK_BACK_ONLINE) {
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,".. " + sAFKMessage + " ..");
+		}
 	}
 }
 

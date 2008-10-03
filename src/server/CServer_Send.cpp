@@ -318,7 +318,7 @@ void GameServer::UpdateGameLobby(void)
 	// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
 	gl->nGameMode = tGameInfo.iGameMode;
 	gl->nLives = tGameInfo.iLives;
-	gl->fGameSpeed = tGameInfo.fGameSpeed;
+	gl->fGameSpeed = tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 	gl->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
 	gl->nMaxKills = tGameInfo.iKillLimit;
 	gl->nLoadingTime = tGameInfo.iLoadingTimes;

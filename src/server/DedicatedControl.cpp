@@ -289,6 +289,8 @@ struct DedIntern {
 			{
 				tGameInfo.cPlayers[i] = FindProfile(localWorm);
 				tGameInfo.iNumPlayers++;
+				cServer->UpdateWorms();
+				cServer->SendWormLobbyUpdate();
 				return;
 			}
 		}
@@ -305,16 +307,18 @@ struct DedIntern {
 					{
 						tGameInfo.cPlayers[i] = p;
 						tGameInfo.iNumPlayers++;
+						cServer->UpdateWorms();
+						cServer->SendWormLobbyUpdate();
 						return;
 					}
 				}
 
 			}
 		}
+		
 		printf("ERROR: Can't find ANY bot! (Or a free slot)");
 		// TODO: Perhaps send a signal back informing if we fail?
 		return;
-
 	}
 
 	void Cmd_KillBots(const std::string & params) {
@@ -533,11 +537,9 @@ struct DedIntern {
 		tLXOptions->tGameinfo.szModName = tGameInfo.sModDir;
 
 		// Get the game type
-		tGameInfo.iGameMode = GMT_DEATHMATCH;
-		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode = GMT_DEATHMATCH;
 
-		tLXOptions->tGameinfo.sMapFilename = "CastleStrike.lxl";
-		tGameInfo.sMapFile = tLXOptions->tGameinfo.sMapFilename;
+		tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile = "CastleStrike.lxl";
 		tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
@@ -935,7 +937,7 @@ static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.G
 	( tGameInfo.bBonusesOn, "bBonusesOn" )
 	( tGameInfo.bShowBonusName, "bShowBonusName" )
 	( tGameInfo.iNumPlayers, "iNumPlayers" )
-	( tGameInfo.fGameSpeed, "fGameSpeed" )
+	( tLXOptions->tGameinfo.fGameSpeed, "fGameSpeed" )
 	( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
 	( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
 	;
