@@ -475,7 +475,9 @@ bool WaitForNextEvent() {
 
 	HandleMouseState();
 	HandleKeyboardState();
+#ifndef DEDICATED_ONLY	
 	if(bJoystickSupport) SDL_JoystickUpdate();
+#endif
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
 
