@@ -1228,21 +1228,31 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 			// Add all the nodes to the line node
 			xmlNodePtr node = xmlDocGetRootElement(line_doc); // html-node
 			while (node)  {
-				if (!xmlStrcmp(node->name, (xmlChar *)"body"))
+				if (xmlStrcmp(node->name, (xmlChar *)"body") == 0)
 					break;
 				if (node->next)
 					node = node->next;
 				node = node->children;
 			}
 			if(node) node = node->children; // data
-
+			
 			if (!node)  {
 				xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
 			} else {
 				while (node)  {
-					xmlNodePtr copy = xmlCopyNode(node, true);
-					if (copy)
-						xmlAddChild(line, copy);
+					xmlNodePtr subNode = node;
+					// under some systems, the text is put into an additional <p>-tag
+					if(subNode && xmlStrcmp(subNode->name, (xmlChar *)"p") == 0)
+						subNode = subNode->children;
+					while(subNode) {
+						xmlNodePtr copy = xmlCopyNode(subNode, true);
+						if (copy)
+							xmlAddChild(line, copy);
+						if(subNode != node)
+							subNode = subNode->next;
+						else
+							break;
+					}
 					node = node->next;
 				}
 			}
