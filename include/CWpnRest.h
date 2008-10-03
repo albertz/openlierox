@@ -19,6 +19,7 @@
 
 #include "CGameScript.h"
 // TODO: remove this after we changed network
+// TODO: Weapons with same names retain their state for different mods - fix that, each mod should have individual banlist
 #include "CBytestream.h"
 
 // Weapon states

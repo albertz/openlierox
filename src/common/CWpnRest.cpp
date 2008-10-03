@@ -252,7 +252,7 @@ std::string CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
             continue;
 
         // Is the weapon in the gamescript?
-        if( !pcGameS->FindWeapon(psWpn->szName) )
+        if( !pcGameS->weaponExists(psWpn->szName) )
             continue;
 
         // Must be good
