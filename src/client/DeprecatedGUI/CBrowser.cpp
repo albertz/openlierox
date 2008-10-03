@@ -452,6 +452,19 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
         return BRW_NONE;
     }
 
+    // Ctrl-a or Super-a (select all)
+    if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_a) {
+		iSelectionStartLine = 0;
+		iSelectionStartColumn = 0;
+		if (tPureText.size())  {
+			iCursorLine = iSelectionEndLine = tPureText.size() - 1;
+			iCursorColumn = iSelectionEndColumn = tPureText[iSelectionEndLine].size();
+		} else {
+			iCursorLine = iCursorColumn = iSelectionEndLine = iSelectionEndColumn = 0;
+		}
+        return BRW_NONE;
+    }
+
 	return BRW_NONE;
 }
 
