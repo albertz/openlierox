@@ -1228,6 +1228,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 			xmlNodePtr node = xmlDocGetRootElement(line_doc);
 			if(node) node = node->children;
 			if(node) node = node->children;
+			if(node) node = node->children;
 
 			if (!node)  {
 				xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
