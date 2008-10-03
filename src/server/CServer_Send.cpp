@@ -314,10 +314,21 @@ void GameServer::UpdateGameLobby(void)
 {
 	game_lobby_t *gl = &tGameLobby;
 
-	// Check if the details have been set yet
-	if(!gl->bSet)
-		return;
-
+	// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
+	gl->nGameMode = tGameInfo.iGameMode;
+	gl->nLives = tGameInfo.iLives;
+	gl->fGameSpeed = tGameInfo.fGameSpeed;
+	gl->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
+	gl->nMaxKills = tGameInfo.iKillLimit;
+	gl->nLoadingTime = tGameInfo.iLoadingTimes;
+	gl->bBonuses = tGameInfo.bBonusesOn;
+	gl->szMapName = tGameInfo.sMapFile;
+	gl->szDecodedMapName = tGameInfo.sMapName;
+	gl->szModName = tGameInfo.sModName;
+	gl->szModDir = tGameInfo.sModDir;
+	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
+	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
+	
 	// TODO: move this code out here
 
 	CServerConnection *cl = cClients;

@@ -254,6 +254,7 @@ struct DedIntern {
 		}
 		return w;
 	}
+	
 	// --------------------------------
 	// ---- commands ------------------
 
@@ -464,28 +465,9 @@ struct DedIntern {
 		CScriptableVars::SetVarByString(varptr, value);
 
 		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
-	}
 
-	// TODO: remove this function, that should NOT be needed!
-	// Such stuff really does not belong to the dedicated script, it can easily be done automatically.
-	void Cmd_SendLobbyUpdate() {
-		// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
-		cServer->getLobby()->nGameMode = tGameInfo.iGameMode;
-		cServer->getLobby()->nLives = tGameInfo.iLives;
-		cServer->getLobby()->fGameSpeed = tGameInfo.fGameSpeed;
-		cServer->getLobby()->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
-		cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
-		cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
-		cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
-		cServer->getLobby()->szMapName = tGameInfo.sMapFile;
-		cServer->getLobby()->szDecodedMapName = tGameInfo.sMapName;
-		cServer->getLobby()->szModName = tGameInfo.sModName;
-		cServer->getLobby()->szModDir = tGameInfo.sModDir;
-		cServer->getLobby()->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-		cServer->getLobby()->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
-		
 		cServer->UpdateGameLobby();
-	};
+	}
 
 	void Cmd_StartLobby(std::string param) {
 		tGameInfo.sServername = "dedicated server";
@@ -701,8 +683,6 @@ struct DedIntern {
 			Cmd_ChatMessage(params);
 		else if(cmd == "privatemsg")
 			Cmd_PrivateMessage(params);
-		else if(cmd == "sendlobbyupdate")
-			Cmd_SendLobbyUpdate();
 		else if(cmd == "startlobby")
 			Cmd_StartLobby(params);
 		else if(cmd == "startgame")
@@ -938,8 +918,6 @@ void DedicatedControl::ChatMessage_Signal(CWorm* w,string message) { DedIntern::
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 
-// TODO: when any of these got changed, sendlobbyupdate should be done automatically
-// TODO: prefixes (i,s,f,b) should be removed, they don't make much sense for a script and look ugly there
 // should be fixed before release or we will have no forward-compatibility
 static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
 	( tGameInfo.iGameMode, "iGameMode" ) // TODO: we need support for enums

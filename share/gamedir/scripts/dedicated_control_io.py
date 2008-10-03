@@ -1,10 +1,7 @@
 #!/usr/bin/python -u
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
-# Upon editing - keep good names and excessive comments
-# Written for easy editing by newcomers to python or programming in general
-# OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
-# As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
+
 
 # Needed for sleeping/pausing execution
 import time
@@ -150,10 +147,6 @@ def gotoLobby():
 	global sentStartGame
 	print "gotolobby"
 	sentStartGame = False
-
-# Use this to refresh lobby information - like level/mod et.c..
-def sendLobbyUpdate():
-	print "sendlobbyupdate"
 
 # Not implemented yet in OLX
 def addBot(name):

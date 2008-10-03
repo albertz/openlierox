@@ -1,10 +1,6 @@
 #!/usr/bin/python -u
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
-# Upon editing - keep good names and excessive comments
-# Written for easy editing by newcomers to python or programming in general
-# OH AND I MEAN THIS ABOUT EXCESSIVE COMMENTS T.T
-# As usual, try to hardcode as little as possible, it becomes magical numbers for everyone except you(!!)
 
 # Needed for sleeping/pausing execution
 import time
@@ -17,6 +13,7 @@ import traceback
 import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
+# TODO: is this up-to-date with console support on win?
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
 if sys.platform == "win32":
@@ -191,7 +188,6 @@ def parseAdminCommand(wormid,message):
 			else:
 				setvar("GameServer.GameInfo.sModDir", mod) # In case mod name contains spaces
 				setvar("GameServer.GameInfo.sModName", mod)
-				sendLobbyUpdate()
 		elif cmd == "map":
 			level = ""
 			for l in availibleLevels:
@@ -203,7 +199,6 @@ def parseAdminCommand(wormid,message):
 			else:
 				setvar("GameServer.GameInfo.sMapFile", level) # In case map name contains spaces
 				setvar("GameServer.GameInfo.sMapName", level[:-3])
-				sendLobbyUpdate()
 		elif cmd == "preset":
 			preset = -1
 			for p in range(len(availiblePresets)):
@@ -217,7 +212,6 @@ def parseAdminCommand(wormid,message):
 				selectNextPreset()
 		elif cmd == "lt":
 			setvar("GameServer.GameInfo.iLoadingTimes", params[0])
-			sendLobbyUpdate()
 		elif cmd == "start":
 			startGame()
 		elif cmd == "stop":
