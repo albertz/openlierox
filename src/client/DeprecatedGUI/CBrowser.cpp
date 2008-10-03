@@ -1214,34 +1214,40 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	if( underline )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
 
-	
-	// Parse the line as HTML and insert the nodes
-	std::string doc = "<html><body>" + text + "</body></html>";
+	const bool useHtml = true;	
+	if(useHtml) {
+		// Parse the line as HTML and insert the nodes
+		std::string doc = "<html><body>" + text + "</body></html>";
 
-	htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
-	if (!line_doc || !xmlDocGetRootElement(line_doc))  {
-		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
-	} else {
-
-		// Add all the nodes to the line node
-		xmlNodePtr node = xmlDocGetRootElement(line_doc);
-		node = node->children;
-
-		if (!node)  {
+		htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
+		if (!line_doc || !xmlDocGetRootElement(line_doc))  {
 			xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
 		} else {
-			while (node)  {
-				xmlNodePtr copy = xmlCopyNode(node, true);
-				if (copy)
-					xmlAddChild(line, copy);
-				node = node->next;
+
+			// Add all the nodes to the line node
+			xmlNodePtr node = xmlDocGetRootElement(line_doc);
+			if(node) node = node->children;
+			if(node) node = node->children;
+
+			if (!node)  {
+				xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
+			} else {
+				while (node)  {
+					xmlNodePtr copy = xmlCopyNode(node, true);
+					if (copy)
+						xmlAddChild(line, copy);
+					node = node->next;
+				}
 			}
 		}
+		
+		if(line_doc) {
+			xmlFreeDoc(line_doc);
+			line_doc = NULL;
+		}
 	}
-	
-	if(line_doc) {
-		xmlFreeDoc(line_doc);
-		line_doc = NULL;
+	else { // use no html
+		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed		
 	}
 	
 	EndLine();
