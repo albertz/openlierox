@@ -52,6 +52,11 @@ void        TakeScreenshot(const std::string& scr_path, const std::string& addit
 
 void		OpenLinkInExternBrowser(const std::string& url);
 
+#ifdef DEBUG
+bool		HandleDebugCommand(const std::string& cmd);
+#else
+inline bool	HandleDebugCommand(const std::string& cmd) { return false; }
+#endif
 
 class VideoPostProcessor {
 protected:

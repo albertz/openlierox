@@ -851,3 +851,32 @@ int unsetenv(const char *name)
 }
 #endif
 
+
+
+
+#ifdef DEBUG
+#include "CClient.h"
+
+// HINT: This is called atm from CClientNetEngine::SendText().
+// HINT: This is just a hack to do some testing in lobby or whatever.
+// WARNING: These stuff is not intended to be stable, it's only for testing!
+// HINT: Don't rely on this. If we allow the console later somehow in the lobby,
+// this debug stuff will probably move there.
+bool HandleDebugCommand(const std::string& text) {
+	if(text.size() >= 3 && text.substr(0,3) == "///") {
+		cClient->getChatbox()->AddText("DEBUG COMMAND", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+
+		std::string cmd = text.substr(3);
+		stringlwr(cmd);
+		
+		if(cmd == "reconnect") {
+			cout << "DEBUG CMD: reconnect local client to " << cClient->getServerAddress() << endl;
+			cClient->Connect(cClient->getServerAddress());
+		} else
+			cout << "DEBUG CMD unknown" << endl;
+		
+		return true;
+	}
+	return false;
+}
+#endif

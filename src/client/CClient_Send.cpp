@@ -24,7 +24,7 @@
 #include "Command.h"
 #include "EndianSwap.h"
 #include "CServer.h"
-
+#include "AuxLib.h"
 
 
 ///////////////////
@@ -113,6 +113,8 @@ void CClientNetEngine::SendDeath(int victim, int killer)
 // Send a string of text
 void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 {
+	if(HandleDebugCommand(sText)) return;
+	
 	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
 	std::string message;
 	std::string command;  // this should be repeated before every chunk

@@ -207,7 +207,6 @@ void CClient::ReinitLocalWorms() {
 		cLocalWorms[i] = NULL;
 		tProfiles[i] = tGameInfo.cPlayers[i];
 	}
-
 }
 
 ///////////////////
