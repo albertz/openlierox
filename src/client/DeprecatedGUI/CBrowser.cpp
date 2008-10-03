@@ -1214,19 +1214,6 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	if( underline )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
 
-
-	EndLine();
-	TraverseNodes(line);
-	ResetScrollbar();
-	
-	bNeedsRender = true;
-
-	if( bUseScroll ) {
-		// if we have scrolled nearly down, scroll down to the new added line
-		if( cScrollbar.getMax() - cScrollbar.getItemsperbox() - cScrollbar.getValue() < 5 )
-			ScrollToLastLine();
-	}
-
 	
 	// Parse the line as HTML and insert the nodes
 	std::string doc = "<html><body>" + text + "</body></html>";
@@ -1234,26 +1221,41 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
 	if (!line_doc || !xmlDocGetRootElement(line_doc))  {
 		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
-		return;
+	} else {
+
+		// Add all the nodes to the line node
+		xmlNodePtr node = xmlDocGetRootElement(line_doc);
+		node = node->children;
+
+		if (!node)  {
+			xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
+		} else {
+			while (node)  {
+				xmlNodePtr copy = xmlCopyNode(node, true);
+				if (copy)
+					xmlAddChild(line, copy);
+				node = node->next;
+			}
+		}
 	}
-
-	// Add all the nodes to the line node
-	xmlNodePtr node = xmlDocGetRootElement(line_doc);
-	node = node->children;
-
-	if (!node)  {
-		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
-		return;
+	
+	if(line_doc) {
+		xmlFreeDoc(line_doc);
+		line_doc = NULL;
 	}
-
-	while (node)  {
-		xmlNodePtr copy = xmlCopyNode(node, true);
-		if (copy)
-			xmlAddChild(line, copy);
-		node = node->next;
+	
+	EndLine();
+	TraverseNodes(line);
+	ResetScrollbar();
+	
+	bNeedsRender = true;
+	
+	if( bUseScroll ) {
+		// if we have scrolled nearly down, scroll down to the new added line
+		if( cScrollbar.getMax() - cScrollbar.getItemsperbox() - cScrollbar.getValue() < 5 )
+			ScrollToLastLine();
 	}
-
-	xmlFreeDoc(line_doc);
+	
 }
 
 //////////////////////
