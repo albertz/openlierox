@@ -32,7 +32,7 @@
 #include "Clipboard.h"
 #include "Unicode.h"  // for Utf8ToSystemNative
 
-#if defined(X11) && !defined(__APPLE__)
+#if !defined(DEDICATED_ONLY) && defined(X11) && !defined(__APPLE__)
 
 #define CLIPBOARD_FUNCS_DEFINED
 
@@ -356,7 +356,8 @@ std::string copy_from_clipboard()
 }
 
 #endif
-#ifdef WIN32
+
+#if !defined(DEDICATED_ONLY) && defined(WIN32)
 #include <windows.h>
 #include "StringUtils.h"
 
@@ -418,7 +419,7 @@ std::string copy_from_clipboard()
 
 #endif
 
-#ifdef __BEOS__
+#if !defined(DEDICATED_ONLY) && defined(__BEOS__)
 #include <Clipboard.h>
 
 #define CLIPBOARD_FUNCS_DEFINED
@@ -455,7 +456,7 @@ std::string copy_from_clipboard()
 }
 #endif
 
-#ifdef __APPLE__
+#if !defined(DEDICATED_ONLY) && defined(__APPLE__)
 #define CLIPBOARD_FUNCS_DEFINED
 
 #include <Carbon/Carbon.h>

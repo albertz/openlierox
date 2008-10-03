@@ -9,6 +9,12 @@
 
 #include "NotifyUser.h"
 
+#ifdef DEDICATED_ONLY
+
+void NotifyUserOnEvent() {}
+void ClearUserNotify() {}
+
+#else
 
 #if defined(__APPLE__)
 	#include <Carbon/Carbon.h>
@@ -124,3 +130,5 @@ void ClearUserNotify() {
 	x11_SetDemandsAttention(false);
 #endif
 }
+
+#endif

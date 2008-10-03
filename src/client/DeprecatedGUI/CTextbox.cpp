@@ -738,6 +738,10 @@ void CTextbox::PasteText(void)
 
     text = copy_from_clipboard();
 
+	// too much data will crash OLX, so avoid that
+	if(text.size() > 500)
+		text.erase(500);
+	
 	// Insert the text
 	for(std::string::const_iterator i = text.begin(); i != text.end(); )
 		Insert( GetNextUnicodeFromUtf8(i, text.end()) );
