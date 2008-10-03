@@ -20,6 +20,8 @@
 #include "CServer.h"
 #include "CServerConnection.h"
 #include "DedicatedControl.h"
+#include "CClient.h"
+
 
 //////////////////
 // Known commands

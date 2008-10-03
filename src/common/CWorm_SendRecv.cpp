@@ -21,6 +21,7 @@
 #include "Protocol.h"
 #include "CServer.h"
 #include "MathLib.h"
+#include "CClient.h"
 
 using namespace std;
 

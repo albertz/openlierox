@@ -28,11 +28,11 @@ public:
 	// Constructor
 	CServerNetEngine( GameServer * _server, CServerConnection * _client ):
 		server( _server ), cl( _client )
-		{ };
+		{ }
 
-	virtual ~CServerNetEngine() { };
+	virtual ~CServerNetEngine() { }
 	
-	// TODO: move here all net code from CServer, SLOWLY and PAINFULLY, method by method, mwahaha
+	// TODO: move here all net code from CServer
 	// Do not move here ParseConnectionlessPacket(), or make it static, 'cause client is not available for connectionless packet
 	
 	// Parsing
@@ -53,7 +53,7 @@ class CServerNetEngineBeta7: public CServerNetEngine
 public:
 	CServerNetEngineBeta7( GameServer * _server, CServerConnection * _client ):
 		CServerNetEngine( _server, _client )
-		{ };
+		{ }
 
 };
 

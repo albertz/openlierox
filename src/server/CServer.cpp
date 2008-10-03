@@ -35,6 +35,8 @@
 #include "MathLib.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
+#include "CServerNetEngine.h"
+
 
 using namespace std;
 

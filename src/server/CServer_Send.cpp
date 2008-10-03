@@ -22,6 +22,7 @@
 #include "Protocol.h"
 #include "CWorm.h"
 #include "Timer.h"
+#include "Consts.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif

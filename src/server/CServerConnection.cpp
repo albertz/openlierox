@@ -27,10 +27,35 @@
 #include "CServer.h"
 #include "AuxLib.h"
 #include "Networking.h"
+#include "CServerNetEngine.h"
 
 #include <iostream>
 
 using namespace std;
+
+
+CServerConnection::CServerConnection( GameServer * _server ) {
+	server = _server ? _server : cServer;
+	cRemoteWorms = NULL;
+	iNumWorms = 0;
+
+	cNetChan = NULL;
+	bsUnreliable.Clear();
+	iNetSpeed = 3;
+	fLastUpdateSent = -9999;
+	InvalidateSocketState(tSocket);
+	bLocalClient = false;
+
+	fSendWait = 0;
+
+	bMuted = false;
+	
+	bGameReady = false;
+
+	fLastFileRequest = fConnectTime = tLX->fCurTime;
+	
+	cNetEngine = new CServerNetEngine( server, this );
+}
 
 
 ///////////////////
@@ -246,15 +271,17 @@ void CServerConnection::setClientVersion(const Version& v)
 
 void CServerConnection::setNetEngineFromClientVersion()
 {
+	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
+	
 	if( getClientVersion() >= OLXBetaVersion(7) )
 	{
-		setBeta7NetEngine();
+		cNetEngine = new CServerNetEngineBeta7( server, this );
 	}
 	else
 	{
-		setOldNetEngine();
+		cNetEngine = new CServerNetEngine( server, this );
 	}
-};
+}
 
 CChannel * CServerConnection::createChannel(const Version& v)
 {
@@ -265,7 +292,7 @@ CChannel * CServerConnection::createChannel(const Version& v)
 	else
 		cNetChan = new CChannel_056b();
 	return cNetChan;
-};
+}
 
 std::string CServerConnection::debugName() {
 	std::string adr = "?.?.?.?";
@@ -294,3 +321,5 @@ std::string CServerConnection::debugName() {
 	return "CServerConnection(" + adr +") with " + worms;
 }
 
+int CServerConnection::getPing() { return cNetChan->getPing(); }
+void CServerConnection::setPing(int _p) { cNetChan->setPing(_p); }

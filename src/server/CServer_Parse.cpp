@@ -19,6 +19,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "CServer.h"
 #include "CServerConnection.h"
+#include "CServerNetEngine.h"
 #include "CChannel.h"
 #include "StringUtils.h"
 #include "CWorm.h"

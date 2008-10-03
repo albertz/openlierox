@@ -20,15 +20,14 @@
 // Server representation of CClient
 
 #include "CChannel.h"
-#include "CWorm.h"
 #include "CShootList.h"
-#include "CClient.h"
-#include "CServerNetEngine.h"
+#include "Consts.h"
+#include "Version.h"
+#include "FileDownload.h"
 
-
+class CWorm;
 class GameServer;
-extern	GameServer		*cServer;
-
+class CServerNetEngine;
 
 // Client rights on a server
 class ClientRights { public:
@@ -50,29 +49,8 @@ class ClientRights { public:
 class CServerConnection {
 public:
 	// Constructor
-	CServerConnection( GameServer * _server = ::cServer ) {
-		server = _server;
-		cRemoteWorms = NULL;
-		iNumWorms = 0;
-
-		cNetChan = NULL;
-		bsUnreliable.Clear();
-		iNetSpeed = 3;
-		fLastUpdateSent = -9999;
-		InvalidateSocketState(tSocket);
-		bLocalClient = false;
-
-		fSendWait = 0;
-
-		bMuted = false;
-		
-		bGameReady = false;
-
-		fLastFileRequest = fConnectTime = tLX->fCurTime;
-		
-		cNetEngine = new CServerNetEngine( server, this );
-	}
-
+	CServerConnection( GameServer * _server = NULL );
+	
 	~CServerConnection()  {
 		Shutdown();
 		Clear();
@@ -122,58 +100,56 @@ private:
 public:
 	// Methods
 
-	void		Clear(void);
-	void 		MinorClear(void);
-	int			Initialize(void);
-	void		Shutdown(void);
+	void		Clear();
+	void 		MinorClear();
+	int			Initialize();
+	void		Shutdown();
 
 	void		RemoveWorm(int id);
 
 	// Variables
-	CChannel	*getChannel(void)			{ return cNetChan; }
+	CChannel	*getChannel()				{ return cNetChan; }
 	CChannel	*createChannel(const Version& v);
 	
 	CServerNetEngine * getNetEngine()		{ return cNetEngine; }
 	void		setNetEngineFromClientVersion();
-	void		setOldNetEngine()	{ if(cNetEngine) delete cNetEngine; cNetEngine = new CServerNetEngine( server, this ); };
-	void		setBeta7NetEngine()	{ if(cNetEngine) delete cNetEngine; cNetEngine = new CServerNetEngineBeta7( server, this ); };
 	
-	int			getStatus(void)				{ return iNetStatus; }
+	int			getStatus()					{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
-	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
+	CBytestream	*getUnreliable()			{ return &bsUnreliable; }
 
 	int			OwnsWorm(int id);
-	int			getNumWorms(void)			{ return iNumWorms; }
+	int			getNumWorms()				{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
 
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
-	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
-	bool		getGameReady(void)			{ return bGameReady; }
+	CWorm		*getRemoteWorms()			{ return cRemoteWorms; }
+	bool		getGameReady()				{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
-	float		getLastReceived(void)		{ return fLastReceived; }
+	float		getLastReceived()			{ return fLastReceived; }
 	void		setLastReceived(float _l)	{ fLastReceived = _l; }
 
-	int			getNetSpeed(void)			{ return iNetSpeed; }
+	int			getNetSpeed()				{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
 
-	CShootList	*getShootList(void)			{ return &cShootList; }
+	CShootList	*getShootList()				{ return &cShootList; }
 
     void        setZombieTime(float z)      { fZombieTime = z; }
-    float       getZombieTime(void)         { return fZombieTime; }
+    float       getZombieTime()      	   { return fZombieTime; }
 
     void        setConnectTime(float z)      { fConnectTime = z; }
-    float       getConnectTime(void)         { return fConnectTime; }
+    float       getConnectTime()	         { return fConnectTime; }
 
-	bool		getMuted(void)				{ return bMuted; }
+	bool		getMuted()					{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
 	ClientRights *getRights()				{ return &tRights; }
 
-	int	getPing(void)						{ return cNetChan->getPing(); }
-	void setPing(int _p)					{ cNetChan->setPing(_p); }
+	int	getPing();
+	void setPing(int _p);
 
 	const Version& getClientVersion()				{ return cClientVersion; }
 	void setClientVersion(const Version& v);
