@@ -95,7 +95,8 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 		( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
 	{
 		bool TeamsAlive[4] = {false, false, false, false};
-		for(i=0;i<MAX_WORMS;i++,w++) 
+		w = cWorms;
+		for(i=0;i<MAX_WORMS;i++,w++)
 		{
 			if(!w->isUsed())
 				continue;
@@ -103,19 +104,33 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 				TeamsAlive[w->getTeam()] = true;
 		};
 
+		for( int j=0; j<4; j++ )
+			TeamSpawnPoints[j] = FindSpot();
+
 		// Spawn all teams as far away from each other as possible
-		for( i=0; i<500; i++ )
+		for( int k=0; k<100; k++ )
 		{
 			CVec TeamSpawnPoints1[4];
 			float team_dist1 = 0;
 			for( int j=0; j<4; j++ )
 				TeamSpawnPoints1[j] = FindSpot();
 			for( int j=0; j<4; j++ )
-				for( int k=0; k<4; k++ )
-					if( TeamsAlive[j] == true && TeamsAlive[k] == true )
-						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[k] ).GetLength() );
+			{
+				if( ! TeamsAlive[j] )
+					continue;
+				w = cWorms;
+				for(i=0;i<MAX_WORMS;i++,w++)
+				{
+					if( !w->isUsed() || w->getLives() == WRM_OUT )
+						continue;
+					if( w->getAlive() )
+						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() );
+					else
+						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[w->getTeam()] ).GetLength() );
 						// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
 						// The sum will get considerably smaller if any two teams are on short dist
+				};
+			};
 			if( team_dist1 > team_dist )
 			{
 				team_dist = team_dist1;
@@ -153,18 +168,22 @@ CVec GameServer::FindSpot(void)
     int     gw = cMap->getGridWidth();
     int     gh = cMap->getGridHeight();
 
-	uchar pf;
+	uchar pf, pf1, pf2, pf3, pf4;
 	cMap->lockFlags();
 	
 	// Find a random cell to start in - retry if failed
-	for( int tries = 0; tries < 20; tries++ ) {
+	for( int tries = 0; tries < 40; tries++ ) {
 	    px = (int)(fabs(GetRandomNum()) * (float)cols);
 		py = (int)(fabs(GetRandomNum()) * (float)rows);
 
 	    x = px; y = py;
 
 		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-		if(!(pf & PX_ROCK))  {
+		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
+		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
+		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
+		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
+		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
 			cMap->unlockFlags();
             return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 		}
