@@ -518,6 +518,25 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_NONE;
 }
 
+////////////////////
+// Allocates the buffer surface and/or resizes it
+void CBrowser::AdjustBuffer()
+{
+	// Allocate
+	if (!bmpBuffer.get())  {
+		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
+		if (!bmpBuffer.get())
+			return;
+	}
+
+	// Adjust the buffer size if necessary
+	if (bmpBuffer->w != iWidth || bmpBuffer->h != iHeight)  {
+		bmpBuffer = NULL;
+		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
+		if (!bmpBuffer.get())
+			return;
+	}
+}
 
 ////////////////////////
 // Draws the cursor
@@ -728,20 +747,9 @@ void CBrowser::EndLink()
 // Newly renders the content
 void CBrowser::ReRender()
 {
-	// Adjust the buffer size if necessary
-	if (!bmpBuffer.get())  {
-		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
-		if (!bmpBuffer.get())
-			return;
-	}
+	AdjustBuffer();
 
-	if (bmpBuffer->w != iWidth || bmpBuffer->h != iHeight)  {
-		bmpBuffer = NULL;
-		bmpBuffer = gfxCreateSurfaceAlpha(iWidth, iHeight);
-		if (!bmpBuffer.get())
-			return;
-	}
-
+	// Clear the surface
 	FillSurfaceTransparent(bmpBuffer.get());
 
 	// 3D Box
@@ -1051,8 +1059,8 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"li"))  {
 		EndLine();
 		curX += LIST_SPACING;
-		tLX->cFont.DrawGlyph(tDestSurface, curX, curY, tCurrentFormat.color, 0xA4);
-		tLX->cFont.DrawGlyph(tDestSurface, curX + 1, curY, tCurrentFormat.color, 0xA4);
+		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX, curY, tCurrentFormat.color, 0xA4);
+		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX + 1, curY, tCurrentFormat.color, 0xA4);
 		curX += tLX->cFont.GetCharacterWidth(0xA4) + LIST_SPACING;
 		BrowseChildren(node);
 		return;
@@ -1099,13 +1107,13 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		EndLine();
-		DrawHLine(tDestSurface, curX + 5, iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
+		DrawHLine(bmpBuffer.get(), curX + 5, iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
 		EndLine();
 		return;
 	}
 
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"text") && node->content)
-		RenderText(tDestSurface, tCurrentFormat, curX, curY, maxX, (const char *)node->content);
+		RenderText(bmpBuffer.get(), tCurrentFormat, curX, curY, maxX, (const char *)node->content);
 
 	BrowseChildren(node);
 }
@@ -1127,7 +1135,6 @@ void CBrowser::RenderContent()
 	
 	curX = BORDER_SIZE;
 	curY = BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
-	tDestSurface = bmpBuffer.get();
 	tCurrentFormat.bold = false; 
 	tCurrentFormat.underline = false;
 	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
@@ -1148,8 +1155,6 @@ void CBrowser::RenderContent()
 	EndLine(); // Add the last parsed line
 
 	ResetScrollbar();
-	
-	tDestSurface = NULL;
 
 	// Restore clipping
 	SDL_SetClipRect(bmpBuffer.get(), NULL);
@@ -1268,6 +1273,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	}
 	
 	EndLine();
+	AdjustBuffer();
 	TraverseNodes(line);
 	ResetScrollbar();
 	

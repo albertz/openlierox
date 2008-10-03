@@ -52,7 +52,6 @@ public:
 	  fLastMouseScroll(0),
 	  curX(0),
 	  curY(0),
-	  tDestSurface(NULL),
 	  iCursorColumn(0),
 	  iCursorLine(0),
 	  iSelectionStartLine(0),
@@ -156,7 +155,6 @@ private:
 	int						curX;
 	int						curY;
 	std::string				sCurLine;
-	SDL_Surface				*tDestSurface;
 
 	// Selection & caret
 	size_t					iCursorColumn;
@@ -201,6 +199,7 @@ private:
 	void					ReRender();
 	void					DrawCursor(SDL_Surface *bmpDest);
 	void					ResetScrollbar();
+	void					AdjustBuffer();
 	
 	
 	// Link helper functions
