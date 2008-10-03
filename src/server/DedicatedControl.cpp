@@ -466,6 +466,8 @@ struct DedIntern {
 		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
 	}
 
+	// TODO: remove this function, that should NOT be needed!
+	// Such stuff really does not belong to the dedicated script, it can easily be done automatically.
 	void Cmd_SendLobbyUpdate() {
 		// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
 		cServer->getLobby()->nGameMode = tGameInfo.iGameMode;
@@ -936,11 +938,11 @@ void DedicatedControl::ChatMessage_Signal(CWorm* w,string message) { DedIntern::
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 
-// TODO: these are probably intended to be used for the scripts. though there are not used there atm
-// TODO: this is incomplete (for example fGameSpeed is missing)
+// TODO: when any of these got changed, sendlobbyupdate should be done automatically
+// TODO: prefixes (i,s,f,b) should be removed, they don't make much sense for a script and look ugly there
 // should be fixed before release or we will have no forward-compatibility
 static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
-	( tGameInfo.iGameMode, "iGameMode" )
+	( tGameInfo.iGameMode, "iGameMode" ) // TODO: we need support for enums
 	( tGameInfo.sModName,  "sModName" )
 	( tGameInfo.sMapFile, "sMapFile" )
 	( tGameInfo.sMapName, "sMapName" )
@@ -955,5 +957,8 @@ static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.G
 	( tGameInfo.bBonusesOn, "bBonusesOn" )
 	( tGameInfo.bShowBonusName, "bShowBonusName" )
 	( tGameInfo.iNumPlayers, "iNumPlayers" )
+	( tGameInfo.fGameSpeed, "fGameSpeed" )
+	( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
+	( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
 	;
 
