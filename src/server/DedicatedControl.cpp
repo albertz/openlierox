@@ -123,6 +123,29 @@ static DedicatedControl* dedicatedControlInstance = NULL;
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
 
 bool DedicatedControl::Init() {
+	
+	// should be fixed before release or we will have no forward-compatibility
+	CScriptableVars::RegisterVars("GameServer.GameInfo")
+			( tGameInfo.iGameMode, "iGameMode" ) // TODO: we need support for enums
+			( tGameInfo.sModName,  "sModName" )
+			( tGameInfo.sMapFile, "sMapFile" )
+			( tGameInfo.sMapName, "sMapName" )
+			( tGameInfo.sModDir, "sModDir" )
+			( tGameInfo.iLoadingTimes, "iLoadingTimes" )
+			( tGameInfo.sServername, "sServername" )
+			( tGameInfo.sWelcomeMessage, "sWelcomeMessage" )
+			( tGameInfo.iLives, "iLives" )
+			( tGameInfo.iKillLimit, "iKillLimit" )
+			( tGameInfo.fTimeLimit, "fTimeLimit" )
+			( tGameInfo.iTagLimit, "iTagLimit" )
+			( tGameInfo.bBonusesOn, "bBonusesOn" )
+			( tGameInfo.bShowBonusName, "bShowBonusName" )
+			( tGameInfo.iNumPlayers, "iNumPlayers" )
+			( tLXOptions->tGameinfo.fGameSpeed, "fGameSpeed" )
+			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
+			( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
+			;
+	
 	dedicatedControlInstance = new DedicatedControl();
 	return dedicatedControlInstance->Init_priv();
 }
@@ -919,26 +942,4 @@ void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLef
 void DedicatedControl::ChatMessage_Signal(CWorm* w,string message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
-
-// should be fixed before release or we will have no forward-compatibility
-static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
-	( tGameInfo.iGameMode, "iGameMode" ) // TODO: we need support for enums
-	( tGameInfo.sModName,  "sModName" )
-	( tGameInfo.sMapFile, "sMapFile" )
-	( tGameInfo.sMapName, "sMapName" )
-	( tGameInfo.sModDir, "sModDir" )
-	( tGameInfo.iLoadingTimes, "iLoadingTimes" )
-	( tGameInfo.sServername, "sServername" )
-	( tGameInfo.sWelcomeMessage, "sWelcomeMessage" )
-	( tGameInfo.iLives, "iLives" )
-	( tGameInfo.iKillLimit, "iKillLimit" )
-	( tGameInfo.fTimeLimit, "fTimeLimit" )
-	( tGameInfo.iTagLimit, "iTagLimit" )
-	( tGameInfo.bBonusesOn, "bBonusesOn" )
-	( tGameInfo.bShowBonusName, "bShowBonusName" )
-	( tGameInfo.iNumPlayers, "iNumPlayers" )
-	( tLXOptions->tGameinfo.fGameSpeed, "fGameSpeed" )
-	( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
-	( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
-	;
 
