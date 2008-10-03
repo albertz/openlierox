@@ -140,6 +140,16 @@ keys_t Keys[] = {
 	{ "F12", SDLK_F12 }
 	};
 
+	
+	
+#ifdef DEDICATED_ONLY
+
+void updateAxisStates() {}
+void CInput::InitJoysticksTemp() {}
+void CInput::UnInitJoysticksTemp() {}
+
+#else
+	
 // Joystick axes
 // TODO: these are set up according to my joystick, are they general enough?
 enum {
@@ -208,7 +218,7 @@ void updateAxisStates()
 	}
 }
 
-int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
+static int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
 {
 	switch(flag) {
 		case JOY_UP:
@@ -237,7 +247,7 @@ int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
 	return 0;
 }
 
-bool checkJoystickState(int flag, int extra, int j_index) {
+static bool checkJoystickState(int flag, int extra, int j_index) {
 	SDL_Joystick *joy = joys[j_index];
 	if(!bJoystickSupport) return false;
 	if(joy == NULL) return false;
@@ -302,7 +312,7 @@ bool checkJoystickState(int flag, int extra, int j_index) {
 
 static bool joysticks_inited_temp[2] = {false, false};
 
-void initJoystick(int i, bool isTemp) {
+static void initJoystick(int i, bool isTemp) {
 	assert(i == 0 || i == 1);
 	if(!bJoystickSupport) return;
 
@@ -335,7 +345,7 @@ void CInput::InitJoysticksTemp() {
 	initJoystick(1, true);
 }
 
-void uninitTempJoystick(int i) {
+static void uninitTempJoystick(int i) {
 	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
 		printf("uninit temporary loaded joystick %i\n", i);
 		SDL_JoystickClose(joys[i]);
@@ -349,6 +359,7 @@ void CInput::UnInitJoysticksTemp() {
 	uninitTempJoystick(1);
 }
 
+#endif // !DEDICATED_ONLY
 
 
 
@@ -434,6 +445,7 @@ int CInput::Wait(std::string& strText)
 		}
 	}
 
+#ifndef DEDICATED_ONLY
 	// joystick
 	// TODO: more joysticks
 	for(n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
@@ -445,7 +457,8 @@ int CInput::Wait(std::string& strText)
 			return true;
 		}
 	}
-
+#endif
+	
 	return false;
 }
 
@@ -468,7 +481,7 @@ int CInput::Setup(const std::string& string)
 		return true;
 	}
 
-
+#ifndef DEDICATED_ONLY
 	// Check if it's a joystick #1
 	// TODO: allow more joysticks
 	if(string.substr(0,5) == "joy1_") {
@@ -493,7 +506,7 @@ int CInput::Setup(const std::string& string)
 			}
 		}
 	}
-
+	
 	// Check if it's a joystick #2
 	if(string.substr(0,5) == "joy2_") {
 		Type = INP_JOYSTICK2;
@@ -515,6 +528,7 @@ int CInput::Setup(const std::string& string)
 			}
 		}
 	}
+#endif // !DEDICATED_ONLY
 
 
 	// Must be a keyboard character
@@ -544,6 +558,7 @@ int CInput::Setup(const std::string& string)
 // Returns the "force" value for a joystick axis
 int CInput::getJoystickValue()
 {
+#ifndef DEDICATED_ONLY
 	switch (Type)  {
 	case INP_JOYSTICK1:
 		return getJoystickControlValue(Data, Extra, joys[0]);
@@ -552,6 +567,7 @@ int CInput::getJoystickValue()
 	default:
 		return 0;
 	}
+#endif
 	return 0;
 }
 
@@ -559,8 +575,10 @@ int CInput::getJoystickValue()
 // Returns true if this input is a joystick axis
 bool CInput::isJoystickAxis()
 {
+#ifndef DEDICATED_ONLY
 	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
 		return Data != JOY_BUTTON;
+#endif
 	return false;
 }
 
@@ -568,8 +586,10 @@ bool CInput::isJoystickAxis()
 // Returns true if this joystick is a throttle
 bool CInput::isJoystickThrottle()
 {
+#ifndef DEDICATED_ONLY
 	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
 		return (Data == JOY_THROTTLE_LEFT) || (Data == JOY_THROTTLE_RIGHT);
+#endif
 	return false;
 }
 
@@ -594,11 +614,12 @@ bool CInput::isUp(void)
 				return true;
 			break;
 
+#ifndef DEDICATED_ONLY
 		// Joystick
 		case INP_JOYSTICK1:
 		case INP_JOYSTICK2:
 			return nUp > 0;
-
+#endif
 	}
 
 	return false;
@@ -622,12 +643,13 @@ bool CInput::isDown(void)
 				return true;
 			break;
 
+#ifndef DEDICATED_ONLY
 		// Joystick
 		case INP_JOYSTICK1:
 			return checkJoystickState(Data, Extra, 0);
 		case INP_JOYSTICK2:
 			return checkJoystickState(Data, Extra, 1);
-
+#endif
 	}
 
 	return false;
@@ -659,10 +681,12 @@ int CInput::wasDown() {
 		counter = nDownOnce; // no other way at the moment
 		break;
 
+#ifndef DEDICATED_ONLY
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = nDownOnce; // no other way at the moment
 		break;
+#endif
 	}
 
 	return counter;
@@ -682,10 +706,12 @@ int CInput::wasUp() {
 		counter = 0;  // no other way at the moment
 		break;
 
+#ifndef DEDICATED_ONLY
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = 0; // no other way at the moment
 		break;
+#endif
 	}
 
 	return counter;
