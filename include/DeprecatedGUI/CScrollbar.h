@@ -96,14 +96,14 @@ public:
 
 
 	void	setMin(int _min)				{ iMin = _min; UpdatePos(); }
-	void	setMax(int _max)				{ iMax = _max; UpdatePos(); }
+	void	setMax(int _max)				{ iMax = _max; UpdatePos(); } // TODO: that should the max possible value!
 	void	setValue(int _value)			{ iValue = _value; UpdatePos(); }
 
 	void	setItemsperbox(int _i)			{ iItemsperbox = _i; }
     int     getItemsperbox(void)            { return iItemsperbox; }
 
 	int		getValue(void)					{ return iValue; }
-	int		getMax(void)					{ return iMax; }
+	int		getMax(void)					{ return iMax; } // TODO: that should return the max possible value!!
 	bool	getGrabbed(void)				{ return bSliderGrabbed; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);

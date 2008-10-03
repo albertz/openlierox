@@ -753,7 +753,6 @@ void Menu_Net_HostGotoLobby(void)
 				}
 			}
 
-			lv->ScrollToLastLine();
 			//lv->setShowSelect(false);
 		}
 
@@ -873,8 +872,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
         //    if(lv->getItems())
         //        lv->RemoveItem(lv->getItems()->iIndex);
         //}
-
-        lv->ScrollToLastLine();
 	}
 
 

@@ -200,7 +200,9 @@ private:
 	void					AdjustScrollbar(bool mouse = false);
 	void					ReRender();
 	void					DrawCursor(SDL_Surface *bmpDest);
-
+	void					ResetScrollbar();
+	
+	
 	// Link helper functions
 	void					StartLink(const std::string& url);
 	void					EndLink();

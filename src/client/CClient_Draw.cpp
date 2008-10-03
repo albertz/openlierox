@@ -1954,9 +1954,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
 	while((l = cChatbox.GetNewLine()) != NULL) {
-
 		lv->AddChatBoxLine(l->strLine, l->iColour, l->iTextType);
-		lv->ScrollToLastLine();
 	}
 
     // If there are too many lines, remove the top one

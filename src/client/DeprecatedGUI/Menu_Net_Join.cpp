@@ -283,8 +283,6 @@ bool Menu_Net_JoinLobbyInitialize(void)
 		for ( ; it != Chatbox->End(); it++ )  {
 			lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 		}
-
-		lv->ScrollToLastLine();
 	}
 
 	iNetMode = net_join;
@@ -403,8 +401,6 @@ void Menu_Net_JoinGotoLobby(void)
 				lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 			}
 		}
-
-		lv->ScrollToLastLine();
 	}
 
 	// Add the ingame chatter text to lobby chatter
@@ -501,7 +497,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
     line_t *ln = NULL;
 	while((ln = cClient->getChatbox()->GetNewLine()) != NULL) {
 		lv->AddChatBoxLine(ln->strLine, ln->iColour, ln->iTextType);
-        lv->ScrollToLastLine();
 	}
 
 

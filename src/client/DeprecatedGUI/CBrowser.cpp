@@ -765,8 +765,7 @@ void CBrowser::ReRender()
 // Renders a chunk of text with the given style
 void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text)
 {
-	if (!text.size())
-		return;
+	if(!text.size()) return;
 
 	// Text
 	bool was_space = sCurLine.size() > 0 ? (*sCurLine.rbegin() == ' ') : false;
@@ -828,21 +827,23 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			int w = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
 
 			// Draw selection
-			if (InSelection(tPureText.size(), current_column)) {
-				DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), tLX->clSelection);
+			if(bmpDest) {
+				if (InSelection(tPureText.size(), current_column)) {
+					DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), tLX->clSelection);
+				}
+
+				// Draw the character
+				tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
+
+				// Bold
+				if (fmt.bold)
+					tLX->cFont.DrawGlyph(bmpDest, curX + 1, curY, fmt.color, c);
+
+				// Underline
+				if (fmt.underline)
+					DrawHLine(bmpDest, curX, curX + w, curY + tLX->cFont.GetHeight() - 2, fmt.color);
 			}
-
-			// Draw the character
-			tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
-
-			// Bold
-			if (fmt.bold)
-				tLX->cFont.DrawGlyph(bmpDest, curX + 1, curY, fmt.color, c);
-
-			// Underline
-			if (fmt.underline)
-				DrawHLine(bmpDest, curX, curX + w, curY + tLX->cFont.GetHeight() - 2, fmt.color);
-
+			
 			curX += w;
 			++current_column;
 		}
@@ -1145,20 +1146,24 @@ void CBrowser::RenderContent()
 	TraverseNodes(tRootNode);
 	EndLine(); // Add the last parsed line
 
-	int linesperbox = iHeight / tLX->cFont.GetHeight();
-	if ((int)tPureText.size() >= linesperbox + 1)  {
-		cScrollbar.setMax(tPureText.size() - 1);
-		cScrollbar.setItemsperbox(linesperbox - 1);
-		bUseScroll = true;
-	} else
-		bUseScroll = false;
-
+	ResetScrollbar();
+	
 	tDestSurface = NULL;
 
 	// Restore clipping
 	SDL_SetClipRect(bmpBuffer.get(), NULL);
 }
 
+void CBrowser::ResetScrollbar() {
+	int linesperbox = iHeight / tLX->cFont.GetHeight();
+	if ((int)tPureText.size() >= linesperbox + 1)  {
+		cScrollbar.setMax(tPureText.size() - 1);
+		cScrollbar.setItemsperbox(linesperbox - 1);
+		bUseScroll = true;
+	} else
+		bUseScroll = false;	
+}
+	
 //
 // Chatbox routines
 //
@@ -1209,8 +1214,20 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	if( underline )
 		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
 
+
+	EndLine();
+	TraverseNodes(line);
+	ResetScrollbar();
+	
 	bNeedsRender = true;
 
+	if( bUseScroll ) {
+		// if we have scrolled nearly down, scroll down to the new added line
+		if( cScrollbar.getMax() - cScrollbar.getItemsperbox() - cScrollbar.getValue() < 5 )
+			ScrollToLastLine();
+	}
+
+	
 	// Parse the line as HTML and insert the nodes
 	std::string doc = "<html><body>" + text + "</body></html>";
 
@@ -1293,21 +1310,22 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 	{
 		xmlUnlinkNode(node);
 		xmlFreeNode(node);
-	};
+	}
 
 	bNeedsRender = true;
 }
 
 void CBrowser::ScrollToLastLine(void)
 {
+	// TODO: is it always needed to reset the scrollbar stuff when bNeedsRender==true? why is that so? and why is the scrollbar not reset immediatly when needed?
 	if( bNeedsRender )
-		ReRender(); // To update scrollbar max size
+		ResetScrollbar(); // To update scrollbar max size
 	if( bUseScroll )
 	{
 		cScrollbar.setValue(cScrollbar.getMax());
 		bNeedsRender = true;
-	};
-};
+	}
+}
 
 /////////////////////////
 // A callback function that gets called when the user clicks on a link

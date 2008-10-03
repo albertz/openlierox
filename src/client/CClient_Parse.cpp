@@ -725,7 +725,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
 			}
 		}
-		lv->ScrollToLastLine();
 	}
 
 
