@@ -44,32 +44,32 @@ struct FontFormat  {
 class CBrowser : public CWidget {
 public:
 	CBrowser() :
-	  bFinished(false),
-	  iClientWidth(0),
-	  iClientHeight(0),
-	  tHtmlDocument(NULL),
-	  tRootNode(NULL),
-	  fLastMouseScroll(0),
-	  curX(0),
-	  curY(0),
-	  iCursorColumn(0),
-	  iCursorLine(0),
-	  iSelectionStartLine(0),
-	  iSelectionStartColumn(0),
-	  iSelectionEndLine(0),
-	  iSelectionEndColumn(0),
-	  bSelectionGrabbed(false),
-	  bDrawCursor(true),
-	  bInLink(false),
-	  bmpBuffer(NULL),
-	  bNeedsRender(false),
-	  iCurIndent(0)
-	  {
-	  	tCurrentFormat.bold = false;
-	  	tCurrentFormat.underline = false;
-	  	tCurrentFormat.color = Color(0,0,0);
-	  	tBgColor = Color(255,255,255);
-	  }
+		bFinished(false),
+		iClientWidth(0),
+		iClientHeight(0),
+		tHtmlDocument(NULL),
+		tRootNode(NULL),
+		fLastMouseScroll(0),
+		curX(0),
+		curY(0),
+		iCurIndent(0),
+		iCursorColumn(0),
+		iCursorLine(0),
+		iSelectionStartLine(0),
+		iSelectionStartColumn(0),
+		iSelectionEndLine(0),
+		iSelectionEndColumn(0),
+		bSelectionGrabbed(false),
+		bDrawCursor(true),
+		bInLink(false),
+		bmpBuffer(NULL),
+		bNeedsRender(false)
+	{
+		tCurrentFormat.bold = false;
+		tCurrentFormat.underline = false;
+		tCurrentFormat.color = Color(0,0,0);
+		tBgColor = Color(255,255,255);
+	}
 
 public:
 
