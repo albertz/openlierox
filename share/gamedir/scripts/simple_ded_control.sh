@@ -96,8 +96,8 @@ setvar GameOptions.LastGame.ModName             "MW 1.0"
 setvar GameServer.GameInfo.sModDir              "MW 1.0"
 setvar GameServer.GameInfo.sModName             "MW 1.0"
 
-setvar GameOptions.LastGame.LoadingTime         "20"
-setvar GameServer.GameInfo.iLoadingTimes        "20"
+setvar GameServer.GameInfo.iLoadingTimes        0
+setvar GameServer.GameInfo.fGameSpeed			1.4
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
