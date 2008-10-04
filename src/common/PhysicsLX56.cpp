@@ -1050,16 +1050,23 @@ public:
 		// Put the hook where the worm is
 		else if(rope->isAttached() && rope->isPlayerAttached()) {
 
-			// If the worm has been killed, or dropped, drop the hook
-			assert( rope->getAttachedPlayer() );
-			if(!rope->getAttachedPlayer()->isUsed() || !rope->getAttachedPlayer()->getAlive()) {
-				rope->hookVelocity() = CVec(0,0);
-				rope->setShooting( false );
-				rope->setAttached( false );
-				rope->setPlayerAttached( false );
-				rope->setAttachedPlayer( NULL );
+			// Check
+			if (!rope->getAttachedPlayer())  {
+				printf("WARNING: the rope is attached to a non-existant player!\n");
+				rope->setPlayerAttached(false);
+				rope->Release();
 			} else {
-				rope->hookPos() = rope->getAttachedPlayer()->getPos();
+
+				// If the worm has been killed, or dropped, drop the hook
+				if(!rope->getAttachedPlayer()->isUsed() || !rope->getAttachedPlayer()->getAlive()) {
+					rope->hookVelocity() = CVec(0,0);
+					rope->setShooting( false );
+					rope->setAttached( false );
+					rope->setPlayerAttached( false );
+					rope->setAttachedPlayer( NULL );
+				} else {
+					rope->hookPos() = rope->getAttachedPlayer()->getPos();
+				}
 			}
 		}
 
