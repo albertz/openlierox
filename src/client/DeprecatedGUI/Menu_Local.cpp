@@ -1062,7 +1062,7 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
-	static std::string buf;
+	std::string buf;
 
 
 	// Default to no setting

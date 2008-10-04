@@ -6,10 +6,6 @@ function startlobby() {
 	echo "startlobby"
 }
 
-function updatelobby() {
-	echo "sendlobbyupdate"
-}
-
 function startgame() {
 	echo "startgame"
 }
@@ -24,10 +20,6 @@ function chatmsg() {
 
 function setvar() {
 	echo "setvar $1 $2"
-}
-
-function sendlobbyupdate() {
-	echo "sendlobbyupdate"
 }
 
 function start_with_countdown() {
@@ -88,20 +80,17 @@ startlobby
 
 setvar GameServer.ServerName "- simple dedicated server -"
 
-setvar GameOptions.LastGame.LevelName           "CastleStrike.lxl"
 setvar GameServer.GameInfo.sMapFile             "CastleStrike.lxl"
 setvar GameServer.GameInfo.sMapName             "CastleStrike"
 
-setvar GameOptions.LastGame.ModName             "MW 1.0"
 setvar GameServer.GameInfo.sModDir              "MW 1.0"
 setvar GameServer.GameInfo.sModName             "MW 1.0"
 
 setvar GameServer.GameInfo.iLoadingTimes        0
-setvar GameServer.GameInfo.fGameSpeed			1.4
+setvar GameServer.GameInfo.fGameSpeed		1.0
+setvar GameServer.GameInfo.iLives		8
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
-
-updatelobby
 
 while true; do
 	until start_with_countdown; do sleep 1; done

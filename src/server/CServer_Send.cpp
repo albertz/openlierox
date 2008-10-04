@@ -316,16 +316,16 @@ void GameServer::UpdateGameLobby(void)
 	game_lobby_t *gl = &tGameLobby;
 
 	// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
-	gl->nGameMode = tGameInfo.iGameMode;
-	gl->nLives = tGameInfo.iLives;
-	gl->fGameSpeed = tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
+	gl->nGameMode = tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+	gl->nLives = tLXOptions->tGameinfo.iLives = tGameInfo.iLives;
+	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed;
 	gl->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
-	gl->nMaxKills = tGameInfo.iKillLimit;
-	gl->nLoadingTime = tGameInfo.iLoadingTimes;
-	gl->bBonuses = tGameInfo.bBonusesOn;
-	gl->szMapName = tGameInfo.sMapFile;
+	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit = tGameInfo.iKillLimit;
+	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime = tGameInfo.iLoadingTimes;
+	gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
+	gl->szMapName = tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile;
 	gl->szDecodedMapName = tGameInfo.sMapName;
-	gl->szModName = tGameInfo.sModName;
+	gl->szModName = tLXOptions->tGameinfo.szModName = tGameInfo.sModName;
 	gl->szModDir = tGameInfo.sModDir;
 	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
 	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
