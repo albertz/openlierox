@@ -147,6 +147,8 @@ size_t			StringChecksum( const std::string & data );
 bool			FileChecksum( const std::string & path, size_t * _checksum, size_t * _filesize );
 std::string		Base64Encode(const std::string &data);
 std::string		UrlEncode(const std::string &data); // Substitute space with + and all non-alphanum symbols with %XX
+std::string		AutoDetectLinks(const std::string text);
+std::string		HtmlEntityUnpairedBrackets(const std::string &txt);
 
 
 bool			strSeemsLikeChatCommand(const std::string& str);

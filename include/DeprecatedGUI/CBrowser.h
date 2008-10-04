@@ -231,8 +231,6 @@ private:
 	std::string				GetFullURL(const std::string& url);
 	void					LinkClickHandler(CActiveArea *area);
 	void					LinkMouseMoveHandler(CActiveArea *area);
-	std::string				AutoDetectLinks(const std::string text);
-	std::string				HtmlEntityUnpairedBrackets(const std::string& txt);
 
 
 public:
