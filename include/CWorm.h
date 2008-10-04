@@ -138,7 +138,7 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
-
+// TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
 class CWorm {
 public:
 	// Constructor
@@ -193,6 +193,8 @@ private:
 	bool		bOnGround;
 	float		fLastInputTime;
 
+	float		fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
+	
 	CVec		vFollowPos;
 	bool		bFollowOverride;
 
@@ -589,6 +591,9 @@ public:
 
 	worm_state_t *getWormState(void)		{ return &tState; }
 
+	bool		hasOwnServerTime();
+	float		serverTime()				{ return fServertime; }
+	
 	float		getAngle(void)				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
 	int			getDirection(void)			{ return iDirection; }

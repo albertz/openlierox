@@ -866,8 +866,8 @@ void CClient::ProcessServerShotList(void)
 	int num = cShootList.getNumShots();
 
 	// fServerTime is the time we calculated for the server,
-	// shot->fTime was the fServerTime given by the other client when it produced the shot
-	// HINT: Though we are not using these ase these times are not synchronised and sometimes
+	// shot->fTime was the fServerTime of the server when it added the shot
+	// HINT: Though we are not using these because these times are not synchronised and sometimes
 	// shot->fTime > fServerTime.
 	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
 	// the time of both ways (ping+pong).
@@ -876,9 +876,15 @@ void CClient::ProcessServerShotList(void)
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);
 
+		float time = fSpawnTime;
+		// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
+		if(cServerVersion >= OLXBetaVersion(8))
+			if(sh->fTime <= fServertime) // just a security check
+				time = tLX->fCurTime - (fServertime - sh->fTime);
+		
 		// handle all shots not given by me
 		if(sh)
-			ProcessShot(sh, fSpawnTime);
+			ProcessShot(sh, time);
 	}
 }
 

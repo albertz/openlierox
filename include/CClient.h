@@ -299,7 +299,8 @@ private:
 	float		fMyPingSent;
 	float		fMyPingRefreshed;
 	int			iMyPing;
-
+	float		fServertime; // only in >=Beta8 correctly synchronised
+	
 	int			iScoreboard[MAX_WORMS];
 	int			iScorePlayers;
 	int			iTeamScores[4];
@@ -634,7 +635,8 @@ public:
 
 	// Use only when iGameType == GME_JOIN
 	int getMyPing()							{ return iMyPing; }
-
+	float serverTime()						{ return fServertime; }
+	
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
 	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
 

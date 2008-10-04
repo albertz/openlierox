@@ -108,10 +108,13 @@ public:
 	bool		addShoot(float fTime, float fSpeed, int nAngle, CWorm *pcWorm);
 
 	bool		writePacket(CBytestream *bs);
+	
+private:
 	void		writeSingle(CBytestream *bs, int index);
 	void		writeMulti(CBytestream *bs, int index);
 	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 
+public:
 	void		readSingle(CBytestream *bs, int max_weapon_id);
 	static bool skipSingle(CBytestream *bs)  {
 		return bs->Skip(17);

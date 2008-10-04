@@ -81,6 +81,8 @@ void CClientNetEngine::SendWormDetails(void)
 
 	client->bsUnreliable.Append(&bs);
 }
+
+
 void CClientNetEngine::SendGameReady()
 {
 	CBytestream bs;

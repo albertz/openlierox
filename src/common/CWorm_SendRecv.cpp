@@ -99,7 +99,7 @@ void CWorm::readScore(CBytestream *bs)
 
 
 ///////////////////
-// Write a packet out
+// Write a packet out (client-to-server + server-to-client)
 void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver)
 {
 	short x, y;
@@ -144,6 +144,11 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 		CVec v = vVelocity;
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
+	}
+	
+	// client (>=beta8) sends also current server time
+	if(!fromServer && versionOfReceiver >= OLXBetaVersion(8)) {
+		bs->writeFloat( cClient->serverTime() );
 	}
 
 	// Update the "last" variables
@@ -335,6 +340,11 @@ void CWorm::net_updatePos(const CVec& newpos) {
 
 }
 
+bool CWorm::hasOwnServerTime() {
+	if(!getClient()) return false;
+	return getClient()->getClientVersion() >= OLXBetaVersion(8);
+}
+
 ///////////////////
 // Read a packet (server side)
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
@@ -375,6 +385,13 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 
+	// client (>=beta8) sends also what it thinks what the server time is (was)
+	if(versionOfSender >= OLXBetaVersion(8)) {
+		fServertime = bs->readFloat();
+		if(fServertime < cServer->getServerTime())
+			fServertime = cServer->getServerTime();
+	}
+	
 	// If the worm is inside dirt then it is probably carving
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)

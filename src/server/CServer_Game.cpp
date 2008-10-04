@@ -956,13 +956,17 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 	}
 	
 	if(gameserver) {
+		float time = gameserver->getServerTime();
+		if( w->hasOwnServerTime() )
+			time = w->serverTime();
+		
 		// Add the shot to ALL the connected clients shootlist
 		CServerConnection *cl = gameserver->getClients();
 		for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 			if(cl->getStatus() == NET_DISCONNECTED)
 				continue;
 
-			cl->getShootList()->addShoot( gameserver->getServerTime(), speed, (int)Angle, w);
+			cl->getShootList()->addShoot( time, speed, (int)Angle, w);
 		}
 	}
 	

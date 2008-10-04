@@ -618,6 +618,8 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 		ParseConnect(tSocket, bs);
 	else if (cmd == "lx::ping")
 		ParsePing(tSocket);
+	else if (cmd == "lx::time") // request for cServer->fServertime
+		ParseTime(tSocket);
 	else if (cmd == "lx::query")
 		ParseQuery(tSocket, bs, ip);
 	else if (cmd == "lx::getinfo")
@@ -1233,6 +1235,34 @@ void GameServer::ParsePing(NetworkSocket tSocket)
 
 	bs.Send(tSocket);
 }
+
+
+///////////////////
+// Parse a fservertime request packet
+void GameServer::ParseTime(NetworkSocket tSocket)
+{
+	// Ignore pings in local
+	// HINT: this can happen when you quit your server and go play local immediatelly - some
+	// people have not updated their serverlist yet and try to ping and query the server
+	if (tGameInfo.iGameType != GME_HOST)
+		return;
+
+	NetworkAddr		adrFrom;
+	GetRemoteNetAddr(tSocket, adrFrom);
+
+	// Send the challenge details back to the client
+	SetRemoteNetAddr(tSocket, adrFrom);
+
+	CBytestream bs;
+
+	bs.Clear();
+	bs.writeInt(-1, 4);
+	bs.writeString("lx::timeis");
+	bs.writeFloat( fServertime );
+
+	bs.Send(tSocket);
+}
+
 
 ///////////////////
 // Parse a "wants to join" packet

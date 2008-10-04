@@ -62,6 +62,9 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::pong")
 		ParsePong();
 
+	else if(cmd == "lx::timeis")
+		ParseTimeIs(bs);
+	
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
 		// If we are already connected, ignore this
@@ -240,7 +243,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 //////////////////
 // Parse the server's ping reply
-void CClientNetEngine::ParsePong(void)
+void CClientNetEngine::ParsePong()
 {
 	if (client->fMyPingSent > 0)  {
 		int png = (int) ((tLX->fCurTime-client->fMyPingSent)*1000);
@@ -254,6 +257,20 @@ void CClientNetEngine::ParsePong(void)
 		client->iMyPing = png;
 	}
 }
+
+//////////////////
+// Parse the server's servertime request reply
+void CClientNetEngine::ParseTimeIs(CBytestream* bs)
+{
+	float time = bs->readFloat();
+	if (time > client->fServertime)
+		client->fServertime = time;
+	
+	// This is the response of the lx::time packet, which is sent instead of the lx::ping.
+	// Therefore we should also handle this as a normal response to a ping.
+	ParsePong();
+}
+
 
 //////////////////
 // Parse a NAT traverse packet
@@ -808,6 +825,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	printf("Client: get start game signal\n");
 	client->fLastSimulationTime = tLX->fCurTime;
 	client->iNetStatus = NET_PLAYING;
+	client->fServertime = 0;
 
 	// Set the local players to dead so we wait until the server spawns us
 	for(uint i=0;i<client->iNumWorms;i++)

@@ -873,8 +873,12 @@ void CClient::ProcessModDownloads()
 
 ///////////////////
 // Main frame
-void CClient::Frame(void)
+void CClient::Frame()
 {
+	if(iNetStatus == NET_PLAYING) {
+		fServertime += tLX->fRealDeltaTime;
+	}
+
 	ReadPackets();
 
 	ProcessMapDownloads();
@@ -964,6 +968,26 @@ void CClient::SendPackets(void)
 		cNetEngine->SendWormDetails();
 
 
+	// Send every second
+	// TODO: move this somewhere else
+	if (iNetStatus == NET_PLAYING && tLX->fCurTime - fMyPingRefreshed > 1) {
+		CBytestream ping;
+
+		// TODO: move this out here
+		ping.Clear();
+		ping.writeInt(-1,4);
+		if(cServerVersion >= OLXBetaVersion(8))
+			ping.writeString("lx::time"); // request for servertime
+		else
+			ping.writeString("lx::ping");
+
+		ping.Send(this->getChannel()->getSocket());
+
+		fMyPingSent = tLX->fCurTime;
+		fMyPingRefreshed = tLX->fCurTime;
+	}
+	
+	
 	// Randomly send a random packet
 #ifdef FUZZY_ERROR_TESTING
 	if (GetRandomInt(50) > 24 && iNetStatus == NET_CONNECTED)

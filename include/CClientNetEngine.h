@@ -60,7 +60,8 @@ protected:
 	// I expect child class will redirect most in-lobby messages to parent class
 	void		ParseChallenge(CBytestream *bs);
 	void		ParseConnected(CBytestream *bs);
-	void		ParsePong(void);
+	void		ParsePong();
+	void		ParseTimeIs(CBytestream *bs);
 	void		ParseTraverse(CBytestream *bs);
 	void		ParseConnectHere(CBytestream *bs);
 

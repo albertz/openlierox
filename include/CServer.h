@@ -256,6 +256,7 @@ public:
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
 	void		ParseConnect(NetworkSocket tSocket, CBytestream *bs);
 	void		ParsePing(NetworkSocket tSocket);
+	void		ParseTime(NetworkSocket tSocket);
 	void		ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
     void        ParseGetInfo(NetworkSocket tSocket);
 	void		ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);

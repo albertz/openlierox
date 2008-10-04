@@ -597,21 +597,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 						tLX->clPingLabel,
 						"Ping: " + itoa(iMyPing));
 
-			// Send every second
-			// TODO: move this somewhere else
-			if (tLX->fCurTime - fMyPingRefreshed > 1) {
-				CBytestream ping;
-
-				// TODO: move this out here
-				ping.Clear();
-				ping.writeInt(-1,4);
-				ping.writeString("lx::ping");
-
-				ping.Send(cClient->getChannel()->getSocket());
-
-				fMyPingSent = tLX->fCurTime;
-				fMyPingRefreshed = tLX->fCurTime;
-			}
 		}
 
 		if( sSpectatorViewportMsg != "" )
