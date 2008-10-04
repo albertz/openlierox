@@ -120,8 +120,8 @@ void Menu_LocalInitialize(void)
 	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/
 
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.nGameType, 0);
-    iGameType = tLXOptions->tGameinfo.nGameType;
+    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.iGameMode, 0);
+    iGameType = tLXOptions->tGameinfo.iGameMode;
 
 	// Add players to player/playing lists
 	Menu_LocalAddProfiles();
@@ -135,7 +135,7 @@ void Menu_LocalInitialize(void)
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 	Menu_Local_FillModList( cbMod );
-	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
+	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModDir));
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -160,7 +160,7 @@ void Menu_LocalShutdown(void)
 	// Save the level and mod
 	if (tLXOptions)  {
 		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
+		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModDir, 0);
 	}
 
 	cLocalMenu.Shutdown();
@@ -218,11 +218,11 @@ void Menu_LocalFrame(void)
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameinfo.szModName = it->sIndex;
+		if(it) tLXOptions->tGameinfo.szModDir = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
+		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModDir));
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
@@ -618,7 +618,7 @@ void Menu_LocalStartGame(void)
 	// Game Info
 	//
 	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-    tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+    tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
 
     tGameInfo.sPassword = "";
 
@@ -628,7 +628,7 @@ void Menu_LocalStartGame(void)
     if(it) {
         tGameInfo.sModName = it->sName;
 		tGameInfo.sModDir = it->sIndex;
-        tLXOptions->tGameinfo.szModName = it->sIndex;
+        tLXOptions->tGameinfo.szModDir = it->sIndex;
     } else {
 
 		// Couldn't find a mod to load
@@ -716,7 +716,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	ModAdder adder(cb);
 	FindFiles(adder,".",false,FM_DIR);
 	
-	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
+	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
 }
 
 

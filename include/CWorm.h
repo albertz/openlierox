@@ -478,7 +478,7 @@ public:
 
     int         AI_FindClearingWeapon();
     bool        AI_Shoot();
-    int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float fTraceDist);
+    int         AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist);
     void        AI_ReloadWeapons();
     int         cycleWeapons();
 	void		AI_SetGameType(int type)  { iAiGameType = type; }
@@ -511,7 +511,7 @@ public:
 
 
 
-    //int         getBestWeapon(int nGameType, float fDistance, CVec cTarget);
+    //int         getBestWeapon(int iGameMode, float fDistance, CVec cTarget);
 
 
 

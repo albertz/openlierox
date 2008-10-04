@@ -1350,7 +1350,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 
 	// If in lobby
 	if (iState == SVS_LOBBY && gl->bSet) {
-		bs.writeString(gl->szMapName);
+		bs.writeString(gl->szMapFile);
 		bs.writeString(gl->szModName);
 		bs.writeByte(gl->nGameMode);
 		bs.writeInt16(gl->nLives);

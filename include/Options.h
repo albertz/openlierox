@@ -249,8 +249,8 @@ public:
 		std::string	sServerName;
 		std::string	sWelcomeMessage;
 		std::string	sMapFilename;
-        int     nGameType;
-        std::string szModName;
+        int     iGameMode;
+        std::string szModDir;
         std::string szPassword;
 		bool	bRegServer;
 		std::string	sLastSelectedPlayer;

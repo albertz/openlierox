@@ -2017,7 +2017,7 @@ bool CWorm::AI_Shoot()
 ///////////////////
 // AI: Get the best weapon for the situation
 // Returns weapon id or -1 if no weapon is suitable for the situation
-int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float fTraceDist) {
+int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist) {
 	// if we are to close to the target, don't selct any weapon (=> move away)
 	/*if(fDistance < 5)
 		return -1; */

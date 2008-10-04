@@ -316,17 +316,16 @@ void GameServer::UpdateGameLobby(void)
 	game_lobby_t *gl = &tGameLobby;
 
 	// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
-	gl->nGameMode = tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+	gl->nGameMode = tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
 	gl->nLives = tLXOptions->tGameinfo.iLives = tGameInfo.iLives;
 	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed;
 	gl->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit = tGameInfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime = tGameInfo.iLoadingTimes;
 	gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
-	gl->szMapName = tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile;
-	gl->szDecodedMapName = tGameInfo.sMapName;
-	gl->szModName = tLXOptions->tGameinfo.szModName = tGameInfo.sModName;
-	gl->szModDir = tGameInfo.sModDir;
+	gl->szMapFile = tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile;
+	gl->szModName = tGameInfo.sModName;
+	gl->szModDir = tLXOptions->tGameinfo.szModDir = tGameInfo.sModDir;
 	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
 	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 	
@@ -341,7 +340,7 @@ void GameServer::UpdateGameLobby(void)
 		CBytestream bs;
 		bs.writeByte(S2C_UPDATELOBBYGAME);
 		bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
-		bs.writeString(gl->szMapName);
+		bs.writeString(gl->szMapFile);
 	    bs.writeString(gl->szModName);
 	    bs.writeString(gl->szModDir);
 		// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches

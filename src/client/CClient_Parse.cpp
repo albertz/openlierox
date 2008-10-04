@@ -1603,7 +1603,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 
 	gl->bSet = true;
 	gl->nMaxWorms = bs->readByte();
-	gl->szMapName = bs->readString();
+	gl->szMapFile = bs->readString();
     gl->szModName = bs->readString();
     gl->szModDir = bs->readString();
 	gl->nGameMode = bs->readByte();
@@ -1621,7 +1621,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     gl->bHaveMod = true;
 
     // Does the level file exist
-    fp = OpenGameFile("levels/" + gl->szMapName,"rb");
+    fp = OpenGameFile("levels/" + gl->szMapFile,"rb");
     if(!fp)
         gl->bHaveMap = false;
     else
@@ -1629,8 +1629,8 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
-		std::string MapName = DeprecatedGUI::Menu_GetLevelName(gl->szMapName);
-		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapName;
+		std::string MapName = DeprecatedGUI::Menu_GetLevelName(gl->szMapFile);
+		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapFile;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
@@ -1945,7 +1945,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			fclose(ff);
 			
 			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
-					IsFileAvailable( "levels/" + client->tGameLobby.szMapName ) )
+					IsFileAvailable( "levels/" + client->tGameLobby.szMapFile ) )
 			{
 				client->bDownloadingMap = false;
 				client->bWaitingForMap = false;

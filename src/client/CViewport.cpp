@@ -60,7 +60,7 @@ void CViewport::setupInputs(const controls_t& Inputs)
 
 ///////////////////
 // Process a viewport
-void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int nGameType)
+void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
 {
     int hx = Width/2;
 	int hy = Height/2;

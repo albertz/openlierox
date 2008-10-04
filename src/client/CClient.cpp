@@ -466,7 +466,7 @@ void CClient::FinishMapDownloads()
 {
 	// Check that the file exists
 	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
-		if (tGameLobby.szMapName == sMapDownloadName)  {
+		if (tGameLobby.szMapFile == sMapDownloadName)  {
 			tGameLobby.bHaveMap = true;
 			tGameLobby.szDecodedMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
 		}
@@ -712,7 +712,7 @@ void CClient::ProcessMapDownloads()
 			}
 		}
 		
-		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->szMapName ) {
+		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->szMapFile ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}

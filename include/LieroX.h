@@ -249,7 +249,7 @@ class game_lobby_t { public:
 	int		nLoadingTime;
 	float	fGameSpeed;
 	bool	bBonuses;
-	std::string	szMapName;
+	std::string	szMapFile;
 	std::string	szDecodedMapName;
 	std::string	szModName;
 	std::string	szModDir;

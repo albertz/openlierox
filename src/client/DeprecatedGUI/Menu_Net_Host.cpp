@@ -486,7 +486,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-    tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
+    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
 
 	cClient->Shutdown();
     cClient->Clear();
@@ -519,7 +519,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
 	gl->bSet = true;
-	gl->nGameMode = tLXOptions->tGameinfo.nGameType;
+	gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
@@ -632,7 +632,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
 	Menu_Local_FillModList( cbMod );
-	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
+	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
 
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
@@ -646,9 +646,9 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Don't show chat box selection
 	//lv->setShowSelect(false);
 
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &tGameInfo.sModName, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &tGameInfo.sModDir, 0);
 
 	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gametype);
 	if (gtype)  {
@@ -718,14 +718,14 @@ void Menu_Net_HostGotoLobby(void)
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-    tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
+    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
 
 	cClient->getChatbox()->setWidth(590);
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
 	gl->bSet = true;
-	gl->nGameMode = tLXOptions->tGameinfo.nGameType;
+	gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
@@ -840,11 +840,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameinfo.szModName = it->sIndex;
+		if(it) tLXOptions->tGameinfo.szModDir = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
+		cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
 
 
 
@@ -855,6 +855,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 		cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
 	}
 
 
@@ -947,8 +949,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
 
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &cServer->getLobby()->szMapName, 0);
-					tLXOptions->tGameinfo.sMapFilename = cServer->getLobby()->szMapName;
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
 					cServer->UpdateGameLobby();
 				}
 				break;
@@ -956,8 +957,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Mod change
             case hl_ModName:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &cServer->getLobby()->szModName, 0);
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &cServer->getLobby()->szModDir, 0);
+                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &tGameInfo.sModName, 0);
+                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &tGameInfo.sModDir, 0);
 					cServer->UpdateGameLobby();
                 }
                 break;
@@ -965,7 +966,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Game type change
 			case hl_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					cServer->getLobby()->nGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+					tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 					bHost_Update = true;
 					cServer->UpdateGameLobby();
 				}
@@ -974,12 +975,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Lives change
 			case hl_Lives:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					static std::string buf;
+					std::string buf;
 					cHostLobby.SendMessage(hl_Lives, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
-						cServer->getLobby()->nLives = atoi(buf);
+						tGameInfo.iLives = atoi(buf);
 					else
-						cServer->getLobby()->nLives = -2;
+						tGameInfo.iLives = -2;
 
 					cServer->UpdateGameLobby();
 				}
@@ -989,12 +990,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Max Kills
 			case hl_MaxKills:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					static std::string buf;
+					std::string buf;
 					cHostLobby.SendMessage(hl_MaxKills, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
-						cServer->getLobby()->nMaxKills = atoi(buf);
+						tGameInfo.iKillLimit = atoi(buf);
 					else
-						cServer->getLobby()->nMaxKills = -2;
+						tGameInfo.iKillLimit = -2;
 
 					cServer->UpdateGameLobby();
 				}
@@ -1166,12 +1167,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		if(it) {
 			tGameInfo.sModName = it->sName;
 			tGameInfo.sModDir = it->sIndex;
-			tLXOptions->tGameinfo.szModName = it->sIndex;
+			tLXOptions->tGameinfo.szModDir = it->sIndex;
 		}
 
 		// Get the game type
 		tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+		tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
 
 		// Get the map name
 		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);

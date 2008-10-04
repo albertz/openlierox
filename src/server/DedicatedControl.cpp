@@ -521,7 +521,7 @@ struct DedIntern {
 		tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
 		tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-		tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
+		tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
 		tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = 10;
 		tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
 		
@@ -548,7 +548,7 @@ struct DedIntern {
 		// Set up the server's lobby details
 		game_lobby_t *gl = cServer->getLobby();
 		gl->bSet = true;
-		gl->nGameMode = tLXOptions->tGameinfo.nGameType;
+		gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
 		gl->nLives = tLXOptions->tGameinfo.iLives;
 		gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 		gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
@@ -560,10 +560,10 @@ struct DedIntern {
 			cout << "ERROR: no mod for dedicated" << endl;
 			// TODO..
 		}
-		tLXOptions->tGameinfo.szModName = tGameInfo.sModDir;
+		tLXOptions->tGameinfo.szModDir = tGameInfo.sModDir;
 
 		// Get the game type
-		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode = GMT_DEATHMATCH;
+		tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode = GMT_DEATHMATCH;
 
 		tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile = "CastleStrike.lxl";
 		tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tGameInfo.sMapFile);

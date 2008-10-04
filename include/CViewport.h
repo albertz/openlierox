@@ -96,7 +96,7 @@ public:
 
 	void	Setup(int l, int t, int vw, int vh, int type);
 
-	void	Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int nGameType);
+	void	Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode);
 	void	Clamp(int MWidth, int MHeight);
 	void	ClampFiltered(int MWidth, int MHeight);
 

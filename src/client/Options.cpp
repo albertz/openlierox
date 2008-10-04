@@ -149,9 +149,9 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bMatchLogging, "MatchLogging", true )
 		( tLXOptions->tGameinfo.sServerName, "ServerName", "OpenLieroX Server" )
 		( tLXOptions->tGameinfo.sWelcomeMessage, "WelcomeMessage", "Welcome to <server>, <player>" )
-		( tLXOptions->tGameinfo.sMapFilename, "LevelName" )
-		( tLXOptions->tGameinfo.nGameType, "GameType", GMT_DEATHMATCH )
-		( tLXOptions->tGameinfo.szModName, "ModName", "Classic" )
+		( tLXOptions->tGameinfo.sMapFilename, "LevelName" ) // WARNING: confusing, it is handled like the filename
+		( tLXOptions->tGameinfo.iGameMode, "GameType", GMT_DEATHMATCH )
+		( tLXOptions->tGameinfo.szModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
 		( tLXOptions->tGameinfo.szPassword, "Password" )
 		( tLXOptions->tGameinfo.bRegServer, "RegisterServer", true )
 		( tLXOptions->tGameinfo.sLastSelectedPlayer, "LastSelectedPlayer", "" )

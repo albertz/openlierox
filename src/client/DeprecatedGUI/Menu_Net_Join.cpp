@@ -563,7 +563,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
-        tGameInfo.sMapFile = gl->szMapName;
+        tGameInfo.sMapFile = gl->szMapFile;
 		tGameInfo.sMapName = gl->szDecodedMapName;
         tGameInfo.sModName = gl->szModName;
         tGameInfo.sModDir = gl->szModDir;
@@ -585,16 +585,16 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gl->szDecodedMapName);
 		} else {  // Don't have the map
 			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapFile);
 			} else { // Not downloading
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapFile);
 				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
 				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)
-						cClient->DownloadMap(gl->szMapName); // Download the map
+						cClient->DownloadMap(gl->szMapFile); // Download the map
 				} else {
 					SetGameCursor(CURSOR_ARROW);
 				}
@@ -646,7 +646,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	{
 		/*if( cClient->getDownloadingMap() )
 			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
-			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapName );
+			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapFile );
 		else if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
 			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
 			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
@@ -794,8 +794,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						cClient->setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
 						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
 							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);
-						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" )
-							cClient->DownloadMap(cClient->getGameLobby()->szMapName);	// Download map with HTTP, then try UDP
+						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapFile != "" )
+							cClient->DownloadMap(cClient->getGameLobby()->szMapFile);	// Download map with HTTP, then try UDP
 					}
 				}
 				break;*/
