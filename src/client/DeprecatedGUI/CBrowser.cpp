@@ -1256,7 +1256,7 @@ std::string CBrowser::AutoDetectLinks(const std::string text)
 			continue;
 		}
 
-		for (int i = 0; i < sizeof(prefixes)/sizeof(std::string); ++i)  {
+		for (size_t i = 0; i < sizeof(prefixes)/sizeof(std::string); ++i)  {
 			if (text.size() - pos > prefixes[i].size() + 4)  {  // 4 = minimum length of the address, for example a.de
 				if (stringcaseequal(text.substr(pos, prefixes[i].size()), prefixes[i]))  {
 
