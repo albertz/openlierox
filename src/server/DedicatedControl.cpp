@@ -503,7 +503,6 @@ struct DedIntern {
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
 
-		tLXOptions->tGameinfo.iMaxPlayers = 8;
 		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
 		//tLXOptions->tGameinfo.bRegServer = false;
