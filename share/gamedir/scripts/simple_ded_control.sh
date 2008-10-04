@@ -6,6 +6,10 @@ function startlobby() {
 	echo "startlobby"
 }
 
+function addbot() {
+	echo "addbot"
+}
+
 function startgame() {
 	echo "startgame"
 }
@@ -91,6 +95,8 @@ setvar GameServer.GameInfo.fGameSpeed		1.0
 setvar GameServer.GameInfo.iLives		8
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
+
+addbot
 
 while true; do
 	until start_with_countdown; do sleep 1; done
