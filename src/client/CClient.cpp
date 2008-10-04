@@ -1434,7 +1434,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 int CClient::OwnsWorm(int id)
 {
 	for(uint i=0;i<iNumWorms;i++) {
-		if(id == cLocalWorms[i]->getID())
+		if(cLocalWorms[i] && id == cLocalWorms[i]->getID())
 			return true;
 	}
 
