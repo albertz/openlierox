@@ -188,9 +188,12 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	NetworkAddr addr;
 
 	// If already connected, ignore this
-	if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
-		bs->Skip(client->iNumWorms);
-		printf("CClientNetEngine::ParseConnected: already connected, ignoring\n");
+	if (client->iNetStatus == NET_CONNECTED)  {
+		printf("CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids\n");
+	}
+	else
+	if(client->iNetStatus == NET_PLAYING) {
+		printf("CClientNetEngine::ParseConnected: currently playing; it's too risky to proceed a reconnection, so we ignore this\n");
 		return;
 	}
 
