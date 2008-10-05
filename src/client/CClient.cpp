@@ -1796,14 +1796,8 @@ std::string CClient::debugName() {
 		adr = "local";
 	else if(!getChannel())  {
 		printf("WARNING: CServerConnection::debugName(): getChannel() == NULL\n");
-		return "CClient(ERROR)";
-	}
-
-	// Get the address
-	NetworkAddr netAdr = getChannel()->getAddress();
-	if(!NetAddrToString(netAdr, adr))  {
+	} else if(!NetAddrToString(getChannel()->getAddress(), adr))  {
 		printf("WARNING: CServerConnection::debugName(): NetAddrToString failed\n");
-		return "CClient(ERROR)";
 	}
 
 	std::string worms = "no worms";
