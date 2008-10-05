@@ -68,6 +68,11 @@ void CBrowser::Destroy()
 {
 	if (tHtmlDocument)
 		xmlFreeDoc(tHtmlDocument);
+	if (tTimer)  {
+		tTimer->stop();
+		delete tTimer;
+		tTimer = NULL;
+	}
 	tHtmlDocument = NULL;
 	tRootNode = NULL;
 }
