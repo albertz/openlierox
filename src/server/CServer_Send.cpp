@@ -181,6 +181,7 @@ bool GameServer::SendUpdate()
 		}
 	}
 
+	size_t uploadAmount = 0;
 
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
@@ -199,7 +200,7 @@ bool GameServer::SendUpdate()
 
 			// check our server bandwidth
 			if( !cl->isLocalClient()
-			&& !checkUploadBandwidth(GetUpload(0.1f)) ) {
+			&& !checkUploadBandwidth(GetUpload(0.5f) + uploadAmount) ) {
 				// we have gone over our own bandwidth for non-local clients
 				static float lastMessageTime = tLX->fCurTime;
 				if(tLX->fCurTime - lastMessageTime > 5.0) {
@@ -235,12 +236,13 @@ bool GameServer::SendUpdate()
 			}
 
 			CBytestream *bs = cl->getUnreliable();
+			size_t oldBsPos = bs->GetPos();
 
 			// Write the packets to the unreliable bytestream
 			bs->writeByte(S2C_UPDATEWORMS);
 			bs->writeByte(num_worms);
 			bs->Append(&update_packets);
-
+			
 			// Write out a stat packet
 			{
 				bool need_send = false;
@@ -261,6 +263,8 @@ bool GameServer::SendUpdate()
 				}
 			}
 
+			uploadAmount += (bs->GetPos() - oldBsPos);
+
     		{
 				// Send the shootlist (reliable)
 				CShootList *sh = cl->getShootList();
@@ -273,6 +277,8 @@ bool GameServer::SendUpdate()
 					if( sh->writePacket(&shootBs) )
 						sh->Clear();
 
+					uploadAmount += shootBs.GetLength();
+					
 					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
 			}
