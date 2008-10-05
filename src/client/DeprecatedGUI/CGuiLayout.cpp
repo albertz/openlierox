@@ -156,6 +156,29 @@ void CGuiLayout::removeWidget(int id)
 	}
 }
 
+/////////////////////////
+// Focus a widget
+void CGuiLayout::FocusWidget(int id)
+{
+    for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
+		if (id == (*w)->getID())  {
+
+			// Take off focus from any previously focused widget
+			if(cFocused) {
+				if(id == cFocused->getID())
+					break;
+				cFocused->setFocused(false);
+				cFocused = NULL;
+			}
+
+			(*w)->setFocused(true);
+			cFocused = (*w);
+
+			break;
+		}
+	}
+}
+
 
 ///////////////////
 // Shutdown the gui layout

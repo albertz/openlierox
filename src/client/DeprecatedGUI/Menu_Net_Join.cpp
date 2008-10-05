@@ -739,6 +739,21 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 				break;
 
+			// Chat box
+			case jl_ChatList:
+				if (ev->iEventMsg == BRW_KEY_NOT_PROCESSED)  {
+					// Activate the textbox automatically
+					cJoinLobby.FocusWidget(jl_ChatText);
+
+					// Hack: add the just-pressed key to the textbox
+					CTextbox *txt = (CTextbox *)cJoinLobby.getWidget(jl_ChatText);
+					if (txt && GetKeyboard()->queueLength > 0)  {
+						KeyboardEvent kbev = GetKeyboard()->keyQueue[GetKeyboard()->queueLength - 1];
+						txt->KeyDown(kbev.ch, kbev.sym, *GetCurrentModstate());
+					}
+				}
+				break;
+
 
 			// Chat textbox
 			case jl_ChatText:

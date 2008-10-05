@@ -97,6 +97,7 @@ public:
 	bool		Build(void);
 
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
+	void		FocusWidget(int id);
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
 	int			GetIdByName(const std::string& Name);
