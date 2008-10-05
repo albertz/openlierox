@@ -61,9 +61,9 @@ public:
 		iSelectionStartColumn(0),
 		iSelectionEndLine(0),
 		iSelectionEndColumn(0),
-		tTimer(NULL),
 		bSelectionGrabbed(false),
 		bDrawCursor(true),
+		tTimer(NULL),
 		bInLink(false),
 		bmpBuffer(NULL),
 		bNeedsRender(false)
