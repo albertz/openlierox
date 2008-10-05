@@ -263,7 +263,8 @@ bool GameServer::SendUpdate()
 				}
 			}
 
-			uploadAmount += (bs->GetPos() - oldBsPos);
+			if(!cl->isLocalClient())
+				uploadAmount += (bs->GetPos() - oldBsPos);
 
     		{
 				// Send the shootlist (reliable)
@@ -277,7 +278,8 @@ bool GameServer::SendUpdate()
 					if( sh->writePacket(&shootBs) )
 						sh->Clear();
 
-					uploadAmount += shootBs.GetLength();
+					if(!cl->isLocalClient())
+						uploadAmount += shootBs.GetLength();
 					
 					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
