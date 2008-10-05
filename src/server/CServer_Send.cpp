@@ -327,7 +327,7 @@ bool GameServer::checkBandwidth(CServerConnection *cl)
 
 // true means we can send further data
 bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
-	if( tGameInfo.iGameType != GME_LOCAL )
+	if( tGameInfo.iGameType == GME_LOCAL )
 		return true;
 
 	// Modem, ISDN, LAN, local
