@@ -718,7 +718,8 @@ std::string StripHtmlTags( const std::string & src )
 	/* GCS: override structuredErrorFunc to mine so I can ignore errors */
 	xmlSetStructuredErrorFunc(xmlGenericErrorContext, &structuredError);
 
-	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) src.c_str(), "utf-8", &handler, &str );
+	std::string tmp = HtmlEntityUnpairedBrackets(src);
+	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
 
 	xmlFree(doc);
 
