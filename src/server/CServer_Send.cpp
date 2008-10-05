@@ -203,8 +203,8 @@ bool GameServer::SendUpdate()
 			&& !checkUploadBandwidth(GetUpload(0.1f) + uploadAmount) ) {
 				// we have gone over our own bandwidth for non-local clients
 				static float lastMessageTime = tLX->fCurTime;
-				if(tLX->fCurTime - lastMessageTime > 5.0) {
-					cout << "we got over the upload bandwidth for " << cl->debugName() << "; current upload is " << GetUpload() << endl;
+				if(tLX->fCurTime - lastMessageTime > 30.0) {
+					cout << "we got over the max upload bandwidth; current upload is " << GetUpload() << endl;
 					lastMessageTime = tLX->fCurTime;
 				}
 				continue;
