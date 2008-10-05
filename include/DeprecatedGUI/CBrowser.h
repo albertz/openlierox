@@ -28,6 +28,8 @@
 
 namespace DeprecatedGUI {
 
+#define BORDER_SIZE 2
+
 // Browser messages
 enum {
 	BRW_NONE = -1,
@@ -61,6 +63,7 @@ public:
 		iSelectionStartColumn(0),
 		iSelectionEndLine(0),
 		iSelectionEndColumn(0),
+		iBorderSize(BORDER_SIZE),
 		bSelectionGrabbed(false),
 		bDrawCursor(true),
 		tTimer(NULL),
@@ -172,6 +175,7 @@ private:
 	std::vector<CPureLine>	tPureText;
 	std::list<CActiveArea>	tActiveAreas;
 	float					fLastMouseScroll;
+	int						iBorderSize;
 
 	// Parsing temps
 	FontFormat				tCurrentFormat;
@@ -269,6 +273,9 @@ public:
 	void	LoadFromString(const std::string& data);
 	void	AppendData(const std::string& data);
 	void	ProcessHTTP();
+
+	int		getBorderSize()		{ return iBorderSize; }
+	void	setBorderSize(int size)	{ iBorderSize = size; }
 
 	// TODO: create a descendant chatbox class and move the chatbox things there, they do not belong to browser
 	void	InitializeChatBox( const std::string & initText = "" );

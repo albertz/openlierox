@@ -748,6 +748,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Load the chat
 	DeprecatedGUI::CBrowser *lv = client->cChatList;
 	if (lv)  {
+		lv->setBorderSize(0);
 		lv->InitializeChatBox();
 		lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 		//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;

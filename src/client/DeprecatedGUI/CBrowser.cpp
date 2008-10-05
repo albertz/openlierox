@@ -30,7 +30,6 @@
 
 namespace DeprecatedGUI {
 
-#define BORDER_SIZE 2
 #define LIST_SPACING 10
 
 ///////////////////
@@ -42,11 +41,11 @@ void CBrowser::Create(void)
 
 	bUseScroll = false;
 	bNeedsRender = true;
-	iClientWidth = iWidth - 2*BORDER_SIZE;
-	iClientHeight = iHeight - 2*BORDER_SIZE;
+	iClientWidth = iWidth - 2*iBorderSize;
+	iClientHeight = iHeight - 2*iBorderSize;
 
 	// Setup the scrollbar
-	cScrollbar.Setup(0, iX+iWidth-15, iY+BORDER_SIZE, 14, iHeight-BORDER_SIZE);
+	cScrollbar.Setup(0, iX+iWidth-15, iY+iBorderSize, 14, iHeight-iBorderSize);
 	cScrollbar.Create();
 	cScrollbar.setMin(0);
 	cScrollbar.setValue(0);
@@ -600,14 +599,14 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 		return;
 
 	// Get the line
-	int y = ms_y - iY - BORDER_SIZE;
+	int y = ms_y - iY - iBorderSize;
 	int line = y / tLX->cFont.GetHeight() + scroll_val;
 	if (line >= (int)tPureText.size())
 		line = tPureText.size() - 1;
 	if (line < 0)
 		line = 0;
 
-	int x = ms_x - iX - BORDER_SIZE - tPureText[line].iLeftMargin;
+	int x = ms_x - iX - iBorderSize - tPureText[line].iLeftMargin;
 
 	// Get the column
 	size_t column = 0;
@@ -638,8 +637,8 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 // Converts cursor position to a mouse (screen) position
 void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& ms_y)
 {
-	ms_x = iX + BORDER_SIZE;
-	ms_y = iY + BORDER_SIZE;
+	ms_x = iX + iBorderSize;
+	ms_y = iY + iBorderSize;
 
 	int scroll = (bUseScroll ? cScrollbar.getValue() : 0);
 	int y = MAX(0, ((int)cur_y - scroll) * tLX->cFont.GetHeight());
@@ -653,8 +652,8 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 	std::string tmp = Utf8SubStr(tPureText[cur_y].sText, 0, count);
 	int x = tLX->cFont.GetWidth(tmp);
 
-	ms_x = iX + BORDER_SIZE + x + tPureText[cur_y].iLeftMargin;
-	ms_y = iY + BORDER_SIZE + y;
+	ms_x = iX + iBorderSize + x + tPureText[cur_y].iLeftMargin;
+	ms_y = iY + iBorderSize + y;
 }
 
 //////////////////////
@@ -689,7 +688,7 @@ void CBrowser::EndLine()
 	tPureText.push_back(CPureLine(sCurLine, iCurIndent));
 	sCurLine.clear();
 	curY += tLX->cFont.GetHeight();
-	curX = BORDER_SIZE + iCurIndent;
+	curX = iBorderSize + iCurIndent;
 }
 
 ////////////////////
@@ -779,18 +778,20 @@ void CBrowser::ReRender()
 	FillSurfaceTransparent(bmpBuffer.get());
 
 	// 3D Box
-	DrawRect(bmpBuffer.get(), 0, 0, iWidth, iHeight, tLX->clBoxDark);
-	DrawRect(bmpBuffer.get(), 1, 1, iWidth - 1, iHeight - 1, tLX->clBoxLight);
+	if (iBorderSize > 0)  {
+		DrawRect(bmpBuffer.get(), 0, 0, iWidth, iHeight, tLX->clBoxDark);
+		DrawRect(bmpBuffer.get(), 1, 1, iWidth - 1, iHeight - 1, tLX->clBoxLight);
+	}
 	
 	// Render the content
 	RenderContent();
 
 	// Scrollbar
 	if (bUseScroll)  {
-		cScrollbar.Setup(cScrollbar.getID(), iWidth - cScrollbar.getWidth() - BORDER_SIZE,
-			BORDER_SIZE, cScrollbar.getWidth(), cScrollbar.getHeight());
+		cScrollbar.Setup(cScrollbar.getID(), iWidth - cScrollbar.getWidth() - iBorderSize,
+			iBorderSize, cScrollbar.getWidth(), cScrollbar.getHeight());
 		cScrollbar.Draw(bmpBuffer.get());
-		cScrollbar.Setup(0, iX+iWidth-15, iY+BORDER_SIZE, 14, iHeight-BORDER_SIZE);
+		cScrollbar.Setup(0, iX+iWidth-15, iY+iBorderSize, 14, iHeight-iBorderSize);
 	}
 
 	bNeedsRender = false;
@@ -1030,7 +1031,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	if (!node)
 		return;
 
-	const int maxX = iWidth - BORDER_SIZE - 16;
+	const int maxX = iWidth - iBorderSize - 16;
 
 	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) {}
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) {}
@@ -1094,7 +1095,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		BrowseChildren(node);
 		EndLine();
 		iCurIndent = 0; // Back to normal indentation
-		curX = BORDER_SIZE;
+		curX = iBorderSize;
 		return;
 	}
 
@@ -1140,7 +1141,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
 		EndLine();
-		DrawHLine(bmpBuffer.get(), curX + 5, iWidth - BORDER_SIZE - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
+		DrawHLine(bmpBuffer.get(), curX + 5, iWidth - iBorderSize - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
 		EndLine();
 		return;
 	}
@@ -1159,27 +1160,27 @@ void CBrowser::RenderContent()
 	if (!tHtmlDocument || !tRootNode)
 	{
 		// Background (transparent by default)
-		//DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
+		//DrawRectFill(bmpDest, iX + iBorderSize, iY + iBorderSize, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
 		return;
 	}
 	
 	tPureText.clear();
 	tActiveAreas.clear();
 	
-	curX = BORDER_SIZE;
-	curY = BORDER_SIZE - (bUseScroll ? cScrollbar.getValue() * tLX->cFont.GetHeight() : 0);
+	curX = iBorderSize;
+	curY = iBorderSize - (bUseScroll ? cScrollbar.getValue() * tLX->cFont.GetHeight() : 0);
 	tCurrentFormat.bold = false; 
 	tCurrentFormat.underline = false;
 	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
 	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
-	DrawRectFill(bmpBuffer.get(), BORDER_SIZE, BORDER_SIZE, iWidth, iHeight, tBgColor);
+	DrawRectFill(bmpBuffer.get(), iBorderSize, iBorderSize, iWidth, iHeight, tBgColor);
 	
 	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
 	// Setup the clipping
-	SDL_Rect clip = {BORDER_SIZE, BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
+	SDL_Rect clip = {iBorderSize, iBorderSize, iWidth - iBorderSize, iHeight - iBorderSize};
 	SDL_SetClipRect(bmpBuffer.get(), &clip);
 
 	// Go through the document
