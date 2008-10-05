@@ -75,7 +75,7 @@ public:
 			return getRate(); // we cannot get a smaller range
 		
 		// calc diff of oldindex to newindex
-		size_t dindex = (int) ( (float)AMOUNT * (timerange / timeRange()) );
+		size_t dindex = (int) ( (float)AMOUNT * (float(timerange) / float(TIMERANGEMS)) );
 		
 		size_t sum = 0;
 		size_t startIndex = AMOUNT + curIndex - dindex;

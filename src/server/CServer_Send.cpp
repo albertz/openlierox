@@ -200,7 +200,7 @@ bool GameServer::SendUpdate()
 
 			// check our server bandwidth
 			if( !cl->isLocalClient()
-			&& !checkUploadBandwidth(GetUpload(0.5f) + uploadAmount) ) {
+			&& !checkUploadBandwidth(GetUpload(0.1f) + uploadAmount) ) {
 				// we have gone over our own bandwidth for non-local clients
 				static float lastMessageTime = tLX->fCurTime;
 				if(tLX->fCurTime - lastMessageTime > 5.0) {
