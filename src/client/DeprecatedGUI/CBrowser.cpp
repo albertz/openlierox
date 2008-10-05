@@ -41,6 +41,7 @@ void CBrowser::Create(void)
 	tRootNode = NULL;
 
 	bUseScroll = false;
+	bNeedsRender = true;
 	iClientWidth = iWidth - 2*BORDER_SIZE;
 	iClientHeight = iHeight - 2*BORDER_SIZE;
 
@@ -145,7 +146,10 @@ void CBrowser::ProcessHTTP()
 	case HTTP_PROC_PROCESSING:
 		break;
 	case HTTP_PROC_ERROR:
-		tData = "An error occured while loading: " + cHttp.GetError().sErrorMsg;
+		tData = cHttp.GetData();
+		if (tData.empty())
+			tData = "An error occured while loading: " + cHttp.GetError().sErrorMsg;
+		Parse();
 		bFinished = true;
 		break;
 	case HTTP_PROC_FINISHED:

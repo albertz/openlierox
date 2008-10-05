@@ -590,7 +590,7 @@ void CHttp::ProcessData()
 	ParseHeader();
 
 	// Error check
-	if (tError.iError != HTTP_NO_ERROR)
+	if (tError.iError < 400) // Network-related errors, 4xx and 5xx are HTTP errors which can contain a message body
 		return;
 
 	// We could just receive the header and find out the data is chunked...
