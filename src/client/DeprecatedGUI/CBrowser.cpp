@@ -835,6 +835,29 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 				it++;
 				continue;
 			}
+
+			// If the word is longer than the width, do a hard break
+			if (TextW(word, fmt) > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
+				int w = 0;
+				std::string::iterator wit = word.begin();
+				size_t last_size = 0;
+
+				// Find out where to do the hard break
+				for (; wit != word.end(); )  {
+					UnicodeChar c = GetNextUnicodeFromUtf8(wit, word.end(), last_size);
+					w += tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
+
+					// Break
+					if (w > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
+						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(word.begin(), wit - last_size));
+						EndLine();
+						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, word.end()));
+						return; // The text has already been drawn, just quit
+					}
+
+				}
+				
+			}
 		}
 
 		// Word wrap
