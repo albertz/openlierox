@@ -46,6 +46,9 @@ using namespace std;
 #undef max
 #endif
 
+// declare them only locally here as nobody really should use them explicitly
+std::string Utf8String(const std::string &OldLxString);
+
 
 ///////////////////
 // Parse a connectionless packet

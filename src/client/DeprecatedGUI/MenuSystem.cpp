@@ -37,6 +37,12 @@
 #include "OLXG15.h"
 #include "Timer.h"
 
+
+// TODO: move this out here
+// declare them only locally here as nobody really should use them explicitly
+std::string Utf8String(const std::string &OldLxString);
+
+
 using namespace std;
 
 namespace DeprecatedGUI {
@@ -1673,10 +1679,13 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr)
 }
 
 
+
 ///////////////////
 // Parse the server query return packet
 void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
+	// TODO: move this net protocol stuff out here
+	
 	// Don't update the name in favourites
 	std::string buf = Utf8String(bs->readString());
 	if(iNetMode != net_favourites)

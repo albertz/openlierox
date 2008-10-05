@@ -609,7 +609,7 @@ struct DedIntern {
 		if( params.find(" ") != std::string::npos )
 			msg = params.substr( params.find(" ")+1 );
 		
-		cServer->SendText(w->getClient(), OldLxCompatibleString(msg), type);
+		cServer->SendText(w->getClient(), msg, type);
 	}
 
 	// TODO: make it send more info. No.

@@ -29,6 +29,11 @@
 
 using namespace std;
 
+
+// declare them only locally here as nobody really should use them explicitly
+std::string OldLxCompatibleString(const std::string &Utf8String);
+
+
 ///////////////////
 // Send a client a packet
 void GameServer::SendPacket(CBytestream *bs, CServerConnection *cl)

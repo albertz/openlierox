@@ -27,6 +27,11 @@
 #include "AuxLib.h"
 
 
+
+// declare them only locally here as nobody really should use them explicitly
+std::string OldLxCompatibleString(const std::string &Utf8String);
+
+
 ///////////////////
 // Send the worm details
 void CClientNetEngine::SendWormDetails(void)

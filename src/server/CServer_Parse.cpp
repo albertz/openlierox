@@ -40,6 +40,13 @@ using namespace std;
 #undef max
 #endif
 
+
+// TODO: move this out here after we have moved all the Send/Parse stuff
+// declare them only locally here as nobody really should use them explicitly
+std::string OldLxCompatibleString(const std::string &Utf8String);
+std::string Utf8String(const std::string &OldLxString);
+
+
 /*
 =======================================
 		Connected Packets

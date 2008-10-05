@@ -151,8 +151,6 @@ UnicodeChar	UnicodeToUpper(UnicodeChar c);
 
 int FindTableIndex(UnicodeChar c);
 char UnicodeCharToAsciiChar(UnicodeChar c);
-std::string OldLxCompatibleString(const std::string &Utf8String);
-std::string Utf8String(const std::string &OldLxString);
 std::string RemoveSpecialChars(const std::string &Utf8String);
 std::string Utf16ToUtf8(const Utf16String& str);
 Utf16String Utf8ToUtf16(const std::string& str);
