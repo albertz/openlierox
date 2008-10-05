@@ -573,8 +573,17 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	if (bNeedsRender)
 		ReRender();
 
+	// Set the new clipping rect
+	SDL_Rect oldrect;
+	SDL_GetClipRect(bmpDest, &oldrect);
+	SDL_Rect newrect = { iX, iY, iWidth, iHeight };
+	SDL_SetClipRect(bmpDest, &newrect);
+
 	DrawImage(bmpDest, bmpBuffer.get(), iX, iY);
 	DrawCursor(bmpDest);
+
+	// Restore old clipping rect
+	SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 /////////////////////
