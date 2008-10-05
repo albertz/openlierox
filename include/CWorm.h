@@ -380,9 +380,9 @@ public:
 	void		writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver);
 	void		readPacket(CBytestream *bs, CWorm *worms);
 	void		net_updatePos(const CVec& newpos);
-	static bool	skipPacket(CBytestream *bs);
+	bool		skipPacket(CBytestream *bs);
 	void		readPacketState(CBytestream *bs, CWorm *worms);
-	static bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
+	static bool	skipPacketState(CBytestream *bs);
 	void		writeWeapons(CBytestream *bs);
 	void		readWeapons(CBytestream *bs);
 	static bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons

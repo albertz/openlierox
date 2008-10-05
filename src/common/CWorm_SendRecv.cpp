@@ -424,7 +424,35 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 }
 
 ////////////////
-// Skip the packet
+// Skip the packet (client-side)
+bool CWorm::skipPacketState(CBytestream *bs)
+{
+	bs->Skip(4);  // Position + angle
+	uchar bits = (uchar)bs->readByte(); // Flags
+	bs->Skip(1);  // Current weapon
+	if (bits & 0x10)  {  // Skip rope info (see CNinjaRope::read for more details)
+		int type = bs->readByte(); // Rope type
+		bs->Skip(3);
+		if (type == ROP_SHOOTING || type == ROP_PLYHOOKED)
+			bs->Skip(1);
+	}
+
+	bool shooting = bits & 0x20; 
+
+	const Version& versionOfSender = cClient->getServerVersion();
+	bool gotVelocity = shooting || versionOfSender >= OLXBetaVersion(5);
+		
+	// Velocity
+	if(gotVelocity) {
+		bs->readInt16();
+		bs->readInt16();
+	}	
+	
+	return bs->isPosAtEnd();
+}
+
+////////////////
+// Skip the packet (server-side)
 bool CWorm::skipPacket(CBytestream *bs)
 {
 	bs->Skip(4);  // Position + angle
@@ -436,11 +464,24 @@ bool CWorm::skipPacket(CBytestream *bs)
 		if (type == ROP_SHOOTING || type == ROP_PLYHOOKED)
 			bs->Skip(1);
 	}
-	if (bits & 0x20)  {
-		bs->Skip(4);  // 2*Int16
+	
+	bool shooting = bits & 0x20; 
+
+	// Velocity
+	const Version& versionOfSender = getClient()->getClientVersion();
+	if(shooting || versionOfSender >= OLXBetaVersion(5)) {
+		bs->readInt16();
+		bs->readInt16();
 	}
+	
+	// client (>=beta8) sends also what it thinks what the server time is (was)
+	if(versionOfSender >= OLXBetaVersion(8)) {
+		bs->readFloat();
+	}
+	
 	return bs->isPosAtEnd();
 }
+
 
 
 ///////////////////

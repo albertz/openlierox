@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 #include <vector>
+#include <iostream>
 
 #include "LieroX.h"
 #include "StringUtils.h"
@@ -197,10 +198,14 @@ bool GameServer::SendUpdate()
 			}
 
 			// check our server bandwidth
-			if( cl->getNetSpeed() < 3 // <3 is non-local
+			if( !cl->isLocalClient()
 			&& !checkUploadBandwidth(GetUpload()) ) {
 				// we have gone over our own bandwidth for non-local clients
-				//printf("over upload bandwidth\n");
+				static float lastMessageTime = tLX->fCurTime;
+				if(tLX->fCurTime - lastMessageTime > 5.0) {
+					cout << "we got over the upload bandwidth for " << cl->debugName() << "; current upload is " << GetUpload() << endl;
+					lastMessageTime = tLX->fCurTime;
+				}
 				continue;
 			}
 
