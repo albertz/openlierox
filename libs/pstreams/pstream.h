@@ -859,11 +859,8 @@ namespace redi
     peof(std::basic_ostream<C,T>& s)
     {
       typedef basic_pstreambuf<C,T> pstreambuf;
-		// HINT: we don't use RTTI
-		//if (pstreambuf* p = dynamic_cast<pstreambuf*>(s.rdbuf()))
-		//  p->peof();
-		// HINT: we just hope that it works anyway
-		((pstreambuf*)s.rdbuf())->peof();
+		if (pstreambuf* p = dynamic_cast<pstreambuf*>(s.rdbuf()))
+		  p->peof();
       return s;
     }
 

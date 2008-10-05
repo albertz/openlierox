@@ -111,23 +111,6 @@ void print_binary_string(const std::string& txt) {
 	}
 }
 
-class SystemCheck_isSameType {
-public:
-	class Base { public: virtual void func() {} virtual ~Base() {} };
-	class Derived1 : public Base { public: virtual void func() {} };
-	class Derived2 : public Base { public: virtual void func() {} };
-
-	static void doCheck() {
-		// these checks also implies a working simple_dyn_cast for simple types as class Base
-		Base a1, a2; Derived1 b1; Derived2 b2;
-		assert(isSameType(a1, a2));
-		assert(!isSameType(a1, b1));
-		assert(!isSameType(a2, b2));
-		assert(!isSameType(b1, b2));		
-	}
-};
-
-
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
@@ -137,8 +120,6 @@ static void DoSystemChecks() {
 	assert(sizeof(float) == 4);
 	// sometimes the return value of SendMessage is used as a pointer
 	assert(sizeof(DWORD) == sizeof(void*));
-
-	SystemCheck_isSameType::doCheck();
 }
 
 
