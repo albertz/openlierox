@@ -208,6 +208,8 @@ void CBrowser::Parse()
 	tHtmlDocument = document;
 	tRootNode = node;
 
+	cScrollbar.setValue(0);
+	bUseScroll = false;
 	bNeedsRender = true;
 }
 
@@ -1165,7 +1167,7 @@ void CBrowser::RenderContent()
 	tActiveAreas.clear();
 	
 	curX = BORDER_SIZE;
-	curY = BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
+	curY = BORDER_SIZE - (bUseScroll ? cScrollbar.getValue() * tLX->cFont.GetHeight() : 0);
 	tCurrentFormat.bold = false; 
 	tCurrentFormat.underline = false;
 	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
@@ -1382,6 +1384,7 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 	}
 
 	bNeedsRender = true;
+	ScrollToLastLine();
 }
 
 void CBrowser::ScrollToLastLine(void)
