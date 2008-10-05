@@ -1417,7 +1417,6 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	if (!wpnrest)
 		return;
 
-	keyboard_t *kb = GetKeyboard();
 	gui_event_t *ev = NULL;
 	int quitloop = false;
 	CTextbox *t;
@@ -1452,8 +1451,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 
 	ProcessEvents();
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);

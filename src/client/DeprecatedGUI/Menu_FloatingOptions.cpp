@@ -630,7 +630,6 @@ void Menu_FloatingOptionsFrame()
 // ply=-1 : general ; ply>=0 : normal player
 void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 {
-	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
 
 	// Draw the back buffer
@@ -668,8 +667,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 		DrawCursor(VideoPostProcessor::videoSurface());
 
 		// Escape quits the wait for user input
-		// TODO: make this event-based (don't check GetKeyboard() directly)
-		if(kb->KeyUp[SDLK_ESCAPE])
+		if(WasKeyboardEventHappening(SDLK_ESCAPE,false))
 			break;
 
 		std::string tmp;

@@ -394,8 +394,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	}
 
 	// F5 updates the list
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	if (GetKeyboard()->KeyUp[SDLK_F5])  {
+	if (WasKeyboardEventHappening(SDLK_F5))  {
 		Menu_SvrList_RefreshList();
 		Menu_SvrList_FillList((CListview *) cFavourites.getWidget(mf_ServerList));
 	}
@@ -482,8 +481,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 	DrawRectFillA(tMenu->bmpBuffer.get(),200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning) {
+    while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);
@@ -569,8 +567,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	cRename.SendMessage(2,TXS_SETTEXT,szName,0); // Fill in the current server name
 
 	ProcessEvents();
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && renameServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -671,8 +668,7 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
 
 	ProcessEvents();
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 

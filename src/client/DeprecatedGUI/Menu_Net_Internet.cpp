@@ -395,7 +395,7 @@ void Menu_Net_NETFrame(int mouse)
 	}
 
 	// F5 updates the list
-	if (GetKeyboard()->KeyUp[SDLK_F5])
+	if (WasKeyboardEventHappening(SDLK_F5))
 		Menu_Net_NETUpdateList();
 
 	// Draw the mouse
@@ -474,8 +474,7 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, tLX->cFont.GetHeight());
 
 	ProcessEvents();
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -600,8 +599,7 @@ void Menu_Net_NETUpdateList(void)
 
 	CHttp http;
 
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->bMenuRunning) {
+	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && updateList && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);
@@ -780,8 +778,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = -9999;
 
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning) {
+    while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);

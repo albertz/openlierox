@@ -1031,8 +1031,7 @@ void CClient::SimulateHud(void)
 	}
 
 	// Game Menu
-	// TODO: make this event-based (don't check GetKeyboard() directly)
-	if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
+	if(WasKeyboardEventHappening(SDLK_ESCAPE, false) && !bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
         if( !bViewportMgr )
 			if (!bGameMenu)
 				InitializeGameMenu();
@@ -1127,7 +1126,7 @@ enum {
 void CClient::InitializeGameMenu()
 {
 	bGameMenu = true;
-	GetKeyboard()->KeyUp[SDLK_ESCAPE] = false;  // Prevents immediate closing of the scoreboard
+	ProcessEvents();  // Prevents immediate closing of the scoreboard
 	SetGameCursor(CURSOR_HAND);
 
 	// Shutdown any previous instances
@@ -1331,9 +1330,8 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	// TODO: why is processing events in a draw-function? move it out here
 	// Process the keyboard
 	if (!bChat_Typing && !DeprecatedGUI::bShowFloatingOptions)  {
-		keyboard_t *Keyboard = GetKeyboard();
 
-		if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
+		if (WasKeyboardEventHappening(SDLK_RETURN,false) || WasKeyboardEventHappening(SDLK_KP_ENTER,false) || WasKeyboardEventHappening(SDLK_ESCAPE,false))  {
 			if (tGameInfo.iGameType == GME_LOCAL && bGameOver)  {
 				GotoLocalMenu();
 			} else if (!bGameOver)  {
