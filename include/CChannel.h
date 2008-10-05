@@ -83,7 +83,7 @@ public:
 			sum += buckets[ (startIndex + i) % AMOUNT ];
 		}
 		
-		return (float)sum / timeRange();
+		return float(sum) / (float(timerange) / 1000.0f);
 	}
 
 };
