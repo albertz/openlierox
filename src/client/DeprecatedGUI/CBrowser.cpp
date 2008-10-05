@@ -1064,6 +1064,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	// Newline
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"br"))  {
 		EndLine();
+		sCurLine = '\r';
 		return;
 	}
 
