@@ -73,7 +73,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 		} else {
 			client->iNetStatus = NET_DISCONNECTED;
 			client->bBadConnection = true;
-			client->strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
+			client->strBadConnectMsg = "Server message: " + Utf8String(bs->readString());
 		}
 	}
 
@@ -1913,7 +1913,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 
 	// Not so much an error, but a message why we were dropped
 	client->bServerError = true;
-	client->strServerErrorMsg = Utf8String(bs->readString(256));
+	client->strServerErrorMsg = Utf8String(bs->readString());
 
 	if (tLXOptions->bLogConvos)  {
 		if(!client->bInServer)

@@ -85,7 +85,7 @@ void GameServer::SendText(CServerConnection *cl, const std::string& text, int ty
 			// Send it
 			bs.writeByte(S2C_TEXT);
 			bs.writeInt(type, 1);
-			bs.writeString(*it);
+			bs.writeString(OldLxCompatibleString(*it));
 		}
 		
 	} else if (cl->getClientVersion() < OLXBetaVersion(8)) {
@@ -95,14 +95,14 @@ void GameServer::SendText(CServerConnection *cl, const std::string& text, int ty
 		// For beta 3 - beta 7 (no HTML support but unlimited length support)
 		bs.writeByte(S2C_TEXT);
 		bs.writeInt(type, 1);
-		bs.writeString(nohtml_text);
+		bs.writeString(OldLxCompatibleString(nohtml_text));
 		
 	} else { // >=beta8
 
 		// For beta 8+ (HTML support)
 		bs.writeByte(S2C_TEXT);
 		bs.writeInt(type, 1);
-		bs.writeString(text);
+		bs.writeString(OldLxCompatibleString(text));
 		
 	}
 	

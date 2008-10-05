@@ -277,7 +277,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		{
 			replacemax(networkTexts->sKilledAFK, "<killer>", kill->getName(), buf, 1);
 			replacemax(buf, "<victim>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 	}
 	else
@@ -290,7 +290,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				replacemax(networkTexts->sCommitedSuicide + (suicidesCount > 1 ? " (" + itoa(suicidesCount) + "x)" : ""),
 				"<player>", vict->getName(), buf, 1);
 	
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 	};
 
@@ -298,7 +298,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
 		replacemax(networkTexts->sFirstBlood, "<player>", kill->getName(), buf, 1);
 		bFirstBlood = false;
-		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		SendGlobalText(buf, TXT_NORMAL);
 	}
 
 	// Teamkill
@@ -306,7 +306,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		//Take care of the <none> tag
 		if (networkTexts->sTeamkill != "<none>")  {
 			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 	}
 
@@ -350,31 +350,31 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	case 3:
 		if (networkTexts->sSpree1 != "<none>")  {
 			replacemax(networkTexts->sSpree1, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 5:
 		if (networkTexts->sSpree2 != "<none>")  {
 			replacemax(networkTexts->sSpree2, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 7:
 		if (networkTexts->sSpree3 != "<none>")  {
 			replacemax(networkTexts->sSpree3, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 9:
 		if (networkTexts->sSpree4 != "<none>")  {
 			replacemax(networkTexts->sSpree4, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 10:
 		if (networkTexts->sSpree5 != "<none>")  {
 			replacemax(networkTexts->sSpree5, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	}
@@ -384,31 +384,31 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	case 3:
 		if (networkTexts->sDSpree1 != "<none>")  {
 			replacemax(networkTexts->sDSpree1, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 5:
 		if (networkTexts->sDSpree2 != "<none>")  {
 			replacemax(networkTexts->sDSpree2, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 7:
 		if (networkTexts->sDSpree3 != "<none>")  {
 			replacemax(networkTexts->sDSpree3, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 9:
 		if (networkTexts->sDSpree4 != "<none>")  {
 			replacemax(networkTexts->sDSpree4, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	case 10:
 		if (networkTexts->sDSpree5 != "<none>")  {
 			replacemax(networkTexts->sDSpree5, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 		break;
 	}
@@ -419,7 +419,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		// This worm is out of the game
 		if (networkTexts->sPlayerOut != "<none>") {
 			replacemax(networkTexts->sPlayerOut, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+			SendGlobalText((buf), TXT_NORMAL);
 		}
 
 		// Check if only one person is left
@@ -441,7 +441,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				if (networkTexts->sPlayerHasWon != "<none>")  {
 					CWorm *winner = cWorms + wormid;
 					replacemax(networkTexts->sPlayerHasWon, "<player>", winner->getName(), buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+					SendGlobalText((buf), TXT_NORMAL);
 				}
 				break;  // DEATHMATCH
 			case GMT_TAG:
@@ -462,7 +462,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				// Send the text
 				if (networkTexts->sPlayerHasWon != "<none>")  {
 					replacemax(networkTexts->sPlayerHasWon, "<player>", w->getName(), buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+					SendGlobalText((buf), TXT_NORMAL);
 				}
 				break;  // TAG
 
@@ -500,7 +500,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			if (teamcount == 0) {
 				if (networkTexts->sTeamOut != "<none>")  {
 					replacemax(networkTexts->sTeamOut, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+					SendGlobalText((buf), TXT_NORMAL);
 				}
 			}
 
@@ -517,7 +517,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			if (teamsleft <= 1) { // There can be also 0 teams left (you play TDM alone and suicide)
 				if (networkTexts->sTeamHasWon != "<none>")  {
 					replacemax(networkTexts->sTeamHasWon, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+					SendGlobalText((buf), TXT_NORMAL);
 				}
 
 				cout << "no other team left" << endl;
@@ -685,7 +685,7 @@ void GameServer::SimulateGame(void)
 						CWorm *rw = cClient->getRemoteWorms() + f[j]->getID();
 						rw->setPos(f[j]->getPos());
 					setFlag(-1, j);
-					SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
+					SendGlobalText((replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
 						TXT_NORMAL);
 					if(w->getKills()==iMaxKills)
 						RecheckGame();
@@ -835,7 +835,7 @@ void GameServer::TagWorm(int id)
 
 	//Take care of the <none> tag
 	if (networkTexts->sWormIsIt != "<none>")  {
-		SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1)),
+		SendGlobalText((replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1)),
 						TXT_NORMAL);
 	}
 }
@@ -1161,7 +1161,7 @@ void GameServer::RecheckGame(void)
 				// Send the text
 				if (teamsleft <= 1)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
 					cout << "recheck: too less teams" << endl;
@@ -1182,7 +1182,7 @@ void GameServer::RecheckGame(void)
 
 					// Send the text
 					if (networkTexts->sPlayerHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+						SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
 					cout << "recheck: too less worms" << endl;
@@ -1213,7 +1213,7 @@ void GameServer::RecheckGame(void)
 
 					// Send the text
 					if (networkTexts->sPlayerHasWon!="<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+						SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
 
@@ -1258,7 +1258,7 @@ void GameServer::RecheckGame(void)
 				// Send the text
 				if (teamsleft <= 1)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
 					cout << "recheck: not enough teams anymore" << endl;
@@ -1268,7 +1268,7 @@ void GameServer::RecheckGame(void)
 				if(VIPs == 0) { // All the VIPs are out of the game
 					team = 1; // VIP Attackers win
 					if (networkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
 					cout << "recheck: all the VIPs are out of the game" << endl;
@@ -1305,7 +1305,7 @@ void GameServer::RecheckGame(void)
 						if(w->getKills() >= kills) {
 							// Send the text
 							if (networkTexts->sPlayerHasWon != "<none>")  {
-								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+								SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 												TXT_NORMAL);
 							}
 						}
@@ -1322,7 +1322,7 @@ void GameServer::RecheckGame(void)
 						if(w->getKills() == iMaxKills) {
 							// Send the text
 							if (networkTexts->sPlayerHasWon != "<none>")  {
-								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+								SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 												TXT_NORMAL);
 							}
 							cout << "recheck: max kills for worm " << i << endl;
@@ -1368,7 +1368,7 @@ void GameServer::RecheckGame(void)
 				// Send the text
 				if (teamsleft <= 1)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
 					cout << "recheck: no more teams left" << endl;
@@ -1381,7 +1381,7 @@ void GameServer::RecheckGame(void)
 
 			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 ) {
 				if (networkTexts->sTimeLimit != "<none>")
-					SendGlobalText( OldLxCompatibleString(networkTexts->sTimeLimit), TXT_NORMAL);
+					SendGlobalText( networkTexts->sTimeLimit, TXT_NORMAL );
 				cout << "recheck: time limit reached" << endl;
 				EndGame = true;
 			}
@@ -1490,7 +1490,7 @@ void GameServer::SimulateGameSpecial()
 						SpawnWorm(*flagworm);
 						(cClient->getRemoteWorms()+(*flagworm)->getID())->setPos((*flagworm)->getPos());
 						setFlagHolder(-1, i);
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
+						SendGlobalText((replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
 							TXT_NORMAL);
 						if(w->getKills()==iMaxKills)
 							RecheckGame();

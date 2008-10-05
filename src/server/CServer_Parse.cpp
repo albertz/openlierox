@@ -350,7 +350,7 @@ void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
-	std::string buf = bs->readString(256);
+	std::string buf = Utf8String(bs->readString());
 
 	if(cl->getNumWorms() == 0) {
 		printf("WARNING: %s with no worms sends message '%s'\n", cl->debugName().c_str(), buf.c_str());
@@ -366,10 +366,11 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
-	if (cl->getWorm(0))
-		if (buf.size() > cl->getWorm(0)->getName().size() + 2)
-			command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
-
+	if (cl->getWorm(0)) {
+		std::string startStr = cl->getWorm(0)->getName() + ": ";
+		if( buf.size() > startStr.size() && buf.substr(0,startStr.size()) == startStr )
+			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
+	}
 	printf("CHAT: "); printf(buf); printf("\n");
 
 	// Check for special commands
@@ -1132,7 +1133,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if (networkTexts->sHasConnected != "<none>")  {
 		for (i = 0;i < numworms;i++) {
 			buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
-			SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
+			SendGlobalText(buf, TXT_NETWORK);
 		}
 	}
 
@@ -1181,8 +1182,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		for (int i = 0; i < numworms; i++)  {
 			// Player name
 			// Send the welcome message
-			SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1)),
-							TXT_NETWORK);
+			SendGlobalText(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1), TXT_NETWORK);
 		}
 	}
 	
@@ -1287,7 +1287,7 @@ void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const st
 	if (networkTexts->sWantsJoin != "<none>")  {
 		std::string buf;
 		replacemax(networkTexts->sWantsJoin, "<player>", Nick, buf, 1);
-		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		SendGlobalText(buf, TXT_NORMAL);
 	}
 }
 

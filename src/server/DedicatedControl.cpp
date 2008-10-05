@@ -595,7 +595,7 @@ struct DedIntern {
 	};
 
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
-		cServer->SendGlobalText(OldLxCompatibleString(msg), type);
+		cServer->SendGlobalText(msg, type);
 	}
 
 	void Cmd_PrivateMessage(const std::string& params, int type = TXT_NOTICE) {
