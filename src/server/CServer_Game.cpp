@@ -1035,7 +1035,7 @@ void GameServer::gotoLobby(void)
 			cWorms[i].setUsed(false);
 			cWorms[i].setFlag(false);
 			CBytestream bs;
-			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(S2C_WORMSOUT);
 			bs.writeByte(1);
 			bs.writeByte((uchar)i);
 			SendGlobalPacket(&bs);

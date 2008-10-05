@@ -194,6 +194,19 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
 
+	// small cleanup (needed for example for reconnecting)
+	for(int i = 0; i < MAX_WORMS; i++) {
+		client->cRemoteWorms[i].setUsed(false);
+		client->cRemoteWorms[i].setAlive(false);
+		client->cRemoteWorms[i].setKills(0);
+		client->cRemoteWorms[i].setLives(WRM_OUT);
+		client->cRemoteWorms[i].setProfile(NULL);
+		client->cRemoteWorms[i].setType(PRF_HUMAN);
+		client->cRemoteWorms[i].setLocal(false);
+		client->cRemoteWorms[i].setTagIT(false);
+		client->cRemoteWorms[i].setTagTime(0);
+	}
+	
 	// Get the id's
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
@@ -412,8 +425,8 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 				break;
 
 			// Client has left
-			case S2C_CLLEFT:
-				ParseClientLeft(bs);
+			case S2C_WORMSOUT:
+				ParseWormsOut(bs);
 				break;
 
 			// Worm state update
@@ -1475,14 +1488,14 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 
 
 ///////////////////
-// Parse a 'client-left' packet
-void CClientNetEngine::ParseClientLeft(CBytestream *bs)
+// Parse a worms-out (named 'client-left' before) packet
+void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 {
 	byte numworms = bs->readByte();
 
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
-		printf("CClientNetEngine::ParseClientLeft: bad numworms count ("+itoa(numworms)+")\n");
+		printf("CClientNetEngine::ParseWormsOut: bad numworms count ("+itoa(numworms)+")\n");
 
 		// Skip to the right position
 		bs->Skip(numworms);
@@ -1497,7 +1510,7 @@ void CClientNetEngine::ParseClientLeft(CBytestream *bs)
 		id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
-			printf("CClientNetEngine::ParseClientLeft: invalid worm ID ("+itoa(id)+")\n");
+			printf("CClientNetEngine::ParseWormsOut: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
@@ -1900,7 +1913,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 		return;
 	}
 
-	// Not so much an error, but i message as to why i was dropped
+	// Not so much an error, but a message why we were dropped
 	client->bServerError = true;
 	client->strServerErrorMsg = Utf8String(bs->readString(256));
 

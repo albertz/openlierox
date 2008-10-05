@@ -77,7 +77,7 @@ protected:
 	void		ParseTagUpdate(CBytestream *bs);
 	void		ParseCLReady(CBytestream *bs);
 	void		ParseUpdateLobby(CBytestream *bs);
-	void		ParseClientLeft(CBytestream *bs);
+	void		ParseWormsOut(CBytestream *bs);
 	void		ParseUpdateWorms(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
 	void		ParseWormDown(CBytestream *bs);

@@ -201,6 +201,7 @@ public:
 	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
 	void		RemoveClient(CServerConnection *cl);
+	void		RemoveClientWorms(CServerConnection* cl);
 	void		kickWorm(int wormID, const std::string& sReason = "");
     void        kickWorm(const std::string& szWormName, const std::string& sReason = "");
 	void		banWorm(int wormID, const std::string& sReason = "");
@@ -230,6 +231,7 @@ public:
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
 	void		SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions);
+	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);

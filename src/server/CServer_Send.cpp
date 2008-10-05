@@ -116,6 +116,21 @@ void GameServer::SendChatCommandCompletionList(CServerConnection* cl, const std:
 }
 
 
+
+// send S2C_WORMSOUT
+void GameServer::SendWormsOut(const std::list<byte>& ids) {
+	CBytestream bs;
+	bs.writeByte(S2C_WORMSOUT);
+	bs.writeByte(ids.size());
+	
+	for(std::list<byte>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+		bs.writeByte(*it);
+	
+	SendGlobalPacket(&bs);
+}
+
+
+
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update

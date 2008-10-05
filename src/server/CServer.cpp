@@ -1110,18 +1110,11 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		return;
 	}
 
+	// send out messages
     std::string cl_msg;
-
-	// Tell everyone that the client's worms have left both through the net & text
-	CBytestream bs;
-	bs.writeByte(S2C_CLLEFT);
-	bs.writeByte(cl->getNumWorms());
-
 	std::string buf;
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
-		bs.writeByte(cl->getWorm(i)->getID());
-
         switch(reason) {
 
             // Quit
@@ -1169,36 +1162,33 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		if(buf != "<none>")
 			SendGlobalText(OldLxCompatibleString(buf),TXT_NETWORK);
 	}
-
+	
+	// remove the client and drop worms
 	RemoveClient(cl);
 	
     // Go into a zombie state for a while so the reliable channel can still get the
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
-	cl->setNumWorms(0);
-
-	SendGlobalPacket(&bs);
 
     // Send the client directly a dropped packet
 	// TODO: move this out here
-    bs.Clear();
+	CBytestream bs;
     bs.writeByte(S2C_DROPPED);
     bs.writeString(OldLxCompatibleString(cl_msg));
     cl->getChannel()->AddReliablePacketToSend(bs);
 
 }
 
-void GameServer::RemoveClient(CServerConnection* cl) {
-	// Never ever drop a local client
-	if (cl->isLocalClient())  {
-		printf("An attempt to remove a local client was ignored\n");
-		return;
-	}
-	
+void GameServer::RemoveClientWorms(CServerConnection* cl) {
+	std::list<byte> wormsOutList;
+
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
-		if(!cl->getWorm(i)) continue;
+		if(!cl->getWorm(i)) {
+			cout << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
+			continue;
+		}
 		if(!cl->getWorm(i)->isUsed()) {
 			cout << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
 			cl->setWorm(i, NULL);
@@ -1207,6 +1197,8 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 		
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
+
+		wormsOutList.push_back(cl->getWorm(i)->getID());
 		
 		// Reset variables
 		cl->setMuted(false);
@@ -1215,9 +1207,10 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 		cl->getWorm(i)->setSpectating(false);
 		cl->setWorm(i, NULL);
 	}
-	
-	cl->setStatus(NET_DISCONNECTED);
-	cl->setNumWorms(0); // No worms are present anymore
+	cl->setNumWorms(0); // No worms are present anymore	
+
+	// Tell everyone that the client's worms have left both through the net & text
+	SendWormsOut(wormsOutList);
 
 	// Re-Calculate number of players
 	iNumPlayers=0;
@@ -1229,10 +1222,22 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 
     // Now that a player has left, re-check the game status
 	RecheckGame();
-
+	
     // If we're waiting for players to be ready, check again
 	if(iState == SVS_GAME)
 		CheckReadyClient();
+}
+
+void GameServer::RemoveClient(CServerConnection* cl) {
+	// Never ever drop a local client
+	if (cl->isLocalClient())  {
+		printf("An attempt to remove a local client was ignored\n");
+		return;
+	}
+	
+	RemoveClientWorms(cl);
+
+	cl->setStatus(NET_DISCONNECTED);
 }
 
 
@@ -1319,7 +1324,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
-			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(S2C_WORMSOUT);
 			bs.writeByte(1);
 			bs.writeByte(wormID);
 			SendGlobalPacket(&bs);
@@ -1428,7 +1433,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
-			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(S2C_WORMSOUT);
 			bs.writeByte(1);
 			bs.writeByte(wormID);
 			SendGlobalPacket(&bs);

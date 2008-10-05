@@ -848,15 +848,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 			// HINT: just let the client connect again
 			newcl = cl;
-			if(cl->isLocalClient())
+			cout << "Reconnecting ";
+			if(cl->isLocalClient()) {
 				bLocalClientConnected = false; // because we are reconnecting the client
-			for(int i = 0; i < cl->getNumWorms(); i++)
-				cl->getWorm(i)->setUsed( false ); // temporarly disable these worms to reinit them with the new information
-			iNumPlayers -= cl->getNumWorms();
-			if(iNumPlayers < 0) {
-				cout << "WARNING: something went terribly wrong, iNumPlayers<0" << endl;
-				iNumPlayers = 0;
+				cout << "local ";
 			}
+			cout << "client " << cl->debugName() << endl;
+			RemoveClientWorms(cl); // remove them, we will add them again now
 			break;
 			
 			/*
