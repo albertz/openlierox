@@ -119,27 +119,33 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	
 	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
 
-	// We can safely send long messages to servers >= beta 3
-	if (client->getServerVersion() >= OLXBetaVersion(3))  {
+	// We can safely send long messages to servers >= beta8
+	if (client->getServerVersion() >= OLXBetaVersion(8))  {
+
 		// HTML support since beta 8
-		if (client->getServerVersion() >= OLXBetaVersion(8))
-			SendTextInternal(OldLxCompatibleString(sText), sWormName);
-		else
-			SendTextInternal(OldLxCompatibleString(StripHtmlTags(sText)), sWormName); // No HTML
+		SendTextInternal(OldLxCompatibleString(sText), sWormName);
 
 
-	// Very old server (not even chat command support)
+	// <=beta7 server
 	} else {
 
-		if (chat_command && sText.find("/me ") != 0)  { // Ignores "/me" special command
-
+		if (chat_command &&
+			client->getServerVersion() < OLXBetaVersion(3) && // <beta3 clients don't have chat command support
+			sText.find("/me ") > 0) // Ignores "/me" special command
+		{
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
 			if( ! Cmd_ParseLine(sText.substr(1)) ) {
 				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
 			}
 			return;
-		} else {
 
+		} else if (chat_command &&
+				   client->getServerVersion() >= OLXBetaVersion(3)) {
+			// we don't have to split chat commands
+			SendTextInternal(OldLxCompatibleString(sText), sWormName);			
+
+		} else { // we can savely split the message (and we have to)
+			
 			// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
 			int name_w = tLX->cFont.GetWidth(sWormName + ": ");
 			const std::vector<std::string>& split = splitstring(StripHtmlTags(sText), 63,
@@ -147,16 +153,16 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 
 			// Check
 			if (split.size() == 0)  {  // More than weird...
-				SendTextInternal(StripHtmlTags(sText), sWormName);
+				SendTextInternal(OldLxCompatibleString(StripHtmlTags(sText)), sWormName);
 				return;
 			}
 
 			// Send the first chunk
-			SendTextInternal(split[0], sWormName);
+			SendTextInternal(OldLxCompatibleString(split[0]), sWormName);
 
 			// Send the text
-			for (std::vector<std::string>::const_iterator it=split.begin() + 1; it != split.end(); it++)
-				SendTextInternal(*it, "");
+			for (std::vector<std::string>::const_iterator it = split.begin() + 1; it != split.end(); it++)
+				SendTextInternal(OldLxCompatibleString(*it), "");
 		}
 	}
 }

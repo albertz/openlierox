@@ -58,42 +58,12 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 ///////////////////
 // Send all the clients a string of text
 void GameServer::SendGlobalText(const std::string& text, int type) {
-	CBytestream bs, oldbs, nohtmlbs;
-
-	std::string nohtml_text = StripHtmlTags(text);
-
-	// HINT: if the message is longer than 64 characters, we split it in more messages
-	// (else we could exploit old clients... :( )
-	const std::vector<std::string>& split = splitstring(nohtml_text, 63, iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
-
-	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
-		// Send it
-		oldbs.writeByte(S2C_TEXT);
-		oldbs.writeInt(type, 1);
-		oldbs.writeString(*it);
-	}
-
-	// For beta 3 - beta 7 (no HTML support but unlimited length support)
-	nohtmlbs.writeByte(S2C_TEXT);
-	nohtmlbs.writeInt(type, 1);
-	nohtmlbs.writeString(nohtml_text);
-
-	// For beta 8+ (HTML support)
-	bs.writeByte(S2C_TEXT);
-	bs.writeInt(type, 1);
-	bs.writeString(text);
-
 	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		if (cl->getClientVersion() < OLXBetaVersion(3))
-			cl->getChannel()->AddReliablePacketToSend(oldbs);
-		else if (cl->getClientVersion() < OLXBetaVersion(8))
-			cl->getChannel()->AddReliablePacketToSend(nohtmlbs);
-		else
-			cl->getChannel()->AddReliablePacketToSend(bs);
+		SendText(cl, text, type);
 	}
 }
 
@@ -103,10 +73,39 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 void GameServer::SendText(CServerConnection *cl, const std::string& text, int type) {
 	CBytestream bs;
 
-	bs.writeByte(S2C_TEXT);
-	bs.writeInt(type,1);
-	bs.writeString(text);
+	if (cl->getClientVersion() < OLXBetaVersion(3)) {
+		
+		std::string nohtml_text = StripHtmlTags(text);
+		
+		// HINT: if the message is longer than 64 characters, we split it in more messages
+		// (else we could exploit old clients... :( )
+		const std::vector<std::string>& split = splitstring(nohtml_text, 63, iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
+		
+		for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
+			// Send it
+			bs.writeByte(S2C_TEXT);
+			bs.writeInt(type, 1);
+			bs.writeString(*it);
+		}
+		
+	} else if (cl->getClientVersion() < OLXBetaVersion(8)) {
 
+		std::string nohtml_text = StripHtmlTags(text);
+
+		// For beta 3 - beta 7 (no HTML support but unlimited length support)
+		bs.writeByte(S2C_TEXT);
+		bs.writeInt(type, 1);
+		bs.writeString(nohtml_text);
+		
+	} else { // >=beta8
+
+		// For beta 8+ (HTML support)
+		bs.writeByte(S2C_TEXT);
+		bs.writeInt(type, 1);
+		bs.writeString(text);
+		
+	}
+	
 	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
