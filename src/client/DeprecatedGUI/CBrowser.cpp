@@ -376,7 +376,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 	case SDLK_UP:
 		if (iCursorLine > 0)  {
 			--iCursorLine;
@@ -399,7 +399,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 
 	case SDLK_RIGHT:
 		if (iCursorLine < tPureText.size())  {
@@ -428,7 +428,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 
 	case SDLK_LEFT:
 		if (tPureText.size() > 0)  {
@@ -457,7 +457,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 
 	case SDLK_HOME:
 		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
@@ -482,7 +482,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 
 	case SDLK_END:
 		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
@@ -507,7 +507,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 				ClearSelection();
 			}
 		}
-	return BRW_NONE;
+	return BRW_KEY_PROCESSED;
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
@@ -515,7 +515,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT )) {
 		if (!IsSelectionEmpty())
 			copy_to_clipboard(GetSelectedText());
-        return BRW_NONE;
+        return BRW_KEY_PROCESSED;
     }
 
     // Ctrl-a or Super-a (select all)
@@ -528,10 +528,10 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		} else {
 			iCursorLine = iCursorColumn = iSelectionEndLine = iSelectionEndColumn = 0;
 		}
-        return BRW_NONE;
+        return BRW_KEY_PROCESSED;
     }
 
-	return BRW_NONE;
+	return BRW_KEY_NOT_PROCESSED;
 }
 
 ////////////////////
@@ -558,6 +558,11 @@ void CBrowser::AdjustBuffer()
 // Draws the cursor
 void CBrowser::DrawCursor(SDL_Surface *bmpDest)
 {
+	// Check if the cursor is displayed
+	if (bUseScroll)
+		if ((int)iCursorLine < cScrollbar.getValue() || (int)iCursorLine > cScrollbar.getValue() + cScrollbar.getItemsperbox())
+			return;
+
 	if (bFocused && bDrawCursor)  {
 		int x, y;
 		CursorPosToMousePos(iCursorColumn, iCursorLine, x, y);
@@ -573,17 +578,8 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	if (bNeedsRender)
 		ReRender();
 
-	// Set the new clipping rect
-	SDL_Rect oldrect;
-	SDL_GetClipRect(bmpDest, &oldrect);
-	SDL_Rect newrect = { iX, iY, iWidth, iHeight };
-	SDL_SetClipRect(bmpDest, &newrect);
-
 	DrawImage(bmpDest, bmpBuffer.get(), iX, iY);
 	DrawCursor(bmpDest);
-
-	// Restore old clipping rect
-	SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 /////////////////////

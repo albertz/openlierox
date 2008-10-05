@@ -30,7 +30,9 @@ namespace DeprecatedGUI {
 
 // Browser messages
 enum {
-	BRW_NONE = -1
+	BRW_NONE = -1,
+	BRW_KEY_PROCESSED = 0,
+	BRW_KEY_NOT_PROCESSED
 };
 
 struct FontFormat  {
