@@ -216,7 +216,7 @@ public:
 	
 	void        CheckReadyClient(void);
 	float		GetDownload();
-	float		GetUpload();
+	float		GetUpload(float timeRange = 2.0f);
 	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
 
 

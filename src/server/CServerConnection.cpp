@@ -311,10 +311,14 @@ std::string CServerConnection::debugName() {
 		worms = "";
 		for(int i = 0; i < getNumWorms(); ++i) {
 			if(i > 0) worms += ", ";
-			worms += itoa(getWorm(i)->getID());
-			worms += " '";
-			worms += getWorm(i)->getName();
-			worms += "'";
+			if(getWorm(i)) {
+				worms += itoa(getWorm(i)->getID());
+				worms += " '";
+				worms += getWorm(i)->getName();
+				worms += "'";
+			} else {
+				worms += "BAD";
+			}
 		}
 	}
 

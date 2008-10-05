@@ -1720,15 +1720,15 @@ float GameServer::GetDownload()
 
 ///////////////////
 // Get the upload rate in bytes/s for all non-local clients
-float GameServer::GetUpload()
+float GameServer::GetUpload(float timeRange)
 {
 	float result = 0;
 	CServerConnection *cl = cClients;
 
 	// Sum downloads from all clients
 	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
-		if (cl->getStatus() != NET_DISCONNECTED && cl->getNetSpeed() < 3)
-			result += cl->getChannel()->getOutgoingRate();
+		if (cl->getStatus() != NET_DISCONNECTED && cl->getStatus() != NET_ZOMBIE && !cl->isLocalClient())
+			result += cl->getChannel()->getOutgoingRate(timeRange);
 	}
 
 	return result;

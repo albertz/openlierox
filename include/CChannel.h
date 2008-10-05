@@ -66,6 +66,25 @@ public:
 			sum += buckets[i];
 		return (float)sum / timeRange();
 	}
+	
+	float getRate(int timerange) {
+		if(curIndex == -1)
+			return 0;
+
+		if(timerange >= TIMERANGEMS)
+			return getRate(); // we cannot get a smaller range
+		
+		// calc diff of oldindex to newindex
+		size_t dindex = (int) ( (float)AMOUNT * (timerange / timeRange()) );
+		
+		size_t sum = 0;
+		size_t startIndex = AMOUNT + curIndex - dindex;
+		for(size_t i = 0; i < dindex; i++) {
+			sum += buckets[ (startIndex + i) % AMOUNT ];
+		}
+		
+		return (float)sum / timeRange();
+	}
 
 };
 
@@ -137,6 +156,7 @@ public:
 
 	float 			getIncomingRate()		{ return cIncomingRate.getRate(); }
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
+	float 			getOutgoingRate(float timeRange)		{ return cOutgoingRate.getRate((int)(timeRange * 1000.0f)); }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 	
