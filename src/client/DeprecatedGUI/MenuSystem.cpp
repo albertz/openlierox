@@ -605,7 +605,6 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	}
 
 	int ret = -1;
-	keyboard_t *kb = GetKeyboard();
 	gui_event_t *ev = NULL;
 
 	SetGameCursor(CURSOR_ARROW);
@@ -617,28 +616,23 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	// Handle multiline messages
 	std::vector<std::string>::const_iterator it;
-	const std::vector<std::string>* lines = &explode(sText,"\n");
-	{
-		int maxwidth = 0;
-		for (it=lines->begin(); it!=lines->end(); it++)  {
-			maxwidth = MAX(maxwidth, tLX->cFont.GetWidth(*it));
-		}
-
-		if(maxwidth > w) {
-			lines = &splitstring(sText, (size_t)-1, w, tLX->cFont);
-	//		w = MIN(maxwidth+30,638);
-	//		x = 320-w/2;
-		}
-	}
+	const std::vector<std::string>* lines = &splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
 	
 	if((tLX->cFont.GetHeight()*(int)lines->size())+5 > h) {
-		h = (int)MIN((tLX->cFont.GetHeight()*lines->size())+150, (size_t)478);		
+		h = (int)MIN((tLX->cFont.GetHeight()*lines->size())+90, (size_t)478);		
 		y = 240-h/2;
 	}
 
+	const int button_h = 24;
+	const int caption_h = 25;
+	const int line_hspace = 2;
 	int cx = x+w/2;
-	int cy = y+h/2-((int)lines->size()*tLX->cFont.GetHeight())/2;
-
+	int cy = y + caption_h;
+	if(lines->size() > 0) {
+		cy += (h - button_h - caption_h) / 2;
+		cy -= ((int)(lines->size() - 1) * (tLX->cFont.GetHeight() + line_hspace)) / 2;
+		cy -= tLX->cFont.GetHeight() / 2;
+	}
 
 	//
 	// Setup the gui
@@ -648,10 +642,10 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	msgbox.Initialize();
 
 	if(type == LMB_OK)
-		msgbox.Add( new CButton(BUT_OK,tMenu->bmpButtons), 0, cx-20,y+h-24, 40,15);
+		msgbox.Add( new CButton(BUT_OK,tMenu->bmpButtons), 0, cx-20,y+h-button_h, 40,15);
 	else if(type == LMB_YESNO) {
-		msgbox.Add( new CButton(BUT_YES,tMenu->bmpButtons), 1, x+15,y+h-24, 35,15);
-		msgbox.Add( new CButton(BUT_NO,tMenu->bmpButtons),  2, x+w-35,y+h-24, 30,15);
+		msgbox.Add( new CButton(BUT_YES,tMenu->bmpButtons), 1, x+15,y+h-button_h, 35,15);
+		msgbox.Add( new CButton(BUT_NO,tMenu->bmpButtons),  2, x+w-35,y+h-button_h, 30,15);
 	}
 
 	// Store the old buffer into a temp buffer to keep it
@@ -662,13 +656,13 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	//DrawImage(tMenu->bmpBuffer, shadow, 177,167);
 	Menu_DrawBox(tMenu->bmpBuffer.get(), x, y, x+w, y+h);
 	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
-	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+25,tLX->clDialogCaption);
+	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+caption_h,tLX->clDialogCaption);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, y+5, tLX->clNormalLabel,sTitle);
 	for (it=lines->begin(); it!=lines->end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
 		tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, cy, tLX->clNormalLabel, *it);
-		cy += tLX->cFont.GetHeight()+2;
+		cy += tLX->cFont.GetHeight()+line_hspace;
 	}
 
 	Menu_RedrawMouse(true);

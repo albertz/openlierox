@@ -593,10 +593,12 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 
 		// handle newline in str
 		if( *it == '\n' ) {
-			result.push_back(token);
+			result.push_back(token + std::string(last_it, it));
 			token = "";
 			i = 0;
-			last_it = it; // don't add the '\n' to token
+			last_it = it;
+			++last_it; // don't add the '\n' to token
+			continue;
 		}
 		
 		// Add the current bytes to token
