@@ -296,15 +296,19 @@ CChannel * CServerConnection::createChannel(const Version& v)
 
 std::string CServerConnection::debugName() {
 	std::string adr = "?.?.?.?";
-	NetworkAddr netAdr;
 	if(isLocalClient())
 		adr = "local";
-	else if(!getChannel())
+	else if(!getChannel())  {
 		printf("WARNING: CServerConnection::debugName(): getChannel() == NULL\n");
-	else if(!GetRemoteNetAddr(getChannel()->getSocket(), netAdr))
-		printf("WARNING: CServerConnection::debugName(): GetRemoteNetAddr failed\n");
-	else if(!NetAddrToString(netAdr, adr))
+		return "CServerConnection(ERROR)";
+	}
+
+	// Get the address
+	NetworkAddr netAdr = getChannel()->getAddress();
+	if(!NetAddrToString(netAdr, adr))  {
 		printf("WARNING: CServerConnection::debugName(): NetAddrToString failed\n");
+		return "CServerConnection(ERROR)";
+	}
 
 	std::string worms = "no worms";
 	if(getNumWorms() > 0) {

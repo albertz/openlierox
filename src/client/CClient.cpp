@@ -1791,15 +1791,20 @@ void CClient::setNetEngineFromServerVersion()
 
 std::string CClient::debugName() {
 	std::string adr = "?.?.?.?";
-	NetworkAddr netAdr;
+
 	if(isLocalClient())
 		adr = "local";
-	else if(!getChannel())
-		printf("WARNING: CClient::debugName(): getChannel() == NULL\n");
-	else if(!GetRemoteNetAddr(getChannel()->getSocket(), netAdr))
-		printf("WARNING: CClient::debugName(): GetRemoteNetAddr failed\n");
-	else if(!NetAddrToString(netAdr, adr))
-		printf("WARNING: CClient::debugName(): NetAddrToString failed\n");
+	else if(!getChannel())  {
+		printf("WARNING: CServerConnection::debugName(): getChannel() == NULL\n");
+		return "CClient(ERROR)";
+	}
+
+	// Get the address
+	NetworkAddr netAdr = getChannel()->getAddress();
+	if(!NetAddrToString(netAdr, adr))  {
+		printf("WARNING: CServerConnection::debugName(): NetAddrToString failed\n");
+		return "CClient(ERROR)";
+	}
 
 	std::string worms = "no worms";
 	if(getNumWorms() > 0) {
