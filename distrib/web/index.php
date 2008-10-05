@@ -21,12 +21,6 @@
 </td></tr></table>
 <hr height="1">
 <p>
-	<h2>Vote for OpenLieroX at Hackontest!</h2>
-	<a href="http://hackontest.org/index.php?action=Root-projectDetail(123)">
-	<img src="HackontestBanner_468x60-02.jpg" border="0">
-	</a>
-</p>
-<p>
 	<h2>Short Description</h2>
 	OpenLierox is an extremely addictive realtime worms shoot-em-up backed by an active gamers community.<br>
 	Dozens of levels and mods are available to provide endless gaming pleasure.
