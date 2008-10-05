@@ -1070,7 +1070,9 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	// Common block elements
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"p") || !xmlStrcasecmp(node->name, (xmlChar *)"div")
 		|| !xmlStrcasecmp(node->name, (xmlChar *)"ul") || !xmlStrcasecmp(node->name, (xmlChar *)"ol"))  {
-		EndLine();
+		// Don't create a blank newline (classical web browsers don't do that either)
+		if (sCurLine.size() != 0)
+			EndLine();
 		BrowseChildren(node);
 		return;
 	}
