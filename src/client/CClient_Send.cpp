@@ -216,6 +216,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 		return;
 	}
 
+	// TODO: don't split for newer server, that should be done server-side
 	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
 	// HINT: in command messages the name has to be repeated for all chunks so we have to count with that here
 	int name_w = tLX->cFont.GetWidth(sWormName + ": ");

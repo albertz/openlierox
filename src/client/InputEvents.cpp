@@ -201,6 +201,15 @@ static void ResetCurrentEventStorage() {
 	bDeactivated = false;
 }
 
+
+bool WasKeyboardEventHappening(int sym, bool down) {
+	for(int i = 0; i < Keyboard.queueLength; i++)
+		if(Keyboard.keyQueue[i].sym == sym && Keyboard.keyQueue[i].down == down)
+			return true;
+	return false;
+}
+
+
 typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 

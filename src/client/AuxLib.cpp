@@ -872,6 +872,15 @@ bool HandleDebugCommand(const std::string& text) {
 		if(cmd == "reconnect") {
 			cout << "DEBUG CMD: reconnect local client to " << cClient->getServerAddress() << endl;
 			cClient->Connect(cClient->getServerAddress());
+		} else if(cmd == "msgbox") {
+			Menu_MessageBox("Test",
+							"This is a very long text, a very long text, a very long text, a very long text, "
+							"a very long text, a very long text, a very long text, a very long text, a very long text, "
+							"a very long text, a very long text, a very long text, a very long text, a very long text, "
+							"a very long text, a very long text, a very long text, a very long text, a very long text.\n"
+							"Yes really, this text is very long, very long, very long, very long, very long, "
+							"very very long, very very long, very very long, very very long, very very long.",
+							DeprecatedGUI::LMB_OK);
 		} else
 			cout << "DEBUG CMD unknown" << endl;
 		

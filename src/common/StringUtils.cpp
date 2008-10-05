@@ -562,6 +562,7 @@ static void split_by_space(const std::string& str, std::string& before_space, st
 
 //////////////////////
 // Splits the string to pieces that none of the pieces can be longer than maxlen and wider than maxwidth
+// WARNING/(TODO?): maxlen is the raw len of the next, not the unicode len
 // TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 const std::vector<std::string>& splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
 {
@@ -575,7 +576,7 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 	for (it++; it != str.end(); i += IncUtf8StringIterator(it, str.end()))  {
 
 		// Check for maxlen
-		if (i > maxlen)  {
+		if( i > maxlen )  {
 			std::string before_space;
 			split_by_space(token, before_space, token);
 			result.push_back(before_space);
@@ -583,13 +584,21 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 		}
 
 		// Check for maxwidth
-		if ((size_t)font.GetWidth(token) <= maxwidth && (size_t)font.GetWidth(token + std::string(last_it, it)) > maxwidth) {
+		if( (size_t)font.GetWidth(token) <= maxwidth && (size_t)font.GetWidth(token + std::string(last_it, it)) > maxwidth ) {
 			std::string before_space;
 			split_by_space(token, before_space, token);
 			result.push_back(before_space);
 			i = token.size();
 		}
 
+		// handle newline in str
+		if( *it == '\n' ) {
+			result.push_back(token);
+			token = "";
+			i = 0;
+			last_it = it; // don't add the '\n' to token
+		}
+		
 		// Add the current bytes to token
 		token += std::string(last_it, it);
 

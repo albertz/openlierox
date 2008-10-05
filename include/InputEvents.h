@@ -111,6 +111,9 @@ mouse_t		*GetMouse();
 SDL_Event	*GetEvent();
 ModifiersState *GetCurrentModstate();
 
+bool		WasKeyboardEventHappening(int sym, bool down = true);
+
+
 class CInput;
 void		RegisterCInput(CInput* input);
 void		UnregisterCInput(CInput* input);

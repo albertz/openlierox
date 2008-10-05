@@ -616,25 +616,28 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	int h = 140;
 
 	// Handle multiline messages
-	int maxwidth = 0;
 	std::vector<std::string>::const_iterator it;
-	const std::vector<std::string>& lines = explode(sText,"\n");
-	for (it=lines.begin(); it!=lines.end(); it++)  {
-		maxwidth = MAX(maxwidth, tLX->cFont.GetWidth(*it));
-	}
+	const std::vector<std::string>* lines = &explode(sText,"\n");
+	{
+		int maxwidth = 0;
+		for (it=lines->begin(); it!=lines->end(); it++)  {
+			maxwidth = MAX(maxwidth, tLX->cFont.GetWidth(*it));
+		}
 
-	if(maxwidth > w) {
-		w = MIN(maxwidth+30,638);
-		x = 320-w/2;
+		if(maxwidth > w) {
+			lines = &splitstring(sText, (size_t)-1, w, tLX->cFont);
+	//		w = MIN(maxwidth+30,638);
+	//		x = 320-w/2;
+		}
 	}
-
-	if((tLX->cFont.GetHeight()*(int)lines.size())+5 > h) {
-		h = (int)MIN((tLX->cFont.GetHeight()*lines.size())+20, (size_t)478);
+	
+	if((tLX->cFont.GetHeight()*(int)lines->size())+5 > h) {
+		h = (int)MIN((tLX->cFont.GetHeight()*lines->size())+150, (size_t)478);		
 		y = 240-h/2;
 	}
 
 	int cx = x+w/2;
-	int cy = y+h/2-((int)lines.size()*tLX->cFont.GetHeight())/2;
+	int cy = y+h/2-((int)lines->size()*tLX->cFont.GetHeight())/2;
 
 
 	//
@@ -662,7 +665,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+25,tLX->clDialogCaption);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, y+5, tLX->clNormalLabel,sTitle);
-	for (it=lines.begin(); it!=lines.end(); it++)  {
+	for (it=lines->begin(); it!=lines->end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
 		tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, cy, tLX->clNormalLabel, *it);
 		cy += tLX->cFont.GetHeight()+2;
@@ -671,16 +674,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	Menu_RedrawMouse(true);
 
 
-    // This fixes a problem with the escape/enter key sometimes not functioning, and preventing the game quiting
-    kb->KeyDown[SDLK_ESCAPE] = false;
-    kb->KeyUp[SDLK_ESCAPE] = false;
-    kb->KeyDown[SDLK_RETURN] = false;
-    kb->KeyUp[SDLK_RETURN] = false;
-    kb->KeyDown[SDLK_KP_ENTER] = false;
-    kb->KeyUp[SDLK_KP_ENTER] = false;
-
-
 	ProcessEvents();
+
+	
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(true) {
 		Menu_RedrawMouse(true);
@@ -722,7 +718,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 		}
 
 		// Handle the Enter key
-		if (kb->KeyUp[SDLK_RETURN] || kb->KeyUp[SDLK_KP_ENTER])
+		if (WasKeyboardEventHappening(SDLK_RETURN) || WasKeyboardEventHappening(SDLK_KP_ENTER))
 			if (type == LMB_YESNO)  {
 				ret = MBR_YES;
 				break;
@@ -733,7 +729,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			}
 
 
-		if(!kb->KeyUp[SDLK_ESCAPE] && !tLX->bQuitGame && ret == -1) {
+		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(VideoPostProcessor::videoSurface());
 			VideoPostProcessor::process();
 			CapFPS();
