@@ -142,7 +142,8 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 		} else if (chat_command &&
 				   client->getServerVersion() >= OLXBetaVersion(3)) {
 			// we don't have to split chat commands
-			SendTextInternal(OldLxCompatibleString(sText), sWormName);			
+			// "/me ..." is also save, because server uses SendGlobalText for sending and it splits the text there
+			SendTextInternal(OldLxCompatibleString(sText), sWormName);
 
 		} else { // we can savely split the message (and we have to)
 			
