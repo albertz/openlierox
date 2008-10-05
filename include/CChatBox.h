@@ -52,12 +52,7 @@ public:
 private:
 	// Attributes
 	ct_lines_t		Lines;
-	ct_lines_t		WrappedLines;
 	ct_lines_t		NewLines;
-    unsigned int	nWidth;
-
-	// Methods
-	void	AddWrapped(const std::string& txt, Uint32 colour, TXT_TYPE TextType, float time, ct_lines_t &lines, bool mark_as_new);
 
 public:
 	// Methods
@@ -65,14 +60,13 @@ public:
 	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, float time);
 
     // Variables
-	lines_iterator Begin()  { return WrappedLines.begin(); }
-	lines_iterator End()  { return WrappedLines.end(); }
+	lines_iterator Begin()  { return Lines.begin(); }
+	lines_iterator End()  { return Lines.end(); }
 	lines_iterator At(int i);
-	lines_riterator RBegin()  { return WrappedLines.rbegin(); }
-	lines_riterator REnd()  { return WrappedLines.rend(); }
+	lines_riterator RBegin()  { return Lines.rbegin(); }
+	lines_riterator REnd()  { return Lines.rend(); }
 	line_t *GetNewLine(void);
-    void    setWidth(int w);
-	size_t		getNumLines(void)	{ return WrappedLines.size(); }
+	size_t		getNumLines(void)	{ return Lines.size(); }
 };
 
 

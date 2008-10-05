@@ -514,8 +514,6 @@ bool Menu_Net_HostLobbyInitialize(void)
 	// Draw the lobby
 	Menu_Net_HostLobbyDraw();
 
-	cClient->getChatbox()->setWidth(590);
-
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
 	gl->bSet = true;
@@ -719,8 +717,6 @@ void Menu_Net_HostGotoLobby(void)
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
     tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
-
-	cClient->getChatbox()->setWidth(590);
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();

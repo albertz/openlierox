@@ -289,7 +289,6 @@ bool Menu_Net_JoinLobbyInitialize(void)
 	iJoinMenu = join_lobby;
 
 	cClient->getChatbox()->Clear();
-    cClient->getChatbox()->setWidth(570);
     iJoinSpeaking = 0;  // The first player is always speaking
 	tMenu->sSavedChatText = "";
 
@@ -384,8 +383,6 @@ void Menu_Net_JoinGotoLobby(void)
 
 	iNetMode = net_join;
 	iJoinMenu = join_lobby;
-
-	cClient->getChatbox()->setWidth(570);
 
 	// Add the chat
 	CBrowser *lv = (CBrowser *)cJoinLobby.getWidget(jl_ChatList);

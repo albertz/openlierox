@@ -357,7 +357,7 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 		return;
 	}
 
-	if (buf == "") { // Ignore empty messages
+	if (buf.empty()) { // Ignore empty messages
 		printf("WARNING: %s sends empty message\n", cl->debugName().c_str());
 		return;
 	}
@@ -366,8 +366,9 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
-	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
-		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
+	if (cl->getWorm(0))
+		if (buf.size() > cl->getWorm(0)->getName().size() + 2)
+			command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	printf("CHAT: "); printf(buf); printf("\n");
 

@@ -81,7 +81,6 @@ void CClient::Clear(void)
 	InvalidateSocketState(tSocket);
 	SetNetAddrValid( cServerAddr, false );
 
-    cChatbox.setWidth(325);
 	cChatbox.Clear();
 
 	bLobbyReady = false;

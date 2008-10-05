@@ -739,8 +739,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 	}
 
-	client->cChatbox.setWidth(client->tInterfaceSettings.ChatBoxW - 4);
-
 	// Load the chat
 	DeprecatedGUI::CBrowser *lv = client->cChatList;
 	if (lv)  {

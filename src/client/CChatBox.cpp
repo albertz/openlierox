@@ -27,9 +27,7 @@
 void CChatBox::Clear(void)
 {
 	Lines.clear();
-	WrappedLines.clear();
 	NewLines.clear();
-	nWidth = 500;
 }
 
 
@@ -37,7 +35,7 @@ void CChatBox::Clear(void)
 // Add a line of text to the chat box
 void CChatBox::AddText(const std::string& txt, int colour, TXT_TYPE TextType, float time)
 {
-	if (txt == "")
+	if (txt.empty())
 		return;
 
 	// Create a new line and copy the info
@@ -55,63 +53,9 @@ void CChatBox::AddText(const std::string& txt, int colour, TXT_TYPE TextType, fl
 	while(Lines.size() > MAX_LINES)
 		Lines.pop_front();
 
-	// Add to wrapped lines
-	AddWrapped( txt, colour, TextType, time, WrappedLines, true );
+	// Add to new lines
+	NewLines.push_back(newline);
 }
-
-
-////////////////////
-// Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, TXT_TYPE TextType, float time, ct_lines_t &lines, bool mark_as_new)
-{
-	// Split it to the lines
-	const std::vector<std::string>& tmp = splitstring(txt, (size_t)-1, nWidth, tLX->cFont);
-
-	// Add the lines
-	for (std::vector<std::string>::const_iterator it = tmp.begin(); it != tmp.end(); it++)  {
-		line_t newline;
-		newline.fTime = time;
-		newline.iColour = colour;
-		newline.iTextType = TextType;
-		newline.strLine = *it;
-		newline.iID = WrappedLines.size();
-
-		// Add and mark as new if needed
-		lines.push_back(newline);
-		if (mark_as_new)
-			NewLines.push_back(newline);
-	}
-
-	while(lines.size() > MAX_LINES)
-		lines.pop_front();
-	while(NewLines.size() > MAX_LINES)
-		NewLines.pop_front();
-}
-
-///////////////////
-// Set the chatbox width
-void CChatBox::setWidth(int w)
-{
-	nWidth = w;
-	WrappedLines.clear();
-	NewLines.clear();
-
-	ct_lines_t::const_iterator i;
-
-	// Recalculate the wrapped lines
-	for (i=Lines.begin();i!=Lines.end();i++)
-		AddWrapped(i->strLine,i->iColour, i->iTextType, i->fTime, WrappedLines, false);
-
-	// Recalculate new lines
-	if (!NewLines.empty())  {
-		ct_lines_t wrapped_newlines;
-		for (i=NewLines.begin();i!=NewLines.end();i++)
-			AddWrapped(i->strLine, i->iColour, i->iTextType, i->fTime, wrapped_newlines, false);
-		NewLines.clear();
-		NewLines = wrapped_newlines;
-	}
-}
-
 
 /////////////////////
 // Get a new line from the chatbox
@@ -134,13 +78,13 @@ line_t *CChatBox::GetNewLine(void)
 lines_iterator CChatBox::At(int i)  {
 	// Checks
 	if (i <= 0)
-		return WrappedLines.begin();
+		return Lines.begin();
 
-	if (i >= (int)WrappedLines.size())
-		return WrappedLines.end();
+	if (i >= (int)Lines.size())
+		return Lines.end();
 
 	// Go to the right iterator
-	lines_iterator it = WrappedLines.begin();
+	lines_iterator it = Lines.begin();
 	while (i)  {
 		it++;
 		i--;

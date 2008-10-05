@@ -203,12 +203,6 @@ bool CClient::InitializeDrawing(void)
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2Y",&tInterfaceSettings.WeaponLabel2Y, 425);
 	}
 
-    // Set the appropriate chatbox width
-    if(tGameInfo.iGameType == GME_LOCAL)
-        cChatbox.setWidth(600);
-    else
-        cChatbox.setWidth(tInterfaceSettings.ChatBoxW-4);  // -4 - leave some space
-
 	// Setup the loading boxes
 	int NumBars = tGameInfo.iGameType == GME_LOCAL ? 4 : 2;
 	for (byte i=0; i<NumBars; i++)
