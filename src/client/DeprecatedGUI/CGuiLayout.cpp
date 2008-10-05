@@ -165,7 +165,7 @@ void CGuiLayout::FocusWidget(int id)
 
 			// Take off focus from any previously focused widget
 			if(cFocused) {
-				if(id == cFocused->getID())
+				if(id == cFocused->getID() || !cFocused->CanLoseFocus())
 					break;
 				cFocused->setFocused(false);
 				cFocused = NULL;
@@ -581,6 +581,11 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Put it here, so the mouse will never display
 	SDL_ShowCursor(SDL_DISABLE);
+
+	// If the application has lost the focus, remove set all CanLoseFocus to false
+	// as they make no sense anymore and can make trouble
+	if (cFocused && !ApplicationHasFocus())
+		cFocused->setLoseFocus(true);
 
 	// Parse keyboard events to the focused widget
 	// Make sure a key event happened
