@@ -51,6 +51,17 @@ void CBrowser::Create(void)
 	cScrollbar.setValue(0);
 	cScrollbar.setItemsperbox(iHeight);
 	cScrollbar.setMax(0);
+
+	// Setup the cursor blink timer
+	if (tTimer == NULL)  {
+		tTimer = new Timer;
+		if (tTimer)  {
+			tTimer->interval = 500;
+			tTimer->once = false;
+			tTimer->onTimer.handler() = getEventHandler(this, &CBrowser::OnTimerEvent);
+			tTimer->start();
+		}
+	}
 }
 
 void CBrowser::Destroy()
@@ -1171,6 +1182,13 @@ void CBrowser::ResetScrollbar() {
 		bUseScroll = true;
 	} else
 		bUseScroll = false;	
+}
+
+/////////////////////////
+// Cursor blink timer handler
+void CBrowser::OnTimerEvent(Timer::EventData ev)
+{
+	bDrawCursor = !bDrawCursor;
 }
 
 //

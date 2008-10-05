@@ -59,6 +59,7 @@ public:
 		iSelectionStartColumn(0),
 		iSelectionEndLine(0),
 		iSelectionEndColumn(0),
+		tTimer(NULL),
 		bSelectionGrabbed(false),
 		bDrawCursor(true),
 		bInLink(false),
@@ -191,6 +192,7 @@ private:
 	size_t					iSelectionGrabColumn;
 	bool					bSelectionGrabbed;
 	bool					bDrawCursor;
+	Timer					*tTimer;  // For cursor blink
 
 	// Links
 	bool					bInLink;
@@ -223,6 +225,7 @@ private:
 	void					DrawCursor(SDL_Surface *bmpDest);
 	void					ResetScrollbar();
 	void					AdjustBuffer();
+	void					OnTimerEvent(Timer::EventData ev);
 	
 	
 	// Link helper functions
