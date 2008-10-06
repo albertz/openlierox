@@ -448,7 +448,7 @@ bool CWorm::skipPacketState(CBytestream *bs)
 			bs->Skip(1);
 	}
 
-	bool shooting = bits & 0x20; 
+	bool shooting = (bits & 0x20) != 0; 
 
 	const Version& versionOfSender = cClient->getServerVersion();
 	bool gotVelocity = shooting || versionOfSender >= OLXBetaVersion(5);
@@ -476,7 +476,7 @@ bool CWorm::skipPacket(CBytestream *bs)
 			bs->Skip(1);
 	}
 	
-	bool shooting = bits & 0x20; 
+	bool shooting = (bits & 0x20) != 0; 
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
