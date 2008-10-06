@@ -469,7 +469,7 @@ void CWorm::InitWeaponSelection(void)
 		tWeapons[i].Weapon = cGameScript->FindWeapon( tProfile->sWeaponSlots[i] );
 
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
-        if( !cWeaponRest->isEnabled( tWeapons[i].Weapon->Name ) ) {
+        if( !cWeaponRest->isEnabled( tWeapons[i].Weapon->Name ) || !cGameScript->weaponExists( tWeapons[i].Weapon->Name ) ) {
 
             tWeapons[i].Weapon = cGameScript->FindWeapon( cWeaponRest->findEnabledWeapon( cGameScript ) );
         }
@@ -565,10 +565,6 @@ void CWorm::GetRandomWeapons(void)
 	for(short i=0; i<5; i++) {
 		num = GetRandomInt(cGameScript->GetNumWeapons()-1);
 
-		// Safety hack
-		if (!num)
-			num = 1;
-
         // Cycle through weapons starting from the random one until we get an enabled weapon
         n=num;
 		lastenabled = 0;
@@ -596,7 +592,7 @@ void CWorm::GetRandomWeapons(void)
 			n++;
 
 			// We made a whole loop
-			if(n >= num) {
+			if(n == num) {
 			   n = lastenabled;
 			   break;
 			}
