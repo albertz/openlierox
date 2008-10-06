@@ -1695,6 +1695,7 @@ void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
 	for (int i = 0; i < MAX_WORMS; i++, w++) {
 		if(w->isUsed()) {
 			w->CloneWeaponsFrom(worm);
+			w->setWeaponsReady(true);
 		}
 	}
 

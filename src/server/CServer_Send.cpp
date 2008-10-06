@@ -267,16 +267,27 @@ bool GameServer::SendUpdate()
 				continue;
 			}
 
-			// check our server bandwidth
-			if( !cl->isLocalClient()
-			&& !checkUploadBandwidth(GetUpload(0.1f) + uploadAmount) ) {
-				// we have gone over our own bandwidth for non-local clients
-				static float lastMessageTime = tLX->fCurTime;
-				if(tLX->fCurTime - lastMessageTime > 30.0) {
-					cout << "we got over the max upload bandwidth; current upload is " << GetUpload() << endl;
-					lastMessageTime = tLX->fCurTime;
-				}
-				continue;
+			if(!cl->isLocalClient()) {
+				// check our server bandwidth
+				static Rate<100,5000,int> updateRate;
+				static Rate<100,5000,int> updateRateAbs;
+				updateRateAbs.addData(tLX->fCurTime, 1);
+				if(!checkUploadBandwidth(GetUpload(0.1f) + uploadAmount)) {
+					// we have gone over our own bandwidth for non-local clients				
+					updateRate.addData(tLX->fCurTime, 1);
+					static float lastMessageTime = tLX->fCurTime;
+					if(tLX->fCurTime - lastMessageTime > 30.0) {
+						cout
+						<< "we got over the max upload bandwidth; "
+						<< "current upload is " << GetUpload() << " bytes/sec";
+						if(updateRateAbs.getRate() > 0)
+							cout << "; current update rate is " << float(100.0f * updateRate.getRate() / updateRateAbs.getRate()) << " %";
+						cout << endl;
+						lastMessageTime = tLX->fCurTime;
+					}
+					continue;
+				} else
+					updateRate.addData(tLX->fCurTime, -1);
 			}
 
 			CBytestream update_packets;  // Contains all the update packets except the one from this client

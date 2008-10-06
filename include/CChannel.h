@@ -20,10 +20,10 @@
 #include "CBytestream.h"
 #include <list>
 
-template< int AMOUNT, int TIMERANGEMS >
+template< int AMOUNT, int TIMERANGEMS, typename _Amount = size_t >
 class Rate {
 private:
-	size_t buckets[AMOUNT];
+	_Amount buckets[AMOUNT];
 	int curIndex;
 	float curIndexTime;
 
@@ -33,7 +33,7 @@ public:
 
 	float timeRange() { return (float)TIMERANGEMS / 1000.0f; }
 
-	void addData(float curtime, size_t amount) {
+	void addData(float curtime, _Amount amount) {
 		// calc diff of oldindex to newindex
 		size_t dindex = 0;
 		if(curIndex >= 0) {
@@ -61,7 +61,7 @@ public:
 	}
 
 	float getRate() {
-		size_t sum = 0;
+		_Amount sum = 0;
 		for(int i = 0; i < AMOUNT; i++)
 			sum += buckets[i];
 		return (float)sum / timeRange();
@@ -77,7 +77,7 @@ public:
 		// calc diff of oldindex to newindex
 		size_t dindex = (int) ( (float)AMOUNT * (float(timerange) / float(TIMERANGEMS)) );
 		
-		size_t sum = 0;
+		_Amount sum = 0;
 		size_t startIndex = AMOUNT + curIndex - dindex;
 		for(size_t i = 0; i < dindex; i++) {
 			sum += buckets[ (startIndex + i) % AMOUNT ];
