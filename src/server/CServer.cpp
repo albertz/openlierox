@@ -595,6 +595,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			TagRandomWorm();
 	}
 	
+	
 	if(firstStart) {
 		for(int i=0;i<MAX_WORMS;i++) {
 			if(cWorms[i].isUsed())

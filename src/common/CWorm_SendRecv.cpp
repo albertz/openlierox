@@ -89,10 +89,9 @@ void CWorm::readScore(CBytestream *bs) {
 	int lives = (int)bs->readInt16();
 	int gameLives = tGameInfo.iLives;
 	if (gameLives == WRM_UNLIM) {
-		if(lives != WRM_UNLIM) {
+		if(lives != WRM_UNLIM)
 			cout << "WARNING: we have unlimited lives in this game but server gives worm " << iID << " only " << lives << " lives" << endl;
-			iLives = MAX(lives,WRM_UNLIM);
-		}
+		iLives = MAX(lives,WRM_UNLIM);
 	} else {
 		if(lives == WRM_UNLIM)
 			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " unlimited lives" << endl;
