@@ -536,6 +536,11 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
         return BRW_KEY_PROCESSED;
     }
 
+	// If a mod key has been pressed, pretend we handled it to prevent taking off focus
+	if (keysym == SDLK_LSHIFT || keysym == SDLK_RSHIFT || keysym == SDLK_LCTRL || keysym == SDLK_RCTRL ||
+		keysym == SDLK_LALT || keysym == SDLK_RALT)
+		return BRW_KEY_PROCESSED;
+
 	return BRW_KEY_NOT_PROCESSED;
 }
 
