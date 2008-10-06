@@ -849,13 +849,17 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 					// Break
 					if (w > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
+						EndLine();
 						RenderText(bmpDest, fmt, curX, curY, maxX, std::string((std::string::const_iterator)word.begin(), wit - last_size));
 						EndLine();
 						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, (std::string::const_iterator)word.end()));
-						return; // The text has already been drawn, just quit
+						it += word.size();
+						break;
 					}
 
 				}
+
+				continue;
 				
 			}
 		}
