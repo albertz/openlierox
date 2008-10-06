@@ -383,7 +383,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		}
 	return BRW_KEY_PROCESSED;
 	case SDLK_UP:
-		if (iCursorLine > 0)  {
+		if (iCursorLine > 0 && iCursorLine < tPureText.size())  {
 			--iCursorLine;
 			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
 			AdjustScrollbar();
@@ -440,7 +440,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 			if (iCursorColumn == 0)  {
 				if  (iCursorLine > 0)  {
 					--iCursorLine;
-					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[iCursorLine].sText));
+					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[MIN(tPureText.size() - 1, iCursorLine)].sText));
 					AdjustScrollbar();
 				}
 			} else {
@@ -853,6 +853,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 						RenderText(bmpDest, fmt, curX, curY, maxX, std::string((std::string::const_iterator)word.begin(), wit - last_size));
 						EndLine();
 						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, (std::string::const_iterator)word.end()));
+						current_column = sCurLine.size();
 						it += word.size();
 						break;
 					}
@@ -1348,9 +1349,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	bNeedsRender = true;
 	
 	if( bUseScroll ) {
-		// if we have scrolled nearly down, scroll down to the new added line
-		if( cScrollbar.getMax() - cScrollbar.getItemsperbox() - cScrollbar.getValue() < 5 )
-			ScrollToLastLine();
+		ScrollToLastLine();
 	}
 	
 }
