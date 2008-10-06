@@ -879,6 +879,8 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		if (bUseScroll && ((int)tPureText.size() < cScrollbar.getValue() ||
 			(int)tPureText.size() > cScrollbar.getValue() + cScrollbar.getItemsperbox()))  {
 			current_column += word.size();
+			curX += width;
+			was_space = ((*word.rbegin()) == ' ');  // HINT: word.size() != 0 here
 			continue;
 		}
 
