@@ -75,7 +75,6 @@ private:
 	int			iNetStatus;
 
 	float		fLastReceived;
-	NetworkSocket	tSocket;
 	CChannel	* cNetChan;
 	CBytestream	bsUnreliable;
 

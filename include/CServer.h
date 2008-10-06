@@ -26,6 +26,7 @@
 #include "HTTP.h"
 #include "FileDownload.h"
 #include "CScriptableVars.h"
+#include "Timer.h"
 
 #define		MAX_CHALLENGES		1024
 
@@ -148,6 +149,7 @@ private:
 	
 	friend class CServerNetEngine;
 	friend class CServerNetEngineBeta7;
+	static void SendConnectHereAfterTimeout (Timer::EventData ev);
 	
 public:
 	// Methods

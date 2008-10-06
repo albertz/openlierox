@@ -1503,45 +1503,50 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 
 struct SendConnectHereAfterTimeout_Data
 {
-	SendConnectHereAfterTimeout_Data( NetworkSocket _sock, NetworkAddr _addr )
-		{ sock = _sock; addr = _addr; };
-	NetworkSocket sock;
+	SendConnectHereAfterTimeout_Data( int _socknum, NetworkAddr _addr )
+		{ socknum = _socknum; addr = _addr; };
+	int socknum; // Socket idx in CServer - don't know why, probably this doesn't matter
 	NetworkAddr addr;
 };
 
-void SendConnectHereAfterTimeout (Timer::EventData ev)
+void GameServer::SendConnectHereAfterTimeout (Timer::EventData ev)
 {
 	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) ev.userData;
 	NetworkAddr addr;
 	ResetNetAddr(addr);
-	GetRemoteNetAddr( data->sock, addr );
-	std::string s1, s2;
-	NetAddrToString( addr, s1 );
-	NetAddrToString( data->addr, s2 );
-	printf("SendConnectHereAfterTimeout() %s:%i - %s:%i\n", s1.c_str(), GetNetAddrPort(addr), s2.c_str(), GetNetAddrPort(data->addr) );
-	if( AreNetAddrEqual( addr, data->addr ) || ( s1 == "0.0.0.0" && GetNetAddrPort(addr) == 0 ) )
-	{	// This socket wasn't used 'till we set timer routine
-		CBytestream bs;
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::connect_here");// In case server behind symmetric NAT and client has IP-restricted NAT or above
+	GetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], addr );
+	std::string s;
+	NetAddrToString( data->addr, s );
+	printf("SendConnectHereAfterTimeout() %s:%i\n", s.c_str(), GetNetAddrPort(data->addr) );
 
-		int oldPort = GetNetAddrPort(data->addr);
-		SetNetAddrPort(data->addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
-		SetRemoteNetAddr( data->sock, data->addr);
-		bs.Send(data->sock);
-		bs.Send(data->sock);
-		bs.Send(data->sock);
-		SetNetAddrPort(data->addr, oldPort);
-		SetRemoteNetAddr( data->sock, data->addr);
-		bs.Send(data->sock);
-		bs.Send(data->sock);
-		bs.Send(data->sock);
-	}
-	else
+	for( int f = 0; f < MAX_CLIENTS; f++ )
 	{
-		printf("SendConnectHereAfterTimeout() socket is used by another client %s:%i - %s:%i\n", 
-				s1.c_str(), GetNetAddrPort(addr), s2.c_str(), GetNetAddrPort(data->addr) );
-	};
+		if( cServer->getClients()[f].getStatus() != NET_DISCONNECTED &&
+			AreNetAddrEqual( addr, cServer->getClients()[f].getChannel()->getAddress() ) )
+		{
+			NetAddrToString( cServer->getClients()[f].getChannel()->getAddress(), s );
+			printf("SendConnectHereAfterTimeout() socket is used by client %i: %s:%i\n", 
+					f, s.c_str(), GetNetAddrPort(cServer->getClients()[f].getChannel()->getAddress()) );
+			return;
+		}
+	}
+	
+	CBytestream bs;
+	bs.writeInt(-1, 4);
+	bs.writeString("lx::connect_here");// In case server behind symmetric NAT and client has IP-restricted NAT or above
+
+	int oldPort = GetNetAddrPort(data->addr);
+	SetNetAddrPort(data->addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
+	SetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], data->addr);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+	SetNetAddrPort(data->addr, oldPort);
+	SetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], data->addr);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
+
 	delete data;
 	ev.shouldContinue = false;
 };
@@ -1620,7 +1625,7 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
 	Timer( &SendConnectHereAfterTimeout,
-			new SendConnectHereAfterTimeout_Data(tNatTraverseSockets[socknum], adrClient), 3000, true ).startHeadless();
+			new SendConnectHereAfterTimeout_Data(socknum, adrClient), 3000, true ).startHeadless();
 };
 
 // Server sent us "lx::registered", that means it's alive - record that

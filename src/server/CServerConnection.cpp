@@ -43,7 +43,6 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	bsUnreliable.Clear();
 	iNetSpeed = 3;
 	fLastUpdateSent = -9999;
-	InvalidateSocketState(tSocket);
 	bLocalClient = false;
 
 	fSendWait = 0;
@@ -73,8 +72,6 @@ void CServerConnection::Clear(void)
 	iNetStatus = NET_DISCONNECTED;
 	bsUnreliable.Clear();
 	bLocalClient = false;
-
-	InvalidateSocketState(tSocket);
 
 	fLastReceived = 99999;
 	fSendWait = 0;
@@ -151,18 +148,6 @@ int CServerConnection::Initialize(void)
 		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
 		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
-	}
-
-	// Open a new socket
-	if( tGameInfo.iGameType == GME_JOIN ) {
-		tSocket = OpenUnreliableSocket( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
-	}
-	if(!IsSocketStateValid(tSocket)) {	// If socket won't open that's not error - open another one on random port
-		tSocket = OpenUnreliableSocket(0);
-	}
-	if(!IsSocketStateValid(tSocket)) {
-		SetError("Error: Could not open UDP socket!");
-		return false;
 	}
 
 	// Initialize the shooting list
@@ -253,13 +238,6 @@ void CServerConnection::Shutdown(void)
 
 	// Shooting list
 	cShootList.Shutdown();
-
-	// Close the socket
-	if(IsSocketStateValid(tSocket))
-	{
-		CloseSocket(tSocket);
-	}
-	InvalidateSocketState(tSocket);
 
 }
 
