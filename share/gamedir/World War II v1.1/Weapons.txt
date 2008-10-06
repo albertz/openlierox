@@ -1,0 +1,34 @@
+World War II v1.1
+Updated.
+
+Weapons:
+--------
+AK47........................Assault rifle. Pretty accurate, fairly good damage.
+HK G36E.....................More *rpm and more accurate than AK47, a bit less damage.
+HK MP5A4....................Silenced.Fast rate of fire. Reasonable damage, accurate.
+MP40........................Submachine gun. Good damage. Less accurate than others.
+M14 Battle Rifle............Slow. Packs some reasonable power tho. Pretty accurate.
+M2 Browning.................powerful machine gun. Pretty inaccurate. Slow reloading.
+M240B.......................Medium sized machine gun. A little more accurate than Browning. More bullets, weaker tho...
+HK PSG-1S...................Silenced sniper rifle. Powerful, accurate. Limited to 5 shots per gun...
+USAS-12.....................Regular 12 gauge. Powerful, but slow. Inaccurate. Use in close combat.
+Benelli M1014...............Long range pump-action. More accurate than USAS-12. Weaker.
+Frag Granade................Used t oshell youre opponent. Devastating. Pretty small radius tho.
+M19 40mm....................Granade launcher. Pretty powerful toy. Devastateingly deadly in proffessional's hands...
+M1911 Colt .45..............Pistol. Used in close combat. Reloads fast.
+Beretta 92S.................Silenced pistol. More accurate than Colt.
+PTAB Mine...................Make sure u remember where u plant these, because ull be not able t osee these. May blow up at random moments too :D
+Medpack.....................Some extra health for you and youre teammates...
+
+Those weapons made after from real weapons.
+they have same rof, clip size, bullet speeds etc. as real weapons in real life.
+
+Mod is best played: 100% Loading time, all weapons enabled.
+Best maps for it are tight ones, such as fossili facility.
+
+Enjoy...
+ah yes, thaks to MSF creator for inspiration and some sounds i have taken from there.
+
+
+Chewz...
+<MiK>Chewz
