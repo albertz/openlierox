@@ -162,7 +162,7 @@ public:
 	// Game
 	void		Frame();
 	int			StartGame();
-	void		BeginMatch();
+	void		BeginMatch(CServerConnection* cl = NULL); // if NULL, begin match for everybody; or only for cl
 	void		GameOver(int winner);
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL);
@@ -187,7 +187,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	bool		SendUpdate();
-	void		sendWeapons();
+	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	void		RegisterServer(void);
@@ -232,10 +232,12 @@ public:
 	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
 	void		SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions);
 	void		SendWormsOut(const std::list<byte>& ids);
-	void		SendDisconnect(void);
-    void        SendWormLobbyUpdate(void);
-	void		UpdateGameLobby(void);
-	void		UpdateWorms(void);
+	void		SendDisconnect();
+    void        SendWormLobbyUpdate(CServerConnection* receiver = NULL); // if NULL, to everybody, or only to cl
+	void		SendPrepareGame(CServerConnection* cl);
+	void		SendClientReady(CServerConnection* receiver, CServerConnection* cl);
+	void		UpdateGameLobby(CServerConnection* cl = NULL); // if NULL, to everybody, or only to cl
+	void		UpdateWorms();
 #ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
 #endif
@@ -290,6 +292,7 @@ public:
 	int		getNumPlayers(void)			{ return iNumPlayers; }
 	
 	bool	serverChoosesWeapons();
+	bool	serverAllowsConnectDuringGame();
 };
 
 extern	GameServer		*cServer;

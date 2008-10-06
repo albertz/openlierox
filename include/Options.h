@@ -271,6 +271,7 @@ public:
 		float	fGameSpeed; // game-speed multiplicator; 1 is the normal speed; if !=1, only >=Beta7 is supported
 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
 		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
+		bool	bAllowConnectDuringGame; // >=Beta8
 	} tGameinfo;
 
 	// not specified options found in options-file

@@ -643,10 +643,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					// go even worse
 					if (tGameInfo.iGameType == GME_JOIN)  {
 						FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-						std::string err;
-						err = std::string("Could not load the level'") + sMapName + "'\n" + LxGetLastError();
 
-						DeprecatedGUI::Menu_MessageBox("Loading Error",err, DeprecatedGUI::LMB_OK);
+						DeprecatedGUI::Menu_MessageBox(
+							"Loading Error",
+							std::string("Could not load the level '") + sMapName + "'.\n" + LxGetLastError(),
+							DeprecatedGUI::LMB_OK);
 						client->bClientError = true;
 
 						// Go back to the menu
@@ -877,9 +878,11 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		return;
 	}
 
-	if (!client->cMap)
+	if (!client->cMap) {
+		printf("CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)\n");	
 		return;
-
+	}
+	
 	// Is the spawnpoint in the map?
 	if (x > (int)client->cMap->GetWidth() || x < 0)  {
 		printf("CClientNetEngine::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");

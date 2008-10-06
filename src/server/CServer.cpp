@@ -465,6 +465,7 @@ int GameServer::StartGame()
                 if( !w->isUsed() )
                     continue;
 
+				// TODO: move that out here
                 // Write out the info
                 b.writeByte(S2C_WORMINFO);
 			    b.writeInt(w->getID(),1);
@@ -479,39 +480,11 @@ int GameServer::StartGame()
 	iServerFrame = 0;
     bGameOver = false;
 
-	bs.Clear();
-	bs.writeByte(S2C_PREPAREGAME);
-	bs.writeBool(bRandomMap);
-	if(!bRandomMap)
-		bs.writeString(sMapFilename);
-
-	// Game info
-	bs.writeInt(iGameType,1);
-	bs.writeInt16(iLives);
-	bs.writeInt16(iMaxKills);
-	bs.writeInt16((int)fTimeLimit);
-	bs.writeInt16(iLoadingTimes);
-	bs.writeBool(bBonusesOn);
-	bs.writeBool(bShowBonusName);
-	if(iGameType == GMT_TAG)
-		bs.writeInt16(iTagLimit);
-	bs.writeString(tGameInfo.sModDir);
-
-    cWeaponRestrictions.sendList(&bs, cGameScript.get());
-
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
 		if( cClients[i].getStatus() != NET_CONNECTED )
 			continue;
-		if( cClients[i].getClientVersion() >= OLXBetaVersion(7) )
-		{
-			CBytestream bs1(bs);
-			bs1.writeFloat( tGameInfo.fGameSpeed );
-			bs1.writeBool( serverChoosesWeapons() );
-			SendPacket( &bs1, & cClients[i] );
-		}
-		else
-			SendPacket( &bs, & cClients[i] );
+		SendPrepareGame( &cClients[i] );
 	}
 	
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
@@ -540,7 +513,7 @@ int GameServer::StartGame()
 		}
 		
 		// the other players will get the preparegame first and have therefore already called InitWeaponSelection, therefore it is save to send this here
-		sendWeapons();
+		SendWeapons();
 	}
 	
 
@@ -550,74 +523,121 @@ int GameServer::StartGame()
 
 ///////////////////
 // Begin the match
-void GameServer::BeginMatch(void)
+void GameServer::BeginMatch(CServerConnection* receiver)
 {
-	cout << "Server: BeginMatch" << endl;
-	int i;
+	cout << "Server: BeginMatch";
+	if(receiver) cout << "for " << receiver->debugName();
+	cout << endl;
 
-	iState = SVS_PLAYING;
-
-	if( DedicatedControl::Get() )
-		DedicatedControl::Get()->GameStarted_Signal();
-
-	// Initialize some server settings
-	fServertime = 0;
-	iServerFrame = 0;
-    bGameOver = false;
-	fGameOverTime = -9999;
-	fLastRespawnWaveTime = 0;
-	cShootList.Clear();
+	bool firstStart = false;
+	
+	if( iState != SVS_PLAYING) {
+		// game has started for noone yet and we get the first start signal
+		firstStart = true;
+		iState = SVS_PLAYING;
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->GameStarted_Signal();
+		
+		// Initialize some server settings
+		fServertime = 0;
+		iServerFrame = 0;
+		bGameOver = false;
+		fGameOverTime = -9999;
+		fLastRespawnWaveTime = 0;
+		cShootList.Clear();
+	}
+	
 
 	// Send the connected clients a startgame message
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
+	if(receiver)
+		SendPacket(&bs, receiver);
+	else
+		SendGlobalPacket(&bs);
+	
 
-	SendGlobalPacket(&bs);
-
-	// If this is a game of tag, find a random worm to make 'it'
-	if(iGameType == GMT_TAG)
-		TagRandomWorm();
-
-	// Spawn the worms
-	for(i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed())
-			cWorms[i].setAlive(false);
+	if(receiver) {		
+		// inform new client about other ready clients
+		CServerConnection *cl = cClients;
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			// Client not connected or no worms
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+				continue;
+			
+			if(cl->getGameReady()) {				
+				// spawn all worms for the new client
+				for(int i = 0; i < cl->getNumWorms(); i++) {
+					if(cl->getWorm(i) && cl->getWorm(i)->getAlive()) {
+						// TODO: move that out here
+						// Send a spawn packet to new client
+						CBytestream bs;
+						bs.writeByte(S2C_SPAWNWORM);
+						bs.writeInt(cl->getWorm(i)->getID(), 1);
+						bs.writeInt( (int)cl->getWorm(i)->getPos().x, 2);
+						bs.writeInt( (int)cl->getWorm(i)->getPos().y, 2);
+						SendPacket(&bs, receiver);
+					}
+				}
+			}
+		}		
 	}
+
+	if(firstStart) {
+		// If this is a game of tag, find a random worm to make 'it'
+		if(iGameType == GMT_TAG)
+			TagRandomWorm();
+	}
+	
+	if(firstStart) {
+		for(int i=0;i<MAX_WORMS;i++) {
+			if(cWorms[i].isUsed())
+				cWorms[i].setAlive(false);
+		}
+	}
+	// Spawn the ready worms
 	SpawnWave();	// Group teams
 
-	iLastVictim = -1;
+	if(firstStart) {
+		iLastVictim = -1;
 
-	for(i=0;i<MAX_WORMS;i++)
-		iFlagHolders[i] = -1;
+		for(int i=0;i<MAX_WORMS;i++)
+			iFlagHolders[i] = -1;
 
-	// Setup the flag worms
-	for(i=0;i<MAX_WORMS;i++) {
-		if(!cWorms[i].getFlag())
-			continue;
-		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
+		// Setup the flag worms
+		for(int i=0;i<MAX_WORMS;i++) {
+			if(!cWorms[i].getFlag())
+				continue;
+			// TODO: why only for the local client?
+			cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
+		}
 	}
-
+	
 	// For spectators: set their lives to out and tell clients about it
 	bs.Clear();
-	for (i = 0; i < MAX_WORMS; i++)  {
-		// TODO: how can a worm spectate? spectating is something a client is doing (spectating client = client without any worm)
-		if (cWorms[i].isUsed() && cWorms[i].isSpectating())  {
+	for (int i = 0; i < MAX_WORMS; i++)  {
+		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
 			cWorms[i].writeScore(&bs);
 		}
 	}
-	if (bs.GetLength() != 0) // Send only if there are some spectators
-		SendGlobalPacket(&bs);
-
-
+	if (bs.GetLength() != 0) { // Send only if there are some spectators
+		if(receiver)
+			SendPacket(&bs, receiver);
+		else
+			SendGlobalPacket(&bs);		
+	}
 	// No need to kill local worms for dedicated server - they will suicide by themselves
-
+	// TODO: but it's ugly, they do one suicide after another; that should be fixed
+	
 	// perhaps the state is already bad
 	RecheckGame();
 
-	// Re-register the server to reflect the state change in the serverlist
-	RegisterServerUdp();
+	if(firstStart) {
+		// Re-register the server to reflect the state change in the serverlist
+		RegisterServerUdp();
+	}
 }
 
 
@@ -1246,6 +1266,10 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 }
 
 
+bool GameServer::serverAllowsConnectDuringGame() {
+	return tLXOptions->tGameinfo.bAllowConnectDuringGame && tGameInfo.iLives == WRM_UNLIM;
+}
+
 void GameServer::checkVersionCompatibilities(bool dropOut) {
 	// Cycle through clients
 	CServerConnection *cl = cClients;
@@ -1271,6 +1295,11 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	if(serverChoosesWeapons()) {
 		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut, makeMsg))
 			return false;	
+	}
+	
+	if(serverAllowsConnectDuringGame()) {
+		if(!forceMinVersion(cl, OLXBetaVersion(8), "connecting during game is allowed", dropOut, makeMsg))
+			return false;
 	}
 	
 	return true;
@@ -1658,12 +1687,11 @@ void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
 	CWorm *w = cWorms;
 	for (int i = 0; i < MAX_WORMS; i++, w++) {
 		if(w->isUsed()) {
-			for(int wp = 0; wp < 5; wp++)
-				w->getWeapon(wp)->Weapon = worm->getWeapon(wp)->Weapon;
+			w->CloneWeaponsFrom(worm);
 		}
 	}
 
-	sendWeapons();
+	SendWeapons();
 }
 
 

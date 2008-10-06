@@ -616,6 +616,10 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 	return !cClient->serverChoosesWeapons() || (this->isHostWorm() && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
 }
 
+void CWorm::CloneWeaponsFrom(CWorm* w) {
+	for(int wp = 0; wp < 5; wp++)
+		this->getWeapon(wp)->Weapon = w->getWeapon(wp)->Weapon;
+}
 
 ///////////////////
 // Draw/Process the weapon selection screen

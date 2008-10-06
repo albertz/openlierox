@@ -64,6 +64,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 
 ///////////////////
 // (Re)Spawn a worm
+// TODO: what is the sense of this? it does the respawning but sends it only to one client
 void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl)
 {
 	if (bGameOver || Worm->isSpectating())
@@ -73,7 +74,6 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl)
 
 	// Send a spawn packet to everyone
 	CBytestream bs;
-	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt( (int)pos.x, 2);
@@ -100,6 +100,8 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 		{
 			if(!w->isUsed())
 				continue;
+			if(!w->getWeaponsReady())
+				continue;
 			if(!w->getAlive() && w->getLives() != WRM_OUT)
 				TeamsAlive[w->getTeam()] = true;
 		};
@@ -123,6 +125,8 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 				{
 					if( !w->isUsed() || w->getLives() == WRM_OUT )
 						continue;
+					if(!w->getWeaponsReady())
+						continue;
 					if( w->getAlive() )
 						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() );
 					else
@@ -144,6 +148,8 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 	for(i=0;i<MAX_WORMS;i++,w++) 
 	{
 		if(!w->isUsed())
+			continue;
+		if(!w->getWeaponsReady())
 			continue;
 		if(!w->getAlive() && w->getLives() != WRM_OUT)
 		{

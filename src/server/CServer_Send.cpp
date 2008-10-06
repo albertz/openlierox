@@ -60,6 +60,75 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	}
 }
 
+void GameServer::SendClientReady(CServerConnection* receiver, CServerConnection* cl) {
+	// Let everyone know this client is ready to play
+	CBytestream bytes;
+	if (cl->getNumWorms() <= 2)  {
+		bytes.writeByte(S2C_CLREADY);
+		bytes.writeByte(cl->getNumWorms());
+		for (int i = 0;i < cl->getNumWorms();i++) {
+			// Send the weapon info here (also contains id)
+			cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
+		}
+		
+		if(receiver)
+			SendPacket(&bytes, receiver);
+		else
+			SendGlobalPacket(&bytes);
+
+		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
+		// Otherwise, 0.56b would not parse the packet correctly
+	} else {
+		int written = 0;
+		int id = 0;
+		while (written < cl->getNumWorms())  {
+			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
+				bytes.writeByte(S2C_CLREADY);
+				bytes.writeByte(1);
+				cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
+				if(receiver)
+					SendPacket(&bytes, receiver);
+				else
+					SendGlobalPacket(&bytes);
+				bytes.Clear();
+				written++;
+			}
+			id++;
+		}
+	}
+}
+
+void GameServer::SendPrepareGame(CServerConnection* cl) {
+	
+	CBytestream bs;
+	bs.writeByte(S2C_PREPAREGAME);
+	bs.writeBool(bRandomMap);
+	if(!bRandomMap)
+		bs.writeString(sMapFilename);
+	
+	// Game info
+	bs.writeInt(iGameType,1);
+	bs.writeInt16(iLives);
+	bs.writeInt16(iMaxKills);
+	bs.writeInt16((int)fTimeLimit);
+	bs.writeInt16(iLoadingTimes);
+	bs.writeBool(bBonusesOn);
+	bs.writeBool(bShowBonusName);
+	if(iGameType == GMT_TAG)
+		bs.writeInt16(iTagLimit);
+	bs.writeString(tGameInfo.sModDir);
+	
+	cWeaponRestrictions.sendList(&bs, cGameScript.get());
+	
+	if( cl->getClientVersion() >= OLXBetaVersion(7) )
+	{
+		bs.writeFloat( tGameInfo.fGameSpeed );
+		bs.writeBool( serverChoosesWeapons() );
+	}
+
+	SendPacket( &bs, cl );	
+}
+
 
 ///////////////////
 // Send all the clients a string of text
@@ -291,18 +360,23 @@ bool GameServer::SendUpdate()
 	return true;
 }
 
-void GameServer::sendWeapons() {
+void GameServer::SendWeapons(CServerConnection* cl) {
 	CBytestream bs;
 	
 	CWorm* w = cWorms;
 	for(int i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
+		if(!w->getWeaponsReady())
+			continue;
 		bs.writeByte(S2C_WORMWEAPONINFO);
 		w->writeWeapons(&bs);
 	}
 	
-	SendGlobalPacket(&bs);
+	if(cl)
+		SendPacket(&bs, cl);
+	else
+		SendGlobalPacket(&bs);
 }
 
 
@@ -358,9 +432,40 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	return fCurUploadRate < fMaxRate;
 }
 
+
+static void SendUpdateLobbyGame(CServerConnection *cl, game_lobby_t* gl, GameServer* gs) {
+	CBytestream bs;
+	bs.writeByte(S2C_UPDATELOBBYGAME);
+	bs.writeByte(MAX(gs->getMaxWorms(),gs->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs.writeString(gl->szMapFile);
+	bs.writeString(gl->szModName);
+	bs.writeString(gl->szModDir);
+	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
+	if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
+		bs.writeByte(GMT_TEAMDEATH);
+	else if(gl->nGameMode == GMT_CTF)
+		bs.writeByte(GMT_DEATHMATCH);
+	else
+		bs.writeByte(gl->nGameMode);
+	bs.writeInt16(gl->nLives);
+	bs.writeInt16(gl->nMaxKills);
+	bs.writeInt16(gl->nLoadingTime);
+	bs.writeByte(gl->bBonuses);
+	
+	// since Beta7
+	if( cl->getClientVersion() >= OLXBetaVersion(7) )
+	{
+		bs.writeFloat(gl->fGameSpeed);
+		bs.writeBool(gl->bForceRandomWeapons);
+		bs.writeBool(gl->bSameWeaponsAsHostWorm);
+	}
+	
+	gs->SendPacket(&bs, cl);	
+}
+
 ///////////////////
 // Send an update of the game details in the lobby
-void GameServer::UpdateGameLobby(void)
+void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
 	game_lobby_t *gl = &tGameLobby;
 
@@ -378,49 +483,23 @@ void GameServer::UpdateGameLobby(void)
 	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
 	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 	
-	// TODO: move this code out here
+	if(cl) {
+		SendUpdateLobbyGame(cl, gl, this);
 
-	CServerConnection *cl = cClients;
-
-	for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
-		if(cl->getStatus() != NET_CONNECTED)
-			continue;
-
-		CBytestream bs;
-		bs.writeByte(S2C_UPDATELOBBYGAME);
-		bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
-		bs.writeString(gl->szMapFile);
-	    bs.writeString(gl->szModName);
-	    bs.writeString(gl->szModDir);
-		// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
-		if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
-			bs.writeByte(GMT_TEAMDEATH);
-		else if(gl->nGameMode == GMT_CTF)
-			bs.writeByte(GMT_DEATHMATCH);
-		else
-			bs.writeByte(gl->nGameMode);
-		bs.writeInt16(gl->nLives);
-		bs.writeInt16(gl->nMaxKills);
-		bs.writeInt16(gl->nLoadingTime);
-	    bs.writeByte(gl->bBonuses);
-		
-		// since Beta7
-		if( cl->getClientVersion() >= OLXBetaVersion(7) )
-		{
-			bs.writeFloat(gl->fGameSpeed);
-			bs.writeBool(gl->bForceRandomWeapons);
-			bs.writeBool(gl->bSameWeaponsAsHostWorm);
+	} else {
+		cl = cClients;
+		for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
+			if(cl->getStatus() != NET_CONNECTED)
+				continue;
+			SendUpdateLobbyGame(cl, gl, this);
 		}
-
-		SendPacket(&bs, cl);
 	}
-
 }
 
 
 ///////////////////
 // Send updates for all the worm lobby states
-void GameServer::SendWormLobbyUpdate(void)
+void GameServer::SendWormLobbyUpdate(CServerConnection* receiver)
 {
     CBytestream bytestr;
     short c,i;
@@ -460,7 +539,10 @@ void GameServer::SendWormLobbyUpdate(void)
 		}
     }
 
-	SendGlobalPacket(&bytestr);
+	if(receiver)
+		SendPacket(&bytestr, receiver);
+	else
+		SendGlobalPacket(&bytestr);
 }
 
 

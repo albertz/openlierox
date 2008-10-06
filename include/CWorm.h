@@ -407,7 +407,7 @@ public:
 	void		SelectWeapons(SDL_Surface * bmpDest, CViewport *v);
 	void		InitInputSystem();
 	void		StopInputSystem();
-
+	void		CloneWeaponsFrom(CWorm* w);
 
 	//
 	// Graphics

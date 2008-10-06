@@ -171,9 +171,9 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 ///////////////////
 // Parse a 'im ready' packet
 void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
-	if ( iState != SVS_GAME )
+	if ( iState != SVS_GAME && !serverAllowsConnectDuringGame() )
 	{
-		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
+		printf("GameServer::ParseImReady: Not waiting for ready, packet is being ignored.\n");
 
 		// Skip to get the correct position in the stream
 		int num = bs->readByte();
@@ -201,9 +201,8 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 			cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++)
 				cWorms[id].getWeapon(j)->Enabled =
-					cWeaponRestrictions.isEnabled(
-						cWorms[id].getWeapon(j)->Weapon->Name) ||
-						cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
+					cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name) ||
+					cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}
@@ -213,37 +212,13 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 	// Set this client to 'ready'
 	cl->setGameReady(true);
 
-	// Let everyone know this client is ready to play
-	CBytestream bytes;
-	if (cl->getNumWorms() <= 2)  {
-		bytes.writeByte(S2C_CLREADY);
-		bytes.writeByte(cl->getNumWorms());
-		for (i = 0;i < cl->getNumWorms();i++) {
-			// Send the weapon info here (also contains id)
-			cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
-		}
-
-		SendGlobalPacket(&bytes);
-		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
-		// Otherwise, 0.56b would not parse the packet correctly
-	} else {
-		int written = 0;
-		int id = 0;
-		while (written < cl->getNumWorms())  {
-			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
-				bytes.writeByte(S2C_CLREADY);
-				bytes.writeByte(1);
-				cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
-				SendGlobalPacket(&bytes);
-				bytes.Clear();
-				written++;
-			}
-			id++;
-		}
-	}
-
-	// Check if all the clients are ready
-	CheckReadyClient();
+	SendClientReady(NULL, cl);
+	
+	if(serverAllowsConnectDuringGame())
+		BeginMatch(cl);
+	else
+		// Check if all the clients are ready
+		CheckReadyClient();
 }
 
 
@@ -660,7 +635,7 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// If were in the game, deny challenges
-	if ( iState != SVS_LOBBY ) {
+	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
 		bs.Clear();
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
@@ -736,7 +711,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if ( iState != SVS_LOBBY )  {
+	if ( !serverAllowsConnectDuringGame() && iState != SVS_LOBBY )  {
 //	if (iState == SVS_PLAYING) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
@@ -1196,13 +1171,18 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// just inform everybody in case the client is not compatible
 	checkVersionCompatibility(newcl, false);
 
-	// Tell the client the game lobby details
-	// Note: This sends a packet to ALL clients, not just the new client
-	// TODO: if connecting during game, update game lobby only for new client
-	UpdateGameLobby();
-	if (tGameInfo.iGameType != GME_LOCAL)
-		SendWormLobbyUpdate();
+	if( iState == SVS_LOBBY )
+		UpdateGameLobby(); // tell everybody about game lobby details
+	else
+		UpdateGameLobby(newcl); // send him the game lobby details
 
+	if (tGameInfo.iGameType != GME_LOCAL) {
+		if( iState == SVS_LOBBY )
+			SendWormLobbyUpdate(); // to everbody
+		else
+			SendWormLobbyUpdate(newcl); // only to new client
+	}
+	
 	// Update players listbox
 	DeprecatedGUI::bHost_Update = true;
 
@@ -1213,7 +1193,89 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	newcl->setConnectTime(tLX->fCurTime);
 	
 	newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
-	// If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
+	// WARNING/HINT/TODO: If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
+		
+	
+	// handling for connect during game
+	if( iState != SVS_LOBBY ) {
+		if(!checkVersionCompatibility(newcl, true, false))
+			return; // client is not compatible, so it was dropped out already
+		
+		newcl->getShootList()->Clear();
+		newcl->setGameReady(false);
+		newcl->getUdpFileDownloader()->allowFileRequest(false);
+				
+		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
+		// teams they are on
+		if( tGameInfo.iGameType == GME_HOST ) {
+			if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP ) {
+				
+				CWorm *w = cWorms;
+				CBytestream b;
+				
+				for(int i=0; i<MAX_WORMS; i++, w++ ) {
+					if( !w->isUsed() )
+						continue;
+					
+					// TODO: move that out here
+					// Write out the info
+					b.writeByte(S2C_WORMINFO);
+					b.writeInt(w->getID(),1);
+					w->writeInfo(&b);
+				}
+				
+				SendPacket(&b, newcl);
+			}
+		}
+
+		// Set some info on the worms
+		for(int i = 0; i < newcl->getNumWorms(); i++) {
+			newcl->getWorm(i)->setLives(iLives);
+			newcl->getWorm(i)->setKills(0);
+			newcl->getWorm(i)->setGameScript(cGameScript.get());
+			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
+			newcl->getWorm(i)->setLoadingTime( (float)iLoadingTimes / 100.0f );
+			newcl->getWorm(i)->setKillsInRow(0);
+			newcl->getWorm(i)->setDeathsInRow(0);
+		}
+		
+		SendPrepareGame(newcl);
+		
+		// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
+		
+		// inform new client about other ready clients
+		CServerConnection *cl = cClients;
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			// Client not connected or no worms
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+				continue;
+
+			if(cl->getGameReady()) {
+				SendClientReady(newcl, cl);
+			}
+		}
+		
+		// initial server side weapon handling
+		if(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+			if(cClient->getWorm(0)->getWeaponsReady()) {
+				for(int i=0;i<newcl->getNumWorms();i++) {
+					newcl->getWorm(i)->CloneWeaponsFrom(cClient->getWorm(0));
+					newcl->getWorm(i)->setWeaponsReady(true);
+				}
+			}
+			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
+		}
+		else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+			for(int i=0;i<newcl->getNumWorms();i++) {
+				newcl->getWorm(i)->GetRandomWeapons();
+				newcl->getWorm(i)->setWeaponsReady(true);
+			}
+		}
+
+		// send the client all already selected weapons of the other worms
+		SendWeapons(newcl);
+
+	}
 }
 
 

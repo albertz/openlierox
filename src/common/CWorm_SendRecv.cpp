@@ -622,7 +622,8 @@ void CWorm::readWeapons(CBytestream *bs)
 				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
 				tWeapons[i].Enabled = false;
 			}
-		}
+		} else
+			printf("ERROR in readWeapons: cGameScript == NULL\n");
 	}
 
 	// Reset the weapons
