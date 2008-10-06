@@ -559,17 +559,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         y = 15;
 
 		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
-
-        tGameInfo.sMapFile = gl->szMapFile;
-		tGameInfo.sMapName = gl->szDecodedMapName;
-        tGameInfo.sModName = gl->szModName;
-        tGameInfo.sModDir = gl->szModDir;
-		tGameInfo.bBonusesOn = gl->bBonuses;
-		tGameInfo.iGameMode = gl->nGameMode;
-		tGameInfo.iKillLimit = gl->nMaxKills;
-		tGameInfo.iLives = gl->nLives;
-		tGameInfo.iLoadingTimes = gl->nLoadingTime;
-		tGameInfo.fGameSpeed = gl->fGameSpeed;
 		
 		const int lineheight = 18;
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details"); y += lineheight;

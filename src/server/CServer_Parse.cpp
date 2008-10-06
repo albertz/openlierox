@@ -1230,6 +1230,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 		// Set some info on the worms
 		for(int i = 0; i < newcl->getNumWorms(); i++) {
+			if(newcl->getWorm(i)->isPrepared()) {
+				cout << "WARNING: connectduringgame: worm " << newcl->getWorm(i)->getID() << " was already prepared! ";
+				if(!newcl->getWorm(i)->isUsed()) cout << "AND it is even not used!";
+				cout << endl;
+				newcl->getWorm(i)->Unprepare();
+			}
+			
 			newcl->getWorm(i)->setLives(iLives);
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
@@ -1237,6 +1244,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getWorm(i)->setLoadingTime( (float)iLoadingTimes / 100.0f );
 			newcl->getWorm(i)->setKillsInRow(0);
 			newcl->getWorm(i)->setDeathsInRow(0);
+			
+			// give some data about our worms to other clients
+			CBytestream bs;
+			newcl->getWorm(i)->writeScore(&bs);
+			SendGlobalPacket(&bs);
 		}
 		
 		SendPrepareGame(newcl);

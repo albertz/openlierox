@@ -526,7 +526,7 @@ int GameServer::StartGame()
 void GameServer::BeginMatch(CServerConnection* receiver)
 {
 	cout << "Server: BeginMatch";
-	if(receiver) cout << "for " << receiver->debugName();
+	if(receiver) cout << " for " << receiver->debugName();
 	cout << endl;
 
 	bool firstStart = false;
@@ -568,7 +568,13 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			if(cl->getGameReady()) {				
 				// spawn all worms for the new client
 				for(int i = 0; i < cl->getNumWorms(); i++) {
-					if(cl->getWorm(i) && cl->getWorm(i)->getAlive()) {
+					if(!cl->getWorm(i)) continue;
+					
+					CBytestream bs;
+					cl->getWorm(i)->writeScore(&bs);
+					SendPacket(&bs, receiver);
+					
+					if(cl->getWorm(i)->getAlive()) {
 						// TODO: move that out here
 						// Send a spawn packet to new client
 						CBytestream bs;
@@ -580,7 +586,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					}
 				}
 			}
-		}		
+		}
 	}
 
 	if(firstStart) {

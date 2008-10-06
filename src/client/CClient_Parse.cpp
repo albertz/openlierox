@@ -1661,6 +1661,16 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
+	tGameInfo.sMapFile = gl->szMapFile;
+	tGameInfo.sMapName = gl->szDecodedMapName;
+	tGameInfo.sModName = gl->szModName;
+	tGameInfo.sModDir = gl->szModDir;
+	tGameInfo.bBonusesOn = gl->bBonuses;
+	tGameInfo.iGameMode = gl->nGameMode;
+	tGameInfo.iKillLimit = gl->nMaxKills;
+	tGameInfo.iLives = gl->nLives;
+	tGameInfo.iLoadingTimes = gl->nLoadingTime;
+	
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 }
@@ -1674,6 +1684,8 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 	gl->fGameSpeed = bs->readFloat();
 	gl->bForceRandomWeapons = bs->readBool();
 	gl->bSameWeaponsAsHostWorm = bs->readBool();
+
+	tGameInfo.fGameSpeed = gl->fGameSpeed;
 };
 
 ///////////////////

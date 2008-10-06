@@ -81,15 +81,26 @@ void CWorm::writeScore(CBytestream *bs)
 
 
 ///////////////////
-// Read my score
-void CWorm::readScore(CBytestream *bs)
-{
+// Read my score (always from cClient)
+void CWorm::readScore(CBytestream *bs) {
+
 	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
-	// TODO: make this better
-	if (tGameInfo.iLives == WRM_UNLIM)
-		iLives = MAX((int)bs->readInt16(),WRM_UNLIM);
-	else
-		iLives = MAX((int)bs->readInt16(),WRM_OUT);
+
+	int lives = (int)bs->readInt16();
+	int gameLives = tGameInfo.iLives;
+	if (gameLives == WRM_UNLIM) {
+		if(lives != WRM_UNLIM) {
+			cout << "WARNING: we have unlimited lives in this game but server gives worm " << iID << " only " << lives << " lives" << endl;
+			iLives = MAX(lives,WRM_UNLIM);
+		}
+	} else {
+		if(lives == WRM_UNLIM)
+			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " unlimited lives" << endl;
+		else if(lives > tGameInfo.iLives)
+			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " even " << lives << " lives" << endl;			
+		iLives = MAX(lives,WRM_OUT);
+	}
+	
 	iKills = MAX(bs->readInt(1), 0);
 }
 

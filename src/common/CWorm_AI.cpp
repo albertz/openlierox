@@ -1234,7 +1234,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 
     // If we're down on health (less than 80%) we should look for a health bonus
     if(iHealth < 80) {
-        printf("we should look for health\n");
+        //printf("we should look for health\n");
         if(AI_FindHealth())
             return;
     }
