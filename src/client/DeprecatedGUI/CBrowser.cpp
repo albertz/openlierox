@@ -839,7 +839,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 			// If the word is longer than the width, do a hard break
 			if (TextW(word, fmt) > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
 				int w = 0;
-				std::string::iterator wit = word.begin();
+				std::string::const_iterator wit = word.begin();
 				size_t last_size = 0;
 
 				// Find out where to do the hard break
@@ -849,9 +849,9 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 					// Break
 					if (w > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
-						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(word.begin(), wit - last_size));
+						RenderText(bmpDest, fmt, curX, curY, maxX, std::string((std::string::const_iterator)word.begin(), wit - last_size));
 						EndLine();
-						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, word.end()));
+						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, (std::string::const_iterator)word.end()));
 						return; // The text has already been drawn, just quit
 					}
 
