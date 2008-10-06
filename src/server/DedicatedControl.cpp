@@ -144,6 +144,7 @@ bool DedicatedControl::Init() {
 			( tLXOptions->tGameinfo.fGameSpeed, "fGameSpeed" )
 			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
 			( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
+			( tLXOptions->tGameinfo.bAllowConnectDuringGame, "bAllowConnectDuringGame" )
 			;
 	
 	dedicatedControlInstance = new DedicatedControl();
