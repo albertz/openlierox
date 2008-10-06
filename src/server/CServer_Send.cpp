@@ -269,8 +269,8 @@ bool GameServer::SendUpdate()
 
 			if(!cl->isLocalClient()) {
 				// check our server bandwidth
-				static Rate<100,5000,int> updateRate;
-				static Rate<100,5000,int> updateRateAbs;
+				static Rate<100,5000> updateRate;
+				static Rate<100,5000> updateRateAbs;
 				updateRateAbs.addData(tLX->fCurTime, 1);
 				if(!checkUploadBandwidth(GetUpload(0.1f) + uploadAmount)) {
 					// we have gone over our own bandwidth for non-local clients				
@@ -286,8 +286,7 @@ bool GameServer::SendUpdate()
 						lastMessageTime = tLX->fCurTime;
 					}
 					continue;
-				} else
-					updateRate.addData(tLX->fCurTime, -1);
+				}
 			}
 
 			CBytestream update_packets;  // Contains all the update packets except the one from this client
