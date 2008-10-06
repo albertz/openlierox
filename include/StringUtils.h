@@ -136,7 +136,6 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 void			StripQuotes(std::string& str);
 std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
-void			xmlEntities(std::string& text);
 size_t			stringcasefind(const std::string& text, const std::string& search_for);
 size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" and spaces at line beginning

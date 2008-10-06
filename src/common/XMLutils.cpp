@@ -155,3 +155,21 @@ std::string xmlGetBaseURL(xmlNodePtr node)
 			}
 	return "";
 }
+
+/////////////////
+// Replaces all the escape characters with html entities
+void xmlEntityText(std::string& text)
+{
+	replace(text,"\"","&quot;",text);  // "
+	replace(text,"'", "&apos;",text);  // '
+	replace(text,"&", "&amp;", text);  // &
+	replace(text,"<", "&lt;",  text);  // <
+	replace(text,">", "&gt;",  text);  // >
+}
+
+std::string xmlEntities(const std::string& text)
+{
+	std::string res = text;
+	xmlEntityText(res);
+	return res;
+}

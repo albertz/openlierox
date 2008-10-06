@@ -31,6 +31,7 @@
 #include "Version.h"
 #include "Timer.h"
 #include "NotifyUser.h"
+#include "XMLutils.h"
 
 
 using namespace std;
@@ -1349,6 +1350,7 @@ void GameServer::ParseTime(NetworkSocket tSocket)
 void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip) {
 
 	std::string Nick = bs->readString();
+	xmlEntityText(Nick);
 
 	// Ignore wants to join in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some

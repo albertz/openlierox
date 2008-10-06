@@ -33,6 +33,7 @@
 #include "AuxLib.h"
 #include "Networking.h"
 #include "Timer.h"
+#include "XMLutils.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -1501,10 +1502,10 @@ void CClient::GetLogData(std::string& data)
 	modfile = tGameInfo.sModDir;
 	level = cMap->getName();
 	mod = cGameScript.get()->GetHeader()->ModName;
-	xmlEntities(levelfile);
-	xmlEntities(modfile);
-	xmlEntities(level);
-	xmlEntities(mod);
+	xmlEntityText(levelfile);
+	xmlEntityText(modfile);
+	xmlEntityText(level);
+	xmlEntityText(mod);
 
 	// Save the game info
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
@@ -1536,11 +1537,11 @@ void CClient::GetLogData(std::string& data)
 
 		// Replace the entities
 		player = tGameLog->tWorms[i].sName;
-		xmlEntities(player);
+		xmlEntityText(player);
 
 		// Replace the entities
 		skin = tGameLog->tWorms[i].sSkin;
-		xmlEntities(skin);
+		xmlEntityText(skin);
 
 		// Write the info
 		data += "<player name=\"" + player + "\" " +

@@ -26,3 +26,5 @@ bool xmlGetBool(xmlNodePtr node, const std::string& name, bool def = false);
 std::string xmlNodeText(xmlNodePtr node, const std::string& def);
 inline bool xmlPropExists(xmlNodePtr node, const std::string& prop) { return xmlGetProp(node, (const xmlChar *)prop.c_str()) != NULL; }
 std::string xmlGetBaseURL(xmlNodePtr node);
+std::string	xmlEntities(const std::string& text);
+void xmlEntityText(std::string& text);

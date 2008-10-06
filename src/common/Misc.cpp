@@ -73,19 +73,6 @@ bool MouseInRect(int x, int y, int w, int h)
 
 
 
-/////////////////
-// Replaces all the escape characters with html entities
-void xmlEntities(std::string& text)
-{
-	replace(text,"\"","&quot;",text);  // "
-	replace(text,"'", "&apos;",text);  // '
-	replace(text,"&", "&amp;", text);  // &
-	replace(text,"<", "&lt;",  text);  // <
-	replace(text,">", "&gt;",  text);  // >
-}
-
-
-
 // for GetByteSwapped, declared in EndianSwap.h
 // TODO: remove this from here (or not?)
 unsigned char byteswap_buffer[16];

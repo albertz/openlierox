@@ -37,6 +37,7 @@
 #include "AuxLib.h"
 #include "NotifyUser.h"
 #include "Timer.h"
+#include "XMLutils.h"
 
 
 using namespace std;
@@ -1044,6 +1045,15 @@ void CClientNetEngine::ParseText(CBytestream *bs)
     FILE *f;
 
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
+
+	// Htmlentity nicks in the message
+	CWorm *w = client->getRemoteWorms();
+	if (w)  {
+		for (int i = 0; i < MAX_WORMS; i++, w++)  {
+			if (w->isUsed())
+				replace(buf, w->getName(), xmlEntities(w->getName()), buf);
+		}
+	}
 
 	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->fCurTime);
 
