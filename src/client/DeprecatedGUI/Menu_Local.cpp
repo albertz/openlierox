@@ -762,6 +762,7 @@ enum {
 	gs_GroupTeamScore,
 	gs_EmptyWeaponsOnRespawn,
 	gs_SameWeaponsAsHostWorm,
+	gs_AllowConnectDuringGame,
 	
 	gs_Bonuses,
 	gs_ShowBonusNames,
@@ -870,6 +871,10 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CLabel("Same weapons as", tLX->clNormalLabel),			-1,	        350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("host worm", tLX->clNormalLabel),		-1,	        350,y+5, 0, 0);
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm),	gs_SameWeaponsAsHostWorm, 470,y-3,17,17);
+
+	cGeneralSettings.Add( new CLabel("Allow new players", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("connect during game", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
 
 	y += 30;
 
@@ -1017,6 +1022,15 @@ bool Menu_GameSettings_Frame(void)
 					if( cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0 )
 						cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_SETCHECK, (DWORD)1, 0);
 					break;
+
+				case gs_AllowConnectDuringGame:
+					cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, "", 0); // Only allowed now on unlimited lives
+					break;
+				
+				case gs_Lives:
+					if( ev->iEventMsg == TXT_CHANGE )
+						cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_SETCHECK, (DWORD)0, 0);
+					break;
 			}
 		}
 
@@ -1066,7 +1080,7 @@ void Menu_GameSettings_GrabInfo(void)
 
 
 	// Default to no setting
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = -2;
+	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = WRM_UNLIM;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
 	tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = -1;
 	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
@@ -1086,6 +1100,8 @@ void Menu_GameSettings_GrabInfo(void)
 	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
 		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = atoi(buf);
+	if( tGameInfo.iLives < 0 )
+		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = WRM_UNLIM;
 
 	cGeneralSettings.SendMessage(gs_MaxKills, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
@@ -1113,7 +1129,8 @@ void Menu_GameSettings_GrabInfo(void)
 
 	tLXOptions->tGameinfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-
+	tLXOptions->tGameinfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
