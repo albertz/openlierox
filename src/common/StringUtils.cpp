@@ -796,10 +796,11 @@ std::string HtmlEntityUnpairedBrackets(const std::string &txt)
 		// One character after the < character
 		if (wait_for_close && curpos == wait_for_close_pos + 1)  {
 			// Make sure it's a a-z A-Z letter or a slash
-			if (!((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '/'))
+			if (!((*it >= 'a' && *it <= 'z') || (*it >= 'A' && *it <= 'Z') || *it == '/'))  {
 				unpaired_pos.push_back(wait_for_close_pos);
-			wait_for_close = false;
-			wait_for_close_pos = 0;
+				wait_for_close = false;
+				wait_for_close_pos = 0;
+			}
 		}
 
 		// Closing bracket
