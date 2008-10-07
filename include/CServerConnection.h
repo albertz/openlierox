@@ -19,15 +19,19 @@
 
 // Server representation of CClient
 
-#include "CChannel.h"
+#include <string>
+#include "CBytestream.h"
 #include "CShootList.h"
 #include "Consts.h"
+#include "types.h"
 #include "Version.h"
 #include "FileDownload.h"
 
+class CChannel;
 class CWorm;
 class GameServer;
 class CServerNetEngine;
+
 
 // Client rights on a server
 class ClientRights { public:

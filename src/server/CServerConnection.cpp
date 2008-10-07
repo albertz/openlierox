@@ -29,6 +29,8 @@
 #include "AuxLib.h"
 #include "Networking.h"
 #include "CServerNetEngine.h"
+#include "CChannel.h"
+
 
 #include <iostream>
 

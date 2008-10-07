@@ -12,12 +12,6 @@
 #ifndef __CSERVER_NET_ENGINE_H__
 #define __CSERVER_NET_ENGINE_H__
 
-// Server representation of CClient
-
-#include "CChannel.h"
-#include "CWorm.h"
-#include "CShootList.h"
-
 
 class GameServer;
 class CServerConnection;

@@ -13,12 +13,13 @@
 #ifndef __CCLIENT_NET_ENGINE_H__
 #define __CCLIENT_NET_ENGINE_H__
 
-#include "CBytestream.h"
-#include "Version.h"
-#include "LieroX.h"
+
+#include <string>
+#include "Consts.h"
 
 
 class CClient;
+class CBytestream;
 
 class CClientNetEngine {
 

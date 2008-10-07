@@ -19,7 +19,7 @@
 #ifndef __GUIPRIMITIVES_H__
 #define __GUIPRIMITIVES_H__
 
-#include <SDL.h>
+struct SDL_Surface;
 #include "Color.h"
 
 enum ArrowDirection  {

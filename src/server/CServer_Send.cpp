@@ -25,6 +25,7 @@
 #include "CWorm.h"
 #include "Timer.h"
 #include "Consts.h"
+#include "CChannel.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif

@@ -1,5 +1,24 @@
+/*
+	OpenLieroX
+ 
+	CWorld
+ 
+	code under LGPL
+ 
+ */
+
 #ifndef __WORLD_H__
 #define __WORLD_H__
+
+// TODO: there was no single comment in this file. the file also was completly broken, all includes missing, etc. is this file actually used somewhere?
+
+class CMap;
+class CWorm;
+class CProjectile;
+class CBonus;
+
+// TODO: more are missing here...
+
 
 class CWorld  {
 public:

@@ -19,32 +19,6 @@
 
 // HINT: for AI debug define _AI_DEBUG in your IDE/compiler
 
-enum {	
-		LX_PORT = 23400, 
-		SPAWN_HOLESIZE = 4,
-		MAX_WORMS = 32
-};
-
-static const float LX_ENDWAIT = 9.0f;
-
-
-// Game types
-enum {
-	GMT_DEATHMATCH = 0,
-	GMT_TEAMDEATH,
-	GMT_TAG,
-    GMT_DEMOLITION,
-	GMT_VIP,
-	GMT_CTF,
-	GMT_TEAMCTF
-};
-
-enum AFK_TYPE {
-	AFK_BACK_ONLINE,
-	AFK_TYPING_CHAT,
-	AFK_AWAY
-};
-
 
 const float	D2R(1.745329e-2f); // degrees to radians
 const float	R2D(5.729578e+1f); // radians to degrees
@@ -60,6 +34,8 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "CInput.h"
 #include "types.h"
 #include "IpToCountryDB.h"
+#include "Consts.h"
+
 
 // Screenshot structure
 class screenshot_t { public:
