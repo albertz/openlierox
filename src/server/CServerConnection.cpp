@@ -242,6 +242,11 @@ void CServerConnection::Shutdown(void)
 	// Shooting list
 	cShootList.Shutdown();
 
+	// Net engine
+	if (cNetEngine)
+		delete cNetEngine;
+	cNetEngine = NULL;
+
 }
 
 void CServerConnection::setClientVersion(const Version& v)
