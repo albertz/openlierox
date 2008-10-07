@@ -73,7 +73,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 
 	else if(cmd == "lx::timeis")
 		ParseTimeIs(bs);
-	
+
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
 		// If we are already connected, ignore this
@@ -182,7 +182,7 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	GetRemoteNetAddr(client->tSocket, addr);
 	SetRemoteNetAddr(client->tSocket, addr);
 	bytestr.Send(client->tSocket);
-	
+
 	client->setNetEngineFromServerVersion(); // *this may be deleted here! so it's the last command
 }
 
@@ -218,7 +218,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setTagIT(false);
 		client->cRemoteWorms[i].setTagTime(0);
 	}
-	
+
 	// Get the id's
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
@@ -290,7 +290,7 @@ void CClientNetEngine::ParseTimeIs(CBytestream* bs)
 	float time = bs->readFloat();
 	if (time > client->fServertime)
 		client->fServertime = time;
-	
+
 	// This is the response of the lx::time packet, which is sent instead of the lx::ping.
 	// Therefore we should also handle this as a normal response to a ping.
 	ParsePong();
@@ -394,18 +394,18 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_CHATCMDCOMPLSOL:
 				ParseChatCommandCompletionSolution(bs);
 				break;
-			
+
 			// chat command completion list
 			case S2C_CHATCMDCOMPLLST:
 				ParseChatCommandCompletionList(bs);
 				break;
-			
+
 
 			// AFK message
 			case S2C_AFK:
 				ParseAFK(bs);
 				break;
-				
+
 			// Worm score
 			case S2C_SCOREUPDATE:
 				ParseScoreUpdate(bs);
@@ -498,7 +498,13 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			default:
 #ifndef FUZZY_ERROR_TESTING
 				printf("cl: Unknown packet\n");
-#endif
+#ifdef DEBUG
+				printf("Bytestream dump:\n\n");
+				bs->Dump();
+				printf("\nDone dumping bytestream\n");
+#endif //DEBUG
+
+#endif //FUZZY_ERROR_TESTING
 				return;
 
 		}
@@ -511,7 +517,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	printf("Got ParsePrepareGame\n");
-	
+
 	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
 		ResetQuitEngineFlag();
@@ -770,7 +776,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 
-	
+
 	// (If this is a local game?), we need to reload the worm graphics
 	// We do this again because we've only just found out what type of game it is
     // Team games require changing worm colours to match the team colour
@@ -796,12 +802,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			num_worms++;
 		}
 	}
-	
+
 
 	// Initialize the worms weapon selection menu & other stuff
 	for(i=0;i<client->iNumWorms;i++) {
 		// we already prepared all the worms (cRemoteWorms) above
-		
+
 		if (!client->bWaitingForMod)
 			client->cLocalWorms[i]->InitWeaponSelection();
 	}
@@ -885,10 +891,10 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	}
 
 	if (!client->cMap) {
-		printf("CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)\n");	
+		printf("CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)\n");
 		return;
 	}
-	
+
 	// Is the spawnpoint in the map?
 	if (x > (int)client->cMap->GetWidth() || x < 0)  {
 		printf("CClientNetEngine::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
@@ -1126,21 +1132,21 @@ static void setChatText(CClient* client, const std::string& txt) {
 void CClientNetEngineBeta7::ParseChatCommandCompletionSolution(CBytestream* bs) {
 	std::string startStr = bs->readString();
 	std::string solution = bs->readString();
-	
+
 	std::string chatCmd = getChatText(client);
-	
+
 	if(strSeemsLikeChatCommand(chatCmd))
 		chatCmd = chatCmd.substr(1);
 	else
 		return;
-	
+
 	if(stringcaseequal(startStr, chatCmd))
 		setChatText(client, "/" + solution);
 }
 
 void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 	std::string startStr = bs->readString();
-	
+
 	std::list<std::string> possibilities;
 	uint n = bs->readInt(4);
 	if (n > 32)
@@ -1148,17 +1154,17 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 
 	for(uint i = 0; i < n && !bs->isPosAtEnd(); i++)
 		possibilities.push_back(bs->readString());
-	
+
 	std::string chatCmd = getChatText(client);
-	
+
 	if(strSeemsLikeChatCommand(chatCmd))
 		chatCmd = chatCmd.substr(1);
 	else
 		return;
-	
+
 	if(!stringcaseequal(startStr, chatCmd))
 		return;
-	
+
 	std::string posStr;
 	for(std::list<std::string>::iterator it = possibilities.begin(); it != possibilities.end(); ++it) {
 		if(it != possibilities.begin()) posStr += " ";
@@ -1184,9 +1190,9 @@ void CClientNetEngineBeta7::ParseAFK(CBytestream *bs)
 
 	if( ! client->cRemoteWorms[id].isUsed() )
 		return;
-		
+
 	client->cRemoteWorms[id].setAFK(afkType, message);
-	
+
 }
 
 
@@ -1650,7 +1656,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	gl->nMaxKills = bs->readInt16();
 	gl->nLoadingTime = bs->readInt16();
     gl->bBonuses = bs->readBool();
-	
+
 	gl->fGameSpeed = 1.0f;
 	gl->bForceRandomWeapons = false;
 	gl->bSameWeaponsAsHostWorm = false;
@@ -1688,7 +1694,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	tGameInfo.iKillLimit = gl->nMaxKills;
 	tGameInfo.iLives = gl->nLives;
 	tGameInfo.iLoadingTimes = gl->nLoadingTime;
-	
+
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 }
@@ -1698,7 +1704,7 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 	CClientNetEngine::ParseUpdateLobbyGame(bs);
 
 	game_lobby_t    *gl = &client->tGameLobby;
-	
+
 	gl->fGameSpeed = bs->readFloat();
 	gl->bForceRandomWeapons = bs->readBool();
 	gl->bSameWeaponsAsHostWorm = bs->readBool();
@@ -1769,7 +1775,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			}
 
 			// Teamkill
-			else if (client->cRemoteWorms[client->iLastKiller].getTeam() == 
+			else if (client->cRemoteWorms[client->iLastKiller].getTeam() ==
 						client->cRemoteWorms[client->iLastVictim].getTeam())  {
 				l_kill->iTeamKills++;
 				l_vict->iTeamDeaths++;
@@ -1809,9 +1815,9 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		client->bInServer = false;
 		fclose(f);
 	}
-	
+
 	NotifyUserOnEvent();
-	
+
 }
 
 
@@ -1935,7 +1941,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	}
 
 	client->ShutdownLog();
-	
+
 }
 
 
@@ -1971,7 +1977,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 		client->bInServer = false;
 		fclose(f);
 	}
-	
+
 }
 
 // Server sent us some file
@@ -1994,7 +2000,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			};
 			fwrite( client->getUdpFileDownloader()->getData().c_str(), 1, client->getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
-			
+
 			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
 					IsFileAvailable( "levels/" + client->tGameLobby.szMapFile ) )
 			{
