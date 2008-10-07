@@ -204,9 +204,6 @@ startpoint:
 		return -1;
 	}
 
-	if (!InitializeCursors())
-		return -1;
-
 	tLX->fCurTime = GetMilliSeconds();
 
 	if( tLXOptions->bNewSkinnedGUI )
@@ -370,6 +367,10 @@ startpoint:
 	}
 
 	printf("Good Bye and enjoy your day...\n");
+
+	// Uninit the crash handler after all other code
+	CrashHandler::uninit();
+
 	return 0;
 }
 
