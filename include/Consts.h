@@ -51,7 +51,7 @@ enum {
 };
 
 enum AFK_TYPE {
-	AFK_BACK_ONLINE,
+	AFK_BACK_ONLINE = 0,
 	AFK_TYPING_CHAT,
 	AFK_AWAY
 };
