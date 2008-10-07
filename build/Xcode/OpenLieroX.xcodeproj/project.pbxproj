@@ -1857,6 +1857,139 @@
 			};
 			name = "Debug with Fuzzy S2C";
 		};
+		232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = i386;
+				GCC_AUTO_VECTORIZATION = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO;
+				GCC_VERSION = 4.2;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = NO;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = NO;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PROFILING_CODE = NO;
+				HEADER_SEARCH_PATHS = (
+					/sw/include,
+					/sw/include/libxml2,
+					../../hawknl/include,
+				);
+				OTHER_CFLAGS = (
+					"-DMACOSX",
+					"-pthread",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				USER_HEADER_SEARCH_PATHS = ../include;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
+		232D5A8B0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = LibZip;
+				ZERO_LINK = YES;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
+		232D5A8C0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = HawkNL;
+				ZERO_LINK = YES;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
+		232D5A8D0E9BD94A00366F81 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = i386;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GENERATE_PROFILING_CODE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../libs/pstreams",
+					/usr/include/libxml2,
+					/Library/Frameworks/SDL.framework/Headers,
+					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL_mixer.framework/Headers,
+					/Library/Frameworks/GD.framework/Headers,
+				);
+				INFOPLIST_FILE = "OpenLieroX-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Release\"";
+				OTHER_CFLAGS = (
+					"-DMACOSX",
+					"-DDEBUG",
+					"-D_AI_DEBUG",
+					"-DFUZZY_ERROR_TESTING",
+					"-DFUZZY_ERROR_TESTING_C2S",
+					"-pthread",
+				);
+				OTHER_LDFLAGS = (
+					"-lz",
+					"-lxml2",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OpenLieroX;
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
 		23ECBE3A0E894D1C007B8D55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2032,6 +2165,7 @@
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				232D59E80E9BCC0200366F81 /* Debug with Fuzzy S2C */,
+				232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				1DEB923708733DC60010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2042,6 +2176,7 @@
 			buildConfigurations = (
 				23ECBE3A0E894D1C007B8D55 /* Debug */,
 				232D59E90E9BCC0200366F81 /* Debug with Fuzzy S2C */,
+				232D5A8B0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				23ECBE3B0E894D1C007B8D55 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2052,6 +2187,7 @@
 			buildConfigurations = (
 				EA430DD40BEFEAA800C6547E /* Debug */,
 				232D59EA0E9BCC0200366F81 /* Debug with Fuzzy S2C */,
+				232D5A8C0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				EA430DD50BEFEAA800C6547E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2062,6 +2198,7 @@
 			buildConfigurations = (
 				EAD99F650C063CAA003BE563 /* Debug */,
 				232D59EB0E9BCC0200366F81 /* Debug with Fuzzy S2C */,
+				232D5A8D0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				EAD99F660C063CAA003BE563 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

@@ -232,6 +232,9 @@ void CClientNetEngine::SendTextInternal(const std::string& sText, const std::str
 // Send a random packet to server (used for debugging)
 void CClientNetEngine::SendRandomPacket()
 {
+	// don't send random packets from the local client to our own server
+	if( tGameInfo.iGameType != GME_JOIN ) return;
+
 	CBytestream bs;
 
 	int random_length = GetRandomInt(50);
