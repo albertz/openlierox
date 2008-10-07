@@ -15,7 +15,7 @@
 
 #include "SkinnedGUI/CMarquee.h"
 #include "LieroX.h"
-#include "debug.h"
+
 #include "XMLutils.h"
 
 

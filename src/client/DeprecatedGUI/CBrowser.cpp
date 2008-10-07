@@ -15,7 +15,7 @@
 
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include <stack>
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

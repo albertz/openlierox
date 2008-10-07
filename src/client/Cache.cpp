@@ -18,7 +18,7 @@
 
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "Sounds.h"
 #include "Cache.h"
 #include "GfxPrimitives.h"

@@ -14,7 +14,7 @@
 // Dark Charlie
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "SkinnedGUI/CProgressbar.h"
 #include "StringUtils.h"

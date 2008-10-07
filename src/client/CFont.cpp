@@ -18,7 +18,7 @@
 
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "Unicode.h"
 #include "MathLib.h"

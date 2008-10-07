@@ -18,7 +18,7 @@
 #include "GfxPrimitives.h"
 #include "CFont.h"
 #include "MathLib.h"
-#include "debug.h"
+
 
 ///////////////////
 // Apply CSS to the font style

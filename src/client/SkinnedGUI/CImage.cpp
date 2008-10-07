@@ -10,7 +10,7 @@
 #if 0
 
 #include "LieroX.h"
-#include "debug.h"
+
 //#include "Menu.h"
 #include "GfxPrimitives.h"
 #include "SkinnedGUI/CImage.h"

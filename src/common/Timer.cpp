@@ -21,7 +21,7 @@
 #include <time.h>
 #include <assert.h>
 #include "Timer.h"
-#include "debug.h"
+
 #include "InputEvents.h"
 
 int		Frames = 0;

@@ -40,7 +40,7 @@
 #include "SkinnedGUI/CTextbox.h"
 #include "SkinnedGUI/CToggleButton.h"
 
-#include "debug.h"
+
 
 
 

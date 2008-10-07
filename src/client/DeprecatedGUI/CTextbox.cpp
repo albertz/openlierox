@@ -18,7 +18,7 @@
 */
 
 #include "LieroX.h"
-#include "debug.h"
+
 
 #include <iostream>
 #include <string>

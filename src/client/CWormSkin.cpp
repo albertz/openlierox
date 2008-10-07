@@ -14,7 +14,7 @@
 // Karel Petranek
 
 #include "CWormSkin.h"
-#include "debug.h"
+
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
 #include "MathLib.h"

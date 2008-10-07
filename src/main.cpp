@@ -11,7 +11,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"

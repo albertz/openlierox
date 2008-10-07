@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "CWorm.h"
 #include "Protocol.h"

@@ -14,7 +14,7 @@
 // Karel Petranek
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "SkinnedGUI/CLine.h"
 #include "GfxPrimitives.h"
 #include "XMLutils.h"

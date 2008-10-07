@@ -19,7 +19,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "StringUtils.h"

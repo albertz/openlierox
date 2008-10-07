@@ -15,7 +15,7 @@
 
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Protocol.h"

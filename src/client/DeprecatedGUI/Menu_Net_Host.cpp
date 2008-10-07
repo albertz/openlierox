@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "DeprecatedGUI/Graphics.h"
 #include "CClient.h"
 #include "CServer.h"

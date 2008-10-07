@@ -15,7 +15,7 @@
 
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "CClient.h"
 #include "CBonus.h"
 #include "DeprecatedGUI/Menu.h"

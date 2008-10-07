@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "AuxLib.h"

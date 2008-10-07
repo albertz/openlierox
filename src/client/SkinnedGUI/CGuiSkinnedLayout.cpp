@@ -16,7 +16,7 @@
 #include "SkinnedGUI/CGuiSkinnedLayout.h"
 #include "SkinnedGUI/CGuiSkin.h"
 #include "LieroX.h"
-#include "debug.h"
+
 #include "Cursor.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"

@@ -16,7 +16,7 @@
 
 #include <assert.h>
 #include "LieroX.h"
-#include "debug.h"
+
 #include "GfxPrimitives.h"
 #include "MathLib.h"
 #include "FindFile.h"

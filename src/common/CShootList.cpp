@@ -17,7 +17,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "CShootList.h"
 #include "CWorm.h"
 #include "Protocol.h"

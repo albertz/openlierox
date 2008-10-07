@@ -22,7 +22,7 @@
 
 #include "Clipboard.h"
 #include "LieroX.h"
-#include "debug.h"
+
 #include "AuxLib.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"

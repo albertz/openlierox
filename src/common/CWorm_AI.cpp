@@ -26,7 +26,7 @@
 #include <set>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "MathLib.h"
 #include "CClient.h"
 #include "CBonus.h"

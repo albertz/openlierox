@@ -18,7 +18,7 @@
 
 #include "LieroX.h"
 #include "CServer.h"
-#include "debug.h"
+
 #include "StringUtils.h"
 #include "CServerConnection.h"
 #include "Protocol.h"

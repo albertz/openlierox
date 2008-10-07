@@ -14,7 +14,7 @@
 // Karel Petranek
 
 #include "Options.h"
-#include "debug.h"
+
 #include "SkinnedGUI/CMinimap.h"
 #include "XMLutils.h"
 

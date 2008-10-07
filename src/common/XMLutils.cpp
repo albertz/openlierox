@@ -14,7 +14,7 @@
 // Karel Petranek
 
 #include "XMLutils.h"
-#include "debug.h"
+
 #include "StringUtils.h"
 
 ///////////////////

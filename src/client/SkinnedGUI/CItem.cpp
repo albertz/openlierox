@@ -19,7 +19,7 @@
 #include "StringUtils.h"
 #include "XMLutils.h"
 #include "FindFile.h"
-#include "debug.h"
+
 
 
 namespace SkinnedGUI {

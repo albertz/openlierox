@@ -14,7 +14,7 @@
 // Dark Charlie
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "GfxPrimitives.h"

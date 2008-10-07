@@ -24,7 +24,7 @@
 
 #include "LieroX.h"
 #include "Options.h"
-#include "debug.h"
+
 #include "MathLib.h"
 #include "GfxPrimitives.h"
 #include "Cache.h"

@@ -25,7 +25,7 @@
 #include <iostream>
 #include "LieroX.h"
 #include "Options.h"
-#include "debug.h"
+
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "EndianSwap.h"

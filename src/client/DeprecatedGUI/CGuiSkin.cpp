@@ -9,7 +9,7 @@
 /////////////////////////////////////////
 
 #include "LieroX.h"
-#include "debug.h"
+
 
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"

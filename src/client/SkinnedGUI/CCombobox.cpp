@@ -18,7 +18,7 @@
 #include <algorithm>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "SkinnedGUI/CCombobox.h"
 #include "SkinnedGUI/CListview.h"
 #include "GuiPrimitives.h"

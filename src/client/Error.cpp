@@ -21,7 +21,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "AuxLib.h"
 #include "Error.h"
 #include "FindFile.h"

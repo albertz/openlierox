@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "CClientNetEngine.h"
 #include "StringUtils.h"
 #include "CClient.h"

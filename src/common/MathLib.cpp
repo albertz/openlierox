@@ -16,7 +16,7 @@
 // Created 20/12/01
 // Jason Boettcher
 
-#include "debug.h"
+
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>

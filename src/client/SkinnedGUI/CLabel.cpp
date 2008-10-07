@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h" // for printf
-#include "debug.h"
+
 #include "SkinnedGUI/CLabel.h"
 #include "XMLutils.h"
 #include "MathLib.h"

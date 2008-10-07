@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "Clipboard.h"
 #include "AuxLib.h"
 #include "console.h"

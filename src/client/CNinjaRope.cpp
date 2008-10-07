@@ -16,7 +16,7 @@
 
 #include <assert.h>
 #include "LieroX.h"
-#include "debug.h"
+
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 #include "CWorm.h"

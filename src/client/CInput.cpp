@@ -20,7 +20,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "AuxLib.h"  // for GetConfig()
 #include "Error.h"
 #include "ConfigHandler.h"

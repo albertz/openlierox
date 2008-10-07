@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "debug.h"
+
 #include "Physics.h"
 
 // TODO: clean up this code!
