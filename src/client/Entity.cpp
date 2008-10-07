@@ -275,8 +275,11 @@ void SimulateEntities(float dt, CMap *map)
 								int x = (int)ent->vPos.x-1;
 								int y = (int)ent->vPos.y-1;
 
-								DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
-								DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
+								// Safety
+								if (ent->bmpSurf) {
+									DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
+									DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
+								}
 
 								ent->setUnused();
 							}

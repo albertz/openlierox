@@ -93,6 +93,11 @@ std::string replacemax(const std::string& text, const std::string& what, const s
 // Replace a string in text, returns result, replaces maximally max occurences
 // returns true, if at least one replace was made
 bool replace(std::string& text, const std::string& what, const std::string& with) {
+	// Make sure there is something to replace
+	if (!what.size())  {
+		return false;
+	}
+
 	bool one_repl = false;
 	size_t pos = 0;
 	while((pos = text.find(what, pos)) != std::string::npos) {

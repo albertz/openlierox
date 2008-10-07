@@ -928,7 +928,7 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 		return;
 
 	if(!Slot->Weapon) {
-		printf("WARNING: trying to shoot with an unitialized weapon!");
+		printf("WARNING: trying to shoot with an unitialized weapon!\n");
 		return;
 	}
 

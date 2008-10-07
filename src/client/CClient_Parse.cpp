@@ -1138,7 +1138,10 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 	
 	std::list<std::string> possibilities;
 	uint n = bs->readInt(4);
-	for(uint i = 0; i < n; i++)
+	if (n > 32)
+		printf("WARNING: ParseChatCompletionList got a too big number of suggestions (%i)\n", n);
+
+	for(uint i = 0; i < n && !bs->isPosAtEnd(); i++)
 		possibilities.push_back(bs->readString());
 	
 	std::string chatCmd = getChatText(client);

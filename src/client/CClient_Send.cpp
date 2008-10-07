@@ -248,8 +248,8 @@ void CClientNetEngine::SendRandomPacket()
 		bs.writeString(commands[GetRandomInt(500) % (sizeof(commands)/sizeof(std::string))]);
 		for (int i=0; i < random_length; i++)
 			bs.writeByte((uchar)GetRandomInt(255));
-		SetRemoteNetAddr(tSocket, client->cNetChan->getAddress());
-		bs.Send(tSocket);
+		SetRemoteNetAddr(client->tSocket, client->cNetChan->getAddress());
+		bs.Send(client->tSocket);
 	}
 }
 #endif
