@@ -613,6 +613,18 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	m_nNumShootings++;
 }
 
+
+bool CShootList::skipSingle(CBytestream *bs)  {
+	return bs->Skip(17);
+}
+bool CShootList::skipMulti(CBytestream *bs)  {
+	bs->Skip(7);
+	byte num = bs->readByte();
+	bs->Skip(10);
+	for (byte i = 0; i < num - 1;i++) skipSmallShot(bs);
+	return bs->isPosAtEnd();
+}
+
 ////////////////
 // Skip the small shot packet
 bool CShootList::skipSmallShot(CBytestream *bs)

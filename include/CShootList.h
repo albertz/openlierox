@@ -17,8 +17,9 @@
 #ifndef __CSHOOTLIST_H__
 #define __CSHOOTLIST_H__
 
-#include "CBytestream.h"
-#include "CWorm.h"
+
+class CBytestream;
+class CWorm;
 
 
 // Shoot Main flags
@@ -116,17 +117,9 @@ private:
 
 public:
 	void		readSingle(CBytestream *bs, int max_weapon_id);
-	static bool skipSingle(CBytestream *bs)  {
-		return bs->Skip(17);
-	}
+	static bool skipSingle(CBytestream *bs);
 	void		readMulti(CBytestream *bs, int max_weapon_id);
-	static bool skipMulti(CBytestream *bs)  {
-		bs->Skip(7);
-		byte num = bs->readByte();
-		bs->Skip(10);
-		for (byte i = 0; i < num - 1;i++) skipSmallShot(bs);
-		return bs->isPosAtEnd();
-	}
+	static bool skipMulti(CBytestream *bs);
 	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 	static bool	skipSmallShot(CBytestream *bs);
 

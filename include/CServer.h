@@ -26,6 +26,8 @@
 #include "HTTP.h"
 #include "Timer.h"
 #include "CBanList.h"
+#include "CWpnRest.h"
+#include "LieroX.h" // for game_lobby_t
 
 class CWorm;
 class CServerConnection;

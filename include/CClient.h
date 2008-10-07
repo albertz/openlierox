@@ -27,15 +27,21 @@
 #include "Version.h"
 #include "FileDownload.h"
 #include "DeprecatedGUI/CGuiLayout.h"
+#include "Frame.h"
+#include "CProjectile.h"
+#include "CWpnRest.h"
+
 
 namespace DeprecatedGUI {
 	class CBrowser;
 	class CListview;
+	class CBar;
 }
 
 class CHttpDownloadManager;
 class CChannel;
 class CClientNetEngine;
+class CBonus;
 
 
 // Chatbox line

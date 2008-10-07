@@ -29,6 +29,7 @@
 #include "CWpnRest.h"
 #include "CClient.h" // for MAX_PLAYERS
 #include "CWormSkin.h"
+#include "CWorm.h"
 
 namespace DeprecatedGUI {
 

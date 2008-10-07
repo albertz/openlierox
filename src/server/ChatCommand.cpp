@@ -18,7 +18,7 @@
 #include "ChatCommand.h"
 #include "Protocol.h"
 #include "CServer.h"
-
+#include "CWorm.h"
 #include "CServerConnection.h"
 #include "DedicatedControl.h"
 #include "CClient.h"
