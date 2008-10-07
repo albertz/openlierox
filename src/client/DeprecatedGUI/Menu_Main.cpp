@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CBrowser.h"
+#include "Sounds.h"
 
 
 namespace DeprecatedGUI {

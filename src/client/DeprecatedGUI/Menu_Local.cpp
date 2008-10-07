@@ -20,7 +20,7 @@
 #include <string>
 
 #include "LieroX.h"
-
+#include "CGameScript.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "CClient.h"
@@ -36,6 +36,7 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextButton.h"
+#include "Sounds.h"
 
 
 namespace DeprecatedGUI {

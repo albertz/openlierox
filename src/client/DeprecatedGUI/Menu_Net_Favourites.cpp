@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h"
-
+#include "Sounds.h"
 #include "Clipboard.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"

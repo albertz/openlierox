@@ -17,7 +17,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-
+#include "CGameScript.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CWpnRest.h"

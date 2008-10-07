@@ -15,7 +15,7 @@
 
 
 #include "LieroX.h"
-
+#include "CGameScript.h" // for all PRJ_* and PJ_* constants only
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Protocol.h"
@@ -23,6 +23,7 @@
 #include "Entity.h"
 #include "MathLib.h"
 #include "CClient.h"
+
 
 void CProjectile::setUnused() {
 	bUsed = false;

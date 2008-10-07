@@ -26,7 +26,7 @@
 #include <set>
 
 #include "LieroX.h"
-
+#include "CGameScript.h"
 #include "MathLib.h"
 #include "CClient.h"
 #include "CBonus.h"
@@ -35,6 +35,7 @@
 #include "CWorm.h"
 #include "AuxLib.h"
 #include "Timer.h"
+#include "Sounds.h"
 
 
 // we need it here for some debugging...

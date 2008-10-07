@@ -24,6 +24,7 @@
 #include "StringUtils.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "Sounds.h"
 
 
 namespace DeprecatedGUI {

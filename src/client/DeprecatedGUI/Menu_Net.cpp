@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "Sounds.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CProgressbar.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "AuxLib.h"
+
 
 using namespace std;
 

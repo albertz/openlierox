@@ -15,7 +15,7 @@
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CWidget.h"
 #include "DeprecatedGUI/CWidgetList.h"
-
+#include "Sounds.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
 #include "StringUtils.h"

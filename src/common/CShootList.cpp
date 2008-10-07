@@ -17,11 +17,11 @@
 #include <assert.h>
 
 #include "LieroX.h"
-
 #include "CShootList.h"
 #include "CWorm.h"
 #include "Protocol.h"
 #include "MathLib.h"
+#include "CGameScript.h" // for weapon_t
 
 
 ///////////////////

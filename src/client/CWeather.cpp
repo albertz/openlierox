@@ -20,6 +20,7 @@
 #include "CViewport.h"
 #include "CWeather.h"
 #include "MathLib.h"
+#include "CMap.h"
 
 
 ///////////////////

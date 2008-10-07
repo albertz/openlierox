@@ -19,8 +19,10 @@
 
 #include <SDL.h>
 #include "CVec.h"
-#include "CMap.h"
-#include "CViewport.h"
+#include "SmartPointer.h"
+
+class CMap;
+class CViewport;
 
 
 // Weather types

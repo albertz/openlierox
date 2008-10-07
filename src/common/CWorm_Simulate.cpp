@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "Sounds.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "CWorm.h"

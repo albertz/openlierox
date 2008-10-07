@@ -23,6 +23,7 @@
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"
+#include "CGameScript.h"
 
 
 ///////////////////

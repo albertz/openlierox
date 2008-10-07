@@ -30,6 +30,9 @@
 #include "Frame.h"
 #include "CProjectile.h"
 #include "CWpnRest.h"
+#include "Consts.h"
+#include "LieroX.h"
+#include "CViewport.h"
 
 
 namespace DeprecatedGUI {
@@ -42,6 +45,7 @@ class CHttpDownloadManager;
 class CChannel;
 class CClientNetEngine;
 class CBonus;
+class profile_t;
 
 
 // Chatbox line
