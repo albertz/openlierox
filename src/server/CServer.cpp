@@ -22,7 +22,7 @@
 #include <time.h>
 
 #include "LieroX.h"
-
+#include "Cache.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "console.h"

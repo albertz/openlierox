@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CProgressbar.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "AuxLib.h"
+#include "IpToCountryDB.h"
 
 
 using namespace std;

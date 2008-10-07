@@ -17,7 +17,7 @@
 
 #include "LieroX.h"
 #include "CServer.h"
-
+#include "ProfileSystem.h"
 #include "DeprecatedGUI/Menu.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
@@ -34,6 +34,7 @@
 #include "NotifyUser.h"
 #include "XMLutils.h"
 #include "CClientNetEngine.h"
+#include "IpToCountryDB.h"
 
 
 using namespace std;

@@ -13,8 +13,8 @@
 // Created 21/7/02
 // Jason Boettcher
 
+#include <iostream>
 #include "LieroX.h"
-
 #include "Clipboard.h"
 #include "AuxLib.h"
 #include "MathLib.h"
@@ -31,7 +31,7 @@
 #include "Physics.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
-#include <iostream>
+#include "ProfileSystem.h"
 
 
 CClient		*cClient = NULL;

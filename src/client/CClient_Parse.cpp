@@ -20,7 +20,7 @@
 #include <time.h>
 
 #include "LieroX.h"
-
+#include "Cache.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "DeprecatedGUI/Menu.h"
@@ -42,6 +42,7 @@
 #include "CClientNetEngine.h"
 #include "CChannel.h"
 #include "DeprecatedGUI/CBrowser.h"
+#include "ProfileSystem.h"
 
 
 using namespace std;

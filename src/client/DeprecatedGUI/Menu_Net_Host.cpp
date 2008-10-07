@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h"
-
+#include "IpToCountryDB.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -40,6 +40,7 @@
 #include "CClientNetEngine.h"
 #include "CChannel.h"
 #include "CServerConnection.h"
+#include "ProfileSystem.h"
 
 
 /*

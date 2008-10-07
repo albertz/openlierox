@@ -36,6 +36,7 @@
 #include "AuxLib.h"
 #include "Timer.h"
 #include "Sounds.h"
+#include "ProfileSystem.h"
 
 
 // we need it here for some debugging...

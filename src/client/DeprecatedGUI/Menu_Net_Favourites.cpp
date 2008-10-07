@@ -26,6 +26,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "ProfileSystem.h"
 
 
 namespace DeprecatedGUI {

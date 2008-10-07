@@ -27,6 +27,7 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "AuxLib.h"
+#include "ProfileSystem.h"
 
 
 namespace DeprecatedGUI {

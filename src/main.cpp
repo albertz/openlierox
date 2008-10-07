@@ -11,7 +11,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-
+#include "IpToCountryDB.h"
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -34,7 +34,8 @@
 #include "Timer.h"
 #include "Utils.h"
 #include "CChannel.h"
-
+#include "Cache.h"
+#include "ProfileSystem.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"

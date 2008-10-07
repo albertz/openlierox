@@ -45,6 +45,8 @@
 #include "CChannel.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "CServerConnection.h"
+#include "ProfileSystem.h"
+
 
 using namespace std;
 

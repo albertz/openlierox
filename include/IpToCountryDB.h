@@ -28,4 +28,6 @@ public:
 	bool Loaded();
 INTERNDATA_CLASS_END
 
+extern  IpToCountryDB	*tIpToCountryDB;
+
 #endif

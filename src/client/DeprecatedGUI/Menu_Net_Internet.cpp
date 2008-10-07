@@ -31,6 +31,8 @@
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "ProfileSystem.h"
+#include "IpToCountryDB.h"
 
 
 namespace DeprecatedGUI {

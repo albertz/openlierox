@@ -23,6 +23,7 @@
 #include "Entity.h"
 #include "MathLib.h"
 #include "CClient.h"
+#include "ProfileSystem.h"
 
 
 void CProjectile::setUnused() {

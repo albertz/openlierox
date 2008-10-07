@@ -17,7 +17,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
-
+#include "ProfileSystem.h"
 #include "EndianSwap.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"

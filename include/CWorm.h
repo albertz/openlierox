@@ -27,6 +27,7 @@
 #include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
+#include "CWormSkin.h"
 
 
 // TODO: remove this after we changed network

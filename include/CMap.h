@@ -19,12 +19,14 @@
 
 #include <SDL.h>
 #include <string>
+#include <set>
 #include "ReadWriteLock.h"
 #include "SmartPointer.h"
 #include "LieroX.h" // for maprandom_t
+#include "GfxPrimitives.h" // for Rect<>
 
 class CViewport;
-
+class CCache;
 
 
 #define		MAP_VERSION	0
@@ -206,7 +208,7 @@ private:
 	void		UpdateMiniMapRect(int x, int y, int w, int h);
 	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
 
-	friend void CCache::SaveMap(const std::string& file, CMap *map);
+	friend class CCache;
 
 	bool		NewFrom(CMap *map);
 	void		SaveToCache();

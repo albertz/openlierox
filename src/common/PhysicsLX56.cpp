@@ -10,12 +10,8 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "ProfileSystem.h"
 #include "Physics.h"
-
-// TODO: clean up this code!
-
-
 #include "CGameScript.h"
 #include "Frame.h"
 #include "MathLib.h"
@@ -26,6 +22,11 @@
 #include "console.h"
 
 using std::cout; using std::endl;
+
+
+
+// TODO: clean up this code!
+
 
 
 class PhysicsLX56 : public PhysicsEngine {

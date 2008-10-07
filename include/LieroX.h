@@ -28,13 +28,21 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 #include <list>
 #include <string>
-#include "ProfileSystem.h"
 #include "CFont.h"
 #include "CVec.h"
+#include "Consts.h"
 #include "CInput.h"
 #include "types.h"
+
+class profile_t;
+class IpToCountryDB;
+
+/*
+#include "ProfileSystem.h"
 #include "IpToCountryDB.h"
-#include "Consts.h"
+*/
+
+
 
 
 // Screenshot structure
@@ -238,7 +246,6 @@ class game_lobby_t { public:
 
 
 extern	lierox_t		*tLX;
-extern  IpToCountryDB	*tIpToCountryDB;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
 extern  CInput			cTakeScreenshot;

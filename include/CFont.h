@@ -20,9 +20,14 @@
 #ifndef __CFONT_H__
 #define __CFONT_H__
 
+#include <SDL.h>
 #include <vector>
 #include "Unicode.h"
-#include "Cache.h"
+#include "SmartPointer.h"
+#include "Color.h"
+
+class PixelPutAlpha;
+class PixelGet;
 
 
 #define FIRST_CHARACTER 32 // space

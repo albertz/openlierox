@@ -33,7 +33,8 @@
 #include "CWorm.h"
 #include "Entity.h"
 #include "CServer.h"
-
+#include "ProfileSystem.h"
+#include "Cache.h"
 
 
 ////////////////////
