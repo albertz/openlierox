@@ -1715,7 +1715,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		return;
 	// Beta8+
 	svr->tVersion.setByString( bs->readString(64) );
-	svr->bAllowConnectDuringGame = bs->readByte();
+	svr->bAllowConnectDuringGame = bs->readBool();
 }
 
 void Menu_SvrList_UpdateUDPList()
@@ -1780,7 +1780,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		int maxplayers = bs->readByte();
 		int state = bs->readByte();
 		Version version = bs->readString(64);
-		bool allowConnectDuringGame = bs->readByte();
+		bool allowConnectDuringGame = bs->readBool();
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
 		if( Menu_SvrList_FindServerStr(addr) != NULL )
 			if( ! Menu_SvrList_FindServerStr(addr)->bProcessing )
