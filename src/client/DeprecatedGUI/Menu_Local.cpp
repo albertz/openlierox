@@ -1022,15 +1022,6 @@ bool Menu_GameSettings_Frame(void)
 					if( cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0 )
 						cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_SETCHECK, (DWORD)1, 0);
 					break;
-
-				case gs_AllowConnectDuringGame:
-					cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, "", 0); // Only allowed now on unlimited lives
-					break;
-				
-				case gs_Lives:
-					if( ev->iEventMsg == TXT_CHANGE )
-						cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_SETCHECK, (DWORD)0, 0);
-					break;
 			}
 		}
 

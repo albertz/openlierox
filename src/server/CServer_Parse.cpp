@@ -215,7 +215,7 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 
 	SendClientReady(NULL, cl);
 	
-	if(serverAllowsConnectDuringGame())
+	if(iState == SVS_PLAYING && serverAllowsConnectDuringGame())
 		BeginMatch(cl);
 	else
 		// Check if all the clients are ready
@@ -1209,7 +1209,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
 		if( tGameInfo.iGameType == GME_HOST ) {
-			if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP ) {
+			if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP || iGameType == GMT_TEAMCTF ) {
 				
 				CWorm *w = cWorms;
 				CBytestream b;
@@ -1238,13 +1238,18 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				newcl->getWorm(i)->Unprepare();
 			}
 			
-			newcl->getWorm(i)->setLives(iLives);
+			// If the game has limited lives all new worms are spectators
+			if( iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
+				newcl->getWorm(i)->setLives(iLives);
+			else
+				newcl->getWorm(i)->setLives(WRM_OUT);
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
 			newcl->getWorm(i)->setLoadingTime( (float)iLoadingTimes / 100.0f );
 			newcl->getWorm(i)->setKillsInRow(0);
 			newcl->getWorm(i)->setDeathsInRow(0);
+			newcl->getWorm(i)->setWeaponsReady(false);
 			
 			// give some data about our worms to other clients
 			CBytestream bs;
@@ -1254,7 +1259,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		
 		SendPrepareGame(newcl);
 		
-		// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
+		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
 		
 		// inform new client about other ready clients
 		CServerConnection *cl = cClients;
@@ -1278,7 +1283,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
 		}
-		else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+		// If new client is spectating skip weapon selection screen
+		// HINT: remove this if we'll get new clients joining and playing with limited lives games
+		else if(tLXOptions->tGameinfo.bForceRandomWeapons || 
+				( iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
 			for(int i=0;i<newcl->getNumWorms();i++) {
 				newcl->getWorm(i)->GetRandomWeapons();
 				newcl->getWorm(i)->setWeaponsReady(true);
@@ -1402,7 +1410,10 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	bytestr.writeByte(iState);
+	if( serverAllowsConnectDuringGame() && iState != SVS_LOBBY )
+		bytestr.writeByte(SVS_LOBBY); // Advertise as Open, so clients join during game
+	else
+		bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);

@@ -1274,7 +1274,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 
 
 bool GameServer::serverAllowsConnectDuringGame() {
-	return tLXOptions->tGameinfo.bAllowConnectDuringGame && tGameInfo.iLives == WRM_UNLIM;
+	return tLXOptions->tGameinfo.bAllowConnectDuringGame;
 }
 
 void GameServer::checkVersionCompatibilities(bool dropOut) {
