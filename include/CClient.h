@@ -21,48 +21,22 @@
 #include "FastVector.h"
 #include "CWeather.h"
 #include "CChatBox.h"
+#include "Networking.h"
+#include "CBytestream.h"
+#include "CShootList.h"
+#include "Version.h"
+#include "FileDownload.h"
+#include "DeprecatedGUI/CGuiLayout.h"
+
 namespace DeprecatedGUI {
 	class CBrowser;
 	class CListview;
 }
-class CClientNetEngine;
-#include "Networking.h"
-class CChannel;
-#include "CBytestream.h"
-#include "CShootList.h"
-#include "Version.h"
+
 class CHttpDownloadManager;
-#include "FileDownload.h"
-#include "DeprecatedGUI/CGuiLayout.h"
+class CChannel;
+class CClientNetEngine;
 
-
-
-/*
-// TODO: remove this after we changed network
-#include "CChannel.h"
-
-#include "FileDownload.h"
-#include "CGameScript.h"
-#include "CWpnRest.h"
-#include "CChatBox.h"
-#include "CWeather.h"
-#include "CViewport.h"
-#include "Frame.h"
-#include "CBonus.h"
-#include "CShootList.h"
-#include "DeprecatedGUI/CBar.h"
-#include "DeprecatedGUI/CGuiLayout.h"
-#include "DeprecatedGUI/CListview.h"
-#include "DeprecatedGUI/CBrowser.h"
-#include "InputEvents.h"
-#include "FileDownload.h"
-#include "Version.h"
-#include "CProjectile.h"
-#include "FastVector.h"
-#include "CClientNetEngine.h"
-#include "Consts.h"
-
-*/
 
 // Chatbox line
 class chat_line_t { public:
