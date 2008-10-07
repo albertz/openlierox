@@ -17,8 +17,12 @@
 #ifndef __CBONUS_H__
 #define __CBONUS_H__
 
-#include "LieroX.h"
-#include "CGameScript.h"
+struct SDL_Surface;
+class CViewport;
+class CGameScript;
+
+#include "CVec.h"
+
 
 
 #define		MAX_BONUSES		32
@@ -70,8 +74,8 @@ public:
 
 	// variables
 	bool	getUsed(void)		{ return bUsed; }
-	void	setUsed(bool _u)		{ bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime; }
-
+	void	setUsed(bool _u);
+	
 	int		getType(void)		{ return iType; }
 	int		getWeapon(void)		{ return iWeapon; }
 

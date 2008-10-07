@@ -10,6 +10,7 @@
 #ifndef __DEDICATEDCONTROL_H__
 #define __DEDICATEDCONTROL_H__
 
+#include <string>
 class CWorm;
 
 class DedicatedControl {
@@ -29,8 +30,8 @@ public:
 	void WormLeft_Signal(CWorm* w);
 	void WeaponSelections_Signal();
 	void GameStarted_Signal();
-	void ChatMessage_Signal(CWorm* w, std::string message);
-	void PrivateMessage_Signal(CWorm* w, CWorm* to, std::string message);
+	void ChatMessage_Signal(CWorm* w, const std::string& message);
+	void PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message);
 	void WormDied_Signal(CWorm* died, CWorm* killer);
 	
 	void Menu_Frame();

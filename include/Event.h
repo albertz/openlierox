@@ -10,9 +10,8 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
-#include "Utils.h"
 #include "types.h"
-
+#include "Utils.h" // for Ref
 
 struct EventData {
 	EventData(void* own = NULL) : owner(own) {}

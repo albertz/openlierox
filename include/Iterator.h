@@ -10,7 +10,7 @@
 #ifndef __OLX_ITERATOR_H__
 #define __OLX_ITERATOR_H__
 
-#include "Utils.h"
+#include "Utils.h" // for Ref
 
 
 template < typename _Obj >

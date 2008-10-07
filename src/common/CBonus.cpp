@@ -19,6 +19,8 @@
 #include "CBonus.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
+#include "CGameScript.h"
+#include "CViewport.h"
 
 
 ///////////////////
@@ -74,5 +76,9 @@ void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-20, tLX->clPlayerName, sWeapon);
 			break;
 	}
+}
+
+void CBonus::setUsed(bool _u) {
+	bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime;
 }
 

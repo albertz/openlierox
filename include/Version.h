@@ -11,7 +11,7 @@
 #define __VERSION_H__
 
 #include <string>
-#include "StringUtils.h"
+#include "StringUtils.h" // for itoa
 
 #ifndef		LX_VERSION
 #	define		LX_VERSION		"0.57_beta8"

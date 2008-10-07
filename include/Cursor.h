@@ -17,6 +17,8 @@
 #define __CURSOR_H_
 
 #include <string>
+#include <SDL.h>
+#include "SmartPointer.h"
 
 
 // Cursor indexes

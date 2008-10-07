@@ -17,6 +17,8 @@
 #ifndef __CBANLIST_H__
 #define __CBANLIST_H__
 
+#include <string>
+
 
 // Ban List structure
 class banlist_t { public:

@@ -943,7 +943,7 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
-void DedicatedControl::ChatMessage_Signal(CWorm* w,string message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
-void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, string message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
+void DedicatedControl::ChatMessage_Signal(CWorm* w,const string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
+void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 

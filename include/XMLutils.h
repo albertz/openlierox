@@ -13,7 +13,6 @@
 // Created 24/7/08
 // Karel Petranek
 
-#include <SDL.h>
 #include <string>
 #include <libxml/xmlmemory.h>
 #include "Color.h"
