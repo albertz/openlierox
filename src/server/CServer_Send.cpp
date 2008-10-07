@@ -606,7 +606,17 @@ void GameServer::SendRandomPacket()
 	for (int i=0; i < random_length; i++)
 		bs.writeByte((uchar)GetRandomInt(255));
 
-	SendGlobalPacket(&bs);
+	CServerConnection* cl = cClients;
+	for(short c=0; c<MAX_CLIENTS; c++,cl++) {
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+			continue;
+
+		// don't send these random clients to the local client
+		if(cl->isLocalClient())
+			continue;
+		
+		SendPacket(&bs, cl);
+	}
 }
 #endif
 

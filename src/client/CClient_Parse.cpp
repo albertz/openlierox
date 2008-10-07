@@ -496,7 +496,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
                 break;
 
 			default:
-#ifndef FUZZY_ERROR_TESTING
+#if !defined(FUZZY_ERROR_TESTING_S2C)
 				printf("cl: Unknown packet\n");
 #ifdef DEBUG
 				printf("Bytestream dump:\n\n");

@@ -1077,7 +1077,7 @@ void CClient::SendPackets(void)
 	
 	
 	// Randomly send a random packet
-#ifdef FUZZY_ERROR_TESTING
+#if defined(FUZZY_ERROR_TESTING) && defined(FUZZY_ERROR_TESTING_C2S)
 	if (GetRandomInt(50) > 24 && iNetStatus == NET_CONNECTED)
 		cNetEngine->SendRandomPacket();
 #endif

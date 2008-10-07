@@ -164,7 +164,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 				}
 
 			// Really a bad packet
-#ifndef FUZZY_ERROR_TESTING
+#if !defined(FUZZY_ERROR_TESTING_C2S)
 			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 #endif
 		}

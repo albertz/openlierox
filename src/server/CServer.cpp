@@ -812,7 +812,7 @@ void GameServer::SendPackets(void)
 		SendUpdate();
 
 	// Randomly send a random packet :)
-#ifdef FUZZY_ERROR_TESTING
+#if defined(FUZZY_ERROR_TESTING) && defined(FUZZY_ERROR_TESTING_S2C)
 	if (GetRandomInt(50) > 24)
 		SendRandomPacket();
 #endif
