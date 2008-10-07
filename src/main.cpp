@@ -913,12 +913,6 @@ void ShutdownLieroX(void)
 	// Entitites
 	ShutdownEntities();
 
-	// LieroX structure
-	if(tLX) {
-		delete tLX;
-		tLX = NULL;
-	}
-
 	// Console commands
 	Cmd_Free();
 
@@ -927,6 +921,14 @@ void ShutdownLieroX(void)
 
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();
+
+	// LieroX structure
+	// HINT: must be after ShutdownAuxlib else the last events would not get processed and therefore
+	// they would cause leaks
+	if(tLX) {
+		delete tLX;
+		tLX = NULL;
+	}
 
 	// Save and clear options
 	ShutdownOptions();
