@@ -15,12 +15,14 @@
 
 
 #include "LieroX.h"
-
+#include "Options.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "Entity.h"
 #include "MathLib.h"
 #include "FastVector.h"
+#include "CViewport.h"
+#include "CMap.h"
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;

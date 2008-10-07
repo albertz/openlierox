@@ -20,7 +20,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "CViewport.h"
 #include "CMap.h"
 #include "EndianSwap.h"
 #include "MathLib.h"

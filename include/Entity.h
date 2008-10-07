@@ -17,9 +17,11 @@
 #ifndef __ENTITY_H__
 #define __ENTITY_H__
 
-#include "CViewport.h"
-#include "CMap.h"
+#include <SDL.h>
 #include "Event.h"
+
+class CMap;
+class CViewport;
 
 
 #define		MAX_ENTITIES	1024
