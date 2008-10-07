@@ -128,7 +128,7 @@ public:
 	std::string			GetFileName();
 	int					GetState();
 	size_t				GetID();
-	byte				GetProgress();
+	int					GetProgress();
 	DownloadError		GetError();
 	void				Lock()			{ SDL_LockMutex(tMutex); }
 	void				Unlock()		{ SDL_UnlockMutex(tMutex); }
@@ -158,7 +158,7 @@ public:
 	void						RemoveFileDownload(const std::string& filename);
 	bool						IsFileDownloaded(const std::string& filename);
 	DownloadError				FileDownloadError(const std::string& filename);
-	byte						GetFileProgress(const std::string& filename);
+	int							GetFileProgress(const std::string& filename);
 	void						Lock()	 { SDL_LockMutex(tMutex); }
 	void						Unlock()	{ SDL_UnlockMutex(tMutex); }
 	std::list<CHttpDownloader *> *GetDownloads()		{ return &tDownloads; }

@@ -23,7 +23,7 @@
 std::string GetFullGameName();
 
 
-struct Version {
+class Version { public:
 	Version() { reset(); }
 	Version(const std::string& versionStr) { setByString(versionStr); }
 

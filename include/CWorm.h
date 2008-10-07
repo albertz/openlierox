@@ -265,8 +265,8 @@ private:
 	float		fPreLastPosUpdate;
 	CVec		vLastEstimatedVel;
 	CVec		vPreLastEstimatedVel;
-	byte		iLastCharge;
-	byte		iLastCurWeapon;
+	int			iLastCharge;
+	int			iLastCurWeapon;
 
 	// Graphics
 	CWormSkin	cSkin;

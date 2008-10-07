@@ -33,6 +33,7 @@ using namespace std;
 #include <DbgHelp.h>
 #include <ShlObj.h>
 #include "FindFile.h" // for IsFileAvailable and mkdir
+#include "Cache.h"  // For freeing the cache
 
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
 

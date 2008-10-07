@@ -256,7 +256,7 @@ int CClient::getBottomBarTop()
 
 /////////////////
 // Initialize one of the game bars
-bool CClient::InitializeBar(byte number)  {
+bool CClient::InitializeBar(int number)  {
 	int x, y, label_x, label_y, direction, numforestates, numbgstates;
 	std::string dir,key;
 	std::string fname = "data/frontend/";
@@ -733,7 +733,7 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 
 ///////////////////
 // Draw a viewport
-void CClient::DrawViewport(SDL_Surface * bmpDest, byte viewport_index)
+void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 {
     // Check the parameters
 	if (viewport_index >= NUM_VIEWPORTS)

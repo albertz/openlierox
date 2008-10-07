@@ -248,10 +248,10 @@ void CHttpDownloader::SetHttpError(HttpError err)
 
 ////////////////
 // Get the file downloading progress
-byte CHttpDownloader::GetProgress()
+int CHttpDownloader::GetProgress()
 {
 	Lock();
-	byte res = 0;
+	int res = 0;
 	if (tHttp.GetDataLength() != 0)
 		res = (byte)MIN((size_t)100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
 	Unlock();
@@ -468,7 +468,7 @@ DownloadError CHttpDownloadManager::FileDownloadError(const std::string& filenam
 
 ///////////////
 // Get the file download progress in percents
-byte CHttpDownloadManager::GetFileProgress(const std::string& filename)
+int CHttpDownloadManager::GetFileProgress(const std::string& filename)
 {
 	Lock();
 	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)

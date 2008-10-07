@@ -322,7 +322,7 @@ private:
 	std::string	sMapDownloadName;
 	bool		bDlError;
 	std::string	sDlError;
-	byte		iDlProgress;
+	int			iDlProgress;
 	int			iDownloadMethod;  // HTTP or UDP
 	bool		bWaitingForMap;  // In game and waiting for the map to finish downloading
 
@@ -436,12 +436,12 @@ public:
 
 	// Drawing
 	bool		InitializeDrawing();
-	bool		InitializeBar(byte number);
+	bool		InitializeBar(int number);
 	void		DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num);
 	void		DrawPlayerWaiting(SDL_Surface * bmpDest);
 	void		DrawBox(SDL_Surface * dst, int x, int y, int w);
 	void		Draw(SDL_Surface * bmpDest);
-	void		DrawViewport(SDL_Surface * bmpDest, byte viewport_index);
+	void		DrawViewport(SDL_Surface * bmpDest, int viewport_index);
 	void		DrawProjectiles(SDL_Surface * bmpDest, CViewport *v);
     void        DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v);
 	void		InitializeGameMenu();
@@ -579,7 +579,7 @@ public:
 
 	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 
-	byte		getDlProgress()					{ return iDlProgress; }
+	int			getDlProgress()					{ return iDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 	bool		getDownloadingMod()				{ return bDownloadingMod; }
 	int			getDownloadMethod()				{ return iDownloadMethod; }
