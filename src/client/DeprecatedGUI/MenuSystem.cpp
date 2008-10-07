@@ -1401,7 +1401,7 @@ void Menu_SvrList_FillList(CListview *lv)
 
 	server_t	*s = psServerList;
 	std::string		addr;
-	static const std::string states[] = {"Open", "Loading", "Playing"};
+	static const std::string states[] = {"Open", "Loading", "Playing", "Open/Loading", "Open/Playing"};
 
     // Store the ID of the currently selected item
     int curID = lv->getSelectedID();
@@ -1442,6 +1442,8 @@ void Menu_SvrList_FillList(CListview *lv)
 		int state = 0;
 		if(s->nState >= 0 && s->nState < 3)
 			state = s->nState;
+		if( state != 0 && s->bAllowConnectDuringGame && s->nNumPlayers < s->nMaxPlayers )
+			state += 2;
 
 		// Colour
 		int colour = tLX->clListView;
@@ -1652,7 +1654,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 			// If we didn't query this server, then we should ignore it
 		}
 
-		else if(cmd == "lx::serverlist")
+		else if(cmd == "lx::serverlist_beta8")
 		{
 			Menu_SvrList_ParseUdpServerlist(bs);
 			update = true;
@@ -1696,6 +1698,8 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	svr->nState = bs->readByte();
     int num = bs->readByte();
 	svr->bProcessing = false;
+	svr->bAllowConnectDuringGame = false;
+	svr->tVersion.reset();
 
     if(num < 0 || num >= MAX_QUERIES-1)
         num=0;
@@ -1706,6 +1710,12 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		svr->nPing = 999;
     if(svr->nPing > 999)
         svr->nPing = 999;
+		
+	if( bs->isPosAtEnd() )
+		return;
+	// Beta8+
+	svr->tVersion.setByString( bs->readString(64) );
+	svr->bAllowConnectDuringGame = bs->readByte();
 }
 
 void Menu_SvrList_UpdateUDPList()
@@ -1746,7 +1756,7 @@ void Menu_SvrList_UpdateUDPList()
 		}
 
 		bs.writeInt(-1,4);
-		bs.writeString("lx::getserverlist");
+		bs.writeString("lx::getserverlist_beta8");
 		bs.Send(tMenu->tSocket[SCK_NET]);
 
 		printf("Sent getserverlist to %s\n", szLine.c_str());
@@ -1769,6 +1779,8 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		int players = bs->readByte();
 		int maxplayers = bs->readByte();
 		int state = bs->readByte();
+		Version version = bs->readString(64);
+		bool allowConnectDuringGame = bs->readByte();
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
 		if( Menu_SvrList_FindServerStr(addr) != NULL )
 			if( ! Menu_SvrList_FindServerStr(addr)->bProcessing )
@@ -1783,6 +1795,8 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		svr->bgotPong = false;
 		svr->bgotQuery = false;
 		svr->bProcessing = false;
+		svr->tVersion = version;
+		svr->bAllowConnectDuringGame = allowConnectDuringGame;
 		StringToNetAddr( addr, svr->sAddress );
 		tServersBehindNat.insert(addr);
 	};

@@ -48,16 +48,23 @@ void signal_handler(int signum)
 
 struct HostInfo
 {
-	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state ):
-		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state) 
-	{ };
-	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0) {};
+
+	HostInfo( std::string _addr, time_t _lastping, std::string _name, int _maxworms, int _numplayers, int _state,
+				std::string _version = "OpenLieroX/0.57_beta5", bool _allowsJoinDuringGame = false ):
+		addr(_addr), lastping(_lastping), name(_name), maxworms(_maxworms), numplayers(_numplayers), state(_state), 
+		version(_version), allowsJoinDuringGame(_allowsJoinDuringGame) {};
+
+	HostInfo(): lastping(0), maxworms(0), numplayers(0), state(0), 
+				version("OpenLieroX/0.57_beta5"), allowsJoinDuringGame(false) {};
+
 	std::string addr;
 	time_t lastping;
 	std::string name;
 	unsigned maxworms;
 	unsigned numplayers;
 	unsigned state;
+	std::string version;
+	bool allowsJoinDuringGame;
 };
 
 
@@ -151,7 +158,7 @@ int main(int argc, char ** argv)
 			if( f == std::string::npos )
 				continue;
 			f++;
-			if( data.find(":", f) == std::string::npos )
+			if( f >= data.size() || data.find(":", f) == std::string::npos )
 				continue;
 			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
 			f = data.find(":", f);
@@ -162,6 +169,14 @@ int main(int argc, char ** argv)
 			send += '\0';
 			send += srcAddr;
 			send += '\0';
+
+			f = data.find( '\0', f );
+			if( f != std::string::npos )	// Additional data, for future OLX versions - just copy it into dest packet
+			{
+				f++;
+				send += data.substr( f );
+			};
+
 			printf("Sending lx::traverse %s to %s:%i\n", send.c_str() + send.find('\0')+1, inet_ntoa( dest.sin_addr ), destPort );
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
 			continue;
@@ -173,11 +188,15 @@ int main(int argc, char ** argv)
 			if( f == std::string::npos )
 				continue;
 			f++;
+			if( data.find( '\0', f ) == std::string::npos )
+				continue;
 			std::string name = data.substr( f, data.find( '\0', f ) - f );
 			f = data.find( '\0', f );
 			if( f == std::string::npos )
 				continue;
 			f++;
+			if( f + 3 > data.size() )
+				continue;
 			unsigned numplayers = (unsigned char)(data[f]);
 			unsigned maxworms = (unsigned char)(data[f+1]);
 			unsigned state = (unsigned char)(data[f+2]);
@@ -195,11 +214,26 @@ int main(int argc, char ** argv)
 			if( it == hosts.end() )
 			{
 				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
+				it == hosts.end();
+				it --; // End of list
 				printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
 			};
 			// Send back confirmation so host will know we're alive
 			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
+			
+			// Beta8+
+			f += 3;
+			if( f >= data.size() || data.find( '\0', f ) == std::string::npos )
+				continue;
+			std::string version = data.substr( f, data.find( '\0', f ) - f );
+			f = data.find( '\0', f );
+			f++;
+			if( f >= data.size() )
+				continue;
+			bool allowsJoinDuringGame = (unsigned char)(data[f]);
+			*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame );
+
 			continue;
 		};
 
@@ -221,13 +255,17 @@ int main(int argc, char ** argv)
 
 		if( data.find( "\xff\xff\xff\xfflx::getserverlist" ) == 0 )
 		{
+			bool beta8 = data.find( "\xff\xff\xff\xfflx::getserverlist_beta8" ) == 0;
+			std::string response = std::string("\xff\xff\xff\xfflx::serverlist") + '\0';
+			if( beta8 )
+				response = std::string("\xff\xff\xff\xfflx::serverlist_beta8") + '\0';
 			std::string send;
 			unsigned amount = 0;
 			for( std::list<HostInfo> :: iterator it = hosts.begin(); it != hosts.end(); it++, amount++ )
 			{
 				if( send.size() >= 255 || amount >= 255 )
 				{
-					send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
+					send = response + char((unsigned char)amount) + send;
 					sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
 					amount = 0;
 					send = "";
@@ -236,9 +274,11 @@ int main(int argc, char ** argv)
 						char((unsigned char)it->numplayers) +
 						char((unsigned char)it->maxworms) +
 						char((unsigned char)it->state);
+				if( beta8 )
+					send += it->version + '\0' + char((unsigned char)it->allowsJoinDuringGame);
 			};
 			// Send serverlist even with 0 entries so client will know we're alive
-			send = std::string("\xff\xff\xff\xfflx::serverlist") + '\0' + char((unsigned char)amount) + send;
+			send = response + char((unsigned char)amount) + send;
 			printf( "Sending lx::serverlist\n" );
 			//printStr( send );
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );

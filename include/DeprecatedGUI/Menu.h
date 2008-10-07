@@ -272,9 +272,11 @@ enum {
 
 
 // Server structure
+// TODO: make std::list instead of linked list here
 class server_t { public:
 	server_t() {
 		SetNetAddrValid(sAddress, false);
+		bAllowConnectDuringGame = false;
 	}
 
 	bool	bIgnore;
@@ -300,6 +302,8 @@ class server_t { public:
 	int		nNumPlayers;
 	int		nMaxPlayers;
 	int		nPing;
+	bool	bAllowConnectDuringGame;
+	Version tVersion;
 
     server_t	*psPrev;
 	server_t	*psNext;

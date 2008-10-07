@@ -1411,11 +1411,11 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	if( serverAllowsConnectDuringGame() && iState != SVS_LOBBY )
-		bytestr.writeByte(SVS_LOBBY); // Advertise as Open, so clients join during game
-	else
-		bytestr.writeByte(iState);
+	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
+	// Beta8+ info - old clients will just skip it
+	bytestr.writeString( GetGameVersion().asString() );
+	bytestr.writeByte( serverAllowsConnectDuringGame() );
 
 	bytestr.Send(tSocket);
 }

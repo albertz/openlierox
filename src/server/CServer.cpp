@@ -938,6 +938,10 @@ void GameServer::RegisterServerUdp(void)
 		bs.writeByte(iNumPlayers);
 		bs.writeByte(iMaxWorms);
 		bs.writeByte(iState);
+		// Beta8+
+		bs.writeString(GetGameVersion().asString());
+		bs.writeByte(serverAllowsConnectDuringGame());
+		
 
 		bs.Send(tSocket);
 		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
