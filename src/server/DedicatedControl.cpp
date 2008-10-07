@@ -33,6 +33,7 @@
 #include "CScriptableVars.h"
 #include "CClientNetEngine.h"
 #include "CChannel.h"
+#include "CServerConnection.h"
 
 
 #ifdef _MSC_VER

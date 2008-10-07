@@ -19,6 +19,8 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
+#include <SDL.h>
+#include "SmartPointer.h"
 #include "Command.h"
 #include "Unicode.h"
 #include "InputEvents.h"

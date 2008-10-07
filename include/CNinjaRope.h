@@ -17,11 +17,13 @@
 #ifndef __CNINJAROPE_H__
 #define __CNINJAROPE_H__
 
-#include "CGameScript.h"
-// TODO: remove this after we changed network
-#include "CBytestream.h"
+#include "CVec.h"
 
-class	CWorm;
+class CGameScript;
+class CWorm;
+struct SDL_Surface;
+class CBytestream;
+
 
 class CNinjaRope {
 public:

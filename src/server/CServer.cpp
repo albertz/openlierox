@@ -38,6 +38,7 @@
 #include "Physics.h"
 #include "CServerNetEngine.h"
 #include "CChannel.h"
+#include "CServerConnection.h"
 
 
 using namespace std;

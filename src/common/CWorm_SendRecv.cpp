@@ -23,6 +23,7 @@
 #include "CServer.h"
 #include "MathLib.h"
 #include "CClient.h"
+#include "CServerConnection.h"
 
 using namespace std;
 

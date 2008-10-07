@@ -27,6 +27,8 @@
 #include "CMap.h"
 #include "StringUtils.h"
 #include "Timer.h"
+#include "Options.h"
+
 
 #ifdef DEBUG
 Timer *timer = NULL;

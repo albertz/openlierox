@@ -19,16 +19,11 @@
 
 #include <SDL.h>
 #include <string>
-
-#include "LieroX.h"
 #include "ReadWriteLock.h"
-#include "types.h"
-#include "CViewport.h"
-#include "Cache.h"
-#include "GfxPrimitives.h"
+#include "SmartPointer.h"
+#include "LieroX.h" // for maprandom_t
 
-// TODO: remove this after we changed network
-#include "CBytestream.h"
+class CViewport;
 
 
 

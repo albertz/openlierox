@@ -18,11 +18,12 @@
 #define __CPROJECTILE_H__
 
 #include <string>
-#include "Sounds.h"
-#include "GfxPrimitives.h"
 #include "Event.h"
-#include "CViewport.h"
-#include "CWorm.h"
+
+struct SDL_Surface;
+class CWorm;
+class Sounds;
+class CViewport;
 
 
 #define		MAX_PROJECTILES	3000

@@ -25,6 +25,7 @@
 #include "CWorm.h"
 #include "DeprecatedGUI/CBar.h"
 #include "MathLib.h"
+#include "CServerConnection.h"
 
 using std::cout;
 using std::endl;

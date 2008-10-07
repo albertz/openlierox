@@ -44,6 +44,7 @@
 #include "CClientNetEngine.h"
 #include "CChannel.h"
 #include "DeprecatedGUI/CBrowser.h"
+#include "CServerConnection.h"
 
 using namespace std;
 

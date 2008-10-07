@@ -39,6 +39,7 @@
 #include "Clipboard.h"
 #include "CClientNetEngine.h"
 #include "CChannel.h"
+#include "CServerConnection.h"
 
 
 /*

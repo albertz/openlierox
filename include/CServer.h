@@ -18,15 +18,20 @@
 #define	__CSERVER_H__
 
 #include <string>
-#include "CWorm.h"
-#include "CBanList.h"
+#include "Networking.h"
+#include "SmartPointer.h"
+#include "CGameScript.h"
 #include "CBonus.h"
-#include "CServerConnection.h"
-#include "CBytestream.h"
+#include "CShootList.h"
 #include "HTTP.h"
-#include "FileDownload.h"
-#include "CScriptableVars.h"
 #include "Timer.h"
+#include "CBanList.h"
+
+class CWorm;
+class CServerConnection;
+class CMap;
+class Version;
+
 
 #define		MAX_CHALLENGES		1024
 

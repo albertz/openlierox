@@ -15,6 +15,7 @@
 #include "CGameScript.h"
 #include "CWpnRest.h"
 #include "AuxLib.h"
+#include "Options.h"
 
 
 namespace SkinnedGUI {
