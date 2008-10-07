@@ -255,10 +255,10 @@ int main(int argc, char ** argv)
 
 		if( data.find( "\xff\xff\xff\xfflx::getserverlist" ) == 0 )
 		{
-			bool beta8 = data.find( "\xff\xff\xff\xfflx::getserverlist_beta8" ) == 0;
+			bool beta8 = data.find( "\xff\xff\xff\xfflx::getserverlist2" ) == 0;
 			std::string response = std::string("\xff\xff\xff\xfflx::serverlist") + '\0';
 			if( beta8 )
-				response = std::string("\xff\xff\xff\xfflx::serverlist_beta8") + '\0';
+				response = std::string("\xff\xff\xff\xfflx::serverlist2") + '\0';
 			std::string send;
 			unsigned amount = 0;
 			for( std::list<HostInfo> :: iterator it = hosts.begin(); it != hosts.end(); it++, amount++ )

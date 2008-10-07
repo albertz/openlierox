@@ -1654,7 +1654,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 			// If we didn't query this server, then we should ignore it
 		}
 
-		else if(cmd == "lx::serverlist_beta8")
+		else if(cmd == "lx::serverlist2")
 		{
 			Menu_SvrList_ParseUdpServerlist(bs);
 			update = true;
@@ -1756,7 +1756,7 @@ void Menu_SvrList_UpdateUDPList()
 		}
 
 		bs.writeInt(-1,4);
-		bs.writeString("lx::getserverlist_beta8");
+		bs.writeString("lx::getserverlist2");
 		bs.Send(tMenu->tSocket[SCK_NET]);
 
 		printf("Sent getserverlist to %s\n", szLine.c_str());
