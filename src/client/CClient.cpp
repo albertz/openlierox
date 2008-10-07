@@ -35,6 +35,9 @@
 #include "Networking.h"
 #include "Timer.h"
 #include "XMLutils.h"
+#include "CClientNetEngine.h"
+#include "DeprecatedGUI/CBrowser.h"
+#include "CChannel.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -209,6 +212,90 @@ void CClient::ReinitLocalWorms() {
 		tProfiles[i] = tGameInfo.cPlayers[i];
 	}
 }
+
+CClient::CClient() {
+	//printf("cl:Constructor\n");
+	cRemoteWorms = NULL;
+	cMap = NULL;
+	cBonuses = NULL;
+	bmpBoxBuffer = NULL;
+	bmpBoxLeft = NULL;
+	bmpBoxRight = NULL;
+	bmpIngameScoreBg = NULL;
+	cHealthBar1 = NULL;
+	cHealthBar2 = NULL;
+	cWeaponBar1 = NULL;
+	cWeaponBar2 = NULL;
+	cDownloadBar = NULL;
+	iGameType = GMT_DEATHMATCH;
+	bGameReady = false;
+	bMapGrabbed = false;
+	cChatList = NULL;
+	bUpdateScore = true;
+	fLastScoreUpdate = -9999;
+	bShouldRepaintInfo = true;
+	bCurrentSettings = false;
+	
+	tGameLog = NULL;
+	iLastVictim = -1;
+	iLastKiller = -1;
+	
+	szServerName="";
+	
+	cNetEngine = new CClientNetEngine(this);
+	cNetChan = NULL;
+	iNetStatus = NET_DISCONNECTED;
+	bsUnreliable.Clear();
+	bBadConnection = false;
+	bServerError = false;
+	bChat_Typing = false;
+	bTeamChat = false;
+	fChat_BlinkTime = 0;
+	bChat_CursorVisible = true;
+	bClientError = false;
+	bInServer = false;
+	cIConnectedBuf = "";
+	iNetSpeed = 3;
+	fLastUpdateSent = -9999;
+	SetNetAddrValid( cServerAddr, false );
+	InvalidateSocketState(tSocket);
+	bLocalClient = false;
+	
+	iMyPing = 0;
+	fMyPingRefreshed = 0;
+	fMyPingSent = 0;
+	
+	//fProjDrawTime = 0;
+	//fProjSimulateTime = 0;
+	
+	fSendWait = 0;
+	
+	bMuted = false;
+	bRepaintChatbox = true;
+	
+	for(ushort i=0; i<4; i++)
+		iTeamScores[i] = 0;
+	
+	bHostAllowsMouse = false;
+	fLastFileRequest = tLX->fCurTime;
+	
+	bDownloadingMap = false;
+	cHttpDownloader = NULL;
+	sMapDownloadName = "";
+	bDlError = false;
+	sDlError = "";
+	iDlProgress = 0;
+}
+
+CClient::~CClient() {
+	Shutdown();
+	Clear();
+	if(cNetEngine) 
+		delete cNetEngine;
+}
+
+int	CClient::getPing() { return cNetChan->getPing(); }
+void CClient::setPing(int _p) { cNetChan->setPing(_p); }
 
 ///////////////////
 // Initialize the client
@@ -1781,13 +1868,14 @@ CChannel * CClient::createChannel(const Version& v)
 
 void CClient::setNetEngineFromServerVersion()
 {
+	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
 	if( getServerVersion() >= OLXBetaVersion(7) )
 	{
-		setBeta7NetEngine();
+		cNetEngine = new CClientNetEngineBeta7(this);
 	}
 	else
 	{
-		setOldNetEngine();
+		cNetEngine = new CClientNetEngine(this);
 	}
 };
 

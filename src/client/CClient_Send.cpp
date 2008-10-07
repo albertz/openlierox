@@ -26,6 +26,7 @@
 #include "EndianSwap.h"
 #include "CServer.h"
 #include "AuxLib.h"
+#include "CChannel.h"
 
 
 

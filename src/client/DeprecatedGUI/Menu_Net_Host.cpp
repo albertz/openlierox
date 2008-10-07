@@ -37,6 +37,8 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "MathLib.h"
 #include "Clipboard.h"
+#include "CClientNetEngine.h"
+#include "CChannel.h"
 
 
 /*

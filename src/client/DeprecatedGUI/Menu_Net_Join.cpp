@@ -34,6 +34,8 @@
 #include "DeprecatedGUI/CProgressbar.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "AuxLib.h"
+#include "CClientNetEngine.h"
+
 
 using namespace std;
 

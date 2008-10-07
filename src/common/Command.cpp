@@ -28,6 +28,7 @@
 #include "CWorm.h"
 #include "AuxLib.h"
 #include "Version.h"
+#include "CClientNetEngine.h"
 
 
 using namespace std;

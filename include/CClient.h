@@ -17,6 +17,27 @@
 #ifndef __CCLIENT_H__
 #define __CCLIENT_H__
 
+#include <string>
+#include "FastVector.h"
+#include "CWeather.h"
+#include "CChatBox.h"
+namespace DeprecatedGUI {
+	class CBrowser;
+	class CListview;
+}
+class CClientNetEngine;
+#include "Networking.h"
+class CChannel;
+#include "CBytestream.h"
+#include "CShootList.h"
+#include "Version.h"
+class CHttpDownloadManager;
+#include "FileDownload.h"
+#include "DeprecatedGUI/CGuiLayout.h"
+
+
+
+/*
 // TODO: remove this after we changed network
 #include "CChannel.h"
 
@@ -41,7 +62,7 @@
 #include "CClientNetEngine.h"
 #include "Consts.h"
 
-
+*/
 
 // Chatbox line
 class chat_line_t { public:
@@ -166,88 +187,9 @@ enum  {
 
 class CClient {
 public:
-	// Constructor
-	CClient() {
-		//printf("cl:Constructor\n");
-		cRemoteWorms = NULL;
-		cMap = NULL;
-		cBonuses = NULL;
-		bmpBoxBuffer = NULL;
-		bmpBoxLeft = NULL;
-		bmpBoxRight = NULL;
-		bmpIngameScoreBg = NULL;
-		cHealthBar1 = NULL;
-		cHealthBar2 = NULL;
-		cWeaponBar1 = NULL;
-		cWeaponBar2 = NULL;
-		cDownloadBar = NULL;
-		iGameType = GMT_DEATHMATCH;
-		bGameReady = false;
-		bMapGrabbed = false;
-		cChatList = NULL;
-		bUpdateScore = true;
-		fLastScoreUpdate = -9999;
-		bShouldRepaintInfo = true;
-		bCurrentSettings = false;
-
-		tGameLog = NULL;
-		iLastVictim = -1;
-		iLastKiller = -1;
-
-		szServerName="";
-
-		cNetEngine = new CClientNetEngine(this);
-		cNetChan = NULL;
-		iNetStatus = NET_DISCONNECTED;
-		bsUnreliable.Clear();
-		bBadConnection = false;
-		bServerError = false;
-		bChat_Typing = false;
-		bTeamChat = false;
-		fChat_BlinkTime = 0;
-		bChat_CursorVisible = true;
-        bClientError = false;
-		bInServer = false;
-		cIConnectedBuf = "";
-		iNetSpeed = 3;
-		fLastUpdateSent = -9999;
-		SetNetAddrValid( cServerAddr, false );
-		InvalidateSocketState(tSocket);
-		bLocalClient = false;
-
-		iMyPing = 0;
-		fMyPingRefreshed = 0;
-		fMyPingSent = 0;
-
-		//fProjDrawTime = 0;
-		//fProjSimulateTime = 0;
-
-		fSendWait = 0;
-
-		bMuted = false;
-		bRepaintChatbox = true;
-
-		for(ushort i=0; i<4; i++)
-			iTeamScores[i] = 0;
-
-		bHostAllowsMouse = false;
-		fLastFileRequest = tLX->fCurTime;
-
-		bDownloadingMap = false;
-		cHttpDownloader = NULL;
-		sMapDownloadName = "";
-		bDlError = false;
-		sDlError = "";
-		iDlProgress = 0;
-	}
-
-	~CClient()  {
-		Shutdown();
-		Clear();
-		if(cNetEngine) 
-			delete cNetEngine;
-	}
-
+	CClient();
+	~CClient();
+	
 	friend class CClientNetEngine;
 	friend class CClientNetEngineBeta7;
 
@@ -544,8 +486,6 @@ public:
 	
 	CClientNetEngine * getNetEngine() { return cNetEngine; };
 	void		setNetEngineFromServerVersion();
-	void		setOldNetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngine(this); };
-	void		setBeta7NetEngine() { if(cNetEngine) delete cNetEngine; cNetEngine = new CClientNetEngineBeta7(this); };
 
 	void		Connect(const std::string& address);
 	void		Connecting(bool force = false);
@@ -630,8 +570,8 @@ public:
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
-	int	getPing(void)						{ return cNetChan->getPing(); }
-	void setPing(int _p)					{ cNetChan->setPing(_p); }
+	int	getPing();
+	void setPing(int _p);
 
 	// Use only when iGameType == GME_JOIN
 	int getMyPing()							{ return iMyPing; }

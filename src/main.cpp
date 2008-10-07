@@ -33,6 +33,7 @@
 #include "FontHandling.h"
 #include "Timer.h"
 #include "Utils.h"
+#include "CChannel.h"
 
 
 #include "DeprecatedGUI/CBar.h"

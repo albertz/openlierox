@@ -41,7 +41,9 @@
 #include "AuxLib.h"
 #include "Timer.h"
 #include "Clipboard.h"
-
+#include "CClientNetEngine.h"
+#include "CChannel.h"
+#include "DeprecatedGUI/CBrowser.h"
 
 using namespace std;
 

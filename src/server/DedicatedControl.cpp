@@ -31,6 +31,9 @@
 #include "Unicode.h"
 #include "Protocol.h"
 #include "CScriptableVars.h"
+#include "CClientNetEngine.h"
+#include "CChannel.h"
+
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4996)

@@ -30,6 +30,7 @@
 #include "Protocol.h"
 #include "Physics.h"
 #include "CClient.h"
+#include "CClientNetEngine.h"
 #include <iostream>
 
 

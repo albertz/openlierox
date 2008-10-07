@@ -33,6 +33,7 @@
 #include "Timer.h"
 #include "NotifyUser.h"
 #include "XMLutils.h"
+#include "CClientNetEngine.h"
 
 
 using namespace std;

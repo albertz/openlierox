@@ -22,6 +22,7 @@
 #include "CServerConnection.h"
 #include "DedicatedControl.h"
 #include "CClient.h"
+#include "CClientNetEngine.h"
 
 
 //////////////////

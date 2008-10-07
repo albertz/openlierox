@@ -37,6 +37,7 @@
 #include "DedicatedControl.h"
 #include "Physics.h"
 #include "CServerNetEngine.h"
+#include "CChannel.h"
 
 
 using namespace std;
