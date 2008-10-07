@@ -18,6 +18,7 @@
 #include <iostream>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
 #include "StringUtils.h"

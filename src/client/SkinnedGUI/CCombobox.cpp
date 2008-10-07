@@ -17,10 +17,11 @@
 #include <assert.h>
 #include <algorithm>
 
+#include "LieroX.h"
+#include "debug.h"
 #include "SkinnedGUI/CCombobox.h"
 #include "SkinnedGUI/CListview.h"
 #include "GuiPrimitives.h"
-#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "MathLib.h"

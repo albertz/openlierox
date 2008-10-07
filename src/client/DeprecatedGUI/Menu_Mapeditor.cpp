@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"

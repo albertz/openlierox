@@ -19,6 +19,7 @@
 #include "GuiPrimitives.h"
 #include "GfxPrimitives.h"
 #include "MathLib.h"
+#include "debug.h"
 
 ////////////////////////
 // Draws a simple 3D button

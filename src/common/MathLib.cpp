@@ -16,12 +16,12 @@
 // Created 20/12/01
 // Jason Boettcher
 
+#include "debug.h"
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include <SDL_timer.h>
 
-#include "Utils.h" // for MIN
 #include "MathLib.h"
 
 

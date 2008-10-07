@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 //#include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"

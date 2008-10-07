@@ -1,5 +1,6 @@
 
 #include "LieroX.h"
+#include "debug.h"
 #include "SkinnedGUI/CDialog.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"

@@ -17,6 +17,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CWpnRest.h"

@@ -16,8 +16,9 @@
 
 #include <assert.h>
 
-#include "CShootList.h"
 #include "LieroX.h"
+#include "debug.h"
+#include "CShootList.h"
 #include "CWorm.h"
 #include "Protocol.h"
 #include "MathLib.h"

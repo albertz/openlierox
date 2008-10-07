@@ -23,13 +23,14 @@
 #endif
 
 #include <iostream>
+#include "LieroX.h"
+#include "Options.h"
+#include "debug.h"
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "EndianSwap.h"
 #include "FileDownload.h"
 #include "MathLib.h"
-#include "Options.h"
-#include "LieroX.h"
 
 
 using namespace std;

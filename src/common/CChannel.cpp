@@ -18,6 +18,7 @@
 #include <map>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CChannel.h"
 #include "StringUtils.h"
 #include "Timer.h"

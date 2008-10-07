@@ -17,11 +17,13 @@
 	HINT: all string-positions used in this code are interpreted as the position if it were an Utf8 encoded string (and of course also the Draw-functions handle it like this)
 */
 
+#include "LieroX.h"
+#include "debug.h"
+
 #include <iostream>
 #include <string>
 
 #include "Clipboard.h"
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <iostream>
 #include <iomanip>
+#include "debug.h"
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"

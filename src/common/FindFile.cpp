@@ -27,6 +27,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Options.h"
+#include "debug.h"
 
 
 #ifdef WIN32

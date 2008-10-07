@@ -11,6 +11,7 @@
  */
 
 #include "sex.h"
+#include "debug.h"
 #include "MathLib.h"
 #include "StringUtils.h"
 

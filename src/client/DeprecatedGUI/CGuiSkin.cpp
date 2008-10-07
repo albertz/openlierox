@@ -8,13 +8,14 @@
 //
 /////////////////////////////////////////
 
+#include "LieroX.h"
+#include "debug.h"
 
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CWidget.h"
 #include "DeprecatedGUI/CWidgetList.h"
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
 #include "StringUtils.h"

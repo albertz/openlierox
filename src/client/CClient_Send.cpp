@@ -13,8 +13,9 @@
 // Created 22/7/02
 // Jason Boettcher
 
-#include "CClientNetEngine.h"
 #include "LieroX.h"
+#include "debug.h"
+#include "CClientNetEngine.h"
 #include "StringUtils.h"
 #include "CClient.h"
 #include "Protocol.h"

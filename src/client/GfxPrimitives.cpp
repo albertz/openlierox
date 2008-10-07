@@ -23,9 +23,10 @@
 #include <SDL.h>
 
 #include "LieroX.h"
+#include "Options.h"
+#include "debug.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"
-#include "CServer.h"
 #include "Cache.h"
 #include "FindFile.h"
 #include "StringUtils.h"

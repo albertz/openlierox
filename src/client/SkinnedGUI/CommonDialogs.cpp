@@ -1,4 +1,6 @@
 
+#include "LieroX.h"
+#include "debug.h"
 #include "SkinnedGUI/CommonDialogs.h"
 #include "SkinnedGUI/CButton.h"
 #include "SkinnedGUI/CTabControl.h"
@@ -12,7 +14,6 @@
 #include "StringUtils.h"
 #include "CGameScript.h"
 #include "CWpnRest.h"
-#include "LieroX.h"
 #include "AuxLib.h"
 
 

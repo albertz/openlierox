@@ -12,6 +12,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "FindFile.h"
 #include "CBanList.h"
 #include "StringUtils.h"

@@ -26,6 +26,7 @@
 #endif
 
 #include "LieroX.h"
+#include "debug.h"
 #include "Options.h"
 #include "HTTP.h"
 #include "Timer.h"

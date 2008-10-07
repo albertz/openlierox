@@ -59,6 +59,7 @@ void x11_SetDemandsAttention( bool v ) {
 #endif
 
 #include <iostream>
+#include "debug.h"
 #include "InputEvents.h"
 #include "Sounds.h"
 

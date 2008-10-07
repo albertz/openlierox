@@ -14,6 +14,7 @@
 // Karel Petranek
 
 #include <iostream>
+#include "debug.h"
 #include "StringBuf.h"
 #include "StringUtils.h"
 

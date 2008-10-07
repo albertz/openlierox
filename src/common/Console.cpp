@@ -17,8 +17,9 @@
 
 #include <iostream>
 
-#include "Clipboard.h"
 #include "LieroX.h"
+#include "debug.h"
+#include "Clipboard.h"
 #include "AuxLib.h"
 #include "console.h"
 #include "GfxPrimitives.h"

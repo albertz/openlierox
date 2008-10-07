@@ -19,6 +19,7 @@
 #include <set>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "EndianSwap.h"
 #include "AuxLib.h"
 #include "Error.h"

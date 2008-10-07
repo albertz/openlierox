@@ -18,6 +18,7 @@
 #include "MathLib.h"
 #include "GfxPrimitives.h"
 #include "XMLutils.h"
+#include "debug.h"
 
 
 namespace SkinnedGUI {

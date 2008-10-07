@@ -17,6 +17,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "StringUtils.h"
 #include "CChatBox.h"
 

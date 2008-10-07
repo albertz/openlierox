@@ -24,6 +24,8 @@
 #include <shellapi.h>
 #endif
 
+#include "debug.h"
+
 
 
 // declared in AuxLib.h; we are not including this to avoid problems with Rect

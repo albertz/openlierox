@@ -19,9 +19,10 @@
 #include <list>
 #include <iostream>
 
+#include "LieroX.h"
+#include "debug.h"
 #include "CMap.h"
 #include "EndianSwap.h"
-#include "LieroX.h"
 #include "MathLib.h"
 #include "Error.h"
 #include "ConfigHandler.h"

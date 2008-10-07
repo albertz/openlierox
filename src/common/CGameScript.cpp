@@ -19,6 +19,7 @@
 
 #include "EndianSwap.h"
 #include "LieroX.h"
+#include "debug.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CGameScript.h"

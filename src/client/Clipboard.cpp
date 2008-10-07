@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include "debug.h"
 #include "Clipboard.h"
 #include "Unicode.h"  // for Utf8ToSystemNative
 

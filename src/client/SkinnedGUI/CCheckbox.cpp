@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "MathLib.h"

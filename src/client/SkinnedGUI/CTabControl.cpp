@@ -17,6 +17,7 @@
 #include "StringUtils.h"
 #include "MathLib.h"
 #include "XMLutils.h"
+#include "debug.h"
 
 
 namespace SkinnedGUI {

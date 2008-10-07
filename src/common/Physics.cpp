@@ -8,6 +8,7 @@
 */
 
 #include <iostream>
+#include "debug.h"
 #include "Physics.h"
 #include "PhysicsLX56.h"
 

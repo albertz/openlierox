@@ -9,6 +9,7 @@
 /////////////////////////////////////////
 
 #include "CScriptableVars.h"
+#include "debug.h"
 #include "StringUtils.h"
 
 #include <iostream>

@@ -10,6 +10,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/CTextButton.h"

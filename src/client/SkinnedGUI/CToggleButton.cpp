@@ -15,6 +15,7 @@
 
 #include "SkinnedGUI/CToggleButton.h"
 #include "LieroX.h"
+#include "debug.h"
 
 
 namespace SkinnedGUI {

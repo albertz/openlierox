@@ -14,6 +14,7 @@
 // Karel Petranek
 
 #include "SkinnedGUI/CBackground.h"
+#include "debug.h"
 #include "StringUtils.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"

@@ -16,8 +16,9 @@
 #include <iostream>
 
 #include "LieroX.h"
-#include "DeprecatedGUI/Menu.h"
 #include "CServer.h"
+#include "debug.h"
+#include "DeprecatedGUI/Menu.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "CChannel.h"

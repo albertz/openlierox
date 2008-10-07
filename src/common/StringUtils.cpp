@@ -13,6 +13,7 @@
 #endif
 
 #include "LieroX.h" // for tLX
+#include "debug.h"
 #include "StringUtils.h"
 #include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour

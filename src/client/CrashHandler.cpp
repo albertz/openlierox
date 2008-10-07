@@ -12,6 +12,7 @@
 #include "Version.h"
 #include "AuxLib.h"
 #include "LieroX.h" // for nameThread
+#include "debug.h"
 #include "StringUtils.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -32,13 +33,6 @@ using namespace std;
 #include <DbgHelp.h>
 #include <ShlObj.h>
 #include "FindFile.h" // for IsFileAvailable and mkdir
-
-// Leak checking
-#ifdef _DEBUG
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif // _DEBUG
 
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
 

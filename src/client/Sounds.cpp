@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "AuxLib.h"
 #include "Cache.h"
 #include "StringUtils.h"
@@ -263,7 +264,8 @@ SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
 }
 
 bool FreeSoundSample(SoundSample* sample) {
-	if(!SoundSystemAvailable) return false;
+	// HINT: this gets called in the SmartPointer<> destructor, at the very end of the program
+	// It is safe to call Mix_FreeChunk here though
 
 	// no sample, so we are ready
 	if(!sample) return true;

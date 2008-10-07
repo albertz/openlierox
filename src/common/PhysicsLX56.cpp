@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+#include "LieroX.h"
+#include "debug.h"
 #include "Physics.h"
 
 // TODO: clean up this code!
@@ -22,7 +24,6 @@
 #include "CBonus.h"
 #include "CClient.h"
 #include "console.h"
-#include "LieroX.h"
 
 using std::cout; using std::endl;
 

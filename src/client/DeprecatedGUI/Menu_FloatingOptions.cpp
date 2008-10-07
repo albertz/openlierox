@@ -14,6 +14,7 @@
 // Karel Petranek
 
 #include "Options.h"
+#include "debug.h"
 #include "CClient.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"

@@ -19,6 +19,7 @@
 #include <map>
 
 #include "Options.h"
+#include "debug.h"
 #include "TSVar.h"
 #include "IpToCountryDB.h"
 #include "FindFile.h"

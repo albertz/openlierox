@@ -3,6 +3,7 @@
 
 #include "Version.h"
 #include "LieroX.h"
+#include "debug.h"
 #include "AuxLib.h"
 
 using std::cout;

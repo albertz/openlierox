@@ -13,8 +13,9 @@
 // Created 21/7/02
 // Jason Boettcher
 
-#include "Clipboard.h"
 #include "LieroX.h"
+#include "debug.h"
+#include "Clipboard.h"
 #include "AuxLib.h"
 #include "MathLib.h"
 #include "CClient.h"

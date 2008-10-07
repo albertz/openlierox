@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CServerConnection.h"
 #include "CBonus.h"
 #include "CWorm.h"

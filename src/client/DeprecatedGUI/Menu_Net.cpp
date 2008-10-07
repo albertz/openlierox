@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

@@ -17,8 +17,9 @@
 #include <assert.h>
 #include <algorithm>
 
-#include "DeprecatedGUI/CCombobox.h"
 #include "LieroX.h"
+#include "DeprecatedGUI/CCombobox.h"
+#include "debug.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

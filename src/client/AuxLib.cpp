@@ -27,11 +27,12 @@
 #include <SDL_syswm.h>
 #include <stdlib.h>
 
+#include "Cache.h"
+#include "debug.h"
 #include "AuxLib.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
-#include "Cache.h"
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "StringUtils.h"

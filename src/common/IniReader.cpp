@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "debug.h"
 #include "IniReader.h"
 #include "FindFile.h"
 

@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "console.h"

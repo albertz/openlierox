@@ -14,8 +14,9 @@
 // Jason Boettcher
 
 
-#include "Clipboard.h"
 #include "LieroX.h"
+#include "debug.h"
+#include "Clipboard.h"
 #include "AuxLib.h"
 #include "HTTP.h"
 #include "DeprecatedGUI/Graphics.h"

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <algorithm>
 #include "CssParser.h"
+#include "debug.h"
 #include "StringUtils.h"
 #include "Timer.h"
 #include "FindFile.h"

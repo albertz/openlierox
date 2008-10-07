@@ -19,6 +19,7 @@
 #include "FindFile.h"
 #include "MathLib.h"
 #include "Utils.h"
+#include "debug.h"
 
 
 namespace SkinnedGUI {

@@ -18,6 +18,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "ConfigHandler.h"
 #include "FindFile.h"
 #include "StringUtils.h"

@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CClient.h"
 #include "Options.h" // for controls_t
 #include "CWorm.h"

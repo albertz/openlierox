@@ -17,6 +17,7 @@
 #include <assert.h>
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "DeprecatedGUI/Graphics.h"

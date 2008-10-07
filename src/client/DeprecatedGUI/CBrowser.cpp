@@ -14,8 +14,9 @@
 // Jason Boettcher
 
 
-#include <stack>
 #include "LieroX.h"
+#include "debug.h"
+#include <stack>
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"

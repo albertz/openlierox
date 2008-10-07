@@ -17,6 +17,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/CTitleButton.h"
+#include "debug.h"
 
 
 namespace DeprecatedGUI {

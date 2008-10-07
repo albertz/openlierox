@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "CBonus.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"

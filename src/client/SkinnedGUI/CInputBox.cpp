@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "debug.h"
 #include "GfxPrimitives.h"
 #include "SkinnedGUI/CInputBox.h"
 #include "SkinnedGUI/CLabel.h"
