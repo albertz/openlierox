@@ -17,6 +17,7 @@
 #include "LieroX.h"
 #include "CWorm.h"
 #include "CClient.h"
+#include "CGameScript.h"
 
 #include "OLXG15.h"
 #include "OLX_g15logo_ver4.xbm"
