@@ -868,16 +868,16 @@ void ShutdownLieroX(void)
 	ShutdownLoading();  // In case we're called when an error occured
 
 	DeprecatedGUI::ShutdownGraphics();
-	// Only do the deregistration for widgets if we are not restarting.
-	// The problem is that we have registered most widgets globally (not by any init-function)
-	// so we would not reinit them.
-	if(!bRestartGameAfterQuit)
-		DeprecatedGUI::CGuiSkin::DeInit();
 	SkinnedGUI::ShutdownGuiSkinning();
 
 	ShutdownFontCache();
 
 	DeprecatedGUI::Menu_Shutdown();
+	// Only do the deregistration for widgets if we are not restarting.
+	// The problem is that we have registered most widgets globally (not by any init-function)
+	// so we would not reinit them.
+	if(!bRestartGameAfterQuit)
+		DeprecatedGUI::CGuiSkin::DeInit();
 	ShutdownProfiles();
 
 	// Free the IP to Country DB

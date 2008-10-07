@@ -384,7 +384,9 @@ void CGuiSkin::RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update,
 
 void CGuiSkin::DeRegisterUpdateCallback( CWidget * source )
 {
-	Init();
+	if (!m_instance)
+		return;
+
 	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin();
 			it != m_instance->m_updateCallbacks.end(); )
 	{
