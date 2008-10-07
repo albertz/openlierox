@@ -1542,7 +1542,7 @@ void GameServer::SendConnectHereAfterTimeout (Timer::EventData ev)
 	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) ev.userData;
 
 	// This can happen if the user quit the server in the meantime
-	if (cServer->getClients() == NULL)  {
+	if (cServer == NULL || cServer->getClients() == NULL)  {
 		delete data;
 		ev.shouldContinue = false;
 		return;
