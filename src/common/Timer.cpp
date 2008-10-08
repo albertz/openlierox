@@ -229,7 +229,7 @@ void Timer::stop()
 	// Already stopped
 	if(!m_running) return;
 	
-	((TimerData*)m_lastData)->quitSignal = true; // it will be removed in the last event
+	((TimerData*)m_lastData)->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
 	((TimerData*)m_lastData)->timer = NULL; // remove the reference to avoid any calls to this object again (perhaps we delete this timer-object directly after)
 	m_lastData = NULL;
 	m_running = false;

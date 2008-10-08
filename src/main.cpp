@@ -920,6 +920,11 @@ void ShutdownLieroX(void)
 	// Network
 	QuitNetworkSystem();
 
+	// HINT: must be before shutting down the event system to process last messages from the timer
+#ifdef DEBUG
+	ShutdownCacheDebug();
+#endif
+
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();
 
@@ -946,10 +951,6 @@ void ShutdownLieroX(void)
 	};
 
 	xmlCleanupParser();
-
-#ifdef DEBUG
-	ShutdownCacheDebug();
-#endif
 
 	printf("Everything was shut down\n");
 }
