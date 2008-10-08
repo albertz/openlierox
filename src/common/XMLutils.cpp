@@ -161,8 +161,8 @@ std::string xmlGetBaseURL(xmlNodePtr node)
 // Replaces all the escape characters with html entities
 void xmlEntityText(std::string& text)
 {
-	replace(text,"\"","&quot;",text);  // "
-	replace(text,"'", "&apos;",text);  // '
+	//replace(text,"\"","&quot;",text);  // " - should not be escaped for libxml
+	//replace(text,"'", "&apos;",text);  // ' - should not be escaped for libxml
 	replace(text,"&", "&amp;", text);  // &
 	replace(text,"<", "&lt;",  text);  // <
 	replace(text,">", "&gt;",  text);  // >
