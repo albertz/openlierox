@@ -121,9 +121,9 @@ class PixelPut_16 : public PixelPut {
 // 24-bit PutPixel
 inline void PutPixel_24(Uint8 *addr, Uint32 color)  {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		addr[0] = ((Uint8 *)&color)[3];
+		addr[0] = ((Uint8 *)&color)[1];
 		addr[1] = ((Uint8 *)&color)[2];
-		addr[2] = ((Uint8 *)&color)[1];
+		addr[2] = ((Uint8 *)&color)[3];
 #else
 		addr[0] = ((Uint8 *)&color)[0];
 		addr[1] = ((Uint8 *)&color)[1];
@@ -148,21 +148,10 @@ PixelPut& getPixelPutFunc(const SDL_Surface *surf)  {
 	static PixelPut_16 px16;
 	static PixelPut_24 px24;
 	static PixelPut_32 px32;
+	static PixelPut* pxs[5] = { &px32, &px8, &px16, &px24, &px32 };
 
-	switch (surf->format->BytesPerPixel)  {
-	case 1:
-		return px8;
-	case 2:
-		return px16;
-	case 3:
-		return px24;
-	case 4:
-		return px32;
-	default:
-		DEBUGASSERT();
-	}
-
-	return px32; // Should not happen
+	assert( surf->format->BytesPerPixel >= 1 && surf->format->BytesPerPixel <= 4 );
+	return *pxs[surf->format->BytesPerPixel];
 }
 
 
@@ -186,10 +175,10 @@ class PixelGet_16 : public PixelGet {
 inline Uint32 GetPixel_24(const Uint8 *addr)  {
 		Uint8 color[4];
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		color[0] = addr[0];
-		color[1] = addr[1];
-		color[2] = addr[2];
-		color[3] = 0;
+		color[0] = 0;
+		color[1] = addr[0];
+		color[2] = addr[1];
+		color[3] = addr[2];
 #else
 		color[0] = addr[0];
 		color[1] = addr[1];
