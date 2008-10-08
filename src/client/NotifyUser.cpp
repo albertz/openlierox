@@ -50,7 +50,14 @@ void x11_SetDemandsAttention( bool v ) {
 	e.xclient.data.l[3] = 0l;
 	e.xclient.data.l[4] = 0l;
 	
-	XChangeProperty(info.info.x11.display, info.info.x11.wmwindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&demandsAttention, 1); 	
+	// This code is not needed - XSendEvent is enough, window manager will change window property by itself
+	/*
+	if( v ) // Add the property (actually it will replace WM_STATE, clearing MODAL, MAXIMIZED etc flags).
+		XChangeProperty(info.info.x11.display, info.info.x11.wmwindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&demandsAttention, 1);
+	else	// Clean the property
+		XChangeProperty(info.info.x11.display, info.info.x11.wmwindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&demandsAttention, 0);
+	*/
+	
 	XSendEvent(info.info.x11.display, DefaultRootWindow(info.info.x11.display), False, (SubstructureRedirectMask | SubstructureNotifyMask), &e);
 	
 	info.info.x11.unlock_func();
