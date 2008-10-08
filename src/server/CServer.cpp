@@ -321,6 +321,10 @@ int GameServer::StartGame()
 	// Reset the first blood
 	bFirstBlood = true;
 
+	// Check that gamespeed != 0
+	if (tGameInfo.fGameSpeed <= 0.05f && tGameInfo.fGameSpeed >= -0.05f)
+		tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed = SIGN(tGameInfo.fGameSpeed) * 0.05f;
+
 	
 	CWorm *w = cWorms;
 	for (int p = 0; p < MAX_WORMS; p++, w++) {
