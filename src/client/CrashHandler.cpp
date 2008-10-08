@@ -42,7 +42,9 @@ class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
 #ifdef _DEBUG
+#ifdef USE_DEFAULT_MSC_DELEAKER
 		_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 #endif // _DEBUG
 
 		SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);

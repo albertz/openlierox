@@ -20,12 +20,28 @@
 
 // Leak checking for MS Visual C++
 #ifdef _MSC_VER
+
+//
+// Default MSVC deleaker
+//
+#ifdef USE_DEFAULT_MSC_DELEAKER
 #define _CRTDBG_MAP_ALLOC
+#include <map>
+#include <string>
 #include <stdlib.h>
 #include <crtdbg.h>
 
 #define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new DEBUG_NEW
+#endif // USE_DEFAUKT_MSC_DELEAKER
+
+//
+// Visual Leak Detector (http://www.codeproject.com/KB/applications/visualleakdetector.aspx)
+//
+
+#ifdef USE_VLD
+#include <vld.h>
+#endif
 
 #endif // _MSC_VER
 
