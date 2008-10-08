@@ -340,6 +340,8 @@ public:
 
 		if(worm->frame() >= 3.0f || !ws->bMove)
 			worm->frame() = (0);
+		if (worm->frame() < 0)
+			worm->frame() = 2.0f;
 
 		speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 
@@ -434,7 +436,7 @@ public:
 			if(worm->getLoadingTime() == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += dt * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
+				Slot->Charge += fabs(dt) * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;
