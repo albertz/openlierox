@@ -321,15 +321,17 @@ bool Menu_FloatingOptionsInitialize(void)
 
 void Menu_FloatingOptionsOkClose()
 {
+	// Set the max FPS
+	CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
+	bool fail = false;
+	tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+	tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
+	t->setText(itoa(tLXOptions->nMaxFPS));
+
 	// Process video mode switch
 	if (bChangedVideoMode)  {
 		tLXOptions->bFullscreen = ((CCheckbox *)cFloatingOpt_System.getWidget(os_Fullscreen))->getValue();
 
-		CTextbox *t = (CTextbox *)cFloatingOpt_System.getWidget(os_MaxFPS);
-		bool fail = false;
-		tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-		tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
-		t->setText(itoa(tLXOptions->nMaxFPS));
 		PlaySoundSample(sfxGeneral.smpClick);
 
 		// Set the new video mode
