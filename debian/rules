@@ -33,7 +33,7 @@ build-stamp: configure-stamp
 
 	# compile the package.
 	#$(MAKE) -j2
-	HAWKNL_BUILTIN=1 DEBUG=0 SYSTEM_DATA_DIR=/usr/share/games CXXFLAGS="$(CFLAGS)" ./compile.sh
+	HAWKNL_BUILTIN=1 LIBZIP_BUILTIN=1 DEBUG=0 SYSTEM_DATA_DIR=/usr/share/games CXXFLAGS="$(CFLAGS)" ./compile.sh
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
 
 	touch $@
