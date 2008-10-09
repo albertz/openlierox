@@ -369,7 +369,7 @@ int CClient::Initialize(void)
 	cChatList->InitializeChatBox();
 	cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
 						tInterfaceSettings.ChatBoxY,
-						tInterfaceSettings.ChatBoxW + 24, // A little hack because of replacing CListview with CBrowser to put the scrollbar on the correct place
+						tInterfaceSettings.ChatBoxW, // A little hack because of replacing CListview with CBrowser to put the scrollbar on the correct place
 						tInterfaceSettings.ChatBoxH);
 
 
