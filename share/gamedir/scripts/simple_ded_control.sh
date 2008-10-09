@@ -82,7 +82,7 @@ function signal_handler() {
 
 startlobby
 
-setvar GameServer.ServerName "- simple dedicated server -"
+setvar GameServer.ServerName "* OLX Beta8 dedicated server *"
 
 setvar GameServer.GameInfo.sMapFile             "CastleStrike.lxl"
 setvar GameServer.GameInfo.sMapName             "CastleStrike"
@@ -91,8 +91,12 @@ setvar GameServer.GameInfo.sModDir              "MW 1.0"
 setvar GameServer.GameInfo.sModName             "MW 1.0"
 
 setvar GameServer.GameInfo.iLoadingTimes        0
-setvar GameServer.GameInfo.fGameSpeed		1.0
-setvar GameServer.GameInfo.iLives		8
+setvar GameServer.GameInfo.fGameSpeed			1.3
+setvar GameServer.GameInfo.iLives				-2
+setvar GameServer.GameInfo.iTimeLimit			10
+setvar GameServer.GameInfo.bAllowConnectDuringGame	true
+setvar GameServer.GameInfo.bForceRandomWeapons		true
+setvar GameServer.GameInfo.bSameWeaponsAsHostWorm	true
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
