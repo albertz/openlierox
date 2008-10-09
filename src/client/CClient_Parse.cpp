@@ -758,23 +758,25 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
 	}
 
-	// Load the chat
-	DeprecatedGUI::CBrowser *lv = client->cChatList;
-	if (lv)  {
-		lv->setBorderSize(0);
-		lv->InitializeChatBox();
-		lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-		//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+	if(!bDedicated) {
+		// TODO: move that out, that does not belong here
+		// Load the chat
+		DeprecatedGUI::CBrowser *lv = client->cChatList;
+		if (lv)  {
+			lv->setBorderSize(0);
+			lv->InitializeChatBox();
+			lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+			//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
-		for (; it != client->cChatbox.End(); it++)  {
+			for (; it != client->cChatbox.End(); it++)  {
 
-			// Add only chat text (PM and Team PM messages too)
-			if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
-				lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
+				// Add only chat text (PM and Team PM messages too)
+				if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
+					lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
+				}
 			}
 		}
 	}
-
 
 
 	// (If this is a local game?), we need to reload the worm graphics
