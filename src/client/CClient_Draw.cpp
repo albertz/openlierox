@@ -1915,8 +1915,9 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {
-			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, it->strLine); // Shadow
-			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, it->iColour, it->strLine);
+			std::string stripped = StripHtmlTags(it->strLine);
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, stripped); // Shadow
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, it->iColour, stripped);
 			y += tLX->cFont.GetHeight()+1; // +1 - shadow
 		}
 	}
@@ -1990,7 +1991,8 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		SetGameCursor(CURSOR_ARROW);
 
 		// Draw the mouse
-		DrawCursor(bmpDest);
+		if (Mouse->deltaX || Mouse->deltaY)
+			DrawCursor(bmpDest);
 		lv->MouseOver(Mouse);
 		if (Mouse->Down)
 			lv->MouseDown(Mouse,true);
