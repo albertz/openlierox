@@ -339,9 +339,9 @@ public:
 			worm->frame() += fFrameRate * dt;
 
 		if(worm->frame() >= 3.0f || !ws->bMove)
-			worm->frame() = (0);
-		if (worm->frame() < 0)
-			worm->frame() = 2.0f;
+			worm->frame() = 0.0f;
+		if(worm->frame() < 0)
+			worm->frame() = 2.99f;
 
 		speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 
