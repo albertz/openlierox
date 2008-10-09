@@ -179,7 +179,8 @@ void CClient::MinorClear(void)
 	fSendWait = 0;
 
 	iChat_Numlines = 0;
-	cChatList->InitializeChatBox();
+	if(!bDedicated)
+		cChatList->InitializeChatBox();
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
@@ -1784,7 +1785,7 @@ void CClient::Shutdown(void)
 
 	// Chatlist
 	if (cChatList)  {
-		cChatList->InitializeChatBox();
+		cChatList->InitializeChatBox(); // TODO; why is that needed to delete the chatbox? this seems like a hack which has to be fixed
 		delete cChatList;
 		cChatList = NULL;
 	}
