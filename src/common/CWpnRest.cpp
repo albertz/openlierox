@@ -125,8 +125,7 @@ wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
     if(szName == "")
     	return NULL;
 
-    static std::string tmp = "";
-	tmp = szName;
+	std::string tmp = szName;
 	TrimSpaces(tmp);
 
     wpnrest_t *psWpn = m_psWeaponList;
