@@ -891,3 +891,419 @@ void TestCChannelRobustness()
 
 	};
 };
+
+/*
+The format packet is the same as with CChannel_UberPwnyReliable, but with CRC16 added at the beginning,
+and with indicator that packet is split into several smaller packets.
+Packet won't contain four leading 0xFF because of CRC16, because two other bytes are acknowledged packet index.
+
+In case Packet Size highest bit = 1 (negative value) that means we're transmitting big packet
+split into several smaller packets. Sequence of packets with Packet Size highest bit = 1 and
+one packet with Packet Size highest bit = 0 following it is assembled into one big logical packet for user.
+*/
+
+Uint16 crc16(Uint16 crc, const char * buffer, size_t len);
+
+void CChannel_EvenMoreUberPwnyReliable::Clear()
+{
+	CChannel::Clear();
+	Messages.clear();
+	ReliableOut.clear();
+	ReliableIn.clear();
+	LastReliableOut = 0;
+	LastAddedToOut = 0;
+	LastReliableIn = 0;
+	PongSequence = -1;
+	LastReliablePacketSent = SEQUENCE_WRAPAROUND - 1;
+	NextReliablePacketToSend = 0;
+	LastReliableIn_SentWithLastPacket = SEQUENCE_WRAPAROUND - 1;
+	
+	KeepAlivePacketTimeout = KEEP_ALIVE_PACKET_TIMEOUT;
+	DataPacketTimeout = DATA_PACKET_TIMEOUT;
+	MaxNonAcknowledgedPackets = MAX_NON_ACKNOWLEDGED_PACKETS;
+
+	#ifdef DEBUG
+	DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime;
+	#endif
+};
+
+void CChannel_EvenMoreUberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
+{
+	Clear();
+	CChannel::Create( _adr, _sock );
+};
+
+// Get reliable packet from local buffer
+bool CChannel_EvenMoreUberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
+{
+	if( ReliableIn.size() == 0 )
+		return false;
+
+	int seqMin = LastReliableIn;
+	PacketList_t::iterator itMin = ReliableIn.end();
+	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )
+	{
+		if( SequenceDiff( seqMin, it->idx ) >= 0 )
+		{
+			seqMin = it->idx;
+			itMin = it;
+		};
+	};
+	if( itMin != ReliableIn.end() )
+	{
+		*bs = itMin->data;
+		ReliableIn.erase(itMin);
+		return true;
+	};
+	return false;
+}
+
+// This function will first return non-reliable data,
+// and then one or many reliable packets - it will modify bs for that,
+// so you should call it in a loop, clearing bs after each call.
+bool CChannel_EvenMoreUberPwnyReliable::Process(CBytestream *bs)
+{
+	bs->ResetPosToBegin();
+	if( bs->GetLength() == 0 )
+		return GetPacketFromBuffer(bs);
+
+	// Got a packet (good or bad), update the received time
+	fLastPckRecvd = tLX->fCurTime;
+
+	// Update statistics - calculate the bytes per second
+	iIncomingBytes += bs->GetRestLen();
+	iCurrentIncomingBytes += bs->GetRestLen();
+	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
+	
+	// CRC16 check
+	
+	unsigned crc = bs->readInt(2);
+	if( crc != crc16( 0, bs->peekData( bs->GetRestLen() ).c_str(), bs->GetRestLen() ) )
+	{
+		iPacketsDropped++;	// Update statistics
+		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
+	};
+
+	// Acknowledged packets info processing
+
+	// Read acknowledged packets indexes
+	unsigned seqAck = bs->readInt(2);
+	std::vector< int > seqAckList;
+	while( seqAck & SEQUENCE_HIGHEST_BIT )
+	{
+		seqAckList.push_back( seqAck & ~ SEQUENCE_HIGHEST_BIT );
+		seqAck = bs->readInt(2);
+	};
+	if( SequenceDiff( seqAck, LastReliableOut ) < 0 || SequenceDiff( seqAck, LastReliableOut ) > SEQUENCE_SAFE_DIST )
+	{
+		iPacketsDropped++;	// Update statistics
+		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
+	};
+
+	LastReliableOut = seqAck;
+
+	iPacketsGood++;	// Update statistics
+
+	// Delete acknowledged packets from buffer
+	for( PacketList_t::iterator it = ReliableOut.begin(), it1; it != ReliableOut.end(); )
+	{
+		bool erase = false;
+		if( SequenceDiff( LastReliableOut, it->idx ) >= 0 )
+			erase = true;
+		for( unsigned f=0; f<seqAckList.size(); f++ )
+			if( seqAckList[f] == it->idx )
+				erase = true;
+		if(erase)
+		{
+			it1 = it;
+			it++;
+			ReliableOut.erase(it1);
+		}
+		else
+			it++;
+	};
+
+	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
+	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
+	{
+		iPing = (int) ((tLX->fCurTime - fLastPingSent) * 1000.0f);
+		PongSequence = -1;
+		// Traffic shaping occurs here - change DataPacketTimeout according to received ping
+		// Change the value slowly, to avoid peaks
+		DataPacketTimeout = ( iPing/1000.0f/DATA_PACKET_TIMEOUT_PING_COEFF + DataPacketTimeout*9.0f ) / 10.0f; 
+	};
+
+	// Processing of arrived data packets
+
+	// Read packets info
+	std::vector< int > seqList;
+	std::vector< int > seqSizeList;
+	unsigned seq = bs->readInt(2);
+	while( seq & SEQUENCE_HIGHEST_BIT )
+	{
+		seqList.push_back( seq & ~ SEQUENCE_HIGHEST_BIT );
+		seqSizeList.push_back( bs->readInt(2) );
+		seq = bs->readInt(2);
+	};
+	seqList.push_back( seq );
+	seqSizeList.push_back( bs->readInt(2) );
+
+	// Put packets in buffer
+	for( unsigned f=0; f<seqList.size(); f++ )
+	{
+		if( seqSizeList[f] == 0 ) // Last reliable packet may have size 0, if we're received non-reliable-only net packet
+			continue;	// Just skip it, it's fake packet
+
+		bool addPacket = true;
+		for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end() && addPacket; it++ )
+			if( it->idx == seqList[f] )
+				addPacket = false;
+		if( addPacket && SequenceDiff( seqList[f], LastReliableIn ) > 0 ) // Do not add packets from the past
+		{	// Packet not in buffer yet - add it
+			CBytestream bs1;
+			bs1.writeData( bs->readData(seqSizeList[f]) );
+			ReliableIn.push_back( Packet_t( bs1, seqList[f], false ) );
+		}
+		else	// Packet is in buffer already
+		{
+			// We may check here if arrived packet is the same as packet in buffer, and print errors.
+			bs->Skip( seqSizeList[f] );
+		};
+	}
+
+	// Increase LastReliableIn until the first packet that is missing from sequence
+	while( true )	// I just love such constructs :P don't worry, I've put "break" inside the loop.
+	{
+		bool nextPacketFound = false;
+		int LastReliableInInc = LastReliableIn + 1;	// Next value of LastReliableIn
+		if( LastReliableInInc >= SEQUENCE_WRAPAROUND )
+			LastReliableInInc = 0;
+		for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end() && !nextPacketFound; it++ )
+			if( it->idx == LastReliableInInc )
+				nextPacketFound = true;
+		if( nextPacketFound )
+			LastReliableIn = LastReliableInInc;
+		else
+			break;
+	};
+
+	if( bs->GetRestLen() > 0 )	// Non-reliable data left in this packet
+		return true;	// Do not modify bs, allow user to read non-reliable data at the end of bs
+
+	if( GetPacketFromBuffer(bs) )	// We can return some reliable packet
+		return true;
+
+	// We've got valid empty packet, or packet from future, return empty packet - bs->GetRestLen() == 0 here.
+	// It is required to update server statistics, so clients that don't send packets won't timeout.
+	return true;
+};
+
+void CChannel_EvenMoreUberPwnyReliable::Transmit(CBytestream *unreliableData)
+{
+
+	#ifdef DEBUG
+	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
+	if( DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY > 0.0f )
+	{
+		if( DebugSimulateLaggyConnectionSendDelay > tLX->fCurTime )
+			return;
+		DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
+	}
+	#endif
+
+	CBytestream bs;
+	// Add acknowledged packets indexes
+
+	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )
+		if( SequenceDiff( it->idx, LastReliableIn ) > 0 ) // Packets out of sequence
+			bs.writeInt( it->idx | SEQUENCE_HIGHEST_BIT, 2 );
+
+	bs.writeInt( LastReliableIn, 2 );
+
+	// Add reliable packet to ReliableOut buffer
+	while( (int)ReliableOut.size() < MaxNonAcknowledgedPackets && !Messages.empty() )
+	{
+		LastAddedToOut ++ ;
+		if( LastAddedToOut >= SEQUENCE_WRAPAROUND )
+			LastAddedToOut = 0;
+		ReliableOut.push_back( Packet_t( Messages.front(), LastAddedToOut, false ) );
+		Messages.pop_front();
+	};
+
+	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
+	// and roll NextReliablePacketToSend back to LastReliableOut.
+	if( ! ReliableOut.empty() )
+	{
+		for( PacketList_t::iterator it = ReliableOut.begin(), it1 = it++; it != ReliableOut.end(); it1 = it++ )
+		{
+			if( SequenceDiff( it->idx, it1->idx ) != 1 )
+				NextReliablePacketToSend = LastReliableOut;
+		};
+		if( ReliableOut.back().idx != LastAddedToOut )
+			NextReliablePacketToSend = LastReliableOut;
+	};
+
+	// Timeout occured - other side didn't acknowledge our packets in time - re-send all of them from the first one.
+	if( LastReliablePacketSent == LastAddedToOut &&
+		SequenceDiff( LastReliablePacketSent, LastReliableOut ) >= MaxNonAcknowledgedPackets &&
+		tLX->fCurTime - fLastSent >= DataPacketTimeout )
+	{
+		NextReliablePacketToSend = LastReliableOut;	
+	}
+	
+	// Add packet headers and data - send all packets with indexes from NextReliablePacketToSend and up.
+	// Add older packets to the output first.
+	// NextReliablePacketToSend points to the last packet.
+	CBytestream packetData;
+	bool unreliableOnly = true;
+	bool firstPacket = true;	// Always send first packet, even if it bigger than MAX_PACKET_SIZE
+								// This should not occur when packets are fragmented
+	int packetIndex = LastReliableOut;
+	int packetSize = 0;
+	
+	for( PacketList_t::iterator it = ReliableOut.begin(); it != ReliableOut.end(); it++ )
+	{
+		if( SequenceDiff( it->idx, NextReliablePacketToSend ) >= 0 )
+		{
+			if( bs.GetLength() + packetData.GetLength() > MAX_PACKET_SIZE && !firstPacket )
+				break;
+
+			if( !firstPacket )
+			{
+				bs.writeInt( packetIndex | SEQUENCE_HIGHEST_BIT, 2 );
+				bs.writeInt( packetSize, 2 );
+			};
+			packetIndex = it->idx;
+			packetSize = it->data.GetLength();
+
+			firstPacket = false;
+			unreliableOnly = false;
+			NextReliablePacketToSend = it->idx;
+
+			packetData.Append( &it->data );
+		};
+	};
+
+	bs.writeInt( packetIndex, 2 );
+	bs.writeInt( packetSize, 2 );
+	
+	bs.Append( &packetData );
+
+	if( unreliableOnly )
+		bs.Append(unreliableData);
+	else
+	{
+		if( bs.GetLength() + unreliableData->GetLength() <= MAX_PACKET_SIZE )
+			bs.Append(unreliableData);
+
+		// If we are sending a reliable message, remember this time and use it for ping calculations
+		if (PongSequence == -1)
+		{
+			PongSequence = NextReliablePacketToSend;
+			fLastPingSent = tLX->fCurTime;
+		};
+	};
+
+	if( unreliableData->GetLength() == 0 &&
+		LastReliablePacketSent == LastAddedToOut &&
+		tLX->fCurTime - fLastSent < DataPacketTimeout )
+	{
+		// No unreliable data to send, and we've just sent the same packet -
+		// send it again after some timeout, don't flood net.
+		return;
+	};
+	
+	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
+		LastReliableIn == LastReliableIn_SentWithLastPacket &&
+		tLX->fCurTime - fLastSent < KeepAlivePacketTimeout )
+	{
+		// Nothing to send really, send one empty packet per halfsecond so we won't timeout,
+		// but always send first packet with acknowledges, or other side will flood
+		// non-acknowledged packets for halfsecond.
+		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
+		return;
+	};
+
+	// Add CRC16 
+	
+	CBytestream bs1;
+	bs1.writeInt( crc16( 0, bs.peekData( bs.GetLength() ).c_str(), bs.GetLength() ), 2);
+	bs1.Append(&bs);
+	
+	// Send the packet
+	SetRemoteNetAddr(Socket, RemoteAddr);
+	bs1.Send(Socket);
+
+	LastReliableIn_SentWithLastPacket = LastReliableIn;
+	LastReliablePacketSent = NextReliablePacketToSend;
+
+	// Update statistics
+	iOutgoingBytes += bs.GetLength();
+	iCurrentOutgoingBytes += bs.GetLength();
+	fLastSent = tLX->fCurTime; //GetMilliSeconds();
+
+	// Calculate the bytes per second
+	cOutgoingRate.addData( tLX->fCurTime, bs.GetLength() );
+};
+
+
+// CRC16 stolen from Linux kernel sources
+/** CRC table for the CRC-16. The poly is 0x8005 (x^16 + x^15 + x^2 + 1) */
+Uint16 const crc16_table[256] = {
+        0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
+        0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
+        0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
+        0x0A00, 0xCAC1, 0xCB81, 0x0B40, 0xC901, 0x09C0, 0x0880, 0xC841,
+        0xD801, 0x18C0, 0x1980, 0xD941, 0x1B00, 0xDBC1, 0xDA81, 0x1A40,
+        0x1E00, 0xDEC1, 0xDF81, 0x1F40, 0xDD01, 0x1DC0, 0x1C80, 0xDC41,
+        0x1400, 0xD4C1, 0xD581, 0x1540, 0xD701, 0x17C0, 0x1680, 0xD641,
+        0xD201, 0x12C0, 0x1380, 0xD341, 0x1100, 0xD1C1, 0xD081, 0x1040,
+        0xF001, 0x30C0, 0x3180, 0xF141, 0x3300, 0xF3C1, 0xF281, 0x3240,
+        0x3600, 0xF6C1, 0xF781, 0x3740, 0xF501, 0x35C0, 0x3480, 0xF441,
+        0x3C00, 0xFCC1, 0xFD81, 0x3D40, 0xFF01, 0x3FC0, 0x3E80, 0xFE41,
+        0xFA01, 0x3AC0, 0x3B80, 0xFB41, 0x3900, 0xF9C1, 0xF881, 0x3840,
+        0x2800, 0xE8C1, 0xE981, 0x2940, 0xEB01, 0x2BC0, 0x2A80, 0xEA41,
+        0xEE01, 0x2EC0, 0x2F80, 0xEF41, 0x2D00, 0xEDC1, 0xEC81, 0x2C40,
+        0xE401, 0x24C0, 0x2580, 0xE541, 0x2700, 0xE7C1, 0xE681, 0x2640,
+        0x2200, 0xE2C1, 0xE381, 0x2340, 0xE101, 0x21C0, 0x2080, 0xE041,
+        0xA001, 0x60C0, 0x6180, 0xA141, 0x6300, 0xA3C1, 0xA281, 0x6240,
+        0x6600, 0xA6C1, 0xA781, 0x6740, 0xA501, 0x65C0, 0x6480, 0xA441,
+        0x6C00, 0xACC1, 0xAD81, 0x6D40, 0xAF01, 0x6FC0, 0x6E80, 0xAE41,
+        0xAA01, 0x6AC0, 0x6B80, 0xAB41, 0x6900, 0xA9C1, 0xA881, 0x6840,
+        0x7800, 0xB8C1, 0xB981, 0x7940, 0xBB01, 0x7BC0, 0x7A80, 0xBA41,
+        0xBE01, 0x7EC0, 0x7F80, 0xBF41, 0x7D00, 0xBDC1, 0xBC81, 0x7C40,
+        0xB401, 0x74C0, 0x7580, 0xB541, 0x7700, 0xB7C1, 0xB681, 0x7640,
+        0x7200, 0xB2C1, 0xB381, 0x7340, 0xB101, 0x71C0, 0x7080, 0xB041,
+        0x5000, 0x90C1, 0x9181, 0x5140, 0x9301, 0x53C0, 0x5280, 0x9241,
+        0x9601, 0x56C0, 0x5780, 0x9741, 0x5500, 0x95C1, 0x9481, 0x5440,
+        0x9C01, 0x5CC0, 0x5D80, 0x9D41, 0x5F00, 0x9FC1, 0x9E81, 0x5E40,
+        0x5A00, 0x9AC1, 0x9B81, 0x5B40, 0x9901, 0x59C0, 0x5880, 0x9841,
+        0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,
+        0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
+        0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
+        0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
+};
+
+inline Uint16 crc16_byte(Uint16 crc, const Uint8 data)
+{
+	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
+};
+   
+/**
+ * Compute the CRC-16 for the data buffer
+ *
+ * @param crc     previous CRC value
+ * @param buffer  data pointer
+ * @param len     number of bytes in the buffer
+ * @return        the updated CRC value
+ */
+Uint16 crc16(Uint16 crc, const char * buffer, size_t len)
+{
+        while (len--)
+		{
+                crc = crc16_byte(crc, (Uint8)*buffer);
+				++buffer;
+		}
+        return crc;
+};
+

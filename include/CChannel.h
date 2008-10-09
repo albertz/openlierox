@@ -274,6 +274,75 @@ public:
 	friend void TestCChannelRobustness();
 };
 
+// TODO: rename this class
+// The copy of previous one, but with CRC16 added, plus packets > 512 bytes got splitted into smaller ones.
+// UDP packets contain checksum which is optional, and can be stripped if lesser than 512 bytes,
+// and I thought UDP cannot contain wrong data when created previous one
+class CChannel_EvenMoreUberPwnyReliable: public CChannel {
+	
+private:
+	struct Packet_t
+	{
+		CBytestream data;
+		int idx;
+		bool fragmented;
+
+		Packet_t( const CBytestream & d, int i, bool f ): data(d), idx(i), fragmented(f) { };
+	};
+	typedef std::list< Packet_t > PacketList_t;
+	PacketList_t	ReliableOut;		// Reliable messages waiting to be acknowledged, with their ID-s, sorted
+	int				LastReliableOut;	// Last acknowledged packet from remote side
+	int				LastAddedToOut;		// Last packet that was added to ReliableOut buf
+
+	PacketList_t	ReliableIn;			// Reliable messages from the other side, not sorted, with their ID-s
+	int				LastReliableIn;		// Last packet acknowledged by me
+	
+	// Pinging
+	int				PongSequence;						// expected pong sequence, -1 when not pinging
+	
+	// Misc vars to shape packet flow
+	int				LastReliableIn_SentWithLastPacket;	// Required to check if we need to send empty packet with acknowledges
+	int				LastReliablePacketSent;				// To make packet flow smooth
+	int				NextReliablePacketToSend;			// To make packet flow smooth
+	
+	// Constants to shape packet flow - in the future we may want to change them dynamically from connection characteristics
+	
+	// How much to wait before sending another empty keep-alive packet, sec (doesn't really matter much).
+	float			KeepAlivePacketTimeout;
+	// How much to wait before sending data packet again, sec - 
+	// if packets rarely get lost over net it will decrease bandwidth dramatically, for little lag tradeoff.
+	// Set to 0 to flood net with packets instantly as in CChannel_056b.
+	// If any new data available to send, or unreliable data present, packet is sent anyway.
+	float			DataPacketTimeout;
+	// Max amount of packets that can be flying through the net at the same time.
+	int				MaxNonAcknowledgedPackets;
+
+	#ifdef DEBUG
+	float			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	#endif
+
+	bool			GetPacketFromBuffer(CBytestream *bs);
+
+public:
+
+	// Constructor
+	CChannel_EvenMoreUberPwnyReliable() { Clear(); }
+	
+	// Methods
+	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
+	void		Transmit( CBytestream *bs );
+	// This function will first return non-reliable data,
+	// and then one or many reliable packets - it will modify bs for that,
+	// so you should call it in a loop, clearing bs after each call.
+	bool		Process( CBytestream *bs );
+	void		Clear();
+
+	bool		getBufferEmpty(void)	{ return ReliableOut.empty(); };
+	bool		getBufferFull(void)		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
+
+	friend void TestCChannelRobustness();
+};
+
 void TestCChannelRobustness();
 
 #endif  //  __CCHANNEL_H__
