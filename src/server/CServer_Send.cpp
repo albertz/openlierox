@@ -429,7 +429,7 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	const float	Rates[4] = {2500, 7500, 10000, 50000};
 
 	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
-	if(tLXOptions->iNetworkSpeed >= 2) {
+	if(tLXOptions->iNetworkSpeed >= 2) { // >= LAN
 		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to LAN (or higher)
 		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxUploadBandwidth);
 	}
