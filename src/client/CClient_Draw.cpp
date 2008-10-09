@@ -1076,7 +1076,7 @@ void CClient::SimulateHud(void)
 		ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
 
 		// Process Chatter
-		if(!con)
+		if(!con &&  !DeprecatedGUI::bShowFloatingOptions)
 			processChatter();
 	}
 	
