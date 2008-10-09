@@ -146,7 +146,7 @@ bool DedicatedControl::Init() {
 			( tGameInfo.iTagLimit, "iTagLimit" )
 			( tGameInfo.bBonusesOn, "bBonusesOn" )
 			( tGameInfo.bShowBonusName, "bShowBonusName" )
-			( tLXOptions->tGameinfo.fGameSpeed, "fGameSpeed" )
+			( tGameInfo.fGameSpeed, "fGameSpeed" )
 			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
 			( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
 			( tLXOptions->tGameinfo.bAllowConnectDuringGame, "bAllowConnectDuringGame" )
