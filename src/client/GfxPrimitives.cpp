@@ -136,7 +136,10 @@ class PixelPut_24 : public PixelPut {
 };
 
 // 32-bit PutPixel
-inline void PutPixel_32(Uint8 *addr, Uint32 color)  { *(Uint32 *)addr = color; }
+inline void PutPixel_32(Uint8 *addr, Uint32 color) {
+	*(Uint32 *)addr = color;
+}
+
 class PixelPut_32 : public PixelPut {
 	void put(Uint8 *addr, Uint32 color)	{ PutPixel_32(addr, color); }
 };
@@ -193,7 +196,10 @@ class PixelGet_24 : public PixelGet  {
 };
 
 // 32-bit getpixel
-inline Uint32 GetPixel_32(const Uint8 *addr)  { return *(Uint32 *)addr; }
+inline Uint32 GetPixel_32(const Uint8 *addr)  {
+	return *(Uint32 *)addr;
+}
+
 class PixelGet_32 : public PixelGet {
 	Uint32 get(Uint8 *addr)	{ return GetPixel_32(addr); }
 };

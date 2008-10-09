@@ -295,6 +295,13 @@ int GameServer::StartGame()
 		if(IsSocketStateValid(tNatTraverseSockets[f]))
 			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
 
+	
+	// Check that gamespeed != 0
+	if (-0.05f <= tGameInfo.fGameSpeed && tGameInfo.fGameSpeed <= 0.05f) {
+		cout << "WARNING: gamespeed was set to " << tGameInfo.fGameSpeed << "; resetting it to 1" << endl;
+		tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed = 1;
+	}
+	
 		
 	checkVersionCompatibilities(true);
 
@@ -320,10 +327,6 @@ int GameServer::StartGame()
 
 	// Reset the first blood
 	bFirstBlood = true;
-
-	// Check that gamespeed != 0
-	if (tGameInfo.fGameSpeed <= 0.05f && tGameInfo.fGameSpeed >= -0.05f)
-		tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed = SIGN(tGameInfo.fGameSpeed) * 0.05f;
 
 	
 	CWorm *w = cWorms;
