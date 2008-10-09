@@ -235,7 +235,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_PARTICLE:
 			case ENT_BLOOD:
 			case ENT_BLOODDROPPER:
-				ent->vVel.y += 100*dt;//vGravity;
+				ent->vVel.y += 100*dt;
 				ent->vPos += ent->vVel * dt;
 	
 				// Clipping

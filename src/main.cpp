@@ -76,7 +76,6 @@ void*		startFunctionData = NULL;
 keyboard_t	*kb = NULL;
 IpToCountryDB *tIpToCountryDB = NULL;
 
-CVec		vGravity = CVec(0,4);
 
 //
 // Loading screen info and functions
