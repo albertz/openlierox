@@ -302,7 +302,7 @@ void CChannel_056b::recheckSeqs() {
 /*
 There are logical packets, each has it's own sequence number,
 multiple logical packets can be transmitted in single net packet.
-CChannel_UberPwnyReliable::Process(CBytestream *) will return the logical packets one by one,
+CChannel2::Process(CBytestream *) will return the logical packets one by one,
 without merging them in one packet, to increase robustness.
 It will modify CBytestream * argument for that.
 The net packet format is:
@@ -375,7 +375,7 @@ int SequenceDiff( int s1, int s2 )
 	return diff;
 }
 
-void CChannel_UberPwnyReliable::Clear()
+void CChannel2::Clear()
 {
 	CChannel::Clear();
 	Messages.clear();
@@ -398,14 +398,14 @@ void CChannel_UberPwnyReliable::Clear()
 	#endif
 };
 
-void CChannel_UberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel2::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
 };
 
 // Get reliable packet from local buffer
-bool CChannel_UberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
+bool CChannel2::GetPacketFromBuffer(CBytestream *bs)
 {
 	if( ReliableIn.size() == 0 )
 		return false;
@@ -432,7 +432,7 @@ bool CChannel_UberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
 // This function will first return non-reliable data,
 // and then one or many reliable packets - it will modify bs for that,
 // so you should call it in a loop, clearing bs after each call.
-bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
+bool CChannel2::Process(CBytestream *bs)
 {
 	bs->ResetPosToBegin();
 	if( bs->GetLength() == 0 )
@@ -560,7 +560,7 @@ bool CChannel_UberPwnyReliable::Process(CBytestream *bs)
 	return true;
 };
 
-void CChannel_UberPwnyReliable::Transmit(CBytestream *unreliableData)
+void CChannel2::Transmit(CBytestream *unreliableData)
 {
 
 	#ifdef DEBUG
@@ -732,7 +732,7 @@ void TestCChannelRobustness()
 	float packetsPerSecond2 = 0.2f;
 	int packetExtraData = 0; // Extra data in bytes to add to packet to check buffer overflows
 
-	CChannel_UberPwnyReliable c1, c2;	//CChannel_056b c1, c2;
+	CChannel2 c1, c2;	//CChannel_056b c1, c2;
 	NetworkSocket s1 = OpenUnreliableSocket(0);
 	NetworkSocket s2 = OpenUnreliableSocket(0);
 	NetworkSocket s1lag = OpenUnreliableSocket(0);
@@ -893,7 +893,7 @@ void TestCChannelRobustness()
 };
 
 /*
-The format packet is the same as with CChannel_UberPwnyReliable, but with CRC16 added at the beginning,
+The format packet is the same as with CChannel2, but with CRC16 added at the beginning,
 and with indicator that packet is split into several smaller packets.
 Packet won't contain four leading 0xFF because of CRC16, because two other bytes are acknowledged packet index.
 
@@ -904,7 +904,7 @@ one packet with Packet Size highest bit = 0 following it is assembled into one b
 
 Uint16 crc16(Uint16 crc, const char * buffer, size_t len);
 
-void CChannel_EvenMoreUberPwnyReliable::Clear()
+void CChannel3::Clear()
 {
 	CChannel::Clear();
 	Messages.clear();
@@ -927,14 +927,14 @@ void CChannel_EvenMoreUberPwnyReliable::Clear()
 	#endif
 };
 
-void CChannel_EvenMoreUberPwnyReliable::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel3::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
 };
 
 // Get reliable packet from local buffer
-bool CChannel_EvenMoreUberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
+bool CChannel3::GetPacketFromBuffer(CBytestream *bs)
 {
 	if( ReliableIn.size() == 0 )
 		return false;
@@ -961,7 +961,7 @@ bool CChannel_EvenMoreUberPwnyReliable::GetPacketFromBuffer(CBytestream *bs)
 // This function will first return non-reliable data,
 // and then one or many reliable packets - it will modify bs for that,
 // so you should call it in a loop, clearing bs after each call.
-bool CChannel_EvenMoreUberPwnyReliable::Process(CBytestream *bs)
+bool CChannel3::Process(CBytestream *bs)
 {
 	bs->ResetPosToBegin();
 	if( bs->GetLength() == 0 )
@@ -1098,7 +1098,7 @@ bool CChannel_EvenMoreUberPwnyReliable::Process(CBytestream *bs)
 	return true;
 };
 
-void CChannel_EvenMoreUberPwnyReliable::Transmit(CBytestream *unreliableData)
+void CChannel3::Transmit(CBytestream *unreliableData)
 {
 
 	#ifdef DEBUG

@@ -1863,7 +1863,7 @@ CChannel * CClient::createChannel(const Version& v)
 	if( cNetChan )
 		delete cNetChan;
 	if( v >= OLXBetaVersion(6) )
-		cNetChan = new CChannel_UberPwnyReliable();
+		cNetChan = new CChannel2();
 	else
 		cNetChan = new CChannel_056b();
 	return cNetChan;

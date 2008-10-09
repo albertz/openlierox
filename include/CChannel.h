@@ -132,7 +132,7 @@ public:
 	// Should be overridden by child class
 	// This function will send reliable data from AddReliablePacketToSend() plus unreliable data in bs argument
 	virtual void	Transmit( CBytestream *unreliableData ) = 0;
-	// This function behaves differently for CChannel_UberPwnyReliable, see below
+	// This function behaves differently for CChannel2, see below
 	// It should return empty data from time to time when channel is inactive, so clients won't timeout.
 	virtual bool	Process( CBytestream *bs ) = 0;
 	virtual void	AddReliablePacketToSend(CBytestream& bs);
@@ -215,9 +215,9 @@ public:
 	friend void TestCChannelRobustness();
 };
 
-// TODO: rename this class
+
 // Reliable and less messy CChannel implementation by pelya.
-class CChannel_UberPwnyReliable: public CChannel {
+class CChannel2: public CChannel {
 	
 private:
 	typedef std::list< std::pair< CBytestream, int > > PacketList_t;
@@ -257,7 +257,7 @@ private:
 public:
 
 	// Constructor
-	CChannel_UberPwnyReliable() { Clear(); }
+	CChannel2() { Clear(); }
 	
 	// Methods
 	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
@@ -274,11 +274,10 @@ public:
 	friend void TestCChannelRobustness();
 };
 
-// TODO: rename this class
 // The copy of previous one, but with CRC16 added, plus packets > 512 bytes got splitted into smaller ones.
 // UDP packets contain checksum which is optional, and can be stripped if lesser than 512 bytes,
 // and I thought UDP cannot contain wrong data when created previous one
-class CChannel_EvenMoreUberPwnyReliable: public CChannel {
+class CChannel3: public CChannel {
 	
 private:
 	struct Packet_t
@@ -326,7 +325,7 @@ private:
 public:
 
 	// Constructor
-	CChannel_EvenMoreUberPwnyReliable() { Clear(); }
+	CChannel3() { Clear(); }
 	
 	// Methods
 	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
