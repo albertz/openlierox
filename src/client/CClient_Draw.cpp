@@ -1976,6 +1976,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		else
 			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
+		bRepaintChatbox = false;
 	}
 
 
