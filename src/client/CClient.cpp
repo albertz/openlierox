@@ -362,17 +362,19 @@ int CClient::Initialize(void)
 	if(!InitializeDrawing())
 		return false;
 
-	// Initialize chat box (must be after drawing because of interface settings)
-	cChatList = new DeprecatedGUI::CBrowser;
-	if (!cChatList)
-		return false;
-	cChatList->InitializeChatBox();
-	cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
-						tInterfaceSettings.ChatBoxY,
-						tInterfaceSettings.ChatBoxW, // A little hack because of replacing CListview with CBrowser to put the scrollbar on the correct place
-						tInterfaceSettings.ChatBoxH);
-
-
+	if(bDedicated)
+		cChatList = NULL;
+	else {
+		// Initialize chat box (must be after drawing because of interface settings)
+		cChatList = new DeprecatedGUI::CBrowser;
+		if (!cChatList)
+			return false;
+		cChatList->InitializeChatBox();
+		cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
+							tInterfaceSettings.ChatBoxY,
+							tInterfaceSettings.ChatBoxW, // A little hack because of replacing CListview with CBrowser to put the scrollbar on the correct place
+							tInterfaceSettings.ChatBoxH);
+	}
 	// Clear the network channel
 	//cNetChan.Clear();
 
