@@ -842,7 +842,7 @@ void ShutdownLoading()  {
 
 ///////////////////
 // Shutdown the game
-void ShutdownLieroX(void)
+void ShutdownLieroX()
 {
 	printf("Shutting me down...\n");
 

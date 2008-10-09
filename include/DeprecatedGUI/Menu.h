@@ -488,7 +488,7 @@ void    Menu_Net_HostLobbyDraw(void);
 void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
-void	Menu_Net_HostLobbyShutdown(void);
+void	Menu_Net_HostLobbyShutdown();
 std::string	Menu_Net_HostLobbyGetText(void);
 void Menu_Net_HostLobbySetText(const std::string& str);
 void	Menu_HostDrawLobby(SDL_Surface * bmpDest);

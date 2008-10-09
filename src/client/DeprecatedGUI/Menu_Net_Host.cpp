@@ -171,7 +171,7 @@ bool Menu_Net_HostInitialize(void)
 
 ///////////////////
 // Shutdown the host menu
-void Menu_Net_HostShutdown(void)
+void Menu_Net_HostShutdown()
 {
 	switch(iHostType) {
 
@@ -1216,7 +1216,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 ////////////////////
 // Shutdown
-void Menu_Net_HostLobbyShutdown(void)
+void Menu_Net_HostLobbyShutdown()
 {
 	// Shutdown all dialogs
 	if (bHostGameSettings)
@@ -1235,8 +1235,8 @@ void Menu_Net_HostLobbyShutdown(void)
 	cServer->SendDisconnect();
 
 	// Shutdown server & clients
-	cServer->Shutdown();
 	cClient->Shutdown();
+	cServer->Shutdown();
 
 	// Recover the host type
 	iHostType = 0;
