@@ -7,6 +7,7 @@
 - better synchronisation for shooting, that should also fix the self-shooting problem
 - reconnects from a client are handled better
 - general fixes of new features (since Beta6)
+- removed media player
 
 
 0.57_beta7
