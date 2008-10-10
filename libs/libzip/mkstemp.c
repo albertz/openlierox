@@ -73,7 +73,7 @@ _zip_mkstemp(char *path)
 	/* To guarantee multiple calls generate unique names even if
 	   the file is not created. 676 different possibilities with 7
 	   or more X's, 26 with 6 or less. */
-	static char xtra[2] = "aa";
+	static char xtra[3] = "aa";
 	int xcnt = 0;
 	
 	pid_t pid = getpid();
