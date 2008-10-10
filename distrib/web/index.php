@@ -48,6 +48,57 @@
 </p>
 <p>
 	<h2>Downloads</h2>
+	<b>0.57_beta8</b> (released 2008-10-09)<br>
+	<a href="https://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=632027">
+	OpenLieroX main downloads</a> (Source/Linux, Windows, Mac OS X)<br>
+	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta8.ebuild">OpenLieroX Gentoo ebuild</a><br>
+<pre>
+0.57_beta8
+==========
+- Chatbox has HTML and copy&paste support
+- connect during game support
+- fixed max upload bandwidth limit
+- Menu_MessageBox can handle long messages correctly
+- better synchronisation for shooting, that should also fix the self-shooting problem
+- reconnects from a client are handled better
+- general fixes of new features (since Beta6)
+
+0.57_beta7
+==========
+- Game-speed multiplicator
+- Options editable from everywhere in the game
+- Force random weapon selection (with the extensions to have the same weapon for all players)
+- Automatic weapon selection if only one weapon is available
+- Notify application window on events when application is in background
+- Auto-completion for chat commands
+- Command button for host in game
+- Show player online/chatting/away status
+- Client info dialog for host
+
+0.57_beta6
+==========
+- fixed crashing in DBZ mod
+- improved connecting to servers behind firewall/NAT
+- reduced the loading time of IP to Country database a bit
+- added support for G15 keyboards
+- improved downloading, added mod downloading
+- fixed a security bug in the authorise command
+- added video post processors that change the final appearance of the screen
+- updated joystick control
+- recovered compatibility with Windows 98/ME
+- faster projectile simulation
+- fixed spawning in rock in random maps
+- fixed duplicate joining
+- fixed weird game behavior when kicking bot
+- fixed crashes in the viewport manager dialog
+- added map anti-aliasing
+- fixed crashes in the News tab
+- improved crash reporting tool
+- fixed bots not shooting with beam weapons
+- fixes in physics (wallshooting, self-shooting, flying at the top of the level)
+- server displays only one message on multiple suicides
+- optionally attach a console window using -console under Windows
+</pre>
 	<b>0.57_beta5</b> (released 2008-03-15)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=584470">
 	OpenLieroX main downloads</a> (Source/Linux, Windows, Mac OS X)<br>

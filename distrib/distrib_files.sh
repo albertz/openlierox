@@ -1,6 +1,7 @@
 #!/bin/bash
 
-SERVER="albertzeyer@shell.sourceforge.net"
+[ "$USERNAME" == "" ] && [ $(whoami) == az ] && USERNAME=albertzeyer
+SERVER="$USERNAME,openlierox@web.sourceforge.net"
 REMOTEDIR="/home/groups/o/op/openlierox/htdocs/"
 DEST="$SERVER:$REMOTEDIR"
 SYNC_CMD="rsync -avP --exclude .svn"
@@ -14,13 +15,14 @@ SYNC_CMD="rsync -avP --exclude .svn"
 }
 
 # first, upload all new files
-$SYNC_CMD additions $DEST
-$SYNC_CMD tmpbuild $DEST
+#$SYNC_CMD additions $DEST
+#$SYNC_CMD tmpbuild $DEST
 $SYNC_CMD ebuild $DEST
 
 # now, update the site itself
-$SYNC_CMD --delete-after web/* $DEST
+$SYNC_CMD web/* $DEST
 
 # and lastly, clean up old files
-$SYNC_CMD --delete-after ebuild $DEST
+$SYNC_CMD --delete web/* $DEST
+$SYNC_CMD --delete ebuild $DEST
 #$SYNC_CMD --delete-after tmpbuild $DEST
