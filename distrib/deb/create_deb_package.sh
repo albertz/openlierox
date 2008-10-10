@@ -3,7 +3,7 @@
 cd ../.. # go into root dir
 dpkg-buildpackage -rfakeroot -sa \
 	-I.svn -Idistrib -ICMakeFiles -Ibuild -I*stamp -IMakefile \
-	-ICMakeCache.txt -Icmake* -Itools \
+	-ICMakeCache.txt -Icmake* -Itools -Isandbox \
 	-i\
 "(?:^|/).*~$|"\
 "(?:^|/)\.#.*$|"\
