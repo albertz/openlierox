@@ -351,7 +351,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;../../libs/hawknl/src,../../libs/boost_process"
+				AdditionalIncludeDirectories="../../include;../../libs/hawknl/src;../../libs/boost_process;../../libs/libzip/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;DEBUG,_AI_DEBUG,HAVE_BOOST"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
