@@ -51,7 +51,7 @@ ln -s .. distrib/OpenLieroX
 for FILE in $SRC_RELEASE; do
 	[ -e ${SRC_PREFIX}.tar ] && MOD_FLAG=-r || MOD_FLAG=-c
 	cd distrib
-	tar --exclude=.svn --exclude=*~ $MOD_FLAG -hf \
+	tar --exclude=.svn --exclude=*~ --exclude=.pyc $MOD_FLAG -hf \
 		../${SRC_PREFIX}.tar \
 		OpenLieroX/$FILE
 	cd ..
@@ -75,7 +75,7 @@ cd distrib
 [ -d OpenLieroX ] && rm -rf OpenLieroX
 mkdir OpenLieroX
 cd ..
-tar --exclude=.svn -c $WIN32_RELEASE | tar -x -C distrib/OpenLieroX
+tar --exclude=.svn --exclude=.pyc -c $WIN32_RELEASE | tar -x -C distrib/OpenLieroX
 cd distrib/OpenLieroX
 mv share/gamedir/* .
 rm -r share
