@@ -51,7 +51,7 @@ ln -s .. distrib/OpenLieroX
 for FILE in $SRC_RELEASE; do
 	[ -e ${SRC_PREFIX}.tar ] && MOD_FLAG=-r || MOD_FLAG=-c
 	cd distrib
-	tar --exclude=.svn --exclude=*~ --exclude=*.pyc $MOD_FLAG -hf \
+	tar --exclude=.svn --exclude=*~ --exclude=*.pyc --exclude=.* $MOD_FLAG -hf \
 		../${SRC_PREFIX}.tar \
 		OpenLieroX/$FILE
 	cd ..
