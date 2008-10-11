@@ -1785,20 +1785,24 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		if( Menu_SvrList_FindServerStr(addr) != NULL )
 			if( ! Menu_SvrList_FindServerStr(addr)->bProcessing )
 				continue;
-		server_t *svr = Menu_SvrList_AddServer( addr, false );
-		svr->szName = name;
-		svr->nNumPlayers = players;
-		svr->nMaxPlayers = maxplayers;
-		svr->nState = state;
-		svr->nPing = -2;
-		svr->nQueries = 0;
-		svr->bgotPong = false;
-		svr->bgotQuery = false;
-		svr->bProcessing = false;
-		svr->tVersion = version;
-		svr->bAllowConnectDuringGame = allowConnectDuringGame;
-		StringToNetAddr( addr, svr->sAddress );
-		tServersBehindNat.insert(addr);
+
+		// In favourites only the user should add servers
+		if (iNetMode != net_favourites)  {
+			server_t *svr = Menu_SvrList_AddServer( addr, false );
+			svr->szName = name;
+			svr->nNumPlayers = players;
+			svr->nMaxPlayers = maxplayers;
+			svr->nState = state;
+			svr->nPing = -2;
+			svr->nQueries = 0;
+			svr->bgotPong = false;
+			svr->bgotQuery = false;
+			svr->bProcessing = false;
+			svr->tVersion = version;
+			svr->bAllowConnectDuringGame = allowConnectDuringGame;
+			StringToNetAddr( addr, svr->sAddress );
+			tServersBehindNat.insert(addr);
+		}
 	};
 };
 
