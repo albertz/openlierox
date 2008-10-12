@@ -354,10 +354,10 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose);
 // Platform-independent stat() - use S_ISREG( st.st_mode ) and S_ISDIR( st.st_mode ) on stat struct
 inline bool StatFile( const std::string & file, struct stat * st )
 {
-	std::string fname;
-	if( ! GetExactFileName( file, fname ) )
+	std::string fname = GetFullFileName( file );
+	std::string exactfname;
+	if( ! GetExactFileName( fname, exactfname ) )
 		return false;
-	fname = GetFullFileName( fname );
 	if( stat( Utf8ToSystemNative(fname).c_str(), st ) != 0 )
 		return false;
 
