@@ -920,7 +920,7 @@ class StatFileList
    	int index;
 	StatFileList( std::string *_data, const std::string & _reqpath ) :
 		data(_data), reqpath(_reqpath) {}
-	inline bool operator() (std::string path)
+	bool operator() (std::string path)
 	{
 		size_t slash = findLastPathSep(path);
 		if(slash != std::string::npos)
@@ -938,7 +938,7 @@ class StatDirList
    	int index;
 	StatDirList( std::string *_data, const std::string & _reqpath ) :
 		data(_data), reqpath(_reqpath) {}
-	inline bool operator() (std::string path)
+	bool operator() (std::string path)
 	{
 		size_t slash = findLastPathSep(path);
 		if(slash != std::string::npos)
