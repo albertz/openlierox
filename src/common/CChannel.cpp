@@ -1074,7 +1074,7 @@ bool CChannel3::Process(CBytestream *bs)
 		{	// Packet not in buffer yet - add it
 			CBytestream bs1;
 			bs1.writeData( bs->readData( seqSizeList[f] & ~ SEQUENCE_HIGHEST_BIT ) );
-			ReliableIn.push_back( Packet_t( bs1, seqList[f], seqSizeList[f] & SEQUENCE_HIGHEST_BIT ) );
+			ReliableIn.push_back( Packet_t( bs1, seqList[f], (seqSizeList[f] & SEQUENCE_HIGHEST_BIT) != 0 ) );
 		}
 		else	// Packet is in buffer already
 		{
