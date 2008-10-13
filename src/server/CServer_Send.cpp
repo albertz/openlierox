@@ -271,20 +271,20 @@ bool GameServer::SendUpdate()
 
 			if(!cl->isLocalClient()) {
 				// check our server bandwidth
-				static Rate<100,5000> blockRate;
-				static Rate<100,5000> blockRateAbs;
+				static Rate<100,5000> blockRate; // only for debug output
+				static Rate<100,5000> blockRateAbs; // only for debug output
 				blockRateAbs.addData(tLX->fCurTime, 1);
 				if(!checkUploadBandwidth(GetUpload(0.1f) + uploadAmount)) {
 					// we have gone over our own bandwidth for non-local clients				
 					blockRate.addData(tLX->fCurTime, 1);
 					static float lastMessageTime = tLX->fCurTime;
 					if(tLX->fCurTime - lastMessageTime > 30.0) {
-						cout
-						<< "we got over the max upload bandwidth; "
-						<< "current upload is " << GetUpload() << " bytes/sec";
+						cout << "we got over the max upload bandwidth" << endl;
+						cout << "   current upload is " << GetUpload() << " bytes/sec (last 2 secs)" << endl;
+						cout << "   current short upload is " << GetUpload(0.1f) << " bytes/sec (last 0.1 sec)" << endl;
+						cout << "   upload amount of this frame is " << uploadAmount << " bytes" << endl;
 						if(blockRateAbs.getRate() > 0)
-							cout << "; current block/update rate is " << float(100.0f * blockRate.getRate() / blockRateAbs.getRate()) << " %";
-						cout << endl;
+							cout << "   current block/update rate is " << float(100.0f * blockRate.getRate() / blockRateAbs.getRate()) << " % (last 5 secs)" << endl;
 						lastMessageTime = tLX->fCurTime;
 					}
 					continue;
