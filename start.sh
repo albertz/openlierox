@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 get_backtrace() {
     local exe=$1

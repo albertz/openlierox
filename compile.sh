@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # this is the compile-script for a simple compilation of the game
 # the following variables will be used:

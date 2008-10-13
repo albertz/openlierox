@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # collection of helper-functions, mainly for compile.sh
 
