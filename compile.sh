@@ -26,16 +26,16 @@
 #					  if not set, the function functions.sh:get_olx_version
 #					  generates the string automatically
 
-. functions.sh
+. ./functions.sh
 
 # check variables and set default values if unset
-[ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
-[ "$DEBUG" == "" ] && DEBUG=0
-[ "$COMPILER" == "" ] && COMPILER=g++
-[ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
-[ "$X11" == "" ] && X11=1
-[ "$G15" == "" ] && G15=0
-[ "$VERSION" == "" ] && VERSION=$(get_olx_version)
+[ "$SYSTEM_DATA_DIR" = "" ] && SYSTEM_DATA_DIR=/usr/share
+[ "$DEBUG" = "" ] && DEBUG=0
+[ "$COMPILER" = "" ] && COMPILER=g++
+[ "$ACTIVATE_GDB" = "" ] && [ "$DEBUG" = "1" ] && ACTIVATE_GDB=1
+[ "$X11" = "" ] && X11=1
+[ "$G15" = "" ] && G15=0
+[ "$VERSION" = "" ] && VERSION=$(get_olx_version)
 
 # add standards to include path list
 INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include /opt/local/include"
@@ -44,17 +44,17 @@ LIB_PATH="$LIB_PATH /sw/lib /opt/local/lib"
 # handle SDL specific compiler settings and get include-dirs
 sdlconfig=""
 test_exec pkg-config && pkg-config sdl && sdlconfig="pkg-config sdl"
-[ "$sdlconfig" == "" ] && test_exec sdl-config && sdlconfig="sdl-config"
-[ "$sdlconfig" == "" ] && sdlconfig="own_sdl_config"
+[ "$sdlconfig" = "" ] && test_exec sdl-config && sdlconfig="sdl-config"
+[ "$sdlconfig" = "" ] && sdlconfig="own_sdl_config"
 xmlconfig=""
 test_exec pkg-config && pkg-config libxml-2.0 && xmlconfig="pkg-config libxml-2.0"
-[ "$xmlconfig" == "" ] && test_exec xml2-config && xmlconfig="xml2-config"
-[ "$xmlconfig" == "" ] && xmlconfig="own_xml2_config"
+[ "$xmlconfig" = "" ] && test_exec xml2-config && xmlconfig="xml2-config"
+[ "$xmlconfig" = "" ] && xmlconfig="own_xml2_config"
 
-INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param -I)"
-LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param -L)"
-INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param -I)"
-LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param() -I)"
+LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param() -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param() -I)"
+LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param() -L)"
 
 echo "--- OpenLieroX compile.sh ---"
 
@@ -75,14 +75,14 @@ test_include_file zlib.h || \
 test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
 
-if [ "$G15" == "1" ]; then
+if [ "$G15" = "1" ]; then
     test_include_file g15daemon_client.h || \
 	{ echo "ERROR: g15daemon_client header not found" >&2; ALL_FINE=0; }
     test_include_file libg15render.h || \
 	{ echo "ERROR: libg15render header not found" >&2; ALL_FINE=0; }
 fi
 
-if [ "$HAWKNL_BUILTIN" == "1" ]; then
+if [ "$HAWKNL_BUILTIN" = "1" ]; then
 	HAWKNL_GCC_PARAM="\
 		libs/hawknl/src/crc.c \
 		libs/hawknl/src/errorstr.c \
@@ -105,7 +105,7 @@ else
 	HAWKNL_GCC_PARAM="-lNL"
 fi
 
-if [ "$LIBZIP_BUILTIN" == "1" ]; then
+if [ "$LIBZIP_BUILTIN" = "1" ]; then
 	LIBZIP_GCC_PARAM="libs/libzip/*.c -I libs/libzip"
 else
 	test_include_file zip.h || \
@@ -115,33 +115,33 @@ else
 	LIBZIP_GCC_PARAM="-lzip"
 fi
 
-[ $ALL_FINE == 0 ] && \
-	{ echo "errors detected, exiting"; exit -1; }
+[ $ALL_FINE = 0 ] && \
+	{ echo "errors detected, exiting"; exit 1; }
 
 
 # report the used settings
 [ "$VERSION" != "" ] && echo "* version $VERSION"
 echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
-[ "$DEBUG" == "1" ] && \
+[ "$DEBUG" = "1" ] && \
 	echo "* debug-thingies in the game will be activated" || \
 	echo "* you will not see any debug-crap"
 echo "* $COMPILER will be used for compilation"
-[ "$ACTIVATE_GDB" == "1" ] && \
+[ "$ACTIVATE_GDB" = "1" ] && \
 	echo "* debugging-data will be included in the bin" || \
 	echo "* debugging-data will not been added explicitly to the bin"
-[ "$CXXFLAGS" == "" ] && \
+[ "$CXXFLAGS" = "" ] && \
 	echo "* none additional compiler-flags will be used" || \
 	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
-[ "$X11" == "1" ] && \
+[ "$X11" = "1" ] && \
 	echo "* X11 clipboard/notify support is activated" || \
 	echo "* X11 clipboard/notify support is not activated"
-[ "$G15" == "1" ] && \
+[ "$G15" = "1" ] && \
         echo "* G15 support is activated" || \
         echo "* G15 support is not activated"
-[ "$HAWKNL_BUILTIN" == "1" ] && \
+[ "$HAWKNL_BUILTIN" = "1" ] && \
 	echo "* HawkNL support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
-[ "$LIBZIP_BUILTIN" == "1" ] && \
+[ "$LIBZIP_BUILTIN" = "1" ] && \
 	echo "* libzip support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against libzip"
 
@@ -164,11 +164,11 @@ if $COMPILER \
 	$($xmlconfig --libs) \
 	-lSDL_image -lSDL_mixer -lgd -pthread -lz \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
-	$( [ "$DEBUG" == "1" ] && echo "-DDEBUG" ) \
+	$( [ "$DEBUG" = "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
-	$( [ "$ACTIVATE_GDB" == "1" ] && echo "-g" ) \
-	$( [ "$X11" == "1" ] && echo "-DX11 -lX11" ) \
-	$( [ "$G15" == "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
+	$( [ "$ACTIVATE_GDB" = "1" ] && echo "-g" ) \
+	$( [ "$X11" = "1" ] && echo "-DX11 -lX11" ) \
+	$( [ "$G15" = "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
 	$CXXFLAGS \
 	$LDFLAGS \
 	-o bin/openlierox
@@ -177,6 +177,6 @@ then
 	exit 0
 else
 	echo ">>> error(s) reported, check the output above"
-	exit -1
+	exit 1
 fi
 
