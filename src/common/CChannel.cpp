@@ -682,8 +682,10 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
+
+		cOutgoingRate.addData( tLX->fCurTime, 0 );		
 		return;
-	};
+	}
 
 	// Send the packet
 	SetRemoteNetAddr(Socket, RemoteAddr);
@@ -1221,6 +1223,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
+		
+		cOutgoingRate.addData( tLX->fCurTime, 0 );		
 		return;
 	};
 
