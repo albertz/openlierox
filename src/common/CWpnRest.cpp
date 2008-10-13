@@ -195,7 +195,7 @@ void CWpnRest::loadList(const std::string& szFilename)
     if( !fp )
         return;
 
-    static std::string line;
+	std::string line;
 	
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
