@@ -107,10 +107,10 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 {
     assert(pcGameS);
 
+	if (iCycleState == 3) iCycleState = 0;
     wpnrest_t *psWpn = m_psWeaponList;
     for(; psWpn; psWpn=psWpn->psNext) {
         if(pcGameS->weaponExists(psWpn->szName))  {
-			if (iCycleState == 3) iCycleState = 0;
             psWpn->nState = iCycleState;
 		}
     }
