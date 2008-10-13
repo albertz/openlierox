@@ -848,7 +848,7 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
 // Read a string in pascal format
 std::string CGameScript::readString(FILE *fp)
 {
-	static char buf[256];
+	char buf[256];
 
     uchar length;
     fread( &length, sizeof(uchar), 1, fp );
