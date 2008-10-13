@@ -45,7 +45,7 @@
 
 
 #ifndef WIN32
-#include <sys/dir.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #endif
 

@@ -27,7 +27,7 @@
 #include "Unicode.h"
 
 #ifndef WIN32
-#	include <sys/dir.h>
+#	include <dirent.h>
 #	include <unistd.h>
 #endif
 
