@@ -26,7 +26,7 @@
 #					  if not set, the function functions.sh:get_olx_version
 #					  generates the string automatically
 
-source ./functions.sh
+. functions.sh
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
