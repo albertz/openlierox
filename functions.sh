@@ -7,7 +7,7 @@
 #	$1 - header file
 #	$INCLUDE_PATH - list of include paths
 # returns -1 when not found
-function test_include_file() {
+test_include_file() {
 	for p in $INCLUDE_PATH; do
 		[ -e "$p"/"$1" ] && return 0
 	done
@@ -17,7 +17,7 @@ function test_include_file() {
 # check if executable is there
 #	$1 - executable
 # return -1 if not available
-function test_exec() {
+test_exec() {
 	which "$1" 1>/dev/null 2>/dev/null
 	return $?
 }
@@ -25,7 +25,7 @@ function test_exec() {
 # grep specific parameter out of input-stream
 #	$1 - parameter-name
 # example: stdin=-Iinclude, $1=-I  =>  stdout=include
-function grep_param() {
+grep_param() {
 	for p in $(xargs); do
 		echo "$p" | grep "${1/-/\-}" | sed -e "s/$1//"
 	done
@@ -38,7 +38,7 @@ function grep_param() {
 #	$1 == --cflags => compiler-flags
 #	$INCLUDE_PATH - used for include-paths for compiler flags
 # prints out the flags on stdout
-function own_sdl_config() {
+own_sdl_config() {
 	[ "$1" == "--libs" ] && echo "-lSDL"
 	if [ "$1" == "--cflags" ]; then
 		for d in $INCLUDE_PATH; do
@@ -55,7 +55,7 @@ function own_sdl_config() {
 #	$1 == --cflags => compiler-flags
 #	$INCLUDE_PATH - used for include-paths for compiler flags
 # prints out the flags on stdout
-function own_xml2_config() {
+own_xml2_config() {
 	[ "$1" == "--libs" ] && echo "-lz -lxml2"
 	if [ "$1" == "--cflags" ]; then
 		for d in $INCLUDE_PATH; do
@@ -69,7 +69,7 @@ function own_xml2_config() {
 # reads the file VERSION if available or else reads out from Version.h
 # if SVN-data is available, it adds the revision number to the string
 # prints out the version on stdout
-function get_olx_version() {
+get_olx_version() {
 	VERSION=""
 	if [ -e VERSION ]; then
 		VERSION=$(cat VERSION)
@@ -93,7 +93,7 @@ function get_olx_version() {
 # example: $* = -L "lib1 lib2 lib3"  =>  stdout = "-L lib1 -L lib2 -L lib3"
 # example: $* = -I "p1 p2" "/SDL /libxml2"  =>  stdout = "-I p1/SDL -I p2/libxml"
 # prints out the string on stdout
-function build_param_str() {
+build_param_str() {
 	for p in $2; do
 		if [ "$3" == "" ]; then
 			echo -n "$1 ${p} "
