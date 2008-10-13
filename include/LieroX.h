@@ -247,8 +247,8 @@ class game_lobby_t { public:
 
 extern	lierox_t		*tLX;
 extern	game_t			tGameInfo;
-extern  CInput			cTakeScreenshot;
-extern  CInput			cSwitchMode;
+extern  CInput			*cTakeScreenshot;
+extern  CInput			*cSwitchMode;
 extern  bool			bDisableSound;
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;

@@ -57,8 +57,8 @@
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
 
-CInput		cTakeScreenshot;
-CInput		cSwitchMode;
+CInput		*cTakeScreenshot = NULL;
+CInput		*cSwitchMode = NULL;
 
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
@@ -247,9 +247,11 @@ startpoint:
 		}
 	}
 
-	// Setup the global keys
-	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	// Setup the global keys	
+	cTakeScreenshot = new CInput();
+	cSwitchMode = new CInput();
+	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 
 	// If the user wants to load the database on startup, do it
 	// For dedicated server the database should be loaded on startup or it will crash
@@ -360,7 +362,9 @@ startpoint:
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
-
+	delete cSwitchMode; cSwitchMode = NULL;
+	delete cTakeScreenshot; cTakeScreenshot = NULL;	
+	
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		printf("-- Restarting game --\n");
@@ -668,14 +672,14 @@ void GameLoopFrame(void)
         return;
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode.isUp() )  {
+	if( cSwitchMode->isUp() )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		SetVideoMode();
 
-		cSwitchMode.reset();
+		cSwitchMode->reset();
 	}
 
 #ifdef WITH_G15

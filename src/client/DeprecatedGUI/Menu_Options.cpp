@@ -480,9 +480,9 @@ void Menu_OptionsFrame(void)
 					Menu_OptionsWaitInput(ply, b->getName(), b);
 					// Re-setup the Take Screenshot, Switch Mode and Media Player keys
 					if (ev->iControlID == oc_Gen_TakeScreenshot)
-						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+						cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 					if (ev->iControlID == oc_Gen_SwitchMode)
-						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+						cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 				}
 			}
 		}

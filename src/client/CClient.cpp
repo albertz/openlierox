@@ -382,7 +382,7 @@ int CClient::Initialize(void)
 	// Initialize the shooting list
 	cShootList.Initialize();
 
-	SetupGameInputs();
+	this->SetupGameInputs();
 	
     // Initialize the weather
     //cWeather.Initialize(wth_snow);
