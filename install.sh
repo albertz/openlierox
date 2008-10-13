@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # this is the install-script for the game
 # I will install the game to your system :)
