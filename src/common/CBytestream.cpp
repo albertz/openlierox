@@ -74,6 +74,21 @@ void CBytestream::Test()
 	std::cout <<std::endl;
 	Clear();
 
+	{
+	// Integer
+	Sint16 i = -126;
+	std::cout << "Int: (" << i << ") ";
+	writeInt(i, 2);
+	ResetPosToBegin();
+	std::cout << "(" << Data << ") ";
+	Sint16 i2 = readInt(2);
+	std::cout << "(" << itoa(i2) << ") ";
+	if (i2 != i)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+	};
+
 	// Short
 	short s = 125;
 	std::cout << "Short: (" << s << ") ";
@@ -407,7 +422,7 @@ int CBytestream::readInt(uchar numbytes)
 	for(short n=0; n<numbytes; n++)
 		ret += (Uint32)readByte() << (n * 8);
 	
-	return (int)ret;
+	return (unsigned)ret;
 }
 
 
@@ -523,7 +538,7 @@ std::string CBytestream::readData( size_t size )
 
 /////////////////////
 // Read a byte but don't change the position
-uchar CBytestream::peekByte()
+uchar CBytestream::peekByte() const 
 {
 	if (!isPosAtEnd())
 		return Data[GetPos()];
@@ -533,7 +548,7 @@ uchar CBytestream::peekByte()
 
 ///////////////////////
 // Peek data from the bytestream
-std::string CBytestream::peekData(size_t len)
+std::string CBytestream::peekData(size_t len) const 
 {
 	if (GetPos() + len <= GetLength())
 		return Data.substr(GetPos(), len);

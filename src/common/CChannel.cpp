@@ -28,8 +28,10 @@ using namespace std;
 
 // default max size for UDP packets for windows is 1280
 // only a size of 512 is guaranteed
-#define MAX_PACKET_SIZE 512
-#define RELIABLE_HEADER_LEN 8
+enum { 
+	MAX_PACKET_SIZE = 512,
+	RELIABLE_HEADER_LEN = 8 // Only for CChannel_056b
+};
 
 void CChannel::Clear()
 {
@@ -83,7 +85,7 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	}
 
 	// Some reliable messages already in queue, see if we should already split the packet
-	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE)
+	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
 		Messages.push_back(bs);
 	else
 		Messages.rbegin()->Append(&bs);
@@ -626,7 +628,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->second, NextReliablePacketToSend ) >= 0 )
 		{
-			if( bs.GetLength() + packetData.GetLength() > MAX_PACKET_SIZE && !firstPacket )
+			if( bs.GetLength() + 4 + packetData.GetLength() + it->first.GetLength() > MAX_PACKET_SIZE && !firstPacket )
 				break;
 
 			if( !firstPacket )
@@ -727,14 +729,14 @@ void TestCChannelRobustness()
 	CBytestream bsTest;
 	bsTest.Test();
 	cout << "\n\n\n\nTesting CChannel robustness" << endl;
-	int lagMin = 100;
-	int lagMax = 500;
+	int lagMin = 50;
+	int lagMax = 400;
 	int packetLoss = 15; // In percents
 	float packetsPerSecond1 = 10.0f; // One channel sends faster than another
 	float packetsPerSecond2 = 0.2f;
-	int packetExtraData = 0; // Extra data in bytes to add to packet to check buffer overflows
+	int packetExtraData = 8192; // Extra data in bytes to add to packet to check buffer overflows
 
-	CChannel2 c1, c2;	//CChannel_056b c1, c2;
+	CChannel3 c1, c2;	//CChannel_056b c1, c2;
 	NetworkSocket s1 = OpenUnreliableSocket(0);
 	NetworkSocket s2 = OpenUnreliableSocket(0);
 	NetworkSocket s1lag = OpenUnreliableSocket(0);
@@ -760,7 +762,7 @@ void TestCChannelRobustness()
 		packetDelay2 = 1000.0f / packetsPerSecond2;
 	float nextPacket1 = 0;
 	float nextPacket2 = 0;
-	for( int testtime=0; testtime < 500000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
+	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
 	{
 		tLX->fCurTime = testtime / 1000.0f;
 
@@ -773,7 +775,7 @@ void TestCChannelRobustness()
 			i1++;
 			b1.writeInt(i1, 4);
 			for( int f=0; f<packetExtraData; f++ )
-				b1.writeByte(0);
+				b1.writeByte(0xff);
 			c1.AddReliablePacketToSend(b1);
 		}
 
@@ -783,7 +785,7 @@ void TestCChannelRobustness()
 			i2++;
 			b2.writeInt(i2, 4);
 			for( int f=0; f<packetExtraData; f++ )
-				b2.writeByte(0);
+				b2.writeByte(0xff);
 			c2.AddReliablePacketToSend(b2);
 		};
 
@@ -809,7 +811,7 @@ void TestCChannelRobustness()
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s1buf.insert( std::make_pair( lag, b1 ) );
-				cout<< testtime << ": c1 sent packet - lag " << lag << " (" << c1.Messages.size() << 
+				cout<< testtime << ": c1 sent packet - lag " << lag << " size " << b1.GetLength() << " (" << c1.Messages.size() << 
 						" in buf): " << printBinary(b1.readData()) << endl;
 			};
 		};
@@ -831,7 +833,7 @@ void TestCChannelRobustness()
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s2buf.insert( std::make_pair( lag, b2 ) );
-				cout << testtime << ": c2 sent packet - lag " << lag << " (" << c2.Messages.size() <<
+				cout << testtime << ": c2 sent packet - lag " << lag << " size " << b2.GetLength() << " (" << c2.Messages.size() <<
 						" in buf): " << printBinary(b2.readData()) << endl;
 			};
 		};
@@ -862,8 +864,8 @@ void TestCChannelRobustness()
 				while( b1.GetRestLen() != 0 )
 				{
 					int i1rr = b1.readInt(4);
-					cout << testtime << ": c1 reliable packet, data " << i1rr << 
-							" expected " << i1r+1 << " - " << (i1rr == i1r+1 ? "good" : "ERROR!") << endl;
+					cout << testtime << ": c1 reliable packet, data " << hex << i1rr << 
+							" expected " << i1r+1 << " - " << (i1rr == i1r+1 ? "good" : "ERROR!") << dec << endl;
 					i1r = i1rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b1.readByte();
@@ -881,8 +883,8 @@ void TestCChannelRobustness()
 				while( b2.GetRestLen() != 0 )
 				{
 					int i2rr = b2.readInt(4);
-					cout << testtime << ": c2 reliable packet, data " << i2rr << 
-							" expected " << i2r+1 << " - " << (i2rr == i2r+1 ? "good" : "ERROR!") << endl;
+					cout << testtime << ": c2 reliable packet, data " << hex << i2rr << 
+							" expected " << i2r+1 << " - " << (i2rr == i2r+1 ? "good" : "ERROR!") << dec << endl;
 					i2r = i2rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b2.readByte();
@@ -899,12 +901,21 @@ The format packet is the same as with CChannel2, but with CRC16 added at the beg
 and with indicator that packet is split into several smaller packets.
 Packet won't contain four leading 0xFF because of CRC16, because two other bytes are acknowledged packet index.
 
-In case Packet Size highest bit = 1 (negative value) that means we're transmitting big packet
+In case Packet Size highest bit = 1 ( SEQUENCE_HIGHEST_BIT ) that means we're transmitting big packet
 split into several smaller packets. Sequence of packets with Packet Size highest bit = 1 and
 one packet with Packet Size highest bit = 0 following it is assembled into one big logical packet for user.
 */
 
-Uint16 crc16(Uint16 crc, const char * buffer, size_t len);
+enum {
+	MAX_FRAGMENTED_PACKET_SIZE = MAX_PACKET_SIZE - 24 // Actually 12 bytes are enough, but I want to have safety bound.
+};
+
+Uint16 crc16(const char * buffer, size_t len, Uint16 crc = 0xffff); // Default non-zero value
+
+bool CChannel3::Packet_t::operator < ( const Packet_t & p ) const
+{ 
+	return SequenceDiff( idx, p.idx ) < 0; 
+};
 
 void CChannel3::Clear()
 {
@@ -935,28 +946,27 @@ void CChannel3::Create(NetworkAddr *_adr, NetworkSocket _sock)
 	CChannel::Create( _adr, _sock );
 };
 
-// Get reliable packet from local buffer
+// Get reliable packet from local buffer (merge fragmented packet)
 bool CChannel3::GetPacketFromBuffer(CBytestream *bs)
 {
 	if( ReliableIn.size() == 0 )
 		return false;
 
-	int seqMin = LastReliableIn;
-	PacketList_t::iterator itMin = ReliableIn.end();
-	for( PacketList_t::iterator it = ReliableIn.begin(); it != ReliableIn.end(); it++ )
+	bs->Clear();
+	PacketList_t::iterator it = ReliableIn.begin();
+	while( it != ReliableIn.end() && it->fragmented )
 	{
-		if( SequenceDiff( seqMin, it->idx ) >= 0 )
-		{
-			seqMin = it->idx;
-			itMin = it;
-		};
+		bs->Append( & it->data );
+		it++;
 	};
-	if( itMin != ReliableIn.end() )
+	if( it != ReliableIn.end() && it->idx <= LastReliableIn )
 	{
-		*bs = itMin->data;
-		ReliableIn.erase(itMin);
+		bs->Append( & it->data );
+		it++;
+		ReliableIn.erase( ReliableIn.begin(), it );
 		return true;
-	};
+	}
+	bs->Clear();
 	return false;
 }
 
@@ -980,7 +990,7 @@ bool CChannel3::Process(CBytestream *bs)
 	// CRC16 check
 	
 	unsigned crc = bs->readInt(2);
-	if( crc != crc16( 0, bs->peekData( bs->GetRestLen() ).c_str(), bs->GetRestLen() ) )
+	if( crc != crc16( bs->peekData( bs->GetRestLen() ).c_str(), bs->GetRestLen() ) )
 	{
 		iPacketsDropped++;	// Update statistics
 		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
@@ -1063,13 +1073,13 @@ bool CChannel3::Process(CBytestream *bs)
 		if( addPacket && SequenceDiff( seqList[f], LastReliableIn ) > 0 ) // Do not add packets from the past
 		{	// Packet not in buffer yet - add it
 			CBytestream bs1;
-			bs1.writeData( bs->readData(seqSizeList[f]) );
-			ReliableIn.push_back( Packet_t( bs1, seqList[f], false ) );
+			bs1.writeData( bs->readData( seqSizeList[f] & ~ SEQUENCE_HIGHEST_BIT ) );
+			ReliableIn.push_back( Packet_t( bs1, seqList[f], seqSizeList[f] & SEQUENCE_HIGHEST_BIT ) );
 		}
 		else	// Packet is in buffer already
 		{
 			// We may check here if arrived packet is the same as packet in buffer, and print errors.
-			bs->Skip( seqSizeList[f] );
+			bs->Skip( seqSizeList[f] & ~ SEQUENCE_HIGHEST_BIT );
 		};
 	}
 
@@ -1088,7 +1098,10 @@ bool CChannel3::Process(CBytestream *bs)
 		else
 			break;
 	};
-
+	
+	// The ReliableIn list updated - sort it
+	ReliableIn.sort();
+	
 	if( bs->GetRestLen() > 0 )	// Non-reliable data left in this packet
 		return true;	// Do not modify bs, allow user to read non-reliable data at the end of bs
 
@@ -1128,8 +1141,22 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		LastAddedToOut ++ ;
 		if( LastAddedToOut >= SEQUENCE_WRAPAROUND )
 			LastAddedToOut = 0;
-		ReliableOut.push_back( Packet_t( Messages.front(), LastAddedToOut, false ) );
-		Messages.pop_front();
+		if( Messages.front().GetLength() <= MAX_FRAGMENTED_PACKET_SIZE )
+		{
+			ReliableOut.push_back( Packet_t( Messages.front(), LastAddedToOut, false ) );
+			Messages.pop_front();
+		}
+		else
+		{
+			// Fragment the packet
+			Messages.front().ResetPosToBegin();
+			CBytestream bs;
+			bs.writeData( Messages.front().readData( MAX_FRAGMENTED_PACKET_SIZE ) );
+			ReliableOut.push_back( Packet_t( bs, LastAddedToOut, true ) );
+			bs.Clear();
+			bs.writeData( Messages.front().readData() );
+			Messages.front() = bs;
+		}
 	};
 
 	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
@@ -1167,7 +1194,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->idx, NextReliablePacketToSend ) >= 0 )
 		{
-			if( bs.GetLength() + packetData.GetLength() > MAX_PACKET_SIZE && !firstPacket )
+			if( bs.GetLength() + 4 + packetData.GetLength() + it->data.GetLength() > MAX_PACKET_SIZE-2 && !firstPacket )  // Substract CRC16 size
 				break;
 
 			if( !firstPacket )
@@ -1177,6 +1204,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 			};
 			packetIndex = it->idx;
 			packetSize = it->data.GetLength();
+			if( it->fragmented )
+				packetSize |= SEQUENCE_HIGHEST_BIT;
 
 			firstPacket = false;
 			unreliableOnly = false;
@@ -1195,7 +1224,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		bs.Append(unreliableData);
 	else
 	{
-		if( bs.GetLength() + unreliableData->GetLength() <= MAX_PACKET_SIZE )
+		if( bs.GetLength() + unreliableData->GetLength() <= MAX_PACKET_SIZE-2 ) // Substract CRC16 size
 			bs.Append(unreliableData);
 
 		// If we are sending a reliable message, remember this time and use it for ping calculations
@@ -1231,7 +1260,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	// Add CRC16 
 	
 	CBytestream bs1;
-	bs1.writeInt( crc16( 0, bs.peekData( bs.GetLength() ).c_str(), bs.GetLength() ), 2);
+	bs1.writeInt( crc16( bs.peekData( bs.GetLength() ).c_str(), bs.GetLength() ), 2);
 	bs1.Append(&bs);
 	
 	// Send the packet
@@ -1242,12 +1271,35 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	LastReliablePacketSent = NextReliablePacketToSend;
 
 	// Update statistics
-	iOutgoingBytes += bs.GetLength();
-	iCurrentOutgoingBytes += bs.GetLength();
+	iOutgoingBytes += bs1.GetLength();
+	iCurrentOutgoingBytes += bs1.GetLength();
 	fLastSent = tLX->fCurTime; //GetMilliSeconds();
 
 	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->fCurTime, bs.GetLength() );
+	cOutgoingRate.addData( tLX->fCurTime, bs1.GetLength() );
+};
+
+void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChannel but without error msg
+{
+	if (bs.GetLength() > MAX_FRAGMENTED_PACKET_SIZE)  {
+		Messages.push_back(bs);
+		return;
+	}
+
+	if(bs.GetLength() == 0)
+		return;
+
+	// If no messages at all, add the first one
+	if (Messages.size() == 0)  {
+		Messages.push_back(bs);
+		return;
+	}
+
+	// Some reliable messages already in queue, see if we should already split the packet
+	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_FRAGMENTED_PACKET_SIZE)
+		Messages.push_back(bs);
+	else
+		Messages.rbegin()->Append(&bs);
 };
 
 
@@ -1301,7 +1353,7 @@ inline Uint16 crc16_byte(Uint16 crc, const Uint8 data)
  * @param len     number of bytes in the buffer
  * @return        the updated CRC value
  */
-Uint16 crc16(Uint16 crc, const char * buffer, size_t len)
+Uint16 crc16(const char * buffer, size_t len, Uint16 crc )
 {
         while (len--)
 		{

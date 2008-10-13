@@ -57,9 +57,9 @@ public:
 	// Generic data
 	void		ResetBitPos()		{ bitPos = 0; }
 	void		ResetPosToBegin()	{ pos = 0; bitPos = 0; }
-	size_t		GetLength()			{ return Data.size(); }
-	size_t		GetPos() 			{ return pos; }
-	size_t		GetRestLen()		{ return isPosAtEnd() ? 0 : (Data.size() - pos); }
+	size_t		GetLength()	const 	{ return Data.size(); }
+	size_t		GetPos() const 		{ return pos; }
+	size_t		GetRestLen() const 	{ return isPosAtEnd() ? 0 : (Data.size() - pos); }
 	
 	void		Clear();
 	void		Append(CBytestream *bs);
@@ -81,7 +81,7 @@ public:
 	// Reads
 	uchar		readByte(void);
 	bool		readBool(void);
-	int			readInt(uchar numbytes);
+	int			readInt(uchar numbytes); // readInt(2) will return 0:65535 range, not -32768:32767, so save it into Sint16
 	Sint16		readInt16(void);
 	float		readFloat(void);
 	std::string readString();
@@ -92,8 +92,8 @@ public:
 	std::string	readData( size_t size = (size_t)(-1) );
 
 	// Peeks
-	uchar		peekByte();
-	std::string	peekData(size_t len);
+	uchar		peekByte() const;
+	std::string	peekData(size_t len) const;
 
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip
@@ -104,7 +104,7 @@ public:
 	bool		SkipString();
 	void		SkipAll()		{ pos = Data.size(); }
 	
-	bool		isPosAtEnd() 	{ return GetPos() >= GetLength(); }
+	bool		isPosAtEnd() const { return GetPos() >= GetLength(); }
 	
 	// Networking stuff
 	bool	Send(NetworkSocket sock);

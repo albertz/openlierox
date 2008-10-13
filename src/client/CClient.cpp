@@ -1862,7 +1862,9 @@ CChannel * CClient::createChannel(const Version& v)
 {
 	if( cNetChan )
 		delete cNetChan;
-	if( v >= OLXBetaVersion(6) )
+	if( v >= OLXBetaVersion(9) )
+		cNetChan = new CChannel3();
+	else if( v >= OLXBetaVersion(6) )
 		cNetChan = new CChannel2();
 	else
 		cNetChan = new CChannel_056b();

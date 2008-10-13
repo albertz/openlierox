@@ -287,6 +287,8 @@ private:
 		bool fragmented;
 
 		Packet_t( const CBytestream & d, int i, bool f ): data(d), idx(i), fragmented(f) { };
+		
+		bool operator < ( const Packet_t & p ) const; // For sorting
 	};
 	typedef std::list< Packet_t > PacketList_t;
 	PacketList_t	ReliableOut;		// Reliable messages waiting to be acknowledged, with their ID-s, sorted
@@ -338,6 +340,8 @@ public:
 
 	bool		getBufferEmpty(void)	{ return ReliableOut.empty(); };
 	bool		getBufferFull(void)		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
+
+	void		AddReliablePacketToSend(CBytestream& bs); // The same as in CChannel but without error msg
 
 	friend void TestCChannelRobustness();
 };
