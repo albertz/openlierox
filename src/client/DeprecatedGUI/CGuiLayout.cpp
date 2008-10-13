@@ -567,7 +567,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Switch between window and fullscreen mode (only for menu)
 	// TODO: move this out of here
-	if( cSwitchMode.isUp() && tMenu->bMenuRunning )  {
+	if( cSwitchMode->isUp() && tMenu->bMenuRunning )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
@@ -577,7 +577,7 @@ gui_event_t *CGuiLayout::Process(void)
 		// Redraw the mouse
 		Menu_RedrawMouse(true);
 
-		cSwitchMode.reset();
+		cSwitchMode->reset();
 	}
 
 	// Put it here, so the mouse will never display

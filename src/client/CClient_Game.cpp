@@ -1219,7 +1219,7 @@ void CClient::processChatter(void)
 				cShowSettings.isDown() ||
 				cToggleTopBar.isDown() ||
 				(input.sym == SDLK_BACKQUOTE) ||
-				cTakeScreenshot.isDown();
+				cTakeScreenshot->isDown();
 
 			if(controls) continue;
 

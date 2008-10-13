@@ -38,8 +38,8 @@ bool bShowFloatingOptions = false;
 void SetupGameInputs()
 {
 	// Setup global keys
-	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 
 	cClient->SetupGameInputs();
 }
