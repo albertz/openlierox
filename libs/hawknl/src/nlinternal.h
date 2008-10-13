@@ -27,9 +27,6 @@
 
 /* for malloc and free */
 #include <stdlib.h>
-#ifndef MACOSX
-#include <malloc.h>
-#endif
 
 /* Windows CE does not have time.h functions */
 #if defined (_WIN32_WCE)
