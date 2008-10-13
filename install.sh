@@ -17,12 +17,12 @@
 if [ ! -x bin/openlierox ]; then
 	echo "ERROR: the binary is missing" >&2
 	echo "please run ./compile.sh to compile it first"
-	exit -1
+	exit 1
 fi
 
-[ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
-[ "$BIN_DIR" == "" ] && BIN_DIR=/usr/bin
-[ "$DOC_DIR" == "" ] && DOC_DIR=/usr/share/doc
+[ "$SYSTEM_DATA_DIR" = "" ] && SYSTEM_DATA_DIR=/usr/share
+[ "$BIN_DIR" = "" ] && BIN_DIR=/usr/bin
+[ "$DOC_DIR" = "" ] && DOC_DIR=/usr/share/doc
 
 if [ "$PREFIX" != "" ]; then
 	SYSTEM_DATA_DIR=$PREFIX/$SYSTEM_DATA_DIR

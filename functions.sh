@@ -6,17 +6,17 @@
 # searches for a header file in all include paths
 #	$1 - header file
 #	$INCLUDE_PATH - list of include paths
-# returns -1 when not found
+# returns 1 when not found
 test_include_file() {
 	for p in $INCLUDE_PATH; do
 		[ -e "$p"/"$1" ] && return 0
 	done
-	return -1
+	return 1
 }
 
 # check if executable is there
 #	$1 - executable
-# return -1 if not available
+# return 1 if not available
 test_exec() {
 	which "$1" 1>/dev/null 2>/dev/null
 	return $?
@@ -34,13 +34,13 @@ grep_param() {
 # simple own sdl-config
 # tries to behave like sdl-config
 # replacement for sdl-config if not available
-#	$1 == --libs => lib-flags for linker
-#	$1 == --cflags => compiler-flags
+#	$1 = --libs => lib-flags for linker
+#	$1 = --cflags => compiler-flags
 #	$INCLUDE_PATH - used for include-paths for compiler flags
 # prints out the flags on stdout
 own_sdl_config() {
-	[ "$1" == "--libs" ] && echo "-lSDL"
-	if [ "$1" == "--cflags" ]; then
+	[ "$1" = "--libs" ] && echo "-lSDL"
+	if [ "$1" = "--cflags" ]; then
 		for d in $INCLUDE_PATH; do
 			[ -d "$d/SDL" ] && echo -n "-I$d/SDL "
 		done
@@ -51,13 +51,13 @@ own_sdl_config() {
 # simply own xml2-config
 # tries to behave like xml2-config
 # replacement for xml2-config if not available
-#	$1 == --libs => lib-flags for linker
-#	$1 == --cflags => compiler-flags
+#	$1 = --libs => lib-flags for linker
+#	$1 = --cflags => compiler-flags
 #	$INCLUDE_PATH - used for include-paths for compiler flags
 # prints out the flags on stdout
 own_xml2_config() {
-	[ "$1" == "--libs" ] && echo "-lz -lxml2"
-	if [ "$1" == "--cflags" ]; then
+	[ "$1" = "--libs" ] && echo "-lz -lxml2"
+	if [ "$1" = "--cflags" ]; then
 		for d in $INCLUDE_PATH; do
 			[ -d "$d/libxml2" ] && echo -n "-I$d/libxml2 "
 		done
@@ -89,13 +89,13 @@ get_olx_version() {
 #	$1 - parameter prefix (like "-I ")
 #	$2 - list of paths/files
 #	$3 - list of path-suffixes which will be added to each entry of first list
-#	"$3" == "" => only $2 is used
+#	"$3" = "" => only $2 is used
 # example: $* = -L "lib1 lib2 lib3"  =>  stdout = "-L lib1 -L lib2 -L lib3"
 # example: $* = -I "p1 p2" "/SDL /libxml2"  =>  stdout = "-I p1/SDL -I p2/libxml"
 # prints out the string on stdout
 build_param_str() {
 	for p in $2; do
-		if [ "$3" == "" ]; then
+		if [ "$3" = "" ]; then
 			echo -n "$1 ${p} "
 		else
 			for a in $3; do

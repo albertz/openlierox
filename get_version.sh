@@ -2,6 +2,6 @@
 
 cd "$(dirname "$0")"
 
-. functions.sh
+. ./functions.sh
 
 get_olx_version
