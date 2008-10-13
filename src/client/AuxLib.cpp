@@ -439,7 +439,7 @@ void CapFPS() {
 void ProcessScreenshots()
 {
 	// Check if user pressed screenshot key
-	if (cTakeScreenshot->isDownOnce())  {
+	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
 		screenshot_t scr;
 		scr.sData = "";
 		scr.sDir = "scrshots";
