@@ -374,7 +374,7 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
 }
 
-void CServerNetEngine::ParseChatCommandCompletionRequest(CBytestream *bs) {
+void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	std::list<std::string> possibilities;
 	
 	std::string startStr = bs->readString();
@@ -410,7 +410,7 @@ void CServerNetEngine::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	server->SendChatCommandCompletionList(cl, startStr, possibilities);
 }
 
-void CServerNetEngine::ParseAFK(CBytestream *bs) {
+void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 
 	int wormid = bs->readByte();
 	int afkType = bs->readByte();
