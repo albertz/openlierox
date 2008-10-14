@@ -823,35 +823,55 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		std::string word;
 
 		// Handle multiple blank characters
-		if ((*it == '\n' || *it == ' ' || *it == '\t') && (sCurLine.size() != 0 || bInPre))  {
+		if ((*it == '\n' || *it == '\r' || *it == ' ' || *it == '\t') && (sCurLine.size() != 0 || bInPre))  {
 			// In PRE tag the blank characters are kept
 			if (bInPre)  {
 				was_space = true;
+				int width = 0;
 
 				switch (*it)  {
 				case '\n': // Newline
-					if (!was_cr)
+					if (!was_cr)  {
 						EndLine();
+						current_column = 0;
+						was_cr = false;
+					}
 				break;
 				case '\r':
 					EndLine();
+					current_column = 0;
 					was_cr = true;
 				break;
 				case '\t':  { // Tab
+					was_cr = false;
 					sCurLine += *it;
 					int tablen = tab_size * (tLX->cFont.GetCharacterWidth(' ') + tLX->cFont.GetSpacing());
-					if (curX + tablen >= maxX) // If the tab is too wide, just skip to next line
+					if (curX + tablen >= maxX)  { // If the tab is too wide, just skip to next line
 						EndLine();
-					else
+						current_column = 0;
+					} else  {
+						current_column++;
 						curX += tablen;
+						width = tablen;
+					}
 				} break;
 				case ' ':  // Space
+					was_cr = false;
 					sCurLine += *it;
-					if (curX + tLX->cFont.GetCharacterWidth(' ') >= maxX)
+					if (curX + tLX->cFont.GetCharacterWidth(' ') >= maxX)  {
 						EndLine();
-					else
-						curX += tLX->cFont.GetCharacterWidth(' ');
+						current_column = 0;
+					} else  {
+						current_column++;
+						width = tLX->cFont.GetCharacterWidth(' ') + tLX->cFont.GetSpacing();
+						curX += width;
+					}
 				break;
+				}
+
+				// Draw the selection
+				if (width && InSelection(tPureText.size(), current_column - 1))  {
+					DrawRectFill(bmpBuffer.get(), curX - width, curY, curX, curY + tLX->cFont.GetHeight(), tLX->clSelection);
 				}
 
 				it++;
@@ -870,10 +890,11 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 
 				if (!was_space)  {
 					word = " ";
-					was_space = true;
+					was_cr = false;
 				} else {
 					it++;
 					was_space = true;
+					was_cr = false;
 					continue;
 				}
 			}
@@ -881,6 +902,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		// Normal word
 		} else {
 			was_space = false;
+			was_cr = false;
 			
 			// Ignore empty words
 			word = GetNextWord(it, text);
@@ -923,8 +945,14 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		if (curX + width >= maxX)  {
 			EndLine();
 			current_column = 0;
-		}
-		sCurLine += word;
+			if (word != " ")
+				sCurLine += word;
+			else  {
+				it++;
+				continue; // Ignore blanks at the beginning of the line
+			}
+		} else
+			sCurLine += word;
 		it += word.size();
 
 
@@ -968,7 +996,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		}
 
 
-		was_space = false;
+		was_space = (word.size() == 1 && *word.begin() == ' ');
 	}
 }
 
