@@ -769,9 +769,9 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 	// Get the word
 	std::string res;
 	while (it != str.end())  {
-		res += *it;
 		if (isspace((uchar)*it))
 			return res;
+		res += *it;
 		it++;
 	}
 

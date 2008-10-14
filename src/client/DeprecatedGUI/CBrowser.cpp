@@ -808,27 +808,74 @@ void CBrowser::ReRender()
 void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text)
 {
 	if(!text.size()) return;
+	static const int tab_size = 5; // Length of a tabulator (in spaces)
 
 	// Text
-	bool was_space = sCurLine.size() > 0 ? (*sCurLine.rbegin() == ' ') : false;
+	bool was_space = false;
+	bool was_cr = false;
+	if (sCurLine.size())  {
+		was_space = isspace((uchar)*sCurLine.rbegin()) != 0;
+		was_cr = *sCurLine.rbegin() == '\r';
+	}
+
 	size_t current_column = Utf8StringSize(sCurLine);
 	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
-		// Handle spaces & newlines
-		if (*it == '\r')  {
-			it++;
-			continue;
-		}
-
 		std::string word;
 
 		// Handle multiple blank characters
-		if ((*it == '\n' || *it == ' ' || *it == '\t') && sCurLine.size() != 0)  {
-			if (!was_space)  {
-				word = " ";
-			} else {
-				it++;
+		if ((*it == '\n' || *it == ' ' || *it == '\t') && (sCurLine.size() != 0 || bInPre))  {
+			// In PRE tag the blank characters are kept
+			if (bInPre)  {
 				was_space = true;
+
+				switch (*it)  {
+				case '\n': // Newline
+					if (!was_cr)
+						EndLine();
+				break;
+				case '\r':
+					EndLine();
+					was_cr = true;
+				break;
+				case '\t':  { // Tab
+					sCurLine += *it;
+					int tablen = tab_size * (tLX->cFont.GetCharacterWidth(' ') + tLX->cFont.GetSpacing());
+					if (curX + tablen >= maxX) // If the tab is too wide, just skip to next line
+						EndLine();
+					else
+						curX += tablen;
+				} break;
+				case ' ':  // Space
+					sCurLine += *it;
+					if (curX + tLX->cFont.GetCharacterWidth(' ') >= maxX)
+						EndLine();
+					else
+						curX += tLX->cFont.GetCharacterWidth(' ');
+				break;
+				}
+
+				it++;
 				continue;
+
+
+			// Not in PRE tag, ignore doubled spaces
+			} else {
+				// Ignore CRs
+				if (*it == '\r')  {
+					it++;
+					was_cr = true;
+					was_space = true;
+					continue;
+				}
+
+				if (!was_space)  {
+					word = " ";
+					was_space = true;
+				} else {
+					it++;
+					was_space = true;
+					continue;
+				}
 			}
 
 		// Normal word
@@ -921,7 +968,7 @@ void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int&
 		}
 
 
-		was_space = ((*word.rbegin()) == ' ');  // HINT: word.size() != 0 here
+		was_space = false;
 	}
 }
 
@@ -1132,6 +1179,17 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		EndLine();
 		iCurIndent = 0; // Back to normal indentation
 		curX = iBorderSize;
+		return;
+	}
+
+	// Pre
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"pre"))  {
+		if (sCurLine.size() > 0)
+			EndLine();
+		bInPre = true;
+		BrowseChildren(node);
+		EndLine();
+		bInPre = false;
 		return;
 	}
 

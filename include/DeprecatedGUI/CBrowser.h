@@ -68,6 +68,7 @@ public:
 		bDrawCursor(true),
 		tTimer(NULL),
 		bInLink(false),
+		bInPre(false),
 		bmpBuffer(NULL),
 		bNeedsRender(false)
 	{
@@ -185,6 +186,7 @@ private:
 	int						curY;
 	std::string				sCurLine;
 	int						iCurIndent; // Where the new lines should start (left margin)
+	bool					bInPre;  // True if inside PRE tag
 
 	// Selection & caret
 	size_t					iCursorColumn;
