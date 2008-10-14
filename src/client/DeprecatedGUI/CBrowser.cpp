@@ -1199,6 +1199,7 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 		tCurrentFormat.bold = true;
 		EndLine();
 		BrowseChildren(node);
+		EndLine();
 		tCurrentFormat = tFormatStack.top();
 		tFormatStack.pop();
 		return;
