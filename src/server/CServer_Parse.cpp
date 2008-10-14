@@ -57,10 +57,9 @@ std::string Utf8String(const std::string &OldLxString);
 =======================================
 */
 
-
 ///////////////////
-// Parses a general packet
-void CServerNetEngine::ParseClientPacket(CBytestream *bs) {
+// Parse a packet
+void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 	// TODO: That's hack, all processing should be done in CChannel_056b
 	// Maybe server will work without that code at all, should check against 0.56b
@@ -77,14 +76,6 @@ void CServerNetEngine::ParseClientPacket(CBytestream *bs) {
 	if (bs->isPosAtEnd())
 		return;
 
-	// Parse the packet messages
-	ParsePacket(bs);
-}
-
-
-///////////////////
-// Parse a packet
-void CServerNetEngine::ParsePacket(CBytestream *bs) {
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
@@ -94,49 +85,49 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 			// Client is ready
 		case C2S_IMREADY:
-			server->ParseImReady(cl, bs);
+			ParseImReady(bs);
 			break;
 
 			// Update packet
 		case C2S_UPDATE:
-			server->ParseUpdate(cl, bs);
+			ParseUpdate(bs);
 			break;
 
 			// Death
 		case C2S_DEATH:
-			server->ParseDeathPacket(cl, bs);
+			ParseDeathPacket(bs);
 			break;
 
 			// Chat text
 		case C2S_CHATTEXT:
-			server->ParseChatText(cl, bs);
+			ParseChatText(bs);
 			break;
 
 		case C2S_CHATCMDCOMPLREQ:
-			server->ParseChatCommandCompletionRequest(cl, bs);	
+			ParseChatCommandCompletionRequest(bs);	
 			break;
 
 		case C2S_AFK:
-			server->ParseAFK(cl, bs);	
+			ParseAFK(bs);
 			break;
 
 			// Update lobby
 		case C2S_UPDATELOBBY:
-			server->ParseUpdateLobby(cl, bs);
+			ParseUpdateLobby(bs);
 			break;
 
 			// Disconnect
 		case C2S_DISCONNECT:
-			server->ParseDisconnect(cl);
+			ParseDisconnect();
 			break;
 
 			// Bonus grabbed
 		case C2S_GRABBONUS:
-			server->ParseGrabBonus(cl, bs);
+			ParseGrabBonus(bs);
 			break;
 
 		case C2S_SENDFILE:
-			server->ParseSendFile(cl, bs);
+			ParseSendFile(bs);
 			break;
 
 		default:
@@ -174,8 +165,8 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 ///////////////////
 // Parse a 'im ready' packet
-void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
-	if ( iState != SVS_GAME && !serverAllowsConnectDuringGame() )
+void CServerNetEngine::ParseImReady(CBytestream *bs) {
+	if ( server->iState != SVS_GAME && !server->serverAllowsConnectDuringGame() )
 	{
 		printf("GameServer::ParseImReady: Not waiting for ready, packet is being ignored.\n");
 
@@ -197,16 +188,16 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 	for (i = 0; i < num; i++) {
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
-			if(!cWorms[id].isUsed()) {
+			if(!server->cWorms[id].isUsed()) {
 				printf("WARNING(ParseImReady): got unused worm-ID!\n");
 				CWorm::skipWeapons(bs);
 				continue;
 			}
-			cWorms[id].readWeapons(bs);
+			server->cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++)
-				cWorms[id].getWeapon(j)->Enabled =
-					cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name) ||
-					cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
+				server->cWorms[id].getWeapon(j)->Enabled =
+					server->cWeaponRestrictions.isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
+					server->cWeaponRestrictions.isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}
@@ -216,36 +207,36 @@ void GameServer::ParseImReady(CServerConnection *cl, CBytestream *bs) {
 	// Set this client to 'ready'
 	cl->setGameReady(true);
 
-	SendClientReady(NULL, cl);
+	server->SendClientReady(NULL, cl);
 	
-	if(iState == SVS_PLAYING && serverAllowsConnectDuringGame())
-		BeginMatch(cl);
+	if(server->iState == SVS_PLAYING && server->serverAllowsConnectDuringGame())
+		server->BeginMatch(cl);
 	else
 		// Check if all the clients are ready
-		CheckReadyClient();
+		server->CheckReadyClient();
 }
 
 
 ///////////////////
 // Parse an update packet
-void GameServer::ParseUpdate(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 	for (short i = 0; i < cl->getNumWorms(); i++) {
 		CWorm *w = cl->getWorm(i);
 
-		w->readPacket(bs, cWorms);
+		w->readPacket(bs, server->cWorms);
 
 		// If the worm is shooting, handle it
-		if (w->getWormState()->bShoot && w->getAlive() && iState == SVS_PLAYING)
-			WormShoot(w, this); // handle shot and add to shootlist to send it later to the clients
+		if (w->getWormState()->bShoot && w->getAlive() && server->iState == SVS_PLAYING)
+			server->WormShoot(w, server); // handle shot and add to shootlist to send it later to the clients
 	}
 }
 
 
 ///////////////////
 // Parse a death packet
-void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	// No kills in lobby
-	if (iState != SVS_PLAYING)  {
+	if (server->iState != SVS_PLAYING)  {
 		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
 
 		// Skip to get the correct position in the stream
@@ -264,7 +255,7 @@ void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
 	}
 
 	// If the game is already over, ignore this
-	if (bGameOver)  {
+	if (server->bGameOver)  {
 		printf("GameServer::killWorm: Game is over, ignoring.\n");
 		return;
 	}
@@ -314,7 +305,7 @@ void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
 	// the packet contains another death (with same killer and victim), if so, just
 	// increase the suicide variable and proceed
 	if (killer == victim)  {
-		iSuicidesInPacket++;
+		server->iSuicidesInPacket++;
 		if (!bs->isPosAtEnd())  {
 			if (bs->peekByte() == C2S_DEATH)  {
 				std::string s = bs->peekData(3);
@@ -327,15 +318,15 @@ void GameServer::ParseDeathPacket(CServerConnection *cl, CBytestream *bs) {
 		}
 	}
 
-	killWorm(victim, killer, iSuicidesInPacket);
+	server->killWorm(victim, killer, server->iSuicidesInPacket);
 	
-	iSuicidesInPacket = 0; // Reset counter, so next /suicide command will work correctly
+	server->iSuicidesInPacket = 0; // Reset counter, so next /suicide command will work correctly
 }
 
 
 ///////////////////
 // Parse a chat text packet
-void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	std::string buf = Utf8String(bs->readString());
 
 	if(cl->getNumWorms() == 0) {
@@ -362,13 +353,13 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 	// Check for special commands
 	if (command_buf.size() > 2)
 		if (command_buf[0] == '/' && command_buf[1] != '/')  {  // When two slashes at the beginning, parse as a normal message
-			ParseChatCommand(command_buf, cl);
+			ParseChatCommand(command_buf);
 			return;
 		}
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
-		SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
+		server->SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
 	}
 
 	// Don't send text from muted players
@@ -377,13 +368,13 @@ void GameServer::ParseChatText(CServerConnection *cl, CBytestream *bs) {
 		return;
 	}
 
-	SendGlobalText(buf, TXT_CHAT);
+	server->SendGlobalText(buf, TXT_CHAT);
 
 	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
 		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
 }
 
-void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	std::list<std::string> possibilities;
 	
 	std::string startStr = bs->readString();
@@ -398,28 +389,28 @@ void GameServer::ParseChatCommandCompletionRequest(CServerConnection *cl, CBytes
 	}
 	
 	if(possibilities.size() == 0) {
-		SendText(cl, "Chat auto completion: unknown command", TXT_NETWORK);
+		server->SendText(cl, "Chat auto completion: unknown command", TXT_NETWORK);
 		return;
 	}
 	
 	if(possibilities.size() == 1) {
 		// we have exactly one solution
-		SendChatCommandCompletionSolution(cl, startStr, possibilities.front() + " ");
+		server->SendChatCommandCompletionSolution(cl, startStr, possibilities.front() + " ");
 		return;
 	}
 	
 	size_t l = maxStartingEqualStr(possibilities);
 	if(l > startStr.size()) {
 		// we can complete to some longer sequence
-		SendChatCommandCompletionSolution(cl, startStr, possibilities.front().substr(0, l));
+		server->SendChatCommandCompletionSolution(cl, startStr, possibilities.front().substr(0, l));
 		return;
 	}
 	
 	// send list of all possibilities
-	SendChatCommandCompletionList(cl, startStr, possibilities);
+	server->SendChatCommandCompletionList(cl, startStr, possibilities);
 }
 
-void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseAFK(CBytestream *bs) {
 
 	int wormid = bs->readByte();
 	int afkType = bs->readByte();
@@ -427,7 +418,7 @@ void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
 	if (wormid < 0 || wormid >= MAX_WORMS)
 		return;
 	
-	CWorm *w = &cWorms[wormid];
+	CWorm *w = &server->cWorms[wormid];
 	if( ! w->isUsed() || w->getClient() != cl )
 		return;
 	
@@ -441,18 +432,18 @@ void GameServer::ParseAFK(CServerConnection *cl, CBytestream *bs) {
 	
 	CServerConnection *cl1;
 	int i;
-	for( i=0, cl1=cClients; i < MAX_CLIENTS; i++, cl1++ )
+	for( i=0, cl1=server->cClients; i < MAX_CLIENTS; i++, cl1++ )
 		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(7) )
-			SendPacket( &bs1, cl1 );
+			server->SendPacket( &bs1, cl1 );
 		
 }
 
 
 ///////////////////
 // Parse a 'update lobby' packet
-void GameServer::ParseUpdateLobby(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 	// Must be in lobby
-	if ( iState != SVS_LOBBY )  {
+	if ( server->iState != SVS_LOBBY )  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
 
 		// Skip to get the right position
@@ -481,7 +472,7 @@ void GameServer::ParseUpdateLobby(CServerConnection *cl, CBytestream *bs) {
 			bytestr.writeByte(cl->getWorm(i)->getID());
 			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
 		}
-		SendGlobalPacket(&bytestr);
+		server->SendGlobalPacket(&bytestr);
 		// HACK: pretend there are clients handling the bots to get around the
 		// "bug" in 0.56b
 	} else {
@@ -493,7 +484,7 @@ void GameServer::ParseUpdateLobby(CServerConnection *cl, CBytestream *bs) {
 			bytestr.writeByte(cl->getWorm(written)->getID());
 			bytestr.writeByte(cl->getWorm(written)->getLobby()->iTeam);
 			written++;
-			SendGlobalPacket(&bytestr);
+			server->SendGlobalPacket(&bytestr);
 			bytestr.Clear();
 		}
 	}
@@ -502,7 +493,7 @@ void GameServer::ParseUpdateLobby(CServerConnection *cl, CBytestream *bs) {
 
 ///////////////////
 // Parse a disconnect packet
-void GameServer::ParseDisconnect(CServerConnection *cl) {
+void CServerNetEngine::ParseDisconnect() {
 	// Check if the client hasn't already left
 	if (cl->getStatus() == NET_DISCONNECTED)  {
 		printf("GameServer::ParseDisconnect: Client has already disconnected.\n");
@@ -515,20 +506,20 @@ void GameServer::ParseDisconnect(CServerConnection *cl) {
 		return;
 	}
 
-	DropClient(cl, CLL_QUIT);
+	server->DropClient(cl, CLL_QUIT);
 }
 
 
 
 ///////////////////
 // Parse a 'grab bonus' packet
-void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
+void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 	int id = bs->readByte();
 	int wormid = bs->readByte();
 	int curwpn = bs->readByte();
 
 	// Check
-	if (iState != SVS_PLAYING)  {
+	if (server->iState != SVS_PLAYING)  {
 		printf("GameServer::ParseGrabBonus: Not playing.\n");
 		return;
 	}
@@ -536,11 +527,11 @@ void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
 
 	// Worm ID ok?
 	if (wormid >= 0 && wormid < MAX_WORMS) {
-		CWorm *w = &cWorms[wormid];
+		CWorm *w = &server->cWorms[wormid];
 
 		// Bonus id ok?
 		if (id >= 0 && id < MAX_BONUSES) {
-			CBonus *b = &cBonuses[id];
+			CBonus *b = &server->cBonuses[id];
 
 			if (b->getUsed()) {
 
@@ -550,7 +541,7 @@ void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
 					if (curwpn >= 0 && curwpn < 5) {
 
 						wpnslot_t *wpn = w->getWeapon(curwpn);
-						wpn->Weapon = cGameScript.get()->GetWeapons() + b->getWeapon();
+						wpn->Weapon = server->cGameScript.get()->GetWeapons() + b->getWeapon();
 						wpn->Charge = 1;
 						wpn->Reloading = false;
 					}
@@ -560,7 +551,7 @@ void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
 				CBytestream bs;
 				bs.writeByte(S2C_DESTROYBONUS);
 				bs.writeByte(id);
-				SendGlobalPacket(&bs);
+				server->SendGlobalPacket(&bs);
 			} else {
 				printf("GameServer::ParseGrabBonus: Bonus already destroyed.\n");
 			}
@@ -572,7 +563,7 @@ void GameServer::ParseGrabBonus(CServerConnection *cl, CBytestream *bs) {
 	}
 }
 
-void GameServer::ParseSendFile(CServerConnection *cl, CBytestream *bs)
+void CServerNetEngine::ParseSendFile(CBytestream *bs)
 {
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
@@ -584,6 +575,44 @@ void GameServer::ParseSendFile(CServerConnection *cl, CBytestream *bs)
 		};
 	};
 };
+
+/////////////////
+// Parse a command from chat
+bool CServerNetEngine::ParseChatCommand(const std::string& message)
+{
+	// Parse the message
+	const std::vector<std::string>& parsed = ParseCommandMessage(message, false);
+
+	// Invalid
+	if (parsed.size() == 0)
+		return false;
+
+	// Get the command
+	ChatCommand *cmd = GetCommand(parsed[0]);
+	if (!cmd)  {
+		server->SendText(cl, "The command is not supported.", TXT_NETWORK);
+		return false;
+	}
+
+	// Check the params
+	size_t num_params = parsed.size() - 1;
+	if (num_params < cmd->iMinParamCount || num_params > cmd->iMaxParamCount)  {
+		server->SendText(cl, "Invalid parameter count.", TXT_NETWORK);
+		return false;
+	}
+
+	// Get the parameters
+	std::vector<std::string> parameters = std::vector<std::string>(parsed.begin() + 1, parsed.end());
+
+	// Process the command
+	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : 0); // TODO: is this handling for worm0 correct? fix if not
+	if (error.size() != 0)  {
+		server->SendText(cl, error, TXT_NETWORK);
+		return false;
+	}
+
+	return true;
+}
 
 
 /*
@@ -1671,40 +1700,3 @@ void GameServer::ParseServerRegistered(NetworkSocket tSocket)
 	printf("GameServer::ParseServerRegistered()\n");
 };
 
-/////////////////
-// Parse a command from chat
-bool GameServer::ParseChatCommand(const std::string& message, CServerConnection *cl)
-{
-	// Parse the message
-	const std::vector<std::string>& parsed = ParseCommandMessage(message, false);
-
-	// Invalid
-	if (parsed.size() == 0)
-		return false;
-
-	// Get the command
-	ChatCommand *cmd = GetCommand(parsed[0]);
-	if (!cmd)  {
-		SendText(cl, "The command is not supported.", TXT_NETWORK);
-		return false;
-	}
-
-	// Check the params
-	size_t num_params = parsed.size() - 1;
-	if (num_params < cmd->iMinParamCount || num_params > cmd->iMaxParamCount)  {
-		SendText(cl, "Invalid parameter count.", TXT_NETWORK);
-		return false;
-	}
-
-	// Get the parameters
-	std::vector<std::string> parameters = std::vector<std::string>(parsed.begin() + 1, parsed.end());
-
-	// Process the command
-	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : 0); // TODO: is this handling for worm0 correct? fix if not
-	if (error.size() != 0)  {
-		SendText(cl, error, TXT_NETWORK);
-		return false;
-	}
-
-	return true;
-}

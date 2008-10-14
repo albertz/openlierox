@@ -30,8 +30,20 @@ public:
 	// Do not move here ParseConnectionlessPacket(), or make it static, 'cause client is not available for connectionless packet
 	
 	// Parsing
-	virtual void		ParseClientPacket(CBytestream *bs);
 	virtual void		ParsePacket(CBytestream *bs);
+
+	void		ParseImReady(CBytestream *bs);
+	void		ParseUpdate(CBytestream *bs);
+	void		ParseDeathPacket(CBytestream *bs);
+	void		ParseChatText(CBytestream *bs);
+	void		ParseChatCommandCompletionRequest(CBytestream *bs);	
+	void		ParseAFK(CBytestream *bs);
+	void		ParseUpdateLobby(CBytestream *bs);
+	void		ParseDisconnect();
+	void		ParseGrabBonus(CBytestream *bs);
+	void		ParseSendFile(CBytestream *bs);
+
+	bool		ParseChatCommand(const std::string& message);
 
 	// Sending
 

@@ -798,7 +798,7 @@ void GameServer::ReadPackets(void)
 				{
     	            // Only process the actual packet for playing clients
         	        if( cl->getStatus() != NET_ZOMBIE )
-					    cl->getNetEngine()->ParseClientPacket(&bs);
+					    cl->getNetEngine()->ParsePacket(&bs);
 					bs.Clear();
 				};
 			}
