@@ -36,8 +36,8 @@ public:
 	void		ParseUpdate(CBytestream *bs);
 	void		ParseDeathPacket(CBytestream *bs);
 	void		ParseChatText(CBytestream *bs);
-	void		ParseChatCommandCompletionRequest(CBytestream *bs);	
-	void		ParseAFK(CBytestream *bs);
+	virtual void ParseChatCommandCompletionRequest(CBytestream *bs) { return; };
+	virtual void ParseAFK(CBytestream *bs) { return; };
 	void		ParseUpdateLobby(CBytestream *bs);
 	void		ParseDisconnect();
 	void		ParseGrabBonus(CBytestream *bs);
@@ -61,6 +61,8 @@ public:
 		CServerNetEngine( _server, _client )
 		{ }
 
+	void ParseChatCommandCompletionRequest(CBytestream *bs);
+	void ParseAFK(CBytestream *bs);
 };
 
 #endif  //  __CSERVER_NET_ENGINE_H__
