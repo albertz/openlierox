@@ -226,8 +226,6 @@ public:
 	void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload(float timeRange = 2.0f);
-	bool		ParseChatCommand(const std::string& message, CServerConnection *cl);
-
 
 	void		checkVersionCompatibilities(bool dropOut);
 	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true);
@@ -252,18 +250,6 @@ public:
 #endif
 	void		SendFiles();
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
-
-	// Parsing
-	void		ParseImReady(CServerConnection *cl, CBytestream *bs);
-	void		ParseUpdate(CServerConnection *cl, CBytestream *bs);
-	void		ParseDeathPacket(CServerConnection *cl, CBytestream *bs);
-	void		ParseChatText(CServerConnection *cl, CBytestream *bs);
-	void		ParseChatCommandCompletionRequest(CServerConnection *cl, CBytestream *bs);	
-	void		ParseAFK(CServerConnection *cl, CBytestream *bs);
-	void		ParseUpdateLobby(CServerConnection *cl, CBytestream *bs);
-	void		ParseDisconnect(CServerConnection *cl);
-	void		ParseGrabBonus(CServerConnection *cl, CBytestream *bs);
-	void		ParseSendFile(CServerConnection *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
