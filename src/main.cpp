@@ -687,6 +687,9 @@ void GameLoopFrame(void)
 		OLXG15->gameFrame();
 #endif //WITH_G15
 
+	if( tLXOptions->bEnableChat )
+		DeprecatedGUI::Menu_Net_Chat_Process();
+
 	// Local
 	switch (tGameInfo.iGameType)  {
 	case GME_LOCAL:

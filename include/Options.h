@@ -183,6 +183,10 @@ public:
 	std::string	sHttpProxy;
 	bool	bAutoSetupHttpProxy;
 
+	// IRC chat
+	bool	bEnableChat;
+	bool	bEnableChatNotification;
+
 	// Audio
 	bool	bSoundOn;
 	int		iSoundVolume;

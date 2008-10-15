@@ -92,6 +92,9 @@ bool GameOptions::Init() {
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
+		( tLXOptions->bEnableChat, "Network.EnableChat", true )
+		( tLXOptions->bEnableChatNotification, "Network.EnableChatNotification", true )
+
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
 

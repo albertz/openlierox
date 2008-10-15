@@ -178,6 +178,7 @@ enum {
 	BUT_NEWS,
 	BUT_GENERAL,
 	BUT_BONUS,
+	BUT_CHAT,
 };
 
 // Frontend info
@@ -268,6 +269,7 @@ enum {
 	net_host,
 	net_favourites,
 	net_news,
+	net_chat,
 	net_join
 };
 
@@ -527,6 +529,14 @@ void	Menu_Net_FavouritesAddServer(void);
 bool	Menu_Net_NewsInitialize(void);
 void	Menu_Net_NewsShutdown();
 void	Menu_Net_NewsFrame(int mouse);
+
+// Net::Chat menu
+bool	Menu_Net_ChatInitialize(void);
+void	Menu_Net_ChatShutdown();
+void	Menu_Net_ChatFrame(int mouse);
+
+void	Menu_Net_Chat_Process();
+void	Menu_Net_Chat_Send(const std::string & text);
 
 // deprecated
 //int	Menu_Net_JoinInitializePlayers(void);

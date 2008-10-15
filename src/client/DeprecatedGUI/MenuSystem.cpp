@@ -382,6 +382,9 @@ void Menu_Loop(void)
 		} else {
 			last_frame_was_because_of_an_event = WaitForNextEvent();
 		}
+		
+		if( tLXOptions->bEnableChat )
+			Menu_Net_Chat_Process();
 
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;

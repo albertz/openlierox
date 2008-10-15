@@ -58,6 +58,7 @@ public:
 		curX(0),
 		curY(0),
 		iCurIndent(0),
+		bInPre(false),
 		iCursorColumn(0),
 		iCursorLine(0),
 		iSelectionStartLine(0),
@@ -68,7 +69,6 @@ public:
 		bDrawCursor(true),
 		tTimer(NULL),
 		bInLink(false),
-		bInPre(false),
 		bmpBuffer(NULL),
 		bNeedsRender(false)
 	{
