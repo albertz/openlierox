@@ -16,7 +16,7 @@
 class GameServer;
 class CServerConnection;
 
-class CServerNetEngine 
+class CServerNetEngine
 {
 public:
 	// Constructor
@@ -46,6 +46,11 @@ public:
 	bool		ParseChatCommand(const std::string& message);
 
 	// Sending
+	
+	void		SendPacket(CBytestream *bs);
+
+	virtual void SendClientReady(CServerConnection* receiver);
+
 
 protected:
 	// Attributes

@@ -232,8 +232,7 @@ public:
 	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true);
 
 	// Sending
-	void		SendPacket(CBytestream *bs, CServerConnection *cl);
-	void		SendGlobalPacket(CBytestream *bs);
+	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
 	void		SendText(CServerConnection *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
@@ -242,7 +241,6 @@ public:
 	void		SendDisconnect();
     void        SendWormLobbyUpdate(CServerConnection* receiver = NULL); // if NULL, to everybody, or only to cl
 	void		SendPrepareGame(CServerConnection* cl);
-	void		SendClientReady(CServerConnection* receiver, CServerConnection* cl);
 	void		UpdateGameLobby(CServerConnection* cl = NULL); // if NULL, to everybody, or only to cl
 	void		UpdateWorms();
 #ifdef FUZZY_ERROR_TESTING

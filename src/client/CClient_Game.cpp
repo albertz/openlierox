@@ -1382,6 +1382,9 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
 		// Get the text
 		std::string buf = copy_from_clipboard();
+		replace(buf, "\r", " ");
+		replace(buf, "\n", " ");
+		replace(buf, "\t", " ");
 
 		// Paste
 		Utf8Insert(sChat_Text, iChat_Pos, buf);

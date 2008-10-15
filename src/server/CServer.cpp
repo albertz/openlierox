@@ -562,7 +562,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
 	if(receiver)
-		SendPacket(&bs, receiver);
+		receiver->getNetEngine()->SendPacket(&bs);
 	else
 		SendGlobalPacket(&bs);
 	
@@ -582,7 +582,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					
 					CBytestream bs;
 					cl->getWorm(i)->writeScore(&bs);
-					SendPacket(&bs, receiver);
+					receiver->getNetEngine()->SendPacket(&bs);
 					
 					if(cl->getWorm(i)->getAlive()) {
 						// TODO: move that out here
@@ -592,7 +592,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 						bs.writeInt(cl->getWorm(i)->getID(), 1);
 						bs.writeInt( (int)cl->getWorm(i)->getPos().x, 2);
 						bs.writeInt( (int)cl->getWorm(i)->getPos().y, 2);
-						SendPacket(&bs, receiver);
+						receiver->getNetEngine()->SendPacket(&bs);
 					}
 				}
 			}
@@ -641,7 +641,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	}
 	if (bs.GetLength() != 0) { // Send only if there are some spectators
 		if(receiver)
-			SendPacket(&bs, receiver);
+			receiver->getNetEngine()->SendPacket(&bs);
 		else
 			SendGlobalPacket(&bs);		
 	}

@@ -207,7 +207,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 	// Set this client to 'ready'
 	cl->setGameReady(true);
 
-	server->SendClientReady(NULL, cl);
+	SendClientReady(NULL);
 	
 	if(server->iState == SVS_PLAYING && server->serverAllowsConnectDuringGame())
 		server->BeginMatch(cl);
@@ -434,7 +434,7 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 	int i;
 	for( i=0, cl1=server->cClients; i < MAX_CLIENTS; i++, cl1++ )
 		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(7) )
-			server->SendPacket( &bs1, cl1 );
+			cl1->getNetEngine()->SendPacket( &bs1 );
 		
 }
 
@@ -1257,7 +1257,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 					w->writeInfo(&b);
 				}
 				
-				SendPacket(&b, newcl);
+				newcl->getNetEngine()->SendPacket(&b);
 			}
 		}
 
@@ -1301,7 +1301,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				continue;
 
 			if(cl->getGameReady()) {
-				SendClientReady(newcl, cl);
+				cl->getNetEngine()->SendClientReady(newcl);
 			}
 		}
 		

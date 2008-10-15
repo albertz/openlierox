@@ -19,6 +19,7 @@
 #include "CServer.h"
 
 #include "CServerConnection.h"
+#include "CServerNetEngine.h"
 #include "StringUtils.h"
 #include "Protocol.h"
 #include "CWorm.h"
@@ -79,7 +80,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl)
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
-	SendPacket(&bs, cl);
+	cl->getNetEngine()->SendPacket(&bs);
 	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn && Worm->getClient() == cl )
 		SendEmptyWeaponsOnRespawn(Worm);
 }
@@ -1035,7 +1036,7 @@ void GameServer::gotoLobby(void)
 				int i;
 				for( i=0, cl=cClients; i < MAX_CLIENTS; i++, cl++ )
 					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
-						SendPacket( &bs, cl );
+						cl->getNetEngine()->SendPacket(&bs);
 			}
 		}
 		if(cWorms[i].getFlag()) {

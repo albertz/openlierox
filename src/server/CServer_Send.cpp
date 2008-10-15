@@ -21,6 +21,7 @@
 
 #include "StringUtils.h"
 #include "CServerConnection.h"
+#include "CServerNetEngine.h"
 #include "Protocol.h"
 #include "CWorm.h"
 #include "Timer.h"
@@ -39,7 +40,7 @@ std::string OldLxCompatibleString(const std::string &Utf8String);
 
 ///////////////////
 // Send a client a packet
-void GameServer::SendPacket(CBytestream *bs, CServerConnection *cl)
+void CServerNetEngine::SendPacket(CBytestream *bs)
 {
 	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 		return;
@@ -54,15 +55,11 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	// Assume reliable
 	CServerConnection *cl = cClients;
 
-	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
-			continue;
-
-		cl->getChannel()->AddReliablePacketToSend(*bs);
-	}
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
+		cl->getNetEngine()->SendPacket(bs);
 }
 
-void GameServer::SendClientReady(CServerConnection* receiver, CServerConnection* cl) {
+void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
 	CBytestream bytes;
 	if (cl->getNumWorms() <= 2)  {
@@ -70,13 +67,13 @@ void GameServer::SendClientReady(CServerConnection* receiver, CServerConnection*
 		bytes.writeByte(cl->getNumWorms());
 		for (int i = 0;i < cl->getNumWorms();i++) {
 			// Send the weapon info here (also contains id)
-			cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
+			server->cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
 		}
 		
 		if(receiver)
-			SendPacket(&bytes, receiver);
+			receiver->getNetEngine()->SendPacket(&bytes);
 		else
-			SendGlobalPacket(&bytes);
+			server->SendGlobalPacket(&bytes);
 
 		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
 		// Otherwise, 0.56b would not parse the packet correctly
@@ -87,11 +84,11 @@ void GameServer::SendClientReady(CServerConnection* receiver, CServerConnection*
 			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
 				bytes.writeByte(S2C_CLREADY);
 				bytes.writeByte(1);
-				cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
+				server->cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
 				if(receiver)
-					SendPacket(&bytes, receiver);
+					receiver->getNetEngine()->SendPacket(&bytes);
 				else
-					SendGlobalPacket(&bytes);
+					server->SendGlobalPacket(&bytes);
 				bytes.Clear();
 				written++;
 			}
@@ -128,7 +125,7 @@ void GameServer::SendPrepareGame(CServerConnection* cl) {
 		bs.writeBool( serverChoosesWeapons() );
 	}
 
-	SendPacket( &bs, cl );	
+	cl->getNetEngine()->SendPacket( &bs );	
 }
 
 
@@ -386,7 +383,7 @@ void GameServer::SendWeapons(CServerConnection* cl) {
 	}
 	
 	if(cl)
-		SendPacket(&bs, cl);
+		cl->getNetEngine()->SendPacket(&bs);
 	else
 		SendGlobalPacket(&bs);
 }
@@ -472,7 +469,7 @@ static void SendUpdateLobbyGame(CServerConnection *cl, game_lobby_t* gl, GameSer
 		bs.writeBool(gl->bSameWeaponsAsHostWorm);
 	}
 	
-	gs->SendPacket(&bs, cl);	
+	cl->getNetEngine()->SendPacket(&bs);
 }
 
 ///////////////////
@@ -552,7 +549,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver)
     }
 
 	if(receiver)
-		SendPacket(&bytestr, receiver);
+		receiver->getNetEngine()->SendPacket(&bytestr);
 	else
 		SendGlobalPacket(&bytestr);
 }
@@ -615,7 +612,7 @@ void GameServer::SendRandomPacket()
 		if(cl->isLocalClient())
 			continue;
 		
-		SendPacket(&bs, cl);
+		cl->SendPacket(&bs);
 	}
 }
 #endif
@@ -650,7 +647,7 @@ void GameServer::SendFiles()
 			CBytestream bs;
 			bs.writeByte(S2C_SENDFILE);
 			cl->getUdpFileDownloader()->send(&bs);
-			SendPacket( &bs, cl );
+			cl->getNetEngine()->SendPacket( &bs );
 			if( cl->getChannel()->getPing() < minPing && cl->getChannel()->getPing() != 0 )
 				minPing = cl->getChannel()->getPing();
 		};
@@ -686,5 +683,5 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 	bs.writeByte( cl->getNumWorms() );
 	for( j = 0; j < cl->getNumWorms(); j++ )
 		cl->getWorm(j)->writeStatUpdate(&bs);
-	SendPacket(&bs, cl);
+	cl->getNetEngine()->SendPacket(&bs);
 };

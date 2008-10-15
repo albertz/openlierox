@@ -739,6 +739,9 @@ void CTextbox::PasteText(void)
 		Delete();
 
     text = copy_from_clipboard();
+	replace(text, "\r", " ");
+	replace(text, "\n", " ");
+	replace(text, "\t", " ");
 
 	// too much data will crash OLX, so avoid that
 	if(text.size() > 500)
