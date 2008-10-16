@@ -41,6 +41,9 @@ static std::list<std::string> chatText;
 static std::list<std::string> chatUsers;
 static bool cChatGuiInitialized;
 
+void Menu_Net_Chat_ConnectToServer();
+void Menu_Net_Chat_DisconnectFromServer();
+
 enum {
 	nc_Back = 0,
 	nc_ChatText,
@@ -193,8 +196,6 @@ struct IrcCommand_t
 };
 
 void Menu_Net_Chat_ParseIrcCommand( const IrcCommand_t & cmd );
-void Menu_Net_Chat_ConnectToServer();
-void Menu_Net_Chat_DisconnectFromServer();
 
 void Menu_Net_Chat_InitNet()
 {
@@ -271,14 +272,21 @@ void Menu_Net_Chat_DisconnectFromServer()
 			WriteSocket(chatSocket, "QUIT\r\n");
 		CloseSocket(chatSocket);
 		socketConnected = false;
+		socketIsReady = false;
+		socketOpened = false;
 		connectionClosedTime = tLX->fCurTime;
+	};
+	if( cChatGuiInitialized )
+	{
+		CBrowser *b = (CBrowser *)cChat.getWidget(nc_UserList);
+		b->InitializeChatBox(); // Clean up users list
+		chatUsers.clear();
 	};
 	//printf("IRC server disconnected\n");
 };
 
 void Menu_Net_Chat_Process()
 {
-	//printf("Menu_Net_Chat_Process()\n");
 	Menu_Net_Chat_InitNet();
 	
 	if( !socketConnected )
