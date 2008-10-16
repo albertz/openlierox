@@ -383,7 +383,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib wininet.lib"
-				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
+				OutputFile="../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
@@ -4542,6 +4542,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Chat.cpp"
 				>
 			</File>
 			<File
