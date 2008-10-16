@@ -838,7 +838,7 @@ std::string HtmlEntityUnpairedBrackets(const std::string &txt)
 // Helper function for AutoDetectLinks
 static std::string GetLink(std::string::const_iterator& it, const std::string::const_iterator& end, size_t& pos)
 {
-	static const std::string valid_url_chars = "/%=@&?.:";
+	const std::string valid_url_chars = "/%=@&?.:-~";
 
 	std::string link;
 	bool was_dot = false;
