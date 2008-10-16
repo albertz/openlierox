@@ -29,6 +29,7 @@
 #include "AuxLib.h"
 #include "Version.h"
 #include "CClientNetEngine.h"
+#include "DeprecatedGUI/Menu.h"
 
 
 using namespace std;
@@ -675,6 +676,24 @@ void Cmd_ServerSideHealth()  {
 	Con_Printf(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
 }
 
+//////////////////
+// Send message to IRC chat from inside game
+void Cmd_SendIrcMessage()  {
+	// Check arguments
+	if (Cmd_GetNumArgs() == 1)  {
+		Con_Printf(CNC_NORMAL, "Usage: irc your message");
+	}
+
+	std::string msg;
+	for( int i = 1; i < Cmd_GetNumArgs(); i++ )
+	{
+		if( i > 1 )
+			msg += " ";
+		msg += Cmd_GetArg(i);
+	}
+	DeprecatedGUI::Menu_Net_Chat_Send(msg);
+}
+
 void Cmd_Initialize() {
 
     // Add some console commands
@@ -703,5 +722,7 @@ void Cmd_Initialize() {
 	Cmd_AddCommand("volume", Cmd_Volume);
 	Cmd_AddCommand("sound", Cmd_Sound);
 	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
+	Cmd_AddCommand("irc", Cmd_SendIrcMessage);
+	Cmd_AddCommand("chat", Cmd_SendIrcMessage);
 
 }

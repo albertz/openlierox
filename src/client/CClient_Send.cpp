@@ -27,6 +27,7 @@
 #include "CServer.h"
 #include "AuxLib.h"
 #include "CChannel.h"
+#include "DeprecatedGUI/Menu.h"
 
 
 
@@ -125,6 +126,12 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	if(HandleDebugCommand(sText)) return;
 	
 	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
+
+	if ( sText.find("/irc ") == 0 || sText.find("/chat ") == 0 ) // Send text to IRC
+	{
+		DeprecatedGUI::Menu_Net_Chat_Send( sText.substr( sText.find(" ") + 1 ) );
+		return;
+	};
 
 	// We can safely send long messages to servers >= beta8
 	if (client->getServerVersion() >= OLXBetaVersion(8))  {

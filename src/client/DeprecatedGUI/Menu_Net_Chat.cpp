@@ -23,9 +23,12 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "DeprecatedGUI/CListview.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "DeprecatedGUI/CLabel.h"
+#include "DeprecatedGUI/CCheckbox.h"
 #include "HTTP.h"
 #include "StringUtils.h"
 #include "AuxLib.h"
+#include "NotifyUser.h"
 #include "libirc_rfcnumeric.h"
 
 
@@ -43,6 +46,8 @@ enum {
 	nc_ChatText,
 	nc_UserList,
 	nc_ChatInput,
+	nc_EnableChat,
+	nc_EnableChatNotify,
 };
 
 
@@ -61,6 +66,10 @@ bool Menu_Net_ChatInitialize(void)
 	cChat.Add( new CTextbox(), nc_ChatInput, 25,  410, 590, tLX->cFont.GetHeight());
 	cChat.Add( new CBrowser(), nc_UserList, 475, 140, 140, 260);
 	cChat.Add( new CBrowser(), nc_ChatText, 25, 140, 440, 260);
+	cChat.Add( new CCheckbox(tLXOptions->bEnableChat), nc_EnableChat, 100, 440, 20, 20);
+	cChat.Add( new CLabel("Enable", tLX->clNormalLabel), -1, 130, 440, 0, 0);
+	cChat.Add( new CCheckbox(tLXOptions->bEnableChatNotification), nc_EnableChatNotify, 200, 440, 20, 20);
+	cChat.Add( new CLabel("Notify when my name appears in chat", tLX->clNormalLabel), -1, 230, 440, 0, 0);
 
 	CBrowser *b = (CBrowser *)cChat.getWidget(nc_ChatText);
 	b->InitializeChatBox();
@@ -134,6 +143,25 @@ void Menu_Net_ChatFrame(int mouse)
 						cChat.SendMessage(nc_ChatInput, TXS_SETTEXT, "", 0); // Clear the text box
 				}
 				break;
+
+			case nc_EnableChat:
+				if(ev->iEventMsg == CHK_CHANGED) {
+					
+					PlaySoundSample(sfxGeneral.smpClick);
+					tLXOptions->bEnableChat = cChat.SendMessage(nc_EnableChat, CKM_GETCHECK, 1, 1);
+					if( ! tLXOptions->bEnableChat )
+						Menu_Net_Chat_DisconnectFromServer();
+				}
+				break;
+
+			case nc_EnableChatNotify:
+				if(ev->iEventMsg == CHK_CHANGED) {
+					
+					PlaySoundSample(sfxGeneral.smpClick);
+					tLXOptions->bEnableChatNotification = cChat.SendMessage(nc_EnableChatNotify, CKM_GETCHECK, 1, 1);
+				}
+				break;
+			
 		}
 
 	}
@@ -217,11 +245,19 @@ void Menu_Net_Chat_ConnectToServer()
 	socketIsReady = false;
 	netBuffer = "";
 	AuthorizedState = AUTH_NONE;
+
 	nick = tLXOptions->tGameinfo.sLastSelectedPlayer;
-	replace( nick, " ", "_" ); // Escape some symbols
-	replace( nick, "@", "-" );
-	replace( nick, ":", "-" );
-	replace( nick, "!", "-" );
+	if( nick == "" )
+		nick = "OpenLieroXor";
+	// Escape some symbols, make nick IRC-compatible
+	replace( nick, " ", "_" ); 
+	#define S_LETTER_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	#define S_LETTER_LOWER "abcdefghijklmnopqrstuvwxyz"
+	#define S_LETTER S_LETTER_UPPER S_LETTER_LOWER
+	#define S_NUMBER "0123456789"
+	#define S_SYMBOL "-[]\\`^{}_"
+	while( nick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) != std::string::npos )
+		nick[ nick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) ] = '-';
 	nickUniqueNumber = -1;
 	updatingUserList = false;
 	//printf("IRC server connected\n");
@@ -282,7 +318,7 @@ void Menu_Net_Chat_Process()
 	while( netBuffer.find("\r\n") != std::string::npos )
 	{
 		std::string line = netBuffer.substr( 0, netBuffer.find("\r\n") );
-		//printf("IRC: %s\n", line.c_str());
+		printf("IRC: %s\n", line.c_str());
 		netBuffer = netBuffer.substr( netBuffer.find("\r\n")+2 );
 		IrcCommand_t cmd;
 		if(line[0] == ':')
@@ -309,7 +345,7 @@ void Menu_Net_Chat_Process()
 
 bool Menu_Net_Chat_Send(const std::string & text)
 {
-	if( !socketConnected || !socketIsReady || AuthorizedState != AUTH_JOINED_CHANNEL )
+	if( !socketConnected || !socketIsReady || AuthorizedState != AUTH_JOINED_CHANNEL || text == "" )
 		return false;
 	WriteSocket(chatSocket, "PRIVMSG " + strChatServerChannel + " :" + text + "\r\n");
 	//printf("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
@@ -374,6 +410,13 @@ void Menu_Net_Chat_ParseIrcCommand( const IrcCommand_t & cmd )
 			CBrowser *b = (CBrowser *)cChat.getWidget(nc_ChatText);
 			b->AddChatBoxLine( text, tLX->clChatText, TXT_CHAT );
 		}
+		if( tLXOptions->bEnableChatNotification && 
+			stringtolower(text).find( stringtolower( nick ) ) != std::string::npos )
+		{
+			NotifyUserOnEvent();
+			if( cClient && ( cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING ) )
+				cClient->getChatbox()->AddText( "IRC: " + text, tLX->clChatText, TXT_CHAT, tLX->fCurTime );
+		};
 	}
 	else
 	if( atoi(cmd.cmd) == LIBIRC_RFC_RPL_NAMREPLY )
