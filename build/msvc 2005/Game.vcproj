@@ -2761,6 +2761,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Chat.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\Menu_Net_Favourites.cpp"
 				>
 			</File>
