@@ -851,6 +851,8 @@ void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	printf("Shutting me down...\n");
+	
+	DeprecatedGUI::Menu_Net_Chat_DisconnectFromServer(); // Disconnect from IRC
 
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
