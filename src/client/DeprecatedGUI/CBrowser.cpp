@@ -217,6 +217,10 @@ void CBrowser::Parse()
 // Mouse down event
 int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 {
+	// DO nothing if not focused
+	if (!bFocused)
+		return BRW_NONE;
+
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 	{
 		cScrollbar.MouseDown(tMouse, nDown);
