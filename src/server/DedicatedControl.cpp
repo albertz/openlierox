@@ -905,16 +905,23 @@ bool DedicatedControl::Init_priv() {
 		if (returnStatus != ERROR_SUCCESS)
 		{
 			printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
-			return false;
+			lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 		}
 		returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
 		RegCloseKey(hKey);
 		if (returnStatus != ERROR_SUCCESS)
 		{
 			printf( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
-			return false;
+			lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 		}
-		command = std::string(lszCmdPath) + "\\" + command;
+
+		// Add trailing slash if needed
+		std::string path(lszCmdPath);
+		if (path.size())  {
+			if (*path.rbegin() != '\\' && *path.rbegin() != '/')
+				path += '\\';
+		}
+		command = std::string(lszCmdPath) + command;
 		commandArgs[0] = command;
 	}
 	#endif
