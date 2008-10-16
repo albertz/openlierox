@@ -148,7 +148,7 @@ void Menu_Net_ChatFrame(int mouse)
 				if(ev->iEventMsg == CHK_CHANGED) {
 					
 					PlaySoundSample(sfxGeneral.smpClick);
-					tLXOptions->bEnableChat = cChat.SendMessage(nc_EnableChat, CKM_GETCHECK, 1, 1);
+					tLXOptions->bEnableChat = cChat.SendMessage(nc_EnableChat, CKM_GETCHECK, 1, 1) != 0;
 					if( ! tLXOptions->bEnableChat )
 						Menu_Net_Chat_DisconnectFromServer();
 				}
@@ -158,7 +158,7 @@ void Menu_Net_ChatFrame(int mouse)
 				if(ev->iEventMsg == CHK_CHANGED) {
 					
 					PlaySoundSample(sfxGeneral.smpClick);
-					tLXOptions->bEnableChatNotification = cChat.SendMessage(nc_EnableChatNotify, CKM_GETCHECK, 1, 1);
+					tLXOptions->bEnableChatNotification = cChat.SendMessage(nc_EnableChatNotify, CKM_GETCHECK, 1, 1) != 0;
 				}
 				break;
 			
