@@ -34,7 +34,7 @@
 
 namespace DeprecatedGUI {
 
-enum { IRC_PORT = 6667 };
+enum { IRC_PORT = 6667, IRC_NICK_MAX_LEN = 15 };
 
 static CGuiLayout	cChat;
 static std::list<std::string> chatText;
@@ -259,6 +259,12 @@ void Menu_Net_Chat_ConnectToServer()
 	#define S_SYMBOL "-[]\\`^{}_"
 	while( nick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) != std::string::npos )
 		nick[ nick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) ] = '-';
+	if( nick.size() > IRC_NICK_MAX_LEN )
+		nick = nick.substr(0, IRC_NICK_MAX_LEN);
+	if( nick == "" )
+		nick = "z";
+	if( nick.find_first_of(S_NUMBER) == 0 )
+		nick[0] = 'z';
 	nickUniqueNumber = -1;
 	updatingUserList = false;
 	//printf("IRC server connected\n");
@@ -392,6 +398,8 @@ void Menu_Net_Chat_ParseIrcCommand( const IrcCommand_t & cmd )
 	if( atoi(cmd.cmd) == LIBIRC_RFC_ERR_NICKNAMEINUSE )
 	{
 		nickUniqueNumber ++;
+		if( nick.size() + itoa(nickUniqueNumber).size() > IRC_NICK_MAX_LEN )
+			nick = nick.substr(0, IRC_NICK_MAX_LEN - itoa(nickUniqueNumber).size() );
 		WriteSocket(chatSocket, "NICK " + nick + itoa(nickUniqueNumber) + "\r\n");
 		//printf("Menu_Net_Chat_ParseIrcCommand(): sent %s\n", ("NICK " + nick + itoa(nickUniqueNumber)).c_str());
 	}
