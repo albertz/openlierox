@@ -471,10 +471,9 @@ void Menu_Net_Chat_ParseIrcCommand( const IrcCommand_t & cmd )
 		}
 	}
 	else
-	if( nick == cmd.sender.substr(0, cmd.sender.find("!")) && // You have been kicked by RazzyBot
-		( cmd.cmd == "PART" || cmd.cmd == "QUIT" || cmd.cmd == "KICK" ) )
+	if( cmd.cmd == "KICK" && cmd.params.size() >= 2 && cmd.params[1] == nick )// You have been kicked by RazzyBot for loling
 	{
-		Menu_Net_Chat_DisconnectFromServer();
+		Menu_Net_Chat_DisconnectFromServer(); // It will reconnect automatically
 	}
 	else
 	if( cmd.cmd == "JOIN" || cmd.cmd == "PART" || cmd.cmd == "NICK" || cmd.cmd == "QUIT" || cmd.cmd == "KICK" )
