@@ -1071,6 +1071,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\IRC.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IRC.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\Iterator.h"
 				>
 			</File>
