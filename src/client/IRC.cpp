@@ -124,6 +124,19 @@ void IRCClient::makeNickIRCFriendly()
 	#define S_NUMBER "0123456789"
 	#define S_SYMBOL "-[]\\`^{}_"
 
+	// Length overflow
+	if(m_myNick.size() > IRC_NICK_MAX_LEN)
+		m_myNick.resize(IRC_NICK_MAX_LEN);
+
+	// Empty nick
+	if(m_myNick.empty())
+		m_myNick = "z";
+
+	// Nick starting with a number
+	if(m_myNick.find_first_of(S_NUMBER) == 0 )
+		*m_myNick.begin() = 'z';
+
+	// Replace the dangerous characters
 	while (m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) != std::string::npos)
 		m_myNick[m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL)] = '-';
 
@@ -341,6 +354,11 @@ void IRCClient::parseNick(const IRCClient::IRCCommand &cmd)
 void IRCClient::parseNickInUse(const IRCClient::IRCCommand &cmd)
 {
 	++m_nickUniqueNumber;
+
+	// Make sure we don't overflow the maximum allowed nick length
+	if(m_myNick.size() + itoa(m_nickUniqueNumber).size() > IRC_NICK_MAX_LEN )
+		m_myNick.resize(IRC_NICK_MAX_LEN - itoa(m_nickUniqueNumber).size());
+
 	sendNick();
 }
 
@@ -405,8 +423,10 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 	else if (atoi(cmd.cmd) == LIBIRC_RFC_RPL_ENDOFNAMES)
 		parseEndOfNames(cmd);
 
-	else if (m_myNick == cmd.sender.substr(0, cmd.sender.find("!")) && // You have been kicked by RazzyBot
-		(cmd.cmd == "PART" || cmd.cmd == "QUIT" || cmd.cmd == "KICK" ))
+	else if (cmd.cmd == "KICK" && cmd.params.size() >= 2 && cmd.params[1] == m_myNick) // Kicked by RazzyBot
+		parseDropped(cmd);
+
+	else if (cmd.cmd == "PART" || cmd.cmd == "QUIT")
 		parseDropped(cmd);
 
 	else if (cmd.cmd == "JOIN")

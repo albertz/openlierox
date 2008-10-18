@@ -21,6 +21,7 @@
 #include "Timer.h"
 
 #define IRC_PORT 6667
+#define IRC_NICK_MAX_LEN 15
 
 class IRCClient  {
 public:
