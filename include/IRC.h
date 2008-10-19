@@ -70,6 +70,27 @@ public:
 		IRC_TEXT_ACTION
 	};
 
+	// Chat line class
+	class IRCChatLine  {  public:
+		// Constructors
+		IRCChatLine(const std::string& txt, IRCTextType _type) :
+		text(txt), type(_type) {}
+
+		IRCChatLine(const IRCChatLine& oth)  { operator=(oth); }
+
+		// Operators
+		IRCChatLine& operator=(const IRCChatLine& oth)  {
+			if (this != &oth)  {
+				text = oth.text;
+				type = oth.type;
+			}
+			return *this;
+		}
+
+		std::string text;
+		IRCTextType	type;
+	};
+
 	// TODO: use the Event<> class
 	typedef void(*IRCNewMessageCB)(const std::string&, int);
 	typedef void(*IRCUpdateUserListCB)(const std::list<std::string>&);
@@ -78,7 +99,7 @@ public:
 private:
 	// Attributes
 
-	std::list<std::string> m_chatText;
+	std::list<IRCChatLine> m_chatText;
 	std::list<std::string> m_chatUsers;
 
 	NetworkAddr m_chatServerAddr;
@@ -125,6 +146,7 @@ private:
 	void	parseDropped(const IRCCommand& cmd);
 	void	parseJoin(const IRCCommand& cmd);
 	void	parseNick(const IRCCommand& cmd);
+	void	parseNotice(const IRCCommand& cmd);
 
 
 public:
@@ -134,7 +156,7 @@ public:
 	void	process();
 
 	const std::list<std::string>& getUserList()			{ return m_chatUsers; }
-	const std::list<std::string>& getMessageList()		{ return m_chatText; }
+	const std::list<IRCChatLine>& getMessageList()		{ return m_chatText; }
 	const std::string getNick()							{ return m_myNick; }
 
 	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback = cb; }

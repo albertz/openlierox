@@ -56,7 +56,7 @@ bool IRCClient::initNet()
 void IRCClient::addChatMessage(const std::string &msg, IRCTextType type)
 {
 	// Add the text
-	m_chatText.push_back(msg);
+	m_chatText.push_back(IRCChatLine(msg, type));
 
 	// Get rid of old messages
 	while (m_chatText.size() > 1024)
@@ -506,50 +506,115 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 	addChatMessage(text, type);
 }
 
+///////////////////////
+// Notice
+void IRCClient::parseNotice(const IRCClient::IRCCommand &cmd)
+{
+	// Notice is actually a chat message
+
+	// Check
+	if (cmd.params.size() < 2 )
+		return;
+
+	// Ignore any notices before joining the channel (they are more or less some server spam)
+	if (m_authorizedState != AUTH_JOINED_CHANNEL)
+		return;
+
+	// Get the nick
+	std::string nick = cmd.sender.substr(0, cmd.sender.find('!'));
+
+	// Add the message
+	std::string text;
+	if (nick.size())
+		text = nick + ": " + cmd.params[1];
+	else
+		text = cmd.params[1];
+	addChatMessage(text, IRC_TEXT_NOTICE);
+}
+
 //////////////////////////////
 // Parse an IRC command (private)
 void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 {
 	
-	printf("IRC: sender '%s' cmd '%s'", cmd.sender.c_str(), cmd.cmd.c_str() );
+	/*printf("IRC: sender '%s' cmd '%s'", cmd.sender.c_str(), cmd.cmd.c_str() );
 	for( size_t i=0; i<cmd.params.size(); i++ )
 		printf(" param %i '%s'", i, cmd.params[i].c_str());
-	printf("\n");
+	printf("\n");*/
 	
 
 	// Process depending on the command
 
-	if (cmd.cmd == "PING")
-		parsePing(cmd);
+	bool fail = false;
+	int num_command = from_string<int>(cmd.cmd, fail);
 
-	else if (atoi(cmd.cmd) == LIBIRC_RFC_ERR_NICKNAMEINUSE)
-		parseNickInUse(cmd);
+	// String commands
+	if (fail)  {
+		if (cmd.cmd == "PING")
+			parsePing(cmd);
 
-	else if (cmd.cmd == "MODE")
-		parseMode(cmd);
+		else if (cmd.cmd == "MODE")
+			parseMode(cmd);
 
-	else if (cmd.cmd == "PRIVMSG")
-		parsePrivmsg(cmd);
+		else if (cmd.cmd == "PRIVMSG")
+			parsePrivmsg(cmd);
 
-	else if (atoi(cmd.cmd) == LIBIRC_RFC_RPL_NAMREPLY)
-		parseNameReply(cmd);
+		else if (cmd.cmd == "KICK" && cmd.params.size() >= 2 && cmd.params[1] == m_myNick) // Kicked by RazzyBot
+			parseDropped(cmd);
 
-	else if (atoi(cmd.cmd) == LIBIRC_RFC_RPL_ENDOFNAMES)
-		parseEndOfNames(cmd);
+		else if (cmd.cmd == "PART" || cmd.cmd == "QUIT")
+			parseDropped(cmd);
 
-	else if (cmd.cmd == "KICK" && cmd.params.size() >= 2 && cmd.params[1] == m_myNick) // Kicked by RazzyBot
-		parseDropped(cmd);
+		else if (cmd.cmd == "JOIN")
+			parseJoin(cmd);
 
-	else if (cmd.cmd == "PART" || cmd.cmd == "QUIT")
-		parseDropped(cmd);
+		else if (cmd.cmd == "NICK")
+			parseNick(cmd);
 
-	else if (cmd.cmd == "JOIN")
-		parseJoin(cmd);
+		else if (cmd.cmd == "NOTICE")
+			parseNotice(cmd);
 
-	else if (cmd.cmd == "NICK")
-		parseNick(cmd);
-	else
-		printf("IRC: unknown command " + cmd.cmd + "\n");
+		else
+			printf("IRC: unknown command " + cmd.cmd + "\n");
+
+	// Numeric commands
+	} else {
+		switch (num_command)  {
+
+		// Nick in use
+		case LIBIRC_RFC_ERR_NICKNAMEINUSE:
+			parseNickInUse(cmd);
+			break;
+
+		// List of names
+		case LIBIRC_RFC_RPL_NAMREPLY:
+			parseNameReply(cmd);
+			break;
+
+		// End of name list
+		case LIBIRC_RFC_RPL_ENDOFNAMES:
+			parseEndOfNames(cmd);
+			break;
+
+		// Message of the day
+		case LIBIRC_RFC_RPL_MOTDSTART:
+		case LIBIRC_RFC_RPL_MOTD:
+		case LIBIRC_RFC_RPL_ENDOFMOTD:
+			// Message of the day (ignored currently)
+			break;
+
+		// Messages sent upon a successful join
+		case LIBIRC_RFC_RPL_WELCOME:
+		case LIBIRC_RFC_RPL_YOURHOST:
+		case LIBIRC_RFC_RPL_CREATED:
+		case LIBIRC_RFC_RPL_MYINFO:
+			// Quite useless stuff...
+			break;
+
+		default: {}
+			// Just ignore, there are many "pro" commands that we don't need
+		}
+	}
 }
 
 

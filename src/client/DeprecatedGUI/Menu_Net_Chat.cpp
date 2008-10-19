@@ -72,8 +72,10 @@ bool Menu_Net_ChatInitialize(void)
 
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)
-		for (std::list<std::string>::const_iterator it = irc->getMessageList().begin(); it != irc->getMessageList().end(); it++)
-			b->AddChatBoxLine(*it, tLX->clChatText, TXT_CHAT);
+		for (std::list<IRCClient::IRCChatLine>::const_iterator it = irc->getMessageList().begin();
+			it != irc->getMessageList().end(); it++)  {
+				Menu_Net_ChatNewMessage(it->text, it->type);
+		}
 	
 	// User list
 	b = (CBrowser *)cChat.getWidget(nc_UserList);
