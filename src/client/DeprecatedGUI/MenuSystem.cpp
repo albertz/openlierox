@@ -37,6 +37,7 @@
 #include "DedicatedControl.h"
 #include "OLXG15.h"
 #include "Timer.h"
+#include "IRC.h"
 
 
 // TODO: move this out here
@@ -383,8 +384,7 @@ void Menu_Loop(void)
 			last_frame_was_because_of_an_event = WaitForNextEvent();
 		}
 		
-		if( tLXOptions->bEnableChat )
-			Menu_Net_Chat_Process();
+		ProcessIRC();
 
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;

@@ -20,11 +20,18 @@
 #include "Networking.h"
 #include "Timer.h"
 
+// Basic defines
 #define IRC_PORT 6667
 #define IRC_NICK_MAX_LEN 15
 
+//
+// IRC client class
+//
+
 class IRCClient  {
 public:
+	// Constructors and destructors
+
 	IRCClient() :
 	m_socketOpened(false),
 	m_socketConnected(false),
@@ -33,11 +40,12 @@ public:
 	m_nickUniqueNumber(-1),
 	m_authorizedState(AUTH_NONE),
 	m_updatingUserList(false),
-	m_keepAliveTimer(NULL),
-	m_processConnectingTimer(NULL),
 	m_newMsgCallback(NULL),
-	m_disconnectCallback(NULL)
+	m_disconnectCallback(NULL),
+	m_updateUsersCallback(NULL)
 	{}
+
+	~IRCClient()  { disconnect(); }
 
 private:
 	// Types
@@ -56,8 +64,15 @@ private:
 	};
 
 public:
+	enum IRCTextType  {
+		IRC_TEXT_CHAT,
+		IRC_TEXT_NOTICE,
+		IRC_TEXT_ACTION
+	};
+
 	// TODO: use the Event<> class
-	typedef void(*IRCNewMessageCB)(const std::string&);
+	typedef void(*IRCNewMessageCB)(const std::string&, int);
+	typedef void(*IRCUpdateUserListCB)(const std::list<std::string>&);
 	typedef void(*IRCDisconnectCB)();
 
 private:
@@ -79,10 +94,9 @@ private:
 	IRCState	m_authorizedState;
 	int			m_nickUniqueNumber;
 	bool		m_updatingUserList;
-	Timer		*m_keepAliveTimer;
-	Timer		*m_processConnectingTimer;
 	IRCNewMessageCB	m_newMsgCallback;
 	IRCDisconnectCB	m_disconnectCallback;
+	IRCUpdateUserListCB	m_updateUsersCallback;
 
 private:
 	// Methods
@@ -90,9 +104,9 @@ private:
 	bool	initNet();
 	void	parseCommand(const IRCCommand& cmd);
 	void	makeNickIRCFriendly();
-	void	addChatMessage(const std::string& msg);
-	void	onProcessingTimer(Timer::EventData ev);
+	void	addChatMessage(const std::string& msg, IRCTextType type);
 	bool	processConnecting();
+	void	readData();
 
 	// Sending
 	void	sendJoin();
@@ -117,6 +131,11 @@ public:
 	bool	connect(const std::string& server, const std::string& channel, const std::string& nick);
 	void	disconnect();
 	bool	sendChat(const std::string& text);
+	void	process();
+
+	const std::list<std::string>& getUserList()			{ return m_chatUsers; }
+	const std::list<std::string>& getMessageList()		{ return m_chatText; }
+	const std::string getNick()							{ return m_myNick; }
 
 	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback = cb; }
 	void	clearNewMessageCallback()					{ m_newMsgCallback = NULL; }
@@ -125,6 +144,19 @@ public:
 	void	setDisconnectCallback(IRCDisconnectCB cb)	{ m_disconnectCallback = cb; }
 	void	clearDisconnectCallback()					{ m_disconnectCallback = NULL; }
 	IRCDisconnectCB getDisconnectCallback()				{ return m_disconnectCallback; }
+
+	void	setUpdateUserListCallback(IRCUpdateUserListCB cb)	{ m_updateUsersCallback = cb; }
+	void	clearUpdateUserListCallback()						{ m_updateUsersCallback = NULL; }
+	IRCUpdateUserListCB getUpdateUserListCallback()					{ return m_updateUsersCallback; }
 };
+
+//
+// Global IRC handling
+//
+
+bool	InitializeIRC();
+void	ShutdownIRC();
+IRCClient *GetGlobalIRC();
+void	ProcessIRC();
 
 #endif // __IRC_H__

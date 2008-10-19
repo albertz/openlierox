@@ -36,6 +36,7 @@
 #include "CChannel.h"
 #include "Cache.h"
 #include "ProfileSystem.h"
+#include "IRC.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -687,8 +688,8 @@ void GameLoopFrame(void)
 		OLXG15->gameFrame();
 #endif //WITH_G15
 
-	if( tLXOptions->bEnableChat )
-		DeprecatedGUI::Menu_Net_Chat_Process();
+	if(tLXOptions->bEnableChat)
+		ProcessIRC();
 
 	// Local
 	switch (tGameInfo.iGameType)  {
@@ -852,7 +853,7 @@ void ShutdownLieroX()
 {
 	printf("Shutting me down...\n");
 	
-	DeprecatedGUI::Menu_Net_Chat_DisconnectFromServer(); // Disconnect from IRC
+	ShutdownIRC(); // Disconnect from IRC
 
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();

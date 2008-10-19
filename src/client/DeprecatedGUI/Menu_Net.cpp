@@ -26,6 +26,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "AuxLib.h"
 #include "IpToCountryDB.h"
+#include "IRC.h"
 
 
 using namespace std;
@@ -125,6 +126,9 @@ bool Menu_NetInitialize(void)
 	// Options -> enalbed this DB and came back)
 	// HINT: if the file is already loaded/being loaded, the database won't try to load it again
 	tIpToCountryDB->LoadDBFile("ip_to_country.csv");
+
+	// Initialize the IRC support
+	InitializeIRC();
 
 	// Return back to the menu we came from
 	switch(tMenu->iReturnTo)  {

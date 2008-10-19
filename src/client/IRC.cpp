@@ -15,6 +15,7 @@
 #include <iostream>
 #include "IRC.h"
 #include "LieroX.h"
+#include "Options.h"
 #include "Version.h"
 #include "StringBuf.h"
 #include "StringUtils.h"
@@ -52,7 +53,7 @@ bool IRCClient::initNet()
 
 ///////////////////////////
 // Add a chat message and call the "on update" event
-void IRCClient::addChatMessage(const std::string &msg)
+void IRCClient::addChatMessage(const std::string &msg, IRCTextType type)
 {
 	// Add the text
 	m_chatText.push_back(msg);
@@ -63,20 +64,17 @@ void IRCClient::addChatMessage(const std::string &msg)
 
 	// Run the event function
 	if (m_newMsgCallback)
-		m_newMsgCallback(msg);
-}
-
-////////////////////
-// Process the connecting timer
-void IRCClient::onProcessingTimer(Timer::EventData ev)
-{
-	ev.shouldContinue = processConnecting();
+		m_newMsgCallback(msg, (int)type);
 }
 
 ///////////////////////
 // Connecting process, returns true if finished
 bool IRCClient::processConnecting()
 {
+	// If connected, just quit
+	if (m_socketConnected)
+		return true;
+
 	// Check for DNS resolution
 	if (!IsNetAddrValid(m_chatServerAddr))
 		return false;
@@ -91,6 +89,7 @@ bool IRCClient::processConnecting()
 	// Connect
 	if (!ConnectSocket(m_chatSocket, m_chatServerAddr))  {
 		printf("IRC error: could not connect to the server " + addrStr);
+		disconnect();
 		return true;
 	}
 	
@@ -105,8 +104,7 @@ bool IRCClient::processConnecting()
 		m_myNick = "OpenLieroXor";
 	makeNickIRCFriendly();
 
-	// Join the channel
-	sendJoin();
+	sendNick();
 
 	return true;
 }
@@ -153,26 +151,117 @@ bool IRCClient::connect(const std::string &server, const std::string &channel, c
 	if (m_socketConnected)
 		disconnect();
 
+	// Set the info
+	m_chatServerAddrStr = server;
+	m_chatServerChannel = channel;
+	m_myNick = nick;
+
 	// Initialize the network
 	if (!initNet())
 		return false;
 
-	// If the DNS has not been resolved yet, setup the processing timer
-	if (!IsNetAddrValid(m_chatServerAddr))  {
-		// Set the processing timer
-		if (m_processConnectingTimer)
-			delete m_processConnectingTimer;
-		m_processConnectingTimer = new Timer;
-		m_processConnectingTimer->interval = 50;
-		m_processConnectingTimer->once = false;
-		m_processConnectingTimer->onTimer.handler() = getEventHandler(this, &IRCClient::onProcessingTimer);
-		m_processConnectingTimer->start();
+	processConnecting();
+	return true;
+}
 
-		return true;
+////////////////////////
+// Process the IRC client (handle incoming messages etc.)
+void IRCClient::process()
+{
+	// Connecting process
+	if (!processConnecting())
+		return;
 
-	// Resolved DNS
-	} else
-		return processConnecting();
+	// Re-connect once per 5 seconds
+	if (!m_socketConnected)  {
+		if(tLX->fCurTime - m_connectionClosedTime >= 5.0f)  {
+			m_connectionClosedTime = tLX->fCurTime;
+			connect(m_chatServerAddrStr, m_chatServerChannel, m_myNick);
+		}
+		return;
+	}
+
+	// Check for socket readiness
+	if (!m_socketIsReady)  {
+		if (!IsSocketReady(m_chatSocket))
+			return;
+		m_socketIsReady = true;
+	}
+
+	// Initiate server response
+	if (m_authorizedState == AUTH_NONE)  {
+		sendNick();
+		m_authorizedState = AUTH_NICK_SENT;
+		//printf("Menu_Net_Chat_Process(): sent %s\n", ("NICK " + nick).c_str());
+	}
+
+	// Read data from the socket
+	readData();
+}
+
+/////////////////////////
+// Read data from the socket and process it
+void IRCClient::readData()
+{
+	// Get data from the socket
+	char buf[1024];
+
+	int read = 1;
+	while (read > 0)  {
+		int read = ReadSocket(m_chatSocket, buf, sizeof(buf)); // HINT: non-blocking
+
+		// Nothing yet
+		if (read == 0)
+			break;
+
+		// Error
+		if(read < 0)  {
+			printf("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()));
+			//disconnect();
+			break;
+		}
+
+		// Add the data to the buffer
+		m_netBuffer.append(buf, read);
+	}
+
+	if (m_netBuffer.empty())
+		return;
+
+	size_t pos = m_netBuffer.find("\r\n");
+	while(pos != std::string::npos)  {
+		std::string line = m_netBuffer.substr(0, pos);
+
+		//printf("IRC: %s\n", line.c_str());
+
+		// Check if the sender is specified
+		m_netBuffer.erase(0, pos + 2);
+		IRCCommand cmd;
+		if(line.size() && line[0] == ':')  {
+			size_t pos2 = line.find(' ');
+			cmd.sender = line.substr(1, pos2);
+			line.erase(0, pos2 + 1);
+		}
+
+		// Get the command and parameters
+		cmd.cmd = line.substr(0, line.find(' '));
+		while (line.find(' ') != std::string::npos )  {
+			line = line.substr(line.find(' ') + 1);
+			if (line.size() == 0)
+				break;
+			if (line[0] == ':')  {
+				cmd.params.push_back(line.substr(1));
+				break;
+			}
+
+			cmd.params.push_back(line.substr(0, line.find(' ')));
+		}
+
+		// Parse the command
+		parseCommand(cmd);
+
+		pos = m_netBuffer.find("\r\n");
+	}
 }
 
 ///////////////////////
@@ -199,24 +288,15 @@ void IRCClient::disconnect()
 	m_connectionClosedTime = tLX->fCurTime;
 	InvalidateSocketState(m_chatSocket);
 	SetNetAddrValid(m_chatServerAddr, false);
-	m_chatServerAddrStr.clear();
-	m_chatServerChannel.clear();
 	m_netBuffer.clear();
-	m_myNick.clear();
 	m_authorizedState = AUTH_NONE;
 	m_nickUniqueNumber = -1;
 	m_updatingUserList = false;
-	if (m_keepAliveTimer)  {
-		delete m_keepAliveTimer;
-		m_keepAliveTimer = NULL;
-	}
+	m_chatUsers.clear();
 
-	if (m_processConnectingTimer)  {
-		delete m_processConnectingTimer;
-		m_processConnectingTimer = NULL;
-	}
-	m_newMsgCallback = NULL;
-	m_disconnectCallback = NULL;
+	// Call the update user list callback
+	if (m_updateUsersCallback)
+		m_updateUsersCallback(m_chatUsers);
 
 	printf("IRC: disconnected");
 }
@@ -271,6 +351,29 @@ void IRCClient::sendUserAuth()
 	m_authorizedState = AUTH_USER_SENT;
 }
 
+/////////////////////////
+// Send a message to the IRC channel, returns true if the chat has been sent
+bool IRCClient::sendChat(const std::string &text)
+{
+	// Make sure we are connected
+	if (!m_socketConnected || !m_socketIsReady || m_authorizedState != AUTH_JOINED_CHANNEL || text.empty())
+		return false;
+
+	// Send the text
+	WriteSocket(m_chatSocket, "PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
+	//printf("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
+
+	// Route the same message back to our parser func, there's no echo in IRC
+	IRCCommand cmd;
+	cmd.sender = m_myNick;
+	cmd.cmd = "PRIVMSG";
+	cmd.params.push_back(m_chatServerChannel);
+	cmd.params.push_back(text);
+	parseCommand(cmd);
+
+	return true;	
+}
+
 
 /*
  *
@@ -307,7 +410,6 @@ void IRCClient::parseMode(const IRCClient::IRCCommand &cmd)
 {
 	if (m_authorizedState == AUTH_USER_SENT)  {
 		sendJoin();
-		m_authorizedState = AUTH_JOINED_CHANNEL;
 	}
 }
 
@@ -336,10 +438,14 @@ void IRCClient::parseNameReply(const IRCClient::IRCCommand &cmd)
 			continue;
 
 		if (user[0] == '@') // Channel Operator
-			user.erase(0);
+			user.erase(0, 1);
 
 		m_chatUsers.push_back(user); // Add the user to the list
 	}
+
+	// Callback
+	if (m_updateUsersCallback)
+		m_updateUsersCallback(m_chatUsers);
 }
 
 ////////////////////
@@ -372,6 +478,10 @@ void IRCClient::parsePing(const IRCClient::IRCCommand &cmd)
 
 	// Send reply
 	sendPong(cmd.params[0]);
+
+	// Progress with authorisation if not yet connected
+	if (m_authorizedState == AUTH_NICK_SENT)
+		sendUserAuth();
 }
 
 ///////////////////////
@@ -379,29 +489,33 @@ void IRCClient::parsePing(const IRCClient::IRCCommand &cmd)
 void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 {
 	// Check
-	if( cmd.params.size() < 2 )
-		return;
-
-	// The sender has to contain an exclamation mark
-	size_t pos = cmd.sender.find('!');
-	if (pos == std::string::npos)
+	if (cmd.params.size() < 2 )
 		return;
 
 	// Add the message
-	std::string text = cmd.sender.substr(0, pos) + ": " + cmd.params[1];
-	addChatMessage(text);
+	std::string nick = cmd.sender.substr(0, cmd.sender.find('!'));
+	std::string text;
+
+	IRCTextType type = IRC_TEXT_CHAT;
+	if (cmd.params[1].size() && cmd.params[1][0] == '\1' && *cmd.params[1].rbegin() == '\1')  { // Action message
+		text = cmd.params[1].substr(1, cmd.params[1].size() - 2);
+		replace(text, "ACTION", nick);
+		type = IRC_TEXT_ACTION;
+	} else
+		text = nick + ": " + cmd.params[1];
+	addChatMessage(text, type);
 }
 
 //////////////////////////////
 // Parse an IRC command (private)
 void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 {
-	/*
+	
 	printf("IRC: sender '%s' cmd '%s'", cmd.sender.c_str(), cmd.cmd.c_str() );
-	for( int i=0; i<cmd.params.size(); i++ )
+	for( size_t i=0; i<cmd.params.size(); i++ )
 		printf(" param %i '%s'", i, cmd.params[i].c_str());
 	printf("\n");
-	*/
+	
 
 	// Process depending on the command
 
@@ -435,5 +549,68 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 	else if (cmd.cmd == "NICK")
 		parseNick(cmd);
 	else
-		printf("IRC: unknown command " + cmd.cmd);
+		printf("IRC: unknown command " + cmd.cmd + "\n");
+}
+
+
+/*
+ *
+ * Global stuff
+ *
+ */
+
+IRCClient *globalIRC = NULL;
+
+/////////////////////////
+// Initializes the IRC client and connects to the server (specified in options)
+bool InitializeIRC()
+{
+	// Already initialized?
+	if (globalIRC)
+		return true;
+
+	if (!tLXOptions->bEnableChat)
+		return false;
+
+	// Allocate the IRC client
+	try  {
+		globalIRC = new IRCClient();
+	} catch (...)  {
+		return false;
+	}
+
+	// Get the server
+	FILE *fp = OpenGameFile("cfg/chatserver.txt", "r");
+	if (fp)  {
+		std::string addr = ReadUntil(fp, '/');
+		std::string chann = ReadUntil(fp, '\n');
+		fclose(fp);
+		return globalIRC->connect(addr, chann, tLXOptions->tGameinfo.sLastSelectedPlayer);
+	} else { // Defaults
+		return globalIRC->connect("irc.quakenet.org", "#LieroX", tLXOptions->tGameinfo.sLastSelectedPlayer);
+	}
+}
+
+/////////////////////////
+// Disconnects the IRC client and does all the cleanup
+void ShutdownIRC()
+{
+	if (globalIRC)
+		delete globalIRC;
+	globalIRC = NULL;
+}
+
+////////////////////////
+// Returns an instance of the global IRC client
+IRCClient *GetGlobalIRC()
+{
+	return globalIRC;
+}
+
+/////////////////////////
+// Handles processing of the global IRC
+void ProcessIRC()
+{
+	if (globalIRC)
+		globalIRC->process();
 }

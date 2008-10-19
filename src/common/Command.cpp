@@ -30,6 +30,7 @@
 #include "Version.h"
 #include "CClientNetEngine.h"
 #include "DeprecatedGUI/Menu.h"
+#include "IRC.h"
 
 
 using namespace std;
@@ -688,10 +689,12 @@ void Cmd_SendIrcMessage()  {
 	for( int i = 1; i < Cmd_GetNumArgs(); i++ )
 	{
 		if( i > 1 )
-			msg += " ";
+			msg += ' ';
 		msg += Cmd_GetArg(i);
 	}
-	DeprecatedGUI::Menu_Net_Chat_Send(msg);
+	
+	if (GetGlobalIRC())
+		GetGlobalIRC()->sendChat(msg);
 }
 
 void Cmd_Initialize() {

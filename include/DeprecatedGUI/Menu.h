@@ -535,9 +535,9 @@ bool	Menu_Net_ChatInitialize(void);
 void	Menu_Net_ChatShutdown();
 void	Menu_Net_ChatFrame(int mouse);
 
-void	Menu_Net_Chat_Process();
-bool	Menu_Net_Chat_Send(const std::string & text);
-void	Menu_Net_Chat_DisconnectFromServer();
+void	Menu_Net_ChatNewMessage(const std::string& msg, int type);
+void	Menu_Net_ChatDisconnect();
+void	Menu_Net_ChatUpdateUsers(const std::list<std::string>& users);
 
 // deprecated
 //int	Menu_Net_JoinInitializePlayers(void);
