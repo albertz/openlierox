@@ -382,6 +382,10 @@ public:
 	// then be sure that is is run together with simulateProjectiles() !
 	float	fLastSimulationTime;
 
+// IRC callbacks
+private:
+	static void IRC_OnNewMessage(const std::string& msg, int type);
+	static void IRC_OnDisconnect();
 
 public:
 	// Methods

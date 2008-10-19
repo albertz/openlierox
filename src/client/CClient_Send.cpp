@@ -128,7 +128,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 	
 	bool chat_command = sText.size() >= 2 && sText[0] == '/' && sText[1] != '/';
 
-	if ( sText.find("/irc ") == 0 || sText.find("/chat ") == 0 )  { // Send text to IRC
+	if (sText.find("/irc ") == 0 || sText.find("/chat ") == 0)  { // Send text to IRC
 		bool res = false;
 		if (GetGlobalIRC())
 			res = GetGlobalIRC()->sendChat(sText.substr(sText.find(' ') + 1));

@@ -38,6 +38,8 @@
 #include "CClientNetEngine.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "CChannel.h"
+#include "IRC.h"
+#include "NotifyUser.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -444,6 +446,47 @@ void CClient::StartLogging(int num_players)
 				break;
 		}
 	}
+}
+
+
+///////////////////////
+// Called when an IRC message arrives
+void CClient::IRC_OnNewMessage(const std::string &msg, int type)
+{
+	//DeprecatedGUI::CBrowser *brw = cClient ? cClient->cChatList : NULL;
+	if (!cClient || !GetGlobalIRC())
+		return;
+
+	// Ignore any messages that do not contain user's nick (we don't want spammy junk ingame)
+	if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) == std::string::npos)
+		return;
+
+	// Add the message
+	switch (type)  {
+	case IRCClient::IRC_TEXT_CHAT:
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->fCurTime);
+		break;
+	case IRCClient::IRC_TEXT_NOTICE:
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+		break;
+	case IRCClient::IRC_TEXT_ACTION:
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_CHAT, tLX->fCurTime);
+		break;
+	default:
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->fCurTime);
+	}
+
+
+	// Notify the user if the message contains his nick
+	if (tLXOptions->bEnableChatNotification)
+		NotifyUserOnEvent();
+}
+
+/////////////////////////
+// Called when the IRC is disconnected
+void CClient::IRC_OnDisconnect()
+{
+	// TODO: notify the user
 }
 
 /////////////////
@@ -1131,6 +1174,12 @@ void CClient::Connect(const std::string& address)
 	iNatTraverseState = NAT_RESOLVING_DNS;
 	fLastTraverseSent = -9999;
 	fLastChallengeSent = -9999;
+
+	// Register the IRC callbacks
+	if (GetGlobalIRC())  {
+		GetGlobalIRC()->setNewMessageCallback(&IRC_OnNewMessage);
+		GetGlobalIRC()->setDisconnectCallback(&IRC_OnDisconnect);
+	}
 
 	InitializeDownloads();
 
