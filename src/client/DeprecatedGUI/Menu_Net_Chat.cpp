@@ -59,7 +59,7 @@ bool Menu_Net_ChatInitialize(void)
 	cChat.Add( new CButton(BUT_BACK, tMenu->bmpButtons), nc_Back, 25,440, 50,15);
 
 	cChat.Add( new CTextbox(), nc_ChatInput, 25,  410, 590, tLX->cFont.GetHeight());
-	cChat.Add( new CBrowser(), nc_UserList, 475, 140, 140, 260);
+	cChat.Add( new CListview(), nc_UserList, 475, 140, 140, 260);
 	cChat.Add( new CBrowser(), nc_ChatText, 25, 140, 440, 260);
 	cChat.Add( new CCheckbox(tLXOptions->bEnableChat), nc_EnableChat, 100, 440, 20, 20);
 	cChat.Add( new CLabel("Enable", tLX->clNormalLabel), -1, 130, 440, 0, 0);
@@ -78,12 +78,16 @@ bool Menu_Net_ChatInitialize(void)
 		}
 	
 	// User list
-	b = (CBrowser *)cChat.getWidget(nc_UserList);
-	b->InitializeChatBox();
+	CListview *l = (CListview *)cChat.getWidget(nc_UserList);
+	l->Clear();
 
-	if (irc)
-		for (std::list<std::string>::const_iterator it = irc->getUserList().begin(); it != irc->getUserList().end(); it++)
-			b->AddChatBoxLine( *it, tLX->clChatText, TXT_CHAT );
+	if (irc)  {
+		int i = 0;
+		for (std::list<std::string>::const_iterator it = irc->getUserList().begin(); it != irc->getUserList().end(); it++) {
+			l->AddItem(*it, i, tLX->clListView);
+			l->AddSubitem(LVS_TEXT, *it, NULL, NULL);
+		}
+	}
 
 	// Setup the callbacks
 	if (irc)  {
@@ -178,6 +182,32 @@ void Menu_Net_ChatFrame(int mouse)
 					tLXOptions->bEnableChatNotification = cChat.SendMessage(nc_EnableChatNotify, CKM_GETCHECK, 1, 1) != 0;
 				}
 				break;
+
+			case nc_UserList:
+				if (ev->iEventMsg == LV_DOUBLECLK)  {
+					CTextbox *txt = (CTextbox *)cChat.getWidget(nc_ChatInput);
+					CListview *lsv = (CListview *)cChat.getWidget(nc_UserList);
+					if (txt)  {
+						std::string nick = lsv->getCurSIndex();
+
+						// If there already is some text in the chatbox, insert the nick at the end, optionally adding a space
+						if (txt->getText().size())  {
+							if (isspace((uchar)*(txt->getText().rbegin())))
+								txt->setText(txt->getText() + nick);
+							else
+								txt->setText(txt->getText() + " " + nick);
+
+						// The textbox is empty, insert "nick: "
+						} else {
+							txt->setText(nick + ": ");
+						}
+
+						txt->setCurPos(txt->getText().size());
+
+						cChat.FocusWidget(nc_ChatInput);
+					}
+				}
+				break;
 			
 		}
 
@@ -221,9 +251,9 @@ void Menu_Net_ChatNewMessage(const std::string& msg, int type)
 // Chat disconnect (callback)
 void Menu_Net_ChatDisconnect()
 {
-	CBrowser *brw = (CBrowser *)cChat.getWidget(nc_UserList);
-	if (brw)  {
-		brw->InitializeChatBox("");
+	CListview *lsv = (CListview *)cChat.getWidget(nc_UserList);
+	if (lsv)  {
+		lsv->Clear();
 	}
 }
 
@@ -231,13 +261,16 @@ void Menu_Net_ChatDisconnect()
 // Update users (callback)
 void Menu_Net_ChatUpdateUsers(const std::list<std::string>& users)
 {
-	CBrowser *brw = (CBrowser *)cChat.getWidget(nc_UserList);
-	if (brw)  {
-		brw->InitializeChatBox(""); // Clear
+	CListview *lsv = (CListview *)cChat.getWidget(nc_UserList);
+	if (lsv)  {
+		lsv->Clear();
 
 		// Add the users
-		for (std::list<std::string>::const_iterator it = users.begin(); it != users.end(); it++)
-			brw->AddChatBoxLine(*it, tLX->clNormalText, TXT_NORMAL);
+		int i = 0;
+		for (std::list<std::string>::const_iterator it = users.begin(); it != users.end(); it++)  {
+			lsv->AddItem(*it, i, tLX->clListView);
+			lsv->AddSubitem(LVS_TEXT, *it, NULL, NULL);
+		}
 	}
 }
 

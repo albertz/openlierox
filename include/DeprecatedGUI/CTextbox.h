@@ -158,6 +158,7 @@ public:
 	void	setText(const std::string& buf);
 	void	setFlag(Uint32 flag) { iFlags |= flag; }
 	void	unsetFlag(Uint32 flag) { iFlags &= ~flag; }
+	void	setCurPos(size_t pos)  { iCurpos = (pos > sText.size() ? sText.size() : pos); }
 
     void    PasteText(void);
 	void	CopyText(void);

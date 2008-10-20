@@ -217,7 +217,7 @@ void CBrowser::Parse()
 // Mouse down event
 int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 {
-	// DO nothing if not focused
+	// Do nothing if not focused
 	if (!bFocused)
 		return BRW_NONE;
 
