@@ -2121,6 +2121,12 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
 		return;
 
+	// Because we are drawing 2x stretched, we have to make sure we don't draw the boundary pixels
+	x1 -= x1 & 1;
+	y1 -= y1 & 1;
+	x2 -= x2 & 1;
+	y2 -= y2 & 1;
+
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
 	else
@@ -2136,6 +2142,12 @@ void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
 		return;
 
+	// Because we are drawing 2x stretched, we have to make sure we don't draw the boundary pixels
+	x1 -= x1 & 1;
+	y1 -= y1 & 1;
+	x2 -= x2 & 1;
+	y2 -= y2 & 1;
+
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
 	else
@@ -2150,6 +2162,12 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 	// Clipping
 	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
 		return;
+
+	// Because we are drawing 2x stretched, we have to make sure we don't draw the boundary pixels
+	x1 -= x1 & 1;
+	y1 -= y1 & 1;
+	x2 -= x2 & 1;
+	y2 -= y2 & 1;
 
 	perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), LaserSightPutPixel);
 }
