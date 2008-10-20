@@ -574,6 +574,11 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 {
 	static std::vector<std::string> result;
 	result.clear();
+	
+	// Check
+	if (!str.size())
+		return result;
+
 	std::string::const_iterator it = str.begin();
 	std::string::const_iterator last_it = str.begin();
 	size_t i = 0;
