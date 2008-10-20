@@ -151,6 +151,8 @@ bool IRCClient::connect(const std::string &server, const std::string &channel, c
 	if (m_socketConnected)
 		disconnect();
 
+	m_connecting = true;
+
 	// Set the info
 	m_chatServerAddrStr = server;
 	m_chatServerChannel = channel;
@@ -168,18 +170,18 @@ bool IRCClient::connect(const std::string &server, const std::string &channel, c
 // Process the IRC client (handle incoming messages etc.)
 void IRCClient::process()
 {
-	// Connecting process
-	if (!processConnecting())
-		return;
-
 	// Re-connect once per 5 seconds
-	if (!m_socketConnected)  {
+	if (!m_socketConnected && !m_connecting)  {
 		if(tLX->fCurTime - m_connectionClosedTime >= 5.0f)  {
 			m_connectionClosedTime = tLX->fCurTime;
 			connect(m_chatServerAddrStr, m_chatServerChannel, m_myNick);
 		}
 		return;
 	}
+
+	// Connecting process
+	if (!processConnecting())
+		return;
 
 	// Check for socket readiness
 	if (!m_socketIsReady)  {
@@ -285,6 +287,7 @@ void IRCClient::disconnect()
 	m_socketConnected = false;
 	m_socketIsReady = false;
 	m_socketOpened = false;
+	m_connecting = false;
 	m_connectionClosedTime = tLX->fCurTime;
 	InvalidateSocketState(m_chatSocket);
 	SetNetAddrValid(m_chatServerAddr, false);
@@ -298,7 +301,7 @@ void IRCClient::disconnect()
 	if (m_updateUsersCallback)
 		m_updateUsersCallback(m_chatUsers);
 
-	printf("IRC: disconnected");
+	printf("IRC: disconnected\n");
 }
 
 /*
@@ -389,6 +392,32 @@ void IRCClient::parseDropped(const IRCClient::IRCCommand &cmd)
 }
 
 ///////////////////
+// Kicked out of the server
+void IRCClient::parseKicked(const IRCClient::IRCCommand &cmd)
+{
+	// Get our real nick (add the unique number) for comparison
+	std::string real_nick = m_myNick;
+	if (m_nickUniqueNumber >= 0)
+		real_nick += itoa(m_nickUniqueNumber);
+
+	// Invalid command
+	if (cmd.params.size() < 2)
+		return;
+
+	// Check that it was us who gets kicked
+	if (cmd.params[1] != m_myNick)
+		return;
+
+	// Get the kick reason
+	std::string reason = "No reason was given";
+	if (cmd.params.size() >= 3)
+		reason = cmd.params[2];
+
+	// Inform the user
+	addChatMessage("You have been kicked: " + reason, IRC_TEXT_NOTICE);
+}
+
+///////////////////
 // End of name list
 void IRCClient::parseEndOfNames(const IRCClient::IRCCommand &cmd)
 {
@@ -400,8 +429,12 @@ void IRCClient::parseEndOfNames(const IRCClient::IRCCommand &cmd)
 // Join successful
 void IRCClient::parseJoin(const IRCClient::IRCCommand& cmd)
 {
+	m_connecting = false;
+
 	// Re-request the nick names
 	sendRequestNames();
+
+	printf("IRC connected to " + m_chatServerChannel + "@" + m_chatServerAddrStr + "\n");
 }
 
 /////////////////////
@@ -559,8 +592,8 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 		else if (cmd.cmd == "PRIVMSG")
 			parsePrivmsg(cmd);
 
-		else if (cmd.cmd == "KICK" && cmd.params.size() >= 2 && cmd.params[1] == m_myNick) // Kicked by RazzyBot
-			parseDropped(cmd);
+		else if (cmd.cmd == "KICK")
+			parseKicked(cmd);
 
 		else if (cmd.cmd == "PART" || cmd.cmd == "QUIT")
 			parseDropped(cmd);

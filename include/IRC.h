@@ -36,6 +36,7 @@ public:
 	m_socketOpened(false),
 	m_socketConnected(false),
 	m_socketIsReady(false),
+	m_connecting(false),
 	m_connectionClosedTime(0),
 	m_nickUniqueNumber(-1),
 	m_authorizedState(AUTH_NONE),
@@ -110,6 +111,7 @@ private:
 	bool		m_socketOpened;
 	bool		m_socketConnected;
 	bool		m_socketIsReady;
+	bool		m_connecting;
 	float		m_connectionClosedTime;
 	std::string	m_myNick;
 	IRCState	m_authorizedState;
@@ -144,6 +146,7 @@ private:
 	void	parseNameReply(const IRCCommand& cmd);
 	void	parseEndOfNames(const IRCCommand& cmd);
 	void	parseDropped(const IRCCommand& cmd);
+	void	parseKicked(const IRCCommand& cmd);
 	void	parseJoin(const IRCCommand& cmd);
 	void	parseNick(const IRCCommand& cmd);
 	void	parseNotice(const IRCCommand& cmd);
