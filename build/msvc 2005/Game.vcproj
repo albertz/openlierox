@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_VLD"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -1069,6 +1069,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IpToCountryDB.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\IRC.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IRC.h"
 				>
 			</File>
 			<File

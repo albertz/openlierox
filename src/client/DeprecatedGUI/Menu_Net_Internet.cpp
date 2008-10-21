@@ -442,7 +442,7 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 
 
 // TODO: remove this here!
-extern CButton	cNetButtons[5];
+extern CButton	cNetButtons[6];
 
 ///////////////////
 // Show an 'add server' box to enter in an address
@@ -464,7 +464,7 @@ void Menu_Net_NETAddServer(void)
 	Menu_DrawBox(tMenu->bmpBuffer.get(), 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
     DrawRectFill(tMenu->bmpBuffer.get(), 202,222,439,339,tLX->clDialogBackground);
-	for(int i=0;i<4;i++)
+	for(int i=0;i<6;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
 	Menu_RedrawMouse(true);
 
@@ -590,7 +590,7 @@ void Menu_Net_NETUpdateList(void)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
     DrawRectFill(tMenu->bmpBuffer.get(), 202, 222, 439, 339, tLX->clDialogBackground);
     Menu_DrawBox(tMenu->bmpBuffer.get(), 220, 280, 420, 300);
-	for(ushort i=0;i<5;i++)
+	for(ushort i=0;i<6;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
 	Menu_RedrawMouse(true);
 
