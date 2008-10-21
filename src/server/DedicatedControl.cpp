@@ -34,6 +34,7 @@
 #include "CClientNetEngine.h"
 #include "CChannel.h"
 #include "CServerConnection.h"
+#include "CServerNetEngine.h"
 
 
 #ifdef _MSC_VER
@@ -615,7 +616,7 @@ struct DedIntern {
 		if( params.find(" ") != std::string::npos )
 			msg = params.substr( params.find(" ")+1 );
 		
-		cServer->SendText(w->getClient(), msg, type);
+		w->getClient()->getNetEngine()->SendText(msg, type);
 	}
 
 	// TODO: make it send more info. No.

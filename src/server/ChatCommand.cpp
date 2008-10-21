@@ -20,6 +20,7 @@
 #include "CServer.h"
 #include "CWorm.h"
 #include "CServerConnection.h"
+#include "CServerNetEngine.h"
 #include "DedicatedControl.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
@@ -349,9 +350,9 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 	}
 
 	// Send the message
-	cServer->SendText(recipient, msg, TXT_PRIVATE);
+	recipient->getNetEngine()->SendText(msg, TXT_PRIVATE);
 	if (recipient != sender)
-		cServer->SendText(sender, msg, TXT_PRIVATE); // Send the message also back to the client
+		sender->getNetEngine()->SendText(msg, TXT_PRIVATE); // Send the message also back to the client
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->PrivateMessage_Signal(sender->getWorm(0), recipient->getWorm(0), msg.substr(sender->getWorm(0)->getName().length()+2));
@@ -387,7 +388,7 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 		for (int j=0; j < client->getNumWorms(); ++j)  {
 			CWorm *w = client->getWorm(j);
 			if (w && w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
-				cServer->SendText(client, msg, TXT_TEAMPM);
+				client->getNetEngine()->SendText(msg, TXT_TEAMPM);
 				break;
 			}
 		}

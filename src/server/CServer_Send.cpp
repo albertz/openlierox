@@ -137,51 +137,56 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		SendText(cl, text, type);
+		cl->getNetEngine()->SendText(text, type);
 	}
 }
 
 
 ///////////////////
 // Send a client a string of text
-void GameServer::SendText(CServerConnection *cl, const std::string& text, int type) {
+void CServerNetEngine::SendText(const std::string& text, int type) 
+{
 	CBytestream bs;
 
-	if (cl->getClientVersion() < OLXBetaVersion(3)) {
+	std::string nohtml_text = StripHtmlTags(text);
 		
-		std::string nohtml_text = StripHtmlTags(text);
-		
-		// HINT: if the message is longer than 64 characters, we split it in more messages
-		// (else we could exploit old clients... :( )
-		const std::vector<std::string>& split = splitstring(nohtml_text, 63, iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
-		
-		for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
-			// Send it
-			bs.writeByte(S2C_TEXT);
-			bs.writeInt(type, 1);
-			bs.writeString(OldLxCompatibleString(*it));
-		}
-		
-	} else if (cl->getClientVersion() < OLXBetaVersion(8)) {
-
-		std::string nohtml_text = StripHtmlTags(text);
-
-		// For beta 3 - beta 7 (no HTML support but unlimited length support)
+	const std::vector<std::string>& split = splitstring(nohtml_text, 63, server->iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
+	
+	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
+		// Send it
 		bs.writeByte(S2C_TEXT);
 		bs.writeInt(type, 1);
-		bs.writeString(OldLxCompatibleString(nohtml_text));
-		
-	} else { // >=beta8
-
-		// For beta 8+ (HTML support)
-		bs.writeByte(S2C_TEXT);
-		bs.writeInt(type, 1);
-		bs.writeString(OldLxCompatibleString(text));
-		
+		bs.writeString(OldLxCompatibleString(*it));
 	}
 	
-	cl->getChannel()->AddReliablePacketToSend(bs);
+	SendPacket(&bs);
 }
+
+void CServerNetEngineBeta3::SendText(const std::string& text, int type)
+{
+	// For beta 3 - beta 7 (no HTML support but unlimited length support)
+	CBytestream bs;
+
+	std::string nohtml_text = StripHtmlTags(text);
+
+	bs.writeByte(S2C_TEXT);
+	bs.writeInt(type, 1);
+	bs.writeString(OldLxCompatibleString(nohtml_text));
+
+	SendPacket(&bs);
+};
+
+void CServerNetEngineBeta8::SendText(const std::string& text, int type)
+{
+	// For beta 8+ (HTML support)
+	CBytestream bs;
+
+	bs.writeByte(S2C_TEXT);
+	bs.writeInt(type, 1);
+	bs.writeString(OldLxCompatibleString(text));
+
+	SendPacket(&bs);
+};
 
 void GameServer::SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution) {
 	CBytestream bs;

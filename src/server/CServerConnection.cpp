@@ -259,14 +259,14 @@ void CServerConnection::setNetEngineFromClientVersion()
 {
 	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
 	
-	if( getClientVersion() >= OLXBetaVersion(7) )
-	{
+	if( getClientVersion() >= OLXBetaVersion(8) )
+		cNetEngine = new CServerNetEngineBeta8( server, this );
+	else if( getClientVersion() >= OLXBetaVersion(7) )
 		cNetEngine = new CServerNetEngineBeta7( server, this );
-	}
+	else if( getClientVersion() >= OLXBetaVersion(3) )
+		cNetEngine = new CServerNetEngineBeta3( server, this );
 	else
-	{
 		cNetEngine = new CServerNetEngine( server, this );
-	}
 }
 
 CChannel * CServerConnection::createChannel(const Version& v)

@@ -50,6 +50,8 @@ public:
 	void		SendPacket(CBytestream *bs);
 
 	virtual void SendClientReady(CServerConnection* receiver);
+	virtual void SendText(const std::string& text, int type);
+
 
 
 protected:
@@ -58,16 +60,38 @@ protected:
 	CServerConnection *cl;
 };
 
-class CServerNetEngineBeta7: public CServerNetEngine 
+class CServerNetEngineBeta3: public CServerNetEngine 
+{
+
+public:
+	CServerNetEngineBeta3( GameServer * _server, CServerConnection * _client ):
+		CServerNetEngine( _server, _client )
+		{ }
+
+	void SendText(const std::string& text, int type);
+};
+
+class CServerNetEngineBeta7: public CServerNetEngineBeta3
 {
 
 public:
 	CServerNetEngineBeta7( GameServer * _server, CServerConnection * _client ):
-		CServerNetEngine( _server, _client )
+		CServerNetEngineBeta3( _server, _client )
 		{ }
 
 	void ParseChatCommandCompletionRequest(CBytestream *bs);
 	void ParseAFK(CBytestream *bs);
+};
+
+class CServerNetEngineBeta8: public CServerNetEngineBeta7
+{
+
+public:
+	CServerNetEngineBeta8( GameServer * _server, CServerConnection * _client ):
+		CServerNetEngineBeta7( _server, _client )
+		{ }
+
+	void SendText(const std::string& text, int type);
 };
 
 #endif  //  __CSERVER_NET_ENGINE_H__

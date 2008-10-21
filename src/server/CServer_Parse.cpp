@@ -389,7 +389,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	}
 	
 	if(possibilities.size() == 0) {
-		server->SendText(cl, "Chat auto completion: unknown command", TXT_NETWORK);
+		SendText("Chat auto completion: unknown command", TXT_NETWORK);
 		return;
 	}
 	
@@ -590,14 +590,14 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 	// Get the command
 	ChatCommand *cmd = GetCommand(parsed[0]);
 	if (!cmd)  {
-		server->SendText(cl, "The command is not supported.", TXT_NETWORK);
+		SendText("The command is not supported.", TXT_NETWORK);
 		return false;
 	}
 
 	// Check the params
 	size_t num_params = parsed.size() - 1;
 	if (num_params < cmd->iMinParamCount || num_params > cmd->iMaxParamCount)  {
-		server->SendText(cl, "Invalid parameter count.", TXT_NETWORK);
+		SendText("Invalid parameter count.", TXT_NETWORK);
 		return false;
 	}
 
@@ -607,7 +607,7 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 	// Process the command
 	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : 0); // TODO: is this handling for worm0 correct? fix if not
 	if (error.size() != 0)  {
-		server->SendText(cl, error, TXT_NETWORK);
+		SendText(error, TXT_NETWORK);
 		return false;
 	}
 

@@ -233,7 +233,6 @@ public:
 
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
-	void		SendText(CServerConnection *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
 	void		SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions);
@@ -249,6 +248,7 @@ public:
 	void		SendFiles();
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 
+	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
 	void		ParseConnect(NetworkSocket tSocket, CBytestream *bs);
