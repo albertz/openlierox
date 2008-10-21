@@ -191,9 +191,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		newvel.y += 100*dt;
 
 	// Dampening
-	if(tProjInfo->Dampening != 1)
-		// HINT: as this function is always called with fixed dt, we can do it this way
-		newvel *= tProjInfo->Dampening;
+	// HINT: as this function is always called with fixed dt, we can do it this way
+	newvel *= tProjInfo->Dampening;
 
 	float checkstep = newvel.GetLength2(); // |v|^2
 	if(( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP )) { // |dp|^2=|v*dt|^2

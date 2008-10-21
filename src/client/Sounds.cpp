@@ -279,7 +279,7 @@ bool FreeSoundSample(SoundSample* sample) {
 }
 
 bool PlaySoundSample(SoundSample* sample) {
-	if(!SoundSystemAvailable) return false;
+	if(!SoundSystemAvailable || !SoundSystemStarted) return false;
 
 	if(sample == NULL || sample->sample == NULL)
 		return false;
