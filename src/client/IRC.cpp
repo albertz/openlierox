@@ -219,7 +219,7 @@ void IRCClient::readData()
 		// Error
 		if(read < 0)  {
 			printf("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()));
-			//disconnect();
+			disconnect();
 			break;
 		}
 

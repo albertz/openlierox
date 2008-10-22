@@ -188,17 +188,17 @@ void CServerNetEngineBeta8::SendText(const std::string& text, int type)
 	SendPacket(&bs);
 };
 
-void GameServer::SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution) {
+void CServerNetEngineBeta7::SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) {
 	CBytestream bs;
 
 	bs.writeByte(S2C_CHATCMDCOMPLSOL);
 	bs.writeString(startStr);
 	bs.writeString(solution);
 
-	cl->getChannel()->AddReliablePacketToSend(bs);	
+	SendPacket(&bs);	
 }
 
-void GameServer::SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions) {
+void CServerNetEngineBeta7::SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) {
 	CBytestream bs;
 
 	bs.writeByte(S2C_CHATCMDCOMPLLST);
@@ -207,13 +207,11 @@ void GameServer::SendChatCommandCompletionList(CServerConnection* cl, const std:
 	for(std::list<std::string>::const_iterator it = solutions.begin(); it != solutions.end(); ++it)
 		bs.writeString(*it);
 
-	cl->getChannel()->AddReliablePacketToSend(bs);
+	SendPacket(&bs);
 }
 
-
-
 // send S2C_WORMSOUT
-void GameServer::SendWormsOut(const std::list<byte>& ids) {
+void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
 	CBytestream bs;
 	bs.writeByte(S2C_WORMSOUT);
 	bs.writeByte(ids.size());
@@ -221,10 +219,14 @@ void GameServer::SendWormsOut(const std::list<byte>& ids) {
 	for(std::list<byte>::const_iterator it = ids.begin(); it != ids.end(); ++it)
 		bs.writeByte(*it);
 	
-	SendGlobalPacket(&bs);
+	SendPacket(&bs);
 }
 
-
+void GameServer::SendWormsOut(const std::list<byte>& ids) 
+{
+	for(int c = 0; c < MAX_CLIENTS; c++)
+		cClients[c].getNetEngine()->SendWormsOut(ids);
+}
 
 ///////////////////
 // Update all the client about the playing worms
@@ -374,10 +376,11 @@ bool GameServer::SendUpdate()
 	return true;
 }
 
-void GameServer::SendWeapons(CServerConnection* cl) {
+void CServerNetEngine::SendWeapons()
+{
 	CBytestream bs;
 	
-	CWorm* w = cWorms;
+	CWorm* w = server->cWorms;
 	for(int i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
@@ -387,12 +390,17 @@ void GameServer::SendWeapons(CServerConnection* cl) {
 		w->writeWeapons(&bs);
 	}
 	
-	if(cl)
-		cl->getNetEngine()->SendPacket(&bs);
-	else
-		SendGlobalPacket(&bs);
+	SendPacket(&bs);
 }
 
+void GameServer::SendWeapons(CServerConnection* cl)
+{
+	if(cl)
+		cl->getNetEngine()->SendWeapons();
+	else
+		for(int c = 0; c < MAX_CLIENTS; c++)
+			cClients[c].getNetEngine()->SendWeapons();
+}
 
 ///////////////////
 // Check if we have gone over the clients bandwidth rating
@@ -622,39 +630,48 @@ void GameServer::SendRandomPacket()
 }
 #endif
 
+static const float pingCoeff = 1.5f;	// Send another packet in minPing/pingCoeff milliseconds
+static const int minPingDefault = 200;
+
+int CServerNetEngineBeta5::SendFiles()
+{
+	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+		return 0;
+	int ping = 0;
+	// That's a bit floody algorithm, it can be optimized I think
+	if( cl->getUdpFileDownloader()->isSending() &&
+		( cl->getChannel()->getBufferEmpty() ||
+			! cl->getChannel()->getBufferFull() &&
+			cl->getChannel()->getPing() != 0 &&
+			tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff ) )
+	{
+		cl->setLastFileRequestPacketReceived( tLX->fCurTime );
+		CBytestream bs;
+		bs.writeByte(S2C_SENDFILE);
+		cl->getUdpFileDownloader()->send(&bs);
+		cl->getNetEngine()->SendPacket( &bs );
+		ping = minPingDefault; // Default assumed ping
+		if( cl->getChannel()->getPing() != 0 )
+			ping = cl->getChannel()->getPing();
+	};
+	return ping;
+}
+
 void GameServer::SendFiles()
 {
-
-	if(iState != SVS_LOBBY)
-		return;
-
 	// To keep sending packets if no acknowledge received from client -
 	// process will pause for a long time otherwise, 'cause we're in GUI part
 	bool startTimer = false;
-	int minPing = 200;
-	float pingCoeff = 1.5f;	// Send another packet in minPing/pingCoeff milliseconds
+	int minPing = minPingDefault;
 
-	CServerConnection *cl = cClients;
-
-	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
+	for(int c = 0; c < MAX_CLIENTS; c++)
 	{
-		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
-			continue;
-		// That's a bit floody algorithm, it can be optimized I think
-		if( cl->getUdpFileDownloader()->isSending() &&
-			( cl->getChannel()->getBufferEmpty() ||
-				! cl->getChannel()->getBufferFull() &&
-				cl->getChannel()->getPing() != 0 &&
-				tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff ) )
+		int ping = cClients[c].getNetEngine()->SendFiles();
+		if( ping > 0 )
 		{
 			startTimer = true;
-			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
-			CBytestream bs;
-			bs.writeByte(S2C_SENDFILE);
-			cl->getUdpFileDownloader()->send(&bs);
-			cl->getNetEngine()->SendPacket( &bs );
-			if( cl->getChannel()->getPing() < minPing && cl->getChannel()->getPing() != 0 )
-				minPing = cl->getChannel()->getPing();
+			if( minPing > ping )
+				minPing = ping;
 		};
 	};
 

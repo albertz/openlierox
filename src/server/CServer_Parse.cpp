@@ -395,19 +395,19 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	
 	if(possibilities.size() == 1) {
 		// we have exactly one solution
-		server->SendChatCommandCompletionSolution(cl, startStr, possibilities.front() + " ");
+		cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, possibilities.front() + " ");
 		return;
 	}
 	
 	size_t l = maxStartingEqualStr(possibilities);
 	if(l > startStr.size()) {
 		// we can complete to some longer sequence
-		server->SendChatCommandCompletionSolution(cl, startStr, possibilities.front().substr(0, l));
+		cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, possibilities.front().substr(0, l));
 		return;
 	}
 	
 	// send list of all possibilities
-	server->SendChatCommandCompletionList(cl, startStr, possibilities);
+	cl->getNetEngine()->SendChatCommandCompletionList(startStr, possibilities);
 }
 
 void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {

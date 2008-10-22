@@ -51,8 +51,11 @@ public:
 
 	virtual void SendClientReady(CServerConnection* receiver);
 	virtual void SendText(const std::string& text, int type);
-
-
+	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
+	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
+	virtual void SendWormsOut(const std::list<byte>& ids);
+	virtual void SendWeapons();
+	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
 
 protected:
 	// Attributes
@@ -71,16 +74,30 @@ public:
 	void SendText(const std::string& text, int type);
 };
 
-class CServerNetEngineBeta7: public CServerNetEngineBeta3
+class CServerNetEngineBeta5: public CServerNetEngineBeta3
+{
+
+public:
+	CServerNetEngineBeta5( GameServer * _server, CServerConnection * _client ):
+		CServerNetEngineBeta3( _server, _client )
+		{ }
+		
+	int SendFiles();
+};
+
+class CServerNetEngineBeta7: public CServerNetEngineBeta5
 {
 
 public:
 	CServerNetEngineBeta7( GameServer * _server, CServerConnection * _client ):
-		CServerNetEngineBeta3( _server, _client )
+		CServerNetEngineBeta5( _server, _client )
 		{ }
 
 	void ParseChatCommandCompletionRequest(CBytestream *bs);
 	void ParseAFK(CBytestream *bs);
+
+	void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution);
+	void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions);
 };
 
 class CServerNetEngineBeta8: public CServerNetEngineBeta7

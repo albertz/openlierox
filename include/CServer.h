@@ -195,8 +195,7 @@ public:
 	// Network
 	void		ReadPackets(void);
 	void		SendPackets(void);
-	bool		SendUpdate();
-	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
+
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	void		RegisterServer(void);
@@ -234,8 +233,6 @@ public:
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
 	void		SendGlobalText(const std::string& text, int type);
-	void		SendChatCommandCompletionSolution(CServerConnection* cl, const std::string& startStr, const std::string& solution);
-	void		SendChatCommandCompletionList(CServerConnection* cl, const std::string& startStr, const std::list<std::string>& solutions);
 	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect();
     void        SendWormLobbyUpdate(CServerConnection* receiver = NULL); // if NULL, to everybody, or only to cl
@@ -247,6 +244,8 @@ public:
 #endif
 	void		SendFiles();
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
+	bool		SendUpdate();
+	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
