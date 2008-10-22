@@ -661,12 +661,16 @@ public:
 
 
 		bool explode = false;
+		bool timer = false;
 		int shake = 0;
+		bool dirt = false;
+		bool grndirt = false;
 		bool deleteAfter = false;
 		bool trailprojspawn = false;
 		int result = 0;
 		int wormid = -1;
 
+		bool spawnprojectiles = false;
 		const proj_t *pi = prj->GetProjInfo();
 		float f;
 
@@ -681,45 +685,31 @@ public:
 
 			// Explode
 			case PJ_EXPLODE:
-				// Explode
 				explode = true;
-				projectile_doTimerExplode(prj, shake);
-				deleteAfter = true;
+				timer = true;
 
+				if(pi->Timer_Projectiles)
+					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-
-				// Spawn projectiles
-				if (pi->Timer_Projectiles)
-					projectile_doSpawnOthers(prj, fCurTime);
 			break;
 
 			// Create some dirt
 			case PJ_DIRT:
+				dirt = true;
+				if(pi->Timer_Projectiles)
+					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-
-				projectile_doMakeDirt(prj);
-
-				// Spawn projectiles
-				if (pi->Timer_Projectiles)
-					projectile_doSpawnOthers(prj, fCurTime);
-
-				deleteAfter = true;
 			break;
 
 			// Create some green dirt
 			case PJ_GREENDIRT:
+				grndirt = true;
+				if(pi->Timer_Projectiles)
+					spawnprojectiles = true;
 				if(pi->Timer_Shake > shake)
 					shake = pi->Timer_Shake;
-
-				projectile_doMakeGreenDirt(prj);
-
-				// Spawn projectiles
-				if (pi->Timer_Projectiles)
-					projectile_doSpawnOthers(prj, fCurTime);
-
-				deleteAfter = true;
 			break;
 
 			// Carve
@@ -727,14 +717,13 @@ public:
 				int d = m_map->CarveHole(	pi->Timer_Damage, prj->GetPosition() );
 				deleteAfter = true;
 
+				if(pi->Timer_Projectiles)
+					spawnprojectiles = true;
+
 				// Increment the dirt count
 				m_client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 
 				m_client->CheckDemolitionsGame();
-
-				// Spawn projectiles
-				if (pi->Timer_Projectiles)
-					projectile_doSpawnOthers(prj, fCurTime);
 			}
 			break;
 			}
@@ -754,10 +743,7 @@ public:
 			// Explosion
 			switch (pi->Hit_Type)  {
 			case PJ_EXPLODE:
-				// Explode
 				explode = true;
-				projectile_doExplode(prj, shake);
-				deleteAfter = true;
 
 				if(pi->Hit_Shake > shake)
 					shake = pi->Hit_Shake;
@@ -778,7 +764,8 @@ public:
 
 			// Carve
 			case PJ_CARVE:  {
-				int d = m_map->CarveHole(pi->Hit_Damage, prj->GetPosition());
+				int d = m_map->CarveHole(
+					pi->Hit_Damage, prj->GetPosition());
 				deleteAfter = true;
 
 				// Increment the dirt count
@@ -790,21 +777,18 @@ public:
 
 			// Dirt
 			case PJ_DIRT:
-				projectile_doMakeDirt(prj);
-				deleteAfter = true;
+				dirt = true;
 			break;
 
 			// Green Dirt
 			case PJ_GREENDIRT:
-				projectile_doMakeGreenDirt(prj);
-				deleteAfter = true;
+				grndirt = true;
 			break;
 			}
 
-			// we use fCurTime (= the simulation time of the m_client) to simulate the spawing at this time
-			// because the spawing is caused probably by conditions of the environment like collision with worm/m_map
-			if (pi->Hit_Projectiles)
-				projectile_doSpawnOthers(prj, fCurTime);
+
+			if(pi->Hit_Projectiles)
+				spawnprojectiles = true;
 		}
 
 
@@ -824,8 +808,7 @@ public:
 
 				// Explode
 				case PJ_EXPLODE:
-					projectile_doExplode(prj, shake);
-					deleteAfter = true;
+					explode = true;
 				break;
 
 				// Injure
@@ -844,14 +827,12 @@ public:
 
 				// Dirt
 				case PJ_DIRT:
-					projectile_doMakeDirt(prj);
-					deleteAfter = true;
+					dirt = true;
 				break;
 
 				// Green Dirt
 				case PJ_GREENDIRT:
-					projectile_doMakeGreenDirt(prj);
-					deleteAfter = true;
+					grndirt = true;
 				break;
 
 				case PJ_NOTHING:
@@ -867,16 +848,43 @@ public:
 					*v += (d*100)*dt;
 				}
 
-				// we use fCurTime (= the simulation time of the m_client) to simulate the spawing at this time
-				// because the spawing is caused probably by conditions of the environment like collision with worm/m_map
-				if (pi->PlyHit_Projectiles)
-					projectile_doSpawnOthers(prj, fCurTime);
+				if(pi->PlyHit_Projectiles)
+					spawnprojectiles = true;
 			}
+		}
+
+
+		// Explode?
+		if(explode) {
+			if(!timer)
+				projectile_doExplode(prj, shake);
+			else
+				projectile_doTimerExplode(prj, shake);
+			deleteAfter = true;
+		}
+
+		// Dirt
+		if(dirt) {
+			projectile_doMakeDirt(prj);
+			deleteAfter = true;
+		}
+
+		// Green dirt
+		if(grndirt) {
+			projectile_doMakeGreenDirt(prj);
+			deleteAfter = true;
 		}
 
 		if(trailprojspawn) {
 			// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
 			projectile_doProjSpawn( prj, prj->fLastSimulationTime );
+		}
+
+		// Spawn any projectiles?
+		if(spawnprojectiles) {
+			// we use fCurTime (= the simulation time of the m_client) to simulate the spawing at this time
+			// because the spawing is caused probably by conditions of the environment like collision with worm/m_map
+			projectile_doSpawnOthers(prj, fCurTime);
 		}
 
 		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
