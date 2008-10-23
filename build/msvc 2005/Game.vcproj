@@ -1188,6 +1188,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\SmartPointer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\StringBuf.cpp"
 				>
 			</File>
