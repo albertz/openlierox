@@ -537,6 +537,7 @@ void	Menu_Net_ChatFrame(int mouse);
 
 void	Menu_Net_ChatNewMessage(const std::string& msg, int type);
 void	Menu_Net_ChatDisconnect();
+void	Menu_Net_ChatConnect();
 void	Menu_Net_ChatUpdateUsers(const std::list<std::string>& users);
 
 // deprecated

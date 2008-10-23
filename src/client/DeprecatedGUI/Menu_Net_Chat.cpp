@@ -45,6 +45,43 @@ enum {
 	nc_EnableChatNotify,
 };
 
+/////////////////////////
+// Re-fills the user list
+void Menu_Net_ChatRefillUserList()
+{
+	const IRCClient *irc = GetGlobalIRC();
+
+	// User list
+	CListview *l = (CListview *)cChat.getWidget(nc_UserList);
+	l->Clear();
+
+	if (irc)  {
+		if (!irc->isConnected())
+			return;
+
+		int i = 0;
+		for (std::list<std::string>::const_iterator it = irc->getUserList().begin(); it != irc->getUserList().end(); it++) {
+			l->AddItem(*it, i, tLX->clListView);
+			l->AddSubitem(LVS_TEXT, *it, NULL, NULL);
+		}
+	}
+}
+
+///////////////////////////
+// Register the IRC event listeners
+void Menu_Net_ChatRegisterCallbacks()
+{
+	IRCClient *irc = GetGlobalIRC();
+
+	// Setup the callbacks
+	if (irc)  {
+		irc->setNewMessageCallback(&Menu_Net_ChatNewMessage);
+		irc->setDisconnectCallback(&Menu_Net_ChatDisconnect);
+		irc->setConnectCallback(&Menu_Net_ChatConnect);
+		irc->setUpdateUserListCallback(&Menu_Net_ChatUpdateUsers);
+	}
+}
+
 
 ///////////////////
 // Initialize the news net menu
@@ -76,25 +113,9 @@ bool Menu_Net_ChatInitialize(void)
 			it != irc->getMessageList().end(); it++)  {
 				Menu_Net_ChatNewMessage(it->text, it->type);
 		}
-	
-	// User list
-	CListview *l = (CListview *)cChat.getWidget(nc_UserList);
-	l->Clear();
 
-	if (irc)  {
-		int i = 0;
-		for (std::list<std::string>::const_iterator it = irc->getUserList().begin(); it != irc->getUserList().end(); it++) {
-			l->AddItem(*it, i, tLX->clListView);
-			l->AddSubitem(LVS_TEXT, *it, NULL, NULL);
-		}
-	}
-
-	// Setup the callbacks
-	if (irc)  {
-		irc->setNewMessageCallback(&Menu_Net_ChatNewMessage);
-		irc->setDisconnectCallback(&Menu_Net_ChatDisconnect);
-		irc->setUpdateUserListCallback(&Menu_Net_ChatUpdateUsers);
-	}
+	Menu_Net_ChatRegisterCallbacks();
+	Menu_Net_ChatRefillUserList();
 
 	cChatGuiInitialized = true;
 	return true;
@@ -109,6 +130,7 @@ void Menu_Net_ChatShutdown()
 	if (irc)  {
 		irc->clearNewMessageCallback();
 		irc->clearDisconnectCallback();
+		irc->clearConnectCallback();
 		irc->clearUpdateUserListCallback();
 	}
 
@@ -170,8 +192,10 @@ void Menu_Net_ChatFrame(int mouse)
 					tLXOptions->bEnableChat = cChat.SendMessage(nc_EnableChat, CKM_GETCHECK, 1, 1) != 0;
 					if (!tLXOptions->bEnableChat)
 						ShutdownIRC();
-					else
+					else  {
 						InitializeIRC();
+						Menu_Net_ChatRegisterCallbacks();
+					}
 				}
 				break;
 
@@ -255,6 +279,13 @@ void Menu_Net_ChatDisconnect()
 	if (lsv)  {
 		lsv->Clear();
 	}
+}
+
+////////////////////////
+// Chat connect (callback)
+void Menu_Net_ChatConnect()
+{
+	Menu_Net_ChatRefillUserList();
 }
 
 ///////////////////////

@@ -72,7 +72,7 @@ void IRCClient::addChatMessage(const std::string &msg, IRCTextType type)
 bool IRCClient::processConnecting()
 {
 	// If connected, just quit
-	if (m_socketConnected)
+	if (m_authorizedState != AUTH_NONE)
 		return true;
 
 	// Check for DNS resolution
@@ -87,24 +87,25 @@ bool IRCClient::processConnecting()
 	SetNetAddrPort(m_chatServerAddr, IRC_PORT );
 
 	// Connect
-	if (!ConnectSocket(m_chatSocket, m_chatServerAddr))  {
-		printf("IRC error: could not connect to the server " + addrStr);
-		disconnect();
-		return true;
+	if (!m_socketConnected)  {
+		if (!ConnectSocket(m_chatSocket, m_chatServerAddr))  {
+			printf("IRC error: could not connect to the server " + addrStr);
+			disconnect();
+			return true;
+		}
+
+		// Connected
+		m_socketConnected = true;
+		m_socketIsReady = false;
+		m_netBuffer.clear();
+		m_authorizedState = AUTH_NONE;
 	}
-	
-	// Connected
-	m_socketConnected = true;
-	m_socketIsReady = false;
-	m_netBuffer.clear();
-	m_authorizedState = AUTH_NONE;
 
-	// Adjust the nickname
-	if (m_myNick.empty())
-		m_myNick = "OpenLieroXor";
-	makeNickIRCFriendly();
-
-	sendNick();
+	// Check for socket readiness
+	if (!IsSocketReady(m_chatSocket))
+		return false;
+	else
+		m_socketIsReady = true;
 
 	return true;
 }
@@ -148,7 +149,7 @@ void IRCClient::makeNickIRCFriendly()
 bool IRCClient::connect(const std::string &server, const std::string &channel, const std::string &nick)
 {
 	// Disconnect first
-	if (m_socketConnected)
+	if (m_socketOpened)
 		disconnect();
 
 	m_connecting = true;
@@ -183,18 +184,16 @@ void IRCClient::process()
 	if (!processConnecting())
 		return;
 
-	// Check for socket readiness
-	if (!m_socketIsReady)  {
-		if (!IsSocketReady(m_chatSocket))
-			return;
-		m_socketIsReady = true;
-	}
-
 	// Initiate server response
 	if (m_authorizedState == AUTH_NONE)  {
+		// Adjust the nickname
+		if (m_myNick.empty())
+			m_myNick = "OpenLieroXor";
+		makeNickIRCFriendly();
+
+		// Send the nick command
 		sendNick();
 		m_authorizedState = AUTH_NICK_SENT;
-		//printf("Menu_Net_Chat_Process(): sent %s\n", ("NICK " + nick).c_str());
 	}
 
 	// Read data from the socket
@@ -218,8 +217,10 @@ void IRCClient::readData()
 
 		// Error
 		if(read < 0)  {
-			printf("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()));
-			disconnect();
+			if (!IsMessageEndSocketErrorNr(GetSocketErrorNr()))  {
+				printf("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
+				disconnect();
+			}
 			break;
 		}
 
@@ -271,7 +272,7 @@ void IRCClient::readData()
 void IRCClient::disconnect()
 {
 	// Disconnect only when connected
-	if (!m_socketConnected)
+	if (!m_socketOpened)
 		return;
 
 	// Call the disconnect callback
@@ -279,9 +280,10 @@ void IRCClient::disconnect()
 		m_disconnectCallback();
 
 	// Close socket
-	if (m_socketIsReady)
+	if (IsSocketReady(m_chatSocket))
 		WriteSocket(m_chatSocket, "QUIT\r\n");
-	CloseSocket(m_chatSocket);
+	if (m_socketConnected)
+		CloseSocket(m_chatSocket);
 
 	// Clear the variables
 	m_socketConnected = false;
@@ -415,6 +417,9 @@ void IRCClient::parseKicked(const IRCClient::IRCCommand &cmd)
 
 	// Inform the user
 	addChatMessage("You have been kicked: " + reason, IRC_TEXT_NOTICE);
+
+	// Disconnect
+	disconnect();
 }
 
 ///////////////////
@@ -433,6 +438,10 @@ void IRCClient::parseJoin(const IRCClient::IRCCommand& cmd)
 
 	// Re-request the nick names
 	sendRequestNames();
+
+	// Callback
+	if (m_connectCallback)
+		m_connectCallback();
 
 	printf("IRC connected to " + m_chatServerChannel + "@" + m_chatServerAddrStr + "\n");
 }
@@ -565,6 +574,18 @@ void IRCClient::parseNotice(const IRCClient::IRCCommand &cmd)
 	addChatMessage(text, IRC_TEXT_NOTICE);
 }
 
+
+///////////////////////////
+// Fatal error from the server
+void IRCClient::parseError(const IRCClient::IRCCommand &cmd)
+{
+	if (cmd.params.size() > 0)  {
+		printf("IRC server error: " + cmd.params[0] + "\n");
+		addChatMessage("Server error: " + cmd.params[0], IRC_TEXT_NOTICE);
+		disconnect();
+	}
+}
+
 //////////////////////////////
 // Parse an IRC command (private)
 void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
@@ -606,6 +627,9 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 
 		else if (cmd.cmd == "NOTICE")
 			parseNotice(cmd);
+
+		else if (cmd.cmd == "ERROR")
+			parseError(cmd);
 
 		else
 			printf("IRC: unknown command " + cmd.cmd + "\n");

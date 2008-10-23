@@ -43,6 +43,7 @@ public:
 	m_updatingUserList(false),
 	m_newMsgCallback(NULL),
 	m_disconnectCallback(NULL),
+	m_connectCallback(NULL),
 	m_updateUsersCallback(NULL)
 	{}
 
@@ -96,6 +97,7 @@ public:
 	typedef void(*IRCNewMessageCB)(const std::string&, int);
 	typedef void(*IRCUpdateUserListCB)(const std::list<std::string>&);
 	typedef void(*IRCDisconnectCB)();
+	typedef void(*IRCConnectCB)();
 
 private:
 	// Attributes
@@ -119,6 +121,7 @@ private:
 	bool		m_updatingUserList;
 	IRCNewMessageCB	m_newMsgCallback;
 	IRCDisconnectCB	m_disconnectCallback;
+	IRCDisconnectCB	m_connectCallback;
 	IRCUpdateUserListCB	m_updateUsersCallback;
 
 private:
@@ -150,6 +153,7 @@ private:
 	void	parseJoin(const IRCCommand& cmd);
 	void	parseNick(const IRCCommand& cmd);
 	void	parseNotice(const IRCCommand& cmd);
+	void	parseError(const IRCCommand& cmd);
 
 
 public:
@@ -158,21 +162,27 @@ public:
 	bool	sendChat(const std::string& text);
 	void	process();
 
-	const std::list<std::string>& getUserList()			{ return m_chatUsers; }
-	const std::list<IRCChatLine>& getMessageList()		{ return m_chatText; }
+	bool	isConnected() const							{ return m_socketConnected; }
+
+	const std::list<std::string>& getUserList()	const	{ return m_chatUsers; }
+	const std::list<IRCChatLine>& getMessageList() const{ return m_chatText; }
 	const std::string getNick()							{ return m_myNick; }
 
 	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback = cb; }
 	void	clearNewMessageCallback()					{ m_newMsgCallback = NULL; }
-	IRCNewMessageCB getNewMessageCallback()				{ return m_newMsgCallback; }
+	IRCNewMessageCB getNewMessageCallback()	const		{ return m_newMsgCallback; }
 
 	void	setDisconnectCallback(IRCDisconnectCB cb)	{ m_disconnectCallback = cb; }
 	void	clearDisconnectCallback()					{ m_disconnectCallback = NULL; }
-	IRCDisconnectCB getDisconnectCallback()				{ return m_disconnectCallback; }
+	IRCDisconnectCB getDisconnectCallback()	const		{ return m_disconnectCallback; }
+
+	void	setConnectCallback(IRCConnectCB cb)			{ m_connectCallback = cb; }
+	void	clearConnectCallback()						{ m_connectCallback = NULL; }
+	IRCDisconnectCB getConnectCallback()	const		{ return m_connectCallback; }
 
 	void	setUpdateUserListCallback(IRCUpdateUserListCB cb)	{ m_updateUsersCallback = cb; }
 	void	clearUpdateUserListCallback()						{ m_updateUsersCallback = NULL; }
-	IRCUpdateUserListCB getUpdateUserListCallback()					{ return m_updateUsersCallback; }
+	IRCUpdateUserListCB getUpdateUserListCallback()	const		{ return m_updateUsersCallback; }
 };
 
 //
