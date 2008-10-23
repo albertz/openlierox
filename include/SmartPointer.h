@@ -121,6 +121,7 @@ private:
 				refCount = NULL;
 				unlock();
 				SDL_DestroyMutex(mutex); // save because there is no other ref anymore
+				mutex = NULL;
 		 	} else
 		 		unlock();
 		}
