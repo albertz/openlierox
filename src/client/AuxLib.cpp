@@ -109,7 +109,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	}
 
 	if(SDL_Init(SDLflags) == -1) {
-		SystemError("Failed to initialize the SDL system!\nErrorMsg: " + std::string(SDL_GetError()));
+		printf("Failed to initialize the SDL system!\nErrorMsg: " + std::string(SDL_GetError()));
 #ifdef WIN32
 		// retry it with any available video driver
 		unsetenv("SDL_VIDEODRIVER");
