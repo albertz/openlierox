@@ -1078,6 +1078,10 @@ void GameServer::CheckTimeouts(void)
 
 	float dropvalue = tLX->fCurTime - LX_SVTIMEOUT;
 
+	// Check
+	if (!cClients)
+		return;
+
 	// Cycle through clients
 	CServerConnection *cl = cClients;
 	for(c = 0; c < MAX_CLIENTS; c++, cl++) {
