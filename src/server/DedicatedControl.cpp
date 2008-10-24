@@ -9,6 +9,11 @@
 
 // define HAVE_BOOST if you want to compile dedicated server for Win32 and have Boost headers installed.
 
+// A workaround for a bug in boost - doesn't compile with DEBUG_NEW in MSVC 2005
+#if defined(_MSC_VER) && _MSC_VER == 1400
+#undef new
+#endif
+
 #include <iostream>
 #include <string>
 #include <sstream>
