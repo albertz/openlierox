@@ -243,6 +243,13 @@ void IRCClient::readData()
 		if(line.size() && line[0] == ':')  {
 			size_t pos2 = line.find(' ');
 			cmd.sender = line.substr(1, pos2);
+
+			// Check for exclamation mark in the nick as a special character
+			size_t excl_pos = cmd.sender.find('!');
+			if (excl_pos != std::string::npos)  {
+				cmd.sender.erase(excl_pos); // Erase anything (usually IP + ISP info) from the nick
+			}
+
 			line.erase(0, pos2 + 1);
 		}
 
@@ -390,7 +397,14 @@ bool IRCClient::sendChat(const std::string &text)
 // End of connection
 void IRCClient::parseDropped(const IRCClient::IRCCommand &cmd)
 {
-	disconnect();
+	// Get our real nick (add the unique number) for comparison
+	std::string real_nick = m_myNick;
+	if (m_nickUniqueNumber >= 0)
+		real_nick += itoa(m_nickUniqueNumber);
+
+	// Make sure the quit is directed to us (if not, someone else has been dropped/has left)
+	if (cmd.sender == real_nick)
+		disconnect();
 }
 
 ///////////////////
