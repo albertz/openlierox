@@ -13,7 +13,7 @@
 // Created 29/12/02
 // Jason Boettcher
 
-
+#include <iostream>
 #include "LieroX.h"
 #include "Sounds.h"
 #include "Clipboard.h"
