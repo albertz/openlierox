@@ -152,7 +152,6 @@ private:
 	std::vector<std::string>			tUdpMasterServers;
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
-	float		fLastRespawnWaveTime;
 	
 	friend class CServerNetEngine;
 	friend class CServerNetEngineBeta7;
@@ -174,9 +173,7 @@ public:
 	void		BeginMatch(CServerConnection* cl = NULL); // if NULL, begin match for everybody; or only for cl
 	void		GameOver(int winner);
 
-	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL);
-	void		SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl);
-	void		SpawnWave();	// Respawn all dead worms at once
+	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame(void);
 	// TODO: Give this a better name (I couldn't think of what to call it)
 	void		SimulateGameSpecial();

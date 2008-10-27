@@ -12,6 +12,8 @@
 #ifndef __CSERVER_NET_ENGINE_H__
 #define __CSERVER_NET_ENGINE_H__
 
+#include "CWorm.h"
+#include "CVec.h"
 
 class GameServer;
 class CServerConnection;
@@ -56,6 +58,7 @@ public:
 	virtual void SendWormsOut(const std::list<byte>& ids);
 	virtual void SendWeapons();
 	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
+	virtual void SendSpawnWorm(CWorm *Worm, CVec pos);
 
 protected:
 	// Attributes

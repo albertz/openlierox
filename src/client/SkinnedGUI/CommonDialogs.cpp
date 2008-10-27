@@ -374,6 +374,8 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 // Load the values from options
 void CGameSettingsDialog::LoadFromOptions()
 {
+	// TODO: Hey, there should be some way without putting here all vars from options, it's just lame
+	// Options system uses for() on CScriptableVars::Vars() array for that, that's the whole point of the scriptable vars
 	// Lives
 	if (tLXOptions->tGameinfo.iLives >= 0)
 		txtLives->setText(itoa(tLXOptions->tGameinfo.iLives));
@@ -395,9 +397,6 @@ void CGameSettingsDialog::LoadFromOptions()
 
 	// Empty weapons when respawning
 	chkEmptyWeapons->setValue(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn);
-
-	// Respawn in waves
-	chkWaveRespawn->setValue(tLXOptions->tGameinfo.bRespawnInWaves);
 
 	// Group teams
 	chkGroupTeams->setValue(tLXOptions->tGameinfo.bRespawnGroupTeams);
@@ -461,9 +460,6 @@ void CGameSettingsDialog::Save()
 	// Respawn time
 	if(txtRespawnTime->getText().size())
 		tLXOptions->tGameinfo.fRespawnTime = atof(txtRespawnTime->getText());
-
-	// Respawn in waves
-	tLXOptions->tGameinfo.bRespawnInWaves = chkWaveRespawn->getValue();
 
 	// Group teams
 	tLXOptions->tGameinfo.bRespawnGroupTeams = chkGroupTeams->getValue();

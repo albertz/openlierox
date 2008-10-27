@@ -553,7 +553,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		iServerFrame = 0;
 		bGameOver = false;
 		fGameOverTime = -9999;
-		fLastRespawnWaveTime = 0;
 		cShootList.Clear();
 	}
 	
@@ -585,14 +584,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					receiver->getNetEngine()->SendPacket(&bs);
 					
 					if(cl->getWorm(i)->getAlive()) {
-						// TODO: move that out here
-						// Send a spawn packet to new client
-						CBytestream bs;
-						bs.writeByte(S2C_SPAWNWORM);
-						bs.writeInt(cl->getWorm(i)->getID(), 1);
-						bs.writeInt( (int)cl->getWorm(i)->getPos().x, 2);
-						bs.writeInt( (int)cl->getWorm(i)->getPos().y, 2);
-						receiver->getNetEngine()->SendPacket(&bs);
+						receiver->getNetEngine()->SendSpawnWorm( cl->getWorm(i), cl->getWorm(i)->getPos() );
 					}
 				}
 			}
@@ -612,8 +604,13 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				cWorms[i].setAlive(false);
 		}
 	}
-	// Spawn the ready worms
-	SpawnWave();	// Group teams
+
+	for(int i=0;i<MAX_WORMS;i++) {
+		if( cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT )
+			SpawnWorm( & cWorms[i] );
+			if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+				SendEmptyWeaponsOnRespawn( & cWorms[i] );
+	}
 
 	if(firstStart) {
 		iLastVictim = -1;

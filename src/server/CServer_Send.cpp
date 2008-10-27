@@ -707,3 +707,15 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 		cl->getWorm(j)->writeStatUpdate(&bs);
 	cl->getNetEngine()->SendPacket(&bs);
 };
+
+void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
+{
+	CBytestream bs;
+	bs.Clear();
+	bs.writeByte(S2C_SPAWNWORM);
+	bs.writeInt(Worm->getID(), 1);
+	bs.writeInt( (int)pos.x, 2);
+	bs.writeInt( (int)pos.y, 2);
+
+	SendPacket(&bs);
+};

@@ -167,7 +167,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.fBonusFreq, "BonusFrequency", 30 )
 		( tLXOptions->tGameinfo.fBonusLife, "BonusLife", 60 )
 		( tLXOptions->tGameinfo.fRespawnTime, "RespawnTime", 2.5 )
-		( tLXOptions->tGameinfo.bRespawnInWaves, "RespawnInWaves", false )
 		( tLXOptions->tGameinfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
 		( tLXOptions->tGameinfo.bGroupTeamScore, "GroupTeamScore", false )
 		( tLXOptions->tGameinfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )

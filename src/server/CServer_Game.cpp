@@ -33,7 +33,7 @@ using namespace std;
 
 ///////////////////
 // Spawn a worm
-void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
+void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 {
 	if (bGameOver || Worm->isSpectating())
 		return;
@@ -88,119 +88,12 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 
 	Worm->Spawn(pos);
 
-	// Send a spawn packet to everyone
-	CBytestream bs;
-	bs.Clear();
-	bs.writeByte(S2C_SPAWNWORM);
-	bs.writeInt(Worm->getID(), 1);
-	bs.writeInt( (int)pos.x, 2);
-	bs.writeInt( (int)pos.y, 2);
-	SendGlobalPacket(&bs);
-	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
-		SendEmptyWeaponsOnRespawn(Worm);
+	if( client )
+		client->getNetEngine()->SendSpawnWorm(Worm, pos);
+	else
+		for( int i = 0; i < MAX_CLIENTS; i++ )
+			cClients[i].getNetEngine()->SendSpawnWorm(Worm, pos);
 }
-
-
-///////////////////
-// (Re)Spawn a worm
-// TODO: what is the sense of this? it does the respawning but sends it only to one client
-void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CServerConnection *cl)
-{
-	if (bGameOver || Worm->isSpectating())
-		return;
-
-	Worm->Respawn(pos);
-
-	// Send a spawn packet to everyone
-	CBytestream bs;
-	bs.writeByte(S2C_SPAWNWORM);
-	bs.writeInt(Worm->getID(), 1);
-	bs.writeInt( (int)pos.x, 2);
-	bs.writeInt( (int)pos.y, 2);
-	cl->getNetEngine()->SendPacket(&bs);
-	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn && Worm->getClient() == cl )
-		SendEmptyWeaponsOnRespawn(Worm);
-}
-
-
-void GameServer::SpawnWave()	// Respawn all dead worms at once
-{
-	CVec TeamSpawnPoints[4];
-	float team_dist = 0;
-	CWorm *w = cWorms;
-	int i;
-	
-	// Spawn all teams as far away from each other as possible
-	if( tLXOptions->tGameinfo.bRespawnGroupTeams && 
-		( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
-	{
-		bool TeamsAlive[4] = {false, false, false, false};
-		w = cWorms;
-		for(i=0;i<MAX_WORMS;i++,w++)
-		{
-			if(!w->isUsed())
-				continue;
-			if(!w->getWeaponsReady())
-				continue;
-			if(!w->getAlive() && w->getLives() != WRM_OUT)
-				TeamsAlive[w->getTeam()] = true;
-		};
-
-		for( int j=0; j<4; j++ )
-			TeamSpawnPoints[j] = FindSpot();
-
-		for( int k=0; k<100; k++ )
-		{
-			CVec TeamSpawnPoints1[4];
-			float team_dist1 = 0;
-			for( int j=0; j<4; j++ )
-				TeamSpawnPoints1[j] = FindSpot();
-			for( int j=0; j<4; j++ )
-			{
-				if( ! TeamsAlive[j] )
-					continue;
-				w = cWorms;
-				for(i=0;i<MAX_WORMS;i++,w++)
-				{
-					if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() )
-						continue;
-					// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
-					// The sum will get considerably smaller if any two teams are on short dist
-					if( w->getTeam() == j )
-					{
-						if( w->getAlive() )
-							team_dist1 -= ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() / 10.0;
-					}
-					else
-					{
-						if( w->getAlive() )
-							team_dist1 += sqrt( ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() );
-						else
-							team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[w->getTeam()] ).GetLength() );
-					}
-				};
-			};
-			if( team_dist1 > team_dist )
-			{
-				team_dist = team_dist1;
-				for( int j=0; j<4; j++ )
-					TeamSpawnPoints[j] = TeamSpawnPoints1[j];
-			}
-		}
-	}
-
-	w = cWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) 
-	{
-		if( !w->isUsed() || !w->getWeaponsReady() || w->getAlive() || w->getLives() == WRM_OUT )
-			continue;
-		if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
-			( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
-			SpawnWorm(w, & TeamSpawnPoints[w->getTeam()]);
-		else
-			SpawnWorm(w);
-	};
-};
 
 ///////////////////
 // Find a spot with no rock
@@ -664,16 +557,13 @@ void GameServer::SimulateGame(void)
 			continue;
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT) {
-			if( tLXOptions->tGameinfo.bRespawnInWaves &&
-				fLastRespawnWaveTime + tLXOptions->tGameinfo.fRespawnTime < fServertime )
+			// Check to see if they have been dead for longer then 2.5 seconds
+			if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
 			{
-				fLastRespawnWaveTime = fServertime;
-				SpawnWave();
+				SpawnWorm(w);
+				if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+					SendEmptyWeaponsOnRespawn(w);
 			}
-			else
-				// Check to see if they have been dead for longer then 2.5 seconds
-				if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
-					SpawnWorm(w);
 		}
 
 		// Add their time in a game of tag

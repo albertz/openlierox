@@ -759,7 +759,6 @@ enum {
 	gs_TimeLimit,
 	gs_RespawnTime,
 	gs_ForceRandomWeapons,
-	gs_RespawnInWaves,
 	gs_RespawnGroupTeams,
 	gs_SuicideDecreasesScore,
 	gs_GroupTeamScore,
@@ -880,9 +879,6 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
 
 	y += 30;
-
-	cGeneralSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,y, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,y, 0, 0);
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
@@ -1093,8 +1089,6 @@ void Menu_GameSettings_GrabInfo(void)
 		tLXOptions->tGameinfo.fRespawnTime = atof(buf);
 
 	tLXOptions->tGameinfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameinfo.bRespawnInWaves = cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
