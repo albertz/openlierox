@@ -765,6 +765,7 @@ enum {
 	gs_EmptyWeaponsOnRespawn,
 	gs_SameWeaponsAsHostWorm,
 	gs_AllowConnectDuringGame,
+	gs_AllowConnectDuringGameLivesPercent,
 	
 	gs_Bonuses,
 	gs_ShowBonusNames,
@@ -879,6 +880,11 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
 
 	y += 30;
+
+	cGeneralSettings.Add( new CLabel("Lives for new player", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("from average, %", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
+	cGeneralSettings.Add( new CTextbox(),	gs_AllowConnectDuringGameLivesPercent,    300,y-3,30,tLX->cFont.GetHeight());
+	cGeneralSettings.SendMessage(gs_AllowConnectDuringGameLivesPercent, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent), 0);
 
 	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
@@ -1088,6 +1094,10 @@ void Menu_GameSettings_GrabInfo(void)
 	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
 		tLXOptions->tGameinfo.fRespawnTime = atof(buf);
+		
+	cGeneralSettings.SendMessage(gs_AllowConnectDuringGameLivesPercent, TXS_GETTEXT, &buf, 0);
+	if(buf != "")
+		tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent = atoi(buf);
 
 	tLXOptions->tGameinfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
 

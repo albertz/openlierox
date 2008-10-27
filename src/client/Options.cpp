@@ -176,6 +176,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bForceRandomWeapons, "ForceRandomWeapons", false )
 		( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false )
 		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
+		( tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent, "AllowConnectDuringGameLivesPercent", 80 )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();
