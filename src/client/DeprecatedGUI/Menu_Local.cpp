@@ -1011,30 +1011,13 @@ bool Menu_GameSettings_Frame(void)
 	{
 		cGeneralSettings.Draw(VideoPostProcessor::videoSurface());
 		ev = cGeneralSettings.Process();
-		if (ev)
-		{
-			switch (ev->iControlID)
-			{
 
-				case gs_RespawnInWaves:
-					if( cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) == 0 )
-						cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_SETCHECK, (DWORD)0, 0);
-					break;
+		// Set the value of the loading time label
+		int l = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
+		std::string lstr = itoa(l)+"%";
+		cGeneralSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
 
-				case gs_RespawnGroupTeams:
-					if( cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0 )
-						cGeneralSettings.SendMessage( gs_RespawnInWaves, CKM_SETCHECK, (DWORD)1, 0);
-					break;
-			}
-		}
-
-	// Set the value of the loading time label
-	int l = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	std::string lstr = itoa(l)+"%";
-	cGeneralSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
-
-	cGeneralSettings.SendMessage(gs_GameSpeedLabel, LBS_SETTEXT, ftoa(Menu_getGameSpeed()) , 0);
-
+		cGeneralSettings.SendMessage(gs_GameSpeedLabel, LBS_SETTEXT, ftoa(Menu_getGameSpeed()) , 0);
 	}
 
 	if (GameTabPane == gs_BonusTab)

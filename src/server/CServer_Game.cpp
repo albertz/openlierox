@@ -38,9 +38,46 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 	if (bGameOver || Worm->isSpectating())
 		return;
 
-	CVec pos = FindSpot();
+	CVec pos;
+
 	if( _pos )
 		pos = *_pos;
+	else
+	{
+		pos = FindSpot();
+		
+		// Spawn worm closer to it's own team and away from other teams
+		if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
+			( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
+		{
+			float team_dist = 0;
+			CVec pos1;
+			
+			for( int k=0; k<100; k++ )
+			{
+				float team_dist1 = 0;
+				pos1 = FindSpot();
+				CWorm * w = cWorms;
+				for(int i = 0; i < MAX_WORMS; i++, w++)
+				{
+					if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || 
+						Worm->getID() == w->getID() || !w->getAlive() )
+						continue;
+					// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+					// The sum will get considerably smaller if any two teams are on short dist
+					if( w->getTeam() == Worm->getTeam() )
+						team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0;
+					else
+						team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
+				};
+				if( team_dist1 > team_dist )
+				{
+					team_dist = team_dist1;
+					pos = pos1;
+				};
+			};
+		};
+	};
 
 	// Spawn the worm in the flag position if possible
 	if(Worm->getFlag() && iGameType == GMT_CTF)
@@ -91,8 +128,9 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 	CVec TeamSpawnPoints[4];
 	float team_dist = 0;
 	CWorm *w = cWorms;
-	int i ;
+	int i;
 	
+	// Spawn all teams as far away from each other as possible
 	if( tLXOptions->tGameinfo.bRespawnGroupTeams && 
 		( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
 	{
@@ -111,7 +149,6 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 		for( int j=0; j<4; j++ )
 			TeamSpawnPoints[j] = FindSpot();
 
-		// Spawn all teams as far away from each other as possible
 		for( int k=0; k<100; k++ )
 		{
 			CVec TeamSpawnPoints1[4];
@@ -125,16 +162,22 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 				w = cWorms;
 				for(i=0;i<MAX_WORMS;i++,w++)
 				{
-					if( !w->isUsed() || w->getLives() == WRM_OUT )
+					if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() )
 						continue;
-					if(!w->getWeaponsReady())
-						continue;
-					if( w->getAlive() )
-						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() );
+					// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+					// The sum will get considerably smaller if any two teams are on short dist
+					if( w->getTeam() == j )
+					{
+						if( w->getAlive() )
+							team_dist1 -= ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() / 10.0;
+					}
 					else
-						team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[w->getTeam()] ).GetLength() );
-						// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
-						// The sum will get considerably smaller if any two teams are on short dist
+					{
+						if( w->getAlive() )
+							team_dist1 += sqrt( ( TeamSpawnPoints1[j] - w->getPos() ).GetLength() );
+						else
+							team_dist1 += sqrt( ( TeamSpawnPoints1[j] - TeamSpawnPoints1[w->getTeam()] ).GetLength() );
+					}
 				};
 			};
 			if( team_dist1 > team_dist )
@@ -149,18 +192,13 @@ void GameServer::SpawnWave()	// Respawn all dead worms at once
 	w = cWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) 
 	{
-		if(!w->isUsed())
+		if( !w->isUsed() || !w->getWeaponsReady() || w->getAlive() || w->getLives() == WRM_OUT )
 			continue;
-		if(!w->getWeaponsReady())
-			continue;
-		if(!w->getAlive() && w->getLives() != WRM_OUT)
-		{
-			if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
-				( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
-				SpawnWorm(w, & TeamSpawnPoints[w->getTeam()]);
-			else
-				SpawnWorm(w);
-		};
+		if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
+			( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
+			SpawnWorm(w, & TeamSpawnPoints[w->getTeam()]);
+		else
+			SpawnWorm(w);
 	};
 };
 
