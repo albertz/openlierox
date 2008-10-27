@@ -556,7 +556,7 @@ void GameServer::SimulateGame(void)
 		if(!w->isUsed())
 			continue;
 
-		if(!w->getAlive() && w->getLives() != WRM_OUT) {
+		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
 			// Check to see if they have been dead for longer then 2.5 seconds
 			if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
 			{

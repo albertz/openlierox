@@ -571,7 +571,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
 			// Client not connected or no worms
-			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+			if( cl == receiver || cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
 				continue;
 			
 			if(cl->getGameReady()) {				
@@ -589,6 +589,20 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				}
 			}
 		}
+		// Spawn receiver's worms
+		cl = receiver;
+		for(int i = 0; i < receiver->getNumWorms(); i++) {
+			if(!cl->getWorm(i)) continue;
+			CBytestream bs;
+			cl->getWorm(i)->writeScore(&bs);
+			SendGlobalPacket(&bs);
+					
+			if(cl->getWorm(i)->getAlive()) {
+				SpawnWorm( cl->getWorm(i) );
+				if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+					SendEmptyWeaponsOnRespawn( cl->getWorm(i) );
+			}
+		}
 	}
 
 	if(firstStart) {
@@ -603,13 +617,12 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			if(cWorms[i].isUsed())
 				cWorms[i].setAlive(false);
 		}
-	}
-
-	for(int i=0;i<MAX_WORMS;i++) {
-		if( cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT )
-			SpawnWorm( & cWorms[i] );
-			if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
-				SendEmptyWeaponsOnRespawn( & cWorms[i] );
+		for(int i=0;i<MAX_WORMS;i++) {
+			if( cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT )
+				SpawnWorm( & cWorms[i] );
+				if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+					SendEmptyWeaponsOnRespawn( & cWorms[i] );
+		}
 	}
 
 	if(firstStart) {
