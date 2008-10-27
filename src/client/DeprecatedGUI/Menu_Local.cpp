@@ -880,7 +880,8 @@ void Menu_GameSettings(void)
 
 	y += 30;
 
-	cGeneralSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,y, 0, 0);
+	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
 
 	y += 30;
