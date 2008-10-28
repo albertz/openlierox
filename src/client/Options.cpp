@@ -88,7 +88,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
 		( tLXOptions->bNatTraverse, "Network.NatTraverse", true )
 		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 20000 )
-		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
@@ -181,6 +180,15 @@ bool GameOptions::Init() {
 
 	bool ret = tLXOptions->LoadFromDisc();
 
+	// Init some vars for ded server
+	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
+	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
+	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
+	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
+	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
+    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
+
 	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
 	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );*/
 	return ret;
@@ -256,8 +264,8 @@ bool GameOptions::LoadFromDisc()
 	InitWidgetStates(*this);
 
 	// first set the standards (else the vars would be undefined if not defined in options.cfg)
-	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin();
-			it != CScriptableVars::Vars().end(); it++ )
+	for( CScriptableVars::iterator it = CScriptableVars::begin();
+			it != CScriptableVars::end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
@@ -396,8 +404,8 @@ void GameOptions::SaveToDisc()
 
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
-	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin();
-			it != CScriptableVars::Vars().end(); it++ )
+	for( CScriptableVars::iterator it = CScriptableVars::begin();
+			it != CScriptableVars::end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{

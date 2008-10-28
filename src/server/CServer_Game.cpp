@@ -48,7 +48,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		
 		// Spawn worm closer to it's own team and away from other teams
 		if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
-			( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
+			( tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_TEAMCTF || tGameInfo.iGameMode == GMT_VIP ) )
 		{
 			float team_dist = 0;
 			CVec pos1;
@@ -80,7 +80,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	};
 
 	// Spawn the worm in the flag position if possible
-	if(Worm->getFlag() && iGameType == GMT_CTF)
+	if(Worm->getFlag() && tGameInfo.iGameMode == GMT_CTF)
 		pos = cMap->getFlagSpawn();
 
 	if(pos.x == -1 && pos.y == -1)
@@ -195,7 +195,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	CWorm *kill = &cWorms[killer];
 
 	// Cheat prevention, game behaves weird if this happens
-	if (vict->getLives() < 0 && iLives >= 0)  {
+	if (vict->getLives() < 0 && tGameInfo.iLives >= 0)  {
 		vict->setLives(WRM_OUT);  // Safety
 		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
 		return;
@@ -241,7 +241,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	}
 
 	// Teamkill
-	if ((iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() && killer != victim)  {
+	if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && vict->getTeam() == kill->getTeam() && killer != victim)  {
 		//Take care of the <none> tag
 		if (networkTexts->sTeamkill != "<none>")  {
 			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
@@ -259,10 +259,10 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		vict->addDeathInRow();
 
 	// Kills don't count in capture the flag
-	if (killer != victim && (iGameType != GMT_CTF && iGameType != GMT_TEAMCTF))  {
+	if (killer != victim && (tGameInfo.iGameMode != GMT_CTF && tGameInfo.iGameMode != GMT_TEAMCTF))  {
 		// Don't add a kill for teamkilling (if enabled in options)
 		// Client's score and scoreboard is controlled by the server which makes this backward compatible
-		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
+		if((vict->getTeam() != kill->getTeam() && killer != victim) || tGameInfo.iGameMode != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
 			kill->addKillInRow();
 			kill->AddKill();
 			kill->setDeathsInRow(0);
@@ -272,7 +272,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	// Suicided or killed team member - decrease score if selected in options
 	if( tLXOptions->tGameinfo.bSuicideDecreasesScore && ( killer == victim ||
-		( (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
+		( (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
 			if( kill->getKills() > 0 )
 			{
 				kill->setKills( kill->getKills() - 1 );
@@ -281,7 +281,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	// If the flag was attached to the dead worm then release the flag
 	for(int j=0;j<MAX_WORMS;j++)
-		if(getFlagHolder(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+		if(getFlagHolder(j) == victim && (tGameInfo.iGameMode == GMT_CTF || tGameInfo.iGameMode == GMT_TEAMCTF))
 			setFlagHolder(-1, j);
 
 	// Killing spree message
@@ -375,7 +375,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)
 			// Declare the winner
-			switch (iGameType)  {
+			switch (tGameInfo.iGameMode)  {
 			case GMT_DEATHMATCH:
 				if (networkTexts->sPlayerHasWon != "<none>")  {
 					CWorm *winner = cWorms + wormid;
@@ -416,7 +416,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 		// If the game is still going and this is a teamgame, check if the team this worm was in still
 		// exists
-		if (!bGameOver && iGameType == GMT_TEAMDEATH) {
+		if (!bGameOver && tGameInfo.iGameMode == GMT_TEAMDEATH) {
 			int team = vict->getTeam();
 			int teamcount = 0;
 
@@ -463,13 +463,13 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				GameOver(team);
 			}
 		}
-		if (!bGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+		if (!bGameOver && (tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_CTF || tGameInfo.iGameMode == GMT_TEAMCTF))
 			RecheckGame();
 	}
 
 
 	// Check if the max kills has been reached
-	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills) {
+	if (tGameInfo.iKillLimit != -1 && killer != victim && kill->getKills() == tGameInfo.iKillLimit) {
 		cout << "max kills reached" << endl;
 
 		// Game over (max kills reached)
@@ -478,7 +478,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 
 	// If the worm killed is IT, then make the killer now IT
-	if (iGameType == GMT_TAG && !bGameOver)  {
+	if (tGameInfo.iGameMode == GMT_TAG && !bGameOver)  {
 		if (killer != victim) {
 			if (vict->getTagIT()) {
 				vict->setTagIT(false);
@@ -503,7 +503,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	vict->writeScore(&byte);
 	if (killer != victim)
 		kill->writeScore(&byte);
-	if( tLXOptions->tGameinfo.bGroupTeamScore && (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) )
+	if( tLXOptions->tGameinfo.bGroupTeamScore && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) )
 	{	// All worms in the same team will have same grouped kill count
 		CWorm *w = cWorms;
 		for( int f = 0; f < MAX_WORMS; f++, w++ )
@@ -567,7 +567,7 @@ void GameServer::SimulateGame(void)
 		}
 
 		// Add their time in a game of tag
-		if(iGameType == GMT_TAG && w->getTagIT() && w->getAlive())  {
+		if(tGameInfo.iGameMode == GMT_TAG && w->getTagIT() && w->getAlive())  {
 			w->incrementTagTime(tLX->fRealDeltaTime);
 		}
 
@@ -633,7 +633,7 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if any bonuses have been in for too long and need to be destroyed
-	if (bBonusesOn)  {
+	if (tGameInfo.bBonusesOn)  {
 		for(i=0; i<MAX_BONUSES; i++) {
 			if(!cBonuses[i].getUsed())
 				continue;
@@ -655,7 +655,7 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if we need to spawn a bonus
-	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameinfo.fBonusFreq && bBonusesOn && !bGameOver) {
+	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameinfo.fBonusFreq && tGameInfo.bBonusesOn && !bGameOver) {
 
 		SpawnBonus();
 
@@ -663,10 +663,10 @@ void GameServer::SimulateGame(void)
 	}
 
 	// Simulate the 'special' gametype stuff
-	if(iGameType == GMT_CTF)
+	if(tGameInfo.iGameMode == GMT_CTF)
 		SimulateGameSpecial();
 
-	if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 )
+	if( tGameInfo.fTimeLimit > 0 && fServertime > tGameInfo.fTimeLimit*60.0 )
 		RecheckGame();
 }
 
@@ -1028,7 +1028,7 @@ void GameServer::RecheckGame(void)
     // If this is a tag game, make sure a person is tagged
     // If not, chances are the tagged person left
     //
-    if( iGameType == GMT_TAG && getState() == SVS_PLAYING ) {
+    if( tGameInfo.iGameMode == GMT_TAG && getState() == SVS_PLAYING ) {
         int tag = -1;
 
         CWorm *w = cWorms;
@@ -1068,7 +1068,7 @@ void GameServer::RecheckGame(void)
 			//
 			// TEAM DEATHMATCH: Declare the team as winner
 			//
-			switch (iGameType)  {
+			switch (tGameInfo.iGameMode)  {
 			case  GMT_TEAMDEATH:  {
 				const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 				int TeamCount[4];
@@ -1255,7 +1255,7 @@ void GameServer::RecheckGame(void)
 					for(i = 0, w = cWorms; i < MAX_WORMS; i++, w++) {
 						if(!w->isUsed())
 							continue;
-						if(w->getKills() == iMaxKills) {
+						if(w->getKills() == tGameInfo.iKillLimit) {
 							// Send the text
 							if (networkTexts->sPlayerHasWon != "<none>")  {
 								SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
@@ -1315,7 +1315,7 @@ void GameServer::RecheckGame(void)
 
 			}
 
-			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 ) {
+			if( tGameInfo.fTimeLimit > 0 && fServertime > tGameInfo.fTimeLimit*60.0 ) {
 				if (networkTexts->sTimeLimit != "<none>")
 					SendGlobalText( networkTexts->sTimeLimit, TXT_NORMAL );
 				cout << "recheck: time limit reached" << endl;
@@ -1361,7 +1361,7 @@ void GameServer::CheckReadyClient(void)
 // Apply the stuff required for gametypes like CTF
 void GameServer::SimulateGameSpecial()
 {
-	switch (iGameType) {
+	switch (tGameInfo.iGameMode) {
 		// Capture the flag
 		case GMT_CTF:
 		{
@@ -1428,7 +1428,7 @@ void GameServer::SimulateGameSpecial()
 						setFlagHolder(-1, i);
 						SendGlobalText((replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
 							TXT_NORMAL);
-						if(w->getKills()==iMaxKills)
+						if(w->getKills()==tGameInfo.iKillLimit)
 							RecheckGame();
 				}
 			}

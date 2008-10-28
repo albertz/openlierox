@@ -27,17 +27,6 @@ ded.startLobby()
 
 ded.waitLobbyStarted()
 
-ded.setvar("GameServer.ServerName", cfg.SERVER_NAME)
-
-ded.setvar("GameServer.GameInfo.sWelcomeMessage", cfg.WELCOME_MESSAGE)
-ded.setvar("GameServer.MaxPlayers", cfg.MAX_PLAYERS)
-
-ded.setvar("GameServer.GameInfo.iGameMode", 0) # 0 - DM, 1 - Team DM
-ded.setvar("GameServer.GameInfo.iLives", cfg.GAME_LIVES)
-ded.setvar("GameServer.GameInfo.iKillLimit", cfg.GAME_MAX_KILLS)
-ded.setvar("GameServer.GameInfo.fTimeLimit", cfg.GAME_MAX_TIME)
-ded.setvar("GameOptions.Advanced.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
-
 ded.selectNextPreset()
 
 # nice state-machine for dedicated server

@@ -96,10 +96,23 @@ public:
 	static CScriptableVars & Init();	// Called automatically
 	static void DeInit();	// Should be called from main()
 
-	static std::map< std::string, ScriptVarPtr_t > & Vars()
+	static const std::map< std::string, ScriptVarPtr_t > & Vars()
 	{
 		Init();
 		return m_instance->m_vars;
+	};
+	
+	typedef std::map< std::string, ScriptVarPtr_t > :: const_iterator iterator;
+
+	static iterator begin()
+	{ 
+		Init();
+		return m_instance->m_vars.begin();
+	};
+	static iterator end()
+	{ 
+		Init();
+		return m_instance->m_vars.end();
 	};
 	
 	static ScriptVarPtr_t GetVar( const std::string & name );	// Case-insensitive search, returns NULL on fail
@@ -158,6 +171,7 @@ public:
 		return VarRegisterHelper( m_instance, base );
 	};
 
+	// De-registers all variables with names starting with "base."
 	static void DeRegisterVars( const std::string & base );
 
 private:

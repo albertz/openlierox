@@ -79,21 +79,22 @@ private:
 	// Game rules
 	bool		bGameOver;
 	float		fGameOverTime;
+	/*
+	int			iMaxWorms;
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;
 	float		fTimeLimit;
 	int			iTagLimit;
-	int			iMaxWorms;
 	bool		bBonusesOn;
 	bool		bShowBonusName;
 	int			iLoadingTimes;
 	std::string	sModName;
+	std::string	sMapFilename;
+	*/
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;
-
-	bool		bTournament;
 
 	int			iFlagHolders [MAX_WORMS];	// The ID of which worm holds each flag (an array for if Team CTF is made)
 	float		fLastCTFScore;				// The last time someone scored in CTF (for when the map doesn't have a base)
@@ -116,7 +117,6 @@ private:
 
 	// Map
 	bool		bRandomMap;		// TODO: what is this good for
-	std::string	sMapFilename;
 	CMap		*cMap;
 
 	// Simulation
@@ -266,8 +266,8 @@ public:
 	CServerConnection *getClient(int iWormID);
 	std::string		getName(void)			{ return sName; }
 	void			setName(const std::string& _name){ sName = _name; }
-	int				getMaxWorms(void)		{ return iMaxWorms; }
-	void			setMaxWorms(int _n)		{ iMaxWorms = _n; }
+	//int				getMaxWorms(void)		{ return iMaxWorms; }
+	//void			setMaxWorms(int _n)		{ iMaxWorms = _n; }
 	bool			getGameOver(void)		{ return bGameOver; }
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }

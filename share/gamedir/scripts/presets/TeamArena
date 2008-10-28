@@ -1,28 +1,21 @@
 #!/usr/bin/python -u
 # The Python presets are detected from non-Python ones by first line which shouild contain "python" string
 
-setvar( "GameOptions.LastGame.LevelName", "LieroFactory(Revisited).lxl" )
 setvar( "GameServer.GameInfo.sMapFile",   "LieroFactory(Revisited).lxl" )
 setvar( "GameServer.GameInfo.sMapName",   "LFr" )
 
-setvar( "GameOptions.LastGame.ModName",   "Classic" )
 setvar( "GameServer.GameInfo.sModDir",    "Classic" )
 setvar( "GameServer.GameInfo.sModName",   "Classic" )
 
-setvar( "GameOptions.LastGame.LoadingTime", 100 )
 setvar( "GameServer.GameInfo.iLoadingTimes", 100 )
 
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
 setvar( "GameServer.ServerName", "Dedicated - TeamArena" )
 
-setvar("GameServer.GameInfo.iGameMode", 1) # Required for this gamemode
-setvar("GameOptions.LastGame.GameType", 1)
+setvar("GameServer.GameInfo.iGameMode", 1) # Team deathmatch, required for this gamemode
 
 setvar("GameServer.GameInfo.iLives", 0) # Required for this gamemode
-setvar("GameOptions.LastGame.Lives", 0)
-
-setvar("GameOptions.LastGame.RespawnInWaves", 1) # Required for this gamemode
 
 setvar("GameOptions.LastGame.RespawnGroupTeams", 1) # Required for this gamemode
 
@@ -116,8 +109,6 @@ def controlHandlerTeamArena():
 					lobbyWaitBeforeGame -= 1
 					if lobbyWaitBeforeGame <= 0: # Start the game
     
-						sendLobbyUpdate() # Update game mode info
-						
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
 							for w in worms.values():
@@ -225,6 +216,5 @@ parseAdminCommand_Preset = parseAdminCommandTeamArena
 userCommandHelp_Preset = userCommandHelpTeamArena
 parseUserCommand_Preset = parseUserCommandTeamArena
 
-sendLobbyUpdate() # Update game mode info
 if cfg.ALLOW_TEAM_CHANGE:
 	chatMsg(cfg.TEAM_CHANGE_MESSAGE)

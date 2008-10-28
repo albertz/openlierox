@@ -1140,7 +1140,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				{
 					CTextbox *t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedMinPlayers);
 					iStartDedicatedMinPlayers = atoi(t->getText());
-					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, cServer->getMaxWorms() );
+					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, tLXOptions->tGameinfo.iMaxPlayers );
 				}
                 break;
 		}
@@ -1544,7 +1544,6 @@ bool Menu_ServerSettings_Frame(void)
 					// Set up the server
 					if(cServer)  {
 						cServer->setName(tGameInfo.sServername);
-						cServer->setMaxWorms(tLXOptions->tGameinfo.iMaxPlayers);
 					}
 
 					tLXOptions->tGameinfo.bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;

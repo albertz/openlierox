@@ -22,9 +22,6 @@ function setvar() {
 	echo "setvar $1 $2"
 }
 
-function sendlobbyupdate() {
-	echo "sendlobbyupdate"
-}
 
 function start_with_countdown() {
 	c=20

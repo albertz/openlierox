@@ -16,8 +16,8 @@ cfg = dedicated_config # shortcut
 # TODO: is this up-to-date with console support on win?
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
-if sys.platform == "win32":
-	sys.stderr = open(cfg.ERROR_FILE, "w", 0)
+#if sys.platform == "win32":
+sys.stderr = open(cfg.ERROR_FILE, "w", 0)
 
 from dedicated_control_io import *
 
@@ -466,7 +466,6 @@ def selectNextPreset():
 	if curPreset >= maxPresets:
 		curPreset = 0
 
-	sendLobbyUpdate()
 
 def waitLobbyStarted():
 	while True:
@@ -597,7 +596,6 @@ def controlHandlerDefault():
 
 					if getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
 						setvar("GameServer.GameInfo.iGameMode", "1")
-						sendLobbyUpdate() # Update game mode info
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
 							for w in worms.values():
@@ -606,7 +604,6 @@ def controlHandlerDefault():
 									counter += 1
 					else:
 						setvar("GameServer.GameInfo.iGameMode", "0")
-						sendLobbyUpdate() # Update game mode info
 
 					startGame()
 					if cfg.ALLOW_TEAM_CHANGE:

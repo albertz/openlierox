@@ -10,59 +10,75 @@ parseAdminCommand_Preset = None
 userCommandHelp_Preset = None
 parseUserCommand_Preset = None
 
+setvar( "GameServer.ServerName", cfg.SERVER_NAME )
 
-setvar( "GameOptions.LastGame.LevelName", "LieroFactory(Revisited).lxl" )
 setvar( "GameServer.GameInfo.sMapFile",   "LieroFactory(Revisited).lxl" )
 setvar( "GameServer.GameInfo.sMapName",   "LFr" )
 
-setvar( "GameOptions.LastGame.ModName",   "Classic" )
 setvar( "GameServer.GameInfo.sModDir",    "Classic" )
 setvar( "GameServer.GameInfo.sModName",   "Classic" )
 
-setvar( "GameOptions.LastGame.LoadingTime", 100 )
 setvar( "GameServer.GameInfo.iLoadingTimes", 100 )
 
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
-setvar( "GameServer.ServerName", "Dedicated" )
-
 setvar("GameServer.GameInfo.iGameMode", 0) # 0 - Deathmatch, 1 - TDM
-setvar("GameOptions.LastGame.GameType", 0)
 
-setvar("GameServer.GameInfo.iNumPlayers", cfg.MAX_PLAYERS)
-setvar("GameOptions.LastGame.MaxPlayers", cfg.MAX_PLAYERS)
+setvar("GameServer.GameInfo.iMaxPlayers", cfg.MAX_PLAYERS)
 
 setvar("GameServer.GameInfo.iLives", cfg.GAME_LIVES)
-setvar("GameOptions.LastGame.Lives", cfg.GAME_LIVES)
 
 setvar("GameServer.GameInfo.iKillLimit", cfg.GAME_MAX_KILLS)
-setvar("GameOptions.LastGame.KillLimit", cfg.GAME_MAX_KILLS)
 
 setvar("GameServer.GameInfo.fTimeLimit", cfg.GAME_MAX_TIME)
-setvar("GameOptions.LastGame.TimeLimit", cfg.GAME_MAX_TIME)
 
-setvar("GameServer.GameInfo.bBonusesOn", 1)
-setvar("GameOptions.LastGame.Bonuses", 1)
+# Options that controls game
+setvar( "GameServer.GameInfo.bAllowConnectDuringGame", 0)
+setvar( "GameOptions.LastGame.AllowConnectDuringGameLivesPercent", 80)
+setvar( "GameServer.GameInfo.bForceRandomWeapons", 0)
+setvar( "GameServer.GameInfo.bSameWeaponsAsHostWorm", 0) # We should add a bot for that to work
+setvar( "GameServer.GameInfo.fGameSpeed", 1)
+setvar( "GameServer.GameInfo.iTagLimit", 5)
+setvar( "GameServer.GameInfo.sWelcomeMessage", "<player> from <country> connected - typing go/spamming is useless")
+setvar( "GameServer.GameInfo.bBonusesOn", 1)
+setvar( "GameServer.GameInfo.bShowBonusName", 1)
+setvar( "GameOptions.LastGame.BonusFrequency", 30)
+setvar( "GameOptions.LastGame.BonusHealthToWeaponChance", 0.5) # 0 - all healths, 1 - all weapons
+setvar( "GameOptions.LastGame.BonusLife", 60)
+setvar( "GameOptions.LastGame.EmptyWeaponsOnRespawn", 0)
+setvar( "GameOptions.LastGame.GroupTeamScore", 0)
+setvar( "GameOptions.LastGame.RespawnTime", 2.5)
+setvar( "GameOptions.LastGame.SuicideDecreasesScore", 0)
+setvar( "GameOptions.Advanced.CountTeamkills", 0)
+setvar( "GameOptions.Advanced.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
 
-setvar("GameServer.GameInfo.bShowBonusName", 1)
-setvar("GameOptions.LastGame.BonusNames", 1)
-
-setvar("GameOptions.LastGame.BonusFrequency", 30)
-
-setvar("GameOptions.LastGame.BonusLife", 60)
-
-setvar("GameOptions.LastGame.BonusHealthToWeaponChance", 0.5) # 0 - all healths, 1 - all weapons
-
-setvar("GameOptions.LastGame.RespawnTime", 2.5)
-
-setvar("GameOptions.LastGame.RespawnInWaves", 0)
-
-setvar("GameOptions.LastGame.RespawnGroupTeams", 0)
-
-setvar("GameOptions.LastGame.GroupTeamScore", 0)
-
-setvar("GameOptions.LastGame.SuicideDecreasesScore", 0)
-
-setvar("GameOptions.LastGame.EmptyWeaponsOnRespawn", 0)
-
-setvar("GameOptions.Advanced.CountTeamkills", 0)
+# General options that should be set
+setvar( "GameOptions.Advanced.MaxFPS", 95) # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
+setvar( "GameOptions.Game.AllowMouseAiming", 1)
+setvar( "GameOptions.Game.AllowStrafing", 1)
+setvar( "GameOptions.Advanced.ServerSideHealth", 0) # Turn this on if ppl hack and don't die on your server
+setvar( "GameOptions.Game.AntilagMovementPrediction", 1) # If ServerSideHealth = 1 this influences gameplay
+setvar( "GameOptions.Game.Blood", 0)
+setvar( "GameOptions.Game.Particles", 0) # Ded server does not need any eye candies
+setvar( "GameOptions.Game.Shadows", 0) # Ded server does not need any eye candies
+setvar( "GameOptions.LastGame.AllowNickChange", 0)
+setvar( "GameOptions.LastGame.AllowRemoteBots", 1)
+setvar( "GameOptions.LastGame.AllowWantsJoinMsg", 1)
+setvar( "GameOptions.LastGame.MatchLogging", 0) # Do not save game results screenshot
+setvar( "GameOptions.LastGame.Password", "") # Not used
+setvar( "GameOptions.LastGame.RegisterServer", 1)
+setvar( "GameOptions.LastGame.WantsToJoinFromBanned", 0)
+setvar( "GameOptions.LastGame.WelcomeMessage", cfg.WELCOME_MESSAGE)
+setvar( "GameOptions.Misc.LogConversations", 1)
+setvar( "GameOptions.Misc.ScreenshotFormat", 1) # PNG
+setvar( "GameOptions.Network.AutoSetupHttpProxy", 1)
+setvar( "GameOptions.Network.EnableChat", 0) # No IRC chat needed for ded server
+setvar( "GameOptions.Network.EnableChatNotification", 0)
+setvar( "GameOptions.Network.HttpProxy", "")
+setvar( "GameOptions.Network.UseIpToCountry", 1) # Needed for correct server messages
+setvar( "GameOptions.Network.LoadDbAtStartup", 1)
+setvar( "GameOptions.Network.MaxUploadBandwidth", 100000) # Disable bandwidth limits
+setvar( "GameOptions.Network.NatTraverse", 1)
+setvar( "GameOptions.Network.Port", 23400)
+setvar( "GameOptions.Network.Speed", 2) # 0 = Modem, 1 = ADSL, 2 = LAN
+setvar( "GameServer.bStartDedicated", 0) # This is for auto-start game from GUI, disable this, it will break the scripts

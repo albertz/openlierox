@@ -153,7 +153,7 @@ bool DedicatedControl::Init() {
 			( tGameInfo.bBonusesOn, "bBonusesOn" )
 			( tGameInfo.bShowBonusName, "bShowBonusName" )
 			( tGameInfo.fGameSpeed, "fGameSpeed" )
-			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" )
+			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" ) // TODO: move to global tGameInfo?
 			( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
 			( tLXOptions->tGameinfo.bAllowConnectDuringGame, "bAllowConnectDuringGame" )
 			;
@@ -502,6 +502,24 @@ struct DedIntern {
 		{
 			cout << "DedicatedControl: SetVar: no var with name " << var << endl;
 			cout << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
+			cout << "\nFor Python ded control script:\n" << endl;
+			for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
+			{
+				cout << "setvar( \"" << it->first << "\", ";
+				if( it->second.type == CScriptableVars::SVT_BOOL )
+					cout << (int) * it->second.b;
+				else if( it->second.type == CScriptableVars::SVT_INT )
+					cout << * it->second.i;
+				else if( it->second.type == CScriptableVars::SVT_FLOAT )
+					cout << * it->second.f;
+				else if( it->second.type == CScriptableVars::SVT_STRING )
+					cout << "\"" << * it->second.s << "\"";
+				else if( it->second.type == CScriptableVars::SVT_COLOR )
+					cout << "0x" << hex << * it->second.cl << dec;
+				else
+					cout << "\"\"";
+				cout << ")" << endl;
+			}
 			return;
 		};
 		CScriptableVars::SetVarByString(varptr, value);

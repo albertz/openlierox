@@ -63,6 +63,7 @@ GameServer::GameServer() {
 		( sName, "ServerName" )
 		// TODO: this is incomplete
 		// TODO: Dunno if the following vars used, server seems to use tGameInfo struct instead - remove them then
+		/*
 		( iMaxWorms, "MaxPlayers" )
 		( iGameType, "GameType" )
 		( iLives, "Lives" )
@@ -73,6 +74,7 @@ GameServer::GameServer() {
 		( bBonusesOn, "BonusesOn" )
 		( bShowBonusName, "ShowBonusName" )
 		( iLoadingTimes, "LoadingTime" )
+		*/
 		;
 }
 
@@ -94,9 +96,9 @@ void GameServer::Clear(void)
 	iServerFrame=0;
 	iNumPlayers = 0;
 	bRandomMap = false;
-	iMaxWorms = MAX_PLAYERS;
+	//iMaxWorms = MAX_PLAYERS;
 	bGameOver = false;
-	iGameType = GMT_DEATHMATCH;
+	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
 	for(i=0; i<MAX_CLIENTS; i++)
@@ -110,8 +112,6 @@ void GameServer::Clear(void)
 	fLastRegister = 0;
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
-
-	bTournament = false;
 
 	fLastUpdateSent = -9999;
 
@@ -141,7 +141,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	Clear();
 
 	sName = name;
-	iMaxWorms = maxplayers;
+	//iMaxWorms = maxplayers;
 	bRegServer = regserver;
 	nPort = port;
 	// Is this the right place for this?
@@ -309,6 +309,7 @@ int GameServer::StartGame()
 	CBytestream bs;
 	float timer;
 	
+	/*
 	iLives =		 tGameInfo.iLives;
 	iGameType =		 tGameInfo.iGameMode;
 	iMaxKills =		 tGameInfo.iKillLimit;
@@ -318,9 +319,10 @@ int GameServer::StartGame()
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	bBonusesOn =	 tGameInfo.bBonusesOn;
 	bShowBonusName = tGameInfo.bShowBonusName;
+	*/
 	
 
-	printf("GameServer::StartGame() mod %s\n", sModName.c_str());
+	printf("GameServer::StartGame() mod %s\n", tGameInfo.sModName.c_str());
 
 	// Check
 	if (!cWorms) { printf("ERROR: StartGame(): Worms not initialized\n"); return false; }
@@ -374,7 +376,7 @@ int GameServer::StartGame()
 	} else {
 
 		timer = SDL_GetTicks()/1000.0f;
-		sMapFilename = "levels/" + tGameInfo.sMapFile;
+		string sMapFilename = "levels/" + tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
@@ -404,7 +406,7 @@ int GameServer::StartGame()
     cWeaponRestrictions.updateList(cGameScript.get());
 
 	// Setup the flags
-	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2; // TODO: uh?
+	int flags = (tGameInfo.iGameMode == GMT_CTF) + (tGameInfo.iGameMode == GMT_TEAMCTF)*2; // TODO: uh?
 	CBytestream bytestr;
 	bytestr.Clear();
 
@@ -432,11 +434,11 @@ int GameServer::StartGame()
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives(iLives);
+			cWorms[i].setLives(tGameInfo.iLives);
             cWorms[i].setKills(0);
 			cWorms[i].setGameScript(cGameScript.get());
             cWorms[i].setWpnRest(&cWeaponRestrictions);
-			cWorms[i].setLoadingTime( (float)iLoadingTimes / 100.0f );
+			cWorms[i].setLoadingTime( (float)tGameInfo.iLoadingTimes / 100.0f );
 			cWorms[i].setKillsInRow(0);
 			cWorms[i].setDeathsInRow(0);
 		}
@@ -466,7 +468,7 @@ int GameServer::StartGame()
     // If this is the host, and we have a team game: Send all the worm info back so the worms know what
     // teams they are on
     if( tGameInfo.iGameType == GME_HOST ) {
-        if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP ) {
+        if( tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP ) {
 
             CWorm *w = cWorms;
             CBytestream b;
@@ -607,7 +609,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	if(firstStart) {
 		// If this is a game of tag, find a random worm to make 'it'
-		if(iGameType == GMT_TAG)
+		if(tGameInfo.iGameMode == GMT_TAG)
 			TagRandomWorm();
 	}
 	
@@ -696,7 +698,8 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 		
-		if( iGameType == GMT_DEATHMATCH || iGameType == GMT_CTF || iGameType == GMT_TAG || GMT_DEMOLITION )
+		if( tGameInfo.iGameMode == GMT_DEATHMATCH || tGameInfo.iGameMode == GMT_CTF || 
+			tGameInfo.iGameMode == GMT_TAG || tGameInfo.iGameMode == GMT_DEMOLITION )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
@@ -955,7 +958,7 @@ void GameServer::RegisterServerUdp(void)
 		bs.writeString("lx::register");
 		bs.writeString(OldLxCompatibleString(sName));
 		bs.writeByte(iNumPlayers);
-		bs.writeByte(iMaxWorms);
+		bs.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
 		bs.writeByte(iState);
 		// Beta8+
 		bs.writeString(GetGameVersion().asString());

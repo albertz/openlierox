@@ -175,7 +175,6 @@ public:
 	// Network
 	int		iNetworkPort;
 	int		iNetworkSpeed;
-	float	fUpdatePeriod;
 	bool	bUseIpToCountry;
 	bool	bLoadDbAtStartup;
 	bool	bNatTraverse;

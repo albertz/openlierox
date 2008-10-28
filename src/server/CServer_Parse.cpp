@@ -972,7 +972,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	if (numplayers >= iMaxWorms || numplayers + numworms > iMaxWorms) {
+	if (numplayers >= tLXOptions->tGameinfo.iMaxPlayers || numplayers + numworms > tLXOptions->tGameinfo.iMaxPlayers) {
 		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
@@ -1241,7 +1241,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
 		if( tGameInfo.iGameType == GME_HOST ) {
-			if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP || iGameType == GMT_TEAMCTF ) {
+			if( tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF ) {
 				
 				CWorm *w = cWorms;
 				CBytestream b;
@@ -1271,8 +1271,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			
 			// If the game has limited lives all new worms are spectators
-			if( iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
-				newcl->getWorm(i)->setLives(iLives);
+			if( tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
+				newcl->getWorm(i)->setLives(tGameInfo.iLives);
 			else
 			{
 				float avgLives = 0;
@@ -1292,7 +1292,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
-			newcl->getWorm(i)->setLoadingTime( (float)iLoadingTimes / 100.0f );
+			newcl->getWorm(i)->setLoadingTime( (float)tGameInfo.iLoadingTimes / 100.0f );
 			newcl->getWorm(i)->setKillsInRow(0);
 			newcl->getWorm(i)->setDeathsInRow(0);
 			newcl->getWorm(i)->setWeaponsReady(false);
@@ -1452,7 +1452,7 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 	else
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
-	bytestr.writeByte(iMaxWorms);
+	bytestr.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
 	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 	// Beta8+ info - old clients will just skip it
@@ -1481,7 +1481,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	bs.writeString("lx::serverinfo");
 
 	bs.writeString(OldLxCompatibleString(sName));
-	bs.writeByte(iMaxWorms);
+	bs.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
 	bs.writeByte(iState);
 
 	// If in lobby
@@ -1495,18 +1495,8 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 		bs.writeBool(gl->bBonuses);
 	}
 	// If in game
-	else if (iState == SVS_PLAYING) {
-		bs.writeString(sMapFilename);
-		bs.writeString(sModName);
-		bs.writeByte(iGameType);
-		bs.writeInt16(iLives);
-		bs.writeInt16(iMaxKills);
-		bs.writeInt16(iLoadingTimes);
-		bs.writeByte(bBonusesOn);
-	}
-	// Loading
 	else {
-		bs.writeString(tGameInfo.sMapFile);
+		bs.writeString( iState == SVS_PLAYING ? "levels/" + tGameInfo.sMapFile : tGameInfo.sMapFile );
 		bs.writeString(tGameInfo.sModName);
 		bs.writeByte(tGameInfo.iGameType);
 		bs.writeInt16(tGameInfo.iLives);

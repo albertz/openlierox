@@ -103,18 +103,18 @@ void GameServer::SendPrepareGame(CServerConnection* cl) {
 	bs.writeByte(S2C_PREPAREGAME);
 	bs.writeBool(bRandomMap);
 	if(!bRandomMap)
-		bs.writeString(sMapFilename);
+		bs.writeString("levels/" + tGameInfo.sMapFile);
 	
 	// Game info
-	bs.writeInt(iGameType,1);
-	bs.writeInt16(iLives);
-	bs.writeInt16(iMaxKills);
-	bs.writeInt16((int)fTimeLimit);
-	bs.writeInt16(iLoadingTimes);
-	bs.writeBool(bBonusesOn);
-	bs.writeBool(bShowBonusName);
-	if(iGameType == GMT_TAG)
-		bs.writeInt16(iTagLimit);
+	bs.writeInt(tGameInfo.iGameMode,1);
+	bs.writeInt16(tGameInfo.iLives);
+	bs.writeInt16(tGameInfo.iKillLimit);
+	bs.writeInt16((int)tGameInfo.fTimeLimit);
+	bs.writeInt16(tGameInfo.iLoadingTimes);
+	bs.writeBool(tGameInfo.bBonusesOn);
+	bs.writeBool(tGameInfo.bShowBonusName);
+	if(tGameInfo.iGameMode == GMT_TAG)
+		bs.writeInt16(tGameInfo.iTagLimit);
 	bs.writeString(tGameInfo.sModDir);
 	
 	cWeaponRestrictions.sendList(&bs, cGameScript.get());
@@ -458,7 +458,7 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 static void SendUpdateLobbyGame(CServerConnection *cl, game_lobby_t* gl, GameServer* gs) {
 	CBytestream bs;
 	bs.writeByte(S2C_UPDATELOBBYGAME);
-	bs.writeByte(MAX(gs->getMaxWorms(),gs->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs.writeByte(MAX(tLXOptions->tGameinfo.iMaxPlayers,gs->getNumPlayers()));  // This fixes the player disappearing in lobby
 	bs.writeString(gl->szMapFile);
 	bs.writeString(gl->szModName);
 	bs.writeString(gl->szModDir);
@@ -499,11 +499,14 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit = tGameInfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime = tGameInfo.iLoadingTimes;
 	gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
+	tLXOptions->tGameinfo.bShowBonusName = tGameInfo.bShowBonusName;
+	tLXOptions->tGameinfo.iTagLimit = tGameInfo.iTagLimit;
 	gl->szMapFile = tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile;
 	gl->szModName = tGameInfo.sModName;
 	gl->szModDir = tLXOptions->tGameinfo.szModDir = tGameInfo.sModDir;
 	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
 	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
+	tLXOptions->tGameinfo.fTimeLimit = tGameInfo.fTimeLimit;
 	
 	if(cl) {
 		SendUpdateLobbyGame(cl, gl, this);

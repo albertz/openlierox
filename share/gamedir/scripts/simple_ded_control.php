@@ -8,11 +8,6 @@ function startlobby() {
 	flush();
 }
 
-function updatelobby() {
-	echo "sendlobbyupdate\n"; 
-	flush();
-}
-
 function startgame() {
 	echo "startgame\n";
 	flush();
@@ -110,8 +105,6 @@ setvar( "GameOptions.LastGame.LoadingTime",         "20" );
 setvar( "GameServer.GameInfo.iLoadingTimes",        "20" );
 
 setvar( "GameServer.WeaponRestrictionsFile",        "cfg/presets/Mortar Only.wps" );
-
-updatelobby();
 
 while( 1 ) {
 	start_with_countdown(); 
