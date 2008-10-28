@@ -194,6 +194,11 @@ startpoint:
 	}
 #endif //WITH_G15
 
+	// Start loading the IP to country database
+	// HINT: we do it as soon as possible because the loading has more time then which means better results
+	// HINT: the database won't load if it is disabled in options
+	tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
+
 	// Initialize LX
 	if(!InitializeLieroX())  {
 		SystemError("Could not initialize LieroX.");
@@ -254,22 +259,6 @@ startpoint:
 	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 
-	// If the user wants to load the database on startup, do it
-	// For dedicated server the database should be loaded on startup or it will crash
-	if (tLXOptions->bLoadDbAtStartup || (bDedicated && tLXOptions->bUseIpToCountry) )  {
-		DrawLoading(80, "Loading IP To Country Database");
-
-		// Allocate & load
-		tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
-		if (!tIpToCountryDB)  {
-			SystemError("Could not allocate the IP to Country database.");
-			return -1;
-		}
-
-		// Wait while it fully loads
-		while (!tIpToCountryDB->Loaded())
-			SDL_Delay(50);
-	}
 
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();

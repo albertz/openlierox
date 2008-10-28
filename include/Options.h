@@ -176,7 +176,6 @@ public:
 	int		iNetworkPort;
 	int		iNetworkSpeed;
 	bool	bUseIpToCountry;
-	bool	bLoadDbAtStartup;
 	bool	bNatTraverse;
 	int		iMaxUploadBandwidth;
 	std::string	sHttpProxy;

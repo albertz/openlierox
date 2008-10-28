@@ -15,6 +15,7 @@
 
 #include <SDL.h>
 #include <SDL_thread.h>
+#include <SDL_mutex.h>
 #include <iostream>
 #include <map>
 
@@ -28,12 +29,30 @@
 #include "Timer.h"
 #include "InputEvents.h"
 
+/*
+How does this work?
+Because the database contains approx. 90 000 items, it is quite time consuming
+to load it in memory. Because users do not like waiting, we have to distribute
+the loading in time to be unobtrusive for the user:
+1. Start loading the database as soon as possible (right after loading the options, see main.cpp)
+2. When starting to load it, read as many items as possible in a reasonable time (0.2 sec atm)
+3. After the initial reading, move all the loading to a separate thread
+4. When the user wants to read from the database when it is not fully loaded yet,
+   the loading thread is paused and the so-far-read entries are searched 
+   4.1 If the entry is found, it is returned and the thread searching continues
+   4.2 If the entry is not found, we start "fast" reading (with no SDL_Delay) and try to find
+       the entry in the remaining entries; if the entry is not found within a reasonable time,
+	   it is considered as not found and the threading search continues
+*/
+
 
 #ifdef _MSC_VER  // MSVC 6 has problems with from_string<Uint32>
 typedef unsigned int Ip;
 #else
 typedef Uint32 Ip;
 #endif
+
+#define READ_CHUNK_SIZE  4196
 
 struct DBEntry {
 	Ip			RangeFrom;
@@ -98,7 +117,8 @@ public:
 		it++;
 		entry.Info.Country = *it;
 
-		return handler(entry);
+		handler(entry);
+		return true;
 	}
 
 };
@@ -106,69 +126,52 @@ public:
 
 using namespace std;
 
-template<typename _handler>
-class DBEntryHandler {
-public:
-	_handler& handler;
-	bool& breakSignal;
-	ifstream* file;
-	DBEntryHandler(_handler& h, bool& b, ifstream* f)
-		: handler(h), breakSignal(b), file(f) {}
-
-	inline bool operator()(const DBEntry& entry) {
-		return !breakSignal && handler(entry);
-	}
-};
-
-class AddEntrysToDBData {
+class AddEntriesToDBData {
 public:
 	DBData& data;
-	AddEntrysToDBData(DBData& d) : data(d) {}
+	AddEntriesToDBData(DBData& d) : data(d) {}
 
-	bool operator()(const DBEntry& entry) {
+	// NOTE: thread safety is ensured in threadLoader()
+	void operator()(const DBEntry& entry) {
 		data.push_back(entry);
-		return true;
 	}
 };
 
 class IpToCountryData {
 public:
 	std::string		filename;
+	std::ifstream	*file;
 	DBData			data;
-	SDL_Thread*		loader;
-	bool			dbReady; // false, if loaderThread is running
-	bool			loaderBreakSignal;
 
-	typedef DBEntryHandler<AddEntrysToDBData> DBEH;
-	typedef CountryCsvReaderHandler<DBEH> CCRH;
+	SDL_Thread		*loader;
+	SDL_mutex		*dataMutex;
+	bool			breakLoader;
+
+	typedef CountryCsvReaderHandler<AddEntriesToDBData> CCRH;
+	CCRH *csvReaderHandler;
+	AddEntriesToDBData *adder;
 	CsvReader<CCRH> csvReader;
 
-	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false)
+	IpToCountryData() : file(NULL), loader(NULL), dataMutex(NULL), breakLoader(false),
+		csvReaderHandler(NULL), adder(NULL)
 	{}
 
 	virtual ~IpToCountryData() {
-		breakLoaderThread();
+		breakLoader = true;
+		if (loader)
+			SDL_WaitThread(loader, NULL);
+
 		data.clear();
-	}
-
-	// Cancel the loading
-	void breakLoaderThread()  {
-		// Thread not created
-		if (loader == NULL)
-			return;
-
-		if(!dbReady) {
-			cout << "IpToCountryDB destroying thread: " << filename << " is still loading ..." << endl;
-			loaderBreakSignal = true;
-			while(!dbReady) { SDL_Delay(100); }
+		if (csvReaderHandler)
+			delete csvReaderHandler;
+		if (adder)
+			delete adder;
+		if (dataMutex)
+			SDL_DestroyMutex(dataMutex);
+		if (file)  {
+			file->close();
+			delete file;
 		}
-
-		SDL_WaitThread(loader, NULL); // This destroys the thread
-
-		// Cleanup
-		loader = NULL;
-		dbReady = true;
-		loaderBreakSignal = false;
 	}
 
 	// HINT: this should only called from the mainthread
@@ -178,98 +181,137 @@ public:
 		if (filename == fn)
 			return;
 
-		// Destroy any previous loading
-		breakLoaderThread();
-		dbReady = false;
-		loaderBreakSignal = false;
-
 		filename = fn;
 		data.clear();
 
-		loader = SDL_CreateThread(loaderMain, this);
+		//loader = SDL_CreateThread(loaderMain, this);
+		file = OpenGameFileR(filename);
+		if (!file || !file->is_open())  {
+			printf("IpToCountry Database Error: Cannot find the database file.\n");
+			return; 
+		}
+
+		data.reserve(90000); // There are about 90 000 entries in the file, do this to avoid reallocations
+		cout << "IpToCountryDB: reading " << filename << " ..." << endl;
+
+		// Initialize the reader
+		adder = new AddEntriesToDBData(data);
+		csvReaderHandler = new CCRH(*adder);
+		csvReader.setStream(file);
+		csvReader.setHandler(csvReaderHandler);
+
+		// Read as many entries as possible within a reasonable time
+		float start = GetMilliSeconds();
+		while (GetMilliSeconds() - start <= 0.2f)
+			csvReader.readSome(READ_CHUNK_SIZE);
+
+		// Start adding the entries in parallel
+		startThreadAdding();
 	}
 
-	static int loaderMain(void* obj) {
-		float timer = 0.0f;
-		IpToCountryData* _this = (IpToCountryData*)obj;
+	void startThreadAdding()
+	{
+		// Stop any previous loading and cleanup
+		breakLoader = true;
+		if (loader)
+			SDL_WaitThread(loader, NULL);
+		loader = NULL;
+		breakLoader = false;
 
-		std::ifstream* file = OpenGameFileR(_this->filename);
-		if(file == NULL) {
-			cerr << "ERROR: cannot read " << _this->filename << endl;
-			_this->dbReady = true;
-			return 0; // TODO: other return? who got this?
+		// Start a new loading
+		dataMutex = SDL_CreateMutex();
+		loader = SDL_CreateThread(&threadLoader, (void *)this);
+	}
+
+	// Adds data simultaneously as the game is running
+	static int threadLoader(void *param)
+	{
+		IpToCountryData *_this = (IpToCountryData *)param;
+		float start = GetMilliSeconds();
+
+		while (!_this->breakLoader)  {
+			// Read another chunk
+			SDL_LockMutex(_this->dataMutex);
+			_this->csvReader.readSome(READ_CHUNK_SIZE);
+			SDL_UnlockMutex(_this->dataMutex);
+
+			// Sleep a bit so we don't lag single-core processors
+			SDL_Delay(5);
+
+			// Finished?
+			if (_this->csvReader.readingFinished())  {
+				SDL_LockMutex(_this->dataMutex);
+				printf("IpToCountry Database: reading finished, %i entries, %f seconds\n", _this->data.size(), GetMilliSeconds() - start);
+				SDL_UnlockMutex(_this->dataMutex);
+				break;
+			}
 		}
-
-		timer = GetMilliSeconds();
-		_this->data.reserve(90000); // There are about 90 000 entries in the file, do this to avoid reallocations
-		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
-		AddEntrysToDBData adder(_this->data);
-		DBEH dbEntryHandler(adder, _this->loaderBreakSignal, file);
-		CCRH csvReaderHandler(dbEntryHandler);
-		_this->csvReader.setStream(file);
-		_this->csvReader.setHandler(&csvReaderHandler);
-
-		if(_this->csvReader.read()) {
-			cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
-		} else {
-			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
-		}
-		cout << "IpToCountryDB: loadtime " << (GetMilliSeconds() - timer) << " seconds" << endl;
-
-		file->close();
-		delete file;
-
-		_this->dbReady = true;
-
-		// Notify that the DB has been loaded
-		SendSDLUserEvent(&onDummyEvent, EventData());
 
 		return 0;
 	}
 
 	const DBEntry getEntry(Ip ip) {
 		float start = GetMilliSeconds();
-		if(!dbReady) {
-			cout << "IpToCountryDB getEntry: " << filename << " is still loading ..." << endl;
-			throw "The database is still loading...";
+
+		SDL_LockMutex(dataMutex);
+
+		size_t search_start = 0;
+		while (true)  {
+
+			// Find the correct entry
+			DBData::const_iterator it = data.begin() + search_start;
+			for (; it != data.end(); it++)  {
+				if (it->RangeFrom <= ip && it->RangeTo >= ip)
+					break;
+			}
+			search_start = data.size();
+
+			if (it != data.end())  { // in range?
+				DBEntry result = *it;
+
+				SDL_UnlockMutex(dataMutex);
+
+				ucfirst(result.Info.Country);
+
+				// Small hack, Australia is considered as Asia by the database
+				if(result.Info.Country == "Australia")
+					result.Info.Continent = "Australia";
+
+				// Convert the IANA code to a continent
+				else if (result.Info.Continent == "IANA")
+					result.Info.Continent = "Local Network";
+				else if (result.Info.Continent == "ARIN")
+					result.Info.Continent = "North America";
+				else if (result.Info.Continent == "LACNIC")
+					result.Info.Continent = "South America";
+				else if (result.Info.Continent == "AFRINIC")
+					result.Info.Continent = "Africa";
+				else if (result.Info.Continent == "RIPE")
+					result.Info.Continent = "Europe";
+				else if (result.Info.Continent == "APNIC")
+					result.Info.Continent = "Asia";
+
+				printf("Getting the entry took %f\n", GetMilliSeconds() - start);
+
+				return result;
+
+			// Not found
+			} else  {
+				// If the searching took too much time or the entry has not been found at all, throw an exception
+				if (csvReader.readingFinished() || GetMilliSeconds() - start >= 0.3f)  {
+					SDL_UnlockMutex(dataMutex);
+					printf ("IpToCountry Database: the entry has not been found within a reasonable time, giving up...\n");
+					throw "The IP was not found in the database";
+				}  else  {
+					// Read chunk of data
+					// HINT: the mutex is locked which means that the loader thread is paused
+					// HINT: we are reading here and not waiting for the thread adder because this is faster (no sleeping)
+					csvReader.readSome(READ_CHUNK_SIZE);
+				}
+			}
 		}
 
-		// Find the correct entry
-		DBData::const_iterator it = data.begin();
-		for (; it != data.end(); it++)  {
-			if (it->RangeFrom <= ip && it->RangeTo >= ip)
-				break;
-		}
-
-		if(it != data.end())  { // in range?
-			DBEntry result = *it;
-
-			ucfirst(result.Info.Country);
-
-			// Small hack, Australia is considered as Asia by the database
-			if(result.Info.Country == "Australia")
-				result.Info.Continent = "Australia";
-
-			// Convert the IANA code to a continent
-			else if (result.Info.Continent == "IANA")
-				result.Info.Continent = "Local Network";
-			else if (result.Info.Continent == "ARIN")
-				result.Info.Continent = "North America";
-			else if (result.Info.Continent == "LACNIC")
-				result.Info.Continent = "South America";
-			else if (result.Info.Continent == "AFRINIC")
-				result.Info.Continent = "Africa";
-			else if (result.Info.Continent == "RIPE")
-				result.Info.Continent = "Europe";
-			else if (result.Info.Continent == "APNIC")
-				result.Info.Continent = "Asia";
-
-			printf("Getting the entry took %f\n", GetMilliSeconds() - start);
-
-			return result;
-
-		} else
-			throw "The IP was not found in the database";
+		SDL_UnlockMutex(dataMutex);
 	}
 
 
@@ -297,10 +339,7 @@ void IpToCountryDB::LoadDBFile(const std::string& dbfile) {
 
 IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 {
-	static IpInfo Result;
-	Result.Continent = "";
-	Result.Country = "";
-	Result.CountryShortcut = "";
+	IpInfo Result;
 
 	// Don't check against local IP
 	if (Address.find("127.0.0.1") != std::string::npos) {
@@ -344,5 +383,5 @@ int IpToCountryDB::GetProgress()  {
 }
 
 bool IpToCountryDB::Loaded()  {
-	return IpToCountryDBData(this)->dbReady;
+	return true;
 }

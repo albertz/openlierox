@@ -55,7 +55,6 @@ enum {
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_UseIpToCountry,
-	os_LoadDbAtStartup,
 	os_NatTraverse,
 	os_HttpProxy,
 	os_ShowFPS,
@@ -259,10 +258,8 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
-	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,310,17,17);
-	cOpt_System.Add( new CLabel("Use UDP masterserver",tLX->clNormalLabel),     Static, 330, 340, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bNatTraverse),  os_NatTraverse, 530,340,17,17);
+	cOpt_System.Add( new CLabel("Use UDP masterserver",tLX->clNormalLabel),     Static, 330, 310, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bNatTraverse),  os_NatTraverse, 530,307,17,17);
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -732,12 +729,6 @@ void Menu_OptionsFrame(void)
 				case os_UseIpToCountry:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bUseIpToCountry = cOpt_System.SendMessage(os_UseIpToCountry, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
-
-				// Load Database at Startup
-				case os_LoadDbAtStartup:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bLoadDbAtStartup = cOpt_System.SendMessage(os_LoadDbAtStartup, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				case os_NatTraverse:

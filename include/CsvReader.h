@@ -93,16 +93,24 @@ enum ReaderState  {
 template<typename _handler>
 class CsvReader {
 public:
-	std::istream* stream;
+	CsvStream *stream;
 	_handler *handler;
 	
 	CsvReader()
-		: stream(NULL), handler(NULL) {}
+		: stream(NULL), handler(NULL) { }
 
 	CsvReader(std::istream* s, _handler *h)
-		: stream(s), handler(h) {}
+		: handler(h) { stream = new CsvStream(*s); }
 
-	void setStream(std::istream* s)  { stream = s; }
+	~CsvReader()  { if (stream) delete stream; }
+
+	void setStream(std::istream* s)  { 
+		if (!stream) 
+			stream = new CsvStream(*s);
+		else 
+			stream->open(*s); 
+	}
+
 	void setHandler(_handler* h)  { handler = h; }
 	
 private:
@@ -117,29 +125,29 @@ private:
 		token.clear();
 	}
 
-public:	
 	// returns false, if there was a break
-	bool read() {
-
-		CsvStream data(*stream);
+	bool read(size_t max_num = (size_t)-1) {
+		if (!stream)
+			return false;
 
 		std::list<std::string> entries;
 
 		ReaderState state = LINE_START;
 		std::string token;
 
+		size_t read_entries = 0;
 		char nextch = '\0';
-		while (data.get(nextch))  {
+		while (stream->get(nextch) && read_entries != max_num)  {
 			switch (state)  {
 			case LINE_START:
 				switch (nextch)  {
 				case '#': // Comment
-					if (data.skipLine())
+					if (stream->skipLine())
 						return true;
 					break;
 				case '\r': // Blank line?
 				case '\n':
-					if (data.skipLine())
+					if (stream->skipLine())
 						return true;
 					break;
 				case '\"': // Quoted token
@@ -159,6 +167,7 @@ public:
 				case '\r': // Newline, should not happen but who knows...
 				case '\n':
 					endToken(token, entries);
+					++read_entries;
 					if (!endEntry(entries))
 						return false;
 					state = LINE_START;
@@ -173,6 +182,7 @@ public:
 				case '\r': // End of line
 				case '\n':
 					endToken(token, entries);
+					++read_entries;
 					if (!endEntry(entries))
 						return false;
 					state = LINE_START;
@@ -208,6 +218,7 @@ public:
 				break;
 				case '\r': // End of line
 				case '\n':
+					++read_entries;
 					if (!endEntry(entries))
 						return false;
 					state = LINE_START;
@@ -219,6 +230,11 @@ public:
 
 		return true;
 	}
+
+public:
+	bool readWhole()			{ return read(); }
+	bool readSome(size_t count)	{ return read(count); }
+	bool readingFinished()		{ return stream->eof(); } 
 
 };
 
