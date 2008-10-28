@@ -48,7 +48,7 @@ class GetStdinThread(threading.Thread):
 				if sys.stdin.closed or emptyLines > 100:
 					raise Exception, "stdin closed"
 		except Exception:
-			messageLog("Broken Pipe -- exiting",LOG_CRITICAL)
+			sys.stderr.write("Broken Pipe -- exiting")
 			# OLX terminated, stdin = broken pipe, we should terminate also
 			sys.exit()
 

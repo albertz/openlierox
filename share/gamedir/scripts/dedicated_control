@@ -30,6 +30,7 @@ ded.waitLobbyStarted()
 ded.selectNextPreset()
 
 # nice state-machine for dedicated server
+pingTime = time.time()
 while ded.gameState != ded.GAME_QUIT:
 
 	time.sleep(1)
@@ -42,6 +43,10 @@ while ded.gameState != ded.GAME_QUIT:
 
 	if not ded.scriptPaused:
 		ded.controlHandler()
+		
+	if time.time() - pingTime > 40:
+		ded.messageLog("Python still alive", ded.LOG_INFO)
+		pingTime = time.time()
 
-ded.messageLog("GameState is QUIT. Exiting.",LOG_INFO)
+ded.messageLog("GameState is QUIT. Exiting.",ded.LOG_INFO)
 sys.exit() # Kill the stdin-input thread
