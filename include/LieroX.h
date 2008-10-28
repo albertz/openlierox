@@ -205,7 +205,6 @@ class game_t { public:
 	int			iLoadingTimes;
 	std::string		sServername;
 	std::string		sWelcomeMessage;
-	bool		bRegServer;
 
 	int			iLives;
 	int			iKillLimit;

@@ -142,7 +142,6 @@ private:
 	CBanList	cBanList;
 	float		fLastUpdateSent;
 
-	bool		bRegServer;
 	bool		bServerRegistered;
 	float		fLastRegister;
 	std::string sCurrentUrl;

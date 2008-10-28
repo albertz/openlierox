@@ -107,7 +107,6 @@ void GameServer::Clear(void)
 		fNatTraverseSocketsLastAccessTime[i] = -9999;
 	}
 	tGameLobby.bSet = false;
-	bRegServer = false;
 	bServerRegistered = false;
 	fLastRegister = 0;
 	nPort = LX_PORT;
@@ -142,7 +141,6 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	sName = name;
 	//iMaxWorms = maxplayers;
-	bRegServer = regserver;
 	nPort = port;
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
@@ -727,7 +725,7 @@ void GameServer::Frame(void)
 	}
 
 	// Process any http requests (register, deregister)
-	if(bRegServer && !bServerRegistered )
+	if( tLXOptions->tGameinfo.bRegServer && !bServerRegistered )
 		ProcessRegister();
 
 
@@ -888,7 +886,7 @@ void GameServer::RegisterServer(void)
 // Process the registering of the server
 void GameServer::ProcessRegister(void)
 {
-	if(!bRegServer || bServerRegistered || tMasterServers.size() == 0)
+	if(!tLXOptions->tGameinfo.bRegServer || bServerRegistered || tMasterServers.size() == 0)
 		return;
 
 	int result = tHttp.ProcessRequest();
@@ -1011,7 +1009,7 @@ void GameServer::DeRegisterServerUdp(void)
 void GameServer::CheckRegister(void)
 {
 	// If we don't want to register, just leave
-	if(!bRegServer)
+	if(!tLXOptions->tGameinfo.bRegServer)
 		return;
 
 	// If we registered over n seconds ago, register again
@@ -1035,7 +1033,7 @@ void GameServer::CheckRegister(void)
 bool GameServer::DeRegisterServer(void)
 {
 	// If we aren't registered, or we didn't try to register, just leave
-	if( !bRegServer || !bServerRegistered || tMasterServers.size() == 0)
+	if( !tLXOptions->tGameinfo.bRegServer || !bServerRegistered || tMasterServers.size() == 0)
 		return false;
 
 	// Create the url
