@@ -66,7 +66,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 					// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
 					// The sum will get considerably smaller if any two teams are on short dist
 					if( w->getTeam() == Worm->getTeam() )
-						team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0;
+						team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0f;
 					else
 						team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
 				};

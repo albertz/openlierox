@@ -190,11 +190,6 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 			strncat(buffer, tGameInfo.sWelcomeMessage.c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
-		// Register server
-		strncat(buffer, "bRegServer = ", bufsize);
-		strncat(buffer, tGameInfo.bRegServer ? "true" : "false", bufsize);
-		strncat(buffer, "\n", bufsize);
-
 		// Lives
 		itoa(tGameInfo.iLives, tmp, 10);
 		fix_markend(tmp);

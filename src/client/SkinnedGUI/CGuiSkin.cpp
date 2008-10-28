@@ -90,7 +90,7 @@ CGuiSkin::CGuiSkin()
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnMouseButtonUp);
 	
 	onAddWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnAddWidget);;
-	onDestoryWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestoryWidget);
+	onDestroyWidget.handler() = getEventHandler(this, &CGuiSkin::SDL_OnDestroyWidget);
 }
 
 //////////////
@@ -296,7 +296,7 @@ void CGuiSkin::SDL_OnAddWidget(WidgetData ev) {
 	cActiveLayout->DoChildAddEvent(ev.widget);	
 }
 
-void CGuiSkin::SDL_OnDestoryWidget(WidgetData ev) {
+void CGuiSkin::SDL_OnDestroyWidget(WidgetData ev) {
 	if(!cActiveLayout) return;
 	cActiveLayout->DoChildDestroyEvent(ev.widget);
 }

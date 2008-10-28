@@ -412,7 +412,7 @@ int CGuiSkinnedLayout::DoChildDestroyed(CWidget *child)
 
 	// We cannot destroy the child now because it called us (i.e. its function is still running)
 	// Just send a self-reminder
-	SendSDLUserEvent(&cMainSkin->onDestoryWidget, CGuiSkin::WidgetData(this, child));
+	SendSDLUserEvent(&cMainSkin->onDestroyWidget, CGuiSkin::WidgetData(this, child));
 
 	return WID_PROCESSED;
 }

@@ -55,7 +55,7 @@ public:
 		WidgetData(void* o, CWidget* w) : owner(o), widget(w) {}
 	};
 	Event<WidgetData> onAddWidget;
-	Event<WidgetData> onDestoryWidget;
+	Event<WidgetData> onDestroyWidget;
 
 	// Event handlers
 	void SDL_OnKeyDown(SDL_Event *ev);
@@ -64,7 +64,7 @@ public:
 	void SDL_OnMouseButtonDown(SDL_Event* ev);
 	void SDL_OnMouseButtonUp(SDL_Event* ev);
 	void SDL_OnAddWidget(WidgetData ev);
-	void SDL_OnDestoryWidget(WidgetData ev);
+	void SDL_OnDestroyWidget(WidgetData ev);
 
 	void Frame();
 

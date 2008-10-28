@@ -1287,7 +1287,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				avgLives = avgLives / wormCount * tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent / 100.0f;
 				if( avgLives < 0 || tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent <= 0 )
 					avgLives = WRM_OUT;
-				newcl->getWorm(i)->setLives( avgLives );
+				newcl->getWorm(i)->setLives( (int)avgLives );
 			};
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
