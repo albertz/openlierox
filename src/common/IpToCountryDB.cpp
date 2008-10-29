@@ -383,5 +383,8 @@ int IpToCountryDB::GetProgress()  {
 }
 
 bool IpToCountryDB::Loaded()  {
-	return true;
+	if (IpToCountryDBData(this)->file)
+		return IpToCountryDBData(this)->csvReader.readingFinished();
+	else
+		return false;
 }

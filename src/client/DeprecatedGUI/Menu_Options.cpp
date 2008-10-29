@@ -27,6 +27,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
+#include "IpToCountryDB.h"
 
 
 namespace DeprecatedGUI {
@@ -727,8 +728,12 @@ void Menu_OptionsFrame(void)
 
 				// Use Ip To Country
 				case os_UseIpToCountry:
-					if(ev->iEventMsg == CHK_CHANGED)
+					if(ev->iEventMsg == CHK_CHANGED)  {
 						tLXOptions->bUseIpToCountry = cOpt_System.SendMessage(os_UseIpToCountry, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						if (tLXOptions->bUseIpToCountry && !tIpToCountryDB->Loaded())  {
+							tIpToCountryDB->LoadDBFile("ip_to_country.csv");
+						}
+					}
 					break;
 
 				case os_NatTraverse:
