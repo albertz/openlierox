@@ -273,7 +273,6 @@ public:
 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
 		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
 		bool	bAllowConnectDuringGame; // >=Beta8
-		int		iAllowConnectDuringGameLivesPercent; // How much lives to give to new player, in % from avg. lives of all players
 	} tGameinfo;
 
 	// not specified options found in options-file

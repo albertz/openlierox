@@ -1274,21 +1274,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			if( tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
 				newcl->getWorm(i)->setLives(tGameInfo.iLives);
 			else
-			{
-				float avgLives = 0;
-				int wormCount = 0;
-				for( int f = 0; f < MAX_WORMS; f++ )
-				{
-					if( ! cWorms[f].isUsed() || cWorms[f].getClient() == newcl )
-						continue;
-					avgLives += cWorms[f].getLives(); // Includes -1 for WRM_OUT
-					wormCount ++;
-				}
-				avgLives = avgLives / wormCount * tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent / 100.0f;
-				if( avgLives < 0 || tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent <= 0 )
-					avgLives = WRM_OUT;
-				newcl->getWorm(i)->setLives( (int)avgLives );
-			};
+				newcl->getWorm(i)->setLives(WRM_OUT);
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
@@ -1329,7 +1315,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
 		}
-		else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+		// If new client is spectating skip weapon selection screen
+		// HINT: remove this if we'll get new clients joining and playing with limited lives games
+		else if(tLXOptions->tGameinfo.bForceRandomWeapons || 
+				( iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
 			for(int i=0;i<newcl->getNumWorms();i++) {
 				newcl->getWorm(i)->GetRandomWeapons();
 				newcl->getWorm(i)->setWeaponsReady(true);
