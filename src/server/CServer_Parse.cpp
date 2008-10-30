@@ -1318,7 +1318,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// If new client is spectating skip weapon selection screen
 		// HINT: remove this if we'll get new clients joining and playing with limited lives games
 		else if(tLXOptions->tGameinfo.bForceRandomWeapons || 
-				( iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
+			( tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
 			for(int i=0;i<newcl->getNumWorms();i++) {
 				newcl->getWorm(i)->GetRandomWeapons();
 				newcl->getWorm(i)->setWeaponsReady(true);
