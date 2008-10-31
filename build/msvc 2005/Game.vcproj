@@ -72,7 +72,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="3081"
+				Culture="2057"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -3383,11 +3383,15 @@
 			Filter="*"
 			>
 			<File
-				RelativePath="..\..\share\ico00001.ico"
+				RelativePath="..\..\share\OpenLieroX.ico"
 				>
 			</File>
 			<File
-				RelativePath="..\..\share\icon1.ico"
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.rc"
 				>
 			</File>
 		</Filter>
