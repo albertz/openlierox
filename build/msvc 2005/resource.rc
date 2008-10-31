@@ -26,15 +26,15 @@ BEGIN
         BLOCK "040504b0"
         BEGIN
             VALUE "Comments", "\0"
-            VALUE "CompanyName", "OpenLieroX Team\0"
-            VALUE "FileDescription", "OpenLieroX\0"
+			VALUE "CompanyName", "OpenLieroX Team\0"
+            VALUE "FileDescription", "Extremely addictive realtime worms shoot-em-up game backed by an active gamers community\0"
             VALUE "FileVersion", LX_VERSION
-            VALUE "InternalName", "OpenLieroX\0"
-            VALUE "LegalCopyright", "Copyright © 2006-2008, the OpenLieroX team\0"
+            VALUE "InternalName", GAMENAME
+            VALUE "LegalCopyright", "Copyright © 2006-2008, the OpenLieroX Team\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "OpenLieroX.exe\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "OpenLieroX\0"
+            VALUE "ProductName", GAMENAME
             VALUE "ProductVersion", LX_VERSION
             VALUE "SpecialBuild", LX_VERSION
         END
