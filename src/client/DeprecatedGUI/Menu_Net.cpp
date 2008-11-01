@@ -59,6 +59,10 @@ bool Menu_NetInitialize(void)
 	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_main;
 
+	// Add all the network sockets to the notifier groups (for events)
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(NetworkSocket); ++i)
+		AddSocketToNotifierGroup(tMenu->tSocket[i]);
+
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
@@ -393,6 +397,10 @@ void Menu_NetShutdown(void)
 			Menu_Net_NewsShutdown();
 			break;
 	}
+
+	// Remove all the network sockets from the notifier groups (we don't want any events anymore)
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(NetworkSocket); ++i)
+		RemoveSocketFromNotifierGroup(tMenu->tSocket[i]);
 }
 
 }; // namespace DeprecatedGUI
