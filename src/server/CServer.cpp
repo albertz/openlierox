@@ -166,7 +166,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		return false;
 	}
 
-	if( tLXOptions->bNatTraverse && tGameInfo.iGameType == GME_HOST )
+	if(tGameInfo.iGameType == GME_HOST )
 	{
 		for( int f=0; f<MAX_CLIENTS; f++ )
 		{
@@ -754,7 +754,7 @@ void GameServer::ReadPackets(void)
 	NetworkSocket pSock = tSocket;
 	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++ )
 	{
-		if( !tLXOptions->bNatTraverse && sockNum != -1 )
+		if(sockNum != -1 )
 			break;
 
 		if( sockNum >= 0 )

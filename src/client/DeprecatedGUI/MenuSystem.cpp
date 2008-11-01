@@ -1723,9 +1723,6 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 
 void Menu_SvrList_UpdateUDPList()
 {
-	if(!tLXOptions->bNatTraverse)
-		return;
-
 	// Open the masterservers file
 	FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
 	if(!fp1)

@@ -41,8 +41,7 @@ enum {
 	nc_ChatText,
 	nc_UserList,
 	nc_ChatInput,
-	nc_EnableChat,
-	nc_EnableChatNotify,
+	nc_EnableChat
 };
 
 /////////////////////////
@@ -100,8 +99,6 @@ bool Menu_Net_ChatInitialize(void)
 	cChat.Add( new CBrowser(), nc_ChatText, 25, 140, 440, 260);
 	cChat.Add( new CCheckbox(tLXOptions->bEnableChat), nc_EnableChat, 100, 440, 20, 20);
 	cChat.Add( new CLabel("Enable", tLX->clNormalLabel), -1, 130, 440, 0, 0);
-	cChat.Add( new CCheckbox(tLXOptions->bEnableChatNotification), nc_EnableChatNotify, 200, 440, 20, 20);
-	cChat.Add( new CLabel("Notify when my name appears in chat", tLX->clNormalLabel), -1, 230, 440, 0, 0);
 
 	// Messages
 	CBrowser *b = (CBrowser *)cChat.getWidget(nc_ChatText);
@@ -199,14 +196,6 @@ void Menu_Net_ChatFrame(int mouse)
 				}
 				break;
 
-			case nc_EnableChatNotify:
-				if(ev->iEventMsg == CHK_CHANGED) {
-					
-					PlaySoundSample(sfxGeneral.smpClick);
-					tLXOptions->bEnableChatNotification = cChat.SendMessage(nc_EnableChatNotify, CKM_GETCHECK, 1, 1) != 0;
-				}
-				break;
-
 			case nc_UserList:
 				if (ev->iEventMsg == LV_DOUBLECLK)  {
 					CTextbox *txt = (CTextbox *)cChat.getWidget(nc_ChatInput);
@@ -265,8 +254,7 @@ void Menu_Net_ChatNewMessage(const std::string& msg, int type)
 
 
 		// Notify the user if the message contains his nick
-		if (tLXOptions->bEnableChatNotification && 
-				stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) != std::string::npos)
+		if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) != std::string::npos)
 			NotifyUserOnEvent();
 	}
 }

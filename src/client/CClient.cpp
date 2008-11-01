@@ -478,8 +478,7 @@ void CClient::IRC_OnNewMessage(const std::string &msg, int type)
 
 
 	// Notify the user if the message contains his nick
-	if (tLXOptions->bEnableChatNotification)
-		NotifyUserOnEvent();
+	NotifyUserOnEvent();
 }
 
 /////////////////////////
@@ -1196,7 +1195,7 @@ void CClient::Connect(const std::string& address)
 	}
 
 	// Connecting to a server behind a NAT?
-	if( tLXOptions->bNatTraverse && DeprecatedGUI::Menu_SvrList_ServerBehindNat( strServerAddr ) )  {
+	if(DeprecatedGUI::Menu_SvrList_ServerBehindNat(strServerAddr))  {
 		bConnectingBehindNat = true;
 
 		// Start UDP NAT traversal immediately - we know for sure that

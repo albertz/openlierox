@@ -56,7 +56,6 @@ enum {
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_UseIpToCountry,
-	os_NatTraverse,
 	os_HttpProxy,
 	os_ShowFPS,
 	os_OpenGL,
@@ -259,8 +258,6 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
-	cOpt_System.Add( new CLabel("Use UDP masterserver",tLX->clNormalLabel),     Static, 330, 310, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bNatTraverse),  os_NatTraverse, 530,307,17,17);
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -735,10 +732,6 @@ void Menu_OptionsFrame(void)
 						}
 					}
 					break;
-
-				case os_NatTraverse:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->bNatTraverse = cOpt_System.SendMessage(os_NatTraverse, CKM_GETCHECK, (DWORD)0, 0) != 0;
 			}
 		}
 

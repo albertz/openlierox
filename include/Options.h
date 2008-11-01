@@ -176,14 +176,12 @@ public:
 	int		iNetworkPort;
 	int		iNetworkSpeed;
 	bool	bUseIpToCountry;
-	bool	bNatTraverse;
 	int		iMaxUploadBandwidth;
 	std::string	sHttpProxy;
 	bool	bAutoSetupHttpProxy;
 
 	// IRC chat
 	bool	bEnableChat;
-	bool	bEnableChatNotification;
 
 	// Audio
 	bool	bSoundOn;
@@ -231,7 +229,7 @@ public:
 	int		iLANList[6];
 	int		iFavouritesList[6];
 
-	// Media player
+	// Music
 	int		iMusicVolume;
 
 

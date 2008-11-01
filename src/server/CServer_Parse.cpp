@@ -1615,9 +1615,6 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	StringToNetAddr( adrClientStr, adrClient );
 	printf("GameServer::ParseTraverse() %s\n", adrClientStr.c_str());
 
-	if( !tLXOptions->bNatTraverse )
-		return;
-
 	// Find unused socket
 	int socknum=-1;
 	for( int f=0; f<MAX_CLIENTS; f++ )

@@ -85,13 +85,11 @@ bool GameOptions::Init() {
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_LAN )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
-		( tLXOptions->bNatTraverse, "Network.NatTraverse", true )
 		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 20000 )
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
 		( tLXOptions->bEnableChat, "Network.EnableChat", false ) // That's a shame that such marvellous feature is disabled by default :P
-		( tLXOptions->bEnableChatNotification, "Network.EnableChatNotification", false )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
