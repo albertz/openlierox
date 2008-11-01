@@ -98,8 +98,11 @@ void ShutdownTimers()
 	for (std::list<TimerData *>::iterator it = headlessTimers.begin(); it != headlessTimers.end(); it++)  {
 		if ((*it)->timerID)
 			SDL_RemoveTimer((*it)->timerID);
+
 		delete (*it);
 	}
+
+	headlessTimers.clear();
 }
 
 
