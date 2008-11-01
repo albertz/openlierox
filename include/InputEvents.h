@@ -147,7 +147,10 @@ inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
 	ev.user.code = 0;
 	ev.user.data1 = new SDLSpecificUserEventHandler<_Data>(event, data); // TODO: we should use an own allocator here to improve performance
 	ev.user.data2 = NULL;
-	SDL_PushEvent(&ev);
+	if (SDL_PushEvent(&ev) < 0)  { // Full queue?
+		printf("WARNING: SDL event not sent because the queue is full\n");
+		delete (SDLSpecificUserEventHandler<_Data> *)ev.user.data1;
+	}
 }
 
 extern Event<> onDummyEvent;
