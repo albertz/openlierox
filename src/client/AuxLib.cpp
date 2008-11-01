@@ -734,6 +734,68 @@ std::string GetConfigFile(void)
 }
 
 
+//////////////////
+// Helper funtion for screenshot taking
+static std::string GetPicName(size_t i, const std::string& ext)
+{
+	return "lierox" + itoa(i) + ext;
+}
+
+
+////////////////////
+// Helper function for TakeScreenshot
+static std::string GetScreenshotFileName(const std::string& scr_path, const std::string& extension)
+{
+	std::string path = scr_path;
+
+	// Append a slash if not present
+	if (path[path.size() - 1] != '/' && path[path.size() - 1] != '\\')  {
+		path += '/';
+	}
+
+	static const size_t step = 256; // Step; after how many files we check if the filename still exists
+
+	// We start at range from 1 to step
+	size_t lower_bound = 1;
+	size_t upper_bound = step;
+
+	std::string fullname(path + GetPicName(upper_bound, extension));
+
+	// Find a raw range of where the screenshot filename could be
+	// For example: between lierox1000.png and lierox1256.png
+	while (IsFileAvailable(fullname, false))  {
+		lower_bound = upper_bound;
+		upper_bound += step;
+
+		fullname = path + GetPicName(upper_bound, extension);
+	}
+
+	// First file?
+	if (!IsFileAvailable(path + GetPicName(lower_bound, extension)))
+		return path + GetPicName(lower_bound, extension);
+
+	// Use binary search on the given range to find the exact file name
+	size_t i = (lower_bound + upper_bound) / 2;
+	while (true)  {
+		if (IsFileAvailable(path + GetPicName(i, extension), false))  {
+			// If the current (i) filename exists, but the i+1 does not, we're done
+			if (!IsFileAvailable(path + GetPicName(i + 1, extension)))
+				return path + GetPicName(i + 1, extension);
+			else  {
+				// The filename is somewhere in the interval (i, upper_bound)
+				lower_bound = i;
+				i = (lower_bound + upper_bound) / 2;
+			}
+		} else {
+			// The filename is somewhere in the interval (lower_bound, i)
+			upper_bound = i;
+			i = (lower_bound + upper_bound) / 2;
+		}
+	}
+
+	return ""; // Should not happen
+}
+
 ///////////////////
 // Take a screenshot
 void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
@@ -743,15 +805,7 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 
 	cout << "Save screenshot to " << scr_path << endl;
 
-	std::string	picname;
-	std::string	fullname;
 	std::string	extension;
-	std::string path = scr_path;
-
-	// Append a slash if not present
-	if (path[path.size() - 1] != '/' && path[path.size() - 1] != '\\')  {
-		path += '/';
-	}
 
 	// Set the extension
 	switch (tLXOptions->iScreenshotFormat)  {
@@ -762,18 +816,9 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 	default: extension = ".png";
 	}
 
-	// Create the file name
-    for(unsigned int i=0; true; i++) {
-		picname = "lierox" + itoa(i) + extension;
-
-		fullname = path + picname;
-
-		if (!IsFileAvailable(fullname,false))
-			break;	// file doesn't exist
-	}
-
 	// Save the surface
-	SaveSurface(VideoPostProcessor::videoBufferSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
+	SaveSurface(VideoPostProcessor::videoBufferSurface(), GetScreenshotFileName(scr_path, extension),
+		tLXOptions->iScreenshotFormat, additional_data);
 }
 
 #ifdef WIN32
