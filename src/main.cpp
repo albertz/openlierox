@@ -948,6 +948,11 @@ void ShutdownLieroX()
 		CScriptableVars::DeInit();
 	};
 
+	// Shutdown the timers
+	// HINT: must be called after event system is shut down to avoid double freed timers
+	// For safety we call it here, at the end of everything
+	ShutdownTimers();
+
 	xmlCleanupParser();
 
 	printf("Everything was shut down\n");

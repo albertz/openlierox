@@ -79,7 +79,7 @@ struct TimerData {
 
 // Global list that holds info about headless timers
 // Used to make sure there are no memory leaks
-std::list<TimerData *> headlessTimers;
+std::list<TimerData *> timers;
 
 //////////////////
 // Initialize working with timers
@@ -95,14 +95,32 @@ void ShutdownTimers()
 	assert(!EventSystemInited()); // Make sure the event system is shut down (to avoid double freed memory)
 
 	// Stop and free all the running timers
-	for (std::list<TimerData *>::iterator it = headlessTimers.begin(); it != headlessTimers.end(); it++)  {
+	for (std::list<TimerData *>::iterator it = timers.begin(); it != timers.end(); it++)  {
 		if ((*it)->timerID)
 			SDL_RemoveTimer((*it)->timerID);
+
+		// Call the user function, because it might free some data
+		Event<Timer::EventData>::Handler& handler = (*it)->timer ? (*it)->timer->onTimer.handler().get() : (*it)->onTimerHandler.get();
+		bool cont = true;
+		(*it)->quitSignal = true;
+		handler(Timer::EventData(NULL, (*it)->userData, cont));
 
 		delete (*it);
 	}
 
-	headlessTimers.clear();
+	timers.clear();
+}
+
+/////////////////////////
+// Removes the timer from the global list (called when the timer is stopped/destroyed)
+static void RemoveTimerFromGlobalList(TimerData *data)
+{
+	for (std::list<TimerData *>::iterator it = timers.begin(); it != timers.end(); it++)  {
+		if (*it == data)  {
+			timers.erase(it);
+			break;
+		}
+	}
 }
 
 
@@ -224,6 +242,8 @@ bool Timer::start()
 		delete data;
 		return false;
 	} else {
+		timers.push_back(data); // Add it to the global timer array
+
 		m_running = true;
 		return true;
 	}
@@ -242,15 +262,15 @@ bool Timer::startHeadless()
 	data->once = once;
 	data->quitSignal = false;
 	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
-
-	headlessTimers.push_back(data); // Add it to the global headless timer array
 	
 	if(data->timerID == NULL) {
 		printf("WARNING: failed to start headless timer\n");
 		delete data;
 		return false;
-	} else
+	} else  {
+		timers.push_back(data); // Add it to the global timer array
 		return true;
+	}
 }
 
 ////////////////
@@ -263,6 +283,7 @@ void Timer::stop()
 	((TimerData*)m_lastData)->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
 	TimerData *d = ((TimerData*)m_lastData);
 	if (d->timer && !EventSystemInited())  {  // If the event system is not initialized, it is sure that the handler won't get called and we must free the date to avoid leaks
+		RemoveTimerFromGlobalList(d); // To avoid double freed memory
 		delete d;
 		d = NULL;
 	}  else
@@ -299,12 +320,7 @@ static void Timer_handleEvent(InternTimerEventData data)
 			timer_data->timer->stop();
 		else  {
 			// Headless timer is being stopped, remove it from active headless timers list
-			for (std::list<TimerData *>::iterator it = headlessTimers.begin(); it != headlessTimers.end(); it++)  {
-				if (*it == timer_data)  {
-					headlessTimers.erase(it);
-					break;
-				}
-			}
+			RemoveTimerFromGlobalList(timer_data);
 		}
 				
 		// we can delete here as we have ensured that this is realy the last event
