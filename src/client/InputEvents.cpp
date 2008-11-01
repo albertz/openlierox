@@ -484,9 +484,16 @@ static void HandleKeyboardState() {
 	}
 }
 
+// Mutex to avoid queue overflowing, defined in networking.cpp
+// NOTE: should be used only here, therefore it's not in the header file
+extern void LockNetEventMutex();
+extern void UnlockNetEventMutex();
+
 // halt the current thread until there is a new event
 bool WaitForNextEvent() {
 	ResetCurrentEventStorage();
+
+	UnlockNetEventMutex();
 
 	bool ret = false;
 	if(SDL_WaitEvent(&sdl_event)) {
@@ -501,6 +508,8 @@ bool WaitForNextEvent() {
 		HandleNextEvent();
 		ret = true;
 	}
+
+	LockNetEventMutex();
 
 	HandleMouseState();
 	HandleKeyboardState();
