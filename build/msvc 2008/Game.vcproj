@@ -3980,11 +3980,15 @@
 			Filter="*"
 			>
 			<File
-				RelativePath="..\..\share\ico00001.ico"
+				RelativePath="..\..\share\OpenLieroX.ico"
 				>
 			</File>
 			<File
-				RelativePath="..\..\share\icon1.ico"
+				RelativePath="..\msvc 2005\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\msvc 2005\resource.rc"
 				>
 			</File>
 		</Filter>
