@@ -918,13 +918,13 @@ void ShutdownLieroX()
 	// Network
 	QuitNetworkSystem();
 
-	// HINT: must be before shutting down the event system to process last messages from the timer
+	// SDL, Cache and other small stuff
+	ShutdownAuxLib();
+
+	// HINT: must be after shutting down the event system to free the timer correctly
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
-
-	// SDL, Cache and other small stuff
-	ShutdownAuxLib();
 
 	// LieroX structure
 	// HINT: must be after ShutdownAuxlib else the last events would not get processed and therefore

@@ -17,6 +17,7 @@
 // Jason Boettcher
 
 
+#include <list>
 #include <SDL_thread.h>
 #include <time.h>
 #include <assert.h>
@@ -61,9 +62,6 @@ std::string GetTime()
 	return cTime;
 }
 
-
-
-
 // -----------------------------------
 // Timer class
 // HINT: the timer is not exact, do not use it for any exact timing, like ingame simulation
@@ -78,6 +76,31 @@ struct TimerData {
 	bool				quitSignal;
 	SDL_TimerID			timerID;
 };
+
+// Global list that holds info about headless timers
+// Used to make sure there are no memory leaks
+std::list<TimerData *> headlessTimers;
+
+//////////////////
+// Initialize working with timers
+void InitializeTimers()
+{
+
+}
+
+///////////////////////
+// Shut down and free all running timers
+void ShutdownTimers()
+{
+	assert(!EventSystemInited()); // Make sure the event system is shut down (to avoid double freed memory)
+
+	// Stop and free all the running timers
+	for (std::list<TimerData *>::iterator it = headlessTimers.begin(); it != headlessTimers.end(); it++)  {
+		if ((*it)->timerID)
+			SDL_RemoveTimer((*it)->timerID);
+		delete (*it);
+	}
+}
 
 
 struct InternTimerEventData {
@@ -216,6 +239,8 @@ bool Timer::startHeadless()
 	data->once = once;
 	data->quitSignal = false;
 	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
+
+	headlessTimers.push_back(data); // Add it to the global headless timer array
 	
 	if(data->timerID == NULL) {
 		printf("WARNING: failed to start headless timer\n");
@@ -233,7 +258,12 @@ void Timer::stop()
 	if(!m_running) return;
 	
 	((TimerData*)m_lastData)->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
-	((TimerData*)m_lastData)->timer = NULL; // remove the reference to avoid any calls to this object again (perhaps we delete this timer-object directly after)
+	TimerData *d = ((TimerData*)m_lastData);
+	if (d->timer && !EventSystemInited())  {  // If the event system is not initialized, it is sure that the handler won't get called and we must free the date to avoid leaks
+		delete d;
+		d = NULL;
+	}  else
+		d->timer = NULL; // remove the reference to avoid any calls to this object again (perhaps we delete this timer-object directly after)
 	m_lastData = NULL;
 	m_running = false;
 }
@@ -264,6 +294,15 @@ static void Timer_handleEvent(InternTimerEventData data)
 	if(data.lastEvent)  { // last-event-signal
 		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
 			timer_data->timer->stop();
+		else  {
+			// Headless timer is being stopped, remove it from active headless timers list
+			for (std::list<TimerData *>::iterator it = headlessTimers.begin(); it != headlessTimers.end(); it++)  {
+				if (*it == timer_data)  {
+					headlessTimers.erase(it);
+					break;
+				}
+			}
+		}
 				
 		// we can delete here as we have ensured that this is realy the last event
 		delete timer_data;

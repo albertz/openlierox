@@ -70,6 +70,15 @@ SDL_Event *GetEvent(void)
 	return &sdl_event;
 }
 
+bool bEventSystemInited = false;
+
+////////////////////
+// Returns true if the event system is initialized
+bool EventSystemInited()
+{
+	return bEventSystemInited;
+}
+
 ///////////////////////
 // Converts SDL button to a mouse button
 MouseButton SDLButtonToMouseButton(int sdlbut)
@@ -399,6 +408,16 @@ void InitEventSystem() {
 	sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent);
 	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
+
+	bEventSystemInited = true;
+}
+
+void ShutdownEventSystem()
+{
+	bEventSystemInited = false;
+
+	// Process the last events (mainly because of timers that will free the allocated memory)
+	ProcessEvents();
 }
 
 

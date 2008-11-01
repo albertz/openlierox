@@ -106,6 +106,9 @@ private:
 	void* m_lastData;	// it's TimerData* intern
 };
 
+void InitializeTimers();
+void ShutdownTimers();
+
 
 
 

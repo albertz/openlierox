@@ -171,6 +171,9 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	// Initialize the keyboard & mouse
 	InitEventSystem();
 
+	// Initialize timers
+	InitializeTimers();
+
 #ifdef DEBUG
 	// Cache
 	InitCacheDebug();
@@ -681,8 +684,12 @@ void ShutdownAuxLib()
 	UnSubclassWindow();
 #endif
 
-	// Process the last events (mainly because of timers that will free the allocated memory)
-	ProcessEvents();
+	// Shutdown the event system
+	ShutdownEventSystem();
+
+	// Shutdown the timers
+	// HINT: must be called after event system is shut down to avoid double freed timers
+	ShutdownTimers();
 
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines

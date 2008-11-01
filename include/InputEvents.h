@@ -103,8 +103,11 @@ extern SDLEvent sdlEvents[SDL_NUMEVENTS];
 
 
 void 		InitEventSystem();
+void		ShutdownEventSystem();
 bool		ProcessEvents(); // returns false if no new event
 bool		WaitForNextEvent(); // waits for next event and handles all of then; returns false if no new event
+
+bool		EventSystemInited();
 
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
