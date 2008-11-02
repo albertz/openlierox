@@ -356,6 +356,11 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 				result += "<font color=\"" + std::string(irc_colors[col_index]) + "\">";
 				open_tags.push("font");
 			} break;
+			case 31: // Underline
+				result += "<u>";
+				open_tags.push("u");
+				continue; // Skip the control character
+			break;
 			case '\t': // Tab
 				break;
 			default:
