@@ -182,11 +182,9 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		// Leave this connection screen & go to the lobby
 		Menu_Net_JoinConnectionShutdown();
 
-#ifdef DEPRECATED_FEATURES
 		if (tLXOptions->bMouseAiming && !cClient->isHostAllowingMouse())
 			// TODO: a msgbox for this is annoying. but perhaps we can add it in the chatbox?
 			printf("HINT: This host doesn't allow mouse aiming. Using keyboard controls.\n");
-#endif
 
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error

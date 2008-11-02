@@ -121,8 +121,8 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CCheckbox(false),	                    hs_AllowRemoteBots,	270,355,17, 17);
 	cHostPly.Add( new CLabel("Allow Nick Changing",			tLX->clNormalLabel),-1,	115, 388,0,  0);
 	cHostPly.Add( new CCheckbox(false),	                    hs_AllowNickChange,	270,385,17, 17);
-	cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
-	cHostPly.Add( new CCheckbox(false),	                    hs_ServerSideHealth,	270,415,17, 17);
+	//cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
+	//cHostPly.Add( new CCheckbox(false),	                    hs_ServerSideHealth,	270,415,17, 17);
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -140,9 +140,7 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
 	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cHostPly.SendMessage( hs_AllowNickChange,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
-#ifdef DEPRECATED_FEATURES
-	cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
-#endif
+	//cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
     //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
@@ -377,9 +375,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						tLXOptions->tGameinfo.bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
-#ifdef DEPRECATED_FEATURES
-						tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
-#endif
+						tLXOptions->bServerSideHealth = false; // HINT: disable ssh for normal (non-dedicated) servers, as it is very cheaty
+						//tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 						cHostPly.Shutdown();
 
@@ -480,11 +477,9 @@ bool Menu_Net_HostLobbyInitialize(void)
     bHostWeaponRest = false;
     iSpeaking = -1;
 
-#ifdef DEPRECATED_FEATURES
 	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
 		// TODO: a msgbox for this is annoying. but perhaps we can add it in the chatbox?
 		printf("HINT: You have disallowed mouse aiming on your server, therefore you can also not use it yourself.\n");
-#endif
 
 
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
@@ -1488,10 +1483,10 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CCheckbox(false),		                    ss_AllowRemoteBots,	360,305,17, 17);
 	cServerSettings.Add( new CLabel("Allow Nick Change",				tLX->clNormalLabel),-1,	130, 335,0,  0);
 	cServerSettings.Add( new CCheckbox(false),		                    ss_AllowNickChange,	360,335,17, 17);
-	cServerSettings.Add( new CLabel("Server-side Health",				tLX->clNormalLabel),-1,	130, 365,0,  0);
-	cServerSettings.Add( new CCheckbox(false),		                    ss_ServerSideHealth,	360,365,17, 17);
-	cServerSettings.Add( new CLabel("Max weapon selection time:",	tLX->clNormalLabel),-1,	130, 395,0,  0);
-	cServerSettings.Add( new CTextbox(),							ss_WeaponSelectionMaxTime, 360,395,  30, tLX->cFont.GetHeight());
+	//cServerSettings.Add( new CLabel("Server-side Health",				tLX->clNormalLabel),-1,	130, 365,0,  0);
+	//cServerSettings.Add( new CCheckbox(false),		                    ss_ServerSideHealth,	360,365,17, 17);
+	cServerSettings.Add( new CLabel("Max weapon selection time:",	tLX->clNormalLabel),-1,	130, 365,0,  0);
+	cServerSettings.Add( new CTextbox(),							ss_WeaponSelectionMaxTime, 360,365,  30, tLX->cFont.GetHeight());
 
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETMAX,32,0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETMAX,256,0);
@@ -1502,9 +1497,7 @@ void Menu_ServerSettings(void)
 	cServerSettings.SendMessage(ss_WantsJoinBanned, CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
 	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cServerSettings.SendMessage(ss_AllowNickChange, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
-#ifdef DEPRECATED_FEATURES
-	cServerSettings.SendMessage(ss_ServerSideHealth, CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
-#endif
+	//cServerSettings.SendMessage(ss_ServerSideHealth, CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
 	cServerSettings.SendMessage(ss_ServerName,TXS_SETTEXT,tGameInfo.sServername, 0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXS_SETTEXT,tGameInfo.sWelcomeMessage, 0);
 	cServerSettings.SendMessage(ss_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
@@ -1558,9 +1551,7 @@ bool Menu_ServerSettings_Frame(void)
 					tLXOptions->tGameinfo.bWantsJoinBanned = cServerSettings.SendMessage( ss_WantsJoinBanned, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->tGameinfo.bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->tGameinfo.bAllowNickChange = cServerSettings.SendMessage( ss_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
-#ifdef DEPRECATED_FEATURES
-					tLXOptions->bServerSideHealth = cServerSettings.SendMessage( ss_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
-#endif
+					//tLXOptions->bServerSideHealth = cServerSettings.SendMessage( ss_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 					Menu_ServerSettingsShutdown();
 

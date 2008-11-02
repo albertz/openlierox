@@ -203,12 +203,10 @@ public:
 	std::string	sSkinPath;	// Old unfinished skinned GUI
 	bool	bNewSkinnedGUI;	// Just for test
 	bool	bAntiAliasing;
-#ifdef DEPRECATED_FEATURES
 	bool	bMouseAiming;
 	int		iMouseSensity;
 	bool	bAllowMouseAiming;
 	bool	bAllowStrafing;
-#endif
 	bool	bAntilagMovementPrediction;
 	std::string sTheme;
 
@@ -217,9 +215,7 @@ public:
     int     nMaxFPS;
 	int		iJpegQuality;
 	bool	bCountTeamkills;
-#ifdef DEPRECATED_FEATURES
 	bool	bServerSideHealth;
-#endif
 	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 

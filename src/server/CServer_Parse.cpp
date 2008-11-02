@@ -269,7 +269,6 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		return;
 	}
 
-#ifdef DEPRECATED_FEATURES
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (!cl->isLocalClient())  {
@@ -284,10 +283,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 			// The client on this machine will send the death again, then we'll parse it
 			return;
 		}
-	} else
-#endif // DEPRECATED_FEATURES
-
-	{
+	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		if (!cl->OwnsWorm(victim))  {
 			std::string clientWorms;
@@ -1106,7 +1102,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	bytestr.writeString(GetFullGameName());
 	bytestr.Send(tSocket);
 
-#ifdef DEPRECATED_FEATURES
 	if (tLXOptions->bAllowMouseAiming)
 	{
 		bytestr.Clear();
@@ -1122,7 +1117,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeString("lx:strafingAllowed");
 		bytestr.Send(tSocket);
 	}
-#endif
 	
 	NotifyUserOnEvent(); // new player connected; if user is away, notify him
 

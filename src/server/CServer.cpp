@@ -146,6 +146,10 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	sWeaponRestFile = "cfg/wpnrest.dat";
 	bLocalClientConnected = false;
 
+	// Disable SSH for non-dedicated servers as it is cheaty
+	if (!bDedicated)
+		tLXOptions->bServerSideHealth = false;
+
 
 	// Open the socket
 	tSocket = OpenUnreliableSocket(port);
