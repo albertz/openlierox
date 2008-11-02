@@ -99,15 +99,12 @@ void NotifyUserOnEvent()
 	err = NMInstall( notePtr );
 
 #elif defined(WIN32)
-
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	if( SDL_GetWMInfo(&info) != 1 )
-		return;
-
 	FLASHWINFO flash;
 	flash.cbSize = sizeof(flash);
-	flash.hwnd = info.window;
+	flash.hwnd = GetWindowHandle();
+	if (!flash.hwnd)
+		return;
+
 	flash.dwFlags = FLASHW_TIMERNOFG | FLASHW_TRAY;
 	flash.uCount = 3;
 	flash.dwTimeout = 0;
