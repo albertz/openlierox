@@ -291,8 +291,6 @@ public:
 				else if (result.Info.Continent == "APNIC")
 					result.Info.Continent = "Asia";
 
-				printf("Getting the entry took %f\n", GetMilliSeconds() - start);
-
 				return result;
 
 			// Not found

@@ -323,7 +323,7 @@ bool GameOptions::LoadFromDisc()
 
 
 	if(additionalOptions.size() > 0) {
-		cout << "HINT: Unknown options were found. Perhaps you are using an old version of OpenLieroX." << endl;
+		cout << "HINT: Unknown options were found." << endl;
 	}
 
 	// Clamp the Jpeg quality
