@@ -405,6 +405,17 @@ void IRCClient::parseDropped(const IRCClient::IRCCommand &cmd)
 	// Make sure the quit is directed to us (if not, someone else has been dropped/has left)
 	if (cmd.sender == real_nick)
 		disconnect();
+	else {
+		// Remove the person that has left from the list
+		for (std::list<std::string>::const_iterator it = m_chatUsers.begin(); it != m_chatUsers.end(); it++)  {
+			if (*it == cmd.sender)  {
+				m_chatUsers.erase(it);
+				if (m_updateUsersCallback)
+					m_updateUsersCallback(m_chatUsers);
+				break;
+			}
+		}
+	}
 }
 
 ///////////////////
