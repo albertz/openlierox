@@ -3971,7 +3971,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\msvc\libs\zlibstat_msvc2005.lib"
+				RelativePath="..\msvc\libs\zlib.lib"
 				>
 			</File>
 		</Filter>
