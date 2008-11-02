@@ -79,7 +79,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -87,6 +87,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="obj/debug/OpenLieroX.pdb"
 				SubSystem="2"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -285,7 +286,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX_profile.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -386,7 +387,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
 				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -492,7 +493,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\zlibstat_msvc2005.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
