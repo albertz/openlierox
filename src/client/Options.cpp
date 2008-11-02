@@ -105,16 +105,20 @@ bool GameOptions::Init() {
 		( tLXOptions->bNewSkinnedGUI, "Game.NewSkinnedGUI", false )
 		( tLXOptions->sTheme, "Game.Theme", "" )
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
+#ifdef DEPRECATED_FEATURES
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false ) // TODO: rename to mouse control?
 		( tLXOptions->iMouseSensity, "Game.MouseSensity", 200 )
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", true ) // TODO: remove this completely? mouse user has no advantages over keyboard user
 		( tLXOptions->bAllowStrafing, "Game.AllowStrafing", true )
+#endif
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
+#ifdef DEPRECATED_FEATURES
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
+#endif
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 

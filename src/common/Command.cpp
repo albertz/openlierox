@@ -664,6 +664,7 @@ void Cmd_Sound()  {
 /////////////////
 // Turn on/off server-side health
 void Cmd_ServerSideHealth()  {
+#ifdef DEPRECATED_FEATURES
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
 		Con_Printf(CNC_NORMAL, "Usage: ssh <on/off>");
@@ -675,6 +676,9 @@ void Cmd_ServerSideHealth()  {
 	}
 
 	Con_Printf(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
+#else
+	Con_Printf(CNC_NORMAL, "Sorry, server side health has been removed");
+#endif
 }
 
 //////////////////

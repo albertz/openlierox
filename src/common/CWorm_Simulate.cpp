@@ -58,11 +58,16 @@ void CWorm::getInput()
 	ws->bShoot = false;
 	ws->bJump = false;
 
+#ifdef DEPRECATED_FEATURES
 	const bool mouseControl = 
 			tLXOptions->bMouseAiming &&
 			( cClient->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL) &&
 			ApplicationHasFocus(); // if app has no focus, don't use mouseaiming, the mousewarping is pretty annoying then
 	const float mouseSensity = (float)tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
+#else
+	const bool mouseControl = false;
+	const float mouseSensity = 1.0f;
+#endif
 
 	// TODO: here are width/height of the window hardcoded
 	int mouse_dx = ms->X - 640/2;

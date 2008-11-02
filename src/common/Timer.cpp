@@ -103,7 +103,8 @@ void ShutdownTimers()
 		Event<Timer::EventData>::Handler& handler = (*it)->timer ? (*it)->timer->onTimer.handler().get() : (*it)->onTimerHandler.get();
 		bool cont = true;
 		(*it)->quitSignal = true;
-		handler(Timer::EventData(NULL, (*it)->userData, cont));
+		if (&handler) // Make sure it exists
+			handler(Timer::EventData(NULL, (*it)->userData, cont));
 
 		delete (*it);
 	}

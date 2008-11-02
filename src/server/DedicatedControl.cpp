@@ -540,7 +540,9 @@ struct DedIntern {
 		tLXOptions->tGameinfo.bWantsJoinBanned = false;
 		tLXOptions->tGameinfo.bAllowRemoteBots = true;
 		tLXOptions->tGameinfo.bAllowNickChange = false;
+#ifdef DEPRECATED_FEATURES
 		tLXOptions->bServerSideHealth = false;
+#endif
 
 		tGameInfo.iGameType = GME_HOST;
 

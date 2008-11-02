@@ -100,7 +100,11 @@ void CClient::Simulation(void)
 						continue;
 
 					if(w->CheckBonusCollision(b)) {
-						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+#ifdef DEPRECATED_FEATURES
+						if (w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+#else
+						if (w->getLocal())  {
+#endif
 							if( w->GiveBonus(b) ) {
 
 								// Pickup noise
@@ -317,7 +321,11 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		w->setAlreadyKilled(true);
 
 		// Kill me
-		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+#ifdef DEPRECATED_FEATURES
+		if (me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+#else
+		if (me) {
+#endif
 			w->setAlive(false);
 			w->Kill();
             w->clearInput();
