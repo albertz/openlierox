@@ -134,6 +134,8 @@ private:
 	bool	processConnecting();
 	void	readData();
 
+	std::string	ircFormattingToHtml(const std::string& irctext);
+
 	// Sending
 	void	sendJoin();
 	void	sendNick();

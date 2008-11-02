@@ -13,8 +13,10 @@
 // Sergyi Pylypenko
 
 #include <iostream>
+#include <stack>
 #include "IRC.h"
 #include "LieroX.h"
+#include "MathLib.h"
 #include "Options.h"
 #include "Version.h"
 #include "StringBuf.h"
@@ -313,6 +315,68 @@ void IRCClient::disconnect()
 	printf("IRC: disconnected\n");
 }
 
+//////////////////////////
+// Converts IRC formatting to HTML (OLX uses HTML for rich-text formatting)
+std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
+{
+	std::stack<std::string> open_tags;
+
+	// Indexed IRC colors
+	static const char * irc_colors[] = { "#FFFFFF", "#000000", "#000080", "#00FF00", "#FF0000", "#804040",
+		"#8000FF", "#808000", "#FFFF00", "#00FF00", "#008080", "#00FFFF", "#0000FF", "#FF00FF", "#808080",
+		"#C0C0C0" };
+
+	std::string result;
+	for (std::string::const_iterator it = irctext.begin(); it != irctext.end(); it++)  {
+		// Check for special characters
+		if (*it < 32)  {
+			switch (*it)  {
+			case 2:  // Bold
+				result += "<b>";
+				open_tags.push("b");
+				continue; // Skip the character
+			break;
+			case 3:  { // Color
+				it++; // Skip the control character
+				// Read the color index
+				std::string index;
+				while (it != irctext.end())  {
+					if (!isdigit((uchar)*it))
+						break;
+					index += *it;
+					it++;
+				}
+
+				// Don't add the format, if there's no text to format
+				if (it == irctext.end() || index.empty())
+					continue;
+
+				int col_index = CLAMP(atoi(index), 0, (int)(sizeof(irc_colors)/sizeof(char *) - 1)); // Convert the index
+
+				result += "<font color=\"" + std::string(irc_colors[col_index]) + "\">";
+				open_tags.push("font");
+			} break;
+			case '\t': // Tab
+				break;
+			default:
+				continue; // Ignore the non-printable character
+			}
+		}
+
+		// Normal character
+		result += *it;
+	}
+
+	// Close any open tags
+	while (open_tags.size())  {
+		std::string& tag = open_tags.top();
+		result += "</" + tag + ">";
+		open_tags.pop();
+	}
+
+	return result;
+}
+
 /*
  *
  * Sending part
@@ -570,7 +634,7 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 		type = IRC_TEXT_ACTION;
 	} else
 		text = nick + ": " + cmd.params[1];
-	addChatMessage(text, type);
+	addChatMessage(ircFormattingToHtml(text), type);
 }
 
 ///////////////////////
