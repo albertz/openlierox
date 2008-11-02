@@ -64,6 +64,7 @@ void x11_SetDemandsAttention( bool v ) {
 
 #include "InputEvents.h"
 #include "Sounds.h"
+#include "AuxLib.h"
 
 
 using namespace std;
