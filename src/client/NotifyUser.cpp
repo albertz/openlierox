@@ -108,7 +108,7 @@ void NotifyUserOnEvent()
 	FLASHWINFO flash;
 	flash.cbSize = sizeof(flash);
 	flash.hwnd = info.window;
-	flash.dwFlags = FLASHW_ALL;
+	flash.dwFlags = FLASHW_TIMERNOFG | FLASHW_TRAY;
 	flash.uCount = 3;
 	flash.dwTimeout = 0;
 	FlashWindowEx( &flash );
