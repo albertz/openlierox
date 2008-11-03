@@ -238,7 +238,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
         client->cLocalWorms[i]->setType(client->tProfiles[i]->iType);
 	}
 
-	if(!bDedicated) {
+	if(!bDedicated && client->iNumWorms > 0) {
 		// Setup the viewports
 		client->SetupViewports();
 
