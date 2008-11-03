@@ -13,7 +13,6 @@
 // Sergyi Pylypenko
 
 #include <iostream>
-#include <stack>
 #include "IRC.h"
 #include "LieroX.h"
 #include "FindFile.h"
@@ -320,7 +319,7 @@ void IRCClient::disconnect()
 // Converts IRC formatting to HTML (OLX uses HTML for rich-text formatting)
 std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 {
-	std::stack<std::string> open_tags;
+	std::list<std::string> open_tags;
 
 	// Indexed IRC colors
 	static const char * irc_colors[] = { "#FFFFFF", "#000000", "#000080", "#00FF00", "#FF0000", "#804040",
@@ -332,11 +331,26 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 		// Check for special characters
 		if (*it < 32)  {
 			switch (*it)  {
-			case 2:  // Bold
-				result += "<b>";
-				open_tags.push("b");
+			case 2:  {  // Bold
+				// If the B tag is already open, consider this as an end of the bold text
+				bool bold = false;
+				for (std::list<std::string>::reverse_iterator rit = open_tags.rbegin(); rit != open_tags.rend(); rit++)  {
+					if (*rit == "b")  {
+						result += "</b>";
+						std::list<std::string>::iterator it = rit.base();
+						it--;
+						open_tags.erase(it);
+						bold = true;
+						break;
+					}
+				}
+
+				if (!bold)  {
+					result += "<b>";
+					open_tags.push_back("b");
+				}
 				continue; // Skip the character
-			break;
+			} break;
 			case 3:  { // Color
 				it++; // Skip the control character
 				// Read the color index
@@ -355,15 +369,33 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 				int col_index = CLAMP(atoi(index), 0, (int)(sizeof(irc_colors)/sizeof(char *) - 1)); // Convert the index
 
 				result += "<font color=\"" + std::string(irc_colors[col_index]) + "\">";
-				open_tags.push("font");
+				open_tags.push_back("font");
 			} break;
-			case 31: // Underline
-				result += "<u>";
-				open_tags.push("u");
-				continue; // Skip the control character
-			break;
+
+			case 31:  {  // Underline
+				// If the U tag is already open, consider this as an end of the underlined text
+				bool u = false;
+				for (std::list<std::string>::reverse_iterator rit = open_tags.rbegin(); rit != open_tags.rend(); rit++)  {
+					if (*rit == "u")  {
+						result += "</u>";
+						std::list<std::string>::iterator it = rit.base();
+						it--;
+						open_tags.erase(it);
+						u = true;
+						break;
+					}
+				}
+
+				if (!u)  {
+					result += "<u>";
+					open_tags.push_back("u");
+				}
+				continue; // Skip the character
+			} break;
+
 			case '\t': // Tab
 				break;
+
 			default:
 				continue; // Ignore the non-printable character
 			}
@@ -375,9 +407,9 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 
 	// Close any open tags
 	while (open_tags.size())  {
-		std::string& tag = open_tags.top();
+		std::string& tag = *open_tags.rbegin();
 		result += "</" + tag + ">";
-		open_tags.pop();
+		open_tags.pop_back();
 	}
 
 	return result;
