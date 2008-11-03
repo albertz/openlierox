@@ -69,7 +69,8 @@ public:
 	enum IRCTextType  {
 		IRC_TEXT_CHAT,
 		IRC_TEXT_NOTICE,
-		IRC_TEXT_ACTION
+		IRC_TEXT_ACTION,
+		IRC_TEXT_PRIVATE
 	};
 
 	// Chat line class

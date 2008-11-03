@@ -248,13 +248,17 @@ void Menu_Net_ChatNewMessage(const std::string& msg, int type)
 		case IRCClient::IRC_TEXT_ACTION:
 			brw->AddChatBoxLine(msg, tLX->clNetworkText, TXT_CHAT);
 			break;
+		case IRCClient::IRC_TEXT_PRIVATE:
+			brw->AddChatBoxLine(msg, tLX->clNetworkText, TXT_PRIVATE);
+			break;
 		default:
 			brw->AddChatBoxLine(msg, tLX->clChatText, TXT_CHAT);
 		}
 
 
 		// Notify the user if the message contains his nick
-		if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) != std::string::npos)
+		if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) != std::string::npos ||
+			type == IRCClient::IRC_TEXT_PRIVATE)
 			NotifyUserOnEvent();
 	}
 }

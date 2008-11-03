@@ -462,7 +462,8 @@ void CClient::IRC_OnNewMessage(const std::string &msg, int type)
 		return;
 
 	// Ignore any messages that do not contain user's nick (we don't want spammy junk ingame)
-	if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) == std::string::npos)
+	if (stringtolower(msg).find(stringtolower(GetGlobalIRC()->getNick())) == std::string::npos &&
+		type != IRCClient::IRC_TEXT_PRIVATE)
 		return;
 
 	// Add the message
@@ -475,6 +476,9 @@ void CClient::IRC_OnNewMessage(const std::string &msg, int type)
 		break;
 	case IRCClient::IRC_TEXT_ACTION:
 		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_CHAT, tLX->fCurTime);
+		break;
+	case IRCClient::IRC_TEXT_PRIVATE:
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_PRIVATE, tLX->fCurTime);
 		break;
 	default:
 		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->fCurTime);

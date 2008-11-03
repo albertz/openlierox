@@ -665,11 +665,18 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 	std::string nick = cmd.sender.substr(0, cmd.sender.find('!'));
 	std::string text;
 
+	std::string my_nick = m_myNick;
+	if (m_nickUniqueNumber >= 0)
+		my_nick += itoa(m_nickUniqueNumber);
+
 	IRCTextType type = IRC_TEXT_CHAT;
 	if (cmd.params[1].size() && cmd.params[1][0] == '\1' && *cmd.params[1].rbegin() == '\1')  { // Action message
 		text = cmd.params[1].substr(1, cmd.params[1].size() - 2);
 		replace(text, "ACTION", nick);
 		type = IRC_TEXT_ACTION;
+	} else if (cmd.params[0] == my_nick) {
+		text = nick + ": " + cmd.params[1];
+		type = IRC_TEXT_PRIVATE;
 	} else
 		text = nick + ": " + cmd.params[1];
 	addChatMessage(ircFormattingToHtml(text), type);
