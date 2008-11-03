@@ -8,9 +8,13 @@
 //
 /////////////////////////////////////////
 
+#include <iostream>
+#include <sstream>
+// XML parsing library
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
 #include "LieroX.h"
-
-
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CWidget.h"
@@ -20,12 +24,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "StringUtils.h"
 #include "Cursor.h"
-
-#include <iostream>
-#include <sstream>
-// XML parsing library
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
+#include "FindFile.h"
 
 
 namespace DeprecatedGUI {

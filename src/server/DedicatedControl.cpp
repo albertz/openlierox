@@ -134,30 +134,7 @@ static DedicatedControl* dedicatedControlInstance = NULL;
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
 
 bool DedicatedControl::Init() {
-	
-	// should be fixed before release or we will have no forward-compatibility
-	CScriptableVars::RegisterVars("GameServer.GameInfo")
-			( tGameInfo.iGameMode, "iGameMode" ) // TODO: we need support for enums
-			( tGameInfo.sModName,  "sModName" )
-			( tGameInfo.sMapFile, "sMapFile" )
-			( tGameInfo.sMapName, "sMapName" )
-			( tGameInfo.sModDir, "sModDir" )
-			( tGameInfo.iLoadingTimes, "iLoadingTimes" )
-			( tGameInfo.sServername, "sServername" )
-			( tGameInfo.sWelcomeMessage, "sWelcomeMessage" )
-			( tLXOptions->tGameinfo.iMaxPlayers, "iMaxPlayers" )
-			( tGameInfo.iLives, "iLives" )
-			( tGameInfo.iKillLimit, "iKillLimit" )
-			( tGameInfo.fTimeLimit, "fTimeLimit" )
-			( tGameInfo.iTagLimit, "iTagLimit" )
-			( tGameInfo.bBonusesOn, "bBonusesOn" )
-			( tGameInfo.bShowBonusName, "bShowBonusName" )
-			( tGameInfo.fGameSpeed, "fGameSpeed" )
-			( tLXOptions->tGameinfo.bForceRandomWeapons, "bForceRandomWeapons" ) // TODO: move to global tGameInfo?
-			( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "bSameWeaponsAsHostWorm" )
-			( tLXOptions->tGameinfo.bAllowConnectDuringGame, "bAllowConnectDuringGame" )
-			;
-	
+
 	dedicatedControlInstance = new DedicatedControl();
 	return dedicatedControlInstance->Init_priv();
 }
@@ -308,24 +285,6 @@ struct DedIntern {
 	// adds a worm to the game (By string - id is way to complicated)
 	void Cmd_AddBot(const std::string & params)
 	{
-		profile_t** player = NULL;
-		
-		//Find an empty spot
-		if(tGameInfo.iNumPlayers < MAX_WORMS)
-		for(int i=0;i < MAX_WORMS;i++)
-		{
-			if (tGameInfo.cPlayers[i] == NULL)
-			{
-				player = &tGameInfo.cPlayers[i];
-				break;
-			}
-		}
-		
-		if(player == NULL) {
-			cout << "ERROR: no free slot available" << endl;
-			return;
-		}
-		
 		// Default botname
 		// New variable so that we won't break const when we trim spaces.
 		std::string localWorm = "[CPU] Kamikazee!";
@@ -343,12 +302,17 @@ struct DedIntern {
 			if(p->iType == PRF_COMPUTER)
 			{
 				// we found a bot, so add it
-				*player = p;
-				tGameInfo.iNumPlayers++;
+				if( cClient->getNumWorms() >= MAX_WORMS )
+				{
+					cout << "ERROR: Too many worms!" << endl;
+					return;
+				}
+				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
+				cClient->setNumWorms(cClient->getNumWorms()+1);
 				
 				// TODO: this is really hacky, but currently there is no better way to do so
 				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
-				cClient->ReinitLocalWorms();
+				//cClient->ReinitLocalWorms();
 				cClient->Connect("127.0.0.1");
 				
 				return;
@@ -530,35 +494,17 @@ struct DedIntern {
 	}
 
 	void Cmd_StartLobby(std::string param) {
-		tGameInfo.sServername = "dedicated server";
-		tGameInfo.sWelcomeMessage = "hello";
 
-		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
-		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-		//tLXOptions->tGameinfo.bRegServer = false;
-		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
-		tLXOptions->tGameinfo.bWantsJoinBanned = false;
-		tLXOptions->tGameinfo.bAllowRemoteBots = true;
-		tLXOptions->tGameinfo.bAllowNickChange = false;
-		tLXOptions->bServerSideHealth = false;
+		tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
+		tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
 
-		tGameInfo.iGameType = GME_HOST;
+		tLX->iGameType = GME_HOST;
 
-		// Fill in some game details
-		tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
-		tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
-		tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-		tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
-		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-		tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
-		tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = 10;
-		tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-		
 		cClient->Shutdown();
 		cClient->Clear();
 
 		// Start the server
-		if(!cServer->StartServer( tGameInfo.sServername, tLXOptions->iNetworkPort, tLXOptions->tGameinfo.iMaxPlayers, tLXOptions->tGameinfo.bRegServer )) {
+		if(!cServer->StartServer()) {
 			// Crappy
 			printf("ERROR: Server wouldn't start\n");
 			Sig_ErrorStartLobby();
@@ -574,28 +520,17 @@ struct DedIntern {
 		}
 		cClient->Connect("127.0.0.1");
 
-		// Set up the server's lobby details
-		game_lobby_t *gl = cServer->getLobby();
-		gl->bSet = true;
-		gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
-		gl->nLives = tLXOptions->tGameinfo.iLives;
-		gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
-		gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
-		gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-		gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
-
-		tGameInfo.sModDir = "MW 1.0";
-		if(!CGameScript::CheckFile(tGameInfo.sModDir, tGameInfo.sModName)) {
+		tLXOptions->tGameInfo.sModDir = "MW 1.0";
+		if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {
 			cout << "ERROR: no mod for dedicated" << endl;
 			// TODO..
 		}
-		tLXOptions->tGameinfo.szModDir = tGameInfo.sModDir;
 
 		// Get the game type
-		tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode = GMT_DEATHMATCH;
+		tLXOptions->tGameInfo.iGameMode = GMT_DEATHMATCH;
 
-		tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile = "CastleStrike.lxl";
-		tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tGameInfo.sMapFile);
+		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
+		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
 	}
@@ -614,7 +549,7 @@ struct DedIntern {
 		// Leave the frontend
 		*DeprecatedGUI::bGame = true;
 		DeprecatedGUI::tMenu->bMenuRunning = false;
-		tGameInfo.iGameType = GME_HOST;
+		tLX->iGameType = GME_HOST;
 	}
 
 	void Cmd_GotoLobby()

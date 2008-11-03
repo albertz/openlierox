@@ -484,7 +484,9 @@ void CWorm::InitWeaponSelection(void)
 		// TODO: move this to CWorm_AI
 		bool bRandomWeaps = true;
 		// Combo (rifle)
-		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (tGameInfo.sModName.find("Classic") != std::string::npos || tGameInfo.sModName.find("Liero v1.0") != std::string::npos ))  {
+		if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
+			(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
+				cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
 			if (cWeaponRest->isEnabled("Rifle"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
@@ -493,7 +495,9 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// 100 lt
-		else if ((tGameInfo.sModName.find("Liero") != std::string::npos || tGameInfo.sModName.find("Classic") != std::string::npos) && tGameInfo.iLoadingTimes == 100)  {
+		else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
+					cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
+					cClient->getGameLobby()->iLoadingTime == 100)  {
 			int MyWeaps = cWeaponRest->isEnabled("Super Shotgun") + cWeaponRest->isEnabled("Napalm") + cWeaponRest->isEnabled("Cannon") + cWeaponRest->isEnabled("Doomsday") + cWeaponRest->isEnabled("Chaingun");
 			if (MyWeaps == 5)  {
 				// Set our weapons
@@ -507,7 +511,9 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// Mortar game
-		else if ((tGameInfo.sModName.find("MW 1.0") != std::string::npos || tGameInfo.sModName.find("Modern Warfare1.0") != std::string::npos) && tGameInfo.iLoadingTimes < 50)  {
+		else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
+					cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
+					cClient->getGameLobby()->iLoadingTime < 50)  {
 			if (cWeaponRest->isEnabled("Mortar Launcher"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
@@ -524,7 +530,7 @@ void CWorm::InitWeaponSelection(void)
 
 		setWeaponsReady(true);
 		
-		if(this->isHostWorm() && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm)
+		if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
 			cServer->cloneWeaponsToAllWorms(this);
 	}
 
@@ -549,7 +555,7 @@ void CWorm::InitWeaponSelection(void)
 		bWeaponsReady = true;
 
 
-	if(this->isHostWorm() && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && tLXOptions->tGameinfo.bForceRandomWeapons) {
+	if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
 		GetRandomWeapons();
 		bWeaponsReady = true;		
 		cServer->cloneWeaponsToAllWorms( this );
@@ -607,11 +613,11 @@ void CWorm::GetRandomWeapons(void)
 
 
 bool CWorm::isHostWorm() {
-	return tGameInfo.iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	return tLX->iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
 }
 
 bool CWorm::shouldDoOwnWeaponSelection() {
-	return !cClient->serverChoosesWeapons() || (this->isHostWorm() && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm);
+	return !cClient->serverChoosesWeapons() || (this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {
@@ -718,7 +724,7 @@ void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
 		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
 		if((cShoot.isUp()) && !bChat_Typing) {
 			// we are ready with manual human weapon selection
-			if(this->isHostWorm() && tLXOptions->tGameinfo.bSameWeaponsAsHostWorm) {
+			if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
 				cServer->cloneWeaponsToAllWorms(this);
 			}
 			bWeaponsReady = true;
@@ -1031,7 +1037,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( sAFKMessage != "" )
 		WormName += " " + sAFKMessage;
 	if(!bLocal || (bLocal && iType != PRF_HUMAN)) {
-		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
+		if ((cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || cClient->getGameLobby()->iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
 		} // if
@@ -1098,13 +1104,13 @@ bool CWorm::CheckOnGround()
 // Returns true if i was killed by this injury
 bool CWorm::Injure(int damage)
 {
-	if(tGameInfo.iGameType == GME_HOST && cServer) {
+	if(tLX->iGameType == GME_HOST && cServer) {
 		// If playing CTF and I am a flag don't injure me
-		if(cServer->getLobby()->nGameMode == GMT_CTF && getFlag())
+		if(cClient->getGameLobby()->iGameMode == GMT_CTF && getFlag())
 			return false;
 
 		// If playing teams CTF and I am a flag don't injure me
-		if(cServer->getLobby()->nGameMode == GMT_TEAMCTF && getFlag())
+		if(cClient->getGameLobby()->iGameMode == GMT_TEAMCTF && getFlag())
 			return false;
 	}
 
@@ -1241,3 +1247,15 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 	iAFK = afkType;
 	sAFKMessage = msg;
 }
+
+Uint32 CWorm::getGameColour(void)
+{
+		switch(cClient->getGameLobby()->iGameMode) {
+		case GMT_TEAMDEATH:
+		case GMT_VIP:
+		case GMT_TEAMCTF:
+			return tLX->clTeamColors[iTeam];
+		default:
+			return cSkin.getDefaultColor();
+		}
+	}

@@ -300,7 +300,7 @@ static int atoid(const std::string& str)
 // Tell the server to kick someone
 void Cmd_Kick(void)
 {
-	if(tGameInfo.iGameType == GME_JOIN)  {
+	if(tLX->iGameType == GME_JOIN)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -319,7 +319,7 @@ void Cmd_Kick(void)
 // Tell the server to kick and ban someone
 void Cmd_Ban(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -338,7 +338,7 @@ void Cmd_Ban(void)
 // Tell the server to mute someone
 void Cmd_Mute(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -357,7 +357,7 @@ void Cmd_Mute(void)
 // Tell the server to unmute someone
 void Cmd_Unmute(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -376,7 +376,7 @@ void Cmd_Unmute(void)
 // Tell the server to kick someone by ID
 void Cmd_KickId(void)
 {
-	if(tGameInfo.iGameType == GME_JOIN)  {
+	if(tLX->iGameType == GME_JOIN)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -399,7 +399,7 @@ void Cmd_KickId(void)
 // Tell the server to kick and ban someone by ID
 void Cmd_BanId(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -422,7 +422,7 @@ void Cmd_BanId(void)
 // Tell the server to mute someone by ID
 void Cmd_MuteId(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -445,7 +445,7 @@ void Cmd_MuteId(void)
 // Tell the server to unmute someone by ID
 void Cmd_UnmuteId(void)
 {
-	if(tGameInfo.iGameType != GME_HOST)  {
+	if(tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
@@ -506,8 +506,8 @@ void Cmd_Suicide(void)
 			if (fail)
 				number = 1;
 
-			if (number > tGameInfo.iLives+1)  // Safety, not needed really (should be covered in next condition)
-				number = tGameInfo.iLives+1;
+			if (number > cClient->getGameLobby()->iLives+1)  // Safety, not needed really (should be covered in next condition)
+				number = cClient->getGameLobby()->iLives+1;
 			if (number > w->getLives()+1)
 				number = w->getLives()+1;
 			if (number < 1)
@@ -558,11 +558,11 @@ void Cmd_WantsJoin(void)
 	std::string arg = Cmd_GetArg(1);
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
-		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
+		tLXOptions->bAllowWantsJoinMsg = true;
 		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been enabled");
 	}
 	else  {
-		tLXOptions->tGameinfo.bAllowWantsJoinMsg = false;
+		tLXOptions->bAllowWantsJoinMsg = false;
 		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been disabled");
 	}
 }
@@ -576,7 +576,7 @@ void Cmd_RenameServer(void)
 	}
 
 	// Check if hosting
-	if (tGameInfo.iGameType != GME_HOST)  {
+	if (tLX->iGameType != GME_HOST)  {
 		Con_Printf(CNC_NORMAL, "This command is available only for host");
 		return;
 	}

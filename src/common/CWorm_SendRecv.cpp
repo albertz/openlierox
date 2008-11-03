@@ -89,7 +89,7 @@ void CWorm::readScore(CBytestream *bs) {
 	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
 
 	int lives = (int)bs->readInt16();
-	int gameLives = tGameInfo.iLives;
+	int gameLives = cClient->getGameLobby()->iLives;
 	if (gameLives == WRM_UNLIM) {
 		if(lives != WRM_UNLIM)
 			cout << "WARNING: we have unlimited lives in this game but server gives worm " << iID << " only " << lives << " lives" << endl;
@@ -97,7 +97,7 @@ void CWorm::readScore(CBytestream *bs) {
 	} else {
 		if(lives == WRM_UNLIM)
 			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " unlimited lives" << endl;
-		else if(lives > tGameInfo.iLives)
+		else if(lives > cClient->getGameLobby()->iLives)
 			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " even " << lives << " lives" << endl;			
 		iLives = MAX(lives,WRM_OUT);
 	}
@@ -405,7 +405,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	}
 	
 	// If the worm is inside dirt then it is probably carving
-	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())
+	if (tLX->iGameType == GME_HOST && cServer->getMap())
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.bCarve = true;
 
@@ -721,6 +721,6 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		tWeapons[cur].Charge = c;
 
 	// If the server is on the same comp as me, just set the charge normally
-	if( tGameInfo.iGameType != GME_JOIN )
+	if( tLX->iGameType != GME_JOIN )
 		tWeapons[cur].Charge = c;
 }

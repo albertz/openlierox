@@ -103,25 +103,25 @@ void GameServer::SendPrepareGame(CServerConnection* cl) {
 	bs.writeByte(S2C_PREPAREGAME);
 	bs.writeBool(bRandomMap);
 	if(!bRandomMap)
-		bs.writeString("levels/" + tGameInfo.sMapFile);
+		bs.writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
 	
 	// Game info
-	bs.writeInt(tGameInfo.iGameMode,1);
-	bs.writeInt16(tGameInfo.iLives);
-	bs.writeInt16(tGameInfo.iKillLimit);
-	bs.writeInt16((int)tGameInfo.fTimeLimit);
-	bs.writeInt16(tGameInfo.iLoadingTimes);
-	bs.writeBool(tGameInfo.bBonusesOn);
-	bs.writeBool(tGameInfo.bShowBonusName);
-	if(tGameInfo.iGameMode == GMT_TAG)
-		bs.writeInt16(tGameInfo.iTagLimit);
-	bs.writeString(tGameInfo.sModDir);
+	bs.writeInt(tLXOptions->tGameInfo.iGameMode,1);
+	bs.writeInt16(tLXOptions->tGameInfo.iLives);
+	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
+	bs.writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
+	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
+	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);
+	bs.writeBool(tLXOptions->tGameInfo.bShowBonusName);
+	if(tLXOptions->tGameInfo.iGameMode == GMT_TAG)
+		bs.writeInt16(tLXOptions->tGameInfo.iTagLimit);
+	bs.writeString(tLXOptions->tGameInfo.sModDir);
 	
 	cWeaponRestrictions.sendList(&bs, cGameScript.get());
 	
 	if( cl->getClientVersion() >= OLXBetaVersion(7) )
 	{
-		bs.writeFloat( tGameInfo.fGameSpeed );
+		bs.writeFloat( tLXOptions->tGameInfo.fGameSpeed );
 		bs.writeBool( serverChoosesWeapons() );
 	}
 
@@ -408,7 +408,7 @@ void GameServer::SendWeapons(CServerConnection* cl)
 bool GameServer::checkBandwidth(CServerConnection *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
-	if( tGameInfo.iGameType != GME_LOCAL )
+	if( tLX->iGameType != GME_LOCAL )
 		return true;
 	if(cl->getNetSpeed() == 3) // local
 		return true;
@@ -431,7 +431,7 @@ bool GameServer::checkBandwidth(CServerConnection *cl)
 
 // true means we can send further data
 bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
-	if( tGameInfo.iGameType == GME_LOCAL )
+	if( tLX->iGameType == GME_LOCAL )
 		return true;
 
 	// Modem, ISDN, LAN, local
@@ -455,31 +455,31 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 }
 
 
-static void SendUpdateLobbyGame(CServerConnection *cl, game_lobby_t* gl, GameServer* gs) {
+static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 	CBytestream bs;
 	bs.writeByte(S2C_UPDATELOBBYGAME);
-	bs.writeByte(MAX(tLXOptions->tGameinfo.iMaxPlayers,gs->getNumPlayers()));  // This fixes the player disappearing in lobby
-	bs.writeString(gl->szMapFile);
-	bs.writeString(gl->szModName);
-	bs.writeString(gl->szModDir);
+	bs.writeByte(MAX(tLXOptions->tGameInfo.iMaxPlayers,gs->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs.writeString(tLXOptions->tGameInfo.sMapFile);
+	bs.writeString(tLXOptions->tGameInfo.sModName);
+	bs.writeString(tLXOptions->tGameInfo.sModDir);
 	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
-	if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
+	if(tLXOptions->tGameInfo.iGameMode == GMT_VIP || tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF)
 		bs.writeByte(GMT_TEAMDEATH);
-	else if(gl->nGameMode == GMT_CTF)
+	else if(tLXOptions->tGameInfo.iGameMode == GMT_CTF)
 		bs.writeByte(GMT_DEATHMATCH);
 	else
-		bs.writeByte(gl->nGameMode);
-	bs.writeInt16(gl->nLives);
-	bs.writeInt16(gl->nMaxKills);
-	bs.writeInt16(gl->nLoadingTime);
-	bs.writeByte(gl->bBonuses);
+		bs.writeByte(tLXOptions->tGameInfo.iGameMode);
+	bs.writeInt16(tLXOptions->tGameInfo.iLives);
+	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
+	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
+	bs.writeByte(tLXOptions->tGameInfo.bBonusesOn);
 	
 	// since Beta7
 	if( cl->getClientVersion() >= OLXBetaVersion(7) )
 	{
-		bs.writeFloat(gl->fGameSpeed);
-		bs.writeBool(gl->bForceRandomWeapons);
-		bs.writeBool(gl->bSameWeaponsAsHostWorm);
+		bs.writeFloat(tLXOptions->tGameInfo.fGameSpeed);
+		bs.writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
+		bs.writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 	}
 	
 	cl->getNetEngine()->SendPacket(&bs);
@@ -489,34 +489,15 @@ static void SendUpdateLobbyGame(CServerConnection *cl, game_lobby_t* gl, GameSer
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
-	game_lobby_t *gl = &tGameLobby;
-
-	// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
-	gl->nGameMode = tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
-	gl->nLives = tLXOptions->tGameinfo.iLives = tGameInfo.iLives;
-	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed;
-	gl->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
-	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit = tGameInfo.iKillLimit;
-	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime = tGameInfo.iLoadingTimes;
-	gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
-	tLXOptions->tGameinfo.bShowBonusName = tGameInfo.bShowBonusName;
-	tLXOptions->tGameinfo.iTagLimit = tGameInfo.iTagLimit;
-	gl->szMapFile = tLXOptions->tGameinfo.sMapFilename = tGameInfo.sMapFile;
-	gl->szModName = tGameInfo.sModName;
-	gl->szModDir = tLXOptions->tGameinfo.szModDir = tGameInfo.sModDir;
-	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
-	tLXOptions->tGameinfo.fTimeLimit = tGameInfo.fTimeLimit;
-	
 	if(cl) {
-		SendUpdateLobbyGame(cl, gl, this);
+		SendUpdateLobbyGame(cl, this);
 
 	} else {
 		cl = cClients;
 		for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
 			if(cl->getStatus() != NET_CONNECTED)
 				continue;
-			SendUpdateLobbyGame(cl, gl, this);
+			SendUpdateLobbyGame(cl, this);
 		}
 	}
 }
@@ -644,9 +625,9 @@ int CServerNetEngineBeta5::SendFiles()
 	// That's a bit floody algorithm, it can be optimized I think
 	if( cl->getUdpFileDownloader()->isSending() &&
 		( cl->getChannel()->getBufferEmpty() ||
-			! cl->getChannel()->getBufferFull() &&
+			( ! cl->getChannel()->getBufferFull() &&
 			cl->getChannel()->getPing() != 0 &&
-			tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff ) )
+			tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff )) )
 	{
 		cl->setLastFileRequestPacketReceived( tLX->fCurTime );
 		CBytestream bs;

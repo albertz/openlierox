@@ -72,7 +72,6 @@ private:
 	// Attributes
 
 	// General
-	std::string	sName;
 	int			iState;
 
 	// TODO: merge this with game_t (tGameInfo variable)
@@ -80,6 +79,7 @@ private:
 	bool		bGameOver;
 	float		fGameOverTime;
 	/*
+	std::string	sName;
 	int			iMaxWorms;
 	int			iGameType;
 	int			iLives;
@@ -133,7 +133,6 @@ private:
 	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
 	float			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
-	game_lobby_t	tGameLobby;
 	CShootList		cShootList;
 	CHttp			tHttp;
 	bool			bLocalClientConnected;
@@ -161,7 +160,7 @@ public:
 
 
 	void		Clear(void);
-	int			StartServer(const std::string& name, int port, int maxplayers, bool regserver);
+	int			StartServer();
 	void		Shutdown(void);
 
     void        notifyLog(const std::string& msg);
@@ -259,14 +258,11 @@ public:
 	// Variables
 	int				getState(void)			{ return iState; }
 	CWorm			*getWorms(void)			{ return cWorms; }
-	game_lobby_t	*getLobby(void)			{ return &tGameLobby; }
 	CMap			*getMap(void)			{ return cMap; }
 	CBanList		*getBanList(void)		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
-	std::string		getName(void)			{ return sName; }
-	void			setName(const std::string& _name){ sName = _name; }
-	//int				getMaxWorms(void)		{ return iMaxWorms; }
-	//void			setMaxWorms(int _n)		{ iMaxWorms = _n; }
+	std::string		getName(void)			{ return tLXOptions->sServerName; }
+	void			setName(const std::string& _name){ tLXOptions->sServerName = _name; }
 	bool			getGameOver(void)		{ return bGameOver; }
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }

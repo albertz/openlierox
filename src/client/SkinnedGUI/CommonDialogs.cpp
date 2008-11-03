@@ -377,50 +377,50 @@ void CGameSettingsDialog::LoadFromOptions()
 	// TODO: Hey, there should be some way without putting here all vars from options, it's just lame
 	// Options system uses for() on CScriptableVars::Vars() array for that, that's the whole point of the scriptable vars
 	// Lives
-	if (tLXOptions->tGameinfo.iLives >= 0)
-		txtLives->setText(itoa(tLXOptions->tGameinfo.iLives));
+	if (tLXOptions->tGameInfo.iLives >= 0)
+		txtLives->setText(itoa(tLXOptions->tGameInfo.iLives));
 
 	// Kills
-	if (tLXOptions->tGameinfo.iKillLimit >= 0)
-		txtLives->setText(itoa(tLXOptions->tGameinfo.iKillLimit));
+	if (tLXOptions->tGameInfo.iKillLimit >= 0)
+		txtLives->setText(itoa(tLXOptions->tGameInfo.iKillLimit));
 
 	// Loading time
-	sldLoadingTime->setValue(tLXOptions->tGameinfo.iLoadingTime);
-	lblLoadingTime->setText(itoa(tLXOptions->tGameinfo.iLoadingTime));
+	sldLoadingTime->setValue(tLXOptions->tGameInfo.iLoadingTime);
+	lblLoadingTime->setText(itoa(tLXOptions->tGameInfo.iLoadingTime));
 
 	// Time limit
-	if (tLXOptions->tGameinfo.fTimeLimit > 0)
-		txtTimeLimit->setText(ftoa(tLXOptions->tGameinfo.fTimeLimit));
+	if (tLXOptions->tGameInfo.fTimeLimit > 0)
+		txtTimeLimit->setText(ftoa(tLXOptions->tGameInfo.fTimeLimit));
 
 	// Respawn time
-	txtRespawnTime->setText(ftoa(tLXOptions->tGameinfo.fRespawnTime));
+	txtRespawnTime->setText(ftoa(tLXOptions->tGameInfo.fRespawnTime));
 
 	// Empty weapons when respawning
-	chkEmptyWeapons->setValue(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn);
+	chkEmptyWeapons->setValue(tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn);
 
 	// Group teams
-	chkGroupTeams->setValue(tLXOptions->tGameinfo.bRespawnGroupTeams);
+	chkGroupTeams->setValue(tLXOptions->tGameInfo.bRespawnGroupTeams);
 
 	// Suicide or teamkill decreases score
-	chkDecreaseScore->setValue(tLXOptions->tGameinfo.bSuicideDecreasesScore);
+	chkDecreaseScore->setValue(tLXOptions->tGameInfo.bSuicideDecreasesScore);
 
 	// Group team score
-	chkGroupTeamScore->setValue(tLXOptions->tGameinfo.bGroupTeamScore);
+	chkGroupTeamScore->setValue(tLXOptions->tGameInfo.bGroupTeamScore);
 
 	// Bonuses on
-	chkBonusesOn->setValue(tLXOptions->tGameinfo.bBonusesOn);
+	chkBonusesOn->setValue(tLXOptions->tGameInfo.bBonusesOn);
 
 	// Bonus spawn time
-	txtBonusSpawnTime->setText(ftoa(tLXOptions->tGameinfo.fBonusFreq));
+	txtBonusSpawnTime->setText(ftoa(tLXOptions->tGameInfo.fBonusFreq));
 
 	// Show bonus names
-	chkShowBonusNames->setValue(tLXOptions->tGameinfo.bShowBonusName);
+	chkShowBonusNames->setValue(tLXOptions->tGameInfo.bShowBonusName);
 
 	// Bonus life time
-	txtBonusLifeTime->setText(ftoa(tLXOptions->tGameinfo.fBonusLife));
+	txtBonusLifeTime->setText(ftoa(tLXOptions->tGameInfo.fBonusLife));
 
 	// Health to weapon chance
-	sldWeaponToHealthChance->setValue((int)(tLXOptions->tGameinfo.fBonusHealthToWeaponChance*100.0f));
+	sldWeaponToHealthChance->setValue((int)(tLXOptions->tGameInfo.fBonusHealthToWeaponChance*100.0f));
 	lblHealthChance->setText(itoa(100 - sldWeaponToHealthChance->getValue()) + " %");
 	lblWeaponChance->setText(itoa(sldWeaponToHealthChance->getValue()) + " %");
 }
@@ -430,13 +430,13 @@ void CGameSettingsDialog::LoadFromOptions()
 void CGameSettingsDialog::Save()
 {
 	// Default to no setting
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = -2;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
-	tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = -1;
-	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
-	tLXOptions->tGameinfo.fRespawnTime = 2.5;
-	tGameInfo.bBonusesOn = true;
-	tGameInfo.bShowBonusName = true;
+	tLXOptions->tGameInfo.iLives = -2;
+	tLXOptions->tGameInfo.iKillLimit = -1;
+	tLXOptions->tGameInfo.fTimeLimit = -1;
+	tLXOptions->tGameInfo.iTagLimit = -1;
+	tLXOptions->tGameInfo.fRespawnTime = 2.5;
+	tLXOptions->tGameInfo.bBonusesOn = true;
+	tLXOptions->tGameInfo.bShowBonusName = true;
 
 	//
 	// General
@@ -444,55 +444,55 @@ void CGameSettingsDialog::Save()
 
 	// Lives
 	if(txtLives->getText().size())
-		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = atoi(txtLives->getText());
+		tLXOptions->tGameInfo.iLives = atoi(txtLives->getText());
 
 	// Max kills
 	if(txtMaxKills->getText().size())
-		tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = atoi(txtMaxKills->getText());
+		tLXOptions->tGameInfo.iKillLimit = atoi(txtMaxKills->getText());
 
 	// Loading time
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime = sldLoadingTime->getValue();
+	tLXOptions->tGameInfo.iLoadingTime = sldLoadingTime->getValue();
 
 	// Time limit
 	if(txtTimeLimit->getText().size())
-		tLXOptions->tGameinfo.fTimeLimit = tGameInfo.fTimeLimit  = atof(txtTimeLimit->getText());
+		tLXOptions->tGameInfo.fTimeLimit = atof(txtTimeLimit->getText());
 
 	// Respawn time
 	if(txtRespawnTime->getText().size())
-		tLXOptions->tGameinfo.fRespawnTime = atof(txtRespawnTime->getText());
+		tLXOptions->tGameInfo.fRespawnTime = atof(txtRespawnTime->getText());
 
 	// Group teams
-	tLXOptions->tGameinfo.bRespawnGroupTeams = chkGroupTeams->getValue();
+	tLXOptions->tGameInfo.bRespawnGroupTeams = chkGroupTeams->getValue();
 
 	// Suicide and teamkill decrease score
-	tLXOptions->tGameinfo.bSuicideDecreasesScore = chkDecreaseScore->getValue();
+	tLXOptions->tGameInfo.bSuicideDecreasesScore = chkDecreaseScore->getValue();
 
 	// Group team score
-	tLXOptions->tGameinfo.bGroupTeamScore = chkGroupTeamScore->getValue();
+	tLXOptions->tGameInfo.bGroupTeamScore = chkGroupTeamScore->getValue();
 
 	// Empty weapons on respawn
-	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = chkEmptyWeapons->getValue();
+	tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = chkEmptyWeapons->getValue();
 
 	//
 	// Bonuses
 	//
 
 	// Bonuses on
-	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn = chkBonusesOn->getValue();	
+	tLXOptions->tGameInfo.bBonusesOn = chkBonusesOn->getValue();	
 
 	// Bonus spawn time
 	if(txtBonusSpawnTime->getText().size())
-		tLXOptions->tGameinfo.fBonusFreq = atof(txtBonusSpawnTime->getText());
+		tLXOptions->tGameInfo.fBonusFreq = atof(txtBonusSpawnTime->getText());
 
 	// Show bonus names
-	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName = chkShowBonusNames->getValue();
+	tLXOptions->tGameInfo.bShowBonusName = chkShowBonusNames->getValue();
 
 	// Bonus life time
 	if(txtBonusLifeTime->getText().size())
-		tLXOptions->tGameinfo.fBonusLife = atof(txtBonusLifeTime->getText());
+		tLXOptions->tGameInfo.fBonusLife = atof(txtBonusLifeTime->getText());
 
 	// Health to weapon chance
-	tLXOptions->tGameinfo.fBonusHealthToWeaponChance = (float)sldWeaponToHealthChance->getValue() / 100.0f;
+	tLXOptions->tGameInfo.fBonusHealthToWeaponChance = (float)sldWeaponToHealthChance->getValue() / 100.0f;
 }
 
 ////////////////////////

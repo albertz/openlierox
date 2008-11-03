@@ -56,7 +56,6 @@
 // we have to create a basic class Game or something
 
 lierox_t	*tLX = NULL;
-game_t		tGameInfo;
 
 CInput		*cTakeScreenshot = NULL;
 CInput		*cSwitchMode = NULL;
@@ -129,7 +128,6 @@ static void DoSystemChecks() {
 char* apppath = NULL;
 
 char* GetAppPath() { return apppath; }
-
 
 ///////////////////
 // Main entry point
@@ -204,7 +202,7 @@ startpoint:
 		SystemError("Could not initialize LieroX.");
 		return -1;
 	}
-
+	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
 		SystemError("Could not find screen.");
@@ -600,10 +598,6 @@ int InitializeLieroX(void)
 	// Load the profiles
 	LoadProfiles();
 
-    // Initialize the game info structure
-	tGameInfo.iNumPlayers = 0;
-    tGameInfo.sMapRandom.psObjects = NULL;
-
 	if(bDedicated)
 		if(!DedicatedControl::Init()) {
 			printf("ERROR: couldn't init dedicated control\n");
@@ -625,12 +619,12 @@ void StartGame(void)
 		FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 
 	// Local game
-	if(tGameInfo.iGameType == GME_LOCAL) {
+	if(tLX->iGameType == GME_LOCAL) {
 
 		// TODO: uniform message system
 
 		// Start the server
-		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, MAX_PLAYERS, false )) {
+		if(!cServer->StartServer()) {
 			// ERROR
 			//MessageBox(NULL, "Error: Could not start server", "OpenLieroX Error", MB_OK);
 			printf("Error: Could not start server\n");
@@ -681,7 +675,7 @@ void GameLoopFrame(void)
 		ProcessIRC();
 
 	// Local
-	switch (tGameInfo.iGameType)  {
+	switch (tLX->iGameType)  {
 	case GME_LOCAL:
 		cClient->Frame();
 		cServer->Frame();
@@ -740,7 +734,7 @@ void GotoLocalMenu(void)
 // Go to local menu
 void GotoNetMenu(void)
 {
-	if(tGameInfo.iGameType == GME_HOST) {
+	if(tLX->iGameType == GME_HOST) {
 		printf("Warning: called GotoLocalMenu as host, ignoring...\n");
 		return;
 	}
@@ -884,11 +878,6 @@ void ShutdownLieroX()
 		delete tIpToCountryDB;
 		tIpToCountryDB = NULL;
 	}
-
-    // Free the game info structure
-    if(tGameInfo.sMapRandom.psObjects)
-        delete[] tGameInfo.sMapRandom.psObjects;
-    tGameInfo.sMapRandom.psObjects = NULL;
 
 	// Free the client & server
 	if(cClient) {

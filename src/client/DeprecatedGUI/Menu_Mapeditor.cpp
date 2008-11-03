@@ -352,7 +352,7 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 			// Random
 			case map_random:
 				if(ev->iEventMsg == BTN_MOUSEUP)
-					cMap->ApplyRandom();
+					//cMap->ApplyRandom();
 				break;
 
 			// Load

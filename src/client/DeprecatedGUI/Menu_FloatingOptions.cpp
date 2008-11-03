@@ -294,7 +294,7 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_Game.Add( new CLabel("Enable mouse control (Player 1)",tLX->clNormalLabel), Static, 40, 420, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 420, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
-	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
+	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
 	cFloatingOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 40, 360, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 280, 360, 17,17);
@@ -525,7 +525,7 @@ void Menu_FloatingOptionsFrame()
 				// Match logging
 				case og_MatchLogging:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->tGameinfo.bMatchLogging = cFloatingOpt_Game.SendMessage(og_MatchLogging, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->bMatchLogging = cFloatingOpt_Game.SendMessage(og_MatchLogging, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				case og_AntilagMovementPrediction:

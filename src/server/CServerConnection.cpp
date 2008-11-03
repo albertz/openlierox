@@ -123,18 +123,19 @@ int CServerConnection::Initialize(void)
 	iNetSpeed = tLXOptions->iNetworkSpeed;
 
 	// Local/host games use instant speed
-	if(tGameInfo.iGameType != GME_JOIN)
+	if(tLX->iGameType != GME_JOIN)
 		iNetSpeed = NST_LOCAL;
 
 
 	// Initialize the local worms
-	iNumWorms = tGameInfo.iNumPlayers; // TODO: wtf?
+	//iNumWorms = tGameInfo.iNumPlayers; // TODO: wtf?
 
 	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i] = NULL;
 	}
 
 	// Initialize the remote worms
+	// TODO: remove it, and make cLocalWorms point to server worms
 	cRemoteWorms = new CWorm[MAX_WORMS];
 	if(cRemoteWorms == NULL) {
 		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));

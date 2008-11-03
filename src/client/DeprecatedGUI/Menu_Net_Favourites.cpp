@@ -76,14 +76,14 @@ bool Menu_Net_FavouritesInitialize(void)
 
 		int index = PlayerSelection->addItem( p->sName, p->sName );
 		PlayerSelection->setImage( p->cSkin.getPreview(), index );
-		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
+		if( p->sName == tLXOptions->sLastSelectedPlayer )
 			validName=true;
 	}
 
 	if( ! validName )
-		tLXOptions->tGameinfo.sLastSelectedPlayer = GetProfiles()->sName;
+		tLXOptions->sLastSelectedPlayer = GetProfiles()->sName;
 
-	PlayerSelection->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
+	PlayerSelection->setCurSIndexItem( tLXOptions->sLastSelectedPlayer );
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -128,7 +128,7 @@ void Menu_Net_FavouritesShutdown(void)
 		{
 			const cb_item_t* item = combo->getSelectedItem();
 			if (item)
-				tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+				tLXOptions->sLastSelectedPlayer = item->sIndex;
 		}
 
 		// Save the list
@@ -177,7 +177,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
 					const cb_item_t* item = combo->getSelectedItem();
 					if (item)
-						tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+						tLXOptions->sLastSelectedPlayer = item->sIndex;
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -408,19 +408,27 @@ void Menu_Net_FavouritesFrame(int mouse)
 // Join a server
 void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName)
 {
-	tGameInfo.iNumPlayers = 1;
+	//tGameInfo.iNumPlayers = 1;
+
+	if(!cClient->Initialize()) {
+		return;
+	}
 
 	// Fill in the game structure
 	const cb_item_t *item = (const cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
 
+	cClient->setNumWorms(0);
 	// Add the player to the list
 	if (item)  {
 		profile_t *ply = FindProfile(item->sIndex);
 		if(ply)
-			tGameInfo.cPlayers[0] = ply;
+		{
+			cClient->getLocalWormProfiles()[0] = ply;
+			cClient->setNumWorms(1);
+		}
 	}
 	
-	tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+	tLXOptions->sLastSelectedPlayer = item->sIndex;
 
 	cClient->setServerName(sName);
 

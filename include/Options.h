@@ -22,8 +22,6 @@
 #include <string>
 #include <cassert>
 
-#include "FindFile.h" // for searchpathlist; TODO: extract this to an own file
-
 // Setup input id's
 enum {
 	// Movement
@@ -180,12 +178,21 @@ public:
 	std::string	sHttpProxy;
 	bool	bAutoSetupHttpProxy;
 
+	bool	bRegServer;
+	std::string	sServerName;
+	std::string	sWelcomeMessage;
+	std::string sServerPassword;			// Password to connect to server - not used anywhere
+	bool	bAllowWantsJoinMsg;
+	bool	bWantsJoinBanned;
+	bool	bAllowRemoteBots;
+
 	// IRC chat
 	bool	bEnableChat;
 
 	// Audio
 	bool	bSoundOn;
 	int		iSoundVolume;
+	int		iMusicVolume;
 
 	// Controls
 	std::vector<controls_t> sPlayerControls; // sPC[playernr][controlnr]
@@ -205,19 +212,17 @@ public:
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
 	int		iMouseSensity;
-	bool	bAllowMouseAiming;
-	bool	bAllowStrafing;
 	bool	bAntilagMovementPrediction;
+	std::string	sLastSelectedPlayer;
 	std::string sTheme;
+	bool	bTopBarVisible;
 
 
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
-	bool	bCountTeamkills;
-	bool	bServerSideHealth;
 	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
-	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
+	bool	bMatchLogging;			// Save screenshot of every game final score
 
 	// Misc.
 	bool    bLogConvos;
@@ -229,12 +234,8 @@ public:
 	int		iLANList[6];
 	int		iFavouritesList[6];
 
-	// Music
-	int		iMusicVolume;
-
-
-	// TODO: merge this class with game_t (LieroX.h)
-	// Last used game details
+	// Last used game details - used as game lobby structure in client
+	// Put everything that impacts gameplay here, both server and client-sided
 	class GameInfo {
 	public:
 		int		iLives;
@@ -245,24 +246,15 @@ public:
 		bool	bBonusesOn;
 		bool	bShowBonusName;
 		int		iMaxPlayers;
-		bool	bMatchLogging;
-		std::string	sServerName;
-		std::string	sWelcomeMessage;
-		std::string	sMapFilename;
+		std::string	sMapFile;
+		std::string	sMapName;	 // Decoded map name from map file
         int     iGameMode;
-        std::string szModDir;
-        std::string szPassword;
-		bool	bRegServer;
-		std::string	sLastSelectedPlayer;
-		bool	bAllowWantsJoinMsg;
-		bool	bWantsJoinBanned;
-		bool	bAllowRemoteBots;
-		bool	bTopBarVisible;
-		bool	bAllowNickChange;
+        std::string sModDir;
+        std::string sModName;	// Decoded mod name from script.lgs
 		float	fBonusFreq;
 		float	fBonusLife;
 		float	fRespawnTime;
-		bool	bRespawnGroupTeams;	// only if bRespawnInWaves is true - respawn all team in single spot
+		bool	bRespawnGroupTeams;	// respawn all team in single spot
 		bool	bGroupTeamScore;	// All worms in team will have the same kill count (sum of each one kills)
 		bool	bSuicideDecreasesScore;	// When you suicide or made teamkill your killcount will decrease
 		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
@@ -271,11 +263,15 @@ public:
 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
 		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
 		bool	bAllowConnectDuringGame; // >=Beta8
-	} tGameinfo;
+		bool	bAllowStrafing;
+		bool	bAllowNickChange;
+		bool	bCountTeamkills;
+		bool	bServerSideHealth;
+		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
+	} tGameInfo;
 
 	// not specified options found in options-file
 	std::map< std::string, std::string > additionalOptions;
-
 };
 
 

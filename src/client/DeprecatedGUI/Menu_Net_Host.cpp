@@ -132,16 +132,16 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage(hs_MaxPlayers,TXM_SETMAX,6,0);
 
 	// Use previous settings
-	cHostPly.SendMessage( hs_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
-	cHostPly.SendMessage( hs_Servername, TXS_SETTEXT, tLXOptions->tGameinfo.sServerName, 0);
-	cHostPly.SendMessage( hs_WelcomeMessage, TXS_SETTEXT, tLXOptions->tGameinfo.sWelcomeMessage, 0);
-	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
-	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
-	cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
-	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
-	cHostPly.SendMessage( hs_AllowNickChange,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
-	//cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
-    //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameinfo.szPassword, 0 );
+	cHostPly.SendMessage( hs_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iMaxPlayers), 0);
+	cHostPly.SendMessage( hs_Servername, TXS_SETTEXT, tLXOptions->sServerName, 0);
+	cHostPly.SendMessage( hs_WelcomeMessage, TXS_SETTEXT, tLXOptions->sWelcomeMessage, 0);
+	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->bRegServer, 0);
+	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->bAllowWantsJoinMsg, 0);
+	cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_SETCHECK, tLXOptions->bWantsJoinBanned, 0);
+	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->bAllowRemoteBots, 0);
+	cHostPly.SendMessage( hs_AllowNickChange,   CKM_SETCHECK, tLXOptions->tGameInfo.bAllowNickChange, 0);
+	//cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->tGameInfo.bServerSideHealth, 0);
+    //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameInfo.szPassword, 0 );
 
 	// Add columns
 	cHostPly.SendMessage( hs_PlayerList,   LVS_ADDCOLUMN, "Players",24);
@@ -307,12 +307,19 @@ void Menu_Net_HostPlyFrame(int mouse)
 			case hs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
+					cClient->Shutdown();
+				    cClient->Clear();
+					if(!cClient->Initialize()) {
+						printf("Client wouldn't initialize\n");
+						break;
+					}
+
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
 					// Make sure there is 1-7 players in the list
 					if (lv->getItemCount() > 0 && lv->getItemCount() <= MAX_PLAYERS - 1) {
 
-						tGameInfo.iNumPlayers = lv->getItemCount();
+						//cClient->getNumRemoteWorms() = lv->getItemCount();
 
 						// Fill in the game structure
 						lv_item_t* item;
@@ -333,7 +340,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 								if(i > 2)
 									break;
 
-								tGameInfo.cPlayers[count++] = ply;
+								cClient->getLocalWormProfiles()[count++] = ply;
 								i++;
 							}
 
@@ -347,36 +354,29 @@ void Menu_Net_HostPlyFrame(int mouse)
 							profile_t *ply = FindProfile(item->iIndex);
 
 							if(ply != NULL && ply->iType != PRF_HUMAN)  {
-								tGameInfo.cPlayers[count++] = ply;
+								cClient->getLocalWormProfiles()[count++] = ply;
 							}
 						}
-
-						if(tGameInfo.iNumPlayers != count)
-							printf("WARNING: amount of added players is not as expected\n");
+						cClient->setNumWorms(count);
 
 						// Get the server name
-						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tGameInfo.sServername, 0);
-						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tGameInfo.sWelcomeMessage, 0);
+						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->sServerName, 0);
+						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
 
-						// Save the info
 						std::string buf;
-						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
-						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
-                        //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, 0);
 						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
-
-						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
+						tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
 						// At least 2 players, and max MAX_PLAYERS
-						tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
-						tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-						tLXOptions->tGameinfo.bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameinfo.bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->bServerSideHealth = false; // HINT: disable ssh for normal (non-dedicated) servers, as it is very cheaty
-						//tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
+						tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
+						tLXOptions->bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->tGameInfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->tGameInfo.bServerSideHealth = false; // HINT: disable ssh for normal (non-dedicated) servers, as it is very cheaty
+						//tLXOptions->tGameInfo.bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 						cHostPly.Shutdown();
 
@@ -469,7 +469,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 // Initialize the hosting lobby
 bool Menu_Net_HostLobbyInitialize(void)
 {
-	tGameInfo.iGameType = GME_HOST;
+	tLX->iGameType = GME_HOST;
 	// TODO: please comment these vars
 	iNetMode = net_host;
 	iHostType = 1;
@@ -477,60 +477,23 @@ bool Menu_Net_HostLobbyInitialize(void)
     bHostWeaponRest = false;
     iSpeaking = -1;
 
-	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
-		// TODO: a msgbox for this is annoying. but perhaps we can add it in the chatbox?
-		printf("HINT: You have disallowed mouse aiming on your server, therefore you can also not use it yourself.\n");
-
-
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
 	// If put below the client connect. Either this or move the draw.
 
-	// Fill in some game details
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
-	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
-	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
-
-	cClient->Shutdown();
-    cClient->Clear();
-
 
 	// Start the server
-	if(!cServer->StartServer( tGameInfo.sServername, tLXOptions->iNetworkPort, tLXOptions->tGameinfo.iMaxPlayers, tLXOptions->tGameinfo.bRegServer )) {
+	if(!cServer->StartServer()) {
 		// Crappy
 		printf("Server wouldn't start\n");
 		cHostLobby.Shutdown();
 		return false;
 	}
 
-
-	// Lets connect me to the server
-	if(!cClient->Initialize()) {
-		// Crappy
-		printf("Client wouldn't initialize\n");
-		cHostLobby.Shutdown();
-		return false;
-	}
-
+	// Lets connect me to the server	
 	cClient->Connect("127.0.0.1");
 
 	// Draw the lobby
 	Menu_Net_HostLobbyDraw();
-
-	// Set up the server's lobby details
-	game_lobby_t *gl = cServer->getLobby();
-	gl->bSet = true;
-	gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
-	gl->nLives = tLXOptions->tGameinfo.iLives;
-	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
-	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
-	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-    gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
-	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 
 
 	// Clear the saved chat text
@@ -585,8 +548,6 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
 
-	game_lobby_t *gl = cServer->getLobby();
-
 	cHostLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),hl_Back,	15,  450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
@@ -636,12 +597,12 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
 	Menu_Local_FillModList( cbMod );
-	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
+	cbMod->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 	CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
-	cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
+	cbLevel->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
 	Menu_HostShowMinimap();
 
 	CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
@@ -650,14 +611,14 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Don't show chat box selection
 	//lv->setShowSelect(false);
 
-	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &tGameInfo.sModName, 0);
-	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &tGameInfo.sModDir, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &tLXOptions->tGameInfo.sModName, 0);
+	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sModDir, 0);
 
 	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gametype);
 	if (gtype)  {
-		if (gl->nGameMode >= 0 && gl->nGameMode < gtype->getItemsCount())
-			gtype->setCurItem(gl->nGameMode);
+		if (tLXOptions->tGameInfo.iGameMode >= 0 && tLXOptions->tGameInfo.iGameMode < gtype->getItemsCount())
+			gtype->setCurItem(tLXOptions->tGameInfo.iGameMode);
 		else
 			gtype->setCurItem(0);
 	}
@@ -704,7 +665,7 @@ void Menu_Net_HostLobbySetText(const std::string& str) {
 // TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
 void Menu_Net_HostGotoLobby(void)
 {
-	tGameInfo.iGameType = GME_HOST;
+	tLX->iGameType = GME_HOST;
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;
@@ -714,26 +675,6 @@ void Menu_Net_HostGotoLobby(void)
     // Draw the lobby
 	if(!bDedicated)
 		Menu_Net_HostLobbyDraw();
-
-	// Fill in some game details
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
-	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
-	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
-
-	// Set up the server's lobby details
-	game_lobby_t *gl = cServer->getLobby();
-	gl->bSet = true;
-	gl->nGameMode = tLXOptions->tGameinfo.iGameMode;
-	gl->nLives = tLXOptions->tGameinfo.iLives;
-	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
-	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
-	gl->fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-	gl->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-	gl->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 
     if(!bDedicated) {
 	    // Create the GUI
@@ -786,14 +727,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			bHostGameSettings = false;
 
-			// Move the settings into the server
-			cServer->getLobby()->nLives = tGameInfo.iLives;
-			cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
-			cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
-			cServer->getLobby()->fGameSpeed = tGameInfo.fGameSpeed;
-            cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
-			cServer->getLobby()->bForceRandomWeapons = tLXOptions->tGameinfo.bForceRandomWeapons;
-			cServer->getLobby()->bSameWeaponsAsHostWorm = tLXOptions->tGameinfo.bSameWeaponsAsHostWorm;
 			cServer->UpdateGameLobby();
 			
 			cServer->checkVersionCompatibilities(false);
@@ -842,23 +775,23 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameinfo.szModDir = it->sIndex;
+		if(it) tLXOptions->tGameInfo.sModDir = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
+		cbMod->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 
 
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
 		it = cbLevel->getItem(cbLevel->getSelectedIndex());
-		if(it) tLXOptions->tGameinfo.sMapFilename = it->sIndex;
+		if(it) tLXOptions->tGameInfo.sMapFile = it->sIndex;
 
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
-		cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
+		cbLevel->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
 	}
 
 
@@ -966,7 +899,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
 
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 					cServer->UpdateGameLobby();
 				}
 				break;
@@ -974,8 +907,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Mod change
             case hl_ModName:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &tGameInfo.sModName, 0);
-                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &tGameInfo.sModDir, 0);
+                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURNAME, &tLXOptions->tGameInfo.sModName, 0);
+                    cHostLobby.SendMessage(hl_ModName, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sModDir, 0);
 					cServer->UpdateGameLobby();
                 }
                 break;
@@ -983,7 +916,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Game type change
 			case hl_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+					tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 					bHost_Update = true;
 					cServer->UpdateGameLobby();
 				}
@@ -995,9 +928,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					std::string buf;
 					cHostLobby.SendMessage(hl_Lives, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
-						tGameInfo.iLives = atoi(buf);
+						tLXOptions->tGameInfo.iLives = atoi(buf);
 					else
-						tGameInfo.iLives = -2;
+						tLXOptions->tGameInfo.iLives = -2;
 
 					cServer->UpdateGameLobby();
 				}
@@ -1010,9 +943,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					std::string buf;
 					cHostLobby.SendMessage(hl_MaxKills, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
-						tGameInfo.iKillLimit = atoi(buf);
+						tLXOptions->tGameInfo.iKillLimit = atoi(buf);
 					else
-						tGameInfo.iKillLimit = -2;
+						tLXOptions->tGameInfo.iKillLimit = -2;
 
 					cServer->UpdateGameLobby();
 				}
@@ -1095,11 +1028,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 						// Set the team
 						CWorm *w = cServer->getWorms() + id;
-						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % (4 - (cServer->getLobby()->nGameMode == GMT_VIP));
+						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % (4 - (tLXOptions->tGameInfo.iGameMode == GMT_VIP));
 						w->setTeam(w->getLobby()->iTeam);
 
 						if(w->getLobby()->iTeam == 2) // VIP
-							if(cServer->getLobby()->nGameMode == GMT_VIP) // Playing the VIP game type
+							if(tLXOptions->tGameInfo.iGameMode == GMT_VIP) // Playing the VIP game type
 								w->setVIP(true);
 						if(w->getLobby()->iTeam != 2) // VIP
 							w->setVIP(false);
@@ -1141,7 +1074,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				{
 					CTextbox *t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedMinPlayers);
 					iStartDedicatedMinPlayers = atoi(t->getText());
-					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, tLXOptions->tGameinfo.iMaxPlayers );
+					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, tLXOptions->tGameInfo.iMaxPlayers );
 				}
                 break;
 		}
@@ -1182,20 +1115,18 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Get the mod
 		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
 		if(it) {
-			tGameInfo.sModName = it->sName;
-			tGameInfo.sModDir = it->sIndex;
-			tLXOptions->tGameinfo.szModDir = it->sIndex;
+			tLXOptions->tGameInfo.sModName = it->sName;
+			tLXOptions->tGameInfo.sModDir = it->sIndex;
 		}
 
 		// Get the game type
-		tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-		tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
+		tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 
 		// Get the map name
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
 		// Save the current level in the options
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 		cHostLobby.Shutdown();
 
 		// Setup the client
@@ -1211,7 +1142,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Leave the frontend
 		*bGame = true;
 		tMenu->bMenuRunning = false;
-		tGameInfo.iGameType = GME_HOST;
+		tLX->iGameType = GME_HOST;
 	}
 }
 
@@ -1273,7 +1204,6 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	player_list->SaveScrollbarPos();
 	player_list->Clear();  // Clear any old info
 
-	game_lobby_t *gl = cClient->getGameLobby();
 	lobbyworm_t *lobby_worm = NULL;
 	w = cClient->getRemoteWorms();
 	CButton *cmd_button = NULL;
@@ -1287,7 +1217,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 		// Reload the worm graphics
 		w->setTeam(lobby_worm->iTeam);
-		w->ChangeGraphics(cClient->getGameLobby()->nGameMode);
+		w->ChangeGraphics(tLXOptions->tGameInfo.iGameMode);
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);
@@ -1313,7 +1243,9 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 								compatible ? tLX->clPink : tLX->clError);  // Name
 
 		// Display the team mark if TDM
-		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)  {
+		if (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || 
+			cClient->getGameLobby()->iGameMode == GMT_VIP || 
+			cClient->getGameLobby()->iGameMode == GMT_TEAMCTF)  {
 			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)
@@ -1323,7 +1255,6 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 			player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
 
-			gl->nLastGameMode = gl->nGameMode;
 		} else {
 			player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping has to be the fifth subitem
 		}
@@ -1372,7 +1303,7 @@ void Menu_HostShowMinimap(void)
 void Menu_Net_HostDeregister(void)
 {
 	// If the server wasn't registered, just leave
-	if( !tLXOptions->tGameinfo.bRegServer )
+	if( !tLXOptions->bRegServer )
 		return;
 
 	// Initialize the request
@@ -1493,15 +1424,15 @@ void Menu_ServerSettings(void)
 	cServerSettings.SendMessage(ss_WeaponSelectionMaxTime,TXM_SETMAX,10,0);
 
 	// Use the actual settings as default
-	cServerSettings.SendMessage(ss_AllowWantsJoin, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
-	cServerSettings.SendMessage(ss_WantsJoinBanned, CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
-	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
-	cServerSettings.SendMessage(ss_AllowNickChange, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
-	//cServerSettings.SendMessage(ss_ServerSideHealth, CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
-	cServerSettings.SendMessage(ss_ServerName,TXS_SETTEXT,tGameInfo.sServername, 0);
-	cServerSettings.SendMessage(ss_WelcomeMessage,TXS_SETTEXT,tGameInfo.sWelcomeMessage, 0);
-	cServerSettings.SendMessage(ss_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
-	cServerSettings.SendMessage(ss_WeaponSelectionMaxTime, TXS_SETTEXT, itoa(tLXOptions->iWeaponSelectionMaxTime), 0);
+	cServerSettings.SendMessage(ss_AllowWantsJoin, CKM_SETCHECK, tLXOptions->bAllowWantsJoinMsg, 0);
+	cServerSettings.SendMessage(ss_WantsJoinBanned, CKM_SETCHECK, tLXOptions->bWantsJoinBanned, 0);
+	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->bAllowRemoteBots, 0);
+	cServerSettings.SendMessage(ss_AllowNickChange, CKM_SETCHECK, tLXOptions->tGameInfo.bAllowNickChange, 0);
+	//cServerSettings.SendMessage(ss_ServerSideHealth, CKM_SETCHECK, tLXOptions->tGameInfo.bServerSideHealth, 0);
+	cServerSettings.SendMessage(ss_ServerName,TXS_SETTEXT,tLXOptions->sServerName, 0);
+	cServerSettings.SendMessage(ss_WelcomeMessage,TXS_SETTEXT,tLXOptions->sWelcomeMessage, 0);
+	cServerSettings.SendMessage(ss_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iMaxPlayers), 0);
+	cServerSettings.SendMessage(ss_WeaponSelectionMaxTime, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iWeaponSelectionMaxTime), 0);
 }
 
 
@@ -1527,31 +1458,29 @@ bool Menu_ServerSettings_Frame(void)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Save the info
-					cServerSettings.SendMessage(ss_ServerName,TXS_GETTEXT, &tGameInfo.sServername, 0);
-					cServerSettings.SendMessage(ss_WelcomeMessage,TXS_GETTEXT, &tGameInfo.sWelcomeMessage, 0);
-					cServerSettings.SendMessage(ss_ServerName, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
-					cServerSettings.SendMessage(ss_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
+					cServerSettings.SendMessage(ss_ServerName, TXS_GETTEXT, &tLXOptions->sServerName, 0);
+					cServerSettings.SendMessage(ss_WelcomeMessage,TXS_GETTEXT, &tLXOptions->sWelcomeMessage, 0);
 
 					std::string buf;
 					cServerSettings.SendMessage(ss_MaxPlayers, TXS_GETTEXT, &buf, 0);
-					tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
+					tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
 					// At least 2 players, and max MAX_PLAYERS
-					tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
-					tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
+					tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
+					tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
 
 					cServerSettings.SendMessage(ss_WeaponSelectionMaxTime, TXS_GETTEXT, &buf, 0);
-					tLXOptions->iWeaponSelectionMaxTime = MAX( 5, atoi(buf) );	// At least 5 seconds (hit Random - Done)
+					tLXOptions->tGameInfo.iWeaponSelectionMaxTime = MAX( 5, atoi(buf) );	// At least 5 seconds (hit Random - Done)
 
 					// Set up the server
 					if(cServer)  {
-						cServer->setName(tGameInfo.sServername);
+						cServer->setName(tLXOptions->sServerName);
 					}
 
-					tLXOptions->tGameinfo.bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					tLXOptions->tGameinfo.bWantsJoinBanned = cServerSettings.SendMessage( ss_WantsJoinBanned, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					tLXOptions->tGameinfo.bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					tLXOptions->tGameinfo.bAllowNickChange = cServerSettings.SendMessage( ss_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					//tLXOptions->bServerSideHealth = cServerSettings.SendMessage( ss_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bWantsJoinBanned = cServerSettings.SendMessage( ss_WantsJoinBanned, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->tGameInfo.bAllowNickChange = cServerSettings.SendMessage( ss_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					//tLXOptions->tGameInfo.bServerSideHealth = cServerSettings.SendMessage( ss_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 					Menu_ServerSettingsShutdown();
 

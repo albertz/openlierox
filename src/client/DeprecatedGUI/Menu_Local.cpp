@@ -123,8 +123,8 @@ void Menu_LocalInitialize(void)
 	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/
 
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.iGameMode, 0);
-    iGameType = tLXOptions->tGameinfo.iGameMode;
+    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameInfo.iGameMode, 0);
+    iGameType = tLXOptions->tGameInfo.iGameMode;
 
 	// Add players to player/playing lists
 	Menu_LocalAddProfiles();
@@ -132,21 +132,13 @@ void Menu_LocalInitialize(void)
 	// Fill the level list
 	CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
 	Menu_FillLevelList( cbLevel, true);
-	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
+	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
 	Menu_LocalShowMinimap(true);
 
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 	Menu_Local_FillModList( cbMod );
-	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModDir));
-
-	// Fill in some game details
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
-	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
-	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
+	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
 
 }
 
@@ -162,8 +154,8 @@ void Menu_LocalShutdown(void)
 
 	// Save the level and mod
 	if (tLXOptions)  {
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModDir, 0);
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sModDir, 0);
 	}
 
 	cLocalMenu.Shutdown();
@@ -221,21 +213,21 @@ void Menu_LocalFrame(void)
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameinfo.szModDir = it->sIndex;
+		if(it) tLXOptions->tGameInfo.sModDir = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModDir));
+		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
-		tLXOptions->tGameinfo.sMapFilename = cbLevel->getItem( cbLevel->getSelectedIndex() )->sIndex;
+		tLXOptions->tGameInfo.sMapFile = cbLevel->getItem( cbLevel->getSelectedIndex() )->sIndex;
 		Menu_FillLevelList( cbLevel, true);
-		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
+		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
 
 		// Reload the minimap
-		if (tLXOptions->tGameinfo.sMapFilename != "_random_")
-			Menu_LocalShowMinimap(true);
+		//if (tLXOptions->tGameInfo.sMapFile != "_random_")
+		Menu_LocalShowMinimap(true);
 	}
 
 
@@ -519,14 +511,14 @@ void Menu_LocalShowMinimap(bool bReload)
 
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
-    tGameInfo.sMapRandom.bUsed = false;
+    //tGameInfo.sMapRandom.bUsed = false;
 
 	// Draw a background over the old minimap
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
 
 	// Load the map
     if( bReload ) {
-
+		/*
         // Create a random map
         if( buf == "_random_" ) {
             if( map.Create(504,350,map.findRandomTheme(), 128, 96) ) {
@@ -558,12 +550,13 @@ void Menu_LocalShowMinimap(bool bReload)
             }
 
         } else {
-            // Load the file
-            if(map.Load("levels/" + buf)) {
+        */
 
-		        // Draw the minimap
-		        DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
-	        }
+		// Load the file
+		if(map.Load("levels/" + buf)) {
+			// Draw the minimap
+			DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
+
         }
     }
 
@@ -578,21 +571,14 @@ void Menu_LocalShowMinimap(bool bReload)
 void Menu_LocalStartGame(void)
 {
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
 
 
 	//
 	// Players
 	//
 	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
-
-    // Calculate the number of players
-    tGameInfo.iNumPlayers = lv_playing->getNumItems();
-
-	// Can't start a game with no-one playing
-	if(tGameInfo.iNumPlayers == 0)
-		return;
 
     int count = 0;
 
@@ -601,7 +587,7 @@ void Menu_LocalStartGame(void)
     	int i = item->iIndex;
 		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
-			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
+			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
     }
 
@@ -610,28 +596,32 @@ void Menu_LocalStartGame(void)
     	int i = item->iIndex;
 		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
-			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
+			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
     }
+    
+    cClient->setNumWorms(count);
+
+	// Can't start a game with no-one playing
+	if(count == 0)
+		return;
 
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 
 	//
 	// Game Info
 	//
-	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-    tLXOptions->tGameinfo.iGameMode = tGameInfo.iGameMode;
+	tLXOptions->tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 
-    tGameInfo.sPassword = "";
+    tLXOptions->sServerPassword = "";
 
 
     // Get the mod name
 	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
     if(it) {
-        tGameInfo.sModName = it->sName;
-		tGameInfo.sModDir = it->sIndex;
-        tLXOptions->tGameinfo.szModDir = it->sIndex;
+        tLXOptions->tGameInfo.sModName = it->sName;
+		tLXOptions->tGameInfo.sModDir = it->sIndex;
     } else {
 
 		// Couldn't find a mod to load
@@ -646,7 +636,7 @@ void Menu_LocalStartGame(void)
 
 	*bGame = true;
 	tMenu->bMenuRunning = false;
-	tGameInfo.iGameType = GME_LOCAL;
+	tLX->iGameType = GME_LOCAL;
 
 	cLocalMenu.Shutdown();
 }
@@ -719,7 +709,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	ModAdder adder(cb);
 	FindFiles(adder,".",false,FM_DIR);
 	
-	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModDir);
+	cb->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 }
 
 
@@ -830,86 +820,86 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        140,200, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_Lives,		300,197, 30,tLX->cFont.GetHeight());
 	cGeneralSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
-	if(tLXOptions->tGameinfo.iLives >= 0)
-		cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iLives), 0);
+	if(tLXOptions->tGameInfo.iLives >= 0)
+		cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iLives), 0);
 
 	cGeneralSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			    -1,	        140,230, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_MaxKills,	300,227, 30,tLX->cFont.GetHeight());
 	cGeneralSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
-	if(tLXOptions->tGameinfo.iKillLimit >= 0)
-		cGeneralSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iKillLimit), 0);
+	if(tLXOptions->tGameInfo.iKillLimit >= 0)
+		cGeneralSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iKillLimit), 0);
 
 	cGeneralSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        140,260, 0, 0);
 	cGeneralSettings.Add( new CSlider(DEFAULT_LOADING_TIME),									gs_LoadingTime,	295,257, 160,20);
 	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 260, 0, 0);
-	cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
+	cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameInfo.iLoadingTime, 0);
 
 	cGeneralSettings.Add( new CLabel("Game Speed", tLX->clNormalLabel),		    -1,	        140,285, 0, 0);
 	cGeneralSettings.Add( new CSlider(99),									gs_GameSpeed,	295,282, 160,20);
 	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_GameSpeedLabel, 470, 285, 0, 0);
-	Menu_setGameSpeed( tLXOptions->tGameinfo.fGameSpeed );
+	Menu_setGameSpeed( tLXOptions->tGameInfo.fGameSpeed );
 
 	cGeneralSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,310, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_TimeLimit,	300,307, 30,tLX->cFont.GetHeight());
 	cGeneralSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
-	if(tLXOptions->tGameinfo.fTimeLimit > 0)
-		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
+	if(tLXOptions->tGameInfo.fTimeLimit > 0)
+		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fTimeLimit), 0);
 
 	cGeneralSettings.Add( new CLabel("Force random", tLX->clNormalLabel),			-1,	        350,300, 0, 0);
 	cGeneralSettings.Add( new CLabel("weapon selection", tLX->clNormalLabel),		-1,	        350,315, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bForceRandomWeapons),	gs_ForceRandomWeapons, 470,307,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bForceRandomWeapons),	gs_ForceRandomWeapons, 470,307,17,17);
 
 	cGeneralSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,340, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_RespawnTime,	300,337, 30,tLX->cFont.GetHeight());
 	cGeneralSettings.SendMessage(gs_RespawnTime,TXM_SETMAX,3,0);
-	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fRespawnTime), 0);
+	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fRespawnTime), 0);
 
 	cGeneralSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,330, 0, 0);
 	cGeneralSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,345, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,337,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,337,17,17);
 
 	int y = 370;
 
 	cGeneralSettings.Add( new CLabel("Same weapons as", tLX->clNormalLabel),			-1,	        350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("host worm", tLX->clNormalLabel),		-1,	        350,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm),	gs_SameWeaponsAsHostWorm, 470,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm),	gs_SameWeaponsAsHostWorm, 470,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Allow new players", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("connect during game", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
 
 	y += 30;
 
 	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
 
 	y += 30;
 		
 	cGeneralSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,y, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bGroupTeamScore),	gs_GroupTeamScore, 470,y-3,17,17);
 
 
 
 
 	// Bonus settings - Bonus stuffies!
 	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        140,200, 0, 0);
-	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),		gs_Bonuses,		300,197,17,17);
+	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bBonusesOn),		gs_Bonuses,		300,197,17,17);
 
 	cBonusSettings.Add( new CLabel("Bonus spawn time", tLX->clNormalLabel),		-1,	        140,230, 0, 0);
 	cBonusSettings.Add( new CTextbox(),										gs_BonusSpawnTime,	300,227, 30,tLX->cFont.GetHeight());
-	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusFreq), 0);
+	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusFreq), 0);
 
 	cBonusSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,			140,260, 0, 0);
-	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bShowBonusName),	gs_ShowBonusNames, 300,257,17,17);
+	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bShowBonusName),	gs_ShowBonusNames, 300,257,17,17);
 
 	cBonusSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        140,290, 0, 0);
 	cBonusSettings.Add( new CTextbox(),										gs_BonusLifeTime,	300,287, 30,tLX->cFont.GetHeight());
-	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusLife), 0);
+	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusLife), 0);
 
 	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),				-1,			290,320, 0, 0);
 	cBonusSettings.Add( new CLabel("Health", tLX->clNormalLabel),				-1,			146,340, 0, 0);
@@ -917,7 +907,7 @@ void Menu_GameSettings(void)
 	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_HealthChance,		153,360, 0, 0);
 	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_WeaponChance,		453,360, 0, 0);
 	cBonusSettings.Add( new CSlider(100),									gs_HealthToWeaponChance,	188,343, 250,12);
-	cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_SETVALUE, int(tLXOptions->tGameinfo.fBonusHealthToWeaponChance*100.0f), 0);
+	cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_SETVALUE, int(tLXOptions->tGameInfo.fBonusHealthToWeaponChance*100.0f), 0);
 
 
 	int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
@@ -1054,13 +1044,13 @@ void Menu_GameSettings_GrabInfo(void)
 
 
 	// Default to no setting
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = WRM_UNLIM;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
-	tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = -1;
-	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
-	tLXOptions->tGameinfo.fRespawnTime = 2.5;
-	tGameInfo.bBonusesOn = true;
-	tGameInfo.bShowBonusName = true;
+	tLXOptions->tGameInfo.iLives = WRM_UNLIM;
+	tLXOptions->tGameInfo.iKillLimit = -1;
+	tLXOptions->tGameInfo.fTimeLimit = -1;
+	tLXOptions->tGameInfo.iTagLimit = -1;
+	tLXOptions->tGameInfo.fRespawnTime = 2.5;
+	tLXOptions->tGameInfo.bBonusesOn = true;
+	tLXOptions->tGameInfo.bShowBonusName = true;
 
 	// Store the game info into the options structure as well
 
@@ -1068,57 +1058,55 @@ void Menu_GameSettings_GrabInfo(void)
 
 	// General
 
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed = Menu_getGameSpeed();
+	tLXOptions->tGameInfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
+	tLXOptions->tGameInfo.fGameSpeed = Menu_getGameSpeed();
 	
 	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = atoi(buf);
-	if( tGameInfo.iLives < 0 )
-		tGameInfo.iLives = tLXOptions->tGameinfo.iLives = WRM_UNLIM;
+		tLXOptions->tGameInfo.iLives = atoi(buf);
+	if( tLXOptions->tGameInfo.iLives < 0 )
+		tLXOptions->tGameInfo.iLives = WRM_UNLIM;
 
 	cGeneralSettings.SendMessage(gs_MaxKills, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = atoi(buf);
+		tLXOptions->tGameInfo.iKillLimit = atoi(buf);
 
 	cGeneralSettings.SendMessage(gs_TimeLimit, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tLXOptions->tGameinfo.fTimeLimit = tGameInfo.fTimeLimit  = atof(buf);
+		tLXOptions->tGameInfo.fTimeLimit = atof(buf);
 
 	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tLXOptions->tGameinfo.fRespawnTime = atof(buf);
+		tLXOptions->tGameInfo.fRespawnTime = atof(buf);
 
-	tLXOptions->tGameinfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bSuicideDecreasesScore = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bSuicideDecreasesScore = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tLXOptions->tGameinfo.fBonusFreq = atof(buf);
+		tLXOptions->tGameInfo.fBonusFreq = atof(buf);
 
 	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_GETTEXT, &buf, 0);
 	if(buf != "")
-		tLXOptions->tGameinfo.fBonusLife = atof(buf);
+		tLXOptions->tGameInfo.fBonusLife = atof(buf);
 
-	tGameInfo.bBonusesOn = cBonusSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
+	tLXOptions->tGameInfo.bBonusesOn = cBonusSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tGameInfo.bShowBonusName = cBonusSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	tLXOptions->tGameinfo.bShowBonusName = tGameInfo.bShowBonusName;
+	tLXOptions->tGameInfo.bShowBonusName = cBonusSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameinfo.fBonusHealthToWeaponChance = float(cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0)) / 100.0f ;
+	tLXOptions->tGameInfo.fBonusHealthToWeaponChance = float(cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0)) / 100.0f ;
 }
 
 

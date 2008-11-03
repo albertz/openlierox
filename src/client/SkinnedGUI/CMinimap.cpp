@@ -17,6 +17,7 @@
 
 #include "SkinnedGUI/CMinimap.h"
 #include "XMLutils.h"
+#include "CClient.h"
 
 
 namespace SkinnedGUI {
@@ -28,8 +29,9 @@ void CMinimap::Load(const std::string& level)
 	cMap->Shutdown();
 	cMap->SetMinimapDimensions(getWidth() - cBorder.getLeftW() - cBorder.getRightW(), getHeight() - cBorder.getTopW() - cBorder.getBottomW());
 	sFileName = level;
-	tGameInfo.sMapRandom.bUsed = false;
+	//tGameInfo.sMapRandom.bUsed = false;
 
+	/*
 	if (level == "_random_")  {
 		if (cMap->New(504, 350, cMap->findRandomTheme()))  {
 			cMap->ApplyRandom();
@@ -54,8 +56,8 @@ void CMinimap::Load(const std::string& level)
 			}
 		}
 	} else {
-		cMap->Load(level);		
-	}
+	*/
+	cMap->Load(level);		
 
 	Repaint();
 }
@@ -86,7 +88,7 @@ void CMinimap::DoRepaint()
 	
 	// Draw the minimap
 	if (tWorms)
-		cMap->DrawMiniMap(bmpBuffer.get(), cBorder.getLeftW(), cBorder.getTopW(), tLX->fDeltaTime, tWorms, tGameInfo.iGameMode);
+		cMap->DrawMiniMap(bmpBuffer.get(), cBorder.getLeftW(), cBorder.getTopW(), tLX->fDeltaTime, tWorms, cClient->getGameLobby()->iGameMode);
 	else
 		DrawImage(bmpBuffer.get(), cMap->GetMiniMap(), cBorder.getLeftW(), cBorder.getTopW());
 

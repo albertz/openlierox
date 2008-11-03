@@ -16,6 +16,7 @@
 #include <stack>
 #include "IRC.h"
 #include "LieroX.h"
+#include "FindFile.h"
 #include "MathLib.h"
 #include "Options.h"
 #include "Version.h"
@@ -476,7 +477,7 @@ void IRCClient::parseDropped(const IRCClient::IRCCommand &cmd)
 		disconnect();
 	else {
 		// Remove the person that has left from the list
-		for (std::list<std::string>::const_iterator it = m_chatUsers.begin(); it != m_chatUsers.end(); it++)  {
+		for (std::list<std::string>::iterator it = m_chatUsers.begin(); it != m_chatUsers.end(); it++)  {
 			if (*it == cmd.sender)  {
 				m_chatUsers.erase(it);
 				if (m_updateUsersCallback)
@@ -801,9 +802,9 @@ bool InitializeIRC()
 		std::string addr = ReadUntil(fp, '/');
 		std::string chann = ReadUntil(fp, '\n');
 		fclose(fp);
-		return globalIRC->connect(addr, chann, tLXOptions->tGameinfo.sLastSelectedPlayer);
+		return globalIRC->connect(addr, chann, tLXOptions->sLastSelectedPlayer);
 	} else { // Defaults
-		return globalIRC->connect("irc.quakenet.org", "#LieroX", tLXOptions->tGameinfo.sLastSelectedPlayer);
+		return globalIRC->connect("irc.quakenet.org", "#LieroX", tLXOptions->sLastSelectedPlayer);
 	}
 }
 

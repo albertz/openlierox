@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "FindFile.h"
 #include "Sounds.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"

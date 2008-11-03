@@ -76,7 +76,7 @@ void CClientNetEngine::SendWormDetails(void)
 	if (!update)
 		return;
 */
-	if(	tGameInfo.iGameType == GME_JOIN // we are a client in a netgame
+	if(	tLX->iGameType == GME_JOIN // we are a client in a netgame
 	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 

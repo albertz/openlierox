@@ -60,7 +60,7 @@ void CWorm::getInput()
 
 	const bool mouseControl = 
 			tLXOptions->bMouseAiming &&
-			( cClient->isHostAllowingMouse() || tGameInfo.iGameType == GME_LOCAL) &&
+			( cClient->isHostAllowingMouse() || tLX->iGameType == GME_LOCAL) &&
 			ApplicationHasFocus(); // if app has no focus, don't use mouseaiming, the mousewarping is pretty annoying then
 	const float mouseSensity = (float)tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
 

@@ -237,7 +237,7 @@ public:
 
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * tGameInfo.fGameSpeed;		
+		const float dt = orig_dt * cClient->getGameLobby()->fGameSpeed;		
 		if(worm->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
@@ -297,7 +297,7 @@ public:
 		float	fFrameRate = 7.5f;
 
 		// If we're IT, spawn some sparkles
-		if(worm->getTagIT() && tGameInfo.iGameMode == GMT_TAG) {
+		if(worm->getTagIT() && cClient->getGameLobby()->iGameMode == GMT_TAG) {
 			if(tLX->fCurTime - worm->getLastSparkle() > 0.15f) {
 				worm->setLastSparkle( worm->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
@@ -555,7 +555,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / tGameInfo.fGameSpeed;
+				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / cClient->getGameLobby()->fGameSpeed;
 
 				*projspawn = true;
 			}
@@ -651,7 +651,7 @@ public:
 
 	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * tGameInfo.fGameSpeed;		
+		const float dt = orig_dt * cClient->getGameLobby()->fGameSpeed;		
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
@@ -1082,7 +1082,7 @@ public:
 
 	void simulateBonus(CBonus* bonus) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * tGameInfo.fGameSpeed;		
+		const float dt = orig_dt * cClient->getGameLobby()->fGameSpeed;		
 
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
@@ -1161,7 +1161,7 @@ public:
 	}
 
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) {
-		if(!tGameInfo.bBonusesOn)
+		if(!cClient->getGameLobby()->bBonusesOn)
 			return;
 
 		if(!m_map) return;

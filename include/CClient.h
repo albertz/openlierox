@@ -345,8 +345,10 @@ private:
 
 	bool		bLobbyReady;
 	bool		bGameReady; // bGameReady says if the game (including cMap) has been initialized
+	bool		bHaveMap;
+	bool		bHaveMod;
 
-	game_lobby_t tGameLobby;
+	GameOptions::GameInfo tGameInfo;	// Also game lobby
 
 	bool		bBadConnection;
 	std::string	strBadConnectMsg;
@@ -523,7 +525,7 @@ public:
     CChatBox    *getChatbox(void)           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
-	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
+	GameOptions::GameInfo *getGameLobby(void)		{ return &tGameInfo; }
 
 	bool		getBadConnection(void)		{ return bBadConnection; }
 	std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
@@ -581,7 +583,7 @@ public:
 	bool isHostAllowingMouse()					{ return bHostAllowsMouse; }
 	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }
 
-	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
+	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tLX->iGameType == GME_LOCAL; }
 
 	int			getDlProgress()					{ return iDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
@@ -611,6 +613,13 @@ public:
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
 
 	std::string	debugName();
+	
+	bool		getHaveMap()			{ return bHaveMap; }
+	bool		getHaveMod()			{ return bHaveMod; }
+	void		setHaveMap( bool _b )	{ bHaveMap = _b; }
+	void		setHaveMod( bool _b )	{ bHaveMod = _b; }
+	int			getNumRemoteWorms();
+	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 
 };
 

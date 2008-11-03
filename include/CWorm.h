@@ -534,16 +534,7 @@ public:
 
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
-	Uint32		getGameColour(void)			{
-		switch(tGameInfo.iGameMode) {
-		case GMT_TEAMDEATH:
-		case GMT_VIP:
-		case GMT_TEAMCTF:
-			return tLX->clTeamColors[iTeam];
-		default:
-			return cSkin.getDefaultColor();
-		}
-	}
+	Uint32		getGameColour(void);
 	void		setColour(Uint32 c)			{ cSkin.Colorize(c); }
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) {cSkin.Colorize(MakeColour(r,g,b)); }
 

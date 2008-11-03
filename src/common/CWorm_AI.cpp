@@ -1294,7 +1294,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 // Returns true if we found one
 bool CWorm::AI_FindHealth()
 {
-	if (!tGameInfo.bBonusesOn)
+	if (!cClient->getGameLobby()->bBonusesOn)
 		return false;
 
     CBonus  *pcBonusList = cClient->getBonusList();
@@ -1747,7 +1747,7 @@ bool CWorm::AI_Shoot()
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM)) {
+	if(cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH && (nType & PX_WORM)) {
 		printf("we don't want shoot teammates\n");
 		return false;
 	}
@@ -1964,7 +1964,7 @@ bool CWorm::AI_Shoot()
 
 	// HINT: we don't need this, because we ensure above in the speed-calculation, that we have no problem
 	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
-	if(bAim) if (tGameInfo.iGameType == GME_JOIN)  {
+	if(bAim) if (tLX->iGameType == GME_JOIN)  {
 		// Get the angle
 		float ang = (float)atan2(vVelocity.x, vVelocity.y);
 		ang = RAD2DEG(ang);
@@ -2539,11 +2539,11 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP))  {
+	if (cClient && (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || cClient->getGameLobby()->iGameMode == GMT_VIP))  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w) {
-				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0 && tGameInfo.iGameMode == GMT_VIP)
+				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0 && cClient->getGameLobby()->iGameMode == GMT_VIP)
 					WormsPos[WormCount++] = w->getPos();
 				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
 					WormsPos[WormCount++] = w->getPos();

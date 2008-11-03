@@ -723,6 +723,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 		// Handle the Enter key
 		if (WasKeyboardEventHappening(SDLK_RETURN) || WasKeyboardEventHappening(SDLK_KP_ENTER))
+		{
 			if (type == LMB_YESNO)  {
 				ret = MBR_YES;
 				break;
@@ -731,7 +732,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 				ret = MBR_OK;
 				break;
 			}
-
+		}
 
 		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(VideoPostProcessor::videoSurface());
@@ -1065,10 +1066,10 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	// Disable sorting and add the random level at the beginning
 	cmb->setSorted(SORT_NONE);
-	if(random) // If random is true, we add the 'random' level to the list
-		cmb->addItem(0, "_random_", "- Random level -");
+	//if(random) // If random is true, we add the 'random' level to the list
+	//	cmb->addItem(0, "_random_", "- Random level -");
 
-	cmb->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
+	cmb->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
 }
 
 

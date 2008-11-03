@@ -28,6 +28,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 #include <list>
 #include <string>
+#include "Options.h"
 #include "CFont.h"
 #include "CVec.h"
 #include "Consts.h"
@@ -37,12 +38,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 class profile_t;
 class IpToCountryDB;
 
-/*
-#include "ProfileSystem.h"
-#include "IpToCountryDB.h"
-*/
-
-
 
 
 // Screenshot structure
@@ -51,6 +46,13 @@ class screenshot_t { public:
 	std::string	sData;
 };
 
+
+// Game types
+enum GameType_t {
+	GME_LOCAL=0,
+	GME_HOST,
+	GME_JOIN
+};
 
 // LieroX structure
 class lierox_t { public:
@@ -71,6 +73,8 @@ class lierox_t { public:
 	int		debug_int;
 	float	debug_float;
 	CVec	debug_pos;
+	
+	GameType_t iGameType;
 
 	// Default Colours
 	Uint32			clNormalLabel;
@@ -163,14 +167,6 @@ class lierox_t { public:
 };
 
 
-// Game types
-enum {
-	GME_LOCAL=0,
-	GME_HOST,
-	GME_JOIN
-};
-
-
 // Object structure (for maprandom_t)
 // HINT: DON'T change the variable types because they are saved directly to the file (CMap.cpp)
 class object_t { public:
@@ -180,8 +176,9 @@ class object_t { public:
 };
 
 
-
+/*
 // Random map data
+// TODO: Move in lierox_t if needed, actually random map layouts not used anymore, so it should be removed
 class maprandom_t { public:
 	maprandom_t()  { psObjects = NULL; bUsed = false; }
     bool        bUsed;
@@ -189,8 +186,9 @@ class maprandom_t { public:
     int         nNumObjects;
     object_t    *psObjects;
 };
+*/
 
-
+/*
 // TODO: merge this class with GameOptions::GameInfo (Options.h) and game_lobby_t (this file)
 // Game structure
 class game_t { public:
@@ -217,8 +215,8 @@ class game_t { public:
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
 };
-
-
+*/
+/*
 // TODO: merge this with game_t (this file) and GameOptions::GameInfo (Options.h)
 // TODO: move this somewhere else
 // Game lobby structure
@@ -241,11 +239,11 @@ class game_lobby_t { public:
 	bool	bForceRandomWeapons;
 	bool	bSameWeaponsAsHostWorm;
 };
-
+*/
 
 
 extern	lierox_t		*tLX;
-extern	game_t			tGameInfo;
+//extern	game_t			tGameInfo;
 extern  CInput			*cTakeScreenshot;
 extern  CInput			*cSwitchMode;
 extern  bool			bDisableSound;

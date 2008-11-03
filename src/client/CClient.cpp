@@ -57,10 +57,14 @@ void CClient::Clear(void)
 	}
 #endif
 
+	tGameInfo = tLXOptions->tGameInfo;
 	iNumWorms = 0;
 	int i;
 	for(i=0;i<MAX_PLAYERS;i++)
+	{
 		cLocalWorms[i] = NULL;
+		tProfiles[i] = NULL;
+	}
 	cRemoteWorms = NULL;
 	cProjectiles.clear();
 	cMap = NULL;
@@ -90,14 +94,13 @@ void CClient::Clear(void)
 
 	cChatbox.Clear();
 
-	bLobbyReady = false;
 	bGameReady = false;
 	bReadySent = false;
 	bGameOver = false;
 	bGameMenu = false;
     bViewportMgr = false;
-	tGameLobby.bSet = false;
-	tGameLobby.nMaxWorms = MAX_PLAYERS;
+	//tGameLobby.bSet = false;
+	//tGameLobby.nMaxWorms = MAX_PLAYERS;
 
 	bBadConnection = false;
 	bServerError = false;
@@ -146,6 +149,8 @@ void CClient::Clear(void)
 	bSpectate = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
+	bHaveMap = false;
+	bHaveMod = false;
 }
 
 
@@ -154,7 +159,6 @@ void CClient::Clear(void)
 void CClient::MinorClear(void)
 {
 	iNetStatus = NET_CONNECTED;
-	bLobbyReady = false;
 	bGameReady = false;
 	bReadySent = false;
 	bGameOver = false;
@@ -205,7 +209,7 @@ void CClient::MinorClear(void)
 	sSpectatorViewportMsg = "";
 }
 
-
+/*
 void CClient::ReinitLocalWorms() {
 	// Initialize the local worms
 	iNumWorms = tGameInfo.iNumPlayers;
@@ -215,7 +219,7 @@ void CClient::ReinitLocalWorms() {
 		tProfiles[i] = tGameInfo.cPlayers[i];
 	}
 }
-
+*/
 CClient::CClient() {
 	//printf("cl:Constructor\n");
 	cRemoteWorms = NULL;
@@ -310,15 +314,15 @@ int CClient::Initialize(void)
 	Shutdown();
 	Clear();
 
-	fLoadingTime = (float)tGameInfo.iLoadingTimes/100.0f;
+	fLoadingTime = (float)tGameInfo.iLoadingTime/100.0f;
 	iNetSpeed = tLXOptions->iNetworkSpeed;
 
 	// Local/host games use instant speed
-	if(tGameInfo.iGameType != GME_JOIN)
+	if(tLX->iGameType != GME_JOIN)
 		iNetSpeed = NST_LOCAL;
 
 
-	ReinitLocalWorms();
+	//ReinitLocalWorms();
 	
 	// Initialize the remote worms
 	cRemoteWorms = new CWorm[MAX_WORMS];
@@ -350,7 +354,7 @@ int CClient::Initialize(void)
 
 
 	// Open a new socket
-	if( tGameInfo.iGameType == GME_JOIN ) {
+	if( tLX->iGameType == GME_JOIN ) {
 		tSocket = OpenUnreliableSocket( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
 	}
 	if(!IsSocketStateValid(tSocket)) {	// If socket won't open that's not error - open another one on random port
@@ -599,9 +603,9 @@ void CClient::FinishMapDownloads()
 {
 	// Check that the file exists
 	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
-		if (tGameLobby.szMapFile == sMapDownloadName)  {
-			tGameLobby.bHaveMap = true;
-			tGameLobby.szDecodedMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
+		if (tGameInfo.sMapFile == sMapDownloadName)  {
+			bHaveMap = true;
+			tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
 		}
 
 		// If downloaded via HTTP, don't try UDP
@@ -706,9 +710,9 @@ void CClient::FinishModDownloads()
 	}
 
 	// Update the lobby
-	if (tGameLobby.szModDir == sModDownloadName)  {
+	if (tGameInfo.sModDir == sModDownloadName)  {
 		bDownloadingMod = false;
-		tGameLobby.bHaveMod = true;
+		bHaveMod = true;
 	}
 
 	// Load the mod if playing
@@ -845,7 +849,7 @@ void CClient::ProcessMapDownloads()
 			}
 		}
 		
-		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->szMapFile ) {
+		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->sMapFile ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}
@@ -1070,7 +1074,7 @@ void CClient::ReadPackets(void)
 	}
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
+	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tLX->iGameType == GME_JOIN) {
 		// Time out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
@@ -1401,7 +1405,7 @@ void CClient::Connecting(bool force)
 	// For local play/hosting: don't send the challenge more times
 	// On slower machines the loading can be pretty slow and take more than 3 seconds
 	// That doesn't mean that the packet is not delivered
-	if (tGameInfo.iGameType != GME_JOIN && iNumConnects > 0)
+	if (tLX->iGameType != GME_JOIN && iNumConnects > 0)
 		return;
 
 
@@ -1425,7 +1429,7 @@ void CClient::Connecting(bool force)
 
 	// Check that we have a port
 	if(GetNetAddrPort(cServerAddr) == 0)  {
-		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
+		if (tLX->iGameType == GME_JOIN) // Remote joining
 			SetNetAddrPort(cServerAddr, LX_PORT);  // Try the default port if no port specified
 		else // Host or local
 			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
@@ -1527,7 +1531,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	// Setup according to top and bottom interface bars
 	SmartPointer<SDL_Surface> topbar = NULL;
 	SmartPointer<SDL_Surface> bottombar = NULL;
-	if (tGameInfo.iGameType == GME_LOCAL)  {
+	if (tLX->iGameType == GME_LOCAL)  {
 		bottombar = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 		topbar = DeprecatedGUI::gfxGame.bmpGameLocalTopBar;
 	} else {
@@ -1537,7 +1541,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 
 	int top = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
-	if (!tLXOptions->tGameinfo.bTopBarVisible)
+	if (!tLXOptions->bTopBarVisible)
 		top = 0;
 
 	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
@@ -1649,7 +1653,7 @@ void CClient::GetLogData(std::string& data)
 	// Save the game info
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
 			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
-			"loading=\"" + itoa(tGameInfo.iLoadingTimes) + "\" " +
+			"loading=\"" + itoa(tGameInfo.iLoadingTime) + "\" " +
 			"gamespeed=\"" + ftoa(tGameInfo.fGameSpeed) + "\" " +
 			"lives=\"" + itoa(tGameInfo.iLives) + "\" " +
 			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " +
@@ -1786,7 +1790,7 @@ void CClient::Shutdown(void)
 	cProjectiles.clear();
 
 	// Map
-	if(tGameInfo.iGameType == GME_JOIN) {
+	if(tLX->iGameType == GME_JOIN) {
 		if(cMap && !bMapGrabbed) {
 			cMap->Shutdown();
 			delete cMap;
@@ -1993,4 +1997,15 @@ void CClient::SetupGameInputs()
 
 	InitializeSpectatorViewportKeys();
 
+}
+
+int CClient::getNumRemoteWorms()
+{
+	int ret = 0;
+	if( !cRemoteWorms )
+		return 0;
+	for(int i = 0; i < MAX_WORMS; i++ )
+		if( cRemoteWorms[i].isUsed() )
+			ret++;
+	return ret;
 }

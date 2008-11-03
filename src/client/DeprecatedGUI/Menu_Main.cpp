@@ -19,6 +19,7 @@
 #include "LieroX.h"
 
 #include "AuxLib.h"
+#include "FindFile.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

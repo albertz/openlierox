@@ -52,7 +52,7 @@ void CClient::Simulation(void)
 
 
 	// If we're in a menu & a local game, don't do simulation
-	if (tGameInfo.iGameType == GME_LOCAL)  {
+	if (tLX->iGameType == GME_LOCAL)  {
 		if( bGameOver || bGameMenu || bViewportMgr ) {
 
 			// Clear the input of the local worms
@@ -63,7 +63,7 @@ void CClient::Simulation(void)
     // We stop a few seconds after the actual game over
     if(bGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
         return;
-    if((bGameMenu || bViewportMgr) && tGameInfo.iGameType == GME_LOCAL)
+    if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
 
 
@@ -100,8 +100,8 @@ void CClient::Simulation(void)
 						continue;
 
 					if(w->CheckBonusCollision(b)) {
+						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
 
-						if (w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 							if( w->GiveBonus(b) ) {
 
 								// Pickup noise
@@ -318,7 +318,8 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		w->setAlreadyKilled(true);
 
 		// Kill me
-		if (me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
+
 			w->setAlive(false);
 			w->Kill();
             w->clearInput();
@@ -328,7 +329,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
-	if(tGameInfo.iGameType == GME_HOST && cServer) {
+	if(tLX->iGameType == GME_HOST && cServer) {
 		CWorm *sw = cServer->getWorms() + w->getID();
 		sw->setHealth(w->getHealth());
 	}
@@ -760,7 +761,7 @@ void CClient::CheckDemolitionsGame(void)
     // If the map has less then a 1/5th of the dirt it once had, the game is over
     // And the worm with the highest dirt count wins
 
-    if( iGameType != GMT_DEMOLITION || tGameInfo.iGameType != GME_LOCAL )
+    if( tGameInfo.iGameMode != GMT_DEMOLITION || tLX->iGameType != GME_LOCAL )
         return;
 
     // Add up all the worm's dirt counts
@@ -1129,7 +1130,7 @@ void CClient::clearHumanWormInputs() {
 // Process any chatter
 void CClient::processChatter(void)
 {
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		return;
 
     keyboard_t *kb = GetKeyboard();

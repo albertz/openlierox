@@ -114,7 +114,7 @@ public:
 		Objects = NULL;
 
 		bMiniMapDirty = true;
-        sRandomLayout.bUsed = false;
+        //sRandomLayout.bUsed = false;
 
 		FlagSpawnX = -1;
 		FlagSpawnY = -1;
@@ -165,7 +165,7 @@ private:
 	uchar		*GridFlags;
 	uchar		*AbsoluteGridFlags;
 
-    maprandom_t sRandomLayout;
+    //maprandom_t sRandomLayout;
 
 	bool		bMiniMapDirty;
 
@@ -225,8 +225,8 @@ public:
 	bool		LoadImageFormat(FILE *fp, bool ctf);	
 	void		Clear(void);
 
-    void		ApplyRandom(void);
-    void        ApplyRandomLayout(maprandom_t *psRandom);
+    //void		ApplyRandom(void);
+    //void        ApplyRandomLayout(maprandom_t *psRandom);
 
 	void		UpdateDrawImage(int x, int y, int w, int h);
 
@@ -328,7 +328,7 @@ public:
 
 	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
 
-    inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
+    //inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
 
 
 	inline uint			GetWidth(void) const	{ return Width; }

@@ -59,22 +59,7 @@ std::string OldLxCompatibleString(const std::string &Utf8String);
 GameServer::GameServer() {
 	Clear();
 	CScriptableVars::RegisterVars("GameServer")
-		( sWeaponRestFile, "WeaponRestrictionsFile" )
-		( sName, "ServerName" )
-		// TODO: this is incomplete
-		// TODO: Dunno if the following vars used, server seems to use tGameInfo struct instead - remove them then
-		/*
-		( iMaxWorms, "MaxPlayers" )
-		( iGameType, "GameType" )
-		( iLives, "Lives" )
-		( iMaxKills, "MaxKills" )
-		( fTimeLimit, "TimeLimit" )
-		( iTagLimit, "TagLimit" )
-		( iTagLimit, "TagLimit" )
-		( bBonusesOn, "BonusesOn" )
-		( bShowBonusName, "ShowBonusName" )
-		( iLoadingTimes, "LoadingTime" )
-		*/
+		( sWeaponRestFile, "WeaponRestrictionsFile" ) // Only for dedicated server
 		;
 }
 
@@ -106,7 +91,6 @@ void GameServer::Clear(void)
 		InvalidateSocketState(tNatTraverseSockets[i]);
 		fNatTraverseSocketsLastAccessTime[i] = -9999;
 	}
-	tGameLobby.bSet = false;
 	bServerRegistered = false;
 	fLastRegister = 0;
 	nPort = LX_PORT;
@@ -133,29 +117,27 @@ void GameServer::Clear(void)
 
 ///////////////////
 // Start a server
-int GameServer::StartServer(const std::string& name, int port, int maxplayers, bool regserver)
+int GameServer::StartServer()
 {
 	// Shutdown and clear any previous server settings
 	Shutdown();
 	Clear();
 
-	sName = name;
-	//iMaxWorms = maxplayers;
-	nPort = port;
+	nPort = tLXOptions->iNetworkPort;
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
 	bLocalClientConnected = false;
 
 	// Disable SSH for non-dedicated servers as it is cheaty
 	if (!bDedicated)
-		tLXOptions->bServerSideHealth = false;
+		tLXOptions->tGameInfo.bServerSideHealth = false;
 
 
 	// Open the socket
-	tSocket = OpenUnreliableSocket(port);
+	tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 	if(!IsSocketStateValid(tSocket)) {
 		if( cClient->RebindSocket() ) {	// If client has taken that socket free it
-			tSocket = OpenUnreliableSocket(port);
+			tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 			if(!IsSocketStateValid(tSocket)) {
 				SetError("Server Error: Could not open UDP socket");
 				return false;
@@ -170,7 +152,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		return false;
 	}
 
-	if(tGameInfo.iGameType == GME_HOST )
+	if(tLX->iGameType == GME_HOST )
 	{
 		for( int f=0; f<MAX_CLIENTS; f++ )
 		{
@@ -283,8 +265,8 @@ bool GameServer::serverChoosesWeapons() {
 	// - bSameWeaponsAsHostWorm
 	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
 	return
-		tLXOptions->tGameinfo.bForceRandomWeapons ||
-		(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm	
+		tLXOptions->tGameInfo.bForceRandomWeapons ||
+		(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // makes only sense if we have at least one worm	
 }
 
 ///////////////////
@@ -299,9 +281,9 @@ int GameServer::StartGame()
 
 	
 	// Check that gamespeed != 0
-	if (-0.05f <= tGameInfo.fGameSpeed && tGameInfo.fGameSpeed <= 0.05f) {
-		cout << "WARNING: gamespeed was set to " << tGameInfo.fGameSpeed << "; resetting it to 1" << endl;
-		tLXOptions->tGameinfo.fGameSpeed = tGameInfo.fGameSpeed = 1;
+	if (-0.05f <= tLXOptions->tGameInfo.fGameSpeed && tLXOptions->tGameInfo.fGameSpeed <= 0.05f) {
+		cout << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.fGameSpeed << "; resetting it to 1" << endl;
+		tLXOptions->tGameInfo.fGameSpeed = 1;
 	}
 	
 		
@@ -311,20 +293,7 @@ int GameServer::StartGame()
 	CBytestream bs;
 	float timer;
 	
-	/*
-	iLives =		 tGameInfo.iLives;
-	iGameType =		 tGameInfo.iGameMode;
-	iMaxKills =		 tGameInfo.iKillLimit;
-	fTimeLimit =	 tGameInfo.fTimeLimit;
-	iTagLimit =		 tGameInfo.iTagLimit;
-	sModName =		 tGameInfo.sModName;
-	iLoadingTimes =	 tGameInfo.iLoadingTimes;
-	bBonusesOn =	 tGameInfo.bBonusesOn;
-	bShowBonusName = tGameInfo.bShowBonusName;
-	*/
-	
-
-	printf("GameServer::StartGame() mod %s\n", tGameInfo.sModName.c_str());
+	printf("GameServer::StartGame() mod %s\n", tLXOptions->tGameInfo.sModName.c_str());
 
 	// Check
 	if (!cWorms) { printf("ERROR: StartGame(): Worms not initialized\n"); return false; }
@@ -362,6 +331,7 @@ int GameServer::StartGame()
 	
 	
 	bRandomMap = false;
+	/*
 	if(stringcasecmp(tGameInfo.sMapFile,"_random_") == 0)
 		bRandomMap = true;
 
@@ -376,28 +346,27 @@ int GameServer::StartGame()
         tGameInfo.sMapRandom.bUsed = false;
 
 	} else {
-
+	*/
 		timer = SDL_GetTicks()/1000.0f;
-		string sMapFilename = "levels/" + tGameInfo.sMapFile;
+		string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
 		}
 		printf("Map loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
-	}
 
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
-	cGameScript = cCache.GetMod( tGameInfo.sModDir );
+	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
 	if( cGameScript.get() == NULL )
 	{
 		cGameScript = new CGameScript();
-		int result = cGameScript.get()->Load( tGameInfo.sModDir );
-		cCache.SaveMod( tGameInfo.sModDir, cGameScript );
+		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
+		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
-		printf("Error: Could not load the '%s' game script\n", tGameInfo.sModDir.c_str());
+		printf("Error: Could not load the '%s' game script\n", tLXOptions->tGameInfo.sModDir.c_str());
 		return false;
 		};
 	}
@@ -408,7 +377,7 @@ int GameServer::StartGame()
     cWeaponRestrictions.updateList(cGameScript.get());
 
 	// Setup the flags
-	int flags = (tGameInfo.iGameMode == GMT_CTF) + (tGameInfo.iGameMode == GMT_TEAMCTF)*2; // TODO: uh?
+	int flags = (tLXOptions->tGameInfo.iGameMode == GMT_CTF) + (tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF)*2; // TODO: uh?
 	CBytestream bytestr;
 	bytestr.Clear();
 
@@ -436,11 +405,11 @@ int GameServer::StartGame()
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives(tGameInfo.iLives);
+			cWorms[i].setLives(tLXOptions->tGameInfo.iLives);
             cWorms[i].setKills(0);
 			cWorms[i].setGameScript(cGameScript.get());
             cWorms[i].setWpnRest(&cWeaponRestrictions);
-			cWorms[i].setLoadingTime( (float)tGameInfo.iLoadingTimes / 100.0f );
+			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setKillsInRow(0);
 			cWorms[i].setDeathsInRow(0);
 		}
@@ -469,8 +438,8 @@ int GameServer::StartGame()
 
     // If this is the host, and we have a team game: Send all the worm info back so the worms know what
     // teams they are on
-    if( tGameInfo.iGameType == GME_HOST ) {
-        if( tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP ) {
+    if( tLX->iGameType == GME_HOST ) {
+        if( tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP ) {
 
             CWorm *w = cWorms;
             CBytestream b;
@@ -513,12 +482,12 @@ int GameServer::StartGame()
 
 
 	// initial server side weapon handling
-	if(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+	if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
 		// we do the clone right after we selected the weapons for this worm
 		// we cannot do anything here at this time
 		// bForceRandomWeapons is handled from the client code
 	}
-	else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+	else if(tLXOptions->tGameInfo.bForceRandomWeapons) {
 		for(int i=0;i<MAX_WORMS;i++) {
 			if(!cWorms[i].isUsed())
 				continue;
@@ -603,7 +572,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					
 			if(cl->getWorm(i)->getAlive()) {
 				SpawnWorm( cl->getWorm(i) );
-				if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 					SendEmptyWeaponsOnRespawn( cl->getWorm(i) );
 			}
 		}
@@ -611,7 +580,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	if(firstStart) {
 		// If this is a game of tag, find a random worm to make 'it'
-		if(tGameInfo.iGameMode == GMT_TAG)
+		if(tLXOptions->tGameInfo.iGameMode == GMT_TAG)
 			TagRandomWorm();
 	}
 	
@@ -624,7 +593,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		for(int i=0;i<MAX_WORMS;i++) {
 			if( cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT )
 				SpawnWorm( & cWorms[i] );
-				if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 					SendEmptyWeaponsOnRespawn( & cWorms[i] );
 		}
 	}
@@ -700,8 +669,8 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 		
-		if( tGameInfo.iGameMode == GMT_DEATHMATCH || tGameInfo.iGameMode == GMT_CTF || 
-			tGameInfo.iGameMode == GMT_TAG || tGameInfo.iGameMode == GMT_DEMOLITION )
+		if( tLXOptions->tGameInfo.iGameMode == GMT_DEATHMATCH || tLXOptions->tGameInfo.iGameMode == GMT_CTF || 
+			tLXOptions->tGameInfo.iGameMode == GMT_TAG || tLXOptions->tGameInfo.iGameMode == GMT_DEMOLITION )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
@@ -729,7 +698,7 @@ void GameServer::Frame(void)
 	}
 
 	// Process any http requests (register, deregister)
-	if( tLXOptions->tGameinfo.bRegServer && !bServerRegistered )
+	if( tLXOptions->bRegServer && !bServerRegistered )
 		ProcessRegister();
 
 
@@ -890,7 +859,7 @@ void GameServer::RegisterServer(void)
 // Process the registering of the server
 void GameServer::ProcessRegister(void)
 {
-	if(!tLXOptions->tGameinfo.bRegServer || bServerRegistered || tMasterServers.size() == 0)
+	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0)
 		return;
 
 	int result = tHttp.ProcessRequest();
@@ -928,7 +897,7 @@ void GameServer::ProcessRegister(void)
 void GameServer::RegisterServerUdp(void)
 {
 	// Don't register a local play
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		return;
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
@@ -958,9 +927,9 @@ void GameServer::RegisterServerUdp(void)
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::register");
-		bs.writeString(OldLxCompatibleString(sName));
+		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 		bs.writeByte(iNumPlayers);
-		bs.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
+		bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
 		bs.writeByte(iState);
 		// Beta8+
 		bs.writeString(GetGameVersion().asString());
@@ -1013,7 +982,7 @@ void GameServer::DeRegisterServerUdp(void)
 void GameServer::CheckRegister(void)
 {
 	// If we don't want to register, just leave
-	if(!tLXOptions->tGameinfo.bRegServer)
+	if(!tLXOptions->bRegServer)
 		return;
 
 	// If we registered over n seconds ago, register again
@@ -1037,7 +1006,7 @@ void GameServer::CheckRegister(void)
 bool GameServer::DeRegisterServer(void)
 {
 	// If we aren't registered, or we didn't try to register, just leave
-	if( !tLXOptions->tGameinfo.bRegServer || !bServerRegistered || tMasterServers.size() == 0)
+	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0)
 		return false;
 
 	// Create the url
@@ -1123,24 +1092,24 @@ void GameServer::CheckTimeouts(void)
 
 void GameServer::CheckWeaponSelectionTime()
 {
-	if( iState != SVS_GAME || tGameInfo.iGameType != GME_HOST )
+	if( iState != SVS_GAME || tLX->iGameType != GME_HOST )
 		return;
 
 	// Issue some sort of warning to clients
-	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 &&
+	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 &&
 		iWeaponSelectionTime_Warning < 2 )
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
 	};
-	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 &&
+	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 &&
 		iWeaponSelectionTime_Warning == 0 )
 	{
 		iWeaponSelectionTime_Warning = 1;
 		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
 	};
 	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->fCurTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
-	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->iWeaponSelectionMaxTime )
+	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->tGameInfo.iWeaponSelectionMaxTime )
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
 		CServerConnection *cl = cClients;
@@ -1307,7 +1276,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 
 
 bool GameServer::serverAllowsConnectDuringGame() {
-	return tLXOptions->tGameinfo.bAllowConnectDuringGame;
+	return tLXOptions->tGameInfo.bAllowConnectDuringGame;
 }
 
 void GameServer::checkVersionCompatibilities(bool dropOut) {
@@ -1327,8 +1296,8 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 }
 
 bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg) {
-	if(tGameInfo.fGameSpeed != 1.0f) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tGameInfo.fGameSpeed) + " is used", dropOut, makeMsg))
+	if(tLXOptions->tGameInfo.fGameSpeed != 1.0f) {
+		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tLXOptions->tGameInfo.fGameSpeed) + " is used", dropOut, makeMsg))
 			return false;		
 	}
 	
@@ -1392,7 +1361,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 
 			// Update the number of players on server/client
 			iNumPlayers--;
-			tGameInfo.iNumPlayers--;
 			if (w->getClient())
 				w->getClient()->RemoveWorm(w->getID());
 
@@ -1502,7 +1470,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 
 			// Update the number of players on server/client
 			iNumPlayers--;
-			tGameInfo.iNumPlayers--;
+			//tGameInfo.iNumPlayers--;
 			cl->RemoveWorm(w->getID());
 
 			// Tell everyone that the client's worms have left both through the net & text

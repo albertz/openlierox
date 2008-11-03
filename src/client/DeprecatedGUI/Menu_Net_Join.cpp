@@ -130,29 +130,16 @@ enum {
 bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 {
 	iJoinMenu = join_connecting;
-	tGameInfo.iGameType = GME_JOIN;
+	tLX->iGameType = GME_JOIN;
 	sJoinAddress = sAddress;
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 
 	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	cm_Cancel, 	25, 440, 75,15);
 
-	if(!cClient->Initialize()) {
-		// Error
-
-		// Go back to the network menu
-		Menu_Net_MainInitialize();
-		cConnecting.Shutdown();
-		return false;
-	}
-
-	game_lobby_t *gl = cClient->getGameLobby();
-	gl->bSet = false;
-
 	cClient->Connect(sJoinAddress);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
-
 
 	return true;
 }
@@ -459,7 +446,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		// Leave the frontend
 		*bGame = true;
 		tMenu->bMenuRunning = false;
-		tGameInfo.iGameType = GME_JOIN;
+		tLX->iGameType = GME_JOIN;
 
 		// Save the chat text
 		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
@@ -500,8 +487,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 
-	game_lobby_t *gl = cClient->getGameLobby();
-
 	// Draw the connected players
 	if (bJoin_Update)  {
 		CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
@@ -524,7 +509,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Reload the worm graphics
 			w->setTeam(lobby_worm->iTeam);
-			w->ChangeGraphics(gl->nGameMode);
+			w->ChangeGraphics(cClient->getGameLobby()->iGameMode);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
@@ -536,7 +521,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
 
 			// Display the team mark if TDM
-			if (gl->nGameMode == GMT_TEAMDEATH)  {
+			if (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH)  {
 				team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 				if (!team_img)
 					continue;
@@ -544,8 +529,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				team_img->setRedrawMenu(false);
 
 				player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
-
-				gl->nLastGameMode = gl->nGameMode;
 			}
 		}
 
@@ -555,7 +538,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Draw the game info
-	if(gl->bSet) {
+	if(true) {	//if(GameLobby->bSet) {
 		CFont *f = &tLX->cFont;
         int x = 360;
         int x2 = x+105;
@@ -570,20 +553,20 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Server version:");
 		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getServerVersion().asString()); y += lineheight;
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Level:");
-        if(gl->bHaveMap)  {
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gl->szDecodedMapName);
+        if(cClient->getHaveMap())  {
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getGameLobby()->sMapName);
 		} else {  // Don't have the map
 			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapFile);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, cClient->getGameLobby()->sMapFile);
 			} else { // Not downloading
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, gl->szMapFile);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, cClient->getGameLobby()->sMapFile);
 				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
 				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)
-						cClient->DownloadMap(gl->szMapFile); // Download the map
+						cClient->DownloadMap(cClient->getGameLobby()->sMapFile); // Download the map
 				} else {
 					SetGameCursor(CURSOR_ARROW);
 				}
@@ -591,22 +574,22 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		}
 		y += lineheight;
 		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Game Mode:");
-		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gamemodes[gl->nGameMode]); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gamemodes[cClient->getGameLobby()->iGameMode]); y += lineheight;
         f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel,  "Mod:");
-        if(gl->bHaveMod) {
-            f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel,  gl->szModName);
+        if(cClient->getHaveMod()) {
+            f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel,  cClient->getGameLobby()->sModName);
 		} else {
 			if (cClient->getDownloadingMod())
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, cClient->getGameLobby()->sModName);
 			else {
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, gl->szModName);
+				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, cClient->getGameLobby()->sModName);
 				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(gl->szModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
 
 				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
 					SetGameCursor(CURSOR_HAND);
 					if (GetMouse()->Up)  {
-						cClient->DownloadMod(cClient->getGameLobby()->szModDir);
+						cClient->DownloadMod(cClient->getGameLobby()->sModDir);
 					}
 				} else {
 					SetGameCursor(CURSOR_ARROW);
@@ -616,20 +599,20 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		y += lineheight;
 		
 		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Lives:");
-		if(gl->nLives >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(gl->nLives));
+		if(cClient->getGameLobby()->iLives >= 0)
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iLives));
 		y += lineheight;
 		
 		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Max Kills:");
-		if(gl->nMaxKills >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(gl->nMaxKills));
+		if(cClient->getGameLobby()->iKillLimit >= 0)
+			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iKillLimit));
 		y += lineheight;
 		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Loading time:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%"); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iLoadingTime) + "%"); y += lineheight;
 		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Game speed:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(gl->fGameSpeed)); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(cClient->getGameLobby()->fGameSpeed)); y += lineheight;
         f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off"); y += lineheight;
+        f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, cClient->getGameLobby()->bBonusesOn ? "On" : "Off"); y += lineheight;
 	}
 
 	{

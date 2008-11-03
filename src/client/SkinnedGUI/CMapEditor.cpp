@@ -185,7 +185,7 @@ void CMapEditor::New(int width, int height, const std::string &theme)
 // Put some random holes, stones and misc
 void CMapEditor::Random()
 {
-	cMap->ApplyRandom();
+	//cMap->ApplyRandom();
 	Repaint();
 }
 

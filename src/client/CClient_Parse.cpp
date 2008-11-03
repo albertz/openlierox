@@ -219,6 +219,8 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setTagTime(0);
 	}
 
+	if( client->iNumWorms <= 0 )
+		printf("Error %s:%i: client->iNumWorms = %i should be 1 or 2\n", __FILE__, __LINE__, client->iNumWorms );
 	// Get the id's
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
@@ -573,7 +575,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// Clear any previous instances of the map
-	if(tGameInfo.iGameType == GME_JOIN) {
+	if(tLX->iGameType == GME_JOIN) {
 		if(client->cMap) {
 			client->cMap->Shutdown();
 			delete client->cMap;
@@ -586,7 +588,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     //bs->Dump();
 
 
-	if(tGameInfo.iGameType == GME_JOIN) {
+	if(tLX->iGameType == GME_JOIN) {
 		client->cMap = new CMap;
 		if(client->cMap == NULL) {
 
@@ -603,13 +605,13 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-
+	/*
 	if(random) {
 		// Just create a random map
 
 		// If we're remotely joining a server, we need to load the map
 		// Note: This shouldn't happen, coz network games can't use random maps
-		if(tGameInfo.iGameType == GME_JOIN) {
+		if(tLX->iGameType == GME_JOIN) {
 			if(!client->cMap->New(504,350,"dirt",client->tInterfaceSettings.MiniMapW,client->tInterfaceSettings.MiniMapH)) {
 				client->Disconnect();
 				client->bGameReady = false;
@@ -632,7 +634,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 
 	} else {
-
+	*/
+	{
 		// Load the map from a file
 
 		// Invalid packet
@@ -642,7 +645,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			return false;
 		}
 
-		if(tGameInfo.iGameType == GME_JOIN) {
+		if(tLX->iGameType == GME_JOIN) {
 
 			// If we are downloading a map, wait until it finishes
 			if (!client->bDownloadingMap)  {
@@ -653,7 +656,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					// Show a cannot load level error message
 					// If this is a host/local game, something is pretty wrong but if we display the message, things could
 					// go even worse
-					if (tGameInfo.iGameType == GME_JOIN)  {
+					if (tLX->iGameType == GME_JOIN)  {
 						FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 
 						DeprecatedGUI::Menu_MessageBox(
@@ -708,7 +711,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			if(result != GSE_OK) {
 
 				// Show any error messages
-				if (tGameInfo.iGameType == GME_JOIN)  {
+				if (tLX->iGameType == GME_JOIN)  {
 					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 					std::string err("Error load game mod: ");
 					err += client->sModName + "\r\nError code: " + itoa(result);
@@ -732,7 +735,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
-	tGameInfo.fGameSpeed = 1.0f;
+	client->tGameInfo.fGameSpeed = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
@@ -742,14 +745,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->InitializeIngameScore(true);
 
 	// Copy the chat text from lobby to ingame chatbox
-	switch (tGameInfo.iGameType)  {
-	case GME_HOST:
+	if( tLX->iGameType == GME_HOST )
 		client->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
-		break;
-	case GME_JOIN:
+	else if( tLX->iGameType == GME_JOIN )
 		client->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
-		break;
-	}
 
 	if (!client->sChat_Text.empty())  {
 		client->bChat_Typing = true;
@@ -832,7 +831,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 		return false;
 
 	// >=Beta7 is sending this
-	tGameInfo.fGameSpeed = bs->readFloat();
+	client->tGameInfo.fGameSpeed = bs->readFloat();
 	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
@@ -1048,7 +1047,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	std::string buf = bs->readString();
 
 	// If we are playing a local game, discard network messages
-	if(tGameInfo.iGameType == GME_LOCAL) {
+	if(tLX->iGameType == GME_LOCAL) {
 		if(type == TXT_NETWORK)
 			return;
 		if(type != TXT_CHAT)
@@ -1109,9 +1108,9 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 static std::string getChatText(CClient* client) {
 	if(client->getStatus() == NET_PLAYING)
 		return client->chatterText();
-	else if(tGameInfo.iGameType == GME_HOST)
+	else if(tLX->iGameType == GME_HOST)
 		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
-	else if(tGameInfo.iGameType == GME_JOIN)
+	else if(tLX->iGameType == GME_JOIN)
 		return DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 
 	cout << "WARNING: getChatText(): cannot find chat source" << endl;
@@ -1122,9 +1121,9 @@ static void setChatText(CClient* client, const std::string& txt) {
 	if(client->getStatus() == NET_PLAYING) {
 		client->chatterText() = txt;
 		client->setChatPos( Utf8StringSize(txt) );
-	} else if(tGameInfo.iGameType == GME_HOST) {
+	} else if(tLX->iGameType == GME_HOST) {
 		DeprecatedGUI::Menu_Net_HostLobbySetText( txt );
-	} else if(tGameInfo.iGameType == GME_JOIN) {
+	} else if(tLX->iGameType == GME_JOIN) {
 		DeprecatedGUI::Menu_Net_JoinLobbySetText( txt );
 	} else
 		cout << "WARNING: setChatText(): cannot find chat source" << endl;
@@ -1259,11 +1258,11 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
-	if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+	if (client->tGameInfo.iGameMode == GMT_TEAMDEATH)  {
 
-		if (tGameInfo.iKillLimit != -1)  {
+		if (client->tGameInfo.iKillLimit != -1)  {
 			client->iMatchWinner = client->cRemoteWorms[client->iMatchWinner].getTeam();
-		} else if (tGameInfo.iLives != -2)  {
+		} else if (client->tGameInfo.iLives != -2)  {
 			for (int i=0; i < MAX_WORMS; i++)  {
 				if (client->cRemoteWorms[i].getLives() >= 0)  {
 					client->iMatchWinner = client->cRemoteWorms[i].getTeam();
@@ -1274,7 +1273,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 
 	// Older servers send wrong info about tag winner, better if we count it ourself
-	if (tGameInfo.iGameMode == GMT_TAG)  {
+	if (client->tGameInfo.iGameMode == GMT_TAG)  {
 		float max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
@@ -1371,7 +1370,7 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 		return;
 	}
 
-	if (tGameInfo.iGameMode != GMT_TAG)  {
+	if (client->tGameInfo.iGameMode != GMT_TAG)  {
 		printf("CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring\n");
 		return;
 	}
@@ -1405,7 +1404,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 
-	if((numworms < 0 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
+	if((numworms < 0 || numworms > MAX_PLAYERS) && tLX->iGameType != GME_LOCAL) {
 		// bad packet
 		printf("CClientNetEngine::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
 		// Skip to get the right position
@@ -1638,64 +1637,45 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 	}
 
-	game_lobby_t    *gl = &client->tGameLobby;
     FILE            *fp = NULL;
 
-	if (!gl)  {
-		//TODO: uniform message system
-		//MessageBox(0,"Could not find lobby","Error",MB_OK);
-		printf("CClientNetEngine::ParseUpdateLobbyGame: Could not find lobby\n");
-		return;
-	}
+	client->tGameInfo.iMaxPlayers = bs->readByte();
+	client->tGameInfo.sMapFile = bs->readString();
+    client->tGameInfo.sModName = bs->readString();
+    client->tGameInfo.sModDir = bs->readString();
+	client->tGameInfo.iGameMode = bs->readByte();
+	client->tGameInfo.iLives = bs->readInt16();
+	client->tGameInfo.iKillLimit = bs->readInt16();
+	client->tGameInfo.iLoadingTime = bs->readInt16();
+    client->tGameInfo.bBonusesOn = bs->readBool();
 
-	gl->bSet = true;
-	gl->nMaxWorms = bs->readByte();
-	gl->szMapFile = bs->readString();
-    gl->szModName = bs->readString();
-    gl->szModDir = bs->readString();
-	gl->nGameMode = bs->readByte();
-	gl->nLives = bs->readInt16();
-	gl->nMaxKills = bs->readInt16();
-	gl->nLoadingTime = bs->readInt16();
-    gl->bBonuses = bs->readBool();
-
-	gl->fGameSpeed = 1.0f;
-	gl->bForceRandomWeapons = false;
-	gl->bSameWeaponsAsHostWorm = false;
+	client->tGameInfo.fGameSpeed = 1.0f;
+	client->tGameInfo.bForceRandomWeapons = false;
+	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
     // Check if we have the level & mod
-    gl->bHaveMap = true;
-    gl->bHaveMod = true;
+    client->bHaveMap = true;
+    client->bHaveMod = true;
 
     // Does the level file exist
-    fp = OpenGameFile("levels/" + gl->szMapFile,"rb");
+    fp = OpenGameFile("levels/" + client->tGameInfo.sMapFile,"rb");
     if(!fp)
-        gl->bHaveMap = false;
+        client->bHaveMap = false;
     else
         fclose(fp);
 
 	// Convert the map filename to map name
-	if (gl->bHaveMap)  {
-		std::string MapName = DeprecatedGUI::Menu_GetLevelName(gl->szMapFile);
-		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapFile;
+	if (client->bHaveMap)  {
+		std::string MapName = DeprecatedGUI::Menu_GetLevelName(client->tGameInfo.sMapFile);
+		client->tGameInfo.sMapName = (MapName != "") ? MapName : client->tGameInfo.sMapFile;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
-    fp = OpenGameFile(gl->szModDir + "/script.lgs", "rb");
+    fp = OpenGameFile(client->tGameInfo.sModDir + "/script.lgs", "rb");
     if(!fp)
-        gl->bHaveMod = false;
+        client->bHaveMod = false;
     else
         fclose(fp);
-
-	tGameInfo.sMapFile = gl->szMapFile;
-	tGameInfo.sMapName = gl->szDecodedMapName;
-	tGameInfo.sModName = gl->szModName;
-	tGameInfo.sModDir = gl->szModDir;
-	tGameInfo.bBonusesOn = gl->bBonuses;
-	tGameInfo.iGameMode = gl->nGameMode;
-	tGameInfo.iKillLimit = gl->nMaxKills;
-	tGameInfo.iLives = gl->nLives;
-	tGameInfo.iLoadingTimes = gl->nLoadingTime;
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
@@ -1705,13 +1685,9 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngine::ParseUpdateLobbyGame(bs);
 
-	game_lobby_t    *gl = &client->tGameLobby;
-
-	gl->fGameSpeed = bs->readFloat();
-	gl->bForceRandomWeapons = bs->readBool();
-	gl->bSameWeaponsAsHostWorm = bs->readBool();
-
-	tGameInfo.fGameSpeed = gl->fGameSpeed;
+	client->tGameInfo.fGameSpeed = bs->readFloat();
+	client->tGameInfo.bForceRandomWeapons = bs->readBool();
+	client->tGameInfo.bSameWeaponsAsHostWorm = bs->readBool();
 };
 
 ///////////////////
@@ -1796,7 +1772,7 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 {
 	// Set the server error details
 
-	if (tGameInfo.iGameType != GME_JOIN)  {
+	if (tLX->iGameType != GME_JOIN)  {
 		printf("WARNING: got local server leaving packet, ignoring...\n");
 		return;
 	}
@@ -1909,7 +1885,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
 	printf("Client: received gotoLobby signal\n");
 
-	if (tGameInfo.iGameType != GME_JOIN)  {
+	if (tLX->iGameType != GME_JOIN)  {
 		if (!tLX->bQuitEngine)  {
 			printf("WARNING: we should go to lobby but should not quit the game, ignoring game over signal\n");
 			return;
@@ -1928,7 +1904,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	DeprecatedGUI::Menu_FloatingOptionsShutdown();
 
 
-	if(tGameInfo.iGameType == GME_JOIN) {
+	if(tLX->iGameType == GME_JOIN) {
 
 		// Tell server my worms aren't ready
 		CBytestream bs;
@@ -1954,7 +1930,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
     // Set the server error details
 
 	// Ignore if we are hosting/local, it's a nonsense
-	if (tGameInfo.iGameType != GME_JOIN)  {
+	if (tLX->iGameType != GME_JOIN)  {
 		printf("WARNING: got dropped from local server, ignoring\n");
 		return;
 	}
@@ -2004,7 +1980,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			fclose(ff);
 
 			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
-					IsFileAvailable( "levels/" + client->tGameLobby.szMapFile ) )
+					IsFileAvailable( "levels/" + client->tGameInfo.sMapFile ) )
 			{
 				client->bDownloadingMap = false;
 				client->bWaitingForMap = false;
@@ -2020,9 +1996,9 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
 			};
-			if( ! client->tGameLobby.bHaveMod &&
-				client->getUdpFileDownloader()->getFilename().find( client->tGameLobby.szModDir ) == 0 &&
-				IsFileAvailable(client->tGameLobby.szModDir + "/script.lgs", false) )
+			if( ! client->bHaveMod &&
+				client->getUdpFileDownloader()->getFilename().find( client->tGameInfo.sModDir ) == 0 &&
+				IsFileAvailable(client->tGameInfo.sModDir + "/script.lgs", false) )
 			{
 				client->bDownloadingMod = false;
 				client->bWaitingForMod = false;
@@ -2040,14 +2016,14 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 		else
 		if( client->getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
 			client->getUdpFileDownloader()->getFileInfo().size() > 0 &&
-			! client->tGameLobby.bHaveMod &&
+			! client->bHaveMod &&
 			client->getUdpFileDownloader()->isFinished() )
 		{
 			// Got filenames list of mod dir - push "script.lgs" to the end of list to download all other data before
 			uint f;
 			for( f=0; f<client->getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameLobby.szModDir ) == 0 &&
+				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameInfo.sModDir ) == 0 &&
 					! IsFileAvailable( client->getUdpFileDownloader()->getFileInfo()[f].filename ) &&
 					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
 				{
@@ -2058,7 +2034,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			};
 			for( f=0; f<client->getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameLobby.szModDir ) == 0 &&
+				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameInfo.sModDir ) == 0 &&
 					! IsFileAvailable( client->getUdpFileDownloader()->getFileInfo()[f].filename ) &&
 					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 				{

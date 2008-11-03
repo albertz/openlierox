@@ -90,7 +90,7 @@ bool CClient::InitializeDrawing(void)
 
 	// Local and network have different layouts and sections in the config file
 	std::string section = "";
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		section = "LocalGameInterface";
 	else
 		section = "NetworkGameInterface";
@@ -116,7 +116,7 @@ bool CClient::InitializeDrawing(void)
 	ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardY",&tInterfaceSettings.ScoreboardY, 180);
 
 
-	if (tGameInfo.iGameType == GME_LOCAL)  {  // Local play can handle two players, it means all the top boxes twice
+	if (tLX->iGameType == GME_LOCAL)  {  // Local play can handle two players, it means all the top boxes twice
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapX",&tInterfaceSettings.MiniMapX, 255);
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapY",&tInterfaceSettings.MiniMapY, 382);
 		ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardTwoPlayersX",&tInterfaceSettings.ScoreboardOtherPosX, 200);
@@ -210,7 +210,7 @@ bool CClient::InitializeDrawing(void)
 	}
 
 	// Setup the loading boxes
-	int NumBars = tGameInfo.iGameType == GME_LOCAL ? 4 : 2;
+	int NumBars = tLX->iGameType == GME_LOCAL ? 4 : 2;
 	for (byte i=0; i<NumBars; i++)
 		if (!InitializeBar(i))
 			return false;
@@ -238,7 +238,7 @@ bool CClient::InitializeDrawing(void)
 // Get the bottom border of the top bar
 int CClient::getTopBarBottom()
 {
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		return DeprecatedGUI::gfxGame.bmpGameLocalTopBar.get() ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar.get()->h : tLX->cFont.GetHeight();
 	else
 		return DeprecatedGUI::gfxGame.bmpGameNetTopBar.get() ? DeprecatedGUI::gfxGame.bmpGameNetTopBar.get()->h : tLX->cFont.GetHeight();
@@ -248,7 +248,7 @@ int CClient::getTopBarBottom()
 // Get the top border of the bottom bar
 int CClient::getBottomBarTop()
 {
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		return DeprecatedGUI::gfxGame.bmpGameLocalBackground.get() ? 480 - DeprecatedGUI::gfxGame.bmpGameLocalBackground.get()->h : 382;
 	else
 		return DeprecatedGUI::gfxGame.bmpGameNetBackground.get() ? 480 - DeprecatedGUI::gfxGame.bmpGameNetBackground.get()->h : 382;
@@ -330,7 +330,7 @@ bool CClient::InitializeBar(int number)  {
 
 	// Local and network have different layouts and sections in the config file
 	std::string section = "";
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tLX->iGameType == GME_LOCAL)
 		section = "LocalGameInterface";
 	else
 		section = "NetworkGameInterface";
@@ -429,17 +429,17 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(!bDedicated) {
 		// Local and network use different background images
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
-		if (tGameInfo.iGameType == GME_LOCAL)
+		if (tLX->iGameType == GME_LOCAL)
 			bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 
 		// TODO: allow more viewports
 		// Draw the borders
 		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 			// Fill the viewport area with black
-			DrawRectFill(bmpDest, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0,
+			DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
 				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
-			if (tGameInfo.iGameType == GME_LOCAL)  {
+			if (tLX->iGameType == GME_LOCAL)  {
 				if (bgImage.get())  // Doesn't have to exist (backward compatibility)
 					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, 640, bgImage.get()->h);
 				else
@@ -468,8 +468,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
 		// Top bar
-		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
-			SmartPointer<SDL_Surface> top_bar = tGameInfo.iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
+		if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
+			SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 			if (top_bar.get())
 				DrawImage( bmpDest, top_bar, 0, 0);
 			else
@@ -567,13 +567,13 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
 
 		// Draw the chatbox for either a local game, or remote game
-		if(tGameInfo.iGameType == GME_LOCAL)
+		if(tLX->iGameType == GME_LOCAL)
 			DrawLocalChat(bmpDest);
 		else
 			DrawRemoteChat(bmpDest);
 
 		// FPS
-		if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
+		if(tLXOptions->bShowFPS && tLXOptions->bTopBarVisible) {
 			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
 			tLX->cFont.Draw( // Draw the text
 						bmpDest,
@@ -585,7 +585,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		// Ping on the top right
-		if(tLXOptions->bShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
+		if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN && tLXOptions->bTopBarVisible)  {
 
 			// Draw the box around it
 			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
@@ -608,16 +608,16 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			float down = 0;
 
 			// Get the rates
-			switch (tGameInfo.iGameType)  {
-			case GME_JOIN:
+			if( tLX->iGameType == GME_JOIN )
+			{
 				down = cClient->getChannel()->getIncomingRate() / 1024.0f;
 				up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
-				break;
-			case GME_HOST:
+			}
+			else if( tLX->iGameType == GME_HOST )
+			{
 				down = cServer->GetDownload() / 1024.0f;
 				up = cServer->GetUpload() / 1024.0f;
-				break;
-			}
+			};
 
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
@@ -625,7 +625,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	/*#ifdef DEBUG
 		// Client and server velocity
-		if (tGameInfo.iGameType != GME_JOIN)  {
+		if (tLX->iGameType != GME_JOIN)  {
 			if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
 				static std::string cl = "0.000";
 				static std::string sv = "0.000";
@@ -650,7 +650,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 				InitializeGameMenu();
 
 				// If this is a tournament, take screenshot of the final screen
-				if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
+				if (tLXOptions->bMatchLogging && tLX->iGameType != GME_LOCAL)  {
 					screenshot_t scrn;
 					scrn.sDir = "game_results";
 					GetLogData(scrn.sData);
@@ -903,7 +903,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// The following are items on top bar, so don't draw them when we shouldn't
-	if (!tLXOptions->tGameinfo.bTopBarVisible)
+	if (!tLXOptions->bTopBarVisible)
 		return;
 
 
@@ -1033,21 +1033,23 @@ void CClient::SimulateHud(void)
 	// Game Menu
 	if(WasKeyboardEventHappening(SDLK_ESCAPE, false) && !bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
         if( !bViewportMgr )
+        {
 			if (!bGameMenu)
 				InitializeGameMenu();
+		}
         else
             bViewportMgr = false;
     }
 
 	// Top bar toggle
 	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
-		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
+		tLXOptions->bTopBarVisible = !tLXOptions->bTopBarVisible;
 
-		SmartPointer<SDL_Surface> topbar = (tGameInfo.iGameType == GME_LOCAL) ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
+		SmartPointer<SDL_Surface> topbar = (tLX->iGameType == GME_LOCAL) ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 
 		int toph = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 		int top = toph;
-		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
+		if (!tLXOptions->bTopBarVisible)  {
 			toph = -toph;
 			top = 0;
 		}
@@ -1097,11 +1099,11 @@ inline void AddColumns(DeprecatedGUI::CListview *lv)
 	lv->AddColumn("", 25); // Skin
 	lv->AddColumn("", 160); // Player
 	lv->AddColumn("", 30); // Lives
-	if (tGameInfo.iGameMode == GMT_DEMOLITION)
+	if (cClient->getGameLobby()->iGameMode == GMT_DEMOLITION)
 		lv->AddColumn("", 40); // Dirt count
 	else
 		lv->AddColumn("", 30);  // Kills
-	if (tGameInfo.iGameType == GME_HOST)
+	if (tLX->iGameType == GME_HOST)
 		lv->AddColumn("", 35);  // Ping
 }
 
@@ -1136,7 +1138,7 @@ void CClient::InitializeGameMenu()
 	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 260, 360, 80, 20);
 	cGameMenuLayout.getWidget(gm_Options)->setEnabled(!bGameOver); // Hide on game over
 
-	if (tGameInfo.iGameType == GME_LOCAL)  {
+	if (tLX->iGameType == GME_LOCAL)  {
 		if (bGameOver)
 			cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_OK, bmpMenuButtons), gm_Ok, 310, 360, 30, 20);
 		else  {
@@ -1217,7 +1219,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	}
 
 	// Update the top message (winner/dirt count)
-	if (tGameInfo.iGameType == GMT_DEMOLITION)  {
+	if (tGameInfo.iGameMode == GMT_DEMOLITION)  {
 		// Get the dirt count
 		int dirtcount, i;
 		dirtcount = i = 0;
@@ -1260,7 +1262,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 				// If this is a host, we go back to the lobby
 				// The host can only quit the game via the lobby
-				switch (tGameInfo.iGameType)  {
+				switch (tLX->iGameType)  {
 				case GME_HOST:
 					cServer->gotoLobby();
 					break;
@@ -1304,7 +1306,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				ev = ((DeprecatedGUI::CListview *)ev->cWidget)->getWidgetEvent();
 
 				// Do not display the host menu when not hosting
-				if (tGameInfo.iGameType == GME_JOIN)
+				if (tLX->iGameType == GME_JOIN)
 					break;
 
 				// Click on the command button
@@ -1332,7 +1334,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	if (!bChat_Typing && !DeprecatedGUI::bShowFloatingOptions)  {
 
 		if (WasKeyboardEventHappening(SDLK_RETURN,false) || WasKeyboardEventHappening(SDLK_KP_ENTER,false) || WasKeyboardEventHappening(SDLK_ESCAPE,false))  {
-			if (tGameInfo.iGameType == GME_LOCAL && bGameOver)  {
+			if (tLX->iGameType == GME_LOCAL && bGameOver)  {
 				GotoLocalMenu();
 			} else if (!bGameOver)  {
 				bGameMenu = false;
@@ -1379,7 +1381,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 			cmd_button->setID(p->getID());
-			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+			cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
@@ -1410,7 +1412,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 			// Ping
-			if (tGameInfo.iGameType == GME_HOST)  {
+			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1435,7 +1437,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 			cmd_button->setID(p->getID());
-			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+			cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
@@ -1484,7 +1486,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 			cmd_button->setID(p->getID());
-			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+			cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 			if(p->getTagIT())
 				lv->AddItem(p->getName(), i, tLX->clTagHighlight);
@@ -1517,7 +1519,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 			// Ping
-			if (tGameInfo.iGameType == GME_HOST)  {
+			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1563,7 +1565,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
-			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+			if (tLX->iGameType == GME_HOST)  // Ping label
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
 
 			// Draw the players
@@ -1582,7 +1584,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setRedrawMenu(false);
 				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 				cmd_button->setID(p->getID());
-				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+				cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
@@ -1612,7 +1614,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 				// Ping
-				if (tGameInfo.iGameType == GME_HOST)  {
+				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1640,7 +1642,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 			cmd_button->setID(p->getID());
-			cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+			cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
@@ -1670,7 +1672,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 			// Ping
-			if (tGameInfo.iGameType == GME_HOST)  {
+			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
 					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1709,7 +1711,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
-			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+			if (tLX->iGameType == GME_HOST)  // Ping label
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
 
 			// Draw the players
@@ -1732,7 +1734,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setRedrawMenu(false);
 				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 				cmd_button->setID(p->getID());
-				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+				cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
@@ -1762,7 +1764,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 				// Ping
-				if (tGameInfo.iGameType == GME_HOST)  {
+				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1802,7 +1804,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, VIPteamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
-			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+			if (tLX->iGameType == GME_HOST)  // Ping label
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
 
 			// Draw the players
@@ -1821,7 +1823,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				cmd_button->setRedrawMenu(false);
 				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
 				cmd_button->setID(p->getID());
-				cmd_button->setEnabled(tGameInfo.iGameType != GME_JOIN);  // Disable for client games
+				cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
@@ -1851,7 +1853,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 				// Ping
-				if (tGameInfo.iGameType == GME_HOST)  {
+				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
 						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -1961,7 +1963,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 
 		// Local and net play use different backgrounds
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
-		if (tGameInfo.iGameType == GME_LOCAL)
+		if (tLX->iGameType == GME_LOCAL)
 			bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 
 		if (bgImage.get())  // Due to backward compatibility, this doesn't have to exist
@@ -2431,7 +2433,7 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 		Right->AddColumn("K", 30, tLX->clHeading);
 	}
 
-	if (tGameInfo.iGameType == GME_HOST)  {
+	if (tLX->iGameType == GME_HOST)  {
 		Left->AddColumn("P", 50, tLX->clHeading);  // Ping
 		Right->AddColumn("P", 50, tLX->clHeading);
 	}
@@ -2464,7 +2466,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 
         // Add the player and if this player is local & human, highlight it
 		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
-		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tGameInfo.iGameType == GME_JOIN))  {
+		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tLX->iGameType == GME_JOIN))  {
 			DeprecatedGUI::lv_item_t *it = lv->getItem(i);
 			it->iBgAlpha = 64;
 			it->iBgColour = tLX->clScoreHighlight;
@@ -2500,7 +2502,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		}
 
 		// Ping
-		if(tGameInfo.iGameType == GME_HOST)  {
+		if(tLX->iGameType == GME_HOST)  {
 			CServerConnection *remoteClient = cServer->getClient(p->getID());
 			if (remoteClient && p->getID())
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
@@ -2557,9 +2559,9 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 void CClient::DrawPlayerWaiting(SDL_Surface * bmpDest)
 {
 	int x = 0;
-	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
+	int y = tLXOptions->bTopBarVisible ? getTopBarBottom() : 0;
 
-	if (iNetStatus == NET_PLAYING || tGameInfo.iGameType == GME_LOCAL || bGameMenu)
+	if (iNetStatus == NET_PLAYING || tLX->iGameType == GME_LOCAL || bGameMenu)
 		return;
 
 	// Get the number of players
@@ -2597,7 +2599,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
         return;
     if(cShowScore.isDown() && !bChat_Typing)
         bShowScore = true;
-    if(iNetStatus == NET_CONNECTED && bGameReady && tGameInfo.iGameType != GME_LOCAL) {
+    if(iNetStatus == NET_CONNECTED && bGameReady && tLX->iGameType != GME_LOCAL) {
         bShowScore = true;
         bShowReady = true;
     }
@@ -2605,8 +2607,8 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
         return;
 
 	// Background
-	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
-				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg.get()->w, bmpIngameScoreBg.get()->h);
+	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, 0,
+				tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg.get()->w, bmpIngameScoreBg.get()->h);
 
 	if (bUpdateScore || tLX->fCurTime - fLastScoreUpdate >= 2.0f)
 		UpdateIngameScore(((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Left)), ((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
@@ -2656,7 +2658,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");
-	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTime) + "%");
 	cur_y += tLX->cFont.GetHeight();
 
 	// TODO: this takes too much place in the small info

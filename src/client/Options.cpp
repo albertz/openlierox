@@ -21,6 +21,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Options.h"
+#include "FindFile.h"
 #include "ConfigHandler.h"
 #include "CScriptableVars.h"
 #include "IniReader.h"
@@ -90,9 +91,17 @@ bool GameOptions::Init() {
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
 		( tLXOptions->bEnableChat, "Network.EnableChat", false ) // That's a shame that such marvellous feature is disabled by default :P
+		( tLXOptions->sServerName, "Network.ServerName", "OpenLieroX Server" )
+		( tLXOptions->sWelcomeMessage, "Network.WelcomeMessage", "Welcome to <server>, <player>" )
+		( tLXOptions->sServerPassword, "Network.Password" )
+		( tLXOptions->bRegServer, "Network.RegisterServer", true )
+		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
+		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
+		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
+		( tLXOptions->iMusicVolume, "Audio.MusicVolume", 70 )
 
 		( tLXOptions->iBloodAmount, "Game.Blood", 100 )
 		( tLXOptions->bShadows, "Game.Shadows", true )
@@ -107,23 +116,19 @@ bool GameOptions::Init() {
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false ) // TODO: rename to mouse control?
 		( tLXOptions->iMouseSensity, "Game.MouseSensity", 200 )
-		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", true ) // TODO: remove this completely? mouse user has no advantages over keyboard user
-		( tLXOptions->bAllowStrafing, "Game.AllowStrafing", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
+		( tLXOptions->sLastSelectedPlayer, "Game.LastSelectedPlayer", "" )
+		( tLXOptions->bTopBarVisible, "Game.TopBarVisible", true )
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
-		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
-		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->iMaxCachedEntries, "Advanced.MaxCachedEntries", 300 ) // Should be enough for every mod (we have 2777 .png and .wav files total now) and does not matter anyway with SmartPointer
-		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
+		( tLXOptions->bMatchLogging, "Advanced.MatchLogging", true )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
-
-		( tLXOptions->iMusicVolume, "MediaPlayer.MusicVolume", 50 )
 		;
 
 	unsigned i;
@@ -138,52 +143,37 @@ bool GameOptions::Init() {
 	};
 
 	CScriptableVars::RegisterVars("GameOptions.LastGame")
-		( tLXOptions->tGameinfo.iLives, "Lives", 10 )
-		( tLXOptions->tGameinfo.iKillLimit, "KillLimit", -1 )
-		( tLXOptions->tGameinfo.fTimeLimit, "TimeLimit", -1 )
-		( tLXOptions->tGameinfo.iTagLimit, "TagLimit", 5 )
-		( tLXOptions->tGameinfo.iLoadingTime, "LoadingTime", 100 )
-		( tLXOptions->tGameinfo.bBonusesOn, "Bonuses", true )
-		( tLXOptions->tGameinfo.bShowBonusName, "BonusNames", true )
-		( tLXOptions->tGameinfo.iMaxPlayers, "MaxPlayers", 8 )
-		( tLXOptions->tGameinfo.bMatchLogging, "MatchLogging", true )
-		( tLXOptions->tGameinfo.sServerName, "ServerName", "OpenLieroX Server" )
-		( tLXOptions->tGameinfo.sWelcomeMessage, "WelcomeMessage", "Welcome to <server>, <player>" )
-		( tLXOptions->tGameinfo.sMapFilename, "LevelName" ) // WARNING: confusing, it is handled like the filename
-		( tLXOptions->tGameinfo.iGameMode, "GameType", GMT_DEATHMATCH )
-		( tLXOptions->tGameinfo.szModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
-		( tLXOptions->tGameinfo.szPassword, "Password" )
-		( tLXOptions->tGameinfo.bRegServer, "RegisterServer", true )
-		( tLXOptions->tGameinfo.sLastSelectedPlayer, "LastSelectedPlayer", "" )
-		( tLXOptions->tGameinfo.bAllowWantsJoinMsg, "AllowWantsJoinMsg", true )
-		( tLXOptions->tGameinfo.bWantsJoinBanned, "WantsToJoinFromBanned", true )
-		( tLXOptions->tGameinfo.bAllowRemoteBots, "AllowRemoteBots", true )
-		( tLXOptions->tGameinfo.bTopBarVisible, "TopBarVisible", true )
-		( tLXOptions->tGameinfo.bAllowNickChange, "AllowNickChange", true )
-		( tLXOptions->tGameinfo.fBonusFreq, "BonusFrequency", 30 )
-		( tLXOptions->tGameinfo.fBonusLife, "BonusLife", 60 )
-		( tLXOptions->tGameinfo.fRespawnTime, "RespawnTime", 2.5 )
-		( tLXOptions->tGameinfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
-		( tLXOptions->tGameinfo.bGroupTeamScore, "GroupTeamScore", false )
-		( tLXOptions->tGameinfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
-		( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
-		( tLXOptions->tGameinfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
-		( tLXOptions->tGameinfo.fGameSpeed, "GameSpeed", 1.0f )
-		( tLXOptions->tGameinfo.bForceRandomWeapons, "ForceRandomWeapons", false )
-		( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false )
-		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
+		( tLXOptions->tGameInfo.iLives, "Lives", 10 )
+		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1 )
+		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1 )
+		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5 )
+		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100 )
+		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true )
+		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true )
+		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8 )
+		( tLXOptions->tGameInfo.sMapFile, "LevelName" ) // WARNING: confusing, it is handled like the filename
+		( tLXOptions->tGameInfo.iGameMode, "GameType", GMT_DEATHMATCH )
+		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
+		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30 )
+		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60 )
+		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5 )
+		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
+		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false )
+		( tLXOptions->tGameInfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
+		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
+		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
+		( tLXOptions->tGameInfo.fGameSpeed, "GameSpeed", 1.0f )
+		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false )
+		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false )
+		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
+		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true )
+		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true )
+		( tLXOptions->tGameInfo.bCountTeamkills, "CountTeamkills", false )
+		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false )
+		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360 )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();
-
-	// Init some vars for ded server
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
-	tGameInfo.fGameSpeed = tLXOptions->tGameinfo.fGameSpeed;
-	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
-	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
-	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
-    tGameInfo.iGameMode = tLXOptions->tGameinfo.iGameMode;
 
 	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
 	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );*/
@@ -366,7 +356,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "# Note: This file is automatically generated by ");
 	// just looks better with version-info and is a good information for the user
 	// this should not be used in parsing to change any behaviour
-	fprintf(fp, GetFullGameName().c_str());
+	fprintf(fp, "%s", GetFullGameName().c_str());
 	fprintf(fp, "\n\n");
 
 	// Save all variables that should be treated specially

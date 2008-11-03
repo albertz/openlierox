@@ -217,15 +217,19 @@ void CCursor::Draw(SDL_Surface * dst)
 
 	// Special states first
 	if (Mouse->FirstDown)  // Mouse down
+	{
 		if (cDown)  {
 			cDown->Draw(dst);
 			return;
 		}
+	}
 	else if (Mouse->Up) // Mouse up
+	{
 		if (cUp)  {
 			cUp->Draw(dst);
 			return;
 		}
+	}
 
 	// Image position
 	int X = Mouse->X;

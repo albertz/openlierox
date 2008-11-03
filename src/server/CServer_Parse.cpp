@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "LieroX.h"
+#include "FindFile.h"
 #include "CServer.h"
 #include "ProfileSystem.h"
 #include "DeprecatedGUI/Menu.h"
@@ -269,7 +270,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		return;
 	}
 
-	if (tLXOptions->bServerSideHealth)  {
+	if (tLXOptions->tGameInfo.bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (!cl->isLocalClient())  {
 			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
@@ -951,7 +952,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			else
 				msg += "Odd.";
 			msg += "\n";
-			printf(msg.c_str());
+			printf( "%s", msg.c_str() );
 			if(ErrorFile != NULL)
 				fprintf(ErrorFile,"%s",msg.c_str());
 		}
@@ -972,7 +973,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	if (numplayers >= tLXOptions->tGameinfo.iMaxPlayers || numplayers + numworms > tLXOptions->tGameinfo.iMaxPlayers) {
+	if (numplayers >= tLXOptions->tGameInfo.iMaxPlayers || numplayers + numworms > tLXOptions->tGameInfo.iMaxPlayers) {
 		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
@@ -1045,7 +1046,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 			w->readInfo(bs);
 			// If bots aren't allowed, disconnect the client
-			if (w->getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
+			if (w->getType() == PRF_COMPUTER && !tLXOptions->bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
 				printf("Bot was trying to connect\n");
 				bytestr.Clear();
 				bytestr.writeInt(-1, 4);
@@ -1062,7 +1063,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			w->setClient(newcl);
 			w->setUsed(true);
 			w->setupLobby();
-			if (tGameInfo.iGameType == GME_HOST) // TODO: why only when hosting?
+			if (tLX->iGameType == GME_HOST) // TODO: why only when hosting?
 				w->setTeam(0);
 			newcl->setWorm(i, w);
 			ids[i] = p;
@@ -1102,7 +1103,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	bytestr.writeString(GetFullGameName());
 	bytestr.Send(tSocket);
 
-	if (tLXOptions->bAllowMouseAiming)
+	//if (tLXOptions->tGameInfo.bAllowMouseAiming)
 	{
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
@@ -1110,7 +1111,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.Send(tSocket);
 	}
 
-	if (tLXOptions->bAllowStrafing)
+	if (tLXOptions->tGameInfo.bAllowStrafing)
 	{
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
@@ -1153,11 +1154,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 	// Welcome message
-	buf = tGameInfo.sWelcomeMessage;
+	buf = tLXOptions->sWelcomeMessage;
 	if (buf.size() > 0)  {
 
 		// Server name3
-		replacemax(buf, "<server>", tGameInfo.sServername, buf, 1);
+		replacemax(buf, "<server>", tLXOptions->sServerName, buf, 1);
 
 		// Host name
 		replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
@@ -1209,7 +1210,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	else
 		UpdateGameLobby(newcl); // send him the game lobby details
 
-	if (tGameInfo.iGameType != GME_LOCAL) {
+	if (tLX->iGameType != GME_LOCAL) {
 		if( iState == SVS_LOBBY )
 			SendWormLobbyUpdate(); // to everbody
 		else
@@ -1240,8 +1241,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
-		if( tGameInfo.iGameType == GME_HOST ) {
-			if( tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF ) {
+		if( tLX->iGameType == GME_HOST ) {
+			if( tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || 
+				tLXOptions->tGameInfo.iGameMode == GMT_VIP || 
+				tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF ) {
 				
 				CWorm *w = cWorms;
 				CBytestream b;
@@ -1271,14 +1274,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			
 			// If the game has limited lives all new worms are spectators
-			if( tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
-				newcl->getWorm(i)->setLives(tGameInfo.iLives);
+			if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
+				newcl->getWorm(i)->setLives(tLXOptions->tGameInfo.iLives);
 			else
 				newcl->getWorm(i)->setLives(WRM_OUT);
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
-			newcl->getWorm(i)->setLoadingTime( (float)tGameInfo.iLoadingTimes / 100.0f );
+			newcl->getWorm(i)->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			newcl->getWorm(i)->setKillsInRow(0);
 			newcl->getWorm(i)->setDeathsInRow(0);
 			newcl->getWorm(i)->setWeaponsReady(false);
@@ -1306,7 +1309,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 		
 		// initial server side weapon handling
-		if(tLXOptions->tGameinfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+		if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
 			if(cClient->getWorm(0)->getWeaponsReady()) {
 				for(int i=0;i<newcl->getNumWorms();i++) {
 					newcl->getWorm(i)->CloneWeaponsFrom(cClient->getWorm(0));
@@ -1317,8 +1320,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 		// If new client is spectating skip weapon selection screen
 		// HINT: remove this if we'll get new clients joining and playing with limited lives games
-		else if(tLXOptions->tGameinfo.bForceRandomWeapons || 
-			( tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
+		else if(tLXOptions->tGameInfo.bForceRandomWeapons || 
+			( tLXOptions->tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
 			for(int i=0;i<newcl->getNumWorms();i++) {
 				newcl->getWorm(i)->GetRandomWeapons();
 				newcl->getWorm(i)->setWeaponsReady(true);
@@ -1339,7 +1342,7 @@ void GameServer::ParsePing(NetworkSocket tSocket)
 	// Ignore pings in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tGameInfo.iGameType != GME_HOST)
+	if (tLX->iGameType != GME_HOST)
 		return;
 
 	NetworkAddr		adrFrom;
@@ -1365,7 +1368,7 @@ void GameServer::ParseTime(NetworkSocket tSocket)
 	// Ignore pings in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tGameInfo.iGameType != GME_HOST)
+	if (tLX->iGameType != GME_HOST)
 		return;
 
 	NetworkAddr		adrFrom;
@@ -1395,15 +1398,15 @@ void GameServer::ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const st
 	// Ignore wants to join in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tGameInfo.iGameType != GME_HOST)
+	if (tLX->iGameType != GME_HOST)
 		return;
 
 	// Allowed?
-	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
+	if (!tLXOptions->bAllowWantsJoinMsg)
 		return;
 
 	// Accept these messages from banned clients?
-	if (!tLXOptions->tGameinfo.bWantsJoinBanned && cBanList.isBanned(ip))
+	if (!tLXOptions->bWantsJoinBanned && cBanList.isBanned(ip))
 		return;
 
 	// Notify about the wants to join
@@ -1426,7 +1429,7 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 	// Ignore queries in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tGameInfo.iGameType != GME_HOST)
+	if (tLX->iGameType != GME_HOST)
 		return;
 
 	bytestr.writeInt(-1, 4);
@@ -1436,12 +1439,13 @@ void GameServer::ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::s
 	size_t pos = ip.rfind(':');
 	if (pos != std::string::npos)
 		ip.substr(pos);
-	if(ip == "23401")
-		bytestr.writeString(OldLxCompatibleString(sName+" (private)"));
-	else
-		bytestr.writeString(OldLxCompatibleString(sName));
+	
+	//if(ip == "23401")
+	//	bytestr.writeString(OldLxCompatibleString(sName+" (private)")); // Not used anyway
+	//else
+	bytestr.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 	bytestr.writeByte(iNumPlayers);
-	bytestr.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
+	bytestr.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
 	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 	// Beta8+ info - old clients will just skip it
@@ -1459,40 +1463,27 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	// Ignore queries in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
 	// people have not updated their serverlist yet and try to ping and query the server
-	if (tGameInfo.iGameType != GME_HOST)
+	if (tLX->iGameType != GME_HOST)
 		return;
 
 	CBytestream     bs;
-	game_lobby_t    *gl = &tGameLobby;
 
 	bs.Clear();
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::serverinfo");
 
-	bs.writeString(OldLxCompatibleString(sName));
-	bs.writeByte(tLXOptions->tGameinfo.iMaxPlayers);
+	bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
+	bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
 	bs.writeByte(iState);
 
-	// If in lobby
-	if (iState == SVS_LOBBY && gl->bSet) {
-		bs.writeString(gl->szMapFile);
-		bs.writeString(gl->szModName);
-		bs.writeByte(gl->nGameMode);
-		bs.writeInt16(gl->nLives);
-		bs.writeInt16(gl->nMaxKills);
-		bs.writeInt16(gl->nLoadingTime);
-		bs.writeBool(gl->bBonuses);
-	}
-	// If in game
-	else {
-		bs.writeString( iState == SVS_PLAYING ? "levels/" + tGameInfo.sMapFile : tGameInfo.sMapFile );
-		bs.writeString(tGameInfo.sModName);
-		bs.writeByte(tGameInfo.iGameType);
-		bs.writeInt16(tGameInfo.iLives);
-		bs.writeInt16(tGameInfo.iKillLimit);
-		bs.writeInt16(tGameInfo.iLoadingTimes);
-		bs.writeBool(tGameInfo.bBonusesOn);
-	}
+	// TODO: check if we should append "levels/" string here, it was like this in old code
+	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
+	bs.writeString(tLXOptions->tGameInfo.sModName);
+	bs.writeByte(tLXOptions->tGameInfo.iGameMode);
+	bs.writeInt16(tLXOptions->tGameInfo.iLives);
+	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
+	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
+	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);
 
 
 	// Players
@@ -1543,7 +1534,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	bs.writeString(GetFullGameName());
 
 	// since Beta7
-	bs.writeFloat(tGameInfo.fGameSpeed);
+	bs.writeFloat(tLXOptions->tGameInfo.fGameSpeed);
 
 	bs.Send(tSocket);
 }

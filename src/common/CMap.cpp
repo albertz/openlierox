@@ -79,6 +79,7 @@ bool CMap::NewFrom(CMap* map)
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
 
+	/*
 	sRandomLayout = map->sRandomLayout;
 	if (sRandomLayout.psObjects != NULL && sRandomLayout.nNumObjects > 0)  {
 		sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
@@ -88,6 +89,7 @@ bool CMap::NewFrom(CMap* map)
 			sRandomLayout.bUsed = false;
 		}
 	}
+	*/
 
 	FlagSpawnX = map->FlagSpawnX;
 	FlagSpawnY = map->FlagSpawnY;
@@ -205,7 +207,7 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 {
 	NumObjects = 0;
     nTotalDirtCount = 0;
-    sRandomLayout.bUsed = false;
+    //sRandomLayout.bUsed = false;
 
 	// Create the map
 	if (!Create(_width, _height, _theme, _minimap_w, _minimap_h))
@@ -239,6 +241,7 @@ void CMap::Clear(void)
 
 ///////////////////
 // Apply a random set to the map
+/*
 void CMap::ApplyRandom(void)
 {
 	int n, x, y, i;
@@ -377,14 +380,14 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 	//CalculateShadowMap();
 	UpdateMiniMap(true);
 }
-
+*/
 
 ///////////////////
 // Load the theme
 bool CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
-	if (Theme.name == _theme && sRandomLayout.szTheme == _theme) {
+	if (Theme.name == _theme /* && sRandomLayout.szTheme == _theme */) {
 		std::cout << "LoadTheme: Theme " << _theme << " already loaded" << std::endl;
 		return true;
 	}
@@ -395,7 +398,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 	thm = "data/themes/" + _theme;
 
 	Theme.name = _theme;
-    sRandomLayout.szTheme = _theme;
+    //sRandomLayout.szTheme = _theme;
 
 	buf = thm + "/Backtile.png";
 	LOAD_IMAGE(Theme.bmpBacktile,buf);
@@ -1930,7 +1933,7 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	bMiniMapDirty = true;
-    sRandomLayout.bUsed = false;
+    //sRandomLayout.bUsed = false;
 
 	// Check if it's an original liero level
 	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
@@ -2778,12 +2781,14 @@ void CMap::Shutdown(void)
 		Objects = NULL;
 		NumObjects = 0;
 
+		/*
         if( sRandomLayout.bUsed ) {
             sRandomLayout.bUsed = false;
             if( sRandomLayout.psObjects )
                 delete[] sRandomLayout.psObjects;
             sRandomLayout.psObjects = NULL;
         }
+        */
 
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
@@ -2806,7 +2811,7 @@ void CMap::Shutdown(void)
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		sRandomLayout.psObjects = NULL;
+		//sRandomLayout.psObjects = NULL;
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
 		savedPixelFlags = NULL;
