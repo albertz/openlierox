@@ -191,6 +191,13 @@ Timer::~Timer()
 // Handle the timer callback, called from SDL
 static Uint32 Timer_handleCallback(Uint32 interval, void *param)
 {
+	// Check
+	if (!param)  {
+		// Very weird, should not happen, but the crash reports say something else...
+		assert(false);
+		return 0;
+	}
+
 	TimerData* timer_data = (TimerData *)param;
 	
 	bool lastEvent = timer_data->once || timer_data->quitSignal;
