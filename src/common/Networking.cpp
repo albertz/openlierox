@@ -177,20 +177,22 @@ static int SdlNetEventThreadMain( void * param )
 	{
 		LockNetEventMutex(); // Make sure we post events only when the main thread expects them (so we don't overflow the queue)
 		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
-		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
-			if(sock_out >= 0) {
-				SendSDLUserEvent(&onNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
-			}
-			else
-				printf("WARNING: net-event-system: invalid socket\n");
-		} else {
-			if (nlGetError() == NL_BUFFER_SIZE)  { // We should increase the buffer size
-				delete[] sock_out;
-				buffer_size = MAX(2, SdlNetEventSocketCount);
-				sock_out = new NLsocket[buffer_size];
-				UnlockNetEventMutex();
-				continue; // Retry
+			if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, 0 ) > 0 ) // Wait max_frame_time
+			{
+				if(sock_out >= 0) {
+					SendSDLUserEvent(&onNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
+				}
+				else
+					printf("WARNING: net-event-system: invalid socket\n");
+			} else {
+				if (nlGetError() == NL_BUFFER_SIZE)  { // We should increase the buffer size
+					delete[] sock_out;
+					buffer_size = MAX(2, SdlNetEventSocketCount);
+					sock_out = new NLsocket[buffer_size];
+					UnlockNetEventMutex();
+					continue; // Retry
+				}
 			}
 		}
 
