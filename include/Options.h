@@ -216,6 +216,7 @@ public:
 	std::string	sLastSelectedPlayer;
 	std::string sTheme;
 	bool	bTopBarVisible;
+	bool	bScreenShaking;
 
 
     // Advanced

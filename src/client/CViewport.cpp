@@ -308,7 +308,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 		else {
 
             // Don't shake the action/freelook cam
-            if( nType != VW_ACTIONCAM && nType != VW_FREELOOK ) {
+            if( nType != VW_ACTIONCAM && nType != VW_FREELOOK && tLXOptions->bScreenShaking ) {
 
                 // Clamp it to the edges, then shake. So we can still see shaking near edges
                 Clamp(MWidth, MHeight);
