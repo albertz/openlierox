@@ -260,7 +260,6 @@ extern	void*			startFunctionData;
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);
 int		InitializeLieroX(void);
-void	StartGame(void);
 void	ShutdownLieroX(void);
 void	GameLoopFrame(void);
 void	QuittoMenu(void);

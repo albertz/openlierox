@@ -281,14 +281,9 @@ startpoint:
 
 		startgame = false; // the menu has a reference to this variable
 
-		DeprecatedGUI::Menu_Start();	// Start the menu
+		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
 
-		if(startgame) {
-			// Start the game
-			// this means, start the local server and connect to it
-			StartGame();
-
-		} else {
+		if(!startgame) {
 			// Quit
 			break;
 		}
@@ -607,41 +602,6 @@ int InitializeLieroX(void)
 	printf("Initializing ready\n");
 
 	return true;
-}
-
-
-///////////////////
-// Start the game
-void StartGame(void)
-{
-    // Clear the screen
-	if(!bDedicated)
-		FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
-
-	// Local game
-	if(tLX->iGameType == GME_LOCAL) {
-
-		// TODO: uniform message system
-
-		// Start the server
-		if(!cServer->StartServer()) {
-			// ERROR
-			//MessageBox(NULL, "Error: Could not start server", "OpenLieroX Error", MB_OK);
-			printf("Error: Could not start server\n");
-			return;
-		}
-
-		// Setup the client
-		if(!cClient->Initialize()) {
-			// ERROR
-			//MessageBox(NULL, "Error: Could not initialize client", "OpenLieroX Error", MB_OK);
-			printf("Error: Could not initialize client\n");
-			return;
-		}
-
-		// Tell the client to connect to the server
-		cClient->Connect("127.0.0.1");
-	}
 }
 
 

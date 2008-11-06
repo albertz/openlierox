@@ -24,6 +24,7 @@
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "CClient.h"
+#include "CServer.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CListview.h"
 #include "GfxPrimitives.h"
@@ -580,6 +581,17 @@ void Menu_LocalStartGame(void)
 	//
 	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
 
+	if(! cClient->Initialize() )
+	{
+		printf("Error: Could not initialize client\n");
+		return;
+	}
+
+	if(!cServer->StartServer()) {
+		printf("Error: Could not start server\n");
+		return;
+	}
+	
     int count = 0;
 
     // Add the human players onto the list
@@ -637,6 +649,9 @@ void Menu_LocalStartGame(void)
 	*bGame = true;
 	tMenu->bMenuRunning = false;
 	tLX->iGameType = GME_LOCAL;
+
+	// Tell the client to connect to the server
+	cClient->Connect("127.0.0.1");
 
 	cLocalMenu.Shutdown();
 }
