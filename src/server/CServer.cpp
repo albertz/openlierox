@@ -467,7 +467,7 @@ int GameServer::StartGame()
 	{
 		if( cClients[i].getStatus() != NET_CONNECTED )
 			continue;
-		SendPrepareGame( &cClients[i] );
+		cClients[i].getNetEngine()->SendPrepareGame();
 	}
 	
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients

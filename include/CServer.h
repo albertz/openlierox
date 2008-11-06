@@ -231,7 +231,6 @@ public:
 	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect();
     void        SendWormLobbyUpdate(CServerConnection* receiver = NULL); // if NULL, to everybody, or only to cl
-	void		SendPrepareGame(CServerConnection* cl);
 	void		UpdateGameLobby(CServerConnection* cl = NULL); // if NULL, to everybody, or only to cl
 	void		UpdateWorms();
 #ifdef FUZZY_ERROR_TESTING

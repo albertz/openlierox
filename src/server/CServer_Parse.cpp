@@ -1292,7 +1292,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			SendGlobalPacket(&bs);
 		}
 		
-		SendPrepareGame(newcl);
+		newcl->getNetEngine()->SendPrepareGame();
 		
 		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
 		

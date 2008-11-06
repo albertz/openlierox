@@ -52,6 +52,7 @@ public:
 	void		SendPacket(CBytestream *bs);
 
 	virtual void SendClientReady(CServerConnection* receiver);
+	virtual void SendPrepareGame();
 	virtual void SendText(const std::string& text, int type);
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
@@ -64,6 +65,8 @@ protected:
 	// Attributes
 	GameServer 	*server;
 	CServerConnection *cl;
+	
+	void WritePrepareGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta3: public CServerNetEngine 
@@ -99,6 +102,7 @@ public:
 	void ParseChatCommandCompletionRequest(CBytestream *bs);
 	void ParseAFK(CBytestream *bs);
 
+	void SendPrepareGame();
 	void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution);
 	void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions);
 };

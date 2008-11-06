@@ -97,35 +97,47 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	}
 }
 
-void GameServer::SendPrepareGame(CServerConnection* cl) {
-	
-	CBytestream bs;
-	bs.writeByte(S2C_PREPAREGAME);
-	bs.writeBool(bRandomMap);
-	if(!bRandomMap)
-		bs.writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
+void CServerNetEngine::WritePrepareGame(CBytestream *bs) 
+{
+	bs->writeByte(S2C_PREPAREGAME);
+	bs->writeBool(server->bRandomMap);	// Always false as of now
+	if(!server->bRandomMap)
+		bs->writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
 	
 	// Game info
-	bs.writeInt(tLXOptions->tGameInfo.iGameMode,1);
-	bs.writeInt16(tLXOptions->tGameInfo.iLives);
-	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs.writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
-	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
-	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);
-	bs.writeBool(tLXOptions->tGameInfo.bShowBonusName);
+	bs->writeInt(tLXOptions->tGameInfo.iGameMode,1);
+	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
+	bs->writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
+	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
+	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
+	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
 	if(tLXOptions->tGameInfo.iGameMode == GMT_TAG)
-		bs.writeInt16(tLXOptions->tGameInfo.iTagLimit);
-	bs.writeString(tLXOptions->tGameInfo.sModDir);
+		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
+	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	
-	cWeaponRestrictions.sendList(&bs, cGameScript.get());
-	
-	if( cl->getClientVersion() >= OLXBetaVersion(7) )
-	{
-		bs.writeFloat( tLXOptions->tGameInfo.fGameSpeed );
-		bs.writeBool( serverChoosesWeapons() );
-	}
+	server->cWeaponRestrictions.sendList(bs, server->cGameScript.get());
+}
 
-	cl->getNetEngine()->SendPacket( &bs );	
+void CServerNetEngine::SendPrepareGame()
+{
+	CBytestream bs;
+	
+	WritePrepareGame(&bs);
+
+	SendPacket( &bs );
+}
+
+void CServerNetEngineBeta7::SendPrepareGame() {
+	
+	CBytestream bs;
+	
+	CServerNetEngine::WritePrepareGame(&bs);
+
+	bs.writeFloat( tLXOptions->tGameInfo.fGameSpeed );
+	bs.writeBool( server->serverChoosesWeapons() );
+
+	SendPacket( &bs );
 }
 
 
