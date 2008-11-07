@@ -117,6 +117,7 @@ private:
 	bool		m_connecting;
 	float		m_connectionClosedTime;
 	std::string	m_myNick;
+	std::string	m_AwayMessage;
 	IRCState	m_authorizedState;
 	int			m_nickUniqueNumber;
 	bool		m_updatingUserList;
@@ -170,6 +171,7 @@ public:
 	const std::list<std::string>& getUserList()	const	{ return m_chatUsers; }
 	const std::list<IRCChatLine>& getMessageList() const{ return m_chatText; }
 	const std::string getNick()							{ return m_myNick; }
+	void	setAwayMessage(const std::string & msg);	// We'll write here on which server we are playing currently
 
 	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback = cb; }
 	void	clearNewMessageCallback()					{ m_newMsgCallback = NULL; }

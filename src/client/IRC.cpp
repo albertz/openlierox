@@ -427,6 +427,8 @@ void IRCClient::sendJoin()
 {
 	WriteSocket(m_chatSocket, "JOIN " + m_chatServerChannel + "\r\n");
 	m_authorizedState = AUTH_JOINED_CHANNEL;
+	if( m_AwayMessage != "" )
+		WriteSocket(m_chatSocket, "AWAY :" + m_AwayMessage + "\r\n");
 }
 
 
@@ -487,6 +489,19 @@ bool IRCClient::sendChat(const std::string &text)
 
 	return true;	
 }
+
+void IRCClient::setAwayMessage(const std::string & msg)
+{
+	m_AwayMessage = msg;
+
+	if (!m_socketConnected || !m_socketIsReady || m_authorizedState != AUTH_JOINED_CHANNEL)
+		return;
+
+	if( m_AwayMessage != "" )
+		WriteSocket(m_chatSocket, "AWAY" "\r\n");	// Clean AWAY msg or server won't reset it
+	WriteSocket(m_chatSocket, "AWAY :" + m_AwayMessage + "\r\n");
+}
+
 
 
 /*

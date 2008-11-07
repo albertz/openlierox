@@ -43,6 +43,7 @@
 #include "CChannel.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "ProfileSystem.h"
+#include "IRC.h"
 
 
 using namespace std;
@@ -265,7 +266,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	client->bHostAllowsMouse = false;
 	client->bHostAllowsStrafing = false;
-
+	
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
 }
 
 //////////////////
@@ -821,6 +824,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
+
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 
     return true;
 }
@@ -1919,6 +1925,9 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	}
 
 	client->ShutdownLog();
+
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
 
 }
 

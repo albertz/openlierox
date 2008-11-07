@@ -46,6 +46,7 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
+#include "IRC.h"
 
 
 using namespace std;
@@ -421,6 +422,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		GotoNetMenu();
+		
+		if( GetGlobalIRC() )
+			GetGlobalIRC()->setAwayMessage("");
+
 		return;
 	}
 

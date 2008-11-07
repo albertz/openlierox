@@ -1494,6 +1494,9 @@ void CClient::Disconnect()
 		bInServer = false;
 		fclose(f);
 	}
+	
+	if( GetGlobalIRC() )
+		GetGlobalIRC()->setAwayMessage("");
 }
 
 
