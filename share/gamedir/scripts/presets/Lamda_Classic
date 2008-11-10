@@ -1,13 +1,11 @@
 
-setvar GameServer.GameInfo.sMapFile             "LamdaBunker.lxl"
-setvar GameServer.GameInfo.sMapName             "LamdaBunker"
+setvar GameOptions.LastGame.LevelName            "LamdaBunker.lxl"
 
-setvar GameServer.GameInfo.sModDir              "Liero v2.0"
-setvar GameServer.GameInfo.sModName             "Liero v2.0"
+setvar GameOptions.LastGame.ModName              "Classic"
 
-setvar GameServer.GameInfo.iLoadingTimes        "100"
+setvar GameOptions.LastGame.LoadingTime	        "100"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/100 LT.wps"
 
-setvar GameServer.ServerName "Dedicated - Lamda_Classic"
+setvar GameOptions.Network.ServerName 			"Dedicated - Classic on Lamda"
 

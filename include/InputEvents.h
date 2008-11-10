@@ -151,7 +151,7 @@ inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
 	ev.user.data1 = new SDLSpecificUserEventHandler<_Data>(event, data); // TODO: we should use an own allocator here to improve performance
 	ev.user.data2 = NULL;
 	if (SDL_PushEvent(&ev) < 0)  { // Full queue?
-		printf("WARNING: SDL event not sent because the queue is full\n");
+		//printf("WARNING: SDL event not sent because the queue is full\n"); // Do not spam messages
 		delete (SDLSpecificUserEventHandler<_Data> *)ev.user.data1;
 	}
 }

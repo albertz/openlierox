@@ -186,8 +186,7 @@ def parseAdminCommand(wormid,message):
 			if mod == "":
 				privateMsg(wormid,"Invalid mod name")
 			else:
-				setvar("GameServer.GameInfo.sModDir", mod) # In case mod name contains spaces
-				setvar("GameServer.GameInfo.sModName", mod)
+				setvar("GameOptions.LastGame.ModName", mod) # In case mod name contains spaces
 		elif cmd == "map":
 			level = ""
 			for l in availibleLevels:
@@ -197,8 +196,7 @@ def parseAdminCommand(wormid,message):
 			if level == "":
 				privateMsg(wormid,"Invalid map name")
 			else:
-				setvar("GameServer.GameInfo.sMapFile", level) # In case map name contains spaces
-				setvar("GameServer.GameInfo.sMapName", level[:-3])
+				setvar("GameOptions.LastGame.LevelName", level) # In case map name contains spaces
 		elif cmd == "preset":
 			preset = -1
 			for p in range(len(availiblePresets)):
@@ -211,7 +209,7 @@ def parseAdminCommand(wormid,message):
 				curPreset = preset
 				selectNextPreset()
 		elif cmd == "lt":
-			setvar("GameServer.GameInfo.iLoadingTimes", params[0])
+			setvar("GameOptions.LastGame.LoadingTime", params[0])
 		elif cmd == "start":
 			startGame()
 		elif cmd == "stop":
@@ -595,7 +593,7 @@ def controlHandlerDefault():
 				if lobbyWaitBeforeGame <= 0: # Start the game
 
 					if getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-						setvar("GameServer.GameInfo.iGameMode", "1")
+						setvar("GameOptions.LastGame.GameType", "1")
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
 							for w in worms.values():
@@ -603,7 +601,7 @@ def controlHandlerDefault():
 									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 					else:
-						setvar("GameServer.GameInfo.iGameMode", "0")
+						setvar("GameOptions.LastGame.GameType", "0")
 
 					startGame()
 					if cfg.ALLOW_TEAM_CHANGE:
