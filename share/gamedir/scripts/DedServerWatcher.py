@@ -8,9 +8,9 @@ import signal
 import subprocess
 
 if sys.platform == "win32":
-	import msvcrt
+	import ctypes
 
-olxPath = "openlierox"
+olxPath = "openlierox.exe"
 TimeToSleep=60 # OLX and ded server will write something in logs once per 40 seconds
 
 def startProcess():
@@ -23,7 +23,8 @@ def startProcess():
 
 def killProcess(proc):
 	if sys.platform == "win32":
-		msvcrt.TerminateProcess( proc.pid, 1 )
+		# Doesn't work anyway
+		ctypes.windll.kernel32.TerminateProcess( proc.pid, 1 )
 	else:
 		os.kill( proc, signal.SIGKILL )
 	
@@ -39,7 +40,8 @@ def signalHandler(signum, frame):
 signal.signal(signal.SIGTERM, signalHandler)
 signal.signal(signal.SIGABRT, signalHandler)
 signal.signal(signal.SIGINT, signalHandler)
-signal.signal(signal.SIGQUIT, signalHandler)
+if sys.platform != "win32":
+	signal.signal(signal.SIGQUIT, signalHandler)
 
 time.sleep(3)
 
