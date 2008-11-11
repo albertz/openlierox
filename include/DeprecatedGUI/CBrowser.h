@@ -38,8 +38,12 @@ enum {
 };
 
 struct FontFormat  {
+	FontFormat() : bold(false), underline(false), italics(false), preformatted(false), size(0) {}
 	bool bold;
 	bool underline;
+	bool italics;
+	bool preformatted;
+	int size;
 	Color color;
 };
 
@@ -49,16 +53,15 @@ class CBrowser : public CWidget {
 public:
 	CBrowser() :
 		bFinished(false),
-		iClientWidth(0),
-		iClientHeight(0),
 		tHtmlDocument(NULL),
 		tRootNode(NULL),
 		fLastMouseScroll(0),
 		iBorderSize(BORDER_SIZE),
+		iDocumentHeight(0),
+		tCurrentLine(NULL),
 		curX(0),
 		curY(0),
 		iCurIndent(0),
-		bInPre(false),
 		iCursorColumn(0),
 		iCursorLine(0),
 		iSelectionStartLine(0),
@@ -68,125 +71,191 @@ public:
 		bSelectionGrabbed(false),
 		bDrawCursor(true),
 		tTimer(NULL),
-		bInLink(false),
 		bmpBuffer(NULL),
 		bNeedsRender(false)
 	{
-		tCurrentFormat.bold = false;
-		tCurrentFormat.underline = false;
-		tCurrentFormat.color = Color(0,0,0);
-		tBgColor = Color(255,255,255);
+		tCurrentContext.tCurrentGroup = NULL;
+		tBgColor = Color(0,0,0,0);
 	}
 
 public:
 
-	// Handler for the active (interacting) areas of the browser (for example links)
-	class CActiveArea  {
+	// Everything in the browser is an object - a chunk of text, a link, ...
+	// Objects are included in lines
+	class CBrowserObject  {
 	public:
-		typedef void(CBrowser::*ActiveAreaHandler)(CActiveArea *);
-	public:
-		CActiveArea(CBrowser *parent, const SDL_Rect& rect, ActiveAreaHandler click_func, ActiveAreaHandler move_func,
-			const std::string s_data = "", int i_data = 0) :
-		  tRect(rect),
-		  sData(s_data),
-		  iData(i_data),
-		  tClickFunc(click_func),
-		  tMouseMoveFunc(move_func),
-		  tParent(parent)
-		  {}
+		enum Type  {
+			objNone = -1,
+			objText = 0,
+			objHr,
+			objList
+		};
 
-		CActiveArea() :
-		  iData(0),
+		typedef void(CBrowser::*EventHandler)(CBrowserObject *);
+	public:
+		CBrowserObject(CBrowser *parent, const SDL_Rect& rect) :
+		  tRect(rect),
 		  tClickFunc(NULL),
 		  tMouseMoveFunc(NULL),
-		  tParent(NULL)
+		  tParent(parent),
+		  iType(objNone),
+		  bSelectable(false)
+		  {}
+
+		CBrowserObject() :
+		  tClickFunc(NULL),
+		  tMouseMoveFunc(NULL),
+		  tParent(NULL),
+		  iType(objNone),
+		  bSelectable(false)
 		  { tRect = MakeRect(0, 0, 0, 0); }
 
-		CActiveArea(const CActiveArea& oth)  { operator=(oth); }
+		CBrowserObject(const CBrowserObject& oth)  { operator=(oth); }
 
-	private:
+		virtual ~CBrowserObject() {}
+
+	protected:
 		friend class CBrowser;
-		SDL_Rect	tRect;
-		std::string	sData;
-		int			iData;
-		ActiveAreaHandler tClickFunc;
-		ActiveAreaHandler tMouseMoveFunc;
+		SDL_Rect	tRect; // HINT: position in the document, not on screen!
+		EventHandler tClickFunc;
+		EventHandler tMouseMoveFunc;
 		CBrowser	*tParent;
+		Type		iType;
+		bool		bSelectable;
 
 	public:
 		bool	InBox(int x, int y) const  { return x >= tRect.x && x < (tRect.x + tRect.w) 
 			&& y >= tRect.y && y < (tRect.y + tRect.h); }
-		void	DoMouseMove(int x, int y);
-		void	DoMouseDown(int x, int y) { /* TODO */ }
-		void	DoClick(int x, int y);
+		int		getWidth()		{ return tRect.w; }
+		int		getHeight()		{ return tRect.h; }
+		bool	isSelectable()	{ return bSelectable; }
 
-		const std::string& getStringData()	{ return sData; }
-		int	getIntData()					{ return iData; }
+	protected:
+		virtual void	DoMouseMove(int x, int y)	{  }
+		virtual void	DoMouseDown(int x, int y)	{  }
+		virtual void	DoClick(int x, int y)		{  }
+
+	public:
 		CBrowser *getParent()				{ return tParent; }
+		Type getType()						{ return iType; }
+		void setClickHandler(EventHandler h) { tClickFunc = h; }
+		void setMouseMoveHandler(EventHandler h) { tMouseMoveFunc = h; }
 
-		void Clear()  { tRect = MakeRect(0, 0, 0, 0); sData.clear();
-						iData = 0; tClickFunc = NULL; tMouseMoveFunc = NULL; tParent = NULL; }
+		virtual void Clear()  { tRect = MakeRect(0, 0, 0, 0); 
+				tClickFunc = NULL; tMouseMoveFunc = NULL; tClickFunc = NULL; tParent = NULL; }
 
-		CActiveArea& operator=(const CActiveArea& oth)  {
+		virtual CBrowserObject& operator=(const CBrowserObject& oth)  {
+			assert(iType == oth.iType);
 			if (&oth != this)  {
 				tRect = oth.tRect;
-				sData = oth.sData;
-				iData = oth.iData;
 				tClickFunc = oth.tClickFunc;
 				tMouseMoveFunc = oth.tMouseMoveFunc;
 				tParent = oth.tParent;
+				bSelectable = oth.bSelectable;
 			}
 			return *this;
 		}
+
+		virtual void Render(SDL_Surface *dest, int x, int y) = 0;
 
 	};
 
-private:
-	class CPureLine  {
+	// Group of objects
+	// An example of a group is a link (<a></a>)
+	class CObjectGroup  {
+	private:
+		std::list<CBrowserObject *> tObjects;
 	public:
-		CPureLine(const std::string& text) : sText(text), iLeftMargin(0) {}
-		CPureLine(const std::string& text, int margin) : sText(text), iLeftMargin(margin) {}
+		CObjectGroup()  {}
+		CObjectGroup(const CObjectGroup& oth)  { operator=(oth); }
+		virtual CObjectGroup& operator=(const CObjectGroup& oth)  {
+			if (&oth != this)
+				tObjects = oth.tObjects;
+			return *this;
+		}
+		virtual ~CObjectGroup() {}
 
-		CPureLine(const CPureLine& oth)  { operator=(oth); }
-		CPureLine& operator=(const CPureLine& oth)  {
+		virtual void DoMouseMove(int x, int y)	{}
+		virtual void DoClick(int x, int y)		{}
+
+		const std::list<CBrowserObject *>& getObjects()	{ return tObjects; }
+		void addObject(CBrowserObject *obj)				{ tObjects.push_back(obj); }
+		bool InBox(int x, int y);
+	};
+
+private:
+	class CBrowserLine  {
+	public:
+		CBrowserLine() : iLeftMargin(0), iHeight(0), iDocumentY(0) {}
+		CBrowserLine(int margin) : iLeftMargin(margin), iHeight(0), iDocumentY(0) {}
+
+		CBrowserLine(const CBrowserLine& oth)  { operator=(oth); }
+		CBrowserLine& operator=(const CBrowserLine& oth)  {
 			if (&oth != this)  {
-				sText = oth.sText;
+				iHeight = oth.iHeight;
 				iLeftMargin = oth.iLeftMargin;
+				iMaxWidth = oth.iMaxWidth;
+				iDocumentY = oth.iDocumentY;
+				tObjects = oth.tObjects;
+				sPureText = oth.sPureText;
 			}
 			return *this;
 		}
-	public:
-		std::string sText;
-		int			iLeftMargin;
 
-		size_t size()	{ return sText.size(); }
+		~CBrowserLine();
+	private:
+		int			iHeight;
+		int			iLeftMargin;
+		int			iMaxWidth;
+		int			iDocumentY;
+		std::list<CBrowserObject *> tObjects;
+		std::string	sPureText; // For better selection handling
+
+	public:
+		void setHeight(int h)		{ iHeight = h; }
+		void setLeftMargin(int m)	{ iLeftMargin = m; }
+		void setMaxWidth(int m)		{ iMaxWidth = m; }
+		void setDocumentY(int y)	{ iDocumentY = y; }
+		int	getHeight()				{ return iHeight; }
+		int	getLeftMargin()			{ return iLeftMargin; }
+		int getMaxWidth()			{ return iMaxWidth; }
+		int getDocumentY()			{ return iDocumentY; }
+		bool isEmpty()				{ return tObjects.empty(); }
+		void ClearObjects()			{ tObjects.clear(); sPureText.clear(); }
+		const std::string& getPureText()	{ return sPureText; }
+
+		std::list<CBrowserObject *>& getObjects()	{ return tObjects; }
+		void addObject(CBrowserObject *obj);
+	};
+
+	class ParseContext  {
+	public:
+		FontFormat		tFormat;
+		CObjectGroup	*tCurrentGroup;
 	};
 
 private:
 	// Attributes
 	CHttp					cHttp;
-	std::string				tData;
 	std::string				sURL;
 	std::string				sHostName;
 	bool					bFinished;
-	int						iClientWidth;
-	int						iClientHeight;
 	htmlDocPtr				tHtmlDocument;
 	htmlNodePtr				tRootNode;
-	std::vector<CPureLine>	tPureText;
-	std::list<CActiveArea>	tActiveAreas;
+	std::vector<CBrowserLine *>	tLines;
+	std::list<CObjectGroup *>	tGroups;
 	float					fLastMouseScroll;
 	int						iBorderSize;
+	size_t					iDocumentHeight;
 
 	// Parsing temps
-	FontFormat				tCurrentFormat;
-	std::stack<FontFormat>	tFormatStack;
+	ParseContext			tCurrentContext;
+	std::stack<ParseContext> tContextStack;
+	CBrowserLine			*tCurrentLine;
 	Color					tBgColor;
 	int						curX;
 	int						curY;
-	std::string				sCurLine;
 	int						iCurIndent; // Where the new lines should start (left margin)
-	bool					bInPre;  // True if inside PRE tag
 
 	// Selection & caret
 	size_t					iCursorColumn;
@@ -202,10 +271,6 @@ private:
 	bool					bDrawCursor;
 	Timer					*tTimer;  // For cursor blink
 
-	// Links
-	bool					bInLink;
-	CActiveArea				cCurrentLink;
-
 	// Window attributes
 	CScrollbar				cScrollbar;
 	bool					bUseScroll;
@@ -215,13 +280,22 @@ private:
 	bool					bNeedsRender;
 
 	// Methods
-	void					Parse();
-	void					ParseTag(std::string::const_iterator& it, std::string::const_iterator& last, std::string& cur_line);
+	htmlDocPtr				ParseHTML(const std::string& data);
+	void					AppendDocument(htmlDocPtr doc);
+	void					AppendNode(xmlNodePtr node);
+	void					UpdateRenderObjects();
+	void					ClearParser();
+	void					InitNodeWalk();
+	void					EndNodeWalk();
 	void					RenderContent();
-	int						TextW(const std::string& text, FontFormat& fmt);
-	void					RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text);
-	void					TraverseNodes(xmlNodePtr node);
-	void					BrowseChildren(xmlNodePtr node);
+	bool					GetDrawSelectionBounds(size_t& top_line, size_t& bot_line);
+	void					DrawSelectionForText(CBrowserObject *obj, size_t& line, size_t& column, int scroll_y);
+	void					DrawSelection();
+	void					AddObject(CBrowserObject *obj);
+	void					AddTextObject(const std::string& text);
+	void					ParseText(const std::string& text);
+	void					WalkNodes(xmlNodePtr node);
+	void					WalkChildren(xmlNodePtr node);
 	bool					InSelection(size_t line, size_t column);
 	std::string				GetSelectedText();
 	bool					IsSelectionEmpty();
@@ -234,14 +308,14 @@ private:
 	void					ResetScrollbar();
 	void					AdjustBuffer();
 	void					OnTimerEvent(Timer::EventData ev);
+	void					PushContext()	{ tContextStack.push(tCurrentContext); }
+	void					PopContext()	{ tCurrentContext = tContextStack.top(); tContextStack.pop(); }
 	
 	
 	// Link helper functions
 	void					StartLink(const std::string& url);
 	void					EndLink();
 	std::string				GetFullURL(const std::string& url);
-	void					LinkClickHandler(CActiveArea *area);
-	void					LinkMouseMoveHandler(CActiveArea *area);
 
 
 public:
@@ -250,6 +324,8 @@ public:
 
 	void	Create(void);
 	void	Destroy(void);
+
+	void	ClearDocument()	{ ClearParser(); bNeedsRender = true; }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -285,7 +361,7 @@ public:
 	std::string GetChatBoxText();
 	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
 	void	ScrollToLastLine(void);
-	inline bool	NeedsRepaint()  { return bNeedsRender; }
+	bool	NeedsRepaint()  { return bNeedsRender; }
 
 
 	// TODO: add function for getting individual text lines & their color

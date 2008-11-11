@@ -19,8 +19,10 @@
 #include <stack>
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
+#include "GuiPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "StringBuf.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "XMLutils.h"
 #include "Clipboard.h"
@@ -32,6 +34,212 @@
 namespace DeprecatedGUI {
 
 #define LIST_SPACING 10
+#define DEFAULT_LINE_HEIGHT (tLX->cFont.GetHeight())
+
+//
+// Text object
+//
+class CTextObject : public CBrowser::CBrowserObject {
+public:
+	CTextObject() { iType = objText; bSelectable = true; }
+	CTextObject(CBrowser *parent, const std::string& text, const FontFormat& f, int x, int y) : 
+	CBrowser::CBrowserObject(parent, MakeRect(x, y, tLX->cFont.GetWidth(text), tLX->cFont.GetHeight()))
+		{ sText = text; iType = objText; tFormat = f; bSelectable = true; }
+	CTextObject(const CTextObject& oth)  { operator=(oth); }
+
+	virtual CTextObject& operator=(const CTextObject& oth)  {
+		CBrowser::CBrowserObject::operator=(oth);
+		if (&oth != this)  {
+			sText = oth.sText;
+			tFormat = oth.tFormat;
+		}
+		return *this;
+	}
+
+	virtual ~CTextObject() {}
+
+protected:
+	std::string sText;
+	FontFormat	tFormat;
+
+public:
+	const std::string& getText() const	{ return sText; }
+	void setText(const std::string& text)	{ tRect.w = tLX->cFont.GetWidth(text); sText = text; }
+
+	// Render the text object
+	virtual void Render(SDL_Surface *dest, int x, int y)  
+	{
+		tLX->cFont.Draw(dest, x, y, tFormat.color.get(), sText);
+		if (tFormat.bold)
+			tLX->cFont.Draw(dest, x + 1, y, tFormat.color.get(), sText);
+		if (tFormat.underline)
+			DrawHLine(dest, x, x + tRect.w, y + tRect.h - 2, tFormat.color);
+	}
+
+	virtual void Clear()  { CBrowser::CBrowserObject::Clear(); setText(""); }
+
+	// Split the text object in two objects, the first object won't be wider than the specified width
+	// WARNING: if the length of this object is less than maxwidth, the second object will be set to NULL
+	// WARNING 2: the first object always points to this object, so don't free this object!
+	std::pair<CTextObject *, CTextObject *> Split(int maxwidth)
+	{
+		std::pair<CTextObject *, CTextObject *> result(NULL, NULL);
+
+		if (tRect.w <= maxwidth)  {
+			result.first = this;
+			return result;
+		}
+
+		int w = 0;
+		std::string::const_iterator it = sText.begin();
+
+		while (it != sText.end())  {
+
+			// If the next word overflows, make the split
+			std::string word = GetNextWord(it, sText);
+			int word_w = tLX->cFont.GetWidth(word);
+			w += word_w + tLX->cFont.GetSpacing();
+			if (w > maxwidth)  {
+				result.first = this;
+				if (word_w > maxwidth)  {
+					// Hard break
+					size_t res = GetPosByTextWidth(sText, maxwidth, &tLX->cFont);
+					result.second = new CTextObject(tParent, std::string(it + res, sText.end()), tFormat, tRect.x + w - word_w, tRect.y);
+					sText.erase(res);
+					tRect.w = tLX->cFont.GetWidth(sText);
+				} else {
+					if (it == sText.end())  {
+						result.second = NULL;
+					} else {
+						result.second = new CTextObject(tParent, std::string(it, sText.end()), tFormat, tRect.x + w - word_w, tRect.y);
+						setText(std::string(sText.begin(), it - 1));
+					}
+				}
+
+				return result;
+			}
+
+			it += word.size();
+			if (it != sText.end())  {
+				w += tLX->cFont.GetCharacterWidth((uchar)*it) + tLX->cFont.GetSpacing(); // The space
+				it++;
+			}
+		}
+
+		// Should not happen
+		result.first = this;
+		result.second = NULL;
+
+		return result;
+	}
+	
+};
+
+//
+// List item object
+//
+#define ARROW_W 3
+#define ARROW_H 5
+class CListItemObject : public CBrowser::CBrowserObject {
+public:
+	CListItemObject() { iType = objList; }
+	CListItemObject(CBrowser *parent, int x, int y) : 
+	CBrowser::CBrowserObject(parent, MakeRect(x, y, LIST_SPACING + ARROW_W * 2, tLX->cFont.GetHeight())) { iType = objList; }
+	CListItemObject(const CListItemObject& oth)  { operator=(oth); }
+
+public:
+
+	// Render the list item object
+	virtual void Render(SDL_Surface *dest, int x, int y)  
+	{
+		DrawArrow(dest, x, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardLeft, tLX->clNormalText);
+		DrawArrow(dest, x + ARROW_W, y + (tRect.h - ARROW_H)/2, ARROW_W, ARROW_H, ardRight, tLX->clNormalText);
+	}
+};
+
+//
+// Hrizontal rule object
+//
+class CHorizontalRuleObject : public CBrowser::CBrowserObject {
+public:
+	CHorizontalRuleObject() { iType = objHr; tColor = Color(0, 0, 0); }
+	CHorizontalRuleObject(CBrowser *parent, Color color, const SDL_Rect& rect) : 
+	CBrowser::CBrowserObject(parent, rect) { iType = objHr; tColor = color; }
+	CHorizontalRuleObject(const CHorizontalRuleObject& oth)  { operator=(oth); }
+	CHorizontalRuleObject& operator=(const CHorizontalRuleObject& oth)  {
+		CBrowser::CBrowserObject::operator=(oth);
+		if (&oth != this)  {
+			tColor = oth.tColor;
+		}
+		return *this;
+	}
+
+private:
+	Color tColor;
+
+public:
+
+	// Render the horizontal rule object
+	virtual void Render(SDL_Surface *dest, int x, int y)  
+	{
+		DrawHLine(dest, x, x + tRect.w, y + tRect.h / 2, tColor);
+	}
+};
+
+//
+// Link group
+//
+class CLinkGroup : public CBrowser::CObjectGroup  {
+public:
+	CLinkGroup(const std::string& url) : sURL(url) {}
+	CLinkGroup(const CLinkGroup& oth) { operator=(oth); }
+
+	CLinkGroup& operator=(const CLinkGroup& oth)  {
+		CBrowser::CObjectGroup::operator=(oth);
+		if (&oth != this)
+			sURL = oth.sURL;
+		return *this;
+	}
+private:
+	std::string sURL;
+public:
+	void DoMouseMove(int x, int y)		{ SetGameCursor(CURSOR_HAND); }
+	void DoClick(int x, int y)			{ OpenLinkInExternBrowser(sURL); }
+};
+
+
+////////////////////////
+// Add an object to browser line
+void CBrowser::CBrowserLine::addObject(CBrowser::CBrowserObject *obj)
+{
+	tObjects.push_back(obj);
+	if (obj->getHeight() > iHeight)
+		iHeight = obj->getHeight();
+	if (obj->getType() == CBrowserObject::objText)
+		sPureText += ((CTextObject *)obj)->getText();
+}
+
+///////////////////////
+// Browser line destructor
+CBrowser::CBrowserLine::~CBrowserLine()
+{
+	for (std::list<CBrowserObject *>::iterator i = tObjects.begin(); i != tObjects.end(); i++)
+		delete (*i);
+	tObjects.clear();
+}
+
+
+///////////////////////////
+// Returns true if the cursor is inside the group
+bool CBrowser::CObjectGroup::InBox(int x, int y)
+{
+	for (std::list<CBrowserObject *>::const_iterator it = tObjects.begin(); it != tObjects.end(); it++)  {
+		if ((*it)->InBox(x, y))
+			return true;
+	}
+
+	return false;
+}
 
 ///////////////////
 // The create event
@@ -42,15 +250,12 @@ void CBrowser::Create(void)
 
 	bUseScroll = false;
 	bNeedsRender = true;
-	iClientWidth = iWidth - 2*iBorderSize;
-	iClientHeight = iHeight - 2*iBorderSize;
 
 	// Setup the scrollbar
-	cScrollbar.Setup(0, iX+iWidth-15, iY+iBorderSize, 14, iHeight-iBorderSize);
 	cScrollbar.Create();
 	cScrollbar.setMin(0);
 	cScrollbar.setValue(0);
-	cScrollbar.setItemsperbox(iHeight);
+	cScrollbar.setItemsperbox(1);
 	cScrollbar.setMax(0);
 
 	// Setup the cursor blink timer
@@ -65,6 +270,9 @@ void CBrowser::Create(void)
 	}
 }
 
+
+///////////////////
+// Destroy event
 void CBrowser::Destroy()
 {
 	if (tHtmlDocument)
@@ -74,6 +282,10 @@ void CBrowser::Destroy()
 		delete tTimer;
 		tTimer = NULL;
 	}
+
+	ClearParser();
+
+	tCurrentLine = NULL;
 	tHtmlDocument = NULL;
 	tRootNode = NULL;
 }
@@ -84,7 +296,6 @@ void CBrowser::LoadFromHTTP(const std::string& url)
 {
 	// Send the HTTP request
 	bFinished = false;
-	tData.clear();
 	cHttp.RequestData(url, tLXOptions->sHttpProxy);
 	sHostName = cHttp.GetHostName();
 	sURL = cHttp.GetUrl();
@@ -94,7 +305,6 @@ void CBrowser::LoadFromHTTP(const std::string& url)
 // Load the contents from a file
 void CBrowser::LoadFromFile(const std::string& file)
 {
-	tData.clear();
 	bFinished = false;
 	std::ifstream *fp = OpenGameFileR(file);
 	if (!fp)
@@ -102,17 +312,18 @@ void CBrowser::LoadFromFile(const std::string& file)
 
 	sURL = file;
 	sHostName = "";
+	std::string data;
 	while (!fp->eof())  {
 		std::string tmp;
 		std::getline(*fp, tmp);
-		tData += tmp;
+		data += tmp;
 	}
 
 	fp->close();
 	delete fp;
 
 	bFinished = true;
-	Parse();
+	LoadFromString(data);
 }
 
 ////////////////////////
@@ -121,17 +332,28 @@ void CBrowser::LoadFromString(const std::string& data)
 {
 	sHostName = "";
 	sURL = "";
-	tData = data;
+	ClearDocument();
+	AppendData(data);
 	bFinished = true;
-	Parse();
+
+	cScrollbar.setValue(0);
+	bUseScroll = false;
 }
 
 /////////////////////////
 // Append data to the browser
 void CBrowser::AppendData(const std::string& data)
 {
-	tData += data;
-	Parse();
+	htmlDocPtr doc = ParseHTML(data);
+	if (!doc)  {
+		// Append as pure text
+		xmlNodePtr node = xmlNewNode(NULL, (xmlChar *)"span");
+		xmlNodeAddContent(node, (const xmlChar *)data.c_str());
+		AppendNode(node);
+		xmlFreeNode(node);
+		return;
+	}
+	AppendDocument(doc);
 }
 
 ///////////////////
@@ -146,40 +368,87 @@ void CBrowser::ProcessHTTP()
 	case HTTP_PROC_PROCESSING:
 		break;
 	case HTTP_PROC_ERROR:
-		tData = cHttp.GetData();
-		if (tData.empty())
-			tData = "An error occured while loading: " + cHttp.GetError().sErrorMsg;
-		Parse();
-		bFinished = true;
+		if (cHttp.GetData().empty())
+			LoadFromString("An error occured while loading: " + cHttp.GetError().sErrorMsg);
+		else
+			LoadFromString(cHttp.GetData());
 		break;
 	case HTTP_PROC_FINISHED:
-		tData = cHttp.GetData();
-		Parse();
-		bFinished = true;
+		LoadFromString(cHttp.GetData());
 		break;
 	}
 }
 
-///////////////////
-// Parses the HTTP data
-void CBrowser::Parse()
+//////////////////////
+// Clears the parser to prepare it for new parsing
+void CBrowser::ClearParser()
 {
-	if (tHtmlDocument)
-		xmlFreeDoc(tHtmlDocument);
+	while (tContextStack.size()) tContextStack.pop();
+	tCurrentContext.tCurrentGroup = NULL;
+	tCurrentContext.tFormat = FontFormat();
+	tCurrentContext.tFormat.color = tLX->clNormalText;
+	curX = iBorderSize;
+	curY = iBorderSize;
+	iDocumentHeight = 0;
 
-	tHtmlDocument = NULL;
-	tRootNode = NULL;
+	// Free the groups
+	for (std::list<CObjectGroup *>::iterator it = tGroups.begin(); it != tGroups.end(); it++)
+		delete (*it);
 
+	// Free the lines
+	for (std::vector<CBrowserLine *>::iterator it = tLines.begin(); it != tLines.end(); it++)
+		delete (*it);
+
+	tGroups.clear();
+	tLines.clear();
+}
+
+//////////////////////
+// Initialization before changing the DOM tree
+void CBrowser::InitNodeWalk()
+{
+	curX = iBorderSize;
+	curY = iDocumentHeight;
+
+	// Prepare the first line
+	tCurrentLine = new CBrowserLine();
+	tCurrentLine->setMaxWidth(iWidth - iBorderSize * 2 - cScrollbar.getWidth());
+	tCurrentLine->setHeight(0);
+	tCurrentLine->setLeftMargin(0);
+	tCurrentLine->setDocumentY(curY);
+
+	tCurrentContext.tCurrentGroup = NULL;
+	tCurrentContext.tFormat = FontFormat();
+	tCurrentContext.tFormat.color = tLX->clNormalText;
+}
+
+////////////////////////
+// Finalization of the DOM tree walk
+void CBrowser::EndNodeWalk()
+{
+	if (tCurrentLine)  {
+		if (!tCurrentLine->isEmpty())
+			EndLine();
+		delete tCurrentLine;
+		tCurrentLine = NULL;
+	}
+}
+
+////////////////////////
+// Converts the HTML data to XML document tree
+// Returns NULL on failure
+htmlDocPtr CBrowser::ParseHTML(const std::string &data)
+{
 	// Get the context
-	htmlParserCtxtPtr context = htmlCreateMemoryParserCtxt(tData.data(), tData.size());
+	htmlParserCtxtPtr context = htmlCreateMemoryParserCtxt(data.data(), data.size());
 	if (!context)
-		return;
+		return NULL;
 
 	// Parse the file
-	htmlDocPtr document = htmlCtxtReadDoc(context, (xmlChar *)tData.data(), NULL, NULL, 0);
+	htmlDocPtr document = htmlCtxtReadDoc(context, (xmlChar *)data.data(), NULL, NULL, 0);
 	if (!document)  {
 		htmlFreeParserCtxt(context);
-		return;
+		return NULL;
 	}
 
 	// Get the root element
@@ -187,31 +456,110 @@ void CBrowser::Parse()
 	if (!node || !node->children)  {
 		xmlFreeDoc(document);
 		htmlFreeParserCtxt(context);
-		return;
-	}
-
-	// Get the <body> element, to easily get "bgcolor" attr from it
-	node = node->children;
-	while (node)  {
-		if( !xmlStrcasecmp(node->name, (xmlChar *)"body") )
-			break;
-		node = node->next;
-	}
-
-	if (!node)  {
-		xmlFreeDoc(document);
-		htmlFreeParserCtxt(context);
-		return;
+		return NULL;
 	}
 
 	// Success
-	tHtmlDocument = document;
-	tRootNode = node;
+	return document;
+}
 
-	cScrollbar.setValue(0);
-	bUseScroll = false;
+//////////////////////
+// Appends a document and all its subnodes at the end of the current document
+// WARNING: the document gets freed in this function, don't use it after passing it here
+void CBrowser::AppendDocument(htmlDocPtr doc)
+{
+	if (!doc)
+		return;
+
+	// Make sure the given document contains nodes
+	xmlNodePtr node = xmlDocGetRootElement(doc);
+	if (!node)  {
+		xmlFreeDoc(doc);
+		return;
+	}
+
+	// If there's no document to append to, just make the given one the default document
+	if (!tHtmlDocument)  {
+		tHtmlDocument = doc;
+		tRootNode = node;
+		UpdateRenderObjects();
+		return;
+	}
+
+	// Append the root node and all its subnodes
+	AppendNode(node);
+
+	xmlFreeDoc(doc);
+}
+
+/////////////////////////
+// Appends a node at the end of the current document
+void CBrowser::AppendNode(xmlNodePtr node)
+{
+	if (!tHtmlDocument || !node)
+		return;
+
+	xmlNodePtr doc_node = xmlDocGetRootElement(tHtmlDocument);
+	if (!doc_node)
+		return;
+
+	// Find the BODY node
+	while (doc_node)  {
+		if (xmlStrcmp(doc_node->name, (xmlChar *)"body") == 0)
+			break;
+		if (doc_node->next)
+			doc_node = node->next;
+		doc_node = doc_node->children;
+	}
+
+	if (!doc_node)
+		doc_node = xmlDocGetRootElement(tHtmlDocument); // No body tag - jsut take the root element
+	
+	// Recursively append the node
+	xmlNodePtr walk_node = node;
+	while (walk_node)  {
+		xmlNodePtr sub_node = node;
+		while (sub_node) {
+			xmlNodePtr copy = xmlCopyNode(sub_node, true);
+			if (copy)
+				xmlAddChild(doc_node, copy);
+			if(sub_node != node)
+				sub_node = sub_node->next;
+			else
+				break;
+		}
+		walk_node = walk_node->next;
+	}
+
+	// Append the lines
+	InitNodeWalk();
+	WalkNodes(node);
+	EndNodeWalk();
+
+	ResetScrollbar();
+
 	bNeedsRender = true;
 }
+
+/////////////////////////
+// Synchronizes the XML tree with rendering lines (tLines)
+// Should be called anytime the XML tree is changed
+void CBrowser::UpdateRenderObjects()
+{
+	ClearParser();
+
+	if (!tHtmlDocument)
+		return;
+
+	InitNodeWalk();
+	WalkNodes(xmlDocGetRootElement(tHtmlDocument));
+	EndNodeWalk();
+
+	ResetScrollbar();
+
+	bNeedsRender = true;
+}
+
 
 ///////////////////
 // Mouse down event
@@ -224,7 +572,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if(bUseScroll && tMouse->X > iX+iWidth-20)
 	{
 		cScrollbar.MouseDown(tMouse, nDown);
-		bNeedsRender = true; // Always redraw, scrollbar may change it's image
+		bNeedsRender = true; // Always redraw, scrollbar may change its image
 		return BRW_NONE;
 	}
 
@@ -287,9 +635,10 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 
 	// Check if any of the active areas has been clicked
 	if (!tMouse->Down)  {
-		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
-			if (it->InBox(tMouse->X - iX, tMouse->Y - iY))  {
-				it->DoMouseMove(tMouse->X, tMouse->Y);
+		int scroll = bUseScroll ? cScrollbar.getValue() : 0;
+		for (std::list<CObjectGroup *>::iterator it = tGroups.begin(); it != tGroups.end(); it++) {
+			if ((*it)->InBox(tMouse->X - iX, tMouse->Y - iY + scroll * DEFAULT_LINE_HEIGHT))  {
+				(*it)->DoMouseMove(tMouse->X, tMouse->Y - iY + scroll * DEFAULT_LINE_HEIGHT);
 				break;
 			}
 		}
@@ -340,9 +689,10 @@ int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 
 	// Check if any of the active areas has been clicked
 	if (sel.size() == 0)  {
-		for (std::list<CActiveArea>::iterator it = tActiveAreas.begin(); it != tActiveAreas.end(); it++) {
-			if (it->InBox(tMouse->X - iX, tMouse->Y - iY))  {
-				it->DoClick(tMouse->X, tMouse->Y);
+		int scroll = bUseScroll ? cScrollbar.getValue() : 0;
+		for (std::list<CObjectGroup *>::iterator it = tGroups.begin(); it != tGroups.end(); it++) {
+			if ((*it)->InBox(tMouse->X - iX, tMouse->Y - iY + scroll * DEFAULT_LINE_HEIGHT))  {
+				(*it)->DoClick(tMouse->X, tMouse->Y - iY + scroll * DEFAULT_LINE_HEIGHT);
 				break;
 			}
 		}
@@ -365,22 +715,22 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 	switch (keysym)  {
 	case SDLK_DOWN:
-		if (iCursorLine < tPureText.size() - 1)  {
+		if (iCursorLine < tLines.size() - 1)  {
 			++iCursorLine;
-			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the beginning of it
 				if (iSelectionStartLine == oldline && iSelectionStartColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -388,22 +738,22 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		}
 	return BRW_KEY_PROCESSED;
 	case SDLK_UP:
-		if (iCursorLine > 0 && iCursorLine < tPureText.size())  {
+		if (iCursorLine > 0 && iCursorLine < tLines.size())  {
 			--iCursorLine;
-			iCursorColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+			iCursorColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 			AdjustScrollbar();
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the end of it
 				if (iSelectionEndLine == oldline && iSelectionEndColumn == oldcol && !IsSelectionEmpty())  {
 					iSelectionEndLine = iCursorLine;
-					iSelectionEndColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+					iSelectionEndColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 					SwapSelectionEnds();
 
 				// No selection or cursor at the end of the selection
 				} else {
 					iSelectionStartLine = iCursorLine;
-					iSelectionStartColumn = MIN(Utf8StringSize(tPureText[iCursorLine].sText), iCursorColumn);
+					iSelectionStartColumn = MIN(Utf8StringSize(tLines[iCursorLine]->getPureText()), iCursorColumn);
 				}
 			} else {
 				ClearSelection();
@@ -412,9 +762,9 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_KEY_PROCESSED;
 
 	case SDLK_RIGHT:
-		if (iCursorLine < tPureText.size())  {
-			if (iCursorColumn >= Utf8StringSize(tPureText[iCursorLine].sText))  {
-				if  (iCursorLine < tPureText.size() - 1)  {
+		if (iCursorLine < tLines.size())  {
+			if (iCursorColumn >= Utf8StringSize(tLines[iCursorLine]->getPureText()))  {
+				if  (iCursorLine < tLines.size() - 1)  {
 					iCursorColumn = 0;
 					++iCursorLine;
 					AdjustScrollbar();
@@ -441,11 +791,11 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_KEY_PROCESSED;
 
 	case SDLK_LEFT:
-		if (tPureText.size() > 0)  {
+		if (tLines.size() > 0)  {
 			if (iCursorColumn == 0)  {
 				if  (iCursorLine > 0)  {
 					--iCursorLine;
-					iCursorColumn = MAX(0, (int)Utf8StringSize(tPureText[MIN(tPureText.size() - 1, iCursorLine)].sText));
+					iCursorColumn = MAX(0, (int)Utf8StringSize(tLines[MIN(tLines.size() - 1, iCursorLine)]->getPureText()));
 					AdjustScrollbar();
 				}
 			} else {
@@ -470,7 +820,7 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_KEY_PROCESSED;
 
 	case SDLK_HOME:
-		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
+		if (tLines.size() > 0 && iCursorLine < tLines.size())  {
 			iCursorColumn = 0;
 
 			if (modstate.bShift)  {
@@ -495,8 +845,8 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	return BRW_KEY_PROCESSED;
 
 	case SDLK_END:
-		if (tPureText.size() > 0 && iCursorLine < tPureText.size())  {
-			iCursorColumn = Utf8StringSize(tPureText[iCursorLine].sText);
+		if (tLines.size() > 0 && iCursorLine < tLines.size())  {
+			iCursorColumn = Utf8StringSize(tLines[iCursorLine]->getPureText());
 
 			if (modstate.bShift)  {
 				// There is a selection and the cursor is at the beginning of it
@@ -532,9 +882,9 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
     if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_a) {
 		iSelectionStartLine = 0;
 		iSelectionStartColumn = 0;
-		if (tPureText.size())  {
-			iCursorLine = iSelectionEndLine = tPureText.size() - 1;
-			iCursorColumn = iSelectionEndColumn = Utf8StringSize(tPureText[iSelectionEndLine].sText);
+		if (tLines.size())  {
+			iCursorLine = iSelectionEndLine = tLines.size() - 1;
+			iCursorColumn = iSelectionEndColumn = Utf8StringSize(tLines[iSelectionEndLine]->getPureText());
 		} else {
 			iCursorLine = iCursorColumn = iSelectionEndLine = iSelectionEndColumn = 0;
 		}
@@ -573,15 +923,22 @@ void CBrowser::AdjustBuffer()
 // Draws the cursor
 void CBrowser::DrawCursor(SDL_Surface *bmpDest)
 {
+	if (iCursorLine >= tLines.size())
+		return;
+
 	// Check if the cursor is displayed
-	if (bUseScroll)
-		if ((int)iCursorLine < cScrollbar.getValue() || (int)iCursorLine > cScrollbar.getValue() + cScrollbar.getItemsperbox())
+	if (bUseScroll)  {
+		int scroll_y = cScrollbar.getValue() * DEFAULT_LINE_HEIGHT;
+		int line_y = tLines[iCursorLine]->getDocumentY();
+
+		if (line_y < scroll_y || line_y > scroll_y + iHeight)
 			return;
+	}
 
 	if (bFocused && bDrawCursor)  {
 		int x, y;
 		CursorPosToMousePos(iCursorColumn, iCursorLine, x, y);
-		DrawVLine(bmpDest, y, y + tLX->cFont.GetHeight(), x, tLX->clTextboxCursor);
+		DrawVLine(bmpDest, y, y + tLines[iCursorLine]->getHeight(), x, tLX->clTextboxCursor);
 	}
 }
 
@@ -595,6 +952,11 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 
 	DrawImage(bmpDest, bmpBuffer.get(), iX, iY);
 	DrawCursor(bmpDest);
+
+	// Scrollbar
+	if (bUseScroll)  {
+		cScrollbar.Draw(bmpDest);
+	}
 }
 
 /////////////////////
@@ -603,38 +965,43 @@ void CBrowser::MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cu
 {
 	cur_x = cur_y = 0;
 
-	size_t scroll_val = (bUseScroll ? cScrollbar.getValue() : 0);
-
-	if (tPureText.empty())
+	if (tLines.empty())
 		return;
 
 	// Get the line
-	int y = ms_y - iY - iBorderSize;
-	int line = y / tLX->cFont.GetHeight() + scroll_val;
-	if (line >= (int)tPureText.size())
-		line = tPureText.size() - 1;
-	if (line < 0)
-		line = 0;
+	size_t line = 0;
+	std::vector<CBrowserLine *>::const_iterator ln = tLines.begin();
+	int scroll_y = bUseScroll ? cScrollbar.getValue() * DEFAULT_LINE_HEIGHT : 0;
+	int doc_y = scroll_y + ms_y - iY - iBorderSize;
 
-	int x = ms_x - iX - iBorderSize - tPureText[line].iLeftMargin;
+	for (; ln != tLines.end(); ln++)  {
+		if (doc_y < (*ln)->getDocumentY() + (*ln)->getHeight())
+			break;
+		++line;
+	}
+
+	// If clicked below all lines, take the last one
+	if (ln == tLines.end())  {
+		line--;
+		ln--;
+	}
+	
+	int x = ms_x - iX;
 
 	// Get the column
 	size_t column = 0;
 	if (x > 0)  {
-		int width = 0;
-		int next_width = 0;
-
-		std::string::const_iterator it = tPureText[line].sText.begin();
-		while (it != tPureText[line].sText.end())  {
-
-			UnicodeChar c = GetNextUnicodeFromUtf8(it, tPureText[line].sText.end());
-			width = next_width;
-			next_width += tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
-
-			if (width <= x && x <= next_width)
+		std::list<CBrowserObject *>::iterator obj = (*ln)->getObjects().begin();
+		for (; obj != (*ln)->getObjects().end(); obj++)  {
+			bool text = (*obj)->getType() == CBrowserObject::objText;
+			if (x >= (*obj)->tRect.x && x < (*obj)->tRect.x + (*obj)->tRect.w)  {
+				if (text)
+					column += GetPosByTextWidth(((CTextObject *)(*obj))->getText(), x - (*obj)->tRect.x, &tLX->cFont);
 				break;
+			}
 
-			++column;
+			if (text)
+				column += Utf8StringSize(((CTextObject *)(*obj))->getText());
 		}
 	}
 
@@ -650,55 +1017,59 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 	ms_x = iX + iBorderSize;
 	ms_y = iY + iBorderSize;
 
-	int scroll = (bUseScroll ? cScrollbar.getValue() : 0);
-	int y = MAX(0, ((int)cur_y - scroll) * tLX->cFont.GetHeight());
-
 	// Get the Y coordinate
-	if (cur_y >= tPureText.size())
+	if (cur_y >= tLines.size())
 		return;
 
+	int scroll = (bUseScroll ? cScrollbar.getValue() : 0);
+	int y = 0;
+	size_t i = 0;
+	for (std::vector<CBrowserLine *>::iterator ln = tLines.begin(); i < cur_y; ln++)  {
+		y += (*ln)->getHeight();
+		++i;
+	}
+	y -= scroll * DEFAULT_LINE_HEIGHT;
+
 	// Get the X coordinate
-	size_t count = MIN(cur_x, Utf8StringSize(tPureText[cur_y].sText));
-	std::string tmp = Utf8SubStr(tPureText[cur_y].sText, 0, count);
-	int x = tLX->cFont.GetWidth(tmp);
+	size_t count = MIN(cur_x, Utf8StringSize(tLines[cur_y]->getPureText()));
+	int x = tLines[cur_y]->getLeftMargin();
+	size_t count_i = 0;
+	for (std::list<CBrowserObject *>::const_iterator obj = tLines[cur_y]->getObjects().begin();
+		obj != tLines[cur_y]->getObjects().end(); obj++)  {
+			if ((*obj)->getType() == CBrowserObject::objText)  {
+				CTextObject *o = (CTextObject *)(*obj);
+				size_t txt_size = Utf8StringSize(o->getText());
+				if (txt_size + count_i <= count)  {
+					count_i += txt_size;
+				} else {
+					x = o->tRect.x + tLX->cFont.GetWidth(Utf8SubStr(o->getText(), 0, count - count_i));
+					break;
+				}
+			}
 
-	ms_x = iX + iBorderSize + x + tPureText[cur_y].iLeftMargin;
-	ms_y = iY + iBorderSize + y;
-}
+			x = (*obj)->tRect.x + (*obj)->tRect.w;
+	}
 
-//////////////////////
-// Returns width of the given text
-int CBrowser::TextW(const std::string& text, FontFormat& fmt)
-{
-	if (fmt.bold)
-		return tLX->cFont.GetWidth(text) + 1;
-	else
-		return tLX->cFont.GetWidth(text);
+	ms_x = iX + x;
+	ms_y = iY + y;
 }
 
 ////////////////////
 // Creates a new line and pushes the current one to the pure text stack
 void CBrowser::EndLine()
 {
-	// Trim trailing space if present
-	if (sCurLine.size())
-		if (*sCurLine.rbegin() == ' ')  {
-			sCurLine.resize(sCurLine.size() - 1);
-			curX -= tLX->cFont.GetCharacterWidth(' ') + 1;
-		}
-
-	// Multiline link? Split it into multiple links
-	if (bInLink)  {
-		std::string url = cCurrentLink.getStringData();
-		EndLink();
-		StartLink(url);
-	}
-
 	// Add the line to the pure text and start a new line
-	tPureText.push_back(CPureLine(sCurLine, iCurIndent));
-	sCurLine.clear();
-	curY += tLX->cFont.GetHeight();
+	tLines.push_back(tCurrentLine);
+
+	curY += tCurrentLine->getHeight();
 	curX = iBorderSize + iCurIndent;
+	iDocumentHeight += tCurrentLine->getHeight();
+
+	tCurrentLine = new CBrowserLine(iCurIndent);
+
+	tCurrentLine->setDocumentY(iDocumentHeight);
+	tCurrentLine->setHeight(tLX->cFont.GetHeight());
+	tCurrentLine->setMaxWidth(iWidth - 2*iBorderSize - iCurIndent - cScrollbar.getWidth());
 }
 
 ////////////////////
@@ -743,39 +1114,14 @@ std::string CBrowser::GetFullURL(const std::string& url)
 // Starts a link area
 void CBrowser::StartLink(const std::string& url)
 {
-	// Already in a link, ignore
-	if (bInLink)
-		return;
-
-	bInLink = true;
-
-	cCurrentLink.Clear();
-
-
-	// Setup the information
-	cCurrentLink.tRect.x = curX;
-	cCurrentLink.tRect.y = curY;
-	cCurrentLink.sData = GetFullURL(url);
-	cCurrentLink.tParent = this;
-	cCurrentLink.tClickFunc = &CBrowser::LinkClickHandler;
-	cCurrentLink.tMouseMoveFunc = &CBrowser::LinkMouseMoveHandler;
+	tCurrentContext.tCurrentGroup = new CLinkGroup(GetFullURL(url));
 }
 
 //////////////////////////
 // Ends the link area
 void CBrowser::EndLink()
 {
-	bInLink = false;
-
-	// Finish the rect
-	cCurrentLink.tRect.w = curX - cCurrentLink.tRect.x;
-	cCurrentLink.tRect.h = curY - cCurrentLink.tRect.y + tLX->cFont.GetHeight();
-
-	// Add it to the list
-	tActiveAreas.push_back(cCurrentLink);
-
-	// Cleanup
-	cCurrentLink.Clear();
+	tGroups.push_back(tCurrentContext.tCurrentGroup);
 }
 
 /////////////////////////////
@@ -789,218 +1135,81 @@ void CBrowser::ReRender()
 
 	// 3D Box
 	if (iBorderSize > 0)  {
-		DrawRect(bmpBuffer.get(), 0, 0, iWidth, iHeight, tLX->clBoxDark);
-		DrawRect(bmpBuffer.get(), 1, 1, iWidth - 1, iHeight - 1, tLX->clBoxLight);
+		DrawRect(bmpBuffer.get(), 0, 0, iWidth - 1, iHeight - 1, tLX->clBoxDark);
+		DrawRect(bmpBuffer.get(), 1, 1, iWidth - 2, iHeight - 2, tLX->clBoxLight);
 	}
 	
 	// Render the content
 	RenderContent();
 
-	// Scrollbar
-	if (bUseScroll)  {
-		cScrollbar.Setup(cScrollbar.getID(), iWidth - cScrollbar.getWidth() - iBorderSize,
-			iBorderSize, cScrollbar.getWidth(), cScrollbar.getHeight());
-		cScrollbar.Draw(bmpBuffer.get());
-		cScrollbar.Setup(0, iX+iWidth-15, iY+iBorderSize, 14, iHeight-iBorderSize);
+	bNeedsRender = false;
+}
+
+
+//////////////////////
+// Add an object to the current line and group
+void CBrowser::AddObject(CBrowser::CBrowserObject *obj)
+{
+	tCurrentLine->addObject(obj);
+	if (tCurrentContext.tCurrentGroup)
+		tCurrentContext.tCurrentGroup->addObject(obj);
+	curX += obj->getWidth();
+}
+
+////////////////////////
+// Adds a text to the line and performs necessary wrapping
+void CBrowser::AddTextObject(const std::string& text)
+{
+	if (text.empty())
+		return;
+
+	// Create the text object and split it into more lines if necessary
+	CTextObject *txt = new CTextObject(this, text, tCurrentContext.tFormat, curX, curY);
+	while (curX + txt->getWidth() > tCurrentLine->getMaxWidth())  {
+		std::pair<CTextObject *, CTextObject *> split = txt->Split(tCurrentLine->getMaxWidth() - curX);
+		AddObject(split.first);
+
+		if (split.second)  {
+			txt = split.second;
+			EndLine();
+			txt->tRect.x = curX;
+			txt->tRect.y = curY;
+		} else
+			break;
 	}
 
-	bNeedsRender = false;
+	if (txt) // Add the last line
+		AddObject(txt);
 }
 
 ///////////////////////////
 // Renders a chunk of text with the given style
-void CBrowser::RenderText(SDL_Surface *bmpDest, FontFormat& fmt, int& curX, int& curY, int maxX, const std::string& text)
+void CBrowser::ParseText(const std::string& text)
 {
 	if(!text.size()) return;
-	static const int tab_size = 5; // Length of a tabulator (in spaces)
 
-	// Text
-	bool was_space = false;
-	bool was_cr = false;
-	if (sCurLine.size())  {
-		was_space = isspace((uchar)*sCurLine.rbegin()) != 0;
-		was_cr = *sCurLine.rbegin() == '\r';
-	}
-
-	size_t current_column = Utf8StringSize(sCurLine);
-	for (std::string::const_iterator it = text.begin(); it != text.end();)  {
-		std::string word;
-
-		// Handle multiple blank characters
-		if ((*it == '\n' || *it == '\r' || *it == ' ' || *it == '\t') && (sCurLine.size() != 0 || bInPre))  {
-			// In PRE tag the blank characters are kept
-			if (bInPre)  {
-				was_space = true;
-				int width = 0;
-
-				switch (*it)  {
-				case '\n': // Newline
-					if (!was_cr)  {
-						EndLine();
-						current_column = 0;
-						was_cr = false;
-					}
-				break;
-				case '\r':
-					EndLine();
-					current_column = 0;
-					was_cr = true;
-				break;
-				case '\t':  { // Tab
-					was_cr = false;
-					sCurLine += *it;
-					int tablen = tab_size * (tLX->cFont.GetCharacterWidth(' ') + tLX->cFont.GetSpacing());
-					if (curX + tablen >= maxX)  { // If the tab is too wide, just skip to next line
-						EndLine();
-						current_column = 0;
-					} else  {
-						current_column++;
-						curX += tablen;
-						width = tablen;
-					}
-				} break;
-				case ' ':  // Space
-					was_cr = false;
-					sCurLine += *it;
-					if (curX + tLX->cFont.GetCharacterWidth(' ') >= maxX)  {
-						EndLine();
-						current_column = 0;
-					} else  {
-						current_column++;
-						width = tLX->cFont.GetCharacterWidth(' ') + tLX->cFont.GetSpacing();
-						curX += width;
-					}
-				break;
-				}
-
-				// Draw the selection
-				if (width && InSelection(tPureText.size(), current_column - 1))  {
-					DrawRectFill(bmpBuffer.get(), curX - width, curY, curX, curY + tLX->cFont.GetHeight(), tLX->clSelection);
-				}
-
-				it++;
-				continue;
-
-
-			// Not in PRE tag, ignore doubled spaces
-			} else {
-				// Ignore CRs
-				if (*it == '\r')  {
-					it++;
-					was_cr = true;
-					was_space = true;
-					continue;
-				}
-
-				if (!was_space)  {
-					word = " ";
-					was_cr = false;
-				} else {
-					it++;
-					was_space = true;
-					was_cr = false;
-					continue;
-				}
-			}
-
-		// Normal word
-		} else {
-			was_space = false;
-			was_cr = false;
-			
-			// Ignore empty words
-			word = GetNextWord(it, text);
-			if (word.size() == 0)  {
-				it++;
-				continue;
-			}
-
-			// If the word is longer than the width, do a hard break
-			if (TextW(word, fmt) > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
-				int w = 0;
-				std::string::const_iterator wit = word.begin();
-				size_t last_size = 0;
-
-				// Find out where to do the hard break
-				for (; wit != word.end(); )  {
-					UnicodeChar c = GetNextUnicodeFromUtf8(wit, word.end(), last_size);
-					w += tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
-
-					// Break
-					if (w > iWidth - cScrollbar.getWidth() - 2 * iBorderSize)  {
-						EndLine();
-						RenderText(bmpDest, fmt, curX, curY, maxX, std::string((std::string::const_iterator)word.begin(), wit - last_size));
-						EndLine();
-						RenderText(bmpDest, fmt, curX, curY, maxX, std::string(wit - last_size, (std::string::const_iterator)word.end()));
-						current_column = sCurLine.size();
-						it += word.size();
-						break;
-					}
-
-				}
-
-				continue;
-				
-			}
-		}
-
-		// Word wrap
-		int width = TextW(word, fmt);
-		if (curX + width >= maxX)  {
+	const FontFormat& fmt = tCurrentContext.tFormat;
+	if (fmt.preformatted)  { // Keep newlines
+		StringBuf str(text);
+		std::vector<std::string> lines = str.splitBy('\n');
+		for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++)  {
+			AddTextObject(*it);
 			EndLine();
-			current_column = 0;
-			if (word != " ")
-				sCurLine += word;
-			else  {
-				it++;
-				continue; // Ignore blanks at the beginning of the line
-			}
-		} else
-			sCurLine += word;
-		it += word.size();
+		}
+	} else {
+		std::string tmp;
+		replace(text, "\r\n", " ", tmp);
+		replace(tmp, "\n", " ", tmp);
+		replace(tmp, "\t", " ", tmp);
+		while (replace(tmp, "  ", " ", tmp)) {}  // Get rid of doubled blanks
 
-
-		// Don't draw the line if it's not visible
-		if (bUseScroll && ((int)tPureText.size() < cScrollbar.getValue() ||
-			(int)tPureText.size() > cScrollbar.getValue() + cScrollbar.getItemsperbox()))  {
-			current_column += word.size();
-			curX += width;
-			was_space = ((*word.rbegin()) == ' ');  // HINT: word.size() != 0 here
-			continue;
+		// Don't add blanks at the beginning of the line
+		if (tCurrentLine->isEmpty())  {
+			while (tmp.size() && isspace((uchar)*tmp.begin()))
+				tmp.erase(0, 1);
 		}
 
-		// Render the word
-		std::string::const_iterator word_it = word.begin();
-		while (word_it != word.end())  {
-
-			// Get the character
-			UnicodeChar c = GetNextUnicodeFromUtf8(word_it, word.end());
-			int w = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
-
-			// Draw selection
-			if(bmpDest) {
-				if (InSelection(tPureText.size(), current_column)) {
-					DrawRectFill(bmpDest, curX, curY, curX + w, curY + tLX->cFont.GetHeight(), tLX->clSelection);
-				}
-
-				// Draw the character
-				tLX->cFont.DrawGlyph(bmpDest, curX, curY, fmt.color, c);
-
-				// Bold
-				if (fmt.bold)
-					tLX->cFont.DrawGlyph(bmpDest, curX + 1, curY, fmt.color, c);
-
-				// Underline
-				if (fmt.underline)
-					DrawHLine(bmpDest, curX, curX + w, curY + tLX->cFont.GetHeight() - 2, fmt.color);
-			}
-			
-			curX += w;
-			++current_column;
-		}
-
-
-		was_space = (word.size() == 1 && *word.begin() == ' ');
+		AddTextObject(tmp);
 	}
 }
 
@@ -1026,36 +1235,36 @@ std::string CBrowser::GetSelectedText()
 {
 	// One line selection
 	if (iSelectionStartLine == iSelectionEndLine)  {
-		if (iSelectionStartLine < tPureText.size() && iSelectionStartColumn < iSelectionEndColumn)  {
-			size_t len = Utf8StringSize(tPureText[iSelectionStartLine].sText);
+		if (iSelectionStartLine < tLines.size() && iSelectionStartColumn < iSelectionEndColumn)  {
+			size_t len = Utf8StringSize(tLines[iSelectionStartLine]->getPureText());
 			if (iSelectionStartColumn < len && iSelectionEndColumn <= len)
-				return Utf8SubStr(tPureText[iSelectionStartLine].sText, iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
+				return Utf8SubStr(tLines[iSelectionStartLine]->getPureText(), iSelectionStartColumn, iSelectionEndColumn - iSelectionStartColumn);
 		}
 
 	// More lines
 	} else {
 		// Safety checks
-		if (iSelectionStartLine > iSelectionEndLine || iSelectionStartLine >= tPureText.size() ||
-			iSelectionEndLine >= tPureText.size())
+		if (iSelectionStartLine > iSelectionEndLine || iSelectionStartLine >= tLines.size() ||
+			iSelectionEndLine >= tLines.size())
 			return "";
 
 		std::string res;
 
 		// First line
-		if (iSelectionStartColumn < Utf8StringSize(tPureText[iSelectionStartLine].sText))  {
-			res += Utf8SubStr(tPureText[iSelectionStartLine].sText, iSelectionStartColumn);
+		if (iSelectionStartColumn < Utf8StringSize(tLines[iSelectionStartLine]->getPureText()))  {
+			res += Utf8SubStr(tLines[iSelectionStartLine]->getPureText(), iSelectionStartColumn);
 			res += '\n';
 		}
 
 		// All other lines
 		int diff = iSelectionEndLine - iSelectionStartLine;
 		for (int i = 1; i < diff; ++i)  {
-			res += tPureText[iSelectionStartLine + i].sText + "\n";
+			res += tLines[iSelectionStartLine + i]->getPureText() + "\n";
 		}
 
 		// Last line
-		if (iSelectionEndColumn <= Utf8StringSize(tPureText[iSelectionEndLine].sText))
-			res += Utf8SubStr(tPureText[iSelectionEndLine].sText, 0, iSelectionEndColumn);
+		if (iSelectionEndColumn <= Utf8StringSize(tLines[iSelectionEndLine]->getPureText()))
+			res += Utf8SubStr(tLines[iSelectionEndLine]->getPureText(), 0, iSelectionEndColumn);
 
 		return res;
 	}
@@ -1111,11 +1320,24 @@ void CBrowser::AdjustScrollbar(bool mouse)
 	if (mouse && tLX->fCurTime - fLastMouseScroll <= 0.1f)
 		return;
 
-	// Scroll down/up if necessary
-	if ((int)iCursorLine >= cScrollbar.getValue() + cScrollbar.getItemsperbox())
-		cScrollbar.setValue((int)iCursorLine - cScrollbar.getItemsperbox() + 1);
-	else if ((int)iCursorLine < cScrollbar.getValue())
-		cScrollbar.setValue(iCursorLine);
+	if (iCursorLine >= tLines.size())
+		return;
+
+	int scroll_y = cScrollbar.getValue() * DEFAULT_LINE_HEIGHT;
+	int line_y = tLines[iCursorLine]->getDocumentY();
+	int line_h = tLines[iCursorLine]->getHeight();
+
+	// Scroll up if necessary
+	while (scroll_y > line_y && cScrollbar.getValue() > 0)  {
+		cScrollbar.setValue(cScrollbar.getValue() - 1);
+		scroll_y -= DEFAULT_LINE_HEIGHT;
+	}
+
+	// Scroll down if necessary
+	while (scroll_y + iHeight < line_y + line_h && cScrollbar.getValue() <= cScrollbar.getMax())  {
+		cScrollbar.setValue(cScrollbar.getValue() + 1);
+		scroll_y += DEFAULT_LINE_HEIGHT;
+	}
 
 	if (mouse)
 		fLastMouseScroll = tLX->fCurTime;
@@ -1125,14 +1347,14 @@ void CBrowser::AdjustScrollbar(bool mouse)
 
 
 //////////////////////
-// Helper function for TraverseNodes below
-void CBrowser::BrowseChildren(xmlNodePtr node)
+// Helper function for WalkNodes below
+void CBrowser::WalkChildren(xmlNodePtr node)
 {
 	// Process the children
 	if (node->children)  {
 		xmlNodePtr child = node->children;
 		while (child)  {
-			TraverseNodes(child);
+			WalkNodes(child);
 			child = child->next;
 		}
 	}
@@ -1140,53 +1362,51 @@ void CBrowser::BrowseChildren(xmlNodePtr node)
 
 
 ////////////////////////
-// Recursivelly walks through the nodes and renders them
-void CBrowser::TraverseNodes(xmlNodePtr node)
+// Recursivelly walks through the nodes
+void CBrowser::WalkNodes(xmlNodePtr node)
 {
 	if (!node)
 		return;
 
 	const int maxX = iWidth - iBorderSize - 16;
 
-	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) {}
-	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) {}
-	else if (!xmlStrcasecmp(node->name, (xmlChar *)"embed")) {}
-	else if (!xmlStrcasecmp(node->name, (xmlChar *)"object")) {}
+	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) return;
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) return;
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"embed")) return;
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"object")) return;
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"head")) return;
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"title")) return;
 
 	// Bold
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"b") || !xmlStrcasecmp(node->name, (xmlChar *)"strong"))  {
-		tFormatStack.push(tCurrentFormat);
-		tCurrentFormat.bold = true;
-		BrowseChildren(node);
-		tCurrentFormat = tFormatStack.top();
-		tFormatStack.pop();
+		PushContext();
+		tCurrentContext.tFormat.bold = true;
+		WalkChildren(node);
+		PopContext();
 		return;
 	}
 
 	// Underline
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"u"))  {
-		tFormatStack.push(tCurrentFormat);
-		tCurrentFormat.underline = true;
-		BrowseChildren(node);
-		tCurrentFormat = tFormatStack.top();
-		tFormatStack.pop();
+		PushContext();
+		tCurrentContext.tFormat.underline = true;
+		WalkChildren(node);
+		PopContext();
 		return;
 	}
 
 	// Color
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"font"))  {
-		tFormatStack.push(tCurrentFormat);
-		tCurrentFormat.color = xmlGetColour(node, "color");
-		BrowseChildren(node);
-		tCurrentFormat = tFormatStack.top();
-		tFormatStack.pop();
+		PushContext();
+		tCurrentContext.tFormat.color = xmlGetColour(node, "color", tCurrentContext.tFormat.color);
+		WalkChildren(node);
+		PopContext();
 		return;
 	}
 
 	// Newline
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"br"))  {
 		EndLine();
-		sCurLine = '\r';
 		return;
 	}
 
@@ -1194,72 +1414,64 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"p") || !xmlStrcasecmp(node->name, (xmlChar *)"div")
 		|| !xmlStrcasecmp(node->name, (xmlChar *)"ul") || !xmlStrcasecmp(node->name, (xmlChar *)"ol"))  {
 		// Don't create a blank newline (classical web browsers don't do that either)
-		if (sCurLine.size() != 0)
+		if (!tCurrentLine->isEmpty())
 			EndLine();
-		BrowseChildren(node);
+		WalkChildren(node);
 		return;
 	}
 
 	// List item
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"li"))  {
-		curX += LIST_SPACING;
-		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX, curY, tCurrentFormat.color, 0xA4);
-		tLX->cFont.DrawGlyph(bmpBuffer.get(), curX + 1, curY, tCurrentFormat.color, 0xA4);
-		curX += tLX->cFont.GetCharacterWidth(0xA4) + LIST_SPACING;
-		iCurIndent = 2 * LIST_SPACING + tLX->cFont.GetCharacterWidth(0xA4);
-		BrowseChildren(node);
-		EndLine();
+		CListItemObject *li = new CListItemObject(this, curX, curY);
+		AddObject(li);
+		iCurIndent = li->getWidth();
+		WalkChildren(node);
 		iCurIndent = 0; // Back to normal indentation
-		curX = iBorderSize;
+		EndLine();
 		return;
 	}
 
 	// Pre
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"pre"))  {
-		if (sCurLine.size() > 0)
+		if (!tCurrentLine->isEmpty())
 			EndLine();
-		bInPre = true;
-		BrowseChildren(node);
+		PushContext();
+		tCurrentContext.tFormat.preformatted = true;
+		WalkChildren(node);
 		EndLine();
-		bInPre = false;
+		PopContext();
 		return;
 	}
 
 	// Headings (h1 - h6)
 	else if (xmlStrlen(node->name) == 2 && node->name[0] == 'h' && node->name[1] >= '1' && node->name[1] <= '6')  {
-		tFormatStack.push(tCurrentFormat);
-		tCurrentFormat.bold = true;
+		PushContext();
+		tCurrentContext.tFormat.bold = true;
 		EndLine();
-		BrowseChildren(node);
+		WalkChildren(node);
 		EndLine();
-		tCurrentFormat = tFormatStack.top();
-		tFormatStack.pop();
+		PopContext();
 		return;
 	}
 
 	// Link (<a href= ...)
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"a"))  {
-
 		std::string url = xmlGetString(node, "href");
-		if (url.size() && !bInLink)  {	
+		if (url.size())  {	
 			// Setup the format (blue underlined text by default)
-			tFormatStack.push(tCurrentFormat);
-			tCurrentFormat.color = Color(0, 0, 255);
-			tCurrentFormat.underline = true;
+			PushContext();
+			tCurrentContext.tFormat.color = Color(0, 0, 255);
+			tCurrentContext.tFormat.underline = true;
 
-			StartLink(url);
-		}
+			tCurrentContext.tCurrentGroup = new CLinkGroup(GetFullURL(url));
 
-		// Get the content of the link
-		BrowseChildren(node);
+			// Get the content of the link
+			WalkChildren(node);
 
-		// End the link
-		if (bInLink)  {
-			EndLink();
+			tGroups.push_back(tCurrentContext.tCurrentGroup);
 
 			// Restore the old format
-			tCurrentFormat = tFormatStack.top();
-			tFormatStack.pop();
+			PopContext();
 		}
 
 		return;
@@ -1267,16 +1479,125 @@ void CBrowser::TraverseNodes(xmlNodePtr node)
 
 	// Horizontal rule
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"hr"))  {
-		EndLine();
-		DrawHLine(bmpBuffer.get(), curX + 5, iWidth - iBorderSize - 5, curY + tLX->cFont.GetHeight() / 2, Color(0, 0, 0));
+		if (!tCurrentLine->isEmpty())
+			EndLine();
+		AddObject(new CHorizontalRuleObject(this, xmlGetColour(node, "color", Color(0, 0, 0)), 
+			MakeRect(curX + 5, curY, tCurrentLine->getMaxWidth() - 11, tCurrentLine->getHeight())));
 		EndLine();
 		return;
 	}
 
-	else if (!xmlStrcasecmp(node->name, (xmlChar *)"text") && node->content)
-		RenderText(bmpBuffer.get(), tCurrentFormat, curX, curY, maxX, (const char *)node->content);
+	// Body
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"body"))  {
+		tBgColor = xmlGetColour(node, "bcolor", tBgColor);
+	}
 
-	BrowseChildren(node);
+	// Plain text
+	else if (!xmlStrcasecmp(node->name, (xmlChar *)"text") && node->content)
+		ParseText((const char *)node->content);
+
+	WalkChildren(node);
+}
+
+////////////////////////
+// Helper function for DrawSelection
+void CBrowser::DrawSelectionForText(CBrowser::CBrowserObject *obj, size_t& line, size_t& column, int scroll_y)
+{
+	assert(obj->getType() == CBrowserObject::objText);
+
+	CTextObject *o = (CTextObject *)obj;
+	size_t len = Utf8StringSize(o->getText());
+	int x2 = o->tRect.x + o->tRect.w;
+	int x = o->tRect.x;
+
+	bool sel = false; // False if the selection should not be drawn at all
+
+	// Beginning in selection?
+	if (!InSelection(line, column + len))
+		x2 = o->tRect.x + tLX->cFont.GetWidth(Utf8SubStr(o->getText(), 0, iSelectionEndColumn - column));
+	else
+		sel = true;
+
+	// End in selection?
+	if (!InSelection(line, column))
+		x = o->tRect.x + tLX->cFont.GetWidth(Utf8SubStr(o->getText(), 0, iSelectionStartColumn - column));
+	else
+		sel = true;
+
+	// Even if the beginning and end are not in the selection, the object can contain a selection inside, for example:
+	// This is some |selected| text
+	if (sel || (iSelectionStartColumn >= column && iSelectionEndColumn <= column + len && iSelectionStartLine == iSelectionEndLine))
+		DrawRectFill(bmpBuffer.get(), x, o->tRect.y - scroll_y, x2, 
+			o->tRect.y + o->tRect.h - scroll_y, tLX->clSelection);
+
+	column += len;
+}
+
+///////////////////////////
+// Helper function for DrawSelection
+// Gets the upper and lower lines of the selection, that are visible
+// Returns false if no lines are visible
+bool CBrowser::GetDrawSelectionBounds(size_t &top_line, size_t &bot_line)
+{
+	// No selection or lines out of bounds
+	if (IsSelectionEmpty() || iSelectionStartLine >= tLines.size() || iSelectionEndLine >= tLines.size())
+		return false;
+
+	int scroll_y = (bUseScroll ? cScrollbar.getValue() * DEFAULT_LINE_HEIGHT : 0);
+	top_line = iSelectionStartLine;
+	bot_line = iSelectionEndLine;
+
+	// Exclude the lines that are out of the box
+	while (tLines[top_line]->getDocumentY() - scroll_y < 0 && top_line < tLines.size() - 1)
+		++top_line;
+	while (tLines[bot_line]->getDocumentY() - scroll_y > iHeight && bot_line)
+		--bot_line;
+
+	return bot_line >= top_line;
+}
+
+////////////////////////
+// Draws the selection
+void CBrowser::DrawSelection()
+{
+	size_t sel_start_line, sel_end_line;
+
+	// Don't draw if no selection
+	if (!GetDrawSelectionBounds(sel_start_line, sel_end_line))
+		return;
+
+	int scroll_y = (bUseScroll ? cScrollbar.getValue() * DEFAULT_LINE_HEIGHT : 0);
+
+#define FOR_EACH_OBJECT(line) for (std::list<CBrowserObject *>::const_iterator obj = (line)->getObjects().begin(); obj != (line)->getObjects().end(); obj++)
+
+	std::vector<CBrowserLine *>::iterator it = tLines.begin() + sel_start_line;
+	std::vector<CBrowserLine *>::iterator end = tLines.begin() + sel_end_line + 1;
+
+	// Draw all lines of the selection
+	size_t line = sel_start_line;
+	for (; it != end; it++)  {
+		size_t column = 0;
+		FOR_EACH_OBJECT(*it)  {
+			if (!(*obj)->isSelectable())
+				continue;
+
+			// Text object selection
+			if ((*obj)->getType() == CBrowserObject::objText)  {
+				DrawSelectionForText((*obj), line, column, scroll_y); // HINT: column gets updated here
+				continue;
+			}
+
+			// Don't draw if not in selection
+			if (!InSelection(line, column))
+				continue;
+
+			// Blue filled rect under the object
+			DrawRectFill(bmpBuffer.get(), (*obj)->tRect.x, (*obj)->tRect.y - scroll_y, (*obj)->tRect.x + (*obj)->tRect.w, 
+				(*obj)->tRect.y + (*obj)->tRect.h - scroll_y, tLX->clSelection);
+		}
+
+		++line;
+	}
 }
 
 //////////////////
@@ -1290,30 +1611,41 @@ void CBrowser::RenderContent()
 		//DrawRectFill(bmpDest, iX + iBorderSize, iY + iBorderSize, iX + iWidth, iY + iHeight, tLX->clChatBoxBackground);
 		return;
 	}
-	
-	tPureText.clear();
-	tActiveAreas.clear();
-	
-	curX = iBorderSize;
-	curY = iBorderSize - (bUseScroll ? cScrollbar.getValue() * tLX->cFont.GetHeight() : 0);
-	tCurrentFormat.bold = false; 
-	tCurrentFormat.underline = false;
-	tCurrentFormat.color = xmlGetColour(tRootNode, "text", tLX->clNormalText);
-	tBgColor = xmlGetColour(tRootNode, "bgcolor", tLX->clChatBoxBackground);
 
 	// Background
 	DrawRectFill(bmpBuffer.get(), iBorderSize, iBorderSize, iWidth, iHeight, tBgColor);
-	
-	while (tFormatStack.size()) tFormatStack.pop();  // Free any previous stack
 
 	// Setup the clipping
-	SDL_Rect clip = {iBorderSize, iBorderSize, iWidth - iBorderSize, iHeight - iBorderSize};
+	SDL_Rect clip = {iBorderSize, iBorderSize, iWidth - iBorderSize * 2, iHeight - iBorderSize * 2};
 	SDL_SetClipRect(bmpBuffer.get(), &clip);
 
-	// Go through the document
-	sCurLine.clear();
-	TraverseNodes(tRootNode);
-	EndLine(); // Add the last parsed line
+	// Selection
+	DrawSelection();
+
+	size_t start_y = bUseScroll ? cScrollbar.getValue() * DEFAULT_LINE_HEIGHT : 0;
+	start_y += iBorderSize;
+
+	size_t y = iBorderSize;
+	size_t line = 0;
+	for (std::vector<CBrowserLine *>::iterator it = tLines.begin(); it != tLines.end(); it++, line++)  {
+		// Don't draw above the window area
+		if (y < start_y)  {
+			y += (*it)->getHeight();
+			continue;
+		}
+
+		// Render the objects
+		size_t col = 0;
+		for (std::list<CBrowserObject *>::const_iterator obj = (*it)->getObjects().begin(); obj != (*it)->getObjects().end(); obj++)  {
+			(*obj)->Render(bmpBuffer.get(), (*obj)->tRect.x, y - start_y);
+		}
+
+		y += (*it)->getHeight();
+
+		// Don't draw below the window area
+		if (y - start_y > (size_t)iHeight)
+			break;
+	}
 
 	ResetScrollbar();
 
@@ -1321,14 +1653,19 @@ void CBrowser::RenderContent()
 	SDL_SetClipRect(bmpBuffer.get(), NULL);
 }
 
+///////////////////////
+// Shows or hides the scrollbar
 void CBrowser::ResetScrollbar() {
-	int linesperbox = iHeight / tLX->cFont.GetHeight();
-	if ((int)tPureText.size() >= linesperbox + 1)  {
-		cScrollbar.setMax(tPureText.size() - 1);
-		cScrollbar.setItemsperbox(linesperbox - 1);
+	int linesperbox = iHeight / DEFAULT_LINE_HEIGHT;
+	if (iDocumentHeight > (size_t)(iHeight - 2 * iBorderSize))  {
+		cScrollbar.Setup(0, iX + iWidth - 14 - iBorderSize - 1, iY + iBorderSize, 14, iHeight - 2*iBorderSize);
+		cScrollbar.setMax((iDocumentHeight / DEFAULT_LINE_HEIGHT));
+		cScrollbar.setItemsperbox(linesperbox);
 		bUseScroll = true;
-	} else
+	} else  {
+		cScrollbar.setValue(0);
 		bUseScroll = false;	
+	}
 }
 
 /////////////////////////
@@ -1356,101 +1693,40 @@ static const char * txtTypeNames[] = {
 // Initialize as a chatbox
 void CBrowser::InitializeChatBox( const std::string & initText )
 {
-	tData = initText;
-	if( tData == "" )
-		tData = "<html><body bgcolor=\"transparent\"></body></html>"; // Transparent background
-	Parse();
+	if (initText.size())
+		LoadFromString(initText);
+	else
+		LoadFromString("<html><body bgcolor=\"transparent\"></body></html>");
 }
 
 ///////////////////////////////
 // Add a new line to the browser
 void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold, bool underline)
 {
-	if (!tHtmlDocument || !tRootNode)
-		return;
 	if (textType < TXT_CHAT || textType > TXT_TEAMPM)
 		textType = TXT_NOTICE; // Default
-		
-	// Create the new line node
-	xmlNodePtr line = xmlNewChild( tRootNode, NULL, (const xmlChar *)"div", NULL );
-
-	xmlNewProp( line, (const xmlChar *)"class", (const xmlChar *)txtTypeNames[textType] );
-
-	line = xmlNewChild( line, NULL, (const xmlChar *)"font", NULL );
 
 	// Format
-	char t[20];
-	sprintf(t, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
-	xmlNewProp( line, (const xmlChar *)"color", (const xmlChar *)t );
+	char string_color[20];
+	sprintf(string_color, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
 
-	if( bold )
-		line = xmlNewChild( line, NULL, (const xmlChar *)"b", NULL );
-	if( underline )
-		line = xmlNewChild( line, NULL, (const xmlChar *)"u", NULL );
+	std::string code = "<font color=\"" + std::string(string_color) + "\">" + 
+		AutoDetectLinks(HtmlEntityUnpairedBrackets(text)) + "</font>";
 
-	const bool useHtml = true;	
-	if(useHtml) {
-		// Parse the line as HTML and insert the nodes
-		std::string doc = "<html><body>" + AutoDetectLinks(HtmlEntityUnpairedBrackets(text)) + "</body></html>";
+	if (bold)
+		code = "<b>" + code + "</b>";
+	if (underline)
+		code = "<u>" + code + "</u>";
 
-		htmlDocPtr line_doc = htmlParseDoc((xmlChar *)doc.data(), "UTF-8");
-		if (!line_doc || !xmlDocGetRootElement(line_doc))  {
-			xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
-		} else {
+	// Wrap it to a div for better management
+	code = "<html><body><div class=\"" + std::string(txtTypeNames[textType]) + "\">" + code + "</div></body></html>";
 
-			// Add all the nodes to the line node
-			xmlNodePtr node = xmlDocGetRootElement(line_doc); // html-node
-			while (node)  {
-				if (xmlStrcmp(node->name, (xmlChar *)"body") == 0)
-					break;
-				if (node->next)
-					node = node->next;
-				node = node->children;
-			}
-			if(node) node = node->children; // data
-			
-			if (!node)  {
-				xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed
-			} else {
-				while (node)  {
-					xmlNodePtr subNode = node;
-					// under some systems, the text is put into an additional <p>-tag
-					if(subNode && xmlStrcmp(subNode->name, (xmlChar *)"p") == 0)
-						subNode = subNode->children;
-					while(subNode) {
-						xmlNodePtr copy = xmlCopyNode(subNode, true);
-						if (copy)
-							xmlAddChild(line, copy);
-						if(subNode != node)
-							subNode = subNode->next;
-						else
-							break;
-					}
-					node = node->next;
-				}
-			}
-		}
-		
-		if(line_doc) {
-			xmlFreeDoc(line_doc);
-			line_doc = NULL;
-		}
-	}
-	else { // use no html
-		xmlNodeAddContent( line, (const xmlChar *)text.c_str() ); // Add as a pure text if HTML failed		
-	}
+	// Parse the line as HTML and insert the nodes
+	AppendData(code);
 	
-	EndLine();
-	AdjustBuffer();
-	TraverseNodes(line);
-	ResetScrollbar();
-	
-	bNeedsRender = true;
-	
-	if( bUseScroll ) {
+	// Scroll to last line
+	if (bUseScroll)
 		ScrollToLastLine();
-	}
-	
 }
 
 //////////////////////
@@ -1471,31 +1747,30 @@ std::string CBrowser::GetChatBoxText()
 
 //////////////////////
 // Remove all network messages from chatbox, and remove extra lines if more than 127 lines
-void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount )
+void CBrowser::CleanUpChatBox(const std::vector<TXT_TYPE> & removedText, int maxLineCount)
 {
 	if (!tHtmlDocument || !tRootNode)
 		return;
 	
 	int lineCount = 0;
-	for( xmlNodePtr node = tRootNode->children; node != NULL; )
-	{
+	for (xmlNodePtr node = tRootNode->children; node != NULL; )  {
 		xmlNodePtr nextNode = node->next;
-		lineCount ++;
-		if( xmlStrcasecmp(node->name, (xmlChar *)"div") != 0 )
-		{
+		lineCount++;
+
+		// Remove all elements that are not in a div (these should not appear in the chatbox)
+		if (xmlStrcasecmp(node->name, (xmlChar *)"div") != 0 )  {
 			xmlUnlinkNode(node);
 			xmlFreeNode(node);
 			lineCount --;
-		}
-		else
-		{
-			std::string divClass = xmlGetString( node, "class", "CHAT" );
-			for( size_t i = 0; i < removedText.size(); i++ )
-				if( txtTypeNames[removedText[i]] == divClass )
-				{
+		} else {
+			std::string divClass = xmlGetString(node, "class", "CHAT");
+
+			// Unlink all the non-chat nodes
+			for (size_t i = 0; i < removedText.size(); i++ )
+				if (txtTypeNames[removedText[i]] == divClass)  {
 					xmlUnlinkNode(node);
 					xmlFreeNode(node);
-					lineCount --;
+					lineCount--;
 					break;
 				}
 		}
@@ -1503,61 +1778,28 @@ void CBrowser::CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int ma
 		node = nextNode;
 	}
 	
-	for( xmlNodePtr node = tRootNode->children; node != NULL && lineCount > maxLineCount; lineCount -- )
-	{
+	// Free lines that exceed the maximum allowed chatbox size
+	for (xmlNodePtr node = tRootNode->children; node != NULL && lineCount > maxLineCount; lineCount--)  {
 		xmlUnlinkNode(node);
 		xmlFreeNode(node);
 	}
 
-	bNeedsRender = true;
+	tRootNode = xmlDocGetRootElement(tHtmlDocument); // Safety
+
+	// Synchronize the XML tree and the rendering objects
+	UpdateRenderObjects();
+
 	ScrollToLastLine();
 }
 
+////////////////////////
+// Scrolls to the end of the document
 void CBrowser::ScrollToLastLine(void)
 {
-	// TODO: is it always needed to reset the scrollbar stuff when bNeedsRender==true? why is that so? and why is the scrollbar not reset immediatly when needed?
-	if( bNeedsRender )
-		ResetScrollbar(); // To update scrollbar max size
-	if( bUseScroll )
-	{
+	if (bUseScroll )  {
 		cScrollbar.setValue(cScrollbar.getMax());
 		bNeedsRender = true;
 	}
-}
-
-/////////////////////////
-// A callback function that gets called when the user clicks on a link
-void CBrowser::LinkClickHandler(CBrowser::CActiveArea *area)
-{
-	SetGameCursor(CURSOR_HAND);
-	OpenLinkInExternBrowser( area->getStringData() );
-}
-
-/////////////////////////
-// A callback function that gets called when the user moves a mouse over a link
-void CBrowser::LinkMouseMoveHandler(CBrowser::CActiveArea *area)
-{
-	SetGameCursor(CURSOR_HAND);
-}
-
-//
-// CActiveArea class
-//
-
-///////////////////
-// Click on the active area
-void CBrowser::CActiveArea::DoClick(int x, int y)
-{
-	if (tClickFunc)
-		(tParent->*tClickFunc)(this);
-}
-
-///////////////////
-// Mouse moving over the area
-void CBrowser::CActiveArea::DoMouseMove(int x, int y)
-{
-	if (tMouseMoveFunc)
-		(tParent->*tMouseMoveFunc)(this);
 }
 
 }; // namespace DeprecatedGUI

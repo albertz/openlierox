@@ -1962,14 +1962,17 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	// the mouse image when the user moves cursor away
 	int inbox = MouseInRect(lv->getX(),lv->getY() - GetCursorWidth(CURSOR_ARROW), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
+	bool painted = false;
 
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged)  {	// Repainting when new messages/scrolling,
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged || bGameMenu)  {	// Repainting when new messages/scrolling,
 																				// or when user is moving the mouse over the chat
 
 		// Local and net play use different backgrounds
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
 		if (tLX->iGameType == GME_LOCAL)
 			bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
+
+		painted = true;
 
 		if (bgImage.get())  // Due to backward compatibility, this doesn't have to exist
 			DrawImageAdv(bmpDest,
@@ -1994,11 +1997,12 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	else if (Mouse->WheelScrollUp)
 		lv->MouseWheelUp(Mouse);
 
-	if (inbox)  {
+	if (lv->InBox(Mouse->X, Mouse->Y))  {
+		
 		SetGameCursor(CURSOR_ARROW);
 
 		// Draw the mouse
-		if (Mouse->deltaX || Mouse->deltaY)
+		if (Mouse->deltaX || Mouse->deltaY || painted)
 			DrawCursor(bmpDest);
 		lv->MouseOver(Mouse);
 		if (Mouse->Down)

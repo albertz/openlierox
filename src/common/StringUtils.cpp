@@ -763,10 +763,6 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 	if (str == "" || it == str.end())
 		return "";
 
-	// Skip any blanks at the beginning
-	while (it != str.end() && isspace((uchar)*it))
-		it++;
-
 	// Check
 	if (it == str.end())
 		return "";
@@ -839,6 +835,29 @@ std::string HtmlEntityUnpairedBrackets(const std::string &txt)
 	return result;
 }
 
+///////////////////////////////
+// Returns position in the text specified by the substring pixel width
+size_t GetPosByTextWidth(const std::string& text, int width, CFont *fnt)
+{
+	std::string::const_iterator it = text.begin();
+	int w = 0;
+	int next_w = 0;
+	size_t res = 0;
+	while (it != text.end())  {
+
+		UnicodeChar c = GetNextUnicodeFromUtf8(it, text.end());
+		w = next_w;
+		next_w += fnt->GetCharacterWidth(c) + fnt->GetSpacing();
+
+		if (w <= width && width <= next_w)
+			break;
+
+		++res;
+	}
+
+	return res;
+}
+
 ////////////////////
 // Helper function for AutoDetectLinks
 static std::string GetLink(std::string::const_iterator& it, const std::string::const_iterator& end, size_t& pos)
@@ -897,7 +916,7 @@ static std::string GetLink(std::string::const_iterator& it, const std::string::c
 
 //////////////////////////
 // Automatically find hyperlinks in the given text and encapsulate them with <a> and </a>
-std::string AutoDetectLinks(const std::string text)
+std::string AutoDetectLinks(const std::string& text)
 {
 	static const std::string prefixes[] = { "www.", "http://", "https://", "mailto:", "ftp://" };
 
