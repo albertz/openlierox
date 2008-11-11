@@ -2264,10 +2264,12 @@ void CClient::ProcessSpectatorViewportKeys()
 	int v2_type = cViewports[1].getType();
 	CWorm * v1_targetPtr = cViewports[0].getTarget();
 	CWorm * v2_targetPtr = cViewports[1].getTarget();
-	int v1_target = -1, v2_target = -1, v1_prev = -1, v2_prev = -1, v1_next = -1, v2_next = -1;
+	int v1_target = -1, v2_target = -1, v1_prev = -1, v2_prev = -1, v1_next = -1, v2_next = -1, fallbackWorm = -1;
 
     for(int i=0; i<MAX_WORMS; i++ )
 	{
+		if( cRemoteWorms[i].isUsed() )
+			fallbackWorm = i;
         if( ! cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT )
 			continue;
 		if( v1_target != -1 && v1_next == -1 )
@@ -2288,6 +2290,10 @@ void CClient::ProcessSpectatorViewportKeys()
 		v1_target = v1_prev;
 	if( v2_target == -1 )
 		v2_target = v2_prev;
+	if( v1_target == -1 )
+		v1_target = fallbackWorm;
+	if( v2_target == -1 )
+		v2_target = fallbackWorm;
 	if( v1_next == -1 )
 		v1_next = v1_target;
 	if( v2_next == -1 )
