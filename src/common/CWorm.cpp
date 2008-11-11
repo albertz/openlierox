@@ -571,7 +571,7 @@ void CWorm::GetRandomWeapons(void)
 	int num,n;
 
 	for(short i=0; i<5; i++) {
-		num = GetRandomInt(cGameScript->GetNumWeapons()-1);
+		num = MAX(1, GetRandomInt(cGameScript->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
         // Cycle through weapons starting from the random one until we get an enabled weapon
         n=num;
