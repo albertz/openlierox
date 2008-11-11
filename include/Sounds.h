@@ -133,9 +133,10 @@ extern bool	 bSongFinished;
 
 
 // Music
+
+typedef void (*MusicFinishedCB)();
+
 SoundMusic		*LoadMusic(const std::string& file);
-void			PlayMusicAsync(const std::string& file);
-bool			IsSongLoading();
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
 void			PauseMusic(void);
@@ -150,6 +151,7 @@ float			GetCurrentMusicTime(void);
 bool			GetSongStopped(void);
 bool			GetSongFinished(void);
 id3v1_t			GetMP3Info(const std::string& file);
+void			SetMusicFinishedHandler(MusicFinishedCB cb);
 
 void			SetMusicVolume(byte vol);
 byte			GetMusicVolume(void);

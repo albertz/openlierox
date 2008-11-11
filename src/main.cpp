@@ -37,6 +37,7 @@
 #include "Cache.h"
 #include "ProfileSystem.h"
 #include "IRC.h"
+#include "Music.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -208,6 +209,9 @@ startpoint:
 		SystemError("Could not find screen.");
 		return -1;
 	}
+
+	// Music
+	InitializeBackgroundMusic();
 
 	tLX->fCurTime = GetMilliSeconds();
 
@@ -815,6 +819,8 @@ void ShutdownLieroX()
 		DedicatedControl::Uninit();
 
 	ShutdownMusic();
+
+	ShutdownBackgroundMusic();
 
     Con_Shutdown();
 

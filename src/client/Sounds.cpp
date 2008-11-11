@@ -351,39 +351,19 @@ float fTimePaused = 0;
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
+MusicFinishedCB tOnSongFinished = NULL;
 
-// Loading thread
-static SDL_Thread *PlayMusThread = NULL;
-static bool		breakPlayThread = false;
-static bool		LoadingSong = false;
-static std::string SongName = "";
-static SoundMusic *LoadedMusic;
-
-static int PlayThreadMain(void *n)
+void SetMusicFinishedHandler(MusicFinishedCB cb)
 {
-	while (!breakPlayThread)  {
-		if (!LoadingSong)
-			SDL_Delay(10);
-		else  {
-			FreeMusic(LoadedMusic);  // Free any loaded music
-			//SDL_Delay(10); // No hurry...
-			LoadedMusic = LoadMusic(SongName);  // Load the new music
-			//SDL_Delay(10);
-			if (LoadedMusic)
-				PlayMusic(LoadedMusic);  // Play the music
-			LoadingSong = false;
-		}
-	}
-
-	return 0;
+	tOnSongFinished = cb;
 }
-
-bool IsSongLoading() { return LoadingSong; }
 
 
 static void MusicFinishedHook(void)
 {
 	bSongFinished = !GetSongStopped();
+	if (bSongFinished && tOnSongFinished)
+		tOnSongFinished();
 }
 
 
@@ -391,21 +371,6 @@ void InitializeMusic(void)
 {
 	Mix_HookMusicFinished(&MusicFinishedHook);
 	SetMusicVolume(tLXOptions->iMusicVolume);
-	PlayMusThread = SDL_CreateThread(PlayThreadMain,NULL);
-}
-
-void PlayMusicAsync(const std::string& file)
-{
-	while (LoadingSong) SDL_Delay(5);  // If we're currently loading another song, wait
-
-	if (file == SongName && LoadedMusic)  {
-		if (!PlayingMusic())
-			PlayMusic(LoadedMusic, 1); // If stopped, play
-		return;  // Already loading this
-	}
-
-	SongName = file;
-	LoadingSong = true;
 }
 
 SoundMusic *LoadMusic(const std::string& file)
@@ -475,22 +440,19 @@ float GetCurrentMusicTime(void)
 
 void SetMusicVolume(byte vol)
 {
-	vol = (byte)MIN(vol,100);
+	vol = (byte)MIN(vol,1000);
 	iMusicVolume = vol;
 	tLXOptions->iMusicVolume = vol;
 
-	// The volume to use from 0 to MIX_MAX_VOLUME(128).
-	float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
+	// The volume to use from 0 to 1024.
+	// NOTE: we use 1/10 of the specified volume not to make the music too loud
+	float tmp = (float)MIX_MAX_VOLUME*(float)vol / 1000.0f;
 	Mix_VolumeMusic(Round(tmp));
 }
 
 void ShutdownMusic(void)
 {
-	breakPlayThread = true;
 	Mix_HookMusicFinished(NULL);
-	if (PlayMusThread)
-		SDL_WaitThread(PlayMusThread, NULL);
-	FreeMusic(LoadedMusic);
 }
 
 
