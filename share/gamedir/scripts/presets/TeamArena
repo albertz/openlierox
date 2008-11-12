@@ -1,23 +1,23 @@
 #!/usr/bin/python -u
 # The Python presets are detected from non-Python ones by first line which shouild contain "python" string
 
-setvar( "GameOptions.LastGame.LevelName",   "LieroFactory(Revisited).lxl" )
+setvar( "GameOptions.GameInfo.LevelName",   "LieroFactory(Revisited).lxl" )
 
-setvar( "GameOptions.LastGame.ModName",   "Classic" )
+setvar( "GameOptions.GameInfo.ModName",   "Classic" )
 
-setvar( "GameOptions.LastGame.LoadingTime", 100 )
+setvar( "GameOptions.GameInfo.LoadingTime", 100 )
 
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
 setvar( "GameOptions.Network.ServerName", "Dedicated - TeamArena" )
 
-setvar("GameOptions.LastGame.GameType", 1) # Team deathmatch, required for this gamemode
+setvar("GameOptions.GameInfo.GameType", 1) # Team deathmatch, required for this gamemode
 
-setvar("GameOptions.LastGame.Lives", 0) # Required for this gamemode
+setvar("GameOptions.GameInfo.Lives", 0) # Required for this gamemode
 
-setvar("GameOptions.LastGame.RespawnGroupTeams", 1) # Required for this gamemode
+setvar("GameOptions.GameInfo.RespawnGroupTeams", 1) # Required for this gamemode
 
-setvar("GameOptions.LastGame.CountTeamkills", 0)
+setvar("GameOptions.GameInfo.CountTeamkills", 0)
 
 def controlHandlerTeamArena():
 

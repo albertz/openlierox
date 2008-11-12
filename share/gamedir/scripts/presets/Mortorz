@@ -1,9 +1,9 @@
 
-setvar GameOptions.LastGame.LevelName           "CastleStrike.lxl"
+setvar GameOptions.GameInfo.LevelName           "CastleStrike.lxl"
 
-setvar GameOptions.LastGame.ModName             "MW 1.0"
+setvar GameOptions.GameInfo.ModName             "MW 1.0"
 
-setvar GameOptions.LastGame.LoadingTime			"20"
+setvar GameOptions.GameInfo.LoadingTime			"20"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 

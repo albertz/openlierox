@@ -143,7 +143,7 @@ bool GameOptions::Init() {
 		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
 	};
 
-	CScriptableVars::RegisterVars("GameOptions.LastGame")
+	CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.iLives, "Lives", 10 )
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1 )
 		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1 )

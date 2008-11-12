@@ -211,7 +211,8 @@ startpoint:
 	}
 
 	// Music
-	InitializeBackgroundMusic();
+	if( !bDedicated )
+		InitializeBackgroundMusic();
 
 	tLX->fCurTime = GetMilliSeconds();
 
@@ -818,9 +819,11 @@ void ShutdownLieroX()
 	if(bDedicated)
 		DedicatedControl::Uninit();
 
-	ShutdownMusic();
+	if( ! bDedicated )
+		ShutdownMusic();
 
-	ShutdownBackgroundMusic();
+	if( ! bDedicated )
+		ShutdownBackgroundMusic();
 
     Con_Shutdown();
 

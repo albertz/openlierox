@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include "Consts.h"
 #include "CChannel.h"
+#include "DeprecatedGUI/Menu.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
@@ -501,6 +502,10 @@ static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
+	// Read map/mod name from map/mod file
+	tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
+	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
+	
 	if(cl) {
 		SendUpdateLobbyGame(cl, this);
 

@@ -21,6 +21,11 @@ sys.stderr = open(cfg.ERROR_FILE, "w", 0)
 
 from dedicated_control_io import *
 
+import dedicated_control_ranking
+ranking = dedicated_control_ranking
+
+stdinInputThread = GetStdinThread()
+
 ## Global vars ##
 curdir = os.getcwd()
 curdir = os.path.join(curdir,"scripts")
@@ -69,14 +74,6 @@ GAME_LOBBY = 1
 GAME_WEAPONS = 2
 GAME_PLAYING = 3
 
-#Log Severity
-LOG_CRITICAL = 0 # For things that you REALLY need to exit for.
-LOG_ERROR = 1
-LOG_WARN = 2
-LOG_INFO = 3
-# Categories for specific things, perhaps put in a new file?
-# These are not in direct relation to the script.
-LOG_ADMIN = 4
 
 gameState = GAME_QUIT
 
@@ -145,6 +142,7 @@ def adminCommandHelp(wormid):
 	privateMsg(wormid, "%spause - pause ded script" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sunpause - resume ded script" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%ssetvar varname value" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%sadmin wormID" % cfg.ADMIN_PREFIX)
 	if adminCommandHelp_Preset:
 		adminCommandHelp_Preset(wormid)
 
@@ -186,7 +184,7 @@ def parseAdminCommand(wormid,message):
 			if mod == "":
 				privateMsg(wormid,"Invalid mod name")
 			else:
-				setvar("GameOptions.LastGame.ModName", mod) # In case mod name contains spaces
+				setvar("GameOptions.GameInfo.ModName", mod) # In case mod name contains spaces
 		elif cmd == "map":
 			level = ""
 			for l in availibleLevels:
@@ -196,7 +194,7 @@ def parseAdminCommand(wormid,message):
 			if level == "":
 				privateMsg(wormid,"Invalid map name")
 			else:
-				setvar("GameOptions.LastGame.LevelName", level) # In case map name contains spaces
+				setvar("GameOptions.GameInfo.LevelName", level) # In case map name contains spaces
 		elif cmd == "preset":
 			preset = -1
 			for p in range(len(availiblePresets)):
@@ -209,7 +207,7 @@ def parseAdminCommand(wormid,message):
 				curPreset = preset
 				selectNextPreset()
 		elif cmd == "lt":
-			setvar("GameOptions.LastGame.LoadingTime", params[0])
+			setvar("GameOptions.GameInfo.LoadingTime", params[0])
 		elif cmd == "start":
 			startGame()
 		elif cmd == "stop":
@@ -222,6 +220,17 @@ def parseAdminCommand(wormid,message):
 			scriptPaused = False
 		elif cmd == "setvar":
 			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
+		elif cmd == "admin":
+			try:
+				wormID = int(params[0])
+				if not worms[wormID].isAdmin:
+					worms[wormID].isAdmin = True
+					authorizeWorm(wormID)
+					messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
+					privateMsg(wormID, "%s added to admins. Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
+					privateMsg(wormid, "%s added to admins." % worms[wormID].Name)
+			except KeyError:
+				messageLog("parseAdminCommand: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
 		elif parseAdminCommand_Preset and parseAdminCommand_Preset(wormid, cmd, params):
 			pass
 		else:
@@ -243,16 +252,15 @@ def userCommandHelp(wormid):
 		if cfg.MAX_TEAMS >= 4:
 			msg += " %sy" % (cfg.USER_PREFIX)
 		privateMsg(wormid, msg + " - set your team")
-		if userCommandHelp_Preset:
-			userCommandHelp_Preset(wormid)
-	else:
-		if userCommandHelp_Preset:
-			userCommandHelp_Preset(wormid)
-		else:
-			privateMsg(wormid, "No user commands avaliable")
+	if cfg.RANKING:
+		privateMsg(wormid, "%stop - display the best players" % cfg.USER_PREFIX )
+		privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
+		privateMsg(wormid, "%stotal - display the number of players in the ranking" % cfg.USER_PREFIX )
+	if userCommandHelp_Preset:
+		userCommandHelp_Preset(wormid)
 
 def parseUserCommand(wormid,message):
-	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, gameState, parseUserCommand_Preset
+	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, gameState, parseUserCommand_Preset, rank
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.USER_PREFIX)):
 			return False # normal chat
@@ -275,6 +283,16 @@ def parseUserCommand(wormid,message):
 			setWormTeam(wormid, 2)
 		elif cmd == "y" and cfg.MAX_TEAMS >= 4 and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
 			setWormTeam(wormid, 3)
+		elif cmd == "top" and cfg.RANKING:
+			ranking.firstRank(wormid)
+		elif cmd == "rank" and cfg.RANKING:
+			if wormid in worms:
+				wormName = worms[wormid].Name
+				if params:
+					wormName = " ".join(params)
+				ranking.myRank(wormName, wormid)
+		elif cmd == "total" and cfg.RANKING:
+			privateMsg(wormid, "There are " + str(len(ranking.rank)) + " players in the ranking.")
 		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
 			pass
 		else:
@@ -315,6 +333,8 @@ def signalHandler(sig):
 		messageLog("errorstartlobby",LOG_ERROR)
 
 	elif header == "backtolobby" or header == "lobbystarted":
+		if cfg.RANKING:
+			ranking.refreshRank()
 		gameState = GAME_LOBBY
 		sentStartGame = False
 	elif header == "errorstartgame":
@@ -395,12 +415,32 @@ def parseWormDied(sig):
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
 	worms[deaderID].Lives -= 1
+
+	if not cfg.RANKING:
+		return
+
 	try:
 		f = open("pwn0meter.txt","a")
 		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
 		msg("ERROR: Unable to open pwn0meter.txt")
+
+	if(deaderID == killerID):
+		try:
+			ranking.rank[worms[killerID].Name][2] += 1
+		except KeyError:
+			ranking.rank[worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
+	else:
+		try:
+			ranking.rank[worms[killerID].Name][0] += 1
+		except KeyError:
+			ranking.rank[worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
+	try:
+		ranking.rank[worms[deaderID].Name][1] += 1
+	except KeyError:
+		ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
+
 
 ## Preset loading functions ##
 def initPresets():
@@ -473,35 +513,6 @@ def waitLobbyStarted():
 			return
 		time.sleep(1)
 
-
-def messageLog(message,severity):
-	# TODO: Allow setting what loglevels you want logged
-	outline = time.strftime("%Y-%m-%d %H:%M:%S")
-	# Don't clutter the strftime call
-	outline += " -- "
-	if severity == LOG_CRITICAL:
-		outline += "CRITICAL"
-	elif severity == LOG_ERROR:
-		outline += "ERROR"
-	elif severity == LOG_WARN:
-		outline += "WARN"
-	elif severity == LOG_INFO:
-		outline += "INFO"
-	elif severity == LOG_ADMIN: #Log to another file?
-		outline += "ADMIN"
-
-	outline += " -- "
-	outline += str(message) #incase we get anything other than string
-	try:
-		f = open(cfg.LOG_FILE,"a")
-		f.write((outline + "\n"))
-		f.close()
-	except IOError:
-		msg("ERROR: Unable to open logfile.")
-
-	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
-	# so let python send out the ugly warning.
-	msg(outline)
 
 def initLevelList():
 	global levelDir, availibleLevels
@@ -593,7 +604,7 @@ def controlHandlerDefault():
 				if lobbyWaitBeforeGame <= 0: # Start the game
 
 					if getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-						setvar("GameOptions.LastGame.GameType", "1")
+						setvar("GameOptions.GameInfo.GameType", "1")
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
 							for w in worms.values():
@@ -601,7 +612,7 @@ def controlHandlerDefault():
 									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 					else:
-						setvar("GameOptions.LastGame.GameType", "0")
+						setvar("GameOptions.GameInfo.GameType", "0")
 
 					startGame()
 					if cfg.ALLOW_TEAM_CHANGE:
@@ -620,5 +631,4 @@ def controlHandlerDefault():
 
 
 controlHandler = controlHandlerDefault
-
 

@@ -91,18 +91,13 @@ function signal_handler() {
 
 startlobby();
 
-setvar( "GameServer.ServerName", "- simple dedicated server -");
+setvar( "GameOptions.Network.ServerName", "- simple dedicated server -");
 
-setvar( "GameOptions.LastGame.LevelName",           "CastleStrike.lxl" );
-setvar( "GameServer.GameInfo.sMapFile",             "CastleStrike.lxl" );
-setvar( "GameServer.GameInfo.sMapName",             "CastleStrike" );
+setvar( "GameOptions.GameInfo.LevelName",           "CastleStrike.lxl" );
 
-setvar( "GameOptions.LastGame.ModName",             "MW 1.0" );
-setvar( "GameServer.GameInfo.sModDir",              "MW 1.0" );
-setvar( "GameServer.GameInfo.sModName",             "MW 1.0" );
+setvar( "GameOptions.GameInfo.ModName",             "MW 1.0" );
 
-setvar( "GameOptions.LastGame.LoadingTime",         "20" );
-setvar( "GameServer.GameInfo.iLoadingTimes",        "20" );
+setvar( "GameOptions.GameInfo.LoadingTime",         "20" );
 
 setvar( "GameServer.WeaponRestrictionsFile",        "cfg/presets/Mortar Only.wps" );
 

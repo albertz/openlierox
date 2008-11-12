@@ -45,3 +45,7 @@ if MAX_TEAMS >= 3:
 	TEAM_CHANGE_MESSAGE += " %sg" % (USER_PREFIX)
 if MAX_TEAMS >= 4:
 	TEAM_CHANGE_MESSAGE += " %sy" % (USER_PREFIX)
+
+SERVER_PORT = 23400 # On which port to host a server - better if it's different from the port in your game settings
+
+RANKING = 1 # Should we allow !rank user command

@@ -487,13 +487,20 @@ struct DedIntern {
 			return;
 		};
 		CScriptableVars::SetVarByString(varptr, value);
-
+		
 		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
 		cServer->UpdateGameLobby();
 	}
 
 	void Cmd_StartLobby(std::string param) {
+	
+		if( param != "" )
+		{
+			int port = atoi(param);
+			if( port )
+				tLXOptions->iNetworkPort = port;
+		};
 
 		tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
 		tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);

@@ -23,7 +23,7 @@ ded.init()
 ded.msg("GameState = %s" % str(ded.gameState))
 ded.messageLog("Dedicated_control started",ded.LOG_INFO)
 
-ded.startLobby()
+ded.startLobby(cfg.SERVER_PORT)
 
 ded.waitLobbyStarted()
 

@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# Simple script that will restard ded server if it hung
+# You do not need that script on Windows - we have ded server installed as system service there
+
 import time
 import os
 import sys
@@ -10,7 +13,8 @@ import subprocess
 if sys.platform == "win32":
 	import ctypes
 
-olxPath = "openlierox.exe"
+
+olxPath = "openlierox.exe" # Modify here the path to OLX binary
 TimeToSleep=60 # OLX and ded server will write something in logs once per 40 seconds
 
 def startProcess():

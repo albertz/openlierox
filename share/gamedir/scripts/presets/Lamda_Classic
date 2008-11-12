@@ -1,9 +1,9 @@
 
-setvar GameOptions.LastGame.LevelName            "LamdaBunker.lxl"
+setvar GameOptions.GameInfo.LevelName            "LamdaBunker.lxl"
 
-setvar GameOptions.LastGame.ModName              "Classic"
+setvar GameOptions.GameInfo.ModName              "Classic"
 
-setvar GameOptions.LastGame.LoadingTime	        "100"
+setvar GameOptions.GameInfo.LoadingTime	        "100"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/100 LT.wps"
 

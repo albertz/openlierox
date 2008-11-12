@@ -10,6 +10,9 @@ import os
 import sys
 import threading
 
+import dedicated_config  # Per-host config like admin password
+cfg = dedicated_config # shortcut
+
 
 ## Receiving functions ##
 
@@ -51,8 +54,6 @@ class GetStdinThread(threading.Thread):
 			sys.stderr.write("Broken Pipe -- exiting")
 			# OLX terminated, stdin = broken pipe, we should terminate also
 			sys.exit()
-
-stdinInputThread = GetStdinThread()
 
 # Use this function to get signals, don't access bufferedSignals array directly
 def getSignal():
@@ -131,9 +132,12 @@ def Quit():
 # Use addWorm() instead
 #def startLobby(localWorm = "[CPU] Kamikazee!"):
 #	print "startlobby " + localWorm
-def startLobby():
+def startLobby(port):
 	global sentStartGame
-	print "startlobby"
+	if port:
+		print "startlobby " + str(port)
+	else:
+		print "startlobby"
 	sentStartGame = False
 
 # Force the server into starting the game (weapon selections screen)
@@ -150,7 +154,7 @@ def gotoLobby():
 
 # Not implemented yet in OLX
 def addBot(name):
-	print "addbot " + name
+	print "addbot " + str(name)
 
 # Suicides all local bots
 def killBots():
@@ -160,13 +164,13 @@ def killBots():
 # for kicking/banning.
 def kickWorm(iID, reason = ""):
 	if reason != "":
-		print "kickworm " + str(iID) + " " + reason
+		print "kickworm " + str(iID) + " " + str(reason)
 	else:
 		print "kickworm " + str(iID)
 
 def banWorm(iID, reason = ""):
 	if reason != "":
-		print "banworm " + str(iID) + " " + reason
+		print "banworm " + str(iID) + " " + str(reason)
 	else:
 		print "banworm " + str(iID)
 
@@ -191,26 +195,64 @@ def getComputerWormList():
 		bots[iID] = name
 
 def getWormIP(iID):
-	print "getwormip %i" % iID
-	return getResponse("wormip %i" % iID)
+	print "getwormip %i" % int(iID)
+	return getResponse("wormip %i" % int(iID))
 
 def getWormLocationInfo(iID):
-	print "getwormlocationinfo %i" % iID
-	return getResponse("wormlocationinfo %i" % iID)
+	print "getwormlocationinfo %i" % int(iID)
+	return getResponse("wormlocationinfo %i" % int(iID))
 
 def getWormPing(iID):
-	print "getwormping %i" % iID
-	return int(getResponse("wormping %i" % iID))
+	print "getwormping %i" % int(iID)
+	return int(getResponse("wormping %i" % int(iID)))
 
 # Use this to write to stdout (standard output)
 def msg(string):
-	print "msg " + string
+	print "msg " + str(string)
 
 # Send a chat message
 def chatMsg(string):
-	print "chatmsg " + string
+	print "chatmsg " + str(string)
 
 # Send a private chat message
 def privateMsg(iID, string):
-	print "privatemsg %i %s" % ( iID, string )
+	print "privatemsg %i %s" % ( int(iID), str(string) )
 
+
+#Log Severity
+LOG_CRITICAL = 0 # For things that you REALLY need to exit for.
+LOG_ERROR = 1
+LOG_WARN = 2
+LOG_INFO = 3
+# Categories for specific things, perhaps put in a new file?
+# These are not in direct relation to the script.
+LOG_ADMIN = 4
+
+def messageLog(message,severity):
+	# TODO: Allow setting what loglevels you want logged
+	outline = time.strftime("%Y-%m-%d %H:%M:%S")
+	# Don't clutter the strftime call
+	outline += " -- "
+	if severity == LOG_CRITICAL:
+		outline += "CRITICAL"
+	elif severity == LOG_ERROR:
+		outline += "ERROR"
+	elif severity == LOG_WARN:
+		outline += "WARN"
+	elif severity == LOG_INFO:
+		outline += "INFO"
+	elif severity == LOG_ADMIN: #Log to another file?
+		outline += "ADMIN"
+
+	outline += " -- "
+	outline += str(message) #incase we get anything other than string
+	try:
+		f = open(cfg.LOG_FILE,"a")
+		f.write((outline + "\n"))
+		f.close()
+	except IOError:
+		msg("ERROR: Unable to open logfile.")
+
+	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
+	# so let python send out the ugly warning.
+	msg(outline)
