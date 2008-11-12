@@ -104,15 +104,17 @@ public:
 				if (word_w > maxwidth)  {
 					// Hard break
 					size_t res = GetPosByTextWidth(sText, maxwidth, &tLX->cFont);
-					result.second = new CTextObject(tParent, std::string(it + res, sText.end()), tFormat, tRect.x + w - word_w, tRect.y);
+					result.second = new CTextObject(tParent, std::string(it + res, std::string::const_iterator(sText.end())), 
+														tFormat, tRect.x + w - word_w, tRect.y);
 					sText.erase(res);
 					tRect.w = tLX->cFont.GetWidth(sText);
 				} else {
 					if (it == sText.end())  {
 						result.second = NULL;
 					} else {
-						result.second = new CTextObject(tParent, std::string(it, sText.end()), tFormat, tRect.x + w - word_w, tRect.y);
-						setText(std::string(sText.begin(), it - 1));
+						result.second = new CTextObject(tParent, std::string(it, std::string::const_iterator(sText.end())), 
+															tFormat, tRect.x + w - word_w, tRect.y);
+						setText(std::string(std::string::const_iterator(sText.begin()), it - 1));
 					}
 				}
 

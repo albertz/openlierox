@@ -15,7 +15,7 @@
 
 #include <set>
 #include <SDL_thread.h>
-#include <SDL_Mutex.h>
+#include <SDL_mutex.h>
 #include "FindFile.h"
 #include "Music.h"
 #include "Sounds.h"
@@ -51,8 +51,9 @@ void OnSongFinished()
 int MusicMain(void *)
 {
 	std::set<std::string> playlist;	
+	PlaylistFiller filler(&playlist);
 
-	FindFiles(PlaylistFiller(&playlist), "music", false, FM_REG);
+	FindFiles(filler, "music", false, FM_REG);
 
 	// Nothing to play, just quit
 	if (!playlist.size())

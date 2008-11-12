@@ -186,8 +186,8 @@ public:
 private:
 	class CBrowserLine  {
 	public:
-		CBrowserLine() : iLeftMargin(0), iHeight(0), iDocumentY(0) {}
-		CBrowserLine(int margin) : iLeftMargin(margin), iHeight(0), iDocumentY(0) {}
+		CBrowserLine() : iHeight(0), iLeftMargin(0), iMaxWidth(0), iDocumentY(0) {}
+		CBrowserLine(int margin) : iHeight(0), iLeftMargin(margin), iMaxWidth(0), iDocumentY(0) {}
 
 		CBrowserLine(const CBrowserLine& oth)  { operator=(oth); }
 		CBrowserLine& operator=(const CBrowserLine& oth)  {
