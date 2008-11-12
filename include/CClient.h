@@ -117,6 +117,9 @@ class interface_sett { public:
 	int		ChatboxScrollbarY;
 	int		ChatboxScrollbarH;
 	bool	ChatboxScrollbarAlwaysVisible;
+	int		TimeLeftX;
+	int		TimeLeftY;
+	int		TimeLeftW;
 
 	// Player 1
 	int		Lives1X;

@@ -115,6 +115,9 @@ bool CClient::InitializeDrawing(void)
 	ReadInteger("data/frontend/frontend.cfg",section,"CurrentSettingsTwoPlayersY",&tInterfaceSettings.CurrentSettingsTwoPlayersY, 195);
 	ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardX",&tInterfaceSettings.ScoreboardX, 0);
 	ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardY",&tInterfaceSettings.ScoreboardY, 180);
+	ReadInteger("data/frontend/frontend.cfg",section,"TimeLeftX",&tInterfaceSettings.TimeLeftX, 290);
+	ReadInteger("data/frontend/frontend.cfg",section,"TimeLeftY",&tInterfaceSettings.TimeLeftY, 1);
+	ReadInteger("data/frontend/frontend.cfg",section,"TimeLeftW",&tInterfaceSettings.TimeLeftW, 60);
 
 
 	if (tLX->iGameType == GME_LOCAL)  {  // Local play can handle two players, it means all the top boxes twice
@@ -602,6 +605,32 @@ void CClient::Draw(SDL_Surface * bmpDest)
 						tLX->clPingLabel,
 						"Ping: " + itoa(iMyPing));
 
+		}
+
+		// Draw time left
+		if(iTimeLimit > 0 && tLXOptions->bTopBarVisible)
+		{
+			static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
+			float fTimeLeft = (float)iTimeLimit - (serverTime()/60.0f);
+			//sanity check
+			if(fTimeLeft < 0.0f)
+				fTimeLeft = 0.0f;
+		
+			int iTLMinutes = (int)fabs(fTimeLeft);
+			int iTLSeconds = (int)(fTimeLeft*60.0f) - iTLMinutes*60;
+			Uint32 clTimeLabel;
+		
+			if(iTLMinutes <= 0 && iTLSeconds < 10)
+				clTimeLabel = tLX->clTimeLeftWarnLabel;
+			else
+				clTimeLabel = tLX->clTimeLeftLabel;
+
+			//NOTE: there is no decent way to do this in C++ ?! Using C:
+			sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
+		
+			DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
+			tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
 		}
 
 		if( sSpectatorViewportMsg != "" )

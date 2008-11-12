@@ -31,6 +31,9 @@
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
+		2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */; };
+		2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4630ECB7FA900E8D04E /* IRC.cpp */; };
+		2395E4660ECB7FA900E8D04E /* Music.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4640ECB7FA900E8D04E /* Music.cpp */; };
 		239ACA9B0E6AD45000C4216A /* CClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA510E6AD44F00C4216A /* CClient.cpp */; };
 		239ACA9C0E6AD45000C4216A /* CrashHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA520E6AD44F00C4216A /* CrashHandler.cpp */; };
 		239ACA9D0E6AD45000C4216A /* CWormSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA530E6AD44F00C4216A /* CWormSkin.cpp */; };
@@ -401,6 +404,9 @@
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
 		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
+		2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_Net_Chat.cpp; sourceTree = "<group>"; };
+		2395E4630ECB7FA900E8D04E /* IRC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IRC.cpp; sourceTree = "<group>"; };
+		2395E4640ECB7FA900E8D04E /* Music.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Music.cpp; sourceTree = "<group>"; };
 		239ACA510E6AD44F00C4216A /* CClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CClient.cpp; sourceTree = "<group>"; };
 		239ACA520E6AD44F00C4216A /* CrashHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrashHandler.cpp; sourceTree = "<group>"; };
 		239ACA530E6AD44F00C4216A /* CWormSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormSkin.cpp; sourceTree = "<group>"; };
@@ -832,6 +838,7 @@
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
 			isa = PBXGroup;
 			children = (
+				2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */,
 				23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */,
 				239ACA550E6AD44F00C4216A /* CAnimation.cpp */,
 				239ACA560E6AD44F00C4216A /* CBar.cpp */,
@@ -997,6 +1004,8 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				2395E4630ECB7FA900E8D04E /* IRC.cpp */,
+				2395E4640ECB7FA900E8D04E /* Music.cpp */,
 				23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */,
 				238800E30E8B150100B94DC0 /* NotifyUser.cpp */,
 				239ACA510E6AD44F00C4216A /* CClient.cpp */,
@@ -1615,6 +1624,9 @@
 				23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */,
 				238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */,
 				23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */,
+				2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */,
+				2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */,
+				2395E4660ECB7FA900E8D04E /* Music.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

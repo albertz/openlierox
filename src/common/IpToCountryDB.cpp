@@ -241,7 +241,7 @@ public:
 			// Finished?
 			if (_this->csvReader.readingFinished())  {
 				SDL_LockMutex(_this->dataMutex);
-				printf("IpToCountry Database: reading finished, %i entries, %f seconds\n", _this->data.size(), GetMilliSeconds() - start);
+				cout << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetMilliSeconds() - start) << " seconds" << endl;
 				SDL_UnlockMutex(_this->dataMutex);
 				break;
 			}

@@ -65,6 +65,7 @@ bool LoadGraphics(void)
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[3], "data/frontend/team_4.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpClock,"data/frontend/clock.png");
 
 	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
@@ -195,6 +196,8 @@ void InitializeColors()  {
 	tLX->clRopeColors[1] = MakeColour(200, 100, 0);
 	tLX->clLaserSightColors[0] = MakeColour(190,0,0);
 	tLX->clLaserSightColors[1] = MakeColour(160,0,0);
+	tLX->clTimeLeftLabel = tLX->clWhite;
+	tLX->clTimeLeftWarnLabel = MakeColour(255,50,50);
 
 	// Load the colours from a file
 	const std::string colorfile = "data/frontend/colours.cfg";
@@ -282,6 +285,8 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","RopeColour2",			&tLX->clRopeColors[1],			tLX->clRopeColors[1]);
 	ReadColour(colorfile,"Colours","LaserSightColour1",		&tLX->clLaserSightColors[0],	tLX->clLaserSightColors[0]);
 	ReadColour(colorfile,"Colours","LaserSightColour2",		&tLX->clLaserSightColors[1],	tLX->clLaserSightColors[1]);
+	ReadColour(colorfile,"Colours","TimeLeftLabel",			&tLX->clTimeLeftLabel,			tLX->clTimeLeftLabel);
+	ReadColour(colorfile,"Colours","TimeLeftWarnLabel",		&tLX->clTimeLeftWarnLabel,		tLX->clTimeLeftWarnLabel);
 	
 }
 
