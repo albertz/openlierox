@@ -99,6 +99,9 @@ int MusicMain(void *)
 // Initializes the background music thread
 void InitializeBackgroundMusic()
 {
+	if( musicThread )
+		return;
+		
 	InitializeMusic();
 
 	musicThread = SDL_CreateThread(&MusicMain, NULL);
@@ -111,6 +114,9 @@ void InitializeBackgroundMusic()
 // Shuts down the background music playing
 void ShutdownBackgroundMusic()
 {
+	if( ! musicThread )
+		return;
+		
 	SetMusicFinishedHandler(NULL);
 	breakThread = true;
 	if (musicThread)  {

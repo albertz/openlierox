@@ -16,6 +16,7 @@
 
 #include "LieroX.h"
 #include "Sounds.h"
+#include "Music.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
@@ -53,6 +54,7 @@ enum {
 	os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
+	os_MusicVolume,
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_UseIpToCountry,
@@ -249,6 +251,9 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
 
+	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 245, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 242, 110, 20);
+
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
@@ -282,6 +287,9 @@ bool Menu_OptionsInitialize(void)
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
+
+	s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
+	s->setValue( tLXOptions->iMusicVolume );	
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 	t->setText( itoa(tLXOptions->iNetworkPort) );
@@ -699,6 +707,20 @@ void Menu_OptionsFrame(void)
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
+					}
+					break;
+
+				// Music volume
+				case os_MusicVolume:
+					if(ev->iEventMsg == SLD_CHANGE) {
+						CSlider *s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
+						tLXOptions->iMusicVolume = s->getValue();
+
+						SetMusicVolume( tLXOptions->iMusicVolume );
+						if( tLXOptions->iMusicVolume == 0 )
+							ShutdownBackgroundMusic();
+						else
+							InitializeBackgroundMusic();
 					}
 					break;
 

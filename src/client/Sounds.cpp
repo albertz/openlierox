@@ -440,13 +440,13 @@ float GetCurrentMusicTime(void)
 
 void SetMusicVolume(byte vol)
 {
-	vol = (byte)MIN(vol,1000);
+	vol = (byte)MIN(vol,100);
 	iMusicVolume = vol;
 	tLXOptions->iMusicVolume = vol;
 
 	// The volume to use from 0 to 1024.
-	// NOTE: we use 1/10 of the specified volume not to make the music too loud
-	float tmp = (float)MIX_MAX_VOLUME*(float)vol / 1000.0f;
+	// NOTE: we use 1/2 of the specified volume not to make the music too loud
+	float tmp = (float)MIX_MAX_VOLUME*(float)vol / 200.0f;
 	Mix_VolumeMusic(Round(tmp));
 }
 

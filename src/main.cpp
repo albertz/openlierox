@@ -211,7 +211,7 @@ startpoint:
 	}
 
 	// Music
-	if( !bDedicated )
+	if( !bDedicated && tLXOptions->iMusicVolume > 0 )
 		InitializeBackgroundMusic();
 
 	tLX->fCurTime = GetMilliSeconds();
