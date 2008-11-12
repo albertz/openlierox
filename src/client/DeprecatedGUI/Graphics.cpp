@@ -39,7 +39,19 @@ static SmartPointer<SDL_Surface> getAlternativeCommandButtonGfx() {
 	return gfx;
 }
 
-
+	
+static SmartPointer<SDL_Surface> getAlternativeClockGfx() {
+	SmartPointer<SDL_Surface> gfx = gfxCreateSurface(12, 12);
+	if(!gfx.get()) return NULL;
+	
+	// just some dummy gfx (TODO: btw, why dont we have a DrawCircleFill?)
+	DrawRectFill(gfx.get(), 4, 4, 7, 7, tLX->clWhite);
+	
+	return gfx;
+}
+	
+	
+	
 ///////////////////
 // Load the graphics
 bool LoadGraphics(void)
@@ -65,7 +77,7 @@ bool LoadGraphics(void)
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[3], "data/frontend/team_4.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpClock,"data/frontend/clock.png");
+	LOAD_IMAGE_WITHALPHA__OR(gfxGame.bmpClock, "data/frontend/clock.png", getAlternativeClockGfx());
 
 	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
