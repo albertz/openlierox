@@ -1370,8 +1370,6 @@ void CBrowser::WalkNodes(xmlNodePtr node)
 	if (!node)
 		return;
 
-	// const int maxX = iWidth - iBorderSize - 16; // TODO: not used
-
 	if (!xmlStrcasecmp(node->name, (xmlChar *)"style")) return;
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"script")) return;
 	else if (!xmlStrcasecmp(node->name, (xmlChar *)"embed")) return;
@@ -1637,7 +1635,6 @@ void CBrowser::RenderContent()
 		}
 
 		// Render the objects
-		// size_t col = 0; // TODO: not used
 		for (std::list<CBrowserObject *>::const_iterator obj = (*it)->getObjects().begin(); obj != (*it)->getObjects().end(); obj++)  {
 			(*obj)->Render(bmpBuffer.get(), (*obj)->tRect.x, y - start_y);
 		}
