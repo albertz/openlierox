@@ -11,7 +11,6 @@ VOID DoDeleteSvc()
 {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
-    SERVICE_STATUS ssStatus; 
 
     // Get a handle to the SCM database. 
  
@@ -31,7 +30,7 @@ VOID DoDeleteSvc()
     schService = OpenService( 
         schSCManager,       // SCM database 
         SVCNAME,          // name of service 
-        DELETE);            // need delete access 
+        DELETE | SERVICE_STOP | SERVICE_QUERY_STATUS );            // need delete access 
  
     if (schService == NULL)
     { 
@@ -39,12 +38,18 @@ VOID DoDeleteSvc()
         CloseServiceHandle(schSCManager);
         return;
     }
-
-    // Delete the service.
+	
+	//Stop service
+	SERVICE_STATUS ssp;
+	ControlService( schService, SERVICE_CONTROL_STOP, &ssp );
+	Sleep(300);
  
+    // Delete the service.
     if (! DeleteService(schService) ) 
     {
-        printf("DeleteService failed (%d)\n", GetLastError()); 
+		char errorBuf[1024] = "Unknown error";
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, errorBuf, sizeof(errorBuf), NULL );
+        printf("DeleteService failed - %s - reboot and try again\n", errorBuf); 
     }
     else printf("Service deleted successfully\n"); 
  

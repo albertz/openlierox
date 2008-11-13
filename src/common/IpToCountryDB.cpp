@@ -145,7 +145,7 @@ public:
 
 	SDL_Thread		*loader;
 	SDL_mutex		*dataMutex;
-	bool			breakLoader;
+	volatile bool	breakLoader;
 
 	typedef CountryCsvReaderHandler<AddEntriesToDBData> CCRH;
 	CCRH *csvReaderHandler;
@@ -219,7 +219,8 @@ public:
 		breakLoader = false;
 
 		// Start a new loading
-		dataMutex = SDL_CreateMutex();
+		if( ! dataMutex )
+			dataMutex = SDL_CreateMutex();
 		loader = SDL_CreateThread(&threadLoader, (void *)this);
 	}
 
@@ -239,12 +240,13 @@ public:
 			SDL_Delay(5);
 
 			// Finished?
+			SDL_LockMutex(_this->dataMutex);
 			if (_this->csvReader.readingFinished())  {
-				SDL_LockMutex(_this->dataMutex);
 				cout << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetMilliSeconds() - start) << " seconds" << endl;
 				SDL_UnlockMutex(_this->dataMutex);
 				break;
 			}
+			SDL_UnlockMutex(_this->dataMutex);
 		}
 
 		return 0;
@@ -252,7 +254,7 @@ public:
 
 	const DBEntry getEntry(Ip ip) {
 		float start = GetMilliSeconds();
-
+		
 		SDL_LockMutex(dataMutex);
 
 		size_t search_start = 0;
@@ -310,6 +312,7 @@ public:
 		}
 
 		SDL_UnlockMutex(dataMutex);
+		throw "The IP was not found in the database";
 	}
 
 
@@ -382,7 +385,12 @@ int IpToCountryDB::GetProgress()  {
 
 bool IpToCountryDB::Loaded()  {
 	if (IpToCountryDBData(this)->file)
-		return IpToCountryDBData(this)->csvReader.readingFinished();
+	{
+		SDL_LockMutex(IpToCountryDBData(this)->dataMutex);
+		bool finished = IpToCountryDBData(this)->csvReader.readingFinished();
+		SDL_UnlockMutex(IpToCountryDBData(this)->dataMutex);
+		return finished;
+	}
 	else
 		return false;
 }

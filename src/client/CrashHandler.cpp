@@ -351,15 +351,18 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	strncat(buf, "\"", sizeof(buf));
 	fix_markend(buf);
 
-	ShellExecute(NULL,"open","BugReport.exe",buf,NULL,SW_SHOWNORMAL);
+	// If ded server is running as service user won't see any dialog anyway
+	if (!bDedicated)
+		ShellExecute(NULL,"open","BugReport.exe",buf,NULL,SW_SHOWNORMAL);
 
 	// If running as a dedicated server, restart the application (there usually isn't any person sitting
 	// at the computer to fix this problem)
+	// If ded server is running as service it's restarted automatically
 #ifdef DEDICATED_ONLY
-	ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
+	//ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
 #else
 	if (bDedicated)  {
-		ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
+		//ShellExecute(NULL, "open", GetAppPath(), "-dedicated", NULL, SW_SHOWNORMAL);
 	}
 #endif
 

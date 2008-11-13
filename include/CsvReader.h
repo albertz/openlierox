@@ -234,7 +234,7 @@ private:
 public:
 	bool readWhole()			{ return read(); }
 	bool readSome(size_t count)	{ return read(count); }
-	bool readingFinished()		{ return stream->eof(); } 
+	bool readingFinished()		{ return stream ? stream->eof() : true; } 
 
 };
 

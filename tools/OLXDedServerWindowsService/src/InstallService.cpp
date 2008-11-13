@@ -72,12 +72,21 @@ VOID SvcInstall()
  
     if (schService == NULL) 
     {
-        printf("CreateService failed (%d)\n", GetLastError()); 
+		char errorBuf[1024] = "Unknown error";
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, errorBuf, sizeof(errorBuf), NULL );
+        printf("CreateService failed - %s - reboot and try again\n", errorBuf); 
         CloseServiceHandle(schSCManager);
         return;
     }
     else printf("Service installed successfully, command = %s\n", szCommand); 
-
+    
+    SERVICE_DESCRIPTION sd;
+	sd.lpDescription = "OpenLieroX dedicated server service. It will restart OLX process it it doesn't output anything to logs in 60 seconds - it checks both stdout.txt and dedicated_control.log files";
+	
+	ChangeServiceConfig2( schService, SERVICE_CONFIG_DESCRIPTION, &sd);
+	
+	StartService( schService, 0, NULL);
+	
     CloseServiceHandle(schService); 
     CloseServiceHandle(schSCManager);
     

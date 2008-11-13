@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="libzip"
 	ProjectGUID="{2AB8C9F4-DC7D-4F05-B83E-9356E0566BBA}"
 	Keyword="Win32Proj"
@@ -38,7 +38,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;ZLIB_WIN32_NODLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -101,8 +101,8 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;"
+				WholeProgramOptimization="false"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;ZLIB_WIN32_NODLL"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				ProgramDataBaseFileName="$(IntDir)\libzip_vc80.pdb"

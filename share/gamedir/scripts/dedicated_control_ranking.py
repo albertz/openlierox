@@ -3,7 +3,10 @@ from dedicated_control_io import *
 
 def ParseRank(useRatios = True):
         #messageLog("ParseRank: Opening pwn0meter.txt", LOG_INFO)
-        f = open("pwn0meter.txt","r")
+        try:
+            f = open("pwn0meter.txt","r")
+        except IOError:
+            return {}
         l = f.readline()
         killers = {}
         deaders = {}
