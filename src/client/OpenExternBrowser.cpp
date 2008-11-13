@@ -61,9 +61,9 @@ void OpenLinkInExternBrowser(const std::string& url) {
 		std::string tmp = getenv("BROWSER");
 		if(tmp != "") browsers.push_back(tmp);
 	}
-	browsers.push_back("xdg-open");
-	browsers.push_back("gnome-open");
-	browsers.push_back("sensible-browser");
+	browsers.push_back("xdg-open"); // part of XdgUtils from FreeDesktop.org
+	browsers.push_back("gnome-open"); // available on most Gnome systems
+	browsers.push_back("sensible-browser"); // Ubuntu and others seem to provide this
 	browsers.push_back("firefox");
 	browsers.push_back("mozilla-firefox");
 	browsers.push_back("konqueror");
