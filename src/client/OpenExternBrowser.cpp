@@ -53,30 +53,32 @@ void OpenLinkInExternBrowser(const std::string& url) {
 	
 #else
 	std::string browser = "";
-	
-	if (getenv("BROWSER") != NULL) {
-		browser = getenv("BROWSER");
-	}
-	
-	if(browser == "") {
-		// test some browsers and take the first found		
-		std::list<std::string> browsers;
-		browsers.push_back("gnome-open");
-		browsers.push_back("sensible-browser");
-		browsers.push_back("firefox");
-		browsers.push_back("mozilla-firefox");
-		browsers.push_back("konqueror");
-		browsers.push_back("mozilla");
-		browsers.push_back("opera");
-		browsers.push_back("epiphany");
-		browsers.push_back("galeon");
-		browsers.push_back("netscape");
+		
+	// test some browsers and take the first found		
+	std::list<std::string> browsers;
 
-		for (std::list<std::string>::const_iterator it = browsers.begin(); it != browsers.end(); ++it) {
-			if (::system(("test -x /usr/bin/" + *it + " -o -x /usr/bin/X11/" + *it + " -o -x /usr/local/bin/" + *it).c_str()) == 0) {
-				browser = *it;
-				break;
-			}
+	if (getenv("BROWSER") != NULL) {
+		std::string tmp = getenv("BROWSER");
+		if(tmp != "") browsers.push_back(tmp);
+	}
+	browsers.push_back("xdg-open");
+	browsers.push_back("gnome-open");
+	browsers.push_back("sensible-browser");
+	browsers.push_back("firefox");
+	browsers.push_back("mozilla-firefox");
+	browsers.push_back("konqueror");
+	browsers.push_back("mozilla");
+	browsers.push_back("opera");
+	browsers.push_back("epiphany");
+	browsers.push_back("galeon");
+	browsers.push_back("netscape");
+
+	for (std::list<std::string>::const_iterator it = browsers.begin(); it != browsers.end(); ++it) {
+		// we have browser != "" here
+		if(browser[0] == '/' && ::system(("test -x " + *it).c_str()) == 0)
+		|| ::system(("test -x /usr/bin/" + *it + " -o -x /usr/bin/X11/" + *it + " -o -x /usr/local/bin/" + *it).c_str()) == 0) {
+			browser = *it;
+			break;
 		}
 	}
 	
