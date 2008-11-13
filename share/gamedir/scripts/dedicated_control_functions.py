@@ -142,7 +142,7 @@ def adminCommandHelp(wormid):
 	privateMsg(wormid, "%spause - pause ded script" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sunpause - resume ded script" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%ssetvar varname value" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sadmin wormID" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%sauthorize wormID" % cfg.ADMIN_PREFIX)
 	if adminCommandHelp_Preset:
 		adminCommandHelp_Preset(wormid)
 
@@ -220,14 +220,14 @@ def parseAdminCommand(wormid,message):
 			scriptPaused = False
 		elif cmd == "setvar":
 			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
-		elif cmd == "admin":
+		elif cmd == "authorize":
 			try:
 				wormID = int(params[0])
 				if not worms[wormID].isAdmin:
 					worms[wormID].isAdmin = True
 					authorizeWorm(wormID)
-					messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_INFO)
-					privateMsg(wormID, "%s added to admins. Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
+					messageLog(("Worm %i (%s) added to admins by %i (%s)" % (wormID,worms[wormID].Name),wormid,worms[wormid].Name),LOG_INFO)
+					privateMsg(wormID, "%s made you admin! Type %shelp for commands" % (worms[wormid].Name,cfg.ADMIN_PREFIX))
 					privateMsg(wormid, "%s added to admins." % worms[wormID].Name)
 			except KeyError:
 				messageLog("parseAdminCommand: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
@@ -246,16 +246,17 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%sb %sr" % (cfg.USER_PREFIX, cfg.USER_PREFIX)
+		msg = "%s!team <blue/red" % (cfg.USER_PREFIX)
 		if cfg.MAX_TEAMS >= 3:
-			msg += " %sg" % (cfg.USER_PREFIX)
+			msg += "/green"
 		if cfg.MAX_TEAMS >= 4:
-			msg += " %sy" % (cfg.USER_PREFIX)
+			msg += "/yellow"
+		msg += ">"
 		privateMsg(wormid, msg + " - set your team")
 	if cfg.RANKING:
-		privateMsg(wormid, "%stop - display the best players" % cfg.USER_PREFIX )
+		privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
 		privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
-		privateMsg(wormid, "%stotal - display the number of players in the ranking" % cfg.USER_PREFIX )
+		privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
 	if userCommandHelp_Preset:
 		userCommandHelp_Preset(wormid)
 
@@ -275,15 +276,19 @@ def parseUserCommand(wormid,message):
 
 		if cmd == "help":
 			userCommandHelp(wormid)
-		elif cmd == "b" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			setWormTeam(wormid, 0)
-		elif cmd == "r" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			setWormTeam(wormid, 1)
-		elif cmd == "g" and cfg.MAX_TEAMS >= 3 and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			setWormTeam(wormid, 2)
-		elif cmd == "y" and cfg.MAX_TEAMS >= 4 and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			setWormTeam(wormid, 3)
-		elif cmd == "top" and cfg.RANKING:
+		elif cmd == "team" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+			if not params:
+				userCommandHelp(wormid)
+				raise Exception, "You need to specify a team"
+			if params[0].lower() == "blue":
+				setWormTeam(wormid, 0)
+			elif params[0].lower() == "red":
+				setWormTeam(wormid, 1)
+			elif params[0].lower() == "green" and cfg.MAX_TEAMS >= 3:
+				setWormTeam(wormid, 2)
+			elif params[0].lower() == "yellow" and cfg.MAX_TEAMS >= 4:
+				setWormTeam(wormid, 3)
+		elif cmd == "toprank" and cfg.RANKING:
 			ranking.firstRank(wormid)
 		elif cmd == "rank" and cfg.RANKING:
 			if wormid in worms:
@@ -291,7 +296,7 @@ def parseUserCommand(wormid,message):
 				if params:
 					wormName = " ".join(params)
 				ranking.myRank(wormName, wormid)
-		elif cmd == "total" and cfg.RANKING:
+		elif cmd == "ranktotal" and cfg.RANKING:
 			privateMsg(wormid, "There are " + str(len(ranking.rank)) + " players in the ranking.")
 		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
 			pass
@@ -299,6 +304,7 @@ def parseUserCommand(wormid,message):
 			raise Exception, "Invalid user command"
 
 	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
+			# TODO, send what's passed in the exception to the user?
 		privateMsg(wormid, "Invalid user command")
 		messageLog(formatExceptionInfo(),LOG_ERROR) #Helps to fix errors
 		return False
@@ -522,7 +528,7 @@ def initLevelList():
 			continue
 		#messageLog("Adding level " + f, LOG_INFO)
 		availibleLevels.append(f)
-	
+
 def initModList():
 	global modDir, availibleMods
 	for f in os.listdir(modDir):
@@ -562,13 +568,13 @@ lobbyEnoughPlayers = False
 oldGameState = GAME_LOBBY
 
 def controlHandlerDefault():
-	
+
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
-	
+
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong
-		
+
 		lobbyChangePresetTimeout -= 1
 
 		if oldGameState != GAME_LOBBY or lobbyChangePresetTimeout <= 0:
@@ -619,7 +625,7 @@ def controlHandlerDefault():
 						chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
 	if gameState == GAME_WEAPONS:
-	
+
 		#checkMaxPing()
 
 		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
