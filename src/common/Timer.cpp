@@ -32,6 +32,7 @@ int		Fps = 0;
 
 ///////////////////
 // Get the frames per second count
+// Should be called once per frame
 int GetFPS(void)
 {
 	Frames++;
@@ -44,6 +45,40 @@ int GetFPS(void)
 	}
 
 	return Fps;
+}
+
+int		Frames_MinFPS = 0;
+float	OldFPSTime_MinFPS = 0;
+float	PrevFrameTime_MinFPS = 0;
+float	MaxFrameTime_MinFPS = 0;
+int		Fps_MinFPS = 0;
+
+///////////////////
+// Get the minimal frames per second count ( the slowest frame )
+// Should be called once per frame
+int GetMinFPS(void)
+{
+	Frames_MinFPS++;
+	float ms = GetMilliSeconds();
+	if( ms - OldFPSTime_MinFPS >= 1.0f ) 
+	{
+		OldFPSTime_MinFPS = ms;
+
+		if( MaxFrameTime_MinFPS > 0.00000001 )
+			Fps_MinFPS = (int)( 1.0f / MaxFrameTime_MinFPS );
+		if( Fps_MinFPS > Fps )
+			Fps_MinFPS = Fps;
+
+		MaxFrameTime_MinFPS = ms - PrevFrameTime_MinFPS;
+		Frames_MinFPS = 0;
+	}
+
+	if( MaxFrameTime_MinFPS < ms - PrevFrameTime_MinFPS )
+		MaxFrameTime_MinFPS = ms - PrevFrameTime_MinFPS;
+
+	PrevFrameTime_MinFPS = ms;
+
+	return Fps_MinFPS;
 }
 
 ///////////////////

@@ -588,7 +588,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 						tInterfaceSettings.FpsX + 2,
 						tInterfaceSettings.FpsY,
 						tLX->clFPSLabel,
-						"FPS: " + itoa(GetFPS()) // Get the string and its width
+						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
 					);
 		}
 
