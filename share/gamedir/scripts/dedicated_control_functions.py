@@ -246,7 +246,7 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%s!team <blue/red" % (cfg.USER_PREFIX)
+		msg = "%steam <blue/red" % (cfg.USER_PREFIX)
 		if cfg.MAX_TEAMS >= 3:
 			msg += "/green"
 		if cfg.MAX_TEAMS >= 4:
@@ -280,13 +280,13 @@ def parseUserCommand(wormid,message):
 			if not params:
 				userCommandHelp(wormid)
 				raise Exception, "You need to specify a team"
-			if params[0].lower() == "blue":
+			if params[0].lower() == "blue" or params[0].lower() == "b":
 				setWormTeam(wormid, 0)
-			elif params[0].lower() == "red":
+			elif params[0].lower() == "red" or params[0].lower() == "r":
 				setWormTeam(wormid, 1)
-			elif params[0].lower() == "green" and cfg.MAX_TEAMS >= 3:
+			elif ( params[0].lower() == "green" or params[0].lower() == "g" ) and cfg.MAX_TEAMS >= 3:
 				setWormTeam(wormid, 2)
-			elif params[0].lower() == "yellow" and cfg.MAX_TEAMS >= 4:
+			elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
 				setWormTeam(wormid, 3)
 		elif cmd == "toprank" and cfg.RANKING:
 			ranking.firstRank(wormid)

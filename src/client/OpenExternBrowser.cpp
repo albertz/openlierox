@@ -75,8 +75,8 @@ void OpenLinkInExternBrowser(const std::string& url) {
 
 	for (std::list<std::string>::const_iterator it = browsers.begin(); it != browsers.end(); ++it) {
 		// we have browser != "" here
-		if((*it)[0] == '/' && ::system(("test -x " + *it).c_str()) == 0)
-		|| ::system(("test -x /usr/bin/" + *it + " -o -x /usr/bin/X11/" + *it + " -o -x /usr/local/bin/" + *it).c_str()) == 0) {
+		if(((*it)[0] == '/' && ::system(("test -x " + *it).c_str()) == 0) ||
+			::system(("test -x /usr/bin/" + *it + " -o -x /usr/bin/X11/" + *it + " -o -x /usr/local/bin/" + *it).c_str()) == 0) {
 			browser = *it;
 			break;
 		}
