@@ -1,0 +1,98 @@
+Index: include/Options.h
+===================================================================
+--- include/Options.h	(revision 2795)
++++ include/Options.h	(working copy)
+@@ -273,6 +273,7 @@
+ 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
+ 		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
+ 		bool	bAllowConnectDuringGame; // >=Beta8
++		int		iAllowConnectDuringGameLivesPercent; // How much lives to give to new player, in % from avg. lives of all players
+ 	} tGameinfo;
+ 
+ 	// not specified options found in options-file
+Index: src/server/CServer_Parse.cpp
+===================================================================
+--- src/server/CServer_Parse.cpp	(revision 2795)
++++ src/server/CServer_Parse.cpp	(working copy)
+@@ -1274,7 +1274,21 @@
+ 			if( tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
+ 				newcl->getWorm(i)->setLives(tGameInfo.iLives);
+ 			else
+-				newcl->getWorm(i)->setLives(WRM_OUT);
++			{
++				float avgLives = 0;
++				int wormCount = 0;
++				for( int f = 0; f < MAX_WORMS; f++ )
++				{
++					if( ! cWorms[f].isUsed() || cWorms[f].getClient() == newcl )
++						continue;
++					avgLives += cWorms[f].getLives(); // Includes -1 for WRM_OUT
++					wormCount ++;
++				}
++				avgLives = avgLives / wormCount * tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent / 100.0f;
++				if( avgLives < 0 || tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent <= 0 )
++					avgLives = WRM_OUT;
++				newcl->getWorm(i)->setLives( (int)avgLives );
++			};
+ 			newcl->getWorm(i)->setKills(0);
+ 			newcl->getWorm(i)->setGameScript(cGameScript.get());
+ 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
+@@ -1315,10 +1329,7 @@
+ 			}
+ 			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
+ 		}
+-		// If new client is spectating skip weapon selection screen
+-		// HINT: remove this if we'll get new clients joining and playing with limited lives games
+-		else if(tLXOptions->tGameinfo.bForceRandomWeapons || 
+-			( tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
++		else if(tLXOptions->tGameinfo.bForceRandomWeapons) {
+ 			for(int i=0;i<newcl->getNumWorms();i++) {
+ 				newcl->getWorm(i)->GetRandomWeapons();
+ 				newcl->getWorm(i)->setWeaponsReady(true);
+Index: src/client/DeprecatedGUI/Menu_Local.cpp
+===================================================================
+--- src/client/DeprecatedGUI/Menu_Local.cpp	(revision 2795)
++++ src/client/DeprecatedGUI/Menu_Local.cpp	(working copy)
+@@ -765,6 +765,7 @@
+ 	gs_EmptyWeaponsOnRespawn,
+ 	gs_SameWeaponsAsHostWorm,
+ 	gs_AllowConnectDuringGame,
++	gs_AllowConnectDuringGameLivesPercent,
+ 	
+ 	gs_Bonuses,
+ 	gs_ShowBonusNames,
+@@ -880,6 +881,11 @@
+ 
+ 	y += 30;
+ 
++	cGeneralSettings.Add( new CLabel("Lives for new player", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
++	cGeneralSettings.Add( new CLabel("from average, %", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
++	cGeneralSettings.Add( new CTextbox(),	gs_AllowConnectDuringGameLivesPercent,    300,y-3,30,tLX->cFont.GetHeight());
++	cGeneralSettings.SendMessage(gs_AllowConnectDuringGameLivesPercent, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent), 0);
++
+ 	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
+ 	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
+ 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
+@@ -1088,6 +1094,10 @@
+ 	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_GETTEXT, &buf, 0);
+ 	if(buf != "")
+ 		tLXOptions->tGameinfo.fRespawnTime = atof(buf);
++		
++	cGeneralSettings.SendMessage(gs_AllowConnectDuringGameLivesPercent, TXS_GETTEXT, &buf, 0);
++	if(buf != "")
++		tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent = atoi(buf);
+ 
+ 	tLXOptions->tGameinfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
+ 
+Index: src/client/Options.cpp
+===================================================================
+--- src/client/Options.cpp	(revision 2795)
++++ src/client/Options.cpp	(working copy)
+@@ -174,6 +174,7 @@
+ 		( tLXOptions->tGameinfo.bForceRandomWeapons, "ForceRandomWeapons", false )
+ 		( tLXOptions->tGameinfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false )
+ 		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
++		( tLXOptions->tGameinfo.iAllowConnectDuringGameLivesPercent, "AllowConnectDuringGameLivesPercent", 80 )
+ 		;
+ 
+ 	bool ret = tLXOptions->LoadFromDisc();
