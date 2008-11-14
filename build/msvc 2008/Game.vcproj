@@ -1127,6 +1127,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\Music.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Music.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\NotifyUser.cpp"
 				>
 			</File>
