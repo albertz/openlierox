@@ -374,6 +374,22 @@ def parseNewWorm(sig):
 
 	if not exists:
 		worms[wormID] = worm
+	
+	# Balance teams
+	teams = [0,0,0,0]
+	for w in worms.keys():
+		if worms[w].iID == -1:
+			continue
+		teams[worms[w].Team] += 1
+	minTeam = 0
+	minTeamCount = teams[0]
+	for f in range(cfg.MAX_TEAMS):
+		if minTeamCount > teams[f]:
+			minTeamCount = teams[f]
+			minTeam = f
+
+	setWormTeam(wormID, minTeam)
+	messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), LOG_INFO)
 
 def parseWormLeft(sig):
 	global worms
@@ -555,7 +571,7 @@ def checkMaxPing():
 		ping = int(getWormPing(worms[f].iID))
 		if ping > 0:
 			worms[f].Ping.insert( 0, ping )
-			if len(worms[f].Ping) > 10:
+			if len(worms[f].Ping) > 25:
 				worms[f].Ping.pop()
 				if average(worms[f].Ping) > cfg.MAX_PING:
 					kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
