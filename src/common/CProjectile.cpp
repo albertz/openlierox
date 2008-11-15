@@ -208,6 +208,11 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
 
 	ColInfo res = { 0, 0, 0, 0, false, false };
 
+	// If the current cell is empty, don't check for the collision
+	// HINT: this is not 100% correct but it is enough for most of the checks
+	if (map->getGridFlags()[py / map->getGridHeight() * map->getGridCols() + px / map->getGridWidth()] & PX_EMPTY)
+		return res;
+
 	// Check for the collision
 	for(int y = py - iColSize; y <= yend; ++y) {
 
@@ -216,7 +221,7 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
 		for(int x = px - iColSize; x <= xend; ++x) {
 
 			// Solid pixel
-			if(!(*pf & PX_EMPTY)) {
+			if(*pf & (PX_DIRT|PX_ROCK)) {
 				if (y < py)
 					++res.top;
 				else if (y > py)
