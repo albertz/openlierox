@@ -374,6 +374,9 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	if(sender->getNumWorms() == 0)
 		return "Message sent from client with no worms";
 	
+	if(sender->getMuted())
+		return "Teamchats can not be sent when you are muted";
+	
 	// Get the message
 	std::string msg = sender->getWorm(0)->getName() + ": ";
 	std::vector<std::string>::const_iterator it = params.begin();
