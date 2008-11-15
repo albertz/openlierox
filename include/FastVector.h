@@ -98,17 +98,21 @@ public:
 		FastVector& m_parent;
 	public:
 		Iterator(FastVector& parent, int index = 0) : m_parent(parent) {
-			m_index = index - 1;
+			m_index = CLAMP(index, 0, SIZE) - 1;
 			next();
 		}
 		Iterator* copy() const { return new Iterator(m_parent, m_index); }
 
 		void next() {
-			while(true) {
-				m_index++;
-				if(m_index > m_parent.m_lastUsed) m_index = SIZE;
-				if(m_index >= SIZE) break;
-				if(m_parent.isUsed(m_index)) break;
+			++m_index;
+			while (m_index < SIZE) {
+				if(m_parent.isUsed(m_index)) 
+					break;
+
+				++m_index;
+
+				if(m_index > m_parent.m_lastUsed) 
+					m_index = SIZE;
 			}
 		}
 		bool operator==(const ::Iterator<_Obj>& other) const { return m_index == ((Iterator*)&other)->m_index; }
