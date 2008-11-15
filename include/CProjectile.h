@@ -151,6 +151,13 @@ public:
 
 
 private:
+	// Types
+	struct ColInfo  {
+		int left, right, top, bottom;
+		bool collided;
+		bool onlyDirt;
+	};
+
 	// Attributes
 
 	bool		bUsed;
@@ -173,10 +180,22 @@ private:
 	CVec		vPosition;
 	CVec		vVelocity;
 	float		fRotation;
-	int			CollisionSide;
 
 	// Network
 	int			iRandom;
+
+	// Collision checking
+	int			MAX_CHECKSTEP; // only after a step of this a collision check will be made
+	int			MIN_CHECKSTEP; // if step is wider than this, it will be intersected
+	int			MAX_CHECKSTEP2; // power of max checkstep
+	int			MIN_CHECKSTEP2; // power of min checkstep
+	int			AVG_CHECKSTEP; // this is used for the intersection, if the step is to wide
+	int			iColSize;  // size of the projectile for the collision (1 for pixel, 2 for image)
+	float		fGravity;  // gravity of the projectile (either custom or 100 by default)
+	float		fWallshootTime;  // period of time from the spawn when no collision checks are made
+	bool		bChangesSpeed;  // true if the projectile changes its speed during its life
+	int			iCheckSpeedLen;  // speed for which the check steps have been calculated last time
+	int			CollisionSide;
 
 
 	// Animation
@@ -196,6 +215,8 @@ private:
 	// Debug info
 	bool		firstbounce;
 
+private:
+	void	CalculateCheckSteps();
 
 
 public:
@@ -210,6 +231,9 @@ public:
 
 	int		CheckWormCollision(CWorm *worms);
 	int		ProjWormColl(CVec pos, CWorm *worms);
+	ColInfo	TerrainCollision(int px, int py, CMap *map);
+	bool	MapBoundsCollision(int px, int py, CMap *map);
+	void	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
 	int		CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt);
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel);
 

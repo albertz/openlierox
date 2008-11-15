@@ -62,6 +62,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fSpawnTime = time;
 
 	fSpeed = _vel.GetLength();
+	CalculateCheckSteps();
 
 	fFrame = 0;
 	bFrameDelta = true;
@@ -75,7 +76,20 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 			iColour = MakeColour(tProjInfo->Colour1[0], tProjInfo->Colour1[1], tProjInfo->Colour1[2]);
 		else if(c==1)
 			iColour = MakeColour(tProjInfo->Colour2[0], tProjInfo->Colour2[1], tProjInfo->Colour2[2]);
-	}
+
+		iColSize = 1;
+	} else
+		iColSize = 2;
+
+	fGravity = 100.0f; // Default
+	if (tProjInfo->UseCustomGravity)
+		fGravity = (float)tProjInfo->Gravity;
+
+	fWallshootTime = 0.01f + GetRandomNum() / 1000; // Support wallshooting - ignore collisions before this time
+
+	bool bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
+		&& (tProjInfo->Type != PJ_NOTHING)  // Changes speed when in rock
+		&& (tProjInfo->Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
 
     // Events
     bExplode = false;
@@ -124,6 +138,171 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 	return curResult;
 }
 
+//////////////////////
+// Pre-calculates the check steps for collisions
+void CProjectile::CalculateCheckSteps()
+{
+	MIN_CHECKSTEP = 4; 
+	MAX_CHECKSTEP = 6; 
+	AVG_CHECKSTEP = 4;
+
+	iCheckSpeedLen = (int)vVelocity.GetLength2();
+	if (iCheckSpeedLen < 14000)  {
+		MIN_CHECKSTEP = 0;
+		MAX_CHECKSTEP = 3;
+		AVG_CHECKSTEP = 2;
+	} else if (iCheckSpeedLen < 75000)  {
+		MIN_CHECKSTEP = 0;
+		MAX_CHECKSTEP = 4;
+		AVG_CHECKSTEP = 2;
+	} else if (iCheckSpeedLen < 250000)  {
+		MIN_CHECKSTEP = 1;
+		MAX_CHECKSTEP = 5;
+		AVG_CHECKSTEP = 2;
+
+	// HINT: add or substract some small random number for high speeds, it behaves more like original LX
+	} else {
+		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
+		MIN_CHECKSTEP = 6;
+		if (tProjInfo->Hit_Type == PJ_BOUNCE)  { // HINT: this avoids fast bouncing projectiles to stay in a wall too often (for example zimm)
+			MAX_CHECKSTEP = 2;
+			AVG_CHECKSTEP = 2;
+		} else {
+			MAX_CHECKSTEP = 9 + rnd;
+			AVG_CHECKSTEP = 6 + rnd;
+		}
+	}
+
+	MAX_CHECKSTEP2 = MAX_CHECKSTEP * MAX_CHECKSTEP;
+	MIN_CHECKSTEP2 = MIN_CHECKSTEP * MIN_CHECKSTEP;
+}
+
+
+///////////////////////
+// Checks for collision with the level border
+bool CProjectile::MapBoundsCollision(int px, int py, CMap *map)
+{
+	CollisionSide = 0;
+
+	if (px - iColSize < 0)
+		CollisionSide |= COL_LEFT;
+
+	if (px + iColSize >= (int)map->GetWidth())
+		CollisionSide |= COL_RIGHT;
+
+	if (py - iColSize < 0)
+		CollisionSide |= COL_TOP;
+
+	if (py + iColSize >= (int)map->GetHeight())
+		CollisionSide |= COL_BOTTOM;
+
+	return CollisionSide != 0;
+}
+
+////////////////////////////
+// Checks for collision with the terrain
+CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
+{
+	int xend = px + iColSize;
+	int yend = py + iColSize;
+
+	ColInfo res = { 0, 0, 0, 0, false, false };
+
+	// Check for the collision
+	for(int y = py - iColSize; y <= yend; ++y) {
+
+		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - iColSize;
+
+		for(int x = px - iColSize; x <= xend; ++x) {
+
+			// Solid pixel
+			if(!(*pf & PX_EMPTY)) {
+				if (y < py)
+					++res.top;
+				else if (y > py)
+					++res.bottom;
+				if (x < px)
+					++res.left;
+				else if (x > px)
+					++res.right;
+
+				res.onlyDirt = (res.onlyDirt && (*pf & PX_DIRT));
+				res.collided = true;
+			}
+
+			pf++;
+		}
+	}
+
+	return res;
+}
+
+////////////////////////
+// Handle the terrain collsion (helper function)
+void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt)
+{
+
+	if(tProjInfo->Hit_Type == PJ_EXPLODE && c.onlyDirt) {
+		// HINT: don't reset vPosition here, because we want
+		//		the explosion near (inside) the object
+		//		this behavior is the same as in original LX
+		return;
+	}
+
+	bool bounce = false;
+
+	// Bit of a hack
+	switch (tProjInfo->Hit_Type)  {
+	case PJ_BOUNCE:
+		// HINT: don't reset vPosition here; it will be reset,
+		//		depending on the collisionside
+		bounce = true;
+		break;
+	case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
+		vPosition -= (vVelocity * dt) * 0.5f;				// Note: the speed in walls could be moddable
+		vOldPos = vPosition;
+		break;
+	default:
+		vPosition = vOldPos;
+		vVelocity = oldvel;
+		return;
+	}
+
+	int vx = (int)vVelocity.x;
+	int vy = (int)vVelocity.y;
+
+	// Find the collision side
+	if ((c.left > c.right || c.left > 2) && c.left > 1 && vx < 0) {
+		if(bounce)
+			vPosition.x = oldpos.x;
+		CollisionSide |= COL_LEFT;
+	}
+
+	if ((c.right > c.left || c.right > 2) && c.right > 1 && vx > 0) {
+		if(bounce)
+			vPosition.x = oldpos.x;
+		CollisionSide |= COL_RIGHT;
+	}
+
+	if (c.top > 1 && vy < 0) {
+		if(bounce)
+			vPosition.y = oldpos.y;
+		CollisionSide |= COL_TOP;
+	}
+
+	if (c.bottom > 1 && vy > 0) {
+		if(bounce)
+			vPosition.y = oldpos.y;
+		CollisionSide |= COL_BOTTOM;
+	}
+
+	// If the velocity is too low, just stop me
+	if (abs(vx) < 2)
+		vVelocity.x = 0;
+	if (abs(vy) < 2)
+		vVelocity.y = 0;
+}
+
 ///////////////////
 // Check for a collision, updates velocity and position
 // Returns:
@@ -140,75 +319,38 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
 
-	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
-	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
-	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
-	int len = (int)vVelocity.GetLength2();
-
-	if (len < 14000)  {
-		MIN_CHECKSTEP = 0;
-		MAX_CHECKSTEP = 3;
-		AVG_CHECKSTEP = 2;
-	} else if (len >= 14000 && len < 75000)  {
-		MIN_CHECKSTEP = 0;
-		MAX_CHECKSTEP = 4;
-		AVG_CHECKSTEP = 2;
-	} else if (len >= 75000 && len < 250000)  {
-		MIN_CHECKSTEP = 1;
-		MAX_CHECKSTEP = 5;
-		AVG_CHECKSTEP = 2;
-
-	// HINT: add or substract some small random number for high speeds, it behaves more like original LX
-	} else if (len >= 250000)  {
-		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
-		MIN_CHECKSTEP = 6;
-		if (tProjInfo->Hit_Type == PJ_BOUNCE)  { // HINT: this avoids fast bouncing projectiles to stay in a wall too often (for example zimm)
-			MAX_CHECKSTEP = 2;
-			AVG_CHECKSTEP = 2;
-		} else {
-			MAX_CHECKSTEP = 9 + rnd;
-			AVG_CHECKSTEP = 6 + rnd;
-		}
+	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
+	if (bChangesSpeed)  {
+		int len = (int)vVelocity.GetLength2();
+		if (abs(len - iCheckSpeedLen) > 50000)
+			CalculateCheckSteps();
 	}
-
-	// Check if it hit the terrain
-	int mw = map->GetWidth();
-	int mh = map->GetHeight();
-	int w,h;
-	int ret;
-
-	if(tProjInfo->Type == PRJ_PIXEL)
-		w=h=1;
-	else
-		w=h=2;
 
 	CVec vOldVel = vVelocity;
 	CVec newvel = vVelocity;
+
 	// Gravity
-	if(tProjInfo->UseCustomGravity)
-		newvel.y += (float)(tProjInfo->Gravity)*dt;
-	else
-		newvel.y += 100*dt;
+	newvel.y += fGravity * dt;
 
 	// Dampening
 	// HINT: as this function is always called with fixed dt, we can do it this way
 	newvel *= tProjInfo->Dampening;
 
 	float checkstep = newvel.GetLength2(); // |v|^2
-	if(( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP )) { // |dp|^2=|v*dt|^2
+	if ((int)(checkstep * dt * dt) > MAX_CHECKSTEP2) { // |dp|^2=|v*dt|^2
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
 		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
 		checkstep = MAX(checkstep, 0.001f);
 
-		// In some bad cases (foat accurance problems mainly),
+		// In some bad cases (float accurance problems mainly),
 		// it's possible that checkstep >= dt .
 		// If we would not check this case, we get in an infinie
 		// recursive loop.
 		// Therefore if this is the case, we don't do multiple checksteps.
 		if(checkstep < dt) {
 			for(float time = 0; time < dt; time += checkstep) {
-				ret = CheckCollision((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
+				int ret = CheckCollision((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
 				if(ret >= -1) {
 					if(enddt) *enddt += time;
 					return ret;
@@ -223,10 +365,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	vVelocity = newvel;
 	if(enddt) *enddt = dt;
 	CVec vFrameOldPos = vPosition;
-	vPosition += vVelocity*dt;
+	vPosition += vVelocity * dt;
 
 	// if distance is to short to last check, just return here without a check
-	if( (vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP ) {
+	if ((int)(vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP2) {
 /*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
@@ -234,147 +376,33 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 	}
 
-	CollisionSide = 0;
-	short top,bottom,left,right;
-	top=bottom=left=right=0;
-	int px=(int)(vPosition.x);
-	int py=(int)(vPosition.y);
-	bool collisionWasOnlyDirt = true;
+	int px = (int)(vPosition.x);
+	int py = (int)(vPosition.y);
 
 	// Hit edges
-	if(vPosition.x - w < 0 || vPosition.y - h < 0 || vPosition.x + w >= mw || vPosition.y + h >= mh) {
-
-		// Check the collision side
-		if(vPosition.x - w < 0) {
-			px = w;
-			CollisionSide |= COL_LEFT;
-		}
-		if(vPosition.y - h < 0) {
-			py = h;
-			CollisionSide |= COL_TOP;
-		}
-		if(vPosition.x + w >= mw) {
-			px = mw-w;
-			CollisionSide |= COL_RIGHT;
-		}
-		if(vPosition.y + h >= mh) {
-			py = mh-h;
-			CollisionSide |= COL_BOTTOM;
-		}
-
-		collisionWasOnlyDirt = false;
-
-		//vPosition.x = (float)px;
-		//vPosition.y = (float)py;
+	if (MapBoundsCollision(px, py, map))  {
 		vPosition = vOldPos;
 		vVelocity = vOldVel;
+
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
 
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
-	const float time_no_col = 0.01f + GetRandomNum() / 1000;
-	if (tLX->fCurTime - fSpawnTime <= time_no_col)
+	if (tLX->fCurTime - fSpawnTime <= fWallshootTime)
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 
-	const uchar* gridflags = map->getAbsoluteGridFlags();
-	int grid_w = map->getGridWidth();
-	int grid_h = map->getGridHeight();
-	int grid_cols = map->getGridCols();
-	if(grid_w < 2*w+1 || grid_h < 2*h+1 // this ensures, that this check is safe
-	|| gridflags[((py-h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
-	for(int y = py-h; y <= py+h; y++) {
-
-		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
-
-		for(int x = px-w; x <= px+w; x++) {
-
-			if(!(*pf & PX_EMPTY)) {
-				if(y<py)
-					top++;
-				else if(y>py)
-					bottom++;
-				if(x<px)
-					left++;
-				else if(x>px)
-					right++;
-
-				if(*pf & PX_ROCK)
-					collisionWasOnlyDirt = false;
-			}
-
-			pf++;
-		}
-	}
+	// Check collision with the terrain
+	ColInfo c = TerrainCollision(px, py, map);
 
 	// Check for a collision
-	if(top || bottom || left || right) {
-		CollisionSide = 0;
-
-		if(tProjInfo->Hit_Type == PJ_EXPLODE && collisionWasOnlyDirt) {
-			// HINT: don't reset vPosition here, because we want
-			//		the explosion near (inside) the object
-			//		this behavior is the same as in original LX
-			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
-		}
-
-		bool bounce = false;
-
-		// Bit of a hack
-		switch ( tProjInfo->Hit_Type )  {
-		case PJ_BOUNCE:
-			// HINT: don't reset vPosition here; it will be reset,
-			//		depending on the collisionside
-			bounce = true;
-			break;
-		case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
-			//printf("this projectile can go through walls\n");
-			vPosition -= (vVelocity*dt)*0.5f;				// Note: the speed in walls could be moddable
-			vOldPos = vPosition;
-			break;
-		default:
-			vPosition = vOldPos;
-			vVelocity = vOldVel;
-		}
-
-		// Find the collision side
-		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
-			if(bounce)
-				vPosition.x=( vFrameOldPos.x );
-			CollisionSide |= COL_LEFT;
-		}
-
-		if( (right>left || right>2) && right>1 && vVelocity.x > 0) {
-			if(bounce)
-				vPosition.x=( vFrameOldPos.x );
-			CollisionSide |= COL_RIGHT;
-		}
-
-		if(top>1 && vVelocity.y < 0) {
-			if(bounce)
-				vPosition.y=( vFrameOldPos.y );
-			CollisionSide |= COL_TOP;
-		}
-
-		if(bottom>1 && vVelocity.y > 0) {
-			if(bounce)
-				vPosition.y=( vFrameOldPos.y );
-			CollisionSide |= COL_BOTTOM;
-		}
-
-		// If the velocity is too low, just stop me
-		if(fabs(vVelocity.x) < 2)
-			vVelocity.x=0;
-		if(fabs(vVelocity.y) < 2)
-			vVelocity.y=0;
+	if(c.collided) {
+		HandleCollision(c, vFrameOldPos, vOldVel, dt);
 
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
 
-	// the move was save, so save the position
+	// the move was safe, save the position
 	vOldPos = vPosition;
 
 	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
