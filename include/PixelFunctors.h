@@ -300,7 +300,7 @@ class PixelCopy_32_24 : public PixelCopy  { public:
 //
 
 // Blends the pixel with the background pixel, the background pixel is considered opaque
-#define BLEND_CHANN_SOLID(chann, bg, fg)  (((255 - fg.a) * bg.chann + fg.a * fg.chann) / 255)
+#define BLEND_CHANN_SOLID(chann, bg, fg)  (((255 - fg.a) * bg.chann + fg.a * fg.chann) >> 8)
 
 // 16-bit alpha putpixel
 class PixelPutAlpha_SolidBg_16 : public PixelPutAlpha  {
@@ -354,7 +354,7 @@ class PixelPutAlpha_AlphaBg_32 : public PixelPutAlpha  {
 		Color dest_cl = Unpack_alpha(GetPixel_32(addr), dstfmt);
 
 		// Blend and save to dest_cl
-		dest_cl.a = 255 - (255 - col.a) * (255 - dest_cl.a) / 255; // Same as MIN(255, dest_cl.a + col.a) but faster (no condition)
+		dest_cl.a = 255 - (((255 - col.a) * (255 - dest_cl.a)) >> 8); // Same as MIN(255, dest_cl.a + col.a) but faster (no condition)
 		dest_cl.r = BLEND_CHANN_ALPHA(r, dest_cl, col, dest_cl.a);
 		dest_cl.g = BLEND_CHANN_ALPHA(g, dest_cl, col, dest_cl.a);
 		dest_cl.b = BLEND_CHANN_ALPHA(b, dest_cl, col, dest_cl.a);
