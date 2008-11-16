@@ -20,6 +20,7 @@
 #include "LieroX.h"
 
 #include "GfxPrimitives.h"
+#include "PixelFunctors.h"
 #include "Unicode.h"
 #include "MathLib.h"
 

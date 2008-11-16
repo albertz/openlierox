@@ -27,6 +27,7 @@
 #include "Error.h"
 #include "ConfigHandler.h"
 #include "GfxPrimitives.h"
+#include "PixelFunctors.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "InputEvents.h"
@@ -936,6 +937,51 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 #endif
 }
 
+struct ShadowClipInfo  {
+	int map_x;
+	int map_y;
+	int dest_x;
+	int dest_y;
+	int obj_x;
+	int obj_y;
+	int w;
+	int h;
+};
+
+
+/////////////////////
+// Helper function for DrawObjectShadow
+ShadowClipInfo ClipShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface *bmpShadowMap,
+						  int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
+{
+	ShadowClipInfo res;
+
+	res.dest_x = ((wx + SHADOW_DROP - view->GetWorldX()) * 2) + view->GetLeft();
+	res.dest_y = ((wy + SHADOW_DROP - view->GetWorldY()) * 2) + view->GetTop();
+
+	// Calculate positions and clipping
+	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
+	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
+
+	res.obj_x = sx + clip_shift_x;
+	res.obj_y = sy + clip_shift_y;
+
+	res.map_x = wx + SHADOW_DROP + clip_shift_x;
+	res.map_y = wy + SHADOW_DROP + clip_shift_y;
+	int shadowmap_real_w = w / 2;
+	int shadowmap_real_h = h / 2;
+
+	// Clipping
+	ClipRefRectWith(res.dest_x, res.dest_y, w, h, (SDLRect&)bmpDest->clip_rect);
+	ClipRefRectWith(res.obj_x, res.obj_y, w, h, (SDLRect&)bmpObj->clip_rect);
+	ClipRefRectWith(res.map_x, res.map_y, shadowmap_real_w, shadowmap_real_h, (SDLRect&)bmpShadowMap->clip_rect);
+
+	res.w = MIN(w, shadowmap_real_w * 2);
+	res.h = MIN(h, shadowmap_real_h * 2);
+
+	return res;
+}
+
 
 ///////////////////
 // Draw an object's shadow
@@ -944,34 +990,9 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
 
-	assert(bmpDest->format->BytesPerPixel == bmpShadowMap->format->BytesPerPixel);
-
-	// Calculate positions and clipping
-	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
-	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
-
-	int dest_real_x = ((wx + SHADOW_DROP - view->GetWorldX()) * 2) + view->GetLeft();
-	int dest_real_y = ((wy + SHADOW_DROP - view->GetWorldY()) * 2) + view->GetTop();
-
-	int object_real_x = sx + clip_shift_x;
-	int object_real_y = sy + clip_shift_y;
-
-	int shadowmap_real_x = wx + SHADOW_DROP + clip_shift_x;
-	int shadowmap_real_y = wy + SHADOW_DROP + clip_shift_y;
-	int shadowmap_real_w = w / 2;
-	int shadowmap_real_h = h / 2;
-
-	// Clipping
-	ClipRefRectWith(dest_real_x, dest_real_y, w, h, (SDLRect&)bmpDest->clip_rect);
-	ClipRefRectWith(object_real_x, object_real_y, w, h, (SDLRect&)bmpObj->clip_rect);
-	ClipRefRectWith(shadowmap_real_x, shadowmap_real_y, shadowmap_real_w, shadowmap_real_h, (SDLRect&)bmpShadowMap.get()->clip_rect);
-
-	// HINT: pixelflags use same coordinates as shadowmap
-	int pixelflags_start_x = shadowmap_real_x; // Starting X coordinate for pixel flags
-	int pixelflags_y = shadowmap_real_y; // Current Y coordinate for pixel flags
-
-	w = MIN(w, shadowmap_real_w * 2);
-	h = MIN(h, shadowmap_real_h * 2);
+	const ShadowClipInfo i = ClipShadow(bmpDest, bmpObj, bmpShadowMap.get(), sx, sy, w, h, view, wx, wy);
+	if (!i.h || !i.w)
+		return;
 
 	// Lock the surfaces
 	LOCK_OR_QUIT(bmpDest);
@@ -979,50 +1000,47 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	LOCK_OR_QUIT(bmpShadowMap);
 
 	// Pixels
-	byte bpp = bmpDest->format->BytesPerPixel;
-	Uint8 *dest_px, *obj_px, *shadowmap_px;
-	Uint32 DestRowStep, ObjRowStep;
-	Uint8 *ShadowmapPxRow;  // We draw shadowmap doubly stretched so we cannot use step there
+	Uint8 *dest_row = (Uint8 *)bmpDest->pixels + (i.dest_y * bmpDest->pitch) + (i.dest_x * bmpDest->format->BytesPerPixel);
+	Uint8 *obj_row  = (Uint8 *)bmpObj->pixels + (i.obj_y * bmpObj->pitch) + (i.obj_x * bmpObj->format->BytesPerPixel);
+	Uint8 *shadow_row = (Uint8 *)bmpShadowMap->pixels + (i.map_y * bmpShadowMap->pitch) + (i.map_x * bmpShadowMap->format->BytesPerPixel);
+	uchar *pf_row = PixelFlags + i.map_y * Width + i.map_x;
 
-	dest_px		   = (Uint8 *)bmpDest->pixels + (dest_real_y * bmpDest->pitch) + (dest_real_x * bpp);
-	obj_px		   = (Uint8 *)bmpObj->pixels + (object_real_y * bmpObj->pitch) + (object_real_x * bmpObj->format->BytesPerPixel);
-	ShadowmapPxRow = (Uint8 *)bmpShadowMap.get()->pixels + (shadowmap_real_y * bmpShadowMap.get()->pitch) + (shadowmap_real_x * bpp);
-
-	DestRowStep	 = bmpDest->pitch - (w * bpp);
-	ObjRowStep	 = bmpObj->pitch - (w * bmpObj->format->BytesPerPixel);
+	PixelGet& getter = getPixelGetFunc(bmpObj);
+	PixelCopy& copier = getPixelCopyFunc(bmpShadowMap.get(), bmpDest);
 
 	// Draw the shadow
-	for (int loop_y = h; loop_y; --loop_y)  {
-		uchar *PixelFlag = &PixelFlags[pixelflags_y * Width + pixelflags_start_x];
-		shadowmap_px = ShadowmapPxRow;
+	for (int loop_y = i.h; loop_y; --loop_y)  {
+		uchar *pf = pf_row;
+		Uint8 *shadowmap_px = shadow_row;
+		Uint8 *obj_px = obj_row;
+		Uint8 *dest_px = dest_row;
 
-		for (int loop_x = w; loop_x; --loop_x)  {
+		for (int loop_x = i.w; loop_x; --loop_x)  {
 
-			if ( (*PixelFlag & PX_EMPTY))  { // Don't draw shadow on solid objects
+			if (*pf & PX_EMPTY)  { // Don't draw shadow on solid objects
 
 				// Put pixel if not tranparent
-				if (!IsTransparent(bmpObj, GetPixelFromAddr(obj_px, bmpObj->format->BytesPerPixel)))
-					memcpy(dest_px, shadowmap_px, bpp);
+				if (!IsTransparent(bmpObj, getter.get(obj_px)))
+					copier.copy(dest_px, shadowmap_px);
 			}
 
 			// Update the pixels & flag
-			dest_px		 += bpp;
+			dest_px		 += bmpDest->format->BytesPerPixel;
 			obj_px		 += bmpObj->format->BytesPerPixel;
-			shadowmap_px += bpp * (loop_x & 1); // We draw the shadow doubly stretched -> only 1/2 pixel on shadowmap
-			PixelFlag	 += loop_x & 1;
+			shadowmap_px += bmpShadowMap->format->BytesPerPixel * (loop_x & 1); // We draw the shadow doubly stretched -> only 1/2 pixel on shadowmap
+			pf			 += loop_x & 1;
 		}
 
 		// Skip to next row
-		dest_px		   += DestRowStep;
-		obj_px		   += ObjRowStep;
-		ShadowmapPxRow += bmpShadowMap.get()->pitch * (loop_y & 1); // We draw the shadow doubly stretched -> only 1/2 row on shadowmap
-		pixelflags_y   += loop_y & 1;
+		dest_row	   += bmpDest->pitch;
+		obj_row		   += bmpObj->pitch;
+		shadow_row	   += bmpShadowMap->pitch * (loop_y & 1); // We draw the shadow doubly stretched -> only 1/2 row on shadowmap
+		pf_row		   += Width * (loop_y & 1);
 	}
 
-	// Unlock the surfaces
+	UnlockSurface(bmpShadowMap);
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpObj);
-	UnlockSurface(bmpShadowMap);
 }
 
 
