@@ -87,8 +87,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 	fWallshootTime = 0.01f + GetRandomNum() / 1000; // Support wallshooting - ignore collisions before this time
 
-	bool bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
-		&& (tProjInfo->Type != PJ_NOTHING)  // Changes speed when in rock
+	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
 		&& (tProjInfo->Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
 
     // Events
