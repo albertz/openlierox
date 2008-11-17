@@ -12,6 +12,7 @@
 
 #include "Iterator.h"
 #include "Event.h"
+#include "MathLib.h"
 
 
 /*
@@ -106,12 +107,12 @@ public:
 		void next() {
 			++m_index;
 			while (m_index < SIZE) {
-				if(m_parent.isUsed(m_index)) 
+				if(m_parent.isUsed(m_index))
 					break;
 
 				++m_index;
 
-				if(m_index > m_parent.m_lastUsed) 
+				if(m_index > m_parent.m_lastUsed)
 					m_index = SIZE;
 			}
 		}

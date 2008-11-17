@@ -353,7 +353,7 @@ setvideomode:
 			tLXOptions->iColourDepth = 0;
 			goto setvideomode;
 		}
-		
+
 		if(vidflags & SDL_FULLSCREEN) {
 			cout << "Failed to set full screen video mode "
 					<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
@@ -362,7 +362,7 @@ setvideomode:
 			vidflags &= ~SDL_FULLSCREEN;
 			goto setvideomode;
 		}
-	
+
 		SystemError("Failed to set the video mode " + itoa(scrW) + "x" + itoa(scrH) + "x" + itoa(tLXOptions->iColourDepth) + "\nErrorMsg: " + std::string(SDL_GetError()));
 		return false;
 	}
@@ -605,7 +605,7 @@ void VideoPostProcessor::process() {
 		return;
 	}
 
-	static const bool multithreaded = true;
+	static const bool multithreaded = false;
 	if(!multithreaded) {
 		VideoPostProcessor::flipBuffers();
 		videoCoreFrame();
@@ -917,7 +917,7 @@ bool HandleDebugCommand(const std::string& text) {
 
 		std::string cmd = text.substr(3);
 		stringlwr(cmd);
-		
+
 		if(cmd == "reconnect") {
 			cout << "DEBUG CMD: reconnect local client to " << cClient->getServerAddress() << endl;
 			cClient->Connect(cClient->getServerAddress());
@@ -932,7 +932,7 @@ bool HandleDebugCommand(const std::string& text) {
 							DeprecatedGUI::LMB_OK);
 		} else
 			cout << "DEBUG CMD unknown" << endl;
-		
+
 		return true;
 	}
 	return false;

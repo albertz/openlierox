@@ -141,8 +141,8 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 // Pre-calculates the check steps for collisions
 void CProjectile::CalculateCheckSteps()
 {
-	MIN_CHECKSTEP = 4; 
-	MAX_CHECKSTEP = 6; 
+	MIN_CHECKSTEP = 4;
+	MAX_CHECKSTEP = 6;
 	AVG_CHECKSTEP = 4;
 
 	iCheckSpeedLen = (int)vVelocity.GetLength2();
