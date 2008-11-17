@@ -1,15 +1,23 @@
 #!/usr/bin/python -u
 # The Python presets are detected from non-Python ones by first line which shouild contain "python" string
 
-setvar( "GameOptions.GameInfo.LevelName",   "LieroFactory(Revisited).lxl" )
+import random
 
-setvar( "GameOptions.GameInfo.ModName",   "Classic" )
+levels = [	"FossilFacility.lxl",
+			"LieroFactory(Revisited).lxl",
+			"JailBreak.lxl",
+			"Ore Quarry.lxl",
+			"RIP_Home.lxl",
+			"Sunrise_Mansion.lxl"
+		]
+
+setvar( "GameOptions.GameInfo.LevelName", levels[ random.randrange(len(levels)) ] )
+
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", 100 )
 
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
-
-setvar( "GameOptions.Network.ServerName", "Dedicated - TeamArena" )
 
 setvar("GameOptions.GameInfo.GameType", 1) # Team deathmatch, required for this gamemode
 

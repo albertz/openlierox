@@ -31,14 +31,14 @@ setvar("GameOptions.GameInfo.KillLimit", cfg.GAME_MAX_KILLS)
 setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 
 # Options that controls game
+setvar("GameOptions.GameInfo.RespawnGroupTeams", 1)
 setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0)
-#setvar( "GameOptions.GameInfo.AllowConnectDuringGameLivesPercent", 80) # Removed after discussion in mailing list
 setvar( "GameOptions.GameInfo.ForceRandomWeapons", 0)
 setvar( "GameOptions.GameInfo.SameWeaponsAsHostWorm", 0) # We should add a bot for that to work
 setvar( "GameOptions.GameInfo.GameSpeed", 1)
 setvar( "GameOptions.GameInfo.TagLimit", 5)
 setvar( "GameOptions.Network.WelcomeMessage", "<player> from <country> connected - typing go/spamming is useless")
-setvar( "GameOptions.GameInfo.Bonuses", 1)
+setvar( "GameOptions.GameInfo.Bonuses", 0)
 setvar( "GameOptions.GameInfo.BonusNames", 1)
 setvar( "GameOptions.GameInfo.BonusFrequency", 30)
 setvar( "GameOptions.GameInfo.BonusHealthToWeaponChance", 0.5) # 0 - all healths, 1 - all weapons
@@ -46,7 +46,7 @@ setvar( "GameOptions.GameInfo.BonusLife", 60)
 setvar( "GameOptions.GameInfo.EmptyWeaponsOnRespawn", 0)
 setvar( "GameOptions.GameInfo.GroupTeamScore", 0)
 setvar( "GameOptions.GameInfo.RespawnTime", 2.5)
-setvar( "GameOptions.GameInfo.SuicideDecreasesScore", 0)
+setvar( "GameOptions.GameInfo.SuicideDecreasesScore", 1)
 setvar( "GameOptions.GameInfo.CountTeamkills", 0)
 setvar( "GameOptions.GameInfo.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
 

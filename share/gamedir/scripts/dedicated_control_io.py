@@ -79,6 +79,7 @@ def getResponse(cmd):
 	ret = ""
 	extraSignals = []
 	resp = getSignal()
+	startTime = time.time()
 	while ret == "":
 		if resp.find(cmd+" ") == 0:
 			ret = resp[len(cmd)+1:] # Strip cmd string and push the rest to return-value
@@ -86,6 +87,8 @@ def getResponse(cmd):
 			if resp != "":
 				extraSignals.append(resp)
 			else:
+				if time.time() - startTime > 2.0:
+					break	# Waited for 2 second and no response - abort and return empty string
 				time.sleep(0.01)
 		if ret == "":
 			resp = getSignal()
@@ -104,6 +107,7 @@ def getResponseList(cmd):
 	ret = []
 	extraSignals = []
 	resp = getSignal()
+	startTime = time.time()
 	while resp != "endlist":
 		if resp.find(cmd+" ") == 0:
 			ret.append( resp[len(cmd)+1:] ) # Strip cmd string and push the rest to return-value
@@ -111,6 +115,8 @@ def getResponseList(cmd):
 			if resp != "":
 				extraSignals.append(resp)
 			else:
+				if time.time() - startTime > 2.0:
+					break	# Waited for 2 second and no response - abort and return empty string
 				time.sleep(0.01)
 		resp = getSignal()
 	for s in extraSignals:
@@ -196,15 +202,24 @@ def getComputerWormList():
 
 def getWormIP(iID):
 	print "getwormip %i" % int(iID)
-	return getResponse("wormip %i" % int(iID))
+	ret = getResponse("wormip %i" % int(iID))
+	if ret == "":
+		ret = "0.0.0.0"
+	return ret
 
 def getWormLocationInfo(iID):
 	print "getwormlocationinfo %i" % int(iID)
-	return getResponse("wormlocationinfo %i" % int(iID))
+	ret = getResponse("wormlocationinfo %i" % int(iID))
+	if ret == "":
+		ret = "Unknown Unk Unknown"
+	return ret
 
 def getWormPing(iID):
 	print "getwormping %i" % int(iID)
-	return int(getResponse("wormping %i" % int(iID)))
+	ret = getResponse("wormping %i" % int(iID))
+	if ret == "":
+		ret = "0"
+	return int(ret)
 
 # Use this to write to stdout (standard output)
 def msg(string):

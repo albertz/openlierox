@@ -6,14 +6,14 @@
 # has got script.lgs in it). Current way sounds sucky to me.
 
 ADMIN_PASSWORD = "secret" # Change it! should be single word without spaces, yet symbols ~!@#$%^&* are encouraged
-ADMIN_PREFIX = "//" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
+ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
 # If you modify dedicated_control Python will write errors here
 ERROR_FILE = "dedicated_control_errors.log"
 
-SERVER_NAME = "Dedicated server" # The name of your server, can be changed by preset
+SERVER_NAME = "Ded lagserver" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"
 
 MIN_PLAYERS = 2
@@ -26,20 +26,20 @@ WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before anoth
 # Seconds before rotating preset
 PRESET_TIMEOUT = 300
 
-WAIT_AFTER_GAME = 20 # Seconds to wait in lobby after round finished
+WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
-GAME_LIVES = 10
-GAME_MAX_KILLS = 20
-GAME_MAX_TIME = 10 # In minutes
+GAME_LIVES = 5
+GAME_MAX_KILLS = 15
+GAME_MAX_TIME = 7 # In minutes
 WEAPON_SELECTION_TIME = 40 # In seconds
 
 MAX_PING = 400 # Max ping to auto-kick player
 
 # Users can enter some commands too
 USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "//"
-ALLOW_TEAM_CHANGE = True # Player should type "//b", "//r", "//g", or "//y" to set it's own team
+ALLOW_TEAM_CHANGE = True # Player should type "!b", "!r", "!g", or "!y" to set it's own team
 TEAM_CHANGE_MESSAGE = "Set your team with %sb %sr" % (USER_PREFIX, USER_PREFIX)
 if MAX_TEAMS >= 3:
 	TEAM_CHANGE_MESSAGE += " %sg" % (USER_PREFIX)

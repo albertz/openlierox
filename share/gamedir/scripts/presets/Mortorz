@@ -7,5 +7,4 @@ setvar GameOptions.GameInfo.LoadingTime			"20"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
-setvar GameOptions.Network.ServerName 			"Dedicated - Mortorz"
 
