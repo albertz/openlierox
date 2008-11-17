@@ -189,6 +189,7 @@ VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
 		
 		if( OLXStarted && timeout > OLX_TIMEOUT )
 		{
+			timeout = 0;
 			char slog1[MAX_PATH], slog2[MAX_PATH];
 			strcpy( slog1, szCurDir );
 			strcat( slog1, "\\stdout.txt" );
@@ -211,6 +212,11 @@ VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
 				fclose(log2);
 			}
 			
+			char buf[1024];
+			sprintf( buf, "File sizes: %s %p = %i old %i , %s %p = %i old %i", 
+						slog1, log1, size1, logFileSize1,
+						slog2, log2, size2, logFileSize2 );
+			SvcReportEvent(buf);
 			if( size1 == logFileSize1 || size2 == logFileSize2 )
 			{
 		        SvcReportEvent("No activity in logfiles - restarting OpenLieroX"); 
@@ -328,7 +334,7 @@ VOID SvcReportEvent(LPTSTR szFunction)
 { 
     HANDLE hEventSource;
     LPCTSTR lpszStrings[2];
-    TCHAR Buffer[80];
+    //TCHAR Buffer[80];
 
     hEventSource = RegisterEventSource(NULL, SVCNAME);
 
@@ -340,7 +346,7 @@ VOID SvcReportEvent(LPTSTR szFunction)
         lpszStrings[1] = szFunction;
 
         ReportEvent(hEventSource,        // event log handle
-                    EVENTLOG_ERROR_TYPE, // event type
+                    EVENTLOG_WARNING_TYPE, // event type
                     0,                   // event category
                     SVC_ERROR,			 // Custom event ID from our MC file
                     NULL,                // no security identifier

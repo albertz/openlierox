@@ -26,6 +26,11 @@ ranking = dedicated_control_ranking
 
 stdinInputThread = GetStdinThread()
 
+# Uncomment following 3 lines to get lots of debug spam into dedicated_control_errors.log file
+#def HeavyDebugTrace(frame,event,arg): 
+#	sys.stderr.write( 'Trace: ' + str(event) + ': ' + str(arg) + ' at ' + str(frame.f_code) + "\n" )
+#sys.settrace(HeavyDebugTrace)
+
 ## Global vars ##
 curdir = os.getcwd()
 curdir = os.path.join(curdir,"scripts")
