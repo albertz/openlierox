@@ -213,7 +213,7 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
 	const int gf2 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (xend) / map->getGridWidth();
 	const int gf3 = (yend) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
 	const int gf4 = (yend) / map->getGridHeight() * map->getGridCols() + (xend) / map->getGridWidth();
-	const uchar *pf = map->getGridFlags();
+	const uchar *pf = map->getAbsoluteGridFlags();
 	if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
 		return res;
 	}
