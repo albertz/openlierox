@@ -859,7 +859,7 @@ void GameServer::RegisterServer(void)
 // Process the registering of the server
 void GameServer::ProcessRegister(void)
 {
-	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0)
+	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
 		return;
 
 	int result = tHttp.ProcessRequest();
@@ -982,7 +982,7 @@ void GameServer::DeRegisterServerUdp(void)
 void GameServer::CheckRegister(void)
 {
 	// If we don't want to register, just leave
-	if(!tLXOptions->bRegServer)
+	if(!tLXOptions->bRegServer || tLX->iGameType != GME_HOST)
 		return;
 
 	// If we registered over n seconds ago, register again
@@ -1006,7 +1006,7 @@ void GameServer::CheckRegister(void)
 bool GameServer::DeRegisterServer(void)
 {
 	// If we aren't registered, or we didn't try to register, just leave
-	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0)
+	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
 		return false;
 
 	// Create the url
