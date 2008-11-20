@@ -32,7 +32,7 @@ setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 
 # Options that controls game
 setvar("GameOptions.GameInfo.RespawnGroupTeams", 1)
-setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0)
+setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 1)
 setvar( "GameOptions.GameInfo.ForceRandomWeapons", 0)
 setvar( "GameOptions.GameInfo.SameWeaponsAsHostWorm", 0) # We should add a bot for that to work
 setvar( "GameOptions.GameInfo.GameSpeed", 1)

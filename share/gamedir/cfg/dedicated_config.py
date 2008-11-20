@@ -13,7 +13,7 @@ LOG_FILE = "dedicated_control.log"
 # If you modify dedicated_control Python will write errors here
 ERROR_FILE = "dedicated_control_errors.log"
 
-SERVER_NAME = "Ded lagserver" # The name of your server, can be changed by preset
+SERVER_NAME = "Dedicated" # The name of your server, can be changed by preset
 WELCOME_MESSAGE = "<player> from <country> connected - typing go/spamming is useless"
 
 MIN_PLAYERS = 2
@@ -30,7 +30,7 @@ WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
-GAME_LIVES = 5
+GAME_LIVES = -2
 GAME_MAX_KILLS = 15
 GAME_MAX_TIME = 7 # In minutes
 WEAPON_SELECTION_TIME = 40 # In seconds
@@ -40,11 +40,11 @@ MAX_PING = 400 # Max ping to auto-kick player
 # Users can enter some commands too
 USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "//"
 ALLOW_TEAM_CHANGE = True # Player should type "!b", "!r", "!g", or "!y" to set it's own team
-TEAM_CHANGE_MESSAGE = "Set your team with %sb %sr" % (USER_PREFIX, USER_PREFIX)
+TEAM_CHANGE_MESSAGE = "Set your team with %steam b/r" % USER_PREFIX
 if MAX_TEAMS >= 3:
-	TEAM_CHANGE_MESSAGE += " %sg" % (USER_PREFIX)
+	TEAM_CHANGE_MESSAGE += "/g"
 if MAX_TEAMS >= 4:
-	TEAM_CHANGE_MESSAGE += " %sy" % (USER_PREFIX)
+	TEAM_CHANGE_MESSAGE += "/y"
 
 SERVER_PORT = 23400 # On which port to host a server - better if it's different from the port in your game settings
 
