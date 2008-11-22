@@ -707,7 +707,7 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 		return "The worm does not exist";
 
 	// Can't spectate if we're out, apparently it causes the player to be able to play while out
-	if(w->getLives() < 0)
+	if(w->getLives() == WRM_OUT)
 		return "You can't spectate while out";
 
 	w->setLives(0);
