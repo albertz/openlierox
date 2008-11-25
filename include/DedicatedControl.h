@@ -33,6 +33,7 @@ public:
 	void ChatMessage_Signal(CWorm* w, const std::string& message);
 	void PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message);
 	void WormDied_Signal(CWorm* died, CWorm* killer);
+	void WormSpawned_Signal(CWorm* worm);
 	
 	void Menu_Frame();
 	void GameLoop_Frame();

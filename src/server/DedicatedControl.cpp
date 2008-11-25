@@ -751,6 +751,7 @@ struct DedIntern {
 	void Sig_ChatMessage(CWorm* w, string message) { pipe.in() << "chatmessage " << w->getID() << " " << message << endl; }
 	void Sig_PrivateMessage(CWorm* w, CWorm* to, string message) { pipe.in() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << endl; }
 	void Sig_WormDied(CWorm* died, CWorm* killer) { pipe.in() << "wormdied " << died->getID() << " " << killer->getID() << endl; }
+	void Sig_WormSpawned(CWorm* worm) { pipe.in() << "wormspawned " << worm->getID() << endl; }
 	void Sig_WormIp(CWorm* w, string ip) { pipe.in() << "wormip " << w->getID() << " " << ip << endl; }
 	// Continents don't have spaces in em.
 	// TODO: Bad forward compability. We might get new continents.
@@ -923,4 +924,5 @@ void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLef
 void DedicatedControl::ChatMessage_Signal(CWorm* w,const string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
+void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
 

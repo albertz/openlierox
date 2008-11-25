@@ -67,8 +67,9 @@ class Worm:
 		self.iID = -1
 		self.isAdmin = False
 		self.Ping = [] # Contains 10 ping values, real ping = average of them
-		self.Lives = 0
+		self.Lives = -1 # -1 means Out
 		self.Team = 0
+		self.Alive = False
 
 	def clear(self):
 		self.__init__()
@@ -335,6 +336,8 @@ def signalHandler(sig):
 		parseChatMessage(sig)
 	elif header == "wormdied":
 		parseWormDied(sig)
+	elif header == "wormspawned":
+		parseWormSpawned(sig)
 
 	## Check GameState ##
 	elif header == "quit":
@@ -442,6 +445,7 @@ def parseWormDied(sig):
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
 	worms[deaderID].Lives -= 1
+	worms[deaderID].Alive = False
 
 	if not cfg.RANKING:
 		return
@@ -468,6 +472,10 @@ def parseWormDied(sig):
 	except KeyError:
 		ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
+def parseWormSpawned(sig):
+	global worms
+	wormID = int(sig.split(" ")[1])
+	worms[deaderID].Alive = True
 
 ## Preset loading functions ##
 def initPresets():
@@ -571,7 +579,7 @@ def average(a):
 def checkMaxPing():
 	global worms
 	for f in worms.keys():
-		if worms[f].iID == -1:
+		if worms[f].iID == -1 or not worms[f].Alive:
 			continue
 		ping = int(getWormPing(worms[f].iID))
 		if ping > 0:

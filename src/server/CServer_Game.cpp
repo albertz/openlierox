@@ -88,11 +88,15 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 
 	Worm->Spawn(pos);
 
-	if( client )
+	if( client )	// Spawn all playing worms only for new client for connect-during-game
 		client->getNetEngine()->SendSpawnWorm(Worm, pos);
 	else
+	{
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->WormSpawned_Signal(Worm);
 		for( int i = 0; i < MAX_CLIENTS; i++ )
 			cClients[i].getNetEngine()->SendSpawnWorm(Worm, pos);
+	}
 }
 
 ///////////////////
