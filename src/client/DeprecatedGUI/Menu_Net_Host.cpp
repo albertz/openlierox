@@ -257,11 +257,11 @@ void Menu_Net_HostPlyFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 1)  {
+							if (ply->iType == PRF_COMPUTER->toInt() || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
 								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
-								if (ply->iType == PRF_HUMAN)
+								if (ply->iType == PRF_HUMAN->toInt())
 									iHumanPlayers++;
 
 								// Remove the item from the player list
@@ -295,7 +295,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
-						if (ply->iType == PRF_HUMAN)
+						if (ply->iType == PRF_HUMAN->toInt())
 							iHumanPlayers--;
 					}
 
@@ -334,7 +334,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 							profile_t *ply = FindProfile(item->iIndex);
 
-							if(ply != NULL && ply->iType == PRF_HUMAN)  {
+							if(ply != NULL && ply->iType == PRF_HUMAN->toInt())  {
 								// Max two humans
 								// TODO: extend this
 								if(i > 2)
@@ -353,7 +353,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 							profile_t *ply = FindProfile(item->iIndex);
 
-							if(ply != NULL && ply->iType != PRF_HUMAN)  {
+							if(ply != NULL && ply->iType != PRF_HUMAN->toInt())  {
 								cClient->getLocalWormProfiles()[count++] = ply;
 							}
 						}

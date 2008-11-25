@@ -44,6 +44,8 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "ProfileSystem.h"
 #include "IRC.h"
+#include "CWormHuman.h"
+#include "CWormBot.h"
 
 
 using namespace std;
@@ -221,7 +223,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	}
 
 	if( client->iNumWorms <= 0 )
+		// TODO: why? we should allow iNumWorms = 0 for sure!
 		printf("Error %s:%i: client->iNumWorms = %i should be 1 or 2\n", __FILE__, __LINE__, client->iNumWorms );
+	
 	// Get the id's
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
@@ -236,18 +240,15 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
 		client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
 		client->cLocalWorms[i]->setLocal(true);
-        client->cLocalWorms[i]->setType(client->tProfiles[i]->iType);
+        client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
 	}
 
+	// TODO: why do we setup the viewports only if we have at least one worm?
 	if(!bDedicated && client->iNumWorms > 0) {
 		// Setup the viewports
 		client->SetupViewports();
 
-		// Setup the controls
-		client->cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
-		// TODO: setup also more viewports
-		if(client->iNumWorms >= 2)
-			client->cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
+		client->SetupGameInputs();
 	}
 
 	// Create my channel
@@ -258,7 +259,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->bServerError = true;
 		client->strServerErrorMsg = "Your client is incompatible to this server";
 		return;
-	};
+	}
 	client->cNetChan->Create(&addr,client->tSocket);
 
 	DeprecatedGUI::bJoin_Update = true;
@@ -781,15 +782,15 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 
-	// (If this is a local game?), we need to reload the worm graphics
-	// We do this again because we've only just found out what type of game it is
-    // Team games require changing worm colours to match the team colour
-	// Inefficient, but i'm not going to redesign stuff for a simple gametype
 	CWorm *w = client->cRemoteWorms;
 	int num_worms = 0;
 	ushort i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
+			// (If this is a local game?), we need to reload the worm graphics
+			// We do this again because we've only just found out what type of game it is
+			// Team games require changing worm colours to match the team colour
+			// Inefficient, but i'm not going to redesign stuff for a simple gametype
 			w->ChangeGraphics(client->iGameType);
 
 			// Also set some game details
@@ -802,10 +803,14 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 			// Prepare for battle!
 			w->Prepare(client->cMap);
-
+			
 			num_worms++;
 		}
 	}
+
+	// The worms are first prepared here in this function and thus the input handlers where not set before.
+	// We have to set the control keys now.
+	client->SetupGameInputs();
 
 
 	// Initialize the worms weapon selection menu & other stuff
@@ -813,7 +818,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// we already prepared all the worms (cRemoteWorms) above
 
 		if (!client->bWaitingForMod)
-			client->cLocalWorms[i]->InitWeaponSelection();
+			client->cLocalWorms[i]->initWeaponSelection();
 	}
 
 

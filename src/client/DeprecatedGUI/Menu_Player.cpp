@@ -164,8 +164,8 @@ void Menu_PlayerInitialize(void)
 	cNewPlayer.SendMessage( np_Blue,	SLM_SETVALUE, 128, 0);
 
 	// Player type
-    cNewPlayer.SendMessage( np_Type, CBS_ADDITEM, "Human", PRF_HUMAN );
-    cNewPlayer.SendMessage( np_Type, CBS_ADDITEM, "Computer", PRF_COMPUTER );
+    cNewPlayer.SendMessage( np_Type, CBS_ADDITEM, "Human", (DWORD)PRF_HUMAN );
+    cNewPlayer.SendMessage( np_Type, CBS_ADDITEM, "Computer", (DWORD)PRF_COMPUTER );
 
     Menu_Player_NewPlayerInit();
 
@@ -208,8 +208,8 @@ void Menu_PlayerInitialize(void)
 	lv->AddColumn("Players",24);
 	lv->AddColumn("",60);
 
-    cViewPlayers.SendMessage( vp_Type, CBS_ADDITEM, "Human", PRF_HUMAN );
-    cViewPlayers.SendMessage( vp_Type, CBS_ADDITEM, "Computer", PRF_COMPUTER );
+    cViewPlayers.SendMessage( vp_Type, CBS_ADDITEM, "Human", (DWORD)PRF_HUMAN );
+    cViewPlayers.SendMessage( vp_Type, CBS_ADDITEM, "Computer", (DWORD)PRF_COMPUTER );
 }
 
 ///////////////
@@ -323,13 +323,13 @@ void Menu_Player_ViewPlayerInit(void)
         cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE, p->R, 0);
 	    cViewPlayers.SendMessage( vp_Green,		SLM_SETVALUE, p->G, 0);
 	    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE, p->B, 0);
-        cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
+        cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  (DWORD)p->iType, 0);
         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
 		cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
         // Hide the AI stuff if it is a human type of player
-        cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
+        cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER->toInt());
+	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER->toInt());
 
         // Load the skin
 		tMenu->cSkin = p->cSkin;
@@ -387,10 +387,10 @@ void Menu_Player_NewPlayer(int mouse)
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &skin, 0);
 
 					// Add the profile
-                    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
+                    WormType* type = (WormType*)cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
                     int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
 
-					AddProfile(name, skin, "", "",r, g, b, type,level);
+					AddProfile(name, skin, "", "",r, g, b, type->toInt(), level);
 
 					// Shutdown
 					cNewPlayer.Shutdown();
@@ -406,11 +406,11 @@ void Menu_Player_NewPlayer(int mouse)
             case np_Type:
                 if(ev->iEventMsg == CMB_CHANGED) {
 
-                    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
+                    DWORD type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
 
                     // Hide the AI stuff if it is a human type of player
-                    cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(type == PRF_COMPUTER);
-	                cNewPlayer.getWidget(np_AIDiff)->setEnabled(type == PRF_COMPUTER);
+                    cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(type == (DWORD)PRF_COMPUTER);
+	                cNewPlayer.getWidget(np_AIDiff)->setEnabled(type == (DWORD)PRF_COMPUTER);
                 }
                 break;
 
@@ -474,8 +474,8 @@ void Menu_Player_NewPlayer(int mouse)
 
 
     // Draw the difficulty level
-    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
-    if( type == PRF_COMPUTER ) {
+    DWORD type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
+    if( type == (DWORD)PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
         tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 250,363,tLX->clNormalLabel,difflevels[level]);
@@ -576,12 +576,12 @@ void Menu_Player_ViewPlayers(int mouse)
                             cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE,   p->R, 0);
 	                        cViewPlayers.SendMessage( vp_Green,		SLM_SETVALUE,   p->G, 0);
 	                        cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE,   p->B, 0);
-                            cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
+                            cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  (DWORD)p->iType, 0);
                             cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
 
                             // Hide the AI stuff if it is a human type of player
-                            cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	                        cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
+                            cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER->toInt());
+	                        cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER->toInt());
                         }
 
 
@@ -611,7 +611,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         p->R = (Uint8)cViewPlayers.SendMessage(vp_Red,SLM_GETVALUE,(DWORD)0,0);
                         p->G = (Uint8)cViewPlayers.SendMessage(vp_Green,SLM_GETVALUE,(DWORD)0,0);
                         p->B = (Uint8)cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
-                        p->iType = cViewPlayers.SendMessage(vp_Type, CBM_GETCURINDEX,(DWORD)0,0);
+                        p->iType = ((WormType*)cViewPlayers.SendMessage(vp_Type, CBM_GETCURINDEX,(DWORD)0,0))->toInt();
                         p->nDifficulty = cViewPlayers.SendMessage(vp_AIDiff, SLM_GETVALUE,(DWORD)0,0);
 
 						// Reload the graphics
@@ -656,7 +656,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE,   p->R, 0);
 	                    cViewPlayers.SendMessage( vp_Green,		SLM_SETVALUE,   p->G, 0);
 	                    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE,   p->B, 0);
-                        cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
+                        cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  (DWORD)p->iType, 0);
                         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
 						cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
@@ -664,8 +664,8 @@ void Menu_Player_ViewPlayers(int mouse)
 						tMenu->cSkin = p->cSkin;
 
                         // Hide the AI stuff if it is a human type of player
-                        cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	                    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
+                        cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER->toInt());
+	                    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER->toInt());
                     }
                 }
                 break;
@@ -674,11 +674,11 @@ void Menu_Player_ViewPlayers(int mouse)
             case vp_Type:
                 if( ev->iEventMsg == CMB_CHANGED ) {
 
-                    int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
+                    DWORD type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
 
                     // Hide the AI stuff if it is a human type of player
-                    cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(type == PRF_COMPUTER);
-	                cViewPlayers.getWidget(vp_AIDiff)->setEnabled(type == PRF_COMPUTER);
+                    cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(type == (DWORD)PRF_COMPUTER);
+	                cViewPlayers.getWidget(vp_AIDiff)->setEnabled(type == (DWORD)PRF_COMPUTER);
                 }
                 break;
 
@@ -747,8 +747,8 @@ void Menu_Player_ViewPlayers(int mouse)
 	}
 
     // Draw the difficulty level
-    int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
-    if( type == PRF_COMPUTER ) {
+    DWORD type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
+    if( type == (DWORD)PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = (DWORD)CLAMP(cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0), (DWORD)0, (DWORD)3);
         tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 530,313,tLX->clNormalLabel, difflevels[level]);

@@ -105,7 +105,7 @@ int LoadProfiles(void)
 void AddDefaultPlayers(void)
 {
 	short		i;
-	static std::string	buf;
+	std::string	buf;
 
 	// Pre-set cpu colours
 	Uint32 cpuColours[] = { 255,0,0,  0,255,0,  0,0,255,  255,0,255,  0,255,255,  128,128,128,
@@ -115,13 +115,13 @@ void AddDefaultPlayers(void)
     int Diff[] = {AI_EASY, AI_MEDIUM, AI_MEDIUM, AI_HARD, AI_XTREME, AI_MEDIUM, AI_EASY};
 
     // Add the default worm
-    AddProfile("worm", "default.png", "", "", 100,100,255, PRF_HUMAN,0);
+    AddProfile("worm", "default.png", "", "", 100,100,255, PRF_HUMAN->toInt(),0);
 
 	// Add 7 ai players
 	for(i=0; i<7; i++) {
 		buf = "CPU "+itoa(i+1);
 		
-		AddProfile(buf, "default.png", "", "", cpuColours[i*3], cpuColours[i*3+1], cpuColours[i*3+2], PRF_COMPUTER, Diff[i]);
+		AddProfile(buf, "default.png", "", "", cpuColours[i*3], cpuColours[i*3+1], cpuColours[i*3+2], PRF_COMPUTER->toInt(), Diff[i]);
 	}
 }
 
@@ -246,7 +246,7 @@ void LoadProfile(FILE *fp, int id)
     fread(&p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
 
-	if (p->iType == PRF_COMPUTER)
+	if (p->iType == PRF_COMPUTER->toInt())
 		p->cSkin.setBotIcon(p->nDifficulty);
 	
 	// Multiplayer
@@ -391,8 +391,8 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 		for(;pf;pf = pf->tNext) {
 
 			// If we are human, we need to insert ourselves into the list before the ai players
-			if(p->iType == PRF_HUMAN) {
-				if(pf->iType == PRF_COMPUTER) {
+			if(p->iType == PRF_HUMAN->toInt()) {
+				if(pf->iType == PRF_COMPUTER->toInt()) {
 
 					p->tNext = pf;
 					if(prv)

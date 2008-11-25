@@ -299,7 +299,7 @@ struct DedIntern {
 		if(!p) p = GetProfiles();
 		for(;p;p=p->tNext)
 		{
-			if(p->iType == PRF_COMPUTER)
+			if(p->iType == PRF_COMPUTER->toInt())
 			{
 				// we found a bot, so add it
 				if( cClient->getNumWorms() >= MAX_WORMS )
@@ -608,7 +608,7 @@ struct DedIntern {
 	void Cmd_GetComputerWormList() {
 		profile_t *p = GetProfiles();
 		for(;p;p=p->tNext) {
-			if(p->iType == PRF_COMPUTER)
+			if(p->iType == PRF_COMPUTER->toInt())
 				Sig_ComputerWormList(p);
 		}
 		Sig_EndList();

@@ -40,6 +40,8 @@
 #include "CChannel.h"
 #include "IRC.h"
 #include "NotifyUser.h"
+#include "CWormHuman.h"
+
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -443,7 +445,7 @@ void CClient::StartLogging(int num_players)
 				tGameLog->tWorms[j].iTeam = -1;
 			tGameLog->tWorms[j].fTagTime = 0.0f;
 			tGameLog->tWorms[j].fTimeLeft = 0.0f;
-			tGameLog->tWorms[j].iType = cRemoteWorms[i].getType();
+			tGameLog->tWorms[j].iType = cRemoteWorms[i].getType()->toInt();
 			j++;
 
 			if (j >= num_players)
@@ -739,7 +741,7 @@ void CClient::FinishModDownloads()
 			
 			// Initialize the weapon selection
 			for (size_t i = 0; i < iNumWorms; i++)
-				cLocalWorms[i]->InitWeaponSelection();
+				cLocalWorms[i]->initWeaponSelection();
 		} else {
 			printf("The downloaded mod is not the one we are waiting for.\n");
 			Disconnect();
@@ -1977,18 +1979,19 @@ std::string CClient::debugName() {
 void CClient::SetupGameInputs()
 {
 	// Setup the controls
-	if(getNumWorms() >= 1)  {
-		CWorm *wrm = getWorm(0);
-		if (wrm)
-			wrm->SetupInputs( tLXOptions->sPlayerControls[0] );
+	int humanWormNum = 0;
+	for(int i = 0; i < getNumWorms(); i++) {
+		CWormHumanInputHandler* handler = dynamic_cast<CWormHumanInputHandler*> (getWorm(i)->inputHandler());
+		if(handler) {
+			// TODO: Later, let the handler save a rev to his sPlayerControls. This would give
+			// more flexibility to the player and he can have multiple player control sets.
+			// Then, we would call a reloadInputs() here.
+			handler->setupInputs( tLXOptions->sPlayerControls[humanWormNum] );
+			humanWormNum++;
+		}
 	}
-	// TODO: setup also more viewports
-	if(getNumWorms() >= 2)  {
-		CWorm *wrm = getWorm(1);
-		if (wrm)
-			wrm->SetupInputs( tLXOptions->sPlayerControls[1] );
-	}
-	
+
+	// TODO: allow more viewports here
     getViewports()[0].setupInputs( tLXOptions->sPlayerControls[0] );
     getViewports()[1].setupInputs( tLXOptions->sPlayerControls[1] );
 	

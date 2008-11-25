@@ -37,6 +37,7 @@
 #include "Timer.h"
 #include "Sounds.h"
 #include "ProfileSystem.h"
+#include "CWormBot.h"
 
 
 // we need it here for some debugging...
@@ -870,17 +871,17 @@ private:
 
 ///////////////////
 // Initialize the AI
-bool CWorm::AI_Initialize() {
-    assert(pcMap);
+bool CWormBotInputHandler::AI_Initialize() {
+    assert(m_worm->pcMap);
 
     // Because this can be called multiple times, shutdown any previous allocated data
     AI_Shutdown();
 
     // Allocate the Open/Close grid
-    nGridCols = pcMap->getGridCols();
-    nGridRows = pcMap->getGridRows();
+    nGridCols = m_worm->pcMap->getGridCols();
+    nGridRows = m_worm->pcMap->getGridRows();
 
-    fLastCarve = -9999;
+    m_worm->fLastCarve = -9999;
     cStuckPos = CVec(-999,-999);
     fStuckTime = -9999;
     fLastPathUpdate = -9999;
@@ -910,7 +911,7 @@ bool CWorm::AI_Initialize() {
 		printf("ERROR: cannot initialize pathSearcher\n");
 		return false;
 	}
-	((searchpath_base*)pathSearcher)->pcMap = pcMap;
+	((searchpath_base*)pathSearcher)->pcMap = m_worm->pcMap;
 
     return true;
 }
@@ -918,7 +919,7 @@ bool CWorm::AI_Initialize() {
 
 ///////////////////
 // Shutdown the AI stuff
-void CWorm::AI_Shutdown(void)
+void CWormBotInputHandler::AI_Shutdown(void)
 {
 	if(pathSearcher) {
 		delete ((searchpath_base*)pathSearcher);
@@ -978,7 +979,7 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 #endif
 
 
-void CWorm::AI_Respawn() {
+void CWormBotInputHandler::AI_Respawn() {
 	// find new target and reset the path
 
     // Search for an unfriendly worm
@@ -995,9 +996,27 @@ void CWorm::AI_Respawn() {
 
 ///////////////////
 // Simulate the AI
-void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame)
-{
-	worm_state_t *ws = &tState;
+void CWormBotInputHandler::getInput() {
+	
+	/*
+	 void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame);
+
+	worm->AI_GetInput(m_client->getGameType(),
+					  m_client->getGameType() == GMT_TEAMDEATH,
+					  m_client->getGameType() == GMT_TAG,
+					  m_client->getGameType() == GMT_VIP,
+					  m_client->getGameType() == GMT_CTF,
+					  m_client->getGameType() == GMT_TEAMCTF);
+	*/
+	bool teamgame = cClient->getGameType() == GMT_TEAMDEATH;
+	bool taggame = cClient->getGameType() == GMT_TAG;
+	bool VIPgame = cClient->getGameType() == GMT_VIP;
+	bool flaggame = cClient->getGameType() == GMT_CTF;
+	bool teamflaggame = cClient->getGameType() == GMT_TEAMCTF;
+	
+	
+	worm_state_t *ws = &m_worm->tState;
+	
 
 	// Init the ws
 	ws->bCarve = false;
@@ -1006,21 +1025,21 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	ws->bJump = false;
 
 	// Behave like humans and don't play immediatelly after spawn
-	if ((tLX->fCurTime-fSpawnTime) < 0.4)
+	if ((tLX->fCurTime - m_worm->fSpawnTime) < 0.4)
 		return;
 
 
 	// TODO: move this out here
 	// If the worm is a flag don't let it move
-	if(flaggame && getFlag())
+	if(flaggame && m_worm->getFlag())
 		return;
-	if(teamflaggame && getFlag())
+	if(teamflaggame && m_worm->getFlag())
 		return;
 
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
-	bOnGround = CheckOnGround();
+	m_worm->bOnGround = m_worm->CheckOnGround();
 
-	iAiGame = gametype;
+	iAiGame = cClient->getGameType();
 	iAiTeams = teamgame;
 	iAiTag = taggame;
 	iAiVIP = VIPgame;
@@ -1032,7 +1051,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	iRandomSpread = 0;
 	fLastRandomChange = -9999;
 
-	iAiDiffLevel = tProfile->nDifficulty;
+	iAiDiffLevel = m_worm->tProfile->nDifficulty;
 
     // Every 3 seconds we run the think function
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
@@ -1056,17 +1075,17 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
    			cNinjaRope.Release();*/
 
 		// Don't move in the direction of projectiles when shooting
-		if (cNinjaRope.isAttached())  {
-			CVec force = cNinjaRope.GetForce(vPos);
+		if (m_worm->cNinjaRope.isAttached())  {
+			CVec force = m_worm->cNinjaRope.GetForce(m_worm->vPos);
 			float rope_angle = (float)atan(force.x / force.y);
 			if (force.x < 0 || force.y > 0)
 				rope_angle = -rope_angle;
 			rope_angle = RAD2DEG(rope_angle);
 
-			if (fabs(fAngle - rope_angle) <= 50)
-				cNinjaRope.Release();
+			if (fabs(m_worm->fAngle - rope_angle) <= 50)
+				m_worm->cNinjaRope.Release();
 		}
-		tState.bMove = false;
+		m_worm->tState.bMove = false;
 
     } else {
 
@@ -1078,7 +1097,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 
 			// Think; We spawn in this state
 			case AI_THINK:
-				AI_Think(gametype, teamgame, taggame);
+				AI_Think(cClient->getGameType(), teamgame, taggame);
 				break;
 
 			// Moving towards a target
@@ -1090,13 +1109,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
     }
 
     // we have no strafing for bots at the moment
-    iMoveDirection = iDirection;
+    m_worm->iMoveDirection = m_worm->iDirection;
 }
 
 
 ///////////////////
 // Find a target worm
-CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
+CWorm *CWormBotInputHandler::findTarget(int gametype, int teamgame, int taggame)
 {
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
@@ -1122,7 +1141,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 			continue;
 
 		// Make sure i don't target myself
-		if(w->getID() == iID)
+		if(w->getID() == m_worm->iID)
 			continue;
 
 		// don't target AFK worms
@@ -1131,22 +1150,22 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 		
 		// If this is a team game, don't target my team mates
 		// BUT, if there is only one team, play it like deathmatch
-		if(teamgame && w->getTeam() == iTeam && NumTeams > 1)
+		if(teamgame && w->getTeam() == m_worm->iTeam && NumTeams > 1)
 			continue;
 
 		// If this is a game of tag, only target the worm it (unless it's me)
-		if(taggame && !w->getTagIT() && !bTagIT)
+		if(taggame && !w->getTagIT() && !m_worm->bTagIT)
 			continue;
 
 		// If this is a VIP game target:
 		// Red worms if Blue
 		// Green & Blue worms if Red
 		// Blue worms if green
-		if(iAiVIP && iTeam == 0 && w->getTeam() != 1)
+		if(iAiVIP && m_worm->iTeam == 0 && w->getTeam() != 1)
 			continue;
-		if(iAiVIP && iTeam == 1 && w->getTeam() == 1)
+		if(iAiVIP && m_worm->iTeam == 1 && w->getTeam() == 1)
 			continue;
-		if(iAiVIP && iTeam == 2 && w->getTeam() != 0)
+		if(iAiVIP && m_worm->iTeam == 2 && w->getTeam() != 0)
 			continue;
 
 		// If this is a capture the flag game just aim to get the flag
@@ -1158,12 +1177,12 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 			continue;
 
 		// Calculate distance between us two
-		float l = (w->getPos() - vPos).GetLength2();
+		float l = (w->getPos() - m_worm->vPos).GetLength2();
 
 		// Prefer targets we have free line of sight to
 		float length;
 		int type;
-		traceLine(w->getPos(),&length,&type,1);
+		m_worm->traceLine(w->getPos(),&length,&type,1);
 		if (! (type & PX_ROCK))  {
 			// Line of sight not blocked
 			if (fSightDistance < 0 || l < fSightDistance)  {
@@ -1195,7 +1214,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 
 ///////////////////
 // Think State
-void CWorm::AI_Think(int gametype, int teamgame, int taggame)
+void CWormBotInputHandler::AI_Think(int gametype, int teamgame, int taggame)
 {
     /*
       We start of in an think state. When we're here we decide what we should do.
@@ -1216,7 +1235,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 
 
     // If our health is less than 15% (critical), our main priority is health
-    if(iHealth < 15)
+    if(m_worm->iHealth < 15)
         if(AI_FindHealth())
             return;
 
@@ -1236,7 +1255,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 		fLastShoot = -9999;
 
     // If we're down on health (less than 80%) we should look for a health bonus
-    if(iHealth < 80) {
+    if(m_worm->iHealth < 80) {
         //printf("we should look for health\n");
         if(AI_FindHealth())
             return;
@@ -1253,19 +1272,19 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
     //
 
     // Our target already on high ground?
-    if(cPosTarget.y < pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
+    if(cPosTarget.y < m_worm->pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
 		//printf("something in thinking\n");
 		// Nothing todo, so go find some health if we even slightly need it
-		if(iHealth < 100) {
+		if(m_worm->iHealth < 100) {
 			if(AI_FindHealth())
 				return;
 		}
         return;
 	}
 
-    int     cols = pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
-    int     rows = pcMap->getGridRows()-1;       // level size
+    int     cols = m_worm->pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
+    int     rows = m_worm->pcMap->getGridRows()-1;       // level size
 
     // Find a random spot to go to high in the level
     //printf("I don't find any target, so let's get somewhere (high)\n");
@@ -1274,13 +1293,13 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 		x = (int)(fabs(GetRandomNum()) * (float)cols);
 		y = (int)(fabs(GetRandomNum()) * (float)rows / 5); // little hack to go higher
 
-		uchar pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() + x);
+		uchar pf = *(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() + x);
 
 		if(pf & PX_ROCK)
 			continue;
 
 		// Set the target
-		cPosTarget = CVec((float)(x*pcMap->getGridWidth()+(pcMap->getGridWidth()/2)), (float)(y*pcMap->getGridHeight()+(pcMap->getGridHeight()/2)));
+		cPosTarget = CVec((float)(x*m_worm->pcMap->getGridWidth()+(m_worm->pcMap->getGridWidth()/2)), (float)(y*m_worm->pcMap->getGridHeight()+(m_worm->pcMap->getGridHeight()/2)));
 		nAITargetType = AIT_POSITION;
 		nAIState = AI_MOVINGTOTARGET;
 		AI_CreatePath();
@@ -1292,7 +1311,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 ///////////////////
 // Find a health pack
 // Returns true if we found one
-bool CWorm::AI_FindHealth()
+bool CWormBotInputHandler::AI_FindHealth()
 {
 	if (!cClient->getGameLobby()->bBonusesOn)
 		return false;
@@ -1307,7 +1326,7 @@ bool CWorm::AI_FindHealth()
     for(i=0; i<MAX_BONUSES; i++) {
         if(pcBonusList[i].getUsed() && pcBonusList[i].getType() == BNS_HEALTH) {
 
-            d2 = (pcBonusList[i].getPosition() - vPos).GetLength2();
+            d2 = (pcBonusList[i].getPosition() - m_worm->vPos).GetLength2();
 
             if(dist2 < 0 || d2 < dist2) {
                 pcBonus = &pcBonusList[i];
@@ -1335,14 +1354,14 @@ bool CWorm::AI_FindHealth()
 
 ///////////////////
 // Reloads the weapons
-void CWorm::AI_ReloadWeapons(void)
+void CWormBotInputHandler::AI_ReloadWeapons(void)
 {
     ushort  i;
 
     // Go through reloading the weapons
     for(i=0; i<5; i++) {
-        if(tWeapons[i].Reloading) {
-            iCurrentWeapon = i;
+        if(m_worm->tWeapons[i].Reloading) {
+            m_worm->iCurrentWeapon = i;
             break;
         }
     }
@@ -1352,7 +1371,7 @@ void CWorm::AI_ReloadWeapons(void)
 ///////////////////
 // Get the target's position
 // Also checks the target and resets to a think state if needed
-CVec CWorm::AI_GetTargetPos(void)
+CVec CWormBotInputHandler::AI_GetTargetPos(void)
 {
     // Put the target into a position
     switch(nAITargetType) {
@@ -1393,22 +1412,22 @@ CVec CWorm::AI_GetTargetPos(void)
 ///////////////////
 // Aim at a spot
 // Returns true if we're aiming at it
-bool CWorm::AI_SetAim(CVec cPos)
+bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 {
     float   dt = tLX->fDeltaTime;
     CVec	tgPos = cPos;
-	CVec	tgDir = tgPos - vPos;
+	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
-    const gs_worm_t *wd = cGameScript->getWorm();
+    const gs_worm_t *wd = m_worm->cGameScript->getWorm();
 
 	NormalizeVector(&tgDir);
 
 	if (tLX->fCurTime - fLastFace > 0.5f)  {  // prevent turning
 	// Make me face the target
-		if(tgPos.x > vPos.x)
-			iDirection = DIR_RIGHT;
+		if(tgPos.x > m_worm->vPos.x)
+			m_worm->iDirection = DIR_RIGHT;
 		else
-			iDirection = DIR_LEFT;
+			m_worm->iDirection = DIR_LEFT;
 
 		fLastFace = tLX->fCurTime;
 	}
@@ -1417,7 +1436,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 	float ang = (float)atan2(tgDir.x, tgDir.y);
 	ang = RAD2DEG(ang);
 
-	if(iDirection == DIR_LEFT)
+	if(m_worm->iDirection == DIR_LEFT)
 		ang+=90;
 	else
 		ang = -ang + 90;
@@ -1426,26 +1445,26 @@ bool CWorm::AI_SetAim(CVec cPos)
 	ang = MAX((float)-90, ang);
 
 	// If the angle is within +/- 3 degrees, just snap it
-    if( fabs(fAngle - ang) < 3) {
-		fAngle = ang;
+    if( fabs(m_worm->fAngle - ang) < 3) {
+		m_worm->fAngle = ang;
         goodAim = true;
     }
 
 	// Move the angle at the same speed humans are allowed to move the angle
-	if(ang > fAngle)
-		fAngle += wd->AngleSpeed * dt;
-	else if(ang < fAngle)
-		fAngle -= wd->AngleSpeed * dt;
+	if(ang > m_worm->fAngle)
+		m_worm->fAngle += wd->AngleSpeed * dt;
+	else if(ang < m_worm->fAngle)
+		m_worm->fAngle -= wd->AngleSpeed * dt;
 
 	// If the angle is within +/- 3 degrees, just snap it
-    if( fabs(fAngle - ang) < 3) {
-		fAngle = ang;
+    if( fabs(m_worm->fAngle - ang) < 3) {
+		m_worm->fAngle = ang;
         goodAim = true;
     }
 
 	// Clamp the angle
-	fAngle = MIN((float)60,fAngle);
-	fAngle = MAX((float)-90,fAngle);
+	m_worm->fAngle = MIN((float)60,m_worm->fAngle);
+	m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
 
     return goodAim;
 }
@@ -1454,9 +1473,9 @@ bool CWorm::AI_SetAim(CVec cPos)
 ///////////////////
 // A simpler method to get to a target
 // Used if we have no path
-void CWorm::AI_SimpleMove(bool bHaveTarget)
+void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 {
-    worm_state_t *ws = &tState;
+    worm_state_t *ws = &m_worm->tState;
 
     // Simple
 	ws->bMove = true;
@@ -1475,39 +1494,39 @@ void CWorm::AI_SimpleMove(bool bHaveTarget)
     // If our line is blocked, try some evasive measures
     float fDist = 0;
     int type = 0;
-    traceLine(cPosTarget, &fDist, &type, 1);
-    if(fDist < 0.75f || cPosTarget.y < vPos.y) {
+    m_worm->traceLine(cPosTarget, &fDist, &type, 1);
+    if(fDist < 0.75f || cPosTarget.y < m_worm->vPos.y) {
 
         // Change direction
 		if (bHaveTarget && (tLX->fCurTime-fLastFace) > 1.0)  {
-			iDirection = !iDirection;
+			m_worm->iDirection = !m_worm->iDirection;
 			fLastFace = tLX->fCurTime;
 		}
 
         // Look up for a ninja throw
-        aim = AI_SetAim(vPos+CVec(GetRandomNum()*10,GetRandomNum()*10+10));
+        aim = AI_SetAim(m_worm->vPos+CVec(GetRandomNum()*10,GetRandomNum()*10+10));
         if(aim) {
             CVec dir;
-            dir.x=( (float)cos(fAngle * (PI/180)) );
-	        dir.y=( (float)sin(fAngle * (PI/180)) );
-	        if(iDirection==DIR_LEFT)
+            dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
+	        dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
+	        if(m_worm->iDirection==DIR_LEFT)
 		        dir.x=(-dir.x);
 
-            cNinjaRope.Shoot(vPos,dir);
+            m_worm->cNinjaRope.Shoot(m_worm->vPos,dir);
         }
 
 		// Jump and move
 		else  {
 			AI_Jump();
 			ws->bMove = true;
-			cNinjaRope.Release();
+			m_worm->cNinjaRope.Release();
 		}
 
         return;
     }
 
     // Release the ninja rope
-    cNinjaRope.Release();
+    m_worm->cNinjaRope.Release();
 }
 
 float fLastDirChange = 99999;
@@ -1516,7 +1535,7 @@ float fLastDirChange = 99999;
 // Finds a suitable 'clearing' weapon
 // A weapon used for making a path
 // Returns -1 on failure
-int CWorm::AI_FindClearingWeapon(void)
+int CWormBotInputHandler::AI_FindClearingWeapon(void)
 {
 	if(iAiGameType == GAM_MORTARS)
 		return -1;
@@ -1525,33 +1544,33 @@ int CWorm::AI_FindClearingWeapon(void)
 	// search a good projectile weapon
 	int i = 0;
     for (i=0; i<5; i++) {
-    	if(tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
+    	if(m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			type = tWeapons[i].Weapon->Projectile->Hit_Type;
+			type = m_worm->tWeapons[i].Weapon->Projectile->Hit_Type;
 
 			// Nothing that could fall back onto us
-			if (tWeapons[i].Weapon->ProjSpeed < 100.0f) {
-				if (!tWeapons[i].Weapon->Projectile->UseCustomGravity || tWeapons[i].Weapon->Projectile->Gravity > 30)
+			if (m_worm->tWeapons[i].Weapon->ProjSpeed < 100.0f) {
+				if (!m_worm->tWeapons[i].Weapon->Projectile->UseCustomGravity || m_worm->tWeapons[i].Weapon->Projectile->Gravity > 30)
 					continue;
 			}
 
 			// Suspicious
-			static std::string name;
-			name = tWeapons[i].Weapon->Name;
+			std::string name;
+			name = m_worm->tWeapons[i].Weapon->Name;
 			stringlwr(name);
 			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))
 				continue;
 
 			// Nothing explosive or dirty
 			if (type != PJ_DIRT && type != PJ_GREENDIRT && type != PJ_BOUNCE)
-				if(!tWeapons[i].Reloading)
+				if(!m_worm->tWeapons[i].Reloading)
 					return i;
 		}
 	}
 
 	// accept also beam-weapons as a second choice
     for (i=0; i<5; i++)
- 		if(tWeapons[i].Weapon->Type == WPN_BEAM)
+ 		if(m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
     // No suitable weapons
@@ -1563,14 +1582,14 @@ int CWorm::AI_FindClearingWeapon(void)
 ////////////////////
 // Returns true, if the weapon can hit the target
 // WARNING: works only when fAngle == AI_GetAimingAngle, which means the target has to be aimed
-bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
+bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
 	if(!psAITarget)
 		return false;
 
 	// Get the projectile
-	wpnslot_t* wpnslot = getWeapon(getCurrentWeapon());
+	wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
 	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
 	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
 	if(!wpnproj) {
@@ -1580,21 +1599,21 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 
 	// Exchange endpoints and velocity if needed
 	float x_vel = 1;
-	CVec from = vPos;
+	CVec from = m_worm->vPos;
 	CVec to = cTrgPos;
 	if (from.x > to.x)  {
 		from = cTrgPos;
-		to = vPos;
+		to = m_worm->vPos;
 		x_vel = -1;
 	} else if (from.x == to.x)
 		return true;
 
 	// Get the parabolic trajectory
 	// TODO: this calculation is wrong in some cases, someone who knows how to work with fAngle please fix it
-	float alpha = DEG2RAD(fAngle);
-	if (cTrgPos.y > vPos.y)
+	float alpha = DEG2RAD(m_worm->fAngle);
+	if (cTrgPos.y > m_worm->vPos.y)
 		alpha = -alpha;
-	Parabola p(vPos, alpha, cTrgPos);
+	Parabola p(m_worm->vPos, alpha, cTrgPos);
 	if (p.a > 0.1f)
 		return false;
 
@@ -1608,7 +1627,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		float y = (p.a * x * x + p.b *x + p.c);
 
 		// Rock or dirt, trajectory not free
-		if (CProjectile::CheckCollision(wpnproj, 1, pcMap, CVec(x, y), CVec(x_vel, y - last_y)))
+		if (CProjectile::CheckCollision(wpnproj, 1, m_worm->pcMap, CVec(x, y), CVec(x_vel, y - last_y)))
 			return false;
 
 		last_y = y;
@@ -1690,7 +1709,7 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 ///////////////////
 // Shoot!
 // returns true if we want to do it or already doing it (also in the progress of aiming)
-bool CWorm::AI_Shoot()
+bool CWormBotInputHandler::AI_Shoot()
 {
     // Make sure the target is a worm
     if(nAITargetType != AIT_WORM)
@@ -1723,7 +1742,7 @@ bool CWorm::AI_Shoot()
 
 
     // If the target is too far away we can't shoot at all (but not when a rifle game)
-    float d = (cTrgPos - vPos).GetLength();
+    float d = (cTrgPos - m_worm->vPos).GetLength();
  /*   if(d > 300.0f && iAiGameType != GAM_RIFLES)
         return false; */
 
@@ -1757,10 +1776,10 @@ bool CWorm::AI_Shoot()
 	if (nType & PX_DIRT)  {
 		if(d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
 			int w = AI_FindClearingWeapon();
-			if (w == -1 || AI_GetRockBetween(vPos, cTrgPos, pcMap) > 3)
+			if (w == -1 || AI_GetRockBetween(m_worm->vPos, cTrgPos, m_worm->pcMap) > 3)
 				bDirect = false;
 			else  {
-				tState.bShoot = true;
+				m_worm->tState.bShoot = true;
 				return true;
 			}
 		}
@@ -1781,20 +1800,20 @@ bool CWorm::AI_Shoot()
         return false;
     }
 
-    iCurrentWeapon = wpn;
+    m_worm->iCurrentWeapon = wpn;
 
     bool bAim = false;
 
 	float alpha = 0;
 
-	const gs_worm_t *wd = cGameScript->getWorm();
+	const gs_worm_t *wd = m_worm->cGameScript->getWorm();
 	if (!wd)
 		return false;
 
 	bool bShoot = false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
-	const weapon_t *weap = getCurWeapon()->Weapon;
+	const weapon_t *weap = m_worm->getCurWeapon()->Weapon;
 	if(weap && weap->Projectile)  {
 		switch (weap->Projectile->Hit_Type)  {
 			//case PJ_NOTHING:
@@ -1805,10 +1824,10 @@ bool CWorm::AI_Shoot()
 				// don't shoot this shit
 				break;
 			default:
-				CVec direction = (psAITarget->getPos() - vPos).Normalize();
+				CVec direction = (psAITarget->getPos() - m_worm->vPos).Normalize();
 				// speed of target in the direction (moving away from us)
 				float targ_speed = direction.Scalar(*psAITarget->getVelocity());
-				float my_speed = direction.Scalar(vVelocity);
+				float my_speed = direction.Scalar(m_worm->vVelocity);
 
 				// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
 				float v = (float)weap->ProjSpeed/* *weap->Projectile->Dampening */ + weap->ProjSpeedVar*100.0f + my_speed;
@@ -1826,8 +1845,8 @@ bool CWorm::AI_Shoot()
 				}
 
 				// Distance
-				float x = (cTrgPos.x-vPos.x);
-				float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
+				float x = (cTrgPos.x-m_worm->vPos.x);
+				float y = (m_worm->vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
 
 
 
@@ -1837,7 +1856,7 @@ bool CWorm::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
+					printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,m_worm->vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
 
 				} else { // apriori_time >= 0
 					// where the target would be
@@ -1900,26 +1919,26 @@ bool CWorm::AI_Shoot()
 
 				bShoot = true;
 
-				float trg_dist2 = (cTrgPos - vPos).GetLength2();
+				float trg_dist2 = (cTrgPos - m_worm->vPos).GetLength2();
 				if (trg_dist2 >= 2500)  {
-					if (fabs(fAngle-alpha) > (5 + abs(iRandomSpread)))  {
+					if (fabs(m_worm->fAngle-alpha) > (5 + abs(iRandomSpread)))  {
 						// Move the angle at the same speed humans are allowed to move the angle
-						if(alpha > fAngle)
-							fAngle += wd->AngleSpeed * tLX->fDeltaTime;
-						else if(alpha < fAngle)
-							fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
+						if(alpha > m_worm->fAngle)
+							m_worm->fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+						else if(alpha < m_worm->fAngle)
+							m_worm->fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
 						// still aiming ...
-						bAim = fabs(fAngle-alpha) <= (5 + abs(iRandomSpread));
+						bAim = fabs(m_worm->fAngle-alpha) <= (5 + abs(iRandomSpread));
 					}
 					else  {
 						bAim = true;
-						fAngle = alpha;
+						m_worm->fAngle = alpha;
 					}
 
 					if (x < 0)
-						iDirection = DIR_LEFT;
+						m_worm->iDirection = DIR_LEFT;
 					else
-						iDirection = DIR_RIGHT;
+						m_worm->iDirection = DIR_RIGHT;
 				} else if (trg_dist2 >= 100) {
 					bAim = AI_SetAim(cTrgPos);
 					if (iAiGameType != GAM_MORTARS) // Not in mortars - close shoot = suicide
@@ -1934,7 +1953,7 @@ bool CWorm::AI_Shoot()
 				// Check if we can aim with this angle
 				// HINT: we have to do it here because weaponCanHit requires already finished aiming
 				if (bAim && g >= 10 && v <= 200)  {
-					bShoot = bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y));
+					bShoot = bAim = weaponCanHit(g,v,CVec(m_worm->vPos.x+x,m_worm->vPos.y-y));
 				}
 
 
@@ -1946,7 +1965,7 @@ bool CWorm::AI_Shoot()
 	} else {
 		// Beam
 		if (weap->Type == WPN_BEAM)  {
-			int dist = (int)(cTrgPos - vPos).GetLength();
+			int dist = (int)(cTrgPos - m_worm->vPos).GetLength();
 			if (bDirect && weap->Bm_Length >= dist) // Check that the beam can reach the target
 				bShoot = bAim = AI_SetAim(cTrgPos) || dist <= 25;
 			else  {
@@ -1966,15 +1985,15 @@ bool CWorm::AI_Shoot()
 	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
 	if(bAim) if (tLX->iGameType == GME_JOIN)  {
 		// Get the angle
-		float ang = (float)atan2(vVelocity.x, vVelocity.y);
+		float ang = (float)atan2(m_worm->vVelocity.x, m_worm->vVelocity.y);
 		ang = RAD2DEG(ang);
-		if(iDirection == DIR_LEFT)
+		if(m_worm->iDirection == DIR_LEFT)
 			ang+=90;
 		else
 			ang = -ang + 90;
 
 		// Cannot shoot
-		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
+		if (fabs(m_worm->fAngle-ang) <= 30 && m_worm->vVelocity.GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
 			if (weap->Type == WPN_PROJECTILE)  {
 				if (weap->Projectile->PlyHit_Damage > 0)
 					return false;
@@ -1989,8 +2008,8 @@ bool CWorm::AI_Shoot()
 		// TODO: do we need this?
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
-			if(IsEmpty(CELL_UP))
-				tState.bJump = true;
+			if(m_worm->IsEmpty(CELL_UP))
+				m_worm->tState.bJump = true;
 			fBadAimTime = 0;
 		}
 
@@ -2011,7 +2030,7 @@ bool CWorm::AI_Shoot()
 	vLastShootTargetPos = cTrgPos;
 
     // Shoot
-	tState.bShoot = true;
+	m_worm->tState.bShoot = true;
 	fLastShoot = tLX->fCurTime;
 	return true;
 }
@@ -2020,7 +2039,7 @@ bool CWorm::AI_Shoot()
 ///////////////////
 // AI: Get the best weapon for the situation
 // Returns weapon id or -1 if no weapon is suitable for the situation
-int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist) {
+int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist) {
 	// if we are to close to the target, don't selct any weapon (=> move away)
 	/*if(fDistance < 5)
 		return -1; */
@@ -2031,12 +2050,12 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
     if( tLX->fCurTime - fLastWeaponChange > diff[iAiDiffLevel] )
         fLastWeaponChange = tLX->fCurTime;
     else
-        return iCurrentWeapon;
+        return m_worm->iCurrentWeapon;
 
 	// For rifles and mortars just get the first unreloaded weapon
 	if (iAiGameType == GAM_RIFLES || iAiGameType == GAM_MORTARS)  {
 		for (int i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
+			if (!m_worm->tWeapons[i].Reloading)
 				return i;
 		//printf("GAM_RIFLES|GAM_MORTARS: all weapons still are reloading...\n");
 		return -1;
@@ -2049,8 +2068,8 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		if (vPos.y <= cTrgPos.y && (vPos-cTrgPos).GetLength2() < 10000.0f)  {
-			if (traceWormLine(cTrgPos,vPos,pcMap) && !tWeapons[1].Reloading)
+		if (m_worm->vPos.y <= cTrgPos.y && (m_worm->vPos-cTrgPos).GetLength2() < 10000.0f)  {
+			if (traceWormLine(cTrgPos,m_worm->vPos,m_worm->pcMap) && !m_worm->tWeapons[1].Reloading)
 				if (psAITarget)
 					if (psAITarget->CheckOnGround())
 						return 1;
@@ -2058,36 +2077,36 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 
 
 
-		float d = (vPos-cTrgPos).GetLength();
+		float d = (m_worm->vPos-cTrgPos).GetLength();
 		// We're close to the target
 		if (d < 50.0f)  {
 			// We see the target
 			if(bDirect)  {
 				// Super shotgun
-				if (!tWeapons[0].Reloading)
+				if (!m_worm->tWeapons[0].Reloading)
 					return 0;
 
 				// Chaingun
-				if (!tWeapons[4].Reloading)
+				if (!m_worm->tWeapons[4].Reloading)
 					return 4;
 
 
 				// Doomsday
-				if (!tWeapons[3].Reloading)
+				if (!m_worm->tWeapons[3].Reloading)
 					return 3;
 
 				// Let's try cannon
-				if (!tWeapons[2].Reloading)
+				if (!m_worm->tWeapons[2].Reloading)
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
-					if (!cNinjaRope.isAttached())  {
-						tState.bMove = false;  // Don't move, avoid suicides
+					if (!m_worm->cNinjaRope.isAttached())  {
+						m_worm->tState.bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
 			}
 			// We don't see the target
 			else  {
 				printf("GAM_100LT: i think we should not shoot here\n");
-				tState.bJump = true; // Jump, we might get better position
+				m_worm->tState.bJump = true; // Jump, we might get better position
 				return -1;
 			}
 		}
@@ -2097,27 +2116,27 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 			if (bDirect)  {
 
 				// Chaingun is the best weapon for this situation
-				if (!tWeapons[4].Reloading)  {
+				if (!m_worm->tWeapons[4].Reloading)  {
 					return 4;
 				}
 
 				// Let's try cannon
-				if (!tWeapons[2].Reloading)
+				if (!m_worm->tWeapons[2].Reloading)
 					// Don't use cannon when we're on ninja rope, we will avoid suicides
-					if (!cNinjaRope.isReleased())  {
-						tState.bMove = false;  // Don't move, avoid suicides
+					if (!m_worm->cNinjaRope.isReleased())  {
+						m_worm->tState.bMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
 
 				// Super Shotgun makes it sure
-				if (!tWeapons[0].Reloading)
+				if (!m_worm->tWeapons[0].Reloading)
 					return 0;
 
 				// As for almost last, try doomsday
-				if (!tWeapons[3].Reloading)
+				if (!m_worm->tWeapons[3].Reloading)
 					// Don't use doomsday when we're on ninja rope, we will avoid suicides
-					if (!cNinjaRope.isAttached())  {
-						tState.bMove = false;  // Don't move, avoid suicides
+					if (!m_worm->cNinjaRope.isAttached())  {
+						m_worm->tState.bMove = false;  // Don't move, avoid suicides
 						return 3;
 					}
 			} // End of direct shooting weaps
@@ -2129,29 +2148,29 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 		if (d > 300.0f && bDirect)  {
 
 			// First try doomsday
-			if (!tWeapons[3].Reloading)  {
+			if (!m_worm->tWeapons[3].Reloading)  {
 				// Don't use doomsday when we're on ninja rope, we will avoid suicides
-				if (!cNinjaRope.isAttached())  {
-					tState.bMove = false;  // Don't move, avoid suicides
+				if (!m_worm->cNinjaRope.isAttached())  {
+					m_worm->tState.bMove = false;  // Don't move, avoid suicides
 					return 3;
 				}
 			}
 
 			// Super Shotgun
-			if (!tWeapons[0].Reloading)
+			if (!m_worm->tWeapons[0].Reloading)
 				return 0;
 
 			// Chaingun
-			if (!tWeapons[4].Reloading)
+			if (!m_worm->tWeapons[4].Reloading)
 				return 4;
 
 			// Cannon, the worst possible for this
-			if (!tWeapons[2].Reloading)
+			if (!m_worm->tWeapons[2].Reloading)
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
-				if (!cNinjaRope.isReleased())  {
+				if (!m_worm->cNinjaRope.isReleased())  {
 					// Aim a bit up
 					// AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f)); // don't do aiming here
-					tState.bMove = false;  // Don't move, avoid suicides
+					m_worm->tState.bMove = false;  // Don't move, avoid suicides
 					return 2;
 				}
 		}
@@ -2178,11 +2197,11 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
     //
     // Case 1: The target is on the bottom of the level, a perfect spot to lob an indirect weapon
     //
-    if(cTrgPos.y > pcMap->GetHeight()-50 && fDistance < 200) {
+    if(cTrgPos.y > m_worm->pcMap->GetHeight()-50 && fDistance < 200) {
 		for (int i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+					if (m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE)
 						return i;
     }
 
@@ -2201,16 +2220,16 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
         // First try beam
 		int i;
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
 					//if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
 					return i;
 
@@ -2226,16 +2245,16 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 		// First try beam
 		int i;
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
 					/*if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)*/
 						return i;
 
@@ -2250,22 +2269,22 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 		// First try projectile
 		int i;
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
 		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)
-				if (tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading)
+				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If everything fails, try some random weapons
 		int num=0;
 		for (i=0; i<5; i++, num=GetRandomInt(4))
-			if (!tWeapons[num].Reloading)
+			if (!m_worm->tWeapons[num].Reloading)
 				return num;
 
 		//return -1;
@@ -2280,7 +2299,7 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
     // If we're above the target, try any special weapon, for Liero mod try napalm
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
-    if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > vPos.y ) {
+    if(fDistance > 190 && m_worm->iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
         if (!AI_CheckFreeCells(5)) {
 			printf("we should not shoot because of the hints everywhere\n");
 			return -1;
@@ -2288,8 +2307,8 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 
 		// try projectile weapons
 		for (int i=0; i<5; i++)
-			if (!tWeapons[i].Reloading && tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-				if (tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE || tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+				if (m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)
 					return i;
 
     }
@@ -2302,7 +2321,7 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
     // Shoot a beam (we cant suicide with that)
 	int i;
 	for (i=0; i<5; i++)
-		if (!tWeapons[i].Reloading && tWeapons[i].Weapon->Type == WPN_BEAM)
+		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
 
@@ -2317,12 +2336,12 @@ int CWorm::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float 
 	// If everything fails, try some random weapons
 	int num = GetRandomInt(4);
 	for (i=0; i<5; i++, num=GetRandomInt(4))
-		if (!tWeapons[num].Reloading)
+		if (!m_worm->tWeapons[num].Reloading)
 			return num;
 
 	// If everything fails, try all weapons
 	for (i=0; i<5; i++)
-		if (!tWeapons[i].Reloading)
+		if (!m_worm->tWeapons[i].Reloading)
 			return num;
 
 //	printf("simply everything failed, no luck with that\n");
@@ -2434,16 +2453,16 @@ bool CWorm::IsEmpty(int Cell)
 // TEST TEST TEST
 //////////////////
 // Finds the nearest free cell in the map and returns coordinates of its midpoint
-CVec CWorm::AI_FindClosestFreeCell(CVec vPoint)
+CVec CWormBotInputHandler::AI_FindClosestFreeCell(CVec vPoint)
 {
 	// NOTE: highly unoptimized, looks many times to the same cells
 
 	// Get the cell
-	int cellX = (int) fabs((vPoint.x)/pcMap->getGridWidth());
-	int cellY = (int) fabs((vPoint.y)/pcMap->getGridHeight());
+	int cellX = (int) fabs((vPoint.x)/m_worm->pcMap->getGridWidth());
+	int cellY = (int) fabs((vPoint.y)/m_worm->pcMap->getGridHeight());
 
 	int cellsSearched = 1;
-	const int numCells = pcMap->getGridCols() * pcMap->getGridRows();
+	const int numCells = m_worm->pcMap->getGridCols() * m_worm->pcMap->getGridRows();
 	int i=1;
 	int x,y;
 	uchar tmp_pf = PX_ROCK;
@@ -2451,7 +2470,7 @@ CVec CWorm::AI_FindClosestFreeCell(CVec vPoint)
 		for (y=cellY-i;y<=cellY+i;y++)  {
 
 			// Clipping
-			if (y > pcMap->getGridRows())
+			if (y > m_worm->pcMap->getGridRows())
 				break;
 			if (y < 0)
 				continue;
@@ -2462,14 +2481,14 @@ CVec CWorm::AI_FindClosestFreeCell(CVec vPoint)
 					continue;
 
 				// Clipping
-				if (x > pcMap->getGridCols())
+				if (x > m_worm->pcMap->getGridCols())
 					break;
 				if (x < 0)
 					continue;
 
-				tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
+				tmp_pf = *(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() +x);
 				if (!(tmp_pf & PX_ROCK))
-					return CVec((float)x*pcMap->getGridWidth()+pcMap->getGridWidth()/2, (float)y*pcMap->getGridHeight()+pcMap->getGridHeight()/2);
+					return CVec((float)x*m_worm->pcMap->getGridWidth()+m_worm->pcMap->getGridWidth()/2, (float)y*m_worm->pcMap->getGridHeight()+m_worm->pcMap->getGridHeight()/2);
 			}
 		}
 		i++;
@@ -2482,12 +2501,12 @@ CVec CWorm::AI_FindClosestFreeCell(CVec vPoint)
 
 /////////////////////
 // Trace the line for the current weapon
-int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
+int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 {
-   assert( pcMap );
+   assert( m_worm->pcMap );
 
     // Trace a line from the worm to length or until it hits something
-	CVec    pos = vPos;
+	CVec    pos = m_worm->vPos;
 	CVec    dir = target-pos;
     int     nTotalLength = (int)NormalizeVector(&dir);
 
@@ -2499,7 +2518,7 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 	//
 
 	// Beam
-	if (tWeapons[iCurrentWeapon].Weapon->Type == WPN_BEAM)  {
+	if (m_worm->tWeapons[m_worm->iCurrentWeapon].Weapon->Type == WPN_BEAM)  {
 		first_division = 1;
 		divisions = 1;
 	}
@@ -2543,9 +2562,9 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w) {
-				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0 && cClient->getGameLobby()->iGameMode == GMT_VIP)
+				if(w->isUsed() && w->getAlive() && w->getVIP() && m_worm->iTeam == 0 && cClient->getGameLobby()->iGameMode == GMT_VIP)
 					WormsPos[WormCount++] = w->getPos();
-				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
+				if (w->isUsed() && w->getAlive() && w->getTeam() == m_worm->iTeam && w->getID() != m_worm->iID)
 					WormsPos[WormCount++] = w->getPos();
 			}
 		}
@@ -2556,7 +2575,7 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 	int divs = first_division;
 	int j;
 	for(i=0; i<nTotalLength; i+=divs) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = m_worm->pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		if (i>first_division)  // we aren't close to a wall, so we can shoot through only thin wall
 			divs = divisions;
@@ -2640,25 +2659,25 @@ int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 
 ////////////////////////
 // Checks if there is enough free cells around us to shoot
-bool CWorm::AI_CheckFreeCells(int Num)
+bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 {
 	// Get the cell
-	int cellX = (int) fabs((vPos.x)/pcMap->getGridWidth());
-	int cellY = (int) fabs((vPos.y)/pcMap->getGridHeight());
+	int cellX = (int) fabs((m_worm->vPos.x)/m_worm->pcMap->getGridWidth());
+	int cellY = (int) fabs((m_worm->vPos.y)/m_worm->pcMap->getGridHeight());
 
 	// First of all, check our current cell
-	if (*(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX) & PX_ROCK)
+	if (*(m_worm->pcMap->getGridFlags() + cellY*m_worm->pcMap->getGridCols() +cellX) & PX_ROCK)
 		return false;
 
 
 	// Direction to left
-	if (iDirection == DIR_LEFT)  {
+	if (m_worm->iDirection == DIR_LEFT)  {
 		int dir = 0;
-		if (fAngle > 210)
+		if (m_worm->fAngle > 210)
 			dir = 1;
-		if (fAngle < 210 && fAngle > 160)
+		if (m_worm->fAngle < 210 && m_worm->fAngle > 160)
 			dir = -Num/2;
-		if (fAngle < 160)
+		if (m_worm->fAngle < 160)
 			dir = -1*Num;
 
 /*#ifdef _AI_DEBUG
@@ -2673,15 +2692,15 @@ bool CWorm::AI_CheckFreeCells(int Num)
 		int x,y;
 		for (x = cellX - Num - 1; x < cellX; x++)  {
 			// Clipping means rock
-			if ((x < 0 || x > pcMap->getGridCols()))
+			if ((x < 0 || x > m_worm->pcMap->getGridCols()))
 				return false;
 			for (y = cellY + dir; y < cellY + dir + Num; y++)  {
 				// Clipping means rock
-				if ((y < 0 || y > pcMap->getGridRows()))
+				if ((y < 0 || y > m_worm->pcMap->getGridRows()))
 					return false;
 
 				// Clipping means rock
-				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
+				if (*(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() +x) & PX_ROCK)
 					return false;
 			}
 		}
@@ -2690,11 +2709,11 @@ bool CWorm::AI_CheckFreeCells(int Num)
 	// Direction to right
 	}  else  {
 		int dir = 0;
-		if (fAngle > 20)
+		if (m_worm->fAngle > 20)
 			dir = 1;
-		else if (fAngle < 20 && fAngle > -20)
+		else if (m_worm->fAngle < 20 && m_worm->fAngle > -20)
 			dir = -Num/2;
-		else if (fAngle < -20)
+		else if (m_worm->fAngle < -20)
 			dir = -1*Num;
 
 /*#ifdef _AI_DEBUG
@@ -2709,15 +2728,15 @@ bool CWorm::AI_CheckFreeCells(int Num)
 		int x,y;
 		for (x=cellX;x<=cellX+Num;x++)  {
 			// Clipping means rock
-			if((x< 0 || x > pcMap->getGridCols()))
+			if((x< 0 || x > m_worm->pcMap->getGridCols()))
 				return false;
 			for(y=cellY+dir;y<cellY+dir+Num;y++)  {
 				// Clipping means rock
-				if((y < 0 || y > pcMap->getGridRows()))
+				if((y < 0 || y > m_worm->pcMap->getGridRows()))
 					return false;
 
 				// Rock cell
-				if(*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
+				if(*(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() +x) & PX_ROCK)
 					return false;
 			}
 		}
@@ -2733,7 +2752,7 @@ bool CWorm::AI_CheckFreeCells(int Num)
 
 ////////////////////
 // Creates the path
-int CWorm::AI_CreatePath(bool force_break)
+int CWormBotInputHandler::AI_CreatePath(bool force_break)
 {
 
 	CVec trg = AI_GetTargetPos();
@@ -2743,7 +2762,7 @@ int CWorm::AI_CreatePath(bool force_break)
 	if(force_break) {
 		bPathFinished = false;
 		fSearchStartTime = tLX->fCurTime;
-		((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
+		((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
 
 		return false;
 	}
@@ -2781,9 +2800,9 @@ int CWorm::AI_CreatePath(bool force_break)
 		} else { // the searcher is still searching ...
 
 			// restart search in some cases
-			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap))) {
+			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, ((searchpath_base*)pathSearcher)->start, m_worm->pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, m_worm->pcMap))) {
 				fSearchStartTime = tLX->fCurTime;
-				((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
+				((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
 			}
 
 			return false;
@@ -2792,9 +2811,9 @@ int CWorm::AI_CreatePath(bool force_break)
 
 	// don't start a new search, if the current end-node still has direct access to it
 	// however, we have to have access somewhere to the path
-	if(NEW_psLastNode && traceWormLine(CVec(NEW_psLastNode->fX, NEW_psLastNode->fY), trg, pcMap)) {
+	if(NEW_psLastNode && traceWormLine(CVec(NEW_psLastNode->fX, NEW_psLastNode->fY), trg, m_worm->pcMap)) {
 		for(NEW_ai_node_t* node = NEW_psPath; node; node = node->psNext)
-			if(traceWormLine(CVec(node->fX,node->fY),vPos,pcMap,NULL)) {
+			if(traceWormLine(CVec(node->fX,node->fY),m_worm->vPos,m_worm->pcMap,NULL)) {
 				NEW_psCurrentNode = node;
 				NEW_psLastNode->psNext = createNewAiNode(trg.x, trg.y, NULL, NEW_psLastNode);
 				NEW_psLastNode = NEW_psLastNode->psNext;
@@ -2815,14 +2834,14 @@ int CWorm::AI_CreatePath(bool force_break)
 	fSearchStartTime = tLX->fCurTime;
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
 	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
-	((searchpath_base*)pathSearcher)->start = VectorD2<int>(vPos);
+	((searchpath_base*)pathSearcher)->start = VectorD2<int>(m_worm->vPos);
 	((searchpath_base*)pathSearcher)->startThreadSearch();
 
 	return false;
 }
 
 
-int CWorm::AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
+int CWormBotInputHandler::AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 {
     assert( pcMap );
 
@@ -2886,7 +2905,7 @@ int CWorm::AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 }*/
 
 
-CVec CWorm::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint) {
+CVec CWormBotInputHandler::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint) {
 
 	/*
 		TODO: the algo can made a bit more general, which would increase the finding
@@ -2897,9 +2916,9 @@ CVec CWorm::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec 
 #endif
 
 	unsigned short i = 0;
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();
-	const uchar* pxflags = pcMap->GetPixelFlags();
+	int map_w = m_worm->pcMap->GetWidth();
+	int map_h = m_worm->pcMap->GetHeight();
+	const uchar* pxflags = m_worm->pcMap->GetPixelFlags();
 	CVec pos = vStart;
 	CVec best = vStart;
 	CVec end = pos;
@@ -2945,7 +2964,7 @@ CVec CWorm::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec 
 
 		if(i % 4 == 0 || lastWasMissingCon) {
 			// do we still have a direct connection to the point?
-			if(!traceWormLine(vPoint,pos,pcMap)) {
+			if(!traceWormLine(vPoint,pos,m_worm->pcMap)) {
 				// perhaps we are behind an edge (because auf backdir)
 				// then go a little more to backdir
 				pos += backdir;
@@ -2958,7 +2977,7 @@ CVec CWorm::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec 
 		// don't check to often
 		if(i % 4 == 0) {
 			// this is the parallel to backdir
-			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
+			traceWormLine(pos-backdir*1000,pos,m_worm->pcMap,&possible_end);
 			possible_end += backdir*5/backdir.GetLength();
 #ifdef _AI_DEBUG
 			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,tLX->clPink);
@@ -2981,7 +3000,7 @@ CVec CWorm::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec 
 
 //////////////////
 // Finds the closest free spot, looking only in one direction
-CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction = -1)
+CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction = -1)
 {
 #ifdef _AI_DEBUG
 //	SmartPointer<SDL_Surface> & bmpDest = pcMap->GetDebugImage();
@@ -3000,7 +3019,7 @@ CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Directio
 	CVec rememberPos2 = CVec(0,0);
 
 	for(i=0; 1; i++) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = m_worm->pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
@@ -3037,9 +3056,9 @@ CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Directio
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.x > pcMap->GetWidth() || pos.x < 0)
+		if (pos.x > m_worm->pcMap->GetWidth() || pos.x < 0)
 			break;
-		if (pos.y > pcMap->GetHeight() || pos.y < 0)
+		if (pos.y > m_worm->pcMap->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3054,7 +3073,7 @@ CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Directio
 	pos = vPoint+vDev;
 
 	for(i=0; 1; i++) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = m_worm->pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
@@ -3093,9 +3112,9 @@ CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Directio
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.x > pcMap->GetWidth() || pos.x < 0)
+		if (pos.x > m_worm->pcMap->GetWidth() || pos.x < 0)
 			break;
-		if (pos.y > pcMap->GetHeight() || pos.y < 0)
+		if (pos.y > m_worm->pcMap->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3113,7 +3132,7 @@ CVec CWorm::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Directio
 #ifdef _AI_DEBUG
 ///////////////////
 // Draw the AI path
-void CWorm::AI_DrawPath()
+void CWormBotInputHandler::AI_DrawPath()
 {
 	if (!NEW_psPath)
 		return;
@@ -3203,11 +3222,11 @@ public:
 
 /////////////////////////
 // Finds the best spot to shoot rope to if we want to get to trg
-CVec CWorm::AI_GetBestRopeSpot(CVec trg)
+CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 {
 	// Get the direction angle
-	CVec dir = trg - vPos;
-	dir *= cNinjaRope.getMaxLength() / dir.GetLength();
+	CVec dir = trg - m_worm->vPos;
+	dir *= m_worm->cNinjaRope.getMaxLength() / dir.GetLength();
 	dir = CVec(-dir.y, dir.x); // rotate reverse-clockwise by 90 deg
 
 	// Variables
@@ -3215,10 +3234,10 @@ CVec CWorm::AI_GetBestRopeSpot(CVec trg)
 	float ang = 0;
 
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
-	bestropespot_collision_action action(this, trg + CVec(0,-50));
+	bestropespot_collision_action action(m_worm, trg + CVec(0,-50));
 
 	for(ang=0; ang<(float)PI; dir=step_m(dir), ang+=step) {
-		fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT, action);
+		fastTraceLine(m_worm->vPos+dir, m_worm->vPos, m_worm->pcMap, PX_ROCK|PX_DIRT, action);
 	}
 
 	if(action.best.x < 0) // we don't find any spot
@@ -3229,14 +3248,14 @@ CVec CWorm::AI_GetBestRopeSpot(CVec trg)
 
 ////////////////////
 // Finds the nearest spot to the target, where the rope can be hooked
-CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
+CVec CWormBotInputHandler::AI_GetNearestRopeSpot(CVec trg)
 {
-	CVec dir = trg-vPos;
+	CVec dir = trg-m_worm->vPos;
 	NormalizeVector(&dir);
 	dir = dir*10;
-	float restlen2 = cNinjaRope.getRestLength();
+	float restlen2 = m_worm->cNinjaRope.getRestLength();
 	restlen2 *= restlen2;
-	while ((vPos-trg).GetLength2() >= restlen2)
+	while ((m_worm->vPos-trg).GetLength2() >= restlen2)
 		trg = trg-dir;
 
 	//
@@ -3245,17 +3264,17 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 
 	// Get the current cell
 	uchar tmp_pf = PX_ROCK;
-	int cellX = (int) (trg.x)/pcMap->getGridWidth();
-	int cellY = (int) (trg.y)/pcMap->getGridHeight();
+	int cellX = (int) (trg.x)/m_worm->pcMap->getGridWidth();
+	int cellY = (int) (trg.y)/m_worm->pcMap->getGridHeight();
 
 	// Clipping means rock
-	if (cellX > pcMap->getGridCols() || cellX < 0)
+	if (cellX > m_worm->pcMap->getGridCols() || cellX < 0)
 		return trg;
-	if (cellY > pcMap->getGridRows() || cellY < 0)
+	if (cellY > m_worm->pcMap->getGridRows() || cellY < 0)
 		return trg;
 
 	// Check the current cell first
-	tmp_pf = *(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX);
+	tmp_pf = *(m_worm->pcMap->getGridFlags() + cellY*m_worm->pcMap->getGridCols() +cellX);
 	if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))
 		return trg;
 
@@ -3268,7 +3287,7 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 		for (y=cellY-i;y<=cellY+i;y++)  {
 
 			// Clipping means rock
-			if (y > pcMap->getGridRows())  {
+			if (y > m_worm->pcMap->getGridRows())  {
 				bFound = true;
 				break;
 			}
@@ -3284,7 +3303,7 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 					continue;
 
 				// Clipping means rock
-				if (x > pcMap->getGridCols())  {
+				if (x > m_worm->pcMap->getGridCols())  {
 					bFound = true;
 					break;
 				}
@@ -3294,7 +3313,7 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 				}
 
 				// Get the pixel flag of the cell
-				tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
+				tmp_pf = *(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() +x);
 				if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))  {
 					bFound = true;
 					break;
@@ -3304,7 +3323,7 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 		i++;
 	}
 
-	return CVec((float)x*pcMap->getGridWidth()+pcMap->getGridWidth()/2, (float)y*pcMap->getGridHeight()+pcMap->getGridHeight()/2);
+	return CVec((float)x*m_worm->pcMap->getGridWidth()+m_worm->pcMap->getGridWidth()/2, (float)y*m_worm->pcMap->getGridHeight()+m_worm->pcMap->getGridHeight()/2);
 
 }
 
@@ -3312,15 +3331,15 @@ CVec CWorm::AI_GetNearestRopeSpot(CVec trg)
 // Returns true if the point has the specified amount of air around itself
 // HINT: not always the opposite to CheckOnGround because it checks also left/right/top side
 // At least area_a cells around have to be free for this function to return true
-bool CWorm::AI_IsInAir(CVec pos, int area_a)
+bool CWormBotInputHandler::AI_IsInAir(CVec pos, int area_a)
 {
-	if(pos.x < 0 || pos.y < 0 || pos.x >= pcMap->GetWidth() || pos.y >= pcMap->GetHeight())
+	if(pos.x < 0 || pos.y < 0 || pos.x >= m_worm->pcMap->GetWidth() || pos.y >= m_worm->pcMap->GetHeight())
 		return false;
 
 	// Get the current cell
 	uchar tmp_pf = PX_ROCK;
-	int startX = (int) (pos.x)/pcMap->getGridWidth()-(int)floor((double)area_a/2);
-	int startY = (int) (pos.y)/pcMap->getGridHeight()-(int)floor((double)area_a/2);
+	int startX = (int) (pos.x)/m_worm->pcMap->getGridWidth()-(int)floor((double)area_a/2);
+	int startY = (int) (pos.y)/m_worm->pcMap->getGridHeight()-(int)floor((double)area_a/2);
 
 	// Clipping means rock
 	if (startX < 0 || startY < 0)
@@ -3330,12 +3349,12 @@ bool CWorm::AI_IsInAir(CVec pos, int area_a)
 	x=startX;
 	y=startY;
 
-	pcMap->lockFlags();
+	m_worm->pcMap->lockFlags();
 	for (i=0;i<area_a*area_a;i++) {
 
 		// Clipping means rock
-		if (x >= pcMap->getGridCols())  {
-			pcMap->unlockFlags();
+		if (x >= m_worm->pcMap->getGridCols())  {
+			m_worm->pcMap->unlockFlags();
 			return false;
 		}
 
@@ -3344,22 +3363,22 @@ bool CWorm::AI_IsInAir(CVec pos, int area_a)
 			y++;
 
 			// Clipping means rock
-			if (y >= pcMap->getGridRows())  {
-				pcMap->unlockFlags();
+			if (y >= m_worm->pcMap->getGridRows())  {
+				m_worm->pcMap->unlockFlags();
 				return false;
 			}
 		}
 
 		// Rock or dirt - not in air
-		tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
+		tmp_pf = *(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() +x);
 		if(tmp_pf & (PX_ROCK|PX_DIRT))  {
-			pcMap->unlockFlags();
+			m_worm->pcMap->unlockFlags();
 			return false;
 		}
 
 		x++;
 	}
-	pcMap->unlockFlags();
+	m_worm->pcMap->unlockFlags();
 
 	return true;
 
@@ -3368,41 +3387,41 @@ bool CWorm::AI_IsInAir(CVec pos, int area_a)
 
 ///////////////////
 // AI carving
-void CWorm::AI_Carve()
+void CWormBotInputHandler::AI_Carve()
 {
 	// Don't carve too fast
-	if (GetMilliSeconds() - fLastCarve > 0.2f)  {
-		fLastCarve = GetMilliSeconds();
-		tState.bCarve = true; // Carve
+	if (GetMilliSeconds() - m_worm->fLastCarve > 0.2f)  {
+		m_worm->fLastCarve = GetMilliSeconds();
+		m_worm->tState.bCarve = true; // Carve
 	}
 	else  {
-		tState.bCarve = false;
+		m_worm->tState.bCarve = false;
 	}
 }
 
 ///////////////////
 // AI jumping, returns true if we really jumped
-bool CWorm::AI_Jump()
+bool CWormBotInputHandler::AI_Jump()
 {
 	// Don't jump so often
 	if (GetMilliSeconds() - fLastJump > 1.0f)  {
 		fLastJump = GetMilliSeconds();
-		tState.bJump = bOnGround;
+		m_worm->tState.bJump = m_worm->bOnGround;
 	}
 	else  {
-		tState.bJump = false;
+		m_worm->tState.bJump = false;
 	}
 
-	return tState.bJump;
+	return m_worm->tState.bJump;
 }
 
 /////////////////////
 // Move to the target
-void CWorm::AI_MoveToTarget()
+void CWormBotInputHandler::AI_MoveToTarget()
 {
 //	printf("Moving to target");
 
-    worm_state_t *ws = &tState;
+    worm_state_t *ws = &m_worm->tState;
 
 	// No target?
 	if (nAITargetType == AIT_NONE || (nAITargetType == AIT_WORM && !psAITarget))  {
@@ -3416,25 +3435,25 @@ void CWorm::AI_MoveToTarget()
 	ws->bJump = false;
 
 	// If the rope hook is attached, increase the attached time
-	if (cNinjaRope.isAttached())
+	if (m_worm->cNinjaRope.isAttached())
 		fRopeAttachedTime += tLX->fDeltaTime;
 	else
 		fRopeAttachedTime = 0;
 
 	// release the rope if we used it to long
 	if (fRopeAttachedTime > 5.0f) {
-		cNinjaRope.Release();
+		m_worm->cNinjaRope.Release();
 		fRopeAttachedTime = 0;
 	}
 
-	if(cNinjaRope.isShooting() && !cNinjaRope.isAttached())
+	if(m_worm->cNinjaRope.isShooting() && !m_worm->cNinjaRope.isAttached())
 		fRopeHookFallingTime += tLX->fDeltaTime;
 	else
 		fRopeHookFallingTime = 0;
 
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
-		cNinjaRope.Release();
+		m_worm->cNinjaRope.Release();
 //        ws->bMove = true;
 		fRopeHookFallingTime = 0;
 	}
@@ -3446,25 +3465,25 @@ void CWorm::AI_MoveToTarget()
 	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
 	// and move away!
 	if (iAiGameType == GAM_MORTARS)  {
-		if (SIGN(vVelocity.x) == SIGN(vLastShootTargetPos.x - vPos.x) && tLX->fCurTime - fLastShoot >= 0.2f && tLX->fCurTime - fLastShoot <= 1.0f)  {
-			if (cNinjaRope.isAttached() && SIGN(cNinjaRope.GetForce(vPos).x) == SIGN(vLastShootTargetPos.x - vPos.x))
-				cNinjaRope.Release();
+		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->fCurTime - fLastShoot >= 0.2f && tLX->fCurTime - fLastShoot <= 1.0f)  {
+			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce(m_worm->vPos).x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
+				m_worm->cNinjaRope.Release();
 
-			iDirection = vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
+			m_worm->iDirection = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
 		}
 	}
 
 	if (iAiGameType == GAM_MORTARS || iAiGameType == GAM_100LT)  {
 		// If there's some worm in sight and we are on ground, jump!
-		if (bOnGround)  {
+		if (m_worm->bOnGround)  {
 			for (int i = 0; i < MAX_WORMS; i++)  {
 				CWorm *w = &cClient->getRemoteWorms()[i];
-				if (w->isUsed() && w->getAlive() && w->getID() != iID)  {
-					if ((vPos - w->getPos()).GetLength2() <= 2500)  {
+				if (w->isUsed() && w->getAlive() && w->getID() != m_worm->iID)  {
+					if ((m_worm->vPos - w->getPos()).GetLength2() <= 2500)  {
 						float dist;
 						int type;
-						traceLine(w->getPos(), &dist, &type);
+						m_worm->traceLine(w->getPos(), &dist, &type);
 						if (type & PX_EMPTY)
 							AI_Jump();
 					}
@@ -3509,9 +3528,9 @@ void CWorm::AI_MoveToTarget()
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastFace >= 0.5f)  {
 			if (psHeadingProjectile->GetVelocity().x > 0)
-				iDirection = DIR_LEFT;  // Move in the opposite direction
+				m_worm->iDirection = DIR_LEFT;  // Move in the opposite direction
 			else
-				iDirection = DIR_RIGHT;
+				m_worm->iDirection = DIR_RIGHT;
 			fLastFace = tLX->fCurTime;
 		}
 		ws->bMove = true;
@@ -3522,7 +3541,7 @@ void CWorm::AI_MoveToTarget()
 
 		// Release any previous rope
 		if (fRopeAttachedTime >= 1.5f)
-			cNinjaRope.Release();
+			m_worm->cNinjaRope.Release();
 
 		// Shoot the rope
 		fireNinja = true;
@@ -3532,7 +3551,7 @@ void CWorm::AI_MoveToTarget()
 
 		// Choose some point and find the best rope spot to it
 		desired_dir = desired_dir.Normalize() * 40.0f;
-		CVec cAimPos = AI_GetBestRopeSpot(vPos+desired_dir);
+		CVec cAimPos = AI_GetBestRopeSpot(m_worm->vPos+desired_dir);
 
 		// Aim it
 		/*
@@ -3564,7 +3583,7 @@ void CWorm::AI_MoveToTarget()
 	if (iAiGameType == GAM_MORTARS)  {
 		if (tLX->fCurTime - fLastShoot <= 0.2f)  {
 			if (fRopeAttachedTime >= 0.1f)
-				cNinjaRope.Release();
+				m_worm->cNinjaRope.Release();
 			return;
 		}
 	}
@@ -3587,7 +3606,7 @@ void CWorm::AI_MoveToTarget()
 
 //	printf("We should move now...");
 
-	if ((CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - vPos).GetLength2() <= 100)  {
+	if ((CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - m_worm->vPos).GetLength2() <= 100)  {
 		if (NEW_psCurrentNode->psNext)
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 	}
@@ -3596,7 +3615,7 @@ void CWorm::AI_MoveToTarget()
 	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
 	bool newnode = false;
 	while(next_node)  {
-		if(traceWormLine(CVec(next_node->fX, next_node->fY), vPos, pcMap))  {
+		if(traceWormLine(CVec(next_node->fX, next_node->fY), m_worm->vPos, m_worm->pcMap))  {
 			NEW_psCurrentNode = next_node;
 			newnode = true;
 		}
@@ -3608,7 +3627,7 @@ void CWorm::AI_MoveToTarget()
 		// this will work and is in many cases the last chance
 		if (tLX->fCurTime - fLastGoBack >= 1)  {
 			for(next_node = NEW_psCurrentNode; next_node; next_node = next_node->psPrev) {
-				if(traceWormLine(CVec(next_node->fX, next_node->fY), vPos, pcMap))  {
+				if(traceWormLine(CVec(next_node->fX, next_node->fY), m_worm->vPos, m_worm->pcMap))  {
 					if(NEW_psCurrentNode != next_node) {
 						NEW_psCurrentNode = next_node;
 						fLastGoBack = tLX->fCurTime;
@@ -3634,8 +3653,8 @@ find_one_visible_node:
 
 
 	// release rope, if it forces us to the wrong direction
-	if(cNinjaRope.isAttached() && (cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2()) {
-		cNinjaRope.Release();
+	if(m_worm->cNinjaRope.isAttached() && (m_worm->cNinjaRope.GetForce(m_worm->vPos).Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
+		m_worm->cNinjaRope.Release();
 		fRopeAttachedTime = 0;
 	}
 
@@ -3656,7 +3675,7 @@ find_one_visible_node:
 			int num_reloaded=0;
 			int i;
 			for (i=0;i<5;i++) {
-				if (!tWeapons[i].Reloading)
+				if (!m_worm->tWeapons[i].Reloading)
 					num_reloaded++;
 			}
 
@@ -3673,7 +3692,7 @@ find_one_visible_node:
 					if(NEW_psLastNode && (i>=3 && i<=5)) {
 						// Stop, if we are not so far away
 						if (fRopeAttachedTime >= 0.7f)
-							cNinjaRope.Release();
+							m_worm->cNinjaRope.Release();
 						return;
 					}
 				}
@@ -3693,16 +3712,16 @@ find_one_visible_node:
 		*/
 
 		float traceDist = -1; int type;
-		int length = traceLine(nodePos, &traceDist, &type); // HINT: this is only a line, not the whole worm
+		int length = m_worm->traceLine(nodePos, &traceDist, &type); // HINT: this is only a line, not the whole worm
 															 // NOTE: this can return dirt, even if there's also rock between us two
-		bool direct_traceLine_possible = (float)(length*length) > (nodePos-vPos).GetLength2();
+		bool direct_traceLine_possible = (float)(length*length) > (nodePos-m_worm->vPos).GetLength2();
 
 		// If the node is right above us, use a carving weapon
-		if ((fabs(nodePos.x - vPos.x) <= 50) && (type & PX_DIRT))
-			if (nodePos.y < vPos.y)  {
+		if ((fabs(nodePos.x - m_worm->vPos.x) <= 50) && (type & PX_DIRT))
+			if (nodePos.y < m_worm->vPos.y)  {
 				int wpn;
 				if((wpn = AI_FindClearingWeapon()) != -1) {
-					iCurrentWeapon = wpn;
+					m_worm->iCurrentWeapon = wpn;
 					ws->bShoot = AI_SetAim(nodePos); // aim at the dirt and fire if aimed
 					if(ws->bShoot) {
 						// Don't do any crazy things when shooting
@@ -3728,7 +3747,7 @@ find_one_visible_node:
 //				cNinjaRope.Release();
 
 			// Jump, if the node is above us
-			if (nodePos.y < vPos.y && vPos.y - nodePos.y >= 10 && vPos.y - nodePos.y <= 30)
+			if (nodePos.y < m_worm->vPos.y && m_worm->vPos.y - nodePos.y >= 10 && m_worm->vPos.y - nodePos.y <= 30)
 				AI_Jump();
 
 //			ws->bMove = true;
@@ -3739,8 +3758,8 @@ find_one_visible_node:
 
 			// If there's no dirt around and we have jetpack in our arsenal, lets use it!
 			for (short i=0;i<5;i++) {
-				if (tWeapons[i].Weapon->Recoil < 0 && !tWeapons[i].Reloading)  {
-					iCurrentWeapon = i;
+				if (m_worm->tWeapons[i].Weapon->Recoil < 0 && !m_worm->tWeapons[i].Reloading)  {
+					m_worm->iCurrentWeapon = i;
 					ws->bShoot = AI_SetAim(nodePos);
 					if(ws->bShoot) fireNinja = false;
 					break;
@@ -3780,7 +3799,7 @@ find_one_visible_node:
 
 	// In rifle games: don't continue if we see the final target and are quite close to it
 	// If we shot the rope, we wouldnt aim the target, which is the priority now
-	if(fireNinja && iAiGameType == GAM_RIFLES && we_see_the_target && (vPos-cPosTarget).GetLength2() <= 3600.0f) {
+	if(fireNinja && iAiGameType == GAM_RIFLES && we_see_the_target && (m_worm->vPos-cPosTarget).GetLength2() <= 3600.0f) {
 		fireNinja = false;
 	}
 
@@ -3801,18 +3820,18 @@ find_one_visible_node:
           We shoot a ninja rope if it isn't shot
           Or if it is, we make sure it has pulled us up and that it is attached
         */
-        if(aim || !bOnGround) {
-            if(!cNinjaRope.isReleased())
+        if(aim || !m_worm->bOnGround) {
+            if(!m_worm->cNinjaRope.isReleased())
             	fireNinja = true;
             else {
-                if(cNinjaRope.isAttached()) {
+                if(m_worm->cNinjaRope.isAttached()) {
 					//float restlen_sq = cNinjaRope.getRestLength(); restlen_sq *= restlen_sq;
                     //if((vPos-cNinjaRope.getHookPos()).GetLength2() < restlen_sq && vVelocity.y<-10)
                     if(fRopeAttachedTime > 0.5f)
                     	fireNinja = true;
                 }
             }
-            if( (vPos.y - NEW_psCurrentNode->fY) > 10.0f)  {
+            if( (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10.0f)  {
 				AI_Jump();
 			}
         }
@@ -3820,13 +3839,13 @@ find_one_visible_node:
 
     if(fireNinja) {
         CVec dir;
-		dir.x=( (float)cos(fAngle * (PI/180)) );
-	    dir.y=( (float)sin(fAngle * (PI/180)) );
-	    if(iDirection == DIR_LEFT)
+		dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
+	    dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
+	    if(m_worm->iDirection == DIR_LEFT)
 		    dir.x=(-dir.x);
 
     	// the final shoot of the rope...
-    	cNinjaRope.Shoot(vPos, dir);
+    	m_worm->cNinjaRope.Shoot(m_worm->vPos, dir);
 		fRopeHookFallingTime = 0;
 		fRopeAttachedTime = 0;
 
@@ -3836,7 +3855,7 @@ find_one_visible_node:
 		if(!we_see_the_target) AI_SetAim(nodePos);
 
 		// If the node is above us by a little, jump
-		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y - NEW_psCurrentNode->fY) > 10) {
+		if((m_worm->vPos.y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10) {
 			if (!AI_Jump())
 				ws->bMove = true; // if we should not jump, move
 		}
@@ -3845,24 +3864,24 @@ find_one_visible_node:
 	// If we are using the rope to fly up, it can happen, that we will fly through the node and continue in a wrong direction
 	// To avoid this we check the velocity and if it is too high, we release the rope
 	// When on ground rope does not make much sense mainly, but there are rare cases where it should stay like it is
-	if (cNinjaRope.isAttached() && !bOnGround && (cNinjaRope.getHookPos().y > vPos.y) && (NEW_psCurrentNode->fY < vPos.y)
-		&& fabs(cNinjaRope.getHookPos().x - vPos.x) <= 50 && vVelocity.y <= 0)  {
+	if (m_worm->cNinjaRope.isAttached() && !m_worm->bOnGround && (m_worm->cNinjaRope.getHookPos().y > m_worm->vPos.y) && (NEW_psCurrentNode->fY < m_worm->vPos.y)
+		&& fabs(m_worm->cNinjaRope.getHookPos().x - m_worm->vPos.x) <= 50 && m_worm->vVelocity.y <= 0)  {
 		CVec force;
 
 		// Air drag (Mainly to dampen the ninja rope)
 		// float Drag = cGameScript->getWorm()->AirFriction; // TODO: not used
 
-		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - vPos).GetLength();
+		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - m_worm->vPos).GetLength();
 		float time = sqrt(2*dist/(force.GetLength()));
 		//float time2 = dist/vVelocity.GetLength();*/
-		float diff = vVelocity.y - (cGameScript->getWorm()->Gravity * time);
+		float diff = m_worm->vVelocity.y - (m_worm->cGameScript->getWorm()->Gravity * time);
 		if (diff < 0)
-			cNinjaRope.Release();
+			m_worm->cNinjaRope.Release();
 	}
 
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
-    if(fabs(cStuckPos.x - vPos.x) < 5 && fabs(cStuckPos.y - vPos.y) < 5) {
+    if(fabs(cStuckPos.x - m_worm->vPos.x) < 5 && fabs(cStuckPos.y - m_worm->vPos.y) < 5) {
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
@@ -3877,14 +3896,14 @@ find_one_visible_node:
             fStuckPause = tLX->fCurTime;
 
 			if (tLX->fCurTime-fLastFace >= 0.5f)  {
-				iDirection = !iDirection;
+				m_worm->iDirection = !m_worm->iDirection;
 				fLastFace = tLX->fCurTime;
 			}
 
-            fAngle -= cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime;
+            m_worm->fAngle -= m_worm->cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime;
             // Clamp the angle
-	        fAngle = MIN((float)60,fAngle);
-	        fAngle = MAX((float)-90,fAngle);
+	        m_worm->fAngle = MIN((float)60,m_worm->fAngle);
+	        m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
 
 			// Stucked too long?
 			if (fStuckTime >= 5.0f)  {
@@ -3904,12 +3923,12 @@ find_one_visible_node:
     else {
         bStuck = false;
         fStuckTime = 0;
-        cStuckPos = vPos;
+        cStuckPos = m_worm->vPos;
 
     }
 
 	// only move if we are away from the next node
-	ws->bMove = fabs(vPos.x - NEW_psCurrentNode->fX) > 3.0f;
+	ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
 
 
 /*
@@ -3944,7 +3963,7 @@ void drawpoint(SDL_Surface * debug_surf, CVec point)
 
 ///////////////////////
 // Returns coordinates of a point that is best for shooting the target
-CVec CWorm::AI_FindShootingSpot()
+CVec CWormBotInputHandler::AI_FindShootingSpot()
 {
 	if (psAITarget == NULL)
 		return CVec(0,0);
@@ -3956,11 +3975,11 @@ CVec CWorm::AI_FindShootingSpot()
 
 	// Check what weapons we have
 	for (int i=0; i < 5; i++)  {
-		if (tWeapons[i].Weapon->Projectile)  {
+		if (m_worm->tWeapons[i].Weapon->Projectile)  {
 			// Get the gravity
 			int gravity = 100;  // Default
-			if (tWeapons[i].Weapon->Projectile->UseCustomGravity)
-				gravity = tWeapons[i].Weapon->Projectile->Gravity;
+			if (m_worm->tWeapons[i].Weapon->Projectile->UseCustomGravity)
+				gravity = m_worm->tWeapons[i].Weapon->Projectile->Gravity;
 
 			// Change the flags according to the gravity
 			if (gravity >= 5)
@@ -3999,7 +4018,7 @@ CVec CWorm::AI_FindShootingSpot()
 		possible_pos.y = (float) (40.0f * cos(j)) + psAITarget->getPos().y;
 		//PutPixel(pcMap->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, MakeColour(255, 0, 0));
 
-		if (AI_IsInAir(possible_pos, 1) && traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
+		if (AI_IsInAir(possible_pos, 1) && m_worm->traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
 			//drawpoint(pcMap->GetDebugImage(), possible_pos);
 			return possible_pos;
 		}
@@ -4009,7 +4028,7 @@ CVec CWorm::AI_FindShootingSpot()
 	possible_pos = psAITarget->getPos();
 	for (int i = 0; i < 10; i++)  {
 		possible_pos.x += 5;
-		if (!traceWormLine(possible_pos, psAITarget->getPos(), pcMap, NULL))  {
+		if (!traceWormLine(possible_pos, psAITarget->getPos(), m_worm->pcMap, NULL))  {
 			possible_pos.x -= 5;
 			if (fabs(psAITarget->getPos().x - possible_pos.x) >= 15)
 				return possible_pos;
@@ -4019,7 +4038,7 @@ CVec CWorm::AI_FindShootingSpot()
 	possible_pos = psAITarget->getPos();
 	for (int i = 0; i < 10; i++)  {
 		possible_pos.x -= 5;
-		if (!traceWormLine(possible_pos, psAITarget->getPos(), pcMap, NULL))  {
+		if (!traceWormLine(possible_pos, psAITarget->getPos(), m_worm->pcMap, NULL))  {
 			possible_pos.x -= 5;
 			if (fabs(psAITarget->getPos().x - possible_pos.x) >= 15)
 				return possible_pos;
@@ -4072,4 +4091,111 @@ float get_ai_nodes_length2(NEW_ai_node_t* start) {
 			break;
 	}
 	return l;
+}
+
+
+
+struct BotWormType : WormType {
+	CWormInputHandler* createInputHandler(CWorm* w) { return new CWormBotInputHandler(w); }
+	int toInt() { return 1; }
+} PRF_COMPUTER_instance;
+WormType* PRF_COMPUTER = &PRF_COMPUTER_instance;
+
+CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
+	nAIState = AI_THINK;
+    //fLastWeaponSwitch = -9999;
+	NEW_psPath = NULL;
+	NEW_psCurrentNode = NULL;
+	NEW_psLastNode = NULL;
+	pathSearcher = NULL;	
+	fLastFace = 0;
+	fBadAimTime = 0;
+	
+	fLastShoot = 0; // for AI
+	fLastJump = 999999;
+	fLastWeaponChange = 0;
+	fLastCompleting = -9999;
+	fLastGoBack = -9999;
+
+	
+	AI_Initialize();
+}
+
+CWormBotInputHandler::~CWormBotInputHandler() {
+	// Make sure the pathfinding ends
+	AI_Shutdown();
+}
+
+void CWormBotInputHandler::onRespawn() {
+	nAIState = AI_THINK;
+	fLastShoot = 0;
+	fLastGoBack = -9999;
+
+	AI_Respawn();
+}	
+
+
+void CWormBotInputHandler::initWeaponSelection() {
+	
+	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
+	if(true) {
+		
+		// TODO: move this to CWorm_AI
+		bool bRandomWeaps = true;
+		// Combo (rifle)
+		if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
+			(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
+			 cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
+			if (m_worm->cWeaponRest->isEnabled("Rifle"))  {
+				for (short i=0; i<5; i++)
+					m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
+				bRandomWeaps = false;
+				AI_SetGameType(GAM_RIFLES);
+			}
+		}
+		// 100 lt
+		else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
+				  cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
+				 cClient->getGameLobby()->iLoadingTime == 100)  {
+			int MyWeaps = m_worm->cWeaponRest->isEnabled("Super Shotgun") + m_worm-> cWeaponRest->isEnabled("Napalm") +  m_worm->cWeaponRest->isEnabled("Cannon") + m_worm->cWeaponRest->isEnabled("Doomsday") + m_worm->cWeaponRest->isEnabled("Chaingun");
+			if (MyWeaps == 5)  {
+				// Set our weapons
+				m_worm->tWeapons[0].Weapon = m_worm->cGameScript->FindWeapon("Super Shotgun");
+				m_worm->tWeapons[1].Weapon = m_worm->cGameScript->FindWeapon("Napalm");
+				m_worm->tWeapons[2].Weapon = m_worm->cGameScript->FindWeapon("Cannon");
+				m_worm->tWeapons[3].Weapon = m_worm->cGameScript->FindWeapon("Doomsday");
+				m_worm->tWeapons[4].Weapon = m_worm->cGameScript->FindWeapon("Chaingun");
+				bRandomWeaps = false;
+				AI_SetGameType(GAM_100LT);
+			}
+		}
+		// Mortar game
+		else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
+				  cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
+				 cClient->getGameLobby()->iLoadingTime < 50)  {
+			if (m_worm->cWeaponRest->isEnabled("Mortar Launcher"))  {
+				for (short i=0; i<5; i++)
+					m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
+				bRandomWeaps = false;
+				AI_SetGameType(GAM_MORTARS);
+			}
+		}
+		
+		// Random
+		if (bRandomWeaps) {
+			m_worm->GetRandomWeapons();
+			AI_SetGameType(GAM_OTHER);
+		}
+		
+		m_worm->setWeaponsReady(true);
+	}
+
+}
+
+void CWormBotInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
+	// Do nothing here. We can get here when we are waiting for the host worm to select his weapons.
+	// In other cases, we would have already selected the weapons for the worm in initWeaponSelection().
+	
+	//bWeaponsReady = true;
+	//iCurrentWeapon = 0;
 }

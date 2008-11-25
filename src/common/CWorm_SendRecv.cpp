@@ -24,6 +24,7 @@
 #include "MathLib.h"
 #include "CClient.h"
 #include "CServerConnection.h"
+#include "ProfileSystem.h"
 
 using namespace std;
 
@@ -33,7 +34,7 @@ using namespace std;
 void CWorm::writeInfo(CBytestream *bs)
 {
 	bs->writeString(RemoveSpecialChars(sName));
-	bs->writeInt(iType, 1);
+	bs->writeInt(m_type->toInt(), 1);
 	bs->writeInt(iTeam, 1);
 	bs->writeString(cSkin.getFileName());
 
@@ -51,7 +52,7 @@ void CWorm::readInfo(CBytestream *bs)
 {
 	sName = bs->readString();
 
-	iType = bs->readInt(1) ? 1 : 0;
+	m_type = bs->readInt(1) ? PRF_COMPUTER : PRF_HUMAN;
 	iTeam = CLAMP(bs->readInt(1), 0, 3);
 	cSkin.Change(bs->readString());
 

@@ -395,6 +395,8 @@
 		235D280F0CF7C10C0067BA4F /* HTTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTP.h; sourceTree = "<group>"; };
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
+		23754FB50EDC32AB005EC287 /* CWormBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormBot.h; sourceTree = "<group>"; };
+		23754FB60EDC32AB005EC287 /* CWormHuman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormHuman.h; sourceTree = "<group>"; };
 		238800E20E8B14F600B94DC0 /* NotifyUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotifyUser.h; sourceTree = "<group>"; };
 		238800E30E8B150100B94DC0 /* NotifyUser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotifyUser.cpp; sourceTree = "<group>"; };
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
@@ -1166,6 +1168,8 @@
 				EA430C6D0BEFCEDE00C6547E /* CViewport.h */,
 				EA430C6E0BEFCEDE00C6547E /* CWeather.h */,
 				EA430C710BEFCEDE00C6547E /* CWorm.h */,
+				23754FB50EDC32AB005EC287 /* CWormBot.h */,
+				23754FB60EDC32AB005EC287 /* CWormHuman.h */,
 				EA430C720BEFCEDE00C6547E /* CWpnRest.h */,
 				EA430C740BEFCEDE00C6547E /* Entity.h */,
 				EA430C750BEFCEDE00C6547E /* Error.h */,

@@ -544,17 +544,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 				// Select weapons
 				if(!cLocalWorms[i]->getWeaponsReady()) {
-					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
-
-
+					cLocalWorms[i]->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
+					
 					if(cLocalWorms[i]->getWeaponsReady()) {
 						cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
-						if(bDownloadingMap)
-							cout << "but we still have to wait for the download process" << endl;
 					}
 
 					ready = ready && cLocalWorms[i]->getWeaponsReady();
-				}
+				}								
 			}
 		} else // Waiting for a mod to download
 			ready = false;

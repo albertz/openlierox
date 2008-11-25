@@ -28,6 +28,9 @@
 #include "CClient.h"
 #include "CServerConnection.h"
 #include "Utils.h"
+#include "CWormHuman.h"
+#include "ProfileSystem.h"
+#include "CGameScript.h"
 
 
 using namespace std;
@@ -35,11 +38,10 @@ using namespace std;
 
 ///////////////////
 // Get the input from a human worm
-void CWorm::getInput()
-{
+void CWormHumanInputHandler::getInput() {		
 	// HINT: we are calling this from simulateWorm
-	const float	dt = tLX->fCurTime - fLastInputTime;
-	fLastInputTime = tLX->fCurTime;
+	const float	dt = tLX->fCurTime - m_worm->fLastInputTime;
+	m_worm->fLastInputTime = tLX->fCurTime;
 
 	CVec	dir;
 	int		weap = false;
@@ -50,7 +52,7 @@ void CWorm::getInput()
 	bool leftOnce = cLeft.isDownOnce();
 	bool rightOnce = cRight.isDownOnce();
 
-	worm_state_t *ws = &tState;
+	worm_state_t *ws = &m_worm->tState;
 
 	// Init the ws
 	ws->bCarve = false;
@@ -85,53 +87,53 @@ void CWorm::getInput()
 
 		// Joystick up
 		if (cDown.isJoystickThrottle())  {
-			fAngleSpeed = 0;
-			fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
+			m_worm->fAngleSpeed = 0;
+			m_worm->fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
 		}
 
 		// Joystick down
 		if (cDown.isJoystickThrottle())  {
-			fAngleSpeed = 0;
-			fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
+			m_worm->fAngleSpeed = 0;
+			m_worm->fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
 		}
 
 		// Up
 		if(cUp.isDown() && !cUp.isJoystickThrottle()) {
 			// HINT: 500 is the original value here (rev 1)
-			fAngleSpeed -= 500 * dt;
+			m_worm->fAngleSpeed -= 500 * dt;
 		} else if(cDown.isDown() && !cDown.isJoystickThrottle()) { // Down
 			// HINT: 500 is the original value here (rev 1)
-			fAngleSpeed += 500 * dt;
+			m_worm->fAngleSpeed += 500 * dt;
 		} else {
 			if(!mouseControl) {
 				// HINT: this is the original order and code (before mouse patch - rev 1007)
-				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
-				REDUCE_CONST(fAngleSpeed, 200*dt);
-				RESET_SMALL(fAngleSpeed, 5.0f);
+				CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
+				REDUCE_CONST(m_worm->fAngleSpeed, 200*dt);
+				RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 
 			} else { // mouseControl for angle
 				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
 				float diff = mouse_dy * mouseSensity;
 				CLAMP_DIRECT(diff, -500.0f, 500.0f); // same limit as keyboard
-				fAngleSpeed += diff * dt;
+				m_worm->fAngleSpeed += diff * dt;
 
 				// this tries to be like keyboard where this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
-					CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
-					REDUCE_CONST(fAngleSpeed, 200*dt);
-					RESET_SMALL(fAngleSpeed, 5.0f);
+					CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
+					REDUCE_CONST(m_worm->fAngleSpeed, 200*dt);
+					RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 				}
 			}
 		}
 
-		fAngle += fAngleSpeed * dt;
-		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
-			fAngleSpeed = 0;
+		m_worm->fAngle += m_worm->fAngleSpeed * dt;
+		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, 60.0f) != 0)
+			m_worm->fAngleSpeed = 0;
 
 		// Calculate dir
-		dir.x=( (float)cos(fAngle * (PI/180)) );
-		dir.y=( (float)sin(fAngle * (PI/180)) );
-		if( iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+		dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
+		dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
+		if( m_worm->iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
 			dir.x=(-dir.x);
 
 	} // end angle section
@@ -140,22 +142,23 @@ void CWorm::getInput()
 	// basic mouse control (moving)
 	if(mouseControl) {
 		// no dt here, it's like the keyboard; and the value will be limited by dt later
-		fMoveSpeedX += mouse_dx * mouseSensity * 0.01f;
+		m_worm->fMoveSpeedX += mouse_dx * mouseSensity * 0.01f;
 
-		REDUCE_CONST(fMoveSpeedX, 1000*dt);
-		//RESET_SMALL(fMoveSpeedX, 5.0f);
-		CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
+		REDUCE_CONST(m_worm->fMoveSpeedX, 1000*dt);
+		//RESET_SMALL(m_worm->fMoveSpeedX, 5.0f);
+		CLAMP_DIRECT(m_worm->fMoveSpeedX, -500.0f, 500.0f);
 
-		if(fabs(fMoveSpeedX) > 50) {
-			if(fMoveSpeedX > 0) {
-				iMoveDirection = DIR_RIGHT;
-				if(mouse_dx < 0) lastMoveTime = tLX->fCurTime;
+		if(fabs(m_worm->fMoveSpeedX) > 50) {
+			if(m_worm->fMoveSpeedX > 0) {
+				m_worm->iMoveDirection = DIR_RIGHT;
+				if(mouse_dx < 0) m_worm->lastMoveTime = tLX->fCurTime;
 			} else {
-				iMoveDirection = DIR_LEFT;
-				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
+				m_worm->iMoveDirection = DIR_LEFT;
+				if(mouse_dx > 0) m_worm->lastMoveTime = tLX->fCurTime;
 			}
 			ws->bMove = true;
-			if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = iMoveDirection;
+			if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown())
+				m_worm->iDirection = m_worm->iMoveDirection;
 
 		} else {
 			ws->bMove = false;
@@ -169,26 +172,26 @@ void CWorm::getInput()
 		ws->bShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
 		ws->bJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
 		if(ws->bJump) {
-			if(cNinjaRope.isReleased())
-				cNinjaRope.Release();
+			if(m_worm->cNinjaRope.isReleased())
+				m_worm->cNinjaRope.Release();
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
-			cNinjaRope.Shoot(vPos, dir);
+			m_worm->cNinjaRope.Shoot(m_worm->vPos, dir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 
 		if( ms->WheelScrollUp || ms->WheelScrollDown ) {
-			bForceWeapon_Name = true;
-			fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			m_worm->bForceWeapon_Name = true;
+			m_worm->fForceWeapon_Time = tLX->fCurTime + 0.75f;
 			if( ms->WheelScrollUp )
-				iCurrentWeapon ++;
+				m_worm->iCurrentWeapon ++;
 			else
-				iCurrentWeapon --;
-			if(iCurrentWeapon >= iNumWeaponSlots)
-				iCurrentWeapon=0;
-			if(iCurrentWeapon < 0)
-				iCurrentWeapon=iNumWeaponSlots-1;
+				m_worm->iCurrentWeapon --;
+			if(m_worm->iCurrentWeapon >= m_worm->iNumWeaponSlots)
+				m_worm->iCurrentWeapon=0;
+			if(m_worm->iCurrentWeapon < 0)
+				m_worm->iCurrentWeapon=m_worm->iNumWeaponSlots-1;
 		}
 	}
 
@@ -205,23 +208,23 @@ void CWorm::getInput()
 
 		const float carveDelay = 0.2f;
 
-		if((mouseControl && ws->bMove && iMoveDirection == DIR_LEFT)
+		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_LEFT)
 			|| ((( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) && !cSelWeapon.isDown())) {
 
-			if(tLX->fCurTime - fLastCarve >= carveDelay) {
+			if(tLX->fCurTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->fCurTime;
 			}
 		}
 
-		if((mouseControl && ws->bMove && iMoveDirection == DIR_RIGHT)
+		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_RIGHT)
 			|| ((( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) && !cSelWeapon.isDown())) {
 
-			if(tLX->fCurTime - fLastCarve >= carveDelay) {
+			if(tLX->fCurTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->fCurTime;
 			}
 		}
 	}
@@ -236,13 +239,13 @@ void CWorm::getInput()
 
 		// we don't want keyrepeats here, so only count the first down-event
 		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
-		iCurrentWeapon += change;
-		MOD(iCurrentWeapon, iNumWeaponSlots);
+		m_worm->iCurrentWeapon += change;
+		MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
 
 		// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
 		if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
-			iCurrentWeapon++;
-			MOD(iCurrentWeapon, iNumWeaponSlots);
+			m_worm->iCurrentWeapon++;
+			MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
 		}
 	}
 
@@ -251,16 +254,16 @@ void CWorm::getInput()
 	{
 		if( cWeapons[i].isDown() )
 		{
-			iCurrentWeapon = i;
+			m_worm->iCurrentWeapon = i;
 			// Let the weapon name show up for a short moment
-			bForceWeapon_Name = true;
-			fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			m_worm->bForceWeapon_Name = true;
+			m_worm->fForceWeapon_Time = tLX->fCurTime + 0.75f;
 		}
 	}
 
 
 	// Safety: clamp the current weapon
-	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+	m_worm->iCurrentWeapon = CLAMP(m_worm->iCurrentWeapon, 0, m_worm->iNumWeaponSlots-1);
 
 
 	ws->bShoot = cShoot.isDown();
@@ -268,31 +271,31 @@ void CWorm::getInput()
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {
 			ws->bMove = true;
-			lastMoveTime = tLX->fCurTime;
+			m_worm->lastMoveTime = tLX->fCurTime;
 
 			if(!cRight.isDown()) {
-				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
-				iMoveDirection = DIR_LEFT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_LEFT;
+				m_worm->iMoveDirection = DIR_LEFT;
 			}
 
 			if(rightOnce) {
 				ws->bCarve = true;
-				fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->fCurTime;
 			}
 		}
 
 		if(cRight.isDown()) {
 			ws->bMove = true;
-			lastMoveTime = tLX->fCurTime;
+			m_worm->lastMoveTime = tLX->fCurTime;
 
 			if(!cLeft.isDown()) {
-				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
-				iMoveDirection = DIR_RIGHT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_RIGHT;
+				m_worm->iMoveDirection = DIR_RIGHT;
 			}
 
 			if(leftOnce) {
 				ws->bCarve = true;
-				fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->fCurTime;
 			}
 		}
 
@@ -312,8 +315,8 @@ void CWorm::getInput()
 		if( !(oldskool && cSelWeapon.isDown()) )  {
 			ws->bJump = true;
 
-			if(cNinjaRope.isReleased())
-				cNinjaRope.Release();
+			if(m_worm->cNinjaRope.isReleased())
+				m_worm->cNinjaRope.Release();
 		}
 	}
 
@@ -323,20 +326,20 @@ void CWorm::getInput()
 		// Change-weapon & jump
 
 		if(!cSelWeapon.isDown() || !cJump.isDown())  {
-			bRopeDown = false;
+			m_worm->bRopeDown = false;
 		}
 
-		if(cSelWeapon.isDown() && cJump.isDown() && !bRopeDown) {
+		if(cSelWeapon.isDown() && cJump.isDown() && !m_worm->bRopeDown) {
 
-			bRopeDownOnce = true;
-			bRopeDown = true;
+			m_worm->bRopeDownOnce = true;
+			m_worm->bRopeDown = true;
 		}
 
 		// Down
-		if(bRopeDownOnce) {
-			bRopeDownOnce = false;
+		if(m_worm->bRopeDownOnce) {
+			m_worm->bRopeDownOnce = false;
 
-			cNinjaRope.Shoot(vPos,dir);
+			m_worm->cNinjaRope.Shoot(m_worm->vPos,dir);
 
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
@@ -348,15 +351,15 @@ void CWorm::getInput()
 		// Seperate dedicated button for throwing the rope
 		if(cInpRope.isDownOnce()) {
 
-			cNinjaRope.Shoot(vPos,dir);
+			m_worm->cNinjaRope.Shoot(m_worm->vPos,dir);
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 	}
 
-	ws->iAngle = (int)fAngle;
-	ws->iX = (int)vPos.x;
-	ws->iY = (int)vPos.y;
+	ws->iAngle = (int)m_worm->fAngle;
+	ws->iX = (int)m_worm->vPos.x;
+	ws->iY = (int)m_worm->vPos.y;
 
 
 	cUp.reset();
@@ -375,16 +378,7 @@ void CWorm::getInput()
 
 ///////////////////
 // Clear the input
-void CWorm::clearInput(void)
-{
-	fLastInputTime = tLX->fCurTime;
-
-	// Clear the state
-	tState.bCarve = false;
-	tState.bMove  = false;
-	tState.bShoot = false;
-	tState.bJump  = false;
-
+void CWormHumanInputHandler::clearInput() {
 	// clear inputs
 	cUp.reset();
 	cDown.reset();
@@ -401,16 +395,33 @@ void CWorm::clearInput(void)
 
 
 
+struct HumanWormType : WormType {
+	virtual CWormInputHandler* createInputHandler(CWorm* w) { return new CWormHumanInputHandler(w); }
+	int toInt() { return 0; }
+} PRF_HUMAN_instance;
+WormType* PRF_HUMAN = &PRF_HUMAN_instance;
+
+CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) {	
+	// we use the normal init system first after the weapons are selected and we are ready
+	stopInputSystem();
+}
+
+CWormHumanInputHandler::~CWormHumanInputHandler() {}
+
+void CWormHumanInputHandler::startGame() {
+	initInputSystem();
+}
+
 
 
 ///////////////////
 // Setup the inputs
-void CWorm::SetupInputs(const controls_t& Inputs)
+void CWormHumanInputHandler::setupInputs(const controls_t& Inputs)
 {
-	bUsesMouse = false;
+	//bUsesMouse = false;
 	for (byte i=0;i<Inputs.ControlCount(); i++)
 		if (Inputs[i].find("ms"))  {
-			bUsesMouse = true;
+			//bUsesMouse = true;
 			break;
 		}
 
@@ -431,7 +442,7 @@ void CWorm::SetupInputs(const controls_t& Inputs)
 }
 
 
-void CWorm::InitInputSystem() {
+void CWormHumanInputHandler::initInputSystem() {
 	cUp.setResetEachFrame( false );
 	cDown.setResetEachFrame( false );
 	cLeft.setResetEachFrame( false );
@@ -445,7 +456,7 @@ void CWorm::InitInputSystem() {
 		cWeapons[i].setResetEachFrame( false );
 }
 
-void CWorm::StopInputSystem() {
+void CWormHumanInputHandler::stopInputSystem() {
 	cUp.setResetEachFrame( true );
 	cDown.setResetEachFrame( true );
 	cLeft.setResetEachFrame( true );
@@ -457,4 +468,210 @@ void CWorm::StopInputSystem() {
 	cStrafe.setResetEachFrame( true );
 	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
 		cWeapons[i].setResetEachFrame( true );
+}
+
+
+
+
+
+///////////////////
+// Initialize the weapon selection screen
+void CWormHumanInputHandler::initWeaponSelection() {
+	// This is used for the menu screen as well
+	m_worm->iCurrentWeapon = 0;
+	
+	m_worm->bWeaponsReady = false;
+	
+	m_worm->iNumWeaponSlots = 5;
+	
+	m_worm->clearInput();
+	
+	// Safety
+	if (!m_worm->tProfile)  {
+		printf("ERROR: initWeaponSelection called and tProfile is not set\n");
+		return;
+	}
+	
+	// Load previous settings from profile
+	short i;
+	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
+		
+		m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->tProfile->sWeaponSlots[i] );
+		
+        // If this weapon is not enabled in the restrictions, find another weapon that is enabled
+        if( !m_worm->cWeaponRest->isEnabled( m_worm->tWeapons[i].Weapon->Name ) || !m_worm->cGameScript->weaponExists( m_worm->tWeapons[i].Weapon->Name ) ) {
+			
+            m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript ) );
+        }
+	}
+	
+	
+	for(short n=0;n<m_worm->iNumWeaponSlots;n++) {
+		m_worm->tWeapons[n].Charge = 1;
+		m_worm->tWeapons[n].Reloading = false;
+		m_worm->tWeapons[n].SlotNum = n;
+		m_worm->tWeapons[n].LastFire = 0;
+	}
+	// Skip weapon selection dialog if we're spectating
+	if( cClient->getSpectate() )
+		m_worm->bWeaponsReady = true;
+	
+	// Skip the dialog if there's only one weapon available
+	int enabledWeaponsAmount = 0;
+	for( int f = 0; f < m_worm->cGameScript->GetNumWeapons(); f++ )
+		if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[f].Name ) )
+			enabledWeaponsAmount++;
+	
+	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
+		m_worm->bWeaponsReady = true;
+	
+}
+
+
+///////////////////
+// Draw/Process the weapon selection screen
+void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v)
+{
+	// TODO: this should also be used for selecting the weapons for the bot (but this in CWorm_AI then)
+	// TODO: reduce local variables in this function
+	// TODO: make this function shorter
+	// TODO: give better names to local variables
+		
+	if(bDedicated) {
+		cout << "WARNING: doWeaponSelectionFrame: we have a local human input in our dedicated server" << endl; 
+		return; // just for safty; atm this function only handles non-bot players
+	}
+	
+	int l = 0;
+	int t = 0;
+	short i;
+	int centrex = 320; // TODO: hardcoded screen width here
+	
+    if( v ) {
+        if( v->getUsed() ) {
+            l = v->GetLeft();
+	        t = v->GetTop();
+            centrex = v->GetLeft() + v->GetVirtW()/2;
+        }
+    }
+	
+	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
+		
+	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
+	tLX->cFont.DrawCentre(bmpDest, centrex, t+66, tLX->clWeaponSelectionTitle, "(Go to 'Done' and press shoot then.)");
+	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
+	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
+	
+	bool bChat_Typing = cClient->isTyping();
+	
+	int y = t + 100;
+	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
+		
+		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
+		if(m_worm->iCurrentWeapon == i)
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionActive,  m_worm->tWeapons[i].Weapon->Name);
+		else
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionDefault,  m_worm->tWeapons[i].Weapon->Name);
+		
+		if (bChat_Typing)  {
+			y += 18;
+			continue;
+		}
+		
+		// Changing weapon
+		if(m_worm->iCurrentWeapon == i && !bChat_Typing) {
+			int change = cRight.wasDown() - cLeft.wasDown();
+			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
+			int id = m_worm->tWeapons[i].Weapon->ID;
+			if(change > 0) while(change) {
+				id++; MOD(id, m_worm->cGameScript->GetNumWeapons());
+				if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
+					change--;
+				if(id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
+					break;
+			} else
+				if(change < 0) while(change) {
+					id--; MOD(id, m_worm->cGameScript->GetNumWeapons());
+					if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
+						change++;
+					if(id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
+						break;
+				}
+			m_worm->tWeapons[i].Weapon = &m_worm->cGameScript->GetWeapons()[id];
+		}
+		
+		y += 18;
+	}
+	
+	for(i=0;i<5;i++)
+		m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon->Name;
+	
+    // Note: The extra weapon weapon is the 'random' button
+    if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots) {
+		
+		// Fire on the random button?
+		if((cShoot.isDownOnce()) && !bChat_Typing) {
+			m_worm->GetRandomWeapons();
+		}
+	}
+	
+	
+	// Note: The extra weapon slot is the 'done' button
+	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots+1) {
+		
+		// Fire on the done button?
+		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
+		if((cShoot.isUp()) && !bChat_Typing) {
+			// we are ready with manual human weapon selection
+			m_worm->bWeaponsReady = true;
+			m_worm->iCurrentWeapon = 0;
+			
+			// Set our profile to the weapons (so we can save it later)
+			for(byte i=0;i<5;i++)
+				m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon->Name;
+		}
+	}
+	
+	
+	
+    y+=5;
+	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots)
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Random");
+	else
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Random");
+	
+    y+=18;
+	
+	if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots+1)
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Done");
+	else
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Done");
+	
+	
+	// list current key settings
+	// TODO: move this out here
+	y += 20;
+	tLX->cFont.DrawCentre(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "~ Key settings ~");
+	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "up/down: " + cUp.getEventName() + "/" + cDown.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "left/right: " + cLeft.getEventName() + "/" + cRight.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "shoot: " + cShoot.getEventName());
+	y -= 45;
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "jump/ninja: " + cJump.getEventName() + "/" + cInpRope.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
+	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "quick select weapon: " + cWeapons[0].getEventName() + " " + cWeapons[1].getEventName() + " " + cWeapons[2].getEventName() + " " + cWeapons[3].getEventName() + " " + cWeapons[4].getEventName() );
+	
+	
+	if(!bChat_Typing) {
+		// move selection up or down
+		if (cDown.isJoystickThrottle() || cUp.isJoystickThrottle())  {
+			m_worm->iCurrentWeapon = (cUp.getJoystickValue() + 32768) * (m_worm->iNumWeaponSlots + 2) / 65536; // We have 7 rows and 65536 throttle states
+			
+		} else {
+			int change = cDown.wasDown() - cUp.wasDown();
+			m_worm->iCurrentWeapon += change;
+			m_worm->iCurrentWeapon %= m_worm->iNumWeaponSlots + 2;
+			if(m_worm->iCurrentWeapon < 0) m_worm->iCurrentWeapon += m_worm->iNumWeaponSlots + 2;
+		}
+	}
 }

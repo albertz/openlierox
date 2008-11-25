@@ -267,18 +267,8 @@ public:
 		if(m_client && local && !m_client->isGameMenu() && !m_client->isChatTyping() && !m_client->isGameOver() && !Con_IsUsed() && worm->getWeaponsReady()) {
 			int old_weapon = worm->getCurrentWeapon();
 
-			// TODO: use one getInput for both
-			if(worm->getType() == PRF_HUMAN)
-				worm->getInput();
-			else
-				// TODO: why is the first parameter not enough?
-				worm->AI_GetInput(m_client->getGameType(),
-					m_client->getGameType() == GMT_TEAMDEATH,
-					m_client->getGameType() == GMT_TAG,
-					m_client->getGameType() == GMT_VIP,
-					m_client->getGameType() == GMT_CTF,
-					m_client->getGameType() == GMT_TEAMCTF);
-
+			worm->getInput();
+			
 			if (worm->isShooting() || old_weapon != worm->getCurrentWeapon())  // The weapon bar is changing
 				m_client->shouldRepaintInfo() = true;
 		}

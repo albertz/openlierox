@@ -26,6 +26,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "MathLib.h"
 #include "CServerConnection.h"
+#include "CWormHuman.h"
 
 using std::cout;
 using std::endl;
@@ -41,7 +42,7 @@ void CWorm::Clear(void)
 	iID = 0;
 	iTeam = 0;
 	bLocal = false;
-	iType = PRF_HUMAN;
+	m_type = PRF_HUMAN;
 	iRanking = 0;
 	iClientID = 0;
 	iClientWormID = 0;
@@ -101,7 +102,7 @@ void CWorm::Clear(void)
 
 	fPreLastPosUpdate = fLastPosUpdate = -9999;
 
-	bUsesMouse = false;
+	//bUsesMouse = false;
 	fLastInputTime = tLX->fCurTime;
 
 	//pcViewport = NULL;//.Setup(0,0,640,480);
@@ -116,13 +117,8 @@ void CWorm::Clear(void)
 		tWeapons[i].Weapon = NULL;
 
     cWeaponRest = NULL;
-    nAIState = AI_THINK;
-	fLastCarve = -9999;
-    //fLastWeaponSwitch = -9999;
-	NEW_psPath = NULL;
-	NEW_psCurrentNode = NULL;
-	NEW_psLastNode = NULL;
-	pathSearcher = NULL;
+	
+	
 
 	bmpGibs = NULL;
 
@@ -134,14 +130,9 @@ void CWorm::Clear(void)
 
     bForceWeapon_Name = false;
 
-	fLastFace = 0;
-	fBadAimTime = 0;
+	
 
-	fLastShoot = 0; // for AI
-	fLastJump = 999999;
-	fLastWeaponChange = 0;
-	fLastCompleting = -9999;
-
+	
 	// Graphics
 	cHealthBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
@@ -150,11 +141,15 @@ void CWorm::Clear(void)
 
 	bNoShooting = false;
 	bFlag = false;
-	lastMoveTime = 0;
 
 	fLastSimulationTime = tLX->fCurTime;
-	fLastGoBack = -9999;
 	pcMap = NULL;
+	
+	
+	if(m_inputHandler) {
+		delete m_inputHandler;
+		m_inputHandler = NULL;
+	}
 }
 
 
@@ -205,14 +200,16 @@ void CWorm::Prepare(CMap *pcMap)
 	cNinjaRope.Setup(cGameScript);
 
 	iCurrentWeapon = 0;
-	fLastCarve = -999;
 
-    // If this is an AI worm, initialize the AI stuff
-    if(iType == PRF_COMPUTER && bLocal)
-        AI_Initialize();
+	if(m_inputHandler) {
+		cout << "WARNING: worm " << getName() << " has already the following input handler set: "; cout.flush();
+		cout << m_inputHandler->name(); cout << endl;
+		delete m_inputHandler;
+	}
 
-    // we use the normal init system first after the weapons are selected and we are ready
-	StopInputSystem();
+	if(bLocal) {
+		m_inputHandler = m_type->createInputHandler(this);
+	}
 	
 	bIsPrepared = true;
 }
@@ -222,16 +219,125 @@ void CWorm::Unprepare() {
 	setTagIT(false);
 	setTagTime(0);
 	
-	// Make sure the pathfinding ends
-	AI_Shutdown();
-	
+	if(m_inputHandler) {
+		if(bLocal) {
+			cout << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; cout.flush();
+			cout << m_inputHandler->name() << endl;
+		}
+		delete m_inputHandler;
+		m_inputHandler = NULL;
+	} else if(bLocal) {
+		cout << "WARNING: m_inputHandler not set in CWorm::Unprepare()" << endl;
+	}
+		
 	bIsPrepared = false;
 }
 
 void CWorm::StartGame() {
-	InitInputSystem();
 	fTimeofDeath = tLX->fCurTime;
+	m_inputHandler->startGame();
 }
+
+
+WormType* WormType::fromInt(int type) {
+	switch(type) {
+		case 0: return PRF_HUMAN;
+		case 1: return PRF_COMPUTER;
+		default: return NULL;
+	}
+}
+
+
+void CWorm::getInput() {
+	if(!bLocal) {
+		cout << "WARNING: called getInput() on non-local worm " << getName() << endl;
+		return;
+	}
+	
+	if(!m_inputHandler) {
+		cout << "WARNING: input handler not set for worm " << getName() << ", cannot get input" << endl;
+		return;
+	}
+	
+	m_inputHandler->getInput();
+}
+
+void CWorm::clearInput() {
+	fLastInputTime = tLX->fCurTime;
+	
+	// Clear the state
+	tState.bCarve = false;
+	tState.bMove  = false;
+	tState.bShoot = false;
+	tState.bJump  = false;
+	
+	if(bLocal && m_inputHandler)
+		m_inputHandler->clearInput();
+}
+
+void CWorm::initWeaponSelection() {
+	if(!bLocal) {
+		cout << "WARNING: called initWeaponSelection() on non-local worm " << getName() << endl;
+		return;
+	}
+	
+	if(!m_inputHandler) {
+		cout << "WARNING: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
+		return;
+	}
+	
+	if(this->shouldDoOwnWeaponSelection())
+		m_inputHandler->initWeaponSelection();
+
+	if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
+		this->GetRandomWeapons();
+		this->bWeaponsReady = true;		
+	}
+
+	if(this->isHostWorm() && this->bWeaponsReady && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
+		cServer->cloneWeaponsToAllWorms(this);
+
+}
+
+void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
+	if(!bLocal) {
+		cout << "WARNING: called doWeaponSelectionFrame() on non-local worm " << getName() << endl;
+		return;
+	}
+	
+	if(!m_inputHandler) {
+		cout << "WARNING: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
+		return;
+	}
+	
+	if(bWeaponsReady) {
+		cout << "WARNING: doWeaponSelectionFrame: weapons already selected" << endl;
+		return;
+	}
+	
+	if(!this->shouldDoOwnWeaponSelection()) {
+		int t = 0;
+		int centrex = 320; // TODO: hardcoded screen width here
+		
+		if( v ) {
+			if( v->getUsed() ) {
+				t = v->GetTop();
+				centrex = v->GetLeft() + v->GetVirtW()/2;
+			}
+		}
+		
+		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
+		return;
+	}
+	
+	m_inputHandler->doWeaponSelectionFrame(bmpDest, v);	
+		   
+	if(this->bWeaponsReady && this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
+		cServer->cloneWeaponsToAllWorms(this);
+	}
+
+}
+
 
 
 ///////////////////
@@ -264,9 +370,7 @@ void CWorm::Spawn(CVec position) {
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
-    nAIState = AI_THINK;
-	fLastShoot = 0;
-	fLastGoBack = -9999;
+	
 
 	fFrame = 0;
 	bDrawMuzzle = false;
@@ -286,10 +390,11 @@ void CWorm::Spawn(CVec position) {
 
 	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = tLX->fCurTime;
 
-    if(iType == PRF_COMPUTER && bLocal)
-		AI_Respawn();
-	else if(cClient->OwnsWorm(this->getID()))
+	if(bLocal) {
 		clearInput();
+		m_inputHandler->onRespawn();
+	}
+		
 }
 
 
@@ -301,23 +406,21 @@ void CWorm::Respawn(CVec position) {
 		return;
 
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
-    nAIState = AI_THINK;
 
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bHooked = false;
     bForceWeapon_Name = false;
 	vPreLastEstimatedVel =vLastEstimatedVel = vVelocity = CVec(0,0);
-	fLastGoBack = -9999;
 
 	bOnGround = false;
 
 	fLastSimulationTime = fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime;
 
-    if(iType == PRF_COMPUTER && bLocal)
-		AI_Respawn();
-	else if(cClient->OwnsWorm(this->getID()))
+	if(bLocal) {
 		clearInput();
+		m_inputHandler->onRespawn();
+	}	
 }
 
 
@@ -445,123 +548,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 	return img;
 }
 
-///////////////////
-// Initialize the weapon selection screen
-void CWorm::InitWeaponSelection(void)
-{
-	// This is used for the menu screen as well
-	iCurrentWeapon = 0;
 
-	bWeaponsReady = false;
-
-	iNumWeaponSlots = 5;
-
-	clearInput();
-
-	// Safety
-	if (!tProfile)  {
-		printf("ERROR: InitWeaponSelection called and tProfile is not set\n");
-		return;
-	}
-
-	// Load previous settings from profile
-	short i;
-	for(i=0;i<iNumWeaponSlots;i++) {
-
-		tWeapons[i].Weapon = cGameScript->FindWeapon( tProfile->sWeaponSlots[i] );
-
-        // If this weapon is not enabled in the restrictions, find another weapon that is enabled
-        if( !cWeaponRest->isEnabled( tWeapons[i].Weapon->Name ) || !cGameScript->weaponExists( tWeapons[i].Weapon->Name ) ) {
-
-            tWeapons[i].Weapon = cGameScript->FindWeapon( cWeaponRest->findEnabledWeapon( cGameScript ) );
-        }
-	}
-
-
-	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
-	if(shouldDoOwnWeaponSelection() && iType == PRF_COMPUTER && bLocal) {
-
-		// TODO: move this to CWorm_AI
-		bool bRandomWeaps = true;
-		// Combo (rifle)
-		if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
-			(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
-				cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
-			if (cWeaponRest->isEnabled("Rifle"))  {
-				for (i=0; i<5; i++)
-					tWeapons[i].Weapon = cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_RIFLES);
-			}
-		}
-		// 100 lt
-		else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
-					cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
-					cClient->getGameLobby()->iLoadingTime == 100)  {
-			int MyWeaps = cWeaponRest->isEnabled("Super Shotgun") + cWeaponRest->isEnabled("Napalm") + cWeaponRest->isEnabled("Cannon") + cWeaponRest->isEnabled("Doomsday") + cWeaponRest->isEnabled("Chaingun");
-			if (MyWeaps == 5)  {
-				// Set our weapons
-				tWeapons[0].Weapon = cGameScript->FindWeapon("Super Shotgun");
-				tWeapons[1].Weapon = cGameScript->FindWeapon("Napalm");
-				tWeapons[2].Weapon = cGameScript->FindWeapon("Cannon");
-				tWeapons[3].Weapon = cGameScript->FindWeapon("Doomsday");
-				tWeapons[4].Weapon = cGameScript->FindWeapon("Chaingun");
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_100LT);
-			}
-		}
-		// Mortar game
-		else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
-					cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
-					cClient->getGameLobby()->iLoadingTime < 50)  {
-			if (cWeaponRest->isEnabled("Mortar Launcher"))  {
-				for (i=0; i<5; i++)
-					tWeapons[i].Weapon = cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_MORTARS);
-			}
-		}
-
-		// Random
-		if (bRandomWeaps) {
-			GetRandomWeapons();
-			AI_SetGameType(GAM_OTHER);
-		}
-
-		setWeaponsReady(true);
-		
-		if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
-			cServer->cloneWeaponsToAllWorms(this);
-	}
-
-
-	for(short n=0;n<iNumWeaponSlots;n++) {
-		tWeapons[n].Charge = 1;
-		tWeapons[n].Reloading = false;
-		tWeapons[n].SlotNum = n;
-		tWeapons[n].LastFire = 0;
-	}
-	// Skip weapon selection dialog if we're spectating
-	if( cClient->getSpectate() )
-		bWeaponsReady = true;
-	
-	// Skip the dialog if there's only one weapon available
-	int enabledWeaponsAmount = 0;
-	for( int f = 0; f < cGameScript->GetNumWeapons(); f++ )
-		if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[f].Name ) )
-			enabledWeaponsAmount++;
-
-	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
-		bWeaponsReady = true;
-
-
-	if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
-		GetRandomWeapons();
-		bWeaponsReady = true;		
-		cServer->cloneWeaponsToAllWorms( this );
-	}
-	
-}
 
 ///////////////////
 // Randomize the weapons
@@ -611,7 +598,7 @@ void CWorm::GetRandomWeapons(void)
 
 }
 
-
+// the first host worm (there can only be one such worm in a game)
 bool CWorm::isHostWorm() {
 	return tLX->iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
 }
@@ -625,167 +612,7 @@ void CWorm::CloneWeaponsFrom(CWorm* w) {
 		this->getWeapon(wp)->Weapon = w->getWeapon(wp)->Weapon;
 }
 
-///////////////////
-// Draw/Process the weapon selection screen
-void CWorm::SelectWeapons(SDL_Surface * bmpDest, CViewport *v)
-{
-	// TODO: this should also be used for selecting the weapons for the bot (but this in CWorm_AI then)
-	// TODO: reduce local variables in this function
-	// TODO: make this function shorter
-	// TODO: give better names to local variables
 
-	if(bDedicated) return; // just for safty; atm this function only handles non-bot players
-
-	if(iType == PRF_COMPUTER) return; // we can get here when we are waiting for host worm weapon selection
-
-	int l = 0;
-	int t = 0;
-	short i;
-	int centrex = 320; // TODO: hardcoded screen width here
-
-    if( v ) {
-        if( v->getUsed() ) {
-            l = v->GetLeft();
-	        t = v->GetTop();
-            centrex = v->GetLeft() + v->GetVirtW()/2;
-        }
-    }
-
-	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
-	
-	if(!shouldDoOwnWeaponSelection()) {
-		tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "... Waiting for server selection ...");
-		return;
-	}
-	
-	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
-	tLX->cFont.DrawCentre(bmpDest, centrex, t+66, tLX->clWeaponSelectionTitle, "(Go to 'Done' and press shoot then.)");
-	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
-	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
-
-	bool bChat_Typing = cClient->isTyping();
-
-	int y = t + 100;
-	for(i=0;i<iNumWeaponSlots;i++) {
-
-		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
-		if(iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionActive,  tWeapons[i].Weapon->Name);
-		else
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionDefault,  tWeapons[i].Weapon->Name);
-
-		if (bChat_Typing)  {
-			y += 18;
-			continue;
-		}
-
-		// Changing weapon
-		if(iCurrentWeapon == i && !bChat_Typing) {
-			int change = cRight.wasDown() - cLeft.wasDown();
-			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
-			int id = tWeapons[i].Weapon->ID;
-			if(change > 0) while(change) {
-				id++; MOD(id, cGameScript->GetNumWeapons());
-				if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[id].Name ) )
-					change--;
-				if(id == tWeapons[i].Weapon->ID) // back where we were before
-					break;
-			} else
-			if(change < 0) while(change) {
-				id--; MOD(id, cGameScript->GetNumWeapons());
-				if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[id].Name ) )
-					change++;
-				if(id == tWeapons[i].Weapon->ID) // back where we were before
-					break;
-			}
-			tWeapons[i].Weapon = &cGameScript->GetWeapons()[id];
-		}
-
-		y += 18;
-	}
-
-	for(i=0;i<5;i++)
-		tProfile->sWeaponSlots[i] = tWeapons[i].Weapon->Name;
-
-    // Note: The extra weapon weapon is the 'random' button
-    if(iCurrentWeapon == iNumWeaponSlots) {
-
-		// Fire on the random button?
-		if((cShoot.isDownOnce()) && !bChat_Typing) {
-			GetRandomWeapons();
-		}
-	}
-
-
-	// Note: The extra weapon slot is the 'done' button
-	if(iCurrentWeapon == iNumWeaponSlots+1) {
-		
-		// Fire on the done button?
-		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
-		if((cShoot.isUp()) && !bChat_Typing) {
-			// we are ready with manual human weapon selection
-			if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
-				cServer->cloneWeaponsToAllWorms(this);
-			}
-			bWeaponsReady = true;
-			iCurrentWeapon = 0;
-
-			// Set our profile to the weapons (so we can save it later)
-			for(byte i=0;i<5;i++)
-				tProfile->sWeaponSlots[i] = tWeapons[i].Weapon->Name;
-		}
-	}
-
-
-
-	// AI Worms select their weapons automatically
-	if(iType == PRF_COMPUTER && bLocal) {
-		bWeaponsReady = true;
-		iCurrentWeapon = 0;
-	}
-
-
-    y+=5;
-	if(iCurrentWeapon == iNumWeaponSlots)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Random");
-	else
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Random");
-
-    y+=18;
-
-	if(iCurrentWeapon == iNumWeaponSlots+1)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Done");
-	else
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Done");
-
-
-	// list current key settings
-	// TODO: move this out here
-	y += 20;
-	tLX->cFont.DrawCentre(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "~ Key settings ~");
-	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "up/down: " + cUp.getEventName() + "/" + cDown.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "left/right: " + cLeft.getEventName() + "/" + cRight.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex - 150, y += 15, tLX->clWeaponSelectionTitle, "shoot: " + cShoot.getEventName());
-	y -= 45;
-	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "jump/ninja: " + cJump.getEventName() + "/" + cInpRope.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
-	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "quick select weapon: " + cWeapons[0].getEventName() + " " + cWeapons[1].getEventName() + " " + cWeapons[2].getEventName() + " " + cWeapons[3].getEventName() + " " + cWeapons[4].getEventName() );
-
-
-	if(!bChat_Typing) {
-		// move selection up or down
-		if (cDown.isJoystickThrottle() || cUp.isJoystickThrottle())  {
-			iCurrentWeapon = (cUp.getJoystickValue() + 32768) * (iNumWeaponSlots + 2) / 65536; // We have 7 rows and 65536 throttle states
-
-		} else {
-			int change = cDown.wasDown() - cUp.wasDown();
-			iCurrentWeapon += change;
-			iCurrentWeapon %= iNumWeaponSlots + 2;
-			if(iCurrentWeapon < 0) iCurrentWeapon += iNumWeaponSlots + 2;
-		}
-	}
-}
 
 
 // Muzzle flash positions for different angles
@@ -874,7 +701,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	if (tLXOptions->bShowHealth)  {
-		if (!bLocal || iType != PRF_HUMAN)  {
+		if (!bLocal || m_type != PRF_HUMAN)  {
 			int hx = x + l;
 			int hy = y + t - 9; // -8 = worm height/2
 
@@ -1023,8 +850,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	// Draw the weapon name
-    if(bLocal && iType == PRF_HUMAN) {
-        if(bForceWeapon_Name || cSelWeapon.isDown()) {
+    if(bLocal && m_type == PRF_HUMAN) {
+        if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
 		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
             if( tLX->fCurTime > fForceWeapon_Time )
@@ -1036,7 +863,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	std::string WormName = sName;
 	if( sAFKMessage != "" )
 		WormName += " " + sAFKMessage;
-	if(!bLocal || (bLocal && iType != PRF_HUMAN)) {
+	if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
 		if ((cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || cClient->getGameLobby()->iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
@@ -1212,6 +1039,14 @@ bool CWorm::CanType(void)
 	if(!bAlive && iLives == WRM_OUT)
 		return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
 
+	if(m_type == PRF_HUMAN) {
+		CWormHumanInputHandler* handler = (CWormHumanInputHandler*)m_inputHandler;
+		return handler->canType();
+	} else
+		return true;
+}
+
+bool CWormHumanInputHandler::canType() {
 	keyboard_t* kb = GetKeyboard();
 	for (int i = 0; i < kb->queueLength; i++)  {
 		if (cUp.getData() == kb->keyQueue[i].sym ||
@@ -1228,10 +1063,11 @@ bool CWorm::CanType(void)
 			cWeapons[2].getData() == kb->keyQueue[i].sym ||
 			cWeapons[3].getData() == kb->keyQueue[i].sym ||
 			cWeapons[4].getData() == kb->keyQueue[i].sym)
-				return false;
+			return false;
 	}
 	return true;
 }
+	
 
 void CWorm::setUsed(bool _u)
 { 

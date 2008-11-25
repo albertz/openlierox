@@ -60,7 +60,7 @@
 #define		CELL_LEFTUP			7
 #define		CELL_RIGHTUP		8
 
-
+struct WormType;
 class CWpnRest;
 class CGameScript;
 class weapon_t;
@@ -138,9 +138,31 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 // this do the same as the fct above except that it don't do the sqrt
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
+class CWorm;
+
+class CWormInputHandler {
+protected:
+	CWorm* m_worm;
+public: 
+	CWormInputHandler(CWorm* w) : m_worm(w) {}
+	virtual ~CWormInputHandler() {}
+	
+	virtual std::string name() = 0;
+	
+	virtual void initWeaponSelection() = 0; // should reset at least bWeaponsReady
+	virtual void doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) = 0;
+
+	// simulation
+	virtual void startGame() {}
+	virtual void getInput() = 0; 
+    virtual void clearInput() {}
+	
+	virtual void onRespawn() {}
+};
+
 
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
-class CWorm {
+class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler;
 public:
 	// Constructor
 	CWorm() {
@@ -162,7 +184,7 @@ private:
 	// General
 	bool		bUsed;
 	int			iID;
-	int			iType;
+	WormType*	m_type;
 	bool		bLocal;
 	int			iTeam;
 	std::string	sName;
@@ -176,14 +198,6 @@ private:
 	int			iClientID;
 	int			iClientWormID;
 
-	// Input
-	CInput		cUp, cDown, cLeft, cRight,
-				cShoot, cJump, cSelWeapon, cInpRope,
-				cStrafe, cWeapons[5];
-	bool		bUsesMouse;
-
-	// last time we moved left or right
-	float		lastMoveTime;
 
 	// Simulation
 	worm_state_t tState;
@@ -193,12 +207,19 @@ private:
 	CVec		vDrawPos;
 	bool		bOnGround;
 	float		fLastInputTime;
+	// last time we moved left or right
+	float		lastMoveTime;
 
+	
 	float		fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
 	
 	CVec		vFollowPos;
 	bool		bFollowOverride;
 
+    float       fLastCarve;
+	
+
+	
 	// Score
 	int			iKills;
 	int			iDeaths;
@@ -268,6 +289,9 @@ private:
 	int			iLastCharge;
 	int			iLastCurWeapon;
 
+	
+	float		fSpawnTime;
+
 	// Graphics
 	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
@@ -293,65 +317,9 @@ private:
     bool        bForceWeapon_Name;
     float       fForceWeapon_Time;
 
+	CWormInputHandler* m_inputHandler;
 
 
-
-    /*
-	    Artificial Intelligence
-    */
-    int         nAIState;
-    int         nAITargetType;
-    CWorm       *psAITarget;
-    CBonus      *psBonusTarget;
-    CVec        cPosTarget;
-    int         nPathStart[2];
-    int         nPathEnd[2];
-    float       fLastCarve;
-    CVec        cStuckPos;
-    float       fStuckTime;
-    bool        bStuck;
-    float       fStuckPause;
-    float       fLastThink;
-    CVec        cNinjaShotPos;
-	float		fLastFace;
-	float		fSpawnTime;
-	float		fBadAimTime;
-    int			iAiGameType; // AI game type, we have predefined behaviour for mostly played settings
-	int			iAiGame;
-	int			iAiTeams;
-	int			iAiTag;
-	int			iAiVIP;
-	int			iAiCTF;
-	int			iAiTeamCTF;
-	int			iAiDiffLevel;
-	int			iRandomSpread;
-	CVec		vLastShootTargetPos;
-
-	float		fLastShoot;
-	float		fLastJump;
-	float		fLastWeaponChange;
-	float		fLastCreated;
-	float		fLastCompleting;
-	float		fLastRandomChange;
-	float		fLastGoBack;
-
-	float		fCanShootTime;
-
-	float		fRopeAttachedTime;
-	float		fRopeHookFallingTime;
-
-    // Path Finding
-    int         nGridCols, nGridRows;
-	float       fLastPathUpdate;
-	bool		bPathFinished;
-	float		fSearchStartTime;
-
-	// its type is searchpath_base*; defined in CWorm_AI.cpp
-	void*		pathSearcher;
-
-	NEW_ai_node_t	*NEW_psPath;
-	NEW_ai_node_t	*NEW_psCurrentNode;
-	NEW_ai_node_t	*NEW_psLastNode;
 
 
 public:
@@ -367,6 +335,7 @@ public:
 	void		Shutdown(void);
 
 
+	// TODO: move this out here (to network engine)
 	//
 	// Network
 	//
@@ -394,21 +363,17 @@ public:
 	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing(void);
 
+	
 	void		setupLobby(void);
 	void		loadDetails(void);
 	void		saveDetails(void);
 
 
-	//
-	// Weapon & Input
-	//
-	void		SetupInputs(const controls_t& Inputs);
-	void		InitWeaponSelection(void);
-	void		GetRandomWeapons(void);
-	void		SelectWeapons(SDL_Surface * bmpDest, CViewport *v);
-	void		InitInputSystem();
-	void		StopInputSystem();
+
+	// Weapon
+	void		GetRandomWeapons();
 	void		CloneWeaponsFrom(CWorm* w);
+
 
 	//
 	// Graphics
@@ -424,7 +389,7 @@ public:
 	// Game
 	//
 	bool		isPrepared() { return bIsPrepared; }
-	void		Prepare(CMap *pcMap);
+	void		Prepare(CMap *pcMap); // weapon selection and so on
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
@@ -435,14 +400,12 @@ public:
 	bool		GiveBonus(CBonus *b);
 
 
+	void		getInput();
+	void		clearInput();
+	void		initWeaponSelection();
+	void		doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 
-	//
-	// Simulation
-	//
-	void		getInput(void);
-    void        clearInput(void);
-	void		getGamepadInput(void);
-    bool		CheckOnGround();
+
 
 
 	//
@@ -454,71 +417,12 @@ public:
 	bool		shouldDoOwnWeaponSelection();
 	
 	
-
-    //
-    // AI
-    //
-    bool        AI_Initialize();
-    void        AI_Shutdown(void);
-
-	// TODO: what is the sense of all these parameters? (expect gametype)
-	void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame);
-	void		AI_Respawn();
-	// TODO: what is the sense of all these parameters?
-    void        AI_Think(int gametype, int teamgame, int taggame);
-    bool        AI_FindHealth();
-    bool        AI_SetAim(CVec cPos);
-    CVec        AI_GetTargetPos(void);
-
-    void        AI_InitMoveToTarget();
-    void        AI_SimpleMove(bool bHaveTarget=true);
-//    void        AI_PreciseMove();
-
-    void		AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
-    void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
-
-    int         AI_FindClearingWeapon();
-    bool        AI_Shoot();
-    int         AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist);
-    void        AI_ReloadWeapons();
-    int         cycleWeapons();
-	void		AI_SetGameType(int type)  { iAiGameType = type; }
-	int			AI_GetGameType()  { return iAiGameType; }
-
-    CWorm       *findTarget(int gametype, int teamgame, int taggame);
     int         traceLine(CVec target, float *fDist, int *nType, int divs = 5);
 	int			traceLine(CVec target, CVec start, int *nType, int divs = 5, uchar checkflag = PX_EMPTY);
-	int			traceWeaponLine(CVec target, float *fDist, int *nType);
-	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos);
+	
 	bool		IsEmpty(int Cell);
-    //void        moveToTarget(CWorm *pcTarget);
-
-	CVec		AI_GetBestRopeSpot(CVec trg);
-	CVec		AI_FindClosestFreeCell(CVec vPoint);
-	bool		AI_CheckFreeCells(int Num);
-	bool		AI_IsInAir(CVec pos, int area_a=3);
-	CVec		AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction);
-	CVec		AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
-	int			AI_CreatePath(bool force_break = false);
-	void		AI_MoveToTarget();
-	CVec		AI_GetNearestRopeSpot(CVec trg);
-	void		AI_Carve();
-	bool		AI_Jump();
-	CVec		AI_FindShootingSpot();
-	int			AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap);
-#ifdef _AI_DEBUG
-	void		AI_DrawPath();
-#endif
-
-
-
-    //int         getBestWeapon(int iGameMode, float fDistance, CVec cTarget);
-
-
-
-
-
-
+    bool		CheckOnGround();
+	
 
 	//
 	// Variables
@@ -529,8 +433,6 @@ public:
 	CMap*		getMap()					{ return pcMap; }
 	void		setMap(CMap *map)			{ pcMap = map; }
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
-	CInput*		getStrafeInput()			{ return &cStrafe; }
-	CInput*		getShootInput()				{ return &cShoot; }
 
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
@@ -553,8 +455,8 @@ public:
 	void		setID(int i)				{ iID = i; }
 	int			getID(void)					{ return iID; }
 
-	int			getType(void)				{ return iType; }
-    void        setType(int t)              { iType = t; }
+	WormType*	getType(void)				{ return m_type; }
+    void        setType(WormType* t)        { m_type = t; }
 
 	bool		getAlive(void)				{ return bAlive; }
 	void		setAlive(bool _a)			{ bAlive = _a; }
@@ -564,8 +466,6 @@ public:
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
     CServerConnection     *getClient(void)            { return cOwner; }
-
-	CInput		*getShoot(void)				{ return &cShoot; }
 
 	CVec		getFollowPos(void)			{ return (bFollowOverride?vFollowPos:vPos); }
 	void		resetFollow(void)			{ bFollowOverride = false; }
@@ -688,22 +588,15 @@ public:
 	void			setAliases(std::string _s)	{ sAliasList = _s; }
 
 	float&		frame()						{ return fFrame; }
-
+	
+	CWormInputHandler* inputHandler() { return m_inputHandler; }
+	
+	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
 	float	fLastSimulationTime;
-	
-	CInput &	getInputUp()					{ return cUp; };
-	CInput &	getInputDown()					{ return cDown; };
-	CInput &	getInputLeft()					{ return cLeft; };
-	CInput &	getInputRight()					{ return cRight; };
-	CInput &	getInputShoot()					{ return cShoot; };
-	CInput &	getInputJump()					{ return cJump; };
-	CInput &	getInputWeapon()				{ return cSelWeapon; };
-	CInput &	getInputRope()					{ return cInpRope; };
-	CInput &	getInputStrafe()				{ return cStrafe; };
 };
 
 

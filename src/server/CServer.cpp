@@ -495,7 +495,7 @@ int GameServer::StartGame()
 			cWorms[i].setWeaponsReady(true);
 		}
 		
-		// the other players will get the preparegame first and have therefore already called InitWeaponSelection, therefore it is save to send this here
+		// the other players will get the preparegame first and have therefore already called initWeaponSelection, therefore it is save to send this here
 		SendWeapons();
 	}
 	

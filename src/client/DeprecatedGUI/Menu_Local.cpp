@@ -597,7 +597,7 @@ void Menu_LocalStartGame(void)
     // Add the human players onto the list
     for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
     	int i = item->iIndex;
-		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN) {
+		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN->toInt()) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
 			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
@@ -606,7 +606,7 @@ void Menu_LocalStartGame(void)
     // Add the unhuman players onto the list
     for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
     	int i = item->iIndex;
-		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN) {
+		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN->toInt()) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
 			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
@@ -672,7 +672,7 @@ bool Menu_LocalCheckPlaying(int index)
         if(!tMenu->sLocalPlayers[i].isUsed())
             continue;
 
-		if(tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN)
+		if(tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN->toInt())
 			hmncount++;
 		plycount++;
 	}
@@ -687,7 +687,7 @@ bool Menu_LocalCheckPlaying(int index)
 
 	// Check if there is too many human players (MAX: 2)
 	if(p) {
-		if(p->iType == PRF_HUMAN && hmncount >= 2)
+		if(p->iType == PRF_HUMAN->toInt() && hmncount >= 2)
 			return false;
 	}
 
