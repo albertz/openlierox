@@ -39,7 +39,6 @@ using namespace std;
 
 CServerConnection::CServerConnection( GameServer * _server ) {
 	server = _server ? _server : cServer;
-	cRemoteWorms = NULL;
 	iNumWorms = 0;
 
 	cNetChan = NULL;
@@ -68,7 +67,7 @@ void CServerConnection::Clear(void)
 	int i;
 	for(i=0;i<MAX_PLAYERS;i++)
 		cLocalWorms[i] = NULL;
-	cRemoteWorms = NULL;
+
 	if( cNetChan )
 		delete cNetChan;
 	cNetChan = NULL;
@@ -96,12 +95,6 @@ void CServerConnection::MinorClear(void)
 
 	fSendWait = 0;
 
-	int i;
-	for(i=0; i<MAX_WORMS; i++)  {
-		cRemoteWorms[i].Unprepare();
-	}
-
-
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getUdpFileDownloader()->reset();
 }
@@ -127,31 +120,8 @@ int CServerConnection::Initialize(void)
 		iNetSpeed = NST_LOCAL;
 
 
-	// Initialize the local worms
-	//iNumWorms = tGameInfo.iNumPlayers; // TODO: wtf?
-
 	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i] = NULL;
-	}
-
-	// Initialize the remote worms
-	// TODO: remove it, and make cLocalWorms point to server worms
-	cRemoteWorms = new CWorm[MAX_WORMS];
-	if(cRemoteWorms == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
-		return false;
-	}
-
-	// Set id's
-	for(i=0;i<MAX_WORMS;i++) {
-		cRemoteWorms[i].Init();
-		cRemoteWorms[i].setID(i);
-		cRemoteWorms[i].setTagIT(false);
-		cRemoteWorms[i].setTagTime(0);
-		cRemoteWorms[i].setTeam(0);
-		cRemoteWorms[i].setFlag(false);
-		cRemoteWorms[i].setUsed(false);
-		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
 	}
 
 	// Initialize the shooting list
@@ -202,44 +172,16 @@ void CServerConnection::RemoveWorm(int id)
 	else
 		cout << "WARNING: cannot find worm " << id << " for removal" << endl;
 
-	if (cRemoteWorms)  {
-		for (uint i=0;i<MAX_WORMS;i++) {
-			if (cRemoteWorms[i].getID() == id)  {
-				cRemoteWorms[i].Unprepare();
-				// TODO: why not a Clear() here?
-				cRemoteWorms[i].setUsed(false);
-				cRemoteWorms[i].setAlive(false);
-				cRemoteWorms[i].setKills(0);
-				cRemoteWorms[i].setLives(WRM_OUT);
-				cRemoteWorms[i].setProfile(NULL);
-				cRemoteWorms[i].setType(PRF_HUMAN);
-				cRemoteWorms[i].setLocal(false);
-				cRemoteWorms[i].setTagIT(false);
-				cRemoteWorms[i].setTagTime(0);
-			}
-		}
-	}
-
 }
 
 ///////////////////
 // Shutdown the client
 void CServerConnection::Shutdown(void)
 {
-	int i;
-
 	iNumWorms = 0;
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 		cLocalWorms[i] = NULL;
 	
-	// Remote worms
-	if(cRemoteWorms) {
-		for(i=0;i<MAX_WORMS;i++)
-			cRemoteWorms[i].Shutdown();
-		delete[] cRemoteWorms;
-		cRemoteWorms = NULL;
-	}
-
 	// Shooting list
 	cShootList.Shutdown();
 

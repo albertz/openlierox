@@ -69,9 +69,6 @@ private:
 	uint		iNumWorms;
 	CWorm		*cLocalWorms[MAX_PLAYERS];
 
-	// Remote worms
-	CWorm		*cRemoteWorms;
-	
 	bool		bGameReady;
 	bool		bMuted;
 
@@ -128,7 +125,6 @@ public:
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
-	CWorm		*getRemoteWorms()			{ return cRemoteWorms; }
 	bool		getGameReady()				{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
