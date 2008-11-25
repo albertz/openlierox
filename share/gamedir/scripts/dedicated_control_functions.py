@@ -2,6 +2,8 @@
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
 
+# TODO: move admin/user commands to different file
+
 # Needed for sleeping/pausing execution
 import time
 # Needed for directory access
@@ -13,7 +15,6 @@ import traceback
 import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
-# TODO: is this up-to-date with console support on win?
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
 #if sys.platform == "win32":
@@ -370,7 +371,7 @@ def signalHandler(sig):
 def parseNewWorm(sig):
 	global worms
 	wormID = int(sig.split(" ")[1])
-	name = " ".join(sig.split(" ")[2:])
+	name = " ".join(sig.split(" ")[2:]).replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
 	try:
 		worm = worms[wormID]
@@ -397,7 +398,20 @@ def parseNewWorm(sig):
 			minTeam = f
 
 	setWormTeam(wormID, minTeam)
-	messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), LOG_INFO)
+	#messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), LOG_INFO)
+	if cfg.RANKING_AUTHENTICATION:
+		if not name in ranking.auth:
+			ranking.auth[name] = getWormSkin(wormID)
+			try:
+				f = open("pwn0meter_auth.txt","a")
+				f.write( name + "\t" + str(ranking.auth[name][0]) + " " + ranking.auth[name][1] + "\n" )
+				f.close()
+			except IOError:
+				msg("ERROR: Unable to open pwn0meter_auth.txt")
+		else:
+			if ranking.auth[name] != getWormSkin(wormID):
+				kickWorm(wormID, "Player with name %s already registered" % name)
+			
 
 def parseWormLeft(sig):
 	global worms

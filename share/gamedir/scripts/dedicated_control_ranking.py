@@ -114,5 +114,27 @@ def refreshRank(useRatios = True):
                 count += 1
                 rank[k] = [oldrank[k][0],oldrank[k][1],oldrank[k][2],count]
 
-rank = ParseRank()
+def ParseAuthInfo():
 
+        try:
+            f = open("pwn0meter_auth.txt","r")
+        except IOError:
+            return {}
+
+        authInfo = {}
+
+        l = f.readline()
+        while l != "":
+                l = l.strip()
+                if not (l.count("\t") == 1):
+                        l = f.readline()
+                        continue
+                ( worm, auth ) = l.split("\t")
+                auth = auth.split(" ")
+                authInfo[worm] = ( int(auth[0]), " ".join(auth[1:]).lower() )
+                l = f.readline()
+        f.close()
+        return authInfo
+
+rank = ParseRank()
+auth = ParseAuthInfo()

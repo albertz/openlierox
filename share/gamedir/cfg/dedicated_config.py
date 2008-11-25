@@ -49,3 +49,5 @@ if MAX_TEAMS >= 4:
 SERVER_PORT = 23400 # On which port to host a server - better if it's different from the port in your game settings
 
 RANKING = 1 # Should we allow !rank user command
+RANKING_AUTHENTICATION = 1 # Should we authenticate worm by it's skin color (pretty weak, but !password cmd is kinda ugly)
+

@@ -221,6 +221,14 @@ def getWormPing(iID):
 		ret = "0"
 	return int(ret)
 
+def getWormSkin(iID):
+	print "getwormskin %i" % int(iID)
+	ret = getResponse("wormskin %i" % int(iID))
+	if ret == "":
+		ret = "0 default.png"
+	ret = ret.split(" ")
+	return ( int(ret[0]), " ".join(ret[1:]).lower() )
+
 # Use this to write to stdout (standard output)
 def msg(string):
 	print "msg " + str(string)
