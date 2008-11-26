@@ -3137,11 +3137,11 @@ void CWormBotInputHandler::AI_DrawPath()
 	if (!NEW_psPath)
 		return;
 
-	SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
+	SmartPointer<SDL_Surface> bmpDest = m_worm->pcMap->GetDebugImage();
 	if (!bmpDest.get())
 		return;
 
-	const Uint32 NodeColour = cSkin.getColor();
+	const Uint32 NodeColour = m_worm->cSkin.getColor();
 	const Uint32 HighColour = MakeColour(255, 0, 0);
 	const Uint32 LineColour = tLX->clWhite;
 
