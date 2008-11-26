@@ -492,8 +492,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			if (tLX->fCurTime - last >= 0.5f)  {
 				cMap->ClearDebugImage();
 				for (int i = 0; i < (int)iNumWorms; i++)  {
-					if (cLocalWorms[i]->inputHandler()->name() == "Bot input handler") // TODO: use RTTI? Is it enabled?
-						reinterpret_cast<CWormBotInputHandler *>( cLocalWorms[i]->inputHandler() )->AI_DrawPath();
+					if (cLocalWorms[i]->getType() == PRF_COMPUTER)
+						((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
 				}
 				last = tLX->fCurTime;
 			}

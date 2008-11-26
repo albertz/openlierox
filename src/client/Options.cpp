@@ -86,7 +86,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_LAN )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
-		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 200000 ) // 20000 will be okay for 3 players and lag for 4 players (tested on Classic), so 200000 is required for 32 players
+		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 20000 )
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
@@ -318,10 +318,6 @@ bool GameOptions::LoadFromDisc()
 		iJpegQuality = 1;
 	if (iJpegQuality > 100)
 		iJpegQuality = 100;
-	
-	// HACK: set MaxUploadBandwidth to correct value if upgrading from Beta8
-	if( tLXOptions->iMaxUploadBandwidth == 20000 )
-		tLXOptions->iMaxUploadBandwidth = 200000;
 
 	printf("DONE loading options\n");
 
