@@ -2,6 +2,8 @@
 
 import random
 
+# Edit this list as you like
+
 levels = [	"FossilFacility.lxl",
 			"LieroFactory(Revisited).lxl",
 			"LieroFactory_Maintenance.lxl",

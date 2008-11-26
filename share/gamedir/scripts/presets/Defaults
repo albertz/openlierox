@@ -52,7 +52,6 @@ setvar( "GameOptions.GameInfo.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME
 
 # General options that should be set
 setvar( "GameOptions.Advanced.MaxFPS", 95) # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
-#setvar( "GameOptions.Game.AllowMouseAiming", 1) # Mouse aiming always allowed, option removed
 setvar( "GameOptions.GameInfo.AllowStrafing", 1)
 setvar( "GameOptions.GameInfo.ServerSideHealth", 0) # Turn this on if ppl hack and don't die on your server
 setvar( "GameOptions.Game.AntilagMovementPrediction", 1) # If ServerSideHealth = 1 this influences gameplay
@@ -62,13 +61,13 @@ setvar( "GameOptions.Game.Shadows", 0) # Ded server does not need any eye candie
 setvar( "GameOptions.GameInfo.AllowNickChange", 0)
 setvar( "GameOptions.Network.AllowRemoteBots", 1)
 setvar( "GameOptions.Network.AllowWantsJoinMsg", 1)
-setvar( "GameOptions.Advanced.MatchLogging", 0) # Do not save game results screenshot
 setvar( "GameOptions.Network.Password", "") # Not used
 setvar( "GameOptions.Network.RegisterServer", 1)
 setvar( "GameOptions.Network.WantsToJoinFromBanned", 0)
 setvar( "GameOptions.Network.WelcomeMessage", cfg.WELCOME_MESSAGE)
 setvar( "GameOptions.Misc.LogConversations", 1)
-setvar( "GameOptions.Misc.ScreenshotFormat", 1) # PNG
+setvar( "GameOptions.Advanced.MatchLogging", 0) # Do not save game results screenshot
+setvar( "GameOptions.Misc.ScreenshotFormat", 1) # 0 = JPG, 1 = PNG
 setvar( "GameOptions.Network.AutoSetupHttpProxy", 1)
 setvar( "GameOptions.Network.EnableChat", 0) # No IRC chat needed for ded server
 setvar( "GameOptions.Network.HttpProxy", "")

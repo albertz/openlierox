@@ -166,6 +166,13 @@ class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler;
 public:
 	// Constructor
 	CWorm() {
+		m_inputHandler = NULL;
+		cOwner = NULL;
+		pcMap = NULL;
+		tProfile = NULL;
+		pcHookWorm = NULL;
+		cGameScript = NULL;
+		cWeaponRest = NULL;
 		Clear();
 	}
 
