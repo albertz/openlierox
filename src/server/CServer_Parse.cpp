@@ -1287,10 +1287,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getWorm(i)->setDeathsInRow(0);
 			newcl->getWorm(i)->setWeaponsReady(false);
 			
-			// give some data about our worms to other clients
-			CBytestream bs;
-			newcl->getWorm(i)->writeScore(&bs);
-			SendGlobalPacket(&bs);
+			for(int ii = 0; ii < MAX_CLIENTS; ii++)
+				cClients[ii].getNetEngine()->SendWormScore( newcl->getWorm(i) );
 		}
 		
 		newcl->getNetEngine()->SendPrepareGame();

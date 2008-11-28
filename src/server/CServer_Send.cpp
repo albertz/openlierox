@@ -712,11 +712,35 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
 	CBytestream bs;
-	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
+
+	SendPacket(&bs);
+};
+
+void CServerNetEngine::SendWormDied(CWorm *Worm)
+{
+	CBytestream bs;
+	bs.writeByte(S2C_WORMDOWN);
+	bs.writeInt(Worm->getID(), 1);
+
+	SendPacket(&bs);
+};
+
+void CServerNetEngine::SendWormScore(CWorm *Worm)
+{
+	CBytestream bs;
+	bs.writeByte(S2C_SCOREUPDATE);
+	bs.writeInt(Worm->getID(), 1);
+	bs.writeInt16(Worm->getLives());
+
+	// Overflow hack
+	if (Worm->getKills() > 255)
+		bs.writeInt(255, 1);
+	else
+		bs.writeInt(Worm->getKills(), 1);
 
 	SendPacket(&bs);
 };

@@ -32,14 +32,16 @@ public:
 	// Do not move here ParseConnectionlessPacket(), or make it static, 'cause client is not available for connectionless packet
 	
 	// Parsing
-	virtual void		ParsePacket(CBytestream *bs);
+
+	void		ParsePacket(CBytestream *bs);
+
+	virtual void ParseChatCommandCompletionRequest(CBytestream *bs) { return; };
+	virtual void ParseAFK(CBytestream *bs) { return; };
 
 	void		ParseImReady(CBytestream *bs);
 	void		ParseUpdate(CBytestream *bs);
 	void		ParseDeathPacket(CBytestream *bs);
 	void		ParseChatText(CBytestream *bs);
-	virtual void ParseChatCommandCompletionRequest(CBytestream *bs) { return; };
-	virtual void ParseAFK(CBytestream *bs) { return; };
 	void		ParseUpdateLobby(CBytestream *bs);
 	void		ParseDisconnect();
 	void		ParseGrabBonus(CBytestream *bs);
@@ -51,15 +53,18 @@ public:
 	
 	void		SendPacket(CBytestream *bs);
 
-	virtual void SendClientReady(CServerConnection* receiver);
 	virtual void SendPrepareGame();
 	virtual void SendText(const std::string& text, int type);
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
-	virtual void SendWormsOut(const std::list<byte>& ids);
-	virtual void SendWeapons();
 	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
-	virtual void SendSpawnWorm(CWorm *Worm, CVec pos);
+
+	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
+	void SendWormsOut(const std::list<byte>& ids);
+	void SendWormDied(CWorm *Worm);
+	void SendWormScore(CWorm *Worm);
+	void SendWeapons();
+	void SendSpawnWorm(CWorm *Worm, CVec pos);
 
 protected:
 	// Attributes

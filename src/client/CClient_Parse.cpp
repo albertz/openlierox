@@ -1217,8 +1217,23 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 	if(id >= 0 && id < MAX_WORMS)  {
 		log_worm_t *l = client->GetLogWorm(id);
 
-		// Update the score
-		client->cRemoteWorms[id].readScore(bs);
+		int lives = (int)bs->readInt16();
+		int gameLives = client->getGameLobby()->iLives;
+		if (gameLives == WRM_UNLIM) {
+			if(lives != WRM_UNLIM)
+				cout << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
+			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
+		} else {
+			if(lives == WRM_UNLIM)
+				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
+			else if(lives > client->getGameLobby()->iLives)
+				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
+			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
+		}
+	
+		client->cRemoteWorms[id].setKills( MAX(bs->readInt(1), 0) );
+
+		
 		if (client->cRemoteWorms[id].getLocal())
 			client->bShouldRepaintInfo = true;
 

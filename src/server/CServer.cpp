@@ -552,9 +552,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				for(int i = 0; i < cl->getNumWorms(); i++) {
 					if(!cl->getWorm(i)) continue;
 					
-					CBytestream bs;
-					cl->getWorm(i)->writeScore(&bs);
-					receiver->getNetEngine()->SendPacket(&bs);
+					receiver->getNetEngine()->SendWormScore( cl->getWorm(i) );
 					
 					if(cl->getWorm(i)->getAlive()) {
 						receiver->getNetEngine()->SendSpawnWorm( cl->getWorm(i), cl->getWorm(i)->getPos() );
@@ -566,9 +564,8 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		cl = receiver;
 		for(int i = 0; i < receiver->getNumWorms(); i++) {
 			if(!cl->getWorm(i)) continue;
-			CBytestream bs;
-			cl->getWorm(i)->writeScore(&bs);
-			SendGlobalPacket(&bs);
+			for(int ii = 0; ii < MAX_CLIENTS; ii++)
+				cClients[ii].getNetEngine()->SendWormScore( cl->getWorm(i) );
 					
 			if(cl->getWorm(i)->getAlive()) {
 				SpawnWorm( cl->getWorm(i) );
@@ -614,22 +611,17 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	}
 	
 	// For spectators: set their lives to out and tell clients about it
-	bs.Clear();
 	for (int i = 0; i < MAX_WORMS; i++)  {
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
-			cWorms[i].writeScore(&bs);
+			if(receiver)
+				receiver->getNetEngine()->SendWormScore( & cWorms[i] );
+			else
+				for(int ii = 0; ii < MAX_CLIENTS; ii++)
+					cClients[ii].getNetEngine()->SendWormScore( & cWorms[i] );
 		}
 	}
-	if (bs.GetLength() != 0) { // Send only if there are some spectators
-		if(receiver)
-			receiver->getNetEngine()->SendPacket(&bs);
-		else
-			SendGlobalPacket(&bs);		
-	}
-	// No need to kill local worms for dedicated server - they will suicide by themselves
-	// TODO: but it's ugly, they do one suicide after another; that should be fixed
 	
 	// perhaps the state is already bad
 	RecheckGame();

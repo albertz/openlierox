@@ -640,8 +640,7 @@ void CSSParser::test_css()
 	c.parseInSelector(s, "some_added_attribute: 20px;some_added_attribute2:15.6px", TAG_CSS_PRIORITY);
 	for (std::list<CSSParser::Attribute>::const_iterator at = s.getAttributes().begin();
 		at != s.getAttributes().end(); at++)  {
-			printf( (at->getName() +  ": " + at->getUnparsedValue()).c_str() );
-			printf("\n");
+			printf( "%s\n", (at->getName() +  ": " + at->getUnparsedValue()).c_str() );
 	}
 	printf("Parsing took %f sec\n", GetMilliSeconds() - start);
 	printf("==== CSS TEST END ====\n");

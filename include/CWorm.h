@@ -349,8 +349,6 @@ public:
 	void		writeInfo(CBytestream *bs);
 	void		readInfo(CBytestream *bs);
 	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
-	void		writeScore(CBytestream *bs);
-	void		readScore(CBytestream *bs);
 	static bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();

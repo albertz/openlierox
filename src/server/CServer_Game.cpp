@@ -503,11 +503,13 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		}
 	}
 
-	CBytestream byte;
 	// Update everyone on the victims & killers score
-	vict->writeScore(&byte);
-	if (killer != victim)
-		kill->writeScore(&byte);
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		cClients[i].getNetEngine()->SendWormScore( vict );
+		if (killer != victim)
+			cClients[i].getNetEngine()->SendWormScore( kill );
+	}
 	if( tLXOptions->tGameInfo.bGroupTeamScore && (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) )
 	{	// All worms in the same team will have same grouped kill count
 		CWorm *w = cWorms;
@@ -516,15 +518,14 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				if ( w->getLives() != WRM_OUT && w->getTeam() == kill->getTeam() )
 				{
 					w->setKills( kill->getKills() );
-					w->writeScore(&byte);
+					for(int i = 0; i < MAX_CLIENTS; i++)
+						cClients[i].getNetEngine()->SendWormScore( w );
 				}
 	}
 
 	// Let everyone know that the worm is now dead
-	byte.writeByte(S2C_WORMDOWN);
-	byte.writeByte(victim);
-
-	SendGlobalPacket(&byte);
+	for( int i = 0; i < MAX_CLIENTS; i++ )
+		cClients[i].getNetEngine()->SendWormDied(vict);
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WormDied_Signal(vict,kill);
@@ -1411,10 +1412,8 @@ void GameServer::SimulateGameSpecial()
 			// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 			if(tLX->fCurTime - fLastCTFScore > 5 && cMap->getBaseStart().x == -1) {
 				cWorms[getFlagHolder(0)].AddKill();
-				CBytestream bs;
-				bs.Clear();
-				cWorms[getFlagHolder(0)].writeScore(&bs);
-				SendGlobalPacket(&bs);
+				for(int i = 0; i < MAX_CLIENTS; i++)
+					cClients[i].getNetEngine()->SendWormScore( & cWorms[getFlagHolder(0)] );
 				fLastCTFScore = tLX->fCurTime;
 			}
 
@@ -1424,10 +1423,8 @@ void GameServer::SimulateGameSpecial()
 				if(w->getPos().x > cMap->getBaseStart().x && w->getPos().y > cMap->getBaseStart().y &&
 					w->getPos().x < cMap->getBaseEnd().x && w->getPos().y < cMap->getBaseEnd().y) {
 						w->AddKill();
-						CBytestream bs;
-						bs.Clear();
-						w->writeScore(&bs);
-						SendGlobalPacket(&bs);
+						for(int ii = 0; ii < MAX_CLIENTS; ii++)
+							cClients[ii].getNetEngine()->SendWormScore( w );
 						SpawnWorm(*flagworm);
 						(cClient->getRemoteWorms()+(*flagworm)->getID())->setPos((*flagworm)->getPos());
 						setFlagHolder(-1, i);

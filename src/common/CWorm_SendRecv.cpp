@@ -66,47 +66,6 @@ void CWorm::readInfo(CBytestream *bs)
 
 
 
-
-///////////////////
-// Write my score
-void CWorm::writeScore(CBytestream *bs)
-{
-	bs->writeByte(S2C_SCOREUPDATE);
-	bs->writeInt(iID, 1);
-	bs->writeInt16(iLives);
-
-	// Overflow hack
-	if (iKills > 255)
-		bs->writeInt(255, 1);
-	else
-		bs->writeInt(iKills, 1);
-}
-
-
-///////////////////
-// Read my score (always from cClient)
-void CWorm::readScore(CBytestream *bs) {
-
-	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
-
-	int lives = (int)bs->readInt16();
-	int gameLives = cClient->getGameLobby()->iLives;
-	if (gameLives == WRM_UNLIM) {
-		if(lives != WRM_UNLIM)
-			cout << "WARNING: we have unlimited lives in this game but server gives worm " << iID << " only " << lives << " lives" << endl;
-		iLives = MAX(lives,WRM_UNLIM);
-	} else {
-		if(lives == WRM_UNLIM)
-			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " unlimited lives" << endl;
-		else if(lives > cClient->getGameLobby()->iLives)
-			cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << iID << " even " << lives << " lives" << endl;			
-		iLives = MAX(lives,WRM_OUT);
-	}
-	
-	iKills = MAX(bs->readInt(1), 0);
-}
-
-
 // Note: We don't put charge into the update packet because we only send the update packet to
 //       _other_ worms, not to self
 
