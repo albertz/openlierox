@@ -152,19 +152,17 @@ CVec CNinjaRope::GetForce(CVec playerpos)
 	if(!HookAttached)
 		return CVec(0,0);
 
-	return CalculateForce(playerpos,HookPos);
+	return CalculateForce(playerpos);//,HookPos);
 }
 
 
 ///////////////////
 // Calculate the pulling force
-CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
+CVec CNinjaRope::CalculateForce(CVec playerpos)
 {
-	// TODO: what is the dif between hookpos and HookPos ???
-
 	float length2 = (playerpos-HookPos).GetLength2();
 
-	CVec dir = playerpos-hookpos;
+	CVec dir = playerpos-HookPos;
 	dir = dir.Normalize();
 
 	//float l = MIN((float)0,RestLength-length);

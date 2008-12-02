@@ -47,6 +47,9 @@ private:
 	CWorm		*Worm;
 	float		RopeLength;
 	float		RestLength;
+
+	float		MinLength;
+
 	float		Strength;
 	
 	CVec		HookVelocity;
@@ -74,7 +77,7 @@ public:
 	void		Shoot(CVec pos, CVec dir);
 
 	CVec		GetForce(CVec playerpos);
-	CVec		CalculateForce(CVec playerpos, CVec hookpos);
+	CVec		CalculateForce(CVec playerpos);
     
 
 	void		Setup(CGameScript *gs);
@@ -106,7 +109,9 @@ public:
 	// TODO: remove PlayerAttached and just use Worm (and if Worm==NULL => no player attached)
 	void		setAttachedPlayer(CWorm* w)	{ Worm = w; }
 	CWorm*		getAttachedPlayer()		{ return Worm; }
-	
+
+	void		changeRestLength(float);
+
 };
 
 
