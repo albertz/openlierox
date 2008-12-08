@@ -973,7 +973,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	int max_players = (tLX->iGameType == GME_JOIN ? tLXOptions->tGameInfo.iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
+	int max_players = (tLX->iGameType == GME_HOST ? tLXOptions->tGameInfo.iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
 	if (numplayers >= max_players || numplayers + numworms > max_players) {
 		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
