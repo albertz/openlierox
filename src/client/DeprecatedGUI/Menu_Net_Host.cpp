@@ -307,6 +307,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 			case hs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
+					tLX->iGameType = GME_HOST;
+
 					cClient->Shutdown();
 				    cClient->Clear();
 					if(!cClient->Initialize()) {

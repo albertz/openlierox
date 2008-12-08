@@ -581,6 +581,8 @@ void Menu_LocalStartGame(void)
 	//
 	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
 
+	tLX->iGameType = GME_LOCAL;
+
 	if(! cClient->Initialize() )
 	{
 		printf("Error: Could not initialize client\n");
