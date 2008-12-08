@@ -49,7 +49,7 @@
 <p>
 	<h2>Downloads</h2>
 	<b>0.57_beta8</b> (released 2008-10-09)<br>
-	<a href="https://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=632027">
+	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=632027">
 	OpenLieroX main downloads</a> (Source/Linux, Windows, Mac OS X)<br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta8.ebuild">OpenLieroX Gentoo ebuild</a><br>
 <pre>
