@@ -308,7 +308,6 @@ void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 	dlgSaveFile->SetDirectory(dlgSelectFile->GetDirectory());
 	if (dlgSaveFile->ShowModal() == wxID_OK)  {
 		try  {
-			txtName->SetValue(dlgSaveFile->GetPath());
 			CompileLevel(txtFront->GetValue(), txtBack->GetValue(), txtMat->GetValue(), 
 				dlgSaveFile->GetPath(), txtName->GetValue());
 			wxMessageBox(_T("Level successfully compiled!"), _T("Success"));
