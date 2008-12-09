@@ -135,7 +135,7 @@ bool LevelCompilerApp::OnInit()
 	if (!wxApp::OnInit())
 		return false;
 	
-	if( commandLineFront != "" )
+	if( commandLineFront != (wxChar)"" )
 	{
 		try {
 			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
@@ -179,7 +179,7 @@ bool LevelCompilerApp::OnCmdLineParsed(wxCmdLineParser& parser)
 		if(parser.GetParamCount() >= 5)
 			commandLineOut = parser.GetParam(4);
 		else
-			commandLineOut = commandLineName + ".lxl";
+			commandLineOut = commandLineName + (wxChar)".lxl";
 	}
 	else if(parser.GetParamCount() > 0)
 	{
@@ -430,7 +430,7 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 				fclose(fp);
 				wxRemove(out);
 				delete[] pxFlags;
-				throw Exception(_T("Unknown color in the material image.", ));
+				throw Exception(_T("Unknown color in the material image."));
 			}
 		}
 	}
