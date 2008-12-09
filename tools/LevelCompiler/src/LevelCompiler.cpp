@@ -135,20 +135,20 @@ bool LevelCompilerApp::OnInit()
 	if (!wxApp::OnInit())
 		return false;
 	
-	if( commandLineFront != (wxChar)"" )
+	if( !commandLineFront.IsEmpty() )
 	{
 		try {
 			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
 		} catch (Exception &e) {
 			printf("An error occured while compiling: %s\n", e.message.c_str());
+			return false;
 		}
-
-		return false;
+		return true;
+	} else {
+		wxFrame *frame = new LevelCompilerFrame(_T("LieroX Level Compiler"));
+		frame->Show();
+		return true;
 	}
-	wxFrame *frame = new LevelCompilerFrame(_T("LieroX Level Compiler"));
-	frame->Show();
-
-	return true;
 }
 
 void LevelCompilerApp::OnInitCmdLine(wxCmdLineParser& parser)
@@ -181,9 +181,10 @@ bool LevelCompilerApp::OnCmdLineParsed(wxCmdLineParser& parser)
 		else
 			commandLineOut = commandLineName + (wxChar)".lxl";
 	}
-	else if(parser.GetParamCount() > 0)
+	else if(parser.GetParamCount() > 0 && parser.GetParamCount() < 4)
 	{
-		printf("First 4 parameters are required\n");
+		printf("First 4 parameters are required.\nOr start with no parameters for GUI.\n");
+		return false;
 	}
 		
 	return true;
@@ -217,9 +218,9 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	txtMat = new wxTextCtrl(pnlMain, lc_Mat);
 	txtName = new wxTextCtrl(pnlMain, lc_Name);
 	dlgSelectFile = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString, 
-					_T("All supported files|*.bmp;*.png;*.jpg;*.gif;*.pcx;*.tif;*.tiff;*.pnm;*.xpm;*.tga|Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|GIF Images (*.gif)|*.gif|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|Targa Images (*.tga)|*.tga|All files (*.*)|*.*"));
+					_T("All supported files|*.bmp;*.png;*.jpg;*.gif;*.pcx;*.tif;*.tiff;*.pnm;*.xpm;*.tga|Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|GIF Images (*.gif)|*.gif|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|Targa Images (*.tga)|*.tga|All files (*.*)|*.*"),wxFD_OPEN);
 	dlgSaveFile = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString, 
-					_T("LieroX Level (*.lxl)|*.lxl|All files|*.*"), wxSAVE|wxOVERWRITE_PROMPT);
+					_T("LieroX Level (*.lxl)|*.lxl|All files|*.*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
 
 	// Set component positions
@@ -281,7 +282,7 @@ void LevelCompilerFrame::OnBrowseBackClick(wxCommandEvent &evt)
 {
 	// Let the user choose the file
 	if (dlgSelectFile->ShowModal() == wxID_OK)  {
-		txtBack->SetLabel(dlgSelectFile->GetPath());
+		txtBack->SetValue(dlgSelectFile->GetPath());
 	}
 }
 
@@ -289,7 +290,7 @@ void LevelCompilerFrame::OnBrowseFrontClick(wxCommandEvent &evt)
 {
 	// Let the user choose the file
 	if (dlgSelectFile->ShowModal() == wxID_OK)  {
-		txtFront->SetLabel(dlgSelectFile->GetPath());
+		txtFront->SetValue(dlgSelectFile->GetPath());
 	}
 }
 
@@ -297,7 +298,7 @@ void LevelCompilerFrame::OnBrowseMatClick(wxCommandEvent &evt)
 {
 	// Let the user choose the file
 	if (dlgSelectFile->ShowModal() == wxID_OK)  {
-		txtMat->SetLabel(dlgSelectFile->GetPath());
+		txtMat->SetValue(dlgSelectFile->GetPath());
 	}
 }
 
@@ -307,8 +308,9 @@ void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 	dlgSaveFile->SetDirectory(dlgSelectFile->GetDirectory());
 	if (dlgSaveFile->ShowModal() == wxID_OK)  {
 		try  {
-			CompileLevel(txtFront->GetLabelText(), txtBack->GetLabelText(), txtMat->GetLabelText(), 
-				dlgSaveFile->GetPath(), txtName->GetLabelText());
+			txtName->SetValue(dlgSaveFile->GetPath());
+			CompileLevel(txtFront->GetValue(), txtBack->GetValue(), txtMat->GetValue(), 
+				dlgSaveFile->GetPath(), txtName->GetValue());
 			wxMessageBox(_T("Level successfully compiled!"), _T("Success"));
 		} catch (Exception &e) {
 			wxMessageBox(_T("An error occured while compiling:\n") + e.message, _T("Compiler error"));
