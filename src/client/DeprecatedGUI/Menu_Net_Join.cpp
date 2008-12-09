@@ -282,6 +282,8 @@ bool Menu_Net_JoinLobbyInitialize(void)
     iJoinSpeaking = 0;  // The first player is always speaking
 	tMenu->sSavedChatText = "";
 
+	tLX->iGameType = GME_JOIN;
+
 	return true;
 }
 
