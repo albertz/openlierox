@@ -409,6 +409,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName)
 {
 	//tGameInfo.iNumPlayers = 1;
+	tLX->iGameType = GME_JOIN;
 
 	if(!cClient->Initialize()) {
 		return;

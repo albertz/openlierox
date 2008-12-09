@@ -372,6 +372,7 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 	// Fill in the game structure
 	//tGameInfo.iNumPlayers = 1;
 
+	tLX->iGameType = GME_JOIN;
 	if(!cClient->Initialize()) {
 		return;
 	}
