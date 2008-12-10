@@ -136,9 +136,26 @@ void CServerNetEngineBeta7::SendPrepareGame() {
 	CServerNetEngine::WritePrepareGame(&bs);
 
 	bs.writeFloat( tLXOptions->tGameInfo.fGameSpeed );
-	bs.writeBool( server->serverChoosesWeapons() );
+
+	// Set random weapons for spectating client, so it will skip weapon selection screen
+	// TODO: maybe it's hacky, don't have any ideas now how to make it nice
+	bool spectate = false;	
+	if( cl->getNumWorms() > 0 && cl->getWorm(0)->isSpectating() )
+		spectate = true;
+
+	bs.writeBool( server->serverChoosesWeapons() || spectate );
 
 	SendPacket( &bs );
+	
+	if(spectate)
+	{
+		for( int i = 0; i < cl->getNumWorms(); i++ )
+		{
+			cl->getWorm(i)->GetRandomWeapons();
+			cl->getWorm(i)->setWeaponsReady(true);
+		}
+		server->SendWeapons();
+	}
 }
 
 

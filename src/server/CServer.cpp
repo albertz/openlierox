@@ -412,6 +412,7 @@ int GameServer::StartGame()
 			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setKillsInRow(0);
 			cWorms[i].setDeathsInRow(0);
+			cWorms[i].setWeaponsReady(false);
 		}
 	}
 
