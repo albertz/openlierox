@@ -489,7 +489,7 @@ def parseWormDied(sig):
 def parseWormSpawned(sig):
 	global worms
 	wormID = int(sig.split(" ")[1])
-	worms[deaderID].Alive = True
+	worms[wormID].Alive = True
 
 ## Preset loading functions ##
 def initPresets():
