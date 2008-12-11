@@ -1,0 +1,32 @@
+###################
+# Projectile: Cluster
+
+
+[General]
+Type = PRJ_IMAGE
+Image = cluster.png
+Timer = 3
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Time]
+Type = Explode
+Damage = 3
+Projectiles = true
+
+[PlayerHit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Projectile]
+Angle = 0
+Amount = 20
+Speed = 100
+Spread = 360
+Projectile = p_clusterbits.txt

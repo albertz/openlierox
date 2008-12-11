@@ -1,0 +1,18 @@
+###################
+# Gun: Spikeballs
+
+
+[General]
+Name = Spikeballs
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 2
+Drain = 101
+ROF = 1
+
+[Projectile]
+Amount = 6
+Speed = 200
+Spread = 5
+Projectile = p_spikeball.txt
+

@@ -1,0 +1,37 @@
+###################
+# Projectile: Hellraider
+
+
+[General]
+Type = PRJ_IMAGE
+Image = gauss.png
+Timer = 2
+Trail = TRL_PROJECTILE
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Time]
+Type = Explode
+Damage = 3
+Projectiles = true
+Shake = 5
+
+[PlayerHit]
+Type = Nothing
+
+[Projectile]
+Angle = 0
+Amount = 20
+Speed = 100
+Spread = 360
+Projectile = p_hellbits.txt
+
+[ProjectileTrail]
+UseProjVelocity = true
+Delay = 60
+Amount = 1
+Speed = 1
+SpeedVar = 1
+Projectile = p_helltrail.txt

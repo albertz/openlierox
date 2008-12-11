@@ -1,0 +1,24 @@
+###################
+# Projectile: Explosive
+
+
+[General]
+Type = PRJ_IMAGE
+Image = explosive.png
+Timer = 1.5
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.2
+
+[Time]
+Type = Explode
+Damage = 5
+Shake = 2
+
+[PlayerHit]
+Type = Nothing

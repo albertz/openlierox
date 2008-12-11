@@ -1,0 +1,20 @@
+###################
+# Gun: Handgun
+
+
+[General]
+Name = Handgun
+Class = WCL_AUTOMATIC
+Recoil = 2
+Recharge = 3
+Drain = 7
+ROF = 200
+LaserSight = true
+Sound = shot.wav
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0
+Projectile = p_bullet.txt
+

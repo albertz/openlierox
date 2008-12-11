@@ -1,0 +1,24 @@
+###################
+# Projectile: Spikeball
+
+
+[General]
+Type = PRJ_IMAGE
+Image = spikeballs.png
+Timer = 10
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Time]
+Type = Explode
+Damage = 2
+
+[PlayerHit]
+Type = Injure
+Damage = 20

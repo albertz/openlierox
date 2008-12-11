@@ -1,0 +1,23 @@
+###################
+# Projectile: Bouncy Larpa bomb
+
+
+[General]
+Type = PRJ_IMAGE
+Image = bmine.png
+Timer = 10
+Rotating = true
+RotIncrement = 120
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 1.0
+
+[PlayerHit]
+Type = Injure
+Damage = 40
+
+[Time]
+Type = Explode
+Damage = 3

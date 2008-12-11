@@ -1,0 +1,19 @@
+###################
+# Gun: Chiquita Bomb
+
+
+[General]
+Name = Chiquita Bomb
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 2
+Drain = 101
+ROF = 1
+Sound = throw.wav
+
+[Projectile]
+Amount = 1
+Speed = 150
+Spread = 0
+Projectile = p_chiquita.txt
+

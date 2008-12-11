@@ -1,0 +1,20 @@
+###################
+# Gun: Rifle
+
+
+[General]
+Name = Rifle
+Class = WCL_MISSILE
+Recoil = 10
+Recharge = 4
+Drain = 101
+ROF = 1
+LaserSight = true
+Sound = rifle.wav
+
+[Projectile]
+Amount = 1
+Speed = 800
+Spread = 0
+Projectile = p_riflebullet.txt
+

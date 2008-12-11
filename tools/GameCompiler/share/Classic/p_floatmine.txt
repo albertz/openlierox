@@ -1,0 +1,26 @@
+###################
+# Projectile: Float mine
+
+
+[General]
+Type = PRJ_IMAGE
+Image = floatmine.png
+Trail = TRL_NONE
+Dampening = 0.9
+Gravity = 0
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[PlayerHit]
+Type = Injure
+Damage = 40
+Projectiles = true
+
+[Projectile]
+Angle = 0
+Amount = 10
+Speed = 100
+Spread = 360
+Projectile = p_greybits.txt

@@ -1,0 +1,19 @@
+###################
+# Gun: Minigun
+
+
+[General]
+Name = Minigun
+Class = WCL_AUTOMATIC
+Recoil = 10
+Recharge = 3
+Drain = 3
+ROF = 15
+Sound = shot.wav
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0.4
+Projectile = p_bullet.txt
+
