@@ -30,7 +30,8 @@ char *TrimSpaces(char *szLine)
         szLine++;
 
     // Get rid of the ending spaces
-    for( int i=strlen(szLine)-1; i>=0; i--) {
+	int i;
+    for( i=strlen(szLine)-1; i>=0; i--) {
         if( isgraph(szLine[i]) || !isspace(szLine[i]) )
             break;
     }
