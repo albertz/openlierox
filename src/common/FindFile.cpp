@@ -179,8 +179,7 @@ list.clear();
 // HINT: absolute path and there is not case fixing
 // (used by GetExactFileName)
 bool IsPathStatable(const std::string& f) {
-	static std::string abs_f;
-	abs_f = f;
+	std::string abs_f = f;
 
 	// remove trailing slashes
 	// don't remove them on WIN, if it is a drive-letter
@@ -251,8 +250,15 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 		return true;
 	}
 
+	// Check first if searchname perhaps exists with exactly this name.
+	// This check is also needed in the case if we cannot read dir (-r) but we can access files (+x) in it.
+	if(IsPathStatable((dir == "") ? searchname : (dir + "/" + searchname))) {
+		filename = searchname;
+		return true;
+	}
+
 	DIR* dirhandle = opendir((dir == "") ? "." : dir.c_str());
-	if(dirhandle == 0) return false;
+	if(dirhandle == NULL) return false;
 
 	dirent* direntry;
 	while((direntry = readdir(dirhandle))) {
@@ -336,7 +342,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		}
 		pos = GetLastName(rest, seps);
 		if(pos == 0) {
-			filename = "";
+			filename = "/";
 			break;
 		}
 	}
@@ -354,11 +360,11 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		// pos==0  => none found
 		if(pos > 0) sname.erase(0,pos);
 
-		filename += (first_iter ? "" : "/");
 		if(nextname == "") {
 			// simply ignore this case
 			// (we accept sth like /usr///share/)
-			nextexactname = "";
+			if(pos == 0) break;
+			continue;
 		} else if(!CaseInsFindFile(
 				filename, // dir
 				nextname, // ~name
@@ -366,11 +372,13 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		)) {
 			// we doesn't get any result
 			// just add rest to it
+			if(!first_iter) filename += "/";
 			filename += nextname;
 			if(pos > 0) filename += "/" + sname;
 			return false; // error (not found)
 		}
 
+		if(!first_iter) filename += "/";
 		filename += nextexactname;
 		if(nextexactname != "")
 			add_searchname_to_exactfilenamecache(filename);

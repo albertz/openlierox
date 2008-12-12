@@ -56,6 +56,9 @@ static SmartPointer<SDL_Surface> getAlternativeClockGfx() {
 // Load the graphics
 bool LoadGraphics(void)
 {
+	// TODO: fix it that this works (or give some good reasons why we need these gfx in dedicated mode)
+	// we don't need any of them in dedicated mode
+	//if(bDedicated) return true;
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
