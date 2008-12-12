@@ -72,7 +72,6 @@ ENDIF (HAWKNL_BUILTIN)
 
 IF (STLPORT)
 	INCLUDE_DIRECTORIES(/usr/include/stlport)
-	ADD_DEFINITIONS(-D_PTHREADS)
 	ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64) # hm, don't know, at least it works for me (ppc32/amd32)
 	# debugging stuff for STLport
 	ADD_DEFINITIONS(-D_STLP_DEBUG=1)
