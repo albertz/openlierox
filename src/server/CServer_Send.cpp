@@ -527,6 +527,8 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 		SendUpdateLobbyGame(cl, this);
 
 	} else {
+		if(!cClients) return; // can happen if server was not started correctly
+
 		cl = cClients;
 		for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
 			if(cl->getStatus() != NET_CONNECTED)
