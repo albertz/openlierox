@@ -9,15 +9,19 @@
 /////////////////////////////////////////
 
 
+// TODO: this file was really created by Jason?
 // Background music handling
 // Created 29/7/02
 // Jason Boettcher
+
+#include "Music.h"
+
+#ifndef DEDICATED_ONLY
 
 #include <set>
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #include "FindFile.h"
-#include "Music.h"
 #include "Sounds.h"
 #include "StringUtils.h"
 
@@ -99,9 +103,9 @@ int MusicMain(void *)
 // Initializes the background music thread
 void InitializeBackgroundMusic()
 {
-	if( musicThread )
-		return;
-		
+	if(bDedicated) return;
+	if(musicThread) return;
+	
 	InitializeMusic();
 
 	musicThread = SDL_CreateThread(&MusicMain, NULL);
@@ -132,3 +136,12 @@ void ShutdownBackgroundMusic()
 
 	ShutdownMusic();
 }
+
+#else // DEDICATED_ONLY
+
+// dummies
+void InitializeBackgroundMusic() {}
+void ShutdownBackgroundMusic() {}
+
+#endif
+
