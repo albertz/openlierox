@@ -236,8 +236,8 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 			}
 	}
 
-	// makes no difference if we return 0 here
-	return 0;
+	// indicates that there is no more sep
+	return (size_t)(-1);
 }
 
 // used by unix-GetExactFileName
@@ -341,8 +341,19 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			}
 		}
 		pos = GetLastName(rest, seps);
+		if(pos == (size_t)(-1)) {
+			first_iter = false;
+			if(rest == "." || rest == "..") {
+				filename = rest;
+				sname.erase(0,rest.size()+1);
+				break;
+			}
+			filename = ".";
+			break;
+		}
 		if(pos == 0) {
 			filename = "/";
+			sname.erase(0,1);
 			break;
 		}
 	}
