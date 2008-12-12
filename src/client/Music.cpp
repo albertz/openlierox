@@ -105,7 +105,8 @@ int MusicMain(void *)
 void InitializeBackgroundMusic()
 {
 	if(bDedicated) return;
-	if(musicThread) return;
+	if(bDisableSound) return; // sound system failed to init
+	if(musicThread) return; // already running
 	
 	InitializeMusic();
 

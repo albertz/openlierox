@@ -248,7 +248,7 @@ extern	lierox_t		*tLX;
 //extern	game_t			tGameInfo;
 extern  CInput			*cTakeScreenshot;
 extern  CInput			*cSwitchMode;
-extern  bool			bDisableSound;
+extern  bool			bDisableSound; // only true in dedicated mode or if soundinit failed; it's false even if you did not activate sound
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
 extern  bool			bRestartGameAfterQuit;
