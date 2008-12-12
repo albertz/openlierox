@@ -24,6 +24,7 @@
 #include "FindFile.h"
 #include "Sounds.h"
 #include "StringUtils.h"
+#include "LieroX.h" // for bDedicated
 
 bool breakThread = false;
 SDL_Thread *musicThread = NULL;
