@@ -379,6 +379,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <ctype.h>
+#include <unistd.h>
 
 typedef const char * cchar;
 
