@@ -1098,10 +1098,6 @@ server_t *psServerList = NULL;
 static const int	MaxPings = 4;
 static const int	MaxQueries = MAX_QUERIES;
 
-// Time to wait before pinging/querying the server again (in milliseconds)
-static const Uint32	PingWait = 1000;
-static const Uint32	QueryWait = 1000;
-
 std::set< std::string > tServersBehindNat; // List of servers accessible from UDP masterserver only
 
 
@@ -1242,8 +1238,11 @@ void Menu_SvrList_RefreshList(void)
 	server_t *s = psServerList;
 	for(; s; s=s->psNext) {
 
-        Menu_SvrList_RefreshServer(s);
+        Menu_SvrList_RefreshServer(s, false);
 	}
+
+	// Update the GUI
+	Timer(null, NULL, PingWait, true).startHeadless();
 
 	Menu_SvrList_UpdateUDPList();
 }
@@ -1251,7 +1250,7 @@ void Menu_SvrList_RefreshList(void)
 
 ///////////////////
 // Refresh a single server
-void Menu_SvrList_RefreshServer(server_t *s)
+void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 {
     s->bProcessing = true;
 	s->bgotPong = false;
@@ -1280,7 +1279,9 @@ void Menu_SvrList_RefreshServer(server_t *s)
 			SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
 		} else
 			SetNetAddrPort(s->sAddress, LX_PORT);
-		Timer(null, NULL, PingWait, true).startHeadless();
+
+		if (updategui)
+			Timer(null, NULL, PingWait, true).startHeadless();
 	}
 }
 
@@ -1316,7 +1317,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 	svr->szAddress = tmp_address;
 
 
-	Menu_SvrList_RefreshServer(svr);
+	Menu_SvrList_RefreshServer(svr, bManual);
 
 
 	// Default game details
@@ -1811,6 +1812,9 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 			tServersBehindNat.insert(addr);
 		}
 	};
+
+	// Update the GUI when ping times out
+	Timer(null, NULL, PingWait, true).startHeadless();
 };
 
 ///////////////////
@@ -1877,6 +1881,9 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
             }
         }
     }
+
+	// Update the GUI after the ping timed out
+	Timer(null, NULL, PingWait, true).startHeadless();
 
     fclose(fp);
 }

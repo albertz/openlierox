@@ -738,6 +738,9 @@ void Menu_Net_NETParseList(CHttp &http)
 		// Create the server address
 		Menu_SvrList_AddServer(addr + ":" + ptr, false);
 	}
+
+	// Update the GUI
+	Timer(null, NULL, PingWait, true).startHeadless();
 }
 
 enum  {

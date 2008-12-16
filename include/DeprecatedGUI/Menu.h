@@ -330,6 +330,10 @@ extern	int			nTries;
 extern	float		fStart;
 extern bool		bShowFloatingOptions;
 
+// Time to wait before pinging/querying the server again (in milliseconds)
+#define	PingWait  1000
+#define	QueryWait  1000
+
 
 // Routines
 bool	Menu_Initialize(bool *game);
@@ -370,7 +374,7 @@ void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
 void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs);
 void		Menu_SvrList_RefreshList(void);
-void        Menu_SvrList_RefreshServer(server_t *s);
+void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
 void		Menu_SvrList_UpdateList(void);
 void		Menu_SvrList_UpdateUDPList();
 void		Menu_SvrList_FillList(CListview *lv);
