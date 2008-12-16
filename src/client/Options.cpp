@@ -172,6 +172,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bCountTeamkills, "CountTeamkills", false )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false )
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360 )
+		( tLXOptions->tGameInfo.bDisableScreenShakingAllowed, "DisableScreenShakingAllowed", false ) // It's overridden by server anyway, maybe don't save it to config
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

@@ -129,33 +129,34 @@ void CServerNetEngine::SendPrepareGame()
 	SendPacket( &bs );
 }
 
-void CServerNetEngineBeta7::SendPrepareGame() {
-	
-	CBytestream bs;
-	
-	CServerNetEngine::WritePrepareGame(&bs);
+void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs) 
+{
+	CServerNetEngine::WritePrepareGame(bs);
 
-	bs.writeFloat( tLXOptions->tGameInfo.fGameSpeed );
+	bs->writeFloat( tLXOptions->tGameInfo.fGameSpeed );
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
-	// TODO: maybe it's hacky, don't have any ideas now how to make it nice
+	// TODO: it's hacky, don't have any ideas now how to make it nice
 	bool spectate = false;	
 	if( cl->getNumWorms() > 0 && cl->getWorm(0)->isSpectating() )
 		spectate = true;
 
-	bs.writeBool( server->serverChoosesWeapons() || spectate );
-
-	SendPacket( &bs );
+	bs->writeBool( server->serverChoosesWeapons() || spectate );
 	
-	if(spectate)
-	{
-		for( int i = 0; i < cl->getNumWorms(); i++ )
-		{
-			cl->getWorm(i)->GetRandomWeapons();
-			cl->getWorm(i)->setWeaponsReady(true);
-		}
-		server->SendWeapons();
-	}
+	// We send random weapons from server in GameServer::StartGame()
+}
+
+void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs) 
+{
+	CServerNetEngineBeta7::WritePrepareGame(bs);
+
+	bool disableScreenShakingAllowed = true;
+	CServerConnection *cl = server->cClients;
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
+		if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() < OLXBetaVersion(9) )
+			disableScreenShakingAllowed = false;
+
+	bs->writeBool( disableScreenShakingAllowed );
 }
 
 

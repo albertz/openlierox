@@ -1935,14 +1935,12 @@ CChannel * CClient::createChannel(const Version& v)
 void CClient::setNetEngineFromServerVersion()
 {
 	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
-	if( getServerVersion() >= OLXBetaVersion(7) )
-	{
+	if( getServerVersion() >= OLXBetaVersion(9) )
+		cNetEngine = new CClientNetEngineBeta9(this);
+	else if( getServerVersion() >= OLXBetaVersion(7) )
 		cNetEngine = new CClientNetEngineBeta7(this);
-	}
 	else
-	{
 		cNetEngine = new CClientNetEngine(this);
-	}
 };
 
 std::string CClient::debugName() {

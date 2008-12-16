@@ -53,7 +53,7 @@ public:
 	
 	void		SendPacket(CBytestream *bs);
 
-	virtual void SendPrepareGame();
+	void SendPrepareGame();
 	virtual void SendText(const std::string& text, int type);
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
@@ -71,7 +71,7 @@ protected:
 	GameServer 	*server;
 	CServerConnection *cl;
 	
-	void WritePrepareGame(CBytestream *bs);
+	virtual void WritePrepareGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta3: public CServerNetEngine 
@@ -107,9 +107,11 @@ public:
 	void ParseChatCommandCompletionRequest(CBytestream *bs);
 	void ParseAFK(CBytestream *bs);
 
-	void SendPrepareGame();
 	void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution);
 	void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions);
+
+protected:
+	void WritePrepareGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta8: public CServerNetEngineBeta7
@@ -121,6 +123,18 @@ public:
 		{ }
 
 	void SendText(const std::string& text, int type);
+};
+
+class CServerNetEngineBeta9: public CServerNetEngineBeta8
+{
+
+public:
+	CServerNetEngineBeta9( GameServer * _server, CServerConnection * _client ):
+		CServerNetEngineBeta8( _server, _client )
+		{ }
+
+protected:
+	void WritePrepareGame(CBytestream *bs);
 };
 
 #endif  //  __CSERVER_NET_ENGINE_H__

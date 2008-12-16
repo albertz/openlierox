@@ -833,17 +833,31 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 
+	client->tGameInfo.bDisableScreenShakingAllowed = false;
+	
     return true;
 }
 
 bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 {
+	printf("CClientNetEngineBeta7::ParsePrepareGame()\n");
 	if( ! CClientNetEngine::ParsePrepareGame(bs) )
 		return false;
 
 	// >=Beta7 is sending this
 	client->tGameInfo.fGameSpeed = bs->readFloat();
 	client->bServerChoosesWeapons = bs->readBool();
+
+    return true;
+};
+
+bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
+{
+	printf("CClientNetEngineBeta9::ParsePrepareGame()\n");
+	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
+		return false;
+
+	client->tGameInfo.bDisableScreenShakingAllowed = bs->readBool();
 
     return true;
 };

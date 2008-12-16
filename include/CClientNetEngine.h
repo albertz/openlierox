@@ -111,5 +111,12 @@ public:
 	virtual void ParseAFK(CBytestream* bs);
 };
 
+class CClientNetEngineBeta9: public CClientNetEngineBeta7 {
+public:
+	CClientNetEngineBeta9( CClient * _client ): CClientNetEngineBeta7( _client ) { }
+
+	virtual bool ParsePrepareGame(CBytestream *bs);
+};
+
 
 #endif  //  __CCLIENT_NET_ENGINE_H__

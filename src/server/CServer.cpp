@@ -469,10 +469,19 @@ int GameServer::StartGame()
 		if( cClients[i].getStatus() != NET_CONNECTED )
 			continue;
 		cClients[i].getNetEngine()->SendPrepareGame();
+
+		// Force random weapons for spectating clients
+		if( cClients[i].getNumWorms() > 0 && cClients[i].getWorm(0)->isSpectating() )
+		{
+			for( int i = 0; i < cClients[i].getNumWorms(); i++ )
+			{
+				cClients[i].getWorm(i)->GetRandomWeapons();
+				cClients[i].getWorm(i)->setWeaponsReady(true);
+			}
+			SendWeapons();	// TODO: we're sending multiple weapons packets, but clients handle them okay
+		}
 	}
 	
-	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
-
 	PhysicsEngine::Get()->initGame( cMap, cClient );
 
 	if( DedicatedControl::Get() )

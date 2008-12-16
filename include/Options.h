@@ -269,6 +269,7 @@ public:
 		bool	bCountTeamkills;
 		bool	bServerSideHealth;
 		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
+		bool	bDisableScreenShakingAllowed; // Always shake screen if playing with old clients, overridden by server
 	} tGameInfo;
 
 	// not specified options found in options-file

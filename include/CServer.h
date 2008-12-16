@@ -151,9 +151,11 @@ private:
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	
+	static void SendConnectHereAfterTimeout (Timer::EventData ev);
+
 	friend class CServerNetEngine;
 	friend class CServerNetEngineBeta7;
-	static void SendConnectHereAfterTimeout (Timer::EventData ev);
+	friend class CServerNetEngineBeta9;
 	
 public:
 	// Methods

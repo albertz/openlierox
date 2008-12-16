@@ -202,7 +202,9 @@ void CServerConnection::setNetEngineFromClientVersion()
 {
 	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
 	
-	if( getClientVersion() >= OLXBetaVersion(8) )
+	if( getClientVersion() >= OLXBetaVersion(9) )
+		cNetEngine = new CServerNetEngineBeta9( server, this );
+	else if( getClientVersion() >= OLXBetaVersion(8) )
 		cNetEngine = new CServerNetEngineBeta8( server, this );
 	else if( getClientVersion() >= OLXBetaVersion(7) )
 		cNetEngine = new CServerNetEngineBeta7( server, this );
