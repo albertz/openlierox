@@ -40,11 +40,12 @@
 #include "Version.h"
 #include "Timer.h"
 #include "types.h"
+#include "CClient.h"
+#include "CServer.h"
 
 
 
-
-Null null;
+Null null;	// Used in timer class
 
 // Config file
 std::string	ConfigFile;
@@ -732,9 +733,9 @@ std::string GetConfigFile(void)
 
 //////////////////
 // Helper funtion for screenshot taking
-static std::string GetPicName(size_t i, const std::string& ext)
+static std::string GetPicName(const std::string& prefix, size_t i, const std::string& ext)
 {
-	return "lierox" + itoa(i) + ext;
+	return prefix + (i == 0 ? std::string("") : itoa(i)) + ext;
 }
 
 
@@ -748,14 +749,45 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 	if (path[path.size() - 1] != '/' && path[path.size() - 1] != '\\')  {
 		path += '/';
 	}
+	
+	
+	// Add date and server name to screenshot filename
+	time_t curtime1 = time(NULL);
+	struct tm *curtime = localtime(&curtime1);
+	char filePrefixTime[200];
+	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
+	string filePrefix = filePrefixTime;
+	filePrefix += "-";
+	if( tLX )
+	{
+		if( tLX->iGameType == GME_LOCAL )
+			filePrefix += "local";
+		else if( tLX->iGameType == GME_HOST && cServer )
+			filePrefix += cServer->getName();
+		else if( cClient )
+			filePrefix += cClient->getServerName();
+	}
+	
+	// Make filename more fileststem-friendly
+	if( filePrefix.size() > 64 )
+		filePrefix.resize(64);
+
+#define S_LETTER_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define S_LETTER_LOWER "abcdefghijklmnopqrstuvwxyz"
+#define S_LETTER S_LETTER_UPPER S_LETTER_LOWER
+#define S_NUMBER "0123456789"
+#define S_SYMBOL ". -_&+"	// No "\\" symbol, no tab.
+#define S_VALID_FILENAME S_LETTER_UPPER S_LETTER_LOWER S_NUMBER S_SYMBOL
+	while( filePrefix.find_first_not_of(S_VALID_FILENAME) != std::string::npos )
+		filePrefix[ filePrefix.find_first_not_of(S_VALID_FILENAME) ] = '-';
 
 	static const size_t step = 256; // Step; after how many files we check if the filename still exists
 
 	// We start at range from 1 to step
-	size_t lower_bound = 1;
+	size_t lower_bound = 0;
 	size_t upper_bound = step;
 
-	std::string fullname(path + GetPicName(upper_bound, extension));
+	std::string fullname(path + GetPicName(filePrefix, upper_bound, extension));
 
 	// Find a raw range of where the screenshot filename could be
 	// For example: between lierox1000.png and lierox1256.png
@@ -763,20 +795,20 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 		lower_bound = upper_bound;
 		upper_bound += step;
 
-		fullname = path + GetPicName(upper_bound, extension);
+		fullname = path + GetPicName(filePrefix, upper_bound, extension);
 	}
 
 	// First file?
-	if (!IsFileAvailable(path + GetPicName(lower_bound, extension)))
-		return path + GetPicName(lower_bound, extension);
+	if (!IsFileAvailable(path + GetPicName(filePrefix, lower_bound, extension)))
+		return path + GetPicName(filePrefix, lower_bound, extension);
 
 	// Use binary search on the given range to find the exact file name
 	size_t i = (lower_bound + upper_bound) / 2;
 	while (true)  {
-		if (IsFileAvailable(path + GetPicName(i, extension), false))  {
+		if (IsFileAvailable(path + GetPicName(filePrefix, i, extension), false))  {
 			// If the current (i) filename exists, but the i+1 does not, we're done
-			if (!IsFileAvailable(path + GetPicName(i + 1, extension)))
-				return path + GetPicName(i + 1, extension);
+			if (!IsFileAvailable(path + GetPicName(filePrefix, i + 1, extension)))
+				return path + GetPicName(filePrefix, i + 1, extension);
 			else  {
 				// The filename is somewhere in the interval (i, upper_bound)
 				lower_bound = i;
