@@ -1199,8 +1199,6 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->bProcessing = true;
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
-
-	Timer(null, NULL, PingWait + 100, true).startHeadless();
 }
 
 ///////////////////
@@ -1233,8 +1231,6 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->bProcessing = true;
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
-
-	Timer(null, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1521,6 +1517,8 @@ bool Menu_SvrList_Process(void)
 			update = true;
 	}
 
+	bool repaint = false;
+
 
 
 	// Ping or Query any servers in the list that need it
@@ -1559,9 +1557,11 @@ bool Menu_SvrList_Process(void)
 					s->bIgnore = true;
 					update = true;
 				}
-				else
+				else  {
 					// Ping the server
 					Menu_SvrList_PingServer(s);
+					repaint = true;
+				}
 			}
 		}
 
@@ -1573,9 +1573,11 @@ bool Menu_SvrList_Process(void)
 					s->bIgnore = true;
 					update = true;
 				}
-				else
+				else  {
 					// Query the server
 					Menu_SvrList_QueryServer(s);
+					repaint = true;
+				}
 			}
 		}
 
@@ -1586,6 +1588,10 @@ bool Menu_SvrList_Process(void)
 		}
 
 	}
+
+	// Make sure the list repaints when the ping/query is received
+	if (repaint)
+		Timer(null, NULL, PingWait + 100, true).startHeadless();
 
 	return update;
 }
