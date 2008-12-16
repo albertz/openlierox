@@ -52,7 +52,7 @@ typedef unsigned int Ip;
 typedef Uint32 Ip;
 #endif
 
-#define READ_CHUNK_SIZE  4196
+#define READ_CHUNK_SIZE  256
 
 struct DBEntry {
 	Ip			RangeFrom;
