@@ -172,7 +172,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bCountTeamkills, "CountTeamkills", false )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false )
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360 )
-		( tLXOptions->tGameInfo.bDisableScreenShakingAllowed, "DisableScreenShakingAllowed", false )
+		( tLXOptions->tGameInfo.bDisableScreenShakingAllowed, "DisableScreenShakingAllowed", true )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();
