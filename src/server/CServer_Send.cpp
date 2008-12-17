@@ -156,7 +156,7 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 		if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() < OLXBetaVersion(9) )
 			disableScreenShakingAllowed = false;
 
-	bs->writeBool( disableScreenShakingAllowed );
+	bs->writeBool( disableScreenShakingAllowed && tLXOptions->tGameInfo.bDisableScreenShakingAllowed );
 }
 
 

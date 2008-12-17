@@ -840,7 +840,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 {
-	printf("CClientNetEngineBeta7::ParsePrepareGame()\n");
 	if( ! CClientNetEngine::ParsePrepareGame(bs) )
 		return false;
 
@@ -853,7 +852,6 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
-	printf("CClientNetEngineBeta9::ParsePrepareGame()\n");
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 

@@ -772,6 +772,7 @@ enum {
 	gs_EmptyWeaponsOnRespawn,
 	gs_SameWeaponsAsHostWorm,
 	gs_AllowConnectDuringGame,
+	gs_DisableScreenShakingAllowed,
 	
 	gs_Bonuses,
 	gs_ShowBonusNames,
@@ -886,6 +887,10 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
 
 	y += 30;
+
+	cGeneralSettings.Add( new CLabel("Disable screen shaking", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
+	cGeneralSettings.Add( new CLabel("allowed (Beta9+ only)", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bDisableScreenShakingAllowed),	gs_DisableScreenShakingAllowed,    300,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
@@ -1109,6 +1114,8 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameInfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameInfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	
+	tLXOptions->tGameInfo.bDisableScreenShakingAllowed = cGeneralSettings.SendMessage( gs_DisableScreenShakingAllowed, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);
