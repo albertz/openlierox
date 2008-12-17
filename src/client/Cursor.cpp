@@ -21,6 +21,7 @@
 #include "ConfigHandler.h"
 #include "Cursor.h"
 #include "types.h"
+#include "Timer.h"
 
 
 //
@@ -31,9 +32,17 @@
 CCursor *tCurrentCursor = NULL;
 CCursor *tCursors[CURSOR_COUNT] = {NULL, NULL, NULL, NULL}; // TODO: any cursor_count independent way?
 float fCursorFrameTime = 0.2f;
+Timer *tAnimTimer = NULL;
 
 int iMaxCursorWidth = 0;
 int iMaxCursorHeight = 0;
+
+////////////////////
+// Timer event, currently does nothing, just makes the screen repaint
+void OnTimerAnimation(Timer::EventData)
+{
+
+}
 
 //////////////////
 // Initialize cursors
@@ -64,6 +73,8 @@ bool InitializeCursors()
 			result = false;
 		}
 
+	tAnimTimer = new Timer(OnTimerAnimation, NULL, 10, false);
+
 
 	return result;
 }
@@ -78,6 +89,9 @@ void ShutdownCursors()
 			delete tCursors[i];
 			tCursors[i] = NULL;
 		}
+
+	tAnimTimer->stop();
+	delete tAnimTimer;
 }
 
 ////////////////
@@ -85,8 +99,13 @@ void ShutdownCursors()
 void SetGameCursor(int c)  {
 	if (c < 0 || c >= CURSOR_COUNT)
 		tCurrentCursor = NULL;
-	else
+	else  {
 		tCurrentCursor = tCursors[c];
+		if (tCurrentCursor->IsAnimated() && !tAnimTimer->running())
+			tAnimTimer->start();
+		else
+			tAnimTimer->stop();
+	}
 }
 
 ////////////////
@@ -94,6 +113,10 @@ void SetGameCursor(int c)  {
 void SetGameCursor(CCursor *c)
 {
 	tCurrentCursor = c;
+	if (c && c->IsAnimated() && !tAnimTimer->running())
+		tAnimTimer->start();
+	else
+		tAnimTimer->stop();
 }
 
 /////////////////
@@ -257,8 +280,8 @@ void CCursor::Draw(SDL_Surface * dst)
 	// Process animating
 	if ((tLX->fCurTime - fAnimationSwapTime) >= fCursorFrameTime)  {
 		iFrame++;
-		if (iFrame >= iNumFrames)
-			iFrame = 0;
+		iFrame %= iNumFrames;
+		fAnimationSwapTime = tLX->fCurTime;
 	}
 
 	// Draw the cursor
