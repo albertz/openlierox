@@ -1991,9 +1991,9 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
 	bool painted = false;
 
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged || bGameMenu)  {	// Repainting when new messages/scrolling,
-																				// or when user is moving the mouse over the chat
-
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || 
+			bRepaintChatbox || tLX->bVideoModeChanged || bGameMenu)  {	// Repainting when new messages/scrolling,
+																		// or when user is moving the mouse over the chat
 		// Local and net play use different backgrounds
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
 		if (tLX->iGameType == GME_LOCAL)
@@ -2017,7 +2017,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		bRepaintChatbox = false;
 	}
 
-
+	lv->setFocused(true);
 	// Events
 	if (Mouse->WheelScrollDown)
 		lv->MouseWheelDown(Mouse);
