@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1229777527 source:/home/karel/openlierox/tools/LevelViewer/src/LevelViewer.cpp
+	<wx/wx.h>
+	<wx/dnd.h>
+	<wx/cmdline.h>
+	<zlib.h>
+

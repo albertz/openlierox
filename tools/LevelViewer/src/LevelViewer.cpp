@@ -12,7 +12,7 @@
 #define		MPT_IMAGE	1
 #define		PX_EMPTY	0x01
 #define		PX_DIRT		0x02
-#define		PX_ROCK		0x04 
+#define		PX_ROCK		0x04
 
 // Main application class
 class LevelViewerApp : public wxApp
@@ -48,7 +48,7 @@ private:
 	void GeneratePreview();
 
 public:
-	Map() : width(0), height(0), pixelFlags(NULL), shadows(false), loaded(false), previewSize(1) {}
+	Map() : width(0), height(0), previewSize(1), shadows(false), loaded(false), pixelFlags(NULL) {}
 	~Map() { Close(); }
 
 	void Close();
@@ -73,8 +73,8 @@ public:
 int max(const int vals[])
 {
 	int res = vals[0];
-	for (int i = 1; i < sizeof(vals)/sizeof(int); i++)
-		if (vals[i] > res) 
+	for (size_t i = 1; i < sizeof(vals)/sizeof(int); i++)
+		if (vals[i] > res)
 			res = vals[i];
 
 	return res;
@@ -111,6 +111,48 @@ public:
 	bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
 };
 
+// Image preview class
+class ImageView : public wxScrolledWindow  {
+    private:
+    wxBitmap *m_bitmap;
+
+    public:
+    ImageView(wxWindow *parent) : wxScrolledWindow(parent)
+    {
+        m_bitmap = NULL;
+    }
+
+    ~ImageView()
+    {
+        if (m_bitmap)
+            delete m_bitmap;
+    }
+
+
+    void setImage(const wxImage& img)
+    {
+        if (m_bitmap)
+            delete m_bitmap;
+        m_bitmap = new wxBitmap(img);
+
+        SetScrollbars(1, 1, img.GetWidth(), img.GetHeight(), 0, 0, true);
+    }
+
+    void OnDraw(wxDC& dc)
+    {
+        wxScrolledWindow::OnDraw(dc);
+        if (m_bitmap)
+            dc.DrawBitmap(*m_bitmap, 0, 0, false);
+    }
+
+    void clear()
+    {
+        if (m_bitmap)
+            delete m_bitmap;
+        m_bitmap = NULL;
+    }
+};
+
 // Main window
 class LevelViewerFrame : public wxFrame
 {
@@ -126,18 +168,18 @@ private:
 	wxMenu *mnuFile, *mnuView;
 	FileDrop *drpMain;
 
-	wxPanel *pnlMain;
+	//wxPanel *pnlMain;
+	ImageView *imgLevel;
 
 	wxFileDialog *dlgOpenLevel;
 	wxFileDialog *dlgSavePreview;
 
 	// Others
 	Map *map;
-	wxBitmap previewCache;
-	bool	updateCache;
 
 public:
 	void OpenLevel(const wxString& path);
+	void SizeAndRefresh();
 
 // Events
 protected:
@@ -149,7 +191,6 @@ protected:
 	void OnExitClick(wxCommandEvent& evt);
 	void OnShadowsChange(wxCommandEvent& evt);
 	void OnPreviewSizeClick(wxCommandEvent& evt);
-	void OnWindowPaint(wxPaintEvent& evt);
 	void OnClose(wxCloseEvent& evt);
 	void OnKeyDown(wxKeyEvent& evt);
 
@@ -167,7 +208,6 @@ EVT_MENU(lc_Shadows, LevelViewerFrame::OnShadowsChange)
 EVT_MENU(lc_50, LevelViewerFrame::OnPreviewSizeClick)
 EVT_MENU(lc_100, LevelViewerFrame::OnPreviewSizeClick)
 EVT_MENU(lc_200, LevelViewerFrame::OnPreviewSizeClick)
-EVT_PAINT(LevelViewerFrame::OnWindowPaint)
 EVT_CLOSE(LevelViewerFrame::OnClose)
 EVT_CHAR_HOOK(LevelViewerFrame::OnKeyDown)
 END_EVENT_TABLE()
@@ -208,7 +248,7 @@ bool LevelViewerApp::OnCmdLineParsed(wxCmdLineParser& parser)
 			return true;
 		commandLineFile = parser.GetParam(0);
 	}
-		
+
 	return true;
 }
 
@@ -223,7 +263,8 @@ LevelViewerFrame::LevelViewerFrame(const wxString& title) : wxFrame(NULL, wxID_A
 {
 	// Allocate the components
 	map = new Map();
-	pnlMain = new wxPanel(this);
+	//pnlMain = new wxPanel(this);
+	imgLevel = new ImageView(this);
 	mnuMain = new wxMenuBar();
 	mnuFile = new wxMenu();
 	mnuView = new wxMenu();
@@ -258,26 +299,19 @@ LevelViewerFrame::LevelViewerFrame(const wxString& title) : wxFrame(NULL, wxID_A
 	SetDropTarget(drpMain);
 
 	// Allocate the dialogs
-	dlgOpenLevel = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString, 
+	dlgOpenLevel = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString,
 					_T("LieroX Levels (*.lxl)|*.lxl|All files (*.*)|*.*"));
-	dlgSavePreview = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString, 
+	dlgSavePreview = new wxFileDialog(this, _T("Save to"), wxEmptyString, wxEmptyString,
 					_T("PNG Images (*.png)|*.png|Bitmap Images (*.bmp)|*.bmp|JPG Images (*.jpg)|*.jpg|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|All files (*.*)|*.*"), wxSAVE|wxOVERWRITE_PROMPT);
 
 
-	// Size
-	this->SetSize(320, 240);
-	pnlMain->SetSize(this->GetClientSize());
-
-	// Setup dimensions and position
-	this->CentreOnScreen();
-
-	updateCache = true;
+	SizeAndRefresh();
 }
 
 LevelViewerFrame::~LevelViewerFrame()
 {
 	// Free the components
-	delete pnlMain;
+	delete imgLevel;
 	delete dlgOpenLevel;
 	delete dlgSavePreview;
 
@@ -288,14 +322,15 @@ LevelViewerFrame::~LevelViewerFrame()
 // Opens a level
 void LevelViewerFrame::OpenLevel(const wxString &path)
 {
-	updateCache = true;
 	try  {
 		// Open the map
 		map->setShadows(mnuView->IsChecked(lc_Shadows));
 		map->setPreviewSize(1.0f);
 		mnuView->Check(lc_100, true); // Reset to default size
 		map->Open(path);
-		pnlMain->SetSize(map->getPreview().GetWidth(), map->getPreview().GetHeight());
+		//pnlMain->SetSize(map->getPreview().GetWidth(), map->getPreview().GetHeight());
+		imgLevel->SetSize(map->getPreview().GetWidth(), map->getPreview().GetHeight());
+		imgLevel->setImage(map->getPreview());
 
 		// Enable the menu items
 		mnuView->Enable(lc_Shadows, true);
@@ -306,17 +341,28 @@ void LevelViewerFrame::OpenLevel(const wxString &path)
 		mnuFile->Enable(lc_SavePreview, true);
 
 		// Set the window title
-		SetTitle(TITLE + _T(" - ") + map->getName() + _T(" (") + 
+		SetTitle(TITLE + _T(" - ") + map->getName() + _T(" (") +
 				wxString::Format(_T("%i"), map->getWidth()) + _T("x") + wxString::Format(_T("%i"), map->getHeight()) + _T(")"));
 
-		// Setup the window size
-		Fit();
-		CentreOnScreen();
-		Refresh();
+        SizeAndRefresh();
 	} catch (Exception &e) {
 		map->Close();
 		wxMessageBox(_T("The level could not be opened:\n" + e.message), _T("Error"));
 	}
+}
+
+void LevelViewerFrame::SizeAndRefresh()
+{
+    if (map && map->isLoaded())  {
+        SetClientSize(map->getPreview().GetWidth() + 20, map->getPreview().GetHeight() + 20);
+        imgLevel->SetClientSize(map->getPreview().GetWidth(), map->getPreview().GetHeight());
+        SetClientSize(imgLevel->GetSize().GetWidth(), imgLevel->GetSize().GetHeight());
+    } else  {
+        imgLevel->SetSize(320, 240);
+        SetClientSize(imgLevel->GetSize());
+    }
+    CentreOnScreen();
+    Refresh();
 }
 
 // Open level click event
@@ -347,7 +393,6 @@ void LevelViewerFrame::OnSavePreviewClick(wxCommandEvent &evt)
 void LevelViewerFrame::OnCloseLevelClick(wxCommandEvent &evt)
 {
 	map->Close();
-	updateCache = true;
 
 	// Disable menu items
 	mnuView->Enable(lc_Shadows, false);
@@ -356,6 +401,8 @@ void LevelViewerFrame::OnCloseLevelClick(wxCommandEvent &evt)
 	mnuView->Enable(lc_200, false);
 	mnuFile->Enable(lc_CloseLevel, false);
 	mnuFile->Enable(lc_SavePreview, false);
+
+	imgLevel->clear();
 
 	// Update size & title
 	SetSize(320, 240);
@@ -384,7 +431,7 @@ void LevelViewerFrame::OnShadowsChange(wxCommandEvent &evt)
 {
 	if (map->isLoaded())  {
 		map->setShadows(mnuView->IsChecked(lc_Shadows));
-		updateCache = true;
+		imgLevel->setImage(map->getPreview());
 		Refresh();
 	}
 }
@@ -409,31 +456,12 @@ void LevelViewerFrame::OnPreviewSizeClick(wxCommandEvent& evt)
 
 	// If the size has changed, update the window width and the cache
 	if (changed)  {
-		updateCache = true;
-		pnlMain->SetSize(map->getPreview().GetWidth(), map->getPreview().GetHeight());
-		Fit();
-		CentreOnScreen();
-		Refresh();
+		//pnlMain->SetSize(map->getPreview().GetWidth(), map->getPreview().GetHeight())
+        imgLevel->setImage(map->getPreview());
+		SizeAndRefresh();
 	}
 }
 
-// Window paint event
-void LevelViewerFrame::OnWindowPaint(wxPaintEvent& evt)
-{
-	evt.Skip(true); // To let the application quit
-
-	// If the map is loaded, draw it
-	wxPaintDC dc(pnlMain);
-	if (map->isLoaded())  {
-		if (updateCache) // Update the cache if needed
-			previewCache = wxBitmap(map->getPreview(), dc.GetDepth());
-		dc.DrawBitmap(previewCache, 0, 0, false);
-		return;
-	} else {
-		// Default on paint handler
-		this->OnPaint(evt);
-	}
-}
 
 // Close event
 void LevelViewerFrame::OnClose(wxCloseEvent& evt)
@@ -563,9 +591,9 @@ void Map::Open(const wxString& level)
 // Closes the map
 void Map::Close()
 {
-	if (pixelFlags) 
-		delete pixelFlags; 
-	width = height = 0; 
+	if (pixelFlags)
+		delete pixelFlags;
+	width = height = 0;
 	pixelFlags = NULL;
 	front.Destroy();
 	back.Destroy();
