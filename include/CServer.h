@@ -78,20 +78,7 @@ private:
 	// Game rules
 	bool		bGameOver;
 	float		fGameOverTime;
-	/*
-	std::string	sName;
-	int			iMaxWorms;
-	int			iGameType;
-	int			iLives;
-	int			iMaxKills;
-	float		fTimeLimit;
-	int			iTagLimit;
-	bool		bBonusesOn;
-	bool		bShowBonusName;
-	int			iLoadingTimes;
-	std::string	sModName;
-	std::string	sMapFilename;
-	*/
+
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;

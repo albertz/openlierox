@@ -93,7 +93,7 @@ public:
 		}
 	}
 
-	class Iterator : public ::Iterator<_Obj> {
+	class Iterator : public ::Iterator<_Obj*> {
 	private:
 		int m_index;
 		FastVector& m_parent;
@@ -116,13 +116,13 @@ public:
 					m_index = SIZE;
 			}
 		}
-		bool operator==(const ::Iterator<_Obj>& other) const { return m_index == ((Iterator*)&other)->m_index; }
+		bool operator==(const ::Iterator<_Obj*>& other) const { return m_index == ((Iterator*)&other)->m_index; }
 
 		bool isValid() { return m_index < SIZE; }
-		_Obj& get() { return m_parent[m_index]; }
+		_Obj* get() { return &m_parent[m_index]; }
 	};
 
-	typename ::Iterator<_Obj>::Ref begin() { return new Iterator(*this, 0); }
+	typename ::Iterator<_Obj*>::Ref begin() { return new Iterator(*this, 0); }
 
 };
 

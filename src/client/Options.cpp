@@ -26,6 +26,8 @@
 #include "CScriptableVars.h"
 #include "IniReader.h"
 #include "Version.h"
+#include "Iterator.h"
+
 
 using namespace std;
 
@@ -175,6 +177,11 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bDisableScreenShakingAllowed, "DisableScreenShakingAllowed", true )
 		;
 
+	FeatureList::Init();
+	foreach( Feature*, f, FeatureList::Instance()->features() ) {
+		
+	}
+	
 	bool ret = tLXOptions->LoadFromDisc();
 
 	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );

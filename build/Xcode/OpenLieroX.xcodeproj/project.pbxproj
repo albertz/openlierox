@@ -24,6 +24,7 @@
 		2306CBD20E6AB45500132D3B /* nl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2306CBD10E6AB45500132D3B /* nl.h */; };
 		2306CC2A0E6AC55E00132D3B /* OLX_g15logo_ver4.xbm in Resources */ = {isa = PBXBuildFile; fileRef = 2306CC000E6AC55E00132D3B /* OLX_g15logo_ver4.xbm */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
+		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
@@ -389,6 +390,8 @@
 		230E9C4F0D8C406F00BFB500 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		230E9C500D8C407B00BFB500 /* Version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version.cpp; sourceTree = "<group>"; };
 		2313EEF40E928521007AB88B /* CServerNetEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerNetEngine.h; sourceTree = "<group>"; };
+		231FE01D0F0019A7007F4CC8 /* FeatureList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatureList.h; sourceTree = "<group>"; };
+		231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatureList.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		235D280E0CF7C10C0067BA4F /* FileDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileDownload.h; sourceTree = "<group>"; };
@@ -1047,6 +1050,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */,
 				239ACAE30E6AD46900C4216A /* StringBuf.cpp */,
 				239ACAE40E6AD46900C4216A /* XMLutils.cpp */,
 				230E9C500D8C407B00BFB500 /* Version.cpp */,
@@ -1193,6 +1197,7 @@
 				EA430C890BEFCEDE00C6547E /* UCString.h */,
 				EA430C8A0BEFCEDE00C6547E /* Unicode.h */,
 				EA430C8B0BEFCEDE00C6547E /* Utils.h */,
+				231FE01D0F0019A7007F4CC8 /* FeatureList.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -1631,6 +1636,7 @@
 				2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */,
 				2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */,
 				2395E4660ECB7FA900E8D04E /* Music.cpp in Sources */,
+				231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

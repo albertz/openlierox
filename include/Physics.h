@@ -48,7 +48,7 @@ public:
 	// in the end, I want to have one single simulate(CWorld* world);
 	virtual void simulateWorm(CWorm* worm, CWorm *worms, bool local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
-	virtual void simulateProjectiles(Iterator<CProjectile>::Ref projs) = 0;
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) = 0;
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
 };
 

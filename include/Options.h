@@ -21,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include "FeatureList.h"
 
 // Setup input id's
 enum {
@@ -270,6 +271,8 @@ public:
 		bool	bServerSideHealth;
 		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 		bool	bDisableScreenShakingAllowed; // Always shake screen if playing with old clients, overridden by server
+		
+		FeatureConfigurations features;
 	} tGameInfo;
 
 	// not specified options found in options-file

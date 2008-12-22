@@ -122,7 +122,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 		
 	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
-		entity_t *ent = &e->get();
+		entity_t *ent = e->get();
 
 		x=((int)ent->vPos.x - wx)*2 + l;
 		y=((int)ent->vPos.y - wy)*2 + t;
@@ -221,7 +221,7 @@ void SimulateEntities(float dt, CMap *map)
 
 	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
-		entity_t *ent = &e->get();
+		entity_t *ent = e->get();
 
 		// Collisions and stuff
 		switch(ent->iType) {

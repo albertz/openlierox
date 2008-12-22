@@ -894,7 +894,7 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(Iterator<CProjectile>::Ref projs) {
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 		const float orig_dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
@@ -902,8 +902,8 @@ public:
 	simulateProjectilesStart:
 		if(m_client->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
 
-		for(Iterator<CProjectile>::Ref i = projs; i->isValid(); i->next()) {
-			CProjectile* p = &i->get();
+		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
+			CProjectile* p = i->get();
 			simulateProjectile( m_client->fLastSimulationTime, p );
 		}
 
