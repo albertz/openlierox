@@ -32,7 +32,7 @@ setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 
 # Options that controls game
 setvar("GameOptions.GameInfo.RespawnGroupTeams", 1)
-setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 1)
+setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0)
 setvar( "GameOptions.GameInfo.ForceRandomWeapons", 0)
 setvar( "GameOptions.GameInfo.SameWeaponsAsHostWorm", 0) # We should add a bot for that to work
 setvar( "GameOptions.GameInfo.GameSpeed", 1)
@@ -49,6 +49,7 @@ setvar( "GameOptions.GameInfo.RespawnTime", 2.5)
 setvar( "GameOptions.GameInfo.SuicideDecreasesScore", 1)
 setvar( "GameOptions.GameInfo.CountTeamkills", 0)
 setvar( "GameOptions.GameInfo.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
+setvar( "GameOptions.GameInfo.ForceScreenShaking", 1)
 
 # General options that should be set
 setvar( "GameOptions.Advanced.MaxFPS", 95) # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 

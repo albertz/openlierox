@@ -488,7 +488,7 @@ struct DedIntern {
 		};
 		CScriptableVars::SetVarByString(varptr, value);
 		
-		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
+		//cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
 		cServer->UpdateGameLobby();
 	}

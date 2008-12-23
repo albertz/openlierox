@@ -150,13 +150,13 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
-	bool disableScreenShakingAllowed = true;
+	bool forceScreenShaking = false;
 	CServerConnection *cl = server->cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 		if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() < OLXBetaVersion(9) )
-			disableScreenShakingAllowed = false;
+			forceScreenShaking = true;
 
-	bs->writeBool( disableScreenShakingAllowed && tLXOptions->tGameInfo.bDisableScreenShakingAllowed );
+	bs->writeBool( forceScreenShaking || tLXOptions->tGameInfo.bForceScreenShaking );
 }
 
 

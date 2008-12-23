@@ -253,12 +253,12 @@ def parseAdminCommand(wormid,message):
 
 def userCommandHelp(wormid):
 	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%steam <blue/red" % (cfg.USER_PREFIX)
+		msg = "%steam [b/r" % (cfg.USER_PREFIX)
 		if cfg.MAX_TEAMS >= 3:
-			msg += "/green"
+			msg += "/g"
 		if cfg.MAX_TEAMS >= 4:
-			msg += "/yellow"
-		msg += ">"
+			msg += "/y"
+		msg += "] - set your team"
 		privateMsg(wormid, msg + " - set your team")
 	if cfg.RANKING:
 		privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )

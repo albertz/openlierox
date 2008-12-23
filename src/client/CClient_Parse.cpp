@@ -833,7 +833,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 
-	client->tGameInfo.bDisableScreenShakingAllowed = false;
+	client->tGameInfo.bForceScreenShaking = true;
 	
     return true;
 }
@@ -855,7 +855,7 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	client->tGameInfo.bDisableScreenShakingAllowed = bs->readBool();
+	client->tGameInfo.bForceScreenShaking = bs->readBool();
 
     return true;
 };

@@ -1,0 +1,29 @@
+#!/usr/bin/python -u
+
+import random
+
+# Edit this list as you like
+
+levels = [	"FossilFacility.lxl",
+			"LieroFactory(Revisited).lxl",
+			"LieroFactory_Maintenance.lxl",
+			"JailBreak.lxl",
+			"JukkeDome.lxl",
+			"Lake Liero.lxl",
+			"Lamda_bunker_(Razvisited).lxl",
+			"MsPaintPower.lxl",
+			"MsPaintPower2.lxl",
+			"Ore Quarry.lxl",
+			"Poo Arena.lxl",
+			"RIP_Home.lxl",
+			"Sunrise_Mansion.lxl",
+			"wormmountain.lxl"
+		]
+
+setvar( "GameOptions.GameInfo.LevelName", levels[ random.randrange(len(levels)) ] )
+
+setvar( "GameOptions.GameInfo.ModName", "MSF II" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+setvar( "GameServer.WeaponRestrictionsFile", "" )
