@@ -1,4 +1,4 @@
-0.57_beta8
+0.57_beta8 (rev2717, 2008-10-09)
 ==========
 - Chatbox has HTML and copy&paste support
 - connect during game support
@@ -23,7 +23,7 @@
 - Client info dialog for host
 
 
-0.57_beta6
+0.57_beta6 
 ==========
 - fixed crashing in DBZ mod
 - improved connecting to servers behind firewall/NAT
@@ -48,7 +48,7 @@
 - optionally attach a console window using -console under Windows
 
 
-0.57_beta5
+0.57_beta5 (2008-03-15)
 ==========
 - fast and easy theme switching
   ( and LieroX 0.56 theme included )
@@ -60,7 +60,7 @@
 - bugfixes
 
 
-0.57_beta4
+0.57_beta4 (2008-02-23)
 ==========
 - very basic dedicated server
 - joystick support (for playing)
@@ -95,7 +95,7 @@
 - and a lot of other fixes / cleanups
 
 
-0.57_beta3
+0.57_beta3 (2007-08-08)
 ==========
 - 16/24/32 bit graphic support and OpenGL support
 - runs on MacOSX
@@ -112,7 +112,7 @@
 - profile-saving is correct now
 
 
-0.57_beta2
+0.57_beta2 (2007-04-09)
 ==========
 - BPP independent
 - ingame mediaplayer
@@ -131,7 +131,7 @@
 - no-clipping-issues with weapon-generated dirt are fixed
 
 
-0.57_beta1
+0.57_beta1 (2007-01-27)
 ==========
 - POSIX-compatible (well-tested under Linux).
 - endian-independent (runs without any problems on my big endian PPC)
@@ -142,6 +142,8 @@
 - new bot AI with a very nice pathfinding-algo
 - some other additions/extensions/...
 - ...
+
+Project started on 2006-10-24.
 
 ======================================
 
