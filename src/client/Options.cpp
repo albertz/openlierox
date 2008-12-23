@@ -179,7 +179,8 @@ bool GameOptions::Init() {
 
 	FeatureList::Init();
 	foreach( Feature*, f, FeatureList::Instance()->features() ) {
-		
+		CScriptableVars::RegisterVars("GameOptions.GameInfo")
+		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue );
 	}
 	
 	bool ret = tLXOptions->LoadFromDisc();

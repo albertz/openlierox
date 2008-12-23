@@ -15,7 +15,7 @@
 #include <map>
 #include <vector>
 #include <list>
-
+#include <cassert>
 #include "Color.h"
 
 namespace DeprecatedGUI {
@@ -41,6 +41,8 @@ public:
 		SVT_CALLBACK	// Cannot be referenced from XML files directly, only as string
 	};
 
+	struct ScriptVar_t;
+	
 	// Pointer to any in-game var - var should be global or static
 	struct ScriptVarPtr_t
 	{
@@ -64,13 +66,23 @@ public:
 			Color_t cldef;
 			// No default value for skin callback, 'cause it's not saved into cfg file
 		};
-		ScriptVarPtr_t(): type(SVT_CALLBACK) { b = NULL; }; // Invalid value initially (all pointer are NULL in union)
-		ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; };
-		ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; };
-		ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; };
-		ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; };
-		ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR) { cl = v; cldef = def; };
-		ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK) { cb = v; };
+		ScriptVarPtr_t(): type(SVT_CALLBACK) { b = NULL; } // Invalid value initially (all pointer are NULL in union)
+		ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; }
+		ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; }
+		ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; }
+		ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; }
+		ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR) { cl = v; cldef = def; }
+		ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK) { cb = v; }
+		ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type) {
+			switch(type) {
+				case SVT_BOOL: b = &v->b; bdef = def->b; break;
+				case SVT_INT: i = &v->i; idef = def->i; break;
+				case SVT_FLOAT: f = &v->f; fdef = def->f; break;
+				case SVT_STRING: s = &v->s; sdef = def->s.c_str(); break;
+				case SVT_COLOR: cl = &v->c; cldef = def->c; break;
+				default: assert(false);
+			}
+		}
 	};
 
 	// Helper wrapper for common var types (used in GUI skinning)
@@ -163,6 +175,9 @@ public:
 
 		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c )
 			{ m_vars[Name(c)] = ScriptVarPtr_t( v ); return *this; };
+		
+		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, &def ); return *this; };
 	};
 
 	static VarRegisterHelper RegisterVars( const std::string & base = "" )
