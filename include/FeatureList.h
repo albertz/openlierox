@@ -13,6 +13,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include "Iterator.h"
 #include "CScriptableVars.h"
 #include "Version.h"
 
@@ -24,20 +25,24 @@ struct Feature {
 	CScriptableVars::ScriptVar_t unsetValue; // if the server does not provide this; for example: gamespeed=1
 	CScriptableVars::ScriptVar_t defaultValue; // for config, if not set before, in most cases the same as unsetValue
 	Version minVersion;
+	bool UNSET;
+	
+	Feature() : UNSET(true) {}
+	static Feature Unset() { return Feature(); }
 };
 
-class FeatureList {
-private:
-	std::set<Feature*> m_features;
-	static FeatureList* m_instance;
-public:
-	static void Init();
-	static FeatureList* Instance() { return m_instance; }
-	std::set<Feature*>& features() { return m_features; }
-	FeatureList();
-	~FeatureList();
+extern Feature featureArray[];
+inline int featureArrayLen() { int l = 0; for(Feature* f = featureArray; !f->UNSET; ++f) ++l; return l; }
+
+struct FeatureSettings {
+	CScriptableVars::ScriptVar_t* settings;
+	FeatureSettings();
+	~FeatureSettings() { if(settings) delete[] settings; }
+	CScriptableVars::ScriptVar_t& operator[](Feature* f) {
+		return settings[f - &featureArray[0]];
+	}
 };
 
-typedef std::map<Feature*, CScriptableVars::ScriptVar_t> FeatureConfigurations;
+typedef CScriptableVars::ScriptVar_t FeatureConfigurations[];
 
 #endif

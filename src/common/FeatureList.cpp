@@ -7,20 +7,22 @@
  *
  */
 
+#include <iostream>
 #include "FeatureList.h"
 
-std::set<Feature*> features;
 
-FeatureList* FeatureList::m_instance = NULL;
+using namespace std;
 
-void FeatureList::Init() {
-	m_instance = new FeatureList();
-}
+Feature featureArray[] = { Feature::Unset() };
 
-FeatureList::FeatureList() {
-	
-}
-
-FeatureList::~FeatureList() {
-
+FeatureSettings::FeatureSettings() {
+	unsigned long len = featureArrayLen();
+	if(len == 0) {
+		settings = NULL;
+		return;
+	}
+	settings = new CScriptableVars::ScriptVar_t[len];
+	foreach( Feature*, f, Array(featureArray,len) ) {
+		(*this)[f->get()].type = f->get()->valueType;
+	}
 }

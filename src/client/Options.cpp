@@ -177,8 +177,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bForceScreenShaking, "ForceScreenShaking", true )
 		;
 
-	FeatureList::Init();
-	foreach( Feature*, f, FeatureList::Instance()->features() ) {
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue );
 	}

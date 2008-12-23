@@ -272,7 +272,7 @@ public:
 		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 		bool	bForceScreenShaking; // Always shake screen if playing with old clients, overridden by server
 		
-		FeatureConfigurations features;
+		FeatureSettings features;
 	} tGameInfo;
 
 	// not specified options found in options-file
