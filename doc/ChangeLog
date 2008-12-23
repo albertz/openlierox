@@ -10,7 +10,7 @@
 - removed media player
 
 
-0.57_beta7
+0.57_beta7 (rev2451, 2008-09-25)
 ==========
 - Game-speed multiplicator
 - Options editable from everywhere in the game
@@ -23,7 +23,7 @@
 - Client info dialog for host
 
 
-0.57_beta6 
+0.57_beta6 (rev2371, 2008-09-23)
 ==========
 - fixed crashing in DBZ mod
 - improved connecting to servers behind firewall/NAT
@@ -48,7 +48,7 @@
 - optionally attach a console window using -console under Windows
 
 
-0.57_beta5 (2008-03-15)
+0.57_beta5 (rev1968, 2008-03-15)
 ==========
 - fast and easy theme switching
   ( and LieroX 0.56 theme included )
@@ -60,7 +60,7 @@
 - bugfixes
 
 
-0.57_beta4 (2008-02-23)
+0.57_beta4 (rev1798, 2008-02-23)
 ==========
 - very basic dedicated server
 - joystick support (for playing)
@@ -95,7 +95,7 @@
 - and a lot of other fixes / cleanups
 
 
-0.57_beta3 (2007-08-08)
+0.57_beta3 (rev917, 2007-08-10)
 ==========
 - 16/24/32 bit graphic support and OpenGL support
 - runs on MacOSX
@@ -112,7 +112,7 @@
 - profile-saving is correct now
 
 
-0.57_beta2 (2007-04-09)
+0.57_beta2 (rev498, 2007-04-09)
 ==========
 - BPP independent
 - ingame mediaplayer
@@ -131,7 +131,7 @@
 - no-clipping-issues with weapon-generated dirt are fixed
 
 
-0.57_beta1 (2007-01-27)
+0.57_beta1 (rev317, 2007-01-27)
 ==========
 - POSIX-compatible (well-tested under Linux).
 - endian-independent (runs without any problems on my big endian PPC)
@@ -143,7 +143,9 @@
 - some other additions/extensions/...
 - ...
 
+
 Project started on 2006-10-24.
+
 
 ======================================
 
