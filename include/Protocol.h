@@ -50,7 +50,8 @@ enum C2S_MESSAGES {
 	C2S_GRABBONUS		= 8,
 	C2S_SENDFILE        = 9, // Beta4+ only, enabled only in Beta6+
 	C2S_CHATCMDCOMPLREQ	= 10, // since Beta7
-	C2S_AFK				= 11 // since Beta7, if client away from keyboard
+	C2S_AFK				= 11, // since Beta7, if client away from keyboard
+	C2S_REPORTDAMAGE	= 12, // since Beta9
 };
 
 // Server->Client
@@ -81,7 +82,8 @@ enum S2C_MESSAGES {
 	S2C_WORMWEAPONINFO	= 23, // >=Beta7
 	S2C_CHATCMDCOMPLSOL	= 24, // since Beta7
 	S2C_AFK				= 25, // since Beta7, if client away from keyboard
-	S2C_CHATCMDCOMPLLST	= 26 // since Beta7
+	S2C_CHATCMDCOMPLLST	= 26, // since Beta7
+	S2C_REPORTDAMAGE	= 27, // since Beta9
 };
 
 

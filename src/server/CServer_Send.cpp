@@ -764,3 +764,14 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 
 	SendPacket(&bs);
 };
+
+void CServerNetEngineBeta9::SendReportDamage(CWorm *Worm, int damage, CWorm * offender)
+{
+	// TODO: buffer up packets and send them once per halfsecond (I'll do that later)
+	CBytestream bs;
+	bs.writeByte(S2C_REPORTDAMAGE);
+	bs.writeByte(Worm->getID());
+	bs.writeByte(damage);
+	bs.writeByte(offender->getID());
+	SendPacket(&bs);
+};

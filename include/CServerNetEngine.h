@@ -18,6 +18,10 @@
 class GameServer;
 class CServerConnection;
 
+// This class is not finished yet (and I think it newer will be),
+// so look at it as to incorporation of all differences between OLX versions.
+// Big part of net protocol that have not changed since 0.56b is scattered around GameServer and CWorm classes
+
 class CServerNetEngine
 {
 public:
@@ -37,15 +41,16 @@ public:
 
 	virtual void ParseChatCommandCompletionRequest(CBytestream *bs) { return; };
 	virtual void ParseAFK(CBytestream *bs) { return; };
+	virtual void ParseReportDamage(CBytestream *bs) { return; };
 
-	void		ParseImReady(CBytestream *bs);
-	void		ParseUpdate(CBytestream *bs);
-	void		ParseDeathPacket(CBytestream *bs);
-	void		ParseChatText(CBytestream *bs);
-	void		ParseUpdateLobby(CBytestream *bs);
-	void		ParseDisconnect();
-	void		ParseGrabBonus(CBytestream *bs);
-	void		ParseSendFile(CBytestream *bs);
+	void		 ParseImReady(CBytestream *bs);
+	void		 ParseUpdate(CBytestream *bs);
+	void		 ParseDeathPacket(CBytestream *bs);
+	void		 ParseChatText(CBytestream *bs);
+	void		 ParseUpdateLobby(CBytestream *bs);
+	void		 ParseDisconnect();
+	void		 ParseGrabBonus(CBytestream *bs);
+	void		 ParseSendFile(CBytestream *bs);
 
 	bool		ParseChatCommand(const std::string& message);
 
@@ -58,6 +63,7 @@ public:
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
 	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
+	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender) { return; };
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
@@ -132,6 +138,9 @@ public:
 	CServerNetEngineBeta9( GameServer * _server, CServerConnection * _client ):
 		CServerNetEngineBeta8( _server, _client )
 		{ }
+
+	virtual void ParseReportDamage(CBytestream *bs);
+	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender);
 
 protected:
 	void WritePrepareGame(CBytestream *bs);

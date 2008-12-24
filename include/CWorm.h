@@ -326,8 +326,12 @@ private:
 
 	CWormInputHandler* m_inputHandler;
 
-
-
+	// Used to print damage numbers over the worm head
+	struct DamageReport_t {
+		int damage;
+		float lastTime;
+	};
+	DamageReport_t cDamageReport[MAX_WORMS];
 
 public:
 	// Methods
@@ -595,6 +599,8 @@ public:
 	float&		frame()						{ return fFrame; }
 	
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
+	
+	DamageReport_t* getDamageReport() { return cDamageReport; }
 	
 	
 	// HINT: saves the current time of the simulation

@@ -299,19 +299,17 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 	bool me = false;
 	ushort i;
-	int localid=0;
 
 
 	// Make sure this is one of our worms
 	for(i=0; i < iNumWorms; i++) {
 		if(cLocalWorms[i]->getID() == w->getID()) {
 			me=true;
-			localid = i;
 			break;
 		}
 	}
 
-
+	// TODO: set healthbar based on REPORTDAMAGE packets, not on local calculations
 	if(w->Injure(damage)) {
 		// His dead Jim
 
@@ -342,6 +340,15 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
 		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+	}
+	
+	// Send REPORTDAMAGE to server
+	if( me )
+	{
+		getNetEngine()->SendReportDamage( w->getID(), damage, owner );
+		// Set damage report for local worm - server won't send it back to us
+		w->getDamageReport()[owner].damage += damage;
+		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
 	}
 }
 

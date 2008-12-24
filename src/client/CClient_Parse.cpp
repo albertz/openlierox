@@ -501,6 +501,10 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
                 ParseSendFile(bs);
                 break;
 
+            case S2C_REPORTDAMAGE:
+                ParseReportDamage(bs);
+                break;
+
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				printf("cl: Unknown packet\n");
@@ -2097,3 +2101,20 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 	};
 };
 
+void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
+{
+	int id = bs->readByte();
+	int damage = bs->readByte();
+	int offenderId = bs->readByte();
+
+	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
+		return;
+	CWorm *w = & client->getRemoteWorms()[id];
+	CWorm *offender = & client->getRemoteWorms()[offenderId];
+	
+	if( ! w->isUsed() || ! offender->isUsed() )
+		return;
+	
+	w->getDamageReport()[offender->getID()].damage += damage;
+	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
+};

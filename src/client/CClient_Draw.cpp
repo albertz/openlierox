@@ -823,7 +823,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			ushort i;
 			w = cRemoteWorms;
 			for(i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed() && w->getAlive())
+				if(w->isUsed())
 					w->Draw(bmpDest, v);
 			}
 		}

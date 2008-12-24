@@ -309,3 +309,22 @@ void CClientNetEngine::SendFileData()
 	client->getChannel()->AddReliablePacketToSend(bs);
 };
 
+void CClientNetEngineBeta9::SendReportDamage(int victim, int damage, int offender)
+{
+	// TODO: buffer up all damage and send it once per halfsecond (I'll add this later)
+	CBytestream bs;
+	while( damage != 0 )
+	{
+		bs.writeByte(C2S_REPORTDAMAGE);
+		bs.writeByte(victim);
+		int damageSend = damage;
+		if( damageSend > 127 )
+			damageSend = 127;
+		if( damageSend < -128 )
+			damageSend = -128;
+		bs.writeByte( damageSend );
+		bs.writeByte(offender);
+		damage -= damageSend;
+	}
+	client->cNetChan->AddReliablePacketToSend(bs);
+};

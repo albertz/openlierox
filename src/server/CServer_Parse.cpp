@@ -131,6 +131,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			ParseSendFile(bs);
 			break;
 
+		case C2S_REPORTDAMAGE:
+			ParseReportDamage(bs);
+			break;
+
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
@@ -614,6 +618,33 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 
 	return true;
 }
+
+void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
+{
+	int id = bs->readByte();
+	int damage = bs->readByte();
+	int offenderId = bs->readByte();
+
+	if( server->iState != SVS_PLAYING )
+		return;
+
+	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
+		return;
+
+	CWorm *w = & server->getWorms()[id];
+	CWorm *offender = & server->getWorms()[offenderId];
+	
+	if( ! w->isUsed() || ! offender->isUsed() )
+		return;
+	
+	if( ! cl->OwnsWorm(id) )	// Trying to cheat? I don't see any advantage of such cheat though
+		return;
+		
+	// Re-send the packet to all clients, except the sender
+	for( int i=0; i < MAX_CLIENTS; i++ )
+		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
+			server->cClients[i].getNetEngine()->SendReportDamage( w, damage, offender );
+};
 
 
 /*
