@@ -340,7 +340,16 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		else if(!kbev.down)
 			cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
 		*/
-
+		
+		// If we have no focus and got keypress that means we missed ActiveEvent - set it forcefully
+		if( !nFocus )
+		{
+			SDL_Event activateEvent;
+			activateEvent.active.type = SDL_ACTIVEEVENT;
+			activateEvent.active.state = SDL_APPINPUTFOCUS | SDL_APPACTIVE;
+			activateEvent.active.gain = 1;
+			EvHndl_ActiveEvent(&activateEvent);
+		}
 	} else
 		printf("strange Event.key.state = %i\n", ev->key.state);
 
