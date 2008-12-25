@@ -26,7 +26,7 @@ FeatureSettings::FeatureSettings() {
 	}
 	settings = new CScriptableVars::ScriptVar_t[len];
 	foreach( Feature*, f, Array(featureArray,len) ) {
-		(*this)[f->get()].type = f->get()->valueType;
+		(*this)[f->get()] = f->get()->defaultValue;
 	}
 }
 
