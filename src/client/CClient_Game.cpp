@@ -310,7 +310,10 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		}
 	}
 
-	// TODO: set healthbar based on REPORTDAMAGE packets, not on local calculations
+	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
+	if( getServerVersion() < OLXBetaVersion(9) || 
+		( getServerVersion() >= OLXBetaVersion(9) && me ) ||
+		( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
 	if(w->Injure(damage)) {
 		// His dead Jim
 

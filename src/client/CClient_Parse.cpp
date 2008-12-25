@@ -2121,4 +2121,5 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	w->getDamageReport()[offender->getID()].damage += damage;
 	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
+	w->Injure(damage);	// Calculate correct healthbar
 };
