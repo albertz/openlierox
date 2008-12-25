@@ -271,7 +271,7 @@ public:
 	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 
 	// Read-only listview for skinning (typically text list), more variants to come.
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CListview * w = new CListview();
 		layout->Add( w, id, x, y, dx, dy );

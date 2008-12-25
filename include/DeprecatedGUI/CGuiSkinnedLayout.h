@@ -96,7 +96,7 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent);
 	
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 
 	static void ExitDialog( const std::string & param, CWidget * source );
 	static void ChildDialog( const std::string & param, CWidget * source );

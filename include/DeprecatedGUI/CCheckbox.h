@@ -57,7 +57,7 @@ public:
 		iVar = NULL;
 	}
 
-	CCheckbox(CScriptableVars::ScriptVar_t& var);
+	CCheckbox(ScriptVar_t& var);
 	
 private:
 	// Attributes
@@ -114,11 +114,11 @@ public:
 			*iVar = (int)bValue;
 	}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CCheckbox * w = new CCheckbox(false);
-		w->bVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_BOOL ).b;
-		w->iVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_INT ).i;
+		w->bVar = CScriptableVars::GetVar( p[0].s, SVT_BOOL ).b;
+		w->iVar = CScriptableVars::GetVar( p[0].s, SVT_INT ).i;
 		if( w->bVar )
 			w->bValue = *w->bVar != 0;
 		if( w->iVar )

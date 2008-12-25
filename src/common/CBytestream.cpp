@@ -26,6 +26,7 @@
 #include "EndianSwap.h"
 #include "StringUtils.h"
 #include "MathLib.h"
+#include "CScriptableVars.h"
 
 using namespace std;
 
@@ -379,7 +380,20 @@ bool CBytestream::writeData(const std::string& value)
 {
 	Data.append( value );
 	return true;
-};
+}
+
+bool CBytestream::writeVar(const ScriptVar_t& var) {
+	assert( var.type >= 0 && var.type <= 4 );
+	if(!writeByte( var.type )) return false;
+	switch( var.type ) {
+		case SVT_BOOL: return writeBool(var.b);
+		case SVT_INT: return writeInt(var.i, 4);
+		case SVT_FLOAT: return writeFloat(var.f);
+		case SVT_STRING: return writeString(var.s);
+		case SVT_COLOR: return writeInt(var.c, 4);
+		default: assert(false); return false;
+	}
+}
 
 
 
@@ -534,6 +548,23 @@ std::string CBytestream::readData( size_t size )
 	pos += size;
 	return Data.substr( oldpos, size );
 }
+
+bool CBytestream::readVar(ScriptVar_t& var) {
+	assert( var.type >= 0 && var.type <= 4 );
+	var.type = (ScriptVarType_t)readByte();
+	switch( var.type ) {
+		case SVT_BOOL: var.b = readBool(); break;
+		case SVT_INT: var.i = readInt(4); break;
+		case SVT_FLOAT: var.f = readFloat(); break;
+		case SVT_STRING: var.s = readString(); break;
+		case SVT_COLOR: var.c = readInt(4); break;
+		default:
+			cout << "WARNING: read var has invalid type" << endl;
+			var = ScriptVar_t();
+	}
+	return true;
+}
+
 
 
 /////////////////////

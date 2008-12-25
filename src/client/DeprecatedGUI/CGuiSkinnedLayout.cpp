@@ -431,7 +431,7 @@ CWidget * CGuiSkinnedLayout::getWidgetAtPoint(int x, int y)
 	return this;
 }
 
-CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	// Create new CGuiSkinnedLayout and put it's cChildLayout to actual layout from XML
 	// so when it's destroyed the layout from XML not destroyed.
@@ -449,9 +449,9 @@ CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< CScriptableVars::
 
 static bool CGuiSkinnedLayout_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "tab", & CGuiSkinnedLayout::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "offset_left", CScriptableVars::SVT_INT )
-							( "offset_top", CScriptableVars::SVT_INT )
+							( "file", SVT_STRING )
+							( "offset_left", SVT_INT )
+							( "offset_top", SVT_INT )
 							;
 
 

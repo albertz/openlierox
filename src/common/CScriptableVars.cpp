@@ -45,7 +45,7 @@ std::string CScriptableVars::StripClassName( const std::string & c )
 	return ret;
 };
 
-CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
+ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
 {
 	Init();
 	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
@@ -60,7 +60,7 @@ CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & nam
 };
 
 
-CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, CScriptableVars::ScriptVarType_t type )
+ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, ScriptVarType_t type )
 {
 	Init();
 	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
@@ -125,13 +125,13 @@ std::string CScriptableVars::DumpVars()
 	return ret.str();
 };
 
-void CScriptableVars::SetVarByString(const CScriptableVars::ScriptVarPtr_t& var, const std::string& str) 
+void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::string& str) 
 {
 	bool fail = false;
 	if( var.b == NULL ) 
 		return;
 	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
-	if( var.type == CScriptableVars::SVT_BOOL )
+	if( var.type == SVT_BOOL )
 	{
 		if( scopy.find_first_of("-0123456789") == 0 )
 			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
@@ -144,7 +144,7 @@ void CScriptableVars::SetVarByString(const CScriptableVars::ScriptVarPtr_t& var,
 				fail = true;
 		}
 	}
-	else if( var.type == CScriptableVars::SVT_INT )
+	else if( var.type == SVT_INT )
 	{
 		if( scopy.find_first_of("-0123456789") == 0 )
 			*var.i = from_string<int>(scopy, fail);
@@ -160,9 +160,9 @@ void CScriptableVars::SetVarByString(const CScriptableVars::ScriptVarPtr_t& var,
 				fail = true;
 		}
 	}
-	else if( var.type == CScriptableVars::SVT_FLOAT )
+	else if( var.type == SVT_FLOAT )
 		*var.f = from_string<float>(scopy, fail);
-	else if( var.type == CScriptableVars::SVT_STRING )
+	else if( var.type == SVT_STRING )
 		*var.s = str;
 	else
 		std::cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << std::endl;

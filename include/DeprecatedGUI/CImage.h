@@ -110,7 +110,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{

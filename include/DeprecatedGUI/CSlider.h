@@ -87,11 +87,11 @@ public:
 	void	setMax(int _m)						{ iMax = _m; }
 	void	setMin(int _m)						{ iMin = _m; }
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CSlider * w = new CSlider( p[1].i, p[0].i );
 		layout->Add( w, id, x, y, dx, dy );
-		w->iVar = CScriptableVars::GetVar( p[2].s, CScriptableVars::SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVar( p[2].s, SVT_INT ).i;
 		if( w->iVar )
 			w->setValue( *w->iVar );
 		w->cClick.Init( p[3].s, w );

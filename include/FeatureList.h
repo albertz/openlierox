@@ -21,8 +21,8 @@ struct Feature {
 	std::string name; // for config, network and other identification
 	std::string humanReadableName;
 	std::string description;
-	typedef CScriptableVars::ScriptVarType_t VarType;
-	typedef CScriptableVars::ScriptVar_t Var;
+	typedef ScriptVarType_t VarType;
+	typedef ScriptVar_t Var;
 	VarType valueType; // for example: float for gamespeed, bool for ropelenchange
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
@@ -32,13 +32,13 @@ struct Feature {
 	Feature() : SET(false) {}
 	static Feature Unset() { return Feature(); }
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(CScriptableVars::SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(CScriptableVars::SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(CScriptableVars::SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(CScriptableVars::SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
 
 };
 
@@ -56,15 +56,15 @@ enum FeatureIndex {
 
 class FeatureSettings {
 private:
-	CScriptableVars::ScriptVar_t* settings;
+	ScriptVar_t* settings;
 public:
 	FeatureSettings(); ~FeatureSettings();
 	FeatureSettings(const FeatureSettings& r) : settings(NULL) { (*this) = r; }
 	FeatureSettings& operator=(const FeatureSettings& r);
-	CScriptableVars::ScriptVar_t& operator[](FeatureIndex i) { return settings[i]; }
-	CScriptableVars::ScriptVar_t& operator[](Feature* f) { return settings[f - &featureArray[0]]; }
-	const CScriptableVars::ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
-	const CScriptableVars::ScriptVar_t& operator[](Feature* f) const { return settings[f - &featureArray[0]]; }
+	ScriptVar_t& operator[](FeatureIndex i) { return settings[i]; }
+	ScriptVar_t& operator[](Feature* f) { return settings[f - &featureArray[0]]; }
+	const ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
+	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &featureArray[0]]; }
 };
 
 #endif

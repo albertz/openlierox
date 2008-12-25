@@ -125,7 +125,7 @@ void CImage::Change(SDL_Surface *bmpImg)
 	cropX = cropY = cropW = cropH = 0;
 }
 
-CWidget * CImage::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CImage * w = new CImage( p[0].s, p[1].i, p[2].i, p[3].i, p[4].i );
 	w->cClick.Init( p[5].s, w );
@@ -139,12 +139,12 @@ CWidget * CImage::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t
 
 static bool CImage_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "crop_x", CScriptableVars::SVT_INT )
-							( "crop_y", CScriptableVars::SVT_INT )
-							( "crop_w", CScriptableVars::SVT_INT )
-							( "crop_h", CScriptableVars::SVT_INT )
-							( "click", CScriptableVars::SVT_STRING );
+							( "file", SVT_STRING )
+							( "crop_x", SVT_INT )
+							( "crop_y", SVT_INT )
+							( "crop_w", SVT_INT )
+							( "crop_h", SVT_INT )
+							( "click", SVT_STRING );
 
 }; // namespace SkinnedGUI
 

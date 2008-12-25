@@ -90,9 +90,9 @@ DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 static bool CSlider_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
-							( "min", CScriptableVars::SVT_INT )
-							( "max", CScriptableVars::SVT_INT )
-							( "var", CScriptableVars::SVT_STRING )
-							( "click", CScriptableVars::SVT_STRING );
+							( "min", SVT_INT )
+							( "max", SVT_INT )
+							( "var", SVT_STRING )
+							( "click", SVT_STRING );
 
 }; // namespace DeprecatedGUI

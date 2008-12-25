@@ -63,12 +63,12 @@ std::string CGuiSkin::DumpWidgets()
 			if( !first ) ret << ", ";
 			switch( f->second )
 			{
-				case CScriptableVars::SVT_BOOL: ret << "bool"; break;
-				case CScriptableVars::SVT_INT: ret << "int"; break;
-				case CScriptableVars::SVT_FLOAT: ret << "float"; break;
-				case CScriptableVars::SVT_STRING: ret << "string"; break;
-				case CScriptableVars::SVT_COLOR: ret << "color"; break;
-				case CScriptableVars::SVT_CALLBACK: ret << "callback"; break;
+				case SVT_BOOL: ret << "bool"; break;
+				case SVT_INT: ret << "int"; break;
+				case SVT_FLOAT: ret << "float"; break;
+				case SVT_STRING: ret << "string"; break;
+				case SVT_COLOR: ret << "color"; break;
+				case SVT_CALLBACK: ret << "callback"; break;
 			};
 			ret << " " << f->first;
 			first = false;
@@ -193,25 +193,25 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			if( stringcasecmp( it->first.c_str(), (const char *)Node->name ) )
 				continue;
 
-			std::vector< CScriptableVars::ScriptVar_t > params;
+			std::vector< ScriptVar_t > params;
 			for( paramListVector_t::const_iterator i = it->second.first.begin(); i != it->second.first.end(); i++ )
 			{
-				if( i->second == CScriptableVars::SVT_BOOL )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetBool( Node, i->first ) ) );
-				else if( i->second == CScriptableVars::SVT_INT )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetInt( Node, i->first ) ) );
-				else if( i->second == CScriptableVars::SVT_FLOAT )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetFloat( Node, i->first ) ) );
-				else if( i->second == CScriptableVars::SVT_COLOR )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetColor( Node, i->first ) ) );
-				else if( i->second == CScriptableVars::SVT_STRING )
+				if( i->second == SVT_BOOL )
+					params.push_back( ScriptVar_t( xmlGetBool( Node, i->first ) ) );
+				else if( i->second == SVT_INT )
+					params.push_back( ScriptVar_t( xmlGetInt( Node, i->first ) ) );
+				else if( i->second == SVT_FLOAT )
+					params.push_back( ScriptVar_t( xmlGetFloat( Node, i->first ) ) );
+				else if( i->second == SVT_COLOR )
+					params.push_back( ScriptVar_t( xmlGetColor( Node, i->first ) ) );
+				else if( i->second == SVT_STRING )
 				{	// "<label text="lalala"/>" and "<label>lalala</label>" are equal
 					std::string text = xmlGetString( Node, i->first );
 					if( text == "" && i->first == "text" )
 						text = xmlGetText( Doc, Node );
-					params.push_back( CScriptableVars::ScriptVar_t( text ) );
+					params.push_back( ScriptVar_t( text ) );
 				}
-				else params.push_back( CScriptableVars::ScriptVar_t( ) );	// Compile-time error here
+				else params.push_back( ScriptVar_t( ) );	// Compile-time error here
 			};
 
 			int i_id = -1;
@@ -350,9 +350,9 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 		for( it = CScriptableVars::begin();
 				it != CScriptableVars::end(); it++ )
 		{
-			if( !stringcasecmp( it->first, func ) && it->second.type == CScriptableVars::SVT_CALLBACK )
+			if( !stringcasecmp( it->first, func ) && it->second.type == SVT_CALLBACK )
 			{
-				m_callbacks.push_back( std::pair< CScriptableVars::ScriptCallback_t, std::string > ( it->second.cb, param ) );
+				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.cb, param ) );
 				//printf("%s(\"%s\") ", it->first.c_str(), param.c_str());
 				break;
 			};
@@ -374,7 +374,7 @@ void CGuiSkin::CallbackHandler::Call()
 
 static bool bUpdateCallbackListChanged = false;
 
-void CGuiSkin::RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update, const std::string & param, CWidget * source )
+void CGuiSkin::RegisterUpdateCallback( ScriptCallback_t update, const std::string & param, CWidget * source )
 {
 	Init();
 	m_instance->m_updateCallbacks.push_back( UpdateList_t( source, update, param ) );
@@ -586,8 +586,8 @@ static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 namespace DeprecatedGUI {
 static bool CAnimation_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "frametime", CScriptableVars::SVT_FLOAT );
+							( "file", SVT_STRING )
+							( "frametime", SVT_FLOAT );
 };
 
 #include "DeprecatedGUI/CBox.h"
@@ -595,11 +595,11 @@ static bool CAnimation_WidgetRegistered =
 namespace DeprecatedGUI {
 static bool CBox_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
-							( "round", CScriptableVars::SVT_INT )
-							( "border", CScriptableVars::SVT_INT )
-							( "lightcolor", CScriptableVars::SVT_COLOR )
-							( "darkcolor", CScriptableVars::SVT_COLOR )
-							( "bgcolor", CScriptableVars::SVT_COLOR );
+							( "round", SVT_INT )
+							( "border", SVT_INT )
+							( "lightcolor", SVT_COLOR )
+							( "darkcolor", SVT_COLOR )
+							( "bgcolor", SVT_COLOR );
 };
 
 #include "DeprecatedGUI/CLabel.h"
@@ -607,10 +607,10 @@ static bool CBox_WidgetRegistered =
 namespace DeprecatedGUI {
 static bool CLabel_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
-							( "text", CScriptableVars::SVT_STRING )
-							( "color", CScriptableVars::SVT_COLOR )
-							( "center", CScriptableVars::SVT_BOOL )
-							( "var", CScriptableVars::SVT_STRING );
+							( "text", SVT_STRING )
+							( "color", SVT_COLOR )
+							( "center", SVT_BOOL )
+							( "var", SVT_STRING );
 };
 
 #include "DeprecatedGUI/CLine.h"
@@ -618,7 +618,7 @@ static bool CLabel_WidgetRegistered =
 namespace DeprecatedGUI {
 static bool CLine_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "line", & CLine::WidgetCreator )
-							( "color", CScriptableVars::SVT_COLOR );
+							( "color", SVT_COLOR );
 };
 
 #include "DeprecatedGUI/CProgressbar.h"
@@ -626,10 +626,10 @@ static bool CLine_WidgetRegistered =
 namespace DeprecatedGUI {
 static bool CProgressBar_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "label_left", CScriptableVars::SVT_INT )
-							( "label_top", CScriptableVars::SVT_INT )
-							( "label_visible", CScriptableVars::SVT_BOOL )
-							( "numstates", CScriptableVars::SVT_INT )
-							( "var", CScriptableVars::SVT_STRING );
+							( "file", SVT_STRING )
+							( "label_left", SVT_INT )
+							( "label_top", SVT_INT )
+							( "label_visible", SVT_BOOL )
+							( "numstates", SVT_INT )
+							( "var", SVT_STRING );
 };

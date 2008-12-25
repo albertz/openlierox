@@ -63,7 +63,7 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CTextButton * w = new CTextButton( p[0].s, p[1].c, p[2].c );
 		w->cClick.Init( p[3].s, w );

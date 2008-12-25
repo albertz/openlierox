@@ -263,13 +263,13 @@ bool GameOptions::LoadFromDisc()
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
-			if( it->second.type == CScriptableVars::SVT_BOOL )
+			if( it->second.type == SVT_BOOL )
 				*(it->second.b) = it->second.bdef;
-			else if( it->second.type == CScriptableVars::SVT_INT )
+			else if( it->second.type == SVT_INT )
 				*(it->second.i) = it->second.idef;
-			else if( it->second.type == CScriptableVars::SVT_FLOAT )
+			else if( it->second.type == SVT_FLOAT )
 				*(it->second.f) = it->second.fdef;
-			else if( it->second.type == CScriptableVars::SVT_STRING )
+			else if( it->second.type == SVT_STRING )
 				*(it->second.s) = it->second.sdef;
 			else printf("WARNING: Invalid var type %i of \"%s\" when setting default!\n", it->second.type, it->first.c_str() );
 		}
@@ -285,7 +285,7 @@ bool GameOptions::LoadFromDisc()
 		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o) {}
 
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
-			CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
+			ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var.b !=  NULL ) { // found entry
 				CScriptableVars::SetVarByString(var, value);
 			} else {
@@ -411,13 +411,13 @@ void GameOptions::SaveToDisc()
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
 			};
-			if( it->second.type == CScriptableVars::SVT_BOOL )
+			if( it->second.type == SVT_BOOL )
 			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.b) ? "true" : "false" );
-			else if( it->second.type == CScriptableVars::SVT_INT )
+			else if( it->second.type == SVT_INT )
 			    fprintf( fp, "%s = %d\n", key.c_str(), *(it->second.i) );
-			else if( it->second.type == CScriptableVars::SVT_FLOAT )
+			else if( it->second.type == SVT_FLOAT )
 			    fprintf( fp, "%s = %f\n", key.c_str(), *(it->second.f) );
-			else if( it->second.type == CScriptableVars::SVT_STRING )
+			else if( it->second.type == SVT_STRING )
 			    fprintf( fp, "%s = %s\n", key.c_str(), it->second.s->c_str() );
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
 		};

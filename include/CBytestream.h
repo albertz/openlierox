@@ -25,6 +25,7 @@
 #include "types.h"
 #include "Networking.h"
 
+struct ScriptVar_t;
 
 class CBytestream {
 public:
@@ -77,6 +78,7 @@ public:
 	bool		write2Int4(short x, short y);
 	bool		writeBit(bool bit);
 	bool		writeData(const std::string& value);	// Do not append '\0' at the end
+	bool		writeVar(const ScriptVar_t& var);
 	
 	// Reads
 	uchar		readByte(void);
@@ -90,6 +92,7 @@ public:
 	void		read2Int4(short& x, short& y);
 	bool		readBit();
 	std::string	readData( size_t size = (size_t)(-1) );
+	bool		readVar(ScriptVar_t& var);
 
 	// Peeks
 	uchar		peekByte() const;

@@ -120,13 +120,13 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CLabel * w = new CLabel( p[0].s, p[1].c, p[2].b );
-		w->bVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_BOOL ).b;
-		w->iVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_INT ).i;
-		w->fVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_FLOAT ).f;
-		w->sVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_STRING ).s;
+		w->bVar = CScriptableVars::GetVar( p[3].s, SVT_BOOL ).b;
+		w->iVar = CScriptableVars::GetVar( p[3].s, SVT_INT ).i;
+		w->fVar = CScriptableVars::GetVar( p[3].s, SVT_FLOAT ).f;
+		w->sVar = CScriptableVars::GetVar( p[3].s, SVT_STRING ).s;
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

@@ -75,7 +75,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CTitleButton * w = new CTitleButton( p[0].i, tMenu->bmpMainTitles );
 		w->cClick.Init( p[1].s, w );

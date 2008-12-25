@@ -461,7 +461,7 @@ struct DedIntern {
 		if( value.size() > 1 )
 			if( value[0] == '"' && value[value.size()-1] == '"' )
 				value = value.substr( 1, value.size()-2 );
-		CScriptableVars::ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
+		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL )
 		{
 			cout << "DedicatedControl: SetVar: no var with name " << var << endl;
@@ -470,15 +470,15 @@ struct DedIntern {
 			for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
 			{
 				cout << "setvar( \"" << it->first << "\", ";
-				if( it->second.type == CScriptableVars::SVT_BOOL )
+				if( it->second.type == SVT_BOOL )
 					cout << (int) * it->second.b;
-				else if( it->second.type == CScriptableVars::SVT_INT )
+				else if( it->second.type == SVT_INT )
 					cout << * it->second.i;
-				else if( it->second.type == CScriptableVars::SVT_FLOAT )
+				else if( it->second.type == SVT_FLOAT )
 					cout << * it->second.f;
-				else if( it->second.type == CScriptableVars::SVT_STRING )
+				else if( it->second.type == SVT_STRING )
 					cout << "\"" << * it->second.s << "\"";
-				else if( it->second.type == CScriptableVars::SVT_COLOR )
+				else if( it->second.type == SVT_COLOR )
 					cout << "0x" << hex << * it->second.cl << dec;
 				else
 					cout << "\"\"";

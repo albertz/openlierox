@@ -37,9 +37,9 @@ public:
 	static void ClearLayouts();
 
 	// has to be a vector because the order is important in the WidgetCreator
-	typedef std::vector< std::pair< std::string, CScriptableVars::ScriptVarType_t > > paramListVector_t;
+	typedef std::vector< std::pair< std::string, ScriptVarType_t > > paramListVector_t;
 	// WidgetCreator will create widget and add it to specified CGuiLayout (and init it a bit after that if necessary).
-	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< CScriptableVars::ScriptVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
+	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< ScriptVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
 
 	// Allows registering params with daisy-chaining
 	class WidgetRegisterHelper
@@ -55,8 +55,8 @@ public:
 
 		operator bool () { return true; };	// To be able to write static expressions
 
-		WidgetRegisterHelper & operator() ( const std::string & c, CScriptableVars::ScriptVarType_t vt )
-			{ m_params.push_back( std::pair< std::string, CScriptableVars::ScriptVarType_t >(c, vt) ); return *this; };
+		WidgetRegisterHelper & operator() ( const std::string & c, ScriptVarType_t vt )
+			{ m_params.push_back( std::pair< std::string, ScriptVarType_t >(c, vt) ); return *this; };
 	};
 
 	static WidgetRegisterHelper RegisterWidget( const std::string & name, WidgetCreator_t creator )
@@ -71,7 +71,7 @@ public:
 	// Helper class for callback info thst should be inserted into widget
 	class CallbackHandler
 	{
-		std::vector< std::pair< CScriptableVars::ScriptCallback_t, std::string > > m_callbacks;
+		std::vector< std::pair< ScriptCallback_t, std::string > > m_callbacks;
 		CWidget * m_source;
 
 	public:
@@ -82,7 +82,7 @@ public:
 	};
 
 	// Update will be called on each frame with following params
-	static void RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update, const std::string & param, CWidget * source );
+	static void RegisterUpdateCallback( ScriptCallback_t update, const std::string & param, CWidget * source );
 	// Remove widget from update list ( called from widget destructor )
 	static void DeRegisterUpdateCallback( CWidget * source );
 	// Called on each frame
@@ -104,10 +104,10 @@ private:
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
 	struct UpdateList_t
 	{
-		UpdateList_t( CWidget * s, CScriptableVars::ScriptCallback_t u, const std::string & p ):
+		UpdateList_t( CWidget * s, ScriptCallback_t u, const std::string & p ):
 			source( s ), update( u ), param( p ) { };
 		CWidget * source;
-		CScriptableVars::ScriptCallback_t update;
+		ScriptCallback_t update;
 		std::string param;
 	};
 	std::list< UpdateList_t > m_updateCallbacks;

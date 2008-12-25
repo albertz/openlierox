@@ -297,10 +297,10 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 		CScriptableVars::RegisterVars("GUI")
 			( & ThemeCombobox_OnChange, "ThemeCombobox_OnChange" );
 
-		std::vector< CScriptableVars::ScriptVar_t > GuiThemeInit;
-		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "None#" ) );	// List of items
-		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.Theme" ) );	// Attached var
-		GuiThemeInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.ThemeCombobox_OnChange()" ) );	// OnClick handler
+		std::vector< ScriptVar_t > GuiThemeInit;
+		GuiThemeInit.push_back( ScriptVar_t ( "None#" ) );	// List of items
+		GuiThemeInit.push_back( ScriptVar_t ( "GameOptions.Game.Theme" ) );	// Attached var
+		GuiThemeInit.push_back( ScriptVar_t ( "GUI.MakeSound() GUI.ThemeCombobox_OnChange()" ) );	// OnClick handler
 
 		cMainMenu.Add( new CLabel("Theme", tLX->clNormalLabel), -1, 465,10,0,0);
 		combobox = (CCombobox*) CCombobox::WidgetCreator(GuiThemeInit, &cMainMenu, -1, 515,8,115,17);
@@ -356,10 +356,10 @@ void Menu_Main_GuiSkinComboboxCreate()
 	// GUI skin combobox
 	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
 	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 480,40,0,0);
-	std::vector< CScriptableVars::ScriptVar_t > GuiSkinInit;
-	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "None#" ) );	// List of items
-	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
-	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
+	std::vector< ScriptVar_t > GuiSkinInit;
+	GuiSkinInit.push_back( ScriptVar_t ( "None#" ) );	// List of items
+	GuiSkinInit.push_back( ScriptVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
+	GuiSkinInit.push_back( ScriptVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
 	// TODO: position as constant, will remove this code when only skins will be left
 	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, -1, 515,38,115,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );

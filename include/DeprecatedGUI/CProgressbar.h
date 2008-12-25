@@ -75,10 +75,10 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CProgressBar * w = new CProgressBar( LoadGameImage( p[0].s, true ), p[1].i, p[2].i, p[3].b, p[4].i );
-		w->iVar = CScriptableVars::GetVar( p[5].s, CScriptableVars::SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVar( p[5].s, SVT_INT ).i;
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

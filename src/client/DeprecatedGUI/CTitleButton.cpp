@@ -38,7 +38,7 @@ void CTitleButton::Draw(SDL_Surface * bmpDest)
 
 static bool CTitleButton_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "titlebutton", & CTitleButton::WidgetCreator )
-							( "textid", CScriptableVars::SVT_INT )
-							( "click", CScriptableVars::SVT_STRING );
+							( "textid", SVT_INT )
+							( "click", SVT_STRING );
 
 }; // namespace DeprecatedGUI

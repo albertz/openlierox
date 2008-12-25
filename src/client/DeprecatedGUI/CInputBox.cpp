@@ -40,10 +40,10 @@ void CInputbox::Draw(SDL_Surface * bmpDest)
 CInputbox * CInputbox::InputBoxSelected = NULL;
 std::string CInputbox::InputBoxLabel;
 
-CWidget * CInputbox::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CInputbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CInputbox * w = new CInputbox( 0, "", tMenu->bmpInputbox, p[0].s );
-	w->sVar = CScriptableVars::GetVar( p[1].s, CScriptableVars::SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVar( p[1].s, SVT_STRING ).s;
 	if( w->sVar )
 		w->setText( *w->sVar );
 	layout->Add( w, id, x, y, dx, dy );
@@ -52,8 +52,8 @@ CWidget * CInputbox::WidgetCreator( const std::vector< CScriptableVars::ScriptVa
 
 static bool CInputbox_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "inputbox", & CInputbox::WidgetCreator )
-							( "name", CScriptableVars::SVT_STRING )
-							( "var", CScriptableVars::SVT_STRING );
+							( "name", SVT_STRING )
+							( "var", SVT_STRING );
 	
 void CInputbox::ProcessGuiSkinEvent(int iEvent) 
 {
@@ -117,7 +117,7 @@ void CInputboxInput::UpdateCallback( const std::string & param, CWidget * source
 	};
 };
 
-CWidget * CInputboxInput::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CInputboxInput::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CInputboxInput * w = new CInputboxInput();
 	layout->Add( w, id, x, y, dx, dy );

@@ -35,9 +35,9 @@ void	CTextButton::Draw(SDL_Surface * bmpDest)
 
 static bool CTextButton_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "textbutton", & CTextButton::WidgetCreator )
-							( "text", CScriptableVars::SVT_STRING )
-							( "color", CScriptableVars::SVT_COLOR )
-							( "glowcolor", CScriptableVars::SVT_COLOR )
-							( "click", CScriptableVars::SVT_STRING );
+							( "text", SVT_STRING )
+							( "color", SVT_COLOR )
+							( "glowcolor", SVT_COLOR )
+							( "click", SVT_STRING );
 
 }; // namespace DeprecatedGUI

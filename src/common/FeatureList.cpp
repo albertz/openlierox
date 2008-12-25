@@ -24,7 +24,7 @@ FeatureSettings::FeatureSettings() {
 		settings = NULL;
 		return;
 	}
-	settings = new CScriptableVars::ScriptVar_t[len];
+	settings = new ScriptVar_t[len];
 	foreach( Feature*, f, Array(featureArray,len) ) {
 		(*this)[f->get()] = f->get()->defaultValue;
 	}
@@ -42,7 +42,7 @@ FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
 		settings = NULL;
 		return *this;
 	}
-	settings = new CScriptableVars::ScriptVar_t[len];
+	settings = new ScriptVar_t[len];
 	foreach( Feature*, f, Array(featureArray,len) ) {
 		(*this)[f->get()] = r[f->get()];		
 	}
