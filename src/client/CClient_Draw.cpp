@@ -1080,11 +1080,15 @@ void CClient::SimulateHud(void)
 			processChatter();
 	}
 	
-	if( iNumWorms > 0 && cLocalWorms[0] && cLocalWorms[0]->getType() != PRF_COMPUTER) {	
-		if( bActivated )
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), bChat_Typing ? AFK_TYPING_CHAT : AFK_BACK_ONLINE );
-		if( bDeactivated )
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_AWAY );
+
+	if( iNumWorms > 0 && cLocalWorms[0] && cLocalWorms[0]->getType() != PRF_COMPUTER) {
+		AFK_TYPE curState = AFK_BACK_ONLINE;
+		if(bChat_Typing) curState = AFK_TYPING_CHAT;
+		if(!ApplicationHasFocus()) curState = AFK_AWAY;
+		if( curState != cLocalWorms[0]->getAFK() ) {
+			cNetEngine->SendAFK( cLocalWorms[0]->getID(), curState );
+			cLocalWorms[0]->setAFK(curState, "");
+		}
 	}
 }
 
