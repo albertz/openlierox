@@ -2449,8 +2449,9 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 	DeprecatedGUI::CListview *Left = new DeprecatedGUI::CListview();
 	DeprecatedGUI::CListview *Right = new DeprecatedGUI::CListview();
 
-	cScoreLayout.Add(Left, sb_Left, 17, getTopBarBottom() + 10, 305, getBottomBarTop() - getTopBarBottom() - 10);
-	cScoreLayout.Add(Right, sb_Right, 318, getTopBarBottom() + 10, 305, getBottomBarTop() - getTopBarBottom() - 10);
+	// It covers up part of top bar! There's a worm at the bottom that cannot be drawn other way, and if we draw over chatbox it looks ugly
+	cScoreLayout.Add(Left, sb_Left, 10, getTopBarBottom() - 5, 315, getBottomBarTop() - getTopBarBottom() + 60);
+	cScoreLayout.Add(Right, sb_Right, 325, getTopBarBottom() - 5, 315, getBottomBarTop() - getTopBarBottom() + 60);
 
 	// Set the styles
 	Left->setDrawBorder(false);
@@ -2463,25 +2464,27 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 	Right->setOldStyle(true);
 
 	// Add columns
-	Left->AddColumn("ID", 20, tLX->clHeading);  // ID
-	Right->AddColumn("ID", 20, tLX->clHeading);
-	Left->AddColumn("", 35, tLX->clHeading);  // Skin
-	Right->AddColumn("", 35, tLX->clHeading);
-	Left->AddColumn("Player", 140, tLX->clHeading);  // Player
-	Right->AddColumn("Player", 140, tLX->clHeading);
+	Left->AddColumn("ID", 15, tLX->clHeading);  // ID
+	Right->AddColumn("ID", 15, tLX->clHeading);
+	Left->AddColumn("", 30, tLX->clHeading);  // Skin
+	Right->AddColumn("", 30, tLX->clHeading);
+	Left->AddColumn("Player", tLX->iGameType == GME_HOST ? 110 : 140, tLX->clHeading);  // Player
+	Right->AddColumn("Player", tLX->iGameType == GME_HOST ? 110 : 140, tLX->clHeading);
 	if (WaitForPlayers)  {
-		Left->AddColumn("", 70, tLX->clHeading);
-		Right->AddColumn("", 70, tLX->clHeading);
+		Left->AddColumn("", 120, tLX->clHeading);
+		Right->AddColumn("", 120, tLX->clHeading);
 	} else {
 		Left->AddColumn("L", 40, tLX->clHeading);  // Lives
 		Right->AddColumn("L", 40, tLX->clHeading);
-		Left->AddColumn("K", 30, tLX->clHeading);  // Kills
-		Right->AddColumn("K", 30, tLX->clHeading);
+		Left->AddColumn("K", 40, tLX->clHeading);  // Kills
+		Right->AddColumn("K", 40, tLX->clHeading);
+		Left->AddColumn("D", 40, tLX->clHeading);  // Damage
+		Right->AddColumn("D", 40, tLX->clHeading); // TODO: check if it fits the screen
 	}
 
 	if (tLX->iGameType == GME_HOST)  {
-		Left->AddColumn("P", 50, tLX->clHeading);  // Ping
-		Right->AddColumn("P", 50, tLX->clHeading);
+		Left->AddColumn("P", 30, tLX->clHeading);  // Ping
+		Right->AddColumn("P", 30, tLX->clHeading);
 	}
 
 }
@@ -2545,6 +2548,8 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 
 			// Kills
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+			// Damage
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
 		}
 
 		// Ping

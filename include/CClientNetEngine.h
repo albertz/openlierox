@@ -73,7 +73,7 @@ protected:
 	void		 ParseWormInfo(CBytestream *bs);
 	void		 ParseWormWeaponInfo(CBytestream *bs);
 	void		 ParseText(CBytestream *bs);
-	void		 ParseScoreUpdate(CBytestream *bs);
+	virtual void ParseScoreUpdate(CBytestream *bs);
 	void		 ParseGameOver(CBytestream *bs);
 	void		 ParseSpawnBonus(CBytestream *bs);
 	void		 ParseTagUpdate(CBytestream *bs);
@@ -123,6 +123,8 @@ public:
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void SendReportDamage(int victim, int damage, int offender);
     virtual void ParseReportDamage(CBytestream *bs);
+	virtual void ParseScoreUpdate(CBytestream *bs);
+	virtual void SendDeath(int victim, int killer);
     
 private:
     float fLastDamageReportSent;

@@ -64,11 +64,11 @@ public:
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
 	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
 	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender) { return; };
+	virtual void SendWormScore(CWorm *Worm);
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
 	void SendWormDied(CWorm *Worm);
-	void SendWormScore(CWorm *Worm);
 	void SendWeapons();
 	void SendSpawnWorm(CWorm *Worm, CVec pos);
 
@@ -143,6 +143,7 @@ public:
 
 	virtual void ParseReportDamage(CBytestream *bs);
 	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender);
+	virtual void SendWormScore(CWorm *Worm);
 
 protected:
 	void WritePrepareGame(CBytestream *bs);

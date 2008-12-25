@@ -646,7 +646,16 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	if( ! cl->OwnsWorm(id) && ! cl->isLocalClient() )	// Allow local client to send damage for pre-Beta9 clients
 		return;
-		
+	
+	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
+	{
+		if( tLXOptions->tGameInfo.bSuicideDecreasesScore && ( id == offenderId ||
+			( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
+				w->getTeam() == offender->getTeam() )) )
+			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself
+		else
+			offender->setDamage( offender->getDamage() + damage );
+	}
 	// Re-send the packet to all clients, except the sender
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )

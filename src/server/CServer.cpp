@@ -407,6 +407,7 @@ int GameServer::StartGame()
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(tLXOptions->tGameInfo.iLives);
             cWorms[i].setKills(0);
+            cWorms[i].setDamage(0);
 			cWorms[i].setGameScript(cGameScript.get());
             cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
@@ -625,6 +626,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
+            cWorms[i].setDamage(0);
 			if(receiver)
 				receiver->getNetEngine()->SendWormScore( & cWorms[i] );
 			else

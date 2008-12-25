@@ -159,6 +159,9 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 		}
 	
 	bs->writeBool( forceScreenShaking || tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING] );
+	bs->writeBool( tLXOptions->tGameInfo.bSuicideDecreasesScore ); // Clients should know this value to update scoreboadr correctly
+
+	cDamageReport.clear(); // In case something left from prev game
 }
 
 
@@ -762,7 +765,26 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 	if (Worm->getKills() > 255)
 		bs.writeInt(255, 1);
 	else
-		bs.writeInt(Worm->getKills(), 1);
+		bs.writeInt(Worm->getKills() > 0 ? Worm->getKills() : 0, 1);
+
+	SendPacket(&bs);
+};
+
+void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
+{
+	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
+	if( !cDamageReport.empty() )
+	{
+		fLastDamageReportSent = 0;
+		SendReportDamage(Worm, 0, Worm);
+	}	
+
+	CBytestream bs;
+	bs.writeByte(S2C_SCOREUPDATE);
+	bs.writeInt(Worm->getID(), 1);
+	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
+	bs.writeInt(Worm->getKills(), 4); // Negative kills are allowed
+	bs.writeInt(Worm->getDamage(), 4);
 
 	SendPacket(&bs);
 };

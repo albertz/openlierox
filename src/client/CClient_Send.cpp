@@ -119,6 +119,18 @@ void CClientNetEngine::SendDeath(int victim, int killer)
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
+void CClientNetEngineBeta9::SendDeath(int victim, int killer)
+{
+	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
+	if( !cDamageReport.empty() )
+	{
+		fLastDamageReportSent = 0;
+		SendReportDamage(victim, 0, victim);
+	}	
+
+	CClientNetEngine::SendDeath(victim, killer);
+}
+
 
 ///////////////////
 // Send a string of text

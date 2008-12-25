@@ -231,6 +231,7 @@ private:
 	int			iKills;
 	int			iDeaths;
 	int			iSuicides;
+	int			iDamage;
 
 	int			iTotalWins;
 	int			iTotalLosses;
@@ -302,6 +303,7 @@ private:
 	// Graphics
 	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
+	std::vector< SmartPointer<SDL_Surface> > bmpOldGibs; // If client leaves and another joins the gib pic is recalculated - save it 'till the end of the game, 'cause it used in SpawnEntity()
 	DeprecatedGUI::CBar		cHealthBar;
 	//CViewport	*pcViewport;
 
@@ -353,7 +355,6 @@ public:
 	void		writeInfo(CBytestream *bs);
 	void		readInfo(CBytestream *bs);
 	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
-	static bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver);
@@ -456,6 +457,8 @@ public:
 	int			getLives(void)				{ return iLives; }
 	int			getKills(void)				{ return iKills; }
 	void		setLives(int l)				{ iLives = l; }
+	int			getDamage(void)				{ return iDamage; }
+	void		setDamage(int l)			{ iDamage = l; }
 
 	void		AddKill(void)				{ iKills++; }
     void        setKills(int k)             { iKills = k; }

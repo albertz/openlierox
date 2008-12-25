@@ -800,6 +800,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			// Also set some game details
 			w->setLives(client->iLives);
 			w->setKills(0);
+			w->setDamage(0);
 			w->setHealth(100);
 			w->setGameScript(client->cGameScript.get());
 			w->setWpnRest(&client->cWeaponRestrictions);
@@ -862,6 +863,9 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 		return false;
 
 	client->tGameInfo.features[FT_FORCESCREENSHAKING] = bs->readBool();
+	client->tGameInfo.bSuicideDecreasesScore = bs->readBool(); // Necessary to know that to update damage in scoreboard correctly
+	
+	cDamageReport.clear(); // In case something left from prev game
 
     return true;
 };
@@ -1278,8 +1282,10 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 		}
 	}
 	else
+	{
 		// do this to get the right position in net stream
-		CWorm::skipScore(bs);
+		bs->Skip(3);	
+	}
 
 	client->UpdateScoreboard();
 
@@ -2111,6 +2117,8 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 		damage -= UCHAR_MAX + 1;	// Wrap it around
 	int offenderId = bs->readByte();
 
+	if( client->getStatus() != NET_PLAYING )
+		return;
 	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
 		return;
 	CWorm *w = & client->getRemoteWorms()[id];
@@ -2122,4 +2130,76 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	w->getDamageReport()[offender->getID()].damage += damage;
 	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
 	w->Injure(damage);	// Calculate correct healthbar
+	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
+	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
+	{
+		if( client->tGameInfo.bSuicideDecreasesScore && ( id == offenderId ||
+			( (client->tGameInfo.iGameMode == GMT_TEAMDEATH || client->tGameInfo.iGameMode == GMT_VIP) && 
+				w->getTeam() == offender->getTeam() )) )
+			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself
+		else
+			offender->setDamage( offender->getDamage() + damage );
+	}
+};
+
+void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
+{
+	short id = bs->readInt(1);
+
+	if(id >= 0 && id < MAX_WORMS)  {
+		log_worm_t *l = client->GetLogWorm(id);
+
+		int lives = (int)bs->readInt16();
+		int gameLives = client->getGameLobby()->iLives;
+		if (gameLives == WRM_UNLIM) {
+			if(lives != WRM_UNLIM)
+				cout << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
+			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
+		} else {
+			if(lives == WRM_UNLIM)
+				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
+			else if(lives > client->getGameLobby()->iLives)
+				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
+			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
+		}
+	
+		client->cRemoteWorms[id].setKills( bs->readInt(4) );
+		client->cRemoteWorms[id].setDamage( bs->readInt(4) );
+
+		
+		if (client->cRemoteWorms[id].getLocal())
+			client->bShouldRepaintInfo = true;
+
+		// Logging
+		if (l)  {
+			// Check if the stats changed
+			bool stats_changed = false;
+			if (l->iLives != client->cRemoteWorms[id].getLives())  {
+				l->iLives = client->cRemoteWorms[id].getLives();
+				client->iLastVictim = id;
+				stats_changed = true;
+			}
+
+			if (l->iKills != client->cRemoteWorms[id].getKills())  {
+				l->iKills = client->cRemoteWorms[id].getKills();
+				client->iLastKiller = id;
+				stats_changed = true;
+			}
+
+			// If the update was sent but no changes made -> this is a killer that made a teamkill
+			// See CServer::ParseDeathPacket for more info
+			if (!stats_changed)
+				client->iLastKiller = id;
+		}
+	}
+	else
+	{
+		// do this to get the right position in net stream
+		bs->Skip(10);
+	}
+
+	client->UpdateScoreboard();
+
+	DeprecatedGUI::bJoin_Update = true;
+	DeprecatedGUI::bHost_Update = true;
 };
