@@ -771,9 +771,18 @@ void CServerNetEngineBeta9::SendReportDamage(CWorm *Worm, int damage, CWorm * of
 {
 	// TODO: buffer up packets and send them once per halfsecond (I'll do that later)
 	CBytestream bs;
-	bs.writeByte(S2C_REPORTDAMAGE);
-	bs.writeByte(Worm->getID());
-	bs.writeByte(damage);
-	bs.writeByte(offender->getID());
+	while( damage != 0 )
+	{
+		bs.writeByte(S2C_REPORTDAMAGE);
+		bs.writeByte(Worm->getID());
+		int damageSend = damage;
+		if( damageSend > SCHAR_MAX )
+			damageSend = SCHAR_MAX;
+		if( damageSend < SCHAR_MIN )
+			damageSend = SCHAR_MIN;
+		bs.writeByte( damageSend );
+		bs.writeByte(offender->getID());
+		damage -= damageSend;
+	}
 	SendPacket(&bs);
 };

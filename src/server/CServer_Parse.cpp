@@ -557,6 +557,11 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				bs.writeByte(S2C_DESTROYBONUS);
 				bs.writeByte(id);
 				server->SendGlobalPacket(&bs);
+				
+				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) )
+					for( int i=0; i < MAX_CLIENTS; i++ )
+						if( server->cClients[i].getStatus() == NET_CONNECTED )
+							server->cClients[i].getNetEngine()->SendReportDamage( w, -30, w ); // It's random between 10-50 actually, we're doing approximation here
 			} else {
 				printf("GameServer::ParseGrabBonus: Bonus already destroyed.\n");
 			}
@@ -623,6 +628,8 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 {
 	int id = bs->readByte();
 	int damage = bs->readByte();
+	if( damage > SCHAR_MAX )		// Healing = negative damage
+		damage -= UCHAR_MAX + 1;	// Wrap it around
 	int offenderId = bs->readByte();
 
 	if( server->iState != SVS_PLAYING )
@@ -637,7 +644,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	if( ! w->isUsed() || ! offender->isUsed() )
 		return;
 	
-	if( ! cl->OwnsWorm(id) )	// Trying to cheat? I don't see any advantage of such cheat though
+	if( ! cl->OwnsWorm(id) && ! cl->isLocalClient() )	// Allow local client to send damage for pre-Beta9 clients
 		return;
 		
 	// Re-send the packet to all clients, except the sender

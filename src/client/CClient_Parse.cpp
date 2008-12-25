@@ -2107,6 +2107,8 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 {
 	int id = bs->readByte();
 	int damage = bs->readByte();
+	if( damage > SCHAR_MAX )		// Healing = negative damage
+		damage -= UCHAR_MAX + 1;	// Wrap it around
 	int offenderId = bs->readByte();
 
 	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )

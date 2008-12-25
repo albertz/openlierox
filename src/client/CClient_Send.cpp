@@ -318,10 +318,10 @@ void CClientNetEngineBeta9::SendReportDamage(int victim, int damage, int offende
 		bs.writeByte(C2S_REPORTDAMAGE);
 		bs.writeByte(victim);
 		int damageSend = damage;
-		if( damageSend > 127 )
-			damageSend = 127;
-		if( damageSend < -128 )
-			damageSend = -128;
+		if( damageSend > SCHAR_MAX )
+			damageSend = SCHAR_MAX;
+		if( damageSend < SCHAR_MIN )
+			damageSend = SCHAR_MIN;
 		bs.writeByte( damageSend );
 		bs.writeByte(offender);
 		damage -= damageSend;

@@ -400,33 +400,12 @@ void CWorm::Spawn(CVec position) {
 		clearInput();
 		m_inputHandler->onRespawn();
 	}
-		
-}
 
-
-///////////////////
-// Respawn this worm
-// TODO: what is the difference between Respawn and Spawn?
-void CWorm::Respawn(CVec position) {
-	if (bSpectating)
-		return;
-
-	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
-
-	fFrame = 0;
-	bDrawMuzzle = false;
-	bHooked = false;
-    bForceWeapon_Name = false;
-	vPreLastEstimatedVel =vLastEstimatedVel = vVelocity = CVec(0,0);
-
-	bOnGround = false;
-
-	fLastSimulationTime = fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime;
-
-	if(bLocal) {
-		clearInput();
-		m_inputHandler->onRespawn();
-	}	
+	for( int i=0; i<MAX_WORMS; i++ )
+	{
+		cDamageReport[i].damage = 0;
+		cDamageReport[i].lastTime = 0;
+	}
 }
 
 
@@ -1043,18 +1022,17 @@ bool CWorm::GiveBonus(CBonus *b)
 	// Health
 	if(b->getType() == BNS_HEALTH) {
 
-		// If our health is at 100, don't pick it up
-		if(iHealth == 100)
+		// If our health is at 100 or higher, don't pick it up
+		if(iHealth >= 100) // Some mods have healing weapons, so the check is >= instead of == (breaks old behavior)
 			return false;
-
 
 		// Health between 10% - 50%
 		int health = GetRandomInt(40)+10;
 
-		iHealth += health;
-
+		// Route call to CClient::InjureWorm() so it will send ReportDamage packet, to track valid worm healthbar on server
 		// Clamp it
-		iHealth = MIN(iHealth, 100);
+		health = MIN(health, 100 - getHealth());
+		cClient->InjureWorm(this, -health, getID());
 
 		return true;
 	}

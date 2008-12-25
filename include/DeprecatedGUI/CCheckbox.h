@@ -19,8 +19,9 @@
 
 
 #include "InputEvents.h"
+#include "CScriptableVars.h"
 
-namespace CScriptableVars{ struct ScriptVar_t; };
+//namespace CScriptableVars{ struct ScriptVar_t; }; // g++ swears on this line, CScriptableVars is class not namespace
 
 namespace DeprecatedGUI {
 

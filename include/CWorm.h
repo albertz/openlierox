@@ -402,7 +402,6 @@ public:
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
-	void		Respawn(CVec position);
 	bool		Injure(int damage);
 	bool		Kill(void);
 	bool		CheckBonusCollision(CBonus *b);

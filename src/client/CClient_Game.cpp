@@ -20,6 +20,7 @@
 #include "MathLib.h"
 #include "CClient.h"
 #include "CServer.h"
+#include "CServerConnection.h"
 #include "CBonus.h"
 #include "console.h"
 #include "GfxPrimitives.h"
@@ -333,17 +334,20 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	}
 
 	// Spawn some blood
-	float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
-	float sp;
-	for(i=0;i<amount;i++) {
-		sp = GetRandomNum()*50;
-		SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
-		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+	if( damage > 0 )	// Don't spawn blood if we hit with healing weapon (breaks old behavior)
+	{
+		float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
+		float sp;
+		for(i=0;i<amount;i++) {
+			sp = GetRandomNum()*50;
+			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+		}
 	}
 	
-	// Send REPORTDAMAGE to server
-	if( me )
+	// Send REPORTDAMAGE to server (also calculate it for pre-Beta9 clients)
+	if( me || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
 	{
 		getNetEngine()->SendReportDamage( w->getID(), damage, owner );
 		// Set damage report for local worm - server won't send it back to us
