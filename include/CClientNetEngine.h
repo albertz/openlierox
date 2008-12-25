@@ -115,11 +115,18 @@ public:
 
 class CClientNetEngineBeta9: public CClientNetEngineBeta7 {
 public:
-	CClientNetEngineBeta9( CClient * _client ): CClientNetEngineBeta7( _client ) { }
+	CClientNetEngineBeta9( CClient * _client ): CClientNetEngineBeta7( _client ) 
+	{ 
+		fLastDamageReportSent = 0; 
+	}
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void SendReportDamage(int victim, int damage, int offender);
     virtual void ParseReportDamage(CBytestream *bs);
+    
+private:
+    float fLastDamageReportSent;
+    std::map< std::pair< int, int >, int > cDamageReport;
 };
 
 

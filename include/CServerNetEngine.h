@@ -137,13 +137,19 @@ class CServerNetEngineBeta9: public CServerNetEngineBeta8
 public:
 	CServerNetEngineBeta9( GameServer * _server, CServerConnection * _client ):
 		CServerNetEngineBeta8( _server, _client )
-		{ }
+	{ 
+		fLastDamageReportSent = 0; 
+	}
 
 	virtual void ParseReportDamage(CBytestream *bs);
 	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender);
 
 protected:
 	void WritePrepareGame(CBytestream *bs);
+	
+private:
+    float fLastDamageReportSent;
+    std::map< std::pair< int, int >, int > cDamageReport;
 };
 
 #endif  //  __CSERVER_NET_ENGINE_H__
