@@ -27,18 +27,20 @@ struct Feature {
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
 	Version minVersion; // if different from unsetValue
+	typedef Var (*GetValueFunction)( Feature*, const Var& );
+	GetValueFunction getValueFct;
 	bool SET;
 	
 	Feature() : SET(false) {}
 	static Feature Unset() { return Feature(); }
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
 
 };
 
@@ -65,6 +67,8 @@ public:
 	ScriptVar_t& operator[](Feature* f) { return settings[f - &featureArray[0]]; }
 	const ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
 	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &featureArray[0]]; }
+	ScriptVar_t hostGet(FeatureIndex i);
+	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }	
 };
 
 #endif

@@ -49,3 +49,11 @@ FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
 	
 	return *this;
 }
+
+ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
+	ScriptVar_t var = (*this)[i];
+	Feature* f = &featureArray[i];
+	if(f->getValueFct)
+		var = (*f->getValueFct)( f, var );
+	return var;
+}
