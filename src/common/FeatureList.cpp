@@ -10,6 +10,7 @@
 #include <iostream>
 #include "FeatureList.h"
 #include "Version.h"
+#include "CServer.h"
 
 using namespace std;
 
@@ -17,6 +18,14 @@ Feature featureArray[] = {
 	Feature("ForceScreenShaking", "force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
+
+Feature* featureByName(const std::string& name) {
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		if( stringcaseequal(f->get()->name, name) )
+			return f->get();
+	}
+	return NULL;
+}
 
 FeatureSettings::FeatureSettings() {
 	unsigned long len = featureArrayLen();
@@ -54,6 +63,15 @@ ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 	ScriptVar_t var = (*this)[i];
 	Feature* f = &featureArray[i];
 	if(f->getValueFct)
-		var = (*f->getValueFct)( f, var );
+		var = (cServer->*(f->getValueFct))( var );
+	else if(f->unsetIfOlderClients) {
+		if(cServer->clientsConnected_less(f->minVersion))
+			var = f->unsetValue;
+	}
+			
 	return var;
+}
+
+bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
+	return hostGet(f) == f->unsetValue;
 }

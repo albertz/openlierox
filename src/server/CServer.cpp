@@ -1315,6 +1315,13 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 			return false;
 	}
 	
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
+			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set", dropOut, makeMsg))
+				return false;
+		}
+	}
+	
 	return true;
 }
 
@@ -1330,6 +1337,16 @@ bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, cons
 	}
 	return true;
 }
+
+bool GameServer::clientsConnected_less(const Version& ver) {
+	CServerConnection *cl = cClients;
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
+		if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() < ver )
+			return true;
+	return false;
+}
+
+
 
 
 ///////////////////
@@ -1504,7 +1521,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 		}
 	}
 
-	static std::string szAddress;
+	std::string szAddress;
 	NetAddrToString(cl->getChannel()->getAddress(),szAddress);
 
 	getBanList()->addBanned(szAddress,w->getName());

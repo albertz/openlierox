@@ -862,7 +862,24 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	client->tGameInfo.features[FT_FORCESCREENSHAKING] = bs->readBool();
+	int ftC = bs->readInt(2);
+	for(int i = 0; i < ftC; ++i) {
+		std::string name = bs->readString();
+		ScriptVar_t value; bs->readVar(value);
+		bool olderClientsSupported = bs->readBool();
+		Feature* f = featureByName(name);
+		if(f) {
+			if(value.type == f->valueType)
+				client->tGameInfo.features[f] = value;
+			else {
+				cout << "ERROR: server setting for feature " << name << " has wrong type " << value.type << endl;
+				client->tGameInfo.features[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
+			}
+		} else if(!olderClientsSupported)
+			cout << "We don't support the feature " << name << " and we cannot play with the current settings." << endl;
+		// TODO: we could save even the not supported features to show them somewhere in lobby (in red or grey or blue)
+	}
+	
 	client->tGameInfo.bSuicideDecreasesScore = bs->readBool(); // Necessary to know that to update damage in scoreboard correctly
 	
 	cDamageReport.clear(); // In case something left from prev game

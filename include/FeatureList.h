@@ -17,6 +17,8 @@
 #include "CScriptableVars.h"
 #include "Version.h"
 
+class GameServer;
+
 struct Feature {
 	std::string name; // for config, network and other identification
 	std::string humanReadableName;
@@ -27,25 +29,27 @@ struct Feature {
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
 	Version minVersion; // if different from unsetValue
-	typedef Var (*GetValueFunction)( Feature*, const Var& );
-	GetValueFunction getValueFct;
+	bool unsetIfOlderClients; // if getValueFct is not set, it automatically uses the unsetValue for hostGet
+	typedef Var (GameServer::*GetValueFunction)( const Var& preset );
+	GetValueFunction getValueFct; // if set, it uses the return value for hostGet
 	bool SET;
 	
 	Feature() : SET(false) {}
 	static Feature Unset() { return Feature(); }
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver, GetValueFunction f = NULL)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver, GetValueFunction f = NULL)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver, GetValueFunction f = NULL)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver, GetValueFunction f = NULL)
-	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver, bool u = false, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver, bool u = false, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver, bool u = false, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver, bool u = false, GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 };
 
 extern Feature featureArray[];
 inline int featureArrayLen() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) ++l; return l; }
+Feature* featureByName(const std::string& name);
 
 // Indexes of features in featureArray
 // These indexes are only for local game use, not for network! (name is used there)
@@ -68,7 +72,8 @@ public:
 	const ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
 	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &featureArray[0]]; }
 	ScriptVar_t hostGet(FeatureIndex i);
-	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }	
+	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }
+	bool olderClientsSupportSetting(Feature* f);
 };
 
 #endif

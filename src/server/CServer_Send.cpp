@@ -150,15 +150,15 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
-	bool forceScreenShaking = false;
-	CServerConnection *cl = server->cClients;
-	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
-		if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() < OLXBetaVersion(9) ) {
-			forceScreenShaking = true;
-			break;
-		}
-	
-	bs->writeBool( forceScreenShaking || tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING] );
+	int ftC = featureArrayLen();
+	assert(ftC < 256*256);
+	bs->writeInt(ftC, 2);
+	foreach( Feature*, f, Array(featureArray,ftC) ) {
+		bs->writeString( f->get()->name );
+		bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
+		bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
+	}
+
 	bs->writeBool( tLXOptions->tGameInfo.bSuicideDecreasesScore ); // Clients should know this value to update scoreboadr correctly
 
 	cDamageReport.clear(); // In case something left from prev game
