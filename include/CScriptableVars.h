@@ -103,6 +103,8 @@ public:
 		ScriptVar_t( const std::string & v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
 		ScriptVar_t( const char * v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
 		ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
+		
+		operator bool() { assert(type == SVT_BOOL); return b; }
 	};
 
 	static CScriptableVars & Init();	// Called automatically

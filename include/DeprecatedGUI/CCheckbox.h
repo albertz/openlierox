@@ -20,6 +20,8 @@
 
 #include "InputEvents.h"
 
+namespace CScriptableVars{ struct ScriptVar_t; };
+
 namespace DeprecatedGUI {
 
 // Checkbox events
@@ -54,6 +56,8 @@ public:
 		iVar = NULL;
 	}
 
+	CCheckbox(CScriptableVars::ScriptVar_t& var);
+	
 private:
 	// Attributes
 	bool		bValue;

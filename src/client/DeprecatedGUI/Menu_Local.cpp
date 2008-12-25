@@ -889,7 +889,7 @@ void Menu_GameSettings(void)
 	y += 30;
 
 	cGeneralSettings.Add( new CLabel("Force screen shaking", tLX->clNormalLabel),	-1,         140,y, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bForceScreenShaking), gs_ForceScreenShaking,    300,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING]), gs_ForceScreenShaking,    300,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
@@ -1114,7 +1114,7 @@ void Menu_GameSettings_GrabInfo(void)
 
 	tLXOptions->tGameInfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
-	tLXOptions->tGameInfo.bForceScreenShaking = cGeneralSettings.SendMessage( gs_ForceScreenShaking, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING] = cGeneralSettings.SendMessage( gs_ForceScreenShaking, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);

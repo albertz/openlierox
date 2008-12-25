@@ -13,7 +13,7 @@
 // Created 30/3/03
 // Jason Boettcher
 
-
+#include <cassert>
 #include "LieroX.h"
 
 #include "DeprecatedGUI/Menu.h"
@@ -51,4 +51,18 @@ static bool CCheckBox_WidgetRegistered =
 							( "var", CScriptableVars::SVT_STRING )
 							( "click", CScriptableVars::SVT_STRING );
 
+	
+CCheckbox::CCheckbox(CScriptableVars::ScriptVar_t& var) {
+	assert(var.type == CScriptableVars::SVT_BOOL);
+	bValue = var.b;
+	bmpImage = NULL;
+	iType = wid_Checkbox;
+	bVar = &var.b;
+	iVar = NULL;
+}
+
+
 }; // namespace DeprecatedGUI
+
+
+

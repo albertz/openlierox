@@ -155,7 +155,7 @@
 - fixed changing of graphic settings
 - and a lot of other fixes / cleanups
 </pre>
-	<b>0.57_beta3</b> (released 2007-08-08)<br>
+	<b>0.57_beta3</b> (released 2007-08-10)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=531327">
 	OpenLieroX main downloads</a> (with Mac OS X Universal Binary now!)<br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta3.ebuild">OpenLieroX Gentoo ebuild</a><br>

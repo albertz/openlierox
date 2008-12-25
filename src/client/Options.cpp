@@ -174,7 +174,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bCountTeamkills, "CountTeamkills", false )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false )
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360 )
-		( tLXOptions->tGameInfo.bForceScreenShaking, "ForceScreenShaking", true )
 		;
 
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
