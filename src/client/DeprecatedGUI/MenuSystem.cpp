@@ -2058,6 +2058,26 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 						fGameSpeed = inbs.readFloat();
 					}
 
+					// since Beta9
+					if(!inbs.isPosAtEnd())  {
+						int ftC = inbs.readInt(2);
+						for(int i = 0; i < ftC; ++i) {
+							std::string name = inbs.readString();
+							std::string humanName = inbs.readString();
+							ScriptVar_t value; inbs.readVar(value);
+							bool olderClientsSupported = inbs.readBool();
+							Feature* f = featureByName(name);
+							if(f) {
+								// we support it
+							} else if(!olderClientsSupported) {
+								// we do not have the feature but we could play on the server
+							} else {
+								// we are incompatible
+							}
+							// TODO: show these information
+						}
+					}
+					
                 }
             }
         }

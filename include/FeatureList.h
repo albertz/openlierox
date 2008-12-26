@@ -28,7 +28,7 @@ struct Feature {
 	VarType valueType; // for example: float for gamespeed, bool for ropelenchange
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
-	Version minVersion; // if different from unsetValue
+	Version minVersion; // min supported version (<=beta8 is not updated automatically by the system) 
 	bool unsetIfOlderClients; // if getValueFct is not set, it automatically uses the unsetValue for hostGet
 	typedef Var (GameServer::*GetValueFunction)( const Var& preset );
 	GetValueFunction getValueFct; // if set, it uses the return value for hostGet

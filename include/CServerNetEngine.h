@@ -77,7 +77,7 @@ protected:
 	GameServer 	*server;
 	CServerConnection *cl;
 	
-	virtual void WritePrepareGame(CBytestream *bs);
+	virtual void WritePrepareGame(CBytestream *bs);	
 };
 
 class CServerNetEngineBeta3: public CServerNetEngine 
@@ -145,6 +145,8 @@ public:
 	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender);
 	virtual void SendWormScore(CWorm *Worm);
 
+	static void WriteFeatureSettings(CBytestream* bs);
+	
 protected:
 	void WritePrepareGame(CBytestream *bs);
 	

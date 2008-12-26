@@ -150,15 +150,8 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
-	int ftC = featureArrayLen();
-	assert(ftC < 256*256);
-	bs->writeInt(ftC, 2);
-	foreach( Feature*, f, Array(featureArray,ftC) ) {
-		bs->writeString( f->get()->name );
-		bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
-		bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
-	}
-
+	WriteFeatureSettings(bs);
+	
 	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
 }
@@ -489,6 +482,24 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	return fCurUploadRate < fMaxRate;
 }
 
+void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
+	int ftC = featureArrayLen();
+	int sendFtC = 0;
+	foreach( Feature*, f, Array(featureArray,ftC) )
+		if(f->get()->minVersion >= OLXBetaVersion(9))
+			sendFtC++;
+	assert(sendFtC < 256*256);
+	bs->writeInt(sendFtC, 2);	
+	foreach( Feature*, f, Array(featureArray,ftC) ) {
+		if(f->get()->minVersion >= OLXBetaVersion(9)) {
+			bs->writeString( f->get()->name );
+			bs->writeString( f->get()->humanReadableName );
+			bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
+			bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
+		}
+	}	
+}
+
 
 static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 	CBytestream bs;
@@ -516,6 +527,10 @@ static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 		bs.writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
 		bs.writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 	}
+
+	// since Beta9
+	if( cl->getClientVersion() >= OLXBetaVersion(9) )
+		CServerNetEngineBeta9::WriteFeatureSettings(&bs);
 	
 	cl->getNetEngine()->SendPacket(&bs);
 }

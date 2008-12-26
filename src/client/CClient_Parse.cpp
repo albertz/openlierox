@@ -855,20 +855,18 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
-};
+}
 
-bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
-{
-	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
-		return false;
-
+void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	int ftC = bs->readInt(2);
 	for(int i = 0; i < ftC; ++i) {
 		std::string name = bs->readString();
+		std::string humanName = bs->readString();
 		ScriptVar_t value; bs->readVar(value);
 		bool olderClientsSupported = bs->readBool();
 		Feature* f = featureByName(name);
 		if(f) {
+			// we support the feature
 			if(value.type == f->valueType)
 				client->tGameInfo.features[f] = value;
 			else {
@@ -876,15 +874,25 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 				client->tGameInfo.features[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
 			}
 		} else if(!olderClientsSupported)
-			cout << "We don't support the feature " << name << " and we cannot play with the current settings." << endl;
+			cout << "We don't support '" << humanName << "' and we cannot play with the current settings." << endl;
+		else
+			cout << "HINT: server has feature '" << humanName << "' which is unknown to us" << endl;
 		// TODO: we could save even the not supported features to show them somewhere in lobby (in red or grey or blue)
-	}
+	}	
+}
+
+bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
+{
+	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
+		return false;
+
+	ParseFeatureSettings(bs);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
 
 	return true;
-};
+}
 
 
 ///////////////////
@@ -1511,7 +1519,8 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 
 
 ///////////////////
-// Parse an update-lobby packet
+// Parse an update-lobby packet, when worms got ready/notready
+// TODO: rename this function to make this more clear
 void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 {
 	int numworms = bs->readByte();
@@ -1754,7 +1763,15 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.fGameSpeed = bs->readFloat();
 	client->tGameInfo.bForceRandomWeapons = bs->readBool();
 	client->tGameInfo.bSameWeaponsAsHostWorm = bs->readBool();
-};
+}
+
+void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
+{
+	CClientNetEngineBeta7::ParseUpdateLobbyGame(bs);
+	
+	ParseFeatureSettings(bs);
+}
+
 
 ///////////////////
 // Parse a 'worm down' packet

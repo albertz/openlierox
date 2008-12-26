@@ -1581,6 +1581,9 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 
 	// since Beta7
 	bs.writeFloat(tLXOptions->tGameInfo.fGameSpeed);
+	
+	// since Beta9
+	CServerNetEngineBeta9::WriteFeatureSettings(&bs);
 
 	bs.Send(tSocket);
 }

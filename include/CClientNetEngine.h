@@ -121,11 +121,13 @@ public:
 	}
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
+	virtual void ParseUpdateLobbyGame(CBytestream *bs);
 	virtual void SendReportDamage(int victim, int damage, int offender);
     virtual void ParseReportDamage(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
 	virtual void SendDeath(int victim, int killer);
-    
+    void ParseFeatureSettings(CBytestream* bs);
+	
 private:
     float fLastDamageReportSent;
     std::map< std::pair< int, int >, int > cDamageReport;
