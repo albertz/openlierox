@@ -58,6 +58,17 @@ struct ScriptVar_t
 	ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
 	
 	operator bool() { assert(type == SVT_BOOL); return b; }
+	bool operator==(const ScriptVar_t& var) {
+		if(var.type != type) return false;
+		switch(type) {
+			case SVT_BOOL: return var.b == b;
+			case SVT_INT: return var.i == i;
+			case SVT_FLOAT: return var.f == f;
+			case SVT_STRING: return var.s == s;
+			case SVT_COLOR: return var.c == c;
+			default: assert(false); return false;
+		}
+	}
 };
 
 // Pointer to any in-game var - var should be global or static
