@@ -190,58 +190,6 @@ class maprandom_t { public:
 };
 */
 
-/*
-// TODO: merge this class with GameOptions::GameInfo (Options.h) and game_lobby_t (this file)
-// Game structure
-class game_t { public:
-	int			iGameType;		// Local, remote, etc
-	int			iGameMode;		// DM, team DM, etc
-	std::string		sModName;
-	std::string		sMapFile;
-	std::string		sMapName;
-    std::string        sPassword;
-	std::string		sModDir;
-    maprandom_t sMapRandom;
-	int			iLoadingTimes;
-	std::string		sServername;
-	std::string		sWelcomeMessage;
-
-	int			iLives;
-	int			iKillLimit;
-	float		fTimeLimit;	// Time limit in minutes (sent over net as int)
-	int			iTagLimit;
-	bool		bBonusesOn;
-	bool		bShowBonusName;
-	float		fGameSpeed;
-	
-	int			iNumPlayers;
-	profile_t	*cPlayers[MAX_WORMS];
-};
-*/
-/*
-// TODO: merge this with game_t (this file) and GameOptions::GameInfo (Options.h)
-// TODO: move this somewhere else
-// Game lobby structure
-class game_lobby_t { public:
-	bool	bSet;
-	int		nGameMode;
-	int		nLastGameMode;
-	int		nLives;
-	int		nMaxWorms;
-	int		nMaxKills;
-	int		nLoadingTime;
-	float	fGameSpeed;
-	bool	bBonuses;
-	std::string	szMapFile;
-	std::string	szDecodedMapName;
-	std::string	szModName;
-	std::string	szModDir;
-	bool	bHaveMap;
-	bool	bHaveMod;
-	bool	bForceRandomWeapons;
-	bool	bSameWeaponsAsHostWorm;
-};
-*/
 
 
 extern	lierox_t		*tLX;
