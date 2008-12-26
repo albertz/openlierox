@@ -581,7 +581,7 @@ void GameServer::SimulateGame(void)
 		// TODO: why are we doing this? we are not simulating the worm but why the weapon?
 		// please try to remove this here and then remove also the dt parameter in PhysicsEngine
 		if( w->getAlive() )
-			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime * tLXOptions->tGameInfo.fGameSpeed, w);
+			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime * (float)tLXOptions->tGameInfo.features[FT_GAMESPEED], w);
 /*
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag(0) && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {

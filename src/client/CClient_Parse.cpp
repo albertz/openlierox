@@ -743,7 +743,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
-	client->tGameInfo.fGameSpeed = 1.0f;
+	client->tGameInfo.features[FT_GAMESPEED] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
@@ -851,7 +851,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 		return false;
 
 	// >=Beta7 is sending this
-	client->tGameInfo.fGameSpeed = bs->readFloat();
+	client->tGameInfo.features[FT_GAMESPEED] = bs->readFloat();
 	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
@@ -1724,7 +1724,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.iLoadingTime = bs->readInt16();
     client->tGameInfo.bBonusesOn = bs->readBool();
 
-	client->tGameInfo.fGameSpeed = 1.0f;
+	client->tGameInfo.features[FT_GAMESPEED] = 1.0f;
 	client->tGameInfo.bForceRandomWeapons = false;
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
@@ -1760,7 +1760,7 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngine::ParseUpdateLobbyGame(bs);
 
-	client->tGameInfo.fGameSpeed = bs->readFloat();
+	client->tGameInfo.features[FT_GAMESPEED] = bs->readFloat();
 	client->tGameInfo.bForceRandomWeapons = bs->readBool();
 	client->tGameInfo.bSameWeaponsAsHostWorm = bs->readBool();
 }

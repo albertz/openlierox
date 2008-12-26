@@ -15,6 +15,18 @@
 #include <iostream>
 #include <sstream>
 
+
+std::string ScriptVar_t::toString() {
+	switch(type) {
+		case SVT_BOOL: return to_string(b);
+		case SVT_INT: return to_string(i);
+		case SVT_FLOAT: return to_string(f);
+		case SVT_STRING: return s;
+		case SVT_COLOR: return ColToHex(c);
+		default: assert(false); return "";
+	}
+}
+
 CScriptableVars * CScriptableVars::m_instance = NULL;
 
 CScriptableVars & CScriptableVars::Init()

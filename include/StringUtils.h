@@ -149,7 +149,7 @@ std::string		UrlEncode(const std::string &data); // Substitute space with + and 
 std::string		AutoDetectLinks(const std::string& text);
 std::string		HtmlEntityUnpairedBrackets(const std::string &txt);
 size_t			GetPosByTextWidth(const std::string& text, int width, CFont *fnt);
-
+std::string		ColToHex(Uint32 col);
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 
@@ -233,26 +233,27 @@ inline std::string ftoa(float val, int precision = -1)
 }
 
 // std::string itoa
-inline std::string itoa(int num, short base=10)  {
+inline std::string itoa(unsigned long num, short base=10)  {
 	std::string buf;
-	bool negative = false;
-	if (num<0)  { // Handle negative values
-		negative = true;
-		num = -num;
-	}
 
 	do {	
 		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
 		num /= base;
 	} while(num);
 
-	// Sign
-	if (negative)
-		buf = "-"+buf;
-
 	return buf;
 }
 
+// std::string itoa
+inline std::string itoa(long num, short base=10)  {
+	if(num >= 0)
+		return itoa((unsigned long)num, base);
+	else
+		return "-" + itoa((unsigned long)-num, base);
+}
+
+inline std::string itoa(int num, short base=10)  { return itoa((long)num,base); }
+inline std::string itoa(unsigned int num, short base=10)  { return itoa((unsigned long)num,base); }
 
 class simple_reversestring_hasher { public:
 	inline size_t operator() (const std::string& str) const {

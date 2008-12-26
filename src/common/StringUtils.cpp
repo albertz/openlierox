@@ -253,6 +253,16 @@ static Color HexToCol(const std::string& hex, bool& fail)
 	return Color();
 }
 
+std::string ColToHex(Uint32 col) {
+	std::string buf = itoa(col, 16);
+	if(buf.size() < 6)
+		while(buf.size() < 6) buf += "0";
+	else if(buf.size() == 7)
+		buf += "0";
+	return "#" + buf;
+}
+
+
 //////////////////////
 // Returns true if the value ends with a percent sign
 static bool is_percent(const std::string& str)

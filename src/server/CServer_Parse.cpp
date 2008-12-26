@@ -1580,7 +1580,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	bs.writeString(GetFullGameName());
 
 	// since Beta7
-	bs.writeFloat(tLXOptions->tGameInfo.fGameSpeed);
+	bs.writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
 	
 	// since Beta9
 	CServerNetEngineBeta9::WriteFeatureSettings(&bs);

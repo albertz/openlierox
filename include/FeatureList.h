@@ -58,8 +58,9 @@ Feature* featureByName(const std::string& name);
 //  in the header file.)
 // WARNING: Keep this always synchronised with featureArray!
 enum FeatureIndex {
-	FT_FORCESCREENSHAKING = 0,
-	FT_SUICIDEDECREASESSCORE = 1
+	FT_GAMESPEED = 0,
+	FT_FORCESCREENSHAKING = 1,
+	FT_SUICIDEDECREASESSCORE = 2
 };
 
 class FeatureSettings {

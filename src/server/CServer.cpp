@@ -281,9 +281,9 @@ int GameServer::StartGame()
 
 	
 	// Check that gamespeed != 0
-	if (-0.05f <= tLXOptions->tGameInfo.fGameSpeed && tLXOptions->tGameInfo.fGameSpeed <= 0.05f) {
-		cout << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.fGameSpeed << "; resetting it to 1" << endl;
-		tLXOptions->tGameInfo.fGameSpeed = 1;
+	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] && (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] <= 0.05f) {
+		cout << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GAMESPEED].toString() << "; resetting it to 1" << endl;
+		tLXOptions->tGameInfo.features[FT_GAMESPEED] = 1;
 	}
 	
 		
@@ -1300,11 +1300,6 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 }
 
 bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg) {
-	if(tLXOptions->tGameInfo.fGameSpeed != 1.0f) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "game-speed multiplicator " + ftoa(tLXOptions->tGameInfo.fGameSpeed) + " is used", dropOut, makeMsg))
-			return false;		
-	}
-	
 	if(serverChoosesWeapons()) {
 		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut, makeMsg))
 			return false;	
@@ -1317,7 +1312,7 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
-			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set", dropOut, makeMsg))
+			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString(), dropOut, makeMsg))
 				return false;
 		}
 	}

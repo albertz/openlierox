@@ -612,7 +612,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Loading time:");
 		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iLoadingTime) + "%"); y += lineheight;
 		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Game speed:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(cClient->getGameLobby()->fGameSpeed)); y += lineheight;
+		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(cClient->getGameLobby()->features[FT_GAMESPEED])); y += lineheight;
         f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Bonuses:");
         f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, cClient->getGameLobby()->bBonusesOn ? "On" : "Off"); y += lineheight;
 	}

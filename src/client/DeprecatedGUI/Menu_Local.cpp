@@ -855,7 +855,7 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Add( new CLabel("Game Speed", tLX->clNormalLabel),		    -1,	        140,285, 0, 0);
 	cGeneralSettings.Add( new CSlider(99),									gs_GameSpeed,	295,282, 160,20);
 	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_GameSpeedLabel, 470, 285, 0, 0);
-	Menu_setGameSpeed( tLXOptions->tGameInfo.fGameSpeed );
+	Menu_setGameSpeed( tLXOptions->tGameInfo.features[FT_GAMESPEED] );
 
 	cGeneralSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,310, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_TimeLimit,	300,307, 30,tLX->cFont.GetHeight());
@@ -1080,7 +1080,7 @@ void Menu_GameSettings_GrabInfo(void)
 	// General
 
 	tLXOptions->tGameInfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	tLXOptions->tGameInfo.fGameSpeed = Menu_getGameSpeed();
+	tLXOptions->tGameInfo.features[FT_GAMESPEED] = Menu_getGameSpeed();
 	
 	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
 	if(buf != "")

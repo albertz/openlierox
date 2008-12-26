@@ -133,7 +133,7 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngine::WritePrepareGame(bs);
 
-	bs->writeFloat( tLXOptions->tGameInfo.fGameSpeed );
+	bs->writeFloat( tLXOptions->tGameInfo.features[FT_GAMESPEED] );
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// TODO: it's hacky, don't have any ideas now how to make it nice
@@ -523,7 +523,7 @@ static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 	// since Beta7
 	if( cl->getClientVersion() >= OLXBetaVersion(7) )
 	{
-		bs.writeFloat(tLXOptions->tGameInfo.fGameSpeed);
+		bs.writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
 		bs.writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
 		bs.writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 	}

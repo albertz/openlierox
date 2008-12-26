@@ -164,7 +164,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false )
 		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
-		( tLXOptions->tGameInfo.fGameSpeed, "GameSpeed", 1.0f )
 		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false )
 		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false )
 		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
