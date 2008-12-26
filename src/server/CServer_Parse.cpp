@@ -649,7 +649,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
 	{
-		if( tLXOptions->tGameInfo.bSuicideDecreasesScore && ( id == offenderId ||
+		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( id == offenderId ||
 			( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
 				w->getTeam() == offender->getTeam() )) )
 			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself

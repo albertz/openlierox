@@ -899,7 +899,7 @@ void Menu_GameSettings(void)
 		
 	cGeneralSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
 	cGeneralSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,y-3,17,17);
+	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE]),	gs_SuicideDecreasesScore,    300,y-3,17,17);
 
 	cGeneralSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,y, 0, 0);
 	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bGroupTeamScore),	gs_GroupTeamScore, 470,y-3,17,17);
@@ -1104,7 +1104,7 @@ void Menu_GameSettings_GrabInfo(void)
 
 	tLXOptions->tGameInfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-	tLXOptions->tGameInfo.bSuicideDecreasesScore = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameInfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 

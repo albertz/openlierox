@@ -56,8 +56,10 @@ Feature* featureByName(const std::string& name);
 // (I am not that happy with this solution right now, I would like to put both these indexes together
 //  with the actual declaration of the Feature. Though I don't know a way how to put both things together
 //  in the header file.)
+// WARNING: Keep this always synchronised with featureArray!
 enum FeatureIndex {
-	FT_FORCESCREENSHAKING = 0
+	FT_FORCESCREENSHAKING = 0,
+	FT_SUICIDEDECREASESSCORE = 1
 };
 
 class FeatureSettings {

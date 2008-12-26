@@ -276,7 +276,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	}
 
 	// Suicided or killed team member - decrease score if selected in options
-	if( tLXOptions->tGameInfo.bSuicideDecreasesScore && ( killer == victim ||
+	if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( killer == victim ||
 		( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
 			if( kill->getKills() > 0 )
 			{

@@ -162,7 +162,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5 )
 		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
 		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false )
-		( tLXOptions->tGameInfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
 		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
 		( tLXOptions->tGameInfo.fGameSpeed, "GameSpeed", 1.0f )

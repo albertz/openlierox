@@ -880,11 +880,10 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 		// TODO: we could save even the not supported features to show them somewhere in lobby (in red or grey or blue)
 	}
 	
-	client->tGameInfo.bSuicideDecreasesScore = bs->readBool(); // Necessary to know that to update damage in scoreboard correctly
-	
+	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
 
-    return true;
+	return true;
 };
 
 
@@ -2150,7 +2149,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
 	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
 	{
-		if( client->tGameInfo.bSuicideDecreasesScore && ( id == offenderId ||
+		if( client->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( id == offenderId ||
 			( (client->tGameInfo.iGameMode == GMT_TEAMDEATH || client->tGameInfo.iGameMode == GMT_VIP) && 
 				w->getTeam() == offender->getTeam() )) )
 			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself

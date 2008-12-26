@@ -360,7 +360,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		// Update our scoreboard for local worms
 		if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
 		{
-			if( tGameInfo.bSuicideDecreasesScore && ( w->getID() == owner ||
+			if( tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( w->getID() == owner ||
 				( (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && 
 					w->getTeam() == getRemoteWorms()[owner].getTeam() )) )
 				getRemoteWorms()[owner].setDamage( getRemoteWorms()[owner].getDamage() - damage );	// Decrease damage from score if injured teammate or yourself

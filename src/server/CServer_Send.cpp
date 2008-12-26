@@ -159,8 +159,7 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 		bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
 	}
 
-	bs->writeBool( tLXOptions->tGameInfo.bSuicideDecreasesScore ); // Clients should know this value to update scoreboadr correctly
-
+	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
 }
 

@@ -14,8 +14,10 @@
 
 using namespace std;
 
+// WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {
 	Feature("ForceScreenShaking", "force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9) ),
+	Feature("SuicideDecreasesScore", "suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
 
