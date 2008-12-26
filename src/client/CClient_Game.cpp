@@ -352,22 +352,13 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	// Send REPORTDAMAGE to server (also calculate it for pre-Beta9 clients)
 	if( me || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
 	{
-		getNetEngine()->SendReportDamage( w->getID(), damage, owner );
+		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
 		// Set damage report for local worm - server won't send it back to us
 		w->getDamageReport()[owner].damage += damage;
 		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
 
 		// Update our scoreboard for local worms
-		if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
-		{
-			if( tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( w->getID() == owner ||
-				( (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && 
-					w->getTeam() == getRemoteWorms()[owner].getTeam() )) )
-				getRemoteWorms()[owner].setDamage( getRemoteWorms()[owner].getDamage() - damage );	// Decrease damage from score if injured teammate or yourself
-			else
-				getRemoteWorms()[owner].setDamage( getRemoteWorms()[owner].getDamage() + damage );
-		}
-
+		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
 	}
 }
 

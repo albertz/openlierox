@@ -46,7 +46,7 @@ void CClientNetEngine::SendWormDetails(void)
 	/*if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
 			return; */
-
+			
 	CBytestream bs;
 	uint i;
 
@@ -122,11 +122,7 @@ void CClientNetEngine::SendDeath(int victim, int killer)
 void CClientNetEngineBeta9::SendDeath(int victim, int killer)
 {
 	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
-	if( !cDamageReport.empty() )
-	{
-		fLastDamageReportSent = 0;
-		SendReportDamage(victim, 0, victim);
-	}	
+	SendReportDamage(true);
 
 	CClientNetEngine::SendDeath(victim, killer);
 }
@@ -321,7 +317,7 @@ void CClientNetEngine::SendFileData()
 	client->getChannel()->AddReliablePacketToSend(bs);
 };
 
-void CClientNetEngineBeta9::SendReportDamage(int victim, int damage, int offender)
+void CClientNetEngineBeta9::QueueReportDamage(int victim, int damage, int offender)
 {
 	// Buffer up all damage and send it once per 0.1 second for LAN nettype, or once per 0.3 seconds for modem
 	std::pair< int, int > dmgPair = std::make_pair( victim, offender );
@@ -329,7 +325,12 @@ void CClientNetEngineBeta9::SendReportDamage(int victim, int damage, int offende
 		cDamageReport[ dmgPair ] = 0;
 	cDamageReport[ dmgPair ] += damage;
 
-	if( tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - client->getNetSpeed() ) )
+	SendReportDamage();
+}
+
+void CClientNetEngineBeta9::SendReportDamage(bool flush)
+{
+	if( ! flush && tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - client->getNetSpeed() ) )
 		return;
 
 	CBytestream bs;
@@ -337,9 +338,9 @@ void CClientNetEngineBeta9::SendReportDamage(int victim, int damage, int offende
 	for( std::map< std::pair< int, int >, int > :: iterator it = cDamageReport.begin(); 
 			it != cDamageReport.end(); it++ )
 	{
-		victim = it->first.first;
-		offender = it->first.second;
-		damage = it->second;
+		int victim = it->first.first;
+		int offender = it->first.second;
+		int damage = it->second;
 		while( damage != 0 )
 		{
 			bs.writeByte(C2S_REPORTDAMAGE);

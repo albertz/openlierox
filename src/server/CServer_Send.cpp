@@ -379,24 +379,24 @@ bool GameServer::SendUpdate()
 			if(!cl->isLocalClient())
 				uploadAmount += (bs->GetPos() - oldBsPos);
 
-    		{
-				// Send the shootlist (reliable)
-				CShootList *sh = cl->getShootList();
-				float delay = shootDelay[cl->getNetSpeed()];
+			// Send the shootlist (reliable)
+			CShootList *sh = cl->getShootList();
+			float delay = shootDelay[cl->getNetSpeed()];
 
-				if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
-					CBytestream shootBs;
+			if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
+				CBytestream shootBs;
 
-					// Send the shootlist
-					if( sh->writePacket(&shootBs) )
-						sh->Clear();
+				// Send the shootlist
+				if( sh->writePacket(&shootBs) )
+					sh->Clear();
 
-					if(!cl->isLocalClient())
-						uploadAmount += shootBs.GetLength();
+				if(!cl->isLocalClient())
+					uploadAmount += shootBs.GetLength();
 					
-					cl->getChannel()->AddReliablePacketToSend(shootBs);
-				}
+				cl->getChannel()->AddReliablePacketToSend(shootBs);
 			}
+			
+			cl->getNetEngine()->SendReportDamage();
 		}
 	}
 
@@ -787,31 +787,32 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 {
 	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
-	if( !cDamageReport.empty() )
-	{
-		fLastDamageReportSent = 0;
-		SendReportDamage(Worm, 0, Worm);
-	}	
+	SendReportDamage(true);
 
 	CBytestream bs;
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
-	bs.writeInt(Worm->getKills(), 4); // Negative kills are allowed
-	bs.writeInt(Worm->getDamage(), 4);
+	bs.writeInt(Worm->getKills(), 2); // Negative kills are allowed
+	bs.writeInt(Worm->getDamage(), 2);
 
 	SendPacket(&bs);
 };
 
-void CServerNetEngineBeta9::SendReportDamage(CWorm *Worm, int damage, CWorm * offender)
+void CServerNetEngineBeta9::QueueReportDamage(int victim, int damage, int offender)
 {
 	// Buffer up all damage and send it once per 0.1 second for LAN nettype, or once per 0.3 seconds for modem
-	std::pair< int, int > dmgPair = std::make_pair( Worm->getID(), offender->getID() );
+	std::pair< int, int > dmgPair = std::make_pair( victim, offender );
 	if( cDamageReport.count( dmgPair ) == 0 )
 		cDamageReport[ dmgPair ] = 0;
 	cDamageReport[ dmgPair ] += damage;
+	
+	SendReportDamage();
+};
 
-	if( tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
+void CServerNetEngineBeta9::SendReportDamage(bool flush)
+{
+	if( ! flush && tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
 		return;
 	
 	CBytestream bs;
@@ -821,7 +822,7 @@ void CServerNetEngineBeta9::SendReportDamage(CWorm *Worm, int damage, CWorm * of
 	{
 		int victim = it->first.first;
 		int offender = it->first.second;
-		damage = it->second;
+		int damage = it->second;
 		while( damage != 0 )
 		{
 			bs.writeByte(S2C_REPORTDAMAGE);

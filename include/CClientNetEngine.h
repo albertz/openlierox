@@ -48,7 +48,8 @@ public:
 	virtual void		SendFileData();
 	virtual void		SendChatCommandCompletionRequest(const std::string& startStr) { return; };
 	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "") { return; };
-	virtual void		SendReportDamage(int victim, int damage, int offender) { return; };
+	virtual void		SendReportDamage(bool flush = false) { return; };
+	virtual void		QueueReportDamage(int victim, int damage, int offender) { return; };
 #ifdef FUZZY_ERROR_TESTING
 	virtual void		SendRandomPacket();
 #endif
@@ -122,10 +123,11 @@ public:
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
-	virtual void SendReportDamage(int victim, int damage, int offender);
     virtual void ParseReportDamage(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
 	virtual void SendDeath(int victim, int killer);
+	virtual void SendReportDamage(bool flush = false);
+	virtual void QueueReportDamage(int victim, int damage, int offender);
     void ParseFeatureSettings(CBytestream* bs);
 	
 private:

@@ -2164,15 +2164,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
 	w->Injure(damage);	// Calculate correct healthbar
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
-	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
-	{
-		if( client->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( id == offenderId ||
-			( (client->tGameInfo.iGameMode == GMT_TEAMDEATH || client->tGameInfo.iGameMode == GMT_VIP) && 
-				w->getTeam() == offender->getTeam() )) )
-			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself
-		else
-			offender->setDamage( offender->getDamage() + damage );
-	}
+	offender->addDamage( damage, w, client->tGameInfo );
 };
 
 void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
@@ -2196,8 +2188,8 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
 		}
 	
-		client->cRemoteWorms[id].setKills( bs->readInt(4) );
-		client->cRemoteWorms[id].setDamage( bs->readInt(4) );
+		client->cRemoteWorms[id].setKills( bs->readInt(2) );
+		client->cRemoteWorms[id].setDamage( bs->readInt(2) );
 
 		
 		if (client->cRemoteWorms[id].getLocal())
@@ -2228,7 +2220,7 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 	else
 	{
 		// do this to get the right position in net stream
-		bs->Skip(10);
+		bs->Skip(6);
 	}
 
 	client->UpdateScoreboard();

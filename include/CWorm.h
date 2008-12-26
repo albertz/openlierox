@@ -459,6 +459,7 @@ public:
 	void		setLives(int l)				{ iLives = l; }
 	int			getDamage(void)				{ return iDamage; }
 	void		setDamage(int l)			{ iDamage = l; }
+	void		addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & settings);
 
 	void		AddKill(void)				{ iKills++; }
     void        setKills(int k)             { iKills = k; }

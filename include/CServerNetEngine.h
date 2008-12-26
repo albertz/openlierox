@@ -63,7 +63,9 @@ public:
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
 	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
-	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender) { return; };
+	virtual void SendReportDamage(bool flush = false) { return; };
+	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
+	
 	virtual void SendWormScore(CWorm *Worm);
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
@@ -142,7 +144,8 @@ public:
 	}
 
 	virtual void ParseReportDamage(CBytestream *bs);
-	virtual void SendReportDamage(CWorm *Worm, int damage, CWorm * offender);
+	virtual void SendReportDamage(bool flush = false);
+	virtual void QueueReportDamage(int victim, int damage, int offender);
 	virtual void SendWormScore(CWorm *Worm);
 
 	static void WriteFeatureSettings(CBytestream* bs);

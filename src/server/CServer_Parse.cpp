@@ -561,7 +561,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) )
 					for( int i=0; i < MAX_CLIENTS; i++ )
 						if( server->cClients[i].getStatus() == NET_CONNECTED )
-							server->cClients[i].getNetEngine()->SendReportDamage( w, -30, w ); // It's random between 10-50 actually, we're doing approximation here
+							server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), -30, w->getID() ); // It's random between 10-50 actually, we're doing approximation here
 			} else {
 				printf("GameServer::ParseGrabBonus: Bonus already destroyed.\n");
 			}
@@ -647,19 +647,12 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	if( ! cl->OwnsWorm(id) && ! cl->isLocalClient() )	// Allow local client to send damage for pre-Beta9 clients
 		return;
 	
-	if( damage > 0 )	// Do not count when we heal ourselves or someone else, only damage counts
-	{
-		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( id == offenderId ||
-			( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
-				w->getTeam() == offender->getTeam() )) )
-			offender->setDamage( offender->getDamage() - damage );	// Decrease damage from score if injured teammate or yourself
-		else
-			offender->setDamage( offender->getDamage() + damage );
-	}
+	offender->addDamage( damage, w, tLXOptions->tGameInfo );
+
 	// Re-send the packet to all clients, except the sender
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
-			server->cClients[i].getNetEngine()->SendReportDamage( w, damage, offender );
+			server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), damage, offender->getID() );
 };
 
 

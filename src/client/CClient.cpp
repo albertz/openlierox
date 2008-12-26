@@ -1108,7 +1108,10 @@ void CClient::SendPackets(void)
 
 	// Playing packets
 	if(iNetStatus == NET_PLAYING)
+	{
 		cNetEngine->SendWormDetails();
+		cNetEngine->SendReportDamage();	// It sends only if someting is queued
+	}
 
 
 	// Send every second

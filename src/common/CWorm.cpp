@@ -1110,12 +1110,34 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 
 Uint32 CWorm::getGameColour(void)
 {
-		switch(cClient->getGameLobby()->iGameMode) {
+	switch(cClient->getGameLobby()->iGameMode) {
 		case GMT_TEAMDEATH:
 		case GMT_VIP:
 		case GMT_TEAMCTF:
 			return tLX->clTeamColors[iTeam];
 		default:
 			return cSkin.getDefaultColor();
-		}
 	}
+}
+
+void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & settings)
+{
+	if( damage < 0 )	// Do not count when we heal ourselves or someone else, only damage counts
+		return;
+
+	if( getID() == victim->getID() )
+	{
+		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] )
+			setDamage( getDamage() - damage );	// Decrease damage from score if injured yourself
+	}
+	else if( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
+				getTeam() == victim->getTeam() ) 
+	{
+		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] )
+			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate
+		else if( tLXOptions->tGameInfo.bCountTeamkills )
+			setDamage( getDamage() + damage );	// Count team damage along with teamkills
+	}
+	else
+		setDamage( getDamage() + damage );
+};
