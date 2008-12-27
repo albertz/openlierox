@@ -295,32 +295,45 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	if (!w->getAlive())  // Injuring a dead worm makes no sense
 		return;
 
+	CWorm* ownerWorm = NULL;
+	if(owner >= 0 && owner < MAX_WORMS) {
+		ownerWorm = &this->getRemoteWorms()[owner];
+		if(!ownerWorm->isUsed() || ownerWorm->getFlag())
+			ownerWorm = NULL;
+	}
+
+	bool me = ownerWorm && ownerWorm->getID() == w->getID();
+	ushort i;
+	
+	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TEAMINJURE] && w->getTeam() == ownerWorm->getTeam())
+		return;
+	
+	if(damage > 0 && ownerWorm && !this->getGameLobby()->features[FT_SELFINJURE] && me)
+		return;
+	
 	if (w->getLocal())  // Health change
 		bShouldRepaintInfo = true;
 
-	bool me = false;
-	ushort i;
-
-
-	// Make sure this is one of our worms
+	bool someOwnWorm = false;
 	for(i=0; i < iNumWorms; i++) {
 		if(cLocalWorms[i]->getID() == w->getID()) {
-			me=true;
+			someOwnWorm = true;
 			break;
 		}
 	}
-
+	
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
-		( getServerVersion() >= OLXBetaVersion(9) && me ) ||
+		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
 		( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
 	if(w->Injure(damage)) {
 		// His dead Jim
 
 		w->setAlreadyKilled(true);
 
-		// Kill me
-		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
+		// Kill someOwnWorm
+		// TODO: why is localworm[0] == 0 checked here?
+		if(someOwnWorm || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
 
 			w->setAlive(false);
 			w->Kill();
@@ -350,7 +363,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	}
 	
 	// Send REPORTDAMAGE to server (also calculate it for pre-Beta9 clients)
-	if( me || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
+	if( someOwnWorm || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
 	{
 		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
 		// Set damage report for local worm - server won't send it back to us
@@ -548,7 +561,7 @@ void CClient::DrawBeam(CWorm *w)
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
-			// Don't check against me
+			// Don't check against someOwnWorm
 			if(w2->getID() == w->getID())
 				continue;
 

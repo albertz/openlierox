@@ -19,9 +19,10 @@ Feature featureArray[] = {
 	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7) ),
 	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
-	Feature("FriendlyFire", "Own projectiles damage team members", "If disabled, projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
-	Feature("SelfShooting", "Own projectiles damage you", "If disabled, projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
-	Feature("NonDamageProjGoesThrough", "Non-damaging-projectiles goes through worms", "If enabled (together with SelfShooting or similar), such projectiles goes through the worm.", false, true, OLXBetaVersion(9), &GameServer::isNonDamProjGoesThroughNeeded ),
+	Feature("TeamInjure", "Own projectiles damage team members", "If disabled, projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
+	Feature("TeamHit", "projectiles goes through team members", "If disabled, your projectiles goes through team members.", true, true, OLXBetaVersion(9) ),
+	Feature("SelfInjure", "Own projectiles damage you", "If disabled, projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
+	Feature("SelfHit", "projectiles goes through yourself", "If disabled, your projectiles goes through yourself.", true, true, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
 

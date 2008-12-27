@@ -753,11 +753,24 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 
 	const static int wsize = 4;
 
+	CWorm* ownerWorm = NULL;
+	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
+		ownerWorm = &worms[this->iOwner];
+		if(!ownerWorm->isUsed() || ownerWorm->getFlag())
+			ownerWorm = NULL;
+	}
+	
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed() || !w->getAlive() || w->getFlag())
 			continue;
-
+		
+		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TEAMHIT] && w->getTeam() == ownerWorm->getTeam())
+		   continue;
+		
+		if(ownerWorm && !cClient->getGameLobby()->features[FT_SELFHIT] && w == ownerWorm)
+			continue;
+		
 		wx = (int)w->getPos().x;
 		wy = (int)w->getPos().y;
 

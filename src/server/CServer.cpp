@@ -1345,7 +1345,7 @@ bool GameServer::clientsConnected_less(const Version& ver) {
 
 ScriptVar_t GameServer::isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset) {
 	if(!(bool)preset) return ScriptVar_t(false);
-	if(!tLXOptions->tGameInfo.features[FT_FRIENDLYFIRE] || !tLXOptions->tGameInfo.features[FT_SELFSHOOTING])
+	if(!tLXOptions->tGameInfo.features[FT_TEAMINJURE] || !tLXOptions->tGameInfo.features[FT_SELFINJURE])
 		return preset;
 	else
 		return ScriptVar_t(false);

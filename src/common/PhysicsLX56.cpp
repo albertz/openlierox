@@ -781,7 +781,7 @@ public:
 				spawnprojectiles = true;
 		}
 
-
+		
 
 		/*
 		===================
@@ -802,11 +802,11 @@ public:
 				break;
 
 				// Injure
-				case PJ_INJURE:
-
+				case PJ_INJURE:					
+					deleteAfter = true;
+					
 					// Add damage to the worm
 					m_client->InjureWorm(&m_client->getRemoteWorms()[wormid], pi->PlyHit_Damage, prj->GetOwner());
-					deleteAfter = true;
 				break;
 
 				// Bounce

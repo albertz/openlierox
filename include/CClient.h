@@ -625,6 +625,8 @@ public:
 	int			getNumRemoteWorms();
 	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 
+	bool		isTeamGame() { return iGameType == GMT_TEAMCTF || iGameType == GMT_TEAMDEATH; }
+	
 };
 
 extern	CClient			*cClient;
