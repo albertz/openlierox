@@ -305,7 +305,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
 	ushort i;
 	
-	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TEAMINJURE] && w->getTeam() == ownerWorm->getTeam())
+	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TEAMINJURE] && !me && w->getTeam() == ownerWorm->getTeam())
 		return;
 	
 	if(damage > 0 && ownerWorm && !this->getGameLobby()->features[FT_SELFINJURE] && me)
