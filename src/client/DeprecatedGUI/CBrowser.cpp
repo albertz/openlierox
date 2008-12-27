@@ -510,7 +510,7 @@ void CBrowser::AppendNode(xmlNodePtr node)
 		if (xmlStrcmp(doc_node->name, (xmlChar *)"body") == 0)
 			break;
 		if (doc_node->next)
-			doc_node = node->next;
+			doc_node = doc_node->next;
 		doc_node = doc_node->children;
 	}
 
