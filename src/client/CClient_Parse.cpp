@@ -222,9 +222,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setTagTime(0);
 	}
 
-	if( client->iNumWorms <= 0 )
+	if( client->iNumWorms < 0 )
 		// TODO: why? we should allow iNumWorms = 0 for sure!
-		printf("Error %s:%i: client->iNumWorms = %i should be 1 or 2\n", __FILE__, __LINE__, client->iNumWorms );
+		printf("Error %s:%i: client->iNumWorms = %i is less than zero \n", __FILE__, __LINE__, client->iNumWorms );
 	
 	// Get the id's
 	int id=0;
