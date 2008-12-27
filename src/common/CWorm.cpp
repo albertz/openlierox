@@ -696,7 +696,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	{
 		int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
 		// Make it float up a bit when time passes
-		damageDrawPos += ( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30;
+		damageDrawPos += (int)(( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30);
 		for( std::map< float, int > :: iterator it = DamageReportDrawOrder.begin();
 				it != DamageReportDrawOrder.end(); it++ )
 		{
