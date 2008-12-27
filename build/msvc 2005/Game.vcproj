@@ -4079,6 +4079,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\FeatureList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\FeatureList.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\FileDownload.cpp"
 				>
 			</File>
