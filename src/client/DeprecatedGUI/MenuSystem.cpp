@@ -2119,7 +2119,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.setRedrawMenu(false);
 			lvInfo.setShowSelect(false);
 			lvInfo.setOldStyle(true);
-
+			// TODO: will the listview have scrollbars if too long? if not, please add this
 
 			lvInfo.Destroy(); // Clear any old info
 
@@ -2199,6 +2199,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL, NULL);
 
+			// Bonuses
+			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
+
 			if(bHaveGameSpeed) {
 				// Loading times
 				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
@@ -2214,15 +2219,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					default: col = tLX->clNormalLabel;
 				}
 				lvInfo.AddItem("feature:" + f->get().name, ++index, col);
-				lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
-				lvInfo.AddSubitem(LVS_TEXT, f->get().var.toString(), NULL, NULL);				
+				if(tLX->cFont.GetWidth(f->get().humanName + ":") + 20 <= first_column_width) {
+					lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, f->get().var.toString(), NULL, NULL);					
+				} else
+					lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":      " + f->get().var.toString(), NULL, NULL);
 			}
 			
-			// Bonuses
-			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
-
 			// Players / kills / lives
 			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
 			if (nState)  {

@@ -215,6 +215,10 @@ std::string to_string(T val) {
 	return oss.str();
 }
 
+inline std::string to_string(bool val) {
+	if(val) return "true"; else return "false";
+}
+
 inline std::string ftoa(float val, int precision = -1)
 {
 	std::string res = to_string<float>(val);

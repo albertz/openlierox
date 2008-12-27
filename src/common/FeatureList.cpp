@@ -16,9 +16,9 @@ using namespace std;
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {
-	Feature("GameSpeed", "game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7) ),
-	Feature("ForceScreenShaking", "force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
-	Feature("SuicideDecreasesScore", "suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
+	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7) ),
+	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
+	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
 
