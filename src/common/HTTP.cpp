@@ -1005,6 +1005,7 @@ int CHttp::ProcessRequest()
 			// Complete!
 			bTransferFinished = true;
 			bActive = false;
+			CloseSocket(tSocket);
 
 		} else {
 			// Error
