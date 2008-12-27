@@ -41,7 +41,7 @@ enum {
 // Serverlist timeout
 	SVRLIST_TIMEOUT =  7000, 
 // Server info dialog dimensions
-	INFO_W = 350,
+	INFO_W = 400,
 	INFO_H = 390,
 
 	MAX_QUERIES = 3

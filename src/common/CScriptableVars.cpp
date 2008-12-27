@@ -16,7 +16,7 @@
 #include <sstream>
 
 
-std::string ScriptVar_t::toString() {
+std::string ScriptVar_t::toString() const {
 	switch(type) {
 		case SVT_BOOL: return to_string(b);
 		case SVT_INT: return to_string(i);

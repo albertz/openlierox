@@ -57,11 +57,11 @@ struct ScriptVar_t
 	ScriptVar_t( const char * v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
 	ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
 	
-	operator bool() { assert(type == SVT_BOOL); return b; }
-	operator int() { assert(type == SVT_INT); return i; }
-	operator float() { assert(type == SVT_FLOAT); return f; }
-	operator std::string() { assert(type == SVT_STRING); return s; }
-	operator Color_t() { assert(type == SVT_COLOR); return c; }
+	operator bool() const { assert(type == SVT_BOOL); return b; }
+	operator int() const { assert(type == SVT_INT); return i; }
+	operator float() const { assert(type == SVT_FLOAT); return f; }
+	operator std::string() const { assert(type == SVT_STRING); return s; }
+	operator Color_t() const { assert(type == SVT_COLOR); return c; }
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
 		switch(type) {
@@ -74,7 +74,7 @@ struct ScriptVar_t
 		}
 	}
 	
-	std::string toString();
+	std::string toString() const;
 };
 
 // Pointer to any in-game var - var should be global or static

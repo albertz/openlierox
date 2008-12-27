@@ -215,6 +215,8 @@ public:
 	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true);
 	bool		clientsConnected_less(const Version& ver); // true if clients < ver are connected
 	
+	ScriptVar_t isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset);
+	
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
 	void		SendGlobalText(const std::string& text, int type);

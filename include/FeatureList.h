@@ -60,7 +60,10 @@ Feature* featureByName(const std::string& name);
 enum FeatureIndex {
 	FT_GAMESPEED = 0,
 	FT_FORCESCREENSHAKING = 1,
-	FT_SUICIDEDECREASESSCORE = 2
+	FT_SUICIDEDECREASESSCORE = 2,
+	FT_FRIENDLYFIRE = 3,
+	FT_SELFSHOOTING = 4,
+	FT_NONDAMAGEPROJGOESTHROUGH = 5
 };
 
 class FeatureSettings {
