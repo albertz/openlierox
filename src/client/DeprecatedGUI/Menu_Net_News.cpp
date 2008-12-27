@@ -50,6 +50,8 @@ bool Menu_Net_NewsInitialize(void)
 	cNews.Shutdown();
 	cNews.Initialize();
 
+	Menu_EnableNetEvents();
+
 	cNews.Add( new CButton(BUT_BACK, tMenu->bmpButtons), nw_Back, 25,440, 50,15);
 	cNews.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), nw_Refresh, 520,440, 50,15);
 	cNews.Add( new CBrowser(), nw_NewsBrowser, 50, 160, 540, 260);
@@ -86,7 +88,10 @@ void Menu_Net_NewsFrame(int mouse)
 	gui_event_t *ev = NULL;
 
 	// Process the HTTP transfer
-	((CBrowser *)cNews.getWidget(nw_NewsBrowser))->ProcessHTTP();
+	CBrowser *news = (CBrowser *)cNews.getWidget(nw_NewsBrowser);
+	news->ProcessHTTP();
+	if (news->IsLoaded())
+		Menu_DisableNetEvents();
 
 
 	// Process & Draw the gui
@@ -122,6 +127,8 @@ void Menu_Net_NewsFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					((CBrowser *)cNews.getWidget(nw_NewsBrowser))->LoadFromHTTP(strNewsPage);
+
+					Menu_EnableNetEvents();
 				}
 				break;
 		}

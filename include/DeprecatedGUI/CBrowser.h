@@ -363,6 +363,10 @@ public:
 	void	ScrollToLastLine(void);
 	bool	NeedsRepaint()  { return bNeedsRender; }
 
+	bool	IsLoaded()		{ return bFinished; }
+
+	CHttp&	GetHttp()		{ return cHttp; }
+
 
 	// TODO: add function for getting individual text lines & their color
 

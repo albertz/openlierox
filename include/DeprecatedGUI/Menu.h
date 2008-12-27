@@ -355,6 +355,8 @@ void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
 std::string	Menu_GetLevelName(const std::string& filename, bool abs_filename = false); // TODO: move this from Menu to CMap
+void	Menu_DisableNetEvents();
+void	Menu_EnableNetEvents();
 
 // Server list
 void		Menu_SvrList_Clear(void);

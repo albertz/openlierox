@@ -1082,6 +1082,18 @@ void Menu_redrawBufferRect(int x, int y, int w, int h)
 
 
 
+void Menu_DisableNetEvents()
+{
+	RemoveSocketFromNotifierGroup(tMenu->tSocket[SCK_NET]);
+	RemoveSocketFromNotifierGroup(tMenu->tSocket[SCK_LAN]);
+}
+
+void Menu_EnableNetEvents()
+{
+	AddSocketToNotifierGroup(tMenu->tSocket[SCK_NET]);
+	AddSocketToNotifierGroup(tMenu->tSocket[SCK_LAN]);
+}
+
 
 /*
 ============================
