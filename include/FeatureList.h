@@ -79,4 +79,26 @@ public:
 	bool olderClientsSupportSetting(Feature* f);
 };
 
+class FeatureCompatibleSettingList {
+public:
+	struct Feature {
+		std::string name;
+		std::string humanName;
+		ScriptVar_t var;
+		enum Type { FCSL_SUPPORTED, FCSL_JUSTUNKNOWN, FCSL_INCOMPATIBLE };
+		Type type;
+	};
+	std::list<Feature> list;
+	Iterator<Feature>::Ref iterator() { return GetIterator(list); }
+	void push_back(const Feature& f) { list.push_back(f); }
+	void push_back(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
+		Feature f;
+		f.name = name;
+		f.humanName = humanName;
+		f.var = var;
+		f.type = type;
+		push_back(f);
+	}
+};
+
 #endif

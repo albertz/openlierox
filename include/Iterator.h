@@ -12,6 +12,7 @@
 
 #include <set>
 #include <map>
+#include <list>
 #include "Utils.h" // for Ref
 
 
@@ -72,10 +73,13 @@ public:
 };
 
 template< typename _T, typename _S >
-typename Iterator<_T>::Ref GetIterator(_S s) { return s.iterator(); }
+typename Iterator<_T>::Ref GetIterator(_S& s) { return s.iterator(); }
 
 template< typename _T >
 typename Iterator<_T>::Ref GetIterator(std::set<_T>& s) { return new STLIterator<std::set<_T>,_T>(s); }
+
+template< typename _T >
+typename Iterator<_T>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T>(s); }
 
 template< typename _I, typename _T >
 typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }

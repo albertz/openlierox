@@ -1956,7 +1956,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	std::string		sServerVersion;
 	bool			bHaveGameSpeed = false;
 	float			fGameSpeed = 1.0f;
-	
+	FeatureCompatibleSettingList features;
 	
     CBytestream inbs;
     NetworkAddr   addr;
@@ -2068,13 +2068,12 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 							bool olderClientsSupported = inbs.readBool();
 							Feature* f = featureByName(name);
 							if(f) {
-								// we support it
+								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
 							} else if(!olderClientsSupported) {
-								// we do not have the feature but we could play on the server
+								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
 							} else {
-								// we are incompatible
+								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
 							}
-							// TODO: show these information
 						}
 					}
 					
@@ -2205,6 +2204,18 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
 				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", NULL, NULL);
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
+			}
+			
+			foreach( FeatureCompatibleSettingList::Feature, f, features.list ) {
+				Uint32 col;
+				switch(f->get().type) {
+					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
+					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
+					default: col = tLX->clNormalLabel;
+				}
+				lvInfo.AddItem("feature:" + f->get().name, ++index, col);
+				lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, f->get().var.toString(), NULL, NULL);				
 			}
 			
 			// Bonuses
