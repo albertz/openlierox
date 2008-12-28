@@ -323,7 +323,8 @@ void Menu_Net_JoinDrawLobby(void)
 	Menu_RedrawMouse(true);
 }
 
-
+static void updateDetailsList(CListview* l);
+	
 static void initDetailsList(CListview* l) {
 #define SUBS(title)	l->AddSubitem(LVS_TEXT, title, NULL, NULL); l->AddSubitem(LVS_TEXT, "", NULL, NULL);
 	int index = 0;
@@ -340,6 +341,7 @@ static void initDetailsList(CListview* l) {
 		l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel); SUBS(f->get()->humanReadableName + ":");		
 	}
 #undef SUBS
+	updateDetailsList(l);
 }
 
 static void updateDetailsList(CListview* l) {
@@ -679,6 +681,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		player_list->RestoreScrollbarPos();  // Scroll back to where we were before the update
 
+		CListview* details = (CListview *)cJoinLobby.getWidget(jl_Details);
+		updateDetailsList(details);
+		
 		bJoin_Update = false;
 	}
 
@@ -689,9 +694,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         y = 15;
 
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
-		CListview* details = (CListview *)cJoinLobby.getWidget(jl_Details);
-		
-		updateDetailsList(details);
 	}
 
 	{

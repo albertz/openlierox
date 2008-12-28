@@ -367,7 +367,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 
 			// Prepare the game
 			case S2C_PREPAREGAME:
-				if(!ParsePrepareGame(bs))
+				if(!ParsePrepareGame(bs))					
                     return;
 				break;
 
