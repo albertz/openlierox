@@ -224,7 +224,7 @@ public:
 
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);
-	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
+	lv_item_t* AddItem(const std::string& sIndex, int iIndex, int iColour);
 	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
 	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour);
 

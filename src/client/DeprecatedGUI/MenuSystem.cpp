@@ -1760,7 +1760,7 @@ void Menu_SvrList_UpdateUDPList()
 			continue;
 		std::string domain = szLine.substr( 0, szLine.find(":") );
 		int port = atoi(szLine.substr( szLine.find(":") + 1 ));
-		if( !GetNetAddrFromName(domain, addr) )
+		if( !GetNetAddrFromName(domain, addr) ) // TODO: don't use this! use async instead!!
 			continue;
 		SetNetAddrPort( addr, port );
 		SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
@@ -2223,7 +2223,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
 			}
 			
-			foreach( FeatureCompatibleSettingList::Feature, f, features.list ) {
+			foreach( FeatureCompatibleSettingList::Feature&, f, features.list ) {
 				Uint32 col;
 				switch(f->get().type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;

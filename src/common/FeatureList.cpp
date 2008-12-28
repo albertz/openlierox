@@ -82,3 +82,15 @@ ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
 	return hostGet(f) == f->unsetValue;
 }
+
+void FeatureCompatibleSettingList::set(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
+	foreach( Feature&, f, list ) {
+		if(f->get().name == name) {
+			f->get().humanName = humanName;
+			f->get().var = var;
+			f->get().type = type;
+			return;
+		}
+	}
+	push_back(name, humanName, var, type);
+}

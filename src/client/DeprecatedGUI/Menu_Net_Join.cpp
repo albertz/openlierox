@@ -247,6 +247,7 @@ enum {
 	jl_ChatList,
 	jl_Favourites,
 	jl_PlayerList,
+	jl_Details,
 	jl_Spectate,
 	jl_CancelDownload,
 	jl_DownloadProgress
@@ -302,7 +303,7 @@ void Menu_Net_JoinLobbyShutdown(void)
 	tMenu->sSavedChatText = "";
 }
 
-
+	
 ///////////////////
 // Draw the join lobby
 void Menu_Net_JoinDrawLobby(void)
@@ -317,12 +318,135 @@ void Menu_Net_JoinDrawLobby(void)
     tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer.get(), 16, 270, 624, 417, tLX->clChatBoxBackground);
-
+    DrawRectFill(tMenu->bmpBuffer.get(), 16, 270, 624, 417, tLX->clChatBoxBackground);	
+	
 	Menu_RedrawMouse(true);
 }
 
 
+static void initDetailsList(CListview* l) {
+#define SUBS(title)	l->AddSubitem(LVS_TEXT, title, NULL, NULL); l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+	int index = 0;
+	l->AddItem("servername", index++, tLX->clNormalLabel); SUBS("Server name:");
+	l->AddItem("serverversion", index++, tLX->clNormalLabel); SUBS("Server version:");
+	l->AddItem("level", index++, tLX->clNormalLabel); SUBS("Level:");
+	l->AddItem("gamemode", index++, tLX->clNormalLabel); SUBS("Game Mode:");
+	l->AddItem("mod", index++, tLX->clNormalLabel); SUBS("Mod:");
+	l->AddItem("lives", index++, tLX->clNormalLabel); SUBS("Lives:");
+	l->AddItem("maxkills", index++, tLX->clNormalLabel); SUBS("Max Kills:");
+	l->AddItem("loadingtime", index++, tLX->clNormalLabel); SUBS("Loading time:");
+	l->AddItem("bonuses", index++, tLX->clNormalLabel); SUBS("Bonuses:");
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel); SUBS(f->get()->humanReadableName + ":");		
+	}
+#undef SUBS
+}
+
+static void updateDetailsList(CListview* l) {
+#define SETI	{ i = l->getItem(index++); si = i->tSubitems->tNext; }
+	int index = 0;
+	lv_item_t* i;
+	lv_subitem_t* si;
+	SETI; si->sText = cClient->getServerName(); // servername
+	SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
+	SETI;
+	if(cClient->getHaveMap()) {
+		si->sText = cClient->getGameLobby()->sMapName;
+		si->iColour = tLX->clNormalLabel;
+	} else {  // Don't have the map
+		si->sText = cClient->getGameLobby()->sMapFile;
+		si->iColour = tLX->clError;
+		if (!cClient->getDownloadingMap())  {  // not downloading the map
+/*			
+			if (tMenu->bmpDownload.get())
+				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+			
+			if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
+				SetGameCursor(CURSOR_HAND);
+				if (GetMouse()->Up)
+					cClient->DownloadMap(cClient->getGameLobby()->sMapFile); // Download the map
+			} else {
+				SetGameCursor(CURSOR_ARROW);
+			}
+*/ 
+		}
+	}
+
+	const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
+	SETI; si->sText = gamemodes[cClient->getGameLobby()->iGameMode];
+	SETI;
+	if(cClient->getHaveMod()) {
+		si->sText = cClient->getGameLobby()->sModName;
+		si->iColour = tLX->clNormalLabel;
+	} else {
+		si->sText = cClient->getGameLobby()->sModName;
+		si->iColour = tLX->clError;
+		if (!cClient->getDownloadingMod()) {
+/*
+			if (tMenu->bmpDownload.get())
+				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
+			
+			if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
+				SetGameCursor(CURSOR_HAND);
+				if (GetMouse()->Up)  {
+					cClient->DownloadMod(cClient->getGameLobby()->sModDir);
+				}
+			} else {
+				SetGameCursor(CURSOR_ARROW);
+			}
+*/
+		}
+	}
+	
+	SETI;
+	if(cClient->getGameLobby()->iLives >= 0) {
+		si->sText = itoa(cClient->getGameLobby()->iLives);
+		si->iColour = tLX->clNormalLabel;
+	} else {
+		si->sText = "infinity";
+		si->iColour = tLX->clDisabled;
+	}
+	
+	SETI;
+	if(cClient->getGameLobby()->iKillLimit >= 0) {
+		si->sText = itoa(cClient->getGameLobby()->iKillLimit);
+		si->iColour = tLX->clNormalLabel;
+	} else {
+		si->sText = "infinity";
+		si->iColour = tLX->clDisabled;
+	}
+
+	SETI; si->sText = itoa(cClient->getGameLobby()->iLoadingTime) + "%";
+	SETI; si->sText = cClient->getGameLobby()->bBonusesOn ? "On" : "Off";
+
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		i = l->getItem("feature:" + f->get()->name);
+
+	
+	}
+
+	foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
+		i = l->getItem("feature:" + f->get().name);
+		if(!i) {
+			i = l->AddItem("feature:" + f->get().name, 0, tLX->clNormalLabel);
+			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
+			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		}
+		si = i->tSubitems->tNext;
+
+		Uint32 col;
+		switch(f->get().type) {
+			case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
+			case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
+			default: col = tLX->clNormalLabel;
+		}
+		si->iColour = col;
+		si->sText = f->get().var.toString();
+	}
+	
+#undef SETI
+}
+	
 ///////////////////
 // Create the lobby gui stuff
 void Menu_Net_JoinLobbyCreateGui(void)
@@ -332,10 +456,11 @@ void Menu_Net_JoinLobbyCreateGui(void)
 
 	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);
-	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
+	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,450,8,150,15);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
     cJoinLobby.Add( new CBrowser(),                           jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
+	cJoinLobby.Add( new CListview(),						  jl_Details, 350, 15, 290, 250);	
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
 
@@ -358,6 +483,24 @@ void Menu_Net_JoinLobbyCreateGui(void)
 		player_list->AddColumn("", -1); // Team
 	}
 
+
+	CListview* details = (CListview *)cJoinLobby.getWidget(jl_Details);	
+	//details->Setup(0, x + 15, y+5, w - 30, h - 25); // is this done already in .Add(...) above?
+	details->setDrawBorder(false);
+	details->setRedrawMenu(false);
+	details->setShowSelect(false);
+	details->setOldStyle(true);
+
+	// like in Menu_SvrList_DrawInfo
+	int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
+	int last_column_width = tLX->cFont.GetWidth("999"); // Kills width
+	details->AddColumn("", first_column_width);
+	details->AddColumn("", details->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
+	details->AddColumn("", last_column_width);
+	details->AddColumn("", last_column_width);
+	
+	initDetailsList(details);
+	
 	iJoinSpeaking = 0; // The first client is always speaking
 }
 
@@ -543,78 +686,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	if(true) {	//if(GameLobby->bSet) {
 		CFont *f = &tLX->cFont;
         int x = 360;
-        int x2 = x+105;
         y = 15;
 
-		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
+		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
+		CListview* details = (CListview *)cJoinLobby.getWidget(jl_Details);
 		
-		const int lineheight = 18;
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details"); y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Server name:");
-		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getServerName()); y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Server version:");
-		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getServerVersion().asString()); y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clNormalLabel, "Level:");
-        if(cClient->getHaveMap())  {
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, cClient->getGameLobby()->sMapName);
-		} else {  // Don't have the map
-			if (cClient->getDownloadingMap())  {  // Currently downloading the map
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, cClient->getGameLobby()->sMapFile);
-			} else { // Not downloading
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y,  tLX->clError, cClient->getGameLobby()->sMapFile);
-				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
-
-				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
-					SetGameCursor(CURSOR_HAND);
-					if (GetMouse()->Up)
-						cClient->DownloadMap(cClient->getGameLobby()->sMapFile); // Download the map
-				} else {
-					SetGameCursor(CURSOR_ARROW);
-				}
-			}
-		}
-		y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Game Mode:");
-		f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, gamemodes[cClient->getGameLobby()->iGameMode]); y += lineheight;
-        f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel,  "Mod:");
-        if(cClient->getHaveMod()) {
-            f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel,  cClient->getGameLobby()->sModName);
-		} else {
-			if (cClient->getDownloadingMod())
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, cClient->getGameLobby()->sModName);
-			else {
-				f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clError, cClient->getGameLobby()->sModName);
-				if (tMenu->bmpDownload.get())
-					DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
-
-				if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
-					SetGameCursor(CURSOR_HAND);
-					if (GetMouse()->Up)  {
-						cClient->DownloadMod(cClient->getGameLobby()->sModDir);
-					}
-				} else {
-					SetGameCursor(CURSOR_ARROW);
-				}
-			}
-		}
-		y += lineheight;
-		
-		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Lives:");
-		if(cClient->getGameLobby()->iLives >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iLives));
-		y += lineheight;
-		
-		f->Draw(VideoPostProcessor::videoSurface(), x, y, tLX->clNormalLabel, "Max Kills:");
-		if(cClient->getGameLobby()->iKillLimit >= 0)
-			f->Draw(VideoPostProcessor::videoSurface(), x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iKillLimit));
-		y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Loading time:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, itoa(cClient->getGameLobby()->iLoadingTime) + "%"); y += lineheight;
-		f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Game speed:");
-		f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, ftoa(cClient->getGameLobby()->features[FT_GAMESPEED])); y += lineheight;
-        f->Draw(VideoPostProcessor::videoSurface(),     x, y, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(VideoPostProcessor::videoSurface(),     x2, y, tLX->clNormalLabel, cClient->getGameLobby()->bBonusesOn ? "On" : "Off"); y += lineheight;
+		updateDetailsList(details);
 	}
 
 	{

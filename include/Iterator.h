@@ -26,7 +26,7 @@ public:
 	virtual bool operator==(const Iterator& other) const = 0;
 	bool operator!=(const Iterator& other) const { return ! ((*this) == other); }
 	virtual _Obj get() = 0; // this has to return a valid obj if valid == true
-	_Obj* operator->() { return &get(); }
+	//_Obj* operator->() { return &get(); }
 
 	typedef ::Ref< Iterator > Ref;
 };
@@ -79,7 +79,7 @@ template< typename _T >
 typename Iterator<_T>::Ref GetIterator(std::set<_T>& s) { return new STLIterator<std::set<_T>,_T>(s); }
 
 template< typename _T >
-typename Iterator<_T>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T>(s); }
+typename Iterator<_T&>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T&>(s); }
 
 template< typename _I, typename _T >
 typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }

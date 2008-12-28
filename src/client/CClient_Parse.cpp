@@ -873,11 +873,13 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 				cout << "ERROR: server setting for feature " << name << " has wrong type " << value.type << endl;
 				client->tGameInfo.features[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
 			}
-		} else if(!olderClientsSupported)
-			cout << "We don't support '" << humanName << "' and we cannot play with the current settings." << endl;
-		else
-			cout << "HINT: server has feature '" << humanName << "' which is unknown to us" << endl;
-		// TODO: we could save even the not supported features to show them somewhere in lobby (in red or grey or blue)
+		} else if(!olderClientsSupported) {
+			//cout << "We don't support '" << humanName << "' and we cannot play with the current settings." << endl;
+			client->unknownFeatures.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
+		} else {
+			//cout << "HINT: server has feature '" << humanName << "' which is unknown to us" << endl;
+			client->unknownFeatures.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
+		}
 	}	
 }
 

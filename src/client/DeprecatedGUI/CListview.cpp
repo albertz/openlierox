@@ -327,13 +327,13 @@ void CListview::AddColumn(const std::string& sText, int iWidth, Uint32 iColour)
 
 ///////////////////
 // Add an item to the list view
-void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
+lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 {
 	lv_item_t *item = new lv_item_t;
 
 	if(item == NULL) {
 		// Out of memory
-		return;
+		return NULL;
 	}
 
 	// Set the info
@@ -379,6 +379,8 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 	// We need a repaint
 	bNeedsRepaint = true;
+	
+	return item;
 }
 
 void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign) {
