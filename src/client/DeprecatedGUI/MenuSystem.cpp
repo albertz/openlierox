@@ -1635,7 +1635,23 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				// It pinged, so fill in the ping info so it will now be queried
 				svr->bgotPong = true;
 				svr->nQueries = 0;
-				tServersBehindNat.erase(svr->szAddress);
+
+				// Erase NAT servers having the same address
+				if (svr->szAddress.find(':'))  {
+					std::string no_port = svr->szAddress.substr(0, svr->szAddress.find(':'));
+					bool erased = true;
+					while (erased)  {
+						erased = false;
+						for (std::set<std::string>::iterator it = tServersBehindNat.begin(); it != tServersBehindNat.end(); it++)
+							if (it->find(no_port) != std::string::npos)  {
+								std::string addr(*it);
+								Menu_SvrList_RemoveServer(addr); // Also removes it from the tServersBehindNat array
+								erased = true;
+								break;
+							}
+					}
+
+				}
 
 			} else {
 
