@@ -343,16 +343,16 @@ static void initDetailsList(CListview* l) {
 }
 
 static void updateDetailsList(CListview* l) {
-#define SETI	{ i = l->getItem(index++); si = i->tSubitems->tNext; }
+#define SETI	{ i = l->getItem(index++); si = i->tSubitems->tNext; si->iColour = defaultColor; }
 	int index = 0;
 	lv_item_t* i;
 	lv_subitem_t* si;
+	Uint32 defaultColor = tLX->clPrivateText;
 	SETI; si->sText = cClient->getServerName(); // servername
 	SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
 	SETI;
 	if(cClient->getHaveMap()) {
 		si->sText = cClient->getGameLobby()->sMapName;
-		si->iColour = tLX->clNormalLabel;
 	} else {  // Don't have the map
 		si->sText = cClient->getGameLobby()->sMapFile;
 		si->iColour = tLX->clError;
@@ -377,7 +377,6 @@ static void updateDetailsList(CListview* l) {
 	SETI;
 	if(cClient->getHaveMod()) {
 		si->sText = cClient->getGameLobby()->sModName;
-		si->iColour = tLX->clNormalLabel;
 	} else {
 		si->sText = cClient->getGameLobby()->sModName;
 		si->iColour = tLX->clError;
@@ -401,7 +400,6 @@ static void updateDetailsList(CListview* l) {
 	SETI;
 	if(cClient->getGameLobby()->iLives >= 0) {
 		si->sText = itoa(cClient->getGameLobby()->iLives);
-		si->iColour = tLX->clNormalLabel;
 	} else {
 		si->sText = "infinity";
 		si->iColour = tLX->clDisabled;
@@ -420,9 +418,10 @@ static void updateDetailsList(CListview* l) {
 	SETI; si->sText = cClient->getGameLobby()->bBonusesOn ? "On" : "Off";
 
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		i = l->getItem("feature:" + f->get()->name);
-
-	
+		i = l->getItem("feature:" + f->get()->name); // initDetailsList has added the whole array => i != NULL
+		si = i->tSubitems->tNext;
+		si->iColour = defaultColor;
+		si->sText = cClient->getGameLobby()->features[f->get()].toString();
 	}
 
 	foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
@@ -438,7 +437,7 @@ static void updateDetailsList(CListview* l) {
 		switch(f->get().type) {
 			case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
 			case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
-			default: col = tLX->clNormalLabel;
+			default: col = defaultColor;
 		}
 		si->iColour = col;
 		si->sText = f->get().var.toString();
@@ -490,7 +489,8 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	details->setRedrawMenu(false);
 	details->setShowSelect(false);
 	details->setOldStyle(true);
-
+	details->subItemsAreAligned() = true;
+	
 	// like in Menu_SvrList_DrawInfo
 	int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
 	int last_column_width = tLX->cFont.GetWidth("999"); // Kills width

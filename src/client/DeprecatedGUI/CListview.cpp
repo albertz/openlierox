@@ -154,6 +154,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 
 			for(;sub;sub = sub->tNext) {
 
+				int itemWidth = 0;
 				if(sub->bVisible) {
 					// Background colour
 					if(sub->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
@@ -170,10 +171,13 @@ void CListview::Draw(SDL_Surface * bmpDest)
 						if (sub->iColour != tLX->clPink)
 							colour = sub->iColour;
 
-						if (col && !bOldStyle)
+						if (col && !bOldStyle && !bSubItemsAreAligned)
 							tLX->cFont.DrawAdv(bmpDest, x, texty, MIN(col->iWidth-8, right_bound-x), colour, sub->sText);
 						else
 							tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
+						
+						if(bSubItemsAreAligned)
+							itemWidth = tLX->cFont.GetWidth(sub->sText);
 					}
 					break;
 
@@ -231,7 +235,10 @@ void CListview::Draw(SDL_Surface * bmpDest)
 				}
 
 				if(col) {
-					x += col->iWidth;
+					if(bSubItemsAreAligned && itemWidth + 3 > col->iWidth) {
+						x += itemWidth + 3;
+					} else
+						x += col->iWidth;
 					col = col->tNext;
 				}
 			}

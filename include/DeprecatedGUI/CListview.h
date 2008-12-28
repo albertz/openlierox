@@ -147,6 +147,7 @@ public:
 		bAlwaysVisibleScrollbar = false;
 		tFocusedSubWidget = NULL;
 		tMouseOverSubWidget = NULL;
+		bSubItemsAreAligned = false;
 	}
 
 	~CListview() {
@@ -175,7 +176,8 @@ private:
 	int				iItemCount;
     int             iItemID;
 	int				iContentHeight;
-
+	bool			bSubItemsAreAligned; // if the left item is too long, subitems are shifted right
+	
 	float			fLastMouseUp;
 	int				iClickedSub;
 
@@ -183,7 +185,7 @@ private:
 	CScrollbar		cScrollbar;
 	bool			bGotScrollbar;
 	int				iSavedScrollbarPos;
-
+	
 	// Other
 	bool			bNeedsRepaint;
 	UnicodeChar		iLastChar;
@@ -239,6 +241,8 @@ public:
 	void	setOldStyle(bool _s)	{ bOldStyle = _s; }
 	bool	getOldStyle(void)		{ return bOldStyle; }
 
+	bool&	subItemsAreAligned()	{ return bSubItemsAreAligned; }
+	
     int     getNumItems(void)	{ return iItemCount; }
 
     void    scrollLast(void);

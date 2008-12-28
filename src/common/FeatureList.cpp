@@ -20,9 +20,9 @@ Feature featureArray[] = {
 	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
 	Feature("TeamInjure", "Own projectiles damage team members", "If disabled, projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
-	Feature("TeamHit", "projectiles goes through team members", "If disabled, your projectiles goes through team members.", true, true, OLXBetaVersion(9) ),
+	Feature("TeamHit", "Projectiles goes through team members", "If disabled, your projectiles goes through team members.", true, true, OLXBetaVersion(9) ),
 	Feature("SelfInjure", "Own projectiles damage you", "If disabled, projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
-	Feature("SelfHit", "projectiles goes through yourself", "If disabled, your projectiles goes through yourself.", true, true, OLXBetaVersion(9) ),
+	Feature("SelfHit", "Projectiles goes through yourself", "If disabled, your projectiles goes through yourself.", true, true, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
 
