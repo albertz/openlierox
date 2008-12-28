@@ -1741,50 +1741,133 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	svr->bAllowConnectDuringGame = bs->readBool();
 }
 
-void Menu_SvrList_UpdateUDPList()
+/*************************
+*
+* UDP server list
+*
+************************/
+
+std::list<std::string> tUdpServers;
+std::map<size_t, SDL_Thread *> tUpdateThreads;
+size_t threadId = 0;
+
+struct UdpServerlistData  {
+	CBytestream *bs;
+	UdpServerlistData(CBytestream *b) : bs(b) {}
+};
+
+void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
 {
-	// Open the masterservers file
-	FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
-	if(!fp1)
-		return;
+	if (iNetMode == net_internet) // Only add them if the Internet tab is active
+		Menu_SvrList_ParseUdpServerlist(data.bs);
+	delete data.bs;
+}
 
-	while( !feof(fp1) ) {
-		std::string szLine = ReadUntil(fp1);
-		TrimSpaces(szLine);
+void Menu_UpdateUDPListEnd(size_t thread)
+{
+	std::map<size_t, SDL_Thread *>::iterator it = tUpdateThreads.find(thread);
+	if (it != tUpdateThreads.end())
+		SDL_WaitThread(it->second, NULL);
+}
 
-		if( szLine.length() == 0 )
-			continue;
+Event<UdpServerlistData> serverlistEvent;
+Event<size_t> updateEndEvent;
+int Menu_SvrList_UpdaterThread(void *id)
+{
+	// Setup event handlers
+	updateEndEvent.handler() = getEventHandler(&Menu_UpdateUDPListEnd);
+	serverlistEvent.handler() = getEventHandler(&Menu_UpdateUDPListEventHandler);
 
-		NetworkAddr addr;
-		if( szLine.find(":") == std::string::npos )
-			continue;
-		std::string domain = szLine.substr( 0, szLine.find(":") );
-		int port = atoi(szLine.substr( szLine.find(":") + 1 ));
-		if( !GetNetAddrFromName(domain, addr) ) // TODO: don't use this! use async instead!!
-			continue;
-		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tMenu->tSocket[SCK_NET], addr );
-
-		CBytestream bs;
-
-		for(int f=0; f<3; f++)
-		{
-			bs.writeInt(-1,4);
-			bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-			bs.Send(tMenu->tSocket[SCK_NET]);
-			bs.Clear();
-		}
-
-		bs.writeInt(-1,4);
-		bs.writeString("lx::getserverlist2");
-		bs.Send(tMenu->tSocket[SCK_NET]);
-
-		printf("Sent getserverlist to %s\n", szLine.c_str());
-
-		break;	// Only one UDP masterserver supported
+	// Open socket for networking
+	NetworkSocket sock = OpenUnreliableSocket(0, false);
+	if (!IsSocketStateValid(sock))  {
+		SendSDLUserEvent(&updateEndEvent, (size_t)id);
+		return -1;
 	}
 
-	fclose(fp1);
+	// Get serverlist from all the servers in the file
+	for (std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it)  {
+		std::string& server = *it;
+		NetworkAddr addr;
+		if (server.find(':') == std::string::npos)
+			server += ":23450";  // Default port
+
+		// Split to domain and port
+		std::string domain = server.substr(0, server.find(':'));
+		int port = atoi(server.substr(server.find(':') + 1));
+
+		// Resolve the address
+		if (!GetNetAddrFromName(domain, addr))
+			continue;
+
+		// Setup the socket
+		SetNetAddrPort(addr, port);
+		SetRemoteNetAddr(sock, addr);
+
+		// Send the getserverlist packet
+		CBytestream *bs = new CBytestream();
+		bs->writeInt(-1, 4);
+		bs->writeString("lx::getserverlist2");
+		bs->Send(sock);
+		bs->Clear();
+
+		printf("Sent getserverlist to %s\n", server.c_str());
+
+		// Wait for the reply
+		float start = GetMilliSeconds();
+		while (GetMilliSeconds() - start <= 5.0f)  {
+			SDL_Delay(40);
+
+			// Got a reply?
+			if (bs->Read(sock))  {
+				printf("Got a reply from %s\n", server.c_str());
+				break;
+			}
+		}
+
+		// Parse the reply
+		if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2")
+			SendSDLUserEvent(&serverlistEvent, UdpServerlistData(bs));
+		else  {
+			printf("Error getting serverlist from %s\n", server.c_str());
+			delete bs;
+		}
+	}
+
+	// Cleanup
+	CloseSocket(sock);
+
+	SendSDLUserEvent(&updateEndEvent, (size_t)id);
+	return 0;
+}
+
+void Menu_SvrList_UpdateUDPList()
+{
+	if (tUdpServers.size() == 0)  {  // Load the list of servers onlny if not already loaded
+		// Open the masterservers file
+		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
+		if(!fp1)  {
+			printf("Warning: could not open udpmasterservers.txt file, NAT traversal will be inaccessible\n");
+			return;
+		}
+
+		// Get the list of servers
+		while( !feof(fp1) ) {
+			std::string szLine = ReadUntil(fp1);
+			TrimSpaces(szLine);
+
+			if( szLine.length() == 0 )
+				continue;
+
+			tUdpServers.push_back(szLine);
+		}
+		fclose(fp1);
+	}
+
+	// Run the update
+	
+	SDL_Thread *thread = SDL_CreateThread(Menu_SvrList_UpdaterThread, (void *)(++threadId));
+	tUpdateThreads[threadId] = thread;
 }
 
 void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
@@ -2223,19 +2306,20 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
 			}
 			
-			foreach( FeatureCompatibleSettingList::Feature&, f, features.list ) {
+			for (std::list<FeatureCompatibleSettingList::Feature>::iterator it = features.list.begin();
+				it != features.list.end(); ++it)  {
 				Uint32 col;
-				switch(f->get().type) {
+				switch(it->type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
 					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
 					default: col = tLX->clNormalLabel;
 				}
-				lvInfo.AddItem("feature:" + f->get().name, ++index, col);
-				if(tLX->cFont.GetWidth(f->get().humanName + ":") + 20 <= first_column_width) {
-					lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, f->get().var.toString(), NULL, NULL);					
+				lvInfo.AddItem("feature:" + it->name, ++index, col);
+				if(tLX->cFont.GetWidth(it->humanName + ":") + 20 <= first_column_width) {
+					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->var.toString(), NULL, NULL);					
 				} else
-					lvInfo.AddSubitem(LVS_TEXT, f->get().humanName + ":      " + f->get().var.toString(), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":      " + it->var.toString(), NULL, NULL);
 			}
 			
 			// Players / kills / lives
