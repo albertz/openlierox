@@ -36,6 +36,8 @@ std::string	LastError;
 FILE *ErrorFile = NULL;
 
 
+using namespace std;
+
 ///////////////////
 // Sets the error message
 void SetError(const std::string& text)
@@ -45,6 +47,7 @@ void SetError(const std::string& text)
 
 	GotError = true;
 
+	cout << "SetError: " << text << endl;
 
 	if(ErrorFile == NULL) {
 		ErrorFile = OpenGameFile("Error.txt","wt");

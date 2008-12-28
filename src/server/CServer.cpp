@@ -123,7 +123,6 @@ int GameServer::StartServer()
 	Shutdown();
 	Clear();
 
-	nPort = tLXOptions->iNetworkPort;
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
 	bLocalClientConnected = false;
@@ -134,18 +133,27 @@ int GameServer::StartServer()
 
 
 	// Open the socket
+	nPort = tLXOptions->iNetworkPort;
 	tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 	if(!IsSocketStateValid(tSocket)) {
-		if( cClient->RebindSocket() ) {	// If client has taken that socket free it
+		cout << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
+		if( cClient->RebindSocket() ) {	// If client has taken that port, free it
 			tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
-			if(!IsSocketStateValid(tSocket)) {
-				SetError("Server Error: Could not open UDP socket");
-				return false;
-			}
-		} else {
+		}
+
+		if(!IsSocketStateValid(tSocket)) {
+			cout << "Server: client rebinding didn't work, trying random port" << endl;
+			tSocket = OpenUnreliableSocket(0);
+		}
+		
+		if(!IsSocketStateValid(tSocket)) {
+			cout << "Server: we cannot even open a random port!" << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
+		
+		NetworkAddr a; GetLocalNetAddr(tSocket, a);
+		nPort = GetNetAddrPort(a);
 	}
 	if(!ListenSocket(tSocket)) {
 		SetError( "Server Error: cannot start listening" );

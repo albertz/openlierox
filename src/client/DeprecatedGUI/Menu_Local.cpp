@@ -653,7 +653,7 @@ void Menu_LocalStartGame(void)
 	tLX->iGameType = GME_LOCAL;
 
 	// Tell the client to connect to the server
-	cClient->Connect("127.0.0.1");
+	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
 	cLocalMenu.Shutdown();
 }

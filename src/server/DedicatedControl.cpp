@@ -313,7 +313,7 @@ struct DedIntern {
 				// TODO: this is really hacky, but currently there is no better way to do so
 				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
 				//cClient->ReinitLocalWorms();
-				cClient->Connect("127.0.0.1");
+				cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 				
 				return;
 			}
@@ -525,7 +525,7 @@ struct DedIntern {
 			Sig_ErrorStartLobby();
 			return;
 		}
-		cClient->Connect("127.0.0.1");
+		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
 		tLXOptions->tGameInfo.sModDir = "MW 1.0";
 		if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {

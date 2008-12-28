@@ -492,7 +492,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	}
 
 	// Lets connect me to the server	
-	cClient->Connect("127.0.0.1");
+	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
 	// Draw the lobby
 	Menu_Net_HostLobbyDraw();

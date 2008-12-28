@@ -180,6 +180,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 
+	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	void		RegisterServer(void);
