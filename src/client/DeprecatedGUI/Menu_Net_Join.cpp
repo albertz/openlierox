@@ -373,20 +373,7 @@ static void updateDetailsList(CListview* l) {
 		if (si->tNext)  {
 			// not downloading the map, display an option for doing so
 			si->tNext->bVisible = !cClient->getDownloadingMap();
-		}
-			// TODO: download stuff
-/*			
-			if (tMenu->bmpDownload.get())
-				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
-			
-			if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
-				SetGameCursor(CURSOR_HAND);
-				if (GetMouse()->Up)
-					cClient->DownloadMap(cClient->getGameLobby()->sMapFile); // Download the map
-			} else {
-				SetGameCursor(CURSOR_ARROW);
-			}
-*/ 
+		} 
 	}
 
 	const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
@@ -401,20 +388,6 @@ static void updateDetailsList(CListview* l) {
 		si->iColour = tLX->clError;
 		if (si->tNext)
 			si->tNext->bVisible = !cClient->getDownloadingMod();
-			// TODO: download stuff
-/*
-			if (tMenu->bmpDownload.get())
-				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
-			
-			if (MouseInRect(x2, y, 640-x2, tLX->cFont.GetHeight()))  {
-				SetGameCursor(CURSOR_HAND);
-				if (GetMouse()->Up)  {
-					cClient->DownloadMod(cClient->getGameLobby()->sModDir);
-				}
-			} else {
-				SetGameCursor(CURSOR_ARROW);
-			}
-*/
 	}
 	
 	SETI;
