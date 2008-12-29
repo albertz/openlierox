@@ -1838,23 +1838,32 @@ gotNetAddr:
 		printf("Sent getserverlist to %s\n", server.c_str());
 
 		// Wait for the reply
-		start = GetMilliSeconds();
-		while (GetMilliSeconds() - start <= 5.0f)  {
-			SDL_Delay(40);
+		float timeoutTime = GetMilliSeconds() + 5.0f;
+		bool firstPacket = true;
+		while( true ) {
 
-			// Got a reply?
-			if (bs->Read(sock))  {
-				printf("Got a reply from %s\n", server.c_str());
+			while (GetMilliSeconds() <= timeoutTime)  {
+				SDL_Delay(40);
+
+				// Got a reply?
+				if (bs->Read(sock))  {
+					printf("Got a reply from %s\n", server.c_str());
+					break;
+				}
+			}
+
+			// Parse the reply
+			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
+				SendSDLUserEvent(&serverlistEvent, UdpServerlistData(bs));
+				timeoutTime = GetMilliSeconds() + 0.4f;	// Check for another packet
+				bs = new CBytestream();
+				firstPacket = false;
+			} else  {
+				if( firstPacket )
+					printf("Error getting serverlist from %s\n", server.c_str());
+				delete bs;
 				break;
 			}
-		}
-
-		// Parse the reply
-		if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2")
-			SendSDLUserEvent(&serverlistEvent, UdpServerlistData(bs));
-		else  {
-			printf("Error getting serverlist from %s\n", server.c_str());
-			delete bs;
 		}
 	}
 
