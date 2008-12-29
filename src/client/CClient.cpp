@@ -245,6 +245,8 @@ CClient::CClient() {
 	fLastScoreUpdate = -9999;
 	bShouldRepaintInfo = true;
 	bCurrentSettings = false;
+	tMapDlCallback = NULL;
+	tModDlCallback = NULL;
 	
 	tGameLog = NULL;
 	iLastVictim = -1;
@@ -598,6 +600,11 @@ void CClient::AbortDownloads()
 		cNetEngine->SendFileData();
 	}
 
+	if (tModDlCallback)
+		tModDlCallback();
+	if (tMapDlCallback)
+		tMapDlCallback();
+
 	// Disable file download for current session, if server sent ABORT do not try to re-download
 	setLastFileRequest( tLX->fCurTime + 10000.0f ); 
 
@@ -613,6 +620,8 @@ void CClient::FinishMapDownloads()
 		if (tGameInfo.sMapFile == sMapDownloadName)  {
 			bHaveMap = true;
 			tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
+			if (tMapDlCallback)
+				tMapDlCallback();
 		}
 
 		// If downloaded via HTTP, don't try UDP
@@ -720,6 +729,8 @@ void CClient::FinishModDownloads()
 	if (tGameInfo.sModDir == sModDownloadName)  {
 		bDownloadingMod = false;
 		bHaveMod = true;
+		if (tModDlCallback)
+			tModDlCallback();
 	}
 
 	// Load the mod if playing
@@ -818,6 +829,8 @@ void CClient::ProcessMapDownloads()
 				bDownloadingMap = false;
 				getUdpFileDownloader()->removeFileFromRequest("levels/" + sMapDownloadName);
 				sMapDownloadName = "";
+				if (tMapDlCallback)
+					tMapDlCallback();
 				return;
 			}
 		} else {  // No error
@@ -830,6 +843,10 @@ void CClient::ProcessMapDownloads()
 
   	// UDP file download used for maps and mods - we can download map via HTTP and mod via UDP from host
 	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+		if (tMapDlCallback && bDownloadingMap)  {
+			bDownloadingMap = false;
+			tMapDlCallback();
+		}
 		bDownloadingMap = false;
 		sMapDownloadName = "";
 		return;
@@ -846,6 +863,9 @@ void CClient::ProcessMapDownloads()
 				bDlError = true;
 				sDlError = sMapDownloadName + " downloading error: UDP timeout";
 				bDownloadingMap = false;
+
+				if (tMapDlCallback)
+					tMapDlCallback();
 
 				// If waiting for the map ingame, just quit
 				if (bWaitingForMap)  {
@@ -872,6 +892,8 @@ void CClient::ProcessMapDownloads()
 		bDlError = true;
 		sDlError = sMapDownloadName + " downloading error: checksum failed";
 		bDownloadingMap = false;
+		if (tMapDlCallback)
+			tMapDlCallback();
 	}
 
 	if( getUdpFileDownloader()->wasAborted() && bDownloadingMap )  {
@@ -879,6 +901,8 @@ void CClient::ProcessMapDownloads()
 		bDlError = true;
 		sDlError = sMapDownloadName + " downloading error: server aborted download";
 		bDownloadingMap = false;
+		if (tMapDlCallback)
+			tMapDlCallback();
 	}
 
 	// HINT: gets finished in CClient::ParseSendFile
@@ -938,6 +962,8 @@ void CClient::ProcessModDownloads()
 			} else {
 				bDownloadingMod = false;
 				sModDownloadName = "";
+				if (tModDlCallback)
+					tModDlCallback();
 				return;
 			}
 		} else {  // No error
@@ -953,6 +979,10 @@ void CClient::ProcessModDownloads()
 
   	// Can we download anything at all?
 	if( getServerVersion() < OLXBetaVersion(4) || iNetStatus == NET_DISCONNECTED )  {
+		if (tModDlCallback)  {
+			bDownloadingMod = false;
+			tModDlCallback();
+		}
 		bDownloadingMod = false;
 		sModDownloadName = "";
 		return;
@@ -965,6 +995,9 @@ void CClient::ProcessModDownloads()
 		printf("Mod downloading aborted.\n");
 		bDownloadingMod = false;
 		sModDownloadName = "";
+
+		if (tModDlCallback)
+			tModDlCallback();
 
 		if (bWaitingForMod)  {
 			Disconnect();
@@ -987,6 +1020,9 @@ void CClient::ProcessModDownloads()
 			if(!cUdpFileDownloader.requestFilesPending())  { // More files to receive
 				bDownloadingMod = false;
 				printf("Mod download error: connection timeout\n");
+
+				if (tModDlCallback)
+					tModDlCallback();
 
 				// If waiting for the map ingame, just quit
 				if (bWaitingForMod)  {

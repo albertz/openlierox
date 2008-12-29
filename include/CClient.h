@@ -181,6 +181,8 @@ public:
 	friend class CClientNetEngineBeta7;
 	friend class CClientNetEngineBeta9;
 
+	typedef void (*DownloadFinishedCB) ();
+
 private:
 	// Attributes
 
@@ -199,6 +201,7 @@ private:
 	game_log_t	*tGameLog;
 	int			iLastVictim;
 	int			iLastKiller;
+
 
 	// Map
 	CMap		*cMap;
@@ -329,11 +332,13 @@ private:
 	int			iDlProgress;
 	int			iDownloadMethod;  // HTTP or UDP
 	bool		bWaitingForMap;  // In game and waiting for the map to finish downloading
+	DownloadFinishedCB tMapDlCallback;
 
 	// Mod downloading
 	bool		bDownloadingMod;
 	std::string	sModDownloadName;
 	bool		bWaitingForMod;
+	DownloadFinishedCB tModDlCallback;
 
 	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastFileRequest;
@@ -629,6 +634,9 @@ public:
 	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 
 	bool		isTeamGame() { return iGameType == GMT_TEAMCTF || iGameType == GMT_TEAMDEATH; }
+
+	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }
+	void		setOnModDlFinished(DownloadFinishedCB f)  { tModDlCallback = f; }
 	
 };
 

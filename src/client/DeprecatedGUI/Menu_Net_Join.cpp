@@ -359,6 +359,7 @@ static void updateDetailsList(CListview* l) {
 	int index = 0;
 	lv_item_t* i;
 	lv_subitem_t* si;
+	l->SaveScrollbarPos();
 	Uint32 defaultColor = tLX->clPrivateText;
 	SETI; si->sText = cClient->getServerName(); // servername
 	SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
@@ -434,9 +435,54 @@ static void updateDetailsList(CListview* l) {
 		si->iColour = col;
 		si->sText = f->get().var.toString();
 	}
+
+	l->RestoreScrollbarPos();
 	
 #undef SETI
 }
+
+////////////////////
+// Finished the mod/map download (callback)
+void Menu_Net_JoinDlFinished()
+{
+	CButton *cancel = (CButton *)cJoinLobby.getWidget(jl_CancelDownload);
+	CProgressBar *progress = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
+	CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
+	if (!cancel || !progress || !details)
+		return;
+
+	updateDetailsList(details);
+
+	// If we are still downloading, don't hide the progress
+	if (cClient->getDownloadingMap() || cClient->getDownloadingMod())
+		return;
+
+	// Hide the progress
+	details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 250);
+	details->ReadjustScrollbar();
+
+	progress->setEnabled(false);
+	cancel->setEnabled(false);
+}
+
+////////////////////
+// Changes the GUI to display downloading things
+void Menu_Net_JoinStartDownload()
+{
+	CButton *cancel = (CButton *)cJoinLobby.getWidget(jl_CancelDownload);
+	CProgressBar *progress = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
+	CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
+	if (!cancel || !progress || !details)
+		return;
+
+	// Show the progress
+	details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 210);
+	details->ReadjustScrollbar();
+
+	progress->setEnabled(true);
+	cancel->setEnabled(true);
+}
+
 	
 ///////////////////
 // Create the lobby gui stuff
@@ -462,6 +508,8 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( cancel, jl_CancelDownload, 360 + dl->getWidth() + 5, 245 + (dl->getHeight() - 20)/2, 0, 0);
 	dl->setEnabled(false);
 	cancel->setEnabled(false);
+	cClient->setOnMapDlFinished(&Menu_Net_JoinDlFinished);
+	cClient->setOnModDlFinished(&Menu_Net_JoinDlFinished);
 
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
@@ -624,6 +672,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 
+	// Downloading progress
+	if (cClient->getDownloadingMap() || cClient->getDownloadingMod())  {
+		CProgressBar *bar = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
+		if (bar)
+			bar->SetPosition(cClient->getDlProgress());
+	}
+		
+
 	// Draw the connected players
 	if (bJoin_Update)  {
 		CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
@@ -684,31 +740,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         y = 15;
 
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
-	}
-
-	// Download progress
-	{
-		CButton *cancel = (CButton *)cJoinLobby.getWidget(jl_CancelDownload);
-		CProgressBar *progress = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
-		CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
-		if (cClient->getDownloadingMap() || cClient->getDownloadingMod())  {
-			details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 210);
-			details->ReadjustScrollbar();
-			progress->setEnabled(true);
-			cancel->setEnabled(true);
-			progress->SetPosition(cClient->getDlProgress());
-		} else {
-			details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 250);
-			details->ReadjustScrollbar();
-
-			// TODO: HACK, HACK, this serves as an event for checking if download has been finished
-			// Create an event for it (or wait for the new GUI?)
-			if (progress->getEnabled())
-				updateDetailsList(details);
-
-			progress->setEnabled(false);
-			cancel->setEnabled(false);
-		}
 	}
 
 	// Process & Draw the gui
@@ -814,10 +845,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
 					gui_event_t *ev2 = details->getWidgetEvent();
 					if (ev2 && ev2->iEventMsg == IMG_CLICK)  {
-						if (ev2->cWidget->getID() == 0)  // Map
+						if (ev2->cWidget->getID() == 0)   { // Map
 							cClient->DownloadMap(cClient->getGameLobby()->sMapFile);  // Download the map
-						else if (ev2->cWidget->getID() == 1)
+							Menu_Net_JoinStartDownload();
+						} else if (ev2->cWidget->getID() == 1)  {
 							cClient->DownloadMod(cClient->getGameLobby()->sModDir);
+							Menu_Net_JoinStartDownload();
+						}
 						updateDetailsList(details);
 					}
 				}
