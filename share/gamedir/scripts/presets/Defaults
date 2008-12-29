@@ -51,6 +51,7 @@ setvar( "GameOptions.GameInfo.CountTeamkills", 0)
 setvar( "GameOptions.GameInfo.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
 setvar( "GameOptions.GameInfo.ForceScreenShaking", 1)
 
+# TODO: all these following options really do not belong here!!
 # General options that should be set
 setvar( "GameOptions.Advanced.MaxFPS", 95) # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
 setvar( "GameOptions.GameInfo.AllowStrafing", 1)
@@ -73,6 +74,5 @@ setvar( "GameOptions.Network.AutoSetupHttpProxy", 1)
 setvar( "GameOptions.Network.EnableChat", 0) # No IRC chat needed for ded server
 setvar( "GameOptions.Network.HttpProxy", "")
 setvar( "GameOptions.Network.UseIpToCountry", 1) # Needed for correct server messages
-setvar( "GameOptions.Network.MaxUploadBandwidth", 60000) # Disable bandwidth limits
-setvar( "GameOptions.Network.Speed", 2) # 0 = Modem, 1 = ADSL, 2 = LAN
+# TODO: why is this needed? please fix that AND DONT USE WORKAROUNDS!
 setvar( "GameServer.bStartDedicated", 0) # This is for auto-start game from GUI, disable this, it will break the scripts
