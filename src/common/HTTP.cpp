@@ -308,6 +308,7 @@ void CHttp::Clear()
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
+		InvalidateSocketState(tSocket);
 	}
 	InvalidateSocketState(tSocket);
 	if (tChunkParser)
@@ -319,21 +320,24 @@ void CHttp::Clear()
 // Cancel current request
 void CHttp::CancelProcessing()
 {
+	// TODO: why do we need this?
+	/*
 	// Wait for reply from DNS server, else we could get in trouble with memory
 	if (bActive && !IsSocketStateValid(tSocket))  {
 		printf("HTTP Stop: Waiting for DNS reply...\n");
 		float start = GetMilliSeconds();
+		// TODO: what has the socketstate to do with tRemoteIP/DNS?
 		while (!IsSocketStateValid(tSocket) && (GetMilliSeconds() - start) <= 10) {
 			SDL_Delay(10);
 		}
 	}
 
 	// If we got DNS reply, just quit
-	if ((bConnected || bRequested) && IsSocketStateValid(tSocket))  {
+	if((bConnected || bRequested) && IsSocketStateValid(tSocket))  {
 		CloseSocket(tSocket);
 		InvalidateSocketState(tSocket);
 	}
-
+	*/
 
 
 	Clear();
