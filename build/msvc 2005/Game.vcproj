@@ -3278,6 +3278,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\include\CWormBot.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\CWormSkin.cpp"
 				>
 			</File>
