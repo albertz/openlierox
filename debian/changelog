@@ -1,7 +1,6 @@
 openlierox (0.57.beta8) unstable; urgency=low
 
-  * Initial release
-  * Closes: #445850
+  * Initial release (Closes: #445850)
 
  -- Albert Zeyer <albert.zeyer@rwth-aachen.de>  Sat, 16 Feb 2008 20:18:33 +0200
 
