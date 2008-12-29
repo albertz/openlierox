@@ -412,7 +412,6 @@ static void updateDetailsList(CListview* l) {
 	SETI;
 	if(cClient->getGameLobby()->iKillLimit >= 0) {
 		si->sText = itoa(cClient->getGameLobby()->iKillLimit);
-		si->iColour = tLX->clNormalLabel;
 	} else {
 		si->sText = "infinity";
 		si->iColour = tLX->clDisabled;
