@@ -914,6 +914,7 @@ void GameServer::RegisterServerUdp(void)
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
+		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
 		NetworkAddr addr;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
@@ -949,7 +950,6 @@ void GameServer::RegisterServerUdp(void)
 		
 
 		bs.Send(tSocket);
-		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
 		return;	// Only one UDP masterserver is supported
 	};
 }
