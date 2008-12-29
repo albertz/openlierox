@@ -1133,12 +1133,13 @@ inline void AddColumns(DeprecatedGUI::CListview *lv)
 {
 	lv->AddColumn("", 15); // Command button
 	lv->AddColumn("", 25); // Skin
-	lv->AddColumn("", 160); // Player
+	lv->AddColumn("", tLX->iGameType == GME_HOST ? 160 - 35 : 160); // Player name
 	lv->AddColumn("", 30); // Lives
 	if (cClient->getGameLobby()->iGameMode == GMT_DEMOLITION)
 		lv->AddColumn("", 40); // Dirt count
 	else
 		lv->AddColumn("", 30);  // Kills
+	lv->AddColumn("", 35);  // Damage
 	if (tLX->iGameType == GME_HOST)
 		lv->AddColumn("", 35);  // Ping
 }
@@ -1409,7 +1410,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		DeprecatedGUI::CListview *lv = Left;
 		for(i=0; i < iScorePlayers; i++) {
 			// Left listview overflowed, fill the right one
-			if (i >= 16)
+			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
@@ -1447,6 +1448,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			// Kills
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
+			// Damage
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+
 			// Ping
 			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
@@ -1465,7 +1469,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		DeprecatedGUI::CListview *lv = Left;
 		for(i = 0; i < iScorePlayers; i++) {
 			// If the left listview overflowed, use the right one
-			if (i >= 16)
+			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
@@ -1514,7 +1518,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		DeprecatedGUI::CListview *lv = Left;
 		for(i = 0; i < iScorePlayers; i++) {
 			// If the left listview overflowed, use the right one
-			if (i >= 16)
+			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
@@ -1588,7 +1592,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				continue;
 
 			// If left would overflow after adding team header, switch to right
-			if (lv->getNumItems() + 1 >= 16)
+			if (lv->getNumItems() + 1 >= 14) // With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			// Header
@@ -1649,6 +1653,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				// Kills
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
+				// Damage
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+
 				// Ping
 				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
@@ -1665,7 +1672,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		DeprecatedGUI::CListview *lv = Left;
 		for(i=0; i < iScorePlayers; i++) {
 			// Left listview overflowed, fill the right one
-			if (i >= 16)
+			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
@@ -1734,7 +1741,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				continue;
 
 			// If left would overflow after adding team header, switch to right
-			if (lv->getNumItems() + 1 >= 16)
+			if (lv->getNumItems() + 1 >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			// Header
@@ -1799,6 +1806,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				// Kills
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
+				// Damage
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+
 				// Ping
 				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
@@ -1827,7 +1837,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				continue;
 
 			// If left would overflow after adding team header, switch to right
-			if (lv->getNumItems() + 1 >= 16)
+			if (lv->getNumItems() + 1 >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
 			// Header
@@ -1887,6 +1897,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 				// Kills
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+
+				// Damage
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
 
 				// Ping
 				if (tLX->iGameType == GME_HOST)  {

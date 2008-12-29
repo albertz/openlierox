@@ -321,26 +321,41 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 			break;
 		}
 	}
-	
+
+	// Send REPORTDAMAGE to server (also calculate it for pre-Beta9 clients)
+	// Hey bug I found you! We should do QueueReportDamage() first and SendDeath() after that, so scoreboard will be the same on clients and server
+	if( someOwnWorm || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
+	{
+		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
+		// Set damage report for local worm - server won't send it back to us
+		w->getDamageReport()[owner].damage += damage;
+		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
+
+		// Update our scoreboard for local worms
+		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
+	}
+
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
 		( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
-	if(w->Injure(damage)) {
-		// His dead Jim
+	{
+		if(w->Injure(damage)) {
+			// His dead Jim
 
-		w->setAlreadyKilled(true);
+			w->setAlreadyKilled(true);
 
-		// Kill someOwnWorm
-		// TODO: why is localworm[0] == 0 checked here?
-		if(someOwnWorm || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
+			// Kill someOwnWorm
+			// TODO: why is localworm[0] == 0 checked here?
+			if(someOwnWorm || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
 
-			w->setAlive(false);
-			w->Kill();
-            w->clearInput();
+				w->setAlive(false);
+				w->Kill();
+        	    w->clearInput();
 
-			// Let the server know that i am dead
-			cNetEngine->SendDeath(w->getID(), owner);
+				// Let the server know that i am dead
+				cNetEngine->SendDeath(w->getID(), owner);
+			}
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
@@ -360,18 +375,6 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
 		}
-	}
-	
-	// Send REPORTDAMAGE to server (also calculate it for pre-Beta9 clients)
-	if( someOwnWorm || ( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) )
-	{
-		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
-		// Set damage report for local worm - server won't send it back to us
-		w->getDamageReport()[owner].damage += damage;
-		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
-
-		// Update our scoreboard for local worms
-		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
 	}
 }
 

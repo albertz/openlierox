@@ -73,6 +73,6 @@ setvar( "GameOptions.Network.AutoSetupHttpProxy", 1)
 setvar( "GameOptions.Network.EnableChat", 0) # No IRC chat needed for ded server
 setvar( "GameOptions.Network.HttpProxy", "")
 setvar( "GameOptions.Network.UseIpToCountry", 1) # Needed for correct server messages
-setvar( "GameOptions.Network.MaxUploadBandwidth", 100000) # Disable bandwidth limits
+setvar( "GameOptions.Network.MaxUploadBandwidth", 60000) # Disable bandwidth limits
 setvar( "GameOptions.Network.Speed", 2) # 0 = Modem, 1 = ADSL, 2 = LAN
 setvar( "GameServer.bStartDedicated", 0) # This is for auto-start game from GUI, disable this, it will break the scripts

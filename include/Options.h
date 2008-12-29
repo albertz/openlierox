@@ -218,6 +218,7 @@ public:
 	std::string sTheme;
 	bool	bTopBarVisible;
 	bool	bScreenShaking;
+	bool	bDamagePopups;
 
 
     // Advanced

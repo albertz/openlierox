@@ -814,7 +814,7 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 {
 	if( ! flush && tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
 		return;
-	
+
 	CBytestream bs;
 
 	for( std::map< std::pair< int, int >, int > :: iterator it = cDamageReport.begin(); 

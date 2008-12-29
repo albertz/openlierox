@@ -84,7 +84,8 @@ enum {
 	og_AllowMouseAiming,
 	og_MatchLogging,
 	og_AntilagMovementPrediction,
-	og_ScreenShaking
+	og_ScreenShaking,
+	og_DamagePopups,
 };
 
 enum {
@@ -385,6 +386,9 @@ bool Menu_OptionsInitialize(void)
 
 	cOpt_Game.Add( new CLabel("Shake screen on explosions",tLX->clNormalLabel), Static, 330, 180, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bScreenShaking),     og_ScreenShaking, 550, 180, 17,17);
+	
+	cOpt_Game.Add( new CLabel("Damage popups above worms",tLX->clNormalLabel), Static, 330, 210, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bDamagePopups),     og_DamagePopups, 550, 210, 17,17);
 
 /*
 	cOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
@@ -618,6 +622,11 @@ void Menu_OptionsFrame(void)
 				case og_ScreenShaking:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bScreenShaking = cOpt_Game.SendMessage(og_ScreenShaking, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				case og_DamagePopups:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bDamagePopups = cOpt_Game.SendMessage(og_DamagePopups, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 			}
 		}

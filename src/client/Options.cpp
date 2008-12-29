@@ -122,6 +122,7 @@ bool GameOptions::Init() {
 		( tLXOptions->sLastSelectedPlayer, "Game.LastSelectedPlayer", "" )
 		( tLXOptions->bTopBarVisible, "Game.TopBarVisible", true )
 		( tLXOptions->bScreenShaking, "Game.ScreenShaking", true )
+		( tLXOptions->bDamagePopups, "Game.DamagePopups", true )
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )

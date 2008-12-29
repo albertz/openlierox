@@ -649,6 +649,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	offender->addDamage( damage, w, tLXOptions->tGameInfo );
 
+	//printf("CServerNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
 	// Re-send the packet to all clients, except the sender
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )

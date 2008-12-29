@@ -2166,6 +2166,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
 	w->Injure(damage);	// Calculate correct healthbar
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
+	//printf("CClientNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
 	offender->addDamage( damage, w, client->tGameInfo );
 };
 
@@ -2191,7 +2192,11 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		}
 	
 		client->cRemoteWorms[id].setKills( bs->readInt(2) );
-		client->cRemoteWorms[id].setDamage( bs->readInt(2) );
+		int damage = bs->readInt(2);
+		if( client->cRemoteWorms[id].getDamage() != damage )
+			printf("Warning: CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm %s is %i server sent us %i\n", 
+					client->cRemoteWorms[id].getName().c_str(), client->cRemoteWorms[id].getDamage(), damage );
+		client->cRemoteWorms[id].setDamage( damage );
 
 		
 		if (client->cRemoteWorms[id].getLocal())

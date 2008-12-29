@@ -683,36 +683,38 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	int WormNameY = tLX->cFont.GetHeight()+12; // Font height + worm height/2 + some space
 
 	// Draw the damage amount that worm received
-	// Even the worm is dead draw damage for some time anyway
-	
-	// Sort them first
-	std::map< float, int > DamageReportDrawOrder;
-	int i;
-	for( i=0; i<MAX_WORMS; i++ )
-		if( cDamageReport[i].damage != 0 )
-			DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
-	// Draw
-	if( ! DamageReportDrawOrder.empty() )
+	// Even the worm is dead draw damage for some time anyway (looks pretty)
+	if( tLXOptions->bDamagePopups )
 	{
-		int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
-		// Make it float up a bit when time passes
-		damageDrawPos += (int)(( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30);
-		for( std::map< float, int > :: iterator it = DamageReportDrawOrder.begin();
-				it != DamageReportDrawOrder.end(); it++ )
-		{
-			int id = it->second;
-			if( !cClient->getRemoteWorms()[id].isUsed() )
-				continue;
-			std::string damageStr = itoa( cDamageReport[id].damage );
-			if( cDamageReport[id].damage < 0 )
-				damageStr[0] = '+';	// Negative damage = healing
-			tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, cClient->getRemoteWorms()[id].getGameColour(), damageStr);
-			damageDrawPos += tLX->cFont.GetHeight();
-		};
-		// Clean up expired damage values
+		// Sort them first
+		std::map< float, int > DamageReportDrawOrder;
+		int i;
 		for( i=0; i<MAX_WORMS; i++ )
-			if( tLX->fCurTime - cDamageReport[i].lastTime > 1.5f )
-				cDamageReport[i].damage = 0;
+			if( cDamageReport[i].damage != 0 )
+				DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
+		// Draw
+		if( ! DamageReportDrawOrder.empty() )
+		{
+			int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
+			// Make it float up a bit when time passes
+			damageDrawPos += (int)(( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30);
+			for( std::map< float, int > :: iterator it = DamageReportDrawOrder.begin();
+					it != DamageReportDrawOrder.end(); it++ )
+			{
+				int id = it->second;
+				if( !cClient->getRemoteWorms()[id].isUsed() )
+					continue;
+				std::string damageStr = itoa( cDamageReport[id].damage );
+				if( cDamageReport[id].damage < 0 )
+					damageStr[0] = '+';	// Negative damage = healing
+				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, cClient->getRemoteWorms()[id].getGameColour(), damageStr);
+				damageDrawPos += tLX->cFont.GetHeight();
+			};
+			// Clean up expired damage values
+			for( i=0; i<MAX_WORMS; i++ )
+				if( tLX->fCurTime - cDamageReport[i].lastTime > 1.5f )
+					cDamageReport[i].damage = 0;
+		}
 	}
 
 	// Do not draw further if we're not alive

@@ -124,6 +124,8 @@ void CClientNetEngineBeta9::SendDeath(int victim, int killer)
 	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
 	SendReportDamage(true);
 
+	printf("CClientNetEngineBeta9::SendDeath(%i, %i)\n", victim, killer);
+
 	CClientNetEngine::SendDeath(victim, killer);
 }
 
