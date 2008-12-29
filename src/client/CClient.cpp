@@ -1188,6 +1188,7 @@ void CClient::Connect(const std::string& address)
 	fLastTraverseSent = -9999;
 	fLastChallengeSent = -9999;
 
+	// TODO: use the easier and better event system
 	// Register the IRC callbacks
 	if (GetGlobalIRC())  {
 		GetGlobalIRC()->setNewMessageCallback(&IRC_OnNewMessage);
@@ -1199,7 +1200,7 @@ void CClient::Connect(const std::string& address)
 	if(!StringToNetAddr(address, cServerAddr)) {
 
 		strServerAddr_HumanReadable = strServerAddr + " (...)";
-		Timer(null, NULL, DNS_TIMEOUT * 1000, true).startHeadless();
+		Timer(null, NULL, DNS_TIMEOUT * 1000 + 50, true).startHeadless();
 
 		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
 			iNetStatus = NET_DISCONNECTED;
