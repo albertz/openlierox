@@ -1813,9 +1813,17 @@ int Menu_SvrList_UpdaterThread(void *id)
 		int port = atoi(server.substr(server.find(':') + 1));
 
 		// Resolve the address
-		if (!GetNetAddrFromName(domain, addr))
+		if (!GetNetAddrFromNameAsync(domain, addr))
 			continue;
 
+		float start = GetMilliSeconds();
+		while (GetMilliSeconds() - start <= 5.0f) {
+			SDL_Delay(40);
+			if(IsNetAddrValid(addr)) goto gotNetAddr;			
+		}
+		continue;
+		
+gotNetAddr:
 		// Setup the socket
 		SetNetAddrPort(addr, port);
 		SetRemoteNetAddr(sock, addr);
@@ -1830,7 +1838,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		printf("Sent getserverlist to %s\n", server.c_str());
 
 		// Wait for the reply
-		float start = GetMilliSeconds();
+		start = GetMilliSeconds();
 		while (GetMilliSeconds() - start <= 5.0f)  {
 			SDL_Delay(40);
 

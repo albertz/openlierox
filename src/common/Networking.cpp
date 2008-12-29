@@ -922,22 +922,6 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 }
 
 
-bool GetNetAddrFromName(const std::string& name, NetworkAddr& addr) {
-	if(getNLaddr(addr) == NULL)
-		return false;
-	else {
-		if(GetFromDnsCache( name, addr )) {
-			SetNetAddrValid( addr, true );
-			return true;
-		}
-		if( nlGetAddrFromName(name.c_str(), getNLaddr(addr)) != NL_FALSE ) {
-			AddToDnsCache( name, addr );
-			return true;
-		}
-		return false;
-	}
-}
-
 bool isDataAvailable(NetworkSocket sock) {
 	NLint group = nlGroupCreate();
 	nlGroupAddSocket( group, *getNLsocket(&sock) );

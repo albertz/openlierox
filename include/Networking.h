@@ -95,7 +95,6 @@ bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
 bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
 void	AddToDnsCache(const std::string& name, const NetworkAddr& addr);
 bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
-bool	GetNetAddrFromName(const std::string& name, NetworkAddr& addr);
 bool	isDataAvailable(NetworkSocket sock); // Slow!
 
 #endif  //  __NETWORKING_H__
