@@ -962,6 +962,8 @@ bool HandleDebugCommand(const std::string& text) {
 							"Yes really, this text is very long, very long, very long, very long, very long, "
 							"very very long, very very long, very very long, very very long, very very long.",
 							DeprecatedGUI::LMB_OK);
+		} else if(cmd == "register") {
+			cServer->RegisterServer();
 		} else
 			cout << "DEBUG CMD unknown" << endl;
 
