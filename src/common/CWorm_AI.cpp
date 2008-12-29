@@ -1051,7 +1051,7 @@ void CWormBotInputHandler::getInput() {
 	iRandomSpread = 0;
 	fLastRandomChange = -9999;
 
-	iAiDiffLevel = m_worm->tProfile->nDifficulty;
+	iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 4);
 
     // Every 3 seconds we run the think function
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
@@ -4110,6 +4110,7 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	pathSearcher = NULL;	
 	fLastFace = 0;
 	fBadAimTime = 0;
+	iAiDiffLevel = 0;
 	
 	fLastShoot = 0; // for AI
 	fLastJump = 999999;
