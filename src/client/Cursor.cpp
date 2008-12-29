@@ -90,8 +90,10 @@ void ShutdownCursors()
 			tCursors[i] = NULL;
 		}
 
-	tAnimTimer->stop();
-	delete tAnimTimer;
+	if (tAnimTimer)  {
+		tAnimTimer->stop();
+		delete tAnimTimer;
+	}
 }
 
 ////////////////
