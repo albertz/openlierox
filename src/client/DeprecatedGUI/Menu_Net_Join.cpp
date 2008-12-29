@@ -359,6 +359,7 @@ static void updateDetailsList(CListview* l) {
 		si->sText = cClient->getGameLobby()->sMapFile;
 		si->iColour = tLX->clError;
 		if (!cClient->getDownloadingMap())  {  // not downloading the map
+			// TODO: download stuff
 /*			
 			if (tMenu->bmpDownload.get())
 				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sMapFile) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
@@ -383,6 +384,7 @@ static void updateDetailsList(CListview* l) {
 		si->sText = cClient->getGameLobby()->sModName;
 		si->iColour = tLX->clError;
 		if (!cClient->getDownloadingMod()) {
+			// TODO: download stuff
 /*
 			if (tMenu->bmpDownload.get())
 				DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpDownload, x2 + f->GetWidth(cClient->getGameLobby()->sModName) + 5, y + (f->GetHeight() - tMenu->bmpDownload->h)/2);
