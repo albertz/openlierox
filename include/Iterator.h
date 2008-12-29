@@ -38,8 +38,8 @@ private:
 	typename _STLT::iterator i;
 	_STLT& obj;
 public:
-	STLIterator(_STLT& o) : obj(o) { i = o.begin(); }
-	STLIterator(const STLIterator& it) : obj(it.obj), i(it.i) {}	
+	STLIterator(_STLT& o) : i(o.begin()), obj(o) {}
+	STLIterator(const STLIterator& it) : i(it.i), obj(it.obj) {}	
 	virtual Iterator<_T>* copy() const { return new STLIterator(*this); }
 	virtual bool isValid() { return i != obj.end(); }
 	virtual void next() { ++i; }
