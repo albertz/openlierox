@@ -330,9 +330,19 @@ static void initDetailsList(CListview* l) {
 	int index = 0;
 	l->AddItem("servername", index++, tLX->clNormalLabel); SUBS("Server name:");
 	l->AddItem("serverversion", index++, tLX->clNormalLabel); SUBS("Server version:");
-	l->AddItem("level", index++, tLX->clNormalLabel); SUBS("Level:");
+	l->AddItem("level", index++, tLX->clNormalLabel); SUBS("Level:"); 
+	if (tMenu->bmpDownload.get())  {
+		CImage *img = new CImage(tMenu->bmpDownload);
+		img->Setup(0, 0, 0, img->getWidth(), img->getHeight());
+		l->AddSubitem(LVS_WIDGET, "", NULL, img);
+	}
 	l->AddItem("gamemode", index++, tLX->clNormalLabel); SUBS("Game Mode:");
 	l->AddItem("mod", index++, tLX->clNormalLabel); SUBS("Mod:");
+	if (tMenu->bmpDownload.get())  {
+		CImage *img = new CImage(tMenu->bmpDownload);
+		img->Setup(1, 0, 0, img->getWidth(), img->getHeight());
+		l->AddSubitem(LVS_WIDGET, "", NULL, img);
+	}
 	l->AddItem("lives", index++, tLX->clNormalLabel); SUBS("Lives:");
 	l->AddItem("maxkills", index++, tLX->clNormalLabel); SUBS("Max Kills:");
 	l->AddItem("loadingtime", index++, tLX->clNormalLabel); SUBS("Loading time:");
@@ -355,10 +365,15 @@ static void updateDetailsList(CListview* l) {
 	SETI;
 	if(cClient->getHaveMap()) {
 		si->sText = cClient->getGameLobby()->sMapName;
+		if (si->tNext)
+			si->tNext->bVisible = false;  // Hide the download button
 	} else {  // Don't have the map
 		si->sText = cClient->getGameLobby()->sMapFile;
 		si->iColour = tLX->clError;
-		if (!cClient->getDownloadingMap())  {  // not downloading the map
+		if (si->tNext)  {
+			// not downloading the map, display an option for doing so
+			si->tNext->bVisible = !cClient->getDownloadingMap();
+		}
 			// TODO: download stuff
 /*			
 			if (tMenu->bmpDownload.get())
@@ -372,7 +387,6 @@ static void updateDetailsList(CListview* l) {
 				SetGameCursor(CURSOR_ARROW);
 			}
 */ 
-		}
 	}
 
 	const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
@@ -380,10 +394,13 @@ static void updateDetailsList(CListview* l) {
 	SETI;
 	if(cClient->getHaveMod()) {
 		si->sText = cClient->getGameLobby()->sModName;
+		if (si->tNext)
+			si->tNext->bVisible = false;  // Hide the download button
 	} else {
 		si->sText = cClient->getGameLobby()->sModName;
 		si->iColour = tLX->clError;
-		if (!cClient->getDownloadingMod()) {
+		if (si->tNext)
+			si->tNext->bVisible = !cClient->getDownloadingMod();
 			// TODO: download stuff
 /*
 			if (tMenu->bmpDownload.get())
@@ -398,7 +415,6 @@ static void updateDetailsList(CListview* l) {
 				SetGameCursor(CURSOR_ARROW);
 			}
 */
-		}
 	}
 	
 	SETI;
@@ -697,51 +713,26 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
 	}
 
+	// Download progress
 	{
-		/*if( cClient->getDownloadingMap() )
-			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
-			itoa( cClient->getMapDlProgress() ) + "%: " + gl->szMapFile );
-		else if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
-			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
-			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
-			cClient->getUdpFileDownloader()->getFileDownloading() );
-		else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
-			tLX->cFont.Draw(VideoPostProcessor::videoSurface(),     410, 195, tLX->clNormalLabel,
-			to_string<size_t>( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
-
-		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
-		if( dlButton )
-		{
-			if( ! cClient->getGameLobby()->bHaveMap ||
-				( ! cClient->getGameLobby()->bHaveMod && cClient->getServerVersion() >= OLXBetaVersion(4) ) )
-			{
-				if( cClient->getDownloadingMap() || cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
-					dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
-				else
-					dlButton->SendMessage( LBS_SETTEXT, "Download files", 0 );
-			}
-			else
-				dlButton->SendMessage( LBS_SETTEXT, "", 0 );
-		};
-
-		if( cClient->getDownloadingMapError() )
-		{
-			// Put notice about downloaded file in chatbox
-			cClient->clearDownloadingMapError();
-			CBytestream bs;
-			bs.writeByte(TXT_NETWORK);
-			bs.writeString( cClient->getDownloadingMapErrorMessage() );
-			cClient->ParseText( &bs );
-		};*/
-
 		CButton *cancel = (CButton *)cJoinLobby.getWidget(jl_CancelDownload);
 		CProgressBar *progress = (CProgressBar *)cJoinLobby.getWidget(jl_DownloadProgress);
+		CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
 		if (cClient->getDownloadingMap() || cClient->getDownloadingMod())  {
-
+			details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 210);
+			details->ReadjustScrollbar();
 			progress->setEnabled(true);
 			cancel->setEnabled(true);
 			progress->SetPosition(cClient->getDlProgress());
 		} else {
+			details->Setup(details->getID(), details->getX(), details->getY(), details->getWidth(), 250);
+			details->ReadjustScrollbar();
+
+			// TODO: HACK, HACK, this serves as an event for checking if download has been finished
+			// Create an event for it (or wait for the new GUI?)
+			if (progress->getEnabled())
+				updateDetailsList(details);
+
 			progress->setEnabled(false);
 			cancel->setEnabled(false);
 		}
@@ -844,6 +835,20 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
 				}
 				break;
+
+			case jl_Details:
+				if (ev->iEventMsg == LV_WIDGETEVENT)  {
+					CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
+					gui_event_t *ev2 = details->getWidgetEvent();
+					if (ev2 && ev2->iEventMsg == IMG_CLICK)  {
+						if (ev2->cWidget->getID() == 0)  // Map
+							cClient->DownloadMap(cClient->getGameLobby()->sMapFile);  // Download the map
+						else if (ev2->cWidget->getID() == 1)
+							cClient->DownloadMod(cClient->getGameLobby()->sModDir);
+						updateDetailsList(details);
+					}
+				}
+			break;
 
 			/*case jl_StartStopUdpFileDownload:
 				if(ev->iEventMsg == TXB_MOUSEUP) {
