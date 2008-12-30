@@ -1303,6 +1303,34 @@ void Menu_GameSettings_Default(void)
 	// Bonus
     cBonusSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
     cBonusSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
+
+    #else
+    
+	int idx = 0;
+	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+	{
+		if( it->first.find("GameOptions.GameInfo.") != 0 )
+			continue;
+			
+		if( it->first == "GameOptions.GameInfo.ModName" || 
+			it->first == "GameOptions.GameInfo.LevelName" ||
+			it->first == "GameOptions.GameInfo.GameType" )
+			continue;	// We have nice comboboxes for them, skip them in the list
+
+		switch(it->second.type) {
+			case SVT_BOOL: *it->second.b = it->second.bdef; break;
+			case SVT_INT: *it->second.i = it->second.idef; break;
+			case SVT_FLOAT: *it->second.f = it->second.fdef; break;
+			case SVT_STRING: *it->second.s = it->second.sdef; break;
+			case SVT_COLOR: *it->second.cl = it->second.cldef; break;
+			default: assert(false);
+		}
+    }
+
+    CListview * features = (CListview *)cGeneralSettings.getWidget(gs_FeaturesList);
+    features->Clear();
+	initFeaturesList(features);
+    
     #endif
 }
 
