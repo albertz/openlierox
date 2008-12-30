@@ -151,10 +151,10 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Max Kills" )
 		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1, "Time limit", "Time limit, in minutes" )
 		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode" )
-		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent" )
+		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", 0, 500 )
 		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true, "Bonuses", "Bonuses enabled" )
 		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show Bonus names" )
-		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8, "Max players", "Max amount of players allowed on server" )
+		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8, "Max players", "Max amount of players allowed on server", 1, 32 )
 		( tLXOptions->tGameInfo.sMapFile, "LevelName" ) // WARNING: confusing, it is handled like the filename
 		( tLXOptions->tGameInfo.iGameMode, "GameType", GMT_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
@@ -164,7 +164,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to it's team" )
 		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false, "Group team score", "Kill count is the same for all worms in team" )
 		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawning", "Your weapon ammo is emptied when you respawn" )
-		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning weapon bonus instead of health bonus" )
+		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning weapon bonus instead of health bonus", 0.0f, 1.0f )
 		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons" )
 		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select same weapons as host worm" )
 		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false, "Connect during game", "Allow new players connect during game" )
@@ -178,7 +178,7 @@ bool GameOptions::Init() {
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue, 
-				f->get()->humanReadableName, f->get()->description );
+				f->get()->humanReadableName, f->get()->description, f->get()->minValue, f->get()->maxValue );
 	}
 	
 	bool ret = tLXOptions->LoadFromDisc();

@@ -16,13 +16,13 @@ using namespace std;
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {
-	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7) ),
+	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7), 0.1f, 10.0f ),
 	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
-	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", false, false, OLXBetaVersion(9) ),
-	Feature("TeamInjure", "Own projectiles damage team members", "If disabled, projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
-	Feature("TeamHit", "Projectiles goes through team members", "If disabled, your projectiles goes through team members.", true, true, OLXBetaVersion(9) ),
-	Feature("SelfInjure", "Own projectiles damage you", "If disabled, projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
-	Feature("SelfHit", "Projectiles goes through yourself", "If disabled, your projectiles goes through yourself.", true, true, OLXBetaVersion(9) ),
+	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", false, false, OLXBetaVersion(9) ),
+	Feature("TeamInjure", "Don't damage team members", "If disabled, your bullets and projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
+	Feature("TeamHit", "Shoot through team members", "If disabled, your bullets and projectiles will fly through your team members.", true, true, OLXBetaVersion(9) ),
+	Feature("SelfInjure", "Don't damage yourself", "If disabled, your bullets and projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
+	Feature("SelfHit", "Shoot through yourself", "If disabled, your bullets and projectiles will fly through yourself.", true, true, OLXBetaVersion(9) ),
 	Feature::Unset()
 };
 
