@@ -761,6 +761,8 @@ enum {
 	gs_btnGenTab,
 	gs_btnBonusTab,
 
+	#ifdef OLD_SETTINGS_DIALOG
+
 	gs_Lives,
 	gs_MaxKills,
 	gs_LoadingTime,
@@ -786,13 +788,18 @@ enum {
 	gs_HealthChance,
 	gs_WeaponChance,
 	
+	#else
+	
 	gs_FeaturesList,
 	gs_FeaturesListLabel,
+	
+	#endif
 
 };
 
 
 
+#ifdef OLD_SETTINGS_DIALOG
 
 static void Menu_setGameSpeed(float speed) {
 	int v = (int)(speed * 10.0f) - 1;
@@ -808,6 +815,8 @@ static float Menu_getGameSpeed() {
 	else
 		return gs;
 }
+
+#endif
 
 static void initFeaturesList(CListview* l);
 
@@ -842,7 +851,7 @@ void Menu_GameSettings(void)
 
 
 
-
+	#ifdef OLD_SETTINGS_DIALOG
 	// General settings, general stuffies!
 	cGeneralSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        140,200, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_Lives,		300,197, 30,tLX->cFont.GetHeight());
@@ -946,8 +955,10 @@ void Menu_GameSettings(void)
 	buf = itoa(bonusChance) + "%";
 	cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
 	
+	#else
+	
 	CListview* features = new CListview();
-	cBonusSettings.Add( features, gs_FeaturesList,	140, 310, 360, 90);
+	cGeneralSettings.Add( features, gs_FeaturesList, 140, 180, 360, 185);
 
 	//details->Setup(0, x + 15, y+5, w - 30, h - 25); // is this done already in .Add(...) above?
 	features->setDrawBorder(true);
@@ -961,8 +972,10 @@ void Menu_GameSettings(void)
 	
 	initFeaturesList(features);
 
-	// TODO: it's overkill to use CBrowser for that
-	cBonusSettings.Add( new CBrowser(), gs_FeaturesListLabel, 140, 410, 360, 20);
+	// TODO: it's overkill to use CBrowser for that, but it looks nice
+	cGeneralSettings.Add( new CBrowser(), gs_FeaturesListLabel, 140, 380, 360, 40);
+
+	#endif
 }
 
 // Features listview
@@ -1003,7 +1016,7 @@ static void initFeaturesList(CListview* l)
 			CTextbox * txt = new CTextbox();
 			l->AddSubitem(LVS_WIDGET, "", NULL, txt);
 			txt->Create();
-			txt->Setup(idx, 0, 0, 40, tLX->cFont.GetHeight());
+			txt->Setup(idx, 0, 0, 60, tLX->cFont.GetHeight());
 			txt->setText( it->second.toString() );
 		}
 		// TODO: add slider widget
@@ -1073,12 +1086,14 @@ bool Menu_GameSettings_Frame(void)
 
 	ev = cGameSettings.Process();
 
+	#ifdef OLD_SETTINGS_DIALOG
 	// The maximum loading time depends on the multiplikator
 	// For fast games you can set higher loading times to make less spammy games
 	CSlider *lt = (CSlider *)(cGeneralSettings.getWidget(gs_LoadingTime));
 	int max_loadingtime = (int) (DEFAULT_LOADING_TIME * Menu_getGameSpeed());
 	lt->setMax(max_loadingtime);
 	lt->setValue(MIN(max_loadingtime, lt->getValue()));
+	#endif
 
 	if(ev)
 	{
@@ -1127,12 +1142,37 @@ bool Menu_GameSettings_Frame(void)
 		cGeneralSettings.Draw(VideoPostProcessor::videoSurface());
 		ev = cGeneralSettings.Process();
 
+		#ifdef OLD_SETTINGS_DIALOG
 		// Set the value of the loading time label
 		int l = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 		std::string lstr = itoa(l)+"%";
 		cGeneralSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
 
 		cGeneralSettings.SendMessage(gs_GameSpeedLabel, LBS_SETTEXT, ftoa(Menu_getGameSpeed()) , 0);
+		#endif
+
+		if (ev)
+		{
+			switch (ev->iControlID)
+			{
+				case gs_FeaturesList:
+					CListview* features = (CListview*)ev->cWidget;
+					if( ev->iEventMsg == LV_WIDGETEVENT )
+					{
+						updateFeaturesList(features);
+					}
+					if( ev->iEventMsg == LV_CHANGED )
+					{
+						CBrowser* featuresLabel = (CBrowser*)cGeneralSettings.getWidget(gs_FeaturesListLabel);
+						if(	features->getCurSIndex() != "" )
+						{
+							featuresLabel->LoadFromString( CScriptableVars::GetLongDescription( features->getCurSIndex() ) );
+						}
+					}
+					break;
+			}
+		}
+
 	}
 
 	if (GameTabPane == gs_BonusTab)
@@ -1144,6 +1184,7 @@ bool Menu_GameSettings_Frame(void)
 		{
 			switch (ev->iControlID)
 			{
+				#ifdef OLD_SETTINGS_DIALOG
 				case gs_HealthToWeaponChance:
 					{
 						int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
@@ -1153,22 +1194,7 @@ bool Menu_GameSettings_Frame(void)
 						cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
 					}
 					break;
-					
-				case gs_FeaturesList:
-					CListview* features = (CListview*)ev->cWidget;
-					if( ev->iEventMsg == LV_WIDGETEVENT )
-					{
-						updateFeaturesList(features);
-					}
-					if( ev->iEventMsg == LV_CHANGED )
-					{
-						CBrowser* featuresLabel = (CBrowser*)cBonusSettings.getWidget(gs_FeaturesListLabel);
-						if(	features->getCurSIndex() != "" )
-						{
-							featuresLabel->LoadFromString( CScriptableVars::GetLongDescription( features->getCurSIndex() ) );
-						}
-					}
-					break;
+				#endif
 			}
 		}
 	}
@@ -1186,6 +1212,8 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
+	#ifdef OLD_SETTINGS_DIALOG
+
 	std::string buf;
 
 
@@ -1255,6 +1283,8 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameInfo.bShowBonusName = cBonusSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameInfo.fBonusHealthToWeaponChance = float(cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0)) / 100.0f ;
+	
+	#endif
 }
 
 
@@ -1263,6 +1293,7 @@ void Menu_GameSettings_GrabInfo(void)
 void Menu_GameSettings_Default(void)
 {
 
+	#ifdef OLD_SETTINGS_DIALOG
 	// General
     cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, 100, 0);
     cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, "10", 0);
@@ -1272,6 +1303,7 @@ void Menu_GameSettings_Default(void)
 	// Bonus
     cBonusSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
     cBonusSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
+    #endif
 }
 
 /*
