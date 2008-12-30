@@ -266,15 +266,11 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	}
 
 
-	//
-	// Server Side?
-	//
+	// Check if any worm is near the explosion, for both my worms and remote worms
+	for(i=0;i<MAX_WORMS;i++) {
+		w = & cRemoteWorms[i];
 
-	// Check if any of _my_ worms are near the explosion
-	for(i=0;i<iNumWorms;i++) {
-		w = cLocalWorms[i];
-
-		if(!w->getAlive())
+		if( !w->isUsed() || !w->getAlive())
 			continue;
 
 		if((pos - w->getPos()).GetLength2() <= 25) {

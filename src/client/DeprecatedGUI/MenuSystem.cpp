@@ -1883,7 +1883,7 @@ gotNetAddr:
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
 				SendSDLUserEvent(&serverlistEvent, UdpServerlistData(bs));
-				timeoutTime = GetMilliSeconds() + 0.4f;	// Check for another packet
+				timeoutTime = GetMilliSeconds() + 0.5f;	// Check for another packet
 				bs = new CBytestream();
 				firstPacket = false;
 			} else  {
