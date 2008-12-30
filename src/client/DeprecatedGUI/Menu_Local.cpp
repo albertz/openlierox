@@ -759,64 +759,11 @@ enum {
 	gs_Ok,
 	gs_Default,
 	gs_btnGenTab,
-	gs_btnBonusTab,
 
-	#ifdef OLD_SETTINGS_DIALOG
-
-	gs_Lives,
-	gs_MaxKills,
-	gs_LoadingTime,
-	gs_LoadingTimeLabel,
-	gs_GameSpeed,
-	gs_GameSpeedLabel,
-	gs_TimeLimit,
-	gs_RespawnTime,
-	gs_ForceRandomWeapons,
-	gs_RespawnGroupTeams,
-	gs_SuicideDecreasesScore,
-	gs_GroupTeamScore,
-	gs_EmptyWeaponsOnRespawn,
-	gs_SameWeaponsAsHostWorm,
-	gs_AllowConnectDuringGame,
-	gs_ForceScreenShaking,
-	
-	gs_Bonuses,
-	gs_ShowBonusNames,
-	gs_BonusSpawnTime,
-	gs_BonusLifeTime,
-	gs_HealthToWeaponChance,
-	gs_HealthChance,
-	gs_WeaponChance,
-	
-	#else
-	
 	gs_FeaturesList,
 	gs_FeaturesListLabel,
 	
-	#endif
-
 };
-
-
-
-#ifdef OLD_SETTINGS_DIALOG
-
-static void Menu_setGameSpeed(float speed) {
-	int v = (int)(speed * 10.0f) - 1;
-	cGeneralSettings.SendMessage(gs_GameSpeed, SLM_SETVALUE, v, 0);
-}
-
-static float Menu_getGameSpeed() {
-	int v = cGeneralSettings.SendMessage(gs_GameSpeed, SLM_GETVALUE, 100, 0);
-	// 0-99 values possible, map to 0.1,0.2,...0.9,1.0,1.1,...,2.0,...,10.0
-	float gs = (float)(v + 1) * 0.1f;
-	if( fabs(gs - 1.0f) < 0.001f )
-		return 1.0f;
-	else
-		return gs;
-}
-
-#endif
 
 static void initFeaturesList(CListview* l);
 
@@ -837,130 +784,19 @@ void Menu_GameSettings(void)
 
 	cGameSettings.Initialize();
 	cGeneralSettings.Initialize();
-	cBonusSettings.Initialize();
 
 	// Keep text, it's the window text - the rest you can easily figure out by yourself.
 	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,145, 0, 0);
 
 	// Game settings, stuff on each pane.
 
-	cGameSettings.Add( new CButton(BUT_GENERAL, DeprecatedGUI::tMenu->bmpButtons),	gs_btnGenTab, 240, 165, 0, 0);
-	cGameSettings.Add( new CButton(BUT_BONUS, DeprecatedGUI::tMenu->bmpButtons),	gs_btnBonusTab, 340, 165, 0, 0);
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 350,445, 80,15);
 
 
-
-	#ifdef OLD_SETTINGS_DIALOG
-	// General settings, general stuffies!
-	cGeneralSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        140,200, 0, 0);
-	cGeneralSettings.Add( new CTextbox(),										gs_Lives,		300,197, 30,tLX->cFont.GetHeight());
-	cGeneralSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
-	if(tLXOptions->tGameInfo.iLives >= 0)
-		cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iLives), 0);
-
-	cGeneralSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			    -1,	        140,230, 0, 0);
-	cGeneralSettings.Add( new CTextbox(),										gs_MaxKills,	300,227, 30,tLX->cFont.GetHeight());
-	cGeneralSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
-	if(tLXOptions->tGameInfo.iKillLimit >= 0)
-		cGeneralSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameInfo.iKillLimit), 0);
-
-	cGeneralSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        140,260, 0, 0);
-	cGeneralSettings.Add( new CSlider(DEFAULT_LOADING_TIME),									gs_LoadingTime,	295,257, 160,20);
-	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 260, 0, 0);
-	cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameInfo.iLoadingTime, 0);
-
-	cGeneralSettings.Add( new CLabel("Game Speed", tLX->clNormalLabel),		    -1,	        140,285, 0, 0);
-	cGeneralSettings.Add( new CSlider(99),									gs_GameSpeed,	295,282, 160,20);
-	cGeneralSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_GameSpeedLabel, 470, 285, 0, 0);
-	Menu_setGameSpeed( tLXOptions->tGameInfo.features[FT_GAMESPEED] );
-
-	cGeneralSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,310, 0, 0);
-	cGeneralSettings.Add( new CTextbox(),										gs_TimeLimit,	300,307, 30,tLX->cFont.GetHeight());
-	cGeneralSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
-	if(tLXOptions->tGameInfo.fTimeLimit > 0)
-		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fTimeLimit), 0);
-
-	cGeneralSettings.Add( new CLabel("Force random", tLX->clNormalLabel),			-1,	        350,300, 0, 0);
-	cGeneralSettings.Add( new CLabel("weapon selection", tLX->clNormalLabel),		-1,	        350,315, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bForceRandomWeapons),	gs_ForceRandomWeapons, 470,307,17,17);
-
-	cGeneralSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,340, 0, 0);
-	cGeneralSettings.Add( new CTextbox(),										gs_RespawnTime,	300,337, 30,tLX->cFont.GetHeight());
-	cGeneralSettings.SendMessage(gs_RespawnTime,TXM_SETMAX,3,0);
-	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fRespawnTime), 0);
-
-	cGeneralSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,330, 0, 0);
-	cGeneralSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,345, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,337,17,17);
-
-	int y = 370;
-
-	cGeneralSettings.Add( new CLabel("Same weapons as", tLX->clNormalLabel),			-1,	        350,y-10, 0, 0);
-	cGeneralSettings.Add( new CLabel("host worm", tLX->clNormalLabel),		-1,	        350,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm),	gs_SameWeaponsAsHostWorm, 470,y-3,17,17);
-
-	cGeneralSettings.Add( new CLabel("Allow new players", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
-	cGeneralSettings.Add( new CLabel("connect during game", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bAllowConnectDuringGame),	gs_AllowConnectDuringGame,    300,y-3,17,17);
-
-	y += 30;
-
-	cGeneralSettings.Add( new CLabel("Force screen shaking", tLX->clNormalLabel),	-1,         140,y, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING]), gs_ForceScreenShaking,    300,y-3,17,17);
-
-	cGeneralSettings.Add( new CLabel("Respawn closer", tLX->clNormalLabel),			-1,         350,y-10, 0, 0);
-	cGeneralSettings.Add( new CLabel("to your team", tLX->clNormalLabel),			-1,         350,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,y-3,17,17);
-
-	y += 30;
-		
-	cGeneralSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,y-10, 0, 0);
-	cGeneralSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,y+5, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE]),	gs_SuicideDecreasesScore,    300,y-3,17,17);
-
-	cGeneralSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,y, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bGroupTeamScore),	gs_GroupTeamScore, 470,y-3,17,17);
-
-
-
-
-	// Bonus settings - Bonus stuffies!
-	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        140,200, 0, 0);
-	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bBonusesOn),		gs_Bonuses,		300,197,17,17);
-
-	cBonusSettings.Add( new CLabel("Bonus spawn time", tLX->clNormalLabel),		-1,	        140,230, 0, 0);
-	cBonusSettings.Add( new CTextbox(),										gs_BonusSpawnTime,	300,227, 30,tLX->cFont.GetHeight());
-	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusFreq), 0);
-
-	cBonusSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,			350,200, 0, 0);
-	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bShowBonusName),	gs_ShowBonusNames, 470,197,17,17);
-
-	cBonusSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        350,230, 0, 0);
-	cBonusSettings.Add( new CTextbox(),										gs_BonusLifeTime,	470,227, 30,tLX->cFont.GetHeight());
-	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusLife), 0);
-
-	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),				-1,			290,320-70, 0, 0);
-	cBonusSettings.Add( new CLabel("Health", tLX->clNormalLabel),				-1,			146,340-70, 0, 0);
-	cBonusSettings.Add( new CLabel("Weapons", tLX->clNormalLabel),				-1,			443,340-70, 0, 0);
-	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_HealthChance,		153,360-70, 0, 0);
-	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_WeaponChance,		453,360-70, 0, 0);
-	cBonusSettings.Add( new CSlider(100),									gs_HealthToWeaponChance,	188,343-70, 250,12);
-	cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_SETVALUE, int(tLXOptions->tGameInfo.fBonusHealthToWeaponChance*100.0f), 0);
-
-
-	int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
-	std::string buf = itoa(100-bonusChance) + "%";
-	cBonusSettings.SendMessage(gs_HealthChance, LBS_SETTEXT, buf, 0);
-	buf = itoa(bonusChance) + "%";
-	cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
-	
-	#else
-	
 	CListview* features = new CListview();
 	cGeneralSettings.Add( features, gs_FeaturesList, 140, 180, 360, 185);
 
-	//details->Setup(0, x + 15, y+5, w - 30, h - 25); // is this done already in .Add(...) above?
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
 	features->setShowSelect(false);
@@ -975,7 +811,6 @@ void Menu_GameSettings(void)
 	// TODO: it's overkill to use CBrowser for that, but it looks nice
 	cGeneralSettings.Add( new CBrowser(), gs_FeaturesListLabel, 140, 380, 360, 40);
 
-	#endif
 }
 
 // Features listview
@@ -996,13 +831,6 @@ static void initFeaturesList(CListview* l)
 		lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
 		l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first) + ":", NULL, NULL); 
 		item->iHeight = 24; // So checkbox / textbox will fit okay
-
-		/*
-		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
-		si = item->tSubitems->tNext;
-		si->iColour = defaultColor;
-		si->sText = cClient->getGameLobby()->features[f->get()].toString();
-		*/
 
 		if( it->second.type == SVT_BOOL )
 		{
@@ -1055,8 +883,6 @@ static void updateFeaturesList(CListview* l)
 				continue;
 			it->second.fromString( ((CTextbox *)w)->getText() );
 		}
-		//printf("updateFeaturesList(): feat %s = %s\n", 
-		//			featureArray[f].name.c_str(), tLXOptions->tGameInfo.features[ FeatureIndex(f) ].toString().c_str() );
 	}
 }
 
@@ -1086,15 +912,6 @@ bool Menu_GameSettings_Frame(void)
 
 	ev = cGameSettings.Process();
 
-	#ifdef OLD_SETTINGS_DIALOG
-	// The maximum loading time depends on the multiplikator
-	// For fast games you can set higher loading times to make less spammy games
-	CSlider *lt = (CSlider *)(cGeneralSettings.getWidget(gs_LoadingTime));
-	int max_loadingtime = (int) (DEFAULT_LOADING_TIME * Menu_getGameSpeed());
-	lt->setMax(max_loadingtime);
-	lt->setValue(MIN(max_loadingtime, lt->getValue()));
-	#endif
-
 	if(ev)
 	{
 
@@ -1105,12 +922,6 @@ bool Menu_GameSettings_Frame(void)
 				if (ev->iEventMsg == BTN_MOUSEUP)
 				{
 					GameTabPane = gs_GenTab;
-				}
-				break;
-			case gs_btnBonusTab:
-				if (ev->iEventMsg == BTN_MOUSEUP)
-				{
-					GameTabPane = gs_BonusTab;
 				}
 				break;
 
@@ -1137,19 +948,10 @@ bool Menu_GameSettings_Frame(void)
 
 
 
-	if (GameTabPane == gs_GenTab)
+	//if (GameTabPane == gs_GenTab)
 	{
 		cGeneralSettings.Draw(VideoPostProcessor::videoSurface());
 		ev = cGeneralSettings.Process();
-
-		#ifdef OLD_SETTINGS_DIALOG
-		// Set the value of the loading time label
-		int l = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-		std::string lstr = itoa(l)+"%";
-		cGeneralSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
-
-		cGeneralSettings.SendMessage(gs_GameSpeedLabel, LBS_SETTEXT, ftoa(Menu_getGameSpeed()) , 0);
-		#endif
 
 		if (ev)
 		{
@@ -1175,32 +977,6 @@ bool Menu_GameSettings_Frame(void)
 
 	}
 
-	if (GameTabPane == gs_BonusTab)
-	{
-		cBonusSettings.Draw(VideoPostProcessor::videoSurface());
-		DrawRect (VideoPostProcessor::videoSurface(),140,337-70,500,377-70,tLX->clBoxLight);
-		ev = cBonusSettings.Process();
-		if (ev)
-		{
-			switch (ev->iControlID)
-			{
-				#ifdef OLD_SETTINGS_DIALOG
-				case gs_HealthToWeaponChance:
-					{
-						int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
-						std::string buf = itoa(100-bonusChance) + "%";
-						cBonusSettings.SendMessage(gs_HealthChance, LBS_SETTEXT, buf, 0);
-						buf = itoa(bonusChance) + "%";
-						cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
-					}
-					break;
-				#endif
-			}
-		}
-	}
-
-
-
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
 
@@ -1212,79 +988,7 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
-	#ifdef OLD_SETTINGS_DIALOG
-
-	std::string buf;
-
-
-	// Default to no setting
-	tLXOptions->tGameInfo.iLives = WRM_UNLIM;
-	tLXOptions->tGameInfo.iKillLimit = -1;
-	tLXOptions->tGameInfo.fTimeLimit = -1;
-	tLXOptions->tGameInfo.iTagLimit = -1;
-	tLXOptions->tGameInfo.fRespawnTime = 2.5;
-	tLXOptions->tGameInfo.bBonusesOn = true;
-	tLXOptions->tGameInfo.bShowBonusName = true;
-
-	// Store the game info into the options structure as well
-
-
-
-	// General
-
-	tLXOptions->tGameInfo.iLoadingTime = cGeneralSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	tLXOptions->tGameInfo.features[FT_GAMESPEED] = Menu_getGameSpeed();
-	
-	cGeneralSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.iLives = atoi(buf);
-	if( tLXOptions->tGameInfo.iLives < 0 )
-		tLXOptions->tGameInfo.iLives = WRM_UNLIM;
-
-	cGeneralSettings.SendMessage(gs_MaxKills, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.iKillLimit = atoi(buf);
-
-	cGeneralSettings.SendMessage(gs_TimeLimit, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.fTimeLimit = atof(buf);
-
-	cGeneralSettings.SendMessage(gs_RespawnTime, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.fRespawnTime = atof(buf);
-
-	tLXOptions->tGameInfo.bForceRandomWeapons = cGeneralSettings.SendMessage( gs_ForceRandomWeapons, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bRespawnGroupTeams = cGeneralSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] = cGeneralSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bSameWeaponsAsHostWorm = cGeneralSettings.SendMessage( gs_SameWeaponsAsHostWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bAllowConnectDuringGame = cGeneralSettings.SendMessage( gs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	
-	tLXOptions->tGameInfo.features[FT_FORCESCREENSHAKING] = cGeneralSettings.SendMessage( gs_ForceScreenShaking, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	
-	// Bonus
-	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.fBonusFreq = atof(buf);
-
-	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_GETTEXT, &buf, 0);
-	if(buf != "")
-		tLXOptions->tGameInfo.fBonusLife = atof(buf);
-
-	tLXOptions->tGameInfo.bBonusesOn = cBonusSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.bShowBonusName = cBonusSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->tGameInfo.fBonusHealthToWeaponChance = float(cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0)) / 100.0f ;
-	
-	#endif
+	// Stub
 }
 
 
@@ -1292,19 +996,6 @@ void Menu_GameSettings_GrabInfo(void)
 // Set the default game settings info
 void Menu_GameSettings_Default(void)
 {
-
-	#ifdef OLD_SETTINGS_DIALOG
-	// General
-    cGeneralSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, 100, 0);
-    cGeneralSettings.SendMessage(gs_Lives, TXS_SETTEXT, "10", 0);
-	cGeneralSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, "", 0);
-	cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, "", 0);
-
-	// Bonus
-    cBonusSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
-    cBonusSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
-
-    #else
     
 	int idx = 0;
 	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
@@ -1331,7 +1022,6 @@ void Menu_GameSettings_Default(void)
     features->Clear();
 	initFeaturesList(features);
     
-    #endif
 }
 
 /*
