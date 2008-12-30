@@ -118,6 +118,10 @@ struct ScriptVarPtr_t
 			default: assert(false);
 		}
 	}
+
+	// These funcs will assert() if you try to call them on Callback varptr
+	std::string toString() const;
+	bool fromString( const std::string & str) const;	// const 'cause we don't change pointer itself, only data it points to
 };
 
 
@@ -157,16 +161,20 @@ public:
 	// Convert "tLXOptions -> iNetworkPort " to "iNetworkPort", not used anywhere
 	static std::string StripClassName( const std::string & c );
 
+	static std::string GetDescription( const std::string & name );
+	static std::string GetLongDescription( const std::string & name );
+
 	// Allows registering vars with daisy-chaining
 	class VarRegisterHelper
 	{
 		friend class CScriptableVars;
 
 		std::map< std::string, ScriptVarPtr_t > & m_vars;	// Reference to CScriptableVars::m_vars
+		std::map< std::string, std::pair< std::string, std::string > > & m_descriptions;	// Reference to CScriptableVars::m_descriptions
 		std::string m_prefix;
 
 		VarRegisterHelper( CScriptableVars * parent, const std::string & prefix ): 
-			m_vars( parent->m_vars ), m_prefix(prefix) {};
+			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_prefix(prefix) {};
 
 		std::string Name( const std::string & c )
 		{
@@ -179,26 +187,26 @@ public:
 
 		operator bool () { return true; };	// To be able to write static expressions
 
-		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false, const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 
-		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0 )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 
-		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0 )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0, const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 
-		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "" )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "", const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 
-		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255) )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 
-		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( v ); return *this; };
+		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c, const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( v ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 		
-		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def )
-			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, &def ); return *this; };
+		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, const std::string & descr = "", const std::string & descrLong = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, &def ); m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); return *this; };
 	};
 
 	static VarRegisterHelper RegisterVars( const std::string & base = "" )
@@ -215,6 +223,7 @@ private:
 
 	static CScriptableVars * m_instance;
 	std::map< std::string, ScriptVarPtr_t > m_vars;	// All in-game variables and callbacks
+	std::map< std::string, std::pair< std::string, std::string > > m_descriptions;	// Description for vars - short and long
 };
 
 #endif

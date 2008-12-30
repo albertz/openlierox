@@ -40,6 +40,32 @@ bool ScriptVar_t::fromString( const std::string & str )
 	return true;
 };
 
+std::string ScriptVarPtr_t::toString() const
+{
+	switch(type) {
+		case SVT_BOOL: return to_string(*b);
+		case SVT_INT: return to_string(*i);
+		case SVT_FLOAT: return to_string(*f);
+		case SVT_STRING: return *s;
+		case SVT_COLOR: return ColToHex(*cl);
+		default: assert(false); return "";
+	}
+};
+
+bool ScriptVarPtr_t::fromString( const std::string & str) const
+{
+	switch(type) {
+		case SVT_BOOL: *b = from_string<bool>(str); break;
+		case SVT_INT: *i = from_string<int>(str); break;
+		case SVT_FLOAT: *f = from_string<float>(str); break;
+		case SVT_STRING: *s = str; break;
+		case SVT_COLOR: *cl = StrToCol(str).get(); break;
+		default: assert(false); return false;
+	}
+	return true;
+};
+
+
 CScriptableVars * CScriptableVars::m_instance = NULL;
 
 CScriptableVars & CScriptableVars::Init()
@@ -61,12 +87,8 @@ void CScriptableVars::DeInit()
 std::string CScriptableVars::StripClassName( const std::string & c )
 {
 	std::string ret(c);
-	if( ret.find(".") != std::string::npos )	// Leave only last part of name
-		ret = ret.substr( ret.find(".") + 1 );
-	if( ret.find("->") != std::string::npos )
-		ret = ret.substr( ret.find("->") + 2 );
-	ret = ret.substr( ret.find_first_not_of(" \t") );	// Strip spaces
-	ret = ret.substr( 0, ret.find_last_not_of(" \t") + 1 );
+	if( ret.rfind(".") != std::string::npos )	// Leave only last part of name
+		ret = ret.substr( ret.rfind(".") + 1 );
 	return ret;
 };
 
@@ -196,4 +218,22 @@ void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::strin
 		std::cout << "WARNING: failed to convert " << str << " into format " << var.type << std::endl;
 }
 
+std::string CScriptableVars::GetDescription( const std::string & name )
+{
+	Init();
+	if( m_instance->m_descriptions.count(name) == 0 )
+		return StripClassName(name);
+	if( m_instance->m_descriptions.find(name)->second.first == "" )
+		return StripClassName(name);
+	return m_instance->m_descriptions.find(name)->second.first;
+};
 
+std::string CScriptableVars::GetLongDescription( const std::string & name )
+{
+	Init();
+	if( m_instance->m_descriptions.count(name) == 0 )
+		return StripClassName(name);
+	if( m_instance->m_descriptions.find(name)->second.second == "" )
+		return StripClassName(name);
+	return m_instance->m_descriptions.find(name)->second.second;
+};

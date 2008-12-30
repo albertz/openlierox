@@ -969,10 +969,19 @@ void Menu_GameSettings(void)
 
 static void initFeaturesList(CListview* l)
 {
-	for( int f = 0; f < featureArrayLen(); f++ ) 
+	int idx = 0;
+	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 	{
-		lv_item_t * item = l->AddItem("feature:" + featureArray[f].name, f, tLX->clNormalLabel); 
-		l->AddSubitem(LVS_TEXT, featureArray[f].humanReadableName + ":", NULL, NULL); 
+		if( it->first.find("GameOptions.GameInfo.") != 0 )
+			continue;
+			
+		if( it->first == "GameOptions.GameInfo.ModName" || 
+			it->first == "GameOptions.GameInfo.LevelName" ||
+			it->first == "GameOptions.GameInfo.GameType" )
+			continue;	// We have nice comboboxes for them, skip them in the list
+		
+		lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
+		l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first) + ":", NULL, NULL); 
 		item->iHeight = 24; // So checkbox / textbox will fit okay
 
 		/*
@@ -982,20 +991,20 @@ static void initFeaturesList(CListview* l)
 		si->sText = cClient->getGameLobby()->features[f->get()].toString();
 		*/
 
-		if( featureArray[f].valueType == SVT_BOOL )
+		if( it->second.type == SVT_BOOL )
 		{
-			CCheckbox * cb = new CCheckbox( tLXOptions->tGameInfo.features[ FeatureIndex(f) ] );
+			CCheckbox * cb = new CCheckbox( * it->second.b );
 			l->AddSubitem(LVS_WIDGET, "", NULL, cb);
 			cb->Create();
-			cb->Setup(f, 0, 0, 20, 20);
+			cb->Setup(idx, 0, 0, 20, 20);
 		}
-		else // if( featureArray[f]->valueType == SVT_INT || featureArray[f]->valueType == SVT_FLOAT || featureArray[f]->valueType == SVT_STRING )
+		else
 		{
 			CTextbox * txt = new CTextbox();
 			l->AddSubitem(LVS_WIDGET, "", NULL, txt);
 			txt->Create();
-			txt->Setup(f, 0, 0, 40, tLX->cFont.GetHeight());
-			txt->setText( tLXOptions->tGameInfo.features[ FeatureIndex(f) ].toString() );
+			txt->Setup(idx, 0, 0, 40, tLX->cFont.GetHeight());
+			txt->setText( it->second.toString() );
 		}
 		// TODO: add slider widget
 	}
@@ -1005,9 +1014,13 @@ static void initFeaturesList(CListview* l)
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
-	for( int f = 0; f < featureArrayLen(); f++ )
+	int idx = 0;
+	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 	{
-		lv_item_t * item = l->getItem(f);
+		if( it->first.find("GameOptions.GameInfo.") != 0 )
+			continue;
+
+		lv_item_t * item = l->getItem(it->first);
 		if( ! item )
 			continue;
 		lv_subitem_t * si = item->tSubitems->tNext;
@@ -1017,17 +1030,17 @@ static void updateFeaturesList(CListview* l)
 		if( ! w )
 			continue;
 			
-		if( featureArray[f].valueType == SVT_BOOL )
+		if( it->second.type == SVT_BOOL )
 		{
 			if( w->getType() != wid_Checkbox )
 				continue;
-			tLXOptions->tGameInfo.features[ FeatureIndex(f) ].b = ((CCheckbox *)w)->getValue();
+			* it->second.b = ((CCheckbox *)w)->getValue();
 		}
 		else
 		{
 			if( w->getType() != wid_Textbox )
 				continue;
-			tLXOptions->tGameInfo.features[ FeatureIndex(f) ].fromString( ((CTextbox *)w)->getText() );
+			it->second.fromString( ((CTextbox *)w)->getText() );
 		}
 		//printf("updateFeaturesList(): feat %s = %s\n", 
 		//			featureArray[f].name.c_str(), tLXOptions->tGameInfo.features[ FeatureIndex(f) ].toString().c_str() );
@@ -1150,9 +1163,9 @@ bool Menu_GameSettings_Frame(void)
 					if( ev->iEventMsg == LV_CHANGED )
 					{
 						CBrowser* featuresLabel = (CBrowser*)cBonusSettings.getWidget(gs_FeaturesListLabel);
-						if(	features->getCurIndex() >= 0 && features->getCurIndex() < featureArrayLen() )
+						if(	features->getCurSIndex() != "" )
 						{
-							featuresLabel->LoadFromString( featureArray[features->getCurIndex()].description );
+							featuresLabel->LoadFromString( CScriptableVars::GetLongDescription( features->getCurSIndex() ) );
 						}
 					}
 					break;
