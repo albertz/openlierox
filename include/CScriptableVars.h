@@ -75,6 +75,7 @@ struct ScriptVar_t
 	}
 	
 	std::string toString() const;
+	bool fromString( const std::string & str);
 };
 
 // Pointer to any in-game var - var should be global or static

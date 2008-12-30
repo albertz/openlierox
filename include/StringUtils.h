@@ -219,6 +219,15 @@ inline std::string to_string(bool val) {
 	if(val) return "true"; else return "false";
 }
 
+template<>
+inline bool from_string<bool>(const std::string& s) {
+	std::string s1(stringtolower(s));
+	TrimSpaces(s1);
+	if( s1 == "true" ) return true;
+	else if( s1 == "false" ) return false;
+	else return ( atoi(s1) != 0 );
+}
+
 inline std::string ftoa(float val, int precision = -1)
 {
 	std::string res = to_string<float>(val);

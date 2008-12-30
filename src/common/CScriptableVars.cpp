@@ -27,6 +27,19 @@ std::string ScriptVar_t::toString() const {
 	}
 }
 
+bool ScriptVar_t::fromString( const std::string & str )
+{
+	switch(type) {
+		case SVT_BOOL: b = from_string<bool>(str); break;
+		case SVT_INT: i = from_string<int>(str); break;
+		case SVT_FLOAT: f = from_string<float>(str); break;
+		case SVT_STRING: s = str; break;
+		case SVT_COLOR: c = StrToCol(str).get(); break;
+		default: assert(false); return false;
+	}
+	return true;
+};
+
 CScriptableVars * CScriptableVars::m_instance = NULL;
 
 CScriptableVars & CScriptableVars::Init()

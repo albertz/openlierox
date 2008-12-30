@@ -37,8 +37,12 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextButton.h"
+#include "DeprecatedGUI/CListview.h"
+#include "DeprecatedGUI/CGuiSkinnedLayout.h"
+#include "DeprecatedGUI/CBrowser.h"
 #include "Sounds.h"
 #include "ProfileSystem.h"
+#include "FeatureList.h"
 
 
 namespace DeprecatedGUI {
@@ -780,7 +784,10 @@ enum {
 	gs_BonusLifeTime,
 	gs_HealthToWeaponChance,
 	gs_HealthChance,
-	gs_WeaponChance
+	gs_WeaponChance,
+	
+	gs_FeaturesList,
+	gs_FeaturesListLabel,
 
 };
 
@@ -801,6 +808,8 @@ static float Menu_getGameSpeed() {
 	else
 		return gs;
 }
+
+static void initFeaturesList(CListview* l);
 
 ///////////////////
 // Initialize the game settings
@@ -915,19 +924,19 @@ void Menu_GameSettings(void)
 	cBonusSettings.Add( new CTextbox(),										gs_BonusSpawnTime,	300,227, 30,tLX->cFont.GetHeight());
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusFreq), 0);
 
-	cBonusSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,			140,260, 0, 0);
-	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bShowBonusName),	gs_ShowBonusNames, 300,257,17,17);
+	cBonusSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,			350,200, 0, 0);
+	cBonusSettings.Add( new CCheckbox(tLXOptions->tGameInfo.bShowBonusName),	gs_ShowBonusNames, 470,197,17,17);
 
-	cBonusSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        140,290, 0, 0);
-	cBonusSettings.Add( new CTextbox(),										gs_BonusLifeTime,	300,287, 30,tLX->cFont.GetHeight());
+	cBonusSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        350,230, 0, 0);
+	cBonusSettings.Add( new CTextbox(),										gs_BonusLifeTime,	470,227, 30,tLX->cFont.GetHeight());
 	cBonusSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameInfo.fBonusLife), 0);
 
-	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),				-1,			290,320, 0, 0);
-	cBonusSettings.Add( new CLabel("Health", tLX->clNormalLabel),				-1,			146,340, 0, 0);
-	cBonusSettings.Add( new CLabel("Weapons", tLX->clNormalLabel),				-1,			443,340, 0, 0);
-	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_HealthChance,		153,360, 0, 0);
-	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_WeaponChance,		453,360, 0, 0);
-	cBonusSettings.Add( new CSlider(100),									gs_HealthToWeaponChance,	188,343, 250,12);
+	cBonusSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),				-1,			290,320-70, 0, 0);
+	cBonusSettings.Add( new CLabel("Health", tLX->clNormalLabel),				-1,			146,340-70, 0, 0);
+	cBonusSettings.Add( new CLabel("Weapons", tLX->clNormalLabel),				-1,			443,340-70, 0, 0);
+	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_HealthChance,		153,360-70, 0, 0);
+	cBonusSettings.Add( new CLabel("", tLX->clNormalLabel),			gs_WeaponChance,		453,360-70, 0, 0);
+	cBonusSettings.Add( new CSlider(100),									gs_HealthToWeaponChance,	188,343-70, 250,12);
 	cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_SETVALUE, int(tLXOptions->tGameInfo.fBonusHealthToWeaponChance*100.0f), 0);
 
 
@@ -936,8 +945,93 @@ void Menu_GameSettings(void)
 	cBonusSettings.SendMessage(gs_HealthChance, LBS_SETTEXT, buf, 0);
 	buf = itoa(bonusChance) + "%";
 	cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
+	
+	CListview* features = new CListview();
+	cBonusSettings.Add( features, gs_FeaturesList,	140, 310, 360, 90);
+
+	//details->Setup(0, x + 15, y+5, w - 30, h - 25); // is this done already in .Add(...) above?
+	features->setDrawBorder(true);
+	features->setRedrawMenu(false);
+	features->setShowSelect(false);
+	features->setOldStyle(true);
+	features->subItemsAreAligned() = true;
+	
+	features->AddColumn("", tLX->cFont.GetWidth("Projectiles goes through team members:") + 30); // Width of the widest item in this column + some space
+	//features->AddColumn("", features->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
+	
+	initFeaturesList(features);
+
+	// TODO: it's overkill to use CBrowser for that
+	cBonusSettings.Add( new CBrowser(), gs_FeaturesListLabel, 140, 410, 360, 20);
+}
+
+// Features listview
+
+static void initFeaturesList(CListview* l)
+{
+	for( int f = 0; f < featureArrayLen(); f++ ) 
+	{
+		lv_item_t * item = l->AddItem("feature:" + featureArray[f].name, f, tLX->clNormalLabel); 
+		l->AddSubitem(LVS_TEXT, featureArray[f].humanReadableName + ":", NULL, NULL); 
+		item->iHeight = 24; // So checkbox / textbox will fit okay
+
+		/*
+		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		si = item->tSubitems->tNext;
+		si->iColour = defaultColor;
+		si->sText = cClient->getGameLobby()->features[f->get()].toString();
+		*/
+
+		if( featureArray[f].valueType == SVT_BOOL )
+		{
+			CCheckbox * cb = new CCheckbox( tLXOptions->tGameInfo.features[ FeatureIndex(f) ] );
+			l->AddSubitem(LVS_WIDGET, "", NULL, cb);
+			cb->Create();
+			cb->Setup(f, 0, 0, 20, 20);
+		}
+		else // if( featureArray[f]->valueType == SVT_INT || featureArray[f]->valueType == SVT_FLOAT || featureArray[f]->valueType == SVT_STRING )
+		{
+			CTextbox * txt = new CTextbox();
+			l->AddSubitem(LVS_WIDGET, "", NULL, txt);
+			txt->Create();
+			txt->Setup(f, 0, 0, 40, tLX->cFont.GetHeight());
+			txt->setText( tLXOptions->tGameInfo.features[ FeatureIndex(f) ].toString() );
+		}
+		// TODO: add slider widget
+	}
+}
 
 
+// Copy values from listview to features list
+static void updateFeaturesList(CListview* l) 
+{
+	for( int f = 0; f < featureArrayLen(); f++ )
+	{
+		lv_item_t * item = l->getItem(f);
+		if( ! item )
+			continue;
+		lv_subitem_t * si = item->tSubitems->tNext;
+		if( ! si )
+			continue;
+		CWidget * w = si->tWidget;
+		if( ! w )
+			continue;
+			
+		if( featureArray[f].valueType == SVT_BOOL )
+		{
+			if( w->getType() != wid_Checkbox )
+				continue;
+			tLXOptions->tGameInfo.features[ FeatureIndex(f) ].b = ((CCheckbox *)w)->getValue();
+		}
+		else
+		{
+			if( w->getType() != wid_Textbox )
+				continue;
+			tLXOptions->tGameInfo.features[ FeatureIndex(f) ].fromString( ((CTextbox *)w)->getText() );
+		}
+		//printf("updateFeaturesList(): feat %s = %s\n", 
+		//			featureArray[f].name.c_str(), tLXOptions->tGameInfo.features[ FeatureIndex(f) ].toString().c_str() );
+	}
 }
 
 /////////////
@@ -1031,18 +1125,36 @@ bool Menu_GameSettings_Frame(void)
 	if (GameTabPane == gs_BonusTab)
 	{
 		cBonusSettings.Draw(VideoPostProcessor::videoSurface());
-		DrawRect (VideoPostProcessor::videoSurface(),140,337,500,377,tLX->clBoxLight);
+		DrawRect (VideoPostProcessor::videoSurface(),140,337-70,500,377-70,tLX->clBoxLight);
 		ev = cBonusSettings.Process();
 		if (ev)
 		{
 			switch (ev->iControlID)
 			{
 				case gs_HealthToWeaponChance:
-					int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
-					std::string buf = itoa(100-bonusChance) + "%";
-					cBonusSettings.SendMessage(gs_HealthChance, LBS_SETTEXT, buf, 0);
-					buf = itoa(bonusChance) + "%";
-					cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
+					{
+						int bonusChance = cBonusSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0);
+						std::string buf = itoa(100-bonusChance) + "%";
+						cBonusSettings.SendMessage(gs_HealthChance, LBS_SETTEXT, buf, 0);
+						buf = itoa(bonusChance) + "%";
+						cBonusSettings.SendMessage(gs_WeaponChance, LBS_SETTEXT, buf, 0);
+					}
+					break;
+					
+				case gs_FeaturesList:
+					CListview* features = (CListview*)ev->cWidget;
+					if( ev->iEventMsg == LV_WIDGETEVENT )
+					{
+						updateFeaturesList(features);
+					}
+					if( ev->iEventMsg == LV_CHANGED )
+					{
+						CBrowser* featuresLabel = (CBrowser*)cBonusSettings.getWidget(gs_FeaturesListLabel);
+						if(	features->getCurIndex() >= 0 && features->getCurIndex() < featureArrayLen() )
+						{
+							featuresLabel->LoadFromString( featureArray[features->getCurIndex()].description );
+						}
+					}
 					break;
 			}
 		}
@@ -1148,9 +1260,6 @@ void Menu_GameSettings_Default(void)
     cBonusSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
     cBonusSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
 }
-
-
-
 
 /*
 =======================
