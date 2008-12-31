@@ -996,7 +996,7 @@ bool Menu_GameSettings_Frame(void)
 					{
 						updateFeaturesList(features);
 					}
-					if( ev->iEventMsg == LV_CHANGED )
+					if( ev->iEventMsg == LV_CHANGED || ev->iEventMsg == LV_WIDGETEVENT )
 					{
 						CBrowser* featuresLabel = (CBrowser*)cGeneralSettings.getWidget(gs_FeaturesListLabel);
 						if(	features->getCurSIndex() != "" )
