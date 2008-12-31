@@ -164,6 +164,9 @@ public:
 	static std::string GetDescription( const std::string & name );
 	static std::string GetLongDescription( const std::string & name );
 
+	static bool GetMinMaxValues( const std::string & name, int * minVal, int * maxVal );
+	static bool GetMinMaxValues( const std::string & name, float * minVal, float * maxVal );
+
 	// Allows registering vars with daisy-chaining
 	class VarRegisterHelper
 	{

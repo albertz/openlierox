@@ -40,12 +40,20 @@ enum {
 class CSlider : public CWidget {
 public:
 	// Constructor
-	CSlider(int max, int min = 0) {
+	CSlider(int max, int min = 0, int val = 0, bool showText = false, int textPosX = 0, int textPosY = 0, 
+				Uint32 textColor = 0, float valueScale = 1.0f, const std::string & appendText = "" ) {
 		Create();
+		iType = wid_Slider;
 		iMax = max;
 		iMin = min;
-		iType = wid_Slider;
+		iValue = val;
 		iVar = NULL;
+		bShowText = showText;
+		iTextPosX = textPosX;
+		iTextPosY = textPosY;
+		iTextColor = textColor;
+		fValueScale = valueScale;
+		sAppendText = appendText;
 	}
 
 
@@ -56,12 +64,18 @@ private:
 	int		iMax;
 	int		iMin;
 	int		*iVar;
+	bool	bShowText;
+	int		iTextPosX;
+	int		iTextPosY;
+	Uint32	iTextColor;
+	float	fValueScale;
+	std::string sAppendText;
 	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
 
-	void	Create(void) { iValue=0; }
+	void	Create(void) { }
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1

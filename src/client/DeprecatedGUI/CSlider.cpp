@@ -38,10 +38,16 @@ void CSlider::Draw(SDL_Surface * bmpDest)
 	// Draw the button
 	int x = iX+5;
 	int w = iWidth - 10;
-	int val = (int)( ((float)w/(float)iMax) * (float)iValue ) + x;
+	int val = (int)( ((float)w/(float)(iMax - iMin)) * (float)iValue ) + x;
 
 	int y = (iY+iHeight/2) - gfxGUI.bmpSliderBut.get()->h/2;
 	DrawImage(bmpDest,gfxGUI.bmpSliderBut,val-3,y);
+	
+	if( !bShowText )
+		return;
+	
+	std::string sText = ftoa( iValue * fValueScale ) + sAppendText;
+	tLX->cFont.Draw(bmpDest, iX + iTextPosX, iY + iTextPosY, iTextColor, sText);
 }
 
 
@@ -52,16 +58,16 @@ int CSlider::MouseDown(mouse_t *tMouse, int nDown)
 	int x = iX+5;
 	int w = iWidth - 10;
 
-	int val = (int)( (float)iMax / ( (float)w / (float)(tMouse->X-x)) );
-	iValue = val;
+	int val = (int)( (float)(iMax - iMin) / ( (float)w / (float)(tMouse->X-x)) );
+	iValue = val + iMin;
 
 	if(tMouse->X > x+w)
 		iValue = iMax;
 	if(tMouse->X < x)
-		iValue = 0;
+		iValue = iMin;
 
 	// Clamp the value
-	iValue = MAX(0,iValue);
+	iValue = MAX(iMin,iValue);
 	iValue = MIN(iMax,iValue);
 
 	return SLD_CHANGE;

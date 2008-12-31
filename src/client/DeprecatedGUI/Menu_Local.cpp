@@ -803,7 +803,7 @@ void Menu_GameSettings(void)
 	features->setOldStyle(true);
 	features->subItemsAreAligned() = true;
 	
-	features->AddColumn("", tLX->cFont.GetWidth("Projectiles goes through team members:") + 30); // Width of the widest item in this column + some space
+	features->AddColumn("", tLX->cFont.GetWidth("Suicide/teamkill decreases score:") + 20); // Width of the widest item in this column + some space
 	//features->AddColumn("", features->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
 	
 	initFeaturesList(features);
@@ -841,11 +841,34 @@ static void initFeaturesList(CListview* l)
 		}
 		else
 		{
-			CTextbox * txt = new CTextbox();
-			l->AddSubitem(LVS_WIDGET, "", NULL, txt);
-			txt->Create();
-			txt->Setup(idx, 0, 0, 60, tLX->cFont.GetHeight());
-			txt->setText( it->second.toString() );
+			int imin=0, imax=0;
+			float fmin=0.0f, fmax=0.0f;
+			if( CScriptableVars::GetMinMaxValues( it->first, &imin, &imax ) ||
+				CScriptableVars::GetMinMaxValues( it->first, &fmin, &fmax ) )
+			{
+				float fScale = 1.0f;
+				int iVal = * it->second.i;
+				if( it->second.type == SVT_FLOAT )
+				{
+					// Adding some small number to round it up correctly
+					imin = fmin*10.0f + 0.00001f;	// Scale them up
+					imax = fmax*10.0f + 0.00001f;
+					iVal = (*it->second.f) * 10.0f + 0.00001f;
+					fScale = 0.1f;
+				}
+				CSlider * sld = new CSlider( imax, imin, iVal, true, 97, 0, tLX->clNormalLabel, fScale );
+				l->AddSubitem(LVS_WIDGET, "", NULL, sld);
+				sld->Create();
+				sld->Setup(idx, 0, 0, 90, tLX->cFont.GetHeight());
+			}
+			else
+			{
+				CTextbox * txt = new CTextbox();
+				l->AddSubitem(LVS_WIDGET, "", NULL, txt);
+				txt->Create();
+				txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
+				txt->setText( it->second.toString() );
+			}
 		}
 		// TODO: add slider widget
 	}
@@ -873,15 +896,25 @@ static void updateFeaturesList(CListview* l)
 			
 		if( it->second.type == SVT_BOOL )
 		{
-			if( w->getType() != wid_Checkbox )
-				continue;
-			* it->second.b = ((CCheckbox *)w)->getValue();
+			if( w->getType() == wid_Checkbox )
+			{
+				* it->second.b = ((CCheckbox *)w)->getValue();
+			};
 		}
 		else
 		{
-			if( w->getType() != wid_Textbox )
-				continue;
-			it->second.fromString( ((CTextbox *)w)->getText() );
+			if( w->getType() == wid_Textbox )
+			{
+				it->second.fromString( ((CTextbox *)w)->getText() );
+			};
+			if( w->getType() == wid_Slider )
+			{
+				int iVal = ((CSlider *)w)->getValue();
+				if( it->second.type == SVT_INT )
+					* it->second.i = iVal;
+				if( it->second.type == SVT_FLOAT )
+					* it->second.f = iVal / 10.0f;
+			};
 		}
 	}
 }

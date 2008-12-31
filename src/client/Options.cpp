@@ -160,10 +160,10 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
 		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "Bonus spawn time, in seconds" )
 		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds" )
-		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds" )
+		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", 0.0, 10.0 )
 		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to it's team" )
 		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false, "Group team score", "Kill count is the same for all worms in team" )
-		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawning", "Your weapon ammo is emptied when you respawn" )
+		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawn", "Your weapon ammo is emptied when you respawn" )
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning weapon bonus instead of health bonus", 0.0f, 1.0f )
 		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons" )
 		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select same weapons as host worm" )

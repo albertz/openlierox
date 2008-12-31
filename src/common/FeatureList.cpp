@@ -16,7 +16,7 @@ using namespace std;
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {
-	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7), 0.1f, 10.0f ),
+	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7), 0.1f, 5.0f ),
 	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
 	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", false, false, OLXBetaVersion(9) ),
 	Feature("TeamInjure", "Don't damage team members", "If disabled, your bullets and projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),

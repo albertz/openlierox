@@ -237,3 +237,29 @@ std::string CScriptableVars::GetLongDescription( const std::string & name )
 		return StripClassName(name);
 	return m_instance->m_descriptions.find(name)->second.second;
 };
+
+bool CScriptableVars::GetMinMaxValues( const std::string & name, int * minVal, int * maxVal )
+{
+	Init();
+	if( m_instance->m_minmax.count(name) == 0 )
+		return false;
+	if( m_instance->m_vars.find(name)->second.type != SVT_INT || 
+		m_instance->m_minmax.find(name)->second.first == m_instance->m_minmax.find(name)->second.second )
+		return false;
+	*minVal = m_instance->m_minmax.find(name)->second.first.i;
+	*maxVal = m_instance->m_minmax.find(name)->second.second.i;
+	return true;
+};
+
+bool CScriptableVars::GetMinMaxValues( const std::string & name, float * minVal, float * maxVal )
+{
+	Init();
+	if( m_instance->m_minmax.count(name) == 0 )
+		return false;
+	if( m_instance->m_vars.find(name)->second.type != SVT_FLOAT || 
+		m_instance->m_minmax.find(name)->second.first == m_instance->m_minmax.find(name)->second.second )
+		return false;
+	*minVal = m_instance->m_minmax.find(name)->second.first.f;
+	*maxVal = m_instance->m_minmax.find(name)->second.second.f;
+	return true;
+};
