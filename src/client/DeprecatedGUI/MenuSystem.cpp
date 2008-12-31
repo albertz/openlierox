@@ -1617,17 +1617,23 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 	bool update = false;
 
 	// Erase NAT servers having the same address
-	if (defaultServer->szAddress.find(':'))  {
+	if (defaultServer->szAddress.find(':') != std::string::npos)  {
 		std::string no_port = defaultServer->szAddress.substr(0, defaultServer->szAddress.find(':'));
 		std::list<std::string> same_ips;
 		for (std::set<std::string>::iterator it = tServersBehindNat.begin(); it != tServersBehindNat.end(); it++)
-			if (it->find(no_port) != std::string::npos)
+			if (it->find(no_port) != std::string::npos )
+			{
 				same_ips.push_back(*it);
+				tServersBehindNat.erase(it);
+				it = tServersBehindNat.begin();
+			}
 
 
 		// Remove the NAT servers
 		for (std::list<std::string>::iterator it = same_ips.begin(); it != same_ips.end(); ++it)  {
 			server_t *s = Menu_SvrList_FindServerStr(*it);
+			// TODO: this is always ignored, since s->bgotPong is always true
+			// TODO: cleanup this code
 			if (s->bgotPong || s->bgotQuery || s->bManual && *it != defaultServer->szAddress)
 				continue;
 			printf("Removing duplicate server: " + s->szName + " (" + *it + ")\n");
@@ -1635,7 +1641,12 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 			update = true;
 		}
 	}
-
+	else
+	{
+		tServersBehindNat.erase(defaultServer->szAddress);
+		tServersBehindNat.erase(defaultServer->szAddress + ":23400" );
+	}
+	
 	return update;
 }
 
@@ -1667,7 +1678,6 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				svr->nQueries = 0;
 
 				Menu_SvrList_RemoveDuplicateNATServers(svr);
-
 
 			} else {
 
