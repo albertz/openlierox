@@ -288,24 +288,30 @@ static void sigpipe_handler(int i) {
 
 
 
-typedef std::map<std::string, NLaddress> dnsCacheT;
+typedef std::map<std::string, std::pair< NLaddress, float > > dnsCacheT; // Second parameter is expiration time of DNS record
 ThreadVar<dnsCacheT>* dnsCache = NULL;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
+void AddToDnsCache(const std::string& name, const NetworkAddr& addr, float expireTime ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	dns.get()[name] = *getNLaddr(addr);
+	// We don't have any
+	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->fCurTime + expireTime );
 }
 
-static void AddToDnsCache(const std::string& name, const NLaddress& addr) {
+static void AddToDnsCache(const std::string& name, const NLaddress& addr, float expireTime = 3600.0f ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	dns.get()[name] = addr;
+	dns.get()[name] = std::make_pair( addr, tLX->fCurTime + expireTime );
 }
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
-	ThreadVar<dnsCacheT>::Reader dns( *dnsCache );
-	dnsCacheT::const_iterator it = dns.get().find(name);
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	dnsCacheT::iterator it = dns.get().find(name);
 	if(it != dns.get().end()) {
-		*getNLaddr(addr) = it->second;
+		if( it->second.second < tLX->fCurTime )
+		{
+			dns.get().erase(it);
+			return false;
+		}
+		*getNLaddr(addr) = it->second.first;
 		return true;
 	} else
 		return false;
@@ -873,6 +879,7 @@ static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
 
     if(nlGetAddrFromName(address->name.c_str(), address->address.get())) {
 		address->address.get()->valid = NL_TRUE;
+		// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
 		AddToDnsCache(address->name, *address->address.get());
 	}
 		// TODO: handle failures here? there should be, but we only have the valid field
