@@ -26,6 +26,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "AuxLib.h"
 #include "IRC.h"
+#include "DedicatedControl.h"
 
 
 using namespace std;
@@ -141,37 +142,6 @@ void Menu_Net_GotoHostLobby(void)
 	Menu_Net_HostGotoLobby();
 
 	SetQuitEngineFlag("Menu_Net_GotoHostLobby");
-	iSkipStart = true;
-}
-
-
-///////////////////
-// Go to the join lobby
-void Menu_Net_GotoJoinLobby(void)
-{
-    printf("Menu_Net_GotoJoinLobby()\n");
-
-	tMenu->bMenuRunning = true;
-
-	tMenu->iMenuType = MNU_NETWORK;
-	iNetMode = net_join;
-
-	// Create the buffer
-	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
-	Menu_RedrawMouse(true);
-
-	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
-	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
-	cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
-	cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
-	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
-
-	Menu_Net_JoinGotoLobby();
-
-	SetQuitEngineFlag("Menu_Net_GotoJoinLobby");
 	iSkipStart = true;
 }
 
@@ -363,3 +333,43 @@ void Menu_NetShutdown(void)
 }
 
 }; // namespace DeprecatedGUI
+
+
+///////////////////
+// Go to the join lobby
+void GotoJoinLobby(void)
+{
+    printf("GotoJoinLobby()\n");
+	
+	using namespace DeprecatedGUI;
+	
+	tMenu->bMenuRunning = true;
+	
+	tMenu->iMenuType = MNU_NETWORK;
+	iNetMode = net_join;
+	
+	if(!bDedicated) {
+		
+		// Create the buffer
+		DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+		if (tMenu->tFrontendInfo.bPageBoxes)
+			Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
+		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
+		Menu_RedrawMouse(true);
+		
+		cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
+		cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
+		cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
+		cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
+		//cNetButtons[4].Setup(4, 460, 110, 50, 15);
+		
+		Menu_Net_JoinGotoLobby();
+	} else {
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->BackToClientLobby_Signal();
+	}
+	
+	SetQuitEngineFlag("GotoJoinLobby");
+	iSkipStart = true;
+}
+

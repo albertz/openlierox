@@ -229,7 +229,7 @@ void CWorm::Unprepare() {
 	setTagTime(0);
 	
 	if(m_inputHandler) {
-		if(bLocal) {
+		if(!bLocal) {
 			cout << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; cout.flush();
 			cout << m_inputHandler->name() << endl;
 		}

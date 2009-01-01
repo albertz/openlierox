@@ -1208,6 +1208,29 @@ void CClient::SendPackets(void)
 	bsUnreliable.Clear();
 }
 
+bool JoinServer(const std::string& addr, const std::string& name, const std::string& player) {
+	//tGameInfo.iNumPlayers = 1;
+		
+	if(!cClient->Initialize())
+		return false;
+	
+	cClient->setNumWorms(0);
+	// Add the player to the list
+	profile_t *ply = FindProfile(player);
+	if(ply) {
+		cClient->getLocalWormProfiles()[0] = ply;
+		cClient->setNumWorms(1);
+	}
+	
+	cClient->setServerName(name);
+	
+	tLX->iGameType = GME_JOIN;	
+	cClient->Connect(addr);
+	
+	return true;
+}
+
+
 
 ///////////////////
 // Start a connection with the server
@@ -1263,6 +1286,11 @@ void CClient::Connect(const std::string& address)
 		Connecting(true);
 	}
 }
+
+void CClient::Reconnect() {
+	Connect(strServerAddr);	
+}
+
 
 /////////////////////
 // Connecting to a server behind a NAT

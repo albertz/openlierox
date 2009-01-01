@@ -999,7 +999,7 @@ void GameServer::gotoLobby(void)
 		UpdateWorms();
 
 	if( DedicatedControl::Get() )
-		DedicatedControl::Get()->BackToLobby_Signal();
+		DedicatedControl::Get()->BackToServerLobby_Signal();
 
 	// Goto the host lobby
 	DeprecatedGUI::Menu_Net_GotoHostLobby();

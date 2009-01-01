@@ -137,8 +137,6 @@ bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 
 	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	cm_Cancel, 	25, 440, 75,15);
 
-	cClient->Connect(sJoinAddress);
-
     Menu_redrawBufferRect(0, 0, 640, 480);
 
 	return true;
@@ -547,7 +545,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 
 ///////////////////
 // Go straight back to the join lobby
-// TODO: please comment the difference between Menu_Net_JoinGotoLobby and Menu_Net_GotoJoinLobby
+// TODO: please comment the difference between Menu_Net_JoinGotoLobby and GotoJoinLobby
 void Menu_Net_JoinGotoLobby(void)
 {
     //Menu_redrawBufferRect(0, 0, 640, 480);

@@ -47,6 +47,9 @@ class CClientNetEngine;
 class CBonus;
 class profile_t;
 
+// TODO: this is just a small helper for now; some of these parts should just move into CClient::Connect
+bool JoinServer(const std::string& addr, const std::string& name, const std::string& player);
+
 
 // Chatbox line
 class chat_line_t { public:
@@ -488,6 +491,7 @@ public:
 	void		setNetEngineFromServerVersion();
 
 	void		Connect(const std::string& address);
+	void		Reconnect();
 	void		Connecting(bool force = false);
 	void		ConnectingBehindNAT();
 	void		Disconnect();

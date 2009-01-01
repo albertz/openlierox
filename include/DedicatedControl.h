@@ -23,7 +23,8 @@ public:
 	static bool Init(); static void Uninit();
 	static DedicatedControl* Get();
 	
-	void BackToLobby_Signal();
+	void BackToServerLobby_Signal();
+	void BackToClientLobby_Signal();
 	void GameLoopStart_Signal();
 	void GameLoopEnd_Signal();
 	void NewWorm_Signal(CWorm* w);

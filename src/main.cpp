@@ -408,6 +408,7 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-dedicated") == 0 ) {
             bDedicated = true;
 			bDisableSound = true;
+			// this setting will be temporarly because we don't save options at end in dedicated mode
             tLXOptions->bSoundOn = false;
         } else
 

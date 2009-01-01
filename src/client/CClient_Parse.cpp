@@ -1998,9 +1998,8 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 		bs.writeByte(0);
 		client->cNetChan->AddReliablePacketToSend(bs);
 
-
 		// Goto the join lobby
-		DeprecatedGUI::Menu_Net_GotoJoinLobby();
+		GotoJoinLobby();
 	}
 
 	client->ShutdownLog();

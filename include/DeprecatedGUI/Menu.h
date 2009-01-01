@@ -31,6 +31,9 @@
 #include "CWormSkin.h"
 #include "CWorm.h"
 
+void GotoJoinLobby();
+
+
 namespace DeprecatedGUI {
 
 enum {
@@ -474,7 +477,6 @@ void	Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 // Main net
 bool	Menu_NetInitialize(void);
 void	Menu_Net_GotoHostLobby(void);
-void	Menu_Net_GotoJoinLobby(void);
 void	Menu_NetFrame(void);
 void	Menu_NetShutdown(void);
 

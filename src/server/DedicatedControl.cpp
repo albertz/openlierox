@@ -134,7 +134,6 @@ static DedicatedControl* dedicatedControlInstance = NULL;
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
 
 bool DedicatedControl::Init() {
-
 	dedicatedControlInstance = new DedicatedControl();
 	return dedicatedControlInstance->Init_priv();
 }
@@ -243,10 +242,13 @@ struct DedIntern {
 
 	enum State {
 		S_INACTIVE, // server was not started
-		S_LOBBY, // in lobby
-		S_PREPARING, // in game: just started, will go to S_WEAPONS
-		S_WEAPONS, // in game: in weapon selection
-		S_PLAYING // in game: playing
+		S_SVRLOBBY, // in lobby
+		S_SVRPREPARING, // in game: just started, will go to S_SVRWEAPONS
+		S_SVRWEAPONS, // in game: in weapon selection
+		S_SVRPLAYING, // in game: playing
+		S_CLICONNECTING, // client game: connecting right now
+		S_CLILOBBY,
+		S_CLIPLAYING
 		};
 	State state;
 
@@ -313,7 +315,7 @@ struct DedIntern {
 				// TODO: this is really hacky, but currently there is no better way to do so
 				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
 				//cClient->ReinitLocalWorms();
-				cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+				cClient->Reconnect();
 				
 				return;
 			}
@@ -675,7 +677,12 @@ struct DedIntern {
 		Sig_WormSkin(w);
 	}
 
-
+	void Cmd_Connect(const std::string& params) {
+		JoinServer(params, params, "");
+		Sig_Connecting(params);
+	}
+	
+	
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
 		if(cmd == "") return;
@@ -730,6 +737,9 @@ struct DedIntern {
 			Cmd_GetWormPing(params);
 		else if(cmd == "getwormskin")
 			Cmd_GetWormSkin(params);
+		
+		else if(cmd == "connect")
+			Cmd_Connect(params);
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
@@ -738,24 +748,33 @@ struct DedIntern {
 	// ----------- signals --------------
 
 	// Keep up with how THIS recieves signals - "params" are split by space, use same when sending.
-	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }
-	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PREPARING; }
+	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_SVRLOBBY; }
+	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_SVRPREPARING; }
 	void Sig_GameLoopEnd() {
 		pipe.in() << "gameloopend" << endl;
-		if(state != S_LOBBY) // this is because of the current game logic, it will end the game
-								 // loop and then return to the lobby but only in the case if we got a
-								 // BackToLobby-signal before; if we didn't get such a signal and
-								 // the gameloop was ended, that means that the game was stopped
-								 // completely
+		if(state != S_SVRLOBBY && state != S_CLILOBBY)
+			// This is because of the current game logic: It will end the game
+			// loop and then return to the lobby but only in the case if we got a
+			// BackToLobby-signal before; if we didn't get such a signal and
+			// the gameloop was ended, that means that the game was stopped
+			// completely.
 			state = S_INACTIVE;
 	}
-	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS; }
-	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
-	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
+	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_SVRWEAPONS; }
+	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_SVRPLAYING; }
+	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_SVRLOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_INACTIVE; }
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_INACTIVE; }
 
+	void Sig_Connecting(const std::string& addr) { pipe.in() << "connecting " << addr << endl; state = S_CLICONNECTING; }
+	void Sig_ConnectError(const std::string& err) { pipe.in() << "connecterror " << err << endl; state = S_INACTIVE; }
+	void Sig_Connected() { pipe.in() << "connected" << endl; state = S_CLILOBBY; }
+	void Sig_ClientError() { pipe.in() << "clienterror" << endl; state = S_INACTIVE; }
+	void Sig_ClientConnectionError(const std::string& err) { pipe.in() << "connectionerror " << err << endl; state = S_INACTIVE; }
+	void Sig_ClientGameStarted() { pipe.in() << "clientgamestarted" << endl; state = S_CLIPLAYING; }
+	void Sig_ClientGotoLobby() { pipe.in() << "clientbacktolobby" << endl; state = S_CLILOBBY; }
+	
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
@@ -785,7 +804,7 @@ struct DedIntern {
 	// ----------------------------------
 	// ---------- frame handlers --------
 
-	void Frame_Lobby() {
+	void Frame_ServerLobby() {
 		// Process the server & client frames
 		cServer->Frame();
 		cClient->Frame();
@@ -795,6 +814,53 @@ struct DedIntern {
 		// we don't have to process server/client frames here as it is done already by the main loop
 	}
 
+	void Frame_ClientConnecting() {
+		cClient->Frame();
+
+		// are we connected?
+		if(cClient->getStatus() == NET_CONNECTED) {
+			Sig_Connected();
+			return;
+		}
+		
+		// error?
+		if(cClient->getBadConnection()) {
+			cout << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
+			Sig_ConnectError(cClient->getBadConnectionMsg());
+			cClient->Shutdown();
+			return;
+		}
+	}
+	
+	void Frame_ClientLobby() {
+		// Process the client
+		cClient->Frame();
+		
+		// If there is a client error, leave
+		if(cClient->getClientError()) {
+			Sig_ClientError();
+			return;
+		}
+		
+		// If we have started, leave the frontend
+		if(cClient->getGameReady()) {			
+			// Leave the frontend
+			*DeprecatedGUI::bGame = true;
+			DeprecatedGUI::tMenu->bMenuRunning = false;
+			tLX->iGameType = GME_JOIN;
+			Sig_ClientGameStarted();
+			return;
+		}
+		
+		
+		// Check if the communication link between us & server is still ok
+		if(cClient->getServerError()) {
+			cout << "Client connection error: " << cClient->getServerErrorMsg() << endl;
+			Sig_ClientConnectionError(cClient->getServerErrorMsg());
+			return;
+		}		
+	}
+	
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
 		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
@@ -808,9 +874,12 @@ struct DedIntern {
 		SDL_mutexV(pipeOutputMutex);
 
 		switch(state) {
-		case S_LOBBY: Frame_Lobby(); break;
-		case S_PLAYING: Frame_Playing(); break;
-		default: break;
+			case S_SVRLOBBY: Frame_ServerLobby(); break;
+			case S_SVRPLAYING: Frame_Playing(); break;
+			case S_CLICONNECTING: Frame_ClientConnecting(); break;
+			case S_CLILOBBY: Frame_ClientLobby(); break;
+			case S_CLIPLAYING: Frame_Playing(); break;			
+			default: break;
 		}
 	}
 };
@@ -822,102 +891,106 @@ bool DedicatedControl::Init_priv() {
 	const std::string scriptfn_rel = tLXOptions->sDedicatedScript;
 
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
-	if(!IsFileAvailable(scriptfn, true)) {
-		printf("ERROR: %s not found\n", scriptfn_rel.c_str());
-		return false;
-	}
 	std::string command = scriptfn;
 	std::vector<std::string> commandArgs( 1, command );
+	if(scriptfn_rel != "/dev/null") {
+		if(!IsFileAvailable(scriptfn, true)) {
+			cout << "ERROR: " << scriptfn << " not found" << endl;
+			return false;
+		}
 
-	#ifdef WIN32
-	// Determine what interpreter to run for this script
-	// Interpreter should be with full path specified, or it won't run correctly on Windows
-	// so we'll read it's path from Windows registry - executing Windows shell failed last time
-	FILE * ff = OpenGameFile(scriptfn, "r");
-	char t[128];
-	fgets( t, sizeof(t), ff );
-	fclose(ff);
-	std::string cmdPathRegKey = "";
-	std::string cmdPathRegValue = "";
-	if( std::string(t).find("python") != std::string::npos )
-	{
-		command = "python.exe";
-		commandArgs.clear();
-		commandArgs.push_back(command);
-		commandArgs.push_back("-u");
-		commandArgs.push_back(scriptfn);
-		cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
-	}
-	else if( std::string(t).find("bash") != std::string::npos )
-	{
-		command = "bash.exe";
-		commandArgs.clear();
-		commandArgs.push_back(command);
-		//commandArgs.push_back("-l");	// Not needed for Cygwin
-		commandArgs.push_back("-c");
-		commandArgs.push_back(scriptfn);
-		cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
-		cmdPathRegValue = "native";
-	}
-	else if( std::string(t).find("php") != std::string::npos )
-	{
-		command = "php.exe";
-		commandArgs.clear();
-		commandArgs.push_back(command);
-		commandArgs.push_back("-f");
-		commandArgs.push_back(scriptfn);
-		cmdPathRegKey = "SOFTWARE\\PHP";
-		cmdPathRegValue = "InstallDir";
-	}
-	else
-	{
-		printf("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
-		return false;
-	}
-
-	if( cmdPathRegKey != "" )
-	{
-		HKEY hKey;
-		LONG returnStatus;
-		DWORD dwType=REG_SZ;
-		char lszCmdPath[256]="";
-		DWORD dwSize=255;
-		returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
-		if (returnStatus != ERROR_SUCCESS)
+		#ifdef WIN32
+		// Determine what interpreter to run for this script
+		// Interpreter should be with full path specified, or it won't run correctly on Windows
+		// so we'll read it's path from Windows registry - executing Windows shell failed last time
+		FILE * ff = OpenGameFile(scriptfn, "r");
+		char t[128];
+		fgets( t, sizeof(t), ff );
+		fclose(ff);
+		std::string cmdPathRegKey = "";
+		std::string cmdPathRegValue = "";
+		if( std::string(t).find("python") != std::string::npos )
 		{
-			printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
-			lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
+			command = "python.exe";
+			commandArgs.clear();
+			commandArgs.push_back(command);
+			commandArgs.push_back("-u");
+			commandArgs.push_back(scriptfn);
+			cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
 		}
-		returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
-		RegCloseKey(hKey);
-		if (returnStatus != ERROR_SUCCESS)
+		else if( std::string(t).find("bash") != std::string::npos )
 		{
-			printf( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
-			lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
+			command = "bash.exe";
+			commandArgs.clear();
+			commandArgs.push_back(command);
+			//commandArgs.push_back("-l");	// Not needed for Cygwin
+			commandArgs.push_back("-c");
+			commandArgs.push_back(scriptfn);
+			cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
+			cmdPathRegValue = "native";
+		}
+		else if( std::string(t).find("php") != std::string::npos )
+		{
+			command = "php.exe";
+			commandArgs.clear();
+			commandArgs.push_back(command);
+			commandArgs.push_back("-f");
+			commandArgs.push_back(scriptfn);
+			cmdPathRegKey = "SOFTWARE\\PHP";
+			cmdPathRegValue = "InstallDir";
+		}
+		else
+		{
+			printf("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
+			return false;
 		}
 
-		// Add trailing slash if needed
-		std::string path(lszCmdPath);
-		if (path.size())  {
-			if (*path.rbegin() != '\\' && *path.rbegin() != '/')
-				path += '\\';
+		if( cmdPathRegKey != "" )
+		{
+			HKEY hKey;
+			LONG returnStatus;
+			DWORD dwType=REG_SZ;
+			char lszCmdPath[256]="";
+			DWORD dwSize=255;
+			returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
+			if (returnStatus != ERROR_SUCCESS)
+			{
+				printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
+			}
+			returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
+			RegCloseKey(hKey);
+			if (returnStatus != ERROR_SUCCESS)
+			{
+				printf( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
+			}
+
+			// Add trailing slash if needed
+			std::string path(lszCmdPath);
+			if (path.size())  {
+				if (*path.rbegin() != '\\' && *path.rbegin() != '/')
+					path += '\\';
+			}
+			command = std::string(lszCmdPath) + command;
+			commandArgs[0] = command;
 		}
-		command = std::string(lszCmdPath) + command;
-		commandArgs[0] = command;
+		#endif
 	}
-	#endif
-
+	
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
-	printf("Dedicated server: running command \"%s\"\n", command.c_str());
-	if( ! dedIntern->pipe.open(command, commandArgs) )
-	{
-		printf( "ERROR: cannot start dedicated server - cannot run script %s\n", scriptfn.c_str() );
-		return false;
-	};
-	dedIntern->pipe.in() << "init" << endl;
-	dedIntern->pipeOutputMutex = SDL_CreateMutex();
-	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
+	if(scriptfn_rel != "/dev/null") {
+		printf("Dedicated server: running command \"%s\"\n", command.c_str());
+		if( ! dedIntern->pipe.open(command, commandArgs) )
+		{
+			printf( "ERROR: cannot start dedicated server - cannot run script %s\n", scriptfn.c_str() );
+			return false;
+		}
+		dedIntern->pipe.in() << "init" << endl;
+		dedIntern->pipeOutputMutex = SDL_CreateMutex();
+		dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
+	}
 	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
 
 	return true;
@@ -927,7 +1000,8 @@ bool DedicatedControl::Init_priv() {
 // This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
-void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
+void DedicatedControl::BackToServerLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
+void DedicatedControl::BackToClientLobby_Signal() { DedIntern::Get()->Sig_ClientGotoLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
 

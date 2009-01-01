@@ -398,6 +398,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		first_iter = false;
 	}
 
+	// we got here after the full path was resolved successfully
 	return true;
 }
 
