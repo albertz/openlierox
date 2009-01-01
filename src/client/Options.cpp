@@ -133,6 +133,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
+		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "scripts/dedicated_control" )
 		;
 
 	unsigned i;

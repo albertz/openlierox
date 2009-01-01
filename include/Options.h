@@ -231,7 +231,8 @@ public:
 	bool    bLogConvos;
 	bool	bShowPing;
 	int		iScreenshotFormat;
-
+	std::string sDedicatedScript;
+	
 	// Widget states
 	int		iInternetList[6];
 	int		iLANList[6];

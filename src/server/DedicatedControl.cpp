@@ -819,7 +819,7 @@ DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
-	const std::string scriptfn_rel = "scripts/dedicated_control";
+	const std::string scriptfn_rel = tLXOptions->sDedicatedScript;
 
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
 	if(!IsFileAvailable(scriptfn, true)) {

@@ -411,6 +411,24 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bSoundOn = false;
         } else
 
+		// -dedscript
+		// set dedicated script (next param)
+		if( stricmp(a, "-script") == 0 ) {
+			bDedicated = true;
+			bDisableSound = true;
+			// these settings will be temporarly because we don't save options at end in dedicated mode
+			tLXOptions->bSoundOn = false;
+			tLXOptions->sDedicatedScript = argv[++i];
+		} else
+				
+		// -connect
+		// connect to server (next param)
+		if( stricmp(a, "-connect") == 0 ) {
+			// TODO ...
+			// argv[++i];
+			++i;
+		} else
+
         // -window
         // Turns fullscreen off
         if( stricmp(a, "-window") == 0 ) {
