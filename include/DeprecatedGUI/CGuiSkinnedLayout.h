@@ -103,6 +103,6 @@ public:
 	static void SetTab( const std::string & param, CWidget * source );
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif

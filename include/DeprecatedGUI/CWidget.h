@@ -82,6 +82,8 @@ public:
 		bCanLoseFocus = true;
 	}
 
+	CWidget(const CWidget&) { assert(false); }
+	
     virtual ~CWidget() 
 	{
 		CGuiSkin::DeRegisterUpdateCallback( this );	// Remove any possible callbacks 'cause widget not exists anymore
@@ -176,6 +178,6 @@ class CGuiLayoutBase
 	// Add more functions here if needed
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CWIDGET_H__DEPRECATED_GUI__

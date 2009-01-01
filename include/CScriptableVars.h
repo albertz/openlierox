@@ -20,7 +20,7 @@
 
 namespace DeprecatedGUI {
 class CWidget;
-};
+}
 
 // It's called ScriptCallback but it's used only for widgets, so contains link to widget that raised an event.
 typedef void ( * ScriptCallback_t ) ( const std::string & param, DeprecatedGUI::CWidget * source );

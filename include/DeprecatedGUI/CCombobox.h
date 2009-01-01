@@ -177,6 +177,6 @@ public:
 	void	ProcessGuiSkinEvent(int iEvent);
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CCOMBOBOX_H__DEPRECATED_GUI__

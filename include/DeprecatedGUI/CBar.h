@@ -85,6 +85,6 @@ public:
 	inline bool IsProperlyLoaded()  { return bmpBar.get() != NULL; }
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif // __CBAR_H__DEPRECATED_GUI__

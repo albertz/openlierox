@@ -121,6 +121,6 @@ public:
 
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CGUILAYOUT_H__DEPRECATED_GUI__

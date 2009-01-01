@@ -92,7 +92,7 @@ class Color  { public:
 	Color() : r(0), g(0), b(0), a(0) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b) : r(_r), g(_g), b(_b), a(SDL_ALPHA_OPAQUE) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
-	Color(SDL_PixelFormat *f, Uint32 cl)	{ SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
+	Color(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	Color(Uint32 cl)	{ set(getMainPixelFormat(), cl); }
 	Color(const SDL_Color& cl) { r = cl.r; g = cl.g; b = cl.b; }
 

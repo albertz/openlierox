@@ -290,6 +290,6 @@ public:
 	};
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CLISTVIEW_H__DEPRECATED_GUI__

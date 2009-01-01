@@ -25,6 +25,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <cassert>
 #include "SmartPointer.h"
 
 // these forward-declaration are needed here
@@ -37,6 +38,8 @@ class CCache  {
 public:
 	CCache() { mutex = SDL_CreateMutex(); };
 	~CCache() { SDL_DestroyMutex(mutex); };
+	CCache(const CCache&) { assert(false); }
+	CCache& operator=(const CCache&) { assert(false); }
 	void Clear();
 	void ClearExtraEntries(); // Clears cache partially - should be called from time to time
 
@@ -58,11 +61,12 @@ public:
 
 private:
 	class CacheItem_t { public:
-		virtual ~CacheItem_t() {}
+		//virtual ~CacheItem_t() {} // TODO: do we need this when there is no other virtual function? 
 		CacheItem_t() : fSaveTime(0), iFileTimeStamp(0) {}
 		CacheItem_t(const CacheItem_t& oth)  { operator=(oth); }
 		CacheItem_t(float savetime, Uint64 timestamp) : fSaveTime(savetime), iFileTimeStamp(timestamp) {}
-		virtual CacheItem_t& operator=(const CacheItem_t& oth)  { if (&oth != this) { fSaveTime = oth.fSaveTime; iFileTimeStamp = oth.iFileTimeStamp; } return *this; }
+		// TODO: this op= was virtual; was there any reason for this? (no other class had overloaded it)
+		CacheItem_t& operator=(const CacheItem_t& oth)  { if (&oth != this) { fSaveTime = oth.fSaveTime; iFileTimeStamp = oth.iFileTimeStamp; } return *this; }
 		float	fSaveTime;
 		Uint64	iFileTimeStamp;
 	};

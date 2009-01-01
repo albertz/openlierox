@@ -131,16 +131,16 @@ public:
 		{
 			if( iVar )
 				setValue( *iVar );
-		};
+		}
 		if( iEvent == SCR_CHANGE )
 		{
 			if( iVar )
 				*iVar = iValue;
 			cClick.Call();
-		};
-	};
+		}
+	}
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CSCROLLBAR_H__DEPRECATED_GUI__

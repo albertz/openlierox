@@ -134,6 +134,6 @@ class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exac
 	static void UpdateCallback( const std::string & param, CWidget * source );
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CINPUTBOX_H__DEPRECATED_GUI__

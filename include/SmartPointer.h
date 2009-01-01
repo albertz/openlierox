@@ -28,7 +28,7 @@ template < typename _Type >
 void SmartPointer_ObjectDeinit( _Type * obj )
 {
 	delete obj;
-};
+}
 
 // these forward-declaration are needed here
 struct SDL_Surface;

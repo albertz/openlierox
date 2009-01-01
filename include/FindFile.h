@@ -362,6 +362,6 @@ inline bool StatFile( const std::string & file, struct stat * st )
 		return false;
 
 	return true;
-};
+}
 
 #endif  //  __FINDFILE_H__

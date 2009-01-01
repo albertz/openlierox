@@ -62,33 +62,35 @@ void CBytestream::Test()
 	std::cout << std::endl;
 	Clear();
 
-	// Integer
-	int i = 125;
-	std::cout << "Int: (" << i << ") ";
-	writeInt(i, 4);
-	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
-	int i2 = readInt(4);
-	std::cout << "(" << itoa(i2) << ") ";
-	if (i2 != i)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
-	Clear();
+	{
+		// Integer
+		int i = 125;
+		std::cout << "Int: (" << i << ") ";
+		writeInt(i, 4);
+		ResetPosToBegin();
+		std::cout << "(" << Data << ") ";
+		int i2 = readInt(4);
+		std::cout << "(" << itoa(i2) << ") ";
+		if (i2 != i)
+			std::cout << "NOT SAME!";
+		std::cout <<std::endl;
+		Clear();
+	}
 
 	{
-	// Integer
-	Sint16 i = -126;
-	std::cout << "Int: (" << i << ") ";
-	writeInt(i, 2);
-	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
-	Sint16 i2 = readInt(2);
-	std::cout << "(" << itoa(i2) << ") ";
-	if (i2 != i)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
-	Clear();
-	};
+		// Integer
+		Sint16 i = -126;
+		std::cout << "Int: (" << i << ") ";
+		writeInt(i, 2);
+		ResetPosToBegin();
+		std::cout << "(" << Data << ") ";
+		Sint16 i2 = readInt(2);
+		std::cout << "(" << itoa(i2) << ") ";
+		if (i2 != i)
+			std::cout << "NOT SAME!";
+		std::cout <<std::endl;
+		Clear();
+	}
 
 	// Short
 	short s = 125;

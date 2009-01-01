@@ -113,6 +113,6 @@ private:
 	std::list< UpdateList_t > m_updateCallbacks;
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif

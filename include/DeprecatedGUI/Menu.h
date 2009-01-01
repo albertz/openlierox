@@ -582,6 +582,6 @@ bool	Menu_CGuiSkinInitialize(void);
 void	Menu_CGuiSkinFrame(void);
 void	Menu_CGuiSkinShutdown(void);
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __MENU_H__DEPRECATED_GUI__

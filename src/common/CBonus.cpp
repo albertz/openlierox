@@ -25,11 +25,11 @@
 
 ///////////////////
 // Spawn the bonus
-void CBonus::Spawn(CVec pos, int type, int weapon, CGameScript *gs)
+void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 {
 	bUsed = true;
 	fLastSimulationTime = tLX->fCurTime;
-	vPos = pos;
+	vPos = ppos;
 	vVelocity = CVec(0,0);
 	iType = type;
 	iWeapon = weapon;

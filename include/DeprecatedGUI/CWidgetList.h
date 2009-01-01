@@ -49,6 +49,6 @@ public:
 	void	Shutdown(void);
 };
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 #endif  //  __CWIDGETLIST_H__DEPRECATED_GUI__

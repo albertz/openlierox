@@ -89,7 +89,7 @@ inline size_t GetSurfaceMemorySize(SDL_Surface *surf)  {
 bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
 inline bool ClipLine(const SmartPointer<SDL_Surface> & bmp, int * x1, int * y1, int * x2, int * y2){
 	return ClipLine(bmp.get(), x1, y1, x2, y2);
-};
+}
 
 class SDLRectBasic : public SDL_Rect {
 public:
@@ -281,7 +281,7 @@ inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::stri
 bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, const std::string& Data);
 inline bool SaveSurface(const SmartPointer<SDL_Surface> & image, const std::string& FileName, int Format, const std::string& Data){
 	return SaveSurface(image.get(), FileName, Format, Data);
-};
+}
 
 //
 // Surface stuff
@@ -321,7 +321,7 @@ inline void gfxFreeSurface(const SmartPointer<SDL_Surface> & surf)  {
 void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h);
 inline void CopySurface(SDL_Surface * dst, const SmartPointer<SDL_Surface> & src, int sx, int sy, int dx, int dy, int w, int h){
 	CopySurface(dst, src.get(), sx, sy, dx, dy, w, h);
-};
+}
 
 //////////////
 // Draw the image with a huge amount of options
@@ -377,21 +377,21 @@ inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & b
 void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 inline void DrawImageAdv_Mirror(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageAdv_Mirror(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
-};
+}
 
 ////////////////
 // Draws the image doubly stretched (fast)
 void DrawImageStretch2(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 inline void DrawImageStretch2(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageStretch2(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
-};
+}
 
 /////////////////
 // Draws the image doubly stretched while checking for colorkey
 void DrawImageStretch2Key(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 inline void DrawImageStretch2Key(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageStretch2Key(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
-};
+}
 
 /////////////////
 // Draws image doubly stretched, mirrored and checking for colorkey
@@ -399,7 +399,7 @@ inline void DrawImageStretch2Key(SDL_Surface * bmpDest, const SmartPointer<SDL_S
 void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 inline void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	DrawImageStretchMirrorKey(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
-};
+}
 
 /////////////////
 // Creates a new surface of the same size and draws the image mirror flipped onto it

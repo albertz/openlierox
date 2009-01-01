@@ -75,7 +75,7 @@ float getCurrentTime()
 	if( tLX == NULL )	// Cache is used before tLX is initialized
 		return 0;
 	return tLX->fCurTime;
-};
+}
 
 //////////////
 // Save an image to the cache
@@ -397,5 +397,5 @@ void CCache::ClearExtraEntries()
 		};
 	};
 
-};
+}
 
