@@ -282,6 +282,7 @@ startpoint:
 	}
 
 	tLX->bQuitGame = false;
+	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
 
 		startgame = false; // the menu has a reference to this variable

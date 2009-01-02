@@ -851,9 +851,9 @@ static void initFeaturesList(CListview* l)
 				if( it->second.type == SVT_FLOAT )
 				{
 					// Adding some small number to round it up correctly
-					imin = fmin*10.0f + 0.00001f;	// Scale them up
-					imax = fmax*10.0f + 0.00001f;
-					iVal = (*it->second.f) * 10.0f + 0.00001f;
+					imin = int( fmin*10.0f + 0.00001f );	// Scale them up
+					imax = int( fmax*10.0f + 0.00001f );
+					iVal = int( (*it->second.f) * 10.0f + 0.00001f );
 					fScale = 0.1f;
 				}
 				CSlider * sld = new CSlider( imax, imin, iVal, true, 97, 0, tLX->clNormalLabel, fScale );

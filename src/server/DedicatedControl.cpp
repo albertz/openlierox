@@ -40,6 +40,7 @@
 #include "CChannel.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
+#include "Command.h"
 
 
 #ifdef _MSC_VER
@@ -65,7 +66,7 @@ struct pstream_pipe_t	// Stub
 		cout << "ERROR: Dedicated server is not compiled into this version of OpenLieroX" << endl;
 		MessageBox( NULL, "ERROR: Dedicated server is not compiled into this version of OpenLieroX", "OpenLieroX", MB_OK );
 		return false;
-	};
+	}
 };
 
 #else
@@ -100,9 +101,9 @@ struct pstream_pipe_t
 		{
 			printf("Error running command %s: %s\n", cmd.c_str(), e.what());
 			return false;
-		};
+		}
 		return true;
-	};
+	}
 	~pstream_pipe_t(){ close(); if(p) delete p; };
 };
 
@@ -124,7 +125,7 @@ struct pstream_pipe_t
 			params.push_back(cmd);
 		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout ); // we don't grap the stderr, it should directly be forwarded to console
 		return p.rdbuf()->error() == 0;
-	};
+	}
 };
 #endif
 #endif
@@ -345,11 +346,9 @@ struct DedIntern {
 
 		if (sSplit.size() == 1)
 			id = atoi(params);
-		else if (sSplit.size() >= 2)
-		{
+		else if (sSplit.size() >= 2) {
 			id = atoi(sSplit[0]);
-			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++)
-			{
+			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++) {
 				if(it == sSplit.begin())
 					continue;
 				reason += *it;
@@ -357,8 +356,7 @@ struct DedIntern {
 					reason += " ";
 			}
 		}
-		else
-		{
+		else {
 			std::cout << "DedicatedControl: KickWorm: Wrong syntax" << std::endl;
 			return;
 		}
@@ -377,11 +375,9 @@ struct DedIntern {
 
 		if (sSplit.size() == 1)
 			id = atoi(params);
-		else if (sSplit.size() >= 2)
-		{
+		else if (sSplit.size() >= 2) {
 			id = atoi(sSplit[0]);
-			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++)
-			{
+			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++) {
 				if(it == sSplit.begin())
 					continue;
 				reason += *it;
@@ -389,8 +385,7 @@ struct DedIntern {
 					reason += " ";
 			}
 		}
-		else
-		{
+		else {
 			std::cout << "DedicatedControl: BanWorm: Wrong syntax" << std::endl;
 			return;
 		}
@@ -450,11 +445,10 @@ struct DedIntern {
 
 	// This command just fits here perfectly
 	void Cmd_SetVar(const std::string& params) {
-		if( params.find(" ") == std::string::npos )
-		{
+		if( params.find(" ") == std::string::npos ) {
 			cout << "DedicatedControl: SetVar: wrong params: " << params << endl;
 			return;
-		};
+		}
 		std::string var = params.substr( 0, params.find(" ") );
 		std::string value = params.substr( params.find(" ")+1 );
 		TrimSpaces( var );
@@ -487,7 +481,7 @@ struct DedIntern {
 				cout << ")" << endl;
 			}
 			return;
-		};
+		}
 		CScriptableVars::SetVarByString(varptr, value);
 		
 		//cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
@@ -497,12 +491,11 @@ struct DedIntern {
 
 	void Cmd_StartLobby(std::string param) {
 	
-		if( param != "" )
-		{
+		if( param != "" ) {
 			int port = atoi(param);
 			if( port )
 				tLXOptions->iNetworkPort = port;
-		};
+		}
 
 		tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
 		tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
@@ -561,12 +554,11 @@ struct DedIntern {
 		tLX->iGameType = GME_HOST;
 	}
 
-	void Cmd_GotoLobby()
-	{
+	void Cmd_GotoLobby() {
 		cServer->gotoLobby();
 		*DeprecatedGUI::bGame = false;
 		DeprecatedGUI::tMenu->bMenuRunning = true;
-	};
+	}
 
 	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
 		cServer->SendGlobalText(msg, type);
@@ -633,8 +625,7 @@ struct DedIntern {
 			std::cout << "DedicatedControl: GetWormIp: str_addr == \"\"" << std::endl;
 	}
 
-	void Cmd_GetWormLocationInfo(const std::string& params)
-	{
+	void Cmd_GetWormLocationInfo(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
@@ -655,8 +646,7 @@ struct DedIntern {
 
 	}
 
-	void Cmd_GetWormPing(const std::string& params)
-	{
+	void Cmd_GetWormPing(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormPing");
@@ -666,8 +656,7 @@ struct DedIntern {
 		Sig_WormPing(w,w->getClient()->getChannel()->getPing());
 	}
 
-	void Cmd_GetWormSkin(const std::string& params)
-	{
+	void Cmd_GetWormSkin(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormSkin");

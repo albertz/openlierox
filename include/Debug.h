@@ -10,7 +10,7 @@
 #ifndef __OLXDEBUG_H__
 #define __OLXDEBUG_H__
 
-#include <ostream>
+#include <iostream>
 
 void DumpBacktrace(std::ostream& out = std::cout);
 
