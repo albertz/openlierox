@@ -12,12 +12,13 @@
 #include "Version.h"
 #include "AuxLib.h"
 #include "LieroX.h" // for nameThread
-
 #include "StringUtils.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "DedicatedControl.h"
 #include "StringUtils.h"
+#include "Debug.h"
+
 #include <iostream>
 
 using namespace std;
@@ -362,11 +363,9 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
-//
-// Linux
-//
 
-#elif !defined(WIN32) && !defined(MACOSX)
+
+#elif !defined(WIN32) // MacOSX, Linux, Unix
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -385,9 +384,27 @@ public:
 		
 		// TODO: check if other crash handlers are present
 		// check at least for drkonqi, Appart and bug-buddy
-		//signal(SIGSEGV, &BugBuddySignalHandler);
+		signal(SIGSEGV, &SimpleSignalHandler);
+		signal(SIGTRAP, &SimpleSignalHandler);
+		signal(SIGHUP, &SimpleSignalHandler);
+		signal(SIGBUS, &SimpleSignalHandler);
+		signal(SIGILL, &SimpleSignalHandler);
+		signal(SIGFPE, &SimpleSignalHandler);
+		signal(SIGSYS, &SimpleSignalHandler);
 		//cout << "registered KCrash signal handler" << endl;
-		cout << "no crash handler in this release" << endl;
+		//cout << "no crash handler in this release" << endl;
+	}
+	
+	static void SimpleSignalHandler(int Sig) {
+		printf("SignalHandler: %i\n", Sig);
+		signal(Sig, SIG_IGN); // discard all remaining signals
+		
+		DumpCallstack();
+		
+		signal(Sig, SimpleSignalHandler); // reset handler
+		printf("resuming ...\n");
+		fflush(0);
+		siglongjmp(longJumpBuffer, 1); // jump back to main loop
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
 // Created 28/6/02
 // Jason Boettcher
 
-
+#include <iostream>
 #include "LieroX.h"
 #include "ProfileSystem.h"
 #include "CClient.h"
@@ -44,6 +44,10 @@
 
 
 #include <zip.h> // For unzipping downloaded mod
+
+
+using namespace std;
+
 
 ///////////////////
 // Clear the client details
@@ -1209,6 +1213,7 @@ void CClient::SendPackets(void)
 }
 
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player) {
+	cout << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
 	//tGameInfo.iNumPlayers = 1;
 		
 	if(!cClient->Initialize())

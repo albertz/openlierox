@@ -235,8 +235,6 @@ void CWorm::Unprepare() {
 		}
 		delete m_inputHandler;
 		m_inputHandler = NULL;
-	} else if(bLocal) {
-		cout << "WARNING: m_inputHandler not set in CWorm::Unprepare()" << endl;
 	}
 		
 	bIsPrepared = false;

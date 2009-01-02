@@ -13,6 +13,7 @@
 // Created 21/8/02
 // Jason Boettcher
 
+#include <iostream>
 #include "LieroX.h"
 #include "Sounds.h"
 #include "Clipboard.h"
@@ -28,6 +29,7 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "ProfileSystem.h"
 
+using namespace std;
 
 namespace DeprecatedGUI {
 
@@ -408,31 +410,19 @@ void Menu_Net_FavouritesFrame(int mouse)
 // Join a server
 void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName)
 {
-	//tGameInfo.iNumPlayers = 1;
-	tLX->iGameType = GME_JOIN;
-
-	if(!cClient->Initialize()) {
-		return;
-	}
-
 	// Fill in the game structure
-	const cb_item_t *item = (const cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-
-	cClient->setNumWorms(0);
-	// Add the player to the list
-	if (item)  {
-		profile_t *ply = FindProfile(item->sIndex);
-		if(ply)
-		{
-			cClient->getLocalWormProfiles()[0] = ply;
-			cClient->setNumWorms(1);
-		}
+	CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
+	const cb_item_t* item = combo->getSelectedItem();
+	if(!item) {
+		cout << "ERROR: no player selected" << endl;
+		return;
 	}
 	
 	tLXOptions->sLastSelectedPlayer = item->sIndex;
-
-	cClient->setServerName(sName);
-
+	
+	if(!JoinServer(sAddress, sName, item->sIndex))
+		return;
+	
 	// Shutdown
 	cFavourites.Shutdown();
 

@@ -232,6 +232,7 @@ public:
 	bool	bShowPing;
 	int		iScreenshotFormat;
 	std::string sDedicatedScript;
+	int		iVerbosity;			// the higher the number, the higher the amount of debug messages; 0 is default, at 10 it shows backtraces for all warnings
 	
 	// Widget states
 	int		iInternetList[6];

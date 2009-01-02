@@ -28,6 +28,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 #include <list>
 #include <string>
+#include <setjmp.h>
 #include "Options.h"
 #include "CFont.h"
 #include "CVec.h"
@@ -200,6 +201,8 @@ extern  bool			bDisableSound; // only true in dedicated mode or if soundinit fai
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
 extern  bool			bRestartGameAfterQuit;
+
+extern	sigjmp_buf longJumpBuffer;
 
 
 typedef bool (*TStartFunction) (void* data);

@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <setjmp.h>
 
 #include "LieroX.h"
 #include "IpToCountryDB.h"
@@ -129,6 +130,8 @@ static void DoSystemChecks() {
 char* apppath = NULL;
 
 char* GetAppPath() { return apppath; }
+
+sigjmp_buf longJumpBuffer;
 
 ///////////////////
 // Main entry point
@@ -284,7 +287,8 @@ startpoint:
 	tLX->bQuitGame = false;
 	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
-
+		sigsetjmp(longJumpBuffer, 1);
+		
 		startgame = false; // the menu has a reference to this variable
 
 		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
@@ -316,6 +320,7 @@ startpoint:
 		while(!tLX->bQuitEngine) {
 
             tLX->fCurTime = GetMilliSeconds();
+			sigsetjmp(longJumpBuffer, 1);
 
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
