@@ -729,6 +729,8 @@ struct DedIntern {
 		
 		else if(cmd == "connect")
 			Cmd_Connect(params);
+		
+		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
