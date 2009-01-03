@@ -361,7 +361,7 @@ private:
 	bool		bHaveMod;
 
 	GameOptions::GameInfo tGameInfo;	// Also game lobby
-	FeatureCompatibleSettingList unknownFeatures;
+	FeatureCompatibleSettingList otherGameInfo;
 	
 	bool		bBadConnection;
 	std::string	strBadConnectMsg;
@@ -594,7 +594,7 @@ public:
 	const Version& getServerVersion()				{ return cServerVersion; }
 	void setServerVersion(const std::string & _s);
 
-	FeatureCompatibleSettingList& getUnknownFeatures() { return unknownFeatures; }
+	FeatureCompatibleSettingList& getUnknownFeatures() { return otherGameInfo; }
 	
 	bool isHostAllowingMouse()					{ return bHostAllowsMouse; }
 	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }

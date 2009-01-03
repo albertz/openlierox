@@ -23,6 +23,9 @@ Feature featureArray[] = {
 	Feature("TeamHit", "Hit team members", "If disabled, your bullets and projectiles will fly through your team members.", true, true, OLXBetaVersion(9) ),
 	Feature("SelfInjure", "Damage yourself", "If disabled, your bullets and projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
 	Feature("SelfHit", "Hit yourself", "If disabled, your bullets and projectiles will fly through yourself.", true, true, OLXBetaVersion(9) ),
+	
+	Feature("AllowEmptyGames", "Allow empty games", "If enabled, games with one or zero worms will not quit.", false, false, OLXBetaVersion(9), true),
+
 	Feature::Unset()
 };
 
@@ -34,8 +37,8 @@ Feature* featureByName(const std::string& name) {
 	return NULL;
 }
 
-FeatureSettings::FeatureSettings() {
-	unsigned long len = featureArrayLen();
+FeatureSettings::FeatureSettings(bool alsoServerSide) {
+	len = alsoServerSide ? featureArrayLen() : clientSideFeatureCount();
 	if(len == 0) {
 		settings = NULL;
 		return;
@@ -53,7 +56,7 @@ FeatureSettings::~FeatureSettings() {
 FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
 	if(settings) delete[] settings;
 
-	unsigned long len = featureArrayLen();
+	len = r.len;
 	if(len == 0) {
 		settings = NULL;
 		return *this;
@@ -80,6 +83,7 @@ ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 }
 
 bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
+	if(f->serverSideOnly) return true;
 	return hostGet(f) == f->unsetValue;
 }
 

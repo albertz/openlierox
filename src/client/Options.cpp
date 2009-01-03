@@ -123,7 +123,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bTopBarVisible, "Game.TopBarVisible", true )
 		( tLXOptions->bScreenShaking, "Game.ScreenShaking", true )
 		( tLXOptions->bDamagePopups, "Game.DamagePopups", true )
-		( tLXOptions->bAllowEmptyGames, "Game.AllowEmptyGames", false )	
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )

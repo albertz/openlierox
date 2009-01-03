@@ -871,20 +871,25 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		ScriptVar_t value; bs->readVar(value);
 		bool olderClientsSupported = bs->readBool();
 		Feature* f = featureByName(name);
-		if(f) {
+		if(f && !f->serverSideOnly) {
 			// we support the feature
 			if(value.type == f->valueType)
 				client->tGameInfo.features[f] = value;
 			else {
-				cout << "ERROR: server setting for feature " << name << " has wrong type " << value.type << endl;
+				errors << "server setting for feature " << name << " has wrong type " << value.type << endl;
 				client->tGameInfo.features[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
 			}
 		} else if(!olderClientsSupported) {
-			//cout << "We don't support '" << humanName << "' and we cannot play with the current settings." << endl;
-			client->unknownFeatures.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
+			if(f->serverSideOnly)
+				errors << "server setting for feature " << name << " is set as not-supported but is serversideonly" << endl;
+			// server setting is incompatible with our clent
+			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
+		} else if(f->serverSideOnly) {
+			// just serversideonly, thus we support it
+			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);			
 		} else {
-			//cout << "HINT: server has feature '" << humanName << "' which is unknown to us" << endl;
-			client->unknownFeatures.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
+			// unknown for us but we support it
+			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
 		}
 	}	
 }

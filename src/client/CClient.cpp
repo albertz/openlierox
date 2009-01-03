@@ -64,7 +64,7 @@ void CClient::Clear(void)
 #endif
 
 	tGameInfo = tLXOptions->tGameInfo;
-	unknownFeatures.clear();
+	otherGameInfo.clear();
 	iNumWorms = 0;
 	int i;
 	for(i=0;i<MAX_PLAYERS;i++)

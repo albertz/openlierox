@@ -537,7 +537,7 @@ struct DedIntern {
 	}
 
 	void Cmd_StartGame() {
-		if(cServer->getNumPlayers() <= 1 && !tLXOptions->bAllowEmptyGames) {
+		if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES]) {
 			warnings << "DedControl: cannot start game, too few players" << endl;
 			Sig_ErrorStartGame();
 			return;

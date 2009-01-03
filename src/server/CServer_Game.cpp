@@ -1104,7 +1104,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1 && !tLXOptions->bAllowEmptyGames)  {
+				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
@@ -1121,7 +1121,7 @@ void GameServer::RecheckGame(void)
 			case GMT_DEATHMATCH:  {
 				// Only one worm left, end the game
 				// though, in a local game it's sometimes nice to check also a map alone
-				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->bAllowEmptyGames)  {
+				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
 					// Get the worm that is still alive and declare him as winner
 					w = cWorms + wormid;
 
@@ -1141,7 +1141,7 @@ void GameServer::RecheckGame(void)
 			//
 			case GMT_TAG:  {
 				// Only one worm left, end the game
-				if (wormcount < 2 && !tLXOptions->bAllowEmptyGames)  {
+				if (wormcount < 2 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
 					// Get the worm with greatest tag time
 					float fMaxTagTime = 0;
 					int worm = 0;
@@ -1201,7 +1201,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1 && !tLXOptions->bAllowEmptyGames)  {
+				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
