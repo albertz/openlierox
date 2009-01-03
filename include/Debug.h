@@ -19,10 +19,10 @@ class Logger {
 private:
 	int minShowVerb;
 	int minCallstackVerb;
-	std::string name;
+	std::string prefix;
 	std::string buffer;
 public:
-	Logger(int show, int callst, const std::string& n) : minShowVerb(show), minCallstackVerb(callst), name(n) {}
+	Logger(int show, int callst, const std::string& p) : minShowVerb(show), minCallstackVerb(callst), prefix(p) {}
 	Logger& operator<<(const std::string& msg) { buffer += msg; return *this; }
 	Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*this); }
 	template<typename _T> Logger& operator<<(_T v) { return operator<<(to_string(v)); }

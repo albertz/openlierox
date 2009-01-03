@@ -44,11 +44,26 @@ Logger errors(0,1, "E: ");
 
 using namespace std;
 
-std::string name;
+static void PrettyPrintLn(const std::string& prefix, const std::string& msg, std::ostream& out) {
+	out << prefix << msg << "\n";
+}
 
-// simple dummy for now
+static void PrettyPrint(const std::string& prefix, const std::string& buf, std::ostream& out) {
+	std::string::const_iterator it = buf.begin();
+	while(true) {
+		std::string tmp = ReadUntil(buf, it, '\n');		
+		if(it == buf.end()) {
+			if(tmp != "") PrettyPrintLn(prefix, tmp, out);
+			break;
+		}
+		++it;
+		PrettyPrintLn(prefix, tmp, out);
+	}
+	out.flush();
+}
+
 Logger& Logger::flush() {
-	cout << buffer;
+	PrettyPrint(prefix, buffer, cout);
 	buffer = "";
 	return *this;
 }

@@ -117,7 +117,8 @@ std::string		replacemax(const std::string& text, const std::string& what, const 
 std::string		strip(const std::string& text, int width);
 bool			stripdot(std::string& text, int width);
 void			ucfirst(std::string& text);
-std::string		ReadUntil(const std::string& text, char until_character = '\n');
+std::string		ReadUntil(const std::string& text, char until_character = '\n'); // will return whole text if not found
+std::string		ReadUntil(const std::string& text, std::string::const_iterator& start, char until_character, const std::string& alternative = "");
 std::string		ReadUntil(FILE* fp, char until_character = '\n');
 Color			StrToCol(const std::string& str);
 Color			StrToCol(const std::string& str, bool& fail);

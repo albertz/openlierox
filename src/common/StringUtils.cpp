@@ -126,6 +126,16 @@ std::string ReadUntil(const std::string& text, char until_character) {
 	return text;
 }
 
+std::string ReadUntil(const std::string& text, std::string::const_iterator& it, char until_character, const std::string& alternative) {
+	std::string::const_iterator start = it;
+	for(; it != text.end(); it++) {
+		if(*it == until_character)
+			return std::string(start, it);
+	}
+	return alternative;
+}
+
+
 std::string	ReadUntil(FILE* fp, char until_character) {
 	static char buf[256];
 	static std::string res;
