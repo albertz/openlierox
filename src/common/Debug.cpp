@@ -50,7 +50,7 @@ void DumpCallstack(void (*LineOutFct) (const std::string&)) { (*LineOutFct) ("Du
 
 #endif
 
-Logger notes(1,2,1000, "n: ");
+Logger notes(0,2,1000, "n: ");
 Logger hints(0,1,100, "H: ");
 Logger warnings(0,0,10, "W: ");
 Logger errors(-1,-1,1, "E: ");
