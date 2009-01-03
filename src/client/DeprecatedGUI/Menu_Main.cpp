@@ -17,7 +17,6 @@
 #include <assert.h>
 
 #include "LieroX.h"
-
 #include "AuxLib.h"
 #include "FindFile.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -112,7 +111,7 @@ void Menu_MainFrame(void)
 	ev = cMainMenu.Process();
 		
 	cMainMenu.Draw(VideoPostProcessor::videoSurface());
-
+	
 	int mouseover = false;
 	int img = lastimg;
 

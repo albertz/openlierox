@@ -18,8 +18,9 @@
 #include <iostream>
 #include <set>
 
+#include "Debug.h"
 #include "LieroX.h"
-
+#include "console.h"
 #include "EndianSwap.h"
 #include "AuxLib.h"
 #include "Error.h"
@@ -137,14 +138,14 @@ bool Menu_Initialize(bool *game)
 	// Split up the lobby ready image
 	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);
 	if (!tMenu->bmpLobbyReady.get())  {
-		printf("Out of memory while creating tMenu->bmpLobbyReady\n");
+		errors << "Out of memory while creating tMenu->bmpLobbyReady" << endl;
 		return false;
 	}
 	CopySurface(tMenu->bmpLobbyReady.get(), lobby_state, 0, 0, 0, 0, lobby_state.get()->w, 12);
 
 	tMenu->bmpLobbyNotReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);
 	if (!tMenu->bmpLobbyNotReady.get())  {
-		printf("Out of memory while creating tMenu->bmpLobbyNotReady\n");
+		errors << "Out of memory while creating tMenu->bmpLobbyNotReady" << endl;
 		return false;
 	}
 	CopySurface(tMenu->bmpLobbyNotReady.get(), lobby_state, 0, 12, 0, 0, lobby_state.get()->w, 12);
@@ -244,15 +245,15 @@ void Menu_Shutdown(void)
 		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_LAN]);
-		};
+		}
 		if(IsSocketStateValid(tMenu->tSocket[SCK_NET]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_NET]);
-		};
+		}
 		if(IsSocketStateValid(tMenu->tSocket[SCK_FOO]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_FOO]);
-		};
+		}
 
 		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
 		InvalidateSocketState(tMenu->tSocket[SCK_NET]);
@@ -355,6 +356,10 @@ void Menu_Frame() {
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
 	}
 #endif
+	
+	Con_Process(tLX->fDeltaTime);
+	Con_Draw(VideoPostProcessor::videoSurface());
+			 
 	VideoPostProcessor::process();
 }
 
@@ -610,7 +615,7 @@ void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool 
 int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type)
 {
 	if(bDedicated) {
-		cout << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
+		hints << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
 		return 0;
 	}
 
@@ -1636,7 +1641,7 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 			// TODO: cleanup this code
 			if (s->bgotPong || s->bgotQuery || s->bManual && *it != defaultServer->szAddress)
 				continue;
-			printf("Removing duplicate server: " + s->szName + " (" + *it + ")\n");
+			notes << "Removing duplicate server: " << s->szName << " (" << *it << ")" << endl;
 			Menu_SvrList_RemoveServer(*it);
 			update = true;
 		}
@@ -1873,7 +1878,7 @@ gotNetAddr:
 		bs->Send(sock);
 		bs->Clear();
 
-		printf("Sent getserverlist to %s\n", server.c_str());
+		notes << "Sent getserverlist to " << server << endl;
 
 		// Wait for the reply
 		float timeoutTime = GetMilliSeconds() + 5.0f;
@@ -1885,7 +1890,7 @@ gotNetAddr:
 
 				// Got a reply?
 				if (bs->Read(sock))  {
-					printf("Got a reply from %s\n", server.c_str());
+					notes << "Got a reply from " << server << endl;
 					break;
 				}
 			}
@@ -1898,7 +1903,7 @@ gotNetAddr:
 				firstPacket = false;
 			} else  {
 				if( firstPacket )
-					printf("Error getting serverlist from %s\n", server.c_str());
+					warnings << "Error getting serverlist from " << server << endl;
 				delete bs;
 				break;
 			}
@@ -1918,7 +1923,7 @@ void Menu_SvrList_UpdateUDPList()
 		// Open the masterservers file
 		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
 		if(!fp1)  {
-			printf("Warning: could not open udpmasterservers.txt file, NAT traversal will be inaccessible\n");
+			warnings << "could not open udpmasterservers.txt file, NAT traversal will be inaccessible" << endl;
 			return;
 		}
 
@@ -1945,7 +1950,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
-	printf("Menu_SvrList_ParseUdpServerlist %i\n", amount);
+	notes << "Menu_SvrList_ParseUdpServerlist " << amount << endl;
 	for( int f=0; f<amount; f++ )
 	{
 		std::string addr = bs->readString();
@@ -2485,4 +2490,4 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	lvInfo.Draw( VideoPostProcessor::videoSurface() );
 }
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
