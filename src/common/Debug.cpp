@@ -63,19 +63,6 @@ Logger errors(-1,-1,1, "E: ");
 
 using namespace std;
 
-static void PrettyPrint(const std::string& prefix, const std::string& buf, void (*LineOutFct) (const std::string&)) {
-	std::string::const_iterator it = buf.begin();
-	while(true) {
-		std::string tmp = ReadUntil(buf, it, '\n');		
-		if(it == buf.end()) {
-			if(tmp != "") (*LineOutFct) (prefix + tmp);
-			break;
-		}
-		++it;
-		(*LineOutFct) (prefix + tmp);
-	}
-}
-
 static void CoutPrintLn(const std::string& str) {
 	cout << str << "\n";
 }

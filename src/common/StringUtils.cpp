@@ -156,6 +156,19 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	return res;
 }
 
+void PrettyPrint(const std::string& prefix, const std::string& buf, void (*LineOutFct) (const std::string&)) {
+	std::string::const_iterator it = buf.begin();
+	while(true) {
+		std::string tmp = ReadUntil(buf, it, '\n');		
+		if(it == buf.end()) {
+			if(tmp != "") (*LineOutFct) (prefix + tmp);
+			break;
+		}
+		++it;
+		(*LineOutFct) (prefix + tmp);
+	}
+}
+
 
 //////////////////////////
 // Contains a definition of some common colors, used internally by StrToCol

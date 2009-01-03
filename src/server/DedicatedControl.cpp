@@ -678,6 +678,7 @@ struct DedIntern {
 #ifdef DEBUG
 		notes << "DedicatedControl: exec: " << cmd << " " << params << endl;
 #endif
+		// TODO: merge these commands with ingame console commands (Commands.cpp)
 		if(cmd == "quit")
 			Cmd_Quit();
 		else if(cmd == "setvar")

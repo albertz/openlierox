@@ -155,6 +155,8 @@ std::string		ColToHex(Uint32 col);
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 
+void PrettyPrint(const std::string& prefix, const std::string& buf, void (*LineOutFct) (const std::string&));
+
 
 ////////////////////
 // Read a fixed-length C-string from a file
