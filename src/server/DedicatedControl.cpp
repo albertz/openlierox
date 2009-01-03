@@ -537,7 +537,7 @@ struct DedIntern {
 	}
 
 	void Cmd_StartGame() {
-		if(cServer->getNumPlayers() <= 1) {
+		if(cServer->getNumPlayers() <= 1 && !tLXOptions->bAllowEmptyGames) {
 			warnings << "DedControl: cannot start game, too few players" << endl;
 			Sig_ErrorStartGame();
 			return;
@@ -972,10 +972,10 @@ bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
 	if(scriptfn_rel != "/dev/null") {
-		printf("Dedicated server: running command \"%s\"\n", command.c_str());
+		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		if( ! dedIntern->pipe.open(command, commandArgs) )
 		{
-			printf( "ERROR: cannot start dedicated server - cannot run script %s\n", scriptfn.c_str() );
+			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}
 		dedIntern->pipe.in() << "init" << endl;

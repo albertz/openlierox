@@ -912,17 +912,17 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 {
 	// Already got this
 	if (client->iNetStatus == NET_PLAYING)  {
-		printf("CClientNetEngine::ParseStartGame: already playing - ignoring\n");
+		notes << "CClientNetEngine::ParseStartGame: already playing - ignoring" << endl;
 		return;
 	}
 
 	// Check that the game is ready
 	if (!client->bGameReady)  {
-		printf("CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready\n");
+		warnings << "CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready" << endl;
 		return;
 	}
 
-	printf("Client: get start game signal\n");
+	notes << "Client: get start game signal" << endl;
 	client->fLastSimulationTime = tLX->fCurTime;
 	client->iNetStatus = NET_PLAYING;
 	client->fServertime = 0;
@@ -955,29 +955,29 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 	// Check
 	if (client->iNetStatus != NET_PLAYING)  {
-		printf("CClientNetEngine::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)\n");
+		warnings << "CClientNetEngine::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)" << endl;
 		return;
 	}
 
 	if (!client->cMap) {
-		printf("CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)\n");
+		warnings << "CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)" << endl;
 		return;
 	}
 
 	// Is the spawnpoint in the map?
 	if (x > (int)client->cMap->GetWidth() || x < 0)  {
-		printf("CClientNetEngine::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnWorm: X-coordinate not in map (" << x << ")" << endl;
 		return;
 	}
 	if (y > (int)client->cMap->GetHeight() || y < 0)  {
-		printf("CClientNetEngine::ParseSpawnWorm: Y-coordinate not in map ("+itoa(y)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnWorm: Y-coordinate not in map (" << y << ")" << endl;
 		return;
 	}
 
 	CVec p = CVec( (float)x, (float)y );
 
 	if (id < 0 || id >= MAX_PLAYERS)  {
-		printf("CClientNetEngine::ParseSpawnWorm: invalid ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnWorm: invalid ID (" << id << ")" << endl;
 		return;
 	}
 
@@ -1025,7 +1025,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
-		printf("CClientNetEngine::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
 		CWorm::skipInfo(bs); // Skip not to break other packets
 		return;
 	}
@@ -1051,7 +1051,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 
 	// Load the worm graphics
 	if(!client->cRemoteWorms[id].ChangeGraphics(client->iGameType)) {
-        printf("CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed\n");
+        warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 
 	client->UpdateScoreboard();
@@ -1070,7 +1070,7 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
-		printf("CClientNetEngine::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
 		CWorm::skipWeapons(bs); // Skip not to break other packets
 		return;
 	}

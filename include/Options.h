@@ -219,7 +219,8 @@ public:
 	bool	bTopBarVisible;
 	bool	bScreenShaking;
 	bool	bDamagePopups;
-
+	bool	bAllowEmptyGames; // games with only one or zero worms will not quit
+	
 
     // Advanced
     int     nMaxFPS;

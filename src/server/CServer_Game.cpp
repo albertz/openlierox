@@ -173,7 +173,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 {
 	// Team names
 	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
-	int TeamCount[4];
+	//int TeamCount[4];
 
 	// If the game is already over, ignore this
 	if (bGameOver)  {
@@ -366,6 +366,8 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			SendGlobalText((buf), TXT_NORMAL);
 		}
 
+		// TODO: is all the following code needed here? shouldn't be RecheckGame() enough?
+		/*
 		// Check if only one person is left
 		int wormsleft = 0;
 		int wormid = 0;
@@ -469,7 +471,8 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			}
 		}
 		if (!bGameOver && (tLXOptions->tGameInfo.iGameMode == GMT_VIP || tLXOptions->tGameInfo.iGameMode == GMT_CTF || tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF))
-			RecheckGame();
+		*/
+		RecheckGame();
 	}
 
 
@@ -1101,7 +1104,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1)  {
+				if (teamsleft <= 1 && !tLXOptions->bAllowEmptyGames)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
@@ -1118,7 +1121,7 @@ void GameServer::RecheckGame(void)
 			case GMT_DEATHMATCH:  {
 				// Only one worm left, end the game
 				// though, in a local game it's sometimes nice to check also a map alone
-				if (tLX->iGameType != GME_LOCAL && wormcount < 2)  {
+				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->bAllowEmptyGames)  {
 					// Get the worm that is still alive and declare him as winner
 					w = cWorms + wormid;
 
@@ -1138,7 +1141,7 @@ void GameServer::RecheckGame(void)
 			//
 			case GMT_TAG:  {
 				// Only one worm left, end the game
-				if (wormcount < 2)  {
+				if (wormcount < 2 && !tLXOptions->bAllowEmptyGames)  {
 					// Get the worm with greatest tag time
 					float fMaxTagTime = 0;
 					int worm = 0;
@@ -1198,7 +1201,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1)  {
+				if (teamsleft <= 1 && !tLXOptions->bAllowEmptyGames)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
