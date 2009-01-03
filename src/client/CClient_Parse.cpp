@@ -1754,6 +1754,10 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
+	}
+	
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 }
