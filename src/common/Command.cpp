@@ -475,7 +475,7 @@ void Cmd_Crash(void)
 	//		clan war does it...)
 #ifdef DEBUG
 	Con_AddText(CNC_WARNING, "This version will crash too, though.");
-	// IMPORTANT TODO: remove this before Beta6 release! (it's for testing the new CrashHandler)
+	// HINT: the current simple CrashHandler does not have any problems with this, thus it can stay here for testing
 	(*(int*)0x13) = 42;
 #endif
 }

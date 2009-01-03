@@ -395,6 +395,8 @@ public:
 		printf("SignalHandler: %i\n", Sig);
 		signal(Sig, SIG_IGN); // discard all remaining signals
 		
+		// WARNING: dont use cout here in this function, it sometimes screws the cout up
+		
 		DumpCallstackPrintf();
 		
 		signal(Sig, SimpleSignalHandler); // reset handler
