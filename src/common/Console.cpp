@@ -28,6 +28,8 @@
 
 console_t	*Console = NULL;
 
+bool Con_IsInited() { return Console != NULL; }
+
 using namespace std;
 
 
@@ -221,7 +223,7 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 	// Enter key
 	if(input.ch == '\n' || input.ch == '\r') {
 
-		Con_Printf(CNC_NORMAL, "]" + Console->Line[0].strText);
+		Con_AddText(CNC_NORMAL, "]" + Console->Line[0].strText);
 
 		// Parse the line
 		Cmd_ParseLine(Console->Line[0].strText);
@@ -285,14 +287,10 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 }
 
 
-void Con_Printf(int color, const std::string& txt) {
-	Con_AddText(color, txt);
-}
-
 ///////////////////
 // Add a string of text to the console
 // TODO: this function is ineffective because Console->Line is not a std::list
-void Con_AddText(int colour, const std::string& text)
+void Con_AddText(int colour, const std::string& text, bool alsoToLogger)
 {
 	if (text == "")
 		return;
@@ -312,17 +310,19 @@ void Con_AddText(int colour, const std::string& text)
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
 
-		notes << "Ingame console: ";
-		switch(colour) {
-		case CNC_NORMAL: break;
-		case CNC_NOTIFY: notes << "NOTIFY: "; break;
-		case CNC_ERROR: notes << "ERROR: "; break;
-		case CNC_WARNING: notes << "WARNING: "; break;
-		case CNC_DEV: notes << "DEV: "; break;
-		case CNC_CHAT: notes << "CHAT: "; break;
-		default: notes << "UNKNOWN: ";
+		if(alsoToLogger) {
+			notes << "Ingame console: ";
+			switch(colour) {
+			case CNC_NORMAL: break;
+			case CNC_NOTIFY: notes << "NOTIFY: "; break;
+			case CNC_ERROR: notes << "ERROR: "; break;
+			case CNC_WARNING: notes << "WARNING: "; break;
+			case CNC_DEV: notes << "DEV: "; break;
+			case CNC_CHAT: notes << "CHAT: "; break;
+			default: notes << "UNKNOWN: ";
+			}
+			notes << *it << endl;
 		}
-		notes << *it << endl;
 	}
 }
 
@@ -390,7 +390,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 
 ///////////////////
 // Returns if the console is in use
-bool Con_IsUsed(void)
+bool Con_IsVisible(void)
 {
 	return Console->iState != CON_HIDDEN;
 }

@@ -395,7 +395,7 @@ public:
 		printf("SignalHandler: %i\n", Sig);
 		signal(Sig, SIG_IGN); // discard all remaining signals
 		
-		DumpCallstack();
+		DumpCallstackPrintf();
 		
 		signal(Sig, SimpleSignalHandler); // reset handler
 		printf("resuming ...\n");

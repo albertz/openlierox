@@ -13,16 +13,17 @@
 #include <string>
 #include "StringUtils.h"
 
-void DumpCallstack();
+void DumpCallstackPrintf();
+void DumpCallstack(void (*LineOutFct) (const std::string&));
 
-class Logger {
-private:
-	int minShowVerb;
+struct Logger {
+	int minIngameConVerb;
+	int minCoutVerb;
 	int minCallstackVerb;
 	std::string prefix;
 	std::string buffer;
-public:
-	Logger(int show, int callst, const std::string& p) : minShowVerb(show), minCallstackVerb(callst), prefix(p) {}
+
+	Logger(int ingame, int o, int callst, const std::string& p) : minIngameConVerb(ingame), minCoutVerb(o), minCallstackVerb(callst), prefix(p) {}
 	Logger& operator<<(const std::string& msg) { buffer += msg; return *this; }
 	Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*this); }
 	template<typename _T> Logger& operator<<(_T v) { return operator<<(to_string(v)); }

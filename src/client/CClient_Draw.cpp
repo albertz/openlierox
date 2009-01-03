@@ -1050,7 +1050,7 @@ void CClient::SimulateHud(void)
 
 	//float dt = tLX->fDeltaTime; // TODO: not used
 	//float ScrollSpeed=5; // TODO: not used
-    bool  con = Con_IsUsed();
+    bool  con = Con_IsVisible();
 
 
 	//
@@ -2659,7 +2659,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
     bool bShowReady = false;
 
     // Do checks on whether or not to show the scoreboard
-    if(Con_IsUsed())
+    if(Con_IsVisible())
         return;
     if(cShowScore.isDown() && !bChat_Typing)
         bShowScore = true;

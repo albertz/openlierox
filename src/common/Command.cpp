@@ -157,7 +157,7 @@ bool Cmd_ParseLine(const std::string& text)
 	}
 
 	std::string tmp = Cmd_GetArg(0);
-	Con_Printf(CNC_NOTIFY, "Unknown command '" + tmp + "'");
+	Con_AddText(CNC_NOTIFY, "Unknown command '" + tmp + "'");
 	return false;
 }
 
@@ -213,14 +213,14 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide)
 {
 	// Make sure the command isn't a variable
 	/*if(CV_Find(strName)) {
-		Con_Printf(CNC_WARNING,"%s already used as a variable",strName);
+		Con_AddText(CNC_WARNING,"%s already used as a variable",strName);
 		return false;
 	}*/
 
 
 	// Make sure the command isn't already used
 	if(Cmd_GetCommand(strName)) {
-		Con_Printf(CNC_WARNING, strName + " already defined as a command");
+		Con_AddText(CNC_WARNING, strName + " already defined as a command");
 		return false;
 	}
 
@@ -301,13 +301,13 @@ static int atoid(const std::string& str)
 void Cmd_Kick(void)
 {
 	if(tLX->iGameType == GME_JOIN)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "kick <worm_name>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "kick <worm_name>");
         return;
     }
 
@@ -320,13 +320,13 @@ void Cmd_Kick(void)
 void Cmd_Ban(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "ban <worm_name>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "ban <worm_name>");
         return;
     }
 
@@ -339,13 +339,13 @@ void Cmd_Ban(void)
 void Cmd_Mute(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "mute <worm_name>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "mute <worm_name>");
         return;
     }
 
@@ -358,13 +358,13 @@ void Cmd_Mute(void)
 void Cmd_Unmute(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "unmute <worm_name>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "unmute <worm_name>");
         return;
     }
 
@@ -377,13 +377,13 @@ void Cmd_Unmute(void)
 void Cmd_KickId(void)
 {
 	if(tLX->iGameType == GME_JOIN)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "kickid <worm_id>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "kickid <worm_id>");
         return;
     }
 
@@ -400,13 +400,13 @@ void Cmd_KickId(void)
 void Cmd_BanId(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "banid <worm_id>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "banid <worm_id>");
         return;
     }
 
@@ -423,13 +423,13 @@ void Cmd_BanId(void)
 void Cmd_MuteId(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "muteid <worm_id>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "muteid <worm_id>");
         return;
     }
 
@@ -446,13 +446,13 @@ void Cmd_MuteId(void)
 void Cmd_UnmuteId(void)
 {
 	if(tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host.");
+		Con_AddText(CNC_NORMAL, "This command is available only for host.");
 		return;
 	}
 
     if(Cmd_GetNumArgs() == 1) {
-        Con_Printf(CNC_NORMAL, "Usage:");
-        Con_Printf(CNC_NORMAL, "unmuteid <worm_id>");
+        Con_AddText(CNC_NORMAL, "Usage:");
+        Con_AddText(CNC_NORMAL, "unmuteid <worm_id>");
         return;
     }
 
@@ -468,13 +468,13 @@ void Cmd_UnmuteId(void)
 // Crash
 void Cmd_Crash(void)
 {
-	Con_Printf(CNC_NORMAL,"In a previous version, the game would crash now!");
+	Con_AddText(CNC_NORMAL,"In a previous version, the game would crash now!");
 	// HINT: please don't add any code, which could make the game unstable
 	//		(I myself just tested this command without knowing and BANG,
 	//		I got an access violation. Perhaps the hoster of an important
 	//		clan war does it...)
 #ifdef DEBUG
-	Con_Printf(CNC_WARNING, "This version will crash too, though.");
+	Con_AddText(CNC_WARNING, "This version will crash too, though.");
 	// IMPORTANT TODO: remove this before Beta6 release! (it's for testing the new CrashHandler)
 	(*(int*)0x13) = 42;
 #endif
@@ -486,12 +486,12 @@ void Cmd_Suicide(void)
 {
 	if (cClient)  {
 		if(bDedicated) {
-			Con_Printf(CNC_NORMAL, "Cannot suicide in dedicated mode!");
+			Con_AddText(CNC_NORMAL, "Cannot suicide in dedicated mode!");
 			return;
 		}
 
 		if(cClient->getStatus() != NET_PLAYING)  {
-			Con_Printf(CNC_NORMAL, "Cannot suicide when not playing!");
+			Con_AddText(CNC_NORMAL, "Cannot suicide when not playing!");
 			return;
 		}
 
@@ -531,13 +531,13 @@ void Cmd_Unstuck(void)
 
 	if (cClient)  {
 		if(bDedicated) {
-			Con_Printf(CNC_NORMAL, "Cannot unstuck in dedicated mode!");
+			Con_AddText(CNC_NORMAL, "Cannot unstuck in dedicated mode!");
 			return;
 		}
 
 		// Not playing
 		if(cClient->getStatus() != NET_PLAYING)  {
-			Con_Printf(CNC_NORMAL, "Cannot unstuck when not playing!");
+			Con_AddText(CNC_NORMAL, "Cannot unstuck when not playing!");
 			return;
 		}
 
@@ -554,7 +554,7 @@ void Cmd_WantsJoin(void)
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: wantsjoin <on/off>");
+		Con_AddText(CNC_NORMAL, "Usage: wantsjoin <on/off>");
 		return;
 	}
 
@@ -562,11 +562,11 @@ void Cmd_WantsJoin(void)
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		tLXOptions->bAllowWantsJoinMsg = true;
-		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been enabled");
+		Con_AddText(CNC_NORMAL, "\"Wants to join\" messages have been enabled");
 	}
 	else  {
 		tLXOptions->bAllowWantsJoinMsg = false;
-		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been disabled");
+		Con_AddText(CNC_NORMAL, "\"Wants to join\" messages have been disabled");
 	}
 }
 
@@ -574,13 +574,13 @@ void Cmd_RenameServer(void)
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: servername <new name>");
+		Con_AddText(CNC_NORMAL, "Usage: servername <new name>");
 		return;
 	}
 
 	// Check if hosting
 	if (tLX->iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL, "This command is available only for host");
+		Con_AddText(CNC_NORMAL, "This command is available only for host");
 		return;
 	}
 
@@ -593,7 +593,7 @@ void Cmd_RenameServer(void)
 }
 
 void Cmd_Help() {
-	Con_Printf(CNC_NORMAL, "Available commands:");
+	Con_AddText(CNC_NORMAL, "Available commands:");
 	static std::string cmd_help_buf;
 	command_t* cmd;
 	unsigned short count = 0;
@@ -606,22 +606,22 @@ void Cmd_Help() {
 			count++;
 			if(count >= 5) {
 				count = 0;
-				Con_Printf(CNC_NORMAL, "  " + cmd_help_buf);
+				Con_AddText(CNC_NORMAL, "  " + cmd_help_buf);
 				cmd_help_buf = "";
 			}
 		}
 	}
 	if(count && cmd_help_buf != "") {
-		Con_Printf(CNC_NORMAL, "  " + cmd_help_buf);
+		Con_AddText(CNC_NORMAL, "  " + cmd_help_buf);
 	}
 }
 
 void Cmd_About() {
-	Con_Printf(CNC_NOTIFY, GetFullGameName());
+	Con_AddText(CNC_NOTIFY, GetFullGameName());
 }
 
 void Cmd_BadWord() {
-	Con_Printf(CNC_NOTIFY, sex(50));
+	Con_AddText(CNC_NOTIFY, sex(50));
 }
 
 void Cmd_Quit() {
@@ -632,7 +632,7 @@ void Cmd_Quit() {
 // Set sound volume
 void Cmd_Volume()  {
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: volume <0-100>");
+		Con_AddText(CNC_NORMAL, "Usage: volume <0-100>");
 	}
 
 	std::string arg = Cmd_GetArg(1);
@@ -649,7 +649,7 @@ void Cmd_Volume()  {
 void Cmd_Sound()  {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: sound <on/off>");
+		Con_AddText(CNC_NORMAL, "Usage: sound <on/off>");
 	}
 
 	std::string arg = Cmd_GetArg(1);
@@ -670,7 +670,7 @@ void Cmd_ServerSideHealth()  {
 /*
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: ssh <on/off>");
+		Con_AddText(CNC_NORMAL, "Usage: ssh <on/off>");
 	} else {
 		std::string arg = Cmd_GetArg(1);
 
@@ -678,10 +678,10 @@ void Cmd_ServerSideHealth()  {
 		tLXOptions->bServerSideHealth =  !stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes");
 	}
 
-	Con_Printf(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
+	Con_AddText(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
 */
 
-	Con_Printf(CNC_NORMAL, "Sorry, server side health has been removed for non-dedicated servers");
+	Con_AddText(CNC_NORMAL, "Sorry, server side health has been removed for non-dedicated servers");
 }
 
 //////////////////
@@ -689,7 +689,7 @@ void Cmd_ServerSideHealth()  {
 void Cmd_SendIrcMessage()  {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: irc your message");
+		Con_AddText(CNC_NORMAL, "Usage: irc your message");
 	}
 
 	std::string msg;
