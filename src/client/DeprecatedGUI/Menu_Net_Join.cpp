@@ -343,6 +343,7 @@ static void initDetailsList(CListview* l) {
 	}
 	l->AddItem("lives", index++, tLX->clNormalLabel); SUBS("Lives:");
 	l->AddItem("maxkills", index++, tLX->clNormalLabel); SUBS("Max Kills:");
+	l->AddItem("timelimit", index++, tLX->clNormalLabel); SUBS("Timelimit:");	
 	l->AddItem("loadingtime", index++, tLX->clNormalLabel); SUBS("Loading time:");
 	l->AddItem("bonuses", index++, tLX->clNormalLabel); SUBS("Bonuses:");
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
@@ -405,6 +406,17 @@ static void updateDetailsList(CListview* l) {
 		si->iColour = tLX->clDisabled;
 	}
 
+	SETI;
+	if(cClient->getTimeLimit() >= 0) {
+		si->sText = ftoa(cClient->getTimeLimit()) + " min";		
+	} else if(cClient->getTimeLimit() <= -100) {
+		si->sText = "unknown";
+		si->iColour = tLX->clDisabled;
+	} else {
+		si->sText = "disabled";
+		si->iColour = tLX->clDisabled;		
+	}
+	
 	SETI; si->sText = itoa(cClient->getGameLobby()->iLoadingTime) + "%";
 	SETI; si->sText = cClient->getGameLobby()->bBonusesOn ? "On" : "Off";
 

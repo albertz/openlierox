@@ -222,7 +222,7 @@ private:
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;
-	int			iTimeLimit;
+	float		fTimeLimit;
 	int			iTagLimit;
 	float		fLoadingTime;
 	std::string	sModName;
@@ -601,6 +601,8 @@ public:
 
 	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tLX->iGameType == GME_LOCAL; }
 
+	float		getTimeLimit()					{ return fTimeLimit; }
+	
 	int			getDlProgress()					{ return iDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 	bool		getDownloadingMod()				{ return bDownloadingMod; }

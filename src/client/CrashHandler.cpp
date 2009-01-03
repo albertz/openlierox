@@ -51,7 +51,7 @@ public:
 		SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
 		nameThread(-1,"Main game thread");
 
-		cout << "Win32 Exception Filter installed" << endl;
+		notes << "Win32 Exception Filter installed" << endl;
 	}
 
 
@@ -518,7 +518,7 @@ public:
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		cout << "Dummy CrashHandler implementation" << endl;
+		notes << "Dummy CrashHandler implementation" << endl;
 	}
 };
 
@@ -528,7 +528,7 @@ CrashHandlerImpl* crashHandlerInstance = NULL;
 
 void CrashHandler::init() {
 	if(crashHandlerInstance) {
-		cout << "WARNING: CrashHandler tried to init twice" << endl;
+		warnings << "CrashHandler tried to init twice" << endl;
 		return;
 	}
 	notes << "Installing CrashHandler .. ";

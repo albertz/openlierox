@@ -606,10 +606,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		// Draw time left
-		if(iTimeLimit > 0 && tLXOptions->bTopBarVisible)
+		if(fTimeLimit > 0 && tLXOptions->bTopBarVisible)
 		{
-			static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
-			float fTimeLeft = (float)iTimeLimit - (serverTime()/60.0f);
+			float fTimeLeft = fTimeLimit - (serverTime()/60.0f);
 			//sanity check
 			if(fTimeLeft < 0.0f)
 				fTimeLeft = 0.0f;
@@ -623,7 +622,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			else
 				clTimeLabel = tLX->clTimeLeftLabel;
 
+			// TODO: don't use sprintf, use C++ code!
 			//NOTE: there is no decent way to do this in C++ ?! Using C:
+			static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
 			sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
 		
 			DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );

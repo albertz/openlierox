@@ -41,7 +41,7 @@
 #include "IRC.h"
 #include "NotifyUser.h"
 #include "CWormHuman.h"
-
+#include "Debug.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -59,7 +59,7 @@ void CClient::Clear(void)
 #ifdef _MSC_VER
 		__asm int 3; // Breakpoint
 #endif
-		printf("FIXME: clearing a client that wasn't shut down! This will cause a memleak!");
+		warnings << "clearing a client that wasn't shut down! This will cause a memleak!" << endl;
 	}
 #endif
 
@@ -83,6 +83,7 @@ void CClient::Clear(void)
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
 	fLoadingTime = 1;
+	fTimeLimit = -100;
 	iScorePlayers = 0;
 	cBonuses = NULL;
 	bUpdateScore = true;
@@ -228,6 +229,7 @@ void CClient::ReinitLocalWorms() {
 }
 */
 CClient::CClient() {
+	// TODO: merge this with Clear()
 	//printf("cl:Constructor\n");
 	cRemoteWorms = NULL;
 	cMap = NULL;
@@ -301,6 +303,8 @@ CClient::CClient() {
 	bDlError = false;
 	sDlError = "";
 	iDlProgress = 0;
+	
+	Clear();
 }
 
 CClient::~CClient() {

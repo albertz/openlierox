@@ -150,6 +150,7 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
+	bs->writeFloat(tLXOptions->tGameInfo.fTimeLimit);
 	WriteFeatureSettings(bs);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
@@ -529,8 +530,10 @@ static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
 	}
 
 	// since Beta9
-	if( cl->getClientVersion() >= OLXBetaVersion(9) )
+	if( cl->getClientVersion() >= OLXBetaVersion(9) ) {
+		bs.writeFloat(tLXOptions->tGameInfo.fTimeLimit);
 		CServerNetEngineBeta9::WriteFeatureSettings(&bs);
+	}
 	
 	cl->getNetEngine()->SendPacket(&bs);
 }

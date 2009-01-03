@@ -27,6 +27,7 @@
 #include "StringUtils.h"
 #include "MathLib.h"
 #include "CScriptableVars.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -411,7 +412,7 @@ uchar CBytestream::readByte(void) {
 		return Data[pos++];
 	else {
 #ifndef FUZZY_ERROR_TESTING
-		printf("WARNING: reading from stream behind end\n");
+		warnings <<"reading from stream behind end" << endl;
 #endif
 		return 0;
 	}

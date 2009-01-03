@@ -46,6 +46,7 @@
 #include "IRC.h"
 #include "CWormHuman.h"
 #include "CWormBot.h"
+#include "Debug.h"
 
 
 using namespace std;
@@ -563,7 +564,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->iGameType = bs->readInt(1);
 	client->iLives = bs->readInt16();
 	client->iMaxKills = bs->readInt16();
-	client->iTimeLimit = bs->readInt16();
+	client->fTimeLimit = (float)bs->readInt16();
 	int l = bs->readInt16();
 	client->fLoadingTime = (float)l/100.0f;
 	client->bBonusesOn = bs->readBool();
@@ -861,6 +862,11 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	int ftC = bs->readInt(2);
 	for(int i = 0; i < ftC; ++i) {
 		std::string name = bs->readString();
+		if(name == "") {
+			warnings << "Server gives bad features" << endl;
+			bs->SkipAll();
+			break;
+		}
 		std::string humanName = bs->readString();
 		ScriptVar_t value; bs->readVar(value);
 		bool olderClientsSupported = bs->readBool();
@@ -888,6 +894,9 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
+	client->fTimeLimit = bs->readFloat();
+	if(client->fTimeLimit < 0) client->fTimeLimit = -1;
+	
 	ParseFeatureSettings(bs);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
@@ -1723,6 +1732,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.iGameMode = bs->readByte();
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();
+	client->fTimeLimit = -100;
 	client->tGameInfo.iLoadingTime = bs->readInt16();
     client->tGameInfo.bBonusesOn = bs->readBool();
 
@@ -1774,7 +1784,10 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngineBeta7::ParseUpdateLobbyGame(bs);
-	
+
+	client->fTimeLimit = bs->readFloat();
+	if(client->fTimeLimit < 0) client->fTimeLimit = -1;
+
 	ParseFeatureSettings(bs);
 }
 
