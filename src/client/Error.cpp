@@ -21,7 +21,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "AuxLib.h"
 #include "Error.h"
 #include "FindFile.h"
@@ -47,7 +47,7 @@ void SetError(const std::string& text)
 
 	GotError = true;
 
-	cout << "SetError: " << text << endl;
+	errors << "SetError: " << text << endl;
 
 	if(ErrorFile == NULL) {
 		ErrorFile = OpenGameFile("Error.txt","wt");
@@ -99,10 +99,10 @@ void SystemError(const std::string& text)
 {
 
 	// SDL_ShowCursor(SDL_ENABLE);	// Commented out because of a bug in SDL that causes a crash when SDL_SetVideoMode fails
-	// TODO: uniform message system
-	if (text.size() != 0)
-		printf("SystemError: %s\n", text.c_str());
-
+	if (text.size() != 0) {
+		errors << "SystemError: " << text << endl;
+	}
+	
 	// Shudown only when not already shutting down
 	if (tLX)
 		if (!tLX->bQuitGame)

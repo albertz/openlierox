@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "AuxLib.h"
 #include "Cache.h"
 #include "StringUtils.h"
@@ -145,10 +145,10 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	SoundSystemAvailable = false;
 
 	if(getenv("SDL_AUDIODRIVER"))
-		printf("SDL_AUDIODRIVER=%s\n", getenv("SDL_AUDIODRIVER"));
+		notes << "SDL_AUDIODRIVER=" << getenv("SDL_AUDIODRIVER") << endl;
 #if defined(__linux__)
 	if(!getenv("SDL_AUDIODRIVER")) {
-		printf("SDL_AUDIODRIVER not set, setting to ALSA\n");
+		notes << "SDL_AUDIODRIVER not set, setting to ALSA" << endl;
 		putenv((char*)"SDL_AUDIODRIVER=alsa");
 	}
 #endif
@@ -157,9 +157,9 @@ initSoundSystem:
 
 	// HINT: other SDL stuff is already inited, we don't care here
 	if( SDL_InitSubSystem(SDL_INIT_AUDIO) != 0 ) {
-		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
+		warnings << "InitSoundSystem: Unable to initialize SDL-sound: " << SDL_GetError() << endl;
 		if(getenv("SDL_AUDIODRIVER")) {
-			printf("trying again with SDL_AUDIODRIVER unset\n");
+			notes << "trying again with SDL_AUDIODRIVER unset" << endl;
 			unsetenv("SDL_AUDIODRIVER");
 			goto initSoundSystem;
 		} else
@@ -167,9 +167,9 @@ initSoundSystem:
 	}
 
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
-		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
+		warnings << "InitSoundSystem: Unable to open audio (SDL_mixer): " << Mix_GetError() << endl;
 		if(getenv("SDL_AUDIODRIVER")) {
-			printf("trying again with SDL_AUDIODRIVER unset\n");
+			notes << "trying again with SDL_AUDIODRIVER unset" << endl;
 			unsetenv("SDL_AUDIODRIVER");
 			goto initSoundSystem;
 		} else
@@ -179,7 +179,7 @@ initSoundSystem:
 	int allocChanNum = Mix_AllocateChannels(1000); // TODO: enough?
 
 	SoundSystemAvailable = true;
-	printf("SoundSystem initialised, %i channels allocated\n", allocChanNum);
+	notes << "SoundSystem initialised, " << allocChanNum << " channels allocated" << endl;
 	return true;
 }
 
@@ -230,8 +230,8 @@ int GetSoundVolume(void)  {
 bool QuitSoundSystem() {
 #if SDLMIXER_WORKAROUND_RESTART == 1
 	if(bRestartGameAfterQuit) {
-		printf("WARNING: You are using an old version of SDL_mixer. You should at least use 1.2.8.\n");
-		printf("There is a known bug in 1.2.7, therefore we cannot restart the sound-system and we will leave it running at this point.\n");
+		warnings << "You are using an old version of SDL_mixer. You should at least use 1.2.8.\n";
+		warnings << "There is a known bug in 1.2.7, therefore we cannot restart the sound-system and we will leave it running at this point." << endl;
 		// HINT: in ShutdownAuxLib, SDL_Quit will exclude the quitting of audio
 		return false;
 	}

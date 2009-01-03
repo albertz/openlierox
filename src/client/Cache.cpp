@@ -18,7 +18,7 @@
 
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "Sounds.h"
 #include "Cache.h"
 #include "GfxPrimitives.h"
@@ -52,7 +52,7 @@ void CacheTimer(Timer::EventData data)  {
 			unit = "KB";
 		}
 
-		printf("Current cache size: " + to_string<size_t>(size) + " " + unit + "\n");
+		notes << "Current cache size: " << size << " " << unit << endl;
 	}
 }
 

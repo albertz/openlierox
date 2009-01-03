@@ -26,9 +26,10 @@
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <stdlib.h>
+#include <sstream>
 
 #include "Cache.h"
-
+#include "Debug.h"
 #include "AuxLib.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"
@@ -89,12 +90,12 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	ConfigFile=config;
 
 	if(getenv("SDL_VIDEODRIVER"))
-		printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
+		notes << "SDL_VIDEODRIVER=" << getenv("SDL_VIDEODRIVER") << endl;
 
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
 	if(!getenv("SDL_VIDEODRIVER")) {
-		printf("SDL_VIDEODRIVER not set, setting to directx\n");
+		notes << "SDL_VIDEODRIVER not set, setting to directx" << endl;
 		putenv((char*)"SDL_VIDEODRIVER=directx");
 	}
 #endif
@@ -104,18 +105,18 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	if(!bDedicated) {
 		SDLflags |= SDL_INIT_VIDEO;
 	} else {
-		printf("DEDICATED MODE\n");
+		hints << "DEDICATED MODE" << endl;
 		bDisableSound = true;
 		bJoystickSupport = false;
 	}
 
 	if(SDL_Init(SDLflags) == -1) {
-		printf("Failed to initialize the SDL system!\nErrorMsg: " + std::string(SDL_GetError()));
+		errors << "Failed to initialize the SDL system!\nErrorMsg: " << std::string(SDL_GetError()) << endl;
 #ifdef WIN32
 		// retry it with any available video driver
 		unsetenv("SDL_VIDEODRIVER");
 		if(SDL_Init(SDLflags) != -1)
-			printf("... but we have success with the any driver\n");
+			hints << "... but we have success with the any driver" << endl;
 		else
 #endif
 		return false;
@@ -123,7 +124,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
 	if(bJoystickSupport) {
 		if(SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
-			printf("WARNING: couldn't init joystick subystem: %s\n", SDL_GetError());
+			warnings << "WARNING: couldn't init joystick subystem: " << SDL_GetError() << endl;
 			bJoystickSupport = false;
 		}
 	}
@@ -144,12 +145,12 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	    // Initialize sound
 		//if(!InitSoundSystem(22050, 1, 512)) {
 		if(!InitSoundSystem(44100, 1, 512)) {
-		    printf("Warning: Failed the initialize the sound system\n");
+		    warnings << "Failed the initialize the sound system" << endl;
 			bDisableSound = true;
 		}
     }
 	if(bDisableSound) {
-		printf("soundsystem completly disabled\n");
+		notes << "soundsystem completly disabled" << endl;
 		tLXOptions->bSoundOn = false;
 	}
 
@@ -186,7 +187,9 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
 
 static void DumpPixelFormat(const SDL_PixelFormat* format) {
-	cout << "PixelFormat:" << endl
+	std::string buf;
+	std::stringstream str(buf);
+	str << "PixelFormat:" << endl
 		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
 		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << endl
 		<< "  R/G/B/A mask: " << hex
@@ -201,6 +204,7 @@ static void DumpPixelFormat(const SDL_PixelFormat* format) {
 			<< (uint)format->Aloss << endl << dec
 		<< "  Colorkey: " << (uint)format->colorkey << ","
 		<< "  Alpha: " << (int)format->alpha << endl;
+	notes << buf << endl;
 }
 
 ///////////////////
@@ -208,12 +212,12 @@ static void DumpPixelFormat(const SDL_PixelFormat* format) {
 bool SetVideoMode()
 {
 	if(bDedicated) {
-		printf("SetVideoMode: dedicated mode, ignoring\n");
+		notes << "SetVideoMode: dedicated mode, ignoring" << endl;
 		return true; // ignore this case
 	}
 
 	if (!tLXOptions)  {
-		printf("WARNING: SetVideoMode: Don't know what video mode to set, ignoring\n");
+		warnings << "SetVideoMode: Don't know what video mode to set, ignoring" << endl;
 		return false;
 	}
 
@@ -222,13 +226,13 @@ bool SetVideoMode()
 	// Check if already running
 	if (VideoPostProcessor::videoSurface())  {
 		resetting = true;
-		printf("resetting video mode\n");
+		notes << "resetting video mode" << endl;
 
 		// seems to be a win-only problem, it works without problems here under MacOSX
 #ifdef WIN32
 		// using hw surfaces?
 		if ((VideoPostProcessor::videoSurface()->flags & SDL_HWSURFACE) != 0) {
-			printf("WARNING: cannot change video mode because current mode uses hardware surfaces\n");
+			warnings << "cannot change video mode because current mode uses hardware surfaces" << endl;
 			// TODO: you would have to reset whole game, this is not enough!
 			// The problem is in all allocated surfaces - they are hardware and when you switch
 			// to window, you will most probably get software rendering
@@ -239,7 +243,7 @@ bool SetVideoMode()
 		}
 #endif
 	} else {
-		printf("setting video mode\n");
+		notes << "setting video mode" << endl;
 	}
 
 	// uninit first to ensure that the video thread is not running
@@ -271,7 +275,7 @@ bool SetVideoMode()
 		break;
 	default: tLXOptions->iColourDepth = 16;
 	}
-	printf("ColorDepth: %i\n", tLXOptions->iColourDepth);
+	notes << "ColorDepth: " << tLXOptions->iColourDepth << endl;
 
 	// BlueBeret's addition (2007): OpenGL support
 	bool opengl = tLXOptions->bOpenGL;
@@ -282,7 +286,7 @@ bool SetVideoMode()
 	}
 
 	if (opengl) {
-		printf("HINT: using OpenGL\n");
+		hints << "using OpenGL" << endl;
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT; // Without that flag SDL_GetVideoSurface()->pixels will be NULL, which is weird
 
@@ -339,7 +343,7 @@ bool SetVideoMode()
 setvideomode:
 	if( SDL_SetVideoMode(scrW, scrH, tLXOptions->iColourDepth, vidflags) == NULL) {
 		if (resetting)  {
-			cout << "Failed to reset video mode"
+			errors << "Failed to reset video mode"
 					<< " (ErrorMsg: " << SDL_GetError() << "),"
 					<< " let's wait a bit and retry" << endl;
 			SDL_Delay(500);
@@ -348,7 +352,7 @@ setvideomode:
 		}
 
 		if(tLXOptions->iColourDepth != 0) {
-			cout << "Failed to use " << tLXOptions->iColourDepth << " bpp"
+			errors << "Failed to use " << tLXOptions->iColourDepth << " bpp"
 					<< " (ErrorMsg: " << SDL_GetError() << "),"
 					<< " trying automatic bpp detection ..." << endl;
 			tLXOptions->iColourDepth = 0;
@@ -356,7 +360,7 @@ setvideomode:
 		}
 
 		if(vidflags & SDL_FULLSCREEN) {
-			cout << "Failed to set full screen video mode "
+			errors << "Failed to set full screen video mode "
 					<< scrW << "x" << scrH << "x" << tLXOptions->iColourDepth
 					<< " (ErrorMsg: " << SDL_GetError() << "),"
 					<< " trying window mode ..." << endl;
@@ -390,23 +394,23 @@ setvideomode:
 	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
-		cout << "using doublebuffering" << endl;
+		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
-		printf("using hardware surfaces\n");
+		notes << "using hardware surfaces" << endl;
 	} else {
 		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
 		if (HardwareAcceleration)
-			printf("HINT: Unable to use hardware surfaces, falling back to software.\n");
-		printf("using software surfaces\n");
+			hints << "Unable to use hardware surfaces, falling back to software." << endl;
+		notes << "using software surfaces" << endl;
 	}
 
 	VideoPostProcessor::get()->resetVideo();
 	FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
 
-	cout << "video mode was set successfully" << endl;
+	notes << "video mode was set successfully" << endl;
 	return true;
 }
 
@@ -510,7 +514,7 @@ public:
 class DummyVideoPostProc : public BasicVideoPostProcessor {
 public:
 	DummyVideoPostProc() {
-		cout << "using Dummy video post processor" << endl;
+		notes << "using Dummy video post processor" << endl;
 	}
 
 	virtual void processToScreen() {
@@ -525,7 +529,7 @@ public:
 	static const int H = 240;
 
 	StretchHalfPostProc() {
-		cout << "using StretchHalf video post processor" << endl;
+		notes << "using StretchHalf video post processor" << endl;
 	}
 
 	virtual void processToScreen() {
@@ -545,7 +549,7 @@ public:
 	static const int H = 480 * 2;
 
 	Scale2XPostProc() {
-		cout << "using Scale2x video post processor" << endl;
+		notes << "using Scale2x video post processor" << endl;
 	}
 
 	virtual void processToScreen() {
@@ -577,7 +581,7 @@ int videoThreadFct(void*) {
 		while(videoThreadState != VTS_WAITING) {
 			if(videoThreadState == VTS_INVALID) {
 				SDL_mutexV(videoWaitMutex);
-				printf("Video thread gets killed\n");
+				notes << "Video thread gets killed" << endl;
 				return 0;
 			}
 
@@ -620,7 +624,7 @@ void VideoPostProcessor::process() {
 }
 
 void VideoPostProcessor::init() {
-	cout << "VideoPostProcessor initialisation ... " << flush;
+	notes << "VideoPostProcessor initialisation ... ";
 
 	std::string vppName = tLXOptions->sVideoPostProcessor;
 	TrimSpaces(vppName); stringlwr(vppName);
@@ -632,8 +636,8 @@ void VideoPostProcessor::init() {
 		instance = new DummyVideoPostProc();
 	else {
 		if(vppName != "")
-			cout << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
-		cout << "none used, drawing directly on screen" << endl;
+			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
+		notes << "none used, drawing directly on screen" << endl;
 		instance = &voidVideoPostProcessor;
 	}
 
@@ -831,7 +835,7 @@ void TakeScreenshot(const std::string& scr_path, const std::string& additional_d
 	if (scr_path.empty()) // Check
 		return;
 
-	cout << "Save screenshot to " << scr_path << endl;
+	notes << "Save screenshot to " << scr_path << endl;
 
 	std::string	extension;
 
@@ -951,7 +955,7 @@ bool HandleDebugCommand(const std::string& text) {
 		stringlwr(cmd);
 
 		if(cmd == "reconnect") {
-			cout << "DEBUG CMD: reconnect local client to " << cClient->getServerAddress() << endl;
+			notes << "DEBUG CMD: reconnect local client to " << cClient->getServerAddress() << endl;
 			cClient->Connect(cClient->getServerAddress());
 		} else if(cmd == "msgbox") {
 			Menu_MessageBox("Test",
@@ -965,7 +969,7 @@ bool HandleDebugCommand(const std::string& text) {
 		} else if(cmd == "register") {
 			cServer->RegisterServer();
 		} else
-			cout << "DEBUG CMD unknown" << endl;
+			notes << "DEBUG CMD unknown" << endl;
 
 		return true;
 	}

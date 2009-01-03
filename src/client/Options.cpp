@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Options.h"
@@ -210,13 +210,13 @@ static void InitSearchPaths() {
 	}
 
 	// print the searchpaths, this may be very usefull for the user
-	printf("I have now the following searchpaths (in this order):\n");
+	notes << "I have now the following searchpaths (in this order):\n";
 	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
 		std::string path = *p2;
 		ReplaceFileVariables(path);
-		printf("  %s\n", path.c_str());
+		notes << "  " << path << "\n";
 	}
-	printf(" And that's all.\n");
+	notes << " And that's all." << endl;
 }
 
 static void InitWidgetStates(GameOptions& opts) {
@@ -242,7 +242,7 @@ static void InitWidgetStates(GameOptions& opts) {
 // Load the options
 bool GameOptions::LoadFromDisc()
 {
-	printf("Loading options... \n");
+	notes << "Loading options..." << endl;
 
 	additionalOptions.clear();
 
@@ -273,12 +273,12 @@ bool GameOptions::LoadFromDisc()
 				*(it->second.f) = it->second.fdef;
 			else if( it->second.type == SVT_STRING )
 				*(it->second.s) = it->second.sdef;
-			else printf("WARNING: Invalid var type %i of \"%s\" when setting default!\n", it->second.type, it->first.c_str() );
+			else warnings << "Invalid var type " << it->second.type << " of \"" << it->first << "\" when setting default!" << endl;
 		}
 	}
 
-	cout << "Reading game options from " << GetFullFileName("cfg/options.cfg") << endl;
-	cout << "Will write game options to " << GetWriteFullFileName("cfg/options.cfg", true) << endl;
+	notes << "Reading game options from " << GetFullFileName("cfg/options.cfg") << endl;
+	notes << "Will write game options to " << GetWriteFullFileName("cfg/options.cfg", true) << endl;
 	
 	// define parser handler
 	class MyIniReader : public IniReader {
@@ -296,7 +296,7 @@ bool GameOptions::LoadFromDisc()
 					// ignore these atm
 				} else {
 					opts->additionalOptions[section + "." + propname] = value;
-					cout << "WARNING: the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
+					hints << "the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
 				}
 			}
 
@@ -307,19 +307,19 @@ bool GameOptions::LoadFromDisc()
 
 	// parse the file now
 	if( ! iniReader.Parse() ) {
-		printf("HINT: cfg/options.cfg not found, will use standards\n");
+		hints << "cfg/options.cfg not found, will use standards" << endl;
 	}
 
 
 	initSpecialSearchPathForTheme();
 	if(getSpecialSearchPathForTheme()) {
-		printf("Special searchpath for the theme: " + *getSpecialSearchPathForTheme() + "\n");
+		notes << "Special searchpath for the theme: " << *getSpecialSearchPathForTheme() << endl;
 	} else
-		printf("Default theme is used\n");
+		notes << "Default theme is used" << endl;
 
 
 	if(additionalOptions.size() > 0) {
-		cout << "HINT: Unknown options were found." << endl;
+		hints << "Unknown options were found." << endl;
 	}
 
 	// Clamp the Jpeg quality
@@ -328,7 +328,7 @@ bool GameOptions::LoadFromDisc()
 	if (iJpegQuality > 100)
 		iJpegQuality = 100;
 
-	printf("DONE loading options\n");
+	notes << "DONE loading options" << endl;
 
 	return true;
 }
@@ -412,7 +412,7 @@ void GameOptions::SaveToDisc()
 			{
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
-			};
+			}
 			if( it->second.type == SVT_BOOL )
 			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.b) ? "true" : "false" );
 			else if( it->second.type == SVT_INT )
@@ -422,8 +422,8 @@ void GameOptions::SaveToDisc()
 			else if( it->second.type == SVT_STRING )
 			    fprintf( fp, "%s = %s\n", key.c_str(), it->second.s->c_str() );
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
-		};
-	};
+		}
+	}
 
 	// save additional options
 	// HINT: as this is done seperatly, some sections may be double; though the current parsing and therefore all future parsings handle this correctly
@@ -436,22 +436,22 @@ void GameOptions::SaveToDisc()
 		{
 			fprintf( fp, "\n[%s]\n", section.c_str() );
 			currentSection = section;
-		};
+		}
 		fprintf( fp, "%s = %s\n", key.c_str(), it->second.c_str() );
-	};
+	}
 
     fclose(fp);
 }
 
 bool NetworkTexts::Init() {
 	if(networkTexts) {
-		printf("WARNING: networktexts are already inited; ignoring ...\n");
+		warnings << "networktexts are already inited; ignoring ..." << endl;
 		return true;
 	}
 
 	networkTexts = new NetworkTexts;
 	if(!networkTexts) {
-		printf("ERROR: not enough mem for networktexts\n");
+		errors << "not enough mem for networktexts" << endl;
 		return false;
 	}
 
@@ -462,7 +462,7 @@ bool NetworkTexts::Init() {
 // Loads the texts used by server
 bool NetworkTexts::LoadFromDisc()
 {
-	printf("Loading network texts... ");
+	notes << "Loading network texts... ";
 
 	// TODO: use the general INI-parser here
 	const std::string f = "cfg/network.txt";
@@ -524,7 +524,7 @@ bool NetworkTexts::LoadFromDisc()
 
 	ReadString (f, "NetworkTexts", "KnownAs",		  sKnownAs,			"<oldname> is now known as <newname>");
 
-	printf("DONE\n");
+	notes << "DONE" << endl;
 	return true;
 }
 

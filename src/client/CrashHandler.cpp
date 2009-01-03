@@ -380,10 +380,6 @@ typedef const char * cchar;
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		// TODO: This is disabled for the Beta6/7/8 release. Put in again when this is more tested.
-		
-		// TODO: check if other crash handlers are present
-		// check at least for drkonqi, Appart and bug-buddy
 		signal(SIGSEGV, &SimpleSignalHandler);
 		signal(SIGTRAP, &SimpleSignalHandler);
 		signal(SIGHUP, &SimpleSignalHandler);
@@ -391,8 +387,8 @@ public:
 		signal(SIGILL, &SimpleSignalHandler);
 		signal(SIGFPE, &SimpleSignalHandler);
 		signal(SIGSYS, &SimpleSignalHandler);
-		//cout << "registered KCrash signal handler" << endl;
-		//cout << "no crash handler in this release" << endl;
+		
+		notes << "registered simple resuming signal handler" << endl;
 	}
 	
 	static void SimpleSignalHandler(int Sig) {
@@ -533,7 +529,7 @@ void CrashHandler::init() {
 		cout << "WARNING: CrashHandler tried to init twice" << endl;
 		return;
 	}
-	cout << "Installing CrashHandler .. " << flush;
+	notes << "Installing CrashHandler .. ";
 	crashHandlerInstance = new CrashHandlerImpl();
 }
 

@@ -39,6 +39,7 @@
 #include "ProfileSystem.h"
 #include "IRC.h"
 #include "Music.h"
+#include "Debug.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -137,16 +138,17 @@ sigjmp_buf longJumpBuffer;
 // Main entry point
 int main(int argc, char *argv[])
 {
-	printf(GAMENAME " " LX_VERSION " is starting ...\n");
+	hints << (GAMENAME " " LX_VERSION " is starting ...") << endl;
 #ifdef DEBUG
-	printf("HINT: This is a DEBUG build.\n");
+	hints << "This is a DEBUG build." << endl;
 #endif
 #ifdef DEDICATED_ONLY
-	printf("HINT: This is a DEDICATED_ONLY build.\n");
+	hints << "This is a DEDICATED_ONLY build." << endl;
 #endif
 
 #ifdef DEBUG
-	setvbuf(stdout, NULL, _IOLBF, 1024 );
+	// TODO: any reason for this?
+	setvbuf(stdout, NULL, _IOLBF, 1024);
 #endif
 
 	DoSystemChecks();
@@ -167,12 +169,12 @@ int main(int argc, char *argv[])
 startpoint:
 
 	// Load options and other settings
-	if(!GameOptions::Init())  {
+	if(!GameOptions::Init()) {
 		SystemError("Could not load options");
 		return -1;
 	}
 
-	if(!NetworkTexts::Init())  {
+	if(!NetworkTexts::Init()) {
 		SystemError("Could not load network strings.");
 		return -1;
 	}
@@ -187,9 +189,7 @@ startpoint:
 	// Start the G15 support, it's suitable that the display is showing while loading.
 #ifdef WITH_G15
 	OLXG15 = new OLXG15_t;
-	// TODO: Why do we check for NULL all the time? new should not return NULL, it should throw std::bad_alloc!
-	if (!OLXG15->init())
-	{
+	if (!OLXG15->init()) {
 		// Error when initialising, can't use it.
 		delete OLXG15;
 		OLXG15 = NULL;
@@ -306,11 +306,11 @@ startpoint:
 
 		ProcessEvents();
 		ResetQuitEngineFlag();
-		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
+		notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
 
 		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
 
-		cout << "GameLoopStart" << endl;
+		notes << "GameLoopStart" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
 
@@ -329,7 +329,7 @@ startpoint:
 
 			// cap the delta
 			if(tLX->fDeltaTime > 0.5f) {
-				cout << "WARNING: deltatime " << tLX->fDeltaTime << " is too high" << endl;
+				warnings << "deltatime " << tLX->fDeltaTime << " is too high" << endl;
 				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
 			}
 
@@ -345,7 +345,7 @@ startpoint:
 
 		PhysicsEngine::Get()->uninitGame();
 
-		cout << "GameLoopEnd" << endl;
+		notes << "GameLoopEnd" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
 
@@ -361,11 +361,11 @@ startpoint:
 	
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
-		printf("-- Restarting game --\n");
+		hints << "-- Restarting game --" << endl;
 		goto startpoint;
 	}
 
-	printf("Good Bye and enjoy your day...\n");
+	notes << "Good Bye and enjoy your day..." << endl;
 
 	// Uninit the crash handler after all other code
 	CrashHandler::uninit();
@@ -519,7 +519,7 @@ void ParseArguments(int argc, char *argv[])
 // Initialize the game
 int InitializeLieroX(void)
 {
-	printf("Hello there, I am initializing me now...\n");
+	notes << "Hello there, I am initializing me now..." << endl;
 
 	LIBXML_TEST_VERSION;
 
@@ -625,11 +625,11 @@ int InitializeLieroX(void)
 
 	if(bDedicated)
 		if(!DedicatedControl::Init()) {
-			printf("ERROR: couldn't init dedicated control\n");
+			errors << "couldn't init dedicated control" << endl;
 			return false;
 		}
 
-	printf("Initializing ready\n");
+	notes << "Initializing ready" << endl;
 
 	return true;
 }
@@ -725,11 +725,11 @@ void GotoLocalMenu(void)
 void GotoNetMenu(void)
 {
 	if(tLX->iGameType == GME_HOST) {
-		printf("Warning: called GotoLocalMenu as host, ignoring...\n");
+		warnings << "called GotoLocalMenu as host, ignoring..." << endl;
 		return;
 	}
 
-	std::cout << "GotoNetMenu" << std::endl;
+	notes << "GotoNetMenu" << endl;
 	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();
 	DeprecatedGUI::Menu_SetSkipStart(true);
@@ -785,7 +785,7 @@ void InitializeLoading()  {
 // Draw the loading
 void DrawLoading(byte percentage, const std::string &text)  {
 	if(bDedicated) {
-		printf("Loading: "); printf(text); printf("\n");
+		notes << "Loading: " << text << endl;
 		return;
 	}
 
@@ -824,7 +824,7 @@ void ShutdownLoading()  {
 // Shutdown the game
 void ShutdownLieroX()
 {
-	printf("Shutting me down...\n");
+	notes << "Shutting me down..." << endl;
 	
 	ShutdownIRC(); // Disconnect from IRC
 
@@ -929,7 +929,7 @@ void ShutdownLieroX()
 	if(!bRestartGameAfterQuit)
 	{
 		CScriptableVars::DeInit();
-	};
+	}
 
 	// Shutdown the timers
 	// HINT: must be called after event system is shut down to avoid double freed timers
@@ -938,7 +938,7 @@ void ShutdownLieroX()
 
 	xmlCleanupParser();
 
-	printf("Everything was shut down\n");
+	notes << "Everything was shut down" << endl;
 }
 
 
@@ -957,8 +957,8 @@ void SetQuitEngineFlag(const std::string& reason) {
 
 bool Warning_QuitEngineFlagSet(const std::string& preText) {
 	if(tLX->bQuitEngine) {
-		printf(preText);
-		printf("WARNING: bQuitEngine is set because: " + quitEngineFlagReason + "\n");
+		hints << preText << endl;
+		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
 		return true;
 	}
 	return false;

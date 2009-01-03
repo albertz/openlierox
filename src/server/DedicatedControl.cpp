@@ -14,14 +14,13 @@
 #undef new
 #endif
 
-#include <iostream>
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <SDL_thread.h>
 #include <fcntl.h>
 
-
+#include "Debug.h"
 #include "LieroX.h"
 #include "IpToCountryDB.h"
 #include "DedicatedControl.h"
@@ -63,7 +62,7 @@ struct pstream_pipe_t	// Stub
 	void close() {  }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
-		cout << "ERROR: Dedicated server is not compiled into this version of OpenLieroX" << endl;
+		errors << "Dedicated server is not compiled into this version of OpenLieroX" << endl;
 		MessageBox( NULL, "ERROR: Dedicated server is not compiled into this version of OpenLieroX", "OpenLieroX", MB_OK );
 		return false;
 	}
@@ -99,7 +98,7 @@ struct pstream_pipe_t
 		}
 		catch( const std::exception & e )
 		{
-			printf("Error running command %s: %s\n", cmd.c_str(), e.what());
+			errors << "Error running command " << cmd << " : " << e.what() << endl;
 			return false;
 		}
 		return true;
@@ -180,15 +179,15 @@ struct DedIntern {
 		Sig_Quit();
 		quitSignal = true;
 
-		printf("waiting for stdinThread ...\n");
+		notes << "waiting for stdinThread ..." << endl;
 		SDL_WaitThread(stdinThread, NULL);
 
-		printf("waiting for pipeThread ...\n");
+		notes << "waiting for pipeThread ..." << endl;
 		pipe.close();
 		SDL_WaitThread(pipeThread, NULL);
 
 		SDL_DestroyMutex(pipeOutputMutex);
-		printf("DedicatedControl destroyed\n");
+		notes << "DedicatedControl destroyed" << endl;
 	}
 
 	// reading lines from pipe-out and put them to pipeOutput
@@ -214,7 +213,7 @@ struct DedIntern {
 		// TODO: there's no fcntl for Windows!
 		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
 #endif
-			cout << "ERROR setting standard input into non-blocking mode" << endl;
+			warnings << "ERROR setting standard input into non-blocking mode" << endl;
 
 		while(true) {
 			string buf;
@@ -258,13 +257,13 @@ struct DedIntern {
 	{
 		if(id <0 || id >= MAX_WORMS)
 		{
-			std::cout << "DedicatedControl: " << caller << " : Faulty ID (got " << id << ")" << std::endl;
+			warnings << "DedicatedControl: " << caller << " : Faulty ID (got " << id << ")" << endl;
 			return NULL;
 		}
 		CWorm *w = cServer->getWorms() + id;
 		if(!w->isUsed())
 		{
-			std::cout << "DedicatedControl: " << caller << " : ID not in use" << std::endl;
+			warnings << "DedicatedControl: " << caller << " : ID not in use" << endl;
 			return NULL;
 		}
 		return w;
@@ -282,7 +281,7 @@ struct DedIntern {
 	}
 
 	void Cmd_Message(const std::string& msg) {
-		cout << "DedicatedControl: message: " << msg << endl;
+		hints << "DedicatedControl: message: " << msg << endl;
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
@@ -307,7 +306,7 @@ struct DedIntern {
 				// we found a bot, so add it
 				if( cClient->getNumWorms() >= MAX_WORMS )
 				{
-					cout << "ERROR: Too many worms!" << endl;
+					warnings << "Too many worms!" << endl;
 					return;
 				}
 				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
@@ -322,7 +321,7 @@ struct DedIntern {
 			}
 		}
 		
-		cout << "ERROR: Can't find ANY bot!" << endl;
+		warnings << "Can't find ANY bot!" << endl;
 		return;
 	}
 
@@ -357,7 +356,7 @@ struct DedIntern {
 			}
 		}
 		else {
-			std::cout << "DedicatedControl: KickWorm: Wrong syntax" << std::endl;
+			warnings << "DedicatedControl: KickWorm: Wrong syntax" << endl;
 			return;
 		}
 
@@ -386,7 +385,7 @@ struct DedIntern {
 			}
 		}
 		else {
-			std::cout << "DedicatedControl: BanWorm: Wrong syntax" << std::endl;
+			warnings << "DedicatedControl: BanWorm: Wrong syntax" << endl;
 			return;
 		}
 		if(!CheckWorm(id, "BanWorm"))
@@ -423,7 +422,7 @@ struct DedIntern {
 
 		if( team < 0 || team > 3 )
 		{
-			std::cout << "DedicatedControl: SetWormTeam: invalid team number" << std::endl;
+			warnings << "DedicatedControl: SetWormTeam: invalid team number" << endl;
 			return;
 		}
 
@@ -446,7 +445,7 @@ struct DedIntern {
 	// This command just fits here perfectly
 	void Cmd_SetVar(const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
-			cout << "DedicatedControl: SetVar: wrong params: " << params << endl;
+			warnings << "DedicatedControl: SetVar: wrong params: " << params << endl;
 			return;
 		}
 		std::string var = params.substr( 0, params.find(" ") );
@@ -460,31 +459,31 @@ struct DedIntern {
 		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL )
 		{
-			cout << "DedicatedControl: SetVar: no var with name " << var << endl;
-			cout << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
-			cout << "\nFor Python ded control script:\n" << endl;
+			warnings << "DedicatedControl: SetVar: no var with name " << var << endl;
+			notes << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
+			notes << "\nFor Python ded control script:\n" << endl;
 			for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
 			{
-				cout << "setvar( \"" << it->first << "\", ";
+				notes << "setvar( \"" << it->first << "\", ";
 				if( it->second.type == SVT_BOOL )
-					cout << (int) * it->second.b;
+					notes << (int) * it->second.b;
 				else if( it->second.type == SVT_INT )
-					cout << * it->second.i;
+					notes << * it->second.i;
 				else if( it->second.type == SVT_FLOAT )
-					cout << * it->second.f;
+					notes << * it->second.f;
 				else if( it->second.type == SVT_STRING )
-					cout << "\"" << * it->second.s << "\"";
+					notes << "\"" << * it->second.s << "\"";
 				else if( it->second.type == SVT_COLOR )
-					cout << "0x" << hex << * it->second.cl << dec;
+					notes << "0x" << hex << * it->second.cl << dec;
 				else
-					cout << "\"\"";
-				cout << ")" << endl;
+					notes << "\"\"";
+				notes << ")" << endl;
 			}
 			return;
 		}
 		CScriptableVars::SetVarByString(varptr, value);
 		
-		//cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
+		//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
 		cServer->UpdateGameLobby();
 	}
@@ -516,7 +515,7 @@ struct DedIntern {
 		// Lets connect me to the server
 		if(!cClient->Initialize()) {
 			// Crappy
-			printf("ERROR: Client wouldn't initialize\n");
+			errors << "Client wouldn't initialize" << endl;
 			Sig_ErrorStartLobby();
 			return;
 		}
@@ -524,7 +523,7 @@ struct DedIntern {
 
 		tLXOptions->tGameInfo.sModDir = "MW 1.0";
 		if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {
-			cout << "ERROR: no mod for dedicated" << endl;
+			errors << "no mod for dedicated" << endl;
 			// TODO..
 		}
 
@@ -539,7 +538,7 @@ struct DedIntern {
 
 	void Cmd_StartGame() {
 		if(cServer->getNumPlayers() <= 1) {
-			cout << "DedControl: cannot start game, too few players" << endl;
+			warnings << "DedControl: cannot start game, too few players" << endl;
 			Sig_ErrorStartGame();
 			return;
 		}
@@ -622,7 +621,7 @@ struct DedIntern {
 		if (str_addr != "")
 			Sig_WormIp(w,str_addr);
 		else
-			std::cout << "DedicatedControl: GetWormIp: str_addr == \"\"" << std::endl;
+			notes << "DedicatedControl: GetWormIp: str_addr == \"\"" << endl;
 	}
 
 	void Cmd_GetWormLocationInfo(const std::string& params) {
@@ -642,7 +641,7 @@ struct DedIntern {
 			Sig_WormLocationInfo(w,info.Continent,info.Country,info.CountryShortcut);
 		}
 		else
-			std::cout << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << std::endl;
+			notes << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << endl;
 
 	}
 
@@ -677,7 +676,7 @@ struct DedIntern {
 		if(cmd == "") return;
 
 #ifdef DEBUG
-		cout << "DedicatedControl: exec: " << cmd << " " << params << endl;
+		notes << "DedicatedControl: exec: " << cmd << " " << params << endl;
 #endif
 		if(cmd == "quit")
 			Cmd_Quit();
@@ -732,7 +731,7 @@ struct DedIntern {
 		
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else
-			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
+			warnings << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
 
 	// ----------------------------------
@@ -816,7 +815,7 @@ struct DedIntern {
 		
 		// error?
 		if(cClient->getBadConnection()) {
-			cout << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
+			warnings << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
 			Sig_ConnectError(cClient->getBadConnectionMsg());
 			cClient->Shutdown();
 			return;
@@ -846,7 +845,7 @@ struct DedIntern {
 		
 		// Check if the communication link between us & server is still ok
 		if(cClient->getServerError()) {
-			cout << "Client connection error: " << cClient->getServerErrorMsg() << endl;
+			warnings << "Client connection error: " << cClient->getServerErrorMsg() << endl;
 			Sig_ClientConnectionError(cClient->getServerErrorMsg());
 			return;
 		}		
@@ -886,7 +885,7 @@ bool DedicatedControl::Init_priv() {
 	std::vector<std::string> commandArgs( 1, command );
 	if(scriptfn_rel != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {
-			cout << "ERROR: " << scriptfn << " not found" << endl;
+			warnings << "ERROR: " << scriptfn << " not found" << endl;
 			return false;
 		}
 

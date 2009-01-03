@@ -20,7 +20,7 @@
 #include <map>
 
 #include "Options.h"
-
+#include "Debug.h"
 #include "TSVar.h"
 #include "IpToCountryDB.h"
 #include "FindFile.h"
@@ -89,15 +89,15 @@ public:
 	bool operator()(const std::list<std::string>& entries) {
 		using namespace std;
 		if (entries.size() < 7)  {
-			cout << "IpToCountry loader warning: number of entries is less than 7, ignoring the line " << line << endl;
+			hints << "IpToCountry loader warning: number of entries is less than 7, ignoring the line " << line << "\n";
 			if (entries.size())  {
-				printf("\"%s\"", entries.begin()->c_str());
+				hints << "\"" << *entries.begin() << "\"";
 				std::list<std::string>::const_iterator it = entries.begin(); it++;
 				for (; it != entries.end(); it++)  {
-					printf(",\"%s\"", it->c_str());
+					hints << ",\"" << *it << "\"";
 				}
 			}
-			printf("\n");
+			hints << endl;
 			return true; // Not a critical error, just move on
 		}
 
@@ -187,12 +187,12 @@ public:
 		//loader = SDL_CreateThread(loaderMain, this);
 		file = OpenGameFileR(filename);
 		if (!file || !file->is_open())  {
-			printf("IpToCountry Database Error: Cannot find the database file.\n");
+			warnings << "IpToCountry Database Error: Cannot find the database file." << endl;
 			return; 
 		}
 
 		data.reserve(90000); // There are about 90 000 entries in the file, do this to avoid reallocations
-		cout << "IpToCountryDB: reading " << filename << " ..." << endl;
+		notes << "IpToCountryDB: reading " << filename << " ..." << endl;
 
 		// Initialize the reader
 		adder = new AddEntriesToDBData(data);
@@ -242,7 +242,7 @@ public:
 			// Finished?
 			SDL_LockMutex(_this->dataMutex);
 			if (_this->csvReader.readingFinished())  {
-				cout << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetMilliSeconds() - start) << " seconds" << endl;
+				notes << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetMilliSeconds() - start) << " seconds" << endl;
 				SDL_UnlockMutex(_this->dataMutex);
 				break;
 			}
@@ -300,7 +300,7 @@ public:
 				// If the searching took too much time or the entry has not been found at all, throw an exception
 				if (csvReader.readingFinished() || GetMilliSeconds() - start >= 0.3f)  {
 					SDL_UnlockMutex(dataMutex);
-					printf ("IpToCountry Database: the entry has not been found within a reasonable time, giving up...\n");
+					warnings << "IpToCountry Database: the entry has not been found within a reasonable time, giving up..." << endl;
 					throw "The IP was not found in the database";
 				}  else  {
 					// Read chunk of data
