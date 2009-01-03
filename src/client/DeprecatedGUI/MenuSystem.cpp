@@ -349,6 +349,9 @@ void Menu_Frame() {
 			break;
 	}
 
+	Con_Process(tLX->fDeltaTime);
+	Con_Draw(VideoPostProcessor::videoSurface());
+
 	// DEBUG: show FPS
 #ifdef DEBUG
 	if(tLX->fDeltaTime != 0) {
@@ -356,10 +359,7 @@ void Menu_Frame() {
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
 	}
 #endif
-	
-	Con_Process(tLX->fDeltaTime);
-	Con_Draw(VideoPostProcessor::videoSurface());
-			 
+				 
 	VideoPostProcessor::process();
 }
 
