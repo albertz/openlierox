@@ -36,6 +36,7 @@
 #include "CServer.h"
 #include "ProfileSystem.h"
 #include "Cache.h"
+#include "Debug.h"
 
 
 ////////////////////
@@ -60,17 +61,19 @@ bool CMap::NewFrom(CMap* map)
 	nGridRows = map->nGridRows;
 	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
+	
+	bmpGreenMask = GetCopiedImage(map->bmpGreenMask);
 
-	// Create the map
+	// Create the map (and bmpImage and friends)
 	if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
 		return false;
 
 	// Copy the data
+	// TODO: why DrawImage and not CopySurface?
 	DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
 	DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
 	DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
 	DrawImage(bmpMiniMap.get(), map->bmpMiniMap, 0, 0);
-	DrawImage(bmpGreenMask.get(), map->bmpGreenMask, 0, 0);
 	memcpy(PixelFlags, map->PixelFlags, Width * Height);
 	DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
 #ifdef _AI_DEBUG
@@ -389,73 +392,73 @@ bool CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
 	if (Theme.name == _theme /* && sRandomLayout.szTheme == _theme */) {
-		std::cout << "LoadTheme: Theme " << _theme << " already loaded" << std::endl;
-		return true;
-	}
+		notes << "LoadTheme: Theme " << _theme << " already loaded" << endl;
+	} else {
 
-	std::string thm,buf;
-	int n,x,y;
+		std::string thm,buf;
+		int n,x,y;
 
-	thm = "data/themes/" + _theme;
+		thm = "data/themes/" + _theme;
 
-	Theme.name = _theme;
-    //sRandomLayout.szTheme = _theme;
+		Theme.name = _theme;
+		//sRandomLayout.szTheme = _theme;
 
-	buf = thm + "/Backtile.png";
-	LOAD_IMAGE(Theme.bmpBacktile,buf);
-	buf = thm + "/Fronttile.png";
-	LOAD_IMAGE(Theme.bmpFronttile,buf);
-
-
-	// Stones
-	ReadInteger(thm + "/theme.txt", "General", "NumStones", &Theme.NumStones, 0);
-
-	for(n=0;n<Theme.NumStones;n++) {
-		buf = thm + "/Stone" + itoa(n+1) + ".png";
-		LOAD_IMAGE(Theme.bmpStones[n],buf);
-		SetColorKey(Theme.bmpStones[n].get());
-	}
+		buf = thm + "/Backtile.png";
+		LOAD_IMAGE(Theme.bmpBacktile,buf);
+		buf = thm + "/Fronttile.png";
+		LOAD_IMAGE(Theme.bmpFronttile,buf);
 
 
-	// Holes
-	for(n=0;n<5;n++) {
-		buf = thm + "/Hole" + itoa(n+1) + ".png";
-		LOAD_IMAGE(Theme.bmpHoles[n],buf);
-		SetColorKey(Theme.bmpHoles[n].get(), 0, 0, 0); // use black as colorkey
-	}
+		// Stones
+		ReadInteger(thm + "/theme.txt", "General", "NumStones", &Theme.NumStones, 0);
 
-	// Calculate the default colour from a non-pink, non-black colour in the hole image
-	LOCK_OR_FAIL(Theme.bmpFronttile);
-	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile.get(),0,0);
-	UnlockSurface(Theme.bmpFronttile);
-	SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
-	LOCK_OR_FAIL(hole);
-	Uint32 pixel = 0;
-	if(hole.get()) {
-		for(y=0; y<hole.get()->h; y++) {
-			for(x=0; x<hole.get()->w; x++) {
-				pixel = GetPixel(hole.get(),x,y);
-				if(pixel != tLX->clBlack && pixel != tLX->clPink)  {
-					Theme.iDefaultColour = pixel;
-					break;
+		for(n=0;n<Theme.NumStones;n++) {
+			buf = thm + "/Stone" + itoa(n+1) + ".png";
+			LOAD_IMAGE(Theme.bmpStones[n],buf);
+			SetColorKey(Theme.bmpStones[n].get());
+		}
+
+
+		// Holes
+		for(n=0;n<5;n++) {
+			buf = thm + "/Hole" + itoa(n+1) + ".png";
+			LOAD_IMAGE(Theme.bmpHoles[n],buf);
+			SetColorKey(Theme.bmpHoles[n].get(), 0, 0, 0); // use black as colorkey
+		}
+
+		// Calculate the default colour from a non-pink, non-black colour in the hole image
+		LOCK_OR_FAIL(Theme.bmpFronttile);
+		Theme.iDefaultColour = GetPixel(Theme.bmpFronttile.get(),0,0);
+		UnlockSurface(Theme.bmpFronttile);
+		SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
+		LOCK_OR_FAIL(hole);
+		Uint32 pixel = 0;
+		if(hole.get()) {
+			for(y=0; y<hole.get()->h; y++) {
+				for(x=0; x<hole.get()->w; x++) {
+					pixel = GetPixel(hole.get(),x,y);
+					if(pixel != tLX->clBlack && pixel != tLX->clPink)  {
+						Theme.iDefaultColour = pixel;
+						break;
+					}
 				}
 			}
 		}
+		UnlockSurface(hole);
+
+
+		// Misc
+		ReadInteger(thm + "/theme.txt", "General", "NumMisc", &Theme.NumMisc, 0);
+		for(n=0;n<Theme.NumMisc;n++) {
+			buf = thm + "/misc" + itoa(n+1) + ".png";
+			LOAD_IMAGE(Theme.bmpMisc[n],buf);
+			SetColorKey(Theme.bmpMisc[n].get());
+		}
 	}
-	UnlockSurface(hole);
-
-
-	// Misc
-	ReadInteger(thm + "/theme.txt", "General", "NumMisc", &Theme.NumMisc, 0);
-	for(n=0;n<Theme.NumMisc;n++) {
-		buf = thm + "/misc" + itoa(n+1) + ".png";
-		LOAD_IMAGE(Theme.bmpMisc[n],buf);
-		SetColorKey(Theme.bmpMisc[n].get());
-	}
-
-
+	
     // Load the green dirt mask
-    LOAD_IMAGE(bmpGreenMask, std::string("data/gfx/greenball.png"));
+	if(bmpGreenMask.get() == NULL)
+		LOAD_IMAGE(bmpGreenMask, std::string("data/gfx/greenball.png"));
 
 	return true;
 }
@@ -1395,9 +1398,11 @@ int CMap::PlaceDirt(int size, CVec pos)
 // Returns the number of dirt pixels placed
 int CMap::PlaceGreenDirt(CVec pos)
 {
-	if (!bmpGreenMask.get())
+	if (!bmpGreenMask.get()) {
+		warnings << "CMap::PlaceGreenDirt: bmpGreenMask not loaded" << endl;
 		return 0;
-
+	}
+	
  	int dx,dy, sx,sy;
 	int x,y;
 	int w,h;
