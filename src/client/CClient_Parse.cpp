@@ -879,19 +879,17 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 				errors << "server setting for feature " << name << " has wrong type " << value.type << endl;
 				client->tGameInfo.features[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
 			}
-		} else if(!olderClientsSupported) {
-			if(f->serverSideOnly)
-				errors << "server setting for feature " << name << " is set as not-supported but is serversideonly" << endl;
-			// server setting is incompatible with our clent
-			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
-		} else if(f->serverSideOnly) {
+		} else if(f && f->serverSideOnly) {
 			// just serversideonly, thus we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);			
-		} else {
+		} else if(olderClientsSupported) {
 			// unknown for us but we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
+		} else {
+			// server setting is incompatible with our client
+			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
 		}
-	}	
+	}
 }
 
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
