@@ -764,6 +764,7 @@ public:
 				break;
 					
 			default: // PJ_NOTHING
+				// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
 				if(result.colMask & PJC_MAPBORDER) {
 					// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
 					deleteAfter = true;						

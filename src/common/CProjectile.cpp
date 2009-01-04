@@ -269,8 +269,9 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 		bounce = true;
 		break;
 	case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
-		vPosition -= (vVelocity * dt) * 0.5f;				// Note: the speed in walls could be moddable
-		vOldPos = vPosition;
+		vPosition -= (vVelocity * dt) * 0.5f; // TODO: the speed in walls could be moddable
+		vOldPos = vPosition; // TODO: this is a hack; we do it to not go back to real old position because of collision
+		// HINT: The above velocity reduction is not exact. SimulateFrame is also executed only for one checkstep because of the collision.
 		break;
 	default:
 		vPosition = vOldPos;
@@ -315,10 +316,7 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 
 ///////////////////
 // Check for a collision, updates velocity and position
-// Returns:
-// -1 if some collision
-// -1000 if none
-// >=0 is collision with worm (the return-value is the ID)
+// TODO: move to physicsengine
 // TODO: we need one single CheckCollision which is used everywhere in the code
 // atm we have two CProj::CC, Map:CC and ProjWormColl and fastTraceLine
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
