@@ -63,7 +63,8 @@ void CClient::Clear(void)
 	}
 #endif
 
-	tGameInfo = tLXOptions->tGameInfo;
+	tGameInfo = tLXOptions->tGameInfo; // TODO: is it ok to copy the serverside features? shouldn't we perhaps set some initial GameInfo?
+	tGameInfo.fTimeLimit = -100;
 	otherGameInfo.clear();
 	iNumWorms = 0;
 	int i;
@@ -83,7 +84,6 @@ void CClient::Clear(void)
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
 	fLoadingTime = 1;
-	fTimeLimit = -100;
 	iScorePlayers = 0;
 	cBonuses = NULL;
 	bUpdateScore = true;

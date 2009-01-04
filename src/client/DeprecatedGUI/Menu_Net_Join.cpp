@@ -407,9 +407,9 @@ static void updateDetailsList(CListview* l) {
 	}
 
 	SETI;
-	if(cClient->getTimeLimit() >= 0) {
-		si->sText = ftoa(cClient->getTimeLimit()) + " min";		
-	} else if(cClient->getTimeLimit() <= -100) {
+	if(cClient->getGameLobby()->fTimeLimit >= 0) {
+		si->sText = ftoa(cClient->getGameLobby()->fTimeLimit) + " min";		
+	} else if(cClient->getGameLobby()->fTimeLimit <= -100) {
 		si->sText = "unknown";
 		si->iColour = tLX->clDisabled;
 	} else {

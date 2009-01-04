@@ -606,9 +606,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		// Draw time left
-		if(fTimeLimit > 0 && tLXOptions->bTopBarVisible)
+		if(tGameInfo.fTimeLimit > 0 && tLXOptions->bTopBarVisible)
 		{
-			float fTimeLeft = fTimeLimit - (serverTime()/60.0f);
+			float fTimeLeft = tGameInfo.fTimeLimit - (serverTime()/60.0f);
 			//sanity check
 			if(fTimeLeft < 0.0f)
 				fTimeLeft = 0.0f;

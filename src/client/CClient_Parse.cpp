@@ -564,7 +564,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->iGameType = bs->readInt(1);
 	client->iLives = bs->readInt16();
 	client->iMaxKills = bs->readInt16();
-	client->fTimeLimit = (float)bs->readInt16();
+	client->tGameInfo.fTimeLimit = (float)bs->readInt16();
 	int l = bs->readInt16();
 	client->fLoadingTime = (float)l/100.0f;
 	client->bBonusesOn = bs->readBool();
@@ -897,8 +897,8 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	client->fTimeLimit = bs->readFloat();
-	if(client->fTimeLimit < 0) client->fTimeLimit = -1;
+	client->tGameInfo.fTimeLimit = bs->readFloat();
+	if(client->tGameInfo.fTimeLimit < 0) client->tGameInfo.fTimeLimit = -1;
 	
 	ParseFeatureSettings(bs);
 	
@@ -1735,7 +1735,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.iGameMode = bs->readByte();
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();
-	client->fTimeLimit = -100;
+	client->tGameInfo.fTimeLimit = -100;
 	client->tGameInfo.iLoadingTime = bs->readInt16();
     client->tGameInfo.bBonusesOn = bs->readBool();
 
@@ -1788,8 +1788,8 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngineBeta7::ParseUpdateLobbyGame(bs);
 
-	client->fTimeLimit = bs->readFloat();
-	if(client->fTimeLimit < 0) client->fTimeLimit = -1;
+	client->tGameInfo.fTimeLimit = bs->readFloat();
+	if(client->tGameInfo.fTimeLimit < 0) client->tGameInfo.fTimeLimit = -1;
 
 	ParseFeatureSettings(bs);
 }
