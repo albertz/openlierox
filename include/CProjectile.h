@@ -38,9 +38,7 @@ class CViewport;
 #define     PJC_NONE        0x00
 #define     PJC_TERRAIN     0x01
 #define     PJC_WORM        0x02
-#define     PJC_EXPLODE     0x04
-#define     PJC_TOUCH       0x08
-
+#define		PJC_MAPBORDER	0x04
 
 
 // Projectile structure
@@ -234,8 +232,21 @@ public:
 	ColInfo	TerrainCollision(int px, int py, CMap *map);
 	bool	MapBoundsCollision(int px, int py, CMap *map);
 	void	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
-	int		CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt);
-	static int	CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel);
+	
+	struct CollisionType {
+		bool withWorm : 1;
+		union {
+			unsigned int wormId : 7;
+			unsigned int colMask : 7;
+		};
+		static CollisionType Worm(int wormid) { CollisionType c; c.withWorm = true; c.wormId = wormid; return c; }
+		static CollisionType Terrain(int colmask) { CollisionType c; c.withWorm = false; c.colMask = colmask; return c; }
+		static CollisionType None() { return Terrain(0); }
+		operator bool() { return withWorm || colMask != 0; }
+	};
+	
+	CollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
+	static int	CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel); // returns collision mask
 
 	void	Bounce(float fCoeff);
 

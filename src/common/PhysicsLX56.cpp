@@ -435,22 +435,14 @@ public:
 		}
 	}
 
-	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid, bool* projspawn, bool* deleteAfter) {
-		int res = PJC_NONE;
-
+	CProjectile::CollisionType simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
 
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
-		int colret = proj->CheckCollision(dt, m_map, worms, &dt);
-		if(colret == -1)
-			res |= PJC_TERRAIN;
-		else if(colret >= 0) {
-			*wormid = colret;
-			res |= PJC_WORM;
-		}
+		CProjectile::CollisionType res = proj->SimulateFrame(dt, m_map, worms, &dt);
 
 
 		// HINT: in original LX, we have this simulate code with lower dt
@@ -464,12 +456,11 @@ public:
 		proj->extra() += dt;
 
 		// If any of the events have been triggered, add that onto the flags
+		// HINT: We don't add it anymore onto the flags as it is used nowhere. It also doesn't work with CollisionType.
 		if( proj->explode() && fCurTime > proj->explodeTime()) {
-			res |= PJC_EXPLODE;
 			proj->explode() = false;
 		}
 		if( proj->touched() ) {
-			res |= PJC_TOUCH;
 			proj->touched() = false;
 		}
 
@@ -657,8 +648,6 @@ public:
 		bool grndirt = false;
 		bool deleteAfter = false;
 		bool trailprojspawn = false;
-		int result = 0;
-		int wormid = -1;
 
 		bool spawnprojectiles = false;
 		const proj_t *pi = prj->GetProjInfo();
@@ -720,15 +709,14 @@ public:
 		}
 
 		// Simulate the projectile
-		wormid = -1;
-		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, m_client->getRemoteWorms(), &wormid, &trailprojspawn, &deleteAfter );
+		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, m_client->getRemoteWorms(), &trailprojspawn, &deleteAfter );
 
 		/*
 		===================
 		Terrain Collision
 		===================
 		*/
-		if( result & PJC_TERRAIN ) {
+		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {
 
 			// Explosion
 			switch (pi->Hit_Type)  {
@@ -773,23 +761,26 @@ public:
 			// Green Dirt
 			case PJ_GREENDIRT:
 				grndirt = true;
-			break;
+				break;
+					
+			default: // PJ_NOTHING
+				if(result.colMask & PJC_MAPBORDER) {
+					// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
+					deleteAfter = true;						
+				}
 			}
-
 
 			if(pi->Hit_Projectiles)
 				spawnprojectiles = true;
 		}
-
-		
 
 		/*
 		===================
 		Worm Collision
 		===================
 		*/
-		if( (result & PJC_WORM) && wormid >= 0 && !explode) {
-			bool preventSelfShooting = (wormid == prj->GetOwner());
+		if( result.withWorm && !explode) {
+			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting )  {
 				bool push_worm = true;
@@ -806,7 +797,7 @@ public:
 					deleteAfter = true;
 					
 					// Add damage to the worm
-					m_client->InjureWorm(&m_client->getRemoteWorms()[wormid], pi->PlyHit_Damage, prj->GetOwner());
+					m_client->InjureWorm(&m_client->getRemoteWorms()[result.wormId], pi->PlyHit_Damage, prj->GetOwner());
 				break;
 
 				// Bounce
@@ -834,7 +825,7 @@ public:
 				if(push_worm) {
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
-					CVec *v = m_client->getRemoteWorms()[wormid].getVelocity();
+					CVec *v = m_client->getRemoteWorms()[result.wormId].getVelocity();
 					*v += (d*100)*dt;
 				}
 

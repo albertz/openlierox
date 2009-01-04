@@ -109,7 +109,7 @@ float CProjectile::getRandomFloat(void)
 }
 
 
-int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, int curResult) {
+static CProjectile::CollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, CProjectile::CollisionType curResult) {
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit_Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
@@ -129,7 +129,7 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 				}
 				proj->setNewPosition( curpos ); // save the new position at the first collision
 				proj->setNewVel( vFrameOldVel ); // don't get faster
-				return ret;
+				return CProjectile::CollisionType::Worm(ret);
 			}
 		}
 	}
@@ -320,15 +320,12 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 // -1000 if none
 // >=0 is collision with worm (the return-value is the ID)
 // TODO: we need one single CheckCollision which is used everywhere in the code
-// atm we have 2 CProj::CC, Map:CC and ProjWormColl and fastTraceLine
+// atm we have two CProj::CC, Map:CC and ProjWormColl and fastTraceLine
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
+CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt)
 {
-	static const int NONE_COL_RET = -1000;
-	static const int SOME_COL_RET = -1;
-
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (bChangesSpeed)  {
 		int len = (int)vVelocity.GetLength2();
@@ -360,15 +357,15 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		// Therefore if this is the case, we don't do multiple checksteps.
 		if(checkstep < dt) {
 			for(float time = 0; time < dt; time += checkstep) {
-				int ret = CheckCollision((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
-				if(ret >= -1) {
+				CollisionType ret = SimulateFrame((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
+				if(ret) {
 					if(enddt) *enddt += time;
 					return ret;
 				}
 			}
 
 			if(enddt) *enddt = dt;
-			return NONE_COL_RET;
+			return CollisionType::None();
 		}
 	}
 
@@ -383,7 +380,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
 	}
 
 	int px = (int)(vPosition.x);
@@ -394,13 +391,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		vPosition = vOldPos;
 		vVelocity = vOldVel;
 
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
 
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (tLX->fCurTime - fSpawnTime <= fWallshootTime)
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
 
 	// Check collision with the terrain
 	ColInfo c = TerrainCollision(px, py, map);
@@ -409,13 +406,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(c.collided) {
 		HandleCollision(c, vFrameOldPos, vOldVel, dt);
 
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::Terrain(PJC_TERRAIN));
 	}
 
 	// the move was safe, save the position
 	vOldPos = vPosition;
 
-	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
+	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
 }
 
 ///////////////////
@@ -437,8 +434,8 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	if( (vel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
 
-		if(CheckCollision(tProjInfo,dt,map,pos,vel))
-			return true;
+		int col = CheckCollision(tProjInfo,dt,map,pos,vel);
+		if(col) return col;
 
 		pos += vel*dt;
 
@@ -452,7 +449,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 	// Hit edges
 	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh)
-		return true;
+		return PJC_TERRAIN|PJC_MAPBORDER;
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
 	int grid_w = map->getGridWidth();
@@ -471,7 +468,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 
 			if(!(*pf & PX_EMPTY))
-				return true;
+				return PJC_TERRAIN;
 
 			pf++;
 		}
@@ -479,7 +476,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 
 	// No collision
-	return false;
+	return 0;
 }
 
 ///////////////////

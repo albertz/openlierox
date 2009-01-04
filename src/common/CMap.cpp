@@ -83,6 +83,7 @@ bool CMap::NewFrom(CMap* map)
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
 
+	// TODO: do we need this? why is this commented out? please comment or delete
 	/*
 	sRandomLayout = map->sRandomLayout;
 	if (sRandomLayout.psObjects != NULL && sRandomLayout.nNumObjects > 0)  {
