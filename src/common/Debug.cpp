@@ -71,7 +71,7 @@ template<int col> void ConPrint(const std::string& str) {
 	// TODO: Con_AddText adds a line but we only want to add str
 	std::string buf = str;
 	if(buf.size() > 0 && buf[buf.size()-1] == '\n') buf.erase(buf.size()-1);
-	Con_AddText(col, str, false);
+	Con_AddText(col, buf, false);
 }
 
 // true if last was newline
