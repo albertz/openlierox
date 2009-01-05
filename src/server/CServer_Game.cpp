@@ -13,11 +13,11 @@
 // Created 11/7/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "CServer.h"
-
+#include "Debug.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "StringUtils.h"
@@ -29,7 +29,7 @@
 #include "DeprecatedGUI/Menu.h"
 
 
-using namespace std;
+
 
 ///////////////////
 // Spawn a worm
@@ -235,7 +235,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	
 			SendGlobalText(buf, TXT_NORMAL);
 		}
-	};
+	}
 
 	// First blood
 	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
@@ -415,7 +415,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 				// TEAM DEATHMATCH is handled below
 			}
 
-			cout << "only one player left" << endl;
+			notes << "only one player left" << endl;
 			GameOver(wormid);
 		}
 
@@ -466,7 +466,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 					SendGlobalText((buf), TXT_NORMAL);
 				}
 
-				cout << "no other team left" << endl;
+				notes << "no other team left" << endl;
 				GameOver(team);
 			}
 		}
@@ -478,7 +478,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	// Check if the max kills has been reached
 	if (tLXOptions->tGameInfo.iKillLimit != -1 && killer != victim && kill->getKills() == tLXOptions->tGameInfo.iKillLimit) {
-		cout << "max kills reached" << endl;
+		notes << "max kills reached" << endl;
 
 		// Game over (max kills reached)
 		GameOver(kill->getID());
@@ -1062,7 +1062,7 @@ void GameServer::RecheckGame(void)
 		short wormid = 0;
 		for(i=0; i<MAX_WORMS; i++, w++) {
 			if (w->isUsed() && w->getLives() != WRM_OUT)  {
-				cout << "worm " << i << " has " << w->getLives() << " lives" << endl;
+				notes << "worm " << i << " has " << w->getLives() << " lives" << endl;
 				wormcount++;
 				wormid = i; // Save the worm id
 			}
@@ -1109,7 +1109,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
-					cout << "recheck: too less teams" << endl;
+					notes << "recheck: too less teams" << endl;
 					EndGame = true;
 				}
 			}
@@ -1130,7 +1130,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
-					cout << "recheck: too less worms" << endl;
+					notes << "recheck: too less worms" << endl;
 					EndGame = true;
 				}
 			}
@@ -1162,7 +1162,7 @@ void GameServer::RecheckGame(void)
 										TXT_NORMAL);
 					}
 
-					cout << "recheck: too less worms" << endl;
+					notes << "recheck: too less worms" << endl;
 					EndGame = true;
 				}
 			}
@@ -1206,7 +1206,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
-					cout << "recheck: not enough teams anymore" << endl;
+					notes << "recheck: not enough teams anymore" << endl;
 					EndGame = true;
 				}
 
@@ -1216,7 +1216,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
-					cout << "recheck: all the VIPs are out of the game" << endl;
+					notes << "recheck: all the VIPs are out of the game" << endl;
 					EndGame = true;
 				}
 			}
@@ -1255,7 +1255,7 @@ void GameServer::RecheckGame(void)
 							}
 						}
 					}
-					cout << "recheck: wormcount < 3" << endl;
+					notes << "recheck: wormcount < 3" << endl;
 					EndGame = true;
 				}
 				// If the max points has been reached
@@ -1270,7 +1270,7 @@ void GameServer::RecheckGame(void)
 								SendGlobalText((replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 												TXT_NORMAL);
 							}
-							cout << "recheck: max kills for worm " << i << endl;
+							notes << "recheck: max kills for worm " << i << endl;
 							EndGame = true;
 						}
 					}
@@ -1316,7 +1316,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
-					cout << "recheck: no more teams left" << endl;
+					notes << "recheck: no more teams left" << endl;
 					EndGame = true;
 				}
 			}
@@ -1327,7 +1327,7 @@ void GameServer::RecheckGame(void)
 			if( tLXOptions->tGameInfo.fTimeLimit > 0 && fServertime > tLXOptions->tGameInfo.fTimeLimit*60.0 ) {
 				if (networkTexts->sTimeLimit != "<none>")
 					SendGlobalText( networkTexts->sTimeLimit, TXT_NORMAL );
-				cout << "recheck: time limit reached" << endl;
+				notes << "recheck: time limit reached" << endl;
 				EndGame = true;
 			}
 			// End the game

@@ -18,7 +18,6 @@
 #include <stdarg.h>
 #include <vector>
 #include <sstream>
-#include <iostream>
 #include <time.h>
 
 #include "LieroX.h"
@@ -39,9 +38,9 @@
 #include "CServerNetEngine.h"
 #include "CChannel.h"
 #include "CServerConnection.h"
+#include "Debug.h"
 
 
-using namespace std;
 
 
 GameServer	*cServer = NULL;
@@ -136,18 +135,18 @@ int GameServer::StartServer()
 	nPort = tLXOptions->iNetworkPort;
 	tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 	if(!IsSocketStateValid(tSocket)) {
-		cout << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
+		hints << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
 		if( cClient->RebindSocket() ) {	// If client has taken that port, free it
 			tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 		}
 
 		if(!IsSocketStateValid(tSocket)) {
-			cout << "Server: client rebinding didn't work, trying random port" << endl;
+			hints << "Server: client rebinding didn't work, trying random port" << endl;
 			tSocket = OpenUnreliableSocket(0);
 		}
 		
 		if(!IsSocketStateValid(tSocket)) {
-			cout << "Server: we cannot even open a random port!" << endl;
+			hints << "Server: we cannot even open a random port!" << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
@@ -290,7 +289,7 @@ int GameServer::StartGame()
 	
 	// Check that gamespeed != 0
 	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] && (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] <= 0.05f) {
-		cout << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GAMESPEED].toString() << "; resetting it to 1" << endl;
+		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GAMESPEED].toString() << "; resetting it to 1" << endl;
 		tLXOptions->tGameInfo.features[FT_GAMESPEED] = 1;
 	}
 	
@@ -313,9 +312,9 @@ int GameServer::StartGame()
 	CWorm *w = cWorms;
 	for (int p = 0; p < MAX_WORMS; p++, w++) {
 		if(w->isPrepared()) {
-			cout << "WARNING: StartGame(): worm " << p << " was already prepared! ";
-			if(!w->isUsed()) cout << "AND it is even not used!";
-			cout << endl;
+			warnings << "WARNING: StartGame(): worm " << p << " was already prepared! ";
+			if(!w->isUsed()) warnings << "AND it is even not used!";
+			warnings << endl;
 			w->Unprepare();
 		}
 	}
@@ -356,7 +355,7 @@ int GameServer::StartGame()
 	} else {
 	*/
 		timer = SDL_GetTicks()/1000.0f;
-		string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
@@ -527,9 +526,9 @@ int GameServer::StartGame()
 // Begin the match
 void GameServer::BeginMatch(CServerConnection* receiver)
 {
-	cout << "Server: BeginMatch";
-	if(receiver) cout << " for " << receiver->debugName();
-	cout << endl;
+	hints << "Server: BeginMatch";
+	if(receiver) hints << " for " << receiver->debugName();
+	hints << endl;
 
 	bool firstStart = false;
 	
@@ -661,7 +660,7 @@ void GameServer::GameOver(int winner)
 	if (bGameOver)
 		return;
 
-	cout << "gameover, worm " << winner << " has won the match" << endl;
+	hints << "gameover, worm " << winner << " has won the match" << endl;
 	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
@@ -1134,7 +1133,7 @@ void GameServer::CheckWeaponSelectionTime()
 			if( cl->isLocalClient() ) {
 				for(int i = 0; i < cl->getNumWorms(); i++) {
 					if(!cl->getWorm(i)->getWeaponsReady()) {
-						cout << "WARNING: own worm " << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
+						warnings << "WARNING: own worm " << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
 						cl->getWorm(i)->GetRandomWeapons();
 						cl->getWorm(i)->setWeaponsReady(true);
 					}
@@ -1232,11 +1231,11 @@ void GameServer::RemoveClientWorms(CServerConnection* cl) {
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		if(!cl->getWorm(i)) {
-			cout << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
+			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
 			continue;
 		}
 		if(!cl->getWorm(i)->isUsed()) {
-			cout << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
+			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
 			cl->setWorm(i, NULL);
 			continue;
 		}

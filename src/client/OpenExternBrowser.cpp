@@ -9,7 +9,6 @@
 
 
 #include <string>
-#include <iostream>
 #include <list>
 #include <cstdlib>
 
@@ -24,13 +23,13 @@
 #include <shellapi.h>
 #endif
 
-
+#include "Debug.h"
 
 
 
 // declared in AuxLib.h; we are not including this to avoid problems with Rect
 void OpenLinkInExternBrowser(const std::string& url) {
-	std::cout << "open in extern browser: " << url << std::endl;
+	notes << "open in extern browser: " << url << endl;
 
 #if defined(__APPLE__)
 	// Thanks to Jooleem project (http://jooleem.sourceforge.net) for the code
@@ -83,10 +82,10 @@ void OpenLinkInExternBrowser(const std::string& url) {
 	}
 	
 	if(browser == "") {
-		std::cout << "WARNING: no browser found" << std::endl;
+		warnings << "no browser found" << endl;
 		return;
 	} else
-		std::cout << "Using " << browser << " as your default browser" << std::endl;
+		notes << "Using " << browser << " as your default browser" << endl;
 	
 	::system((browser + " " + url + " &").c_str());
 	

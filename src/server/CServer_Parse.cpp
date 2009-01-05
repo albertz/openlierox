@@ -13,7 +13,7 @@
 // Created 1/7/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "FindFile.h"
@@ -36,9 +36,10 @@
 #include "XMLutils.h"
 #include "CClientNetEngine.h"
 #include "IpToCountryDB.h"
+#include "Debug.h"
 
 
-using namespace std;
+
 
 #ifdef _MSC_VER
 #undef min
@@ -161,7 +162,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 			// Really a bad packet
 #if !defined(FUZZY_ERROR_TESTING_C2S)
-			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
+			warnings("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 #endif
 		}
 	}
@@ -173,7 +174,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 void CServerNetEngine::ParseImReady(CBytestream *bs) {
 	if ( server->iState != SVS_GAME && !server->serverAllowsConnectDuringGame() )
 	{
-		printf("GameServer::ParseImReady: Not waiting for ready, packet is being ignored.\n");
+		notes("GameServer::ParseImReady: Not waiting for ready, packet is being ignored.\n");
 
 		// Skip to get the correct position in the stream
 		int num = bs->readByte();
@@ -194,7 +195,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
 			if(!server->cWorms[id].isUsed()) {
-				printf("WARNING(ParseImReady): got unused worm-ID!\n");
+				warnings << "ParseImReady: got unused worm-ID!" << endl;
 				CWorm::skipWeapons(bs);
 				continue;
 			}
@@ -242,7 +243,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	// No kills in lobby
 	if (server->iState != SVS_PLAYING)  {
-		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
+		notes << "GameServer::ParseDeathPacket: Not playing, ignoring the packet." << endl;
 
 		// Skip to get the correct position in the stream
 		bs->Skip(2);
@@ -255,22 +256,22 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 
 	// Bad packet
 	if (bs->GetPos() > bs->GetLength())  {
-		printf("GameServer::ParseDeathPacket: Reading beyond the end of stream.\n");
+		warnings << "GameServer::ParseDeathPacket: Reading beyond the end of stream." << endl;
 		return;
 	}
 
 	// If the game is already over, ignore this
 	if (server->bGameOver)  {
-		printf("GameServer::killWorm: Game is over, ignoring.\n");
+		notes("GameServer::killWorm: Game is over, ignoring.\n");
 		return;
 	}
 	// Safety check
 	if (victim < 0 || victim >= MAX_WORMS)  {
-		printf("GameServer::killWorm: victim ID out of bounds.\n");
+		warnings("GameServer::killWorm: victim ID out of bounds.\n");
 		return;
 	}
 	if (killer < 0 || killer >= MAX_WORMS)  {
-		printf("GameServer::killWorm: killer ID out of bounds.\n");
+		warnings("GameServer::killWorm: killer ID out of bounds.\n");
 		return;
 	}
 
@@ -282,7 +283,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
 					cClient->getNetEngine()->SendDeath(victim, killer);
 			} else {
-				printf("GameServer::ParseDeathPacket: victim %i is not one of the client's worms.\n", victim);
+				warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the client's worms." << endl;
 			}
 
 			// The client on this machine will send the death again, then we'll parse it
@@ -335,12 +336,12 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	std::string buf = Utf8String(bs->readString());
 
 	if(cl->getNumWorms() == 0) {
-		printf("WARNING: %s with no worms sends message '%s'\n", cl->debugName().c_str(), buf.c_str());
+		warnings << cl->debugName() << " with no worms sends message '" << buf << "'" << endl;
 		return;
 	}
 
 	if (buf.empty()) { // Ignore empty messages
-		printf("WARNING: %s sends empty message\n", cl->debugName().c_str());
+		warnings << cl->debugName() << " sends empty message" << endl;
 		return;
 	}
 
@@ -353,7 +354,7 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		if( buf.size() > startStr.size() && buf.substr(0,startStr.size()) == startStr )
 			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
 	}
-	printf("CHAT: "); printf(buf); printf("\n");
+	notes << "CHAT: " << buf << endl;
 
 	// Check for special commands
 	if (command_buf.size() > 2)
@@ -369,7 +370,7 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 
 	// Don't send text from muted players
 	if (cl->getMuted()) {
-		printf("ignored message from muted %s\n", cl->debugName().c_str());
+		notes << "ignored message from muted " << cl->debugName() << endl;
 		return;
 	}
 
@@ -690,7 +691,7 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 	else if (cmd == "lx::registered")
 		ParseServerRegistered(tSocket);
 	else  {
-		cout << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
+		warnings << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -907,12 +908,12 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 			// HINT: just let the client connect again
 			newcl = cl;
-			cout << "Reconnecting ";
+			notes << "Reconnecting ";
 			if(cl->isLocalClient()) {
 				bLocalClientConnected = false; // because we are reconnecting the client
-				cout << "local ";
+				notes << "local ";
 			}
-			cout << "client " << cl->debugName() << endl;
+			notes << "client " << cl->debugName() << endl;
 			RemoveClientWorms(cl); // remove them, we will add them again now
 			break;
 			
@@ -963,7 +964,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			numplayers++;
 	}
 	if(numplayers != iNumPlayers)
-		cout << "WARNING: stored player count " << iNumPlayers << " is different from recalculated player count " << numplayers << endl;
+		warnings << "WARNING: stored player count " << iNumPlayers << " is different from recalculated player count " << numplayers << endl;
 
 	// Ran out of slots
 	if (!newcl) {
@@ -1309,9 +1310,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// Set some info on the worms
 		for(int i = 0; i < newcl->getNumWorms(); i++) {
 			if(newcl->getWorm(i)->isPrepared()) {
-				cout << "WARNING: connectduringgame: worm " << newcl->getWorm(i)->getID() << " was already prepared! ";
-				if(!newcl->getWorm(i)->isUsed()) cout << "AND it is even not used!";
-				cout << endl;
+				warnings << "WARNING: connectduringgame: worm " << newcl->getWorm(i)->getID() << " was already prepared! ";
+				if(!newcl->getWorm(i)->isUsed()) warnings << "AND it is even not used!";
+				warnings << endl;
 				newcl->getWorm(i)->Unprepare();
 			}
 			

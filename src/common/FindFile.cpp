@@ -17,7 +17,7 @@
 // By Jason Boettcher
 
 
-#include <iostream>
+
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info
@@ -27,7 +27,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Options.h"
-
+#include "Debug.h"
 
 
 #ifdef WIN32
@@ -66,7 +66,7 @@
 
 searchpathlist tSearchPaths;
 
-using namespace std;
+
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
 	std::string abs_f;
@@ -515,14 +515,14 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 
 	// get the dir, where we should write into
 	if(tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {
-		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
+		errors << "we want to write somewhere, but don't know where => we are writing to your temp-dir now..." << endl;
 		tmp = GetTempDir() + "/" + path;
 	} else {
 		GetExactFileName(GetFirstSearchPath(), tmp);
 
 		CreateRecDir(tmp);
 		if(!CanWriteToDir(tmp)) {
-			printf("ERROR: we cannot write to %s => we are writing to your temp-dir now...\n", tmp.c_str());
+			errors << "we cannot write to " << tmp << " => we are writing to your temp-dir now..." << endl;
 			tmp = GetTempDir();
 		}
 
@@ -552,13 +552,13 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 				if(fullfn != writefullname) {
 					// it is not the file, we would write to, so copy it to the wanted destination
 					if(!FileCopy(fullfn, writefullname)) {
-						printf("ERROR: problems while copying, so I cannot open this file in append-mode somewhere else\n");
+						errors << "problems while copying, so I cannot open this file in append-mode somewhere else" << endl;
 						return NULL;
 					}
 				}
 			}
 		}
-		//printf("opening file for writing (mode %s): %s\n", mode, writefullname);
+		//errors << "opening file for writing (mode %s): %s\n", mode, writefullname);
 		return fopen(Utf8ToSystemNative(writefullname).c_str(), mode);
 	}
 
@@ -703,12 +703,12 @@ void ReplaceFileVariables(std::string& filename) {
 bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
-	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
+	notes << "FileCopy: " << src << " -> " << dest << endl;
 
 	FILE* src_f = fopen(Utf8ToSystemNative(src).c_str(), "rb");
 
 	if(!src_f) {
-		printf("FileCopy: ERROR: cannot open source\n");
+		errors << "FileCopy: cannot open source" << endl;
 		return false;
 	}
 
@@ -716,31 +716,32 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 
 	if(!dest_f) {
 		fclose(src_f);
-		printf("  ERROR: cannot open destination\n");
+		errors << "FileCopy: cannot open destination" << endl;
 		return false;
 	}
 
-	printf("  ");
 	bool success = true;
 	unsigned short count = 0;
+	notes << "FileCopy: |" << flush;
 	size_t len = 0;
 	while((len = fread(tmp, 1, sizeof(tmp), src_f)) > 0) {
-		if(count == 0) printf("."); count++; count %= 20;
+		if(count == 0) notes << "." << flush; count++; count %= 20;
 		if(len != fwrite(tmp, 1, len, dest_f)) {
-			printf("  ERROR: problem while writing\n");
+			errors << "FileCopy: problem while writing" << endl;
 			success = false;
 			break;
 		}
 		if(len != sizeof(tmp)) break;
 	}
+	notes << endl;
 	if(success) {
 		success = feof(src_f) != 0;
-		if(!success) printf("  ERROR: problem while reading\n");
+		if(!success) errors << "FileCopy: problem while reading" << endl;
 	}
 
 	fclose(src_f);
 	fclose(dest_f);
-	if(success)	printf("  success :)\n");
+	if(success)	notes << "FileCopy: success :)" << endl;
 	return success;
 }
 

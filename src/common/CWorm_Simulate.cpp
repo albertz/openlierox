@@ -16,7 +16,7 @@
 // Created 2/8/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "Sounds.h"
@@ -31,9 +31,10 @@
 #include "CWormHuman.h"
 #include "ProfileSystem.h"
 #include "CGameScript.h"
+#include "Debug.h"
 
 
-using namespace std;
+
 
 
 ///////////////////
@@ -74,10 +75,10 @@ void CWormHumanInputHandler::getInput() {
 	{
 /*		// only some debug output for checking the values
 		if(mouseControl && (mouse_dx != 0 || mouse_dy != 0))
-			printf("mousepos changed: %i, %i\n", mouse_dx, mouse_dy),
-			printf("anglespeed: %f\n", fAngleSpeed),
-			printf("movespeed: %f\n", fMoveSpeedX),
-			printf("dt: %f\n", dt); */
+			notes("mousepos changed: %i, %i\n", mouse_dx, mouse_dy),
+			notes("anglespeed: %f\n", fAngleSpeed),
+			notes("movespeed: %f\n", fMoveSpeedX),
+			notes("dt: %f\n", dt); */
 	}
 
 	// angle section
@@ -302,7 +303,7 @@ void CWormHumanInputHandler::getInput() {
 		// inform player about disallowed strafing
 		if(!cClient->isHostAllowingStrafing() && cStrafe.isDownOnce())
 			// TODO: perhaps in chat?
-			printf("HINT: strafing is not allowed on this server.\n");
+			hints << "strafing is not allowed on this server." << endl;
 	}
 
 
@@ -488,7 +489,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Safety
 	if (!m_worm->tProfile)  {
-		printf("ERROR: initWeaponSelection called and tProfile is not set\n");
+		errors << "initWeaponSelection called and tProfile is not set" << endl;
 		return;
 	}
 	
@@ -538,7 +539,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	// TODO: give better names to local variables
 		
 	if(bDedicated) {
-		cout << "WARNING: doWeaponSelectionFrame: we have a local human input in our dedicated server" << endl; 
+		warnings << "doWeaponSelectionFrame: we have a local human input in our dedicated server" << endl; 
 		return; // just for safty; atm this function only handles non-bot players
 	}
 	

@@ -7,7 +7,7 @@
 	created on 9/2/2008
 */
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "ProfileSystem.h"
@@ -20,8 +20,7 @@
 #include "CBonus.h"
 #include "CClient.h"
 #include "console.h"
-
-using std::cout; using std::endl;
+#include "Debug.h"
 
 
 
@@ -410,7 +409,7 @@ public:
 	virtual void simulateWormWeapon(float dt, CWorm* worm) {
 		// Weird
 		if (worm->getCurrentWeapon() < 0 || worm->getCurrentWeapon() >= 5) {
-			printf("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
+			warnings("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
 			return;
 		}
 
@@ -1039,7 +1038,7 @@ public:
 			// If the worm has been killed, or dropped, drop the hook
 			if(!rope->getAttachedPlayer() || !rope->getAttachedPlayer()->isUsed() || !rope->getAttachedPlayer()->getAlive()) {
 				if(!rope->getAttachedPlayer())
-					printf("WARNING: the rope is attached to a non-existant player!\n");						
+					warnings("WARNING: the rope is attached to a non-existant player!\n");						
 				rope->hookVelocity() = CVec(0,0);
 				rope->setShooting( false );
 				rope->setAttached( false );

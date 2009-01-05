@@ -17,14 +17,14 @@
 // By Jason Boettcher
 
 
-#include <iostream>
-#include <assert.h>
+
+#include <cassert>
 #include <gd.h>
 #include <SDL.h>
 
 #include "LieroX.h"
 #include "Options.h"
-
+#include "Debug.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"
 #include "Cache.h"
@@ -35,7 +35,7 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
-using namespace std;
+
 
 // Used in various alpha-blending routines, internal
 struct RGBA  {
@@ -1947,7 +1947,7 @@ void test_Clipper() {
 
 	ClipRefRectWith(r1, (SDLRect&)r2);
 
-	cout << r1.x << "," << r1.y << "," << r1.w << "," << r1.h << endl;
+	notes << r1.x << "," << r1.y << "," << r1.w << "," << r1.h << endl;
 }
 
 template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )

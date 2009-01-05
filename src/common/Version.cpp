@@ -1,13 +1,17 @@
-#include <iostream>
-#include <cstdio>
+/*
+ OpenLieroX
+ 
+ version parsing
+ 
+ file created 29-02-2008 by albert
+ code under LGPL
+ */
 
 #include "Version.h"
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "AuxLib.h"
 
-using std::cout;
-using std::endl;
 
 
 std::string GetFullGameName() {
@@ -18,7 +22,7 @@ std::string GetFullGameName() {
 inline void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {
 #ifdef DEBUG
 	if(version->asString() != versionStr) {
-		cout << "WARNING: Version::setByString: '" << versionStr << "' get parsed as '" << version->asString() << "'" << endl;
+		notes << "WARNING: Version::setByString: '" << versionStr << "' get parsed as '" << version->asString() << "'" << endl;
 	}
 #endif
 }

@@ -8,7 +8,7 @@
 //
 /////////////////////////////////////////
 
-#include <iostream>
+
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -16,7 +16,7 @@
 #include "SkinnedGUI/CGuiSkinnedLayout.h"
 #include "SkinnedGUI/CGuiSkin.h"
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "Cursor.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"
@@ -491,7 +491,7 @@ CWidget	*CGuiSkinnedLayout::getWidgetByName(const std::string & name)
 // Notifies about the error that occured
 void CGuiSkinnedLayout::Error(int ErrorCode, const std::string& desc)
 {
-	std::cout << "GUI skin error: " << ErrorCode << " " << desc << std::endl;
+	errors << "GUI skin error: " << ErrorCode << " " << desc << endl;
 }
 
 ///////////////////

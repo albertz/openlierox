@@ -15,8 +15,7 @@
 
 
 
-#include <assert.h>
-#include <iostream>
+#include <cassert>
 #include <time.h>
 
 #include "LieroX.h"
@@ -49,7 +48,7 @@
 #include "Debug.h"
 
 
-using namespace std;
+
 
 #ifdef _MSC_VER
 #undef min
@@ -97,7 +96,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 			Version version = OLXBetaVersion(betaver);
 			if(client->cServerVersion < version) {
 				client->cServerVersion = version;
-				cout << "HINT: host is at least using OLX Beta3" << endl;
+				notes << "host is at least using OLX Beta3" << endl;
 			}
 		}
 	}
@@ -109,7 +108,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 		Version version(versionStr);
 		if(version > client->cServerVersion) { // only update if this version is really newer than what we know already
 			client->cServerVersion = version;
-			cout << "HINT: Host is using " << versionStr << endl;
+			notes << "Host is using " << versionStr << endl;
 		}
 	}
 
@@ -127,7 +126,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Unknown
 	else  {
-		cout << "CClientNetEngine::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
+		warnings << "CClientNetEngine::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -1184,7 +1183,7 @@ static std::string getChatText(CClient* client) {
 	else if(tLX->iGameType == GME_JOIN)
 		return DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 
-	cout << "WARNING: getChatText(): cannot find chat source" << endl;
+	warnings << "WARNING: getChatText(): cannot find chat source" << endl;
 	return "";
 }
 
@@ -1197,7 +1196,7 @@ static void setChatText(CClient* client, const std::string& txt) {
 	} else if(tLX->iGameType == GME_JOIN) {
 		DeprecatedGUI::Menu_Net_JoinLobbySetText( txt );
 	} else
-		cout << "WARNING: setChatText(): cannot find chat source" << endl;
+		warnings << "WARNING: setChatText(): cannot find chat source" << endl;
 }
 
 
@@ -1281,13 +1280,13 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 		int gameLives = client->getGameLobby()->iLives;
 		if (gameLives == WRM_UNLIM) {
 			if(lives != WRM_UNLIM)
-				cout << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
+				warnings << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
 		} else {
 			if(lives == WRM_UNLIM)
-				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
+				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
 			else if(lives > client->getGameLobby()->iLives)
-				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
+				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
 		}
 	
@@ -1373,7 +1372,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 
 	// Game over
-	cout << "the game is over" << endl;
+	hints << "the game is over" << endl;
 	client->bGameOver = true;
 	client->fGameOverTime = tLX->fCurTime;
 
@@ -2200,13 +2199,13 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		int gameLives = client->getGameLobby()->iLives;
 		if (gameLives == WRM_UNLIM) {
 			if(lives != WRM_UNLIM)
-				cout << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
+				warnings << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
 		} else {
 			if(lives == WRM_UNLIM)
-				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
+				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
 			else if(lives > client->getGameLobby()->iLives)
-				cout << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
+				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
 		}
 	

@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 
-#include <iostream>
+
 #include "LieroX.h"
 #include "Sounds.h"
 #include "Clipboard.h"
@@ -28,8 +28,9 @@
 #include "DeprecatedGUI/CMenu.h"
 #include "Timer.h"
 #include "ProfileSystem.h"
+#include "Debug.h"
 
-using namespace std;
+
 
 namespace DeprecatedGUI {
 
@@ -375,7 +376,7 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 	CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
 	const cb_item_t* item = combo->getSelectedItem();
 	if(!item) {
-		cout << "ERROR: no player selected" << endl;
+		errors << "no player selected" << endl;
 		return;
 	}
 	

@@ -13,10 +13,12 @@
 // Created 11/8/08
 // Karel Petranek
 
-#include <iostream>
+
 
 #include "StringBuf.h"
 #include "StringUtils.h"
+#include "Debug.h"
+
 
 // Helper functions
 std::string strlwr(const std::string& s)
@@ -192,5 +194,5 @@ void StringBuf::toLower()
 // Prints the contents to stdout
 void StringBuf::debugPrint()
 {
-	std::cout << sStr << std::endl << std::endl;
+	notes << sStr << endl << endl;
 }

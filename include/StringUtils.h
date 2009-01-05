@@ -155,7 +155,8 @@ std::string		ColToHex(Uint32 col);
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 
-void PrettyPrint(const std::string& prefix, const std::string& buf, void (*LineOutFct) (const std::string&));
+// returns true if last char was a newline
+bool PrettyPrint(const std::string& prefix, const std::string& buf, void (*PrintOutFct) (const std::string&), bool firstLineWithPrefix = true);
 
 
 ////////////////////
@@ -271,6 +272,8 @@ inline std::string itoa(long num, short base=10)  {
 
 inline std::string itoa(int num, short base=10)  { return itoa((long)num,base); }
 inline std::string itoa(unsigned int num, short base=10)  { return itoa((unsigned long)num,base); }
+template<typename _T> std::string hex(_T num) { return itoa(num,16); }
+
 
 class simple_reversestring_hasher { public:
 	inline size_t operator() (const std::string& str) const {

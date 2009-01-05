@@ -15,11 +15,10 @@
 
 
 #include <stdarg.h>
-#include <iostream>
-#include <assert.h>
+#include <cassert>
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
@@ -82,7 +81,7 @@ unsigned char byteswap_buffer[16];
 
 
 void printf(const std::string& txt) {
-	std::cout << txt << std::flush;
+	notes << txt << flush;
 }
 
 

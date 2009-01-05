@@ -8,7 +8,7 @@
 //
 /////////////////////////////////////////
 
-#include <iostream>
+
 #include <sstream>
 // XML parsing library
 #include <libxml/xmlmemory.h>

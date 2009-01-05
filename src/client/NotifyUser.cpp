@@ -8,6 +8,7 @@
  */
 
 #include "NotifyUser.h"
+#include "Debug.h"
 
 #ifdef DEDICATED_ONLY
 
@@ -60,14 +61,14 @@ void x11_SetDemandsAttention( bool v ) {
 
 #endif
 
-#include <iostream>
+
 
 #include "InputEvents.h"
 #include "Sounds.h"
 #include "AuxLib.h"
 
 
-using namespace std;
+
 
 // HINT: I don't include LieroX.h directly as it declares Rect<>, which is already declared by Carbon
 extern bool bDedicated;
@@ -79,7 +80,7 @@ void NotifyUserOnEvent()
 	if( bDedicated || ApplicationHasFocus() )
 		return;
 
-	cout << "Notifying busy user" << endl;
+	notes << "Notifying busy user" << endl;
 
 	PlaySoundSample(sfxGeneral.smpNotify);
 
@@ -117,7 +118,7 @@ void NotifyUserOnEvent()
 
 #else
 
-	cout << "WARNING: NotifyUserOnEvent(): cannot notify windowmanager, unsupported system" << endl;
+	warnings << "NotifyUserOnEvent(): cannot notify windowmanager, unsupported system" << endl;
 
 #endif
 

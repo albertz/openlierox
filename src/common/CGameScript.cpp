@@ -15,11 +15,10 @@
 
 
 #include <stdarg.h>
-#include <iostream>
 
 #include "EndianSwap.h"
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CGameScript.h"
@@ -37,7 +36,7 @@ int CGameScript::Save(const std::string& filename)
 	// Open it
 	fp = OpenGameFile(filename,"wb");
 	if(fp == NULL) {
-		printf("Error: Could not open %s for writing\n",filename.c_str());
+		errors << "CGameScript::Save: Could not open " << filename << " for writing" << endl;
 		return false;
 	}
 
@@ -834,7 +833,7 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
 
 	size_t length = szString.size();
 	if(length > 255) {
-		printf("WARNING: i will cut the following string for writing: %s\n", szString.c_str());
+		warnings << "i will cut the following string for writing: " << szString << endl;
 		length = 255;
 	}
 	uchar len = (uchar)length;
@@ -958,15 +957,15 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_f
 
 	// Check ID
 	if(strcmp(head.ID,"Liero Game Script") != 0) {
-		std::cout << "GS:CheckFile: WARNING: " << dir << "/script.lgs is not a Liero game script";
-		std::cout << " (but \"" << head.ID << "\" instead)" << std::endl;
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs is not a Liero game script";
+		warnings << " (but \"" << head.ID << "\" instead)" << endl;
 		return false;
 	}
 
 	// Check version
 	if(head.Version != GS_VERSION) {
-		std::cout << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
-		std::cout << " (" << (unsigned)head.Version << ", required is " << GS_VERSION << ")" << std::endl;
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
+		warnings << " (" << (unsigned)head.Version << ", required is " << GS_VERSION << ")" << endl;
 		return false;
 	}
 
@@ -1008,7 +1007,7 @@ std::string CGameScript::getError(int code)
 // Write info to a mod log file
 void CGameScript::modLog(const std::string& text)
 {
-	std::cout << text << std::endl;
+	notes << "modLog: " << text << endl;
 
 	if(!pModLog) {
 		pModLog = OpenGameFile("modlog.txt","wt");

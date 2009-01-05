@@ -30,7 +30,7 @@ console_t	*Console = NULL;
 
 bool Con_IsInited() { return Console != NULL; }
 
-using namespace std;
+
 
 
 ///////////////////

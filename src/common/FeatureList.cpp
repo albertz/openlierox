@@ -7,12 +7,12 @@
  *
  */
 
-#include <iostream>
+
 #include "FeatureList.h"
 #include "Version.h"
 #include "CServer.h"
 
-using namespace std;
+
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {

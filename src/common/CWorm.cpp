@@ -13,8 +13,8 @@
 // Created 28/6/02
 // Jason Boettcher
 
-#include <iostream>
-#include <assert.h>
+
+#include <cassert>
 
 #include "LieroX.h"
 #include "ProfileSystem.h"
@@ -27,9 +27,7 @@
 #include "MathLib.h"
 #include "CServerConnection.h"
 #include "CWormHuman.h"
-
-using std::cout;
-using std::endl;
+#include "Debug.h"
 
 
 
@@ -198,9 +196,9 @@ void CWorm::Prepare(CMap *pcMap)
 	assert(cGameScript);
 
 	if(bIsPrepared) {
-		cout << "WARNING: worm was already prepared! ";
-		if(this->pcMap != pcMap) cout << "AND pcMap differs!";
-		cout << endl;
+		warnings << "worm was already prepared! ";
+		if(this->pcMap != pcMap) warnings << "AND pcMap differs!";
+		warnings << endl;
 	}
 	
 	this->pcMap = pcMap;
@@ -211,8 +209,8 @@ void CWorm::Prepare(CMap *pcMap)
 	iCurrentWeapon = 0;
 
 	if(m_inputHandler) {
-		cout << "WARNING: worm " << getName() << " has already the following input handler set: "; cout.flush();
-		cout << m_inputHandler->name(); cout << endl;
+		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
+		warnings << m_inputHandler->name(); warnings << endl;
 		delete m_inputHandler;
 	}
 
@@ -230,8 +228,8 @@ void CWorm::Unprepare() {
 	
 	if(m_inputHandler) {
 		if(!bLocal) {
-			cout << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; cout.flush();
-			cout << m_inputHandler->name() << endl;
+			warnings << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; warnings.flush();
+			warnings << m_inputHandler->name() << endl;
 		}
 		delete m_inputHandler;
 		m_inputHandler = NULL;
@@ -257,12 +255,12 @@ WormType* WormType::fromInt(int type) {
 
 void CWorm::getInput() {
 	if(!bLocal) {
-		cout << "WARNING: called getInput() on non-local worm " << getName() << endl;
+		warnings << "WARNING: called getInput() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		cout << "WARNING: input handler not set for worm " << getName() << ", cannot get input" << endl;
+		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot get input" << endl;
 		return;
 	}
 	
@@ -284,12 +282,12 @@ void CWorm::clearInput() {
 
 void CWorm::initWeaponSelection() {
 	if(!bLocal) {
-		cout << "WARNING: called initWeaponSelection() on non-local worm " << getName() << endl;
+		warnings << "WARNING: called initWeaponSelection() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		cout << "WARNING: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
+		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
 		return;
 	}
 	
@@ -308,17 +306,17 @@ void CWorm::initWeaponSelection() {
 
 void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	if(!bLocal) {
-		cout << "WARNING: called doWeaponSelectionFrame() on non-local worm " << getName() << endl;
+		warnings << "WARNING: called doWeaponSelectionFrame() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		cout << "WARNING: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
+		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
 		return;
 	}
 	
 	if(bWeaponsReady) {
-		cout << "WARNING: doWeaponSelectionFrame: weapons already selected" << endl;
+		warnings << "WARNING: doWeaponSelectionFrame: weapons already selected" << endl;
 		return;
 	}
 	
@@ -454,13 +452,13 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int
 	loaded = LoadGameImage(filename);
 	if(loaded.get() == NULL) {
 		// Error: Couldn't load image
-		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
+		errors << "CWorm::ChangeGraphics: Could not load image " << filename << endl;
 		return NULL;
 	}
 
 	img = gfxCreateSurface(loaded.get()->w,loaded.get()->h);
 	if (img.get() == NULL)  {
-		printf("CWorm::ChangeGraphics: Not enough of memory.");
+		errors << "CWorm::ChangeGraphics: Not enough of memory." << endl;
 		return NULL;
 	}
 	DrawImage(img.get(),loaded,0,0); // Blit to the new surface
@@ -982,7 +980,7 @@ bool CWorm::Injure(int damage)
 // Returns true if we are out of the game
 bool CWorm::Kill(void)
 {
-//	std::cout << "our worm " << iID << " died" << std::endl;
+//	notes << "our worm " << iID << " died" << endl;
 
 	bAlive = false;
 	fTimeofDeath = tLX->fCurTime;

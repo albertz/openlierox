@@ -24,6 +24,7 @@
 #include "MathLib.h"
 #include "CClient.h"
 #include "ProfileSystem.h"
+#include "Debug.h"
 
 
 void CProjectile::setUnused() {
@@ -39,7 +40,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 {
 	// Safety (it is used for indexing later)
 	if (_owner >= MAX_WORMS || _owner < 0)  {
-		printf("WARNING: bad owner ID in CProjectile::Spawn");
+		warnings << "bad owner ID in CProjectile::Spawn" << endl;
 		return;
 	}
 

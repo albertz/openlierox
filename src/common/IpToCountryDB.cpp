@@ -16,7 +16,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
-#include <iostream>
+
 #include <map>
 
 #include "Options.h"
@@ -65,7 +65,6 @@ struct DBEntry {
 typedef std::vector<DBEntry> DBData;
 
 
-// TODO: remove all printf usage here
 
 /*
 	_handler has to be a functor, which is compatible to:
@@ -87,7 +86,7 @@ public:
 	void setHandler(_handler& h) { handler = h; }
 
 	bool operator()(const std::list<std::string>& entries) {
-		using namespace std;
+		
 		if (entries.size() < 7)  {
 			hints << "IpToCountry loader warning: number of entries is less than 7, ignoring the line " << line << "\n";
 			if (entries.size())  {
@@ -124,7 +123,7 @@ public:
 };
 
 
-using namespace std;
+
 
 class AddEntriesToDBData {
 public:

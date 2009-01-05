@@ -8,7 +8,7 @@
 	by Albert Zeyer and Dark Charlie
 */
 
-#include <iostream>
+
 #include <set>
 
 #include "Clipboard.h"
@@ -24,7 +24,7 @@
 #include "Event.h"
 
 
-using namespace std;
+
 
 
 // Keyboard, Mouse, & Event
@@ -237,10 +237,10 @@ static void EvHndl_ActiveEvent(SDL_Event* ev) {
 			Mouse.Up = 0;
 
 			if(!hadFocusBefore && nFocus) {
-				//cout << "OpenLieroX got the focus" << endl;
+				//notes << "OpenLieroX got the focus" << endl;
 				ClearUserNotify();
 			} else if(hadFocusBefore && !nFocus) {
-				//cout << "OpenLieroX lost the focus" << endl;
+				//notes << "OpenLieroX lost the focus" << endl;
 			}
 	}
 }
@@ -336,9 +336,9 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		/*
 		if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 			// I don't want to track keyrepeats here; but works only for special keys
-			cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
+			notes << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
 		else if(!kbev.down)
-			cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
+			notes << tLX->fCurTime << ": released key " << kbev.sym << endl;
 		*/
 		
 	} else

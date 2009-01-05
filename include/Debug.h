@@ -14,7 +14,7 @@
 #include "StringUtils.h"
 
 void DumpCallstackPrintf();
-void DumpCallstack(void (*LineOutFct) (const std::string&));
+void DumpCallstack(void (*PrintOutFct) (const std::string&));
 
 struct Logger {
 	int minIngameConVerb;
@@ -22,15 +22,20 @@ struct Logger {
 	int minCallstackVerb;
 	std::string prefix;
 	std::string buffer;
+	bool lastWasNewline;
 
-	Logger(int ingame, int o, int callst, const std::string& p) : minIngameConVerb(ingame), minCoutVerb(o), minCallstackVerb(callst), prefix(p) {}
+	Logger(int ingame, int o, int callst, const std::string& p) : minIngameConVerb(ingame), minCoutVerb(o), minCallstackVerb(callst), prefix(p), lastWasNewline(true) {}
 	Logger& operator<<(const std::string& msg) { buffer += msg; return *this; }
 	Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*this); }
 	template<typename _T> Logger& operator<<(_T v) { return operator<<(to_string(v)); }
 	Logger& flush();
+	
+	// deprecated, only for easier find/replace with printf
+	void operator()(const std::string& str) { (*this) << str; flush(); }
 };
 
 inline Logger& endl(Logger& __os) { return (__os << "\n").flush(); }
+inline Logger& flush(Logger& __os) { return __os.flush(); }
 
 
 extern Logger notes;

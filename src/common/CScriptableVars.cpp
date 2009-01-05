@@ -9,10 +9,10 @@
 /////////////////////////////////////////
 
 #include "CScriptableVars.h"
-
+#include "Debug.h"
 #include "StringUtils.h"
 
-#include <iostream>
+
 #include <sstream>
 
 
@@ -125,9 +125,9 @@ void CScriptableVars::DeRegisterVars( const std::string & base )
 {
 	if( ! m_instance )
 	{
-		printf("CScriptableVars::DeRegisterVars() - error, deregistering vars \"%s\" after CScriptableVars were destroyed\n", base.c_str() );
+		errors << "CScriptableVars::DeRegisterVars() - error, deregistering vars \"" << base << "\" after CScriptableVars were destroyed" << endl;
 		return;
-	};
+	}
 	Init();
 	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
 			it != m_instance->m_vars.end();  )
@@ -166,9 +166,9 @@ std::string CScriptableVars::DumpVars()
 			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
 			case SVT_COLOR: ret << "color: " << itoa(*i->second.cl); break;
 			case SVT_CALLBACK: ret << "callback: "; break;
-		};
+		}
 		ret << "\n";
-	};
+	}
 	return ret.str();
 };
 
@@ -196,7 +196,7 @@ void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::strin
 		if( scopy.find_first_of("-0123456789") == 0 )
 			*var.i = from_string<int>(scopy, fail);
 		else {
-			std::cout << "WARNING: " << str << " should be an integer in options.cfg but it isn't" << std::endl;
+			warnings << str << " should be an integer in options.cfg but it isn't" << endl;
 			// HACK: because sometimes there is a bool instead of an int in the config
 			// TODO: is this still like this?
 			if(scopy == "true" || scopy == "yes")
@@ -212,10 +212,10 @@ void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::strin
 	else if( var.type == SVT_STRING )
 		*var.s = str;
 	else
-		std::cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << std::endl;
+		warnings << "Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << endl;
 	
 	if(fail)
-		std::cout << "WARNING: failed to convert " << str << " into format " << var.type << std::endl;
+		warnings << "failed to convert " << str << " into format " << var.type << endl;
 }
 
 std::string CScriptableVars::GetDescription( const std::string & name )

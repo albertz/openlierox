@@ -18,7 +18,6 @@
 
 
 #include <stdarg.h>
-#include <iostream>
 
 #include "LieroX.h"
 #include "Debug.h"
@@ -36,7 +35,7 @@ std::string	LastError;
 FILE *ErrorFile = NULL;
 
 
-using namespace std;
+
 
 ///////////////////
 // Sets the error message
@@ -128,8 +127,7 @@ void GuiSkinError(const std::string& text)
 
 	GUIErrors.push_back(text);
 
-	// TODO: make this better
-	std::cout << "GUI error: " << text << std::endl;
+	errors << "GuiSkin: " << text << endl;
 
 }
 

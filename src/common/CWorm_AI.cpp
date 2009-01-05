@@ -22,7 +22,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include <assert.h>
+#include <cassert>
 #include <set>
 
 #include "LieroX.h"
@@ -38,6 +38,7 @@
 #include "Sounds.h"
 #include "ProfileSystem.h"
 #include "CWormBot.h"
+#include "Debug.h"
 
 
 // we need it here for some debugging...
@@ -206,7 +207,7 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	register const uchar* pxflags = pcMap->GetPixelFlags();
 	if (!pxflags)  {  // The map has been probably shut down
-		printf("WARNING: simpleTraceLine with pxflags==NULL\n");
+		warnings << "simpleTraceLine with pxflags==NULL" << endl;
 		return false;
 	}
 	uint map_w = pcMap->GetWidth();
@@ -493,14 +494,14 @@ public:
 		thread_mut = SDL_CreateMutex();
 		thread = SDL_CreateThread(threadSearch, this);
 		if(!thread)
-			printf("ERROR: could not create AI thread\n");
+			errors << "could not create AI thread" << endl;
 	}
 
 	~searchpath_base() {
 		// thread cleaning up
 		breakThreadSignal();
 		if(thread) SDL_WaitThread(thread, NULL);
-		else printf("WARNING: AI thread already uninitialized\n");
+		else warnings << "AI thread already uninitialized" << endl;
 		thread = NULL;
 		if(thread_mut) SDL_DestroyMutex(thread_mut);
 		thread_mut = NULL;
@@ -904,11 +905,11 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fRopeHookFallingTime = 0;
 
 	if(pathSearcher)
-		printf("WARNING: pathSearcher is already initialized\n");
+		warnings << "pathSearcher is already initialized" << endl;
 	else
 		pathSearcher = new searchpath_base;
 	if(!pathSearcher) {
-		printf("ERROR: cannot initialize pathSearcher\n");
+		errors << "cannot initialize pathSearcher" << endl;
 		return false;
 	}
 	((searchpath_base*)pathSearcher)->pcMap = m_worm->pcMap;
@@ -1593,7 +1594,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
 	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
 	if(!wpnproj) {
-		printf("ERROR: cannot determinit wpnproj\n");
+		errors << "cannot determinit wpnproj" << endl;
 		return false;
 	}
 
@@ -1767,7 +1768,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 	// Don't shoot teammates
 	if(cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH && (nType & PX_WORM)) {
-		printf("we don't want shoot teammates\n");
+		notes << "bot: we don't want shoot teammates" << endl;
 		return false;
 	}
 
@@ -1796,7 +1797,7 @@ bool CWormBotInputHandler::AI_Shoot()
     int wpn = AI_GetBestWeapon(iAiGameType, d, bDirect, fDist);
     if(wpn < 0) {
         //strcpy(tLX->debug_string, "No good weapon");
-        printf("I could not find any useable weapon\n");
+        notes << "bot: I could not find any useable weapon" << endl;
         return false;
     }
 
@@ -1856,7 +1857,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,m_worm->vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
+					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << psAITarget->getVelocity()->GetLength() << ", proj speed: " << (float)weap->ProjSpeed*weap->Projectile->Dampening << "+" << (weap->ProjSpeedVar*100.0f) << endl;
 
 				} else { // apriori_time >= 0
 					// where the target would be
@@ -2105,7 +2106,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			}
 			// We don't see the target
 			else  {
-				printf("GAM_100LT: i think we should not shoot here\n");
+				notes << "bot: GAM_100LT: i think we should not shoot here" << endl;
 				m_worm->tState.bJump = true; // Jump, we might get better position
 				return -1;
 			}
@@ -2301,7 +2302,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // AND if there is no rock/dirt nearby
     if(fDistance > 190 && m_worm->iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
         if (!AI_CheckFreeCells(5)) {
-			printf("we should not shoot because of the hints everywhere\n");
+			notes << "bot: we should not shoot because of the hints everywhere" << endl;
 			return -1;
         }
 
@@ -2745,7 +2746,7 @@ bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 	}
 
 	// Weird, shouldn't happen
-	printf("ouh, what???\n");
+	errors << "bot: ouh, what???" << endl;
 	return false;
 }
 

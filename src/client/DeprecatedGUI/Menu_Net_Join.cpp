@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "Sounds.h"
@@ -35,9 +35,8 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "AuxLib.h"
 #include "CClientNetEngine.h"
+#include "Debug.h"
 
-
-using namespace std;
 
 
 namespace DeprecatedGUI {
@@ -180,7 +179,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 	// Check for a bad connection
 	if(cClient->getBadConnection()) {
-		cout << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
+		warnings << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
 		Menu_MessageBox("Connection Error", cClient->getBadConnectionMsg(), LMB_OK);
 
 		cClient->Shutdown();

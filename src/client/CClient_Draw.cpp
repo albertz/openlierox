@@ -13,10 +13,10 @@
 // Created 9/7/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "ConfigHandler.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -50,7 +50,7 @@
 #include "IRC.h"
 
 
-using namespace std;
+
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
 float			fLagFlash;
@@ -415,7 +415,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		getUdpFileDownloader()->reset();
 
 		if(bDedicated) {
-			cout << "ERROR: servererror: " << strServerErrorMsg << endl;
+			errors << "servererror: " << strServerErrorMsg << endl;
 		} else {
 			// Show message box, shutdown and quit back to menu
 			DrawImage(DeprecatedGUI::tMenu->bmpBuffer.get(), DeprecatedGUI::tMenu->bmpMainBack_common, 0, 0);
@@ -548,7 +548,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 					cLocalWorms[i]->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
 					
 					if(cLocalWorms[i]->getWeaponsReady()) {
-						cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
+						hints << "Client: worm " << i << " is ready with weapon-selection" << endl;
 					}
 
 					ready = ready && cLocalWorms[i]->getWeaponsReady();
@@ -559,7 +559,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// If we're ready, let the server know
 		if(ready && !bReadySent && !bDownloadingMap) {
-			cout << "Client: we are ready, waiting now for start game signal" << endl;
+			hints << "Client: we are ready, waiting now for start game signal" << endl;
 			bReadySent = true;
 			cNetEngine->SendGameReady();
 		}

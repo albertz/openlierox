@@ -7,13 +7,14 @@
 	code under LGPL
 */
 
-#include <iostream>
+
 
 
 #include "IniReader.h"
 #include "FindFile.h"
+#include "Debug.h"
 
-using namespace std;
+
 
 IniReader::IniReader(const std::string& filename) : m_filename(filename) {}
 IniReader::~IniReader() {}
@@ -42,7 +43,7 @@ bool IniReader::Parse() {
 			else if(c == '#') { state = S_IGNORERESTLINE; /* this is a comment */ break; }
 			else if(c == '[') { state = S_SECTION; section = ""; break; }
 			else if(c == '=') {
-				cout << "WARNING: \"=\" is not allowed as the first character in a line of options.cfg" << endl;
+				warnings << "WARNING: \"=\" is not allowed as the first character in a line of options.cfg" << endl;
 				break; /* ignore */ }
 			else { state = S_PROPNAME; propname = c; break; }
 
@@ -51,16 +52,16 @@ bool IniReader::Parse() {
 				if( ! OnNewSection(section) )  { res = false; goto parseCleanup; }
 				state = S_DEFAULT; break; }
 			else if(c == '\n') {
-				cout << "WARNING: section-name \"" << section << "\" of options.cfg is not closed correctly" << endl;
+				warnings << "WARNING: section-name \"" << section << "\" of options.cfg is not closed correctly" << endl;
 				state = S_DEFAULT; break; }
 			else if(isspace(c)) {
-				cout << "WARNING: section-name \"" << section << "\" of options.cfg contains a space" << endl;
+				warnings << "WARNING: section-name \"" << section << "\" of options.cfg contains a space" << endl;
 				break; /* ignore */ }
 			else { section += c; break; }
 			
 		case S_PROPNAME:
 			if(c == '\n') {
-				cout << "WARNING: property \"" << propname << "\" of options.cfg incomplete" << endl;
+				warnings << "WARNING: property \"" << propname << "\" of options.cfg incomplete" << endl;
 				state = S_DEFAULT; break; }
 			else if(isspace(c)) break; // just ignore spaces
 			else if(c == '=') { state = S_PROPVALUE; value = ""; break; }

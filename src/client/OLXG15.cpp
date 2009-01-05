@@ -7,6 +7,7 @@
 // Author:  Daniel Sjoholm <steelside@gmail.com>, (C) 2008
 //
 // Copyright: See COPYING file that comes with this distribution
+// code under LGPL
 //
 //
 #ifdef WITH_G15
@@ -18,7 +19,7 @@
 #include "CWorm.h"
 #include "CClient.h"
 #include "CGameScript.h"
-
+#include "Debug.h"
 #include "OLXG15.h"
 #include "OLX_g15logo_ver4.xbm"
 
@@ -54,7 +55,7 @@ bool OLXG15_t::init()
 	screenfd = new_g15_screen(G15_G15RBUF);
 	if(screenfd < 0)
 	{
-		std::cout << "Unable to connect to G15daemon! No G15 Support will be availbile." << std::endl;
+		warnings << "Unable to connect to G15daemon! No G15 Support will be availbile." << endl;
 		return false;
 	}
 
@@ -73,28 +74,28 @@ bool OLXG15_t::init()
 
 		if(keystate & G15_KEY_L1)
 		{
-			std::cout << "L1 pressed.. bye!" << std::endl;
+			notes << "L1 pressed.. bye!" << endl;
 		}
 		else if(keystate & G15_KEY_L2)
 		{
-			std::cout << "L2 pressed" << std::endl;
+			notes << "L2 pressed" << endl;
 		}
 		else if(keystate & G15_KEY_L3)
 		{
-			std::cout << "L3 pressed" << std::endl;
+			notes << "L3 pressed" << endl;
 		}
 		else if(keystate & G15_KEY_L4)
 		{
-			std::cout << "L4 pressed" << std::endl;
+			notes << "L4 pressed" << endl;
 		}
 		else if(keystate & G15_KEY_L5)
 		{
-			std::cout << "L5 pressed" << std::endl;
+			notes << "L5 pressed" << endl;
 		}
 	}
 	*/
 
-	std::cout << "OLXG15 ready" << std::endl;
+	notes << "OLXG15 ready" << endl;
 	return true;
 }
 
@@ -153,7 +154,7 @@ void OLXG15_t::gameFrame()
 		case NET_CONNECTED:
 			if (oldGameState == NET_CONNECTED)
 				break;
-// 			std::cout << "Status: " << itoa(cClient->getStatus()) << "/" << itoa(oldGameState) << std::endl;
+// 			notes << "Status: " << itoa(cClient->getStatus()) << "/" << itoa(oldGameState) << endl;
 			g15r_clearScreen (&canvas, G15_COLOR_WHITE);
 			showingSplash = false;
 			timeShown = 0.0f;
@@ -174,7 +175,7 @@ void OLXG15_t::gameFrame()
 	{
 		if (worm->getLives() == WRM_OUT)
 		{
-// 			std::cout << "Worm is out! clearing screen." << std::endl;
+// 			notes << "Worm is out! clearing screen." << endl;
 
 			g15r_clearScreen(&canvas, G15_COLOR_WHITE);
 			showSplashScreen();
@@ -260,7 +261,7 @@ void OLXG15_t::updateWeapon(const int slotID)
 		curWeapon = worm->getCurrentWeapon();
 		if (curWeapon < 0 || curWeapon > 4)
 		{
-			std::cout << "OLXG15: Invalid curWeapon" << std::endl;
+			warnings << "OLXG15: Invalid curWeapon" << endl;
 			return;
 		}
 		Weapons[curWeapon].changed = true;

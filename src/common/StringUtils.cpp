@@ -156,16 +156,21 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	return res;
 }
 
-void PrettyPrint(const std::string& prefix, const std::string& buf, void (*LineOutFct) (const std::string&)) {
+bool PrettyPrint(const std::string& prefix, const std::string& buf, void (*PrintOutFct) (const std::string&), bool firstLineWithPrefix) {
 	std::string::const_iterator it = buf.begin();
+	bool firstLine = true;
 	while(true) {
 		std::string tmp = ReadUntil(buf, it, '\n');		
 		if(it == buf.end()) {
-			if(tmp != "") (*LineOutFct) (prefix + tmp);
-			break;
+			if(tmp != "") {
+				(*PrintOutFct) ( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
+				return false;
+			}
+			return !firstLine || firstLineWithPrefix;
 		}
 		++it;
-		(*LineOutFct) (prefix + tmp);
+		(*PrintOutFct) ( (!firstLineWithPrefix && firstLine) ? (tmp + "\n") : (prefix + tmp + "\n") );
+		firstLine = false;
 	}
 }
 

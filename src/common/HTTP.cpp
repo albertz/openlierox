@@ -16,8 +16,8 @@
 // Created 9/4/02
 // Jason Boettcher
 
-#include <iostream>
-#include <assert.h>
+
+#include <cassert>
 #ifdef WIN32
 #include <windows.h>
 #include <wininet.h>
@@ -26,7 +26,7 @@
 #endif
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "Options.h"
 #include "HTTP.h"
 #include "Timer.h"
@@ -100,7 +100,7 @@ void AutoSetupHTTPProxy()
 			if (*tLXOptions->sHttpProxy.rbegin() == '/')
 				tLXOptions->sHttpProxy.resize(tLXOptions->sHttpProxy.size() - 1);
 
-			std::cout << "Using HTTP proxy: " << tLXOptions->sHttpProxy << std::endl;
+			notes << "Using HTTP proxy: " << tLXOptions->sHttpProxy << endl;
 		}
 	} else {
 		tLXOptions->sHttpProxy = ""; // No proxy
@@ -178,7 +178,7 @@ bool CChunkParser::ParseNext(char c)
 			iCurLength = from_string<size_t>(sChunkLenStr, std::hex, failed);
 			if (failed)  {
 #ifdef DEBUG
-				//std::cout << "ParseChunks - atoi failed: \"" << sChunkLenStr << "\", " << itoa((uint)c) << std::endl;
+				//notes << "ParseChunks - atoi failed: \"" << sChunkLenStr << "\", " << itoa((uint)c) << endl;
 #endif
 				iCurLength = 0;
 				return false;  // Still processing
@@ -320,26 +320,6 @@ void CHttp::Clear()
 // Cancel current request
 void CHttp::CancelProcessing()
 {
-	// TODO: why do we need this?
-	/*
-	// Wait for reply from DNS server, else we could get in trouble with memory
-	if (bActive && !IsSocketStateValid(tSocket))  {
-		printf("HTTP Stop: Waiting for DNS reply...\n");
-		float start = GetMilliSeconds();
-		// TODO: what has the socketstate to do with tRemoteIP/DNS?
-		while (!IsSocketStateValid(tSocket) && (GetMilliSeconds() - start) <= 10) {
-			SDL_Delay(10);
-		}
-	}
-
-	// If we got DNS reply, just quit
-	if((bConnected || bRequested) && IsSocketStateValid(tSocket))  {
-		CloseSocket(tSocket);
-		InvalidateSocketState(tSocket);
-	}
-	*/
-
-
 	Clear();
 }
 
@@ -370,7 +350,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
     ParseAddress(sRemoteAddress);
 	ParseProxyAddress(proxy);	// Fills sProxyHost, iProxyPort, sProxyPasswd and sProxyUser
 
-	//std::cout << "Sending HTTP request " << address << "\n";
+	//notes << "Sending HTTP request " << address << "\n";
 
 	// Open the socket
 	tSocket = OpenReliableSocket(0);
@@ -879,7 +859,7 @@ int CHttp::ProcessRequest()
 		// If using proxy, try direct connection
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
-				printf("HINT: proxy failed, trying a direct connection\n");
+				warnings("HINT: proxy failed, trying a direct connection\n");
 				RequestData(sHost + sUrl);
 				return HTTP_PROC_PROCESSING;
 			}
@@ -895,7 +875,7 @@ int CHttp::ProcessRequest()
 	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			printf("HINT: proxy failed, trying a direct connection\n");
+			warnings("HINT: proxy failed, trying a direct connection\n");
 			RequestData(sHost + sUrl);
 			return HTTP_PROC_PROCESSING;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -908,7 +888,7 @@ int CHttp::ProcessRequest()
 	if (bRequested && GetMilliSeconds() - fReceiveTime >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			printf("HINT: proxy failed, trying a direct connection\n");
+			warnings("HINT: proxy failed, trying a direct connection\n");
 			RequestData(sHost + sUrl);
 			return HTTP_PROC_PROCESSING;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -956,7 +936,7 @@ int CHttp::ProcessRequest()
 
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
-					printf("HINT: proxy failed, trying a direct connection\n");
+					warnings("HINT: proxy failed, trying a direct connection\n");
 					RequestData(sHost + sUrl);
 					return HTTP_PROC_PROCESSING;
 				}

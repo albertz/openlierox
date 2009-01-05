@@ -8,10 +8,10 @@
 //
 /////////////////////////////////////////
 
-#include <iostream>
+
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CGuiSkin.h"
 #include "AuxLib.h"
@@ -180,7 +180,7 @@ int	CGuiSkinnedLayout::GetIdByName(const std::string & Name)
 // Notifies about the error that occured
 void CGuiSkinnedLayout::Error(int ErrorCode, const std::string& desc)
 {
-	std::cout << "GUI skin error: " << ErrorCode << " " << desc << std::endl;
+	errors << "GUI skin error: " << ErrorCode << " " << desc << endl;
 }
 
 void CGuiSkinnedLayout::ProcessGuiSkinEvent(int iEvent)

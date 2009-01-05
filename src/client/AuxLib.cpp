@@ -20,7 +20,7 @@
 #pragma warning(disable: 4996)
 #endif
 
-#include <iostream>
+
 #include <iomanip>
 #include <time.h>
 #include <SDL.h>
@@ -73,7 +73,7 @@ SDL_PixelFormat defaultFallbackFormat =
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
-using namespace std;
+
 
 
 ///////////////////
@@ -189,21 +189,21 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 static void DumpPixelFormat(const SDL_PixelFormat* format) {
 	std::string buf;
 	std::stringstream str(buf);
-	str << "PixelFormat:" << endl
+	str << "PixelFormat:" << std::endl
 		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
-		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << endl
-		<< "  R/G/B/A mask: " << hex
+		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
+		<< "  R/G/B/A mask: " << std::hex
 			<< (uint)format->Rmask << "/"
 			<< (uint)format->Gmask << "/"
 			<< (uint)format->Bmask << "/"
-			<< (uint)format->Amask << endl
+		<< (uint)format->Amask << std::endl
 		<< "  R/G/B/A loss: "
 			<< (uint)format->Rloss << "/"
 			<< (uint)format->Gloss << "/"
 			<< (uint)format->Bloss << "/"
-			<< (uint)format->Aloss << endl << dec
+		<< (uint)format->Aloss << std::endl << std::dec
 		<< "  Colorkey: " << (uint)format->colorkey << ","
-		<< "  Alpha: " << (int)format->alpha << endl;
+		<< "  Alpha: " << (int)format->alpha << std::endl;
 	notes << buf << endl;
 }
 
@@ -760,7 +760,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 	struct tm *curtime = localtime(&curtime1);
 	char filePrefixTime[200];
 	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
-	string filePrefix = filePrefixTime;
+	std::string filePrefix = filePrefixTime;
 	filePrefix += "-";
 	if( tLX )
 	{

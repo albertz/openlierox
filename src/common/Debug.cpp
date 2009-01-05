@@ -29,14 +29,14 @@ void DumpCallstackPrintf() {
 	free(strs);
 }
 
-void DumpCallstack(void (*LineOutFct) (const std::string&)) {
+void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 	void *callstack[128];
 	int framesC = backtrace(callstack, sizeof(callstack));
-	(*LineOutFct) ("DumpCallstack: " + itoa(framesC) + " addresses:");
+	(*PrintOutFct) ("DumpCallstack: " + itoa(framesC) + " addresses:");
 	char** strs = backtrace_symbols(callstack, framesC);
 	for(int i = 0; i < framesC; ++i) {
 		if(strs[i])
-			(*LineOutFct) (std::string(" ") + strs[i]);
+			(*PrintOutFct) (std::string(" ") + strs[i] + "\n");
 		else
 			break;
 	}
@@ -61,43 +61,53 @@ Logger errors(-1,-1,1, "E: ");
 #include "console.h"
 #include "StringUtils.h"
 
-using namespace std;
 
-static void CoutPrintLn(const std::string& str) {
-	cout << str << "\n";
+
+static void CoutPrint(const std::string& str) {
+	std::cout << str;
 }
 
-template<int col> void ConPrintLn(const std::string& str) {
+template<int col> void ConPrint(const std::string& str) {
+	// TODO: Con_AddText adds a line but we only want to add str
+	std::string buf = str;
+	if(buf.size() > 0 && buf[buf.size()-1] == '\n') buf.erase(buf.size()-1);
 	Con_AddText(col, str, false);
 }
 
-Logger& Logger::flush() {
-	if(!tLXOptions || tLXOptions->iVerbosity >= minCoutVerb) {
-		PrettyPrint(prefix, buffer, CoutPrintLn);
-		cout.flush();
+// true if last was newline
+static bool logger_output(Logger& log, const std::string& buf) {
+	bool ret = true;
+	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
+		ret = PrettyPrint(log.prefix, buf, CoutPrint, log.lastWasNewline);
+		std::cout.flush();
 	}
-	if(tLXOptions && tLXOptions->iVerbosity >= minCallstackVerb) {
+	if(tLXOptions && tLXOptions->iVerbosity >= log.minCallstackVerb) {
 		DumpCallstackPrintf();
 	}
-	if(tLXOptions && Con_IsInited() && tLXOptions->iVerbosity >= minIngameConVerb) {
+	if(tLXOptions && Con_IsInited() && tLXOptions->iVerbosity >= log.minIngameConVerb) {
 		// the check is a bit hacky (see Con_AddText) but I really dont want to overcomplicate this
-		if(!strStartsWith(buffer, "Ingame console: ")) {
+		if(!strStartsWith(buf, "Ingame console: ")) {
 			// we are not safing explicitly a color in the Logger, thus we try to assume a good color from the verbosity level
-			if(minIngameConVerb < 0)
-				PrettyPrint(prefix, buffer, ConPrintLn<CNC_ERROR>);
-			else if(minIngameConVerb == 0)
-				PrettyPrint(prefix, buffer, ConPrintLn<CNC_WARNING>);
-			else if(minIngameConVerb == 1)
-				PrettyPrint(prefix, buffer, ConPrintLn<CNC_NOTIFY>);
-			else if(minIngameConVerb < 5)
-				PrettyPrint(prefix, buffer, ConPrintLn<CNC_NORMAL>);
+			if(log.minIngameConVerb < 0)
+				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_ERROR>, log.lastWasNewline);
+			else if(log.minIngameConVerb == 0)
+				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_WARNING>, log.lastWasNewline);
+			else if(log.minIngameConVerb == 1)
+				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_NOTIFY>, log.lastWasNewline);
+			else if(log.minIngameConVerb < 5)
+				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_NORMAL>, log.lastWasNewline);
 			else // >=5
-				PrettyPrint(prefix, buffer, ConPrintLn<CNC_DEV>);
+				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_DEV>, log.lastWasNewline);
 		}
-		if(tLXOptions->iVerbosity >= minCallstackVerb) {
-			DumpCallstack(ConPrintLn<CNC_DEV>);
+		if(tLXOptions->iVerbosity >= log.minCallstackVerb) {
+			DumpCallstack(ConPrint<CNC_DEV>);
 		}
 	}
+	return ret;
+}
+
+Logger& Logger::flush() {
+	lastWasNewline = logger_output(*this, buffer);
 	buffer = "";
 	return *this;
 }

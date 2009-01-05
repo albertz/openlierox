@@ -12,7 +12,7 @@
 // IRC client class
 // Sergyi Pylypenko
 
-#include <iostream>
+
 #include "IRC.h"
 #include "LieroX.h"
 #include "FindFile.h"

@@ -16,10 +16,10 @@
 // Created 9/4/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "console.h"
@@ -33,7 +33,7 @@
 #include "IRC.h"
 
 
-using namespace std;
+
 
 command_t	*Commands = NULL;
 
@@ -46,7 +46,7 @@ int		NumArgs;
 void Cmd_AddArg(const std::string& text)
 {
 	if(NumArgs >= MAX_ARGS)
-		cout << "WARNING: too much arguments, ignoring: " << text << endl;
+		warnings << "too much arguments, ignoring: " << text << endl;
 	else
 		Arguments[NumArgs++] = text;
 }

@@ -17,7 +17,7 @@
 // By Jason Boettcher
 
 #include <assert.h>
-#include <iostream>
+
 
 #include "LieroX.h"
 
@@ -29,7 +29,7 @@
 #include "CInput.h"
 
 
-using namespace std;
+
 
 
 keys_t Keys[] = {

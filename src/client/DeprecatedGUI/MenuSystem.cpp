@@ -15,7 +15,7 @@
 
 
 #include <assert.h>
-#include <iostream>
+
 #include <set>
 
 #include "Debug.h"
@@ -46,7 +46,7 @@
 std::string Utf8String(const std::string &OldLxString);
 
 
-using namespace std;
+
 
 namespace DeprecatedGUI {
 

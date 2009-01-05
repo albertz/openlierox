@@ -13,10 +13,10 @@
 // Created 24/12/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "GfxPrimitives.h"
 #include "CWorm.h"
 #include "Protocol.h"
@@ -26,7 +26,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 
-using namespace std;
+
 
 
 ///////////////////
@@ -461,13 +461,13 @@ bool CWorm::skipPacket(CBytestream *bs)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
 	if(cClient->OwnsWorm(this->getID())) {
-		cout << "ERROR: get worminfo packet from server for our own worm" << endl;
+		errors << "get worminfo packet from server for our own worm" << endl;
 		skipPacketState(bs);
 		return;
 	}
 
 	if (!bUsed)  {
-		cout << "ERROR: readPacketState called on an unused worm!" << endl;
+		errors << "readPacketState called on an unused worm!" << endl;
 		skipPacketState(bs);
 		return;
 	}
@@ -502,7 +502,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// Safety check
 	if( iCurrentWeapon < 0 || iCurrentWeapon > 4) {
-		printf("Bad iCurrentWeapon in worm update packet\n");
+		warnings << "Bad iCurrentWeapon in worm update packet" << endl;
 		iCurrentWeapon = 0;
 	}
 
@@ -565,7 +565,7 @@ void CWorm::writeWeapons(CBytestream *bs)
 			bs->writeByte(tWeapons[i].Weapon->ID);
 		else {
 			bs->writeByte(0);
-			printf("ERROR: tWeapons[%d].Weapon not set\n",i);
+			errors << "tWeapons[" << i << "].Weapon not set" << endl;
 		}
 	}
 }
@@ -575,7 +575,7 @@ void CWorm::writeWeapons(CBytestream *bs)
 // Read the weapon list
 void CWorm::readWeapons(CBytestream *bs)
 {
-	cout << "getting weapons for worm (" << iID << ") " << sName << endl;
+	notes << "getting weapons for worm (" << iID << ") " << sName << endl;
 
 	ushort i;
 	int id;
@@ -590,12 +590,12 @@ void CWorm::readWeapons(CBytestream *bs)
 			if(id >= 0 && id < cGameScript->GetNumWeapons())
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
 			else  {
-				printf("Error when reading weapons (ID is over num weapons)\n");
+				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
 				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
 				tWeapons[i].Enabled = false;
 			}
 		} else
-			printf("ERROR in readWeapons: cGameScript == NULL\n");
+			errors << "readWeapons: cGameScript == NULL" << endl;
 	}
 
 	// Reset the weapons
@@ -653,12 +653,12 @@ void CWorm::readStatUpdate(CBytestream *bs)
 
     // Check
 	if (cur > 4)  {
-		printf("CWorm::readStatUpdate: current weapon not in range, ignored.\n");
+		warnings << "CWorm::readStatUpdate: current weapon not in range, ignored." << endl;
 		return;
 	}
 
 	if(tWeapons[cur].Weapon == NULL) {
-		printf("WARNING: readStatUpdate: Weapon == NULL\n");
+		warnings << "readStatUpdate: Weapon == NULL" << endl;
 		return;
 	}
 

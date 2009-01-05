@@ -20,7 +20,7 @@
 #include "LieroX.h"
 
 
-#include <iostream>
+
 #include <string>
 
 #include "Clipboard.h"
@@ -30,7 +30,7 @@
 #include "StringUtils.h"
 #include "DeprecatedGUI/CTextbox.h"
 
-using namespace std;
+
 
 
 namespace DeprecatedGUI {

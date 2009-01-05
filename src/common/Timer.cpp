@@ -20,9 +20,9 @@
 #include <list>
 #include <SDL_thread.h>
 #include <time.h>
-#include <assert.h>
+#include <cassert>
 #include "Timer.h"
-
+#include "Debug.h"
 #include "InputEvents.h"
 
 int		Frames = 0;
@@ -246,7 +246,7 @@ static Uint32 Timer_handleCallback(Uint32 interval, void *param)
 		// (and this event has to be of course the last event for this timer in the queue)
 		if(!SDL_RemoveTimer(timer_data->timerID)) {
 			// should never happen!
-			printf("WARNING: could not remove timer\n");
+			warnings << "could not remove timer" << endl;
 		}
 	}
 	
@@ -281,7 +281,7 @@ bool Timer::start()
 	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
 	
 	if(data->timerID == NULL) {
-		printf("WARNING: failed to start timer\n");
+		warnings << "failed to start timer" << endl;
 		delete data;
 		return false;
 	} else {
@@ -307,7 +307,7 @@ bool Timer::startHeadless()
 	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
 	
 	if(data->timerID == NULL) {
-		printf("WARNING: failed to start headless timer\n");
+		warnings << "failed to start headless timer" << endl;
 		delete data;
 		return false;
 	} else  {

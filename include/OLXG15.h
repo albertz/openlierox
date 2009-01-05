@@ -12,7 +12,7 @@
 #ifdef WITH_G15
 #ifndef __OLXG15_H__
 #define __OLXG15_H__
-#include <iostream>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 // Perror

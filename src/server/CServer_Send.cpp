@@ -14,11 +14,11 @@
 // Jason Boettcher
 
 #include <vector>
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "CServer.h"
-
+#include "Debug.h"
 #include "StringUtils.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
@@ -32,7 +32,7 @@
 #include "MathLib.h"
 #endif
 
-using namespace std;
+
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -312,12 +312,12 @@ bool GameServer::SendUpdate()
 					blockRate.addData(tLX->fCurTime, 1);
 					static float lastMessageTime = tLX->fCurTime;
 					if(tLX->fCurTime - lastMessageTime > 30.0) {
-						cout << "we got over the max upload bandwidth" << endl;
-						cout << "   current upload is " << GetUpload() << " bytes/sec (last 2 secs)" << endl;
-						cout << "   current short upload is " << GetUpload(0.1f) << " bytes/sec (last 0.1 sec)" << endl;
-						cout << "   upload amount of this frame is " << uploadAmount << " bytes" << endl;
+						notes << "we got over the max upload bandwidth" << endl;
+						notes << "   current upload is " << GetUpload() << " bytes/sec (last 2 secs)" << endl;
+						notes << "   current short upload is " << GetUpload(0.1f) << " bytes/sec (last 0.1 sec)" << endl;
+						notes << "   upload amount of this frame is " << uploadAmount << " bytes" << endl;
 						if(blockRateAbs.getRate() > 0)
-							cout << "   current block/update rate is " << float(100.0f * blockRate.getRate() / blockRateAbs.getRate()) << " % (last 5 secs)" << endl;
+							notes << "   current block/update rate is " << float(100.0f * blockRate.getRate() / blockRateAbs.getRate()) << " % (last 5 secs)" << endl;
 						lastMessageTime = tLX->fCurTime;
 					}
 					continue;

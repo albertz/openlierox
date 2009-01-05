@@ -15,10 +15,10 @@
 
 
 #include <assert.h>
-#include <iostream>
+
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
 #include "StringUtils.h"
@@ -834,8 +834,7 @@ int	CGuiLayout::GetIdByName(const std::string& Name)
 // Notifies about the error that occured
 void CGuiLayout::Error(int ErrorCode, const std::string& Text)
 {
-	// TODO: this better
-	std::cout << ErrorCode << ": " << Text << std::endl;
+	errors << "CGuiLayout: " << ErrorCode << " - " << Text << endl;
 }
 
 ///////////////

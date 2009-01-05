@@ -20,7 +20,7 @@
 #endif
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "Options.h"
 #include "Error.h"
 #include "Networking.h"
@@ -274,7 +274,7 @@ void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 
 #ifndef WIN32
 static void sigpipe_handler(int i) {
-	printf("WARNING: got SIGPIPE, ignoring...\n");
+	warnings << "got SIGPIPE, ignoring..." << endl;
 	signal(SIGPIPE, sigpipe_handler);
 }
 #endif
@@ -370,7 +370,7 @@ NetworkSocket OpenReliableSocket(unsigned short port) {
 		AddSocketToNotifierGroup(ret);
 #ifdef DEBUG
 	else
-		printf("OpenReliableSocket: " + GetSocketErrorStr(nlGetError()) + "\n");
+		errors << "OpenReliableSocket: " << GetSocketErrorStr(nlGetError()) << endl;
 #endif
 	return ret;
 }
@@ -380,7 +380,7 @@ NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
 	if (!IsSocketStateValid(ret))  {
 #ifdef DEBUG
-		printf("OpenUnreliableSocket: " + GetLastErrorStr() + "\n");
+		errors << "OpenUnreliableSocket: " << GetLastErrorStr() << endl;
 #endif
 		return ret;
 	}
@@ -393,7 +393,7 @@ NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
 	if (!IsSocketStateValid(ret))  {
 #ifdef DEBUG
-		printf("OpenBroadcastSocket: " + GetLastErrorStr() + "\n");
+		errors << "OpenBroadcastSocket: " << GetLastErrorStr() << endl;
 #endif
 		return ret;
 	}
@@ -422,12 +422,12 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		printf("WriteSocket: " + GetLastErrorStr() + "\n");
+		errors << "WriteSocket: " << GetLastErrorStr() << endl;
 		return NL_INVALID;
 	}
 
 	if (ret == 0) {
-		printf("WriteSocket: Could not send the packet, network buffers are full.\n");
+		errors << "WriteSocket: Could not send the packet, network buffers are full." << endl;
 	}
 #endif // DEBUG
 
@@ -444,7 +444,7 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		printf("ReadSocket: " + GetLastErrorStr() + "\n");
+		errors << "ReadSocket: " << GetLastErrorStr() << endl;
 		return NL_INVALID;
 	}
 #endif // DEBUG

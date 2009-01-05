@@ -7,9 +7,10 @@
 // code under LGPL
 
 
-#include <iostream>
+
 #include <assert.h>
 #include <setjmp.h>
+#include <sstream> // for print_binary_string
 
 #include "LieroX.h"
 #include "IpToCountryDB.h"
@@ -106,14 +107,17 @@ void InitializeLoading();
 void DrawLoading(byte percentage, const std::string &text);
 void ShutdownLoading();
 
-using namespace std;
+
 
 
 // TODO: move this out here
 void print_binary_string(const std::string& txt) {
+	std::string buf;
+	std::stringstream str(buf);
 	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
-		std::cout << std::hex << (ushort)(uchar)(*it) << " ";
+		str << std::hex << (ushort)(uchar)(*it) << " ";
 	}
+	notes << buf << endl;
 }
 
 static void DoSystemChecks() {

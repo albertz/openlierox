@@ -13,7 +13,7 @@
 // Created 28/6/02
 // Jason Boettcher
 
-#include <iostream>
+
 #include "LieroX.h"
 #include "ProfileSystem.h"
 #include "CClient.h"
@@ -46,7 +46,7 @@
 #include <zip.h> // For unzipping downloaded mod
 
 
-using namespace std;
+
 
 
 ///////////////////
@@ -1217,7 +1217,7 @@ void CClient::SendPackets(void)
 }
 
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player) {
-	cout << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
+	hints << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
 	//tGameInfo.iNumPlayers = 1;
 		
 	if(!cClient->Initialize())
@@ -1422,7 +1422,7 @@ void CClient::ConnectingBehindNAT()
 		// Print it to the console
 		std::string str;
 		NetAddrToString(cServerAddr, str);
-		printf("HINT: sending challenge to %s\n", str.c_str());
+		notes << "sending challenge to " << str << endl;
 
 		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
 
@@ -1440,7 +1440,7 @@ void CClient::ConnectingBehindNAT()
 
 			// If trying ports around the given one
 			if (iNatTryPort >= TRY_PORT_COUNT)  {
-				printf("The server behind a NAT did not reply to our challenge.\n");
+				notes << "The server behind a NAT did not reply to our challenge." << endl;
 				iNatTryPort = 0;
 			} else {
 				iNatTraverseState = NAT_SEND_CHALLENGE;
@@ -1543,7 +1543,7 @@ void CClient::Connecting(bool force)
 
 	Timer(null, NULL, 1000, true).startHeadless();
 
-	printf("HINT: sending challenge request to %s\n", rawServerAddr.c_str());
+	notes << "sending challenge request to " << rawServerAddr << endl;
 }
 
 
@@ -1602,7 +1602,7 @@ void CClient::SetupViewports(void)
 void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 {
 	if (w1 == NULL)  {
-		printf("CClient::SetupViewports: Worm1 is NULL, quitting!");
+		warnings << "CClient::SetupViewports: Worm1 is NULL, quitting!" << endl;
 		return;
 	}
 

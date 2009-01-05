@@ -27,11 +27,12 @@
    See the COPYING file for more details.
 */
 
-#include <iostream>
+
 #include <algorithm>
 
 #include "Clipboard.h"
 #include "Unicode.h"  // for Utf8ToSystemNative
+#include "Debug.h"
 
 #if !defined(DEDICATED_ONLY) && defined(X11) && !defined(__APPLE__)
 
@@ -210,7 +211,7 @@ void handle_system_event(const SDL_Event& event)
 			responseEvent.xselection.property  = None; //nothing available, by default
 			responseEvent.xselection.time      = xev.xselectionrequest.time;
 
-			//std::cout<<"Request for target:"<<XGetAtomName(x11->dpy(), xev.xselectionrequest.target)<<"\n";
+			//notes<<"Request for target:"<<XGetAtomName(x11->dpy(), xev.xselectionrequest.target)<<"\n";
 
 			//### presently don't handle XA_STRING as it must be latin1
 
@@ -280,7 +281,7 @@ static bool try_grab_target(Atom target, std::string& ret)
 	XDeleteProperty(x11->dpy(), x11->window(), x11->WES_PASTE());
 	XSync          (x11->dpy(), False);
 
-	//std::cout<<"We request target:"<<XGetAtomName(x11->dpy(), target)<<"\n";
+	//notes<<"We request target:"<<XGetAtomName(x11->dpy(), target)<<"\n";
 
 	//Request information
 	XConvertSelection(x11->dpy(), x11->XA_CLIPBOARD(), target,
@@ -305,7 +306,7 @@ static bool try_grab_target(Atom target, std::string& ret)
 					int          formatRet;
 					unsigned long remaining;
 
-//					std::cout<<"Grab:"<<XGetAtomName(x11->dpy(), target)<<"\n";
+//					notes<<"Grab:"<<XGetAtomName(x11->dpy(), target)<<"\n";
 
 					//Grab the text out of the property
 					XGetWindowProperty(x11->dpy(), x11->window(),
@@ -515,12 +516,12 @@ void handle_system_event(const SDL_Event& event)
 
 void copy_to_clipboard(const std::string& text)
 {
-	std::cout << "WARNING: clipboard not implemented for this system" << std::endl;
+	warnings << "clipboard not implemented for this system" << endl;
 }
 
 std::string copy_from_clipboard()
 {
-	std::cout << "WARNING: clipboard not implemented for this system" << std::endl;
+	warnings << "clipboard not implemented for this system" << endl;
 	return "";
 }
 

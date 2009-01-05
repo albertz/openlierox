@@ -13,7 +13,7 @@
 // Created 21/8/02
 // Jason Boettcher
 
-#include <iostream>
+
 #include "LieroX.h"
 #include "Sounds.h"
 #include "Clipboard.h"
@@ -28,8 +28,9 @@
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "ProfileSystem.h"
+#include "Debug.h"
 
-using namespace std;
+
 
 namespace DeprecatedGUI {
 
@@ -414,7 +415,7 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 	CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
 	const cb_item_t* item = combo->getSelectedItem();
 	if(!item) {
-		cout << "ERROR: no player selected" << endl;
+		errors << "no player selected" << endl;
 		return;
 	}
 	

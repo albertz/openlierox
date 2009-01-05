@@ -30,11 +30,11 @@
 #include "Networking.h"
 #include "CServerNetEngine.h"
 #include "CChannel.h"
+#include "Debug.h"
 
 
-#include <iostream>
 
-using namespace std;
+
 
 
 CServerConnection::CServerConnection( GameServer * _server ) {
@@ -147,7 +147,7 @@ int CServerConnection::OwnsWorm(int id)
 void CServerConnection::RemoveWorm(int id)
 {
 	if(iNumWorms == 0) {
-		cout << "WARNING: cannot remove worm because this client has no worms" << endl;
+		warnings << "WARNING: cannot remove worm because this client has no worms" << endl;
 		return;
 	}
 	
@@ -164,13 +164,13 @@ void CServerConnection::RemoveWorm(int id)
 				break;
 			}
 		} else
-			cout << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
+			warnings << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
 	}
 
 	if(found)
 		--iNumWorms;
 	else
-		cout << "WARNING: cannot find worm " << id << " for removal" << endl;
+		warnings << "WARNING: cannot find worm " << id << " for removal" << endl;
 
 }
 

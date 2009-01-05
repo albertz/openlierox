@@ -13,7 +13,7 @@
 // Created 12/8/02
 // Jason Boettcher
 
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "Sounds.h"
@@ -27,9 +27,9 @@
 #include "AuxLib.h"
 #include "IRC.h"
 #include "DedicatedControl.h"
+#include "Debug.h"
 
 
-using namespace std;
 
 namespace DeprecatedGUI {
 
@@ -117,7 +117,7 @@ bool Menu_NetInitialize(void)
 // Go to the host lobby
 void Menu_Net_GotoHostLobby(void)
 {
-	cout << "Menu_Net_GotoHostLobby" << endl;
+	notes << "Menu_Net_GotoHostLobby" << endl;
 
 	tMenu->iMenuType = MNU_NETWORK;
 	tMenu->bMenuRunning = true;

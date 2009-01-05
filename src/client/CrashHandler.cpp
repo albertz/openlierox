@@ -19,9 +19,9 @@
 #include "StringUtils.h"
 #include "Debug.h"
 
-#include <iostream>
 
-using namespace std;
+
+
 
 //
 // WIN 32
@@ -374,6 +374,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <sys/wait.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <execinfo.h>
 
 typedef const char * cchar;
 
@@ -387,7 +388,8 @@ public:
 		signal(SIGILL, &SimpleSignalHandler);
 		signal(SIGFPE, &SimpleSignalHandler);
 		signal(SIGSYS, &SimpleSignalHandler);
-		
+		backtrace(NULL, 0); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+				
 		notes << "registered simple resuming signal handler" << endl;
 	}
 	
@@ -396,6 +398,7 @@ public:
 		signal(Sig, SIG_IGN); // discard all remaining signals
 		
 		// WARNING: dont use cout here in this function, it sometimes screws the cout up
+		// look at signal(2) for a list of safe functions
 		
 		DumpCallstackPrintf();
 		

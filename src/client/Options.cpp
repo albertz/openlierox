@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include <ctype.h> // isspace
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "Debug.h"
@@ -29,7 +29,7 @@
 #include "Iterator.h"
 
 
-using namespace std;
+
 
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;

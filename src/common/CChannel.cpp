@@ -14,17 +14,17 @@
 // Created 16/6/01
 // Jason Boettcher
 
-#include <iostream>
+
 #include <map>
 
 #include "LieroX.h"
-
+#include "Debug.h"
 #include "CChannel.h"
 #include "StringUtils.h"
 #include "Timer.h"
 #include "MathLib.h"
 
-using namespace std;
+
 
 // default max size for UDP packets for windows is 1280
 // only a size of 512 is guaranteed
@@ -67,8 +67,8 @@ void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 void CChannel::AddReliablePacketToSend(CBytestream& bs)
 {
 	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
-		cout
-			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength()
+		errors
+			<< "trying to send a reliable packet of size " << bs.GetLength()
 			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
 			<< "), packet might not be sent at all!" << endl;
 		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
@@ -723,12 +723,10 @@ std::string printBinary(const std::string & s)
 
 void TestCChannelRobustness()
 {
-	using std::cout;
-	using std::endl;
-	cout << "Testing CBytestream" << endl;
+	notes << "Testing CBytestream" << endl;
 	CBytestream bsTest;
 	bsTest.Test();
-	cout << "\n\n\n\nTesting CChannel robustness" << endl;
+	notes << "\n\n\n\nTesting CChannel robustness" << endl;
 	int lagMin = 50;
 	int lagMax = 400;
 	int packetLoss = 15; // In percents
@@ -805,13 +803,13 @@ void TestCChannelRobustness()
 		if( b1.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				cout << testtime << ": c1 sent packet - lost (" << c1.Messages.size() << 
+				notes << testtime << ": c1 sent packet - lost (" << c1.Messages.size() << 
 						" in buf): " << printBinary(b1.readData()) << endl;
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s1buf.insert( std::make_pair( lag, b1 ) );
-				cout<< testtime << ": c1 sent packet - lag " << lag << " size " << b1.GetLength() << " (" << c1.Messages.size() << 
+				notes<< testtime << ": c1 sent packet - lag " << lag << " size " << b1.GetLength() << " (" << c1.Messages.size() << 
 						" in buf): " << printBinary(b1.readData()) << endl;
 			};
 		};
@@ -827,13 +825,13 @@ void TestCChannelRobustness()
 		if( b2.GetLength() != 0 )
 		{
 			if( GetRandomInt(100) + 1 < packetLoss )
-				cout << testtime << ": c2 sent packet - lost (" << c2.Messages.size() <<
+				notes << testtime << ": c2 sent packet - lost (" << c2.Messages.size() <<
 						" in buf): " << printBinary(b2.readData()) << endl;
 			else
 			{
 				int lag = ((testtime + lagMin + GetRandomInt(lagMax-lagMin)) / 10)*10; // Round to 10
 				s2buf.insert( std::make_pair( lag, b2 ) );
-				cout << testtime << ": c2 sent packet - lag " << lag << " size " << b2.GetLength() << " (" << c2.Messages.size() <<
+				notes << testtime << ": c2 sent packet - lag " << lag << " size " << b2.GetLength() << " (" << c2.Messages.size() <<
 						" in buf): " << printBinary(b2.readData()) << endl;
 			};
 		};
@@ -857,15 +855,15 @@ void TestCChannelRobustness()
 
 		if( b1.GetLength() != 0 )
 		{
-			cout << testtime << ": c1 recv packet (ping " << c1.getPing() << "): " << printBinary(b1.readData()) << endl;
+			notes << testtime << ": c1 recv packet (ping " << c1.getPing() << "): " << printBinary(b1.readData()) << endl;
 			b1.ResetPosToBegin();
 			while( c1.Process( &b1 ) )
 			{
 				while( b1.GetRestLen() != 0 )
 				{
 					int i1rr = b1.readInt(4);
-					cout << testtime << ": c1 reliable packet, data " << hex << i1rr << 
-							" expected " << i1r+1 << " - " << (i1rr == i1r+1 ? "good" : "ERROR!") << dec << endl;
+					notes << testtime << ": c1 reliable packet, data " << hex(i1rr) << 
+							" expected " << i1r+1 << " - " << (i1rr == i1r+1 ? "good" : "ERROR!") << endl;
 					i1r = i1rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b1.readByte();
@@ -876,15 +874,15 @@ void TestCChannelRobustness()
 
 		if( b2.GetLength() != 0 )
 		{
-			cout << testtime << ": c2 recv packet (ping " << c2.getPing() << "): " << printBinary(b2.readData()) << endl;
+			notes << testtime << ": c2 recv packet (ping " << c2.getPing() << "): " << printBinary(b2.readData()) << endl;
 			b2.ResetPosToBegin();
 			while( c2.Process( &b2 ) )
 			{
 				while( b2.GetRestLen() != 0 )
 				{
 					int i2rr = b2.readInt(4);
-					cout << testtime << ": c2 reliable packet, data " << hex << i2rr << 
-							" expected " << i2r+1 << " - " << (i2rr == i2r+1 ? "good" : "ERROR!") << dec << endl;
+					notes << testtime << ": c2 reliable packet, data " << hex(i2rr) << 
+							" expected " << i2r+1 << " - " << (i2rr == i2r+1 ? "good" : "ERROR!") << endl;
 					i2r = i2rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b2.readByte();

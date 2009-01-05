@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <SDL_thread.h>
 #include <fcntl.h>
+#include <iostream>
 
 #include "Debug.h"
 #include "LieroX.h"
@@ -46,7 +47,9 @@
 #pragma warning(disable: 4996)
 #endif
 
-using namespace std;
+
+using std::endl;
+
 
 struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
 
@@ -142,7 +145,7 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
+static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string& rest) {
 	cmd = ""; rest = "";
 
 	char c;
@@ -168,7 +171,7 @@ struct DedIntern {
 	SDL_Thread* stdinThread;
 	pstream_pipe_t pipe;
 	SDL_mutex* pipeOutputMutex;
-	stringstream pipeOutput;
+	std::stringstream pipeOutput;
 	bool quitSignal;
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
@@ -195,7 +198,7 @@ struct DedIntern {
 		DedIntern* data = Get();
 
 		while(!data->pipe.out().eof()) {
-			string buf;
+			std::string buf;
 			getline(data->pipe.out(), buf);
 
 			SDL_mutexP(data->pipeOutputMutex);
@@ -216,7 +219,7 @@ struct DedIntern {
 			warnings << "ERROR setting standard input into non-blocking mode" << endl;
 
 		while(true) {
-			string buf;
+			std::string buf;
 			while(true) {
 				SDL_Delay(10); // TODO: maxfps here
 				if(data->quitSignal) return 0;
@@ -253,7 +256,7 @@ struct DedIntern {
 	State state;
 
 	// TODO: Move this?
-	CWorm* CheckWorm(int id, string caller)
+	CWorm* CheckWorm(int id, const std::string& caller)
 	{
 		if(id <0 || id >= MAX_WORMS)
 		{
@@ -474,7 +477,7 @@ struct DedIntern {
 				else if( it->second.type == SVT_STRING )
 					notes << "\"" << * it->second.s << "\"";
 				else if( it->second.type == SVT_COLOR )
-					notes << "0x" << hex << * it->second.cl << dec;
+					notes << "0x" << hex(*it->second.cl);
 				else
 					notes << "\"\"";
 				notes << ")" << endl;
@@ -507,7 +510,7 @@ struct DedIntern {
 		// Start the server
 		if(!cServer->StartServer()) {
 			// Crappy
-			printf("ERROR: Server wouldn't start\n");
+			errors("ERROR: Server wouldn't start\n");
 			Sig_ErrorStartLobby();
 			return;
 		}
@@ -758,29 +761,29 @@ struct DedIntern {
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_INACTIVE; }
 
-	void Sig_Connecting(const std::string& addr) { pipe.in() << "connecting " << addr << endl; state = S_CLICONNECTING; }
-	void Sig_ConnectError(const std::string& err) { pipe.in() << "connecterror " << err << endl; state = S_INACTIVE; }
-	void Sig_Connected() { pipe.in() << "connected" << endl; state = S_CLILOBBY; }
-	void Sig_ClientError() { pipe.in() << "clienterror" << endl; state = S_INACTIVE; }
-	void Sig_ClientConnectionError(const std::string& err) { pipe.in() << "connectionerror " << err << endl; state = S_INACTIVE; }
-	void Sig_ClientGameStarted() { pipe.in() << "clientgamestarted" << endl; state = S_CLIPLAYING; }
-	void Sig_ClientGotoLobby() { pipe.in() << "clientbacktolobby" << endl; state = S_CLILOBBY; }
+	void Sig_Connecting(const std::string& addr) { pipe.in() << "connecting " << addr << std::endl; state = S_CLICONNECTING; }
+	void Sig_ConnectError(const std::string& err) { pipe.in() << "connecterror " << err << std::endl; state = S_INACTIVE; }
+	void Sig_Connected() { pipe.in() << "connected" << std::endl; state = S_CLILOBBY; }
+	void Sig_ClientError() { pipe.in() << "clienterror" << std::endl; state = S_INACTIVE; }
+	void Sig_ClientConnectionError(const std::string& err) { pipe.in() << "connectionerror " << err << std::endl; state = S_INACTIVE; }
+	void Sig_ClientGameStarted() { pipe.in() << "clientgamestarted" << std::endl; state = S_CLIPLAYING; }
+	void Sig_ClientGotoLobby() { pipe.in() << "clientbacktolobby" << std::endl; state = S_CLILOBBY; }
 	
-	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }
-	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << endl; }
-	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
-	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << endl; }
-	void Sig_EndList() { pipe.in() << "endlist" << endl; }
-	void Sig_ChatMessage(CWorm* w, string message) { pipe.in() << "chatmessage " << w->getID() << " " << message << endl; }
-	void Sig_PrivateMessage(CWorm* w, CWorm* to, string message) { pipe.in() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << endl; }
-	void Sig_WormDied(CWorm* died, CWorm* killer) { pipe.in() << "wormdied " << died->getID() << " " << killer->getID() << endl; }
-	void Sig_WormSpawned(CWorm* worm) { pipe.in() << "wormspawned " << worm->getID() << endl; }
-	void Sig_WormIp(CWorm* w, string ip) { pipe.in() << "wormip " << w->getID() << " " << ip << endl; }
+	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << std::endl; }
+	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << std::endl; }
+	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << std::endl; }
+	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << std::endl; }
+	void Sig_EndList() { pipe.in() << "endlist" << std::endl; }
+	void Sig_ChatMessage(CWorm* w, const std::string& message) { pipe.in() << "chatmessage " << w->getID() << " " << message << std::endl; }
+	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { pipe.in() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << std::endl; }
+	void Sig_WormDied(CWorm* died, CWorm* killer) { pipe.in() << "wormdied " << died->getID() << " " << killer->getID() << std::endl; }
+	void Sig_WormSpawned(CWorm* worm) { pipe.in() << "wormspawned " << worm->getID() << std::endl; }
+	void Sig_WormIp(CWorm* w, const std::string& ip) { pipe.in() << "wormip " << w->getID() << " " << ip << std::endl; }
 	// Continents don't have spaces in em.
 	// TODO: Bad forward compability. We might get new continents.
 	// CountryShortcuts don't have spaces in em.
 	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
-	void Sig_WormLocationInfo(CWorm* w,string continent, string country, string countryShortcut) {
+	void Sig_WormLocationInfo(CWorm* w, const std::string& continent, const std::string& country, const std::string& countryShortcut) {
 		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; }
 
 	void Sig_WormPing(CWorm* w, int ping) {	pipe.in() << "wormping " << w->getID() << " " << ping << endl; }
@@ -855,7 +858,7 @@ struct DedIntern {
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
 		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
-			string cmd, rest;
+			std::string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);
 
@@ -932,7 +935,7 @@ bool DedicatedControl::Init_priv() {
 		}
 		else
 		{
-			printf("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
+			errors("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
 			return false;
 		}
 
@@ -946,14 +949,14 @@ bool DedicatedControl::Init_priv() {
 			returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
 			if (returnStatus != ERROR_SUCCESS)
 			{
-				printf("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				errors("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
 				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 			}
 			returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
 			RegCloseKey(hKey);
 			if (returnStatus != ERROR_SUCCESS)
 			{
-				printf( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				errors( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
 				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 			}
 
@@ -1000,8 +1003,8 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
-void DedicatedControl::ChatMessage_Signal(CWorm* w,const string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
-void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
+void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
+void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
 

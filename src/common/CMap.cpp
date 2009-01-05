@@ -17,7 +17,7 @@
 #include <assert.h>
 #include <zlib.h>
 #include <list>
-#include <iostream>
+
 
 #include "LieroX.h"
 #include "CViewport.h"
@@ -169,35 +169,35 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
 	{
-		printf("CMap::New:: ERROR: cannot create object array\n");
+		errors << "CMap::New:: cannot create object array" << endl;
 		return false;
 	}
 
 	// Load the tiles
 	if(!LoadTheme(_theme))
 	{
-		printf("CMap::New:: ERROR: cannot create titles/theme\n");
+		errors("CMap::New:: ERROR: cannot create titles/theme\n");
 		return false;
 	}
 
 	// Create the surface
 	if(!CreateSurface())
 	{
-		printf("CMap::New:: ERROR: cannot create surface\n");
+		errors("CMap::New:: ERROR: cannot create surface\n");
 		return false;
 	}
 
 	// Create the pixel flags
 	if(!CreatePixelFlags())
 	{
-		printf("CMap::New:: ERROR: cannot create pixel flags\n");
+		errors("CMap::New:: ERROR: cannot create pixel flags\n");
 		return false;
 	}
 
     // Create the AI Grid
     if(!createGrid())
 	{
-		printf("CMap::New: ERROR: cannot create AI grid\n");
+		errors("CMap::New: ERROR: cannot create AI grid\n");
 		return false;
 	}
 
@@ -264,7 +264,7 @@ void CMap::ApplyRandom(void)
 
     sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
     if( !sRandomLayout.psObjects )  {
-        printf("Warning: Out of memory for CMap::ApplyRandom()\n");
+        warnings("Warning: Out of memory for CMap::ApplyRandom()\n");
 		return;
 	}
 
@@ -490,8 +490,8 @@ std::string CMap::findRandomTheme() {
 
 	if(themes.size() == 0) {
 		// If we get here, then default to dirt
-		printf("CMap::findRandomTheme(): no themes found\n");
-		printf("                         Defaulting to \"dirt\"\n");
+		notes("CMap::findRandomTheme(): no themes found\n");
+		notes("                         Defaulting to \"dirt\"\n");
 		return "dirt";
 	}
 
@@ -538,7 +538,7 @@ bool CMap::CreateSurface(void)
 {
 	SDL_PixelFormat *fmt = getMainPixelFormat();
 	if(fmt == NULL)
-		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
+		errors("CMap::CreateSurface: ERROR: fmt is nothing\n");
 
 	bmpImage = gfxCreateSurface(Width, Height);
 	if(bmpImage.get() == NULL) {
@@ -1608,7 +1608,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	short w,h;
 
 	if(size < 0 || size >= Theme.NumStones) {
-		printf("WARNING: Bad stone size\n");
+		warnings("WARNING: Bad stone size\n");
 		size = CLAMP(size, 0, Theme.NumStones - 1);
 	}
 
@@ -1701,7 +1701,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 	short w,h;
 
 	if(id < 0 || id >= Theme.NumMisc) {
-		printf("Bad misc size\n");
+		warnings("Bad misc size\n");
 		if(id < 0) id = 0;
 		else id = Theme.NumMisc-1;
 	}
@@ -1930,13 +1930,13 @@ bool CMap::Load(const std::string& filename)
 {
 	// Weird
 	if (filename == "") {
-		printf("WARNING: loading unnamed map, ignoring ...\n");
+		warnings("WARNING: loading unnamed map, ignoring ...\n");
 		return true;
 	}
 
 	// Already loaded?
 	if (FileName == filename && Created)  {
-		printf("HINT: map " + filename + " is already loaded\n");
+		notes("HINT: map " + filename + " is already loaded\n");
 		return true;
 	}
 
@@ -1946,13 +1946,13 @@ bool CMap::Load(const std::string& filename)
 	// try loading a previously cached map
 	if(LoadFromCache()) {
 		// everything is ok
-		printf("HINT: reusing cached map for %s\n", filename.c_str());
+		notes << "reusing cached map for " << filename << endl;
 		return true;
 	}
 
 	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
-		printf("WARNING: level %s does not exist\n", filename.c_str());
+		warnings << "level " << filename << " does not exist" << endl;
 		return false;
 	}
 
@@ -1972,7 +1972,7 @@ bool CMap::Load(const std::string& filename)
 
 	// Check to make sure it's a valid level file
 	if((id != "LieroX Level" && id != "LieroX CTF Level") || version != MAP_VERSION) {
-		printf("CMap::Load (%s): ERROR: not a valid level file (%s) or wrong version (%i)\n", filename.c_str(), id.c_str(), version);
+		errors <<"CMap::Load: " << filename << " is not a valid level file (" << id << ") or wrong version (" << version << ")" << endl;
 		fclose(fp);
 		return false;
 	}
@@ -1995,15 +1995,15 @@ bool CMap::Load(const std::string& filename)
 	EndianSwap(numobj);
 
 /*
-	printf("Level info:\n");
-	printf("  id = %s\n", id);
-	printf("  version = %i\n", version);
-	printf("  Name = %s\n", Name);
-	printf("  Width = %i\n", Width);
-	printf("  Height = %i\n", Height);
-	printf("  Type = %i\n", Type);
-	printf("  Theme_Name = %s\n", Theme_Name);
-	printf("  numobj = %i\n", numobj);
+	notes("Level info:\n");
+	notes("  id = %s\n", id);
+	notes("  version = %i\n", version);
+	notes("  Name = %s\n", Name);
+	notes("  Width = %i\n", Width);
+	notes("  Height = %i\n", Height);
+	notes("  Type = %i\n", Type);
+	notes("  Theme_Name = %s\n", Theme_Name);
+	notes("  numobj = %i\n", numobj);
 */
 
 	// Load the images if in an image format
@@ -2011,16 +2011,16 @@ bool CMap::Load(const std::string& filename)
 	{
 		// Allocate the map
 		if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
-			printf("CMap::Load (%s): ERROR: cannot allocate map\n", filename.c_str());
+			errors << "CMap::Load (" << filename << "): cannot allocate map" << endl;
 			fclose(fp);
 			return false;
 		}
 
 		// Load the image format
-		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
+		notes << "CMap::Load: level " << filename << " is in image format" << endl;
 		return LoadImageFormat(fp, ctf);
 	} else if (ctf)  {
-		printf("ERROR: pixmap format is not supported for CTF levels\n");
+		errors("pixmap format is not supported for CTF levels\n");
 		return false;
 	}
 
@@ -2028,7 +2028,7 @@ bool CMap::Load(const std::string& filename)
 
 	// Create a blank map
 	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
-		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
+		errors << "CMap::Load (" << filename << "): cannot create map" << endl;
 		fclose(fp);
 		return false;
 	}
@@ -2048,7 +2048,7 @@ bool CMap::Load(const std::string& filename)
 	uint size = Width*Height/8;
 	uchar *bitmask = new uchar[size];
 	if (!bitmask)  {
-		printf("CMap::Load: Could not create bit mask\n");
+		errors("CMap::Load: Could not create bit mask\n");
 		return false;
 	}
 	fread(bitmask,size,1,fp);
@@ -2221,7 +2221,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 	uchar *pDest = new uchar[destsize];
 
 	if(!pSource || !pDest) {
-		printf("CMap::SaveImageFormat: ERROR: not enough memory for pSource and pDest\n");
+		errors("CMap::SaveImageFormat: ERROR: not enough memory for pSource and pDest\n");
 		fclose(fp);
 		return false;
 	}
@@ -2271,7 +2271,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 	// Compress it
 	ulong lng_dsize = destsize;
 	if( compress( pDest, &lng_dsize, pSource, size) != Z_OK ) {
-		printf("Failed compressing\n");
+		errors("Failed compressing\n");
 		fclose(fp);
 		delete[] pSource;
 		delete[] pDest;
@@ -2318,7 +2318,7 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	ulong lng_dsize = destsize;
 	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
-		printf("Failed decompression\n");
+		errors("Failed decompression\n");
 		fclose(fp);
 		delete[] pSource;
 		delete[] pDest;
@@ -2659,7 +2659,7 @@ void CMap::SaveToMemory()
 {
 	if( bMapSavingToMemory )
 	{
-		printf("Error: calling CMap::SaveToMemory() twice\n");
+		errors("Error: calling CMap::SaveToMemory() twice\n");
 		return;
 	};
 	bMapSavingToMemory = true;
@@ -2668,7 +2668,7 @@ void CMap::SaveToMemory()
 		bmpSavedImage = gfxCreateSurface(Width, Height);
 		if( bmpSavedImage.get() == NULL )
 		{
-			printf("Error: CMap::SaveToMemory(): cannot allocate GFX surface\n");
+			errors("Error: CMap::SaveToMemory(): cannot allocate GFX surface\n");
 			return;
 		}
 		savedPixelFlags = new uchar[Width * Height];
@@ -2681,12 +2681,12 @@ void CMap::RestoreFromMemory()
 {
 	if( ! bMapSavingToMemory )
 	{
-		printf("Error: calling CMap::RestoreFromMemory() twice\n");
+		errors("Error: calling CMap::RestoreFromMemory() twice\n");
 		return;
 	};
 	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
 	{
-		printf("Error: CMap::RestoreFromMemory(): bmpSavedImage is NULL\n");
+		errors("Error: CMap::RestoreFromMemory(): bmpSavedImage is NULL\n");
 		return;
 	};
 	
@@ -2732,7 +2732,7 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 		return;
 	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
 	{
-		printf("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
+		errors("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
 		return;
 	};
 

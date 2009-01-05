@@ -11,7 +11,7 @@
 #include "PhysicsLX56.h"
 #include "Debug.h"
 
-using namespace std;
+
 
 static PhysicsEngine* engine = NULL;
 PhysicsEngine* PhysicsEngine::Get() { return engine; }

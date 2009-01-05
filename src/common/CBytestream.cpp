@@ -17,9 +17,8 @@
 // Jason Boettcher
 
 
-#include <assert.h>
+#include <cassert>
 #include <stdarg.h>
-#include <iostream>
 #include <iomanip>
 
 #include "CBytestream.h"
@@ -29,137 +28,137 @@
 #include "CScriptableVars.h"
 #include "Debug.h"
 
-using namespace std;
+
 
 void CBytestream::Test()
 {
-	std::cout << std::endl;
-	std::cout << "Running a Bytestream debug test:" << std::endl;
-	std::cout << "Tested function / Original / Write / Read / Warning" << std::endl;
+	notes << endl;
+	notes << "Running a Bytestream debug test:" << endl;
+	notes << "Tested function / Original / Write / Read / Warning" << endl;
 
 	// Byte
 	uchar b = 125;
-	std::cout << "Byte: (" << b << ") ";
+	notes << "Byte: (" << b << ") ";
 	writeByte(b);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	uchar b2 = readByte();
-	std::cout << "(" << b2 << ") ";
+	notes << "(" << b2 << ") ";
 	if (b2 != b)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// Bool
 	bool boo = true;
-	std::cout << "Bool: (" << boo << ") ";
+	notes << "Bool: (" << boo << ") ";
 	writeByte(boo);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	bool boo2 = readBool();
-	std::cout << "(" << boo2 << ") ";
+	notes << "(" << boo2 << ") ";
 	if (boo2 != boo)
-		std::cout << "NOT SAME!";
-	std::cout << std::endl;
+		notes << "NOT SAME!";
+	notes << endl;
 	Clear();
 
 	{
 		// Integer
 		int i = 125;
-		std::cout << "Int: (" << i << ") ";
+		notes << "Int: (" << i << ") ";
 		writeInt(i, 4);
 		ResetPosToBegin();
-		std::cout << "(" << Data << ") ";
+		notes << "(" << Data << ") ";
 		int i2 = readInt(4);
-		std::cout << "(" << itoa(i2) << ") ";
+		notes << "(" << itoa(i2) << ") ";
 		if (i2 != i)
-			std::cout << "NOT SAME!";
-		std::cout <<std::endl;
+			notes << "NOT SAME!";
+		notes <<endl;
 		Clear();
 	}
 
 	{
 		// Integer
 		Sint16 i = -126;
-		std::cout << "Int: (" << i << ") ";
+		notes << "Int: (" << i << ") ";
 		writeInt(i, 2);
 		ResetPosToBegin();
-		std::cout << "(" << Data << ") ";
+		notes << "(" << Data << ") ";
 		Sint16 i2 = readInt(2);
-		std::cout << "(" << itoa(i2) << ") ";
+		notes << "(" << itoa(i2) << ") ";
 		if (i2 != i)
-			std::cout << "NOT SAME!";
-		std::cout <<std::endl;
+			notes << "NOT SAME!";
+		notes <<endl;
 		Clear();
 	}
 
 	// Short
 	short s = 125;
-	std::cout << "Short: (" << s << ") ";
+	notes << "Short: (" << s << ") ";
 	writeInt16(s);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	short s2 = readInt16();
-	std::cout << "(" << s2 << ") ";
+	notes << "(" << s2 << ") ";
 	if (s2 != s)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// Float
 	float f = 125.125f;
-	std::cout << "Float: (" << f << ") ";
+	notes << "Float: (" << f << ") ";
 	writeFloat(f);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	float f2 = readFloat();
-	std::cout << "(" << f2 << ") ";
+	notes << "(" << f2 << ") ";
 	if (f2 != f)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// String
 	std::string str = "Test";
-	std::cout << "String: (" << str << ") ";
+	notes << "String: (" << str << ") ";
 	writeString(str);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	std::string str2 = readString();
-	std::cout << "(" << str2 << ") ";
+	notes << "(" << str2 << ") ";
 	if (str2 != str)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// 2Int12
 	short x = 125;
 	short y = 521;
-	std::cout << "2Int12: (" << x << "/" << y << ") ";
+	notes << "2Int12: (" << x << "/" << y << ") ";
 	write2Int12(x, y);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	short x2, y2;
 	read2Int12(x2, y2);
-	std::cout << "(" << x2 << "/" << y2 << ") ";
+	notes << "(" << x2 << "/" << y2 << ") ";
 	if (x2 != x || y2 != y)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// 2Int4
 	short u = 10;
 	short v = 12;
-	std::cout << "2Int4: (" << u << "/" << v << ") ";
+	notes << "2Int4: (" << u << "/" << v << ") ";
 	write2Int4(u, v);
 	ResetPosToBegin();
-	std::cout << "(" << Data << ") ";
+	notes << "(" << Data << ") ";
 	short u2, v2;
 	read2Int4(u2, v2);
-	std::cout << "(" << u2 << "/" << v2 << ") ";
+	notes << "(" << u2 << "/" << v2 << ") ";
 	if (u2 != u || v2 != v)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 	
 	// Bits
@@ -172,8 +171,8 @@ void CBytestream::Test()
 	writeBit(0);
 	writeBit(0);
 	writeBit(1);
-	std::cout << "Data.size() = " << Data.size() << " ";
-	std::cout << "Bits: (" << (unsigned)Data[0] << ", " << (unsigned)Data[1] << ") ";
+	notes << "Data.size() = " << Data.size() << " ";
+	notes << "Bits: (" << (unsigned)Data[0] << ", " << (unsigned)Data[1] << ") ";
 	ResetPosToBegin();
 	if(	
 		readBit() != 1 ||
@@ -186,21 +185,21 @@ void CBytestream::Test()
 		readBit() != 0 ||
 		readBit() != 1
 		)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	std::string str1( "Lala\0_1\0!2345", 12 );
-	std::cout << "Data: " << str1.size() << " ";
+	notes << "Data: " << str1.size() << " ";
 	writeData(str1);
 	//ResetPosToBegin();
 	readByte();
 	if( readData(1) != "a" )
-		std::cout << "NOT SAME!";
+		notes << "NOT SAME!";
 	str2 = readData();
 	if( str2.size() <= 4 || str2[5] != 0 )
-		std::cout << "\"" << str2 << "\" size " << str2.size() << " NOT SAME!";
-	std::cout <<std::endl;
+		notes << "\"" << str2 << "\" size " << str2.size() << " NOT SAME!";
+	notes <<endl;
 	Clear();
 
 	// Bit iterator
@@ -218,7 +217,7 @@ void CBytestream::Test()
 	++bitIter;
 	bitIter.setBit(); ++bitIter;
 	bitIter.resetPos();
-	std::cout << "Bits iterator: (" << (unsigned)bitData[0] << ", " << (unsigned)bitData[1] << ") ";
+	notes << "Bits iterator: (" << (unsigned)bitData[0] << ", " << (unsigned)bitData[1] << ") ";
 	if(	
 		bitIter.readBit() != 1 ||
 		bitIter.readBit() != 1 ||
@@ -230,8 +229,8 @@ void CBytestream::Test()
 		bitIter.readBit() != 0 ||
 		bitIter.readBit() != 1
 		)
-		std::cout << "NOT SAME!";
-	std::cout <<std::endl;
+		notes << "NOT SAME!";
+	notes <<endl;
 
 }
 
@@ -253,22 +252,22 @@ void CBytestream::Append(CBytestream *bs) {
 // Dump the data out
 void CBytestream::Dump() {
 	size_t i = 0;
-	for(string::const_iterator it = Data.begin(); it != Data.end(); it++, i++) {
+	for(std::string::const_iterator it = Data.begin(); it != Data.end(); it++, i++) {
 		if((uchar)*it <= 127 && (uchar)*it >= 32) {
 			// Write out the byte and its ascii representation
 			if(*it != '\\')
-				cout << *it;
+				notes << *it;
 			else
-				cout << "\\\\";
+				notes << "\\\\";
 		} else
-			cout << "\\" << hex << (uint)(uchar)*it << dec;
+			notes << "\\" << hex((uint)(uchar)*it);
  
 		// Linebreak after 16 dumped bytes
 		if((i % 16) == 15)
-			cout << endl;
+			notes << endl;
 	}
  
-	cout << endl;
+	notes << endl;
 }
 
 
@@ -498,7 +497,7 @@ std::string CBytestream::readString(size_t maxlen) {
 		++i;
 	}
 	if(b != 0)
-		printf("WARNING: CBytestream: stop reading string at no real ending\n");
+		warnings("WARNING: CBytestream: stop reading string at no real ending\n");
 	return result;
 }
 
@@ -529,7 +528,7 @@ bool CBytestream::readBit()
 {
 	if( isPosAtEnd() )
 	{
-		printf("WARNING: reading from stream behind end\n");
+		warnings("WARNING: reading from stream behind end\n");
 		return false;
 	}
 	bool ret = (Data[pos] & ( 1 << bitPos )) != 0;
@@ -562,7 +561,7 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 		case SVT_STRING: var.s = readString(); break;
 		case SVT_COLOR: var.c = readInt(4); break;
 		default:
-			cout << "WARNING: read var has invalid type" << endl;
+			warnings << "read var has invalid type" << endl;
 			var = ScriptVar_t();
 	}
 	return true;
@@ -576,7 +575,7 @@ uchar CBytestream::peekByte() const
 {
 	if (!isPosAtEnd())
 		return Data[GetPos()];
-	printf("CBytestream::peekByte(): reading from stream beyond end\n");
+	warnings("CBytestream::peekByte(): reading from stream beyond end\n");
 	return 0;
 }
 
@@ -621,9 +620,9 @@ size_t CBytestream::Read(NetworkSocket sock) {
 #ifdef DEBUG
 	// DEBUG: randomly drop packets to test network stability
 /*	if (GetRandomInt(128) > 110)  {
-		printf("DEBUG: packet ignored\n");
+		warnings("DEBUG: packet ignored\n");
 		Dump();
-		printf("\n");
+		warnings("\n");
 		Clear();
 		return 0;
 	}*/
