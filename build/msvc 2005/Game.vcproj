@@ -1223,6 +1223,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\Debug.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Debug.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\Error.cpp"
 				>
 				<FileConfiguration

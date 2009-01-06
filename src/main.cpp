@@ -136,7 +136,9 @@ char* apppath = NULL;
 
 char* GetAppPath() { return apppath; }
 
+#ifndef WIN32
 sigjmp_buf longJumpBuffer;
+#endif
 
 ///////////////////
 // Main entry point
@@ -291,7 +293,9 @@ startpoint:
 	tLX->bQuitGame = false;
 	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
+#ifndef WIN32
 		sigsetjmp(longJumpBuffer, 1);
+#endif
 		
 		startgame = false; // the menu has a reference to this variable
 
@@ -324,7 +328,9 @@ startpoint:
 		while(!tLX->bQuitEngine) {
 
             tLX->fCurTime = GetMilliSeconds();
+#ifndef WIN32
 			sigsetjmp(longJumpBuffer, 1);
+#endif
 
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;

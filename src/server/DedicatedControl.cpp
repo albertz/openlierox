@@ -59,8 +59,8 @@ struct pstream_pipe_t	// Stub
 {
 	int dummy;
 	pstream_pipe_t(): dummy(0) {};
-	std::ostream & in(){ return cout; };
-	std::istream & out(){ return cin; };
+	std::ostream & in(){ return std::cout; };
+	std::istream & out(){ return std::cin; };
 	void close_in() {  };
 	void close() {  }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
@@ -949,14 +949,14 @@ bool DedicatedControl::Init_priv() {
 			returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
 			if (returnStatus != ERROR_SUCCESS)
 			{
-				errors("ERROR: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				errors << "registry key " << cmdPathRegKey << "\\" << cmdPathRegValue << " not found - make sure interpreter is installed" << endl;
 				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 			}
 			returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
 			RegCloseKey(hKey);
 			if (returnStatus != ERROR_SUCCESS)
 			{
-				errors( "Error: registry key %s not found - make sure interpreter is installed\n", ( cmdPathRegKey + "\\" + cmdPathRegValue ).c_str());
+				errors << "registry key " << cmdPathRegKey << "\\" << cmdPathRegValue << " could not be read - make sure interpreter is installed" << endl;
 				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
 			}
 

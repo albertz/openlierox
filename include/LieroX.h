@@ -202,7 +202,9 @@ extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
 extern  bool			bRestartGameAfterQuit;
 
+#ifndef WIN32
 extern	sigjmp_buf longJumpBuffer;
+#endif
 
 
 typedef bool (*TStartFunction) (void* data);
