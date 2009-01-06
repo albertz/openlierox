@@ -241,7 +241,7 @@ public:
 		};
 		static CollisionType Worm(int wormid) { CollisionType c; c.withWorm = true; c.wormId = wormid; return c; }
 		static CollisionType Terrain(int colmask) { CollisionType c; c.withWorm = false; c.colMask = colmask; return c; }
-		static CollisionType None() { return Terrain(0); }
+		static CollisionType None() { return CollisionType::Terrain(0); }
 		operator bool() { return withWorm || colMask != 0; }
 	};
 	
