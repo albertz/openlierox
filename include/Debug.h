@@ -17,14 +17,14 @@ void DumpCallstackPrintf();
 void DumpCallstack(void (*PrintOutFct) (const std::string&));
 
 struct Logger {
-	int minIngameConVerb;
 	int minCoutVerb;
+	int minIngameConVerb;
 	int minCallstackVerb;
 	std::string prefix;
 	std::string buffer;
 	bool lastWasNewline;
 
-	Logger(int ingame, int o, int callst, const std::string& p) : minIngameConVerb(ingame), minCoutVerb(o), minCallstackVerb(callst), prefix(p), lastWasNewline(true) {}
+	Logger(int o, int ingame, int callst, const std::string& p) : minCoutVerb(o), minIngameConVerb(ingame), minCallstackVerb(callst), prefix(p), lastWasNewline(true) {}
 	Logger& operator<<(const std::string& msg) { buffer += msg; return *this; }
 	Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*this); }
 	template<typename _T> Logger& operator<<(_T v) { return operator<<(to_string(v)); }
