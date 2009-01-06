@@ -364,7 +364,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 			}
 
 			if(enddt) *enddt = dt;
-			return CollisionType::None();
+			return CollisionType::NoCol();
 		}
 	}
 
@@ -379,7 +379,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 	}
 
 	int px = (int)(vPosition.x);
@@ -396,7 +396,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (tLX->fCurTime - fSpawnTime <= fWallshootTime)
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 
 	// Check collision with the terrain
 	ColInfo c = TerrainCollision(px, py, map);
@@ -411,7 +411,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 	// the move was safe, save the position
 	vOldPos = vPosition;
 
-	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::None());
+	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 }
 
 ///////////////////
