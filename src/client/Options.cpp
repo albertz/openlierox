@@ -296,7 +296,7 @@ bool GameOptions::LoadFromDisc()
 					// ignore these atm
 				} else {
 					opts->additionalOptions[section + "." + propname] = value;
-					hints << "the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
+					notes << "the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
 				}
 			}
 
