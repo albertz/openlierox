@@ -158,6 +158,8 @@ bool			strSeemsLikeChatCommand(const std::string& str);
 // returns true if last char was a newline
 bool PrettyPrint(const std::string& prefix, const std::string& buf, void (*PrintOutFct) (const std::string&), bool firstLineWithPrefix = true);
 
+inline void NullOut(const std::string&) {}
+
 
 ////////////////////
 // Read a fixed-length C-string from a file
