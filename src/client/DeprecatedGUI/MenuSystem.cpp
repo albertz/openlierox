@@ -1626,20 +1626,18 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 		std::string no_port = defaultServer->szAddress.substr(0, defaultServer->szAddress.find(':'));
 		std::list<std::string> same_ips;
 		for (std::set<std::string>::iterator it = tServersBehindNat.begin(); it != tServersBehindNat.end(); it++)
-			if (it->find(no_port) != std::string::npos )
-			{
+			if (it->find(no_port) != std::string::npos)
 				same_ips.push_back(*it);
-				tServersBehindNat.erase(it);
-				it = tServersBehindNat.begin();
-			}
 
 
 		// Remove the NAT servers
 		for (std::list<std::string>::iterator it = same_ips.begin(); it != same_ips.end(); ++it)  {
 			server_t *s = Menu_SvrList_FindServerStr(*it);
-			// TODO: this is always ignored, since s->bgotPong is always true
-			// TODO: cleanup this code
-			if (s->bgotPong || s->bgotQuery || s->bManual && *it != defaultServer->szAddress)
+
+			if (!s)
+				continue;
+
+			if (s->bgotQuery || s->bManual || *it == defaultServer->szAddress)
 				continue;
 			notes << "Removing duplicate server: " << s->szName << " (" << *it << ")" << endl;
 			Menu_SvrList_RemoveServer(*it);
