@@ -124,7 +124,9 @@ static bool logger_output(Logger& log, const std::string& buf) {
 }
 
 Logger& Logger::flush() {
+	lock();
 	lastWasNewline = logger_output(*this, buffer);
 	buffer = "";
+	unlock();
 	return *this;
 }
