@@ -57,11 +57,28 @@ Logger errors(-1,-1,1, "E: ");
 
 #include <iostream>
 #include <sstream>
+#include <SDL_thread.h>
 #include "Options.h"
 #include "console.h"
 #include "StringUtils.h"
 
 
+Logger::Logger(int o, int ingame, int callst, const std::string& p)
+: minCoutVerb(o), minIngameConVerb(ingame), minCallstackVerb(callst), prefix(p), lastWasNewline(true), mutex(NULL) {
+	mutex = SDL_CreateMutex();
+}
+
+Logger::~Logger() {
+	SDL_DestroyMutex(mutex); mutex = NULL;
+}
+
+void Logger::lock() {
+	SDL_mutexP(mutex);
+}
+
+void Logger::unlock() {
+	SDL_mutexV(mutex);
+}
 
 static void CoutPrint(const std::string& str) {
 	std::cout << str;

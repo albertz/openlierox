@@ -15,6 +15,7 @@
 // Created 7/4/02
 // Jason Boettcher
 
+#include <SDL_thread.h>
 #include "LieroX.h"
 #include "Debug.h"
 #include "Clipboard.h"
@@ -31,12 +32,16 @@ console_t	*Console = NULL;
 bool Con_IsInited() { return Console != NULL; }
 
 
+// for Con_AddText
+static SDL_mutex* con_mutex = NULL;
 
 
 ///////////////////
 // Initialize the console
 int Con_Initialize(void)
 {
+	con_mutex = SDL_CreateMutex();
+	
 	int n;
 	Console = new console_t;;
 	if(Console == NULL)
@@ -62,7 +67,7 @@ int Con_Initialize(void)
     Console->bmpConPic = LoadGameImage("data/gfx/console.png");
     if(!Console->bmpConPic.get())
         return false;
-
+	
 	return true;
 }
 
@@ -297,20 +302,26 @@ void Con_AddText(int colour, const std::string& text, bool alsoToLogger)
 
 	const std::vector<std::string>& lines = explode(text,"\n");
 
-	// Move all the text up, losing the last line
-	int n;
-	for(n = MAX_CONLINES - (int)lines.size() - 1; n >= 1; n--) {
-		Console->Line[n + (int)lines.size()].strText = Console->Line[n].strText;
-		Console->Line[n + (int)lines.size()].Colour = Console->Line[n].Colour;
+	{
+		ScopedLock lock(con_mutex);
+		
+		// Move all the text up, losing the last line
+		int n;
+		for(n = MAX_CONLINES - (int)lines.size() - 1; n >= 1; n--) {
+			Console->Line[n + (int)lines.size()].strText = Console->Line[n].strText;
+			Console->Line[n + (int)lines.size()].Colour = Console->Line[n].Colour;
+		}
+
+		// Add the lines
+		n = (int)lines.size();
+		for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
+			Console->Line[n].strText = *it;
+			Console->Line[n].Colour = colour;
+		}
 	}
-
-	// Add the lines
-	n = (int)lines.size();
-	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
-		Console->Line[n].strText = *it;
-		Console->Line[n].Colour = colour;
-
-		if(alsoToLogger) {
+	
+	if(alsoToLogger) {
+		for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++)  {
 			notes << "Ingame console: ";
 			switch(colour) {
 			case CNC_NORMAL: break;
@@ -402,6 +413,9 @@ void Con_Shutdown(void)
 {
 	if(Console)
 		delete Console;
-
 	Console = NULL;
+	
+	if(con_mutex)
+		SDL_DestroyMutex(con_mutex);
+	con_mutex = NULL;
 }

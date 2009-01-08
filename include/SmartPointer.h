@@ -236,17 +236,17 @@ public:
 	} // Auto-unlocks after closing brace
 
 	// HINT: Design with SmartPointer ugly indeed, so removed SmartPoiner references.
-*/
+ */
 
-class ScopedLock
-{
-	private:
+// TODO: move that out here, has nothing to do with SmartPointer
+class ScopedLock {
+private:
 	SDL_mutex* data_mutex;
 	// Non-copyable
 	ScopedLock( const ScopedLock & ) : data_mutex(NULL) { assert(false); };
 	ScopedLock & operator= ( const ScopedLock & ) { assert(false); return *this; };
 
-	public:
+public:
 	ScopedLock( SDL_mutex* mutex ): data_mutex(mutex) {
 		SDL_mutexP(data_mutex);
 		// It is safe to call SDL_mutexP()/SDL_mutexV() on a mutex several times

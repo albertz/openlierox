@@ -8,11 +8,11 @@ usage sample:
 		ThreadVar<CMap> map; // includes a full instance of CMap
 	some reader access:
 		{	ThreadVar<CMap>::Reader mapR( map );
-			mapR.get().irgendwas();
+			mapR.get().something();
 		} // mapR will go out of scope here and release the map automatically
 	some writer access:
 		{	ThreadVar<CMap>::Writer mapW( map );
-			mapW.get().irgendwas();
+			mapW.get().something();
 		} // mapW will go out of scope here and release the map automatically
 		
 	code under LGPL

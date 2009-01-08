@@ -11,10 +11,13 @@
 #define __OLXDEBUG_H__
 
 #include <string>
+#include <cassert>
 #include "StringUtils.h"
 
 void DumpCallstackPrintf();
 void DumpCallstack(void (*PrintOutFct) (const std::string&));
+
+struct SDL_mutex;
 
 struct Logger {
 	int minCoutVerb;
@@ -23,11 +26,29 @@ struct Logger {
 	std::string prefix;
 	std::string buffer;
 	bool lastWasNewline;
+	SDL_mutex* mutex;
+	
+	Logger(int o, int ingame, int callst, const std::string& p);
+	~Logger();
+	void lock(); void unlock();
 
-	Logger(int o, int ingame, int callst, const std::string& p) : minCoutVerb(o), minIngameConVerb(ingame), minCallstackVerb(callst), prefix(p), lastWasNewline(true) {}
-	Logger& operator<<(const std::string& msg) { buffer += msg; return *this; }
+	struct LockedStreamWrapper {
+		Logger* logger;
+		LockedStreamWrapper(Logger* l) : logger(l) {}
+		LockedStreamWrapper(const LockedStreamWrapper& l) : logger(l.logger) { ((LockedStreamWrapper&)l).logger = NULL; }
+		~LockedStreamWrapper() { if(logger) logger->unlock(); }
+		Logger* push_back() { Logger* tmp = logger; logger = NULL; return tmp; }
+		Logger* push_back_and_unlock() { Logger* tmp = push_back(); tmp->unlock(); return tmp; }
+		
+		LockedStreamWrapper& operator<<(const std::string& msg) { logger->buffer += msg; return *this; }
+		template<typename _T> LockedStreamWrapper& operator<<(_T v) { return operator<<(to_string(v)); }
+		Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*push_back_and_unlock()); }
+		Logger& flush() { return push_back_and_unlock()->flush(); }
+	};
+	
+	LockedStreamWrapper operator<<(const std::string& msg) { lock(); buffer += msg; return LockedStreamWrapper(this); }
 	Logger& operator<<(Logger& (*__pf)(Logger&)) { return (*__pf)(*this); }
-	template<typename _T> Logger& operator<<(_T v) { return operator<<(to_string(v)); }
+	template<typename _T> LockedStreamWrapper operator<<(_T v) { return operator<<(to_string(v)); }
 	Logger& flush();
 	
 	// deprecated, only for easier find/replace with printf
