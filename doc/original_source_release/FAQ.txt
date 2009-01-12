@@ -1,0 +1,83 @@
+Liero Xtreme Source Release Frequently Asked Questions
+
+By Jason Boettcher
+------------------------------------------------------
+
+
+
+Q. I want to make my own version of this worms game. Where do i start?
+
+A. 
+   1) Find a new name. You're going to have to change the title graphics and the text on the main menu
+   2) Look at the LX site & forums. Chances are some people have started a list of things that need to be fixed
+      and/or improved
+   3) Check out other questions in this FAQ
+
+
+
+
+Q. How do i make it less laggy?
+
+A. The biggest cause of lag is the client sending the update info to the server every frame!
+   This floods the upload stream (which is typically slower than download) and causes the client's connection to
+   slow right down.
+
+   The best way to fix this is only send this update a certain amount of times per second rather then every frame.
+   Around 8 to 32 updates sent per second is a good number. Just allow this to be adjusted by the player to suit their
+   connection. Eg, 8 for dialup, 32 for LAN and everything else between.
+
+
+
+Q. This code is ugly as hell!
+
+A. Mostly. This project is nearly 4 years old, so it features my coding style from four years ago and contains changes
+   of my style during the project. So come code is ugly, some nice, some wierd, etc.
+
+
+
+Q. Client side authority? WTF?
+
+A. Nearly all authority got changed to server side in v0.6, but in v0.56 it's all client side.
+   The downside is that it's open to hackers, the upside is that lag will not affect player movement.
+
+   To fix this is a big change. You'd need to change projectile simulation to server side and then detect collisions
+   on the server and tell clients if they got hit, died, etc.
+
+   One of the reasons for choosing the code license was so that if someone kept the authority client side, they could
+   just change the protocol around and not have to release the code. This way it's still hard for hackers to wreck
+   the game.
+
+   Security through obscurity isn't the way to go, but people may want to choose that path.
+
+
+
+Q. What things need to be worked on?
+
+A. This is a list on the LieroX forums, but here is a brief list of fixes that need to be done
+ 
+   * Reduce client updates sent over network to fix lag issue
+   * Fix up AI code. AI is stupid and some of the code may cause crashes
+   * Crashes
+
+
+
+Q. What are some areas that could use improvements and new things added?
+
+A. The gamescript section could be better. Lots of variables could be added to weapons & projectiles
+   to allow for more features and functionality.
+  
+   A new level system is needed. One that has support for objects, like spawn points, flags, etc for extra game modes
+
+   New game modes. Like CTF (needs level change above)
+
+   Smarter AI
+
+   Make AI server side, so AI players can be in network games
+
+   New front end GUI
+
+   New in-game menu system
+
+   Dedicated server
+
+   Optimize projectile system. Processing all the projectiles is the main bottleneck in performance.
