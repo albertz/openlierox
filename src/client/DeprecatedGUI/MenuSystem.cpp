@@ -1453,6 +1453,7 @@ void Menu_SvrList_FillList(CListview *lv)
 	lv->ReSort();
 }
 
+static bool bUpdateFromUdpThread = false;
 ///////////////////
 // Process the network connection
 // Returns true if a server in the list was added/modified
@@ -1476,9 +1477,14 @@ bool Menu_SvrList_Process(void)
 		if( Menu_SvrList_ParsePacket(&bs, tMenu->tSocket[SCK_LAN]) )
 			update = true;
 	}
+	
+	if( bUpdateFromUdpThread )
+	{
+		bUpdateFromUdpThread = false;
+		update = true;
+	}
 
 	bool repaint = false;
-
 
 
 	// Ping or Query any servers in the list that need it
@@ -1904,6 +1910,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		}
 	};
 
+	bUpdateFromUdpThread = true;
 	// Update the GUI when ping times out
 	Timer(null, NULL, PingWait, true).startHeadless();
 };
