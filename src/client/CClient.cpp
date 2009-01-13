@@ -1522,8 +1522,8 @@ void CClient::Connecting(bool force)
 	// Update the server address
 	std::string rawServerAddr;
 	NetAddrToString( cServerAddr, rawServerAddr );
-	if( rawServerAddr != strServerAddr )
-		strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
+	//if( rawServerAddr != strServerAddr )
+	//	strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
 
 	fConnectTime = tLX->fCurTime;
 	iNumConnects++;
