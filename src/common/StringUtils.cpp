@@ -900,7 +900,42 @@ size_t GetPosByTextWidth(const std::string& text, int width, CFont *fnt)
 // Helper function for AutoDetectLinks
 static std::string GetLink(std::string::const_iterator& it, const std::string::const_iterator& end, size_t& pos)
 {
-	const std::string valid_url_chars = "/%=@&?.:-~";
+/*
+The URI standard, RFC 2396, <http://www.ietf.org/rfc/rfc2396.txt>
+
+; HTTP
+
+httpurl = "http://" hostport [ "/" hpath [ "?" search ]]
+hpath = hsegment *[ "/" hsegment ]
+hsegment = *[ uchar | ";" | ":" | "@" | "&" | "=" ]
+search = *[ uchar | ";" | ":" | "@" | "&" | "=" ]
+
+lowalpha = ...
+hialpha = ...
+digit = ...
+
+alpha = lowalpha | hialpha
+safe = "$" | "-" | "_" | "." | "+"
+extra = "!" | "*" | "'" | "(" | ")" | ","
+national = "{" | "}" | "|" | "\" | "^" | "~" | "[" | "]" | "`"
+punctuation = "<" | ">" | "#" | "%" | <">
+
+reserved = ";" | "/" | "?" | ":" | "@" | "&" | "="
+hex = digit | "A" | "B" | "C" | "D" | "E" | "F" | "a" | "b" | "c" | "d" | "e" | "f"
+escape = "%" hex hex
+
+unreserved = alpha | digit | safe | extra
+uchar = unreserved | escape
+xchar = unreserved | reserved | escape
+digits = 1*digit
+*/
+
+	const std::string valid_url_chars = "/" "%" "?" // reserved
+										";" ":" "@" "&" "=" // search
+										"$" "-" "_" "." "+" // safe
+										"!" "*" "'" "(" ")" "," // extra
+										"{" "}" "|" "\\" "^" "~" "[" "]" "`" // national
+										"#" "\"";	// punctuation (part of)
 
 	std::string link;
 	bool was_dot = false;
