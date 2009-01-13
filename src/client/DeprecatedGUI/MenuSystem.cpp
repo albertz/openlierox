@@ -1109,13 +1109,11 @@ void Menu_EnableNetEvents()
 */
 
 
-server_t *psServerList = NULL;
+std::list<server_t> psServerList;
 
 // Maximum number of pings/queries before we ignore the server
 static const int	MaxPings = 4;
 static const int	MaxQueries = MAX_QUERIES;
-
-std::set< std::string > tServersBehindNat; // List of servers accessible from UDP masterserver only
 
 
 
@@ -1131,25 +1129,12 @@ void Menu_SvrList_Clear(void)
 // Clear any servers automatically added
 void Menu_SvrList_ClearAuto(void)
 {
-	tServersBehindNat.clear();
-    server_t *s = psServerList;
-    server_t *sn = NULL;
-
-    for(; s; s=sn) {
-        sn = s->psNext;
-
-        if(!s->bManual) {
-            // Unlink the server
-            if( s->psPrev )
-                s->psPrev->psNext = s->psNext;
-            else
-                psServerList = s->psNext;
-
-            if( s->psNext )
-                s->psNext->psPrev = s->psPrev;
-
-            // Free it
-            delete s;
+    for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
+    {
+        if(!it->bManual) 
+        {
+        	psServerList.erase(it);
+        	it = psServerList.begin();
         }
     }
 }
@@ -1159,17 +1144,7 @@ void Menu_SvrList_ClearAuto(void)
 // Shutdown the server list
 void Menu_SvrList_Shutdown(void)
 {
-	tServersBehindNat.clear();
-	server_t *s = psServerList;
-	server_t *sn = NULL;
-
-	for(; s; s=sn ) {
-		sn=s->psNext;
-
-		delete s;
-	}
-
-	psServerList = NULL;
+	psServerList.clear();
 }
 
 
@@ -1252,10 +1227,9 @@ void Menu_SvrList_QueryServer(server_t *svr)
 void Menu_SvrList_RefreshList(void)
 {
 	// Set all the servers to be pinged
-	server_t *s = psServerList;
-	for(; s; s=s->psNext) {
-
-        Menu_SvrList_RefreshServer(s, false);
+	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++) 
+	{
+        Menu_SvrList_RefreshServer(&(*it), false);
 	}
 
 	// Update the GUI
@@ -1309,53 +1283,34 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
-    server_t *sv = psServerList;
     NetworkAddr ad;
 
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    if(StringToNetAddr(tmp_address, ad)) {
-		for(; sv; sv=sv->psNext) {
-			if( AreNetAddrEqual(sv->sAddress, ad) )
-				return sv;
+    if(StringToNetAddr(tmp_address, ad)) 
+    {
+		for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++) 
+		{
+			if( AreNetAddrEqual(it->sAddress, ad) )
+				return &(*it);
 		}
 	}
 
     // Didn't find one, so create it
-	server_t *svr = new server_t;
-	if(svr == NULL)
-		return NULL;
-
+    psServerList.push_back(server_t());
+	server_t * svr = & psServerList.back();
 
 	// Fill in the details
-    svr->psNext = NULL;
-    svr->psPrev = NULL;
     svr->bManual = bManual;
 	svr->szAddress = tmp_address;
 
-
 	Menu_SvrList_RefreshServer(svr, bManual);
-
 
 	// Default game details
 	svr->szName = "Untitled";
 	svr->nMaxPlayers = 0;
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
-
-
-	// Link it in at the end of the list
-    sv = psServerList;
-    for(; sv; sv=sv->psNext) {
-        if( sv->psNext == NULL ) {
-            sv->psNext = svr;
-            svr->psPrev = sv;
-            break;
-        }
-    }
-
-    if( !psServerList )
-        psServerList = svr;
 
 	return svr;
 }
@@ -1374,22 +1329,12 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 // Remove a server from the server list
 void Menu_SvrList_RemoveServer(const std::string& szAddress)
 {
-	tServersBehindNat.erase(szAddress);
-    server_t *sv = Menu_SvrList_FindServerStr(szAddress);
-    if( !sv )
-        return;
-
-    // Unlink the server
-    if( sv->psPrev )
-        sv->psPrev->psNext = sv->psNext;
-    else
-        psServerList = sv->psNext;
-
-    if( sv->psNext )
-        sv->psNext->psPrev = sv->psPrev;
-
-    // Free it
-    delete sv;
+	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
+		if( it->szAddress == szAddress )
+		{
+			psServerList.erase( it );
+			it = psServerList.begin();
+		}
 }
 
 
@@ -1398,12 +1343,9 @@ void Menu_SvrList_RemoveServer(const std::string& szAddress)
 server_t *Menu_SvrList_FindServerStr(const std::string& szAddress)
 {
     // Find a matching server
-    server_t *sv = psServerList;
-    for(; sv; sv=sv->psNext) {
-
-        if( sv->szAddress == szAddress)
-            return sv;
-    }
+	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
+        if( it->szAddress == szAddress)
+            return &(*it);
 
     // Not found
     return NULL;
@@ -1417,7 +1359,6 @@ void Menu_SvrList_FillList(CListview *lv)
 	if (!lv)
 		return;
 
-	server_t	*s = psServerList;
 	std::string		addr;
 	static const std::string states[] = {"Open", "Loading", "Playing", "Open/Loading", "Open/Playing"};
 
@@ -1427,7 +1368,8 @@ void Menu_SvrList_FillList(CListview *lv)
 	lv->SaveScrollbarPos();
 	lv->Clear();
 
-	for(; s; s=s->psNext) {
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
 
 		bool processing = s->bProcessing && !Menu_SvrList_ServerBehindNat( s->szAddress );
 
@@ -1540,8 +1482,8 @@ bool Menu_SvrList_Process(void)
 
 
 	// Ping or Query any servers in the list that need it
-	server_t *s = psServerList;
-	for(; s; s=s->psNext) {
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
 
 		// Ignore this server? (timed out)
 		if(s->bIgnore)
@@ -1577,7 +1519,7 @@ bool Menu_SvrList_Process(void)
 				}
 				else  {
 					// Ping the server
-					Menu_SvrList_PingServer(s);
+					Menu_SvrList_PingServer(&(*s));
 					repaint = true;
 				}
 			}
@@ -1593,7 +1535,7 @@ bool Menu_SvrList_Process(void)
 				}
 				else  {
 					// Query the server
-					Menu_SvrList_QueryServer(s);
+					Menu_SvrList_QueryServer(&(*s));
 					repaint = true;
 				}
 			}
@@ -1621,33 +1563,18 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 {
 	bool update = false;
 
-	// Erase NAT servers having the same address
-	if (defaultServer->szAddress.find(':') != std::string::npos)  {
-		std::string no_port = defaultServer->szAddress.substr(0, defaultServer->szAddress.find(':'));
-		std::list<std::string> same_ips;
-		for (std::set<std::string>::iterator it = tServersBehindNat.begin(); it != tServersBehindNat.end(); it++)
-			if (it->find(no_port) != std::string::npos)
-				same_ips.push_back(*it);
+	// Erase NAT servers having the same address and the same name - you can host two different servers from the same IP
+	std::string no_port = defaultServer->szAddress.substr(0, defaultServer->szAddress.find(':'));
 
-
-		// Remove the NAT servers
-		for (std::list<std::string>::iterator it = same_ips.begin(); it != same_ips.end(); ++it)  {
-			server_t *s = Menu_SvrList_FindServerStr(*it);
-
-			if (!s)
-				continue;
-
-			if (s->bgotQuery || s->bManual || *it == defaultServer->szAddress)
-				continue;
-			notes << "Removing duplicate server: " << s->szName << " (" << *it << ")" << endl;
-			Menu_SvrList_RemoveServer(*it);
-			update = true;
-		}
-	}
-	else
+	std::list<std::string> same_ips;
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
-		tServersBehindNat.erase(defaultServer->szAddress);
-		tServersBehindNat.erase(defaultServer->szAddress + ":23400" );
+		if (s->bgotQuery || s->bManual || s->szAddress == defaultServer->szAddress || s->szName != defaultServer->szName )
+			continue;
+		notes << "Removing duplicate server: " << s->szName << " (" << s->szAddress << ")" << endl;
+		psServerList.erase(s);
+		s = psServerList.begin();
+		update = true;
 	}
 	
 	return update;
@@ -1679,8 +1606,9 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				// It pinged, so fill in the ping info so it will now be queried
 				svr->bgotPong = true;
 				svr->nQueries = 0;
+				svr->bBehindNat = false;
 
-				Menu_SvrList_RemoveDuplicateNATServers(svr);
+				//Menu_SvrList_RemoveDuplicateNATServers(svr); // We don't know the name of server yet
 
 			} else {
 
@@ -1700,7 +1628,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 						svr->bgotPong = true;
 						svr->nQueries = 0;
 
-						Menu_SvrList_RemoveDuplicateNATServers(svr);
+						//Menu_SvrList_RemoveDuplicateNATServers(svr); // We don't know the name of server yet
 					}
 				}
 			}
@@ -1718,6 +1646,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 					update = true;
 
 				svr->bgotQuery = true;
+				svr->bBehindNat = false;
 				Menu_SvrList_ParseQuery(svr, bs);
 
 				Menu_SvrList_RemoveDuplicateNATServers(svr);
@@ -1742,12 +1671,9 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 // Find a server from the list by address
 server_t *Menu_SvrList_FindServer(const NetworkAddr& addr)
 {
-	server_t *s = psServerList;
-
-	for(; s; s=s->psNext) {
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 		if( AreNetAddrEqual( addr, s->sAddress ) )
-			return s;
-	}
+			return &(*s);
 
 	// None found
 	return NULL;
@@ -1819,12 +1745,9 @@ void Menu_UpdateUDPListEnd(size_t thread)
 		SDL_WaitThread(it->second, NULL);
 
 	// There could be some new NAT servers that are duplicated, we will remove them here
-	server_t *svr = psServerList;
-	while (svr)  {
-		if (svr->bgotPong || svr->bgotQuery || svr->bManual)
-			Menu_SvrList_RemoveDuplicateNATServers(svr);
-		svr = svr->psNext;
-	}
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+		if (s->bgotPong || s->bgotQuery || s->bManual)
+			Menu_SvrList_RemoveDuplicateNATServers(&(*s));
 }
 
 Event<UdpServerlistData> serverlistEvent;
@@ -1977,8 +1900,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 			svr->bProcessing = false;
 			svr->tVersion = version;
 			svr->bAllowConnectDuringGame = allowConnectDuringGame;
-			StringToNetAddr( addr, svr->sAddress );
-			tServersBehindNat.insert(addr);
+			svr->bBehindNat = true;
 		}
 	};
 
@@ -1994,10 +1916,8 @@ void Menu_SvrList_SaveList(const std::string& szFilename)
     if( !fp )
         return;
 
-    server_t *s = psServerList;
-	for(; s; s=s->psNext) {
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
         fprintf(fp,"%s, %s, %s\n",s->bManual ? "1" : "0", s->szName.c_str(), s->szAddress.c_str());
-    }
 
     fclose(fp);
 }
@@ -2059,7 +1979,10 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
 
 bool Menu_SvrList_ServerBehindNat(const std::string & addr)
 {
-	return tServersBehindNat.find(addr) != tServersBehindNat.end();
+	server_t * svr = Menu_SvrList_FindServerStr(addr);
+	if( !svr )
+		return false;
+	return svr->bBehindNat;
 };
 
 bool bGotDetails = false;

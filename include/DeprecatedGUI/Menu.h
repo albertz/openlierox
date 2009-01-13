@@ -278,11 +278,11 @@ enum {
 
 
 // Server structure
-// TODO: make std::list instead of linked list here
 class server_t { public:
 	server_t() {
 		SetNetAddrValid(sAddress, false);
 		bAllowConnectDuringGame = false;
+		bBehindNat = false;
 	}
 
 	bool	bIgnore;
@@ -311,8 +311,7 @@ class server_t { public:
 	bool	bAllowConnectDuringGame;
 	Version tVersion;
 
-    server_t	*psPrev;
-	server_t	*psNext;
+	bool	bBehindNat;	// Accessible only from UDP masterserver
 };
 
 
