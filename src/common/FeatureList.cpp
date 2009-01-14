@@ -17,14 +17,14 @@
 // WARNING: Keep this always synchronised with FeatureIndex!
 Feature featureArray[] = {
 	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7), 0.1f, 5.0f ),
-	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, OLXBetaVersion(9), true ),
-	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", false, false, OLXBetaVersion(9) ),
+	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, Version(), true ),
+	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", false, false, Version() ),
 	Feature("TeamInjure", "Damage team members", "If disabled, your bullets and projectiles don't damage other team members.", true, true, OLXBetaVersion(9) ),
 	Feature("TeamHit", "Hit team members", "If disabled, your bullets and projectiles will fly through your team members.", true, true, OLXBetaVersion(9) ),
 	Feature("SelfInjure", "Damage yourself", "If disabled, your bullets and projectiles don't damage you.", true, true, OLXBetaVersion(9) ),
 	Feature("SelfHit", "Hit yourself", "If disabled, your bullets and projectiles will fly through yourself.", true, true, OLXBetaVersion(9) ),
 	
-	Feature("AllowEmptyGames", "Allow empty games", "If enabled, games with one or zero worms will not quit.", false, false, OLXBetaVersion(9), true),
+	Feature("AllowEmptyGames", "Allow empty games", "If enabled, games with one or zero worms will not quit.", false, false, Version(), true),
 
 	Feature::Unset()
 };

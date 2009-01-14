@@ -223,7 +223,7 @@ public:
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect();
-    void        SendWormLobbyUpdate(CServerConnection* receiver = NULL); // if NULL, to everybody, or only to cl
+    void        SendWormLobbyUpdate(CServerConnection* receiver = NULL, CServerConnection *target = NULL); // if NULL, to everybody, or only to cl. If target is NULL send info about all worms
 	void		UpdateGameLobby(CServerConnection* cl = NULL); // if NULL, to everybody, or only to cl
 	void		UpdateWorms();
 #ifdef FUZZY_ERROR_TESTING

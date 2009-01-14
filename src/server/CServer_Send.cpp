@@ -567,16 +567,21 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 	}
 }
 
-
-///////////////////
-// Send updates for all the worm lobby states
-void GameServer::SendWormLobbyUpdate(CServerConnection* receiver)
+void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 {
     CBytestream bytestr;
     short c,i;
 
-    CServerConnection *cl = cClients;
-	for(c=0;c<MAX_CLIENTS;c++,cl++) {
+    CServerConnection *cl = server->cClients;
+	for(c=0; c<MAX_CLIENTS; c++,cl++) 
+	{
+	    if( target )
+	    {
+    		cl = target;
+			if( c != 0 )
+				break;
+    	}
+			
         if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
             continue;
 
@@ -589,7 +594,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver)
 	    }
 
 	    // Let all the worms know about the new lobby state
-		if (cl->getNumWorms() <= 2)  {
+		if (cl->getNumWorms() <= 2)  { // Have to do this way because of bug in LX 0.56
 			bytestr.writeByte(S2C_UPDATELOBBY);
 			bytestr.writeByte(cl->getNumWorms());
 			bytestr.writeByte(ready);
@@ -609,11 +614,59 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver)
 			}
 		}
     }
+	SendPacket(&bytestr);
+}
 
+void CServerNetEngineBeta9::SendUpdateLobby(CServerConnection *target)
+{
+    CBytestream bytestr;
+    int c,i;
+
+    CServerConnection *cl = server->cClients;
+	for(c=0; c<MAX_CLIENTS; c++,cl++) 
+	{
+	    if( target )
+	    {
+    		cl = target;
+			if( c != 0 )
+				break;
+    	}
+			
+        if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
+            continue;
+
+        // Set the client worms lobby ready state
+        bool ready = false;
+	    for(i=0; i < cl->getNumWorms(); i++) 
+	    {
+		    lobbyworm_t *l = cl->getWorm(i)->getLobby();
+		    if(l)
+			    ready = l->bReady;
+	    }
+
+	    // Let all the worms know about the new lobby state
+		bytestr.writeByte(S2C_UPDATELOBBY);
+		bytestr.writeByte(cl->getNumWorms());
+		bytestr.writeByte(ready);
+		for(i=0; i<cl->getNumWorms(); i++) 
+		{
+			bytestr.writeByte(cl->getWorm(i)->getID());
+			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
+		}
+		bytestr.writeString(cl->getClientVersion().asString());
+    }
+	SendPacket(&bytestr);
+}
+
+///////////////////
+// Send updates for all the worm lobby states
+void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnection *target)
+{
 	if(receiver)
-		receiver->getNetEngine()->SendPacket(&bytestr);
+		receiver->getNetEngine()->SendUpdateLobby(target);
 	else
-		SendGlobalPacket(&bytestr);
+		for( int i = 0; i < MAX_CLIENTS; i++ )
+			cClients[i].getNetEngine()->SendUpdateLobby(target);
 }
 
 

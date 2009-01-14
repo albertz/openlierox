@@ -28,6 +28,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
 #include "CWormSkin.h"
+#include "Version.h"
 
 
 // TODO: remove this after we changed network
@@ -85,6 +86,7 @@ struct randweapons_t {
 class CServerConnection;
 class CBonus;
 
+// TODO: why do we need that lobbyworm_t struct? Merge it with CWorm
 
 // Lobby worm details
 #define		LBY_OPEN	0
@@ -238,8 +240,7 @@ private:
 	int			iTotalKills;
 	int			iTotalDeaths;
 	int			iTotalSuicides;
-	std::string	sAddressList;
-	std::string sAliasList;
+	Version		cClientVersion;
 
 	// Game
 	float		fLoadingTime;
@@ -593,11 +594,10 @@ public:
 	int		getTotalDeaths(void)			{ return iTotalDeaths; }
 	void	addTotalSuicides(int _d = 1)	{ iTotalSuicides += _d; }
 	int		getTotalSuicides(void)			{ return iTotalSuicides; }
+	
+	const Version & getClientVersion()				{ return cClientVersion; }
+	void	setClientVersion(const Version & v)		{ cClientVersion = v; }
 
-	std::string		getAddresses(void)			{ return sAddressList; }
-	void			setAddresses(std::string _s){ sAddressList = _s; }
-	std::string		getAliases(void)			{ return sAliasList; }
-	void			setAliases(std::string _s)	{ sAliasList = _s; }
 
 	float&		frame()						{ return fFrame; }
 	

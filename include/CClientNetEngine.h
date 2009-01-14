@@ -34,8 +34,8 @@ public:
 	virtual ~CClientNetEngine() { }
 
 	// Parsing
-	virtual void		ParseConnectionlessPacket(CBytestream *bs);
-	virtual void		ParsePacket(CBytestream *bs);
+	void				ParseConnectionlessPacket(CBytestream *bs);
+	void				ParsePacket(CBytestream *bs);
 
 	// Sending
 	virtual void		SendGameReady();
@@ -51,7 +51,7 @@ public:
 	virtual void		SendReportDamage(bool flush = false) { return; };
 	virtual void		QueueReportDamage(int victim, int damage, int offender) { return; };
 #ifdef FUZZY_ERROR_TESTING
-	virtual void		SendRandomPacket();
+	void				SendRandomPacket();
 #endif
 
 private:
@@ -69,20 +69,25 @@ protected:
 	void		 ParseConnectHere(CBytestream *bs);
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
+	virtual void ParseScoreUpdate(CBytestream *bs);
+	virtual void ParseUpdateLobby(CBytestream *bs);
+	virtual void ParseUpdateLobbyGame(CBytestream *bs);
+	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; };
+	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; };
+	virtual void ParseAFK(CBytestream* bs) { return; };
+    virtual void ParseReportDamage(CBytestream *bs) { return; };
+
 	void		 ParseStartGame(CBytestream *bs);
 	void		 ParseSpawnWorm(CBytestream *bs);
 	void		 ParseWormInfo(CBytestream *bs);
 	void		 ParseWormWeaponInfo(CBytestream *bs);
 	void		 ParseText(CBytestream *bs);
-	virtual void ParseScoreUpdate(CBytestream *bs);
 	void		 ParseGameOver(CBytestream *bs);
 	void		 ParseSpawnBonus(CBytestream *bs);
 	void		 ParseTagUpdate(CBytestream *bs);
 	void		 ParseCLReady(CBytestream *bs);
-	void		 ParseUpdateLobby(CBytestream *bs);
 	void		 ParseWormsOut(CBytestream *bs);
 	void		 ParseUpdateWorms(CBytestream *bs);
-	virtual void ParseUpdateLobbyGame(CBytestream *bs);
 	void		 ParseWormDown(CBytestream *bs);
 	void		 ParseServerLeaving(CBytestream *bs);
 	void		 ParseSingleShot(CBytestream *bs);
@@ -92,10 +97,8 @@ protected:
 	void		 ParseGotoLobby(CBytestream *bs);
     void		 ParseDropped(CBytestream *bs);
     void		 ParseSendFile(CBytestream *bs);
-	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; };
-	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; };
-	virtual void ParseAFK(CBytestream* bs) { return; };
-    virtual void ParseReportDamage(CBytestream *bs) { return; };
+
+	void		 ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms = NULL); // Second parameter is used only in CClientNetEngineBeta9::ParseUpdateLobby()
 	
 };
 
@@ -123,6 +126,7 @@ public:
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
+	virtual void ParseUpdateLobby(CBytestream *bs);
     virtual void ParseReportDamage(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
 	virtual void SendDeath(int victim, int killer);

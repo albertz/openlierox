@@ -58,16 +58,17 @@ public:
 	
 	void		SendPacket(CBytestream *bs);
 
-	void SendPrepareGame();
+	void		 SendPrepareGame();
 	virtual void SendText(const std::string& text, int type);
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
-	virtual int SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
+	virtual int  SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
 	virtual void SendReportDamage(bool flush = false) { return; };
 	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
 	
 	virtual void SendWormScore(CWorm *Worm);
-	void SendUpdateLobbyGame();
+	void		 SendUpdateLobbyGame();
+	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
@@ -93,6 +94,7 @@ public:
 		{ }
 
 	virtual void SendText(const std::string& text, int type);
+
 };
 
 class CServerNetEngineBeta5: public CServerNetEngineBeta3
@@ -104,6 +106,7 @@ public:
 		{ }
 		
 	virtual int SendFiles();
+
 };
 
 class CServerNetEngineBeta7: public CServerNetEngineBeta5
@@ -122,7 +125,7 @@ public:
 
 protected:
 	virtual void WritePrepareGame(CBytestream *bs);
-	virtual void WriteUpdateLobbyGame(CBytestream *bs);
+	void WriteUpdateLobbyGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta8: public CServerNetEngineBeta7
@@ -134,6 +137,7 @@ public:
 		{ }
 
 	virtual void SendText(const std::string& text, int type);
+
 };
 
 class CServerNetEngineBeta9: public CServerNetEngineBeta8
@@ -150,12 +154,13 @@ public:
 	virtual void SendReportDamage(bool flush = false);
 	virtual void QueueReportDamage(int victim, int damage, int offender);
 	virtual void SendWormScore(CWorm *Worm);
+	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 
 	static void WriteFeatureSettings(CBytestream* bs);
-	
+
 protected:
 	virtual void WritePrepareGame(CBytestream *bs);
-	virtual void WriteUpdateLobbyGame(CBytestream *bs);
+	void WriteUpdateLobbyGame(CBytestream *bs);
 	
 private:
     float fLastDamageReportSent;

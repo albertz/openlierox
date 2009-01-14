@@ -1536,6 +1536,12 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 // TODO: rename this function to make this more clear
 void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 {
+	ParseUpdateLobby_Internal(bs);
+};
+
+// TODO: I don't want to copypaste code to CClientNetEngineBeta9::ParseUpdateLobby() so I added updatedWorms param which may be ugly, do something about that
+void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms)
+{
 	int numworms = bs->readByte();
 	bool ready = bs->readBool();
 
@@ -1574,6 +1580,8 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 			if(i==0)
 				HostName = w->getName();
         }
+        if( updatedWorms )
+        	updatedWorms->push_back(id);
 	}
 
 	// Update lobby
@@ -1606,6 +1614,18 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 	}
 
 }
+
+void CClientNetEngineBeta9::ParseUpdateLobby(CBytestream *bs)
+{
+	std::vector<byte> updatedWorms;
+	CClientNetEngine::ParseUpdateLobby_Internal(bs, &updatedWorms);
+	Version ver(bs->readString());
+	while( !updatedWorms.empty() )
+	{
+		client->cRemoteWorms[updatedWorms.back()].setClientVersion(ver);
+		updatedWorms.pop_back();
+	};
+};
 
 
 ///////////////////

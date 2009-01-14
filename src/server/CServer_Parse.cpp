@@ -1070,6 +1070,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	newcl->setStatus(NET_CONNECTED);
 
+	newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
+	// WARNING/HINT/TODO: If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
+
 	newcl->getRights()->Nothing();  // Reset the rights here
 
 	// Set the worm info
@@ -1269,9 +1272,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		
 	newcl->setConnectTime(tLX->fCurTime);
 	
-	newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
-	// WARNING/HINT/TODO: If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
-		
 	
 	// handling for connect during game
 	if( iState != SVS_LOBBY ) {
