@@ -1888,13 +1888,13 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		Version version = bs->readString(64);
 		bool allowConnectDuringGame = bs->readBool();
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
-		if( Menu_SvrList_FindServerStr(addr) != NULL )
-			if( ! Menu_SvrList_FindServerStr(addr)->bProcessing )
-				continue;
+		server_t *svr = Menu_SvrList_FindServerStr(addr);
+		if( svr != NULL && svr->bgotPong )
+			continue;
 
 		// In favourites only the user should add servers
 		if (iNetMode != net_favourites)  {
-			server_t *svr = Menu_SvrList_AddServer( addr, false );
+			svr = Menu_SvrList_AddServer( addr, false );
 			svr->szName = name;
 			svr->nNumPlayers = players;
 			svr->nMaxPlayers = maxplayers;
