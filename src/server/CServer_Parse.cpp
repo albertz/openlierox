@@ -1260,7 +1260,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		if( iState == SVS_LOBBY )
 			SendWormLobbyUpdate(); // to everbody
 		else
-			SendWormLobbyUpdate(newcl); // only to new client
+		{
+			for( int i=0; i<MAX_CLIENTS; i++ )
+				if( & cClients[i] != newcl )
+					SendWormLobbyUpdate( & cClients[i], newcl); // send only data about new client
+				else
+					SendWormLobbyUpdate(newcl); // send only to new client
+		}
 	}
 	
 	// Update players listbox
