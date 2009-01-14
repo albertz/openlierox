@@ -52,7 +52,7 @@ public:
 	void		 ParseGrabBonus(CBytestream *bs);
 	void		 ParseSendFile(CBytestream *bs);
 
-	bool		ParseChatCommand(const std::string& message);
+	bool		 ParseChatCommand(const std::string& message);
 
 	// Sending
 	
@@ -67,6 +67,7 @@ public:
 	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
 	
 	virtual void SendWormScore(CWorm *Worm);
+	void SendUpdateLobbyGame();
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
@@ -79,7 +80,8 @@ protected:
 	GameServer 	*server;
 	CServerConnection *cl;
 	
-	virtual void WritePrepareGame(CBytestream *bs);	
+	virtual void WritePrepareGame(CBytestream *bs);
+	virtual void WriteUpdateLobbyGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta3: public CServerNetEngine 
@@ -90,7 +92,7 @@ public:
 		CServerNetEngine( _server, _client )
 		{ }
 
-	void SendText(const std::string& text, int type);
+	virtual void SendText(const std::string& text, int type);
 };
 
 class CServerNetEngineBeta5: public CServerNetEngineBeta3
@@ -101,7 +103,7 @@ public:
 		CServerNetEngineBeta3( _server, _client )
 		{ }
 		
-	int SendFiles();
+	virtual int SendFiles();
 };
 
 class CServerNetEngineBeta7: public CServerNetEngineBeta5
@@ -112,14 +114,15 @@ public:
 		CServerNetEngineBeta5( _server, _client )
 		{ }
 
-	void ParseChatCommandCompletionRequest(CBytestream *bs);
-	void ParseAFK(CBytestream *bs);
+	virtual void ParseChatCommandCompletionRequest(CBytestream *bs);
+	virtual void ParseAFK(CBytestream *bs);
 
-	void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution);
-	void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions);
+	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution);
+	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions);
 
 protected:
-	void WritePrepareGame(CBytestream *bs);
+	virtual void WritePrepareGame(CBytestream *bs);
+	virtual void WriteUpdateLobbyGame(CBytestream *bs);
 };
 
 class CServerNetEngineBeta8: public CServerNetEngineBeta7
@@ -130,7 +133,7 @@ public:
 		CServerNetEngineBeta7( _server, _client )
 		{ }
 
-	void SendText(const std::string& text, int type);
+	virtual void SendText(const std::string& text, int type);
 };
 
 class CServerNetEngineBeta9: public CServerNetEngineBeta8
@@ -151,7 +154,8 @@ public:
 	static void WriteFeatureSettings(CBytestream* bs);
 	
 protected:
-	void WritePrepareGame(CBytestream *bs);
+	virtual void WritePrepareGame(CBytestream *bs);
+	virtual void WriteUpdateLobbyGame(CBytestream *bs);
 	
 private:
     float fLastDamageReportSent;

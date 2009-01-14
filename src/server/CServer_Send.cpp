@@ -501,42 +501,48 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	}	
 }
 
-
-static void SendUpdateLobbyGame(CServerConnection *cl, GameServer* gs) {
+void CServerNetEngine::SendUpdateLobbyGame()
+{
 	CBytestream bs;
-	bs.writeByte(S2C_UPDATELOBBYGAME);
-	bs.writeByte(MAX(tLXOptions->tGameInfo.iMaxPlayers,gs->getNumPlayers()));  // This fixes the player disappearing in lobby
-	bs.writeString(tLXOptions->tGameInfo.sMapFile);
-	bs.writeString(tLXOptions->tGameInfo.sModName);
-	bs.writeString(tLXOptions->tGameInfo.sModDir);
+	WriteUpdateLobbyGame(&bs);
+	SendPacket(&bs);
+};
+
+void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
+{
+	bs->writeByte(S2C_UPDATELOBBYGAME);
+	bs->writeByte(MAX(tLXOptions->tGameInfo.iMaxPlayers,server->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs->writeString(tLXOptions->tGameInfo.sMapFile);
+	bs->writeString(tLXOptions->tGameInfo.sModName);
+	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
 	if(tLXOptions->tGameInfo.iGameMode == GMT_VIP || tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF)
-		bs.writeByte(GMT_TEAMDEATH);
+		bs->writeByte(GMT_TEAMDEATH);
 	else if(tLXOptions->tGameInfo.iGameMode == GMT_CTF)
-		bs.writeByte(GMT_DEATHMATCH);
+		bs->writeByte(GMT_DEATHMATCH);
 	else
-		bs.writeByte(tLXOptions->tGameInfo.iGameMode);
-	bs.writeInt16(tLXOptions->tGameInfo.iLives);
-	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
-	bs.writeByte(tLXOptions->tGameInfo.bBonusesOn);
-	
-	// since Beta7
-	if( cl->getClientVersion() >= OLXBetaVersion(7) )
-	{
-		bs.writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
-		bs.writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
-		bs.writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
-	}
+		bs->writeByte(tLXOptions->tGameInfo.iGameMode);
+	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
+	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
+	bs->writeByte(tLXOptions->tGameInfo.bBonusesOn);
+};
 
-	// since Beta9
-	if( cl->getClientVersion() >= OLXBetaVersion(9) ) {
-		bs.writeFloat(tLXOptions->tGameInfo.fTimeLimit);
-		CServerNetEngineBeta9::WriteFeatureSettings(&bs);
-	}
-	
-	cl->getNetEngine()->SendPacket(&bs);
+void CServerNetEngineBeta7::WriteUpdateLobbyGame(CBytestream *bs)
+{
+	CServerNetEngine::WriteUpdateLobbyGame(bs);
+	bs->writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
+	bs->writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
+	bs->writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 }
+
+void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
+{
+	CServerNetEngineBeta7::WriteUpdateLobbyGame(bs);
+	bs->writeFloat(tLXOptions->tGameInfo.fTimeLimit);
+	CServerNetEngineBeta9::WriteFeatureSettings(bs);
+}
+
 
 ///////////////////
 // Send an update of the game details in the lobby
@@ -547,7 +553,7 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
 	
 	if(cl) {
-		SendUpdateLobbyGame(cl, this);
+		cl->getNetEngine()->SendUpdateLobbyGame();
 
 	} else {
 		if(!cClients) return; // can happen if server was not started correctly
@@ -556,7 +562,7 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 		for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
 			if(cl->getStatus() != NET_CONNECTED)
 				continue;
-			SendUpdateLobbyGame(cl, this);
+			cl->getNetEngine()->SendUpdateLobbyGame();
 		}
 	}
 }
