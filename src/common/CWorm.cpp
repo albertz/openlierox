@@ -704,7 +704,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				if( cDamageReport[id].damage < 0 )
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) && cClient->getServerVersion() >= OLXBetaVersion(9) )
-					damageStr = "? " + damageStr;
+					damageStr = "? " + damageStr; // + "\xC2\xBF"; // Inverted question mark in UTF-8
 				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, cClient->getRemoteWorms()[id].getGameColour(), damageStr);
 				damageDrawPos += tLX->cFont.GetHeight();
 			};
