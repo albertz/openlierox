@@ -1220,6 +1220,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	hints << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
 	//tGameInfo.iNumPlayers = 1;
 		
+	tLX->iGameType = GME_JOIN;
 	if(!cClient->Initialize())
 		return false;
 	
@@ -1233,7 +1234,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	
 	cClient->setServerName(name);
 	
-	tLX->iGameType = GME_JOIN;	
+	tLX->iGameType = GME_JOIN;
 	cClient->Connect(addr);
 	
 	return true;
