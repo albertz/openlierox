@@ -1127,15 +1127,15 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 
 	if( getID() == victim->getID() )
 	{
-		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] )
+		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured yourself
 	}
 	else if( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
 				getTeam() == victim->getTeam() ) 
 	{
-		if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] )
+		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate
-		else if( tLXOptions->tGameInfo.bCountTeamkills )
+		else if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
 			setDamage( getDamage() + damage );	// Count team damage along with teamkills
 	}
 	else

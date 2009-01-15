@@ -268,7 +268,6 @@ public:
 		bool	bAllowConnectDuringGame; // >=Beta8
 		bool	bAllowStrafing;
 		bool	bAllowNickChange;
-		bool	bCountTeamkills;
 		bool	bServerSideHealth;
 		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 		

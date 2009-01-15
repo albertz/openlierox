@@ -26,6 +26,8 @@ Feature featureArray[] = {
 	
 	Feature("AllowEmptyGames", "Allow empty games", "If enabled, games with one or zero worms will not quit.", false, false, Version(), true),
 
+	Feature("CountTeamkills", "Count teamkills", "When killing player from your team increase your kills", false, false, Version(), true),
+
 	Feature::Unset()
 };
 

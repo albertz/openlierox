@@ -236,7 +236,7 @@ public:
 
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GAMESPEED];		
+		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(worm->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
@@ -535,7 +535,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / (float)cClient->getGameLobby()->features[FT_GAMESPEED];
+				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 				*projspawn = true;
 			}
@@ -631,7 +631,7 @@ public:
 
 	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GAMESPEED];		
+		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
@@ -1063,7 +1063,7 @@ public:
 
 	void simulateBonus(CBonus* bonus) {
 		const float orig_dt = 0.01f;
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GAMESPEED];		
+		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + orig_dt > tLX->fCurTime) return;

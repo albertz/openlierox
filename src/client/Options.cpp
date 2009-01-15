@@ -172,7 +172,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false, "Connect during game", "Allow new players connect during game" )
 		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command" )
 		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use Strafe key" )
-		( tLXOptions->tGameInfo.bCountTeamkills, "CountTeamkills", false, "Count teamkills", "When killing player from your team increase your kills" )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating" )
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360, "Weapon selection max time", "Max time to allow players to select weapons, in seconds" )
 		;

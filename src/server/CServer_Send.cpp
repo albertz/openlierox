@@ -133,7 +133,7 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngine::WritePrepareGame(bs);
 
-	bs->writeFloat( tLXOptions->tGameInfo.features[FT_GAMESPEED] );
+	bs->writeFloat( tLXOptions->tGameInfo.features[FT_GameSpeed] );
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// TODO: it's hacky, don't have any ideas now how to make it nice
@@ -531,7 +531,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 void CServerNetEngineBeta7::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	CServerNetEngine::WriteUpdateLobbyGame(bs);
-	bs->writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
+	bs->writeFloat(tLXOptions->tGameInfo.features[FT_GameSpeed]);
 	bs->writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
 	bs->writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 }

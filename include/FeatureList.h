@@ -66,14 +66,15 @@ Feature* featureByName(const std::string& name);
 // WARNING: Keep this always synchronised with featureArray!
 // WARNING: With current implementation (see FeatureSettings constr. and clientSideFeatureCount), serverSideOnly-features have to stay at end!
 enum FeatureIndex {
-	FT_GAMESPEED = 0,
-	FT_FORCESCREENSHAKING,
-	FT_SUICIDEDECREASESSCORE,
-	FT_TEAMINJURE,
-	FT_TEAMHIT,
-	FT_SELFINJURE,
-	FT_SELFHIT,
-	FT_ALLOWEMPTYGAMES
+	FT_GameSpeed = 0,
+	FT_ForceScreenShaking,
+	FT_SuicideDecreasesScore,
+	FT_TeamInjure,
+	FT_TeamHit,
+	FT_SelfInjure,
+	FT_SelfHit,
+	FT_AllowEmptyGames,
+	FT_CountTeamkills,	// Client should know this to calculate damage correctly in teamgames
 };
 
 class FeatureCompatibleSettingList {

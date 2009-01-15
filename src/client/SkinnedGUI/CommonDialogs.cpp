@@ -402,7 +402,7 @@ void CGameSettingsDialog::LoadFromOptions()
 	chkGroupTeams->setValue(tLXOptions->tGameInfo.bRespawnGroupTeams);
 
 	// Suicide or teamkill decreases score
-	chkDecreaseScore->setValue(tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE]);
+	chkDecreaseScore->setValue(tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore]);
 
 	// Group team score
 	chkGroupTeamScore->setValue(tLXOptions->tGameInfo.bGroupTeamScore);
@@ -465,7 +465,7 @@ void CGameSettingsDialog::Save()
 	tLXOptions->tGameInfo.bRespawnGroupTeams = chkGroupTeams->getValue();
 
 	// Suicide and teamkill decrease score
-	tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] = chkDecreaseScore->getValue();
+	tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] = chkDecreaseScore->getValue();
 
 	// Group team score
 	tLXOptions->tGameInfo.bGroupTeamScore = chkGroupTeamScore->getValue();

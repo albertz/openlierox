@@ -267,7 +267,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		// Don't add a kill for teamkilling (if enabled in options)
 		// Client's score and scoreboard is controlled by the server which makes this backward compatible
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || 
-			tLXOptions->tGameInfo.iGameMode != GMT_TEAMDEATH || tLXOptions->tGameInfo.bCountTeamkills ) {
+			tLXOptions->tGameInfo.iGameMode != GMT_TEAMDEATH || tLXOptions->tGameInfo.features[FT_CountTeamkills] ) {
 			kill->addKillInRow();
 			kill->AddKill();
 			kill->setDeathsInRow(0);
@@ -276,7 +276,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	}
 
 	// Suicided or killed team member - decrease score if selected in options
-	if( tLXOptions->tGameInfo.features[FT_SUICIDEDECREASESSCORE] && ( killer == victim ||
+	if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] && ( killer == victim ||
 		( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
 			if( kill->getKills() > 0 )
 			{
@@ -584,7 +584,7 @@ void GameServer::SimulateGame(void)
 		// TODO: why are we doing this? we are not simulating the worm but why the weapon?
 		// please try to remove this here and then remove also the dt parameter in PhysicsEngine
 		if( w->getAlive() )
-			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime * (float)tLXOptions->tGameInfo.features[FT_GAMESPEED], w);
+			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime * (float)tLXOptions->tGameInfo.features[FT_GameSpeed], w);
 /*
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag(0) && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
@@ -1104,7 +1104,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
+				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
@@ -1121,7 +1121,7 @@ void GameServer::RecheckGame(void)
 			case GMT_DEATHMATCH:  {
 				// Only one worm left, end the game
 				// though, in a local game it's sometimes nice to check also a map alone
-				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
+				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
 					// Get the worm that is still alive and declare him as winner
 					w = cWorms + wormid;
 
@@ -1141,7 +1141,7 @@ void GameServer::RecheckGame(void)
 			//
 			case GMT_TAG:  {
 				// Only one worm left, end the game
-				if (wormcount < 2 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
+				if (wormcount < 2 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
 					// Get the worm with greatest tag time
 					float fMaxTagTime = 0;
 					int worm = 0;
@@ -1201,7 +1201,7 @@ void GameServer::RecheckGame(void)
 					}
 
 				// Send the text
-				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_ALLOWEMPTYGAMES])  {
+				if (teamsleft <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText((replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);

@@ -761,10 +761,10 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 		if(!w->isUsed() || !w->getAlive() || w->getFlag())
 			continue;
 		
-		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TEAMHIT] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
+		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
 		   continue;
 		
-		if(ownerWorm && !cClient->getGameLobby()->features[FT_SELFHIT] && w == ownerWorm)
+		if(ownerWorm && !cClient->getGameLobby()->features[FT_SelfHit] && w == ownerWorm)
 			continue;
 		
 		wx = (int)w->getPos().x;

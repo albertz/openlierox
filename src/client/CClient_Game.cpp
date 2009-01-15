@@ -302,10 +302,10 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
 	ushort i;
 	
-	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TEAMINJURE] && !me && w->getTeam() == ownerWorm->getTeam())
+	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TeamInjure] && !me && w->getTeam() == ownerWorm->getTeam())
 		return;
 	
-	if(damage > 0 && ownerWorm && !this->getGameLobby()->features[FT_SELFINJURE] && me)
+	if(damage > 0 && ownerWorm && !this->getGameLobby()->features[FT_SelfInjure] && me)
 		return;
 	
 	if (w->getLocal())  // Health change
@@ -329,7 +329,8 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
 
 		// Update our scoreboard for local worms
-		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
+		if( tLX->iGameType == GME_JOIN && cClient->getServerVersion() >= OLXBetaVersion(9) ) // Do not update scoreboard for pre-Beta9 servers
+			getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
 	}
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets

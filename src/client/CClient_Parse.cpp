@@ -613,36 +613,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	/*
-	if(random) {
-		// Just create a random map
-
-		// If we're remotely joining a server, we need to load the map
-		// Note: This shouldn't happen, coz network games can't use random maps
-		if(tLX->iGameType == GME_JOIN) {
-			if(!client->cMap->New(504,350,"dirt",client->tInterfaceSettings.MiniMapW,client->tInterfaceSettings.MiniMapH)) {
-				client->Disconnect();
-				client->bGameReady = false;
-				printf("CClientNetEngine::ParsePrepareGame: could not create random map\n");
-				return false;
-			}
-			client->cMap->ApplyRandom();
-		} else {
-			// Otherwise, grab the server's copy
-			assert(cServer);
-
-			client->cMap = cServer->getMap();
-			if (!client->cMap)  {  // Bad packet
-				client->bGameReady = false;
-				return false;
-			} else {
-				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-				client->bMapGrabbed = true;
-			}
-		}
-
-	} else {
-	*/
+	if(random) 
+	{
+		printf("CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore\n");
+		client->bGameReady = false;
+		return false;
+	} else
 	{
 		// Load the map from a file
 
@@ -743,7 +719,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
 
-	client->tGameInfo.features[FT_GAMESPEED] = 1.0f;
+	client->tGameInfo.features[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
@@ -851,7 +827,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 		return false;
 
 	// >=Beta7 is sending this
-	client->tGameInfo.features[FT_GAMESPEED] = bs->readFloat();
+	client->tGameInfo.features[FT_GameSpeed] = bs->readFloat();
 	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
@@ -1545,13 +1521,11 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 	int numworms = bs->readByte();
 	bool ready = bs->readBool();
 
-	if (client->iNetStatus != NET_CONNECTED || numworms < 0 || numworms > MAX_WORMS)  {
-		if (client->iNetStatus != NET_CONNECTED)
-			printf("CClientNetEngine::ParseUpdateLobby: not in lobby - ignoring\n");
-		else
-			printf("CClientNetEngine::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
+	if (numworms < 0 || numworms > MAX_WORMS)  {
+		printf("CClientNetEngine::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
 
 		// Skip to get the right position in stream
+		bs->Skip(numworms);
 		bs->Skip(numworms);
 		return;
 	}
@@ -1758,7 +1732,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.iLoadingTime = bs->readInt16();
     client->tGameInfo.bBonusesOn = bs->readBool();
 
-	client->tGameInfo.features[FT_GAMESPEED] = 1.0f;
+	client->tGameInfo.features[FT_GameSpeed] = 1.0f;
 	client->tGameInfo.bForceRandomWeapons = false;
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
@@ -1798,7 +1772,7 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngine::ParseUpdateLobbyGame(bs);
 
-	client->tGameInfo.features[FT_GAMESPEED] = bs->readFloat();
+	client->tGameInfo.features[FT_GameSpeed] = bs->readFloat();
 	client->tGameInfo.bForceRandomWeapons = bs->readBool();
 	client->tGameInfo.bSameWeaponsAsHostWorm = bs->readBool();
 }

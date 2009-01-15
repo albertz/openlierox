@@ -288,9 +288,9 @@ int GameServer::StartGame()
 
 	
 	// Check that gamespeed != 0
-	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] && (float)tLXOptions->tGameInfo.features[FT_GAMESPEED] <= 0.05f) {
-		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GAMESPEED].toString() << "; resetting it to 1" << endl;
-		tLXOptions->tGameInfo.features[FT_GAMESPEED] = 1;
+	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GameSpeed] && (float)tLXOptions->tGameInfo.features[FT_GameSpeed] <= 0.05f) {
+		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
+		tLXOptions->tGameInfo.features[FT_GameSpeed] = 1;
 	}
 	
 		
@@ -1352,7 +1352,7 @@ bool GameServer::clientsConnected_less(const Version& ver) {
 
 ScriptVar_t GameServer::isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset) {
 	if(!(bool)preset) return ScriptVar_t(false);
-	if(!tLXOptions->tGameInfo.features[FT_TEAMINJURE] || !tLXOptions->tGameInfo.features[FT_SELFINJURE])
+	if(!tLXOptions->tGameInfo.features[FT_TeamInjure] || !tLXOptions->tGameInfo.features[FT_SelfInjure])
 		return preset;
 	else
 		return ScriptVar_t(false);

@@ -467,33 +467,10 @@ void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 		if (l)
 			l->bReady = ready;
 	}
-
+	
 	// Let all the worms know about the new lobby state
-	CBytestream bytestr;
-	if (cl->getNumWorms() <= 2)  {
-		bytestr.writeByte(S2C_UPDATELOBBY);
-		bytestr.writeByte(cl->getNumWorms());
-		bytestr.writeByte(ready);
-		for (i = 0; i < cl->getNumWorms(); i++) {
-			bytestr.writeByte(cl->getWorm(i)->getID());
-			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
-		}
-		server->SendGlobalPacket(&bytestr);
-		// HACK: pretend there are clients handling the bots to get around the
-		// "bug" in 0.56b
-	} else {
-		int written = 0;
-		while (written < cl->getNumWorms())  {
-			bytestr.writeByte(S2C_UPDATELOBBY);
-			bytestr.writeByte(1);
-			bytestr.writeByte(ready);
-			bytestr.writeByte(cl->getWorm(written)->getID());
-			bytestr.writeByte(cl->getWorm(written)->getLobby()->iTeam);
-			written++;
-			server->SendGlobalPacket(&bytestr);
-			bytestr.Clear();
-		}
-	}
+	for( int i=0; i<MAX_CLIENTS; i++ )
+		server->cClients[i].getNetEngine()->SendUpdateLobby();
 };
 
 
@@ -1581,7 +1558,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	bs.writeString(GetFullGameName());
 
 	// since Beta7
-	bs.writeFloat(tLXOptions->tGameInfo.features[FT_GAMESPEED]);
+	bs.writeFloat(tLXOptions->tGameInfo.features[FT_GameSpeed]);
 	
 	// since Beta9
 	CServerNetEngineBeta9::WriteFeatureSettings(&bs);
