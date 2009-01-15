@@ -2203,8 +2203,13 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
 		}
 	
-		client->cRemoteWorms[id].setKills( bs->readInt(2) );
+		int kills = bs->readInt(2);
+		if( kills > SHRT_MAX )
+			kills -= USHRT_MAX + 1;
+		client->cRemoteWorms[id].setKills( kills );
 		int damage = bs->readInt(2);
+		if( damage > SHRT_MAX )
+			damage -= USHRT_MAX + 1;
 		if( client->cRemoteWorms[id].getDamage() != damage )
 			printf("Warning: CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm %s is %i server sent us %i\n", 
 					client->cRemoteWorms[id].getName().c_str(), client->cRemoteWorms[id].getDamage(), damage );
