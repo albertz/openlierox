@@ -220,6 +220,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setLocal(false);
 		client->cRemoteWorms[i].setTagIT(false);
 		client->cRemoteWorms[i].setTagTime(0);
+		client->cRemoteWorms[i].setClientVersion(Version());
 	}
 
 	if( client->iNumWorms < 0 )
@@ -1020,6 +1021,9 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 			client->cRemoteWorms[id].Prepare(client->cMap);
 		}
 		client->cRemoteWorms[id].setID(id);
+		if( client->getServerVersion() < OLXBetaVersion(9) &&
+			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
+			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
 	}
 
 	client->cRemoteWorms[id].readInfo(bs);
