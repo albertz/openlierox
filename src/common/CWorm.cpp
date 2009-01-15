@@ -694,24 +694,49 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
 			// Make it float up a bit when time passes
 			damageDrawPos += (int)(( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30);
-			for( std::map< float, int > :: iterator it = DamageReportDrawOrder.begin();
-					it != DamageReportDrawOrder.end(); it++ )
+
+			int damageSum = 0;
+			std::map< float, int > :: const_iterator it;
+			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
+				damageSum += cDamageReport[it->second].damage;
+			Uint32 damageColor = damageSum >= 0 ? Color( 0xff, 0x80, 0x40 ).get() : Color( 0x40, 0xff, 0 ).get() ; // Red or green
+			
+			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 			{
 				int id = it->second;
-				if( !cClient->getRemoteWorms()[id].isUsed() )
-					continue;
-				std::string damageStr = itoa( cDamageReport[id].damage );
-				if( cDamageReport[id].damage < 0 )
+				//if( !cClient->getRemoteWorms()[id].isUsed() )
+				//	continue;
+				if( tLXOptions->bColorizeDamageByWorm )
+				{
+					damageSum = cDamageReport[id].damage;
+					damageColor = cClient->getRemoteWorms()[id].getGameColour();
+				}
+				std::string damageStr = itoa( damageSum );
+				if( damageSum < 0 )
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) )
 					damageStr = "? " + damageStr; // + "\xC2\xBF"; // Inverted question mark in UTF-8
-				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, cClient->getRemoteWorms()[id].getGameColour(), damageStr);
+				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, damageColor, damageStr);
+				//printf("Print damage for worm %i = %s at %i %i\n", getID(), damageStr.c_str(), x, y-damageDrawPos);
 				damageDrawPos += tLX->cFont.GetHeight();
+
+				if( ! tLXOptions->bColorizeDamageByWorm )
+					break;
 			};
 			// Clean up expired damage values
-			for( i=0; i<MAX_WORMS; i++ )
-				if( tLX->fCurTime - cDamageReport[i].lastTime > 1.5f )
-					cDamageReport[i].damage = 0;
+
+			if( tLXOptions->bColorizeDamageByWorm )
+			{
+				for( i=0; i<MAX_WORMS; i++ )
+					if( tLX->fCurTime - cDamageReport[i].lastTime > 1.5f )
+						cDamageReport[i].damage = 0;
+			}
+			else
+			{
+				if( tLX->fCurTime - DamageReportDrawOrder.begin()->first > 1.5f )
+					for( i=0; i<MAX_WORMS; i++ )
+						cDamageReport[i].damage = 0;
+			}
 		}
 	}
 

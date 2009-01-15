@@ -86,6 +86,7 @@ enum {
 	og_AntilagMovementPrediction,
 	og_ScreenShaking,
 	og_DamagePopups,
+	og_ColorizeDamageByWorm,
 };
 
 enum {
@@ -390,6 +391,9 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Damage popups above worms",tLX->clNormalLabel), Static, 330, 210, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bDamagePopups),     og_DamagePopups, 550, 210, 17,17);
 
+	cOpt_Game.Add( new CLabel("Colorize damage popups by worm",tLX->clNormalLabel), Static, 330, 240, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bColorizeDamageByWorm),     og_ColorizeDamageByWorm, 550, 240, 17,17);
+
 /*
 	cOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowMouseAiming),og_AllowMouseAiming, 550, 360, 17,17);
@@ -627,6 +631,11 @@ void Menu_OptionsFrame(void)
 				case og_DamagePopups:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bDamagePopups = cOpt_Game.SendMessage(og_DamagePopups, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+					
+				case og_ColorizeDamageByWorm:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bColorizeDamageByWorm = cOpt_Game.SendMessage(og_ColorizeDamageByWorm, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 			}
 		}

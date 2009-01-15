@@ -219,6 +219,7 @@ public:
 	bool	bTopBarVisible;
 	bool	bScreenShaking;
 	bool	bDamagePopups;
+	bool	bColorizeDamageByWorm;
 	
 
     // Advanced
