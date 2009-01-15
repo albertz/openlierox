@@ -241,6 +241,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
 		client->cLocalWorms[i]->setLocal(true);
         client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
+		client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
 	}
 
 	// TODO: why do we setup the viewports only if we have at least one worm?

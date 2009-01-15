@@ -356,7 +356,9 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
 	}
 
-
+	// Set our version to the current game version
+	// HINT: this function is called only for the local client, not for server's client
+	setClientVersion(Version(LX_VERSION));
 
 	// Initialize the bonuses
 	cBonuses = new CBonus[MAX_BONUSES];
