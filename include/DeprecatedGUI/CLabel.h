@@ -93,6 +93,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
+	void	setText(const std::string& sStr)	{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);};
 
 	// Draw the label
 	inline void	Draw(SDL_Surface * bmpDest) {

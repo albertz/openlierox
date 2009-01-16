@@ -31,7 +31,8 @@ enum {
 	LV_DOUBLECLK,
 	LV_DELETE,
 	LV_ENTER,
-	LV_WIDGETEVENT
+	LV_WIDGETEVENT,
+	LV_MOUSEOVER
 };
 
 
@@ -148,6 +149,8 @@ public:
 		tFocusedSubWidget = NULL;
 		tMouseOverSubWidget = NULL;
 		bSubItemsAreAligned = false;
+		bMouseOverEventEnabled = false;
+		tMouseOver = NULL;
 	}
 
 	~CListview() {
@@ -192,6 +195,9 @@ private:
 	gui_event_t		tLastWidgetEvent;
 	CWidget			*tFocusedSubWidget;
 	CWidget			*tMouseOverSubWidget;
+
+	bool			bMouseOverEventEnabled;
+	lv_item_t		*tMouseOver;
 
 public:
 	// Methods
@@ -273,6 +279,11 @@ public:
 
 	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
 	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
+	
+	void	setMouseOverEventEnabled(bool b)	{ bMouseOverEventEnabled = b; }
+	int		getMouseOverIndex(void)		 { if(tMouseOver) return tMouseOver->iIndex; else return -1; }
+	std::string getMouseOverSIndex(void) { if(tMouseOver) return tMouseOver->sIndex; else return ""; }
+
 
 	// Read-only listview for skinning (typically text list), more variants to come.
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )

@@ -869,8 +869,10 @@ int CListview::getIndex(int count)
 // Mouse over event
 int	CListview::MouseOver(mouse_t *tMouse)
 {
-	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && bGotScrollbar)
+	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && bGotScrollbar) {
 		cScrollbar.MouseOver(tMouse);
+		return LV_NONE;
+	}
 
 	// Reset the cursor
 	SetGameCursor(CURSOR_ARROW);
@@ -918,7 +920,39 @@ int	CListview::MouseOver(mouse_t *tMouse)
 
 	bNeedsRepaint = true; // Repaint required
 
-	return LV_NONE;
+	if( !bMouseOverEventEnabled )
+		return LV_NONE;
+
+	if(tMouse->X < iX || tMouse->X > iX+iWidth-18)
+		return LV_NONE;
+
+	// Go through the items
+	int y = iY+tLX->cFont.GetHeight()+2;
+	if (!tColumns)
+		y = iY+2;
+	item = tItems;
+	int count=0;
+
+	for(;item;item = item->tNext) 
+	{
+		if(count++ < cScrollbar.getValue())
+			continue;
+
+		// Find the max height
+		int h = item->iHeight;
+
+		if(tMouse->Y >= y && tMouse->Y < y+h) 
+		{
+			tMouseOver = item;
+			break;
+		}
+
+		y+=h;
+		if(y > iY+iHeight)
+			break;
+	}
+
+	return LV_MOUSEOVER;
 }
 
 

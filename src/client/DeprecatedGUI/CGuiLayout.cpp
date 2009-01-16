@@ -749,6 +749,7 @@ gui_event_t *CGuiLayout::Process(void)
 			}
 
 			if( (ev = (*w)->MouseOver(tMouse)) >= 0) {
+				widget = true;
 				tEvent->iEventMsg = ev;
 				return tEvent;
 			}

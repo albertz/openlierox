@@ -747,19 +747,15 @@ void Menu_Local_FillModList( CCombobox *cb )
 =======================
 */
 
-short			GameTabPane = 0;
+//short			GameTabPane = 0;
 CGuiLayout		cGameSettings;
-CGuiLayout		cGeneralSettings;
-CGuiLayout		cBonusSettings;
+//CGuiLayout		cGeneralSettings;
+//CGuiLayout		cBonusSettings;
 
 // Game Settings
 enum {
-	gs_GenTab = 0,
-	gs_BonusTab,
-
 	gs_Ok,
 	gs_Default,
-	gs_btnGenTab,
 
 	gs_FeaturesList,
 	gs_FeaturesListLabel,
@@ -772,7 +768,7 @@ static void initFeaturesList(CListview* l);
 // Initialize the game settings
 void Menu_GameSettings(void)
 {
-	GameTabPane = 0;
+	//GameTabPane = 0;
 	// Setup the buffer
 	Menu_DrawBox(tMenu->bmpBuffer.get(), 80,120, 560,460);
 	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 200);
@@ -784,7 +780,7 @@ void Menu_GameSettings(void)
 	Menu_GameSettingsShutdown();
 
 	cGameSettings.Initialize();
-	cGeneralSettings.Initialize();
+	//cGeneralSettings.Initialize();
 
 	// Keep text, it's the window text - the rest you can easily figure out by yourself.
 	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,135, 0, 0);
@@ -796,13 +792,14 @@ void Menu_GameSettings(void)
 
 
 	CListview* features = new CListview();
-	cGeneralSettings.Add( features, gs_FeaturesList, 95, 170, 450, 185);
+	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
 
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
 	features->setShowSelect(false);
 	features->setOldStyle(true);
 	features->subItemsAreAligned() = true;
+	features->setMouseOverEventEnabled(true);
 	
 	features->AddColumn("", tLX->cFont.GetWidth("Suicide/teamkill decreases score:") + 10); // Width of the widest item in this column + some space
 	//features->AddColumn("", features->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
@@ -810,7 +807,7 @@ void Menu_GameSettings(void)
 	initFeaturesList(features);
 
 	// TODO: it's overkill to use CBrowser for that, but it looks nice
-	cGeneralSettings.Add( new CBrowser(), gs_FeaturesListLabel, 95, 370, 450, 40);
+	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95, 390, 450, 40);
 
 }
 
@@ -936,8 +933,6 @@ static void updateFeaturesList(CListview* l)
 void Menu_GameSettingsShutdown(void)
 {
 	cGameSettings.Shutdown();
-	cGeneralSettings.Shutdown();
-	cBonusSettings.Shutdown();
 }
 
 
@@ -950,11 +945,6 @@ bool Menu_GameSettings_Frame(void)
 {
 	gui_event_t *ev = NULL;
 
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
-
-	cGameSettings.Draw(VideoPostProcessor::videoSurface());
-
-
 	ev = cGameSettings.Process();
 
 	if(ev)
@@ -962,13 +952,6 @@ bool Menu_GameSettings_Frame(void)
 
 		switch(ev->iControlID)
 		{
-
-			case gs_btnGenTab:
-				if (ev->iEventMsg == BTN_MOUSEUP)
-				{
-					GameTabPane = gs_GenTab;
-				}
-				break;
 
 			// OK, done
 			case gs_Ok:
@@ -988,43 +971,32 @@ bool Menu_GameSettings_Frame(void)
                     Menu_GameSettings_Default();
                 }
                 break;
-		}
-	}
 
-
-
-	//if (GameTabPane == gs_GenTab)
-	{
-		cGeneralSettings.Draw(VideoPostProcessor::videoSurface());
-		ev = cGeneralSettings.Process();
-
-		if (ev)
-		{
-			switch (ev->iControlID)
-			{
-				case gs_FeaturesList:
-					CListview* features = (CListview*)ev->cWidget;
-					if( ev->iEventMsg == LV_WIDGETEVENT )
+			case gs_FeaturesList:
+				CListview* features = (CListview*)ev->cWidget;
+				if( ev->iEventMsg == LV_WIDGETEVENT )
+				{
+					updateFeaturesList(features);
+				}
+				if( ev->iEventMsg == LV_MOUSEOVER )
+				{
+					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
+					if(	features->getMouseOverSIndex() != "" )
 					{
-						updateFeaturesList(features);
+						std::string desc = CScriptableVars::GetLongDescription( features->getMouseOverSIndex() );
+						for( int group = 0; group < GIG_Size; group++ )
+							if( features->getMouseOverSIndex() == GameInfoGroupDescriptions[group][0] )
+								desc = GameInfoGroupDescriptions[group][1];
+						featuresLabel->setText( desc );
 					}
-					if( ev->iEventMsg == LV_CHANGED || ev->iEventMsg == LV_WIDGETEVENT )
-					{
-						CBrowser* featuresLabel = (CBrowser*)cGeneralSettings.getWidget(gs_FeaturesListLabel);
-						if(	features->getCurSIndex() != "" )
-						{
-							std::string desc = CScriptableVars::GetLongDescription( features->getCurSIndex() );
-							for( int group = 0; group < GIG_Size; group++ )
-								if( features->getCurSIndex() == GameInfoGroupDescriptions[group][0] )
-									desc = GameInfoGroupDescriptions[group][1];
-							featuresLabel->LoadFromString( desc );
-						}
-					}
-					break;
-			}
+				}
+				break;
 		}
 
 	}
+
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 120,150, 120,150, 400,300);
+	cGameSettings.Draw(VideoPostProcessor::videoSurface());
 
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
@@ -1067,7 +1039,7 @@ void Menu_GameSettings_Default(void)
 		}
     }
 
-    CListview * features = (CListview *)cGeneralSettings.getWidget(gs_FeaturesList);
+    CListview * features = (CListview *)cGameSettings.getWidget(gs_FeaturesList);
     features->Clear();
 	initFeaturesList(features);
     
