@@ -38,7 +38,7 @@ void CSlider::Draw(SDL_Surface * bmpDest)
 	// Draw the button
 	int x = iX+5;
 	int w = iWidth - 10;
-	int val = (int)( ((float)w/(float)(iMax - iMin)) * (float)iValue ) + x;
+	int val = (int)( ((float)w/(float)(iMax - iMin)) * (float)(iValue - iMin) ) + x;
 
 	int y = (iY+iHeight/2) - gfxGUI.bmpSliderBut.get()->h/2;
 	DrawImage(bmpDest,gfxGUI.bmpSliderBut,val-3,y);

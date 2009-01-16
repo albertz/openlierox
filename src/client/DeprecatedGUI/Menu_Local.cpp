@@ -774,8 +774,8 @@ void Menu_GameSettings(void)
 {
 	GameTabPane = 0;
 	// Setup the buffer
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,130, 520,470);
-	DrawRectFillA(tMenu->bmpBuffer.get(), 122,132, 518,468, tLX->clDialogBackground, 200);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 80,120, 560,460);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 200);
 
 	Menu_RedrawMouse(true);
 
@@ -787,16 +787,16 @@ void Menu_GameSettings(void)
 	cGeneralSettings.Initialize();
 
 	// Keep text, it's the window text - the rest you can easily figure out by yourself.
-	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,145, 0, 0);
+	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,135, 0, 0);
 
 	// Game settings, stuff on each pane.
 
-	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
-    cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 350,445, 80,15);
+	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
+    cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
 
 	CListview* features = new CListview();
-	cGeneralSettings.Add( features, gs_FeaturesList, 140, 180, 360, 185);
+	cGeneralSettings.Add( features, gs_FeaturesList, 95, 170, 450, 185);
 
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
@@ -804,13 +804,13 @@ void Menu_GameSettings(void)
 	features->setOldStyle(true);
 	features->subItemsAreAligned() = true;
 	
-	features->AddColumn("", tLX->cFont.GetWidth("Suicide/teamkill decreases score:") + 20); // Width of the widest item in this column + some space
+	features->AddColumn("", tLX->cFont.GetWidth("Suicide/teamkill decreases score:") + 10); // Width of the widest item in this column + some space
 	//features->AddColumn("", features->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
 	
 	initFeaturesList(features);
 
 	// TODO: it's overkill to use CBrowser for that, but it looks nice
-	cGeneralSettings.Add( new CBrowser(), gs_FeaturesListLabel, 140, 380, 360, 40);
+	cGeneralSettings.Add( new CBrowser(), gs_FeaturesListLabel, 95, 370, 450, 40);
 
 }
 
@@ -868,10 +868,10 @@ static void initFeaturesList(CListview* l)
 						iVal = int( (*it->second.f) * 10.0f + 0.00001f );
 						fScale = 0.1f;
 					}
-					CSlider * sld = new CSlider( imax, imin, iVal, true, 97, 0, tLX->clNormalLabel, fScale );
+					CSlider * sld = new CSlider( imax, imin, iVal, true, 190, 0, tLX->clNormalLabel, fScale );
 					l->AddSubitem(LVS_WIDGET, "", NULL, sld);
 					sld->Create();
-					sld->Setup(idx, 0, 0, 90, tLX->cFont.GetHeight());
+					sld->Setup(idx, 0, 0, 180, tLX->cFont.GetHeight());
 				}
 				else
 				{
