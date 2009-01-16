@@ -263,3 +263,11 @@ bool CScriptableVars::GetMinMaxValues( const std::string & name, float * minVal,
 	*maxVal = m_instance->m_minmax.find(name)->second.second.f;
 	return true;
 };
+
+int CScriptableVars::GetGroup( const std::string & name )
+{
+	Init();
+	if( m_instance->m_groups.count(name) == 0 )
+		return -1;
+	return m_instance->m_groups.find(name)->second;
+};

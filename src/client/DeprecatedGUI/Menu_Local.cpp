@@ -43,6 +43,7 @@
 #include "Sounds.h"
 #include "ProfileSystem.h"
 #include "FeatureList.h"
+#include "Options.h"
 
 
 namespace DeprecatedGUI {
@@ -818,59 +819,71 @@ void Menu_GameSettings(void)
 static void initFeaturesList(CListview* l)
 {
 	int idx = 0;
-	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+	for( int group = 0; group < GIG_Size; group++ )
 	{
-		if( it->first.find("GameOptions.GameInfo.") != 0 )
-			continue;
-			
-		if( it->first == "GameOptions.GameInfo.ModName" || 
-			it->first == "GameOptions.GameInfo.LevelName" ||
-			it->first == "GameOptions.GameInfo.GameType" )
-			continue;	// We have nice comboboxes for them, skip them in the list
-		
-		lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
-		l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first) + ":", NULL, NULL); 
-		item->iHeight = 24; // So checkbox / textbox will fit okay
+		if( idx != 0 )
+			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
+		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
+		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", NULL, NULL); 
 
-		if( it->second.type == SVT_BOOL )
+		for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 		{
-			CCheckbox * cb = new CCheckbox( * it->second.b );
-			l->AddSubitem(LVS_WIDGET, "", NULL, cb);
-			cb->Create();
-			cb->Setup(idx, 0, 0, 20, 20);
-		}
-		else
-		{
-			int imin=0, imax=0;
-			float fmin=0.0f, fmax=0.0f;
-			if( CScriptableVars::GetMinMaxValues( it->first, &imin, &imax ) ||
-				CScriptableVars::GetMinMaxValues( it->first, &fmin, &fmax ) )
+			if( it->first.find("GameOptions.GameInfo.") != 0 )
+				continue;
+				
+			if( it->first == "GameOptions.GameInfo.ModName" || 
+				it->first == "GameOptions.GameInfo.LevelName" ||
+				it->first == "GameOptions.GameInfo.GameType" )
+				continue;	// We have nice comboboxes for them, skip them in the list
+			
+			if( ! ( CScriptableVars::GetGroup(it->first) == group ||
+				( group == GIG_Other && CScriptableVars::GetGroup(it->first) == -1 ) ) )
+				continue;
+			
+			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
+			l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first), NULL, NULL); 
+			item->iHeight = 24; // So checkbox / textbox will fit okay
+
+			if( it->second.type == SVT_BOOL )
 			{
-				float fScale = 1.0f;
-				int iVal = * it->second.i;
-				if( it->second.type == SVT_FLOAT )
-				{
-					// Adding some small number to round it up correctly
-					imin = int( fmin*10.0f + 0.00001f );	// Scale them up
-					imax = int( fmax*10.0f + 0.00001f );
-					iVal = int( (*it->second.f) * 10.0f + 0.00001f );
-					fScale = 0.1f;
-				}
-				CSlider * sld = new CSlider( imax, imin, iVal, true, 97, 0, tLX->clNormalLabel, fScale );
-				l->AddSubitem(LVS_WIDGET, "", NULL, sld);
-				sld->Create();
-				sld->Setup(idx, 0, 0, 90, tLX->cFont.GetHeight());
+				CCheckbox * cb = new CCheckbox( * it->second.b );
+				l->AddSubitem(LVS_WIDGET, "", NULL, cb);
+				cb->Create();
+				cb->Setup(idx, 0, 0, 20, 20);
 			}
 			else
 			{
-				CTextbox * txt = new CTextbox();
-				l->AddSubitem(LVS_WIDGET, "", NULL, txt);
-				txt->Create();
-				txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
-				txt->setText( it->second.toString() );
+				int imin=0, imax=0;
+				float fmin=0.0f, fmax=0.0f;
+				if( CScriptableVars::GetMinMaxValues( it->first, &imin, &imax ) ||
+					CScriptableVars::GetMinMaxValues( it->first, &fmin, &fmax ) )
+				{
+					float fScale = 1.0f;
+					int iVal = * it->second.i;
+					if( it->second.type == SVT_FLOAT )
+					{
+						// Adding some small number to round it up correctly
+						imin = int( fmin*10.0f + 0.00001f );	// Scale them up
+						imax = int( fmax*10.0f + 0.00001f );
+						iVal = int( (*it->second.f) * 10.0f + 0.00001f );
+						fScale = 0.1f;
+					}
+					CSlider * sld = new CSlider( imax, imin, iVal, true, 97, 0, tLX->clNormalLabel, fScale );
+					l->AddSubitem(LVS_WIDGET, "", NULL, sld);
+					sld->Create();
+					sld->Setup(idx, 0, 0, 90, tLX->cFont.GetHeight());
+				}
+				else
+				{
+					CTextbox * txt = new CTextbox();
+					l->AddSubitem(LVS_WIDGET, "", NULL, txt);
+					txt->Create();
+					txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
+					txt->setText( it->second.toString() );
+				}
 			}
+			// TODO: add slider widget
 		}
-		// TODO: add slider widget
 	}
 }
 
@@ -878,8 +891,7 @@ static void initFeaturesList(CListview* l)
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
-	int idx = 0;
-	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ ) 
 	{
 		if( it->first.find("GameOptions.GameInfo.") != 0 )
 			continue;
@@ -1001,7 +1013,11 @@ bool Menu_GameSettings_Frame(void)
 						CBrowser* featuresLabel = (CBrowser*)cGeneralSettings.getWidget(gs_FeaturesListLabel);
 						if(	features->getCurSIndex() != "" )
 						{
-							featuresLabel->LoadFromString( CScriptableVars::GetLongDescription( features->getCurSIndex() ) );
+							std::string desc = CScriptableVars::GetLongDescription( features->getCurSIndex() );
+							for( int group = 0; group < GIG_Size; group++ )
+								if( features->getCurSIndex() == GameInfoGroupDescriptions[group][0] )
+									desc = GameInfoGroupDescriptions[group][1];
+							featuresLabel->LoadFromString( desc );
 						}
 					}
 					break;

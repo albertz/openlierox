@@ -47,6 +47,16 @@ const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "k
 const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"MediaPlayer"};
 const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "o",			"F3"};
 
+const char * GameInfoGroupDescriptions[GIG_Size][2] = 
+{
+	{"General", "General game options"},
+	{"Advanced", "Advanced game options"},
+	{"Scores", "Scoreboard related game options"},
+	{"Weapons", "Weapons and game physics related game options"},
+	{"Bonuses", "Bonuses related game options"},
+	{"Other", "Other game options"},
+};
+
 bool GameOptions::Init() {
 	if(tLXOptions) {
 		printf("WARNING: it seems that the GameOptions are already inited\n");
@@ -150,37 +160,37 @@ bool GameOptions::Init() {
 	};
 
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
-		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives" )
-		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Max Kills" )
-		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1, "Time limit", "Time limit, in minutes" )
-		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode" )
-		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", 0, 500 )
-		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true, "Bonuses", "Bonuses enabled" )
-		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show Bonus names" )
-		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8, "Max players", "Max amount of players allowed on server", 1, 32 )
+		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives", GIG_General )
+		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Max Kills", GIG_General )
+		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1, "Time limit", "Time limit, in minutes", GIG_General )
+		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode", GIG_General )
+		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", GIG_General, 0, 500 )
+		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true, "Bonuses", "Bonuses enabled", GIG_Bonus )
+		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show Bonus names", GIG_Bonus )
+		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8, "Max players", "Max amount of players allowed on server", GIG_General, 1, 32 )
 		( tLXOptions->tGameInfo.sMapFile, "LevelName" ) // WARNING: confusing, it is handled like the filename
 		( tLXOptions->tGameInfo.iGameMode, "GameType", GMT_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
-		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "Bonus spawn time, in seconds" )
-		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds" )
-		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", 0.0, 10.0 )
-		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to it's team" )
-		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false, "Group team score", "Kill count is the same for all worms in team" )
-		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawn", "Your weapon ammo is emptied when you respawn" )
-		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning weapon bonus instead of health bonus", 0.0f, 1.0f )
-		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons" )
-		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select same weapons as host worm" )
-		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false, "Connect during game", "Allow new players connect during game" )
-		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command" )
-		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use Strafe key" )
-		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating" )
-		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360, "Weapon selection max time", "Max time to allow players to select weapons, in seconds" )
+		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "Bonus spawn time, in seconds", GIG_Bonus )
+		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus )
+		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", GIG_Advanced, 0.0, 10.0 )
+		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to it's team", GIG_Advanced )
+		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false, "Group team score", "Kill count is the same for all worms in team", GIG_Score )
+		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons )
+		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning weapon bonus instead of health bonus", GIG_Bonus, 0.0f, 1.0f )
+		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons", GIG_Weapons )
+		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select same weapons as host worm", GIG_Weapons )
+		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false, "Connect during game", "Allow new players connect during game", GIG_Advanced )
+		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other )
+		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use Strafe key", GIG_Other )
+		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other )
+		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons )
 		;
 
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue, 
-				f->get()->humanReadableName, f->get()->description, f->get()->minValue, f->get()->maxValue );
+				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->minValue, f->get()->maxValue );
 	}
 	
 	bool ret = tLXOptions->LoadFromDisc();

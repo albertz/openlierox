@@ -166,6 +166,7 @@ public:
 
 	static bool GetMinMaxValues( const std::string & name, int * minVal, int * maxVal );
 	static bool GetMinMaxValues( const std::string & name, float * minVal, float * maxVal );
+	static int GetGroup( const std::string & name );
 
 	// Allows registering vars with daisy-chaining
 	class VarRegisterHelper
@@ -175,10 +176,11 @@ public:
 		std::map< std::string, ScriptVarPtr_t > & m_vars;	// Reference to CScriptableVars::m_vars
 		std::map< std::string, std::pair< std::string, std::string > > & m_descriptions;	// Reference to CScriptableVars::m_descriptions
 		std::map< std::string, std::pair< ScriptVar_t, ScriptVar_t > > & m_minmax; // Reference to CScriptableVars::m_minmax
+		std::map< std::string, int > & m_groups;	// Reference to CScriptableVars::m_groups
 		std::string m_prefix;
 
 		VarRegisterHelper( CScriptableVars * parent, const std::string & prefix ): 
-			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_minmax( parent->m_minmax ), m_prefix(prefix) {};
+			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_minmax( parent->m_minmax ), m_groups(parent->m_groups), m_prefix(prefix) {};
 
 		std::string Name( const std::string & c )
 		{
@@ -192,64 +194,71 @@ public:
 		operator bool () { return true; };	// To be able to write static expressions
 
 		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false, 
-											const std::string & descr = "", const std::string & descrLong = "" )
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
 			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
+				m_vars[Name(c)] = ScriptVarPtr_t( &v, def );
+				m_descriptions[Name(c)] = std::make_pair( descr, descrLong );
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 
 		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, 
-										const std::string & descr = "", const std::string & descrLong = "", 
+										const std::string & descr = "", const std::string & descrLong = "", int group = -1,
 										int minval = 0, int maxval = 0 )
 			{ 
 				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 
 		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0f, 
-											const std::string & descr = "", const std::string & descrLong = "",
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
 											float minval = 0.0f, float maxval = 0.0f )
 			{ 
 				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 
 		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "", 
-											const std::string & descr = "", const std::string & descrLong = "" )
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
 			{ 
 				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 
 		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
-											const std::string & descr = "", const std::string & descrLong = "" )
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
 			{
 				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 
 		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c, 
-											const std::string & descr = "", const std::string & descrLong = "" )
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
 			{ 
 				m_vars[Name(c)] = ScriptVarPtr_t( v ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 		
 		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
-											const std::string & descr = "", const std::string & descrLong = "",
+											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
 											ScriptVar_t minval = ScriptVar_t(0), ScriptVar_t maxval = ScriptVar_t(0) )
 			{ 
 				m_vars[Name(c)] = ScriptVarPtr_t( &v, &def ); 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_minmax[Name(c)] = std::make_pair( minval, maxval );
+				m_groups[Name(c)] = group;
 				return *this; 
 			};
 	};
@@ -270,6 +279,7 @@ private:
 	std::map< std::string, ScriptVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, std::pair< std::string, std::string > > m_descriptions;	// Description for vars - short and long
 	std::map< std::string, std::pair< ScriptVar_t, ScriptVar_t > > m_minmax;	// Min and max values to make slider widget in GUI
+	std::map< std::string, int > m_groups;	// Grouping of variables in GUI
 };
 
 #endif

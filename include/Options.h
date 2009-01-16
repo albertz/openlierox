@@ -287,6 +287,20 @@ void	ShutdownOptions(void);
 extern	GameOptions		*tLXOptions;
 extern  NetworkTexts  *networkTexts;
 
+// Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
+enum GameInfoGroup_t
+{
+	GIG_General,
+	GIG_Advanced,
+	GIG_Score,
+	GIG_Weapons,
+	GIG_Bonus,
+	GIG_Other,
+	
+	GIG_Size
+};
 
+// And their descriptions - don't forget to edit them in Options.cpp if you change GameInfoGroup_t
+extern const char * GameInfoGroupDescriptions[GIG_Size][2];
 
 #endif  //  __OPTIONS_H__
