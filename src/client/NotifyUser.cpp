@@ -67,7 +67,9 @@ void x11_SetDemandsAttention( bool v ) {
 #include "Sounds.h"
 #include "AuxLib.h"
 
-
+#ifndef WIN32
+#include <windows.h>
+#endif
 
 
 // HINT: I don't include LieroX.h directly as it declares Rect<>, which is already declared by Carbon

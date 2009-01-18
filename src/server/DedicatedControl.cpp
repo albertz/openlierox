@@ -81,8 +81,8 @@ struct pstream_pipe_t
 {
 	boost::process::child *p;
 	pstream_pipe_t(): p(NULL) {};
-	std::ostream & in() { if (p) return p->get_stdin(); static ostringstream os; return os; };
-	std::istream & out() { if (p) return p->get_stdout(); static istringstream is; return is; };
+	std::ostream & in() { if (p) return p->get_stdin(); static std::ostringstream os; return os; };
+	std::istream & out() { if (p) return p->get_stdout(); static std::istringstream is; return is; };
 	void close_in() { if (p) { p->get_stdin().close(); } };
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )

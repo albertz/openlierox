@@ -9,7 +9,7 @@
 
 #include "Debug.h"
 
-#if defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)
+#if (defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)) && !defined(__MINGW32_VERSION)
 
 #include <execinfo.h>
 #include <stdio.h>
