@@ -206,7 +206,7 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
 	int xend = px + iColSize;
 	int yend = py + iColSize;
 
-	ColInfo res = { 0, 0, 0, 0, false, false };
+	ColInfo res = { 0, 0, 0, 0, false, true };
 
 	// If the current cell is empty, don't check for the collision
 	{
@@ -237,7 +237,8 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
 				else if (x > px)
 					++res.right;
 
-				res.onlyDirt = (res.onlyDirt && (*pf & PX_DIRT));
+				if (*pf & PX_ROCK)
+					res.onlyDirt = false;
 				res.collided = true;
 			}
 
