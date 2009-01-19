@@ -496,7 +496,8 @@ int GameServer::StartGame()
 		DedicatedControl::Get()->WeaponSelections_Signal();
 
 	// Re-register the server to reflect the state change
-	RegisterServerUdp();
+	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+		RegisterServerUdp();
 
 
 	// initial server side weapon handling
@@ -647,7 +648,8 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	if(firstStart) {
 		// Re-register the server to reflect the state change in the serverlist
-		RegisterServerUdp();
+		if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+			RegisterServerUdp();
 	}
 }
 

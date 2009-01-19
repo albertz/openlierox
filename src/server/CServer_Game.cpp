@@ -1011,7 +1011,8 @@ void GameServer::gotoLobby(void)
 		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
 
 	// Re-register the server to reflect the state change
-	RegisterServerUdp();
+	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
+		RegisterServerUdp();
 
 	// HINT: the gamescript is shut down by the cache
 }
