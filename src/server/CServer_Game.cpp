@@ -118,8 +118,10 @@ CVec GameServer::FindSpot(void)
 	for( int tries = 0; tries < 40; tries++ ) {
 	    px = (int)(fabs(GetRandomNum()) * (float)cols);
 		py = (int)(fabs(GetRandomNum()) * (float)rows);
-
 	    x = px; y = py;
+
+		if( x + y < 6 )	// Do not spawn in top left corner
+			continue;
 
 		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
 		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
@@ -146,7 +148,11 @@ CVec GameServer::FindSpot(void)
             first = false;
 
 			pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-            if(!(pf & PX_ROCK))  {
+			pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
+			pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
+			pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
+			pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
+            if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) )  {
 				cMap->unlockFlags();
                 return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 			}
