@@ -949,7 +949,6 @@ void CBrowser::DrawCursor(SDL_Surface *bmpDest)
 // Render the browser
 void CBrowser::Draw(SDL_Surface * bmpDest)
 {
-	printf("CBrowser::Draw() bNeedsRender %i\n", bNeedsRender);
 	if (bNeedsRender)
 		ReRender();
 

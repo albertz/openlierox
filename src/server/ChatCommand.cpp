@@ -412,7 +412,7 @@ std::string ProcessMe(const std::vector<std::string>& params, int sender_id)
 		return "Message could not be sent";
 
 	// Get the message
-	std::string msg = sender->getWorm(0)->getName() + " ";
+	std::string msg = "* " + sender->getWorm(0)->getName() + " "; // Add star so clients with empty name won't fake others
 	std::vector<std::string>::const_iterator it = params.begin();
 	for (; it != params.end(); it++)  {
 		msg += *it;

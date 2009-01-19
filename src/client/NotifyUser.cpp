@@ -67,7 +67,7 @@ void x11_SetDemandsAttention( bool v ) {
 #include "Sounds.h"
 #include "AuxLib.h"
 
-#ifndef WIN32
+#ifdef __MINGW32_VERSION
 #include <windows.h>
 #endif
 
@@ -102,7 +102,7 @@ void NotifyUserOnEvent()
 
 	err = NMInstall( notePtr );
 
-#elif defined(WIN32)
+#elif defined(WIN32) || defined(__MINGW32_VERSION)
 	FLASHWINFO flash;
 	flash.cbSize = sizeof(flash);
 	flash.hwnd = GetWindowHandle();

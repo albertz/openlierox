@@ -157,7 +157,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 
 		if (chat_command &&
 			client->getServerVersion() < OLXBetaVersion(3) && // <beta3 clients don't have chat command support
-			sText.find("/me ") > 0) // Ignores "/me" special command
+			sText.find("/me ") != 0) // Ignores "/me" special command
 		{
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
 			if( ! Cmd_ParseLine(sText.substr(1)) ) {
@@ -240,7 +240,9 @@ void CClientNetEngine::SendTextInternal(const std::string& sText, const std::str
 	bs.writeByte(C2S_CHATTEXT);
 	if (sWormName.size() == 0)
 		bs.writeString(sText);
-	else
+	else if( sText.find("/me ") == 0 && client->getServerVersion() < OLXBetaVersion(9) )	// "/me " chat command
+		bs.writeString( "* " + sWormName + " " + sText.substr(4)); // Add star so clients with empty name won't fake others
+	else	// "/me " command is server-sided on Beta9
 		bs.writeString(sWormName + ": " + sText);
 
 	client->cNetChan->AddReliablePacketToSend(bs);
