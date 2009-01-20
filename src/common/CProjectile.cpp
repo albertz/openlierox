@@ -285,25 +285,25 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 	int vy = (int)vVelocity.y;
 
 	// Find the collision side
-	if ((c.left > c.right || c.left > 2) && c.left > 1 && vx < 0) {
+	if ((c.left > c.right || c.left > 2) && c.left > 1 && vx <= 0) {
 		if(bounce)
 			vPosition.x = oldpos.x;
 		CollisionSide |= COL_LEFT;
 	}
 
-	if ((c.right > c.left || c.right > 2) && c.right > 1 && vx > 0) {
+	if ((c.right > c.left || c.right > 2) && c.right > 1 && vx >= 0) {
 		if(bounce)
 			vPosition.x = oldpos.x;
 		CollisionSide |= COL_RIGHT;
 	}
 
-	if (c.top > 1 && vy < 0) {
+	if (c.top > 1 && vy <= 0) {
 		if(bounce)
 			vPosition.y = oldpos.y;
 		CollisionSide |= COL_TOP;
 	}
 
-	if (c.bottom > 1 && vy > 0) {
+	if (c.bottom > 1 && vy >= 0) {
 		if(bounce)
 			vPosition.y = oldpos.y;
 		CollisionSide |= COL_BOTTOM;
