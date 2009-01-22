@@ -500,11 +500,8 @@ def initPresets():
 	maxPresets = 0
 
 	for f in os.listdir(presetDir):
-		if os.path.isdir(f):
-			messageLog(("initPresets: Ignoring \"%s\" - It's a directory" % f),LOG_INFO)
-			continue
 
-		if f.lower() != "defaults":
+		if f.lower() != "defaults" and f.lower() != ".svn":
 			availiblePresets.append(f)
 			maxPresets +=1
 
