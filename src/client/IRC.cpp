@@ -139,7 +139,11 @@ void IRCClient::makeNickIRCFriendly()
 
 	// Replace the dangerous characters
 	while (m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) != std::string::npos)
-		m_myNick[m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL)] = '-';
+		m_myNick[m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL)] = '_';
+
+	if (m_myNick.size() > 0)
+		if (m_myNick[0] == '_')
+			m_myNick[0] = 'O';
 
 	m_nickUniqueNumber = -1;
 	m_updatingUserList = false;
