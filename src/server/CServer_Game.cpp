@@ -1066,12 +1066,16 @@ void GameServer::RecheckGame(void)
 	if (getState() == SVS_PLAYING && !bGameOver)  {
 		CWorm *w = cWorms;
 		short wormcount = 0;
+		short total_worms = 0;
 		short wormid = 0;
 		for(i=0; i<MAX_WORMS; i++, w++) {
-			if (w->isUsed() && w->getLives() != WRM_OUT)  {
-				notes << "worm " << i << " has " << w->getLives() << " lives" << endl;
-				wormcount++;
-				wormid = i; // Save the worm id
+			if (w->isUsed())  {
+				if (w->getLives() != WRM_OUT)  {
+					notes << "worm " << i << " has " << w->getLives() << " lives" << endl;
+					wormcount++;
+					wormid = i; // Save the worm id
+				}
+				total_worms++;
 			}
 		}
 
@@ -1128,7 +1132,7 @@ void GameServer::RecheckGame(void)
 			case GMT_DEATHMATCH:  {
 				// Only one worm left, end the game
 				// though, in a local game it's sometimes nice to check also a map alone
-				if (tLX->iGameType != GME_LOCAL && wormcount < 2 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
+				if ((tLX->iGameType != GME_LOCAL || total_worms > 1 || wormcount == 0) && wormcount < 2 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
 					// Get the worm that is still alive and declare him as winner
 					w = cWorms + wormid;
 
