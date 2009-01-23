@@ -41,12 +41,11 @@ levelDir = os.path.join(os.getcwd(),"levels")
 modDir = os.getcwd()
 
 # Preset stuffies
-availiblePresets = list()
-maxPresets = 0
-curPreset = 0
+availablePresets = []
+nextPresets = []
 
-availibleLevels = list()
-availibleMods = list()
+availableLevels = list()
+availableMods = list()
 
 #worms = {} # Dictionary of all online worms - contains only worm name currently
 worms = {} # List of all worms on the server
@@ -139,9 +138,9 @@ def adminCommandHelp(wormid):
 	privateMsg(wormid, "%skick wormID [reason]" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sban wormID [reason]" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%smute wormID" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%smod modName (or part)" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%smap mapName (or part)" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%spreset presetName (or part)" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%smod modName (or part of name)" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%smap mapName" % cfg.ADMIN_PREFIX)
+	privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%slt loadingTime" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%steam wormID teamID (0123 or brgy)" % cfg.ADMIN_PREFIX)
 	privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
@@ -155,7 +154,7 @@ def adminCommandHelp(wormid):
 
 # Admin interface
 def parseAdminCommand(wormid,message):
-	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, parseAdminCommand_Preset
+	global worms, nextPresets, availablePresets, availableLevels, availableMods, parseAdminCommand_Preset, scriptPaused
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.ADMIN_PREFIX)):
 			return False # normal chat
@@ -184,7 +183,7 @@ def parseAdminCommand(wormid,message):
 			muteWorm( int( params[0] ) )
 		elif cmd == "mod":
 			mod = ""
-			for m in availibleMods:
+			for m in availableMods:
 				if m.lower().find(" ".join(params[0:]).lower()) != -1:
 					mod = m
 					break
@@ -194,7 +193,7 @@ def parseAdminCommand(wormid,message):
 				setvar("GameOptions.GameInfo.ModName", mod) # In case mod name contains spaces
 		elif cmd == "map":
 			level = ""
-			for l in availibleLevels:
+			for l in availableLevels:
 				if l.lower().find(" ".join(params[0:]).lower()) != -1:
 					level = l
 					break
@@ -204,14 +203,19 @@ def parseAdminCommand(wormid,message):
 				setvar("GameOptions.GameInfo.LevelName", level) # In case map name contains spaces
 		elif cmd == "preset":
 			preset = -1
-			for p in range(len(availiblePresets)):
-				if availiblePresets[p].lower().find(" ".join(params[0:]).lower()) != -1:
+			presetCount = 1
+			if len(params) > 1:
+				presetCount = int(params[1])
+			for p in range(len(availablePresets)):
+				if availablePresets[p].lower().find(params[0].lower()) != -1:
 					preset = p
 					break
 			if preset == -1:
 				privateMsg(wormid,"Invalid preset name")
 			else:
-				curPreset = preset
+				nextPresets = []
+				for f in range(presetCount):
+					nextPresets.append(availablePresets[preset])
 				selectNextPreset()
 		elif cmd == "lt":
 			setvar("GameOptions.GameInfo.LoadingTime", params[0])
@@ -268,7 +272,7 @@ def userCommandHelp(wormid):
 		userCommandHelp_Preset(wormid)
 
 def parseUserCommand(wormid,message):
-	global worms, curPreset, availiblePresets, availibleLevels, availibleMods, gameState, parseUserCommand_Preset, rank
+	global worms, curPreset, availablePresets, availableLevels, availableMods, gameState, parseUserCommand_Preset, rank
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.USER_PREFIX)):
 			return False # normal chat
@@ -493,31 +497,37 @@ def parseWormSpawned(sig):
 
 ## Preset loading functions ##
 def initPresets():
-	global availiblePresets,maxPresets,presetDir
+	global availablePresets,presetDir
 
 	# Reset - incase we get called a second time
-	del availiblePresets[:]
-	maxPresets = 0
+	del availablePresets[:]
 
 	for f in os.listdir(presetDir):
 
 		if f.lower() != "defaults" and f.lower() != ".svn":
-			availiblePresets.append(f)
-			maxPresets +=1
+			availablePresets.append(f)
 
-	if (maxPresets == 0):
-		messageLog("There are no presets availible - nothing to do. Exiting.",LOG_CRITICAL)
+	if (len(availablePresets) == 0):
+		messageLog("There are no presets available - nothing to do. Exiting.",LOG_CRITICAL)
 		exit()
 
 # initPresets must be called before this - or it will crash
 # TODO: Try to make something nicer for the user which doesn't read this
 def selectNextPreset():
-	global curPreset, maxPresets, availiblePresets, controlHandler
+	global nextPresets, availablePresets
 
-	msg("Preset " + availiblePresets[curPreset])
-	chatMsg("Preset " + availiblePresets[curPreset])
+	if len( nextPresets ) == 0:
+		nextPresets = list(cfg.PRESETS)
+		if len( nextPresets ) == 0:
+			nextPresets = list(availablePresets)
 
-	sFile = os.path.join(presetDir,availiblePresets[curPreset])
+	preset = nextPresets[0]
+	nextPresets.pop(0)
+
+	msg("Preset " + preset)
+	chatMsg("Preset " + preset)
+
+	sFile = os.path.join(presetDir,preset)
 	sDefaults = os.path.join(presetDir,"Defaults")
 	try:
 		execfile(sDefaults)
@@ -535,20 +545,6 @@ def selectNextPreset():
 		# File does not exist, perhaps it was removed.
 		messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),LOG_WARN)
 		initPresets()
-		# Try to step back so we don't force people to replay old rotations.
-		while (curPreset >= maxPresets):
-			curPreset -= 1
-		# Re-call ourselves so that we do update the preset.
-		selectNextPreset()
-		return # So that we don't double the messages
-
-	# curPreset + 1 to say "1 out of 2" "2 out of 2" instead of
-	# "0 out of 2" "1 out of 2"
-	msg("Current preset is: %d out of max %d" % (curPreset+1,maxPresets))
-
-	curPreset += 1
-	if curPreset >= maxPresets:
-		curPreset = 0
 
 
 def waitLobbyStarted():
@@ -561,23 +557,23 @@ def waitLobbyStarted():
 
 
 def initLevelList():
-	global levelDir, availibleLevels
+	global levelDir, availableLevels
 	for f in os.listdir(levelDir):
 		if os.path.isdir(f):
 			#messageLog("initLevelList: Ignoring \"%s\" - It's a directory" % f, LOG_INFO)
 			continue
 		#messageLog("Adding level " + f, LOG_INFO)
-		availibleLevels.append(f)
+		availableLevels.append(f)
 
 def initModList():
-	global modDir, availibleMods
+	global modDir, availableMods
 	for f in os.listdir(modDir):
 		if not os.path.isdir(f):
 			continue
 		for ff in os.listdir(os.path.join(modDir,f)):
 			if ff.lower() == "script.lgs":
 				#messageLog("Adding mod " + f, LOG_INFO)
-				availibleMods.append(f)
+				availableMods.append(f)
 
 ## Control functions
 
@@ -661,7 +657,7 @@ def controlHandlerDefault():
 						setvar("GameOptions.GameInfo.GameType", "0")
 
 					startGame()
-					if cfg.ALLOW_TEAM_CHANGE:
+					if cfg.ALLOW_TEAM_CHANGE and getNumWorms() >= cfg.MIN_PLAYERS_TEAMS:
 						chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
 	if gameState == GAME_WEAPONS:

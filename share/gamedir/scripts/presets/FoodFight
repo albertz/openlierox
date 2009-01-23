@@ -1,0 +1,7 @@
+#!/usr/bin/python -u
+
+setvar( "GameOptions.GameInfo.ModName", "FoodFight v0.6" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Standard Food Fight 0.6 100lt.wps" )

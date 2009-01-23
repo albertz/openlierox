@@ -27,6 +27,9 @@ ded.startLobby(cfg.SERVER_PORT)
 
 ded.waitLobbyStarted()
 
+for f in cfg.GLOBAL_SETTINGS.keys():
+	ded.setvar( f, cfg.GLOBAL_SETTINGS[f] )
+
 ded.selectNextPreset()
 
 # nice state-machine for dedicated server

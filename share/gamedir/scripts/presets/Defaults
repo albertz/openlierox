@@ -3,26 +3,26 @@
 # This file contains default settings for all presets, 
 # it will be executed before any preset to clean up after previous preset
 
-global controlHandler, adminCommandHelp_Preset, parseAdminCommand_Preset, userCommandHelp_Preset, parseUserCommand_Preset
+global controlHandler, adminCommandHelp_Preset, parseAdminCommand_Preset, userCommandHelp_Preset, parseUserCommand_Preset, cfg
 controlHandler = controlHandlerDefault
 adminCommandHelp_Preset = None
 parseAdminCommand_Preset = None
 userCommandHelp_Preset = None
 parseUserCommand_Preset = None
 
+import random
+
 setvar( "GameOptions.Network.ServerName", cfg.SERVER_NAME )
 
-setvar( "GameOptions.GameInfo.LevelName",   "LieroFactory(Revisited).lxl" )
+setvar( "GameOptions.GameInfo.LevelName", cfg.LEVELS[ random.randrange(len(cfg.LEVELS)) ] )
 
-setvar( "GameOptions.GameInfo.ModName",    "Classic" )
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", 100 )
 
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
+setvar( "GameServer.WeaponRestrictionsFile", "" )
 
-setvar("GameOptions.GameInfo.GameType", 0) # 0 - Deathmatch, 1 - TDM
-
-setvar("GameOptions.GameInfo.MaxPlayers", cfg.MAX_PLAYERS)
+setvar("GameOptions.GameInfo.GameType", 0) # 0 - Deathmatch, 1 - TDM, 2 - Tag, 3 - Demolitions
 
 setvar("GameOptions.GameInfo.Lives", cfg.GAME_LIVES)
 
@@ -30,49 +30,37 @@ setvar("GameOptions.GameInfo.KillLimit", cfg.GAME_MAX_KILLS)
 
 setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 
-# Options that controls game
-setvar("GameOptions.GameInfo.RespawnGroupTeams", 1)
-setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0)
-setvar( "GameOptions.GameInfo.ForceRandomWeapons", 0)
-setvar( "GameOptions.GameInfo.SameWeaponsAsHostWorm", 0) # We should add a bot for that to work
-setvar( "GameOptions.GameInfo.GameSpeed", 1)
-setvar( "GameOptions.GameInfo.TagLimit", 5)
-setvar( "GameOptions.Network.WelcomeMessage", "<player> from <country> connected - typing go/spamming is useless")
+# Other options that controls game
+setvar( "GameOptions.GameInfo.GameSpeed", 1) # Beta8+
+setvar( "GameOptions.GameInfo.RespawnGroupTeams", 1)
+setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0) # Beta8+
+
 setvar( "GameOptions.GameInfo.Bonuses", 0)
 setvar( "GameOptions.GameInfo.BonusNames", 1)
 setvar( "GameOptions.GameInfo.BonusFrequency", 30)
 setvar( "GameOptions.GameInfo.BonusHealthToWeaponChance", 0.5) # 0 - all healths, 1 - all weapons
 setvar( "GameOptions.GameInfo.BonusLife", 60)
+
+setvar( "GameOptions.GameInfo.SuicideDecreasesScore", 1)
+setvar( "GameOptions.GameInfo.CountTeamkills", 0)
+setvar( "GameOptions.GameInfo.GroupTeamScore", 0)
+
 setvar( "GameOptions.GameInfo.EmptyWeaponsOnRespawn", 0)
 setvar( "GameOptions.GameInfo.GroupTeamScore", 0)
 setvar( "GameOptions.GameInfo.RespawnTime", 2.5)
-setvar( "GameOptions.GameInfo.SuicideDecreasesScore", 1)
 setvar( "GameOptions.GameInfo.CountTeamkills", 0)
-setvar( "GameOptions.GameInfo.WeaponSelectionMaxTime", cfg.WEAPON_SELECTION_TIME)
 setvar( "GameOptions.GameInfo.ForceScreenShaking", 1)
+setvar( "GameOptions.GameInfo.AllowEmptyGames", 0)
 
-# TODO: all these following options really do not belong here!!
-# General options that should be set
-setvar( "GameOptions.Advanced.MaxFPS", 95) # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
-setvar( "GameOptions.GameInfo.AllowStrafing", 1)
-setvar( "GameOptions.GameInfo.ServerSideHealth", 0) # Turn this on if ppl hack and don't die on your server
-setvar( "GameOptions.Game.AntilagMovementPrediction", 1) # If ServerSideHealth = 1 this influences gameplay
-setvar( "GameOptions.Game.Blood", 0)
-setvar( "GameOptions.Game.Particles", 0) # Ded server does not need any eye candies
-setvar( "GameOptions.Game.Shadows", 0) # Ded server does not need any eye candies
-setvar( "GameOptions.GameInfo.AllowNickChange", 0)
-setvar( "GameOptions.Network.AllowRemoteBots", 1)
-setvar( "GameOptions.Network.AllowWantsJoinMsg", 1)
-setvar( "GameOptions.Network.Password", "") # Not used
-setvar( "GameOptions.Network.RegisterServer", 1)
-setvar( "GameOptions.Network.WantsToJoinFromBanned", 0)
-setvar( "GameOptions.Network.WelcomeMessage", cfg.WELCOME_MESSAGE)
-setvar( "GameOptions.Misc.LogConversations", 1)
-setvar( "GameOptions.Advanced.MatchLogging", 0) # Do not save game results screenshot
-setvar( "GameOptions.Misc.ScreenshotFormat", 1) # 0 = JPG, 1 = PNG
-setvar( "GameOptions.Network.AutoSetupHttpProxy", 1)
-setvar( "GameOptions.Network.EnableChat", 0) # No IRC chat needed for ded server
-setvar( "GameOptions.Network.HttpProxy", "")
-setvar( "GameOptions.Network.UseIpToCountry", 1) # Needed for correct server messages
-# TODO: why is this needed? please fix that AND DONT USE WORKAROUNDS!
-setvar( "GameServer.bStartDedicated", 0) # This is for auto-start game from GUI, disable this, it will break the scripts
+setvar( "GameOptions.GameInfo.SelfHit", 1) # Beta9+
+setvar( "GameOptions.GameInfo.SelfInjure", 1) # Beta9+
+setvar( "GameOptions.GameInfo.TeamHit", 1) # Beta9+
+setvar( "GameOptions.GameInfo.TeamInjure", 1) # Beta9+
+
+setvar( "GameOptions.GameInfo.ForceRandomWeapons", 0) # Beta8+
+setvar( "GameOptions.GameInfo.SameWeaponsAsHostWorm", 0) # Beta8+, we should add a bot for that to work
+
+setvar( "GameOptions.GameInfo.RespawnTime", 2.5)
+setvar( "GameOptions.GameInfo.ForceScreenShaking", 1)
+setvar( "GameOptions.GameInfo.TagLimit", 5)
+

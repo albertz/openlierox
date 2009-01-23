@@ -1,0 +1,7 @@
+#!/usr/bin/python -u
+
+setvar( "GameOptions.GameInfo.ModName", "MW 1.0" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Standard MW 1.0 100lt.wps" )
