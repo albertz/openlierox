@@ -505,7 +505,7 @@ ConversionItem tConversionTable[] = {
 
 
 // grabbed from SDL_ttf (also LGPL)
-void UNICODE_to_UTF8(unsigned char *utf8, UnicodeChar unicode)
+static void UNICODE_to_UTF8(unsigned char *utf8, UnicodeChar unicode)
 {
     int j=0;
 
@@ -558,7 +558,7 @@ void UNICODE_to_UTF8(unsigned char *utf8, UnicodeChar unicode)
 // Convert unicode to UTF8
 std::string GetUtf8FromUnicode(UnicodeChar ch) {
 	if(ch == 0) return std::string("\0", 1);
-	static unsigned char utf8[7];
+	unsigned char utf8[7];
 	UNICODE_to_UTF8(utf8, ch);
 	return (const char*)utf8;
 }

@@ -65,7 +65,7 @@ public:
 	void	Colorize(Uint32 col);
 	void	RemoveColorization()	{ Colorize(iDefaultColor); }
 	void	Change(const std::string& file);
-	SmartPointer<SDL_Surface> getPreview()	{ return bmpPreview; }
+	SmartPointer<SDL_Surface>& getPreview()	{ return bmpPreview; }
 
 	const std::string& getFileName() const  { return sFileName; }
 	int getBotIcon() const	{ return iBotIcon; }
@@ -74,8 +74,8 @@ public:
 	Uint32 getDefaultColor() const	{ return iDefaultColor; }
 	void setDefaultColor(Uint32 _c)	{ iDefaultColor = _c; }
 
-	SmartPointer<SDL_Surface> getLeftImage()	{ return bmpMirrored; }
-	SmartPointer<SDL_Surface> getRightImage()	{ return bmpNormal; }
+	SmartPointer<SDL_Surface>& getLeftImage()	{ return bmpMirrored; }
+	SmartPointer<SDL_Surface>& getRightImage()	{ return bmpNormal; }
 };
 
 #endif
