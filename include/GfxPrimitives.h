@@ -432,7 +432,7 @@ inline SmartPointer<SDL_Surface> GetMirroredImage(SDL_Surface* bmpSrc)  {
 	if (result.get() == NULL) return NULL;
 	DrawImageAdv_Mirror(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	#ifdef DEBUG_SMARTPTR
-	printf("GetMirroredImage() %p\n", result.get() );
+	//printf("GetMirroredImage() %p\n", result.get() );
 	#endif
 	return result;
 }

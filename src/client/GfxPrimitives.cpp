@@ -169,7 +169,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	}
 
 	#ifdef DEBUG_SMARTPTR
-	printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
+	//printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
 	#endif
 
 	return result;
@@ -205,7 +205,7 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
 
 	#ifdef DEBUG_SMARTPTR
-	printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
+	//printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
 	#endif
 
 	return result;
@@ -1805,7 +1805,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 
 	// Save to cache
 	#ifdef DEBUG_SMARTPTR
-	printf("LoadImage() %p %s\n", Image.get(), _filename.c_str() );
+	//printf("LoadImage() %p %s\n", Image.get(), _filename.c_str() );
 	#endif
 	cCache.SaveImage(_filename, Image);
 	return Image;
@@ -1827,7 +1827,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	if(!formated.get())
 		return NULL;
 	#ifdef DEBUG_SMARTPTR
-	printf("SDLSurface2GDImage() %p\n", formated.get() );
+	//printf("SDLSurface2GDImage() %p\n", formated.get() );
 	#endif
 	// convert it to the new format (32 bpp)
 	CopySurface(formated.get(), src, 0, 0, 0, 0, src->w, src->h);
@@ -1953,7 +1953,7 @@ void test_Clipper() {
 template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 {
 	#ifdef DEBUG_SMARTPTR
-	printf("SmartPointer_ObjectDeinit<SDL_Surface>() %p\n", obj);
+	//printf("SmartPointer_ObjectDeinit<SDL_Surface>() %p\n", obj);
 	#endif
 
 	SDL_FreeSurface(obj);
