@@ -19,6 +19,7 @@
 #include "StringUtils.h"
 #include "MathLib.h"
 #include "LieroX.h" // for bDedicated
+#include "Debug.h"
 
 #define FRAME_WIDTH 32
 #define FRAME_HEIGHT 18
@@ -68,16 +69,15 @@ CWormSkin::CWormSkin()
 	iBotIcon = -1;
 }
 
+CWormSkin::CWormSkin(const CWormSkin& skin)
+{
+	operator=(skin);
+}
+
 //////////////////
 // Destructor
 CWormSkin::~CWormSkin()
 {
-	// Free the surfaces
-	bmpShadow = NULL;
-	bmpNormal = NULL;
-	bmpMirrored = NULL;
-	bmpMirroredShadow = NULL;
-	bmpPreview = NULL;
 }
 
 ////////////////////
@@ -90,8 +90,11 @@ void CWormSkin::Change(const std::string &file)
 		bmpSurface = LoadGameImage("skins/" + file, true);
 		if (!bmpSurface.get()) // Try to load the default skin if the given one failed
 			bmpSurface = LoadGameImage("skins/default.png", true);
-		if (bmpSurface.get())
+		if (bmpSurface.get())  {
 			SetColorKey(bmpSurface.get());
+			if (bmpSurface->w != 672 || bmpSurface->h != 36)
+				notes << "The skin " << file << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
+		}
 	}
 	sFileName = file;
 
@@ -261,12 +264,13 @@ void CWormSkin::GenerateShadow()
 	int srcbpp = bmpSurface->format->BytesPerPixel;
 
 	const Uint32 black = SDL_MapRGB(bmpShadow->format, 0, 0, 0);
+	int width = MIN(MIN(bmpSurface->w, bmpShadow->w), bmpMirroredShadow->w);
 
 	// Go through the pixels and put the non-transparent ones to the shadow surface
 	for (int y = 0; y < FRAME_HEIGHT; ++y)  {
 		srcpix = srcrow;
 
-		for (int x = 0; x < bmpSurface->w; ++x)  {
+		for (int x = 0; x < width; ++x)  {
 			if (!IsTransparent(bmpSurface.get(), GetPixelFromAddr(srcpix, srcbpp)))  {
 				PutPixel(bmpShadow.get(), x, y, black);
 				PutPixel(bmpMirroredShadow.get(), bmpMirroredShadow->w - x - 1, y, black);
@@ -407,7 +411,7 @@ void CWormSkin::Colorize(Uint32 col)
 		return;
 	if (!bmpSurface.get() || !bmpNormal.get() || !bmpMirrored.get())
 		return;
-	if (bmpSurface->h < 2 * FRAME_HEIGHT || bmpNormal->w != bmpSurface->w || bmpMirrored->w != bmpSurface->w)
+	if (bmpSurface->h < 2 * FRAME_HEIGHT)
 		return;
 
 	bColorized = true;
@@ -424,9 +428,10 @@ void CWormSkin::Colorize(Uint32 col)
 
     // Set the colour of the worm
 	const Uint32 black = SDL_MapRGB(bmpSurface->format, 0, 0, 0);
+	int width = MIN(MIN(bmpSurface->w, bmpNormal->w), bmpMirrored->w);
 
 	for (int y = 0; y < FRAME_HEIGHT; ++y) {
-		for (int x = 0; x < bmpSurface->w; ++x) {
+		for (int x = 0; x < width; ++x) {
 
 			// Use the mask to check what colours to ignore
 			Uint32 pixel = GetPixel(bmpSurface.get(), x, y);

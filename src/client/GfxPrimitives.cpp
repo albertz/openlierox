@@ -552,7 +552,9 @@ void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 	// Warning: Both surfaces have to have same bpp!
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
-	// Warning: Doesn't do clipping on the source surface
+	// Clipping on source surface
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
+		return;
 
 	// Clipping on dest surface
 	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
