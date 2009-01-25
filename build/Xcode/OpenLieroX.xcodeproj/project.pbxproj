@@ -2139,6 +2139,7 @@
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-DDEBUG",
+					"-DDEBUG_SMARTPTR",
 					"-pthread",
 				);
 				OTHER_LDFLAGS = (

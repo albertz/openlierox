@@ -53,7 +53,6 @@ std::string	ConfigFile;
 
 // Screen
 
-// TODO: it is unsafe to use SmartPointer globally!
 SmartPointer<SDL_Surface> bmpIcon = NULL;
 
 SDL_Surface* videoSurface = NULL;

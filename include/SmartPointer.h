@@ -8,12 +8,10 @@
 #define __SMARTPOINTER_H__
 
 #include <limits.h>
-#include <assert.h>
+#include <cassert>
+
 #ifdef DEBUG_SMARTPTR
 #include <map>
-#ifdef __GLIBC__
-#include <execinfo.h>
-#endif
 #endif
 
 
@@ -66,9 +64,6 @@ private:
 	SDL_mutex* mutex;
 
 	void init(_Type* newObj) {
-		#ifdef DEBUG_SMARTPTR
-		printf("SmartPointer::init    (%10p %10p %10p %10p %3i) newObj %10p\n", this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
-		#endif
 		if( newObj == NULL )
 			return;
 		if(!mutex) {
@@ -80,12 +75,7 @@ private:
 			if( SmartPointer_CollisionDetector.find(obj) != SmartPointer_CollisionDetector.end() )
 			{
 				printf("ERROR! SmartPointer collision detected, old mutex %10p, new ptr (%10p %10p %10p %10p %3i) new %10p\n", SmartPointer_CollisionDetector[obj], this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
-				#ifdef __GLIBC__
-				void *buffer[100];
-				int nptrs = backtrace(buffer, 100);
-				printf("backtrace() returned %d addresses\n", nptrs);
-				backtrace_symbols_fd(buffer, nptrs, fileno(stdout));
-				#endif
+				assert(false);
 			}
 			else
 				SmartPointer_CollisionDetector.insert( std::make_pair( obj, mutex ) );
@@ -94,9 +84,6 @@ private:
 	}
 
 	void reset() {
-		#ifdef DEBUG_SMARTPTR
-		printf("SmartPointer::reset   (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		#endif
 		if(mutex) {
 			lock();
 			(*refCount)--;
@@ -105,12 +92,7 @@ private:
 				if( SmartPointer_CollisionDetector.find(obj) == SmartPointer_CollisionDetector.end() )
 				{
 					printf("ERROR! SmartPointer already deleted reference (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-					#ifdef __GLIBC__
-					void *buffer[100];
-					int nptrs = backtrace(buffer, 100);
-					printf("backtrace() returned %d addresses\n", nptrs);
-					backtrace_symbols_fd(buffer, nptrs, fileno(stdout));
-					#endif
+					assert(false);
 				}
 				else
 					SmartPointer_CollisionDetector.erase(obj);
@@ -160,9 +142,6 @@ public:
 	SmartPointer& operator=(const SmartPointer& pt) {
 		if(mutex == pt.mutex) return *this; // ignore this case
 		reset();
-		#ifdef DEBUG_SMARTPTR
-		printf("SmartPointer::op=Ptr  (%10p %10p %10p %10p %3i) new (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99, &pt, pt.obj, pt.refCount, pt.mutex, pt.refCount?*pt.refCount:-99);
-		#endif
 		mutex = pt.mutex;
 		if(mutex) {
 			lock();
@@ -200,9 +179,9 @@ public:
 			lock();
 			ret = *refCount;
 			unlock(); // Here the other thread may change refcount, that's why it's approximate
-		};
+		}
 		return ret;
-	};
+	}
 
 	// Returns true only if the data is deleted (no other smartpointer used it), sets pointer to NULL then
 	bool tryDeleteData() {
@@ -213,30 +192,16 @@ public:
 				unlock(); // Locks mutex again inside reset(), since we're only ones using data refcount cannot change from other thread
 				reset();
 				return true;	// Data deleted
-			};
+			}
 			unlock();
 			return false; // Data not deleted
 		}
 		return true;	// Data was already deleted
-	};
+	}
 
 };
 
-/*
-	Locks the SDL mutex instance, allowing only one thread to access the data.
-	Usage:
-	struct SomeData { int i; float f; SDL_Mutex * mutex };
-	void func( SomeData * data )
-	{
-		DoSomething();
-		ScopedLock lock( data->mutex ); // Access to data is tread-safe from now
-		if( data->i == 0 )
-			return; // Unlocks here
-		data->f = 3.14;
-	} // Auto-unlocks after closing brace
 
-	// HINT: Design with SmartPointer ugly indeed, so removed SmartPoiner references.
- */
 
 // TODO: move that out here, has nothing to do with SmartPointer
 class ScopedLock {
