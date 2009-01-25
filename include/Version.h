@@ -30,6 +30,7 @@ class Version { public:
 	void reset() { setByString("LieroX/0.56"); }
 	void setByString(const std::string& versionStr);
 	std::string asString() const;
+	std::string asHumanString() const;
 
 	int num; // 0
 	int subnum; // 57

@@ -121,6 +121,28 @@ std::string Version::asString() const {
 	return ret;
 }
 
+std::string Version::asHumanString() const
+{
+	std::string ret = gamename;
+	ret += " ";
+	ret += itoa(num);
+	ret += ".";
+	ret += itoa(subnum);
+
+	if(subsubnum > 0) {
+		switch(releasetype) {
+		case RT_NORMAL: ret += "."; break;
+		case RT_ALPHA: ret += " alpha "; break;
+		case RT_BETA: ret += " beta "; break;
+		case RT_RC: ret += " rc "; break;
+		default: ret += " "; break;
+		}
+		ret += itoa(subsubnum);
+	}
+
+	return ret;
+}
+
 
 // For comparision, we ignore the following: revnum, gamename
 // That means, a special revision of a baseversion should not change the behaviour (and it's only for debugging).

@@ -1197,6 +1197,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// Host name
 		replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
 
+		// Version
+		replacemax(buf, "<version>", clientVersion.asHumanString(), buf, 1);
+
 		// Country
 		if (buf.find("<country>") != std::string::npos)  {
 			IpInfo info;
