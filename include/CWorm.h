@@ -215,7 +215,10 @@ private:
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
+	float		fCollisionTime;
+	CVec		vCollisionVelocity;
 	float		fLastInputTime;
+	bool		bCollidedLastFrame;
 	// last time we moved left or right
 	float		lastMoveTime;
 
@@ -604,6 +607,13 @@ public:
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
 	
 	DamageReport_t* getDamageReport() { return cDamageReport; }
+
+	void setCollisionTime(float _t)			{ fCollisionTime = _t; }
+	float getCollisionTime() const			{ return fCollisionTime; }
+	void setCollisionVel(CVec _v)			{ vCollisionVelocity = _v; }
+	CVec getCollisionVel() const			{ return vCollisionVelocity; }
+	void setCollidedLastFrame(bool _c)		{ bCollidedLastFrame = _c; }
+	bool hasCollidedLastFrame() const		{ return bCollidedLastFrame; }
 	
 	
 	// HINT: saves the current time of the simulation

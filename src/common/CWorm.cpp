@@ -73,6 +73,9 @@ void CWorm::Clear(void)
 	vFollowPos = CVec(0,0);
 	bFollowOverride = false;
 	fLastUpdateWritten = -9999;
+	fCollisionTime = 0;
+	vCollisionVelocity = CVec(0, 0);
+	bCollidedLastFrame = false;
 	tLastState = worm_state_t();
 	fLastAngle = -1;
 	iLastCharge = 255;
