@@ -53,8 +53,6 @@ std::string	ConfigFile;
 
 // Screen
 
-SmartPointer<SDL_Surface> bmpIcon = NULL;
-
 SDL_Surface* videoSurface = NULL;
 
 
@@ -164,7 +162,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	srand((unsigned int)time(NULL));
 
 	if(!bDedicated) {
-		bmpIcon = LoadGameImage("data/icon.png", true);
+		SmartPointer<SDL_Surface> bmpIcon = LoadGameImage("data/icon.png", true);
 		if(bmpIcon.get())
 			SDL_WM_SetIcon(bmpIcon.get(), NULL);
 	}
