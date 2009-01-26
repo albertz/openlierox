@@ -319,10 +319,15 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		}
 	}
 
+	CServerConnection *client = cServer->getClient(w->getID());
+	Version clientver;
+	if (client)
+		clientver = client->getClientVersion();
+
 	// Send REPORTDAMAGE to server (also calculate & send it for pre-Beta9 clients, when we're hosting)
 	if( getServerVersion() >= OLXBetaVersion(9) && 
 		( someOwnWorm || 
-		( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) ) )
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ) )
 		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
 
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
@@ -341,7 +346,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && cServer->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
 	{
 		if(w->Injure(damage)) {
 			// His dead Jim
