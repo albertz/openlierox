@@ -579,29 +579,56 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			DrawRemoteChat(bmpDest);
 
 		// FPS
-		if(tLXOptions->bShowFPS && tLXOptions->bTopBarVisible) {
-			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
-			tLX->cFont.Draw( // Draw the text
-						bmpDest,
-						tInterfaceSettings.FpsX + 2,
-						tInterfaceSettings.FpsY,
-						tLX->clFPSLabel,
-						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
-					);
+		if(tLXOptions->bShowFPS) {
+			if (tLXOptions->bTopBarVisible)  {
+				DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+				tLX->cFont.Draw( // Draw the text
+							bmpDest,
+							tInterfaceSettings.FpsX + 2,
+							tInterfaceSettings.FpsY,
+							tLX->clFPSLabel,
+#ifdef DEBUG
+							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
+#else
+							"FPS: " + itoa(GetFPS())) // Get the string and its width
+#endif
+						);
+			} else { // Top bar is hidden
+				tLX->cOutlineFont.Draw( // Draw the text
+							bmpDest,
+							VideoPostProcessor::videoSurface()->w - 70,
+							0,
+							tLX->clFPSLabel,
+#ifdef DEBUG
+							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
+#else
+							"FPS: " + itoa(GetFPS())) // Get the string and its width
+#endif
+						);
+			}
 		}
 
 		// Ping on the top right
-		if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN && tLXOptions->bTopBarVisible)  {
+		if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN)  {
 
-			// Draw the box around it
-			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
+			if (tLXOptions->bTopBarVisible)  {
+				// Draw the box around it
+				DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
 
-			tLX->cFont.Draw( // Draw the text
-						bmpDest,
-						tInterfaceSettings.PingX + 2,
-						tInterfaceSettings.PingY,
-						tLX->clPingLabel,
-						"Ping: " + itoa(iMyPing));
+				tLX->cFont.Draw( // Draw the text
+							bmpDest,
+							tInterfaceSettings.PingX + 2,
+							tInterfaceSettings.PingY,
+							tLX->clPingLabel,
+							"Ping: " + itoa(iMyPing));
+			} else {
+				tLX->cOutlineFont.Draw( // Draw the text
+							bmpDest,
+							VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 140 : 70),
+							tInterfaceSettings.PingY,
+							tLX->clPingLabel,
+							"Ping: " + itoa(iMyPing));				
+			}
 
 		}
 

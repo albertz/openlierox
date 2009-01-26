@@ -81,7 +81,7 @@ private:
 			}
 			if( SmartPointer_CollisionDetector->count(obj) != 0 ) // Should be faster than find() I think
 			{
-				errors << "ERROR! SmartPointer collision detected, old mutex " << SmartPointer_CollisionDetector->at(obj) 
+				errors << "ERROR! SmartPointer collision detected, old mutex " << (*SmartPointer_CollisionDetector)[obj] 
 						<< ", new ptr (" << this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ") new " << newObj << endl;
 				assert(false); // TODO: maybe do smth like *(int *)NULL = 1; to generate coredump? Simple assert(false) won't help us a lot
 			}
