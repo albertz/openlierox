@@ -10,8 +10,9 @@
 #include <limits.h>
 #include <cassert>
 
-#ifdef DEBUG_SMARTPTR
+#ifdef DEBUG
 #include <map>
+#include "Debug.h"
 #endif
 
 
@@ -40,6 +41,10 @@ template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj ); /
 template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ); // Requires to be defined elsewhere
 template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); // Requires to be defined elsewhere
 
+#ifdef DEBUG
+	// TODO: protect this var with mutex?
+extern std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector;
+#endif
 
 /*
 	standard smartpointer based on simple refcounting
@@ -52,16 +57,13 @@ template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); /
 	about this yourself.
 */
 
-#ifdef DEBUG_SMARTPTR
-extern std::map< void *, SDL_mutex * > SmartPointer_CollisionDetector;
-#endif
-
 template < typename _Type, typename _SpecificInitFunctor = NopFunctor<void*> >
 class SmartPointer {
 private:
 	_Type* obj;
 	int* refCount;
 	SDL_mutex* mutex;
+
 
 	void init(_Type* newObj) {
 		if( newObj == NULL )
@@ -71,14 +73,20 @@ private:
 			obj = newObj;
 			refCount = new int;
 			*refCount = 1;
-			#ifdef DEBUG_SMARTPTR
-			if( SmartPointer_CollisionDetector.find(obj) != SmartPointer_CollisionDetector.end() )
+			#ifdef DEBUG
+			if( SmartPointer_CollisionDetector == NULL )
 			{
-				printf("ERROR! SmartPointer collision detected, old mutex %10p, new ptr (%10p %10p %10p %10p %3i) new %10p\n", SmartPointer_CollisionDetector[obj], this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
-				assert(false);
+				hints << "SmartPointer collision detector initialized" << endl;
+				SmartPointer_CollisionDetector = new std::map< void *, SDL_mutex * > ();
+			}
+			if( SmartPointer_CollisionDetector->count(obj) != 0 ) // Should be faster than find() I think
+			{
+				errors << "ERROR! SmartPointer collision detected, old mutex " << SmartPointer_CollisionDetector->at(obj) 
+						<< ", new ptr (" << this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ") new " << newObj << endl;
+				assert(false); // TODO: maybe do smth like *(int *)NULL = 1; to generate coredump? Simple assert(false) won't help us a lot
 			}
 			else
-				SmartPointer_CollisionDetector.insert( std::make_pair( obj, mutex ) );
+				SmartPointer_CollisionDetector->insert( std::make_pair( obj, mutex ) );
 			#endif
 		}
 	}
@@ -88,21 +96,30 @@ private:
 			lock();
 			(*refCount)--;
 			if(*refCount == 0) {
-				#ifdef DEBUG_SMARTPTR
-				if( SmartPointer_CollisionDetector.find(obj) == SmartPointer_CollisionDetector.end() )
+				#ifdef DEBUG
+				if( SmartPointer_CollisionDetector->count(obj) == 0 ) // Should be faster than find() I think
 				{
-					printf("ERROR! SmartPointer already deleted reference (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-					assert(false);
+					errors << "ERROR! SmartPointer already deleted reference ("
+							<< this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ")" << endl;
+					assert(false); // TODO: maybe do smth like *(int *)NULL = 1; to generate coredump? Simple assert(false) won't help us a lot
 				}
 				else
-					SmartPointer_CollisionDetector.erase(obj);
+				{
+					SmartPointer_CollisionDetector->erase(obj);
+					if( SmartPointer_CollisionDetector->empty() )
+					{
+						delete SmartPointer_CollisionDetector;
+						SmartPointer_CollisionDetector = NULL;
+						hints << "SmartPointer collision detector de-initialized, no collisions detected" << endl;
+					}
+				}
 				#endif
 				SmartPointer_ObjectDeinit( obj );
-				delete refCount; // save, because there is no other ref anymore
+				delete refCount; // safe, because there is no other ref anymore
 				obj = NULL;
 				refCount = NULL;
 				unlock();
-				SDL_DestroyMutex(mutex); // save because there is no other ref anymore
+				SDL_DestroyMutex(mutex); // safe because there is no other ref anymore
 				mutex = NULL;
 		 	} else
 		 		unlock();

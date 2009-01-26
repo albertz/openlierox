@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <list>
+#include <limits.h>
 #include "types.h"
 #include "Color.h" // for StrToCol
 
@@ -252,7 +253,6 @@ inline std::string ftoa(float val, int precision = -1)
 	return res;
 }
 
-// std::string itoa
 inline std::string itoa(unsigned long num, short base=10)  {
 	std::string buf;
 
@@ -274,6 +274,21 @@ inline std::string itoa(long num, short base=10)  {
 
 inline std::string itoa(int num, short base=10)  { return itoa((long)num,base); }
 inline std::string itoa(unsigned int num, short base=10)  { return itoa((unsigned long)num,base); }
+
+// If 64-bit long available?
+#ifdef ULLONG_MAX
+inline std::string itoa(unsigned long long num, short base=10)  {
+	std::string buf;
+
+	do {	
+		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
+		num /= base;
+	} while(num);
+
+	return buf;
+}
+#endif
+
 template<typename _T> std::string hex(_T num) { return itoa(num,16); }
 
 

@@ -168,7 +168,7 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 		SDL_SetAlpha(result.get(), 0, 0); // Remove any alpha
 	}
 
-	#ifdef DEBUG_SMARTPTR
+	#ifdef DEBUG
 	//printf("gfxCreateSurface() %p %i %i\n", result.get(), width, height );
 	#endif
 
@@ -204,7 +204,7 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
 
-	#ifdef DEBUG_SMARTPTR
+	#ifdef DEBUG
 	//printf("gfxCreateSurfaceAlpha() %p %i %i\n", result.get(), width, height );
 	#endif
 
@@ -1806,7 +1806,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	}
 
 	// Save to cache
-	#ifdef DEBUG_SMARTPTR
+	#ifdef DEBUG
 	//printf("LoadImage() %p %s\n", Image.get(), _filename.c_str() );
 	#endif
 	cCache.SaveImage(_filename, Image);
@@ -1828,7 +1828,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
 	SmartPointer<SDL_Surface> formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
 	if(!formated.get())
 		return NULL;
-	#ifdef DEBUG_SMARTPTR
+	#ifdef DEBUG
 	//printf("SDLSurface2GDImage() %p\n", formated.get() );
 	#endif
 	// convert it to the new format (32 bpp)
@@ -1954,13 +1954,13 @@ void test_Clipper() {
 
 template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 {
-	#ifdef DEBUG_SMARTPTR
+	#ifdef DEBUG
 	//printf("SmartPointer_ObjectDeinit<SDL_Surface>() %p\n", obj);
 	#endif
 
 	SDL_FreeSurface(obj);
 };
 
-#ifdef DEBUG_SMARTPTR
-std::map< void *, SDL_mutex * > SmartPointer_CollisionDetector;
+#ifdef DEBUG
+std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector = NULL;
 #endif

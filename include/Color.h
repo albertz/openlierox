@@ -11,7 +11,6 @@
 #define __COLOR_H__
 
 #include <SDL.h>
-#include "SmartPointer.h"
 
 
 ///////////////////

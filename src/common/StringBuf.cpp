@@ -18,6 +18,7 @@
 #include "StringBuf.h"
 #include "StringUtils.h"
 #include "Debug.h"
+#include "Utils.h"
 
 
 // Helper functions

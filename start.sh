@@ -29,4 +29,4 @@ bin=bin/openlierox
 
 # game was exited, check for core-files (if crashed)
 [ -e core* ] && get_backtrace ../../bin/openlierox core*
-mv core* ../..
+[ -e core* ] mv core* ../..
