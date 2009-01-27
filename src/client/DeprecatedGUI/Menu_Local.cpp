@@ -876,7 +876,11 @@ static void initFeaturesList(CListview* l)
 					l->AddSubitem(LVS_WIDGET, "", NULL, txt);
 					txt->Create();
 					txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
-					txt->setText( it->second.toString() );
+					if ((it->second.type == SVT_INT && it->second.isUnsigned && *it->second.i < 0) ||
+						(it->second.type == SVT_FLOAT && it->second.isUnsigned && *it->second.f < 0))
+						txt->setText("");  // Leave blank for infinite values
+					else
+						txt->setText( it->second.toString() );
 				}
 			}
 			// TODO: add slider widget

@@ -42,6 +42,8 @@ enum ScriptVarType_t
 struct ScriptVar_t
 {
 	ScriptVarType_t type;
+	bool isUnsigned;  // True for values that are unsigned and where negative values mean infinity
+
 	// Cannot do union because of std::string
 	bool b;
 	int i;
@@ -49,13 +51,13 @@ struct ScriptVar_t
 	std::string s;
 	Color_t c;	// color
 	// No callback here - we cannot assign callbacks to each other
-	ScriptVar_t(): type(SVT_BOOL), b(false), i(0), f(0.0), s(""), c(0) { };
-	ScriptVar_t( bool v ): type(SVT_BOOL), b(v), i(0), f(0.0), s(""), c(0) { };
-	ScriptVar_t( int v ): type(SVT_INT), b(false), i(v), f(0.0), s(""), c(0) { };
-	ScriptVar_t( float v ): type(SVT_FLOAT), b(false), i(0), f(v), s(""), c(0) { };
-	ScriptVar_t( const std::string & v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
-	ScriptVar_t( const char * v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
-	ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
+	ScriptVar_t(): type(SVT_BOOL), b(false), i(0), f(0.0), s(""), c(0), isUnsigned(false) { };
+	ScriptVar_t( bool v ): type(SVT_BOOL), b(v), i(0), f(0.0), s(""), c(0), isUnsigned(false) { };
+	ScriptVar_t( int v ): type(SVT_INT), b(false), i(v), f(0.0), s(""), c(0), isUnsigned(false) { };
+	ScriptVar_t( float v ): type(SVT_FLOAT), b(false), i(0), f(v), s(""), c(0), isUnsigned(false) { };
+	ScriptVar_t( const std::string & v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0), isUnsigned(false) { };
+	ScriptVar_t( const char * v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0), isUnsigned(false) { };
+	ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v), isUnsigned(false) { };
 	
 	operator bool() const { assert(type == SVT_BOOL); return b; }
 	operator int() const { assert(type == SVT_INT); return i; }
@@ -82,6 +84,8 @@ struct ScriptVar_t
 struct ScriptVarPtr_t
 {
 	ScriptVarType_t type;
+	bool isUnsigned;  // True for values that are unsigned and where negative values mean infinity
+
 	// we use union to save some memory
 	union
 	{
@@ -101,14 +105,14 @@ struct ScriptVarPtr_t
 		Color_t cldef;
 		// No default value for skin callback, 'cause it's not saved into cfg file
 	};
-	ScriptVarPtr_t(): type(SVT_CALLBACK) { b = NULL; } // Invalid value initially (all pointer are NULL in union)
-	ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; }
-	ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; }
-	ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; }
-	ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; }
-	ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR) { cl = v; cldef = def; }
-	ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK) { cb = v; }
-	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type) {
+	ScriptVarPtr_t(): type(SVT_CALLBACK), isUnsigned(false) { b = NULL; } // Invalid value initially (all pointer are NULL in union)
+	ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL), isUnsigned(false) { b = v; bdef = def; }
+	ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT), isUnsigned(false) { i = v; idef = def; }
+	ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT), isUnsigned(false) { f = v; fdef = def; }
+	ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING), isUnsigned(false) { s = v; sdef = def; }
+	ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR), isUnsigned(false) { cl = v; cldef = def; }
+	ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK), isUnsigned(false) { cb = v; }
+	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type), isUnsigned(v->isUnsigned)  {
 		switch(type) {
 			case SVT_BOOL: b = &v->b; bdef = def->b; break;
 			case SVT_INT: i = &v->i; idef = def->i; break;
@@ -204,9 +208,11 @@ public:
 
 		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, 
 										const std::string & descr = "", const std::string & descrLong = "", int group = -1,
-										int minval = 0, int maxval = 0 )
+										bool unsig = false, int minval = 0, int maxval = 0 )
 			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
+				ScriptVarPtr_t tmp = ScriptVarPtr_t( &v, def );
+				tmp.isUnsigned = unsig;
+				m_vars[Name(c)] = tmp;
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
 				m_groups[Name(c)] = group;
@@ -215,9 +221,11 @@ public:
 
 		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0f, 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
-											float minval = 0.0f, float maxval = 0.0f )
+											bool unsig = false, float minval = 0.0f, float maxval = 0.0f )
 			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
+				ScriptVarPtr_t tmp = ScriptVarPtr_t( &v, def );
+				tmp.isUnsigned = unsig;
+				m_vars[Name(c)] = tmp; 
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
 				m_groups[Name(c)] = group;

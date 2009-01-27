@@ -56,8 +56,18 @@ bool ScriptVarPtr_t::fromString( const std::string & str) const
 {
 	switch(type) {
 		case SVT_BOOL: *b = from_string<bool>(str); break;
-		case SVT_INT: *i = from_string<int>(str); break;
-		case SVT_FLOAT: *f = from_string<float>(str); break;
+		case SVT_INT: 
+			if (isUnsigned && str.size() == 0)
+				*i = -1; // Infinite
+			else
+				*i = from_string<int>(str); 
+		break;
+		case SVT_FLOAT: 
+			if (isUnsigned && str.size() == 0)
+				*f = -1;
+			else
+				*f = from_string<float>(str); 
+		break;
 		case SVT_STRING: *s = str; break;
 		case SVT_COLOR: *cl = StrToCol(str).get(); break;
 		default: assert(false); return false;
