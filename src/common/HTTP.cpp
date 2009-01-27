@@ -34,6 +34,7 @@
 #include "types.h"
 #include "Version.h"
 #include "MathLib.h"
+#include "InputEvents.h"
 
 
 // List of errors, MUST match error IDs in HTTP.h
@@ -52,7 +53,7 @@ static const std::string sHttpErrors[] = {
 
 // Internal defines
 #define HTTP_POST_BOUNDARY "0P3N1I3R0X" // Can be anything, this define is here only to sync BuildPostHeader and POSTEncodeData
-#define HTTP_MAX_DATA_LEN 4096
+#define HTTP_MAX_DATA_LEN 8192
 
 //
 // Functions
@@ -252,6 +253,51 @@ void CChunkParser::Reset()
 
 
 //
+// HTTP helper functions
+//
+
+
+
+Event<CHttp::HTTPEventData> onFinishEvent;
+Event<CHttp::HTTPEventData> onRetryEvent;
+
+///////////////
+// Processing thread of the HTTP function
+int HTTP_ProcThread(void *param)
+{
+	CHttp *http = (CHttp *)param;
+
+	while (!http->bBreakThread)  {
+		http->Lock();
+		bool end = http->ProcessInternal();
+		http->Unlock();
+
+		// Transfer finished
+		if (end)
+			break;
+	}
+
+	// Notify about thread finishing
+	http->Lock();
+	if (http->iProcessingResult != HTTP_PROC_PROCESSING) // Send the finished event only when not restarting (for example due to a proxy fail)
+		SendSDLUserEvent<CHttp::HTTPEventData>(&onFinishEvent, CHttp::HTTPEventData(http));
+	http->Unlock();
+
+	return 0;
+}
+
+void HTTP_HandleRetryEvent(CHttp::HTTPEventData d)
+{
+	d.http->OnFinished();
+	d.http->RetryWithNoProxy();
+}
+
+void HTTP_HandleFinishedEvent(CHttp::HTTPEventData d)
+{
+	d.http->OnFinished();
+}
+
+//
 // HTTP class
 //
 
@@ -259,6 +305,12 @@ void CChunkParser::Reset()
 // Constructor
 CHttp::CHttp()
 {
+	onFinishEvent.handler() = getEventHandler(&HTTP_HandleFinishedEvent);
+	onRetryEvent.handler() = getEventHandler(&HTTP_HandleRetryEvent);
+
+	tMutex = SDL_CreateMutex();
+	tProcessingThread = NULL;
+
 	// Buffer for reading from socket
 	tBuffer = new char[BUFFER_LEN];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
@@ -270,19 +322,96 @@ CHttp::CHttp()
 // Destructor
 CHttp::~CHttp()
 {
+	CancelProcessing();
 	if (tBuffer)
 		delete[] tBuffer;
 	if (tChunkParser)
 		delete tChunkParser;
+	SDL_DestroyMutex(tMutex);
 	tBuffer = NULL;
 	tChunkParser = NULL;
-	CancelProcessing();
+}
+
+///////////////
+// Copy operator
+CHttp& CHttp::operator =(const CHttp& http)
+{
+	if (&http == this)
+		return *this;
+
+	sHost = http.sHost;
+	sUrl = http.sUrl;
+	sRemoteAddress = http.sRemoteAddress;
+	sDataToSend = http.sDataToSend;
+	sData = http.sData;
+	sPureData = http.sPureData;
+	sHeader = http.sHeader;
+	sMimeType = http.sMimeType;
+	tError.sErrorMsg = http.tError.sErrorMsg;
+	tError.iError = http.tError.iError;
+	if (http.tBuffer && tBuffer)
+		memcpy(tBuffer, http.tBuffer, BUFFER_LEN);
+	if (http.tChunkParser && tChunkParser)
+		(*tChunkParser) = (*http.tChunkParser); // HINT: CChunkParser has a copy operator defined
+	
+	iDataLength = http.iDataLength;
+	iDataReceived = http.iDataReceived;
+	iDataSent = http.iDataSent;
+	bActive = http.bActive;
+	bTransferFinished = http.bTransferFinished;
+	bSentHeader = http.bSentHeader;
+	bConnected = http.bConnected;
+	bRequested = http.bRequested;
+	bRedirecting = http.bRedirecting;
+	iRedirectCode = http.iRedirectCode;
+	bSocketReady = http.bSocketReady;
+	bGotHttpHeader = http.bGotHttpHeader;
+	bChunkedTransfer = http.bChunkedTransfer;
+	bGotDataFromServer = http.bGotDataFromServer;
+	fResolveTime = http.fResolveTime;
+	fConnectTime = http.fConnectTime;
+	fSocketActionTime = http.fSocketActionTime;
+	tSocket = http.tSocket;
+	tRemoteIP = http.tRemoteIP;
+	sProxyUser = http.sProxyUser;
+	sProxyPasswd = http.sProxyPasswd;
+	sProxyHost = http.sProxyHost;
+	iProxyPort = http.iProxyPort;
+	iAction = http.iAction;
+	iProcessingResult = http.iProcessingResult;
+
+	fDownloadStart = http.fDownloadStart;
+	fDownloadEnd = http.fDownloadEnd;
+	fUploadStart = http.fUploadStart;
+	fUploadEnd = http.fUploadEnd;
+
+	if (tProcessingThread)  {
+		bBreakThread = true;
+		SDL_WaitThread(tProcessingThread, NULL);
+	}
+	if (tMutex)
+		SDL_DestroyMutex(tMutex);
+	tProcessingThread = http.tProcessingThread;
+	tMutex = http.tMutex;
+	bBreakThread = http.bBreakThread;
+	bThreadRunning = http.bThreadRunning;
+
+	return *this;
 }
 
 //////////////
 // Clear everything
 void CHttp::Clear()
 {
+	// End the processing thread first
+	if (tProcessingThread)  {
+		bBreakThread = true;
+		SDL_WaitThread(tProcessingThread, NULL);
+		tProcessingThread = NULL;
+	}
+	bBreakThread = false;
+	bThreadRunning = false;
+
 	sHost = "";
 	sUrl = "";
 	sProxyHost = "";
@@ -318,6 +447,7 @@ void CHttp::Clear()
 	fDownloadEnd = -9999;
 	fUploadStart = -9999;
 	fUploadEnd = -9999;
+	iProcessingResult = HTTP_PROC_PROCESSING;
 
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
@@ -347,11 +477,37 @@ void CHttp::SetHttpError(int id)
 }
 
 ////////////////////
+// Called when the processing thread finishes
+void CHttp::OnFinished()
+{
+	bBreakThread = true;
+	SDL_WaitThread(tProcessingThread, NULL);
+	bBreakThread = false;
+	tProcessingThread = NULL;
+	bThreadRunning = false;
+}
+
+
+/////////////////////
+// Initialize the processing thread
+void CHttp::InitThread()
+{
+	// Create and run the processing thread
+	iProcessingResult = HTTP_PROC_PROCESSING;
+	bBreakThread = false;
+	tProcessingThread = SDL_CreateThread(HTTP_ProcThread, (void *)this);
+	bThreadRunning = true;
+}
+
+////////////////////
 // Initiates the data transfer (GET/POST/HEAD)
 bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 {
 	// Stop any previous transfers
 	CancelProcessing();
+
+	// Lock
+	Lock();
 
 	// Make the urls http friendly (get rid of spaces)
 	if (!AdjustUrl(sRemoteAddress, address))  {
@@ -395,6 +551,10 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 
 	// We're active now
 	bActive = true;
+	iProcessingResult = HTTP_PROC_PROCESSING;
+
+	// Unlock
+	Unlock();
 
 	return true;
 }
@@ -405,6 +565,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 {
 	InitTransfer(address, proxy);
 	iAction = htaGet;
+	InitThread();
 }
 
 //////////////////
@@ -417,6 +578,8 @@ void CHttp::SendSimpleData(const std::string& data, const std::string url, const
 	std::list<HTTPPostField> temp;
 	temp.push_back(HTTPPostField(data, "", "data", ""));
 	POSTEncodeData(temp);
+
+	InitThread();
 }
 
 
@@ -428,17 +591,24 @@ void CHttp::SendData(const std::list<HTTPPostField> &data, const std::string url
 	iAction = htaPost;
 
 	POSTEncodeData(data);
+
+	InitThread();
 }
 
 //////////////////
 // Send data to a server (internal, for no-proxy retrying)
 void CHttp::SendDataInternal(const std::string& encoded_data, const std::string url, const std::string& proxy)
 {
+	Lock();
 	InitTransfer(url, proxy);
 	iAction = htaPost;
 
 	sData = encoded_data;
 	iDataLength = sData.size();
+
+	InitThread();
+
+	Unlock();
 }
 
 /////////////////
@@ -473,9 +643,11 @@ std::string CHttp::GetBasicAuthentication(const std::string &user, const std::st
 
 ////////////////////
 // Returns the download speed in bytes per second
-float CHttp::GetDownloadSpeed()
+float CHttp::GetDownloadSpeed() const
 {
+	Lock();
 	float dt = fDownloadEnd - fDownloadStart;
+	Unlock();
 	if (dt == 0)
 		return 999999999.0f;  // Unmeasurable
 	return iDataReceived / dt;
@@ -483,12 +655,38 @@ float CHttp::GetDownloadSpeed()
 
 ////////////////////
 // Returns the upload speed in bytes per second
-float CHttp::GetUploadSpeed()
+float CHttp::GetUploadSpeed() const
 {
+	Lock();
 	float dt = fUploadEnd - fUploadStart;
+	Unlock();
 	if (dt == 0)
 		return 999999999.0f;  // Unmeasurable
 	return iDataSent / dt;
+}
+
+////////////////////
+// Returns the HTTP error
+HttpError CHttp::GetError()
+{
+	Lock();
+	HttpError tmp = tError;
+	Unlock();
+	return tmp;
+}
+
+///////////////////
+// Lock the HTTP class
+void CHttp::Lock() const
+{
+	SDL_LockMutex(tMutex);
+}
+
+/////////////////
+// Unlock the HTTP class
+void CHttp::Unlock() const
+{
+	SDL_UnlockMutex(tMutex);
 }
 
 /////////////////
@@ -1013,6 +1211,9 @@ int CHttp::ReadAndProcessData()
 		}
 	}
 
+	// We're running this in a separate thread, don't make it drain 100 % CPU
+	SDL_Delay(5);
+
 	// Any HTTP errors?
 	if (tError.iError != HTTP_NO_ERROR)
 		return HTTP_PROC_ERROR;
@@ -1148,21 +1349,46 @@ int CHttp::ProcessPOST()
 	}
 	iDataSent += res;
 
+	// Network buffers full, slow down!
+	if (res == 0)  {
+		SDL_Delay(10); // HINT: we can do it like that because this function is run in a separate thread
+	}
+
 	fUploadEnd = GetMilliSeconds();  // Make the upload time correct while uploading
 
 	return HTTP_PROC_PROCESSING;
 }
 
-/////////////////
-// Main processing function
+
+//////////////////
+// Returns result of the last call of the processing function
+// TODO: get rid of this, use events instead
 int CHttp::ProcessRequest()
 {
+	Lock();
+	int res = iProcessingResult;
+	Unlock();
+	if (res != HTTP_PROC_PROCESSING)  {
+		if (bThreadRunning)
+			return HTTP_PROC_PROCESSING;
+	}
+	return res;
+}
+
+/////////////////
+// Main processing function (called from the processing thread)
+// Returns true if the processing should end
+// NOTE: Lock the HTTP client using Lock() before calling this
+bool CHttp::ProcessInternal()
+{
 	// Check that there has been no error yet
-	if (tError.iError != HTTP_NO_ERROR)
-		return HTTP_PROC_ERROR;
+	if (tError.iError != HTTP_NO_ERROR)  {
+		iProcessingResult = HTTP_PROC_ERROR;
+		return true;
+	}
 
 	// Process DNS resolving
-	if(!IsNetAddrValid(tRemoteIP)) {
+	if (!IsNetAddrValid(tRemoteIP)) {
         float f = GetMilliSeconds();
 		bool error = false;
 
@@ -1183,15 +1409,18 @@ int CHttp::ProcessRequest()
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
 				warnings("HINT: proxy failed, trying a direct connection\n");
-				RetryWithNoProxy();
-				return HTTP_PROC_PROCESSING;
+				SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+				iProcessingResult = HTTP_PROC_PROCESSING;
+				return true;
 			}
 
-			return HTTP_PROC_ERROR;
+			iProcessingResult = HTTP_PROC_ERROR;
+			return true;
 		}
 
         // Still waiting for DNS resolution
-        return HTTP_PROC_PROCESSING;
+		iProcessingResult = HTTP_PROC_PROCESSING;
+        return false;
 	}
 
 	// Check for HTTP timeout
@@ -1199,11 +1428,13 @@ int CHttp::ProcessRequest()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			RetryWithNoProxy();
-			return HTTP_PROC_PROCESSING;
+			SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+			iProcessingResult = HTTP_PROC_PROCESSING;
+			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
 			SetHttpError(HTTP_ERROR_TIMEOUT);
-			return HTTP_PROC_ERROR;
+			iProcessingResult = HTTP_PROC_ERROR;
+			return true;
 		}
 	}
 
@@ -1212,11 +1443,13 @@ int CHttp::ProcessRequest()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			RetryWithNoProxy();
-			return HTTP_PROC_PROCESSING;
+			SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+			iProcessingResult = HTTP_PROC_PROCESSING;
+			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
 			SetHttpError(HTTP_ERROR_TIMEOUT);
-			return HTTP_PROC_ERROR;
+			iProcessingResult = HTTP_PROC_ERROR;
+			return true;
 		}
 	}
 
@@ -1225,8 +1458,10 @@ int CHttp::ProcessRequest()
 	if(!bSocketReady && bConnected) {
 		if(IsSocketReady(tSocket))
 			bSocketReady = true;
-		else
-			return HTTP_PROC_PROCESSING;
+		else  {
+			iProcessingResult = HTTP_PROC_PROCESSING;
+			return false;
+		}
 	}
 
 
@@ -1235,7 +1470,7 @@ int CHttp::ProcessRequest()
 
 		// Default http port (80)
 		SetNetAddrPort(tRemoteIP, 80);
-		if( sProxyHost != "" )
+		if (sProxyHost.size())
 			SetNetAddrPort(tRemoteIP, iProxyPort);
 
 		// Connect to the destination
@@ -1249,12 +1484,14 @@ int CHttp::ProcessRequest()
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings("HINT: proxy failed, trying a direct connection\n");
-					RequestData(sHost + sUrl);
-					return HTTP_PROC_PROCESSING;
+					SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+					iProcessingResult = HTTP_PROC_PROCESSING;
+					return true;
 				}
 
 				SetHttpError(HTTP_NO_CONNECTION);
-				return HTTP_PROC_ERROR;
+				iProcessingResult = HTTP_PROC_ERROR;
+				return true;
 			}
 
 			bConnected = true;
@@ -1265,18 +1502,22 @@ int CHttp::ProcessRequest()
 
 		// Haven't resolved the address yet, so leave but let the
 		// caller of this function keep processing us
-		return HTTP_PROC_PROCESSING;
+		iProcessingResult = HTTP_PROC_PROCESSING;
+		return false;
 	}
 
 	// Further processing depends on the transfer type
 	switch (iAction)  {
 	case htaGet:
-		return ProcessGET();
+		iProcessingResult = ProcessGET();
+		return iProcessingResult != HTTP_PROC_PROCESSING;
 	case htaPost:
-		return ProcessPOST();
+		iProcessingResult = ProcessPOST();
+		return iProcessingResult != HTTP_PROC_PROCESSING;
 	case htaHead:
 		errors("HTTP HEAD not yet implemented\n");
 	}
 
-	return HTTP_PROC_ERROR; // Should not happen
+	iProcessingResult = HTTP_PROC_ERROR; // Should not happen
+	return true;
 }

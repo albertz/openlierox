@@ -22,6 +22,9 @@
 #include <string>
 #include "Networking.h"
 
+#include <SDL_Thread.h>
+#include <SDL_mutex.h>
+
 // Some basic defines
 #define		HTTP_TIMEOUT	5
 #define		BUFFER_LEN		8192
@@ -159,63 +162,25 @@ public:
 
 	CHttp(const CHttp& oth)  { operator= (oth); }
 
-	CHttp& operator=(const CHttp& http)  {
-		if (&http == this)
-			return *this;
-
-		sHost = http.sHost;
-		sUrl = http.sUrl;
-		sRemoteAddress = http.sRemoteAddress;
-		sDataToSend = http.sDataToSend;
-		sData = http.sData;
-		sPureData = http.sPureData;
-		sHeader = http.sHeader;
-		sMimeType = http.sMimeType;
-		tError.sErrorMsg = http.tError.sErrorMsg;
-		tError.iError = http.tError.iError;
-		if (http.tBuffer && tBuffer)
-			memcpy(tBuffer, http.tBuffer, BUFFER_LEN);
-		if (http.tChunkParser && tChunkParser)
-			(*tChunkParser) = (*http.tChunkParser); // HINT: CChunkParser has a copy operator defined
-		
-		iDataLength = http.iDataLength;
-		iDataReceived = http.iDataReceived;
-		iDataSent = http.iDataSent;
-		bActive = http.bActive;
-		bTransferFinished = http.bTransferFinished;
-		bSentHeader = http.bSentHeader;
-		bConnected = http.bConnected;
-		bRequested = http.bRequested;
-		bRedirecting = http.bRedirecting;
-		iRedirectCode = http.iRedirectCode;
-		bSocketReady = http.bSocketReady;
-		bGotHttpHeader = http.bGotHttpHeader;
-		bChunkedTransfer = http.bChunkedTransfer;
-		bGotDataFromServer = http.bGotDataFromServer;
-		fResolveTime = http.fResolveTime;
-		fConnectTime = http.fConnectTime;
-		fSocketActionTime = http.fSocketActionTime;
-		tSocket = http.tSocket;
-		tRemoteIP = http.tRemoteIP;
-		sProxyUser = http.sProxyUser;
-		sProxyPasswd = http.sProxyPasswd;
-		sProxyHost = http.sProxyHost;
-		iProxyPort = http.iProxyPort;
-		iAction = http.iAction;
-
-		fDownloadStart = http.fDownloadStart;
-		fDownloadEnd = http.fDownloadEnd;
-		fUploadStart = http.fUploadStart;
-		fUploadEnd = http.fUploadEnd;
-
-		return *this;
-	}
+	CHttp& operator=(const CHttp& http);
 private:
 	enum Action  {
 		htaGet = 0,
 		htaHead,
 		htaPost
 	};
+
+public:
+	struct HTTPEventData  {
+		HTTPEventData(CHttp *h) : http(h) {}
+		CHttp *http;
+	};
+
+private:
+
+	friend int HTTP_ProcThread(void *);
+	friend void HTTP_HandleRetryEvent(HTTPEventData);
+	friend void HTTP_HandleFinishedEvent(HTTPEventData);
 
 	std::string		sHost;
 	std::string		sUrl;
@@ -233,6 +198,14 @@ private:
 	char			*tBuffer; // Internal buffer
 	CChunkParser	*tChunkParser;
 	Action			iAction;
+
+	// Processing thread
+	SDL_Thread		*tProcessingThread;
+	mutable SDL_mutex	*tMutex;
+	bool			bBreakThread;
+	bool			bThreadRunning;
+
+	int				iProcessingResult;  // Result of the last call of the ProcessInternal function
 
 	size_t			iDataLength;
 	size_t			iDataReceived;
@@ -260,6 +233,12 @@ private:
 	float			fUploadStart;
 	float			fUploadEnd;
 
+	std::string		sEmpty; // Returned when Data is being processed
+
+private:
+	void				Lock() const;
+	void				Unlock() const;
+
 	bool				InitTransfer(const std::string& address, const std::string & proxy);
 	void				SendDataInternal(const std::string& encoded_data, const std::string url, const std::string& proxy);
 	void				SetHttpError(int id);
@@ -279,6 +258,10 @@ private:
 	void				HandleRedirect(int code);
 	void				RetryWithNoProxy();
 	int					ReadAndProcessData();
+	bool				ProcessInternal();
+
+	void				InitThread();
+	void				OnFinished();
 
 	int					ProcessGET();
 	int					ProcessPOST();
@@ -292,25 +275,25 @@ public:
 	void				RequestData(const std::string& url, const std::string& proxy = "");
 	int					ProcessRequest();
 	void				CancelProcessing();
-	void				ClearReceivedData()		{ sPureData = ""; }
-	const HttpError&	GetError()				{ return tError; }
-	const std::string&	GetData()				{ return sPureData; }
-	const std::string&	GetMimeType()			{ return sMimeType; }
-	const std::string&	GetDataToSend()			{ return sDataToSend; }
-	size_t				GetDataToSendLength()	{ return sDataToSend.size(); }
-	size_t				GetDataLength()			{ return iDataLength; }
-	size_t				GetReceivedDataLen()	{ return iDataReceived; }
-	size_t				GetSentDataLen()		{ return iDataSent; }
-	bool				RequestedData()			{ return bRequested; }
+	void				ClearReceivedData()			{ Lock(); sPureData = ""; Unlock(); }
+	HttpError			GetError();
+	const std::string&	GetData() const				{ return bThreadRunning ? sEmpty : sPureData; }
+	const std::string&	GetMimeType() const			{ return bThreadRunning ? sEmpty : sMimeType; }
+	const std::string&	GetDataToSend() const		{ return sDataToSend; }
+	size_t				GetDataToSendLength() const	{ Lock(); size_t r = sDataToSend.size(); Unlock(); return r; }
+	size_t				GetDataLength() const		{ Lock(); size_t r = iDataLength; Unlock(); return r; }
+	size_t				GetReceivedDataLen() const	{ Lock(); size_t r = iDataReceived; Unlock(); return r; }
+	size_t				GetSentDataLen() const		{ Lock(); size_t r = iDataSent; Unlock(); return r; }
+	bool				RequestedData()	const		{ return bRequested; }
 
-	float				GetDownloadTime()		{ return fDownloadEnd - fDownloadStart; }
-	float				GetUploadTime()			{ return fUploadEnd - fUploadStart; }
+	float				GetDownloadTime() const		{ Lock(); float r = fDownloadEnd - fDownloadStart; Unlock(); return r; }
+	float				GetUploadTime()	const		{ Lock(); float r = fUploadEnd - fUploadStart; Unlock(); return r; }
 
-	float				GetDownloadSpeed();
-	float				GetUploadSpeed();
+	float				GetDownloadSpeed() const;
+	float				GetUploadSpeed() const;
 
-	const std::string&	GetHostName()			{ return sHost; }
-	const std::string&	GetUrl()				{ return sUrl; }
+	const std::string&	GetHostName() const		{ return sHost; }
+	const std::string&	GetUrl() const			{ return sUrl; }
 };
 
 #endif  // __HTTP_H__

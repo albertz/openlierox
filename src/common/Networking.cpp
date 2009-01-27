@@ -171,6 +171,11 @@ static int SdlNetEventThreadMain( void * param )
 	while (tLXOptions == NULL && !SdlNetEventThreadExit)
 		SDL_Delay(20);
 
+	if (SdlNetEventThreadExit)  {
+		delete (uint *)param;
+		delete[] sock_out;
+	}
+
 	float max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
@@ -426,9 +431,9 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 		return NL_INVALID;
 	}
 
-	if (ret == 0) {
+	/*if (ret == 0) {  // HINT: this is not an error, it is one of the ways to find out if a socket is writeable
 		errors << "WriteSocket: Could not send the packet, network buffers are full." << endl;
-	}
+	}*/
 #endif // DEBUG
 
 	return ret;
