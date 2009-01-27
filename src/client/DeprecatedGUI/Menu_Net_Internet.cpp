@@ -111,12 +111,19 @@ bool Menu_Net_NETInitialize(void)
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "State", tLXOptions->iInternetList[2]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Players", tLXOptions->iInternetList[3]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iInternetList[4]);
-	// TODO: change this later and add it as an additional column
-	/*if (tLXOptions->bUseIpToCountry)
-		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[5]);
-	else */
-		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
 
+	if (tLXOptions->bUseIpToCountry)
+	{	// Too lazy to update tLXOptions, so I'll calculate last column width from width of listview
+		int CountryColumnWidth = cInternet.getWidget( mi_ServerList )->getWidth();
+		for( int i = 0; i < 6; i++ )
+			CountryColumnWidth -= tLXOptions->iInternetList[i];
+		if( CountryColumnWidth <= 0 )
+			CountryColumnWidth = 3;
+		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", CountryColumnWidth);
+
+		((CListview*) cInternet.getWidget( mi_ServerList ))->SetSortColumn( 4, true );	// Sort by ping
+	}
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
 

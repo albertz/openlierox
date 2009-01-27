@@ -1436,16 +1436,15 @@ void Menu_SvrList_FillList(CListview *lv)
 			lv->AddSubitem(LVS_TEXT, "N/A", NULL, NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
-		// as long as there isn't enough place to show both, the address is more important
-		// TODO: fix this later after we have a new menu implemented
-		/* if (tLXOptions->bUseIpToCountry)  {
+
+		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
+		if (tLXOptions->bUseIpToCountry && iNetMode == net_internet) {
 			if (tIpToCountryDB->Loaded())  {
 				IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
 				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
 			} else
 				lv->AddSubitem(LVS_TEXT, "Loading...", NULL, NULL);
-		} else */
-			lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
+		}
 	}
 
     lv->setSelectedID(curID);

@@ -227,8 +227,9 @@ public:
 
 	void	Clear(void);
 
-	void	SortBy(int column, bool ascending);
+	void	SortBy(int column, bool ascending); // One-time sort
 	void	ReSort(void);
+	void	SetSortColumn(int column, bool ascending); // Permanent sort
 
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);

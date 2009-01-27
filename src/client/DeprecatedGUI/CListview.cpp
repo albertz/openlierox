@@ -172,7 +172,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 							colour = sub->iColour;
 
 						if (col && !bOldStyle && !bSubItemsAreAligned)
-							tLX->cFont.DrawAdv(bmpDest, x, texty, MIN(col->iWidth-8, right_bound-x), colour, sub->sText);
+							tLX->cFont.DrawAdv(bmpDest, x, texty, MIN( ( col->iWidth > 8 ? col->iWidth-8 : 0 ), right_bound-x), colour, sub->sText);
 						else
 							tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
 						
@@ -751,6 +751,23 @@ void CListview::SortBy(int column, bool ascending)
 
 }
 
+///////////////
+// Sorts the listview by specified column, ascending or descending, the sorting is stored in column
+void CListview::SetSortColumn(int column, bool ascending)
+{
+	lv_column_t *col = tColumns;
+
+	// Find the column
+	int i=0;
+	for (;col;col=col->tNext,i++)
+		if( column == i )
+			col->iSorted = ( ascending ? 1 : 0 );
+		else
+			col->iSorted = -1;
+
+	ReSort();
+}
+
 
 ///////////////////
 // Clear the items
@@ -1063,13 +1080,14 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	int count=0;
 
 	// Remove focus from the active widget, the following loop will maybe recover it
-	if (tFocusedSubWidget)
+	if (tFocusedSubWidget) {
 		if (tFocusedSubWidget->CanLoseFocus())
 			tFocusedSubWidget->setFocused(false);
 		else  {
 			tFocusedSubWidget->MouseDown(tMouse, nDown);
 			return LV_NONE;  // The currently selected widget cannot lose the focus, no work left for us
 		}
+	}
 
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
