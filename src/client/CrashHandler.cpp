@@ -402,10 +402,15 @@ public:
 		
 		DumpCallstackPrintf();
 		
+#ifndef DEBUG
 		signal(Sig, SimpleSignalHandler); // reset handler
 		printf("resuming ...\n");
 		fflush(0);
-		siglongjmp(longJumpBuffer, 1); // jump back to main loop
+		siglongjmp(longJumpBuffer, 1); // jump back to main loop, maybe we'll be able to continue somehow
+#else
+		signal(Sig, SIG_DFL); // Generate coredump - we need that to fix the bug!
+		raise(Sig);
+#endif
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

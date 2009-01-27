@@ -319,7 +319,9 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		}
 	}
 
-	CServerConnection *client = cServer->getClient(w->getID());
+	CServerConnection *client = NULL;
+	if( tLX->iGameType == GME_HOST || tLX->iGameType == GME_LOCAL )
+		client = cServer->getClient(w->getID());
 	Version clientver;
 	if (client)
 		clientver = client->getClientVersion();
