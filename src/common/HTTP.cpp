@@ -50,6 +50,10 @@ static const std::string sHttpErrors[] = {
 	"Server sent an unsupported code: "
 };
 
+// Internal defines
+#define HTTP_POST_BOUNDARY "0P3N1I3R0X" // Can be anything, this define is here only to sync BuildPostHeader and POSTEncodeData
+#define HTTP_MAX_DATA_LEN 4096
+
 //
 // Functions
 //
@@ -286,14 +290,18 @@ void CHttp::Clear()
 	sProxyUser = "";
 	sProxyPasswd = "";
 	sRemoteAddress = "";
+	sDataToSend = "";
 	sData = "";
 	sPureData = "";
 	sHeader = "";
 	sMimeType = "";
 	SetHttpError(HTTP_NO_ERROR);
+	iAction = htaGet;
 	iDataLength = 0;
 	iDataReceived = 0;
+	iDataSent = 0;
 	bActive = false;
+	bSentHeader = false;
 	bTransferFinished = false;
 	bConnected = false;
 	bRequested = false;
@@ -301,10 +309,16 @@ void CHttp::Clear()
 	bSocketReady = false;
 	bChunkedTransfer = false;
 	bRedirecting = false;
+	bGotDataFromServer = false;
 	iRedirectCode = 0;
 	fResolveTime = -9999;
 	fConnectTime = -9999;
-	fReceiveTime = -9999;
+	fSocketActionTime = -9999;
+	fDownloadStart = -9999;
+	fDownloadEnd = -9999;
+	fUploadStart = -9999;
+	fUploadEnd = -9999;
+
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
@@ -332,9 +346,9 @@ void CHttp::SetHttpError(int id)
 	tError.sErrorMsg = sHttpErrors[id];
 }
 
-//////////////
-// Request data from server
-void CHttp::RequestData(const std::string& address, const std::string & proxy)
+////////////////////
+// Initiates the data transfer (GET/POST/HEAD)
+bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 {
 	// Stop any previous transfers
 	CancelProcessing();
@@ -342,7 +356,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 	// Make the urls http friendly (get rid of spaces)
 	if (!AdjustUrl(sRemoteAddress, address))  {
 		SetHttpError(HTTP_INVALID_URL);
-		return;
+		return false;
 	}
 
     // Convert the address to host & url
@@ -356,7 +370,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 	tSocket = OpenReliableSocket(0);
 	if(!IsSocketStateValid(tSocket))  {
 		SetHttpError(HTTP_NO_SOCKET_ERROR);
-		return;
+		return false;
 	}
 
 	// Resolve the address
@@ -375,12 +389,56 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 		if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
 			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 			tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
-			return;
+			return false;
 		}
 	}
 
 	// We're active now
 	bActive = true;
+
+	return true;
+}
+
+//////////////
+// Request data from server
+void CHttp::RequestData(const std::string& address, const std::string & proxy)
+{
+	InitTransfer(address, proxy);
+	iAction = htaGet;
+}
+
+//////////////////
+// Send data to a server (simple version)
+void CHttp::SendSimpleData(const std::string& data, const std::string url, const std::string& proxy)
+{
+	InitTransfer(url, proxy);
+	iAction = htaPost;
+
+	std::list<HTTPPostField> temp;
+	temp.push_back(HTTPPostField(data, "", "data", ""));
+	POSTEncodeData(temp);
+}
+
+
+///////////////////
+// Send data to a server (advanced)
+void CHttp::SendData(const std::list<HTTPPostField> &data, const std::string url, const std::string &proxy)
+{
+	InitTransfer(url, proxy);
+	iAction = htaPost;
+
+	POSTEncodeData(data);
+}
+
+//////////////////
+// Send data to a server (internal, for no-proxy retrying)
+void CHttp::SendDataInternal(const std::string& encoded_data, const std::string url, const std::string& proxy)
+{
+	InitTransfer(url, proxy);
+	iAction = htaPost;
+
+	sData = encoded_data;
+	iDataLength = sData.size();
 }
 
 /////////////////
@@ -410,6 +468,27 @@ std::string CHttp::GetBasicAuthentication(const std::string &user, const std::st
 	// This is done by encoding the string "USER:PASS" to base64 and
 	// prepending the string "Basic " in front of it.
 	return "Basic " + Base64Encode(user + ":" + passwd);
+}
+
+
+////////////////////
+// Returns the download speed in bytes per second
+float CHttp::GetDownloadSpeed()
+{
+	float dt = fDownloadEnd - fDownloadStart;
+	if (dt == 0)
+		return 999999999.0f;  // Unmeasurable
+	return iDataReceived / dt;
+}
+
+////////////////////
+// Returns the upload speed in bytes per second
+float CHttp::GetUploadSpeed()
+{
+	float dt = fUploadEnd - fUploadStart;
+	if (dt == 0)
+		return 999999999.0f;  // Unmeasurable
+	return iDataSent / dt;
 }
 
 /////////////////
@@ -500,21 +579,81 @@ bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 }
 
 /////////////////
-// Send the HTTP request
+// Send the HTTP request (used only for GET atm.)
 bool CHttp::SendRequest()
 {
 	std::string request;
 
 	// Build the url
 	request = "GET " + sUrl + " HTTP/1.1\r\n";
-	if( sProxyHost.size() != 0 )  // Proxy servers require full URL in GET header (so they know where to forward the request)
+	if (sProxyHost.size() != 0)  // Proxy servers require full URL in GET header (so they know where to forward the request)
 		request = "GET http://" + sHost + sUrl + " HTTP/1.1\r\n";
-	if( sProxyPasswd.size() != 0 || sProxyUser.size() != 0 )	// Don't know their order, guess Proxy-Authorization should be first header
+	if (sProxyPasswd.size() != 0 || sProxyUser.size() != 0)
 		request += "Proxy-Authorization: " + GetBasicAuthentication(sProxyUser, sProxyPasswd) + "\r\n";
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: " + GetFullGameName() + "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
+}
+
+//////////////////
+// Build the POST header
+// NOTE: must be called after sDataToSend has been prepared
+std::string CHttp::BuildPOSTHeader()
+{
+	std::string header;
+
+	// Build the url
+	header = "POST " + sUrl + " HTTP/1.1\r\n";
+	if( sProxyHost.size() != 0 )  // Proxy servers require full URL in POST header (so they know where to forward the request)
+		header = "POST http://" + sHost + sUrl + " HTTP/1.1\r\n";
+	if( sProxyPasswd.size() != 0 || sProxyUser.size() != 0 )	// Don't know their order, guess Proxy-Authorization should be first header
+		header += "Proxy-Authorization: " + GetBasicAuthentication(sProxyUser, sProxyPasswd) + "\r\n";
+	header += "Host: " + sHost + "\r\n";
+	header += "User-Agent: " + GetFullGameName() + "\r\n";
+	header += "Content-Length: " + itoa(sDataToSend.size()) + "\r\n";
+	header += "Content-Type: multipart/form-data, boundary=" + std::string(HTTP_POST_BOUNDARY) + "\r\n";
+	header += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
+
+	return header;
+}
+
+////////////////////
+// Fills sData with the post-encoded data
+void CHttp::POSTEncodeData(const std::list<HTTPPostField>& fields)
+{
+	// Start with the boundary
+	sDataToSend = "--" + std::string(HTTP_POST_BOUNDARY) + "\r\n";
+
+	// Add the fields
+	for (std::list<HTTPPostField>::const_iterator it = fields.begin(); it != fields.end(); it++)  {
+		bool binary = true;
+		
+		// Headers
+		sDataToSend += "content-disposition: form-data";
+		if (it->getName().size())
+			sDataToSend += "; name=\"" + it->getName() + "\""; // TODO: slash-escape the name
+		if (it->getFileName().size())
+			sDataToSend += "; filename=\"" + it->getFileName() + "\"";
+		sDataToSend += "\r\n";
+		if (it->getMimeType().size())  {
+			sDataToSend += "Content-Type: " + it->getMimeType() + "\r\n";
+			binary = (it->getMimeType().find("text") != 0); // text/* - not a binary transfer
+		}
+		if (binary)
+			sDataToSend += "Content-Transfer-Encoding: binary\r\n";
+		sDataToSend += "\r\n";
+
+		// Data itself
+		sDataToSend += it->getData();
+
+		// Ending boundary
+		sDataToSend += "\r\n--" + std::string(HTTP_POST_BOUNDARY) + "\r\n";
+	}
+
+	// Make sure we generate valid data even with an empty input
+	if (fields.empty())
+		sDataToSend += "--" + std::string(HTTP_POST_BOUNDARY) + "\r\n";
 }
 
 /////////////////
@@ -830,6 +969,190 @@ void CHttp::ParseHeader()
 	bChunkedTransfer = stringcaseequal(GetPropertyFromHeader("Transfer-Encoding"), "chunked");
 }
 
+//////////////////
+// Re-initiates the transfer using a direct connection (no proxy)
+void CHttp::RetryWithNoProxy()
+{
+	switch (iAction)  {
+	case htaGet:
+		RequestData(sHost + sUrl);
+	break;
+	case htaPost:
+		SendDataInternal(sData, sHost + sUrl, "");
+	break;
+	case htaHead:
+		errors("HTTP HEAD not implemented\n");
+	break;
+	}
+}
+
+//////////////////
+// Reads data from the socket and calls ProcessData if some data is present
+int CHttp::ReadAndProcessData()
+{
+	// Check if we have a response
+	int count = 0;
+	if (tBuffer != NULL)  {
+		while (true)  {
+			count = ReadSocket(tSocket, tBuffer, BUFFER_LEN);
+			if (count <= 0)
+				break;
+
+			// First data we got? Start the download time timer
+			if (!bGotDataFromServer)
+				fDownloadStart = GetMilliSeconds();
+			fDownloadEnd = GetMilliSeconds();  // To make the download time correct even when still downloading
+
+			bGotDataFromServer = true;
+
+			// Got some data
+			sData.append(tBuffer, count);
+			iDataReceived += count;
+			ProcessData();
+			fSocketActionTime = GetMilliSeconds();
+		}
+	}
+
+	// Any HTTP errors?
+	if (tError.iError != HTTP_NO_ERROR)
+		return HTTP_PROC_ERROR;
+
+	// Error, or end of connection?
+	if(count < 0) {
+		int err = GetSocketErrorNr();
+		if(IsMessageEndSocketErrorNr(err) ) {
+			// End of connection
+			// Complete!
+			// HINT: fDownloadEnd has already been updated above
+			bTransferFinished = true;
+			bActive = false;
+			CloseSocket(tSocket);
+
+		} else {
+			// Error
+			SetHttpError(HTTP_NET_ERROR);
+			tError.sErrorMsg += GetSocketErrorStr(err);
+			return HTTP_PROC_ERROR;
+		}
+	}
+
+	return HTTP_PROC_PROCESSING;
+}
+
+/////////////////
+// Process the GET request
+int CHttp::ProcessGET()
+{
+	assert(iAction == htaGet);
+
+	// Send a request
+	if(bSocketReady && bConnected && !bRequested) {
+		bRequested = true;
+		fSocketActionTime = GetMilliSeconds();
+
+		if(!SendRequest()) {
+            SetHttpError(HTTP_ERROR_SENDING_REQ);
+			return HTTP_PROC_ERROR;
+		}
+	}
+
+	// If we aren't ready yet, leave
+	if(!bSocketReady || !bConnected || !bRequested)
+		return HTTP_PROC_PROCESSING;
+
+	// Check for response
+	int res = ReadAndProcessData();
+	if (res == HTTP_PROC_ERROR)
+		return HTTP_PROC_ERROR; // The error is set in ReadAndProcessData
+
+	// Transfer fininshed
+	if (bTransferFinished)  {
+
+		// If we have been waiting for redirect, handle it now
+		if (bRedirecting)  {
+			HandleRedirect(iRedirectCode);
+
+			if (tError.iError != HTTP_NO_ERROR) // Any errors?
+				return HTTP_PROC_ERROR;
+			else
+				return HTTP_PROC_PROCESSING;
+		}
+
+		return HTTP_PROC_FINISHED; // Really finished
+	}
+
+	// Still processing
+	return HTTP_PROC_PROCESSING;
+}
+
+/////////////////
+// Process posting data on the server
+int CHttp::ProcessPOST()
+{
+	assert(iAction == htaPost);
+
+	// Send the initial packet
+	if(bSocketReady && bConnected && !bSentHeader) {
+		bSentHeader = true;
+		fSocketActionTime = GetMilliSeconds();
+
+		// Create the header
+		std::string header = BuildPOSTHeader();
+		std::string buf = header;
+
+		// Append some data if there's still space
+		size_t len = 0;
+		if (buf.size() < HTTP_MAX_DATA_LEN)  {
+			len = MIN(sDataToSend.size(), HTTP_MAX_DATA_LEN - buf.size());
+			buf.append(sDataToSend.begin(), sDataToSend.begin() + len);
+		}
+
+		// Send
+		if (WriteSocket(tSocket, buf) == buf.size())  {
+			iDataSent += len;
+			fUploadStart = GetMilliSeconds();  // We're starting the upload
+			fUploadEnd = fUploadStart; // To make the time counting correct even when still uploading
+		} else
+			bSentHeader = false; // Retry
+
+		return HTTP_PROC_PROCESSING;
+	}
+
+	// If we aren't ready yet, leave
+	if(!bSocketReady || !bConnected || !bSentHeader)
+		return HTTP_PROC_PROCESSING;
+
+	// Waiting for response (after sending all the data)
+	if (iDataSent >= sDataToSend.size())  {
+
+		// Check if we have a response
+		int res = ReadAndProcessData();
+		if (res == HTTP_PROC_ERROR)
+			return HTTP_PROC_ERROR;
+
+		// Finished!
+		if (bTransferFinished)
+			return HTTP_PROC_FINISHED;
+
+		return HTTP_PROC_PROCESSING;
+	}
+
+	// Send another chunk
+	int res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
+	fSocketActionTime = GetMilliSeconds();
+
+	// Error check
+	if (res < 0)  {
+		SetHttpError(HTTP_ERROR_SENDING_REQ);
+		return HTTP_PROC_ERROR;
+	}
+	iDataSent += res;
+
+	fUploadEnd = GetMilliSeconds();  // Make the upload time correct while uploading
+
+	return HTTP_PROC_PROCESSING;
+}
+
 /////////////////
 // Main processing function
 int CHttp::ProcessRequest()
@@ -860,7 +1183,7 @@ int CHttp::ProcessRequest()
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
 				warnings("HINT: proxy failed, trying a direct connection\n");
-				RequestData(sHost + sUrl);
+				RetryWithNoProxy();
 				return HTTP_PROC_PROCESSING;
 			}
 
@@ -872,11 +1195,11 @@ int CHttp::ProcessRequest()
 	}
 
 	// Check for HTTP timeout
-	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested)  {
+	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			RequestData(sHost + sUrl);
+			RetryWithNoProxy();
 			return HTTP_PROC_PROCESSING;
 		} else { // Not using proxy, there's no other possibility to obtain the data
 			SetHttpError(HTTP_ERROR_TIMEOUT);
@@ -885,11 +1208,11 @@ int CHttp::ProcessRequest()
 	}
 
 	// This can happen when the server stops responding in the middle of the transfer
-	if (bRequested && GetMilliSeconds() - fReceiveTime >= HTTP_TIMEOUT)  {
+	if (bRequested && GetMilliSeconds() - fSocketActionTime >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			RequestData(sHost + sUrl);
+			RetryWithNoProxy();
 			return HTTP_PROC_PROCESSING;
 		} else { // Not using proxy, there's no other possibility to obtain the data
 			SetHttpError(HTTP_ERROR_TIMEOUT);
@@ -904,17 +1227,6 @@ int CHttp::ProcessRequest()
 			bSocketReady = true;
 		else
 			return HTTP_PROC_PROCESSING;
-	}
-
-	// Send a request
-	if(bSocketReady && bConnected && !bRequested) {
-		bRequested = true;
-		fReceiveTime = GetMilliSeconds();
-
-		if(!SendRequest()) {
-            SetHttpError(HTTP_ERROR_SENDING_REQ);
-			return HTTP_PROC_ERROR;
-		}
 	}
 
 
@@ -956,65 +1268,15 @@ int CHttp::ProcessRequest()
 		return HTTP_PROC_PROCESSING;
 	}
 
-
-	// If we aren't ready yet, leave
-	if(!bSocketReady || !bConnected || !bRequested)
-		return HTTP_PROC_PROCESSING;
-
-	// Check if we have a response
-	int count = 0;
-	if (tBuffer != NULL)  {
-		while (true)  {
-			count = ReadSocket(tSocket, tBuffer, BUFFER_LEN);
-			if (count <= 0)
-				break;
-
-			// Got some data
-			sData.append(tBuffer, count);
-			iDataReceived += count;
-			ProcessData();
-			fReceiveTime = GetMilliSeconds();
-		}
+	// Further processing depends on the transfer type
+	switch (iAction)  {
+	case htaGet:
+		return ProcessGET();
+	case htaPost:
+		return ProcessPOST();
+	case htaHead:
+		errors("HTTP HEAD not yet implemented\n");
 	}
 
-	// Some HTTP errors?
-	if (tError.iError != HTTP_NO_ERROR)
-		return HTTP_PROC_ERROR;
-
-	// Error, or end of connection?
-	if(count < 0) {
-		int err = GetSocketErrorNr();
-		if(IsMessageEndSocketErrorNr(err) ) {
-			// End of connection
-			// Complete!
-			bTransferFinished = true;
-			bActive = false;
-			CloseSocket(tSocket);
-
-		} else {
-			// Error
-			SetHttpError(HTTP_NET_ERROR);
-			tError.sErrorMsg += GetSocketErrorStr(err);
-			return HTTP_PROC_ERROR;
-		}
-	}
-
-	// Transfer fininshed
-	if (bTransferFinished)  {
-
-		// If we have been waiting for redirect, handle it now
-		if (bRedirecting)  {
-			HandleRedirect(iRedirectCode);
-
-			if (tError.iError != HTTP_NO_ERROR) // Any errors?
-				return HTTP_PROC_ERROR;
-			else
-				return HTTP_PROC_PROCESSING;
-		}
-
-		return HTTP_PROC_FINISHED; // Really finished
-	}
-
-	// Still processing
-	return HTTP_PROC_PROCESSING;
+	return HTTP_PROC_ERROR; // Should not happen
 }

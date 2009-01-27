@@ -75,6 +75,44 @@ public:
 	void	Reset();
 };
 
+// HTTP Post Field structure
+class HTTPPostField  {
+private:
+	std::string sData;
+	std::string sMimeType;
+	std::string sName;
+	std::string sFileName;
+public:
+	HTTPPostField() {}
+	HTTPPostField(const std::string& data, const std::string& mimetype, const std::string& name, const std::string& file) :
+		sData(data), sMimeType(mimetype), sName(name), sFileName(file) {}
+	HTTPPostField(const HTTPPostField& oth)  { operator= (oth); }
+
+
+	HTTPPostField& operator= (const HTTPPostField& oth)  {
+		if (&oth == this)
+			return *this;
+		sData = oth.sData;
+		sMimeType = oth.sMimeType;
+		sName = oth.sName;
+		sFileName = oth.sFileName;
+
+		return *this;
+	}
+
+	void setFileName(const std::string& n)	{ sFileName = n; }
+	const std::string& getFileName() const	{ return sFileName; }
+
+	void setName(const std::string& n)	{ sName = n; }
+	const std::string& getName() const	{ return sName; }
+
+	void setMimeType(const std::string& n)	{ sMimeType = n; }
+	const std::string& getMimeType() const	{ return sMimeType; }
+
+	void setData(const std::string& d)	{ sData = d; }
+	const std::string& getData() const	{ return sData; }
+};
+
 // HTTP error struct
 class HttpError  { public:
 	std::string sErrorMsg;
@@ -119,10 +157,16 @@ public:
 	CHttp();
 	~CHttp();
 
+	CHttp(const CHttp& oth)  { operator= (oth); }
+
 	CHttp& operator=(const CHttp& http)  {
+		if (&http == this)
+			return *this;
+
 		sHost = http.sHost;
 		sUrl = http.sUrl;
 		sRemoteAddress = http.sRemoteAddress;
+		sDataToSend = http.sDataToSend;
 		sData = http.sData;
 		sPureData = http.sPureData;
 		sHeader = http.sHeader;
@@ -136,8 +180,10 @@ public:
 		
 		iDataLength = http.iDataLength;
 		iDataReceived = http.iDataReceived;
+		iDataSent = http.iDataSent;
 		bActive = http.bActive;
 		bTransferFinished = http.bTransferFinished;
+		bSentHeader = http.bSentHeader;
 		bConnected = http.bConnected;
 		bRequested = http.bRequested;
 		bRedirecting = http.bRedirecting;
@@ -145,19 +191,32 @@ public:
 		bSocketReady = http.bSocketReady;
 		bGotHttpHeader = http.bGotHttpHeader;
 		bChunkedTransfer = http.bChunkedTransfer;
+		bGotDataFromServer = http.bGotDataFromServer;
 		fResolveTime = http.fResolveTime;
 		fConnectTime = http.fConnectTime;
-		fReceiveTime = http.fReceiveTime;
+		fSocketActionTime = http.fSocketActionTime;
 		tSocket = http.tSocket;
 		tRemoteIP = http.tRemoteIP;
 		sProxyUser = http.sProxyUser;
 		sProxyPasswd = http.sProxyPasswd;
 		sProxyHost = http.sProxyHost;
 		iProxyPort = http.iProxyPort;
+		iAction = http.iAction;
+
+		fDownloadStart = http.fDownloadStart;
+		fDownloadEnd = http.fDownloadEnd;
+		fUploadStart = http.fUploadStart;
+		fUploadEnd = http.fUploadEnd;
 
 		return *this;
 	}
 private:
+	enum Action  {
+		htaGet = 0,
+		htaHead,
+		htaPost
+	};
+
 	std::string		sHost;
 	std::string		sUrl;
 	std::string		sProxyHost;
@@ -165,6 +224,7 @@ private:
 	std::string		sProxyUser;
 	std::string		sProxyPasswd;
 	std::string		sRemoteAddress;
+	std::string		sDataToSend; // Data to be sent to the network, usually POST encoded
 	std::string		sData;  // Data received from the network, can be chunked and whatever
 	std::string		sPureData;  // Pure data, without chunks or any other stuff
 	std::string		sHeader;
@@ -172,28 +232,42 @@ private:
 	HttpError		tError;
 	char			*tBuffer; // Internal buffer
 	CChunkParser	*tChunkParser;
+	Action			iAction;
 
 	size_t			iDataLength;
 	size_t			iDataReceived;
+	size_t			iDataSent;
 	bool			bActive;
 	bool			bTransferFinished;
+	bool			bSentHeader;  // Only for POST
 	bool			bConnected;
 	bool			bRequested;
 	bool			bSocketReady;
 	bool			bGotHttpHeader;
 	bool			bChunkedTransfer;
+	bool			bGotDataFromServer;  // True if we received some data from the server
 	float			fResolveTime;
 	float			fConnectTime;
-	float			fReceiveTime;
+	float			fSocketActionTime;
 	bool			bRedirecting;
 	int				iRedirectCode;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 
+	// Bandwidth measurement
+	float			fDownloadStart;
+	float			fDownloadEnd;
+	float			fUploadStart;
+	float			fUploadEnd;
+
+	bool				InitTransfer(const std::string& address, const std::string & proxy);
+	void				SendDataInternal(const std::string& encoded_data, const std::string url, const std::string& proxy);
 	void				SetHttpError(int id);
 	void				Clear();
 	bool				AdjustUrl(std::string& dest, const std::string& url); // URL-encode given string, substitute all non-ASCII symbols with %XX
 	bool				SendRequest();
+	void				POSTEncodeData(const std::list<HTTPPostField>& data);
+	std::string			BuildPOSTHeader();
 	void				ProcessData();
 	std::string			GetPropertyFromHeader(const std::string& prop);
 	void				ParseHeader();
@@ -203,10 +277,18 @@ private:
 	std::string			GetBasicAuthentication(const std::string &user, const std::string &passwd);
 	void				FinishTransfer();
 	void				HandleRedirect(int code);
+	void				RetryWithNoProxy();
+	int					ReadAndProcessData();
+
+	int					ProcessGET();
+	int					ProcessPOST();
+	int					ProcessHEAD();
 
 public:
 	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
 	// TODO: Maybe do the proxy string global?
+	void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
+	void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "");
 	void				RequestData(const std::string& url, const std::string& proxy = "");
 	int					ProcessRequest();
 	void				CancelProcessing();
@@ -214,9 +296,18 @@ public:
 	const HttpError&	GetError()				{ return tError; }
 	const std::string&	GetData()				{ return sPureData; }
 	const std::string&	GetMimeType()			{ return sMimeType; }
+	const std::string&	GetDataToSend()			{ return sDataToSend; }
+	size_t				GetDataToSendLength()	{ return sDataToSend.size(); }
 	size_t				GetDataLength()			{ return iDataLength; }
 	size_t				GetReceivedDataLen()	{ return iDataReceived; }
+	size_t				GetSentDataLen()		{ return iDataSent; }
 	bool				RequestedData()			{ return bRequested; }
+
+	float				GetDownloadTime()		{ return fDownloadEnd - fDownloadStart; }
+	float				GetUploadTime()			{ return fUploadEnd - fUploadStart; }
+
+	float				GetDownloadSpeed();
+	float				GetUploadSpeed();
 
 	const std::string&	GetHostName()			{ return sHost; }
 	const std::string&	GetUrl()				{ return sUrl; }
