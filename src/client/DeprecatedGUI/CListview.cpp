@@ -898,12 +898,20 @@ int	CListview::MouseOver(mouse_t *tMouse)
 		}
 	}
 
+	// If the mouse is not down, make sure the focused subwidget can lose the focus
+	if (tFocusedSubWidget && !tMouse->Down && !tFocusedSubWidget->CanLoseFocus())  {
+		tFocusedSubWidget->setLoseFocus(true);
+	}
+
 	// Go through items and subitems, processing the widgets
 	tMouseOverSubWidget = NULL; // Reset it here
 	lv_item_t *item = tItems;
 	lv_subitem_t *subitem = NULL;
 	int result = LV_NONE;
-	for(;item;item = item->tNext) {
+	int scroll = (bGotScrollbar ? cScrollbar.getValue() : 0);
+	for(int i = 0;item;item = item->tNext, i++) {
+		if (i < scroll)
+			continue;
 		subitem = item->tSubitems;
 		for (; subitem; subitem = subitem->tNext)  {
 			if (subitem->iType == LVS_WIDGET)
@@ -1058,6 +1066,10 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	if (tFocusedSubWidget)
 		if (tFocusedSubWidget->CanLoseFocus())
 			tFocusedSubWidget->setFocused(false);
+		else  {
+			tFocusedSubWidget->MouseDown(tMouse, nDown);
+			return LV_NONE;  // The currently selected widget cannot lose the focus, no work left for us
+		}
 
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
@@ -1191,9 +1203,15 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	int count=0;
 
 	// Remove focus from the active widget, the following loop will maybe recover it
-	if (tFocusedSubWidget)
+	if (tFocusedSubWidget)  {
 		if (tFocusedSubWidget->CanLoseFocus())
 			tFocusedSubWidget->setFocused(false);
+		else  {  // If there is a focused subwidget that couldn't lose focus until now, send the event and allow to take off the focus
+			tFocusedSubWidget->setLoseFocus(true);
+			tFocusedSubWidget->MouseUp(tMouse, nDown);
+			return LV_NONE;
+		}
+	}
 
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())

@@ -133,7 +133,7 @@ public:
 	void	Destroy(void);
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ SetGameCursor(CURSOR_TEXT); return TXT_MOUSEOVER; }
+	int		MouseOver(mouse_t *tMouse);
 	int		MouseUp(mouse_t *tMouse, int nDown);
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TXT_NONE; }

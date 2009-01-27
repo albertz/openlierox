@@ -185,6 +185,7 @@ void CTextbox::Draw(SDL_Surface * bmpDest)
 int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	bDrawCursor = true;
+	bCanLoseFocus = true;
 
 	// Handle holding keys
 	if(bHolding) {
@@ -372,6 +373,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 int CTextbox::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	bHolding = false;
+	bCanLoseFocus = true;
 
 	// Check if alt has been released and insert any character code that has been typed
 	if (keysym == SDLK_LALT || keysym == SDLK_RALT)
@@ -472,8 +474,9 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	fTimeHolding += tLX->fDeltaTime;
 
 	// Holding the mouse
-	if (fTimeHolding > 0.25)
-		bHoldingMouse = true;
+	/*if (fTimeHolding > 0.25)
+		bHoldingMouse = true;*/
+	bHoldingMouse = !tMouse->FirstDown;
 
 	// Safety (must be *after* mouse scrolling)
 	if (iCurpos > Utf8StringSize(sText))  {
@@ -481,13 +484,11 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	}
 
 	if(bHoldingMouse)  {
-		if ((abs(tMouse->X - iLastMouseX) && (iCurpos - iLastCurpos)) || (scrolled))  {
-			if (scrolled)
-				scrolled = true;
+		if ((abs(tMouse->X - iLastMouseX) && (iCurpos - iLastCurpos)) || scrolled)  {
 			iSelLength += -(int)(iCurpos - iLastCurpos);
 			// We can't lose the focus
-			bCanLoseFocus = false;
 		}
+		bCanLoseFocus = false;
 	}
 
 	if (tMouse->FirstDown)  {
@@ -540,6 +541,15 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 	bCanLoseFocus = true;
 
 	return TXT_NONE;
+}
+
+////////////////////
+// Mouse over event
+int CTextbox::MouseOver(mouse_t *tMouse)
+{
+	SetGameCursor(CURSOR_TEXT);
+	bCanLoseFocus = !tMouse->Down;
+	return TXT_MOUSEOVER;
 }
 
 ////////////
