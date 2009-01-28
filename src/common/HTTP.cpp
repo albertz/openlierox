@@ -1213,6 +1213,10 @@ void CHttp::RetryWithNoProxy()
 // Reads data from the socket and calls ProcessData if some data is present
 int CHttp::ReadAndProcessData()
 {
+	// Wait until we have some data to read
+	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
+	WaitForSocketRead(tSocket, 1000);
+
 	// Check if we have a response
 	int count = 0;
 	if (tBuffer != NULL)  {
@@ -1334,12 +1338,22 @@ int CHttp::ProcessPOST()
 		}
 
 		// Send
-		if (WriteSocket(tSocket, buf) == buf.size())  {
+		int res = WriteSocket(tSocket, buf);
+		if ((size_t)res == buf.size())  {
 			iDataSent += len;
 			fUploadStart = GetMilliSeconds();  // We're starting the upload
 			fUploadEnd = fUploadStart; // To make the time counting correct even when still uploading
-		} else
-			bSentHeader = false; // Retry
+		} else if (res < 0)  {
+			SetHttpError(HTTP_ERROR_SENDING_REQ);
+			return HTTP_PROC_ERROR;
+		} else {
+			assert((size_t)res < buf.size()); // Cannot send more data than we gave to it...
+			if ((size_t)res >= header.size())  {  // The header was sent whole
+				iDataSent += (size_t)res - header.size();
+			} else
+				bSentHeader = false; // Retry
+		}
+
 
 		return HTTP_PROC_PROCESSING;
 	}
@@ -1363,6 +1377,10 @@ int CHttp::ProcessPOST()
 		return HTTP_PROC_PROCESSING;
 	}
 
+	// Wait until the network buffers are ready
+	// HINT: ProcessPOST is called in a separate thread so we can do this blocking call
+	WaitForSocketWrite(tSocket, 1000);
+
 	// Send another chunk
 	int res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
 	fSocketActionTime = GetMilliSeconds();
@@ -1373,11 +1391,6 @@ int CHttp::ProcessPOST()
 		return HTTP_PROC_ERROR;
 	}
 	iDataSent += res;
-
-	// Network buffers full, slow down!
-	if (res == 0)  {
-		SDL_Delay(10); // HINT: we can do it like that because this function is run in a separate thread
-	}
 
 	fUploadEnd = GetMilliSeconds();  // Make the upload time correct while uploading
 

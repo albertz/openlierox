@@ -760,6 +760,28 @@ void InvalidateSocketState(NetworkSocket& sock) {
 	*NetworkSocketData(&sock) = NL_INVALID;
 }
 
+/////////////////////
+// Wait until the socket is writable
+void WaitForSocketWrite(NetworkSocket sock, int timeout)
+{
+	NLint group = nlGroupCreate();
+	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	NLsocket s;
+	nlPollGroup(group, NL_WRITE_STATUS, &s, 1, (NLint)timeout);
+	nlGroupDestroy(group);
+}
+
+//////////////////////
+// Wait until the socket contains some data to read
+void WaitForSocketRead(NetworkSocket sock, int timeout)
+{
+	NLint group = nlGroupCreate();
+	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	NLsocket s;
+	nlPollGroup(group, NL_READ_STATUS, &s, 1, (NLint)timeout);
+	nlGroupDestroy(group);
+}
+
 int GetSocketErrorNr() {
 	return nlGetError();
 }
