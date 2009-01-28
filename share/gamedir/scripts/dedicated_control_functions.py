@@ -20,19 +20,29 @@ cfg = dedicated_config # shortcut
 #if sys.platform == "win32":
 sys.stderr = open(cfg.ERROR_FILE, "w", 0)
 
-from dedicated_control_io import *
+## Global vars (across all modules)
+import dedicated_control_globals
+g = dedicated_control_globals
+
+import dedicated_control_io
+io = dedicated_control_io
+setvar = io.setvar
+formatExceptionInfo = io.formatExceptionInfo
 
 import dedicated_control_ranking
 ranking = dedicated_control_ranking
 
-stdinInputThread = GetStdinThread()
+import dedicated_control_usercommands
+cmds = dedicated_control_usercommands
+
+stdinInputThread = io.GetStdinThread()
 
 # Uncomment following 3 lines to get lots of debug spam into dedicated_control_errors.log file
 #def HeavyDebugTrace(frame,event,arg): 
 #	sys.stderr.write( 'Trace: ' + str(event) + ': ' + str(arg) + ' at ' + str(frame.f_code) + "\n" )
 #sys.settrace(HeavyDebugTrace)
 
-## Global vars ##
+## Local vars
 curdir = os.getcwd()
 curdir = os.path.join(curdir,"scripts")
 presetDir = os.path.join(curdir,"presets")
@@ -40,21 +50,16 @@ presetDir = os.path.join(curdir,"presets")
 levelDir = os.path.join(os.getcwd(),"levels")
 modDir = os.getcwd()
 
-# Preset stuffies
-availablePresets = []
-nextPresets = []
+# Game states
+GAME_QUIT = 0
+GAME_LOBBY = 1
+GAME_WEAPONS = 2
+GAME_PLAYING = 3
 
-availableLevels = list()
-availableMods = list()
+gameState = GAME_QUIT
 
-#worms = {} # Dictionary of all online worms - contains only worm name currently
-worms = {} # List of all worms on the server
-# Bots don't need to be itterated with the other ones.
-bots = {}  # Dictionary of all possible bots
-#admins = {} # Dictionary of all admin worms
+sentStartGame = False
 
-# Function that controls ded server behavior
-controlHandler = None
 
 # TODO: Expand this class, use it.
 class Worm:
@@ -74,30 +79,6 @@ class Worm:
 	def clear(self):
 		self.__init__()
 
-# Game states
-GAME_QUIT = 0
-GAME_LOBBY = 1
-GAME_WEAPONS = 2
-GAME_PLAYING = 3
-
-
-gameState = GAME_QUIT
-
-sentStartGame = False
-
-scriptPaused = False
-
-# Stolen from http://www.linuxjournal.com/article/5821
-def formatExceptionInfo(maxTBlevel=5):
-	cla, exc, trbk = sys.exc_info()
-	excName = cla.__name__
-	try:
-		excArgs = exc.__dict__["args"]
-	except KeyError:
-		excArgs = "<no args>"
-	excTb = traceback.format_tb(trbk, maxTBlevel)
-	return (excName, excArgs, excTb)
-
 
 def init():
 	initPresets()
@@ -106,222 +87,14 @@ def init():
 
 ## High-level processing ##
 
-def updateWorms(sig):
-	if sig.find("newworm ") == 0 or sig.find("wormleft ") == 0:
-		getWormList()
 
 def getNumWorms():
-	global worms
 	i = 0
-	for w in worms.values():
+	for w in g.worms.values():
 		if w.iID != -1:
 			i += 1
 
 	return i
-
-def setWormTeam(iID, team):
-	global worms
-	if iID in worms.keys() and worms[iID].iID != -1:
-		worms[iID].Team = team
-		setWormTeam_io(iID, team)
-	else:
-		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
-
-
-adminCommandHelp_Preset = None
-parseAdminCommand_Preset = None
-userCommandHelp_Preset = None
-parseUserCommand_Preset = None
-
-def adminCommandHelp(wormid):
-	privateMsg(wormid, "Admin help:")
-	privateMsg(wormid, "%skick wormID [reason]" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sban wormID [reason]" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%smute wormID" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%smod modName (or part of name)" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%smap mapName" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%slt loadingTime" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%steam wormID teamID (0123 or brgy)" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sstop - go to lobby" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%spause - pause ded script" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sunpause - resume ded script" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%ssetvar varname value" % cfg.ADMIN_PREFIX)
-	privateMsg(wormid, "%sauthorize wormID" % cfg.ADMIN_PREFIX)
-	if adminCommandHelp_Preset:
-		adminCommandHelp_Preset(wormid)
-
-# Admin interface
-def parseAdminCommand(wormid,message):
-	global worms, nextPresets, availablePresets, availableLevels, availableMods, parseAdminCommand_Preset, scriptPaused
-	try: # Do not check on msg size or anything, exception handling is further down
-		if (not message.startswith(cfg.ADMIN_PREFIX)):
-			return False # normal chat
-
-		cmd = message.split(" ")[0]
-		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
-
-		messageLog("%i:%s issued %s" % (wormid,worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),LOG_ADMIN)
-
-		# Unnecesary to split multiple times, this saves CPU.
-		params = message.split(" ")[1:]
-
-		if cmd == "help":
-			adminCommandHelp(wormid)
-		elif cmd == "kick":
-			if len(params) > 1: # Given some reason
-				kickWorm( int( params[0] ), " ".join(params[1:]) )
-			else:
-				kickWorm( int( params[0] ) )
-		elif cmd == "ban":
-			if len(params) > 1: # Given some reason
-				banWorm( int( params[0] ), " ".join(params[1:]) )
-			else:
-				banWorm( int( params[0] ) )
-		elif cmd == "mute":
-			muteWorm( int( params[0] ) )
-		elif cmd == "mod":
-			mod = ""
-			for m in availableMods:
-				if m.lower().find(" ".join(params[0:]).lower()) != -1:
-					mod = m
-					break
-			if mod == "":
-				privateMsg(wormid,"Invalid mod name")
-			else:
-				setvar("GameOptions.GameInfo.ModName", mod) # In case mod name contains spaces
-		elif cmd == "map":
-			level = ""
-			for l in availableLevels:
-				if l.lower().find(" ".join(params[0:]).lower()) != -1:
-					level = l
-					break
-			if level == "":
-				privateMsg(wormid,"Invalid map name")
-			else:
-				setvar("GameOptions.GameInfo.LevelName", level) # In case map name contains spaces
-		elif cmd == "preset":
-			preset = -1
-			presetCount = 1
-			if len(params) > 1:
-				presetCount = int(params[1])
-			for p in range(len(availablePresets)):
-				if availablePresets[p].lower().find(params[0].lower()) != -1:
-					preset = p
-					break
-			if preset == -1:
-				privateMsg(wormid,"Invalid preset name")
-			else:
-				nextPresets = []
-				for f in range(presetCount):
-					nextPresets.append(availablePresets[preset])
-				selectNextPreset()
-		elif cmd == "lt":
-			setvar("GameOptions.GameInfo.LoadingTime", params[0])
-		elif cmd == "start":
-			startGame()
-		elif cmd == "stop":
-			gotoLobby()
-		elif cmd == "pause":
-			privateMsg(wormid,"Ded script paused")
-			scriptPaused = True
-		elif cmd == "unpause":
-			privateMsg(wormid,"Ded script continues")
-			scriptPaused = False
-		elif cmd == "setvar":
-			setvar(params[0], " ".join(params[1:])) # In case value contains spaces
-		elif cmd == "authorize":
-			try:
-				wormID = int(params[0])
-				if not worms[wormID].isAdmin:
-					worms[wormID].isAdmin = True
-					authorizeWorm(wormID)
-					messageLog(("Worm %i (%s) added to admins by %i (%s)" % (wormID,worms[wormID].Name),wormid,worms[wormid].Name),LOG_INFO)
-					privateMsg(wormID, "%s made you admin! Type %shelp for commands" % (worms[wormid].Name,cfg.ADMIN_PREFIX))
-					privateMsg(wormid, "%s added to admins." % worms[wormID].Name)
-			except KeyError:
-				messageLog("parseAdminCommand: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
-		elif parseAdminCommand_Preset and parseAdminCommand_Preset(wormid, cmd, params):
-			pass
-		else:
-			raise Exception, "Invalid admin command"
-
-	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
-		privateMsg(wormid, "Invalid admin command")
-		messageLog(formatExceptionInfo(),LOG_ERROR) #Helps to fix errors
-		return False
-	return True
-
-# User interface
-
-def userCommandHelp(wormid):
-	if cfg.ALLOW_TEAM_CHANGE:
-		msg = "%steam [b/r" % (cfg.USER_PREFIX)
-		if cfg.MAX_TEAMS >= 3:
-			msg += "/g"
-		if cfg.MAX_TEAMS >= 4:
-			msg += "/y"
-		msg += "] - set your team"
-		privateMsg(wormid, msg + " - set your team")
-	if cfg.RANKING:
-		privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
-		privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
-		privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
-	if userCommandHelp_Preset:
-		userCommandHelp_Preset(wormid)
-
-def parseUserCommand(wormid,message):
-	global worms, curPreset, availablePresets, availableLevels, availableMods, gameState, parseUserCommand_Preset, rank
-	try: # Do not check on msg size or anything, exception handling is further down
-		if (not message.startswith(cfg.USER_PREFIX)):
-			return False # normal chat
-
-		cmd = message.split(" ")[0]
-		cmd = cmd.replace(cfg.USER_PREFIX,"",1) #Remove the prefix
-
-		messageLog("%i:%s user cmd %s" % (wormid,worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),LOG_ADMIN)
-
-		# Unnecesary to split multiple times, this saves CPU.
-		params = message.split(" ")[1:]
-
-		if cmd == "help":
-			userCommandHelp(wormid)
-		elif cmd == "team" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
-			if not params:
-				userCommandHelp(wormid)
-				raise Exception, "You need to specify a team"
-			if params[0].lower() == "blue" or params[0].lower() == "b":
-				setWormTeam(wormid, 0)
-			elif params[0].lower() == "red" or params[0].lower() == "r":
-				setWormTeam(wormid, 1)
-			elif ( params[0].lower() == "green" or params[0].lower() == "g" ) and cfg.MAX_TEAMS >= 3:
-				setWormTeam(wormid, 2)
-			elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
-				setWormTeam(wormid, 3)
-		elif cmd == "toprank" and cfg.RANKING:
-			ranking.firstRank(wormid)
-		elif cmd == "rank" and cfg.RANKING:
-			if wormid in worms:
-				wormName = worms[wormid].Name
-				if params:
-					wormName = " ".join(params)
-				ranking.myRank(wormName, wormid)
-		elif cmd == "ranktotal" and cfg.RANKING:
-			privateMsg(wormid, "There are " + str(len(ranking.rank)) + " players in the ranking.")
-		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
-			pass
-		else:
-			raise Exception, "Invalid user command"
-
-	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
-			# TODO, send what's passed in the exception to the user?
-		privateMsg(wormid, "Invalid user command")
-		messageLog(formatExceptionInfo(),LOG_ERROR) #Helps to fix errors
-		return False
-	return True
-
-
 
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
@@ -349,7 +122,7 @@ def signalHandler(sig):
 		gameState = GAME_QUIT
 	elif header == "errorstartlobby":
 		gameState = GAME_QUIT
-		messageLog("errorstartlobby",LOG_ERROR)
+		io.messageLog("errorstartlobby",io.LOG_ERROR)
 
 	elif header == "backtolobby" or header == "lobbystarted":
 		if cfg.RANKING:
@@ -358,7 +131,7 @@ def signalHandler(sig):
 		sentStartGame = False
 	elif header == "errorstartgame":
 		gameState = GAME_LOBBY
-		messageLog("errorstartgame",LOG_ERROR)
+		io.messageLog("errorstartgame",io.LOG_ERROR)
 		sentStartGame = False
 
 	elif header == "weaponselections":
@@ -373,12 +146,11 @@ def signalHandler(sig):
 	return True
 
 def parseNewWorm(sig):
-	global worms
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:]).replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
 	try:
-		worm = worms[wormID]
+		worm = g.worms[wormID]
 		exists = True
 	except KeyError: #Worm doesn't exist.
 		worm = Worm()
@@ -386,14 +158,14 @@ def parseNewWorm(sig):
 	worm.iID = wormID
 
 	if not exists:
-		worms[wormID] = worm
+		g.worms[wormID] = worm
 	
 	# Balance teams
 	teams = [0,0,0,0]
-	for w in worms.keys():
-		if worms[w].iID == -1:
+	for w in g.worms.keys():
+		if g.worms[w].iID == -1:
 			continue
-		teams[worms[w].Team] += 1
+		teams[g.worms[w].Team] += 1
 	minTeam = 0
 	minTeamCount = teams[0]
 	for f in range(cfg.MAX_TEAMS):
@@ -401,8 +173,8 @@ def parseNewWorm(sig):
 			minTeamCount = teams[f]
 			minTeam = f
 
-	setWormTeam(wormID, minTeam)
-	#messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), LOG_INFO)
+	io.setWormTeam(wormID, minTeam)
+	#io.messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), io.LOG_INFO)
 	if cfg.RANKING_AUTHENTICATION:
 		if not name in ranking.auth:
 			ranking.auth[name] = getWormSkin(wormID)
@@ -414,118 +186,116 @@ def parseNewWorm(sig):
 				msg("ERROR: Unable to open pwn0meter_auth.txt")
 		else:
 			if ranking.auth[name] != getWormSkin(wormID):
-				kickWorm(wormID, "Player with name %s already registered" % name)
+				io.kickWorm(wormID, "Player with name %s already registered" % name)
 			
 
 def parseWormLeft(sig):
-	global worms
+
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
 
 	try:
-		if worms[wormID].isAdmin:
-			messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),LOG_ADMIN)
+		if g.worms[wormID].isAdmin:
+			io.messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),io.LOG_ADMIN)
 	except KeyError:
-		messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+		io.messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 	# Call last, that way we still have the data active.
-	worms[wormID].clear()
+	g.worms[wormID].clear()
 
 
 def parsePrivateMessage(sig):
-	global worms
+
 	wormID = int(sig.split(" ")[1])
 	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
 	if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
 		try:
-			if not worms[wormID].isAdmin:
-				worms[wormID].isAdmin = True
-				messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),LOG_ADMIN)
+			if not g.worms[wormID].isAdmin:
+				g.worms[wormID].isAdmin = True
+				io.messageLog(("Worm %i (%s) added to admins" % (wormID,g.worms[wormID].Name)),io.LOG_ADMIN)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
-				authorizeWorm(wormID)
-				privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
+				io.authorizeWorm(wormID)
+				io.privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (g.worms[wormID].Name,cfg.ADMIN_PREFIX))
 		except KeyError:
-			messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",LOG_ERROR)
+			io.messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 def parseChatMessage(sig):
-	global worms
+
 	wormID = int(sig.split(" ")[1])
 	message = " ".join(sig.split(" ")[2:])
-	msg("Chat msg from worm %i: %s" % (wormID, message))
-	if worms[wormID].isAdmin:
-		if not parseAdminCommand(wormID,message):
-			parseUserCommand(wormID,message)
+	io.msg("Chat msg from worm %i: %s" % (wormID, message))
+	if g.worms[wormID].isAdmin:
+		if not cmds.parseAdminCommand(wormID,message):
+			cmds.parseUserCommand(wormID,message)
 	else:
-		parseUserCommand(wormID,message)
+		cmds.parseUserCommand(wormID,message)
 
 def parseWormDied(sig):
-	global worms
+
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
-	worms[deaderID].Lives -= 1
-	worms[deaderID].Alive = False
+	g.worms[deaderID].Lives -= 1
+	g.worms[deaderID].Alive = False
 
 	if not cfg.RANKING:
 		return
 
 	try:
 		f = open("pwn0meter.txt","a")
-		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
+		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + g.worms[deaderID].Name + "\t" + g.worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
-		msg("ERROR: Unable to open pwn0meter.txt")
+		io.msg("ERROR: Unable to open pwn0meter.txt")
 
 	if(deaderID == killerID):
 		try:
-			ranking.rank[worms[killerID].Name][2] += 1
+			ranking.rank[g.worms[killerID].Name][2] += 1
 		except KeyError:
-			ranking.rank[worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
+			ranking.rank[g.worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
 	else:
 		try:
-			ranking.rank[worms[killerID].Name][0] += 1
+			ranking.rank[g.worms[killerID].Name][0] += 1
 		except KeyError:
-			ranking.rank[worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
+			ranking.rank[g.worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
 	try:
-		ranking.rank[worms[deaderID].Name][1] += 1
+		ranking.rank[g.worms[deaderID].Name][1] += 1
 	except KeyError:
-		ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
+		ranking.rank[g.worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
 def parseWormSpawned(sig):
-	global worms
+
 	wormID = int(sig.split(" ")[1])
-	worms[wormID].Alive = True
+	g.worms[wormID].Alive = True
 
 ## Preset loading functions ##
 def initPresets():
-	global availablePresets,presetDir
 
 	# Reset - incase we get called a second time
-	del availablePresets[:]
+	g.availablePresets = []
 
 	for f in os.listdir(presetDir):
 
 		if f.lower() != "defaults" and f.lower() != ".svn":
-			availablePresets.append(f)
+			g.availablePresets.append(f)
 
-	if (len(availablePresets) == 0):
-		messageLog("There are no presets available - nothing to do. Exiting.",LOG_CRITICAL)
+	if (len(g.availablePresets) == 0):
+		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
 		exit()
 
 # initPresets must be called before this - or it will crash
 # TODO: Try to make something nicer for the user which doesn't read this
 def selectNextPreset():
-	global nextPresets, availablePresets
 
-	if len( nextPresets ) == 0:
-		nextPresets = list(cfg.PRESETS)
-		if len( nextPresets ) == 0:
-			nextPresets = list(availablePresets)
+	if len( g.nextPresets ) == 0:
+		g.nextPresets = list(cfg.PRESETS)
+		if len( g.nextPresets ) == 0:
+			g.nextPresets = list(g.availablePresets)
 
-	preset = nextPresets[0]
-	nextPresets.pop(0)
+	preset = g.nextPresets[0]
+	g.nextPresets.pop(0)
 
-	msg("Preset " + preset)
-	chatMsg("Preset " + preset)
+	io.msg("Preset " + preset)
+	io.chatMsg("Preset " + preset)
 
 	sFile = os.path.join(presetDir,preset)
 	sDefaults = os.path.join(presetDir,"Defaults")
@@ -543,13 +313,14 @@ def selectNextPreset():
 			fPreset.close()
 	except IOError:
 		# File does not exist, perhaps it was removed.
-		messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),LOG_WARN)
+		io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
 
+dedicated_control_globals.selectNextPreset = selectNextPreset
 
 def waitLobbyStarted():
 	while True:
-		sig = getSignal()
+		sig = io.getSignal()
 		signalHandler(sig)
 		if sig == "lobbystarted":
 			return
@@ -557,23 +328,23 @@ def waitLobbyStarted():
 
 
 def initLevelList():
-	global levelDir, availableLevels
+	global levelDir
 	for f in os.listdir(levelDir):
 		if os.path.isdir(f):
-			#messageLog("initLevelList: Ignoring \"%s\" - It's a directory" % f, LOG_INFO)
+			#io.messageLog("initLevelList: Ignoring \"%s\" - It's a directory" % f, io.LOG_INFO)
 			continue
-		#messageLog("Adding level " + f, LOG_INFO)
-		availableLevels.append(f)
+		#io.messageLog("Adding level " + f, io.LOG_INFO)
+		g.availableLevels.append(f)
 
 def initModList():
-	global modDir, availableMods
+	global modDir
 	for f in os.listdir(modDir):
 		if not os.path.isdir(f):
 			continue
 		for ff in os.listdir(os.path.join(modDir,f)):
 			if ff.lower() == "script.lgs":
-				#messageLog("Adding mod " + f, LOG_INFO)
-				availableMods.append(f)
+				#io.messageLog("Adding mod " + f, io.LOG_INFO)
+				g.availableMods.append(f)
 
 ## Control functions
 
@@ -584,17 +355,17 @@ def average(a):
 	return r / len(a)
 
 def checkMaxPing():
-	global worms
-	for f in worms.keys():
-		if worms[f].iID == -1 or not worms[f].Alive:
+
+	for f in g.worms.keys():
+		if g.worms[f].iID == -1 or not g.worms[f].Alive:
 			continue
-		ping = int(getWormPing(worms[f].iID))
+		ping = int(io.getWormPing(g.worms[f].iID))
 		if ping > 0:
-			worms[f].Ping.insert( 0, ping )
-			if len(worms[f].Ping) > 25:
-				worms[f].Ping.pop()
-				if average(worms[f].Ping) > cfg.MAX_PING:
-					kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
+			g.worms[f].Ping.insert( 0, ping )
+			if len(g.worms[f].Ping) > 25:
+				g.worms[f].Ping.pop()
+				if average(g.worms[f].Ping) > cfg.MAX_PING:
+					io.kickWorm( g.worms[f].iID, "Your ping is " + str(average(g.worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
 
 lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
 lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
@@ -605,7 +376,7 @@ oldGameState = GAME_LOBBY
 
 def controlHandlerDefault():
 
-	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
+	global gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
 
 	if gameState == GAME_LOBBY:
 
@@ -630,16 +401,16 @@ def controlHandlerDefault():
 
 			if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
 				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-				chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
 			if not lobbyEnoughPlayers and getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
 				lobbyEnoughPlayers = True
-				chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
+				io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
 
 			if lobbyEnoughPlayers and getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
 				lobbyEnoughPlayers = False
-				chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
 			if lobbyEnoughPlayers and not sentStartGame:
 				lobbyWaitBeforeGame -= 1
@@ -649,28 +420,28 @@ def controlHandlerDefault():
 						setvar("GameOptions.GameInfo.GameType", "1")
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
-							for w in worms.values():
+							for w in g.worms.values():
 								if w.iID != -1:
-									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
+									io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 					else:
-						setvar("GameOptions.GameInfo.GameType", "0")
+						io.setvar("GameOptions.GameInfo.GameType", "0")
 
-					startGame()
+					io.startGame()
 					if cfg.ALLOW_TEAM_CHANGE and getNumWorms() >= cfg.MIN_PLAYERS_TEAMS:
-						chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+						io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
 	if gameState == GAME_WEAPONS:
 
 		#checkMaxPing()
 
 		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-			gotoLobby()
+			io.gotoLobby()
 
 	if gameState == GAME_PLAYING:
 
 		checkMaxPing()
 
 
-controlHandler = controlHandlerDefault
+g.controlHandler = controlHandlerDefault
 

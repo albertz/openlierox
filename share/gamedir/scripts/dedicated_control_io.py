@@ -9,10 +9,14 @@ import time
 import os
 import sys
 import threading
+import traceback
 
 import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
+## Global vars (across all modules)
+import dedicated_control_globals
+g = dedicated_control_globals
 
 ## Receiving functions ##
 
@@ -186,6 +190,14 @@ def muteWorm(iID):
 def setWormTeam_io(iID, team):
 	print "setwormteam " + str(iID) + " " + str(team)
 
+
+def setWormTeam(iID, team):
+	if iID in g.worms.keys() and g.worms[iID].iID != -1:
+		g.worms[iID].Team = team
+		setWormTeam_io(iID, team)
+	else:
+		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
+
 def authorizeWorm(iID):
 	print "authorizeworm " + str(iID)
 
@@ -193,12 +205,11 @@ def authorizeWorm(iID):
 def getComputerWormList():
 	print "getcomputerwormlist"
 	resp = getResponseList("computerwormlistinfo")
-	global bots
-	bots = {}
+	g.bots = {}
 	for r in resp:
 		iID = int(r[:r.find(" ")])
 		name = r[r.find(" ")+1:]
-		bots[iID] = name
+		g.bots[iID] = name
 
 def getWormIP(iID):
 	print "getwormip %i" % int(iID)
@@ -279,3 +290,14 @@ def messageLog(message,severity):
 	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
 	# so let python send out the ugly warning.
 	msg(outline)
+
+# Stolen from http://www.linuxjournal.com/article/5821
+def formatExceptionInfo(maxTBlevel=5):
+	cla, exc, trbk = sys.exc_info()
+	excName = cla.__name__
+	try:
+		excArgs = exc.__dict__["args"]
+	except KeyError:
+		excArgs = "<no args>"
+	excTb = traceback.format_tb(trbk, maxTBlevel)
+	return (excName, excArgs, excTb)
