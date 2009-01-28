@@ -23,12 +23,14 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "DeprecatedGUI/CAnimation.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "IpToCountryDB.h"
+#include "UploadSpeedTest.h"
 
 
 namespace DeprecatedGUI {
@@ -67,7 +69,9 @@ enum {
 	os_LogConvos,
 	os_ScreenshotFormat,
 	os_MaxFPS,
-	os_Apply
+	os_Apply,
+	os_TestBandwidth,
+	os_TestAnimation
 };
 
 enum {
@@ -140,6 +144,10 @@ std::string NetworkSpeeds[] = {
 	"LAN"
 };
 
+UploadSpeedTest *tUploadSpeedTest = NULL;
+Event<UploadSpeedTest::TestData> onUploadTestFinished;
+
+void Menu_OptionsUpdateUpload(UploadSpeedTest::TestData);
 
 ///////////////////
 // Initialize the options
@@ -148,6 +156,10 @@ bool Menu_OptionsInitialize(void)
 	tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = 0;
     int i;
+
+	tUploadSpeedTest = new UploadSpeedTest();
+	onUploadTestFinished.handler() = getEventHandler(Menu_OptionsUpdateUpload);
+	tUploadSpeedTest->setOnTestFinished(&onUploadTestFinished);
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
@@ -266,7 +278,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
 
 	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 310, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 307, 70,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 307, 57,tLX->cFont.GetHeight());
 
 	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
@@ -284,6 +296,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 595, 307, 30, 20);
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
@@ -418,6 +431,34 @@ bool Menu_StartWithSysOptionsMenu(void*) {
 	Menu_OptionsInitialize();
 	OptionsMode = 2;
 	return true;
+}
+
+///////////////////
+// Called when the upload speed test finishes
+void Menu_OptionsUpdateUpload(UploadSpeedTest::TestData d)
+{
+	// Success?
+	if (!d.succeeded)  {
+		errors("Could not test the upload speed: " + d.test->getError().sErrorMsg + "\n");
+		return;
+	}
+
+	tLXOptions->iMaxUploadBandwidth = (int)d.rate;
+
+	// Get the textbox
+	CTextbox *txt = (CTextbox *)cOpt_System.getWidget(os_NetworkUploadBandwidth);
+	if (!txt)
+		return;
+
+	// Set the new value
+	txt->setText(itoa((int)d.rate));
+
+	// Remove the animation and show the Test button again
+	CButton *b = (CButton *)cOpt_System.getWidget(os_TestBandwidth);
+	if (b)
+		b->setEnabled(true);
+
+	cOpt_System.removeWidget(os_TestAnimation);
 }
 
 
@@ -794,6 +835,18 @@ void Menu_OptionsFrame(void)
 						}
 					}
 					break;
+
+				// Test bandwidth
+				case os_TestBandwidth:  {
+					if (ev->iEventMsg == BTN_MOUSEUP)  {
+						if (!tUploadSpeedTest)
+							break;
+						cOpt_System.Add(new CAnimation("data/frontend/testanim.png", 0.05f), os_TestAnimation, 610, 307, 20, 20);
+						CButton *b = (CButton *)cOpt_System.getWidget(os_TestBandwidth);
+						b->setEnabled(false);
+						tUploadSpeedTest->startTest();
+					}
+				} break;
 			}
 		}
 
@@ -938,6 +991,10 @@ void Menu_OptionsShutdown(void)
 	cOpt_Controls.Shutdown();
 	cOpt_System.Shutdown();
 	cOpt_Game.Shutdown();
+
+	if (tUploadSpeedTest)
+		delete tUploadSpeedTest;
+	tUploadSpeedTest = NULL;
 }
 
 }; // namespace DeprecatedGUI
