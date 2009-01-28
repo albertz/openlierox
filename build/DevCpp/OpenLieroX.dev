@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=279
+UnitCount=281
 Type=1
 Ver=1
 ObjFiles=
@@ -2831,6 +2831,26 @@ BuildCmd=
 FileName=..\..\src\client\CWormSkin.cpp
 CompileCpp=1
 Folder=Game objects
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit280]
+FileName=..\..\include\UploadSpeedTest.h
+CompileCpp=1
+Folder=Common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit281]
+FileName=..\..\src\common\UploadSpeedTest.cpp
+CompileCpp=1
+Folder=Common
 Compile=1
 Link=1
 Priority=1000
