@@ -258,8 +258,8 @@ void CChunkParser::Reset()
 
 
 
-Event<CHttp::HTTPEventData> onFinishEvent;
-Event<CHttp::HTTPEventData> onRetryEvent;
+Event<CHttp::HTTPInternalEventData> onFinishEvent;
+Event<CHttp::HTTPInternalEventData> onRetryEvent;
 Event<CHttp::HTTPRedirectEventData> onRedirectEvent;
 
 ///////////////
@@ -277,7 +277,7 @@ int HTTP_ProcThread(void *param)
 	// Notify about thread finishing
 	http->Lock();
 	if (http->iProcessingResult != HTTP_PROC_PROCESSING) // Send the finished event only when not restarting (for example due to a proxy fail)
-		SendSDLUserEvent<CHttp::HTTPEventData>(&onFinishEvent, CHttp::HTTPEventData(http));
+		SendSDLUserEvent<CHttp::HTTPInternalEventData>(&onFinishEvent, CHttp::HTTPInternalEventData(http));
 	http->Unlock();
 
 	return 0;
@@ -285,7 +285,7 @@ int HTTP_ProcThread(void *param)
 
 ////////////////////
 // Handle the retry event (retrying with no proxy)
-void HTTP_HandleRetryEvent(CHttp::HTTPEventData d)
+void HTTP_HandleRetryEvent(CHttp::HTTPInternalEventData d)
 {
 	d.http->OnFinished(); // Break the processing thread
 	d.http->RetryWithNoProxy();
@@ -293,7 +293,7 @@ void HTTP_HandleRetryEvent(CHttp::HTTPEventData d)
 
 ////////////////////
 // Processing finished (either an error or everything has been transfered)
-void HTTP_HandleFinishedEvent(CHttp::HTTPEventData d)
+void HTTP_HandleFinishedEvent(CHttp::HTTPInternalEventData d)
 {
 	d.http->OnFinished();
 }
@@ -331,6 +331,7 @@ CHttp::CHttp()
 
 	tMutex = SDL_CreateMutex();
 	tProcessingThread = NULL;
+	tOnFinishedEvent = NULL;
 
 	// Buffer for reading from socket
 	tBuffer = new char[BUFFER_LEN];
@@ -400,6 +401,7 @@ CHttp& CHttp::operator =(const CHttp& http)
 	iProxyPort = http.iProxyPort;
 	iAction = http.iAction;
 	iProcessingResult = http.iProcessingResult;
+	tOnFinishedEvent = http.tOnFinishedEvent;
 
 	fDownloadStart = http.fDownloadStart;
 	fDownloadEnd = http.fDownloadEnd;
@@ -506,6 +508,10 @@ void CHttp::OnFinished()
 	bBreakThread = false;
 	tProcessingThread = NULL;
 	bThreadRunning = false;
+
+	// If finished (error or success), fire the event
+	if (iProcessingResult != HTTP_PROC_PROCESSING && tOnFinishedEvent)
+		tOnFinishedEvent->occurred(HTTPEventData(this, tError.iError == HTTP_NO_ERROR));
 }
 
 
@@ -688,7 +694,7 @@ float CHttp::GetUploadSpeed() const
 
 ////////////////////
 // Returns the HTTP error
-HttpError CHttp::GetError()
+HttpError CHttp::GetError() const
 {
 	Lock();
 	HttpError tmp = tError;
@@ -1450,7 +1456,7 @@ bool CHttp::ProcessInternal()
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
 				warnings("HINT: proxy failed, trying a direct connection\n");
-				SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+				SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 				iProcessingResult = HTTP_PROC_PROCESSING;
 				return true;
 			}
@@ -1469,7 +1475,7 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+			SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1484,7 +1490,7 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings("HINT: proxy failed, trying a direct connection\n");
-			SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+			SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1531,7 +1537,7 @@ bool CHttp::ProcessInternal()
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings("HINT: proxy failed, trying a direct connection\n");
-					SendSDLUserEvent<HTTPEventData>(&onRetryEvent, HTTPEventData(this));
+					SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 					iProcessingResult = HTTP_PROC_PROCESSING;
 					return true;
 				}

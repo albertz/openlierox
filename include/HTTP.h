@@ -21,6 +21,7 @@
 
 #include <string>
 #include "Networking.h"
+#include "Event.h"
 
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
@@ -171,8 +172,8 @@ private:
 	};
 
 public:
-	struct HTTPEventData  {
-		HTTPEventData(CHttp *h) : http(h) {}
+	struct HTTPInternalEventData  {
+		HTTPInternalEventData(CHttp *h) : http(h) {}
 		CHttp *http;
 	};
 
@@ -186,11 +187,17 @@ public:
 		std::string sData;
 	};
 
+	struct HTTPEventData  {
+		HTTPEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
+		CHttp *cHttp;
+		bool bSucceeded;
+	};
+
 private:
 
 	friend int HTTP_ProcThread(void *);
-	friend void HTTP_HandleRetryEvent(HTTPEventData);
-	friend void HTTP_HandleFinishedEvent(HTTPEventData);
+	friend void HTTP_HandleRetryEvent(HTTPInternalEventData);
+	friend void HTTP_HandleFinishedEvent(HTTPInternalEventData);
 	friend void HTTP_HandleRedirectEvent(HTTPRedirectEventData);
 
 	std::string		sHost;
@@ -246,6 +253,8 @@ private:
 
 	std::string		sEmpty; // Returned when Data is being processed
 
+	Event<HTTPEventData>	*tOnFinishedEvent;
+
 private:
 	void				Lock() const;
 	void				Unlock() const;
@@ -287,7 +296,7 @@ public:
 	int					ProcessRequest();
 	void				CancelProcessing();
 	void				ClearReceivedData()			{ Lock(); sPureData = ""; Unlock(); }
-	HttpError			GetError();
+	HttpError			GetError() const;
 	const std::string&	GetData() const				{ return bThreadRunning ? sEmpty : sPureData; }
 	const std::string&	GetMimeType() const			{ return bThreadRunning ? sEmpty : sMimeType; }
 	const std::string&	GetDataToSend() const		{ return sDataToSend; }
@@ -302,6 +311,8 @@ public:
 
 	float				GetDownloadSpeed() const;
 	float				GetUploadSpeed() const;
+
+	void				SetOnFinished(Event<HTTPEventData> *evt)	{ tOnFinishedEvent = evt; }
 
 	const std::string&	GetHostName() const		{ return sHost; }
 	const std::string&	GetUrl() const			{ return sUrl; }
