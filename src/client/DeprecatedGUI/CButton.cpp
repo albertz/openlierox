@@ -19,6 +19,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/CButton.h"
+#include "GuiPrimitives.h"
 
 
 namespace DeprecatedGUI {
@@ -40,6 +41,12 @@ void CButton::Draw(SDL_Surface * bmpDest)
 			y2+=20;
 
 		DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
+		if (y2 >= bmpImage->h)  {
+			DrawSimpleButton(bmpDest, iX, iY, iWidth, iHeight, tLX->clWinBtnBody, tLX->clWinBtnLight, tLX->clWinBtnDark, bMouseDown);
+			int trans = bMouseDown ? 2 : 0;
+			tLX->cFont.DrawCentre(bmpDest, iX + iWidth / 2 + trans, iY + trans + (iHeight - tLX->cFont.GetHeight())/2, tLX->clNormalLabel, sButtonNames[iImageID]);
+		}
+
 		bMouseOver = false;	
 	} else { // Two state and three state buttons
 		if (bRedrawMenu)
@@ -93,6 +100,10 @@ void CButton::Create(void)
         }
     }
 	UnlockSurface(bmpImage);
+
+	if (y2 >= bmpImage->h)  {
+		iGoodWidth = tLX->cFont.GetWidth(sButtonNames[iImageID]) + 20;
+	}
 
     iGoodWidth = MIN(iGoodWidth+1,bmpImage.get()->w);
     
