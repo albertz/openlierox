@@ -449,7 +449,8 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		errors << "ReadSocket: " << GetLastErrorStr() << endl;
+		if (!IsMessageEndSocketErrorNr(GetSocketErrorNr()))
+			errors << "ReadSocket: " << GetLastErrorStr() << endl;
 		return NL_INVALID;
 	}
 #endif // DEBUG
