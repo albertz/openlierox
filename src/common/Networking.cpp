@@ -174,6 +174,7 @@ static int SdlNetEventThreadMain( void * param )
 	if (SdlNetEventThreadExit)  {
 		delete (uint *)param;
 		delete[] sock_out;
+		return 0;
 	}
 
 	float max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
@@ -217,7 +218,7 @@ static int SdlNetEventThreadMain( void * param )
 
 static bool SdlNetEvent_Init()
 {
-	if( SdlNetEvent_Inited )
+	if( SdlNetEvent_Inited || !tLX )
 		return false;
 	SdlNetEvent_Inited = true;
 
