@@ -18,6 +18,7 @@
 #include <SDL_mutex.h>
 
 #include <map>
+#include <algorithm>
 
 #include "Options.h"
 #include "Debug.h"
@@ -52,7 +53,7 @@ typedef unsigned int Ip;
 typedef Uint32 Ip;
 #endif
 
-#define READ_CHUNK_SIZE  256
+#define READ_CHUNK_SIZE  128
 
 struct DBEntry {
 	Ip			RangeFrom;
@@ -141,6 +142,8 @@ public:
 	std::string		filename;
 	std::ifstream	*file;
 	DBData			data;
+	DBData			cache;  // Holds data that have been already used, for faster lookups mainly in the server list
+	std::vector<Ip>	notFoundCache;  // Same as the above, it only holds IPs that have not been found in the database
 
 	SDL_Thread		*loader;
 	SDL_mutex		*dataMutex;
@@ -161,6 +164,8 @@ public:
 			SDL_WaitThread(loader, NULL);
 
 		data.clear();
+		cache.clear();
+		notFoundCache.clear();
 		if (csvReaderHandler)
 			delete csvReaderHandler;
 		if (adder)
@@ -182,6 +187,8 @@ public:
 
 		filename = fn;
 		data.clear();
+		cache.clear();
+		notFoundCache.clear();
 
 		//loader = SDL_CreateThread(loaderMain, this);
 		file = OpenGameFileR(filename);
@@ -253,65 +260,72 @@ public:
 
 	const DBEntry getEntry(Ip ip) {
 		float start = GetMilliSeconds();
-		
-		SDL_LockMutex(dataMutex);
 
-		size_t search_start = 0;
-		while (true)  {
+		DBEntry result;
+		bool found = false;
+		bool fully_loaded = true;
 
-			// Find the correct entry
-			DBData::const_iterator it = data.begin() + search_start;
-			for (; it != data.end(); it++)  {
-				if (it->RangeFrom <= ip && it->RangeTo >= ip)
-					break;
-			}
-			search_start = data.size();
-
-			if (it != data.end())  { // in range?
-				DBEntry result = *it;
-
-				SDL_UnlockMutex(dataMutex);
-
-				ucfirst(result.Info.Country);
-
-				// Small hack, Australia is considered as Asia by the database
-				if(result.Info.Country == "Australia")
-					result.Info.Continent = "Australia";
-
-				// Convert the IANA code to a continent
-				else if (result.Info.Continent == "IANA")
-					result.Info.Continent = "Local Network";
-				else if (result.Info.Continent == "ARIN")
-					result.Info.Continent = "North America";
-				else if (result.Info.Continent == "LACNIC")
-					result.Info.Continent = "South America";
-				else if (result.Info.Continent == "AFRINIC")
-					result.Info.Continent = "Africa";
-				else if (result.Info.Continent == "RIPE")
-					result.Info.Continent = "Europe";
-				else if (result.Info.Continent == "APNIC")
-					result.Info.Continent = "Asia";
-
-				return result;
-
-			// Not found
-			} else  {
-				// If the searching took too much time or the entry has not been found at all, throw an exception
-				if (csvReader.readingFinished() || GetMilliSeconds() - start >= 0.3f)  {
-					SDL_UnlockMutex(dataMutex);
-					warnings << "IpToCountry Database: the entry has not been found within a reasonable time, giving up..." << endl;
-					throw "The IP was not found in the database";
-				}  else  {
-					// Read chunk of data
-					// HINT: the mutex is locked which means that the loader thread is paused
-					// HINT: we are reading here and not waiting for the thread adder because this is faster (no sleeping)
-					csvReader.readSome(READ_CHUNK_SIZE);
-				}
-			}
+		// If the IP has not been found in any of the previous lookups, just give up
+		if (std::find(notFoundCache.begin(), notFoundCache.end(), ip) != notFoundCache.end())  {
+			throw "The IP was not found in the database";
 		}
 
-		SDL_UnlockMutex(dataMutex);
-		throw "The IP was not found in the database";
+		// Try the cache first
+		for (DBData::const_iterator it = cache.begin(); it != cache.end(); ++it)  {
+			if (it->RangeFrom <= ip && it->RangeTo >= ip)  {
+				result = *it;
+				found = true;
+				break;
+			}
+		}
+		
+		// Find the correct entry in the full list if not found in the cache
+		if (!found)  {
+			SDL_LockMutex(dataMutex);
+			fully_loaded = csvReader.readingFinished();
+			for (DBData::const_iterator it = data.begin(); it != data.end(); ++it)  {
+				if (it->RangeFrom <= ip && it->RangeTo >= ip)  {
+					result = *it;
+					cache.push_back(*it); // Add it to the cache
+					found = true;
+					break;
+				}
+			}
+			SDL_UnlockMutex(dataMutex);
+		}
+
+		if (found)  { // in range?
+			ucfirst(result.Info.Country);
+
+			// Small hack, Australia is considered as Asia by the database
+			if(result.Info.Country == "Australia")
+				result.Info.Continent = "Australia";
+
+			// Convert the IANA code to a continent
+			else if (result.Info.Continent == "IANA")
+				result.Info.Continent = "Local Network";
+			else if (result.Info.Continent == "ARIN")
+				result.Info.Continent = "North America";
+			else if (result.Info.Continent == "LACNIC")
+				result.Info.Continent = "South America";
+			else if (result.Info.Continent == "AFRINIC")
+				result.Info.Continent = "Africa";
+			else if (result.Info.Continent == "RIPE")
+				result.Info.Continent = "Europe";
+			else if (result.Info.Continent == "APNIC")
+				result.Info.Continent = "Asia";
+
+			//notes << "Getting the entry took " << GetMilliSeconds() - start << " seconds.\n";
+
+			return result;
+
+		// Not found
+		} else  {
+			if (fully_loaded)
+				notFoundCache.push_back(ip); // Don't iterate through the whole DB next time...
+			//notes << "Getting the entry took " << GetMilliSeconds() - start << " seconds.\n";
+			throw "The IP was not found in the database";
+		}
 	}
 
 
