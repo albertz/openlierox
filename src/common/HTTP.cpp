@@ -260,6 +260,7 @@ void CChunkParser::Reset()
 
 Event<CHttp::HTTPEventData> onFinishEvent;
 Event<CHttp::HTTPEventData> onRetryEvent;
+Event<CHttp::HTTPRedirectEventData> onRedirectEvent;
 
 ///////////////
 // Processing thread of the HTTP function
@@ -286,15 +287,38 @@ int HTTP_ProcThread(void *param)
 	return 0;
 }
 
+////////////////////
+// Handle the retry event (retrying with no proxy)
 void HTTP_HandleRetryEvent(CHttp::HTTPEventData d)
 {
-	d.http->OnFinished();
+	d.http->OnFinished(); // Break the processing thread
 	d.http->RetryWithNoProxy();
 }
 
+////////////////////
+// Processing finished (either an error or everything has been transfered)
 void HTTP_HandleFinishedEvent(CHttp::HTTPEventData d)
 {
 	d.http->OnFinished();
+}
+
+////////////////////
+// Redirect event
+void HTTP_HandleRedirectEvent(CHttp::HTTPRedirectEventData d)
+{
+	d.http->OnFinished(); // Break the processing thread
+
+	switch (d.http->iAction)  {
+	case CHttp::htaGet:
+		d.http->RequestData(d.sUrl, d.sProxy);
+	break;
+	case CHttp::htaPost:
+		d.http->SendDataInternal(d.sData, d.sUrl, d.sProxy);
+	break;
+	case CHttp::htaHead:
+		errors("HTTP HEAD not implemented\n");
+	break;
+	}
 }
 
 //
@@ -307,6 +331,7 @@ CHttp::CHttp()
 {
 	onFinishEvent.handler() = getEventHandler(&HTTP_HandleFinishedEvent);
 	onRetryEvent.handler() = getEventHandler(&HTTP_HandleRetryEvent);
+	onRedirectEvent.handler() = getEventHandler(&HTTP_HandleRedirectEvent);
 
 	tMutex = SDL_CreateMutex();
 	tProcessingThread = NULL;
@@ -1019,7 +1044,7 @@ void CHttp::HandleRedirect(int code)
 
 		// First try the Location field
 		if (location.size() != 0)  {
-			RequestData(location, tLXOptions->sHttpProxy);
+			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			return;
 		}
 		
@@ -1037,8 +1062,8 @@ void CHttp::HandleRedirect(int code)
 		TrimSpaces(location);
 
 		if (location.size())  {
-			printf("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
-			RequestData(location, tLXOptions->sHttpProxy);
+			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
+			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
 			tError.sErrorMsg = "No redirect address specified in the redirect message";
@@ -1051,8 +1076,8 @@ void CHttp::HandleRedirect(int code)
 
 		// New location should be stored in the Location field
 		if (location.size() != 0)  {
-			printf("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
-			RequestData(location, tLXOptions->sHttpProxy);
+			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
+			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			return;
 		} else { // No location has been given, just quit...
 			SetHttpError(HTTP_BAD_RESPONSE);
@@ -1069,7 +1094,7 @@ void CHttp::HandleRedirect(int code)
 	case 305: // Use Proxy
 		// The proxy address is given in the location field
 		if (location.size())  {
-			RequestData(sHost + sUrl, location);
+			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			printf("HTTP notice: accessing the desired location using proxy: " + location + "\n");
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
@@ -1451,6 +1476,12 @@ bool CHttp::ProcessInternal()
 			iProcessingResult = HTTP_PROC_ERROR;
 			return true;
 		}
+	}
+
+	// If redirecting, quit the processing and wait for the event (sent in HandleRedirect) to start another request
+	if (bRedirecting)  {
+		iProcessingResult = HTTP_PROC_PROCESSING;
+		return true;
 	}
 
 

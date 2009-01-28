@@ -176,11 +176,22 @@ public:
 		CHttp *http;
 	};
 
+	struct HTTPRedirectEventData  {
+		HTTPRedirectEventData(CHttp *h, const std::string& url, const std::string proxy, const std::string& data) :
+			http(h), sUrl(url), sProxy(proxy), sData(data) {}
+
+		CHttp *http;
+		std::string sUrl;
+		std::string sProxy;
+		std::string sData;
+	};
+
 private:
 
 	friend int HTTP_ProcThread(void *);
 	friend void HTTP_HandleRetryEvent(HTTPEventData);
 	friend void HTTP_HandleFinishedEvent(HTTPEventData);
+	friend void HTTP_HandleRedirectEvent(HTTPRedirectEventData);
 
 	std::string		sHost;
 	std::string		sUrl;
