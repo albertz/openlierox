@@ -259,7 +259,7 @@ public:
 	}
 
 	const DBEntry getEntry(Ip ip) {
-		float start = GetMilliSeconds();
+		//float start = GetMilliSeconds(); // TODO: unused
 
 		DBEntry result;
 		bool found = false;
