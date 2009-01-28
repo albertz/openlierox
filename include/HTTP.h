@@ -22,7 +22,7 @@
 #include <string>
 #include "Networking.h"
 
-#include <SDL_Thread.h>
+#include <SDL_thread.h>
 #include <SDL_mutex.h>
 
 // Some basic defines

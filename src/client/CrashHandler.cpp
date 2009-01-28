@@ -402,15 +402,19 @@ public:
 		
 		DumpCallstackPrintf();
 		
-#ifndef DEBUG
+#ifdef DEBUG
+		// Generate coredump and continue
+		if(!fork()) 
+		{
+			// Crash the app in your favorite way here
+			abort();
+		}
+#endif
+                                        
 		signal(Sig, SimpleSignalHandler); // reset handler
 		printf("resuming ...\n");
-		fflush(0);
+		fflush(stdout);
 		siglongjmp(longJumpBuffer, 1); // jump back to main loop, maybe we'll be able to continue somehow
-#else
-		signal(Sig, SIG_DFL); // Generate coredump - we need that to fix the bug!
-		raise(Sig);
-#endif
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
