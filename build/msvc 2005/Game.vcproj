@@ -4421,6 +4421,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\UploadSpeedTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\UploadSpeedTest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\Utils.h"
 				>
 			</File>
