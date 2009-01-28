@@ -269,12 +269,8 @@ int HTTP_ProcThread(void *param)
 	CHttp *http = (CHttp *)param;
 
 	while (!http->bBreakThread)  {
-		http->Lock();
-		bool end = http->ProcessInternal();
-		http->Unlock();
-
 		// Transfer finished
-		if (end)
+		if (http->ProcessInternal())
 			break;
 	}
 
@@ -1211,11 +1207,14 @@ void CHttp::RetryWithNoProxy()
 
 //////////////////
 // Reads data from the socket and calls ProcessData if some data is present
+// NOTE: the tMutex must be always locked before calling this!
 int CHttp::ReadAndProcessData()
 {
 	// Wait until we have some data to read
 	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
+	Unlock();
 	WaitForSocketRead(tSocket, 1000);
+	Lock();
 
 	// Check if we have a response
 	int count = 0;
@@ -1239,9 +1238,6 @@ int CHttp::ReadAndProcessData()
 			fSocketActionTime = GetMilliSeconds();
 		}
 	}
-
-	// We're running this in a separate thread, don't make it drain 100 % CPU
-	SDL_Delay(5);
 
 	// Any HTTP errors?
 	if (tError.iError != HTTP_NO_ERROR)
@@ -1271,6 +1267,7 @@ int CHttp::ReadAndProcessData()
 
 /////////////////
 // Process the GET request
+// NOTE: the tMutex must be always locked before calling this!
 int CHttp::ProcessGET()
 {
 	assert(iAction == htaGet);
@@ -1317,6 +1314,7 @@ int CHttp::ProcessGET()
 
 /////////////////
 // Process posting data on the server
+// NOTE: the tMutex must be always locked before calling this!
 int CHttp::ProcessPOST()
 {
 	assert(iAction == htaPost);
@@ -1379,7 +1377,9 @@ int CHttp::ProcessPOST()
 
 	// Wait until the network buffers are ready
 	// HINT: ProcessPOST is called in a separate thread so we can do this blocking call
+	Unlock();
 	WaitForSocketWrite(tSocket, 1000);
+	Lock();
 
 	// Send another chunk
 	int res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
@@ -1416,9 +1416,12 @@ int CHttp::ProcessRequest()
 /////////////////
 // Main processing function (called from the processing thread)
 // Returns true if the processing should end
-// NOTE: Lock the HTTP client using Lock() before calling this
+// NOTE: Locking is done automatically in this function
 bool CHttp::ProcessInternal()
 {
+	// Lock
+	ScopedLock lock(tMutex);
+
 	// Check that there has been no error yet
 	if (tError.iError != HTTP_NO_ERROR)  {
 		iProcessingResult = HTTP_PROC_ERROR;
