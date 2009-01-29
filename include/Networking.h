@@ -76,6 +76,7 @@ void AddSocketToNotifierGroup( NetworkSocket sock );
 void RemoveSocketFromNotifierGroup( NetworkSocket sock );
 void	WaitForSocketWrite(NetworkSocket sock, int timeout);
 void	WaitForSocketRead(NetworkSocket sock, int timeout);
+void	WaitForSocketReadOrWrite(NetworkSocket sock, int timeout);
 
 int		GetSocketErrorNr();
 std::string	GetSocketErrorStr(int errnr);

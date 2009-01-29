@@ -592,8 +592,6 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	if( sProxyHost.size() != 0 )
 		host = sProxyHost;
 
-	hints << "HTTP: uploading to host " << host << endl;
-
 	ResetNetAddr(tRemoteIP);
 	
 	// Try if an IP has been entered
@@ -602,23 +600,7 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 
 		// Not an IP, use DNS
 		GetNetAddrFromNameAsync(host, tRemoteIP);
-		// TODO: HACK: Bad bad blocking code here! Move thast somewhere to HTTP::Processing() or whatever
-		int timeout = 50; // 5 seconds
-		while( timeout > 0 && !IsNetAddrValid(tRemoteIP) ) {
-			timeout --;
-			SDL_Delay(100);
-		}
-		if( !IsNetAddrValid(tRemoteIP) )
-		{
-			return false;
-			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
-			tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
-		}
 	}
-
-	std::string ip;
-	NetAddrToString( tRemoteIP, ip );
-	hints << "HTTP: uploading to IP " << ip << endl;
 
 	// We're active now
 	bActive = true;
@@ -1267,12 +1249,6 @@ void CHttp::RetryWithNoProxy(const std::string& url, const std::string& data_to_
 // NOTE: the tMutex must be always locked before calling this!
 int CHttp::ReadAndProcessData()
 {
-	// Wait until we have some data to read
-	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
-	Unlock();
-	WaitForSocketRead(tSocket, 1000);
-	Lock();
-
 	// Check if we have a response
 	int count = 0;
 	if (tBuffer != NULL)  {
@@ -1343,6 +1319,12 @@ int CHttp::ProcessGET()
 	// If we aren't ready yet, leave
 	if(!bSocketReady || !bConnected || !bRequested)
 		return HTTP_PROC_PROCESSING;
+
+	// Wait until we have some data to read
+	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
+	Unlock();
+	WaitForSocketRead(tSocket, 1000);
+	Lock();
 
 	// Check for response
 	int res = ReadAndProcessData();
@@ -1417,19 +1399,29 @@ int CHttp::ProcessPOST()
 	if(!bSocketReady || !bConnected || !bSentHeader)
 		return HTTP_PROC_PROCESSING;
 
-	// Waiting for response (after sending all the data)
-	if (iDataSent >= sDataToSend.size())  {
+	// Wait until we have some data to read or write
+	// HINT: this function is called in a separate thread so we can do this blocking call
+	Unlock();
+	WaitForSocketReadOrWrite(tSocket, 1000);
+	Lock();
 
-		// Check if we have a response
-		int res = ReadAndProcessData();
-		if (res == HTTP_PROC_ERROR)
-			return HTTP_PROC_ERROR;
+	// Check if we have a response
+	// HINT: don't wait for sending all the data, if the server wants to refuse us, it will do it immediatelly
+	int res = ReadAndProcessData();
+	if (res == HTTP_PROC_ERROR)
+		return HTTP_PROC_ERROR;
 
-		// Finished!
-		if (bTransferFinished)
+	// Finished?
+	if (bTransferFinished)  {
+		// We could get a 200 OK response even when not uploaded everything, who knows...
+		if (iDataSent >= sDataToSend.size())  {
+			fUploadEnd = GetMilliSeconds();
 			return HTTP_PROC_FINISHED;
-
-		return HTTP_PROC_PROCESSING;
+		} else {
+			bTransferFinished = false;
+			SetHttpError(HTTP_BAD_RESPONSE);
+			return HTTP_PROC_ERROR;
+		}
 	}
 
 	// Wait until the network buffers are ready
@@ -1439,7 +1431,7 @@ int CHttp::ProcessPOST()
 	Lock();
 
 	// Send another chunk
-	int res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
+	res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
 	fSocketActionTime = GetMilliSeconds();
 
 	// Error check

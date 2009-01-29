@@ -67,6 +67,8 @@ void UploadSpeedTest::startTest()
 	generateRandomData(TEST_DATA_SIZE * 1024, random_data);
 	m_finished = false;
 
+	notes << "Starting an upload speed test to host " << m_url << endl;
+
 	// Start uploading
 	std::list<HTTPPostField> data;
 	data.push_back(HTTPPostField(random_data, "binary/random", "data", ""));

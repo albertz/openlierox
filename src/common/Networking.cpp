@@ -783,6 +783,38 @@ void WaitForSocketRead(NetworkSocket sock, int timeout)
 	nlGroupDestroy(group);
 }
 
+/////////////////////
+// Wait until the socket contains some data or is writeable
+void WaitForSocketReadOrWrite(NetworkSocket sock, int timeout)
+{
+	NLint group = nlGroupCreate();
+	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	NLsocket s;
+
+	if (timeout < 0)  {
+		// Infinite timeout
+		while (true)  {
+			if (nlPollGroup(group, NL_READ_STATUS, &s, 1, 0))
+				break;
+			if (nlPollGroup(group, NL_WRITE_STATUS, &s, 1, 0))
+				break;
+			SDL_Delay(2);
+		}
+	} else if (timeout > 0)  {
+		// Blocking, with a timeout
+		Uint32 start = SDL_GetTicks();
+		while (SDL_GetTicks() - start <= (Uint32)timeout)  {
+			if (nlPollGroup(group, NL_READ_STATUS, &s, 1, 0))
+				break;
+			if (nlPollGroup(group, NL_WRITE_STATUS, &s, 1, 0))
+				break;
+			SDL_Delay(2);
+		}
+	}
+
+	nlGroupDestroy(group);
+}
+
 int GetSocketErrorNr() {
 	return nlGetError();
 }
