@@ -22,6 +22,7 @@
 #include <string>
 #include "Networking.h"
 #include "Event.h"
+#include "SmartPointer.h"
 
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
@@ -256,8 +257,8 @@ private:
 	void				InitThread();
 	void				ShutdownThread();
 	void				HttpThread_onFinished(EventData);
-	void				HttpThread_onRetry(HttpRetryEventData *);
-	void				HttpThread_onRedirect(HttpRedirectEventData *);
+	void				HttpThread_onRetry(SmartPointer<HttpRetryEventData>);
+	void				HttpThread_onRedirect(SmartPointer<HttpRedirectEventData>);
 	
 	int					ProcessGET();
 	int					ProcessPOST();
