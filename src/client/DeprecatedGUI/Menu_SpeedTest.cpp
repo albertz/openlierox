@@ -28,10 +28,13 @@ enum  {
 	ms_Cancel,
 	ms_Progress,
 	ms_Label,
-	ms_Ok
+	ms_Ok,
+	ms_Reset
 };
 
 void Menu_SpeedTest_OnFinished(UploadSpeedTest::TestData);
+
+#define TESTING_STRING "Testing your connection speed. Please wait..."
 
 void Menu_SpeedTest_Initialize()
 {
@@ -45,15 +48,16 @@ void Menu_SpeedTest_Initialize()
 	int y = (VideoPostProcessor::get()->screenHeight() - height) / 2;
 
 	cSpeedTest.Add(new CButton(BUT_CANCEL, tMenu->bmpButtons), ms_Cancel, x + (width - 80)/2, y + height - 22, 80, 20);
-	cSpeedTest.Add(new CButton(BUT_OK, tMenu->bmpButtons), ms_Ok, x + (width - 40)/2, y + height - 22, 40, 20);
+	cSpeedTest.Add(new CButton(BUT_OK, tMenu->bmpButtons), ms_Ok, x + width/2 + 15, y + height - 22, 40, 20);
+	cSpeedTest.Add(new CButton(BUT_RESET, tMenu->bmpButtons), ms_Reset, x + width/2 - 60, y + height - 22, 60, 20);
 	cSpeedTest.Add(new CProgressBar(gfxGUI.bmpSpeedTestProgress, 0, 0, false, 2), ms_Progress, x + 20, y + 20 + (height - 20) / 2, width - 40, 20);
-	cSpeedTest.Add(new CLabel("Testing your connection speed. Please wait...", tLX->clNormalLabel, true), ms_Label, x + width /2, y + 30, width, 20);
+	cSpeedTest.Add(new CLabel(TESTING_STRING, tLX->clNormalLabel, true), ms_Label, x + width /2, y + 30, width, 20);
 	cSpeedTest.Add(new CLabel("Connection Test", tLX->clNormalLabel, true), -1, x + width /2, y + 4, width, 20);
 
-	// Hide the OK button
-	CButton *btn = (CButton *)cSpeedTest.getWidget(ms_Ok);
-	btn->setEnabled(false);
-	
+	// Hide the OK and Reset buttons
+	cSpeedTest.getWidget(ms_Ok)->setEnabled(false);
+	cSpeedTest.getWidget(ms_Reset)->setEnabled(false);
+
 	cSpeedTest.SetGlobalProperty(PRP_REDRAWMENU, 0);
 
 	// Run the test
@@ -75,26 +79,37 @@ bool Menu_SpeedTest_Frame()
 	if (!tSpeedTest)
 		return true;
 
-	if (tSpeedTest->hasFinished() && !tSpeedTest->hasErrorOccured())
-		return true;
-
 	SDL_Surface *bmpDest = VideoPostProcessor::videoSurface();
 
 	// Error?
-	if (tSpeedTest->hasErrorOccured())  {
+	if (tSpeedTest->hasFinished())  {
 		CLabel *lbl = (CLabel *)cSpeedTest.getWidget(ms_Label);
-		lbl->setText("Connection test failed, please try again later.");
-		lbl->ChangeColour(tLX->clError);
+		if (tSpeedTest->hasErrorOccured())  {
+			lbl->setText("Connection test failed, please try again later.");
+			lbl->ChangeColour(tLX->clError);
+		} else {
+			int speed = (int)tSpeedTest->getUploadRate();
+			std::string human_speed = itoa(speed) + " B/s";
+			if (speed >= 1024 * 1024 * 1024)
+				human_speed = itoa(speed / (1024 * 1024 * 1024)) + " GB/s";
+			else if (speed >= 1024 * 1024)
+				human_speed = itoa(speed / (1024 * 1024)) + " MB/s";
+			else if (speed >= 1024)
+				human_speed = itoa(speed / 1024) + " kB/s";
+
+			lbl->setText("Test completed! Your upload speed is " + human_speed);
+			lbl->ChangeColour(tLX->clNormalLabel);
+		}
 
 		// Hide the cancel button and show the OK button
-		CButton *btn = (CButton *)cSpeedTest.getWidget(ms_Cancel);
-		btn->setEnabled(false);
-		btn = (CButton *)cSpeedTest.getWidget(ms_Ok);
-		btn->setEnabled(true);
-	} else {
-		CProgressBar *bar = (CProgressBar *)cSpeedTest.getWidget(ms_Progress);
-		bar->SetPosition(tSpeedTest->getProgress());
+		cSpeedTest.getWidget(ms_Cancel)->setEnabled(false);
+		cSpeedTest.getWidget(ms_Ok)->setEnabled(true);
+		cSpeedTest.getWidget(ms_Reset)->setEnabled(true);
 	}
+
+	// Update the progress bar
+	CProgressBar *bar = (CProgressBar *)cSpeedTest.getWidget(ms_Progress);
+	bar->SetPosition(tSpeedTest->getProgress());
 
 	// Events
 	gui_event_t *ev = cSpeedTest.Process();
@@ -113,6 +128,22 @@ bool Menu_SpeedTest_Frame()
 				return true;
 			}
 		break;
+
+		case ms_Reset:
+			if (ev->iEventMsg == BTN_MOUSEUP)  {
+				tSpeedTest->startTest();
+
+				// Hide the OK and Reset buttons and show the Cancel button
+				cSpeedTest.getWidget(ms_Cancel)->setEnabled(true);
+				cSpeedTest.getWidget(ms_Ok)->setEnabled(false);
+				cSpeedTest.getWidget(ms_Reset)->setEnabled(false);
+
+				CLabel *lbl = (CLabel *)cSpeedTest.getWidget(ms_Label);
+				lbl->setText(TESTING_STRING);
+				lbl->ChangeColour(tLX->clNormalLabel);
+
+				return false;
+			}
 		}
 	}
 
