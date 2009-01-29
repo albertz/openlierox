@@ -217,11 +217,11 @@ def parseUserCommandTeamArena(wormid, cmd, params):
 	
 	return False
 
-g.controlHandler = controlHandlerTeamArena
-g.adminCommandHelp_Preset = adminCommandHelpTeamArena
-g.parseAdminCommand_Preset = parseAdminCommandTeamArena
-g.userCommandHelp_Preset = userCommandHelpTeamArena
-g.parseUserCommand_Preset = parseUserCommandTeamArena
+controlHandler = controlHandlerTeamArena
+adminCommandHelp_Preset = adminCommandHelpTeamArena
+parseAdminCommand_Preset = parseAdminCommandTeamArena
+userCommandHelp_Preset = userCommandHelpTeamArena
+parseUserCommand_Preset = parseUserCommandTeamArena
 
 if cfg.ALLOW_TEAM_CHANGE:
 	chatMsg(cfg.TEAM_CHANGE_MESSAGE)

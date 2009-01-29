@@ -12,28 +12,38 @@ import sys
 import threading
 import traceback
 
-import dedicated_config  # Per-host config like admin password
-cfg = dedicated_config # shortcut
+import dedicated_config as cfg # Per-host config like admin password
 
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
 #if sys.platform == "win32":
 sys.stderr = open(cfg.ERROR_FILE, "w", 0)
 
-## Global vars (across all modules)
-import dedicated_control_globals
-g = dedicated_control_globals
-
-import dedicated_control_io
-io = dedicated_control_io
+import dedicated_control_io as io
 setvar = io.setvar
 formatExceptionInfo = io.formatExceptionInfo
 
-import dedicated_control_ranking
-ranking = dedicated_control_ranking
+import dedicated_control_ranking as ranking
 
-import dedicated_control_usercommands
-cmds = dedicated_control_usercommands
+import dedicated_control_usercommands as cmds
+
+
+## Global vars
+# Preset stuffies
+availablePresets = []
+nextPresets = []
+
+availableLevels = list()
+availableMods = list()
+
+worms = {} # List of all worms on the server
+# Bots don't need to be itterated with the other ones.
+bots = {}  # Dictionary of all possible bots
+
+# Function that controls ded server behavior
+controlHandler = None
+
+scriptPaused = False
 
 stdinInputThread = io.GetStdinThread()
 
@@ -89,8 +99,9 @@ def init():
 
 
 def getNumWorms():
+	global worms
 	i = 0
-	for w in g.worms.values():
+	for w in worms.values():
 		if w.iID != -1:
 			i += 1
 
@@ -146,11 +157,13 @@ def signalHandler(sig):
 	return True
 
 def parseNewWorm(sig):
+	global worms
+
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:]).replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
 	try:
-		worm = g.worms[wormID]
+		worm = worms[wormID]
 		exists = True
 	except KeyError: #Worm doesn't exist.
 		worm = Worm()
@@ -158,14 +171,14 @@ def parseNewWorm(sig):
 	worm.iID = wormID
 
 	if not exists:
-		g.worms[wormID] = worm
+		worms[wormID] = worm
 	
 	# Balance teams
 	teams = [0,0,0,0]
-	for w in g.worms.keys():
-		if g.worms[w].iID == -1:
+	for w in worms.keys():
+		if worms[w].iID == -1:
 			continue
-		teams[g.worms[w].Team] += 1
+		teams[worms[w].Team] += 1
 	minTeam = 0
 	minTeamCount = teams[0]
 	for f in range(cfg.MAX_TEAMS):
@@ -190,109 +203,121 @@ def parseNewWorm(sig):
 			
 
 def parseWormLeft(sig):
+	global worms
 
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
 
 	try:
-		if g.worms[wormID].isAdmin:
+		if worms[wormID].isAdmin:
 			io.messageLog(("Worm %i (%s) removed from admins" % (wormID,name)),io.LOG_ADMIN)
 	except KeyError:
 		io.messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 	# Call last, that way we still have the data active.
-	g.worms[wormID].clear()
+	worms[wormID].clear()
 
 
 def parsePrivateMessage(sig):
+	global worms
 
 	wormID = int(sig.split(" ")[1])
 	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
 	if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
 		try:
-			if not g.worms[wormID].isAdmin:
-				g.worms[wormID].isAdmin = True
-				io.messageLog(("Worm %i (%s) added to admins" % (wormID,g.worms[wormID].Name)),io.LOG_ADMIN)
+			if not worms[wormID].isAdmin:
+				worms[wormID].isAdmin = True
+				io.messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),io.LOG_ADMIN)
 				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
 				io.authorizeWorm(wormID)
-				io.privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (g.worms[wormID].Name,cfg.ADMIN_PREFIX))
+				io.privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
 		except KeyError:
 			io.messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 def parseChatMessage(sig):
+	global worms
 
 	wormID = int(sig.split(" ")[1])
 	message = " ".join(sig.split(" ")[2:])
 	io.msg("Chat msg from worm %i: %s" % (wormID, message))
-	if g.worms[wormID].isAdmin:
+	if worms[wormID].isAdmin:
 		if not cmds.parseAdminCommand(wormID,message):
 			cmds.parseUserCommand(wormID,message)
 	else:
 		cmds.parseUserCommand(wormID,message)
 
 def parseWormDied(sig):
+	global worms
 
 	deaderID = int(sig.split(" ")[1])
 	killerID = int(sig.split(" ")[2])
-	g.worms[deaderID].Lives -= 1
-	g.worms[deaderID].Alive = False
+	worms[deaderID].Lives -= 1
+	worms[deaderID].Alive = False
 
 	if not cfg.RANKING:
 		return
 
 	try:
 		f = open("pwn0meter.txt","a")
-		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + g.worms[deaderID].Name + "\t" + g.worms[killerID].Name + "\n" )
+		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
 		io.msg("ERROR: Unable to open pwn0meter.txt")
 
 	if(deaderID == killerID):
 		try:
-			ranking.rank[g.worms[killerID].Name][2] += 1
+			ranking.rank[worms[killerID].Name][2] += 1
 		except KeyError:
-			ranking.rank[g.worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
+			ranking.rank[worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
 	else:
 		try:
-			ranking.rank[g.worms[killerID].Name][0] += 1
+			ranking.rank[worms[killerID].Name][0] += 1
 		except KeyError:
-			ranking.rank[g.worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
+			ranking.rank[worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
 	try:
-		ranking.rank[g.worms[deaderID].Name][1] += 1
+		ranking.rank[worms[deaderID].Name][1] += 1
 	except KeyError:
-		ranking.rank[g.worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
+		ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
 def parseWormSpawned(sig):
+	global worms
 
 	wormID = int(sig.split(" ")[1])
-	g.worms[wormID].Alive = True
+	worms[wormID].Alive = True
 
 ## Preset loading functions ##
 def initPresets():
+	global availablePresets
 
 	# Reset - incase we get called a second time
-	g.availablePresets = []
+	availablePresets = []
 
 	for f in os.listdir(presetDir):
 
 		if f.lower() != "defaults" and f.lower() != ".svn":
-			g.availablePresets.append(f)
+			availablePresets.append(f)
 
-	if (len(g.availablePresets) == 0):
+	if (len(availablePresets) == 0):
 		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
 		exit()
 
 # initPresets must be called before this - or it will crash
 # TODO: Try to make something nicer for the user which doesn't read this
 def selectNextPreset():
+	global availablePresets, nextPresets, controlHandler
+	adminCommandHelp_Preset = cmds.adminCommandHelp_Preset
+	parseAdminCommand_Preset = cmds.parseAdminCommand_Preset
+	userCommandHelp_Preset = cmds.userCommandHelp_Preset
+	parseUserCommand_Preset = cmds.parseUserCommand_Preset
 
-	if len( g.nextPresets ) == 0:
-		g.nextPresets = list(cfg.PRESETS)
-		if len( g.nextPresets ) == 0:
-			g.nextPresets = list(g.availablePresets)
+	
+	if len( nextPresets ) == 0:
+		nextPresets = list(cfg.PRESETS)
+		if len( nextPresets ) == 0:
+			nextPresets = list(availablePresets)
 
-	preset = g.nextPresets[0]
-	g.nextPresets.pop(0)
+	preset = nextPresets[0]
+	nextPresets.pop(0)
 
 	io.msg("Preset " + preset)
 	io.chatMsg("Preset " + preset)
@@ -316,7 +341,6 @@ def selectNextPreset():
 		io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
 
-dedicated_control_globals.selectNextPreset = selectNextPreset
 
 def waitLobbyStarted():
 	while True:
@@ -328,23 +352,23 @@ def waitLobbyStarted():
 
 
 def initLevelList():
-	global levelDir
+	global levelDir, availableLevels
 	for f in os.listdir(levelDir):
 		if os.path.isdir(f):
 			#io.messageLog("initLevelList: Ignoring \"%s\" - It's a directory" % f, io.LOG_INFO)
 			continue
 		#io.messageLog("Adding level " + f, io.LOG_INFO)
-		g.availableLevels.append(f)
+		availableLevels.append(f)
 
 def initModList():
-	global modDir
+	global modDir, availableMods
 	for f in os.listdir(modDir):
 		if not os.path.isdir(f):
 			continue
 		for ff in os.listdir(os.path.join(modDir,f)):
 			if ff.lower() == "script.lgs":
 				#io.messageLog("Adding mod " + f, io.LOG_INFO)
-				g.availableMods.append(f)
+				availableMods.append(f)
 
 ## Control functions
 
@@ -355,17 +379,18 @@ def average(a):
 	return r / len(a)
 
 def checkMaxPing():
+	global worms
 
-	for f in g.worms.keys():
-		if g.worms[f].iID == -1 or not g.worms[f].Alive:
+	for f in worms.keys():
+		if worms[f].iID == -1 or not worms[f].Alive:
 			continue
-		ping = int(io.getWormPing(g.worms[f].iID))
+		ping = int(io.getWormPing(worms[f].iID))
 		if ping > 0:
-			g.worms[f].Ping.insert( 0, ping )
-			if len(g.worms[f].Ping) > 25:
-				g.worms[f].Ping.pop()
-				if average(g.worms[f].Ping) > cfg.MAX_PING:
-					io.kickWorm( g.worms[f].iID, "Your ping is " + str(average(g.worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
+			worms[f].Ping.insert( 0, ping )
+			if len(worms[f].Ping) > 25:
+				worms[f].Ping.pop()
+				if average(worms[f].Ping) > cfg.MAX_PING:
+					io.kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
 
 lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
 lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
@@ -376,7 +401,7 @@ oldGameState = GAME_LOBBY
 
 def controlHandlerDefault():
 
-	global gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
+	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
 
 	if gameState == GAME_LOBBY:
 
@@ -420,7 +445,7 @@ def controlHandlerDefault():
 						setvar("GameOptions.GameInfo.GameType", "1")
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
-							for w in g.worms.values():
+							for w in worms.values():
 								if w.iID != -1:
 									io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
@@ -443,5 +468,5 @@ def controlHandlerDefault():
 		checkMaxPing()
 
 
-g.controlHandler = controlHandlerDefault
+controlHandler = controlHandlerDefault
 

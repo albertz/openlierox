@@ -1,8 +1,8 @@
 
-from dedicated_control_io import *
+import dedicated_control_io as io
 
 def ParseRank(useRatios = True):
-        #messageLog("ParseRank: Opening pwn0meter.txt", LOG_INFO)
+        #io.messageLog("ParseRank: Opening pwn0meter.txt", io.LOG_INFO)
         try:
             f = open("pwn0meter.txt","r")
         except IOError:
@@ -12,7 +12,7 @@ def ParseRank(useRatios = True):
         deaders = {}
         while l != "":
                 l = l.strip()
-                #messageLog("ParseRank: line: " + l, LOG_INFO)
+                #io.messageLog("ParseRank: line: " + l, io.LOG_INFO)
                 if not (l.count("\t") == 2): # Don't show empty names or empty lines !
                         l = f.readline()
                         continue
@@ -61,7 +61,7 @@ def ParseRank(useRatios = True):
                 kills -= suicides
                 deaths -= suicides
                 total[k]=[kills,deaths,suicides,rank]
-        #messageLog("ParseRank: rank " + str(total), LOG_INFO)
+        #io.messageLog("ParseRank: rank " + str(total), io.LOG_INFO)
         return total
 
 def firstRank(wormid):
@@ -74,21 +74,21 @@ def firstRank(wormid):
                 elif rank[k][3] == 3: w3 = k
                 elif rank[k][3] == 4: w4 = k
                 elif rank[k][3] == 5: w5 = k
-            privateMsg(wormid, "The best players are :")
-            privateMsg(wormid, "1) " + w1 + " (" + str(rank[w1][0])  + " kills, " + str(rank[w1][1]) + " deaths, " + str(rank[w1][2]) + " suicides)")
-            privateMsg(wormid, "2) " + w2 + " (" + str(rank[w2][0])  + " kills, " + str(rank[w2][1]) + " deaths, " + str(rank[w2][2]) + " suicides)")
-            privateMsg(wormid, "3) " + w3 + " (" + str(rank[w3][0])  + " kills, " + str(rank[w3][1]) + " deaths, " + str(rank[w3][2]) + " suicides)")
-            privateMsg(wormid, "4) " + w4 + " (" + str(rank[w4][0])  + " kills, " + str(rank[w4][1]) + " deaths, " + str(rank[w4][2]) + " suicides)")
-            privateMsg(wormid, "5) " + w5 + " (" + str(rank[w5][0])  + " kills, " + str(rank[w5][1]) + " deaths, " + str(rank[w5][2]) + " suicides)")
+            io.privateMsg(wormid, "The best players are :")
+            io.privateMsg(wormid, "1) " + w1 + " (" + str(rank[w1][0])  + " kills, " + str(rank[w1][1]) + " deaths, " + str(rank[w1][2]) + " suicides)")
+            io.privateMsg(wormid, "2) " + w2 + " (" + str(rank[w2][0])  + " kills, " + str(rank[w2][1]) + " deaths, " + str(rank[w2][2]) + " suicides)")
+            io.privateMsg(wormid, "3) " + w3 + " (" + str(rank[w3][0])  + " kills, " + str(rank[w3][1]) + " deaths, " + str(rank[w3][2]) + " suicides)")
+            io.privateMsg(wormid, "4) " + w4 + " (" + str(rank[w4][0])  + " kills, " + str(rank[w4][1]) + " deaths, " + str(rank[w4][2]) + " suicides)")
+            io.privateMsg(wormid, "5) " + w5 + " (" + str(rank[w5][0])  + " kills, " + str(rank[w5][1]) + " deaths, " + str(rank[w5][2]) + " suicides)")
         except Exception:
             pass
 
 def myRank(wormName, wormid):
         global rank
         try:
-                privateMsg(wormid, str(rank[wormName][3]) + ") " + wormName + " (" + str(rank[wormName][0]) + " kills, " + str(rank[wormName][1]) + " deaths, " + str(rank[wormName][2]) + " suicides)")
+                io.privateMsg(wormid, str(rank[wormName][3]) + ") " + wormName + " (" + str(rank[wormName][0]) + " kills, " + str(rank[wormName][1]) + " deaths, " + str(rank[wormName][2]) + " suicides)")
         except KeyError:
-                privateMsg(wormid, wormName + " has not played yet")
+                io.privateMsg(wormid, wormName + " has not played yet")
 
 def refreshRank(useRatios = True):
         global rank

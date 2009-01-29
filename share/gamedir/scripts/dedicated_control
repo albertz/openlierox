@@ -9,47 +9,40 @@ import os, sys, time
 
 sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
 sys.path.append(os.getcwd()+"/scripts") # Append current dir to Python imports search paths
-import dedicated_control_functions # control handler
-import dedicated_config  # Per-host config like admin password
-import dedicated_control_io # control handler
-ded = dedicated_control_functions # shortcut
-cfg = dedicated_config # shortcut
-io = dedicated_control_io
-
-## Global vars (across all modules)
-import dedicated_control_globals
-g = dedicated_control_globals
+import dedicated_control_handler as hnd # control handler
+import dedicated_config as cfg # Per-host config like admin password
+import dedicated_control_io as io # control handler
 
 ## The game loop ##
 
-ded.init()
+hnd.init()
 
-io.msg("GameState = %s" % str(ded.gameState))
+io.msg("GameState = %s" % str(hnd.gameState))
 io.messageLog("Dedicated_control started",io.LOG_INFO)
 
 io.startLobby(cfg.SERVER_PORT)
 
-ded.waitLobbyStarted()
+hnd.waitLobbyStarted()
 
 for f in cfg.GLOBAL_SETTINGS.keys():
 	io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 
-ded.selectNextPreset()
+hnd.selectNextPreset()
 
 # nice state-machine for dedicated server
 pingTime = time.time()
-while ded.gameState != ded.GAME_QUIT:
+while hnd.gameState != hnd.GAME_QUIT:
 
 	time.sleep(1)
 
-	ded.oldGameState = ded.gameState
+	hnd.oldGameState = hnd.gameState
 	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
 	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
-	while ded.signalHandler(io.getSignal()):
+	while hnd.signalHandler(io.getSignal()):
 		pass # Continue with the next iteration
 
-	if not g.scriptPaused:
-		g.controlHandler()
+	if not hnd.scriptPaused:
+		hnd.controlHandler()
 		
 	if time.time() - pingTime > 40:
 		io.messageLog("Python still alive", io.LOG_INFO)

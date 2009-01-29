@@ -8,20 +8,20 @@ import sys
 import threading
 import traceback
 
-## Global vars (across all modules)
-import dedicated_control_globals
-g = dedicated_control_globals
+import dedicated_config as cfg
 
-import dedicated_config
-cfg = dedicated_config
-
-import dedicated_control_io
-io = dedicated_control_io
+import dedicated_control_io as io
 setvar = io.setvar
 formatExceptionInfo = io.formatExceptionInfo
 
-import dedicated_control_ranking
-ranking = dedicated_control_ranking
+import dedicated_control_ranking as ranking
+
+import dedicated_control_handler as hnd
+
+adminCommandHelp_Preset = None
+parseAdminCommand_Preset = None
+userCommandHelp_Preset = None
+parseUserCommand_Preset = None
 
 
 def adminCommandHelp(wormid):
@@ -40,8 +40,8 @@ def adminCommandHelp(wormid):
 	io.privateMsg(wormid, "%sunpause - resume ded script" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%ssetvar varname value" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sauthorize wormID" % cfg.ADMIN_PREFIX)
-	if g.adminCommandHelp_Preset:
-		g.adminCommandHelp_Preset(wormid)
+	if adminCommandHelp_Preset:
+		adminCommandHelp_Preset(wormid)
 
 # Admin interface
 def parseAdminCommand(wormid,message):
@@ -52,7 +52,7 @@ def parseAdminCommand(wormid,message):
 		cmd = message.split(" ")[0]
 		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
 
-		io.messageLog("%i:%s issued %s" % (wormid,g.worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),io.LOG_ADMIN)
+		io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),io.LOG_ADMIN)
 
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
@@ -73,7 +73,7 @@ def parseAdminCommand(wormid,message):
 			io.muteWorm( int( params[0] ) )
 		elif cmd == "mod":
 			mod = ""
-			for m in g.availableMods:
+			for m in hnd.availableMods:
 				if m.lower().find(" ".join(params[0:]).lower()) != -1:
 					mod = m
 					break
@@ -83,7 +83,7 @@ def parseAdminCommand(wormid,message):
 				io.setvar("GameOptions.GameInfo.ModName", mod) # In case mod name contains spaces
 		elif cmd == "map":
 			level = ""
-			for l in g.availableLevels:
+			for l in hnd.availableLevels:
 				if l.lower().find(" ".join(params[0:]).lower()) != -1:
 					level = l
 					break
@@ -96,17 +96,17 @@ def parseAdminCommand(wormid,message):
 			presetCount = 1
 			if len(params) > 1:
 				presetCount = int(params[1])
-			for p in range(len(g.availablePresets)):
-				if g.availablePresets[p].lower().find(params[0].lower()) != -1:
+			for p in range(len(hnd.availablePresets)):
+				if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
 					preset = p
 					break
 			if preset == -1:
 				io.privateMsg(wormid,"Invalid preset name")
 			else:
-				g.nextPresets = []
+				hnd.nextPresets = []
 				for f in range(presetCount):
-					g.nextPresets.append(g.availablePresets[preset])
-				dedicated_control_globals.selectNextPreset()
+					hnd.nextPresets.append(hnd.availablePresets[preset])
+				hnd.selectNextPreset()
 		elif cmd == "lt":
 			io.setvar("GameOptions.GameInfo.LoadingTime", params[0])
 		elif cmd == "start":
@@ -115,24 +115,24 @@ def parseAdminCommand(wormid,message):
 			io.gotoLobby()
 		elif cmd == "pause":
 			io.privateMsg(wormid,"Ded script paused")
-			g.scriptPaused = True
+			hnd.scriptPaused = True
 		elif cmd == "unpause":
 			io.privateMsg(wormid,"Ded script continues")
-			g.scriptPaused = False
+			hnd.scriptPaused = False
 		elif cmd == "setvar":
 			io.setvar(params[0], " ".join(params[1:])) # In case value contains spaces
 		elif cmd == "authorize":
 			try:
 				wormID = int(params[0])
-				if not g.worms[wormID].isAdmin:
-					g.worms[wormID].isAdmin = True
+				if not hnd.worms[wormID].isAdmin:
+					hnd.worms[wormID].isAdmin = True
 					io.authorizeWorm(wormID)
-					io.messageLog( "Worm %i (%s) added to admins by %i (%s)" % (wormID,g.worms[wormID].Name,wormid,g.worms[wormid].Name),io.LOG_INFO)
-					io.privateMsg(wormID, "%s made you admin! Type %shelp for commands" % (g.worms[wormid].Name,cfg.ADMIN_PREFIX))
-					io.privateMsg(wormid, "%s added to admins." % g.worms[wormID].Name)
+					io.messageLog( "Worm %i (%s) added to admins by %i (%s)" % (wormID,hnd.worms[wormID].Name,wormid,hnd.worms[wormid].Name),io.LOG_INFO)
+					io.privateMsg(wormID, "%s made you admin! Type %shelp for commands" % (hnd.worms[wormid].Name,cfg.ADMIN_PREFIX))
+					io.privateMsg(wormid, "%s added to admins." % hnd.worms[wormID].Name)
 			except KeyError:
 				io.messageLog("parseAdminCommand: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
-		elif g.parseAdminCommand_Preset and g.parseAdminCommand_Preset(wormid, cmd, params):
+		elif parseAdminCommand_Preset and parseAdminCommand_Preset(wormid, cmd, params):
 			pass
 		else:
 			raise Exception, "Invalid admin command"
@@ -158,8 +158,8 @@ def userCommandHelp(wormid):
 		io.privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
-	if g.userCommandHelp_Preset:
-		g.userCommandHelp_Preset(wormid)
+	if userCommandHelp_Preset:
+		userCommandHelp_Preset(wormid)
 
 def parseUserCommand(wormid,message):
 	try: # Do not check on msg size or anything, exception handling is further down
@@ -169,7 +169,7 @@ def parseUserCommand(wormid,message):
 		cmd = message.split(" ")[0]
 		cmd = cmd.replace(cfg.USER_PREFIX,"",1) #Remove the prefix
 
-		io.messageLog("%i:%s user cmd %s" % (wormid,g.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_ADMIN)
+		io.messageLog("%i:%s user cmd %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_ADMIN)
 
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
@@ -191,14 +191,14 @@ def parseUserCommand(wormid,message):
 		elif cmd == "toprank" and cfg.RANKING:
 			ranking.firstRank(wormid)
 		elif cmd == "rank" and cfg.RANKING:
-			if wormid in g.worms:
-				wormName = g.worms[wormid].Name
+			if wormid in hnd.worms:
+				wormName = hnd.worms[wormid].Name
 				if params:
 					wormName = " ".join(params)
 				ranking.myRank(wormName, wormid)
 		elif cmd == "ranktotal" and cfg.RANKING:
 			io.privateMsg(wormid, "There are " + str(len(ranking.rank)) + " players in the ranking.")
-		elif g.parseUserCommand_Preset and g.parseUserCommand_Preset(wormid, cmd, params):
+		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
 			pass
 		else:
 			raise Exception, "Invalid user command"

@@ -15,8 +15,7 @@ import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
 ## Global vars (across all modules)
-import dedicated_control_globals
-g = dedicated_control_globals
+import dedicated_control_handler as hnd
 
 ## Receiving functions ##
 
@@ -192,8 +191,8 @@ def setWormTeam_io(iID, team):
 
 
 def setWormTeam(iID, team):
-	if iID in g.worms.keys() and g.worms[iID].iID != -1:
-		g.worms[iID].Team = team
+	if iID in hnd.worms.keys() and hnd.worms[iID].iID != -1:
+		hnd.worms[iID].Team = team
 		setWormTeam_io(iID, team)
 	else:
 		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
@@ -205,11 +204,11 @@ def authorizeWorm(iID):
 def getComputerWormList():
 	print "getcomputerwormlist"
 	resp = getResponseList("computerwormlistinfo")
-	g.bots = {}
+	hnd.bots = {}
 	for r in resp:
 		iID = int(r[:r.find(" ")])
 		name = r[r.find(" ")+1:]
-		g.bots[iID] = name
+		hnd.bots[iID] = name
 
 def getWormIP(iID):
 	print "getwormip %i" % int(iID)
