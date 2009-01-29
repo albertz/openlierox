@@ -63,7 +63,7 @@ void ClearEntities(void)
 
 ///////////////////
 // Spawn an entity
-void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Surface * img)
+void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img)
 {
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->bParticles) {
@@ -279,7 +279,7 @@ void SimulateEntities(float dt, CMap *map)
 								int y = (int)ent->vPos.y-1;
 
 								// Safety
-								if (ent->bmpSurf) {
+								if (ent->bmpSurf.get()) {
 									DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 									DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
 								}

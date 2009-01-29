@@ -1824,7 +1824,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		w = &client->cRemoteWorms[id];
 
 		for(n=0;n<7;n++)
-			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg().get());
+			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
 
 		// Blood
 		amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
