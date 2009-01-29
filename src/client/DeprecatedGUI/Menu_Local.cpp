@@ -1401,7 +1401,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 						if(save) {
 
 							// Save
-							buf = std::string("cfg/presets/") + t->getText() + ".wps";
+							buf = std::string("cfg/presets/") + t->getText(); // + ".wps";
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))

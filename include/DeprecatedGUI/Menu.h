@@ -186,8 +186,8 @@ enum {
 };
 
 // Button names
-typedef char * charp;
-const charp sButtonNames[] =  {
+typedef const char * ConstCharP_t; // Workaround for error in MSVC which won't allow type "const char * const" allowed by G++
+ConstCharP_t const sButtonNames[] =  {
 	"Main",
 	"Internet",
 	"LAN",
