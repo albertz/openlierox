@@ -277,8 +277,8 @@ struct HttpRetryEventData  {
 
 struct HttpThread {
 	Event<> onFinished;
-	Event<SmartPointer<HttpRetryEventData>> onRetry;
-	Event<SmartPointer<HttpRedirectEventData>> onRedirect;
+	Event< SmartPointer<HttpRetryEventData> > onRetry;
+	Event< SmartPointer<HttpRedirectEventData> > onRedirect;
 	
 	CHttp* http;
 	SDL_Thread* thread;
