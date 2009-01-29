@@ -155,51 +155,26 @@ enum  {
 	HTTP_PROC_FINISHED = 1
 };
 
+struct HttpThread;
+struct HttpRedirectEventData;
+
 // HTTP class
-class CHttp  {
+class CHttp  { friend class HttpThread;
 public:
 	CHttp();
 	~CHttp();
-
-	CHttp(const CHttp& oth)  { operator= (oth); }
-
-	CHttp& operator=(const CHttp& http);
+	
 private:
+	// they are not allowed atm
+	CHttp(const CHttp& oth)  { operator= (oth); }
+	CHttp& operator=(const CHttp& http);
+
 	enum Action  {
 		htaGet = 0,
 		htaHead,
 		htaPost
 	};
-
-public:
-	struct HTTPInternalEventData  {
-		HTTPInternalEventData(CHttp *h) : http(h) {}
-		CHttp *http;
-	};
-
-	struct HTTPRedirectEventData  {
-		HTTPRedirectEventData(CHttp *h, const std::string& url, const std::string proxy, const std::string& data) :
-			http(h), sUrl(url), sProxy(proxy), sData(data) {}
-
-		CHttp *http;
-		std::string sUrl;
-		std::string sProxy;
-		std::string sData;
-	};
-
-	struct HTTPEventData  {
-		HTTPEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
-		CHttp *cHttp;
-		bool bSucceeded;
-	};
-
-private:
-
-	friend int HTTP_ProcThread(void *);
-	friend void HTTP_HandleRetryEvent(HTTPInternalEventData);
-	friend void HTTP_HandleFinishedEvent(HTTPInternalEventData);
-	friend void HTTP_HandleRedirectEvent(HTTPRedirectEventData);
-
+	
 	std::string		sHost;
 	std::string		sUrl;
 	std::string		sProxyHost;
@@ -218,7 +193,7 @@ private:
 	Action			iAction;
 
 	// Processing thread
-	SDL_Thread		*tProcessingThread;
+	HttpThread*		m_thread;
 	mutable SDL_mutex	*tMutex;
 	bool			bBreakThread;
 	bool			bThreadRunning;
@@ -253,8 +228,6 @@ private:
 
 	std::string		sEmpty; // Returned when Data is being processed
 
-	Event<HTTPEventData>	*tOnFinishedEvent;
-
 private:
 	void				Lock() const;
 	void				Unlock() const;
@@ -281,13 +254,23 @@ private:
 	bool				ProcessInternal();
 
 	void				InitThread();
-	void				OnFinished();
-
+	void				HttpThread_onFinished(EventData);
+	void				HttpThread_onRetry(EventData);
+	void				HttpThread_onRedirect(HttpRedirectEventData&);
+	
 	int					ProcessGET();
 	int					ProcessPOST();
 	int					ProcessHEAD();
 
 public:
+	struct HttpEventData  {
+		HttpEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
+		CHttp *cHttp;
+		bool bSucceeded;
+	};
+	
+	Event<HttpEventData>	onFinished;
+	
 	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
 	// TODO: Maybe do the proxy string global?
 	void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
@@ -311,8 +294,6 @@ public:
 
 	float				GetDownloadSpeed() const;
 	float				GetUploadSpeed() const;
-
-	void				SetOnFinished(Event<HTTPEventData> *evt)	{ tOnFinishedEvent = evt; }
 
 	const std::string&	GetHostName() const		{ return sHost; }
 	const std::string&	GetUrl() const			{ return sUrl; }

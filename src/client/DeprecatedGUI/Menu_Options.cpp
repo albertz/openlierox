@@ -145,7 +145,6 @@ std::string NetworkSpeeds[] = {
 };
 
 UploadSpeedTest *tUploadSpeedTest = NULL;
-Event<UploadSpeedTest::TestData> onUploadTestFinished;
 
 void Menu_OptionsUpdateUpload(UploadSpeedTest::TestData);
 
@@ -158,8 +157,7 @@ bool Menu_OptionsInitialize(void)
     int i;
 
 	tUploadSpeedTest = new UploadSpeedTest();
-	onUploadTestFinished.handler() = getEventHandler(Menu_OptionsUpdateUpload);
-	tUploadSpeedTest->setOnTestFinished(&onUploadTestFinished);
+	tUploadSpeedTest->onFinished.handler() = getEventHandler(Menu_OptionsUpdateUpload);
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);

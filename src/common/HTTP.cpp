@@ -256,63 +256,82 @@ void CChunkParser::Reset()
 // HTTP helper functions
 //
 
+struct HttpRedirectEventData  {
+	HttpRedirectEventData(CHttp *h, const std::string& url, const std::string proxy, const std::string& data) :
+	http(h), sUrl(url), sProxy(proxy), sData(data) {}
+	
+	CHttp *http;
+	std::string sUrl;
+	std::string sProxy;
+	std::string sData;
+};
 
-
-Event<CHttp::HTTPInternalEventData> onFinishEvent;
-Event<CHttp::HTTPInternalEventData> onRetryEvent;
-Event<CHttp::HTTPRedirectEventData> onRedirectEvent;
-
-///////////////
-// Processing thread of the HTTP function
-int HTTP_ProcThread(void *param)
-{
-	CHttp *http = (CHttp *)param;
-
-	while (!http->bBreakThread)  {
-		// Transfer finished
-		if (http->ProcessInternal())
-			break;
+struct HttpThread {
+	Event<> onFinished;
+	Event<> onRetry; // TODO: not used?
+	Event<HttpRedirectEventData&> onRedirect; // TODO: not used?
+	
+	CHttp* http;
+	SDL_Thread* thread;
+	bool breakThreadSignal;
+	
+	HttpThread(CHttp* h) : http(h), thread(NULL) { breakThreadSignal = false; }
+	
+	void startThread() {
+		breakThread(); // if a thread is already running, break it
+		breakThreadSignal = false;
+		thread = SDL_CreateThread(&run, this);
 	}
+	
+	void breakThread() {
+		if(thread != NULL) {
+			breakThreadSignal = true;
+			SDL_WaitThread(thread, NULL);
+			thread = NULL;
+		}
+	}
+	
+	static int run(void* param) { return ((HttpThread*)param)->run(); }
+	int run() {
+		while (!breakThreadSignal)  {
+			// Transfer finished
+			if (http->ProcessInternal())
+				break;
+		}
+		
+		// Notify about thread finishing
+		http->Lock();
+		if (http->iProcessingResult != HTTP_PROC_PROCESSING) // Send the finished event only when not restarting (for example due to a proxy fail)
+			SendSDLUserEvent(&onFinished, EventData(http));
+		http->Unlock();
 
-	// Notify about thread finishing
-	http->Lock();
-	if (http->iProcessingResult != HTTP_PROC_PROCESSING) // Send the finished event only when not restarting (for example due to a proxy fail)
-		SendSDLUserEvent<CHttp::HTTPInternalEventData>(&onFinishEvent, CHttp::HTTPInternalEventData(http));
-	http->Unlock();
-
-	return 0;
-}
+		return 0;
+	}
+};
 
 ////////////////////
 // Handle the retry event (retrying with no proxy)
-void HTTP_HandleRetryEvent(CHttp::HTTPInternalEventData d)
+void CHttp::HttpThread_onRetry(EventData d)
 {
-	d.http->OnFinished(); // Break the processing thread
-	d.http->RetryWithNoProxy();
-}
-
-////////////////////
-// Processing finished (either an error or everything has been transfered)
-void HTTP_HandleFinishedEvent(CHttp::HTTPInternalEventData d)
-{
-	d.http->OnFinished();
+	HttpThread_onFinished(d); // Break the processing thread // TODO: function for breaking thread; this is a hack
+	RetryWithNoProxy();
 }
 
 ////////////////////
 // Redirect event
-void HTTP_HandleRedirectEvent(CHttp::HTTPRedirectEventData d)
+void CHttp::HttpThread_onRedirect(HttpRedirectEventData& d)
 {
-	d.http->OnFinished(); // Break the processing thread
+	HttpThread_onFinished(EventData(this)); // Break the processing thread // TODO: function for breaking thread; this is a hack
 
-	switch (d.http->iAction)  {
+	switch (iAction)  {
 	case CHttp::htaGet:
-		d.http->RequestData(d.sUrl, d.sProxy);
+		RequestData(d.sUrl, d.sProxy);
 	break;
 	case CHttp::htaPost:
-		d.http->SendDataInternal(d.sData, d.sUrl, d.sProxy);
+		SendDataInternal(d.sData, d.sUrl, d.sProxy);
 	break;
 	case CHttp::htaHead:
-		errors("HTTP HEAD not implemented\n");
+		errors << "HTTP HEAD not implemented" << endl;
 	break;
 	}
 }
@@ -325,13 +344,11 @@ void HTTP_HandleRedirectEvent(CHttp::HTTPRedirectEventData d)
 // Constructor
 CHttp::CHttp()
 {
-	onFinishEvent.handler() = getEventHandler(&HTTP_HandleFinishedEvent);
-	onRetryEvent.handler() = getEventHandler(&HTTP_HandleRetryEvent);
-	onRedirectEvent.handler() = getEventHandler(&HTTP_HandleRedirectEvent);
-
 	tMutex = SDL_CreateMutex();
-	tProcessingThread = NULL;
-	tOnFinishedEvent = NULL;
+	m_thread = new HttpThread(this);
+	m_thread->onFinished.handler() = getEventHandler(this, &CHttp::HttpThread_onFinished);
+	m_thread->onRetry.handler() = getEventHandler(this, &CHttp::HttpThread_onRetry);
+	m_thread->onRedirect.handler() = getEventHandler(this, &CHttp::HttpThread_onRedirect);
 
 	// Buffer for reading from socket
 	tBuffer = new char[BUFFER_LEN];
@@ -358,6 +375,8 @@ CHttp::~CHttp()
 // Copy operator
 CHttp& CHttp::operator =(const CHttp& http)
 {
+	assert(false); // not allowed atm
+	
 	if (&http == this)
 		return *this;
 
@@ -401,20 +420,18 @@ CHttp& CHttp::operator =(const CHttp& http)
 	iProxyPort = http.iProxyPort;
 	iAction = http.iAction;
 	iProcessingResult = http.iProcessingResult;
-	tOnFinishedEvent = http.tOnFinishedEvent;
 
 	fDownloadStart = http.fDownloadStart;
 	fDownloadEnd = http.fDownloadEnd;
 	fUploadStart = http.fUploadStart;
 	fUploadEnd = http.fUploadEnd;
 
-	if (tProcessingThread)  {
-		bBreakThread = true;
-		SDL_WaitThread(tProcessingThread, NULL);
+	if (m_thread)  {
+		m_thread->breakThread();
 	}
 	if (tMutex)
 		SDL_DestroyMutex(tMutex);
-	tProcessingThread = http.tProcessingThread;
+	m_thread = NULL;
 	tMutex = http.tMutex;
 	bBreakThread = http.bBreakThread;
 	bThreadRunning = http.bThreadRunning;
@@ -427,12 +444,7 @@ CHttp& CHttp::operator =(const CHttp& http)
 void CHttp::Clear()
 {
 	// End the processing thread first
-	if (tProcessingThread)  {
-		bBreakThread = true;
-		SDL_WaitThread(tProcessingThread, NULL);
-		tProcessingThread = NULL;
-	}
-	bBreakThread = false;
+	m_thread->breakThread();
 	bThreadRunning = false;
 
 	sHost = "";
@@ -501,17 +513,14 @@ void CHttp::SetHttpError(int id)
 
 ////////////////////
 // Called when the processing thread finishes
-void CHttp::OnFinished()
+void CHttp::HttpThread_onFinished(EventData)
 {
-	bBreakThread = true;
-	SDL_WaitThread(tProcessingThread, NULL);
-	bBreakThread = false;
-	tProcessingThread = NULL;
+	m_thread->breakThread();
 	bThreadRunning = false;
 
 	// If finished (error or success), fire the event
-	if (iProcessingResult != HTTP_PROC_PROCESSING && tOnFinishedEvent)
-		tOnFinishedEvent->occurred(HTTPEventData(this, tError.iError == HTTP_NO_ERROR));
+	if (iProcessingResult != HTTP_PROC_PROCESSING)
+		onFinished.occurred(HttpEventData(this, tError.iError == HTTP_NO_ERROR));
 }
 
 
@@ -521,8 +530,7 @@ void CHttp::InitThread()
 {
 	// Create and run the processing thread
 	iProcessingResult = HTTP_PROC_PROCESSING;
-	bBreakThread = false;
-	tProcessingThread = SDL_CreateThread(HTTP_ProcThread, (void *)this);
+	m_thread->startThread();
 	bThreadRunning = true;
 }
 
@@ -1046,7 +1054,8 @@ void CHttp::HandleRedirect(int code)
 
 		// First try the Location field
 		if (location.size() != 0)  {
-			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
+			// TODO: what do you mean here? do you mant to have Chttp to have an additional Event<> onRedirect?
+			//SendSDLUserEvent<HttpRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			return;
 		}
 		
@@ -1065,7 +1074,8 @@ void CHttp::HandleRedirect(int code)
 
 		if (location.size())  {
 			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
-			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
+			// TODO: what do you mean here? do you mant to have Chttp to have an additional Event<> onRedirect?
+			//SendSDLUserEvent<HttpRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
 			tError.sErrorMsg = "No redirect address specified in the redirect message";
@@ -1079,7 +1089,8 @@ void CHttp::HandleRedirect(int code)
 		// New location should be stored in the Location field
 		if (location.size() != 0)  {
 			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
-			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
+			// TODO: what do you mean here? do you mant to have Chttp to have an additional Event<> onRedirect?
+			//SendSDLUserEvent<HttpRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			return;
 		} else { // No location has been given, just quit...
 			SetHttpError(HTTP_BAD_RESPONSE);
@@ -1096,7 +1107,8 @@ void CHttp::HandleRedirect(int code)
 	case 305: // Use Proxy
 		// The proxy address is given in the location field
 		if (location.size())  {
-			SendSDLUserEvent<HTTPRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
+			// TODO: what do you mean here? do you mant to have Chttp to have an additional Event<> onRedirect?
+			//SendSDLUserEvent<HttpRedirectEventData>(&onRedirectEvent, HTTPRedirectEventData(this, location, tLXOptions->sHttpProxy, sDataToSend));
 			printf("HTTP notice: accessing the desired location using proxy: " + location + "\n");
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
@@ -1455,8 +1467,9 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
-				warnings("HINT: proxy failed, trying a direct connection\n");
-				SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
+				warnings << "HINT: proxy failed, trying a direct connection" << endl;
+				// TODO: what do you want to do here?
+				//SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 				iProcessingResult = HTTP_PROC_PROCESSING;
 				return true;
 			}
@@ -1474,8 +1487,9 @@ bool CHttp::ProcessInternal()
 	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			warnings("HINT: proxy failed, trying a direct connection\n");
-			SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
+			warnings << "HINT: proxy failed, trying a direct connection" << endl;
+			// TODO: what do you want to do here?
+			//SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1489,8 +1503,9 @@ bool CHttp::ProcessInternal()
 	if (bRequested && GetMilliSeconds() - fSocketActionTime >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			warnings("HINT: proxy failed, trying a direct connection\n");
-			SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
+			warnings << "HINT: proxy failed, trying a direct connection" << endl;
+			// TODO: what do you want to do here?
+			//SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1537,7 +1552,8 @@ bool CHttp::ProcessInternal()
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings("HINT: proxy failed, trying a direct connection\n");
-					SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
+					// TODO: what do you mean here? do you mant to have Chttp to have an additional Event<> onRetry?
+					//SendSDLUserEvent<HTTPInternalEventData>(&onRetryEvent, HTTPInternalEventData(this));
 					iProcessingResult = HTTP_PROC_PROCESSING;
 					return true;
 				}

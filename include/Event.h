@@ -12,6 +12,7 @@
 
 #include "types.h"
 #include "Utils.h" // for Ref
+#include "SmartPointer.h"
 
 struct EventData {
 	EventData(void* own = NULL) : owner(own) {}

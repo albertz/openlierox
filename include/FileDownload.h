@@ -89,23 +89,26 @@ public:
 
 	~CHttpDownloader()  { Stop(); SDL_DestroyMutex(tMutex); }
 
-	CHttpDownloader& operator=(const CHttpDownloader& dl) {
-		if (&dl == this)
-			return *this;
-
-		sFileName = dl.sFileName;
-		sDestPath = dl.sDestPath;
-		tFile = dl.tFile;
-		tDownloadServers = dl.tDownloadServers; // HINT: this is a pointer
-		iCurrentServer = dl.iCurrentServer;
-		iState = dl.iState;
-		iID = dl.iID;
-		tHttp = dl.tHttp; // HINT: safe, CHttp has a copy operator defined
-		tError = dl.tError;
-		return *this;
-	}
 
 private:
+	CHttpDownloader(const CHttpDownloader&) { assert(false); }
+	CHttpDownloader& operator=(const CHttpDownloader& dl) {
+		assert(false); /*
+		 if (&dl == this)
+		 return *this;
+		 
+		 sFileName = dl.sFileName;
+		 sDestPath = dl.sDestPath;
+		 tFile = dl.tFile;
+		 tDownloadServers = dl.tDownloadServers; // HINT: this is a pointer
+		 iCurrentServer = dl.iCurrentServer;
+		 iState = dl.iState;
+		 iID = dl.iID;
+		 tHttp = dl.tHttp; // HINT: safe, CHttp has a copy operator defined
+		 tError = dl.tError;
+		 return *this; */
+	}
+	
 	std::string		sFileName;
 	std::string		sDestPath;
 	FILE			*tFile;

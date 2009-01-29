@@ -20,9 +20,9 @@
 /////////////////////
 // Constructor
 UploadSpeedTest::UploadSpeedTest()
-: m_onFinished(NULL), m_finished(false)
+: m_finished(false)
 {
-	m_httpFinishedEvent.handler() = getEventHandler(this, &UploadSpeedTest::onHttpFinished);
+	m_http.onFinished.handler() = getEventHandler(this, &UploadSpeedTest::Http_onFinished);
 
 	// Read the URL from disk
 	FILE *fp = OpenGameFile(std::string("cfg/") + UPLOAD_TEST_SERVERS, "rt");
@@ -35,9 +35,9 @@ UploadSpeedTest::UploadSpeedTest()
 /////////////////////
 // Constructor
 UploadSpeedTest::UploadSpeedTest(const std::string &test_url)
-: m_url(test_url), m_onFinished(NULL), m_finished(false)
+: m_url(test_url), m_finished(false)
 {
-	m_httpFinishedEvent.handler() = getEventHandler(this, &UploadSpeedTest::onHttpFinished);
+	m_http.onFinished.handler() = getEventHandler(this, &UploadSpeedTest::Http_onFinished);
 }
 
 ////////////////////
@@ -45,6 +45,7 @@ UploadSpeedTest::UploadSpeedTest(const std::string &test_url)
 UploadSpeedTest::~UploadSpeedTest()
 {
 	m_http.CancelProcessing();
+	m_http.onFinished.handler() = null;
 }
 
 /////////////////////
@@ -66,8 +67,6 @@ void UploadSpeedTest::startTest()
 	generateRandomData(TEST_DATA_SIZE * 1024, random_data);
 	m_finished = false;
 
-	m_http.SetOnFinished(&m_httpFinishedEvent);
-
 	// Start uploading
 	std::list<HTTPPostField> data;
 	data.push_back(HTTPPostField(random_data, "binary/random", "data", ""));
@@ -84,12 +83,11 @@ void UploadSpeedTest::cancelTest()
 
 /////////////////////
 // Called by the HTTP class when the upload finishes
-void UploadSpeedTest::onHttpFinished(CHttp::HTTPEventData d)
+void UploadSpeedTest::Http_onFinished(CHttp::HttpEventData d)
 {
 	m_finished = true;
 
 	// Delegate the event
-	if (m_onFinished)
-		m_onFinished->occurred(TestData(this, d.bSucceeded, d.cHttp->GetUploadSpeed()));
+	onFinished.occurred(TestData(this, d.bSucceeded, d.cHttp->GetUploadSpeed()));
 }
 

@@ -42,7 +42,7 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ); // Requires to 
 template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); // Requires to be defined elsewhere
 
 #ifdef DEBUG
-	// TODO: protect this var with mutex?
+// TODO: protect this var with mutex
 extern std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector;
 #endif
 
@@ -57,8 +57,11 @@ extern std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector;
 	about this yourself.
 */
 
+/*template < typename _Obj >
+class SmartObject;*/
+
 template < typename _Type, typename _SpecificInitFunctor = NopFunctor<void*> >
-class SmartPointer {
+class SmartPointer { //friend class SmartObject<_Type>;
 private:
 	_Type* obj;
 	int* refCount;
@@ -175,7 +178,6 @@ public:
 	SmartPointer(_Type* pt): obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
 	SmartPointer& operator=(_Type* pt) {
 		//printf("SmartPointer::op=Type (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		//assert(pt != NULL); // We can assign NULL to it
 		if(obj == pt) return *this; // ignore this case
 		reset();
 		init(pt);
@@ -218,6 +220,19 @@ public:
 
 };
 
+/*
+template< typename _Obj>
+class SmartObject : public SmartPointer< SmartObject<_Obj> > {
+public:
+	typedef SmartPointer< SmartObject<_Obj> > SmartPtrType;
+	SmartObject() { SmartPtrType :: operator =( this ); }
+	virtual ~SmartObject() {  }
+private:
+	// overwrite to disable this op=
+	SmartPtrType& operator=(const SmartPtrType& pt) { assert(false); }
+	
+};
+*/
 
 
 // TODO: move that out here, has nothing to do with SmartPointer

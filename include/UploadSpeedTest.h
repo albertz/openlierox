@@ -21,6 +21,7 @@ public:
 	UploadSpeedTest();
 	UploadSpeedTest(const std::string& test_url);
 	UploadSpeedTest(const UploadSpeedTest& oth) { operator =(oth); }
+	UploadSpeedTest& operator =(const UploadSpeedTest& oth)  { assert(false); }
 
 	~UploadSpeedTest();
 
@@ -34,28 +35,16 @@ public:
 		float rate;
 	};
 
+	Event<TestData> onFinished;
+
 private:
 	std::string m_url;
-	Event<TestData> *m_onFinished;
-	Event<CHttp::HTTPEventData> m_httpFinishedEvent;
 	bool m_finished;
 	CHttp m_http;
 
 private:
 	void generateRandomData(size_t size, std::string& result);
-	void onHttpFinished(CHttp::HTTPEventData d);
-
-public:
-	UploadSpeedTest& operator =(const UploadSpeedTest& oth)  {
-		if (this != &oth) {
-			m_url = oth.m_url;
-			m_onFinished = oth.m_onFinished;
-			m_httpFinishedEvent = oth.m_httpFinishedEvent;
-			m_finished = oth.m_finished;
-			m_http = oth.m_http;
-		}
-		return *this;
-	}
+	void Http_onFinished(CHttp::HttpEventData d);
 
 public:
 	void startTest();
@@ -65,8 +54,6 @@ public:
 	bool hasErrorOccured() const { return m_http.GetError().iError != HTTP_NO_ERROR; }
 	HttpError getError() const	{ return m_http.GetError(); }
 	float getUploadRate() const { return m_http.GetUploadSpeed(); }
-
-	void setOnTestFinished(Event<TestData> *e)  { m_onFinished = e; }
 };
 
 #endif // __UPLOADSPEEDTEST_H__
