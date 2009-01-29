@@ -39,6 +39,21 @@ static SmartPointer<SDL_Surface> getAlternativeCommandButtonGfx() {
 	return gfx;
 }
 
+static SmartPointer<SDL_Surface> getAlternativeProgressGfx() {
+	int w = 360;
+	int h = 20;
+
+	SmartPointer<SDL_Surface> gfx = gfxCreateSurface(w, 2 * h);
+	if(!gfx.get()) return NULL;
+
+	DrawRectFill(gfx.get(), 0, 0, w - 1, h - 1, tLX->clProgress);
+	DrawRect(gfx.get(), 0, 0, w - 1, h - 2, tLX->clBoxDark);
+
+	DrawRect(gfx.get(), 0, h - 1, w - 1, 2 * h - 2, tLX->clBoxDark);
+
+	return gfx;
+}
+
 	
 static SmartPointer<SDL_Surface> getAlternativeClockGfx() {
 	SmartPointer<SDL_Surface> gfx = gfxCreateSurface(12, 12);
@@ -63,6 +78,7 @@ bool LoadGraphics(void)
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
 	LOAD_IMAGE_WITHALPHA__OR(gfxGUI.bmpCommandBtn, "data/frontend/commandbtn.png", getAlternativeCommandButtonGfx());
+	LOAD_IMAGE_WITHALPHA__OR(gfxGUI.bmpSpeedTestProgress, "data/frontend/speedtest.png", getAlternativeProgressGfx());
 
 	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
 	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");

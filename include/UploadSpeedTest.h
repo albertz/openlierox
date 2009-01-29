@@ -54,6 +54,7 @@ public:
 	bool hasErrorOccured() const { return m_http.GetError().iError != HTTP_NO_ERROR; }
 	HttpError getError() const	{ return m_http.GetError(); }
 	float getUploadRate() const { return m_http.GetUploadSpeed(); }
+	int getProgress() const;
 };
 
 #endif // __UPLOADSPEEDTEST_H__

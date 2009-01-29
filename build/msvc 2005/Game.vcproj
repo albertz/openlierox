@@ -3880,6 +3880,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\Menu_SpeedTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\MenuSystem.cpp"
 				>
 			</File>

@@ -24,6 +24,7 @@ class gfxgui_t { public:
 	SmartPointer<SDL_Surface> bmpScrollbar;
 	SmartPointer<SDL_Surface> bmpSliderBut;
 	SmartPointer<SDL_Surface> bmpCommandBtn;
+	SmartPointer<SDL_Surface> bmpSpeedTestProgress;
 };
 
 

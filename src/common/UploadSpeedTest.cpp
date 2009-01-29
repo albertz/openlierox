@@ -91,3 +91,16 @@ void UploadSpeedTest::Http_onFinished(CHttp::HttpEventData d)
 	onFinished.occurred(TestData(this, d.bSucceeded, d.cHttp->GetUploadSpeed()));
 }
 
+////////////////////
+// Returns progress of the test
+int UploadSpeedTest::getProgress() const
+{
+	if (m_finished)
+		return 100;
+
+	if (m_http.GetDataToSendLength() == 0)
+		return 100;
+
+   return (int)(m_http.GetSentDataLen() * 100 / m_http.GetDataToSendLength());
+}
+
