@@ -42,8 +42,8 @@ void CButton::Draw(SDL_Surface * bmpDest)
 
 		DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
 		if (y2 >= bmpImage->h)  {
-			DrawSimpleButton(bmpDest, iX, iY, iWidth, iHeight, tLX->clWinBtnBody, tLX->clWinBtnLight, tLX->clWinBtnDark, bMouseDown);
-			int trans = bMouseDown ? 2 : 0;
+			DrawSimpleButton(bmpDest, iX, iY, iWidth, iHeight, tLX->clWinBtnBody, tLX->clWinBtnLight, tLX->clWinBtnDark, bMouseDown && bMouseOver && bFocused);
+			int trans = (bMouseDown && bMouseOver && bFocused) ? 2 : 0;
 			tLX->cFont.DrawCentre(bmpDest, iX + iWidth / 2 + trans, iY + trans + (iHeight - tLX->cFont.GetHeight())/2, tLX->clNormalLabel, sButtonNames[iImageID]);
 		}
 
