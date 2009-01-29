@@ -227,7 +227,9 @@ void Menu_LocalFrame(void)
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
-		tLXOptions->tGameInfo.sMapFile = cbLevel->getItem( cbLevel->getSelectedIndex() )->sIndex;
+		const cb_item_t *item = cbLevel->getItem( cbLevel->getSelectedIndex() );
+		if (item)
+			tLXOptions->tGameInfo.sMapFile = item->sIndex;
 		Menu_FillLevelList( cbLevel, true);
 		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
 
