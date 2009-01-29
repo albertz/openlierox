@@ -592,17 +592,33 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	if( sProxyHost.size() != 0 )
 		host = sProxyHost;
 
+	hints << "HTTP: uploading to host " << host << endl;
+
+	ResetNetAddr(tRemoteIP);
+	
 	// Try if an IP has been entered
 	if (!StringToNetAddr(host, tRemoteIP))  {
 		ResetSocketError(); // Clear the BAD_ADDR error
 
 		// Not an IP, use DNS
-		if(!GetNetAddrFromNameAsync(host, tRemoteIP)) {
+		GetNetAddrFromNameAsync(host, tRemoteIP);
+		// TODO: HACK: Bad bad blocking code here! Move thast somewhere to HTTP::Processing() or whatever
+		int timeout = 50; // 5 seconds
+		while( timeout > 0 && !IsNetAddrValid(tRemoteIP) ) {
+			timeout --;
+			SDL_Delay(100);
+		}
+		if( !IsNetAddrValid(tRemoteIP) )
+		{
+			return false;
 			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 			tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
-			return false;
 		}
 	}
+
+	std::string ip;
+	NetAddrToString( tRemoteIP, ip );
+	hints << "HTTP: uploading to IP " << ip << endl;
 
 	// We're active now
 	bActive = true;
