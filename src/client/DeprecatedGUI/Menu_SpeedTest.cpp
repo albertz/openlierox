@@ -160,4 +160,4 @@ void Menu_SpeedTest_Shutdown()
 	cSpeedTest.Shutdown();
 }
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
