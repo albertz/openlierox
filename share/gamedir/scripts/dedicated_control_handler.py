@@ -85,9 +85,18 @@ class Worm:
 		self.Lives = -1 # -1 means Out
 		self.Team = 0
 		self.Alive = False
+		self.Voted = 0
+		self.FailedVoteTime = 0
 
 	def clear(self):
 		self.__init__()
+
+class Preset():
+	def __init__(self):
+		self.Name = None
+		self.Level = None
+		self.Mod = None
+		self.LT = None
 
 
 def init():
@@ -96,16 +105,6 @@ def init():
 	initModList()
 
 ## High-level processing ##
-
-
-def getNumWorms():
-	global worms
-	i = 0
-	for w in worms.values():
-		if w.iID != -1:
-			i += 1
-
-	return i
 
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
@@ -201,6 +200,8 @@ def parseNewWorm(sig):
 			if ranking.auth[name] != getWormSkin(wormID):
 				io.kickWorm(wormID, "Player with name %s already registered" % name)
 			
+	cmds.recheckVote()
+
 
 def parseWormLeft(sig):
 	global worms
@@ -215,7 +216,9 @@ def parseWormLeft(sig):
 		io.messageLog("AdminRemove: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 	# Call last, that way we still have the data active.
-	worms[wormID].clear()
+	worms.pop(wormID)
+
+	cmds.recheckVote()
 
 
 def parsePrivateMessage(sig):
@@ -301,23 +304,35 @@ def initPresets():
 		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
 		exit()
 
-# initPresets must be called before this - or it will crash
-# TODO: Try to make something nicer for the user which doesn't read this
-def selectNextPreset():
-	global availablePresets, nextPresets, controlHandler
-	
+# Ensures the nextPresets is not empty
+def fillNextPresets():
+	global availablePresets, nextPresets
 	if len( nextPresets ) == 0:
-		nextPresets = list(cfg.PRESETS)
+		for n in cfg.PRESETS:
+			p = Preset()
+			p.Name = n
+			nextPresets.append(p)
 		if len( nextPresets ) == 0:
-			nextPresets = list(availablePresets)
+			for n in availablePresets:
+				p = Preset()
+				p.Name = n
+				nextPresets.append(p)
 
+# initPresets must be called before this - or it will crash
+def selectNextPreset():
+	global availablePresets, nextPresets, controlHandler, gameState
+
+	fillNextPresets()
+	
 	preset = nextPresets[0]
 	nextPresets.pop(0)
+	
+	fillNextPresets()
 
-	io.msg("Preset " + preset)
-	io.chatMsg("Preset " + preset)
+	io.msg("Preset " + preset.Name)
+	io.chatMsg("Preset " + preset.Name)
 
-	sFile = os.path.join(presetDir,preset)
+	sFile = os.path.join(presetDir,preset.Name)
 	sDefaults = os.path.join(presetDir,"Defaults")
 	try:
 		execfile(sDefaults)
@@ -335,6 +350,48 @@ def selectNextPreset():
 		# File does not exist, perhaps it was removed.
 		io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
+	
+	if preset.Mod:
+		io.setvar("GameOptions.GameInfo.ModName", preset.Mod)
+	if preset.Level:
+		io.setvar("GameOptions.GameInfo.LevelName", preset.Level)
+	if preset.LT:
+		io.setvar("GameOptions.GameInfo.LoadingTime", preset.LT)
+
+
+def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 ):
+	global availablePresets, nextPresets, controlHandler, gameState
+
+	fillNextPresets()
+	preset = nextPresets[0]
+
+	if Name:
+		preset.Name = Name
+	if Level:
+		preset.Level = Level
+	if Mod:
+		preset.Mod = Mod
+	if LT:
+		preset.LT = LT
+		
+	if Repeat > 0:
+		nextPresets = []
+		for f in range(Repeat):
+			nextPresets.append(preset)
+	else:
+		nextPresets[0] = preset
+
+	if gameState != GAME_LOBBY:
+		msg = "Preset " + str(preset.Name)
+		if preset.Level:
+			msg += " map " + preset.Level
+		if preset.Mod:
+			msg += " mod " + preset.Mod
+		if preset.LT:
+			msg += " LT " + str(preset.LT)
+		io.chatMsg( msg + " will be selected for next game")
+	else:
+		selectNextPreset()
 
 
 def waitLobbyStarted():
@@ -423,12 +480,12 @@ def controlHandlerDefault():
 				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
-			if not lobbyEnoughPlayers and getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
+			if not lobbyEnoughPlayers and len(worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
 				lobbyEnoughPlayers = True
 				io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
 
-			if lobbyEnoughPlayers and getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+			if lobbyEnoughPlayers and len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 				lobbyEnoughPlayers = False
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
@@ -436,7 +493,7 @@ def controlHandlerDefault():
 				lobbyWaitBeforeGame -= 1
 				if lobbyWaitBeforeGame <= 0: # Start the game
 
-					if getNumWorms() >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
+					if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
 						setvar("GameOptions.GameInfo.GameType", "1")
 						if not cfg.ALLOW_TEAM_CHANGE:
 							counter = 0
@@ -448,14 +505,14 @@ def controlHandlerDefault():
 						io.setvar("GameOptions.GameInfo.GameType", "0")
 
 					io.startGame()
-					if cfg.ALLOW_TEAM_CHANGE and getNumWorms() >= cfg.MIN_PLAYERS_TEAMS:
+					if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
 						io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
 	if gameState == GAME_WEAPONS:
 
 		#checkMaxPing()
 
-		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+		if len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 			io.gotoLobby()
 
 	if gameState == GAME_PLAYING:

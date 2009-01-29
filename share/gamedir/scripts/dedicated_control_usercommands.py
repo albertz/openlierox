@@ -7,6 +7,7 @@ import os
 import sys
 import threading
 import traceback
+import math
 
 import dedicated_config as cfg
 
@@ -29,9 +30,9 @@ def adminCommandHelp(wormid):
 	io.privateMsg(wormid, "%skick wormID [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sban wormID [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smute wormID" % cfg.ADMIN_PREFIX)
+	io.privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smod modName (or part of name)" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smap mapName" % cfg.ADMIN_PREFIX)
-	io.privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%slt loadingTime" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%steam wormID teamID (0123 or brgy)" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
@@ -50,7 +51,7 @@ def parseAdminCommand(wormid,message):
 			return False # normal chat
 
 		cmd = message.split(" ")[0]
-		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1) #Remove the prefix
+		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1).lower() #Remove the prefix
 
 		io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),io.LOG_ADMIN)
 
@@ -71,26 +72,6 @@ def parseAdminCommand(wormid,message):
 				io.banWorm( int( params[0] ) )
 		elif cmd == "mute":
 			io.muteWorm( int( params[0] ) )
-		elif cmd == "mod":
-			mod = ""
-			for m in hnd.availableMods:
-				if m.lower().find(" ".join(params[0:]).lower()) != -1:
-					mod = m
-					break
-			if mod == "":
-				io.privateMsg(wormid,"Invalid mod name")
-			else:
-				io.setvar("GameOptions.GameInfo.ModName", mod) # In case mod name contains spaces
-		elif cmd == "map":
-			level = ""
-			for l in hnd.availableLevels:
-				if l.lower().find(" ".join(params[0:]).lower()) != -1:
-					level = l
-					break
-			if level == "":
-				io.privateMsg(wormid,"Invalid map name")
-			else:
-				io.setvar("GameOptions.GameInfo.LevelName", level) # In case map name contains spaces
 		elif cmd == "preset":
 			preset = -1
 			presetCount = 1
@@ -103,12 +84,29 @@ def parseAdminCommand(wormid,message):
 			if preset == -1:
 				io.privateMsg(wormid,"Invalid preset name")
 			else:
-				hnd.nextPresets = []
-				for f in range(presetCount):
-					hnd.nextPresets.append(hnd.availablePresets[preset])
-				hnd.selectNextPreset()
+				hnd.selectPreset( Name = hnd.availablePresets[preset], Repeat = presetCount )
+		elif cmd == "mod":
+			mod = ""
+			for m in hnd.availableMods:
+				if m.lower().find(" ".join(params[0:]).lower()) != -1:
+					mod = m
+					break
+			if mod == "":
+				io.privateMsg(wormid,"Invalid mod name")
+			else:
+				hnd.selectPreset( Mod = mod )
+		elif cmd == "map":
+			level = ""
+			for l in hnd.availableLevels:
+				if l.lower().find(" ".join(params[0:]).lower()) != -1:
+					level = l
+					break
+			if level == "":
+				io.privateMsg(wormid,"Invalid map name")
+			else:
+				hnd.selectPreset( Level = level )
 		elif cmd == "lt":
-			io.setvar("GameOptions.GameInfo.LoadingTime", params[0])
+			hnd.selectPreset( LT = int(params[0]) )
 		elif cmd == "start":
 			io.startGame()
 		elif cmd == "stop":
@@ -158,8 +156,78 @@ def userCommandHelp(wormid):
 		io.privateMsg(wormid, "%stoprank - display the best players" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%srank [name] - display your or other player rank" % cfg.USER_PREFIX )
 		io.privateMsg(wormid, "%sranktotal - display the number of players in the ranking" % cfg.USER_PREFIX )
+	if cfg.VOTING:
+		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%spreset presetName - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX) )
 	if userCommandHelp_Preset:
 		userCommandHelp_Preset(wormid)
+
+
+voteCommand = None
+voteTime = 0
+votePoster = -1
+voteDescription = ""
+
+def addVote( command, poster, description ):
+	global voteCommand, voteTime, votePoster, voteDescription
+	if time.time() - voteTime < cfg.VOTING_TIME:
+		io.privateMsg(poster, "Previous vote still running, " + str(int( cfg.VOTING_TIME + voteTime - time.time() )) + " seconds left")
+		return
+	if time.time() - hnd.worms[poster].FailedVoteTime < cfg.VOTING_TIME * 2:
+		io.privateMsg(poster, "You cannot add vote for " + str(int( cfg.VOTING_TIME * 2 + hnd.worms[poster].FailedVoteTime - time.time() )) + " seconds")
+		return
+	voteCommand = command
+	for w in hnd.worms.keys():
+		hnd.worms[w].Voted = 0
+	votePoster = poster
+	hnd.worms[poster].Voted = 1
+	voteTime = time.time()
+	voteDescription = description
+	recheckVote()
+
+def recheckVote():
+	global voteCommand, voteTime, votePoster, voteDescription
+	if not voteCommand:
+		return
+
+	voteCount = 0
+	notVoted = 0
+
+	if cfg.VOTING_COUNT_NEGATIVE:
+		for w in hnd.worms.keys():
+			voteCount += hnd.worms[w].Voted
+			if hnd.worms[w].Voted == 0:
+				notVoted += 1
+	else:
+		for w in hnd.worms.keys():
+			if hnd.worms[w].Voted == 1:
+				voteCount += 1
+			else:
+				notVoted += 1
+			
+	needVoices = int( math.ceil( len(hnd.worms) * cfg.VOTING_PERCENT / 100.0 ) )
+
+	if voteCount >= needVoices:
+		exec(voteCommand)
+		voteCommand = None
+		voteTime = 0
+		return
+	if time.time() - voteTime >= cfg.VOTING_TIME or needVoices - voteCount > notVoted:
+		voteCommand = None
+		voteTime = 0
+		io.chatMsg("Vote failed: " + voteDescription )
+		if hnd.worms[votePoster].Voted == 1: # Check if worm left and another worm joined with same ID
+			hnd.worms[votePoster].FailedVoteTime = time.time()
+		return
+		
+	io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " + 
+				str(int( cfg.VOTING_TIME + voteTime - time.time() )) + ( " seconds, say %sy or %sn" % ( cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX ) ) )
+
 
 def parseUserCommand(wormid,message):
 	try: # Do not check on msg size or anything, exception handling is further down
@@ -167,7 +235,7 @@ def parseUserCommand(wormid,message):
 			return False # normal chat
 
 		cmd = message.split(" ")[0]
-		cmd = cmd.replace(cfg.USER_PREFIX,"",1) #Remove the prefix
+		cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
 
 		io.messageLog("%i:%s user cmd %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_ADMIN)
 
@@ -201,6 +269,57 @@ def parseUserCommand(wormid,message):
 				ranking.myRank(wormName, wormid)
 		elif cmd == "ranktotal" and cfg.RANKING:
 			io.privateMsg(wormid, "There are " + str(len(ranking.rank)) + " players in the ranking.")
+
+
+		elif cmd == "kick" and cfg.VOTING:
+			kicked = int( params[0] )
+			addVote( "io.kickWorm(" + str(kicked) +")", wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
+		elif cmd == "mute" and cfg.VOTING:
+			kicked = int( params[0] )
+			addVote( "io.muteWorm(" + str(kicked) +")", wormid, "Mute %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
+
+		elif cmd == "mod":
+			mod = ""
+			for m in hnd.availableMods:
+				if m.lower().find(" ".join(params[0:]).lower()) != -1:
+					mod = m
+					break
+			if mod == "":
+				io.privateMsg(wormid,"Invalid mod name")
+			else:
+				addVote( 'hnd.selectPreset( Mod = "%s" )' % mod, wormid, "Mod %s" % mod )
+		elif cmd == "map":
+			level = ""
+			for l in hnd.availableLevels:
+				if l.lower().find(" ".join(params[0:]).lower()) != -1:
+					level = l
+					break
+			if level == "":
+				io.privateMsg(wormid,"Invalid map name")
+			else:
+				addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
+		elif cmd == "lt":
+			addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
+		elif cmd == "preset":
+			preset = -1
+			for p in range(len(hnd.availablePresets)):
+				if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
+					preset = p
+					break
+			if preset == -1:
+				io.privateMsg(wormid,"Invalid preset name")
+			else:
+				addVote( 'hnd.selectPreset( Name = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
+
+		elif ( cmd == "y" or cmd == "yes" ) and cfg.VOTING:
+			if hnd.worms[wormid].Voted != 1:
+				hnd.worms[wormid].Voted = 1
+				recheckVote()
+		elif ( cmd == "n" or cmd == "no" ) and cfg.VOTING:
+			if hnd.worms[wormid].Voted != -1:
+				hnd.worms[wormid].Voted = -1
+				recheckVote()
+
 		elif parseUserCommand_Preset and parseUserCommand_Preset(wormid, cmd, params):
 			pass
 		else:

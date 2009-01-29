@@ -50,7 +50,7 @@ def controlHandlerTeamArena():
 		# Do not check ping in lobby - it's wrong
 		# End round if some team reaches max score or if only 1 worm left
 		for i in range(4):
-			if TeamArenaScore[i] >= RoundsToWin or ( TeamArenaRound >= 0 and getNumWorms() <= 1 ):
+			if TeamArenaScore[i] >= RoundsToWin or ( TeamArenaRound >= 0 and len(worms) <= 1 ):
 				msg = "Final score: blue %i red %i" % ( TeamArenaScore[0], TeamArenaScore[1] )
 				if cfg.MAX_TEAMS >= 3:
 					msg += " green %i" % TeamArenaScore[2]
@@ -72,7 +72,7 @@ def controlHandlerTeamArena():
 				io.chatMsg(msg)
 			lobbyWaitBeforeGame -= 1
 
-			if lobbyWaitBeforeGame <= 0 and getNumWorms() >= cfg.MIN_PLAYERS:
+			if lobbyWaitBeforeGame <= 0 and len(worms) >= cfg.MIN_PLAYERS:
 				if not sentStartGame:
 					for i in worms.keys():
 						if worms[i].iID == -1:
@@ -104,12 +104,12 @@ def controlHandlerTeamArena():
 					lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 					io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
     
-				if not lobbyEnoughPlayers and getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
+				if not lobbyEnoughPlayers and len(worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
 					lobbyEnoughPlayers = True
 					io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 					lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
     
-				if lobbyEnoughPlayers and getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+				if lobbyEnoughPlayers and len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 					lobbyEnoughPlayers = False
 					io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
     
@@ -137,7 +137,7 @@ def controlHandlerTeamArena():
 
 	if gameState == GAME_WEAPONS:
 	
-		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
+		if len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 			io.gotoLobby()
 
 	if gameState == GAME_PLAYING:
