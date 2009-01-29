@@ -157,6 +157,7 @@ enum  {
 
 struct HttpThread;
 struct HttpRedirectEventData;
+struct HttpRetryEventData;
 
 // HTTP class
 class CHttp  { friend struct HttpThread;
@@ -195,7 +196,6 @@ private:
 	// Processing thread
 	HttpThread*		m_thread;
 	mutable SDL_mutex	*tMutex;
-	bool			bBreakThread;
 	bool			bThreadRunning;
 
 	int				iProcessingResult;  // Result of the last call of the ProcessInternal function
@@ -249,13 +249,14 @@ private:
 	std::string			GetBasicAuthentication(const std::string &user, const std::string &passwd);
 	void				FinishTransfer();
 	void				HandleRedirect(int code);
-	void				RetryWithNoProxy();
+	void				RetryWithNoProxy(const std::string& url, const std::string& data_to_send);
 	int					ReadAndProcessData();
 	bool				ProcessInternal();
 
 	void				InitThread();
+	void				ShutdownThread();
 	void				HttpThread_onFinished(EventData);
-	void				HttpThread_onRetry(EventData);
+	void				HttpThread_onRetry(HttpRetryEventData *);
 	void				HttpThread_onRedirect(HttpRedirectEventData *);
 	
 	int					ProcessGET();

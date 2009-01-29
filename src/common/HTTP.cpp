@@ -266,10 +266,19 @@ struct HttpRedirectEventData  {
 	std::string sData;
 };
 
+struct HttpRetryEventData  {
+	HttpRetryEventData(CHttp *h, const std::string& url, const std::string& data) :
+	http(h), sUrl(url), sData(data) {}
+	
+	CHttp *http;
+	std::string sUrl;
+	std::string sData;
+};
+
 struct HttpThread {
 	Event<> onFinished;
-	Event<> onRetry; // TODO: not used?
-	Event<HttpRedirectEventData *> onRedirect; // TODO: not used?
+	Event<HttpRetryEventData *> onRetry;
+	Event<HttpRedirectEventData *> onRedirect;
 	
 	CHttp* http;
 	SDL_Thread* thread;
@@ -311,17 +320,18 @@ struct HttpThread {
 
 ////////////////////
 // Handle the retry event (retrying with no proxy)
-void CHttp::HttpThread_onRetry(EventData d)
+void CHttp::HttpThread_onRetry(HttpRetryEventData *d)
 {
-	HttpThread_onFinished(d); // Break the processing thread // TODO: function for breaking thread; this is a hack
-	RetryWithNoProxy();
+	ShutdownThread();
+	RetryWithNoProxy(d->sUrl, d->sData);
+	delete d;
 }
 
 ////////////////////
 // Redirect event
 void CHttp::HttpThread_onRedirect(HttpRedirectEventData *d)
 {
-	HttpThread_onFinished(EventData(this)); // Break the processing thread // TODO: function for breaking thread; this is a hack
+	ShutdownThread();
 
 	switch (iAction)  {
 	case CHttp::htaGet:
@@ -432,12 +442,12 @@ CHttp& CHttp::operator =(const CHttp& http)
 
 	if (m_thread)  {
 		m_thread->breakThread();
+		delete m_thread;
 	}
 	if (tMutex)
 		SDL_DestroyMutex(tMutex);
 	m_thread = NULL;
 	tMutex = http.tMutex;
-	bBreakThread = http.bBreakThread;
 	bThreadRunning = http.bThreadRunning;
 
 	return *this;
@@ -448,8 +458,7 @@ CHttp& CHttp::operator =(const CHttp& http)
 void CHttp::Clear()
 {
 	// End the processing thread first
-	m_thread->breakThread();
-	bThreadRunning = false;
+	ShutdownThread();
 
 	sHost = "";
 	sUrl = "";
@@ -519,8 +528,7 @@ void CHttp::SetHttpError(int id)
 // Called when the processing thread finishes
 void CHttp::HttpThread_onFinished(EventData)
 {
-	m_thread->breakThread();
-	bThreadRunning = false;
+	ShutdownThread();
 
 	// If finished (error or success), fire the event
 	if (iProcessingResult != HTTP_PROC_PROCESSING)
@@ -536,6 +544,14 @@ void CHttp::InitThread()
 	iProcessingResult = HTTP_PROC_PROCESSING;
 	m_thread->startThread();
 	bThreadRunning = true;
+}
+
+/////////////////////
+// Shutdown the processing thread
+void CHttp::ShutdownThread()
+{
+	m_thread->breakThread();
+	bThreadRunning = false;
 }
 
 ////////////////////
@@ -642,7 +658,7 @@ void CHttp::SendDataInternal(const std::string& encoded_data, const std::string 
 	InitTransfer(url, proxy);
 	iAction = htaPost;
 
-	sData = encoded_data;
+	sDataToSend = encoded_data;
 	iDataLength = sData.size();
 
 	InitThread();
@@ -1215,14 +1231,14 @@ void CHttp::ParseHeader()
 
 //////////////////
 // Re-initiates the transfer using a direct connection (no proxy)
-void CHttp::RetryWithNoProxy()
+void CHttp::RetryWithNoProxy(const std::string& url, const std::string& data_to_send)
 {
 	switch (iAction)  {
 	case htaGet:
-		RequestData(sHost + sUrl);
+		RequestData(url);
 	break;
 	case htaPost:
-		SendDataInternal(sData, sHost + sUrl, "");
+		SendDataInternal(data_to_send, url, "");
 	break;
 	case htaHead:
 		errors("HTTP HEAD not implemented\n");
@@ -1476,7 +1492,7 @@ bool CHttp::ProcessInternal()
 			if (sProxyHost.size() != 0)  {
 				warnings << "HINT: proxy failed, trying a direct connection" << endl;
 				// The re-requesting must be done in the main thread, send a notification and quit
-				SendSDLUserEvent(&m_thread->onRetry, EventData(this));
+				SendSDLUserEvent(&m_thread->onRetry, new HttpRetryEventData(this, sHost + sUrl, sDataToSend));
 				iProcessingResult = HTTP_PROC_PROCESSING;
 				return true;
 			}
@@ -1496,7 +1512,7 @@ bool CHttp::ProcessInternal()
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
-			SendSDLUserEvent(&m_thread->onRetry, EventData(this));
+			SendSDLUserEvent(&m_thread->onRetry, new HttpRetryEventData(this, sHost + sUrl, sDataToSend));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1512,7 +1528,7 @@ bool CHttp::ProcessInternal()
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
-			SendSDLUserEvent(&m_thread->onRetry, EventData(this));
+			SendSDLUserEvent(&m_thread->onRetry, new HttpRetryEventData(this, sHost + sUrl, sDataToSend));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
 		} else { // Not using proxy, there's no other possibility to obtain the data
@@ -1560,7 +1576,7 @@ bool CHttp::ProcessInternal()
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings("HINT: proxy failed, trying a direct connection\n");
 					// The re-requesting must be done in the main thread, send a notification and quit
-					SendSDLUserEvent(&m_thread->onRetry, EventData(this));
+					SendSDLUserEvent(&m_thread->onRetry, new HttpRetryEventData(this, sHost + sUrl, sDataToSend));
 					iProcessingResult = HTTP_PROC_PROCESSING;
 					return true;
 				}
