@@ -3,11 +3,12 @@
 # This file contains default settings for all presets, 
 # it will be executed before any preset to clean up after previous preset
 
+global controlHandler
 controlHandler = controlHandlerDefault
-adminCommandHelp_Preset = None
-parseAdminCommand_Preset = None
-userCommandHelp_Preset = None
-parseUserCommand_Preset = None
+cmds.adminCommandHelp_Preset = None
+cmds.parseAdminCommand_Preset = None
+cmds.userCommandHelp_Preset = None
+cmds.parseUserCommand_Preset = None
 
 import random
 

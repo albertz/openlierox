@@ -74,7 +74,7 @@ PRESETS = [ "Classic", "Mortars", "MSF_II", ]
 # General options that should be set
 GLOBAL_SETTINGS = {	
 
-	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected - typing go/spamming is useless",
+	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected",
 	"GameOptions.GameInfo.MaxPlayers":              8,
 	"GameOptions.GameInfo.WeaponSelectionMaxTime":  40,
 	"GameOptions.Network.MaxUploadBandwidth":       40000, # Should be enough for 8-player game, raise this if your network is fast
@@ -89,7 +89,7 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.WantsToJoinFromBanned":    0,
 	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages
 	"GameOptions.Network.RegisterServer":           1,
-	"GameOptions.Network.Speed":                    2,
+	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
 	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
 	"GameOptions.Game.AntilagMovementPrediction":   1, # If ServerSideHealth = 1 this influences gameplay
 	"GameOptions.Game.Blood":                       0, # Ded server does not need any eye candies
@@ -101,6 +101,5 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.AutoSetupHttpProxy":       1,
 	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
 	"GameOptions.Network.HttpProxy":                "",
-	"GameServer.bStartDedicated":                   0, # Do not change this
 }
 

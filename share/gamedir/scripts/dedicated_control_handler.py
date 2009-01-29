@@ -305,11 +305,6 @@ def initPresets():
 # TODO: Try to make something nicer for the user which doesn't read this
 def selectNextPreset():
 	global availablePresets, nextPresets, controlHandler
-	adminCommandHelp_Preset = cmds.adminCommandHelp_Preset
-	parseAdminCommand_Preset = cmds.parseAdminCommand_Preset
-	userCommandHelp_Preset = cmds.userCommandHelp_Preset
-	parseUserCommand_Preset = cmds.parseUserCommand_Preset
-
 	
 	if len( nextPresets ) == 0:
 		nextPresets = list(cfg.PRESETS)

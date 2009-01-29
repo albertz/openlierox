@@ -176,18 +176,21 @@ def parseUserCommand(wormid,message):
 
 		if cmd == "help":
 			userCommandHelp(wormid)
-		elif cmd == "team" and cfg.ALLOW_TEAM_CHANGE and gameState != GAME_PLAYING:
+		elif cmd == "team" and cfg.ALLOW_TEAM_CHANGE:
 			if not params:
-				userCommandHelp(wormid)
+				io.privateMsg(wormid, "You need to specify a team" )
 				raise Exception, "You need to specify a team"
-			if params[0].lower() == "blue" or params[0].lower() == "b":
-				io.setWormTeam(wormid, 0)
-			elif params[0].lower() == "red" or params[0].lower() == "r":
-				io.setWormTeam(wormid, 1)
-			elif ( params[0].lower() == "green" or params[0].lower() == "g" ) and cfg.MAX_TEAMS >= 3:
-				io.setWormTeam(wormid, 2)
-			elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
-				io.setWormTeam(wormid, 3)
+			if hnd.gameState == GAME_PLAYING:
+				io.privateMsg(wormid, "You cannot change team when playing" )
+			else:
+				if params[0].lower() == "blue" or params[0].lower() == "b":
+					io.setWormTeam(wormid, 0)
+				elif params[0].lower() == "red" or params[0].lower() == "r":
+					io.setWormTeam(wormid, 1)
+				elif ( params[0].lower() == "green" or params[0].lower() == "g" ) and cfg.MAX_TEAMS >= 3:
+					io.setWormTeam(wormid, 2)
+				elif ( params[0].lower() == "yellow" or params[0].lower() == "y" ) and cfg.MAX_TEAMS >= 4:
+					io.setWormTeam(wormid, 3)
 		elif cmd == "toprank" and cfg.RANKING:
 			ranking.firstRank(wormid)
 		elif cmd == "rank" and cfg.RANKING:

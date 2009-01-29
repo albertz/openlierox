@@ -56,7 +56,7 @@ def controlHandlerTeamArena():
 					msg += " green %i" % TeamArenaScore[2]
 				if cfg.MAX_TEAMS >= 4:
 					msg += " yellow %i" % TeamArenaScore[3]
-				chatMsg(msg)
+				io.chatMsg(msg)
 				TeamArenaRound = -1
 				TeamArenaScore = [0,0,0,0]
 
@@ -69,7 +69,7 @@ def controlHandlerTeamArena():
 				msg += " yellow %i" % TeamArenaScore[3]
 
 			if lobbyWaitBeforeGame == WaitInLobbyBeforeNextRound:
-				chatMsg(msg)
+				io.chatMsg(msg)
 			lobbyWaitBeforeGame -= 1
 
 			if lobbyWaitBeforeGame <= 0 and getNumWorms() >= cfg.MIN_PLAYERS:
@@ -78,8 +78,8 @@ def controlHandlerTeamArena():
 						if worms[i].iID == -1:
 							continue
 						worms[i].Lives = 0
-					startGame()
-					chatMsg(msg)
+					io.startGame()
+					io.chatMsg(msg)
 
 		else:
 		
@@ -102,16 +102,16 @@ def controlHandlerTeamArena():
     
 				if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
 					lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-					chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+					io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
     
 				if not lobbyEnoughPlayers and getNumWorms() >= cfg.MIN_PLAYERS: # Enough players already - start game
 					lobbyEnoughPlayers = True
-					chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
+					io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
 					lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
     
 				if lobbyEnoughPlayers and getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
 					lobbyEnoughPlayers = False
-					chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
+					io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
     
 				if lobbyEnoughPlayers and not sentStartGame:
 					lobbyWaitBeforeGame -= 1
@@ -121,7 +121,7 @@ def controlHandlerTeamArena():
 							counter = 0
 							for w in worms.values():
 								if w.iID != -1:
-									setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
+									io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 									counter += 1
 						
 						for i in worms.keys():
@@ -131,14 +131,14 @@ def controlHandlerTeamArena():
 						
 						TeamArenaRound = 0
 						TeamArenaScore = [0,0,0,0]
-						startGame()
+						io.startGame()
 						if cfg.ALLOW_TEAM_CHANGE:
-							chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
 	if gameState == GAME_WEAPONS:
 	
 		if getNumWorms() < cfg.MIN_PLAYERS: # Some players left when game not yet started
-			gotoLobby()
+			io.gotoLobby()
 
 	if gameState == GAME_PLAYING:
 
@@ -161,13 +161,13 @@ def controlHandlerTeamArena():
 			TeamArenaRound += 1
 			TeamArenaScore[teamAliveIdx] += 1
 			lobbyWaitBeforeGame = WaitInLobbyBeforeNextRound
-			gotoLobby()
+			io.gotoLobby()
 		if teamAliveCount == 0:
 			lobbyWaitBeforeGame = WaitInLobbyBeforeNextRound
-			gotoLobby()
+			io.gotoLobby()
 			
 def adminCommandHelpTeamArena(wormid):
-	privateMsg(wormid, "%sreset - resets TeamArena state" % cfg.ADMIN_PREFIX)
+	io.privateMsg(wormid, "%sreset - resets TeamArena state" % cfg.ADMIN_PREFIX)
 
 def parseAdminCommandTeamArena(wormid, cmd, params):
 	global TeamArenaScore, TeamArenaRound
@@ -178,14 +178,14 @@ def parseAdminCommandTeamArena(wormid, cmd, params):
 		return False
 
 	if cmd == "reset":
-		gotoLobby()
+		io.gotoLobby()
 		msg = "Final score: blue %i red %i" % ( TeamArenaScore[0], TeamArenaScore[1] )
 		if cfg.MAX_TEAMS >= 3:
 			msg += " green %i" % TeamArenaScore[2]
 		if cfg.MAX_TEAMS >= 4:
 			msg += " yellow %i" % TeamArenaScore[3]
 		time.sleep(1)
-		chatMsg(msg)
+		io.chatMsg(msg)
 		TeamArenaRound = -1
 		TeamArenaScore = [0,0,0,0]
 		
@@ -195,7 +195,7 @@ def parseAdminCommandTeamArena(wormid, cmd, params):
 
 
 def userCommandHelpTeamArena(wormid):
-	privateMsg(wormid, "%sscore - prints TeamArena score" % cfg.USER_PREFIX)
+	io.privateMsg(wormid, "%sscore - prints TeamArena score" % cfg.USER_PREFIX)
 
 def parseUserCommandTeamArena(wormid, cmd, params):
 	global TeamArenaScore, TeamArenaRound
@@ -211,17 +211,18 @@ def parseUserCommandTeamArena(wormid, cmd, params):
 			msg += " green %i" % TeamArenaScore[2]
 		if cfg.MAX_TEAMS >= 4:
 			msg += " yellow %i" % TeamArenaScore[3]
-		privateMsg(wormid, msg)
+		io.privateMsg(wormid, msg)
 		
 		return True
 	
 	return False
 
+global controlHandler
 controlHandler = controlHandlerTeamArena
-adminCommandHelp_Preset = adminCommandHelpTeamArena
-parseAdminCommand_Preset = parseAdminCommandTeamArena
-userCommandHelp_Preset = userCommandHelpTeamArena
-parseUserCommand_Preset = parseUserCommandTeamArena
+cmds.adminCommandHelp_Preset = adminCommandHelpTeamArena
+cmds.parseAdminCommand_Preset = parseAdminCommandTeamArena
+cmds.userCommandHelp_Preset = userCommandHelpTeamArena
+cmds.parseUserCommand_Preset = parseUserCommandTeamArena
 
 if cfg.ALLOW_TEAM_CHANGE:
-	chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+	io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
