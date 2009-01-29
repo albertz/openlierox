@@ -159,7 +159,7 @@ struct HttpThread;
 struct HttpRedirectEventData;
 
 // HTTP class
-class CHttp  { friend class HttpThread;
+class CHttp  { friend struct HttpThread;
 public:
 	CHttp();
 	~CHttp();
@@ -256,7 +256,7 @@ private:
 	void				InitThread();
 	void				HttpThread_onFinished(EventData);
 	void				HttpThread_onRetry(EventData);
-	void				HttpThread_onRedirect(HttpRedirectEventData&);
+	void				HttpThread_onRedirect(HttpRedirectEventData *);
 	
 	int					ProcessGET();
 	int					ProcessPOST();
