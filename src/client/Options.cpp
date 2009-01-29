@@ -380,6 +380,12 @@ void GameOptions::SaveToDisc()
 	// Set the FirstRun to false, we're just quitting
 	tLXOptions->bFirstRun = false;
 
+	// Hosted a net game? Set the FirstHosting variables to false
+	if (tLX->bHosted)  {
+		tLXOptions->bFirstHosting = false;
+		tLXOptions->bFirstHostingThisVer = false;
+	}
+
 	// TODO: remove this UTF8 information here
 	fprintf(fp, "%c%c%c", 0xEF, 0xBB, 0xBF);  // mark that this file is UTF-8 encoded
     fprintf(fp, "# OpenLieroX Options File\n");

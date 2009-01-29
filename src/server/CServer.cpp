@@ -125,10 +125,13 @@ int GameServer::StartServer()
 	if (!bDedicated && tLX->iGameType == GME_HOST)
 		tLX->bHosted = true;
 
-	if (tLXOptions->bFirstHosting)
-		notes << "Hosting for the first time" << endl;
-	else if (tLXOptions->bFirstHostingThisVer)
-		notes << "Hosting for the first time with this version of OpenLieroX" << endl;
+	// Notifications
+	if (tLX->iGameType == GME_HOST)  {
+		if (tLXOptions->bFirstHosting)
+			notes << "Hosting for the first time" << endl;
+		else if (tLXOptions->bFirstHostingThisVer)
+			notes << "Hosting for the first time with this version of OpenLieroX" << endl;
+	}
 
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";

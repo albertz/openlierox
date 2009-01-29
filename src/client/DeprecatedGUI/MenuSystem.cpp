@@ -626,7 +626,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	int x = 160;
 	int y = 170;
-	int w = 320;
+	int w = 400;
 	int h = 140;
 
 	// Handle multiline messages

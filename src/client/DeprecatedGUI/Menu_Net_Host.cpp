@@ -449,6 +449,7 @@ bool		bHostGameSettings = false;
 bool		bHostWeaponRest = false;
 bool		bBanList = false;
 bool		bServerSettings = false;
+bool		bSpeedTestDialog = false;
 CGuiLayout	cHostLobby;
 int			iSpeaking = 0;
 int         g_nLobbyWorm = -1;
@@ -477,6 +478,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	iHostType = 1;
 	bHostGameSettings = false;
     bHostWeaponRest = false;
+	bSpeedTestDialog = false;
     iSpeaking = -1;
 
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
@@ -493,6 +495,16 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 	// Lets connect me to the server	
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+
+	// If hosting for the first time, ask for the upload speed test
+	if (tLXOptions->bFirstHosting)  {
+		if (Menu_MessageBox("Perform a Connection Test", 
+			"You are hosting for the first time. To reduce lag, OpenLieroX needs to know the speed of your connection.\n\nDo you want to perform a connection test now?",
+			LMB_YESNO) == MBR_YES)  {
+				Menu_SpeedTest_Initialize();
+				bSpeedTestDialog = true;
+		}
+	}
 
 	// Draw the lobby
 	Menu_Net_HostLobbyDraw();
@@ -709,6 +721,19 @@ void Menu_Net_HostGotoLobby(void)
 	tMenu->sSavedChatText = "";
 }
 
+void Menu_Net_HostUpdateUploadSpeed(float speed)
+{
+	tLXOptions->iMaxUploadBandwidth = (int)speed;
+
+	// Update the network speed accordingly
+	if (speed >= 7500)
+		tLXOptions->iNetworkSpeed = NST_LAN;
+	else if (speed >= 2500)
+		tLXOptions->iNetworkSpeed = NST_ISDN;
+	else
+		tLXOptions->iNetworkSpeed = NST_MODEM;
+}
+
 
 ///////////////////
 // Host lobby frame
@@ -825,7 +850,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 
 	// Process & Draw the gui
-	ev = cHostLobby.Process();
+	ev = bSpeedTestDialog ? NULL : cHostLobby.Process();
 	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
 
 	bool bStartPressed = false;
@@ -1079,6 +1104,15 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, tLXOptions->tGameInfo.iMaxPlayers );
 				}
                 break;
+		}
+	}
+
+	// Speed test dialog
+	if (bSpeedTestDialog)  {
+		if (Menu_SpeedTest_Frame())  {
+			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed());
+			bSpeedTestDialog = false;
+			Menu_SpeedTest_Shutdown();
 		}
 	}
 
