@@ -31,6 +31,7 @@ class Version { public:
 	void setByString(const std::string& versionStr);
 	std::string asString() const;
 	std::string asHumanString() const;
+	std::string releaseType() const;
 
 	int num; // 0
 	int subnum; // 57

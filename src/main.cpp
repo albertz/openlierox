@@ -212,6 +212,9 @@ startpoint:
 		SystemError("Could not initialize LieroX.");
 		return -1;
 	}
+
+	if (tLXOptions->bFirstRun)
+		notes << "Running this version for the first time" << endl;
 	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
@@ -553,6 +556,7 @@ int InitializeLieroX(void)
 	tLX->debug_string = "";
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
+	tLX->bHosted = false;
 
 	if (!SkinnedGUI::InitializeGuiSkinning())
 		return false;

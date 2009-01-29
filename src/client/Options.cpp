@@ -69,6 +69,9 @@ bool GameOptions::Init() {
 		return false;
 	}
 
+	std::string options_ver = GetGameVersion().releaseType() + 
+		itoa(GetGameVersion().num) + "_" + itoa(GetGameVersion().subnum) + "_" + itoa(GetGameVersion().subsubnum);
+
 	// TODO: don't hardcode the size here
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 
@@ -110,6 +113,10 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
+
+		( tLXOptions->bFirstRun, "State.FirstRun" + options_ver, true )
+		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
+		( tLXOptions->bFirstHostingThisVer, "State.FirstHosting" + options_ver, true )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
@@ -369,6 +376,9 @@ void GameOptions::SaveToDisc()
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
     if(fp == NULL)
         return;
+
+	// Set the FirstRun to false, we're just quitting
+	tLXOptions->bFirstRun = false;
 
 	// TODO: remove this UTF8 information here
 	fprintf(fp, "%c%c%c", 0xEF, 0xBB, 0xBF);  // mark that this file is UTF-8 encoded

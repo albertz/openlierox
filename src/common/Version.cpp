@@ -143,6 +143,19 @@ std::string Version::asHumanString() const
 	return ret;
 }
 
+std::string Version::releaseType() const
+{
+	switch(releasetype) {
+	case RT_NORMAL: return "final";
+	case RT_ALPHA: return "alpha";
+	case RT_BETA: return "beta";
+	case RT_RC: return "rc";
+	default: return "final";
+	}
+
+	return "error"; // Cannot ever happen
+}
+
 
 // For comparision, we ignore the following: revnum, gamename
 // That means, a special revision of a baseversion should not change the behaviour (and it's only for debugging).

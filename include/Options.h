@@ -195,6 +195,11 @@ public:
 	int		iSoundVolume;
 	int		iMusicVolume;
 
+	// Game state
+	bool	bFirstRun;
+	bool	bFirstHosting;
+	bool	bFirstHostingThisVer;  // First hosting with this OLX version
+
 	// Controls
 	std::vector<controls_t> sPlayerControls; // sPC[playernr][controlnr]
 	controls_t	sGeneralControls;

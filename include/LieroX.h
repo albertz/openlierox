@@ -76,6 +76,7 @@ class lierox_t { public:
 	CVec	debug_pos;
 	
 	GameType_t iGameType;
+	bool	bHosted;  // True if the user has run the server at least once this session
 
 	// Default Colours
 	Uint32			clNormalLabel;

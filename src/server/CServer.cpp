@@ -122,6 +122,14 @@ int GameServer::StartServer()
 	Shutdown();
 	Clear();
 
+	if (!bDedicated && tLX->iGameType == GME_HOST)
+		tLX->bHosted = true;
+
+	if (tLXOptions->bFirstHosting)
+		notes << "Hosting for the first time" << endl;
+	else if (tLXOptions->bFirstHostingThisVer)
+		notes << "Hosting for the first time with this version of OpenLieroX" << endl;
+
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
 	bLocalClientConnected = false;
@@ -1810,6 +1818,12 @@ float GameServer::GetUpload(float timeRange)
 void GameServer::Shutdown(void)
 {
 	uint i;
+
+	// If we've hosted this session, set the FirstHost option to false
+	if (tLX->bHosted)  {
+		tLXOptions->bFirstHosting = false;
+		tLXOptions->bFirstHostingThisVer = false;
+	}
 
 	if(IsSocketStateValid(tSocket))
 	{
