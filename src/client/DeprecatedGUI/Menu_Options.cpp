@@ -431,7 +431,7 @@ bool Menu_StartWithSysOptionsMenu(void*) {
 // Called when the upload speed test finishes
 void Menu_OptionsUpdateUpload(float speed)
 {
-	tLXOptions->iMaxUploadBandwidth = (int)speed;
+	tLXOptions->iMaxUploadBandwidth = (int)speed / 2;  // HINT: we set only a half of the maximum bandwidth not to block the line with upload only
 
 	// Get the textbox
 	CTextbox *txt = (CTextbox *)cOpt_System.getWidget(os_NetworkUploadBandwidth);

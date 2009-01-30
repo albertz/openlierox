@@ -718,7 +718,7 @@ void Menu_Net_HostGotoLobby(void)
 
 void Menu_Net_HostUpdateUploadSpeed(float speed)
 {
-	tLXOptions->iMaxUploadBandwidth = (int)speed;
+	tLXOptions->iMaxUploadBandwidth = (int)speed / 2;   // HINT: we set only a half of the maximum bandwidth not to block the line with upload only
 
 	// Update the network speed accordingly
 	if (speed >= 7500)
