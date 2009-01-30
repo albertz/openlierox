@@ -721,9 +721,9 @@ void Menu_Net_HostUpdateUploadSpeed(float speed)
 	tLXOptions->iMaxUploadBandwidth = (int)speed / 2;   // HINT: we set only a half of the maximum bandwidth not to block the line with upload only
 
 	// Update the network speed accordingly
-	if (speed >= 7500)
+	if (tLXOptions->iMaxUploadBandwidth >= 7500)
 		tLXOptions->iNetworkSpeed = NST_LAN;
-	else if (speed >= 2500)
+	else if (tLXOptions->iMaxUploadBandwidth >= 2500)
 		tLXOptions->iNetworkSpeed = NST_ISDN;
 	else
 		tLXOptions->iNetworkSpeed = NST_MODEM;

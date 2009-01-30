@@ -442,7 +442,7 @@ void Menu_OptionsUpdateUpload(float speed)
 	txt->setText(itoa((int)speed));
 
 	// Set the network speed to LAN if appropriate
-	if (speed >= 8000)  {
+	if (tLXOptions->iMaxUploadBandwidth >= 7500)  {
 		tLXOptions->iNetworkSpeed = NST_LAN;
 		CCombobox *cmb = (CCombobox *)cOpt_System.getWidget(os_NetworkSpeed);
 		if (cmb)
