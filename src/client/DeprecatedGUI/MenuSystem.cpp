@@ -624,14 +624,27 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	SetGameCursor(CURSOR_ARROW);
 
+	int minw = 350;
+	int maxw = 500;
 	int x = 160;
 	int y = 170;
-	int w = 400;
+	int w = minw;
 	int h = 140;
 
-	// Handle multiline messages
+	// Adjust the width
+	int longest_line = w;
+	const std::vector<std::string>* lines = &explode(sText, "\n");
 	std::vector<std::string>::const_iterator it;
-	const std::vector<std::string>* lines = &splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
+	for (it=lines->begin(); it!=lines->end(); it++)  {
+		int tw = tLX->cFont.GetWidth(*it);
+		if (tw > longest_line)
+			longest_line = tw;
+	}
+	w = CLAMP(longest_line + 40, minw, maxw);
+	x = (VideoPostProcessor::get()->screenWidth() - w) / 2;
+
+	// Handle multiline messages
+	lines = &splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
 	
 	if((tLX->cFont.GetHeight()*(int)lines->size())+5 > h) {
 		h = (int)MIN((tLX->cFont.GetHeight()*lines->size())+90, (size_t)478);		
