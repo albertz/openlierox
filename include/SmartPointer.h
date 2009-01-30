@@ -100,11 +100,13 @@ private:
 			(*refCount)--;
 			if(*refCount == 0) {
 				#ifdef DEBUG
-				if( SmartPointer_CollisionDetector->count(obj) == 0 ) // Should be faster than find() I think
+				if( !SmartPointer_CollisionDetector || SmartPointer_CollisionDetector->count(obj) == 0 )
 				{
 					errors << "ERROR! SmartPointer already deleted reference ("
 							<< this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ")" << endl;
-					assert(false); // TODO: maybe do smth like *(int *)NULL = 1; to generate coredump? Simple assert(false) won't help us a lot
+					if(!SmartPointer_CollisionDetector)
+						errors << "SmartPointer_CollisionDetector is already uninitialised" << endl;
+					assert(false);
 				}
 				else
 				{
@@ -113,7 +115,12 @@ private:
 					{
 						delete SmartPointer_CollisionDetector;
 						SmartPointer_CollisionDetector = NULL;
-						hints << "SmartPointer collision detector de-initialized, no collisions detected" << endl;
+						// WARNING: this is called at a very end for global objects and most other objects are already uninitialised.
+						// For me, even the internal string structure doesn't work anymore (I get a std::length_error) and thus we cannot use the logging system.
+						// TODO: Remove any global objects! We should not have any globals, at least not such complex globals.
+						#ifdef DEBUG						
+						printf("SmartPointer collision detector de-initialized, everything is freed now\n");
+						#endif
 					}
 				}
 				#endif

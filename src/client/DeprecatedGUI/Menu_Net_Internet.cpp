@@ -114,7 +114,7 @@ bool Menu_Net_NETInitialize(void)
 
 	if (tLXOptions->bUseIpToCountry)
 	{	// Too lazy to update tLXOptions, so I'll calculate last column width from width of listview
-		int CountryColumnWidth = 21;
+		//int CountryColumnWidth = 21; // TODO: not used
 
 		// HINT: because this column is optional, it is at the end of the array from options
 		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[6]);

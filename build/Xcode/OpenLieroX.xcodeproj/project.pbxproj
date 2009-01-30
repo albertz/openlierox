@@ -1685,7 +1685,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(NATIVE_ARCH)";
-				DEBUG_INFORMATION_FORMAT = stabs;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1725,6 +1726,7 @@
 					"-pthread",
 				);
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = ../include;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -1737,7 +1739,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = stabs;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1784,7 +1786,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = i386;
-				DEBUG_INFORMATION_FORMAT = stabs;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1822,6 +1825,7 @@
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
 			name = "Debug with Fuzzy S2C";
@@ -1919,7 +1923,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = i386;
-				DEBUG_INFORMATION_FORMAT = stabs;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1957,6 +1962,7 @@
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
 			name = "Debug with Fuzzy C2S";
