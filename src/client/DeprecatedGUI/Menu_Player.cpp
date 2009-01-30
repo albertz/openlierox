@@ -392,8 +392,7 @@ void Menu_Player_NewPlayer(int mouse)
 					AddProfile(name, skin, "", "",r, g, b, type->toInt(), level);
 
 					// Shutdown
-					cNewPlayer.Shutdown();
-					cViewPlayers.Shutdown();
+					Menu_PlayerShutdown();
 					//SaveProfiles();
 
 					Menu_MainInitialize();
