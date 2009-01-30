@@ -459,6 +459,8 @@ int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
 float		fStartDedicatedSecondsPassed = 0;
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
+float		fHostLobbyStart = 0;
+bool		bTestedSpeed = false;
 
 static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 			( bStartDedicated, "bStartDedicated" )
@@ -479,6 +481,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	bHostGameSettings = false;
     bHostWeaponRest = false;
 	bSpeedTestDialog = false;
+	bTestedSpeed = false;
     iSpeaking = -1;
 
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
@@ -495,16 +498,6 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 	// Lets connect me to the server	
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
-
-	// If hosting for the first time, ask for the upload speed test
-	if (tLXOptions->bFirstHosting)  {
-		if (Menu_MessageBox("Perform a Connection Test", 
-			"You are hosting for the first time. To reduce lag, OpenLieroX needs to know the speed of your connection.\n\nDo you want to perform a connection test now?",
-			LMB_YESNO) == MBR_YES)  {
-				Menu_SpeedTest_Initialize();
-				bSpeedTestDialog = true;
-		}
-	}
 
 	// Draw the lobby
 	Menu_Net_HostLobbyDraw();
@@ -558,6 +551,8 @@ void Menu_Net_HostLobbyDraw(void)
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
 {
+	fHostLobbyStart = tLX->fCurTime;
+
     // Lobby gui layout
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
@@ -744,7 +739,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Process the server & client frames
 	cServer->Frame();
 	cClient->Frame();
-
 
     // Game settings
 	if(bHostGameSettings) {
@@ -1119,6 +1113,27 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed());
 			bSpeedTestDialog = false;
 			Menu_SpeedTest_Shutdown();
+		}
+	}
+
+	// If hosting for the first time or the network speed is low, ask for the upload speed test
+	if (!bDedicated && tLX->fCurTime - fHostLobbyStart >= 0.5f && !bTestedSpeed)  { // Show a half second after coming to the lobby
+		if (tLXOptions->bFirstHosting || tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)  {  
+			bTestedSpeed = true;
+
+			std::string message = "You are hosting for the first time. To reduce lag, OpenLieroX needs to know the speed of your connection.\n\nDo you want to perform a connection test now?";
+			if (tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)
+				message = "The network speed is set to a very low value. This can cause lag issues on your server. It is recommended to run a connection test.\n\nDo you want to perform a connection test now?";
+
+			// TODO: horrible how many hacks are needed to show a message box
+			DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
+			if (Menu_MessageBox("Perform a Connection Test", message, LMB_YESNO) == MBR_YES)  {
+					Menu_SpeedTest_Initialize();
+					bSpeedTestDialog = true;
+			}
+			Menu_Net_HostLobbyDraw();  // Restore the buffer
+			Menu_HostShowMinimap();
+			Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 		}
 	}
 
