@@ -101,7 +101,7 @@ void CButton::Create(void)
     }
 	UnlockSurface(bmpImage);
 
-	if (y2 >= bmpImage->h)  {
+	if (y2 >= bmpImage->h || iGoodWidth < 2)  {
 		iGoodWidth = tLX->cFont.GetWidth(sButtonNames[iImageID]) + 20;
 	}
 
