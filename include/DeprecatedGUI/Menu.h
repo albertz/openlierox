@@ -183,6 +183,8 @@ enum {
 	BUT_BONUS,
 	BUT_CHAT,
 	BUT_TEST,
+	BUT_MORE,
+	BUT_LESS
 };
 
 // Button names
@@ -235,7 +237,9 @@ ConstCharP_t const sButtonNames[] =  {
 	"General",
 	"Bonus",
 	"Chat",
-	"Test"
+	"Test",
+	"More >>",
+	"<< Less"
 };
 
 // Frontend info

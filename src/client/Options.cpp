@@ -153,6 +153,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "scripts/dedicated_control" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
+		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		;
 
 	unsigned i;

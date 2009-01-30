@@ -247,7 +247,11 @@ enum {
 	jl_Details,
 	jl_Spectate,
 	jl_CancelDownload,
-	jl_DownloadProgress
+	jl_DownloadProgress,
+	jl_DownloadMap,
+	jl_DownloadMod,
+	jl_More,
+	jl_Less
 };
 
 
@@ -325,19 +329,19 @@ static void updateDetailsList(CListview* l);
 static void initDetailsList(CListview* l) {
 #define SUBS(title)	l->AddSubitem(LVS_TEXT, title, NULL, NULL); l->AddSubitem(LVS_TEXT, "", NULL, NULL);
 	int index = 0;
+	l->Clear();
 	l->AddItem("servername", index++, tLX->clNormalLabel); SUBS("Server name:");
-	l->AddItem("serverversion", index++, tLX->clNormalLabel); SUBS("Server version:");
 	l->AddItem("level", index++, tLX->clNormalLabel); SUBS("Level:"); 
 	if (tMenu->bmpDownload.get())  {
 		CImage *img = new CImage(tMenu->bmpDownload);
-		img->Setup(0, 0, 0, img->getWidth(), img->getHeight());
+		img->Setup(jl_DownloadMap, 0, 0, img->getWidth(), img->getHeight());
 		l->AddSubitem(LVS_WIDGET, "", NULL, img);
 	}
 	l->AddItem("gamemode", index++, tLX->clNormalLabel); SUBS("Game Mode:");
 	l->AddItem("mod", index++, tLX->clNormalLabel); SUBS("Mod:");
 	if (tMenu->bmpDownload.get())  {
 		CImage *img = new CImage(tMenu->bmpDownload);
-		img->Setup(1, 0, 0, img->getWidth(), img->getHeight());
+		img->Setup(jl_DownloadMod, 0, 0, img->getWidth(), img->getHeight());
 		l->AddSubitem(LVS_WIDGET, "", NULL, img);
 	}
 	l->AddItem("lives", index++, tLX->clNormalLabel); SUBS("Lives:");
@@ -345,8 +349,30 @@ static void initDetailsList(CListview* l) {
 	l->AddItem("timelimit", index++, tLX->clNormalLabel); SUBS("Timelimit:");	
 	l->AddItem("loadingtime", index++, tLX->clNormalLabel); SUBS("Loading time:");
 	l->AddItem("bonuses", index++, tLX->clNormalLabel); SUBS("Bonuses:");
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel); SUBS(f->get()->humanReadableName + ":");		
+
+	if (tLXOptions->bAdvancedLobby)  {
+		l->AddItem("serverversion", index++, tLX->clNormalLabel); SUBS("Server version:");
+		foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+			l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel); SUBS(f->get()->humanReadableName + ":");		
+		}
+
+		// Less button
+		lv_item_t *it = l->AddItem("less", index++, tLX->clNormalLabel);
+		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		CButton *less = new CButton(BUT_LESS, tMenu->bmpButtons);
+		less->setID(jl_Less);
+		less->Create();
+		it->iHeight = less->getHeight() + 10;
+		l->AddSubitem(LVS_WIDGET, "", NULL, less);
+	} else {
+		// More button
+		lv_item_t *it = l->AddItem("more", index++, tLX->clNormalLabel);
+		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		CButton *more = new CButton(BUT_MORE, tMenu->bmpButtons);
+		more->setID(jl_More);
+		more->Create();
+		it->iHeight = more->getHeight() + 10;
+		l->AddSubitem(LVS_WIDGET, "", NULL, more);
 	}
 #undef SUBS
 	updateDetailsList(l);
@@ -360,7 +386,6 @@ static void updateDetailsList(CListview* l) {
 	l->SaveScrollbarPos();
 	Uint32 defaultColor = tLX->clPrivateText;
 	SETI; si->sText = cClient->getServerName(); // servername
-	SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
 	SETI;
 	if(cClient->getHaveMap()) {
 		si->sText = cClient->getGameLobby()->sMapName;
@@ -419,30 +444,35 @@ static void updateDetailsList(CListview* l) {
 	SETI; si->sText = itoa(cClient->getGameLobby()->iLoadingTime) + "%";
 	SETI; si->sText = cClient->getGameLobby()->bBonusesOn ? "On" : "Off";
 
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		i = l->getItem("feature:" + f->get()->name); // initDetailsList has added the whole array => i != NULL
-		si = i->tSubitems->tNext;
-		si->iColour = defaultColor;
-		si->sText = cClient->getGameLobby()->features[f->get()].toString();
-	}
+	// Advanced info
+	if (tLXOptions->bAdvancedLobby)  {
+		SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
 
-	foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
-		i = l->getItem("feature:" + f->get().name);
-		if(!i) {
-			i = l->AddItem("feature:" + f->get().name, 0, tLX->clNormalLabel);
-			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
-			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+			i = l->getItem("feature:" + f->get()->name); // initDetailsList has added the whole array => i != NULL
+			si = i->tSubitems->tNext;
+			si->iColour = defaultColor;
+			si->sText = cClient->getGameLobby()->features[f->get()].toString();
 		}
-		si = i->tSubitems->tNext;
 
-		Uint32 col;
-		switch(f->get().type) {
-			case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
-			case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
-			default: col = defaultColor;
+		foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
+			i = l->getItem("feature:" + f->get().name);
+			if(!i) {
+				i = l->AddItem("feature:" + f->get().name, 0, tLX->clNormalLabel);
+				l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
+				l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+			}
+			si = i->tSubitems->tNext;
+
+			Uint32 col;
+			switch(f->get().type) {
+				case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
+				case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
+				default: col = defaultColor;
+			}
+			si->iColour = col;
+			si->sText = f->get().var.toString();
 		}
-		si->iColour = col;
-		si->sText = f->get().var.toString();
 	}
 
 	l->RestoreScrollbarPos();
@@ -853,15 +883,35 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				if (ev->iEventMsg == LV_WIDGETEVENT)  {
 					CListview *details = (CListview *)cJoinLobby.getWidget(jl_Details);
 					gui_event_t *ev2 = details->getWidgetEvent();
-					if (ev2 && ev2->iEventMsg == IMG_CLICK)  {
-						if (ev2->cWidget->getID() == 0)   { // Map
-							cClient->DownloadMap(cClient->getGameLobby()->sMapFile);  // Download the map
-							Menu_Net_JoinStartDownload();
-						} else if (ev2->cWidget->getID() == 1)  {
-							cClient->DownloadMod(cClient->getGameLobby()->sModDir);
-							Menu_Net_JoinStartDownload();
+					if (ev2)  {
+						switch (ev2->iControlID)  {
+						case jl_DownloadMap:
+							if (ev2->iEventMsg == IMG_CLICK)  {
+								cClient->DownloadMap(cClient->getGameLobby()->sMapFile);  // Download the map
+								Menu_Net_JoinStartDownload();
+								updateDetailsList(details);
+							}
+						break;
+						case jl_DownloadMod:
+							if (ev2->iEventMsg == IMG_CLICK)  {
+								cClient->DownloadMod(cClient->getGameLobby()->sModDir); // Download the mod
+								Menu_Net_JoinStartDownload();
+								updateDetailsList(details);
+							}
+						break;
+						case jl_Less:
+							if (ev2->iEventMsg == BTN_MOUSEUP)  {
+								tLXOptions->bAdvancedLobby = false;
+								initDetailsList(details);
+							}
+						break;
+						case jl_More:
+							if (ev2->iEventMsg == BTN_MOUSEUP)  {
+								tLXOptions->bAdvancedLobby = true;
+								initDetailsList(details);
+							}
+						break;
 						}
-						updateDetailsList(details);
 					}
 				}
 			break;
