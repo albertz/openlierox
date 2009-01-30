@@ -624,8 +624,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			} else {
 				tLX->cOutlineFont.Draw( // Draw the text
 							bmpDest,
-							VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 140 : 70),
-							tInterfaceSettings.PingY,
+							VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
+							0,
 							tLX->clPingLabel,
 							"Ping: " + itoa(iMyPing));				
 			}
