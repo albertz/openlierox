@@ -399,7 +399,7 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 			// not at end of s1
 			return 1; // s1 > s2
 
-		dif = (short)tolower(*p1) - (short)tolower(*p2);
+		dif = (short)(uchar)tolower((uchar)*p1) - (short)(uchar)tolower((uchar)*p2);
 		if(dif != 0) return dif; // dif > 0  <=>  s1 > s2
 
 		p1++; p2++;
