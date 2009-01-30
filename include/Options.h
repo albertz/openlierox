@@ -242,7 +242,7 @@ public:
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby
 	
 	// Widget states
-	int		iInternetList[6];
+	int		iInternetList[7];
 	int		iLANList[6];
 	int		iFavouritesList[6];
 

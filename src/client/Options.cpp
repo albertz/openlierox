@@ -241,16 +241,18 @@ static void InitWidgetStates(GameOptions& opts) {
 	// this has to be done explicitly at the moment as scriptablevars doesn't support arrays
 	// TODO: add this feature
 
-	const int	 def_widths[] = {32,180,70,80,60,150};
+	const int	 def_widths[] = {32,180,70,80,50,150,22};
 
-	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)  {
+	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)
 		opts.iInternetList[i] = def_widths[i];
+
+	for (size_t i=0; i<sizeof(opts.iLANList)/sizeof(int); i++)  {
 		opts.iLANList[i] = def_widths[i];
 		opts.iFavouritesList[i] = def_widths[i];
 	}
 
 	// Widget states
-	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&opts.iInternetList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
 	ReadIntArray(OptionsFileName, "Widgets","LANListCols",		&opts.iLANList[0],6);
 	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
 }
