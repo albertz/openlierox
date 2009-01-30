@@ -29,6 +29,7 @@
 #include "CsvReader.h"
 #include "Timer.h"
 #include "InputEvents.h"
+#include "GfxPrimitives.h"
 
 /*
 How does this work?
@@ -359,6 +360,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	if (Address.find("127.0.0.1") != std::string::npos) {
 		Result.Continent = "Home";
 		Result.Country = "Home";
+		Result.CountryShortcut = "HME";
 		return Result;
 	}
 
@@ -366,6 +368,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	if (ip_e.size() != 4)  {
 		Result.Continent = "Hackerland";
 		Result.Country = "Hackerland";
+		Result.CountryShortcut = "HCK";
 		return Result;
 	}
 
@@ -387,9 +390,20 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	} catch (...)  {
 		Result.Continent = "Unknown continent";
 		Result.Country = "Unknown country";
+		Result.CountryShortcut = "UNK";
 	}
 
 	return Result;
+}
+
+///////////////////////
+// Get the country flag image based on the ISO shortcut
+SmartPointer<SDL_Surface> IpToCountryDB::GetCountryFlag(const std::string& shortcut)
+{
+	SmartPointer<SDL_Surface> result = LoadGameImage("data/flags/" + stringtolower(shortcut) + ".png", false);
+	if (!result.get())
+		return LoadGameImage("data/flags/default.png");
+	return result;
 }
 
 int IpToCountryDB::GetProgress()  {

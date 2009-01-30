@@ -12,6 +12,9 @@
 
 #include <string>
 #include "Utils.h"
+#include "SmartPointer.h"
+
+struct SDL_Surface;
 
 struct IpInfo {
 	std::string		Country;
@@ -24,6 +27,7 @@ public:
 	IpToCountryDB(const std::string& dbfile);
 	void LoadDBFile(const std::string& dbfile);
 	IpInfo GetInfoAboutIP(const std::string& Address);
+	SmartPointer<SDL_Surface> GetCountryFlag(const std::string& shortcut);
 	int	GetProgress();
 	bool Loaded();
 INTERNDATA_CLASS_END

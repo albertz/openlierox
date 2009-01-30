@@ -172,7 +172,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 							colour = sub->iColour;
 
 						if (col && !bOldStyle && !bSubItemsAreAligned)
-							tLX->cFont.DrawAdv(bmpDest, x, texty, MIN( ( col->iWidth > 8 ? col->iWidth-8 : 0 ), right_bound-x), colour, sub->sText);
+							tLX->cFont.DrawAdv(bmpDest, x, texty, MAX(0, MIN( ( col->iWidth > 8 ? col->iWidth-8 : 0 ), right_bound-x)), colour, sub->sText);
 						else
 							tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
 						
@@ -187,7 +187,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 						SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
 						new_rect.x = x;
 						new_rect.y = y;
-						new_rect.w = col ? col->iWidth - 4 : bmpDest->w;
+						new_rect.w = col ? col->iWidth - 4 : (iX + iWidth - x - 2);
 						new_rect.h = item->iHeight;
 						SDL_SetClipRect(bmpDest, &new_rect);
 
@@ -238,7 +238,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 					if(bSubItemsAreAligned && itemWidth + 3 > col->iWidth) {
 						x += itemWidth + 3;
 					} else
-						x += col->iWidth;
+						x += col->iWidth - 2;
 					col = col->tNext;
 				}
 			}

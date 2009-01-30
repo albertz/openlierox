@@ -1450,14 +1450,18 @@ void Menu_SvrList_FillList(CListview *lv)
 		else
 			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
 
-		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
+		// Country
 		if (tLXOptions->bUseIpToCountry && iNetMode == net_internet) {
-			if (tIpToCountryDB->Loaded())  {
-				IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
-				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
-			} else
-				lv->AddSubitem(LVS_TEXT, "Loading...", NULL, NULL);
+			IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
+			SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
+			if (flag.get())
+				lv->AddSubitem(LVS_IMAGE, "", flag, NULL);
+			else
+				lv->AddSubitem(LVS_TEXT, "", NULL, NULL);
 		}
+
+		// Address
+		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
 	}
 
     lv->setSelectedID(curID);
