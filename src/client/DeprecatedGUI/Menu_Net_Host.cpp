@@ -801,24 +801,30 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
-		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameInfo.sModDir = it->sIndex;
+		const cb_item_t *it = cbMod->getSelectedItem();
+		if(it) 
+			tLXOptions->tGameInfo.sModDir = it->sIndex;
+		else
+			errors << "No mod is selected, cannot save it to options" << endl;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
 		cbMod->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 
-
-
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
-		it = cbLevel->getItem(cbLevel->getSelectedIndex());
-		if(it) tLXOptions->tGameInfo.sMapFile = it->sIndex;
+		it = cbLevel->getSelectedItem();
+		if(it) 
+			tLXOptions->tGameInfo.sMapFile = it->sIndex;
+		else
+			errors << "No level is selected, cannot save it to options" << endl;
 
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 		cbLevel->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
 		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
+
+		Menu_HostShowMinimap();
 	}
 
 
@@ -1327,6 +1333,8 @@ void Menu_HostShowMinimap(void)
 
 		// Draw the minimap
 		DrawImage(tMenu->bmpBuffer.get(), map.GetMiniMap(), 463,32);
+	} else {
+		errors << "Cannot load minimap for level " << buf << endl;
 	}
 
 	// Update the screen
