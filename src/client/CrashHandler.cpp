@@ -383,10 +383,11 @@ public:
 	CrashHandlerImpl() {
 		signal(SIGSEGV, &SimpleSignalHandler);
 		signal(SIGTRAP, &SimpleSignalHandler);
+		signal(SIGABRT, &SimpleSignalHandler);
 		signal(SIGHUP, &SimpleSignalHandler);
 		signal(SIGBUS, &SimpleSignalHandler);
 		signal(SIGILL, &SimpleSignalHandler);
-		signal(SIGFPE, &SimpleSignalHandler);
+		signal(SIGFPE, &SimpleSignalHandler);		
 		signal(SIGSYS, &SimpleSignalHandler);
 		DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
 

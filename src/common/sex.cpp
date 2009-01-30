@@ -115,7 +115,7 @@ static const char     *diddled[] = {
    "grudge fucked",        "masturbated with",     "slurped",
 };
 
-const char *her[] = {
+static const char *her[] = {
         "her",
 };
 
@@ -143,7 +143,7 @@ static const char     *knockers[] = {
         "bazooms",              "mammaries",
 };
 
-const char *_and[] = {
+static const char *_and[] = {
         "and",
 };
 
@@ -231,7 +231,7 @@ struct Table {
 
 #define SZ(a)           sizeof(a) / sizeof(char *)
 
-Table   list[] = {
+static Table   list[] = {
         {faster,         SZ(faster)},     {said,           SZ(said)},
         {the,            SZ(the)},        {fadj,           SZ(fadj)},
         {female,         SZ(female)},     {asthe,          SZ(asthe)},

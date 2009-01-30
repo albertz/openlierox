@@ -474,9 +474,10 @@ void Cmd_Crash(void)
 	//		I got an access violation. Perhaps the hoster of an important
 	//		clan war does it...)
 #ifdef DEBUG
-	Con_AddText(CNC_WARNING, "This version will crash too, though.");
+	Con_AddText(CNC_WARNING, "This debug version will crash too, though.");
 	// HINT: the current simple CrashHandler does not have any problems with this, thus it can stay here for testing
 	(*(int*)0x13) = 42;
+	assert(false);
 #endif
 }
 
