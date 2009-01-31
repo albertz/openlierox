@@ -54,6 +54,7 @@ enum {
 	os_Fullscreen,
 	os_ColourDepth,
 	os_SoundOn,
+	os_MusicOn,
 	os_SoundVolume,
 	os_MusicVolume,
 	os_NetworkPort,
@@ -247,21 +248,24 @@ bool Menu_OptionsInitialize(void)
 
 
 	// System
-	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
-	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
-	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
-	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
+	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 140, 0,0);
+	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 160, 0,0);
+	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 160, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 160, 17,17);
+	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 160, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 160, 17,17);
 
-	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
-	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 225, 17,17);
-	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
+	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 195, 0,0);
+	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 215, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 215, 17,17);
+	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, 240, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, 240, 17,17);
 
-	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 245, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 242, 110, 20);
+	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 215, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 212, 110, 20);
+
+	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 240, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 237, 110, 20);
 
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
 
@@ -299,7 +303,7 @@ bool Menu_OptionsInitialize(void)
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17);
+	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 160, 145, 17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
@@ -754,6 +758,24 @@ void Menu_OptionsFrame(void)
 								StartSoundSystem();
 							else
 								StopSoundSystem();
+						}
+					}
+					break;
+
+				// Music on/off
+				case os_MusicOn:
+					if(ev->iEventMsg == CHK_CHANGED) {
+
+						bool old = tLXOptions->bMusicOn;
+
+						c = (CCheckbox *)cOpt_System.getWidget(os_MusicOn);
+						tLXOptions->bMusicOn = c->getValue();
+
+						if(old != tLXOptions->bMusicOn) {
+							if(tLXOptions->bMusicOn)
+								InitializeBackgroundMusic();
+							else
+								ShutdownBackgroundMusic();
 						}
 					}
 					break;

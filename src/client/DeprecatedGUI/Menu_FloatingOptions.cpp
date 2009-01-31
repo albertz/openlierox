@@ -28,6 +28,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
+#include "Music.h"
 
 
 namespace DeprecatedGUI {
@@ -65,7 +66,9 @@ enum {
 enum {
 	os_Fullscreen,
 	os_SoundOn,
+	os_MusicOn,
 	os_SoundVolume,
+	os_MusicVolume,
 	os_NetworkSpeed,
 	os_NetworkUploadBandwidth,
 	os_NetworkUploadBandwidthLabel,
@@ -241,11 +244,15 @@ bool Menu_FloatingOptionsInitialize(void)
 	
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
 
-	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
-	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 225, 17,17);
-	cFloatingOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
-	cFloatingOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
+	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 200, 0,0);
+	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 220, 0,0);
+	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 220, 17,17);
+	cFloatingOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, 240, 0,0);
+	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, 240, 17,17);
+	cFloatingOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 220, 0,0);
+	cFloatingOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 217, 110, 20);
+	cFloatingOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 240, 0,0);
+	cFloatingOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 237, 110, 20);
 
 	cFloatingOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 265, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 285, 0,0);
@@ -270,6 +277,9 @@ bool Menu_FloatingOptionsInitialize(void)
 	// Set the values
 	CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
+
+	s = (CSlider *)cFloatingOpt_System.getWidget(os_MusicVolume);
+	s->setValue( tLXOptions->iMusicVolume );	
 
 	CTextbox *t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
@@ -595,6 +605,24 @@ void Menu_FloatingOptionsFrame()
 					}
 					break;
 
+				// Music on/off
+				case os_MusicOn:
+					if(ev->iEventMsg == CHK_CHANGED) {
+
+						bool old = tLXOptions->bMusicOn;
+
+						c = (CCheckbox *)cFloatingOpt_System.getWidget(os_MusicOn);
+						tLXOptions->bMusicOn = c->getValue();
+
+						if(old != tLXOptions->bMusicOn) {
+							if(tLXOptions->bMusicOn)
+								InitializeBackgroundMusic();
+							else
+								ShutdownBackgroundMusic();
+						}
+					}
+					break;
+
 				// Sound volume
 				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
@@ -602,6 +630,20 @@ void Menu_FloatingOptionsFrame()
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
+					}
+					break;
+
+				// Music volume
+				case os_MusicVolume:
+					if(ev->iEventMsg == SLD_CHANGE) {
+						CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_MusicVolume);
+						tLXOptions->iMusicVolume = s->getValue();
+
+						SetMusicVolume( tLXOptions->iMusicVolume );
+						if( tLXOptions->iMusicVolume == 0 )
+							ShutdownBackgroundMusic();
+						else
+							InitializeBackgroundMusic();
 					}
 					break;
 

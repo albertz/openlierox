@@ -107,6 +107,7 @@ void InitializeBackgroundMusic()
 	if(bDedicated) return;
 	if(bDisableSound) return; // sound system failed to init
 	if(musicThread) return; // already running
+	if(!tLXOptions->bMusicOn) return;  // music disabled
 	
 	InitializeMusic();
 

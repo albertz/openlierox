@@ -120,6 +120,7 @@ bool GameOptions::Init() {
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
+		( tLXOptions->bMusicOn, "Audio.MusicEnabled", true )
 		( tLXOptions->iMusicVolume, "Audio.MusicVolume", 70 )
 
 		( tLXOptions->iBloodAmount, "Game.Blood", 100 )

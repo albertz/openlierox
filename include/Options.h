@@ -194,6 +194,7 @@ public:
 	bool	bSoundOn;
 	int		iSoundVolume;
 	int		iMusicVolume;
+	bool	bMusicOn;
 
 	// Game state
 	bool	bFirstRun;
