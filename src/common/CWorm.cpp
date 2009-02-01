@@ -719,7 +719,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) )
 					damageStr = "? " + damageStr; // + "\xC2\xBF"; // Inverted question mark in UTF-8
-				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-damageDrawPos, damageColor, damageStr);
+				tLX->cOutlineFont.DrawCentre(bmpDest, x + l, y + t - damageDrawPos, damageColor, damageStr);
 				//printf("Print damage for worm %i = %s at %i %i\n", getID(), damageStr.c_str(), x, y-damageDrawPos);
 				damageDrawPos += tLX->cFont.GetHeight();
 
