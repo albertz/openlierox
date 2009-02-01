@@ -146,10 +146,11 @@ def signalHandler(sig):
 
 	elif header == "weaponselections":
 		gameState = GAME_WEAPONS
-		sentStartGame = False
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
 		sentStartGame = False
+	elif header == "gameloopstart": #TODO: What does this do?
+		pass
 	else:
 		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 
@@ -456,6 +457,7 @@ oldGameState = GAME_LOBBY
 def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
+	global sentStartGame
 
 	if gameState == GAME_LOBBY:
 
@@ -491,7 +493,7 @@ def controlHandlerDefault():
 				lobbyEnoughPlayers = False
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
-			if lobbyEnoughPlayers and not io.sentStartGame:
+			if lobbyEnoughPlayers and not sentStartGame:
 				lobbyWaitBeforeGame -= 1
 				if lobbyWaitBeforeGame <= 0: # Start the game
 
@@ -507,6 +509,7 @@ def controlHandlerDefault():
 						io.setvar("GameOptions.GameInfo.GameType", "0")
 
 					io.startGame()
+					sentStartGame = True
 					if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
 						io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 
@@ -516,6 +519,7 @@ def controlHandlerDefault():
 
 		if len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 			io.gotoLobby()
+			sentStartGame = False
 
 	if gameState == GAME_PLAYING:
 

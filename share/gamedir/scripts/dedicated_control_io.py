@@ -138,24 +138,18 @@ def Quit():
 
 # Use this to force the server into lobby - it will kick all connected worms and restart the server
 def startLobby(port):
-	global sentStartGame
 	if port:
 		print "startlobby " + str(port)
 	else:
 		print "startlobby"
-	sentStartGame = False
 
 # Force the server into starting the game (weapon selections screen)
 def startGame():
-	global sentStartGame
 	print "startgame"
-	sentStartGame = True
 
 # Use this to force the server into lobby - it will abort current game but won't kick connected worms
 def gotoLobby():
-	global sentStartGame
 	print "gotolobby"
-	sentStartGame = False
 
 # Not implemented yet in OLX
 def addBot(name):
