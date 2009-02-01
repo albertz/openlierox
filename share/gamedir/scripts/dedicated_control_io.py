@@ -250,6 +250,7 @@ LOG_INFO = 3
 # Categories for specific things, perhaps put in a new file?
 # These are not in direct relation to the script.
 LOG_ADMIN = 4
+LOG_USRCMD = 5
 
 def messageLog(message,severity):
 	# TODO: Allow setting what loglevels you want logged
@@ -266,6 +267,8 @@ def messageLog(message,severity):
 		outline += "INFO"
 	elif severity == LOG_ADMIN: #Log to another file?
 		outline += "ADMIN"
+	elif severity == LOG_USRCMD: #Log to another file?
+		outline += "USERCOMMAND"
 
 	outline += " -- "
 	outline += str(message) #incase we get anything other than string

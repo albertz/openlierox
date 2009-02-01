@@ -237,7 +237,7 @@ def parseUserCommand(wormid,message):
 		cmd = message.split(" ")[0]
 		cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
 
-		io.messageLog("%i:%s user cmd %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_ADMIN)
+		io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
 
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
