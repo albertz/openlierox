@@ -41,6 +41,7 @@
 #include "CChannel.h"
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
+#include "Debug.h"
 
 
 /*

@@ -15,6 +15,7 @@
 #include "DeprecatedGUI/CProgressbar.h"
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/Graphics.h"
+#include "Debug.h"
 
 namespace DeprecatedGUI  {
 

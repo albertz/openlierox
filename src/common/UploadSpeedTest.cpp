@@ -13,6 +13,7 @@
 #include "Options.h"
 #include "UploadSpeedTest.h"
 #include "FindFile.h"
+#include "Debug.h"
 
 
 #define TEST_DATA_SIZE 300  // In kB
