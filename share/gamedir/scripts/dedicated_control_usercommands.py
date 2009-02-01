@@ -209,7 +209,7 @@ def recheckVote():
 				voteCount += 1
 			else:
 				notVoted += 1
-			
+
 	needVoices = int( math.ceil( len(hnd.worms) * cfg.VOTING_PERCENT / 100.0 ) )
 
 	if voteCount >= needVoices:
@@ -224,8 +224,8 @@ def recheckVote():
 		if hnd.worms[votePoster].Voted == 1: # Check if worm left and another worm joined with same ID
 			hnd.worms[votePoster].FailedVoteTime = time.time()
 		return
-		
-	io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " + 
+
+	io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " +
 				str(int( cfg.VOTING_TIME + voteTime - time.time() )) + ( " seconds, say %sy or %sn" % ( cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX ) ) )
 
 
@@ -248,7 +248,7 @@ def parseUserCommand(wormid,message):
 			if not params:
 				io.privateMsg(wormid, "You need to specify a team" )
 				raise Exception, "You need to specify a team"
-			if hnd.gameState == GAME_PLAYING:
+			if hnd.gameState == GAME_PLAYING: #TODO: Errors, GAME_PLAYING not defined.
 				io.privateMsg(wormid, "You cannot change team when playing" )
 			else:
 				if params[0].lower() == "blue" or params[0].lower() == "b":

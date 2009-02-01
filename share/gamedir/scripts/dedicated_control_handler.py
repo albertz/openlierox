@@ -158,6 +158,9 @@ def signalHandler(sig):
 		pass
 	elif header == "gameloopend": #Sent when OLX starts
 		pass
+	#elif header == "wormping":
+		# This is only sent when we request a ping, yet multiple of these end up in this function
+		# This means that our getResponse() function does not work as expected.
 	else:
 		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 
