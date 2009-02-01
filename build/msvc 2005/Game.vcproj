@@ -130,8 +130,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Adding a revision number to Version.h"
-				CommandLine="svn_revision.exe &quot;../../include/Version.h&quot; &quot;../../&quot;"
+				Description="Updating revision number..."
+				CommandLine="svn_revision.exe &quot;../../include/svn_version.h&quot; &quot;../../&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -172,6 +172,7 @@
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				ForcedIncludeFiles="svn_version.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -225,8 +226,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Removing revision number from Version.h"
-				CommandLine="svn_revision.exe &quot;../../include/Version.h&quot; &quot;../../&quot; -r"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration

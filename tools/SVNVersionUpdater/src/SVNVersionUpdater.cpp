@@ -5,52 +5,24 @@
 #include <vector>
 #include <stdio.h>
 
-template<typename T>
-T from_string(const std::string& s, bool& failed) {
-	std::istringstream iss(s); T t;
-	failed = (iss >> t).fail();
-	return t;
-}
+// A hack to prevent SDL overwriting our main
+#define _SDL_main_h
 
-template<typename T>
-std::string to_string(T val) {
-	std::ostringstream oss;
-	oss << val;
-	return oss.str();
-}
+#include "Version.h"
+#include "StringUtils.h"
 
 bool error = false;
 
-std::vector<std::string> getFileContents(const std::string& fname)
-{
-	std::vector<std::string> result;
 
-	std::ifstream fp(fname.c_str());
-	if (!fp.is_open())  {
-		error = true;
-		std::cout << "Could not open the file for reading" << std::endl;
-		return result;
-	}
-
-	// Read
-	while (fp.good())  {
-		std::string ln;
-		std::getline(fp, ln);
-		result.push_back(ln);
-	}
-
-	fp.close();
-
-	return result;
-}
-
+//////////////////////
+// Get the revision number for the given directory
 int getRevNumber(const std::string& dir)
 {
 	// Open the SVN file
 	std::ifstream fp((dir + ".svn/entries").c_str());
 	if (!fp.is_open())  {
 		error = true;
-		std::cout << "Could not open the SVN file to get the revision" << std::endl;
+		std::cout << "Could not open the SVN file for reading" << std::endl;
 		return 0;
 	}
 
@@ -59,7 +31,7 @@ int getRevNumber(const std::string& dir)
 	for (int i = 0; i < 4; i++)  {
 		if (!fp.good())  {
 			error = true;
-			std::cout << "The entries SVN file is too short" << std::endl;
+			std::cout << "The SVN file is too short" << std::endl;
 			return 0;
 		}
 		std::getline(fp, ln);
@@ -70,116 +42,78 @@ int getRevNumber(const std::string& dir)
 	int res = from_string<int>(ln, fail);
 	if (fail)  {
 		error = true;
-		std::cout << "The revision number has an incorrect format" << std::endl;
+		std::cout << "The revision number has a bad format" << std::endl;
 		return 0;
 	}
 
 	return res;
 }
 
-void addRevToFile(std::vector<std::string>& data, const std::string& fname, int revision)
+//////////////////////
+// Returns true if the revision in the output file is up to date
+bool hasFileRevision(const std::string& file, int revision)
 {
-	// Find the correct line
-	size_t line = 1;
-	for (std::vector<std::string>::iterator it = data.begin(); it != data.end(); it++)  {
-		if (it->find('#') != std::string::npos && it->find("LX_VERSION") != std::string::npos &&
-			it->find("define") != std::string::npos)  {
-			
-			// Update the line
+	// Open
+	std::ifstream fp(file.c_str());
+	if (!fp.is_open())
+		return false;
 
-			// Text in quotes is the one we're looking for
-			size_t pos1 = it->find('\"');
-			if (pos1 == std::string::npos)  {
-				error = true;
-				std::cout << "First quote not found" << std::endl;
-				break;
-			}
-			size_t pos2 = it->find('\"', pos1 + 1);
-			if (pos2 == std::string::npos)  {
-				error = true;
-				std::cout << "Second quote not found" << std::endl;
-				break;
-			}
+	// Get the string
+	std::string line;
+	std::getline(fp, line);
 
-			// Check if the version already contains the revision, if so, remove it first
-			size_t pos3 = it->find("_r", pos1 + 1);
-			if (pos3 != std::string::npos)  {
-				std::cout << fname << "(" << line << ") : warning S0001: " << "Revision number is already present, it will be overwriten" << std::endl;
-				it->erase(pos3, pos2 - pos3);
-			}
+	// Close
+	fp.close();
 
-			// Insert the rev number before the second quote
-			it->insert(pos2, "_r" + to_string(revision));
+	// Make sure it contains the correct define
+	if (line.find("#define LX_VERSION ") == std::string::npos)
+		return false;
 
-			return;
-		}
+	// Starting quotes
+	size_t pos1 = line.find('\"');
+	if (pos1 == std::string::npos)
+		return false;
 
-		++line;
-	}
+	// Ending quotes
+	size_t pos2 = line.find('\"', pos1 + 1);
+	if (pos2 == std::string::npos)
+		return false;
 
-	std::cout << "The version string not found" << std::endl;
+	// _rXXXX string
+	size_t pos3 = line.find("_r", pos1);
+	if (pos3 == std::string::npos)
+		return false;
+
+	// Get the revision number from the file
+	pos3 += 2;
+	bool fail = false;
+	int rev = from_string<int>(line.substr(pos3, pos3 > pos2 ? 0 : pos2 - pos3), fail);
+	if (fail)
+		return false;
+
+	// Compare the revisions
+	return rev == revision;
 }
 
-void removeRevFromFile(std::vector<std::string>& data, const std::string& file)
-{
-	// Find the correct line
-	size_t line = 1;
-	for (std::vector<std::string>::iterator it = data.begin(); it != data.end(); it++)  {
-		if (it->find('#') != std::string::npos && it->find("LX_VERSION") != std::string::npos &&
-			it->find("define") != std::string::npos)  {
-			
-			// Update the line
-
-			// Text in quotes is the one we're looking for
-			size_t pos1 = it->find('\"');
-			if (pos1 == std::string::npos)  {
-				error = true;
-				std::cout << "First quote not found" << std::endl;
-				break;
-			}
-			size_t pos2 = it->find('\"', pos1 + 1);
-			if (pos2 == std::string::npos)  {
-				error = true;
-				std::cout << "Second quote not found" << std::endl;
-				break;
-			}
-
-			size_t pos3 = it->find("_r", pos1 + 1);
-			if (pos3 == std::string::npos)  {
-				error = true;
-				std::cout << "Revision number not found";
-				return;
-			}
-
-			// Erase the revision number
-			it->erase(pos3, pos2 - pos3);
-
-			return;
-		}
-
-		++line;
-	}
-
-	std::cout << "The version string not found" << std::endl;
-}
-
-void saveFile(std::vector<std::string>& data, const std::string& file)
+////////////////////
+// Saves the file
+void saveFile(std::string& data, const std::string& file)
 {
 	std::ofstream fp(file.c_str());
 	if (!fp.is_open())  {
 		error = true;
-		std::cout << "Could not open the file for writing" << std::endl;
+		std::cout << "Cannot open the file " << file << " for writing" << std::endl;
 		return;
 	}
 
-	// Write the lines
-	for (std::vector<std::string>::iterator it = data.begin(); it != data.end(); it++)  {
-		fp << *it << std::endl;
-	}
+	// Write
+	fp << data;
 
 	fp.close();
 }
 
+////////////////////
+// Main entry point
 int main(int argc, char *argv[])
 {
 	if (argc < 3)  {
@@ -194,35 +128,19 @@ int main(int argc, char *argv[])
 	if (*dir.rbegin() != '\\' && *dir.rbegin() != '/')
 		dir += '/';
 
-	bool revert = false;
-	if (argc >= 4)
-		revert = std::string(argv[3]) == "-r";
+	// Revision number
+	int revision = getRevNumber(dir);
 
-	// Contents of Version.h
-	std::vector<std::string> file_contents = getFileContents(file);
-
-	int revision = 0;
-	if (revert)  {
-		// Remove the revision number
-		removeRevFromFile(file_contents, file);
-	} else {
-		// Revision number
-		revision = getRevNumber(dir);
-
-		// Set the number
-		if (revision > 0)
-			addRevToFile(file_contents, file, revision);
+	// Check if we need to do anything
+	if (hasFileRevision(file, revision))  {
+		std::cout << "The revision file is up to date (at revision " << revision << ")" << std::endl;
+		return 0;
 	}
 
 	// Save the file
-	saveFile(file_contents, file);
-
-	// Report
 	if (!error)  {
-		if (!revert)
-			std::cout << "The revision number " << revision << " successfully added." << std::endl;
-		else
-			std::cout << "The revision number successfully removed." << std::endl;
+		saveFile("#define LX_VERSION \"" + std::string(LX_VERSION) + "_r" + to_string(revision) + "\"", file);
+		std::cout << "The revision file successfully updated to revision " << revision << std::endl;
 	}
 
 	return 0;
