@@ -137,10 +137,6 @@ def Quit():
 	print "quit"
 
 # Use this to force the server into lobby - it will kick all connected worms and restart the server
-# TODO: Why do we send this with startlobby? Server doesn't catch it, + it's bad style.
-# Use addWorm() instead
-#def startLobby(localWorm = "[CPU] Kamikazee!"):
-#	print "startlobby " + localWorm
 def startLobby(port):
 	global sentStartGame
 	if port:

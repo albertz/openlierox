@@ -48,7 +48,7 @@ scriptPaused = False
 stdinInputThread = io.GetStdinThread()
 
 # Uncomment following 3 lines to get lots of debug spam into dedicated_control_errors.log file
-#def HeavyDebugTrace(frame,event,arg): 
+#def HeavyDebugTrace(frame,event,arg):
 #	sys.stderr.write( 'Trace: ' + str(event) + ': ' + str(arg) + ' at ' + str(frame.f_code) + "\n" )
 #sys.settrace(HeavyDebugTrace)
 
@@ -150,6 +150,8 @@ def signalHandler(sig):
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
 		sentStartGame = False
+	else
+		io.messageLog(("I don't understand %s." % (sig),io.LOG_ERROR)
 
 	#if sig != "":
 		#msg(sig)
@@ -171,7 +173,7 @@ def parseNewWorm(sig):
 
 	if not exists:
 		worms[wormID] = worm
-	
+
 	# Balance teams
 	teams = [0,0,0,0]
 	for w in worms.keys():
@@ -199,7 +201,7 @@ def parseNewWorm(sig):
 		else:
 			if ranking.auth[name] != getWormSkin(wormID):
 				io.kickWorm(wormID, "Player with name %s already registered" % name)
-			
+
 	cmds.recheckVote()
 
 
@@ -323,10 +325,10 @@ def selectNextPreset():
 	global availablePresets, nextPresets, controlHandler, gameState
 
 	fillNextPresets()
-	
+
 	preset = nextPresets[0]
 	nextPresets.pop(0)
-	
+
 	fillNextPresets()
 
 	io.msg("Preset " + preset.Name)
@@ -350,7 +352,7 @@ def selectNextPreset():
 		# File does not exist, perhaps it was removed.
 		io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
-	
+
 	if preset.Mod:
 		io.setvar("GameOptions.GameInfo.ModName", preset.Mod)
 	if preset.Level:
@@ -373,7 +375,7 @@ def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 )
 		preset.Mod = Mod
 	if LT:
 		preset.LT = LT
-		
+
 	if Repeat > 0:
 		nextPresets = []
 		for f in range(Repeat):
@@ -489,7 +491,7 @@ def controlHandlerDefault():
 				lobbyEnoughPlayers = False
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
-			if lobbyEnoughPlayers and not sentStartGame:
+			if lobbyEnoughPlayers and not io.sentStartGame:
 				lobbyWaitBeforeGame -= 1
 				if lobbyWaitBeforeGame <= 0: # Start the game
 
