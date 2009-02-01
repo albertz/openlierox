@@ -590,7 +590,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 #ifdef DEBUG
 							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
 #else
-							"FPS: " + itoa(GetFPS())) // Get the string and its width
+							"FPS: " + itoa(GetFPS()) // Get the string and its width
 #endif
 						);
 			} else { // Top bar is hidden
@@ -602,7 +602,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 #ifdef DEBUG
 							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
 #else
-							"FPS: " + itoa(GetFPS())) // Get the string and its width
+							"FPS: " + itoa(GetFPS()) // Get the string and its width
 #endif
 						);
 			}
