@@ -985,13 +985,20 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	}
 	else
 	{
+		bool both = client->cViewports[1].getUsed();
+
 		// Lock viewport back on local worm, if it was screwed when spectating after death
-		if( client->iNumWorms > 0 )
+		if( client->iNumWorms > 0 && !both )
 			if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
 				client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
-		if( client->iNumWorms >= 2 )
+		if( both )  {
 			if (client->cLocalWorms[1]->getType() == PRF_HUMAN)
 				client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
+			else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
+				client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 
+				client->cViewports[1].getType());
+		}
+
 		client->sSpectatorViewportMsg = "";
 	}
 }
