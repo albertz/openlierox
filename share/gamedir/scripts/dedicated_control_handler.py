@@ -151,7 +151,7 @@ def signalHandler(sig):
 		gameState = GAME_PLAYING
 		sentStartGame = False
 	else:
-		io.messageLog(("I don't understand %s." % (sig),io.LOG_ERROR)
+		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 
 	#if sig != "":
 		#msg(sig)
