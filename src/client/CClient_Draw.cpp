@@ -741,14 +741,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Current Settings
 		DrawCurrentSettings(bmpDest);
 
-		// Options dialog - should be before game menu so mouse click won't get processed twice in DrawGameMenu() and Menu_FloatingOptionsFrame()
+		// Game menu
+		if( bGameMenu) // Do not process game menu if there's popup options
+			DrawGameMenu(bmpDest);
+
+		// Options dialog
 		if (DeprecatedGUI::bShowFloatingOptions)  {
 			DeprecatedGUI::Menu_FloatingOptionsFrame();
 		}
-
-		// Game menu
-		if( bGameMenu && ! DeprecatedGUI::bShowFloatingOptions ) // Do not process game menu if there's popup options
-			DrawGameMenu(bmpDest);
 
 		// Chatter
 		if(bChat_Typing)  {
@@ -1302,7 +1302,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	UpdateScore((DeprecatedGUI::CListview *) cGameMenuLayout.getWidget(gm_LeftList), (DeprecatedGUI::CListview *) cGameMenuLayout.getWidget(gm_RightList));
 
 	// Draw the gui
-	DeprecatedGUI::gui_event_t *ev = cGameMenuLayout.Process();
+	DeprecatedGUI::gui_event_t *ev = DeprecatedGUI::bShowFloatingOptions  ? NULL : cGameMenuLayout.Process();
 	
 	cGameMenuLayout.Draw(bmpDest);
 
