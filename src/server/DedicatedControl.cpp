@@ -271,7 +271,7 @@ struct DedIntern {
 		}
 		return w;
 	}
-	
+
 	// --------------------------------
 	// ---- commands ------------------
 
@@ -298,7 +298,7 @@ struct DedIntern {
 			localWorm = params;
 			TrimSpaces(localWorm);
 		}
-		
+
 		// try to find the requested worm or find any other worm
 		profile_t *p = FindProfile(localWorm);
 		if(!p) p = GetProfiles();
@@ -314,16 +314,16 @@ struct DedIntern {
 				}
 				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
 				cClient->setNumWorms(cClient->getNumWorms()+1);
-				
+
 				// TODO: this is really hacky, but currently there is no better way to do so
 				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
 				//cClient->ReinitLocalWorms();
 				cClient->Reconnect();
-				
+
 				return;
 			}
 		}
-		
+
 		warnings << "Can't find ANY bot!" << endl;
 		return;
 	}
@@ -485,14 +485,14 @@ struct DedIntern {
 			return;
 		}
 		CScriptableVars::SetVarByString(varptr, value);
-		
+
 		//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
 		cServer->UpdateGameLobby();
 	}
 
 	void Cmd_StartLobby(std::string param) {
-	
+
 		if( param != "" ) {
 			int port = atoi(param);
 			if( port )
@@ -576,7 +576,7 @@ struct DedIntern {
 		std::string msg;
 		if( params.find(" ") != std::string::npos )
 			msg = params.substr( params.find(" ")+1 );
-		
+
 		w->getClient()->getNetEngine()->SendText(msg, type);
 	}
 
@@ -672,14 +672,17 @@ struct DedIntern {
 		JoinServer(params, params, "");
 		Sig_Connecting(params);
 	}
-	
-	
+
+
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
 		if(cmd == "") return;
 
 #ifdef DEBUG
-		notes << "DedicatedControl: exec: " << cmd << " " << params << endl;
+		// This message just makes everything else unreadable
+		// Doesn't need to be printed even in debugmode.
+		if (cmd != "getwormping")
+			notes << "DedicatedControl: exec: " << cmd << " " << params << endl;
 #endif
 		// TODO: merge these commands with ingame console commands (Commands.cpp)
 		if(cmd == "quit")
@@ -713,7 +716,7 @@ struct DedIntern {
 
 		else if(cmd == "setwormteam")
 			Cmd_SetWormTeam(params);
-			
+
 		else if(cmd == "authorizeworm")
 			Cmd_AuthorizeWorm(params);
 
@@ -729,10 +732,10 @@ struct DedIntern {
 			Cmd_GetWormPing(params);
 		else if(cmd == "getwormskin")
 			Cmd_GetWormSkin(params);
-		
+
 		else if(cmd == "connect")
 			Cmd_Connect(params);
-		
+
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else
 			warnings << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
@@ -768,7 +771,7 @@ struct DedIntern {
 	void Sig_ClientConnectionError(const std::string& err) { pipe.in() << "connectionerror " << err << std::endl; state = S_INACTIVE; }
 	void Sig_ClientGameStarted() { pipe.in() << "clientgamestarted" << std::endl; state = S_CLIPLAYING; }
 	void Sig_ClientGotoLobby() { pipe.in() << "clientbacktolobby" << std::endl; state = S_CLILOBBY; }
-	
+
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << std::endl; }
 	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << std::endl; }
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << std::endl; }
@@ -816,7 +819,7 @@ struct DedIntern {
 			Sig_Connected();
 			return;
 		}
-		
+
 		// error?
 		if(cClient->getBadConnection()) {
 			warnings << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
@@ -825,19 +828,19 @@ struct DedIntern {
 			return;
 		}
 	}
-	
+
 	void Frame_ClientLobby() {
 		// Process the client
 		cClient->Frame();
-		
+
 		// If there is a client error, leave
 		if(cClient->getClientError()) {
 			Sig_ClientError();
 			return;
 		}
-		
+
 		// If we have started, leave the frontend
-		if(cClient->getGameReady()) {			
+		if(cClient->getGameReady()) {
 			// Leave the frontend
 			*DeprecatedGUI::bGame = true;
 			DeprecatedGUI::tMenu->bMenuRunning = false;
@@ -845,16 +848,16 @@ struct DedIntern {
 			Sig_ClientGameStarted();
 			return;
 		}
-		
-		
+
+
 		// Check if the communication link between us & server is still ok
 		if(cClient->getServerError()) {
 			warnings << "Client connection error: " << cClient->getServerErrorMsg() << endl;
 			Sig_ClientConnectionError(cClient->getServerErrorMsg());
 			return;
-		}		
+		}
 	}
-	
+
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
 		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
@@ -872,7 +875,7 @@ struct DedIntern {
 			case S_SVRPLAYING: Frame_Playing(); break;
 			case S_CLICONNECTING: Frame_ClientConnecting(); break;
 			case S_CLILOBBY: Frame_ClientLobby(); break;
-			case S_CLIPLAYING: Frame_Playing(); break;			
+			case S_CLIPLAYING: Frame_Playing(); break;
 			default: break;
 		}
 	}
@@ -971,7 +974,7 @@ bool DedicatedControl::Init_priv() {
 		}
 		#endif
 	}
-	
+
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
 	if(scriptfn_rel != "/dev/null") {

@@ -151,6 +151,8 @@ def signalHandler(sig):
 		sentStartGame = False
 	elif header == "gameloopstart": #TODO: What does this do?
 		pass
+	elif header == "gameloopend": #TODO: What does this do? Sent at game end anyway.
+		pass
 	else:
 		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 
