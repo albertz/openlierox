@@ -149,9 +149,14 @@ def signalHandler(sig):
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
 		sentStartGame = False
-	elif header == "gameloopstart": #TODO: What does this do?
+	#TODO: gamestarted && gameloopstart are pretty much duplicates
+	# Or are they? Check.
+	# Same thing for gameloopend and backtolobby
+	elif header == "gameloopstart": #Sent when game starts
 		pass
-	elif header == "gameloopend": #TODO: What does this do? Sent at game end anyway.
+	elif header == "gameloopend": #Sent at game end
+		pass
+	elif header == "gameloopend": #Sent when OLX starts
 		pass
 	else:
 		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
