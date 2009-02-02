@@ -155,6 +155,7 @@ bool GameOptions::Init() {
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "scripts/dedicated_control" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
+		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		;
 
 	unsigned i;

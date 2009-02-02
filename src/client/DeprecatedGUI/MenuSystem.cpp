@@ -1453,11 +1453,18 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Country
 		if (tLXOptions->bUseIpToCountry && iNetMode == net_internet) {
 			IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
-			SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
-			if (flag.get())
-				lv->AddSubitem(LVS_IMAGE, "", flag, NULL);
+			if( tLXOptions->bShowCountryFlags )
+			{
+				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
+				if (flag.get())
+					lv->AddSubitem(LVS_IMAGE, "", flag, NULL);
+				else
+					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, NULL, NULL);
+			}
 			else
-				lv->AddSubitem(LVS_TEXT, "", NULL, NULL);
+			{
+				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
+			}
 		}
 
 		// Address

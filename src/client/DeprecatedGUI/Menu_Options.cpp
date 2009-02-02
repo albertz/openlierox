@@ -71,7 +71,8 @@ enum {
 	os_MaxFPS,
 	os_Apply,
 	os_TestBandwidth,
-	os_TestAnimation
+	os_TestAnimation,
+	os_ShowCountryFlags,
 };
 
 enum {
@@ -274,14 +275,19 @@ bool Menu_OptionsInitialize(void)
 
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
 
-	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 310, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 307, 50,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 340, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 337, 50,tLX->cFont.GetHeight());
 
 	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
 
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
+	
+	cOpt_System.Add( new CLabel("Show country flags",tLX->clNormalLabel),	Static, 330, 310, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowCountryFlags),  os_ShowCountryFlags, 530, 310,17,17);
+	
+	
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -293,7 +299,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
-	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, 305, 30, 22);
+	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, 335, 30, 22);
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
@@ -842,6 +848,12 @@ void Menu_OptionsFrame(void)
 						if (tLXOptions->bUseIpToCountry && !tIpToCountryDB->Loaded())  {
 							tIpToCountryDB->LoadDBFile("ip_to_country.csv");
 						}
+					}
+					break;
+
+				case os_ShowCountryFlags:
+					if(ev->iEventMsg == CHK_CHANGED)  {
+						tLXOptions->bShowCountryFlags = cOpt_System.SendMessage(os_ShowCountryFlags, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					}
 					break;
 
