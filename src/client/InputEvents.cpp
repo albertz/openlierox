@@ -551,6 +551,9 @@ bool ProcessEvents()
 	HandleNextEvent();*/
 #endif
 
+	if (bDedicated)
+		return ret;
+
     // If we don't have focus, don't update as often
     if(!nFocus)
         SDL_Delay(14);

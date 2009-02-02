@@ -805,10 +805,14 @@ struct DedIntern {
 		// Process the server & client frames
 		cServer->Frame();
 		cClient->Frame();
+
+		ProcessEvents();
 	}
 
 	void Frame_Playing() {
 		// we don't have to process server/client frames here as it is done already by the main loop
+
+		ProcessEvents();
 	}
 
 	void Frame_ClientConnecting() {
