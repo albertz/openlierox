@@ -213,6 +213,11 @@ def parseNewWorm(sig):
 			if ranking.auth[name] != getWormSkin(wormID):
 				io.kickWorm(wormID, "Player with name %s already registered" % name)
 
+	wormIP = io.getWormIP(wormID).split(":")[0]
+	# io.messageLog("Curtime " + str(time.time()) + " IP " + str(wormIP) + " Kicked worms: " + str(cmds.kickedUsers), io.LOG_INFO)
+	if wormIP in cmds.kickedUsers and cmds.kickedUsers[ wormIP ] > time.time():
+			io.kickWorm( wormID, "You can join in " + str(int(cmds.kickedUsers[ wormIP ] - time.time())/60 + 1) + " minutes" )
+			return
 	cmds.recheckVote()
 
 

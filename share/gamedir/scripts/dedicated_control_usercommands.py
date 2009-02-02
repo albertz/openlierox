@@ -25,9 +25,12 @@ userCommandHelp_Preset = None
 parseUserCommand_Preset = None
 
 
+kickedUsers = {} # IP and timeout for it
+
+
 def adminCommandHelp(wormid):
 	io.privateMsg(wormid, "Admin help:")
-	io.privateMsg(wormid, "%skick wormID [reason]" % cfg.ADMIN_PREFIX)
+	io.privateMsg(wormid, "%skick wormID [time] [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sban wormID [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smute wormID" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
@@ -46,6 +49,7 @@ def adminCommandHelp(wormid):
 
 # Admin interface
 def parseAdminCommand(wormid,message):
+	global kickedUsers
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.ADMIN_PREFIX)):
 			return False # normal chat
@@ -61,8 +65,12 @@ def parseAdminCommand(wormid,message):
 		if cmd == "help":
 			adminCommandHelp(wormid)
 		elif cmd == "kick":
-			if len(params) > 1: # Given some reason
-				io.kickWorm( int( params[0] ), " ".join(params[1:]) )
+			kickTime = cfg.VOTING_KICK_TIME
+			if len(params) > 1: # Time for kick
+				kickTime = float(params[1])
+			kickedUsers[ io.getWormIP(int( params[0] )).split(":")[0] ] = time.time() + kickTime*60
+			if len(params) > 2: # Given some reason
+				io.kickWorm( int( params[0] ), " ".join(params[2:]) )
 			else:
 				io.kickWorm( int( params[0] ) )
 		elif cmd == "ban":
@@ -192,6 +200,7 @@ def addVote( command, poster, description ):
 
 def recheckVote():
 	global voteCommand, voteTime, votePoster, voteDescription
+	global kickedUsers
 	if not voteCommand:
 		return
 
@@ -230,6 +239,7 @@ def recheckVote():
 
 
 def parseUserCommand(wormid,message):
+	global kickedUsers
 	try: # Do not check on msg size or anything, exception handling is further down
 		if (not message.startswith(cfg.USER_PREFIX)):
 			return False # normal chat
@@ -273,7 +283,10 @@ def parseUserCommand(wormid,message):
 
 		elif cmd == "kick" and cfg.VOTING:
 			kicked = int( params[0] )
-			addVote( "io.kickWorm(" + str(kicked) +")", wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
+			addVote( "kickedUsers[ io.getWormIP(" + str(kicked) + 
+						").split(':')[0] ] = time.time() + cfg.VOTING_KICK_TIME*60; io.kickWorm(" + str(kicked) + 
+						", 'You are kicked for " + str(cfg.VOTING_KICK_TIME) + " minutes')", 
+						wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
 		elif cmd == "mute" and cfg.VOTING:
 			kicked = int( params[0] )
 			addVote( "io.muteWorm(" + str(kicked) +")", wormid, "Mute %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
