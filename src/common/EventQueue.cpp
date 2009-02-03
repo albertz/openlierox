@@ -165,10 +165,10 @@ void EventQueue::removeCustomEvents(const _Event* owner) {
  
 static BOOL QuitSignalHandler( DWORD fdwCtrlType ) 
 { 
-	SDL_Event event;
-	event.type = SDL_QUIT;
-	mainQueue->push(&event);
-	tLX->bQuitCtrlC = true; // TODO: The quit signal handler was meant as a handler for a quit signal (that is also closing the window or killing it via taskmanager, not only Ctrl+C
+	EventItem ev;
+	ev.type = SDL_QUIT;
+	mainQueue->push(ev);
+	tLX->bQuitCtrlC = true; // Set the special CTRL-C flag, so Dedicated Server won't try to close the non-existant pipe
 	return TRUE;
 }
 

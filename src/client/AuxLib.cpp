@@ -688,9 +688,6 @@ void ShutdownAuxLib()
 	UnSubclassWindow();
 #endif
 
-	// Shutdown the event system
-	ShutdownEventSystem();
-
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
 	cCache.Clear();

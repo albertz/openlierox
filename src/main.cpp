@@ -987,7 +987,8 @@ void ShutdownLieroX()
 	// Network
 	QuitNetworkSystem();
 
-	ShutdownEventQueue();
+	// Event system
+	ShutdownEventSystem();
 
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();

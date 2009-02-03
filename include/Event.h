@@ -106,7 +106,7 @@ private:
 
 public:
 	Event() { handler() = null; }
-	~Event() { mainQueue->removeCustomEvents(this); }
+	~Event() { if (mainQueue) mainQueue->removeCustomEvents(this); }
 	Event(const Event& e) { (*this) = e; }
 	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); mainQueue->copyCustomEvents(&e, this); return *this; }
 	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }

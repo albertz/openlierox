@@ -417,10 +417,9 @@ void InitEventSystem() {
 
 void ShutdownEventSystem()
 {
-	bEventSystemInited = false;
+	ShutdownEventQueue();
 
-	// Process the last events (mainly because of timers that will free the allocated memory)
-	ProcessEvents();
+	bEventSystemInited = false;
 }
 
 
