@@ -190,7 +190,7 @@ struct DedIntern {
 		SDL_WaitThread(stdinThread, NULL);
 
 		notes << "waiting for pipeThread ..." << endl;
-#ifdef WIN32
+#if defined(WIN32) && defined(HAVE_BOOST)
 		if (tLX->bQuitCtrlC)  // When using CTRL-C break on Windows, Python exits as well and the pipe is invalid
 			pipe.p = NULL;
 #endif
