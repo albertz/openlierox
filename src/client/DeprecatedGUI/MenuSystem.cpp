@@ -1457,7 +1457,7 @@ void Menu_SvrList_FillList(CListview *lv)
 			{
 				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
 				if (flag.get())
-					lv->AddSubitem(LVS_IMAGE, "", flag, NULL);
+					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.Country);
 				else
 					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, NULL, NULL);
 			}
