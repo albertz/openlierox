@@ -1812,11 +1812,16 @@ int Menu_SvrList_UpdaterThread(void *id)
 		float start = GetMilliSeconds();
 		while (GetMilliSeconds() - start <= 5.0f) {
 			SDL_Delay(40);
-			if(IsNetAddrValid(addr)) goto gotNetAddr;			
+			if(IsNetAddrValid(addr)) 
+				break;
 		}
-		continue;
 		
-gotNetAddr:
+		if( !IsNetAddrValid(addr) )
+		{
+			notes << "UDP masterserver failed: cannot resolve domain name " << domain << endl;
+			continue;
+		}
+		
 		// Setup the socket
 		SetNetAddrPort(addr, port);
 		SetRemoteNetAddr(sock, addr);
