@@ -226,7 +226,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine=""
 			/>
 		</Configuration>
@@ -507,7 +506,7 @@
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="obj/debug/OpenLieroX.pdb"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -1650,6 +1649,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\ReadWriteLock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\SdlEventsWrappers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\SdlEventsWrappers.h"
 				>
 			</File>
 			<File
