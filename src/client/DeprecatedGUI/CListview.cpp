@@ -20,9 +20,13 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "Cursor.h"
+#include "Timer.h"
 
 
 namespace DeprecatedGUI {
+
+#define TOOLTIP_VSPACE 2
+#define TOOLTIP_HSPACE 5
 
 ///////////////////
 // Draw the list view
@@ -251,9 +255,21 @@ void CListview::Draw(SDL_Surface * bmpDest)
 	if(bGotScrollbar || bAlwaysVisibleScrollbar)
 		cScrollbar.Draw(bmpDest);
 
-    // Draw the rectangle last
+    // Draw the rectangle
 	if (bDrawBorder)
 		Menu_DrawBoxInset(bmpDest, iX, iY+(tLX->cFont.GetHeight()-1)*bOldStyle, iX+iWidth, iY+iHeight);
+
+	// Draw tooltips
+	if (bTooltipVisible)  {
+		int w = tLX->cFont.GetWidth(sTooltipText) + 2 * TOOLTIP_HSPACE;
+		int h = tLX->cFont.GetHeight(sTooltipText) + 2 * TOOLTIP_VSPACE;
+		Color color = tLX->clComboboxShowAllMain;
+		color.a = 220;
+		DrawRectFill(bmpDest, iTooltipX, iTooltipY, iTooltipX + w, iTooltipY + h, color);
+		tLX->cFont.Draw(bmpDest, iTooltipX + TOOLTIP_HSPACE, iTooltipY + TOOLTIP_VSPACE, tLX->clNormalText, sTooltipText);
+		DrawRect(bmpDest, iTooltipX, iTooltipY, iTooltipX + w, iTooltipY + h, tLX->clComboboxShowAllBorder);
+	}
+	//bTooltipVisible = false;  // It might get re-enabled next frame
 }
 
 void CListview::AddColumn(const std::string& sText, int iWidth) {
@@ -390,13 +406,13 @@ lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, int iColour
 	return item;
 }
 
-void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign) {
-	AddSubitem(iType, sText, img, wid, iVAlign, tLX->clPink);
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, const std::string& tooltip) {
+	AddSubitem(iType, sText, img, wid, iVAlign, tLX->clPink, tooltip);
 }
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour)
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour, const std::string& tooltip)
 {
 	// No last item
 	if (!tLastItem)  {
@@ -420,6 +436,8 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 	sub->bVisible = true;
 	sub->iExtra = 0;
 	sub->iValign = iVAlign;
+	sub->sTooltip = tooltip;
+	sub->fMouseOverTime = 0;
 	if (iColour == tLX->clPink)
 		sub->iColour = tLastItem->iColour;
 	else
@@ -473,6 +491,19 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 	ReadjustScrollbar();
 
 	bNeedsRepaint = true; // Repaint required
+}
+
+///////////////////
+// Shows a tooltip
+void CListview::ShowTooltip(const std::string &text, int ms_x, int ms_y)
+{
+	if (!text.size() || (bTooltipVisible && sTooltipText == text))
+		return;
+
+	bTooltipVisible = true;
+	iTooltipY = ms_y - tLX->cFont.GetHeight(text) - 2 * TOOLTIP_VSPACE;
+	iTooltipX = ms_x - TOOLTIP_HSPACE - tLX->cFont.GetWidth(text) / 2;
+	sTooltipText = text;
 }
 
 
@@ -926,12 +957,15 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	lv_subitem_t *subitem = NULL;
 	int result = LV_NONE;
 	int scroll = (bGotScrollbar ? cScrollbar.getValue() : 0);
+	int y = iY + 2 + (tColumns ? tLX->cFont.GetHeight() + 2 : 0);
 	for(int i = 0;item;item = item->tNext, i++) {
 		if (i < scroll)
 			continue;
 		subitem = item->tSubitems;
+		int x = iX + 2;
+		lv_column_t *col = tColumns;
 		for (; subitem; subitem = subitem->tNext)  {
-			if (subitem->iType == LVS_WIDGET)
+			if (subitem->iType == LVS_WIDGET)  {
 				if (subitem->tWidget->getEnabled() && subitem->tWidget->InBox(tMouse->X, tMouse->Y))  {
 					tLastWidgetEvent.cWidget = subitem->tWidget;
 					tLastWidgetEvent.iControlID = subitem->tWidget->getID();
@@ -940,7 +974,32 @@ int	CListview::MouseOver(mouse_t *tMouse)
 					if (tLastWidgetEvent.iEventMsg != -1)
 						result = LV_WIDGETEVENT;
 				}
+			} else if (col) {
+				// Check if the mouse is over the subitem
+				if (tMouse->X >= x && tMouse->X < col->iWidth + x)  {
+					if (tMouse->Y >= y && tMouse->Y < item->iHeight + y)  {
+						// Make sure we get called again when the time for showing the tooltip comes
+						if (subitem->fMouseOverTime == 0)  {
+							Timer t(Null(), NULL, 600, true);
+							t.startHeadless();
+						}
+
+						subitem->fMouseOverTime += tLX->fDeltaTime;
+
+						// If the mouse has been longer time over the subitem, show the tooltip
+						if (subitem->fMouseOverTime >= 0.6f)
+							ShowTooltip(subitem->sTooltip, tMouse->X, tMouse->Y);
+						else
+							bTooltipVisible = false; // Hide the tooltip when the time is not yet up
+					} else
+						subitem->fMouseOverTime = 0;
+				} else
+					subitem->fMouseOverTime = 0;
+				x += col->iWidth - 2;
+				col = col->tNext;
+			}
 		}
+		y += item->iHeight;
 	}
 
 	bNeedsRepaint = true; // Repaint required
@@ -952,7 +1011,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 		return LV_NONE;
 
 	// Go through the items
-	int y = iY+tLX->cFont.GetHeight()+2;
+	y = iY+tLX->cFont.GetHeight()+2;
 	if (!tColumns)
 		y = iY+2;
 	item = tItems;

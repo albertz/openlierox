@@ -84,11 +84,12 @@ class lv_column_t { public:
 
 // Sub item structure
 class lv_subitem_t { public:
-	lv_subitem_t() : tWidget(NULL) {} // safety
+	lv_subitem_t() : tWidget(NULL), fMouseOverTime(0) {} // safety
 	~lv_subitem_t()  { if (tWidget) delete tWidget; }
 
 	int			iType;
 	std::string	sText;
+	std::string sTooltip;
 	SmartPointer<SDL_Surface> bmpImage;
 	CWidget		*tWidget;
 	bool		bVisible;
@@ -98,6 +99,7 @@ class lv_subitem_t { public:
 	Uint32		iBgColour;
 	Uint8		iBgAlpha;
 
+	float		fMouseOverTime;
 	lv_subitem_t *tNext;
 
 };
@@ -150,6 +152,7 @@ public:
 		tMouseOverSubWidget = NULL;
 		bSubItemsAreAligned = false;
 		bMouseOverEventEnabled = false;
+		bTooltipVisible = false;
 		tMouseOver = NULL;
 	}
 
@@ -188,6 +191,12 @@ private:
 	CScrollbar		cScrollbar;
 	bool			bGotScrollbar;
 	int				iSavedScrollbarPos;
+
+	// Tooltips
+	bool			bTooltipVisible;
+	std::string		sTooltipText;
+	int				iTooltipX;
+	int				iTooltipY;
 	
 	// Other
 	bool			bNeedsRepaint;
@@ -198,6 +207,9 @@ private:
 
 	bool			bMouseOverEventEnabled;
 	lv_item_t		*tMouseOver;
+
+private:
+	void	ShowTooltip(const std::string& text, int ms_x, int ms_y);
 
 public:
 	// Methods
@@ -234,8 +246,8 @@ public:
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);
 	lv_item_t* AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
-	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour);
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "");
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour, const std::string& tooltip = "");
 
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
