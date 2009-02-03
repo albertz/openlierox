@@ -70,6 +70,7 @@ class lierox_t { public:
 
 	bool	bQuitGame;
 	bool	bQuitEngine;
+	bool	bQuitCtrlC;
 
 	int		debug_int;
 	float	debug_float;

@@ -190,6 +190,10 @@ struct DedIntern {
 		SDL_WaitThread(stdinThread, NULL);
 
 		notes << "waiting for pipeThread ..." << endl;
+#ifdef WIN32
+		if (tLX->bQuitCtrlC)  // When using CTRL-C break on Windows, Python exits as well and the pipe is invalid
+			pipe.p = NULL;
+#endif
 		pipe.close();
 		SDL_WaitThread(pipeThread, NULL);
 
@@ -232,6 +236,7 @@ struct DedIntern {
 
 				if(read(0, &c, 1) >= 0) {
 					if(c == '\n') break;
+					if(c == -52) return 0;  // CTRL-C
 					buf += c;
 				}
 			}

@@ -121,8 +121,6 @@ int SDLwrap_PushEvent(SDL_Event *event)
 
 #if defined(WIN32) // MacOSX, Linux, Unix
 
-// TODO: check if this compiles!
-
 #include <windows.h>
 
  
@@ -131,6 +129,7 @@ static BOOL SDLwrap_QuitHandler( DWORD fdwCtrlType )
 	SDL_Event event;
 	event.type = SDL_QUIT;
 	SDLwrap_PushEvent(&event);
+	tLX->bQuitCtrlC = true;
 	return TRUE;
 }
 
@@ -138,6 +137,7 @@ static BOOL SDLwrap_QuitHandler( DWORD fdwCtrlType )
 void SDLwrap_InitializeQuitHandler()
 {
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SDLwrap_QuitHandler, TRUE );
+	SetConsoleMode(stdin, ENABLE_PROCESSED_INPUT);
 }
 
 #else

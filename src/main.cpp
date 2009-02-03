@@ -140,10 +140,6 @@ char* GetAppPath() { return apppath; }
 sigjmp_buf longJumpBuffer;
 #endif
 
-#ifdef WIN32
-void InstallCtrlHandler();
-#endif
-
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
@@ -175,10 +171,6 @@ int main(int argc, char *argv[])
 		binary_dir = "."; // TODO get exact path of binary
 
 	CrashHandler::init();
-
-#ifdef WIN32
-	InstallCtrlHandler();
-#endif
 
 startpoint:
 
@@ -563,6 +555,7 @@ int InitializeLieroX(void)
     }
 	tLX->bVideoModeChanged = false;
 	tLX->bQuitGame = false;
+	tLX->bQuitCtrlC = false;
 	tLX->debug_string = "";
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
@@ -966,38 +959,6 @@ void ShutdownLieroX()
 
 	notes << "Everything was shut down" << endl;
 }
-
-#ifdef WIN32
-BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) 
-{
-	switch (fdwCtrlType)  { 
-	// Handle the CTRL-C signal. 
-	case CTRL_C_EVENT: 
-	case CTRL_CLOSE_EVENT: 
-	case CTRL_BREAK_EVENT:
-	case CTRL_SHUTDOWN_EVENT: 
-	  notes << "Got a close signal, quitting..." << endl;
-	  SDL_Event quit;
-	  quit.type = SDL_QUIT;
-	  SDLwrap_PushEvent(&quit);
-	return TRUE;
-
-	case CTRL_LOGOFF_EVENT: 
-	return FALSE; 
-
-	default: 
-	  return FALSE; 
-	} 
-}
-
-void InstallCtrlHandler()
-{
-	if (!SetConsoleCtrlHandler(CtrlHandler, TRUE))
-		printf("E: The CTRL-C handler not installed");
-}
-
-#endif
-
 
 std::string quitEngineFlagReason;
 
