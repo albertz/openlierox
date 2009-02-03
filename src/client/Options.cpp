@@ -410,9 +410,9 @@ void GameOptions::SaveToDisc()
 	// TODO: same issue as in InitWidgetStates()
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
-	for (i=0;i<5;i++)
+	for (i=0;i<6;i++)
 		fprintf(fp, "%i,",iInternetList[i]);
-	fprintf(fp, "%i\n",iInternetList[5]);
+	fprintf(fp, "%i\n",iInternetList[6]);
 	fprintf(fp, "LANListCols = ");
 	for (i=0;i<5;i++)
 		fprintf(fp, "%i,",iLANList[i]);

@@ -117,10 +117,10 @@ bool Menu_Net_NETInitialize(void)
 		//int CountryColumnWidth = 21; // TODO: not used
 
 		// HINT: because this column is optional, it is at the end of the array from options
-		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[6]);
+		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[5]);
 	}
 
-	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[6]);
 
 	((CListview*) cInternet.getWidget( mi_ServerList ))->SetSortColumn( 4, true );	// Sort by ping
 
@@ -149,7 +149,7 @@ void Menu_Net_NETShutdown(void)
 			Menu_SvrList_SaveList("cfg/svrlist.dat");
 
 			// Save the column widths
-			for (int i=0;i<6;i++)
+			for (int i=0;i<7;i++)
 				tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 		}
 
