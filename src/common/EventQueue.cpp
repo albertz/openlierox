@@ -22,7 +22,7 @@
 #include <time.h>
 
 #include "LieroX.h"
-#include "SdlEventsWrappers.h"
+#include "EventQueue.h"
 #include "ReadWriteLock.h"
 
 static void SDLwrap_InitializeQuitHandler();

@@ -14,7 +14,7 @@
 #include <vector>
 #include "Unicode.h"
 #include "Event.h"
-#include "SdlEventsWrappers.h"
+#include "EventQueue.h"
 
 
 // application has focus

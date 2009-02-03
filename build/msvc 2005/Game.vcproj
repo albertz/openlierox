@@ -1297,6 +1297,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\EventQueue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\EventQueue.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\FastVector.h"
 				>
 			</File>
@@ -1649,14 +1657,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\ReadWriteLock.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\common\SdlEventsWrappers.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\SdlEventsWrappers.h"
 				>
 			</File>
 			<File

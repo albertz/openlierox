@@ -14,7 +14,7 @@
 #include "Clipboard.h"
 #include "LieroX.h"
 
-#include "SdlEventsWrappers.h"
+#include "EventQueue.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
