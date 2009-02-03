@@ -75,7 +75,7 @@ int SDLwrap_PollEvent(SDL_Event *event)
 	SDLwrap_events.pop_front();
 	
 	return 1;
-};
+}
 
 /* Waits indefinitely for the next available event, returning 1, or 0 if there
    was an error while waiting for events.  If 'event' is not NULL, the next
@@ -98,7 +98,7 @@ int SDLwrap_WaitEvent(SDL_Event *event)
 	SDLwrap_events.pop_front();
 	
 	return 1;
-};
+}
 
 /* Add an event to the event queue.
    This function returns 0 on success, or -1 if the event queue was full
@@ -116,7 +116,7 @@ int SDLwrap_PushEvent(SDL_Event *event)
 	SDL_CondSignal(SDLwrap_cond);
 	
 	return 0;
-};
+}
 
 
 #if defined(WIN32) // MacOSX, Linux, Unix
@@ -132,13 +132,13 @@ static BOOL SDLwrap_QuitHandler( DWORD fdwCtrlType )
 	event.type = SDL_QUIT;
 	SDLwrap_PushEvent(&event);
 	return TRUE;
-};
+}
 
 
 void SDLwrap_InitializeQuitHandler()
 {
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SDLwrap_QuitHandler, TRUE );
-};
+}
 
 #else
 
@@ -149,13 +149,13 @@ static void SDLwrap_QuitHandler(int sig)
 	SDL_Event event;
 	event.type = SDL_QUIT;
 	SDLwrap_PushEvent(&event);
-};
+}
 
 void SDLwrap_InitializeQuitHandler()
 {
 	signal(SIGINT, SDLwrap_QuitHandler);
 	signal(SIGTERM, SDLwrap_QuitHandler);
-};
+}
 
 #endif
 
