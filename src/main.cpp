@@ -432,10 +432,7 @@ static int MainLoopThread(void*) {
 			// Main frame
 			GameLoopFrame();
 			
-			SDL_Event ev;
-			ev.type = SDL_USEREVENT;
-			ev.user.code = UE_DoVideoFrame;
-			SDL_PushEvent(&ev);
+			doVideoFrameInMainThread();
 		}
 		
 		PhysicsEngine::Get()->uninitGame();
