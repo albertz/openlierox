@@ -605,7 +605,7 @@ void Menu_MapEd_New(void)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -802,7 +802,7 @@ void Menu_MapEd_LoadSave(int save)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}

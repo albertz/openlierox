@@ -759,7 +759,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 			break;
 		}
 
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}

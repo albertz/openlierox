@@ -187,7 +187,7 @@ static int SdlNetEventThreadMain( void * param )
 			if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, 0 ) > 0 ) // Wait max_frame_time
 			{
 				if(sock_out >= 0) {
-					SendSDLUserEvent(&onNetActivity, NetActivityData( (long) *(uint*)param, sock_out ));
+					onNetActivity.pushToMainQueue( NetActivityData( (long) *(uint*)param, sock_out ) );
 				}
 				else
 					printf("WARNING: net-event-system: invalid socket\n");
@@ -948,7 +948,7 @@ static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
 
 	if(SdlNetEvent_Inited) {
 		// push a net event
-		SendSDLUserEvent(&onDnsReady, EventData());
+		onDnsReady.pushToMainQueue(EventData());
     }
 
     delete address;

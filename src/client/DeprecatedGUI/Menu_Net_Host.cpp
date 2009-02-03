@@ -1410,7 +1410,7 @@ void Menu_Net_HostDeregister(void)
 		}
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 	}
 }

@@ -182,7 +182,7 @@ void CWidget::Repaint()
 {
 	// Send the repaint message
 	if (!bNeedsRepaint)  { // Send only one repaint per frame (more don't make sense anyway)
-		SendSDLUserEvent(&OnNeedRepaint, EventData(this));
+		OnNeedRepaint.pushToMainQueue(EventData(this));
 		bNeedsRepaint = true;
 
 		// Notify the parent

@@ -125,38 +125,6 @@ void		UnregisterCInput(CInput* input);
 bool		ApplicationHasFocus();
 
 
-
-class SDLUserEventHandler {
-public:
-	virtual void handle() = 0;
-	virtual ~SDLUserEventHandler() {}
-};
-
-template< typename _Data = EventData >
-class SDLSpecificUserEventHandler : public SDLUserEventHandler {
-public:
-	Event<_Data>* m_event;
-	_Data m_data;
-	SDLSpecificUserEventHandler(Event<_Data>* e, _Data d) : m_event(e), m_data(d) {}
-	virtual void handle() {
-		m_event->occurred( m_data );
-	}
-};
-
-
-template< typename _Data >
-inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT;
-	ev.user.code = 0;
-	ev.user.data1 = new SDLSpecificUserEventHandler<_Data>(event, data); // TODO: we should use an own allocator here to improve performance
-	ev.user.data2 = NULL;
-	if (SDLwrap_PushEvent(&ev) < 0)  { // Full queue?
-		//printf("WARNING: SDL event not sent because the queue is full\n"); // Do not spam messages
-		delete (SDLSpecificUserEventHandler<_Data> *)ev.user.data1;
-	}
-}
-
 extern Event<> onDummyEvent;
 
 

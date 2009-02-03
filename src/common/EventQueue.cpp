@@ -2,7 +2,7 @@
 //
 //   OpenLieroX
 //
-//   Wrapper functions for SDL event system
+//   event queue
 //
 //   based on the work of JasonB
 //   enhanced by Dark Charlie and Albert Zeyer
@@ -12,11 +12,8 @@
 /////////////////////////////////////////
 
 
-// This functions are required for dedicated server with no video
-// If we have no video initialized SDL_PushEvent() / SDL_PollEvent() / SDL_WaitEvent() won't work
-// so we'll use our internal implementation of these three functions
-
 #include <list>
+#include <cassert>
 #include <SDL_thread.h>
 #include <SDL_events.h>
 #include <time.h>
@@ -25,32 +22,49 @@
 #include "EventQueue.h"
 #include "ReadWriteLock.h"
 
-static void SDLwrap_InitializeQuitHandler();
+static void InitQuitSignalHandler();
 
+EventQueue* mainQueue = NULL;
 
-static SDL_mutex *SDLwrap_lock = NULL;
-static SDL_cond *SDLwrap_cond = NULL;
-static std::list< SDL_Event > SDLwrap_events;
+struct EventQueueIntern {
+	SDL_mutex* mutex;
+	SDL_cond* cond;
+	std::list<EventItem> queue;
+	EventQueueIntern() : mutex(NULL), cond(NULL) {}
+	void init() {
+		mutex = SDL_CreateMutex();
+		cond = SDL_CreateCond();
+	}
+	void uninit() {
+		SDL_DestroyMutex(mutex);
+		mutex = NULL;
+		
+		SDL_DestroyCond(cond);
+		cond = NULL;		
+	}
+};
 
-void SDLwrap_Initialize()
-{
-	if( ! bDedicated )
-		return;
-	SDLwrap_lock = SDL_CreateMutex();
-	SDLwrap_cond = SDL_CreateCond();
-	SDLwrap_InitializeQuitHandler();
+EventQueue::EventQueue() {
+	data = new EventQueueIntern();
+	data->init();
 }
 
-void SDLwrap_Shutdown()
-{
-	if( ! bDedicated )
-		return;
-	
-  SDL_DestroyMutex(SDLwrap_lock);
-  SDLwrap_lock = NULL;
+EventQueue::~EventQueue() {
+	assert(data != NULL);
+	delete data; data = NULL;
+}
 
-  SDL_DestroyCond(SDLwrap_cond);
-  SDLwrap_cond = NULL;
+
+void InitEventQueue() {
+	if(!mainQueue) mainQueue = new EventQueue();
+	InitQuitSignalHandler();
+}
+
+void ShutdownEventQueue() {
+	if(mainQueue) {
+		delete mainQueue;
+		mainQueue = NULL;
+	}
 }
 
 
@@ -58,103 +72,128 @@ void SDLwrap_Shutdown()
    events, or 0 if there are none available.  If 'event' is not NULL, the next
    event is removed from the queue and stored in that area.
  */
-int SDLwrap_PollEvent(SDL_Event *event)
-{
-	if( ! bDedicated )
-		return SDL_PollEvent(event);
+bool EventQueue::poll(EventItem& event) {
+	ScopedLock lock(data->mutex);
+	
+	if( data->queue.empty() )
+		return false;
 
-	ScopedLock lock(SDLwrap_lock);
+	event = data->queue.front();	
+	data->queue.pop_front();
 	
-	if( SDLwrap_events.empty() )
-		return 0;
-	else if( event == NULL )
-		return 1;
-	
-	*event = SDLwrap_events.front();
-	
-	SDLwrap_events.pop_front();
-	
-	return 1;
+	return true;
 }
 
 /* Waits indefinitely for the next available event, returning 1, or 0 if there
    was an error while waiting for events.  If 'event' is not NULL, the next
    event is removed from the queue and stored in that area.
  */
-int SDLwrap_WaitEvent(SDL_Event *event)
-{
-	if( ! bDedicated )
-		return SDL_WaitEvent(event);
-
-	ScopedLock lock(SDLwrap_lock);
+bool EventQueue::wait(EventItem& event) {
+	ScopedLock lock(data->mutex);
 	
-	while( SDLwrap_events.empty() )
-	{
-		SDL_CondWait( SDLwrap_cond, SDLwrap_lock );
+	while( data->queue.empty() ) {
+		SDL_CondWait( data->cond, data->mutex );
 	}
 	
-	*event = SDLwrap_events.front();
+	event = data->queue.front();
 	
-	SDLwrap_events.pop_front();
+	data->queue.pop_front();
 	
-	return 1;
+	return true;
 }
 
 /* Add an event to the event queue.
-   This function returns 0 on success, or -1 if the event queue was full
+   This function returns true on success
    or there was some other error.
  */
-int SDLwrap_PushEvent(SDL_Event *event)
-{
-	if( ! bDedicated )
-		return SDL_PushEvent(event);
+bool EventQueue::push(const EventItem& event) {
+	ScopedLock lock(data->mutex);
+	
+	// TODO: some limit if queue too full? it could happen that OLX eats up all mem if there is no limit
+	data->queue.push_back(event);
+	
+	SDL_CondSignal(data->cond);
+	
+	return true;
+}
 
-	ScopedLock lock(SDLwrap_lock);
+static EventItem CustomEvent(CustomEventHandler* eh) {
+	// TODO: this is a bit hacky because we still use the SDL_Event structure
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_CustomEventHandler;
+	ev.user.data1 = eh; // TODO: we should use an own allocator here to improve performance
+	ev.user.data2 = NULL;
+	return ev;
+}
+
+bool EventQueue::push(CustomEventHandler* eh) {
+	return push(CustomEvent(eh));
+}
+
+void EventQueue::copyCustomEvents(const _Event* oldOwner, _Event* newOwner) {
+	ScopedLock lock(data->mutex);
+
+	for(std::list<EventItem>::iterator i = data->queue.begin(); i != data->queue.end(); ++i) {
+		if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler && ((CustomEventHandler*)i->user.data1)->owner() == oldOwner) {
+			data->queue.insert(i, CustomEvent(((CustomEventHandler*)i->user.data1)->copy(newOwner)));
+		}
+	}
+}
+
+void EventQueue::removeCustomEvents(const _Event* owner) {
+	ScopedLock lock(data->mutex);
 	
-	SDLwrap_events.push_back(*event);
-	
-	SDL_CondSignal(SDLwrap_cond);
-	
-	return 0;
+	for(std::list<EventItem>::iterator i = data->queue.begin(); i != data->queue.end(); ) {
+		std::list<EventItem>::iterator last = i; ++i;
+		const SDL_Event& ev = *last;
+		if(ev.type == SDL_USEREVENT && ev.user.code == UE_CustomEventHandler && ((CustomEventHandler*)ev.user.data1)->owner() == owner) {
+			data->queue.erase(last);
+		}
+	}
 }
 
 
-#if defined(WIN32) // MacOSX, Linux, Unix
+
+
+#if defined(WIN32)
+
+// TODO: check if this compiles!
 
 #include <windows.h>
 
  
-static BOOL SDLwrap_QuitHandler( DWORD fdwCtrlType ) 
+static BOOL QuitSignalHandler( DWORD fdwCtrlType ) 
 { 
 	SDL_Event event;
 	event.type = SDL_QUIT;
-	SDLwrap_PushEvent(&event);
-	tLX->bQuitCtrlC = true;
+	mainQueue->push(&event);
+	tLX->bQuitCtrlC = true; // TODO: The quit signal handler was meant as a handler for a quit signal (that is also closing the window or killing it via taskmanager, not only Ctrl+C
 	return TRUE;
 }
 
 
-void SDLwrap_InitializeQuitHandler()
+static void InitQuitSignalHandler()
 {
-	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SDLwrap_QuitHandler, TRUE );
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) QuitSignalHandler, TRUE );
 	SetConsoleMode(stdin, ENABLE_PROCESSED_INPUT);
 }
 
-#else
+#else // MacOSX, Linux, Unix
 
 #include <signal.h>
 
-static void SDLwrap_QuitHandler(int sig)
+static void QuitSignalHandler(int sig)
 {
 	SDL_Event event;
 	event.type = SDL_QUIT;
-	SDLwrap_PushEvent(&event);
+	mainQueue->push(event);
 }
 
-void SDLwrap_InitializeQuitHandler()
+static void InitQuitSignalHandler()
 {
-	signal(SIGINT, SDLwrap_QuitHandler);
-	signal(SIGTERM, SDLwrap_QuitHandler);
+	signal(SIGINT, QuitSignalHandler);
+	signal(SIGTERM, QuitSignalHandler);
 }
 
 #endif

@@ -140,6 +140,22 @@ char* GetAppPath() { return apppath; }
 sigjmp_buf longJumpBuffer;
 #endif
 
+static SDL_cond* videoFrameCond = NULL;
+static SDL_mutex* videoFrameMutex = NULL;
+static SDL_Thread* mainLoopThread = NULL;
+static int MainLoopThread(void*);
+
+
+static SDL_Event QuitEventThreadEvent() {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_QuitEventThread;	
+	return ev;
+}
+
+
+static bool menu_startgame = false;
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
@@ -158,9 +174,7 @@ int main(int argc, char *argv[])
 #endif
 
 	DoSystemChecks();
-
-    bool startgame = false;
-
+	
 	apppath = argv[0];
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
@@ -243,12 +257,12 @@ startpoint:
 
 		ShutdownLieroX();
 		return 0;
-	};
+	}
 
 	DrawLoading(60, "Initializing menu system");
 
 	// Initialize menu
-	if(!DeprecatedGUI::Menu_Initialize(&startgame)) {
+	if(!DeprecatedGUI::Menu_Initialize(&menu_startgame)) {
         SystemError("Error: Could not initialize the menu system.\nError when loading graphics files");
 		return -1;
 	}
@@ -293,79 +307,41 @@ startpoint:
 		startFunctionData = NULL;
 	}
 
-	tLX->bQuitGame = false;
-	ResetQuitEngineFlag();
-	while(!tLX->bQuitGame) {
-#ifndef WIN32
-		sigsetjmp(longJumpBuffer, 1);
-#endif
-		
-		startgame = false; // the menu has a reference to this variable
-
-		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
-
-		if(!startgame) {
-			// Quit
-			break;
-		}
-
-		// Pre-game initialization
-		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
-		float oldtime = GetMilliSeconds();
-
-		ClearEntities();
-
-		ProcessEvents();
-		ResetQuitEngineFlag();
-		notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
-
-		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
-
-		notes << "GameLoopStart" << endl;
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->GameLoopStart_Signal();
-
-		//
-        // Main game loop
-        //
-		while(!tLX->bQuitEngine) {
-
-            tLX->fCurTime = GetMilliSeconds();
-#ifndef WIN32
-			sigsetjmp(longJumpBuffer, 1);
-#endif
-
-			// Timing
-			tLX->fDeltaTime = tLX->fCurTime - oldtime;
-			tLX->fRealDeltaTime = tLX->fDeltaTime;
-			oldtime = tLX->fCurTime;
-
-			// cap the delta
-			if(tLX->fDeltaTime > 0.5f) {
-				warnings << "deltatime " << tLX->fDeltaTime << " is too high" << endl;
-				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
+	videoFrameCond = SDL_CreateCond();
+	videoFrameMutex = SDL_CreateMutex();
+	mainLoopThread = SDL_CreateThread(MainLoopThread, NULL);
+	
+	if(!bDedicated) {
+		// Get all SDL events and push them to our event queue.
+		// We have to do that in the same thread where we inited the video because of SDL.
+		SDL_Event ev;
+		while(true) {
+			while( SDL_WaitEvent(&ev) ) {
+				if(ev.type == SDL_USEREVENT) {
+					switch(ev.user.code) {
+						case UE_QuitEventThread: goto quit;
+						case UE_DoVideoFrame:
+							VideoPostProcessor::process();
+							CapFPS();
+							SDL_CondSignal(videoFrameCond);
+							continue;
+					}
+				}
+				mainQueue->push(ev);
 			}
-
-			ProcessEvents();
-
-			// Main frame
-			GameLoopFrame();
-
-			VideoPostProcessor::process();
-
-			CapFPS();
+			
+			SDL_Delay(200);
 		}
-
-		PhysicsEngine::Get()->uninitGame();
-
-		notes << "GameLoopEnd" << endl;
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->GameLoopEnd_Signal();
-
-		cCache.ClearExtraEntries(); // Game ended - clear cache
-
 	}
-
+	
+quit:
+	SDL_WaitThread(mainLoopThread, NULL);
+	mainLoopThread = NULL;
+	SDL_DestroyCond(videoFrameCond);
+	videoFrameCond = NULL;
+	SDL_DestroyMutex(videoFrameMutex);
+	videoFrameMutex = NULL;
+	
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
@@ -385,6 +361,100 @@ startpoint:
 
 	return 0;
 }
+
+
+void doVideoFrameInMainThread() {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_DoVideoFrame;
+	if(SDL_PushEvent(&ev) == 0) {
+		SDL_mutexP(videoFrameMutex);
+		SDL_CondWait(videoFrameCond, videoFrameMutex);
+	}
+}
+
+static int MainLoopThread(void*) {
+	tLX->bQuitGame = false;
+	ResetQuitEngineFlag();
+	while(!tLX->bQuitGame) {
+#ifndef WIN32
+		sigsetjmp(longJumpBuffer, 1);
+#endif
+		
+		menu_startgame = false; // the menu has a reference to this variable
+		
+		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
+		
+		if(!menu_startgame) {
+			// Quit
+			break;
+		}
+		
+		// Pre-game initialization
+		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
+		float oldtime = GetMilliSeconds();
+		
+		ClearEntities();
+		
+		ProcessEvents();
+		ResetQuitEngineFlag();
+		notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
+		
+		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
+		
+		notes << "GameLoopStart" << endl;
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->GameLoopStart_Signal();
+		
+		//
+        // Main game loop
+        //
+		while(!tLX->bQuitEngine) {
+			
+            tLX->fCurTime = GetMilliSeconds();
+#ifndef WIN32
+			sigsetjmp(longJumpBuffer, 1);
+#endif
+			
+			// Timing
+			tLX->fDeltaTime = tLX->fCurTime - oldtime;
+			tLX->fRealDeltaTime = tLX->fDeltaTime;
+			oldtime = tLX->fCurTime;
+			
+			// cap the delta
+			if(tLX->fDeltaTime > 0.5f) {
+				warnings << "deltatime " << tLX->fDeltaTime << " is too high" << endl;
+				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
+			}
+			
+			ProcessEvents();
+			
+			// Main frame
+			GameLoopFrame();
+			
+			SDL_Event ev;
+			ev.type = SDL_USEREVENT;
+			ev.user.code = UE_DoVideoFrame;
+			SDL_PushEvent(&ev);
+		}
+		
+		PhysicsEngine::Get()->uninitGame();
+		
+		notes << "GameLoopEnd" << endl;
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->GameLoopEnd_Signal();
+		
+		cCache.ClearExtraEntries(); // Game ended - clear cache
+		
+	}
+
+	SDL_Event quitEv = QuitEventThreadEvent();
+	if(!bDedicated)
+		while(SDL_PushEvent(&quitEv) < 0) {}
+
+	return 0;
+}
+
 
 
 ///////////////////
@@ -541,8 +611,6 @@ int InitializeLieroX(void)
         SystemError("strange problems with the aux library");
 		return false;
 	}
-
-	SDLwrap_Initialize();
 
 	// Setup the HTTP proxy
 	AutoSetupHTTPProxy();
@@ -826,6 +894,7 @@ void DrawLoading(byte percentage, const std::string &text)  {
 
 	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
+	// we are in the main thread, so we can call this directly
 	VideoPostProcessor::process();
 }
 
@@ -918,7 +987,7 @@ void ShutdownLieroX()
 	// Network
 	QuitNetworkSystem();
 
-	SDLwrap_Shutdown();
+	ShutdownEventQueue();
 
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();

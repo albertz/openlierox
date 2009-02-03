@@ -967,7 +967,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 			break;
 		}
 
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}

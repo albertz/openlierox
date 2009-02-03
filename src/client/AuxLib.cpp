@@ -167,6 +167,8 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 			SDL_WM_SetIcon(bmpIcon.get(), NULL);
 	}
 
+	InitEventQueue();
+	
 	// Initialize the keyboard & mouse
 	InitEventSystem();
 

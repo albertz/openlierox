@@ -534,7 +534,7 @@ void Menu_Net_NETAddServer(void)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 	}
 
@@ -679,7 +679,7 @@ void Menu_Net_NETUpdateList(void)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 	}
 
@@ -817,7 +817,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
         }
 
         DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
     }
 

@@ -1425,7 +1425,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		DrawCursor(VideoPostProcessor::videoSurface());
 
 		// Display the dialog
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 
 		CapFPS();
 		WaitForNextEvent();

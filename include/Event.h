@@ -10,15 +10,20 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
+#include <SDL.h>
 #include "types.h"
 #include "Utils.h" // for Ref
 #include "SmartPointer.h"
+#include "EventQueue.h"
 
 struct EventData {
 	EventData(void* own = NULL) : owner(own) {}
 
 	void* owner;
 };
+
+
+class _Event {};
 
 /*
 	This is an Event class, which represents a possible event.
@@ -27,7 +32,7 @@ struct EventData {
 	_Data should provide at least an owner field like EventData
 */
 template< typename _Data = EventData >
-class Event {
+class Event : public _Event {
 public:
 	class Handler {
 	public:
@@ -101,9 +106,12 @@ private:
 
 public:
 	Event() { handler() = null; }
+	~Event() { mainQueue->removeCustomEvents(this); }
 	Event(const Event& e) { (*this) = e; }
-	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); return *this; }
+	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); mainQueue->copyCustomEvents(&e, this); return *this; }
 	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }
+
+	void pushToMainQueue(_Data data) { mainQueue->push(new EventThrower<_Data>(this, data)); }
 
 	void occurred(_Data data) { m_handler.get()(data); }
 };

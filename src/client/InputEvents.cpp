@@ -384,12 +384,14 @@ static void EvHndl_SysWmEvent(SDL_Event* ev) {
 static void EvHndl_VideoExpose(SDL_Event*) {}
 
 static void EvHndl_UserEvent(SDL_Event* ev) {
-	((SDLUserEventHandler*)ev->user.data1)->handle();
-	delete (SDLUserEventHandler*)ev->user.data1;
+	if(ev->user.code == UE_CustomEventHandler) {
+		((CustomEventHandler*)ev->user.data1)->handle();
+		delete (CustomEventHandler*)ev->user.data1;
+	}
 }
 
-void InitEventSystem() {
-	ProcessEvents();
+void InitEventSystem() {	
+	ProcessEvents(); // TODO: why are we calling that here?
 	for(int k = 0;k<SDLK_LAST;k++)
 		GetKeyboard()->KeyUp[k] = false;
 
@@ -497,7 +499,7 @@ bool WaitForNextEvent() {
 	UnlockNetEventMutex();
 
 	bool ret = false;
-	if(SDLwrap_WaitEvent(&sdl_event)) {
+	if(mainQueue->wait(sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -505,12 +507,12 @@ bool WaitForNextEvent() {
 	// Perhaps there are more events in the queue.
 	// In this case, handle all of them. we want an empty
 	// queue after
-	while(SDLwrap_PollEvent(&sdl_event)) {
+	while(mainQueue->poll(sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
 
-	LockNetEventMutex();
+	LockNetEventMutex(); // TODO: why here and not in ProcessEvents() ?
 
 	HandleMouseState();
 	HandleKeyboardState();
@@ -533,7 +535,7 @@ bool ProcessEvents()
 	ResetCurrentEventStorage();
 
 	bool ret = false;
-	while(SDLwrap_PollEvent(&sdl_event)) {
+	while(mainQueue->poll(sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}

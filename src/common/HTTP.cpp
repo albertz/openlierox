@@ -312,7 +312,7 @@ struct HttpThread {
 		// Notify about thread finishing
 		http->Lock();
 		if (http->iProcessingResult != HTTP_PROC_PROCESSING) // Send the finished event only when not restarting (for example due to a proxy fail)
-			SendSDLUserEvent(&onFinished, EventData(http));
+			onFinished.pushToMainQueue(EventData(http));
 		http->Unlock();
 
 		return 0;
@@ -1072,8 +1072,7 @@ void CHttp::HandleRedirect(int code)
 		if (location.size() != 0)  {
 			// Starting a new request must be done in the main thread, send a notification and quit processing
 			std::string proxy = sProxyUser + ":" + sProxyPasswd + "@" + sProxyHost + ":" + itoa(iProxyPort);
-			SendSDLUserEvent(&m_thread->onRedirect, 
-				SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, location, proxy, sDataToSend)));
+			m_thread->onRedirect.pushToMainQueue(SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, location, proxy, sDataToSend)));
 			return;
 		}
 		
@@ -1094,7 +1093,7 @@ void CHttp::HandleRedirect(int code)
 			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
 			// Starting a new request must be done in the main thread, send a notification and quit processing
 			std::string proxy = sProxyUser + ":" + sProxyPasswd + "@" + sProxyHost + ":" + itoa(iProxyPort);
-			SendSDLUserEvent(&m_thread->onRedirect, SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, location, proxy, sDataToSend)));
+			m_thread->onRedirect.pushToMainQueue(SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, location, proxy, sDataToSend)));
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
 			tError.sErrorMsg = "No redirect address specified in the redirect message";
@@ -1110,7 +1109,7 @@ void CHttp::HandleRedirect(int code)
 			notes("HTTP notice: redirected from " + sHost + sUrl + " to " + location + "\n");
 			// Starting a new request must be done in the main thread, send a notification and quit processing
 			std::string proxy = sProxyUser + ":" + sProxyPasswd + "@" + sProxyHost + ":" + itoa(iProxyPort);
-			SendSDLUserEvent(&m_thread->onRedirect, 
+			m_thread->onRedirect.pushToMainQueue( 
 				SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, location, proxy, sDataToSend)));
 			return;
 		} else { // No location has been given, just quit...
@@ -1129,7 +1128,7 @@ void CHttp::HandleRedirect(int code)
 		// The proxy address is given in the location field
 		if (location.size())  {
 			// Starting a new request must be done in the main thread, send a notification and quit processing
-			SendSDLUserEvent(&m_thread->onRedirect, 
+			m_thread->onRedirect.pushToMainQueue(
 				SmartPointer<HttpRedirectEventData>(new HttpRedirectEventData(this, sHost + sUrl, location, sDataToSend)));
 			notes("HTTP notice: accessing the desired location using a proxy: " + location + "\n");
 		} else {
@@ -1501,7 +1500,7 @@ bool CHttp::ProcessInternal()
 			if (sProxyHost.size() != 0)  {
 				warnings << "HINT: proxy failed, trying a direct connection" << endl;
 				// The re-requesting must be done in the main thread, send a notification and quit
-				SendSDLUserEvent(&m_thread->onRetry, 
+				m_thread->onRetry.pushToMainQueue( 
 					SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
 				iProcessingResult = HTTP_PROC_PROCESSING;
 				return true;
@@ -1522,7 +1521,7 @@ bool CHttp::ProcessInternal()
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
-			SendSDLUserEvent(&m_thread->onRetry, 
+			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
@@ -1539,7 +1538,7 @@ bool CHttp::ProcessInternal()
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
-			SendSDLUserEvent(&m_thread->onRetry, 
+			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
 			iProcessingResult = HTTP_PROC_PROCESSING;
 			return true;
@@ -1588,7 +1587,7 @@ bool CHttp::ProcessInternal()
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings("HINT: proxy failed, trying a direct connection\n");
 					// The re-requesting must be done in the main thread, send a notification and quit
-					SendSDLUserEvent(&m_thread->onRetry, 
+					m_thread->onRetry.pushToMainQueue( 
 						SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
 					iProcessingResult = HTTP_PROC_PROCESSING;
 					return true;

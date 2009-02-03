@@ -360,7 +360,7 @@ void Menu_Frame() {
 	}
 #endif
 				 
-	VideoPostProcessor::process();
+	doVideoFrameInMainThread();
 }
 
 
@@ -754,7 +754,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(VideoPostProcessor::videoSurface());
-			VideoPostProcessor::process();
+			doVideoFrameInMainThread();
 			CapFPS();
 			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
 			WaitForNextEvent();
@@ -768,7 +768,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Restore the old buffer
 	SDL_BlitSurface(tMenu->bmpMsgBuffer.get(), NULL, tMenu->bmpBuffer.get(), NULL);
 	//Menu_RedrawMouse(true);
-	//VideoPostProcessor::process();
+	//doVideoFrameInMainThread();
 
 	return ret;
 }
@@ -1790,7 +1790,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 	// Open socket for networking
 	NetworkSocket sock = OpenUnreliableSocket(0, false);
 	if (!IsSocketStateValid(sock))  {
-		SendSDLUserEvent(&updateEndEvent, (size_t)id);
+		updateEndEvent.pushToMainQueue((size_t)id);
 		return -1;
 	}
 
@@ -1852,7 +1852,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-				SendSDLUserEvent(&serverlistEvent, UdpServerlistData(bs));
+				serverlistEvent.pushToMainQueue(UdpServerlistData(bs));
 				timeoutTime = GetMilliSeconds() + 0.5f;	// Check for another packet
 				bs = new CBytestream();
 				firstPacket = false;
@@ -1868,7 +1868,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 	// Cleanup
 	CloseSocket(sock);
 
-	SendSDLUserEvent(&updateEndEvent, (size_t)id);
+	updateEndEvent.pushToMainQueue((size_t)id);
 	return 0;
 }
 

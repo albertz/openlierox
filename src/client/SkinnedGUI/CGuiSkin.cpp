@@ -237,7 +237,7 @@ void CGuiSkin::Frame()
 
 	cActiveLayout->Draw(SDL_GetVideoSurface(), 0, 0);
 	DrawCursor(SDL_GetVideoSurface());
-	VideoPostProcessor::process();
+	doVideoFrameInMainThread();
 }
 
 void CGuiSkin::SDL_OnKeyDown(SDL_Event *ev) {

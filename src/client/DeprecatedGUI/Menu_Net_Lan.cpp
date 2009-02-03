@@ -473,7 +473,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
         }
 
         DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
     }
 

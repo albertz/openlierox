@@ -2,7 +2,7 @@
 //
 //   OpenLieroX
 //
-//   Wrapper functions for SDL event system
+//   event queue
 //
 //   based on the work of JasonB
 //   enhanced by Dark Charlie and Albert Zeyer
@@ -11,39 +11,88 @@
 //
 /////////////////////////////////////////
 
-// This functions are required for dedicated server with no video
-// If we have no video initialized SDL_PushEvent() / SDL_PollEvent() / SDL_WaitEvent() won't work
-// so we'll use our internal implementation of these three functions
+#ifndef __EVENTQUEUE_H__
+#define __EVENTQUEUE_H__
 
-#ifndef __SDLEVENTSWRAPPERS_H__
-#define __SDLEVENTSWRAPPERS_H__
+#include <cassert>
 
-#include <SDL_events.h>
-
-// bDedicated should be set before calling this function
-
-void SDLwrap_Initialize();
-
-void SDLwrap_Shutdown();
+enum SDLUserEvent {
+	UE_CustomEventHandler = 0,
+	UE_QuitEventThread = 1,
+	UE_DoVideoFrame = 2
+};
 
 
-/* Polls for currently pending events, and returns 1 if there are any pending
-   events, or 0 if there are none available.  If 'event' is not NULL, the next
-   event is removed from the queue and stored in that area.
- */
-int SDLwrap_PollEvent(SDL_Event *event);
+// bDedicated must be set before we can call this
+void InitEventQueue();
+void ShutdownEventQueue();
 
-/* Waits indefinitely for the next available event, returning 1, or 0 if there
-   was an error while waiting for events.  If 'event' is not NULL, the next
-   event is removed from the queue and stored in that area.
- */
-int SDLwrap_WaitEvent(SDL_Event *event);
-
-/* Add an event to the event queue.
-   This function returns 0 on success, or -1 if the event queue was full
-   or there was some other error.
- */
-int SDLwrap_PushEvent(SDL_Event *event);
+void doVideoFrameInMainThread();
 
 
-#endif  //  __SDLEVENTSWRAPPERS_H__
+union SDL_Event;
+typedef SDL_Event EventItem; // for now, we can change that later
+
+class _Event;
+template< typename _Data > class Event;
+
+class CustomEventHandler {
+public:
+	virtual void handle() = 0;
+	virtual const _Event* owner() const = 0;
+	virtual CustomEventHandler* copy(_Event* newOwner = NULL) const = 0;
+	virtual ~CustomEventHandler() {}
+};
+
+template< typename _Data >
+class EventThrower : public CustomEventHandler {
+public:
+	Event<_Data>* m_event;
+	_Data m_data;
+	EventThrower(Event<_Data>* e, _Data d) : m_event(e), m_data(d) {}
+	virtual void handle() {
+		m_event->occurred( m_data );
+	}
+	virtual const _Event* owner() const { return m_event; }
+	virtual CustomEventHandler* copy(_Event* newOwner) const {
+		EventThrower* th = new EventThrower(*this);
+		if(newOwner) th->m_event =  (Event<_Data>*) newOwner;
+		return th;
+	}
+};
+
+
+struct EventQueueIntern;
+
+class EventQueue {
+private:
+	EventQueueIntern* data;
+public:
+	EventQueue();
+	~EventQueue();
+	
+	// Polls for currently pending events.
+	bool poll(EventItem& e);
+	
+	// Waits indefinitely for the next available event.
+	bool wait(EventItem& e);
+	
+	/* Add an event to the event queue.
+	 This function returns true on success
+	 or false if there was some error.
+	 */
+	bool push(const EventItem& e);
+	bool push(CustomEventHandler* eh);
+	
+	// goes through all CustomEventHandler and copies them if oldOwner is matching
+	void copyCustomEvents(const _Event* oldOwner, _Event* newOwner);
+	
+	// removes all CustomEventHandler with owner
+	void removeCustomEvents(const _Event* owner);
+};
+
+extern EventQueue* mainQueue;
+
+
+
+#endif  //  __EVENTQUEUE_H__

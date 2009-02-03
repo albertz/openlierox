@@ -520,7 +520,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
         }
 
         DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
     }
 
@@ -616,7 +616,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}
@@ -720,7 +720,7 @@ void Menu_Net_FavouritesAddServer(void)
 
 
 		DrawCursor(VideoPostProcessor::videoSurface());
-		VideoPostProcessor::process();
+		doVideoFrameInMainThread();
 		CapFPS();
 		WaitForNextEvent();
 	}

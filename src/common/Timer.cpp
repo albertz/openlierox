@@ -237,7 +237,7 @@ static Uint32 Timer_handleCallback(Uint32 interval, void *param)
 	
 	bool lastEvent = timer_data->once || timer_data->quitSignal;
 	
-	SendSDLUserEvent(&onInternTimerSignal, InternTimerEventData(timer_data, lastEvent));
+	onInternTimerSignal.pushToMainQueue(InternTimerEventData(timer_data, lastEvent));
 
 
 	if(lastEvent) {
