@@ -90,7 +90,7 @@ def parseAdminCommand(wormid,message):
 					preset = p
 					break
 			if preset == -1:
-				io.privateMsg(wormid,"Invalid preset name")
+				io.privateMsg(wormid,"Invalid preset, available presets: " + ", ".join(hnd.availablePresets))
 			else:
 				hnd.selectPreset( Name = hnd.availablePresets[preset], Repeat = presetCount )
 		elif cmd == "mod":
@@ -100,7 +100,7 @@ def parseAdminCommand(wormid,message):
 					mod = m
 					break
 			if mod == "":
-				io.privateMsg(wormid,"Invalid mod name")
+				io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availableMods))
 			else:
 				hnd.selectPreset( Mod = mod )
 		elif cmd == "map":
@@ -110,7 +110,7 @@ def parseAdminCommand(wormid,message):
 					level = l
 					break
 			if level == "":
-				io.privateMsg(wormid,"Invalid map name")
+				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(hnd.availableLevels))
 			else:
 				hnd.selectPreset( Level = level )
 		elif cmd == "lt":
@@ -298,7 +298,7 @@ def parseUserCommand(wormid,message):
 					mod = m
 					break
 			if mod == "":
-				io.privateMsg(wormid,"Invalid mod name")
+				io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availableMods))
 			else:
 				addVote( 'hnd.selectPreset( Mod = "%s" )' % mod, wormid, "Mod %s" % mod )
 		elif cmd == "map":
@@ -308,7 +308,7 @@ def parseUserCommand(wormid,message):
 					level = l
 					break
 			if level == "":
-				io.privateMsg(wormid,"Invalid map name")
+				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(hnd.availableLevels))
 			else:
 				addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
 		elif cmd == "lt":
@@ -320,7 +320,7 @@ def parseUserCommand(wormid,message):
 					preset = p
 					break
 			if preset == -1:
-				io.privateMsg(wormid,"Invalid preset name")
+				io.privateMsg(wormid,"Invalid preset, available presets: " + ", ".join(hnd.availablePresets))
 			else:
 				addVote( 'hnd.selectPreset( Name = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
 
