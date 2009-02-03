@@ -611,7 +611,6 @@ void VideoPostProcessor::process() {
 
 	static const bool multithreaded = false;
 	if(!multithreaded) {
-		VideoPostProcessor::flipBuffers();
 		videoCoreFrame();
 		return;
 	}
@@ -637,7 +636,8 @@ void VideoPostProcessor::init() {
 		if(vppName != "")
 			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
 		notes << "none used, drawing directly on screen" << endl;
-		instance = &voidVideoPostProcessor;
+		//instance = &voidVideoPostProcessor;
+		instance = new DummyVideoPostProc();
 	}
 
 	// only start video thread when we have a post processor

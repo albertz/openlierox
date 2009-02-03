@@ -243,7 +243,7 @@ void AddSocketToNotifierGroup( NetworkSocket sock )
 		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 		SdlNetEventSocketCount++;
 	}
-};
+}
 
 void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 {
@@ -251,7 +251,7 @@ void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 
 	if (nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) ) && SdlNetEventSocketCount > 0)
 		SdlNetEventSocketCount--;
-};
+}
 
 // ------------------------------------------------------------------------
 

@@ -321,9 +321,10 @@ startpoint:
 					switch(ev.user.code) {
 						case UE_QuitEventThread: goto quit;
 						case UE_DoVideoFrame:
+							SDL_mutexP(videoFrameMutex);
 							VideoPostProcessor::process();
-							CapFPS();
-							SDL_CondSignal(videoFrameCond);
+							SDL_mutexV(videoFrameMutex);
+							//SDL_CondSignal(videoFrameCond);
 							continue;
 					}
 				}
@@ -364,13 +365,15 @@ quit:
 
 
 void doVideoFrameInMainThread() {
+	// wait for current drawing
+	SDL_mutexP(videoFrameMutex);
+	VideoPostProcessor::flipBuffers();
+	SDL_mutexV(videoFrameMutex);
+
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoVideoFrame;
-	if(SDL_PushEvent(&ev) == 0) {
-		SDL_mutexP(videoFrameMutex);
-		SDL_CondWait(videoFrameCond, videoFrameMutex);
-	}
+	if(SDL_PushEvent(&ev) == 0) {}
 }
 
 static int MainLoopThread(void*) {
@@ -433,6 +436,7 @@ static int MainLoopThread(void*) {
 			GameLoopFrame();
 			
 			doVideoFrameInMainThread();
+			CapFPS();
 		}
 		
 		PhysicsEngine::Get()->uninitGame();

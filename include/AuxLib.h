@@ -65,7 +65,6 @@ protected:
 	static VideoPostProcessor* instance;
 
 public:
-	// HINT: don't call this yourself! used in video thread
 	static void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
 
 public:
@@ -81,8 +80,8 @@ public:
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
 	static SDL_Surface* videoBufferSurface() { return m_videoBufferSurface; };
-	static void process();
-
+	static void process(); // call that from main thread
+	
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };
 
