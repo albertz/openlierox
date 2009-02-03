@@ -121,7 +121,6 @@ bool SdlNetEventThreadExit = false;
 SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
 int SdlNetEventSocketCount = 0;
-SDL_mutex *eventMutex = NULL;
 
 struct NetActivityData {
 	uint type;
@@ -150,17 +149,6 @@ static bool isSocketGroupEmpty(NLint group) {
 }
 
 
-// Functions to lock and unlock the anti-overflow mutex
-void LockNetEventMutex()
-{
-	SDL_LockMutex(eventMutex);
-}
-
-void UnlockNetEventMutex()
-{
-	SDL_UnlockMutex(eventMutex);
-}
-
 static int SdlNetEventThreadMain( void * param )
 {
 	int buffer_size = MAX(2, SdlNetEventSocketCount);
@@ -181,7 +169,6 @@ static int SdlNetEventThreadMain( void * param )
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
 	{
-		LockNetEventMutex(); // Make sure we post events only when the main thread expects them (so we don't overflow the queue)
 		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
 		{
 			if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, 0 ) > 0 ) // Wait max_frame_time
@@ -196,13 +183,10 @@ static int SdlNetEventThreadMain( void * param )
 					delete[] sock_out;
 					buffer_size = MAX(2, SdlNetEventSocketCount);
 					sock_out = new NLsocket[buffer_size];
-					UnlockNetEventMutex();
 					continue; // Retry
 				}
 			}
 		}
-
-		UnlockNetEventMutex();
 
 		float curTime = GetMilliSeconds();
 		if(curTime - lastTime < max_frame_time) {
@@ -222,8 +206,6 @@ static bool SdlNetEvent_Init()
 		return false;
 	SdlNetEvent_Inited = true;
 
-	eventMutex = SDL_CreateMutex();
-
 	SdlNetEventGroup = nlGroupCreate();
 	SdlNetEventThreads[0] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
 	// TODO: this does not behave as expected
@@ -241,16 +223,12 @@ static void SdlNetEvent_UnInit() {
 	if( ! SdlNetEvent_Inited )
 		return;
 
-	SDL_UnlockMutex(eventMutex);
-
 	SdlNetEventThreadExit = true;
 	int status = 0;
 	SDL_WaitThread( SdlNetEventThreads[0], &status );
 	SDL_WaitThread( SdlNetEventThreads[1], &status );
 	SDL_WaitThread( SdlNetEventThreads[2], &status );
 	nlGroupDestroy(SdlNetEventGroup);
-	SDL_DestroyMutex(eventMutex);
-	eventMutex = NULL;
 
 	SdlNetEvent_Inited = false;
 };
