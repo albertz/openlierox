@@ -865,6 +865,8 @@ void CCombobox::setCurSIndexItem(const std::string& szString)
 	int index = getIndexBySIndex(szString);
 	if(index >= 0)
 		iSelected = index;
+	else
+		warnings << "setCurSIndexItem: could not set the current item, sIndex '" << szString << "' not found in the list" << endl;
 }
 
 void CCombobox::setCurItemByName(const std::string& szString)
@@ -872,6 +874,8 @@ void CCombobox::setCurItemByName(const std::string& szString)
 	int index = getIndexByName(szString);
 	if(index >= 0)
 		iSelected = index;
+	else
+		warnings << "setCurItemByName: could not set the current item, sName '" << szString << "' not found in the list" << endl;
 }
 
 int CCombobox::getIndexByName(const std::string& szString) {

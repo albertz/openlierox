@@ -731,7 +731,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
 	ModAdder adder(cb);
-	FindFiles(adder,".",false,FM_DIR);
+	FindFiles(adder,"",false,FM_DIR);
 	
 	cb->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 }

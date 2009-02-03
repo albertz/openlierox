@@ -763,12 +763,16 @@ bool CanWriteToDir(const std::string& dir) {
 
 std::string GetAbsolutePath(const std::string& path) {
 #ifdef WIN32
-	static char buf[2048];
-	int len = GetFullPathName(Utf8ToSystemNative(path).c_str(), sizeof(buf), buf, NULL);
-	fix_markend(buf);
-	if (len)
-		return SystemNativeToUtf8(buf);
-	else  // Failed
+	std::string exactpath;
+	if (GetExactFileName(path, exactpath))  {
+		static char buf[2048];
+		int len = GetFullPathName(Utf8ToSystemNative(exactpath).c_str(), sizeof(buf), buf, NULL);
+		fix_markend(buf);
+		if (len)
+			return SystemNativeToUtf8(buf);
+		else  // Failed
+			return path;
+	} else
 		return path;
 #else
 	std::string exactpath;
@@ -790,7 +794,7 @@ bool PathListIncludes(const std::list<std::string>& pathlist, const std::string&
 
 	// Go through the list, checking each item
 	for(std::list<std::string>::const_iterator i = pathlist.begin(); i != pathlist.end(); i++) {
-		if(abs_path == GetAbsolutePath(*i)) {
+		if(stringcaseequal(abs_path, GetAbsolutePath(*i))) {
 			return true;
 		}
 	}
