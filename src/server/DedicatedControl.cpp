@@ -134,7 +134,10 @@ struct pstream_pipe_t
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
-DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
+DedicatedControl* DedicatedControl::Get() 
+{ 
+	return dedicatedControlInstance; 
+}
 
 bool DedicatedControl::Init() {
 	dedicatedControlInstance = new DedicatedControl();
@@ -143,6 +146,7 @@ bool DedicatedControl::Init() {
 
 void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
+	dedicatedControlInstance = NULL;
 }
 
 static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string& rest) {
@@ -988,7 +992,7 @@ bool DedicatedControl::Init_priv() {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}
-		dedIntern->pipe.in() << "init" << endl;
+		// dedIntern->pipe.in() << "init" << endl;
 		dedIntern->pipeOutputMutex = SDL_CreateMutex();
 		dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
 	}

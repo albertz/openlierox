@@ -408,12 +408,14 @@ public:
 		if(!fork()) 
 		{
 			// Crash the app in your favorite way here
-			//abort(); // We're catching SIGABRT, so this thing generates a forkbomb, yay!
+			// abort(); // Clears signal handler automatically
 			raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
 		}
 #endif
-                                        
-		signal(Sig, SimpleSignalHandler); // reset handler
+          
+		// I've found why we're making forkbomb - we should ignore all following signals, 
+		// 'cause if that's segfault the problem will most probably repeat on each frame
+		// signal(Sig, SimpleSignalHandler); // reset handler // Do not do that!
 		printf("resuming ...\n");
 		fflush(stdout);
 		siglongjmp(longJumpBuffer, 1); // jump back to main loop, maybe we'll be able to continue somehow

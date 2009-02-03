@@ -25,6 +25,8 @@
 #include "SdlEventsWrappers.h"
 #include "ReadWriteLock.h"
 
+static void SDLwrap_InitializeQuitHandler();
+
 
 static SDL_mutex *SDLwrap_lock = NULL;
 static SDL_cond *SDLwrap_cond = NULL;
@@ -36,6 +38,7 @@ void SDLwrap_Initialize()
 		return;
 	SDLwrap_lock = SDL_CreateMutex();
 	SDLwrap_cond = SDL_CreateCond();
+	SDLwrap_InitializeQuitHandler();
 }
 
 void SDLwrap_Shutdown()
@@ -114,3 +117,45 @@ int SDLwrap_PushEvent(SDL_Event *event)
 	
 	return 0;
 };
+
+
+#if defined(WIN32) // MacOSX, Linux, Unix
+
+// TODO: check if this compiles!
+
+#include <windows.h>
+
+ 
+static BOOL SDLwrap_QuitHandler( DWORD fdwCtrlType ) 
+{ 
+	SDL_Event event;
+	event.type = SDL_QUIT;
+	SDLwrap_PushEvent(&event);
+	return TRUE;
+};
+
+
+void SDLwrap_InitializeQuitHandler()
+{
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SDLwrap_QuitHandler, TRUE );
+};
+
+#else
+
+#include <signal.h>
+
+static void SDLwrap_QuitHandler(int sig)
+{
+	SDL_Event event;
+	event.type = SDL_QUIT;
+	SDLwrap_PushEvent(&event);
+};
+
+void SDLwrap_InitializeQuitHandler()
+{
+	signal(SIGINT, SDLwrap_QuitHandler);
+	signal(SIGTERM, SDLwrap_QuitHandler);
+};
+
+#endif
+
