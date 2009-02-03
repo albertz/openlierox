@@ -14,6 +14,7 @@
 #include "Clipboard.h"
 #include "LieroX.h"
 
+#include "SdlEventsWrappers.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Menu.h"
@@ -496,7 +497,7 @@ bool WaitForNextEvent() {
 	UnlockNetEventMutex();
 
 	bool ret = false;
-	if(SDL_WaitEvent(&sdl_event)) {
+	if(SDLwrap_WaitEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -504,7 +505,7 @@ bool WaitForNextEvent() {
 	// Perhaps there are more events in the queue.
 	// In this case, handle all of them. we want an empty
 	// queue after
-	while(SDL_PollEvent(&sdl_event)) {
+	while(SDLwrap_PollEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}
@@ -532,7 +533,7 @@ bool ProcessEvents()
 	ResetCurrentEventStorage();
 
 	bool ret = false;
-	while(SDL_PollEvent(&sdl_event)) {
+	while(SDLwrap_PollEvent(&sdl_event)) {
 		HandleNextEvent();
 		ret = true;
 	}

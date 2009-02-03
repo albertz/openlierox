@@ -26,6 +26,7 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "MathLib.h"
+#include "ReadWriteLock.h"
 
 console_t	*Console = NULL;
 

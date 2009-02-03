@@ -542,6 +542,8 @@ int InitializeLieroX(void)
 		return false;
 	}
 
+	SDLwrap_Initialize();
+
 	// Setup the HTTP proxy
 	AutoSetupHTTPProxy();
 
@@ -914,6 +916,8 @@ void ShutdownLieroX()
 
 	// Network
 	QuitNetworkSystem();
+
+	SDLwrap_Shutdown();
 
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();

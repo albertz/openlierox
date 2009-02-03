@@ -14,6 +14,7 @@
 #include <vector>
 #include "Unicode.h"
 #include "Event.h"
+#include "SdlEventsWrappers.h"
 
 
 // application has focus
@@ -150,7 +151,7 @@ inline void SendSDLUserEvent(Event<_Data>* event, _Data data) {
 	ev.user.code = 0;
 	ev.user.data1 = new SDLSpecificUserEventHandler<_Data>(event, data); // TODO: we should use an own allocator here to improve performance
 	ev.user.data2 = NULL;
-	if (SDL_PushEvent(&ev) < 0)  { // Full queue?
+	if (SDLwrap_PushEvent(&ev) < 0)  { // Full queue?
 		//printf("WARNING: SDL event not sent because the queue is full\n"); // Do not spam messages
 		delete (SDLSpecificUserEventHandler<_Data> *)ev.user.data1;
 	}

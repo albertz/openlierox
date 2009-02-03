@@ -35,6 +35,7 @@
 #include "Version.h"
 #include "MathLib.h"
 #include "InputEvents.h"
+#include "ReadWriteLock.h"
 
 
 // List of errors, MUST match error IDs in HTTP.h

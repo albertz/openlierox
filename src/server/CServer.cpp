@@ -1828,6 +1828,15 @@ void GameServer::Shutdown(void)
 		tLXOptions->bFirstHostingThisVer = false;
 	}
 
+	// Kick clients if they still connected
+	if(cClients && tLX->iGameType == GME_HOST)
+	{
+		for(i=0; i<MAX_CLIENTS; i++)
+			if( cClients[i].getStatus() == NET_CONNECTED )
+				DropClient( &cClients[i], CLL_KICK, "Server is shutting down" );
+	}
+
+
 	if(IsSocketStateValid(tSocket))
 	{
 		CloseSocket(tSocket);

@@ -408,7 +408,8 @@ public:
 		if(!fork()) 
 		{
 			// Crash the app in your favorite way here
-			abort();
+			//abort(); // We're catching SIGABRT, so this thing generates a forkbomb, yay!
+			raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
 		}
 #endif
                                         
