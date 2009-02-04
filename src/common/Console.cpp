@@ -27,6 +27,7 @@
 #include "Options.h"
 #include "MathLib.h"
 #include "ReadWriteLock.h"
+#include "Timer.h"
 
 console_t	*Console = NULL;
 
@@ -36,12 +37,14 @@ bool Con_IsInited() { return Console != NULL; }
 // for Con_AddText
 static SDL_mutex* con_mutex = NULL;
 
+Timer *con_timer = NULL;
 
 ///////////////////
 // Initialize the console
 int Con_Initialize(void)
 {
 	con_mutex = SDL_CreateMutex();
+	con_timer = new Timer(Null(), NULL, 30);  // To make the animation smooth in the menu
 	
 	int n;
 	Console = new console_t;;
@@ -81,6 +84,8 @@ void Con_Toggle(void)
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
 
+	con_timer->start();
+
 	if(Console->iState == CON_HIDDEN || Console->iState == CON_HIDING) {
 		Console->iState = CON_DROPPING;
         if(!tLXOptions->bFullscreen)
@@ -104,6 +109,7 @@ void Con_Hide(void)
 	Console->fPosition = 1;
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
+	con_timer->start();
 }
 
 
@@ -118,6 +124,10 @@ void Con_Process(float dt)
 		Con_ProcessCharacter(kb->keyQueue[i]);
 	}
 
+	// Skip the first frame (because of high dt in menu)
+	if (kb->queueLength)
+		return;
+
 	switch(Console->iState) {
 	case CON_DROPPING:
 		Console->fPosition -= 3.0f*dt;
@@ -130,12 +140,14 @@ void Con_Process(float dt)
 	if(Console->fPosition < 0.0f) {
 		Console->iState = CON_DOWN;
 		Console->fPosition = 0.0f;
+		con_timer->stop();
 	}
 	if(Console->fPosition > 1) {
 		Console->iState = CON_HIDDEN;
 		Console->fPosition = 1;
 
 		Console->Line[0].strText = "";
+		con_timer->stop();
 	}
 
 }
@@ -395,6 +407,8 @@ void Con_Draw(SDL_Surface * bmpDest)
 				tLX->clConsoleCursor);
 		}
 
+		if (n)
+			stripdot(buf, Console->bmpConPic->w - 10);  // Don't make the text overlap
 		tLX->cFont.Draw(bmpDest, 12, texty, Colours[Console->Line[n].Colour], buf);
 	}
 }
@@ -419,4 +433,8 @@ void Con_Shutdown(void)
 	if(con_mutex)
 		SDL_DestroyMutex(con_mutex);
 	con_mutex = NULL;
+
+	if (con_timer)
+		delete con_timer;
+	con_timer = NULL;
 }
