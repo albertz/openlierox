@@ -759,6 +759,9 @@ static void structuredError(void * userData, xmlErrorPtr error)
 std::string StripHtmlTags( const std::string & src )
 /*" Interpretes the receiver as HTML, removes all tags and returns the plain text. "*/
 {
+	if (!src.size())
+		return "";
+
 	std::string str;
 	htmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));
