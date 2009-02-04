@@ -746,11 +746,12 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		DrawCurrentSettings(bmpDest);
 
 		// Game menu
-		if( bGameMenu) // Do not process game menu if there's popup options
+		bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
+		if( bGameMenu)
 			DrawGameMenu(bmpDest);
 
 		// Options dialog
-		if (DeprecatedGUI::bShowFloatingOptions)  {
+		if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
 			DeprecatedGUI::Menu_FloatingOptionsFrame();
 		}
 
