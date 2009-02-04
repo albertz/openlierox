@@ -240,6 +240,34 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 	return (size_t)(-1);
 }
 
+
+
+struct strcasecomparer {
+	bool operator()(const std::string& str1, const std::string& str2) const {
+		return stringcaseequal(str1, str2);
+	}
+};
+
+typedef hash_set<std::string, simple_reversestring_hasher, strcasecomparer> exactfilenamecache_t;
+exactfilenamecache_t exactfilenamecache;
+
+bool is_searchname_in_exactfilenamecache(
+										 const std::string& searchname,
+										 std::string& exactname
+) {
+	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
+	if(it != exactfilenamecache.end()) {
+		exactname = *it;
+		return true;
+	} else
+		return false;
+}
+
+void add_searchname_to_exactfilenamecache(const std::string& exactname) {
+	exactfilenamecache.insert(exactname);
+}
+
+
 // used by unix-GetExactFileName
 // does a case insensitive search for searchname in dir
 // sets filename to the first search result
@@ -272,37 +300,13 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 #endif
 			return true;
 		}
+		add_searchname_to_exactfilenamecache((dir == "") ? direntry->d_name : (dir + "/" + direntry->d_name));
 	}
 
 	closedir(dirhandle);
 	return false;
 }
 
-class strcasecomparer {
-public:
-	inline bool operator()(const std::string& str1, const std::string& str2) const {
-		return stringcaseequal(str1, str2);
-	}
-};
-
-typedef hash_set<std::string, simple_reversestring_hasher, strcasecomparer> exactfilenamecache_t;
-exactfilenamecache_t exactfilenamecache;
-
-bool is_searchname_in_exactfilenamecache(
-		const std::string& searchname,
-		std::string& exactname
-) {
-	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
-	if(it != exactfilenamecache.end()) {
-		exactname = *it;
-		return true;
-	} else
-		return false;
-}
-
-void add_searchname_to_exactfilenamecache(const std::string& exactname) {
-	exactfilenamecache.insert(exactname);
-}
 
 
 // does case insensitive search for file
