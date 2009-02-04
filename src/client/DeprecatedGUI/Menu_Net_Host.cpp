@@ -846,7 +846,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_redrawBufferRect(540, 150,  100, 200);
 
 	// If any textbox is selected, forbid to show the console
-	if (cHostLobby.getFocusedWidget())  {
+	if (cHostLobby.getFocusedWidget() && !Con_IsVisible())  {
 		tMenu->bForbidConsole = cHostLobby.getFocusedWidget()->getType() == wid_Textbox;
 	}
 

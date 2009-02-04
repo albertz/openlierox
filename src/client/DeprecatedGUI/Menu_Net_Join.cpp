@@ -783,7 +783,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// If any textbox is selected, forbid to show the console
-	if (cJoinLobby.getFocusedWidget())  {
+	if (cJoinLobby.getFocusedWidget() && !Con_IsVisible())  {
 		tMenu->bForbidConsole = cJoinLobby.getFocusedWidget()->getType() == wid_Textbox;
 	}
 
