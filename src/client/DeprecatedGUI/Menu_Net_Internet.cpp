@@ -611,7 +611,7 @@ void Menu_Net_NETUpdateList(void)
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && updateList && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		ProcessEvents();
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
