@@ -307,7 +307,6 @@ private:
 	// Graphics
 	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
-	std::vector< SmartPointer<SDL_Surface> > bmpOldGibs; // If client leaves and another joins the gib pic is recalculated - save it 'till the end of the game, 'cause it used in SpawnEntity()
 	DeprecatedGUI::CBar		cHealthBar;
 	//CViewport	*pcViewport;
 

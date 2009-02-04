@@ -158,8 +158,6 @@ void CWorm::Clear(void)
 		cDamageReport[i].damage = 0;
 		cDamageReport[i].lastTime = 0;
 	}
-	
-	// bmpOldGibs.clear(); // Do NOT clear old gibs - worms array is deleted anyway when client cleans up
 }
 
 
@@ -435,7 +433,6 @@ bool CWorm::ChangeGraphics(int gametype)
 	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
 
     // Colourise the giblets
-    bmpOldGibs.push_back(bmpGibs); // If client leaves and another joins the gib pic is recalculated - save it 'till the end of the game, 'cause it used in SpawnEntity()
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
     // Colourise the skin
