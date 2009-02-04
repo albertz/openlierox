@@ -1831,10 +1831,7 @@ void GameServer::Shutdown(void)
 	// Kick clients if they still connected (sends just one packet which may be lost, but whatever, we're shutting down)
 	if(cClients && tLX->iGameType == GME_HOST)
 	{
-		for(i=0; i<MAX_CLIENTS; i++)
-			if( cClients[i].getStatus() == NET_CONNECTED && !cClients[i].isLocalClient() )
-				DropClient( &cClients[i], CLL_KICK, "Server is shutting down" );
-		SendPackets();
+		SendDisconnect();
 	}
 
 	if(IsSocketStateValid(tSocket))
