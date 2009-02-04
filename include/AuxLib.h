@@ -32,7 +32,7 @@
 // Routines
 int			InitializeAuxLib(const std::string& config, int bpp, int vidflags);
 void		ShutdownAuxLib();
-bool		SetVideoMode();
+bool		SetVideoMode(); // only call from main thread; use doSetVideoModeInMainThread elsewhere
 
 #ifdef WIN32
 HWND		GetWindowHandle();

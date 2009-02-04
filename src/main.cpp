@@ -156,6 +156,8 @@ static SDL_Event QuitEventThreadEvent() {
 
 static bool menu_startgame = false;
 
+static bool videoModeReady = true;
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
@@ -321,10 +323,18 @@ startpoint:
 					switch(ev.user.code) {
 						case UE_QuitEventThread: goto quit;
 						case UE_DoVideoFrame:
+							if(!videoModeReady) continue;
 							SDL_mutexP(videoFrameMutex);
 							VideoPostProcessor::process();
 							SDL_mutexV(videoFrameMutex);
-							//SDL_CondSignal(videoFrameCond);
+							continue;
+						case UE_DoSetVideoMode:
+							if(!videoModeReady) {							
+								SDL_mutexP(videoFrameMutex);
+								SetVideoMode();
+								videoModeReady = true;
+								SDL_mutexV(videoFrameMutex);
+							}
 							continue;
 					}
 				}
@@ -374,6 +384,20 @@ void doVideoFrameInMainThread() {
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoVideoFrame;
 	if(SDL_PushEvent(&ev) == 0) {}
+}
+
+void doSetVideoModeInMainThread() {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_DoSetVideoMode;
+	videoModeReady = false;
+	if(SDL_PushEvent(&ev) == 0) {
+		while(!videoModeReady) {
+			SDL_Delay(10);
+			SDL_mutexP(videoFrameMutex);
+			SDL_mutexV(videoFrameMutex);
+		}
+	}
 }
 
 static int MainLoopThread(void*) {
@@ -737,7 +761,7 @@ void GameLoopFrame(void)
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
-		SetVideoMode();
+		doSetVideoModeInMainThread();
 
 		cSwitchMode->reset();
 	}
@@ -896,6 +920,7 @@ void DrawLoading(byte percentage, const std::string &text)  {
 	tLX->cFont.Draw(VideoPostProcessor::videoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
 
 	// we are in the main thread, so we can call this directly
+	VideoPostProcessor::flipBuffers();
 	VideoPostProcessor::process();
 }
 

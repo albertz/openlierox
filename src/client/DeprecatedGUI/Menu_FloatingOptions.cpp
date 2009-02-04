@@ -368,7 +368,7 @@ void Menu_FloatingOptionsOkClose()
 		PlaySoundSample(sfxGeneral.smpClick);
 
 		// Set the new video mode
-		SetVideoMode();
+		doSetVideoModeInMainThread();
 		SDL_ShowCursor(SDL_DISABLE);
 	}
 

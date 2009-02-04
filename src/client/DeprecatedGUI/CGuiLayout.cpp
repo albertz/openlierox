@@ -572,7 +572,7 @@ gui_event_t *CGuiLayout::Process(void)
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
-		SetVideoMode();
+		doSetVideoModeInMainThread();
 
 		// Redraw the mouse
 		Menu_RedrawMouse(true);

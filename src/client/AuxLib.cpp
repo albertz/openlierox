@@ -533,8 +533,8 @@ public:
 
 	virtual void processToScreen() {
 		DrawImageScaleHalf(SDL_GetVideoSurface(), m_videoBufferSurface);
-		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
-		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_screenBuf.get(), 0, 0, 0, 0, 640, 480, W, H);
+		//DrawImageResizedAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
+		//DrawImageResampledAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480, W, H);
 	}
 
 	virtual int screenWidth() { return W; }

@@ -19,7 +19,8 @@
 enum SDLUserEvent {
 	UE_CustomEventHandler = 0,
 	UE_QuitEventThread = 1,
-	UE_DoVideoFrame = 2
+	UE_DoVideoFrame = 2,
+	UE_DoSetVideoMode = 3
 };
 
 
@@ -28,6 +29,7 @@ void InitEventQueue();
 void ShutdownEventQueue();
 
 void doVideoFrameInMainThread();
+void doSetVideoModeInMainThread();
 
 
 union SDL_Event;

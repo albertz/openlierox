@@ -742,7 +742,7 @@ void Menu_OptionsFrame(void)
 
 						} else {
 							// Set the new video mode
-							SetVideoMode();
+							doSetVideoModeInMainThread();
 
 							Menu_RedrawMouse(true);
 							SDL_ShowCursor(SDL_DISABLE);
