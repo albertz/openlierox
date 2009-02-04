@@ -42,6 +42,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
+#include "Console.h"
 
 
 /*
@@ -793,6 +794,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Reload the level and mod list when the user switches back to game
 	// Do not reaload when any of the dialogs is open
 	if (bActivated)  {
+		notes << "Switched back to OLX, re-filling the level and mod lists" << endl;
 
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
@@ -804,7 +806,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
@@ -815,8 +816,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			errors << "No level is selected, cannot save it to options" << endl;
 
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
-		cbLevel->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
 
 		Menu_HostShowMinimap();
@@ -846,12 +845,17 @@ void Menu_Net_HostLobbyFrame(int mouse)
     Menu_redrawBufferRect(15, 20,  335, 225);
 	Menu_redrawBufferRect(540, 150,  100, 200);
 
+	// If any textbox is selected, forbid to show the console
+	if (cHostLobby.getFocusedWidget())  {
+		tMenu->bForbidConsole = cHostLobby.getFocusedWidget()->getType() == wid_Textbox;
+	}
 
     // Draw the host lobby details
 	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 
 	// Process & Draw the gui
-	ev = bSpeedTestDialog ? NULL : cHostLobby.Process();
+	if (!Con_IsVisible() && !bSpeedTestDialog)  // Don't process when the console is opened or speed test is being performed
+		ev = cHostLobby.Process();
 	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
 
 	bool bStartPressed = false;
@@ -883,6 +887,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if (ev->iEventMsg == BRW_KEY_NOT_PROCESSED)  {
 					// Activate the textbox automatically
 					cHostLobby.FocusWidget(hl_ChatText);
+					tMenu->bForbidConsole = true;
 
 					// Hack: add the just-pressed key to the textbox
 					CTextbox *txt = (CTextbox *)cHostLobby.getWidget(hl_ChatText);

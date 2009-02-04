@@ -85,6 +85,7 @@ bool Menu_Initialize(bool *game)
 	Menu_LoadFrontendInfo();
 
 	tMenu->iReturnTo = net_internet;
+	tMenu->bForbidConsole = false;
 
 	// Load the images
 	//LOAD_IMAGE(tMenu->bmpMainBack,"data/frontend/background.png");
@@ -349,9 +350,6 @@ void Menu_Frame() {
 			break;
 	}
 
-	Con_Process(tLX->fDeltaTime);
-	Con_Draw(VideoPostProcessor::videoSurface());
-
 	// DEBUG: show FPS
 #ifdef DEBUG
 	if(tLX->fDeltaTime != 0) {
@@ -359,6 +357,12 @@ void Menu_Frame() {
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
 	}
 #endif
+
+	if (!tMenu->bForbidConsole)  {
+		Con_Process(tLX->fDeltaTime);
+		Con_Draw(VideoPostProcessor::videoSurface());
+	}
+	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
 				 
 	doVideoFrameInMainThread();
 }

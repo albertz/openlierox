@@ -306,6 +306,7 @@ class menu_t { public:
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
 	CWorm			sLocalPlayers[MAX_PLAYERS];
+	bool			bForbidConsole;  // Don't show console
 
 	// Map Editor
 	int				iEditMode;

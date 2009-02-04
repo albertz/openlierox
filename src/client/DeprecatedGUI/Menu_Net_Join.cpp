@@ -36,6 +36,7 @@
 #include "AuxLib.h"
 #include "CClientNetEngine.h"
 #include "Debug.h"
+#include "Console.h"
 
 
 
@@ -781,8 +782,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(VideoPostProcessor::videoSurface(), x, y,  tLX->clHeading, "Game Details");
 	}
 
+	// If any textbox is selected, forbid to show the console
+	if (cJoinLobby.getFocusedWidget())  {
+		tMenu->bForbidConsole = cJoinLobby.getFocusedWidget()->getType() == wid_Textbox;
+	}
+
 	// Process & Draw the gui
-	ev = cJoinLobby.Process();
+	if (!Con_IsVisible())  // Don't process when the console is opened
+		ev = cJoinLobby.Process();
 
 	cJoinLobby.Draw( VideoPostProcessor::videoSurface() );
 
@@ -835,6 +842,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				if (ev->iEventMsg == BRW_KEY_NOT_PROCESSED)  {
 					// Activate the textbox automatically
 					cJoinLobby.FocusWidget(jl_ChatText);
+					tMenu->bForbidConsole = true;
 
 					// Hack: add the just-pressed key to the textbox
 					CTextbox *txt = (CTextbox *)cJoinLobby.getWidget(jl_ChatText);
