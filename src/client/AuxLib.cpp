@@ -635,17 +635,17 @@ void VideoPostProcessor::init() {
 	else {
 		if(vppName != "")
 			notes << "\"" << tLXOptions->sVideoPostProcessor << "\" unknown; ";
-		notes << "none used, drawing directly on screen" << endl;
+		// notes << "none used, drawing directly on screen" << endl;
 		//instance = &voidVideoPostProcessor;
 		instance = new DummyVideoPostProc();
 	}
 
 	// only start video thread when we have a post processor
 	if(instance != &voidVideoPostProcessor) {
-		videoWaitMutex = SDL_CreateMutex();
+		/*videoWaitMutex = SDL_CreateMutex();
 		videoThreadState = VTS_INVALID;
 		SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
-		videoThread = SDL_CreateThread(&videoThreadFct, NULL);
+		videoThread = SDL_CreateThread(&videoThreadFct, NULL);*/
 	}
 }
 
