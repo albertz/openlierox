@@ -745,7 +745,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	CInput::InitJoysticksTemp();
 	ProcessEvents(); // drop all current events in queue
 	while(!tLX->bQuitGame) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 
 		DrawCursor(VideoPostProcessor::videoSurface());
 

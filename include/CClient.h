@@ -253,6 +253,7 @@ private:
 	SmartPointer<SDL_Surface> bmpBoxRight;
 	DeprecatedGUI::CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
+	bool		bShouldRepaintInfo2; // For second buffer in double-buffered video processor, internal for Draw()
 	bool		bCurrentSettings;
 
     CWeather    cWeather;
@@ -275,6 +276,7 @@ private:
 	CChatBox	cChatbox;		// Our chatbox
 	DeprecatedGUI::CBrowser	*cChatList;		// Ingame chatlist
 	bool		bRepaintChatbox;
+	bool		bRepaintChatbox2; // For second buffer in double-buffered video processor, internal for Draw()
 
 	// Send chat
 	bool		bChat_Typing;

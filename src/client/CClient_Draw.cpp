@@ -443,7 +443,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// TODO: allow more viewports
 		// Draw the borders
-		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
+		if (bShouldRepaintInfo || bShouldRepaintInfo2 ||  tLX->bVideoModeChanged || bCurrentSettings)  {
 			// Fill the viewport area with black
 			DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
 				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
@@ -477,7 +477,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
 		// Top bar
-		if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
+		if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged))  {
 			SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 			if (top_bar.get())
 				DrawImage( bmpDest, top_bar, 0, 0);
@@ -513,6 +513,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 					DrawViewport(bmpDest, (byte)i);
 				}
 			}
+
+			bShouldRepaintInfo2 = false;  
+			if( bShouldRepaintInfo )
+				bShouldRepaintInfo2 = true;	// Update second buffer in viewport
 			bShouldRepaintInfo = false;  // Just repainted it
 
 			// Mini-Map
@@ -871,7 +875,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
-	if (!bShouldRepaintInfo && !tLX->bVideoModeChanged)
+	if (!bShouldRepaintInfo && !bShouldRepaintInfo2 && !tLX->bVideoModeChanged)
 		return;
 
 	// TODO: allow more viewports
@@ -2036,8 +2040,13 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
 	bool painted = false;
 
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || 
-			bRepaintChatbox || tLX->bVideoModeChanged || bGameMenu)  {	// Repainting when new messages/scrolling,
+	// Repainting when new messages/scrolling,
+	if (lv->NeedsRepaint() || tLX->bVideoModeChanged || bGameMenu || 
+			(inbox && (Mouse->deltaX || Mouse->deltaY)))
+		bRepaintChatbox = true;
+
+	if( bRepaintChatbox || bRepaintChatbox2 )
+	{	
 																		// or when user is moving the mouse over the chat
 		// Local and net play use different backgrounds
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
@@ -2059,6 +2068,10 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		else
 			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
+
+		bRepaintChatbox2 = false;
+		if( bRepaintChatbox )
+			bRepaintChatbox2 = true;
 		bRepaintChatbox = false;
 	}
 
