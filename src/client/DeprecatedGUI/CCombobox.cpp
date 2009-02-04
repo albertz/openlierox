@@ -25,6 +25,7 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "Timer.h"
+#include "Debug.h"
 
 
 namespace DeprecatedGUI {

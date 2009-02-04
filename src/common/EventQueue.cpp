@@ -158,8 +158,6 @@ void EventQueue::removeCustomEvents(const _Event* owner) {
 
 #if defined(WIN32)
 
-// TODO: check if this compiles!
-
 #include <windows.h>
 
  
