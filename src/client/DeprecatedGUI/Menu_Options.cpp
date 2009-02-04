@@ -952,7 +952,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	CInput::InitJoysticksTemp();
 	ProcessEvents(); // drop all current events in queue
 	while(!tLX->bQuitGame) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 
 		DrawCursor(VideoPostProcessor::videoSurface());
 

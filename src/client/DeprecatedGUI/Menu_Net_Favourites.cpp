@@ -449,6 +449,7 @@ extern CButton cNetButtons[5];
 
 ///////////////////
 // Show a server's details
+// TODO: join this with Menu_Net_NETShowServer()
 void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 {
     CGuiLayout  cDetails;
@@ -485,7 +486,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
     while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		ProcessEvents();
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -670,7 +671,7 @@ void Menu_Net_FavouritesAddServer(void)
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && tMenu->bMenuRunning) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list

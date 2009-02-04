@@ -1394,7 +1394,7 @@ void Menu_Net_HostDeregister(void)
 	SetGameCursor(CURSOR_ARROW);
 
 	while(true) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		ProcessEvents();
 		tLX->fCurTime = GetMilliSeconds();
 

@@ -484,7 +484,7 @@ void Menu_Net_NETAddServer(void)
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && addServerMsg && tMenu->bMenuRunning) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		ProcessEvents();
@@ -757,8 +757,8 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
 	cInternet.Draw(tMenu->bmpBuffer.get());
 
-	for(ushort i=1;i<4;i++)
-		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
+	//for(ushort i=1;i<4;i++)
+	//	cNetButtons[i].Draw(tMenu->bmpBuffer.get());
 
 	Menu_RedrawMouse(true);
 
@@ -781,7 +781,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
     while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		ProcessEvents();
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
