@@ -461,13 +461,13 @@ bool CWorm::skipPacket(CBytestream *bs)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
 	if(cClient->OwnsWorm(this->getID())) {
-		errors << "get worminfo packet from server for our own worm" << endl;
+		warnings << "get worminfo packet from server for our own worm" << endl;
 		skipPacketState(bs);
 		return;
 	}
 
 	if (!bUsed)  {
-		errors << "readPacketState called on an unused worm!" << endl;
+		warnings << "readPacketState called on an unused worm!" << endl;
 		skipPacketState(bs);
 		return;
 	}
