@@ -108,10 +108,10 @@ public:
 	Event() { handler() = null; }
 	~Event() { if (mainQueue) mainQueue->removeCustomEvents(this); }
 	Event(const Event& e) { (*this) = e; }
-	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); mainQueue->copyCustomEvents(&e, this); return *this; }
+	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); return *this; }
 	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }
 
-	void pushToMainQueue(_Data data) { mainQueue->push(new EventThrower<_Data>(this, data)); }
+	void pushToMainQueue(_Data data) { if(mainQueue) mainQueue->push(new EventThrower<_Data>(this, data)); }
 
 	void occurred(_Data data) { m_handler.get()(data); }
 };

@@ -417,8 +417,6 @@ void InitEventSystem() {
 
 void ShutdownEventSystem()
 {
-	ShutdownEventQueue();
-
 	bEventSystemInited = false;
 }
 

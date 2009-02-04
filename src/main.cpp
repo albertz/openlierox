@@ -1051,6 +1051,9 @@ void ShutdownLieroX()
 	// For safety we call it here, at the end of everything
 	ShutdownTimers();
 
+	// do that after shutting down the timers
+	ShutdownEventQueue();
+
 	xmlCleanupParser();
 
 	notes << "Everything was shut down" << endl;

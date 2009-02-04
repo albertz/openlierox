@@ -35,7 +35,17 @@ struct EventQueueIntern {
 		mutex = SDL_CreateMutex();
 		cond = SDL_CreateCond();
 	}
-	void uninit() {
+	void uninit() { // WARNING: don't call this if any other thread could be using this queue
+		if(queue.size() > 0) {
+			warnings << "there are " << queue.size() << " pending events in the event queue" << endl;
+		}
+		for(std::list<EventItem>::iterator i = queue.begin(); i != queue.end(); ++i) {
+			if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
+				delete (CustomEventHandler*)i->user.data1;
+			}
+		}
+		queue.clear();
+		
 		SDL_DestroyMutex(mutex);
 		mutex = NULL;
 		
@@ -50,6 +60,7 @@ EventQueue::EventQueue() {
 }
 
 EventQueue::~EventQueue() {
+	data->uninit();
 	assert(data != NULL);
 	delete data; data = NULL;
 }
@@ -148,6 +159,7 @@ void EventQueue::removeCustomEvents(const _Event* owner) {
 		std::list<EventItem>::iterator last = i; ++i;
 		const SDL_Event& ev = *last;
 		if(ev.type == SDL_USEREVENT && ev.user.code == UE_CustomEventHandler && ((CustomEventHandler*)ev.user.data1)->owner() == owner) {
+			delete (CustomEventHandler*)ev.user.data1;
 			data->queue.erase(last);
 		}
 	}
