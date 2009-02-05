@@ -1726,6 +1726,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\StackWalker.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\StackWalker.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\StringBuf.cpp"
 				>
 			</File>
