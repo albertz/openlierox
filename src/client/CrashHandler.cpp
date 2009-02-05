@@ -413,6 +413,8 @@ public:
 		// Anyway, GDB still works without forking, it will still break the application.
 		// So do we really need this? If it is just for generating the coredump, we can perhaps
 		// include Google Breakpad here, generating a mini coredump is very easy there.
+		// Also, we really should not fork here anyway. In the possible case that it crashes immediatly
+		// after resuming again, we have a forkbomb.
 		/*if(!fork()) 
 		{
 			// Crash the app in your favorite way here
