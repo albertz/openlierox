@@ -14,7 +14,7 @@
 #include <cassert>
 #include "StringUtils.h"
 
-void DumpCallstackPrintf();
+void DumpCallstackPrintf(void* callpnt = NULL);
 void DumpCallstack(void (*PrintOutFct) (const std::string&));
 
 struct SDL_mutex;
