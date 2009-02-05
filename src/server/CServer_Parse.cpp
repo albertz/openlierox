@@ -1097,6 +1097,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			w->setClient(newcl);
 			w->setUsed(true);
 			w->setupLobby();
+			w->setDamage(0);
 			if (tLX->iGameType == GME_HOST) // TODO: why only when hosting?
 				w->setTeam(0);
 			newcl->setWorm(i, w);
