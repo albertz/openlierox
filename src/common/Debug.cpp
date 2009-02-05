@@ -46,8 +46,43 @@ void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 
 #else
 
-void DumpCallstackPrintf(void* callpnt) { printf("DumpCallstackPrintf() not implemented in this version.\n"); }
-void DumpCallstack(void (*LineOutFct) (const std::string&)) { (*LineOutFct) ("DumpCallstack() not implemented in this version."); }
+#include "StackWalker.h"  // Call Luke Stackwalker for help
+
+typedef void (*PrintOutFct) (const std::string&);
+
+// Override the default stackwalker with our own print functions
+class PrintStackWalker : public StackWalker  {
+private:
+	PrintOutFct m_print;
+
+public:
+	PrintStackWalker(PrintOutFct fct = NULL) : StackWalker(RetrieveVerbose) { m_print = fct; }
+	void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion)
+	{
+
+	}
+
+	void OnOutput(LPCSTR szText)  
+	{
+		if (m_print == NULL)
+			printf(szText);
+		else
+			m_print(std::string(szText));
+		StackWalker::OnOutput(szText);
+	}
+};
+
+void DumpCallstackPrintf(void* callpnt) 
+{
+	PrintStackWalker sw;
+	sw.ShowCallstack();
+	
+}
+void DumpCallstack(void (*LineOutFct) (const std::string&)) 
+{  
+	PrintStackWalker sw(LineOutFct);
+	sw.ShowCallstack();
+}
 
 #endif
 
