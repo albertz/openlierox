@@ -382,6 +382,10 @@ void Menu_Loop(void)
 		Menu_Frame();
 		CapFPS();
 
+#ifndef WIN32
+		sigsetjmp(longJumpBuffer, 1);
+#endif
+		
 		if(last_frame_was_because_of_an_event) {
 			// Use ProcessEvents() here to handle other processes in queue.
 			// There aren't probably any but it has also the effect that

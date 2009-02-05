@@ -381,6 +381,13 @@ typedef const char * cchar;
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
+		setSignalHandlers();
+		DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+
+		notes << "registered simple resuming signal handler" << endl;
+	}
+	
+	static void setSignalHandlers() {
 		signal(SIGSEGV, &SimpleSignalHandler);
 		signal(SIGTRAP, &SimpleSignalHandler);
 		signal(SIGABRT, &SimpleSignalHandler);
@@ -388,10 +395,7 @@ public:
 		signal(SIGBUS, &SimpleSignalHandler);
 		signal(SIGILL, &SimpleSignalHandler);
 		signal(SIGFPE, &SimpleSignalHandler);		
-		signal(SIGSYS, &SimpleSignalHandler);
-		DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
-
-		notes << "registered simple resuming signal handler" << endl;
+		signal(SIGSYS, &SimpleSignalHandler);		
 	}
 	
 	static void SimpleSignalHandler(int Sig) {
@@ -405,12 +409,17 @@ public:
 		
 #ifdef DEBUG
 		// Generate coredump and continue
-		if(!fork()) 
+		// HINT: that does not work for me, it just forks and this forked process is just dead and consumes 100% CPU
+		// Anyway, GDB still works without forking, it will still break the application.
+		// So do we really need this? If it is just for generating the coredump, we can perhaps
+		// include Google Breakpad here, generating a mini coredump is very easy there.
+		/*if(!fork()) 
 		{
 			// Crash the app in your favorite way here
-			raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
+			//raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
 			// TODO: why not just return here?
-		}
+			exit(-1);
+		}*/
 #endif
           
 		// I've found why we're making forkbomb - we should ignore all following signals, 
@@ -418,6 +427,7 @@ public:
 		// signal(Sig, SimpleSignalHandler); // reset handler // Do not do that!
 		printf("resuming ...\n");
 		fflush(stdout);
+		setSignalHandlers();
 		siglongjmp(longJumpBuffer, 1); // jump back to main loop, maybe we'll be able to continue somehow
 	}
 
