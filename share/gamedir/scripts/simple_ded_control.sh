@@ -82,7 +82,7 @@ function signal_handler() {
 
 startlobby
 
-setvar GameOptions.Network.ServerName "* OLX Beta8 dedicated server *"
+setvar GameOptions.Network.ServerName "* OLX Beta9 dedicated server *"
 
 setvar GameOptions.GameInfo.LevelName             "CastleStrike.lxl"
 
