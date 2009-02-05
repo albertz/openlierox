@@ -408,8 +408,8 @@ public:
 		if(!fork()) 
 		{
 			// Crash the app in your favorite way here
-			// abort(); // Clears signal handler automatically
 			raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
+			// TODO: why not just return here?
 		}
 #endif
           
