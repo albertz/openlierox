@@ -1552,6 +1552,11 @@ bool Menu_SvrList_Process(void)
 
 				if(s->nPings >= MaxPings) {
 					s->bIgnore = true;
+
+					// If there's a server behind NAT with the same IP, remove this server
+					if (Menu_SvrList_RemoveDuplicateDownServers(&(*s)))
+						s = psServerList.begin(); // We've removed some servers
+					
 					update = true;
 				}
 				else  {
@@ -1568,6 +1573,11 @@ bool Menu_SvrList_Process(void)
 
 				if(s->nQueries >= MaxQueries) {
 					s->bIgnore = true;
+
+					// If there's a server behind NAT with the same IP, remove this server
+					if (Menu_SvrList_RemoveDuplicateDownServers(&(*s)))
+						s = psServerList.begin(); // We've removed some servers
+
 					update = true;
 				}
 				else  {
@@ -1606,9 +1616,44 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 	std::list<std::string> same_ips;
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
-		if (s->bgotQuery || s->bManual || s->szAddress == defaultServer->szAddress || s->szName != defaultServer->szName )
+		if (s->bgotQuery || s->bManual || s->bProcessing
+			|| s->szAddress == defaultServer->szAddress || s->szName != defaultServer->szName )
 			continue;
 		notes << "Removing duplicate server: " << s->szName << " (" << s->szAddress << ")" << endl;
+		psServerList.erase(s);
+		s = psServerList.begin();
+		update = true;
+	}
+	
+	return update;
+}
+
+////////////////////
+// Removes all inaccessible servers (including the given one if it's down) if there's a server behind a NAT with the same IP
+bool Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer)
+{
+	bool update = false;
+
+	// Erase NAT servers having the same address and the same name - you can host two different servers from the same IP
+	std::string no_port = defaultServer->szAddress.substr(0, defaultServer->szAddress.find(':'));
+
+	bool have_access = false;
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)  {
+		if (s->szAddress.find(no_port) == 0 && (s->bBehindNat || s->bgotQuery))  {
+			have_access = true;
+			break;
+		}
+	}
+
+	if (!have_access)
+		return false;
+
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
+		if (s->bgotQuery || s->bManual || s->bBehindNat || !s->bIgnore || 
+			s->szAddress.find(no_port) == std::string::npos)
+			continue;
+		notes << "Removing duplicate down server: " << s->szName << " (" << s->szAddress << ")" << endl;
 		psServerList.erase(s);
 		s = psServerList.begin();
 		update = true;
@@ -1928,8 +1973,8 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 		if( svr != NULL && svr->bgotPong )
 			continue;
 
-		// In favourites only the user should add servers
-		if (iNetMode != net_favourites)  {
+		// In favourites/LAN only the user should add servers
+		if (iNetMode == net_internet)  {
 			svr = Menu_SvrList_AddServer( addr, false );
 			svr->szName = name;
 			svr->nNumPlayers = players;

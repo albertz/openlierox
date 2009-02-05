@@ -433,6 +433,7 @@ bool		Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 bool		Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer);
+bool		Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
