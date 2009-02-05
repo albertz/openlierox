@@ -46,7 +46,7 @@ void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 
 #else
 
-void DumpCallstackPrintf() { printf("DumpCallstackPrintf() not implemented in this version.\n"); }
+void DumpCallstackPrintf(void* callpnt) { printf("DumpCallstackPrintf() not implemented in this version.\n"); }
 void DumpCallstack(void (*LineOutFct) (const std::string&)) { (*LineOutFct) ("DumpCallstack() not implemented in this version."); }
 
 #endif
