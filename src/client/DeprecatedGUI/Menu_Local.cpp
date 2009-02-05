@@ -932,6 +932,8 @@ static void updateFeaturesList(CListview* l)
 			};
 		}
 	}
+	if( tLXOptions->tGameInfo.iLives < 0 )
+		tLXOptions->tGameInfo.iLives = WRM_UNLIM;
 }
 
 /////////////

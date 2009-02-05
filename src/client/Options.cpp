@@ -170,7 +170,7 @@ bool GameOptions::Init() {
 	};
 
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
-		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives", GIG_General, true )
+		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives (put empty value for infinite lives)", GIG_General, true )
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, true )
 		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1, "Time limit", "Time limit, in minutes", GIG_General, true )
 		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode", GIG_General, true )
