@@ -153,7 +153,7 @@ static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string
 	cmd = ""; rest = "";
 
 	char c;
-	while( true ) {
+	while( s.good() ) {
 		c = s.get();
 		if(c > 32) {
 			cmd += c;
@@ -163,7 +163,7 @@ static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string
 		}
 	}
 
-	while( true ) {
+	while( s.good() ) {
 		c = s.get();
 		if(c == 13 || c == 10) return;
 		rest += c;
