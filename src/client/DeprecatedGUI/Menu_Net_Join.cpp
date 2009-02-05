@@ -36,7 +36,7 @@
 #include "AuxLib.h"
 #include "CClientNetEngine.h"
 #include "Debug.h"
-#include "Console.h"
+#include "console.h"
 
 
 

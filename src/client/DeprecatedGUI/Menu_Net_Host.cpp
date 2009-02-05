@@ -42,7 +42,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
-#include "Console.h"
+#include "console.h"
 
 
 /*
