@@ -1377,6 +1377,9 @@ ScriptVar_t GameServer::isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset)
 // Kick a worm out of the server
 void GameServer::kickWorm(int wormID, const std::string& sReason)
 {
+	if (!cWorms)
+		return;
+
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
@@ -1453,6 +1456,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 // Kick a worm out of the server (by name)
 void GameServer::kickWorm(const std::string& szWormName, const std::string& sReason)
 {
+	if (!cWorms)
+		return;
+
     // Find the worm name
     CWorm *w = cWorms;
     for(int i=0; i < MAX_WORMS; i++, w++) {
@@ -1474,6 +1480,9 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 // Ban and kick the worm out of the server
 void GameServer::banWorm(int wormID, const std::string& sReason)
 {
+	if (!cWorms)
+		return;
+
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsVisible())
 			Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
@@ -1589,7 +1598,7 @@ void GameServer::muteWorm(int wormID)
 
     // Get the worm
     CWorm *w = cWorms + wormID;
-	if (!w)
+	if (!cWorms)
 		return;
 
     if( !w->isUsed() )  {
@@ -1661,7 +1670,7 @@ void GameServer::unmuteWorm(int wormID)
 
     // Get the worm
     CWorm *w = cWorms + wormID;
-	if (!w)
+	if (!cWorms)
 		return;
 
     if( !w->isUsed() )  {
@@ -1717,7 +1726,7 @@ void GameServer::authorizeWorm(int wormID)
 
     // Get the worm
     CWorm *w = cWorms + wormID;
-	if (!w)
+	if (!cWorms)
 		return;
 
     if( !w->isUsed() )  {
@@ -1737,6 +1746,11 @@ void GameServer::authorizeWorm(int wormID)
 
 
 void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
+	if (!cWorms)  {
+		errors << "cloneWeaponsToAllWorms called when the server is not running" << endl;
+		return;
+	}
+
 	CWorm *w = cWorms;
 	for (int i = 0; i < MAX_WORMS; i++, w++) {
 		if(w->isUsed()) {
@@ -1769,7 +1783,7 @@ void GameServer::notifyLog(const std::string& msg)
 // Get the client owning this worm
 CServerConnection *GameServer::getClient(int iWormID)
 {
-	if (iWormID < 0 || iWormID > MAX_WORMS)
+	if (iWormID < 0 || iWormID > MAX_WORMS || !cWorms)
 		return NULL;
 
 	CWorm *w = cWorms;
