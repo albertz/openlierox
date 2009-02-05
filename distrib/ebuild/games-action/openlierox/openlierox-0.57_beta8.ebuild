@@ -52,12 +52,12 @@ src_install() {
 	doins -r share/gamedir/* || die "failed while copying gamedata"
 
 	einfo "installing doc ..."
-	dodoc doc/README doc/ChangeLog doc/Development doc/TODO
+	dodoc doc/README doc/ChangeLog doc/Development doc/TODO || die "dodoc failed"
 	insinto "/usr/share/doc/${PF}"
-	doins -r doc/original_lx_docs
+	doins -r doc/original_lx_docs || die "doins failed"
 
 	einfo "creating icon and desktop entry ..."
-	doicon share/OpenLieroX.*
+	doicon share/OpenLieroX.* || die "doicon failed"
 	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg "Game;ActionGame;ArcadeGame;"
 
 	prepgamesdirs
