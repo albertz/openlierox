@@ -360,7 +360,7 @@ int CClient::Initialize(void)
 
 	// Set our version to the current game version
 	// HINT: this function is called only for the local client, not for server's client
-	setClientVersion(Version(LX_VERSION));
+	setClientVersion(GetGameVersion());
 
 	// Initialize the bonuses
 	cBonuses = new CBonus[MAX_BONUSES];
@@ -1975,7 +1975,7 @@ void CClient::Shutdown(void)
 void CClient::setClientVersion(const Version& v)
 {
 	cClientVersion = v;
-	printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
+	//printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
 }
 
 void CClient::setServerVersion(const std::string & _s)
