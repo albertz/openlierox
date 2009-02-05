@@ -60,8 +60,8 @@ EventQueue::EventQueue() {
 }
 
 EventQueue::~EventQueue() {
-	data->uninit();
 	assert(data != NULL);
+	data->uninit();
 	delete data; data = NULL;
 }
 
