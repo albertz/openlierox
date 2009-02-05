@@ -483,14 +483,24 @@ public:
 		
 		void *pnt = NULL;
 #if defined(__x86_64__)
+#	if defined(__APPLE__)
+		ucontext_t* uc = (ucontext_t*) secret;
+		pnt = (void*) uc->uc_mcontext->__ss.__rip ;
+#	else
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext.gregs[REG_RIP] ;
+#	endif
 #elif defined(__hppa__)
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0◊3UL ;
 #elif (defined (__ppc__)) || (defined (__powerpc__))
+#	if defined(__APPLE__)
+		ucontext_t* uc = (ucontext_t*) secret;
+		pnt = (void*) uc->uc_mcontext->__ss.__srr0 ;
+#	else
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext.regs->nip ;
+#	endif
 #elif defined(__sparc__)
 		struct sigcontext* sc = (struct sigcontext*) secret;
 #	if __WORDSIZE == 64
