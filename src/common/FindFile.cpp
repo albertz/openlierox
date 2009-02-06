@@ -490,14 +490,11 @@ const std::string* getSpecialSearchPathForTheme() {
 
 		bool operator() (const std::string& spath) {
 			std::string tmp = spath + filename;
-			std::string res;
-			if(GetExactFileName(tmp, res)) {
+			if(GetExactFileName(tmp, *result)) {
 				// we got here, if the file exists
 				if(searchpath) *searchpath = spath;
-				*result = res;
 				return false; // stop checking next searchpaths
 			}
-			*result = filename;  // In case the filename is a full path
 
 			// go to the next searchpath
 			return true;
