@@ -505,7 +505,12 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	if(searchpath) *searchpath = "";
 	if(path == "") return GetFirstSearchPath();
 
+	// Check if we have an absolute path
+	if (EqualPaths(GetAbsolutePath(path), path))
+		return path;
+
 	std::string fname;
+	// TODO: comment outdated, it does NOT check for an absolute path
 	// this also do lastly a check for an absolute filename
 	CheckSearchpathForFile checker(path, &fname, searchpath);
 	ForEachSearchpath(checker);
@@ -798,7 +803,7 @@ bool PathListIncludes(const std::list<std::string>& pathlist, const std::string&
 
 	// Go through the list, checking each item
 	for(std::list<std::string>::const_iterator i = pathlist.begin(); i != pathlist.end(); i++) {
-		if(stringcaseequal(abs_path, GetAbsolutePath(*i))) {
+		if(EqualPaths(abs_path, GetAbsolutePath(*i))) {
 			return true;
 		}
 	}
