@@ -903,7 +903,7 @@ bool DedicatedControl::Init_priv() {
 	std::vector<std::string> commandArgs( 1, command );
 	if(scriptfn_rel != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {
-			warnings << "ERROR: " << scriptfn << " not found" << endl;
+			errors << "Dedicated: " << scriptfn << " not found" << endl;
 			return false;
 		}
 
@@ -912,6 +912,10 @@ bool DedicatedControl::Init_priv() {
 		// Interpreter should be with full path specified, or it won't run correctly on Windows
 		// so we'll read it's path from Windows registry - executing Windows shell failed last time
 		FILE * ff = OpenGameFile(scriptfn, "r");
+		if (!ff)  {
+			errors << "Dedicated: " << scriptfn << " could not be opened for reading" << endl;
+			return false;
+		}
 		char t[128];
 		fgets( t, sizeof(t), ff );
 		fclose(ff);
