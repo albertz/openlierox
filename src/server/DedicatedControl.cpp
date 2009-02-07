@@ -85,7 +85,7 @@ struct pstream_pipe_t
 	std::istream & out() { if (p) return p->get_stdout(); static std::istringstream is; return is; };
 	void close_in() { if (p) { p->get_stdin().close(); } };
 	void close() { close_in(); }
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
 	{
 		if(p)
 			delete p;
@@ -95,8 +95,9 @@ struct pstream_pipe_t
 		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
 		ctx.m_stdout_behavior = boost::process::capture_stream();
 		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it is not outputted anywhere, sadly
+		ctx.m_work_directory = working_dir;
 		try
-		{
+		{	
 			p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
 		}
 		catch( const std::exception & e )
@@ -900,6 +901,7 @@ bool DedicatedControl::Init_priv() {
 
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
 	std::string command = scriptfn;
+	std::string script_dir = scriptfn.substr(0, scriptfn.find(scriptfn_rel));
 	std::vector<std::string> commandArgs( 1, command );
 	if(scriptfn_rel != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {
@@ -994,7 +996,8 @@ bool DedicatedControl::Init_priv() {
 	internData = dedIntern;
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
-		if( ! dedIntern->pipe.open(command, commandArgs) )
+		notes << "Dedicated server: running script \"" << Utf8ToSystemNative(scriptfn) << "\"" << endl;
+		if( ! dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir)) )
 		{
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
