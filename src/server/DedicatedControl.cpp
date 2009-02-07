@@ -63,7 +63,7 @@ struct pstream_pipe_t	// Stub
 	std::istream & out(){ return std::cin; };
 	void close_in() {  };
 	void close() {  }
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
 	{
 		errors << "Dedicated server is not compiled into this version of OpenLieroX" << endl;
 		MessageBox( NULL, "ERROR: Dedicated server is not compiled into this version of OpenLieroX", "OpenLieroX", MB_OK );
