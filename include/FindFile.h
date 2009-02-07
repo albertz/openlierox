@@ -185,6 +185,9 @@ void	CreateRecDir(const std::string& abs_filename, bool last_is_dir = true);
 
 bool	EqualPaths(const std::string& path1, const std::string& path2);
 
+// Returns true if the path is absolute
+bool	IsAbsolutePath(const std::string& path);
+
 // copy the src-file to the dest
 // it will simply fopen(src, "r"), fopen(dest, "w") and write all the stuff
 // IMPORTANT: filenames are absolute; no game-path!

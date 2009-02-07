@@ -463,6 +463,23 @@ size_t FileSize(const std::string& path)
 	return size;
 }
 
+// Checks if the given path is absolute
+bool IsAbsolutePath(const std::string& path)
+{
+#ifdef WIN32
+	// The path must start with a drive letter
+	if (path.size() < 2)
+		return false;
+
+	return (isalpha((uchar)path[0]) && path[1] == ':');
+#else
+	// Must start with a slash
+	if (!path.size())
+		return false;
+
+	return path[0] == '/';
+#endif
+}
 
 
 static std::string specialSearchPathForTheme = "";
@@ -506,7 +523,7 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	if(path == "") return GetFirstSearchPath();
 
 	// Check if we have an absolute path
-	if (EqualPaths(GetAbsolutePath(path), path))
+	if (IsAbsolutePath(path))
 		return path;
 
 	std::string fname;
