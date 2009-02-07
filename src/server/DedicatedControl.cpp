@@ -179,10 +179,13 @@ struct DedIntern {
 	std::stringstream pipeOutput;
 	bool quitSignal;
 
+	float lastFpsPrint;
+	float lastBandwidthPrint;
+
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
 	DedIntern() : pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE) { }
+		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE), lastFpsPrint(0), lastBandwidthPrint(0) { }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -881,6 +884,22 @@ struct DedIntern {
 		SDL_mutexV(pipeOutputMutex);
 
 		ProcessEvents();
+
+		// Some debugging stuff
+#ifdef DEBUG
+		int fps = GetFPS();
+		if (GetMilliSeconds() - lastFpsPrint >= 20.0f)  {
+			notes << "Current FPS: " << fps << endl;
+			lastFpsPrint = GetMilliSeconds();
+		}
+
+		if (GetMilliSeconds() - lastBandwidthPrint >= 20.0f)  {
+			notes << "Current upload rate: " << cServer->GetUpload()/1024.0f << " kB/s" << endl;
+			notes << "Current download rate: " << cServer->GetDownload()/1024.0f << " kB/s" << endl;
+			lastBandwidthPrint = GetMilliSeconds();
+		}
+#endif
+
 
 		switch(state) {
 			case S_SVRLOBBY: Frame_ServerLobby(); break;

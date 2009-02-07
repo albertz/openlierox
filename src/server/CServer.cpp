@@ -132,6 +132,8 @@ int GameServer::StartServer()
 		else if (tLXOptions->bFirstHostingThisVer)
 			notes << "Hosting for the first time with this version of OpenLieroX" << endl;
 	}
+	if (bDedicated)
+		notes << "Server max upload bandwidth is " << tLXOptions->iMaxUploadBandwidth << " bytes/s" << endl;
 
 	// Is this the right place for this?
 	sWeaponRestFile = "cfg/wpnrest.dat";
