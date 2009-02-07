@@ -927,7 +927,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.clear();
 			commandArgs.push_back(command);
 			commandArgs.push_back("-u");
-			commandArgs.push_back(scriptfn);
+			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
 			cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
 		}
 		else if( std::string(t).find("bash") != std::string::npos )
@@ -937,7 +937,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.push_back(command);
 			//commandArgs.push_back("-l");	// Not needed for Cygwin
 			commandArgs.push_back("-c");
-			commandArgs.push_back(scriptfn);
+			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
 			cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
 			cmdPathRegValue = "native";
 		}
@@ -947,7 +947,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.clear();
 			commandArgs.push_back(command);
 			commandArgs.push_back("-f");
-			commandArgs.push_back(scriptfn);
+			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
 			cmdPathRegKey = "SOFTWARE\\PHP";
 			cmdPathRegValue = "InstallDir";
 		}
