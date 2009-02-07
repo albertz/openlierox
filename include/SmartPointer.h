@@ -13,6 +13,7 @@
 #ifdef DEBUG
 #include <map>
 #include "Debug.h"
+#include "SDL_mutex.h"
 #endif
 
 
@@ -42,7 +43,7 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ); // Requires to 
 template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ); // Requires to be defined elsewhere
 
 #ifdef DEBUG
-// TODO: protect this var with mutex
+extern SDL_mutex *SmartPointer_CollMutex;
 extern std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector;
 #endif
 
@@ -69,6 +70,11 @@ private:
 
 
 	void init(_Type* newObj) {
+#ifdef DEBUG
+		if (SmartPointer_CollMutex == NULL)
+			SmartPointer_CollMutex = SDL_CreateMutex();
+#endif
+
 		if( newObj == NULL )
 			return;
 		if(!mutex) {
@@ -77,6 +83,7 @@ private:
 			refCount = new int;
 			*refCount = 1;
 			#ifdef DEBUG
+			SDL_LockMutex(SmartPointer_CollMutex);
 			if( SmartPointer_CollisionDetector == NULL )
 			{
 				hints << "SmartPointer collision detector initialized" << endl;
@@ -86,10 +93,12 @@ private:
 			{
 				errors << "ERROR! SmartPointer collision detected, old mutex " << (*SmartPointer_CollisionDetector)[obj] 
 						<< ", new ptr (" << this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ") new " << newObj << endl;
+				SDL_UnlockMutex(SmartPointer_CollMutex);
 				assert(false); // TODO: maybe do smth like *(int *)NULL = 1; to generate coredump? Simple assert(false) won't help us a lot
 			}
 			else
 				SmartPointer_CollisionDetector->insert( std::make_pair( obj, mutex ) );
+			SDL_UnlockMutex(SmartPointer_CollMutex);
 			#endif
 		}
 	}
@@ -100,12 +109,14 @@ private:
 			(*refCount)--;
 			if(*refCount == 0) {
 				#ifdef DEBUG
+				SDL_LockMutex(SmartPointer_CollMutex);
 				if( !SmartPointer_CollisionDetector || SmartPointer_CollisionDetector->count(obj) == 0 )
 				{
 					errors << "ERROR! SmartPointer already deleted reference ("
 							<< this << " " << obj << " " << refCount << " " << mutex << " " << (refCount?*refCount:-99) << ")" << endl;
 					if(!SmartPointer_CollisionDetector)
 						errors << "SmartPointer_CollisionDetector is already uninitialised" << endl;
+					SDL_UnlockMutex(SmartPointer_CollMutex);
 					assert(false);
 				}
 				else
@@ -115,6 +126,9 @@ private:
 					{
 						delete SmartPointer_CollisionDetector;
 						SmartPointer_CollisionDetector = NULL;
+						if (SmartPointer_CollMutex)
+							SDL_DestroyMutex(SmartPointer_CollMutex);
+
 						// WARNING: this is called at a very end for global objects and most other objects are already uninitialised.
 						// For me, even the internal string structure doesn't work anymore (I get a std::length_error) and thus we cannot use the logging system.
 						// TODO: Remove any global objects! We should not have any globals, at least not such complex globals.
@@ -123,6 +137,7 @@ private:
 						#endif
 					}
 				}
+				SDL_UnlockMutex(SmartPointer_CollMutex);
 				#endif
 				SmartPointer_ObjectDeinit( obj );
 				delete refCount; // safe, because there is no other ref anymore
