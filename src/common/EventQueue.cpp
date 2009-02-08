@@ -21,6 +21,7 @@
 #include "LieroX.h"
 #include "EventQueue.h"
 #include "ReadWriteLock.h"
+#include "Debug.h"
 
 static void InitQuitSignalHandler();
 

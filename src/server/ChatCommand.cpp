@@ -26,6 +26,7 @@
 #include "CClientNetEngine.h"
 #include "DeprecatedGUI/Menu.h"
 #include "FindFile.h"
+#include "Debug.h"
 
 
 //////////////////
