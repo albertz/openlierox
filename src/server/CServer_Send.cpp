@@ -274,7 +274,7 @@ bool GameServer::SendUpdate()
 				static Rate<100,5000> blockRate; // only for debug output
 				static Rate<100,5000> blockRateAbs; // only for debug output
 				blockRateAbs.addData(tLX->fCurTime, 1);
-				if(!checkUploadBandwidth(GetUpload(0.1f) /* + uploadAmount */)) {
+				if(!checkUploadBandwidth(GetUpload() /* + uploadAmount */)) {
 					// we have gone over our own bandwidth for non-local clients				
 					blockRate.addData(tLX->fCurTime, 1);
 					static float lastMessageTime = tLX->fCurTime;
