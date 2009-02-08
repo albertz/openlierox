@@ -517,7 +517,8 @@ bool strincludes(const std::string& str, const std::string& what) {
 	return str.find(what) != std::string::npos;
 }
 
-std::string GetFileExtension(const std::string& filename) {
+std::string GetFileExtension(const std::string& path) {
+	std::string filename = GetBaseFilename(path);
 	size_t p = filename.rfind('.');
 	if(p == std::string::npos) return "";
 	return filename.substr(p+1);
