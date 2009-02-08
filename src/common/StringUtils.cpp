@@ -527,17 +527,7 @@ std::string GetFileExtension(const std::string& path) {
 std::string GetBaseFilename(const std::string& filename) {
 	size_t p = findLastPathSep(filename);
 	if(p == std::string::npos) return filename;
-
-	std::string result = filename.substr(p+1);
-
-	// Strip parameters if any
-	p = result.find(' ');
-	size_t p2 = result.rfind('.');
-	if (p == std::string::npos || (p2 != std::string::npos && p2 > p))
-		return result;
-	result.erase(p);
-
-	return result;
+	return filename.substr(p+1);
 }
 
 
