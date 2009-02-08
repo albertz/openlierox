@@ -179,13 +179,10 @@ struct DedIntern {
 	std::stringstream pipeOutput;
 	bool quitSignal;
 
-	float lastFpsPrint;
-	float lastBandwidthPrint;
-
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
 	DedIntern() : pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE), lastFpsPrint(0), lastBandwidthPrint(0) { }
+		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE) { }
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -932,17 +929,10 @@ bool DedicatedControl::Init_priv() {
 		// Determine what interpreter to run for this script
 		// Interpreter should be with full path specified, or it won't run correctly on Windows
 		// so we'll read it's path from Windows registry - executing Windows shell failed last time
-		FILE * ff = OpenGameFile(scriptfn, "r");
-		if (!ff)  {
-			errors << "Dedicated: " << scriptfn << " could not be opened for reading" << endl;
-			return false;
-		}
-		char t[128];
-		fgets( t, sizeof(t), ff );
-		fclose(ff);
+		std::string interpreter = BaseFilename(GetScriptInterpreterForFile(scriptfn));
 		std::string cmdPathRegKey = "";
 		std::string cmdPathRegValue = "";
-		if( std::string(t).find("python") != std::string::npos )
+		if( interpreter == "python" )
 		{
 			command = "python.exe";
 			commandArgs.clear();
@@ -951,7 +941,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
 			cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
 		}
-		else if( std::string(t).find("bash") != std::string::npos )
+		else if( interpreter == "bash" )
 		{
 			command = "bash.exe";
 			commandArgs.clear();
@@ -962,7 +952,7 @@ bool DedicatedControl::Init_priv() {
 			cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
 			cmdPathRegValue = "native";
 		}
-		else if( std::string(t).find("php") != std::string::npos )
+		else if( interpreter == "php" )
 		{
 			command = "php.exe";
 			commandArgs.clear();
@@ -974,8 +964,7 @@ bool DedicatedControl::Init_priv() {
 		}
 		else
 		{
-			errors("ERROR: scripts/dedicated_control file should be Python or Bash or PHP script, ask devs to add other interpreters for Windows build\n");
-			return false;
+			command = interpreter + ".exe";
 		}
 
 		if( cmdPathRegKey != "" )
@@ -1016,8 +1005,7 @@ bool DedicatedControl::Init_priv() {
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		notes << "Dedicated server: running script \"" << Utf8ToSystemNative(scriptfn) << "\"" << endl;
-		if( ! dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir)) )
-		{
+		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir)) ) {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}

@@ -876,10 +876,37 @@ std::string ExtractDirectory(const std::string& path)
 
 	size_t pos = findLastPathSep(path);
 	if (pos == std::string::npos)
-		return path + '/';
+		return path;
 	else
 		return path.substr(0, pos);
 }
+
+std::string BaseFilename(const std::string& path) {
+	if(path.size() == 0) return "";
+	
+	size_t pos = findLastPathSep(path);
+	if (pos == std::string::npos)
+		return path;
+	else
+		return path.substr(pos);
+}
+
+std::string GetScriptInterpreterForFile(const std::string& filename) {
+	FILE* f = OpenGameFile(filename, "r");	
+	if(f) {
+		std::string line = ReadUntil(f);
+		if(line.size() > 2 && line[0] == '#' && line[1] == '!') {
+			std::string cmd = line.substr(2);
+			TrimSpaces(cmd);
+			fclose(f);
+			return cmd;
+		}
+		fclose(f);
+		return "";
+	}
+	return "";
+}
+
 
 ///////////////////
 // Merges two parts of a path into one, for example JoinPath("./test/", "/file.fil") gives "./test/file.fil"
