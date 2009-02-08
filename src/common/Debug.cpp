@@ -98,14 +98,21 @@ Logger errors(-1,-1,1, "E: ");
 #include "console.h"
 #include "StringUtils.h"
 
+static SDL_mutex* globalCoutMutex = NULL;
 
 Logger::Logger(int o, int ingame, int callst, const std::string& p)
 : minCoutVerb(o), minIngameConVerb(ingame), minCallstackVerb(callst), prefix(p), lastWasNewline(true), mutex(NULL) {
 	mutex = SDL_CreateMutex();
+	if(!globalCoutMutex)
+		globalCoutMutex = SDL_CreateMutex();
 }
 
 Logger::~Logger() {
 	SDL_DestroyMutex(mutex); mutex = NULL;
+	if(globalCoutMutex) {
+		SDL_DestroyMutex(globalCoutMutex);
+		globalCoutMutex = NULL;
+	}
 }
 
 void Logger::lock() {
@@ -131,8 +138,10 @@ template<int col> void ConPrint(const std::string& str) {
 static bool logger_output(Logger& log, const std::string& buf) {
 	bool ret = true;
 	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
+		SDL_mutexP(globalCoutMutex);
 		ret = PrettyPrint(log.prefix, buf, CoutPrint, log.lastWasNewline);
 		std::cout.flush();
+		SDL_mutexV(globalCoutMutex);
 	}
 	if(tLXOptions && tLXOptions->iVerbosity >= log.minCallstackVerb) {
 		DumpCallstackPrintf();
