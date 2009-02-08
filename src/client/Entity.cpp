@@ -239,7 +239,7 @@ void SimulateEntities(float dt, CMap *map)
 				ent->vPos += ent->vVel * dt;
 	
 				// Clipping
-				if((uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
+				if(ent->vPos.x < 0 || ent->vPos.y < 0 || (uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
 					ent->setUnused();
 					break;
 				}
@@ -252,20 +252,22 @@ void SimulateEntities(float dt, CMap *map)
 					switch(ent->iType) {
 
 						// Blood
-						case ENT_BLOOD:  {
-								int x = (int)ent->vPos.x;
-								int y = (int)ent->vPos.y;
-								LOCK_OR_QUIT(map->GetImage());
-								PutPixel(map->GetImage().get(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
-								UnlockSurface(map->GetImage());
+						case ENT_BLOOD: {
+							int x = (int)ent->vPos.x;
+							int y = (int)ent->vPos.y;
+							LOCK_OR_QUIT(map->GetImage());
+							PutPixel(map->GetImage().get(),x, y,ent->iColour);
+							UnlockSurface(map->GetImage());
 
-								x *= 2;
-								y *= 2;
-								DrawRectFill2x2(map->GetDrawImage().get(), x, y, ent->iColour);
+							x *= 2;
+							y *= 2;
+							DrawRectFill2x2(map->GetDrawImage().get(), x, y, ent->iColour);
 
-								ent->setUnused();
-							} break;
-
+							ent->setUnused();
+							
+							break;
+						}
+							
 						// Giblet
 						case ENT_GIB:
 							if((int)ent->vVel.GetLength2() > 25600)  {
