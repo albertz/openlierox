@@ -9,6 +9,7 @@
 
 #include <SDL.h>
 #include "ThreadPool.h"
+#include "Debug.h"
 
 class ReadWriteLock {
 private:
@@ -25,7 +26,7 @@ public:
 
 	~ReadWriteLock() {
 		if(readCounter)
-			printf("WARNING: destroying ReadWriteLock with positive readCounter!\n");
+			warnings("destroying ReadWriteLock with positive readCounter!\n");
 		SDL_DestroyMutex(mutex);
 	}
 

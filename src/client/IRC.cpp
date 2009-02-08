@@ -36,7 +36,7 @@ bool IRCClient::initNet()
 	// Open the socket
 	m_chatSocket = OpenReliableSocket(0);
 	if (!IsSocketStateValid(m_chatSocket))  {
-		printf("ERROR: Could not open a socket for IRC networking: " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
+		errors("Could not open a socket for IRC networking: " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool IRCClient::initNet()
 	// Get the address
 	ResetNetAddr(m_chatServerAddr);
 	if(!GetNetAddrFromNameAsync(m_chatServerAddrStr, m_chatServerAddr))	 {
-		printf("ERROR: Wrong IRC server addr: %s" + m_chatServerAddrStr + "\n");
+		errors("Wrong IRC server addr: %s" + m_chatServerAddrStr + "\n");
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool IRCClient::processConnecting()
 	// Connect
 	if (!m_socketConnected)  {
 		if (!ConnectSocket(m_chatSocket, m_chatServerAddr))  {
-			printf("IRC error: could not connect to the server " + addrStr);
+			errors("IRC error: could not connect to the server " + addrStr);
 			disconnect();
 			return true;
 		}
@@ -224,7 +224,7 @@ void IRCClient::readData()
 		// Error
 		if(read < 0)  {
 			if (!IsMessageEndSocketErrorNr(GetSocketErrorNr()))  {
-				printf("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
+				errors("IRC: network error - " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
 				disconnect();
 			}
 			break;
@@ -316,7 +316,7 @@ void IRCClient::disconnect()
 	if (m_updateUsersCallback)
 		m_updateUsersCallback(m_chatUsers);
 
-	printf("IRC: disconnected\n");
+	notes("IRC: disconnected\n");
 }
 
 //////////////////////////
@@ -481,7 +481,7 @@ bool IRCClient::sendChat(const std::string &text)
 
 	// Send the text
 	WriteSocket(m_chatSocket, "PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
-	//printf("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
+	//notes("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
 
 	// Route the same message back to our parser func, there's no echo in IRC
 	IRCCommand cmd;
@@ -589,7 +589,7 @@ void IRCClient::parseJoin(const IRCClient::IRCCommand& cmd)
 	if (m_connectCallback)
 		m_connectCallback();
 
-	printf("IRC connected to " + m_chatServerChannel + "@" + m_chatServerAddrStr + "\n");
+	notes("IRC connected to " + m_chatServerChannel + "@" + m_chatServerAddrStr + "\n");
 }
 
 /////////////////////
@@ -733,7 +733,7 @@ void IRCClient::parseNotice(const IRCClient::IRCCommand &cmd)
 void IRCClient::parseError(const IRCClient::IRCCommand &cmd)
 {
 	if (cmd.params.size() > 0)  {
-		printf("IRC server error: " + cmd.params[0] + "\n");
+		warnings("IRC server error: " + cmd.params[0] + "\n");
 		addChatMessage("Server error: " + cmd.params[0], IRC_TEXT_NOTICE);
 		disconnect();
 	}
@@ -785,7 +785,7 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 			parseError(cmd);
 
 		else
-			printf("IRC: unknown command " + cmd.cmd + "\n");
+			warnings("IRC: unknown command " + cmd.cmd + "\n");
 
 	// Numeric commands
 	} else {

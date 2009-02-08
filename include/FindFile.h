@@ -25,6 +25,7 @@
 #include <list>
 #include <vector>
 #include "Unicode.h"
+#include "Debug.h"
 
 #ifndef WIN32
 #	include <dirent.h>
@@ -344,7 +345,7 @@ void FindFiles(
 	const std::string& namefilter = ""
 ) {
 	if(namefilter != "*" && namefilter != "")
-		printf("FindFiles: WARNING: filter %s isn't handled yet\n", namefilter.c_str());
+		warnings << "FindFiles: filter " << namefilter <<" isn't handled yet" << endl;
 	if(absolutePath)
 		FindFilesHandler<_handler>(dir, namefilter, modefilter, handler) ("");
 	else {

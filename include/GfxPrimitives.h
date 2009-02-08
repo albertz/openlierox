@@ -259,7 +259,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadGameImage(name);
 	if (bmp.get() == NULL)  {
-		printf("WARNING: could not load image %s\n", name.c_str());
+		warnings << "could not load alpha-image " << name << endl;
 		return false;
 	}
 	return true;
@@ -270,7 +270,7 @@ inline bool Load_Image(SmartPointer<SDL_Surface>& bmp, const std::string& name) 
 inline bool Load_Image_WithAlpha(SmartPointer<SDL_Surface>& bmp, const std::string& name)  {
 	bmp = LoadGameImage(name, true);
 	if (bmp.get() == NULL)  {
-		printf("WARNING: could not load image %s\n", name.c_str());
+		warnings << "could not load image " << name << endl;
 		return false;
 	}
 	return true;
@@ -677,7 +677,7 @@ inline void FillSurfaceTransparent(SDL_Surface * dst)  {
 	else if (dst->flags & SDL_SRCCOLORKEY)
 		FillSurface(dst, COLORKEY(dst));
 	else
-		printf("Warning: There's no possibility to make this surface transparent!\n");
+		warnings("There's no possibility to make this surface transparent!\n");
 }
 
 

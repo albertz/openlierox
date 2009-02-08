@@ -177,7 +177,7 @@ static int SdlNetEventThreadMain( void * param )
 					onNetActivity.pushToMainQueue( NetActivityData( (long) *(uint*)param, sock_out ) );
 				}
 				else
-					printf("WARNING: net-event-system: invalid socket\n");
+					warnings("net-event-system: invalid socket\n");
 			} else {
 				if (nlGetError() == NL_BUFFER_SIZE)  { // We should increase the buffer size
 					delete[] sock_out;

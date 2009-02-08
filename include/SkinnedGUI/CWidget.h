@@ -26,6 +26,7 @@
 #include "SkinnedGUI/CWidgetEffect.h"
 #include "CssParser.h"
 #include "SmartPointer.h"
+#include "Debug.h"
 
 namespace SkinnedGUI {
 
@@ -144,13 +145,13 @@ extern const std::string STATIC;
 #ifdef _MSC_VER
 #define CHECK_BUFFER \
 	{ if (bmpBuffer.get() == NULL)  {\
-		printf("Warning: %s in %s:%i : bmpBuffer is NULL\n", __FUNCSIG__, __FILE__, __LINE__); \
+		warnings << "Warning: " << __FUNCSIG__ << " in " << __FILE__ << ":" << __LINE__ << " : bmpBuffer is NULL" << endl; \
 		return; \
 	} }
 #else
 #define CHECK_BUFFER \
 	{ if (bmpBuffer.get() == NULL)  {\
-		printf("Warning: %s in %s:%i : bmpBuffer is NULL\n", __FUNCTION__, __FILE__, __LINE__); \
+		warnings << "Warning: " << __FUNCTION__ << " in " << __FILE__ << ":" << __LINE__ << " : bmpBuffer is NULL" << endl; \
 		return; \
 	} }
 #endif

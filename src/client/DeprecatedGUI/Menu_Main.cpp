@@ -319,7 +319,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 	}
 
 	static void ThemeCombobox_OnChange( const std::string & param, CWidget * source ) {
-		printf("Changed theme to: " + tLXOptions->sTheme + "\n");
+		notes("Changed theme to: " + tLXOptions->sTheme + "\n");
 
 		// Atm it's the easiest way and we ensure that every gfx is newly loaded.
 		// The problem is that we would have to clear all the caches because

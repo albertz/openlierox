@@ -105,7 +105,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 			UnlockSurface(bmpBar);
 			break;
 		default:
-			printf("Bad bar type in CBar::Draw");
+			warnings("Bad bar type in CBar::Draw\n");
 			return;
 		}
 

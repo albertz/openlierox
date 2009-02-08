@@ -423,7 +423,7 @@ void CClient::StartLogging(int num_players)
 	// Allocate the log
 	tGameLog = new game_log_t;
 	if (!tGameLog)  {
-		printf("Out of memory while allocating log\n");
+		errors("Out of memory while allocating log\n");
 		return;
 	}
 	tGameLog->tWorms = NULL;
@@ -548,7 +548,7 @@ void CClient::ShutdownDownloads()
 // Download a map
 void CClient::DownloadMap(const std::string& mapname)
 {
-	printf("CClient::DownloadMap() %s\n", mapname.c_str());
+	notes << "CClient::DownloadMap() " << mapname << endl;
 
 	// Check
 	if (!cHttpDownloader)  {
@@ -684,7 +684,7 @@ void CClient::FinishModDownloads()
 
 		zip * zipfile = zip_open( Utf8ToSystemNative(fname).c_str(), 0, NULL );
 		if( zipfile == NULL ) {
-			printf("Cannot access the downloaded mod!\n");
+			warnings("Cannot access the downloaded mod!\n");
 			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 				Disconnect();
 				GotoNetMenu();
@@ -694,7 +694,7 @@ void CClient::FinishModDownloads()
 
 		if( zip_name_locate(zipfile, (sModDownloadName + "/script.lgs").c_str(), ZIP_FL_NOCASE) == -1 )
 		{
-			printf("Cannot access the downloaded mod!\n");
+			warnings("Cannot access the downloaded mod!\n");
 			if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 				Disconnect();
 				GotoNetMenu();
@@ -727,7 +727,7 @@ void CClient::FinishModDownloads()
 
 	// Check that the script.lgs file is available
 	if (!IsFileAvailable(sModDownloadName + "/script.lgs", false))  {
-		printf("Cannot access the downloaded mod!\n");
+		warnings("Cannot access the downloaded mod!\n");
 
 		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 			Disconnect();
@@ -750,13 +750,13 @@ void CClient::FinishModDownloads()
 		bWaitingForMod = false;
 
 		if (cGameScript->GetNumWeapons() > 0)  {
-			printf("Finished downloading the mod but another mod is already loaded.\n");
+			hints("Finished downloading the mod but another mod is already loaded.\n");
 			return;
 		}
 
 		if (stringcaseequal(sModName, sModDownloadName))  {
 			if (cGameScript->Load(sModDownloadName) != GSE_OK)  {
-				printf("ERROR: Could not load the downloaded mod.\n");
+				errors("Could not load the downloaded mod.\n");
 				Disconnect();
 				GotoNetMenu();
 				return;
@@ -767,7 +767,7 @@ void CClient::FinishModDownloads()
 			for (size_t i = 0; i < iNumWorms; i++)
 				cLocalWorms[i]->initWeaponSelection();
 		} else {
-			printf("The downloaded mod is not the one we are waiting for.\n");
+			warnings("The downloaded mod is not the one we are waiting for.\n");
 			Disconnect();
 			GotoNetMenu();
 			return;
@@ -1981,7 +1981,7 @@ void CClient::setClientVersion(const Version& v)
 void CClient::setServerVersion(const std::string & _s)
 {
 	cServerVersion.setByString(_s);
-	printf("Server is using " + cServerVersion.asString() + "\n");
+	notes("Server is using " + cServerVersion.asString() + "\n");
 }
 
 bool CClient::RebindSocket()
@@ -2032,9 +2032,9 @@ std::string CClient::debugName() {
 	if(isLocalClient())
 		adr = "local";
 	else if(!getChannel())  {
-		printf("WARNING: CServerConnection::debugName(): getChannel() == NULL\n");
+		warnings("CServerConnection::debugName(): getChannel() == NULL\n");
 	} else if(!NetAddrToString(getChannel()->getAddress(), adr))  {
-		printf("WARNING: CServerConnection::debugName(): NetAddrToString failed\n");
+		warnings("CServerConnection::debugName(): NetAddrToString failed\n");
 	}
 
 	std::string worms = "no worms";
