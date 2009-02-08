@@ -56,6 +56,11 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSpectate(const std::vector<std::string>& params, int sender_id);
 std::string ProcessLogin(const std::vector<std::string>& params, int sender_id);
+std::string ProcessStart(const std::vector<std::string>& params, int sender_id);
+std::string ProcessLobby(const std::vector<std::string>& params, int sender_id);
+std::string ProcessMod(const std::vector<std::string>& params, int sender_id);
+std::string ProcessLevel(const std::vector<std::string>& params, int sender_id);
+std::string ProcessLt(const std::vector<std::string>& params, int sender_id);
 
 // List of known commands (filled in in ChatCommand.cpp)
 extern ChatCommand tKnownCommands[];

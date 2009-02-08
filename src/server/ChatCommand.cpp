@@ -24,6 +24,8 @@
 #include "DedicatedControl.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
+#include "DeprecatedGUI/Menu.h"
+#include "FindFile.h"
 
 
 //////////////////
@@ -47,6 +49,11 @@ ChatCommand tKnownCommands[] = {
 	{"suicide",		"suicide",		0, 1,			(size_t)-1,	&ProcessSuicide},
 	{"spectate",	"spectate",		0, 0,			(size_t)-1,	&ProcessSpectate},
 	{"login",		"logon",		1, 1,			(size_t)-1, &ProcessLogin},
+	{"start",		"start",		0, 0,			(size_t)-1, &ProcessStart},
+	{"lobby",		"lobby",		0, 0,			(size_t)-1, &ProcessLobby},
+	{"mod",			"mod",			1, (size_t)-1,	(size_t)-1, &ProcessMod},
+	{"level",		"level",		1, (size_t)-1,	(size_t)-1, &ProcessLevel},
+	{"loadingtime",	"lt",			1, 1,			(size_t)-1, &ProcessLt},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -739,6 +746,205 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 	cServer->authorizeWorm(sender_id);
 
 	return "";
+}
 
+std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
+{
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Check that not playing already
+	if (cServer->getState() != SVS_LOBBY)
+		return "The game is already running";
+
+	// Check privileges
+	CWorm *w = cServer->getWorms() + sender_id;
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->StartGame)
+		return "You do not have sufficient privileges to start the game";
+
+	// Check the number of players
+	if (cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
+		warnings << "Cannot start the game, too few players" << endl;
+		return "Too few players to start the game";
+	}
+
+	// Start
+	if (!bDedicated)
+		DeprecatedGUI::Menu_Net_HostStartGame();
+	else  {
+		// Start the game
+		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
+		cServer->StartGame();	// start in dedicated mode
+
+		// Leave the frontend
+		*DeprecatedGUI::bGame = true;
+		DeprecatedGUI::tMenu->bMenuRunning = false;
+		tLX->iGameType = GME_HOST;
+	}
+
+	return "";
+}
+
+std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
+{
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Check that not playing already
+	if (cServer->getState() == SVS_LOBBY)
+		return "Already in lobby";
+
+	// Check privileges
+	CWorm *w = cServer->getWorms() + sender_id;
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->StartGame)
+		return "You do not have sufficient privileges to start the game";
+
+	// Go to lobby
+	cServer->gotoLobby();
+
+	return "";
+}
+
+std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
+{
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Param check
+	if (params.size() < GetCommand(&ProcessMod)->iMinParamCount)
+		return "Too few parameters";
+
+	// Check that we're in lobby
+	if (cServer->getState() != SVS_LOBBY)
+		return "Cannot change the mod while playing";
+
+	// Check privileges
+	CWorm *w = cServer->getWorms() + sender_id;
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->StartGame)
+		return "You do not have sufficient privileges to change the mod";
+
+	// Join the parameters into one string
+	std::string mod = *params.begin();
+	for (std::vector<std::string>::const_iterator it = params.begin() + 1; it != params.end(); it++)
+		mod += " " + *it;
+
+	// Check if the mod is available
+	std::string name;
+	if (!CGameScript::CheckFile(mod, name))
+		return "Mod \"" + mod + "\" not available";
+
+	// Set the mod
+	tLXOptions->tGameInfo.sModDir = mod;
+	tLXOptions->tGameInfo.sModName = name;
+	if (!bDedicated)
+		DeprecatedGUI::Menu_Net_HostLobbySetMod(mod);
+	cServer->UpdateGameLobby();
+
+	// Notify everybody
+	cServer->SendGlobalText(w->getName() + " changed mod to " + name, TXT_NOTICE);
+
+	return "";
+}
+
+std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
+{
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Param check
+	if (params.size() < GetCommand(&ProcessLevel)->iMinParamCount)
+		return "Too few parameters";
+
+	// Check that we're in lobby
+	if (cServer->getState() != SVS_LOBBY)
+		return "Cannot change the level while playing";
+
+	// Check privileges
+	CWorm *w = cServer->getWorms() + sender_id;
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->StartGame)
+		return "You do not have sufficient privileges to change the level";
+
+	// Join the parameters into one string
+	std::string level = *params.begin();
+	for (std::vector<std::string>::const_iterator it = params.begin() + 1; it != params.end(); it++)
+		level += " " + *it;
+
+	// Add the extension if necessary
+	if (stringcaserfind(level, ".lxl") == std::string::npos)
+		level += ".lxl";
+
+	// Check if the level is available
+	if (!IsFileAvailable("levels/"  + level))
+		return "Level \"" + level + "\" not available";
+	std::string name = DeprecatedGUI::Menu_GetLevelName(level);
+	if (!name.size())
+		return "The level file is corrupted";
+
+	// Set the level
+	tLXOptions->tGameInfo.sMapFile = level;
+	tLXOptions->tGameInfo.sMapName = name;
+	if (!bDedicated)
+		DeprecatedGUI::Menu_Net_HostLobbySetLevel(level);
+	cServer->UpdateGameLobby();
+
+	// Notify everybody
+	cServer->SendGlobalText(w->getName() + " changed level to " + name, TXT_NOTICE);
+
+	return "";
+}
+
+std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
+{
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Param check
+	if (params.size() < GetCommand(&ProcessLt)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessLt)->iMaxParamCount)
+		return "Invalid parameter count";
+
+	// Check privileges
+	CWorm *w = cServer->getWorms() + sender_id;
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->StartGame)
+		return "You do not have sufficient privileges to change the loading time";
+
+	// Convert to number
+	bool fail = false;
+	int lt = from_string<int>(params[0], fail);
+	if (fail || lt < 0 || lt > 500)
+		return "Please specify a loading time in the range from 0 to 500";
+	
+	// Set the loading time
+	tLXOptions->tGameInfo.iLoadingTime = lt;
+	if (cServer->getState() == SVS_LOBBY)
+		cServer->UpdateGameLobby();
+	else  {
+		// Update the loading time for worms
+		CWorm *w = cServer->getWorms();
+		for (int i = 0; i < MAX_WORMS; i++)
+			if (w->isUsed())
+				w->setLoadingTime((float)lt/100.0f);
+
+		// TODO: updating the LT in game won't update the value on clients
+		// which means that in the Game Settings dialog they will see an incorrect value
+		// (but it works otherwise because everything is simulated on the server)
+		// Should we disallow changing the LT in game because of this cosmetic bug
+		// or just allow hosts to change it whenever they want?
+	}
+
+	// Notify everybody
+	cServer->SendGlobalText(w->getName() + " changed loading time to " + itoa(lt) + " %", TXT_NOTICE);
+
+	return "";
 }
 

@@ -463,6 +463,7 @@ float		fStartDedicatedSecondsPassed = 0;
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
 float		fHostLobbyStart = 0;
 bool		bTestedSpeed = false;
+int			secondsAnnounced = -1;
 
 static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 			( bStartDedicated, "bStartDedicated" )
@@ -731,6 +732,28 @@ void Menu_Net_HostUpdateUploadSpeed(float speed)
 		tLXOptions->iNetworkSpeed = NST_MODEM;
 }
 
+//////////////////////
+// Change the mod displayed in the lobby
+void Menu_Net_HostLobbySetMod(const std::string& moddir)
+{
+	CCombobox *cb = (CCombobox *)cHostLobby.getWidget(hl_ModName);
+	if (!cb)
+		return;
+
+	cb->setCurSIndexItem(moddir);
+}
+
+/////////////////////
+// Change level displayed in the lobby
+void Menu_Net_HostLobbySetLevel(const std::string& filename)
+{
+	CCombobox *cb = (CCombobox *)cHostLobby.getWidget(hl_LevelList);
+	if (!cb)
+		return;
+
+	cb->setCurSIndexItem(filename);
+	Menu_HostShowMinimap();
+}
 
 ///////////////////
 // Host lobby frame
@@ -1147,7 +1170,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	DrawCursor(VideoPostProcessor::videoSurface());
 
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( tLX->fCurTime - fStartDedicatedSecondsPassed );
-	static int secondsAnnounced = -1;
+	secondsAnnounced = -1;
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{
 		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
@@ -1171,42 +1194,48 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	if( bStartPressed ||
 		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
-		secondsAnnounced = -1;
-		// Save the chat text
-		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
+		cClient->setSpectate(!bStartPressed);		// Local client will spectate if this is an auto-start (auto-select weapons)
 
-		// Get the mod
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it) {
-			tLXOptions->tGameInfo.sModName = it->sName;
-			tLXOptions->tGameInfo.sModDir = it->sIndex;
-		}
-
-		// Get the game type
-		tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-
-		// Get the map name
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
-		// Save the current level in the options
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
-		cHostLobby.Shutdown();
-
-		// Setup the client
-		cClient->SetupViewports();
-		if( ! bStartPressed )
-			cClient->setSpectate(true);		// Local client will spectate (auto-select weapons)
-		else
-			cClient->setSpectate(false);	// Clear state from previous game
-
-		// Start the game
-		cServer->StartGame();	// Dedicated if no start button pressed
-
-		// Leave the frontend
-		*bGame = true;
-		tMenu->bMenuRunning = false;
-		tLX->iGameType = GME_HOST;
+		Menu_Net_HostStartGame();
 	}
+}
+
+bool Menu_Net_HostStartGame()
+{
+	secondsAnnounced = -1;	
+	// Save the chat text
+	cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
+
+	// Get the mod
+	cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+	if(it) {
+		tLXOptions->tGameInfo.sModName = it->sName;
+		tLXOptions->tGameInfo.sModDir = it->sIndex;
+	} else
+		errors << "Could not get the selected mod" << endl;
+
+	// Get the game type
+	tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+
+	// Get the map name
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
+	// Save the current level in the options
+	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+	cHostLobby.Shutdown();
+
+	// Setup the client
+	cClient->SetupViewports();
+
+	// Start the game
+	cServer->StartGame();	// Dedicated if no start button pressed
+
+	// Leave the frontend
+	*bGame = true;
+	tMenu->bMenuRunning = false;
+	tLX->iGameType = GME_HOST;
+
+	return true;
 }
 
 ////////////////////

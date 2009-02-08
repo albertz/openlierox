@@ -570,6 +570,9 @@ void Menu_Net_HostLobbySetText(const std::string& str);
 void	Menu_HostDrawLobby(SDL_Surface * bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
+bool	Menu_Net_HostStartGame();
+void	Menu_Net_HostLobbySetMod(const std::string& moddir);
+void	Menu_Net_HostLobbySetLevel(const std::string& filename);
 
 void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid );
 void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid, int menuItem);
