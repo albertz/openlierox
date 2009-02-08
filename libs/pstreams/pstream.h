@@ -131,7 +131,7 @@ namespace redi
 
       /// Initialise the stream buffer with @a file and @a argv.
       basic_pstreambuf*
-      open(const std::string& file, const argv_type& argv, pmode mode);
+      open(const std::string& file, const argv_type& argv, pmode mode, const std::string& working_dir = "");
 
       /// Close the stream buffer and wait for the process to exit.
       basic_pstreambuf*
@@ -295,7 +295,7 @@ namespace redi
 
       /// Start a process.
       void
-      do_open(const std::string& file, const argv_type& argv, pmode mode);
+	do_open(const std::string& file, const argv_type& argv, pmode mode, const std::string& working_dir = "");
 
     public:
       /// Close the pipe.
@@ -662,9 +662,10 @@ namespace redi
       void
       open( const std::string& file,
             const argv_type& argv,
-            pmode mode = pstdout|pstdin )
+            pmode mode = pstdout|pstdin,
+		   const std::string& working_dir = "" )
       {
-        this->do_open(file, argv, mode);
+        this->do_open(file, argv, mode, working_dir);
       }
 
       /**
@@ -1064,7 +1065,7 @@ namespace redi
     basic_pstreambuf<C,T>*
     basic_pstreambuf<C,T>::open( const std::string& file,
                                  const argv_type& argv,
-                                 pmode mode )
+								pmode mode, const std::string& working_dir )
     {
       basic_pstreambuf<C,T>* ret = NULL;
 
@@ -1089,6 +1090,7 @@ namespace redi
           case 0 :
             // this is the new process, exec command
             {
+				if(working_dir != "") chdir(working_dir.c_str());
               char** arg_v = new char*[argv.size()+1];
               for (std::size_t i = 0; i < argv.size(); ++i)
               {
@@ -1871,9 +1873,9 @@ namespace redi
     inline void
     pstream_common<C,T>::do_open( const std::string& file,
                                   const argv_type& argv,
-                                  pmode mode )
+								 pmode mode, const std::string& working_dir )
     {
-      if (!buf_.open((command_=file), argv, mode))
+      if (!buf_.open((command_=file), argv, mode, working_dir))
         this->setstate(std::ios_base::failbit);
     }
 

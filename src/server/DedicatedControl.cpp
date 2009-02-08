@@ -130,7 +130,8 @@ struct pstream_pipe_t
 	{
 		if( params.size() == 0 )
 			params.push_back(cmd);
-		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout ); // we don't grap the stderr, it should directly be forwarded to console
+		
+		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout, working_dir ); // we don't grap the stderr, it should directly be forwarded to console
 		return p.rdbuf()->error() == 0;
 	}
 };
@@ -923,7 +924,7 @@ bool DedicatedControl::Init_priv() {
 
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
 	std::string command = scriptfn;
-	std::string script_dir = scriptfn.substr(0, scriptfn.find(scriptfn_rel));
+	std::string script_dir = ExtractDirectory(scriptfn);
 	std::vector<std::string> commandArgs( 1, command );
 	if(scriptfn_rel != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {
@@ -1016,7 +1017,7 @@ bool DedicatedControl::Init_priv() {
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
-		if(!dedIntern->pipe.open(command, commandArgs, script_dir)) {
+		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir))) {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}

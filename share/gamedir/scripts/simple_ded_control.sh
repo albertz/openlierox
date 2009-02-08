@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CURDIR="`dirname $0`"
+CURDIR="$(dirname "$0")"
 
 function startlobby() {
 	echo "startlobby"

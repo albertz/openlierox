@@ -22,9 +22,10 @@ cd share/gamedir
 ulimit -c unlimited		# activate core-files
 rm core* 2>/dev/null	# remove old core-files
 
-bin=bin/openlierox
+bin="/dev/null"
 [ -x ../../$bin ] || bin=build/Xcode/build/Debug/OpenLieroX.app/Contents/MacOS/OpenLieroX
 [ -x ../../$bin ] || bin=build/Xcode/build/Release/OpenLieroX.app/Contents/MacOS/OpenLieroX
+[ -x ../../$bin ] || bin=bin/openlierox
 ../../$bin "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
 
 # game was exited, check for core-files (if crashed)
