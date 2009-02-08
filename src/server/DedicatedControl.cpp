@@ -933,10 +933,10 @@ bool DedicatedControl::Init_priv() {
 		}
 
 		#ifdef WIN32
-		// Determine what interpreter to run for this script
-		// Interpreter should be with full path specified, or it won't run correctly on Windows
-		// so we'll read it's path from Windows registry - executing Windows shell failed last time
-		std::string interpreter = GetBaseFilename(GetScriptInterpreterForFile(scriptfn));
+		std::string interpreter = GetScriptInterpreterCommandForFile(scriptfn);
+		size_t f = interpreter.find(" ");
+		if(f != std::string::npos) interpreter.erase(f);
+		interpreter = GetBaseFilename(interpreter);
 		std::string cmdPathRegKey = "";
 		std::string cmdPathRegValue = "";
 		// TODO: move that out to an own function!
@@ -1017,6 +1017,7 @@ bool DedicatedControl::Init_priv() {
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+		// HINT: If a script need this change in his own directory, it is a bug in the script.
 		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir))) {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;

@@ -177,7 +177,7 @@ std::string GetFileContents(const std::string& path, bool absolute = false);
 std::string ExtractDirectory(const std::string& path);
 std::string JoinPaths(const std::string& path1, const std::string& path2);
 
-std::string GetScriptInterpreterForFile(const std::string& filename);
+std::string GetScriptInterpreterCommandForFile(const std::string& filename);
 
 
 bool IsFileAvailable(const std::string& f, bool absolute = false);

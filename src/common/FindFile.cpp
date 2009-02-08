@@ -881,7 +881,7 @@ std::string ExtractDirectory(const std::string& path)
 		return path.substr(0, pos);
 }
 
-std::string GetScriptInterpreterForFile(const std::string& filename) {
+std::string GetScriptInterpreterCommandForFile(const std::string& filename) {
 	FILE* f = OpenGameFile(filename, "r");	
 	if(f) {
 		std::string line = ReadUntil(f);
