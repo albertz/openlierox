@@ -881,16 +881,6 @@ std::string ExtractDirectory(const std::string& path)
 		return path.substr(0, pos);
 }
 
-std::string BaseFilename(const std::string& path) {
-	if(path.size() == 0) return "";
-	
-	size_t pos = findLastPathSep(path);
-	if (pos == std::string::npos)
-		return path;
-	else
-		return path.substr(pos);
-}
-
 std::string GetScriptInterpreterForFile(const std::string& filename) {
 	FILE* f = OpenGameFile(filename, "r");	
 	if(f) {
