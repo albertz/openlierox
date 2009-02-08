@@ -1808,6 +1808,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\ThreadPool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ThreadPool.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\ThreadVar.h"
 				>
 			</File>
