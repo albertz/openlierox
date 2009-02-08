@@ -89,9 +89,9 @@ setvar GameOptions.GameInfo.LevelName             "CastleStrike.lxl"
 setvar GameOptions.GameInfo.ModName             "MW 1.0"
 
 setvar GameOptions.GameInfo.LoadingTime        0
-setvar GameOptions.GameInfo.GameSpeed			1.3
-setvar GameOptions.GameInfo.Lives				-2
-setvar GameOptions.GameInfo.TimeLimit			10
+#setvar GameOptions.GameInfo.GameSpeed			1.3
+setvar GameOptions.GameInfo.Lives			-2
+setvar GameOptions.GameInfo.TimeLimit			5
 setvar GameOptions.GameInfo.AllowConnectDuringGame	true
 setvar GameOptions.GameInfo.ForceRandomWeapons		true
 setvar GameOptions.GameInfo.SameWeaponsAsHostWorm	true
