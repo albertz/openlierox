@@ -183,6 +183,10 @@ void CWorm::updateCheckVariables()
 // Checks if we need to call writePacket, false when not
 bool CWorm::checkPacketNeeded()
 {
+	// Dead worms don't need any updates
+	if (iLives == WRM_OUT || !bAlive)
+		return false;
+
 	// State
 	if (tState.bCarve)
 		return true;
@@ -202,12 +206,15 @@ bool CWorm::checkPacketNeeded()
 		return true;
 
 	// Angle
-	if (fabs(fLastAngle - fAngle) > 0.00001)
+	if (fabs(fLastAngle - fAngle) > 0.00001f)
 		return true;
 
 	// position change
 	CVec vPosDif = vLastUpdatedPos - vPos;
 	if (vPosDif.GetLength2())
+		return true;
+
+	if (vVelocity.GetLength2())
 		return true;
 
 	// Flag

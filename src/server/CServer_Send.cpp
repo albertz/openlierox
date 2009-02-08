@@ -247,8 +247,9 @@ bool GameServer::SendUpdate()
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
-			if (w->checkPacketNeeded())
+			if (w->checkPacketNeeded())  {
 				worms_to_update.push_back(w);
+			}
 		}
 	}
 
@@ -331,6 +332,7 @@ bool GameServer::SendUpdate()
 				{
 					for (short j=0; j < cl->getNumWorms(); j++)
 						if (cl->getWorm(j)->checkStatePacketNeeded())  {
+							cl->getWorm(j)->updateStatCheckVariables();
 							need_send = true;
 							break;
 						}
