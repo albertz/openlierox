@@ -885,11 +885,13 @@ struct DedIntern {
 		// Some debugging stuff
 #ifdef DEBUG
 		int fps = GetFPS();
+		static float lastFpsPrint = GetMilliSeconds();
 		if (GetMilliSeconds() - lastFpsPrint >= 20.0f)  {
 			notes << "Current FPS: " << fps << endl;
 			lastFpsPrint = GetMilliSeconds();
 		}
 
+		static float lastBandwidthPrint = GetMilliSeconds();
 		if (GetMilliSeconds() - lastBandwidthPrint >= 20.0f)  {
 			notes << "Current upload rate: " << cServer->GetUpload()/1024.0f << " kB/s" << endl;
 			notes << "Current download rate: " << cServer->GetDownload()/1024.0f << " kB/s" << endl;
@@ -932,9 +934,11 @@ bool DedicatedControl::Init_priv() {
 		std::string interpreter = BaseFilename(GetScriptInterpreterForFile(scriptfn));
 		std::string cmdPathRegKey = "";
 		std::string cmdPathRegValue = "";
+		// TODO: move that out to an own function!
 		if( interpreter == "python" )
 		{
-			command = "python.exe";
+			// TODO: move that out to an own function!
+			command = "python.exe";			
 			commandArgs.clear();
 			commandArgs.push_back(command);
 			commandArgs.push_back("-u");
@@ -943,6 +947,7 @@ bool DedicatedControl::Init_priv() {
 		}
 		else if( interpreter == "bash" )
 		{
+			// TODO: move that out to an own function!
 			command = "bash.exe";
 			commandArgs.clear();
 			commandArgs.push_back(command);
@@ -954,6 +959,7 @@ bool DedicatedControl::Init_priv() {
 		}
 		else if( interpreter == "php" )
 		{
+			// TODO: move that out to an own function!
 			command = "php.exe";
 			commandArgs.clear();
 			commandArgs.push_back(command);
@@ -967,6 +973,7 @@ bool DedicatedControl::Init_priv() {
 			command = interpreter + ".exe";
 		}
 
+		// TODO: move that out to an own function!
 		if( cmdPathRegKey != "" )
 		{
 			HKEY hKey;
@@ -1004,8 +1011,8 @@ bool DedicatedControl::Init_priv() {
 	internData = dedIntern;
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
-		notes << "Dedicated server: running script \"" << Utf8ToSystemNative(scriptfn) << "\"" << endl;
-		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir)) ) {
+		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+		if(!dedIntern->pipe.open(command, commandArgs)) {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}
