@@ -527,8 +527,6 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 		return path;
 
 	std::string fname;
-	// TODO: comment outdated, it does NOT check for an absolute path
-	// this also do lastly a check for an absolute filename
 	CheckSearchpathForFile checker(path, &fname, searchpath);
 	ForEachSearchpath(checker);
 
