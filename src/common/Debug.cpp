@@ -19,7 +19,7 @@ void DumpCallstackPrintf(void* callpnt) {
 	void *callstack[128];
 	int framesC = backtrace(callstack, sizeof(callstack));
 	printf("backtrace() returned %d addresses\n", framesC);
-	if(framesC > 3) callstack[3] = callpnt; // expected to be called from signal handler
+	if(callpnt != NULL && framesC > 3) callstack[3] = callpnt; // expected to be called from signal handler
 	char** strs = backtrace_symbols(callstack, framesC);
 	for(int i = 0; i < framesC; ++i) {
 		if(strs[i])

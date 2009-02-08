@@ -681,7 +681,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			{
 				down = cServer->GetDownload() / 1024.0f;
 				up = cServer->GetUpload() / 1024.0f;
-			};
+			}
 
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
