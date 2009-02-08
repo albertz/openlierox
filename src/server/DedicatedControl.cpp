@@ -920,13 +920,11 @@ DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
-	const std::string scriptfn_rel = tLXOptions->sDedicatedScript;
-
-	std::string scriptfn = GetFullFileName(scriptfn_rel);
+	std::string scriptfn = GetFullFileName(tLXOptions->sDedicatedScript);
 	std::string command = scriptfn;
 	std::string script_dir = ExtractDirectory(scriptfn);
 	std::vector<std::string> commandArgs( 1, command );
-	if(scriptfn_rel != "/dev/null") {
+	if(tLXOptions->sDedicatedScript != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {
 			errors << "Dedicated: " << scriptfn << " not found" << endl;
 			return false;
@@ -1014,7 +1012,7 @@ bool DedicatedControl::Init_priv() {
 
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
-	if(scriptfn_rel != "/dev/null") {
+	if(tLXOptions->sDedicatedScript != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
 		// HINT: If a script need this change in his own directory, it is a bug in the script.

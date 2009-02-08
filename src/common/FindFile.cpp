@@ -804,7 +804,7 @@ std::string GetAbsolutePath(const std::string& path) {
 #else
 	std::string exactpath;
 	if(GetExactFileName(path, exactpath)) {
-		static char buf[MAXPATHLEN];
+		static char buf[PATH_MAX];
 		if(realpath(exactpath.c_str(), buf) != NULL) {
 			fix_markend(buf);
 			return buf;
