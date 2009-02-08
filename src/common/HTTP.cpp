@@ -290,7 +290,7 @@ struct HttpThread {
 	void startThread() {
 		breakThread(); // if a thread is already running, break it
 		breakThreadSignal = false;
-		thread = threadPool->start(run, this);
+		thread = threadPool->start(run, this, "HTTP helper");
 	}
 	
 	void breakThread() {

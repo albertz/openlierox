@@ -312,7 +312,7 @@ startpoint:
 
 	videoFrameCond = SDL_CreateCond();
 	videoFrameMutex = SDL_CreateMutex();
-	mainLoopThread = threadPool->start(MainLoopThread, NULL);
+	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.

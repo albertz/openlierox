@@ -492,7 +492,7 @@ public:
 		break_thread_signal(0),
 		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
-		thread = threadPool->start(threadSearch, this);
+		thread = threadPool->start(threadSearch, this, "AI worm pathfinding");
 		if(!thread)
 			errors << "could not create AI thread" << endl;
 	}

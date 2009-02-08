@@ -111,7 +111,7 @@ void InitializeBackgroundMusic()
 	
 	InitializeMusic();
 
-	musicThread = threadPool->start(&MusicMain, NULL);
+	musicThread = threadPool->start(&MusicMain, NULL, "music player");
 	waitMutex = SDL_CreateMutex();
 	waitCond = SDL_CreateCond();
 	SetMusicFinishedHandler(&OnSongFinished);

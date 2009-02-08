@@ -191,7 +191,7 @@ public:
 		cache.clear();
 		notFoundCache.clear();
 
-		//loader = threadPool->start(loaderMain, this);
+		//loader = threadPool->start(loaderMain, this, "IpToCountry loader");
 		file = OpenGameFileR(filename);
 		if (!file || !file->is_open())  {
 			warnings << "IpToCountry Database Error: Cannot find the database file." << endl;
@@ -228,7 +228,7 @@ public:
 		// Start a new loading
 		if( ! dataMutex )
 			dataMutex = SDL_CreateMutex();
-		loader = threadPool->start(&threadLoader, (void *)this);
+		loader = threadPool->start(&threadLoader, (void *)this, "IpToCountry loader");
 	}
 
 	// Adds data simultaneously as the game is running

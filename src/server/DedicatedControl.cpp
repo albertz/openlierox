@@ -1018,9 +1018,9 @@ bool DedicatedControl::Init_priv() {
 		}
 		// dedIntern->pipe.in() << "init" << endl;
 		dedIntern->pipeOutputMutex = SDL_CreateMutex();
-		dedIntern->pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL);
+		dedIntern->pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL, "Ded pipe watcher");
 	}
-	dedIntern->stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL);
+	dedIntern->stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL, "Ded stdin watcher");
 
 	return true;
 }

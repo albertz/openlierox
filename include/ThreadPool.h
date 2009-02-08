@@ -11,6 +11,7 @@
 #define __OLX__THREADPOOL_H__
 
 #include <set>
+#include <string>
 
 struct SDL_mutex;
 struct SDL_cond;
@@ -21,6 +22,7 @@ typedef int (*ThreadFunc) (void*);
 struct ThreadPoolItem {
 	ThreadPool* pool;
 	SDL_Thread* thread;
+	std::string name;
 	bool working;
 	bool finished;
 	SDL_cond* finishedSignal;
@@ -34,7 +36,8 @@ private:
 	SDL_cond* awakeThread;
 	SDL_cond* threadStartedWork;
 	SDL_cond* threadFinishedWork;
-	ThreadFunc nextFunc; void* nextParam;
+	ThreadFunc nextFunc; void* nextParam; std::string nextName;
+	ThreadPoolItem* nextData;
 	std::set<ThreadPoolItem*> availableThreads;
 	std::set<ThreadPoolItem*> usedThreads;
 	void prepareNewThread();
@@ -43,7 +46,7 @@ public:
 	ThreadPool();
 	~ThreadPool();
 	
-	ThreadPoolItem* start(ThreadFunc fct, void* param = NULL);
+	ThreadPoolItem* start(ThreadFunc fct, void* param = NULL, const std::string& name = "unknown worker");
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
 };
 

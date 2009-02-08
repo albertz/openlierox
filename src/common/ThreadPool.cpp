@@ -14,7 +14,7 @@
 static const unsigned int THREADNUM = 20;
 
 ThreadPool::ThreadPool() {
-	nextFunc = NULL; nextParam = NULL;
+	nextFunc = NULL; nextParam = NULL; nextData = NULL;
 	mutex = SDL_CreateMutex();
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
@@ -27,8 +27,20 @@ ThreadPool::ThreadPool() {
 
 ThreadPool::~ThreadPool() {
 	SDL_mutexP(mutex);
-	while(usedThreads.size() > 0) {
-		notes << "ThreadPool: waiting for " << usedThreads.size() << " threads to finish" << endl;
+	while(usedThreads.size() > 0) {		
+		warnings << "ThreadPool: waiting for " << usedThreads.size() << " threads to finish:" << endl;
+		for(std::set<ThreadPoolItem*>::iterator i = usedThreads.begin(); i != usedThreads.end(); ++i) {
+			if((*i)->working && (*i)->finished) {
+				warnings << "thread " << (*i)->name << " is ready but was not cleaned up" << endl;
+				SDL_CondSignal((*i)->readyForNewWork);				
+			}
+			else if((*i)->working && !(*i)->finished) {
+				warnings << "thread " << (*i)->name << " is still working" << endl;
+			}
+			else {
+				warnings << "thread " << (*i)->name << " is in an invalid state" << endl;
+			}
+		}
 		SDL_CondWait(threadFinishedWork, mutex);
 	}
 	SDL_mutexV(mutex);
@@ -72,8 +84,10 @@ int ThreadPool::threadWrapper(void* param) {
 		
 		ThreadFunc func = data->pool->nextFunc; data->pool->nextFunc = NULL;
 		void* param = data->pool->nextParam; data->pool->nextParam = NULL;
+		data->name = data->pool->nextName;
 		data->finished = false;
 		data->working = true;
+		data->pool->nextData = data;
 		SDL_mutexV(data->pool->mutex);
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
@@ -92,23 +106,25 @@ int ThreadPool::threadWrapper(void* param) {
 	return 0;
 }
 
-ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param) {
+ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string& name) {
 	SDL_mutexP(mutex);
 	if(availableThreads.size() == 0) {
-		warnings << "no available thread in ThreadPool, creating new one..." << endl;
+		warnings << "no available thread in ThreadPool for " << name << ", creating new one..." << endl;
 		prepareNewThread();
 	}
-	ThreadPoolItem* data = *availableThreads.begin();
 	assert(nextFunc == NULL);
 	nextFunc = fct;
 	nextParam = param;
+	nextName = name;
+	assert(nextData == NULL);
 	SDL_mutexV(mutex);
 	
 	SDL_CondSignal(awakeThread);
 	SDL_mutexP(mutex);
-	while(nextFunc != NULL) SDL_CondWait(threadStartedWork, mutex);
+	while(nextData == NULL) SDL_CondWait(threadStartedWork, mutex);
+	ThreadPoolItem* data = nextData; nextData = NULL;
 	SDL_mutexV(mutex);
-	
+		
 	return data;
 }
 
@@ -116,7 +132,7 @@ bool ThreadPool::wait(ThreadPoolItem* thread, int* status) {
 	if(!thread) return false;
 	SDL_mutexP(mutex);
 	if(!thread->working) {
-		warnings << "given thread is not working" << endl;
+		warnings << "given thread " << thread->name << " is not working anymore" << endl;
 		SDL_mutexV(mutex);
 		return false;
 	}

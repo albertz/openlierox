@@ -1948,9 +1948,8 @@ void Menu_SvrList_UpdateUDPList()
 		fclose(fp1);
 	}
 
-	// Run the update
-	
-	ThreadPoolItem *thread = threadPool->start(Menu_SvrList_UpdaterThread, (void *)(++threadId));
+	// Run the update	
+	ThreadPoolItem *thread = threadPool->start(Menu_SvrList_UpdaterThread, (void *)(++threadId), "serverlist updater");
 	tUpdateThreads[threadId] = thread;
 }
 
