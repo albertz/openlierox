@@ -230,7 +230,7 @@ void GameServer::SendWormsOut(const std::list<byte>& ids) {
 bool GameServer::SendUpdate()
 {
 	// Delays for different net speeds
-	static const float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
+	static const float	shootDelay[] = {0.010f, 0.005f, -1.0f, -1.0f};
 
 	//
 	// Get the update packets for each worm that needs it and save them
