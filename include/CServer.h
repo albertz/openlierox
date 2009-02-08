@@ -122,7 +122,8 @@ private:
 	// Simulation
 	float		fServertime;	// TODO: what is this good for
 	int			iServerFrame;	// TODO: what is this good for
-
+	int			lastClientSendData;
+	
 	float		fLastBonusTime;
 
 	int			iLastVictim;	// TODO: what is this good for

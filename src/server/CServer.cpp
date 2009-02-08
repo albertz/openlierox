@@ -84,14 +84,12 @@ GameServer::~GameServer()  {
 // Clear the server
 void GameServer::Clear(void)
 {
-	int i;
-
 	cClients = NULL;
 	cMap = NULL;
 	//cProjectiles = NULL;
 	cWorms = NULL;
 	iState = SVS_LOBBY;
-	iServerFrame=0;
+	iServerFrame=0; lastClientSendData = 0;
 	iNumPlayers = 0;
 	bRandomMap = false;
 	iMaxWorms = MAX_PLAYERS;
@@ -99,7 +97,7 @@ void GameServer::Clear(void)
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
-	for(i=0; i<MAX_CLIENTS; i++)
+	for(int i=0; i<MAX_CLIENTS; i++)
 	{
 		InvalidateSocketState(tNatTraverseSockets[i]);
 		fNatTraverseSocketsLastAccessTime[i] = -9999;
@@ -121,7 +119,7 @@ void GameServer::Clear(void)
 	bFirstBlood = true;
 	iSuicidesInPacket = 0;
 
-	for(i=0; i<MAX_CHALLENGES; i++) {
+	for(int i=0; i<MAX_CHALLENGES; i++) {
 		SetNetAddrValid(tChallenges[i].Address, false);
 		tChallenges[i].fTime = 0;
 		tChallenges[i].iNum = 0;

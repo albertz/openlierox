@@ -202,16 +202,12 @@ bool CWorm::checkPacketNeeded()
 		return true;
 
 	// Angle
-	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
+	if (fabs(fLastAngle - fAngle) > 0.00001)
 		return true;
 
 	// position change
 	CVec vPosDif = vLastUpdatedPos - vPos;
 	if (vPosDif.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= MAX(1.0f/vPosDif.GetLength(), 1.0f/80.0f))
-			return true;
-
-	if (tLX->fCurTime - fLastUpdateWritten >= 1.0f/40.0f)
 		return true;
 
 	// Flag

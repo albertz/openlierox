@@ -247,7 +247,7 @@ bool GameServer::SendUpdate()
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
-			//if (w->checkPacketNeeded())
+			if (w->checkPacketNeeded())
 				worms_to_update.push_back(w);
 		}
 	}
@@ -256,7 +256,7 @@ bool GameServer::SendUpdate()
 
 	{
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
-			CServerConnection* cl = &cClients[ (i + iServerFrame) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
@@ -365,6 +365,9 @@ bool GameServer::SendUpdate()
 					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
 			}
+
+			if(!cl->isLocalClient())
+				lastClientSendData = i;
 		}
 	}
 
