@@ -903,13 +903,13 @@ struct DedIntern {
 			float down = 0;
 			
 			// Get the rates
-			if( tLX->iGameType == GME_JOIN )
-			{
-				down = cClient->getChannel()->getIncomingRate() / 1024.0f;
-				up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+			if( tLX->iGameType == GME_JOIN ) {
+				if(cClient->getChannel()) {
+					down = cClient->getChannel()->getIncomingRate() / 1024.0f;
+					up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+				}
 			}
-			else if( tLX->iGameType == GME_HOST )
-			{
+			else if( tLX->iGameType == GME_HOST ) {
 				down = cServer->GetDownload() / 1024.0f;
 				up = cServer->GetUpload() / 1024.0f;
 			}

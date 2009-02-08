@@ -288,6 +288,7 @@ bool GameServer::SendUpdate()
 	size_t uploadAmount = 0;
 
 	{
+		int last = lastClientSendData;
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
 			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
@@ -401,8 +402,10 @@ bool GameServer::SendUpdate()
 			cl->getNetEngine()->SendReportDamage();
 
 			if(!cl->isLocalClient())
-				lastClientSendData = i;
+				last = i;
 		}
+		
+		lastClientSendData = last;
 	}
 
 	// All good
