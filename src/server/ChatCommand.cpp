@@ -46,6 +46,7 @@ ChatCommand tKnownCommands[] = {
 	{"setcolour",	"setcolor",		5, 5,			(size_t)-1,	&ProcessSetColour},
 	{"suicide",		"suicide",		0, 1,			(size_t)-1,	&ProcessSuicide},
 	{"spectate",	"spectate",		0, 0,			(size_t)-1,	&ProcessSpectate},
+	{"login",		"logon",		1, 1,			(size_t)-1, &ProcessLogin},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -714,3 +715,29 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 	cClient->getNetEngine()->SendDeath(sender_id, sender_id);
 	return "";
 };
+
+std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
+{
+	// Param check
+	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessSuicide)->iMaxParamCount)
+		return "Invalid parameter count";
+
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Safety check for blank password (disallow these from security reasons)
+	if (!tLXOptions->sServerPassword.size())
+		return "The server has no password set, cannot log you in";
+
+	// Check the password
+	if (params[0] != tLXOptions->sServerPassword)
+		return "Invalid password";
+
+	// All OK, authorize the worm
+	cServer->authorizeWorm(sender_id);
+
+	return "";
+
+}
