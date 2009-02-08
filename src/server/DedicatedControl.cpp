@@ -91,14 +91,18 @@ struct pstream_pipe_t
 			delete p;
 		if( params.size() == 0 )
 			params.push_back(cmd);
+
+		for (std::vector<std::string>::iterator it = params.begin(); it != params.end(); it++)
+			*it = Utf8ToSystemNative(*it);
+
 		boost::process::context ctx;
 		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
 		ctx.m_stdout_behavior = boost::process::capture_stream();
 		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it is not outputted anywhere, sadly
-		ctx.m_work_directory = working_dir;
+		ctx.m_work_directory = Utf8ToSystemNative(working_dir);
 		try
 		{	
-			p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
+			p = new boost::process::child(boost::process::launch(Utf8ToSystemNative(cmd), params, ctx)); // Throws exception on error
 		}
 		catch( const std::exception & e )
 		{
@@ -122,7 +126,7 @@ struct pstream_pipe_t
 		close_in();
 		// TODO: this should close the process that pipeThread will stop
 	}
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
 	{
 		if( params.size() == 0 )
 			params.push_back(cmd);
@@ -931,7 +935,7 @@ bool DedicatedControl::Init_priv() {
 		// Determine what interpreter to run for this script
 		// Interpreter should be with full path specified, or it won't run correctly on Windows
 		// so we'll read it's path from Windows registry - executing Windows shell failed last time
-		std::string interpreter = BaseFilename(GetScriptInterpreterForFile(scriptfn));
+		std::string interpreter = GetBaseFilename(GetScriptInterpreterForFile(scriptfn));
 		std::string cmdPathRegKey = "";
 		std::string cmdPathRegValue = "";
 		// TODO: move that out to an own function!
@@ -942,7 +946,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.clear();
 			commandArgs.push_back(command);
 			commandArgs.push_back("-u");
-			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
+			commandArgs.push_back(scriptfn);
 			cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
 		}
 		else if( interpreter == "bash" )
@@ -953,7 +957,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.push_back(command);
 			//commandArgs.push_back("-l");	// Not needed for Cygwin
 			commandArgs.push_back("-c");
-			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
+			commandArgs.push_back(scriptfn);
 			cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
 			cmdPathRegValue = "native";
 		}
@@ -964,7 +968,7 @@ bool DedicatedControl::Init_priv() {
 			commandArgs.clear();
 			commandArgs.push_back(command);
 			commandArgs.push_back("-f");
-			commandArgs.push_back(Utf8ToSystemNative(scriptfn));
+			commandArgs.push_back(scriptfn);
 			cmdPathRegKey = "SOFTWARE\\PHP";
 			cmdPathRegValue = "InstallDir";
 		}
@@ -1012,7 +1016,7 @@ bool DedicatedControl::Init_priv() {
 	if(scriptfn_rel != "/dev/null") {
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
-		if(!dedIntern->pipe.open(command, commandArgs)) {
+		if(!dedIntern->pipe.open(command, commandArgs, script_dir)) {
 			errors << "cannot start dedicated server - cannot run script" << scriptfn << endl;
 			return false;
 		}
