@@ -15,7 +15,7 @@
 // Created 7/4/02
 // Jason Boettcher
 
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include "LieroX.h"
 #include "Debug.h"
 #include "Clipboard.h"

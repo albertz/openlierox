@@ -19,7 +19,7 @@
 #ifndef DEDICATED_ONLY
 
 #include <set>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <SDL_mutex.h>
 #include "FindFile.h"
 #include "Sounds.h"
@@ -27,7 +27,7 @@
 #include "LieroX.h" // for bDedicated
 
 bool breakThread = false;
-SDL_Thread *musicThread = NULL;
+ThreadPoolItem *musicThread = NULL;
 SDL_cond *waitCond = NULL;
 SDL_mutex *waitMutex = NULL;
 
@@ -111,7 +111,7 @@ void InitializeBackgroundMusic()
 	
 	InitializeMusic();
 
-	musicThread = SDL_CreateThread(&MusicMain, NULL);
+	musicThread = threadPool->start(&MusicMain, NULL);
 	waitMutex = SDL_CreateMutex();
 	waitCond = SDL_CreateCond();
 	SetMusicFinishedHandler(&OnSongFinished);
@@ -128,7 +128,7 @@ void ShutdownBackgroundMusic()
 	breakThread = true;
 	if (musicThread)  {
 		SDL_CondSignal(waitCond);
-		SDL_WaitThread(musicThread, NULL);
+		threadPool->wait(musicThread, NULL);
 		SDL_DestroyCond(waitCond);
 		SDL_DestroyMutex(waitMutex);
 	}

@@ -282,7 +282,7 @@ struct HttpThread {
 	Event< SmartPointer<HttpRedirectEventData> > onRedirect;
 	
 	CHttp* http;
-	SDL_Thread* thread;
+	ThreadPoolItem* thread;
 	volatile bool breakThreadSignal;
 	
 	HttpThread(CHttp* h) : http(h), thread(NULL) { breakThreadSignal = false; }
@@ -290,13 +290,13 @@ struct HttpThread {
 	void startThread() {
 		breakThread(); // if a thread is already running, break it
 		breakThreadSignal = false;
-		thread = SDL_CreateThread(run, this);
+		thread = threadPool->start(run, this);
 	}
 	
 	void breakThread() {
 		if(thread != NULL) {
 			breakThreadSignal = true;
-			SDL_WaitThread(thread, NULL);
+			threadPool->wait(thread, NULL);
 			thread = NULL;
 		}
 	}

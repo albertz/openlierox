@@ -142,7 +142,7 @@ sigjmp_buf longJumpBuffer;
 
 static SDL_cond* videoFrameCond = NULL;
 static SDL_mutex* videoFrameMutex = NULL;
-static SDL_Thread* mainLoopThread = NULL;
+static ThreadPoolItem* mainLoopThread = NULL;
 static int MainLoopThread(void*);
 
 
@@ -176,6 +176,7 @@ int main(int argc, char *argv[])
 #endif
 
 	DoSystemChecks();
+	InitThreadPool();	
 	
 	apppath = argv[0];
 	binary_dir = argv[0];
@@ -311,7 +312,7 @@ startpoint:
 
 	videoFrameCond = SDL_CreateCond();
 	videoFrameMutex = SDL_CreateMutex();
-	mainLoopThread = SDL_CreateThread(MainLoopThread, NULL);
+	mainLoopThread = threadPool->start(MainLoopThread, NULL);
 	
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
@@ -341,12 +342,13 @@ startpoint:
 				mainQueue->push(ev);
 			}
 			
+			notes << "error while waiting for next event" << endl;
 			SDL_Delay(200);
 		}
 	}
 	
 quit:
-	SDL_WaitThread(mainLoopThread, NULL);
+	threadPool->wait(mainLoopThread, NULL);
 	mainLoopThread = NULL;
 	SDL_DestroyCond(videoFrameCond);
 	videoFrameCond = NULL;
@@ -365,6 +367,8 @@ quit:
 		goto startpoint;
 	}
 
+	UnInitThreadPool();
+	
 	notes << "Good Bye and enjoy your day..." << endl;
 
 	// Uninit the crash handler after all other code

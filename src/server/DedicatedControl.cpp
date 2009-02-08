@@ -17,7 +17,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <fcntl.h>
 #include <iostream>
 
@@ -172,8 +172,8 @@ static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string
 }
 
 struct DedIntern {
-	SDL_Thread* pipeThread;
-	SDL_Thread* stdinThread;
+	ThreadPoolItem* pipeThread;
+	ThreadPoolItem* stdinThread;
 	pstream_pipe_t pipe;
 	SDL_mutex* pipeOutputMutex;
 	std::stringstream pipeOutput;
@@ -188,7 +188,7 @@ struct DedIntern {
 		quitSignal = true;
 
 		notes << "waiting for stdinThread ..." << endl;
-		SDL_WaitThread(stdinThread, NULL);
+		threadPool->wait(stdinThread, NULL);
 
 		notes << "waiting for pipeThread ..." << endl;
 #if defined(WIN32) && defined(HAVE_BOOST)
@@ -196,7 +196,7 @@ struct DedIntern {
 			pipe.p = NULL;
 #endif
 		pipe.close();
-		SDL_WaitThread(pipeThread, NULL);
+		threadPool->wait(pipeThread, NULL);
 
 		SDL_DestroyMutex(pipeOutputMutex);
 		notes << "DedicatedControl destroyed" << endl;
@@ -1018,9 +1018,9 @@ bool DedicatedControl::Init_priv() {
 		}
 		// dedIntern->pipe.in() << "init" << endl;
 		dedIntern->pipeOutputMutex = SDL_CreateMutex();
-		dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
+		dedIntern->pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL);
 	}
-	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
+	dedIntern->stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL);
 
 	return true;
 }

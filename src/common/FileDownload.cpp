@@ -349,7 +349,7 @@ CHttpDownloadManager::CHttpDownloadManager()
 	// Create the thread
 	bBreakThread = false;
 	tMutex = SDL_CreateMutex();
-	tThread = SDL_CreateThread(&ManagerMain, (void *)this);
+	tThread = threadPool->start(&ManagerMain, (void *)this);
 }
 
 ///////////////
@@ -357,7 +357,7 @@ CHttpDownloadManager::CHttpDownloadManager()
 CHttpDownloadManager::~CHttpDownloadManager()
 {
 	bBreakThread = true;
-	SDL_WaitThread(tThread, NULL);
+	threadPool->wait(tThread, NULL);
 
 	Lock();
 

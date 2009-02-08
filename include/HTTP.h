@@ -24,7 +24,7 @@
 #include "Event.h"
 #include "SmartPointer.h"
 
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <SDL_mutex.h>
 
 // Some basic defines

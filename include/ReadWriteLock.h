@@ -8,7 +8,7 @@
 #define __READWRITELOCK_H__
 
 #include <SDL.h>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 
 class ReadWriteLock {
 private:

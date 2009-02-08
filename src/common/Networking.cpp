@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 #include <SDL_syswm.h>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #ifndef WIN32
 #include <signal.h>
 #endif
@@ -118,7 +118,7 @@ void test_NetworkSmartPointer() {
 
 bool SdlNetEvent_Inited = false;
 bool SdlNetEventThreadExit = false;
-SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
+ThreadPoolItem* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
 int SdlNetEventSocketCount = 0;
 
@@ -207,14 +207,14 @@ static bool SdlNetEvent_Init()
 	SdlNetEvent_Inited = true;
 
 	SdlNetEventGroup = nlGroupCreate();
-	SdlNetEventThreads[0] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
+	SdlNetEventThreads[0] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
 	// TODO: this does not behave as expected
 	// select() which is internally used by nlPollGroup will return true if the socket is *writeable*
 	// which for UDP sockets means always (this has nothing to do with the actual writing to the socket)
 	// See http://msdn2.microsoft.com/en-us/library/ms740141(VS.85).aspx or
 	// http://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/select.htm for more details
-	//SdlNetEventThreads[1] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
-	SdlNetEventThreads[2] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS) );
+	//SdlNetEventThreads[1] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
+	SdlNetEventThreads[2] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS) );
 
 	return true;
 };
@@ -225,9 +225,9 @@ static void SdlNetEvent_UnInit() {
 
 	SdlNetEventThreadExit = true;
 	int status = 0;
-	SDL_WaitThread( SdlNetEventThreads[0], &status );
-	SDL_WaitThread( SdlNetEventThreads[1], &status );
-	SDL_WaitThread( SdlNetEventThreads[2], &status );
+	threadPool->wait( SdlNetEventThreads[0], &status );
+	threadPool->wait( SdlNetEventThreads[1], &status );
+	threadPool->wait( SdlNetEventThreads[2], &status );
 	nlGroupDestroy(SdlNetEventGroup);
 
 	SdlNetEvent_Inited = false;

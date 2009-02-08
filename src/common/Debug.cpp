@@ -93,7 +93,7 @@ Logger errors(-1,-1,1, "E: ");
 
 #include <iostream>
 #include <sstream>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include "Options.h"
 #include "console.h"
 #include "StringUtils.h"

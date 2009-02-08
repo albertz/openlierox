@@ -561,9 +561,9 @@ public:
 };
 
 
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 
-static SDL_Thread* videoThread = NULL;
+static ThreadPoolItem* videoThread = NULL;
 static SDL_mutex* videoWaitMutex = NULL; // for videoThreadState; it's nearly always locked by main thread
 static enum { VTS_WAITING, VTS_WORKING, VTS_INVALID } videoThreadState = VTS_INVALID;
 
@@ -645,7 +645,7 @@ void VideoPostProcessor::init() {
 		/*videoWaitMutex = SDL_CreateMutex();
 		videoThreadState = VTS_INVALID;
 		SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
-		videoThread = SDL_CreateThread(&videoThreadFct, NULL);*/
+		videoThread = threadPool->start(&videoThreadFct, NULL);*/
 	}
 }
 
@@ -653,7 +653,7 @@ void VideoPostProcessor::uninit() {
 	if(videoThread) {
 		videoThreadState = VTS_INVALID;
 		SDL_mutexV(videoWaitMutex); // release state var
-		SDL_WaitThread(videoThread, NULL);
+		threadPool->wait(videoThread, NULL);
 		SDL_DestroyMutex(videoWaitMutex);
 		videoWaitMutex = NULL;
 		videoThread = NULL;

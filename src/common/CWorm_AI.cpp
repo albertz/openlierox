@@ -492,7 +492,7 @@ public:
 		break_thread_signal(0),
 		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
-		thread = SDL_CreateThread(threadSearch, this);
+		thread = threadPool->start(threadSearch, this);
 		if(!thread)
 			errors << "could not create AI thread" << endl;
 	}
@@ -500,7 +500,7 @@ public:
 	~searchpath_base() {
 		// thread cleaning up
 		breakThreadSignal();
-		if(thread) SDL_WaitThread(thread, NULL);
+		if(thread) threadPool->wait(thread, NULL);
 		else warnings << "AI thread already uninitialized" << endl;
 		thread = NULL;
 		if(thread_mut) SDL_DestroyMutex(thread_mut);
@@ -756,7 +756,7 @@ public:
 
 private:
 	NEW_ai_node_t* resulted_path;
-	SDL_Thread* thread;
+	ThreadPoolItem* thread;
 	SDL_mutex* thread_mut;
 	bool thread_is_ready;
 	int break_thread_signal;

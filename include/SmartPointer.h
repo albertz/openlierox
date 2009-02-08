@@ -17,7 +17,7 @@
 #endif
 
 
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include "Utils.h"
 
 template < typename _Type, typename _SpecificInitFunctor >

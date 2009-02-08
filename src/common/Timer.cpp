@@ -18,7 +18,7 @@
 
 
 #include <list>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <time.h>
 #include <cassert>
 #include "Timer.h"

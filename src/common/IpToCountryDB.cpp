@@ -14,7 +14,7 @@
 #endif
 
 #include <SDL.h>
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <SDL_mutex.h>
 
 #include <map>
@@ -146,7 +146,7 @@ public:
 	DBData			cache;  // Holds data that have been already used, for faster lookups mainly in the server list
 	std::vector<Ip>	notFoundCache;  // Same as the above, it only holds IPs that have not been found in the database
 
-	SDL_Thread		*loader;
+	ThreadPoolItem		*loader;
 	SDL_mutex		*dataMutex;
 	volatile bool	breakLoader;
 
@@ -162,7 +162,7 @@ public:
 	virtual ~IpToCountryData() {
 		breakLoader = true;
 		if (loader)
-			SDL_WaitThread(loader, NULL);
+			threadPool->wait(loader, NULL);
 
 		data.clear();
 		cache.clear();
@@ -191,7 +191,7 @@ public:
 		cache.clear();
 		notFoundCache.clear();
 
-		//loader = SDL_CreateThread(loaderMain, this);
+		//loader = threadPool->start(loaderMain, this);
 		file = OpenGameFileR(filename);
 		if (!file || !file->is_open())  {
 			warnings << "IpToCountry Database Error: Cannot find the database file." << endl;
@@ -221,14 +221,14 @@ public:
 		// Stop any previous loading and cleanup
 		breakLoader = true;
 		if (loader)
-			SDL_WaitThread(loader, NULL);
+			threadPool->wait(loader, NULL);
 		loader = NULL;
 		breakLoader = false;
 
 		// Start a new loading
 		if( ! dataMutex )
 			dataMutex = SDL_CreateMutex();
-		loader = SDL_CreateThread(&threadLoader, (void *)this);
+		loader = threadPool->start(&threadLoader, (void *)this);
 	}
 
 	// Adds data simultaneously as the game is running

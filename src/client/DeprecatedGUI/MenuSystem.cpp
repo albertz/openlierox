@@ -1805,7 +1805,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 ************************/
 
 std::list<std::string> tUdpServers;
-std::map<size_t, SDL_Thread *> tUpdateThreads;
+std::map<size_t, ThreadPoolItem *> tUpdateThreads;
 size_t threadId = 0;
 
 struct UdpServerlistData  {
@@ -1822,9 +1822,9 @@ void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
 
 void Menu_UpdateUDPListEnd(size_t thread)
 {
-	std::map<size_t, SDL_Thread *>::iterator it = tUpdateThreads.find(thread);
+	std::map<size_t, ThreadPoolItem *>::iterator it = tUpdateThreads.find(thread);
 	if (it != tUpdateThreads.end())
-		SDL_WaitThread(it->second, NULL);
+		threadPool->wait(it->second, NULL);
 
 	// There could be some new NAT servers that are duplicated, we will remove them here
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
@@ -1950,7 +1950,7 @@ void Menu_SvrList_UpdateUDPList()
 
 	// Run the update
 	
-	SDL_Thread *thread = SDL_CreateThread(Menu_SvrList_UpdaterThread, (void *)(++threadId));
+	ThreadPoolItem *thread = threadPool->start(Menu_SvrList_UpdaterThread, (void *)(++threadId));
 	tUpdateThreads[threadId] = thread;
 }
 

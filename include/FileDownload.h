@@ -25,7 +25,7 @@
 #include <string>
 #include <map>
 #include <stdio.h>  // for FILE
-#include <SDL_thread.h>
+#include "ThreadPool.h"
 #include <SDL_mutex.h>
 #include "HTTP.h"
 #include "types.h"
@@ -147,7 +147,7 @@ public:
 private:
 	std::list<CHttpDownloader *> tDownloads;
 	std::vector<std::string>	 tDownloadServers;
-	SDL_Thread					*tThread;
+	ThreadPoolItem					*tThread;
 	SDL_mutex					*tMutex;
 	size_t						 iActiveDownloads;
 
