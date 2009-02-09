@@ -8,6 +8,8 @@
 //
 /////////////////////////////////////////
 
+#ifndef __OLX__XMLUTILS_H__
+#define __OLX__XMLUTILS_H__
 
 // Useful functions for XML/HTML parsing
 // Created 24/7/08
@@ -27,3 +29,5 @@ inline bool xmlPropExists(xmlNodePtr node, const std::string& prop) { return xml
 std::string xmlGetBaseURL(xmlNodePtr node);
 std::string	xmlEntities(const std::string& text);
 void xmlEntityText(std::string& text);
+
+#endif

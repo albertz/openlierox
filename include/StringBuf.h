@@ -8,6 +8,8 @@
 //
 /////////////////////////////////////////
 
+#ifndef __OLX__STRINGBUF_H__
+#define __OLX__STRINGBUF_H__
 
 // String Buffer
 // Created 11/8/08
@@ -68,3 +70,5 @@ public:
 	std::vector<std::string> splitBy(char c);
 	void debugPrint();
 };
+
+#endif

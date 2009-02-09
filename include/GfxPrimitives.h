@@ -146,10 +146,10 @@ public:
 //		TypeS height();
 //		and the above as const
 template<typename _RectBasic>
-class Rect : public _RectBasic {
+class Rectangle : public _RectBasic {
 public:
 
-	Rect(const _RectBasic & r): _RectBasic(r) {};
+	Rectangle(const _RectBasic & r): _RectBasic(r) {};
 
 	class AssignX2 : private _RectBasic {
 	public:
@@ -175,31 +175,31 @@ public:
 	bool clipWith(const _ClipRect& clip) {
 		// Horizontal
 		{
-			typename Rect::Type orig_x2 = this->Rect::x2();
-			this->Rect::x() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)clip.x() );
-			this->Rect::x2() = MIN( orig_x2, (typename Rect::Type)clip.x2() );
-			this->Rect::x2() = MAX( this->Rect::x(), (typename Rect::Type)this->Rect::x2() );
+			typename Rectangle::Type orig_x2 = this->Rectangle::x2();
+			this->Rectangle::x() = MAX( (typename Rectangle::Type)this->Rectangle::x(), (typename Rectangle::Type)clip.x() );
+			this->Rectangle::x2() = MIN( orig_x2, (typename Rectangle::Type)clip.x2() );
+			this->Rectangle::x2() = MAX( this->Rectangle::x(), (typename Rectangle::Type)this->Rectangle::x2() );
 		}
 
 		// Vertical
 		{
-			typename Rect::Type orig_y2 = this->Rect::y2();
-			this->Rect::y() = MAX( (typename Rect::Type)this->Rect::y(), (typename Rect::Type)clip.y() );
-			this->Rect::y2() = MIN( orig_y2, (typename Rect::Type)clip.y2() );
-			this->Rect::y2() = MAX( this->Rect::y(), (typename Rect::Type)this->Rect::y2() );
+			typename Rectangle::Type orig_y2 = this->Rectangle::y2();
+			this->Rectangle::y() = MAX( (typename Rectangle::Type)this->Rectangle::y(), (typename Rectangle::Type)clip.y() );
+			this->Rectangle::y2() = MIN( orig_y2, (typename Rectangle::Type)clip.y2() );
+			this->Rectangle::y2() = MAX( this->Rectangle::y(), (typename Rectangle::Type)this->Rectangle::y2() );
 		}
 
-		return (this->Rect::width() && this->Rect::height());
+		return (this->Rectangle::width() && this->Rectangle::height());
 	}
 };
 
 
-typedef Rect<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
+typedef Rectangle<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
 
 template<typename _Type, typename _TypeS, typename _ClipRect>
 bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& clip) {
 	RefRectBasic<_Type, _TypeS> refrect = RefRectBasic<_Type, _TypeS>(x, y, w, h);
-	return ((Rect<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
+	return ((Rectangle<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
 }
 
 template<typename _ClipRect>

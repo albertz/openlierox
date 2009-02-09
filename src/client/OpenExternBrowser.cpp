@@ -24,10 +24,9 @@
 #endif
 
 #include "Debug.h"
+#include "LieroX.h"
 
 
-
-// declared in AuxLib.h; we are not including this to avoid problems with Rect
 void OpenLinkInExternBrowser(const std::string& url) {
 	notes << "open in extern browser: " << url << endl;
 

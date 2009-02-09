@@ -35,14 +35,13 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-namespace DeprecatedGUI {
 
 /*
-// Useful XML functions
-int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
-float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
-Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
-*/
+ // Useful XML functions
+ int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
+ float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
+ Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
+ */
 
 
 // ==============================
@@ -53,7 +52,10 @@ Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
 
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
-
+/*
+ 
+ // TODO: why are these xml* functions defined multiple times? (also in XMLUtils)
+ 
 ///////////////////
 // Get an integer from the specified property
 int xmlGetInt(xmlNodePtr Node, const std::string& Name)
@@ -84,17 +86,21 @@ float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
 Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
 {
 	xmlChar *sValue;
-
+	
 	// Get the value
 	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
-
+	
 	Uint32 result = StrToCol((char*)sValue).get();
-
+	
 	xmlFree(sValue);
 	return result;
 }
 
+*/
 
+
+
+namespace DeprecatedGUI {
 
 
 
@@ -341,9 +347,9 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			int round  = xmlGetInt(tCurrentNode,"round");
 			int border = xmlGetInt(tCurrentNode,"border");
-			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
-			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
-			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor");
+			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor").get();
+			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor").get();
+			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor").get();
 
 			Add(new CBox(round,border,light_colour,dark_colour,bgcolour),-1,left,top,width,height);
 		}
@@ -458,7 +464,7 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			xmlChar *text = xmlGetProp(tCurrentNode,(const xmlChar *)"text");
-			Uint32 colour = xmlGetColour(tCurrentNode,"color");
+			Uint32 colour = xmlGetColour(tCurrentNode,"color").get();
 			generic_events_t Events;
 			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 

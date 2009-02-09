@@ -66,14 +66,11 @@ void x11_SetDemandsAttention( bool v ) {
 #include "InputEvents.h"
 #include "Sounds.h"
 #include "AuxLib.h"
+#include "LieroX.h"
 
 #ifdef __MINGW32_VERSION
 #include <windows.h>
 #endif
-
-
-// HINT: I don't include LieroX.h directly as it declares Rect<>, which is already declared by Carbon
-extern bool bDedicated;
 
 
 // Make the sound, and blink the game window (platform-dependent)

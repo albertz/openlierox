@@ -25,11 +25,26 @@
 #include "StringUtils.h"
 #include "Cursor.h"
 #include "FindFile.h"
+#include "XMLutils.h"
 
 
 namespace DeprecatedGUI {
 
-CGuiSkin * CGuiSkin::m_instance = NULL;
+	
+	// TODO: what are these for? why aren't they in XMLUtils?
+	
+	//static bool xmlGetBool(xmlNodePtr Node, const std::string& Name);
+	//static int xmlGetInt(xmlNodePtr Node, const std::string& Name);
+	//static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
+	static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
+	//static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
+	// Get the text inside element, like "<label rect="..."> Label text </label>"
+	static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node);
+	
+	
+	
+	
+	CGuiSkin * CGuiSkin::m_instance = NULL;
 
 CGuiSkin & CGuiSkin::Init()
 {
@@ -86,15 +101,6 @@ void CGuiSkin::ClearLayouts()
 				delete it->second;
 	m_instance->m_guis.clear();
 };
-
-static bool xmlGetBool(xmlNodePtr Node, const std::string& Name);
-static int xmlGetInt(xmlNodePtr Node, const std::string& Name);
-static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
-static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
-static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
-// Get the text inside element, like "<label rect="..."> Label text </label>"
-static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node);
-
 
 CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 {
@@ -310,7 +316,7 @@ std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node)
 	std::string ret = (const char *)sValue;
 	xmlFree(sValue);
 	return ret;
-};
+}
 
 void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 {
@@ -370,7 +376,7 @@ void CGuiSkin::CallbackHandler::Call()
 	size_t size = m_callbacks.size();	// Some callbacks may destroy *this, m_callbacks.size() call will crash
 	for( size_t f=0; f<size; f++ )	// I know that's hacky, oh well...
 		m_callbacks[f].first( m_callbacks[f].second, m_source );	// Here *this may be destroyed
-};
+}
 
 static bool bUpdateCallbackListChanged = false;
 
@@ -379,7 +385,7 @@ void CGuiSkin::RegisterUpdateCallback( ScriptCallback_t update, const std::strin
 	Init();
 	m_instance->m_updateCallbacks.push_back( UpdateList_t( source, update, param ) );
 	bUpdateCallbackListChanged = true;
-};
+}
 
 void CGuiSkin::DeRegisterUpdateCallback( CWidget * source )
 {
@@ -411,7 +417,7 @@ void CGuiSkin::ProcessUpdateCallbacks()
 			return;	// Will update other callbacks next frame
 		};
 	};
-};
+}
 
 // Old OLX menu system hooks
 CGuiSkinnedLayout * MainLayout = NULL;
@@ -431,7 +437,7 @@ bool Menu_CGuiSkinInitialize(void)
 	};
 
 	return true;
-};
+}
 
 void Menu_CGuiSkinFrame(void)
 {
@@ -444,7 +450,7 @@ void Menu_CGuiSkinFrame(void)
 	MainLayout->Draw(tMenu->bmpBuffer.get());
 	DrawCursor(tMenu->bmpBuffer.get());
 	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
-};
+}
 
 void Menu_CGuiSkinShutdown(void)
 {
@@ -453,7 +459,7 @@ void Menu_CGuiSkinShutdown(void)
 	SetGameCursor(CURSOR_NONE);
 	MainLayout = NULL;
 	CGuiSkin::ClearLayouts();
-};
+}
 
 // Some handy callbacks
 void MakeSound( const std::string & param, CWidget * source )
@@ -474,7 +480,7 @@ void MakeSound( const std::string & param, CWidget * source )
 		PlaySoundSample(sfxGame.smpDeath[1]);
 	if( param == "death3" )
 		PlaySoundSample(sfxGame.smpDeath[2]);
-};
+}
 
 	class GUISkinAdder
 	{

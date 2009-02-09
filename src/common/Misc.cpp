@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 
-#include <stdarg.h>
+#include <cstdarg>
 #include <cassert>
 
 #include "LieroX.h"
