@@ -92,9 +92,9 @@ setvar GameOptions.GameInfo.LoadingTime        0
 #setvar GameOptions.GameInfo.GameSpeed			1.3
 setvar GameOptions.GameInfo.Lives			-2
 setvar GameOptions.GameInfo.TimeLimit			5
-setvar GameOptions.GameInfo.AllowConnectDuringGame	true
-setvar GameOptions.GameInfo.ForceRandomWeapons		true
-setvar GameOptions.GameInfo.SameWeaponsAsHostWorm	true
+#setvar GameOptions.GameInfo.AllowConnectDuringGame	true
+#setvar GameOptions.GameInfo.ForceRandomWeapons		true
+#setvar GameOptions.GameInfo.SameWeaponsAsHostWorm	true
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
