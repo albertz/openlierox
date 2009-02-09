@@ -3543,6 +3543,38 @@
 				RelativePath="..\..\include\Protocol.h"
 				>
 			</File>
+			<Filter
+				Name="Game Modes"
+				>
+				<File
+					RelativePath="..\..\src\server\CDeathMatch.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\CDeathMatch.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\CGameMode.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\CHideAndSeek.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\CHideAndSeek.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\CTeamDeathMatch.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\CTeamDeathMatch.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Deprecated GUI"

@@ -115,26 +115,14 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		// Game mode
 		strncat(buffer, "iGameMode = ", bufsize);
 		switch (tLXOptions->tGameInfo.iGameMode)  {
-		case GMT_CTF:
-			strncat(buffer, "GMT_CTF", bufsize);
+		case GM_DEATHMATCH:
+			strncat(buffer, "GM_DEATHMATCH", bufsize);
 			break;
-		case GMT_DEATHMATCH:
-			strncat(buffer, "GMT_DEATHMATCH", bufsize);
+		case GM_TEAMDEATH:
+			strncat(buffer, "GM_TEAMDEATH", bufsize);
 			break;
-		case GMT_DEMOLITION:
-			strncat(buffer, "GMT_DEMOLITION", bufsize);
-			break;
-		case GMT_TAG:
-			strncat(buffer, "GMT_TAG", bufsize);
-			break;
-		case GMT_TEAMCTF:
-			strncat(buffer, "GMT_TEAMCTF", bufsize);
-			break;
-		case GMT_TEAMDEATH:
-			strncat(buffer, "GMT_TEAMDEATH", bufsize);
-			break;
-		case GMT_VIP:
-			strncat(buffer, "GMT_VIP", bufsize);
+		case GM_HIDEANDSEEK:
+			strncat(buffer, "GM_HIDEANDSEEK", bufsize);
 			break;
 		default:
 			itoa(tLXOptions->tGameInfo.iGameMode, tmp, 10);
