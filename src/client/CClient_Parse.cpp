@@ -924,6 +924,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	NotifyUserOnEvent();
 	
 	client->bShouldRepaintInfo = true;
+	client->bShouldRepaintInfo3 = true;
 }
 
 
@@ -972,8 +973,8 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 
 	client->UpdateScoreboard();
-	if (client->cRemoteWorms[id].getLocal())
-		client->bShouldRepaintInfo = true;
+	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
+	client->bShouldRepaintInfo = true;
 
 	if( client->bSpectate
 		&& client->iNumWorms > 0
@@ -1003,9 +1004,6 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		}
 
 		client->sSpectatorViewportMsg = "";
-
-		//if( client->cLocalWorms[0] == &client->cRemoteWorms[id] ) // We may spectate and watch other worm, so redraw always
-		client->bShouldRepaintInfo = true;
 	}
 }
 

@@ -254,6 +254,7 @@ private:
 	DeprecatedGUI::CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
 	bool		bShouldRepaintInfo2; // For second buffer in double-buffered video processor, internal for Draw()
+	bool		bShouldRepaintInfo3; // Bad hack: third buffer, set from ParseStartGame(), to get rid of one nasty flickering
 	bool		bCurrentSettings;
 
     CWeather    cWeather;

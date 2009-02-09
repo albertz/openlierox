@@ -433,110 +433,6 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		return;
 	}
 
-	bool bScoreboard = true;
-
-	if(!bDedicated) {
-		// Local and network use different background images
-		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
-		if (tLX->iGameType == GME_LOCAL)
-			bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
-
-		// TODO: allow more viewports
-		// Draw the borders
-		if (bShouldRepaintInfo || bShouldRepaintInfo2 ||  tLX->bVideoModeChanged || bCurrentSettings)  {
-			// Fill the viewport area with black
-			DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
-				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
-
-			if (tLX->iGameType == GME_LOCAL)  {
-				if (bgImage.get())  // Doesn't have to exist (backward compatibility)
-					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, 640, bgImage.get()->h);
-				else
-					DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
-			} else {
-				if (bgImage.get())  { // Doesn't have to exist (backward compatibility)
-					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, tInterfaceSettings.ChatBoxX, bgImage.get()->h);
-					DrawImageAdv(
-								bmpDest,
-								bgImage,
-								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-								0,
-								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-								480 - bgImage.get()->h,
-								640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-								bgImage.get()->h);
-				} else {
-					DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
-					DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
-				}
-			}
-		}
-
-		// if 2 viewports, draw special
-		if(cViewports[1].getUsed())
-			DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
-
-		// Top bar
-		if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged))  {
-			SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
-			if (top_bar.get())
-				DrawImage( bmpDest, top_bar, 0, 0);
-			else
-				DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
-		}
-
-		// DEBUG: draw the AI paths
-#ifdef _AI_DEBUG
-		if (iNetStatus == NET_PLAYING && cMap)  {
-			static float last = tLX->fCurTime;
-			if (tLX->fCurTime - last >= 0.5f)  {
-				cMap->ClearDebugImage();
-				for (int i = 0; i < (int)iNumWorms; i++)  {
-					if (cLocalWorms[i]->getType() == PRF_COMPUTER)
-						((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
-				}
-				last = tLX->fCurTime;
-			}
-		}
-#endif
-
-		// Draw the viewports
-		// HINT: before we get packet with map info and load the map, cMap is undefined
-		// bGameReady says if the game (including cMap) has been initialized
-		if(((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
-
-			// Draw the viewports
-			for( i=0; i<NUM_VIEWPORTS; i++ ) {
-				if( cViewports[i].getUsed() )  {
-					if (cMap != NULL)
-						cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
-					DrawViewport(bmpDest, (byte)i);
-				}
-			}
-
-			bShouldRepaintInfo2 = false;  
-			if( bShouldRepaintInfo )
-				bShouldRepaintInfo2 = true;	// Update second buffer in viewport
-			bShouldRepaintInfo = false;  // Just repainted it
-
-			// Mini-Map
-			if (cMap != NULL)  {
-				if (iNetStatus == NET_PLAYING)
-					cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
-				else
-					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
-			}
-
-		}
-
-		// If waiting for the map/mod to finish downloading, draw the progress
-		if (bWaitingForMap || bWaitingForMod)  {
-			cDownloadBar->SetPosition( getDlProgress() );
-			tLX->cOutlineFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
-			cDownloadBar->Draw(bmpDest);
-		}
-	}
-
 	//
 	// check if Players not yet ready
 	//
@@ -569,203 +465,307 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 	}
 
-	if (!bDedicated)  {
+	bool bScoreboard = true;
 
-		// DEBUG
-		//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
-		//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
-		//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
+	if(bDedicated)
+		return;
 
-		// Draw the chatbox for either a local game, or remote game
-		if(tLX->iGameType == GME_LOCAL)
-			DrawLocalChat(bmpDest);
-		else
-			DrawRemoteChat(bmpDest);
+	// Local and network use different background images
+	SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
+	if (tLX->iGameType == GME_LOCAL)
+		bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
 
-		// FPS
-		if(tLXOptions->bShowFPS) {
-			if (tLXOptions->bTopBarVisible)  {
-				DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
-				tLX->cFont.Draw( // Draw the text
-							bmpDest,
-							tInterfaceSettings.FpsX + 2,
-							tInterfaceSettings.FpsY,
-							tLX->clFPSLabel,
-#ifdef DEBUG
-							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
-#else
-							"FPS: " + itoa(GetFPS()) // Get the string and its width
-#endif
-						);
-			} else { // Top bar is hidden
-				tLX->cOutlineFont.Draw( // Draw the text
-							bmpDest,
-							VideoPostProcessor::videoSurface()->w - 70,
-							0,
-							tLX->clFPSLabel,
-#ifdef DEBUG
-							"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
-#else
-							"FPS: " + itoa(GetFPS()) // Get the string and its width
-#endif
-						);
-			}
-		}
+	// TODO: allow more viewports
+	// Draw the borders
+	if (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged || bCurrentSettings)  {
+		// Fill the viewport area with black
+		DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
+			VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
-		// Ping on the top right
-		if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN)  {
-
-			if (tLXOptions->bTopBarVisible)  {
-				// Draw the box around it
-				DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
-
-				tLX->cFont.Draw( // Draw the text
-							bmpDest,
-							tInterfaceSettings.PingX + 2,
-							tInterfaceSettings.PingY,
-							tLX->clPingLabel,
-							"Ping: " + itoa(iMyPing));
-			} else {
-				tLX->cOutlineFont.Draw( // Draw the text
-							bmpDest,
-							VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
-							0,
-							tLX->clPingLabel,
-							"Ping: " + itoa(iMyPing));				
-			}
-
-		}
-
-		// Draw time left
-		if(tGameInfo.fTimeLimit > 0 && tLXOptions->bTopBarVisible)
-		{
-			float fTimeLeft = tGameInfo.fTimeLimit - (serverTime()/60.0f);
-			//sanity check
-			if(fTimeLeft < 0.0f)
-				fTimeLeft = 0.0f;
-		
-			int iTLMinutes = (int)fabs(fTimeLeft);
-			int iTLSeconds = (int)(fTimeLeft*60.0f) - iTLMinutes*60;
-			Uint32 clTimeLabel;
-		
-			if(iTLMinutes <= 0 && iTLSeconds < 10)
-				clTimeLabel = tLX->clTimeLeftWarnLabel;
+		if (tLX->iGameType == GME_LOCAL)  {
+			if (bgImage.get())  // Doesn't have to exist (backward compatibility)
+				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, 640, bgImage.get()->h);
 			else
-				clTimeLabel = tLX->clTimeLeftLabel;
-
-			// TODO: don't use sprintf, use C++ code!
-			//NOTE: there is no decent way to do this in C++ ?! Using C:
-			static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
-			sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
-		
-			DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
-			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
-			tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
-		}
-
-		if( sSpectatorViewportMsg != "" )
-			tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
-
-		if(tLXOptions->bShowNetRates) {
-			// Upload and download rates
-			float up = 0;
-			float down = 0;
-
-			// Get the rates
-			if( tLX->iGameType == GME_JOIN )
-			{
-				down = cClient->getChannel()->getIncomingRate() / 1024.0f;
-				up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
-			}
-			else if( tLX->iGameType == GME_HOST )
-			{
-				down = cServer->GetDownload() / 1024.0f;
-				up = cServer->GetUpload() / 1024.0f;
-			}
-
-			tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
-			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
-		}
-
-	/*#ifdef DEBUG
-		// Client and server velocity
-		if (tLX->iGameType != GME_JOIN)  {
-			if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
-				static std::string cl = "0.000";
-				static std::string sv = "0.000";
-				static float last_update = -9999;
-				if (tLX->fCurTime - last_update >= 0.5f)  {
-					cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
-					sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
-					last_update = tLX->fCurTime;
-				}
-
-				tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
-				tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
+				DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
+		} else {
+			if (bgImage.get())  { // Doesn't have to exist (backward compatibility)
+				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, tInterfaceSettings.ChatBoxX, bgImage.get()->h);
+				DrawImageAdv(
+							bmpDest,
+							bgImage,
+							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							0,
+							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							480 - bgImage.get()->h,
+							640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							bgImage.get()->h);
+			} else {
+				DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
+				DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
 			}
 		}
-	#endif*/
+	}
 
-		// Game over
-		// TODO: remove this static here; it is a bad hack and doesn't work in all cases
-		static bool was_gameovermenu = false;
-		if(bGameOver) {
-			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
-				InitializeGameMenu();
+	// if 2 viewports, draw special
+	if(cViewports[1].getUsed())
+		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
-				// If this is a tournament, take screenshot of the final screen
-				if (tLXOptions->bMatchLogging && tLX->iGameType != GME_LOCAL)  {
-					screenshot_t scrn;
-					scrn.sDir = "game_results";
-					GetLogData(scrn.sData);
-					tLX->tScreenshotQueue.push_back(scrn);
-				}
+	// Top bar
+	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged))  {
+		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
+		if (top_bar.get())
+			DrawImage( bmpDest, top_bar, 0, 0);
+		else
+			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
+	}
 
-				was_gameovermenu = true;
-			} else
-				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+	// DEBUG: draw the AI paths
+#ifdef _AI_DEBUG
+	if (iNetStatus == NET_PLAYING && cMap)  {
+		static float last = tLX->fCurTime;
+		if (tLX->fCurTime - last >= 0.5f)  {
+			cMap->ClearDebugImage();
+			for (int i = 0; i < (int)iNumWorms; i++)  {
+				if (cLocalWorms[i]->getType() == PRF_COMPUTER)
+					((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
+			}
+			last = tLX->fCurTime;
+		}
+	}
+#endif
+
+	// Draw the viewports
+	// HINT: before we get packet with map info and load the map, cMap is undefined
+	// bGameReady says if the game (including cMap) has been initialized
+	if(((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
+
+		// Draw the viewports
+		for( i=0; i<NUM_VIEWPORTS; i++ ) {
+			if( cViewports[i].getUsed() )  {
+				if (cMap != NULL)
+					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
+				DrawViewport(bmpDest, (byte)i);
+			}
+		}
+
+		// Mini-Map
+		if (cMap != NULL)  {
+			if (iNetStatus == NET_PLAYING)
+				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+			else
+				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+		}
+
+	}
+
+	// If waiting for the map/mod to finish downloading, draw the progress
+	if (bWaitingForMap || bWaitingForMod)  {
+		cDownloadBar->SetPosition( getDlProgress() );
+		tLX->cOutlineFont.DrawCentre(bmpDest, 320, getBottomBarTop() - cDownloadBar->GetHeight() - tLX->cOutlineFont.GetHeight() - 5, tLX->clNormalLabel, "Downloading files");
+		cDownloadBar->Draw(bmpDest);
+	}
+
+	// DEBUG
+	//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
+	//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
+	//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
+
+	// Draw the chatbox for either a local game, or remote game
+	if(tLX->iGameType == GME_LOCAL)
+		DrawLocalChat(bmpDest);
+	else
+		DrawRemoteChat(bmpDest);
+
+	// FPS
+	if(tLXOptions->bShowFPS) {
+		if (tLXOptions->bTopBarVisible)  {
+			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+			tLX->cFont.Draw( // Draw the text
+						bmpDest,
+						tInterfaceSettings.FpsX + 2,
+						tInterfaceSettings.FpsY,
+						tLX->clFPSLabel,
+#ifdef DEBUG
+						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
+#else
+						"FPS: " + itoa(GetFPS()) // Get the string and its width
+#endif
+					);
+		} else { // Top bar is hidden
+			tLX->cOutlineFont.Draw( // Draw the text
+						bmpDest,
+						VideoPostProcessor::videoSurface()->w - 70,
+						0,
+						tLX->clFPSLabel,
+#ifdef DEBUG
+						"FPS: " + itoa(GetFPS()) + "/" + itoa(GetMinFPS()) // Get the string and its width
+#else
+						"FPS: " + itoa(GetFPS()) // Get the string and its width
+#endif
+					);
+		}
+	}
+
+	// Ping on the top right
+	if(tLXOptions->bShowPing && tLX->iGameType == GME_JOIN)  {
+
+		if (tLXOptions->bTopBarVisible)  {
+			// Draw the box around it
+			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW);
+
+			tLX->cFont.Draw( // Draw the text
+						bmpDest,
+						tInterfaceSettings.PingX + 2,
+						tInterfaceSettings.PingY,
+						tLX->clPingLabel,
+						"Ping: " + itoa(iMyPing));
+		} else {
+			tLX->cOutlineFont.Draw( // Draw the text
+						bmpDest,
+						VideoPostProcessor::videoSurface()->w - (tLXOptions->bShowFPS ? 135 : 65),
+						0,
+						tLX->clPingLabel,
+						"Ping: " + itoa(iMyPing));				
+		}
+
+	}
+
+	// Draw time left
+	if(tGameInfo.fTimeLimit > 0 && tLXOptions->bTopBarVisible)
+	{
+		float fTimeLeft = tGameInfo.fTimeLimit - (serverTime()/60.0f);
+		//sanity check
+		if(fTimeLeft < 0.0f)
+			fTimeLeft = 0.0f;
+	
+		int iTLMinutes = (int)fabs(fTimeLeft);
+		int iTLSeconds = (int)(fTimeLeft*60.0f) - iTLMinutes*60;
+		Uint32 clTimeLabel;
+	
+		if(iTLMinutes <= 0 && iTLSeconds < 10)
+			clTimeLabel = tLX->clTimeLeftWarnLabel;
+		else
+			clTimeLabel = tLX->clTimeLeftLabel;
+
+		// TODO: don't use sprintf, use C++ code!
+		//NOTE: there is no decent way to do this in C++ ?! Using C:
+		static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
+		sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
+	
+		DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
+		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpClock, tInterfaceSettings.TimeLeftX+1,  tInterfaceSettings.TimeLeftY+1);
+		tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
+	}
+
+	if( sSpectatorViewportMsg != "" )
+		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
+
+	if(tLXOptions->bShowNetRates) {
+		// Upload and download rates
+		float up = 0;
+		float down = 0;
+
+		// Get the rates
+		if( tLX->iGameType == GME_JOIN )
+		{
+			down = cClient->getChannel()->getIncomingRate() / 1024.0f;
+			up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+		}
+		else if( tLX->iGameType == GME_HOST )
+		{
+			down = cServer->GetDownload() / 1024.0f;
+			up = cServer->GetUpload() / 1024.0f;
+		}
+
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+	}
+
+/*#ifdef DEBUG
+	// Client and server velocity
+	if (tLX->iGameType != GME_JOIN)  {
+		if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
+			static std::string cl = "0.000";
+			static std::string sv = "0.000";
+			static float last_update = -9999;
+			if (tLX->fCurTime - last_update >= 0.5f)  {
+				cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
+				sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
+				last_update = tLX->fCurTime;
+			}
+
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
+		}
+	}
+#endif*/
+
+	// Game over
+	// TODO: remove this static here; it is a bad hack and doesn't work in all cases
+	static bool was_gameovermenu = false;
+	if(bGameOver) {
+		if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
+			InitializeGameMenu();
+
+			// If this is a tournament, take screenshot of the final screen
+			if (tLXOptions->bMatchLogging && tLX->iGameType != GME_LOCAL)  {
+				screenshot_t scrn;
+				scrn.sDir = "game_results";
+				GetLogData(scrn.sData);
+				tLX->tScreenshotQueue.push_back(scrn);
+			}
+
+			was_gameovermenu = true;
 		} else
-			was_gameovermenu = false;
+			tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+	} else
+		was_gameovermenu = false;
 
-		// Viewport manager
-		if(bViewportMgr)  {
-			bScoreboard = false;
-			DrawViewportManager(bmpDest);
-		}
+	// Viewport manager
+	if(bViewportMgr)  {
+		bScoreboard = false;
+		DrawViewportManager(bmpDest);
+	}
 
-		if(iNetStatus == NET_CONNECTED && !bReadySent)  {
-			bScoreboard = false;
-			DrawPlayerWaiting(bmpDest);
-		}
+	if(iNetStatus == NET_CONNECTED && !bReadySent)  {
+		bScoreboard = false;
+		DrawPlayerWaiting(bmpDest);
+	}
 
-		// Scoreboard
-		if(bScoreboard && !bGameMenu)
-			DrawScoreboard(bmpDest);
+	// Scoreboard
+	if(bScoreboard && !bGameMenu)
+		DrawScoreboard(bmpDest);
 
-		// Current Settings
-		DrawCurrentSettings(bmpDest);
+	// Current Settings
+	DrawCurrentSettings(bmpDest);
 
-		// Game menu
-		bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
-		if( bGameMenu)
-			DrawGameMenu(bmpDest);
+	// Game menu
+	bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
+	if( bGameMenu)
+		DrawGameMenu(bmpDest);
 
-		// Options dialog
-		if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
-			DeprecatedGUI::Menu_FloatingOptionsFrame();
-		}
+	// Options dialog
+	if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
+		DeprecatedGUI::Menu_FloatingOptionsFrame();
+	}
 
-		// Chatter
-		if(bChat_Typing)  {
-			DrawChatter(bmpDest);
-		}
+	// Chatter
+	if(bChat_Typing)  {
+		DrawChatter(bmpDest);
+	}
 
-		// Console
-		Con_Draw(bmpDest);
+	// Console
+	Con_Draw(bmpDest);
 
 
-		//tLX->cOutlineFont.Draw(bmpDest, 4,20, tLX->clNormalText, "%s",tLX->debug_string);
-		//tLX->cOutlineFont.Draw(bmpDest, 4,40, tLX->clNormalText, "%f",tLX->debug_float);
+	bShouldRepaintInfo2 = false;
+	if( bShouldRepaintInfo )
+		bShouldRepaintInfo2 = true;	// Update second buffer in viewport
+	bShouldRepaintInfo = false;  // Just repainted it
+	if( bShouldRepaintInfo3 && bShouldRepaintInfo2 ) 
+	{
+		bShouldRepaintInfo = true;
+		bShouldRepaintInfo3 = false;
 	}
 }
 
@@ -876,7 +876,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
-	if (!bShouldRepaintInfo && !bShouldRepaintInfo2 && !tLX->bVideoModeChanged)
+	if ( !( bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged ) )
 		return;
 
 	// TODO: allow more viewports
