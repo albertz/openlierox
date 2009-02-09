@@ -37,9 +37,7 @@
 #include "CClientNetEngine.h"
 #include "IpToCountryDB.h"
 #include "Debug.h"
-
-
-
+#include "CGameMode.h"
 
 #ifdef _MSC_VER
 #undef min
@@ -1283,9 +1281,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
 		if( tLX->iGameType == GME_HOST ) {
-			if( tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || 
-				tLXOptions->tGameInfo.iGameMode == GMT_VIP || 
-				tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF ) {
+			if( cGameMode->GameType() == GMT_TEAMS ) {
 				
 				CWorm *w = cWorms;
 				CBytestream b;
@@ -1323,8 +1319,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
 			newcl->getWorm(i)->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
-			newcl->getWorm(i)->setKillsInRow(0);
-			newcl->getWorm(i)->setDeathsInRow(0);
 			newcl->getWorm(i)->setWeaponsReady(false);
 			
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)

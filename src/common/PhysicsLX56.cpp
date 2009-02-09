@@ -295,7 +295,7 @@ public:
 		float	fFrameRate = 7.5f;
 
 		// If we're IT, spawn some sparkles
-		if(worm->getTagIT() && cClient->getGameLobby()->iGameMode == GMT_TAG) {
+		if(worm->getTagIT() && cClient->getGameLobby()->iGameMode == GMT_TIME) {
 			if(tLX->fCurTime - worm->getLastSparkle() > 0.15f) {
 				worm->setLastSparkle( worm->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);

@@ -43,7 +43,7 @@
 #include "ProfileSystem.h"
 #include "Debug.h"
 #include "console.h"
-
+#include "CGameMode.h"
 
 /*
    The hosting menu is in two parts
@@ -60,7 +60,6 @@
 
 ==================================
 */
-
 
 namespace DeprecatedGUI {
 
@@ -435,7 +434,7 @@ enum {
 	hl_Lives,
 	hl_MaxKills,
 	hl_ModName,
-	hl_Gametype,
+	hl_Gamemode,
 	hl_GameSettings,
     hl_WeaponOptions,
     hl_PopupMenu,
@@ -572,7 +571,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, 180, 0,   0);
 	cHostLobby.Add( new CCombobox(),				hl_ModName,    440, 179, 170, 17);
 	cHostLobby.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, 158, 0,   0);
-	cHostLobby.Add( new CCombobox(),				hl_Gametype,   440, 157, 170, 17);
+	cHostLobby.Add( new CCombobox(),				hl_Gamemode,   440, 157, 170, 17);
     cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
@@ -596,15 +595,12 @@ void Menu_Net_HostLobbyCreateGui(void)
 	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
 	// Fill in the game details
-	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Deathmatch", GMT_DEATHMATCH);
-	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
-	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
-	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Demolition", GMT_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
-	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
-	#ifdef DEBUG
-	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
-	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
-	#endif
+	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Deathmatch", GM_DEATHMATCH);
+	// TODO: Reenable these
+	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Team Deathmatch", GM_TEAMDEATH);
+/*	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Tag", GM_TAG);
+	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Demolition", GM_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
+	*/
 
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
@@ -627,7 +623,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &tLXOptions->tGameInfo.sModName, 0);
 	cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sModDir, 0);
 
-	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gametype);
+	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gamemode);
 	if (gtype)  {
 		if (tLXOptions->tGameInfo.iGameMode >= 0 && tLXOptions->tGameInfo.iGameMode < gtype->getItemsCount())
 			gtype->setCurItem(tLXOptions->tGameInfo.iGameMode);
@@ -970,9 +966,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 break;
 
 			// Game type change
-			case hl_Gametype:
+			case hl_Gamemode:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+					tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0);
 					bHost_Update = true;
 					cServer->UpdateGameLobby();
 				}
@@ -1084,14 +1080,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 						// Set the team
 						CWorm *w = cServer->getWorms() + id;
-						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % (4 - (tLXOptions->tGameInfo.iGameMode == GMT_VIP));
+						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % cServer->getGameMode()->GameTeams();
 						w->setTeam(w->getLobby()->iTeam);
-
-						if(w->getLobby()->iTeam == 2) // VIP
-							if(tLXOptions->tGameInfo.iGameMode == GMT_VIP) // Playing the VIP game type
-								w->setVIP(true);
-						if(w->getLobby()->iTeam != 2) // VIP
-							w->setVIP(false);
 
 						cServer->SendWormLobbyUpdate();  // Update
 						bHost_Update = true;
@@ -1215,7 +1205,7 @@ bool Menu_Net_HostStartGame()
 		errors << "Could not get the selected mod" << endl;
 
 	// Get the game type
-	tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+	tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0);
 
 	// Get the map name
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
@@ -1334,10 +1324,8 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL, VALIGN_MIDDLE,
 								compatible ? tLX->clPink : tLX->clError);  // Name
 
-		// Display the team mark if TDM
-		if (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || 
-			cClient->getGameLobby()->iGameMode == GMT_VIP || 
-			cClient->getGameLobby()->iGameMode == GMT_TEAMCTF)  {
+		// Display the team mark if the game mode requires teams
+		if(cServer->getGameMode()->GameType() == GMT_TEAMS) {
 			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)

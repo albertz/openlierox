@@ -1913,7 +1913,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 		big = false;
 
 		// Tagged worms or local players are bigger, depending on the game type
-		if(gametype != GMT_TAG) {
+		if(gametype != GMT_TIME) {
 			big = (w->getType() == PRF_HUMAN && w->getLocal());
 		} else {
 			big = w->getTagIT()!=0;

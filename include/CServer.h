@@ -33,7 +33,7 @@ class CWorm;
 class CServerConnection;
 class CMap;
 class Version;
-
+class CGameMode;
 
 #define		MAX_CHALLENGES		1024
 
@@ -78,17 +78,13 @@ private:
 	// Game rules
 	bool		bGameOver;
 	float		fGameOverTime;
+	
+	CGameMode*	cGameMode;
 
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;
-
-	int			iFlagHolders [MAX_WORMS];	// The ID of which worm holds each flag (an array for if Team CTF is made)
-	float		fLastCTFScore;				// The last time someone scored in CTF (for when the map doesn't have a base)
-
-	// Special messages
-	bool		bFirstBlood;	// True if no-one has been killed yet
-
+    
 	// Clients
 	CServerConnection *cClients;		// TODO: use std::list or vector
 
@@ -163,8 +159,6 @@ public:
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame(void);
-	// TODO: Give this a better name (I couldn't think of what to call it)
-	void		SimulateGameSpecial();
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
 	static void	WormShoot(CWorm *w, GameServer* gameserver);
@@ -249,6 +243,7 @@ public:
 
 
 	// Variables
+	CGameMode               *getGameMode(void)              { return cGameMode; }
 	int				getState(void)			{ return iState; }
 	CWorm			*getWorms(void)			{ return cWorms; }
 	CMap			*getMap(void)			{ return cMap; }
@@ -261,10 +256,6 @@ public:
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection *getClients() { return cClients; }
 	float	getServerTime() { return fServertime; }
-
-	// TODO: change the name of these functions; the sense should be clear
-	int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
-	void	setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
 
 	int		getNumPlayers(void)			{ return iNumPlayers; }
 	

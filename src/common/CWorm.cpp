@@ -1,6 +1,6 @@
 /////////////////////////////////////////
 //
-//             OpenLieroX
+//			 OpenLieroX
 //
 // code under LGPL, based on JasonBs work,
 // enhanced by Dark Charlie and Albert Zeyer
@@ -54,16 +54,13 @@ void CWorm::Clear(void)
 	iSuicides = 0;
 	iDamage = 0;
 
-	iKillsInRow = 0;
-	iDeathsInRow = 0;
-
 	iHealth = 100;
 	iLives = 10;
 	bAlive = false;
 	iDirection = DIR_RIGHT;
 	fAngle = 0;
-    fAngleSpeed = 0;
-    fMoveSpeedX = 0;
+	fAngleSpeed = 0;
+	fMoveSpeedX = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
 
@@ -98,7 +95,7 @@ void CWorm::Clear(void)
 	bTagIT = false;
 	fTagTime = 0;
 	fLastSparkle = -99999;
-    iDirtCount = 0;
+	iDirtCount = 0;
 
 	fLastBlood = -9999;
 
@@ -118,7 +115,7 @@ void CWorm::Clear(void)
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
 
-    cWeaponRest = NULL;
+	cWeaponRest = NULL;
 	
 	
 
@@ -128,9 +125,9 @@ void CWorm::Clear(void)
 	tLobbyState.bHost = false;
 	tLobbyState.bReady = false;
 	tLobbyState.iType = LBY_OPEN;
-    tLobbyState.iTeam = 0;
+	tLobbyState.iTeam = 0;
 
-    bForceWeapon_Name = false;
+	bForceWeapon_Name = false;
 
 	
 
@@ -353,7 +350,7 @@ void CWorm::setupLobby(void)
 	tLobbyState.bHost = false;
 	tLobbyState.iType = LBY_USED;
 	tLobbyState.bReady = false;
-    tLobbyState.iTeam = 0;
+	tLobbyState.iTeam = 0;
 }
 
 
@@ -364,11 +361,11 @@ void CWorm::Spawn(CVec position) {
 	if (bSpectating)
 		return;
 
-    bAlive = true;
+	bAlive = true;
 	bAlreadyKilled = false;
 	fAngle = 0;
-    fAngleSpeed = 0;
-    fMoveSpeedX = 0;
+	fAngleSpeed = 0;
+	fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
 	iMoveDirection = DIR_RIGHT;
@@ -381,10 +378,10 @@ void CWorm::Spawn(CVec position) {
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bHooked = false;
-    bForceWeapon_Name = false;
+	bForceWeapon_Name = false;
 
 	bOnGround = false;
-    iNumWeaponSlots = 5;
+	iNumWeaponSlots = 5;
 
 	// Reset the weapons
 	for(ushort n = 0; n < iNumWeaponSlots; n++) {
@@ -416,26 +413,26 @@ bool CWorm::ChangeGraphics(int gametype)
 	// TODO: create some good way to allow custom colors
 
 	bool team = false;
-    Uint8 r=0,g=0,b=0;
+	Uint8 r=0,g=0,b=0;
 
 	// Destroy any previous graphics
 	FreeGraphics();
 
 	Uint32 colour = cSkin.getDefaultColor();
 	// If we are in a team game, use the team colours
-    if(gametype == GMT_TEAMDEATH || gametype == GMT_VIP) {
+	if(gametype == GMT_TEAMS) {
 		team = true;
 		colour = tLX->clTeamColors[iTeam];
 	}
 
-    // Use the colours set on the network
-    // Profile or team colours will override this
+	// Use the colours set on the network
+	// Profile or team colours will override this
 	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
 
-    // Colourise the giblets
+	// Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
-    // Colourise the skin
+	// Colourise the skin
 	cSkin.Colorize(colour);
 
 	return bmpGibs.get() != NULL;
@@ -545,8 +542,8 @@ void CWorm::GetRandomWeapons(void)
 	for(short i=0; i<5; i++) {
 		num = MAX(1, GetRandomInt(cGameScript->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
-        // Cycle through weapons starting from the random one until we get an enabled weapon
-        n=num;
+		// Cycle through weapons starting from the random one until we get an enabled weapon
+		n=num;
 		lastenabled = 0;
 		while(true) {
 			// Wrap around
@@ -652,8 +649,8 @@ void CWorm::UpdateDrawPos() {
 // Draw the worm
 void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 {
-    if( !v )
-        return;
+	if( !v )
+		return;
 
 	int x,y,f,ang;
 	int l = v->GetLeft();
@@ -842,13 +839,13 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
-    /*FillSurfaceTransparent(bmpShadowPic.get());
+	/*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
-        CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
+		CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
 	else
-        CopySurface(bmpShadowPic.get(), bmpWormLeft, bmpWormLeft.get()->w-f-32,0, 0,0, 32,18);
+		CopySurface(bmpShadowPic.get(), bmpWormLeft, bmpWormLeft.get()->w-f-32,0, 0,0, 32,18);
 
-    DrawImage(bmpDest, bmpShadowPic, x-18,y-10);*/
+	DrawImage(bmpDest, bmpShadowPic, x-18,y-10);*/
 
 
 
@@ -861,9 +858,9 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	x -= x % 2;
 	y -= y % 2;*/
 
-    /*x = (int)( (tLX->debug_pos.x-wx)*2+l );
+	/*x = (int)( (tLX->debug_pos.x-wx)*2+l );
 	y = (int)( (tLX->debug_pos.y-wy)*2+t );
-    DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,tLX->clBlack);*/
+	DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,tLX->clBlack);*/
 
 
 	//
@@ -899,21 +896,21 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	// Draw the weapon name
-    if(bLocal && m_type == PRF_HUMAN) {
-        if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
-		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
+	if(bLocal && m_type == PRF_HUMAN) {
+		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
-            if( tLX->fCurTime > fForceWeapon_Time )
-                bForceWeapon_Name = false;
-        }
-    }
+			if( tLX->fCurTime > fForceWeapon_Time )
+				bForceWeapon_Name = false;
+		}
+	}
 
 	// Draw the worm's name
 	std::string WormName = sName;
 	if( sAFKMessage != "" )
 		WormName += " " + sAFKMessage;
 	if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
-		if ((cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || cClient->getGameLobby()->iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
+		if (cClient->getGameLobby()->iGameMode == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
 		} // if
@@ -933,7 +930,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
 	if( tLXOptions->bShadows && v )  {
-    	static const int drop = 4;
+		static const int drop = 4;
 
 		// Copied from ::Draw
 		// TODO: a separate function for this
@@ -981,16 +978,6 @@ bool CWorm::CheckOnGround()
 // Returns true if i was killed by this injury
 bool CWorm::Injure(int damage)
 {
-	if(tLX->iGameType == GME_HOST && cServer) {
-		// If playing CTF and I am a flag don't injure me
-		if(cClient->getGameLobby()->iGameMode == GMT_CTF && getFlag())
-			return false;
-
-		// If playing teams CTF and I am a flag don't injure me
-		if(cClient->getGameLobby()->iGameMode == GMT_TEAMCTF && getFlag())
-			return false;
-	}
-
 	iHealth -= damage;
 
 	if(iHealth < 0) {
@@ -1136,9 +1123,7 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 Uint32 CWorm::getGameColour(void)
 {
 	switch(cClient->getGameLobby()->iGameMode) {
-		case GMT_TEAMDEATH:
-		case GMT_VIP:
-		case GMT_TEAMCTF:
+		case GMT_TEAMS:
 			return tLX->clTeamColors[iTeam];
 		default:
 			return cSkin.getDefaultColor();
@@ -1155,8 +1140,7 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured yourself
 	}
-	else if( (tLXOptions->tGameInfo.iGameMode == GMT_TEAMDEATH || tLXOptions->tGameInfo.iGameMode == GMT_VIP) && 
-				getTeam() == victim->getTeam() ) 
+	else if( tLXOptions->tGameInfo.iGameMode == GMT_TEAMS && getTeam() == victim->getTeam() ) 
 	{
 		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate

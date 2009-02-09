@@ -12,7 +12,7 @@ OPTION(DEBUG "enable debug build" Yes)
 OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 OPTION(G15 "G15 support" No)
 OPTION(X11 "X11 clipboard / notify" Yes)
-OPTION(HAWKNL_BUILTIN "HawkNL builtin support" No)
+OPTION(HAWKNL_BUILTIN "HawkNL builtin support" Yes)
 OPTION(LIBZIP_BUILTIN "LibZIP builtin support" No)
 OPTION(STLPORT "STLport support" No)
 

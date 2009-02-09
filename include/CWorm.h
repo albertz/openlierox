@@ -198,8 +198,6 @@ private:
 	int			iTeam;
 	std::string	sName;
 	int			iRanking;
-	int			iKillsInRow;
-	int			iDeathsInRow;
 	bool		bAlreadyKilled;
 	bool		bSpectating;
 
@@ -557,14 +555,6 @@ public:
 	CWormSkin&	getSkin(void)				{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
-
-	void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
-	int			getKillsInRow(void)			{ return iKillsInRow; }
-	void		addKillInRow(void)			{ iKillsInRow++; }
-
-	void		setDeathsInRow(int _k)		{ iDeathsInRow = 0; }
-	int			getDeathsInRow(void)		{ return iDeathsInRow; }
-	void		addDeathInRow(void)			{ iDeathsInRow++; }
 
 	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
 	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }

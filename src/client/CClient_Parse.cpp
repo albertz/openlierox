@@ -571,7 +571,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bBonusesOn = bs->readBool();
 	client->bShowBonusName = bs->readBool();
 
-	if(client->iGameType == GMT_TAG)
+	if(client->iGameType == GMT_TIME)
 		client->iTagLimit = bs->readInt16();
 
 	// Load the gamescript
@@ -1333,7 +1333,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
-	if (client->tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+	if (client->tGameInfo.iGameMode == GMT_TEAMS)  {
 
 		if (client->tGameInfo.iKillLimit != -1)  {
 			client->iMatchWinner = client->cRemoteWorms[client->iMatchWinner].getTeam();
@@ -1348,7 +1348,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 
 	// Older servers send wrong info about tag winner, better if we count it ourself
-	if (client->tGameInfo.iGameMode == GMT_TAG)  {
+	if (client->tGameInfo.iGameMode == GMT_TIME)  {
 		float max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
@@ -1427,6 +1427,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 }
 
 
+// TODO: Rename this to ParseTimeUpdate (?)
 ///////////////////
 // Parse a tag update packet
 void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
@@ -1445,7 +1446,7 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 		return;
 	}
 
-	if (client->tGameInfo.iGameMode != GMT_TAG)  {
+	if (client->tGameInfo.iGameMode != GMT_TIME)  {
 		printf("CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring\n");
 		return;
 	}

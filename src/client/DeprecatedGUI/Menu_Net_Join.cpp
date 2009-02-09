@@ -754,7 +754,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
 
 			// Display the team mark if TDM
-			if (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH)  {
+			if (cClient->getGameLobby()->iGameMode == GMT_TEAMS)  {
 				team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 				if (!team_img)
 					continue;

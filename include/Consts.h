@@ -39,15 +39,20 @@ enum {
 
 static const float LX_ENDWAIT = 9.0f;
 
-// Game types
+// Game modes
 enum {
-	GMT_DEATHMATCH = 0,
-	GMT_TEAMDEATH,
-	GMT_TAG,
-    GMT_DEMOLITION,
-	GMT_VIP,
-	GMT_CTF,
-	GMT_TEAMCTF
+	GM_DEATHMATCH = 0,
+	GM_TEAMDEATH,
+	GM_TAG,
+	GM_DEMOLITION
+};
+
+// Game mode types
+enum {
+	GMT_NORMAL,  // Worms appear as normal
+	GMT_TEAMS,   // Worms appear in teams
+	GMT_TIME,    // One worm appears special, worms have a time attribute
+	GMT_DIRT     // There is a dirt counter
 };
 
 enum AFK_TYPE {

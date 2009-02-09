@@ -145,8 +145,8 @@ void CClient::Simulation(void)
 		}
 
 
-		// In a game of tag, increment the tagged worms time
-		if(iGameType == GMT_TAG && w->getTagIT())  {
+		// In a timed game increment the tagged worms time
+		if(iGameType == GMT_TIME && w->getTagIT())  {
 			w->incrementTagTime(tLX->fRealDeltaTime);
 
 			// Log
@@ -659,39 +659,23 @@ void CClient::UpdateScoreboard(void)
 		iScoreboard[iScorePlayers++] = p;
 
 		// Add to the team score
-		if(iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) {
+		if(iGameType == GMT_TEAMS) {
 			// Make the score at least zero to say we have
 			int team = w->getTeam();
 			if (team < 0)  {  // prevents crashing sometimes
 				w->setTeam(0);
 				team = 0;
 			}
-			// On VIP treat the greens and blues as one team
-			if(iGameType == GMT_VIP && team == 2)
-				team = 0;
 			iTeamScores[team] = MAX(0,iTeamScores[team]);
 
 			if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
 				iTeamScores[team] += w->getLives();
 		}
-		// Add to the team score
-		if(iGameType == GMT_TEAMCTF) {
-			// Make the score at least zero to say we have
-			int team = w->getTeam();
-			if (team < 0)  {  // prevents crashing sometimes
-				w->setTeam(0);
-				team = 0;
-			}
-			iTeamScores[team] = MAX(0,iTeamScores[team]);
-
-			if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
-				iTeamScores[team] += w->getKills();
-		}
 	}
 
 
 	// Sort the team lists
-	if(iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) {
+	if(iGameType == GMT_TEAMS) {
 		for(i=0;i<4;i++) {
 			for(j=0;j<3-i;j++) {
 				if(iTeamScores[iTeamList[j]] < iTeamScores[iTeamList[j+1]]) {
@@ -713,7 +697,7 @@ void CClient::UpdateScoreboard(void)
 	// Sort the array
 	for(i=0; i<iScorePlayers; i++) {
 		for(j=0; j<iScorePlayers-1-i; j++) {
-			if(iGameType == GMT_TAG) {
+			if(iGameType == GMT_TIME) {
 
 				// TAG
 				if(cRemoteWorms[iScoreboard[j]].getTagTime() < cRemoteWorms[iScoreboard[j + 1]].getTagTime()) {
@@ -723,7 +707,7 @@ void CClient::UpdateScoreboard(void)
 					iScoreboard[j+1] = s;
 				}
 
-            } else if( iGameType == GMT_DEMOLITION ) {
+            } else if( iGameType == GMT_DIRT ) {
 
                 // DEMOLITIONS
                 if(cRemoteWorms[iScoreboard[j]].getDirtCount() < cRemoteWorms[iScoreboard[j + 1]].getDirtCount()) {
@@ -733,30 +717,8 @@ void CClient::UpdateScoreboard(void)
 					iScoreboard[j+1] = s;
 				}
 
-			} else if ( iGameType == GMT_CTF ) {
-
-				// CAPTURE THE FLAG
-				if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
-
-					// Swap the 2 scoreboard entries
-					s = iScoreboard[j];
-					iScoreboard[j] = iScoreboard[j+1];
-					iScoreboard[j+1] = s;
-				} else if(cRemoteWorms[iScoreboard[j]].getKills() == cRemoteWorms[iScoreboard[j + 1]].getKills()) {
-
-					// Equal kills, so compare lives
-					int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
-					if(res < 0) {
-
-						// Swap the 2 scoreboard entries
-						s = iScoreboard[j];
-						iScoreboard[j] = iScoreboard[j+1];
-						iScoreboard[j+1] = s;
-					}
-				}
 			} else {
-
-				// DEATHMATCH or TEAM DEATHMATCH or VIP or TEAMCTF
+				// DEATHMATCH or TEAM DEATHMATCH
 				// HINT: WRM_OUT (-1) < WRM_UNLIM (-2)
 				int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
 				if(res < 0)  {
@@ -805,7 +767,7 @@ void CClient::CheckDemolitionsGame(void)
     // If the map has less then a 1/5th of the dirt it once had, the game is over
     // And the worm with the highest dirt count wins
 
-    if( tGameInfo.iGameMode != GMT_DEMOLITION || tLX->iGameType != GME_LOCAL )
+    if( tGameInfo.iGameMode != GMT_DIRT || tLX->iGameType != GME_LOCAL )
         return;
 
     // Add up all the worm's dirt counts

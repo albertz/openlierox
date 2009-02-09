@@ -1002,7 +1002,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	static std::string spec_msg;
 
 	switch (iGameType)  {
-	case GMT_TAG:
+	case GMT_TIME:
 		// Am i IT?
 		if(worm->getTagIT())  {
 			spec_msg = "You are IT!";
@@ -1012,7 +1012,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		break;
 
 
-    case GMT_DEMOLITION: {
+    case GMT_DIRT: {
 		    // Dirt count
 			int count = worm->getDirtCount();
 			spec_msg = "Dirt count: ";
@@ -1028,7 +1028,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		}
 		break;
 
-	case GMT_TEAMDEATH:  {
+	case GMT_TEAMS:  {
 			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
 				int box_h = bmpBoxLeft.get() ? bmpBoxLeft.get()->h : tLX->cFont.GetHeight();
 				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
@@ -1168,7 +1168,7 @@ inline void AddColumns(DeprecatedGUI::CListview *lv)
 	lv->AddColumn("", 25); // Skin
 	lv->AddColumn("", tLX->iGameType == GME_HOST ? 160 - 35 : 160); // Player name
 	lv->AddColumn("", 30); // Lives
-	if (cClient->getGameLobby()->iGameMode == GMT_DEMOLITION)
+	if (cClient->getGameLobby()->iGameMode == GMT_DIRT)
 		lv->AddColumn("", 40); // Dirt count
 	else
 		lv->AddColumn("", 30);  // Kills
@@ -1230,7 +1230,7 @@ void CClient::InitializeGameMenu()
 
 	cGameMenuLayout.Add(new DeprecatedGUI::CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
 	if (bGameOver)  {
-		if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+		if (tGameInfo.iGameMode == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
@@ -1289,7 +1289,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	}
 
 	// Update the top message (winner/dirt count)
-	if (tGameInfo.iGameMode == GMT_DEMOLITION)  {
+	if (tGameInfo.iGameMode == GMT_DIRT)  {
 		// Get the dirt count
 		int dirtcount, i;
 		dirtcount = i = 0;
@@ -1435,9 +1435,9 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 	static const std::string VIPteamnames[] = {"VIP Defenders", "VIP Attackers", "VIPs"};
 
-	// Deathmatch scoreboard
+	// Normal scoreboard
 	switch(iGameType) {
-	case GMT_DEATHMATCH:  {
+	case GMT_NORMAL:  {
 
 		// Fill the left listview
 		DeprecatedGUI::CListview *lv = Left;
@@ -1492,11 +1492,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			}
 		}
 	}
-	break; // DEATHMATCH
+	break; // NORMAL
 
 
-    // Demolitions scoreboard
-	case GMT_DEMOLITION: {
+    // Dirt game scoreboard
+	case GMT_DIRT: {
 
 		// Draw the players
 		DeprecatedGUI::CListview *lv = Left;
@@ -1541,11 +1541,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDirtCount()), NULL, NULL);
 		}
 	}
-	break;  // DEMOLITIONS
+	break;  // DIRT
 
 
-	// Tag scoreboard
-	case GMT_TAG: {
+	// Timed game scoreboard
+	case GMT_TIME: {
 
 		// Draw the players
 		DeprecatedGUI::CListview *lv = Left;
@@ -1604,11 +1604,11 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(m) + ":" + (s < 10 ? "0" : "") + itoa(s), NULL, NULL);
 		}
 	}
-	break;  // TAG
+	break;  // TIME
 
 
-	// Team deathmatch scoreboard
-	case GMT_TEAMDEATH: {
+	// Team scoreboard
+	case GMT_TEAMS: {
 
 
 		// Go through each team
@@ -1698,252 +1698,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			}
 		}
 	}
-	break; // TEAM DEATHMATCH
-	case GMT_CTF:  {
-
-		// Fill the left listview
-		DeprecatedGUI::CListview *lv = Left;
-		for(i=0; i < iScorePlayers; i++) {
-			// Left listview overflowed, fill the right one
-			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
-				lv = Right;
-
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
-
-			// Do not list flags
-			if (p->getFlag())
-				continue;
-
-			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
-			cmd_button->setRedrawMenu(false);
-			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
-			cmd_button->setID(p->getID());
-			cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
-
-			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
-
-			// Add the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
-
-			// Skin
-			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
-
-			// Name
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
-
-			// Lives
-			switch (p->getLives())  {
-			case WRM_UNLIM:
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-				break;
-			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
-				break;
-			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
-				break;
-			}
-
-			// Kills
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
-
-			// Ping
-			if (tLX->iGameType == GME_HOST)  {
-				CServerConnection *remoteClient = cServer->getClient(p->getID());
-				if (remoteClient && p->getID())
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
-			}
-		}
-	}
-	break; // CTF
-		// Team CTF scoreboard
-	case GMT_TEAMCTF: {
-
-
-		// Go through each team
-		DeprecatedGUI::CListview *lv = Left;
-		int team, score;
-		Uint32 colour;
-
-		for(n = 0; n < 4; n++) {
-			team = iTeamList[n];
-			score = iTeamScores[team];
-
-			// Check if the team has any players
-			if(score == -1)
-				continue;
-
-			// If left would overflow after adding team header, switch to right
-			if (lv->getNumItems() + 1 >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
-				lv = Right;
-
-			// Header
-			colour = tLX->clTeamColors[team];
-
-			lv->AddItem(teamnames[team], n + 1024, colour);
-
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL);  // In the place of the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
-			if (tLX->iGameType == GME_HOST)  // Ping label
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
-
-			// Draw the players
-			CWorm *p;
-			for(i = 0; i < iScorePlayers; i++) {
-				// If the left listview overflowed, fill the right one
-				if (lv->getItemCount() >= 16)
-					lv = Right;
-
-				p = &cRemoteWorms[iScoreboard[i]];
-
-				if(p->getTeam() != team)
-					continue;
-
-				// Do not list flags
-				if (p->getFlag())
-					continue;
-
-				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
-				cmd_button->setRedrawMenu(false);
-				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
-				cmd_button->setID(p->getID());
-				cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
-
-				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
-
-				// Add the command button
-				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
-
-				// Skin
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
-
-				// Name
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
-
-				// Lives
-				switch (p->getLives())  {
-				case WRM_UNLIM:
-					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-					break;
-				case WRM_OUT:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
-					break;
-				default:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
-					break;
-				}
-
-				// Kills
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
-
-				// Damage
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
-
-				// Ping
-				if (tLX->iGameType == GME_HOST)  {
-					CServerConnection *remoteClient = cServer->getClient(p->getID());
-					if (remoteClient && p->getID())
-						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
-				}
-			}
-		}
-	}
-	break; // TEAM CTF
-	// VIP scoreboard
-	case GMT_VIP: {
-
-
-		// Go through each team
-		DeprecatedGUI::CListview *lv = Left;
-		int team, score;
-		Uint32 colour;
-
-		for(n = 0; n < 4; n++) {
-			team = iTeamList[n];
-			score = iTeamScores[team];
-
-			// Check if the team has any players
-			if(score == -1)
-				continue;
-
-			// If left would overflow after adding team header, switch to right
-			if (lv->getNumItems() + 1 >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
-				lv = Right;
-
-			// Header
-			colour = tLX->clTeamColors[team];
-
-			lv->AddItem(VIPteamnames[team], n + 1024, colour);
-
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL); // In the place of the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, VIPteamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
-			if (tLX->iGameType == GME_HOST)  // Ping label
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
-
-			// Draw the players
-			CWorm *p;
-			for(i = 0; i < iScorePlayers; i++) {
-				// If the left listview overflowed, fill the right one
-				if (lv->getItemCount() >= 16)
-					lv = Right;
-
-				p = &cRemoteWorms[iScoreboard[i]];
-
-				if(p->getTeam() != team && (p->getTeam()!=2 || team !=0))
-					continue;
-
-				DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
-				cmd_button->setRedrawMenu(false);
-				cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
-				cmd_button->setID(p->getID());
-				cmd_button->setEnabled(tLX->iGameType != GME_JOIN);  // Disable for client games
-
-				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
-
-				// Add the command button
-				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
-
-				// Skin
-				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
-
-				// Name
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
-
-				// Lives
-				switch (p->getLives())  {
-				case WRM_UNLIM:
-					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
-					break;
-				case WRM_OUT:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
-					break;
-				default:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
-					break;
-				}
-
-				// Kills
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
-
-				// Damage
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
-
-				// Ping
-				if (tLX->iGameType == GME_HOST)  {
-					CServerConnection *remoteClient = cServer->getClient(p->getID());
-					if (remoteClient && p->getID())
-						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
-				}
-			}
-		}
-	}
-	break; // VIP
+	break; // TEAMS
 	} // switch
 }
 
@@ -2563,7 +2318,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
         CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
 		// Get colour
-		if (tLXOptions->bColorizeNicks && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF))
+		if (tLXOptions->bColorizeNicks && tGameInfo.iGameMode == GMT_TEAMS)
 			iColor = tLX->clTeamColors[p->getTeam()];
 		else
 			iColor = tLX->clNormalLabel;
@@ -2758,7 +2513,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
-	static const std::string gmt_names[] = {"Deathmatch", "Team DM", "Tag", "Demolition", "VIP", "CTF", "Teams CTF"};
+	static const std::string gmt_names[] = {"Deathmatch", "Team DM", "Tag", "Demolition"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGameMode, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
 	cur_y += tLX->cFont.GetHeight();

@@ -243,7 +243,7 @@ CClient::CClient() {
 	cWeaponBar1 = NULL;
 	cWeaponBar2 = NULL;
 	cDownloadBar = NULL;
-	iGameType = GMT_DEATHMATCH;
+	iGameType = GMT_NORMAL;
 	bGameReady = false;
 	bMapGrabbed = false;
 	cChatList = NULL;
@@ -454,7 +454,7 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].iTeamKills = 0;
 			tGameLog->tWorms[j].iTeamDeaths = 0;
 			tGameLog->tWorms[j].bTagIT = false;
-			if (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)
+			if (tGameInfo.iGameMode == GMT_TEAMS)
 				tGameLog->tWorms[j].iTeam = cRemoteWorms[i].getTeam();
 			else
 				tGameLog->tWorms[j].iTeam = -1;

@@ -31,9 +31,9 @@
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
-
-
-
+#include "CGameMode.h"
+#include "CDeathMatch.h"
+#include "CTeamDeathMatch.h"
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
@@ -113,7 +113,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
 	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
-	if(tLXOptions->tGameInfo.iGameMode == GMT_TAG)
+	if(tLXOptions->tGameInfo.iGameMode == GMT_TIME)
 		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	
@@ -524,13 +524,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 	bs->writeString(tLXOptions->tGameInfo.sMapFile);
 	bs->writeString(tLXOptions->tGameInfo.sModName);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
-	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
-	if(tLXOptions->tGameInfo.iGameMode == GMT_VIP || tLXOptions->tGameInfo.iGameMode == GMT_TEAMCTF)
-		bs->writeByte(GMT_TEAMDEATH);
-	else if(tLXOptions->tGameInfo.iGameMode == GMT_CTF)
-		bs->writeByte(GMT_DEATHMATCH);
-	else
-		bs->writeByte(tLXOptions->tGameInfo.iGameMode);
+	bs->writeByte(server->getGameMode()->GameType());
 	bs->writeInt16(tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
@@ -557,6 +551,21 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
+	if(cGameMode != NULL)
+		delete cGameMode;
+
+	// TODO: Add more game modes | CGameMode
+	switch(tLXOptions->tGameInfo.iGameMode) {
+		case GM_DEATHMATCH:
+			cGameMode = new CDeathMatch(this, cWorms);
+			break;
+		case GM_TEAMDEATH:
+			cGameMode = new CTeamDeathMatch(this, cWorms);
+			break;
+		default:
+			errors << "Trying to play a non-existant gamemode" << endl;
+	}
+
 	// Read map/mod name from map/mod file
 	tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);

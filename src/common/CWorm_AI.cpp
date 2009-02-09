@@ -1009,11 +1009,8 @@ void CWormBotInputHandler::getInput() {
 					  m_client->getGameType() == GMT_CTF,
 					  m_client->getGameType() == GMT_TEAMCTF);
 	*/
-	bool teamgame = cClient->getGameType() == GMT_TEAMDEATH;
-	bool taggame = cClient->getGameType() == GMT_TAG;
-	bool VIPgame = cClient->getGameType() == GMT_VIP;
-	bool flaggame = cClient->getGameType() == GMT_CTF;
-	bool teamflaggame = cClient->getGameType() == GMT_TEAMCTF;
+	bool teamgame = cClient->getGameType() == GMT_TEAMS;
+	bool taggame = cClient->getGameType() == GMT_TIME;
 	
 	
 	worm_state_t *ws = &m_worm->tState;
@@ -1029,23 +1026,11 @@ void CWormBotInputHandler::getInput() {
 	if ((tLX->fCurTime - m_worm->fSpawnTime) < 0.4)
 		return;
 
-
-	// TODO: move this out here
-	// If the worm is a flag don't let it move
-	if(flaggame && m_worm->getFlag())
-		return;
-	if(teamflaggame && m_worm->getFlag())
-		return;
-
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
 	m_worm->bOnGround = m_worm->CheckOnGround();
 
 	iAiGame = cClient->getGameType();
 	iAiTeams = teamgame;
-	iAiTag = taggame;
-	iAiVIP = VIPgame;
-	iAiCTF = flaggame;
-	iAiTeamCTF = teamflaggame;
 
     tLX->debug_string = "";
 
@@ -1767,7 +1752,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	}
 
 	// Don't shoot teammates
-	if(cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH && (nType & PX_WORM)) {
+	if(cClient->getGameLobby()->iGameMode == GMT_TEAMS && (nType & PX_WORM)) {
 		notes << "bot: we don't want shoot teammates" << endl;
 		return false;
 	}
@@ -2559,12 +2544,10 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && (cClient->getGameLobby()->iGameMode == GMT_TEAMDEATH || cClient->getGameLobby()->iGameMode == GMT_VIP))  {
+	if (cClient && cClient->getGameLobby()->iGameMode == GMT_TEAMS)  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w) {
-				if(w->isUsed() && w->getAlive() && w->getVIP() && m_worm->iTeam == 0 && cClient->getGameLobby()->iGameMode == GMT_VIP)
-					WormsPos[WormCount++] = w->getPos();
 				if (w->isUsed() && w->getAlive() && w->getTeam() == m_worm->iTeam && w->getID() != m_worm->iID)
 					WormsPos[WormCount++] = w->getPos();
 			}

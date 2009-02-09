@@ -546,7 +546,7 @@ struct DedIntern {
 		}
 
 		// Get the game type
-		tLXOptions->tGameInfo.iGameMode = GMT_DEATHMATCH;
+		tLXOptions->tGameInfo.iGameMode = GMT_NORMAL;
 
 		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
 		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
