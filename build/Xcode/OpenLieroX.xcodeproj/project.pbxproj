@@ -117,6 +117,9 @@
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */; };
+		23D0FD170F40624E00D3DF4B /* CDeathMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */; };
+		23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */; };
+		23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */; };
 		23ECBE3C0E894D48007B8D55 /* mkstemp.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFD0E894D03007B8D55 /* mkstemp.c */; };
 		23ECBE3D0E894D48007B8D55 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 23ECBDFE0E894D03007B8D55 /* zip.h */; };
 		23ECBE3E0E894D48007B8D55 /* zip_add.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFF0E894D03007B8D55 /* zip_add.c */; };
@@ -512,6 +515,13 @@
 		23D07A450D36CC6200313749 /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DedicatedControl.cpp; sourceTree = "<group>"; };
 		23D07AB30D36E16B00313749 /* DedicatedControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DedicatedControl.h; sourceTree = "<group>"; };
+		23D0FD100F40620D00D3DF4B /* CDeathMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDeathMatch.h; sourceTree = "<group>"; };
+		23D0FD110F40620D00D3DF4B /* CGameMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameMode.h; sourceTree = "<group>"; };
+		23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHideAndSeek.h; sourceTree = "<group>"; };
+		23D0FD130F40620D00D3DF4B /* CTeamDeathMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTeamDeathMatch.h; sourceTree = "<group>"; };
+		23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDeathMatch.cpp; sourceTree = "<group>"; };
+		23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CHideAndSeek.cpp; sourceTree = "<group>"; };
+		23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTeamDeathMatch.cpp; sourceTree = "<group>"; };
 		23ECBDFC0E894D03007B8D55 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../libs/libzip/config.h; sourceTree = SOURCE_ROOT; };
 		23ECBDFD0E894D03007B8D55 /* mkstemp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mkstemp.c; path = ../../libs/libzip/mkstemp.c; sourceTree = SOURCE_ROOT; };
 		23ECBDFE0E894D03007B8D55 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../libs/libzip/zip.h; sourceTree = SOURCE_ROOT; };
@@ -1116,6 +1126,9 @@
 		EA430C3E0BEFCEB400C6547E /* server */ = {
 			isa = PBXGroup;
 			children = (
+				23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */,
+				23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */,
+				23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */,
 				23ECBE7E0E894E4F007B8D55 /* CServerConnection.cpp */,
 				2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */,
 				EA430C3F0BEFCEB400C6547E /* CBanList.cpp */,
@@ -1131,6 +1144,10 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23D0FD100F40620D00D3DF4B /* CDeathMatch.h */,
+				23D0FD110F40620D00D3DF4B /* CGameMode.h */,
+				23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */,
+				23D0FD130F40620D00D3DF4B /* CTeamDeathMatch.h */,
 				238DA8DA0F388B1E00841FFF /* EventQueue.h */,
 				23581F730F310C6D00C64145 /* UploadSpeedTest.h */,
 				230D02220F0D809B00AFFFFF /* Debug.h */,
@@ -1673,6 +1690,9 @@
 				2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */,
 				238DA8DC0F388B2F00841FFF /* EventQueue.cpp in Sources */,
 				23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */,
+				23D0FD170F40624E00D3DF4B /* CDeathMatch.cpp in Sources */,
+				23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */,
+				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
