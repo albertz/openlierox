@@ -166,6 +166,11 @@ bool CTeamDeathMatch::Shoot(CWorm* worm)
 
 void CTeamDeathMatch::Drop(CWorm* worm)
 {
+	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS)
+		errors << "Dropped an invalid worm" << endl;
+
+	iKillsInRow[worm->getID()] = 0;
+	iDeathsInRow[worm->getID()] = 0;
 }
 
 void CTeamDeathMatch::Simulate()
