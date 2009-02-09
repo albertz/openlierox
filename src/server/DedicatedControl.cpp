@@ -1029,7 +1029,9 @@ bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
 	if(tLXOptions->sDedicatedScript != "/dev/null") {
+#ifdef WIN32
 		notes << "Dedicated server: running command \"" << command << "\"" << endl;
+#endif
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
 		// HINT: If a script need this change in his own directory, it is a bug in the script.
 		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir))) {
