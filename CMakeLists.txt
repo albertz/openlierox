@@ -145,6 +145,7 @@ ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
 IF(PCH)
+EXEC_PROGRAM(./update_precompiled_header.sh OUTPUT_VARIABLE NULL)
 ADD_PRECOMPILED_HEADER(openlierox include/PrecompiledHeader.hpp 1)
 ENDIF(PCH)
 

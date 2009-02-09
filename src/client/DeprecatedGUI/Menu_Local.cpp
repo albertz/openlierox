@@ -1347,7 +1347,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 
 		//DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 		Menu_DrawBox(VideoPostProcessor::videoSurface(), 170, 150, 470, 330);
