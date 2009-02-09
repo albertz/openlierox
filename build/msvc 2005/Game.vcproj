@@ -1808,6 +1808,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\TaskManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\TaskManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\ThreadPool.cpp"
 				>
 			</File>
