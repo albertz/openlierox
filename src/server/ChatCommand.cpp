@@ -745,6 +745,8 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 
 	// All OK, authorize the worm
 	cServer->authorizeWorm(sender_id);
+	if( DedicatedControl::Get() )	// Re-send it to ded script
+		DedicatedControl::Get()->PrivateMessage_Signal( & cServer->getWorms()[sender_id], & cServer->getWorms()[sender_id], params[0] );
 
 	return "";
 }
