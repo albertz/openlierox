@@ -30,7 +30,7 @@ public:
 	virtual void Drop(CWorm* worm) = 0;
 	virtual void Simulate() = 0;
 	virtual bool CheckGame() = 0;
-	virtual int  GameType() = 0;
+	virtual int  GameType() = 0; // this is the game type which is sent over network
 	virtual int  GameTeams() = 0;
 	virtual int  Winner() = 0;
 
