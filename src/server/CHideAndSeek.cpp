@@ -8,7 +8,7 @@
  */
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "CHideAndSeek.h"
 #include "CWorm.h"
 #include "Options.h"
