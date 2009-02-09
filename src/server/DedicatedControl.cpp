@@ -937,7 +937,7 @@ DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)intern
 
 bool DedicatedControl::Init_priv() {
 	std::string scriptfn = GetFullFileName(tLXOptions->sDedicatedScript);
-	std::string command = "./" + ExtractFilename(scriptfn); // "./" part is needed for Unixes
+	std::string command = scriptfn;
 	std::string script_dir = ExtractDirectory(scriptfn);
 	std::vector<std::string> commandArgs( 1, command );
 	if(tLXOptions->sDedicatedScript != "/dev/null") {
@@ -1030,7 +1030,9 @@ bool DedicatedControl::Init_priv() {
 	internData = dedIntern;
 	if(tLXOptions->sDedicatedScript != "/dev/null") {
 		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
-		notes << "Dedicated server: running command \"" << command << "\" from dir \"" << script_dir << "\"" <<endl;
+#ifdef WIN32		
+		notes << "Dedicated server: running command \"" << command << "\" from dir \"" << script_dir << "\"" << endl;
+#endif
 		// HINT: If a script need this change in his own directory, it is a bug in the script.
 		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir))) {
 			errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;

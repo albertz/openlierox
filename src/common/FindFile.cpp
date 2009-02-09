@@ -881,12 +881,6 @@ std::string ExtractDirectory(const std::string& path)
 		return path.substr(0, pos);
 }
 
-////////////////
-// Extract the filename part from a path
-std::string ExtractFilename(const std::string& path)
-{
-	return GetBaseFilename(path);
-};
 
 std::string GetScriptInterpreterCommandForFile(const std::string& filename) {
 	FILE* f = OpenGameFile(filename, "r");	
