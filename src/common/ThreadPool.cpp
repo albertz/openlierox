@@ -32,7 +32,8 @@ ThreadPool::~ThreadPool() {
 		for(std::set<ThreadPoolItem*>::iterator i = usedThreads.begin(); i != usedThreads.end(); ++i) {
 			if((*i)->working && (*i)->finished) {
 				warnings << "thread " << (*i)->name << " is ready but was not cleaned up" << endl;
-				SDL_CondSignal((*i)->readyForNewWork);				
+				(*i)->working = false;
+				SDL_CondSignal((*i)->readyForNewWork);	
 			}
 			else if((*i)->working && !(*i)->finished) {
 				warnings << "thread " << (*i)->name << " is still working" << endl;
