@@ -396,10 +396,22 @@ bool ListenSocket(NetworkSocket sock) {
 	return (nlListen(*getNLsocket(&sock)) != NL_FALSE);
 }
 
-bool CloseSocket(NetworkSocket sock) {
-	
+bool CloseSocket(NetworkSocket& sock) {
 	RemoveSocketFromNotifierGroup(sock);
-	return (nlClose(*getNLsocket(&sock)) != NL_FALSE);
+
+	struct CloseSocketWorker : Task {
+		NetworkSocket sock;
+		int handle() {			
+			return (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
+		}
+	};
+	CloseSocketWorker* worker = new CloseSocketWorker();
+	worker->name = "close socket";
+	worker->sock.swap(sock);
+	taskManager->start(worker);
+	
+	InvalidateSocketState(sock);
+	return true;
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {

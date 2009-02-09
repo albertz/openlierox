@@ -54,6 +54,7 @@ public:
 		_classname(); \
 		_classname(const _classname& b); \
 		void operator=(const _classname& b); \
+		void swap(_classname& b) { void* tmp = intern_data; intern_data = b.intern_data; b.intern_data = tmp; } \
 		~_classname(); \
 		void* intern_data; \
 	private:

@@ -18,7 +18,7 @@
 class TaskManager;
 
 struct Task : Action {
-	Task(TaskManager* m, const std::string& n = "unknown task") : manager(m), name(n) {}
+	Task() : manager(NULL) {}
 	virtual ~Task() {}
 	
 	TaskManager* manager;

@@ -55,6 +55,7 @@ void TaskManager::start(Task* t) {
 	struct TaskHandler : Action {
 		Task* task;
 		int handle() {
+			assert(task->manager != NULL);
 			int ret = task->handle();
 			SDL_mutexP(task->manager->mutex);
 			task->manager->runningTasks.erase(task);
@@ -65,6 +66,8 @@ void TaskManager::start(Task* t) {
 	};
 	TaskHandler* handler = new TaskHandler();
 	handler->task = t;
+	assert(t->manager == NULL);
+	t->manager = this;
 	
 	threadPool->start(handler, t->name + " handler");
 }

@@ -65,7 +65,7 @@ NetworkSocket	OpenUnreliableSocket(unsigned short port, bool events = true);
 NetworkSocket	OpenBroadcastSocket(unsigned short port, bool events = true);
 bool	ConnectSocket(NetworkSocket sock, const NetworkAddr& addr);
 bool	ListenSocket(NetworkSocket sock);
-bool	CloseSocket(NetworkSocket sock);
+bool	CloseSocket(NetworkSocket& sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
 int		WriteSocket(NetworkSocket sock, const std::string& buffer);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
