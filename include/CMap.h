@@ -359,7 +359,7 @@ public:
 	// _F has to be a functor with provides compatible functions to:
 	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
 	template<typename _T, typename _F>
-	inline void walkPixels(Rectangle<_T> r, _F walker) {
+	inline void walkPixels(OLXRect<_T> r, _F walker) {
 		if(!r.clipWith(SDLRect(0, 0, Width, Height)))
 			return;
 		

@@ -146,10 +146,10 @@ public:
 //		TypeS height();
 //		and the above as const
 template<typename _RectBasic>
-class Rectangle : public _RectBasic {
+class OLXRect : public _RectBasic {
 public:
 
-	Rectangle(const _RectBasic & r): _RectBasic(r) {};
+	OLXRect(const _RectBasic & r): _RectBasic(r) {};
 
 	class AssignX2 : private _RectBasic {
 	public:
@@ -175,31 +175,31 @@ public:
 	bool clipWith(const _ClipRect& clip) {
 		// Horizontal
 		{
-			typename Rectangle::Type orig_x2 = this->Rectangle::x2();
-			this->Rectangle::x() = MAX( (typename Rectangle::Type)this->Rectangle::x(), (typename Rectangle::Type)clip.x() );
-			this->Rectangle::x2() = MIN( orig_x2, (typename Rectangle::Type)clip.x2() );
-			this->Rectangle::x2() = MAX( this->Rectangle::x(), (typename Rectangle::Type)this->Rectangle::x2() );
+			typename OLXRect::Type orig_x2 = this->OLXRect::x2();
+			this->OLXRect::x() = MAX( (typename OLXRect::Type)this->OLXRect::x(), (typename OLXRect::Type)clip.x() );
+			this->OLXRect::x2() = MIN( orig_x2, (typename OLXRect::Type)clip.x2() );
+			this->OLXRect::x2() = MAX( this->OLXRect::x(), (typename OLXRect::Type)this->OLXRect::x2() );
 		}
 
 		// Vertical
 		{
-			typename Rectangle::Type orig_y2 = this->Rectangle::y2();
-			this->Rectangle::y() = MAX( (typename Rectangle::Type)this->Rectangle::y(), (typename Rectangle::Type)clip.y() );
-			this->Rectangle::y2() = MIN( orig_y2, (typename Rectangle::Type)clip.y2() );
-			this->Rectangle::y2() = MAX( this->Rectangle::y(), (typename Rectangle::Type)this->Rectangle::y2() );
+			typename OLXRect::Type orig_y2 = this->OLXRect::y2();
+			this->OLXRect::y() = MAX( (typename OLXRect::Type)this->OLXRect::y(), (typename OLXRect::Type)clip.y() );
+			this->OLXRect::y2() = MIN( orig_y2, (typename OLXRect::Type)clip.y2() );
+			this->OLXRect::y2() = MAX( this->OLXRect::y(), (typename OLXRect::Type)this->OLXRect::y2() );
 		}
 
-		return (this->Rectangle::width() && this->Rectangle::height());
+		return (this->OLXRect::width() && this->OLXRect::height());
 	}
 };
 
 
-typedef Rectangle<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
+typedef OLXRect<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
 
 template<typename _Type, typename _TypeS, typename _ClipRect>
 bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& clip) {
 	RefRectBasic<_Type, _TypeS> refrect = RefRectBasic<_Type, _TypeS>(x, y, w, h);
-	return ((Rectangle<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
+	return ((OLXRect<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
 }
 
 template<typename _ClipRect>
