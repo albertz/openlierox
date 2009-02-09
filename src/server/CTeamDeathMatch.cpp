@@ -174,9 +174,13 @@ void CTeamDeathMatch::Simulate()
 
 bool CTeamDeathMatch::CheckGame()
 {
-	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };
+	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };  // TODO: move to Consts.h
 	// Empty games, no need to check anything?
 	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
+		return false;
+
+	// In game?
+	if (!cServer || cServer->getState() == SVS_LOBBY)
 		return false;
 
 	int worms[4] = { 0, 0, 0, 0 };

@@ -160,6 +160,10 @@ bool CDeathMatch::CheckGame()
 	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
 		return false;
 
+	// In game?
+	if (!cServer || cServer->getState() == SVS_LOBBY)
+		return false;
+
 	int worms = 0;
 	int wormid = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
