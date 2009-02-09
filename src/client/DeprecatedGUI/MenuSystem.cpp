@@ -386,7 +386,7 @@ void Menu_Loop(void)
 		sigsetjmp(longJumpBuffer, 1);
 #endif
 		
-		if(last_frame_was_because_of_an_event) {
+		if(last_frame_was_because_of_an_event || bDedicated) {
 			// Use ProcessEvents() here to handle other processes in queue.
 			// There aren't probably any but it has also the effect that
 			// we run the loop another time after an event which is sometimes
