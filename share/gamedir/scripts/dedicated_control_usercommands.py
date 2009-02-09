@@ -222,7 +222,11 @@ def recheckVote():
 	needVoices = int( math.ceil( len(hnd.worms) * cfg.VOTING_PERCENT / 100.0 ) )
 
 	if voteCount >= needVoices:
-		exec(voteCommand)
+		try:
+			exec(voteCommand)
+		except:
+			io.messageLog(formatExceptionInfo(),io.LOG_ERROR) #Helps to fix errors
+		
 		voteCommand = None
 		voteTime = 0
 		return
@@ -230,7 +234,7 @@ def recheckVote():
 		voteCommand = None
 		voteTime = 0
 		io.chatMsg("Vote failed: " + voteDescription )
-		if hnd.worms[votePoster].Voted == 1: # Check if worm left and another worm joined with same ID
+		if ( votePoster in hnd.worms.keys() ) and ( hnd.worms[votePoster].Voted == 1 ): # Check if worm left and another worm joined with same ID
 			hnd.worms[votePoster].FailedVoteTime = time.time()
 		return
 
@@ -283,8 +287,8 @@ def parseUserCommand(wormid,message):
 
 		elif cmd == "kick" and cfg.VOTING:
 			kicked = int( params[0] )
-			addVote( "kickedUsers[ io.getWormIP(" + str(kicked) + 
-						").split(':')[0] ] = time.time() + cfg.VOTING_KICK_TIME*60; io.kickWorm(" + str(kicked) + 
+			addVote( "kickedUsers[ '" + io.getWormIP(kicked).split(':')[0] +
+						"' ] = time.time() + cfg.VOTING_KICK_TIME*60; io.kickWorm(" + str(kicked) + 
 						", 'You are kicked for " + str(cfg.VOTING_KICK_TIME) + " minutes')", 
 						wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
 		elif cmd == "mute" and cfg.VOTING:

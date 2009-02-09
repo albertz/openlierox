@@ -127,7 +127,10 @@ private:
 						delete SmartPointer_CollisionDetector;
 						SmartPointer_CollisionDetector = NULL;
 						if (SmartPointer_CollMutex)
+						{
 							SDL_DestroyMutex(SmartPointer_CollMutex);
+							SmartPointer_CollMutex = NULL;
+						}
 
 						// WARNING: this is called at a very end for global objects and most other objects are already uninitialised.
 						// For me, even the internal string structure doesn't work anymore (I get a std::length_error) and thus we cannot use the logging system.
@@ -137,7 +140,8 @@ private:
 						#endif
 					}
 				}
-				SDL_UnlockMutex(SmartPointer_CollMutex);
+				if( SmartPointer_CollMutex )
+					SDL_UnlockMutex(SmartPointer_CollMutex);
 				#endif
 				SmartPointer_ObjectDeinit( obj );
 				delete refCount; // safe, because there is no other ref anymore

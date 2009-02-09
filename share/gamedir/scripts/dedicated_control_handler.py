@@ -53,12 +53,10 @@ stdinInputThread = io.GetStdinThread()
 #sys.settrace(HeavyDebugTrace)
 
 ## Local vars
-curdir = os.getcwd()
-curdir = os.path.join(curdir,"scripts")
-presetDir = os.path.join(curdir,"presets")
+presetDir = os.path.join(os.getcwd(),"presets")
 # Should include several searchpaths, but now they contain just OLX root dir
-levelDir = os.path.join(os.getcwd(),"levels")
-modDir = os.getcwd()
+levelDir = os.path.join(os.path.split(os.getcwd())[0],"levels")
+modDir = os.path.split(os.getcwd())[0]
 
 # Game states
 GAME_QUIT = 0
@@ -433,11 +431,11 @@ def initLevelList():
 def initModList():
 	global modDir, availableMods
 	for f in os.listdir(modDir):
-		if not os.path.isdir(f):
+		fullDir = os.path.join(modDir,f)
+		if not os.path.isdir(fullDir):
 			continue
-		for ff in os.listdir(os.path.join(modDir,f)):
+		for ff in os.listdir(fullDir):
 			if ff.lower() == "script.lgs":
-				#io.messageLog("Adding mod " + f, io.LOG_INFO)
 				availableMods.append(f)
 
 ## Control functions

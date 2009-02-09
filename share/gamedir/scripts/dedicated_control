@@ -3,12 +3,39 @@
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
 
-# TODO: Why don't we import dedicated_control_functions as this namespace? I don't get the point of current implementation.
+# We're expecting this file to be run from "scripts" dir - that's from rev. 3260 or so
 
 import os, sys, time
 
-sys.path.append(os.getcwd()+"/cfg") # Append cfg dir to Python imports search paths
-sys.path.append(os.getcwd()+"/scripts") # Append current dir to Python imports search paths
+# Add current dir to module search path
+sys.path.append(os.getcwd())
+
+# Add dir with config file to module search path
+try:
+	os.listdir(os.getenv("HOME")+"/.OpenLieroX/cfg")
+	sys.path.append(os.getenv("HOME")+"/.OpenLieroX/cfg")
+except:
+	pass
+
+try:
+	os.listdir(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg") # TODO: lame, use Win32 API
+	sys.path.append(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg")
+except:
+	pass
+
+try:
+	os.listdir(os.getcwd()+"/../cfg")
+	sys.path.append(os.getcwd()+"/../cfg")
+except:
+	pass
+
+try:
+	os.listdir("/etc/OpenLieroX/cfg")
+	sys.path.append("/etc/OpenLieroX/cfg")
+except:
+	pass
+
+sys.path.append(os.getcwd()) # Append current dir to Python imports search paths
 import dedicated_control_handler as hnd # control handler
 import dedicated_config as cfg # Per-host config like admin password
 import dedicated_control_io as io # control handler
@@ -30,7 +57,7 @@ for f in cfg.GLOBAL_SETTINGS.keys():
 hnd.selectNextPreset()
 
 # nice state-machine for dedicated server
-pingTime = time.time()
+#pingTime = time.time()
 while hnd.gameState != hnd.GAME_QUIT:
 
 	time.sleep(1)
@@ -44,9 +71,9 @@ while hnd.gameState != hnd.GAME_QUIT:
 	if not hnd.scriptPaused:
 		hnd.controlHandler()
 		
-	if time.time() - pingTime > 40:
-		io.messageLog("Python still alive", io.LOG_INFO)
-		pingTime = time.time()
+	#if time.time() - pingTime > 40:
+	#	io.messageLog("Python still alive", io.LOG_INFO)
+	#	pingTime = time.time()
 
 io.messageLog("GameState is QUIT. Exiting.",io.LOG_INFO)
 sys.exit() # Kill the stdin-input thread
