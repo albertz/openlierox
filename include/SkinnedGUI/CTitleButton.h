@@ -27,6 +27,7 @@ namespace SkinnedGUI {
 class CTitleButton : public CImageButton {
 public:
 	// Constructor
+	// TODO: these won't work!
 	CTitleButton(COMMON_PARAMS, SDL_Surface *image, const std::string& text);
 	CTitleButton(COMMON_PARAMS, const std::string& path, const std::string& text) {
 		CTitleButton(name, parent, LoadGameImage(path, true), text);

@@ -20,6 +20,7 @@
 #include "InputEvents.h"
 #include "GfxPrimitives.h"
 #include "Cursor.h"
+#include "Menu.h"
 
 namespace DeprecatedGUI {
 

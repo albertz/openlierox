@@ -31,7 +31,7 @@ enum BorderStyle  {
 
 class CBorder  {
 public:
-	CBorder() {};
+	CBorder() {}
 
 	struct BorderLineSettings  {
 		BorderLineSettings() {

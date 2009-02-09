@@ -24,6 +24,7 @@
 #include "LieroX.h"
 #include "Timer.h"
 #include "Protocol.h"
+#include "CScrollbar.h"
 
 
 namespace DeprecatedGUI {

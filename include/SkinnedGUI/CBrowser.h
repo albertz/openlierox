@@ -18,6 +18,7 @@
 #define __CBROWSER_H__SKINNED_GUI__
 
 #include "SkinnedGUI/CWidget.h"
+#include "CScrollbar.h"
 
 
 namespace SkinnedGUI {
