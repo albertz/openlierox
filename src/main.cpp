@@ -41,6 +41,7 @@
 #include "IRC.h"
 #include "Music.h"
 #include "Debug.h"
+#include "TaskManager.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -176,7 +177,7 @@ int main(int argc, char *argv[])
 #endif
 
 	DoSystemChecks();
-	InitThreadPool();	
+	InitThreadPool();
 	
 	apppath = argv[0];
 	binary_dir = argv[0];
@@ -191,6 +192,8 @@ int main(int argc, char *argv[])
 
 startpoint:
 
+	InitTaskManager();
+	
 	// Load options and other settings
 	if(!GameOptions::Init()) {
 		SystemError("Could not load options");
@@ -360,6 +363,8 @@ quit:
 	ShutdownLieroX();
 	delete cSwitchMode; cSwitchMode = NULL;
 	delete cTakeScreenshot; cTakeScreenshot = NULL;	
+	
+	UnInitTaskManager();
 	
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;

@@ -14,7 +14,7 @@
 static const unsigned int THREADNUM = 20;
 
 ThreadPool::ThreadPool() {
-	nextFunc = NULL; nextParam = NULL; nextData = NULL;
+	nextAction = NULL; nextData = NULL;
 	mutex = SDL_CreateMutex();
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
@@ -45,7 +45,7 @@ ThreadPool::~ThreadPool() {
 	}
 	SDL_mutexV(mutex);
 
-	nextFunc = NULL;
+	nextAction = NULL;
 	SDL_CondBroadcast(awakeThread);
 	for(std::set<ThreadPoolItem*>::iterator i = availableThreads.begin(); i != availableThreads.end(); ++i) {
 		SDL_WaitThread((*i)->thread, NULL);
@@ -78,12 +78,11 @@ int ThreadPool::threadWrapper(void* param) {
 	SDL_mutexP(data->pool->mutex);
 	while(true) {
 		SDL_CondWait(data->pool->awakeThread, data->pool->mutex);
-		if(data->pool->nextFunc == NULL) break;
+		if(data->pool->nextAction == NULL) break;
 		data->pool->usedThreads.insert(data);
 		data->pool->availableThreads.erase(data);
 		
-		ThreadFunc func = data->pool->nextFunc; data->pool->nextFunc = NULL;
-		void* param = data->pool->nextParam; data->pool->nextParam = NULL;
+		Action* act = data->pool->nextAction; data->pool->nextAction = NULL;
 		data->name = data->pool->nextName;
 		data->finished = false;
 		data->working = true;
@@ -91,7 +90,8 @@ int ThreadPool::threadWrapper(void* param) {
 		SDL_mutexV(data->pool->mutex);
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
-		data->ret = (*func) (param);
+		data->ret = act->handle();
+		delete act;
 		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
 		SDL_mutexV(data->pool->mutex);
@@ -108,15 +108,14 @@ int ThreadPool::threadWrapper(void* param) {
 	return 0;
 }
 
-ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string& name) {
+ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name) {
 	SDL_mutexP(mutex);
 	if(availableThreads.size() == 0) {
 		warnings << "no available thread in ThreadPool for " << name << ", creating new one..." << endl;
 		prepareNewThread();
 	}
-	assert(nextFunc == NULL);
-	nextFunc = fct;
-	nextParam = param;
+	assert(nextAction == NULL);
+	nextAction = act;
 	nextName = name;
 	assert(nextData == NULL);
 	SDL_mutexV(mutex);
@@ -128,6 +127,20 @@ ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string
 	SDL_mutexV(mutex);
 		
 	return data;
+}
+
+ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string& name) {
+	struct StaticAction : Action {
+		ThreadFunc fct; void* param;
+		int handle() { return (*fct) (param); }
+	};
+	StaticAction* act = new StaticAction();
+	act->fct = fct;
+	act->param = param;
+	ThreadPoolItem* item = start(act, name);
+	if(item) return item;
+	delete act;
+	return NULL;
 }
 
 bool ThreadPool::wait(ThreadPoolItem* thread, int* status) {
@@ -150,12 +163,18 @@ bool ThreadPool::wait(ThreadPoolItem* thread, int* status) {
 ThreadPool* threadPool = NULL;
 
 void InitThreadPool() {
-	threadPool = new ThreadPool();
+	if(!threadPool)
+		threadPool = new ThreadPool();
+	else
+		errors << "ThreadPool inited twice" << endl;
 }
 
 void UnInitThreadPool() {
-	delete threadPool;
-	threadPool = NULL;
+	if(threadPool) {
+		delete threadPool;
+		threadPool = NULL;
+	} else
+		errors << "ThreadPool already uninited" << endl;
 }
 
 

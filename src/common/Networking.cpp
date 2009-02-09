@@ -32,6 +32,7 @@
 #include "ThreadVar.h"
 #include "MathLib.h"
 #include "InputEvents.h"
+#include "TaskManager.h"
 
 
 #ifdef _MSC_VER
@@ -396,6 +397,7 @@ bool ListenSocket(NetworkSocket sock) {
 }
 
 bool CloseSocket(NetworkSocket sock) {
+	
 	RemoveSocketFromNotifierGroup(sock);
 	return (nlClose(*getNLsocket(&sock)) != NL_FALSE);
 }
@@ -738,6 +740,9 @@ bool IsSocketReady(NetworkSocket sock)  {
 void InvalidateSocketState(NetworkSocket& sock) {
 	*NetworkSocketData(&sock) = NL_INVALID;
 }
+
+
+// TODO: Remove the following functions because they are blocking.
 
 /////////////////////
 // Wait until the socket is writable

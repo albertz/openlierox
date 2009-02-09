@@ -19,6 +19,11 @@ struct SDL_Thread;
 class ThreadPool;
 typedef int (*ThreadFunc) (void*);
 
+struct Action {
+	virtual ~Action() {}
+	virtual int handle() = 0;
+};
+
 struct ThreadPoolItem {
 	ThreadPool* pool;
 	SDL_Thread* thread;
@@ -36,7 +41,7 @@ private:
 	SDL_cond* awakeThread;
 	SDL_cond* threadStartedWork;
 	SDL_cond* threadFinishedWork;
-	ThreadFunc nextFunc; void* nextParam; std::string nextName;
+	Action* nextAction; std::string nextName;
 	ThreadPoolItem* nextData;
 	std::set<ThreadPoolItem*> availableThreads;
 	std::set<ThreadPoolItem*> usedThreads;
@@ -47,6 +52,7 @@ public:
 	~ThreadPool();
 	
 	ThreadPoolItem* start(ThreadFunc fct, void* param = NULL, const std::string& name = "unknown worker");
+	ThreadPoolItem* start(Action* act, const std::string& name = "unknown worker"); // ThreadPool will own and free the Action
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
 };
 

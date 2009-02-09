@@ -1401,8 +1401,9 @@ int CHttp::ProcessPOST()
 
 	// Wait until we have some data to read or write
 	// HINT: this function is called in a separate thread so we can do this blocking call
+	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketReadOrWrite(tSocket, 1000);
+	WaitForSocketReadOrWrite(tSocket, 100);
 	Lock();
 
 	// Check if we have a response
@@ -1426,8 +1427,9 @@ int CHttp::ProcessPOST()
 
 	// Wait until the network buffers are ready
 	// HINT: ProcessPOST is called in a separate thread so we can do this blocking call
+	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketWrite(tSocket, 1000);
+	WaitForSocketWrite(tSocket, 100);
 	Lock();
 
 	// Send another chunk

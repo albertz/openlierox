@@ -120,6 +120,7 @@
 		23D0FD170F40624E00D3DF4B /* CDeathMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */; };
 		23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */; };
 		23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */; };
+		23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */; };
 		23ECBE3C0E894D48007B8D55 /* mkstemp.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFD0E894D03007B8D55 /* mkstemp.c */; };
 		23ECBE3D0E894D48007B8D55 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 23ECBDFE0E894D03007B8D55 /* zip.h */; };
 		23ECBE3E0E894D48007B8D55 /* zip_add.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFF0E894D03007B8D55 /* zip_add.c */; };
@@ -523,6 +524,8 @@
 		23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDeathMatch.cpp; sourceTree = "<group>"; };
 		23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CHideAndSeek.cpp; sourceTree = "<group>"; };
 		23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTeamDeathMatch.cpp; sourceTree = "<group>"; };
+		23EABF6C0F40C79100CA55CF /* TaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskManager.h; sourceTree = "<group>"; };
+		23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskManager.cpp; sourceTree = "<group>"; };
 		23ECBDFC0E894D03007B8D55 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../libs/libzip/config.h; sourceTree = SOURCE_ROOT; };
 		23ECBDFD0E894D03007B8D55 /* mkstemp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mkstemp.c; path = ../../libs/libzip/mkstemp.c; sourceTree = SOURCE_ROOT; };
 		23ECBDFE0E894D03007B8D55 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../libs/libzip/zip.h; sourceTree = SOURCE_ROOT; };
@@ -1105,13 +1108,13 @@
 				EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */,
 				EA430C2D0BEFCEB400C6547E /* CShootList.cpp */,
 				EA430C2F0BEFCEB400C6547E /* CssParser.cpp */,
-				EA430C300BEFCEB400C6547E /* CWorm.cpp */,
 				EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */,
 				EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */,
 				EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */,
 				EA430C340BEFCEB400C6547E /* CWpnRest.cpp */,
 				EA430C350BEFCEB400C6547E /* FindFile.cpp */,
 				EA430C360BEFCEB400C6547E /* MathLib.cpp */,
+				EA430C300BEFCEB400C6547E /* CWorm.cpp */,
 				EA430C370BEFCEB400C6547E /* Misc.cpp */,
 				EA430C380BEFCEB400C6547E /* Networking.cpp */,
 				EA430C390BEFCEB400C6547E /* sex.cpp */,
@@ -1119,6 +1122,7 @@
 				EA430C3B0BEFCEB400C6547E /* Timer.cpp */,
 				EA430C3C0BEFCEB400C6547E /* Unicode.cpp */,
 				23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */,
+				23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1248,6 +1252,7 @@
 				EA430C8B0BEFCEDE00C6547E /* Utils.h */,
 				231FE01D0F0019A7007F4CC8 /* FeatureList.h */,
 				23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */,
+				23EABF6C0F40C79100CA55CF /* TaskManager.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -1695,6 +1700,7 @@
 				23D0FD170F40624E00D3DF4B /* CDeathMatch.cpp in Sources */,
 				23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */,
 				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
+				23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
