@@ -47,6 +47,9 @@ hnd.init()
 io.msg("GameState = %s" % str(hnd.gameState))
 io.messageLog("Dedicated_control started",io.LOG_INFO)
 
+# Allow the user to log in using the /login command
+io.setvar("GameOptions.Network.Password", cfg.ADMIN_PASSWORD)  # TODO: this is visible in dedicated server output
+
 io.startLobby(cfg.SERVER_PORT)
 
 hnd.waitLobbyStarted()
