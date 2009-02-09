@@ -92,7 +92,9 @@ int ThreadPool::threadWrapper(void* param) {
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
 		data->ret = (*func) (param);
+		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
+		SDL_mutexV(data->pool->mutex);
 		SDL_CondSignal(data->finishedSignal);
 		SDL_CondSignal(data->pool->threadFinishedWork);
 		
