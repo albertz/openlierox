@@ -1820,6 +1820,11 @@ void GameServer::Shutdown(void)
 		cWorms = NULL;
 	}
 
+	if (cGameMode)  {
+		delete cGameMode;
+		cGameMode = NULL;
+	}
+
 	if(cMap) {
 		cMap->Shutdown();
 		delete cMap;
