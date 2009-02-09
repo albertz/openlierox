@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "XMLutils.h"
 
 
 // XML parsing library
