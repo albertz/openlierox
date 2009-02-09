@@ -14,7 +14,7 @@
 static const unsigned int THREADNUM = 20;
 
 ThreadPool::ThreadPool() {
-	nextAction = NULL; nextData = NULL;
+	nextAction = NULL; nextIsHeadless = false; nextData = NULL;
 	mutex = SDL_CreateMutex();
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
@@ -84,6 +84,7 @@ int ThreadPool::threadWrapper(void* param) {
 		data->pool->availableThreads.erase(data);
 		
 		Action* act = data->pool->nextAction; data->pool->nextAction = NULL;
+		data->headless = data->pool->nextIsHeadless;
 		data->name = data->pool->nextName;
 		data->finished = false;
 		data->working = true;
@@ -95,21 +96,22 @@ int ThreadPool::threadWrapper(void* param) {
 		delete act;
 		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
-		SDL_mutexV(data->pool->mutex);
-		SDL_CondSignal(data->finishedSignal);
-		SDL_CondSignal(data->pool->threadFinishedWork);
-		
-		SDL_mutexP(data->pool->mutex);
-		while(data->working) SDL_CondWait(data->readyForNewWork, data->pool->mutex);
+
+		if(!data->headless) { // headless means that we just can clean it up right now without waiting
+			SDL_CondSignal(data->finishedSignal);
+			while(data->working) SDL_CondWait(data->readyForNewWork, data->pool->mutex);
+		} else
+			data->working = false;
 		data->pool->usedThreads.erase(data);
 		data->pool->availableThreads.insert(data);
+		SDL_CondSignal(data->pool->threadFinishedWork);
 	}
 	SDL_mutexV(data->pool->mutex);
 		
 	return 0;
 }
 
-ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name) {
+ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool headless) {
 	SDL_mutexP(mutex);
 	if(availableThreads.size() == 0) {
 		warnings << "no available thread in ThreadPool for " << name << ", creating new one..." << endl;
@@ -117,6 +119,7 @@ ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name) {
 	}
 	assert(nextAction == NULL);
 	nextAction = act;
+	nextIsHeadless = headless;
 	nextName = name;
 	assert(nextData == NULL);
 	SDL_mutexV(mutex);

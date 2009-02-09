@@ -69,7 +69,7 @@ void TaskManager::start(Task* t) {
 	assert(t->manager == NULL);
 	t->manager = this;
 	
-	threadPool->start(handler, t->name + " handler");
+	threadPool->start(handler, t->name + " handler", true);
 }
 
 

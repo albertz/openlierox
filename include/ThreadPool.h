@@ -30,6 +30,7 @@ struct ThreadPoolItem {
 	std::string name;
 	bool working;
 	bool finished;
+	bool headless;
 	SDL_cond* finishedSignal;
 	SDL_cond* readyForNewWork;
 	int ret;
@@ -41,7 +42,7 @@ private:
 	SDL_cond* awakeThread;
 	SDL_cond* threadStartedWork;
 	SDL_cond* threadFinishedWork;
-	Action* nextAction; std::string nextName;
+	Action* nextAction; bool nextIsHeadless; std::string nextName;
 	ThreadPoolItem* nextData;
 	std::set<ThreadPoolItem*> availableThreads;
 	std::set<ThreadPoolItem*> usedThreads;
@@ -52,7 +53,8 @@ public:
 	~ThreadPool();
 	
 	ThreadPoolItem* start(ThreadFunc fct, void* param = NULL, const std::string& name = "unknown worker");
-	ThreadPoolItem* start(Action* act, const std::string& name = "unknown worker"); // ThreadPool will own and free the Action
+	// WARNING: if you set headless, you cannot use wait() and you should not save the returned ThreadPoolItem*
+	ThreadPoolItem* start(Action* act, const std::string& name = "unknown worker", bool headless = false); // ThreadPool will own and free the Action
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
 };
 
