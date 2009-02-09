@@ -1,3 +1,12 @@
+/*
+ OpenLieroX
+ 
+ death match gamemode
+ 
+ created 2009-02-09
+ code under LGPL
+ */
+
 #include <iostream>
 #include "CDeathMatch.h"
 #include "CWorm.h"

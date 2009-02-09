@@ -1,3 +1,12 @@
+/*
+ OpenLieroX
+ 
+ team death match gamemode
+ 
+ created 2009-02-09
+ code under LGPL
+ */
+
 #include <iostream>
 #include <string>
 #include "CTeamDeathMatch.h"

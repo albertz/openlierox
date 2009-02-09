@@ -1,3 +1,12 @@
+/*
+ OpenLieroX
+ 
+ hide and seek gamemode
+ 
+ created 2009-02-09
+ code under LGPL
+ */
+
 #include <iostream>
 #include <math.h>
 #include "CHideAndSeek.h"

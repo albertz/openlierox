@@ -1,3 +1,12 @@
+/*
+ OpenLieroX
+ 
+ gamemode interface
+ 
+ created 2009-02-09
+ code under LGPL
+ */
+
 #ifndef __CGAMEMODE_H__
 #define __CGAMEMODE_H__
 
