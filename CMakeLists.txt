@@ -5,7 +5,9 @@
 cmake_minimum_required(VERSION 2.4)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(SET CMP0005 OLD)
+	include(PCHSupport_26.cmake)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
+
 
 
 OPTION(DEBUG "enable debug build" Yes)
@@ -15,6 +17,7 @@ OPTION(X11 "X11 clipboard / notify" Yes)
 OPTION(HAWKNL_BUILTIN "HawkNL builtin support" Yes)
 OPTION(LIBZIP_BUILTIN "LibZIP builtin support" No)
 OPTION(STLPORT "STLport support" No)
+OPTION(PCH "Precompiled header (CMake 2.6 only)" No)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -57,6 +60,7 @@ MESSAGE( "LIBZIP_BUILTIN = ${LIBZIP_BUILTIN}" )
 MESSAGE( "STLPORT = ${STLPORT}" )
 MESSAGE( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
+MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)")
 
 PROJECT(openlierox)
 
@@ -139,6 +143,11 @@ ENDIF(G15)
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
+
+IF(PCH)
+ADD_PRECOMPILED_HEADER(openlierox include/PrecompiledHeader.hpp 1)
+ENDIF(PCH)
+
 
 EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 string(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")

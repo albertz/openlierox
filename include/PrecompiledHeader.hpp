@@ -15,8 +15,8 @@
 #define __PRECOMPILEDHEADER_H__
 
 #if !defined(__cplusplus)
-#error PrecompiledHeader.hpp is only for C++.
-#endif
+// We're compiling C-code here, HawkNL most probably
+#else
 
 #include "AuxLib.h"
 #include "CBanList.h"
@@ -142,3 +142,6 @@
 #include "DeprecatedGUI/CWidgetList.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
+
+#endif
+
