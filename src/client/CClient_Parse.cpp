@@ -922,6 +922,8 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	}
 
 	NotifyUserOnEvent();
+	
+	client->bShouldRepaintInfo = true;
 }
 
 
@@ -997,9 +999,13 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 			else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
 				client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 
 				client->cViewports[1].getType());
+				
 		}
 
 		client->sSpectatorViewportMsg = "";
+
+		//if( client->cLocalWorms[0] == &client->cRemoteWorms[id] ) // We may spectate and watch other worm, so redraw always
+		client->bShouldRepaintInfo = true;
 	}
 }
 

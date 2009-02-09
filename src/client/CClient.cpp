@@ -1661,6 +1661,8 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[1].setUsed(true);
 		cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 	}
+	
+	bShouldRepaintInfo = true;
 }
 
 
