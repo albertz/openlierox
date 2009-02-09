@@ -1034,7 +1034,7 @@ bool DedicatedControl::Init_priv() {
 		notes << "Dedicated server: running command \"" << command << "\" from dir \"" << script_dir << "\"" << endl;
 #endif
 		// HINT: If a script need this change in his own directory, it is a bug in the script.
-		if(!dedIntern->pipe.open(command, commandArgs, Utf8ToSystemNative(script_dir))) {
+		if(!dedIntern->pipe.open(command, commandArgs, script_dir)) {
 			errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;
 			return false;
 		}
