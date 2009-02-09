@@ -43,8 +43,7 @@ static const float LX_ENDWAIT = 9.0f;
 enum {
 	GM_DEATHMATCH = 0,
 	GM_TEAMDEATH,
-	GM_TAG,
-	GM_DEMOLITION
+	GM_HIDEANDSEEK
 };
 
 // Game mode types

@@ -34,6 +34,7 @@
 #include "CGameMode.h"
 #include "CDeathMatch.h"
 #include "CTeamDeathMatch.h"
+#include "CHideAndSeek.h"
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
@@ -106,7 +107,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 		bs->writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
 	
 	// Game info
-	bs->writeInt(tLXOptions->tGameInfo.iGameMode,1);
+	bs->writeInt(server->getGameMode()->GameType(),1);
 	bs->writeInt16(tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
@@ -554,13 +555,15 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 	if(cGameMode != NULL)
 		delete cGameMode;
 
-	// TODO: Add more game modes | CGameMode
 	switch(tLXOptions->tGameInfo.iGameMode) {
 		case GM_DEATHMATCH:
 			cGameMode = new CDeathMatch(this, cWorms);
 			break;
 		case GM_TEAMDEATH:
 			cGameMode = new CTeamDeathMatch(this, cWorms);
+			break;
+		case GM_HIDEANDSEEK:
+			cGameMode = new CHideAndSeek(this, cWorms);
 			break;
 		default:
 			errors << "Trying to play a non-existant gamemode" << endl;

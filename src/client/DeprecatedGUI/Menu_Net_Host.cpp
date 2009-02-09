@@ -596,8 +596,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 	// Fill in the game details
 	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Deathmatch", GM_DEATHMATCH);
-	// TODO: Reenable these
 	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Team Deathmatch", GM_TEAMDEATH);
+	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Hide and Seek", GM_HIDEANDSEEK);
 /*	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Tag", GM_TAG);
 	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Demolition", GM_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
 	*/
@@ -1299,7 +1299,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 		// Reload the worm graphics
 		w->setTeam(lobby_worm->iTeam);
-		w->ChangeGraphics(tLXOptions->tGameInfo.iGameMode);
+		w->ChangeGraphics(cServer->getGameMode()->GameType());
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);

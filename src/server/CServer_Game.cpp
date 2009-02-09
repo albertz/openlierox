@@ -645,9 +645,10 @@ void GameServer::DemolitionsGameOver(int winner)
 // Called when a player has left the game (for various reasons)
 void GameServer::RecheckGame(void)
 {
+	if(bGameOver)
+		return;
 	if(cGameMode->CheckGame())
 		GameOver(cGameMode->Winner());
-	return;
 }
 
 
