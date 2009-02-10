@@ -65,15 +65,15 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 						team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0f;
 					else
 						team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
-				};
+				}
 				if( team_dist1 > team_dist )
 				{
 					team_dist = team_dist1;
 					pos = pos1;
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 
 	if(pos.x == -1 && pos.y == -1)
 		pos = FindSpot();

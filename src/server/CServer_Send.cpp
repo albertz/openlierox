@@ -114,7 +114,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
 	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
-	if(tLXOptions->tGameInfo.iGameMode == GMT_TIME)
+	if(server->getGameMode()->GameType() == GMT_TIME)
 		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	

@@ -8,7 +8,6 @@
  */
 
 #include <iostream>
-#include <cmath>
 #include "CHideAndSeek.h"
 #include "CWorm.h"
 #include "Options.h"
@@ -17,6 +16,8 @@
 #include "CClient.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
+#include "CMap.h"
+#include "LieroX.h"
 
 CHideAndSeek::CHideAndSeek(GameServer* server, CWorm* worms)
 {
@@ -30,29 +31,47 @@ CHideAndSeek::~CHideAndSeek()
 
 void CHideAndSeek::PrepareGame()
 {
+	fGameStart = tLX->fCurTime;
+	fHideLength = 20;
+	if(tLXOptions->tGameInfo.fTimeLimit > 0)
+		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60;
+	else
+		fGameLength = 60;
+	fAlertLength = 15;
+	for(int i = 0; i < MAX_WORMS; i++) {
+		fLastAlert[i] = 0;
+		bVisible[i] = false;
+	}
 }
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
+	static const std::string teamhint[2] = {
+		"You are a hider, you have to run away from the seekers who are red.",
+		"You are a seeker, you have to find and catch the hiders."
+	};
 	worm->setLives(0);
+	// Gameplay hints
+	worm->getClient()->getNetEngine()->SendText(teamhint[worm->getTeam()], TXT_NORMAL);
 }
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 {
+	pos = cServer->FindSpot();
 	worm->Spawn(pos);
-	// Hiders only spawn on their own client
-	if(worm->getTeam() == HIDER) {
-		worm->getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
-		return false;
-	}
-	// Seekers spawn for everyone
-	return true;
+	// Worms only spawn visible to their own team
+	for(int i = 0; i < MAX_WORMS; i++)
+		if(cWorms[i].getTeam() == worm->getTeam())
+			cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
+	return false;
 }
 
 void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 {
-	cServer->SendGlobalText(killer->getName() + " caught " + victim->getName(), TXT_NORMAL);
-	killer->AddKill();
+	if(killer->getTeam() == SEEKER && killer != victim) {
+		cServer->SendGlobalText(killer->getName() + " caught " + victim->getName(), TXT_NORMAL);
+		killer->AddKill();
+	}
 	victim->Kill();
 }
 
@@ -67,56 +86,67 @@ void CHideAndSeek::Drop(CWorm* worm)
 
 void CHideAndSeek::Simulate()
 {
-	// Check if any of the seekers are in range of the hiders
+	float GameTime = tLX->fCurTime - fGameStart;
+	// Game time up
+	if(GameTime > fGameLength + fHideLength) {
+		for(int i = 0; i < MAX_WORMS; i++)
+			if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() == SEEKER)
+				cServer->killWorm(i, i, cWorms[i].getLives() + 1);
+		return;
+	}
+	// Hiders have 20 seconds free from being caught and seen
+	if(GameTime < fHideLength)
+		return;
+	// Check if any of the worms can see eachother
 	int i, j;
 	CVec dist;
 	for(i = 0; i < MAX_WORMS; i++) {
-		if(!cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT || cWorms[i].getTeam() == HIDER)
+		if(!cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT)
 			continue;
+		// Hide the worm if the alert time is up
+		if(fLastAlert[i] + fAlertLength < GameTime)
+			Hide(&cWorms[i]);
 		for(j = 0; j < MAX_WORMS; j++) {
-			if(!cWorms[j].isUsed() || cWorms[j].getLives() == WRM_OUT || cWorms[j].getTeam() == SEEKER)
+			if(!cWorms[j].isUsed() || cWorms[j].getLives() == WRM_OUT)
+				continue;
+			if(cWorms[j].getTeam() == cWorms[i].getTeam())
 				continue;
 			dist = cWorms[i].getPos() - cWorms[j].getPos();
-			// Catch worms within 100 pixels of the seeker
-			if(dist.GetLength() < 100)
-				cServer->killWorm(j, i, 0);
+			if(CanSee(&cWorms[i], &cWorms[j]) && dist.GetLength() < 125)
+				Show(&cWorms[j]);
+			// Catch the hiders
+			if(cWorms[i].getTeam() == SEEKER && cWorms[j].getTeam() == HIDER)
+				if(dist.GetLength() < 10)
+					cServer->killWorm(cWorms[j].getID(), cWorms[i].getID(), 0);
 		}
 	}
 }
 
 bool CHideAndSeek::CheckGame()
 {
-	// Check if the timelimit has been reached
-	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
-			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
-
 	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
+	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
 		return false;
-
+	
 	// In game?
 	if (!cServer || cServer->getState() == SVS_LOBBY)
 		return false;
 
-	int worms = 0;
-	int wormid = 0;
+	int worms[2] = { 0, 0 };
+	int winners = -1;
+	static const std::string teamname[2] = { "hiding", "seeking" };
+
 	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() == HIDER) {
-			worms++;
-			wormid = i;  // TODO: a team has won, not a worm...
-		}
-
-	// End?
-	if(worms == 0 || timelimit) {
-		if (networkTexts->sPlayerHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
-				cWorms[wormid].getName(), 1)), TXT_NORMAL);
-		iWinner = wormid;
-
-		// Timelimit message
-		if (timelimit)
-			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-
+		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
+			worms[cWorms[i].getTeam()]++;
+	if(worms[0] == 0)
+		winners = SEEKER;
+	else if(worms[1] == 0)
+		winners = HIDER;
+	if(winners != -1) {
+		if(networkTexts->sPlayerHasWon != "<none>")
+			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon, "<team>",
+				teamname[winners], 1)), TXT_NORMAL);
 		return true;
 	}
 	return false;
@@ -134,6 +164,48 @@ int CHideAndSeek::GameTeams()
 
 int CHideAndSeek::Winner()
 {
-	return iWinner;
+	return 0;
+}
+
+void CHideAndSeek::Show(CWorm* worm)
+{
+	if(bVisible[worm->getID()])
+		return;
+	bVisible[worm->getID()] = true;
+	fLastAlert[worm->getID()] = tLX->fCurTime - fGameStart;
+
+	if(worm->getTeam() == HIDER)
+		worm->getClient()->getNetEngine()->SendText("You are visible to the seekers, run!", TXT_NORMAL);
+	else
+		worm->getClient()->getNetEngine()->SendText("You are visible to the hiders.", TXT_NORMAL);
+	for(int i = 0; i < MAX_WORMS; i++) {
+		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
+			continue;
+		cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, worm->getPos());
+		cWorms[i].getClient()->getNetEngine()->SendText(worm->getName() + " is visible!", TXT_NORMAL);
+	}
+}
+
+void CHideAndSeek::Hide(CWorm* worm)
+{
+	if(!bVisible[worm->getID()])
+		return;
+	bVisible[worm->getID()] = false;
+
+	worm->getClient()->getNetEngine()->SendText("You are invisible again!", TXT_NORMAL);
+	for(int i = 0; i < MAX_WORMS; i++) {
+		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
+			continue;
+		cWorms[i].getClient()->getNetEngine()->SendWormDied(worm);
+		cWorms[i].getClient()->getNetEngine()->SendText(worm->getName() + " is hiding!", TXT_NORMAL);
+	}
+}
+
+bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
+{
+	float length;
+	int type;
+	worm1->traceLine(worm2->getPos(), &length, &type, 1);
+	return type & PX_EMPTY;
 }
 

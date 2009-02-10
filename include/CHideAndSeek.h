@@ -29,10 +29,20 @@ public:
 	virtual int  GameType();
 	virtual int  GameTeams();
 	virtual int  Winner();
+	// Show or hide a worm to/from the opposing team
+	void Show(CWorm* worm);
+	void Hide(CWorm* worm);
+	// Returns true if worm1 can see worm2
+	bool CanSee(CWorm* worm1, CWorm* worm2);
 
 protected:
-	enum team { HIDER, SEEKER };
-	int  iWinner;
+	enum  team { HIDER, SEEKER };
+	float fGameStart;            // The time when the game was started
+	float fHideLength;           // The length of time the hiders cannot be caught in
+	float fGameLength;           // The length of the game
+	float fAlertLength;          // The length of time a worm must not be seen for to go invisible
+	float fLastAlert[MAX_WORMS]; // The last time the worms were seen by other worms
+	bool  bVisible[MAX_WORMS];   // The visibility of the woms
 };
 
 #endif
