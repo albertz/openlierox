@@ -4,6 +4,8 @@
 # (http://openlierox.sourceforge.net)
 
 # We're expecting this file to be run from "scripts" dir - that's from rev. 3260 or so
+# TODO: NO, we are not expecting this!
+# It was only done because this script is buggy and does not work otherwise.
 
 import os, sys, time
 

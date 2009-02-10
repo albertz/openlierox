@@ -1322,8 +1322,9 @@ int CHttp::ProcessGET()
 
 	// Wait until we have some data to read
 	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
+	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketRead(tSocket, 1000);
+	WaitForSocketRead(tSocket, 100);
 	Lock();
 
 	// Check for response

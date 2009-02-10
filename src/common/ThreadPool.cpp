@@ -26,26 +26,9 @@ ThreadPool::ThreadPool() {
 }
 
 ThreadPool::~ThreadPool() {
-	SDL_mutexP(mutex);
-	while(usedThreads.size() > 0) {		
-		warnings << "ThreadPool: waiting for " << usedThreads.size() << " threads to finish:" << endl;
-		for(std::set<ThreadPoolItem*>::iterator i = usedThreads.begin(); i != usedThreads.end(); ++i) {
-			if((*i)->working && (*i)->finished) {
-				warnings << "thread " << (*i)->name << " is ready but was not cleaned up" << endl;
-				(*i)->working = false;
-				SDL_CondSignal((*i)->readyForNewWork);	
-			}
-			else if((*i)->working && !(*i)->finished) {
-				warnings << "thread " << (*i)->name << " is still working" << endl;
-			}
-			else {
-				warnings << "thread " << (*i)->name << " is in an invalid state" << endl;
-			}
-		}
-		SDL_CondWait(threadFinishedWork, mutex);
-	}
-	SDL_mutexV(mutex);
+	waitAll();
 
+	// this is the hint for all available threads to break
 	nextAction = NULL;
 	SDL_CondBroadcast(awakeThread);
 	for(std::set<ThreadPoolItem*>::iterator i = availableThreads.begin(); i != availableThreads.end(); ++i) {
@@ -161,6 +144,30 @@ bool ThreadPool::wait(ThreadPoolItem* thread, int* status) {
 	SDL_mutexV(mutex);
 	
 	SDL_CondSignal(thread->readyForNewWork);
+	return true;
+}
+
+bool ThreadPool::waitAll() {
+	SDL_mutexP(mutex);
+	while(usedThreads.size() > 0) {		
+		warnings << "ThreadPool: waiting for " << usedThreads.size() << " threads to finish:" << endl;
+		for(std::set<ThreadPoolItem*>::iterator i = usedThreads.begin(); i != usedThreads.end(); ++i) {
+			if((*i)->working && (*i)->finished) {
+				warnings << "thread " << (*i)->name << " is ready but was not cleaned up" << endl;
+				(*i)->working = false;
+				SDL_CondSignal((*i)->readyForNewWork);	
+			}
+			else if((*i)->working && !(*i)->finished) {
+				warnings << "thread " << (*i)->name << " is still working" << endl;
+			}
+			else {
+				warnings << "thread " << (*i)->name << " is in an invalid state" << endl;
+			}
+		}
+		SDL_CondWait(threadFinishedWork, mutex);
+	}
+	SDL_mutexV(mutex);
+	
 	return true;
 }
 

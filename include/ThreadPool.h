@@ -56,6 +56,7 @@ public:
 	// WARNING: if you set headless, you cannot use wait() and you should not save the returned ThreadPoolItem*
 	ThreadPoolItem* start(Action* act, const std::string& name = "unknown worker", bool headless = false); // ThreadPool will own and free the Action
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
+	bool waitAll();
 };
 
 extern ThreadPool* threadPool;
