@@ -124,6 +124,8 @@ void Logger::unlock() {
 }
 
 static void CoutPrint(const std::string& str) {
+	// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
+	// TODO: c_str() is slow and not really needed here.
 	printf("%s", str.c_str());
 }
 
