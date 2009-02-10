@@ -304,6 +304,7 @@ struct DedIntern {
 				// TODO: this is really hacky, but currently there is no better way to do so
 				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
 				//cClient->ReinitLocalWorms();
+				// HINT: It is not mandatory to have something new in the net protocol. We can reuse the connect-packet for that.
 				cClient->Reconnect();
 
 				return;
@@ -478,7 +479,12 @@ struct DedIntern {
 	}
 
 	void Cmd_StartLobby(std::string param) {
-
+		if(state != S_INACTIVE) {
+			warnings << "Ded: we cannot start the lobby in current state" << endl;
+			hints << "Ded: stop lobby/game if you want to restart it" << endl;
+			return;
+		}
+		
 		if( param != "" ) {
 			int port = atoi(param);
 			if( port )
