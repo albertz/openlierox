@@ -1640,6 +1640,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\Mutex.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Mutex.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\NotifyUser.cpp"
 				>
 			</File>
@@ -1649,6 +1657,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\PixelFunctors.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\Process.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Process.h"
 				>
 			</File>
 			<File

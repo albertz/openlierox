@@ -1,0 +1,37 @@
+/*
+	OpenLieroX
+
+	Mutex wrapper
+
+	created 10-02-2009 by Karel Petranek
+	code under LGPL
+*/
+
+#include <SDL_mutex.h>
+
+#define INVALID_THREAD_ID (Uint32)-1
+
+// Mutex wrapper class with some extra debugging checks
+class Mutex  {
+private:
+	SDL_mutex *m_mutex;
+
+#ifdef DEBUG
+	volatile Uint32 m_lockedThread;  // Thread that keeps the lock
+#endif
+
+public:
+#ifdef DEBUG
+	Mutex();
+	~Mutex();
+	void lock();
+	void unlock();
+
+	static void test();
+#else
+	Mutex()			{ m_mutex = SDL_CreateMutex(); }
+	~Mutex()		{ SDL_DestroyMutex(m_mutex); }
+	void lock()		{ SDL_LockMutex(m_mutex); }
+	void unlock()	{ SDL_UnlockMutex(m_mutex); }
+#endif
+};
