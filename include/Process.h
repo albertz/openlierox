@@ -24,7 +24,6 @@ public:
 	
 	std::ostream& in();
 	std::istream& out();
-	void close_in();
 	void close();
 
 	// this can also open script files in the UNIX-way on every system

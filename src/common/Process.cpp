@@ -19,7 +19,6 @@ struct ProcessIntern	// Stub
 	pstream_pipe_t(): dummy(0) {};
 	std::ostream & in(){ return std::cout; };
 	std::istream & out(){ return std::cin; };
-	void close_in() {  };
 	void close() {  }
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{
@@ -37,17 +36,14 @@ struct ProcessIntern	// Stub
 struct ProcessIntern
 {
 	boost::process::child *p;
-	pstream_pipe_t(): p(NULL) {};
+	ProcessIntern(): p(NULL) {};
 	std::ostream & in() { if (p) return p->get_stdin(); static std::ostringstream os; return os; };
 	std::istream & out() { if (p) return p->get_stdout(); static std::istringstream is; return is; };
-	void close_in() { if (p) { p->get_stdin().close(); } };
-	void close() { close_in(); }
+	void close() { if (p) { p->get_stdin().close(); } }
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{
 		if(p)
 			delete p;
-		if( params.size() == 0 )
-			params.push_back(cmd);
 		
 		for (std::vector<std::string>::iterator it = params.begin(); it != params.end(); it++)
 			*it = Utf8ToSystemNative(*it);
@@ -75,22 +71,22 @@ struct ProcessIntern
 #include <pstream.h>
 struct ProcessIntern
 {
-	redi::pstream p;
-	std::ostream & in() { return p; };
-	std::istream & out() { return p.out(); };
-	void close_in(){ p << redi::peof; };
+	ProcessIntern() : p(NULL) {}
+	~ProcessIntern() { close(); reset(); }
+	redi::pstream* p;
+	std::ostream & in() { return *p; };
+	std::istream & out() { return p->out(); };
+	void reset() { if(p) delete p; p = NULL; }
 	void close() {
-		if(p.rdbuf() && !p.rdbuf()->exited()) p.rdbuf()->kill();
-		close_in();
-		// TODO: this should close the process that pipeThread will stop
+		// p << redi::peof;
+		if(p->rdbuf()) p->rdbuf()->kill();
+		if(p->rdbuf()) p->rdbuf()->kill(SIGKILL);
 	}
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{
-		if( params.size() == 0 )
-			params.push_back(cmd);
-		
-		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout, working_dir ); // we don't grap the stderr, it should directly be forwarded to console
-		return p.rdbuf()->error() == 0;
+		reset(); p = new redi::pstream();
+		p->open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout, working_dir ); // we don't grap the stderr, it should directly be forwarded to console
+		return p->rdbuf()->error() == 0;
 	}
 };
 #endif
@@ -108,9 +104,7 @@ Process::~Process() {
 
 
 std::ostream& Process::in() { return data->in(); }
-
 std::istream& Process::out() { return data->out(); }
-void Process::close_in() { data->close_in(); }
 void Process::close() { data->close(); }
 
 #ifdef WIN32

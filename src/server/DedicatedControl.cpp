@@ -265,7 +265,10 @@ struct DedIntern {
 	}
 	
 	void Cmd_Script(const std::string& script) {
-		loadScript("scripts/" + script);
+		if(script == "" || script == "/dev/null")
+			loadScript("/dev/null");
+		else
+			loadScript("scripts/" + script);
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
@@ -745,7 +748,7 @@ struct DedIntern {
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_SVRLOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_INACTIVE; }
 	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_INACTIVE; }
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close(); state = S_INACTIVE; }
 
 	void Sig_Connecting(const std::string& addr) { pipe.in() << "connecting " << addr << std::endl; state = S_CLICONNECTING; }
 	void Sig_ConnectError(const std::string& err) { pipe.in() << "connecterror " << err << std::endl; state = S_INACTIVE; }

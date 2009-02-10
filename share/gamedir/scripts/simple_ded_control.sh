@@ -15,11 +15,11 @@ function startgame() {
 }
 
 function msg() {
-	echo "msg $1"
+	echo "msg $1" || exit -1
 }
 
 function chatmsg() {
-	echo "chatmsg $1"
+	echo "chatmsg $1" || exit -1
 }
 
 function setvar() {
