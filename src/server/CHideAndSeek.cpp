@@ -86,8 +86,12 @@ void CHideAndSeek::Simulate()
 
 bool CHideAndSeek::CheckGame()
 {
+	// Check if the timelimit has been reached
+	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
+			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
+
 	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
+	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
 		return false;
 
 	// In game?
@@ -99,13 +103,20 @@ bool CHideAndSeek::CheckGame()
 	for(int i = 0; i < MAX_WORMS; i++)
 		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() == HIDER) {
 			worms++;
-			wormid = i;
+			wormid = i;  // TODO: a team has won, not a worm...
 		}
-	if(worms == 0) {
+
+	// End?
+	if(worms == 0 || timelimit) {
 		if (networkTexts->sPlayerHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
 				cWorms[wormid].getName(), 1)), TXT_NORMAL);
 		iWinner = wormid;
+
+		// Timelimit message
+		if (timelimit)
+			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
+
 		return true;
 	}
 	return false;

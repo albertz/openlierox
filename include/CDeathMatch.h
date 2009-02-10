@@ -14,6 +14,8 @@
 #include "Consts.h"
 
 class CDeathMatch : public CGameMode {
+private:
+	bool CompareWormsScore(CWorm *w1, CWorm *w2);
 public:
 	CDeathMatch(GameServer* server, CWorm* worms);
 	virtual ~CDeathMatch();

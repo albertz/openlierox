@@ -179,32 +179,47 @@ void CTeamDeathMatch::Simulate()
 
 bool CTeamDeathMatch::CheckGame()
 {
+	// Check if the timelimit has been reached
+	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
+			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
+
 	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };  // TODO: move to Consts.h
+
 	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
+	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
 		return false;
 
 	// In game?
 	if (!cServer || cServer->getState() == SVS_LOBBY)
 		return false;
 
+	// Only one team left?
 	int worms[4] = { 0, 0, 0, 0 };
 	for(int i = 0; i < MAX_WORMS; i++)
 		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
 			worms[cWorms[i].getTeam()]++;
 	int team = 0;
 	int teams = 0;
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 4; i++)  {
 		if(worms[i]) {
 			teams++;
-			team = i;
+			team = (worms[i] > worms[team] ? i : team);  // Mark the team with greatest kill amount the winner
 		}
-	if(teams <= 1) {
+	}
+
+	// Only one team left or timelimit has been reached
+	if(teams <= 1 || timelimit) {
 		if(networkTexts->sTeamHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
 				"<team>", teamnames[team], 1)), TXT_NORMAL);
+
+		if (timelimit)
+			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
+
 		return true;
 	}
+
+
 	return false;
 }
 
