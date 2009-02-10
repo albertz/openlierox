@@ -80,11 +80,10 @@ struct ProcessIntern
 	std::istream & out() { return p.out(); };
 	void close_in(){ p << redi::peof; };
 	void close() {
-		p.kill();
+		if(p.rdbuf() && !p.rdbuf()->exited()) p.rdbuf()->kill();
 		close_in();
 		// TODO: this should close the process that pipeThread will stop
 	}
-	void kill() {
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{
 		if( params.size() == 0 )
