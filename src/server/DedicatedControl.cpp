@@ -267,6 +267,8 @@ struct DedIntern {
 	void Cmd_Script(const std::string& script) {
 		if(script == "" || script == "/dev/null")
 			loadScript("/dev/null");
+		else if(IsAbsolutePath(script))
+			loadScript(script);
 		else
 			loadScript("scripts/" + script);
 	}
@@ -907,8 +909,18 @@ DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
-	DedIntern* dedIntern = new DedIntern;		
-	return dedIntern->loadScript(tLXOptions->sDedicatedScript);
+	DedIntern* dedIntern = new DedIntern;
+	if(tLXOptions->sDedicatedScript != "" && tLXOptions->sDedicatedScript != "/dev/null") {
+		if(IsAbsolutePath(tLXOptions->sDedicatedScript))
+			return dedIntern->loadScript(tLXOptions->sDedicatedScript);
+
+		if(strStartsWith(tLXOptions->sDedicatedScript, "scripts/")) // old clients will use it like that
+			return dedIntern->loadScript(tLXOptions->sDedicatedScript);
+		
+		return dedIntern->loadScript("scripts/" + tLXOptions->sDedicatedScript);
+	}
+	else
+		return dedIntern->loadScript("/dev/null");
 }
 
 
