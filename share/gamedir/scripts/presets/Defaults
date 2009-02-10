@@ -3,6 +3,8 @@
 # This file contains default settings for all presets, 
 # it will be executed before any preset to clean up after previous preset
 
+# TODO: use options.cfg settings as default and don't hardcode any other stuff here
+
 global controlHandler
 controlHandler = controlHandlerDefault
 cmds.adminCommandHelp_Preset = None
@@ -33,7 +35,7 @@ setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 # Other options that controls game
 setvar( "GameOptions.GameInfo.GameSpeed", 1) # Beta8+
 setvar( "GameOptions.GameInfo.RespawnGroupTeams", 1)
-setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 0) # Beta8+
+setvar( "GameOptions.GameInfo.AllowConnectDuringGame", 1) # Beta8+
 
 setvar( "GameOptions.GameInfo.Bonuses", 0)
 setvar( "GameOptions.GameInfo.BonusNames", 1)

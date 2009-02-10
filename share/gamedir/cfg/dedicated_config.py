@@ -1,13 +1,14 @@
 #!/usr/bin/python -u
 
 # TODO: what is this script for? why not using cfg/options.cfg ?
-# TODO: remove this script
+# TODO: This script should only contain special settings which are not covered by options.cfg
 
 # The reason this script resides in cfg/ folder is that the OLX file downloader will 
 # deny access to cfg/ folder, and we have admin password here
 # .. Why don't we deny access to everything except levels and mods (by checking if a directory
 # has got script.lgs in it). Current way sounds sucky to me.
 
+# TODO: move that to options.cfg
 ADMIN_PASSWORD = "secret" # Change it! should be single word without spaces, yet symbols ~!@#$%^&* are encouraged
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
 
@@ -16,7 +17,9 @@ LOG_FILE = "dedicated_control.log"
 # If you modify dedicated_control Python will write errors here
 ERROR_FILE = "dedicated_control_errors.log"
 
-SERVER_NAME = "Dedicated" # The name of your server, can be changed by preset
+# TODO: use the one from options.cfg as default
+# (it's ok if presets change the name, but the default should be the one specified in options.cfg)
+#SERVER_NAME = "Dedicated" # The name of your server, can be changed by preset
 
 MIN_PLAYERS = 2
 MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players
@@ -31,13 +34,18 @@ WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
+# TODO: same thing as for SERVERNAME. it's ok if presets change them but options.cfg should define the default 
 GAME_LIVES = -2 # -2 = unlimited, can be changed by TeamArena preset
 GAME_MAX_KILLS = 15
 GAME_MAX_TIME = 7 # In minutes
 WEAPON_SELECTION_TIME = 40 # In seconds
 
-MAX_PING = 400 # Max ping to auto-kick player
+# TODO: This is unfair and I don't thing it is such a good idea.
+# A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is). 
+MAX_PING = 800 # Max ping to auto-kick player
 
+# TODO: We should use the OLX chatcommand system.
+# TODO: Register dedscript commands in OLX chatcommand system.
 # Users can enter some commands too
 USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "//"
 ALLOW_TEAM_CHANGE = True # Player should type "!b", "!r", "!g", or "!y" to set it's own team
@@ -47,8 +55,9 @@ if MAX_TEAMS >= 3:
 if MAX_TEAMS >= 4:
 	TEAM_CHANGE_MESSAGE += "/y"
 
+# TODO: remove that, should take the settings from options.cfg
 SERVER_PORT = 23400 # On which port to host a server - better if it's different from the port in your game settings
-SERVER_MAX_UPLOAD_LIMIT = 40000 # 40 kilobytes should be enough for 8 players
+SERVER_MAX_UPLOAD_LIMIT = 40000
 
 RANKING = 1 # Should we allow !rank user command
 RANKING_AUTHENTICATION = 0 # Should we authenticate worm by it's skin color (pretty weak, but !password cmd is kinda ugly)
@@ -75,18 +84,22 @@ LEVELS = [	"FossilFacility.lxl",
 			"RIP_Home.lxl",
 			"Sunrise_Mansion.lxl",
 			"wormmountain.lxl",
+			"Hood Alien",
+			"Fight Box",
+			"Duel",
+			"Tetris v2"
 		]
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
-PRESETS = [ "Classic", "Mortars", "MSF_II", ]
+PRESETS = [ "Mortars", "MSF_II", "Shock v1.40 Air", "8-Bit Warfare v1.2", "Modern Warfare1.0" ]
 
 # General options that should be set
 GLOBAL_SETTINGS = {	
 
-	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected",
+#	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected",
 #	"GameOptions.GameInfo.MaxPlayers":              8,
-	"GameOptions.GameInfo.WeaponSelectionMaxTime":  40,
+#	"GameOptions.GameInfo.WeaponSelectionMaxTime":  40,
 #	"GameOptions.Network.MaxUploadBandwidth":       40000, # Should be enough for 8-player game, raise this if your network is fast
 
 	# Various options that should be set, you don't need to touch them in most cases
@@ -97,14 +110,15 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.AllowRemoteBots":          1,
 	"GameOptions.Network.AllowWantsJoinMsg":        1,
 	"GameOptions.Network.WantsToJoinFromBanned":    0,
-	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages
+	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages ; TODO: fix that
 	"GameOptions.Network.RegisterServer":           1,
 	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
 	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
 	"GameOptions.Game.AntilagMovementPrediction":   1, # If ServerSideHealth = 1 this influences gameplay
-	"GameOptions.Game.Blood":                       0, # Ded server does not need any eye candies
-	"GameOptions.Game.Particles":                   0, # Ded server does not need any eye candies
-	"GameOptions.Game.Shadows":                     0, # Ded server does not need any eye candies
+# TODO: OLX should not do that anyway in dedicated mode. if it does, please fix that in OLX
+#	"GameOptions.Game.Blood":                       0, # Ded server does not need any eye candies
+#	"GameOptions.Game.Particles":                   0, # Ded server does not need any eye candies
+#	"GameOptions.Game.Shadows":                     0, # Ded server does not need any eye candies
 	"GameOptions.Misc.LogConversations":            0,
 	"GameOptions.Advanced.MatchLogging":            0, # Do not save game results screenshot
 	"GameOptions.Misc.ScreenshotFormat":            1, # 0 = JPG, 1 = PNG

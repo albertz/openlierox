@@ -15,10 +15,20 @@ os.chdir(os.path.split(sys.argv[0])[0])
 # Add current dir to module search path
 sys.path.append(os.getcwd())
 
+os.chdir( os.path.dirname(sys.argv[0]) )
+
+
 # Add dir with config file to module search path
 try:
 	os.listdir(os.getenv("HOME")+"/.OpenLieroX/cfg")
 	sys.path.append(os.getenv("HOME")+"/.OpenLieroX/cfg")
+except:
+	pass
+
+# Add dir with config file to module search path
+try:
+	os.listdir(os.getenv("HOME")+"/Library/Application Support/OpenLieroX/cfg")
+	sys.path.append(os.getenv("HOME")+"/Library/Application Support/OpenLieroX/cfg")
 except:
 	pass
 

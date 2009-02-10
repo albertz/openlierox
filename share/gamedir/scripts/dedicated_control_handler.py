@@ -318,9 +318,12 @@ def initPresets():
 	availablePresets = []
 
 	for f in os.listdir(presetDir):
-
 		if f.lower() != "defaults" and f.lower() != ".svn":
 			availablePresets.append(f)
+
+	for p in cfg.PRESETS:
+		if availablePresets.count(p) == 0:
+			availablePresets.append(p)
 
 	if (len(availablePresets) == 0):
 		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
@@ -370,7 +373,8 @@ def selectNextPreset():
 			fPreset.close()
 	except IOError:
 		# File does not exist, perhaps it was removed.
-		io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
+		preset.Mod = preset.Name
+		#io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
 
 	if preset.Mod:
@@ -466,6 +470,7 @@ def checkMaxPing():
 				if average(worms[f].Ping) > cfg.MAX_PING:
 					io.kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
 
+
 lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
 lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
 lobbyWaitAfterGame = 0
@@ -543,7 +548,6 @@ def controlHandlerDefault():
 	if gameState == GAME_PLAYING:
 
 		checkMaxPing()
-
 
 controlHandler = controlHandlerDefault
 
