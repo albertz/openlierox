@@ -311,6 +311,7 @@ struct DedIntern {
 			}
 		}
 
+		// TODO: add a bot to profiles in that case
 		warnings << "Can't find ANY bot!" << endl;
 		return;
 	}
