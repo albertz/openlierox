@@ -525,7 +525,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
 		m_worm->bWeaponsReady = true;
-	
+
 }
 
 

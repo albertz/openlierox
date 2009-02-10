@@ -441,19 +441,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// Go through and draw the first two worms select menus
 		if (!bWaitingForMod) {
-			for(i=0;i<num;i++) {
-
-				// Select weapons
-				if(!cLocalWorms[i]->getWeaponsReady()) {
-					cLocalWorms[i]->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
-					
-					if(cLocalWorms[i]->getWeaponsReady()) {
-						hints << "Client: worm " << i << " is ready with weapon-selection" << endl;
-					}
-
-					ready = ready && cLocalWorms[i]->getWeaponsReady();
-				}								
-			}
+			for(i=0;i<num;i++)
+				ready = ready && cLocalWorms[i]->getWeaponsReady();
 		} else // Waiting for a mod to download
 			ready = false;
 
@@ -680,6 +669,13 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
 		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
 	}
+
+	// Go through and draw the first two worms select menus
+	if (iNetStatus == NET_CONNECTED && bGameReady && !bWaitingForMod)
+		for(i=0;i<num;i++)
+			if(!cLocalWorms[i]->getWeaponsReady())
+				cLocalWorms[i]->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
+
 
 /*#ifdef DEBUG
 	// Client and server velocity

@@ -551,12 +551,21 @@ public:
 			exit(-1);
 		}*/
 #endif
-          
+        if(tLXOptions && ! tLXOptions->bRecoverAfterCrash)  
+        {
+			fflush(stdout);
+#ifdef DEBUG
+        	raise(SIGQUIT);
+#else
+			exit(-1);
+#endif
+        }
 		// I've found why we're making forkbomb - we should ignore all following signals, 
 		// 'cause if that's segfault the problem will most probably repeat on each frame
 		// signal(Sig, SimpleSignalHandler); // reset handler // Do not do that!
 		printf("resuming ...\n");
 		fflush(stdout);
+		
 		setSignalHandlers();
 		siglongjmp(longJumpBuffer, 1); // jump back to main loop, maybe we'll be able to continue somehow
 	}
