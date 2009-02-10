@@ -1,5 +1,8 @@
 #!/usr/bin/python -u
 
+# TODO: what is this script for? why not using cfg/options.cfg ?
+# TODO: remove this script
+
 # The reason this script resides in cfg/ folder is that the OLX file downloader will 
 # deny access to cfg/ folder, and we have admin password here
 # .. Why don't we deny access to everything except levels and mods (by checking if a directory
@@ -82,9 +85,9 @@ PRESETS = [ "Classic", "Mortars", "MSF_II", ]
 GLOBAL_SETTINGS = {	
 
 	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected",
-	"GameOptions.GameInfo.MaxPlayers":              8,
+#	"GameOptions.GameInfo.MaxPlayers":              8,
 	"GameOptions.GameInfo.WeaponSelectionMaxTime":  40,
-	"GameOptions.Network.MaxUploadBandwidth":       40000, # Should be enough for 8-player game, raise this if your network is fast
+#	"GameOptions.Network.MaxUploadBandwidth":       40000, # Should be enough for 8-player game, raise this if your network is fast
 
 	# Various options that should be set, you don't need to touch them in most cases
 
