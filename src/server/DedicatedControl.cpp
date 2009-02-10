@@ -41,6 +41,7 @@
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "Command.h"
+#include "Process.h"
 
 
 #ifdef _MSC_VER
@@ -51,92 +52,6 @@
 using std::endl;
 
 
-struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
-
-#if ( ! defined(HAVE_BOOST) && defined(WIN32) ) || ( defined(_MSC_VER) && (_MSC_VER <= 1200) )
-
-struct pstream_pipe_t	// Stub
-{
-	int dummy;
-	pstream_pipe_t(): dummy(0) {};
-	std::ostream & in(){ return std::cout; };
-	std::istream & out(){ return std::cin; };
-	void close_in() {  };
-	void close() {  }
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
-	{
-		errors << "Dedicated server is not compiled into this version of OpenLieroX" << endl;
-		MessageBox( NULL, "ERROR: Dedicated server is not compiled into this version of OpenLieroX", "OpenLieroX", MB_OK );
-		return false;
-	}
-};
-
-#else
-
-#ifdef WIN32
-// Install Boost headers for your compiler and #define HAVE_BOOST to compile dedicated server for Win32
-// You don't need to link to any lib to compile it, just headers.
-#include <boost/process.hpp> // This one header pulls turdy shitload of Boost headers
-struct pstream_pipe_t
-{
-	boost::process::child *p;
-	pstream_pipe_t(): p(NULL) {};
-	std::ostream & in() { if (p) return p->get_stdin(); static std::ostringstream os; return os; };
-	std::istream & out() { if (p) return p->get_stdout(); static std::istringstream is; return is; };
-	void close_in() { if (p) { p->get_stdin().close(); } };
-	void close() { close_in(); }
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
-	{
-		if(p)
-			delete p;
-		if( params.size() == 0 )
-			params.push_back(cmd);
-
-		for (std::vector<std::string>::iterator it = params.begin(); it != params.end(); it++)
-			*it = Utf8ToSystemNative(*it);
-
-		boost::process::context ctx;
-		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
-		ctx.m_stdout_behavior = boost::process::capture_stream();
-		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it is not outputted anywhere, sadly
-		ctx.m_work_directory = Utf8ToSystemNative(working_dir);
-		try
-		{	
-			p = new boost::process::child(boost::process::launch(Utf8ToSystemNative(cmd), params, ctx)); // Throws exception on error
-		}
-		catch( const std::exception & e )
-		{
-			errors << "Error running command " << cmd << " : " << e.what() << endl;
-			return false;
-		}
-		return true;
-	}
-	~pstream_pipe_t(){ close(); if(p) delete p; };
-};
-
-#else
-#include <pstream.h>
-struct pstream_pipe_t
-{
-	redi::pstream p;
-	std::ostream & in() { return p; };
-	std::istream & out() { return p.out(); };
-	void close_in(){ p << redi::peof; };
-	void close() {
-		close_in();
-		// TODO: this should close the process that pipeThread will stop
-	}
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" )
-	{
-		if( params.size() == 0 )
-			params.push_back(cmd);
-		
-		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout, working_dir ); // we don't grap the stderr, it should directly be forwarded to console
-		return p.rdbuf()->error() == 0;
-	}
-};
-#endif
-#endif
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -179,15 +94,22 @@ static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string
 struct DedIntern {
 	ThreadPoolItem* pipeThread;
 	ThreadPoolItem* stdinThread;
-	pstream_pipe_t pipe;
+	Process pipe;
 	SDL_mutex* pipeOutputMutex;
 	std::stringstream pipeOutput;
 	bool quitSignal;
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
-	DedIntern() : pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE) { }
+	DedIntern() :
+		pipeThread(NULL), stdinThread(NULL),
+		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE)
+	{
+		dedicatedControlInstance->internData = this;
+		pipeOutputMutex = SDL_CreateMutex();
+		stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL, "Ded stdin watcher");
+	}
+	
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -195,16 +117,12 @@ struct DedIntern {
 		notes << "waiting for stdinThread ..." << endl;
 		threadPool->wait(stdinThread, NULL);
 
-		notes << "waiting for pipeThread ..." << endl;
-#if defined(WIN32) && defined(HAVE_BOOST)
-		if (tLX->bQuitCtrlC)  // When using CTRL-C break on Windows, Python exits as well and the pipe is invalid
-			pipe.p = NULL;
-#endif
-		pipe.close();
-		threadPool->wait(pipeThread, NULL);
-
+		breakCurrentScript();
+		
 		SDL_DestroyMutex(pipeOutputMutex);
 		notes << "DedicatedControl destroyed" << endl;
+		
+		dedicatedControlInstance->internData = NULL;
 	}
 
 	// reading lines from pipe-out and put them to pipeOutput
@@ -254,6 +172,50 @@ struct DedIntern {
 		return 0;
 	}
 
+	
+	// -------------------------------
+	
+	bool breakCurrentScript() {
+		if(pipeThread) {
+			notes << "waiting for pipeThread ..." << endl;
+#if defined(WIN32) && defined(HAVE_BOOST)
+			if (tLX->bQuitCtrlC)  // When using CTRL-C break on Windows, Python exits as well and the pipe is invalid
+				pipe.p = NULL;
+#endif
+			pipe.close();
+			threadPool->wait(pipeThread, NULL);
+		}
+		pipeThread = NULL;
+		return true;
+	}
+	
+	bool loadScript(const std::string& script) {
+		breakCurrentScript();
+		
+		std::string scriptfn = GetAbsolutePath(GetFullFileName(script));
+		if(script != "/dev/null") {
+			if(!IsFileAvailable(scriptfn, true)) {
+				errors << "Dedicated: " << scriptfn << " not found" << endl;
+				return false;
+			}			
+
+			notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+			// HINT: If a script need this change in his own directory, it is a bug in the script.
+			if(!pipe.open(scriptfn, std::vector<std::string>(), ExtractDirectory(scriptfn))) {
+				errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;
+				return false;
+			}
+
+			pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL, "Ded pipe watcher");
+		}
+		else
+			notes << "Dedicated server: not running any script" << endl;
+		
+		return true;
+	}
+	
+	
+	
 	// -------------------------------
 	// ------- state -----------------
 
@@ -300,6 +262,10 @@ struct DedIntern {
 
 	void Cmd_Message(const std::string& msg) {
 		hints << "DedicatedControl: message: " << msg << endl;
+	}
+	
+	void Cmd_Script(const std::string& script) {
+		loadScript(script);
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
@@ -704,6 +670,8 @@ struct DedIntern {
 			Cmd_Quit();
 		else if(cmd == "setvar")
 			Cmd_SetVar(params);
+		else if(cmd == "script")
+			Cmd_Script(params);
 		else if(cmd == "msg")
 			Cmd_Message(params);
 		else if(cmd == "chatmsg")
@@ -936,115 +904,8 @@ DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
-	std::string scriptfn = GetFullFileName(tLXOptions->sDedicatedScript);
-	std::string command = GetAbsolutePath(scriptfn);
-	std::string script_dir = "."; // ExtractDirectory(scriptfn);
-	std::vector<std::string> commandArgs( 1, command );
-	if(tLXOptions->sDedicatedScript != "/dev/null") {
-		if(!IsFileAvailable(scriptfn, true)) {
-			errors << "Dedicated: " << scriptfn << " not found" << endl;
-			return false;
-		}
-
-		#ifdef WIN32
-		std::string interpreter = GetScriptInterpreterCommandForFile(scriptfn);
-		size_t f = interpreter.find(" ");
-		if(f != std::string::npos) interpreter.erase(f);
-		interpreter = GetBaseFilename(interpreter);
-		std::string cmdPathRegKey = "";
-		std::string cmdPathRegValue = "";
-		// TODO: move that out to an own function!
-		if( interpreter == "python" )
-		{
-			// TODO: move that out to an own function!
-			command = "python.exe";			
-			commandArgs.clear();
-			commandArgs.push_back(command);
-			commandArgs.push_back("-u");
-			commandArgs.push_back(scriptfn);
-			cmdPathRegKey = "SOFTWARE\\Python\\PythonCore\\2.5\\InstallPath";
-		}
-		else if( interpreter == "bash" )
-		{
-			// TODO: move that out to an own function!
-			command = "bash.exe";
-			commandArgs.clear();
-			commandArgs.push_back(command);
-			//commandArgs.push_back("-l");	// Not needed for Cygwin
-			commandArgs.push_back("-c");
-			commandArgs.push_back(scriptfn);
-			cmdPathRegKey = "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/usr/bin";
-			cmdPathRegValue = "native";
-		}
-		else if( interpreter == "php" )
-		{
-			// TODO: move that out to an own function!
-			command = "php.exe";
-			commandArgs.clear();
-			commandArgs.push_back(command);
-			commandArgs.push_back("-f");
-			commandArgs.push_back(scriptfn);
-			cmdPathRegKey = "SOFTWARE\\PHP";
-			cmdPathRegValue = "InstallDir";
-		}
-		else
-		{
-			command = interpreter + ".exe";
-		}
-
-		// TODO: move that out to an own function!
-		if( cmdPathRegKey != "" )
-		{
-			HKEY hKey;
-			LONG returnStatus;
-			DWORD dwType=REG_SZ;
-			char lszCmdPath[256]="";
-			DWORD dwSize=255;
-			returnStatus = RegOpenKeyEx(HKEY_LOCAL_MACHINE, cmdPathRegKey.c_str(), 0L,  KEY_READ, &hKey);
-			if (returnStatus != ERROR_SUCCESS)
-			{
-				errors << "registry key " << cmdPathRegKey << "\\" << cmdPathRegValue << " not found - make sure interpreter is installed" << endl;
-				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
-			}
-			returnStatus = RegQueryValueEx(hKey, cmdPathRegValue.c_str(), NULL, &dwType,(LPBYTE)lszCmdPath, &dwSize);
-			RegCloseKey(hKey);
-			if (returnStatus != ERROR_SUCCESS)
-			{
-				errors << "registry key " << cmdPathRegKey << "\\" << cmdPathRegValue << " could not be read - make sure interpreter is installed" << endl;
-				lszCmdPath[0] = '\0'; // Perhaps it is installed in PATH
-			}
-
-			// Add trailing slash if needed
-			std::string path(lszCmdPath);
-			if (path.size())  {
-				if (*path.rbegin() != '\\' && *path.rbegin() != '/')
-					path += '\\';
-			}
-			command = std::string(lszCmdPath) + command;
-			commandArgs[0] = command;
-		}
-		#endif
-	}
-
-	DedIntern* dedIntern = new DedIntern;
-	internData = dedIntern;
-	if(tLXOptions->sDedicatedScript != "/dev/null") {
-		notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
-#ifdef WIN32		
-		notes << "Dedicated server: running command \"" << command << "\" from dir \"" << script_dir << "\"" << endl;
-#endif
-		// HINT: If a script need this change in his own directory, it is a bug in the script.
-		if(!dedIntern->pipe.open(command, commandArgs, script_dir)) {
-			errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;
-			return false;
-		}
-		// dedIntern->pipe.in() << "init" << endl;
-		dedIntern->pipeOutputMutex = SDL_CreateMutex();
-		dedIntern->pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL, "Ded pipe watcher");
-	}
-	dedIntern->stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL, "Ded stdin watcher");
-
-	return true;
+	DedIntern* dedIntern = new DedIntern;		
+	return dedIntern->loadScript(tLXOptions->sDedicatedScript);
 }
 
 

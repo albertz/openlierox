@@ -121,6 +121,7 @@
 		23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */; };
 		23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */; };
 		23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */; };
+		23EAC0970F4204DF00CA55CF /* Process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23EAC0960F4204DF00CA55CF /* Process.cpp */; };
 		23ECBE3C0E894D48007B8D55 /* mkstemp.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFD0E894D03007B8D55 /* mkstemp.c */; };
 		23ECBE3D0E894D48007B8D55 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 23ECBDFE0E894D03007B8D55 /* zip.h */; };
 		23ECBE3E0E894D48007B8D55 /* zip_add.c in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBDFF0E894D03007B8D55 /* zip_add.c */; };
@@ -525,6 +526,8 @@
 		23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTeamDeathMatch.cpp; sourceTree = "<group>"; };
 		23EABF6C0F40C79100CA55CF /* TaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskManager.h; sourceTree = "<group>"; };
 		23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskManager.cpp; sourceTree = "<group>"; };
+		23EAC0940F4203BE00CA55CF /* Process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Process.h; sourceTree = "<group>"; };
+		23EAC0960F4204DF00CA55CF /* Process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Process.cpp; sourceTree = "<group>"; };
 		23ECBDFC0E894D03007B8D55 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../libs/libzip/config.h; sourceTree = SOURCE_ROOT; };
 		23ECBDFD0E894D03007B8D55 /* mkstemp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mkstemp.c; path = ../../libs/libzip/mkstemp.c; sourceTree = SOURCE_ROOT; };
 		23ECBDFE0E894D03007B8D55 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../libs/libzip/zip.h; sourceTree = SOURCE_ROOT; };
@@ -1122,6 +1125,7 @@
 				EA430C3C0BEFCEB400C6547E /* Unicode.cpp */,
 				23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */,
 				23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */,
+				23EAC0960F4204DF00CA55CF /* Process.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1251,6 +1255,7 @@
 				231FE01D0F0019A7007F4CC8 /* FeatureList.h */,
 				23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */,
 				23EABF6C0F40C79100CA55CF /* TaskManager.h */,
+				23EAC0940F4203BE00CA55CF /* Process.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -1699,6 +1704,7 @@
 				23D0FD180F40624E00D3DF4B /* CHideAndSeek.cpp in Sources */,
 				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
 				23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */,
+				23EAC0970F4204DF00CA55CF /* Process.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

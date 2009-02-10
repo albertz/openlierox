@@ -74,6 +74,8 @@ bool Menu_Initialize(bool *game)
 		return false;
     }
 
+	if(bDedicated) return true;
+	
 	// Invalidate the sockets
 	// This is here because of possible failure - when this function fails, Menu_Shutdown is called
 	// which when freeing the sockets checks for the invalid state flag
@@ -168,6 +170,7 @@ bool Menu_Initialize(bool *game)
 
 	// Send some random data to some random IP
 	if (IsSocketStateValid(tMenu->tSocket[SCK_FOO]))  {
+		// TODO: why?
 		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
 		SetRemoteNetAddr(tMenu->tSocket[SCK_FOO], a);
 		WriteSocket(tMenu->tSocket[SCK_FOO], "foo");
