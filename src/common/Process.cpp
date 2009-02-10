@@ -10,13 +10,16 @@
 #include <cassert>
 #include "Process.h"
 #include "Debug.h"
+#include "FindFile.h"
 
 #if ( ! defined(HAVE_BOOST) && defined(WIN32) ) || ( defined(_MSC_VER) && (_MSC_VER <= 1200) )
+
+#include <windows.h>
 
 struct ProcessIntern	// Stub
 {
 	int dummy;
-	pstream_pipe_t(): dummy(0) {};
+	ProcessIntern(): dummy(0) {};
 	std::ostream & in(){ return std::cout; };
 	std::istream & out(){ return std::cin; };
 	void close() {  }
