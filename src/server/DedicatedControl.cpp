@@ -265,7 +265,7 @@ struct DedIntern {
 	}
 	
 	void Cmd_Script(const std::string& script) {
-		loadScript(script);
+		loadScript("scripts/" + script);
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
