@@ -937,8 +937,8 @@ DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)intern
 
 bool DedicatedControl::Init_priv() {
 	std::string scriptfn = GetFullFileName(tLXOptions->sDedicatedScript);
-	std::string command = scriptfn;
-	std::string script_dir = ExtractDirectory(scriptfn);
+	std::string command = GetAbsolutePath(scriptfn);
+	std::string script_dir = "."; // ExtractDirectory(scriptfn);
 	std::vector<std::string> commandArgs( 1, command );
 	if(tLXOptions->sDedicatedScript != "/dev/null") {
 		if(!IsFileAvailable(scriptfn, true)) {

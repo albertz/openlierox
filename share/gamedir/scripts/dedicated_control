@@ -9,6 +9,9 @@
 
 import os, sys, time
 
+# Change directory to dir from where the script was called
+os.chdir(os.path.split(sys.argv[0])[0])
+
 # Add current dir to module search path
 sys.path.append(os.getcwd())
 

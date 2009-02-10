@@ -90,8 +90,8 @@ def getResponse(cmd):
 			if resp != "":
 				extraSignals.append(resp)
 			else:
-				if time.time() - startTime > 2.0:
-					break	# Waited for 2 second and no response - abort and return empty string
+				if time.time() - startTime > 5.0:
+					break	# Waited for 5 second and no response - abort and return empty string
 				time.sleep(0.01)
 		if ret == "":
 			resp = getSignal()
@@ -118,8 +118,8 @@ def getResponseList(cmd):
 			if resp != "":
 				extraSignals.append(resp)
 			else:
-				if time.time() - startTime > 2.0:
-					break	# Waited for 2 second and no response - abort and return empty string
+				if time.time() - startTime > 5.0:
+					break	# Waited for 5 second and no response - abort and return empty string
 				time.sleep(0.01)
 		resp = getSignal()
 	for s in extraSignals:

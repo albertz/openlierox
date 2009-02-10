@@ -186,8 +186,6 @@ def parseNewWorm(sig):
 	# Balance teams
 	teams = [0,0,0,0]
 	for w in worms.keys():
-		if worms[w].iID == -1:
-			continue
 		teams[worms[w].Team] += 1
 	minTeam = 0
 	minTeamCount = teams[0]
@@ -220,7 +218,7 @@ def parseNewWorm(sig):
 
 
 def parseWormLeft(sig):
-	global worms
+	global worms, scriptPaused
 
 	wormID = int(sig.split(" ")[1])
 	name = " ".join(sig.split(" ")[2:])
@@ -235,6 +233,14 @@ def parseWormLeft(sig):
 	worms.pop(wormID)
 
 	cmds.recheckVote()
+
+	# If all admins left unpause ded server (or it will be unusable)
+	isAdmins = False
+	for w in worms.keys():
+		if worms[w].isAdmin:
+			isAdmins = True
+	if not isAdmins:
+		scriptPaused = False
 
 
 def parsePrivateMessage(sig):
