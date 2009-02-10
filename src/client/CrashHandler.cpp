@@ -551,7 +551,7 @@ public:
 			exit(-1);
 		}*/
 #endif
-        if(tLXOptions && ! tLXOptions->bRecoverAfterCrash)  
+        if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
         {
 			fflush(stdout);
 #ifdef DEBUG
@@ -559,6 +559,7 @@ public:
 #else
 			exit(-1);
 #endif
+			return;
         }
 		// I've found why we're making forkbomb - we should ignore all following signals, 
 		// 'cause if that's segfault the problem will most probably repeat on each frame

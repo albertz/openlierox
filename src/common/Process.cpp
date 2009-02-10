@@ -80,9 +80,11 @@ struct ProcessIntern
 	std::istream & out() { return p.out(); };
 	void close_in(){ p << redi::peof; };
 	void close() {
+		p.kill();
 		close_in();
 		// TODO: this should close the process that pipeThread will stop
 	}
+	void kill() {
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{
 		if( params.size() == 0 )
@@ -111,7 +113,7 @@ std::ostream& Process::in() { return data->in(); }
 std::istream& Process::out() { return data->out(); }
 void Process::close_in() { data->close_in(); }
 void Process::close() { data->close(); }
-	
+
 #ifdef WIN32
 struct SysCommand {
 	std::string exec;
