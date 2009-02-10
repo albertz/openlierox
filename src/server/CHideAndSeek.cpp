@@ -32,12 +32,9 @@ CHideAndSeek::~CHideAndSeek()
 void CHideAndSeek::PrepareGame()
 {
 	fGameStart = tLX->fCurTime;
-	fHideLength = 20;
+	GenerateTimes();
 	if(tLXOptions->tGameInfo.fTimeLimit > 0)
 		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60;
-	else
-		fGameLength = 60;
-	fAlertLength = 15;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
 		bVisible[i] = false;
@@ -46,9 +43,11 @@ void CHideAndSeek::PrepareGame()
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
-	static const std::string teamhint[2] = {
-		"You are a hider, you have to run away from the seekers who are red.",
-		"You are a seeker, you have to find and catch the hiders."
+	std::string teamhint[2] = {
+		"You are a hider, you have to run away from the seekers who are red. You have to hide for "
+			+ itoa((int)fGameLength) + " seconds.",
+		"You are a seeker, you have to find and catch the hiders. You have to catch the hiders before "
+			+ itoa((int)fGameLength) + " seconds are up."
 	};
 	worm->setLives(0);
 	// Gameplay hints
@@ -61,7 +60,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 	worm->Spawn(pos);
 	// Worms only spawn visible to their own team
 	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].getTeam() == worm->getTeam())
+		if(cWorms[i].isUsed() && cWorms[i].getTeam() == worm->getTeam())
 			cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
 	return false;
 }
@@ -94,7 +93,7 @@ void CHideAndSeek::Simulate()
 				cServer->killWorm(i, i, cWorms[i].getLives() + 1);
 		return;
 	}
-	// Hiders have 20 seconds free from being caught and seen
+	// Hiders have some time free from being caught and seen
 	if(GameTime < fHideLength)
 		return;
 	// Check if any of the worms can see eachother
@@ -207,5 +206,18 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 	int type;
 	worm1->traceLine(worm2->getPos(), &length, &type, 1);
 	return type & PX_EMPTY;
+}
+
+void CHideAndSeek::GenerateTimes()
+{
+	CMap* cMap = cServer->getMap();
+	int volume = cMap->GetWidth() * cMap->GetHeight() - cMap->GetDirtCount();
+	fHideLength = (int)(360000 / volume);
+	fGameLength = (int)(volume / 3000);
+	fAlertLength = (int)(volume / 12000);
+	hints << "Map Volume: " << volume << " | Dirt Count: " << cMap->GetDirtCount() << endl;
+	hints << "Hide length: " << fHideLength << endl;
+	hints << "Game Length: " << fGameLength << endl;
+	hints << "Alert Length: " << fAlertLength << endl;
 }
 

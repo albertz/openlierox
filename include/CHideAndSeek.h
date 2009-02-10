@@ -34,6 +34,8 @@ public:
 	void Hide(CWorm* worm);
 	// Returns true if worm1 can see worm2
 	bool CanSee(CWorm* worm1, CWorm* worm2);
+	// Generates an approximation of the time needed to finish the game
+	void GenerateTimes();
 
 protected:
 	enum  team { HIDER, SEEKER };
