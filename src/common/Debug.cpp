@@ -124,7 +124,7 @@ void Logger::unlock() {
 }
 
 static void CoutPrint(const std::string& str) {
-	std::cout << str;
+	printf("%s", str.c_str());
 }
 
 template<int col> void ConPrint(const std::string& str) {
@@ -140,7 +140,7 @@ static bool logger_output(Logger& log, const std::string& buf) {
 	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
 		ret = PrettyPrint(log.prefix, buf, CoutPrint, log.lastWasNewline);
-		std::cout.flush();
+		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);
 	}
 	if(tLXOptions && tLXOptions->iVerbosity >= log.minCallstackVerb) {
