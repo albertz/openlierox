@@ -376,6 +376,9 @@ def selectNextPreset():
 		preset.Mod = preset.Name
 		#io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
 		initPresets()
+	except:
+		io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+
 
 	if preset.Mod:
 		io.setvar("GameOptions.GameInfo.ModName", preset.Mod)

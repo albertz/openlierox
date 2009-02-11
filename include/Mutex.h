@@ -7,6 +7,9 @@
 	code under LGPL
 */
 
+#ifndef __MUTEX_H__
+#define __MUTEX_H__
+
 #include <SDL_mutex.h>
 
 #define INVALID_THREAD_ID (Uint32)-1
@@ -35,3 +38,5 @@ public:
 	void unlock()	{ SDL_UnlockMutex(m_mutex); }
 #endif
 };
+
+#endif // __MUTEX_H__

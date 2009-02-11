@@ -14,8 +14,6 @@ cmds.parseUserCommand_Preset = None
 
 import random
 
-setvar( "GameOptions.Network.ServerName", cfg.SERVER_NAME )
-
 setvar( "GameOptions.GameInfo.LevelName", cfg.LEVELS[ random.randrange(len(cfg.LEVELS)) ] )
 
 setvar( "GameOptions.GameInfo.ModName", "Classic" )
