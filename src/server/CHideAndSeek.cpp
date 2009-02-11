@@ -212,9 +212,9 @@ void CHideAndSeek::GenerateTimes()
 {
 	CMap* cMap = cServer->getMap();
 	int volume = cMap->GetWidth() * cMap->GetHeight() - cMap->GetDirtCount();
-	fHideLength = (int)(360000 / volume);
-	fGameLength = (int)(volume / 3000);
-	fAlertLength = (int)(volume / 12000);
+	fHideLength = (360000.0f / volume);
+	fGameLength = (volume / 3000.0f);
+	fAlertLength = (volume / 12000.0f);
 	hints << "Map Volume: " << volume << " | Dirt Count: " << cMap->GetDirtCount() << endl;
 	hints << "Hide length: " << fHideLength << endl;
 	hints << "Game Length: " << fGameLength << endl;

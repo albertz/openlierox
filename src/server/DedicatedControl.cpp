@@ -178,10 +178,6 @@ struct DedIntern {
 	bool breakCurrentScript() {
 		if(pipeThread) {
 			notes << "waiting for pipeThread ..." << endl;
-#if defined(WIN32) && defined(HAVE_BOOST)
-			if (tLX->bQuitCtrlC)  // When using CTRL-C break on Windows, Python exits as well and the pipe is invalid
-				pipe.p = NULL;
-#endif
 			pipe.close();
 			threadPool->wait(pipeThread, NULL);
 		}
