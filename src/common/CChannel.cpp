@@ -67,7 +67,7 @@ void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 void CChannel::AddReliablePacketToSend(CBytestream& bs)
 {
 	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
-		errors
+		warnings
 			<< "trying to send a reliable packet of size " << bs.GetLength()
 			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
 			<< "), packet might not be sent at all!" << endl;
@@ -115,7 +115,7 @@ void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
-};
+}
 
 ///////////////////
 // Transmitt data, as well as handling reliable packets
