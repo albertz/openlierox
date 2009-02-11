@@ -1210,8 +1210,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 			NextReliablePacketToSend = it->idx;
 
 			packetData.Append( &it->data );
-		};
-	};
+		}
+	}
 
 	bs.writeInt( packetIndex, 2 );
 	bs.writeInt( packetSize, 2 );
@@ -1230,8 +1230,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		{
 			PongSequence = NextReliablePacketToSend;
 			fLastPingSent = tLX->fCurTime;
-		};
-	};
+		}
+	}
 
 	if( unreliableData->GetLength() == 0 &&
 		LastReliablePacketSent == LastAddedToOut &&
@@ -1240,7 +1240,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		// No unreliable data to send, and we've just sent the same packet -
 		// send it again after some timeout, don't flood net.
 		return;
-	};
+	}
 	
 	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
 		LastReliableIn == LastReliableIn_SentWithLastPacket &&
@@ -1253,7 +1253,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		
 		cOutgoingRate.addData( tLX->fCurTime, 0 );		
 		return;
-	};
+	}
 
 	// Add CRC16 
 	
@@ -1275,7 +1275,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 
 	// Calculate the bytes per second
 	cOutgoingRate.addData( tLX->fCurTime, bs1.GetLength() );
-};
+}
 
 void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChannel but without error msg
 {
@@ -1298,7 +1298,7 @@ void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChan
 		Messages.push_back(bs);
 	else
 		Messages.rbegin()->Append(&bs);
-};
+}
 
 
 // CRC16 stolen from Linux kernel sources
@@ -1341,7 +1341,7 @@ Uint16 const crc16_table[256] = {
 inline Uint16 crc16_byte(Uint16 crc, const Uint8 data)
 {
 	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
-};
+}
    
 /**
  * Compute the CRC-16 for the data buffer
@@ -1359,5 +1359,5 @@ Uint16 crc16(const char * buffer, size_t len, Uint16 crc )
 				++buffer;
 		}
         return crc;
-};
+}
 
