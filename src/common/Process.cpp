@@ -224,6 +224,6 @@ bool Process::open( const std::string & cmd, std::vector< std::string > params, 
 	}
 #endif
 	
-	return data->open( cmd, params, working_dir );
+	return data->open( realcmd, params, working_dir );
 }
 
