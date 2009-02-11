@@ -92,7 +92,7 @@ LEVELS = [	"FossilFacility.lxl",
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
-PRESETS = [ "Mortars", "MSF_II", "Shock v1.40 Air", "8-Bit Warfare v1.2", "Modern Warfare1.0" ]
+PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare" ]
 
 # General options that should be set
 GLOBAL_SETTINGS = {	
