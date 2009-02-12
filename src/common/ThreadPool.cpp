@@ -21,11 +21,9 @@ ThreadPool::ThreadPool() {
 	threadFinishedWork = SDL_CreateCond();
 	startMutex = SDL_CreateMutex();
 	
-	SDL_mutexP(mutex);
 	notes << "ThreadPool: creating " << THREADNUM << " threads ..." << endl;
 	while(availableThreads.size() < THREADNUM)
 		prepareNewThread();
-	SDL_mutexV(mutex);
 }
 
 ThreadPool::~ThreadPool() {
@@ -107,14 +105,12 @@ ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool hea
 		prepareNewThread();
 	}
 	assert(nextAction == NULL);
+	assert(nextData == NULL);
 	nextAction = act;
 	nextIsHeadless = headless;
 	nextName = name;
-	assert(nextData == NULL);
-	SDL_mutexV(mutex);
 	
-	int ret = SDL_CondSignal(awakeThread);
-	SDL_mutexP(mutex);
+	SDL_CondSignal(awakeThread);
 	while(nextData == NULL) SDL_CondWait(threadStartedWork, mutex);
 	ThreadPoolItem* data = nextData; nextData = NULL;
 	SDL_mutexV(mutex);
