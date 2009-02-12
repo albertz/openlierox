@@ -45,18 +45,18 @@ controlHandler = None
 
 scriptPaused = False
 
-stdinInputThread = io.GetStdinThread()
-
 # Uncomment following 3 lines to get lots of debug spam into dedicated_control_errors.log file
 #def HeavyDebugTrace(frame,event,arg):
 #	sys.stderr.write( 'Trace: ' + str(event) + ': ' + str(arg) + ' at ' + str(frame.f_code) + "\n" )
 #sys.settrace(HeavyDebugTrace)
 
 ## Local vars
-presetDir = os.path.join(os.getcwd(),"presets")
+presetDir = os.path.join(os.path.dirname(sys.argv[0]),"presets")
 # Should include several searchpaths, but now they contain just OLX root dir
-levelDir = os.path.join(os.path.split(os.getcwd())[0],"levels")
-modDir = os.path.split(os.getcwd())[0]
+levelDir = os.path.join(os.path.split(os.path.dirname(sys.argv[0]))[0],"levels")
+modDir = os.path.split(os.path.dirname(sys.argv[0]))[0]
+if modDir == "":
+	modDir = "."
 
 # Game states
 GAME_QUIT = 0
@@ -102,13 +102,28 @@ def init():
 	initLevelList()
 	initModList()
 
+	# Allow the user to log in using the /login command
+	io.setvar("GameOptions.Network.Password", cfg.ADMIN_PASSWORD)  # TODO: this is visible in dedicated server output
+
+	io.startLobby(cfg.SERVER_PORT)
+
+	waitLobbyStarted()
+
+	for f in cfg.GLOBAL_SETTINGS.keys():
+		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
+
+	selectNextPreset()
+
+
 ## High-level processing ##
 
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
 def signalHandler(sig):
-	global gameState
+	global gameState, oldGameState
 	global sentStartGame
+	oldGameState = gameState
+
 	if sig == "":
 		return False #Didn't get anything
 	header = sig.split(" ")[0] # This makes sure we only get the first word, no matter if there's anything after it or not.
@@ -474,10 +489,10 @@ def checkMaxPing():
 					io.kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
 
 
-lobbyChangePresetTimeout = cfg.WAIT_BEFORE_GAME*10
-lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
-lobbyWaitAfterGame = 0
-lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+lobbyChangePresetTimeout = time.time() + cfg.PRESET_TIMEOUT
+lobbyWaitBeforeGame = time.time() + cfg.WAIT_BEFORE_GAME
+lobbyWaitAfterGame = time.time()
+lobbyWaitGeneral = time.time() + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 lobbyEnoughPlayers = False
 oldGameState = GAME_LOBBY
 
@@ -485,44 +500,40 @@ def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
 	global sentStartGame
+	
+	curTime = time.time()
 
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong
 
-		lobbyChangePresetTimeout -= 1
-
-		if oldGameState != GAME_LOBBY or lobbyChangePresetTimeout <= 0:
-			lobbyChangePresetTimeout = cfg.PRESET_TIMEOUT
+		if oldGameState != GAME_LOBBY or lobbyChangePresetTimeout <= curTime:
+			lobbyChangePresetTimeout = curTime + cfg.PRESET_TIMEOUT
 			selectNextPreset()
 			lobbyEnoughPlayers = False # reset the state
-			lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
-			lobbyWaitAfterGame = 0
+			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+			lobbyWaitAfterGame = curTime
 			if oldGameState == GAME_PLAYING:
-				lobbyWaitAfterGame = cfg.WAIT_AFTER_GAME
+				lobbyWaitAfterGame = curTime + cfg.WAIT_AFTER_GAME
 
-		lobbyWaitAfterGame -= 1
+		if lobbyWaitAfterGame <= curTime:
 
-		if lobbyWaitAfterGame <= 0:
-
-			lobbyWaitGeneral -= 1
-
-			if not lobbyEnoughPlayers and lobbyWaitGeneral <= 0:
-				lobbyWaitGeneral = cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
+			if not lobbyEnoughPlayers and lobbyWaitGeneral <= curTime:
+				lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
 			if not lobbyEnoughPlayers and len(worms) >= cfg.MIN_PLAYERS: # Enough players already - start game
 				lobbyEnoughPlayers = True
 				io.chatMsg(cfg.WAIT_BEFORE_GAME_MESSAGE)
-				lobbyWaitBeforeGame = cfg.WAIT_BEFORE_GAME
+				lobbyWaitBeforeGame = curTime + cfg.WAIT_BEFORE_GAME
 
 			if lobbyEnoughPlayers and len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
 				lobbyEnoughPlayers = False
 				io.chatMsg(cfg.TOO_FEW_PLAYERS_MESSAGE)
 
 			if lobbyEnoughPlayers and not sentStartGame:
-				lobbyWaitBeforeGame -= 1
-				if lobbyWaitBeforeGame <= 0: # Start the game
+
+				if lobbyWaitBeforeGame <= curTime: # Start the game
 
 					if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
 						setvar("GameOptions.GameInfo.GameType", "1")

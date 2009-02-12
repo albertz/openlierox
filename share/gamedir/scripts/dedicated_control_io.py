@@ -14,6 +14,17 @@ import traceback
 import dedicated_config  # Per-host config like admin password
 cfg = dedicated_config # shortcut
 
+OlxImported = False
+try:
+	import OLX
+	OlxImported = True
+	def SendCommand(X):
+		OLX.SendCommand(str(X))
+except:
+	def SendCommand(X):
+		print X
+
+
 ## Global vars (across all modules)
 import dedicated_control_handler as hnd
 
@@ -32,50 +43,72 @@ import dedicated_control_handler as hnd
 bufferedSignalsLock = threading.Lock()
 bufferedSignals = []
 
-# The thread to read from stdin
-class GetStdinThread(threading.Thread):
-	def __init__(self):
-		threading.Thread.__init__(self)
-		self.start()
+if not OlxImported:
+	# The thread to read from stdin
+	class GetStdinThread(threading.Thread):
+		def __init__(self):
+			threading.Thread.__init__(self)
+			self.start()
 
-	def run(self):
+		def run(self):
+			global bufferedSignals, bufferedSignalsLock
+			try:
+				emptyLines = 0 # Hack to stdin being silently closed
+				while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
+					line = sys.stdin.readline()
+					if line.strip() != "":
+						emptyLines = 0
+						bufferedSignalsLock.acquire()
+						bufferedSignals.append(line.strip())
+						bufferedSignalsLock.release()
+					else:
+						emptyLines += 1
+					if sys.stdin.closed or emptyLines > 100:
+						raise Exception, "stdin closed"
+			except Exception:
+				sys.stderr.write("Broken Pipe -- exiting")
+				# OLX terminated, stdin = broken pipe, we should terminate also
+				sys.exit()
+
+	stdinInputThread = GetStdinThread()
+
+	# Use this function to get signals, don't access bufferedSignals array directly
+	def getSignal():
 		global bufferedSignals, bufferedSignalsLock
-		try:
-			emptyLines = 0 # Hack to stdin being silently closed
-			while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
-				line = sys.stdin.readline()
-				if line.strip() != "":
-					emptyLines = 0
-					bufferedSignalsLock.acquire()
-					bufferedSignals.append(line.strip())
-					bufferedSignalsLock.release()
-				else:
-					emptyLines += 1
-				if sys.stdin.closed or emptyLines > 100:
-					raise Exception, "stdin closed"
-		except Exception:
-			sys.stderr.write("Broken Pipe -- exiting")
-			# OLX terminated, stdin = broken pipe, we should terminate also
-			sys.exit()
+		ret = ""
+		bufferedSignalsLock.acquire()
+		if len(bufferedSignals) > 0:
+			ret = bufferedSignals[0]
+			bufferedSignals = bufferedSignals[1:]
+		bufferedSignalsLock.release()
+		#if ret != "": msg("Got signal \"%s\"" % ret)
+		return ret
 
-# Use this function to get signals, don't access bufferedSignals array directly
-def getSignal():
-	global bufferedSignals, bufferedSignalsLock
-	ret = ""
-	bufferedSignalsLock.acquire()
-	if len(bufferedSignals) > 0:
-		ret = bufferedSignals[0]
-		bufferedSignals = bufferedSignals[1:]
-	bufferedSignalsLock.release()
-	#if ret != "": msg("Got signal \"%s\"" % ret)
-	return ret
+	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
+	def pushSignal(sig):
+		global bufferedSignals, bufferedSignalsLock
+		bufferedSignalsLock.acquire()
+		bufferedSignals.append(sig)
+		bufferedSignalsLock.release()
+else:
 
-# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
-def pushSignal(sig):
-	global bufferedSignals, bufferedSignalsLock
-	bufferedSignalsLock.acquire()
-	bufferedSignals.append(sig)
-	bufferedSignalsLock.release()
+	# Use this function to get signals, don't access bufferedSignals array directly
+	def getSignal():
+		global bufferedSignals
+		signals = OLX.GetSignals().strip()
+		if signals != "":
+			bufferedSignals.extend(signals.split('\n'))
+		ret = ""
+		if len(bufferedSignals) > 0:
+			ret = bufferedSignals[0]
+			bufferedSignals = bufferedSignals[1:]
+		return ret
+
+	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
+	def pushSignal(sig):
+		global bufferedSignals
+		bufferedSignals.append(sig)
+
 
 # Wait until specific signal, returns params of that signal (strips signal name), saves all extra signals.
 def getResponse(cmd):
@@ -130,54 +163,54 @@ def getResponseList(cmd):
 
 # Set a server variable
 def setvar(what, data):
-	print "setvar %s %s" % (str(what), str(data))
+	SendCommand( "setvar %s %s" % (str(what), str(data)) )
 
 # Use this to make the server quit
 def Quit():
-	print "quit"
+	SendCommand( "quit" )
 
 # Use this to force the server into lobby - it will kick all connected worms and restart the server
 def startLobby(port):
 	if port:
-		print "startlobby " + str(port)
+		SendCommand( "startlobby " + str(port) )
 	else:
-		print "startlobby"
+		SendCommand( "startlobby" )
 
 # Force the server into starting the game (weapon selections screen)
 def startGame():
-	print "startgame"
+	SendCommand( "startgame" )
 
 # Use this to force the server into lobby - it will abort current game but won't kick connected worms
 def gotoLobby():
-	print "gotolobby"
+	SendCommand( "gotolobby" )
 
 # Not implemented yet in OLX
 def addBot(name):
-	print "addbot " + str(name)
+	SendCommand( "addbot " + str(name) )
 
 # Suicides all local bots
 def killBots():
-	print "killbots"
+	SendCommand( "killbots" )
 
 # Both kick and ban uses the ingame identification code
 # for kicking/banning.
 def kickWorm(iID, reason = ""):
 	if reason != "":
-		print "kickworm " + str(iID) + " " + str(reason)
+		SendCommand( "kickworm " + str(iID) + " " + str(reason) )
 	else:
-		print "kickworm " + str(iID)
+		SendCommand( "kickworm " + str(iID) )
 
 def banWorm(iID, reason = ""):
 	if reason != "":
-		print "banworm " + str(iID) + " " + str(reason)
+		SendCommand( "banworm " + str(iID) + " " + str(reason) )
 	else:
-		print "banworm " + str(iID)
+		SendCommand( "banworm " + str(iID) )
 
 def muteWorm(iID):
-	print "muteworm " + str(iID)
+	SendCommand( "muteworm " + str(iID) )
 
 def setWormTeam_io(iID, team):
-	print "setwormteam " + str(iID) + " " + str(team)
+	SendCommand( "setwormteam " + str(iID) + " " + str(team) )
 
 
 def setWormTeam(iID, team):
@@ -188,11 +221,11 @@ def setWormTeam(iID, team):
 		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
 
 def authorizeWorm(iID):
-	print "authorizeworm " + str(iID)
+	SendCommand( "authorizeworm " + str(iID) )
 
 # Use this to get the list of all possible bots.
 def getComputerWormList():
-	print "getcomputerwormlist"
+	SendCommand( "getcomputerwormlist" )
 	resp = getResponseList("computerwormlistinfo")
 	hnd.bots = {}
 	for r in resp:
@@ -201,28 +234,28 @@ def getComputerWormList():
 		hnd.bots[iID] = name
 
 def getWormIP(iID):
-	print "getwormip %i" % int(iID)
+	SendCommand( "getwormip %i" % int(iID) )
 	ret = getResponse("wormip %i" % int(iID))
 	if ret == "":
 		ret = "0.0.0.0"
 	return ret
 
 def getWormLocationInfo(iID):
-	print "getwormlocationinfo %i" % int(iID)
+	SendCommand( "getwormlocationinfo %i" % int(iID) )
 	ret = getResponse("wormlocationinfo %i" % int(iID))
 	if ret == "":
 		ret = "Unknown Unk Unknown"
 	return ret
 
 def getWormPing(iID):
-	print "getwormping %i" % int(iID)
+	SendCommand( "getwormping %i" % int(iID) )
 	ret = getResponse("wormping %i" % int(iID))
 	if ret == "":
 		ret = "0"
 	return int(ret)
 
 def getWormSkin(iID):
-	print "getwormskin %i" % int(iID)
+	SendCommand( "getwormskin %i" % int(iID) )
 	ret = getResponse("wormskin %i" % int(iID))
 	if ret == "":
 		ret = "0 default.png"
@@ -231,15 +264,15 @@ def getWormSkin(iID):
 
 # Use this to write to stdout (standard output)
 def msg(string):
-	print "msg " + str(string)
+	SendCommand( "msg " + str(string) )
 
 # Send a chat message
 def chatMsg(string):
-	print "chatmsg " + str(string)
+	SendCommand( "chatmsg " + str(string) )
 
 # Send a private chat message
 def privateMsg(iID, string):
-	print "privatemsg %i %s" % ( int(iID), str(string) )
+	SendCommand( "privatemsg %i %s" % ( int(iID), str(string) ) )
 
 
 #Log Severity
