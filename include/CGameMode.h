@@ -20,7 +20,7 @@ protected:
 	float	fGameStart;		// The time when the game was started
 
 public:
-	CGameMode() : cWorms(NULL), cServer(NULL), fGameStart(0) {}
+	CGameMode() : fGameStart(0), cWorms(NULL), cServer(NULL) {}
 	virtual ~CGameMode() {}
 
 	virtual void PrepareGame() = 0;

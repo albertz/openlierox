@@ -100,8 +100,6 @@ struct DedIntern {
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
-// TODO: unify Python and non-Python code, so both variants can be compiled-in
-#ifndef WITH_PYTHON
 
 	// The old way, with pipes
 
@@ -112,6 +110,34 @@ struct DedIntern {
 	std::stringstream pipeOutput;
 	bool quitSignal;
 
+#ifdef WITH_PYTHON
+	// The new way, embedded Python
+	PyObject * scriptModule;
+	PyObject * scriptMainLoop;
+	bool ScriptSignalHandlerRecursive;
+	std::ostringstream inSignals;
+	static PyMethodDef DedScriptEngineMethods[3]; // Array for registerging GetSignals() and SendCommand()
+	bool usePython;
+#endif
+
+	std::basic_ostream<char> & getPipe()
+	{
+#ifdef WITH_PYTHON
+		if( usePython )
+			return inSignals;
+#endif
+		return pipe.in();
+	};
+	
+	void closePipe()
+	{
+#ifdef WITH_PYTHON
+		if( scriptMainLoop )
+			return;
+#endif
+		pipe.close();
+	}
+
 	DedIntern() :
 		pipeThread(NULL), stdinThread(NULL),
 		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE)
@@ -119,6 +145,19 @@ struct DedIntern {
 		dedicatedControlInstance->internData = this;
 		pipeOutputMutex = SDL_CreateMutex();
 		stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL, "Ded stdin watcher");
+
+#ifdef WITH_PYTHON
+		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
+		Py_Initialize();
+		Py_InitModule("OLX", DedScriptEngineMethods);
+		PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
+		scriptModule = NULL;
+		scriptMainLoop = NULL;
+
+		ScriptSignalHandlerRecursive = false;
+		usePython = false;;
+#endif
+
 	}
 	
 	~DedIntern() {
@@ -131,11 +170,37 @@ struct DedIntern {
 		breakCurrentScript();
 		
 		SDL_DestroyMutex(pipeOutputMutex);
+
+#ifdef WITH_PYTHON
+		Py_XDECREF(scriptMainLoop);
+		Py_XDECREF(scriptModule);
+		Py_Finalize();
+		usePython = false;
+#endif
+
 		notes << "DedicatedControl destroyed" << endl;
 		
 		dedicatedControlInstance->internData = NULL;
 	}
 
+	bool loadScript(const std::string& script) 
+	{
+		breakCurrentScript();
+#ifdef WITH_PYTHON
+		FILE * fp = OpenGameFile(script, "r");
+		if( fp )
+		{
+			std::string fpContents = ReadUntil( fp, '\n' );
+			fclose(fp);
+			if( fpContents.find("python") != std::string::npos )
+				return loadScript_Python(script);
+		}
+#endif
+		return loadScript_Pipe(script);
+	}
+
+	// Pipe functions
+	
 	// reading lines from pipe-out and put them to pipeOutput
 	static int pipeThreadFunc(void*) {
 		DedIntern* data = Get();
@@ -184,9 +249,18 @@ struct DedIntern {
 	}
 
 	
-	// -------------------------------
-	
 	bool breakCurrentScript() {
+#ifdef WITH_PYTHON
+		if( usePython )
+		{
+			Py_XDECREF(scriptMainLoop);
+			Py_XDECREF(scriptModule);
+			scriptMainLoop = NULL;
+			scriptModule = NULL;
+			usePython = false;
+			return true;
+		}
+#endif
 		if(pipeThread) {
 			notes << "waiting for pipeThread ..." << endl;
 			pipe.close();
@@ -196,7 +270,7 @@ struct DedIntern {
 		return true;
 	}
 	
-	bool loadScript(const std::string& script) {
+	bool loadScript_Pipe(const std::string& script) {
 		breakCurrentScript();
 		
 		std::string scriptfn = GetAbsolutePath(GetFullFileName(script));
@@ -220,36 +294,17 @@ struct DedIntern {
 		
 		return true;
 	}
-	
-	// Stub
-	void ScriptSignalHandler() {};
 
-#else // WITH_PYTHON
-
+#ifdef WITH_PYTHON
 	// Embed Python into OLX
-	
-	// Stub Process
-	// I'm too lazy to make my own ostream by deriving from basic_streambuf and stuff which scans for \n in output,
-	// so I'll just call ScriptSignalHandler() each time I'm putting a signal to queue.
-	class PythonPipe_t
-	{
-		public:
-			std::ostream& in() { return inStr; };
-		
-			std::ostringstream inStr;
-			
-			// Stub function
-			void close() { } ;
-	}
-	pipe;
 
 	static PyObject *
 	GetSignals(PyObject *self, PyObject *args)
 	{
 		if(!PyArg_ParseTuple(args, ""))
 			return Py_None;
-		PyObject * ret = Py_BuildValue("s", ((DedIntern *)DedicatedControl::Get()->internData)->pipe.inStr.str().c_str());
-		((DedIntern *)DedicatedControl::Get()->internData)->pipe.inStr.str("");
+		PyObject * ret = Py_BuildValue("s", ((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str().c_str());
+		((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str("");
 		return ret;
 	}
 
@@ -270,16 +325,9 @@ struct DedIntern {
 		return Py_None;
 	}
 
-	static PyMethodDef DedScriptEngineMethods[3]; // Array for registerging GetSignals() and SendCommand()
-	
-	PyObject * scriptModule;
-	PyObject * scriptMainLoop;
-
-	bool ScriptSignalHandlerRecursive;
-	
 	void ScriptSignalHandler()
 	{
-		if(!scriptMainLoop)
+		if(!usePython)
 			return;
 			
 		if( ScriptSignalHandlerRecursive )
@@ -310,30 +358,7 @@ struct DedIntern {
 	};
                      
 
-	DedIntern(): state(S_INACTIVE)
-	{
-		dedicatedControlInstance->internData = this;
-		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
-		Py_Initialize();
-		Py_InitModule("OLX", DedScriptEngineMethods);
-		PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
-		scriptModule = NULL;
-		scriptMainLoop = NULL;
-
-		ScriptSignalHandlerRecursive = false;
-	}
-	
-	~DedIntern() {
-		Py_XDECREF(scriptMainLoop);
-		Py_XDECREF(scriptModule);
-		Sig_Quit();
-		notes << "DedicatedControl destroyed" << endl;
-		dedicatedControlInstance->internData = NULL;
-		Py_Finalize();
-	}
-
-	
-	bool loadScript(const std::string& script) 
+	bool loadScript_Python(const std::string& script) 
 	{
 		std::string scriptfn = GetAbsolutePath(GetFullFileName(script));
 		if(script != "/dev/null") {
@@ -342,22 +367,9 @@ struct DedIntern {
 				return false;
 			}			
 
-			notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+			notes << "Dedicated server: running script \"" << scriptfn << "\" using built-in Python" << endl;
 			PyGILState_STATE gstate;
 			gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
-			class PyGILState_Release_scope_t
-			{ 
-				PyGILState_STATE * _state;
-				public: 
-				PyGILState_Release_scope(PyGILState_STATE * state): _state(state) {};
-				~PyGILState_Release_scope(): { PyGILState_Release( * _state ); };
-			} 
-			PyGILState_Release_scope(&gstate);
-
-
-			Py_XDECREF(scriptMainLoop);
-			Py_XDECREF(scriptModule);
-			scriptMainLoop = NULL;
 
 			char tmp[1024];
 			strcpy(tmp, scriptfn.c_str());
@@ -381,10 +393,14 @@ struct DedIntern {
 					PyErr_Clear();
 				}
 				return false;
+				PyGILState_Release(gstate);
 			}
 			
 			// Execute and import the module (reloads it if called second time)
+			usePython = true;
+			ScriptSignalHandlerRecursive = true;
 			scriptModule = PyImport_ExecCodeModule("dedicated_control", codeObject);
+			ScriptSignalHandlerRecursive = false;
 			
 			Py_XDECREF(codeObject);
 			
@@ -397,6 +413,8 @@ struct DedIntern {
 					PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
 					PyErr_Clear();
 				}
+				usePython = false;
+				PyGILState_Release(gstate);
 				return false;
 			}
 			
@@ -416,8 +434,11 @@ struct DedIntern {
 				Py_XDECREF(scriptModule);
 				pFunc = NULL;
 				scriptModule = NULL;
+				usePython = false;
+				PyGILState_Release(gstate);
 				return false;
 			}
+			PyGILState_Release(gstate);
 		}
 		else
 			notes << "Dedicated server: not running any script" << endl;
@@ -425,8 +446,9 @@ struct DedIntern {
 		return true;
 	}
 
-#endif
-	
+#else
+	void ScriptSignalHandler() {}; // stub
+#endif	
 	
 	
 	// -------------------------------
@@ -953,10 +975,10 @@ struct DedIntern {
 	// ----------- signals --------------
 
 	// Keep up with how THIS recieves signals - "params" are split by space, use same when sending.
-	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
-	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_SVRPREPARING; ScriptSignalHandler(); }
+	void Sig_LobbyStarted() { getPipe() << "lobbystarted" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
+	void Sig_GameLoopStart() { getPipe() << "gameloopstart" << endl; state = S_SVRPREPARING; ScriptSignalHandler(); }
 	void Sig_GameLoopEnd() {
-		pipe.in() << "gameloopend" << endl;
+		getPipe() << "gameloopend" << endl;
 		if(state != S_SVRLOBBY && state != S_CLILOBBY)
 			// This is because of the current game logic: It will end the game
 			// loop and then return to the lobby but only in the case if we got a
@@ -966,40 +988,40 @@ struct DedIntern {
 			state = S_INACTIVE;
 		ScriptSignalHandler();
 	}
-	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_SVRWEAPONS; ScriptSignalHandler(); }
-	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_SVRPLAYING; ScriptSignalHandler(); }
-	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
-	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; ScriptSignalHandler(); }
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close(); state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_WeaponSelections() { getPipe() << "weaponselections" << endl; state = S_SVRWEAPONS; ScriptSignalHandler(); }
+	void Sig_GameStarted() { getPipe() << "gamestarted" << endl; state = S_SVRPLAYING; ScriptSignalHandler(); }
+	void Sig_BackToLobby() { getPipe() << "backtolobby" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
+	void Sig_ErrorStartLobby() { getPipe() << "errorstartlobby" << endl; state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_ErrorStartGame() { getPipe() << "errorstartgame" << endl; ScriptSignalHandler(); }
+	void Sig_Quit() { getPipe() << "quit" << endl; closePipe(); state = S_INACTIVE; ScriptSignalHandler(); }
 
-	void Sig_Connecting(const std::string& addr) { pipe.in() << "connecting " << addr << std::endl; state = S_CLICONNECTING; ScriptSignalHandler(); }
-	void Sig_ConnectError(const std::string& err) { pipe.in() << "connecterror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_Connected() { pipe.in() << "connected" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
-	void Sig_ClientError() { pipe.in() << "clienterror" << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ClientConnectionError(const std::string& err) { pipe.in() << "connectionerror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ClientGameStarted() { pipe.in() << "clientgamestarted" << std::endl; state = S_CLIPLAYING; ScriptSignalHandler(); }
-	void Sig_ClientGotoLobby() { pipe.in() << "clientbacktolobby" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
+	void Sig_Connecting(const std::string& addr) { getPipe() << "connecting " << addr << std::endl; state = S_CLICONNECTING; ScriptSignalHandler(); }
+	void Sig_ConnectError(const std::string& err) { getPipe() << "connecterror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_Connected() { getPipe() << "connected" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
+	void Sig_ClientError() { getPipe() << "clienterror" << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_ClientConnectionError(const std::string& err) { getPipe() << "connectionerror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_ClientGameStarted() { getPipe() << "clientgamestarted" << std::endl; state = S_CLIPLAYING; ScriptSignalHandler(); }
+	void Sig_ClientGotoLobby() { getPipe() << "clientbacktolobby" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
 
-	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormLeft(CWorm* w) { pipe.in() << "wormleft " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_ComputerWormList(profile_t * w) { pipe.in() << "computerwormlistinfo " << w->iID << " " << w->sName << std::endl; ScriptSignalHandler(); }
-	void Sig_EndList() { pipe.in() << "endlist" << std::endl; ScriptSignalHandler(); }
-	void Sig_ChatMessage(CWorm* w, const std::string& message) { pipe.in() << "chatmessage " << w->getID() << " " << message << std::endl; ScriptSignalHandler(); }
-	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { pipe.in() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << std::endl; ScriptSignalHandler(); }
-	void Sig_WormDied(CWorm* died, CWorm* killer) { pipe.in() << "wormdied " << died->getID() << " " << killer->getID() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormSpawned(CWorm* worm) { pipe.in() << "wormspawned " << worm->getID() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormIp(CWorm* w, const std::string& ip) { pipe.in() << "wormip " << w->getID() << " " << ip << std::endl; ScriptSignalHandler(); }
+	void Sig_NewWorm(CWorm* w) { getPipe() << "newworm " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
+	void Sig_WormLeft(CWorm* w) { getPipe() << "wormleft " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
+	void Sig_WormList(CWorm* w) { getPipe() << "wormlistinfo " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
+	void Sig_ComputerWormList(profile_t * w) { getPipe() << "computerwormlistinfo " << w->iID << " " << w->sName << std::endl; ScriptSignalHandler(); }
+	void Sig_EndList() { getPipe() << "endlist" << std::endl; ScriptSignalHandler(); }
+	void Sig_ChatMessage(CWorm* w, const std::string& message) { getPipe() << "chatmessage " << w->getID() << " " << message << std::endl; ScriptSignalHandler(); }
+	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { getPipe() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << std::endl; ScriptSignalHandler(); }
+	void Sig_WormDied(CWorm* died, CWorm* killer) { getPipe() << "wormdied " << died->getID() << " " << killer->getID() << std::endl; ScriptSignalHandler(); }
+	void Sig_WormSpawned(CWorm* worm) { getPipe() << "wormspawned " << worm->getID() << std::endl; ScriptSignalHandler(); }
+	void Sig_WormIp(CWorm* w, const std::string& ip) { getPipe() << "wormip " << w->getID() << " " << ip << std::endl; ScriptSignalHandler(); }
 	// Continents don't have spaces in em.
 	// TODO: Bad forward compability. We might get new continents.
 	// CountryShortcuts don't have spaces in em.
 	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
 	void Sig_WormLocationInfo(CWorm* w, const std::string& continent, const std::string& country, const std::string& countryShortcut) {
-		pipe.in() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; ScriptSignalHandler(); }
+		getPipe() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; ScriptSignalHandler(); }
 
-	void Sig_WormPing(CWorm* w, int ping) {	pipe.in() << "wormping " << w->getID() << " " << ping << endl; ScriptSignalHandler(); }
-	void Sig_WormSkin(CWorm* w) { pipe.in() << "wormskin " << w->getID() << " " << w->getSkin().getDefaultColor() << " " << w->getSkin().getFileName() << endl; ScriptSignalHandler(); }
+	void Sig_WormPing(CWorm* w, int ping) {	getPipe() << "wormping " << w->getID() << " " << ping << endl; ScriptSignalHandler(); }
+	void Sig_WormSkin(CWorm* w) { getPipe() << "wormskin " << w->getID() << " " << w->getSkin().getDefaultColor() << " " << w->getSkin().getFileName() << endl; ScriptSignalHandler(); }
 
 	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
 	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)
@@ -1069,25 +1091,30 @@ struct DedIntern {
 
 	void Frame_Basic() {
 
-#ifndef WITH_PYTHON
-		SDL_mutexP(pipeOutputMutex);
-		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
-			std::string cmd, rest;
-			Ded_ParseCommand(pipeOutput, cmd, rest);
-			SDL_mutexV(pipeOutputMutex);
-
-			HandleCommand(cmd, rest);
-			SDL_mutexP(pipeOutputMutex);
-		}
-		SDL_mutexV(pipeOutputMutex);
-#else
-		static float lastTimeHandlerCalled = tLX->fCurTime;
-		if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending
+#ifdef WITH_PYTHON
+		if( usePython )
 		{
-			ScriptSignalHandler();
-			lastTimeHandlerCalled = tLX->fCurTime;
+			static float lastTimeHandlerCalled = tLX->fCurTime;
+			if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending
+			{
+				ScriptSignalHandler();
+				lastTimeHandlerCalled = tLX->fCurTime;
+			}
 		}
+		else
 #endif
+		{
+			SDL_mutexP(pipeOutputMutex);
+			while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
+				std::string cmd, rest;
+				Ded_ParseCommand(pipeOutput, cmd, rest);
+				SDL_mutexV(pipeOutputMutex);
+
+				HandleCommand(cmd, rest);
+				SDL_mutexP(pipeOutputMutex);
+			}
+			SDL_mutexV(pipeOutputMutex);
+		}
 
 		ProcessEvents();
 
