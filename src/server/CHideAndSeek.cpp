@@ -99,7 +99,6 @@ void CHideAndSeek::Simulate()
 		return;
 	// Check if any of the worms can see eachother
 	int i, j;
-	CVec dist;
 	for(i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT)
 			continue;
@@ -111,12 +110,11 @@ void CHideAndSeek::Simulate()
 				continue;
 			if(cWorms[j].getTeam() == cWorms[i].getTeam())
 				continue;
-			dist = cWorms[i].getPos() - cWorms[j].getPos();
-			if(CanSee(&cWorms[i], &cWorms[j]) && dist.GetLength() < 125)
+			if(CanSee(&cWorms[i], &cWorms[j]))
 				Show(&cWorms[j]);
-			// Catch the hiders
+			// Catch the hiders if they are within 10 pixels
 			if(cWorms[i].getTeam() == SEEKER && cWorms[j].getTeam() == HIDER)
-				if(dist.GetLength() < 10)
+				if((cWorms[i].getPos() - cWorms[j].getPos()).GetLength() < 10)
 					cServer->killWorm(cWorms[j].getID(), cWorms[i].getID(), 0);
 		}
 	}
@@ -169,10 +167,10 @@ int CHideAndSeek::Winner()
 
 void CHideAndSeek::Show(CWorm* worm)
 {
+	fLastAlert[worm->getID()] = tLX->fCurTime - fGameStart;
 	if(bVisible[worm->getID()])
 		return;
 	bVisible[worm->getID()] = true;
-	fLastAlert[worm->getID()] = tLX->fCurTime - fGameStart;
 
 	if(worm->getTeam() == HIDER)
 		worm->getClient()->getNetEngine()->SendText("You are visible to the seekers, run!", TXT_NORMAL);
@@ -205,20 +203,47 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 {
 	float length;
 	int type;
+	CVec dist;
 	worm1->traceLine(worm2->getPos(), &length, &type, 1);
-	return type & PX_EMPTY;
+	dist = worm1->getPos() - worm2->getPos();
+	// Seekers can see 125px
+	if(worm1->getTeam() == SEEKER)
+		return type & PX_EMPTY && (dist.GetLength() < 125);
+	// Hiders can see 175px or 25px through walls
+	else {
+		if(type & PX_EMPTY)
+			return dist.GetLength() < 175;
+		else
+			return dist.GetLength() < 25;
+	}
 }
 
 void CHideAndSeek::GenerateTimes()
 {
 	CMap* cMap = cServer->getMap();
-	int volume = cMap->GetWidth() * cMap->GetHeight() - cMap->GetDirtCount();
-	fHideLength = (360000.0f / volume);
-	fGameLength = (volume / 3000.0f);
-	fAlertLength = (volume / 12000.0f);
-	hints << "Map Volume: " << volume << " | Dirt Count: " << cMap->GetDirtCount() << endl;
-	hints << "Hide length: " << fHideLength << endl;
-	hints << "Game Length: " << fGameLength << endl;
-	hints << "Alert Length: " << fAlertLength << endl;
+	int volume = cMap->GetWidth() * cMap->GetHeight();
+	enum { SMALL = 1, MEDIUM, LARGE, XLARGE } size;
+	// Decide on the level size
+	if(volume < 500 * 400)
+		size = SMALL;
+	else if(volume < 700 * 600)
+		size = MEDIUM;
+	else if(volume < 900 * 800)
+		size = LARGE;
+	else
+		size = XLARGE;
+	// Calculate the ratio of hiders to seekers
+	float ratio = 1.0f;
+	int worms[2] = { 0, 0 };
+	for(int i = 0; i < MAX_WORMS; i++)
+		if(cWorms[i].isUsed())
+			worms[cWorms[i].getTeam()]++;
+	if(worms[0] != 0 && worms[1] != 0)
+		ratio = worms[0] / worms[1];
+
+	// TODO: Is this actually any good? 
+	fGameLength = (int)(45 * size * ratio);
+	fHideLength = 15;
+	fAlertLength = 10;
 }
 
