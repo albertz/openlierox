@@ -19,10 +19,13 @@ ThreadPool::ThreadPool() {
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
 	threadFinishedWork = SDL_CreateCond();
+	startMutex = SDL_CreateMutex();
 	
+	SDL_mutexP(mutex);
 	notes << "ThreadPool: creating " << THREADNUM << " threads ..." << endl;
 	while(availableThreads.size() < THREADNUM)
 		prepareNewThread();
+	SDL_mutexV(mutex);
 }
 
 ThreadPool::~ThreadPool() {
@@ -39,6 +42,7 @@ ThreadPool::~ThreadPool() {
 	}
 	availableThreads.clear();
 	
+	SDL_DestroyMutex(startMutex);
 	SDL_DestroyCond(threadStartedWork);
 	SDL_DestroyCond(threadFinishedWork);
 	SDL_DestroyCond(awakeThread);
@@ -95,6 +99,7 @@ int ThreadPool::threadWrapper(void* param) {
 }
 
 ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool headless) {
+	SDL_mutexP(startMutex); // If start() method will be called from different threads without mutex, hard-to-find crashes will occur
 	SDL_mutexP(mutex);
 	if(availableThreads.size() == 0) {
 		warnings << "no available thread in ThreadPool for " << name << ", creating new one..." << endl;
@@ -107,12 +112,13 @@ ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool hea
 	assert(nextData == NULL);
 	SDL_mutexV(mutex);
 	
-	SDL_CondSignal(awakeThread);
+	int ret = SDL_CondSignal(awakeThread);
 	SDL_mutexP(mutex);
 	while(nextData == NULL) SDL_CondWait(threadStartedWork, mutex);
 	ThreadPoolItem* data = nextData; nextData = NULL;
 	SDL_mutexV(mutex);
 		
+	SDL_mutexV(startMutex);
 	return data;
 }
 

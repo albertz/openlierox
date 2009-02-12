@@ -48,6 +48,7 @@ private:
 	std::set<ThreadPoolItem*> usedThreads;
 	void prepareNewThread();
 	static int threadWrapper(void* param);
+	SDL_mutex* startMutex;
 public:
 	ThreadPool();
 	~ThreadPool();

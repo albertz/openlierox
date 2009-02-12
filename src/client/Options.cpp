@@ -68,6 +68,7 @@ bool GameOptions::Init() {
 		printf("ERROR: not enough mem for GameOptions\n");
 		return false;
 	}
+	tLXOptions->iVerbosity = 0;
 
 	std::string options_ver = GetGameVersion().releaseType() + 
 		itoa(GetGameVersion().num) + "_" + itoa(GetGameVersion().subnum) + "_" + itoa(GetGameVersion().subsubnum);
