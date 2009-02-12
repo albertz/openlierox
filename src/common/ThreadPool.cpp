@@ -65,7 +65,8 @@ int ThreadPool::threadWrapper(void* param) {
 	
 	SDL_mutexP(data->pool->mutex);
 	while(true) {
-		SDL_CondWait(data->pool->awakeThread, data->pool->mutex);
+		if(data->pool->nextAction == NULL)
+			SDL_CondWait(data->pool->awakeThread, data->pool->mutex);
 		if(data->pool->nextAction == NULL) break;
 		data->pool->usedThreads.insert(data);
 		data->pool->availableThreads.erase(data);
