@@ -27,6 +27,8 @@ CDeathMatch::~CDeathMatch()
 
 void CDeathMatch::PrepareGame()
 {
+	fGameStart = tLX->fCurTime;
+
 	bFirstBlood = true;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		iKillsInRow[i] = 0;

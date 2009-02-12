@@ -16,8 +16,11 @@ class CWorm;
 class GameServer;
 
 class CGameMode {
+protected:
+	float	fGameStart;		// The time when the game was started
+
 public:
-	CGameMode() { cWorms = NULL; cServer = NULL; }
+	CGameMode() : cWorms(NULL), cServer(NULL), fGameStart(0) {}
 	virtual ~CGameMode() {}
 
 	virtual void PrepareGame() = 0;

@@ -28,6 +28,8 @@ CTeamDeathMatch::~CTeamDeathMatch()
 
 void CTeamDeathMatch::PrepareGame()
 {
+	fGameStart = tLX->fCurTime;
+
 	bFirstBlood = true;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		iKillsInRow[i] = 0;
@@ -181,7 +183,7 @@ bool CTeamDeathMatch::CheckGame()
 {
 	// Check if the timelimit has been reached
 	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
-			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
+		(tLX->fCurTime - fGameStart) > tLXOptions->tGameInfo.fTimeLimit * 60.0;
 
 	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };  // TODO: move to Consts.h
 

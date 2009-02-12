@@ -43,6 +43,7 @@ void CHideAndSeek::PrepareGame()
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
+	// TODO: move to network texts
 	std::string teamhint[2] = {
 		"You are a hider, you have to run away from the seekers who are red. You have to hide for "
 			+ itoa((int)fGameLength) + " seconds.",
@@ -143,7 +144,7 @@ bool CHideAndSeek::CheckGame()
 	else if(worms[1] == 0)
 		winners = HIDER;
 	if(winners != -1) {
-		if(networkTexts->sPlayerHasWon != "<none>")
+		if(networkTexts->sTeamHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon, "<team>",
 				teamname[winners], 1)), TXT_NORMAL);
 		return true;

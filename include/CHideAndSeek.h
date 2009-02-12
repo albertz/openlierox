@@ -39,7 +39,6 @@ public:
 
 protected:
 	enum  team { HIDER, SEEKER };
-	float fGameStart;            // The time when the game was started
 	float fHideLength;           // The length of time the hiders cannot be caught in
 	float fGameLength;           // The length of the game
 	float fAlertLength;          // The length of time a worm must not be seen for to go invisible
