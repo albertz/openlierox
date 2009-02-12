@@ -286,6 +286,9 @@ struct DedIntern {
 			return;
 		
 		ScriptSignalHandlerRecursive = true;
+
+		PyGILState_STATE gstate;
+		gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
 		
 		PyObject * pArgs = PyTuple_New(0);
 		
@@ -301,6 +304,8 @@ struct DedIntern {
 		Py_XDECREF(pArgs);
 		Py_XDECREF(pRet);
 
+		PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
+		
 		ScriptSignalHandlerRecursive = false;
 	};
                      
@@ -311,6 +316,7 @@ struct DedIntern {
 		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
 		Py_Initialize();
 		Py_InitModule("OLX", DedScriptEngineMethods);
+		PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
 		scriptModule = NULL;
 		scriptMainLoop = NULL;
 
@@ -337,6 +343,18 @@ struct DedIntern {
 			}			
 
 			notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+			PyGILState_STATE gstate;
+			gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
+			class PyGILState_Release_scope_t
+			{ 
+				PyGILState_STATE * _state;
+				public: 
+				PyGILState_Release_scope(PyGILState_STATE * state): _state(state) {};
+				~PyGILState_Release_scope(): { PyGILState_Release( * _state ); };
+			} 
+			PyGILState_Release_scope(&gstate);
+
+
 			Py_XDECREF(scriptMainLoop);
 			Py_XDECREF(scriptModule);
 			scriptMainLoop = NULL;
