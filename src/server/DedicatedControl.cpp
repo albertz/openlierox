@@ -370,7 +370,7 @@ struct DedIntern {
 		//PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
 		
 		SDL_SemPost(ScriptSignalHandlerRecursive);
-	};
+	}
                      
 
 	bool loadScript_Python(const std::string& script) 
@@ -592,9 +592,9 @@ struct DedIntern {
 				if(it == sSplit.begin())
 					continue;
 				reason += *it;
-				if (it+1 != sSplit.end())
-					reason += " ";
+				reason += " ";
 			}
+			TrimSpaces(reason);
 		}
 		else {
 			warnings << "DedicatedControl: KickWorm: Wrong syntax" << endl;
@@ -858,7 +858,7 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormIp");
-		if (!w)
+		if (!w) // TODO: wrong, return an error!!
 			return;
 
 		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
@@ -874,7 +874,7 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
-		if (!w)
+		if (!w)// TODO: wrong, return an error!!
 			return;
 
 		std::string str_addr;
@@ -895,7 +895,7 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormPing");
-		if (!w)
+		if (!w)// TODO: wrong, return an error!!
 			return;
 
 		Sig_WormPing(w,w->getClient()->getChannel()->getPing());
@@ -905,7 +905,7 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormSkin");
-		if (!w)
+		if (!w)// TODO: wrong, return an error!!
 			return;
 
 		Sig_WormSkin(w);
