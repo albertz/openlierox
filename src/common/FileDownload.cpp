@@ -314,6 +314,7 @@ int ManagerMain(void *param)
 
 		// Sleep if nothing to do
 		if (_this->iActiveDownloads == 0)
+			// TODO: use conditions here
 			SDL_Delay(50);
 	}
 

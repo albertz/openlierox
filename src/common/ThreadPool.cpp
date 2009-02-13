@@ -15,6 +15,7 @@ static const unsigned int THREADNUM = 20;
 
 ThreadPool::ThreadPool() {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;
+	quitting = false;	
 	mutex = SDL_CreateMutex();
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
@@ -31,6 +32,7 @@ ThreadPool::~ThreadPool() {
 
 	// this is the hint for all available threads to break
 	nextAction = NULL;
+	quitting = true;
 	SDL_CondBroadcast(awakeThread);
 	for(std::set<ThreadPoolItem*>::iterator i = availableThreads.begin(); i != availableThreads.end(); ++i) {
 		SDL_WaitThread((*i)->thread, NULL);
@@ -63,9 +65,9 @@ int ThreadPool::threadWrapper(void* param) {
 	
 	SDL_mutexP(data->pool->mutex);
 	while(true) {
-		if(data->pool->nextAction == NULL)
+		while(data->pool->nextAction == NULL && !data->pool->quitting)
 			SDL_CondWait(data->pool->awakeThread, data->pool->mutex);
-		if(data->pool->nextAction == NULL) break;
+		if(data->pool->quitting) break;
 		data->pool->usedThreads.insert(data);
 		data->pool->availableThreads.erase(data);
 		
@@ -92,6 +94,7 @@ int ThreadPool::threadWrapper(void* param) {
 		data->pool->availableThreads.insert(data);
 		SDL_CondSignal(data->pool->threadFinishedWork);
 	}
+
 	SDL_mutexV(data->pool->mutex);
 		
 	return 0;

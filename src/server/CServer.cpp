@@ -372,9 +372,9 @@ int GameServer::StartGame()
 		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
-		printf("Error: Could not load the '%s' game script\n", tLXOptions->tGameInfo.sModDir.c_str());
-		return false;
-		};
+			printf("Error: Could not load the '%s' game script\n", tLXOptions->tGameInfo.sModDir.c_str());
+			return false;
+		}
 	}
 	printf("Mod loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
 

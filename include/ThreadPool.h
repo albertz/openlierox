@@ -44,6 +44,7 @@ private:
 	SDL_cond* threadFinishedWork;
 	Action* nextAction; bool nextIsHeadless; std::string nextName;
 	ThreadPoolItem* nextData;
+	bool quitting;
 	std::set<ThreadPoolItem*> availableThreads;
 	std::set<ThreadPoolItem*> usedThreads;
 	void prepareNewThread();
