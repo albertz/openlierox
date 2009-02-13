@@ -792,7 +792,7 @@ struct DedIntern {
 
 		// Start the game
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
-		cServer->StartGame();	// start in dedicated mode
+		cServer->StartGame();
 
 		// Leave the frontend
 		*DeprecatedGUI::bGame = true;
@@ -814,7 +814,7 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm *w = CheckWorm(id, "PrivateMessage");
-		if( !w || ! w->getClient() )
+		if( !w || !w->getClient() || !w->getClient()->getNetEngine() )
 			return;
 
 		std::string msg;
@@ -859,15 +859,11 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormIp");
-		if (!w)
-		{
-			Sig_WormIp(id,"0.0.0.0");
-			return;
-		}
 
 		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
 		std::string str_addr;
-		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
+		if(w && w->getClient() && w->getClient()->getChannel())
+			NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
 		if (str_addr != "")
 			Sig_WormIp(id,str_addr);
 		else
