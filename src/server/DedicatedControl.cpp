@@ -859,24 +859,33 @@ struct DedIntern {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormIp");
-		if (!w) // TODO: wrong, return an error!!
+		if (!w)
+		{
+			Sig_WormIp(id,"0.0.0.0");
 			return;
+		}
 
 		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
 		std::string str_addr;
 		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
 		if (str_addr != "")
-			Sig_WormIp(w,str_addr);
+			Sig_WormIp(id,str_addr);
 		else
+		{
+			Sig_WormIp(id,"0.0.0.0");
 			notes << "DedicatedControl: GetWormIp: str_addr == \"\"" << endl;
+		}
 	}
 
 	void Cmd_GetWormLocationInfo(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
-		if (!w)// TODO: wrong, return an error!!
+		if (!w)
+		{
+			Sig_WormLocationInfo(id, "Unknown", "UNK", "Unknown");
 			return;
+		}
 
 		std::string str_addr;
 		IpInfo info;
@@ -885,31 +894,39 @@ struct DedIntern {
 		if (str_addr != "")
 		{
 			info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-			Sig_WormLocationInfo(w,info.Continent,info.Country,info.CountryShortcut);
+			Sig_WormLocationInfo(id,info.Continent,info.Country,info.CountryShortcut);
 		}
 		else
+		{
+			Sig_WormLocationInfo(id, "Unknown", "UNK", "Unknown");
 			notes << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << endl;
-
+		}
 	}
 
 	void Cmd_GetWormPing(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormPing");
-		if (!w)// TODO: wrong, return an error!!
+		if (!w)
+		{
+			Sig_WormPing(id,0);
 			return;
+		}
 
-		Sig_WormPing(w,w->getClient()->getChannel()->getPing());
+		Sig_WormPing(id,w->getClient()->getChannel()->getPing());
 	}
 
 	void Cmd_GetWormSkin(const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormSkin");
-		if (!w)// TODO: wrong, return an error!!
+		if (!w)
+		{
+			Sig_WormSkin(id, 0, "Default.png");
 			return;
+		}
 
-		Sig_WormSkin(w);
+		Sig_WormSkin(id, w->getSkin().getDefaultColor(), w->getSkin().getFileName());
 	}
 
 	void Cmd_Connect(const std::string& params) {
@@ -1028,16 +1045,16 @@ struct DedIntern {
 	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { getPipe() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << std::endl; ScriptSignalHandler(); }
 	void Sig_WormDied(CWorm* died, CWorm* killer) { getPipe() << "wormdied " << died->getID() << " " << killer->getID() << std::endl; ScriptSignalHandler(); }
 	void Sig_WormSpawned(CWorm* worm) { getPipe() << "wormspawned " << worm->getID() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormIp(CWorm* w, const std::string& ip) { getPipe() << "wormip " << w->getID() << " " << ip << std::endl; ScriptSignalHandler(); }
+	void Sig_WormIp(int id, const std::string& ip) { getPipe() << "wormip " << id << " " << ip << std::endl; ScriptSignalHandler(); }
 	// Continents don't have spaces in em.
 	// TODO: Bad forward compability. We might get new continents.
 	// CountryShortcuts don't have spaces in em.
 	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
-	void Sig_WormLocationInfo(CWorm* w, const std::string& continent, const std::string& country, const std::string& countryShortcut) {
-		getPipe() << "wormlocationinfo " << w->getID() << " " << continent << " " << countryShortcut << " " << country  << endl; ScriptSignalHandler(); }
+	void Sig_WormLocationInfo(int id, const std::string& continent, const std::string& country, const std::string& countryShortcut) {
+		getPipe() << "wormlocationinfo " << id << " " << continent << " " << countryShortcut << " " << country  << endl; ScriptSignalHandler(); }
 
-	void Sig_WormPing(CWorm* w, int ping) {	getPipe() << "wormping " << w->getID() << " " << ping << endl; ScriptSignalHandler(); }
-	void Sig_WormSkin(CWorm* w) { getPipe() << "wormskin " << w->getID() << " " << w->getSkin().getDefaultColor() << " " << w->getSkin().getFileName() << endl; ScriptSignalHandler(); }
+	void Sig_WormPing(int id, int ping) { getPipe() << "wormping " << id << " " << ping << endl; ScriptSignalHandler(); }
+	void Sig_WormSkin(int id, Uint32 color, std::string filename ) { getPipe() << "wormskin " << id << " " << color << " " << filename << endl; ScriptSignalHandler(); }
 
 	void Sig_Timer() { getPipe() << "timer" << std::endl; ScriptSignalHandler(); }
 
