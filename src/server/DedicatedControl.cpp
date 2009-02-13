@@ -127,7 +127,7 @@ struct DedIntern {
 			return inSignals;
 #endif
 		return pipe.in();
-	};
+	}
 	
 	void closePipe()
 	{
@@ -340,6 +340,7 @@ struct DedIntern {
 		return Py_None;
 	}
 
+	// TODO: it should not be needed to always call this function after you put a signal
 	void ScriptSignalHandler()
 	{
 		if(!usePython)
@@ -359,7 +360,7 @@ struct DedIntern {
 			if( PyErr_Occurred() )
 			{
 				notes << "Python exception (in stderr)" << endl;
-				PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
+				PyErr_Print();
 				PyErr_Clear();
 			}
 
@@ -633,7 +634,6 @@ struct DedIntern {
 			return;
 
 		cServer->banWorm(id,reason);
-
 	}
 
 	// TODO: Add name muting, if wanted.
@@ -733,6 +733,7 @@ struct DedIntern {
 		if(state != S_INACTIVE) {
 			warnings << "Ded: we cannot start the lobby in current state" << endl;
 			hints << "Ded: stop lobby/game if you want to restart it" << endl;
+			Sig_ErrorStartLobby();
 			return;
 		}
 		
@@ -1108,6 +1109,10 @@ struct DedIntern {
 
 	void Frame_Basic() {
 
+		// TODO: make this clean!
+		// TODO: no static var here
+		// TODO: not a single timer, the script should register as much as it want
+		// TODO: each timer should be configurable
 		static float lastTimeHandlerCalled = tLX->fCurTime;
 		if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
 		{
