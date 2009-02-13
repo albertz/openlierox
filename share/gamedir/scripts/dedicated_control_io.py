@@ -40,68 +40,51 @@ import dedicated_control_handler as hnd
 # You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX,
 # puts it in it's buffer, and delivers it to anyone who asks by getResponse().
 
-bufferedSignalsLock = threading.Lock()
 bufferedSignals = []
+emptyLines = 0 # Hack to stdin being silently closed
 
 if not OlxImported:
-	# The thread to read from stdin
-	class GetStdinThread(threading.Thread):
-		def __init__(self):
-			threading.Thread.__init__(self)
-			self.start()
-
-		def run(self):
-			global bufferedSignals, bufferedSignalsLock
-			try:
-				emptyLines = 0 # Hack to stdin being silently closed
-				while True: # Killed by sys.exit(), that's hack but I'm too lazy to do correct thread exit
-					line = sys.stdin.readline()
-					if line.strip() != "":
-						emptyLines = 0
-						bufferedSignalsLock.acquire()
-						bufferedSignals.append(line.strip())
-						bufferedSignalsLock.release()
-					else:
-						emptyLines += 1
-					if sys.stdin.closed or emptyLines > 100:
-						raise Exception, "stdin closed"
-			except Exception:
-				sys.stderr.write("Broken Pipe -- exiting")
-				# OLX terminated, stdin = broken pipe, we should terminate also
-				sys.exit()
-
-	stdinInputThread = GetStdinThread()
 
 	# Use this function to get signals, don't access bufferedSignals array directly
 	def getSignal():
-		global bufferedSignals, bufferedSignalsLock
+		global bufferedSignals, emptyLines
 		ret = ""
-		bufferedSignalsLock.acquire()
 		if len(bufferedSignals) > 0:
 			ret = bufferedSignals[0]
 			bufferedSignals = bufferedSignals[1:]
-		bufferedSignalsLock.release()
+		else:
+			line = sys.stdin.readline()
+			if line.strip() != "":
+				emptyLines = 0
+				ret = line.strip()
+			else:
+				emptyLines += 1
+		if sys.stdin.closed or emptyLines > 100:
+			sys.stderr.write("Broken Pipe -- exiting")
+			# OLX terminated, stdin = broken pipe, we should terminate also
+			sys.exit()
+
 		#if ret != "": msg("Got signal \"%s\"" % ret)
 		return ret
 
 	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
 	def pushSignal(sig):
-		global bufferedSignals, bufferedSignalsLock
-		bufferedSignalsLock.acquire()
+		global bufferedSignals
 		bufferedSignals.append(sig)
-		bufferedSignalsLock.release()
+
 else:
 
 	# Use this function to get signals, don't access bufferedSignals array directly
 	def getSignal():
 		global bufferedSignals
-		signals = OLX.GetSignals().strip()
-		if signals != "":
-			bufferedSignals.extend(signals.split('\n'))
 		ret = ""
 		if len(bufferedSignals) > 0:
 			ret = bufferedSignals[0]
 			bufferedSignals = bufferedSignals[1:]
+		else:
+			signal = OLX.GetSignal().strip()
+			if signal != "":
+				ret = signal
 		return ret
 
 	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
@@ -120,12 +103,7 @@ def getResponse(cmd):
 		if resp.find(cmd+" ") == 0:
 			ret = resp[len(cmd)+1:] # Strip cmd string and push the rest to return-value
 		else:
-			if resp != "":
-				extraSignals.append(resp)
-			else:
-				if time.time() - startTime > 5.0:
-					break	# Waited for 5 second and no response - abort and return empty string
-				time.sleep(0.01)
+			extraSignals.append(resp)
 		if ret == "":
 			resp = getSignal()
 	for s in extraSignals:
@@ -148,12 +126,7 @@ def getResponseList(cmd):
 		if resp.find(cmd+" ") == 0:
 			ret.append( resp[len(cmd)+1:] ) # Strip cmd string and push the rest to return-value
 		else:
-			if resp != "":
-				extraSignals.append(resp)
-			else:
-				if time.time() - startTime > 5.0:
-					break	# Waited for 5 second and no response - abort and return empty string
-				time.sleep(0.01)
+			extraSignals.append(resp)
 		resp = getSignal()
 	for s in extraSignals:
 		pushSignal(s)

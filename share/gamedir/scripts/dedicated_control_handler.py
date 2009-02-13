@@ -120,8 +120,8 @@ def init():
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
 def signalHandler(sig):
-	global gameState, oldGameState
-	global sentStartGame
+	global gameState, oldGameState, scriptPaused, sentStartGame
+
 	oldGameState = gameState
 
 	if sig == "":
@@ -152,6 +152,7 @@ def signalHandler(sig):
 			ranking.refreshRank()
 		gameState = GAME_LOBBY
 		sentStartGame = False
+		controlHandler()
 	elif header == "errorstartgame":
 		gameState = GAME_LOBBY
 		io.messageLog("errorstartgame",io.LOG_ERROR)
@@ -159,9 +160,11 @@ def signalHandler(sig):
 
 	elif header == "weaponselections":
 		gameState = GAME_WEAPONS
+		controlHandler()
 	elif header == "gamestarted":
 		gameState = GAME_PLAYING
 		sentStartGame = False
+		controlHandler()
 	#TODO: gamestarted && gameloopstart are pretty much duplicates
 	# Or are they? Check.
 	# Same thing for gameloopend and backtolobby
@@ -171,14 +174,11 @@ def signalHandler(sig):
 		pass
 	elif header == "gameloopend": #Sent when OLX starts
 		pass
-	#elif header == "wormping":
-		# This is only sent when we request a ping, yet multiple of these end up in this function
-		# This means that our getResponse() function does not work as expected.
+	elif header == "timer": # Sent once per second
+		controlHandler()
 	else:
 		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 
-	#if sig != "":
-		#msg(sig)
 	return True
 
 def parseNewWorm(sig):
@@ -498,9 +498,12 @@ oldGameState = GAME_LOBBY
 
 def controlHandlerDefault():
 
-	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame, lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState
-	global sentStartGame
+	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
+	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
 	
+	if scriptPaused:
+		return
+
 	curTime = time.time()
 
 	if gameState == GAME_LOBBY:

@@ -176,6 +176,7 @@ struct DedIntern {
 		Py_XDECREF(scriptModule);
 		Py_Finalize();
 		usePython = false;
+		SDL_DestroySemaphore(ScriptSignalHandlerRecursive);
 #endif
 
 		notes << "DedicatedControl destroyed" << endl;
@@ -299,11 +300,25 @@ struct DedIntern {
 	// Embed Python into OLX
 
 	static PyObject *
-	GetSignals(PyObject *self, PyObject *args)
+	GetSignal(PyObject *self, PyObject *args) // Get one signal from script
 	{
 		if(!PyArg_ParseTuple(args, ""))
 			return Py_None;
-		PyObject * ret = Py_BuildValue("s", ((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str().c_str());
+
+		const std::string & sigs = ((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str();
+		std::string sig;
+		if( sigs.find('\n') != std::string::npos )
+		{
+			sig = sigs.substr( 0, sigs.find('\n') );
+			((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str( sigs.substr( sigs.find('\n')+1 ) );
+		}
+		else if( sigs != "" )	// Error, some Sig_XXX() func didn't put '\n' in the end
+		{
+			warnings << "DedControlIntern::GetSignal(): extra data in inSignals: " << sigs << endl;
+			((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str( "" );
+		}
+			
+		PyObject * ret = Py_BuildValue("s", sig.c_str());
 		((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str("");
 		return ret;
 	}
@@ -336,19 +351,21 @@ struct DedIntern {
 		//PyGILState_STATE gstate;
 		//gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
 		
-		PyObject * pArgs = PyTuple_New(0);
-		
-		PyObject * pRet = PyObject_CallObject(scriptMainLoop, pArgs);
-
-		if( PyErr_Occurred() )
+		while( inSignals.str() != "" ) // If there are signals available for ded script
 		{
-			notes << "Python exception (in stderr)" << endl;
-			PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
-			PyErr_Clear();
-		}
+			PyObject * pArgs = PyTuple_New(0);
+			PyObject * pRet = PyObject_CallObject(scriptMainLoop, pArgs);
 
-		Py_XDECREF(pArgs);
-		Py_XDECREF(pRet);
+			if( PyErr_Occurred() )
+			{
+				notes << "Python exception (in stderr)" << endl;
+				PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
+				PyErr_Clear();
+			}
+
+			Py_XDECREF(pArgs);
+			Py_XDECREF(pRet);
+		}
 
 		//PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
 		
@@ -1021,6 +1038,8 @@ struct DedIntern {
 	void Sig_WormPing(CWorm* w, int ping) {	getPipe() << "wormping " << w->getID() << " " << ping << endl; ScriptSignalHandler(); }
 	void Sig_WormSkin(CWorm* w) { getPipe() << "wormskin " << w->getID() << " " << w->getSkin().getDefaultColor() << " " << w->getSkin().getFileName() << endl; ScriptSignalHandler(); }
 
+	void Sig_Timer() { getPipe() << "timer" << std::endl; ScriptSignalHandler(); }
+
 	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
 	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)
 	// TODO: Send all kills/deaths/teamkills after each game? Could get ugly real fast thou.
@@ -1089,27 +1108,26 @@ struct DedIntern {
 
 	void Frame_Basic() {
 
-#ifdef WITH_PYTHON
-		if( usePython )
+		static float lastTimeHandlerCalled = tLX->fCurTime;
+		if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
 		{
-			static float lastTimeHandlerCalled = tLX->fCurTime;
-			if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending
-			{
-				ScriptSignalHandler();
-				lastTimeHandlerCalled = tLX->fCurTime;
-			}
+			Sig_Timer();
+			lastTimeHandlerCalled = tLX->fCurTime;
 		}
-		else
+
+#ifdef WITH_PYTHON
+		if( ! usePython )
 #endif
 		{
 			SDL_mutexP(pipeOutputMutex);
-			while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
+			while( pipeOutput.str().size() > (size_t)pipeOutput.tellg() ) {
 				std::string cmd, rest;
 				Ded_ParseCommand(pipeOutput, cmd, rest);
 				SDL_mutexV(pipeOutputMutex);
 
 				HandleCommand(cmd, rest);
 				SDL_mutexP(pipeOutputMutex);
+				lastTimeHandlerCalled = tLX->fCurTime;
 			}
 			SDL_mutexV(pipeOutputMutex);
 		}
@@ -1165,7 +1183,7 @@ struct DedIntern {
 #ifdef WITH_PYTHON
 
 PyMethodDef DedIntern::DedScriptEngineMethods[3] = {
-		{ "GetSignals",  GetSignals, METH_VARARGS, "Get next signal from OLX, returns string which may contain several signals separated by newline"},
+		{ "GetSignal",  GetSignal, METH_VARARGS, "Get next signal from OLX"},
 		{ "SendCommand",  SendCommand, METH_VARARGS, "Send command to OLX, as string"},
 		{NULL, NULL, 0, NULL}        /* Sentinel */
 	};
