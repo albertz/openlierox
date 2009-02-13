@@ -2492,7 +2492,10 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 		bCurrentSettings = true;
 	
 	if( bOldCurrentSettings != bCurrentSettings )
+	{
 		bShouldRepaintInfo = true;
+		bShouldRepaintInfo3 = true;
+	}
 
 	if (!bCurrentSettings)
 		return;

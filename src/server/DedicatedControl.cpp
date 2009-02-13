@@ -114,7 +114,7 @@ struct DedIntern {
 	// The new way, embedded Python
 	PyObject * scriptModule;
 	PyObject * scriptMainLoop;
-	bool ScriptSignalHandlerRecursive;
+	SDL_sem * ScriptSignalHandlerRecursive;
 	std::ostringstream inSignals;
 	static PyMethodDef DedScriptEngineMethods[3]; // Array for registerging GetSignals() and SendCommand()
 	bool usePython;
@@ -132,7 +132,7 @@ struct DedIntern {
 	void closePipe()
 	{
 #ifdef WITH_PYTHON
-		if( scriptMainLoop )
+		if( usePython )
 			return;
 #endif
 		pipe.close();
@@ -150,12 +150,12 @@ struct DedIntern {
 		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
 		Py_Initialize();
 		Py_InitModule("OLX", DedScriptEngineMethods);
-		PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
+		//PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
 		scriptModule = NULL;
 		scriptMainLoop = NULL;
 
-		ScriptSignalHandlerRecursive = false;
-		usePython = false;;
+		ScriptSignalHandlerRecursive = SDL_CreateSemaphore(1);
+		usePython = false;
 #endif
 
 	}
@@ -330,13 +330,11 @@ struct DedIntern {
 		if(!usePython)
 			return;
 			
-		if( ScriptSignalHandlerRecursive )
+		if( SDL_SemTryWait(ScriptSignalHandlerRecursive) != 0 )
 			return;
 		
-		ScriptSignalHandlerRecursive = true;
-
-		PyGILState_STATE gstate;
-		gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
+		//PyGILState_STATE gstate;
+		//gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
 		
 		PyObject * pArgs = PyTuple_New(0);
 		
@@ -352,9 +350,9 @@ struct DedIntern {
 		Py_XDECREF(pArgs);
 		Py_XDECREF(pRet);
 
-		PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
+		//PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
 		
-		ScriptSignalHandlerRecursive = false;
+		SDL_SemPost(ScriptSignalHandlerRecursive);
 	};
                      
 
@@ -368,8 +366,8 @@ struct DedIntern {
 			}			
 
 			notes << "Dedicated server: running script \"" << scriptfn << "\" using built-in Python" << endl;
-			PyGILState_STATE gstate;
-			gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
+			//PyGILState_STATE gstate;
+			//gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
 
 			char tmp[1024];
 			strcpy(tmp, scriptfn.c_str());
@@ -393,14 +391,14 @@ struct DedIntern {
 					PyErr_Clear();
 				}
 				return false;
-				PyGILState_Release(gstate);
+				//PyGILState_Release(gstate);
 			}
 			
 			// Execute and import the module (reloads it if called second time)
 			usePython = true;
-			ScriptSignalHandlerRecursive = true;
+			SDL_SemWait( ScriptSignalHandlerRecursive );
 			scriptModule = PyImport_ExecCodeModule("dedicated_control", codeObject);
-			ScriptSignalHandlerRecursive = false;
+			SDL_SemPost( ScriptSignalHandlerRecursive );
 			
 			Py_XDECREF(codeObject);
 			
@@ -414,7 +412,7 @@ struct DedIntern {
 					PyErr_Clear();
 				}
 				usePython = false;
-				PyGILState_Release(gstate);
+				//PyGILState_Release(gstate);
 				return false;
 			}
 			
@@ -435,10 +433,10 @@ struct DedIntern {
 				pFunc = NULL;
 				scriptModule = NULL;
 				usePython = false;
-				PyGILState_Release(gstate);
+				//PyGILState_Release(gstate);
 				return false;
 			}
-			PyGILState_Release(gstate);
+			//PyGILState_Release(gstate);
 		}
 		else
 			notes << "Dedicated server: not running any script" << endl;

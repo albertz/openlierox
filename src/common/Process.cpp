@@ -89,6 +89,8 @@ struct ProcessIntern
 	void reset() { if(p) delete p; p = NULL; }
 	void close() {
 		// p << redi::peof;
+		if(!p)
+			return;
 		if(p->rdbuf()) p->rdbuf()->kill();
 		if(p->rdbuf()) p->rdbuf()->kill(SIGKILL);
 	}
