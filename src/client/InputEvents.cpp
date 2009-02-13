@@ -543,7 +543,21 @@ bool ProcessEvents()
 #endif
 
 	if (bDedicated)
+	{
+		#ifdef WIN32
+		MSG msg;
+		while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+		{
+			if( msg.message == WM_QUIT || msg.message == WM_CLOSE )
+			{
+				EventItem ev;
+				ev.type = SDL_QUIT;
+				mainQueue->push(ev);
+			}
+		}
+		#endif
 		return ret;
+	}
 
     // If we don't have focus, don't update as often
     if(!nFocus)

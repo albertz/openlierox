@@ -27,6 +27,7 @@
 
 #include "Color.h"
 #include "SmartPointer.h"
+#include "Debug.h"
 
 
 //

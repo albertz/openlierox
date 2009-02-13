@@ -109,6 +109,13 @@ VOID WINAPI SvcMain( DWORD dwArgc, LPTSTR *lpszArgv )
 // Return value:
 //   None
 //
+
+BOOL QuitSignalHandler( DWORD fdwCtrlType ) 
+{ 
+	return TRUE; // Do not pass signal further
+}
+
+
 VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
 {
     // TO_DO: Declare and set any required variables.
@@ -135,6 +142,11 @@ VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
 
     ReportSvcStatus( SERVICE_RUNNING, NO_ERROR, 0 );
     
+    //AllocConsole(); // So we can send Ctrl-Break (dunno if it helps really)
+    
+   	//SetConsoleCtrlHandler( (PHANDLER_ROUTINE) QuitSignalHandler, TRUE );
+
+    
     char szPath[MAX_PATH] = "";
     char szCurDir[MAX_PATH] = "";
     char szCommand[MAX_PATH*2] = OLX_EXE " -dedicated";
@@ -159,86 +171,41 @@ VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
 
 	memset(&pi, 0, sizeof(pi));
 
-    // TO_DO: Perform work until service stops.
-    bool OLXStarted = false;
-    int timeout = 0;
-    int logFileSize1 = 0;
-    int logFileSize2 = 0;
+	if( ! CreateProcess( NULL, szCommand, NULL, NULL, false, 
+							NORMAL_PRIORITY_CLASS /*| CREATE_NEW_PROCESS_GROUP*/,
+							NULL, szCurDir, &si, &pi ))
+	{
+		char buf[1024];
+		char errorBuf[1024] = "Unknown error";
+		FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, errorBuf, sizeof(errorBuf), NULL );
+		sprintf(buf, "Cannot start OpenLieroX EXE, cmd '%s', curdir '%s', error: %s", szCommand, szCurDir, errorBuf);
+        SvcReportEvent(buf); 
+		ReportSvcStatus( SERVICE_STOPPED, ERROR_FILE_NOT_FOUND, 0 );
+		return;
+	};
 
     while(1)
     {
-		if( ! OLXStarted )
-		{
-			if( ! CreateProcess( NULL, szCommand, NULL, NULL, false, 
-									NORMAL_PRIORITY_CLASS /*| CREATE_NEW_CONSOLE | DETACHED_PROCESS*/,
-									NULL, szCurDir, &si, &pi ))
-			{
-				char buf[1024];
-				char errorBuf[1024] = "Unknown error";
-				FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, errorBuf, sizeof(errorBuf), NULL );
-				sprintf(buf, "Cannot start OpenLieroX EXE, cmd '%s', curdir '%s', error: %s", szCommand, szCurDir, errorBuf);
-		        SvcReportEvent(buf); 
-				ReportSvcStatus( SERVICE_STOPPED, ERROR_FILE_NOT_FOUND, 0 );
-				return;
-			};
-			OLXStarted = true;
-			timeout = 0;
-		    logFileSize1 = 0;
-			logFileSize2 = 0;
-		}
-		
-		if( OLXStarted && timeout > OLX_TIMEOUT )
-		{
-			timeout = 0;
-			char slog1[MAX_PATH], slog2[MAX_PATH];
-			strcpy( slog1, szCurDir );
-			strcat( slog1, "\\stdout.txt" );
-			strcpy( slog2, szCurDir );
-			strcat( slog2, "\\dedicated_control.log" );
-			FILE * log1 = fopen(slog1, "r");
-			FILE * log2 = fopen(slog2, "r");
-			int size1 = 0;
-			int size2 = 0;
-			if(log1)
-			{
-				fseek(log1, 0, SEEK_END);
-				size1 = ftell( log1 );
-				fclose(log1);
-			}
-			if(log2)
-			{
-				fseek(log2, 0, SEEK_END);
-				size2 = ftell( log2 );
-				fclose(log2);
-			}
-			
-			char buf[1024];
-			sprintf( buf, "File sizes: %s %p = %i old %i , %s %p = %i old %i", 
-						slog1, log1, size1, logFileSize1,
-						slog2, log2, size2, logFileSize2 );
-			SvcReportEvent(buf);
-			if( size1 == logFileSize1 || size2 == logFileSize2 )
-			{
-		        SvcReportEvent("No activity in logfiles - restarting OpenLieroX"); 
-				TerminateProcess( pi.hProcess, 0 );
-				OLXStarted = false;
-			}
-			logFileSize1 = size1;
-			logFileSize2 = size2;
-		}
-			
         // Check whether to stop the service.
         if( WaitForSingleObject(ghSvcStopEvent, 1000) != WAIT_TIMEOUT )
         {
-			if( OLXStarted )
-			{
-				TerminateProcess( pi.hProcess, 0 );
-			}
+			// First try to terminate OLX gracefully by sending Ctrl-C
+			// TODO: this doesn't work anyway, make some other method maybe
+			/*
+			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
+			Sleep( 20 );
+			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
+			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
+			*/
+			PostThreadMessage( pi.dwThreadId, WM_CLOSE, 0, 0 );
+			PostThreadMessage( pi.dwThreadId, WM_CLOSE, 0, 0 );
+			// Kill it
+			Sleep( 2000 );
+			TerminateProcess( pi.hProcess, 0 );
 			ReportSvcStatus( SERVICE_STOPPED, NO_ERROR, 0 );
 			return;
 		};
 	    ReportSvcStatus( SERVICE_RUNNING, NO_ERROR, 0 );
-	    timeout++;
     }
 }
 
