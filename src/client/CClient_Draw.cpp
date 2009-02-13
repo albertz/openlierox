@@ -2481,6 +2481,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
 // Draw the current game settings
 void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 {
+	bool bOldCurrentSettings = bCurrentSettings;
 	bCurrentSettings = true;
 
     // Do checks on whether or not to show
@@ -2489,6 +2490,9 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 
 	if (bGameOver && bGameMenu)
 		bCurrentSettings = true;
+	
+	if( bOldCurrentSettings != bCurrentSettings )
+		bShouldRepaintInfo = true;
 
 	if (!bCurrentSettings)
 		return;
