@@ -44,12 +44,12 @@ void CHideAndSeek::PrepareGame()
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
 	// TODO: move to network texts
-	std::string teamhint[2] = {
-		"You are a hider, you have to run away from the seekers who are red. You have to hide for "
-			+ itoa((int)fGameLength) + " seconds.",
-		"You are a seeker, you have to find and catch the hiders. You have to catch the hiders before "
-			+ itoa((int)fGameLength) + " seconds are up."
-	};
+	std::string teamhint[2];
+	if (networkTexts->sHiderMessage != "<none>")
+		replace(networkTexts->sHiderMessage, "<time>", itoa((int)fGameLength), teamhint[0]);
+	if (networkTexts->sSeekerMessage != "<none>")
+		replace(networkTexts->sSeekerMessage, "<time>", itoa((int)fGameLength), teamhint[1]);
+
 	worm->setLives(0);
 	// Gameplay hints
 	worm->getClient()->getNetEngine()->SendText(teamhint[worm->getTeam()], TXT_NORMAL);
@@ -69,7 +69,12 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 {
 	if(killer->getTeam() == SEEKER && killer != victim) {
-		cServer->SendGlobalText(killer->getName() + " caught " + victim->getName(), TXT_NORMAL);
+		if (networkTexts->sCaughtMessage != "<none>")  {
+			std::string msg;
+			replace(networkTexts->sCaughtMessage, "<seeker>", killer->getName(), msg);
+			replace(msg, "<hider>", victim->getName(), msg);
+			cServer->SendGlobalText(msg, TXT_NORMAL);
+		}
 		killer->AddKill();
 	}
 	victim->Kill();
@@ -172,15 +177,23 @@ void CHideAndSeek::Show(CWorm* worm)
 		return;
 	bVisible[worm->getID()] = true;
 
-	if(worm->getTeam() == HIDER)
-		worm->getClient()->getNetEngine()->SendText("You are visible to the seekers, run!", TXT_NORMAL);
-	else
-		worm->getClient()->getNetEngine()->SendText("You are visible to the hiders.", TXT_NORMAL);
+	if(worm->getTeam() == HIDER)  {
+		if (networkTexts->sHiderVisible != "<none>")
+			worm->getClient()->getNetEngine()->SendText(networkTexts->sHiderVisible, TXT_NORMAL);
+	} else {
+		if (networkTexts->sSeekerVisible != "<none>")
+			worm->getClient()->getNetEngine()->SendText(networkTexts->sSeekerVisible, TXT_NORMAL);
+	}
+
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
 		cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, worm->getPos());
-		cWorms[i].getClient()->getNetEngine()->SendText(worm->getName() + " is visible!", TXT_NORMAL);
+		if (networkTexts->sVisibleMessage != "<none>")  {
+			std::string msg;
+			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
+			cWorms[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
+		}
 	}
 }
 
@@ -190,12 +203,17 @@ void CHideAndSeek::Hide(CWorm* worm)
 		return;
 	bVisible[worm->getID()] = false;
 
-	worm->getClient()->getNetEngine()->SendText("You are invisible again!", TXT_NORMAL);
+	if (networkTexts->sYouAreHidden != "<none>")
+		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
 		cWorms[i].getClient()->getNetEngine()->SendWormDied(worm);
-		cWorms[i].getClient()->getNetEngine()->SendText(worm->getName() + " is hiding!", TXT_NORMAL);
+		if (networkTexts->sHiddenMessage != "<none>")  {
+			std::string msg;
+			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
+			cWorms[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
+		}
 	}
 }
 
@@ -239,10 +257,10 @@ void CHideAndSeek::GenerateTimes()
 		if(cWorms[i].isUsed())
 			worms[cWorms[i].getTeam()]++;
 	if(worms[0] != 0 && worms[1] != 0)
-		ratio = worms[0] / worms[1];
+		ratio = (float)worms[0] / worms[1];
 
 	// TODO: Is this actually any good? 
-	fGameLength = (int)(45 * size * ratio);
+	fGameLength = (45 * size * ratio);
 	fHideLength = 15;
 	fAlertLength = 10;
 }

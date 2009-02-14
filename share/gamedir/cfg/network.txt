@@ -30,6 +30,16 @@ TeamHasWon = The <team> team has won the match
 
 WormIsIt = <player> is IT!
 
+SeekerMessage = You are a seeker, you have to find and catch the hiders. You have to catch the hiders before <time> seconds are up
+HiderMessage = You are a hider, you have to run away from the seekers who are red. You have to hide for <time> seconds.
+CaughtMessage = <seeker> caught <hider>!
+HiderVisible = <font color="red">You are visible to the seekers, run!</font>
+SeekerVisible = You are visible to the hiders
+VisibleMessage = <player> is visible!
+YouAreHidden = <font color="green">You are invisible again!</font>
+HiddenMessage = <player> is hiding!
+
+
 Spree1 = <player> is on a killing spree!
 Spree2 = <player> is on a rampage!
 Spree3 = <player> is dominating!

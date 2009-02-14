@@ -533,6 +533,16 @@ bool NetworkTexts::LoadFromDisc()
 
 	ReadString (f, "NetworkTexts", "WormIsIt",		  sWormIsIt,		"<player> is IT!");
 
+	ReadString (f, "NetworkTexts", "SeekerMessage",	  sSeekerMessage,	"You are a seeker, you have to find and catch the hiders. You have to catch the hiders before <time> seconds are up.");
+	ReadString (f, "NetworkTexts", "HiderMessage",	  sHiderMessage,	"You are a hider, you have to run away from the seekers who are red. You have to hide for <time> seconds.");
+	ReadString (f, "NetworkTexts", "CaughtMessage",	  sCaughtMessage,	"<seeker> caught <hider>!");
+	ReadString (f, "NetworkTexts", "HiderVisible",	  sHiderVisible,	"You are visible to the seekers, run!");
+	ReadString (f, "NetworkTexts", "SeekerVisible",	  sSeekerVisible,	"You are visible to the hiders");
+	ReadString (f, "NetworkTexts", "VisibleMessage",  sVisibleMessage,	"<player> is visible!");
+	ReadString (f, "NetworkTexts", "YouAreHidden",    sYouAreHidden,	"You are invisible again!");
+	ReadString (f, "NetworkTexts", "HiddenMessage",   sHiddenMessage,	"<player> is hiding!");
+	
+
 	ReadString (f, "NetworkTexts", "Spree1",		  sSpree1,			"<player> is on a killing spree!");
 	ReadString (f, "NetworkTexts", "Spree2",		  sSpree2,			"<player> is on a rampage!");
 	ReadString (f, "NetworkTexts", "Spree3",		  sSpree3,			"<player> is dominating!");

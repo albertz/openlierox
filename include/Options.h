@@ -122,6 +122,15 @@ public:
 	std::string sHasScored;
 	std::string sKilledAFK ;
 
+	std::string sSeekerMessage;
+	std::string sHiderMessage;
+	std::string sCaughtMessage;
+	std::string sHiderVisible;
+	std::string sSeekerVisible;
+	std::string sVisibleMessage;
+	std::string sYouAreHidden;
+	std::string sHiddenMessage;
+
 	std::string sPlayerOut ;
 	std::string sPlayerHasWon ;
 	std::string sTeamOut ;
