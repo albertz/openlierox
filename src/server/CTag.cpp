@@ -280,6 +280,11 @@ bool CTag::CheckGame()
 	return false;
 }
 
+bool CTag::NeedUpdate(CServerConnection* cl, CWorm* worm)
+{
+	return true;
+}
+
 int CTag::GameType()
 {
 	return GMT_TIME;
