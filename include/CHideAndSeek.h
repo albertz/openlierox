@@ -32,7 +32,7 @@ public:
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm);
-	void Hide(CWorm* worm);
+	void Hide(CWorm* worm, bool message = true);
 	// Returns true if worm1 can see worm2
 	bool CanSee(CWorm* worm1, CWorm* worm2);
 	// Generates an approximation of the time needed to finish the game

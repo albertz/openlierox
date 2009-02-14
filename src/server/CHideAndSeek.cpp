@@ -37,9 +37,10 @@ void CHideAndSeek::PrepareGame()
 		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
-		bVisible[i] = false;
+		bVisible[i] = true; // So we can hide
+		Hide(&cWorms[i], false);
 		cWorms[i].setLives(0);
-	}	
+	}
 }
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
@@ -53,7 +54,6 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 
 	// Gameplay hints
 	worm->getClient()->getNetEngine()->SendText(teamhint[worm->getTeam()], TXT_NORMAL);
-	Hide(worm);
 }
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
@@ -209,19 +209,19 @@ void CHideAndSeek::Show(CWorm* worm)
 	}
 }
 
-void CHideAndSeek::Hide(CWorm* worm)
+void CHideAndSeek::Hide(CWorm* worm, bool message)
 {
 	if(!bVisible[worm->getID()])
 		return;
 	bVisible[worm->getID()] = false;
 
-	if (networkTexts->sYouAreHidden != "<none>")
+	if(networkTexts->sYouAreHidden != "<none>" && message)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
 		cWorms[i].getClient()->getNetEngine()->SendWormDied(worm);
-		if (networkTexts->sHiddenMessage != "<none>")  {
+		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
 			cWorms[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
