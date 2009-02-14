@@ -43,10 +43,12 @@ static const float LX_ENDWAIT = 9.0f;
 enum {
 	GM_DEATHMATCH = 0,
 	GM_TEAMDEATH,
-	GM_HIDEANDSEEK
+	GM_HIDEANDSEEK,
+	GM_TAG
 };
 
 // Game mode types
+// HINT: do not change the order, this is used over the network
 enum {
 	GMT_NORMAL,  // Worms appear as normal
 	GMT_TEAMS,   // Worms appear in teams

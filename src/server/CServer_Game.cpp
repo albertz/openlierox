@@ -263,11 +263,6 @@ void GameServer::SimulateGame(void)
 			}
 		}
 
-		// Add their time in a game of tag
-		if(tLXOptions->tGameInfo.iGameMode == GMT_TIME && w->getTagIT() && w->getAlive())  {
-			w->incrementTagTime(tLX->fRealDeltaTime);
-		}
-
 		// Simulate the worm's weapons
 		// TODO: why are we doing this? we are not simulating the worm but why the weapon?
 		// please try to remove this here and then remove also the dt parameter in PhysicsEngine
@@ -378,81 +373,6 @@ void GameServer::SpawnBonus(void)
 	bs.writeInt((int)pos.y, 2);
 
 	SendGlobalPacket(&bs);
-}
-
-
-///////////////////
-// Tag a worm
-void GameServer::TagWorm(int id)
-{
-	// Safety check
-	if(id < 0 || id >= MAX_WORMS || getState() != SVS_PLAYING)
-		return;
-
-	CWorm *w = &cWorms[id];
-
-	short i;
-
-	// Go through all the worms, setting their tag to false
-	for(i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed())  {
-			cWorms[i].setTagIT(false);
-		}
-	}
-
-
-	w->setTagIT(true);
-
-	// Let everyone know this guy is tagged
-	CBytestream bs;
-	bs.writeByte(S2C_TAGUPDATE);
-	bs.writeInt(id,1);
-	bs.writeFloat(w->getTagTime());
-
-	SendGlobalPacket(&bs);
-
-	//Take care of the <none> tag
-	if (networkTexts->sWormIsIt != "<none>")  {
-		SendGlobalText((replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1)),
-						TXT_NORMAL);
-	}
-}
-
-
-///////////////////
-// Tag a random worm
-void GameServer::TagRandomWorm(void)
-{
-	float time = 99999;
-	std::vector<int> all_lowest;
-
-
-	// Go through finding the worm with the lowest tag time
-	// A bit more fairer then random picking
-	unsigned short i;
-	for(i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT) {
-			if(cWorms[i].getTagTime() < time) {
-				time = cWorms[i].getTagTime();
-			}
-		}
-	}
-
-	// Find all the worms that have the lowest time
-	for (i=0;i<MAX_WORMS;i++)  {
-		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)  {
-			if (cWorms[i].getTagTime() == time)  {
-				all_lowest.push_back(i);
-			}
-		}
-	}
-
-	// Choose a random worm from all those having the lowest time
-	int random_lowest = GetRandomInt((int)all_lowest.size()-1);
-
-
-	// Tag the lowest tagged worm
-	TagWorm(all_lowest[random_lowest]);
 }
 
 

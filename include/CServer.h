@@ -167,9 +167,6 @@ public:
 
 	void		gotoLobby(void);
 
-	void		TagWorm(int id);
-	void		TagRandomWorm(void);
-
 
 	// Network
 	void		ReadPackets(void);
@@ -228,6 +225,7 @@ public:
 	void		SendEmptyWeaponsOnRespawn( CWorm * Worm );
 	bool		SendUpdate();
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
+	void		SendWormTagged(CWorm *w);
 
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);

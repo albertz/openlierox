@@ -35,6 +35,7 @@
 #include "CDeathMatch.h"
 #include "CTeamDeathMatch.h"
 #include "CHideAndSeek.h"
+#include "CTag.h"
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
@@ -436,6 +437,8 @@ void CServerNetEngine::SendWeapons()
 	SendPacket(&bs);
 }
 
+///////////////////
+// Send weapons to the client, or, if client is NULL, send to all clients
 void GameServer::SendWeapons(CServerConnection* cl)
 {
 	if(cl)
@@ -443,6 +446,26 @@ void GameServer::SendWeapons(CServerConnection* cl)
 	else
 		for(int c = 0; c < MAX_CLIENTS; c++)
 			cClients[c].getNetEngine()->SendWeapons();
+}
+
+///////////////////
+// Tells all clients that the worm is now tagged
+void GameServer::SendWormTagged(CWorm *w)
+{
+	// Check
+	if (!w)  {
+		errors << "A NULL worm passed to GameServer::SendWormTagged" << endl;
+		return;
+	}
+
+	// Build the packet
+	CBytestream bs;
+	bs.writeByte(S2C_TAGUPDATE);
+	bs.writeInt(w->getID(), 1);
+	bs.writeFloat(w->getTagTime());
+
+	// Send
+	SendGlobalPacket(&bs);
 }
 
 ///////////////////
@@ -565,6 +588,9 @@ void GameServer::UpdateGameLobby(CServerConnection *cl)
 			break;
 		case GM_TEAMDEATH:
 			cGameMode = new CTeamDeathMatch(this, cWorms);
+			break;
+		case GM_TAG:
+			cGameMode = new CTag(this, cWorms);
 			break;
 		case GM_HIDEANDSEEK:
 			cGameMode = new CHideAndSeek(this, cWorms);

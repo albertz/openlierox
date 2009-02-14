@@ -121,6 +121,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		case GM_TEAMDEATH:
 			strncat(buffer, "GM_TEAMDEATH", bufsize);
 			break;
+		case GM_TAG:
+			strncat(buffer, "GM_TAG", bufsize);
+			break;
 		case GM_HIDEANDSEEK:
 			strncat(buffer, "GM_HIDEANDSEEK", bufsize);
 			break;
