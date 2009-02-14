@@ -899,6 +899,13 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fLastCompleting = -9999;
 	fLastGoBack = -9999;
 
+	// TODO: what are these good for? And why are they treated as bools?
+	iAiTeams = tLXOptions->tGameInfo.iGameMode == GM_TEAMDEATH;
+	iAiTag = 0;//tLXOptions->tGameInfo.iGameMode == GM_TAG;
+	iAiVIP = 0;//tLXOptions->tGameInfo.iGameMode == GM_VIP;
+	iAiCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_CTF;
+	iAiTeamCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_TEAMCTF;
+
 	fCanShootTime = 0;
 
 	fRopeAttachedTime = 0;
