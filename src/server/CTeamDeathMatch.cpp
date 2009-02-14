@@ -241,3 +241,8 @@ int CTeamDeathMatch::Winner()
 	return 0;
 }
 
+bool CTeamDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
+{
+	return true;
+}
+

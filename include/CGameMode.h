@@ -14,6 +14,7 @@
 
 class CWorm;
 class GameServer;
+class CServerConnection;
 
 class CGameMode {
 protected:
@@ -36,6 +37,7 @@ public:
 	virtual int  GameType() = 0; // this is the game type which is sent over network
 	virtual int  GameTeams() = 0;
 	virtual int  Winner() = 0;
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) = 0;
 
 protected:
 	CWorm*      cWorms;

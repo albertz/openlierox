@@ -340,6 +340,10 @@ bool GameServer::SendUpdate()
 					// Check if this client owns the worm
 					if(cl->OwnsWorm(w->getID()))
 						continue;
+						
+					// Give the game mode a chance to override sending a packet (might reduce data sent)
+					if(!cGameMode->NeedUpdate(cl, w))
+						continue;
 
 					++num_worms;
 

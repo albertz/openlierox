@@ -38,7 +38,8 @@ void CHideAndSeek::PrepareGame()
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
 		bVisible[i] = false;
-	}
+		cWorms[i].setLives(0);
+	}	
 }
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
@@ -50,9 +51,9 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 	if (networkTexts->sSeekerMessage != "<none>")
 		replace(networkTexts->sSeekerMessage, "<time>", itoa((int)fGameLength), teamhint[1]);
 
-	worm->setLives(0);
 	// Gameplay hints
 	worm->getClient()->getNetEngine()->SendText(teamhint[worm->getTeam()], TXT_NORMAL);
+	Hide(worm);
 }
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
@@ -93,7 +94,7 @@ void CHideAndSeek::Simulate()
 {
 	float GameTime = tLX->fCurTime - fGameStart;
 	// Game time up
-	if(GameTime > fGameLength + fHideLength) {
+	if(GameTime > fGameLength) {
 		for(int i = 0; i < MAX_WORMS; i++)
 			if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() == SEEKER)
 				cServer->killWorm(i, i, cWorms[i].getLives() + 1);
@@ -170,6 +171,17 @@ int CHideAndSeek::Winner()
 	return 0;
 }
 
+bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
+{
+	// No worms, but we don't want the client to see nothing
+	if(cl->getNumWorms() == 0)
+		return true;
+	// Different teams, and invisible so no need I think
+	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !bVisible[worm->getID()])
+		return false;
+	return true;
+}
+
 void CHideAndSeek::Show(CWorm* worm)
 {
 	fLastAlert[worm->getID()] = tLX->fCurTime - fGameStart;
@@ -227,12 +239,12 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 	// Seekers can see 125px
 	if(worm1->getTeam() == SEEKER)
 		return type & PX_EMPTY && (dist.GetLength() < 125);
-	// Hiders can see 175px or 25px through walls
+	// Hiders can see 175px or 75px through walls
 	else {
 		if(type & PX_EMPTY)
 			return dist.GetLength() < 175;
 		else
-			return dist.GetLength() < 25;
+			return dist.GetLength() < 75;
 	}
 }
 
@@ -261,7 +273,7 @@ void CHideAndSeek::GenerateTimes()
 
 	// TODO: Is this actually any good? 
 	fGameLength = (45 * size * ratio);
-	fHideLength = 15;
+	fHideLength = 20;
 	fAlertLength = 10;
 }
 

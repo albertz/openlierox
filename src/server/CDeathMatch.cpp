@@ -230,3 +230,8 @@ int CDeathMatch::Winner()
 	return iWinner;
 }
 
+bool CDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
+{
+	return true;
+}
+

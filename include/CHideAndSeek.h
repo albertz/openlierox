@@ -29,6 +29,7 @@ public:
 	virtual int  GameType();
 	virtual int  GameTeams();
 	virtual int  Winner();
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm);
 	void Hide(CWorm* worm);

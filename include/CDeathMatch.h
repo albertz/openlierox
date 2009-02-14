@@ -31,6 +31,7 @@ public:
 	virtual int  GameType();
 	virtual int  GameTeams();
 	virtual int  Winner();
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 
 protected:
 	bool	bFirstBlood;
