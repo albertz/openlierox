@@ -84,6 +84,7 @@ enum S2C_MESSAGES {
 	S2C_AFK				= 25, // since Beta7, if client away from keyboard
 	S2C_CHATCMDCOMPLLST	= 26, // since Beta7
 	S2C_REPORTDAMAGE	= 27, // since Beta9
+	S2C_HIDEWORM		= 28, // since Beta9
 };
 
 

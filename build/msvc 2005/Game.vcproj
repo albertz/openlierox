@@ -65,7 +65,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				ForcedIncludeFiles="win32memleakdebug.h"
+				ForcedIncludeFiles="win32memleakdebug.h;svn_version.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

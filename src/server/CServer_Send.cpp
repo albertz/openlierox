@@ -131,6 +131,47 @@ void CServerNetEngine::SendPrepareGame()
 	SendPacket( &bs );
 }
 
+void CServerNetEngine::SendHideWorm(CWorm *worm, bool show, bool immediate)
+{
+	// For old clients we move the worm out of the map and kill it
+
+	CBytestream bs;
+
+	// Hide the worm
+	if (!show)  {
+		// 
+		// Update the position
+		//
+
+		bs.write2Int12(-20, -20);  // Position
+		bs.writeInt(0, 1);  // Angle
+		bs.writeByte(0);  // Flags
+		bs.writeByte(0);
+
+		// Velocity
+		if(cl->getClientVersion() >= OLXBetaVersion(5)) {
+			bs.writeInt16(0);
+			bs.writeInt16(0);
+		}
+		
+		// Client (>=beta8) sends also current server time
+		if(cl->getClientVersion() >= OLXBetaVersion(8))
+			bs.writeFloat(cClient->serverTime());
+
+		// Send it reliably, this update is necessary
+		SendPacket(&bs);
+
+		//
+		// Kill
+		//
+		SendWormDied(worm);
+
+	// Show the worm
+	} else {
+		SendSpawnWorm(worm, worm->getPos());
+	}
+}
+
 void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs) 
 {
 	CServerNetEngine::WritePrepareGame(bs);
@@ -206,6 +247,11 @@ void CServerNetEngineBeta3::SendText(const std::string& text, int type)
 
 	SendPacket(&bs);
 };
+
+void CServerNetEngineBeta3::SendHideWorm(CWorm *worm, bool show, bool immediate)
+{
+	CServerNetEngine::SendHideWorm(worm, show, immediate);  // Just the same as for old LX
+}
 
 void CServerNetEngineBeta8::SendText(const std::string& text, int type)
 {
@@ -707,6 +753,30 @@ void CServerNetEngineBeta9::SendUpdateLobby(CServerConnection *target)
 		bytestr.writeString(cl->getClientVersion().asString());
     }
 	SendPacket(&bytestr);
+}
+
+
+////////////////////////
+// Hide a worm at receiver's screen
+void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, bool show, bool immediate)
+{
+	if (!worm)  {
+		errors << "Invalid worm or receiver in SendHideWorm" << endl;
+		return;
+	}
+
+	if (cl->getClientVersion().revnum < 3349)  // TODO: Hack for old revisions of pre-beta 9, remove this later!
+		CServerNetEngineBeta8::SendHideWorm(worm, show, immediate);
+
+	// Up to date version
+	else  {
+		CBytestream bs;
+		bs.writeByte(S2C_HIDEWORM);
+		bs.writeByte(worm->getID());
+		bs.writeBool(!show);  // True - hide, false - show
+		bs.writeBool(immediate);  // True - immediate (no animation), false - animation
+		SendPacket(&bs);
+	}
 }
 
 ///////////////////

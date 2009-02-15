@@ -63,6 +63,8 @@ void CWorm::Clear(void)
 	fMoveSpeedX = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
+	bVisible = true;
+	fVisibilityChangeTime = 0;
 
 	bOnGround = false;
 	vPos = CVec(0,0);
@@ -165,6 +167,8 @@ void CWorm::Init(void)
 	// TODO: is this needed?
 	// WARNING: this works only because it does not contain any classes
 	tState = worm_state_t();
+	bVisible = true;
+	fVisibilityChangeTime = 0;
 }
 
 
@@ -200,6 +204,8 @@ void CWorm::Prepare(CMap *pcMap)
 	}
 	
 	this->pcMap = pcMap;
+	bVisible = true;
+	fVisibilityChangeTime = 0;
 
 	// Setup the rope
 	cNinjaRope.Setup(cGameScript);
@@ -223,6 +229,8 @@ void CWorm::Unprepare() {
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(0);
+	bVisible = true;
+	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
 		if(!bLocal) {
@@ -363,6 +371,8 @@ void CWorm::Spawn(CVec position) {
 
 	bAlive = true;
 	bAlreadyKilled = false;
+	bVisible = true;
+	fVisibilityChangeTime = 0;
 	fAngle = 0;
 	fAngleSpeed = 0;
 	fMoveSpeedX = 0;
@@ -677,7 +687,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the damage amount that worm received
 	// Even the worm is dead draw damage for some time anyway (looks pretty)
-	if( tLXOptions->bDamagePopups )
+	if( tLXOptions->bDamagePopups && bVisible )
 	{
 		// Sort them first
 		std::map< float, int > DamageReportDrawOrder;
@@ -744,9 +754,10 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the ninja rope
 	//
-	cNinjaRope.Draw(bmpDest,v,vDrawPos);
+	if (bVisible)
+		cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
-	if (tLXOptions->bShowHealth)  {
+	if (tLXOptions->bShowHealth && bVisible)  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
 			int hx = x + l;
 			int hy = y + t - 9; // -8 = worm height/2
@@ -817,7 +828,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		bGotTarget = false;
 	}
 
-	if(bLocal)
+	if(bLocal && bVisible)
 		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
 
 	//
@@ -838,7 +849,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-	cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
+	if (bVisible)
+		cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
 	/*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
 		CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
@@ -866,7 +878,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the muzzle flash
 	//
-	if (bDrawMuzzle)  {
+	if (bDrawMuzzle && bVisible)  {
 		switch(iDirection) {
 
 		case DIR_RIGHT:
@@ -896,7 +908,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	// Draw the weapon name
-	if(bLocal && m_type == PRF_HUMAN) {
+	if(bLocal && m_type == PRF_HUMAN && bVisible) {
 		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
@@ -906,19 +918,21 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	std::string WormName = sName;
-	if( sAFKMessage != "" )
-		WormName += " " + sAFKMessage;
-	if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
-		if (cClient->getGameLobby()->iGameMode == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
-			Uint32 col = tLX->clTeamColors[iTeam];
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
-		} // if
-		else
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
-	} else { // local human worm
-		if(iAFK != AFK_BACK_ONLINE) {
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,".. " + sAFKMessage + " ..");
+	if (bVisible)  {
+		std::string WormName = sName;
+		if( sAFKMessage != "" )
+			WormName += " " + sAFKMessage;
+		if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
+			if (cClient->getGameLobby()->iGameMode == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
+				Uint32 col = tLX->clTeamColors[iTeam];
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
+			} // if
+			else
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
+		} else { // local human worm
+			if(iAFK != AFK_BACK_ONLINE) {
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,".. " + sAFKMessage + " ..");
+			}
 		}
 	}
 
@@ -929,7 +943,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
-	if( tLXOptions->bShadows && v )  {
+	if( tLXOptions->bShadows && v && bVisible )  {
 		static const int drop = 4;
 
 		// Copied from ::Draw
@@ -1054,6 +1068,28 @@ bool CWorm::GiveBonus(CBonus *b)
 	}
 
 	return false;
+}
+
+///////////////////
+// Hide the worm, if immediate is set, no animation will be shown
+void CWorm::Hide(bool immediate)
+{
+	bVisible = false;
+	if (!immediate)
+		fVisibilityChangeTime = tLX->fCurTime;
+	else
+		fVisibilityChangeTime = 0;
+}
+
+//////////////////
+// Show the worm, if immediate is set, no animation will be shown
+void CWorm::Show(bool immediate)
+{
+	bVisible = true;
+	if (!immediate)
+		fVisibilityChangeTime = tLX->fCurTime;
+	else
+		fVisibilityChangeTime = 0;
 }
 
 ///////////////////

@@ -507,6 +507,10 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
                 ParseReportDamage(bs);
                 break;
 
+			case S2C_HIDEWORM:
+				ParseHideWorm(bs);
+				break;
+
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				printf("cl: Unknown packet\n");
@@ -2269,3 +2273,29 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 };
+
+void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
+{
+	int id = bs->readByte();
+	bool hide = bs->readBool();
+	bool immediate = bs->readBool();  // Immediate hiding (no animation)
+
+	// Check
+	if (id < 0 || id >= MAX_WORMS)  {
+		errors << "ParseHideWorm: invalid worm ID " << id << endl;
+		return;
+	}
+
+	// Get the worm
+	CWorm *w = client->getRemoteWorms() + id;
+	if (!client->getRemoteWorms() || !w->isUsed())  {
+		errors << "ParseHideWorm: the worm " << id << " does not exist" << endl;
+		return;
+	}
+
+	// Hide or show the worm
+	if (hide)
+		w->Hide(immediate);
+	else
+		w->Show(immediate);
+}

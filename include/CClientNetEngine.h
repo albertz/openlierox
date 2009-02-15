@@ -76,6 +76,7 @@ protected:
 	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; };
 	virtual void ParseAFK(CBytestream* bs) { return; };
     virtual void ParseReportDamage(CBytestream *bs) { return; };
+	virtual void ParseHideWorm(CBytestream *bs) { return; };
 
 	void		 ParseStartGame(CBytestream *bs);
 	void		 ParseSpawnWorm(CBytestream *bs);
@@ -129,6 +130,7 @@ public:
 	virtual void ParseUpdateLobby(CBytestream *bs);
     virtual void ParseReportDamage(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
+	virtual void ParseHideWorm(CBytestream *bs);
 	virtual void SendDeath(int victim, int killer);
 	virtual void SendReportDamage(bool flush = false);
 	virtual void QueueReportDamage(int victim, int damage, int offender);

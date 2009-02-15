@@ -1878,7 +1878,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 	Uint32 col;
 	bool big=false;
 	for(n=0;n<MAX_WORMS;n++,w++) {
-		if(!w->getAlive() || !w->isUsed())
+		if(!w->getAlive() || !w->isUsed() || !w->isVisible())
 			continue;
 
 		GetColour4(w->getGameColour(), bmpMiniMap.get()->format, &r,&g,&b,&a);

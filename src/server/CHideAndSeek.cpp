@@ -222,7 +222,7 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
-		cWorms[i].getClient()->getNetEngine()->SendWormDied(worm);
+		cWorms[i].getClient()->getNetEngine()->SendHideWorm(worm);
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);

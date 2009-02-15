@@ -260,6 +260,8 @@ private:
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
 	float		fRopeTime;
+	bool		bVisible;
+	float		fVisibilityChangeTime;  // Time when the worm was hidden/shown
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
@@ -408,6 +410,8 @@ public:
 	bool		Kill(void);
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
+	void		Hide(bool immediate);
+	void		Show(bool immediate);
 
 
 	void		getInput();
@@ -498,6 +502,8 @@ public:
 
 	bool		hasOwnServerTime();
 	float		serverTime()				{ return fServertime; }
+
+	bool		isVisible()					{ return bVisible; }
 	
 	float		getAngle(void)				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
