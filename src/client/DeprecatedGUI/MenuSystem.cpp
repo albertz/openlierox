@@ -2073,7 +2073,7 @@ bool Menu_SvrList_ServerBehindNat(const std::string & addr)
 	if( !svr )
 		return false;
 	return svr->bBehindNat;
-};
+}
 
 bool bGotDetails = false;
 bool bOldLxBug = false;

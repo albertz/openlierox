@@ -483,7 +483,7 @@ public:
 #	endif
 #elif defined(__hppa__)
 		ucontext_t* uc = (ucontext_t*) secret;
-		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0◊3UL ;
+		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0x3UL ;
 #elif (defined (__ppc__)) || (defined (__powerpc__))
 #	if defined(__APPLE__)
 		ucontext_t* uc = (ucontext_t*) secret;
@@ -512,7 +512,7 @@ public:
 		/* potentially correct for other archs:
 		 * alpha: ucp->m_context.sc_pc
 		 * arm: ucp->m_context.ctx.arm_pc
-		 * ia64: ucp->m_context.sc_ip & ~0◊3UL
+		 * ia64: ucp->m_context.sc_ip & ~0x3UL
 		 * mips: ucp->m_context.sc_pc
 		 * s390: ucp->m_context.sregs->regs.psw.addr
 		 */
