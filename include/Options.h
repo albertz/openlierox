@@ -314,6 +314,7 @@ enum GameInfoGroup_t
 	GIG_Weapons,
 	GIG_Bonus,
 	GIG_Other,
+	GIG_HideAndSeek,
 	
 	GIG_Size
 };

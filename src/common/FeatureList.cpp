@@ -15,18 +15,40 @@
 
 
 // WARNING: Keep this always synchronised with FeatureIndex!
-Feature featureArray[] = {
-	Feature("GameSpeed", "Game-speed multiplicator", "Game simulation speed is multiplicated by the given value.", 1.0f, 1.0f, OLXBetaVersion(7), GIG_Advanced, 0.1f, 10.0f ),
-	Feature("ForceScreenShaking", "Force screen shaking", "Screen shaking will be activated for everybody.", true, true, Version(), GIG_Other, true ),
-	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", false, false, Version(), GIG_Score, true ),
-	Feature("TeamInjure", "Damage team members", "If disabled, your bullets and projectiles don't damage other team members.", true, true, OLXBetaVersion(9), GIG_Weapons ),
-	Feature("TeamHit", "Hit team members", "If disabled, your bullets and projectiles will fly through your team members.", true, true, OLXBetaVersion(9), GIG_Weapons ),
-	Feature("SelfInjure", "Damage yourself", "If disabled, your bullets and projectiles don't damage you.", true, true, OLXBetaVersion(9), GIG_Weapons ),
-	Feature("SelfHit", "Hit yourself", "If disabled, your bullets and projectiles will fly through yourself.", true, true, OLXBetaVersion(9), GIG_Weapons ),
-	
-	Feature("AllowEmptyGames", "Allow empty games", "If enabled, games with one or zero worms will not quit.", false, false, Version(), GIG_Other, true),
+// Legend:	Name in options,		Human-readable-name,			Long description,	
+//			Unset,	Default,		Min client Version,	Group,				[Min,]	[Max,]	[server-side only] (Min and Max are only for Int and Float)
 
-	Feature("CountTeamkills", "Count teamkills", "When killing player from your team increase your kills", false, false, Version(), GIG_Score, true),
+Feature featureArray[] = {
+	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
+			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, 		0.1f, 	10.0f ),
+	Feature("ForceScreenShaking", 	"Force screen shaking", 		"Screen shaking will be activated for everybody.", 
+			true, 	true, 			Version(), 			GIG_Other, 							true ),
+	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", 
+			false, 	false, 			Version(), 			GIG_Score, 							true ),
+	Feature("TeamInjure", 			"Damage team members", 			"If disabled, your bullets and projectiles don't damage other team members.", 
+			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
+	Feature("TeamHit", 				"Hit team members", 			"If disabled, your bullets and projectiles will fly through your team members.", 
+			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
+	Feature("SelfInjure", 			"Damage yourself", 				"If disabled, your bullets and projectiles don't damage you.", 
+			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
+	Feature("SelfHit", 				"Hit yourself", 				"If disabled, your bullets and projectiles will fly through yourself.", 
+			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
+	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit.", 
+			false, 	false, 			Version(), 			GIG_Other, 							true),
+	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your kills", 
+			false, 	false, 			Version(), 			GIG_Score, 							true),
+	Feature("HS_HideTime", 			"Hiding time", 					"Time at the start of the game for hiders to hide", 
+			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),
+	Feature("HS_AlertTime", 		"Alert time", 					"When player discovered but escapes the time for which it's still visible", 
+			10.0f, 	10.0f, 			Version(), 			GIG_HideAndSeek, 	0.0f, 	100.0f,	true ),
+	Feature("HS_HiderVision",	 	"Hider vision", 				"How far hider can see, in pixels (whole screen = 320 px)", 
+			175, 	175, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+	Feature("HS_HiderVisionThroughWalls", "Hider vision thorough walls", "How far hider can see through walls, in pixels (whole screen = 320 px)", 
+			75, 	75, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+	Feature("HS_SeekerVision",		"Seeker vision", 				"How far seeker can see, in pixels (whole screen = 320 px)", 
+			125, 	125, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+	Feature("HS_SeekerVisionThroughWalls", "Seeker vision thorough walls", "How far seeker can see through walls, in pixels (whole screen = 320 px)", 
+			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
 
 	Feature::Unset()
 };

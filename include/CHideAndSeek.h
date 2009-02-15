@@ -40,9 +40,7 @@ public:
 
 protected:
 	enum  team { HIDER, SEEKER };
-	float fHideLength;           // The length of time the hiders cannot be caught in
 	float fGameLength;           // The length of the game
-	float fAlertLength;          // The length of time a worm must not be seen for to go invisible
 	float fLastAlert[MAX_WORMS]; // The last time the worms were seen by other worms
 	bool  bVisible[MAX_WORMS];   // The visibility of the woms
 };

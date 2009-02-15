@@ -51,6 +51,7 @@
 #include "CShootList.h"
 #include "CssParser.h"
 #include "CsvReader.h"
+#include "CTag.h"
 #include "CTeamDeathMatch.h"
 #include "Cursor.h"
 #include "CVec.h"

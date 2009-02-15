@@ -55,6 +55,7 @@ const char * GameInfoGroupDescriptions[GIG_Size][2] =
 	{"Weapons", "Weapons and game physics related game options"},
 	{"Bonuses", "Bonuses related game options"},
 	{"Other", "Other game options"},
+	{"Hide and Seek", "Hide and Seek gamemode settings"},
 };
 
 bool GameOptions::Init() {
@@ -171,6 +172,7 @@ bool GameOptions::Init() {
 		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
 	};
 
+	// Legend:	Name in options, Default value, Human-readable-name, Long description, Group in options, If value unsigned (ints and floats), Min value (ints and floats), Max value (ints and floats)
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives (put empty value for infinite lives)", GIG_General, true )
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, true )

@@ -101,7 +101,7 @@ void CHideAndSeek::Simulate()
 		return;
 	}
 	// Hiders have some time free from being caught and seen
-	if(GameTime < fHideLength)
+	if(GameTime < (float)tLXOptions->tGameInfo.features[FT_HS_HideTime])
 		return;
 	// Check if any of the worms can see eachother
 	int i, j;
@@ -109,7 +109,7 @@ void CHideAndSeek::Simulate()
 		if(!cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT)
 			continue;
 		// Hide the worm if the alert time is up
-		if(fLastAlert[i] + fAlertLength < GameTime)
+		if(fLastAlert[i] + (float)tLXOptions->tGameInfo.features[FT_HS_AlertTime] < GameTime)
 			Hide(&cWorms[i]);
 		for(j = 0; j < MAX_WORMS; j++) {
 			if(!cWorms[j].isUsed() || cWorms[j].getLives() == WRM_OUT)
@@ -239,15 +239,19 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 	CVec dist;
 	worm1->traceLine(worm2->getPos(), &length, &type, 1);
 	dist = worm1->getPos() - worm2->getPos();
-	// Seekers can see 125px
 	if(worm1->getTeam() == SEEKER)
-		return type & PX_EMPTY && (dist.GetLength() < 125);
-	// Hiders can see 175px or 75px through walls
-	else {
+	{
 		if(type & PX_EMPTY)
-			return dist.GetLength() < 175;
+			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange];
 		else
-			return dist.GetLength() < 75;
+			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls];
+	}
+	else 
+	{
+		if(type & PX_EMPTY)
+			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange];
+		else
+			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls];
 	}
 }
 
@@ -276,7 +280,5 @@ void CHideAndSeek::GenerateTimes()
 
 	// TODO: Is this actually any good? 
 	fGameLength = (45 * size * ratio);
-	fHideLength = 20;
-	fAlertLength = 10;
 }
 

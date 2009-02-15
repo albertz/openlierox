@@ -76,6 +76,12 @@ enum FeatureIndex {
 	FT_SelfHit,
 	FT_AllowEmptyGames,
 	FT_CountTeamkills,	// Client should know this to calculate damage correctly in teamgames
+	FT_HS_HideTime,		// Hide and Seek gamemode settings
+	FT_HS_AlertTime,
+	FT_HS_HiderVisionRange,
+	FT_HS_HiderVisionRangeThroughWalls,
+	FT_HS_SeekerVisionRange,
+	FT_HS_SeekerVisionRangeThroughWalls,
 };
 
 class FeatureCompatibleSettingList {
