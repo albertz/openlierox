@@ -765,7 +765,7 @@ void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, bool show, bool immediate)
 		return;
 	}
 
-	if (cl->getClientVersion().revnum < 3349)  // TODO: Hack for old revisions of pre-beta 9, remove this later!
+	if (cl->getClientVersion().revnum < 3353)  // TODO: Hack for old revisions of pre-beta 9, remove this later!
 		CServerNetEngineBeta8::SendHideWorm(worm, show, immediate);
 
 	// Up to date version
