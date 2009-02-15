@@ -188,7 +188,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus )
 		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus )
 		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", GIG_Advanced, true, 0.0, 20.0 )
-		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to its team", GIG_Advanced )
+		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to its team, and farther from enemy", GIG_Advanced )
 		( tLXOptions->tGameInfo.bGroupTeamScore, "GroupTeamScore", false, "Group team score", "Kill count is the same for all worms in team", GIG_Score )
 		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons )
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus", GIG_Bonus, true, 0.0f, 1.0f )
