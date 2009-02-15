@@ -45,7 +45,6 @@ void CHideAndSeek::PrepareGame()
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
-	// TODO: move to network texts
 	std::string teamhint[2];
 	if (networkTexts->sHiderMessage != "<none>")
 		replace(networkTexts->sHiderMessage, "<time>", itoa((int)fGameLength), teamhint[0]);
