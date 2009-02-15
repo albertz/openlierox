@@ -40,15 +40,15 @@ Feature featureArray[] = {
 	Feature("HS_HideTime", 			"Hiding time", 					"Time at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),
 	Feature("HS_AlertTime", 		"Alert time", 					"When player discovered but escapes the time for which it's still visible", 
-			10.0f, 	10.0f, 			Version(), 			GIG_HideAndSeek, 	0.0f, 	100.0f,	true ),
+			10.0f, 	10.0f, 			Version(), 			GIG_HideAndSeek, 	0.1f, 	100.0f,	true ),
 	Feature("HS_HiderVision",	 	"Hider vision", 				"How far hider can see, in pixels (whole screen = 320 px)", 
-			175, 	175, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+			175, 	175, 			Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_HiderVisionThroughWalls", "Hider vision thorough walls", "How far hider can see through walls, in pixels (whole screen = 320 px)", 
-			75, 	75, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+			75, 	75, 			Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVision",		"Seeker vision", 				"How far seeker can see, in pixels (whole screen = 320 px)", 
-			125, 	125, 			Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+			125, 	125, 			Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVisionThroughWalls", "Seeker vision thorough walls", "How far seeker can see through walls, in pixels (whole screen = 320 px)", 
-			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		500, 	true ),
+			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 
 	Feature::Unset()
 };

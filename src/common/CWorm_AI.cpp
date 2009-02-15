@@ -900,7 +900,7 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fLastGoBack = -9999;
 
 	// TODO: what are these good for? And why are they treated as bools?
-	iAiTeams = tLXOptions->tGameInfo.iGameMode == GM_TEAMDEATH;
+	iAiTeams = cClient->getGameLobby()->iGameMode == GM_TEAMDEATH;
 	iAiTag = 0;//tLXOptions->tGameInfo.iGameMode == GM_TAG;
 	iAiVIP = 0;//tLXOptions->tGameInfo.iGameMode == GM_VIP;
 	iAiCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_CTF;

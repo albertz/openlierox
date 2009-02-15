@@ -242,16 +242,16 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 	if(worm1->getTeam() == SEEKER)
 	{
 		if(type & PX_EMPTY)
-			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange];
+			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange];
 		else
-			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls];
+			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls];
 	}
 	else 
 	{
 		if(type & PX_EMPTY)
-			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange];
+			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange];
 		else
-			return dist.GetLength() < (float)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls];
+			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls];
 	}
 }
 

@@ -264,9 +264,14 @@ public:
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
 											ScriptVar_t minval = ScriptVar_t(0), ScriptVar_t maxval = ScriptVar_t(0) )
 			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, &def ); 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_minmax[Name(c)] = std::make_pair( minval, maxval );
+				m_vars[Name(c)] = ScriptVarPtr_t( &v, &def );
+				m_descriptions[Name(c)] = std::make_pair( descr, descrLong );
+				if( v.type == SVT_INT && minval.type == SVT_FLOAT )
+					m_minmax[Name(c)] = std::make_pair( ScriptVar_t(int(minval.f)), ScriptVar_t(int(maxval.f)) );
+				else if( v.type == SVT_FLOAT && minval.type == SVT_INT )
+					m_minmax[Name(c)] = std::make_pair( ScriptVar_t(float(minval.i)), ScriptVar_t(float(maxval.i)) );
+				else
+					m_minmax[Name(c)] = std::make_pair( minval, maxval );
 				m_groups[Name(c)] = group;
 				return *this; 
 			};
