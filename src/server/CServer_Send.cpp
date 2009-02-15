@@ -143,28 +143,30 @@ void CServerNetEngine::SendHideWorm(CWorm *worm, bool show, bool immediate)
 		// Update the position
 		//
 
-		bs.write2Int12(-20, -20);  // Position
-		bs.writeInt(0, 1);  // Angle
-		bs.writeByte(0);  // Flags
-		bs.writeByte(0);
+		if (cServer->getState() == SVS_PLAYING)  {
+			bs.writeByte(S2C_UPDATEWORMS);
+			bs.writeByte(1);  // Worm count
 
-		// Velocity
-		if(cl->getClientVersion() >= OLXBetaVersion(5)) {
-			bs.writeInt16(0);
-			bs.writeInt16(0);
+			bs.writeByte(worm->getID());
+			bs.write2Int12(-20, -20);  // Position
+			bs.writeInt(0, 1);  // Angle
+			bs.writeByte(0);  // Flags
+			bs.writeByte(0);  // Weapon
+
+			// Velocity
+			if(cl->getClientVersion() >= OLXBetaVersion(5)) {
+				bs.writeInt16(0);
+				bs.writeInt16(0);
+			}
+
+			// Send it reliably, this update is necessary
+			SendPacket(&bs);
+
+			//
+			// Kill
+			//
+			SendWormDied(worm);
 		}
-		
-		// Client (>=beta8) sends also current server time
-		if(cl->getClientVersion() >= OLXBetaVersion(8))
-			bs.writeFloat(cClient->serverTime());
-
-		// Send it reliably, this update is necessary
-		SendPacket(&bs);
-
-		//
-		// Kill
-		//
-		SendWormDied(worm);
 
 	// Show the worm
 	} else {
