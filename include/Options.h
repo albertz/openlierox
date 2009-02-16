@@ -273,6 +273,7 @@ public:
 		std::string	sMapFile;
 		std::string	sMapName;	 // Decoded map name from map file
         int     iGameMode;
+        std::string sGameMode;	// Game mode name from server (only for client)
         std::string sModDir;
         std::string sModName;	// Decoded mod name from script.lgs
 		float	fBonusFreq;

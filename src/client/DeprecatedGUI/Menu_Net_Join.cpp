@@ -401,8 +401,12 @@ static void updateDetailsList(CListview* l) {
 		} 
 	}
 
-	const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
-	SETI; si->sText = gamemodes[cClient->getGameLobby()->iGameMode];
+	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
+	SETI; 
+	if(cClient->getGameLobby()->sGameMode == "")
+		si->sText = gamemodes[cClient->getGameLobby()->iGameMode];
+	else
+		si->sText = cClient->getGameLobby()->sGameMode;
 	SETI;
 	if(cClient->getHaveMod()) {
 		si->sText = cClient->getGameLobby()->sModName;

@@ -11,6 +11,7 @@
 #define __CGAMEMODE_H__
 
 #include "CVec.h"
+#include <string>
 
 class CWorm;
 class GameServer;
@@ -38,6 +39,8 @@ public:
 	virtual int  GameTeams() = 0;
 	virtual int  Winner() = 0;
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) = 0;
+	// This is the game mode name as shown in the lobby for clients
+	virtual std::string Name() = 0;
 
 protected:
 	CWorm*      cWorms;

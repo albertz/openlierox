@@ -1806,6 +1806,8 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 	if(client->tGameInfo.fTimeLimit < 0) client->tGameInfo.fTimeLimit = -1;
 
 	ParseFeatureSettings(bs);
+	
+	client->tGameInfo.sGameMode = bs->readString();
 }
 
 

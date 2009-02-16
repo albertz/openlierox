@@ -32,12 +32,13 @@ public:
 	virtual int  GameTeams();
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
+	virtual std::string Name() { return "Death Match"; }
 
 protected:
 	bool	bFirstBlood;
-	int		iKillsInRow[MAX_WORMS];
-	int		iDeathsInRow[MAX_WORMS];
-	int		iWinner;
+	int	iKillsInRow[MAX_WORMS];
+	int	iDeathsInRow[MAX_WORMS];
+	int	iWinner;
 };
 
 #endif

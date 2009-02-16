@@ -37,6 +37,7 @@ void CHideAndSeek::PrepareGame()
 		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
+		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cWorms[i], false);
 		cWorms[i].setLives(0);
@@ -220,7 +221,8 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 		return;
 	bVisible[worm->getID()] = false;
 
-	if(networkTexts->sYouAreHidden != "<none>" && message)
+	// Removed message for seekers because it is confusing since they don't get the "you are visible" one
+	if(networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDER)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())

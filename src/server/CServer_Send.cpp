@@ -620,6 +620,7 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 	CServerNetEngineBeta7::WriteUpdateLobbyGame(bs);
 	bs->writeFloat(tLXOptions->tGameInfo.fTimeLimit);
 	CServerNetEngineBeta9::WriteFeatureSettings(bs);
+	bs->writeString(server->getGameMode()->Name());
 }
 
 

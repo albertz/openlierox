@@ -30,6 +30,7 @@ public:
 	virtual int  GameTeams();
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
+	virtual std::string Name() { return "Hide and Seek"; }
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm);
 	void Hide(CWorm* worm, bool message = true);

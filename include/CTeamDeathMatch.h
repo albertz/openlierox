@@ -30,6 +30,7 @@ public:
 	virtual int  GameTeams();
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
+	virtual std::string Name() { return "Team Death Match"; }
 
 protected:
 	bool bFirstBlood;
