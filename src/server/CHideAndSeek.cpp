@@ -60,9 +60,12 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 	pos = cServer->FindSpot();
 	worm->Spawn(pos);
 	// Worms only spawn visible to their own team
-	for(int i = 0; i < MAX_WORMS; i++)
+	for(int i = 0; i < MAX_WORMS; i++)  {
 		if(cWorms[i].isUsed() && cWorms[i].getTeam() == worm->getTeam())
 			cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
+		else
+			cWorms[i].getClient()->getNetEngine()->SendHideWorm(worm);
+	}
 	return false;
 }
 
