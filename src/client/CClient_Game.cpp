@@ -597,7 +597,7 @@ void CClient::DrawBeam(CWorm *w)
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
 	Uint32 col = MakeColour(Slot->Weapon->Bm_Colour[0], Slot->Weapon->Bm_Colour[1], Slot->Weapon->Bm_Colour[2]);
-	if(col != tLX->clPink) {
+	if(col != tLX->clPink && w->isVisible()) {
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}
 }
@@ -864,8 +864,9 @@ void CClient::LaserSight(CWorm *w)
 		pos = pos + dir*(float)divisions;
 	}
 
-	// Spawn a laser sight entity
-	SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
+	// Spawn a laser sight entity (only if the worm is visible though, else we'd tell the worm position)
+	if (w->isVisible())
+		SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
 }
 
 

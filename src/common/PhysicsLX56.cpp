@@ -304,8 +304,8 @@ public:
 			}
 		}
 
-		// If we're seriously injured (below 15% health) bleed
-		if(worm->getHealth() < 15) {
+		// If we're seriously injured (below 15% health) and visible, bleed
+		if(worm->getHealth() < 15 && worm->isVisible()) {
 			if(tLX->fCurTime - worm->getLastBlood() > 2) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 

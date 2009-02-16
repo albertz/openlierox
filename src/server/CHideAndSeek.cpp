@@ -184,13 +184,15 @@ int CHideAndSeek::Winner()
 
 bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 {
-	// Clients don't recieve dirt updates without getting a full update?
-	/*// No worms, but we don't want the client to see nothing
+	// Clients don't recieve dirt updates without getting a full update
+	// No worms, but we don't want the client to see nothing
 	if(cl->getNumWorms() == 0)
 		return true;
+
 	// Different teams, and invisible so no need I think
-	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !bVisible[worm->getID()])
-		return false;*/
+	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !bVisible[worm->getID()] && !worm->getWormState()->bCarve)
+		return false;
+
 	return true;
 }
 
@@ -214,7 +216,7 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
-		cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, worm->getPos());
+		cWorms[i].getClient()->getNetEngine()->SendHideWorm(worm, true);
 		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
