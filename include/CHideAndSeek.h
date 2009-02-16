@@ -32,7 +32,7 @@ public:
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Hide and Seek"; }
 	// Show or hide a worm to/from the opposing team
-	void Show(CWorm* worm);
+	void Show(CWorm* worm, bool message = true);
 	void Hide(CWorm* worm, bool message = true);
 	// Returns true if worm1 can see worm2
 	bool CanSee(CWorm* worm1, CWorm* worm2);

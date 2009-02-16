@@ -42,12 +42,9 @@ void CHideAndSeek::PrepareGame()
 		Hide(&cWorms[i], false);
 		// Set all the lives to 0
 		cWorms[i].setLives(0);
-		CBytestream bs;
-		bs.writeByte(S2C_SCOREUPDATE);
-		bs.writeInt(cWorms[i].getID(), 1);
-		bs.writeInt16(cWorms[i].getLives());
-		bs.writeInt(cWorms[i].getKills(), 1);
-		cServer->SendGlobalPacket(&bs);
+		for(int j = 0; j < MAX_WORMS; j++)
+			if(i != j && cWorms[j].isUsed())
+				cWorms[j].getClient()->getNetEngine()->SendWormScore(&cWorms[i]);
 	}
 }
 
@@ -106,8 +103,12 @@ void CHideAndSeek::Simulate()
 	// Game time up
 	if(GameTime > fGameLength) {
 		for(int i = 0; i < MAX_WORMS; i++)
-			if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() == SEEKER)
-				cServer->killWorm(i, i, cWorms[i].getLives() + 1);
+			if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT) {
+				if(cWorms[i].getTeam() == SEEKER)
+					cServer->killWorm(i, i, cWorms[i].getLives() + 1);
+				else
+					Show(&cWorms[i], false); // People often want to see where the hiders were
+			}
 		return;
 	}
 	// Hiders have some time free from being caught and seen
@@ -193,14 +194,14 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 	return true;
 }
 
-void CHideAndSeek::Show(CWorm* worm)
+void CHideAndSeek::Show(CWorm* worm, bool message)
 {
 	fLastAlert[worm->getID()] = tLX->fCurTime - fGameStart;
 	if(bVisible[worm->getID()])
 		return;
 	bVisible[worm->getID()] = true;
 
-	if(worm->getTeam() == HIDER)  {
+	if(worm->getTeam() == HIDER && message)  {
 		if (networkTexts->sHiderVisible != "<none>")
 			worm->getClient()->getNetEngine()->SendText(networkTexts->sHiderVisible, TXT_NORMAL);
 	}
@@ -214,7 +215,7 @@ void CHideAndSeek::Show(CWorm* worm)
 		if(!cWorms[i].isUsed() || cWorms[i].getTeam() == worm->getTeam())
 			continue;
 		cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, worm->getPos());
-		if (networkTexts->sVisibleMessage != "<none>")  {
+		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
 			cWorms[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
