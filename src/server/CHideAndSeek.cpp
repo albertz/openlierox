@@ -40,7 +40,14 @@ void CHideAndSeek::PrepareGame()
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cWorms[i], false);
+		// Set all the lives to 0
 		cWorms[i].setLives(0);
+		CBytestream bs;
+		bs.writeByte(S2C_SCOREUPDATE);
+		bs.writeInt(cWorms[i].getID(), 1);
+		bs.writeInt16(cWorms[i].getLives());
+		bs.writeInt(cWorms[i].getKills(), 1);
+		cServer->SendGlobalPacket(&bs);
 	}
 }
 
@@ -64,7 +71,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 	for(int i = 0; i < MAX_WORMS; i++)  {
 		if(cWorms[i].isUsed() && cWorms[i].getTeam() == worm->getTeam())
 			cWorms[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
-		else
+		else if(cWorms[i].isUsed())
 			cWorms[i].getClient()->getNetEngine()->SendHideWorm(worm);
 	}
 	return false;
