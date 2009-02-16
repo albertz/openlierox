@@ -488,8 +488,6 @@ int GameServer::StartGame()
 		SendWeapons();
 	}
 	
-	// Prepare the gamemode
-	cGameMode->PrepareGame();
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed())
 			continue;
@@ -582,6 +580,9 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 					SendEmptyWeaponsOnRespawn( & cWorms[i] );
 		}
+
+		// Prepare the gamemode
+		cGameMode->PrepareGame();
 	}
 
 	if(firstStart)
@@ -600,7 +601,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					cClients[ii].getNetEngine()->SendWormScore( & cWorms[i] );
 		}
 	}
-	
+
 	// perhaps the state is already bad
 	RecheckGame();
 
