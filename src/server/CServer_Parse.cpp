@@ -1512,7 +1512,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	// TODO: check if we should append "levels/" string here, it was like this in old code
 	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
 	bs.writeString(tLXOptions->tGameInfo.sModName);
-	bs.writeByte(tLXOptions->tGameInfo.iGameMode);
+	bs.writeByte(cGameMode->GameType());
 	bs.writeInt16(tLXOptions->tGameInfo.iLives);
 	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
