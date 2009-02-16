@@ -768,18 +768,12 @@ void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, bool show, bool immediate)
 		return;
 	}
 
-	if (cl->getClientVersion().revnum < 3353)  // TODO: Hack for old revisions of pre-beta 9, remove this later!
-		CServerNetEngineBeta8::SendHideWorm(worm, show, immediate);
-
-	// Up to date version
-	else  {
-		CBytestream bs;
-		bs.writeByte(S2C_HIDEWORM);
-		bs.writeByte(worm->getID());
-		bs.writeBool(!show);  // True - hide, false - show
-		bs.writeBool(immediate);  // True - immediate (no animation), false - animation
-		SendPacket(&bs);
-	}
+	CBytestream bs;
+	bs.writeByte(S2C_HIDEWORM);
+	bs.writeByte(worm->getID());
+	bs.writeBool(!show);  // True - hide, false - show
+	bs.writeBool(immediate);  // True - immediate (no animation), false - animation
+	SendPacket(&bs);
 }
 
 ///////////////////
