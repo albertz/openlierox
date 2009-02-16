@@ -2381,34 +2381,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL, NULL);
 
-			// Bonuses
-			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
+			// Separator
+			lvInfo.AddItem("", ++index, tLX->clNormalLabel);
 
-			if(bHaveGameSpeed) {
-				// Loading times
-				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
-				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", NULL, NULL);
-				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
-			}
-			
-			for (std::list<FeatureCompatibleSettingList::Feature>::iterator it = features.list.begin();
-				it != features.list.end(); ++it)  {
-				Uint32 col;
-				switch(it->type) {
-					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
-					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
-					default: col = tLX->clNormalLabel;
-				}
-				lvInfo.AddItem("feature:" + it->name, ++index, col);
-				if(tLX->cFont.GetWidth(it->humanName + ":") + 20 <= first_column_width) {
-					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, it->var.toString(), NULL, NULL);					
-				} else
-					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":      " + it->var.toString(), NULL, NULL);
-			}
-			
 			// Players / kills / lives
 			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
 			if (nState)  {
@@ -2463,6 +2438,37 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
 				}
+			}
+
+			// Separator
+			lvInfo.AddItem("", ++index, tLX->clNormalLabel);
+			
+			// Bonuses
+			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
+
+			if(bHaveGameSpeed) {
+				// Loading times
+				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
+				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
+			}
+			
+			for (std::list<FeatureCompatibleSettingList::Feature>::iterator it = features.list.begin();
+				it != features.list.end(); ++it)  {
+				Uint32 col;
+				switch(it->type) {
+					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
+					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
+					default: col = tLX->clNormalLabel;
+				}
+				lvInfo.AddItem("feature:" + it->name, ++index, col);
+				if(tLX->cFont.GetWidth(it->humanName + ":") + 20 <= first_column_width) {
+					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->var.toString(), NULL, NULL);					
+				} else
+					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":      " + it->var.toString(), NULL, NULL);
 			}
 
 		}
