@@ -1572,6 +1572,9 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	// since Beta9
 	CServerNetEngineBeta9::WriteFeatureSettings(&bs);
 
+	// Game mode name
+	bs.writeString(cGameMode->Name());
+
 	bs.Send(tSocket);
 }
 
