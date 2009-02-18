@@ -600,7 +600,7 @@ public:
 			// TODO: sprintf allocates memory on the heap internally, is it safe to do it here?
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
-			strcpy( Version, GetGameVersionString().c_str() );
+			strcpy( Version, LX_VERSION );
 
 			Arg[Args++] = "drkonqi";
 			//Arg[Args++] = "--display";
@@ -655,7 +655,7 @@ public:
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
 			strcpy( Version, GAMENAME " " );
-			strcat( Version, GetGameVersionString().c_str() );
+			strcat( Version, LX_VERSION );
 
 			Arg[Args++] = "bug-buddy";
 			//Arg[Args++] = "--display";
