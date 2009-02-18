@@ -8,9 +8,9 @@
     -->
     <h1>Level Info Test</h1>
     <?php
-    require "lxutils.php";
+    require "lx_level.php";
     
-    $levelInfo = LXLevelInfo("JukkeDome.lxl");  // Get the level info
+    $levelInfo = LXLevelInfoAdv("JukkeDome.lxl");  // Get the level info
     if ($levelInfo === false)
       echo "Could not get the level info!<br>\n";
     else  {
@@ -35,7 +35,7 @@
     <h1>Original Liero Level Info Test</h1>
     <?php
     
-    $origLevelInfo = LXLevelInfo("fallout2.lev");  // Get the level info
+    $origLevelInfo = LXLevelInfoAdv("fallout2.lev");  // Get the level info
     if ($origLevelInfo === false)
       echo "Could not get the original level info!<br>\n";
     else  {
@@ -59,6 +59,7 @@
     -->
     <h1>Mod Info Test</h1>
     <?php
+    require "lx_mod.php";
     
     $modInfo = LXModInfo(".");  // Get the mod info
     if ($modInfo === false)
@@ -95,6 +96,8 @@
     -->
     <h1>Skin Test</h1>
     <?php  
+    require "lx_skin.php";
+    
     // Create an animation from default.png, with default color
     $animSkin = LXSkinToAnimGIF("default.png");
     if ($animSkin === false) {
@@ -159,6 +162,8 @@
     -->
     <h1>Server List Test</h1>
     <?php
+    require "lx_network.php";
+    
     $masterservers[0] = "http://lieroxtreme.thegaminguniverse.com/server/svr_list.php";
     $masterservers[1] = "http://thelobby.altervista.org/server/svr_list.php";
     $servers = LXGetServerList($masterservers);
@@ -175,6 +180,7 @@
     -->
     <h1>Server Info Test</h1>
     <?php
+    $natTypes = Array("No NAT", "Symmetric NAT", "Restricted NAT");
     $randomServer = $servers[rand(0, count($servers) - 1)];
     $serverInfo = LXServerInfo($randomServer);
     if ($serverInfo === false)
@@ -187,14 +193,27 @@
       echo "<b>State:</b> " . $serverInfo->State . "<br>\n";
       echo "<b>Map name:</b> " . $serverInfo->MapName . "<br>\n";
       echo "<b>Mod name:</b> " . $serverInfo->ModName . "<br>\n";
-      echo "<b>Game Mode:</b> " . $serverInfo->GameMode . "<br>\n";
+      echo "<b>Game mode:</b> " . $serverInfo->GameMode . "<br>\n";
       echo "<b>Lives:</b> " . $serverInfo->Lives . "<br>\n";
       echo "<b>Max kills:</b> " . $serverInfo->MaxKills . "<br>\n";
       echo "<b>Loading time:</b> " . $serverInfo->LoadingTime . " %<br>\n";
       echo "<b>Bonuses:</b> " . ($serverInfo->BonusesOn ? "on" : "off") . "<br>\n";
       echo "<b>Addr:</b> " . $serverInfo->Addr . "<br>\n";
-      echo "<b>NAT type:</b> " . $serverInfo->NatType . "<br>\n";
+      echo "<b>NAT type:</b> " . $natTypes[$serverInfo->NatType] . "<br>\n";
       echo "<b>Version:</b> " . $serverInfo->Version . "<br>\n";
+      echo "<b>Game speed:</b> " . round($serverInfo->GameSpeed * 10) / 10 . "&times;<br>\n";
+      
+      // Advanced features
+      for ($i = 0; $i < count($serverInfo->AdvancedFeatures); $i++)  {
+        $ft = $serverInfo->AdvancedFeatures[$i];
+        
+        if ($ft->ValueType == SVT_BOOL)
+          echo "<b>" . $ft->HumanName . "</b>: " . ($ft->Value ? "Yes" : "No") . "<br>\n";
+        else
+          echo "<b>" . $ft->HumanName . "</b>: " . $ft->Value . "<br>\n";
+      }      
+      
+      // Worms
       echo "<b>Worms:</b><br>\n";
       for ($i = 0; $i < $serverInfo->NumPlayers; $i++)  {
         echo "  <i>" . $serverInfo->Worms[$i]->Name . " </i>(";
@@ -207,6 +226,7 @@
         $ip = $serverInfo->Worms[$i]->IP;
         echo "[" . ($ip ? $ip : "unknown IP")  . "]<br>\n";
       }
+    
     }
     ?> 
     
@@ -242,33 +262,54 @@
     }
     ?> 
 
+    <!--
+    UDP SERVER LIST
+    -->
     <h1>UDP Server List Test</h1>
-	<?php
-	
-	$udpmasterservers[0] = "server.az2000.de:23450";
+  	<?php
+  	
+  	$udpmasterservers[0] = "server.az2000.de:23450";
     $udpservers = LXGetUdpServerList($udpmasterservers);
-	if(!$udpservers)
-	{
-		echo "<b>Could not get UDP server list:</b><br>\n</body></html>";
-		die();
-	}
-	echo "<b>Server list from UDP masterserver:</b><br>\n";
-    for ($i = 0; $i < count($udpservers); $i++)  
-	{
-      echo $udpservers[$i]->Addr . " " . $udpservers[$i]->Name . " " .
-	  		$udpservers[$i]->NumPlayers . "/" . $udpservers[$i]->MaxPlayers . " ";
-	  if ( $udpservers[$i]->State == 0 )
-	  	echo "open";
-	  else if ( $udpservers[$i]->State == 1 )
-	  	echo "loading";
-	  else
-	  	echo "playing";
-      echo "<br>\n";
+  	if(!$udpservers)  {
+  		echo "<b>Could not get UDP server list:</b><br>\n</body></html>";
+  		die();
+  	}
+  	
+  	echo "<b>Server list from UDP masterserver:</b><br>\n";
+  	echo "<table border=\"1\" cellpadding=\"5\">\n";
+    for ($i = 0; $i < count($udpservers); $i++)  {
+      echo "  <tr>\n";
+      echo "    <td>"; 
+      echo $udpservers[$i]->Addr;
+      echo "    </td>\n";
+      echo "    <td>";
+      echo $udpservers[$i]->Name;
+      echo "    </td>\n";
+      echo "    <td>";
+      echo $udpservers[$i]->NumPlayers . "/" . $udpservers[$i]->MaxPlayers . " ";
+      echo "    </td>\n";
+      
+      echo "    <td>";
+      if ($udpservers[$i]->State == 0)
+        echo "Open";
+      else if ($udpservers[$i]->State == 1)
+        echo "Loading";
+      else
+        echo "Playing";
+      echo "    </td>\n";
+      echo "  </tr>\n";
     }
-	?>
+    
+    echo "</table>\n";
+  	?>
+  	
+  	
+    <!--
+    UDP SERVER INFO
+    -->  	
     <h1>UDP Server Info Test</h1>
-	<?php
-	$randomServer = $udpservers[rand(0, count($udpservers) - 1)]->Addr;
+  	<?php
+  	$randomServer = $udpservers[rand(0, count($udpservers) - 1)]->Addr;
     $serverInfo = LXUdpServerInfo($randomServer, $udpmasterservers[0]);
     if ($serverInfo === false)
       echo "Could not get the UDP server info!<br>\n";
@@ -301,8 +342,7 @@
         echo "[" . ($ip ? $ip : "unknown IP")  . "]<br>\n";
       }
     }
-	
-	?>
+  	?>
 	   
   </body>
 </html>

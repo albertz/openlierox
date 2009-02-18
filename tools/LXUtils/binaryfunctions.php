@@ -3,6 +3,9 @@
 // Code released under the LPGL license
 // Created 20/11/2007 by Karel Petranek
 
+// This file contains helper functions for binary data conversion,
+// binary data reading, NULL terminated string reading and file skipping 
+
 ////////////////////////////
 // Converts binary chunk to 32 bit Little Endian integer
 function BinToInt32LE($bin)
