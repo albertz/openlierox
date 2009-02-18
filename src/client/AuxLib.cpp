@@ -371,7 +371,7 @@ setvideomode:
 		return false;
 	}
 
-	SDL_WM_SetCaption(GAMENAME " " LX_VERSION,NULL);
+	SDL_WM_SetCaption((std::string(GAMENAME) + " " + GetGameVersionString()).c_str(),NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
 #ifdef WIN32

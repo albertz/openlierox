@@ -97,7 +97,7 @@ bool hasFileRevision(const std::string& file, int revision)
 
 ////////////////////
 // Saves the file
-void saveFile(std::string& data, const std::string& file)
+void saveFile(const std::string& data, const std::string& file)
 {
 	std::ofstream fp(file.c_str());
 	if (!fp.is_open())  {

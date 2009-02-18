@@ -11,6 +11,7 @@ for h in *.h DeprecatedGUI/*.h ; do
 echo "#include \"$h\""; done | \
 grep -v "CWorld.h" | \
 grep -v "UCString.h" | \
+grep -v "_generated.h" | \
 grep -v "win32memleakdebug.h" >> \
 PrecompiledHeader.hpp
 echo "#endif // !defined(__cplusplus)" >> PrecompiledHeader.hpp

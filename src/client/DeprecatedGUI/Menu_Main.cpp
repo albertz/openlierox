@@ -234,7 +234,7 @@ void Menu_MainFrame(void)
 
 	// Credits
 
-	static const std::string credits1 = "  " GAMENAME " v" LX_VERSION;
+	static const std::string credits1 = std::string("  ") + (GAMENAME " v") + GetGameVersionString();
 
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"

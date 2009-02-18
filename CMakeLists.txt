@@ -67,7 +67,7 @@ MESSAGE( "PYTHON = ${PYTHON}")
 PROJECT(openlierox)
 
 # main includes
-INCLUDE_DIRECTORIES(include libs/pstreams)
+INCLUDE_DIRECTORIES(sandbox/generated include libs/pstreams)
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
@@ -124,7 +124,9 @@ ENDIF(DEBUG)
 EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 MESSAGE( "OLX_VERSION = ${OLXVER}" )
-ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"")
+#ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"") # This will trigger whole project rebuild
+# Escaping backslashes overkill, yay.
+EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > sandbox/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
 IF(X11)
 	ADD_DEFINITIONS("-DX11")
 ENDIF(X11)

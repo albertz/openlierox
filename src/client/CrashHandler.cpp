@@ -245,7 +245,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	// Version info
 	char version[64];
 	strcpy(version, "OpenLieroX/");
-	strncat(version, LX_VERSION, sizeof(version));
+	strncat(version, GetGameVersion().c_str(), sizeof(version));
 	pExtraInfo[0].Type = LastReservedStream + 1;
 	pExtraInfo[0].BufferSize = sizeof(version);
 	pExtraInfo[0].Buffer = (void *)&version[0];
@@ -595,11 +595,12 @@ public:
 			int Args = 0;
 			cchar Arg[32];
 			memset(Arg, 0, sizeof(Arg));
-			char SigName[16], PidName[16];
+			char SigName[16], PidName[16], Version[32];
 
 			// TODO: sprintf allocates memory on the heap internally, is it safe to do it here?
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
+			strcpy( Version, GetGameVersionString().c_str() );
 
 			Arg[Args++] = "drkonqi";
 			//Arg[Args++] = "--display";
@@ -609,7 +610,7 @@ public:
 			Arg[Args++] = "--programname";
 			Arg[Args++] = GAMENAME;
 			Arg[Args++] = "--appversion";
-			Arg[Args++] = LX_VERSION;
+			Arg[Args++] = Version;
 			Arg[Args++] = "--apppath";
 			Arg[Args++] = GetAppPath(); // should be save to call
 			Arg[Args++] = "--signal";
@@ -649,16 +650,18 @@ public:
 			int Args = 0;
 			cchar Arg[32];
 			memset(Arg, 0, sizeof(Arg));
-			char SigName[16], PidName[16];
+			char SigName[16], PidName[16], Version[40];
 
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
+			strcpy( Version, GAMENAME " " );
+			strcat( Version, GetGameVersionString().c_str() );
 
 			Arg[Args++] = "bug-buddy";
 			//Arg[Args++] = "--display";
 			//Arg[Args++] = XDisplayString(o.XDisplay());
 			Arg[Args++] = "--appname";
-			Arg[Args++] = GAMENAME " " LX_VERSION;
+			Arg[Args++] = Version;
 			Arg[Args++] = "--pid";
 			Arg[Args++] = PidName;
 			Arg[Args++] = "--name";

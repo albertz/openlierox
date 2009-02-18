@@ -467,7 +467,7 @@ void IRCClient::sendUserAuth()
 	std::string nick = m_myNick;
 	if (m_nickUniqueNumber >= 0)
 		nick += itoa(m_nickUniqueNumber);
-	WriteSocket(m_chatSocket, "USER " + nick + " ? ? :" + GetGameVersion().asString() + "\r\n");
+	WriteSocket(m_chatSocket, "USER " + nick + " ? ? :" + GetFullGameName() + "\r\n");
 	m_authorizedState = AUTH_USER_SENT;
 }
 

@@ -12,12 +12,15 @@
 #include "Debug.h"
 #include "AuxLib.h"
 
-
+#include "Version_generated.h"	// Get redefined LX_VERSION
 
 std::string GetFullGameName() {
 	return GAMENAME "/" LX_VERSION;
 }
 
+std::string GetGameVersionString() {
+	return LX_VERSION;
+}
 
 inline void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {
 #ifdef DEBUG

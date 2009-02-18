@@ -21,6 +21,7 @@
 
 
 std::string GetFullGameName();
+std::string GetGameVersionString(); // Returns version with revision number, use this function instead of LX_VERSION
 
 
 class Version { public:

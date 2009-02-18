@@ -570,7 +570,7 @@ void DisableWidget( const std::string & param, CWidget * source )
 	w->setEnabled(false);
 };
 
-std::string lx_version_string = LX_VERSION;
+std::string lx_version_string = GetGameVersionString();
 
 static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" )
