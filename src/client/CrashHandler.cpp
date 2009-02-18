@@ -245,7 +245,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	// Version info
 	char version[64];
 	strcpy(version, "OpenLieroX/");
-	strncat(version, GetGameVersion().c_str(), sizeof(version));
+	strncat(version, LX_VERSION, sizeof(version));
 	pExtraInfo[0].Type = LastReservedStream + 1;
 	pExtraInfo[0].BufferSize = sizeof(version);
 	pExtraInfo[0].Buffer = (void *)&version[0];
