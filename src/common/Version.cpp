@@ -22,6 +22,7 @@
 #define		GAMENAME			"OpenLieroX"
 
 
+#ifndef __RC  // The above defines are used in resurce.rc
 
 const char* GetFullGameName() {
 	return GAMENAME "/" LX_VERSION;
@@ -188,3 +189,5 @@ bool operator==(const Version& ver1, const Version& ver2) {
 		ver1.releasetype == ver2.releasetype &&
 		ver1.subsubnum == ver2.subsubnum;
 }
+
+#endif  // __RC

@@ -110,7 +110,7 @@ void SystemError(const std::string& text)
 
 #ifdef WIN32
 	if (text.size() != 0)
-		MessageBox(NULL,text.c_str(), GAMENAME,MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(NULL,text.c_str(), GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 #endif
 
 
