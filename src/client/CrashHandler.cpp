@@ -507,6 +507,8 @@ public:
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext.gregs[REG_EIP] ;		
 #	endif
+#else
+#	warning mcontext is not defined for this arch, thus a dumped backtrace could be crippled
 #endif
 		
 		/* potentially correct for other archs:
@@ -564,9 +566,7 @@ public:
 #endif
 			return;
         }
-		// I've found why we're making forkbomb - we should ignore all following signals, 
-		// 'cause if that's segfault the problem will most probably repeat on each frame
-		// signal(Sig, SimpleSignalHandler); // reset handler // Do not do that!
+		setSignalHandlers(); // reset handler
 		printf("resuming ...\n");
 		fflush(stdout);
 		
