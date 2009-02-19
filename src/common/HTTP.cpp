@@ -840,7 +840,7 @@ bool CHttp::SendRequest()
 	if (sProxyPasswd.size() != 0 || sProxyUser.size() != 0)
 		request += "Proxy-Authorization: " + GetBasicAuthentication(sProxyUser, sProxyPasswd) + "\r\n";
 	request += "Host: " + sHost + "\r\n";
-	request += "User-Agent: " + GetFullGameName() + "\r\n";
+	request += "User-Agent: "; request += GetFullGameName(); request += "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
 }
@@ -859,7 +859,7 @@ std::string CHttp::BuildPOSTHeader()
 	if( sProxyPasswd.size() != 0 || sProxyUser.size() != 0 )	// Don't know their order, guess Proxy-Authorization should be first header
 		header += "Proxy-Authorization: " + GetBasicAuthentication(sProxyUser, sProxyPasswd) + "\r\n";
 	header += "Host: " + sHost + "\r\n";
-	header += "User-Agent: " + GetFullGameName() + "\r\n";
+	header += "User-Agent: "; header += GetFullGameName(); header += "\r\n";
 	header += "Content-Length: " + itoa(sDataToSend.size()) + "\r\n";
 	header += "Content-Type: multipart/form-data, boundary=" + std::string(HTTP_POST_BOUNDARY) + "\r\n";
 	header += "Connection: close\r\n\r\n";  // We currently don't support persistent connections

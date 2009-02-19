@@ -163,7 +163,7 @@ static bool videoModeReady = true;
 // Main entry point
 int main(int argc, char *argv[])
 {
-	hints << GAMENAME << " " << GetGameVersionString() << " is starting ..." << endl;
+	hints << GetFullGameName() << " is starting ..." << endl;
 #ifdef DEBUG
 	hints << "This is a DEBUG build." << endl;
 #endif

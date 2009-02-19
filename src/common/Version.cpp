@@ -13,21 +13,22 @@
 #include "AuxLib.h"
 
 
-const char * LX_VERSION_OLD = LX_VERSION;
-#undef LX_VERSION
+#include "Version_generated.h"
 
-#include "Version_generated.h"	// Get redefined LX_VERSION
-
-#ifndef LX_VERSION
-#define LX_VERSION LX_VERSION_OLD
+#ifndef		LX_VERSION
+#	define		LX_VERSION		"0.57_beta9"
 #endif
 
-std::string GetFullGameName() {
-	return std::string(GAMENAME) + "/" + LX_VERSION;
+#define		GAMENAME			"OpenLieroX"
+
+
+
+const char* GetFullGameName() {
+	return GAMENAME "/" LX_VERSION;
 }
 
-std::string GetGameVersionString() {
-	return LX_VERSION;
+const char* GetGameName() {
+	return GAMENAME;
 }
 
 inline void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {

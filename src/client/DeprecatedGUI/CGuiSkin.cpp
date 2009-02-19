@@ -446,7 +446,7 @@ void Menu_CGuiSkinFrame(void)
 		Menu_CGuiSkinShutdown();
 		Menu_MainInitialize();
 		return;
-	};
+	}
 	MainLayout->Draw(tMenu->bmpBuffer.get());
 	DrawCursor(tMenu->bmpBuffer.get());
 	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
@@ -531,18 +531,18 @@ void SkinCombobox_Change( const std::string & param, CWidget * source )
 	else	// Go from skinned menu to non-skinned menu or load another skin - handled in Menu_MainInitialize()
 	{
 		CGuiSkinnedLayout::ExitDialog( "", source );
-	};
+	}
 	sSkinCombobox_OldSkinPath = tLXOptions->sSkinPath;
-};
+}
 
 void ExitApplication( const std::string & param, CWidget * source )
 {
-	if( Menu_MessageBox(GAMENAME,"Quit OpenLieroX?", LMB_YESNO) == MBR_YES )
+	if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES )
 	{
 		tMenu->bMenuRunning = false;
 		Menu_MainShutdown();
-	};
-};
+	}
+}
 
 void EnableWidget( const std::string & param, CWidget * source )
 {
@@ -555,7 +555,7 @@ void EnableWidget( const std::string & param, CWidget * source )
 	if( !w )
 		return;
 	w->setEnabled(true);
-};
+}
 
 void DisableWidget( const std::string & param, CWidget * source )
 {
@@ -568,9 +568,9 @@ void DisableWidget( const std::string & param, CWidget * source )
 	if( !w )
 		return;
 	w->setEnabled(false);
-};
+}
 
-std::string lx_version_string = GetGameVersionString();
+std::string lx_version_string = GetFullGameName();
 
 static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" )
@@ -582,7 +582,7 @@ static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & DisableWidget, "DisableWidget" )
 	;
 
-}; // namespace DeprecatedGUI
+} // namespace DeprecatedGUI
 
 // Register here some widgets that don't have their own .CPP files
 // TODO: create different files for all of them

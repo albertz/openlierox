@@ -41,7 +41,6 @@ HWND		GetWindowHandle();
 void        FlipScreen();
 void		CapFPS();
 
-std::string	GetGameName();
 char*		GetAppPath();
 
 std::string GetConfigFile();

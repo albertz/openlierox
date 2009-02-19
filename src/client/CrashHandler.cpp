@@ -244,8 +244,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 	// Version info
 	char version[64];
-	strcpy(version, "OpenLieroX/");
-	strncat(version, LX_VERSION, sizeof(version));
+	strcpy(version, GetFullGameName());
 	pExtraInfo[0].Type = LastReservedStream + 1;
 	pExtraInfo[0].BufferSize = sizeof(version);
 	pExtraInfo[0].Buffer = (void *)&version[0];
@@ -600,15 +599,15 @@ public:
 			// TODO: sprintf allocates memory on the heap internally, is it safe to do it here?
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
-			strcpy( Version, LX_VERSION );
+			strcpy( Version, GetFullGameName() );
 
 			Arg[Args++] = "drkonqi";
 			//Arg[Args++] = "--display";
 			//Arg[Args++] = XDisplayString(o.XDisplay());
 			Arg[Args++] = "--appname";
-			Arg[Args++] = GAMENAME;
+			Arg[Args++] = GetFullGameName();
 			Arg[Args++] = "--programname";
-			Arg[Args++] = GAMENAME;
+			Arg[Args++] = GetFullGameName();
 			Arg[Args++] = "--appversion";
 			Arg[Args++] = Version;
 			Arg[Args++] = "--apppath";
@@ -654,8 +653,7 @@ public:
 
 			sprintf(SigName, "%i", Sig);
 			sprintf(PidName, "%i", MyPid);
-			strcpy( Version, GAMENAME " " );
-			strcat( Version, LX_VERSION );
+			strcpy( Version, GetFullGameName() );
 
 			Arg[Args++] = "bug-buddy";
 			//Arg[Args++] = "--display";

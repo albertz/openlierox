@@ -52,7 +52,8 @@ void SetError(const std::string& text)
 		ErrorFile = OpenGameFile("Error.txt","wt");
 		if(ErrorFile == NULL)
 			return;
-		fprintf(ErrorFile,GAMENAME " error file\n----------------------\n");
+		fprintf(ErrorFile, "%s", GetFullGameName());
+		fprintf(ErrorFile, " error file\n----------------------\n");
 	}
 
 	fprintf(ErrorFile,"%s\n", text.c_str());

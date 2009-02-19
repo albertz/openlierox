@@ -13,15 +13,8 @@
 #include <string>
 #include "StringUtils.h" // for itoa
 
-#ifndef		LX_VERSION
-#	define		LX_VERSION		"0.57_beta9"
-#endif
-
-#define		GAMENAME			"OpenLieroX"
-
-
-std::string GetFullGameName();
-std::string GetGameVersionString(); // Returns version with revision number, use this function instead of LX_VERSION
+const char* GetFullGameName();
+const char* GetGameName();
 
 
 class Version { public:
