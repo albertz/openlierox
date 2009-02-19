@@ -14,9 +14,9 @@
 require_once "HttpClient.class.php";
 
 // Nat types
-define("NAT_NONE", 0); 
-define("NAT_SYMMETRIC", 1);
-define("NAT_RESTRICTED", 2);
+define("NAT_NONE", "No NAT / public IP"); 
+define("NAT_SYMMETRIC", "Symmetric NAT");
+define("NAT_RESTRICTED", "Port restricted NAT");
 
 // Variable types for advanced features
 define("SVT_BOOL", 0);
