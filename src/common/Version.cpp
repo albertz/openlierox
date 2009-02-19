@@ -12,10 +12,18 @@
 #include "Debug.h"
 #include "AuxLib.h"
 
+
+const char * LX_VERSION_OLD = LX_VERSION;
+#undef LX_VERSION
+
 #include "Version_generated.h"	// Get redefined LX_VERSION
 
+#ifndef LX_VERSION
+#define LX_VERSION LX_VERSION_OLD
+#endif
+
 std::string GetFullGameName() {
-	return GAMENAME "/" LX_VERSION;
+	return std::string(GAMENAME) + "/" + LX_VERSION;
 }
 
 std::string GetGameVersionString() {
