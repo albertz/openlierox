@@ -2234,8 +2234,11 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		if( damage > SHRT_MAX )
 			damage -= USHRT_MAX + 1;
 		if( client->cRemoteWorms[id].getDamage() != damage )
-			printf("Warning: CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm %s is %i server sent us %i\n", 
-					client->cRemoteWorms[id].getName().c_str(), client->cRemoteWorms[id].getDamage(), damage );
+		{
+			// Occurs pretty often, don't spam console
+			//printf("Warning: CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm %s is %i server sent us %i\n", 
+			//		client->cRemoteWorms[id].getName().c_str(), client->cRemoteWorms[id].getDamage(), damage );
+		}
 		client->cRemoteWorms[id].setDamage( damage );
 
 		

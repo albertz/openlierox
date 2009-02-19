@@ -930,7 +930,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 
     // If this worm is dead, ignore the shot
     if(!w->getAlive()) {
-    	printf("WARNING: dead worm was shooting\n");
+    	//printf("WARNING: dead worm was shooting\n"); // Occurs pretty often, don't spam console
     	return;
     }
 
