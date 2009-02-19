@@ -1,7 +1,7 @@
 //Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
-#define __RC
+#define ONLY_MACRODEF
 #include "../../src/common/Version.cpp"
 
 /////////////////////////////////////////////////////////////////////////////
