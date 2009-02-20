@@ -48,11 +48,12 @@ struct KeyState_t
 	
 	KeyState_t();	// All keys are false initially
 	
-	bool operator == ( const KeyState_t & k );
-	KeyState_t operator & ( const KeyState_t & k );	// and
-	KeyState_t operator | ( const KeyState_t & k );	// or
-	KeyState_t operator ^ ( const KeyState_t & k );	// xor
-	KeyState_t operator ~ ();	// not
+	bool operator == ( const KeyState_t & k ) const;
+	KeyState_t operator & ( const KeyState_t & k ) const;	// and
+	KeyState_t operator | ( const KeyState_t & k ) const;	// or
+	KeyState_t operator ^ ( const KeyState_t & k ) const;	// xor
+	KeyState_t operator ~ () const;	// not
+	int getFirstPressedKey() const; // Returns idx of first pressed key, or -1
 };
 
 // OLX should use only these funcs instead of any random() funcs it uses now for physics calculation - they already seeded.
@@ -70,7 +71,8 @@ void EndRound();
 // Returns true if data was re-calculated.
 bool ReceiveNetPacket( CBytestream * bs, int player );
 
-// Calculates and draws the mod, returns true if there's something to send.
+// Calculates and draws the mod, returns true if there's something to send -
+// should be called in a cycle, may send several packets in one frame, we should send them all as one packet over net
 // Keys are keys for local player
 bool Frame( unsigned long localTime, KeyState_t keys, CBytestream * bs );
 
@@ -86,36 +88,36 @@ unsigned EmptyPacketTime();
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
 unsigned GetChecksum( unsigned long * time = NULL );
 
-// ------ Internal functions ------
+// ------ Internal functions - do not use them from OLX ------
 
 // SaveState() should save all current game physics data,
 // such as positions and velocities of worms and projectiles, and pattern of destroyed dirt, and all in-game timers.
 // RestoreState() should do the opposite.
-// Note that you should not call NetSyncedRandom_Save() and NetSyncedRandom_Restore() from mod - that's done automatically.
 // These functions will be called quite often, so please optimize your dirt-save and restore routines, 
 // so they won't use plain memcpy() on 1Mb memory array, but something like saving small parts that are changed.
 void SaveState();
 void RestoreState();
 
 // GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
-// The exception for this is when OLX going to call Draw() - it will call Physics() with fastCalculation flag set to true
-// and arbitrary gameTime, and then will call Draw() - we are allowed to skip some collision checks and to revert to faster
-// routines in that case, as long as the game image on the screen will look smooth - 
-// OLX will discard that results anyway after Draw().
-// Keys is the state of keys (up/down and changed state) for given player.
+// The exception for this is when we are called from CalculateCurrentState() - 
+// it will call Physics() with fastCalculation flag set to true and arbitrary gameTime -
+// we are allowed to skip some collision checks and to revert to faster routines in that case, 
+// as long as the game image on the screen will look smooth - we will discard that results anyway.
+// Keys is the state of keys for given player.
 // If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
 unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum );
 
-void Draw();
+void ReCalculateSavedState();
+
+void CalculateCurrentState( unsigned long localTime );
 
 
 void NetSyncedRandom_Seed(unsigned long s);
 void Random_Seed(unsigned long s);
 
+// These functions called from SaveState() and RestoreState(), and should not be called directly
 void NetSyncedRandom_Save();
 void NetSyncedRandom_Restore();
-
-
 
 
 // ----- Inline NetSyncedRandom implementation ------

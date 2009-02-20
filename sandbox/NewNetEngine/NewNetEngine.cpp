@@ -1,18 +1,51 @@
 
 #include <string>
+#include <limits.h>
 
 #include "NewNetEngine.h"
 #include "MathLib.h"
 #include "Sounds.h"
 #include "FindFile.h"
 #include "CBytestream.h"
+#include "CClient.h"
 
 namespace NewNet
 {
 
+// -------- The stuff that interacts with OLX: save/restore game state and calculate physics ---------
+
+CWorm SavedWormState[MAX_WORMS];
+void SaveState()
+{
+	NetSyncedRandom_Save();
+	cClient->getMap()->SaveToMemory();
+
+	/*
+	for( int i = 0; i < MAX_WORMS; i++ )
+		cClient->getRemoteWorms()[i].SaveWormState( &SavedWormState[i] );
+	*/
+};
+
+void RestoreState()
+{
+	NetSyncedRandom_Restore();
+	cClient->getMap()->RestoreFromMemory();
+
+	/*
+	for( int i = 0; i < MAX_WORMS; i++ )
+		cClient->getRemoteWorms()[i].RestoreWormState( &SavedWormState[i] );
+	*/
+};
+
+unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum )
+{
+	return 0;
+};
+
+// --------- Net sending-receiving functions and internal stuff independent of OLX ---------
 enum 
 { 
-	TICK_TIME_DIV = 10	// One frame each 10 milliseconds
+	TICK_TIME_DIV = 10	// One frame each 10 milliseconds - should be equal for all clients and should be never changed
 };
 
 bool QuickDirtyCalculation;
@@ -20,10 +53,10 @@ bool ReCalculationNeeded;
 unsigned ReCalculationTimeMs;
 // Constants
 unsigned PingTimeMs = 300;	// Send at least one packet in 10 ms - 10 packets per second, huge net load
-unsigned DrawDelayMs = 100;	// Delay the drawing until all packets are received, otherwise it's very jumpy
+// TODO: calculate DrawDelayMs from other client pings
+unsigned DrawDelayMs = 100;	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
 unsigned ReCalculationMinimumTimeMs = 100;	// Re-calculate not faster than 10 times per second - eats CPU
 const unsigned CalculateChecksumTime = 5000; // Calculate checksum once per 5 seconds - should be equal for all clients
-// TODO: calculate DrawDelay from other client pings
 
 int NumPlayers = -1;
 int LocalPlayer = -1;
@@ -86,9 +119,10 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 
 void EndRound()
 {
+	// TODO: do something here...
 };
 
-void ReCalculate()
+void ReCalculateSavedState()
 {
 	if( CurrentTimeMs - ReCalculationTimeMs < ReCalculationMinimumTimeMs || ! ReCalculationNeeded )
 		return; // Limit recalculation - it is CPU-intensive
@@ -110,19 +144,16 @@ void ReCalculate()
 
 	QuickDirtyCalculation = false;
 	if( CurrentTimeMs != BackupTime * TICK_TIME_DIV )	// Last recalc time
-	{
-		NetSyncedRandom_Restore();
-		(*list)[ActiveMod].restore();
-	};
+		RestoreState();
 
-	std::map< int, Event_t > emptyEvent;
+	std::map< int, KeyState_t > emptyEvent;
 	while( BackupTime /* + DrawDelayMs / TICK_TIME_DIV */ + 1 < timeMin )
 	{
 		BackupTime++;
 		CurrentTimeMs = BackupTime * TICK_TIME_DIV;
 		bool calculateChecksum = CurrentTimeMs % CalculateChecksumTime == 0;
-		unsigned checksum = (*list)[ActiveMod].calc(
-			CurrentTimeMs * TICK_TIME_DIV / TickTime,
+		unsigned checksum = CalculatePhysics(
+			CurrentTimeMs,
 			Events.find(BackupTime) != Events.end() ? Events[BackupTime] : emptyEvent,
 			false, calculateChecksum );	// Do the true thorough calculations
 		if( calculateChecksum )
@@ -133,8 +164,7 @@ void ReCalculate()
 		};
 	};
 
-	NetSyncedRandom_Save();
-	(*list)[ActiveMod].save();
+	SaveState();
 	CurrentTimeMs = BackupTime * TICK_TIME_DIV;
 
 	// Clean up old events - do not clean them if we're the server, clients may ask for them.
@@ -147,77 +177,30 @@ void ReCalculate()
 };
 
 // Should be called immediately after SendNetPacket() with the same time value
-void Draw( unsigned long localTime, bool showScoreboard )
+void CalculateCurrentState( unsigned long localTime )
 {
 	localTime -= OlxTimeDiffMs;
 
-	ReCalculate();
+	ReCalculateSavedState();
 
 	//printf("Draw() time %lu oldtime %lu\n", localTime / TICK_TIME , CurrentTimeMs / TICK_TIME );
 
-	std::map< int, Event_t > emptyEvent;
+	std::map< int, KeyState_t > emptyEvent;
 
 	while( CurrentTimeMs < localTime /*- DrawDelayMs*/ )
 	{
 		CurrentTimeMs += TICK_TIME_DIV;
-		(*list)[ActiveMod].calc( CurrentTimeMs * TICK_TIME_DIV / TickTime ,
+		CalculatePhysics( CurrentTimeMs,
 			Events.find(CurrentTimeMs / TICK_TIME_DIV) != Events.end() ?
 			Events[CurrentTimeMs / TICK_TIME_DIV] : emptyEvent,
 			true, false );	// Do fast inexact calculations
 	};
-
-	(*list)[ActiveMod].draw( showScoreboard );
-
 };
 
 int NetPacketSize()
 {
 	// Change here if you'll modify Receive()/Send()
-	return 4+1;	// First 4 bytes is time in 10-ms chunks, second 2 bytes - keypress mask
-};
-
-void WriteKeys( const KeyState_t & keys, CBytestream * bs )
-{
-	// TODO: send not key bitmask but changed key index - will limit traffic to 1 byte
-	bs->ResetBitPos();
-	bs->writeBit( keys.up );
-	bs->writeBit( keys.down );
-	bs->writeBit( keys.left );
-	bs->writeBit( keys.right );
-	bs->writeBit( keys.shoot );
-	bs->writeBit( keys.jump );
-	bs->writeBit( keys.selweap );
-	bs->writeBit( keys.rope );
-	//bs->writeBit( keys.strafe );	// TODO: adds second byte with just 1 bit used
-	bs->ResetBitPos();
-};
-
-void ReadKeys( KeyState_t * keys, CBytestream * bs )
-{
-	bs->ResetBitPos();
-	keys->up = bs->readBit();
-	keys->down = bs->readBit();
-	keys->left = bs->readBit();
-	keys->right = bs->readBit();
-	keys->shoot = bs->readBit();
-	keys->jump = bs->readBit();
-	keys->selweap = bs->readBit();
-	keys->rope = bs->readBit();
-	//keys->strafe = bs->readBit();
-	bs->ResetBitPos();
-};
-
-void CompareKeysChanged( const KeyState_t & keys1, const KeyState_t & keys2, KeyState_t * keysChanged )
-{
-	keysChanged->up = keys1.up != keys2.up;
-	keysChanged->down = keys1.down != keys2.down;
-	keysChanged->left = keys1.left != keys2.left;
-	keysChanged->right = keys1.right != keys2.right;
-	keysChanged->shoot = keys1.shoot != keys2.shoot;
-	keysChanged->jump = keys1.jump != keys2.jump;
-	keysChanged->selweap = keys1.selweap != keys2.selweap;
-	keysChanged->rope = keys1.rope != keys2.rope;
-	keysChanged->strafe = keys1.strafe != keys2.strafe;
+	return 4+1;	// First 4 bytes is time in 10-ms chunks, second byte - keypress idx
 };
 
 void AddEmptyPacket( unsigned long localTime, CBytestream * bs )
@@ -225,8 +208,7 @@ void AddEmptyPacket( unsigned long localTime, CBytestream * bs )
 	localTime -= OlxTimeDiffMs;
 	localTime /= TICK_TIME_DIV;
 	bs->writeInt( localTime, 4 );
-	KeyState_t keys;	// All keys are false by default
-	WriteKeys( keys, bs );
+	bs->writeByte( UCHAR_MAX );
 };
 
 unsigned EmptyPacketTime()
@@ -239,51 +221,22 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 {
 	player = net2playerID[player];
 	unsigned long timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
-	/*
-	// TODO: better time calculations?
-	unsigned long fullTime = ( CurrentTimeMs / TICK_TIME / 0x10000 ) * 0x10000 + timeDiff;
-	if( fullTime > CurrentTimeMs / TICK_TIME + 0x10000/2 )
-		fullTime -= 0x10000;
-	*/
+
 	unsigned long fullTime = timeDiff;
 
-	KeyState_t keys;
-	ReadKeys( &keys, bs );
-
-	KeyState_t changedKeys = OldKeys[ player ].keys;
-	CompareKeysChanged( keys, changedKeys, &changedKeys );
+	KeyState_t keys = OldKeys[ player ];
+	int keyIdx = bs->readByte();
+	if( keyIdx != UCHAR_MAX )
+		keys.keys[keyIdx] = ! keys.keys[keyIdx];
 
 	OldKeys[ player ] = keys;
-
-	Events[ fullTime ] [ player ] = Event_t( keys, changedKeys );
+	Events[ fullTime ] [ player ] = keys;
 	LastPacketTime[ player ] = fullTime;
 
 	ReCalculationNeeded = true;
-	ReCalculate();
-
-	// debug - remove it
-	/*
-	// If sums here are different that means the CChannel missed some packets
-	unsigned checksum = 0;
-	unsigned checksumTime = 1;
-	//printf("====================== Events\n");
-	for( EventList_t::iterator it = Events.begin(); it != Events.lower_bound(BackupTime); it++ )
-	{
-		//printf("Time %lu", it->first );
-		checksum += it->first * 10000;
-		for( std::map< int, Event_t > :: iterator it1 = it->second.begin(); it1 != it->second.end(); it1++ )
-			checksum += (it1->first*0x120+1) * (it1->second.keys.up*1 + it1->second.keys.down*2 +
-				it1->second.keys.left*4 + it1->second.keys.right*8 + it1->second.keys.shoot*16 +
-				it1->second.keys.selweap*32 + it1->second.keys.jump*64 + it1->second.keys.rope*128 );
-			//printf(" player %i keys %i%i%i%i%i%i%i%i", it1->first, it1->second.keys.up, it1->second.keys.down,
-			//	it1->second.keys.left, it1->second.keys.right, it1->second.keys.shoot, it1->second.keys.selweap, it1->second.keys.jump, it1->second.keys.rope );
-		if( it->first / 500 > checksumTime )
-		{
-			printf("Events Keys checksum for time %lu = 0x%X\n", it->first, checksum );
-			checksumTime = 1 + it->first / 500;
-		};
-	};
-	*/
+	// We don't want to calculate with just 1 of 2 keys pressed - it will desync
+	// Net engine will send them in single packet anyway, so they are coupled together
+	//ReCalculateSavedState(); // Called from Frame() anyway, 
 
 	return true;
 };
@@ -296,24 +249,24 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 	localTime -= OlxTimeDiffMs;
 	localTime /= TICK_TIME_DIV;
 
-	// Ignore too frequent keypresses, or we'll get net desync
-	// The keypress will be processed on the next frame if user holds the key long enough (e.x. for 20 ms)
-	if( localTime == CurrentTimeMs / TICK_TIME_DIV )
+	if( keys == OldKeys[ LocalPlayer ] &&
+		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME_DIV ) // Do not flood the net with non-changed keys
 		return false;
 
-	if( keys == OldKeys[ LocalPlayer ].keys &&
-		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME_DIV ) // Do not flood the net
-		return false;
+	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
-	KeyState_t changedKeys = OldKeys[ LocalPlayer ].keys;
-	CompareKeysChanged( keys, changedKeys, &changedKeys );
-
-	Events[ localTime ] [ LocalPlayer ] = Event_t( keys, changedKeys );
 	//printf("SendNetPacket() put keys in time %lu\n", localTime);
 	bs->writeInt( localTime, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
-	WriteKeys( keys, bs );
-
-	OldKeys[ LocalPlayer ] = keys;
+	int changedKeyIdx = changedKeys.getFirstPressedKey();
+	if( changedKeyIdx == -1 )
+		bs->writeByte( UCHAR_MAX );
+	else
+	{
+		// If we pressed 2 keys SendNetPacket() will be called two times
+		bs->writeByte( changedKeyIdx );
+		OldKeys[ LocalPlayer ].keys[ changedKeyIdx ] = ! OldKeys[ LocalPlayer ].keys[ changedKeyIdx ];
+	}
+	Events[ localTime ] [ LocalPlayer ] = OldKeys[ LocalPlayer ];
 
 	LastPacketTime[ LocalPlayer ] = localTime;
 
@@ -323,10 +276,10 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 	return true;
 };
 
-bool Frame( unsigned long localTime, KeyState_t keys, CBytestream * bs, bool showScoreboard )
+bool Frame( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 {
 	bool ret = SendNetPacket( localTime, keys, bs );
-	Draw( localTime, showScoreboard );
+	CalculateCurrentState( localTime );
 	return ret;
 };
 
@@ -337,17 +290,8 @@ unsigned GetChecksum( unsigned long * time )
 	return Checksum;
 };
 
-void SaveState()
-{
-};
-void RestoreState()
-{
-};
 
-unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum )
-{
-};
-
+// -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------
 
 taus113_state_t NetSyncedRandom_state, NetSyncedRandom_state_saved, Random_state;
 
@@ -416,7 +360,7 @@ void Random_Seed(unsigned long s)
 			keys[i] = false;
 	};
 
-	bool KeyState_t::operator == ( const KeyState_t & k )
+	bool KeyState_t::operator == ( const KeyState_t & k ) const
 	{
 		for( int i=0; i<K_MAX; i++ )
 			if( keys[i] != k.keys[i] )
@@ -424,7 +368,7 @@ void Random_Seed(unsigned long s)
 		return true;
 	};
 
-	KeyState_t KeyState_t::operator & ( const KeyState_t & k )	// and
+	KeyState_t KeyState_t::operator & ( const KeyState_t & k ) const	// and
 	{
 		KeyState_t res;
 		for( int i=0; i<K_MAX; i++ )
@@ -433,7 +377,7 @@ void Random_Seed(unsigned long s)
 		return res;
 	}
 
-	KeyState_t KeyState_t::operator | ( const KeyState_t & k )	// or
+	KeyState_t KeyState_t::operator | ( const KeyState_t & k ) const	// or
 	{
 		KeyState_t res;
 		for( int i=0; i<K_MAX; i++ )
@@ -442,7 +386,7 @@ void Random_Seed(unsigned long s)
 		return res;
 	}
 	
-	KeyState_t KeyState_t::operator ^ ( const KeyState_t & k )	// xor
+	KeyState_t KeyState_t::operator ^ ( const KeyState_t & k ) const	// xor
 	{
 		KeyState_t res;
 		for( int i=0; i<K_MAX; i++ )
@@ -451,13 +395,21 @@ void Random_Seed(unsigned long s)
 		return res;
 	}
 
-	KeyState_t KeyState_t::operator ~ ()	// not
+	KeyState_t KeyState_t::operator ~ () const	// not
 	{
 		KeyState_t res;
 		for( int i=0; i<K_MAX; i++ )
 			if( ! keys[i] )
 				res.keys[i] = true;
 		return res;
+	}
+
+	int KeyState_t::getFirstPressedKey() const // Returns idx of first pressed key, or -1
+	{
+		for( int i=0; i<K_MAX; i++ )
+			if( keys[i] )
+				return i;
+		return -1;
 	}
 
 
