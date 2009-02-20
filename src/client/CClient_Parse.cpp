@@ -999,7 +999,7 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 			if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
 				client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
 		if( both )  {
-			if (client->cLocalWorms[1]->getType() == PRF_HUMAN)
+			if (client->cLocalWorms[1] && client->cLocalWorms[1]->getType() == PRF_HUMAN)
 				client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
 			else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
 				client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 

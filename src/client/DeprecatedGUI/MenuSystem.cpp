@@ -1358,6 +1358,7 @@ void Menu_SvrList_RemoveServer(const std::string& szAddress)
 		{
 			psServerList.erase( it );
 			it = psServerList.begin();
+			break;
 		}
 }
 
