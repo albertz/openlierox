@@ -447,7 +447,7 @@ htmlDocPtr CBrowser::ParseHTML(const std::string &data)
 		return NULL;
 
 	// Parse the file
-	htmlDocPtr document = htmlCtxtReadDoc(context, (xmlChar *)data.data(), NULL, NULL, HTML_PARSE_RECOVER | HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
+	htmlDocPtr document = htmlCtxtReadDoc(context, (xmlChar *)data.data(), NULL, NULL, /*HTML_PARSE_RECOVER |*/ HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
 	if (!document)  {
 		htmlFreeParserCtxt(context);
 		return NULL;

@@ -23,6 +23,7 @@
 		2306CBD00E6AB42A00132D3B /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 2306CBC50E6AB42A00132D3B /* thread.c */; };
 		2306CBD20E6AB45500132D3B /* nl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2306CBD10E6AB45500132D3B /* nl.h */; };
 		2306CC2A0E6AC55E00132D3B /* OLX_g15logo_ver4.xbm in Resources */ = {isa = PBXBuildFile; fileRef = 2306CC000E6AC55E00132D3B /* OLX_g15logo_ver4.xbm */; };
+		2309937E0F4DA370008E6C7F /* CTag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2309937D0F4DA370008E6C7F /* CTag.cpp */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
@@ -397,6 +398,8 @@
 		2306CC270E6AC55E00132D3B /* StringBuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringBuf.h; sourceTree = "<group>"; };
 		2306CC280E6AC55E00132D3B /* StyleVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleVar.h; sourceTree = "<group>"; };
 		2306CC290E6AC55E00132D3B /* XMLutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLutils.h; sourceTree = "<group>"; };
+		2309937C0F4DA35C008E6C7F /* CTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTag.h; sourceTree = "<group>"; };
+		2309937D0F4DA370008E6C7F /* CTag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTag.cpp; sourceTree = "<group>"; };
 		230D021E0F0D804C00AFFFFF /* IRC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRC.h; sourceTree = "<group>"; };
 		230D021F0F0D804C00AFFFFF /* libirc_rfcnumeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libirc_rfcnumeric.h; sourceTree = "<group>"; };
 		230D02200F0D804C00AFFFFF /* Music.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Music.h; sourceTree = "<group>"; };
@@ -1134,6 +1137,7 @@
 		EA430C3E0BEFCEB400C6547E /* server */ = {
 			isa = PBXGroup;
 			children = (
+				2309937D0F4DA370008E6C7F /* CTag.cpp */,
 				23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */,
 				23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */,
 				23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */,
@@ -1152,6 +1156,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2309937C0F4DA35C008E6C7F /* CTag.h */,
 				23D0FD100F40620D00D3DF4B /* CDeathMatch.h */,
 				23D0FD110F40620D00D3DF4B /* CGameMode.h */,
 				23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */,
@@ -1705,6 +1710,7 @@
 				23D0FD190F40624E00D3DF4B /* CTeamDeathMatch.cpp in Sources */,
 				23EABF6E0F40CA8200CA55CF /* TaskManager.cpp in Sources */,
 				23EAC0970F4204DF00CA55CF /* Process.cpp in Sources */,
+				2309937E0F4DA370008E6C7F /* CTag.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1730,7 +1736,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(NATIVE_ARCH)";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = stabs;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1783,7 +1789,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
 				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = stabs;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1831,7 +1837,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = stabs;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
@@ -1969,7 +1975,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = stabs;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_RTTI = YES;
