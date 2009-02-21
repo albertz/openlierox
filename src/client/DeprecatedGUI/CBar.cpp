@@ -47,7 +47,7 @@ CBar::CBar(SmartPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y
 //////////////
 // Draw the bar
 void CBar::Draw(SDL_Surface * dst)  {
-	static std::string progress;
+	std::string progress;
 	progress = itoa(Position) + " %";
 	int pos = CLAMP(Position, 0, 100);
 

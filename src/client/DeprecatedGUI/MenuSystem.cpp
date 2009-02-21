@@ -459,7 +459,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 // TODO: move this to CMap
 std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 {
-	static char	id[32], name[128];
+	char	id[32], name[128];
 	Sint32		version;
 
 	FILE *fp;
@@ -644,9 +644,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	// Adjust the width
 	int longest_line = w;
-	const std::vector<std::string>* lines = &explode(sText, "\n");
+	std::vector<std::string> lines = explode(sText, "\n");
 	std::vector<std::string>::const_iterator it;
-	for (it=lines->begin(); it!=lines->end(); it++)  {
+	for (it=lines.begin(); it!=lines.end(); it++)  {
 		int tw = tLX->cFont.GetWidth(*it);
 		if (tw > longest_line)
 			longest_line = tw;
@@ -655,10 +655,10 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	x = (VideoPostProcessor::get()->screenWidth() - w) / 2;
 
 	// Handle multiline messages
-	lines = &splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
+	lines = splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
 	
-	if((tLX->cFont.GetHeight()*(int)lines->size())+5 > h) {
-		h = (int)MIN((tLX->cFont.GetHeight()*lines->size())+90, (size_t)478);		
+	if((tLX->cFont.GetHeight()*(int)lines.size())+5 > h) {
+		h = (int)MIN((tLX->cFont.GetHeight()*lines.size())+90, (size_t)478);		
 		y = 240-h/2;
 	}
 
@@ -667,9 +667,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	const int line_hspace = 2;
 	int cx = x+w/2;
 	int cy = y + caption_h;
-	if(lines->size() > 0) {
+	if(lines.size() > 0) {
 		cy += (h - button_h - caption_h) / 2;
-		cy -= ((int)(lines->size() - 1) * (tLX->cFont.GetHeight() + line_hspace)) / 2;
+		cy -= ((int)(lines.size() - 1) * (tLX->cFont.GetHeight() + line_hspace)) / 2;
 		cy -= tLX->cFont.GetHeight() / 2;
 	}
 
@@ -698,7 +698,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer.get(), x+2,y+2, x+w-1,y+caption_h,tLX->clDialogCaption);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, y+5, tLX->clNormalLabel,sTitle);
-	for (it=lines->begin(); it!=lines->end(); it++)  {
+	for (it=lines.begin(); it!=lines.end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
 		tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), cx, cy, tLX->clNormalLabel, *it);
 		cy += tLX->cFont.GetHeight()+line_hspace;
@@ -1674,7 +1674,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	NetworkAddr		adrFrom;
 	bool			update = false;
-	static std::string cmd,buf;
+	std::string cmd,buf;
 
 	// Check for connectionless packet header
 	if(bs->readInt(4) == -1) {

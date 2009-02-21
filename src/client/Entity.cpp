@@ -181,7 +181,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Jetpack spray
 			case ENT_JETPACKSPRAY:
-				static Uint8 r,g,b;
+				Uint8 r,g,b;
 				r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
 				g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
 				b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));

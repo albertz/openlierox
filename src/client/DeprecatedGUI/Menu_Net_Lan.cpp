@@ -324,7 +324,7 @@ void Menu_Net_LANFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
-							static std::string Nick;
+							std::string Nick;
 							cLan.SendMessage(nl_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
 								Menu_SvrList_WantsJoin(Nick, sv);

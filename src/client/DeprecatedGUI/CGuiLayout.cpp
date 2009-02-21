@@ -263,7 +263,7 @@ bool CGuiLayout::Build(void)
 	std::string path = tLXOptions->sSkinPath+tLXOptions->sResolution;
 
 	// Temp
-	static std::string file = "";
+	std::string file = "";
 
 	// Get the file name of the skin file
 	switch (iID)  {

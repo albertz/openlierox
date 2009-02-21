@@ -606,7 +606,7 @@ bool CBytestream::Skip(size_t num) {
 // WARNING: overrides any previous data
 size_t CBytestream::Read(NetworkSocket sock) {
 	Clear();
-	static char buf[4096];
+	char buf[4096];
 	size_t len = 0;
 	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
 	while(true) {

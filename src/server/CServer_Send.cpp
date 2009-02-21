@@ -224,7 +224,7 @@ void CServerNetEngine::SendText(const std::string& text, int type)
 
 	std::string nohtml_text = StripHtmlTags(text);
 		
-	const std::vector<std::string>& split = splitstring(nohtml_text, 63, server->iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
+	std::vector<std::string> split = splitstring(nohtml_text, 63, server->iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
 	
 	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
 		// Send it

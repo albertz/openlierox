@@ -647,9 +647,9 @@ enum  {
 			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 				if(fp) {
-					static char id[33];
+					char id[33];
 					int version;
-					static char name[65];
+					char name[65];
 					fread(id,		sizeof(char),	32,	fp);
 					fread(&version,	sizeof(int),	1,	fp);
 					fread(name,		sizeof(char),	64,	fp);

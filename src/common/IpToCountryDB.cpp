@@ -364,7 +364,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 		return Result;
 	}
 
-	const std::vector<std::string>& ip_e = explode(Address,".");
+	std::vector<std::string> ip_e = explode(Address,".");
 	if (ip_e.size() != 4)  {
 		Result.Continent = "Hackerland";
 		Result.Country = "Hackerland";

@@ -405,7 +405,7 @@ void CViewport::ClampFiltered(int MWidth, int MHeight)
 // Get the rectangle of the viewport
 SDL_Rect CViewport::getRect(void)
 {
-	static SDL_Rect r;
+	SDL_Rect r;
 
 	r.x = Left;
 	r.y = Top;

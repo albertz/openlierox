@@ -595,7 +595,7 @@ void Cmd_RenameServer(void)
 
 void Cmd_Help() {
 	Con_AddText(CNC_NORMAL, "Available commands:");
-	static std::string cmd_help_buf;
+	std::string cmd_help_buf;
 	command_t* cmd;
 	unsigned short count = 0;
 	cmd_help_buf = "";

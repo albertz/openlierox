@@ -579,11 +579,12 @@ void Menu_Net_NETUpdateList(void)
         return;
 	}
 
+	// TODO: i don't understand it, why are we doing it so complicated here, why not just save it in a list?
     while( !feof(fp) ) {
         szLine = ReadUntil(fp);
 		TrimSpaces(szLine);
 
-        if( szLine.length() > 0 )
+        if( szLine.length() > 0 && szLine[0] != '#' )
             SvrCount++;
     }
 
@@ -632,7 +633,7 @@ void Menu_Net_NETUpdateList(void)
 				szLine = ReadUntil(fp);
 				TrimSpaces(szLine);
 
-                if( szLine.length() > 0 ) {
+                if( szLine.length() > 0 && szLine[0] != '#' ) {
 
                     // Send the request
 					printf("Getting serverlist from " + szLine + "...\n");
@@ -711,7 +712,7 @@ void Menu_Net_NETParseList(CHttp &http)
 	size_t startpos = 0;	
 	for(; it != content.end(); it++, i++) {	
 		if(*it != '\n') continue;
-		const std::vector<std::string>& tokens = explode(content.substr(startpos, i-startpos), ",");
+		std::vector<std::string> tokens = explode(content.substr(startpos, i-startpos), ",");
 		startpos = i+1;
 		
 		// we need at least 2 items

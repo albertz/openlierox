@@ -176,7 +176,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 			
 			// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
 			int name_w = tLX->cFont.GetWidth(sWormName + ": ");
-			const std::vector<std::string>& split = splitstring(StripHtmlTags(sText), 63,
+			std::vector<std::string> split = splitstring(StripHtmlTags(sText), 63,
 				client->iNetStatus == NET_CONNECTED ? 600 - name_w : 300 - name_w, tLX->cFont);
 
 			// Check

@@ -137,8 +137,8 @@ std::string ReadUntil(const std::string& text, std::string::const_iterator& it, 
 
 
 std::string	ReadUntil(FILE* fp, char until_character) {
-	static char buf[256];
-	static std::string res;
+	char buf[256];
+	std::string res;
 	res = "";
 	size_t buf_pos = 0;
 	while(true) {
@@ -189,7 +189,7 @@ Color GetColorByName(const std::string& str, bool& fail)
 #define TR SDL_ALPHA_TRANSPARENT
 
 	// TODO: more? These are taken from the HTML specification
-	static ColorEntry predefined[] = {
+	static const ColorEntry predefined[] = {
 		{ "white", 255, 255, 255,OP },
 		{ "black", 0, 0, 0, OP },
 		{ "red", 255, 0, 0, OP },
@@ -439,11 +439,8 @@ size_t maxStartingEqualStr(const std::list<std::string>& strs) {
 }
 
 
-// HINT: it returns a reference
-// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
-const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
-	static std::vector<std::string> result;
-	result.clear();
+std::vector<std::string> explode(const std::string& str, const std::string& delim) {
+	std::vector<std::string> result;
 
 	size_t delim_len = delim.size();
 	std::string rest = str;
@@ -461,7 +458,7 @@ const std::vector<std::string>& explode(const std::string& str, const std::strin
 void freadstr(std::string& result, size_t maxlen, FILE *fp) {
 	if (!fp) return;
 
-	static char buf[1024];
+	char buf[1024];
 	size_t ret, c;
 	result = "";
 
@@ -607,12 +604,11 @@ static void split_by_space(const std::string& str, std::string& before_space, st
 
 //////////////////////
 // Splits the string to pieces that none of the pieces can be longer than maxlen and wider than maxwidth
-// WARNING/(TODO?): maxlen is the raw len of the next, not the unicode len
+// TODO: maxlen is the raw len of the next, not the unicode len
 // TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
-const std::vector<std::string>& splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
+std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
 {
-	static std::vector<std::string> result;
-	result.clear();
+	std::vector<std::string> result;
 	
 	// Check
 	if (!str.size())

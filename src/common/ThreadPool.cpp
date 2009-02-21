@@ -80,6 +80,9 @@ int ThreadPool::threadWrapper(void* param) {
 		SDL_mutexV(data->pool->mutex);
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
+#ifdef _MSC_VER
+		nameThread(-1, data->name.c_str());
+#endif // WIN32
 		data->ret = act->handle();
 		delete act;
 		SDL_mutexP(data->pool->mutex);

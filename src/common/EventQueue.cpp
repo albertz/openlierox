@@ -79,11 +79,6 @@ void ShutdownEventQueue() {
 	}
 }
 
-
-/* Polls for currently pending events, and returns 1 if there are any pending
-   events, or 0 if there are none available.  If 'event' is not NULL, the next
-   event is removed from the queue and stored in that area.
- */
 bool EventQueue::poll(EventItem& event) {
 	ScopedLock lock(data->mutex);
 	
@@ -96,10 +91,6 @@ bool EventQueue::poll(EventItem& event) {
 	return true;
 }
 
-/* Waits indefinitely for the next available event, returning 1, or 0 if there
-   was an error while waiting for events.  If 'event' is not NULL, the next
-   event is removed from the queue and stored in that area.
- */
 bool EventQueue::wait(EventItem& event) {
 	ScopedLock lock(data->mutex);
 	
@@ -114,10 +105,6 @@ bool EventQueue::wait(EventItem& event) {
 	return true;
 }
 
-/* Add an event to the event queue.
-   This function returns true on success
-   or there was some other error.
- */
 bool EventQueue::push(const EventItem& event) {
 	ScopedLock lock(data->mutex);
 	

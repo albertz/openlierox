@@ -50,7 +50,7 @@ int AddKeyword(const std::string& key, int value)
 int ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	int n;
-	static std::string string;
+	std::string string;
 
 	*value = defaultv;
 
@@ -73,7 +73,7 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv)
 {
 	int n;
-	static std::string string;
+	std::string string;
 
 	*value = defaultv;
 
@@ -96,7 +96,7 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 // Read an interger from a file
 int ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
-	static std::string string;
+	std::string string;
 
 	*value = defaultv;
 
@@ -130,7 +130,7 @@ int ReadString(const std::string& filename, const std::string& section, const st
 // Read a float from a file
 int ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
 {
-	static std::string string;
+	std::string string;
 
 	*value = defaultv;
 
@@ -170,7 +170,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 	if (!GetString(filename,section,key,string))
 		return false;
 
-	const std::vector<std::string>& arr = explode(string,",");
+	std::vector<std::string> arr = explode(string,",");
 	for (register int i=0; i<MIN(num_items,(int)arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
@@ -206,7 +206,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 	curKey="";
 
 	// Check for UTF-8 encoded file and skip the UTF-8 mark if it is
-	static uchar utf8mark[3];
+	uchar utf8mark[3];
 	fread(utf8mark, sizeof(utf8mark)/sizeof(uchar), 1, config);
 	if (utf8mark[0] != 0xEF || utf8mark[1] != 0xBB || utf8mark[2] != 0xBF)
 		fseek(config, 0, SEEK_SET); // Not a UTF-8 file, jump back to the beginning

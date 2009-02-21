@@ -429,7 +429,7 @@ void InitBaseSearchPaths() {
 }
 
 void CreateRecDir(const std::string& abs_filename, bool last_is_dir) {
-	static std::string tmp;
+	std::string tmp;
 	std::string::const_iterator f = abs_filename.begin();
 	for(tmp = ""; f != abs_filename.end(); f++) {
 		if(*f == '\\' || *f == '/')
@@ -792,7 +792,7 @@ std::string GetAbsolutePath(const std::string& path) {
 #ifdef WIN32
 	std::string exactpath;
 	if (GetExactFileName(path, exactpath))  {
-		static char buf[2048];
+		char buf[2048];
 		int len = GetFullPathName(Utf8ToSystemNative(exactpath).c_str(), sizeof(buf), buf, NULL);
 		fix_markend(buf);
 		if (len)
@@ -804,7 +804,7 @@ std::string GetAbsolutePath(const std::string& path) {
 #else
 	std::string exactpath;
 	if(GetExactFileName(path, exactpath)) {
-		static char buf[PATH_MAX];
+		char buf[PATH_MAX];
 		if(realpath(exactpath.c_str(), buf) != NULL) {
 			fix_markend(buf);
 			return buf;

@@ -47,8 +47,8 @@ struct ProcessIntern
 {
 	boost::process::child *p;
 	ProcessIntern(): p(NULL) {};
-	std::ostream & in() { if (p) return p->get_stdin(); static std::ostringstream os; return os; };
-	std::istream & out() { if (p) return p->get_stdout(); static std::istringstream is; return is; };
+	std::ostream & in() { assert(p != NULL); return p->get_stdin(); };
+	std::istream & out() { assert(p != NULL); return p->get_stdout(); };
 	void close() { if (p) { p->get_stdin().close(); } }
 	bool open( const std::string & cmd, std::vector< std::string > params, const std::string& working_dir )
 	{

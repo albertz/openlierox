@@ -636,9 +636,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		else
 			clTimeLabel = tLX->clTimeLeftLabel;
 
-		// TODO: don't use sprintf, use C++ code!
-		//NOTE: there is no decent way to do this in C++ ?! Using C:
-		static char cstr_buf[16]; //max number of digits ever needed + ":" is 13
+		// TODO: don't use sprintf
+		char cstr_buf[16]; //max number of digits ever needed + ":" is 13
 		sprintf(cstr_buf,"%.2i:%.2i",iTLMinutes,iTLSeconds);
 	
 		DrawBox( bmpDest, tInterfaceSettings.TimeLeftX, tInterfaceSettings.TimeLeftY, tInterfaceSettings.TimeLeftW );
@@ -774,7 +773,7 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 	std::string text = "Talk: " + sChat_Text;
 	if( bTeamChat )
 		text = "Team: " + sChat_Text;
-	const std::vector<std::string>& lines = splitstring(text, (size_t)-1, 640 - x, tLX->cOutlineFont);
+	std::vector<std::string> lines = splitstring(text, (size_t)-1, 640 - x, tLX->cOutlineFont);
 
 	y -= MAX(0, (int)lines.size() - 1) * tLX->cOutlineFont.GetHeight();
 
@@ -971,7 +970,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	// Lives
 	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
 
-	static std::string lives_str;
+	std::string lives_str;
 	lives_str = "Lives: ";
 	switch (worm->getLives())  {
 	case WRM_OUT:
@@ -995,7 +994,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// Special message
-	static std::string spec_msg;
+	std::string spec_msg;
 
 	switch (iGameType)  {
 	case GMT_TIME:

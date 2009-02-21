@@ -313,7 +313,7 @@ void Con_AddText(int colour, const std::string& text, bool alsoToLogger)
 	if (text == "")
 		return;
 
-	const std::vector<std::string>& lines = explode(text,"\n");
+	std::vector<std::string> lines = explode(text,"\n");
 
 	{
 		ScopedLock lock(con_mutex);
@@ -376,7 +376,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 
 	int y = (int)(-Console->fPosition * (float)Console->bmpConPic.get()->h);
 	int texty = y+Console->bmpConPic.get()->h-28;
-	static std::string buf;
+	std::string buf;
 
 	const Uint32 Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,
 		                 tLX->clConsoleDev, tLX->clConsoleChat };

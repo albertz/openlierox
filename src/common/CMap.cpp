@@ -1846,7 +1846,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 	float xstep,ystep;
 	float mx,my;
 	int n;
-	static float time = 0;
+	float time = 0;
 	int mw = bmpMiniMap.get()->w;
 	int mh = bmpMiniMap.get()->h;
 

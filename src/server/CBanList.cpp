@@ -198,11 +198,11 @@ void CBanList::loadList(const std::string& szFilename)
     if( !fp )
         return;
 
-    static std::string line;
+	std::string line;
 	
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
-		const std::vector<std::string>& exploded = explode(line,",");
+		std::vector<std::string> exploded = explode(line,",");
 		if (exploded.size() >= 2)
 			addBanned(exploded[0],exploded[1]);
     }

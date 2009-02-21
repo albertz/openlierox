@@ -123,7 +123,7 @@ std::string		ReadUntil(const std::string& text, std::string::const_iterator& sta
 std::string		ReadUntil(FILE* fp, char until_character = '\n');
 Color			StrToCol(const std::string& str);
 Color			StrToCol(const std::string& str, bool& fail);
-const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
+std::vector<std::string> explode(const std::string& str, const std::string& delim);
 void			freadstr(std::string& result, size_t maxlen, FILE *fp);
 size_t			fwrite(const std::string& txt, size_t len, FILE* fp);
 size_t			findLastPathSep(const std::string& path);
@@ -135,7 +135,7 @@ bool			stringcaseequal(const std::string& s1, const std::string& s2);
 bool			subStrEqual(const std::string& s1, const std::string s2, size_t p);
 inline bool		strStartsWith(const std::string& str, const std::string& start) { if(start.size() > str.size()) return false; return str.substr(0,start.size()) == start; }
 size_t			maxStartingEqualStr(const std::list<std::string>& strs);
-const std::vector<std::string>& splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
+std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 void			StripQuotes(std::string& str);
 std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
