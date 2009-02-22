@@ -50,6 +50,8 @@ void        TakeScreenshot(const std::string& scr_path, const std::string& addit
 
 
 void		OpenLinkInExternBrowser(const std::string& url);
+void		nameThread(const std::string& name);
+
 
 #ifdef DEBUG
 bool		HandleDebugCommand(const std::string& cmd);

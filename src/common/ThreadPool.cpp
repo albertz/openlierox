@@ -10,45 +10,11 @@
 #include <SDL_thread.h>
 #include "ThreadPool.h"
 #include "Debug.h"
-#ifdef WIN32
-#include <windows.h>
-#endif
+#include "AuxLib.h"
+
 
 static const unsigned int THREADNUM = 20;
 
-//////////////////
-// Gives a name to the thread
-// Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
-void ThreadPool::nameThread(unsigned long threadId, const std::string& name)
-{
-#ifdef _MSC_VER
-	typedef struct tagTHREADNAME_INFO
-	{
-		DWORD dwType; // Must be 0x1000.
-		LPCSTR szName; // Pointer to name (in user addr space).
-		DWORD dwThreadID; // Thread ID (-1=caller thread).
-		DWORD dwFlags; // Reserved for future use, must be zero.
-	} THREADNAME_INFO;
-
-	THREADNAME_INFO info;
-	{
-		info.dwType = 0x1000;
-		info.szName = name.c_str();
-		info.dwThreadID = (DWORD)threadId;
-		info.dwFlags = 0;
-	}
-
-	__try
-	{
-		RaiseException( 0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
-	}
-	__except (EXCEPTION_CONTINUE_EXECUTION)
-	{
-	}
-#else
-	// TODO: similar for other systems
-#endif
-}
 
 ThreadPool::ThreadPool() {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;
@@ -117,11 +83,10 @@ int ThreadPool::threadWrapper(void* param) {
 		SDL_mutexV(data->pool->mutex);
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
-#ifdef _MSC_VER
-		nameThread(-1, data->name.c_str());
-#endif // WIN32
+		nameThread(data->name);
 		data->ret = act->handle();
 		delete act;
+		nameThread(data->name + " [finished]");
 		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
 
@@ -132,6 +97,7 @@ int ThreadPool::threadWrapper(void* param) {
 			data->working = false;
 		data->pool->usedThreads.erase(data);
 		data->pool->availableThreads.insert(data);
+		nameThread("");
 		SDL_CondSignal(data->pool->threadFinishedWork);
 	}
 

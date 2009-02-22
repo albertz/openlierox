@@ -972,3 +972,40 @@ bool HandleDebugCommand(const std::string& text) {
 	return false;
 }
 #endif
+
+
+
+//////////////////
+// Gives a name to the thread
+// Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
+void nameThread(const std::string& name)
+{
+#ifdef _MSC_VER // TODO: why is this dependend on Visual Studio? make it dependend on Windows
+	typedef struct tagTHREADNAME_INFO
+	{
+		DWORD dwType; // Must be 0x1000.
+		LPCSTR szName; // Pointer to name (in user addr space).
+		DWORD dwThreadID; // Thread ID (-1=caller thread).
+		DWORD dwFlags; // Reserved for future use, must be zero.
+	} THREADNAME_INFO;
+	
+	THREADNAME_INFO info;
+	{
+		info.dwType = 0x1000;
+		info.szName = name.c_str();
+		info.dwThreadID = (DWORD)-1;
+		info.dwFlags = 0;
+	}
+	
+	__try
+	{
+		// TODO: wtf?
+		RaiseException( 0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
+	}
+	__except (EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+#else
+	// TODO: similar for other systems
+#endif
+}

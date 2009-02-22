@@ -386,7 +386,7 @@ void Menu_Player_NewPlayer(int mouse)
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &skin, 0);
 
 					// Add the profile
-                    WormType* type = ( cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0) == PRF_HUMAN->toInt() ) ? PRF_HUMAN : PRF_COMPUTER;
+                    WormType* type = ( (int)cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0) == PRF_HUMAN->toInt() ) ? PRF_HUMAN : PRF_COMPUTER;
                     int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
 
 					AddProfile(name, skin, "", "",r, g, b, type->toInt(), level);
