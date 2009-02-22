@@ -980,7 +980,7 @@ bool HandleDebugCommand(const std::string& text) {
 // Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
 void nameThread(const std::string& name)
 {
-#ifdef _MSC_VER // TODO: why is this dependend on Visual Studio? make it dependend on Windows
+#ifdef _MSC_VER // Currently only for MSVC, haven't found a Windows-general way (I doubt there is one)
 	typedef struct tagTHREADNAME_INFO
 	{
 		DWORD dwType; // Must be 0x1000.
@@ -999,8 +999,7 @@ void nameThread(const std::string& name)
 	
 	__try
 	{
-		// TODO: wtf?
-		RaiseException( 0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
+		RaiseException( 0x406D1388 /* MSVC EXCEPTION */, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
 	}
 	__except (EXCEPTION_CONTINUE_EXECUTION)
 	{
