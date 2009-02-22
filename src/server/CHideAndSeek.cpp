@@ -132,7 +132,13 @@ void CHideAndSeek::Simulate()
 			// Catch the hiders if they are within 10 pixels
 			if(cWorms[i].getTeam() == SEEKER && cWorms[j].getTeam() == HIDER)
 				if((cWorms[i].getPos() - cWorms[j].getPos()).GetLength() < 10)
-					cServer->killWorm(cWorms[j].getID(), cWorms[i].getID(), 0);
+				{
+					int type;
+					float length;
+					cWorms[i].traceLine(cWorms[j].getPos(), &length, &type, 1);
+					if( type & PX_EMPTY )	// Do not touch through thin wall
+						cServer->killWorm(cWorms[j].getID(), cWorms[i].getID(), 0);
+				}
 		}
 	}
 }

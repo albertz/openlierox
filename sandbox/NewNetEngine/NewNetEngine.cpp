@@ -14,7 +14,7 @@ namespace NewNet
 
 // -------- The stuff that interacts with OLX: save/restore game state and calculate physics ---------
 
-CWorm SavedWormState[MAX_WORMS];
+CWorm * SavedWormState = NULL;
 void SaveState()
 {
 	NetSyncedRandom_Save();
@@ -114,12 +114,15 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 			NetSyncedRandom_Seed( randomSeed );
 			NetSyncedRandom_Save();
 			Random_Seed( ~ randomSeed );
+			if( ! SavedWormState )
+				SavedWormState = new CWorm[MAX_WORMS];
 			SaveState();
 };
 
 void EndRound()
 {
-	// TODO: do something here...
+	delete [] SavedWormState;
+	SavedWormState = NULL;
 };
 
 void ReCalculateSavedState()
