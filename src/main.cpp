@@ -163,6 +163,8 @@ static bool videoModeReady = true;
 // Main entry point
 int main(int argc, char *argv[])
 {
+	ThreadPool::nameThread(-1, "Main Thread");
+
 	hints << GetFullGameName() << " is starting ..." << endl;
 #ifdef DEBUG
 	hints << "This is a DEBUG build." << endl;

@@ -17,9 +17,6 @@
 #ifndef __SOUNDS_H__
 #define __SOUNDS_H__
 
-// TODO: remove this here! i wonder that we didn't get trouble because of this
-typedef unsigned char byte;
-
 //#include "CViewport.h"
 //#include "CMap.h"
 //#include "Timer.h"

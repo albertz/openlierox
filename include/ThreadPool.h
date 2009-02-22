@@ -51,6 +51,8 @@ private:
 	static int threadWrapper(void* param);
 	SDL_mutex* startMutex;
 public:
+	static void nameThread(unsigned long threadId, const std::string& name);
+public:
 	ThreadPool();
 	~ThreadPool();
 	

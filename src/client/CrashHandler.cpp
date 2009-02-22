@@ -49,7 +49,6 @@ public:
 #endif // _DEBUG
 
 		SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
-		nameThread(-1,"Main game thread");
 
 		notes << "Win32 Exception Filter installed" << endl;
 	}

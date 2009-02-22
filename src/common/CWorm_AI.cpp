@@ -678,7 +678,7 @@ private:
 #ifdef _MSC_VER
 		static char name[32];
 		sprintf(name, ("AI thread " + to_string<size_t>((size_t)b)).c_str());
-		nameThread(-1,name);
+		ThreadPool::nameThread(-1,name);
 #endif // WIN32
 
 		while(true) {
