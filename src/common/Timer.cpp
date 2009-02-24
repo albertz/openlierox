@@ -194,6 +194,8 @@ struct TimerData {
 
 // Global list that holds info about headless timers
 // Used to make sure there are no memory leaks
+// TODO: not threadsafe
+// TODO: why not std::set?
 std::list<TimerData *> timers;
 
 //////////////////
@@ -207,8 +209,11 @@ void InitializeTimers()
 // Shut down and free all running timers
 void ShutdownTimers()
 {
-	assert(!EventSystemInited()); // Make sure the event system is shut down (to avoid double freed memory)
+// TODO: not threadsafe
+// TODO: why not std::set?
+	//assert(!EventSystemInited()); // Make sure the event system is shut down (to avoid double freed memory)
 
+	/*
 	// Stop and free all the running timers
 	for (std::list<TimerData *>::iterator it = timers.begin(); it != timers.end(); it++)  {
 
@@ -222,19 +227,22 @@ void ShutdownTimers()
 		delete (*it);
 	}
 
-	timers.clear();
+	timers.clear();*/
 }
 
 /////////////////////////
 // Removes the timer from the global list (called when the timer is stopped/destroyed)
 static void RemoveTimerFromGlobalList(TimerData *data)
 {
+// TODO: not threadsafe
+// TODO: why not std::set?
+	/*
 	for (std::list<TimerData *>::iterator it = timers.begin(); it != timers.end(); it++)  {
 		if (*it == data)  {
 			timers.erase(it);
 			break;
 		}
-	}
+	}*/
 }
 
 
@@ -308,7 +316,8 @@ bool Timer::start()
 	data->quitSignal = false;
 	data->startThread();
 	
-	timers.push_back(data); // Add it to the global timer array
+	// TODO: not threadsafe
+	//timers.push_back(data); // Add it to the global timer array
 
 	m_running = true;
 	return true;
@@ -328,7 +337,8 @@ bool Timer::startHeadless()
 	data->quitSignal = false;
 	data->startThread();
 	
-	timers.push_back(data); // Add it to the global timer array
+	// TODO: not threadsafe
+	//timers.push_back(data); // Add it to the global timer array
 	return true;
 }
 
