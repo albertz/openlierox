@@ -359,11 +359,17 @@ void Timer::stop()
 	// Already stopped
 	if(!m_running) return;
 	
+	SDL_mutexP(m_lastData->mutex);
 	m_lastData->breakThread(); // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
 	if(m_lastData->timer && !EventSystemInited())  {
+		SDL_mutexV(m_lastData->mutex);
 		// If the event system is not initialized, it is sure that the handler won't get called and we must free the data to avoid leaks
 		RemoveTimerFromGlobalList(m_lastData); // To avoid double freed memory
 		delete m_lastData;
+	}
+	else {
+		m_lastData->timer = NULL;
+		SDL_mutexV(m_lastData->mutex);
 	}
 	m_lastData = NULL;
 	m_running = false;
@@ -385,17 +391,16 @@ static void Timer_handleEvent(InternTimerEventData data)
 		Event<Timer::EventData>::Handler& handler = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler.get();
 		bool shouldContinue = true;
 		Timer::EventData eventData = Timer::EventData(timer_data->timer, timer_data->userData, shouldContinue);
+		SDL_mutexV(timer_data->mutex);
+		
 		handler( eventData );
-		if( timer_data->quitSignal ) { // we probably called the stop() inside the handler
-			if(timer_data->timer) {
-				timer_data->timer->stop();
-				timer_data->timer = NULL;
-			}
-		}
-		else if( !shouldContinue ) {
+		
+		SDL_mutexP(timer_data->mutex);
+		if( !timer_data->quitSignal && !shouldContinue ) {
 			if(timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
+				SDL_mutexV(timer_data->mutex);
 				timer_data->timer->stop();
-				timer_data->timer = NULL;
+				SDL_mutexP(timer_data->mutex);
 			}
 			
 			// just to be sure; does not hurt
@@ -405,9 +410,7 @@ static void Timer_handleEvent(InternTimerEventData data)
 	SDL_mutexV(timer_data->mutex);
 	
 	if(data.lastEvent)  { // last-event-signal
-		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
-			timer_data->timer->stop();
-		else  {
+		if(!timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
 			// Headless timer is being stopped, remove it from active headless timers list
 			RemoveTimerFromGlobalList(timer_data);
 		}
