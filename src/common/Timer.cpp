@@ -145,9 +145,15 @@ struct TimerData {
 		quitCond = SDL_CreateCond();
 	}
 	~TimerData() {
+		breakThread();
 		if(thread) threadPool->wait(thread, NULL); thread = NULL;
 		SDL_DestroyMutex(mutex); mutex = NULL;
 		SDL_DestroyCond(quitCond); quitCond = NULL;
+	}
+	
+	void breakThread() {
+		quitSignal = true;
+		SDL_CondSignal(quitCond);
 	}
 	
 	void startThread() {
@@ -159,14 +165,15 @@ struct TimerData {
 			// thread function
 			int handle() {
 	
+				SDL_mutexP(data->mutex);
 				while(true) {
-					// TODO: use quitCond (for quitSignal) with a timeout instead
-					SDL_Delay(data->interval);
-			
+					SDL_CondWaitTimeout(data->quitCond, data->mutex, data->interval);
+					
 					bool lastEvent = data->once || data->quitSignal;
 					onInternTimerSignal.pushToMainQueue(InternTimerEventData(data, lastEvent));
 	
 					if(lastEvent) {
+						SDL_mutexV(data->mutex);
 						// we have to return it here to ensure that this callback is never called again
 						// we also have to ensure that there is only *one* event with lastEvent=true
 						// (and this event has to be of course the last event for this timer in the queue)
@@ -332,7 +339,7 @@ void Timer::stop()
 	// Already stopped
 	if(!m_running) return;
 	
-	m_lastData->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
+	m_lastData->breakThread(); // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
 	if(m_lastData->timer && !EventSystemInited())  {
 		// If the event system is not initialized, it is sure that the handler won't get called and we must free the data to avoid leaks
 		RemoveTimerFromGlobalList(m_lastData); // To avoid double freed memory
