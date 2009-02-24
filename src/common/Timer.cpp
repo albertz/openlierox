@@ -215,7 +215,7 @@ void ShutdownTimers()
 		// Call the user function, because it might free some data
 		Event<Timer::EventData>::Handler& handler = (*it)->timer ? (*it)->timer->onTimer.handler().get() : (*it)->onTimerHandler.get();
 		bool cont = true;
-		(*it)->quitSignal = true;
+		(*it)->breakThread();
 		if (&handler) // Make sure it exists
 			handler(Timer::EventData(NULL, (*it)->userData, cont));
 
@@ -376,8 +376,10 @@ static void Timer_handleEvent(InternTimerEventData data)
 			if(timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
 				timer_data->timer->stop();
 				timer_data->timer = NULL;
-			} else
-				timer_data->quitSignal = true;
+			}
+			
+			// just to be sure; does not hurt
+			timer_data->breakThread();
 		}
 	}
 	SDL_mutexV(timer_data->mutex);
