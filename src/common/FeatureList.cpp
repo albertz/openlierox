@@ -49,6 +49,8 @@ Feature featureArray[] = {
 			125, 	125, 			Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVisionThroughWalls", "Seeker vision thorough walls", "How far seeker can see through walls, in pixels (whole screen = 320 px)", 
 			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
+	Feature("HS_SeekerVisionAngle",	"Seeker vision angle",			"The angle of seeker vision (180 = half-circle, 360 = full circle)", 
+			360, 	360, 			Version(), 			GIG_HideAndSeek, 	0, 		360, 	true ),
 
 	Feature::Unset()
 };

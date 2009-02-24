@@ -82,6 +82,7 @@ enum FeatureIndex {
 	FT_HS_HiderVisionRangeThroughWalls,
 	FT_HS_SeekerVisionRange,
 	FT_HS_SeekerVisionRangeThroughWalls,
+	FT_HS_SeekerVisionAngle,
 };
 
 class FeatureCompatibleSettingList {

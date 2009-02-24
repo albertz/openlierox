@@ -263,24 +263,53 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 
 bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 {
-	float length;
-	int type;
 	CVec dist;
-	worm1->traceLine(worm2->getPos(), &length, &type, 1);
 	dist = worm1->getPos() - worm2->getPos();
 	if(worm1->getTeam() == SEEKER)
 	{
-		if(type & PX_EMPTY)
-			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange];
-		else
-			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls];
+		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls] )
+			return true;
+		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange] )
+		{
+			int type;
+			float length;
+			worm1->traceLine(worm2->getPos(), &length, &type, 1);
+			if( !( type & PX_EMPTY ) )
+				return false;
+				
+			float angle = worm1->getAngle();
+			if(worm1->getDirection() == DIR_LEFT)
+				angle = 180.0f - angle;
+				
+			while( angle > 180.0f )	// Normalize it between 180 and -180
+				angle -= 360.0f;
+			
+			float wormAngle = VectorAngle( worm2->getPos(), worm1->getPos() ) * 180.0f / PI;
+			
+			float angleDiff = angle - wormAngle;
+			
+			while( angleDiff > 180.0f ) // Normalize it
+				angleDiff -= 360.0f;
+			while( angleDiff < -180.0f )
+				angleDiff += 360.0f;
+			
+			return (int)fabs(angleDiff*2.0f) < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionAngle];
+		}
+		return false;
 	}
 	else 
 	{
-		if(type & PX_EMPTY)
-			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange];
-		else
-			return dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls];
+		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls] )
+			return true;
+		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange] )
+		{
+			int type;
+			float length;
+			worm1->traceLine(worm2->getPos(), &length, &type, 1);
+			if(type & PX_EMPTY)
+				return true;
+		}
+		return false;
 	}
 }
 
