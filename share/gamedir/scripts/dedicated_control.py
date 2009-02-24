@@ -7,6 +7,8 @@
 # TODO: NO, we are not expecting this!
 # It was only done because this script is buggy and does not work otherwise.
 
+# TODO: what is the difference from this file to dedicated_control?
+
 import os, sys, time
 
 # Add current dir to module search path
@@ -56,19 +58,10 @@ hnd.init()
 io.messageLog("Dedicated_control started",io.LOG_INFO)
 
 def MainLoop():
-
-	# It's possible to create a deadlock here, depending on how you act on the signals.(Perhaps thread it as albert suggests?)
-	# Loops through all the signals, and once we are out of all signals, continue on to the standard loop
-	while hnd.signalHandler(io.getSignal()):
-		pass # Continue with the next iteration
-
-	if not hnd.scriptPaused:
-		hnd.controlHandler()
+	hnd.signalHandler(io.getSignal()):
 
 
 if not io.OlxImported:
 	while hnd.gameState != hnd.GAME_QUIT:
-
-		time.sleep(1)
 
 		MainLoop()

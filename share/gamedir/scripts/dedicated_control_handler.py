@@ -16,8 +16,8 @@ import dedicated_config as cfg # Per-host config like admin password
 
 # Print Python script errors to external file -
 # on Windows it cannot print errors to console
-#if sys.platform == "win32":
-sys.stderr = open(cfg.ERROR_FILE, "w", 0)
+if sys.platform == "win32":
+	sys.stderr = open(cfg.ERROR_FILE, "w", 0)
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -59,12 +59,13 @@ if modDir == "":
 	modDir = "."
 
 # Game states
+GAME_READY = -1
 GAME_QUIT = 0
 GAME_LOBBY = 1
 GAME_WEAPONS = 2
 GAME_PLAYING = 3
 
-gameState = GAME_QUIT
+gameState = GAME_READY
 
 sentStartGame = False
 
@@ -107,8 +108,6 @@ def init():
 
 	io.startLobby(cfg.SERVER_PORT)
 
-	waitLobbyStarted()
-
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 
@@ -124,68 +123,75 @@ def signalHandler(sig):
 
 	oldGameState = gameState
 
-	if sig == "":
+	if len(sig) == 0:
 		return False #Didn't get anything
-	header = sig.split(" ")[0] # This makes sure we only get the first word, no matter if there's anything after it or not.
-	if header == "newworm":
-		parseNewWorm(sig)
-	elif header == "wormleft":
-		parseWormLeft(sig)
-	elif header == "privatemessage":
-		parsePrivateMessage(sig)
-	elif header == "chatmessage":
-		parseChatMessage(sig)
-	elif header == "wormdied":
-		parseWormDied(sig)
-	elif header == "wormspawned":
-		parseWormSpawned(sig)
-
-	## Check GameState ##
-	elif header == "quit":
-		gameState = GAME_QUIT
-	elif header == "errorstartlobby":
-		gameState = GAME_QUIT
-		io.messageLog("errorstartlobby",io.LOG_ERROR)
-
-	elif header == "backtolobby" or header == "lobbystarted":
-		if cfg.RANKING:
-			ranking.refreshRank()
-		gameState = GAME_LOBBY
-		sentStartGame = False
-		controlHandler()
-	elif header == "errorstartgame":
-		gameState = GAME_LOBBY
-		io.messageLog("errorstartgame",io.LOG_ERROR)
-		sentStartGame = False
-
-	elif header == "weaponselections":
-		gameState = GAME_WEAPONS
-		controlHandler()
-	elif header == "gamestarted":
-		gameState = GAME_PLAYING
-		sentStartGame = False
-		controlHandler()
-	#TODO: gamestarted && gameloopstart are pretty much duplicates
-	# Or are they? Check.
-	# Same thing for gameloopend and backtolobby
-	elif header == "gameloopstart": #Sent when game starts
-		pass
-	elif header == "gameloopend": #Sent at game end
-		pass
-	elif header == "gameloopend": #Sent when OLX starts
-		pass
-	elif header == "timer": # Sent once per second
-		controlHandler()
-	else:
-		io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
+		
+	header = sig[0]
+	
+	try:
+		if header == "newworm":
+			parseNewWorm(sig)
+		elif header == "wormleft":
+			parseWormLeft(sig)
+		elif header == "privatemessage":
+			parsePrivateMessage(sig)
+		elif header == "chatmessage":
+			parseChatMessage(sig)
+		elif header == "wormdied":
+			parseWormDied(sig)
+		elif header == "wormspawned":
+			parseWormSpawned(sig)
+	
+		## Check GameState ##
+		elif header == "quit":
+			gameState = GAME_QUIT
+			exit()
+		#elif header == "errorstartlobby": # ignore this for now, we get it if we are already in lobby
+		#	gameState = GAME_QUIT
+		#	io.messageLog("errorstartlobby",io.LOG_ERROR)
+	
+		elif header == "backtolobby" or header == "lobbystarted":
+			if cfg.RANKING:
+				ranking.refreshRank()
+			gameState = GAME_LOBBY
+			sentStartGame = False
+			controlHandler()
+		elif header == "errorstartgame":
+			gameState = GAME_LOBBY
+			io.messageLog("errorstartgame",io.LOG_ERROR)
+			sentStartGame = False
+	
+		elif header == "weaponselections":
+			gameState = GAME_WEAPONS
+			controlHandler()
+		elif header == "gamestarted":
+			gameState = GAME_PLAYING
+			sentStartGame = False
+			controlHandler()
+		#TODO: gamestarted && gameloopstart are pretty much duplicates
+		# Or are they? Check.
+		# Same thing for gameloopend and backtolobby
+		elif header == "gameloopstart": #Sent when game starts
+			pass
+		elif header == "gameloopend": #Sent at game end
+			pass
+		elif header == "gameloopend": #Sent when OLX starts
+			pass
+		elif header == "timer": # Sent once per second
+			controlHandler()
+		else:
+			io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
+	
+	except Exception:
+		traceback.print_exc(None, sys.stderr)
 
 	return True
 
 def parseNewWorm(sig):
 	global worms
 
-	wormID = int(sig.split(" ")[1])
-	name = " ".join(sig.split(" ")[2:]).replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
+	wormID = int(sig[1])
+	name = sig[2].replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
 	try:
 		worm = worms[wormID]
@@ -235,8 +241,8 @@ def parseNewWorm(sig):
 def parseWormLeft(sig):
 	global worms, scriptPaused
 
-	wormID = int(sig.split(" ")[1])
-	name = " ".join(sig.split(" ")[2:])
+	wormID = int(sig[1])
+	name = sig[2:]
 
 	try:
 		if worms[wormID].isAdmin:
@@ -261,9 +267,9 @@ def parseWormLeft(sig):
 def parsePrivateMessage(sig):
 	global worms
 
-	wormID = int(sig.split(" ")[1])
+	wormID = int(sig[1])
 	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
-	if sig.split(" ")[3] == cfg.ADMIN_PASSWORD:
+	if sig[3] == cfg.ADMIN_PASSWORD:
 		try:
 			if not worms[wormID].isAdmin:
 				worms[wormID].isAdmin = True
@@ -277,8 +283,8 @@ def parsePrivateMessage(sig):
 def parseChatMessage(sig):
 	global worms
 
-	wormID = int(sig.split(" ")[1])
-	message = " ".join(sig.split(" ")[2:])
+	wormID = int(sig[1])
+	message = sig[2]
 	io.msg("Chat msg from worm %i: %s" % (wormID, message))
 	if worms[wormID].isAdmin:
 		if not cmds.parseAdminCommand(wormID,message):
@@ -289,8 +295,8 @@ def parseChatMessage(sig):
 def parseWormDied(sig):
 	global worms
 
-	deaderID = int(sig.split(" ")[1])
-	killerID = int(sig.split(" ")[2])
+	deaderID = int(sig[1])
+	killerID = int(sig[2])
 	worms[deaderID].Lives -= 1
 	worms[deaderID].Alive = False
 
@@ -322,7 +328,7 @@ def parseWormDied(sig):
 def parseWormSpawned(sig):
 	global worms
 
-	wormID = int(sig.split(" ")[1])
+	wormID = int(sig[1])
 	worms[wormID].Alive = True
 
 ## Preset loading functions ##
@@ -436,16 +442,6 @@ def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 )
 		io.chatMsg( msg + " will be selected for next game")
 	else:
 		selectNextPreset()
-
-
-def waitLobbyStarted():
-	while True:
-		sig = io.getSignal()
-		signalHandler(sig)
-		if sig == "lobbystarted":
-			return
-		time.sleep(1)
-
 
 def initLevelList():
 	global levelDir, availableLevels

@@ -15,7 +15,7 @@
 #endif
 
 
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 #include <Python.h>
 #endif
 
@@ -47,6 +47,7 @@
 #include "CServerNetEngine.h"
 #include "Command.h"
 #include "Process.h"
+#include "Event.h"
 
 
 #ifdef _MSC_VER
@@ -61,8 +62,8 @@ using std::endl;
 static DedicatedControl* dedicatedControlInstance = NULL;
 
 DedicatedControl* DedicatedControl::Get() 
-{ 
-	return dedicatedControlInstance; 
+{
+	return dedicatedControlInstance;
 }
 
 bool DedicatedControl::Init() {
@@ -75,42 +76,25 @@ void DedicatedControl::Uninit() {
 	dedicatedControlInstance = NULL;
 }
 
-static void Ded_ParseCommand(std::stringstream& s, std::string& cmd, std::string& rest) {
-	cmd = ""; rest = "";
 
-	char c;
-	while( s.good() ) {
-		c = s.get();
-		if(c > 32) {
-			cmd += c;
-		} else {
-			if(c == 13 || c == 10) return;
-			break;
-		}
-	}
+struct DedInterface {
+	virtual void pushReturnArg(const std::string& str) = 0;
+	virtual void finalizeReturn() = 0;
+	virtual ~DedInterface() {}
+	
+	struct Command {
+		DedInterface* sender;
+		std::string cmd;
+		Command(DedInterface* s, const std::string& c) : sender(s), cmd(c) {}
+	};
+	Event<Command> onCommand;
+};
 
-	while( s.good() ) {
-		c = s.get();
-		if(c == 13 || c == 10) return;
-		rest += c;
-	}
-}
-
-struct DedIntern {
-
-	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
-
-
-	// The old way, with pipes
-
-	ThreadPoolItem* pipeThread;
-	ThreadPoolItem* stdinThread;
+struct ScriptDedInterface : DedInterface {
 	Process pipe;
-	SDL_mutex* pipeOutputMutex;
-	std::stringstream pipeOutput;
-	bool quitSignal;
-
-#ifdef WITH_PYTHON
+	ThreadPoolItem* thread;
+	
+#ifdef PYTHON_DED_EMBEDDED
 	// The new way, embedded Python
 	PyObject * scriptModule;
 	PyObject * scriptMainLoop;
@@ -120,33 +104,9 @@ struct DedIntern {
 	bool usePython;
 #endif
 
-	std::basic_ostream<char> & getPipe()
-	{
-#ifdef WITH_PYTHON
-		if( usePython )
-			return inSignals;
-#endif
-		return pipe.in();
-	}
-	
-	void closePipe()
-	{
-#ifdef WITH_PYTHON
-		if( usePython )
-			return;
-#endif
-		pipe.close();
-	}
 
-	DedIntern() :
-		pipeThread(NULL), stdinThread(NULL),
-		pipeOutputMutex(NULL), quitSignal(false), state(S_INACTIVE)
-	{
-		dedicatedControlInstance->internData = this;
-		pipeOutputMutex = SDL_CreateMutex();
-		stdinThread = threadPool->start(&DedIntern::stdinThreadFunc, NULL, "Ded stdin watcher");
-
-#ifdef WITH_PYTHON
+	ScriptDedInterface() : thread(NULL) {
+#ifdef PYTHON_DED_EMBEDDED
 		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
 		Py_Initialize();
 		Py_InitModule("OLX", DedScriptEngineMethods);
@@ -157,37 +117,81 @@ struct DedIntern {
 		ScriptSignalHandlerRecursive = SDL_CreateSemaphore(1);
 		usePython = false;
 #endif
-
 	}
 	
-	~DedIntern() {
-		Sig_Quit();
-		quitSignal = true;
-
-		notes << "waiting for stdinThread ..." << endl;
-		threadPool->wait(stdinThread, NULL);
-
+	~ScriptDedInterface() {
 		breakCurrentScript();
-		
-		SDL_DestroyMutex(pipeOutputMutex);
 
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 		Py_XDECREF(scriptMainLoop);
 		Py_XDECREF(scriptModule);
 		Py_Finalize();
 		usePython = false;
 		SDL_DestroySemaphore(ScriptSignalHandlerRecursive);
 #endif
-
-		notes << "DedicatedControl destroyed" << endl;
-		
-		dedicatedControlInstance->internData = NULL;
 	}
 
+	
+	void pushReturnArg(const std::string& str) {
+		pipeOut() << ":" << str << endl;
+	}
+	
+	void finalizeReturn() {
+		pipeOut() << "." << endl;
+	}
+
+
+	std::ostream& pipeOut() {
+#ifdef PYTHON_DED_EMBEDDED
+		if( usePython )
+			return inSignals;
+#endif
+		return pipe.in();
+	}
+	
+	void closePipe() {
+#ifdef PYTHON_DED_EMBEDDED
+		if( usePython )
+			return;
+#endif
+		pipe.close();
+	}
+	
+	bool havePipe() {
+#ifdef PYTHON_DED_EMBEDDED
+		return usePython;
+#endif		
+		return thread != NULL;
+	}
+
+	
+	
+	bool breakCurrentScript() {
+#ifdef PYTHON_DED_EMBEDDED
+		if( usePython )
+		{
+			Py_XDECREF(scriptMainLoop);
+			Py_XDECREF(scriptModule);
+			scriptMainLoop = NULL;
+			scriptModule = NULL;
+			usePython = false;
+			return true;
+		}
+#endif
+		if(thread) {
+			notes << "waiting for pipeThread ..." << endl;
+			pipe.close();
+			threadPool->wait(thread, NULL);
+		}
+		thread = NULL;
+		
+		return true;
+	}
+	
 	bool loadScript(const std::string& script) 
 	{
 		breakCurrentScript();
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 		FILE * fp = OpenGameFile(script, "r");
 		if( fp )
 		{
@@ -200,76 +204,6 @@ struct DedIntern {
 		return loadScript_Pipe(script);
 	}
 
-	// Pipe functions
-	
-	// reading lines from pipe-out and put them to pipeOutput
-	static int pipeThreadFunc(void*) {
-		DedIntern* data = Get();
-
-		while(!data->pipe.out().eof()) {
-			std::string buf;
-			getline(data->pipe.out(), buf);
-
-			SDL_mutexP(data->pipeOutputMutex);
-			data->pipeOutput << buf << endl;
-	 		SDL_mutexV(data->pipeOutputMutex);
-		}
-		return 0;
-	}
-
-	// reading lines from stdin and put them to pipeOutput
-	static int stdinThreadFunc(void*) {
-		DedIntern* data = Get();
-
-#ifndef WIN32
-		// TODO: there's no fcntl for Windows!
-		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
-#endif
-			warnings << "ERROR setting standard input into non-blocking mode" << endl;
-
-		while(true) {
-			std::string buf;
-			while(true) {
-				SDL_Delay(10); // TODO: maxfps here
-				if(data->quitSignal) return 0;
-
-				char c;
-
-				if(read(0, &c, 1) >= 0) {
-					if(c == '\n') break;
-					if(c == -52) return 0;  // CTRL-C
-					buf += c;
-				}
-			}
-
-			SDL_mutexP(data->pipeOutputMutex);
-			data->pipeOutput << buf << endl;
-	 		SDL_mutexV(data->pipeOutputMutex);
-		}
-		return 0;
-	}
-
-	
-	bool breakCurrentScript() {
-#ifdef WITH_PYTHON
-		if( usePython )
-		{
-			Py_XDECREF(scriptMainLoop);
-			Py_XDECREF(scriptModule);
-			scriptMainLoop = NULL;
-			scriptModule = NULL;
-			usePython = false;
-			return true;
-		}
-#endif
-		if(pipeThread) {
-			notes << "waiting for pipeThread ..." << endl;
-			pipe.close();
-			threadPool->wait(pipeThread, NULL);
-		}
-		pipeThread = NULL;
-		return true;
-	}
 	
 	bool loadScript_Pipe(const std::string& script) {
 		breakCurrentScript();
@@ -288,7 +222,7 @@ struct DedIntern {
 				return false;
 			}
 
-			pipeThread = threadPool->start(&DedIntern::pipeThreadFunc, NULL, "Ded pipe watcher");
+			thread = threadPool->start(&ScriptDedInterface::pipeThreadFunc, this, "Ded pipe watcher");
 		}
 		else
 			notes << "Dedicated server: not running any script" << endl;
@@ -296,11 +230,11 @@ struct DedIntern {
 		return true;
 	}
 
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 	// Embed Python into OLX
 
 	static PyObject *
-	GetSignal(PyObject *self, PyObject *args) // Get one signal from script
+			GetSignal(PyObject *self, PyObject *args) // Get one signal from script
 	{
 		if(!PyArg_ParseTuple(args, ""))
 			return Py_None;
@@ -324,7 +258,7 @@ struct DedIntern {
 	}
 
 	static PyObject *
-	SendCommand(PyObject *self, PyObject *args)
+			SendCommand(PyObject *self, PyObject *args)
 	{
 		const char *command = NULL;
 		if (!PyArg_ParseTuple(args, "s", &command))
@@ -463,9 +397,180 @@ struct DedIntern {
 	}
 
 #else
-	void ScriptSignalHandler() {}; // stub
+	void ScriptSignalHandler() {} // stub
 #endif	
 	
+	
+	
+	
+	// Pipe functions
+	
+	// reading lines from pipe-out and put them to pipeOutput
+	static int pipeThreadFunc(void* o) {
+		ScriptDedInterface* owner = (ScriptDedInterface*)o;
+
+		while(!owner->pipe.out().eof()) {
+			std::string buf;
+			getline(owner->pipe.out(), buf);
+			
+			owner->onCommand.occurred( Command(owner, buf) );
+		}
+		return 0;
+	}
+	
+};
+
+struct StdinDedInterface : DedInterface {
+	ThreadPoolItem* thread;
+	
+	StdinDedInterface() {
+		thread = threadPool->start(&StdinDedInterface::stdinThreadFunc, this, "Ded stdin watcher");
+	}
+	
+	~StdinDedInterface() {
+		notes << "waiting for stdinThread ..." << endl;
+		threadPool->wait(thread, NULL);
+		thread = NULL;
+	}
+	
+	void pushReturnArg(const std::string& str) {
+		notes << "Dedicated return: " << str << endl;
+	}
+	
+	void finalizeReturn() {
+		notes << "Dedicated return." << endl;
+	}
+
+	
+	// reading lines from stdin and put them to pipeOutput
+	static int stdinThreadFunc(void* o) {
+		StdinDedInterface* owner = (StdinDedInterface*)o;
+
+#ifndef WIN32
+		// TODO: there's no fcntl for Windows!
+		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
+#endif
+			warnings << "ERROR setting standard input into non-blocking mode" << endl;
+
+		while(true) {
+			std::string buf;
+			while(true) {
+				SDL_Delay(10); // TODO: select() here
+				if(tLX->bQuitGame) return 0;
+
+				char c;
+
+				if(read(0, &c, 1) >= 0) {
+					if(c == '\n') break;
+					// TODO: why is this needed? is that WIN32 only?
+					if(c == -52) return 0;  // CTRL-C
+					buf += c;
+				}
+			}
+
+			owner->onCommand.occurred( Command(owner, buf) );
+		}
+		return 0;
+	}
+
+	
+};
+
+struct DedIntern {
+
+	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
+
+	ScriptDedInterface* scriptInterface;
+	StdinDedInterface* stdinInterface;
+	
+	SDL_mutex* pendingCommandsMutex;
+	std::list<DedInterface::Command> pendingCommands;
+	
+	bool quitSignal;
+	SDL_mutex* pendingSignalsMutex;
+	bool waitingForNextSignal;
+	struct Signal {
+		std::string name;
+		std::list<std::string> args;
+		Signal(const std::string& n, const std::list<std::string>& a) : name(n), args(a) {}
+	};
+	std::list<Signal> pendingSignals;
+	
+	
+
+	DedIntern() :
+		scriptInterface(NULL), stdinInterface(NULL),
+		pendingCommandsMutex(NULL), quitSignal(false),
+		pendingSignalsMutex(NULL), waitingForNextSignal(false),
+		state(S_INACTIVE)
+	{
+		dedicatedControlInstance->internData = this;
+		pendingCommandsMutex = SDL_CreateMutex();
+		pendingSignalsMutex = SDL_CreateMutex();
+
+		scriptInterface = new ScriptDedInterface();
+		stdinInterface = new StdinDedInterface();
+		
+		scriptInterface->onCommand.handler() += getEventHandler(this, &DedIntern::DedInterface_OnCommand);
+		stdinInterface->onCommand.handler() += getEventHandler(this, &DedIntern::DedInterface_OnCommand);
+	}
+	
+	~DedIntern() {
+		Sig_Quit();
+		quitSignal = true;
+
+		delete stdinInterface; stdinInterface = NULL;
+		delete scriptInterface; scriptInterface = NULL;
+		
+		SDL_DestroyMutex(pendingCommandsMutex);
+		SDL_DestroyMutex(pendingSignalsMutex);
+
+		notes << "DedicatedControl destroyed" << endl;
+		dedicatedControlInstance->internData = NULL;
+	}
+
+	
+	void pushSignal(const std::string& name, const std::list<std::string>& args = std::list<std::string>()) {
+		if(!scriptInterface->havePipe()) return;
+		ScopedLock lock(pendingSignalsMutex);
+		if(waitingForNextSignal) {
+			if(pendingSignals.size() > 0)
+				errors << "Dedicated pending signals queue should be empty when the script is waiting for next signal" << endl;
+			scriptInterface->pushReturnArg(name);
+			for(std::list<std::string>::const_iterator i = args.begin(); i != args.end(); ++i)
+				scriptInterface->pushReturnArg(*i);
+			scriptInterface->finalizeReturn();
+			waitingForNextSignal = false;
+		}
+		else {
+			pendingSignals.push_back(Signal(name, args));
+			if(pendingSignals.size() > 1000) {
+				warnings << "Dedicated pending signals queue got too full!" << endl;
+				pendingSignals.pop_front();
+			}
+		}
+	}
+	
+	void pushSignal(const std::string& name, const std::string& arg1) {
+		std::list<std::string> args; args.push_back(arg1);
+		pushSignal(name, args);
+	}
+	
+	void pushSignal(const std::string& name, const std::string& arg1, const std::string& arg2) {
+		std::list<std::string> args; args.push_back(arg1); args.push_back(arg2);
+		pushSignal(name, args);
+	}
+	
+	void pushSignal(const std::string& name, const std::string& arg1, const std::string& arg2, const std::string& arg3) {
+		std::list<std::string> args; args.push_back(arg1); args.push_back(arg2); args.push_back(arg3);
+		pushSignal(name, args);
+	}
+	
+	void DedInterface_OnCommand(DedInterface::Command command) {
+		ScopedLock lock(pendingCommandsMutex);
+		pendingCommands.push_back(command);
+	}
+
 	
 	// -------------------------------
 	// ------- state -----------------
@@ -483,7 +588,7 @@ struct DedIntern {
 		};
 	State state;
 
-	// TODO: Move this?
+	// TODO: Move this
 	CWorm* CheckWorm(int id, const std::string& caller)
 	{
 		if(id <0 || id >= MAX_WORMS)
@@ -503,7 +608,7 @@ struct DedIntern {
 	// --------------------------------
 	// ---- commands ------------------
 
-	void Cmd_Quit() {
+	void Cmd_Quit(DedInterface* caller) {
 		*DeprecatedGUI::bGame = false; // this means if we were in menu => quit
 		DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
 
@@ -511,21 +616,27 @@ struct DedIntern {
 		SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
 	}
 
-	void Cmd_Message(const std::string& msg) {
+	void Cmd_Message(DedInterface* caller, const std::string& msg) {
 		hints << "DedicatedControl: message: " << msg << endl;
 	}
 	
-	void Cmd_Script(const std::string& script) {
+	void Cmd_Script(DedInterface* caller, const std::string& script) {
+		{
+			ScopedLock lock(pendingSignalsMutex);
+			waitingForNextSignal = false;
+			pendingSignals.clear();
+		}
+		
 		if(script == "" || script == "/dev/null")
-			loadScript("/dev/null");
+			scriptInterface->loadScript("/dev/null");
 		else if(IsAbsolutePath(script))
-			loadScript(script);
+			scriptInterface->loadScript(script);
 		else
-			loadScript("scripts/" + script);
+			scriptInterface->loadScript("scripts/" + script);
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
-	void Cmd_AddBot(const std::string & params)
+	void Cmd_AddBot(DedInterface* caller, const std::string & params)
 	{
 		// Default botname
 		// New variable so that we won't break const when we trim spaces.
@@ -564,10 +675,9 @@ struct DedIntern {
 
 		// TODO: add a bot to profiles in that case
 		warnings << "Can't find ANY bot!" << endl;
-		return;
 	}
 
-	void Cmd_KillBots(const std::string & params) {
+	void Cmd_KillBots(DedInterface* caller, const std::string & params) {
 		for( int f=0; f<cClient->getNumWorms(); f++ )
 			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
 			{
@@ -579,7 +689,7 @@ struct DedIntern {
 	// Kick and ban will both function using ID
 	// It's up to the control-program to supply the ID
 	// - if it sends a string atoi will fail at converting it to something sensible
-	void Cmd_KickWorm(const std::string & params)
+	void Cmd_KickWorm(DedInterface* caller, const std::string & params)
 	{
 		std::string reason = "";
 		int id = -1;
@@ -608,7 +718,7 @@ struct DedIntern {
 		cServer->kickWorm(id,reason);
 	}
 
-	void Cmd_BanWorm(const std::string & params)
+	void Cmd_BanWorm(DedInterface* caller, const std::string & params)
 	{
 		std::string reason = "";
 		int id = -1;
@@ -637,7 +747,7 @@ struct DedIntern {
 	}
 
 	// TODO: Add name muting, if wanted.
-	void Cmd_MuteWorm(const std::string & params)
+	void Cmd_MuteWorm(DedInterface* caller, const std::string & params)
 	{
 		int id = -1;
 		id = atoi(params);
@@ -647,7 +757,7 @@ struct DedIntern {
 		cServer->muteWorm(id);
 	}
 
-	void Cmd_SetWormTeam(const std::string & params)
+	void Cmd_SetWormTeam(DedInterface* caller, const std::string & params)
 	{
 		//TODO: Is this correct? Does atoi only catch the first number sequence?
 		int id = -1;
@@ -673,7 +783,7 @@ struct DedIntern {
 		cServer->SendWormLobbyUpdate();
 	}
 
-	void Cmd_AuthorizeWorm(const std::string & params)
+	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string & params)
 	{
 		int id = -1;
 		id = atoi(params);
@@ -684,7 +794,7 @@ struct DedIntern {
 	}
 
 	// This command just fits here perfectly
-	void Cmd_SetVar(const std::string& params) {
+	void Cmd_SetVar(DedInterface* caller, const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
 			warnings << "DedicatedControl: SetVar: wrong params: " << params << endl;
 			return;
@@ -729,7 +839,7 @@ struct DedIntern {
 		cServer->UpdateGameLobby();
 	}
 
-	void Cmd_StartLobby(std::string param) {
+	void Cmd_StartLobby(DedInterface* caller, std::string param) {
 		if(state != S_INACTIVE) {
 			warnings << "Ded: we cannot start the lobby in current state" << endl;
 			hints << "Ded: stop lobby/game if you want to restart it" << endl;
@@ -783,7 +893,7 @@ struct DedIntern {
 		Sig_LobbyStarted();
 	}
 
-	void Cmd_StartGame() {
+	void Cmd_StartGame(DedInterface* caller) {
 		if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames]) {
 			warnings << "DedControl: cannot start game, too few players" << endl;
 			Sig_ErrorStartGame();
@@ -800,17 +910,17 @@ struct DedIntern {
 		tLX->iGameType = GME_HOST;
 	}
 
-	void Cmd_GotoLobby() {
+	void Cmd_GotoLobby(DedInterface* caller) {
 		cServer->gotoLobby();
 		*DeprecatedGUI::bGame = false;
 		DeprecatedGUI::tMenu->bMenuRunning = true;
 	}
 
-	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
+	void Cmd_ChatMessage(DedInterface* caller, const std::string& msg, int type = TXT_NOTICE) {
 		cServer->SendGlobalText(msg, type);
 	}
 
-	void Cmd_PrivateMessage(const std::string& params, int type = TXT_NOTICE) {
+	void Cmd_PrivateMessage(DedInterface* caller, const std::string& params, int type = TXT_NOTICE) {
 		int id = -1;
 		id = atoi(params);
 		CWorm *w = CheckWorm(id, "PrivateMessage");
@@ -824,37 +934,27 @@ struct DedIntern {
 		w->getClient()->getNetEngine()->SendText(msg, type);
 	}
 
-	// TODO: make it send more info. No.
-	void Cmd_GetWormList(const std::string& params)
+	void Cmd_GetWormList(DedInterface* caller, const std::string& params)
 	{
-		int id = -1;
-		if (!params.empty()) // ID specified
-			id = atoi(params);
-
 		CWorm *w = cServer->getWorms();
 		for(int i=0; i < MAX_WORMS; i++, w++)
 		{
 			if(!w->isUsed())
 				continue;
 
-			if (id == -1)
-				Sig_WormList(w);
-			else if (w->getID() == id)
-				Sig_WormList(w);
+			caller->pushReturnArg(itoa(w->getID()));
 		}
-		Sig_EndList();
 	}
 
-	void Cmd_GetComputerWormList() {
+	void Cmd_GetComputerWormList(DedInterface* caller) {
 		profile_t *p = GetProfiles();
 		for(;p;p=p->tNext) {
 			if(p->iType == PRF_COMPUTER->toInt())
-				Sig_ComputerWormList(p);
+				caller->pushReturnArg(p->sName);
 		}
-		Sig_EndList();
 	}
 
-	void Cmd_GetWormIp(const std::string& params)
+	void Cmd_GetWormIp(DedInterface* caller, const std::string& params)
 	{
 		int id = -1;
 		id = atoi(params);
@@ -865,21 +965,17 @@ struct DedIntern {
 		if(w && w->getClient() && w->getClient()->getChannel())
 			NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
 		if (str_addr != "")
-			Sig_WormIp(id,str_addr);
+			caller->pushReturnArg(str_addr);
 		else
-		{
-			Sig_WormIp(id,"0.0.0.0");
 			notes << "DedicatedControl: GetWormIp: str_addr == \"\"" << endl;
-		}
 	}
 
-	void Cmd_GetWormLocationInfo(const std::string& params) {
+	void Cmd_GetWormLocationInfo(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
 		if (!w)
 		{
-			Sig_WormLocationInfo(id, "Unknown", "UNK", "Unknown");
 			return;
 		}
 
@@ -890,124 +986,144 @@ struct DedIntern {
 		if (str_addr != "")
 		{
 			info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-			Sig_WormLocationInfo(id,info.Continent,info.Country,info.CountryShortcut);
+			caller->pushReturnArg(info.Continent);
+			caller->pushReturnArg(info.Country);
+			caller->pushReturnArg(info.CountryShortcut);
 		}
 		else
 		{
-			Sig_WormLocationInfo(id, "Unknown", "UNK", "Unknown");
 			notes << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << endl;
 		}
 	}
 
-	void Cmd_GetWormPing(const std::string& params) {
+	void Cmd_GetWormPing(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormPing");
-		if (!w)
-		{
-			Sig_WormPing(id,0);
+		if(!w || !w->getClient() || !w->getClient()->getChannel())
 			return;
-		}
 
-		Sig_WormPing(id,w->getClient()->getChannel()->getPing());
+		caller->pushReturnArg(itoa(w->getClient()->getChannel()->getPing()));
 	}
 
-	void Cmd_GetWormSkin(const std::string& params) {
+	void Cmd_GetWormSkin(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(id, "GetWormSkin");
 		if (!w)
 		{
-			Sig_WormSkin(id, 0, "Default.png");
+			caller->pushReturnArg(0);
+			caller->pushReturnArg("Default.png");
 			return;
 		}
 
-		Sig_WormSkin(id, w->getSkin().getDefaultColor(), w->getSkin().getFileName());
+		caller->pushReturnArg(itoa(w->getSkin().getDefaultColor()));
+		caller->pushReturnArg(w->getSkin().getFileName());
 	}
 
-	void Cmd_Connect(const std::string& params) {
+	void Cmd_Connect(DedInterface* caller, const std::string& params) {
 		JoinServer(params, params, "");
+		// TODO: move to JoinServer
 		Sig_Connecting(params);
 	}
 
 
-	void HandleCommand(const std::string& cmd_, const std::string& params) {
-		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
+	void HandleCommand(const DedInterface::Command& command) {
+		std::string cmd = command.cmd; TrimSpaces(cmd);
+		std::string params;
+		size_t f = cmd.find(' ');
+		if(f != std::string::npos) {
+			params = cmd.substr(f + 1);
+			TrimSpaces(params);
+			cmd = cmd.substr(0, f);
+		}
+		stringlwr(cmd);
 		if(cmd == "") return;
 
-#ifdef DEBUG
-		// This message just makes everything else unreadable
-		// Doesn't need to be printed even in debugmode.
-		if (cmd != "getwormping")
-			notes << "DedicatedControl: exec: " << cmd << " " << params << endl;
-#endif
 		// TODO: merge these commands with ingame console commands (Commands.cpp)
-		if(cmd == "quit")
-			Cmd_Quit();
+		if(cmd == "nextsignal") {
+			ScopedLock lock(pendingSignalsMutex);
+			if(pendingSignals.size() > 0) {
+				Signal sig = pendingSignals.front();
+				pendingSignals.pop_front();
+				command.sender->pushReturnArg(sig.name);
+				for(std::list<std::string>::iterator i = sig.args.begin(); i != sig.args.end(); ++i)
+					command.sender->pushReturnArg(*i);
+			}
+			else {
+				// do nothing, we will send the next signal when it arrives
+				waitingForNextSignal = true;
+				return;
+			}
+		}
+		else if(cmd == "quit")
+			Cmd_Quit(command.sender);
 		else if(cmd == "setvar")
-			Cmd_SetVar(params);
+			Cmd_SetVar(command.sender, params);
 		else if(cmd == "script")
-			Cmd_Script(params);
+			Cmd_Script(command.sender, params);
 		else if(cmd == "msg")
-			Cmd_Message(params);
+			Cmd_Message(command.sender, params);
 		else if(cmd == "chatmsg")
-			Cmd_ChatMessage(params);
+			Cmd_ChatMessage(command.sender, params);
 		else if(cmd == "privatemsg")
-			Cmd_PrivateMessage(params);
+			Cmd_PrivateMessage(command.sender, params);
 		else if(cmd == "startlobby")
-			Cmd_StartLobby(params);
+			Cmd_StartLobby(command.sender, params);
 		else if(cmd == "startgame")
-			Cmd_StartGame();
+			Cmd_StartGame(command.sender);
 		else if(cmd == "gotolobby")
-			Cmd_GotoLobby();
+			Cmd_GotoLobby(command.sender);
 
 		else if(cmd == "addbot")
-			Cmd_AddBot(params);
+			Cmd_AddBot(command.sender, params);
 		else if(cmd == "killbots")
-			Cmd_KillBots(params);
+			Cmd_KillBots(command.sender, params);
 
 		else if(cmd == "kickworm")
-			Cmd_KickWorm(params);
+			Cmd_KickWorm(command.sender, params);
 		else if(cmd == "banworm")
-			Cmd_BanWorm(params);
+			Cmd_BanWorm(command.sender, params);
 		else if(cmd == "muteworm")
-			Cmd_MuteWorm(params);
+			Cmd_MuteWorm(command.sender, params);
 
 		else if(cmd == "setwormteam")
-			Cmd_SetWormTeam(params);
+			Cmd_SetWormTeam(command.sender, params);
 
 		else if(cmd == "authorizeworm")
-			Cmd_AuthorizeWorm(params);
+			Cmd_AuthorizeWorm(command.sender, params);
 
 		else if(cmd =="getwormlist")
-			Cmd_GetWormList(params);
+			Cmd_GetWormList(command.sender, params);
 		else if(cmd == "getcomputerwormlist")
-			Cmd_GetComputerWormList();
+			Cmd_GetComputerWormList(command.sender);
 		else if(cmd == "getwormip")
-			Cmd_GetWormIp(params);
+			Cmd_GetWormIp(command.sender, params);
 		else if(cmd == "getwormlocationinfo")
-			Cmd_GetWormLocationInfo(params);
+			Cmd_GetWormLocationInfo(command.sender, params);
 		else if(cmd == "getwormping")
-			Cmd_GetWormPing(params);
+			Cmd_GetWormPing(command.sender, params);
 		else if(cmd == "getwormskin")
-			Cmd_GetWormSkin(params);
+			Cmd_GetWormSkin(command.sender, params);
 
 		else if(cmd == "connect")
-			Cmd_Connect(params);
+			Cmd_Connect(command.sender, params);
 
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
-		else
+		else {
 			warnings << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
+		}
+		
+		command.sender->finalizeReturn();
 	}
 
 	// ----------------------------------
 	// ----------- signals --------------
 
-	// Keep up with how THIS recieves signals - "params" are split by space, use same when sending.
-	void Sig_LobbyStarted() { getPipe() << "lobbystarted" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
-	void Sig_GameLoopStart() { getPipe() << "gameloopstart" << endl; state = S_SVRPREPARING; ScriptSignalHandler(); }
+	void Sig_LobbyStarted() { pushSignal("lobbystarted"); state = S_SVRLOBBY; }
+	void Sig_GameLoopStart() { pushSignal("gameloopstart"); state = S_SVRPREPARING; }
 	void Sig_GameLoopEnd() {
-		getPipe() << "gameloopend" << endl;
+		pushSignal("gameloopend");
 		if(state != S_SVRLOBBY && state != S_CLILOBBY)
 			// This is because of the current game logic: It will end the game
 			// loop and then return to the lobby but only in the case if we got a
@@ -1015,49 +1131,30 @@ struct DedIntern {
 			// the gameloop was ended, that means that the game was stopped
 			// completely.
 			state = S_INACTIVE;
-		ScriptSignalHandler();
 	}
-	void Sig_WeaponSelections() { getPipe() << "weaponselections" << endl; state = S_SVRWEAPONS; ScriptSignalHandler(); }
-	void Sig_GameStarted() { getPipe() << "gamestarted" << endl; state = S_SVRPLAYING; ScriptSignalHandler(); }
-	void Sig_BackToLobby() { getPipe() << "backtolobby" << endl; state = S_SVRLOBBY; ScriptSignalHandler(); }
-	void Sig_ErrorStartLobby() { getPipe() << "errorstartlobby" << endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ErrorStartGame() { getPipe() << "errorstartgame" << endl; ScriptSignalHandler(); }
-	void Sig_Quit() { getPipe() << "quit" << endl; closePipe(); state = S_INACTIVE; ScriptSignalHandler(); }
+	void Sig_WeaponSelections() { pushSignal("weaponselections"); state = S_SVRWEAPONS; }
+	void Sig_GameStarted() { pushSignal("gamestarted"); state = S_SVRPLAYING; }
+	void Sig_BackToLobby() { pushSignal("backtolobby"); state = S_SVRLOBBY; }
+	void Sig_ErrorStartLobby() { pushSignal("errorstartlobby"); state = S_INACTIVE; }
+	void Sig_ErrorStartGame() { pushSignal("errorstartgame"); }
+	void Sig_Quit() { pushSignal("quit"); scriptInterface->closePipe(); state = S_INACTIVE; }
 
-	void Sig_Connecting(const std::string& addr) { getPipe() << "connecting " << addr << std::endl; state = S_CLICONNECTING; ScriptSignalHandler(); }
-	void Sig_ConnectError(const std::string& err) { getPipe() << "connecterror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_Connected() { getPipe() << "connected" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
-	void Sig_ClientError() { getPipe() << "clienterror" << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ClientConnectionError(const std::string& err) { getPipe() << "connectionerror " << err << std::endl; state = S_INACTIVE; ScriptSignalHandler(); }
-	void Sig_ClientGameStarted() { getPipe() << "clientgamestarted" << std::endl; state = S_CLIPLAYING; ScriptSignalHandler(); }
-	void Sig_ClientGotoLobby() { getPipe() << "clientbacktolobby" << std::endl; state = S_CLILOBBY; ScriptSignalHandler(); }
+	void Sig_Connecting(const std::string& addr) { pushSignal("connecting", addr); state = S_CLICONNECTING; }
+	void Sig_ConnectError(const std::string& err) { pushSignal("connecterror", err); state = S_INACTIVE; }
+	void Sig_Connected() { pushSignal("connected"); state = S_CLILOBBY;  }
+	void Sig_ClientError() { pushSignal("clienterror"); state = S_INACTIVE; }
+	void Sig_ClientConnectionError(const std::string& err) { pushSignal("connectionerror", err); state = S_INACTIVE; }
+	void Sig_ClientGameStarted() { pushSignal("clientgamestarted"); state = S_CLIPLAYING; }
+	void Sig_ClientGotoLobby() { pushSignal("clientbacktolobby"); state = S_CLILOBBY; }
 
-	void Sig_NewWorm(CWorm* w) { getPipe() << "newworm " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormLeft(CWorm* w) { getPipe() << "wormleft " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormList(CWorm* w) { getPipe() << "wormlistinfo " << w->getID() << " " << w->getName() << std::endl; ScriptSignalHandler(); }
-	void Sig_ComputerWormList(profile_t * w) { getPipe() << "computerwormlistinfo " << w->iID << " " << w->sName << std::endl; ScriptSignalHandler(); }
-	void Sig_EndList() { getPipe() << "endlist" << std::endl; ScriptSignalHandler(); }
-	void Sig_ChatMessage(CWorm* w, const std::string& message) { getPipe() << "chatmessage " << w->getID() << " " << message << std::endl; ScriptSignalHandler(); }
-	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { getPipe() << "privatemessage " << w->getID() << " " << to->getID() << " " << message << std::endl; ScriptSignalHandler(); }
-	void Sig_WormDied(CWorm* died, CWorm* killer) { getPipe() << "wormdied " << died->getID() << " " << killer->getID() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormSpawned(CWorm* worm) { getPipe() << "wormspawned " << worm->getID() << std::endl; ScriptSignalHandler(); }
-	void Sig_WormIp(int id, const std::string& ip) { getPipe() << "wormip " << id << " " << ip << std::endl; ScriptSignalHandler(); }
-	// Continents don't have spaces in em.
-	// TODO: Bad forward compability. We might get new continents.
-	// CountryShortcuts don't have spaces in em.
-	// Countries CAN have spacies in em. (United Arab Emirates for example, pro country)
-	void Sig_WormLocationInfo(int id, const std::string& continent, const std::string& country, const std::string& countryShortcut) {
-		getPipe() << "wormlocationinfo " << id << " " << continent << " " << countryShortcut << " " << country  << endl; ScriptSignalHandler(); }
+	void Sig_NewWorm(CWorm* w) { pushSignal("newworm", itoa(w->getID()), w->getName()); }
+	void Sig_WormLeft(CWorm* w) { pushSignal("wormleft", itoa(w->getID()), w->getName()); }
+	void Sig_ChatMessage(CWorm* w, const std::string& message) { pushSignal("chatmessage", itoa(w->getID()), message); }
+	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { pushSignal("privatemessage", itoa(w->getID()), itoa(to->getID()), message); }
+	void Sig_WormDied(CWorm* died, CWorm* killer) { pushSignal("wormdied", itoa(died->getID()), itoa(killer->getID())); }
+	void Sig_WormSpawned(CWorm* worm) { pushSignal("wormspawned", itoa(worm->getID())); }
 
-	void Sig_WormPing(int id, int ping) { getPipe() << "wormping " << id << " " << ping << endl; ScriptSignalHandler(); }
-	void Sig_WormSkin(int id, Uint32 color, std::string filename ) { getPipe() << "wormskin " << id << " " << color << " " << filename << endl; ScriptSignalHandler(); }
-
-	void Sig_Timer() { getPipe() << "timer" << std::endl; ScriptSignalHandler(); }
-
-	// TODO: Make other commands for requesting more infos from a worm. Don't spam wormlist.
-	// Like some more non-game/lobby specific things (I don't know what i mean by this, perhaps you do?)
-	// TODO: Send all kills/deaths/teamkills after each game? Could get ugly real fast thou.
-
+	void Sig_Timer(const std::string& name) { pushSignal("timer", name); }
 
 
 	// ----------------------------------
@@ -1129,25 +1226,22 @@ struct DedIntern {
 		static float lastTimeHandlerCalled = tLX->fCurTime;
 		if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
 		{
-			Sig_Timer();
+			Sig_Timer("second-ticker"); // TODO ...
 			lastTimeHandlerCalled = tLX->fCurTime;
 		}
 
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 		if( ! usePython )
 #endif
 		{
-			SDL_mutexP(pipeOutputMutex);
-			while( pipeOutput.str().size() > (size_t)pipeOutput.tellg() ) {
-				std::string cmd, rest;
-				Ded_ParseCommand(pipeOutput, cmd, rest);
-				SDL_mutexV(pipeOutputMutex);
+			SDL_mutexP(pendingCommandsMutex);
+			while( pendingCommands.size() > 0 ) {
+				DedInterface::Command command = pendingCommands.front();
+				pendingCommands.pop_front();
 
-				HandleCommand(cmd, rest);
-				SDL_mutexP(pipeOutputMutex);
-				lastTimeHandlerCalled = tLX->fCurTime;
+				HandleCommand(command);
 			}
-			SDL_mutexV(pipeOutputMutex);
+			SDL_mutexV(pendingCommandsMutex);
 		}
 
 		ProcessEvents();
@@ -1198,7 +1292,7 @@ struct DedIntern {
 };
 
 
-#ifdef WITH_PYTHON
+#ifdef PYTHON_DED_EMBEDDED
 
 PyMethodDef DedIntern::DedScriptEngineMethods[3] = {
 		{ "GetSignal",  GetSignal, METH_VARARGS, "Get next signal from OLX"},
@@ -1214,15 +1308,15 @@ bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern;
 	if(tLXOptions->sDedicatedScript != "" && tLXOptions->sDedicatedScript != "/dev/null") {
 		if(IsAbsolutePath(tLXOptions->sDedicatedScript))
-			return dedIntern->loadScript(tLXOptions->sDedicatedScript);
+			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
 
 		if(strStartsWith(tLXOptions->sDedicatedScript, "scripts/")) // old clients will use it like that
-			return dedIntern->loadScript(tLXOptions->sDedicatedScript);
+			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
 		
-		return dedIntern->loadScript("scripts/" + tLXOptions->sDedicatedScript);
+		return dedIntern->scriptInterface->loadScript("scripts/" + tLXOptions->sDedicatedScript);
 	}
 	else
-		return dedIntern->loadScript("/dev/null");
+		return dedIntern->scriptInterface->loadScript("/dev/null");
 }
 
 

@@ -28,7 +28,7 @@ except:
 	pass
 
 try:
-	os.listdir(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg") # TODO: lame, use Win32 API
+	os.listdir(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg") # TODO: lame, use Python functions
 	sys.path.append(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg")
 except:
 	pass
@@ -56,11 +56,11 @@ hnd.init()
 io.messageLog("Dedicated_control started",io.LOG_INFO)
 
 def MainLoop():
-
 	hnd.signalHandler(io.getSignal())
 
 
 if not io.OlxImported:
 	while hnd.gameState != hnd.GAME_QUIT:
-
 		MainLoop()
+	
+	io.messageLog("Dedicated_control stopped",io.LOG_INFO)

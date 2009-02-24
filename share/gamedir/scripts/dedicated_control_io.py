@@ -8,7 +8,6 @@ import time
 # Needed for directory access
 import os
 import sys
-import threading
 import traceback
 
 import dedicated_config  # Per-host config like admin password
@@ -18,10 +17,10 @@ OlxImported = False
 try:
 	import OLX
 	OlxImported = True
-	def SendCommand(X):
+	def RawSendCommand(X):
 		OLX.SendCommand(str(X))
 except:
-	def SendCommand(X):
+	def RawSendCommand(X):
 		print X
 
 
@@ -30,52 +29,18 @@ import dedicated_control_handler as hnd
 
 ## Receiving functions ##
 
-# Non-blocking IO class
-# You should use getSignal() function to get another signal, not read from stdin.
-# getSignal() will return empty string if there is nothing to read.
-# use pushSignal() if you want to have some signal later read by getSignal()
-
-
-# This is just technical mumbojumbo, not really interresting for the common user (you)
-# You can ignore this part: What's important is that this part catches EVERYTHING sent by OLX,
-# puts it in it's buffer, and delivers it to anyone who asks by getResponse().
-
-bufferedSignals = []
-emptyLines = 0 # Hack to stdin being silently closed
-
 if not OlxImported:
 
-	# Use this function to get signals, don't access bufferedSignals array directly
-	def getSignal():
-		global bufferedSignals, emptyLines
-		ret = ""
-		if len(bufferedSignals) > 0:
-			ret = bufferedSignals[0]
-			bufferedSignals = bufferedSignals[1:]
-		else:
-			line = sys.stdin.readline()
-			if line.strip() != "":
-				emptyLines = 0
-				ret = line.strip()
-			else:
-				emptyLines += 1
-		if sys.stdin.closed or emptyLines > 100:
-			sys.stderr.write("Broken Pipe -- exiting")
-			# OLX terminated, stdin = broken pipe, we should terminate also
-			sys.exit()
+	def getRawResponse():
+		while True:
+			ret = sys.stdin.readline().strip()
+			if ret != "": return ret
 
-		#if ret != "": msg("Got signal \"%s\"" % ret)
-		return ret
-
-	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
-	def pushSignal(sig):
-		global bufferedSignals
-		bufferedSignals.append(sig)
 
 else:
 
 	# Use this function to get signals, don't access bufferedSignals array directly
-	def getSignal():
+	def getRawResponse():
 		global bufferedSignals
 		ret = ""
 		if len(bufferedSignals) > 0:
@@ -93,44 +58,26 @@ else:
 		bufferedSignals.append(sig)
 
 
-# Wait until specific signal, returns params of that signal (strips signal name), saves all extra signals.
-def getResponse(cmd):
-	ret = ""
-	extraSignals = []
-	resp = getSignal()
-	startTime = time.time()
-	while ret == "":
-		if resp.find(cmd+" ") == 0:
-			ret = resp[len(cmd)+1:] # Strip cmd string and push the rest to return-value
+
+def getResponse():
+	ret = []
+	resp = getRawResponse()
+	while resp != ".":
+		if not resp.startswith(':'):
+			sys.stderr.write("bad OLX dedicated response: " + resp + "\n")
 		else:
-			extraSignals.append(resp)
-		if ret == "":
-			resp = getSignal()
-	for s in extraSignals:
-		pushSignal(s)
+			ret.append( resp[1:] )
+		resp = getRawResponse()
 	return ret
 
-# This function is indended to parse something like:
-# "newworm 1 Player1" -> we call "getwormlist" and getResponseList("wormlistinfo")
-# "gamestarted" is arrived when getResponseList("wormlistinfo") called, then worm list info arrives:
-# "wormlistinfo 0 [CPU] Kamikazee!"
-# "wormlistinfo 1 Player1"
-# "endlist"
-# It will return array [ "0 [CPU] Kamikazee!", "1 Player1" ] and push back "gamestarted" signal so we will parse it next.
-def getResponseList(cmd):
-	ret = []
-	extraSignals = []
-	resp = getSignal()
-	startTime = time.time()
-	while resp != "endlist":
-		if resp.find(cmd+" ") == 0:
-			ret.append( resp[len(cmd)+1:] ) # Strip cmd string and push the rest to return-value
-		else:
-			extraSignals.append(resp)
-		resp = getSignal()
-	for s in extraSignals:
-		pushSignal(s)
-	return ret
+
+def SendCommand(cmd):
+	RawSendCommand(cmd)
+	return getResponse()
+
+def getSignal():
+	return SendCommand("nextsignal")
+
 
 ## Sending functions ##
 
@@ -198,42 +145,29 @@ def authorizeWorm(iID):
 
 # Use this to get the list of all possible bots.
 def getComputerWormList():
-	SendCommand( "getcomputerwormlist" )
-	resp = getResponseList("computerwormlistinfo")
-	hnd.bots = {}
-	for r in resp:
-		iID = int(r[:r.find(" ")])
-		name = r[r.find(" ")+1:]
-		hnd.bots[iID] = name
+	return SendCommand( "getcomputerwormlist" )
 
 def getWormIP(iID):
-	SendCommand( "getwormip %i" % int(iID) )
-	ret = getResponse("wormip %i" % int(iID))
-	if ret == "":
-		ret = "0.0.0.0"
-	return ret
+	ret = SendCommand( "getwormip %i" % int(iID) )
+	if len(ret) == 0:
+		return "0.0.0.0"
+	return ret[0]
 
 def getWormLocationInfo(iID):
-	SendCommand( "getwormlocationinfo %i" % int(iID) )
-	ret = getResponse("wormlocationinfo %i" % int(iID))
-	if ret == "":
-		ret = "Unknown Unk Unknown"
-	return ret
+	ret = SendCommand( "getwormlocationinfo %i" % int(iID) )
+	if len(ret) == 0:
+		return "Unknown Location"
+	return ret[0]
 
 def getWormPing(iID):
-	SendCommand( "getwormping %i" % int(iID) )
-	ret = getResponse("wormping %i" % int(iID))
-	if ret == "":
-		ret = "0"
-	return int(ret)
+	ret = SendCommand( "getwormping %i" % int(iID) )
+	if len(ret) == 0:
+		return "0"
+	return int(ret[0])
 
 def getWormSkin(iID):
-	SendCommand( "getwormskin %i" % int(iID) )
-	ret = getResponse("wormskin %i" % int(iID))
-	if ret == "":
-		ret = "0 default.png"
-	ret = ret.split(" ")
-	return ( int(ret[0]), " ".join(ret[1:]).lower() )
+	ret = SendCommand( "getwormskin %i" % int(iID) )
+	return ( int(ret[0]), ret[1].lower() )
 
 # Use this to write to stdout (standard output)
 def msg(string):

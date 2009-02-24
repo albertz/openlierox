@@ -873,7 +873,7 @@ int CServerNetEngineBeta5::SendFiles()
 		ping = minPingDefault; // Default assumed ping
 		if( cl->getChannel()->getPing() != 0 )
 			ping = cl->getChannel()->getPing();
-	};
+	}
 	return ping;
 }
 
@@ -892,12 +892,12 @@ void GameServer::SendFiles()
 			startTimer = true;
 			if( minPing > ping )
 				minPing = ping;
-		};
-	};
+		}
+	}
 
 	if( startTimer )
 		Timer( null, NULL, (Uint32)(minPing / pingCoeff), true ).startHeadless();
-};
+}
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
@@ -926,7 +926,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 	for( j = 0; j < cl->getNumWorms(); j++ )
 		cl->getWorm(j)->writeStatUpdate(&bs);
 	cl->getNetEngine()->SendPacket(&bs);
-};
+}
 
 void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
@@ -937,7 +937,7 @@ void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 	bs.writeInt( (int)pos.y, 2);
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngine::SendWormDied(CWorm *Worm)
 {
@@ -946,7 +946,7 @@ void CServerNetEngine::SendWormDied(CWorm *Worm)
 	bs.writeInt(Worm->getID(), 1);
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngine::SendWormScore(CWorm *Worm)
 {
@@ -962,7 +962,7 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 		bs.writeInt(Worm->getKills() > 0 ? Worm->getKills() : 0, 1);
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 {
@@ -977,7 +977,7 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	bs.writeInt(Worm->getDamage(), 2);
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngineBeta9::QueueReportDamage(int victim, int damage, int offender)
 {
@@ -988,7 +988,7 @@ void CServerNetEngineBeta9::QueueReportDamage(int victim, int damage, int offend
 	cDamageReport[ dmgPair ] += damage;
 	
 	SendReportDamage();
-};
+}
 
 void CServerNetEngineBeta9::SendReportDamage(bool flush)
 {
@@ -1015,11 +1015,11 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 			bs.writeByte( damageSend );
 			bs.writeByte(offender);
 			damage -= damageSend;
-		};
-	};
+		}
+	}
 
 	SendPacket(&bs);
 
 	cDamageReport.clear();
 	fLastDamageReportSent = tLX->fCurTime;
-};
+}
