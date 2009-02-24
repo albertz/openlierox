@@ -69,10 +69,10 @@ protected:
 	public:
 		// WARNING: Don't assign NULL, use always null!
 		// WARNING: The Event-class overtakes the pointer, so don't assign any static stuff. Use getEventHandler() for example.
-		HandlerAccessor& operator=(Handler* h) { m_handler = h; return *this; }
+		HandlerAccessor& operator=(Handler* h) { assert(h != NULL); m_handler = h; return *this; }
 		HandlerAccessor& operator=(Null) { m_handler = new Handler_NoOp(); return *this; }
-		HandlerAccessor& operator+=(Handler* h) { m_handler = new Handler_Joined(m_handler.overtake(), h); return *this; }
-		HandlerAccessor& operator-=(Handler* h) {			
+		HandlerAccessor& operator+=(Handler* h) { assert(h != NULL); m_handler = new Handler_Joined(m_handler.overtake(), h); return *this; }
+		HandlerAccessor& operator-=(Handler* h) {
 			Ref<Handler>* base = &m_handler;
 			Handler_Joined* joined;
 			while((joined = dynamic_cast<Handler_Joined*>(&base->get())) != NULL) {

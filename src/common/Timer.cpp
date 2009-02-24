@@ -97,9 +97,36 @@ std::string GetTime()
 	return cTime;
 }
 
+
+
+
+
+
+
+
 // -----------------------------------
 // Timer class
 // HINT: the timer is not exact, do not use it for any exact timing, like ingame simulation
+
+
+
+struct InternTimerEventData {
+	TimerData* data; // for intern struct TimerData
+	bool lastEvent;
+	InternTimerEventData(TimerData* d, bool le) : data(d), lastEvent(le) {}
+};
+Event<InternTimerEventData> onInternTimerSignal;
+static bool timerSystem_inited = false;
+
+
+static void Timer_handleEvent(InternTimerEventData data);
+
+static void InitTimerSystem() {
+	if(timerSystem_inited) return;
+	onInternTimerSignal.handler() = getEventHandler(&Timer_handleEvent);
+	timerSystem_inited = true;
+}
+
 
 // Timer data, contains almost the same info as the timer class
 struct TimerData {
@@ -109,7 +136,53 @@ struct TimerData {
 	Uint32				interval;
 	bool				once;
 	bool				quitSignal;
-	SDL_TimerID			timerID;
+	SDL_cond*			quitCond;
+	SDL_mutex*			mutex;
+	ThreadPoolItem*		thread;
+	
+	TimerData() : timer(NULL), userData(NULL), interval(0), once(false), quitSignal(false), quitCond(NULL), mutex(NULL), thread(NULL) {
+		mutex = SDL_CreateMutex();
+		quitCond = SDL_CreateCond();
+	}
+	~TimerData() {
+		if(thread) threadPool->wait(thread, NULL); thread = NULL;
+		SDL_DestroyMutex(mutex); mutex = NULL;
+		SDL_DestroyCond(quitCond); quitCond = NULL;
+	}
+	
+	void startThread() {
+		assert(thread == NULL);
+		
+		struct TimerHandler : Action {
+			TimerData* data;
+			
+			// thread function
+			int handle() {
+	
+				while(true) {
+					// TODO: use quitCond (for quitSignal) with a timeout instead
+					SDL_Delay(data->interval);
+			
+					bool lastEvent = data->once || data->quitSignal;
+					onInternTimerSignal.pushToMainQueue(InternTimerEventData(data, lastEvent));
+	
+					if(lastEvent) {
+						// we have to return it here to ensure that this callback is never called again
+						// we also have to ensure that there is only *one* event with lastEvent=true
+						// (and this event has to be of course the last event for this timer in the queue)
+						return 0;
+					}
+				}
+		
+				return -1;
+			}
+		
+			TimerHandler(TimerData* d) : data(d) {}
+		};
+		
+		thread = threadPool->start(new TimerHandler(this), "timer");
+	}
+	
 };
 
 // Global list that holds info about headless timers
@@ -131,8 +204,6 @@ void ShutdownTimers()
 
 	// Stop and free all the running timers
 	for (std::list<TimerData *>::iterator it = timers.begin(); it != timers.end(); it++)  {
-		if ((*it)->timerID)
-			SDL_RemoveTimer((*it)->timerID);
 
 		// Call the user function, because it might free some data
 		Event<Timer::EventData>::Handler& handler = (*it)->timer ? (*it)->timer->onTimer.handler().get() : (*it)->onTimerHandler.get();
@@ -159,23 +230,6 @@ static void RemoveTimerFromGlobalList(TimerData *data)
 	}
 }
 
-
-struct InternTimerEventData {
-	TimerData* data; // for intern struct TimerData
-	bool lastEvent;
-	InternTimerEventData(TimerData* d, bool le) : data(d), lastEvent(le) {}
-};
-Event<InternTimerEventData> onInternTimerSignal;
-static bool timerSystem_inited = false;
-
-
-static void Timer_handleEvent(InternTimerEventData data);
-
-static void InitTimerSystem() {
-	if(timerSystem_inited) return;
-	onInternTimerSignal.handler() = getEventHandler(&Timer_handleEvent);
-	timerSystem_inited = true;
-}
 
 ////////////////
 // Constructors
@@ -222,39 +276,6 @@ Timer::~Timer()
 
 
 
-///////////////////
-// Handle the timer callback, called from SDL
-static Uint32 Timer_handleCallback(Uint32 interval, void *param)
-{
-	// Check
-	if (!param)  {
-		// Very weird, should not happen, but the crash reports say something else...
-		assert(false);
-		return 0;
-	}
-
-	TimerData* timer_data = (TimerData *)param;
-	
-	bool lastEvent = timer_data->once || timer_data->quitSignal;
-	
-	onInternTimerSignal.pushToMainQueue(InternTimerEventData(timer_data, lastEvent));
-
-
-	if(lastEvent) {
-		// we have to call it here to ensure that this callback is never called again
-		// we also have to ensure that there is only *one* event with lastEvent=true
-		// (and this event has to be of course the last event for this timer in the queue)
-		if(!SDL_RemoveTimer(timer_data->timerID)) {
-			// should never happen!
-			warnings << "could not remove timer" << endl;
-		}
-	}
-	
-	// If run once, return almost infinite interval and wait for handleEvent to destroy us
-	// If run periodically, return the same interval as passed in (SDL will keep the timer alive with the same interval)
-	return lastEvent ? (Uint32)-1 : timer_data->interval;
-}
-
 
 /////////////////
 // Returns true if this timer is running
@@ -270,7 +291,7 @@ bool Timer::start()
 	
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
-	m_lastData = (void *)data;
+	m_lastData = data;
 	
 	data->timer = this;
 	data->onTimerHandler = NULL;
@@ -278,18 +299,12 @@ bool Timer::start()
 	data->interval = interval;
 	data->once = once;
 	data->quitSignal = false;
-	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
+	data->startThread();
 	
-	if(data->timerID == NULL) {
-		warnings << "failed to start timer" << endl;
-		delete data;
-		return false;
-	} else {
-		timers.push_back(data); // Add it to the global timer array
+	timers.push_back(data); // Add it to the global timer array
 
-		m_running = true;
-		return true;
-	}
+	m_running = true;
+	return true;
 }
 
 //////////////////
@@ -304,16 +319,10 @@ bool Timer::startHeadless()
 	data->interval = interval;
 	data->once = once;
 	data->quitSignal = false;
-	data->timerID = SDL_AddTimer(interval, &Timer_handleCallback, (void *) data);
+	data->startThread();
 	
-	if(data->timerID == NULL) {
-		warnings << "failed to start headless timer" << endl;
-		delete data;
-		return false;
-	} else  {
-		timers.push_back(data); // Add it to the global timer array
-		return true;
-	}
+	timers.push_back(data); // Add it to the global timer array
+	return true;
 }
 
 ////////////////
@@ -323,14 +332,12 @@ void Timer::stop()
 	// Already stopped
 	if(!m_running) return;
 	
-	((TimerData*)m_lastData)->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
-	TimerData *d = ((TimerData*)m_lastData);
-	if (d->timer && !EventSystemInited())  {  // If the event system is not initialized, it is sure that the handler won't get called and we must free the date to avoid leaks
-		RemoveTimerFromGlobalList(d); // To avoid double freed memory
-		delete d;
-		d = NULL;
-	}  else
-		d->timer = NULL; // remove the reference to avoid any calls to this object again (perhaps we delete this timer-object directly after)
+	m_lastData->quitSignal = true; // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
+	if(m_lastData->timer && !EventSystemInited())  {
+		// If the event system is not initialized, it is sure that the handler won't get called and we must free the data to avoid leaks
+		RemoveTimerFromGlobalList(m_lastData); // To avoid double freed memory
+		delete m_lastData;
+	}
 	m_lastData = NULL;
 	m_running = false;
 }
@@ -346,17 +353,27 @@ static void Timer_handleEvent(InternTimerEventData data)
 	
 	// Run the client function (if no quitSignal) and quit the timer if it returns false
 	// Also quit if we got last event signal
+	SDL_mutexP(timer_data->mutex);
 	if( !timer_data->quitSignal ) {
 		Event<Timer::EventData>::Handler& handler = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler.get();
 		bool shouldContinue = true;
-		handler( Timer::EventData(timer_data->timer, timer_data->userData, shouldContinue) );
-		if( !shouldContinue ) {
-			if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly
+		Timer::EventData eventData = Timer::EventData(timer_data->timer, timer_data->userData, shouldContinue);
+		handler( eventData );
+		if( timer_data->quitSignal ) { // we probably called the stop() inside the handler
+			if(timer_data->timer) {
 				timer_data->timer->stop();
-			else
+				timer_data->timer = NULL;
+			}
+		}
+		else if( !shouldContinue ) {
+			if(timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
+				timer_data->timer->stop();
+				timer_data->timer = NULL;
+			} else
 				timer_data->quitSignal = true;
 		}
 	}
+	SDL_mutexV(timer_data->mutex);
 	
 	if(data.lastEvent)  { // last-event-signal
 		if(timer_data->timer) // No headless timer => call stop() to handle intern state correctly

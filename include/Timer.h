@@ -75,6 +75,8 @@ std::string		GetTime();
 	after the last Timer-event to cleanup the userData for example.
 	if somebody needs this, feel free to implement
 */
+struct TimerData;
+
 class Timer {
 public:
 	struct EventData {
@@ -104,7 +106,7 @@ public:
 	
 private:
 	bool m_running;
-	void* m_lastData;	// it's TimerData* intern
+	TimerData* m_lastData;	// it's TimerData* intern
 };
 
 void InitializeTimers();
