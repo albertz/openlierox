@@ -41,7 +41,7 @@ private:
 	SDL_mutex* mutex;
 	SDL_cond* awakeThread;
 	SDL_cond* threadStartedWork;
-	SDL_cond* threadFinishedWork;
+	SDL_cond* threadStatusChanged;
 	Action* nextAction; bool nextIsHeadless; std::string nextName;
 	ThreadPoolItem* nextData;
 	bool quitting;

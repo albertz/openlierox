@@ -22,6 +22,7 @@
 #include "EventQueue.h"
 #include "ReadWriteLock.h"
 #include "Debug.h"
+#include "InputEvents.h"
 
 static void InitQuitSignalHandler();
 
@@ -40,18 +41,25 @@ struct EventQueueIntern {
 		if(queue.size() > 0) {
 			warnings << "there are " << queue.size() << " pending events in the event queue" << endl;
 		}
+		SDL_mutexP(mutex);
 		for(std::list<EventItem>::iterator i = queue.begin(); i != queue.end(); ++i) {
+			/* We execute all custom events because we want to ensure that
+			 * each thrown event is also execute.
+			 * We do some important cleanup and we stop other threads there which
+			 * would otherwise never stop, for example the Timer system. */
 			if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
+				((CustomEventHandler*)i->user.data1)->handle();
 				delete (CustomEventHandler*)i->user.data1;
 			}
 		}
 		queue.clear();
+		SDL_mutexV(mutex);
 		
 		SDL_DestroyMutex(mutex);
 		mutex = NULL;
 		
 		SDL_DestroyCond(cond);
-		cond = NULL;		
+		cond = NULL;
 	}
 };
 

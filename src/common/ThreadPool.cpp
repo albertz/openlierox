@@ -22,7 +22,7 @@ ThreadPool::ThreadPool() {
 	mutex = SDL_CreateMutex();
 	awakeThread = SDL_CreateCond();
 	threadStartedWork = SDL_CreateCond();
-	threadFinishedWork = SDL_CreateCond();
+	threadStatusChanged = SDL_CreateCond();
 	startMutex = SDL_CreateMutex();
 	
 	notes << "ThreadPool: creating " << THREADNUM << " threads ..." << endl;
@@ -47,7 +47,7 @@ ThreadPool::~ThreadPool() {
 	
 	SDL_DestroyMutex(startMutex);
 	SDL_DestroyCond(threadStartedWork);
-	SDL_DestroyCond(threadFinishedWork);
+	SDL_DestroyCond(threadStatusChanged);
 	SDL_DestroyCond(awakeThread);
 	SDL_DestroyMutex(mutex);
 }
@@ -89,7 +89,8 @@ int ThreadPool::threadWrapper(void* param) {
 		nameThread(data->name + " [finished]");
 		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
-
+		SDL_CondSignal(data->pool->threadStatusChanged);
+		
 		if(!data->headless) { // headless means that we just can clean it up right now without waiting
 			SDL_CondSignal(data->finishedSignal);
 			while(data->working) SDL_CondWait(data->readyForNewWork, data->pool->mutex);
@@ -97,8 +98,8 @@ int ThreadPool::threadWrapper(void* param) {
 			data->working = false;
 		data->pool->usedThreads.erase(data);
 		data->pool->availableThreads.insert(data);
+		SDL_CondSignal(data->pool->threadStatusChanged);
 		nameThread("");
-		SDL_CondSignal(data->pool->threadFinishedWork);
 	}
 
 	SDL_mutexV(data->pool->mutex);
@@ -167,7 +168,7 @@ bool ThreadPool::waitAll() {
 			if((*i)->working && (*i)->finished) {
 				warnings << "thread " << (*i)->name << " is ready but was not cleaned up" << endl;
 				(*i)->working = false;
-				SDL_CondSignal((*i)->readyForNewWork);	
+				SDL_CondSignal((*i)->readyForNewWork);
 			}
 			else if((*i)->working && !(*i)->finished) {
 				warnings << "thread " << (*i)->name << " is still working" << endl;
@@ -176,7 +177,7 @@ bool ThreadPool::waitAll() {
 				warnings << "thread " << (*i)->name << " is in an invalid state" << endl;
 			}
 		}
-		SDL_CondWait(threadFinishedWork, mutex);
+		SDL_CondWait(threadStatusChanged, mutex);
 	}
 	SDL_mutexV(mutex);
 	

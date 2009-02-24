@@ -127,6 +127,9 @@ static void InitTimerSystem() {
 	timerSystem_inited = true;
 }
 
+struct TimerData;
+static void RemoveTimerFromGlobalList(TimerData *data);
+
 
 // Timer data, contains almost the same info as the timer class
 struct TimerData {
@@ -144,19 +147,22 @@ struct TimerData {
 	TimerData() : timer(NULL), userData(NULL), interval(0), once(false), quitSignal(false), quitCond(NULL), mutex(NULL), thread(NULL) {
 		mutex = SDL_CreateMutex();
 		quitCond = SDL_CreateCond();
+		// TODO: not threadsafe
+		//timers.push_back(data); // Add it to the global timer array
 	}
 	~TimerData() {
 		breakThread();
 		if(thread) threadPool->wait(thread, NULL); thread = NULL;
 		SDL_DestroyMutex(mutex); mutex = NULL;
 		SDL_DestroyCond(quitCond); quitCond = NULL;
+		RemoveTimerFromGlobalList(this);
 	}
 	
 	void breakThread() {
 		quitSignal = true;
 		SDL_CondSignal(quitCond);
 	}
-	
+
 	void startThread() {
 		assert(thread == NULL);
 		
@@ -317,9 +323,6 @@ bool Timer::start()
 	data->once = once;
 	data->quitSignal = false;
 	data->startThread();
-	
-	// TODO: not threadsafe
-	//timers.push_back(data); // Add it to the global timer array
 
 	m_running = true;
 	return true;
@@ -347,8 +350,6 @@ bool Timer::startHeadless()
 	
 	data->startThread();
 	
-	// TODO: not threadsafe
-	//timers.push_back(data); // Add it to the global timer array
 	return true;
 }
 
@@ -360,17 +361,10 @@ void Timer::stop()
 	if(!m_running) return;
 	
 	SDL_mutexP(m_lastData->mutex);
-	m_lastData->breakThread(); // it will be removed in the last event; TODO: if the interval is big and the game is shut down in the meanwhile, there will be a memleak
-	if(m_lastData->timer && !EventSystemInited())  {
-		SDL_mutexV(m_lastData->mutex);
-		// If the event system is not initialized, it is sure that the handler won't get called and we must free the data to avoid leaks
-		RemoveTimerFromGlobalList(m_lastData); // To avoid double freed memory
-		delete m_lastData;
-	}
-	else {
-		m_lastData->timer = NULL;
-		SDL_mutexV(m_lastData->mutex);
-	}
+	m_lastData->breakThread(); // it will be removed in the last event
+	m_lastData->timer = NULL;
+	SDL_mutexV(m_lastData->mutex);
+	
 	m_lastData = NULL;
 	m_running = false;
 }
@@ -410,11 +404,6 @@ static void Timer_handleEvent(InternTimerEventData data)
 	SDL_mutexV(timer_data->mutex);
 	
 	if(data.lastEvent)  { // last-event-signal
-		if(!timer_data->timer) { // No headless timer => call stop() to handle intern state correctly
-			// Headless timer is being stopped, remove it from active headless timers list
-			RemoveTimerFromGlobalList(timer_data);
-		}
-				
 		// we can delete here as we have ensured that this is realy the last event
 		delete timer_data;
 	}
