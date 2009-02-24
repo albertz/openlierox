@@ -1257,7 +1257,7 @@ void Menu_SvrList_RefreshList(void)
 	}
 
 	// Update the GUI
-	Timer(null, NULL, PingWait, true).startHeadless();
+	Timer("Menu_SvrList_RefreshList ping waiter", null, NULL, PingWait, true).startHeadless();
 
 	Menu_SvrList_UpdateUDPList();
 }
@@ -1296,7 +1296,7 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 			SetNetAddrPort(s->sAddress, LX_PORT);
 
 		if (updategui)
-			Timer(null, NULL, PingWait, true).startHeadless();
+			Timer("Menu_SvrList_RefreshServer ping waiter", null, NULL, PingWait, true).startHeadless();
 	}
 }
 
@@ -1602,7 +1602,7 @@ bool Menu_SvrList_Process(void)
 
 	// Make sure the list repaints when the ping/query is received
 	if (repaint)
-		Timer(null, NULL, PingWait + 100, true).startHeadless();
+		Timer("Menu_SvrList_Process ping waiter", null, NULL, PingWait + 100, true).startHeadless();
 
 	return update;
 }
@@ -1996,7 +1996,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 
 	bUpdateFromUdpThread = true;
 	// Update the GUI when ping times out
-	Timer(null, NULL, PingWait, true).startHeadless();
+	Timer("Menu_SvrList_ParseUdpServerlist ping waiter", null, NULL, PingWait, true).startHeadless();
 };
 
 ///////////////////
@@ -2063,7 +2063,7 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     }
 
 	// Update the GUI after the ping timed out
-	Timer(null, NULL, PingWait, true).startHeadless();
+	Timer("Menu_SvrList_LoadList ping waiter", null, NULL, PingWait, true).startHeadless();
 
     fclose(fp);
 }

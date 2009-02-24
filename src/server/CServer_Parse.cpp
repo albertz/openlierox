@@ -1634,7 +1634,7 @@ void GameServer::SendConnectHereAfterTimeout (Timer::EventData ev)
 
 	delete data;
 	ev.shouldContinue = false;
-};
+}
 
 // Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]
 void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip)
@@ -1706,14 +1706,14 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.Send(tNatTraverseSockets[socknum]);
 
 	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
-	Timer( &SendConnectHereAfterTimeout,
+	Timer( "GS::ParseTraverse SendConnectHereAfterTimeout", &SendConnectHereAfterTimeout,
 			new SendConnectHereAfterTimeout_Data(socknum, adrClient), 3000, true ).startHeadless();
-};
+}
 
 // Server sent us "lx::registered", that means it's alive - record that
 void GameServer::ParseServerRegistered(NetworkSocket tSocket)
 {
 	// TODO: add code here
-	printf("GameServer::ParseServerRegistered()\n");
-};
+	notes << "GameServer::ParseServerRegistered()" << endl;
+}
 

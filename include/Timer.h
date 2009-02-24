@@ -87,13 +87,14 @@ public:
 	};
 
 	Timer();
-	Timer(Null n, void* dat = NULL, Uint32 t = 1000, bool o = false);
-	Timer(void (*fct)(EventData dat), void* dat = NULL, Uint32 t = 1000, bool o = false);
-	Timer(Event<EventData>::Handler* hndl, void* dat = NULL, Uint32 t = 1000, bool o = false);
-	Timer(const Timer& t) { (*this) = t; }
-	Timer& operator=(const Timer& t) { onTimer = t.onTimer; userData = t.userData; interval = t.interval; once = t.once; return *this; }
+	Timer(const std::string& nam, Null n, void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(const std::string& nam, void (*fct)(EventData dat), void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(const std::string& nam, Event<EventData>::Handler* hndl, void* dat = NULL, Uint32 t = 1000, bool o = false);
+	Timer(const std::string& nam, const Timer& t) { (*this) = t; }
+	Timer& operator=(const Timer& t) { name = t.name; onTimer = t.onTimer; userData = t.userData; interval = t.interval; once = t.once; return *this; }
 	~Timer();
 
+	std::string name;
 	Event<EventData> onTimer;
 	void* userData; // forwarded to the event-function
 	Uint32 interval; // how often an event is pushed in the SDL queue

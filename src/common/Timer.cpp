@@ -131,6 +131,7 @@ static void InitTimerSystem() {
 // Timer data, contains almost the same info as the timer class
 struct TimerData {
 	Timer*				timer;
+	std::string			name;
 	Ref<Event<Timer::EventData>::Handler> onTimerHandler;
 	void*				userData;
 	Uint32				interval;
@@ -187,7 +188,7 @@ struct TimerData {
 			TimerHandler(TimerData* d) : data(d) {}
 		};
 		
-		thread = threadPool->start(new TimerHandler(this), "timer");
+		thread = threadPool->start(new TimerHandler(this), name + " timer");
 	}
 	
 };
@@ -249,26 +250,26 @@ static void RemoveTimerFromGlobalList(TimerData *data)
 ////////////////
 // Constructors
 Timer::Timer() : 
-	userData(NULL), interval(1000),
+	name("unnamed"), userData(NULL), interval(1000),
 	once(false), m_running(false), m_lastData(NULL) {
 	InitTimerSystem();
 }
 
-Timer::Timer(Null, void* dat, Uint32 t, bool o) :
-	userData(dat), interval(t),
+Timer::Timer(const std::string& nam, Null, void* dat, Uint32 t, bool o) :
+	name(nam), userData(dat), interval(t),
 	once(o), m_running(false), m_lastData(NULL) {
 	InitTimerSystem();
 }
 
-Timer::Timer(void (*fct)(EventData dat), void* dat, Uint32 t, bool o) :
-	userData(dat), interval(t),
+Timer::Timer(const std::string& nam, void (*fct)(EventData dat), void* dat, Uint32 t, bool o) :
+	name(nam), userData(dat), interval(t),
 	once(o), m_running(false), m_lastData(NULL) {
 	onTimer.handler() = getEventHandler(fct);
 	InitTimerSystem();
 }
 
-Timer::Timer(Event<EventData>::Handler* hndl, void* dat, Uint32 t, bool o) :
-	userData(dat), interval(t),
+Timer::Timer(const std::string& nam, Event<EventData>::Handler* hndl, void* dat, Uint32 t, bool o) :
+	name(nam), userData(dat), interval(t),
 	once(o), m_running(false), m_lastData(NULL) {
 	onTimer.handler() = hndl;
 	InitTimerSystem();
@@ -309,6 +310,7 @@ bool Timer::start()
 	m_lastData = data;
 	
 	data->timer = this;
+	data->name = name;
 	data->onTimerHandler = NULL;
 	data->userData = userData;
 	data->interval = interval;
@@ -330,11 +332,19 @@ bool Timer::startHeadless()
 	// Copy the info to timer data structure and run the timer
 	TimerData* data = new TimerData;
 	data->timer = NULL;
+	data->name = name;
 	data->onTimerHandler = onTimer.handler().get().copy();
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
 	data->quitSignal = false;
+	
+	if(!data->once) {
+		// It's hard to debug headless timers with once=false, thus we just disable them.
+		warnings << "headless timer " << name << " has once=false, it is forced once=true now" << endl;
+		data->once = true;
+	}
+	
 	data->startThread();
 	
 	// TODO: not threadsafe

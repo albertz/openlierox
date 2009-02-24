@@ -58,7 +58,7 @@ void CacheTimer(Timer::EventData data)  {
 
 void InitCacheDebug()
 {
-	timer = new Timer(getEventHandler(&CacheTimer), NULL, 10000);
+	timer = new Timer("cache", getEventHandler(&CacheTimer), NULL, 10000);
 	timer->start();
 }
 

@@ -30,7 +30,7 @@ CMarquee::CMarquee(COMMON_PARAMS, const std::string& text) : CWidget(name, paren
 	iDirection = 1;
 	iTextWidth = 0;
 	bAtEnd = false;
-	tTimer = new Timer(getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));
+	tTimer = new Timer("CMarquee repainter", getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));
 }
 
 CMarquee::CMarquee(const std::string &name, CContainerWidget *parent) : CWidget(name, parent)
@@ -40,7 +40,7 @@ CMarquee::CMarquee(const std::string &name, CContainerWidget *parent) : CWidget(
 	iDirection = 1;
 	iTextWidth = 0;
 	bAtEnd = false;
-	tTimer = new Timer(getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));	
+	tTimer = new Timer("CMarquee repainter", getEventHandler(this, &CMarquee::OnTimer), NULL, (Uint32)(MARQUEE_TIME * 1000));	
 }
 
 ///////////////////

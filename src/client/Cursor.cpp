@@ -73,7 +73,7 @@ bool InitializeCursors()
 			result = false;
 		}
 
-	tAnimTimer = new Timer(OnTimerAnimation, NULL, 10, false);
+	tAnimTimer = new Timer("animation", OnTimerAnimation, NULL, 10, false);
 
 
 	return result;

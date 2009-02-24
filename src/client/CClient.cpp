@@ -1273,7 +1273,7 @@ void CClient::Connect(const std::string& address)
 	if(!StringToNetAddr(address, cServerAddr)) {
 
 		strServerAddr_HumanReadable = strServerAddr + " (...)";
-		Timer(null, NULL, DNS_TIMEOUT * 1000 + 50, true).startHeadless();
+		Timer("client connect DNS timeout", null, NULL, DNS_TIMEOUT * 1000 + 50, true).startHeadless();
 
 		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
 			iNetStatus = NET_DISCONNECTED;
@@ -1359,7 +1359,7 @@ void CClient::ConnectingBehindNAT()
 			}
 
 			// To make sure we get called again
-			Timer(null, NULL, 40, true).startHeadless();
+			Timer("client ConnectingBehindNAT DNS timeout", null, NULL, 40, true).startHeadless();
 
 			return; // Wait for DNS resolution
 
@@ -1385,7 +1385,7 @@ void CClient::ConnectingBehindNAT()
 			iNatTraverseState = NAT_WAIT_TRAVERSE_REPLY;
 
 			// To make sure we get called again
-			Timer(null, NULL, (Uint32)(TRAVERSE_TIMEOUT * 1000), true).startHeadless();
+			Timer("client ConnectingBehindNAT traverse timeout", null, NULL, (Uint32)(TRAVERSE_TIMEOUT * 1000), true).startHeadless();
 		}
 	} break;
 
@@ -1395,8 +1395,8 @@ void CClient::ConnectingBehindNAT()
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "No reply from the server."; // Previous message always made me think that masterserver is down, when there's just no reply
-			printf("The UDP master server did not reply to the traverse packet - target server inaccessible.\n");
-			return;			
+			hints << "The UDP master server did not reply to the traverse packet - target server inaccessible." << endl;
+			return;
 		}
 	break;
 
@@ -1432,7 +1432,7 @@ void CClient::ConnectingBehindNAT()
 		SetNetAddrPort(cServerAddr, (ushort)port); // Put back the original port
 
 		// To make sure we get called again
-		Timer(null, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
+		Timer("client ConnectingBehindNAT challenge timeout", null, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
 
 		fLastChallengeSent = tLX->fCurTime;
 		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
@@ -1451,7 +1451,7 @@ void CClient::ConnectingBehindNAT()
 				iNatTraverseState = NAT_SEND_CHALLENGE;
 				
 				// To make sure we get called again
-				Timer(null, NULL, 10, true).startHeadless();
+				Timer("client ConnectingBehindNAT challenge waiter", null, NULL, 10, true).startHeadless();
 				return;
 			}
 
@@ -1470,7 +1470,7 @@ void CClient::ConnectingBehindNAT()
 			fLastChallengeSent = -9999;
 
 			// To make sure we get called again
-			Timer(null, NULL, 10, true).startHeadless();
+			Timer("client ConnectingBehindNAT restarter", null, NULL, 10, true).startHeadless();
 
 			return;
 		}
@@ -1546,7 +1546,7 @@ void CClient::Connecting(bool force)
 	bs.Send(tSocket);
 
 
-	Timer(null, NULL, 1000, true).startHeadless();
+	Timer("client Connecting timeout", null, NULL, 1000, true).startHeadless();
 
 	notes << "sending challenge request to " << rawServerAddr << endl;
 }

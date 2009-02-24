@@ -75,7 +75,7 @@ void CScrollbar::Init()
 	bBackgroundOver = false;
 	iDirection.set(scrVertical, DEFAULT_PRIORITY);
 	pTimerData = new TimerData(this, false, 0);
-	tTimer = new Timer(getEventHandler(this, &CScrollbar::OnTimer), pTimerData, 120);
+	tTimer = new Timer("CScrollbar", getEventHandler(this, &CScrollbar::OnTimer), pTimerData, 120);
 
 	bmpTop.set(NULL, DEFAULT_PRIORITY);
 	bmpBottom.set(NULL, DEFAULT_PRIORITY);
@@ -759,6 +759,7 @@ void CScrollbar::UpdatePos(void)
 
 void CScrollbar::OnTimer(Timer::EventData ev)
 {
+	// TODO: why do we need a timer for scrolling?
 	if (ev.userData)  {
 		TimerData *d = (TimerData *)ev.userData;
 		if (d->down)  {

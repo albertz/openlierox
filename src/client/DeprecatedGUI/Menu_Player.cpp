@@ -97,7 +97,7 @@ void Menu_PlayerInitialize(void)
 
 	Menu_RedrawMouse(true);
 
-	tAnimTimer = new Timer(null, NULL, 25, false);
+	tAnimTimer = new Timer("Menu_Player animation", null, NULL, 25, false);
 
 	// Setup the top buttons
 	cPlyButtons[pp_NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);

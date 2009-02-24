@@ -980,7 +980,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 					if (tMouse->Y >= y && tMouse->Y < item->iHeight + y)  {
 						// Make sure we get called again when the time for showing the tooltip comes
 						if (subitem->fMouseOverTime == 0)  {
-							Timer t(Null(), NULL, 600, true);
+							Timer t("CListview tooltip waiter", null, NULL, 600, true);
 							t.startHeadless();
 						}
 

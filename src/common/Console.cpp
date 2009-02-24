@@ -44,7 +44,7 @@ Timer *con_timer = NULL;
 int Con_Initialize(void)
 {
 	con_mutex = SDL_CreateMutex();
-	con_timer = new Timer(Null(), NULL, 30);  // To make the animation smooth in the menu
+	con_timer = new Timer("Console animation", null, NULL, 30);  // To make the animation smooth in the menu
 	
 	int n;
 	Console = new console_t;;

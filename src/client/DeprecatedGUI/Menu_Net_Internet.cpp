@@ -132,7 +132,7 @@ bool Menu_Net_NETInitialize(void)
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	Menu_SvrList_UpdateUDPList();
 	
-	Timer(null, NULL, SVRLIST_TIMEOUT, true).startHeadless();
+	Timer("Menu_Net_NETInitialize serverlist timeout", null, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
 	return true;
 }
@@ -737,7 +737,7 @@ void Menu_Net_NETParseList(CHttp &http)
 	}
 
 	// Update the GUI
-	Timer(null, NULL, PingWait, true).startHeadless();
+	Timer("Menu_Net_NETParseList ping waiter", null, NULL, PingWait, true).startHeadless();
 }
 
 enum  {

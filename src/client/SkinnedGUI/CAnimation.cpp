@@ -35,7 +35,7 @@ CAnimation::CAnimation(COMMON_PARAMS, const std::string& Path) : CALL_DEFAULT_CO
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
+	tTimer = new Timer("CAnimation frame counter", getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
@@ -47,7 +47,7 @@ CAnimation::CAnimation(COMMON_PARAMS, SmartPointer<SDL_Surface> img) : CALL_DEFA
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
+	tTimer = new Timer("CAnimation frame counter", getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
@@ -60,7 +60,7 @@ CAnimation::CAnimation(const std::string &name, CContainerWidget *parent) : CWid
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
-	tTimer = new Timer(getEventHandler(this, &CAnimation::OnTimer));
+	tTimer = new Timer("CAnimation frame counter", getEventHandler(this, &CAnimation::OnTimer));
 	CLEAR_EVENT(OnClick);
 }
 
