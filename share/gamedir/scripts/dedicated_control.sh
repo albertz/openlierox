@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO: THIS SCRIPT IS OUTDATED
+
+exit -1
+
 CURDIR="`dirname $0`"
 
 function startlobby() {

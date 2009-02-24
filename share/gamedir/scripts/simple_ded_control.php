@@ -1,6 +1,10 @@
 #/usr/bin/php
 <?php
 
+// TODO: THIS SCRIPT IS OUTDATED
+
+exit(-1);
+
 $stdin = fopen('php://stdin', 'r');
 
 function startlobby() {
