@@ -40,11 +40,14 @@ void CHideAndSeek::PrepareGame()
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cWorms[i], false);
+		fWarmupTime[i] = tLX->fCurTime - fGameStart + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
+		/*
 		// Set all the lives to 0
 		cWorms[i].setLives(0);
 		for(int j = 0; j < MAX_WORMS; j++)
 			if(i != j && cWorms[j].isUsed())
 				cWorms[j].getClient()->getNetEngine()->SendWormScore(&cWorms[i]);
+		*/
 	}
 }
 
@@ -71,6 +74,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 		else if(cWorms[i].isUsed())
 			cWorms[i].getClient()->getNetEngine()->SendHideWorm(worm);
 	}
+	fWarmupTime[worm->getID()] = tLX->fCurTime - fGameStart + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
 	return false;
 }
 
@@ -116,17 +120,22 @@ void CHideAndSeek::Simulate()
 		return;
 	// Check if any of the worms can see eachother
 	int i, j;
-	for(i = 0; i < MAX_WORMS; i++) {
-		if(!cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT)
+	for(i = 0; i < MAX_WORMS; i++) 
+	{
+		if( !cWorms[i].isUsed() || cWorms[i].getLives() == WRM_OUT || !cWorms[i].getAlive() )
 			continue;
 		// Hide the worm if the alert time is up
 		if(fLastAlert[i] + (float)tLXOptions->tGameInfo.features[FT_HS_AlertTime] < GameTime)
 			Hide(&cWorms[i]);
-		for(j = 0; j < MAX_WORMS; j++) {
-			if(!cWorms[j].isUsed() || cWorms[j].getLives() == WRM_OUT)
+		for(j = 0; j < MAX_WORMS; j++) 
+		{
+			if( !cWorms[j].isUsed() || cWorms[j].getLives() == WRM_OUT || !cWorms[j].getAlive() )
 				continue;
 			if(cWorms[j].getTeam() == cWorms[i].getTeam())
 				continue;
+			if( fWarmupTime[j] > GameTime )
+				continue;
+
 			if(CanSee(&cWorms[i], &cWorms[j]))
 				Show(&cWorms[j]);
 			// Catch the hiders if they are within 10 pixels
