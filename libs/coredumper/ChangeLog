@@ -1,0 +1,95 @@
+Fri Feb 11 12:51:37 2005  Google Inc. <opensource@google.com>
+
+	* coredumper: initial release:
+	  The coredumper utility allows a running program to generate a
+	  core file without actually crashing.  This serves to allow the
+	  programmer to generate a snapshot of a running program's state
+	  at any time.
+
+Mon May  2 07:04:46 2005  Google Inc. <opensource@google.com>
+
+	* coredumper: version 0.2 release
+	* fixed compilation on icc (simonb)
+	* added a new WriteCoreDumpLimited() function that allows the
+	  caller to specify the maximum core file size. This is needed to
+	  emulate "ulimit -c". (markus)
+
+Thu Aug 10 12:44:40 2006  Google Inc. <opensource@google.com>
+
+	* coredumper: version 0.3 release
+	* reorganized the source to make porting and reuse easier.
+	* ported to ARM.
+	* core files can now be compressed on-the-fly.
+	* added support for recent 2.6.x kernels, which subtly changed the
+	ptrace() API. It used to be possible to PTRACE_ATTACH to threads
+	in the same process, but newer kernels require making this call
+	from a separate process. This change is backwards compatible.
+	* improved compatibility with more (historic) versions of both
+	libc and of the Linux kernel.
+	* the convenience methods now enforce more restrictive file
+	permissions when writing to disk. The caller no longer needs to
+	adjust the umask() to make file writing secure.
+	* the coredumper fails gracefully if called when the stack is almost
+	about to overflow.
+	* fixed bugs that prevented thread listing on 64bit machines.
+	* switched to different syscall() functions in order to better
+	preserve the call stack. Added work-around for broken libc
+	system headers.
+	* all assembly code is position-independent.
+	* the unittest can now be run even if the systems locale is not
+	English.
+
+Wed Feb 14 14:44:40 2007  Google Inc. <opensource@google.com>
+
+	* fixed some packaging problems with newer versions of RPM
+	* added assembly version of sys_clone() in order to work around
+	buggy implementations in glibc.
+
+Thu Feb 15 16:24:32 2007  Google Inc. <opensource@google.com>
+
+	* coredumper: version 1.0 release
+	* made devel RPMs depend on the runtime-only package.
+	* fixed signal related system calls on x86_64.
+	* wrote manual pages.
+
+Tue Feb 20 15:07:03 2007  Google Inc. <opensource@google.com>
+
+	* changed from NT_PRFPXREG to NT_PRXFPREG, as this appears to be
+	what the kernel and the binary tool chain finally agrees on.
+
+	* dump anonymous executable mappins such as the [vdso] segment.
+	This helps "gdb" in following call chains past the invocation of
+	signal handlers.
+
+Fri Jan 25 18:36:01 2008  Google Inc. <opensource@google.com>
+
+	* Added kernel data structures to linux_syscall_support.h
+	* Added some more system calls
+	* General clean ups and minor bug fixes to linux_syscall_support.h
+	* Updated MIPS support
+	* Added PPC support to linux_syscall_support.h (based on the patch at
+	  http://google-perftools.googlegroups.com/web/google-perftools-0.94.1.ppc.patch?gda=k9bft1IAAACubrlYz6X6f2r_QSIc5WKIP3FyvVAXIQ9N70rJj7w7MWG1qiJ7UbTIup-M2XPURDR0OdCHCKqS2f7o1Lzcc8Kg4jvJEVA5r4WYNVZfjSxuln7gCK2zepjMSjyreBgvHJk)
+	  This does not mean that the coredumper works on PPC, yet. That still
+	  requires additional work
+	* Added linux_syscall_support_unittest.cc
+	* Updated other files as needed so that they would work with the
+	  changes made to linux_syscall_support.h
+
+Thu Apr  3 14:16:01 2008  Google Inc. <opensource@google.com>
+
+	* coredumper: version 1.2 release
+	* Added the option to prioritize smaller memory segments when limiting
+	core dumps.
+	* Added the option to add user defined notes into the core dump.
+	* Added a generalized system to be able to combine parameters easily.
+	* Increased the library version number to 1.0.0 since the interface has
+	been extended.
+	* Added vdso segments to the core dump.
+	* Made the failing thread's registers the first in the core file as
+	expected by gdb.
+
+Fri Apr  4 09:38:05 2008  Google Inc. <opensource@google.com>
+
+	* coredumper: version 1.2.1 release
+	* Fixed a problem which occurs if auxv vectors aren't supported.
+
