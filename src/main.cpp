@@ -360,18 +360,23 @@ startpoint:
 					switch(ev.user.code) {
 						case UE_QuitEventThread: goto quit;
 						case UE_DoVideoFrame:
-							if(!videoModeReady) continue;
+							if(!videoModeReady) { SDL_CondSignal(videoFrameCond); continue; }
 							SDL_mutexP(videoFrameMutex);
 							VideoPostProcessor::process();
+							SDL_CondSignal(videoFrameCond);
 							SDL_mutexV(videoFrameMutex);
 							continue;
 						case UE_DoSetVideoMode:
-							if(!videoModeReady) {							
+							if(!videoModeReady) {
 								SDL_mutexP(videoFrameMutex);
 								SetVideoMode();
 								videoModeReady = true;
 								SDL_mutexV(videoFrameMutex);
 							}
+							continue;
+						case UE_DoActionInMainThread:
+							((Action*)ev.user.data1)->handle();
+							delete (Action*)ev.user.data1;
 							continue;
 					}
 				}
@@ -418,16 +423,24 @@ quit:
 }
 
 
-void doVideoFrameInMainThread() {
+void doVideoFrameInMainThread(bool wait) {
 	// wait for current drawing
 	SDL_mutexP(videoFrameMutex);
 	VideoPostProcessor::flipBuffers();
-	SDL_mutexV(videoFrameMutex);
+	if(!wait) SDL_mutexV(videoFrameMutex);
 
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoVideoFrame;
-	if(SDL_PushEvent(&ev) == 0) {}
+	if(SDL_PushEvent(&ev) == 0) {
+		if(wait) {
+			SDL_CondWait(videoFrameCond, videoFrameMutex);
+			SDL_mutexV(videoFrameMutex);
+		}	
+	} else {
+		if(wait) SDL_mutexV(videoFrameMutex);
+		warnings << "failed to push videoframeevent" << endl;
+	}
 }
 
 void doSetVideoModeInMainThread() {
@@ -441,6 +454,16 @@ void doSetVideoModeInMainThread() {
 			SDL_mutexP(videoFrameMutex);
 			SDL_mutexV(videoFrameMutex);
 		}
+	}
+}
+
+void doActionInMainThread(Action* act) {
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT;
+	ev.user.code = UE_DoActionInMainThread;
+	ev.user.data1 = act;
+	if(SDL_PushEvent(&ev) != 0) {
+		errors << "failed to push custom action event" << endl;
 	}
 }
 

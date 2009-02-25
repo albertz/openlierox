@@ -466,9 +466,9 @@ void Cmd_UnmuteId(void)
 
 ///////////////////
 // Crash
-void Cmd_Crash(void)
+void Cmd_Crash()
 {
-	Con_AddText(CNC_NORMAL,"In a previous version, the game would crash now!");
+	Con_AddText(CNC_NORMAL, "In a previous version, the game would crash now!");
 	// HINT: please don't add any code, which could make the game unstable
 	//		(I myself just tested this command without knowing and BANG,
 	//		I got an access violation. Perhaps the hoster of an important
@@ -480,6 +480,21 @@ void Cmd_Crash(void)
 	assert(false);
 #endif
 }
+
+
+void Cmd_CoreDump() {
+	Con_AddText(CNC_NORMAL, "Dumping core ...");
+	doVideoFrameInMainThread();
+	struct Dumper : Action {
+		int handle() {
+			OlxWriteCoreDump("cmd");
+			Con_AddText(CNC_NORMAL, "Dumping core finished");
+			return 0;
+		}
+	};
+	doActionInMainThread(new Dumper());
+}
+
 
 ///////////////////
 // Suicide
@@ -717,6 +732,7 @@ void Cmd_Initialize() {
 	Cmd_AddCommand("muteid", Cmd_MuteId);
 	Cmd_AddCommand("unmuteid", Cmd_UnmuteId);
 	Cmd_AddCommand("crash", Cmd_Crash, true);
+	Cmd_AddCommand("coredump", Cmd_CoreDump, true);
 	Cmd_AddCommand("suicide", Cmd_Suicide);
 	Cmd_AddCommand("unstuck", Cmd_Unstuck);
 	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);

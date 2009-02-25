@@ -366,7 +366,7 @@ void Menu_Frame() {
 		Con_Draw(VideoPostProcessor::videoSurface());
 	}
 	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
-				 
+
 	doVideoFrameInMainThread();
 }
 

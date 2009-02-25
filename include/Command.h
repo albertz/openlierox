@@ -63,6 +63,7 @@ void	Cmd_MuteId();
 void	Cmd_Unmute();
 void	Cmd_UnmuteId();
 void	Cmd_Crash();
+void	Cmd_CoreDump();
 void	Cmd_Suicide();
 void	Cmd_Unstuck();
 void	Cmd_WantsJoin();
