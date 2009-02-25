@@ -20,20 +20,23 @@ void OlxWriteCoreDump(const char* file_postfix) {}
 #include <unistd.h>
 #include <sys/types.h>
 #include <cstring>
+#include <cstdio>
 
 #ifndef GCOREDUMPER
 static void GdbWriteCoreDump(const char* fname) {
 	// WARNING: this is terribly slow like this
-	char gdbcmd[1000];
-	sprintf(gdbcmd,
-			"gdb >/dev/null << EOF\n"
+	char gdbparam[1000];
+	sprintf(gdbparam,
 			"attach %i \n"
 			"gcore %s \n"
-			"detach \n"
-			"quit \n"
-			"EOF",
+			"detach \n",
 			getpid(), fname);
-	system(gdbcmd);
+	FILE* p = popen("gdb", "w");
+	if(p) {
+		fprintf(p, "%s", gdbparam);
+		fflush(p);
+		pclose(p);
+	}
 }
 #endif
 

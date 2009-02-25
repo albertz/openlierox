@@ -24,10 +24,6 @@
 		2306CBD20E6AB45500132D3B /* nl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2306CBD10E6AB45500132D3B /* nl.h */; };
 		2306CC2A0E6AC55E00132D3B /* OLX_g15logo_ver4.xbm in Resources */ = {isa = PBXBuildFile; fileRef = 2306CC000E6AC55E00132D3B /* OLX_g15logo_ver4.xbm */; };
 		2309937E0F4DA370008E6C7F /* CTag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2309937D0F4DA370008E6C7F /* CTag.cpp */; };
-		230994A40F54FD3E008E6C7F /* libCoredumper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2309949C0F54FCE6008E6C7F /* libCoredumper.a */; };
-		230994AA0F54FD81008E6C7F /* coredumper.c in Sources */ = {isa = PBXBuildFile; fileRef = 230994A60F54FD81008E6C7F /* coredumper.c */; };
-		230994AB0F54FD81008E6C7F /* elfcore.c in Sources */ = {isa = PBXBuildFile; fileRef = 230994A70F54FD81008E6C7F /* elfcore.c */; };
-		230994B80F54FEF7008E6C7F /* thread_lister.c in Sources */ = {isa = PBXBuildFile; fileRef = 230994B70F54FEF7008E6C7F /* thread_lister.c */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
@@ -265,13 +261,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		230994A20F54FD2F008E6C7F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2309949B0F54FCE6008E6C7F /* Coredumper */;
-			remoteInfo = Coredumper;
-		};
 		23ECBE780E894D97007B8D55 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
@@ -411,10 +400,6 @@
 		2306CC290E6AC55E00132D3B /* XMLutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLutils.h; sourceTree = "<group>"; };
 		2309937C0F4DA35C008E6C7F /* CTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTag.h; sourceTree = "<group>"; };
 		2309937D0F4DA370008E6C7F /* CTag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTag.cpp; sourceTree = "<group>"; };
-		2309949C0F54FCE6008E6C7F /* libCoredumper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCoredumper.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		230994A60F54FD81008E6C7F /* coredumper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = coredumper.c; path = ../../libs/coredumper/src/coredumper.c; sourceTree = SOURCE_ROOT; };
-		230994A70F54FD81008E6C7F /* elfcore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = elfcore.c; path = ../../libs/coredumper/src/elfcore.c; sourceTree = SOURCE_ROOT; };
-		230994B70F54FEF7008E6C7F /* thread_lister.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread_lister.c; path = ../../libs/coredumper/src/thread_lister.c; sourceTree = SOURCE_ROOT; };
 		230D021E0F0D804C00AFFFFF /* IRC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRC.h; sourceTree = "<group>"; };
 		230D021F0F0D804C00AFFFFF /* libirc_rfcnumeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libirc_rfcnumeric.h; sourceTree = "<group>"; };
 		230D02200F0D804C00AFFFFF /* Music.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Music.h; sourceTree = "<group>"; };
@@ -748,13 +733,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2309949A0F54FCE6008E6C7F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23ECBE370E894D1A007B8D55 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -778,7 +756,6 @@
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
-				230994A40F54FD3E008E6C7F /* libCoredumper.a in Frameworks */,
 				23ECBE7A0E894DC0007B8D55 /* libLibZip.a in Frameworks */,
 				EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
@@ -798,7 +775,6 @@
 				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
-				230994A50F54FD4F008E6C7F /* Coredumper source */,
 				EA430DEF0BEFEB1A00C6547E /* HawkNL source */,
 				23ECBDFB0E894CC5007B8D55 /* LibZip source */,
 				EAD99FD10C06408E003BE563 /* share */,
@@ -822,7 +798,6 @@
 			children = (
 				23ECBE390E894D1A007B8D55 /* libLibZip.a */,
 				EA430DD20BEFEA8900C6547E /* libHawkNL.a */,
-				2309949C0F54FCE6008E6C7F /* libCoredumper.a */,
 				EAD99F610C063CA6003BE563 /* OpenLieroX.app */,
 			);
 			name = Products;
@@ -900,16 +875,6 @@
 				2306CC260E6AC55E00132D3B /* CWidgetEffect.h */,
 			);
 			path = SkinnedGUI;
-			sourceTree = "<group>";
-		};
-		230994A50F54FD4F008E6C7F /* Coredumper source */ = {
-			isa = PBXGroup;
-			children = (
-				230994B70F54FEF7008E6C7F /* thread_lister.c */,
-				230994A60F54FD81008E6C7F /* coredumper.c */,
-				230994A70F54FD81008E6C7F /* elfcore.c */,
-			);
-			name = "Coredumper source";
 			sourceTree = "<group>";
 		};
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
@@ -1392,13 +1357,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		230994980F54FCE6008E6C7F /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23ECBE350E894D1A007B8D55 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1418,23 +1376,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2309949B0F54FCE6008E6C7F /* Coredumper */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 230994A10F54FD26008E6C7F /* Build configuration list for PBXNativeTarget "Coredumper" */;
-			buildPhases = (
-				230994980F54FCE6008E6C7F /* Headers */,
-				230994990F54FCE6008E6C7F /* Sources */,
-				2309949A0F54FCE6008E6C7F /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Coredumper;
-			productName = Coredumper;
-			productReference = 2309949C0F54FCE6008E6C7F /* libCoredumper.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 		23ECBE380E894D1A007B8D55 /* LibZip */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23ECBE770E894D90007B8D55 /* Build configuration list for PBXNativeTarget "LibZip" */;
@@ -1483,7 +1424,6 @@
 			);
 			comments = "visit us at http://openlierox.sourceforge.net !";
 			dependencies = (
-				230994A30F54FD2F008E6C7F /* PBXTargetDependency */,
 				23ECBE790E894D97007B8D55 /* PBXTargetDependency */,
 				EAD99FC20C063F42003BE563 /* PBXTargetDependency */,
 			);
@@ -1504,7 +1444,6 @@
 			projectDirPath = "";
 			projectRoot = ../..;
 			targets = (
-				2309949B0F54FCE6008E6C7F /* Coredumper */,
 				23ECBE380E894D1A007B8D55 /* LibZip */,
 				EA430DD10BEFEA8900C6547E /* HawkNL */,
 				EAD99F600C063CA6003BE563 /* OpenLieroX */,
@@ -1536,16 +1475,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		230994990F54FCE6008E6C7F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				230994AA0F54FD81008E6C7F /* coredumper.c in Sources */,
-				230994AB0F54FD81008E6C7F /* elfcore.c in Sources */,
-				230994B80F54FEF7008E6C7F /* thread_lister.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		23ECBE360E894D1A007B8D55 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1788,11 +1717,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		230994A30F54FD2F008E6C7F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2309949B0F54FCE6008E6C7F /* Coredumper */;
-			targetProxy = 230994A20F54FD2F008E6C7F /* PBXContainerItemProxy */;
-		};
 		23ECBE790E894D97007B8D55 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23ECBE380E894D1A007B8D55 /* LibZip */;
@@ -1904,85 +1828,6 @@
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = ../include;
-			};
-			name = Release;
-		};
-		2309949D0F54FCE7008E6C7F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				HEADER_SEARCH_PATHS = (
-					/usr/include,
-					/usr/include/libxml2,
-					"$(SRCROOT)/../../libs/pstreams",
-				);
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Coredumper;
-			};
-			name = Debug;
-		};
-		2309949E0F54FCE7008E6C7F /* Debug with Fuzzy S2C */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = (
-					/usr/include,
-					/usr/include/libxml2,
-					"$(SRCROOT)/../../libs/pstreams",
-				);
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Coredumper;
-			};
-			name = "Debug with Fuzzy S2C";
-		};
-		2309949F0F54FCE7008E6C7F /* Debug with Fuzzy C2S */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = (
-					/usr/include,
-					/usr/include/libxml2,
-					"$(SRCROOT)/../../libs/pstreams",
-				);
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Coredumper;
-			};
-			name = "Debug with Fuzzy C2S";
-		};
-		230994A00F54FCE7008E6C7F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				HEADER_SEARCH_PATHS = (
-					/usr/include,
-					/usr/include/libxml2,
-					"$(SRCROOT)/../../libs/pstreams",
-				);
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = Coredumper;
 			};
 			name = Release;
 		};
@@ -2439,17 +2284,6 @@
 				232D59E80E9BCC0200366F81 /* Debug with Fuzzy S2C */,
 				232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				1DEB923708733DC60010E9CD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		230994A10F54FD26008E6C7F /* Build configuration list for PBXNativeTarget "Coredumper" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2309949D0F54FCE7008E6C7F /* Debug */,
-				2309949E0F54FCE7008E6C7F /* Debug with Fuzzy S2C */,
-				2309949F0F54FCE7008E6C7F /* Debug with Fuzzy C2S */,
-				230994A00F54FCE7008E6C7F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
