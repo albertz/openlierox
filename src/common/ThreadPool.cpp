@@ -13,7 +13,7 @@
 #include "AuxLib.h"
 
 
-static const unsigned int THREADNUM = 20;
+static const unsigned int THREADNUM = 40;
 
 
 ThreadPool::ThreadPool() {
