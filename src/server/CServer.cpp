@@ -219,7 +219,7 @@ int GameServer::StartServer()
 		while(!feof(fp)) {
 			std::string buf = ReadUntil(fp);
 			TrimSpaces(buf);
-			if(buf.size() > 0) {
+			if(buf.size() > 0 && buf[0] != '#') {
 				tMasterServers.push_back(buf);
 			}
 		}
