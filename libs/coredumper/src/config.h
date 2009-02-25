@@ -1,5 +1,7 @@
 /* src/config.h.in.  Generated from configure.ac by autoheader.  */
 
+#if 0
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -98,3 +100,5 @@
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
+
+#endif

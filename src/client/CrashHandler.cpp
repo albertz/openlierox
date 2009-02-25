@@ -356,6 +356,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 #elif !defined(WIN32) // MacOSX, Linux, Unix
 
+#include <google/coredumper.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -537,23 +539,16 @@ public:
 		// look at signal(2) for a list of safe functions
 		
 		DumpCallstackPrintf(pnt);
-		
+
 #ifdef DEBUG
-		// Generate coredump and continue
-		// HINT: that does not work for me, it just forks and this forked process is just dead and consumes 100% CPU
-		// Anyway, GDB still works without forking, it will still break the application.
-		// So do we really need this? If it is just for generating the coredump, we can perhaps
-		// include Google Breakpad here, generating a mini coredump is very easy there.
-		// Also, we really should not fork here anyway. In the possible case that it crashes immediatly
-		// after resuming again, we have a forkbomb.
-		/*if(!fork()) 
-		{
-			// Crash the app in your favorite way here
-			//raise(SIGQUIT);	// We don't catch SIGQUIT, and it generates coredump
-			// TODO: why not just return here?
-			exit(-1);
-		}*/
+		char corefile[PATH_MAX + 100];
+		if(getcwd(corefile, PATH_MAX) == NULL) strcpy(corefile, "");
+		strcat(corefile, "/core.OpenLieroX");
+		if(d) { strcat(corefile, "."); strcat(corefile, d->name); }
+		printf("writing coredump to %s\n", corefile);
+		WriteCoreDump(corefile);
 #endif
+		
         if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
         {
 			fflush(stdout);

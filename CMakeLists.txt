@@ -67,7 +67,10 @@ MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}")
 PROJECT(openlierox)
 
 # main includes
-INCLUDE_DIRECTORIES(sandbox/generated include libs/pstreams)
+INCLUDE_DIRECTORIES(sandbox/generated)
+INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(libs/pstreams)
+INCLUDE_DIRECTORIES(libs/coredumper/src)
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
@@ -94,6 +97,10 @@ AUX_SOURCE_DIRECTORY(src/common COMMON_SRCS)
 AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${CLIENT_SRCS_GUI_OLD} ${CLIENT_SRCS_GUI_NEW} ${COMMON_SRCS} ${SERVER_SRCS})
+SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/coredumper.c)
+SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/thread_lister.c)
+SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/elfcore.c)
+SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/linuxthreads.c)
 
 IF (HAWKNL_BUILTIN)
 	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/crc.c)
