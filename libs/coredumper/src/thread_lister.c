@@ -32,7 +32,13 @@
  */
 
 #include <stdio.h>         /* needed for NULL on some powerpc platforms (?!) */
+#ifdef __APPLE__
+#define PR_GET_DUMPABLE 0
+#define PR_SET_DUMPABLE 0
+static int prctl(int a, int b) { return 0; }
+#else
 #include <sys/prctl.h>
+#endif
 #include "thread_lister.h"
 #include "linuxthreads.h"
 /* Include other thread listers here that define THREADS macro
