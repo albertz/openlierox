@@ -32,7 +32,7 @@
  *
  * Code to extract a core dump snapshot of the current process.
  */
- 
+
 /* if we compile this function as C++ code, we need this to get SIZE_MAX from stdint.h */
 #define __STDC_LIMIT_MACROS
 

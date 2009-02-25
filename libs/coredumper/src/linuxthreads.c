@@ -46,12 +46,9 @@ extern "C" {
 #include <sys/socket.h>
 #include <sys/wait.h>
 
-//#include <asm/fcntl.h>
-#include <fcntl.h>
+#include <asm/fcntl.h>
 #include <asm/posix_types.h>
 #include <asm/types.h>
-//#include <linux/dirent.h>
-#include <dirent.h>
 
 #include "linux_syscall_support.h"
 #include "thread_lister.h"
