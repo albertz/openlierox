@@ -356,8 +356,6 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 #elif !defined(WIN32) // MacOSX, Linux, Unix
 
-#include <google/coredumper.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>

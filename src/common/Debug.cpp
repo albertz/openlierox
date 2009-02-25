@@ -14,11 +14,14 @@ void OlxWriteCoreDump(const char* file_postfix) {}
 
 #else
 
+#ifdef GCOREDUMPER
 #include <google/coredumper.h>
+#endif
 #include <unistd.h>
 #include <sys/types.h>
 #include <cstring>
 
+#ifndef GCOREDUMPER
 static void GdbWriteCoreDump(const char* fname) {
 	// WARNING: this is terribly slow like this
 	char gdbcmd[1000];
@@ -32,6 +35,7 @@ static void GdbWriteCoreDump(const char* fname) {
 			getpid(), fname);
 	system(gdbcmd);
 }
+#endif
 
 void OlxWriteCoreDump(const char* file_postfix) {
 	char corefile[PATH_MAX + 100];
@@ -41,8 +45,11 @@ void OlxWriteCoreDump(const char* file_postfix) {
 	printf("writing coredump to %s\n", corefile);
 	
 	printf("dumping core ... "); fflush(0);
-	//GdbWriteCoreDump(corefile);
+#ifdef GCOREDUMPER
 	WriteCoreDump(corefile);
+#else
+	GdbWriteCoreDump(corefile);
+#endif
 	printf("ready\n");
 }
 
