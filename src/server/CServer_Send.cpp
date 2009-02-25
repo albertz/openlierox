@@ -354,7 +354,6 @@ bool GameServer::SendUpdate()
 				continue;
 			}
 
-#if 0
 			if(!cl->isLocalClient()) {
 				// check our server bandwidth
 				static Rate<100,5000> blockRate; // only for debug output
@@ -376,7 +375,6 @@ bool GameServer::SendUpdate()
 					continue;
 				}
 			}
-#endif
 
 			CBytestream update_packets;  // Contains all the update packets except the one from this client
 
