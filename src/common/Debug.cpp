@@ -16,7 +16,22 @@ void OlxWriteCoreDump(const char* file_postfix) {}
 
 #include <google/coredumper.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <cstring>
+
+static void GdbWriteCoreDump(const char* fname) {
+	// WARNING: this is terribly slow like this
+	char gdbcmd[1000];
+	sprintf(gdbcmd,
+			"gdb >/dev/null << EOF\n"
+			"attach %i \n"
+			"gcore %s \n"
+			"detach \n"
+			"quit \n"
+			"EOF",
+			getpid(), fname);
+	system(gdbcmd);
+}
 
 void OlxWriteCoreDump(const char* file_postfix) {
 	char corefile[PATH_MAX + 100];
@@ -24,7 +39,11 @@ void OlxWriteCoreDump(const char* file_postfix) {
 	strcat(corefile, "/core.OpenLieroX");
 	if(file_postfix) { strcat(corefile, "."); strcat(corefile, file_postfix); }
 	printf("writing coredump to %s\n", corefile);
-	WriteCoreDump(corefile);
+	
+	printf("dumping core ... "); fflush(0);
+	GdbWriteCoreDump(corefile);
+	//WriteCoreDump(corefile);
+	printf("ready\n");
 }
 
 #endif
