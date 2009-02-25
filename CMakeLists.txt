@@ -97,10 +97,9 @@ AUX_SOURCE_DIRECTORY(src/common COMMON_SRCS)
 AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${CLIENT_SRCS_GUI_OLD} ${CLIENT_SRCS_GUI_NEW} ${COMMON_SRCS} ${SERVER_SRCS})
-SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/coredumper.c)
-SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/thread_lister.c)
-SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/elfcore.c)
-SET(ALL_SRCS ${ALL_SRCS} libs/coredumper/src/linuxthreads.c)
+
+AUX_SOURCE_DIRECTORY(libs/coredumper/src COREDUMPER_SRCS)
+SET(ALL_SRCS ${ALL_SRCS} ${COREDUMPER_SRCS})
 
 IF (HAWKNL_BUILTIN)
 	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/crc.c)

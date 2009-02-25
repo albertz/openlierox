@@ -51,10 +51,10 @@ test_exec pkg-config && pkg-config libxml-2.0 && xmlconfig="pkg-config libxml-2.
 [ "$xmlconfig" = "" ] && test_exec xml2-config && xmlconfig="xml2-config"
 [ "$xmlconfig" = "" ] && xmlconfig="own_xml2_config"
 
-INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param() -I)"
-LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param() -L)"
-INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param() -I)"
-LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param() -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param -I)"
+LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param -I)"
+LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param -L)"
 
 echo "--- OpenLieroX compile.sh ---"
 
@@ -153,9 +153,11 @@ if $COMPILER \
 	src/*.cpp src/client/*.cpp \
 	src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
 	src/common/*.cpp src/server/*.cpp \
+	libs/coredumper/src/*.c \
 	$LIBZIP_GCC_PARAM \
 	$HAWKNL_GCC_PARAM \
 	-I include -I libs/pstreams \
+	-I libs/coredumper/src \
 	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
 	$(build_param_str -L "$LIB_PATH") \
 	$($sdlconfig --cflags) \
