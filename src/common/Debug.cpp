@@ -41,8 +41,8 @@ void OlxWriteCoreDump(const char* file_postfix) {
 	printf("writing coredump to %s\n", corefile);
 	
 	printf("dumping core ... "); fflush(0);
-	GdbWriteCoreDump(corefile);
-	//WriteCoreDump(corefile);
+	//GdbWriteCoreDump(corefile);
+	WriteCoreDump(corefile);
 	printf("ready\n");
 }
 
