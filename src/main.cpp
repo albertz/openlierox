@@ -155,6 +155,32 @@ static SDL_Event QuitEventThreadEvent() {
 }
 
 
+static void startDebuggerThread() {
+	// WARNING: This is not threadsafe at all but possible crashes should be *very* rare
+	// and it's really only for debugging, I don't want to have that code enabled in a release.
+	struct DebuggerThread : Action {
+		int handle() {
+			while(tLX && !tLX->bQuitGame) {
+				float oldTime = tLX->fCurTime;
+				SDL_Delay(500);
+				if(!tLX) return 0;
+				if(!cClient) return 0;
+				if(cClient->getStatus() != NET_PLAYING) continue;
+				if(tLX->bQuitEngine) continue;
+				
+				// check if the mainthread is hanging
+				if(oldTime == tLX->fCurTime) {
+					warnings << "possible lock of mainthread detected" << endl;
+					OlxWriteCoreDump("mainlock");
+				}
+			}
+			return 0;
+		}
+	};
+	threadPool->start(new DebuggerThread(), "debugger", true);
+}
+
+
 static bool menu_startgame = false;
 
 static bool videoModeReady = true;
@@ -319,6 +345,10 @@ startpoint:
 	videoFrameMutex = SDL_CreateMutex();
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
+#ifdef DEBUG
+	startDebuggerThread();
+#endif
+		
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
 		// We have to do that in the same thread where we inited the video because of SDL.
@@ -427,17 +457,16 @@ static int MainLoopThread(void*) {
 		
 		if(!menu_startgame) {
 			// Quit
+			tLX->bQuitGame = true;
 			break;
 		}
 		
 		// Pre-game initialization
 		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
-		float oldtime = GetMilliSeconds();
 		
 		ClearEntities();
 		
 		ProcessEvents();
-		ResetQuitEngineFlag();
 		notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
 		
 		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
@@ -449,9 +478,11 @@ static int MainLoopThread(void*) {
 		//
         // Main game loop
         //
+		ResetQuitEngineFlag();
+		float oldtime = GetMilliSeconds();
 		while(!tLX->bQuitEngine) {
 			
-            tLX->fCurTime = GetMilliSeconds();
+			tLX->fCurTime = GetMilliSeconds();
 #ifndef WIN32
 			sigsetjmp(longJumpBuffer, 1);
 #endif
