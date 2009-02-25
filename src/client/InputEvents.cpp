@@ -385,8 +385,8 @@ static void EvHndl_VideoExpose(SDL_Event*) {}
 
 static void EvHndl_UserEvent(SDL_Event* ev) {
 	if(ev->user.code == UE_CustomEventHandler) {
-		((CustomEventHandler*)ev->user.data1)->handle();
-		delete (CustomEventHandler*)ev->user.data1;
+		((Action*)ev->user.data1)->handle();
+		delete (Action*)ev->user.data1;
 	}
 }
 

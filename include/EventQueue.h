@@ -15,6 +15,7 @@
 #define __EVENTQUEUE_H__
 
 #include <cassert>
+#include "ThreadPool.h" // for Action
 
 enum SDLUserEvent {
 	UE_CustomEventHandler = 0,
@@ -40,9 +41,9 @@ typedef SDL_Event EventItem; // for now, we can change that later
 class _Event;
 template< typename _Data > class Event;
 
-class CustomEventHandler {
+class CustomEventHandler : public Action {
 public:
-	virtual void handle() = 0;
+	virtual int handle() = 0;
 	virtual const _Event* owner() const = 0;
 	virtual CustomEventHandler* copy(_Event* newOwner = NULL) const = 0;
 	virtual ~CustomEventHandler() {}
@@ -54,8 +55,9 @@ public:
 	Event<_Data>* m_event;
 	_Data m_data;
 	EventThrower(Event<_Data>* e, _Data d) : m_event(e), m_data(d) {}
-	virtual void handle() {
+	virtual int handle() {
 		m_event->occurred( m_data );
+		return 0;
 	}
 	virtual const _Event* owner() const { return m_event; }
 	virtual CustomEventHandler* copy(_Event* newOwner) const {
@@ -82,11 +84,11 @@ public:
 	bool wait(EventItem& e);
 	
 	/* Add an event to the event queue.
-	 This function returns true on success
-	 or false if there was some error.
+	 * This function returns true on success
+	 * or false if there was some error.
 	 */
 	bool push(const EventItem& e);
-	bool push(CustomEventHandler* eh);
+	bool push(Action* eh);
 	
 	// goes through all CustomEventHandler and copies them if oldOwner is matching
 	void copyCustomEvents(const _Event* oldOwner, _Event* newOwner);

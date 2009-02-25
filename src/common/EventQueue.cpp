@@ -48,8 +48,8 @@ struct EventQueueIntern {
 			 * We do some important cleanup and we stop other threads there which
 			 * would otherwise never stop, for example the Timer system. */
 			if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
-				((CustomEventHandler*)i->user.data1)->handle();
-				delete (CustomEventHandler*)i->user.data1;
+				((Action*)i->user.data1)->handle();
+				delete (Action*)i->user.data1;
 			}
 		}
 		queue.clear();
@@ -124,26 +124,29 @@ bool EventQueue::push(const EventItem& event) {
 	return true;
 }
 
-static EventItem CustomEvent(CustomEventHandler* eh) {
+static EventItem CustomEvent(Action* act) {
 	// TODO: this is a bit hacky because we still use the SDL_Event structure
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_CustomEventHandler;
-	ev.user.data1 = eh; // TODO: we should use an own allocator here to improve performance
+	ev.user.data1 = act;
 	ev.user.data2 = NULL;
 	return ev;
 }
 
-bool EventQueue::push(CustomEventHandler* eh) {
-	return push(CustomEvent(eh));
+bool EventQueue::push(Action* act) {
+	return push(CustomEvent(act));
 }
 
 void EventQueue::copyCustomEvents(const _Event* oldOwner, _Event* newOwner) {
 	ScopedLock lock(data->mutex);
 
 	for(std::list<EventItem>::iterator i = data->queue.begin(); i != data->queue.end(); ++i) {
-		if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler && ((CustomEventHandler*)i->user.data1)->owner() == oldOwner) {
-			data->queue.insert(i, CustomEvent(((CustomEventHandler*)i->user.data1)->copy(newOwner)));
+		if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
+			CustomEventHandler* hndl = dynamic_cast<CustomEventHandler*>( (Action*)i->user.data1 );
+			if(hndl && hndl->owner() == oldOwner) {
+				data->queue.insert(i, CustomEvent(hndl->copy(newOwner)));
+			}
 		}
 	}
 }
@@ -154,9 +157,12 @@ void EventQueue::removeCustomEvents(const _Event* owner) {
 	for(std::list<EventItem>::iterator i = data->queue.begin(); i != data->queue.end(); ) {
 		std::list<EventItem>::iterator last = i; ++i;
 		const SDL_Event& ev = *last;
-		if(ev.type == SDL_USEREVENT && ev.user.code == UE_CustomEventHandler && ((CustomEventHandler*)ev.user.data1)->owner() == owner) {
-			delete (CustomEventHandler*)ev.user.data1;
-			data->queue.erase(last);
+		if(ev.type == SDL_USEREVENT && ev.user.code == UE_CustomEventHandler) {
+			CustomEventHandler* hndl = dynamic_cast<CustomEventHandler*>( (Action*)ev.user.data1 );
+			if(hndl && hndl->owner() == owner) {
+				delete (Action*)ev.user.data1;
+				data->queue.erase(last);
+			}
 		}
 	}
 }

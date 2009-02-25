@@ -424,6 +424,8 @@ quit:
 
 
 void doVideoFrameInMainThread(bool wait) {
+	if(bDedicated) return;
+	
 	// wait for current drawing
 	SDL_mutexP(videoFrameMutex);
 	VideoPostProcessor::flipBuffers();
@@ -444,6 +446,8 @@ void doVideoFrameInMainThread(bool wait) {
 }
 
 void doSetVideoModeInMainThread() {
+	if(bDedicated) return;
+	
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoSetVideoMode;
@@ -458,6 +462,13 @@ void doSetVideoModeInMainThread() {
 }
 
 void doActionInMainThread(Action* act) {
+	if(bDedicated) {
+		warnings << "doActionInMainThread cannot work correctly in dedicated mode" << endl;
+		// we will just put it to the main queue instead
+		mainQueue->push(act);
+		return;
+	}
+	
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoActionInMainThread;
