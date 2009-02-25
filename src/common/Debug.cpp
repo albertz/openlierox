@@ -9,6 +9,26 @@
 
 #include "Debug.h"
 
+#ifdef WIN32
+void OlxWriteCoreDump(const char* file_postfix) {}
+
+#else
+
+#include <google/coredumper.h>
+#include <unistd.h>
+#include <cstring>
+
+void OlxWriteCoreDump(const char* file_postfix) {
+	char corefile[PATH_MAX + 100];
+	if(getcwd(corefile, PATH_MAX) == NULL) strcpy(corefile, "");
+	strcat(corefile, "/core.OpenLieroX");
+	if(file_postfix) { strcat(corefile, "."); strcat(corefile, file_postfix); }
+	printf("writing coredump to %s\n", corefile);
+	WriteCoreDump(corefile);
+}
+
+#endif
+
 #if (defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)) && !defined(__MINGW32_VERSION)
 
 #include <execinfo.h>

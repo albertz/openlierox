@@ -14,7 +14,10 @@
 #include <cassert>
 #include "StringUtils.h"
 
+// these both function should be safe to be called from everywhere, also from signalhandlers
+void OlxWriteCoreDump(const char* file_postfix = NULL);
 void DumpCallstackPrintf(void* callpnt = NULL);
+
 void DumpCallstack(void (*PrintOutFct) (const std::string&));
 
 struct SDL_mutex;

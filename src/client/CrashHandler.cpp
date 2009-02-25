@@ -541,12 +541,7 @@ public:
 		DumpCallstackPrintf(pnt);
 
 #ifdef DEBUG
-		char corefile[PATH_MAX + 100];
-		if(getcwd(corefile, PATH_MAX) == NULL) strcpy(corefile, "");
-		strcat(corefile, "/core.OpenLieroX");
-		if(d) { strcat(corefile, "."); strcat(corefile, d->name); }
-		printf("writing coredump to %s\n", corefile);
-		WriteCoreDump(corefile);
+		OlxWriteCoreDump(d ? d->name : NULL);
 #endif
 		
         if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
