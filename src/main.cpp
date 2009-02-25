@@ -172,6 +172,7 @@ static void startDebuggerThread() {
 				if(oldTime == tLX->fCurTime) {
 					warnings << "possible lock of mainthread detected" << endl;
 					OlxWriteCoreDump("mainlock");
+					SDL_Delay(20 * 1000); // pause for a while, don't be so hard
 				}
 			}
 			return 0;
