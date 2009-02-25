@@ -1160,7 +1160,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	DrawCursor(VideoPostProcessor::videoSurface());
 
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( tLX->fCurTime - fStartDedicatedSecondsPassed );
-	secondsAnnounced = -1;
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{
 		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
@@ -1169,22 +1168,21 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					itoa(iStartDedicatedMinPlayers) + " players connect", "");
 			fStartDedicatedSecondsPassed = tLX->fCurTime;
 			secondsAnnounced = -1;
-		};
+		}
 	}
 	else if( bStartDedicated &&
-			( ( secondsTillGameStart % iStartDedicatedServerSpamsSomeInfoTimeout == 0 &&
-				secondsTillGameStart != secondsAnnounced ) ||
+			( ( secondsTillGameStart != secondsAnnounced ) ||
 				secondsAnnounced == -1 ) )
 	{
 		if( secondsTillGameStart > 0 )
 			cClient->getNetEngine()->SendText( "Game will start in " + itoa( secondsTillGameStart ) + " seconds", "" );
 		secondsAnnounced = secondsTillGameStart;
-	};
+	}
 
 	if( bStartPressed ||
 		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
-		cClient->setSpectate(!bStartPressed);		// Local client will spectate if this is an auto-start (auto-select weapons)
+		cClient->setSpectate(!bStartPressed); // Local client will spectate if this is an auto-start (auto-select weapons)
 
 		Menu_Net_HostStartGame();
 	}

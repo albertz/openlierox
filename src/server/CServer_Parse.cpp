@@ -372,15 +372,17 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		return;
 	}
 
-	// Chck if player tries to fake other player
-	bool nameMatch = false;
-	for( int i=0; i<cl->getNumWorms(); i++ )
-		if( buf.find(cl->getWorm(i)->getName() + ": ") == 0 )
-			nameMatch = true;
-	if( !nameMatch )
-	{
-		notes << "Client " << cl->debugName() << " probably tries to fake other player, or an old client uses /me cmd" << endl;
-		return;
+	if( !cl->isLocalClient() ) {
+		// Check if player tries to fake other player
+		bool nameMatch = false;
+		for( int i=0; i<cl->getNumWorms(); i++ )
+			if( buf.find(cl->getWorm(i)->getName() + ": ") == 0 )
+				nameMatch = true;
+		if( !nameMatch )
+		{
+			notes << "Client " << cl->debugName() << " probably tries to fake other player, or an old client uses /me cmd" << endl;
+			return;
+		}
 	}
 	
 	server->SendGlobalText(buf, TXT_CHAT);
