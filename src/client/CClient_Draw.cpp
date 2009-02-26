@@ -1353,6 +1353,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
 				bGameMenu = false;
 				bRepaintChatbox = true;
+				bShouldRepaintInfo = true;
 				SetGameCursor(CURSOR_NONE);
 			}
 			break;
@@ -1404,6 +1405,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 			} else if (!bGameOver)  {
 				bGameMenu = false;
 				bRepaintChatbox = true;
+				bShouldRepaintInfo = true;
 				SetGameCursor(CURSOR_NONE);
 			}
 		}
