@@ -19,6 +19,7 @@ void OlxWriteCoreDump(const char* file_postfix) {}
 #endif
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <cstring>
 #include <cstdio>
 
@@ -29,12 +30,14 @@ static void GdbWriteCoreDump(const char* fname) {
 	sprintf(gdbparam,
 			"attach %i \n"
 			"gcore %s \n"
-			"detach \n",
+			"detach \n"
+			"quit \n",
 			getpid(), fname);
-	FILE* p = popen("gdb", "w");
+	FILE* p = popen("gdb -q", "w");
 	if(p) {
 		fprintf(p, "%s", gdbparam);
 		fflush(p);
+		int status = 0; wait(&status);
 		pclose(p);
 	}
 }
