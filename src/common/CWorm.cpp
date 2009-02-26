@@ -671,6 +671,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	x*=2;
 	y*=2;
 
+	// Draw the ninja rope
+	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
+	if (bVisible && bAlive)
+		cNinjaRope.Draw(bmpDest,v,vDrawPos);
+
 	// Are we inside the viewport?
 	if(x+l+10 < l || x-10 > v->GetVirtW()
 	|| y+t+10 < t || y-10 > v->GetVirtH()) {
@@ -750,12 +755,6 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Do not draw further if we're not alive
 	if( !getAlive() )
 		return;
-
-	//
-	// Draw the ninja rope
-	//
-	if (bVisible)
-		cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 	if (tLXOptions->bShowHealth && bVisible)  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
