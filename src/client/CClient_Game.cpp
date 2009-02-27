@@ -140,7 +140,16 @@ void CClient::Simulation(void)
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
 			if (w->getCurWeapon()->Weapon)
 				if(w->getCurWeapon()->Weapon->LaserSight)
-					LaserSight(w);
+					LaserSight(w, w->getAngle());
+			
+			// Show vision cone of seeker worm
+			if( getGameLobby()->sGameMode == "Hide and Seek" && // TODO: don't hardcode string here
+				w->getTeam() == 1 && 
+				(int)getGameLobby()->features[FT_HS_SeekerVisionAngle] < 360 )
+			{
+				LaserSight(w, w->getAngle() + (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2 );
+				LaserSight(w, w->getAngle() - (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2 );
+			}
 
 		}
 
@@ -799,7 +808,7 @@ void CClient::CheckDemolitionsGame(void)
 
 ///////////////////
 // Show a laser sight
-void CClient::LaserSight(CWorm *w)
+void CClient::LaserSight(CWorm *w, float Angle)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
@@ -811,15 +820,18 @@ void CClient::LaserSight(CWorm *w)
 	}
 
 	// Only show the sight if the player is NOT reloading
-	if(Slot->Reloading)
+	if(Slot->Reloading && Angle == w->getAngle()) // Hack: compare if angle is not worm angle, we're playing H&S
 		return;
 
 
 	// Get the direction angle
-	float Angle = w->getAngle();
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
 
+	while( Angle > 180.0f ) // Normalize it
+		Angle -= 360.0f;
+	while( Angle < -180.0f )
+		Angle += 360.0f;
 
 	// Trace a line from the worm to length or until it hits something
 	CVec pos = w->getPos();

@@ -570,19 +570,13 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 
 void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	int ftC = featureArrayLen();
-	int sendFtC = 0;
-	foreach( Feature*, f, Array(featureArray,ftC) )
-		if(f->get()->minVersion >= OLXBetaVersion(9))
-			sendFtC++;
-	assert(sendFtC < 256*256);
-	bs->writeInt(sendFtC, 2);	
+	assert(ftC < 256*256);
+	bs->writeInt(ftC, 2);	
 	foreach( Feature*, f, Array(featureArray,ftC) ) {
-		if(f->get()->minVersion >= OLXBetaVersion(9)) {
-			bs->writeString( f->get()->name );
-			bs->writeString( f->get()->humanReadableName );
-			bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
-			bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
-		}
+		bs->writeString( f->get()->name );
+		bs->writeString( f->get()->humanReadableName );
+		bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
+		bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
 	}	
 }
 

@@ -56,7 +56,7 @@ struct Feature {
 
 extern Feature featureArray[];
 inline int featureArrayLen() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) ++l; return l; }
-inline int clientSideFeatureCount() { int l = 0; for(Feature* f = featureArray; f->SET && !f->serverSideOnly; ++f) ++l; return l; }
+inline int clientSideFeatureCount() { int l = 0; for(Feature* f = featureArray; f->SET ; ++f) if(!f->serverSideOnly) ++l; return l; }
 Feature* featureByName(const std::string& name);
 
 // Indexes of features in featureArray

@@ -863,6 +863,8 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		} else if(f && f->serverSideOnly) {
 			// just serversideonly, thus we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);			
+			if(value.type == f->valueType)
+				client->tGameInfo.features[f] = value;	// Set it anyway, we have to know some server-side features, like angle in H&S
 		} else if(olderClientsSupported) {
 			// unknown for us but we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
