@@ -1051,8 +1051,12 @@ public:
 		// Put the hook where the worm is
 		else if(rope->isAttached() && rope->isPlayerAttached()) {
 
-			// If the worm has been killed, or dropped, drop the hook
-			if(!rope->getAttachedPlayer() || !rope->getAttachedPlayer()->isUsed() || !rope->getAttachedPlayer()->getAlive()) {
+			// If the worm has been killed, or dropped, or became invisible in H&S - drop the hook
+			if(	!rope->getAttachedPlayer() || 
+				!rope->getAttachedPlayer()->isUsed() || 
+				!rope->getAttachedPlayer()->getAlive() ||
+				!rope->getAttachedPlayer()->isVisible() ) 
+			{
 				if(!rope->getAttachedPlayer())
 					warnings("WARNING: the rope is attached to a non-existant player!\n");						
 				rope->hookVelocity() = CVec(0,0);

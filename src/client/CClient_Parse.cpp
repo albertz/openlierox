@@ -2299,7 +2299,8 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 	}
 
 	w->setAlive(true);	// We won't get SpawnWorm packet from H&S server
-	SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),0,NULL); // Spawn some sparkles, looks good
+	if( ! hide )	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
+		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),0,NULL); // Spawn some sparkles, looks good
 	// Hide or show the worm
 	if (hide)
 		w->Hide(immediate);

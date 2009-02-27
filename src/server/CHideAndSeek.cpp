@@ -67,6 +67,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 {
 	pos = cServer->FindSpot();
 	worm->Spawn(pos);
+	bVisible[worm->getID()] = false;
 	// Worms only spawn visible to their own team
 	for(int i = 0; i < MAX_WORMS; i++)  {
 		if(cWorms[i].isUsed() && cWorms[i].getTeam() == worm->getTeam())
@@ -90,6 +91,7 @@ void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 		killer->AddKill();
 	}
 	victim->Kill();
+	bVisible[victim->getID()] = false;
 }
 
 bool CHideAndSeek::Shoot(CWorm* worm)
