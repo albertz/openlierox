@@ -166,9 +166,9 @@ static void startDebuggerThread() {
 				if(!tLX) return 0;
 				if(tLX->bQuitGame) return 0;
 				if(IsWaitingForEvent()) continue;
-				//if(!cClient) return 0;
-				//if(cClient->getStatus() != NET_PLAYING) continue;
-				//if(tLX->bQuitEngine) continue;
+				
+				// HINT: Comment that out and you'll find a lot of things in OLX which could be improved.
+				if(!cClient || cClient->getStatus() != NET_PLAYING) continue;
 				
 				// check if the mainthread is hanging
 				if(oldTime == tLX->fCurTime) {
