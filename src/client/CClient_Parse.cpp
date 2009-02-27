@@ -574,6 +574,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->fLoadingTime = (float)l/100.0f;
 	client->bBonusesOn = bs->readBool();
 	client->bShowBonusName = bs->readBool();
+	client->fServertime = 0;
 
 	if(client->iGameType == GMT_TIME)
 		client->iTagLimit = bs->readInt16();
