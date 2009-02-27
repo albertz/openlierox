@@ -539,16 +539,18 @@ public:
 		DumpCallstackPrintf(pnt);
 
 #ifdef DEBUG
-		OlxWriteCoreDump(d ? d->name : NULL);
+		// commented out for now because it still doesn't work that good
+		//OlxWriteCoreDump(d ? d->name : NULL);
 #endif
 		
         if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
         {
 			fflush(stdout);
+			abort();
 #ifdef DEBUG
-        	raise(SIGQUIT);
+//        	raise(SIGQUIT);
 #else
-			exit(-1);
+//			exit(-1);
 #endif
 			return;
         }

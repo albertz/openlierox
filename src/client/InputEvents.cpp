@@ -72,6 +72,7 @@ SDL_Event *GetEvent(void)
 }
 
 bool bEventSystemInited = false;
+bool bWaitingForEvent = false;
 
 ////////////////////
 // Returns true if the event system is initialized
@@ -79,6 +80,11 @@ bool EventSystemInited()
 {
 	return bEventSystemInited;
 }
+
+bool IsWaitingForEvent() {
+	return bWaitingForEvent;
+}
+
 
 ///////////////////////
 // Converts SDL button to a mouse button
@@ -413,11 +419,13 @@ void InitEventSystem() {
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
 
 	bEventSystemInited = true;
+	bWaitingForEvent = false;
 }
 
 void ShutdownEventSystem()
 {
 	bEventSystemInited = false;
+	bWaitingForEvent = false;
 }
 
 
@@ -489,11 +497,14 @@ bool WaitForNextEvent() {
 	ResetCurrentEventStorage();
 
 	bool ret = false;
+	bWaitingForEvent = true;
 	if(mainQueue->wait(sdl_event)) {
+		bWaitingForEvent = false;
 		HandleNextEvent();
 		ret = true;
 	}
-
+	bWaitingForEvent = false;
+ 
 	// Perhaps there are more events in the queue.
 	// In this case, handle all of them. we want an empty
 	// queue after

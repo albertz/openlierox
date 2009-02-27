@@ -109,6 +109,7 @@ bool		ProcessEvents(); // returns false if no new event
 bool		WaitForNextEvent(); // waits for next event and handles all of then; returns false if no new event
 
 bool		EventSystemInited();
+bool		IsWaitingForEvent();
 
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();

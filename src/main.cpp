@@ -164,14 +164,17 @@ static void startDebuggerThread() {
 				float oldTime = tLX->fCurTime;
 				SDL_Delay(500);
 				if(!tLX) return 0;
-				if(!cClient) return 0;
-				if(cClient->getStatus() != NET_PLAYING) continue;
-				if(tLX->bQuitEngine) continue;
+				if(tLX->bQuitGame) return 0;
+				if(IsWaitingForEvent()) continue;
+				//if(!cClient) return 0;
+				//if(cClient->getStatus() != NET_PLAYING) continue;
+				//if(tLX->bQuitEngine) continue;
 				
 				// check if the mainthread is hanging
 				if(oldTime == tLX->fCurTime) {
 					warnings << "possible lock of mainthread detected" << endl;
-					OlxWriteCoreDump("mainlock");
+					//OlxWriteCoreDump("mainlock");
+					RaiseDebugger();
 					SDL_Delay(20 * 1000); // pause for a while, don't be so hard
 				}
 			}
