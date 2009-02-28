@@ -34,6 +34,7 @@
 #include "CClientNetEngine.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
+#include "CHideAndSeek.h"
 
 
 CClient		*cClient = NULL;
@@ -139,16 +140,16 @@ void CClient::Simulation(void)
 
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
 			if (w->getCurWeapon()->Weapon)
-				if(w->getCurWeapon()->Weapon->LaserSight)
+				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
 					LaserSight(w, w->getAngle());
 			
 			// Show vision cone of seeker worm
-			if( getGameLobby()->sGameMode == "Hide and Seek" && // TODO: don't hardcode string here
+			if( getGameLobby()->sGameMode == CHideAndSeek::GAMEMODE_NAME &&
 				w->getTeam() == 1 && 
 				(int)getGameLobby()->features[FT_HS_SeekerVisionAngle] < 360 )
 			{
-				LaserSight(w, w->getAngle() + (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2 );
-				LaserSight(w, w->getAngle() - (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2 );
+				LaserSight(w, w->getAngle() + (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2, false );
+				LaserSight(w, w->getAngle() - (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2, false );
 			}
 
 		}
@@ -808,21 +809,8 @@ void CClient::CheckDemolitionsGame(void)
 
 ///////////////////
 // Show a laser sight
-void CClient::LaserSight(CWorm *w, float Angle)
+void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 {
-	wpnslot_t *Slot = w->getCurWeapon();
-
-	// Safety
-	if(!Slot->Weapon)
-	{
-		errors << "LaserSight: Slot->Weapon was not set! Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
-		return;
-	}
-
-	// Only show the sight if the player is NOT reloading
-	if(Slot->Reloading && Angle == w->getAngle()) // Hack: compare if angle is not worm angle, we're playing H&S
-		return;
-
 
 	// Get the direction angle
 	if(w->getDirection() == DIR_LEFT)
@@ -865,7 +853,8 @@ void CClient::LaserSight(CWorm *w, float Angle)
 				stopbeam = true;
 
 				// We have a target
-				w->setTarget(true);
+				if( highlightCrosshair )
+					w->setTarget(true);
 				break;
 			}
 		}

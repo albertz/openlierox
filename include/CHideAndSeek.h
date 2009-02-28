@@ -30,7 +30,7 @@ public:
 	virtual int  GameTeams();
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
-	virtual std::string Name() { return "Hide and Seek"; }
+	virtual std::string Name() { return GAMEMODE_NAME; }
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm, bool message = true);
 	void Hide(CWorm* worm, bool message = true);
@@ -38,6 +38,8 @@ public:
 	bool CanSee(CWorm* worm1, CWorm* worm2);
 	// Generates an approximation of the time needed to finish the game
 	void GenerateTimes();
+
+	static const char * GAMEMODE_NAME;
 
 protected:
 	enum  team { HIDER, SEEKER };

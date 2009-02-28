@@ -19,6 +19,8 @@
 #include "CMap.h"
 #include "LieroX.h"
 
+const char * CHideAndSeek::GAMEMODE_NAME = "Hide and Seek";
+
 CHideAndSeek::CHideAndSeek(GameServer* server, CWorm* worms)
 {
 	cServer = server;

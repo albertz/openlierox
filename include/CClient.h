@@ -442,7 +442,7 @@ public:
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);
 	void		UpdateScoreboard(void);
-	void		LaserSight(CWorm *w, float angle); // Angle should be w->getAngle(), we'll convert it to on-screen angle
+	void		LaserSight(CWorm *w, float Angle, bool highlightCrosshair = true);
     void        CheckDemolitionsGame(void);
 
 	void		processChatter(void);
