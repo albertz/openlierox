@@ -1172,28 +1172,30 @@ void Menu_SvrList_Shutdown(void)
 }
 
 
-///////////////////
-// Send a ping out to the LAN (LAN menu)
-void Menu_SvrList_PingLAN(void)
-{
+	
+static void SendBroadcastPing(int port) {
 	// Broadcast a ping on the LAN
 	CBytestream bs;
 	bs.Clear();
 	bs.writeInt(-1,4);
 	bs.writeString("lx::ping");
-
+	
 	NetworkAddr a;
 	StringToNetAddr("255.255.255.255", a);
-	SetNetAddrPort(a, tLXOptions->iNetworkPort);
+	SetNetAddrPort(a,  port);
 	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN], a);
-
+	
 	// Send the ping
 	bs.Send(tMenu->tSocket[SCK_LAN]);
-
-	// Try also the default LX port
-	SetNetAddrPort(a, LX_PORT);
-
-	bs.Send(tMenu->tSocket[SCK_LAN]);
+}
+	
+///////////////////
+// Send a ping out to the LAN (LAN menu)
+void Menu_SvrList_PingLAN(void)
+{
+	SendBroadcastPing(LX_PORT);
+	if(tLXOptions->iNetworkPort != LX_PORT)
+		SendBroadcastPing(tLXOptions->iNetworkPort); // try also our own port
 }
 
 
