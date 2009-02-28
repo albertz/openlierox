@@ -53,8 +53,7 @@ static bool AmIBeingDebugged()
 	struct kinfo_proc info;
 	size_t info_size = sizeof ( info );
 	
-	int sysctl_result = sysctl ( mib, arraysize ( mib ), &info, &info_size, NULL, 0 );
-	DCHECK ( sysctl_result == 0 );
+	int sysctl_result = sysctl ( mib, sizeof(mib) / sizeof(*mib), &info, &info_size, NULL, 0 );
 	if ( sysctl_result != 0 )
 		return false;
 	
@@ -101,8 +100,10 @@ static bool AmIBeingDebugged() {
 
 void RaiseDebugger() {
 	if(AmIBeingDebugged()) {
+		printf("I am being debugged, raising debugger ...\n");
 		raise(SIGABRT);
-	}
+	} else
+		printf("I am not being debugged, ignoring debugger raise.\n");
 }
 
 #endif
