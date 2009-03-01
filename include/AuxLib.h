@@ -64,7 +64,6 @@ void doVideoFrameInMainThread(bool wait = false);
 void doSetVideoModeInMainThread();
 void doActionInMainThread(Action* act);
 
-void copyVideoFrame();
 
 class VideoPostProcessor {
 protected:

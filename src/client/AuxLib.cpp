@@ -561,43 +561,6 @@ public:
 };
 
 
-void copyVideoFrame() {
-	struct Copier : Action {
-		SDL_mutex* mutex;
-		SDL_cond* updateSignal;
-		bool ready;
-		bool canDelete;
-		Copier() {
-			mutex = SDL_CreateMutex();
-			updateSignal = SDL_CreateCond();
-			ready = false;
-			canDelete = false;
-		}
-		~Copier() {
-			SDL_mutexP(mutex);
-			while(!canDelete) SDL_CondWait(updateSignal, mutex);
-			SDL_mutexV(mutex);
-			SDL_DestroyMutex(mutex);
-			SDL_DestroyCond(updateSignal);
-		}
-		int handle() {
-			VideoPostProcessor::cloneBuffer();
-			SDL_mutexP(mutex);
-			ready = true;
-			SDL_CondSignal(updateSignal);
-			SDL_mutexV(mutex);
-			return 0;
-		}
-	};
-	Copier* copier = new Copier();
-	doActionInMainThread(copier);
-	
-	SDL_mutexP(copier->mutex);
-	while(!copier->ready) SDL_CondWait(copier->updateSignal, copier->mutex);
-	copier->canDelete = true;
-	SDL_CondSignal(copier->updateSignal);
-	SDL_mutexV(copier->mutex);
-}
 
 
 // IMPORTANT: this has to be called from main thread!
