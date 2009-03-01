@@ -466,7 +466,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// TODO: allow more viewports
 	// Draw the borders
-	if (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged || bCurrentSettings)  {
+	if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 		// Fill the viewport area with black
 		DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
 			VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
@@ -500,7 +500,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged))  {
+	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
 		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 		if (top_bar.get())
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -752,16 +752,13 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Console
 	Con_Draw(bmpDest);
 
-
-	bShouldRepaintInfo2 = false;
-	if( bShouldRepaintInfo )
-		bShouldRepaintInfo2 = true;	// Update second buffer in viewport
-	bShouldRepaintInfo = false;  // Just repainted it
-	if( bShouldRepaintInfo3 && bShouldRepaintInfo2 ) 
-	{
-		bShouldRepaintInfo = true;
-		bShouldRepaintInfo3 = false;
-	}
+	// We currently just set it always to true because it paints on the video surface
+	// and expects that it will always stay there. This is of course wrong for double buffering
+	// or also our video post processor.
+	// To overcome this with the really dirty hack with bShouldRepaintInfoN vars is just
+	// not a solution and it's also impossible to really catch all possible cases then.
+	// TODO: fix this
+	bShouldRepaintInfo = true; //false;  // Just repainted it
 }
 
 ///////////////////
@@ -871,9 +868,9 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
-	if ( !( bShouldRepaintInfo || bShouldRepaintInfo2 || tLX->bVideoModeChanged ) )
+	if ( !( bShouldRepaintInfo || tLX->bVideoModeChanged ) )
 		return;
-
+	
 	// TODO: allow more viewports
 	if (viewport_index == 0)  {  // Viewport 1
 		HealthLabelX = &tInterfaceSettings.HealthLabel1X;	HealthLabelY = &tInterfaceSettings.HealthLabel1Y;
@@ -1798,7 +1795,8 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 			(inbox && (Mouse->deltaX || Mouse->deltaY)))
 		bRepaintChatbox = true;
 
-	if( bRepaintChatbox || bRepaintChatbox2 )
+	// TODO: ... (Issue about double buffering; see comment about it in CClient::Draw)
+	if( true /*bRepaintChatbox*/ )
 	{	
 																		// or when user is moving the mouse over the chat
 		// Local and net play use different backgrounds
@@ -1808,6 +1806,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 
 		painted = true;
 
+		// TODO: Move that to CBrowser. Then we could also use the internal CBrowser draw cache.
 		if (bgImage.get())  // Due to backward compatibility, this doesn't have to exist
 			DrawImageAdv(bmpDest,
 						 bgImage,
@@ -1822,9 +1821,6 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
 
-		bRepaintChatbox2 = false;
-		if( bRepaintChatbox )
-			bRepaintChatbox2 = true;
 		bRepaintChatbox = false;
 	}
 
@@ -2495,7 +2491,6 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	if( bOldCurrentSettings != bCurrentSettings )
 	{
 		bShouldRepaintInfo = true;
-		bShouldRepaintInfo3 = true;
 	}
 
 	if (!bCurrentSettings)

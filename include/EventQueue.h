@@ -30,9 +30,6 @@ enum SDLUserEvent {
 void InitEventQueue();
 void ShutdownEventQueue();
 
-void doVideoFrameInMainThread(bool wait = false);
-void doSetVideoModeInMainThread();
-void doActionInMainThread(Action* act);
 
 
 union SDL_Event;

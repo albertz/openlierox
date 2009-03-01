@@ -481,6 +481,8 @@ void doActionInMainThread(Action* act) {
 	}
 }
 
+
+
 static int MainLoopThread(void*) {
 	tLX->bQuitGame = false;
 	ResetQuitEngineFlag();

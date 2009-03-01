@@ -59,15 +59,25 @@ bool		HandleDebugCommand(const std::string& cmd);
 inline bool	HandleDebugCommand(const std::string& cmd) { return false; }
 #endif
 
+
+void doVideoFrameInMainThread(bool wait = false);
+void doSetVideoModeInMainThread();
+void doActionInMainThread(Action* act);
+
+void copyVideoFrame();
+
 class VideoPostProcessor {
 protected:
 	static SDL_Surface* m_videoSurface;
 	static SDL_Surface* m_videoBufferSurface;
 	static VideoPostProcessor* instance;
-
+	
 public:
+	// IMPORTANT: only call these from the main thread
 	static void flipBuffers() { SDL_Surface* tmp = m_videoSurface; m_videoSurface = m_videoBufferSurface; m_videoBufferSurface = tmp; }
-
+	static void process();
+	static void cloneBuffer();
+	
 public:
 	virtual ~VideoPostProcessor() {}
 	static VideoPostProcessor* get() { return instance; }
@@ -81,7 +91,6 @@ public:
 
 	static SDL_Surface* videoSurface() { return m_videoSurface; };
 	static SDL_Surface* videoBufferSurface() { return m_videoBufferSurface; };
-	static void process(); // call that from main thread
 	
 	static void transformCoordinates_ScreenToVideo( int& x, int& y );
 };

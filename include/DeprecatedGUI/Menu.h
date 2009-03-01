@@ -399,10 +399,10 @@ extern bool		bShowFloatingOptions;
 // Routines
 bool	Menu_Initialize(bool *game);
 void	Menu_LoadFrontendInfo();
-void	Menu_Shutdown(void);
-void	Menu_Start(void);
-void	Menu_RedrawMouse(int total);
-void	Menu_Loop(void);
+void	Menu_Shutdown();
+void	Menu_Start();
+void	Menu_RedrawMouse(bool total);
+void	Menu_Loop();
 void    Menu_SetSkipStart(int s);
 void	Menu_DrawSubTitle(SDL_Surface * bmpDest, int id);
 void    Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y);

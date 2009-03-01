@@ -250,7 +250,6 @@ CClient::CClient() {
 	bUpdateScore = true;
 	fLastScoreUpdate = -9999;
 	bShouldRepaintInfo = true;
-	bShouldRepaintInfo2 = true;
 	bCurrentSettings = false;
 	tMapDlCallback = NULL;
 	tModDlCallback = NULL;
@@ -291,7 +290,6 @@ CClient::CClient() {
 	
 	bMuted = false;
 	bRepaintChatbox = true;
-	bRepaintChatbox2 = true;
 	
 	for(ushort i=0; i<4; i++)
 		iTeamScores[i] = 0;

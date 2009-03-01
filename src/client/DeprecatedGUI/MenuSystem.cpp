@@ -412,7 +412,7 @@ void Menu_Loop(void)
 ///////////////////
 // Redraw the rectangle under the mouse (total means a total buffer redraw)
 // TODO: rename this function (one would expect that it redraws the mouse)
-void Menu_RedrawMouse(int total)
+void Menu_RedrawMouse(bool total)
 {
 	if(total) {
 		SDL_BlitSurface(tMenu->bmpBuffer.get(),NULL,VideoPostProcessor::videoSurface(),NULL);

@@ -561,64 +561,55 @@ public:
 };
 
 
-#include "ThreadPool.h"
+void copyVideoFrame() {
+	struct Copier : Action {
+		SDL_mutex* mutex;
+		SDL_cond* updateSignal;
+		bool ready;
+		bool canDelete;
+		Copier() {
+			mutex = SDL_CreateMutex();
+			updateSignal = SDL_CreateCond();
+			ready = false;
+			canDelete = false;
+		}
+		~Copier() {
+			SDL_mutexP(mutex);
+			while(!canDelete) SDL_CondWait(updateSignal, mutex);
+			SDL_mutexV(mutex);
+			SDL_DestroyMutex(mutex);
+			SDL_DestroyCond(updateSignal);
+		}
+		int handle() {
+			VideoPostProcessor::cloneBuffer();
+			SDL_mutexP(mutex);
+			ready = true;
+			SDL_CondSignal(updateSignal);
+			SDL_mutexV(mutex);
+			return 0;
+		}
+	};
+	Copier* copier = new Copier();
+	doActionInMainThread(copier);
+	
+	SDL_mutexP(copier->mutex);
+	while(!copier->ready) SDL_CondWait(copier->updateSignal, copier->mutex);
+	copier->canDelete = true;
+	SDL_CondSignal(copier->updateSignal);
+	SDL_mutexV(copier->mutex);
+}
 
-static ThreadPoolItem* videoThread = NULL;
-static SDL_mutex* videoWaitMutex = NULL; // for videoThreadState; it's nearly always locked by main thread
-static enum { VTS_WAITING, VTS_WORKING, VTS_INVALID } videoThreadState = VTS_INVALID;
 
-void videoCoreFrame() {
+// IMPORTANT: this has to be called from main thread!
+void VideoPostProcessor::process() {
 	ProcessScreenshots();
 	VideoPostProcessor::get()->processToScreen();
 	flipRealVideo();
 }
 
-int videoThreadFct(void*) {
-	while(true) {
-		// this will make us sleep because the main thread should have locked this
-		SDL_mutexP(videoWaitMutex);
-		while(videoThreadState != VTS_WAITING) {
-			if(videoThreadState == VTS_INVALID) {
-				SDL_mutexV(videoWaitMutex);
-				notes << "Video thread gets killed" << endl;
-				return 0;
-			}
-
-			// normally, we should not get here
-			// if it happens though, just wait and give other threads the chance to change our state
-			SDL_mutexV(videoWaitMutex);
-			SDL_Delay(10);
-			SDL_mutexP(videoWaitMutex);
-		}
-
-		// we get the signal that another thread is waiting for us to start the work
-		videoThreadState = VTS_WORKING;
-		VideoPostProcessor::flipBuffers(); // the caller process() is waiting for us, therefore this is safe
-		SDL_mutexV(videoWaitMutex); // release state var, this will quit the current process()
-
-		videoCoreFrame();
-	}
-}
-
-
-// WARNING: this has to be called from main thread!
-// (because of the mutex which was locked in same thread as init())
-void VideoPostProcessor::process() {
-	if(instance == &voidVideoPostProcessor) {
-		videoCoreFrame();
-		return;
-	}
-
-	static const bool multithreaded = false;
-	if(!multithreaded) {
-		videoCoreFrame();
-		return;
-	}
-
-	videoThreadState = VTS_WAITING;
-	SDL_mutexV(videoWaitMutex); // release state var (we should have locked it ourself before), that starts the next round in the video thread
-	while(videoThreadState == VTS_WAITING) {} // wait until thread has started working and flipped its buffers
-	SDL_mutexP(videoWaitMutex); // lock state var, will wait until video thread has released this
+void VideoPostProcessor::cloneBuffer() {
+	// TODO: don't hardcode screen width/height here
+	DrawImageAdv(m_videoBufferSurface, m_videoSurface, 0, 0, 0, 0, 640, 480);
 }
 
 void VideoPostProcessor::init() {
@@ -639,26 +630,9 @@ void VideoPostProcessor::init() {
 		//instance = &voidVideoPostProcessor;
 		instance = new DummyVideoPostProc();
 	}
-
-	// only start video thread when we have a post processor
-	if(instance != &voidVideoPostProcessor) {
-		/*videoWaitMutex = SDL_CreateMutex();
-		videoThreadState = VTS_INVALID;
-		SDL_mutexP(videoWaitMutex); // we always want to lock this except for a short time in process()
-		videoThread = threadPool->start(&videoThreadFct, NULL);*/
-	}
 }
 
 void VideoPostProcessor::uninit() {
-	if(videoThread) {
-		videoThreadState = VTS_INVALID;
-		SDL_mutexV(videoWaitMutex); // release state var
-		threadPool->wait(videoThread, NULL);
-		SDL_DestroyMutex(videoWaitMutex);
-		videoWaitMutex = NULL;
-		videoThread = NULL;
-	}
-
 	if(instance != &voidVideoPostProcessor && instance != NULL)
 		delete instance;
 	instance = &voidVideoPostProcessor;
@@ -938,6 +912,7 @@ int unsetenv(const char *name)
 #ifdef DEBUG
 #include "CClient.h"
 
+// TODO: move this to console (it was only nec. via chat because we didn't had the console globally before)
 // HINT: This is called atm from CClientNetEngine::SendText().
 // HINT: This is just a hack to do some testing in lobby or whatever.
 // WARNING: These stuff is not intended to be stable, it's only for testing!

@@ -931,7 +931,6 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	NotifyUserOnEvent();
 	
 	client->bShouldRepaintInfo = true;
-	client->bShouldRepaintInfo3 = true;
 }
 
 
