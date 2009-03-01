@@ -86,11 +86,12 @@ int MusicMain(void *)
 
 			// Play
 			PlayMusic(songHandle);
-
-			// Wait until the song finishes
-			SDL_LockMutex(waitMutex);
-			SDL_CondWait(waitCond, waitMutex);
 		}
+		
+		// Wait until the song finishes
+		SDL_mutexP(waitMutex);
+		SDL_CondWait(waitCond, waitMutex);
+		SDL_mutexV(waitMutex);
 	}
 
 	// Stop/free the playing song
