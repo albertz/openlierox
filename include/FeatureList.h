@@ -28,7 +28,9 @@ struct Feature {
 	VarType valueType; // for example: float for gamespeed, bool for ropelenchange
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
+	// TODO: dont make it int! (make it a reference/pointer to the group or at least an enum)
 	int group;	// For grouping similar options in GUI
+	// TODO: move that to ScriptVarType_t
 	float minValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	float maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	
