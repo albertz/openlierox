@@ -67,7 +67,9 @@ int MusicMain(void *)
 	std::set<std::string>::iterator song = playlist.begin();
 	SoundMusic *songHandle = NULL;
 
+	SDL_mutexP(waitMutex);
 	while (!breakThread)  {
+
 		// If not playing, start some song
 		if (!PlayingMusic())  {
 			// Free any previous song
@@ -89,10 +91,9 @@ int MusicMain(void *)
 		}
 		
 		// Wait until the song finishes
-		SDL_mutexP(waitMutex);
 		SDL_CondWait(waitCond, waitMutex);
-		SDL_mutexV(waitMutex);
 	}
+	SDL_mutexV(waitMutex);
 
 	// Stop/free the playing song
 	if (songHandle)
@@ -128,7 +129,9 @@ void ShutdownBackgroundMusic()
 	SetMusicFinishedHandler(NULL);
 	breakThread = true;
 	if (musicThread)  {
+		SDL_mutexP(waitMutex); // ensure that we are in waiting state in music thread
 		SDL_CondSignal(waitCond);
+		SDL_mutexV(waitMutex);
 		threadPool->wait(musicThread, NULL);
 		SDL_DestroyCond(waitCond);
 		SDL_DestroyMutex(waitMutex);
