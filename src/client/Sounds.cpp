@@ -373,6 +373,8 @@ void InitializeMusic(void)
 	SetMusicVolume(tLXOptions->iMusicVolume);
 }
 
+// TODO: make the whole music system object oriented and thread safe
+
 SoundMusic *LoadMusic(const std::string& file)
 {
 	if (file == "")
