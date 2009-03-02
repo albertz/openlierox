@@ -14,8 +14,6 @@
 #include "Consts.h"
 
 class CDeathMatch : public CGameMode {
-private:
-	bool CompareWormsScore(CWorm *w1, CWorm *w2);
 public:
 	CDeathMatch(GameServer* server, CWorm* worms);
 	virtual ~CDeathMatch();
@@ -27,10 +25,9 @@ public:
 	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
-	virtual bool CheckGame();
+	virtual bool CheckGameOver();
 	virtual int  GameType();
 	virtual int  GameTeams();
-	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Death Match"; }
 
@@ -38,7 +35,6 @@ protected:
 	bool	bFirstBlood;
 	int	iKillsInRow[MAX_WORMS];
 	int	iDeathsInRow[MAX_WORMS];
-	int	iWinner;
 };
 
 #endif

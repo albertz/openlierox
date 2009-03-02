@@ -148,21 +148,6 @@ bool CDeathMatch::Shoot(CWorm* worm)
 	return true;
 }
 
-///////////////////
-// Returns true if w1 has a better score than w2
-bool CDeathMatch::CompareWormsScore(CWorm *w1, CWorm *w2)
-{
-	// Lives first
-	if (w1->getLives() > w2->getLives() && tLXOptions->tGameInfo.iLives >= 0)
-		return true;
-
-	// Kills
-	if (w1->getKills() > w2->getKills())
-		return true;
-
-	// Damage
-	return w1->getDamage() > w2->getDamage();
-}
 
 void CDeathMatch::Drop(CWorm* worm)
 {
@@ -177,42 +162,9 @@ void CDeathMatch::Simulate()
 {
 }
 
-bool CDeathMatch::CheckGame()
+bool CDeathMatch::CheckGameOver()
 {
-	// Check if the timelimit has been reached
-	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
-			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
-
-	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
-		return false;
-
-	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY)
-		return false;
-
-	int worms = 0;
-	int wormid = 0;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT) {
-			worms++;
-			wormid = CompareWormsScore(&cWorms[i], &cWorms[wormid]) ? i : wormid; // Take the worm with the best score
-		}
-
-	// Zero or one worm left, end the game
-	if(worms <= 1 || timelimit) {
-		if (networkTexts->sPlayerHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
-				cWorms[wormid].getName(), 1)), TXT_NORMAL);
-		iWinner = wormid;
-
-		// Timelimit message
-		if (timelimit)
-			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-
-		return true;
-	}
-	return false;
+	return CGameMode::CheckGameOver();
 }
 
 int CDeathMatch::GameType()
@@ -223,11 +175,6 @@ int CDeathMatch::GameType()
 int CDeathMatch::GameTeams()
 {
 	return 0;
-}
-
-int CDeathMatch::Winner()
-{
-	return iWinner;
 }
 
 bool CDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)

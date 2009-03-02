@@ -156,15 +156,9 @@ void CHideAndSeek::Simulate()
 	}
 }
 
-bool CHideAndSeek::CheckGame()
+bool CHideAndSeek::CheckGameOver()
 {
-	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames])
-		return false;
-	
-	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY)
-		return false;
+	if(CGameMode::CheckGameOver()) return true;
 
 	int worms[2] = { 0, 0 };
 	int winners = -1;
@@ -198,7 +192,8 @@ int CHideAndSeek::GameTeams()
 
 int CHideAndSeek::Winner()
 {
-	return 0;
+	// TODO: nobody is the winner?
+	return -1;
 }
 
 bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)

@@ -621,6 +621,12 @@ void GameServer::GameOver(int winner)
 	if (bGameOver)
 		return;
 
+	if(winner >= 0) {
+		if (networkTexts->sPlayerHasWon != "<none>")
+			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
+												cWorms[winner].getName(), 1)), TXT_NORMAL);
+	}
+	
 	hints << "gameover, worm " << winner << " has won the match" << endl;
 	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;

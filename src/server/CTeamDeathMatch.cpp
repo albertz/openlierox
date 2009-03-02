@@ -179,21 +179,11 @@ void CTeamDeathMatch::Simulate()
 {
 }
 
-bool CTeamDeathMatch::CheckGame()
+bool CTeamDeathMatch::CheckGameOver()
 {
-	// Check if the timelimit has been reached
-	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
-		(tLX->fCurTime - fGameStart) > tLXOptions->tGameInfo.fTimeLimit * 60.0;
+	if(CGameMode::CheckGameOver()) return true;
 
 	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };  // TODO: move to Consts.h
-
-	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
-		return false;
-
-	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY)
-		return false;
 
 	// Only one team left?
 	int worms[4] = { 0, 0, 0, 0 };
@@ -210,13 +200,10 @@ bool CTeamDeathMatch::CheckGame()
 	}
 
 	// Only one team left or timelimit has been reached
-	if(teams <= 1 || timelimit) {
+	if(teams <= 1) {
 		if(networkTexts->sTeamHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
 				"<team>", teamnames[team], 1)), TXT_NORMAL);
-
-		if (timelimit)
-			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
 
 		return true;
 	}
@@ -238,7 +225,7 @@ int CTeamDeathMatch::GameTeams()
 int CTeamDeathMatch::Winner()
 {
 	// There's no single winner so this will do for now
-	return 0;
+	return -1;
 }
 
 bool CTeamDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)

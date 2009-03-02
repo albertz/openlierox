@@ -1806,7 +1806,7 @@ void CBrowser::CleanUpChatBox(const std::vector<TXT_TYPE> & removedText, int max
 // Scrolls to the end of the document
 void CBrowser::ScrollToLastLine(void)
 {
-	if (bUseScroll )  {
+	if (bUseScroll)  {
 		cScrollbar.setValue(cScrollbar.getMax());
 		bNeedsRender = true;
 	}

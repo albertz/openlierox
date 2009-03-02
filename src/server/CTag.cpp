@@ -163,26 +163,13 @@ bool CTag::Shoot(CWorm* worm)
 
 ///////////////////
 // Returns true if w1 has a better score than w2
-bool CTag::CompareWormsScore(CWorm *w1, CWorm *w2)
+int CTag::CompareWormsScore(CWorm *w1, CWorm *w2)
 {
 	// Tag time
-	if (w1->getTagTime() > w2->getTagTime())
-		return true;
-	else if (w1->getTagTime() < w2->getTagTime())
-		return false;
+	if (w1->getTagTime() > w2->getTagTime()) return 1;
+	if (w1->getTagTime() < w2->getTagTime()) return -1;
 
-	// HINT: we get there only when the tag times are equal
-
-	// Lives
-	if (w1->getLives() > w2->getLives() && tLXOptions->tGameInfo.iLives >= 0)
-		return true;
-
-	// Kills
-	if (w1->getKills() > w2->getKills())
-		return true;
-
-	// Damage
-	return w1->getDamage() > w2->getDamage();
+	return CGameMode::CompareWormsScore(w1, w2);
 }
 
 void CTag::Drop(CWorm* worm)
@@ -222,57 +209,17 @@ void CTag::Simulate()
 				cServer->RecheckGame();
 }
 
-bool CTag::CheckGame()
+bool CTag::CheckGameOver()
 {
-	// Check if the timelimit has been reached
-	bool timelimit = tLXOptions->tGameInfo.fTimeLimit > 0 &&
-			cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0;
+	if(CGameMode::CheckGameOver()) return true;
+	
 
-	// Empty games, no need to check anything?
-	if(tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && !timelimit)
-		return false;
-
-	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY)
-		return false;
-
-	int worms = 0;
-	int wormid = 0;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].isUsed()) {
-			if (cWorms[i].getLives() != WRM_OUT)
-				worms++;
-			wormid = CompareWormsScore(&cWorms[i], &cWorms[wormid]) ? i : wormid; // Take the worm with the best score
-		}
-
-	// Zero or one worm left, end the game
-	if(worms <= 1 || timelimit) {
-		if (networkTexts->sPlayerHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
-				cWorms[wormid].getName(), 1)), TXT_NORMAL);
-		iWinner = wormid;
-
-		// Timelimit message
-		if (timelimit)
-			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-
-		return true;
-	}
-
-	// Check if any of the worms reached the maximum tag time
 	if (tLXOptions->tGameInfo.iTagLimit > 0)  {
-		if(cWorms[wormid].isUsed() && 
-			cWorms[wormid].getTagTime() >= tLXOptions->tGameInfo.iTagLimit * 60.0f) {
+		int wormid = HighestScoredWorm();
 
+		// Check if any of the worms reached the maximum tag time
+		if(wormid >= 0 && cWorms[wormid].getTagTime() >= tLXOptions->tGameInfo.iTagLimit * 60.0f) {
 			notes << cWorms[wormid].getName() << " has reached the maximum tag time" << endl;
-
-			iWinner = wormid;
-
-			// Message
-			if (networkTexts->sPlayerHasWon != "<none>")
-				cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
-					cWorms[wormid].getName(), 1)), TXT_NORMAL);
-
 			return true;
 		}
 	}
@@ -297,7 +244,7 @@ int CTag::GameTeams()
 
 int CTag::Winner()
 {
-	return iWinner;
+	return HighestScoredWorm();
 }
 
 void CTag::TagWorm(CWorm *worm)

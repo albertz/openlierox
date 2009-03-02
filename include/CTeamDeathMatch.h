@@ -25,7 +25,7 @@ public:
 	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
-	virtual bool CheckGame();
+	virtual bool CheckGameOver();
 	virtual int  GameType();
 	virtual int  GameTeams();
 	virtual int  Winner();

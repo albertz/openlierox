@@ -34,10 +34,12 @@ public:
 	virtual bool Shoot(CWorm* worm) = 0;
 	virtual void Drop(CWorm* worm) = 0;
 	virtual void Simulate() = 0;
-	virtual bool CheckGame() = 0;
+	virtual bool CheckGameOver();
 	virtual int  GameType() = 0; // this is the game type which is sent over network
 	virtual int  GameTeams() = 0;
-	virtual int  Winner() = 0;
+	virtual int CompareWormsScore(CWorm* w1, CWorm* w2);
+	int HighestScoredWorm();
+	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) = 0;
 	// This is the game mode name as shown in the lobby for clients
 	virtual std::string Name() = 0;
