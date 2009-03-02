@@ -283,7 +283,7 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 			while( angle > 180.0f )	// Normalize it between 180 and -180
 				angle -= 360.0f;
 			
-			float wormAngle = VectorAngle( worm2->getPos(), worm1->getPos() ) * 180.0f / PI;
+			float wormAngle = VectorAngle( worm2->getPos(), worm1->getPos() ) * 180.0f / (float)PI;
 			
 			float angleDiff = angle - wormAngle;
 			
