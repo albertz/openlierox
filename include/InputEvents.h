@@ -29,12 +29,13 @@ extern	bool			bDeactivated;
 // State of modifier keys (ctrl, alt and shift)
 struct ModifiersState  { 
 	ModifiersState() { clear(); }
-	void clear()  { bShift = bCtrl = bAlt = bSuper = false; }
+	void clear()  { bShift = bCtrl = bAlt = bSuper = bMeta = false; }
 
 	bool bShift;
 	bool bCtrl;
 	bool bAlt;
 	bool bSuper;
+	bool bMeta;
 };
 
 struct KeyboardEvent {

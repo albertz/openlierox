@@ -333,6 +333,9 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		case SDLK_LSUPER: case SDLK_RSUPER:
 			evtModifiersState.bSuper = kbev.down;
 			break;
+		case SDLK_LMETA: case SDLK_RMETA:
+			evtModifiersState.bMeta = kbev.down;
+			break;				
 		}
 
 		// copy it

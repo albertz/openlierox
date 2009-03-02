@@ -873,15 +873,15 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
-    if (((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c ) ||
-		(((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT ))) {
+    if (((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_c ) ||
+		(((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_INSERT ))) {
 		if (!IsSelectionEmpty())
 			copy_to_clipboard(GetSelectedText());
         return BRW_KEY_PROCESSED;
     }
 
     // Ctrl-a or Super-a (select all)
-    if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_a) {
+    if ((modstate.bCtrl || modstate.bMeta) && keysym == SDLK_a) {
 		iSelectionStartLine = 0;
 		iSelectionStartColumn = 0;
 		if (tLines.size())  {
@@ -1707,6 +1707,7 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 
 	// Format
 	char string_color[20];
+	// TODO: don't use sprintf!
 	sprintf(string_color, "#%02X%02X%02X", (unsigned)color.r, (unsigned)color.g, (unsigned)color.b);
 
 	std::string code = "<font color=\"" + std::string(string_color) + "\">" + 
