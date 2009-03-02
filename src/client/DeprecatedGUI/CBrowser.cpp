@@ -1725,8 +1725,18 @@ void CBrowser::AddChatBoxLine(const std::string & text, Color color, TXT_TYPE te
 	AppendData(code);
 	
 	// Scroll to last line
-	if (bUseScroll)
-		ScrollToLastLine();
+	if (bUseScroll) {
+		// If we have scrolled nearly down, scroll down to the new added line.
+		// If we are in the middle, don't scroll to the end. (That is the default
+		// behaviour in most application and it makes sense at it would be impossible
+		// to read old text if frequenlty new messages arrive.)
+		// TODO: If you want to have it different, leave this the default and make an option.
+		// TODO: getMax() is not what one would expect (see comment in CScrollbar). Indead
+		// getMax()-getItemsperbox() is hopefully the real max value if I am not wrong.
+		static const int maxLineDiffToEnd = 5;
+		if( cScrollbar.getMax() - cScrollbar.getItemsperbox() - cScrollbar.getValue() < maxLineDiffToEnd )
+			ScrollToLastLine();
+	}
 }
 
 //////////////////////
