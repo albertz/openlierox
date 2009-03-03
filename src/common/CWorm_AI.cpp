@@ -39,11 +39,8 @@
 #include "ProfileSystem.h"
 #include "CWormBot.h"
 #include "Debug.h"
+#include "CGameMode.h"
 
-
-// we need it here for some debugging...
-// we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
-extern SDL_Surface * Screen;
 
 // used by searchpath algo
 static const unsigned short wormsize = 7;
@@ -993,6 +990,23 @@ void CWormBotInputHandler::AI_Respawn() {
         nAITargetType = AIT_WORM;
         nAIState = AI_MOVINGTOTARGET;
 		AI_CreatePath(true);
+	}
+}
+
+
+// called when the game starts (after weapon selection)
+void CWormBotInputHandler::startGame() {
+	if(	cClient->getGameLobby()->gameMode == GameMode(GM_DEATHMATCH) ||
+		cClient->getGameLobby()->gameMode == GameMode(GM_TEAMDEATH) ||
+		cClient->getGameLobby()->gameMode == GameMode(GM_TAG))
+	{
+		// it's fine, we support that game mode
+	}
+	else if(cClient->getGameLobby()->gameMode == NULL) {
+		warnings << "bot: gamemode " << cClient->getGameLobby()->sGameMode << " is unknown" << endl;
+	} else {
+		warnings << "bot: support for gamemode " << cClient->getGameLobby()->gameMode->Name()
+				<< " is currently not implemented" << endl;
 	}
 }
 

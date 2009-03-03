@@ -26,7 +26,7 @@ public:
 	virtual void doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 	
 	// simulation
-	virtual void startGame() {}
+	virtual void startGame();
 	virtual void getInput();
     virtual void clearInput() {}
 
