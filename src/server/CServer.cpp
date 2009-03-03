@@ -646,6 +646,17 @@ void GameServer::GameOver()
 	// Let everyone know that the game is over
 	CBytestream bs;
 	bs.writeByte(S2C_GAMEOVER);
+	if(getGameMode()->GeneralGameType() == GMT_TEAMS) {
+		// we have to send always the worm-id (that's the LX56 protocol...)
+		if(winner < 0)
+			for(int i = 0; i < getNumPlayers(); ++i) {
+				if(cWorms[i].getTeam() == winnerTeam) {
+					winner = i;
+					break;
+				}
+			}
+	}
+	if(winner < 0) winner = 0; // we cannot have no winner in LX56
 	bs.writeInt(winner, 1);
 	SendGlobalPacket(&bs);
 
