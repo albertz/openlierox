@@ -12,6 +12,7 @@
 
 #include <set>
 #include <map>
+#include <vector>
 #include <list>
 #include "Utils.h" // for Ref
 
@@ -80,6 +81,12 @@ typename Iterator<_T>::Ref GetIterator(std::set<_T>& s) { return new STLIterator
 
 template< typename _T >
 typename Iterator<_T&>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T&>(s); }
+
+template< typename _T >
+typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
+
+template< typename _T >
+typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }
 
 template< typename _I, typename _T >
 typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }

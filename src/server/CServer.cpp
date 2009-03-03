@@ -418,7 +418,7 @@ int GameServer::StartGame()
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on
 	if( tLX->iGameType == GME_HOST ) {
-		if( cGameMode->GameType() == GMT_TEAMS ) {
+		if( cGameMode->GameTeams() > 1 ) {
 
 			CWorm *w = cWorms;
 			CBytestream b;
@@ -615,22 +615,36 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 ////////////////
 // End the game
-void GameServer::GameOver(int winner)
+void GameServer::GameOver()
 {
 	// The game is already over
 	if (bGameOver)
 		return;
 
+	bGameOver = true;
+	fGameOverTime = tLX->fCurTime;
+
+	hints << "gameover"; 
+
+	int winner = cGameMode->Winner();
 	if(winner >= 0) {
 		if (networkTexts->sPlayerHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
 												cWorms[winner].getName(), 1)), TXT_NORMAL);
+		hints << ", worm " << winner << " has won the match";
 	}
 	
-	hints << "gameover, worm " << winner << " has won the match" << endl;
-	bGameOver = true;
-	fGameOverTime = tLX->fCurTime;
+	int winnerTeam = cGameMode->WinnerTeam();
+	if(winnerTeam >= 0) {
+		if(networkTexts->sTeamHasWon != "<none>")
+			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
+												"<team>", cGameMode->TeamName(winnerTeam), 1)), TXT_NORMAL);
+		hints << ", team " << winnerTeam << " has won the match";
+	}
+	
+	hints << endl;
 
+	// TODO: move that out here!
 	// Let everyone know that the game is over
 	CBytestream bs;
 	bs.writeByte(S2C_GAMEOVER);
@@ -647,7 +661,7 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 		
-		if( cGameMode->GameType() != GMT_TEAMS )
+		if( cGameMode->GameTeams() <= 1 )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
@@ -656,7 +670,7 @@ void GameServer::GameOver(int winner)
 		}
 		else	// winner == team id
 		{
-			if( w->getTeam() == winner )
+			if( w->getTeam() == winnerTeam )
 				w->addTotalWins();
 			else
 				w->addTotalLosses();
@@ -1826,11 +1840,6 @@ void GameServer::Shutdown(void)
 	if(cWorms) {
 		delete[] cWorms;
 		cWorms = NULL;
-	}
-
-	if (cGameMode)  {
-		delete cGameMode;
-		cGameMode = NULL;
 	}
 
 	if(cMap) {

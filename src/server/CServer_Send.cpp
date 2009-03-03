@@ -108,14 +108,14 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 		bs->writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
 	
 	// Game info
-	bs->writeInt(server->getGameMode()->GameType(),1);
+	bs->writeInt(server->getGameMode()->GeneralGameType(),1);
 	bs->writeInt16(tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
 	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
-	if(server->getGameMode()->GameType() == GMT_TIME)
+	if(server->getGameMode()->GeneralGameType() == GMT_TIME)
 		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	
@@ -594,7 +594,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 	bs->writeString(tLXOptions->tGameInfo.sMapFile);
 	bs->writeString(tLXOptions->tGameInfo.sModName);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
-	bs->writeByte(server->getGameMode()->GameType());
+	bs->writeByte(server->getGameMode()->GeneralGameType());
 	bs->writeInt16(tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
@@ -622,24 +622,10 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
-	if(cGameMode != NULL)
-		delete cGameMode;
-
-	switch(tLXOptions->tGameInfo.iGameMode) {
-		case GM_DEATHMATCH:
-			cGameMode = new CDeathMatch(this, cWorms);
-			break;
-		case GM_TEAMDEATH:
-			cGameMode = new CTeamDeathMatch(this, cWorms);
-			break;
-		case GM_TAG:
-			cGameMode = new CTag(this, cWorms);
-			break;
-		case GM_HIDEANDSEEK:
-			cGameMode = new CHideAndSeek(this, cWorms);
-			break;
-		default:
-			errors << "Trying to play a non-existant gamemode" << endl;
+	cGameMode = tLXOptions->tGameInfo.gameMode;
+	if(cGameMode == NULL) {
+		errors << "Trying to play a non-existant gamemode" << endl;
+		cGameMode = GameMode(GM_DEATHMATCH);		
 	}
 
 	// Read map/mod name from map/mod file

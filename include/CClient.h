@@ -440,7 +440,6 @@ public:
 	void		InjureWorm(CWorm *w, int damage, int owner);
 	void		UpdateScoreboard(void);
 	void		LaserSight(CWorm *w, float Angle, bool highlightCrosshair = true);
-    void        CheckDemolitionsGame(void);
 
 	void		processChatter(void);
     void        processChatCharacter(const KeyboardEvent& input);

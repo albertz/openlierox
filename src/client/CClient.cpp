@@ -452,7 +452,7 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].iTeamKills = 0;
 			tGameLog->tWorms[j].iTeamDeaths = 0;
 			tGameLog->tWorms[j].bTagIT = false;
-			if (tGameInfo.iGameMode == GMT_TEAMS)
+			if (tGameInfo.iGeneralGameType == GMT_TEAMS)
 				tGameLog->tWorms[j].iTeam = cRemoteWorms[i].getTeam();
 			else
 				tGameLog->tWorms[j].iTeam = -1;
@@ -1756,7 +1756,7 @@ void CClient::GetLogData(std::string& data)
 			"level=\"" + level + "\" " +
 			"mod=\"" + mod + "\" " +
 			"winner=\"" + itoa(tGameLog->iWinner) + "\" " +
-			"gamemode=\"" + itoa(tGameInfo.iGameMode) + "\">";
+			"gamemode=\"" + tGameInfo.sGameMode + "\">";
 
 	// Count the number of players
 	int num_players = 0;

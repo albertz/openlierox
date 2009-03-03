@@ -295,7 +295,7 @@ public:
 		float	fFrameRate = 7.5f;
 
 		// If we're IT, spawn some sparkles
-		if(worm->getTagIT() && cClient->getGameLobby()->iGameMode == GMT_TIME) {
+		if(worm->getTagIT() && cClient->getGameLobby()->iGeneralGameType == GMT_TIME) {
 			if(tLX->fCurTime - worm->getLastSparkle() > 0.15f) {
 				worm->setLastSparkle( worm->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
@@ -716,8 +716,6 @@ public:
 
 				// Increment the dirt count
 				m_client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-
-				m_client->CheckDemolitionsGame();
 			}
 			break;
 			}
@@ -763,8 +761,6 @@ public:
 
 				// Increment the dirt count
 				m_client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
-
-				m_client->CheckDemolitionsGame();
 			}
 			break;
 

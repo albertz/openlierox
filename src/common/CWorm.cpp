@@ -28,7 +28,7 @@
 #include "CServerConnection.h"
 #include "CWormHuman.h"
 #include "Debug.h"
-
+#include "CGameMode.h"
 
 
 ///////////////////
@@ -418,7 +418,7 @@ void CWorm::Spawn(CVec position) {
 
 ///////////////////
 // Load the graphics
-bool CWorm::ChangeGraphics(int gametype)
+bool CWorm::ChangeGraphics(int generalgametype)
 {
 	// TODO: create some good way to allow custom colors
 
@@ -430,7 +430,7 @@ bool CWorm::ChangeGraphics(int gametype)
 
 	Uint32 colour = cSkin.getDefaultColor();
 	// If we are in a team game, use the team colours
-	if(gametype == GMT_TEAMS) {
+	if(generalgametype == GMT_TEAMS) {
 		team = true;
 		colour = tLX->clTeamColors[iTeam];
 	}
@@ -450,7 +450,7 @@ bool CWorm::ChangeGraphics(int gametype)
 
 ///////////////////
 // Change the graphics of an image
-SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, int team)
+SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, bool team)
 {
 	SmartPointer<SDL_Surface> img;
 	SmartPointer<SDL_Surface> loaded;
@@ -922,7 +922,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if( sAFKMessage != "" )
 			WormName += " " + sAFKMessage;
 		if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
-			if (cClient->getGameLobby()->iGameMode == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
+			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
 				Uint32 col = tLX->clTeamColors[iTeam];
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
 			} // if
@@ -985,6 +985,15 @@ bool CWorm::CheckOnGround()
 	return false;
 }
 
+void CWorm::incrementDirtCount(int d) {
+	if(d != 0) {
+		iDirtCount += d;
+		
+		if( tLX->iGameType != GME_JOIN ) {
+			cServer->getGameMode()->Carve(this, d);
+		}
+	}
+}
 
 ///////////////////
 // Injure me
@@ -1157,7 +1166,7 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 
 Uint32 CWorm::getGameColour(void)
 {
-	switch(cClient->getGameLobby()->iGameMode) {
+	switch(cClient->getGameLobby()->iGeneralGameType) {
 		case GMT_TEAMS:
 			return tLX->clTeamColors[iTeam];
 		default:
@@ -1175,13 +1184,13 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured yourself
 	}
-	else if( tLXOptions->tGameInfo.iGameMode == GMT_TEAMS && getTeam() == victim->getTeam() ) 
+	else if( cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && getTeam() == victim->getTeam() ) 
 	{
-		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
+		if( cClient->getGameLobby()->features[FT_SuicideDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate
-		else if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
+		else if( cClient->getGameLobby()->features[FT_CountTeamkills] )
 			setDamage( getDamage() + damage );	// Count team damage along with teamkills
 	}
 	else
 		setDamage( getDamage() + damage );
-};
+}

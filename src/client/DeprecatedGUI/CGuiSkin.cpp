@@ -84,6 +84,7 @@ std::string CGuiSkin::DumpWidgets()
 				case SVT_STRING: ret << "string"; break;
 				case SVT_COLOR: ret << "color"; break;
 				case SVT_CALLBACK: ret << "callback"; break;
+				default: assert(false);
 			};
 			ret << " " << f->first;
 			first = false;

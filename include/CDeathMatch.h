@@ -15,9 +15,6 @@
 
 class CDeathMatch : public CGameMode {
 public:
-	CDeathMatch(GameServer* server, CWorm* worms);
-	virtual ~CDeathMatch();
-	
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
 	virtual bool Spawn(CWorm* worm, CVec pos);
@@ -26,8 +23,6 @@ public:
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
-	virtual int  GameType();
-	virtual int  GameTeams();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Death Match"; }
 

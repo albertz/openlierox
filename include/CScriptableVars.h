@@ -34,7 +34,8 @@ enum ScriptVarType_t
 	SVT_FLOAT = 2,
 	SVT_STRING = 3,
 	SVT_COLOR = 4,		// uint32 actually, used only in XML files
-	SVT_CALLBACK	// Cannot be referenced from XML files directly, only as string
+	SVT_CALLBACK,	// Cannot be referenced from XML files directly, only as string
+	SVT_DYNAMIC
 };
 
 
@@ -81,6 +82,31 @@ struct ScriptVar_t
 	bool fromString( const std::string & str);
 };
 
+
+template<typename T> ScriptVarType_t GetType();
+template<> inline ScriptVarType_t GetType<bool>() { return SVT_BOOL; }
+template<> inline ScriptVarType_t GetType<int>() { return SVT_INT; }
+template<> inline ScriptVarType_t GetType<float>() { return SVT_FLOAT; }
+template<> inline ScriptVarType_t GetType<std::string>() { return SVT_STRING; }
+template<> inline ScriptVarType_t GetType<Color_t>() { return SVT_COLOR; }
+
+struct _DynamicVar {
+	virtual ~_DynamicVar() {}
+	virtual ScriptVarType_t type() = 0;
+	virtual ScriptVar_t asScriptVar() = 0;
+	virtual void fromScriptVar(const ScriptVar_t&) = 0;
+};
+
+template < typename T >
+struct DynamicVar : _DynamicVar {
+	virtual ~DynamicVar() {}
+	virtual ScriptVarType_t type() { return GetType<T>(); }
+	virtual T get() = 0;
+	virtual void set(const T&) = 0;
+	virtual ScriptVar_t asScriptVar() { return ScriptVar_t(get()); }
+	virtual void fromScriptVar(const ScriptVar_t& var) { set(var); }
+};
+
 // Pointer to any in-game var - var should be global or static
 struct ScriptVarPtr_t
 {
@@ -96,6 +122,7 @@ struct ScriptVarPtr_t
 		std::string * s;
 		Color_t * cl;
 		ScriptCallback_t cb;
+		_DynamicVar* dynVar;
 	};
 	union	// Is there any point in doing that union?
 	{
@@ -113,6 +140,13 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING), isUnsigned(false) { s = v; sdef = def; }
 	ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR), isUnsigned(false) { cl = v; cldef = def; }
 	ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK), isUnsigned(false) { cb = v; }
+	
+	ScriptVarPtr_t( DynamicVar<bool>* v, bool def ): type(SVT_DYNAMIC), isUnsigned(false), bdef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<int>* v, int def ): type(SVT_DYNAMIC), isUnsigned(false), idef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<float>* v, float def ): type(SVT_DYNAMIC), isUnsigned(false), fdef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<std::string>* v, const char * def ): type(SVT_DYNAMIC), isUnsigned(false), sdef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<Color_t>* v, Color_t def ): type(SVT_DYNAMIC), isUnsigned(false), cldef(def) { dynVar = v; }
+	
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type), isUnsigned(v->isUnsigned)  {
 		switch(type) {
 			case SVT_BOOL: b = &v->b; bdef = def->b; break;
@@ -142,7 +176,7 @@ public:
 	{
 		Init();
 		return m_instance->m_vars;
-	};
+	}
 	
 	typedef std::map< std::string, ScriptVarPtr_t > :: const_iterator iterator;
 
@@ -150,12 +184,12 @@ public:
 	{ 
 		Init();
 		return m_instance->m_vars.begin();
-	};
+	}
 	static iterator end()
 	{ 
 		Init();
 		return m_instance->m_vars.end();
-	};
+	}
 	
 	static ScriptVarPtr_t GetVar( const std::string & name );	// Case-insensitive search, returns NULL on fail
 	static ScriptVarPtr_t GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search, returns NULL on fail
@@ -185,18 +219,18 @@ public:
 		std::string m_prefix;
 
 		VarRegisterHelper( CScriptableVars * parent, const std::string & prefix ): 
-			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_minmax( parent->m_minmax ), m_groups(parent->m_groups), m_prefix(prefix) {};
+			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_minmax( parent->m_minmax ), m_groups(parent->m_groups), m_prefix(prefix) {}
 
 		std::string Name( const std::string & c )
 		{
 			if( m_prefix != "" ) 
 				return m_prefix + "." + c;
 			return c;
-		};
+		}
 
 		public:
 
-		operator bool () { return true; };	// To be able to write static expressions
+		operator bool () { return true; }	// To be able to write static expressions
 
 		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false, 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
@@ -205,7 +239,7 @@ public:
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong );
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 
 		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, 
 										const std::string & descr = "", const std::string & descrLong = "", int group = -1,
@@ -218,7 +252,7 @@ public:
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 
 		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0f, 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
@@ -231,7 +265,7 @@ public:
 				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 
 		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "", 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
@@ -240,7 +274,7 @@ public:
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 
 		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
@@ -249,7 +283,7 @@ public:
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 
 		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c, 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
@@ -258,7 +292,7 @@ public:
 				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
 		
 		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
 											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
@@ -274,14 +308,25 @@ public:
 					m_minmax[Name(c)] = std::make_pair( minval, maxval );
 				m_groups[Name(c)] = group;
 				return *this; 
-			};
+			}
+		
+		template<typename T>
+		VarRegisterHelper & operator() ( DynamicVar<T>* v, const std::string & c, const T& def,
+										const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
+			{ 
+				m_vars[Name(c)] = ScriptVarPtr_t( v, def );
+				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
+				m_groups[Name(c)] = group;
+				return *this; 
+			}
+		
 	};
 
 	static VarRegisterHelper RegisterVars( const std::string & base = "" )
 	{
 		Init();
 		return VarRegisterHelper( m_instance, base );
-	};
+	}
 
 	// De-registers all variables with names starting with "base."
 	static void DeRegisterVars( const std::string & base );

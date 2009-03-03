@@ -900,7 +900,7 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fLastGoBack = -9999;
 
 	// TODO: what are these good for? And why are they treated as bools?
-	iAiTeams = cClient->getGameLobby()->iGameMode == GM_TEAMDEATH;
+	iAiTeams = cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS;
 	iAiTag = 0;//tLXOptions->tGameInfo.iGameMode == GM_TAG;
 	iAiVIP = 0;//tLXOptions->tGameInfo.iGameMode == GM_VIP;
 	iAiCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_CTF;
@@ -1759,7 +1759,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	}
 
 	// Don't shoot teammates
-	if(cClient->getGameLobby()->iGameMode == GMT_TEAMS && (nType & PX_WORM)) {
+	if(cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && (nType & PX_WORM)) {
 		notes << "bot: we don't want shoot teammates" << endl;
 		return false;
 	}
@@ -2551,7 +2551,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && cClient->getGameLobby()->iGameMode == GMT_TEAMS)  {
+	if (cClient && cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w) {

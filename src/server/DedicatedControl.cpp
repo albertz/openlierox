@@ -48,6 +48,7 @@
 #include "Command.h"
 #include "Process.h"
 #include "Event.h"
+#include "CGameMode.h"
 
 
 #ifdef _MSC_VER
@@ -885,7 +886,7 @@ struct DedIntern {
 		}
 
 		// Get the game type
-		tLXOptions->tGameInfo.iGameMode = GMT_NORMAL;
+		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 
 		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
 		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);

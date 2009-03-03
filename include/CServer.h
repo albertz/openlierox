@@ -155,14 +155,13 @@ public:
 	void		Frame();
 	int			StartGame();
 	void		BeginMatch(CServerConnection* cl = NULL); // if NULL, begin match for everybody; or only for cl
-	void		GameOver(int winner);
+	void		GameOver();
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame(void);
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
 	static void	WormShoot(CWorm *w, GameServer* gameserver);
-    void        DemolitionsGameOver(int winner);
     void        RecheckGame(void);
 
 	void		gotoLobby(void);

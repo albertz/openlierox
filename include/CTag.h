@@ -18,7 +18,6 @@ protected:
 	virtual void TagWorm(CWorm *worm);
 	virtual void TagRandomWorm();
 public:
-	CTag(GameServer* server, CWorm* worms);
 	virtual ~CTag();
 	
 	virtual void PrepareGame();
@@ -29,8 +28,7 @@ public:
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
-	virtual int  GameType();
-	virtual int  GameTeams();
+	virtual int  GeneralGameType();
 	virtual int CompareWormsScore(CWorm *w1, CWorm *w2);
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);

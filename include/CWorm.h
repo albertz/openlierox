@@ -391,9 +391,9 @@ public:
 	//
 	// Graphics
 	//
-	bool		ChangeGraphics(int gametype);
+	bool		ChangeGraphics(int generalgametype);
 	void		FreeGraphics(void);
-	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, int team);
+	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, bool team);
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
@@ -549,7 +549,7 @@ public:
 	float		getLastBlood()				{ return fLastBlood; }
 	void		setLastBlood(float b)		{ fLastBlood = b; }
 
-    void        incrementDirtCount(int d)   { iDirtCount += d; }
+    void        incrementDirtCount(int d);
     int         getDirtCount(void)          { return iDirtCount; }
 
 	void		setTarget(bool _t)			{ bGotTarget = _t; }

@@ -404,7 +404,7 @@ static void updateDetailsList(CListview* l) {
 	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
 	SETI; 
 	if(cClient->getGameLobby()->sGameMode == "")
-		si->sText = gamemodes[cClient->getGameLobby()->iGameMode];
+		si->sText = gamemodes[cClient->getGameLobby()->iGeneralGameType];
 	else
 		si->sText = cClient->getGameLobby()->sGameMode;
 	SETI;
@@ -746,7 +746,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Reload the worm graphics
 			w->setTeam(lobby_worm->iTeam);
-			w->ChangeGraphics(cClient->getGameLobby()->iGameMode);
+			w->ChangeGraphics(cClient->getGameLobby()->iGeneralGameType);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
@@ -758,7 +758,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
 
 			// Display the team mark if TDM
-			if (cClient->getGameLobby()->iGameMode == GMT_TEAMS)  {
+			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
 				team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 				if (!team_img)
 					continue;

@@ -38,7 +38,7 @@ bool ScriptVar_t::fromString( const std::string & str )
 		default: assert(false); return false;
 	}
 	return true;
-};
+}
 
 std::string ScriptVarPtr_t::toString() const
 {
@@ -48,21 +48,25 @@ std::string ScriptVarPtr_t::toString() const
 		case SVT_FLOAT: return to_string(*f);
 		case SVT_STRING: return *s;
 		case SVT_COLOR: return ColToHex(*cl);
+		case SVT_DYNAMIC: return dynVar->asScriptVar().toString();
 		default: assert(false); return "";
 	}
-};
+}
 
-bool ScriptVarPtr_t::fromString( const std::string & str) const
-{
+bool ScriptVarPtr_t::fromString( const std::string & _str) const {
+	std::string str = _str; TrimSpaces(str);
+	
 	switch(type) {
 		case SVT_BOOL: *b = from_string<bool>(str); break;
-		case SVT_INT: 
+		case SVT_INT:
+			// TODO: why is that here and not in ScriptVar_t::fromString ?
 			if (isUnsigned && str.size() == 0)
 				*i = -1; // Infinite
 			else
 				*i = from_string<int>(str); 
 		break;
 		case SVT_FLOAT: 
+			// TODO: why is that here and not in ScriptVar_t::fromString ?
 			if (isUnsigned && str.size() == 0)
 				*f = -1;
 			else
@@ -70,10 +74,16 @@ bool ScriptVarPtr_t::fromString( const std::string & str) const
 		break;
 		case SVT_STRING: *s = str; break;
 		case SVT_COLOR: *cl = StrToCol(str).get(); break;
+		case SVT_DYNAMIC: {
+			ScriptVar_t var = dynVar->asScriptVar();
+			if(!var.fromString(str)) return false;
+			dynVar->fromScriptVar(var);
+			return true;
+		}
 		default: assert(false); return false;
 	}
 	return true;
-};
+}
 
 
 CScriptableVars * CScriptableVars::m_instance = NULL;
@@ -83,7 +93,7 @@ CScriptableVars & CScriptableVars::Init()
 	if( m_instance == NULL )
 		m_instance = new CScriptableVars;
 	return *m_instance;
-};
+}
 
 void CScriptableVars::DeInit()
 {
@@ -91,8 +101,8 @@ void CScriptableVars::DeInit()
 	{
 		delete CScriptableVars::m_instance;
 		CScriptableVars::m_instance = NULL;
-	};
-};
+	}
+}
 
 std::string CScriptableVars::StripClassName( const std::string & c )
 {
@@ -100,7 +110,7 @@ std::string CScriptableVars::StripClassName( const std::string & c )
 	if( ret.rfind(".") != std::string::npos )	// Leave only last part of name
 		ret = ret.substr( ret.rfind(".") + 1 );
 	return ret;
-};
+}
 
 ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
 {
@@ -111,10 +121,10 @@ ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
 		if( !stringcasecmp( it->first, name ) )
 		{
 			return it->second;
-		};
-	};
+		}
+	}
 	return ScriptVarPtr_t();
-};
+}
 
 
 ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, ScriptVarType_t type )
@@ -126,10 +136,10 @@ ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, ScriptVarType_
 		if( !stringcasecmp( it->first, name ) && it->second.type == type )
 		{
 			return it->second;
-		};
-	};
+		}
+	}
 	return ScriptVarPtr_t();
-};
+}
 
 void CScriptableVars::DeRegisterVars( const std::string & base )
 {
@@ -156,9 +166,9 @@ void CScriptableVars::DeRegisterVars( const std::string & base )
 		else
 		{
 			it++;
-		};
-	};
-};
+		}
+	}
+}
 
 std::string CScriptableVars::DumpVars()
 {
@@ -168,64 +178,25 @@ std::string CScriptableVars::DumpVars()
 			i != m_instance->m_vars.end(); i++ )
 	{
 		ret << i->first + ": ";
-		switch( i->second.type )
+		switch( i->second.type == SVT_DYNAMIC ? i->second.dynVar->type() : i->second.type )
 		{
-			case SVT_BOOL: ret << "bool: " << *i->second.b; break;
-			case SVT_INT: ret << "int: " << *i->second.i; break;
-			case SVT_FLOAT: ret << "float: " << *i->second.f; break;
-			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
-			case SVT_COLOR: ret << "color: " << itoa(*i->second.cl); break;
+			case SVT_BOOL: ret << "bool: "; break;
+			case SVT_INT: ret << "int: "; break;
+			case SVT_FLOAT: ret << "float: "; break;
+			case SVT_STRING: ret << "string: "; break;
+			case SVT_COLOR: ret << "color: "; break;
 			case SVT_CALLBACK: ret << "callback: "; break;
+			default: assert(false);
 		}
+		ret << i->second.toString();
 		ret << "\n";
 	}
 	return ret.str();
-};
+}
 
 void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::string& str) 
 {
-	bool fail = false;
-	if( var.b == NULL ) 
-		return;
-	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
-	if( var.type == SVT_BOOL )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
-		else {
-			if(scopy == "true" || scopy == "yes")
-				*var.b = true;
-			else if(scopy == "false" || scopy == "no")
-				*var.b = false;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == SVT_INT )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.i = from_string<int>(scopy, fail);
-		else {
-			warnings << str << " should be an integer in options.cfg but it isn't" << endl;
-			// HACK: because sometimes there is a bool instead of an int in the config
-			// TODO: is this still like this?
-			if(scopy == "true" || scopy == "yes")
-				*var.i = 1;
-			else if(scopy == "false" || scopy == "no")
-				*var.i = 0;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == SVT_FLOAT )
-		*var.f = from_string<float>(scopy, fail);
-	else if( var.type == SVT_STRING )
-		*var.s = str;
-	else
-		warnings << "Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << endl;
-	
-	if(fail)
-		warnings << "failed to convert " << str << " into format " << var.type << endl;
+	var.fromString(str);
 }
 
 std::string CScriptableVars::GetDescription( const std::string & name )
@@ -236,7 +207,7 @@ std::string CScriptableVars::GetDescription( const std::string & name )
 	if( m_instance->m_descriptions.find(name)->second.first == "" )
 		return StripClassName(name);
 	return m_instance->m_descriptions.find(name)->second.first;
-};
+}
 
 std::string CScriptableVars::GetLongDescription( const std::string & name )
 {
@@ -246,7 +217,7 @@ std::string CScriptableVars::GetLongDescription( const std::string & name )
 	if( m_instance->m_descriptions.find(name)->second.second == "" )
 		return StripClassName(name);
 	return m_instance->m_descriptions.find(name)->second.second;
-};
+}
 
 bool CScriptableVars::GetMinMaxValues( const std::string & name, int * minVal, int * maxVal )
 {
@@ -259,7 +230,7 @@ bool CScriptableVars::GetMinMaxValues( const std::string & name, int * minVal, i
 	*minVal = m_instance->m_minmax.find(name)->second.first.i;
 	*maxVal = m_instance->m_minmax.find(name)->second.second.i;
 	return true;
-};
+}
 
 bool CScriptableVars::GetMinMaxValues( const std::string & name, float * minVal, float * maxVal )
 {
@@ -272,7 +243,7 @@ bool CScriptableVars::GetMinMaxValues( const std::string & name, float * minVal,
 	*minVal = m_instance->m_minmax.find(name)->second.first.f;
 	*maxVal = m_instance->m_minmax.find(name)->second.second.f;
 	return true;
-};
+}
 
 int CScriptableVars::GetGroup( const std::string & name )
 {
@@ -280,4 +251,4 @@ int CScriptableVars::GetGroup( const std::string & name )
 	if( m_instance->m_groups.count(name) == 0 )
 		return -1;
 	return m_instance->m_groups.find(name)->second;
-};
+}

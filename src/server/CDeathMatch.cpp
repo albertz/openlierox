@@ -15,20 +15,9 @@
 #include "CServer.h"
 #include "CClient.h"
 
-CDeathMatch::CDeathMatch(GameServer* server, CWorm* worms)
-{
-	cServer = server;
-	cWorms = worms;
-}
-
-CDeathMatch::~CDeathMatch()
-{
-}
 
 void CDeathMatch::PrepareGame()
 {
-	fGameStart = tLX->fCurTime;
-
 	bFirstBlood = true;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		iKillsInRow[i] = 0;
@@ -167,18 +156,10 @@ bool CDeathMatch::CheckGameOver()
 	return CGameMode::CheckGameOver();
 }
 
-int CDeathMatch::GameType()
-{
-	return GMT_NORMAL;
-}
-
-int CDeathMatch::GameTeams()
-{
-	return 0;
-}
-
 bool CDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
 {
 	return true;
 }
 
+static CDeathMatch gameMode;
+CGameMode* gameMode_DeathMatch = &gameMode;

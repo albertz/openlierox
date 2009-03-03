@@ -269,7 +269,7 @@ public:
 	
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
-	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
+	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int generalgametype);
 	
 private:
 	// not thread-safe, therefore private	

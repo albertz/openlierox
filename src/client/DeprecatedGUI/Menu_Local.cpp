@@ -44,6 +44,7 @@
 #include "ProfileSystem.h"
 #include "FeatureList.h"
 #include "Options.h"
+#include "CGameMode.h"
 
 
 namespace DeprecatedGUI {
@@ -63,7 +64,6 @@ enum {
     ml_WeaponOptions
 };
 
-int iGameType = GMT_NORMAL;
 
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
@@ -74,7 +74,6 @@ bool    bWeaponRest = false;
 void Menu_LocalInitialize(void)
 {
 	tMenu->iMenuType = MNU_LOCAL;
-	iGameType = GMT_NORMAL;
 	bGameSettings = false;
 
 	// Create the buffer
@@ -123,8 +122,7 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Tag", GM_TAG);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GM_DEMOLITION);
 */
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameInfo.iGameMode, 0);
-    iGameType = tLXOptions->tGameInfo.iGameMode;
+    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
 
 	// Add players to player/playing lists
 	Menu_LocalAddProfiles();
@@ -286,7 +284,7 @@ void Menu_LocalFrame(void)
 				}
 
 
-				if(ev->iEventMsg == LV_WIDGETEVENT && iGameType == GMT_TEAMS) {
+				if(ev->iEventMsg == LV_WIDGETEVENT && tLXOptions->tGameInfo.gameMode->GameTeams() > 1) {
 
 					// If the team colour item was clicked on, change it
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
@@ -306,7 +304,7 @@ void Menu_LocalFrame(void)
 
 						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
 						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(iGameType);
+						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
 
 						// Reload the skin
 						sub = lv->getSubItem(it, 0);
@@ -321,10 +319,10 @@ void Menu_LocalFrame(void)
 			// Game type
 			case ml_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					iGameType = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+					tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 
 					// Go through the items and enable/disable the team flags and update worm graphics
-					bool teams_on = iGameType == GMT_TEAMS;
+					bool teams_on = tLXOptions->tGameInfo.gameMode->GameTeams() > 1;
 					CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 					lv_item_t *it = lv->getItems();
 					lv_subitem_t *sub = NULL;
@@ -336,7 +334,7 @@ void Menu_LocalFrame(void)
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(iGameType);
+							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
 							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
 						}
 
@@ -421,7 +419,7 @@ void Menu_LocalAddPlaying(int index)
 	// Reload the graphics in case the gametype has changed
 	tMenu->sLocalPlayers[index].setProfile(ply);
 	tMenu->sLocalPlayers[index].setSkin(ply->cSkin);
-	tMenu->sLocalPlayers[index].ChangeGraphics(iGameType);
+	tMenu->sLocalPlayers[index].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
 
 
 	// Add the item
@@ -440,7 +438,7 @@ void Menu_LocalAddPlaying(int index)
 	// If we're in deathmatch, make the team colour invisible
 	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
 	if(sub) {
-		if(iGameType != GMT_TEAMS)
+		if(tLXOptions->tGameInfo.gameMode->GameTeams() <= 1)
 			sub->bVisible = false;
 		sub->iExtra = 0;
 	} else
@@ -627,7 +625,7 @@ void Menu_LocalStartGame(void)
 	//
 	// Game Info
 	//
-	tLXOptions->tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 
     tLXOptions->sServerPassword = "";
 

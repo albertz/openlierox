@@ -48,6 +48,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 #include "IRC.h"
+#include "CGameMode.h"
 
 
 
@@ -1160,7 +1161,7 @@ inline void AddColumns(DeprecatedGUI::CListview *lv)
 	lv->AddColumn("", 25); // Skin
 	lv->AddColumn("", tLX->iGameType == GME_HOST ? 160 - 35 : 160); // Player name
 	lv->AddColumn("", 30); // Lives
-	if (cClient->getGameLobby()->iGameMode == GMT_DIRT)
+	if (cClient->getGameLobby()->gameMode == GameMode(GM_DEMOLITIONS))
 		lv->AddColumn("", 40); // Dirt count
 	else
 		lv->AddColumn("", 30);  // Kills
@@ -1222,7 +1223,7 @@ void CClient::InitializeGameMenu()
 
 	cGameMenuLayout.Add(new DeprecatedGUI::CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
 	if (bGameOver)  {
-		if (tGameInfo.iGameMode == GMT_TEAMS)  {
+		if (tGameInfo.iGeneralGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
@@ -1281,7 +1282,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	}
 
 	// Update the top message (winner/dirt count)
-	if (tGameInfo.iGameMode == GMT_DIRT)  {
+	if (tGameInfo.gameMode == GameMode(GM_DEMOLITIONS))  {
 		// Get the dirt count
 		int dirtcount, i;
 		dirtcount = i = 0;
@@ -2311,7 +2312,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
         CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
 		// Get colour
-		if (tLXOptions->bColorizeNicks && tGameInfo.iGameMode == GMT_TEAMS)
+		if (tLXOptions->bColorizeNicks && tGameInfo.iGeneralGameType == GMT_TEAMS)
 			iColor = tLX->clTeamColors[p->getTeam()];
 		else
 			iColor = tLX->clNormalLabel;
@@ -2515,7 +2516,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	static const std::string gmt_names[] = {"Death Match", "Team DM", "Tag", "Demolition"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
 	if(tGameInfo.sGameMode == "")
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGameMode, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGeneralGameType, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
 	else
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sGameMode); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();

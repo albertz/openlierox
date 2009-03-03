@@ -1343,7 +1343,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
-	if (client->tGameInfo.iGameMode == GMT_TEAMS)  {
+	if (client->tGameInfo.iGeneralGameType == GMT_TEAMS)  {
 
 		if (client->tGameInfo.iKillLimit != -1)  {
 			client->iMatchWinner = client->cRemoteWorms[client->iMatchWinner].getTeam();
@@ -1358,7 +1358,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 
 	// Older servers send wrong info about tag winner, better if we count it ourself
-	if (client->tGameInfo.iGameMode == GMT_TIME)  {
+	if (client->tGameInfo.iGeneralGameType == GMT_TIME)  {
 		float max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
@@ -1456,7 +1456,7 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 		return;
 	}
 
-	if (client->tGameInfo.iGameMode != GMT_TIME)  {
+	if (client->tGameInfo.iGeneralGameType != GMT_TIME)  {
 		printf("CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring\n");
 		return;
 	}
@@ -1748,7 +1748,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.sMapFile = bs->readString();
     client->tGameInfo.sModName = bs->readString();
     client->tGameInfo.sModDir = bs->readString();
-	client->tGameInfo.iGameMode = bs->readByte();
+	client->tGameInfo.iGeneralGameType = bs->readByte();
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();
 	client->tGameInfo.fTimeLimit = -100;

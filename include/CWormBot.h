@@ -145,11 +145,6 @@ public:
 #endif
 	
 	
-	
-    //int         getBestWeapon(int iGameMode, float fDistance, CVec cTarget);
-	
-	
-	
 };
 
 #endif  //  __CWORMBOT_H__

@@ -42,6 +42,7 @@
 #include "Music.h"
 #include "Debug.h"
 #include "TaskManager.h"
+#include "CGameMode.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -221,6 +222,8 @@ int main(int argc, char *argv[])
 		binary_dir = "."; // TODO get exact path of binary
 
 	CrashHandler::init();
+	// this has to be done before GameOptions::Init
+	InitGameModes();
 
 startpoint:
 

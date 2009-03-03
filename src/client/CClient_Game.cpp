@@ -144,7 +144,7 @@ void CClient::Simulation(void)
 					LaserSight(w, w->getAngle());
 			
 			// Show vision cone of seeker worm
-			if( getGameLobby()->sGameMode == CHideAndSeek::GAMEMODE_NAME &&
+			if( getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) &&
 				w->getTeam() == 1 && 
 				(int)getGameLobby()->features[FT_HS_SeekerVisionAngle] < 360 )
 			{
@@ -291,8 +291,6 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 			InjureWorm(w, damage,owner);
 		}
 	}
-
-    CheckDemolitionsGame();
 }
 
 
@@ -770,42 +768,6 @@ void CClient::DestroyBonus(int id, bool local, int wormid)
 }
 
 
-///////////////////
-// Check the demolitions game
-void CClient::CheckDemolitionsGame(void)
-{
-    // If the map has less then a 1/5th of the dirt it once had, the game is over
-    // And the worm with the highest dirt count wins
-
-    if( tGameInfo.iGameMode != GMT_DIRT || tLX->iGameType != GME_LOCAL )
-        return;
-
-    // Add up all the worm's dirt counts
-    int nDirtCount = 0;
-    int highest = -99999;
-    int winner = -1;
-
-    CWorm *w = cRemoteWorms;
-    for( short i=0; i<MAX_WORMS; i++,w++ ) {
-        if( !w->isUsed() )
-            continue;
-
-        nDirtCount += w->getDirtCount();
-
-        // Get the highest dirt count
-        if( w->getDirtCount() > highest ) {
-            highest = w->getDirtCount();
-            winner = i;
-        }
-    }
-
-    if( nDirtCount > (float)cMap->GetDirtCount()*0.8f ) {
-
-        // Make the server trigger a game over
-        cServer->DemolitionsGameOver(winner);
-    }
-}
-
 
 ///////////////////
 // Show a laser sight
@@ -1111,8 +1073,6 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		Uint32 col = MakeColour(wpn->Bm_Colour[0], wpn->Bm_Colour[1], wpn->Bm_Colour[2]);
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}*/
-
-    CheckDemolitionsGame();
 }
 
 

@@ -16,11 +16,6 @@
 #include "CServer.h"
 #include "CClient.h"
 
-CTeamDeathMatch::CTeamDeathMatch(GameServer* server, CWorm* worms)
-{
-	cServer = server;
-	cWorms = worms;
-}
 
 CTeamDeathMatch::~CTeamDeathMatch()
 {
@@ -28,8 +23,6 @@ CTeamDeathMatch::~CTeamDeathMatch()
 
 void CTeamDeathMatch::PrepareGame()
 {
-	fGameStart = tLX->fCurTime;
-
 	bFirstBlood = true;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		iKillsInRow[i] = 0;
@@ -152,8 +145,8 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };
 	int worms[4] = { 0, 0, 0, 0 };
 	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
-			worms[cWorms[i].getTeam()]++;
+		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
+			worms[cServer->getWorms()[i].getTeam()]++;
 	
 	// Victim's team is out of the game
 	if(worms[victim->getTeam()] == 0 && networkTexts->sTeamOut != "<none>")
@@ -181,35 +174,7 @@ void CTeamDeathMatch::Simulate()
 
 bool CTeamDeathMatch::CheckGameOver()
 {
-	if(CGameMode::CheckGameOver()) return true;
-
-	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };  // TODO: move to Consts.h
-
-	// Only one team left?
-	int worms[4] = { 0, 0, 0, 0 };
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
-			worms[cWorms[i].getTeam()]++;
-	int team = 0;
-	int teams = 0;
-	for(int i = 0; i < 4; i++)  {
-		if(worms[i]) {
-			teams++;
-			team = (worms[i] > worms[team] ? i : team);  // Mark the team with greatest kill amount the winner
-		}
-	}
-
-	// Only one team left or timelimit has been reached
-	if(teams <= 1) {
-		if(networkTexts->sTeamHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
-				"<team>", teamnames[team], 1)), TXT_NORMAL);
-
-		return true;
-	}
-
-
-	return false;
+	return CGameMode::CheckGameOver();
 }
 
 int CTeamDeathMatch::GameType()
@@ -233,3 +198,5 @@ bool CTeamDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
 	return true;
 }
 
+static CTeamDeathMatch gameMode;
+CGameMode* gameMode_TeamDeathMatch = &gameMode;

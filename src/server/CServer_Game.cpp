@@ -44,7 +44,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		
 		// Spawn worm closer to it's own team and away from other teams
 		if( tLXOptions->tGameInfo.bRespawnGroupTeams &&
-			( cGameMode->GameType() == GMT_TEAMS ) )
+			( cGameMode->GameTeams() > 1 ) )
 		{
 			float team_dist = 0;
 			CVec pos1;
@@ -551,13 +551,6 @@ void GameServer::gotoLobby(void)
 }
 
 
-///////////////////
-// Send out a game over for demolitions mode
-// Called by client (for local games only!)
-void GameServer::DemolitionsGameOver(int winner)
-{
-	GameOver(winner);
-}
 
 
 ///////////////////
@@ -568,7 +561,7 @@ void GameServer::RecheckGame(void)
 	if(bGameOver)
 		return;
 	if(cGameMode->CheckGameOver())
-		GameOver(cGameMode->Winner());
+		GameOver();
 }
 
 

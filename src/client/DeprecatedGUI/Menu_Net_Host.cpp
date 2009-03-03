@@ -625,10 +625,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 	CCombobox *gtype = (CCombobox *)cHostLobby.getWidget(hl_Gamemode);
 	if (gtype)  {
-		if (tLXOptions->tGameInfo.iGameMode >= 0 && tLXOptions->tGameInfo.iGameMode < gtype->getItemsCount())
-			gtype->setCurItem(tLXOptions->tGameInfo.iGameMode);
-		else
-			gtype->setCurItem(0);
+		gtype->setCurItem( GetGameModeIndex(tLXOptions->tGameInfo.gameMode) );
 	}
 
 	// Setup the player list
@@ -968,7 +965,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Game type change
 			case hl_Gamemode:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0);
+					tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 					bHost_Update = true;
 					cServer->UpdateGameLobby();
 				}
@@ -1203,7 +1200,7 @@ bool Menu_Net_HostStartGame()
 		errors << "Could not get the selected mod" << endl;
 
 	// Get the game type
-	tLXOptions->tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0);
+	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 
 	// Get the map name
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
@@ -1297,7 +1294,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 		// Reload the worm graphics
 		w->setTeam(lobby_worm->iTeam);
-		w->ChangeGraphics(cServer->getGameMode()->GameType());
+		w->ChangeGraphics(cServer->getGameMode()->GeneralGameType());
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);
@@ -1323,7 +1320,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 								compatible ? tLX->clPink : tLX->clError);  // Name
 
 		// Display the team mark if the game mode requires teams
-		if(cServer->getGameMode()->GameType() == GMT_TEAMS) {
+		if(cServer->getGameMode()->GameTeams() > 1) {
 			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)

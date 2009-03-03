@@ -1840,7 +1840,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
+void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int generalgametype)
 {
 	int i,j;
 	float xstep,ystep;
@@ -1913,7 +1913,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 		big = false;
 
 		// Tagged worms or local players are bigger, depending on the game type
-		if(gametype != GMT_TIME) {
+		if(generalgametype != GMT_TIME) {
 			big = (w->getType() == PRF_HUMAN && w->getLocal());
 		} else {
 			big = w->getTagIT()!=0;

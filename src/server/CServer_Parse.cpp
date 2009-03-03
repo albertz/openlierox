@@ -1283,7 +1283,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
 		if( tLX->iGameType == GME_HOST ) {
-			if( cGameMode->GameType() == GMT_TEAMS ) {
+			if( cGameMode->GameTeams() > 1 ) {
 				
 				CWorm *w = cWorms;
 				CBytestream b;
@@ -1514,7 +1514,7 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	// TODO: check if we should append "levels/" string here, it was like this in old code
 	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
 	bs.writeString(tLXOptions->tGameInfo.sModName);
-	bs.writeByte(cGameMode->GameType());
+	bs.writeByte(cGameMode->GeneralGameType());
 	bs.writeInt16(tLXOptions->tGameInfo.iLives);
 	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);

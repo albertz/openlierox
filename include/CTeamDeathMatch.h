@@ -15,7 +15,6 @@
 
 class CTeamDeathMatch : public CGameMode {
 public:
-	CTeamDeathMatch(GameServer* server, CWorm* worms);
 	virtual ~CTeamDeathMatch();
 	
 	virtual void PrepareGame();

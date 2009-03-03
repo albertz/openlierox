@@ -164,6 +164,8 @@ public:
 	std::string sKnownAs;
 };
 
+class CGameMode;
+
 // Options structure
 class GameOptions {
 public:
@@ -272,7 +274,8 @@ public:
 		int		iMaxPlayers;
 		std::string	sMapFile;
 		std::string	sMapName;	 // Decoded map name from map file
-        int     iGameMode;
+		CGameMode* gameMode;
+		int		iGeneralGameType;
         std::string sGameMode;	// Game mode name from server (only for client)
         std::string sModDir;
         std::string sModName;	// Decoded mod name from script.lgs
