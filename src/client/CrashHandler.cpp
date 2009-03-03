@@ -533,7 +533,7 @@ public:
         if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
         {
 			fflush(stdout);
-			//abort();
+			abort();
 #ifdef DEBUG
 //        	raise(SIGQUIT);
 #else
