@@ -450,15 +450,7 @@ void GameOptions::SaveToDisc()
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
 			}
-			if( it->second.type == SVT_BOOL )
-			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.b) ? "true" : "false" );
-			else if( it->second.type == SVT_INT )
-			    fprintf( fp, "%s = %d\n", key.c_str(), *(it->second.i) );
-			else if( it->second.type == SVT_FLOAT )
-			    fprintf( fp, "%s = %f\n", key.c_str(), *(it->second.f) );
-			else if( it->second.type == SVT_STRING )
-			    fprintf( fp, "%s = %s\n", key.c_str(), it->second.s->c_str() );
-			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
+			fprintf( fp, "%s = %s\n", key.c_str(), it->second.toString().c_str() );
 		}
 	}
 
