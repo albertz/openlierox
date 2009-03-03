@@ -33,6 +33,7 @@
 #include "MathLib.h"
 #include "InputEvents.h"
 #include "TaskManager.h"
+#include "ReadWriteLock.h"
 
 
 #ifdef _MSC_VER
@@ -305,6 +306,7 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 
 
 bool bNetworkInited = false;
+ReadWriteLock* nlSystemUseChangeLock = NULL;
 
 /////////////////////
 // Initializes network
@@ -322,7 +324,8 @@ bool InitNetworkSystem() {
     }
 
 	bNetworkInited = true;
-
+	nlSystemUseChangeLock = new ReadWriteLock();
+	
 	if(!SdlNetEvent_Init()) {
 		SystemError("SdlNetEvent_Init failed");
 		return false;
@@ -334,7 +337,7 @@ bool InitNetworkSystem() {
 	//sigignore(SIGPIPE);
 	signal(SIGPIPE, sigpipe_handler);
 #endif
-
+	
 	return true;
 }
 
@@ -342,9 +345,12 @@ bool InitNetworkSystem() {
 // Shutdowns the network system
 bool QuitNetworkSystem() {
 	SdlNetEvent_UnInit();
-	nlShutdown();
+	nlSystemUseChangeLock->startWriteAccess();
+	nlShutdown();	
 	bNetworkInited = false;
 	delete dnsCache; dnsCache = NULL;
+	nlSystemUseChangeLock->endWriteAccess();
+	delete nlSystemUseChangeLock; nlSystemUseChangeLock = NULL;
 	return true;
 }
 
@@ -803,20 +809,29 @@ bool ListenSocket(NetworkSocket sock) {
 bool CloseSocket(NetworkSocket& sock) {
 	RemoveSocketFromNotifierGroup(sock);
 
+	bool started = false;
 	struct CloseSocketWorker : Task {
 		NetworkSocket sock;
+		bool* started;
 		int handle() {
+			nlSystemUseChangeLock->startReadAccess();
+			*started = true;
 			// this should already close the socket but not lock other parts in HawkNL
 			nlPrepareClose(*getNLsocket(&sock));
 			// hopefully this does not block anymore
-			return (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
+			int ret = (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
+			nlSystemUseChangeLock->endReadAccess();
+			return ret;
 		}
 	};
 	CloseSocketWorker* worker = new CloseSocketWorker();
 	worker->name = "close socket";
 	worker->sock.swap(sock);
+	worker->started = &started;
 	taskManager->start(worker);
+	while(!started) SDL_Delay(1);
 	
+	// sock is a new socket, we swapped them
 	InvalidateSocketState(sock);
 	return true;
 }
