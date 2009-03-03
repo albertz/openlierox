@@ -34,7 +34,8 @@
 
 
 // Routines
-float	GetRandomNum(void);
+float	GetRandomNum();
+float	GetRandomPosNum();
 int		GetRandomInt(int max);
 int		Round(float x);
 

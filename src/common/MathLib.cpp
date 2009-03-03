@@ -17,8 +17,9 @@
 // Jason Boettcher
 
 
+#include <cassert>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <time.h>
 #include <SDL_timer.h>
 
@@ -53,22 +54,25 @@ float fastSQRT(float x)
 
 
 ///////////////////
-// Get a random number
+// Get a random number between -1 and 1
 float GetRandomNum(void)
 {
-	int rn;
-	rn = rand();
+	int rn = rand();
 	return ((float)(rn - HALF_RAND) / (float)HALF_RAND);
 }
 
+float GetRandomPosNum() {
+	int rn = rand();
+	return (float)rn / (float)RAND_MAX;
+}
 
 ///////////////////
 // Get a random integer with a max value
 int GetRandomInt(int max)
 {
-	float f = GetRandomNum()*(float)(max+1);
-
-	return MIN(max, abs((int)f) );
+	assert(max >= 0);
+	float f = GetRandomPosNum()*(float)(max+1);
+	return CLAMP((int)f, 0, max);
 }
 
 //////////////////

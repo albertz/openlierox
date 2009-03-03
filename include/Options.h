@@ -254,6 +254,7 @@ public:
 	int		iVerbosity;			// the higher the number, the higher the amount of debug messages; 0 is default, at 10 it shows backtraces for all warnings
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby
 	bool	bShowCountryFlags;
+	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	
 	// Widget states
 	int		iInternetList[7];

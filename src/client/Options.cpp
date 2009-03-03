@@ -160,6 +160,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
+		( tLXOptions->iRandomTeamForNewWorm, "Misc.RandomTeamForNewWorm", 0 )
 		;
 
 	unsigned i;

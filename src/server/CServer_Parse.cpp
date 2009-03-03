@@ -1110,6 +1110,16 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	for (i = 0;i < numworms;i++) {
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
+		
+		if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
+			int firstEmpty = getFirstEmptyTeam();
+			if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
+				newcl->getWorm(i)->setTeam(firstEmpty);
+			else {
+				int team = GetRandomInt(tLXOptions->iRandomTeamForNewWorm);
+				newcl->getWorm(i)->setTeam(team);
+			}
+		}
 	}
 
 	iNumPlayers = numplayers + numworms;

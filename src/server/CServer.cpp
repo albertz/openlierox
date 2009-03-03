@@ -678,6 +678,26 @@ void GameServer::GameOver()
 	}
 }
 
+
+bool GameServer::isTeamEmpty(int t) const {
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		if(cWorms[i].isUsed() && cWorms[i].getTeam() == t) {
+			return false;
+		}
+	}
+	return true;
+}
+
+int GameServer::getFirstEmptyTeam() const {
+	int team = 0;
+	while(team < getGameMode()->GameTeams()) {
+		if(isTeamEmpty(team)) return team;
+		team++;
+	}
+	return -1;
+}
+
+
 ///////////////////
 // Main server frame
 void GameServer::Frame(void)

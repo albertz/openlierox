@@ -240,21 +240,23 @@ public:
 
 
 	// Variables
-	CGameMode               *getGameMode(void)              { return cGameMode; }
-	int				getState(void)			{ return iState; }
-	CWorm			*getWorms(void)			{ return cWorms; }
-	CMap			*getMap(void)			{ return cMap; }
-	CBanList		*getBanList(void)		{ return &cBanList; }
+	CGameMode		*getGameMode() const	{ return cGameMode; }
+	int				getState()			{ return iState; }
+	CWorm			*getWorms()			{ return cWorms; }
+	CMap			*getMap()			{ return cMap; }
+	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
-	std::string		getName(void)			{ return tLXOptions->sServerName; }
+	std::string		getName()			{ return tLXOptions->sServerName; }
 	void			setName(const std::string& _name){ tLXOptions->sServerName = _name; }
-	bool			getGameOver(void)		{ return bGameOver; }
-	float			getGameOverTime(void)	{ return fGameOverTime; }
+	bool			getGameOver()		{ return bGameOver; }
+	float			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection *getClients() { return cClients; }
 	float	getServerTime() { return fServertime; }
 
-	int		getNumPlayers(void)			{ return iNumPlayers; }
+	int		getNumPlayers() const		{ return iNumPlayers; }
+	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode
+	bool	isTeamEmpty(int t) const;
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();
