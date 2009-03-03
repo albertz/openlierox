@@ -4218,7 +4218,7 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	fLastFace = 0;
 	fBadAimTime = 0;
 	iAiDiffLevel = 0;
-	
+	psAITarget = NULL;
 	fLastShoot = 0; // for AI
 	fLastJump = 999999;
 	fLastWeaponChange = 0;
