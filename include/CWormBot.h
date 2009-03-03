@@ -27,7 +27,7 @@ public:
 	
 	// simulation
 	virtual void startGame() {}
-	virtual void getInput(); 
+	virtual void getInput();
     virtual void clearInput() {}
 
 	virtual void onRespawn();
@@ -53,12 +53,6 @@ protected:
 	float		fLastFace;
 	float		fBadAimTime;
     int			iAiGameType; // AI game type, we have predefined behaviour for mostly played settings
-	int			iAiGame;
-	int			iAiTeams;
-	int			iAiTag;
-	int			iAiVIP;
-	int			iAiCTF;
-	int			iAiTeamCTF;
 	int			iAiDiffLevel;
 	int			iRandomSpread;
 	CVec		vLastShootTargetPos;
@@ -122,7 +116,7 @@ public:
 	void		AI_SetGameType(int type)  { iAiGameType = type; }
 	int			AI_GetGameType()  { return iAiGameType; }
 	
-    CWorm       *findTarget(int gametype, int teamgame, int taggame);
+    CWorm       *findTarget();
 	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos);
 	int			traceWeaponLine(CVec target, float *fDist, int *nType);
 	

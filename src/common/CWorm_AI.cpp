@@ -891,7 +891,7 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fLastThink = -9999;
     bStuck = false;
 	bPathFinished = true;
-	//iAiGameType = GAM_OTHER;
+	iAiGameType = GAM_OTHER;
 	nAITargetType = AIT_NONE;
 	nAIState = AI_THINK;
 	fLastFace = -9999;
@@ -899,12 +899,6 @@ bool CWormBotInputHandler::AI_Initialize() {
 	fLastCompleting = -9999;
 	fLastGoBack = -9999;
 
-	// TODO: what are these good for? And why are they treated as bools?
-	iAiTeams = cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS;
-	iAiTag = 0;//tLXOptions->tGameInfo.iGameMode == GM_TAG;
-	iAiVIP = 0;//tLXOptions->tGameInfo.iGameMode == GM_VIP;
-	iAiCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_CTF;
-	iAiTeamCTF = 0;//tLXOptions->tGameInfo.iGameMode == GM_TEAMCTF;
 
 	fCanShootTime = 0;
 
@@ -991,7 +985,7 @@ void CWormBotInputHandler::AI_Respawn() {
 	// find new target and reset the path
 
     // Search for an unfriendly worm
-    psAITarget = findTarget(iAiGame, iAiTeams, iAiTag);
+    psAITarget = findTarget();
 
     // Any unfriendlies?
     if(psAITarget) {
@@ -1006,16 +1000,6 @@ void CWormBotInputHandler::AI_Respawn() {
 // Simulate the AI
 void CWormBotInputHandler::getInput() {
 	
-	/*
-	 void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame);
-
-	worm->AI_GetInput(m_client->getGameType(),
-					  m_client->getGameType() == GMT_TEAMDEATH,
-					  m_client->getGameType() == GMT_TAG,
-					  m_client->getGameType() == GMT_VIP,
-					  m_client->getGameType() == GMT_CTF,
-					  m_client->getGameType() == GMT_TEAMCTF);
-	*/
 	bool teamgame = cClient->getGameType() == GMT_TEAMS;
 	bool taggame = cClient->getGameType() == GMT_TIME;
 	
@@ -1036,8 +1020,6 @@ void CWormBotInputHandler::getInput() {
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
 	m_worm->bOnGround = m_worm->CheckOnGround();
 
-	iAiGame = cClient->getGameType();
-	iAiTeams = teamgame;
 
     tLX->debug_string = "";
 
@@ -1108,7 +1090,7 @@ void CWormBotInputHandler::getInput() {
 
 ///////////////////
 // Find a target worm
-CWorm *CWormBotInputHandler::findTarget(int gametype, int teamgame, int taggame)
+CWorm *CWormBotInputHandler::findTarget()
 {
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
@@ -1143,13 +1125,14 @@ CWorm *CWormBotInputHandler::findTarget(int gametype, int teamgame, int taggame)
 		
 		// If this is a team game, don't target my team mates
 		// BUT, if there is only one team, play it like deathmatch
-		if(teamgame && w->getTeam() == m_worm->iTeam && NumTeams > 1)
+		if(cClient->isTeamGame() && w->getTeam() == m_worm->iTeam && NumTeams > 1)
 			continue;
 
 		// If this is a game of tag, only target the worm it (unless it's me)
-		if(taggame && !w->getTagIT() && !m_worm->bTagIT)
+		if(cClient->isTagGame() && !w->getTagIT() && !m_worm->bTagIT)
 			continue;
 
+/*		
 		// If this is a VIP game target:
 		// Red worms if Blue
 		// Green & Blue worms if Red
@@ -1168,7 +1151,7 @@ CWorm *CWormBotInputHandler::findTarget(int gametype, int teamgame, int taggame)
 		// If this is a teams capture the flag game just aim to get the flag
 		if(iAiTeamCTF && !w->getFlag())
 			continue;
-
+*/
 		// Calculate distance between us two
 		float l = (w->getPos() - m_worm->vPos).GetLength2();
 
@@ -1187,12 +1170,13 @@ CWorm *CWormBotInputHandler::findTarget(int gametype, int teamgame, int taggame)
 				}
 			}
 		}
-		else
+		else {
 			// Line of sight blocked
 			if(fDistance < 0 || l < fDistance) {
 				nonsight_trg = w;
 				fDistance = l;
 			}
+		}
 	}
 
 	// If the target we have line of sight to is too far, switch back to the closest target
@@ -1234,7 +1218,7 @@ void CWormBotInputHandler::AI_Think(int gametype, int teamgame, int taggame)
 
 
     // Search for an unfriendly worm
-    psAITarget = findTarget(gametype, teamgame, taggame);
+    psAITarget = findTarget();
 
     // Any unfriendlies?
     if(psAITarget) {
@@ -1747,6 +1731,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	// TODO: first choose the weapon, and then use weaponCanHit instead of traceWeaponLine
 	// hm, i would say, the other way around is better
 
+	
     float fDist;
     int nType = -1;
     int length = 0;

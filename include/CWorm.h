@@ -156,7 +156,7 @@ public:
 
 	// simulation
 	virtual void startGame() {}
-	virtual void getInput() = 0; 
+	virtual void getInput() = 0;
     virtual void clearInput() {}
 	
 	virtual void onRespawn() {}

@@ -636,8 +636,9 @@ public:
 	int			getNumRemoteWorms();
 	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 
-	bool		isTeamGame() { return iGameType == GMT_TEAMS; }
-
+	bool		isTeamGame() { return getGameLobby()->iGeneralGameType == GMT_TEAMS; }
+	bool		isTagGame() { return getGameLobby()->iGeneralGameType == GMT_TIME; }
+	
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }
 	void		setOnModDlFinished(DownloadFinishedCB f)  { tModDlCallback = f; }
 	

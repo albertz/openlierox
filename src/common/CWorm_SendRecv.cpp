@@ -529,6 +529,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 
 	// do carving also here as the simulation is only done in next frame and with an updated position
+	// TODO: carving also with tState.bCarve = false ?
 	if(tState.bCarve && getMap() != NULL) {
 		// carve the whole way from old pos to new pos
 		{
