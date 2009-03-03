@@ -15,20 +15,13 @@
 
 class CDeathMatch : public CGameMode {
 public:
-	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
-	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Death Match"; }
-
-protected:
-	bool	bFirstBlood;
-	int	iKillsInRow[MAX_WORMS];
-	int	iDeathsInRow[MAX_WORMS];
 };
 
 #endif

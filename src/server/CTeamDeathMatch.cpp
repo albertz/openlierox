@@ -42,6 +42,9 @@ bool CTeamDeathMatch::Spawn(CWorm* worm, CVec pos)
 
 void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 {
+	// TODO: move that to CGameMode
+	
+	
 	// Kill or suicide message
 	if(networkTexts->sKilled != "<none>") {
 		std::string buf;

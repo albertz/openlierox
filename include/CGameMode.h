@@ -27,11 +27,11 @@ public:
 	// This is the game mode name as shown in the lobby for clients
 	virtual std::string Name() = 0;
 	
-	virtual void PrepareGame() {}
+	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm) {}
 	// If Spawn returns false then no spawn packet will be sent
 	virtual bool Spawn(CWorm* worm, CVec pos);
-	virtual void Kill(CWorm* victim, CWorm* killer) {}
+	virtual void Kill(CWorm* victim, CWorm* killer);
 	// If Shoot returns false then no shot will be fired (used both server&client side)
 	virtual bool Shoot(CWorm* worm) { return true; }
 	virtual void Drop(CWorm* worm) {}
@@ -55,6 +55,11 @@ public:
 	int HighestScoredWorm();
 	int HighestScoredTeam();
 	
+protected:
+	bool bFirstBlood;
+	int	iKillsInRow[MAX_WORMS];
+	int	iDeathsInRow[MAX_WORMS];
+
 };
 
 void InitGameModes();
