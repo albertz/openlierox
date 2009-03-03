@@ -1028,6 +1028,9 @@ struct DedIntern {
 		Sig_Connecting(params);
 	}
 
+	void Cmd_SaveConfig(DedInterface* caller) {
+		tLXOptions->SaveToDisc();
+	}
 
 	void HandleCommand(const DedInterface::Command& command) {
 		std::string cmd = command.cmd; TrimSpaces(cmd);
@@ -1059,6 +1062,8 @@ struct DedIntern {
 		}
 		else if(cmd == "quit")
 			Cmd_Quit(command.sender);
+		else if(cmd == "saveconfig")
+			Cmd_SaveConfig(command.sender);
 		else if(cmd == "setvar")
 			Cmd_SetVar(command.sender, params);
 		else if(cmd == "script")
