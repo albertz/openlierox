@@ -102,8 +102,6 @@ void GameServer::Clear(void)
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
-	
-	cGameMode = NULL;
 }
 
 
@@ -418,7 +416,7 @@ int GameServer::StartGame()
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on
 	if( tLX->iGameType == GME_HOST ) {
-		if( cGameMode->GameTeams() > 1 ) {
+		if( getGameMode()->GameTeams() > 1 ) {
 
 			CWorm *w = cWorms;
 			CBytestream b;
@@ -491,7 +489,7 @@ int GameServer::StartGame()
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed())
 			continue;
-		cGameMode->PrepareWorm(&cWorms[i]);
+		getGameMode()->PrepareWorm(&cWorms[i]);
 	}
 	
 	return true;
@@ -582,7 +580,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		}
 
 		// Prepare the gamemode
-		cGameMode->PrepareGame();
+		getGameMode()->PrepareGame();
 	}
 
 	if(firstStart)
@@ -626,7 +624,7 @@ void GameServer::GameOver()
 
 	hints << "gameover"; 
 
-	int winner = cGameMode->Winner();
+	int winner = getGameMode()->Winner();
 	if(winner >= 0) {
 		if (networkTexts->sPlayerHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
@@ -634,11 +632,11 @@ void GameServer::GameOver()
 		hints << ", worm " << winner << " has won the match";
 	}
 	
-	int winnerTeam = cGameMode->WinnerTeam();
+	int winnerTeam = getGameMode()->WinnerTeam();
 	if(winnerTeam >= 0) {
 		if(networkTexts->sTeamHasWon != "<none>")
 			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
-												"<team>", cGameMode->TeamName(winnerTeam), 1)), TXT_NORMAL);
+									 "<team>", getGameMode()->TeamName(winnerTeam), 1)), TXT_NORMAL);
 		hints << ", team " << winnerTeam << " has won the match";
 	}
 	
@@ -661,7 +659,7 @@ void GameServer::GameOver()
 
 		w->clearInput();
 		
-		if( cGameMode->GameTeams() <= 1 )
+		if( getGameMode()->GameTeams() <= 1 )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
@@ -1208,7 +1206,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 			SendGlobalText((buf),TXT_NETWORK);
 		
 		// Notify the game mode that the worm has been dropped
-		cGameMode->Drop(cl->getWorm(i));
+		getGameMode()->Drop(cl->getWorm(i));
 	}
 	
 	// remove the client and drop worms

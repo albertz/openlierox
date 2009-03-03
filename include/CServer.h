@@ -79,8 +79,6 @@ private:
 	bool		bGameOver;
 	float		fGameOverTime;
 	
-	CGameMode*	cGameMode;
-
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;
@@ -240,7 +238,7 @@ public:
 
 
 	// Variables
-	CGameMode		*getGameMode() const	{ return cGameMode; }
+	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
 	int				getState()			{ return iState; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }

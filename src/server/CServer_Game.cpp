@@ -44,7 +44,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		
 		// Spawn worm closer to it's own team and away from other teams
 		if( tLXOptions->tGameInfo.bRespawnGroupTeams &&
-			( cGameMode->GameTeams() > 1 ) )
+				  ( getGameMode()->GameTeams() > 1 ) )
 		{
 			float team_dist = 0;
 			CVec pos1;
@@ -79,7 +79,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		pos = FindSpot();
 
 	// Allow the game mode to override spawns
-	if(!cGameMode->Spawn(Worm, pos))
+	if(!getGameMode()->Spawn(Worm, pos))
 		return;
 
 	if( client )	// Spawn all playing worms only for new client for connect-during-game
@@ -207,7 +207,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 			vict->setLives(MAX(WRM_OUT, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
 	}
 
-	cGameMode->Kill(vict, kill);
+	getGameMode()->Kill(vict, kill);
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		cClients[i].getNetEngine()->SendWormScore(vict);
 		if (killer != victim)
@@ -301,7 +301,7 @@ void GameServer::SimulateGame(void)
 	}
 
 	// Simulate anything needed by the game mode
-	cGameMode->Simulate();
+	getGameMode()->Simulate();
 
 	if( tLXOptions->tGameInfo.fTimeLimit > 0 && fServertime > tLXOptions->tGameInfo.fTimeLimit*60.0 )
 		RecheckGame();
@@ -560,7 +560,7 @@ void GameServer::RecheckGame(void)
 {
 	if(bGameOver)
 		return;
-	if(cGameMode->CheckGameOver())
+	if(getGameMode()->CheckGameOver())
 		GameOver();
 }
 

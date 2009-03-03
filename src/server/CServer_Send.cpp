@@ -391,7 +391,7 @@ bool GameServer::SendUpdate()
 						continue;
 						
 					// Give the game mode a chance to override sending a packet (might reduce data sent)
-					if(!cGameMode->NeedUpdate(cl, w))
+					if(!getGameMode()->NeedUpdate(cl, w))
 						continue;
 
 					++num_worms;
@@ -622,10 +622,9 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(CServerConnection *cl)
 {
-	cGameMode = tLXOptions->tGameInfo.gameMode;
-	if(cGameMode == NULL) {
+	if(getGameMode() == NULL) {
 		errors << "Trying to play a non-existant gamemode" << endl;
-		cGameMode = GameMode(GM_DEATHMATCH);		
+		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 	}
 
 	// Read map/mod name from map/mod file
