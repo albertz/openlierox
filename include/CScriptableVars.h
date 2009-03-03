@@ -158,6 +158,8 @@ struct ScriptVarPtr_t
 		}
 	}
 
+	void setDefault() const;
+	
 	// These funcs will assert() if you try to call them on Callback varptr
 	std::string toString() const;
 	bool fromString( const std::string & str) const;	// const 'cause we don't change pointer itself, only data it points to

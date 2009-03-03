@@ -30,7 +30,7 @@ public:
 	virtual void PrepareGame() {}
 	virtual void PrepareWorm(CWorm* worm) {}
 	// If Spawn returns false then no spawn packet will be sent
-	virtual bool Spawn(CWorm* worm, CVec pos) { return true; }
+	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer) {}
 	// If Shoot returns false then no shot will be fired
 	virtual bool Shoot(CWorm* worm) { return true; }
@@ -46,7 +46,7 @@ public:
 	virtual int CompareTeamsScore(int t1, int t2);
 	virtual int  Winner();
 	virtual int WinnerTeam();
-	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return false; }
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
 
 	// helper functions
 	int WormsAliveInTeam(int t);

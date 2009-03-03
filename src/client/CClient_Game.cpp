@@ -715,35 +715,37 @@ void CClient::UpdateScoreboard(void)
 					iScoreboard[j+1] = s;
 				}
 
-            } else if( iGameType == GMT_DIRT ) {
+            } else {
+				if( tGameInfo.gameMode == GameMode(GM_DEMOLITIONS) ) {
 
-                // DEMOLITIONS
-                if(cRemoteWorms[iScoreboard[j]].getDirtCount() < cRemoteWorms[iScoreboard[j + 1]].getDirtCount()) {
-				    // Swap the 2 scoreboard entries
-					s = iScoreboard[j];
-					iScoreboard[j] = iScoreboard[j+1];
-					iScoreboard[j+1] = s;
-				}
+					// DEMOLITIONS
+					if(cRemoteWorms[iScoreboard[j]].getDirtCount() < cRemoteWorms[iScoreboard[j + 1]].getDirtCount()) {
+						// Swap the 2 scoreboard entries
+						s = iScoreboard[j];
+						iScoreboard[j] = iScoreboard[j+1];
+						iScoreboard[j+1] = s;
+					}
 
-			} else {
-				// DEATHMATCH or TEAM DEATHMATCH
-				// HINT: WRM_OUT (-1) < WRM_UNLIM (-2)
-				int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
-				if(res < 0)  {
-
-					// Swap the 2 scoreboard entries
-					s = iScoreboard[j];
-					iScoreboard[j] = iScoreboard[j+1];
-					iScoreboard[j+1] = s;
-				} else if(res == 0) {
-
-					// Equal lives, so compare kills
-					if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
+				} else {
+					// DEATHMATCH or TEAM DEATHMATCH
+					// HINT: WRM_OUT (-1) < WRM_UNLIM (-2)
+					int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
+					if(res < 0)  {
 
 						// Swap the 2 scoreboard entries
 						s = iScoreboard[j];
 						iScoreboard[j] = iScoreboard[j+1];
 						iScoreboard[j+1] = s;
+					} else if(res == 0) {
+
+						// Equal lives, so compare kills
+						if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
+
+							// Swap the 2 scoreboard entries
+							s = iScoreboard[j];
+							iScoreboard[j] = iScoreboard[j+1];
+							iScoreboard[j+1] = s;
+						}
 					}
 				}
 			}

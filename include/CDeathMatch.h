@@ -17,7 +17,6 @@ class CDeathMatch : public CGameMode {
 public:
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
-	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);

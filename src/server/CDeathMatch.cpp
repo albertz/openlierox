@@ -29,11 +29,7 @@ void CDeathMatch::PrepareWorm(CWorm* worm)
 {
 }
 
-bool CDeathMatch::Spawn(CWorm* worm, CVec pos)
-{
-	worm->Spawn(pos);
-	return true;
-}
+
 
 void CDeathMatch::Kill(CWorm* victim, CWorm* killer)
 {

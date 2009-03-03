@@ -31,6 +31,11 @@ std::string CGameMode::TeamName(int t) {
 	return itoa(t);
 }
 
+bool CGameMode::Spawn(CWorm* worm, CVec pos) {
+	worm->Spawn(pos);
+	return true;
+}
+
 bool CGameMode::CheckGameOver() {
 	// In game?
 	if (!cServer || cServer->getState() == SVS_LOBBY)
@@ -56,7 +61,9 @@ bool CGameMode::CheckGameOver() {
 					worms++;
 			}
 
-		if(worms <= (tLX->iGameType == GME_LOCAL ? 0 : 1)) {
+		int minWormsNeeded = 2;
+		if(tLX->iGameType == GME_LOCAL && cServer->getNumPlayers() == 1) minWormsNeeded = 1;
+		if(worms < minWormsNeeded) {
 			notes << "only " << worms << " players left in game -> game over" << endl;
 			return true;
 		}

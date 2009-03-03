@@ -219,6 +219,7 @@ private:
 
 	// Game
 	SmartPointer<CGameScript> cGameScript;
+	// TODO: what are these for? we have tGameInfo
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;

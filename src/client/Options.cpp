@@ -175,7 +175,10 @@ bool GameOptions::Init() {
 	
 	struct GameModeWrapper : DynamicVar<int> {
 		int get() { return GetGameModeIndex(tLXOptions->tGameInfo.gameMode); }
-		void set(const int& i) { tLXOptions->tGameInfo.gameMode = GameMode(GameModeIndex(i)); }
+		void set(const int& i) {
+			tLXOptions->tGameInfo.gameMode = GameMode(GameModeIndex(i));
+			assert(tLXOptions->tGameInfo.gameMode != NULL);
+		}
 	};
 	static GameModeWrapper gameModeWrapper;
 	
@@ -298,15 +301,7 @@ bool GameOptions::LoadFromDisc()
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
-			if( it->second.type == SVT_BOOL )
-				*(it->second.b) = it->second.bdef;
-			else if( it->second.type == SVT_INT )
-				*(it->second.i) = it->second.idef;
-			else if( it->second.type == SVT_FLOAT )
-				*(it->second.f) = it->second.fdef;
-			else if( it->second.type == SVT_STRING )
-				*(it->second.s) = it->second.sdef;
-			else warnings << "Invalid var type " << it->second.type << " of \"" << it->first << "\" when setting default!" << endl;
+			it->second.setDefault();
 		}
 	}
 

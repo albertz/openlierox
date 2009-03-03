@@ -85,6 +85,30 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 	return true;
 }
 
+void ScriptVarPtr_t::setDefault() const {
+	switch(type) {
+		case SVT_BOOL: *b = bdef; break;
+		case SVT_INT: *i = idef; break;
+		case SVT_FLOAT: *f = fdef; break;
+		case SVT_STRING: *s = sdef; break;
+		case SVT_COLOR: *cl = cldef; break;
+		case SVT_DYNAMIC: {
+			// TODO: this could be simpler if the default values would be just a ScriptVar_t
+			switch(dynVar->type()) {
+				case SVT_BOOL: ((DynamicVar<bool>*)dynVar)->set(bdef); break;
+				case SVT_INT: ((DynamicVar<int>*)dynVar)->set(idef); break;
+				case SVT_FLOAT: ((DynamicVar<float>*)dynVar)->set(fdef); break;
+				case SVT_STRING: ((DynamicVar<std::string>*)dynVar)->set(sdef); break;
+				case SVT_COLOR: ((DynamicVar<Color_t>*)dynVar)->set(cldef); break;
+				default: assert(false);
+			}
+			break;
+		}
+		default: assert(false);
+	}
+	
+}
+
 
 CScriptableVars * CScriptableVars::m_instance = NULL;
 
