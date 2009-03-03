@@ -1104,8 +1104,6 @@ bool CWormBotInputHandler::findNewTarget() {
 	else if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
 	{
 		if(m_worm->getTeam() == CHideAndSeek::HIDER) {
-			// TODO: this is kind of cheating because normally we could not see the enemy
-			
 			CWorm* w = nearestEnemyWorm();
 			if(!w) return findRandomSpot();
 			
@@ -1115,9 +1113,17 @@ bool CWormBotInputHandler::findNewTarget() {
 			else
 				return true;
 		}
-		else // we are seeker
-			// just move randomly
-			return findRandomSpot();
+		else { // we are seeker
+			CWorm* w = nearestEnemyWorm();
+			if(!w)
+				// just move randomly
+				return findRandomSpot();
+			
+			psAITarget = w;
+			nAITargetType = AIT_WORM;
+			nAIState = AI_MOVINGTOTARGET;
+			return true;
+		}
 	}
 	else {
 		// TODO: also check for GM_DEMOLITIONS (whereby killing other worms is not completly bad in this mode)
@@ -1256,10 +1262,12 @@ CWorm* CWormBotInputHandler::nearestEnemyWorm() {
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 
+		if(!w->isVisible()) continue;
+		
 		// Make sure i don't target myself
 		if(w->getID() == m_worm->iID)
 			continue;
-
+		
 		// don't target AFK worms
 		if(w->getAFK() != AFK_BACK_ONLINE)
 			continue;
@@ -1816,7 +1824,11 @@ bool CWormBotInputHandler::AI_Shoot()
         return false;
     }
 
-
+	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
+		return false;
+	}
+	
+	
     CVec    cTrgPos = psAITarget->getPos();
     bool    bDirect = true;
 

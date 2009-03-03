@@ -470,7 +470,7 @@ public:
     void        setKills(int k)             { iKills = k; }
 
 	void		setID(int i)				{ iID = i; }
-	int			getID(void)					{ return iID; }
+	int			getID(void)	const			{ return iID; }
 
 	WormType*	getType(void)				{ return m_type; }
     void        setType(WormType* t)        { m_type = t; }
@@ -503,7 +503,8 @@ public:
 	bool		hasOwnServerTime();
 	float		serverTime()				{ return fServertime; }
 
-	bool		isVisible()					{ return bVisible; }
+	bool		isVisible()	const			{ return bVisible; }
+	bool		isVisible(CViewport* v) const;
 	
 	float		getAngle(void)				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }

@@ -32,7 +32,7 @@ public:
 	// If Spawn returns false then no spawn packet will be sent
 	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer) {}
-	// If Shoot returns false then no shot will be fired
+	// If Shoot returns false then no shot will be fired (used both server&client side)
 	virtual bool Shoot(CWorm* worm) { return true; }
 	virtual void Drop(CWorm* worm) {}
 	virtual void Carve(CWorm* worm, int d) {}

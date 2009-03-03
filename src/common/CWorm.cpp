@@ -655,6 +655,23 @@ void CWorm::UpdateDrawPos() {
 }
 
 
+bool CWorm::isVisible(CViewport* v) const {
+	if(this->isVisible()) return true;
+	
+	if(!cClient->OwnsWorm(this->getID())) return false;
+	
+	// Kind of a hack but I have no idea how to make local games clean otherwise.
+	// And we should ensure in the viewport manager that we cannot select
+	// invisible worms of other clients.
+	if(v->getTarget() && v->getTarget()->getID() == this->getID()) return true;
+	
+	return false;
+}
+
+static inline bool isWormVisible(CWorm* w, CViewport* v) {
+	return w->isVisible(v);
+}
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
@@ -673,7 +690,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the ninja rope
 	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
-	if (bVisible && bAlive)
+	if (isWormVisible(this, v) && bAlive)
 		cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 	// Are we inside the viewport?
@@ -692,7 +709,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the damage amount that worm received
 	// Even the worm is dead draw damage for some time anyway (looks pretty)
-	if( tLXOptions->bDamagePopups && bVisible )
+	if( tLXOptions->bDamagePopups && isWormVisible(this, v) )
 	{
 		// Sort them first
 		std::map< float, int > DamageReportDrawOrder;
@@ -756,7 +773,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( !getAlive() )
 		return;
 
-	if (tLXOptions->bShowHealth && bVisible)  {
+	if (tLXOptions->bShowHealth && isWormVisible(this, v))  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
 			int hx = x + l;
 			int hy = y + t - 9; // -8 = worm height/2
@@ -827,7 +844,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		bGotTarget = false;
 	}
 
-	if(bLocal && bVisible)
+	if(bLocal && isWormVisible(this, v))
 		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
 
 	//
@@ -848,7 +865,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-	if (bVisible)
+	if (isWormVisible(this, v))
 		cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
 	/*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
@@ -877,7 +894,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	// Draw the muzzle flash
 	//
-	if (bDrawMuzzle && bVisible)  {
+	if (bDrawMuzzle && isWormVisible(this, v))  {
 		switch(iDirection) {
 
 		case DIR_RIGHT:
@@ -907,7 +924,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	// Draw the weapon name
-	if(bLocal && m_type == PRF_HUMAN && bVisible) {
+	if(bLocal && m_type == PRF_HUMAN && isWormVisible(this, v)) {
 		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
@@ -917,7 +934,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	// Draw the worm's name
-	if (bVisible)  {
+	if (isWormVisible(this, v))  {
 		std::string WormName = sName;
 		if( sAFKMessage != "" )
 			WormName += " " + sAFKMessage;
@@ -937,12 +954,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 }
 
-
 ///////////////////
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
-	if( tLXOptions->bShadows && v && bVisible )  {
+	if( tLXOptions->bShadows && v && isWormVisible(this, v) )  {
 		static const int drop = 4;
 
 		// Copied from ::Draw
