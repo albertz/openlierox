@@ -455,6 +455,8 @@ void GameOptions::SaveToDisc()
 		}
 	}
 
+	fprintf(fp, "\n\n# The following options are unknown in %s\n\n", GetFullGameName());
+	
 	// save additional options
 	// HINT: as this is done seperatly, some sections may be double; though the current parsing and therefore all future parsings handle this correctly
 	currentSection = "";

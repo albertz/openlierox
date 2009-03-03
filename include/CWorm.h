@@ -534,7 +534,7 @@ public:
 	void		setProfile(profile_t *p)	{ tProfile = p; }
 	profile_t	*getProfile()				{ return tProfile; }
 
-	void		setTeam(int _t)				{ iTeam = _t; }
+	void		setTeam(int _t)				{ iTeam = _t; if(getLobby()) getLobby()->iTeam = _t; }
 	int			getTeam(void)				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg(void)			{ return bmpGibs; }
