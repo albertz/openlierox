@@ -46,7 +46,7 @@
 #include "CWormHuman.h"
 #include "CWormBot.h"
 #include "Debug.h"
-
+#include "CGameMode.h"
 
 
 
@@ -1810,6 +1810,7 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 	ParseFeatureSettings(bs);
 	
 	client->tGameInfo.sGameMode = bs->readString();
+	client->tGameInfo.gameMode = GameMode(client->tGameInfo.sGameMode);
 }
 
 
