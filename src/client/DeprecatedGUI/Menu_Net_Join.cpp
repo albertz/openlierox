@@ -402,7 +402,7 @@ static void updateDetailsList(CListview* l) {
 	}
 
 	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
-	SETI; 
+	SETI;
 	if(cClient->getGameLobby()->sGameMode == "")
 		si->sText = gamemodes[cClient->getGameLobby()->iGeneralGameType];
 	else

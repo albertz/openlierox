@@ -264,6 +264,8 @@ public:
 	// Put everything that impacts gameplay here, both server and client-sided
 	class GameInfo {
 	public:
+		GameInfo();
+		
 		int		iLives;
 		int		iKillLimit;
 		float	fTimeLimit; // Time limit in minutes
