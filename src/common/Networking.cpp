@@ -541,12 +541,14 @@ extern "C"  {
 
 
 #if defined(WIN32) && (! defined(_MSC_VER))
-// TODO: why do we need this check and why cannot we use the last #else?
-extern "C" void NL_APIENTRY nlSetError(NLenum err); // For Dev-Cpp
+// TODO: why is that needed?
+#define NL_EXP
 #elif (_MSC_VER == 1400) //MSVC 2005 hax
-// TODO: why do we need that? we could for example unset NL_EXP or unset NL_APIENTRY
-extern "C" void nlSetError(NLenum err);
-#else
+// TODO: why is that needed?
+#define NL_EXP
+#define NL_APIENTRY
+#endif
+
 extern "C" {
 	NL_EXP void NL_APIENTRY nlSetError(NLenum err);
 	
@@ -555,7 +557,6 @@ extern "C" {
 	NLboolean nlIsValidSocket(NLsocket socket);
 	void nlUnlockSocket(NLsocket socket, NLint which);
 }
-#endif
 
 
 /* for nlLockSocket and nlUnlockSocket */
