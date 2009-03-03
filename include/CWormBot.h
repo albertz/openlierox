@@ -93,10 +93,8 @@ public:
     bool        AI_Initialize();
     void        AI_Shutdown(void);
 	
-	// TODO: what is the sense of all these parameters? (expect gametype)
 	void		AI_Respawn();
-	// TODO: what is the sense of all these parameters?
-    void        AI_Think(int gametype, int teamgame, int taggame);
+    void        AI_Think();
     bool        AI_FindHealth();
     bool        AI_SetAim(CVec cPos);
     CVec        AI_GetTargetPos(void);

@@ -1014,10 +1014,6 @@ void CWormBotInputHandler::startGame() {
 // Simulate the AI
 void CWormBotInputHandler::getInput() {
 	
-	bool teamgame = cClient->getGameType() == GMT_TEAMS;
-	bool taggame = cClient->getGameType() == GMT_TIME;
-	
-	
 	worm_state_t *ws = &m_worm->tState;
 	
 
@@ -1086,7 +1082,7 @@ void CWormBotInputHandler::getInput() {
 
 			// Think; We spawn in this state
 			case AI_THINK:
-				AI_Think(cClient->getGameType(), teamgame, taggame);
+				AI_Think();
 				break;
 
 			// Moving towards a target
@@ -1205,7 +1201,7 @@ CWorm *CWormBotInputHandler::findTarget()
 
 ///////////////////
 // Think State
-void CWormBotInputHandler::AI_Think(int gametype, int teamgame, int taggame)
+void CWormBotInputHandler::AI_Think()
 {
     /*
       We start of in an think state. When we're here we decide what we should do.
