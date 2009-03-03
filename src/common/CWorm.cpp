@@ -655,17 +655,24 @@ void CWorm::UpdateDrawPos() {
 }
 
 
-bool CWorm::isVisible(CViewport* v) const {
+bool CWorm::isVisible(CWorm* viewerWorm) const {
 	if(this->isVisible()) return true;
 	
+	// our cClient own both worms
+	if(!viewerWorm || !cClient->OwnsWorm(viewerWorm->getID())) return false;
 	if(!cClient->OwnsWorm(this->getID())) return false;
 	
 	// Kind of a hack but I have no idea how to make local games clean otherwise.
 	// And we should ensure in the viewport manager that we cannot select
 	// invisible worms of other clients.
-	if(v->getTarget() && v->getTarget()->getID() == this->getID()) return true;
+	if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
+		return viewerWorm->getTeam() == this->getTeam();
 	
-	return false;
+	return false;	
+}
+
+bool CWorm::isVisible(CViewport* v) const {
+	return isVisible(v->getTarget());
 }
 
 static inline bool isWormVisible(CWorm* w, CViewport* v) {

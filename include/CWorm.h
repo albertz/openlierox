@@ -505,6 +505,7 @@ public:
 
 	bool		isVisible()	const			{ return bVisible; }
 	bool		isVisible(CViewport* v) const;
+	bool		isVisible(CWorm* viewerWorm) const;
 	
 	float		getAngle(void)				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
@@ -535,7 +536,7 @@ public:
 	profile_t	*getProfile()				{ return tProfile; }
 
 	void		setTeam(int _t)				{ iTeam = _t; if(getLobby()) getLobby()->iTeam = _t; }
-	int			getTeam(void)				{ return iTeam; }
+	int			getTeam() const				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg(void)			{ return bmpGibs; }
 	SmartPointer<SDL_Surface> getPicimg(void)			{ return cSkin.getPreview(); }

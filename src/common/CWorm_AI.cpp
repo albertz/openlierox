@@ -1171,6 +1171,8 @@ CWorm *CWormBotInputHandler::findTarget()
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 
+		if(!w->isVisible(m_worm)) continue;
+
 		// Make sure i don't target myself
 		if(w->getID() == m_worm->iID)
 			continue;
@@ -1263,7 +1265,7 @@ CWorm* CWormBotInputHandler::nearestEnemyWorm() {
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 
-		if(!w->isVisible()) continue;
+		if(!w->isVisible(m_worm)) continue;
 		
 		// Make sure i don't target myself
 		if(w->getID() == m_worm->iID)
