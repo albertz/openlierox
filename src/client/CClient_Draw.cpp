@@ -1225,7 +1225,7 @@ void CClient::InitializeGameMenu()
 	if (bGameOver)  {
 		if (tGameInfo.iGeneralGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
-			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
+			iMatchWinner = CLAMP(iMatchWinner, 0, 3); // Safety
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinner];
 			if (pic.get())
