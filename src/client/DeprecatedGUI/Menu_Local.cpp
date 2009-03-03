@@ -117,11 +117,9 @@ void Menu_LocalInitialize(void)
 
 	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 
-	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Deathmatch", GM_DEATHMATCH);
-/*	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Team Deathmatch", GM_TEAMDEATH);
-	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Tag", GM_TAG);
-	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GM_DEMOLITION);
-*/
+	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
+		cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
+	}		
     cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
 
 	// Add players to player/playing lists

@@ -595,12 +595,10 @@ void Menu_Net_HostLobbyCreateGui(void)
 	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
 	// Fill in the game details
-	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Deathmatch", GM_DEATHMATCH);
-	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Team Deathmatch", GM_TEAMDEATH);
-	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Tag", GM_TAG);
-	cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Hide and Seek", GM_HIDEANDSEEK);
-	/*cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, "Demolition", GM_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
-	*/
+	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
+		cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
+	}		
+    cHostLobby.SendMessage(hl_Gamemode,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
 
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
