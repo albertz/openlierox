@@ -854,8 +854,7 @@ struct DedIntern {
 				tLXOptions->iNetworkPort = port;
 		}
 
-		tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
-		tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
+		tLXOptions->tGameInfo.iMaxPlayers = CLAMP(tLXOptions->tGameInfo.iMaxPlayers, 2, MAX_PLAYERS);
 
 		tLX->iGameType = GME_HOST;
 
@@ -886,10 +885,10 @@ struct DedIntern {
 		}
 
 		// Get the game type
-		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+		//tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 
 		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
-		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
+		//tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
 	}
@@ -1313,16 +1312,22 @@ DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)intern
 bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern;
 	if(tLXOptions->sDedicatedScript != "" && tLXOptions->sDedicatedScript != "/dev/null") {
-		if(IsAbsolutePath(tLXOptions->sDedicatedScript))
-			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
+		if(IsAbsolutePath(tLXOptions->sDedicatedScript)) {
+			dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
+			return true;
+		}
 
-		if(strStartsWith(tLXOptions->sDedicatedScript, "scripts/")) // old clients will use it like that
+		if(strStartsWith(tLXOptions->sDedicatedScript, "scripts/")) { // old clients will use it like that
 			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
+			return true;
+		}
 		
-		return dedIntern->scriptInterface->loadScript("scripts/" + tLXOptions->sDedicatedScript);
+		dedIntern->scriptInterface->loadScript("scripts/" + tLXOptions->sDedicatedScript);
 	}
 	else
-		return dedIntern->scriptInterface->loadScript("/dev/null");
+		dedIntern->scriptInterface->loadScript("/dev/null");
+	
+	return true;
 }
 
 
