@@ -574,7 +574,8 @@ GameOptions::GameInfo::GameInfo() {
 	// For most of the values, it doesn't matter if they are uninited.
 	// In PrepareGame/UpdateGameLobby, we will get all the values (for cClient).
 	// Anyway, we set some values because it could crash if these are invalid.
-	fTimeLimit = iLives = iKillLimit = iTagLimit = -1;
+	fTimeLimit = -1;
+	iLives = iKillLimit = iTagLimit = -1;
 	iLoadingTime = iGeneralGameType = 0;
 	iMaxPlayers = 8;
 	gameMode = NULL;

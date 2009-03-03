@@ -1383,8 +1383,8 @@ void CWormBotInputHandler::AI_Think()
  }
 
 bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
-	float cols = m_worm->pcMap->getGridCols()-1;   // Note: -1 because the grid is slightly larger than the
-	float rows = m_worm->pcMap->getGridRows()-1;   // level size
+	float cols = (float)(m_worm->pcMap->getGridCols()-1);   // Note: -1 because the grid is slightly larger than the
+	float rows = (float)(m_worm->pcMap->getGridRows()-1);   // level size
 
 	if(highSpot)
 		rows /= 5.0f; // little hack to go higher

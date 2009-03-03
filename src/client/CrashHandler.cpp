@@ -35,6 +35,7 @@
 #include <ShlObj.h>
 #include "FindFile.h" // for IsFileAvailable and mkdir
 #include "Cache.h"  // For freeing the cache
+#include "CGameMode.h"
 
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
 
@@ -112,25 +113,11 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Game mode
-		strncat(buffer, "iGameMode = ", bufsize);
-		switch (tLXOptions->tGameInfo.iGameMode)  {
-		case GM_DEATHMATCH:
-			strncat(buffer, "GM_DEATHMATCH", bufsize);
-			break;
-		case GM_TEAMDEATH:
-			strncat(buffer, "GM_TEAMDEATH", bufsize);
-			break;
-		case GM_TAG:
-			strncat(buffer, "GM_TAG", bufsize);
-			break;
-		case GM_HIDEANDSEEK:
-			strncat(buffer, "GM_HIDEANDSEEK", bufsize);
-			break;
-		default:
-			itoa(tLXOptions->tGameInfo.iGameMode, tmp, 10);
-			fix_markend(tmp);
-			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, tmp, bufsize);
-		}
+		strncat(buffer, "GameMode = ", bufsize);
+		char tmp[16];
+		itoa(tLXOptions->tGameInfo.gameMode->GeneralGameType(), tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Mod name

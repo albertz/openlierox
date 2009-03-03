@@ -3587,6 +3587,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\server\CDemolitionsMatch.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\CGameMode.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\CGameMode.h"
 					>
 				</File>
