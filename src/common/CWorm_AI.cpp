@@ -40,6 +40,7 @@
 #include "CWormBot.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "CHideAndSeek.h"
 
 
 // used by searchpath algo
@@ -979,16 +980,7 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 
 
 void CWormBotInputHandler::AI_Respawn() {
-	// find new target and reset the path
-
-    // Search for an unfriendly worm
-    psAITarget = findTarget();
-
-    // Any unfriendlies?
-    if(psAITarget) {
-        // We have an unfriendly target, so change to a 'move-to-target' state
-        nAITargetType = AIT_WORM;
-        nAIState = AI_MOVINGTOTARGET;
+	if(findNewTarget()) {
 		AI_CreatePath(true);
 	}
 }
@@ -1098,6 +1090,57 @@ void CWormBotInputHandler::getInput() {
 }
 
 
+bool CWormBotInputHandler::findNewTarget() {
+	if(	(cClient->getGameLobby()->gameMode == GameMode(GM_TAG) && m_worm->getTagIT()) ) {
+		CWorm* w = nearestEnemyWorm();
+		if(!w) return findRandomSpot();
+		
+		float l = (w->getPos() - m_worm->vPos).GetLength2();
+		if(l < 30*30) // search new spot iff <30 pixels away from me
+			return findRandomSpot();
+		else
+			return true;
+	}
+	else if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
+	{
+		if(m_worm->getTeam() == CHideAndSeek::HIDER) {
+			// TODO: this is kind of cheating because normally we could not see the enemy
+			
+			CWorm* w = nearestEnemyWorm();
+			if(!w) return findRandomSpot();
+			
+			float l = (w->getPos() - m_worm->vPos).GetLength2();
+			if(l < 30*30) // search new spot iff <30 pixels away from me
+				return findRandomSpot();
+			else
+				return true;
+		}
+		else // we are seeker
+			// just move randomly
+			return findRandomSpot();
+	}
+	else {
+		// TODO: also check for GM_DEMOLITIONS (whereby killing other worms is not completly bad in this mode)
+		
+		// find new target and reset the path
+	
+    	// Search for an unfriendly worm
+		psAITarget = findTarget();
+
+    	// Any unfriendlies?
+		if(psAITarget) {
+        	// We have an unfriendly target, so change to a 'move-to-target' state
+			nAITargetType = AIT_WORM;
+			nAIState = AI_MOVINGTOTARGET;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	return false;
+}
+
 ///////////////////
 // Find a target worm
 CWorm *CWormBotInputHandler::findTarget()
@@ -1107,18 +1150,14 @@ CWorm *CWormBotInputHandler::findTarget()
 	CWorm	*nonsight_trg = NULL;
 	float	fDistance = -1;
 	float	fSightDistance = -1;
-
-	int NumTeams = 0;
-	uint i;
-	for (i=0; i<4; i++)
-		if (cClient->getTeamScore(i) > -1)
-			NumTeams++;
+	
+	if(w == NULL) return NULL;
 
     //
 	// Just find the closest worm
 	//
 
-	for(i=0; i<MAX_WORMS; i++, w++) {
+	for(int i=0; i<MAX_WORMS; i++, w++) {
 		if(w == NULL) break;
 
 		// Don't bother about unused or dead worms
@@ -1134,8 +1173,7 @@ CWorm *CWormBotInputHandler::findTarget()
 			continue;
 		
 		// If this is a team game, don't target my team mates
-		// BUT, if there is only one team, play it like deathmatch
-		if(cClient->isTeamGame() && w->getTeam() == m_worm->iTeam && NumTeams > 1)
+		if(cClient->isTeamGame() && w->getTeam() == m_worm->iTeam)
 			continue;
 
 		// If this is a game of tag, only target the worm it (unless it's me)
@@ -1199,6 +1237,74 @@ CWorm *CWormBotInputHandler::findTarget()
 }
 
 
+CWorm* CWormBotInputHandler::nearestEnemyWorm() {
+	CWorm	*w = cClient->getRemoteWorms();
+	CWorm	*trg = NULL;
+	CWorm	*nonsight_trg = NULL;
+	float	fDistance = -1;
+	float	fSightDistance = -1;
+
+	if(w == NULL) return NULL;
+
+	//
+	// Just find the closest worm
+	//
+
+	for(int i=0; i<MAX_WORMS; i++, w++) {
+
+		// Don't bother about unused or dead worms
+		if(!w->isUsed() || !w->getAlive())
+			continue;
+
+		// Make sure i don't target myself
+		if(w->getID() == m_worm->iID)
+			continue;
+
+		// don't target AFK worms
+		if(w->getAFK() != AFK_BACK_ONLINE)
+			continue;
+		
+		// If this is a team game, don't target my team mates
+		if(cClient->isTeamGame() && w->getTeam() == m_worm->iTeam)
+			continue;
+
+		// If this is a game of tag, only target the worm it (unless it's me)
+		if(cClient->isTagGame() && !w->getTagIT() && !m_worm->bTagIT)
+			continue;
+
+		// Calculate distance between us two
+		float l = (w->getPos() - m_worm->vPos).GetLength2();
+
+		// Prefer targets we have free line of sight to
+		float length;
+		int type;
+		m_worm->traceLine(w->getPos(),&length,&type,1);
+		if (! (type & PX_ROCK))  {
+			// Line of sight not blocked
+			if (fSightDistance < 0 || l < fSightDistance)  {
+				trg = w;
+				fSightDistance = l;
+				if (fDistance < 0 || l < fDistance)  {
+					nonsight_trg = w;
+					fDistance = l;
+				}
+			}
+		}
+		else {
+			// Line of sight blocked
+			if(fDistance < 0 || l < fDistance) {
+				nonsight_trg = w;
+				fDistance = l;
+			}
+		}
+	}
+
+	return trg;
+
+}
+
+
+
 ///////////////////
 // Think State
 void CWormBotInputHandler::AI_Think()
@@ -1228,16 +1334,9 @@ void CWormBotInputHandler::AI_Think()
 
 
     // Search for an unfriendly worm
-    psAITarget = findTarget();
-
-    // Any unfriendlies?
-    if(psAITarget) {
-        // We have an unfriendly target, so change to a 'move-to-target' state
-        nAITargetType = AIT_WORM;
-        nAIState = AI_MOVINGTOTARGET;
+    if(findNewTarget()) {
 		AI_CreatePath();
-        return;
-    }
+	}
 	else
 		fLastShoot = -9999;
 
@@ -1270,15 +1369,23 @@ void CWormBotInputHandler::AI_Think()
         return;
 	}
 
-    int     cols = m_worm->pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
-    int     rows = m_worm->pcMap->getGridRows()-1;       // level size
+	if(findRandomSpot(true))
+		AI_CreatePath();
+ }
 
+bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
+	float cols = m_worm->pcMap->getGridCols()-1;   // Note: -1 because the grid is slightly larger than the
+	float rows = m_worm->pcMap->getGridRows()-1;   // level size
+
+	if(highSpot)
+		rows /= 5.0f; // little hack to go higher
+	
     // Find a random spot to go to high in the level
     //printf("I don't find any target, so let's get somewhere (high)\n");
-    int x, y, c;
-    for(c=0; c<10; c++) {
-		x = (int)(fabs(GetRandomNum()) * (float)cols);
-		y = (int)(fabs(GetRandomNum()) * (float)rows / 5); // little hack to go higher
+	int x, y, c;
+	for(c=0; c<10; c++) {
+		x = (int)(fabs(GetRandomNum()) * cols);
+		y = (int)(fabs(GetRandomNum()) * rows);
 
 		uchar pf = *(m_worm->pcMap->getGridFlags() + y*m_worm->pcMap->getGridCols() + x);
 
@@ -1289,9 +1396,10 @@ void CWormBotInputHandler::AI_Think()
 		cPosTarget = CVec((float)(x*m_worm->pcMap->getGridWidth()+(m_worm->pcMap->getGridWidth()/2)), (float)(y*m_worm->pcMap->getGridHeight()+(m_worm->pcMap->getGridHeight()/2)));
 		nAITargetType = AIT_POSITION;
 		nAIState = AI_MOVINGTOTARGET;
-		AI_CreatePath();
-		break;
-    }
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -4119,7 +4227,7 @@ void CWormBotInputHandler::onRespawn() {
 	fLastGoBack = -9999;
 
 	AI_Respawn();
-}	
+}
 
 
 void CWormBotInputHandler::initWeaponSelection() {
