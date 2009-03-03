@@ -302,12 +302,12 @@ void CWorm::initWeaponSelection() {
 
 	if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
 		this->GetRandomWeapons();
-		this->bWeaponsReady = true;		
+		this->bWeaponsReady = true;
 	}
 
+	// bWeaponsReady could be true already for multiple reasons, e.g. in initWeaponSelection()
 	if(this->isHostWorm() && this->bWeaponsReady && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
 		cServer->cloneWeaponsToAllWorms(this);
-
 }
 
 void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {

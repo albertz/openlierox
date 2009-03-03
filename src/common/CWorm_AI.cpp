@@ -990,7 +990,8 @@ void CWormBotInputHandler::AI_Respawn() {
 void CWormBotInputHandler::startGame() {
 	if(	cClient->getGameLobby()->gameMode == GameMode(GM_DEATHMATCH) ||
 		cClient->getGameLobby()->gameMode == GameMode(GM_TEAMDEATH) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_TAG))
+		cClient->getGameLobby()->gameMode == GameMode(GM_TAG) ||
+		cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
 	{
 		// it's fine, we support that game mode
 	}
