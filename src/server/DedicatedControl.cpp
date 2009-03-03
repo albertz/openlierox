@@ -887,8 +887,8 @@ struct DedIntern {
 		// Get the game type
 		//tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 
-		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
-		//tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
+		//tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
+		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
 	}
