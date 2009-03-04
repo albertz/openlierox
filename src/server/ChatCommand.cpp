@@ -210,7 +210,7 @@ std::string CheckIDParams(const std::vector<std::string>& params, ChatCommand::t
 
 std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_id)
 {
-	int id;
+	int id = 0;
 
 	// Param check
 	std::string ch = CheckIDParams(params, &ProcessAuthorise, &id);
@@ -727,8 +727,8 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 {
 	// Param check
-	if (params.size() < GetCommand(&ProcessSuicide)->iMinParamCount ||
-		params.size() > GetCommand(&ProcessSuicide)->iMaxParamCount)
+	if (params.size() < GetCommand(&ProcessLogin)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessLogin)->iMaxParamCount)
 		return "Invalid parameter count";
 
 	// Check the sender

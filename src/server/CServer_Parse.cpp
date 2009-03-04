@@ -396,8 +396,20 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	
 	std::string startStr = bs->readString();
 	TrimSpaces(startStr);
-	stringlwr(startStr);
+	
+	size_t f = startStr.find(' ');
+	if(f != std::string::npos) {
+		ChatCommand* cmd = GetCommand(startStr.substr(0,f));
+		if(!cmd) {
+			SendText("Chat auto completion: unknown command", TXT_NETWORK);
+			return;
+		}
 		
+		// TODO: We could do some autocompletion also for the parameters.
+		return;
+	}
+	stringlwr(startStr);
+	
 	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i) {
 		if(subStrEqual(startStr, tKnownCommands[i].sName, startStr.size()))
 			possibilities.push_back(tKnownCommands[i].sName);

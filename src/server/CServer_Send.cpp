@@ -248,7 +248,7 @@ void CServerNetEngineBeta3::SendText(const std::string& text, int type)
 	bs.writeString(OldLxCompatibleString(nohtml_text));
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngineBeta3::SendHideWorm(CWorm *worm, bool show, bool immediate)
 {
