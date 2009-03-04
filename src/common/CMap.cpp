@@ -166,6 +166,8 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 	MinimapWidth = _minimap_w;
 	MinimapHeight = _minimap_h;
 
+	fBlinkTime = 0;
+
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
 	{
@@ -1846,7 +1848,6 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 	float xstep,ystep;
 	float mx,my;
 	int n;
-	float time = 0;
 	int mw = bmpMiniMap.get()->w;
 	int mh = bmpMiniMap.get()->h;
 
@@ -1857,9 +1858,9 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 	if(worms == NULL)
 		return;
 
-	time+=dt;
-	if(time>0.5f)
-		time=0;
+	fBlinkTime+=dt;
+	if(fBlinkTime>0.5f)
+		fBlinkTime=0;
 
 	Uint8 r,g,b,a;
 
@@ -1887,9 +1888,9 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 		dg = ~g;
 		db = ~b;
 
-		r += (int)( (float)dr*(time*2.0f));
-		g += (int)( (float)dg*(time*2.0f));
-		b += (int)( (float)db*(time*2.0f));
+		r += (int)( (float)dr*(fBlinkTime*2.0f));
+		g += (int)( (float)dg*(fBlinkTime*2.0f));
+		b += (int)( (float)db*(fBlinkTime*2.0f));
 
 		mx = w->getPos().x/xstep;
 		my = w->getPos().y/ystep;

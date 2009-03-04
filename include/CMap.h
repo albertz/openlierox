@@ -94,6 +94,7 @@ public:
 		MinimapHeight = 96;
 		Type = MPT_PIXMAP;
         nTotalDirtCount = 0;
+		fBlinkTime = 0;
 
 		Created = false;
 		FileName = "";
@@ -164,6 +165,9 @@ private:
     int         nGridCols, nGridRows;
 	uchar		*GridFlags;
 	uchar		*AbsoluteGridFlags;
+
+	// Minimap
+	float		fBlinkTime;
 
     //maprandom_t sRandomLayout;
 
