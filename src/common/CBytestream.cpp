@@ -392,7 +392,13 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 		case SVT_INT: return writeInt(var.i, 4);
 		case SVT_FLOAT: return writeFloat(var.f);
 		case SVT_STRING: return writeString(var.s);
-		case SVT_COLOR: return writeInt(var.c, 4);
+		case SVT_COLOR:  {
+			Color cl(var.c);
+			writeByte(cl.r);
+			writeByte(cl.g);
+			writeByte(cl.b);
+			writeByte(cl.a);
+		} return true;
 		default: assert(false); return false;
 	}
 }
