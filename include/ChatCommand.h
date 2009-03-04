@@ -21,13 +21,8 @@
 
 // Command structure
 class ChatCommand { public:
-#ifdef _MSC_VER // classes as std::string cannot be used in initializer list in MSVC...
-	const char *sName;
-	const char *sAlias;
-#else
 	std::string sName;
 	std::string sAlias;
-#endif
 
 	size_t		iMinParamCount;
 	size_t		iMaxParamCount;  // -1 for unlimited
