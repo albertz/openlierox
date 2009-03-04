@@ -2036,6 +2036,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
                     cViewports[i].setUsed(false);
+					cViewports[i].setTarget(NULL);
                     cViewports[i].reset();
                 }
 

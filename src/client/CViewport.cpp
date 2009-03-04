@@ -348,8 +348,11 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
         for( v=0; v<NUM_VIEWPORTS; v++ ) {
 
             // Make sure this isn't our viewport
-            if( pcViewList[v].nID == nID )
+			if( pcViewList[v].nID == nID )
                 continue;
+
+			if (!pcViewList[v].getUsed())
+				continue;
 
             t = pcViewList[v].getTarget();
             if(t) {

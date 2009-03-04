@@ -134,6 +134,7 @@ void CClient::Clear(void)
 
     for(i=0; i<NUM_VIEWPORTS; i++) {
         cViewports[i].setUsed(false);
+		cViewports[i].setTarget(NULL);
         cViewports[i].setID(i);
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
@@ -208,6 +209,7 @@ void CClient::MinorClear(void)
 
     for(i=0; i<NUM_VIEWPORTS; i++)  {
         cViewports[i].setUsed(false);
+		cViewports[i].setTarget(NULL);
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
@@ -1610,8 +1612,10 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	}
 
 	// Reset
-    for( int i=0; i<NUM_VIEWPORTS; i++ )
+	for( int i=0; i<NUM_VIEWPORTS; i++ )  {
         cViewports[i].setUsed(false);
+		cViewports[i].setTarget(NULL);
+	}
 
     // Setup inputs
     cViewports[0].setupInputs( tLXOptions->sPlayerControls[0] );
