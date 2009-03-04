@@ -35,9 +35,9 @@ class CServerNetEngine;
 
 // Client rights on a server
 struct ClientRights {
-	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false), Dedicated(false), Script(false) {}
-	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Dedicated = Script = true; }
-	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = Dedicated = Script = false; }
+	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false), Dedicated(false), Script(false), SetVar(false) {}
+	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Dedicated = Script = SetVar = true; }
+	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = Dedicated = Script = SetVar = false; }
 
 	bool NameChange;
 	bool Kick;
@@ -50,6 +50,7 @@ struct ClientRights {
 	bool Override;
 	bool Dedicated;
 	bool Script;
+	bool SetVar;
 };
 
 class CServerConnection {

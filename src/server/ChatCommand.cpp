@@ -57,6 +57,7 @@ ChatCommand tKnownCommands[] = {
 	{"loadingtime",	"lt",			1, 1,			(size_t)-1, &ProcessLt},
 	{"dedicated",	"ded",			1, (size_t)-1,	(size_t)-1, &ProcessDedicated},
 	{"script",		"scr",			1, 1,			(size_t)-1, &ProcessScript},
+	{"setvar",		"var",			1, 2,			(size_t)-1, &ProcessSetVar},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -1032,4 +1033,51 @@ std::string ProcessScript(const std::vector<std::string>& params, int sender_id)
 	}
 	
 	return "dedicated control is not available";
+}
+
+std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id) {
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+	
+	// Param check
+	if (params.size() < GetCommand(&ProcessSetVar)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessSetVar)->iMaxParamCount)
+		return "Invalid parameter count";
+	
+	// Check privileges
+	CWorm *w = &cServer->getWorms()[sender_id];
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->SetVar)
+		return "You do not have sufficient privileges to set a variable";
+
+	std::string var = params[0];
+	TrimSpaces( var );
+	ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
+	if( varptr.b == NULL )
+		return "No variable with name " + var;
+
+	if(!w->isUsed()) return "Invalid worm";
+	if(!w->getClient()) return "Invalid worm with no client";
+
+	if(params.size() == 1) {
+		w->getClient()->getNetEngine()->SendText(var + " = " + varptr.toString(), TXT_PRIVATE);
+		return "";
+	}
+	
+	std::string value = params[1];
+	TrimSpaces( value );
+	// Strip quotes if they are
+	if( value.size() > 1 )
+		if( value[0] == '"' && value[value.size()-1] == '"' )
+			value = value.substr( 1, value.size()-2 );
+	
+	CScriptableVars::SetVarByString(varptr, value);
+	
+	w->getClient()->getNetEngine()->SendText(var + " = " + varptr.toString(), TXT_PRIVATE);
+	notes << "ChatCommand: SetVar " << var << " = " << value << endl;
+	
+	cServer->UpdateGameLobby();
+		
+	return "";
 }
