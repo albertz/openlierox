@@ -1055,7 +1055,9 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 	if( varptr.b == NULL )
 		return "No variable with name " + var;
-
+	if(varptr.type == SVT_CALLBACK)
+		return "Callbacks are not allowed";
+	
 	if(!w->isUsed()) return "Invalid worm";
 	if(!w->getClient()) return "Invalid worm with no client";
 

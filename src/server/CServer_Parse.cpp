@@ -409,6 +409,9 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 		if(cmd->tProcFunc == &ProcessSetVar && cmdStart.size() == 2) {
 			// TODO: make faster with lower_bound(), upper_bound() and correct sorting of m_vars
 			for(CScriptableVars::const_iterator it = CScriptableVars::Vars().begin(); it != CScriptableVars::Vars().end(); ++it) {
+				// ignore callbacks
+				if(it->second.type == SVT_CALLBACK) continue;
+				
 				if( subStrCaseEqual(cmdStart[1], it->first, cmdStart[1].size()) ) {
 					std::string nextComplete = cmdStart[1];
 					for(size_t f = cmdStart[1].size();; ++f) {
