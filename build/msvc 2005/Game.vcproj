@@ -1656,6 +1656,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\NewNetEngine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\NewNetEngine.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\NotifyUser.cpp"
 				>
 			</File>

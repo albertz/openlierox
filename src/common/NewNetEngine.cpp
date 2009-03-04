@@ -9,6 +9,8 @@
 #include "FindFile.h"
 #include "CBytestream.h"
 #include "CClient.h"
+#include "CMap.h"
+#include "CWorm.h"
 
 namespace NewNet
 {
