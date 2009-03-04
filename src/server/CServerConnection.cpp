@@ -229,6 +229,8 @@ CChannel * CServerConnection::createChannel(const Version& v)
 	return cNetChan;
 }
 
+
+
 std::string CServerConnection::debugName() {
 	std::string adr = "?.?.?.?";
 

@@ -78,18 +78,6 @@ void DedicatedControl::Uninit() {
 }
 
 
-struct DedInterface {
-	virtual void pushReturnArg(const std::string& str) = 0;
-	virtual void finalizeReturn() = 0;
-	virtual ~DedInterface() {}
-	
-	struct Command {
-		DedInterface* sender;
-		std::string cmd;
-		Command(DedInterface* s, const std::string& c) : sender(s), cmd(c) {}
-	};
-	Event<Command> onCommand;
-};
 
 struct ScriptDedInterface : DedInterface {
 	Process pipe;
@@ -414,7 +402,7 @@ struct ScriptDedInterface : DedInterface {
 			std::string buf;
 			getline(owner->pipe.out(), buf);
 			
-			owner->onCommand.occurred( Command(owner, buf) );
+			DedicatedControl::Get()->Execute( Command(owner, buf) );
 		}
 		return 0;
 	}
@@ -469,13 +457,60 @@ struct StdinDedInterface : DedInterface {
 				}
 			}
 
-			owner->onCommand.occurred( Command(owner, buf) );
+			DedicatedControl::Get()->Execute( Command(owner, buf) );
 		}
 		return 0;
-	}
-
-	
+	}	
 };
+
+
+struct ChatDedInterface : DedInterface {
+		
+	void pushReturnArg(const std::string& str) {
+		notes << "Dedicated return: " << str << endl;
+	}
+	
+	void finalizeReturn() {
+		notes << "Dedicated return." << endl;
+	}
+	
+	
+	// reading lines from stdin and put them to pipeOutput
+	static int stdinThreadFunc(void* o) {
+		StdinDedInterface* owner = (StdinDedInterface*)o;
+		
+#ifndef WIN32
+		// TODO: there's no fcntl for Windows!
+		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
+#endif
+			warnings << "ERROR setting standard input into non-blocking mode" << endl;
+		
+		while(true) {
+			std::string buf;
+			while(true) {
+				SDL_Delay(10); // TODO: select() here
+				if(tLX->bQuitGame) return 0;
+				
+				char c;
+				
+				if(read(0, &c, 1) >= 0) {
+					if(c == '\n') break;
+					// TODO: why is this needed? is that WIN32 only?
+					if(c == -52) return 0;  // CTRL-C
+					buf += c;
+				}
+			}
+			
+			DedicatedControl::Get()->Execute( Command(owner, buf) );
+		}
+		return 0;
+	}	
+};
+
+
+
+
+
 
 struct DedIntern {
 
@@ -511,9 +546,6 @@ struct DedIntern {
 
 		scriptInterface = new ScriptDedInterface();
 		stdinInterface = new StdinDedInterface();
-		
-		scriptInterface->onCommand.handler() += getEventHandler(this, &DedIntern::DedInterface_OnCommand);
-		stdinInterface->onCommand.handler() += getEventHandler(this, &DedIntern::DedInterface_OnCommand);
 	}
 	
 	~DedIntern() {
@@ -567,7 +599,7 @@ struct DedIntern {
 		pushSignal(name, args);
 	}
 	
-	void DedInterface_OnCommand(DedInterface::Command command) {
+	void Execute(const DedInterface::Command& command) {
 		ScopedLock lock(pendingCommandsMutex);
 		pendingCommands.push_back(command);
 	}
@@ -1245,6 +1277,7 @@ struct DedIntern {
 				pendingCommands.pop_front();
 
 				HandleCommand(command);
+				command.sender->finishedCommand(command.cmd);
 			}
 			SDL_mutexV(pendingCommandsMutex);
 		}
@@ -1338,9 +1371,6 @@ void DedicatedControl::BackToServerLobby_Signal() { DedIntern::Get()->Sig_BackTo
 void DedicatedControl::BackToClientLobby_Signal() { DedIntern::Get()->Sig_ClientGotoLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
-
-void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
-void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
 void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
@@ -1348,3 +1378,7 @@ void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::str
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
 
+void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
+void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
+
+void DedicatedControl::Execute(DedInterface::Command cmd) { DedIntern::Get()->Execute(cmd); }

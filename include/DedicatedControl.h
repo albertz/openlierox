@@ -11,6 +11,23 @@
 #define __DEDICATEDCONTROL_H__
 
 #include <string>
+
+
+struct DedInterface {
+	virtual void pushReturnArg(const std::string& str) = 0;
+	virtual void finalizeReturn() = 0;
+	virtual void finishedCommand(const std::string& cmd) {}
+	virtual ~DedInterface() {}
+	
+	struct Command {
+		DedInterface* sender;
+		std::string cmd;
+		Command(DedInterface* s, const std::string& c) : sender(s), cmd(c) {}
+	};
+};
+
+
+
 class CWorm;
 
 class DedicatedControl {
@@ -36,8 +53,12 @@ public:
 	void WormDied_Signal(CWorm* died, CWorm* killer);
 	void WormSpawned_Signal(CWorm* worm);
 	
+	void Execute(DedInterface::Command cmd);
+	
 	void Menu_Frame();
 	void GameLoop_Frame();
 };
+
+
 
 #endif

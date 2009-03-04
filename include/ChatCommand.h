@@ -61,6 +61,8 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id);
 std::string ProcessMod(const std::vector<std::string>& params, int sender_id);
 std::string ProcessLevel(const std::vector<std::string>& params, int sender_id);
 std::string ProcessLt(const std::vector<std::string>& params, int sender_id);
+std::string ProcessDedicated(const std::vector<std::string>& params, int sender_id);
+
 
 // List of known commands (filled in in ChatCommand.cpp)
 extern ChatCommand tKnownCommands[];

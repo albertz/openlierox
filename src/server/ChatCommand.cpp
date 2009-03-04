@@ -55,6 +55,7 @@ ChatCommand tKnownCommands[] = {
 	{"mod",			"mod",			1, (size_t)-1,	(size_t)-1, &ProcessMod},
 	{"level",		"level",		1, (size_t)-1,	(size_t)-1, &ProcessLevel},
 	{"loadingtime",	"lt",			1, 1,			(size_t)-1, &ProcessLt},
+	{"dedicated",	"ded",			1, (size_t)-1,	(size_t)-1, &ProcessDedicated},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -949,5 +950,57 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 	cServer->SendGlobalText(w->getName() + " changed loading time to " + itoa(lt) + " %", TXT_NOTICE);
 
 	return "";
+}
+
+std::string ProcessDedicated(const std::vector<std::string>& params, int sender_id) {
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+
+	// Param check
+	if (params.size() < GetCommand(&ProcessDedicated)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessDedicated)->iMaxParamCount)
+		return "Invalid parameter count";
+
+	// Check privileges
+	CWorm *w = &cServer->getWorms()[sender_id];
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->Dedicated)
+		return "You do not have sufficient privileges to change the level";
+	
+	if(DedicatedControl::Get()) {
+		struct ChatDedHandler : DedInterface {
+			int sender_id;
+			ChatDedHandler(int i) : sender_id(i) {}
+			
+			void msg(const std::string& str) {
+				CWorm *w = &cServer->getWorms()[sender_id];
+				if(!w->isUsed()) return;
+				if(!w->getClient()) return;
+				w->getClient()->getNetEngine()->SendText(str, TXT_NOTICE);
+			}
+			
+			virtual void pushReturnArg(const std::string& str) {
+				msg("Dedicated: " + str);
+			}
+			virtual void finalizeReturn() {
+				msg("Dedicated.");
+			}
+			virtual void finishedCommand(const std::string& cmd) {
+				delete this;
+			}			
+		};
+		
+		std::string cmd = "";
+		for(std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); ++i) {
+			if(i != params.begin()) cmd += " ";
+			cmd += *i;
+		}
+		DedicatedControl::Get()->Execute( DedInterface::Command(new ChatDedHandler(sender_id), cmd) );
+		
+		return "";
+	}
+	
+	return "dedicated control is not available";
 }
 

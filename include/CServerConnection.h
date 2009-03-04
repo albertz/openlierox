@@ -34,10 +34,10 @@ class CServerNetEngine;
 
 
 // Client rights on a server
-class ClientRights { public:
-	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false) {}
-	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = true; }
-	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = false; }
+struct ClientRights {
+	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false), Dedicated(false) {}
+	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Dedicated = true; }
+	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = Dedicated = false; }
 
 	bool NameChange;
 	bool Kick;
@@ -48,6 +48,7 @@ class ClientRights { public:
 	bool StartGame;
 	bool Authorize;
 	bool Override;
+	bool Dedicated;
 };
 
 class CServerConnection {
@@ -160,7 +161,7 @@ public:
 	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
 
 	bool		isLocalClient()			{ return bLocalClient; }
-	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
+	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	
 	
 	std::string	debugName();
 };
