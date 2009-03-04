@@ -23,6 +23,7 @@
 
 #include "CVec.h"
 #include "SmartPointer.h"
+#include "types.h"
 
 
 #ifndef DEDICATED_ONLY
