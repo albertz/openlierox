@@ -608,16 +608,24 @@ struct DedIntern {
 	}
 	
 	void Cmd_Script(DedInterface* caller, const std::string& script) {
+		if(IsAbsolutePath(script)) {
+			errors << "absolute path names are not allowed for script command" << endl;
+			return;
+		}
+
+		if(script.find("..") != std::string::npos) {
+			errors << "invalid script filename" << endl;
+			return;
+		}
+		
 		{
 			ScopedLock lock(pendingSignalsMutex);
 			waitingForNextSignal = false;
 			pendingSignals.clear();
 		}
-		
+
 		if(script == "" || script == "/dev/null")
 			scriptInterface->loadScript("/dev/null");
-		else if(IsAbsolutePath(script))
-			scriptInterface->loadScript(script);
 		else
 			scriptInterface->loadScript("scripts/" + script);
 	}
