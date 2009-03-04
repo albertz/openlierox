@@ -1,6 +1,7 @@
 
 #include <string>
 #include <limits.h>
+#include <time.h>
 
 #include "NewNetEngine.h"
 #include "MathLib.h"
@@ -15,31 +16,47 @@ namespace NewNet
 // -------- The stuff that interacts with OLX: save/restore game state and calculate physics ---------
 
 CWorm * SavedWormState = NULL;
+NetSyncedRandom netRandom, netRandom_Saved;
+
 void SaveState()
 {
-	NetSyncedRandom_Save();
-	cClient->getMap()->SaveToMemory();
+	netRandom_Saved = netRandom;
+	cClient->getMap()->NewNet_SaveToMemory();
 
-	/*
+	cClient->NewNet_SaveProjectiles();
+
 	for( int i = 0; i < MAX_WORMS; i++ )
-		cClient->getRemoteWorms()[i].SaveWormState( &SavedWormState[i] );
-	*/
+		cClient->getRemoteWorms()[i].NewNet_SaveWormState( &SavedWormState[i] );
 };
 
 void RestoreState()
 {
-	NetSyncedRandom_Restore();
-	cClient->getMap()->RestoreFromMemory();
+	netRandom = netRandom_Saved;
+	cClient->getMap()->NewNet_RestoreFromMemory();
 
-	/*
+	cClient->NewNet_LoadProjectiles();
+
 	for( int i = 0; i < MAX_WORMS; i++ )
-		cClient->getRemoteWorms()[i].RestoreWormState( &SavedWormState[i] );
-	*/
+		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
 };
 
 unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum )
 {
+	//cClient->Simulation();
 	return 0;
+};
+
+void DisableAdvancedFeatures()
+{
+	 // Disables bonuses and connect-during-game for now, 
+	 // I can add bonuses but connect-during-game is complicated
+	 tLXOptions->tGameInfo.bBonusesOn = false;
+	 tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
+	 tLXOptions->tGameInfo.bRespawnGroupTeams = false;
+	 tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
+	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
+	 tLXOptions->tGameInfo.bAllowStrafing = false;
+	 *cClient->getGameLobby() = tLXOptions->tGameInfo;
 };
 
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
@@ -81,6 +98,7 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 {
 			OlxTimeDiffMs = localTime;
 			NumPlayers = 0;
+			netRandom.seed(randomSeed);
 			for( int i=0; i<MAX_WORMS; i++ )
 			{
 				player2netID[i] = -1;
@@ -92,6 +110,7 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 					player2netID[NumPlayers] = cClient->getRemoteWorms()[i].getID();
 					net2playerID[ cClient->getRemoteWorms()[i].getID() ] = NumPlayers;
 					NumPlayers ++;
+					cClient->getRemoteWorms()[i].NewNet_random = netRandom;
 				};
 			LocalPlayer = -1;
 			if( cClient->getNumWorms() > 0 )
@@ -111,9 +130,6 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 			QuickDirtyCalculation = true;
 			ReCalculationNeeded = false;
 			ReCalculationTimeMs = 0;
-			NetSyncedRandom_Seed( randomSeed );
-			NetSyncedRandom_Save();
-			Random_Seed( ~ randomSeed );
 			if( ! SavedWormState )
 				SavedWormState = new CWorm[MAX_WORMS];
 			SaveState();
@@ -296,12 +312,10 @@ unsigned GetChecksum( unsigned long * time )
 
 // -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------
 
-taus113_state_t NetSyncedRandom_state, NetSyncedRandom_state_saved, Random_state;
-
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
 #define MASK 0xffffffffUL
 
-void __Random_Seed__(unsigned long s, taus113_state_t & NetSyncedRandom_state)
+void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state)
 {
   if (!s)
     s = 1UL;                    /* default seed is 1 */
@@ -320,39 +334,19 @@ void __Random_Seed__(unsigned long s, taus113_state_t & NetSyncedRandom_state)
     NetSyncedRandom_state.z4 += 128UL;
 
   /* Calling RNG ten times to satify recurrence condition */
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
-  NetSyncedRandom();
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
+  ___Random__(NetSyncedRandom_state);
 
   return;
 };
-
-void NetSyncedRandom_Save()
-{
-	NetSyncedRandom_state_saved = NetSyncedRandom_state;
-};
-void NetSyncedRandom_Restore()
-{
-	NetSyncedRandom_state = NetSyncedRandom_state_saved;
-};
-
-void NetSyncedRandom_Seed(unsigned long s)
-{
-	__Random_Seed__(s, NetSyncedRandom_state);
-}
-
-void Random_Seed(unsigned long s)
-{
-	__Random_Seed__(s, Random_state);
-}
-
 
 #undef LCG
 #undef MASK
@@ -415,5 +409,8 @@ void Random_Seed(unsigned long s)
 		return -1;
 	}
 
-
+	unsigned long NetSyncedRandom::getSeed()
+	{
+		return (~(unsigned long)time(NULL)) + SDL_GetTicks();
+	};
 };

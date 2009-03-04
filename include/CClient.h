@@ -214,6 +214,8 @@ private:
 	typedef FastVector<CProjectile,MAX_PROJECTILES> Projectiles;
 	Projectiles	cProjectiles;
 
+	Projectiles	cProjectiles_Saved; // For new net engine
+
 	// Frames
 	frame_t		tFrames[NUM_FRAMES];
 
@@ -642,6 +644,8 @@ public:
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }
 	void		setOnModDlFinished(DownloadFinishedCB f)  { tModDlCallback = f; }
 	
+	void		NewNet_SaveProjectiles();
+	void		NewNet_LoadProjectiles();
 };
 
 extern	CClient			*cClient;

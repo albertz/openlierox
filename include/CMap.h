@@ -325,8 +325,8 @@ public:
 	void		ApplyShadow(int sx, int sy, int w, int h);
 
 	// Save/restore from memory, for commit/rollback net mechanism
-	void		SaveToMemory();
-	void		RestoreFromMemory();
+	void		NewNet_SaveToMemory();
+	void		NewNet_RestoreFromMemory();
 
 	inline theme_t		*GetTheme(void)		{ return &Theme; }
 

@@ -28,6 +28,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
 #include "CWormSkin.h"
+#include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
 
 
@@ -612,12 +613,16 @@ public:
 	void setCollidedLastFrame(bool _c)		{ bCollidedLastFrame = _c; }
 	bool hasCollidedLastFrame() const		{ return bCollidedLastFrame; }
 	
+	void NewNet_SaveWormState(CWorm * w);
+	void NewNet_RestoreWormState(CWorm * w);
 	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
 	float	fLastSimulationTime;
+
+	NewNet::NetSyncedRandom NewNet_random;
 };
 
 

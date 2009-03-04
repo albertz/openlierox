@@ -2656,7 +2656,7 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 }
 
 
-void CMap::SaveToMemory()
+void CMap::NewNet_SaveToMemory()
 {
 	if( bMapSavingToMemory )
 	{
@@ -2678,7 +2678,7 @@ void CMap::SaveToMemory()
 	savedMapCoords.clear();
 };
 
-void CMap::RestoreFromMemory()
+void CMap::NewNet_RestoreFromMemory()
 {
 	if( ! bMapSavingToMemory )
 	{

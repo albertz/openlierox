@@ -56,13 +56,33 @@ struct KeyState_t
 	int getFirstPressedKey() const; // Returns idx of first pressed key, or -1
 };
 
-// OLX should use only these funcs instead of any random() funcs it uses now for physics calculation - they already seeded.
-static inline unsigned long NetSyncedRandom();
-static inline double NetSyncedRandomDouble();	// In range 0.0-1.0, 1.0 not included.
+// Random number implementation
+struct __taus113_state_t
+{
+  unsigned long int z1, z2, z3, z4;
+};
+static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_state );
+static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state );
+void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state);
 
-// OLX may use these funcs instead of any random() funcs it uses now for graphics output - they already seeded but not synced.
-static inline unsigned long Random();
-static inline double RandomDouble();	// In range 0.0-1.0, 1.0 not included.
+class NetSyncedRandom
+{
+	public:
+	NetSyncedRandom() { seed(); };
+	
+	unsigned long get() { return ___Random__(state); };
+	double getDouble() { return ___RandomDouble__(state); };	// In range 0.0-1.0, 1.0 not included.
+	
+	void seed( unsigned long s = getSeed() ){ ___Random_Seed__(s, state); };
+	static unsigned long getSeed();
+	
+	private:
+	__taus113_state_t state;
+};
+
+extern NetSyncedRandom netRandom;
+
+void DisableAdvancedFeatures(); // Required for now
 
 void StartRound( unsigned long localTime, unsigned long randomSeed );
 
@@ -185,15 +205,7 @@ void NetSyncedRandom_Restore();
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
 #define MASK 0xffffffffUL
 
-typedef struct
-{
-  unsigned long int z1, z2, z3, z4;
-}
-taus113_state_t;
-
-extern taus113_state_t NetSyncedRandom_state, Random_state;
-
-static inline unsigned long ___Random__( taus113_state_t & NetSyncedRandom_state )
+static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_state )
 {
   unsigned long b1, b2, b3, b4;
 
@@ -211,28 +223,10 @@ static inline unsigned long ___Random__( taus113_state_t & NetSyncedRandom_state
 
   return (NetSyncedRandom_state.z1 ^ NetSyncedRandom_state.z2 ^ NetSyncedRandom_state.z3 ^ NetSyncedRandom_state.z4);
 
-}
-static inline double ___RandomDouble__( taus113_state_t & NetSyncedRandom_state )
+};
+static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state )
 {
   return ___Random__( NetSyncedRandom_state ) / 4294967296.0;
-}
-
-static inline unsigned long NetSyncedRandom()
-{
-	return ___Random__( NetSyncedRandom_state );
-};
-static inline double NetSyncedRandomDouble()
-{
-	return ___RandomDouble__( NetSyncedRandom_state );
-};
-
-static inline unsigned long Random()
-{
-	return ___Random__( Random_state );
-};
-static inline double RandomDouble()
-{
-	return ___RandomDouble__( Random_state );
 };
 
 #undef LCG

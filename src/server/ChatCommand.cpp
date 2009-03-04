@@ -53,7 +53,7 @@ ChatCommand tKnownCommands[] = {
 	{"start",		"start",		0, 0,			(size_t)-1, &ProcessStart},
 	{"lobby",		"lobby",		0, 0,			(size_t)-1, &ProcessLobby},
 	{"mod",			"mod",			1, (size_t)-1,	(size_t)-1, &ProcessMod},
-	{"level",		"level",		1, (size_t)-1,	(size_t)-1, &ProcessLevel},
+	{"level",		"map",			1, (size_t)-1,	(size_t)-1, &ProcessLevel},
 	{"loadingtime",	"lt",			1, 1,			(size_t)-1, &ProcessLt},
 	{"dedicated",	"ded",			1, (size_t)-1,	(size_t)-1, &ProcessDedicated},
 	{"script",		"scr",			1, 1,			(size_t)-1, &ProcessScript},

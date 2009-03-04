@@ -1217,3 +1217,95 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 	else
 		setDamage( getDamage() + damage );
 }
+
+void CWorm::NewNet_SaveWormState(CWorm * w)
+{
+	// Macro to do less copypaste
+	// Only the gamestate variables are copied, score is updated by server in separate packet
+	#define COPY(X) w->X = X;
+	COPY( fLastSimulationTime );
+	COPY( tState );
+	COPY( vPos );
+	COPY( vVelocity );
+	COPY( vLastPos );
+	COPY( vDrawPos );
+	COPY( bOnGround );
+	COPY( fCollisionTime );
+	COPY( vCollisionVelocity );
+	COPY( fLastInputTime );
+	COPY( bCollidedLastFrame );
+	COPY( lastMoveTime );
+	COPY( fServertime );
+	COPY( vFollowPos );
+	COPY( bFollowOverride );
+    COPY( fLastCarve );
+	COPY( fLoadingTime );
+	COPY( iHealth );
+	COPY( bAlive );
+	COPY( fTimeofDeath );
+	COPY( iDirection );
+	COPY( iMoveDirection );
+	COPY( bGotTarget );
+	COPY( fAngle );
+    COPY( fAngleSpeed );
+    COPY( fMoveSpeedX );
+	COPY( fFrame );
+	COPY( cNinjaRope );
+	COPY( fRopeTime );
+	COPY( bVisible );
+	COPY( fVisibilityChangeTime );
+	COPY( bHooked );
+	COPY( pcHookWorm );
+	COPY( bRopeDown );
+	COPY( bRopeDownOnce );
+	COPY( fSpawnTime );
+	COPY( iCurrentWeapon );
+	COPY( bNoShooting );
+	COPY( NewNet_random );
+	#undef COPY
+};
+
+void CWorm::NewNet_RestoreWormState(CWorm * w)
+{
+	#define COPY(X) X = w->X;
+	COPY( fLastSimulationTime );
+	COPY( tState );
+	COPY( vPos );
+	COPY( vVelocity );
+	COPY( vLastPos );
+	COPY( vDrawPos );
+	COPY( bOnGround );
+	COPY( fCollisionTime );
+	COPY( vCollisionVelocity );
+	COPY( fLastInputTime );
+	COPY( bCollidedLastFrame );
+	COPY( lastMoveTime );
+	COPY( fServertime );
+	COPY( vFollowPos );
+	COPY( bFollowOverride );
+    COPY( fLastCarve );
+	COPY( fLoadingTime );
+	COPY( iHealth );
+	COPY( bAlive );
+	COPY( fTimeofDeath );
+	COPY( iDirection );
+	COPY( iMoveDirection );
+	COPY( bGotTarget );
+	COPY( fAngle );
+    COPY( fAngleSpeed );
+    COPY( fMoveSpeedX );
+	COPY( fFrame );
+	COPY( cNinjaRope );
+	COPY( fRopeTime );
+	COPY( bVisible );
+	COPY( fVisibilityChangeTime );
+	COPY( bHooked );
+	COPY( pcHookWorm );
+	COPY( bRopeDown );
+	COPY( bRopeDownOnce );
+	COPY( fSpawnTime );
+	COPY( iCurrentWeapon );
+	COPY( bNoShooting );
+	COPY( NewNet_random );
+	#undef COPY
+};
