@@ -56,6 +56,7 @@ ChatCommand tKnownCommands[] = {
 	{"level",		"level",		1, (size_t)-1,	(size_t)-1, &ProcessLevel},
 	{"loadingtime",	"lt",			1, 1,			(size_t)-1, &ProcessLt},
 	{"dedicated",	"ded",			1, (size_t)-1,	(size_t)-1, &ProcessDedicated},
+	{"script",		"scr",			1, 1,			(size_t)-1, &ProcessScript},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -228,7 +229,9 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 	// Authorise the client
 	CServerConnection *remote_cl = cServer->getClient(id);
 	if (remote_cl)  {
+		bool hadDedBefore = remote_cl->getRights()->Dedicated;
 		remote_cl->getRights()->Everything();
+		remote_cl->getRights()->Dedicated = hadDedBefore; // don't give him dedicated
 		cServer->SendGlobalText((cServer->getWorms() + id)->getName() + " has been authorised", TXT_NORMAL);
 		return "";
 	}
@@ -952,6 +955,30 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 	return "";
 }
 
+
+struct ChatDedHandler : DedInterface {
+	int sender_id;
+	ChatDedHandler(int i) : sender_id(i) {}
+	
+	void msg(const std::string& str) {
+		CWorm *w = &cServer->getWorms()[sender_id];
+		if(!w->isUsed()) return;
+		if(!w->getClient()) return;
+		w->getClient()->getNetEngine()->SendText(str, TXT_PRIVATE);
+	}
+	
+	virtual void pushReturnArg(const std::string& str) {
+		msg("Dedicated: " + str);
+	}
+	virtual void finalizeReturn() {
+		msg("Dedicated.");
+	}
+	virtual void finishedCommand(const std::string& cmd) {
+		delete this;
+	}			
+};
+
+
 std::string ProcessDedicated(const std::vector<std::string>& params, int sender_id) {
 	// Check the sender
 	if (sender_id < 0 || sender_id >= MAX_WORMS)
@@ -969,28 +996,6 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 		return "You do not have sufficient privileges for dedicated control";
 	
 	if(DedicatedControl::Get()) {
-		struct ChatDedHandler : DedInterface {
-			int sender_id;
-			ChatDedHandler(int i) : sender_id(i) {}
-			
-			void msg(const std::string& str) {
-				CWorm *w = &cServer->getWorms()[sender_id];
-				if(!w->isUsed()) return;
-				if(!w->getClient()) return;
-				w->getClient()->getNetEngine()->SendText(str, TXT_NOTICE);
-			}
-			
-			virtual void pushReturnArg(const std::string& str) {
-				msg("Dedicated: " + str);
-			}
-			virtual void finalizeReturn() {
-				msg("Dedicated.");
-			}
-			virtual void finishedCommand(const std::string& cmd) {
-				delete this;
-			}			
-		};
-		
 		std::string cmd = "";
 		for(std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); ++i) {
 			if(i != params.begin()) cmd += " ";
@@ -1004,3 +1009,27 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 	return "dedicated control is not available";
 }
 
+std::string ProcessScript(const std::vector<std::string>& params, int sender_id) {
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+	
+	// Param check
+	if (params.size() < GetCommand(&ProcessScript)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessScript)->iMaxParamCount)
+		return "Invalid parameter count";
+	
+	// Check privileges
+	CWorm *w = &cServer->getWorms()[sender_id];
+	CServerConnection *cl = w->getClient();
+	if (!cl || !cl->getRights()->Script)
+		return "You do not have sufficient privileges for changing the dedicated script";
+	
+	if(DedicatedControl::Get()) {
+		DedicatedControl::Get()->Execute( DedInterface::Command(new ChatDedHandler(sender_id), "script " + params[0]) );
+		
+		return "";
+	}
+	
+	return "dedicated control is not available";
+}
