@@ -966,7 +966,7 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 	CWorm *w = &cServer->getWorms()[sender_id];
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->Dedicated)
-		return "You do not have sufficient privileges to change the level";
+		return "You do not have sufficient privileges for dedicated control";
 	
 	if(DedicatedControl::Get()) {
 		struct ChatDedHandler : DedInterface {
