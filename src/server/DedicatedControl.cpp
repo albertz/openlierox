@@ -1234,14 +1234,17 @@ struct DedIntern {
 #endif
 		{
 			SDL_mutexP(pendingCommandsMutex);
-			while( pendingCommands.size() > 0 ) {
-				DedInterface::Command command = pendingCommands.front();
-				pendingCommands.pop_front();
+			std::list<DedInterface::Command> cmds;
+			cmds.swap(pendingCommands);
+			SDL_mutexV(pendingCommandsMutex);
+			
+			while( cmds.size() > 0 ) {
+				DedInterface::Command command = cmds.front();
+				cmds.pop_front();
 
 				HandleCommand(command);
 				command.sender->finishedCommand(command.cmd);
 			}
-			SDL_mutexV(pendingCommandsMutex);
 		}
 
 		ProcessEvents();
