@@ -297,7 +297,7 @@ bool GameOptions::LoadFromDisc()
 	InitWidgetStates(*this);
 
 	// first set the standards (else the vars would be undefined if not defined in options.cfg)
-	for( CScriptableVars::iterator it = CScriptableVars::begin();
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin();
 			it != CScriptableVars::end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
@@ -438,7 +438,7 @@ void GameOptions::SaveToDisc()
 
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
-	for( CScriptableVars::iterator it = CScriptableVars::begin();
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin();
 			it != CScriptableVars::end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )

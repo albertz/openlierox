@@ -800,7 +800,7 @@ struct DedIntern {
 			warnings << "DedicatedControl: SetVar: no var with name " << var << endl;
 			notes << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
 			notes << "\nFor Python ded control script:\n" << endl;
-			for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
+			for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
 			{
 				notes << "setvar( \"" << it->first << "\", ";
 				if( it->second.type == SVT_BOOL )

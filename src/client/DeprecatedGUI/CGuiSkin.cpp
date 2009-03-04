@@ -353,7 +353,7 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 			s = "";
 		TrimSpaces(s);
 
-		CScriptableVars::iterator it;
+		CScriptableVars::const_iterator it;
 		for( it = CScriptableVars::begin();
 				it != CScriptableVars::end(); it++ )
 		{

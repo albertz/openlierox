@@ -396,24 +396,63 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	
 	std::string startStr = bs->readString();
 	TrimSpaces(startStr);
-	
-	size_t f = startStr.find(' ');
-	if(f != std::string::npos) {
-		ChatCommand* cmd = GetCommand(startStr.substr(0,f));
+	std::vector<std::string> cmdStart = ParseCommandMessage("/" + startStr, false);
+		
+	if(cmdStart.size() > 1) {
+		ChatCommand* cmd = GetCommand(cmdStart[0]);
 		if(!cmd) {
 			SendText("Chat auto completion: unknown command", TXT_NETWORK);
 			return;
 		}
 		
-		// TODO: We could do some autocompletion also for the parameters.
+		// TODO: Move it out here and make it more general (add it to ChatCommand structure).
+		if(cmd->tProcFunc == &ProcessSetVar && cmdStart.size() == 2) {
+			// TODO: make faster with lower_bound(), upper_bound() and correct sorting of m_vars
+			for(CScriptableVars::const_iterator it = CScriptableVars::Vars().begin(); it != CScriptableVars::Vars().end(); ++it) {
+				if( subStrCaseEqual(cmdStart[1], it->first, cmdStart[1].size()) ) {
+					std::string nextComplete = cmdStart[1];
+					for(size_t f = cmdStart[1].size();; ++f) {
+						if(f >= it->first.size()) { nextComplete += ' '; break; }
+						nextComplete += it->first[f];
+						if(it->first[f] == '.') break;
+					}
+					
+					if(possibilities.size() == 0 || *possibilities.rbegin() != nextComplete) {
+						possibilities.push_back(nextComplete);
+					}
+				}
+			}
+
+			if(possibilities.size() == 0) {
+				SendText("Chat auto completion: unknown variable", TXT_NETWORK);
+				return;
+			}
+
+			if(possibilities.size() == 1) {
+				cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, cmd->sName + " " + possibilities.front());
+				return;
+			}
+
+			size_t l = maxStartingEqualStr(possibilities);
+			if(l > cmdStart[1].size()) {
+				// we can complete to some longer sequence
+				cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, cmd->sName + " " + possibilities.front().substr(0, l));
+				return;
+			}
+			
+			// send list of all possibilities
+			cl->getNetEngine()->SendChatCommandCompletionList(startStr, possibilities);
+			return;
+		}
+		
 		return;
 	}
-	stringlwr(startStr);
+	stringlwr(cmdStart[0]);
 	
 	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i) {
-		if(subStrEqual(startStr, tKnownCommands[i].sName, startStr.size()))
+		if(subStrEqual(cmdStart[0], tKnownCommands[i].sName, cmdStart[0].size()))
 			possibilities.push_back(tKnownCommands[i].sName);
-		else if(subStrEqual(startStr, tKnownCommands[i].sAlias, startStr.size()))
+		else if(subStrEqual(cmdStart[0], tKnownCommands[i].sAlias, cmdStart[0].size()))
 			possibilities.push_back(tKnownCommands[i].sAlias);
 	}
 	
@@ -424,7 +463,14 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	
 	if(possibilities.size() == 1) {
 		// we have exactly one solution
-		cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, possibilities.front() + " ");
+		ChatCommand* cmd = GetCommand(startStr);
+		if(cmd && startStr.size() <= possibilities.front().size()) {
+			SendText("Chat auto completion: " + cmd->sName + ": " +
+					 itoa(cmd->iMinParamCount) + "-" + itoa(cmd->iMaxParamCount) + " params",
+					 TXT_NETWORK);		   
+		}
+		else
+			cl->getNetEngine()->SendChatCommandCompletionSolution(startStr, possibilities.front() + " ");
 		return;
 	}
 	
@@ -583,9 +629,9 @@ void CServerNetEngine::ParseSendFile(CBytestream *bs)
 			( cl->getUdpFileDownloader()->getFilename() == "GET:" || cl->getUdpFileDownloader()->getFilename() == "STAT:" ) )
 		{
 			cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file or statistics on it
-		};
-	};
-};
+		}
+	}
+}
 
 /////////////////
 // Parse a command from chat

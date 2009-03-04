@@ -139,6 +139,7 @@ std::string CScriptableVars::StripClassName( const std::string & c )
 ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
 {
 	Init();
+	// TODO: make it faster by binary search (lower_bound(), upper_bound() and sorting based on stringcasecmp)
 	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
 			it != m_instance->m_vars.end(); it++ )
 	{

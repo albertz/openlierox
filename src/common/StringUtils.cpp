@@ -418,6 +418,13 @@ bool subStrEqual(const std::string& s1, const std::string s2, size_t p) {
 	return true;
 }
 
+bool subStrCaseEqual(const std::string& s1, const std::string s2, size_t p) {
+	if((s1.size() < p || s2.size() < p) && s1.size() != s2.size()) return false; 
+	for(size_t i = 0; i < p && i < s1.size(); i++)
+		if(tolower(s1[i]) != tolower(s2[i])) return false;
+	return true;
+}
+
 size_t maxStartingEqualStr(const std::list<std::string>& strs) {
 	if(strs.size() == 0) return 0;
 	

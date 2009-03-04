@@ -278,6 +278,7 @@ void CServerNetEngineBeta7::SendChatCommandCompletionSolution(const std::string&
 }
 
 void CServerNetEngineBeta7::SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) {
+	// the solutions are for the last parameter of the command (or the command itself if no param is given)!
 	CBytestream bs;
 
 	bs.writeByte(S2C_CHATCMDCOMPLLST);

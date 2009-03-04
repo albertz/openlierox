@@ -73,6 +73,6 @@ extern ChatCommand tKnownCommands[];
 ChatCommand *GetCommand(const std::string& name);
 
 // Main parsing function
-const std::vector<std::string>& ParseCommandMessage(const std::string& msg, bool ignore_blank_params);
+std::vector<std::string> ParseCommandMessage(const std::string& msg, bool ignore_blank_params);
 
 #endif // __CHATCOMMAND_H__

@@ -815,7 +815,7 @@ static void initFeaturesList(CListview* l)
 		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
 		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", NULL, NULL); 
 
-		for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+		for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 		{
 			if( it->first.find("GameOptions.GameInfo.") != 0 )
 				continue;
@@ -884,7 +884,7 @@ static void initFeaturesList(CListview* l)
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
-	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ ) 
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ ) 
 	{
 		if( it->first.find("GameOptions.GameInfo.") != 0 )
 			continue;
@@ -1017,7 +1017,7 @@ void Menu_GameSettings_Default(void)
 {
     
 	int idx = 0;
-	for( CScriptableVars::iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 	{
 		if( it->first.find("GameOptions.GameInfo.") != 0 )
 			continue;

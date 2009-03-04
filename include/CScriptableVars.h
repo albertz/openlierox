@@ -180,14 +180,15 @@ public:
 		return m_instance->m_vars;
 	}
 	
-	typedef std::map< std::string, ScriptVarPtr_t > :: const_iterator iterator;
+	typedef std::map< std::string, ScriptVarPtr_t > VarMap;
+	typedef VarMap :: const_iterator const_iterator;
 
-	static iterator begin()
+	static const_iterator begin()
 	{ 
 		Init();
 		return m_instance->m_vars.begin();
 	}
-	static iterator end()
+	static const_iterator end()
 	{ 
 		Init();
 		return m_instance->m_vars.end();

@@ -133,10 +133,9 @@ static inline std::string ReadQuotedParam(const std::string& str, int *param_siz
 
 /////////////////////
 // Main command parsing function
-const std::vector<std::string>& ParseCommandMessage(const std::string& msg, bool ignore_blank_params)
+std::vector<std::string> ParseCommandMessage(const std::string& msg, bool ignore_blank_params)
 {
-	static std::vector<std::string> result;
-	result.clear();
+	std::vector<std::string> result;
 
 	// Checks
 	if (msg == "")
