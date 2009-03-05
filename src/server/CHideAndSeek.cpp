@@ -29,7 +29,7 @@ void CHideAndSeek::PrepareGame()
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cServer->getWorms()[i], false);
-		fWarmupTime[i] = tLX->fCurTime - cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
+		fWarmupTime[i] = cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
 		/*
 		// Set all the lives to 0
 		cWorms[i].setLives(0);
@@ -64,7 +64,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 		else if(cServer->getWorms()[i].isUsed())
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm);
 	}
-	fWarmupTime[worm->getID()] = tLX->fCurTime - cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
+	fWarmupTime[worm->getID()] = cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
 	return false;
 }
 
@@ -315,9 +315,10 @@ void CHideAndSeek::GenerateTimes()
 		size = XLARGE;
 	// Calculate the ratio of hiders to seekers
 	float ratio = 1.0f;
+	// TODO: move that out here (to GameServer)
 	int worms[2] = { 0, 0 };
 	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed())
+		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() < 2)
 			worms[cServer->getWorms()[i].getTeam()]++;
 	if(worms[0] != 0 && worms[1] != 0)
 		ratio = (float)worms[0] / worms[1];
