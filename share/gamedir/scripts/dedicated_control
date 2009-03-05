@@ -45,7 +45,7 @@ try:
 except:
 	pass
 
-import dedicated_config as cfg # Per-host config like admin password
+import dedicated_config as cfg # Per-host config
 import dedicated_control_handler as hnd # control handler
 import dedicated_control_io as io # control handler
 

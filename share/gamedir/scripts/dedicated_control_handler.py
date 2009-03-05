@@ -103,10 +103,7 @@ def init():
 	initLevelList()
 	initModList()
 
-	# Allow the user to log in using the /login command
-	io.setvar("GameOptions.Network.Password", cfg.ADMIN_PASSWORD)  # TODO: this is visible in dedicated server output
-
-	io.startLobby(cfg.SERVER_PORT)
+	io.startLobby(0)
 
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )

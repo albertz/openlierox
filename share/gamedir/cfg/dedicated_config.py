@@ -9,7 +9,6 @@
 # has got script.lgs in it). Current way sounds sucky to me.
 
 # TODO: move that to options.cfg
-ADMIN_PASSWORD = "secret" # Change it! should be single word without spaces, yet symbols ~!@#$%^&* are encouraged
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
 
 # Where to log what is happening
@@ -55,9 +54,6 @@ if MAX_TEAMS >= 3:
 if MAX_TEAMS >= 4:
 	TEAM_CHANGE_MESSAGE += "/y"
 
-# TODO: remove that, should take the settings from options.cfg
-SERVER_PORT = 23400 # On which port to host a server - better if it's different from the port in your game settings
-SERVER_MAX_UPLOAD_LIMIT = 40000
 
 RANKING = 1 # Should we allow !rank user command
 RANKING_AUTHENTICATION = 0 # Should we authenticate worm by it's skin color (pretty weak, but !password cmd is kinda ugly)
