@@ -42,9 +42,9 @@ void RestoreState()
 		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
 };
 
-unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum )
+unsigned CalculatePhysics( unsigned gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
-	//cClient->Simulation();
+	//cClient->NewNet_Simulation();
 	return 0;
 };
 
@@ -53,12 +53,38 @@ void DisableAdvancedFeatures()
 	 // Disables bonuses and connect-during-game for now, 
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
-	 tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
-	 tLXOptions->tGameInfo.bRespawnGroupTeams = false;
-	 tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
+	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
+	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
+	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
 	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
 	 tLXOptions->tGameInfo.bAllowStrafing = false;
-	 *cClient->getGameLobby() = tLXOptions->tGameInfo;
+	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
+};
+
+void CalculateCurrentState( unsigned long localTime );
+bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs );
+
+bool Frame( CBytestream * bs )
+{
+	unsigned long localTime = tLX->fCurTime * 1000;
+	KeyState_t keys;
+	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+	{
+		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) cClient->getWorm(0)->inputHandler();
+		keys.keys[K_UP] = hnd->getInputUp().isDown();
+		keys.keys[K_DOWN] = hnd->getInputDown().isDown();
+		keys.keys[K_LEFT] = hnd->getInputLeft().isDown();
+		keys.keys[K_RIGHT] = hnd->getInputRight().isDown();
+		keys.keys[K_SHOOT] = hnd->getInputShoot().isDown();
+		keys.keys[K_JUMP] = hnd->getInputJump().isDown();
+		keys.keys[K_SELWEAP] = hnd->getInputWeapon().isDown();
+		keys.keys[K_ROPE] = hnd->getInputRope().isDown();
+		if( tLXOptions->bOldSkoolRope )
+			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
+	};
+	bool ret = SendNetPacket( localTime, keys, bs );
+	CalculateCurrentState( localTime );
+	return ret;
 };
 
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
@@ -85,16 +111,41 @@ unsigned long CurrentTimeMs; // In milliseconds
 unsigned long BackupTime;	// In TICK_TIME chunks
 unsigned long ClearEventsLastTime;
 
-// Sorted by time and player - time in TICK_TIME chunks
-typedef std::map< unsigned long, std::map< int, KeyState_t > > EventList_t;
-EventList_t Events;
+struct KeysEvent_t
+{
+	KeyState_t keys;
+	KeyState_t keysChanged;
+};
+
+// Sorted by player and time - time in TICK_TIME_DIV chunks
+typedef std::map< int, KeysEvent_t > EventList_t;
+EventList_t Events [MAX_WORMS];
 std::vector< KeyState_t > OldKeys;
-std::vector< unsigned long > LastPacketTime; // Time in TICK_TIME chunks
+std::vector< unsigned long > LastPacketTime; // Time in TICK_TIME_DIV chunks
 unsigned Checksum;
 unsigned long ChecksumTime; // Time in ms
 unsigned long InitialRandomSeed; // Used for LoadState()/SaveState()
 int player2netID[MAX_WORMS];
 int net2playerID[MAX_WORMS];
+
+void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
+{
+	for( int i=0; i<MAX_WORMS; i++ )
+	{
+		EventList_t :: const_iterator it = Events[i].upper_bound(t);
+		if( it != Events[i].begin() )
+		{
+			--it;
+			keys[i] = it->second.keys;
+			keysChanged[i] = it->second.keysChanged;
+		}
+		else
+		{
+			keys[i] = KeyState_t();
+			keysChanged[i] = KeyState_t();
+		}
+	}
+};
 
 void Activate( unsigned long localTime, unsigned long randomSeed )
 {
@@ -107,13 +158,16 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 				net2playerID[i] = -1;
 			}
 			for( int i=0; i<MAX_WORMS; i++ )
+			{
+				Events[i].clear();
 				if( cClient->getRemoteWorms()[i].isUsed() )
 				{
 					player2netID[NumPlayers] = cClient->getRemoteWorms()[i].getID();
 					net2playerID[ cClient->getRemoteWorms()[i].getID() ] = NumPlayers;
 					NumPlayers ++;
-					cClient->getRemoteWorms()[i].NewNet_random = netRandom;
+					cClient->getRemoteWorms()[i].NewNet_random.seed(randomSeed + i);
 				};
+			}
 			LocalPlayer = -1;
 			if( cClient->getNumWorms() > 0 )
 				LocalPlayer = net2playerID[cClient->getWorm(0)->getID()];
@@ -124,7 +178,6 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 			ClearEventsLastTime = 0;
 			Checksum = 0;
 			ChecksumTime = 0;
-			Events.clear();
 			OldKeys.clear();
 			OldKeys.resize(MAX_PLAYERS);
 			LastPacketTime.clear();
@@ -167,16 +220,17 @@ void ReCalculateSavedState()
 	if( CurrentTimeMs != BackupTime * TICK_TIME_DIV )	// Last recalc time
 		RestoreState();
 
-	std::map< int, KeyState_t > emptyEvent;
 	while( BackupTime /* + DrawDelayMs / TICK_TIME_DIV */ + 1 < timeMin )
 	{
 		BackupTime++;
 		CurrentTimeMs = BackupTime * TICK_TIME_DIV;
 		bool calculateChecksum = CurrentTimeMs % CalculateChecksumTime == 0;
-		unsigned checksum = CalculatePhysics(
-			CurrentTimeMs,
-			Events.find(BackupTime) != Events.end() ? Events[BackupTime] : emptyEvent,
-			false, calculateChecksum );	// Do the true thorough calculations
+
+		KeyState_t keys[MAX_WORMS];
+		KeyState_t keysChanged[MAX_WORMS];
+		getKeysForTime( BackupTime, keys, keysChanged );
+
+		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
 		{
 			Checksum = checksum;
@@ -189,11 +243,14 @@ void ReCalculateSavedState()
 	CurrentTimeMs = BackupTime * TICK_TIME_DIV;
 
 	// Clean up old events - do not clean them if we're the server, clients may ask for them.
+	/*
+	// TODO: ensure every worm has at least one event left in the array, that's why commented this code out
 	if( BackupTime - ClearEventsLastTime > 100 && LocalPlayer != 0 )
 	{
 		ClearEventsLastTime = BackupTime;
 		Events.erase(Events.begin(), Events.lower_bound( BackupTime - 2 ));
 	};
+	*/
 	QuickDirtyCalculation = true;
 };
 
@@ -206,15 +263,15 @@ void CalculateCurrentState( unsigned long localTime )
 
 	//printf("Draw() time %lu oldtime %lu\n", localTime / TICK_TIME , CurrentTimeMs / TICK_TIME );
 
-	std::map< int, KeyState_t > emptyEvent;
-
 	while( CurrentTimeMs < localTime /*- DrawDelayMs*/ )
 	{
 		CurrentTimeMs += TICK_TIME_DIV;
-		CalculatePhysics( CurrentTimeMs,
-			Events.find(CurrentTimeMs / TICK_TIME_DIV) != Events.end() ?
-			Events[CurrentTimeMs / TICK_TIME_DIV] : emptyEvent,
-			true, false );	// Do fast inexact calculations
+
+		KeyState_t keys[MAX_WORMS];
+		KeyState_t keysChanged[MAX_WORMS];
+		getKeysForTime( CurrentTimeMs / TICK_TIME_DIV, keys, keysChanged );
+
+		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
 };
 
@@ -251,7 +308,9 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 		keys.keys[keyIdx] = ! keys.keys[keyIdx];
 
 	OldKeys[ player ] = keys;
-	Events[ fullTime ] [ player ] = keys;
+	Events[ player ] [ fullTime ] .keys = keys;
+	if( keyIdx != UCHAR_MAX )
+		Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx];
 	LastPacketTime[ player ] = fullTime;
 
 	ReCalculationNeeded = true;
@@ -287,7 +346,9 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 		bs->writeByte( changedKeyIdx );
 		OldKeys[ LocalPlayer ].keys[ changedKeyIdx ] = ! OldKeys[ LocalPlayer ].keys[ changedKeyIdx ];
 	}
-	Events[ localTime ] [ LocalPlayer ] = OldKeys[ LocalPlayer ];
+	Events[ LocalPlayer ] [ localTime ] .keys = OldKeys[ LocalPlayer ];
+	if( changedKeyIdx != -1 )
+		Events[ LocalPlayer ] [ localTime ] .keysChanged.keys[changedKeyIdx] = ! Events[ LocalPlayer ] [ localTime ] .keysChanged.keys[changedKeyIdx];
 
 	LastPacketTime[ LocalPlayer ] = localTime;
 
@@ -295,13 +356,6 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 		ReCalculationNeeded = true;
 
 	return true;
-};
-
-bool Frame( unsigned long localTime, KeyState_t keys, CBytestream * bs )
-{
-	bool ret = SendNetPacket( localTime, keys, bs );
-	CalculateCurrentState( localTime );
-	return ret;
 };
 
 unsigned GetChecksum( unsigned long * time )

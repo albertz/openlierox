@@ -94,7 +94,7 @@ bool ReceiveNetPacket( CBytestream * bs, int player );
 // Calculates and draws the mod, returns true if there's something to send -
 // should be called in a cycle, may send several packets in one frame, we should send them all as one packet over net
 // Keys are keys for local player
-bool Frame( unsigned long localTime, KeyState_t keys, CBytestream * bs );
+bool Frame( CBytestream * bs );
 
 // Returns packet size without player ID.
 int NetPacketSize();
@@ -125,7 +125,7 @@ void RestoreState();
 // as long as the game image on the screen will look smooth - we will discard that results anyway.
 // Keys is the state of keys for given player.
 // If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
-unsigned CalculatePhysics( unsigned gameTime, const std::map< int, KeyState_t > &keys, bool fastCalculation, bool calculateChecksum );
+unsigned CalculatePhysics( unsigned gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum );
 
 void ReCalculateSavedState();
 
