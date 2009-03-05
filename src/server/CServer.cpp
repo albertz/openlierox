@@ -1122,13 +1122,13 @@ void GameServer::CheckWeaponSelectionTime()
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
-	};
+	}
 	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 &&
 		iWeaponSelectionTime_Warning == 0 )
 	{
 		iWeaponSelectionTime_Warning = 1;
 		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
-	};
+	}
 	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->fCurTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
 	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->tGameInfo.iWeaponSelectionMaxTime )
 	{
@@ -1151,9 +1151,9 @@ void GameServer::CheckWeaponSelectionTime()
 				continue;
 			}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
-		};
-	};
-};
+		}
+	}
+}
 
 ///////////////////
 // Drop a client

@@ -11,6 +11,8 @@
 #include "CClient.h"
 #include "CMap.h"
 #include "CWorm.h"
+#include "ProfileSystem.h"
+#include "CWormHuman.h"
 
 namespace NewNet
 {
@@ -66,7 +68,7 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 
 bool Frame( CBytestream * bs )
 {
-	unsigned long localTime = tLX->fCurTime * 1000;
+	unsigned long localTime = (unsigned long) (tLX->fCurTime * 1000);
 	KeyState_t keys;
 	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
 	{
