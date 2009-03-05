@@ -84,10 +84,10 @@ LEVELS = [	"FossilFacility.lxl",
 			"RIP_Home.lxl",
 			"Sunrise_Mansion.lxl",
 			"wormmountain.lxl",
-			"Hood Alien",
-			"Fight Box",
-			"Duel",
-			"Tetris v2"
+			"Alien Hood.lxl",
+			"FightBox.lxl",
+			"Duel.lxl",
+			"Tetrisv2.lxl"
 		]
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
