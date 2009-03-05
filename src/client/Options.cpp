@@ -209,7 +209,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other )
 		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other )
-		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 360, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons )
+		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 30, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons )
 		;
 
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
