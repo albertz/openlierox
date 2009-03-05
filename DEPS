@@ -18,8 +18,9 @@ Gentoo: media-libs/sdl-image
 tested versions: 1.2.5
 
 -- hawknl
+* builtin version possible
 Gentoo: dev-games/hawknl
-Debian: no deb-package found, you have to install it manually, or use built-in hawknl
+Debian: no deb-package found, you have to install it manually
 tested versions: 1.68
 
 -- gd
@@ -33,6 +34,7 @@ Debian: zlib1g-dev
 tested versions: 1.2.3
 
 -- libzip
+* builtin version possible
 Gentoo: dev-libs/libzip
 Debian: libzip-dev
 tested version: 0.8
