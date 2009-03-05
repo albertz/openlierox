@@ -558,7 +558,7 @@ void GameServer::gotoLobby(void)
 // Called iff game state has changed (e.g. player left etc.)
 void GameServer::RecheckGame(void)
 {
-	if(bGameOver)
+	if(bGameOver || iState != SVS_PLAYING)
 		return;
 	if(getGameMode()->CheckGameOver())
 		GameOver();
