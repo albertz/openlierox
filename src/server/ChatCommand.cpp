@@ -1058,6 +1058,12 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	if(varptr.type == SVT_CALLBACK)
 		return "Callbacks are not allowed";
 	
+	if( varptr.s == &tLXOptions->sServerPassword ) {
+		if(params.size() == 1) return "The password cannot be shown";
+		if(!cl->getRights()->Dedicated)
+			return "You can only set the password with Dedicated priviliges";
+	}
+	
 	if(!w->isUsed()) return "Invalid worm";
 	if(!w->getClient()) return "Invalid worm with no client";
 
