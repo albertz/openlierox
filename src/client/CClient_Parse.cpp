@@ -152,9 +152,9 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	client->iChallenge = bs->readInt(4);
 	if( ! bs->isPosAtEnd() ) {
 		client->setServerVersion( bs->readString(128) );
-		printf("CClient: connected to %s server\n", client->getServerVersion().asString().c_str());
+		notes << "CClient: connected to " << client->getServerVersion().asString() << " server" << endl;
 	} else
-		printf("CClient: connected to old (<= OLX beta3) server\n");
+		notes << "CClient: connected to old (<= OLX beta3) server" << endl;
 
 	// TODO: move this out here
 	// Tell the server we are connecting, and give the server our details
@@ -532,7 +532,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 // Parse a prepare game packet
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
-	printf("Got ParsePrepareGame\n");
+	notes << "Client: Got ParsePrepareGame" << endl;
 
 	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
 		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
@@ -686,7 +686,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	}
 
-	PhysicsEngine::Get()->initGame(client->cMap, client);
+	PhysicsEngine::Get()->initGame();
 
 	client->cGameScript = cCache.GetMod( client->sModName );
 	if( client->cGameScript.get() == NULL )
@@ -964,6 +964,10 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		return;
 	}
 
+	if(x == 0 || y == 0) {
+		hints << "spawned in strange pos (" << x << "," << y << "), could be a bug" << endl;
+	}
+	
 	CVec p = CVec( (float)x, (float)y );
 
 	if (id < 0 || id >= MAX_PLAYERS)  {
@@ -1680,11 +1684,8 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 {
 	byte count = bs->readByte();
-	if (count >= MAX_WORMS || client->iNetStatus != NET_PLAYING)  {
-		if (client->iNetStatus != NET_PLAYING)
-			printf("CClientNetEngine::ParseUpdateWorms: not playing, ignored\n");
-		else
-			printf("CClientNetEngine::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
+	if (count > MAX_WORMS)  {
+		hints << "CClientNetEngine::ParseUpdateWorms: invalid worm count (" << count << ")" << endl;
 
 		// Skip to the right position
 		for (byte i=0;i<count;i++)  {
@@ -1695,19 +1696,32 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 
+	if(client->getMap() == NULL) {
+		hints << "CClientNetEngine::ParseUpdateWorms: received update without initialised map" << endl;
+		
+		// Skip to the right position
+		for (byte i=0;i<count;i++)  {
+			bs->Skip(1);
+			CWorm::skipPacketState(bs);
+		}
+		
+		return;
+	}
+	
 	byte id;
 
 	for(byte i=0;i<count;i++) {
 		id = bs->readByte();
 
 		if (id >= MAX_WORMS)  {
-			printf("CClientNetEngine::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
+			hints << "CClientNetEngine::ParseUpdateWorms: invalid worm ID (" << id << ")" << endl;
 			if (CWorm::skipPacketState(bs))  {  // Skip not to lose the right position
 				break;
 			}
 			continue;
 		}
 
+		// TODO: what is with that check? remove if outdated
 		/*if (!cRemoteWorms[id].isUsed())  {
 			i--;
 			continue;
@@ -2004,11 +2018,11 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 // Parse a 'goto lobby' packet
 void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
-	printf("Client: received gotoLobby signal\n");
+	notes << "Client: received gotoLobby signal" << endl;
 
 	if (tLX->iGameType != GME_JOIN)  {
 		if (!tLX->bQuitEngine)  {
-			printf("WARNING: we should go to lobby but should not quit the game, ignoring game over signal\n");
+			warnings << "we should go to lobby but should not quit the game, ignoring game over signal" << endl;
 			return;
 		}
 	}

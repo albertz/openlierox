@@ -166,6 +166,7 @@ CVec GameServer::FindSpot(void)
 	cMap->unlockFlags();
 
 	// Can't get here
+	errors << "FindSpot(): didnt found anything!" << endl;
 	return CVec((float)x, (float)y);
 }
 
@@ -469,7 +470,7 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 // Go back to the lobby
 void GameServer::gotoLobby(void)
 {
-	printf("gotoLobby\n");
+	notes << "gotoLobby" << endl;
 
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );

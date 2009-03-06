@@ -40,7 +40,7 @@ public:
 
 	virtual std::string name() = 0; // get a name of the implementation
 
-	virtual void initGame( CMap* map, CClient* client ) = 0; // init a new game (sets map etc.)
+	virtual void initGame() = 0; // init a new game
 	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
 	virtual bool isInitialised() = 0; // tells if the engine is inited
 

@@ -169,7 +169,7 @@ void CClient::Simulation(void)
 	// Entities
 	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
 	if(!bDedicated)
-		SimulateEntities(tLX->fDeltaTime, cMap);
+		SimulateEntities(tLX->fDeltaTime);
 
 	// Weather
 	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine

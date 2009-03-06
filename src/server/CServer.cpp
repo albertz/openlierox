@@ -180,7 +180,7 @@ int GameServer::StartServer()
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
 	NetAddrToString(addr, tLX->debug_string);
-	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
+	hints << "server started on " <<  tLX->debug_string;
 
 	// Initialize the clients
 	cClients = new CServerConnection[MAX_CLIENTS];
@@ -301,10 +301,10 @@ int GameServer::StartGame()
 	CBytestream bs;
 	float timer;
 	
-	printf("GameServer::StartGame() mod %s\n", tLXOptions->tGameInfo.sModName.c_str());
+	notes << "GameServer::StartGame() mod " << tLXOptions->tGameInfo.sModName << endl;
 
 	// Check
-	if (!cWorms) { printf("ERROR: StartGame(): Worms not initialized\n"); return false; }
+	if (!cWorms) { errors << "StartGame(): Worms not initialized" << endl; return false; }
 	
 	CWorm *w = cWorms;
 	for (int p = 0; p < MAX_WORMS; p++, w++) {
@@ -352,14 +352,16 @@ int GameServer::StartGame()
 
 	} else {
 	*/
+	{
 		timer = SDL_GetTicks()/1000.0f;
 		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
 		}
-		printf("Map loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
-
+		notes << "Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
+	}
+	
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
@@ -375,7 +377,7 @@ int GameServer::StartGame()
 			return false;
 		}
 	}
-	printf("Mod loadtime: %f seconds\n",(float)(SDL_GetTicks()/1000.0f) - timer);
+	notes << "Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 
 	// Load & update the weapon restrictions
 	cWeaponRestrictions.loadList(sWeaponRestFile);
@@ -458,7 +460,7 @@ int GameServer::StartGame()
 		}
 	}
 	
-	PhysicsEngine::Get()->initGame( cMap, cClient );
+	PhysicsEngine::Get()->initGame();
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
@@ -580,6 +582,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		}
 
 		// Prepare the gamemode
+		notes << "preparing game mode " << getGameMode()->Name() << endl;
 		getGameMode()->PrepareGame();
 	}
 
@@ -923,7 +926,7 @@ void GameServer::RegisterServerUdp(void)
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
-		printf("Registering on UDP masterserver %s\n", tUdpMasterServers[f].c_str());
+		notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		NetworkAddr addr;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;

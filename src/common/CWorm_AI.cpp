@@ -1731,7 +1731,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		float y = (p.a * x * x + p.b *x + p.c);
 
 		// Rock or dirt, trajectory not free
-		if (CProjectile::CheckCollision(wpnproj, 1, cClient->getMap(), CVec(x, y), CVec(x_vel, y - last_y)))
+		if (CProjectile::CheckCollision(wpnproj, 1, CVec(x, y), CVec(x_vel, y - last_y)))
 			return false;
 
 		last_y = y;
@@ -2975,7 +2975,7 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 	return result;
 }
 
-/*CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *cClient->getMap())
+/*CVec NEW_AI_FindBestSpot(CVec trg, CVec pos)
 {
 	// Get the midpoint
 	CVec middle = CVec((pos.x+trg.x)/2,(pos.y+trg.y)/2);

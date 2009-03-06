@@ -1062,7 +1062,7 @@ void CClient::DrawProjectiles(SDL_Surface * bmpDest, CViewport *v)
 void CClient::DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v)
 {
 	for(Iterator<CProjectile*>::Ref i = cProjectiles.begin(); i->isValid(); i->next()) {
-		i->get()->DrawShadow(bmpDest, v, cMap);
+		i->get()->DrawShadow(bmpDest, v);
 	}
 }
 

@@ -84,7 +84,7 @@ void	ClearEntities(void);
 
 void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img);
 void	DrawEntities(SDL_Surface * bmpDest, CViewport *v);
-void	SimulateEntities(float dt, CMap *map);
+void	SimulateEntities(float dt);
 void	EntityBounce(entity_t *ent);
 
 

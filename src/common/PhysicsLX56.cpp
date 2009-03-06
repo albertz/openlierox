@@ -30,18 +30,16 @@
 
 class PhysicsLX56 : public PhysicsEngine {
 public:
-	CMap* m_map;
-	CClient* m_client;
 	bool m_inited;
 
 // ---------
-	PhysicsLX56() : m_map(NULL), m_inited(false) {}
+	PhysicsLX56() : m_inited(false) {}
 	virtual ~PhysicsLX56() { uninitGame(); }
 
 	virtual std::string name() { return "LX56 physics"; }
 
-	virtual void initGame( CMap* m, CClient* c ) { m_map = m; m_client = c; m_inited = true; }
-	virtual void uninitGame() { m_map = NULL; m_client = NULL; m_inited = false; }
+	virtual void initGame() { m_inited = true; }
+	virtual void uninitGame() { m_inited = false; }
 	virtual bool isInitialised() { return m_inited; }
 
 
@@ -51,14 +49,14 @@ public:
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
 	bool moveAndCheckWormCollision(float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
-		static const int maxspeed2 = 10; // this should not be too high as we could run out of the m_map without checking else
+		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
 
 		// Can happen when starting a game
-		if (!m_map)
+		if (!cClient->getMap())
 			return false;
 
 		// check if the vel is really too high (or infinity), in this case just ignore
-		if( (*vel*dt).GetLength2() > (float)m_map->GetWidth() * (float)m_map->GetHeight() )
+		if( (*vel*dt).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
 			return true;
 
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
@@ -81,12 +79,12 @@ public:
 		bool coll = false;
 		bool check_needed = false;
 
-		const uchar* gridflags = m_map->getAbsoluteGridFlags();
-		uint grid_w = m_map->getGridWidth();
-		uint grid_h = m_map->getGridHeight();
-		uint grid_cols = m_map->getGridCols();
-		if(y-4 < 0 || (uint)y+5 >= m_map->GetHeight()
-		|| x-3 < 0 || (uint)x+3 >= m_map->GetWidth())
+		const uchar* gridflags = cClient->getMap()->getAbsoluteGridFlags();
+		uint grid_w = cClient->getMap()->getGridWidth();
+		uint grid_h = cClient->getMap()->getGridHeight();
+		uint grid_cols = cClient->getMap()->getGridCols();
+		if(y-4 < 0 || (uint)y+5 >= cClient->getMap()->GetHeight()
+		|| x-3 < 0 || (uint)x+3 >= cClient->getMap()->GetWidth())
 			check_needed = true; // we will check later, what to do here
 		else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
 		|| (gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
@@ -95,7 +93,7 @@ public:
 		|| (gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)))
 			check_needed = true;
 
-		if(check_needed && y >= 0 && (uint)y < m_map->GetHeight()) {
+		if(check_needed && y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
 			for(x=-3;x<4;x++) {
 				// Optimize: pixelflag++
 
@@ -112,8 +110,8 @@ public:
 				}
 
 				// Right side clipping
-				if(pos.x+x >= m_map->GetWidth()) {
-					worm->pos().x=( (float)m_map->GetWidth() - 5 );
+				if(pos.x+x >= cClient->getMap()->GetWidth()) {
+					worm->pos().x=( (float)cClient->getMap()->GetWidth() - 5 );
 					coll = true;
 					clip |= 0x02;
 					if(fabs(vel->x) > 40)
@@ -124,7 +122,7 @@ public:
 				}
 
 
-				if(!(m_map->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
+				if(!(cClient->getMap()->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
 					coll = true;
 
 					if(x<0) {
@@ -150,7 +148,7 @@ public:
 		bool hit = false;
 		x = (int)pos.x;
 
-		if(check_needed && x >= 0 && (uint)x < m_map->GetWidth()) {
+		if(check_needed && x >= 0 && (uint)x < cClient->getMap()->GetWidth()) {
 			for(y=5;y>-5;y--) {
 				// Optimize: pixelflag + Width
 
@@ -167,8 +165,8 @@ public:
 				}
 
 				// Bottom side clipping
-				if(pos.y+y >= m_map->GetHeight()) {
-					worm->pos().y=( (float)m_map->GetHeight() - 5 );
+				if(pos.y+y >= cClient->getMap()->GetHeight()) {
+					worm->pos().y=( (float)cClient->getMap()->GetHeight() - 5 );
 					clip |= 0x08;
 					coll = true;
 					worm->setOnGround( true );
@@ -180,7 +178,7 @@ public:
 				}
 
 
-				if(!(m_map->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
+				if(!(cClient->getMap()->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
 					coll = true;
 
 					if(!hit && !jump) {
@@ -272,13 +270,13 @@ public:
 				4) weapons selected
 			*/
 
-		if(m_client && local && !m_client->isGameMenu() && !m_client->isChatTyping() && !m_client->isGameOver() && !Con_IsVisible() && worm->getWeaponsReady()) {
+		if(cClient && local && !cClient->isGameMenu() && !cClient->isChatTyping() && !cClient->isGameOver() && !Con_IsVisible() && worm->getWeaponsReady()) {
 			int old_weapon = worm->getCurrentWeapon();
 
 			worm->getInput();
 			
 			if (worm->isShooting() || old_weapon != worm->getCurrentWeapon())  // The weapon bar is changing
-				m_client->shouldRepaintInfo() = true;
+				cClient->shouldRepaintInfo() = true;
 		}
 
 		const gs_worm_t *wd = worm->getGameScript()->getWorm();
@@ -457,7 +455,7 @@ public:
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
-		CProjectile::CollisionType res = proj->SimulateFrame(dt, m_map, worms, &dt);
+		CProjectile::CollisionType res = proj->SimulateFrame(dt, cClient->getMap(), worms, &dt);
 
 
 		// HINT: in original LX, we have this simulate code with lower dt
@@ -568,7 +566,7 @@ public:
 			damage = pi->PlyHit_Damage;
 
 		if(damage != -1)
-			m_client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
 	void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -579,7 +577,7 @@ public:
 			damage = pi->PlyHit_Damage;
 
 		if(damage != -1)
-			m_client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
 	void projectile_doProjSpawn(CProjectile* const prj, float fSpawnTime) {
@@ -599,7 +597,7 @@ public:
 
 			CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
-			m_client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
+			cClient->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
@@ -623,26 +621,26 @@ public:
 
 			float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar * prj->getRandomFloat();
 
-			m_client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
+			cClient->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
 	void projectile_doMakeDirt(CProjectile* const prj) {
 		int damage = 5;
 		int d = 0;
-		d += m_map->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
-		d += m_map->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
-		d += m_map->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
+		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
+		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
+		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
 
 		// Remove the dirt count on the worm
-		m_client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
 	void projectile_doMakeGreenDirt(CProjectile* const prj) {
-		int d = m_map->PlaceGreenDirt(prj->GetPosition());
+		int d = cClient->getMap()->PlaceGreenDirt(prj->GetPosition());
 
 		// Remove the dirt count on the worm
-		m_client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
 	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
@@ -708,21 +706,21 @@ public:
 
 			// Carve
 			case PJ_CARVE:  {
-				int d = m_map->CarveHole(	pi->Timer_Damage, prj->GetPosition() );
+				int d = cClient->getMap()->CarveHole(	pi->Timer_Damage, prj->GetPosition() );
 				deleteAfter = true;
 
 				if(pi->Timer_Projectiles)
 					spawnprojectiles = true;
 
 				// Increment the dirt count
-				m_client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 			}
 			break;
 			}
 		}
 
 		// Simulate the projectile
-		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, m_client->getRemoteWorms(), &trailprojspawn, &deleteAfter );
+		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, cClient->getRemoteWorms(), &trailprojspawn, &deleteAfter );
 
 		/*
 		===================
@@ -750,17 +748,17 @@ public:
 
 				// Do we do a bounce-explosion (bouncy larpa uses this)
 				if(pi->Hit_BounceExplode > 0)
-					m_client->Explosion(prj->GetPosition(), pi->Hit_BounceExplode, false, prj->GetOwner());
+					cClient->Explosion(prj->GetPosition(), pi->Hit_BounceExplode, false, prj->GetOwner());
 			break;
 
 			// Carve
 			case PJ_CARVE:  {
-				int d = m_map->CarveHole(
+				int d = cClient->getMap()->CarveHole(
 					pi->Hit_Damage, prj->GetPosition());
 				deleteAfter = true;
 
 				// Increment the dirt count
-				m_client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
+				cClient->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
 			}
 			break;
 
@@ -809,7 +807,7 @@ public:
 					deleteAfter = true;
 					
 					// Add damage to the worm
-					m_client->InjureWorm(&m_client->getRemoteWorms()[result.wormId], pi->PlyHit_Damage, prj->GetOwner());
+					cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit_Damage, prj->GetOwner());
 				break;
 
 				// Bounce
@@ -837,7 +835,7 @@ public:
 				if(push_worm) {
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
-					CVec *v = m_client->getRemoteWorms()[result.wormId].getVelocity();
+					CVec *v = cClient->getRemoteWorms()[result.wormId].getVelocity();
 					*v += (d*100)*dt;
 				}
 
@@ -875,8 +873,8 @@ public:
 
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
-			// we use fCurTime (= the simulation time of the m_client) to simulate the spawing at this time
-			// because the spawing is caused probably by conditions of the environment like collision with worm/m_map
+			// we use fCurTime (= the simulation time of the cClient) to simulate the spawing at this time
+			// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
 			projectile_doSpawnOthers(prj, fCurTime);
 		}
 
@@ -903,14 +901,14 @@ public:
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
 	simulateProjectilesStart:
-		if(m_client->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
+		if(cClient->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
 
 		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 			CProjectile* p = i->get();
-			simulateProjectile( m_client->fLastSimulationTime, p );
+			simulateProjectile( cClient->fLastSimulationTime, p );
 		}
 
-		m_client->fLastSimulationTime += orig_dt;
+		cClient->fLastSimulationTime += orig_dt;
 		goto simulateProjectilesStart;
 	}
 
@@ -974,14 +972,14 @@ public:
 			rope->hookPos() += rope->hookVelocity() * dt;
 		}
 
-		bool outsidem_map = false;
+		bool outsideMap = false;
 
-		// Hack to see if the hook went out of the m_map
+		// Hack to see if the hook went out of the cClient->getMap()
 		if(!rope->isPlayerAttached())
 		if(
 				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
-				rope->hookPos().x >= m_map->GetWidth()-1 ||
-				rope->hookPos().y >= m_map->GetHeight()-1) {
+				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
+				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
 			rope->setShooting( false );
 			rope->setAttached( true );
 			rope->setPlayerAttached( false );
@@ -990,32 +988,32 @@ public:
 			rope->hookPos().x = ( MAX((float)0, rope->hookPos().x) );
 			rope->hookPos().y = ( MAX((float)0, rope->hookPos().y) );
 
-			rope->hookPos().x = ( MIN(m_map->GetWidth()-(float)1, rope->hookPos().x) );
-			rope->hookPos().y = ( MIN(m_map->GetHeight()-(float)1, rope->hookPos().y) );
+			rope->hookPos().x = ( MIN(cClient->getMap()->GetWidth()-(float)1, rope->hookPos().x) );
+			rope->hookPos().y = ( MIN(cClient->getMap()->GetHeight()-(float)1, rope->hookPos().y) );
 
-			outsidem_map = true;
+			outsideMap = true;
 		}
 
 
-		// Check if the hook has hit anything on the m_map
+		// Check if the hook has hit anything on the cClient->getMap()
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
-			LOCK_OR_QUIT(m_map->GetImage());
-			uchar px = outsidem_map ? PX_ROCK : m_map->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
-			if((px & PX_ROCK || px & PX_DIRT || outsidem_map)) {
+			LOCK_OR_QUIT(cClient->getMap()->GetImage());
+			uchar px = outsideMap ? PX_ROCK : cClient->getMap()->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
+			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
 				rope->setShooting( false );
 				rope->setAttached( true );
 				rope->setPlayerAttached( false );
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Uint32 col = GetPixel(m_map->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y);
+					Uint32 col = GetPixel(cClient->getMap()->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y);
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}
 			}
-			UnlockSurface(m_map->GetImage());
+			UnlockSurface(cClient->getMap()->GetImage());
 		}
 
 		// Check if the hook has hit another worm
@@ -1118,8 +1116,8 @@ public:
 		y = py-2;
 
 
-		mw = m_map->GetWidth();
-		mh = m_map->GetHeight();
+		mw = cClient->getMap()->GetWidth();
+		mh = cClient->getMap()->GetHeight();
 
 		for(y=py-2; y<=py+2; y++) {
 
@@ -1131,7 +1129,7 @@ public:
 				return;
 			}
 
-			const uchar *pf = m_map->GetPixelFlags() + y*mw + px-2;
+			const uchar *pf = cClient->getMap()->GetPixelFlags() + y*mw + px-2;
 
 			for(x=px-2; x<=px+2; x++) {
 
@@ -1161,7 +1159,7 @@ public:
 		if(!cClient->getGameLobby()->bBonusesOn)
 			return;
 
-		if(!m_map) return;
+		if(!cClient->getMap()) return;
 
 		CBonus *b = bonuses;
 

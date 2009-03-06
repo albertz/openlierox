@@ -180,8 +180,9 @@ void CProjectile::CalculateCheckSteps()
 
 ///////////////////////
 // Checks for collision with the level border
-bool CProjectile::MapBoundsCollision(int px, int py, CMap *map)
+bool CProjectile::MapBoundsCollision(int px, int py)
 {
+	CMap* map = cClient->getMap();
 	CollisionSide = 0;
 
 	if (px - iColSize < 0)
@@ -201,8 +202,9 @@ bool CProjectile::MapBoundsCollision(int px, int py, CMap *map)
 
 ////////////////////////////
 // Checks for collision with the terrain
-CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py, CMap *map)
+CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 {
+	CMap* map = cClient->getMap();
 	int xend = px + iColSize;
 	int yend = py + iColSize;
 
@@ -391,7 +393,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 	int py = (int)(vPosition.y);
 
 	// Hit edges
-	if (MapBoundsCollision(px, py, map))  {
+	if (MapBoundsCollision(px, py))  {
 		vPosition = vOldPos;
 		vVelocity = vOldVel;
 
@@ -404,7 +406,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 
 	// Check collision with the terrain
-	ColInfo c = TerrainCollision(px, py, map);
+	ColInfo c = TerrainCollision(px, py);
 
 	// Check for a collision
 	if(c.collided) {
@@ -422,9 +424,10 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 ///////////////////
 // Check for a collision (static version; doesnt do anything else then checking)
 // Returns true if there was a collision, otherwise false is returned
-int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel)
+int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 {
 	// Check if it hit the terrain
+	CMap* map = cClient->getMap();
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
@@ -438,12 +441,12 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	if( (vel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
 
-		int col = CheckCollision(tProjInfo,dt,map,pos,vel);
+		int col = CheckCollision(tProjInfo,dt,pos,vel);
 		if(col) return col;
 
 		pos += vel*dt;
 
-		return CheckCollision(tProjInfo,dt,map,pos,vel);
+		return CheckCollision(tProjInfo,dt,pos,vel);
 	}
 
 	pos += vel*dt;
@@ -576,11 +579,13 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 
 ///////////////////
 // Draw the projectiles shadow
-void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view, CMap *map)
+void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 {
 	if (tLX->fDeltaTime >= 0.1f) // Don't draw projectile shadows with FPS <= 10 to get a little better performance
 		return;
 
+	CMap* map = cClient->getMap();
+	
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 	int l = view->GetLeft();

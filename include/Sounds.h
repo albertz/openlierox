@@ -17,10 +17,6 @@
 #ifndef __SOUNDS_H__
 #define __SOUNDS_H__
 
-//#include "CViewport.h"
-//#include "CMap.h"
-//#include "Timer.h"
-
 #include "CVec.h"
 #include "SmartPointer.h"
 #include "types.h"

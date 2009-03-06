@@ -1091,16 +1091,16 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		if (addrFromStr.find("127.0.0.1") == 0)  { // Safety: check the IP
 			newcl->setLocalClient(true);
 			bLocalClientConnected = true;
-			printf("GameServer: our local client has connected\n");
+			notes << "GameServer: our local client has connected" << endl;
 		}
 	} else {
 		newcl->setLocalClient(false);
-		printf("GameServer: new %s client connected from %s\n", clientVersion.asString().c_str(), addrFromStr.c_str());
+		notes << "GameServer: new " << clientVersion.asString() << " client connected from " << addrFromStr << endl;
 	}
 
 	if( ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
 	{	// This should not happen - just in case
-		printf("Cannot create CChannel for client - invalid client version %s\n", clientVersion.asString().c_str() );
+		errors << "Cannot create CChannel for client - invalid client version " << clientVersion.asString() << endl;
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");

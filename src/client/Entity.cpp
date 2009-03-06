@@ -210,8 +210,9 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 ///////////////////
 // Simulate the entities
-void SimulateEntities(float dt, CMap *map)
+void SimulateEntities(float dt)
 {
+	CMap* map = cClient->getMap();
 	if (!map) { // Weird
 		printf("WARNING. SimulateEntities gots no map\n");
 		return;

@@ -225,12 +225,12 @@ public:
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface * bmpDest, CViewport *view);
-    void	DrawShadow(SDL_Surface * bmpDest, CViewport *view, CMap *map);
+    void	DrawShadow(SDL_Surface * bmpDest, CViewport *view);
 
 	int		CheckWormCollision(CWorm *worms);
 	int		ProjWormColl(CVec pos, CWorm *worms);
-	ColInfo	TerrainCollision(int px, int py, CMap *map);
-	bool	MapBoundsCollision(int px, int py, CMap *map);
+	ColInfo	TerrainCollision(int px, int py);
+	bool	MapBoundsCollision(int px, int py);
 	void	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
 	
 	struct CollisionType {
@@ -246,7 +246,7 @@ public:
 	};
 	
 	CollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
-	static int	CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel); // returns collision mask
+	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
 
 	void	Bounce(float fCoeff);
 
