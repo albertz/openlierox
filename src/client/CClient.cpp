@@ -1160,7 +1160,7 @@ void CClient::SendPackets(void)
 
 	// Send every second
 	// TODO: move this somewhere else
-	if (iNetStatus == NET_PLAYING && tLX->fCurTime - fMyPingRefreshed > 1) {
+	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && tLX->fCurTime - fMyPingRefreshed > 1) {
 		CBytestream ping;
 
 		// TODO: move this out here
