@@ -128,6 +128,8 @@ CVec GameServer::FindSpot(void)
 		}
 	}
 
+	int smallx = -1, smally = -1;
+	
 	// Start from the cell and go through until we get to an empty cell
 	while(true) {
 		while(true) {
@@ -136,6 +138,9 @@ CVec GameServer::FindSpot(void)
 			if(!first) {
 				if(px == x && py == y) {
 					cMap->unlockFlags();
+					
+					if(smallx >= 0 && smally >= 0) { x = smallx; y = smally; }
+					else errors << "FindSpot(): didn't found anything!" << endl;
 					return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 				}
 			}
@@ -151,6 +156,11 @@ CVec GameServer::FindSpot(void)
 				return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 			}
 
+			if( !(pf & PX_ROCK) ) {
+				// at least at this grid, we have some space, so save it as fallback
+				if(smallx < 0) { smallx = x; smally = y; }
+			}
+			
 			if(++y >= rows) {
 				y = 0;
 				break;
@@ -165,7 +175,7 @@ CVec GameServer::FindSpot(void)
 	cMap->unlockFlags();
 
 	// Can't get here
-	errors << "FindSpot(): didnt found anything!" << endl;
+	errors << "FindSpot(): strange error!" << endl;
 	return CVec((float)x, (float)y);
 }
 
