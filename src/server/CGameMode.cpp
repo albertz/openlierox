@@ -144,7 +144,7 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 
 bool CGameMode::CheckGameOver() {
 	// In game?
-	if (!cServer || cServer->getState() == SVS_LOBBY)
+	if (!cServer || cServer->getState() == SVS_LOBBY || cServer->getGameOver())
 		return true;
 
 	// Check if the timelimit has been reached
