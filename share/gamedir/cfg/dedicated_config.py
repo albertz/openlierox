@@ -39,9 +39,10 @@ GAME_MAX_KILLS = 15
 GAME_MAX_TIME = 7 # In minutes
 WEAPON_SELECTION_TIME = 40 # In seconds
 
-# TODO: This is unfair and I don't thing it is such a good idea.
+# TODO: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
+# pro-gamers perhaps want that.)
 # A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is). 
-MAX_PING = 800 # Max ping to auto-kick player
+MAX_PING = 30000 # Max ping to auto-kick player
 
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.
