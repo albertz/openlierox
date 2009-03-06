@@ -255,6 +255,7 @@ public:
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby
 	bool	bShowCountryFlags;
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
+	bool	bDedicatedUseBuiltinPython;		// Built-in Python is still buggy
 	
 	// Widget states
 	int		iInternetList[7];

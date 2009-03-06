@@ -161,6 +161,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->iRandomTeamForNewWorm, "Misc.RandomTeamForNewWorm", 0 )
+		( tLXOptions->bDedicatedUseBuiltinPython, "Misc.DedicatedUseBuiltinPython", false )
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )

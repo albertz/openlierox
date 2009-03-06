@@ -186,7 +186,7 @@ struct ScriptDedInterface : DedInterface {
 		{
 			std::string fpContents = ReadUntil( fp, '\n' );
 			fclose(fp);
-			if( fpContents.find("python") != std::string::npos )
+			if( fpContents.find("python") != std::string::npos && tLXOptions->bDedicatedUseBuiltinPython )
 				return loadScript_Python(script);
 		}
 #endif
