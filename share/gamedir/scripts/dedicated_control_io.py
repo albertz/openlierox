@@ -83,7 +83,7 @@ def getSignal():
 
 # Set a server variable
 def setvar(what, data):
-	SendCommand( "setvar %s %s" % (str(what), str(data)) )
+	SendCommand( "setvar %s \"%s\"" % (str(what), str(data)) )
 
 # Use this to make the server quit
 def Quit():
@@ -168,6 +168,16 @@ def getWormPing(iID):
 def getWormSkin(iID):
 	ret = SendCommand( "getwormskin %i" % int(iID) )
 	return ( int(ret[0]), ret[1].lower() )
+
+def getVar(var):
+	ret = SendCommand( "getvar %s" % var )
+	if len(ret) == 0: # var does not exist
+		return 0 # TODO: or exception? 
+	return ret[0]
+	
+def getGameType():
+	return int(getVar("GameOptions.GameInfo.GameType"))
+
 
 # Use this to write to stdout (standard output)
 def msg(string):

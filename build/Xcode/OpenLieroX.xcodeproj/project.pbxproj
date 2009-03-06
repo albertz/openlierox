@@ -34,6 +34,20 @@
 		23099D170F609F21008E6C7F /* dedicated_control_io.py in Resources */ = {isa = PBXBuildFile; fileRef = 23099D120F609F21008E6C7F /* dedicated_control_io.py */; };
 		23099D180F609F21008E6C7F /* dedicated_control_ranking.py in Resources */ = {isa = PBXBuildFile; fileRef = 23099D130F609F21008E6C7F /* dedicated_control_ranking.py */; };
 		23099D190F609F21008E6C7F /* dedicated_control_usercommands.py in Resources */ = {isa = PBXBuildFile; fileRef = 23099D140F609F21008E6C7F /* dedicated_control_usercommands.py */; };
+		23099D4B0F60C430008E6C7F /* dedicated_config.py in Resources */ = {isa = PBXBuildFile; fileRef = 23099D4A0F60C430008E6C7F /* dedicated_config.py */; };
+		23099D580F60C592008E6C7F /* Classic in Resources */ = {isa = PBXBuildFile; fileRef = 23099D4D0F60C592008E6C7F /* Classic */; };
+		23099D590F60C592008E6C7F /* Defaults in Resources */ = {isa = PBXBuildFile; fileRef = 23099D4E0F60C592008E6C7F /* Defaults */; };
+		23099D5A0F60C592008E6C7F /* FoodFight in Resources */ = {isa = PBXBuildFile; fileRef = 23099D4F0F60C592008E6C7F /* FoodFight */; };
+		23099D5B0F60C592008E6C7F /* Liero_1.11 in Resources */ = {isa = PBXBuildFile; fileRef = 23099D500F60C592008E6C7F /* Liero_1.11 */; };
+		23099D5C0F60C592008E6C7F /* ModernWarfare in Resources */ = {isa = PBXBuildFile; fileRef = 23099D510F60C592008E6C7F /* ModernWarfare */; };
+		23099D5D0F60C592008E6C7F /* Mortars in Resources */ = {isa = PBXBuildFile; fileRef = 23099D520F60C592008E6C7F /* Mortars */; };
+		23099D5E0F60C592008E6C7F /* MSF_II in Resources */ = {isa = PBXBuildFile; fileRef = 23099D530F60C592008E6C7F /* MSF_II */; };
+		23099D5F0F60C592008E6C7F /* Powerstruck-Dawn in Resources */ = {isa = PBXBuildFile; fileRef = 23099D540F60C592008E6C7F /* Powerstruck-Dawn */; };
+		23099D600F60C592008E6C7F /* Rifles in Resources */ = {isa = PBXBuildFile; fileRef = 23099D550F60C592008E6C7F /* Rifles */; };
+		23099D610F60C592008E6C7F /* Shock in Resources */ = {isa = PBXBuildFile; fileRef = 23099D560F60C592008E6C7F /* Shock */; };
+		23099D620F60C592008E6C7F /* TrickOrThreat in Resources */ = {isa = PBXBuildFile; fileRef = 23099D570F60C592008E6C7F /* TrickOrThreat */; };
+		23099D640F60C640008E6C7F /* HideAndSeek in Resources */ = {isa = PBXBuildFile; fileRef = 23099D630F60C640008E6C7F /* HideAndSeek */; };
+		23099DC00F60CA67008E6C7F /* 8Bit in Resources */ = {isa = PBXBuildFile; fileRef = 23099DBF0F60CA67008E6C7F /* 8Bit */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
@@ -420,6 +434,20 @@
 		23099D120F609F21008E6C7F /* dedicated_control_io.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dedicated_control_io.py; path = ../../share/gamedir/scripts/dedicated_control_io.py; sourceTree = SOURCE_ROOT; };
 		23099D130F609F21008E6C7F /* dedicated_control_ranking.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dedicated_control_ranking.py; path = ../../share/gamedir/scripts/dedicated_control_ranking.py; sourceTree = SOURCE_ROOT; };
 		23099D140F609F21008E6C7F /* dedicated_control_usercommands.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dedicated_control_usercommands.py; path = ../../share/gamedir/scripts/dedicated_control_usercommands.py; sourceTree = SOURCE_ROOT; };
+		23099D4A0F60C430008E6C7F /* dedicated_config.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dedicated_config.py; path = ../../share/gamedir/cfg/dedicated_config.py; sourceTree = SOURCE_ROOT; };
+		23099D4D0F60C592008E6C7F /* Classic */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Classic; path = ../../share/gamedir/scripts/presets/Classic; sourceTree = SOURCE_ROOT; };
+		23099D4E0F60C592008E6C7F /* Defaults */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Defaults; path = ../../share/gamedir/scripts/presets/Defaults; sourceTree = SOURCE_ROOT; };
+		23099D4F0F60C592008E6C7F /* FoodFight */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = FoodFight; path = ../../share/gamedir/scripts/presets/FoodFight; sourceTree = SOURCE_ROOT; };
+		23099D500F60C592008E6C7F /* Liero_1.11 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Liero_1.11; path = ../../share/gamedir/scripts/presets/Liero_1.11; sourceTree = SOURCE_ROOT; };
+		23099D510F60C592008E6C7F /* ModernWarfare */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = ModernWarfare; path = ../../share/gamedir/scripts/presets/ModernWarfare; sourceTree = SOURCE_ROOT; };
+		23099D520F60C592008E6C7F /* Mortars */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Mortars; path = ../../share/gamedir/scripts/presets/Mortars; sourceTree = SOURCE_ROOT; };
+		23099D530F60C592008E6C7F /* MSF_II */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = MSF_II; path = ../../share/gamedir/scripts/presets/MSF_II; sourceTree = SOURCE_ROOT; };
+		23099D540F60C592008E6C7F /* Powerstruck-Dawn */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = "Powerstruck-Dawn"; path = "../../share/gamedir/scripts/presets/Powerstruck-Dawn"; sourceTree = SOURCE_ROOT; };
+		23099D550F60C592008E6C7F /* Rifles */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Rifles; path = ../../share/gamedir/scripts/presets/Rifles; sourceTree = SOURCE_ROOT; };
+		23099D560F60C592008E6C7F /* Shock */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = Shock; path = ../../share/gamedir/scripts/presets/Shock; sourceTree = SOURCE_ROOT; };
+		23099D570F60C592008E6C7F /* TrickOrThreat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = TrickOrThreat; path = ../../share/gamedir/scripts/presets/TrickOrThreat; sourceTree = SOURCE_ROOT; };
+		23099D630F60C640008E6C7F /* HideAndSeek */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = HideAndSeek; path = ../../share/gamedir/scripts/presets/HideAndSeek; sourceTree = SOURCE_ROOT; };
+		23099DBF0F60CA67008E6C7F /* 8Bit */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = 8Bit; path = ../../share/gamedir/scripts/presets/8Bit; sourceTree = SOURCE_ROOT; };
 		230D021E0F0D804C00AFFFFF /* IRC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRC.h; sourceTree = "<group>"; };
 		230D021F0F0D804C00AFFFFF /* libirc_rfcnumeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libirc_rfcnumeric.h; sourceTree = "<group>"; };
 		230D02200F0D804C00AFFFFF /* Music.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Music.h; sourceTree = "<group>"; };
@@ -901,6 +929,8 @@
 		23099D0F0F609EEE008E6C7F /* Dedicated script */ = {
 			isa = PBXGroup;
 			children = (
+				23099D4C0F60C529008E6C7F /* presets */,
+				23099D4A0F60C430008E6C7F /* dedicated_config.py */,
 				23099D100F609F21008E6C7F /* dedicated_control */,
 				23099D110F609F21008E6C7F /* dedicated_control_handler.py */,
 				23099D120F609F21008E6C7F /* dedicated_control_io.py */,
@@ -908,6 +938,26 @@
 				23099D140F609F21008E6C7F /* dedicated_control_usercommands.py */,
 			);
 			name = "Dedicated script";
+			sourceTree = "<group>";
+		};
+		23099D4C0F60C529008E6C7F /* presets */ = {
+			isa = PBXGroup;
+			children = (
+				23099DBF0F60CA67008E6C7F /* 8Bit */,
+				23099D630F60C640008E6C7F /* HideAndSeek */,
+				23099D4D0F60C592008E6C7F /* Classic */,
+				23099D4E0F60C592008E6C7F /* Defaults */,
+				23099D4F0F60C592008E6C7F /* FoodFight */,
+				23099D500F60C592008E6C7F /* Liero_1.11 */,
+				23099D510F60C592008E6C7F /* ModernWarfare */,
+				23099D520F60C592008E6C7F /* Mortars */,
+				23099D530F60C592008E6C7F /* MSF_II */,
+				23099D540F60C592008E6C7F /* Powerstruck-Dawn */,
+				23099D550F60C592008E6C7F /* Rifles */,
+				23099D560F60C592008E6C7F /* Shock */,
+				23099D570F60C592008E6C7F /* TrickOrThreat */,
+			);
+			name = presets;
 			sourceTree = "<group>";
 		};
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
@@ -1512,6 +1562,20 @@
 				23099D170F609F21008E6C7F /* dedicated_control_io.py in Resources */,
 				23099D180F609F21008E6C7F /* dedicated_control_ranking.py in Resources */,
 				23099D190F609F21008E6C7F /* dedicated_control_usercommands.py in Resources */,
+				23099D4B0F60C430008E6C7F /* dedicated_config.py in Resources */,
+				23099D580F60C592008E6C7F /* Classic in Resources */,
+				23099D590F60C592008E6C7F /* Defaults in Resources */,
+				23099D5A0F60C592008E6C7F /* FoodFight in Resources */,
+				23099D5B0F60C592008E6C7F /* Liero_1.11 in Resources */,
+				23099D5C0F60C592008E6C7F /* ModernWarfare in Resources */,
+				23099D5D0F60C592008E6C7F /* Mortars in Resources */,
+				23099D5E0F60C592008E6C7F /* MSF_II in Resources */,
+				23099D5F0F60C592008E6C7F /* Powerstruck-Dawn in Resources */,
+				23099D600F60C592008E6C7F /* Rifles in Resources */,
+				23099D610F60C592008E6C7F /* Shock in Resources */,
+				23099D620F60C592008E6C7F /* TrickOrThreat in Resources */,
+				23099D640F60C640008E6C7F /* HideAndSeek in Resources */,
+				23099DC00F60CA67008E6C7F /* 8Bit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

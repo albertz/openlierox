@@ -1,0 +1,10 @@
+#!/usr/bin/python -u
+
+# just set some default stuff, it doesn't matter for Hide&Seek
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
+
+
+setvar("GameOptions.GameInfo.Lives", 0)
+setvar("GameOptions.GameInfo.GameType", 4)

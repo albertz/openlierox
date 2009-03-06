@@ -8,7 +8,7 @@
 # .. Why don't we deny access to everything except levels and mods (by checking if a directory
 # has got script.lgs in it). Current way sounds sucky to me.
 
-# TODO: move that to options.cfg
+# TODO: register commands in ChatCommand system
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
 
 # Where to log what is happening
@@ -47,7 +47,7 @@ MAX_PING = 30000 # Max ping to auto-kick player
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.
 # Users can enter some commands too
-USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "//"
+USER_PREFIX = ADMIN_PREFIX # Change to have custom user command prefix instead of "!"
 ALLOW_TEAM_CHANGE = True # Player should type "!b", "!r", "!g", or "!y" to set it's own team
 TEAM_CHANGE_MESSAGE = "Set your team with %steam b/r" % USER_PREFIX
 if MAX_TEAMS >= 3:
@@ -84,12 +84,18 @@ LEVELS = [	"FossilFacility.lxl",
 			"Alien Hood.lxl",
 			"FightBox.lxl",
 			"Duel.lxl",
-			"Tetrisv2.lxl"
+			"Tetrisv2.lxl",
+			"Dirt Level.lxl",
+			"HW-house.lxl",
+			"GammaComplex.lxl",
+			"Kirby_ice_cream_island.lxl",
+			"KitchenKombat.lxl",
+			"Labrinth.lxl"
 		]
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
-PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare" ]
+PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare", "HideAndSeek", "8Bit" ]
 
 # General options that should be set
 GLOBAL_SETTINGS = {	
