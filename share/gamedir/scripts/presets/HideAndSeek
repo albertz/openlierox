@@ -5,6 +5,9 @@ setvar( "GameOptions.GameInfo.ModName", "Classic" )
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
-
+# some good settings for this gametype
 setvar("GameOptions.GameInfo.Lives", 0)
+setvar("GameOptions.GameInfo.KillLimit", -1)
+
+# set hide&seek
 setvar("GameOptions.GameInfo.GameType", 4)
