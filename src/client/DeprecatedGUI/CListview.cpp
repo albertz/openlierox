@@ -799,6 +799,17 @@ void CListview::SetSortColumn(int column, bool ascending)
 	ReSort();
 }
 
+/////////////////
+// Get the sorted column index
+int CListview::GetSortColumn()
+{
+	int i = 0;
+	for (lv_column_t *col = tColumns; col; col=col->tNext,i++)
+		if (col->iSorted != -1)
+			return i;
+	return -1;
+}
+
 
 ///////////////////
 // Clear the items

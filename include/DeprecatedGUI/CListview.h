@@ -242,6 +242,7 @@ public:
 	void	SortBy(int column, bool ascending); // One-time sort
 	void	ReSort(void);
 	void	SetSortColumn(int column, bool ascending); // Permanent sort
+	int		GetSortColumn();
 
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);

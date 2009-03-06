@@ -260,6 +260,9 @@ public:
 	int		iInternetList[7];
 	int		iLANList[6];
 	int		iFavouritesList[6];
+	int		iInternetSortColumn;
+	int		iLANSortColumn;
+	int		iFavouritesSortColumn;
 
 	// Last used game details - used as game lobby structure in client
 	// Put everything that impacts gameplay here, both server and client-sided

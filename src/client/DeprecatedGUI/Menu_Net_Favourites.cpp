@@ -109,6 +109,8 @@ bool Menu_Net_FavouritesInitialize(void)
 	cFavourites.SendMessage( mf_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iFavouritesList[4]);
 	cFavourites.SendMessage( mf_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iFavouritesList[5]);
 
+	((CListview*) cFavourites.getWidget( mf_ServerList ))->SetSortColumn( tLXOptions->iFavouritesSortColumn, true ); // Sorting
+
 	// Fill the server list
 	Menu_SvrList_Clear();
 	Menu_SvrList_LoadList("cfg/favourites.dat");
@@ -141,6 +143,9 @@ void Menu_Net_FavouritesShutdown(void)
 			// Save the column widths
 			for (int i=0;i<6;i++)
 				tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+
+			// Save the sorting column
+			tLXOptions->iFavouritesSortColumn = ((CListview *)cFavourites.getWidget(mf_ServerList))->GetSortColumn();
 		}
 
 	}

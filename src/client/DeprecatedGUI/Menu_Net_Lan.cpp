@@ -107,6 +107,8 @@ bool Menu_Net_LANInitialize(void)
 	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iLANList[4]);
 	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iLANList[5]);
 
+	((CListview*) cLan.getWidget( nl_ServerList ))->SetSortColumn( tLXOptions->iLANSortColumn, true ); // Sorting
+
 	// Clear the server list
 	Menu_SvrList_Clear();
 	Menu_SvrList_PingLAN();
@@ -134,6 +136,9 @@ void Menu_Net_LANShutdown(void)
 			// Save the column widths
 			for (int i=0;i<6;i++)
 				tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+
+			// Save the sorting column
+			tLXOptions->iLANSortColumn = ((CListview *)cLan.getWidget(nl_ServerList))->GetSortColumn();
 		}
 	}
 

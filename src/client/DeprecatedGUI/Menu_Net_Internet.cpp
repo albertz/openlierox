@@ -122,7 +122,7 @@ bool Menu_Net_NETInitialize(void)
 
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[6]);
 
-	((CListview*) cInternet.getWidget( mi_ServerList ))->SetSortColumn( 4, true );	// Sort by ping
+	((CListview*) cInternet.getWidget( mi_ServerList ))->SetSortColumn( tLXOptions->iInternetSortColumn, true ); // Sorting
 
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
@@ -151,6 +151,9 @@ void Menu_Net_NETShutdown(void)
 			// Save the column widths
 			for (int i=0;i<7;i++)
 				tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+
+			// Save the sorting column
+			tLXOptions->iInternetSortColumn = ((CListview *)cInternet.getWidget(mi_ServerList))->GetSortColumn();
 		}
 
 		// Save the selected player

@@ -1027,9 +1027,6 @@ void ShutdownLieroX()
 	
 	ShutdownIRC(); // Disconnect from IRC
 
-	if(!bDedicated) // only save if not in dedicated mode
-		tLXOptions->SaveToDisc();
-
 	if (tLXOptions->bLogConvos)  {
 		FILE *f;
 
@@ -1083,6 +1080,11 @@ void ShutdownLieroX()
 		delete cServer;
 		cServer = NULL;
 	}
+
+	// TODO: this was initially at the top but it was changed to save the
+	// options set in Menu_Shutdown and cServer->Shutdown
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
 
 #ifdef WITH_G15
 	if (OLXG15)
