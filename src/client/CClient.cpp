@@ -1125,7 +1125,7 @@ void CClient::ReadPackets(void)
 		{
 			cNetEngine->ParsePacket(&bs);
 			bs.Clear();
-		};
+		}
 	}
 
 	// Check if our connection with the server timed out

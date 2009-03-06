@@ -152,7 +152,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bMatchLogging, "Advanced.MatchLogging", true )
 		( tLXOptions->bRecoverAfterCrash, "Advanced.RecoverAfterCrash", true )
 
-		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
+		( tLXOptions->bLogConvos, "Misc.LogConversations", false )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
@@ -192,7 +192,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", GIG_General, true, 0, 500 )
 		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true, "Bonuses", "Bonuses enabled", GIG_Bonus )
 		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show bonus name above its image", GIG_Bonus )
-		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 8, "Max players", "Max amount of players allowed on server", GIG_General, true, 1, 32 )
+		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 14, "Max players", "Max amount of players allowed on server", GIG_General, true, 1, 32 )
 		( tLXOptions->tGameInfo.sMapFile, "LevelName" ) // WARNING: confusing, it is handled like the filename
 		( &gameModeWrapper, "GameType", (int)GM_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
@@ -209,7 +209,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other )
 		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other )
-		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 30, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons )
+		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 40, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons )
 		;
 
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
