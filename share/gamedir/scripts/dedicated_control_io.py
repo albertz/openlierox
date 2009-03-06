@@ -10,8 +10,6 @@ import os
 import sys
 import traceback
 
-import dedicated_config  # Per-host config like admin password
-cfg = dedicated_config # shortcut
 
 OlxImported = False
 try:
@@ -23,9 +21,6 @@ except:
 	def RawSendCommand(X):
 		print X
 
-
-## Global vars (across all modules)
-import dedicated_control_handler as hnd
 
 ## Receiving functions ##
 
@@ -134,6 +129,7 @@ def setWormTeam_io(iID, team):
 
 
 def setWormTeam(iID, team):
+	import dedicated_control_handler as hnd
 	if iID in hnd.worms.keys() and hnd.worms[iID].iID != -1:
 		hnd.worms[iID].Team = team
 		setWormTeam_io(iID, team)
@@ -177,6 +173,9 @@ def getVar(var):
 	
 def getGameType():
 	return int(getVar("GameOptions.GameInfo.GameType"))
+
+def getFullFileName(fn):
+	return SendCommand( "getfullfilename \"%s\"" % fn )[0]
 
 
 # Use this to write to stdout (standard output)
@@ -223,6 +222,8 @@ def messageLog(message,severity):
 	outline += " -- "
 	outline += str(message) #incase we get anything other than string
 	try:
+		import dedicated_config  # Per-host config like admin password
+		cfg = dedicated_config # shortcut
 		f = open(cfg.LOG_FILE,"a")
 		f.write((outline + "\n"))
 		f.close()

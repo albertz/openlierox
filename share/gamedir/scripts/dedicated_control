@@ -13,41 +13,16 @@ import os, sys, time
 sys.path.append( os.getcwd() )
 sys.path.append( os.path.dirname(sys.argv[0]) )
 
-# Add dir with config file to module search path
-try:
-	os.listdir(os.getenv("HOME")+"/.OpenLieroX/cfg")
-	sys.path.append(os.getenv("HOME")+"/.OpenLieroX/cfg")
-except:
-	pass
+import dedicated_control_io as io # control handler
 
 # Add dir with config file to module search path
 try:
-	os.listdir(os.getenv("HOME")+"/Library/Application Support/OpenLieroX/cfg")
-	sys.path.append(os.getenv("HOME")+"/Library/Application Support/OpenLieroX/cfg")
-except:
-	pass
-
-try:
-	os.listdir(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg") # TODO: lame, use Python functions
-	sys.path.append(os.getenv("USERPROFILE")+"/My Documents/OpenLieroX/cfg")
-except:
-	pass
-
-try:
-	os.listdir(os.path.dirname(sys.argv[0])+"/../cfg")
-	sys.path.append(os.path.dirname(sys.argv[0])+"/../cfg")
-except:
-	pass
-
-try:
-	os.listdir("/etc/OpenLieroX/cfg")
-	sys.path.append("/etc/OpenLieroX/cfg")
+	sys.path.append(os.path.dirname(io.getFullFileName("cfg/dedicated_config.py")))
 except:
 	pass
 
 import dedicated_config as cfg # Per-host config
 import dedicated_control_handler as hnd # control handler
-import dedicated_control_io as io # control handler
 
 ## The game loop ##
 

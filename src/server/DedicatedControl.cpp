@@ -868,6 +868,16 @@ struct DedIntern {
 		caller->pushReturnArg(varptr.toString());
 	}
 	
+	void Cmd_GetFullFileName(DedInterface* caller, std::string param) {
+		std::string fn = param;
+		TrimSpaces( fn );
+		// Strip quotes if they are
+		if( fn.size() > 1 && fn[0] == '"' && fn[fn.size()-1] == '"' )
+			fn = fn.substr( 1, fn.size()-2 );
+		
+		caller->pushReturnArg(GetFullFileName(fn, NULL));
+	}
+	
 	void Cmd_StartLobby(DedInterface* caller, std::string param) {
 		if(state != S_INACTIVE) {
 			warnings << "Ded: we cannot start the lobby in current state" << endl;
@@ -1140,6 +1150,8 @@ struct DedIntern {
 			Cmd_GetWormPing(command.sender, params);
 		else if(cmd == "getwormskin")
 			Cmd_GetWormSkin(command.sender, params);
+		else if(cmd == "getfullfilename")
+			Cmd_GetFullFileName(command.sender, params);
 
 		else if(cmd == "connect")
 			Cmd_Connect(command.sender, params);
