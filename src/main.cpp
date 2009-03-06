@@ -1082,8 +1082,7 @@ void ShutdownLieroX()
 		cServer = NULL;
 	}
 
-	// TODO: this was initially at the top but it was changed to save the
-	// options set in Menu_Shutdown and cServer->Shutdown
+	// Options
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
 
