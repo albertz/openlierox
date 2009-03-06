@@ -23,7 +23,7 @@ public:
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
-	virtual int  GameType();
+	virtual int  GeneralGameType();
 	virtual int  GameTeams();
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);

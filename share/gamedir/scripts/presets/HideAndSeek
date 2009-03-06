@@ -1,9 +1,9 @@
 #!/usr/bin/python -u
 
 # just set some default stuff, it doesn't matter for Hide&Seek
-setvar( "GameOptions.GameInfo.ModName", "Classic" )
+setvar( "GameOptions.GameInfo.ModName", "MW 1.0" )
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Mortar Only.wps" ) # only one weapon to have autoselect for beta8
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/100 LT.wps" )
 
 # some good settings for this gametype
 setvar("GameOptions.GameInfo.Lives", 0)

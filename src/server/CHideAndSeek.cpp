@@ -49,7 +49,7 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 		replace(networkTexts->sSeekerMessage, "<time>", itoa((int)fGameLength), teamhint[1]);
 
 	// Gameplay hints
-	worm->getClient()->getNetEngine()->SendText(teamhint[worm->getTeam()], TXT_NORMAL);
+	worm->getClient()->getNetEngine()->SendText(teamhint[CLAMP(worm->getTeam(),0,1)], TXT_NORMAL);
 }
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
@@ -151,8 +151,9 @@ bool CHideAndSeek::CheckGameOver()
 	int winners = -1;
 	static const std::string teamname[2] = { "hiding", "seeking" };
 
+	// TODO: move out here
 	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
+		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT && cServer->getWorms()[i].getTeam() < 2)
 			worms[cServer->getWorms()[i].getTeam()]++;
 	if(worms[0] == 0)
 		winners = SEEKER;
@@ -167,7 +168,7 @@ bool CHideAndSeek::CheckGameOver()
 	return false;
 }
 
-int CHideAndSeek::GameType()
+int CHideAndSeek::GeneralGameType()
 {
 	return GMT_TEAMS;
 }
