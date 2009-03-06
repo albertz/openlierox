@@ -144,7 +144,6 @@ void CWorm::Clear(void)
 	bFlag = false;
 
 	fLastSimulationTime = tLX->fCurTime;
-	pcMap = NULL;
 	
 	
 	if(m_inputHandler) {
@@ -193,17 +192,15 @@ void CWorm::FreeGraphics(void)
 
 ///////////////////
 // Prepare the worm for the game
-void CWorm::Prepare(CMap *pcMap)
+void CWorm::Prepare()
 {
 	assert(cGameScript);
 
 	if(bIsPrepared) {
 		warnings << "worm was already prepared! ";
-		if(this->pcMap != pcMap) warnings << "AND pcMap differs!";
 		warnings << endl;
 	}
 	
-	this->pcMap = pcMap;
 	bVisible = true;
 	fVisibilityChangeTime = 0;
 
@@ -637,7 +634,7 @@ void CWorm::UpdateDrawPos() {
 
 
 #ifdef _AI_DEBUG
-/*		SmartPointer<SDL_Surface> bmpDestDebug = pcMap->GetDebugImage();
+/*		SmartPointer<SDL_Surface> bmpDestDebug = cClient->getMap()->GetDebugImage();
 		if (bmpDestDebug) {
 			int node_x = (int)vPos.x*2, node_y = (int)vPos.y*2;
 
@@ -982,9 +979,9 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// objects?
 		//cSkin.DrawShadow(bmpDest, x, y, f, iDirection == DIR_LEFT);
 		if (iDirection == DIR_RIGHT)
-			pcMap->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
 		else
-			pcMap->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
 	}
 }
 
@@ -999,9 +996,9 @@ bool CWorm::CheckOnGround()
 	for(short y = 6; y > 0; y--) {
 
 		// Optimize: pixelflag + Width
-		if(!(pcMap->GetPixelFlag(px - 2, py + y) & PX_EMPTY))
+		if(!(cClient->getMap()->GetPixelFlag(px - 2, py + y) & PX_EMPTY))
 			return true;
-		if(!(pcMap->GetPixelFlag(px + 2, py + y) & PX_EMPTY))
+		if(!(cClient->getMap()->GetPixelFlag(px + 2, py + y) & PX_EMPTY))
 			return true;
 	}
 

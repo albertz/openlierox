@@ -242,6 +242,7 @@ public:
 	int				getState()			{ return iState; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
+	void			resetMap()			{ cMap = NULL; }
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
 	std::string		getName()			{ return tLXOptions->sServerName; }

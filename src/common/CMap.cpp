@@ -2861,32 +2861,33 @@ void CMap::ClearDebugImage() {
 ///////////////////
 // Carve a hole
 // Returns the number of dirt pixels carved
-int CarveHole(CMap *cMap, CVec pos)
+// TODO: why do we have this function? why not CMap::CarveHole?
+int CarveHole(CVec pos)
 {
 	int x,y;
-	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
+	Uint32 Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
-	y = MAX(MIN((int)pos.y, (int)cMap->GetHeight() - 1), 0);
+	y = MAX(MIN((int)pos.y, (int)cClient->getMap()->GetHeight() - 1), 0);
 
-	if (!LockSurface(cMap->GetImage()))
+	if (!LockSurface(cClient->getMap()->GetImage()))
 		return 0;
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
-		if((uint)x >= cMap->GetWidth())	break;
+		if((uint)x >= cClient->getMap()->GetWidth())	break;
 
-		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage().get(), x, y);
+		if(cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT) {
+			Colour = GetPixel(cClient->getMap()->GetImage().get(), x, y);
 			for(short n=0; n<3; n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;
 		}
 	}
-	UnlockSurface(cMap->GetImage());
+	UnlockSurface(cClient->getMap()->GetImage());
 
 	// Just carve a hole for the moment
-	return cMap->CarveHole(3,pos);
+	return cClient->getMap()->CarveHole(3,pos);
 }
 
 
@@ -2920,7 +2921,7 @@ public:
 ///////////////////
 // Check for a collision
 // HINT: this function is not used at the moment; and it is incomplete...
-int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
+int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags)
 {
 /*	set_col_and_break col_action;
 	fastTraceLine(trg, pos, map, checkflags, col_action);
@@ -3029,4 +3030,4 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
 {
 	delete obj;
-};
+}

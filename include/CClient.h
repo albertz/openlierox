@@ -45,6 +45,7 @@ class CHttpDownloadManager;
 class CChannel;
 class CClientNetEngine;
 class CBonus;
+class CMap;
 class profile_t;
 
 // TODO: this is just a small helper for now; some of these parts should just move into CClient::Connect
@@ -519,7 +520,8 @@ public:
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
 	bool		RebindSocket();	// If client has taken the port on which server should start - free it
 
-	CMap*		getMap()					{ return cMap; }
+	CMap*		getMap() const				{ return cMap; }
+	void		resetMap()					{ cMap = NULL; }
 
 	int			OwnsWorm(int id);
 	int			getNumWorms(void)			{ return iNumWorms; }

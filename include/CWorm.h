@@ -171,7 +171,6 @@ public:
 	CWorm() {
 		m_inputHandler = NULL;
 		cOwner = NULL;
-		pcMap = NULL;
 		tProfile = NULL;
 		pcHookWorm = NULL;
 		cGameScript = NULL;
@@ -277,8 +276,6 @@ private:
     int         iDirtCount;
 
 	float		fLastBlood;
-
-	CMap*		pcMap;
 
 
 	// Owner client
@@ -403,7 +400,7 @@ public:
 	// Game
 	//
 	bool		isPrepared() { return bIsPrepared; }
-	void		Prepare(CMap *pcMap); // weapon selection and so on
+	void		Prepare(); // weapon selection and so on
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
@@ -445,8 +442,6 @@ public:
 	bool		isUsed(void)				{ return bUsed; }
 	void		setUsed(bool _u);
 
-	CMap*		getMap()					{ return pcMap; }
-	void		setMap(CMap *map)			{ pcMap = map; }
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 
 	std::string getName(void)			{ return sName; }
@@ -626,7 +621,7 @@ public:
 };
 
 
-int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision = NULL);
+int traceWormLine(CVec target, CVec start, CVec* collision = NULL);
 
 
 #endif  //  __CWORM_H__

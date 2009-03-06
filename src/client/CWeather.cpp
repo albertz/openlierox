@@ -76,13 +76,13 @@ void CWeather::Shutdown(void)
 
 ///////////////////
 // Simulate the weather
-void CWeather::Simulate(float dt, CMap *pcMap)
+void CWeather::Simulate(float dt)
 {
     switch( m_nType ) {
 
         // Snow
         case wth_snow:
-            SimulateSnow(dt,pcMap);
+            SimulateSnow(dt);
             break;
     }
 }
@@ -90,14 +90,14 @@ void CWeather::Simulate(float dt, CMap *pcMap)
 
 ///////////////////
 // Simulate the snow
-void CWeather::SimulateSnow(float dt, CMap *pcMap)
+void CWeather::SimulateSnow(float dt)
 {
     // Spawn a new particle along the top of the map
     // TODO: Do this every n seconds
 
     if( tLX->fCurTime > m_fNextSnow ) {
         for( int n=0; n<5; n++) {
-            float x = (float)GetRandomInt(pcMap->GetWidth());
+            float x = (float)GetRandomInt(cClient->getMap()->GetWidth());
             SpawnParticle(wpt_snowpart, 0, CVec(GetRandomNum()*10,(float)GetRandomInt(10)+15),CVec(x,2));
         }
         m_fNextSnow = tLX->fCurTime+0.1f;
@@ -128,10 +128,10 @@ void CWeather::SimulateSnow(float dt, CMap *pcMap)
             // Snow particle
             case wpt_snowpart:
                 // Have we hit some dirt/rock?
-                byte flag = pcMap->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
+                byte flag = cClient->getMap()->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
                 if( flag & PX_DIRT || flag & PX_ROCK ) {
                     // Leave a white dot
-                    pcMap->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, tLX->clWhite );
+                    cClient->getMap()->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, tLX->clWhite );
                     psPart->bUsed = false;
                 }
                 break;

@@ -24,6 +24,7 @@
 #include "SmartPointer.h"
 #include "LieroX.h" // for maprandom_t
 #include "GfxPrimitives.h" // for Rectangle<>
+#include "CClient.h" // only for cClient->getMap() for fastTraceLine()
 
 class CViewport;
 class CCache;
@@ -383,7 +384,7 @@ public:
 	if the returned value is false, the loop will break
 */
 template<class _action>
-void fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action& checkflag_action) {
+void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_action) {
 	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
 	CVec dir = target-start;
 	if(dir.x == 0 && dir.y == 0)
@@ -402,19 +403,19 @@ void fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _actio
 	}
 	
 #ifdef _AI_DEBUG
-	//SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
+	//SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
 #endif
 	
-	const uchar* pxflags = pcMap->GetPixelFlags();
-	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
+	const uchar* gridflags = cClient->getMap()->getAbsoluteGridFlags();
 	if (!pxflags || !gridflags)  // map has been probably shut down in the meantime
 		return;
 
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();	
-    int grid_w = pcMap->getGridWidth();
-    int grid_h = pcMap->getGridHeight();
-	int grid_cols = pcMap->getGridCols();
+	int map_w = cClient->getMap()->GetWidth();
+	int map_h = cClient->getMap()->GetHeight();	
+    int grid_w = cClient->getMap()->getGridWidth();
+    int grid_h = cClient->getMap()->getGridHeight();
+	int grid_cols = cClient->getMap()->getGridCols();
 	
 	int start_x = (int)start.x;
 	int start_y = (int)start.y;
@@ -549,8 +550,8 @@ void fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _actio
 	}
 }
 
-int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
-int 	CarveHole(CMap *cMap, CVec pos);
+int		CheckCollision(CVec trg, CVec pos, uchar checkflags);
+int 	CarveHole(CVec pos);
 
 
 #endif  //  __CMAP_H__

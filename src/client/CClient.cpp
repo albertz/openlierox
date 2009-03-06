@@ -653,11 +653,6 @@ void CClient::FinishMapDownloads()
 			if (!cMap)  {
 				printf("WARNING: in game and cMap is not allocated.\n");
 				cMap = new CMap;
-
-				// Make sure the remote worms have a correct pointer
-				if (cRemoteWorms)
-					for (int i = 0; i < MAX_WORMS; i++)
-						cRemoteWorms[i].setMap(cMap);
 			}
 
 			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map

@@ -329,7 +329,7 @@ public:
 			if(worm->getMoveDirection()==DIR_LEFT)
 				dir.x=(-dir.x);
 
-			worm->incrementDirtCount( CarveHole(worm->getMap(), worm->getPos() + dir*4) );
+			worm->incrementDirtCount( CarveHole(worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}
 

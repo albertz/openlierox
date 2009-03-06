@@ -134,7 +134,7 @@ public:
 	void		AI_Carve();
 	bool		AI_Jump();
 	CVec		AI_FindShootingSpot();
-	int			AI_GetRockBetween(CVec pos,CVec trg, CMap *pcMap);
+	int			AI_GetRockBetween(CVec pos,CVec trg);
 #ifdef _AI_DEBUG
 	void		AI_DrawPath();
 #endif

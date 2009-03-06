@@ -595,6 +595,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			client->cMap->Shutdown();
 			delete client->cMap;
 			client->cMap = NULL;
+			cServer->resetMap();
 		}
 	}
 
@@ -669,7 +670,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				}
 			} else
 				client->bWaitingForMap = true;
-		} else {
+		} else { // GME_HOST
 			assert(cServer);
 
             // Grab the server's copy of the map
@@ -790,7 +791,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setLoadingTime(client->fLoadingTime);
 
 			// Prepare for battle!
-			w->Prepare(client->cMap);
+			w->Prepare();
 			
 			num_worms++;
 		}
@@ -1035,7 +1036,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 		client->cRemoteWorms[id].setLocal(false);
 		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
-			client->cRemoteWorms[id].Prepare(client->cMap);
+			client->cRemoteWorms[id].Prepare();
 		}
 		client->cRemoteWorms[id].setID(id);
 		if( client->getServerVersion() < OLXBetaVersion(9) &&
@@ -1044,10 +1045,6 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	}
 
 	client->cRemoteWorms[id].readInfo(bs);
-
-	// Safety
-	if (client->iNetStatus == NET_PLAYING || client->bGameReady)
-		client->cRemoteWorms[id].setMap(client->cMap);
 
 	// Load the worm graphics
 	if(!client->cRemoteWorms[id].ChangeGraphics(client->iGameType)) {

@@ -77,8 +77,8 @@ public:
     bool        Initialize(int nType);
     void        Shutdown(void);
     
-    void        Simulate(float dt, CMap *pcMap);
-    void        SimulateSnow(float dt, CMap *pcMap);
+    void        Simulate(float dt);
+    void        SimulateSnow(float dt);
     void        SpawnParticle(int nType, int nType2, CVec cVel, CVec cPos);
 
     void        Draw(SDL_Surface * psDest, CViewport *view);

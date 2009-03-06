@@ -194,7 +194,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	// atm we only have the debugimage available if _AI_DEBUG is set
 	// this should be changed to DEBUG
 #ifdef _AI_DEBUG
-/*	SmartPointer<SDL_Surface> bmpDest = pcMap->GetDebugImage();
+/*	SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
 	if (bmpDest) {
 		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
 		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;
@@ -530,14 +530,14 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// do carving also here as the simulation is only done in next frame and with an updated position
 	// TODO: carving also with tState.bCarve = false ?
-	if(tState.bCarve && getMap() != NULL) {
+	if(tState.bCarve && cClient->getMap() != NULL) {
 		// carve the whole way from old pos to new pos
 		{
 			CVec dir = vPos - oldPos;
 			float len = NormalizeVector( &dir );
 			for(float w = 0.0f; w <= len; w += 3.0f) {
 				CVec p = oldPos + dir * w;
-				incrementDirtCount( CarveHole(getMap(), p) );
+				incrementDirtCount( CarveHole(p) );
 			}
 		}
 
@@ -550,7 +550,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 			if(tState.iDirection==DIR_LEFT)
 				dir.x=(-dir.x);
 
-			incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );
+			incrementDirtCount( CarveHole(getPos() + dir*4) );
 		}
 	}
 

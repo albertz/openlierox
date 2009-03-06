@@ -324,6 +324,7 @@ int GameServer::StartGame()
 		cMap->Shutdown();
 		delete cMap;
 		cMap = NULL;
+		cClient->resetMap();
 	}
 
 	// Create the map
@@ -390,7 +391,6 @@ int GameServer::StartGame()
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setWeaponsReady(false);
-			cWorms[i].setMap(cMap);
 		}
 	}
 
