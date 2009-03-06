@@ -409,6 +409,7 @@ quit:
 	delete cTakeScreenshot; cTakeScreenshot = NULL;	
 	
 	notes << "waiting for all left threads and tasks" << endl;
+	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 	UnInitTaskManager();
 	
