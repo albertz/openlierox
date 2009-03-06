@@ -160,7 +160,6 @@ CVec GameServer::FindSpot(void)
 		if(++x >= cols) {
 			x = 0;
 			y = 0;
-			break;
 		}
 	}
 	cMap->unlockFlags();
