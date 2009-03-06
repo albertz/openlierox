@@ -534,7 +534,7 @@ def controlHandlerDefault():
 
 				if lobbyWaitBeforeGame <= curTime: # Start the game
 
-					if io.getGameType() == 0:
+					if io.getGameType() <= 1:
 						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
 							setvar("GameOptions.GameInfo.GameType", "1")
 							if not cfg.ALLOW_TEAM_CHANGE:
