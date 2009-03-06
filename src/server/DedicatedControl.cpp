@@ -788,7 +788,6 @@ struct DedIntern {
 		cServer->authorizeWorm(id);
 	}
 
-	// This command just fits here perfectly
 	void Cmd_SetVar(DedInterface* caller, const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
 			warnings << "DedicatedControl: SetVar: wrong params: " << params << endl;
@@ -827,6 +826,13 @@ struct DedIntern {
 			}
 			return;
 		}
+
+		if( varptr.type == SVT_CALLBACK ) {
+			warnings << "DedicatedControl: SetVar: callbacks are not allowed" << endl;
+			// If we want supoort for that, I would suggest a seperated command like "call ...".
+			return;
+		}
+		
 		CScriptableVars::SetVarByString(varptr, value);
 
 		//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
@@ -834,6 +840,34 @@ struct DedIntern {
 		cServer->UpdateGameLobby();
 	}
 
+	void Cmd_GetVar(DedInterface* caller, const std::string& params) {
+		if( params.find(" ") != std::string::npos ) {
+			warnings << "DedicatedControl: GetVar: wrong params: " << params << endl;
+			return;
+		}
+		std::string var = params;
+		TrimSpaces( var );
+		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
+		if( varptr.b == NULL ) {
+			warnings << "DedicatedControl: GetVar: no var with name " << var << endl;
+			return;
+		}
+		
+		if( varptr.type == SVT_CALLBACK ) {
+			warnings << "DedicatedControl: GetVar: callbacks are not allowed" << endl;
+			// If we want supoort for that, I would suggest a seperated command like "call ...".
+			return;
+		}
+		
+		if( varptr.s == &tLXOptions->sServerPassword ) {
+			warnings << "DedicatedControl: GetVar: this variable is restricted" << endl;
+			// If you want to check if a worm is authorized, use another function for that.
+			return;
+		}
+		
+		caller->pushReturnArg(varptr.toString());
+	}
+	
 	void Cmd_StartLobby(DedInterface* caller, std::string param) {
 		if(state != S_INACTIVE) {
 			warnings << "Ded: we cannot start the lobby in current state" << endl;
@@ -1059,6 +1093,8 @@ struct DedIntern {
 			Cmd_SaveConfig(command.sender);
 		else if(cmd == "setvar")
 			Cmd_SetVar(command.sender, params);
+		else if(cmd == "getvar")
+			Cmd_GetVar(command.sender, params);			
 		else if(cmd == "script")
 			Cmd_Script(command.sender, params);
 		else if(cmd == "msg")
@@ -1152,6 +1188,8 @@ struct DedIntern {
 	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { pushSignal("privatemessage", itoa(w->getID()), itoa(to->getID()), message); }
 	void Sig_WormDied(CWorm* died, CWorm* killer) { pushSignal("wormdied", itoa(died->getID()), itoa(killer->getID())); }
 	void Sig_WormSpawned(CWorm* worm) { pushSignal("wormspawned", itoa(worm->getID())); }
+	void Sig_WormGotAdmin(CWorm* w) { pushSignal("wormgotadmin", itoa(w->getID())); }
+	void Sig_WormAuthorized(CWorm* w) { pushSignal("wormauthorized", itoa(w->getID())); }
 
 	void Sig_Timer(const std::string& name) { pushSignal("timer", name); }
 
@@ -1342,6 +1380,8 @@ void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) 
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
 void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
+void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormGotAdmin(worm); };
+void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormAuthorized(worm); };
 
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }

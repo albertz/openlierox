@@ -138,6 +138,8 @@ def signalHandler(sig):
 			parseWormDied(sig)
 		elif header == "wormspawned":
 			parseWormSpawned(sig)
+		elif header == "wormauthorized":
+			parseWormAuthorized(sig)
 	
 		## Check GameState ##
 		elif header == "quit":
@@ -262,20 +264,21 @@ def parseWormLeft(sig):
 
 
 def parsePrivateMessage(sig):
+	pass
+	
+def parseWormAuthorized(sig):	
 	global worms
 
 	wormID = int(sig[1])
-	# [2] is the ID which it is being sent to. Eavesdrop anyone :>?
-	if sig[3] == cfg.ADMIN_PASSWORD:
-		try:
-			if not worms[wormID].isAdmin:
-				worms[wormID].isAdmin = True
-				io.messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),io.LOG_ADMIN)
-				# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
-				io.authorizeWorm(wormID)
-				io.privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
-		except KeyError:
-			io.messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
+	try:
+		if not worms[wormID].isAdmin:
+			worms[wormID].isAdmin = True
+			io.messageLog(("Worm %i (%s) added to admins" % (wormID,worms[wormID].Name)),io.LOG_ADMIN)
+			# TODO: Send the last part in a PM to the admin. (Needs new backend for private messaging. Add teamchat too!)
+			io.authorizeWorm(wormID)
+			io.privateMsg(wormID, "%s authenticated for admin! Type %shelp for command info" % (worms[wormID].Name,cfg.ADMIN_PREFIX))
+	except KeyError:
+		io.messageLog("AdminAdd: Our local copy of wormses doesn't match the real list.",io.LOG_ERROR)
 
 def parseChatMessage(sig):
 	global worms

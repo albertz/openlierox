@@ -233,6 +233,8 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 		remote_cl->getRights()->Everything();
 		remote_cl->getRights()->Dedicated = hadDedBefore; // don't give him dedicated
 		cServer->SendGlobalText((cServer->getWorms() + id)->getName() + " has been authorised", TXT_NORMAL);
+		if(DedicatedControl::Get())
+			DedicatedControl::Get()->WormAuthorized_Signal(cServer->getWorms() + id);
 		return "";
 	}
 
@@ -749,8 +751,10 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 
 	// All OK, authorize the worm
 	cServer->authorizeWorm(sender_id);
-	if( DedicatedControl::Get() )	// Re-send it to ded script
-		DedicatedControl::Get()->PrivateMessage_Signal( & cServer->getWorms()[sender_id], & cServer->getWorms()[sender_id], params[0] );
+	if(DedicatedControl::Get())
+		DedicatedControl::Get()->WormGotAdmin_Signal(cServer->getWorms() + sender_id);
+	if(DedicatedControl::Get())
+		DedicatedControl::Get()->WormAuthorized_Signal(cServer->getWorms() + sender_id);
 
 	return "";
 }

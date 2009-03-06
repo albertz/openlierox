@@ -52,6 +52,8 @@ public:
 	void PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message);
 	void WormDied_Signal(CWorm* died, CWorm* killer);
 	void WormSpawned_Signal(CWorm* worm);
+	void WormGotAdmin_Signal(CWorm* worm);
+	void WormAuthorized_Signal(CWorm* worm);
 	
 	void Execute(DedInterface::Command cmd);
 	
