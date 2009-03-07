@@ -371,3 +371,14 @@ void EntityBounce(entity_t *ent)
 	ent->vVel.y *= -0.4f;
 	ent->fAnglVel *= 0.8f;
 }
+
+Entities NewNet_SavedEntities;
+
+void	NewNet_SaveEntities()
+{
+	NewNet_SavedEntities = tEntities;
+};
+void	NewNet_LoadEntities()
+{
+	tEntities = NewNet_SavedEntities;
+};

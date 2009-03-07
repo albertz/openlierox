@@ -892,7 +892,7 @@ struct DedIntern {
 				tLXOptions->iNetworkPort = port;
 		}
 
-		tLXOptions->tGameInfo.iMaxPlayers = CLAMP(tLXOptions->tGameInfo.iMaxPlayers, 2, MAX_PLAYERS);
+		tLXOptions->tGameInfo.iMaxPlayers = CLAMP(tLXOptions->tGameInfo.iMaxPlayers, 2, (int)MAX_PLAYERS);
 
 		tLX->iGameType = GME_HOST;
 

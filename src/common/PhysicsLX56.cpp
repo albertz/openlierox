@@ -48,7 +48,7 @@ public:
 
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
-	bool moveAndCheckWormCollision(float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+	bool moveAndCheckWormCollision(float fCurTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
 		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
 
 		// Can happen when starting a game
@@ -64,8 +64,8 @@ public:
 		// though perhaps it is as with higher speed the way we have to check is longer
 		if( (*vel*dt).GetLength2() > maxspeed2 && dt > 0.001f ) {
 			dt /= 2;
-			if(moveAndCheckWormCollision(dt,worm,pos,vel,vOldPos,jump)) return true;
-			return moveAndCheckWormCollision(dt,worm,worm->getPos(),vel,vOldPos,jump);
+			if(moveAndCheckWormCollision(fCurTime, dt,worm,pos,vel,vOldPos,jump)) return true;
+			return moveAndCheckWormCollision(fCurTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
 		}
 
 		pos += *vel * dt;
@@ -230,7 +230,7 @@ public:
 
 			// Set the collision information
 			if (!worm->hasCollidedLastFrame())  {
-				worm->setCollisionTime(tLX->fCurTime);
+				worm->setCollisionTime(fCurTime);
 				worm->setCollisionVel(*worm->getVelocity());
 				worm->setCollidedLastFrame(true);
 			}
@@ -241,10 +241,10 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
+	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, float simulationTime) {
 		const float orig_dt = 0.01f;
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
-		if(worm->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
+		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
 		// by goleft/goright/stopleft/stopright/shoot/etc signals. These signals are handled in here.
@@ -285,7 +285,7 @@ public:
 
 	simulateWormStart:
 	
-		if(worm->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
+		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 		worm->fLastSimulationTime += orig_dt;
 
 
@@ -294,7 +294,7 @@ public:
 
 		// If we're IT, spawn some sparkles
 		if(worm->getTagIT() && cClient->getGameLobby()->iGeneralGameType == GMT_TIME) {
-			if(tLX->fCurTime - worm->getLastSparkle() > 0.15f) {
+			if(simulationTime - worm->getLastSparkle() > 0.15f) {
 				worm->setLastSparkle( worm->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
 
@@ -304,7 +304,7 @@ public:
 
 		// If we're seriously injured (below 15% health) and visible, bleed
 		if(worm->getHealth() < 15 && worm->isVisible()) {
-			if(tLX->fCurTime - worm->getLastBlood() > 2) {
+			if(simulationTime - worm->getLastBlood() > 2) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
 				float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
@@ -369,7 +369,7 @@ public:
 			// HINT: if we are on ground for a short time, make the jump X-velocity
 			// the same as it was in the time of the collision (before the ground had dampened the worm)
 			// This behavior is more like old LX
-			if (tLX->fCurTime - worm->getCollisionTime() <= 0.15f)
+			if (simulationTime - worm->getCollisionTime() <= 0.15f)
 				worm->getVelocity()->x = worm->getCollisionVel().x * 0.8f; // Dampen only a bit
 
 			worm->setOnGround( false );
@@ -392,7 +392,7 @@ public:
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
-		moveAndCheckWormCollision( dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->bJump );
+		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->bJump );
 
 
 		// Ultimate in friction
@@ -895,13 +895,13 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, float fCurTime) {
 		const float orig_dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
 	simulateProjectilesStart:
-		if(cClient->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
+		if(cClient->fLastSimulationTime + orig_dt > fCurTime) return;
 
 		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 			CProjectile* p = i->get();

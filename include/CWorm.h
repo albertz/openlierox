@@ -30,7 +30,7 @@
 #include "CWormSkin.h"
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
-
+#include "NewNetEngine.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -417,8 +417,7 @@ public:
 	void		initWeaponSelection();
 	void		doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 
-
-
+	void		NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ); // Synthetic input from new net engine - Ignores inputHandler
 
 	//
 	// Misc.

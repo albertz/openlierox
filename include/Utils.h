@@ -13,7 +13,7 @@
 
 #include <stddef.h> // for size_t
 
-
+// TODO: what's difference between this and Iterator in iterator.h?
 template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
 class iterator {
 protected:

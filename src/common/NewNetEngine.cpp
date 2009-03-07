@@ -13,6 +13,7 @@
 #include "CWorm.h"
 #include "ProfileSystem.h"
 #include "CWormHuman.h"
+#include "Entity.h"
 
 namespace NewNet
 {
@@ -28,6 +29,7 @@ void SaveState()
 	cClient->getMap()->NewNet_SaveToMemory();
 
 	cClient->NewNet_SaveProjectiles();
+	NewNet_SaveEntities();
 
 	for( int i = 0; i < MAX_WORMS; i++ )
 		cClient->getRemoteWorms()[i].NewNet_SaveWormState( &SavedWormState[i] );
@@ -39,6 +41,7 @@ void RestoreState()
 	cClient->getMap()->NewNet_RestoreFromMemory();
 
 	cClient->NewNet_LoadProjectiles();
+	NewNet_LoadEntities();
 
 	for( int i = 0; i < MAX_WORMS; i++ )
 		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
@@ -46,7 +49,18 @@ void RestoreState()
 
 unsigned CalculatePhysics( unsigned gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
-	//cClient->NewNet_Simulation();
+	for( int i = 0; i < MAX_WORMS; i++ )
+	{
+		CWorm * w = & cClient->getRemoteWorms()[i];
+		if( w->isUsed() )
+		{
+			w->NewNet_GetInput( keys[i], keysChanged[i] );
+			if (w->getWormState()->bShoot && w->getAlive())
+				cClient->NewNet_DoLocalShot( w );
+		}
+	}
+
+	cClient->NewNet_Simulation();
 	return 0;
 };
 
@@ -55,11 +69,11 @@ void DisableAdvancedFeatures()
 	 // Disables bonuses and connect-during-game for now, 
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
+	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
+	 tLXOptions->tGameInfo.bAllowStrafing = false;
 	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
 	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
 	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
-	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
-	 tLXOptions->tGameInfo.bAllowStrafing = false;
 	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
 };
 
@@ -90,10 +104,6 @@ bool Frame( CBytestream * bs )
 };
 
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
-enum 
-{ 
-	TICK_TIME_DIV = 10	// One frame each 10 milliseconds - should be equal for all clients and should be never changed
-};
 
 bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
@@ -119,16 +129,14 @@ struct KeysEvent_t
 	KeyState_t keysChanged;
 };
 
-// Sorted by player and time - time in TICK_TIME_DIV chunks
+// Sorted by player and time - time in TICK_TIME chunks
 typedef std::map< int, KeysEvent_t > EventList_t;
 EventList_t Events [MAX_WORMS];
-std::vector< KeyState_t > OldKeys;
-std::vector< unsigned long > LastPacketTime; // Time in TICK_TIME_DIV chunks
+KeyState_t OldKeys[MAX_WORMS];
+unsigned long LastPacketTime[MAX_WORMS]; // Time in TICK_TIME chunks
 unsigned Checksum;
 unsigned long ChecksumTime; // Time in ms
-unsigned long InitialRandomSeed; // Used for LoadState()/SaveState()
-int player2netID[MAX_WORMS];
-int net2playerID[MAX_WORMS];
+//unsigned long InitialRandomSeed; // Used for LoadState()/SaveState()
 
 void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
 {
@@ -156,34 +164,25 @@ void Activate( unsigned long localTime, unsigned long randomSeed )
 			netRandom.seed(randomSeed);
 			for( int i=0; i<MAX_WORMS; i++ )
 			{
-				player2netID[i] = -1;
-				net2playerID[i] = -1;
-			}
-			for( int i=0; i<MAX_WORMS; i++ )
-			{
 				Events[i].clear();
+				OldKeys[i] = KeyState_t();
+				LastPacketTime[i] = 0;
 				if( cClient->getRemoteWorms()[i].isUsed() )
 				{
-					player2netID[NumPlayers] = cClient->getRemoteWorms()[i].getID();
-					net2playerID[ cClient->getRemoteWorms()[i].getID() ] = NumPlayers;
 					NumPlayers ++;
 					cClient->getRemoteWorms()[i].NewNet_random.seed(randomSeed + i);
 				};
 			}
 			LocalPlayer = -1;
 			if( cClient->getNumWorms() > 0 )
-				LocalPlayer = net2playerID[cClient->getWorm(0)->getID()];
-			InitialRandomSeed = randomSeed;
+				LocalPlayer = cClient->getWorm(0)->getID();
+			//InitialRandomSeed = randomSeed;
 
 			CurrentTimeMs = 0;
 			BackupTime = 0;
 			ClearEventsLastTime = 0;
 			Checksum = 0;
 			ChecksumTime = 0;
-			OldKeys.clear();
-			OldKeys.resize(MAX_PLAYERS);
-			LastPacketTime.clear();
-			LastPacketTime.resize( MAX_PLAYERS, 0 );
 			QuickDirtyCalculation = true;
 			ReCalculationNeeded = false;
 			ReCalculationTimeMs = 0;
@@ -210,22 +209,22 @@ void ReCalculateSavedState()
 
 	// Re-calculate physics if the packet received is from the most laggy client
 	unsigned long timeMin = LastPacketTime[LocalPlayer];
-	for( int f=1; f<NumPlayers; f++ )
-		if( LastPacketTime[f] < timeMin )
+	for( int f=0; f<MAX_WORMS; f++ )
+		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
 	//printf("ReCalculate(): BackupTime %lu timeMin %lu\n", BackupTime, timeMin);
-	if( BackupTime /* + DrawDelayMs / TICK_TIME_DIV */ + 1 >= timeMin )
+	if( BackupTime /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
-	if( CurrentTimeMs != BackupTime * TICK_TIME_DIV )	// Last recalc time
+	if( CurrentTimeMs != BackupTime * TICK_TIME )	// Last recalc time
 		RestoreState();
 
-	while( BackupTime /* + DrawDelayMs / TICK_TIME_DIV */ + 1 < timeMin )
+	while( BackupTime /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
 	{
 		BackupTime++;
-		CurrentTimeMs = BackupTime * TICK_TIME_DIV;
+		CurrentTimeMs = BackupTime * TICK_TIME;
 		bool calculateChecksum = CurrentTimeMs % CalculateChecksumTime == 0;
 
 		KeyState_t keys[MAX_WORMS];
@@ -242,7 +241,7 @@ void ReCalculateSavedState()
 	};
 
 	SaveState();
-	CurrentTimeMs = BackupTime * TICK_TIME_DIV;
+	CurrentTimeMs = BackupTime * TICK_TIME;
 
 	// Clean up old events - do not clean them if we're the server, clients may ask for them.
 	/*
@@ -267,11 +266,11 @@ void CalculateCurrentState( unsigned long localTime )
 
 	while( CurrentTimeMs < localTime /*- DrawDelayMs*/ )
 	{
-		CurrentTimeMs += TICK_TIME_DIV;
+		CurrentTimeMs += TICK_TIME;
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( CurrentTimeMs / TICK_TIME_DIV, keys, keysChanged );
+		getKeysForTime( CurrentTimeMs / TICK_TIME, keys, keysChanged );
 
 		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
@@ -286,7 +285,7 @@ int NetPacketSize()
 void AddEmptyPacket( unsigned long localTime, CBytestream * bs )
 {
 	localTime -= OlxTimeDiffMs;
-	localTime /= TICK_TIME_DIV;
+	localTime /= TICK_TIME;
 	bs->writeInt( localTime, 4 );
 	bs->writeByte( UCHAR_MAX );
 };
@@ -299,7 +298,6 @@ unsigned EmptyPacketTime()
 // Returns true if data was re-calculated.
 bool ReceiveNetPacket( CBytestream * bs, int player )
 {
-	player = net2playerID[player];
 	unsigned long timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 
 	unsigned long fullTime = timeDiff;
@@ -329,10 +327,10 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 {
 	//printf("SendNetPacket() time %lu\n", localTime);
 	localTime -= OlxTimeDiffMs;
-	localTime /= TICK_TIME_DIV;
+	localTime /= TICK_TIME;
 
 	if( keys == OldKeys[ LocalPlayer ] &&
-		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME_DIV ) // Do not flood the net with non-changed keys
+		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME ) // Do not flood the net with non-changed keys
 		return false;
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
@@ -365,6 +363,15 @@ unsigned GetChecksum( unsigned long * time )
 	if( time )
 		*time = ChecksumTime;
 	return Checksum;
+};
+
+unsigned long GetCurTime()
+{
+	return CurrentTimeMs;
+};
+float GetCurTimeFloat()
+{
+	return float(CurrentTimeMs * 0.001f);
 };
 
 

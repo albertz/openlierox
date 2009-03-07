@@ -16,16 +16,17 @@
 #define __NEWNETENGINE_H__
 
 #include <string>
-#include <vector>
-#include <map>
-#include "CScriptableVars.h"
 #include "CBytestream.h"
-#include "SmartPointer.h"
 #include "Consts.h"
 
 namespace NewNet {
 
 // ------ Structs and functions to be used from OLX ------
+
+enum 
+{ 
+	TICK_TIME = 10	// Calculate one frame each 10 milliseconds - should be equal for all clients and should be never changed
+};
 
 enum Keys_t
 {
@@ -36,7 +37,7 @@ enum Keys_t
 	K_SHOOT,
 	K_JUMP,
 	K_SELWEAP,
-	K_ROPE,		// Jump + SelWeap = Rope if Oldskool rope option toggled
+	K_ROPE,
 	// TODO: strafe key?
 	
 	K_MAX	
@@ -63,6 +64,7 @@ struct __taus113_state_t
 };
 static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_state );
 static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state );
+static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state );
 void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state);
 
 class NetSyncedRandom
@@ -71,7 +73,10 @@ class NetSyncedRandom
 	NetSyncedRandom() { seed(); };
 	
 	unsigned long get() { return ___Random__(state); };
-	double getDouble() { return ___RandomDouble__(state); };	// In range 0.0-1.0, 1.0 not included.
+	unsigned long getInt( unsigned long Max ) { return ___Random__(state) % (Max+1); };
+	double getDoublePositive() { return ___RandomDouble__(state); };	// In range [0.0:1.0]
+	float getFloatPositive() { return ___RandomFloat__(state); };	// In range [0.0:1.0]
+	float getFloat() { return ___RandomFloat__(state) * 2.0f - 1.0f; };	// In range [-1.0:1.0]
 	
 	void seed( unsigned long s = getSeed() ){ ___Random_Seed__(s, state); };
 	static unsigned long getSeed();
@@ -107,6 +112,11 @@ unsigned EmptyPacketTime();
 
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
 unsigned GetChecksum( unsigned long * time = NULL );
+
+// Returns current simulation time in milliseconds inside new net engine
+unsigned long GetCurTime();
+// Returns current simulation time in seconds inside new net engine, use this instead of tLX->fCurTime everywhere
+float GetCurTimeFloat();
 
 // ------ Internal functions - do not use them from OLX ------
 
@@ -226,7 +236,11 @@ static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_sta
 };
 static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state )
 {
-  return ___Random__( NetSyncedRandom_state ) / 4294967296.0;
+  return ___Random__( NetSyncedRandom_state ) / 4294967295.0;
+};
+static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state )
+{
+  return ___Random__( NetSyncedRandom_state ) / 4294967295.0f;
 };
 
 #undef LCG

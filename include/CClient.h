@@ -215,7 +215,7 @@ private:
 	typedef FastVector<CProjectile,MAX_PROJECTILES> Projectiles;
 	Projectiles	cProjectiles;
 
-	Projectiles	cProjectiles_Saved; // For new net engine
+	Projectiles	NewNet_SavedProjectiles;
 
 	// Frames
 	frame_t		tFrames[NUM_FRAMES];
@@ -435,6 +435,9 @@ public:
 	void		DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
 	void		ProcessShot(shoot_t *shot, float fSpawnTime);
 	void		ProcessShot_Beam(shoot_t *shot);
+	
+	void		NewNet_Simulation(); // Simulates one frame, delta time always set to 10 ms, ignores current time
+	void		NewNet_DoLocalShot( CWorm *w );
 
 	void		BotSelectWeapons();
 

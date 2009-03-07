@@ -11,15 +11,6 @@
 #define __OLX_CONSTS_H__
 
 
-#define		MAX_CLIENTS		32
-#define		MAX_PLAYERS		32
-#define		MAX_CHATLINES	8
-
-
-#define     NUM_VIEWPORTS   3
-#define     GAMEOVER_WAIT   3
-
-
 // Net status
 enum {
 	NET_DISCONNECTED=0,
@@ -29,12 +20,16 @@ enum {
 	NET_ZOMBIE				// Server side only state - server won't accept any client packets and will send disconnect packets to client
 };
 
-
-
+// Misc constants
 enum {	
 	LX_PORT = 23400, 
 	SPAWN_HOLESIZE = 4,
-	MAX_WORMS = 32
+	MAX_WORMS = 32,
+	MAX_CLIENTS = 32,
+	MAX_PLAYERS	= 32,
+	MAX_CHATLINES = 8,
+	NUM_VIEWPORTS = 3,
+	GAMEOVER_WAIT = 3
 };
 
 static const float LX_ENDWAIT = 9.0f;

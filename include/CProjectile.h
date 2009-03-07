@@ -250,7 +250,7 @@ public:
 
 	void	Bounce(float fCoeff);
 
-	bool	isUsed(void)			{ return bUsed; }
+	bool	isUsed(void) const		{ return bUsed; }
 	void	setUnused();
 
 	float	getLife(void)			{ return fLife; }

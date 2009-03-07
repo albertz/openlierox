@@ -377,6 +377,149 @@ void CWormHumanInputHandler::getInput() {
 }
 
 
+void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
+{
+	CVec	dir;
+	const float	dt = NewNet::GetCurTimeFloat() - fLastInputTime;
+	fLastInputTime = NewNet::GetCurTimeFloat();
+	
+	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
+	bool leftOnce = keys.keys[NewNet::K_LEFT] && keysChanged.keys[NewNet::K_LEFT];
+	bool rightOnce = keys.keys[NewNet::K_RIGHT] && keysChanged.keys[NewNet::K_RIGHT];
+
+	worm_state_t *ws = &tState;
+
+	// Init the ws
+	ws->bCarve = false;
+	ws->bMove = false;
+	ws->bShoot = false;
+	ws->bJump = false;
+
+	{
+		// Up
+		if(keys.keys[NewNet::K_UP]) {
+			// HINT: 500 is the original value here (rev 1)
+			fAngleSpeed -= 500 * dt;
+		} else if(keys.keys[NewNet::K_DOWN]) { // Down
+			// HINT: 500 is the original value here (rev 1)
+			fAngleSpeed += 500 * dt;
+		} else {
+				// HINT: this is the original order and code (before mouse patch - rev 1007)
+				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
+				REDUCE_CONST(fAngleSpeed, 200*dt);
+				RESET_SMALL(fAngleSpeed, 5.0f);
+
+		}
+
+		fAngle += fAngleSpeed * dt;
+		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
+			fAngleSpeed = 0;
+
+		// Calculate dir
+		dir.x=( (float)cos(fAngle * (PI/180)) );
+		dir.y=( (float)sin(fAngle * (PI/180)) );
+		if( iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+			dir.x=(-dir.x);
+
+	} // end angle section
+
+	{ // set carving
+
+		const float carveDelay = 0.2f;
+
+		if(leftOnce && !keys.keys[NewNet::K_SELWEAP]) {
+
+			if(NewNet::GetCurTimeFloat() - fLastCarve >= carveDelay) {
+				ws->bCarve = true;
+				ws->bMove = true;
+				fLastCarve = NewNet::GetCurTimeFloat();
+			}
+		}
+
+		if(rightOnce && !keys.keys[NewNet::K_SELWEAP]) {
+
+			if(NewNet::GetCurTimeFloat() - fLastCarve >= carveDelay) {
+				ws->bCarve = true;
+				ws->bMove = true;
+				fLastCarve = NewNet::GetCurTimeFloat();
+			}
+		}
+	}
+
+    //
+    // Weapon changing
+	//
+	if(keys.keys[NewNet::K_SELWEAP]) {
+		// we don't want keyrepeats here, so only count the first down-event
+		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
+		iCurrentWeapon += change;
+		MOD(iCurrentWeapon, iNumWeaponSlots);
+	}
+
+	// Safety: clamp the current weapon
+	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+
+	ws->bShoot = keys.keys[NewNet::K_SHOOT];
+
+	if(!keys.keys[NewNet::K_SELWEAP]) {
+		if(keys.keys[NewNet::K_LEFT]) {
+			ws->bMove = true;
+			lastMoveTime = NewNet::GetCurTimeFloat();
+
+			if(!keys.keys[NewNet::K_RIGHT]) {
+				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
+				iDirection = DIR_LEFT;
+				iMoveDirection = DIR_LEFT;
+			}
+
+			if(rightOnce) {
+				ws->bCarve = true;
+				fLastCarve = NewNet::GetCurTimeFloat();
+			}
+		}
+
+		if(keys.keys[NewNet::K_RIGHT]) {
+			ws->bMove = true;
+			lastMoveTime = NewNet::GetCurTimeFloat();
+
+			if(!keys.keys[NewNet::K_LEFT]) {
+				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
+				iDirection = DIR_RIGHT;
+				iMoveDirection = DIR_RIGHT;
+			}
+
+			if(leftOnce) {
+				ws->bCarve = true;
+				fLastCarve = NewNet::GetCurTimeFloat();;
+			}
+		}
+	}
+
+
+	bool jumpdownonce = keys.keys[NewNet::K_JUMP] && keysChanged.keys[NewNet::K_JUMP];
+
+	// Jump
+	if(jumpdownonce) {
+			ws->bJump = true;
+
+			if(cNinjaRope.isReleased())
+				cNinjaRope.Release();
+	}
+
+	// Newer style rope throwing
+	// Seperate dedicated button for throwing the rope
+	if( keys.keys[NewNet::K_ROPE] && keysChanged.keys[NewNet::K_ROPE] ) {
+		cNinjaRope.Shoot(vPos,dir);
+		// Throw sound
+		PlaySoundSample(sfxGame.smpNinja);
+	}
+
+	ws->iAngle = (int)fAngle;
+	ws->iX = (int)vPos.x;
+	ws->iY = (int)vPos.y;
+}
+
+
 ///////////////////
 // Clear the input
 void CWormHumanInputHandler::clearInput() {

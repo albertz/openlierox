@@ -2102,12 +2102,10 @@ int CClient::getNumRemoteWorms()
 
 void CClient::NewNet_SaveProjectiles()
 {
-	// TODO: check if object in array is used before copying
-	cProjectiles_Saved = cProjectiles;
+	NewNet_SavedProjectiles = cProjectiles;
 };
 
 void CClient::NewNet_LoadProjectiles()
 {
-	// TODO: check if object in array is used before copying
-	cProjectiles = cProjectiles_Saved;
+	cProjectiles = NewNet_SavedProjectiles;
 };

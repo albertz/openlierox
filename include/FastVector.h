@@ -17,11 +17,12 @@
 
 /*
 	_Obj has to provide these functions:
-		bool isUsed();
+		bool isUsed() const;
+		void setUnused();
 		Event<> onInvalidation;
 
-	also, FastVector only works correct if all new
-	objects are requested from it, so you
+	also, FastVector only works correct if all new objects are requested from it, 
+	so you should not call operator delete on getNewObj() return value or some other stupid thing
 */
 template < typename _Obj, int SIZE >
 class FastVector {
@@ -29,6 +30,7 @@ protected:
 	_Obj m_objects[SIZE];
 	int m_firstUnused;
 	int m_lastUsed;
+	enum { size = SIZE };
 
 	void findNewFirstUnused() {
 		while(true) {
@@ -65,7 +67,7 @@ public:
 
 	int firstUnused() { return m_firstUnused; }
 	int lastUsed() { return m_lastUsed; }
-	bool isUsed(int index) { return m_objects[index].isUsed(); }
+	bool isUsed(int index) const { return m_objects[index].isUsed(); }
 	_Obj& operator[](int index) { return m_objects[index]; }
 
 	void clear() {
@@ -124,6 +126,23 @@ public:
 
 	typename ::Iterator<_Obj*>::Ref begin() { return new Iterator(*this, 0); }
 
+	const FastVector & operator = ( const FastVector & v )
+	{
+		// Fast copy routine ( _Obj should provide sane operator= )
+		for(int i = 0; i < SIZE; i++) 
+		{
+			if( v.m_objects[i].isUsed() )
+			{
+				m_objects[i] = v.m_objects[i];
+				m_objects[i].onInvalidation.handler() = getEventHandler(this, &FastVector::onObjectInvalidation);
+			}
+			else
+				m_objects[i].setUnused();
+		}
+		m_firstUnused = v.m_firstUnused;
+		m_lastUsed = v.m_lastUsed;
+		return *this;
+	};
 };
 
 #endif

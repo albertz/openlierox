@@ -66,8 +66,8 @@ public:
 	float	fExtra;
 	SmartPointer<SDL_Surface> bmpSurf;
 
-	bool isUsed()	{ return bUsed; }
-	void Spawn()	{ bUsed = true; }
+	bool isUsed() const	{ return bUsed; }
+	void Spawn()		{ bUsed = true; }
 	void setUnused()  { 
 		bUsed = false;
 		onInvalidation.occurred(EventData(this)); 
@@ -87,5 +87,7 @@ void	DrawEntities(SDL_Surface * bmpDest, CViewport *v);
 void	SimulateEntities(float dt);
 void	EntityBounce(entity_t *ent);
 
+void	NewNet_SaveEntities();
+void	NewNet_LoadEntities();
 
 #endif  //  __ENTITY_H__

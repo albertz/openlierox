@@ -86,7 +86,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	if (tProjInfo->UseCustomGravity)
 		fGravity = (float)tProjInfo->Gravity;
 
-	fWallshootTime = 0.01f + GetRandomNum() / 1000; // Support wallshooting - ignore collisions before this time
+	fWallshootTime = 0.01f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
 
 	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
 		&& (tProjInfo->Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
@@ -162,7 +162,8 @@ void CProjectile::CalculateCheckSteps()
 
 	// HINT: add or substract some small random number for high speeds, it behaves more like original LX
 	} else {
-		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
+		int rnd = (getRandomIndex() % 3);
+		rnd *= SIGN(getRandomFloat());
 		MIN_CHECKSTEP = 6;
 		if (tProjInfo->Hit_Type == PJ_BOUNCE)  { // HINT: this avoids fast bouncing projectiles to stay in a wall too often (for example zimm)
 			MAX_CHECKSTEP = 2;

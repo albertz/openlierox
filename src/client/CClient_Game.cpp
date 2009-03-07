@@ -35,6 +35,7 @@
 #include "ProfileSystem.h"
 #include "Debug.h"
 #include "CHideAndSeek.h"
+#include "NewNetEngine.h"
 
 
 CClient		*cClient = NULL;
@@ -87,7 +88,7 @@ void CClient::Simulation(void)
 
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal(), tLX->fCurTime );
 
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -176,13 +177,79 @@ void CClient::Simulation(void)
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), tLX->fCurTime);
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
 
 }
 
+
+void CClient::NewNet_Simulation() // Simulates one frame, delta time always set to 10 ms, ignores current time
+{
+
+	// Don't simulate if the physics engine is not ready
+	if (!PhysicsEngine::Get()->isInitialised())  {
+		printf("WARNING: trying to simulate with non-initialized physics engine!\n");
+		return;
+	}
+
+	// If we're in a menu & a local game, don't do simulation
+	if (tLX->iGameType == GME_LOCAL)  {
+		if( bGameOver || bGameMenu || bViewportMgr ) {
+
+			// Clear the input of the local worms
+			clearLocalWormInputs();
+		}
+	}
+
+    // We stop a few seconds after the actual game over
+    if(bGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
+        return;
+    if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
+        return;
+
+    CWorm *w;
+	// Player simulation
+	w = cRemoteWorms;
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if(!w->isUsed())
+			continue;
+
+		if(w->getAlive()) 
+		{
+			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, NewNet::GetCurTimeFloat() ); 
+		}
+
+		if(w->getAlive()) 
+		{
+			// Shoot
+			if(w->getWormState()->bShoot) {
+				// This handles only client-side weapons, like jetpack and for beam drawing
+				// It doesn't process the shot itself.
+				// The shot-info will be sent to the server which sends it back and
+				// we handle it in CClient::ProcessShot in the end.
+				PlayerShoot(w);
+			}
+
+			// TODO: we should move this stuff to drawing, we may skip it for physics calculation
+			// If the worm is using a weapon with a laser sight, spawn a laser sight
+			if (w->getCurWeapon()->Weapon)
+				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
+					LaserSight(w, w->getAngle());
+		}
+	}
+
+	// Entities
+	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
+	// TODO: we should move this stuff to drawing, we may skip it for physics calculation
+	if(!bDedicated)
+		SimulateEntities(NewNet::TICK_TIME);
+
+	// Projectiles
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), NewNet::GetCurTimeFloat());
+}
 
 
 ///////////////////
@@ -885,6 +952,83 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 	shot.nWormID = pcWorm->getID();
 
 	ProcessShot( &shot, tLX->fCurTime );
+}
+
+void CClient::NewNet_DoLocalShot( CWorm *w ) 
+{
+	wpnslot_t *Slot = w->getCurWeapon();
+
+	if(Slot->Reloading)
+		return;
+
+	if(Slot->LastFire>0)
+		return;
+
+	// Don't shoot with banned weapons
+	if (!Slot->Enabled)
+		return;
+
+	if(!Slot->Weapon) {
+		printf("WARNING: trying to shoot with an unitialized weapon!\n");
+		return;
+	}
+
+	// TODO: what is the effect of this?
+	Slot->LastFire = Slot->Weapon->ROF;
+
+
+	// Must be a projectile
+	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
+		return;
+
+	shoot_t shot;
+
+	shot.cPos = w->getPos();
+	shot.cWormVel = *w->getVelocity();
+	shot.fTime = NewNet::GetCurTimeFloat();
+	shot.nRandom = w->NewNet_random.getInt(255);
+	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
+	shot.nWormID = w->getID();
+
+
+	// Get the direction angle
+	float Angle = w->getAngle();
+	if(w->getDirection() == DIR_LEFT)
+		Angle=180-Angle;
+
+	if(Angle < 0)
+		Angle+=360;
+	if(Angle > 360)
+		Angle-=360;
+	if(Angle == 360)
+		Angle=0;
+
+	float speed = 0.0f;
+
+	// only projectile wpns have speed; Beam weapons have no speed
+	if(Slot->Weapon->Type == WPN_PROJECTILE) {
+		// Add the shot to the shooting list
+		CVec vel = *w->getVelocity();
+		speed = NormalizeVector( &vel );
+	}
+	
+	shot.nAngle = Angle;
+	shot.nSpeed = (int)( speed*100 );
+	
+
+	//
+	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
+	// (ROF = Rate of Fire)
+	//
+
+	// Drain the Weapon charge
+	Slot->Charge -= Slot->Weapon->Drain / 100;
+	if(Slot->Charge <= 0) {
+		Slot->Charge = 0;
+		Slot->Reloading = true;
+	}
+
+	ProcessShot( &shot, NewNet::GetCurTimeFloat() );
 }
 
 ///////////////////

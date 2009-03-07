@@ -891,7 +891,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	// Get user info
 	int numworms = bs->readInt(1);
-	numworms = CLAMP(numworms, 0, MAX_PLAYERS);
+	numworms = CLAMP(numworms, 0, (int)MAX_PLAYERS);
 	
 	// If we ignored this challenge verification, there could be double connections
 
