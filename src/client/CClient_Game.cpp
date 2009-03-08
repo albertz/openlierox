@@ -1012,7 +1012,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		speed = NormalizeVector( &vel );
 	}
 	
-	shot.nAngle = Angle;
+	shot.nAngle = (int)Angle;
 	shot.nSpeed = (int)( speed*100 );
 	
 
