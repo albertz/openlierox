@@ -251,7 +251,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					// Make sure there is 0-NumPlayers players in the list
 					std::string num_players;
 					cHostPly.SendMessage(hs_MaxPlayers, TXS_GETTEXT, &num_players, 0);
-					if(lv2->getItemCount() < MIN(MAX_PLAYERS, atoi(num_players))) {
+					if(lv2->getItemCount() < MIN((int)MAX_PLAYERS, atoi(num_players))) {
 						lv->SaveScrollbarPos();
 
 						// Get the profile
