@@ -302,7 +302,7 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 
 void CHideAndSeek::GenerateTimes()
 {
-	CMap* cMap = cClient->getMap();
+	CMap* cMap = cServer->getMap();
 	int volume = cMap->GetWidth() * cMap->GetHeight();
 	enum { SMALL = 1, MEDIUM, LARGE, XLARGE } size;
 	// Decide on the level size
