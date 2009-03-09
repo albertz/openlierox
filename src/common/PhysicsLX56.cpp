@@ -1030,6 +1030,8 @@ public:
 					continue;
 				if(worms[i].getFlag())
 					continue;
+				if(!worms[i].isVisible())
+					continue;
 
 				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
 					rope->setShooting( false );
