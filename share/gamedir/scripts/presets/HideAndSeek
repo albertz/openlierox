@@ -15,8 +15,10 @@ setvar("GameOptions.GameInfo.KillLimit", -1)
 # set hide&seek
 setvar("GameOptions.GameInfo.GameType", 4)
 
-# Override default time
-setvar("GameOptions.GameInfo.TimeLimit", 2.5)
+# There is no reason to overwrite the time. Either we defined
+# some own setting, then we probably want to have that one,
+# or the HideAndSeek gamemode can automatically select an own
+# timelimit otherwise.
 
 # Pick one random seeker
 for w in worms.values():

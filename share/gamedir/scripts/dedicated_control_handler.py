@@ -203,7 +203,7 @@ def parseNewWorm(sig):
 	if not exists:
 		worms[wormID] = worm
 
-	if io.getVar("GameOptions.GameInfo.GameType").strip() == "4": # Hide and Seek
+	if io.getGameType() == 4: # Hide and Seek
 		io.setWormTeam(wormID, 0) # Hider
 	else:
 		# Balance teams
@@ -539,7 +539,7 @@ def controlHandlerDefault():
 
 					if io.getGameType() <= 1:
 						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-							setvar("GameOptions.GameInfo.GameType", "1")
+							setvar("GameOptions.GameInfo.GameType", 1)
 							if not cfg.ALLOW_TEAM_CHANGE:
 								counter = 0
 								for w in worms.values():
@@ -547,7 +547,7 @@ def controlHandlerDefault():
 										io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 										counter += 1
 						else:
-							io.setvar("GameOptions.GameInfo.GameType", "0")
+							io.setvar("GameOptions.GameInfo.GameType", 0)
 
 					io.startGame()
 					sentStartGame = True
