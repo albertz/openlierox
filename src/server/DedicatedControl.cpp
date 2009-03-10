@@ -875,7 +875,7 @@ struct DedIntern {
 		if( fn.size() > 1 && fn[0] == '"' && fn[fn.size()-1] == '"' )
 			fn = fn.substr( 1, fn.size()-2 );
 		
-		caller->pushReturnArg(GetFullFileName(fn, NULL));
+		caller->pushReturnArg(GetAbsolutePath(GetFullFileName(fn, NULL)));
 	}
 	
 	void Cmd_StartLobby(DedInterface* caller, std::string param) {

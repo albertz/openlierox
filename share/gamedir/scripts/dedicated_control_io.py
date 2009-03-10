@@ -168,7 +168,7 @@ def getWormSkin(iID):
 def getVar(var):
 	ret = SendCommand( "getvar %s" % var )
 	if len(ret) == 0: # var does not exist
-		return 0 # TODO: or exception? 
+		return "" # TODO: or exception? 
 	return ret[0]
 	
 def getGameType():

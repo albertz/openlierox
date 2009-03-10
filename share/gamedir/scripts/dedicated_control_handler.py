@@ -203,19 +203,22 @@ def parseNewWorm(sig):
 	if not exists:
 		worms[wormID] = worm
 
-	# Balance teams
-	teams = [0,0,0,0]
-	for w in worms.keys():
-		teams[worms[w].Team] += 1
-	minTeam = 0
-	minTeamCount = teams[0]
-	for f in range(cfg.MAX_TEAMS):
-		if minTeamCount > teams[f]:
-			minTeamCount = teams[f]
-			minTeam = f
+	if io.getVar("GameOptions.GameInfo.GameType").strip() == "4": # Hide and Seek
+		io.setWormTeam(wormID, 0) # Hider
+	else:
+		# Balance teams
+		teams = [0,0,0,0]
+		for w in worms.keys():
+			teams[worms[w].Team] += 1
+		minTeam = 0
+		minTeamCount = teams[0]
+		for f in range(cfg.MAX_TEAMS):
+			if minTeamCount > teams[f]:
+				minTeamCount = teams[f]
+				minTeam = f
 
-	io.setWormTeam(wormID, minTeam)
-	#io.messageLog("New worm " + str(wormID) + " set team " + str(minTeam) + " teamcount " + str(teams), io.LOG_INFO)
+		io.setWormTeam(wormID, minTeam)
+
 	if cfg.RANKING_AUTHENTICATION:
 		if not name in ranking.auth:
 			ranking.auth[name] = getWormSkin(wormID)

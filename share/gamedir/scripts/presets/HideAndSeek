@@ -1,5 +1,8 @@
 #!/usr/bin/python -u
 
+import random
+global worms, io
+
 # just set some default stuff, it doesn't matter for Hide&Seek
 setvar( "GameOptions.GameInfo.ModName", "MW 1.0" )
 setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Mortar Only.wps" ) # only one weapon to have autoselect for beta8
@@ -11,3 +14,17 @@ setvar("GameOptions.GameInfo.KillLimit", -1)
 
 # set hide&seek
 setvar("GameOptions.GameInfo.GameType", 4)
+
+# Override default time
+setvar("GameOptions.GameInfo.TimeLimit", 2.5)
+
+# Pick one random seeker
+for w in worms.values():
+	io.setWormTeam( w.iID, 0 )
+seeker = random.choice(worms.values()).iID
+io.setWormTeam( seeker, 1 )
+if len(worms.values()) >= 4: # More than 4 players
+	seeker2 = seeker
+	while seeker2 == seeker:
+		seeker2 = random.choice(worms.values()).iID
+		io.setWormTeam( seeker2, 1 ) # Pick another random seeker
