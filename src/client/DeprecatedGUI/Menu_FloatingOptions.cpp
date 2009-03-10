@@ -656,19 +656,23 @@ void Menu_FloatingOptionsFrame()
 				// Logging
 				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {
-						tLXOptions->bLogConvos = cFloatingOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						FILE *f;
+						// check if value is really different
+						if(tLXOptions->bLogConvos != (cFloatingOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0) != 0)) {
+							tLXOptions->bLogConvos = ! tLXOptions->bLogConvos;
+							FILE *f;
 
-						f = OpenGameFile("Conversations.log","a");
-						if (f)  {
-							if (tLXOptions->bLogConvos)  {
-								std::string cTime = GetTime();
-								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
-							}
-							else
-								fprintf(f,"</game>\r\n");
-							fclose(f);
-						} // if (f)
+							f = OpenGameFile("Conversations.log","a");
+							if (f)  {
+								if (tLXOptions->bLogConvos)  {
+									std::string cTime = GetTime();
+									fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
+								}
+								else
+									// bLogConvos was true before, so close <game>
+									fprintf(f,"</game>\r\n");
+								fclose(f);
+							} // if (f)
+						}
 					}
 					break;
 
