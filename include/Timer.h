@@ -27,24 +27,33 @@
 #include "types.h"
 
 
+
 struct TimeCounter {
+	SDL_mutex* mutex;
 	Time time;
 	Uint32 lastTicks;
 	
-	TimeCounter() : time(0), lastTicks(0) {}
-	TimeDiff update() {
+	TimeCounter() : time(0), lastTicks(0) { mutex = SDL_CreateMutex(); }
+	~TimeCounter() { SDL_DestroyMutex(mutex); mutex = NULL; }
+	Time update() {
+		if(mutex) SDL_mutexP(mutex);
 		Uint32 curTicks = SDL_GetTicks();
 		if(curTicks < lastTicks) {
+			Time t = time;
 			lastTicks = curTicks; // ignore (that should only happen once every ~49 days or when SDL gets reinited)
-			return TimeDiff(0);
+			if(mutex) SDL_mutexV(mutex);
+			return t;
 		}
-		time.time += curTicks - lastTicks;
-		return TimeDiff((Uint64)(curTicks - lastTicks));
+		TimeDiff td = (Uint64)(curTicks - lastTicks);
+		time += td;
+		Time t = time;
+		if(mutex) SDL_mutexV(mutex);
+		return t;
 	}
 };
 extern TimeCounter timeCounter;
 
-inline const Time& GetTime() { return timeCounter.time; }
+inline Time GetTime() { return timeCounter.update(); }
 
 
 int				GetFPS(void);

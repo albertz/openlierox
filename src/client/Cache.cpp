@@ -70,7 +70,7 @@ void ShutdownCacheDebug()
 #endif
 
 CCache cCache;
-static const Time& getCurrentTime()
+static Time getCurrentTime()
 {
 	if( tLX == NULL )	// Cache is used before tLX is initialized
 		return GetTime();
