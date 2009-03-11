@@ -33,7 +33,7 @@ struct TimeCounter {
 	Time time;
 	Uint32 lastTicks;
 	
-	TimeCounter() : time(0), lastTicks(0) { mutex = SDL_CreateMutex(); }
+	TimeCounter() : time(0), lastTicks(0) { mutex = SDL_CreateMutex(); lastTicks = SDL_GetTicks(); }
 	~TimeCounter() { SDL_DestroyMutex(mutex); mutex = NULL; }
 	Time update() {
 		if(mutex) SDL_mutexP(mutex);
@@ -47,6 +47,7 @@ struct TimeCounter {
 		TimeDiff td = (Uint64)(curTicks - lastTicks);
 		time += td;
 		Time t = time;
+		lastTicks = curTicks;
 		if(mutex) SDL_mutexV(mutex);
 		return t;
 	}
