@@ -416,10 +416,14 @@ typedef const char * cchar;
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		setSignalHandlers();
-		DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+		if(tLXOptions->bRecoverAfterCrash) {
+			setSignalHandlers();
+			DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
 
-		notes << "registered simple resuming signal handler" << endl;
+			notes << "registered simple resuming signal handler" << endl;
+		}
+		else
+			notes << "no signal handler with these settings" << endl;
 	}
 	
 	static void setSignalHandlers() {
