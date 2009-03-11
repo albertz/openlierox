@@ -434,7 +434,7 @@ void CapFPS() {
 
 	// Cap the FPS
 	if(currentTime - tLX->currentTime < fMaxFrameTime)
-		SDL_Delay((fMaxFrameTime - (currentTime - tLX->currentTime)).milliseconds());
+		SDL_Delay((Uint32)(fMaxFrameTime - (currentTime - tLX->currentTime)).milliseconds());
 	else
 		// do at least one small break, else it's possible that we never receive signals from our OS
 		SDL_Delay(1);

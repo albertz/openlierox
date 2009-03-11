@@ -32,7 +32,7 @@ struct TimeDiff {
 	TimeDiff(int td) : timeDiff(td) { assert(td >= 0); }
 	TimeDiff(Uint64 start, Uint64 end) : timeDiff(end - start) { assert(end >= start); }
 	
-	float seconds() const { return timeDiff * 0.001; }
+	float seconds() const { return timeDiff * 0.001f; }
 	Uint64 milliseconds() const { return timeDiff; }
 	
 	TimeDiff operator+(const TimeDiff& td) const { return TimeDiff(timeDiff + td.timeDiff); }

@@ -231,7 +231,7 @@ void ReCalculateSavedState()
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( BackupTime, keys, keysChanged );
+		getKeysForTime( (unsigned long)BackupTime, keys, keysChanged );
 
 		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
@@ -272,7 +272,7 @@ void CalculateCurrentState( Time localTime )
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( CurrentTimeMs.time / TICK_TIME, keys, keysChanged );
+		getKeysForTime( (unsigned long)(CurrentTimeMs.time / TICK_TIME), keys, keysChanged );
 
 		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
