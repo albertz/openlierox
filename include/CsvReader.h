@@ -45,7 +45,8 @@ public:
 
 	bool is_open()  { return buffer != NULL; }
 	bool eof()	{ return bufPos >= bufLen; }
-	bool get(char& c)	{ 
+	bool get(char& c)	{
+		assert(bufPos < bufLen);
 		c = buffer[bufPos];
 		++bufPos; 
 		return bufPos < bufLen;
