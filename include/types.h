@@ -38,7 +38,7 @@ struct TimeDiff {
 	TimeDiff operator+(const TimeDiff& td) const { return TimeDiff(timeDiff + td.timeDiff); }
 	TimeDiff operator-(const TimeDiff& td) const { return TimeDiff(timeDiff - td.timeDiff); }	
 	float operator/(const TimeDiff& td) const { return (float)timeDiff / (float)td.timeDiff; }
-	TimeDiff operator*(double f) const { return TimeDiff(timeDiff * f); }
+	TimeDiff operator*(double f) const { return TimeDiff((Uint64)(timeDiff * f)); }
 	
 	TimeDiff& operator+=(const TimeDiff& td) { timeDiff += td.timeDiff; return *this; }
 	
