@@ -98,8 +98,8 @@ private:
 	bool			bDropped;
 	bool			bArrowDown;
     bool			bLastDropped;
-	int				iDropTime;
-	int				iNow;
+	Time			iDropTime;
+	Time			iNow;
 	int				iKeySelectedItem;
 
 	// Stuff

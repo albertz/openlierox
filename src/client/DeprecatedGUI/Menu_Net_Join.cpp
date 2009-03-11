@@ -938,12 +938,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						{
 							cClient->getUdpFileDownloader()->abortDownload();
 							cClient->getNetEngine()->SendFileData();
-							cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+							cClient->setLastFileRequest( tLX->currentTime + 10000.0f ); // Disable file download for current session
 						}
 					}
 					else
 					{
-						cClient->setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
+						cClient->setLastFileRequest( tLX->currentTime - 10.0f ); // Re-enable file requests
 						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
 							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);
 						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapFile != "" )

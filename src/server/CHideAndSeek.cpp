@@ -94,7 +94,7 @@ void CHideAndSeek::Drop(CWorm* worm)
 
 void CHideAndSeek::Simulate()
 {
-	float GameTime = cServer->getServerTime();
+	TimeDiff GameTime = cServer->getServerTime();
 	// Game time up
 	if(GameTime > fGameLength) {
 		for(int i = 0; i < MAX_WORMS; i++)

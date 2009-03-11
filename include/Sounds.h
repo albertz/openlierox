@@ -119,8 +119,8 @@ inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int loca
 }
 
 // TODO: don't make them global
-extern float fCurSongStart;
-extern float fTimePaused;
+extern Time fCurSongStart;
+extern Time fTimePaused;
 extern bool	 bSongStopped;
 extern byte iMusicVolume;
 extern bool	 bSongFinished;
@@ -141,7 +141,7 @@ void			StopMusic(void);
 bool			PlayingMusic(void);
 bool			PausedMusic(void);
 int				GetMusicType(SoundMusic *music = NULL);
-float			GetCurrentMusicTime(void);
+TimeDiff		GetCurrentMusicTime(void);
 bool			GetSongStopped(void);
 bool			GetSongFinished(void);
 id3v1_t			GetMP3Info(const std::string& file);

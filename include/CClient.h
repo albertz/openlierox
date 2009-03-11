@@ -72,9 +72,9 @@ class log_worm_t { public:
 	int			iTeamDeaths;
 	int			iTeam;
 	bool		bTagIT;
-	float		fTagTime;
+	TimeDiff	fTagTime;
 	bool		bLeft;
-	float		fTimeLeft;
+	TimeDiff	fTimeLeft;
 	int			iType;
 };
 
@@ -83,7 +83,7 @@ class game_log_t { public:
 	log_worm_t	*tWorms;
 	int			iNumWorms;
 	int			iWinner;
-	float		fGameStart;
+	Time		fGameStart;
 	std::string	sGameStart;
 	std::string sServerName;
 	std::string sServerIP;
@@ -235,10 +235,10 @@ private:
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 
 	// Ping below FPS
-	float		fMyPingSent;
-	float		fMyPingRefreshed;
+	Time		fMyPingSent;
+	Time		fMyPingRefreshed;
 	int			iMyPing;
-	float		fServertime; // only in >=Beta8 correctly synchronised
+	TimeDiff	fServertime; // only in >=Beta8 correctly synchronised
 	
 	int			iScoreboard[MAX_WORMS];
 	int			iScorePlayers;
@@ -263,7 +263,7 @@ private:
 
 	// Game menu && score
 	bool		bUpdateScore;
-	float		fLastScoreUpdate;
+	Time		fLastScoreUpdate;
 
 	// Ingame scoreboard
 	SmartPointer<SDL_Surface> bmpIngameScoreBg;
@@ -285,12 +285,12 @@ private:
 	UnicodeChar	iChat_Lastchar;
 	bool		bChat_Holding;
 	size_t		iChat_Pos;
-	float		fChat_TimePushed;
+	Time		fChat_TimePushed;
 	CInput		cChat_Input;
 	CInput		cTeamChat_Input;
 	bool		bTeamChat;
 	std::string	sChat_Text;
-	float		fChat_BlinkTime;
+	TimeDiff	fChat_BlinkTime;
 	bool		bChat_CursorVisible;
 
     CInput      cShowScore;
@@ -312,16 +312,16 @@ private:
 	std::string	strServerAddr_HumanReadable;
 	NetworkAddr	cServerAddr;
 	int			iNumConnects;
-	float		fConnectTime;
+	Time		fConnectTime;
 	int			iChallenge;
-	float		fLastReceived;
+	Time		fLastReceived;
 	NetworkSocket	tSocket;
 	CChannel	* cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;
-    float       fZombieTime;
-	float		fSendWait;
-	float		fLastUpdateSent;
+    Time      fZombieTime;
+	TimeDiff	fSendWait;
+	Time		fLastUpdateSent;
 	std::string	szServerName;
 	bool		bHostAllowsMouse;
 	bool		bHostAllowsStrafing;
@@ -347,8 +347,8 @@ private:
 	DownloadFinishedCB tModDlCallback;
 
 	CUdpFileDownloader	cUdpFileDownloader;
-	float		fLastFileRequest;
-	float		fLastFileRequestPacketReceived;
+	Time		fLastFileRequest;
+	Time		fLastFileRequestPacketReceived;
 	size_t		iModDownloadingSize;	// For progress bar, UDP only
 
 	bool		bReadySent;
@@ -356,7 +356,7 @@ private:
 	bool		bGameOver;
 	bool		bGameMenu;
 	int			iMatchWinner;
-	float		fGameOverTime;
+	Time		fGameOverTime;
 
 	bool		bLobbyReady;
 	bool		bGameReady; // bGameReady says if the game (including cMap) has been initialized
@@ -382,12 +382,12 @@ private:
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
 	std::string	sSpectatorViewportMsg;
-	float		fSpectatorViewportMsgTimeout;
+	Time		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
 	int			iNatTraverseState;
 	bool		bConnectingBehindNat;
-	float		fLastChallengeSent;
-	float		fLastTraverseSent;
+	Time		fLastChallengeSent;
+	Time		fLastTraverseSent;
 	int			iNatTryPort;
 
 public:
@@ -398,7 +398,7 @@ public:
 	// HINT: this is currently used for simulating the projectiles
 	// if you are going to use this also for something else,
 	// then be sure that is is run together with simulateProjectiles() !
-	float	fLastSimulationTime;
+	Time	fLastSimulationTime;
 
 // IRC callbacks
 private:
@@ -433,7 +433,7 @@ public:
 	void		DrawBeam(CWorm *w);
 	void		ProcessServerShotList();
 	void		DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
-	void		ProcessShot(shoot_t *shot, float fSpawnTime);
+	void		ProcessShot(shoot_t *shot, Time fSpawnTime);
 	void		ProcessShot_Beam(shoot_t *shot);
 	
 	void		NewNet_Simulation(); // Simulates one frame, delta time always set to 10 ms, ignores current time
@@ -441,7 +441,7 @@ public:
 
 	void		BotSelectWeapons();
 
-	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float time, float ignoreWormCollBeforeTime);
+	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, Time time, Time ignoreWormCollBeforeTime);
     void        disableProjectile(CProjectile *prj);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);
@@ -555,8 +555,8 @@ public:
 
     bool		getClientError(void)        { return bClientError; }
 
-	float		getLastReceived(void)		{ return fLastReceived; }
-	void		setLastReceived(float _l)	{ fLastReceived = _l; }
+	Time		getLastReceived(void)		{ return fLastReceived; }
+	void		setLastReceived(const Time& _l)	{ fLastReceived = _l; }
 
 	int			getNetSpeed(void)			{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
@@ -565,8 +565,8 @@ public:
 
     CBonus      *getBonusList(void)         { return cBonuses; }
 
-    void        setZombieTime(float z)      { fZombieTime = z; }
-    float       getZombieTime(void)         { return fZombieTime; }
+    void        setZombieTime(const Time& z)      { fZombieTime = z; }
+    Time       getZombieTime(void)         { return fZombieTime; }
 
 	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
 
@@ -585,7 +585,7 @@ public:
 
 	// Use only when iGameType == GME_JOIN
 	int getMyPing()							{ return iMyPing; }
-	float serverTime()						{ return fServertime; }
+	TimeDiff serverTime()						{ return fServertime; }
 	
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
 	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
@@ -618,10 +618,10 @@ public:
 	CViewport * getViewports()					{ return cViewports; }
 
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
-	float		getLastFileRequest()					{ return fLastFileRequest; };
-	void		setLastFileRequest( float _f ) 			{ fLastFileRequest = _f; };
-	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
-	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
+	Time		getLastFileRequest()					{ return fLastFileRequest; };
+	void		setLastFileRequest( const Time& _f ) 			{ fLastFileRequest = _f; };
+	Time		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
+	void		setLastFileRequestPacketReceived( const Time& _f ) { fLastFileRequestPacketReceived = _f; };
 
 	bool		getSpectate()							{ return bSpectate; };
 	void		setSpectate( bool _b )					{ bSpectate = _b; };

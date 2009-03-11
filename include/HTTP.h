@@ -213,19 +213,19 @@ private:
 	bool			bGotHttpHeader;
 	bool			bChunkedTransfer;
 	bool			bGotDataFromServer;  // True if we received some data from the server
-	float			fResolveTime;
-	float			fConnectTime;
-	float			fSocketActionTime;
+	Time			fResolveTime;
+	Time			fConnectTime;
+	Time			fSocketActionTime;
 	bool			bRedirecting;
 	int				iRedirectCode;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 
 	// Bandwidth measurement
-	float			fDownloadStart;
-	float			fDownloadEnd;
-	float			fUploadStart;
-	float			fUploadEnd;
+	Time			fDownloadStart;
+	Time			fDownloadEnd;
+	Time			fUploadStart;
+	Time			fUploadEnd;
 
 	std::string		sEmpty; // Returned when Data is being processed
 
@@ -291,8 +291,8 @@ public:
 	size_t				GetSentDataLen() const		{ Lock(); size_t r = iDataSent; Unlock(); return r; }
 	bool				RequestedData()	const		{ return bRequested; }
 
-	float				GetDownloadTime() const		{ Lock(); float r = fDownloadEnd - fDownloadStart; Unlock(); return r; }
-	float				GetUploadTime()	const		{ Lock(); float r = fUploadEnd - fUploadStart; Unlock(); return r; }
+	TimeDiff			GetDownloadTime() const		{ Lock(); TimeDiff r = fDownloadEnd - fDownloadStart; Unlock(); return r; }
+	TimeDiff			GetUploadTime()	const		{ Lock(); TimeDiff r = fUploadEnd - fUploadStart; Unlock(); return r; }
 
 	float				GetDownloadSpeed() const;
 	float				GetUploadSpeed() const;

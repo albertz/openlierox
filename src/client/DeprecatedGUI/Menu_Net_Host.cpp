@@ -458,9 +458,9 @@ bool		bHost_Update = false;
 bool		bStartDedicated = false;
 int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
-float		fStartDedicatedSecondsPassed = 0;
+Time		fStartDedicatedSecondsPassed = 0;
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
-float		fHostLobbyStart = 0;
+Time		fHostLobbyStart = 0;
 bool		bTestedSpeed = false;
 int			secondsAnnounced = -1;
 
@@ -468,7 +468,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 			( bStartDedicated, "bStartDedicated" )
 			( iStartDedicatedSeconds, "iStartDedicatedSeconds" )
 			( iStartDedicatedMinPlayers, "iStartDedicatedMinPlayers" )
-			( fStartDedicatedSecondsPassed, "fStartDedicatedSecondsPassed" )
+//			( fStartDedicatedSecondsPassed, "fStartDedicatedSecondsPassed" )
 			( iStartDedicatedServerSpamsSomeInfoTimeout, "iStartDedicatedServerSpamsSomeInfoTimeout" )
 			;
 
@@ -553,7 +553,7 @@ void Menu_Net_HostLobbyDraw(void)
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
 {
-	fHostLobbyStart = tLX->fCurTime;
+	fHostLobbyStart = tLX->currentTime;
 
     // Lobby gui layout
 	cHostLobby.Shutdown();
@@ -640,7 +640,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	}
 
 	iSpeaking = 0; // The first player always speaks
-	fStartDedicatedSecondsPassed = tLX->fCurTime;	// Reset timers
+	fStartDedicatedSecondsPassed = tLX->currentTime;	// Reset timers
 }
 
 //////////////////////
@@ -1100,7 +1100,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						CCheckbox *c = (CCheckbox *)cHostLobby.getWidget(hl_StartDedicated);
 						bStartDedicated = c->getValue() != 0;
 						if( bStartDedicated )
-							fStartDedicatedSecondsPassed = tLX->fCurTime;
+							fStartDedicatedSecondsPassed = tLX->currentTime;
 				}
                 break;
 
@@ -1131,7 +1131,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	}
 
 	// If hosting for the first time or the network speed is low, ask for the upload speed test
-	if (!bDedicated && tLX->fCurTime - fHostLobbyStart >= 0.5f && !bTestedSpeed)  { // Show a half second after coming to the lobby
+	if (!bDedicated && tLX->currentTime - fHostLobbyStart >= 0.5f && !bTestedSpeed)  { // Show a half second after coming to the lobby
 		if (tLXOptions->bFirstHosting || tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)  {  
 			bTestedSpeed = true;
 
@@ -1154,14 +1154,14 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
 
-	int secondsTillGameStart = iStartDedicatedSeconds - Round( tLX->fCurTime - fStartDedicatedSecondsPassed );
+	int secondsTillGameStart = iStartDedicatedSeconds - Round( (tLX->currentTime - fStartDedicatedSecondsPassed).seconds() );
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{
-		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
+		if( tLX->currentTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
 			cClient->getNetEngine()->SendText( "Game will start when " +
 					itoa(iStartDedicatedMinPlayers) + " players connect", "");
-			fStartDedicatedSecondsPassed = tLX->fCurTime;
+			fStartDedicatedSecondsPassed = tLX->currentTime;
 			secondsAnnounced = -1;
 		}
 	}
@@ -1405,16 +1405,16 @@ void Menu_Net_HostDeregister(void)
 
 	Menu_RedrawMouse(true);
 
-	float starttime = tLX->fCurTime;
+	Time starttime = tLX->currentTime;
 	SetGameCursor(CURSOR_ARROW);
 
 	while(true) {
 		Menu_RedrawMouse(true);
 		ProcessEvents();
-		tLX->fCurTime = GetMilliSeconds();
+		tLX->currentTime = GetTime();
 
 		// If we have gone over a 4 second limit, just leave
-		if( tLX->fCurTime - starttime > 4.0f ) {
+		if( tLX->currentTime - starttime > 4.0f ) {
 			cServer->getHttp()->CancelProcessing();
 			break;
 		}
@@ -1778,7 +1778,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
 						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
 						info->addItem(5, "Connected for " + 
-							itoa( (int)((tLX->fCurTime - w->getClient()->getConnectTime()) / 60.0f)) + " minutes");
+							itoa( (int)((tLX->currentTime - w->getClient()->getConnectTime()) / 60.0f)) + " minutes");
 						info->addItem(6, "Total " + 
 							itoa( w->getTotalKills() ) + " kills / " +
 							itoa( w->getTotalDeaths() ) + " deaths / " +

@@ -65,7 +65,7 @@ void CClient::Simulation(void)
 	}
 
     // We stop a few seconds after the actual game over
-    if(bGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
+    if(bGameOver && tLX->currentTime - fGameOverTime > GAMEOVER_WAIT)
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
@@ -88,7 +88,7 @@ void CClient::Simulation(void)
 
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal(), tLX->fCurTime );
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal(), tLX->currentTime );
 
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -177,7 +177,7 @@ void CClient::Simulation(void)
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), tLX->fCurTime);
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), tLX->currentTime);
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
@@ -204,7 +204,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 	}
 
     // We stop a few seconds after the actual game over
-    if(bGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
+    if(bGameOver && tLX->currentTime - fGameOverTime > GAMEOVER_WAIT)
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
@@ -310,7 +310,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
         if( fabs(prj->GetPosition().y - pos.y) > 15 )
             continue;
 
-        prj->setExplode( tLX->fCurTime + CalculateDistance(prj->GetPosition(),pos) / 500.0f, true);
+        prj->setExplode( tLX->currentTime + CalculateDistance(prj->GetPosition(),pos) / 500.0f, true);
     }*/
 
 
@@ -414,7 +414,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) )
 	{
 		w->getDamageReport()[owner].damage += damage;
-		w->getDamageReport()[owner].lastTime = tLX->fCurTime;
+		w->getDamageReport()[owner].lastTime = tLX->currentTime;
 	}
 
 	// Update our scoreboard for local worms
@@ -544,7 +544,7 @@ void CClient::PlayerShoot(CWorm *w)
 void CClient::ShootSpecial(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
-	float dt = tLX->fDeltaTime;
+	TimeDiff dt = tLX->fDeltaTime;
 
 	// Safety
 	if(!Slot->Weapon)
@@ -558,7 +558,7 @@ void CClient::ShootSpecial(CWorm *w)
 		// Jetpack
 		case SPC_JETPACK:
 			CVec *v = w->getVelocity();
-			*v += CVec(0,-50) * ((float)Slot->Weapon->tSpecial.Thrust * dt);
+			*v += CVec(0,-50) * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
 
 			Uint32 blue = MakeColour(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();
@@ -680,7 +680,7 @@ void CClient::DrawBeam(CWorm *w)
 
 ///////////////////
 // Spawn a projectile
-void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float remotetime, float ignoreWormCollBeforeTime)
+void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, Time remotetime, Time ignoreWormCollBeforeTime)
 {
 	CProjectile* proj = cProjectiles.getNewObj();
 
@@ -914,16 +914,16 @@ void CClient::ProcessServerShotList(void)
 	// shot->fTime > fServerTime.
 	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
 	// the time of both ways (ping+pong).
-	float fSpawnTime = tLX->fCurTime - ((float)iMyPing / 1000.0f) / 2.0f;
+	Time fSpawnTime = tLX->currentTime - ((float)iMyPing / 1000.0f) / 2.0f;
 
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);
 
-		float time = fSpawnTime;
+		Time time = fSpawnTime;
 		// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
 		if(cServerVersion >= OLXBetaVersion(8))
 			if(sh->fTime <= fServertime) // just a security check
-				time = tLX->fCurTime - (fServertime - sh->fTime);
+				time = tLX->currentTime - (fServertime - sh->fTime);
 		
 		// handle all shots not given by me
 		if(sh)
@@ -951,7 +951,7 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 	shot.nWeapon = pcWorm->getCurWeapon()->Weapon->ID;
 	shot.nWormID = pcWorm->getID();
 
-	ProcessShot( &shot, tLX->fCurTime );
+	ProcessShot( &shot, tLX->currentTime );
 }
 
 void CClient::NewNet_DoLocalShot( CWorm *w ) 
@@ -985,7 +985,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	shot.cPos = w->getPos();
 	shot.cWormVel = *w->getVelocity();
-	shot.fTime = NewNet::GetCurTimeFloat();
+	shot.fTime = NewNet::GetCurTimeFloat() - Time(0);
 	shot.nRandom = w->NewNet_random.getInt(255);
 	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
 	shot.nWormID = w->getID();
@@ -1033,7 +1033,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 ///////////////////
 // Process a shot
-void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
+void CClient::ProcessShot(shoot_t *shot, Time fSpawnTime)
 {
 	CWorm *w = &cRemoteWorms[shot->nWormID];
 
@@ -1127,7 +1127,7 @@ void CClient::ProcessShot(shoot_t *shot, float fSpawnTime)
 		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
 		// is probably outdated at this time
 		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime,
-						tLX->fCurTime + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
+						tLX->currentTime + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 					   );
 
 		shot->nRandom++;
@@ -1297,7 +1297,7 @@ void CClient::processChatter(void)
 		sChat_Text = "";
 		iChat_Lastchar = 0;
 		bChat_Holding = false;
-		fChat_TimePushed = -9999;
+		fChat_TimePushed = Time();
 		bTeamChat = false;
 		if( cTeamChat_Input.wasDown() )
 			bTeamChat = true;
@@ -1368,7 +1368,7 @@ void CClient::processChatter(void)
 			sChat_Text = "";
 			iChat_Lastchar = 0;
 			bChat_Holding = false;
-			fChat_TimePushed = -9999;
+			fChat_TimePushed = Time();
 
 			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
 				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
@@ -1408,14 +1408,14 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         if(iChat_Lastchar != input.ch)
             bChat_Holding = false;
         else {
-            if(tLX->fCurTime - fChat_TimePushed < 0.4f)
+            if(tLX->currentTime - fChat_TimePushed < 0.4f)
                 return;
         }
     }
 
     if(!bChat_Holding) {
         bChat_Holding = true;
-        fChat_TimePushed = tLX->fCurTime;
+        fChat_TimePushed = tLX->currentTime;
     }
 
     iChat_Lastchar = input.ch;

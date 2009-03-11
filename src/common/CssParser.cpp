@@ -607,7 +607,7 @@ bool CSSParser::parseInSelector(CSSParser::Selector &sel, const std::string &css
 void CSSParser::test_css()
 {
 	return;
-	float start = GetMilliSeconds();
+	Time start = GetTime();
 
 	CSSParser c;
 	c.parse(GetFileContents("default.css"), ".");
@@ -642,6 +642,6 @@ void CSSParser::test_css()
 		at != s.getAttributes().end(); at++)  {
 			printf( "%s\n", (at->getName() +  ": " + at->getUnparsedValue()).c_str() );
 	}
-	printf("Parsing took %f sec\n", GetMilliSeconds() - start);
+	printf("Parsing took %f sec\n", (float)(GetTime() - start).seconds());
 	printf("==== CSS TEST END ====\n");
 }

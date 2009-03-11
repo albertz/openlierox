@@ -120,7 +120,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 	
 	// client (>=beta8) sends also current server time
 	if(!fromServer && versionOfReceiver >= OLXBetaVersion(8)) {
-		bs->writeFloat( cClient->serverTime() );
+		bs->writeFloat( (float)cClient->serverTime().seconds() );
 	}
 
 	// Update the "last" variables
@@ -133,7 +133,7 @@ void CWorm::updateCheckVariables()
 {
 	tLastState = tState; tLastState.iDirection = iDirection;
 	fLastAngle = fAngle;
-	fLastUpdateWritten = tLX->fCurTime;
+	fLastUpdateWritten = tLX->currentTime;
 	iLastCurWeapon = iCurrentWeapon;
 	cNinjaRope.updateCheckVariables();
 	vLastUpdatedPos = vPos;
@@ -188,7 +188,7 @@ bool CWorm::checkPacketNeeded()
 // this is used to update the position on the client-side in CWorm::readPacketState
 // it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
-	float t = tLX->fCurTime - fLastPosUpdate;
+	TimeDiff t = tLX->currentTime - fLastPosUpdate;
 
 	// TODO: the following just draws the pos received in packet for debugging
 	// atm we only have the debugimage available if _AI_DEBUG is set
@@ -232,7 +232,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	{
 		// ignoring acceleration in this case for estimation
 		if(t > 0.0f)
-			vVelocity = dist / t;
+			vVelocity = dist / t.seconds();
 	}
 	else
 	{
@@ -243,7 +243,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			vOldPosOfLastPaket = vPreOldPosOfLastPaket;
 			vLastEstimatedVel = vPreLastEstimatedVel;
 			fLastPosUpdate = fPreLastPosUpdate;
-			t = tLX->fCurTime - fLastPosUpdate;
+			t = tLX->currentTime - fLastPosUpdate;
 			dist = newpos - vOldPosOfLastPaket;
 		}
 
@@ -275,7 +275,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 
 			// this estimates the vel of fLastPosUpdate
 			// it do a better estimation as we had last time, so believe this more
-			CVec estimatedVel = (dist / t) - (a * t / 2.0f);
+			CVec estimatedVel = (dist / t.seconds()) - (a * t.seconds() / 2.0f);
 
 			// in fLastPosUpdate, we have old vLastEstimatedVel and new estimatedVel
 			// add the dif of them to our current vel
@@ -311,7 +311,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	fPreLastPosUpdate = fLastPosUpdate;
 
 	vOldPosOfLastPaket = newpos;
-	fLastPosUpdate = tLX->fCurTime;
+	fLastPosUpdate = tLX->currentTime;
 
 }
 
@@ -524,7 +524,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec( (float)vx, (float)vy );
-		fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime; // update time to get sure that we don't use old data
+		fPreLastPosUpdate = fLastPosUpdate = tLX->currentTime; // update time to get sure that we don't use old data
 		vPreOldPosOfLastPaket = vOldPosOfLastPaket = vPos; // same with pos
 	}
 
@@ -554,7 +554,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		}
 	}
 
-	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
+	this->fLastSimulationTime = tLX->currentTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 
 

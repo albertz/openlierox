@@ -346,9 +346,9 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		/*
 		if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 			// I don't want to track keyrepeats here; but works only for special keys
-			notes << tLX->fCurTime << ": pressed key " << kbev.sym << endl;
+			notes << tLX->currentTime << ": pressed key " << kbev.sym << endl;
 		else if(!kbev.down)
-			notes << tLX->fCurTime << ": released key " << kbev.sym << endl;
+			notes << tLX->currentTime << ": released key " << kbev.sym << endl;
 		*/
 		
 	} else

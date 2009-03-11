@@ -379,7 +379,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 
 
             // Drop or close it
-			iNow = (int)(GetMilliSeconds() * 1000);
+			iNow = GetTime();
 			if (tMouse->FirstDown)  {
 				if (!bDropped)  {  // Not dropped, drop it
 					bArrowDown = true;

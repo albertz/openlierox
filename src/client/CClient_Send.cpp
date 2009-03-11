@@ -43,7 +43,7 @@ void CClientNetEngine::SendWormDetails(void)
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update
 	// we are checking with bandwidth if we should add an update
-	/*if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
+	/*if ((tLX->currentTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
 			return; */
 			
@@ -81,7 +81,7 @@ void CClientNetEngine::SendWormDetails(void)
 	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
-	client->fLastUpdateSent = tLX->fCurTime;
+	client->fLastUpdateSent = tLX->currentTime;
 
 	// Write the update
 	bs.writeByte(C2S_UPDATE);
@@ -142,7 +142,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 		if (GetGlobalIRC())
 			res = GetGlobalIRC()->sendChat(sText.substr(sText.find(' ') + 1));
 		if (!res)
-			client->cChatbox.AddText("Could not send the IRC message", tLX->clNetworkText, TXT_NETWORK, tLX->fCurTime);
+			client->cChatbox.AddText("Could not send the IRC message", tLX->clNetworkText, TXT_NETWORK, tLX->currentTime);
 		return;
 	}
 
@@ -162,7 +162,7 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 		{
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
 			if( ! Cmd_ParseLine(sText.substr(1)) ) {
-				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, TXT_NOTICE, tLX->currentTime);
 			}
 			return;
 
@@ -333,7 +333,7 @@ void CClientNetEngineBeta9::QueueReportDamage(int victim, int damage, int offend
 
 void CClientNetEngineBeta9::SendReportDamage(bool flush)
 {
-	if( ! flush && tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - client->getNetSpeed() ) )
+	if( ! flush && tLX->currentTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - client->getNetSpeed() ) )
 		return;
 
 	CBytestream bs;
@@ -362,5 +362,5 @@ void CClientNetEngineBeta9::SendReportDamage(bool flush)
 	client->cNetChan->AddReliablePacketToSend(bs);
 
 	cDamageReport.clear();
-	fLastDamageReportSent = tLX->fCurTime;
+	fLastDamageReportSent = tLX->currentTime;
 }

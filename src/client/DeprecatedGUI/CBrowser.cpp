@@ -1319,7 +1319,7 @@ void CBrowser::AdjustScrollbar(bool mouse)
 		return;
 
 	// If scrolling using mouse, don't scroll so fast
-	if (mouse && tLX->fCurTime - fLastMouseScroll <= 0.1f)
+	if (mouse && tLX->currentTime - fLastMouseScroll <= 0.1f)
 		return;
 
 	if (iCursorLine >= tLines.size())
@@ -1342,7 +1342,7 @@ void CBrowser::AdjustScrollbar(bool mouse)
 	}
 
 	if (mouse)
-		fLastMouseScroll = tLX->fCurTime;
+		fLastMouseScroll = tLX->currentTime;
 
 	bNeedsRender = true;
 }

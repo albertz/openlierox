@@ -209,10 +209,10 @@ void Menu_MainFrame(void)
 	CGuiSkin::ProcessUpdateCallbacks();	// Process the news box
 
 	if(mouseover) {
-		alpha += tLX->fDeltaTime*5;
+		alpha += tLX->fDeltaTime.seconds()*5;
 		alpha = MIN(1.0f,alpha);
 	} else {
-		alpha -= tLX->fDeltaTime*5;
+		alpha -= tLX->fDeltaTime.seconds()*5;
 		alpha = MAX(0.0f,alpha);
 	}
 

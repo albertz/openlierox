@@ -58,7 +58,7 @@ class CWorm;
 class shoot_t {
 public:
 
-	float	fTime;
+	TimeDiff	fTime;
 	int		nWeapon;
 	CVec	cPos;
 	CVec	cWormVel;
@@ -80,8 +80,8 @@ public:
 	CShootList() {
 		m_nNumShootings = 0;
 		m_psShoot = NULL;
-		m_fStartTime = -1;
-		m_fLastWrite = -9999;
+		m_fStartTime = Time();
+		m_fLastWrite = Time();
 	}
 
 	// Destructor
@@ -95,8 +95,8 @@ private:
 
 	int			m_nNumShootings;
 	shoot_t		*m_psShoot;
-	float		m_fStartTime;
-	float		m_fLastWrite;
+	Time		m_fStartTime;
+	Time		m_fLastWrite;
 
 
 
@@ -106,7 +106,7 @@ public:
 	bool		Initialize(void);
 	void		Shutdown(void);
 
-	bool		addShoot(float fTime, float fSpeed, int nAngle, CWorm *pcWorm);
+	bool		addShoot(TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm);
 
 	bool		writePacket(CBytestream *bs);
 	
@@ -128,8 +128,8 @@ public:
 	shoot_t		*getShot(int index);
 
 	int			getNumShots(void)			{ return m_nNumShootings; }
-	float		getStartTime(void)			{ return m_fStartTime; }
-	float		getLastWrite(void)			{ return m_fLastWrite; }
+	Time		getStartTime(void)			{ return m_fStartTime; }
+	Time		getLastWrite(void)			{ return m_fLastWrite; }
 
 };
 

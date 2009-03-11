@@ -69,7 +69,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 		chan->recheckSeqs();
 	}
 
-	cl->setLastReceived(tLX->fCurTime);
+	cl->setLastReceived(tLX->currentTime);
 
 
 	// Do not process empty packets
@@ -625,7 +625,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 void CServerNetEngine::ParseSendFile(CBytestream *bs)
 {
-	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
+	cl->setLastFileRequestPacketReceived( tLX->currentTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
 		if( cl->getUdpFileDownloader()->isFinished() &&
@@ -751,7 +751,7 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	int			i;
 	NetworkAddr	adrFrom;
-	float		OldestTime = 99999;
+	Time		OldestTime = Time::MAX();
 	int			ChallengeToSet = -1;
 	CBytestream	bs;
 
@@ -797,7 +797,7 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 		// overwrite the oldest
 		tChallenges[ChallengeToSet].iNum = (rand() << 16) ^ rand();
 		tChallenges[ChallengeToSet].Address = adrFrom;
-		tChallenges[ChallengeToSet].fTime = tLX->fCurTime;
+		tChallenges[ChallengeToSet].fTime = tLX->currentTime;
 		tChallenges[ChallengeToSet].sClientVersion = client_version;
 
 		i = ChallengeToSet;
@@ -1018,39 +1018,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// Ran out of slots
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
-		printf("%s - Server Error report",GetTime().c_str());
-		printf("fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
+		printf("%s - Server Error report",GetDateTime().c_str());
+		notes << "currentTime is " << (tLX->currentTime - Time()).seconds() << " Numplayers is " << numplayers << endl;
 		std::string msg;
 
-		FILE* ErrorFile = OpenGameFile("Server_error.txt","at");
-		if(ErrorFile == NULL)
-			printf("Great. We can't even open a bloody file.\n");
-		if(ErrorFile != NULL)
-		{
-			fprintf(ErrorFile,"%s - Server Error report",GetTime().c_str());
-			fprintf(ErrorFile,"fCurTime is %f . Numplayers is %i\n",tLX->fCurTime,numplayers);
-		}
-		p = 0;
-		for (CServerConnection* cl = cClients;p < MAX_CLIENTS;p++, cl++)
-		{
-			msg = "Client id " + itoa(p) + ". Status: ";
-			if (cl->getStatus() == NET_DISCONNECTED)
-				msg += "Disconnected.";
-			else if (cl->getStatus() == NET_CONNECTED)
-				msg += "Connected.";
-			else if (cl->getStatus() == NET_ZOMBIE)
-				msg += "Zombie. Zombie time is " + ftoa(cl->getZombieTime()) + ".";
-			else
-				msg += "Odd.";
-			msg += "\n";
-			printf( "%s", msg.c_str() );
-			if(ErrorFile != NULL)
-				fprintf(ErrorFile,"%s",msg.c_str());
-		}
-
-		if(ErrorFile)
-			fclose(ErrorFile);
-		ErrorFile = NULL;
 
 
 
@@ -1112,7 +1083,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
 
 	newcl->getChannel()->Create(&adrFrom, tSocket);
-	newcl->setLastReceived(tLX->fCurTime);
+	newcl->setLastReceived(tLX->currentTime);
 	newcl->setNetSpeed(iNetSpeed);
 
 	newcl->setClientVersion( clientVersion );
@@ -1344,7 +1315,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if(newcl->isLocalClient())
 		newcl->getRights()->Everything();
 		
-	newcl->setConnectTime(tLX->fCurTime);
+	newcl->setConnectTime(tLX->currentTime);
 	
 	
 	// handling for connect during game
@@ -1493,7 +1464,7 @@ void GameServer::ParseTime(NetworkSocket tSocket)
 	bs.Clear();
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::timeis");
-	bs.writeFloat( fServertime );
+	bs.writeFloat( (float)fServertime.seconds() );
 
 	bs.Send(tSocket);
 }
@@ -1749,7 +1720,7 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	if( socknum >= MAX_CLIENTS || socknum < 0 )
 		return;
 
-	fNatTraverseSocketsLastAccessTime[socknum] = tLX->fCurTime;
+	fNatTraverseSocketsLastAccessTime[socknum] = tLX->currentTime;
 
 
 	//printf("Sending lx:::traverse back, socknum %i\n", socknum);

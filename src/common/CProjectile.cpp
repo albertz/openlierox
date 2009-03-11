@@ -36,7 +36,7 @@ void CProjectile::setUnused() {
 ///////////////////
 // Spawn the projectile
 // this function is called by CClient::SpawnProjectile()
-void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time, float ignoreWormCollBeforeTime)
+void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, Time time, Time ignoreWormCollBeforeTime)
 {
 	// Safety (it is used for indexing later)
 	if (_owner >= MAX_WORMS || _owner < 0)  {
@@ -53,7 +53,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fRotation = (float)_rot;
 	iOwner = _owner;
 	bUsed = true;
-	fLastTrailProj = -99999;
+	fLastTrailProj = Time();
 	iRandom = _random;
     iFrameX = 0;
 	fIgnoreWormCollBeforeTime = ignoreWormCollBeforeTime;
@@ -403,7 +403,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
-	if (tLX->fCurTime - fSpawnTime <= fWallshootTime)
+	if (tLX->currentTime - fSpawnTime <= fWallshootTime)
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 
 	// Check collision with the terrain

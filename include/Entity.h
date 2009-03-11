@@ -63,7 +63,7 @@ public:
 	int		iRotation;
 	
 	float	fFrame;
-	float	fExtra;
+	TimeDiff	fExtra;
 	SmartPointer<SDL_Surface> bmpSurf;
 
 	bool isUsed() const	{ return bUsed; }
@@ -84,7 +84,7 @@ void	ClearEntities(void);
 
 void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img);
 void	DrawEntities(SDL_Surface * bmpDest, CViewport *v);
-void	SimulateEntities(float dt);
+void	SimulateEntities(TimeDiff dt);
 void	EntityBounce(entity_t *ent);
 
 void	NewNet_SaveEntities();

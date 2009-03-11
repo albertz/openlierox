@@ -210,7 +210,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 ///////////////////
 // Simulate the entities
-void SimulateEntities(float dt)
+void SimulateEntities(TimeDiff dt)
 {
 	CMap* map = cClient->getMap();
 	if (!map) { // Weird
@@ -218,7 +218,7 @@ void SimulateEntities(float dt)
 		return;
 	}
 
-	float realdt = tLX->fRealDeltaTime;
+	TimeDiff realdt = tLX->fRealDeltaTime;
 
 	for (Entities::Iterator::Ref e = tEntities.begin(); e->isValid(); e->next()) {
 
@@ -228,7 +228,7 @@ void SimulateEntities(float dt)
 		switch(ent->iType) {
 
 			case ENT_GIB:			
-				ent->iRotation += (int) (ent->fAnglVel * realdt);
+				ent->iRotation += (int) (ent->fAnglVel * realdt.seconds());
 				ent->iRotation %= 5;
 			
 			// Fallthrough
@@ -236,8 +236,8 @@ void SimulateEntities(float dt)
 			case ENT_PARTICLE:
 			case ENT_BLOOD:
 			case ENT_BLOODDROPPER:
-				ent->vVel.y += 100*dt;
-				ent->vPos += ent->vVel * dt;
+				ent->vVel.y += 100*dt.seconds();
+				ent->vPos += ent->vVel * dt.seconds();
 	
 				// Clipping
 				if(ent->vPos.x < 0 || ent->vPos.y < 0 || (uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
@@ -304,7 +304,7 @@ void SimulateEntities(float dt)
 
 			// Explosion
 			case ENT_EXPLOSION:
-				ent->fFrame += realdt * 40;
+				ent->fFrame += realdt.seconds() * 40;
 				if(ent->fFrame > 15) ent->setUnused();
 				break;
 
@@ -312,32 +312,32 @@ void SimulateEntities(float dt)
 			case ENT_SMOKE:
 				// Fallthrough
 			case ENT_CHEMSMOKE:
-				ent->fFrame += realdt * 15;
+				ent->fFrame += realdt.seconds() * 15;
 				if((int)ent->fFrame > 4) ent->setUnused();
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
-				ent->fFrame += realdt * 15;
+				ent->fFrame += realdt.seconds() * 15;
 				if((int)ent->fFrame > 3) ent->setUnused();
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
-				ent->fFrame += realdt * 15;
+				ent->fFrame += realdt.seconds() * 15;
 				if((int)ent->fFrame > 5) ent->setUnused();
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
-				ent->vPos = ent->vPos + CVec(0, 5.0f * dt);
-				ent->fFrame += realdt * 5;
+				ent->vPos = ent->vPos + CVec(0, 5.0f * dt.seconds());
+				ent->fFrame += realdt.seconds() * 5;
 				if((int)ent->fFrame > 2) ent->setUnused();
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
-				ent->fFrame += realdt * 200;
+				ent->fFrame += realdt.seconds() * 200;
 				if((int)ent->fFrame > 150) ent->setUnused();
 				break;
 

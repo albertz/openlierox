@@ -71,7 +71,7 @@ void CWorm::Clear(void)
 	vVelocity = CVec(0,0);
 	vFollowPos = CVec(0,0);
 	bFollowOverride = false;
-	fLastUpdateWritten = -9999;
+	fLastUpdateWritten = Time();
 	fCollisionTime = 0;
 	vCollisionVelocity = CVec(0, 0);
 	bCollidedLastFrame = false;
@@ -81,7 +81,7 @@ void CWorm::Clear(void)
 	iLastCurWeapon = 255;
 
 	cNinjaRope.Clear();
-	fRopeTime = -9999;
+	fRopeTime = Time();
 	bRopeDownOnce = false;
 	bRopeDown = false;
 
@@ -96,15 +96,15 @@ void CWorm::Clear(void)
 
 	bTagIT = false;
 	fTagTime = 0;
-	fLastSparkle = -99999;
+	fLastSparkle = Time();
 	iDirtCount = 0;
 
-	fLastBlood = -9999;
+	fLastBlood = Time();
 
-	fPreLastPosUpdate = fLastPosUpdate = -9999;
+	fPreLastPosUpdate = fLastPosUpdate = Time();
 
 	//bUsesMouse = false;
-	fLastInputTime = tLX->fCurTime;
+	fLastInputTime = tLX->currentTime;
 
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
@@ -112,7 +112,7 @@ void CWorm::Clear(void)
 	cGameScript = NULL;
 	short i;
 	for(i=0;i<NUM_FRAMES;i++)
-		fFrameTimes[i] = -99999.0f;
+		fFrameTimes[i] = Time();
 
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
@@ -143,7 +143,7 @@ void CWorm::Clear(void)
 	bNoShooting = false;
 	bFlag = false;
 
-	fLastSimulationTime = tLX->fCurTime;
+	fLastSimulationTime = tLX->currentTime;
 	
 	
 	if(m_inputHandler) {
@@ -242,7 +242,7 @@ void CWorm::Unprepare() {
 }
 
 void CWorm::StartGame() {
-	fTimeofDeath = tLX->fCurTime;
+	fTimeofDeath = tLX->currentTime;
 	m_inputHandler->startGame();
 }
 
@@ -271,7 +271,7 @@ void CWorm::getInput() {
 }
 
 void CWorm::clearInput() {
-	fLastInputTime = tLX->fCurTime;
+	fLastInputTime = tLX->currentTime;
 	
 	// Clear the state
 	tState.bCarve = false;
@@ -376,7 +376,7 @@ void CWorm::Spawn(CVec position) {
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
 	iMoveDirection = DIR_RIGHT;
-	fLastInputTime = tLX->fCurTime;
+	fLastInputTime = tLX->currentTime;
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
@@ -398,7 +398,7 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = tLX->fCurTime;
+	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = tLX->currentTime;
 
 	if(bLocal) {
 		clearInput();
@@ -615,7 +615,7 @@ void DrawWormName(SDL_Surface * dest, const std::string& name, Uint32 x, Uint32 
 
 void CWorm::UpdateDrawPos() {
 	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this->getID()) ) {
-		//if(fLastPosUpdate > tLX->fCurTime) return; // something is wrong, we probably have not gotten any update yet
+		//if(fLastPosUpdate > tLX->currentTime) return; // something is wrong, we probably have not gotten any update yet
 
 		// tmp hack
 		vDrawPos = vPos;
@@ -716,7 +716,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( tLXOptions->bDamagePopups && isWormVisible(this, v) )
 	{
 		// Sort them first
-		std::map< float, int > DamageReportDrawOrder;
+		std::map< Time, int > DamageReportDrawOrder;
 		int i;
 		for( i=0; i<MAX_WORMS; i++ )
 			if( cDamageReport[i].damage != 0 )
@@ -726,10 +726,10 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		{
 			int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
 			// Make it float up a bit when time passes
-			damageDrawPos += (int)(( tLX->fCurTime - DamageReportDrawOrder.begin()->first ) * 30);
+			damageDrawPos += (int)(( tLX->currentTime - DamageReportDrawOrder.begin()->first ).seconds() * 30);
 
 			int damageSum = 0;
-			std::map< float, int > :: const_iterator it;
+			std::map< Time, int > :: const_iterator it;
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 				damageSum += cDamageReport[it->second].damage;
 			Uint32 damageColor = damageSum >= 0 ? Color( 0xff, 0x80, 0x40 ).get() : Color( 0x40, 0xff, 0 ).get() ; // Red or green
@@ -761,12 +761,12 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			if( tLXOptions->bColorizeDamageByWorm )
 			{
 				for( i=0; i<MAX_WORMS; i++ )
-					if( tLX->fCurTime - cDamageReport[i].lastTime > 1.5f )
+					if( tLX->currentTime - cDamageReport[i].lastTime > 1.5f )
 						cDamageReport[i].damage = 0;
 			}
 			else
 			{
-				if( tLX->fCurTime - DamageReportDrawOrder.begin()->first > 1.5f )
+				if( tLX->currentTime - DamageReportDrawOrder.begin()->first > 1.5f )
 					for( i=0; i<MAX_WORMS; i++ )
 						cDamageReport[i].damage = 0;
 			}
@@ -932,7 +932,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
-			if( tLX->fCurTime > fForceWeapon_Time )
+			if( tLX->currentTime > fForceWeapon_Time )
 				bForceWeapon_Name = false;
 		}
 	}
@@ -1039,7 +1039,7 @@ bool CWorm::Kill(void)
 //	notes << "our worm " << iID << " died" << endl;
 
 	bAlive = false;
-	fTimeofDeath = tLX->fCurTime;
+	fTimeofDeath = tLX->currentTime;
 
 	// -2 means there is no lives starting value
 	if(iLives == WRM_UNLIM)
@@ -1104,7 +1104,7 @@ void CWorm::Hide(bool immediate)
 {
 	bVisible = false;
 	if (!immediate)
-		fVisibilityChangeTime = tLX->fCurTime;
+		fVisibilityChangeTime = tLX->currentTime;
 	else
 		fVisibilityChangeTime = 0;
 }
@@ -1115,7 +1115,7 @@ void CWorm::Show(bool immediate)
 {
 	bVisible = true;
 	if (!immediate)
-		fVisibilityChangeTime = tLX->fCurTime;
+		fVisibilityChangeTime = tLX->currentTime;
 	else
 		fVisibilityChangeTime = 0;
 }
@@ -1174,7 +1174,7 @@ void CWorm::setUsed(bool _u)
 	bUsed = _u; 
 	if( ! _u ) 
 		return;
-	fLastSimulationTime = tLX->fCurTime; 
+	fLastSimulationTime = tLX->currentTime; 
 	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
 }
 

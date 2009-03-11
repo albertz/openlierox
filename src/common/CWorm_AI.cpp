@@ -879,22 +879,22 @@ bool CWormBotInputHandler::AI_Initialize() {
     nGridCols = cClient->getMap()->getGridCols();
     nGridRows = cClient->getMap()->getGridRows();
 
-    m_worm->fLastCarve = -9999;
+    m_worm->fLastCarve = Time();
     cStuckPos = CVec(-999,-999);
-    fStuckTime = -9999;
-    fLastPathUpdate = -9999;
-	fLastJump = -9999;
-	fLastCreated = -9999;
-	fLastThink = -9999;
+    fStuckTime = 0;
+    fLastPathUpdate = Time();
+	fLastJump = Time();
+	fLastCreated = Time();
+	fLastThink = Time();
     bStuck = false;
 	bPathFinished = true;
 	iAiGameType = GAM_OTHER;
 	nAITargetType = AIT_NONE;
 	nAIState = AI_THINK;
-	fLastFace = -9999;
-	fLastShoot = -9999;
-	fLastCompleting = -9999;
-	fLastGoBack = -9999;
+	fLastFace = Time();
+	fLastShoot = Time();
+	fLastCompleting = Time();
+	fLastGoBack = Time();
 
 
 	fCanShootTime = 0;
@@ -1015,7 +1015,7 @@ void CWormBotInputHandler::getInput() {
 	ws->bJump = false;
 
 	// Behave like humans and don't play immediatelly after spawn
-	if ((tLX->fCurTime - m_worm->fSpawnTime) < 0.4)
+	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4)
 		return;
 
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
@@ -1025,16 +1025,16 @@ void CWormBotInputHandler::getInput() {
     tLX->debug_string = "";
 
 	iRandomSpread = 0;
-	fLastRandomChange = -9999;
+	fLastRandomChange = Time();
 
 	iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 4);
 
     // Every 3 seconds we run the think function
-    if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
+    if(tLX->currentTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
 	// check more often if the path isn't finished yet
-	if(tLX->fCurTime - fLastThink > 0.5 && !bPathFinished)
+	if(tLX->currentTime - fLastThink > 0.5 && !bPathFinished)
 		nAIState = AI_THINK;
 
 	// Carve always; makes no problems and can only help
@@ -1329,7 +1329,7 @@ void CWormBotInputHandler::AI_Think()
     psAITarget = NULL;
     psBonusTarget = NULL;
     nAITargetType = AIT_NONE;
-    fLastThink = tLX->fCurTime;
+    fLastThink = tLX->currentTime;
 
 
     // Reload our weapons in idle mode
@@ -1347,7 +1347,7 @@ void CWormBotInputHandler::AI_Think()
 		AI_CreatePath();
 	}
 	else
-		fLastShoot = -9999;
+		fLastShoot = Time();
 
     // If we're down on health (less than 80%) we should look for a health bonus
     if(m_worm->iHealth < 80) {
@@ -1518,7 +1518,7 @@ CVec CWormBotInputHandler::AI_GetTargetPos(void)
 // Returns true if we're aiming at it
 bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 {
-    float   dt = tLX->fDeltaTime;
+    TimeDiff   dt = tLX->fDeltaTime;
     CVec	tgPos = cPos;
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
@@ -1526,14 +1526,14 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 
 	NormalizeVector(&tgDir);
 
-	if (tLX->fCurTime - fLastFace > 0.5f)  {  // prevent turning
+	if (tLX->currentTime - fLastFace > 0.5f)  {  // prevent turning
 	// Make me face the target
 		if(tgPos.x > m_worm->vPos.x)
 			m_worm->iDirection = DIR_RIGHT;
 		else
 			m_worm->iDirection = DIR_LEFT;
 
-		fLastFace = tLX->fCurTime;
+		fLastFace = tLX->currentTime;
 	}
 
 	// Aim at the target
@@ -1556,9 +1556,9 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > m_worm->fAngle)
-		m_worm->fAngle += wd->AngleSpeed * dt;
+		m_worm->fAngle += wd->AngleSpeed * dt.seconds();
 	else if(ang < m_worm->fAngle)
-		m_worm->fAngle -= wd->AngleSpeed * dt;
+		m_worm->fAngle -= wd->AngleSpeed * dt.seconds();
 
 	// If the angle is within +/- 3 degrees, just snap it
     if( fabs(m_worm->fAngle - ang) < 3) {
@@ -1602,9 +1602,9 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
     if(fDist < 0.75f || cPosTarget.y < m_worm->vPos.y) {
 
         // Change direction
-		if (bHaveTarget && (tLX->fCurTime-fLastFace) > 1.0)  {
+		if (bHaveTarget && (tLX->currentTime-fLastFace) > 1.0)  {
 			m_worm->iDirection = !m_worm->iDirection;
-			fLastFace = tLX->fCurTime;
+			fLastFace = tLX->currentTime;
 		}
 
         // Look up for a ninja throw
@@ -2009,9 +2009,9 @@ bool CWormBotInputHandler::AI_Shoot()
 				// Don't shoot so exactly on easier skill levels
 				static const int diff[4] = {13,8,3,0};
 
-				if (tLX->fCurTime-fLastRandomChange >= 0.5f)  {
+				if (tLX->currentTime-fLastRandomChange >= 0.5f)  {
 					iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
-					fLastRandomChange = tLX->fCurTime;
+					fLastRandomChange = tLX->currentTime;
 				}
 
 				alpha += iRandomSpread;
@@ -2033,9 +2033,9 @@ bool CWormBotInputHandler::AI_Shoot()
 					if (fabs(m_worm->fAngle-alpha) > (5 + abs(iRandomSpread)))  {
 						// Move the angle at the same speed humans are allowed to move the angle
 						if(alpha > m_worm->fAngle)
-							m_worm->fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+							m_worm->fAngle += wd->AngleSpeed * tLX->fDeltaTime.seconds();
 						else if(alpha < m_worm->fAngle)
-							m_worm->fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
+							m_worm->fAngle -= wd->AngleSpeed * tLX->fDeltaTime.seconds();
 						// still aiming ...
 						bAim = fabs(m_worm->fAngle-alpha) <= (5 + abs(iRandomSpread));
 					}
@@ -2140,7 +2140,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
     // Shoot
 	m_worm->tState.bShoot = true;
-	fLastShoot = tLX->fCurTime;
+	fLastShoot = tLX->currentTime;
 	return true;
 }
 
@@ -2156,8 +2156,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 	float diff[4] = {0.50f,0.30f,0.20f,0.12f};
 
     // We need to wait a certain time before we change weapon
-    if( tLX->fCurTime - fLastWeaponChange > diff[iAiDiffLevel] )
-        fLastWeaponChange = tLX->fCurTime;
+    if( tLX->currentTime - fLastWeaponChange > diff[iAiDiffLevel] )
+        fLastWeaponChange = tLX->currentTime;
     else
         return m_worm->iCurrentWeapon;
 
@@ -2868,7 +2868,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 
 	if(force_break) {
 		bPathFinished = false;
-		fSearchStartTime = tLX->fCurTime;
+		fSearchStartTime = tLX->currentTime;
 		((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
 
 		return false;
@@ -2898,7 +2898,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 				((searchpath_base*)pathSearcher)->removePathFromList(NEW_psPath);
 
 
-				fLastCreated = tLX->fCurTime;
+				fLastCreated = tLX->currentTime;
 
 				return true;
 			}
@@ -2907,8 +2907,8 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 		} else { // the searcher is still searching ...
 
 			// restart search in some cases
-			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, ((searchpath_base*)pathSearcher)->start) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target))) {
-				fSearchStartTime = tLX->fCurTime;
+			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->currentTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, ((searchpath_base*)pathSearcher)->start) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target))) {
+				fSearchStartTime = tLX->currentTime;
 				((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
 			}
 
@@ -2929,7 +2929,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	}
 
 	// Don't create the path so often!
-	if (tLX->fCurTime - fLastCreated <= 0.5f)  {
+	if (tLX->currentTime - fLastCreated <= 0.5f)  {
 		return NEW_psPath != NULL;
 	}
 
@@ -2938,7 +2938,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	bPathFinished = false;
 
 	// start a new search
-	fSearchStartTime = tLX->fCurTime;
+	fSearchStartTime = tLX->currentTime;
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
 	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
 	((searchpath_base*)pathSearcher)->start = VectorD2<int>(m_worm->vPos);
@@ -3497,8 +3497,8 @@ bool CWormBotInputHandler::AI_IsInAir(CVec pos, int area_a)
 void CWormBotInputHandler::AI_Carve()
 {
 	// Don't carve too fast
-	if (GetMilliSeconds() - m_worm->fLastCarve > 0.2f)  {
-		m_worm->fLastCarve = GetMilliSeconds();
+	if (GetTime() - m_worm->fLastCarve > 0.2f)  {
+		m_worm->fLastCarve = GetTime();
 		m_worm->tState.bCarve = true; // Carve
 	}
 	else  {
@@ -3511,8 +3511,8 @@ void CWormBotInputHandler::AI_Carve()
 bool CWormBotInputHandler::AI_Jump()
 {
 	// Don't jump so often
-	if (GetMilliSeconds() - fLastJump > 1.0f)  {
-		fLastJump = GetMilliSeconds();
+	if (GetTime() - fLastJump > 1.0f)  {
+		fLastJump = GetTime();
 		m_worm->tState.bJump = m_worm->bOnGround;
 	}
 	else  {
@@ -3572,7 +3572,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
 	// and move away!
 	if (iAiGameType == GAM_MORTARS)  {
-		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->fCurTime - fLastShoot >= 0.2f && tLX->fCurTime - fLastShoot <= 1.0f)  {
+		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
 			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce(m_worm->vPos).x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
 				m_worm->cNinjaRope.Release();
 
@@ -3601,7 +3601,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 	// Don't do anything crazy a while after shooting
 	if (iAiGameType == GAM_MORTARS)  {
-		if (tLX->fCurTime - fLastShoot <= 1.0f)
+		if (tLX->currentTime - fLastShoot <= 1.0f)
 			return;
 	}
 
@@ -3612,7 +3612,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
         ws->bMove = true;
 		AI_Jump();
 
-        if(tLX->fCurTime - fStuckPause > 2.0f)
+        if(tLX->currentTime - fStuckPause > 2.0f)
             bStuck = false;
 
         // return here, because we force this stuck-action
@@ -3633,12 +3633,12 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		CProjectile* psHeadingProjectile = NULL;
 
 		// Go away from the projectile
-		if (tLX->fCurTime-fLastFace >= 0.5f)  {
+		if (tLX->currentTime-fLastFace >= 0.5f)  {
 			if (psHeadingProjectile->GetVelocity().x > 0)
 				m_worm->iDirection = DIR_LEFT;  // Move in the opposite direction
 			else
 				m_worm->iDirection = DIR_RIGHT;
-			fLastFace = tLX->fCurTime;
+			fLastFace = tLX->currentTime;
 		}
 		ws->bMove = true;
 
@@ -3688,7 +3688,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 	// prevent suicides
 	if (iAiGameType == GAM_MORTARS)  {
-		if (tLX->fCurTime - fLastShoot <= 0.2f)  {
+		if (tLX->currentTime - fLastShoot <= 0.2f)  {
 			if (fRopeAttachedTime >= 0.1f)
 				m_worm->cNinjaRope.Release();
 			return;
@@ -3732,12 +3732,12 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		// check, if we have a direct connection to the current node
 		// else, choose some last node
 		// this will work and is in many cases the last chance
-		if (tLX->fCurTime - fLastGoBack >= 1)  {
+		if (tLX->currentTime - fLastGoBack >= 1)  {
 			for(next_node = NEW_psCurrentNode; next_node; next_node = next_node->psPrev) {
 				if(traceWormLine(CVec(next_node->fX, next_node->fY), m_worm->vPos))  {
 					if(NEW_psCurrentNode != next_node) {
 						NEW_psCurrentNode = next_node;
-						fLastGoBack = tLX->fCurTime;
+						fLastGoBack = tLX->currentTime;
  						newnode = true;
  					}
 					goto find_one_visible_node;
@@ -4000,14 +4000,14 @@ find_one_visible_node:
 /*			AI_Carve(); */
 
             bStuck = true;
-            fStuckPause = tLX->fCurTime;
+            fStuckPause = tLX->currentTime;
 
-			if (tLX->fCurTime-fLastFace >= 0.5f)  {
+			if (tLX->currentTime-fLastFace >= 0.5f)  {
 				m_worm->iDirection = !m_worm->iDirection;
-				fLastFace = tLX->fCurTime;
+				fLastFace = tLX->currentTime;
 			}
 
-            m_worm->fAngle -= m_worm->cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime;
+            m_worm->fAngle -= m_worm->cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
 	        m_worm->fAngle = MIN((float)60,m_worm->fAngle);
 	        m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
@@ -4210,7 +4210,7 @@ WormType* PRF_COMPUTER = &PRF_COMPUTER_instance;
 
 CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	nAIState = AI_THINK;
-    //fLastWeaponSwitch = -9999;
+    //fLastWeaponSwitch = Time();
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
@@ -4220,10 +4220,10 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	iAiDiffLevel = 0;
 	psAITarget = NULL;
 	fLastShoot = 0; // for AI
-	fLastJump = 999999;
+	fLastJump = Time();
 	fLastWeaponChange = 0;
-	fLastCompleting = -9999;
-	fLastGoBack = -9999;
+	fLastCompleting = Time();
+	fLastGoBack = Time();
 
 	
 	AI_Initialize();
@@ -4237,7 +4237,7 @@ CWormBotInputHandler::~CWormBotInputHandler() {
 void CWormBotInputHandler::onRespawn() {
 	nAIState = AI_THINK;
 	fLastShoot = 0;
-	fLastGoBack = -9999;
+	fLastGoBack = Time();
 
 	AI_Respawn();
 }

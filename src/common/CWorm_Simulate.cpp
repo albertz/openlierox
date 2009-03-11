@@ -41,8 +41,8 @@
 // Get the input from a human worm
 void CWormHumanInputHandler::getInput() {		
 	// HINT: we are calling this from simulateWorm
-	const float	dt = tLX->fCurTime - m_worm->fLastInputTime;
-	m_worm->fLastInputTime = tLX->fCurTime;
+	TimeDiff dt = tLX->currentTime - m_worm->fLastInputTime;
+	m_worm->fLastInputTime = tLX->currentTime;
 
 	CVec	dir;
 	int		weap = false;
@@ -101,33 +101,33 @@ void CWormHumanInputHandler::getInput() {
 		// Up
 		if(cUp.isDown() && !cUp.isJoystickThrottle()) {
 			// HINT: 500 is the original value here (rev 1)
-			m_worm->fAngleSpeed -= 500 * dt;
+			m_worm->fAngleSpeed -= 500 * dt.seconds();
 		} else if(cDown.isDown() && !cDown.isJoystickThrottle()) { // Down
 			// HINT: 500 is the original value here (rev 1)
-			m_worm->fAngleSpeed += 500 * dt;
+			m_worm->fAngleSpeed += 500 * dt.seconds();
 		} else {
 			if(!mouseControl) {
 				// HINT: this is the original order and code (before mouse patch - rev 1007)
 				CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
-				REDUCE_CONST(m_worm->fAngleSpeed, 200*dt);
+				REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
 				RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 
 			} else { // mouseControl for angle
 				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
 				float diff = mouse_dy * mouseSensity;
 				CLAMP_DIRECT(diff, -500.0f, 500.0f); // same limit as keyboard
-				m_worm->fAngleSpeed += diff * dt;
+				m_worm->fAngleSpeed += diff * dt.seconds();
 
 				// this tries to be like keyboard where this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
 					CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
-					REDUCE_CONST(m_worm->fAngleSpeed, 200*dt);
+					REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
 					RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 				}
 			}
 		}
 
-		m_worm->fAngle += m_worm->fAngleSpeed * dt;
+		m_worm->fAngle += m_worm->fAngleSpeed * dt.seconds();
 		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
@@ -145,17 +145,17 @@ void CWormHumanInputHandler::getInput() {
 		// no dt here, it's like the keyboard; and the value will be limited by dt later
 		m_worm->fMoveSpeedX += mouse_dx * mouseSensity * 0.01f;
 
-		REDUCE_CONST(m_worm->fMoveSpeedX, 1000*dt);
+		REDUCE_CONST(m_worm->fMoveSpeedX, 1000*dt.seconds());
 		//RESET_SMALL(m_worm->fMoveSpeedX, 5.0f);
 		CLAMP_DIRECT(m_worm->fMoveSpeedX, -500.0f, 500.0f);
 
 		if(fabs(m_worm->fMoveSpeedX) > 50) {
 			if(m_worm->fMoveSpeedX > 0) {
 				m_worm->iMoveDirection = DIR_RIGHT;
-				if(mouse_dx < 0) m_worm->lastMoveTime = tLX->fCurTime;
+				if(mouse_dx < 0) m_worm->lastMoveTime = tLX->currentTime;
 			} else {
 				m_worm->iMoveDirection = DIR_LEFT;
-				if(mouse_dx > 0) m_worm->lastMoveTime = tLX->fCurTime;
+				if(mouse_dx > 0) m_worm->lastMoveTime = tLX->currentTime;
 			}
 			ws->bMove = true;
 			if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown())
@@ -184,7 +184,7 @@ void CWormHumanInputHandler::getInput() {
 
 		if( ms->WheelScrollUp || ms->WheelScrollDown ) {
 			m_worm->bForceWeapon_Name = true;
-			m_worm->fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
 			if( ms->WheelScrollUp )
 				m_worm->iCurrentWeapon ++;
 			else
@@ -212,20 +212,20 @@ void CWormHumanInputHandler::getInput() {
 		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_LEFT)
 			|| ((( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) && !cSelWeapon.isDown())) {
 
-			if(tLX->fCurTime - m_worm->fLastCarve >= carveDelay) {
+			if(tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				m_worm->fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->currentTime;
 			}
 		}
 
 		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_RIGHT)
 			|| ((( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) && !cSelWeapon.isDown())) {
 
-			if(tLX->fCurTime - m_worm->fLastCarve >= carveDelay) {
+			if(tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				m_worm->fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->currentTime;
 			}
 		}
 	}
@@ -258,7 +258,7 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->iCurrentWeapon = i;
 			// Let the weapon name show up for a short moment
 			m_worm->bForceWeapon_Name = true;
-			m_worm->fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
 		}
 	}
 
@@ -272,7 +272,7 @@ void CWormHumanInputHandler::getInput() {
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {
 			ws->bMove = true;
-			m_worm->lastMoveTime = tLX->fCurTime;
+			m_worm->lastMoveTime = tLX->currentTime;
 
 			if(!cRight.isDown()) {
 				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_LEFT;
@@ -281,13 +281,13 @@ void CWormHumanInputHandler::getInput() {
 
 			if(rightOnce) {
 				ws->bCarve = true;
-				m_worm->fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->currentTime;
 			}
 		}
 
 		if(cRight.isDown()) {
 			ws->bMove = true;
-			m_worm->lastMoveTime = tLX->fCurTime;
+			m_worm->lastMoveTime = tLX->currentTime;
 
 			if(!cLeft.isDown()) {
 				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_RIGHT;
@@ -296,7 +296,7 @@ void CWormHumanInputHandler::getInput() {
 
 			if(leftOnce) {
 				ws->bCarve = true;
-				m_worm->fLastCarve = tLX->fCurTime;
+				m_worm->fLastCarve = tLX->currentTime;
 			}
 		}
 
@@ -380,7 +380,7 @@ void CWormHumanInputHandler::getInput() {
 void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
 {
 	CVec	dir;
-	const float	dt = NewNet::GetCurTimeFloat() - fLastInputTime;
+	TimeDiff dt = NewNet::GetCurTimeFloat() - fLastInputTime;
 	fLastInputTime = NewNet::GetCurTimeFloat();
 	
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
@@ -399,19 +399,19 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 		// Up
 		if(keys.keys[NewNet::K_UP]) {
 			// HINT: 500 is the original value here (rev 1)
-			fAngleSpeed -= 500 * dt;
+			fAngleSpeed -= 500 * dt.seconds();
 		} else if(keys.keys[NewNet::K_DOWN]) { // Down
 			// HINT: 500 is the original value here (rev 1)
-			fAngleSpeed += 500 * dt;
+			fAngleSpeed += 500 * dt.seconds();
 		} else {
 				// HINT: this is the original order and code (before mouse patch - rev 1007)
 				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
-				REDUCE_CONST(fAngleSpeed, 200*dt);
+				REDUCE_CONST(fAngleSpeed, 200*dt.seconds());
 				RESET_SMALL(fAngleSpeed, 5.0f);
 
 		}
 
-		fAngle += fAngleSpeed * dt;
+		fAngle += fAngleSpeed * dt.seconds();
 		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
 			fAngleSpeed = 0;
 

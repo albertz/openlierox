@@ -80,14 +80,14 @@ void GameServer::Clear(void)
 	for(int i=0; i<MAX_CLIENTS; i++)
 	{
 		InvalidateSocketState(tNatTraverseSockets[i]);
-		fNatTraverseSocketsLastAccessTime[i] = -9999;
+		fNatTraverseSocketsLastAccessTime[i] = Time();
 	}
 	bServerRegistered = false;
 	fLastRegister = 0;
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 
-	fLastUpdateSent = -9999;
+	fLastUpdateSent = Time();
 
 	cBanList.loadList("cfg/ban.lst");
 	cShootList.Clear();
@@ -245,8 +245,8 @@ int GameServer::StartServer()
 
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
-	fLastRegister = -99999;
-	fLastRegisterUdp = tLX->fCurTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
+	fLastRegister = Time();
+	fLastRegisterUdp = tLX->currentTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
 
@@ -403,8 +403,8 @@ int GameServer::StartGame()
 	// Clear the shooting list
 	cShootList.Clear();
 
-	fLastBonusTime = tLX->fCurTime;
-	fWeaponSelectionTime = tLX->fCurTime;
+	fLastBonusTime = tLX->currentTime;
+	fWeaponSelectionTime = tLX->currentTime;
 	iWeaponSelectionTime_Warning = 0;
 
 	// Set all the clients to 'not ready'
@@ -519,7 +519,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		fServertime = 0;
 		iServerFrame = 0;
 		bGameOver = false;
-		fGameOverTime = -9999;
+		fGameOverTime = Time();
 		cShootList.Clear();
 	}
 	
@@ -623,7 +623,7 @@ void GameServer::GameOver()
 		return;
 
 	bGameOver = true;
-	fGameOverTime = tLX->fCurTime;
+	fGameOverTime = tLX->currentTime;
 
 	hints << "gameover"; 
 
@@ -901,7 +901,7 @@ void GameServer::ProcessRegister(void)
 
 	// Completed ok
 	case HTTP_PROC_FINISHED:
-		fLastRegister = tLX->fCurTime;
+		fLastRegister = tLX->currentTime;
 	break;
 	}
 
@@ -935,7 +935,7 @@ void GameServer::RegisterServerUdp(void)
 		if( !GetFromDnsCache(domain, addr) )
 		{
 			GetNetAddrFromNameAsync(domain, addr);
-			fLastRegisterUdp = tLX->fCurTime - 35;
+			fLastRegisterUdp = tLX->currentTime - 35;
 			continue;
 		};
 		SetNetAddrPort( addr, port );
@@ -1012,14 +1012,14 @@ void GameServer::CheckRegister(void)
 	// If we registered over n seconds ago, register again
 	// The master server will not add duplicates, instead it will update the last ping time
 	// so we will have another 5 minutes before our server is cleared
-	if( tLX->fCurTime - fLastRegister > 4*60 ) {
+	if( tLX->currentTime - fLastRegister > 4*60 ) {
 		bServerRegistered = false;
-		fLastRegister = tLX->fCurTime;
+		fLastRegister = tLX->currentTime;
 		RegisterServer();
 	}
 	// UDP masterserver will remove our registry in 2 minutes
-	if( tLX->fCurTime - fLastRegisterUdp > 40 ) {
-		fLastRegisterUdp = tLX->fCurTime;
+	if( tLX->currentTime - fLastRegisterUdp > 40 ) {
+		fLastRegisterUdp = tLX->currentTime;
 		RegisterServerUdp();
 	}
 }
@@ -1084,7 +1084,7 @@ void GameServer::CheckTimeouts(void)
 {
 	int c;
 
-	float dropvalue = tLX->fCurTime - LX_SVTIMEOUT;
+	Time dropvalue = tLX->currentTime - LX_SVTIMEOUT;
 
 	// Check
 	if (!cClients)
@@ -1107,7 +1107,7 @@ void GameServer::CheckTimeouts(void)
 		}
 
 		// Is the client out of zombie state?
-		if(cl->getStatus() == NET_ZOMBIE && tLX->fCurTime > cl->getZombieTime() ) {
+		if(cl->getStatus() == NET_ZOMBIE && tLX->currentTime > cl->getZombieTime() ) {
 			cl->setStatus(NET_DISCONNECTED);
 		}
 	}
@@ -1120,32 +1120,32 @@ void GameServer::CheckWeaponSelectionTime()
 		return;
 
 	// Issue some sort of warning to clients
-	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 &&
+	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 5.2 &&
 		iWeaponSelectionTime_Warning < 4 )
 	{
 		iWeaponSelectionTime_Warning = 4;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
 	}
-	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 &&
+	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 10.2 &&
 		iWeaponSelectionTime_Warning < 3 )
 	{
 		iWeaponSelectionTime_Warning = 3;
 		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
 	}
-	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 30.2 &&
+	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 30.2 &&
 	   iWeaponSelectionTime_Warning < 2 )
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 30 seconds to select your weapons.", TXT_NOTICE);
 	}
-	if( tLXOptions->tGameInfo.iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 60.2 &&
+	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 60.2 &&
 	   iWeaponSelectionTime_Warning < 1 )
 	{
 		iWeaponSelectionTime_Warning = 1;
 		SendGlobalText("You have 60 seconds to select your weapons.", TXT_NOTICE);
 	}
-	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->fCurTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
-	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->tGameInfo.iWeaponSelectionMaxTime )
+	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->currentTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
+	if( tLX->currentTime - fWeaponSelectionTime > tLXOptions->tGameInfo.iWeaponSelectionMaxTime )
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
 		CServerConnection *cl = cClients;
@@ -1242,7 +1242,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	// Go into a zombie state for a while so the reliable channel can still get the
 	// reliable data to the client
 	cl->setStatus(NET_ZOMBIE);
-	cl->setZombieTime(tLX->fCurTime + 3);
+	cl->setZombieTime(tLX->currentTime + 3);
 
 	// Send the client directly a dropped packet
 	// TODO: move this out here
@@ -1789,7 +1789,7 @@ void GameServer::notifyLog(const std::string& msg)
 	if(cClient) {
 		CChatBox *c = cClient->getChatbox();
 		if(c)
-			c->AddText(msg, tLX->clNetworkText, TXT_NETWORK, tLX->fCurTime);
+			c->AddText(msg, tLX->clNetworkText, TXT_NETWORK, tLX->currentTime);
 	}
 
 }

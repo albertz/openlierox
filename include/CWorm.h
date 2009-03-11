@@ -213,20 +213,20 @@ private:
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
-	float		fCollisionTime;
+	Time		fCollisionTime;
 	CVec		vCollisionVelocity;
-	float		fLastInputTime;
+	Time		fLastInputTime;
 	bool		bCollidedLastFrame;
 	// last time we moved left or right
-	float		lastMoveTime;
+	Time		lastMoveTime;
 
 	
-	float		fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
+	TimeDiff	fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
 	
 	CVec		vFollowPos;
 	bool		bFollowOverride;
 
-    float       fLastCarve;
+    Time       fLastCarve;
 	
 
 	
@@ -249,7 +249,7 @@ private:
 	int			iHealth;
 	int			iLives;
 	bool		bAlive;
-	float		fTimeofDeath;
+	Time		fTimeofDeath;
 	int			iDirection;
 	int			iMoveDirection;
 	bool		bGotTarget;
@@ -259,9 +259,9 @@ private:
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
-	float		fRopeTime;
+	Time		fRopeTime;
 	bool		bVisible;
-	float		fVisibilityChangeTime;  // Time when the worm was hidden/shown
+	Time		fVisibilityChangeTime;  // Time when the worm was hidden/shown
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
@@ -270,37 +270,37 @@ private:
 	bool		bRopeDownOnce;
 
 	bool		bTagIT;
-	float		fTagTime;
-	float		fLastSparkle;
+	TimeDiff	fTagTime;
+	Time		fLastSparkle;
 
     int         iDirtCount;
 
-	float		fLastBlood;
+	Time		fLastBlood;
 
 
 	// Owner client
 	CServerConnection *cOwner;
 
 	// Network
-	float		fFrameTimes[NUM_FRAMES];
+	Time		fFrameTimes[NUM_FRAMES];
 	lobbyworm_t tLobbyState;
 		// server
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
-	float		fLastUpdateWritten;
+	Time		fLastUpdateWritten;
 	CVec		vLastUpdatedPos; // last pos we have send to client
 		// client
-	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
+	Time		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
 	CVec		vOldPosOfLastPaket;
 	CVec		vPreOldPosOfLastPaket;
-	float		fPreLastPosUpdate;
+	Time		fPreLastPosUpdate;
 	CVec		vLastEstimatedVel;
 	CVec		vPreLastEstimatedVel;
 	int			iLastCharge;
 	int			iLastCurWeapon;
 
 	
-	float		fSpawnTime;
+	Time		fSpawnTime;
 
 	// Graphics
 	CWormSkin	cSkin;
@@ -325,16 +325,16 @@ private:
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
-    float       fForceWeapon_Time;
+    Time       fForceWeapon_Time;
 
 	CWormInputHandler* m_inputHandler;
 
 	// Used to print damage numbers over the worm head
-	struct DamageReport_t {
+	struct DamageReport {
 		int damage;
-		float lastTime;
+		Time lastTime;
 	};
-	DamageReport_t cDamageReport[MAX_WORMS];
+	DamageReport cDamageReport[MAX_WORMS];
 
 public:
 	// Methods
@@ -473,7 +473,7 @@ public:
 	bool		getAlive(void)				{ return bAlive; }
 	void		setAlive(bool _a)			{ bAlive = _a; }
 
-	float		getTimeofDeath(void)		{ return fTimeofDeath; }
+	Time		getTimeofDeath(void)		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
@@ -496,7 +496,7 @@ public:
 	worm_state_t *getWormState(void)		{ return &tState; }
 
 	bool		hasOwnServerTime();
-	float		serverTime()				{ return fServertime; }
+	TimeDiff	serverTime()				{ return fServertime; }
 
 	bool		isVisible()	const			{ return bVisible; }
 	bool		isVisible(CViewport* v) const;
@@ -541,19 +541,19 @@ public:
 	bool		getTagIT(void)				{ return bTagIT; }
 	void		setTagIT(bool _t)			{ bTagIT = _t; }
 
-	float		getLastSparkle()			{ return fLastSparkle; }
-	void		setLastSparkle(float s)		{ fLastSparkle = s; }
-	float		getLastBlood()				{ return fLastBlood; }
-	void		setLastBlood(float b)		{ fLastBlood = b; }
+	Time		getLastSparkle()			{ return fLastSparkle; }
+	void		setLastSparkle(const Time& s)		{ fLastSparkle = s; }
+	Time		getLastBlood()				{ return fLastBlood; }
+	void		setLastBlood(const Time& b)		{ fLastBlood = b; }
 
     void        incrementDirtCount(int d);
     int         getDirtCount(void)          { return iDirtCount; }
 
 	void		setTarget(bool _t)			{ bGotTarget = _t; }
 
-	float		getTagTime(void)			{ return fTagTime; }
-	void		setTagTime(float _t)		{ fTagTime = _t; }
-	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
+	TimeDiff	getTagTime(void)			{ return fTagTime; }
+	void		setTagTime(const TimeDiff& _t)		{ fTagTime = _t; }
+	void		incrementTagTime(const TimeDiff& dt)	{ fTagTime+=dt; }
 
 	CWormSkin&	getSkin(void)				{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
@@ -598,10 +598,10 @@ public:
 	
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
 	
-	DamageReport_t* getDamageReport() { return cDamageReport; }
+	DamageReport* getDamageReport() { return cDamageReport; }
 
-	void setCollisionTime(float _t)			{ fCollisionTime = _t; }
-	float getCollisionTime() const			{ return fCollisionTime; }
+	void setCollisionTime(const Time& _t)			{ fCollisionTime = _t; }
+	Time getCollisionTime() const			{ return fCollisionTime; }
 	void setCollisionVel(CVec _v)			{ vCollisionVelocity = _v; }
 	CVec getCollisionVel() const			{ return vCollisionVelocity; }
 	void setCollidedLastFrame(bool _c)		{ bCollidedLastFrame = _c; }
@@ -614,7 +614,7 @@ public:
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
-	float	fLastSimulationTime;
+	Time	fLastSimulationTime;
 
 	NewNet::NetSyncedRandom NewNet_random;
 };

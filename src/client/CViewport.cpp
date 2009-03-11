@@ -85,12 +85,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
             if(t) {
                 pcTargetWorm = t;
-                fTimer = -1;
+                fTimer = Time();
             } else {
                 // If we didn't find a new worm, go into freelook mode                    
                 pcTargetWorm = NULL;
                 nType = VW_FREELOOK;
-                fTimer = -1;
+                fTimer = Time();
                 return;
             }
         }
@@ -100,11 +100,11 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         if( pcTargetWorm ) {
             if( pcTargetWorm->getLives() == WRM_OUT ) {
                 // Setup the timer to wait 2.5 seconds before changing targets
-                if( fTimer == -1 )
-                    fTimer = tLX->fCurTime + 2.5f;
+                if( fTimer == Time() )
+                    fTimer = tLX->currentTime + 2.5f;
 
                 // Time up? Change targets
-                if( tLX->fCurTime > fTimer ) {
+                if( tLX->currentTime > fTimer ) {
 					notes << "find new worm for viewport because current is out of the game" << endl;
 					
                     // Try and find a living worm first
@@ -116,13 +116,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                     if(t) {
                         pcTargetWorm = t;
-                        fTimer = -1;
+                        fTimer = Time();
                     } else {
 
                         // If we didn't find a new worm, go into freelook mode                    
                         pcTargetWorm = NULL;
                         nType = VW_FREELOOK;
-                        fTimer = -1;
+                        fTimer = Time();
                         return;
                     }
                 }
@@ -142,7 +142,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 				};
 
                 // Clear the timer
-                fTimer = -1;
+                fTimer = Time();
             } /*else
             	notes << "viewport: our worm is dead" << endl; */
         }
@@ -160,11 +160,11 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 			if( pcTargetWorm->getLives() == WRM_OUT || !pcTargetWorm->getAlive() ) {
                 // Setup the timer to wait 0.5 seconds before changing targets
-                if( fTimer == -1 )
-                    fTimer = tLX->fCurTime + 0.5f;
+                if( fTimer == Time() )
+                    fTimer = tLX->currentTime + 0.5f;
 
                 // Time up? Change targets
-                if( tLX->fCurTime > fTimer ) {
+                if( tLX->currentTime > fTimer ) {
 
                     // Try and find a living worm first
                     CWorm *t = findTarget(pcWormList, pcViewList, true);
@@ -175,12 +175,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                     if(t) {
                         pcTargetWorm = t;
-                        fTimer = -1;
+                        fTimer = Time();
                     } else {
                         // If we didn't find a new worm, go into freelook mode
                         pcTargetWorm = NULL;
                         nType = VW_FREELOOK;
-                        fTimer = -1;
+                        fTimer = Time();
 						notes << "no worm found, going into freelook mode" << endl;
 						return;
                     }
@@ -197,10 +197,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 				{
 					WorldX = (int)(pcTargetWorm->getPos().x-hx);
 					WorldY = (int)(pcTargetWorm->getPos().y-hy);
-				};
+				}
 
                 // Clear the timer
-                fTimer = -1;
+                fTimer = Time();
             }
         }
     }
@@ -263,7 +263,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         speed = MIN((float)300,speed);
         
         if( l > 2 )
-            curPos += dir*speed * tLX->fDeltaTime;
+            curPos += dir*speed * (float)tLX->fDeltaTime.seconds();
         
         WorldX = (int)floor(curPos.x-hx);
         WorldY = Round(curPos.y-hy);
@@ -273,7 +273,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
     // Free look
     case VW_FREELOOK: {
-        float scrollSpeed = 300.0f*tLX->fDeltaTime;
+        float scrollSpeed = 300.0f*tLX->fDeltaTime.seconds();
 
         // Uses the players keys to scroll around
         if( cUp.get()->isDown() )
@@ -301,7 +301,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 	// Shake the viewport a bit
 	if(bShaking) {
-		if(tLX->fCurTime - fShakestart > 0.2f) {
+		if(tLX->currentTime - fShakestart > 0.2f) {
 			bShaking = false;
 			iShakeAmount = 0;
 		}
@@ -373,9 +373,9 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
 
 ///////////////////
 // Resets the viewport simulations (timer, movement, etc)
-void CViewport::reset(void)
+void CViewport::reset()
 {
-    fTimer = -1;
+    fTimer = Time();
 }
 
 
@@ -425,7 +425,7 @@ void CViewport::Shake(int amount)
 {
 	if( bSmooth )
 		return;	// Don't shake viewport if we're spectating - it's just hurting my eyes.
-	fShakestart = tLX->fCurTime;
+	fShakestart = tLX->currentTime;
 	bShaking = true;
 	if(amount > iShakeAmount)
 		iShakeAmount = amount;
@@ -460,7 +460,7 @@ const float fVelMax = 2000.0f, fAccelMax = 600.0f,
 			fVelIncrease = 100.0f, fAccelIncrease = 200.0f,
 			fVelDecay = 20.0f, fAccelDecay = 50.0f;
 
-void CViewport::setSmoothPosition( float X, float Y, float DeltaTime )
+void CViewport::setSmoothPosition( float X, float Y, TimeDiff DeltaTime )
 {
 	// TODO: these formulas work only for FPS > 50, so we'll run simulation twice on low FPS
 	if( DeltaTime > 0.015f )
@@ -473,19 +473,19 @@ void CViewport::setSmoothPosition( float X, float Y, float DeltaTime )
 	CVec Coords( X, Y );
 	CVec Diff = Coords - curPos;
 
-	cSmoothAccel += Diff * ( fAccelIncrease * DeltaTime );
-	cSmoothAccel -= cSmoothAccel * fAccelDecay * DeltaTime;
+	cSmoothAccel += Diff * ( fAccelIncrease * (float)DeltaTime.seconds() );
+	cSmoothAccel -= cSmoothAccel * fAccelDecay * (float)DeltaTime.seconds();
 	if( cSmoothAccel.GetLength2() > fAccelMax*fAccelMax )
 		cSmoothAccel *= fAccelMax / cSmoothAccel.GetLength();
 	
-	cSmoothVel += cSmoothAccel * ( fVelIncrease * DeltaTime );
-	cSmoothVel -= cSmoothVel * fVelDecay * DeltaTime;
+	cSmoothVel += cSmoothAccel * ( fVelIncrease * (float)DeltaTime.seconds() );
+	cSmoothVel -= cSmoothVel * fVelDecay * (float)DeltaTime.seconds();
 	if( cSmoothVel.GetLength2() > fVelMax*fVelMax )
 		cSmoothVel *= fVelMax / cSmoothVel.GetLength();
 	
-	curPos += cSmoothVel * DeltaTime;
+	curPos += cSmoothVel * DeltaTime.seconds();
 
 	WorldX = (int)curPos.x;
 	WorldY = (int)curPos.y;
-};
+}
 

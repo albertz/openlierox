@@ -189,7 +189,7 @@ void CNinjaRope::updateCheckVariables()
 	LastHookAttached = HookAttached;
 	LastPlayerAttached = PlayerAttached;
 	LastWorm = Worm;
-	LastWrite = tLX->fCurTime;
+	LastWrite = tLX->currentTime;
 }
 
 //////////////

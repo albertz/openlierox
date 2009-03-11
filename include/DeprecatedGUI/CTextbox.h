@@ -69,8 +69,8 @@ public:
 		iLastCurpos = 0;
 		fTimeHolding = 0;
 		iLastMouseX = 0;
-		fLastRepeat = -9999;
-		fLastClick = -9999;
+		fLastRepeat = Time();
+		fLastClick = Time();
 		fScrollTime = 0;  // We can scroll
 		bVar = NULL;
 		iVar = NULL;
@@ -103,17 +103,17 @@ private:
 	size_t	iMax;
 
 	bool	bHolding;
-	float	fTimePushed;
+	Time	fTimePushed;
 	UnicodeChar		iLastchar;
 	int		iLastKeysym;
 
 	bool	bHoldingMouse;
-	float	fTimeHolding;
+	TimeDiff	fTimeHolding;
 	size_t	iLastCurpos;
 	int		iLastMouseX;
-	float	fScrollTime;
-	float	fLastRepeat;
-	float	fLastClick;
+	TimeDiff	fScrollTime;
+	Time	fLastRepeat;
+	Time	fLastClick;
 
 	bool	bDrawCursor;
 

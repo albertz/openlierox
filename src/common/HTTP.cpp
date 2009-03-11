@@ -486,13 +486,13 @@ void CHttp::Clear()
 	bRedirecting = false;
 	bGotDataFromServer = false;
 	iRedirectCode = 0;
-	fResolveTime = -9999;
-	fConnectTime = -9999;
-	fSocketActionTime = -9999;
-	fDownloadStart = -9999;
-	fDownloadEnd = -9999;
-	fUploadStart = -9999;
-	fUploadEnd = -9999;
+	fResolveTime = Time();
+	fConnectTime = Time();
+	fSocketActionTime = Time();
+	fDownloadStart = Time();
+	fDownloadEnd = Time();
+	fUploadStart = Time();
+	fUploadEnd = Time();
 	iProcessingResult = HTTP_PROC_PROCESSING;
 
 	ResetNetAddr(tRemoteIP);
@@ -585,7 +585,7 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	// Resolve the address
 	// Reset the current adr; sometimes needed (hack? bug in hawknl?)
 	ResetNetAddr(tRemoteIP);
-    fResolveTime = GetMilliSeconds();
+    fResolveTime = GetTime();
 	std::string host = sHost;
 	if( sProxyHost.size() != 0 )
 		host = sProxyHost;
@@ -697,11 +697,11 @@ std::string CHttp::GetBasicAuthentication(const std::string &user, const std::st
 float CHttp::GetDownloadSpeed() const
 {
 	Lock();
-	float dt = fDownloadEnd - fDownloadStart;
+	TimeDiff dt = fDownloadEnd - fDownloadStart;
 	Unlock();
 	if (dt == 0)
 		return 999999999.0f;  // Unmeasurable
-	return iDataReceived / dt;
+	return iDataReceived / dt.seconds();
 }
 
 ////////////////////
@@ -709,11 +709,11 @@ float CHttp::GetDownloadSpeed() const
 float CHttp::GetUploadSpeed() const
 {
 	Lock();
-	float dt = fUploadEnd - fUploadStart;
+	TimeDiff dt = fUploadEnd - fUploadStart;
 	Unlock();
 	if (dt == 0)
 		return 999999999.0f;  // Unmeasurable
-	return iDataSent / dt;
+	return iDataSent / dt.seconds();
 }
 
 ////////////////////
@@ -1259,8 +1259,8 @@ int CHttp::ReadAndProcessData()
 
 			// First data we got? Start the download time timer
 			if (!bGotDataFromServer)
-				fDownloadStart = GetMilliSeconds();
-			fDownloadEnd = GetMilliSeconds();  // To make the download time correct even when still downloading
+				fDownloadStart = GetTime();
+			fDownloadEnd = GetTime();  // To make the download time correct even when still downloading
 
 			bGotDataFromServer = true;
 
@@ -1268,7 +1268,7 @@ int CHttp::ReadAndProcessData()
 			sData.append(tBuffer, count);
 			iDataReceived += count;
 			ProcessData();
-			fSocketActionTime = GetMilliSeconds();
+			fSocketActionTime = GetTime();
 		}
 	}
 
@@ -1308,7 +1308,7 @@ int CHttp::ProcessGET()
 	// Send a request
 	if(bSocketReady && bConnected && !bRequested) {
 		bRequested = true;
-		fSocketActionTime = GetMilliSeconds();
+		fSocketActionTime = GetTime();
 
 		if(!SendRequest()) {
             SetHttpError(HTTP_ERROR_SENDING_REQ);
@@ -1362,7 +1362,7 @@ int CHttp::ProcessPOST()
 	// Send the initial packet
 	if(bSocketReady && bConnected && !bSentHeader) {
 		bSentHeader = true;
-		fSocketActionTime = GetMilliSeconds();
+		fSocketActionTime = GetTime();
 
 		// Create the header
 		std::string header = BuildPOSTHeader();
@@ -1379,7 +1379,7 @@ int CHttp::ProcessPOST()
 		int res = WriteSocket(tSocket, buf);
 		if ((size_t)res == buf.size())  {
 			iDataSent += len;
-			fUploadStart = GetMilliSeconds();  // We're starting the upload
+			fUploadStart = GetTime();  // We're starting the upload
 			fUploadEnd = fUploadStart; // To make the time counting correct even when still uploading
 		} else if (res < 0)  {
 			SetHttpError(HTTP_ERROR_SENDING_REQ);
@@ -1417,7 +1417,7 @@ int CHttp::ProcessPOST()
 	if (bTransferFinished)  {
 		// We could get a 200 OK response even when not uploaded everything, who knows...
 		if (iDataSent >= sDataToSend.size())  {
-			fUploadEnd = GetMilliSeconds();
+			fUploadEnd = GetTime();
 			return HTTP_PROC_FINISHED;
 		} else {
 			bTransferFinished = false;
@@ -1435,7 +1435,7 @@ int CHttp::ProcessPOST()
 
 	// Send another chunk
 	res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
-	fSocketActionTime = GetMilliSeconds();
+	fSocketActionTime = GetTime();
 
 	// Error check
 	if (res < 0)  {
@@ -1444,7 +1444,7 @@ int CHttp::ProcessPOST()
 	}
 	iDataSent += res;
 
-	fUploadEnd = GetMilliSeconds();  // Make the upload time correct while uploading
+	fUploadEnd = GetTime();  // Make the upload time correct while uploading
 
 	return HTTP_PROC_PROCESSING;
 }
@@ -1482,7 +1482,7 @@ bool CHttp::ProcessInternal()
 
 	// Process DNS resolving
 	if (!IsNetAddrValid(tRemoteIP)) {
-        float f = GetMilliSeconds();
+        Time f = GetTime();
 		bool error = false;
 
 		// Error
@@ -1519,7 +1519,7 @@ bool CHttp::ProcessInternal()
 	}
 
 	// Check for HTTP timeout
-	if (GetMilliSeconds() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
+	if (GetTime() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
@@ -1536,7 +1536,7 @@ bool CHttp::ProcessInternal()
 	}
 
 	// This can happen when the server stops responding in the middle of the transfer
-	if (bRequested && GetMilliSeconds() - fSocketActionTime >= HTTP_TIMEOUT)  {
+	if (bRequested && GetTime() - fSocketActionTime >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
@@ -1602,7 +1602,7 @@ bool CHttp::ProcessInternal()
 			}
 
 			bConnected = true;
-			fConnectTime = GetMilliSeconds();
+			fConnectTime = GetTime();
 		}
 
 	} else {

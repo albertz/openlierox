@@ -309,6 +309,14 @@ bool CBytestream::writeInt(int value, uchar numbytes)
 	return true;
 }
 
+bool CBytestream::writeUInt64(Uint64 val) {
+	EndianSwap(val);
+	
+	for(short n = 0; n < 8; n++)
+		writeByte( ((uchar *)&val)[n] );
+	
+	return true;
+}
 
 ///////////////////
 // Write a short to the stream
@@ -446,6 +454,18 @@ int CBytestream::readInt(uchar numbytes)
 	
 	return (unsigned)ret;
 }
+
+Uint64 CBytestream::readUInt64()
+{
+	
+	Uint64 ret = 0;
+	for(short n=0; n<8; n++)
+		ret += (Uint64)readByte() << (n * 8);
+	
+	return ret;
+}
+
+
 
 
 ///////////////////

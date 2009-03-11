@@ -188,7 +188,7 @@ void CCursor::Init(int type)
 {
 	// Defaults
 	iType = type;
-	fAnimationSwapTime = tLX->fCurTime;
+	fAnimationSwapTime = tLX->currentTime;
 	bAnimated = false;
 	iFrameWidth = 0;
 	iNumFrames = 0;
@@ -280,10 +280,10 @@ void CCursor::Draw(SDL_Surface * dst)
 
 
 	// Process animating
-	if ((tLX->fCurTime - fAnimationSwapTime) >= fCursorFrameTime)  {
+	if ((tLX->currentTime - fAnimationSwapTime) >= fCursorFrameTime)  {
 		iFrame++;
 		iFrame %= iNumFrames;
-		fAnimationSwapTime = tLX->fCurTime;
+		fAnimationSwapTime = tLX->currentTime;
 	}
 
 	// Draw the cursor

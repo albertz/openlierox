@@ -279,7 +279,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 void CClientNetEngine::ParsePong()
 {
 	if (client->fMyPingSent > 0)  {
-		int png = (int) ((tLX->fCurTime-client->fMyPingSent)*1000);
+		int png = (int) ((tLX->currentTime-client->fMyPingSent).seconds());
 
 		// Make the ping slighter
 		if (png - client->iMyPing > 5 && client->iMyPing && png)
@@ -295,7 +295,7 @@ void CClientNetEngine::ParsePong()
 // Parse the server's servertime request reply
 void CClientNetEngine::ParseTimeIs(CBytestream* bs)
 {
-	float time = bs->readFloat();
+	TimeDiff time = bs->readFloat();
 	if (time > client->fServertime)
 		client->fServertime = time;
 
@@ -911,7 +911,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	}
 
 	notes << "Client: get start game signal" << endl;
-	client->fLastSimulationTime = tLX->fCurTime;
+	client->fLastSimulationTime = tLX->currentTime;
 	client->iNetStatus = NET_PLAYING;
 	client->fServertime = 0;
 
@@ -1136,7 +1136,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 		}
 	}
 
-	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->fCurTime);
+	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->currentTime);
 
 
 	// Log the conversation
@@ -1241,7 +1241,7 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 		posStr += *it;
 	}
 
-	client->cChatbox.AddText(posStr, tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+	client->cChatbox.AddText(posStr, tLX->clNotice, TXT_NOTICE, tLX->currentTime);
 }
 
 ///////////////////
@@ -1360,7 +1360,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 
 	// Older servers send wrong info about tag winner, better if we count it ourself
 	if (client->tGameInfo.iGeneralGameType == GMT_TIME)  {
-		float max = 0;
+		TimeDiff max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
 			if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
@@ -1373,7 +1373,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	// Game over
 	hints << "the game is over" << endl;
 	client->bGameOver = true;
-	client->fGameOverTime = tLX->fCurTime;
+	client->fGameOverTime = tLX->currentTime;
 
 	if (client->tGameLog)
 		client->tGameLog->iWinner = client->iMatchWinner;
@@ -1449,7 +1449,7 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 	}
 
 	int id = bs->readInt(1);
-	float time = bs->readFloat();
+	TimeDiff time = bs->readFloat();
 
 	// Safety check
 	if(id <0 || id >= MAX_WORMS)  {
@@ -1600,7 +1600,7 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName.c_str(),f);
-		std::string cTime = GetTime();
+		std::string cTime = GetDateTime();
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
 		if(client->cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
@@ -1664,11 +1664,11 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 				log_worm_t *l = client->GetLogWorm(id);
 				if (l)  {
 					l->bLeft = true;
-					l->fTimeLeft = tLX->fCurTime;
+					l->fTimeLeft = client->serverTime();
 				}
 			}
 		} else {
-			printf("Warning: server says we've left but that is not true\n");
+			hints << "Warning: server says we've left but that is not true" << endl;
 		}
 	}
 
@@ -2099,7 +2099,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 void CClientNetEngine::ParseSendFile(CBytestream *bs)
 {
 
-	client->fLastFileRequestPacketReceived = tLX->fCurTime;
+	client->fLastFileRequestPacketReceived = tLX->currentTime;
 	if( client->getUdpFileDownloader()->receive(bs) )
 	{
 		if( CUdpFileDownloader::isPathValid( client->getUdpFileDownloader()->getFilename() ) &&
@@ -2147,7 +2147,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			};
 
 			client->getUdpFileDownloader()->requestFilesPending(); // Immediately request another file
-			client->fLastFileRequest = tLX->fCurTime;
+			client->fLastFileRequest = tLX->currentTime;
 
 		}
 		else
@@ -2165,7 +2165,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
 				{
 					client->getUdpFileDownloader()->requestFile( client->getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					client->fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					client->fLastFileRequest = tLX->currentTime + 1.5f;	// Small delay so server will be able to send all the info
 					client->iModDownloadingSize = client->getUdpFileDownloader()->getFilesPendingSize();
 				}
 			};
@@ -2176,12 +2176,12 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 					stringcaserfind( client->getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 				{
 					client->getUdpFileDownloader()->requestFile( client->getUdpFileDownloader()->getFileInfo()[f].filename, true );
-					client->fLastFileRequest = tLX->fCurTime + 1.5f;	// Small delay so server will be able to send all the info
+					client->fLastFileRequest = tLX->currentTime + 1.5f;	// Small delay so server will be able to send all the info
 					client->iModDownloadingSize = client->getUdpFileDownloader()->getFilesPendingSize();
 				}
-			};
-		};
-	};
+			}
+		}
+	}
 	if( client->getUdpFileDownloader()->isReceiving() )
 	{
 		// TODO: move this out here
@@ -2190,8 +2190,8 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 		bs.writeByte(C2S_SENDFILE);
 		client->getUdpFileDownloader()->sendPing( &bs );
 		client->cNetChan->AddReliablePacketToSend(bs);
-	};
-};
+	}
+}
 
 void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 {
@@ -2212,12 +2212,12 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 		return;
 	
 	w->getDamageReport()[offender->getID()].damage += damage;
-	w->getDamageReport()[offender->getID()].lastTime = tLX->fCurTime;
+	w->getDamageReport()[offender->getID()].lastTime = tLX->currentTime;
 	w->Injure(damage);	// Calculate correct healthbar
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
 	//printf("CClientNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
 	offender->addDamage( damage, w, client->tGameInfo );
-};
+}
 
 void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 {

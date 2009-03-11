@@ -57,9 +57,9 @@ enum GameType_t {
 
 // LieroX structure
 class lierox_t { public:
-	float	fCurTime;
-	float	fDeltaTime;
-	float	fRealDeltaTime; // Delta time used for network synchronization,
+	Time	currentTime;
+	TimeDiff	fDeltaTime;
+	TimeDiff	fRealDeltaTime; // Delta time used for network synchronization,
 							// it is not clamped unlike the above one
 	CFont	cFont;
 	CFont	cOutlineFont;
@@ -229,7 +229,7 @@ bool	Warning_QuitEngineFlagSet(const std::string& preText = "");
 
 // Miscellanous routines
 float	GetFixedRandomNum(uchar index);
-void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
+void	ConvertTime(TimeDiff time, int *hours, int *minutes, int *seconds);
 bool    MouseInRect(int x, int y, int w, int h);
 
 void	printf(const std::string& txt);

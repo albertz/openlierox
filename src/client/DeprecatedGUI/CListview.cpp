@@ -1217,9 +1217,9 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
                 // If we changed the selection, reset the mouseup var to avoid double clicks
                 // when changing items
                 if( tSelected->_iID != item->_iID )
-                    fLastMouseUp = -9999;
+                    fLastMouseUp = Time();
             } else
-                fLastMouseUp = -9999;
+                fLastMouseUp = Time();
 
 
 			tSelected = item;
@@ -1252,14 +1252,14 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
-		fLastMouseUp = -9999;
+		fLastMouseUp = Time();
 		return LV_NONE;
 	}
 
 	// Column headers
 	if (!bOldStyle && tColumns)  {
-		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
-			fLastMouseUp = tLX->fCurTime;
+		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->currentTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
+			fLastMouseUp = tLX->currentTime;
 			int x = iX+4;
 			lv_column_t *col = tColumns;
 			for (int i=0;col;col = col->tNext,i++)  {
@@ -1318,9 +1318,9 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 			if(tSelected && (tMouse->Up & SDL_BUTTON(1))) {
 				if(tSelected->_iID == item->_iID) {
-					if(tLX->fCurTime - fLastMouseUp < 0.5f) {
+					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						event = LV_DOUBLECLK;
-						fLastMouseUp = -9999;
+						fLastMouseUp = Time();
 					}
 				}
 			}
@@ -1375,7 +1375,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 			tSelected->bSelected = true;
 
 			if(event != LV_DOUBLECLK)
-				fLastMouseUp = tLX->fCurTime;
+				fLastMouseUp = tLX->currentTime;
 
 			return event;
 		}

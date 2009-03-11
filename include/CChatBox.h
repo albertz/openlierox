@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include <list>
 #include "Protocol.h"
+#include "types.h"
 
 
 #define MAX_LLENGTH		128
@@ -30,7 +31,7 @@ class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
 	TXT_TYPE iTextType;
-	float	fTime;
+	Time	fTime;
 	size_t iID;
 };
 
@@ -57,7 +58,7 @@ private:
 public:
 	// Methods
 	void	Clear(void);
-	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, float time);
+	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, const Time& time);
 
     // Variables
 	lines_iterator Begin()  { return Lines.begin(); }

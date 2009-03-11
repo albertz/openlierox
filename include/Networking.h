@@ -19,7 +19,7 @@
 
 #include <string>
 #include <SDL.h>
-
+#include "types.h"
 #include "Utils.h"
 
 #ifdef _MSC_VER
@@ -96,7 +96,7 @@ unsigned short GetNetAddrPort(const NetworkAddr& addr);
 bool	SetNetAddrPort(NetworkAddr& addr, unsigned short port);
 bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
 bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
-void	AddToDnsCache(const std::string& name, const NetworkAddr& addr, float expireTime = 3600.0f);
+void	AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = 3600.0f);
 bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
 bool	isDataAvailable(NetworkSocket sock); // Slow!
 

@@ -359,19 +359,19 @@ bool GameServer::SendUpdate()
 				// check our server bandwidth
 				static Rate<100,5000> blockRate; // only for debug output
 				static Rate<100,5000> blockRateAbs; // only for debug output
-				blockRateAbs.addData(tLX->fCurTime, 1);
+				blockRateAbs.addData(tLX->currentTime, 1);
 				if(!checkUploadBandwidth(GetUpload() /* + uploadAmount */)) {
 					// we have gone over our own bandwidth for non-local clients				
-					blockRate.addData(tLX->fCurTime, 1);
-					static float lastMessageTime = tLX->fCurTime;
-					if(tLX->fCurTime - lastMessageTime > 30.0) {
+					blockRate.addData(tLX->currentTime, 1);
+					static Time lastMessageTime = tLX->currentTime;
+					if(tLX->currentTime - lastMessageTime > 30.0) {
 						notes << "we got over the max upload bandwidth" << endl;
 						notes << "   current upload is " << GetUpload() << " bytes/sec (last 2 secs)" << endl;
 						notes << "   current short upload is " << GetUpload(0.1f) << " bytes/sec (last 0.1 sec)" << endl;
 						notes << "   upload amount of this frame is " << uploadAmount << " bytes" << endl;
 						if(blockRateAbs.getRate() > 0)
 							notes << "   current block/update rate is " << float(100.0f * blockRate.getRate() / blockRateAbs.getRate()) << " % (last 5 secs)" << endl;
-						lastMessageTime = tLX->fCurTime;
+						lastMessageTime = tLX->currentTime;
 					}
 					continue;
 				}
@@ -442,7 +442,7 @@ bool GameServer::SendUpdate()
 			CShootList *sh = cl->getShootList();
 			float delay = shootDelay[cl->getNetSpeed()];
 
-			if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
+			if(tLX->currentTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
 				CBytestream shootBs;
 
 				// Send the shootlist
@@ -511,7 +511,7 @@ void GameServer::SendWormTagged(CWorm *w)
 	CBytestream bs;
 	bs.writeByte(S2C_TAGUPDATE);
 	bs.writeInt(w->getID(), 1);
-	bs.writeFloat(w->getTagTime());
+	bs.writeFloat((float)w->getTagTime().seconds());
 
 	// Send
 	SendGlobalPacket(&bs);
@@ -843,9 +843,9 @@ int CServerNetEngineBeta5::SendFiles()
 		( cl->getChannel()->getBufferEmpty() ||
 			( ! cl->getChannel()->getBufferFull() &&
 			cl->getChannel()->getPing() != 0 &&
-			tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff )) )
+			tLX->currentTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff )) )
 	{
-		cl->setLastFileRequestPacketReceived( tLX->fCurTime );
+		cl->setLastFileRequestPacketReceived( tLX->currentTime );
 		CBytestream bs;
 		bs.writeByte(S2C_SENDFILE);
 		cl->getUdpFileDownloader()->send(&bs);
@@ -972,7 +972,7 @@ void CServerNetEngineBeta9::QueueReportDamage(int victim, int damage, int offend
 
 void CServerNetEngineBeta9::SendReportDamage(bool flush)
 {
-	if( ! flush && tLX->fCurTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
+	if( ! flush && tLX->currentTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
 		return;
 
 	CBytestream bs;
@@ -1001,5 +1001,5 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 	SendPacket(&bs);
 
 	cDamageReport.clear();
-	fLastDamageReportSent = tLX->fCurTime;
+	fLastDamageReportSent = tLX->currentTime;
 }

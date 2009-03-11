@@ -99,7 +99,7 @@ class lv_subitem_t { public:
 	Uint32		iBgColour;
 	Uint8		iBgAlpha;
 
-	float		fMouseOverTime;
+	TimeDiff	fMouseOverTime;
 	lv_subitem_t *tNext;
 
 };
@@ -135,7 +135,7 @@ public:
 		iItemCount=0;
 		bGotScrollbar = false;
 		iType = wid_Listview;
-		fLastMouseUp = -99999;
+		fLastMouseUp = Time();
 		iContentHeight = 0;
         iItemID = 0;
         bShowSelect = true;
@@ -184,7 +184,7 @@ private:
 	int				iContentHeight;
 	bool			bSubItemsAreAligned; // if the left item is too long, subitems are shifted right
 	
-	float			fLastMouseUp;
+	Time			fLastMouseUp;
 	int				iClickedSub;
 
 	// Scrollbar

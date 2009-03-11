@@ -47,7 +47,7 @@ void RestoreState()
 		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
 };
 
-unsigned CalculatePhysics( unsigned gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
+unsigned CalculatePhysics( Time gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
 	for( int i = 0; i < MAX_WORMS; i++ )
 	{
@@ -77,12 +77,12 @@ void DisableAdvancedFeatures()
 	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
 };
 
-void CalculateCurrentState( unsigned long localTime );
-bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs );
+void CalculateCurrentState( Time localTime );
+bool SendNetPacket( Time localTime, KeyState_t keys, CBytestream * bs );
 
 bool Frame( CBytestream * bs )
 {
-	unsigned long localTime = (unsigned long) (tLX->fCurTime * 1000);
+	Time localTime = tLX->currentTime;
 	KeyState_t keys;
 	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
 	{
@@ -107,21 +107,22 @@ bool Frame( CBytestream * bs )
 
 bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
-unsigned ReCalculationTimeMs;
+Time ReCalculationTimeMs;
 // Constants
-unsigned PingTimeMs = 300;	// Send at least one packet in 10 ms - 10 packets per second, huge net load
+TimeDiff PingTimeMs = 300;	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
-unsigned DrawDelayMs = 100;	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
-unsigned ReCalculationMinimumTimeMs = 100;	// Re-calculate not faster than 10 times per second - eats CPU
-const unsigned CalculateChecksumTime = 5000; // Calculate checksum once per 5 seconds - should be equal for all clients
+TimeDiff DrawDelayMs = 100;	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
+TimeDiff ReCalculationMinimumTimeMs = 100;	// Re-calculate not faster than 10 times per second - eats CPU
+TimeDiff CalculateChecksumTime = 5000; // Calculate checksum once per 5 seconds - should be equal for all clients
 
 int NumPlayers = -1;
 int LocalPlayer = -1;
 
-unsigned long OlxTimeDiffMs; // In milliseconds
-unsigned long CurrentTimeMs; // In milliseconds
-unsigned long BackupTime;	// In TICK_TIME chunks
-unsigned long ClearEventsLastTime;
+// TODO: why is it named diff but used absolute?
+Time OlxTimeDiffMs; // In milliseconds
+Time CurrentTimeMs; // In milliseconds
+Uint64 BackupTime;	// In TICK_TIME chunks
+Time ClearEventsLastTime;
 
 struct KeysEvent_t
 {
@@ -130,12 +131,12 @@ struct KeysEvent_t
 };
 
 // Sorted by player and time - time in TICK_TIME chunks
-typedef std::map< int, KeysEvent_t > EventList_t;
+typedef std::map< Time, KeysEvent_t > EventList_t;
 EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
-unsigned long LastPacketTime[MAX_WORMS]; // Time in TICK_TIME chunks
+Time LastPacketTime[MAX_WORMS]; // Time in TICK_TIME chunks
 unsigned Checksum;
-unsigned long ChecksumTime; // Time in ms
+Time ChecksumTime; // Time in ms
 //unsigned long InitialRandomSeed; // Used for LoadState()/SaveState()
 
 void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
@@ -157,7 +158,7 @@ void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t key
 	}
 };
 
-void Activate( unsigned long localTime, unsigned long randomSeed )
+void Activate( Time localTime, unsigned long randomSeed )
 {
 			OlxTimeDiffMs = localTime;
 			NumPlayers = 0;
@@ -208,24 +209,25 @@ void ReCalculateSavedState()
 	ReCalculationNeeded = false;
 
 	// Re-calculate physics if the packet received is from the most laggy client
-	unsigned long timeMin = LastPacketTime[LocalPlayer];
+	Time timeMin = LastPacketTime[LocalPlayer];
 	for( int f=0; f<MAX_WORMS; f++ )
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
 	//printf("ReCalculate(): BackupTime %lu timeMin %lu\n", BackupTime, timeMin);
-	if( BackupTime /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
+	if( Time(BackupTime * TICK_TIME)  /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
-	if( CurrentTimeMs != BackupTime * TICK_TIME )	// Last recalc time
+	// TODO: was this meant here?
+	if( CurrentTimeMs != Time(BackupTime * TICK_TIME) )	// Last recalc time
 		RestoreState();
 
-	while( BackupTime /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
+	while( Time(BackupTime * TICK_TIME) /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
 	{
 		BackupTime++;
-		CurrentTimeMs = BackupTime * TICK_TIME;
-		bool calculateChecksum = CurrentTimeMs % CalculateChecksumTime == 0;
+		CurrentTimeMs = Time(BackupTime * TICK_TIME);
+		bool calculateChecksum = CurrentTimeMs.time % CalculateChecksumTime.timeDiff == 0;
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
@@ -256,9 +258,9 @@ void ReCalculateSavedState()
 };
 
 // Should be called immediately after SendNetPacket() with the same time value
-void CalculateCurrentState( unsigned long localTime )
+void CalculateCurrentState( Time localTime )
 {
-	localTime -= OlxTimeDiffMs;
+	localTime.time -= OlxTimeDiffMs.time;
 
 	ReCalculateSavedState();
 
@@ -270,7 +272,7 @@ void CalculateCurrentState( unsigned long localTime )
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( CurrentTimeMs / TICK_TIME, keys, keysChanged );
+		getKeysForTime( CurrentTimeMs.time / TICK_TIME, keys, keysChanged );
 
 		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
@@ -280,20 +282,20 @@ int NetPacketSize()
 {
 	// Change here if you'll modify Receive()/Send()
 	return 4+1;	// First 4 bytes is time in 10-ms chunks, second byte - keypress idx
-};
+}
 
-void AddEmptyPacket( unsigned long localTime, CBytestream * bs )
+void AddEmptyPacket( Time localTime, CBytestream * bs )
 {
-	localTime -= OlxTimeDiffMs;
-	localTime /= TICK_TIME;
-	bs->writeInt( localTime, 4 );
+	localTime.time -= OlxTimeDiffMs.time;
+	localTime.time /= TICK_TIME;
+	bs->writeUInt64( localTime.time );
 	bs->writeByte( UCHAR_MAX );
-};
+}
 
-unsigned EmptyPacketTime()
+TimeDiff EmptyPacketTime()
 {
 	return PingTimeMs;
-};
+}
 
 // Returns true if data was re-calculated.
 bool ReceiveNetPacket( CBytestream * bs, int player )
@@ -323,11 +325,11 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 
 // Should be called for every gameloop frame with current key state, returns true if there's something to send
 // Draw() should be called after this func
-bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
+bool SendNetPacket( Time localTime, KeyState_t keys, CBytestream * bs )
 {
 	//printf("SendNetPacket() time %lu\n", localTime);
-	localTime -= OlxTimeDiffMs;
-	localTime /= TICK_TIME;
+	localTime.time -= OlxTimeDiffMs.time;
+	localTime.time /= TICK_TIME;
 
 	if( keys == OldKeys[ LocalPlayer ] &&
 		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME ) // Do not flood the net with non-changed keys
@@ -336,7 +338,7 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
 	//printf("SendNetPacket() put keys in time %lu\n", localTime);
-	bs->writeInt( localTime, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
+	bs->writeUInt64( localTime.time );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 	int changedKeyIdx = changedKeys.getFirstPressedKey();
 	if( changedKeyIdx == -1 )
 		bs->writeByte( UCHAR_MAX );
@@ -358,21 +360,21 @@ bool SendNetPacket( unsigned long localTime, KeyState_t keys, CBytestream * bs )
 	return true;
 };
 
-unsigned GetChecksum( unsigned long * time )
+unsigned GetChecksum( Time * time )
 {
 	if( time )
 		*time = ChecksumTime;
 	return Checksum;
 };
 
-unsigned long GetCurTime()
+Time GetCurTime()
 {
 	return CurrentTimeMs;
-};
-float GetCurTimeFloat()
+}
+Time GetCurTimeFloat()
 {
-	return float(CurrentTimeMs * 0.001f);
-};
+	return GetCurTime();
+}
 
 
 // -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------

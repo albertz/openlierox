@@ -29,7 +29,7 @@
 bool CShootList::Initialize(void)
 {
 	m_nNumShootings = 0;
-	m_fStartTime = -1;
+	m_fStartTime = Time();
 
 	// TODO: use std::queue or std::list
 	m_psShoot = new shoot_t[MAX_SHOOTINGS];
@@ -50,7 +50,7 @@ void CShootList::Shutdown(void)
 	}
 
 	m_nNumShootings = 0;
-	m_fStartTime = -1;
+	m_fStartTime = Time();
 }
 
 
@@ -59,7 +59,7 @@ void CShootList::Shutdown(void)
 void CShootList::Clear(void)
 {
 	m_nNumShootings = 0;
-	m_fStartTime = -1;
+	m_fStartTime = Time();
 }
 
 
@@ -77,7 +77,7 @@ shoot_t *CShootList::getShot( int index )
 ///////////////////
 // Add a shot to the list
 // (done on server-side from GameServer::WormShoot)
-bool CShootList::addShoot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm )
+bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm )
 {
 	assert( pcWorm );
 	assert( m_psShoot );
@@ -87,8 +87,8 @@ bool CShootList::addShoot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 		return false;
 
 	// If this is the first shot in the list, set the start time
-	if( m_fStartTime == -1)
-		m_fStartTime = tLX->fCurTime;
+	if( m_fStartTime == Time())
+		m_fStartTime = tLX->currentTime;
 
 	shoot_t *psShot = &m_psShoot[ m_nNumShootings++ ];
 
@@ -134,7 +134,7 @@ bool CShootList::writePacket( CBytestream *bs )
 	// Otherwise, append the shootlist onto the bytestream
 	// Don't append for now
 	bs->Append( &strm );
-	m_fLastWrite = tLX->fCurTime;
+	m_fLastWrite = tLX->currentTime;
 
 	return true;
 }
@@ -165,7 +165,7 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	bs->writeByte( S2C_SINGLESHOOT );
 	bs->writeByte( flags );
 	bs->writeByte( psShot->nWormID );
-	bs->writeFloat( psShot->fTime );
+	bs->writeFloat( (float)psShot->fTime.seconds() );
 	bs->writeByte( psShot->nWeapon );
 	bs->write2Int12( x, y );
 	bs->writeInt16( vx );
@@ -215,7 +215,7 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	for(i=index+1; i<m_nNumShootings; i++) {
 		if( m_psShoot[i].nWormID != wmid ||
 			m_psShoot[i].nWeapon != wpid ||
-			(m_psShoot[i].fTime - m_psShoot[i-1].fTime)*1000 > 255 ||
+			(m_psShoot[i].fTime - m_psShoot[i-1].fTime).milliseconds() > 255 ||
 			abs(m_psShoot[i].nAngle - m_psShoot[i-1].nAngle) > 255 ||
 			abs(m_psShoot[i].nSpeed - m_psShoot[i-1].nSpeed) > 255 ||
 			abs((int)m_psShoot[i].cWormVel.x - (int)m_psShoot[i-1].cWormVel.x) > 255 ||
@@ -262,7 +262,7 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	bs->writeByte( S2C_MULTISHOOT );
 	bs->writeByte( flags );
 	bs->writeByte( psShot->nWormID );
-	bs->writeFloat( psShot->fTime );
+	bs->writeFloat( (float)psShot->fTime.seconds() );
 	bs->writeByte( psShot->nWeapon );
 	bs->writeByte( num );
 	bs->write2Int12( x, y );
@@ -376,7 +376,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	if( flags & SHF_EXTRAFLAGS )
 		bs->writeByte( extraflags );
 	if( flags & SHF_TIMEOFF )
-		bs->writeByte( (int)( (psShot->fTime - psFirst->fTime) * 1000.0f) );
+		bs->writeByte( (int)( (psShot->fTime - psFirst->fTime).milliseconds()) );
 
 	// X offset
 	if( flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF ) {

@@ -429,13 +429,13 @@ HWND GetWindowHandle(void)
 
 
 void CapFPS() {
-	const float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
-	const float fCurTime = GetMilliSeconds();
-	// tLX->fCurTime is old time
+	const TimeDiff fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
+	const Time& currentTime = GetTime();
+	// tLX->currentTime is old time
 
 	// Cap the FPS
-	if(fCurTime - tLX->fCurTime < fMaxFrameTime)
-		SDL_Delay((int)((fMaxFrameTime - fCurTime + tLX->fCurTime)*1000));
+	if(currentTime - tLX->currentTime < fMaxFrameTime)
+		SDL_Delay((fMaxFrameTime - (currentTime - tLX->currentTime)).milliseconds());
 	else
 		// do at least one small break, else it's possible that we never receive signals from our OS
 		SDL_Delay(1);
@@ -883,7 +883,7 @@ int unsetenv(const char *name)
 // this debug stuff will probably move there.
 bool HandleDebugCommand(const std::string& text) {
 	if(text.size() >= 3 && text.substr(0,3) == "///") {
-		cClient->getChatbox()->AddText("DEBUG COMMAND", tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+		cClient->getChatbox()->AddText("DEBUG COMMAND", tLX->clNotice, TXT_NOTICE, tLX->currentTime);
 
 		std::string cmd = text.substr(3);
 		stringlwr(cmd);

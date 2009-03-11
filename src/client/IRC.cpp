@@ -179,8 +179,8 @@ void IRCClient::process()
 {
 	// Re-connect once per 5 seconds
 	if (!m_socketConnected && !m_connecting)  {
-		if(tLX->fCurTime - m_connectionClosedTime >= 5.0f)  {
-			m_connectionClosedTime = tLX->fCurTime;
+		if(tLX->currentTime - m_connectionClosedTime >= 5.0f)  {
+			m_connectionClosedTime = tLX->currentTime;
 			connect(m_chatServerAddrStr, m_chatServerChannel, m_myNick);
 		}
 		return;
@@ -303,7 +303,7 @@ void IRCClient::disconnect()
 	m_socketIsReady = false;
 	m_socketOpened = false;
 	m_connecting = false;
-	m_connectionClosedTime = tLX->fCurTime;
+	m_connectionClosedTime = tLX->currentTime;
 	InvalidateSocketState(m_chatSocket);
 	SetNetAddrValid(m_chatServerAddr, false);
 	m_netBuffer.clear();

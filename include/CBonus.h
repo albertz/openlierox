@@ -43,7 +43,6 @@ public:
 	// Constructor
 	CBonus() {
 		bUsed = false;
-		fLastSimulationTime = -9999;
 	}
 
 
@@ -59,7 +58,7 @@ private:
 	CVec	vPos;
 	CVec	vVelocity;
 	float	fLife;
-	float	fSpawnTime;
+	Time	fSpawnTime;
 	float	fFlashTime;
 
 
@@ -79,7 +78,7 @@ public:
 	int		getType(void)		{ return iType; }
 	int		getWeapon(void)		{ return iWeapon; }
 
-	float	getSpawnTime(void)	{ return fSpawnTime; }
+	Time	getSpawnTime(void)	{ return fSpawnTime; }
 
 	CVec	getPosition(void)	{ return vPos; }
 
@@ -92,7 +91,7 @@ public:
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateBonuses()
 	// there which simulates all bonuses together
-	float	fLastSimulationTime;
+	Time	fLastSimulationTime;
 
 };
 

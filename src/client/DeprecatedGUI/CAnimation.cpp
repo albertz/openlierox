@@ -80,11 +80,11 @@ void CAnimation::Draw(SDL_Surface * bmpDest)
 		Menu_redrawBufferRect(iX,iY, tAnimation.get()->w,tAnimation.get()->h);
 
 	// Check if it's time to change the frame
-	if (tLX->fCurTime - fLastFrameChange >= fFrameTime) {
+	if (tLX->currentTime - fLastFrameChange >= fFrameTime) {
 		iCurFrame++;
 		if (iCurFrame >= iNumFrames)
 			iCurFrame = 0;
-		fLastFrameChange = tLX->fCurTime;
+		fLastFrameChange = tLX->currentTime;
 	}
 
 	// Draw the image
@@ -114,7 +114,7 @@ void CAnimation::Change(const std::string& Path, float frametime)
 
 	iCurFrame = 0;
 	fFrameTime = frametime;
-	fLastFrameChange = -9999;
+	fLastFrameChange = Time();
 
 	Parse();
 }

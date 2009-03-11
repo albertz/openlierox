@@ -2291,7 +2291,6 @@
 		EAD99F650C063CAA003BE563 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(NATIVE_ARCH)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2302,6 +2301,8 @@
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../libs/hawknl/include",
+					"$(SRCROOT)/../../libs/libzip",
 					"$(SRCROOT)/../../libs/pstreams",
 					"$(SRCROOT)/../../libs/coredumper/src",
 					/usr/include/libxml2,

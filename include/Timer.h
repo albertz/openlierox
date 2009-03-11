@@ -22,17 +22,34 @@
 
 #include <string>
 #include <SDL.h>
+#include <cassert>
 #include "Event.h"
+#include "types.h"
 
-///////////////////
-// Get the number of milliseconds since SDL started the timer
-// TODO: Wrong function name - it returns seconds actually.
-inline float	GetMilliSeconds(void) { return (float)SDL_GetTicks() * 0.001f; }
+
+struct TimeCounter {
+	Time time;
+	Uint32 lastTicks;
+	
+	TimeCounter() : time(0), lastTicks(0) {}
+	TimeDiff update() {
+		Uint32 curTicks = SDL_GetTicks();
+		if(curTicks < lastTicks) {
+			lastTicks = curTicks; // ignore (that should only happen once every ~49 days or when SDL gets reinited)
+			return TimeDiff(0);
+		}
+		time.time += curTicks - lastTicks;
+		return TimeDiff((Uint64)(curTicks - lastTicks));
+	}
+};
+extern TimeCounter timeCounter;
+
+inline const Time& GetTime() { return timeCounter.time; }
 
 
 int				GetFPS(void);
 int				GetMinFPS(void);
-std::string		GetTime();
+std::string		GetDateTime();
 
 
 

@@ -46,8 +46,8 @@ void CTextbox::Create(void)
 	bHolding = false;
 	bHoldingMouse = false;
 	fTimeHolding = 0;
-	fTimePushed = -9999;
-	fLastRepeat = -9999;
+	fTimePushed = Time();
+	fLastRepeat = Time();
 	iLastchar = 0;
 	iLastKeysym = 0;
 	if (tTimer == NULL)  {
@@ -192,17 +192,17 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		if(iLastchar != c || iLastKeysym != keysym)
 			bHolding = false;
 		else {
-			if(tLX->fCurTime - fTimePushed < 0.25f)
+			if(tLX->currentTime - fTimePushed < 0.25f)
 				return TXT_NONE;
-			if (tLX->fCurTime - fLastRepeat < 0.03f)
+			if (tLX->currentTime - fLastRepeat < 0.03f)
 				return TXT_NONE;
-			fLastRepeat = tLX->fCurTime;
+			fLastRepeat = tLX->currentTime;
 		}
 	}
 
 	if(!bHolding) {
 		bHolding = true;
-		fTimePushed = tLX->fCurTime;
+		fTimePushed = tLX->currentTime;
 	}
 
 	iLastchar = c;
@@ -531,11 +531,11 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 	fScrollTime = 0;  // We can scroll the textbox using mouse
 
 	// Doubleclick
-	if (tLX->fCurTime - fLastClick <= 0.25)  {
+	if (tLX->currentTime - fLastClick <= 0.25)  {
 		SelectWord();
 	}
 
-	fLastClick = tLX->fCurTime;
+	fLastClick = tLX->currentTime;
 
 	// We can lose focus now
 	bCanLoseFocus = true;

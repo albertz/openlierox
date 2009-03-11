@@ -44,9 +44,9 @@
 
 ///////////////////
 // Convert a float time into it's hours, minutes & seconds
-void ConvertTime(float time, int *hours, int *minutes, int *seconds)
+void ConvertTime(TimeDiff time, int *hours, int *minutes, int *seconds)
 {
-	*seconds = (int)time;
+	*seconds = (int)time.seconds();
 	*minutes = *seconds / 60;
 	if(*minutes)
 	{

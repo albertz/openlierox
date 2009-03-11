@@ -244,7 +244,7 @@ void GameServer::SimulateGame(void)
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
 	if(bGameOver
-	&& (tLX->fCurTime - fGameOverTime > LX_ENDWAIT || (bDedicated && iNumPlayers <= 1)) // dedicated server should go to lobby immediatly if alone
+	&& (tLX->currentTime - fGameOverTime > LX_ENDWAIT || (bDedicated && iNumPlayers <= 1)) // dedicated server should go to lobby immediatly if alone
 	&& iState != SVS_LOBBY
 	&& tLX->iGameType == GME_HOST) {
 		gotoLobby();
@@ -265,7 +265,7 @@ void GameServer::SimulateGame(void)
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
 			// Check to see if they have been dead for longer then 2.5 seconds
-			if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameInfo.fRespawnTime )
+			if(tLX->currentTime - w->getTimeofDeath() > tLXOptions->tGameInfo.fRespawnTime )
 			{
 				SpawnWorm(w);
 				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
@@ -287,7 +287,7 @@ void GameServer::SimulateGame(void)
 				continue;
 
 			// If it's been here too long, destroy it
-			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameInfo.fBonusLife ) {
+			if( tLX->currentTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameInfo.fBonusLife ) {
 				CBytestream bs;
 				bs.Clear();
 				cBonuses[i].setUsed(false);
@@ -303,11 +303,11 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if we need to spawn a bonus
-	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameInfo.fBonusFreq && tLXOptions->tGameInfo.bBonusesOn && !bGameOver) {
+	if(tLX->currentTime - fLastBonusTime > tLXOptions->tGameInfo.fBonusFreq && tLXOptions->tGameInfo.bBonusesOn && !bGameOver) {
 
 		SpawnBonus();
 
-		fLastBonusTime = tLX->fCurTime;
+		fLastBonusTime = tLX->currentTime;
 	}
 
 	// Simulate anything needed by the game mode
@@ -444,7 +444,7 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 	}
 	
 	if(gameserver) {
-		float time = gameserver->getServerTime();
+		TimeDiff time = gameserver->getServerTime();
 		if( w->hasOwnServerTime() )
 			time = w->serverTime();
 		
@@ -536,8 +536,8 @@ void GameServer::gotoLobby(void)
 		cClients[i].setGameReady(false);
 	}
 
-	fLastUpdateSent = -9999;
-	fGameOverTime = -9999;
+	fLastUpdateSent = Time();
+	fGameOverTime = Time();
 
 	SendWormLobbyUpdate();
 	

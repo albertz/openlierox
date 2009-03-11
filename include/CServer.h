@@ -41,7 +41,7 @@ class CGameMode;
 // Challenge structure
 class challenge_t { public:
 	NetworkAddr	Address;
-	float		fTime;
+	Time		fTime;
 	int			iNum;
 	std::string	sClientVersion;
 };
@@ -77,7 +77,7 @@ private:
 	// TODO: merge this with game_t (tGameInfo variable)
 	// Game rules
 	bool		bGameOver;
-	float		fGameOverTime;
+	Time		fGameOverTime;
 	
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
@@ -101,11 +101,11 @@ private:
 	CMap		*cMap;
 
 	// Simulation
-	float		fServertime;	// TODO: what is this good for
+	TimeDiff	fServertime;	// TODO: what is this good for
 	int			iServerFrame;	// TODO: what is this good for
 	int			lastClientSendData;
 	
-	float		fLastBonusTime;
+	Time		fLastBonusTime;
 
 	int			iLastVictim;	// TODO: what is this good for
 
@@ -113,7 +113,7 @@ private:
 	NetworkSocket	tSocket;
 	int				nPort;
 	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
-	float			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
+	Time			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
@@ -121,16 +121,16 @@ private:
 	int				iSuicidesInPacket;
 
 	CBanList	cBanList;
-	float		fLastUpdateSent;
+	Time		fLastUpdateSent;
 
 	bool		bServerRegistered;
-	float		fLastRegister;
+	Time		fLastRegister;
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
-	float		fLastRegisterUdp;
+	Time		fLastRegisterUdp;
 	std::vector<std::string>			tUdpMasterServers;
-	float		fWeaponSelectionTime;
+	Time		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	
 	static void SendConnectHereAfterTimeout (Timer::EventData ev);
@@ -248,10 +248,10 @@ public:
 	std::string		getName()			{ return tLXOptions->sServerName; }
 	void			setName(const std::string& _name){ tLXOptions->sServerName = _name; }
 	bool			getGameOver()		{ return bGameOver; }
-	float			getGameOverTime()	{ return fGameOverTime; }
+	Time			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection *getClients() { return cClients; }
-	float	getServerTime() { return fServertime; }
+	TimeDiff	getServerTime() { return fServertime; }
 
 	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode

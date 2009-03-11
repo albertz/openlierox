@@ -87,7 +87,7 @@ void CClient::Clear(void)
 	iScorePlayers = 0;
 	cBonuses = NULL;
 	bUpdateScore = true;
-	fLastScoreUpdate = -9999;
+	fLastScoreUpdate = Time();
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
@@ -114,9 +114,9 @@ void CClient::Clear(void)
 	bServerError = false;
     bClientError = false;
 	bChat_Typing = false;
-	fLastReceived = 99999;
+	fLastReceived = Time::MAX();
 	fSendWait = 0;
-	fLastUpdateSent = -9999;
+	fLastUpdateSent = Time();
 
 
 	bInServer = false;
@@ -151,9 +151,9 @@ void CClient::Clear(void)
 	bDlError = false;
 	sDlError = "";
 	iDlProgress = 0;
-	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
-	fSpectatorViewportMsgTimeout = tLX->fCurTime;
+	fSpectatorViewportMsgTimeout = tLX->currentTime;
 	sSpectatorViewportMsg = "";
 	bSpectate = false;
 	bWaitingForMap = false;
@@ -174,7 +174,7 @@ void CClient::MinorClear(void)
 	bGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
-	fLastScoreUpdate = -9999;
+	fLastScoreUpdate = Time();
 	bCurrentSettings = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
@@ -213,9 +213,9 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
-	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
-	fSpectatorViewportMsgTimeout = tLX->fCurTime;
+	fSpectatorViewportMsgTimeout = tLX->currentTime;
 	sSpectatorViewportMsg = "";
 }
 
@@ -250,7 +250,7 @@ CClient::CClient() {
 	bMapGrabbed = false;
 	cChatList = NULL;
 	bUpdateScore = true;
-	fLastScoreUpdate = -9999;
+	fLastScoreUpdate = Time();
 	bShouldRepaintInfo = true;
 	bCurrentSettings = false;
 	tMapDlCallback = NULL;
@@ -276,7 +276,7 @@ CClient::CClient() {
 	bInServer = false;
 	cIConnectedBuf = "";
 	iNetSpeed = 3;
-	fLastUpdateSent = -9999;
+	fLastUpdateSent = Time();
 	SetNetAddrValid( cServerAddr, false );
 	InvalidateSocketState(tSocket);
 	bLocalClient = false;
@@ -297,7 +297,7 @@ CClient::CClient() {
 		iTeamScores[i] = 0;
 	
 	bHostAllowsMouse = false;
-	fLastFileRequest = tLX->fCurTime;
+	fLastFileRequest = tLX->currentTime;
 	
 	bDownloadingMap = false;
 	cHttpDownloader = NULL;
@@ -427,10 +427,10 @@ void CClient::StartLogging(int num_players)
 		return;
 	}
 	tGameLog->tWorms = NULL;
-	tGameLog->fGameStart = tLX->fCurTime;
+	tGameLog->fGameStart = tLX->currentTime;
 	tGameLog->iNumWorms = num_players;
 	tGameLog->iWinner = -1;
-	tGameLog->sGameStart = GetTime();
+	tGameLog->sGameStart = GetDateTime();
 	tGameLog->sServerName = szServerName;
 	NetAddrToString(cNetChan->getAddress(), tGameLog->sServerIP);
 
@@ -486,19 +486,19 @@ void CClient::IRC_OnNewMessage(const std::string &msg, int type)
 	// Add the message
 	switch (type)  {
 	case IRCClient::IRC_TEXT_CHAT:
-		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->fCurTime);
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->currentTime);
 		break;
 	case IRCClient::IRC_TEXT_NOTICE:
-		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNotice, TXT_NOTICE, tLX->fCurTime);
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNotice, TXT_NOTICE, tLX->currentTime);
 		break;
 	case IRCClient::IRC_TEXT_ACTION:
-		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_CHAT, tLX->fCurTime);
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_CHAT, tLX->currentTime);
 		break;
 	case IRCClient::IRC_TEXT_PRIVATE:
-		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_PRIVATE, tLX->fCurTime);
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clNetworkText, TXT_PRIVATE, tLX->currentTime);
 		break;
 	default:
-		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->fCurTime);
+		cClient->getChatbox()->AddText("<b>IRC:</b> " + msg, tLX->clChatText, TXT_CHAT, tLX->currentTime);
 	}
 
 
@@ -562,7 +562,7 @@ void CClient::DownloadMap(const std::string& mapname)
 	bDownloadingMap = true;
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
-	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests, if previous request failed
+	setLastFileRequest( tLX->currentTime - 10.0f ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -585,7 +585,7 @@ void CClient::DownloadMod(const std::string &modname)
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
 	iModDownloadingSize = 0;
-	setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests, if previous request failed
+	setLastFileRequest( tLX->currentTime - 10.0f ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -618,7 +618,7 @@ void CClient::AbortDownloads()
 		tMapDlCallback();
 
 	// Disable file download for current session, if server sent ABORT do not try to re-download
-	setLastFileRequest( tLX->fCurTime + 10000.0f ); 
+	setLastFileRequest( tLX->currentTime + 10000.0f ); 
 
 	InitializeDownloads();
 }
@@ -779,11 +779,11 @@ void CClient::ProcessUdpUploads()
 	{
 		cNetEngine->SendFileData();
 		
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		fLastFileRequestPacketReceived = tLX->currentTime;
+		fLastFileRequest = tLX->currentTime + fDownloadRetryTimeout/10.0f;
 		// Do not spam server with STAT packets, it may take long to scan all files in mod dir
 		if( getUdpFileDownloader()->getFilename() == "STAT:" || getUdpFileDownloader()->getFilename() == "GET:" )
-			fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout;
+			fLastFileRequest = tLX->currentTime + fDownloadRetryTimeout;
 	}
 }
 
@@ -864,8 +864,8 @@ void CClient::ProcessMapDownloads()
 		return;
 
 	if( getUdpFileDownloader()->isReceiving() )	 {
-		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
-			fLastFileRequestPacketReceived = tLX->fCurTime;
+		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->currentTime ) { // Server stopped sending file in the middle
+			fLastFileRequestPacketReceived = tLX->currentTime;
 			if( ! getUdpFileDownloader()->requestFilesPending() )  { // More files to receive
 				bDlError = true;
 				sDlError = sMapDownloadName + " downloading error: UDP timeout";
@@ -914,11 +914,11 @@ void CClient::ProcessMapDownloads()
 
 	// HINT: gets finished in CClient::ParseSendFile
 
-	if( fLastFileRequest > tLX->fCurTime )
+	if( fLastFileRequest > tLX->currentTime )
 		return;
 
-	fLastFileRequestPacketReceived = tLX->fCurTime;
-	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f; // Request another file from server after little timeout
+	fLastFileRequestPacketReceived = tLX->currentTime;
+	fLastFileRequest = tLX->currentTime + fDownloadRetryTimeout/10.0f; // Request another file from server after little timeout
 
 	getUdpFileDownloader()->requestFilesPending(); // More files to receive?
 }
@@ -1022,8 +1022,8 @@ void CClient::ProcessModDownloads()
 	
 	// Receiving
 	if(cUdpFileDownloader.isReceiving())	 {
-		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) { // Server stopped sending file in the middle
-			fLastFileRequestPacketReceived = tLX->fCurTime;
+		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->currentTime ) { // Server stopped sending file in the middle
+			fLastFileRequestPacketReceived = tLX->currentTime;
 			if(!cUdpFileDownloader.requestFilesPending())  { // More files to receive
 				bDownloadingMod = false;
 				printf("Mod download error: connection timeout\n");
@@ -1044,15 +1044,15 @@ void CClient::ProcessModDownloads()
 	}
 
 	// Request another file from server after little timeout
-	if( fLastFileRequest <= tLX->fCurTime )  {
+	if( fLastFileRequest <= tLX->currentTime )  {
 
 		// Re-request the file if the request failed
 		if (cUdpFileDownloader.getFilesPendingAmount() == 0)  {
 			cUdpFileDownloader.requestFileInfo(sModDownloadName, true);
 		}
 
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout/10.0f;
+		fLastFileRequestPacketReceived = tLX->currentTime;
+		fLastFileRequest = tLX->currentTime + fDownloadRetryTimeout/10.0f;
 
 		getUdpFileDownloader()->requestFilesPending(); // More files to receive?
 	}
@@ -1124,7 +1124,7 @@ void CClient::ReadPackets(void)
 	}
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tLX->iGameType == GME_JOIN) {
+	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->currentTime - LX_CLTIMEOUT && tLX->iGameType == GME_JOIN) {
 		// Time out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
@@ -1160,7 +1160,7 @@ void CClient::SendPackets(void)
 
 	// Send every second
 	// TODO: move this somewhere else
-	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && tLX->fCurTime - fMyPingRefreshed > 1) {
+	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && tLX->currentTime - fMyPingRefreshed > 1) {
 		CBytestream ping;
 
 		// TODO: move this out here
@@ -1173,8 +1173,8 @@ void CClient::SendPackets(void)
 
 		ping.Send(this->getChannel()->getSocket());
 
-		fMyPingSent = tLX->fCurTime;
-		fMyPingRefreshed = tLX->fCurTime;
+		fMyPingSent = tLX->currentTime;
+		fMyPingRefreshed = tLX->currentTime;
 	}
 	
 	
@@ -1250,11 +1250,11 @@ void CClient::Connect(const std::string& address)
 	iNumConnects = 0;
 	bBadConnection = false;
 	cServerVersion.reset();
-	fConnectTime = tLX->fCurTime;
+	fConnectTime = tLX->currentTime;
 	bConnectingBehindNat = false;
 	iNatTraverseState = NAT_RESOLVING_DNS;
-	fLastTraverseSent = -9999;
-	fLastChallengeSent = -9999;
+	fLastTraverseSent = Time();
+	fLastChallengeSent = Time();
 
 	// TODO: use the easier and better event system
 	// Register the IRC callbacks
@@ -1346,7 +1346,7 @@ void CClient::ConnectingBehindNAT()
 
 		// Check for a DNS timeout
 		if (!IsNetAddrValid(cServerAddr))  {
-			if (tLX->fCurTime - fConnectTime >= DNS_TIMEOUT)  {
+			if (tLX->currentTime - fConnectTime >= DNS_TIMEOUT)  {
 				iNetStatus = NET_DISCONNECTED;
 				bBadConnection = true;
 				strBadConnectMsg = "Could not find the master server.";
@@ -1376,7 +1376,7 @@ void CClient::ConnectingBehindNAT()
 			bs.writeString(strServerAddr);	// Old address specified in connect()
 			bs.Send(tSocket);
 
-			fLastTraverseSent = tLX->fCurTime;
+			fLastTraverseSent = tLX->currentTime;
 			iNatTraverseState = NAT_WAIT_TRAVERSE_REPLY;
 
 			// To make sure we get called again
@@ -1386,7 +1386,7 @@ void CClient::ConnectingBehindNAT()
 
 	case NAT_WAIT_TRAVERSE_REPLY:
 		// Check for timeouts
-		if (tLX->fCurTime - fLastTraverseSent >= TRAVERSE_TIMEOUT)  {
+		if (tLX->currentTime - fLastTraverseSent >= TRAVERSE_TIMEOUT)  {
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "No reply from the server."; // Previous message always made me think that masterserver is down, when there's just no reply
@@ -1429,14 +1429,14 @@ void CClient::ConnectingBehindNAT()
 		// To make sure we get called again
 		Timer("client ConnectingBehindNAT challenge timeout", null, NULL, (Uint32)(CHALLENGE_TIMEOUT * 1000), true).startHeadless();
 
-		fLastChallengeSent = tLX->fCurTime;
+		fLastChallengeSent = tLX->currentTime;
 		iNatTraverseState = NAT_WAIT_CHALLENGE_REPLY;
 		iNatTryPort++;
 	} break;
 
 	case NAT_WAIT_CHALLENGE_REPLY:  {
 		// Check for timeouts
-		if (tLX->fCurTime - fLastChallengeSent >= CHALLENGE_TIMEOUT)  {
+		if (tLX->currentTime - fLastChallengeSent >= CHALLENGE_TIMEOUT)  {
 
 			// If trying ports around the given one
 			if (iNatTryPort >= TRY_PORT_COUNT)  {
@@ -1461,8 +1461,8 @@ void CClient::ConnectingBehindNAT()
 
 			// Start from scratch
 			iNatTraverseState = NAT_RESOLVING_DNS;
-			fLastTraverseSent = -9999;
-			fLastChallengeSent = -9999;
+			fLastTraverseSent = Time();
+			fLastChallengeSent = Time();
 
 			// To make sure we get called again
 			Timer("client ConnectingBehindNAT restarter", null, NULL, 10, true).startHeadless();
@@ -1483,7 +1483,7 @@ void CClient::Connecting(bool force)
 		return;
 
 	// Try every three seconds
-	if(!force && (tLX->fCurTime - fConnectTime < 3.0f))
+	if(!force && (tLX->currentTime - fConnectTime < 3.0f))
 		return;
 
 	// For local play/hosting: don't send the challenge more times
@@ -1503,7 +1503,7 @@ void CClient::Connecting(bool force)
 
 	// Check for DNS timeout
 	if(!IsNetAddrValid(cServerAddr)) {
-		if(tLX->fCurTime - fConnectTime >= DNS_TIMEOUT) { // timeout
+		if(tLX->currentTime - fConnectTime >= DNS_TIMEOUT) { // timeout
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "Domain could not be resolved after " + itoa(DNS_TIMEOUT) + " seconds";
@@ -1525,7 +1525,7 @@ void CClient::Connecting(bool force)
 	//if( rawServerAddr != strServerAddr )
 	//	strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
 
-	fConnectTime = tLX->fCurTime;
+	fConnectTime = tLX->currentTime;
 	iNumConnects++;
 
 	// Request a challenge id
@@ -1743,7 +1743,7 @@ void CClient::GetLogData(std::string& data)
 
 	// Save the game info
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
-			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
+			"length=\"" + ftoa((fGameOverTime - tGameLog->fGameStart).seconds()) + "\" " +
 			"loading=\"" + itoa(tGameInfo.iLoadingTime) + "\" " +
 			"gamespeed=\"" + ftoa(tGameInfo.features[FT_GameSpeed]) + "\" " +
 			"lives=\"" + itoa(tGameInfo.iLives) + "\" " +
@@ -1788,9 +1788,9 @@ void CClient::GetLogData(std::string& data)
 				"teamdeaths=\"" + itoa(tGameLog->tWorms[i].iTeamDeaths) + "\" " +
 				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " +
 				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " +
-				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " +
+				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime.seconds()) + "\" " +
 				"left=\"" + (tGameLog->tWorms[i].bLeft ? "1" : "0") + "\" " +
-				"timeleft=\"" + ftoa(MAX(0.0f, tGameLog->tWorms[i].fTimeLeft - tGameLog->fGameStart)) + "\" " +
+				"timeleft=\"" + ftoa(tGameLog->tWorms[i].fTimeLeft.seconds()) + "\" " +
 				"type=\"" + itoa(tGameLog->tWorms[i].iType) + "\"/>";
 	}
 

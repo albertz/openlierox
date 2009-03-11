@@ -32,7 +32,7 @@ CWeather::CWeather()
     
     m_psSnowPart = NULL;
     
-    m_fNextSnow = -9999;
+    m_fNextSnow = Time();
     m_fWind = 0;
 }
 
@@ -56,7 +56,7 @@ bool CWeather::Initialize(int nType)
     if( !m_psSnowPart.get() )
         return false;
 
-    m_fNextSnow = -9999;
+    m_fNextSnow = Time();
     m_fWind = 0;
 
     return true;
@@ -95,12 +95,12 @@ void CWeather::SimulateSnow(float dt)
     // Spawn a new particle along the top of the map
     // TODO: Do this every n seconds
 
-    if( tLX->fCurTime > m_fNextSnow ) {
+    if( tLX->currentTime > m_fNextSnow ) {
         for( int n=0; n<5; n++) {
             float x = (float)GetRandomInt(cClient->getMap()->GetWidth());
             SpawnParticle(wpt_snowpart, 0, CVec(GetRandomNum()*10,(float)GetRandomInt(10)+15),CVec(x,2));
         }
-        m_fNextSnow = tLX->fCurTime+0.1f;
+        m_fNextSnow = tLX->currentTime+0.1f;
     }
 
     // Wind swaying from side to side

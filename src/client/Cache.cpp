@@ -70,11 +70,11 @@ void ShutdownCacheDebug()
 #endif
 
 CCache cCache;
-float getCurrentTime()
+static const Time& getCurrentTime()
 {
 	if( tLX == NULL )	// Cache is used before tLX is initialized
-		return 0;
-	return tLX->fCurTime;
+		return GetTime();
+	return tLX->currentTime;
 }
 
 //////////////
@@ -283,7 +283,7 @@ void CCache::ClearExtraEntries()
 	ScopedLock lock(mutex);
 	if( (int)ImageCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< float, ImageCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< Time, ImageCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( ImageCache_t :: iterator it = ImageCache.begin(); it != ImageCache.end(); it++  )
@@ -312,7 +312,7 @@ void CCache::ClearExtraEntries()
 
 	if( (int)SoundCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< float, SoundCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< Time, SoundCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( SoundCache_t :: iterator it = SoundCache.begin(); it != SoundCache.end(); it++  )
@@ -320,7 +320,7 @@ void CCache::ClearExtraEntries()
 			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
 			if( it->second.sndSample.getRefCount() <= 1 )
 				count ++;
-		};
+		}
 		if( count >= tLXOptions->iMaxCachedEntries )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 2;
@@ -334,14 +334,14 @@ void CCache::ClearExtraEntries()
 				{
 					clearCount --;
 					SoundCache.erase( it1->second );
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 
 	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< float, MapCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< Time, MapCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( MapCache_t :: iterator it = MapCache.begin(); it != MapCache.end(); it++  )
@@ -349,7 +349,7 @@ void CCache::ClearExtraEntries()
 			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
 			if( it->second.tMap.getRefCount() <= 1 )
 				count ++;
-		};
+		}
 		if( count >= tLXOptions->iMaxCachedEntries / 10 )
 		{
 			int clearCount = count - tLXOptions->iMaxCachedEntries / 20;
@@ -363,14 +363,14 @@ void CCache::ClearExtraEntries()
 				{
 					clearCount --;
 					MapCache.erase( it1->second );
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 
 	if( (int)ModCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< float, ModCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< Time, ModCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( ModCache_t :: iterator it = ModCache.begin(); it != ModCache.end(); it++  )

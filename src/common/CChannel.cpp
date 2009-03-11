@@ -43,7 +43,7 @@ void CChannel::Clear()
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
 	iPing = 0;
-	fLastSent = fLastPckRecvd = fLastPingSent = -9999;
+	fLastSent = fLastPckRecvd = fLastPingSent = Time();
 	iCurrentIncomingBytes = 0;
 	iCurrentOutgoingBytes = 0;
 	Messages.clear();
@@ -55,9 +55,9 @@ void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 {
 	Clear();
 	RemoteAddr = *_adr;
-	fLastPckRecvd = tLX->fCurTime;
+	fLastPckRecvd = tLX->currentTime;
 	Socket = _sock;
-	fLastSent = tLX->fCurTime-1;
+	fLastSent = tLX->currentTime-1;
 	fLastPingSent = fLastSent;
 	iPing = 0;
 }
@@ -105,7 +105,7 @@ void CChannel_056b::Clear()
 	iIncomingAcknowledged = 0;
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
-	fLastSent = -9999;
+	fLastSent = Time();
 	bNewReliablePacket = false;
 	iPongSequence = -1;
 	Reliable.Clear();
@@ -135,7 +135,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// We send reliable message in these cases:
 	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
 	// 2. We need to refresh ping
-	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
+	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->currentTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
 		if (Messages.size() > 0)  {
 			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());
@@ -166,7 +166,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (iPongSequence == -1)  {
 			iPongSequence = iOutgoingSequence - 1;
-			fLastPingSent = tLX->fCurTime; //GetMilliSeconds();
+			fLastPingSent = tLX->currentTime; //GetTime();
 		}
 
 	}
@@ -187,10 +187,10 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// Update statistics
 	iOutgoingBytes += outpack.GetLength();
 	iCurrentOutgoingBytes += outpack.GetLength();
-	fLastSent = tLX->fCurTime; //GetMilliSeconds();
+	fLastSent = tLX->currentTime; //GetTime();
 
 	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->fCurTime, outpack.GetLength() );
+	cOutgoingRate.addData( tLX->currentTime, outpack.GetLength() );
 }
 
 
@@ -208,7 +208,7 @@ bool CChannel_056b::Process(CBytestream *bs)
 		return false;
 
 	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->fCurTime;
+	fLastPckRecvd = tLX->currentTime;
 
 	// Read the reliable packet header
 	Sequence = bs->readInt(4);
@@ -226,7 +226,7 @@ bool CChannel_056b::Process(CBytestream *bs)
 	// Calculate the bytes per second
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
+	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
 
 	// Get rid of the old packets
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
@@ -258,7 +258,7 @@ bool CChannel_056b::Process(CBytestream *bs)
 	// Check if pong has been acknowledged
 	if(SequenceAck >= (size_t)iPongSequence)  {
 		iPongSequence = -1;  // Ready for new pinging
-		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000);
+		iPing = (int)((tLX->currentTime - fLastPingSent).milliseconds());
 	}
 
 
@@ -396,7 +396,7 @@ void CChannel2::Clear()
 	MaxNonAcknowledgedPackets = MAX_NON_ACKNOWLEDGED_PACKETS;
 
 	#ifdef DEBUG
-	DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime;
+	DebugSimulateLaggyConnectionSendDelay = tLX->currentTime;
 	#endif
 };
 
@@ -441,12 +441,12 @@ bool CChannel2::Process(CBytestream *bs)
 		return GetPacketFromBuffer(bs);
 
 	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->fCurTime;
+	fLastPckRecvd = tLX->currentTime;
 
 	// Update statistics - calculate the bytes per second
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
+	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
 
 	// Acknowledged packets info processing
 
@@ -490,7 +490,7 @@ bool CChannel2::Process(CBytestream *bs)
 	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
 	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
 	{
-		iPing = (int) ((tLX->fCurTime - fLastPingSent) * 1000.0f);
+		iPing = (int) ((tLX->currentTime - fLastPingSent).milliseconds());
 		PongSequence = -1;
 		// Traffic shaping occurs here - change DataPacketTimeout according to received ping
 		// Change the value slowly, to avoid peaks
@@ -569,9 +569,9 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
 	if( DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY > 0.0f )
 	{
-		if( DebugSimulateLaggyConnectionSendDelay > tLX->fCurTime )
+		if( DebugSimulateLaggyConnectionSendDelay > tLX->currentTime )
 			return;
-		DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
+		DebugSimulateLaggyConnectionSendDelay = tLX->currentTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
 	}
 	#endif
 
@@ -610,7 +610,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	// Timeout occured - other side didn't acknowledge our packets in time - re-send all of them from the first one.
 	if( LastReliablePacketSent == LastAddedToOut &&
 		SequenceDiff( LastReliablePacketSent, LastReliableOut ) >= MaxNonAcknowledgedPackets &&
-		tLX->fCurTime - fLastSent >= DataPacketTimeout )
+		tLX->currentTime - fLastSent >= DataPacketTimeout )
 	{
 		NextReliablePacketToSend = LastReliableOut;	
 	}
@@ -663,13 +663,13 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 		if (PongSequence == -1)
 		{
 			PongSequence = NextReliablePacketToSend;
-			fLastPingSent = tLX->fCurTime;
+			fLastPingSent = tLX->currentTime;
 		};
 	};
 
 	if( unreliableData->GetLength() == 0 &&
 		LastReliablePacketSent == LastAddedToOut &&
-		tLX->fCurTime - fLastSent < DataPacketTimeout )
+		tLX->currentTime - fLastSent < DataPacketTimeout )
 	{
 		// No unreliable data to send, and we've just sent the same packet -
 		// send it again after some timeout, don't flood net.
@@ -678,14 +678,14 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	
 	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
 		LastReliableIn == LastReliableIn_SentWithLastPacket &&
-		tLX->fCurTime - fLastSent < KeepAlivePacketTimeout )
+		tLX->currentTime - fLastSent < KeepAlivePacketTimeout )
 	{
 		// Nothing to send really, send one empty packet per halfsecond so we won't timeout,
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 
-		cOutgoingRate.addData( tLX->fCurTime, 0 );		
+		cOutgoingRate.addData( tLX->currentTime, 0 );		
 		return;
 	}
 
@@ -699,10 +699,10 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	// Update statistics
 	iOutgoingBytes += bs.GetLength();
 	iCurrentOutgoingBytes += bs.GetLength();
-	fLastSent = tLX->fCurTime; //GetMilliSeconds();
+	fLastSent = tLX->currentTime; //GetTime();
 
 	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->fCurTime, bs.GetLength() );
+	cOutgoingRate.addData( tLX->currentTime, bs.GetLength() );
 };
 
 
@@ -762,7 +762,7 @@ void TestCChannelRobustness()
 	float nextPacket2 = 0;
 	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
 	{
-		tLX->fCurTime = testtime / 1000.0f;
+		tLX->currentTime = Time(testtime);
 
 		// Transmit number sequence and some unreliable info
 		CBytestream b1, b2, b1u, b2u;
@@ -934,7 +934,7 @@ void CChannel3::Clear()
 	MaxNonAcknowledgedPackets = MAX_NON_ACKNOWLEDGED_PACKETS;
 
 	#ifdef DEBUG
-	DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime;
+	DebugSimulateLaggyConnectionSendDelay = tLX->currentTime;
 	#endif
 };
 
@@ -978,12 +978,12 @@ bool CChannel3::Process(CBytestream *bs)
 		return GetPacketFromBuffer(bs);
 
 	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->fCurTime;
+	fLastPckRecvd = tLX->currentTime;
 
 	// Update statistics - calculate the bytes per second
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->fCurTime, bs->GetLength() );
+	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
 	
 	// CRC16 check
 	
@@ -1036,7 +1036,7 @@ bool CChannel3::Process(CBytestream *bs)
 	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
 	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
 	{
-		iPing = (int) ((tLX->fCurTime - fLastPingSent) * 1000.0f);
+		iPing = (int) ((tLX->currentTime - fLastPingSent).milliseconds());
 		PongSequence = -1;
 		// Traffic shaping occurs here - change DataPacketTimeout according to received ping
 		// Change the value slowly, to avoid peaks
@@ -1118,9 +1118,9 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
 	if( DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY > 0.0f )
 	{
-		if( DebugSimulateLaggyConnectionSendDelay > tLX->fCurTime )
+		if( DebugSimulateLaggyConnectionSendDelay > tLX->currentTime )
 			return;
-		DebugSimulateLaggyConnectionSendDelay = tLX->fCurTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
+		DebugSimulateLaggyConnectionSendDelay = tLX->currentTime + DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY;
 	}
 	#endif
 
@@ -1173,7 +1173,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	// Timeout occured - other side didn't acknowledge our packets in time - re-send all of them from the first one.
 	if( LastReliablePacketSent == LastAddedToOut &&
 		SequenceDiff( LastReliablePacketSent, LastReliableOut ) >= MaxNonAcknowledgedPackets &&
-		tLX->fCurTime - fLastSent >= DataPacketTimeout )
+		tLX->currentTime - fLastSent >= DataPacketTimeout )
 	{
 		NextReliablePacketToSend = LastReliableOut;	
 	}
@@ -1229,13 +1229,13 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		if (PongSequence == -1)
 		{
 			PongSequence = NextReliablePacketToSend;
-			fLastPingSent = tLX->fCurTime;
+			fLastPingSent = tLX->currentTime;
 		}
 	}
 
 	if( unreliableData->GetLength() == 0 &&
 		LastReliablePacketSent == LastAddedToOut &&
-		tLX->fCurTime - fLastSent < DataPacketTimeout )
+		tLX->currentTime - fLastSent < DataPacketTimeout )
 	{
 		// No unreliable data to send, and we've just sent the same packet -
 		// send it again after some timeout, don't flood net.
@@ -1244,14 +1244,14 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	
 	if( unreliableData->GetLength() == 0 && packetData.GetLength() == 0 && 
 		LastReliableIn == LastReliableIn_SentWithLastPacket &&
-		tLX->fCurTime - fLastSent < KeepAlivePacketTimeout )
+		tLX->currentTime - fLastSent < KeepAlivePacketTimeout )
 	{
 		// Nothing to send really, send one empty packet per halfsecond so we won't timeout,
 		// but always send first packet with acknowledges, or other side will flood
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 		
-		cOutgoingRate.addData( tLX->fCurTime, 0 );		
+		cOutgoingRate.addData( tLX->currentTime, 0 );		
 		return;
 	}
 
@@ -1271,10 +1271,10 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	// Update statistics
 	iOutgoingBytes += bs1.GetLength();
 	iCurrentOutgoingBytes += bs1.GetLength();
-	fLastSent = tLX->fCurTime; //GetMilliSeconds();
+	fLastSent = tLX->currentTime; //GetTime();
 
 	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->fCurTime, bs1.GetLength() );
+	cOutgoingRate.addData( tLX->currentTime, bs1.GetLength() );
 }
 
 void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChannel but without error msg

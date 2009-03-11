@@ -346,8 +346,8 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 //
 // Music part
 //
-float fCurSongStart = 0;
-float fTimePaused = 0;
+Time fCurSongStart = 0;
+Time fTimePaused = 0;
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
@@ -408,7 +408,7 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 		return;
 	//Mix_PlayMusic(music->sndMusic,number_of_repeats);
 	Mix_FadeInMusic(music->sndMusic,number_of_repeats,500);
-	fCurSongStart = GetMilliSeconds();
+	fCurSongStart = GetTime();
 	fTimePaused = 0;
 	bSongStopped = false;
 }
@@ -426,18 +426,20 @@ void StopMusic(void)
 	SetMusicVolume(oldvolume);
 }
 
-float GetCurrentMusicTime(void)
+TimeDiff GetCurrentMusicTime(void)
 {
 	// No song playing
-	if (!fCurSongStart)
+	// TODO: really a bad check that is
+	if (fCurSongStart == Time())
 		return 0;
 
 	// Paused
-	if (fTimePaused)
+	// TODO: really a bad check that is
+	if (fTimePaused == Time())
 		return fTimePaused-fCurSongStart;
 	// Not paused
 	else
-		return GetMilliSeconds()-fCurSongStart;
+		return GetTime()-fCurSongStart;
 }
 
 void SetMusicVolume(byte vol)
@@ -459,9 +461,9 @@ void ShutdownMusic(void)
 
 
 
-void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds(); bSongStopped = false;}
-void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
-void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetMilliSeconds();fTimePaused = 0;}
+void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetTime(); bSongStopped = false;}
+void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetTime()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
+void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetTime();fTimePaused = 0;}
 void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
 bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
 bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }

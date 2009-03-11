@@ -44,7 +44,7 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	cNetChan = NULL;
 	bsUnreliable.Clear();
 	iNetSpeed = 3;
-	fLastUpdateSent = -9999;
+	fLastUpdateSent = Time();
 	bLocalClient = false;
 
 	fSendWait = 0;
@@ -53,7 +53,7 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	
 	bGameReady = false;
 
-	fLastFileRequest = fConnectTime = tLX->fCurTime;
+	fLastFileRequest = fConnectTime = tLX->currentTime;
 	
 	cNetEngine = new CServerNetEngine( server, this );
 }
@@ -77,11 +77,11 @@ void CServerConnection::Clear(void)
 
 	fLastReceived = 99999;
 	fSendWait = 0;
-	fLastUpdateSent = -9999;
+	fLastUpdateSent = Time();
 
 	cShootList.Shutdown();
 
-	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
 }
 
@@ -95,7 +95,7 @@ void CServerConnection::MinorClear(void)
 
 	fSendWait = 0;
 
-	fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
 }
 

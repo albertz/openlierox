@@ -167,8 +167,8 @@ static int SdlNetEventThreadMain( void * param )
 		return 0;
 	}
 
-	float max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
-	float lastTime = GetMilliSeconds();
+	TimeDiff max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
+	Time lastTime = GetTime();
 	while( ! SdlNetEventThreadExit )
 	{
 		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
@@ -190,12 +190,12 @@ static int SdlNetEventThreadMain( void * param )
 			}
 		}
 
-		float curTime = GetMilliSeconds();
+		Time curTime = GetTime();
 		if(curTime - lastTime < max_frame_time) {
-			SDL_Delay( (int)( ( max_frame_time - curTime + lastTime ) * 1000.0f ) );
+			SDL_Delay( (Uint32)( ( max_frame_time - (curTime - lastTime) ).milliseconds() ) );
 		}
 		lastTime = curTime;
-	};
+	}
 
 	delete (uint*)param;
 	delete[] sock_out;
@@ -274,25 +274,25 @@ static void sigpipe_handler(int i) {
 
 
 
-typedef std::map<std::string, std::pair< NLaddress, float > > dnsCacheT; // Second parameter is expiration time of DNS record
+typedef std::map<std::string, std::pair< NLaddress, Time > > dnsCacheT; // Second parameter is expiration time of DNS record
 ThreadVar<dnsCacheT>* dnsCache = NULL;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr& addr, float expireTime ) {
+void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	// We don't have any
-	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->fCurTime + expireTime );
+	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
 }
 
-static void AddToDnsCache(const std::string& name, const NLaddress& addr, float expireTime = 3600.0f ) {
+static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = 3600.0f ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	dns.get()[name] = std::make_pair( addr, tLX->fCurTime + expireTime );
+	dns.get()[name] = std::make_pair( addr, tLX->currentTime + expireTime );
 }
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	dnsCacheT::iterator it = dns.get().find(name);
 	if(it != dns.get().end()) {
-		if( it->second.second < tLX->fCurTime )
+		if( it->second.second < tLX->currentTime )
 		{
 			dns.get().erase(it);
 			return false;

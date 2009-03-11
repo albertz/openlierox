@@ -245,7 +245,7 @@ private:
 	htmlNodePtr				tRootNode;
 	std::vector<CBrowserLine *>	tLines;
 	std::list<CObjectGroup *>	tGroups;
-	float					fLastMouseScroll;
+	Time					fLastMouseScroll;
 	int						iBorderSize;
 	size_t					iDocumentHeight;
 

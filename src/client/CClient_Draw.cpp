@@ -401,7 +401,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// currently both control structure and the drawing itself is in here
 
 	ushort i,num;
-	float dt = tLX->fDeltaTime;
+	TimeDiff dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
 	num = (ushort)MIN(2,iNumWorms);
@@ -512,14 +512,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
 	if (iNetStatus == NET_PLAYING && cMap)  {
-		static float last = tLX->fCurTime;
-		if (tLX->fCurTime - last >= 0.5f)  {
+		static float last = tLX->currentTime;
+		if (tLX->currentTime - last >= 0.5f)  {
 			cMap->ClearDebugImage();
 			for (int i = 0; i < (int)iNumWorms; i++)  {
 				if (cLocalWorms[i]->getType() == PRF_COMPUTER)
 					((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
 			}
-			last = tLX->fCurTime;
+			last = tLX->currentTime;
 		}
 	}
 #endif
@@ -683,11 +683,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
 			static std::string cl = "0.000";
 			static std::string sv = "0.000";
-			static float last_update = -9999;
-			if (tLX->fCurTime - last_update >= 0.5f)  {
+			static float last_update = Time();
+			if (tLX->currentTime - last_update >= 0.5f)  {
 				cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
 				sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
-				last_update = tLX->fCurTime;
+				last_update = tLX->currentTime;
 			}
 
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
@@ -700,7 +700,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 	static bool was_gameovermenu = false;
 	if(bGameOver) {
-		if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
+		if(tLX->currentTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
@@ -1276,7 +1276,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 	// Update the coutdown
 	if (bGameOver)  {
-		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->fCurTime - fGameOverTime);
+		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->currentTime - fGameOverTime).seconds();
 		sec = MAX(0, sec); // Safety
 		cGameMenuLayout.SendMessage(gm_Coutdown, DeprecatedGUI::LBS_SETTEXT, itoa(sec), 0);
 	}
@@ -1748,7 +1748,7 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 		it--;
 
 		// This chat times out after a few seconds
-		if(tLX->fCurTime - it->fTime < 3.0f) {
+		if(tLX->currentTime - it->fTime < 3.0f) {
 			std::string stripped = StripHtmlTags(it->strLine);
 			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, stripped); // Shadow
 			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, it->iColour, stripped);
@@ -2087,7 +2087,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			return;
 		// Only process keyboard input if local human worm is dead for at least 3 seconds
 		if(cLocalWorms[0])
-			if( cLocalWorms[0]->getAlive() ||(tLX->fCurTime - cLocalWorms[0]->getTimeofDeath() <= 3.0f))
+			if( cLocalWorms[0]->getAlive() ||(tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 3.0f))
 				return;
 		// Do not allow spectating with 2 local players - second viewport can be screwed up while second player plays.
 		if(cLocalWorms[1])
@@ -2213,15 +2213,15 @@ void CClient::ProcessSpectatorViewportKeys()
 			sSpectatorViewportMsg += "Free look";
 		if( iMsgType == VW_ACTIONCAM )
 			sSpectatorViewportMsg += "Action Cam";
-		fSpectatorViewportMsgTimeout = tLX->fCurTime;
+		fSpectatorViewportMsgTimeout = tLX->currentTime;
 	}
 
-	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->fCurTime )
+	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->currentTime )
 		sSpectatorViewportMsg = "";
 
 	// Print message that we are in spectator mode for 3 seconds
 	if(cLocalWorms[0])
-		if( tLX->fCurTime - cLocalWorms[0]->getTimeofDeath() <= 6.0f )
+		if( tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 6.0f )
 		{
 			if( cLocalWorms[0]->getLives() != WRM_OUT )
 				sSpectatorViewportMsg = "Spectator mode - waiting for respawn";
@@ -2366,7 +2366,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
     }
 
 	bUpdateScore = false;
-	fLastScoreUpdate = tLX->fCurTime;
+	fLastScoreUpdate = tLX->currentTime;
 }
 
 #define WAIT_COL_W 180
@@ -2466,7 +2466,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, 0,
 				tLXOptions->bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg.get()->w, bmpIngameScoreBg.get()->h);
 
-	if (bUpdateScore || tLX->fCurTime - fLastScoreUpdate >= 2.0f)
+	if (bUpdateScore || tLX->currentTime - fLastScoreUpdate >= 2.0f)
 		UpdateIngameScore(((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Left)), ((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 
 	// Hide the second list if there are no players

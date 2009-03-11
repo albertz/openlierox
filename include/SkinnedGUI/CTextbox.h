@@ -62,14 +62,14 @@ private:
 	size_t	iMax;
 
 	bool	bHolding;
-	float	fTimePushed;
+	Time	fTimePushed;
 	UnicodeChar		iLastchar;
 	int		iLastKeysym;
 
 	size_t	iLastCurpos;
-	float	fScrollTime;
-	float	fLastRepeat;
-	float	fLastClick;
+	TimeDiff	fScrollTime;
+	Time	fLastRepeat;
+	Time	fLastClick;
 
 	bool	bDrawCursor;
 

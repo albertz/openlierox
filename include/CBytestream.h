@@ -72,6 +72,7 @@ public:
 	bool		writeBool(bool value);
 	bool		writeInt(int value, uchar numbytes);
 	bool		writeInt16(Sint16 value);
+	bool		writeUInt64(Uint64 value);
 	bool		writeFloat(float value);
 	bool		writeString(const std::string& value);
 	bool		write2Int12(short x, short y);
@@ -85,6 +86,7 @@ public:
 	bool		readBool(void);
 	int			readInt(uchar numbytes); // readInt(2) will return 0:65535 range, not -32768:32767, so save it into Sint16
 	Sint16		readInt16(void);
+	Uint64		readUInt64();
 	float		readFloat(void);
 	std::string readString();
 	std::string readString(size_t maxlen);

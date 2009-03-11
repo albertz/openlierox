@@ -162,7 +162,7 @@ static void startDebuggerThread() {
 	struct DebuggerThread : Action {
 		int handle() {
 			while(tLX && !tLX->bQuitGame) {
-				float oldTime = tLX->fCurTime;
+				Time oldTime = tLX->currentTime;
 				SDL_Delay(500);
 				if(!tLX) return 0;
 				if(tLX->bQuitGame) return 0;
@@ -172,7 +172,7 @@ static void startDebuggerThread() {
 				if(!cClient || cClient->getStatus() != NET_PLAYING) continue;
 				
 				// check if the mainthread is hanging
-				if(oldTime == tLX->fCurTime) {
+				if(oldTime == tLX->currentTime) {
 					warnings << "possible lock of mainthread detected" << endl;
 					//OlxWriteCoreDump("mainlock");
 					RaiseDebugger();
@@ -221,7 +221,6 @@ int main(int argc, char *argv[])
 	} else
 		binary_dir = "."; // TODO get exact path of binary
 
-	CrashHandler::init();
 	// this has to be done before GameOptions::Init
 	InitGameModes();
 
@@ -234,6 +233,8 @@ startpoint:
 		SystemError("Could not load options");
 		return -1;
 	}
+
+	CrashHandler::init();
 
 	if(!NetworkTexts::Init()) {
 		SystemError("Could not load network strings.");
@@ -281,7 +282,7 @@ startpoint:
 	if( !bDedicated && tLXOptions->iMusicVolume > 0 )
 		InitializeBackgroundMusic();
 
-	tLX->fCurTime = GetMilliSeconds();
+	tLX->currentTime = GetTime();
 
 	if( tLXOptions->bNewSkinnedGUI )
 	{
@@ -289,8 +290,8 @@ startpoint:
 		SkinnedGUI::cMainSkin->Load("default");
 		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
 		while (!tLX->bQuitGame)  {
-			tLX->fDeltaTime = GetMilliSeconds() - tLX->fCurTime;
-			tLX->fCurTime = GetMilliSeconds();
+			tLX->fDeltaTime = GetTime() - tLX->currentTime;
+			tLX->currentTime = GetTime();
 
 			WaitForNextEvent();
 			SkinnedGUI::cMainSkin->Frame();
@@ -315,7 +316,7 @@ startpoint:
 
 		f = OpenGameFile("Conversations.log","a");
 		if (f)  {
-			std::string cTime = GetTime();
+			std::string cTime = GetDateTime();
 			fputs("<game starttime=\"",f);
 			fputs(cTime.c_str(),f);
 			fputs("\">\r\n",f);
@@ -523,22 +524,22 @@ static int MainLoopThread(void*) {
         // Main game loop
         //
 		ResetQuitEngineFlag();
-		float oldtime = GetMilliSeconds();
+		Time oldtime = GetTime();
 		while(!tLX->bQuitEngine) {
 			
-			tLX->fCurTime = GetMilliSeconds();
+			tLX->currentTime = GetTime();
 #ifndef WIN32
 			sigsetjmp(longJumpBuffer, 1);
 #endif
 			
 			// Timing
-			tLX->fDeltaTime = tLX->fCurTime - oldtime;
+			tLX->fDeltaTime = tLX->currentTime - oldtime;
 			tLX->fRealDeltaTime = tLX->fDeltaTime;
-			oldtime = tLX->fCurTime;
+			oldtime = tLX->currentTime;
 			
 			// cap the delta
 			if(tLX->fDeltaTime > 0.5f) {
-				warnings << "deltatime " << tLX->fDeltaTime << " is too high" << endl;
+				warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
 				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
 			}
 			
@@ -738,7 +739,7 @@ int InitializeLieroX(void)
 	tLX->bQuitGame = false;
 	tLX->bQuitCtrlC = false;
 	tLX->debug_string = "";
-	tLX->fCurTime = 0;
+	tLX->currentTime = 0;
 	tLX->fDeltaTime = 0;
 	tLX->bHosted = false;
 

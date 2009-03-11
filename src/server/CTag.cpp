@@ -267,7 +267,7 @@ void CTag::TagWorm(CWorm *worm)
 // Tag a random worm
 void CTag::TagRandomWorm()
 {
-	float time = 99999;
+	TimeDiff time = Time::MAX() - Time();
 	std::vector<int> all_lowest;
 
 	// Go through finding the worm with the lowest tag time

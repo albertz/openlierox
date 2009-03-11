@@ -517,7 +517,7 @@ void CUdpFileDownloader::reset()
 	tRequestedFiles.clear();
 	bWasAborted = false;
 	bWasError = false;
-};
+}
 
 void CUdpFileDownloader::setDataToSend( const std::string & name, const std::string & data, bool noCompress )
 {
@@ -536,8 +536,8 @@ void CUdpFileDownloader::setDataToSend( const std::string & name, const std::str
 	data1.append( 1, '\0' );
 	data1.append(data);
 	Compress( data1, &sData, noCompress );
-	notes << "CFileDownloaderInGame::setDataToSend() " << tLX->fCurTime << " filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
-};
+	notes << "CFileDownloaderInGame::setDataToSend() filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
+}
 
 void CUdpFileDownloader::setFileToSend( const std::string & path )
 {
@@ -580,7 +580,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		iPos = 0;
 		sFilename = "";
 		sData = "";
-		notes << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " started receiving " << sLastFileRequested << endl;
+		notes << "CFileDownloaderInGame::receive()  started receiving " << sLastFileRequested << endl;
 	};
 	bool Finished = false;
 	if( chunkSize != MAX_DATA_CHUNK )
@@ -595,11 +595,11 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		bWasError = true;
 		std::string data, unpacked;
 		data.append( bs->readData(chunkSize) );
-		notes << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " - error, not receiving!" << endl;
+		notes << "CFileDownloaderInGame::receive() - error, not receiving!" << endl;
 		if( Decompress( data, &unpacked ) )
 			if( unpacked.find( "ABORT:" ) == 0 )
 			{
-				notes << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " - abort received" << endl;
+				notes << "CFileDownloaderInGame::receive() - abort received" << endl;
 				bWasAborted = true;
 			};
 		return true;	// Receive finished (due to error)
@@ -623,12 +623,12 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				notes << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
+				notes << "CFileDownloaderInGame::receive() filename " << sFilename << " data.size() " << sData.size() << " compressed " << compressedSize << endl;
 			};
 		};
 		if( error )
 		{
-			notes << "CFileDownloaderInGame::receive() " << tLX->fCurTime << " error after " << sData.size() << " bytes" << endl;
+			notes << "CFileDownloaderInGame::receive() error after " << sData.size() << " bytes" << endl;
 			reset();
 		}
 		bWasError = error;

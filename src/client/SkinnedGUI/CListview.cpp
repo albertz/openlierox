@@ -1148,7 +1148,7 @@ CListview::CListview(COMMON_PARAMS) : CContainerWidget(name, parent)
 	setSelected(-1);
 	setSelectedSub(NULL, -1);
 	iType = wid_Listview;
-	fLastMouseUp = -99999;
+	fLastMouseUp = Time();
 	iColumnHeight = 0;
     bShowSelect.set(true, DEFAULT_PRIORITY);
 	bShowColumnHeaders.set(true, DEFAULT_PRIORITY);
@@ -1530,13 +1530,13 @@ int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const
 		CContainerWidget::DoMouseUp(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
 	} else {
-		fLastMouseUp = -9999;
+		fLastMouseUp = Time();
 	}
 
 	// Column headers
 	if (bShowColumnHeaders)  {
-		if( y >= cBorder.getTopW() && y < tItemArea.y && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
-			fLastMouseUp = tLX->fCurTime;
+		if( y >= cBorder.getTopW() && y < tItemArea.y && tLX->currentTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
+			fLastMouseUp = tLX->currentTime;
 			iGrabbed = -1;
 
 			int cur_x = cBorder.getLeftW();
@@ -1592,9 +1592,9 @@ int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const
 			bool doubleclick = false;
 			if(tSelected && button == /*MBT_LEFT*/0) {
 				if(tSelected == (*item)) {
-					if(tLX->fCurTime - fLastMouseUp < 0.5f) {
+					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						doubleclick = true;
-						fLastMouseUp = -9999;
+						fLastMouseUp = Time();
 
 						CALL_EVENT(OnDoubleClick, (this, tSelected, count - 1));
 					}
@@ -1621,7 +1621,7 @@ int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const
 			setSelected(item, count - 1);
 
 			if(!doubleclick)
-				fLastMouseUp = tLX->fCurTime;
+				fLastMouseUp = tLX->currentTime;
 
 			return WID_PROCESSED;
 		}

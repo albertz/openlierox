@@ -115,7 +115,7 @@ void Con_Hide(void)
 
 ///////////////////
 // Process the console
-void Con_Process(float dt)
+void Con_Process(TimeDiff dt)
 {
 	keyboard_t *kb = GetKeyboard();
 
@@ -130,10 +130,10 @@ void Con_Process(float dt)
 
 	switch(Console->iState) {
 	case CON_DROPPING:
-		Console->fPosition -= 3.0f*dt;
+		Console->fPosition -= 3.0f*dt.seconds();
 		break;
 	case CON_HIDING:
-		Console->fPosition += 3.0f*dt;
+		Console->fPosition += 3.0f*dt.seconds();
 		break;
 	}
 

@@ -137,7 +137,7 @@ public:
     void ParseFeatureSettings(CBytestream* bs);
 	
 private:
-    float fLastDamageReportSent;
+    Time fLastDamageReportSent;
     std::map< std::pair< int, int >, int > cDamageReport;
 };
 

@@ -65,7 +65,7 @@ class console_t { public:
 	conline_t	History[MAX_CONHISTORY];
 
 	int			iBlinkState; // 1 - displayed, 0 - hidden
-	float		fBlinkTime;  
+	Time		fBlinkTime;  
 
     SmartPointer<SDL_Surface> bmpConPic;
 
@@ -78,7 +78,7 @@ int		Con_Initialize(void);
 bool	Con_IsInited();
 void	Con_Shutdown(void);
 void	Con_Toggle(void);
-void	Con_Process(float dt);
+void	Con_Process(TimeDiff dt);
 void	Con_ProcessCharacter(const KeyboardEvent& input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface * bmpDest);

@@ -48,7 +48,7 @@ public:
 
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
-	bool moveAndCheckWormCollision(float fCurTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+	bool moveAndCheckWormCollision(Time currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
 		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
 
 		// Can happen when starting a game
@@ -64,8 +64,8 @@ public:
 		// though perhaps it is as with higher speed the way we have to check is longer
 		if( (*vel*dt).GetLength2() > maxspeed2 && dt > 0.001f ) {
 			dt /= 2;
-			if(moveAndCheckWormCollision(fCurTime, dt,worm,pos,vel,vOldPos,jump)) return true;
-			return moveAndCheckWormCollision(fCurTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
+			if(moveAndCheckWormCollision(currentTime, dt,worm,pos,vel,vOldPos,jump)) return true;
+			return moveAndCheckWormCollision(currentTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
 		}
 
 		pos += *vel * dt;
@@ -230,7 +230,7 @@ public:
 
 			// Set the collision information
 			if (!worm->hasCollidedLastFrame())  {
-				worm->setCollisionTime(fCurTime);
+				worm->setCollisionTime(currentTime);
 				worm->setCollisionVel(*worm->getVelocity());
 				worm->setCollidedLastFrame(true);
 			}
@@ -241,7 +241,7 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, float simulationTime) {
+	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, Time simulationTime) {
 		const float orig_dt = 0.01f;
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -420,7 +420,7 @@ public:
 		goto simulateWormStart;
 	}
 
-	virtual void simulateWormWeapon(float dt, CWorm* worm) {
+	virtual void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
 		// Weird
 		if (worm->getCurrentWeapon() < 0 || worm->getCurrentWeapon() >= 5) {
 			warnings("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
@@ -432,14 +432,14 @@ public:
 		if(!Slot->Weapon) return;
 
 		if(Slot->LastFire > 0)
-			Slot->LastFire -= dt;
+			Slot->LastFire -= dt.seconds();
 
 		if(Slot->Reloading) {
 
 			if(worm->getLoadingTime() == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += fabs(dt) * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
+				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;
@@ -448,7 +448,7 @@ public:
 		}
 	}
 
-	CProjectile::CollisionType simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+	CProjectile::CollisionType simulateProjectile_LowLevel(Time currentTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
 
@@ -470,7 +470,7 @@ public:
 
 		// If any of the events have been triggered, add that onto the flags
 		// HINT: We don't add it anymore onto the flags as it is used nowhere. It also doesn't work with CollisionType.
-		if( proj->explode() && fCurTime > proj->explodeTime()) {
+		if( proj->explode() && currentTime > proj->explodeTime()) {
 			proj->explode() = false;
 		}
 		if( proj->touched() ) {
@@ -548,8 +548,8 @@ public:
 			}
 			break;
 		case TRL_PROJECTILE: // Projectile trail
-			if(fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = fCurTime + pi->PrjTrl_Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
+			if(currentTime > proj->lastTrailProj()) {
+				proj->lastTrailProj() = currentTime + pi->PrjTrl_Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 				*projspawn = true;
 			}
@@ -580,7 +580,7 @@ public:
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
-	void projectile_doProjSpawn(CProjectile* const prj, float fSpawnTime) {
+	void projectile_doProjSpawn(CProjectile* const prj, Time fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
@@ -601,7 +601,7 @@ public:
 		}
 	}
 
-	void projectile_doSpawnOthers(CProjectile* const prj, float fSpawnTime) {
+	void projectile_doSpawnOthers(CProjectile* const prj, Time fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
 		CVec v = prj->GetVelocity();
 		NormalizeVector(&v);
@@ -643,14 +643,14 @@ public:
 		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
-	void simulateProjectile(const float fCurTime, CProjectile* const prj) {
-		const float orig_dt = 0.01f;
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+	void simulateProjectile(const Time currentTime, CProjectile* const prj) {
+		const TimeDiff orig_dt = 0.01f;
+		const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
 	simulateProjectileStart:
-		if(prj->fLastSimulationTime + orig_dt > fCurTime) return;
+		if(prj->fLastSimulationTime + orig_dt > currentTime) return;
 		prj->fLastSimulationTime += orig_dt;
 
 
@@ -720,7 +720,7 @@ public:
 		}
 
 		// Simulate the projectile
-		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, cClient->getRemoteWorms(), &trailprojspawn, &deleteAfter );
+		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &trailprojspawn, &deleteAfter );
 
 		/*
 		===================
@@ -836,7 +836,7 @@ public:
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
 					CVec *v = cClient->getRemoteWorms()[result.wormId].getVelocity();
-					*v += (d*100)*dt;
+					*v += (d*100)*dt.seconds();
 				}
 
 				if(pi->PlyHit_Projectiles)
@@ -873,9 +873,9 @@ public:
 
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
-			// we use fCurTime (= the simulation time of the cClient) to simulate the spawing at this time
+			// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 			// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-			projectile_doSpawnOthers(prj, fCurTime);
+			projectile_doSpawnOthers(prj, currentTime);
 		}
 
 		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
@@ -895,13 +895,13 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, float fCurTime) {
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, Time currentTime) {
 		const float orig_dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 
 	simulateProjectilesStart:
-		if(cClient->fLastSimulationTime + orig_dt > fCurTime) return;
+		if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
 
 		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 			CProjectile* p = i->get();
@@ -1082,7 +1082,7 @@ public:
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 	simulateBonusStart:
-		if(bonus->fLastSimulationTime + orig_dt > tLX->fCurTime) return;
+		if(bonus->fLastSimulationTime + orig_dt > tLX->currentTime) return;
 		bonus->fLastSimulationTime += orig_dt;
 
 		int x,  y;

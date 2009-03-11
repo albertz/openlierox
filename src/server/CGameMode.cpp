@@ -152,7 +152,7 @@ bool CGameMode::CheckGameOver() {
 		if (cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0) {
 			if(networkTexts->sTimeLimit != "<none>")
 				cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-			notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0) << ") reached with current time " << cServer->getServerTime();
+			notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0) << ") reached with current time " << cServer->getServerTime().seconds();
 			notes << " -> game over" << endl;
 			return true;
 		}

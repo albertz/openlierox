@@ -825,7 +825,7 @@ void Menu_OptionsFrame(void)
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->bLogConvos)  {
-								std::string cTime = GetTime();
+								std::string cTime = GetDateTime();
 								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
 							}
 							else

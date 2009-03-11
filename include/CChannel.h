@@ -17,23 +17,24 @@
 #ifndef __CCHANNEL_H__
 #define __CCHANNEL_H__
 
-#include "CBytestream.h"
 #include <list>
+#include "CBytestream.h"
+#include "types.h"
 
 template< int AMOUNT, int TIMERANGEMS, typename _Amount = size_t >
 class Rate {
 private:
 	_Amount buckets[AMOUNT];
 	int curIndex;
-	float curIndexTime;
+	Time curIndexTime;
 
 public:
 	void clear() { curIndex = -1; curIndexTime = 0; memset(buckets, 0, sizeof(buckets)); }
 	Rate() { clear(); }
 
-	float timeRange() { return (float)TIMERANGEMS / 1000.0f; }
+	TimeDiff timeRange() { return TimeDiff(TIMERANGEMS); }
 
-	void addData(float curtime, _Amount amount) {
+	void addData(const Time& curtime, _Amount amount) {
 		// calc diff of oldindex to newindex
 		size_t dindex = 0;
 		if(curIndex >= 0) {
@@ -54,7 +55,7 @@ public:
 		}
 
 		// do updates
-		curIndex += dindex; curIndex %= AMOUNT; curIndexTime += (float)dindex * timeRange() / (float)AMOUNT;
+		curIndex += dindex; curIndex %= AMOUNT; curIndexTime += TimeDiff((float)dindex * timeRange().seconds() / (float)AMOUNT);
 
 		// add data
 		buckets[curIndex] += amount;
@@ -64,7 +65,7 @@ public:
 		_Amount sum = 0;
 		for(int i = 0; i < AMOUNT; i++)
 			sum += buckets[i];
-		return (float)sum / timeRange();
+		return (float)sum / timeRange().seconds();
 	}
 	
 	float getRate(int timerange) {
@@ -98,8 +99,8 @@ protected:
 	NetworkSocket	Socket;
 
 	// For timeouts & sending
-	float			fLastPckRecvd;
-	float			fLastSent;
+	Time			fLastPckRecvd;
+	Time			fLastSent;
 
 	// Bandwidth Estimation
 	Rate<100,2000>	cIncomingRate;
@@ -107,7 +108,7 @@ protected:
 
 	// Pinging
 	int				iPing;								// current ping
-	float			fLastPingSent;
+	Time			fLastPingSent;
 
 	// Statistics
 	size_t			iPacketsDropped;
@@ -138,8 +139,8 @@ public:
 	virtual void	AddReliablePacketToSend(CBytestream& bs);
 	
 	size_t			getPacketLoss(void)		{ return iPacketsDropped; }
-	float			getLastReceived(void)	{ return fLastPckRecvd; }
-	float			getLastSent(void)		{ return fLastSent; }
+	Time			getLastReceived(void)	{ return fLastPckRecvd; }
+	Time			getLastSent(void)		{ return fLastSent; }
 	NetworkAddr		getAddress(void)		{ return RemoteAddr; }
 	// Returns true if CChannel has sent all pending packets, and got acknowledges about them.
 	// That includes only packets after last Transmit() call, 
@@ -249,7 +250,7 @@ private:
 	int				MaxNonAcknowledgedPackets;
 
 	#ifdef DEBUG
-	float			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	Time			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
 	#endif
 
 	bool			GetPacketFromBuffer(CBytestream *bs);
@@ -319,7 +320,7 @@ private:
 	int				MaxNonAcknowledgedPackets;
 
 	#ifdef DEBUG
-	float			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	Time			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
 	#endif
 
 	bool			GetPacketFromBuffer(CBytestream *bs);

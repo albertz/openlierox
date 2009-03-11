@@ -115,7 +115,7 @@ private:
 	bool		m_socketConnected;
 	bool		m_socketIsReady;
 	bool		m_connecting;
-	float		m_connectionClosedTime;
+	Time		m_connectionClosedTime;
 	std::string	m_myNick;
 	std::string	m_AwayMessage;
 	IRCState	m_authorizedState;

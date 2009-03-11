@@ -1272,11 +1272,11 @@ struct DedIntern {
 		// TODO: no static var here
 		// TODO: not a single timer, the script should register as much as it want
 		// TODO: each timer should be configurable
-		static float lastTimeHandlerCalled = tLX->fCurTime;
-		if( tLX->fCurTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
+		static Time lastTimeHandlerCalled = tLX->currentTime;
+		if( tLX->currentTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
 		{
 			Sig_Timer("second-ticker"); // TODO ...
-			lastTimeHandlerCalled = tLX->fCurTime;
+			lastTimeHandlerCalled = tLX->currentTime;
 		}
 
 #ifdef PYTHON_DED_EMBEDDED
@@ -1302,14 +1302,14 @@ struct DedIntern {
 		// Some debugging stuff
 #ifdef DEBUG
 		int fps = GetFPS();
-		static float lastFpsPrint = tLX->fCurTime;
-		if (tLX->fCurTime - lastFpsPrint >= 20.0f)  {
+		static Time lastFpsPrint = tLX->currentTime;
+		if (tLX->currentTime - lastFpsPrint >= 20.0f)  {
 			notes << "Current FPS: " << fps << endl;
-			lastFpsPrint = tLX->fCurTime;
+			lastFpsPrint = tLX->currentTime;
 		}
 
-		static float lastBandwidthPrint = tLX->fCurTime;
-		if (tLX->fCurTime - lastBandwidthPrint >= 20.0f)  {
+		static Time lastBandwidthPrint = tLX->currentTime;
+		if (tLX->currentTime - lastBandwidthPrint >= 20.0f)  {
 			// Upload and download rates
 			float up = 0;
 			float down = 0;
@@ -1328,7 +1328,7 @@ struct DedIntern {
 
 			notes << "Current upload rate: " << up << " kB/s" << endl;
 			notes << "Current download rate: " << down << " kB/s" << endl;
-			lastBandwidthPrint = tLX->fCurTime;
+			lastBandwidthPrint = tLX->currentTime;
 		}
 #endif
 

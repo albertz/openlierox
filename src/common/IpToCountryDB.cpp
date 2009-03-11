@@ -208,8 +208,8 @@ public:
 		csvReader.setHandler(csvReaderHandler);
 
 		// Read as many entries as possible within a reasonable time
-		float start = GetMilliSeconds();
-		while (GetMilliSeconds() - start <= 0.2f)
+		Time start = GetTime();
+		while (GetTime() - start <= 0.2f)
 			csvReader.readSome(READ_CHUNK_SIZE);
 
 		// Start adding the entries in parallel
@@ -235,7 +235,7 @@ public:
 	static int threadLoader(void *param)
 	{
 		IpToCountryData *_this = (IpToCountryData *)param;
-		float start = GetMilliSeconds();
+		Time start = GetTime();
 
 		while (!_this->breakLoader)  {
 			// Read another chunk
@@ -249,7 +249,7 @@ public:
 			// Finished?
 			SDL_LockMutex(_this->dataMutex);
 			if (_this->csvReader.readingFinished())  {
-				notes << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetMilliSeconds() - start) << " seconds" << endl;
+				notes << "IpToCountry Database: reading finished, " << _this->data.size() << " entries, " << (GetTime() - start).seconds() << " seconds" << endl;
 				SDL_UnlockMutex(_this->dataMutex);
 				break;
 			}
@@ -260,7 +260,7 @@ public:
 	}
 
 	const DBEntry getEntry(Ip ip) {
-		//float start = GetMilliSeconds(); // TODO: unused
+		//float start = GetTime(); // TODO: unused
 
 		DBEntry result;
 		bool found = false;
@@ -316,7 +316,7 @@ public:
 			else if (result.Info.Continent == "APNIC")
 				result.Info.Continent = "Asia";
 
-			//notes << "Getting the entry took " << GetMilliSeconds() - start << " seconds.\n";
+			//notes << "Getting the entry took " << GetTime() - start << " seconds.\n";
 
 			return result;
 
@@ -324,7 +324,7 @@ public:
 		} else  {
 			if (fully_loaded)
 				notFoundCache.push_back(ip); // Don't iterate through the whole DB next time...
-			//notes << "Getting the entry took " << GetMilliSeconds() - start << " seconds.\n";
+			//notes << "Getting the entry took " << GetTime() - start << " seconds.\n";
 			throw "The IP was not found in the database";
 		}
 	}

@@ -357,7 +357,7 @@ void Menu_Frame() {
 #ifdef DEBUG
 	if(tLX->fDeltaTime != 0) {
 		Menu_redrawBufferRect(0, 0, 100, 20);
-		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
+		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime.seconds())));
 	}
 #endif
 
@@ -375,12 +375,12 @@ void Menu_Frame() {
 // Main menu loop
 void Menu_Loop(void)
 {
-	tLX->fCurTime = GetMilliSeconds();
+	tLX->currentTime = GetTime();
 	bool last_frame_was_because_of_an_event = false;
 	last_frame_was_because_of_an_event = ProcessEvents();
 
 	while(tMenu->bMenuRunning) {
-		float oldtime = tLX->fCurTime;
+		Time oldtime = tLX->currentTime;
 
 		Menu_Frame();
 		CapFPS();
@@ -402,8 +402,8 @@ void Menu_Loop(void)
 		
 		ProcessIRC();
 
-		tLX->fCurTime = GetMilliSeconds();
-		tLX->fDeltaTime = tLX->fCurTime - oldtime;
+		tLX->currentTime = GetTime();
+		tLX->fDeltaTime = tLX->currentTime - oldtime;
 		tLX->fRealDeltaTime = tLX->fDeltaTime;
 	}
 }
@@ -767,7 +767,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			DrawCursor(VideoPostProcessor::videoSurface());
 			doVideoFrameInMainThread();
 			CapFPS();
-			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
+			tLX->currentTime = GetTime(); // we need this for CapFPS()
 			WaitForNextEvent();
 		} else
 			break;
@@ -1212,7 +1212,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 
 	svr->bProcessing = true;
 	svr->nPings++;
-	svr->fLastPing = tLX->fCurTime;
+	svr->fLastPing = tLX->currentTime;
 }
 
 ///////////////////
@@ -1240,11 +1240,11 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	bs.writeString("lx::query");
     bs.writeByte(svr->nQueries);
 	bs.Send(tMenu->tSocket[SCK_NET]);
-    svr->fQueryTimes[svr->nQueries] = tLX->fCurTime;
+    svr->fQueryTimes[svr->nQueries] = tLX->currentTime;
 
 	svr->bProcessing = true;
 	svr->nQueries++;
-	svr->fLastQuery = tLX->fCurTime;
+	svr->fLastQuery = tLX->currentTime;
 }
 
 
@@ -1273,10 +1273,10 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 	s->bgotPong = false;
 	s->bgotQuery = false;
 	s->bIgnore = false;
-	s->fLastPing = -9999;
-	s->fLastQuery = -9999;
+	s->fLastPing = Time();
+	s->fLastQuery = Time();
 	s->nPings = 0;
-	s->fInitTime = tLX->fCurTime;
+	s->fInitTime = tLX->currentTime;
 	s->nQueries = 0;
 	s->nPing = 0;
 	s->bAddrReady = false;
@@ -1533,7 +1533,7 @@ bool Menu_SvrList_Process(void)
 			continue;
 
 		if(!IsNetAddrValid(s->sAddress)) {
-			if(tLX->fCurTime - s->fInitTime >= DNS_TIMEOUT) {
+			if(tLX->currentTime - s->fInitTime >= DNS_TIMEOUT) {
 				s->bIgnore = true; // timeout
 				update = true;
 			}
@@ -1554,7 +1554,7 @@ bool Menu_SvrList_Process(void)
 
 		// Need a pingin'?
 		if(!s->bgotPong) {
-			if(tLX->fCurTime - s->fLastPing > (float)PingWait / 1000.0f) {
+			if(tLX->currentTime - s->fLastPing > (float)PingWait / 1000.0f) {
 
 				if(s->nPings >= MaxPings) {
 					s->bIgnore = true;
@@ -1575,7 +1575,7 @@ bool Menu_SvrList_Process(void)
 
 		// Need a querying?
 		if(s->bgotPong && !s->bgotQuery) {
-			if(tLX->fCurTime - s->fLastQuery > (float)QueryWait / 1000.0f) {
+			if(tLX->currentTime - s->fLastQuery > (float)QueryWait / 1000.0f) {
 
 				if(s->nQueries >= MaxQueries) {
 					s->bIgnore = true;
@@ -1790,7 +1790,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
     if(num < 0 || num >= MAX_QUERIES-1)
         num=0;
 
-	svr->nPing = (int)( (tLX->fCurTime - svr->fQueryTimes[num])*1000.0f );
+	svr->nPing = (int)( (tLX->currentTime - svr->fQueryTimes[num]).milliseconds() );
 
 	if(svr->nPing < 0)
 		svr->nPing = 999;
@@ -1868,8 +1868,9 @@ int Menu_SvrList_UpdaterThread(void *id)
 		if (!GetNetAddrFromNameAsync(domain, addr))
 			continue;
 
-		float start = GetMilliSeconds();
-		while (GetMilliSeconds() - start <= 5.0f) {
+		// TODO: THIS IS BLOCKING, REMOVE THAT!
+		Time start = GetTime();
+		while (GetTime() - start <= 5.0f) {
 			SDL_Delay(40);
 			if(IsNetAddrValid(addr)) 
 				break;
@@ -1895,11 +1896,11 @@ int Menu_SvrList_UpdaterThread(void *id)
 		notes << "Sent getserverlist to " << server << endl;
 
 		// Wait for the reply
-		float timeoutTime = GetMilliSeconds() + 5.0f;
+		Time timeoutTime = GetTime() + 5.0f;
 		bool firstPacket = true;
 		while( true ) {
 
-			while (GetMilliSeconds() <= timeoutTime)  {
+			while (GetTime() <= timeoutTime)  {
 				SDL_Delay(40);
 
 				// Got a reply?
@@ -1912,7 +1913,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
 				serverlistEvent.pushToMainQueue(UdpServerlistData(bs));
-				timeoutTime = GetMilliSeconds() + 0.5f;	// Check for another packet
+				timeoutTime = GetTime() + 0.5f;	// Check for another packet
 				bs = new CBytestream();
 				firstPacket = false;
 			} else  {
@@ -2081,7 +2082,7 @@ bool Menu_SvrList_ServerBehindNat(const std::string & addr)
 bool bGotDetails = false;
 bool bOldLxBug = false;
 int nTries = 0;
-float fStart = -9999;
+Time fStart;
 CListview lvInfo;
 
 
@@ -2266,9 +2267,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
             }
         }
 
-        if((tLX->fCurTime - fStart > 1) && !bGotDetails) {
+        if((tLX->currentTime - fStart > 1) && !bGotDetails) {
             nTries++;
-            fStart = tLX->fCurTime;
+            fStart = tLX->currentTime;
 			bGotDetails = false;
 			bOldLxBug = false;
 

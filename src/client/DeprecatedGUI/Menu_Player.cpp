@@ -452,11 +452,11 @@ void Menu_Player_NewPlayer(int mouse)
 
 	if(bPlayerSkinAnimation)  {
 		if (bAimingUp)
-			fPlayerSkinAngle += tLX->fDeltaTime*220;
+			fPlayerSkinAngle += tLX->fDeltaTime.seconds()*220;
 		else
-			fPlayerSkinAngle -= tLX->fDeltaTime*220;
+			fPlayerSkinAngle -= tLX->fDeltaTime.seconds()*220;
 
-		fPlayerSkinFrame += tLX->fDeltaTime*7.5f;
+		fPlayerSkinFrame += tLX->fDeltaTime.seconds()*7.5f;
 
 
 		if ((int)fPlayerSkinAngle >= 60)  {
@@ -726,11 +726,11 @@ void Menu_Player_ViewPlayers(int mouse)
 
         if(bPlayerSkinAnimation)  {
 			if (bAimingUp)
-				fPlayerSkinAngle += tLX->fDeltaTime*200;
+				fPlayerSkinAngle += tLX->fDeltaTime.seconds()*200;
 			else
-				fPlayerSkinAngle -= tLX->fDeltaTime*200;
+				fPlayerSkinAngle -= tLX->fDeltaTime.seconds()*200;
 
-			fPlayerSkinFrame += tLX->fDeltaTime*7.5f;
+			fPlayerSkinFrame += tLX->fDeltaTime.seconds()*7.5f;
 
 			if (fPlayerSkinAngle >= 60)  {
 				fPlayerSkinAngle = 60;

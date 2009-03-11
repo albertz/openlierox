@@ -1842,7 +1842,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *worms, int generalgametype)
+void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms, int generalgametype)
 {
 	int i,j;
 	float xstep,ystep;
@@ -1860,7 +1860,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 
 	fBlinkTime+=dt;
 	if(fBlinkTime>0.5f)
-		fBlinkTime=0;
+		fBlinkTime=TimeDiff();
 
 	Uint8 r,g,b,a;
 
@@ -1888,9 +1888,9 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, float dt, CWorm *w
 		dg = ~g;
 		db = ~b;
 
-		r += (int)( (float)dr*(fBlinkTime*2.0f));
-		g += (int)( (float)dg*(fBlinkTime*2.0f));
-		b += (int)( (float)db*(fBlinkTime*2.0f));
+		r += (int)( (float)dr*(fBlinkTime.seconds()*2.0f));
+		g += (int)( (float)dg*(fBlinkTime.seconds()*2.0f));
+		b += (int)( (float)db*(fBlinkTime.seconds()*2.0f));
 
 		mx = w->getPos().x/xstep;
 		my = w->getPos().y/ystep;

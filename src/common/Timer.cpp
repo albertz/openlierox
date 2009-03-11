@@ -25,8 +25,11 @@
 #include "Debug.h"
 #include "InputEvents.h"
 
+
+TimeCounter timeCounter;
+
 int		Frames = 0;
-float	OldFPSTime = 0;
+Time	OldFPSTime = 0;
 int		Fps = 0;
 
 
@@ -37,10 +40,10 @@ int GetFPS(void)
 {
 	Frames++;
 
-	float dt = GetMilliSeconds() - OldFPSTime;
+	TimeDiff dt = GetTime() - OldFPSTime;
 	if(dt >= 1.0f) {
-		OldFPSTime = GetMilliSeconds();
-		Fps = (int)( (float)Frames / dt );
+		OldFPSTime = GetTime();
+		Fps = (int)( (float)Frames / dt.seconds() );
 		Frames = 0;
 	}
 
@@ -48,9 +51,9 @@ int GetFPS(void)
 }
 
 int		Frames_MinFPS = 0;
-float	OldFPSTime_MinFPS = 0;
-float	PrevFrameTime_MinFPS = 0;
-float	MaxFrameTime_MinFPS = 0;
+Time	OldFPSTime_MinFPS = 0;
+Time	PrevFrameTime_MinFPS = 0;
+TimeDiff	MaxFrameTime_MinFPS = 0;
 int		Fps_MinFPS = 0;
 
 ///////////////////
@@ -59,13 +62,13 @@ int		Fps_MinFPS = 0;
 int GetMinFPS(void)
 {
 	Frames_MinFPS++;
-	float ms = GetMilliSeconds();
+	Time ms = GetTime();
 	if( ms - OldFPSTime_MinFPS >= 1.0f ) 
 	{
 		OldFPSTime_MinFPS = ms;
 
 		if( MaxFrameTime_MinFPS > 0.00000001 )
-			Fps_MinFPS = (int)( 1.0f / MaxFrameTime_MinFPS );
+			Fps_MinFPS = (int)( 1.0f / MaxFrameTime_MinFPS.seconds() );
 		if( Fps_MinFPS > Fps )
 			Fps_MinFPS = Fps;
 
@@ -83,7 +86,7 @@ int GetMinFPS(void)
 
 ///////////////////
 // Get the actual time
-std::string GetTime()
+std::string GetDateTime()
 {
 	char cTime[64];
 	cTime[0]= '\0';

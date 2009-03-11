@@ -57,7 +57,7 @@ public:
 
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
-        fTimer = -1;
+        fTimer = Time();
 		bSmooth = false;		
 	}
 
@@ -75,14 +75,14 @@ private:
 
     CVec    curPos, tgtPos;
 
-	float	fShakestart;
+	Time	fShakestart;
 	bool	bShaking;
 	int		iShakeAmount;
 
     int     nType;
     CWorm   *pcTargetWorm;
 
-    float   fTimer;
+    Time   fTimer;
 
 	// HINT: we have to use pointers here as we have CViewport in a global variable
     SmartPointer<CInput>  cUp, cRight, cDown, cLeft;
@@ -111,7 +111,7 @@ public:
 
 	SDL_Rect getRect(void);
 	
-	void	setSmoothPosition( float X, float Y, float DeltaTime );
+	void	setSmoothPosition( float X, float Y, TimeDiff DeltaTime );
 
 	//
 	// Variables
