@@ -24,7 +24,6 @@
 #include <iomanip>
 #include <time.h>
 #include <SDL.h>
-#include <SDL_syswm.h>
 #include <stdlib.h>
 #include <sstream>
 

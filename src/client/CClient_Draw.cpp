@@ -512,8 +512,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
 	if (iNetStatus == NET_PLAYING && cMap)  {
-		static float last = tLX->currentTime;
-		if (tLX->currentTime - last >= 0.5f)  {
+		static Time last = tLX->currentTime;
+		if ((tLX->currentTime - last).seconds() >= 0.5f)  {
 			cMap->ClearDebugImage();
 			for (int i = 0; i < (int)iNumWorms; i++)  {
 				if (cLocalWorms[i]->getType() == PRF_COMPUTER)

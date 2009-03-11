@@ -13,7 +13,7 @@
 // Created 18/12/02
 // Jason Boettcher
 
-#include <SDL_syswm.h>
+//#include <SDL_syswm.h>
 #include "ThreadPool.h"
 #ifndef WIN32
 #include <signal.h>
