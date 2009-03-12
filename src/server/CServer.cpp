@@ -84,6 +84,7 @@ void GameServer::Clear(void)
 	}
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
+	fLastRegisterUdp = AbsTime();
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 
@@ -248,7 +249,7 @@ int GameServer::StartServer()
 	fLastRegister = AbsTime();
 			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
 			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
-	fLastRegisterUdp = tLX->currentTime + 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
+	fLastRegisterUdp = tLX->currentTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
 
@@ -939,7 +940,7 @@ void GameServer::RegisterServerUdp(void)
 			GetNetAddrFromNameAsync(domain, addr);
 			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
 			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
-			fLastRegisterUdp = tLX->currentTime + 35;
+			fLastRegisterUdp = tLX->currentTime - 35;
 			continue;
 		}
 		SetNetAddrPort( addr, port );
