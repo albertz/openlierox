@@ -77,8 +77,10 @@ protected:
 	virtual void ParseAFK(CBytestream* bs) { return; };
     virtual void ParseReportDamage(CBytestream *bs) { return; };
 	virtual void ParseHideWorm(CBytestream *bs) { return; };
+	virtual void ParseGotoLobby(CBytestream *bs);
+	virtual void ParseNewNetKeys(CBytestream *bs) { return; };
+	virtual void ParseStartGame(CBytestream *bs);
 
-	void		 ParseStartGame(CBytestream *bs);
 	void		 ParseSpawnWorm(CBytestream *bs);
 	void		 ParseWormInfo(CBytestream *bs);
 	void		 ParseWormWeaponInfo(CBytestream *bs);
@@ -95,7 +97,6 @@ protected:
 	void		 ParseMultiShot(CBytestream *bs);
 	void		 ParseUpdateStats(CBytestream *bs);
 	void		 ParseDestroyBonus(CBytestream *bs);
-	void		 ParseGotoLobby(CBytestream *bs);
     void		 ParseDropped(CBytestream *bs);
     void		 ParseSendFile(CBytestream *bs);
 
@@ -135,10 +136,25 @@ public:
 	virtual void SendReportDamage(bool flush = false);
 	virtual void QueueReportDamage(int victim, int damage, int offender);
     void ParseFeatureSettings(CBytestream* bs);
+
+	virtual void ParseStartGame(CBytestream *bs);
 	
 private:
     AbsTime fLastDamageReportSent;
     std::map< std::pair< int, int >, int > cDamageReport;
+};
+
+class CClientNetEngineBeta9NewNet: public CClientNetEngineBeta9 {
+public:
+	CClientNetEngineBeta9NewNet( CClient * _client ): CClientNetEngineBeta9( _client ) { }
+
+	virtual void ParseNewNetKeys(CBytestream *bs);
+	virtual void ParseGotoLobby(CBytestream *bs);
+
+	virtual void SendReportDamage(bool flush = false) { return; };
+	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
+	// TODO: add virtual worm stat update function with warning that server sends us wrong info
+
 };
 
 

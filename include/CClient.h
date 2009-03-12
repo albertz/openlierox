@@ -184,6 +184,7 @@ public:
 	friend class CClientNetEngine;
 	friend class CClientNetEngineBeta7;
 	friend class CClientNetEngineBeta9;
+	friend class CClientNetEngineBeta9NewNet;
 
 	typedef void (*DownloadFinishedCB) ();
 

@@ -93,16 +93,14 @@ extern NetSyncedRandom netRandom;
 	
 void DisableAdvancedFeatures(); // Required for now
 
-void StartRound( unsigned localTime, unsigned randomSeed );
+void StartRound( AbsTime localTime, unsigned randomSeed );
 
 void EndRound();
 
-// Returns true if data was re-calculated.
-bool ReceiveNetPacket( CBytestream * bs, int player );
+void ReceiveNetPacket( CBytestream * bs, int player );
 
 // Calculates and draws the mod, returns true if there's something to send -
 // should be called in a cycle, may send several packets in one frame, we should send them all as one packet over net
-// Keys are keys for local player
 bool Frame( CBytestream * bs );
 
 // Returns packet size without player ID.

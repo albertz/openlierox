@@ -610,6 +610,7 @@ public:
 	
 	void NewNet_SaveWormState(CWorm * w);
 	void NewNet_RestoreWormState(CWorm * w);
+	void NewNet_InitWormState( int seed );
 	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine

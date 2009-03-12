@@ -510,6 +510,10 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_HIDEWORM:
 				ParseHideWorm(bs);
 				break;
+				
+			case S2C_NEWNET_KEYS:
+				ParseNewNetKeys(bs);
+				break;
 
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
@@ -934,6 +938,38 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	client->bShouldRepaintInfo = true;
 }
 
+void CClientNetEngineBeta9::ParseStartGame(CBytestream *bs)
+{
+	CClientNetEngine::ParseStartGame(bs);
+	NewNet::StartRound( tLX->currentTime, bs->readInt(4) );
+	if( (bool)client->tGameInfo.features[FT_NewNetEngine] )
+	{
+		CClient * cl = client;
+		delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
+		cl->cNetEngine = new CClientNetEngineBeta9NewNet(cl);
+	}
+};
+
+void CClientNetEngineBeta9NewNet::ParseGotoLobby(CBytestream *bs)
+{
+	NewNet::EndRound();
+	CClientNetEngine::ParseGotoLobby(bs);
+	CClient * cl = client;
+	delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
+	cl->cNetEngine = new CClientNetEngineBeta9(cl);
+};
+
+void CClientNetEngineBeta9NewNet::ParseNewNetKeys(CBytestream *bs)
+{
+	int worm = bs->readByte();
+	if( worm < 0 || worm >= MAX_WORMS )
+	{
+		warnings << "CClientNetEngineBeta9NewNet::ParseNewNetKeys(): invalid worm id " << worm << endl;
+		bs->Skip( NewNet::NetPacketSize() );
+		return;
+	}
+	NewNet::ReceiveNetPacket( bs, worm );
+};
 
 ///////////////////
 // Parse a spawn worm packet

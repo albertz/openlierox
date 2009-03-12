@@ -1315,3 +1315,19 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( NewNet_random );
 	#undef COPY
 };
+
+void CWorm::NewNet_InitWormState(int seed)
+{
+	NewNet_random.seed(seed);
+	// These vars most probably getting reset in Spawn() but I want to be sure
+	fLastSimulationTime = AbsTime();
+	fCollisionTime = AbsTime();
+	fLastInputTime = AbsTime();
+	bCollidedLastFrame = false;
+	lastMoveTime = AbsTime();
+	fServertime = TimeDiff();
+	fLastCarve = AbsTime();
+	fTimeofDeath = AbsTime();
+	iDirection = 0;
+	fSpawnTime = AbsTime();
+}

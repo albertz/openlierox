@@ -51,7 +51,7 @@ Feature featureArray[] = {
 			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVisionAngle",	"Seeker vision angle",			"The angle of seeker vision (180 = half-circle, 360 = full circle)", 
 			360, 	360, 			Version(), 			GIG_HideAndSeek, 	0, 		360, 	true ),
-	Feature("NewNetEngine", 		"New CW-only net engine",		"Net engine for clanwars - doesn't support any options yet", 
+	Feature("NewNetEngine", 		"New net engine",		"New net engine - not working yet!", 
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
 
 	Feature::Unset()

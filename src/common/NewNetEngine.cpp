@@ -47,6 +47,41 @@ void RestoreState()
 		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
 };
 
+// TODO: make respawning server-sided and remove this function
+CVec FindSpot(CWorm *Worm)
+{
+	CMap * cMap = cClient->getMap();
+	int	 x, y;
+	int	 px, py;
+	int	 cols = cMap->getGridCols() - 1;	   // Note: -1 because the grid is slightly larger than the
+	int	 rows = cMap->getGridRows() - 1;	   // level size
+	int	 gw = cMap->getGridWidth();
+	int	 gh = cMap->getGridHeight();
+
+	uchar pf, pf1, pf2, pf3, pf4;
+	cMap->lockFlags();
+	
+	// Find a random cell to start in - retry if failed
+	while(true) {
+		px = (int)(Worm->NewNet_random.getFloatPositive() * (float)cols);
+		py = (int)(Worm->NewNet_random.getFloatPositive() * (float)rows);
+		x = px; y = py;
+
+		if( x + y < 6 )	// Do not spawn in top left corner
+			continue;
+
+		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
+		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
+		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
+		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
+		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
+		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
+			cMap->unlockFlags();
+			return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
+		}
+	}
+}
+
 unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
 	for( int i = 0; i < MAX_WORMS; i++ )
@@ -54,6 +89,12 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 		CWorm * w = & cClient->getRemoteWorms()[i];
 		if( w->isUsed() )
 		{
+			// Respawn dead worms
+			// TODO: make this server-sided
+			if( !w->getAlive() && w->getLives() != WRM_OUT )
+				if( gameTime - w->getTimeofDeath() > 2.5f )
+					w->Spawn( FindSpot(w) );
+
 			w->NewNet_GetInput( keys[i], keysChanged[i] );
 			if (w->getWormState()->bShoot && w->getAlive())
 				cClient->NewNet_DoLocalShot( w );
@@ -161,7 +202,7 @@ void getKeysForTime( int t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[M
 	}
 };
 
-void Activate( AbsTime localTime, int randomSeed )
+void StartRound( AbsTime localTime, unsigned randomSeed )
 {
 			OlxTimeDiffMs = localTime;
 			NumPlayers = 0;
@@ -174,7 +215,7 @@ void Activate( AbsTime localTime, int randomSeed )
 				if( cClient->getRemoteWorms()[i].isUsed() )
 				{
 					NumPlayers ++;
-					cClient->getRemoteWorms()[i].NewNet_random.seed(randomSeed + i);
+					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
 				};
 			}
 			LocalPlayer = -1;
@@ -301,7 +342,7 @@ TimeDiff EmptyPacketTime()
 }
 
 // Returns true if data was re-calculated.
-bool ReceiveNetPacket( CBytestream * bs, int player )
+void ReceiveNetPacket( CBytestream * bs, int player )
 {
 	int timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 
@@ -322,8 +363,6 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 	// We don't want to calculate with just 1 of 2 keys pressed - it will desync
 	// Net engine will send them in single packet anyway, so they are coupled together
 	//ReCalculateSavedState(); // Called from Frame() anyway, 
-
-	return true;
 };
 
 // Should be called for every gameloop frame with current key state, returns true if there's something to send
