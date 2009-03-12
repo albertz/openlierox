@@ -46,8 +46,8 @@ void CTextbox::Create(void)
 	bHolding = false;
 	bHoldingMouse = false;
 	fTimeHolding = 0;
-	fTimePushed = Time();
-	fLastRepeat = Time();
+	fTimePushed = AbsTime();
+	fLastRepeat = AbsTime();
 	iLastchar = 0;
 	iLastKeysym = 0;
 	if (tTimer == NULL)  {

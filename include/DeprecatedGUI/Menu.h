@@ -351,11 +351,11 @@ class server_t { public:
 	int		nQueries;
 	bool	bgotPong;
 	bool	bgotQuery;
-	Time	fInitTime;
+	AbsTime	fInitTime;
 	bool	bAddrReady;
-	Time	fLastPing;
-	Time	fLastQuery;
-    Time   fQueryTimes[MAX_QUERIES+1];
+	AbsTime	fLastPing;
+	AbsTime	fLastQuery;
+    AbsTime   fQueryTimes[MAX_QUERIES+1];
 
 	// Server address
 	std::string	szAddress;
@@ -388,10 +388,10 @@ extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 extern	bool		bGotDetails;
 extern	bool		bOldLxBug;
 extern	int			nTries;
-extern	Time		fStart;
+extern	AbsTime		fStart;
 extern bool		bShowFloatingOptions;
 
-// Time to wait before pinging/querying the server again (in milliseconds)
+// AbsTime to wait before pinging/querying the server again (in milliseconds)
 #define	PingWait  1000
 #define	QueryWait  1000
 

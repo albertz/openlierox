@@ -48,7 +48,7 @@ public:
 
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
-	bool moveAndCheckWormCollision(Time currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+	bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
 		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
 
 		// Can happen when starting a game
@@ -241,7 +241,7 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, Time simulationTime) {
+	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, AbsTime simulationTime) {
 		const float orig_dt = 0.01f;
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -448,7 +448,7 @@ public:
 		}
 	}
 
-	CProjectile::CollisionType simulateProjectile_LowLevel(Time currentTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+	CProjectile::CollisionType simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
 
@@ -580,7 +580,7 @@ public:
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
-	void projectile_doProjSpawn(CProjectile* const prj, Time fSpawnTime) {
+	void projectile_doProjSpawn(CProjectile* const prj, AbsTime fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
@@ -601,7 +601,7 @@ public:
 		}
 	}
 
-	void projectile_doSpawnOthers(CProjectile* const prj, Time fSpawnTime) {
+	void projectile_doSpawnOthers(CProjectile* const prj, AbsTime fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
 		CVec v = prj->GetVelocity();
 		NormalizeVector(&v);
@@ -643,7 +643,7 @@ public:
 		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
-	void simulateProjectile(const Time currentTime, CProjectile* const prj) {
+	void simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
 		const TimeDiff orig_dt = TimeDiff(0.01f);
 		const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
@@ -895,7 +895,7 @@ public:
 		goto simulateProjectileStart;
 	}
 
-	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, Time currentTime) {
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime) {
 		const float orig_dt = 0.01f;
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics

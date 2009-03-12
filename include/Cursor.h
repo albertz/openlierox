@@ -54,7 +54,7 @@ private:
 	CCursor			*cUp;
 	int				iFrame;
 	int				iFrameWidth;
-	Time			fAnimationSwapTime;
+	AbsTime			fAnimationSwapTime;
 	bool			bAnimated;
 	int				iNumFrames;
 	int				iType;

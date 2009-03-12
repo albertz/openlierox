@@ -71,7 +71,7 @@ void CWorm::Clear(void)
 	vVelocity = CVec(0,0);
 	vFollowPos = CVec(0,0);
 	bFollowOverride = false;
-	fLastUpdateWritten = Time();
+	fLastUpdateWritten = AbsTime();
 	fCollisionTime = 0;
 	vCollisionVelocity = CVec(0, 0);
 	bCollidedLastFrame = false;
@@ -81,7 +81,7 @@ void CWorm::Clear(void)
 	iLastCurWeapon = 255;
 
 	cNinjaRope.Clear();
-	fRopeTime = Time();
+	fRopeTime = AbsTime();
 	bRopeDownOnce = false;
 	bRopeDown = false;
 
@@ -96,12 +96,12 @@ void CWorm::Clear(void)
 
 	bTagIT = false;
 	fTagTime = 0;
-	fLastSparkle = Time();
+	fLastSparkle = AbsTime();
 	iDirtCount = 0;
 
-	fLastBlood = Time();
+	fLastBlood = AbsTime();
 
-	fPreLastPosUpdate = fLastPosUpdate = Time();
+	fPreLastPosUpdate = fLastPosUpdate = AbsTime();
 
 	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
@@ -112,7 +112,7 @@ void CWorm::Clear(void)
 	cGameScript = NULL;
 	short i;
 	for(i=0;i<NUM_FRAMES;i++)
-		fFrameTimes[i] = Time();
+		fFrameTimes[i] = AbsTime();
 
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
@@ -716,7 +716,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( tLXOptions->bDamagePopups && isWormVisible(this, v) )
 	{
 		// Sort them first
-		std::map< Time, int > DamageReportDrawOrder;
+		std::map< AbsTime, int > DamageReportDrawOrder;
 		int i;
 		for( i=0; i<MAX_WORMS; i++ )
 			if( cDamageReport[i].damage != 0 )
@@ -729,7 +729,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			damageDrawPos += (int)(( tLX->currentTime - DamageReportDrawOrder.begin()->first ).seconds() * 30);
 
 			int damageSum = 0;
-			std::map< Time, int > :: const_iterator it;
+			std::map< AbsTime, int > :: const_iterator it;
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 				damageSum += cDamageReport[it->second].damage;
 			Uint32 damageColor = damageSum >= 0 ? Color( 0xff, 0x80, 0x40 ).get() : Color( 0x40, 0xff, 0 ).get() ; // Red or green

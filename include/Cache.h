@@ -64,17 +64,17 @@ private:
 		//virtual ~CacheItem_t() {} // TODO: do we need this when there is no other virtual function? 
 		CacheItem_t() : fSaveTime(0), iFileTimeStamp(0) {}
 		CacheItem_t(const CacheItem_t& oth)  { operator=(oth); }
-		CacheItem_t(const Time& savetime, Uint64 timestamp) : fSaveTime(savetime), iFileTimeStamp(timestamp) {}
+		CacheItem_t(const AbsTime& savetime, Uint64 timestamp) : fSaveTime(savetime), iFileTimeStamp(timestamp) {}
 		// TODO: this op= was virtual; was there any reason for this? (no other class had overloaded it)
 		CacheItem_t& operator=(const CacheItem_t& oth)  { if (&oth != this) { fSaveTime = oth.fSaveTime; iFileTimeStamp = oth.iFileTimeStamp; } return *this; }
-		Time	fSaveTime;
+		AbsTime	fSaveTime;
 		Uint64	iFileTimeStamp;
 	};
 
 	class ImageItem_t : public CacheItem_t { public:
 		ImageItem_t() : CacheItem_t() { bmpSurf = NULL; }
 		ImageItem_t(const ImageItem_t& oth) { operator=(oth); }
-		ImageItem_t(SmartPointer<SDL_Surface> img, const Time& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { bmpSurf = img; }
+		ImageItem_t(SmartPointer<SDL_Surface> img, const AbsTime& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { bmpSurf = img; }
 		ImageItem_t& operator=(const ImageItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { bmpSurf = oth.bmpSurf; } return *this; }
 		SmartPointer<SDL_Surface> bmpSurf;
 	};
@@ -82,7 +82,7 @@ private:
 	class SoundItem_t : public CacheItem_t { public:
 		SoundItem_t() : CacheItem_t() { sndSample = NULL; }
 		SoundItem_t(const SoundItem_t& oth) { operator=(oth); }
-		SoundItem_t(SmartPointer<SoundSample> snd, const Time& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { sndSample = snd; }
+		SoundItem_t(SmartPointer<SoundSample> snd, const AbsTime& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { sndSample = snd; }
 		SoundItem_t& operator=(const SoundItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { sndSample = oth.sndSample; } return *this; }
 		SmartPointer<SoundSample> sndSample;
 	};
@@ -90,7 +90,7 @@ private:
 	class MapItem_t : public CacheItem_t { public:
 		MapItem_t() : CacheItem_t() { tMap = NULL; }
 		MapItem_t(const MapItem_t& oth) { operator=(oth); }
-		MapItem_t(SmartPointer<CMap> map, const Time& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMap = map; }
+		MapItem_t(SmartPointer<CMap> map, const AbsTime& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMap = map; }
 		MapItem_t& operator=(const MapItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { tMap = oth.tMap; } return *this; }
 		SmartPointer<CMap> tMap;
 	};
@@ -98,7 +98,7 @@ private:
 	class ModItem_t : public CacheItem_t { public:
 		ModItem_t() : CacheItem_t() { tMod = NULL; }
 		ModItem_t(const ModItem_t& oth) { operator=(oth); }
-		ModItem_t(SmartPointer<CGameScript> mod, const Time& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMod = mod; }
+		ModItem_t(SmartPointer<CGameScript> mod, const AbsTime& savetime, Uint64 timestamp) : CacheItem_t(savetime, timestamp) { tMod = mod; }
 		ModItem_t& operator=(const ModItem_t& oth) { CacheItem_t::operator =(oth); if (&oth != this) { tMod = oth.tMod; } return *this; }
 		SmartPointer<CGameScript> tMod;
 	};

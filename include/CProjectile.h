@@ -138,9 +138,9 @@ public:
 		bUsed = false;
 		fSpeed = 0;
 		fLife = 0;
-		fSpawnTime = Time(0);
+		fSpawnTime = AbsTime(0);
 		tProjInfo = NULL;
-		fLastTrailProj = Time(0);
+		fLastTrailProj = AbsTime(0);
 		iColour = 0;
 		iRandom = 0;
         bExplode = false;
@@ -161,16 +161,16 @@ private:
 
 	bool		bUsed;
 	int			iType;
-	Time		fSpawnTime;
+	AbsTime		fSpawnTime;
 	float		fLife;
 	float		fExtra;
 	int			iOwner;
 	float		fSpeed;
 	Uint32		iColour;
-	Time		fIgnoreWormCollBeforeTime;
+	AbsTime		fIgnoreWormCollBeforeTime;
 
 	// Projectile trail
-	Time		fLastTrailProj;
+	AbsTime		fLastTrailProj;
     float       fTimeVarRandom;
 
 	proj_t		*tProjInfo;
@@ -208,7 +208,7 @@ private:
 
     // Queued events
     bool		bExplode;
-    Time		fExplodeTime;
+    AbsTime		fExplodeTime;
     bool		bTouched;
 
 	// Debug info
@@ -222,7 +222,7 @@ public:
 	// Methods
 
 
-	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, Time time, Time ignoreWormCollBeforeTime);
+	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime);
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface * bmpDest, CViewport *view);
@@ -259,15 +259,15 @@ public:
 
 	float&	extra()					{ return fExtra; }
 	bool&	explode()				{ return bExplode; }
-	Time&	explodeTime()			{ return fExplodeTime; }
+	AbsTime&	explodeTime()			{ return fExplodeTime; }
 	bool&	touched()				{ return bTouched; }
 	proj_t* getProjInfo()			{ return tProjInfo; }
 	float&	rotation()				{ return fRotation; }
 	void	setFrameDelta(bool d)	{ bFrameDelta = d; }
 	bool	getFrameDelta()			{ return bFrameDelta; }
 	float&	frame()					{ return fFrame; }
-	Time&	lastTrailProj()			{ return fLastTrailProj; }
-	Time	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
+	AbsTime&	lastTrailProj()			{ return fLastTrailProj; }
+	AbsTime	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
 	CVec	GetPosition(void)		{ return vPosition; }
 	CVec	GetVelocity(void)		{ return vVelocity; }
@@ -279,7 +279,7 @@ public:
 	float	getRandomFloat(void);
 	int		getRandomIndex(void)	{ return iRandom; }
 
-    void    setExplode(const Time& t, bool _e)     { fExplodeTime = t; bExplode = _e; }
+    void    setExplode(const AbsTime& t, bool _e)     { fExplodeTime = t; bExplode = _e; }
     void    setTouched(bool _t)      { bTouched = _t; }
 
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
@@ -288,7 +288,7 @@ public:
 	// HINT: saves the current time of the simulation
 	// we need to save this also per projectile as they can have different
 	// simulation times (different times of spawning or remote projectiles)
-	Time	fLastSimulationTime;
+	AbsTime	fLastSimulationTime;
 
 	Event<> onInvalidation;
 };

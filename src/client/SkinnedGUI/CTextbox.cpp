@@ -53,9 +53,9 @@ CTextbox::CTextbox(COMMON_PARAMS) : CWidget(name, parent)
 	bHolding = false;
 	iCurpos = 0;
 	iLastCurpos = 0;
-	fTimePushed = Time();
-	fLastRepeat = Time();
-	fLastClick = Time();
+	fTimePushed = AbsTime();
+	fLastRepeat = AbsTime();
+	fLastClick = AbsTime();
 	iLastchar = 0;
 	iLastKeysym = 0;
 	fScrollTime = 0;  // We can scroll

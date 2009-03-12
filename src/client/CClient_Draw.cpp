@@ -512,7 +512,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
 	if (iNetStatus == NET_PLAYING && cMap)  {
-		static Time last = tLX->currentTime;
+		static AbsTime last = tLX->currentTime;
 		if ((tLX->currentTime - last).seconds() >= 0.5f)  {
 			cMap->ClearDebugImage();
 			for (int i = 0; i < (int)iNumWorms; i++)  {
@@ -683,7 +683,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
 			static std::string cl = "0.000";
 			static std::string sv = "0.000";
-			static float last_update = Time();
+			static float last_update = AbsTime();
 			if (tLX->currentTime - last_update >= 0.5f)  {
 				cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
 				sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
@@ -2522,7 +2522,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sGameMode); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();
 
-	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading AbsTime:");
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTime) + "%");
 	cur_y += tLX->cFont.GetHeight();
 

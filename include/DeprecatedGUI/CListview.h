@@ -135,7 +135,7 @@ public:
 		iItemCount=0;
 		bGotScrollbar = false;
 		iType = wid_Listview;
-		fLastMouseUp = Time();
+		fLastMouseUp = AbsTime();
 		iContentHeight = 0;
         iItemID = 0;
         bShowSelect = true;
@@ -184,7 +184,7 @@ private:
 	int				iContentHeight;
 	bool			bSubItemsAreAligned; // if the left item is too long, subitems are shifted right
 	
-	Time			fLastMouseUp;
+	AbsTime			fLastMouseUp;
 	int				iClickedSub;
 
 	// Scrollbar

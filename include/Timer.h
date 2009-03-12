@@ -30,23 +30,23 @@
 
 struct TimeCounter {
 	SDL_mutex* mutex;
-	Time time;
+	AbsTime time;
 	Uint32 lastTicks;
 	
 	TimeCounter() : time(0), lastTicks(0) { mutex = SDL_CreateMutex(); lastTicks = SDL_GetTicks(); }
 	~TimeCounter() { SDL_DestroyMutex(mutex); mutex = NULL; }
-	Time update() {
+	AbsTime update() {
 		if(mutex) SDL_mutexP(mutex);
 		Uint32 curTicks = SDL_GetTicks();
 		if(curTicks < lastTicks) {
-			Time t = time;
+			AbsTime t = time;
 			lastTicks = curTicks; // ignore (that should only happen once every ~49 days or when SDL gets reinited)
 			if(mutex) SDL_mutexV(mutex);
 			return t;
 		}
 		TimeDiff td = TimeDiff((Uint64)(curTicks - lastTicks));
 		time += td;
-		Time t = time;
+		AbsTime t = time;
 		lastTicks = curTicks;
 		if(mutex) SDL_mutexV(mutex);
 		return t;
@@ -54,7 +54,7 @@ struct TimeCounter {
 };
 extern TimeCounter timeCounter;
 
-inline Time GetTime() { return timeCounter.update(); }
+inline AbsTime GetTime() { return timeCounter.update(); }
 
 
 int				GetFPS(void);

@@ -47,23 +47,23 @@ protected:
     CVec        cStuckPos;
     TimeDiff       fStuckTime;
     bool        bStuck;
-    Time       fStuckPause;
-    Time       fLastThink;
+    AbsTime       fStuckPause;
+    AbsTime       fLastThink;
     CVec        cNinjaShotPos;
-	Time		fLastFace;
+	AbsTime		fLastFace;
 	TimeDiff		fBadAimTime;
     int			iAiGameType; // AI game type, we have predefined behaviour for mostly played settings
 	int			iAiDiffLevel;
 	int			iRandomSpread;
 	CVec		vLastShootTargetPos;
 	
-	Time		fLastShoot;
-	Time		fLastJump;
-	Time		fLastWeaponChange;
-	Time		fLastCreated;
-	Time		fLastCompleting;
-	Time		fLastRandomChange;
-	Time		fLastGoBack;
+	AbsTime		fLastShoot;
+	AbsTime		fLastJump;
+	AbsTime		fLastWeaponChange;
+	AbsTime		fLastCreated;
+	AbsTime		fLastCompleting;
+	AbsTime		fLastRandomChange;
+	AbsTime		fLastGoBack;
 	
 	float		fCanShootTime;
 	
@@ -72,9 +72,9 @@ protected:
 	
     // Path Finding
     int         nGridCols, nGridRows;
-	Time       fLastPathUpdate;
+	AbsTime       fLastPathUpdate;
 	bool		bPathFinished;
-	Time		fSearchStartTime;
+	AbsTime		fSearchStartTime;
 	
 	// its type is searchpath_base*; defined in CWorm_AI.cpp
 	void*		pathSearcher;

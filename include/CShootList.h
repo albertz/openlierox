@@ -80,8 +80,8 @@ public:
 	CShootList() {
 		m_nNumShootings = 0;
 		m_psShoot = NULL;
-		m_fStartTime = Time();
-		m_fLastWrite = Time();
+		m_fStartTime = AbsTime();
+		m_fLastWrite = AbsTime();
 	}
 
 	// Destructor
@@ -95,8 +95,8 @@ private:
 
 	int			m_nNumShootings;
 	shoot_t		*m_psShoot;
-	Time		m_fStartTime;
-	Time		m_fLastWrite;
+	AbsTime		m_fStartTime;
+	AbsTime		m_fLastWrite;
 
 
 
@@ -128,8 +128,8 @@ public:
 	shoot_t		*getShot(int index);
 
 	int			getNumShots(void)			{ return m_nNumShootings; }
-	Time		getStartTime(void)			{ return m_fStartTime; }
-	Time		getLastWrite(void)			{ return m_fLastWrite; }
+	AbsTime		getStartTime(void)			{ return m_fStartTime; }
+	AbsTime		getLastWrite(void)			{ return m_fLastWrite; }
 
 };
 

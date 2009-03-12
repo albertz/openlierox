@@ -65,7 +65,7 @@ class console_t { public:
 	conline_t	History[MAX_CONHISTORY];
 
 	int			iBlinkState; // 1 - displayed, 0 - hidden
-	Time		fBlinkTime;  
+	AbsTime		fBlinkTime;  
 
     SmartPointer<SDL_Surface> bmpConPic;
 

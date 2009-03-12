@@ -486,13 +486,13 @@ void CHttp::Clear()
 	bRedirecting = false;
 	bGotDataFromServer = false;
 	iRedirectCode = 0;
-	fResolveTime = Time();
-	fConnectTime = Time();
-	fSocketActionTime = Time();
-	fDownloadStart = Time();
-	fDownloadEnd = Time();
-	fUploadStart = Time();
-	fUploadEnd = Time();
+	fResolveTime = AbsTime();
+	fConnectTime = AbsTime();
+	fSocketActionTime = AbsTime();
+	fDownloadStart = AbsTime();
+	fDownloadEnd = AbsTime();
+	fUploadStart = AbsTime();
+	fUploadEnd = AbsTime();
 	iProcessingResult = HTTP_PROC_PROCESSING;
 
 	ResetNetAddr(tRemoteIP);
@@ -1482,7 +1482,7 @@ bool CHttp::ProcessInternal()
 
 	// Process DNS resolving
 	if (!IsNetAddrValid(tRemoteIP)) {
-        Time f = GetTime();
+        AbsTime f = GetTime();
 		bool error = false;
 
 		// Error

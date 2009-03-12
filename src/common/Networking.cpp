@@ -168,7 +168,7 @@ static int SdlNetEventThreadMain( void * param )
 	}
 
 	TimeDiff max_frame_time = TimeDiff(MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0.0f));
-	Time lastTime = GetTime();
+	AbsTime lastTime = GetTime();
 	while( ! SdlNetEventThreadExit )
 	{
 		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
@@ -190,7 +190,7 @@ static int SdlNetEventThreadMain( void * param )
 			}
 		}
 
-		Time curTime = GetTime();
+		AbsTime curTime = GetTime();
 		if(curTime - lastTime < max_frame_time) {
 			SDL_Delay( (Uint32)( ( max_frame_time - (curTime - lastTime) ).milliseconds() ) );
 		}
@@ -274,7 +274,7 @@ static void sigpipe_handler(int i) {
 
 
 
-typedef std::map<std::string, std::pair< NLaddress, Time > > dnsCacheT; // Second parameter is expiration time of DNS record
+typedef std::map<std::string, std::pair< NLaddress, AbsTime > > dnsCacheT; // Second parameter is expiration time of DNS record
 ThreadVar<dnsCacheT>* dnsCache = NULL;
 
 void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime ) {

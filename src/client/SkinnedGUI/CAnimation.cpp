@@ -31,7 +31,7 @@ CAnimation::CAnimation(COMMON_PARAMS, const std::string& Path) : CALL_DEFAULT_CO
 	if (Path.size())  {
 		tImage = LoadGameImage(Path, true);
 	}
-	fLastFrameChange = Time();
+	fLastFrameChange = AbsTime();
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
@@ -43,7 +43,7 @@ CAnimation::CAnimation(COMMON_PARAMS, SmartPointer<SDL_Surface> img) : CALL_DEFA
 	iType = wid_Animation;
 	sPath = "";
 	tImage = img;
-	fLastFrameChange = Time();
+	fLastFrameChange = AbsTime();
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
@@ -56,7 +56,7 @@ CAnimation::CAnimation(const std::string &name, CContainerWidget *parent) : CWid
 	iType = wid_Animation;
 	sPath = "";
 	tImage = NULL;
-	fLastFrameChange = Time();
+	fLastFrameChange = AbsTime();
 	iCurFrame = 0;
 	fFrameTime = DEFAULT_FRAME_TIME;
 	bAnimated = false;
@@ -198,7 +198,7 @@ void CAnimation::Change(const std::string& Path)
 	tImage = LoadGameImage(sPath, true);
 
 	iCurFrame = 0;
-	fLastFrameChange = Time();
+	fLastFrameChange = AbsTime();
 
 	if (bAnimated)
 		ParseAnimation();

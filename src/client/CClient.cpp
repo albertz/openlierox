@@ -87,7 +87,7 @@ void CClient::Clear(void)
 	iScorePlayers = 0;
 	cBonuses = NULL;
 	bUpdateScore = true;
-	fLastScoreUpdate = Time();
+	fLastScoreUpdate = AbsTime();
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
@@ -114,9 +114,9 @@ void CClient::Clear(void)
 	bServerError = false;
     bClientError = false;
 	bChat_Typing = false;
-	fLastReceived = Time::MAX();
+	fLastReceived = AbsTime::MAX();
 	fSendWait = 0;
-	fLastUpdateSent = Time();
+	fLastUpdateSent = AbsTime();
 
 
 	bInServer = false;
@@ -174,7 +174,7 @@ void CClient::MinorClear(void)
 	bGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
-	fLastScoreUpdate = Time();
+	fLastScoreUpdate = AbsTime();
 	bCurrentSettings = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
@@ -250,7 +250,7 @@ CClient::CClient() {
 	bMapGrabbed = false;
 	cChatList = NULL;
 	bUpdateScore = true;
-	fLastScoreUpdate = Time();
+	fLastScoreUpdate = AbsTime();
 	bShouldRepaintInfo = true;
 	bCurrentSettings = false;
 	tMapDlCallback = NULL;
@@ -276,7 +276,7 @@ CClient::CClient() {
 	bInServer = false;
 	cIConnectedBuf = "";
 	iNetSpeed = 3;
-	fLastUpdateSent = Time();
+	fLastUpdateSent = AbsTime();
 	SetNetAddrValid( cServerAddr, false );
 	InvalidateSocketState(tSocket);
 	bLocalClient = false;
@@ -1125,7 +1125,7 @@ void CClient::ReadPackets(void)
 
 	// Check if our connection with the server timed out
 	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->currentTime - LX_CLTIMEOUT && tLX->iGameType == GME_JOIN) {
-		// Time out
+		// AbsTime out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
 
@@ -1253,8 +1253,8 @@ void CClient::Connect(const std::string& address)
 	fConnectTime = tLX->currentTime;
 	bConnectingBehindNat = false;
 	iNatTraverseState = NAT_RESOLVING_DNS;
-	fLastTraverseSent = Time();
-	fLastChallengeSent = Time();
+	fLastTraverseSent = AbsTime();
+	fLastChallengeSent = AbsTime();
 
 	// TODO: use the easier and better event system
 	// Register the IRC callbacks
@@ -1461,8 +1461,8 @@ void CClient::ConnectingBehindNAT()
 
 			// Start from scratch
 			iNatTraverseState = NAT_RESOLVING_DNS;
-			fLastTraverseSent = Time();
-			fLastChallengeSent = Time();
+			fLastTraverseSent = AbsTime();
+			fLastChallengeSent = AbsTime();
 
 			// To make sure we get called again
 			Timer("client ConnectingBehindNAT restarter", null, NULL, 10, true).startHeadless();

@@ -122,7 +122,7 @@ void CGuiLayout::Initialize(int LayoutID)
 	// Reset mouse repeats
 	nMouseButtons = 0;
 	for(int i=0; i<3; i++)
-		fMouseNext[i] = Time();
+		fMouseNext[i] = AbsTime();
 
 }
 

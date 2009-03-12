@@ -458,9 +458,9 @@ bool		bHost_Update = false;
 bool		bStartDedicated = false;
 int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
-Time		fStartDedicatedSecondsPassed = Time();
+AbsTime		fStartDedicatedSecondsPassed = AbsTime();
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
-Time		fHostLobbyStart = Time();
+AbsTime		fHostLobbyStart = AbsTime();
 bool		bTestedSpeed = false;
 int			secondsAnnounced = -1;
 
@@ -1405,7 +1405,7 @@ void Menu_Net_HostDeregister(void)
 
 	Menu_RedrawMouse(true);
 
-	Time starttime = tLX->currentTime;
+	AbsTime starttime = tLX->currentTime;
 	SetGameCursor(CURSOR_ARROW);
 
 	while(true) {

@@ -440,7 +440,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 	bGotDetails = false;
 	bOldLxBug = false;
 	nTries = 0;
-	fStart = Time();
+	fStart = AbsTime();
 
     while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && tMenu->bMenuRunning) {
 		tLX->currentTime = GetTime();
@@ -462,7 +462,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
                 break;
 			// Refresh
             } else if (ev->iControlID == ld_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
-				fStart = Time();
+				fStart = AbsTime();
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;

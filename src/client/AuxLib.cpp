@@ -429,7 +429,7 @@ HWND GetWindowHandle(void)
 
 void CapFPS() {
 	const TimeDiff fMaxFrameTime = TimeDiff( (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0.0f );
-	const Time currentTime = GetTime();
+	const AbsTime currentTime = GetTime();
 	// tLX->currentTime is old time
 
 	// Cap the FPS

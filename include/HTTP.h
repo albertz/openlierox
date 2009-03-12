@@ -213,19 +213,19 @@ private:
 	bool			bGotHttpHeader;
 	bool			bChunkedTransfer;
 	bool			bGotDataFromServer;  // True if we received some data from the server
-	Time			fResolveTime;
-	Time			fConnectTime;
-	Time			fSocketActionTime;
+	AbsTime			fResolveTime;
+	AbsTime			fConnectTime;
+	AbsTime			fSocketActionTime;
 	bool			bRedirecting;
 	int				iRedirectCode;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 
 	// Bandwidth measurement
-	Time			fDownloadStart;
-	Time			fDownloadEnd;
-	Time			fUploadStart;
-	Time			fUploadEnd;
+	AbsTime			fDownloadStart;
+	AbsTime			fDownloadEnd;
+	AbsTime			fUploadStart;
+	AbsTime			fUploadEnd;
 
 	std::string		sEmpty; // Returned when Data is being processed
 

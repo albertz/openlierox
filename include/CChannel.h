@@ -26,15 +26,15 @@ class Rate {
 private:
 	_Amount buckets[AMOUNT];
 	int curIndex;
-	Time curIndexTime;
+	AbsTime curIndexTime;
 
 public:
-	void clear() { curIndex = -1; curIndexTime = Time(); memset(buckets, 0, sizeof(buckets)); }
+	void clear() { curIndex = -1; curIndexTime = AbsTime(); memset(buckets, 0, sizeof(buckets)); }
 	Rate() { clear(); }
 
 	TimeDiff timeRange() { return TimeDiff(TIMERANGEMS); }
 
-	void addData(const Time& curtime, _Amount amount) {
+	void addData(const AbsTime& curtime, _Amount amount) {
 		// calc diff of oldindex to newindex
 		size_t dindex = 0;
 		if(curIndex >= 0) {
@@ -99,8 +99,8 @@ protected:
 	NetworkSocket	Socket;
 
 	// For timeouts & sending
-	Time			fLastPckRecvd;
-	Time			fLastSent;
+	AbsTime			fLastPckRecvd;
+	AbsTime			fLastSent;
 
 	// Bandwidth Estimation
 	Rate<100,2000>	cIncomingRate;
@@ -108,7 +108,7 @@ protected:
 
 	// Pinging
 	int				iPing;								// current ping
-	Time			fLastPingSent;
+	AbsTime			fLastPingSent;
 
 	// Statistics
 	size_t			iPacketsDropped;
@@ -139,8 +139,8 @@ public:
 	virtual void	AddReliablePacketToSend(CBytestream& bs);
 	
 	size_t			getPacketLoss(void)		{ return iPacketsDropped; }
-	Time			getLastReceived(void)	{ return fLastPckRecvd; }
-	Time			getLastSent(void)		{ return fLastSent; }
+	AbsTime			getLastReceived(void)	{ return fLastPckRecvd; }
+	AbsTime			getLastSent(void)		{ return fLastSent; }
 	NetworkAddr		getAddress(void)		{ return RemoteAddr; }
 	// Returns true if CChannel has sent all pending packets, and got acknowledges about them.
 	// That includes only packets after last Transmit() call, 
@@ -250,7 +250,7 @@ private:
 	int				MaxNonAcknowledgedPackets;
 
 	#ifdef DEBUG
-	Time			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	AbsTime			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
 	#endif
 
 	bool			GetPacketFromBuffer(CBytestream *bs);
@@ -320,7 +320,7 @@ private:
 	int				MaxNonAcknowledgedPackets;
 
 	#ifdef DEBUG
-	Time			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
+	AbsTime			DebugSimulateLaggyConnectionSendDelay; // Self-explanatory
 	#endif
 
 	bool			GetPacketFromBuffer(CBytestream *bs);

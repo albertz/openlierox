@@ -394,7 +394,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 		buf += Console->Line[n].strText;
 
 		Console->fBlinkTime += tLX->fDeltaTime;
-		if (Console->fBlinkTime > Time(10.0f)) {
+		if (Console->fBlinkTime > AbsTime(10.0f)) {
 			Console->iBlinkState = !Console->iBlinkState;
 			Console->fBlinkTime = 0;
 		}

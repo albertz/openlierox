@@ -114,7 +114,7 @@ void CAnimation::Change(const std::string& Path, float frametime)
 
 	iCurFrame = 0;
 	fFrameTime = frametime;
-	fLastFrameChange = Time();
+	fLastFrameChange = AbsTime();
 
 	Parse();
 }

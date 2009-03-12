@@ -57,7 +57,7 @@ public:
 
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
-        fTimer = Time();
+        fTimer = AbsTime();
 		bSmooth = false;		
 	}
 
@@ -75,14 +75,14 @@ private:
 
     CVec    curPos, tgtPos;
 
-	Time	fShakestart;
+	AbsTime	fShakestart;
 	bool	bShaking;
 	int		iShakeAmount;
 
     int     nType;
     CWorm   *pcTargetWorm;
 
-    Time   fTimer;
+    AbsTime   fTimer;
 
 	// HINT: we have to use pointers here as we have CViewport in a global variable
     SmartPointer<CInput>  cUp, cRight, cDown, cLeft;

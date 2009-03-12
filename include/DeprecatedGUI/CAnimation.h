@@ -40,7 +40,7 @@ public:
 				iWidth = iHeight = 0;
 			}
 		}
-		fLastFrameChange = Time();
+		fLastFrameChange = AbsTime();
 		iCurFrame = 0;
 		fFrameTime = frametime;
 
@@ -55,7 +55,7 @@ private:
 	std::vector<int> tFrameWidths;
 	int			iNumFrames;
 	int			iCurFrame;
-	Time		fLastFrameChange;
+	AbsTime		fLastFrameChange;
 	float		fFrameTime;
 
 

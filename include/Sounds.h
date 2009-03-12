@@ -119,8 +119,8 @@ inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int loca
 }
 
 // TODO: don't make them global
-extern Time fCurSongStart;
-extern Time fTimePaused;
+extern AbsTime fCurSongStart;
+extern AbsTime fTimePaused;
 extern bool	 bSongStopped;
 extern byte iMusicVolume;
 extern bool	 bSongFinished;

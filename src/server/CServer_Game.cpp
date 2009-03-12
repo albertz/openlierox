@@ -536,8 +536,8 @@ void GameServer::gotoLobby(void)
 		cClients[i].setGameReady(false);
 	}
 
-	fLastUpdateSent = Time();
-	fGameOverTime = Time();
+	fLastUpdateSent = AbsTime();
+	fGameOverTime = AbsTime();
 
 	SendWormLobbyUpdate();
 	

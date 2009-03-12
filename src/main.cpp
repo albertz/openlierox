@@ -162,7 +162,7 @@ static void startDebuggerThread() {
 	struct DebuggerThread : Action {
 		int handle() {
 			while(tLX && !tLX->bQuitGame) {
-				Time oldTime = tLX->currentTime;
+				AbsTime oldTime = tLX->currentTime;
 				SDL_Delay(500);
 				if(!tLX) return 0;
 				if(tLX->bQuitGame) return 0;
@@ -524,7 +524,7 @@ static int MainLoopThread(void*) {
         // Main game loop
         //
 		ResetQuitEngineFlag();
-		Time oldtime = GetTime();
+		AbsTime oldtime = GetTime();
 		while(!tLX->bQuitEngine) {
 			
 			tLX->currentTime = GetTime();

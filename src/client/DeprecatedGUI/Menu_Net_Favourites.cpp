@@ -484,7 +484,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 	bGotDetails = false;
 	bOldLxBug = false;
 	nTries = 0;
-	fStart = Time();
+	fStart = AbsTime();
 
 	DrawRectFillA(tMenu->bmpBuffer.get(),200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
@@ -508,7 +508,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
                 break;
 			// Refresh
             } else if (ev->iControlID == fd_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
-				fStart = Time();
+				fStart = AbsTime();
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;

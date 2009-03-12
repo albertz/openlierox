@@ -339,7 +339,7 @@ private:
 	int					iSelectedSub;
 
 	// TODO: get rid of this (add the doubleclick event to CWidget)
-	Time			fLastMouseUp;
+	AbsTime			fLastMouseUp;
 
 	// Scrollbar
 	CScrollbar		*cScrollbar;

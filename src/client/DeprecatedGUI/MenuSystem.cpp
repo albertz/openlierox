@@ -380,7 +380,7 @@ void Menu_Loop(void)
 	last_frame_was_because_of_an_event = ProcessEvents();
 
 	while(tMenu->bMenuRunning) {
-		Time oldtime = tLX->currentTime;
+		AbsTime oldtime = tLX->currentTime;
 
 		Menu_Frame();
 		CapFPS();
@@ -1273,8 +1273,8 @@ void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 	s->bgotPong = false;
 	s->bgotQuery = false;
 	s->bIgnore = false;
-	s->fLastPing = Time();
-	s->fLastQuery = Time();
+	s->fLastPing = AbsTime();
+	s->fLastQuery = AbsTime();
 	s->nPings = 0;
 	s->fInitTime = tLX->currentTime;
 	s->nQueries = 0;
@@ -1869,7 +1869,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 			continue;
 
 		// TODO: THIS IS BLOCKING, REMOVE THAT!
-		Time start = GetTime();
+		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
 			SDL_Delay(40);
 			if(IsNetAddrValid(addr)) 
@@ -1896,7 +1896,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		notes << "Sent getserverlist to " << server << endl;
 
 		// Wait for the reply
-		Time timeoutTime = GetTime() + 5.0f;
+		AbsTime timeoutTime = GetTime() + 5.0f;
 		bool firstPacket = true;
 		while( true ) {
 
@@ -2082,7 +2082,7 @@ bool Menu_SvrList_ServerBehindNat(const std::string & addr)
 bool bGotDetails = false;
 bool bOldLxBug = false;
 int nTries = 0;
-Time fStart;
+AbsTime fStart;
 CListview lvInfo;
 
 

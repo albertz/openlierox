@@ -47,7 +47,7 @@ void RestoreState()
 		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
 };
 
-unsigned CalculatePhysics( Time gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
+unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
 	for( int i = 0; i < MAX_WORMS; i++ )
 	{
@@ -77,12 +77,12 @@ void DisableAdvancedFeatures()
 	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
 };
 
-void CalculateCurrentState( Time localTime );
-bool SendNetPacket( Time localTime, KeyState_t keys, CBytestream * bs );
+void CalculateCurrentState( AbsTime localTime );
+bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
 
 bool Frame( CBytestream * bs )
 {
-	Time localTime = tLX->currentTime;
+	AbsTime localTime = tLX->currentTime;
 	KeyState_t keys;
 	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
 	{
@@ -107,7 +107,7 @@ bool Frame( CBytestream * bs )
 
 bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
-Time ReCalculationTimeMs;
+AbsTime ReCalculationTimeMs;
 // Constants
 TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
@@ -119,10 +119,10 @@ int NumPlayers = -1;
 int LocalPlayer = -1;
 
 // TODO: why is it named diff but used absolute?
-Time OlxTimeDiffMs; // In milliseconds
-Time CurrentTimeMs; // In milliseconds
+AbsTime OlxTimeDiffMs; // In milliseconds
+AbsTime CurrentTimeMs; // In milliseconds
 Uint64 BackupTime;	// In TICK_TIME chunks
-Time ClearEventsLastTime;
+AbsTime ClearEventsLastTime;
 
 struct KeysEvent_t
 {
@@ -131,19 +131,19 @@ struct KeysEvent_t
 };
 
 // Sorted by player and time - time in TICK_TIME chunks
-typedef std::map< Time, KeysEvent_t > EventList_t;
+typedef std::map< AbsTime, KeysEvent_t > EventList_t;
 EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
-Time LastPacketTime[MAX_WORMS]; // Time in TICK_TIME chunks
+AbsTime LastPacketTime[MAX_WORMS]; // AbsTime in TICK_TIME chunks
 unsigned Checksum;
-Time ChecksumTime; // Time in ms
+AbsTime ChecksumTime; // AbsTime in ms
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
 
 void getKeysForTime( int t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
 {
 	for( int i=0; i<MAX_WORMS; i++ )
 	{
-		EventList_t :: const_iterator it = Events[i].upper_bound(Time(int(t)));
+		EventList_t :: const_iterator it = Events[i].upper_bound(AbsTime(int(t)));
 		if( it != Events[i].begin() )
 		{
 			--it;
@@ -158,7 +158,7 @@ void getKeysForTime( int t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[M
 	}
 };
 
-void Activate( Time localTime, int randomSeed )
+void Activate( AbsTime localTime, int randomSeed )
 {
 			OlxTimeDiffMs = localTime;
 			NumPlayers = 0;
@@ -209,24 +209,24 @@ void ReCalculateSavedState()
 	ReCalculationNeeded = false;
 
 	// Re-calculate physics if the packet received is from the most laggy client
-	Time timeMin = LastPacketTime[LocalPlayer];
+	AbsTime timeMin = LastPacketTime[LocalPlayer];
 	for( int f=0; f<MAX_WORMS; f++ )
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
 	//printf("ReCalculate(): BackupTime %lu timeMin %lu\n", BackupTime, timeMin);
-	if( Time(BackupTime * TICK_TIME)  /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
+	if( AbsTime(BackupTime * TICK_TIME)  /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
 	// TODO: was this meant here?
-	if( CurrentTimeMs != Time(BackupTime * TICK_TIME) )	// Last recalc time
+	if( CurrentTimeMs != AbsTime(BackupTime * TICK_TIME) )	// Last recalc time
 		RestoreState();
 
-	while( Time(BackupTime * TICK_TIME) /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
+	while( AbsTime(BackupTime * TICK_TIME) /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
 	{
 		BackupTime++;
-		CurrentTimeMs = Time(BackupTime * TICK_TIME);
+		CurrentTimeMs = AbsTime(BackupTime * TICK_TIME);
 		bool calculateChecksum = CurrentTimeMs.time % CalculateChecksumTime.timeDiff == 0;
 
 		KeyState_t keys[MAX_WORMS];
@@ -258,7 +258,7 @@ void ReCalculateSavedState()
 };
 
 // Should be called immediately after SendNetPacket() with the same time value
-void CalculateCurrentState( Time localTime )
+void CalculateCurrentState( AbsTime localTime )
 {
 	localTime.time -= OlxTimeDiffMs.time;
 
@@ -284,7 +284,7 @@ int NetPacketSize()
 	return 4+1;	// First 4 bytes is time in 10-ms chunks, second byte - keypress idx
 }
 
-void AddEmptyPacket( Time localTime, CBytestream * bs )
+void AddEmptyPacket( AbsTime localTime, CBytestream * bs )
 {
 	localTime.time -= OlxTimeDiffMs.time;
 	localTime.time /= TICK_TIME;
@@ -310,9 +310,9 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 		keys.keys[keyIdx] = ! keys.keys[keyIdx];
 
 	OldKeys[ player ] = keys;
-	Events[ player ] [ Time(fullTime) ] .keys = keys;
+	Events[ player ] [ AbsTime(fullTime) ] .keys = keys;
 	if( keyIdx != UCHAR_MAX )
-		Events[ player ] [ Time(fullTime) ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ Time(fullTime) ] .keysChanged.keys[keyIdx];
+		Events[ player ] [ AbsTime(fullTime) ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ AbsTime(fullTime) ] .keysChanged.keys[keyIdx];
 	LastPacketTime[ player ] = fullTime;
 
 	ReCalculationNeeded = true;
@@ -325,7 +325,7 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 
 // Should be called for every gameloop frame with current key state, returns true if there's something to send
 // Draw() should be called after this func
-bool SendNetPacket( Time localTime, KeyState_t keys, CBytestream * bs )
+bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
 	//printf("SendNetPacket() time %lu\n", localTime);
 	localTime.time -= OlxTimeDiffMs.time;
@@ -360,18 +360,18 @@ bool SendNetPacket( Time localTime, KeyState_t keys, CBytestream * bs )
 	return true;
 };
 
-unsigned GetChecksum( Time * time )
+unsigned GetChecksum( AbsTime * time )
 {
 	if( time )
 		*time = ChecksumTime;
 	return Checksum;
 };
 
-Time GetCurTime()
+AbsTime GetCurTime()
 {
 	return CurrentTimeMs;
 }
-Time GetCurTimeFloat()
+AbsTime GetCurTimeFloat()
 {
 	return GetCurTime();
 }

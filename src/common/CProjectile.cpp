@@ -36,7 +36,7 @@ void CProjectile::setUnused() {
 ///////////////////
 // Spawn the projectile
 // this function is called by CClient::SpawnProjectile()
-void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, Time time, Time ignoreWormCollBeforeTime)
+void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime)
 {
 	// Safety (it is used for indexing later)
 	if (_owner >= MAX_WORMS || _owner < 0)  {
@@ -53,7 +53,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fRotation = (float)_rot;
 	iOwner = _owner;
 	bUsed = true;
-	fLastTrailProj = Time();
+	fLastTrailProj = AbsTime();
 	iRandom = _random;
     iFrameX = 0;
 	fIgnoreWormCollBeforeTime = ignoreWormCollBeforeTime;

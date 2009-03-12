@@ -29,7 +29,7 @@
 TimeCounter timeCounter;
 
 int		Frames = 0;
-Time	OldFPSTime = Time();
+AbsTime	OldFPSTime = AbsTime();
 int		Fps = 0;
 
 
@@ -51,8 +51,8 @@ int GetFPS(void)
 }
 
 int		Frames_MinFPS = 0;
-Time	OldFPSTime_MinFPS = Time();
-Time	PrevFrameTime_MinFPS = Time();
+AbsTime	OldFPSTime_MinFPS = AbsTime();
+AbsTime	PrevFrameTime_MinFPS = AbsTime();
 TimeDiff	MaxFrameTime_MinFPS = TimeDiff();
 int		Fps_MinFPS = 0;
 
@@ -62,7 +62,7 @@ int		Fps_MinFPS = 0;
 int GetMinFPS(void)
 {
 	Frames_MinFPS++;
-	Time ms = GetTime();
+	AbsTime ms = GetTime();
 	if( ms - OldFPSTime_MinFPS >= 1.0f ) 
 	{
 		OldFPSTime_MinFPS = ms;

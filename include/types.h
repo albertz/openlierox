@@ -61,33 +61,33 @@ struct TimeDiff {
 
 };
 
-struct Time {
+struct AbsTime {
 	Uint64 time;
-	explicit Time(Uint64 t = 0) : time(t) {}
-	explicit Time(int t) : time(t) {}
-	explicit Time(float seconds) : time( (Uint64)(seconds * 1000.0f) ) {}
-	static Time MAX() { return Time((Uint64)-1); }
+	explicit AbsTime(Uint64 t = 0) : time(t) {}
+	explicit AbsTime(int t) : time(t) {}
+	explicit AbsTime(float seconds) : time( (Uint64)(seconds * 1000.0f) ) {}
+	static AbsTime MAX() { return AbsTime((Uint64)-1); }
 
-	const Time & operator=(float seconds) { *this = Time(seconds); return *this; };
+	const AbsTime & operator=(float seconds) { *this = AbsTime(seconds); return *this; };
 	// No operator=(int) here, 'cause it will be in milliseconds - inconsistent, and hard-to-find errors occur
 
 	float seconds() const { return time * 0.001f; }
 	Uint64 milliseconds() const { return time; }
 	
-	TimeDiff operator-(const Time& t) const { return TimeDiff(t.time, time); }
-	Time operator+(const TimeDiff& td) const { return Time(time + td.timeDiff); }
-	Time operator-(const TimeDiff& td) const { return Time(time - td.timeDiff); }
-	Time operator+(float td) const { return Time(time + (Uint64)(td * 1000.0f)); }
-	Time operator-(float td) const { return Time(time - (Uint64)(td * 1000.0f)); }
+	TimeDiff operator-(const AbsTime& t) const { return TimeDiff(t.time, time); }
+	AbsTime operator+(const TimeDiff& td) const { return AbsTime(time + td.timeDiff); }
+	AbsTime operator-(const TimeDiff& td) const { return AbsTime(time - td.timeDiff); }
+	AbsTime operator+(float td) const { return AbsTime(time + (Uint64)(td * 1000.0f)); }
+	AbsTime operator-(float td) const { return AbsTime(time - (Uint64)(td * 1000.0f)); }
 	
-	Time& operator+=(const TimeDiff& td) { time += td.timeDiff; return *this; }
+	AbsTime& operator+=(const TimeDiff& td) { time += td.timeDiff; return *this; }
 	
-	bool operator<(const Time& t) const { return time < t.time; }
-	bool operator>(const Time& t) const { return time > t.time; }
-	bool operator<=(const Time& t) const { return time <= t.time; }
-	bool operator>=(const Time& t) const { return time >= t.time; }
-	bool operator==(const Time& t) const { return time == t.time; }	
-	bool operator!=(const Time& t) const { return time != t.time; }	
+	bool operator<(const AbsTime& t) const { return time < t.time; }
+	bool operator>(const AbsTime& t) const { return time > t.time; }
+	bool operator<=(const AbsTime& t) const { return time <= t.time; }
+	bool operator>=(const AbsTime& t) const { return time >= t.time; }
+	bool operator==(const AbsTime& t) const { return time == t.time; }	
+	bool operator!=(const AbsTime& t) const { return time != t.time; }	
 };
 
 typedef unsigned int	uint;

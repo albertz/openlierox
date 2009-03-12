@@ -43,7 +43,7 @@ void CChannel::Clear()
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
 	iPing = 0;
-	fLastSent = fLastPckRecvd = fLastPingSent = Time();
+	fLastSent = fLastPckRecvd = fLastPingSent = AbsTime();
 	iCurrentIncomingBytes = 0;
 	iCurrentOutgoingBytes = 0;
 	Messages.clear();
@@ -105,7 +105,7 @@ void CChannel_056b::Clear()
 	iIncomingAcknowledged = 0;
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
-	fLastSent = Time();
+	fLastSent = AbsTime();
 	bNewReliablePacket = false;
 	iPongSequence = -1;
 	Reliable.Clear();
@@ -762,7 +762,7 @@ void TestCChannelRobustness()
 	float nextPacket2 = 0;
 	for( int testtime=0; testtime < 100000; testtime+= 10, nextPacket1 += 10, nextPacket2 += 10 )
 	{
-		tLX->currentTime = Time(testtime);
+		tLX->currentTime = AbsTime(testtime);
 
 		// Transmit number sequence and some unreliable info
 		CBytestream b1, b2, b1u, b2u;

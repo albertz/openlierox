@@ -29,7 +29,7 @@
 bool CShootList::Initialize(void)
 {
 	m_nNumShootings = 0;
-	m_fStartTime = Time();
+	m_fStartTime = AbsTime();
 
 	// TODO: use std::queue or std::list
 	m_psShoot = new shoot_t[MAX_SHOOTINGS];
@@ -50,7 +50,7 @@ void CShootList::Shutdown(void)
 	}
 
 	m_nNumShootings = 0;
-	m_fStartTime = Time();
+	m_fStartTime = AbsTime();
 }
 
 
@@ -59,7 +59,7 @@ void CShootList::Shutdown(void)
 void CShootList::Clear(void)
 {
 	m_nNumShootings = 0;
-	m_fStartTime = Time();
+	m_fStartTime = AbsTime();
 }
 
 
@@ -87,7 +87,7 @@ bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWo
 		return false;
 
 	// If this is the first shot in the list, set the start time
-	if( m_fStartTime == Time())
+	if( m_fStartTime == AbsTime())
 		m_fStartTime = tLX->currentTime;
 
 	shoot_t *psShot = &m_psShoot[ m_nNumShootings++ ];
@@ -540,7 +540,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	if( flags & SHF_EXTRAFLAGS )
 		extraflags = bs->readByte();
 
-	// Time offset
+	// AbsTime offset
 	if( flags & SHF_TIMEOFF ) {
 		float time = (float)bs->readByte();
 		psShot->fTime += TimeDiff(time/1000.0f);

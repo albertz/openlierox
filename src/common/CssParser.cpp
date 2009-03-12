@@ -607,7 +607,7 @@ bool CSSParser::parseInSelector(CSSParser::Selector &sel, const std::string &css
 void CSSParser::test_css()
 {
 	return;
-	Time start = GetTime();
+	AbsTime start = GetTime();
 
 	CSSParser c;
 	c.parse(GetFileContents("default.css"), ".");

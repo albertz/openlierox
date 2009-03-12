@@ -208,7 +208,7 @@ public:
 		csvReader.setHandler(csvReaderHandler);
 
 		// Read as many entries as possible within a reasonable time
-		Time start = GetTime();
+		AbsTime start = GetTime();
 		while (GetTime() - start <= 0.2f)
 			csvReader.readSome(READ_CHUNK_SIZE);
 
@@ -235,7 +235,7 @@ public:
 	static int threadLoader(void *param)
 	{
 		IpToCountryData *_this = (IpToCountryData *)param;
-		Time start = GetTime();
+		AbsTime start = GetTime();
 
 		while (!_this->breakLoader)  {
 			// Read another chunk

@@ -58,7 +58,7 @@ private:
 	CVec	vPos;
 	CVec	vVelocity;
 	float	fLife;
-	Time	fSpawnTime;
+	AbsTime	fSpawnTime;
 	float	fFlashTime;
 
 
@@ -78,7 +78,7 @@ public:
 	int		getType(void)		{ return iType; }
 	int		getWeapon(void)		{ return iWeapon; }
 
-	Time	getSpawnTime(void)	{ return fSpawnTime; }
+	AbsTime	getSpawnTime(void)	{ return fSpawnTime; }
 
 	CVec	getPosition(void)	{ return vPos; }
 
@@ -91,7 +91,7 @@ public:
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateBonuses()
 	// there which simulates all bonuses together
-	Time	fLastSimulationTime;
+	AbsTime	fLastSimulationTime;
 
 };
 

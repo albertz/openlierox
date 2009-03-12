@@ -41,7 +41,7 @@ class CGameMode;
 // Challenge structure
 class challenge_t { public:
 	NetworkAddr	Address;
-	Time		fTime;
+	AbsTime		fTime;
 	int			iNum;
 	std::string	sClientVersion;
 };
@@ -77,7 +77,7 @@ private:
 	// TODO: merge this with game_t (tGameInfo variable)
 	// Game rules
 	bool		bGameOver;
-	Time		fGameOverTime;
+	AbsTime		fGameOverTime;
 	
 	SmartPointer<CGameScript> cGameScript;
 	std::string	sWeaponRestFile;
@@ -105,7 +105,7 @@ private:
 	int			iServerFrame;	// TODO: what is this good for
 	int			lastClientSendData;
 	
-	Time		fLastBonusTime;
+	AbsTime		fLastBonusTime;
 
 	int			iLastVictim;	// TODO: what is this good for
 
@@ -113,7 +113,7 @@ private:
 	NetworkSocket	tSocket;
 	int				nPort;
 	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
-	Time			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
+	AbsTime			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
@@ -121,16 +121,16 @@ private:
 	int				iSuicidesInPacket;
 
 	CBanList	cBanList;
-	Time		fLastUpdateSent;
+	AbsTime		fLastUpdateSent;
 
 	bool		bServerRegistered;
-	Time		fLastRegister;
+	AbsTime		fLastRegister;
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
-	Time		fLastRegisterUdp;
+	AbsTime		fLastRegisterUdp;
 	std::vector<std::string>			tUdpMasterServers;
-	Time		fWeaponSelectionTime;
+	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	
 	static void SendConnectHereAfterTimeout (Timer::EventData ev);
@@ -248,7 +248,7 @@ public:
 	std::string		getName()			{ return tLXOptions->sServerName; }
 	void			setName(const std::string& _name){ tLXOptions->sServerName = _name; }
 	bool			getGameOver()		{ return bGameOver; }
-	Time			getGameOverTime()	{ return fGameOverTime; }
+	AbsTime			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection *getClients() { return cClients; }
 	TimeDiff	getServerTime() { return fServertime; }

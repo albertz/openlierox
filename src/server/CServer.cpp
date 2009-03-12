@@ -80,14 +80,14 @@ void GameServer::Clear(void)
 	for(int i=0; i<MAX_CLIENTS; i++)
 	{
 		InvalidateSocketState(tNatTraverseSockets[i]);
-		fNatTraverseSocketsLastAccessTime[i] = Time();
+		fNatTraverseSocketsLastAccessTime[i] = AbsTime();
 	}
 	bServerRegistered = false;
 	fLastRegister = 0;
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 
-	fLastUpdateSent = Time();
+	fLastUpdateSent = AbsTime();
 
 	cBanList.loadList("cfg/ban.lst");
 	cShootList.Clear();
@@ -245,7 +245,7 @@ int GameServer::StartServer()
 
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
-	fLastRegister = Time();
+	fLastRegister = AbsTime();
 	fLastRegisterUdp = tLX->currentTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
@@ -519,7 +519,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		fServertime = 0;
 		iServerFrame = 0;
 		bGameOver = false;
-		fGameOverTime = Time();
+		fGameOverTime = AbsTime();
 		cShootList.Clear();
 	}
 	
@@ -1084,7 +1084,7 @@ void GameServer::CheckTimeouts(void)
 {
 	int c;
 
-	Time dropvalue = tLX->currentTime - LX_SVTIMEOUT;
+	AbsTime dropvalue = tLX->currentTime - LX_SVTIMEOUT;
 
 	// Check
 	if (!cClients)

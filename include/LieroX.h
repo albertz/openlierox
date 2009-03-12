@@ -57,7 +57,7 @@ enum GameType_t {
 
 // LieroX structure
 class lierox_t { public:
-	Time	currentTime;
+	AbsTime	currentTime;
 	TimeDiff	fDeltaTime;
 	TimeDiff	fRealDeltaTime; // Delta time used for network synchronization,
 							// it is not clamped unlike the above one

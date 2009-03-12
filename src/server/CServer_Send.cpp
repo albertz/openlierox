@@ -363,7 +363,7 @@ bool GameServer::SendUpdate()
 				if(!checkUploadBandwidth(GetUpload() /* + uploadAmount */)) {
 					// we have gone over our own bandwidth for non-local clients				
 					blockRate.addData(tLX->currentTime, 1);
-					static Time lastMessageTime = tLX->currentTime;
+					static AbsTime lastMessageTime = tLX->currentTime;
 					if(tLX->currentTime - lastMessageTime > 30.0) {
 						notes << "we got over the max upload bandwidth" << endl;
 						notes << "   current upload is " << GetUpload() << " bytes/sec (last 2 secs)" << endl;

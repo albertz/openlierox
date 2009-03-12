@@ -122,7 +122,7 @@ class CClientNetEngineBeta9: public CClientNetEngineBeta7 {
 public:
 	CClientNetEngineBeta9( CClient * _client ): CClientNetEngineBeta7( _client ) 
 	{ 
-		fLastDamageReportSent = Time();
+		fLastDamageReportSent = AbsTime();
 	}
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
@@ -137,7 +137,7 @@ public:
     void ParseFeatureSettings(CBytestream* bs);
 	
 private:
-    Time fLastDamageReportSent;
+    AbsTime fLastDamageReportSent;
     std::map< std::pair< int, int >, int > cDamageReport;
 };
 

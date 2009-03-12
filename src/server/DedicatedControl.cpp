@@ -1272,7 +1272,7 @@ struct DedIntern {
 		// TODO: no static var here
 		// TODO: not a single timer, the script should register as much as it want
 		// TODO: each timer should be configurable
-		static Time lastTimeHandlerCalled = tLX->currentTime;
+		static AbsTime lastTimeHandlerCalled = tLX->currentTime;
 		if( tLX->currentTime > lastTimeHandlerCalled + 1.0f ) // Call once per second, when no signals pending, TODO: configurable from ded script
 		{
 			Sig_Timer("second-ticker"); // TODO ...
@@ -1302,13 +1302,13 @@ struct DedIntern {
 		// Some debugging stuff
 #ifdef DEBUG
 		int fps = GetFPS();
-		static Time lastFpsPrint = tLX->currentTime;
+		static AbsTime lastFpsPrint = tLX->currentTime;
 		if (tLX->currentTime - lastFpsPrint >= 20.0f)  {
 			notes << "Current FPS: " << fps << endl;
 			lastFpsPrint = tLX->currentTime;
 		}
 
-		static Time lastBandwidthPrint = tLX->currentTime;
+		static AbsTime lastBandwidthPrint = tLX->currentTime;
 		if (tLX->currentTime - lastBandwidthPrint >= 20.0f)  {
 			// Upload and download rates
 			float up = 0;

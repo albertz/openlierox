@@ -213,12 +213,12 @@ private:
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
-	Time		fCollisionTime;
+	AbsTime		fCollisionTime;
 	CVec		vCollisionVelocity;
-	Time		fLastInputTime;
+	AbsTime		fLastInputTime;
 	bool		bCollidedLastFrame;
 	// last time we moved left or right
-	Time		lastMoveTime;
+	AbsTime		lastMoveTime;
 
 	
 	TimeDiff	fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
@@ -226,7 +226,7 @@ private:
 	CVec		vFollowPos;
 	bool		bFollowOverride;
 
-    Time       fLastCarve;
+    AbsTime       fLastCarve;
 	
 
 	
@@ -249,7 +249,7 @@ private:
 	int			iHealth;
 	int			iLives;
 	bool		bAlive;
-	Time		fTimeofDeath;
+	AbsTime		fTimeofDeath;
 	int			iDirection;
 	int			iMoveDirection;
 	bool		bGotTarget;
@@ -259,9 +259,9 @@ private:
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
-	Time		fRopeTime;
+	AbsTime		fRopeTime;
 	bool		bVisible;
-	Time		fVisibilityChangeTime;  // Time when the worm was hidden/shown
+	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
@@ -271,36 +271,36 @@ private:
 
 	bool		bTagIT;
 	TimeDiff	fTagTime;
-	Time		fLastSparkle;
+	AbsTime		fLastSparkle;
 
     int         iDirtCount;
 
-	Time		fLastBlood;
+	AbsTime		fLastBlood;
 
 
 	// Owner client
 	CServerConnection *cOwner;
 
 	// Network
-	Time		fFrameTimes[NUM_FRAMES];
+	AbsTime		fFrameTimes[NUM_FRAMES];
 	lobbyworm_t tLobbyState;
 		// server
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
-	Time		fLastUpdateWritten;
+	AbsTime		fLastUpdateWritten;
 	CVec		vLastUpdatedPos; // last pos we have send to client
 		// client
-	Time		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
+	AbsTime		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
 	CVec		vOldPosOfLastPaket;
 	CVec		vPreOldPosOfLastPaket;
-	Time		fPreLastPosUpdate;
+	AbsTime		fPreLastPosUpdate;
 	CVec		vLastEstimatedVel;
 	CVec		vPreLastEstimatedVel;
 	int			iLastCharge;
 	int			iLastCurWeapon;
 
 	
-	Time		fSpawnTime;
+	AbsTime		fSpawnTime;
 
 	// Graphics
 	CWormSkin	cSkin;
@@ -325,14 +325,14 @@ private:
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
-    Time       fForceWeapon_Time;
+    AbsTime       fForceWeapon_Time;
 
 	CWormInputHandler* m_inputHandler;
 
 	// Used to print damage numbers over the worm head
 	struct DamageReport {
 		int damage;
-		Time lastTime;
+		AbsTime lastTime;
 	};
 	DamageReport cDamageReport[MAX_WORMS];
 
@@ -473,7 +473,7 @@ public:
 	bool		getAlive(void)				{ return bAlive; }
 	void		setAlive(bool _a)			{ bAlive = _a; }
 
-	Time		getTimeofDeath(void)		{ return fTimeofDeath; }
+	AbsTime		getTimeofDeath(void)		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
@@ -541,10 +541,10 @@ public:
 	bool		getTagIT(void)				{ return bTagIT; }
 	void		setTagIT(bool _t)			{ bTagIT = _t; }
 
-	Time		getLastSparkle()			{ return fLastSparkle; }
-	void		setLastSparkle(const Time& s)		{ fLastSparkle = s; }
-	Time		getLastBlood()				{ return fLastBlood; }
-	void		setLastBlood(const Time& b)		{ fLastBlood = b; }
+	AbsTime		getLastSparkle()			{ return fLastSparkle; }
+	void		setLastSparkle(const AbsTime& s)		{ fLastSparkle = s; }
+	AbsTime		getLastBlood()				{ return fLastBlood; }
+	void		setLastBlood(const AbsTime& b)		{ fLastBlood = b; }
 
     void        incrementDirtCount(int d);
     int         getDirtCount(void)          { return iDirtCount; }
@@ -600,8 +600,8 @@ public:
 	
 	DamageReport* getDamageReport() { return cDamageReport; }
 
-	void setCollisionTime(const Time& _t)			{ fCollisionTime = _t; }
-	Time getCollisionTime() const			{ return fCollisionTime; }
+	void setCollisionTime(const AbsTime& _t)			{ fCollisionTime = _t; }
+	AbsTime getCollisionTime() const			{ return fCollisionTime; }
 	void setCollisionVel(CVec _v)			{ vCollisionVelocity = _v; }
 	CVec getCollisionVel() const			{ return vCollisionVelocity; }
 	void setCollidedLastFrame(bool _c)		{ bCollidedLastFrame = _c; }
@@ -614,7 +614,7 @@ public:
 	// TODO: should be moved later to PhysicsEngine
 	// but it's not possible in a clean way until we have no simulateWorms()
 	// there which simulates all worms together
-	Time	fLastSimulationTime;
+	AbsTime	fLastSimulationTime;
 
 	NewNet::NetSyncedRandom NewNet_random;
 };

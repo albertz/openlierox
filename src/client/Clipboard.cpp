@@ -32,7 +32,7 @@
 
 #include "Clipboard.h"
 #include "Unicode.h"  // for Utf8ToSystemNative
-#include "Debug.h" // struct Time in types.h conflicts with typedef Time in system header X.h
+#include "Debug.h" // struct AbsTime in types.h conflicts with typedef AbsTime in system header X.h
 
 #if !defined(DEDICATED_ONLY) && defined(X11) && !defined(__APPLE__)
 

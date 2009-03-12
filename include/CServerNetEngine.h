@@ -149,7 +149,7 @@ public:
 	CServerNetEngineBeta9( GameServer * _server, CServerConnection * _client ):
 		CServerNetEngineBeta8( _server, _client )
 	{ 
-		fLastDamageReportSent = Time();
+		fLastDamageReportSent = AbsTime();
 	}
 
 	virtual void ParseReportDamage(CBytestream *bs);
@@ -166,7 +166,7 @@ protected:
 	void WriteUpdateLobbyGame(CBytestream *bs);
 	
 private:
-    Time fLastDamageReportSent;
+    AbsTime fLastDamageReportSent;
     std::map< std::pair< int, int >, int > cDamageReport;
 };
 

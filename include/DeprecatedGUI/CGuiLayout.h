@@ -82,7 +82,7 @@ private:
 
 	// Mouse button repeats
 	int				nMouseButtons;
-	Time			fMouseNext[3];
+	AbsTime			fMouseNext[3];
 
 	// Can we set focus to another widget?
 	bool			bCanFocus;

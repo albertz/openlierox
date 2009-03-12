@@ -751,7 +751,7 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	int			i;
 	NetworkAddr	adrFrom;
-	Time		OldestTime = Time::MAX();
+	AbsTime		OldestTime = AbsTime::MAX();
 	int			ChallengeToSet = -1;
 	CBytestream	bs;
 
@@ -1019,7 +1019,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
 		printf("%s - Server Error report",GetDateTime().c_str());
-		notes << "currentTime is " << (tLX->currentTime - Time()).seconds() << " Numplayers is " << numplayers << endl;
+		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << numplayers << endl;
 		std::string msg;
 
 

@@ -76,8 +76,8 @@ public:
 		bDropped = false;
 		bArrowDown = false;
         bLastDropped = false;
-		iDropTime = Time();
-		iNow = Time();
+		iDropTime = AbsTime();
+		iNow = AbsTime();
 		bCanSearch = true;
 		iKeySelectedItem = -1;
 		iSortDirection = SORT_NONE;
@@ -98,8 +98,8 @@ private:
 	bool			bDropped;
 	bool			bArrowDown;
     bool			bLastDropped;
-	Time			iDropTime;
-	Time			iNow;
+	AbsTime			iDropTime;
+	AbsTime			iNow;
 	int				iKeySelectedItem;
 
 	// Stuff

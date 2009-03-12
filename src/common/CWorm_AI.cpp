@@ -879,22 +879,22 @@ bool CWormBotInputHandler::AI_Initialize() {
     nGridCols = cClient->getMap()->getGridCols();
     nGridRows = cClient->getMap()->getGridRows();
 
-    m_worm->fLastCarve = Time();
+    m_worm->fLastCarve = AbsTime();
     cStuckPos = CVec(-999,-999);
     fStuckTime = 0;
-    fLastPathUpdate = Time();
-	fLastJump = Time();
-	fLastCreated = Time();
-	fLastThink = Time();
+    fLastPathUpdate = AbsTime();
+	fLastJump = AbsTime();
+	fLastCreated = AbsTime();
+	fLastThink = AbsTime();
     bStuck = false;
 	bPathFinished = true;
 	iAiGameType = GAM_OTHER;
 	nAITargetType = AIT_NONE;
 	nAIState = AI_THINK;
-	fLastFace = Time();
-	fLastShoot = Time();
-	fLastCompleting = Time();
-	fLastGoBack = Time();
+	fLastFace = AbsTime();
+	fLastShoot = AbsTime();
+	fLastCompleting = AbsTime();
+	fLastGoBack = AbsTime();
 
 
 	fCanShootTime = 0;
@@ -1025,7 +1025,7 @@ void CWormBotInputHandler::getInput() {
     tLX->debug_string = "";
 
 	iRandomSpread = 0;
-	fLastRandomChange = Time();
+	fLastRandomChange = AbsTime();
 
 	iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 4);
 
@@ -1347,7 +1347,7 @@ void CWormBotInputHandler::AI_Think()
 		AI_CreatePath();
 	}
 	else
-		fLastShoot = Time();
+		fLastShoot = AbsTime();
 
     // If we're down on health (less than 80%) we should look for a health bonus
     if(m_worm->iHealth < 80) {
@@ -4210,7 +4210,7 @@ WormType* PRF_COMPUTER = &PRF_COMPUTER_instance;
 
 CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	nAIState = AI_THINK;
-    //fLastWeaponSwitch = Time();
+    //fLastWeaponSwitch = AbsTime();
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
@@ -4220,10 +4220,10 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	iAiDiffLevel = 0;
 	psAITarget = NULL;
 	fLastShoot = 0; // for AI
-	fLastJump = Time();
+	fLastJump = AbsTime();
 	fLastWeaponChange = 0;
-	fLastCompleting = Time();
-	fLastGoBack = Time();
+	fLastCompleting = AbsTime();
+	fLastGoBack = AbsTime();
 
 	
 	AI_Initialize();
@@ -4237,7 +4237,7 @@ CWormBotInputHandler::~CWormBotInputHandler() {
 void CWormBotInputHandler::onRespawn() {
 	nAIState = AI_THINK;
 	fLastShoot = 0;
-	fLastGoBack = Time();
+	fLastGoBack = AbsTime();
 
 	AI_Respawn();
 }

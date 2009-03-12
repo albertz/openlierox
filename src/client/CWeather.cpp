@@ -32,7 +32,7 @@ CWeather::CWeather()
     
     m_psSnowPart = NULL;
     
-    m_fNextSnow = Time();
+    m_fNextSnow = AbsTime();
     m_fWind = 0;
 }
 
@@ -56,7 +56,7 @@ bool CWeather::Initialize(int nType)
     if( !m_psSnowPart.get() )
         return false;
 
-    m_fNextSnow = Time();
+    m_fNextSnow = AbsTime();
     m_fWind = 0;
 
     return true;

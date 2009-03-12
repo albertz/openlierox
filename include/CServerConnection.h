@@ -78,15 +78,15 @@ private:
 	int			iNetSpeed;
 	int			iNetStatus;
 
-	Time		fLastReceived;
+	AbsTime		fLastReceived;
 	CChannel	* cNetChan;
 	CBytestream	bsUnreliable;
 
 	CShootList	cShootList;
 
-    Time       fZombieTime;
-	Time		fSendWait;
-	Time		fLastUpdateSent;
+    AbsTime       fZombieTime;
+	AbsTime		fSendWait;
+	AbsTime		fLastUpdateSent;
 
 	ClientRights tRights;
 
@@ -95,10 +95,10 @@ private:
 	bool		bLocalClient;
 
 	CUdpFileDownloader	cUdpFileDownloader;
-	Time		fLastFileRequest;
-	Time		fLastFileRequestPacketReceived;
+	AbsTime		fLastFileRequest;
+	AbsTime		fLastFileRequestPacketReceived;
 	
-	Time		fConnectTime;
+	AbsTime		fConnectTime;
 
 public:
 	// Methods
@@ -131,19 +131,19 @@ public:
 	bool		getGameReady()				{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
-	Time		getLastReceived()			{ return fLastReceived; }
-	void		setLastReceived(const Time& _l)	{ fLastReceived = _l; }
+	AbsTime		getLastReceived()			{ return fLastReceived; }
+	void		setLastReceived(const AbsTime& _l)	{ fLastReceived = _l; }
 
 	int			getNetSpeed()				{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
 
 	CShootList	*getShootList()				{ return &cShootList; }
 
-    void        setZombieTime(const Time& z)      { fZombieTime = z; }
-    Time       getZombieTime()      	   { return fZombieTime; }
+    void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
+    AbsTime       getZombieTime()      	   { return fZombieTime; }
 
-    void        setConnectTime(const Time& z)      { fConnectTime = z; }
-    Time       getConnectTime()	         { return fConnectTime; }
+    void        setConnectTime(const AbsTime& z)      { fConnectTime = z; }
+    AbsTime       getConnectTime()	         { return fConnectTime; }
 
 	bool		getMuted()					{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
@@ -157,10 +157,10 @@ public:
 	void setClientVersion(const Version& v);
 
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
-	Time		getLastFileRequest()					{ return fLastFileRequest; };
-	void		setLastFileRequest( const Time& _f ) 			{ fLastFileRequest = _f; };
-	Time		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
-	void		setLastFileRequestPacketReceived( const Time& _f ) { fLastFileRequestPacketReceived = _f; };
+	AbsTime		getLastFileRequest()					{ return fLastFileRequest; };
+	void		setLastFileRequest( const AbsTime& _f ) 			{ fLastFileRequest = _f; };
+	AbsTime		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
+	void		setLastFileRequestPacketReceived( const AbsTime& _f ) { fLastFileRequestPacketReceived = _f; };
 
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	

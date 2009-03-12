@@ -85,12 +85,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
             if(t) {
                 pcTargetWorm = t;
-                fTimer = Time();
+                fTimer = AbsTime();
             } else {
                 // If we didn't find a new worm, go into freelook mode                    
                 pcTargetWorm = NULL;
                 nType = VW_FREELOOK;
-                fTimer = Time();
+                fTimer = AbsTime();
                 return;
             }
         }
@@ -100,10 +100,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         if( pcTargetWorm ) {
             if( pcTargetWorm->getLives() == WRM_OUT ) {
                 // Setup the timer to wait 2.5 seconds before changing targets
-                if( fTimer == Time() )
+                if( fTimer == AbsTime() )
                     fTimer = tLX->currentTime + 2.5f;
 
-                // Time up? Change targets
+                // AbsTime up? Change targets
                 if( tLX->currentTime > fTimer ) {
 					notes << "find new worm for viewport because current is out of the game" << endl;
 					
@@ -116,13 +116,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                     if(t) {
                         pcTargetWorm = t;
-                        fTimer = Time();
+                        fTimer = AbsTime();
                     } else {
 
                         // If we didn't find a new worm, go into freelook mode                    
                         pcTargetWorm = NULL;
                         nType = VW_FREELOOK;
-                        fTimer = Time();
+                        fTimer = AbsTime();
                         return;
                     }
                 }
@@ -142,7 +142,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 				};
 
                 // Clear the timer
-                fTimer = Time();
+                fTimer = AbsTime();
             } /*else
             	notes << "viewport: our worm is dead" << endl; */
         }
@@ -160,10 +160,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 			if( pcTargetWorm->getLives() == WRM_OUT || !pcTargetWorm->getAlive() ) {
                 // Setup the timer to wait 0.5 seconds before changing targets
-                if( fTimer == Time() )
+                if( fTimer == AbsTime() )
                     fTimer = tLX->currentTime + 0.5f;
 
-                // Time up? Change targets
+                // AbsTime up? Change targets
                 if( tLX->currentTime > fTimer ) {
 
                     // Try and find a living worm first
@@ -175,12 +175,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                     if(t) {
                         pcTargetWorm = t;
-                        fTimer = Time();
+                        fTimer = AbsTime();
                     } else {
                         // If we didn't find a new worm, go into freelook mode
                         pcTargetWorm = NULL;
                         nType = VW_FREELOOK;
-                        fTimer = Time();
+                        fTimer = AbsTime();
 						notes << "no worm found, going into freelook mode" << endl;
 						return;
                     }
@@ -200,7 +200,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 				}
 
                 // Clear the timer
-                fTimer = Time();
+                fTimer = AbsTime();
             }
         }
     }
@@ -375,7 +375,7 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
 // Resets the viewport simulations (timer, movement, etc)
 void CViewport::reset()
 {
-    fTimer = Time();
+    fTimer = AbsTime();
 }
 
 

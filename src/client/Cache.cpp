@@ -70,7 +70,7 @@ void ShutdownCacheDebug()
 #endif
 
 CCache cCache;
-static Time getCurrentTime()
+static AbsTime getCurrentTime()
 {
 	if( tLX == NULL )	// Cache is used before tLX is initialized
 		return GetTime();
@@ -283,7 +283,7 @@ void CCache::ClearExtraEntries()
 	ScopedLock lock(mutex);
 	if( (int)ImageCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< Time, ImageCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< AbsTime, ImageCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( ImageCache_t :: iterator it = ImageCache.begin(); it != ImageCache.end(); it++  )
@@ -312,7 +312,7 @@ void CCache::ClearExtraEntries()
 
 	if( (int)SoundCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< Time, SoundCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< AbsTime, SoundCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( SoundCache_t :: iterator it = SoundCache.begin(); it != SoundCache.end(); it++  )
@@ -341,7 +341,7 @@ void CCache::ClearExtraEntries()
 
 	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< Time, MapCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< AbsTime, MapCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( MapCache_t :: iterator it = MapCache.begin(); it != MapCache.end(); it++  )
@@ -370,7 +370,7 @@ void CCache::ClearExtraEntries()
 
 	if( (int)ModCache.size() >= tLXOptions->iMaxCachedEntries / 20 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
-		typedef std::multimap< Time, ModCache_t :: iterator > TimeSorted_t;
+		typedef std::multimap< AbsTime, ModCache_t :: iterator > TimeSorted_t;
 		TimeSorted_t TimeSorted;
 		int count = 0;
 		for( ModCache_t :: iterator it = ModCache.begin(); it != ModCache.end(); it++  )

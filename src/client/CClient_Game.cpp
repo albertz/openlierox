@@ -680,7 +680,7 @@ void CClient::DrawBeam(CWorm *w)
 
 ///////////////////
 // Spawn a projectile
-void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, Time remotetime, Time ignoreWormCollBeforeTime)
+void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, AbsTime remotetime, AbsTime ignoreWormCollBeforeTime)
 {
 	CProjectile* proj = cProjectiles.getNewObj();
 
@@ -914,12 +914,12 @@ void CClient::ProcessServerShotList(void)
 	// shot->fTime > fServerTime.
 	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
 	// the time of both ways (ping+pong).
-	Time fSpawnTime = tLX->currentTime - ((float)iMyPing / 1000.0f) / 2.0f;
+	AbsTime fSpawnTime = tLX->currentTime - ((float)iMyPing / 1000.0f) / 2.0f;
 
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);
 
-		Time time = fSpawnTime;
+		AbsTime time = fSpawnTime;
 		// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
 		if(cServerVersion >= OLXBetaVersion(8))
 			if(sh->fTime <= fServertime) // just a security check
@@ -985,7 +985,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	shot.cPos = w->getPos();
 	shot.cWormVel = *w->getVelocity();
-	shot.fTime = NewNet::GetCurTimeFloat() - Time(0);
+	shot.fTime = NewNet::GetCurTimeFloat() - AbsTime(0);
 	shot.nRandom = w->NewNet_random.getInt(255);
 	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
 	shot.nWormID = w->getID();
@@ -1033,7 +1033,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 ///////////////////
 // Process a shot
-void CClient::ProcessShot(shoot_t *shot, Time fSpawnTime)
+void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 {
 	CWorm *w = &cRemoteWorms[shot->nWormID];
 
@@ -1297,7 +1297,7 @@ void CClient::processChatter(void)
 		sChat_Text = "";
 		iChat_Lastchar = 0;
 		bChat_Holding = false;
-		fChat_TimePushed = Time();
+		fChat_TimePushed = AbsTime();
 		bTeamChat = false;
 		if( cTeamChat_Input.wasDown() )
 			bTeamChat = true;
@@ -1368,7 +1368,7 @@ void CClient::processChatter(void)
 			sChat_Text = "";
 			iChat_Lastchar = 0;
 			bChat_Holding = false;
-			fChat_TimePushed = Time();
+			fChat_TimePushed = AbsTime();
 
 			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
 				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );

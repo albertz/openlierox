@@ -68,7 +68,7 @@ private:
 	bool	bBotButton;
 
 	int		nButtonsDown;
-	Time	fMouseNext[3];
+	AbsTime	fMouseNext[3];
 
 	int		*iVar;
 	CGuiSkin::CallbackHandler cClick;

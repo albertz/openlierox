@@ -1217,9 +1217,9 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
                 // If we changed the selection, reset the mouseup var to avoid double clicks
                 // when changing items
                 if( tSelected->_iID != item->_iID )
-                    fLastMouseUp = Time();
+                    fLastMouseUp = AbsTime();
             } else
-                fLastMouseUp = Time();
+                fLastMouseUp = AbsTime();
 
 
 			tSelected = item;
@@ -1252,7 +1252,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
-		fLastMouseUp = Time();
+		fLastMouseUp = AbsTime();
 		return LV_NONE;
 	}
 
@@ -1322,7 +1322,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 					//	tLX->currentTime.seconds(), fLastMouseUp.seconds(), (tLX->currentTime - fLastMouseUp).seconds() );
 					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						event = LV_DOUBLECLK;
-						fLastMouseUp = Time();
+						fLastMouseUp = AbsTime();
 					}
 				}
 			}

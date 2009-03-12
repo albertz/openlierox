@@ -305,12 +305,12 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	txtMaxKills->setMax(6);
 
 	// Loading time
-	new CLabel(STATIC, pgGeneral, "Loading Time");
+	new CLabel(STATIC, pgGeneral, "Loading AbsTime");
 	sldLoadingTime = new CSlider("_LoadingTime", pgGeneral, MAX_LOADING_TIME);
 	lblLoadingTime = new CLabel("_LoadingTimeLabel", pgGeneral, "");
 
-	// Time limit
-	new CLabel(STATIC, pgGeneral, "Time limit, minutes");
+	// AbsTime limit
+	new CLabel(STATIC, pgGeneral, "AbsTime limit, minutes");
 	txtTimeLimit = new CTextbox("_TimeLimit", pgGeneral);
 	txtTimeLimit->setMax(3);
 
@@ -348,7 +348,7 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	chkBonusesOn = new CCheckbox("_BonusesOn", pgBonus, false);
 
 	// Bonus spawn time
-	new CLabel(STATIC, pgBonus, "Bonus Spawn Time");
+	new CLabel(STATIC, pgBonus, "Bonus Spawn AbsTime");
 	txtBonusSpawnTime = new CTextbox("_BonusSpawnTime", pgBonus);
 
 	// Show bonus names
@@ -356,7 +356,7 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	chkShowBonusNames = new CCheckbox("_BonusNames", pgBonus, false);
 
 	// Bonus life time
-	new CLabel(STATIC, pgBonus, "Bonus Life Time");
+	new CLabel(STATIC, pgBonus, "Bonus Life AbsTime");
 	txtBonusLifeTime = new CTextbox("_BonusLifeTime", pgBonus);
 
 	// Health to weapon chance
@@ -388,7 +388,7 @@ void CGameSettingsDialog::LoadFromOptions()
 	sldLoadingTime->setValue(tLXOptions->tGameInfo.iLoadingTime);
 	lblLoadingTime->setText(itoa(tLXOptions->tGameInfo.iLoadingTime));
 
-	// Time limit
+	// AbsTime limit
 	if (tLXOptions->tGameInfo.fTimeLimit > 0)
 		txtTimeLimit->setText(ftoa(tLXOptions->tGameInfo.fTimeLimit));
 
@@ -453,7 +453,7 @@ void CGameSettingsDialog::Save()
 	// Loading time
 	tLXOptions->tGameInfo.iLoadingTime = sldLoadingTime->getValue();
 
-	// Time limit
+	// AbsTime limit
 	if(txtTimeLimit->getText().size())
 		tLXOptions->tGameInfo.fTimeLimit = atof(txtTimeLimit->getText());
 
@@ -512,7 +512,7 @@ void CGameSettingsDialog::Default()
 	// Loading time
 	sldLoadingTime->setValue(100);
 
-	// Time limit
+	// AbsTime limit
 	txtTimeLimit->setText("");
 
 	// Respawn time

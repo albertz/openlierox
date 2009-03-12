@@ -31,8 +31,8 @@ public:
 	CNinjaRope() {
 		Clear();
 
-		LastWrite = Time();
-		LastPosUpdate = Time();
+		LastWrite = AbsTime();
+		LastPosUpdate = AbsTime();
 		Strength = 0.4f;
 	}
 
@@ -64,8 +64,8 @@ private:
 	bool		LastHookAttached;
 	bool		LastPlayerAttached;
 	CWorm		*LastWorm;
-	Time		LastWrite;
-	Time		LastPosUpdate; // Used for velocity counting (client don't send velocity)
+	AbsTime		LastWrite;
+	AbsTime		LastPosUpdate; // Used for velocity counting (client don't send velocity)
 	
 
 public:

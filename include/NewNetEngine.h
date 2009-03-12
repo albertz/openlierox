@@ -109,18 +109,18 @@ bool Frame( CBytestream * bs );
 int NetPacketSize();
 
 // In case player disconnects the engine should emulate that player is present and won't press any buttons.
-void AddEmptyPacket( Time localTime, CBytestream * bs );
+void AddEmptyPacket( AbsTime localTime, CBytestream * bs );
 
 // How often to send empty packets
 TimeDiff EmptyPacketTime();
 
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
-unsigned GetChecksum( Time * time = NULL );
+unsigned GetChecksum( AbsTime * time = NULL );
 
 // Returns current simulation time in milliseconds inside new net engine
-Time GetCurTime();
+AbsTime GetCurTime();
 // Returns current simulation time in seconds inside new net engine, use this instead of tLX->fCurTime everywhere
-Time GetCurTimeFloat();
+AbsTime GetCurTimeFloat();
 
 // ------ Internal functions - do not use them from OLX ------
 
@@ -139,11 +139,11 @@ void RestoreState();
 // as long as the game image on the screen will look smooth - we will discard that results anyway.
 // Keys is the state of keys for given player.
 // If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
-unsigned CalculatePhysics( Time gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum );
+unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum );
 
 void ReCalculateSavedState();
 
-void CalculateCurrentState( Time localTime );
+void CalculateCurrentState( AbsTime localTime );
 
 
 void NetSyncedRandom_Seed(unsigned s);

@@ -31,7 +31,7 @@ class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
 	TXT_TYPE iTextType;
-	Time	fTime;
+	AbsTime	fTime;
 	size_t iID;
 };
 
@@ -58,7 +58,7 @@ private:
 public:
 	// Methods
 	void	Clear(void);
-	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, const Time& time);
+	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, const AbsTime& time);
 
     // Variables
 	lines_iterator Begin()  { return Lines.begin(); }

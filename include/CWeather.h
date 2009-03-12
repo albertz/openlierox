@@ -63,7 +63,7 @@ private:
     wthpart_t   *m_psParticles;
 
     // Snow details
-    Time       m_fNextSnow;
+    AbsTime       m_fNextSnow;
     float       m_fWind;
 
     // Graphics

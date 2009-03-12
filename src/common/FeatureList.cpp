@@ -37,7 +37,7 @@ Feature featureArray[] = {
 			false, 	false, 			Version(), 			GIG_Other, 							true),
 	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your kills", 
 			false, 	false, 			Version(), 			GIG_Score, 							true),
-	Feature("HS_HideTime", 			"Hiding time", 					"Time at the start of the game for hiders to hide", 
+	Feature("HS_HideTime", 			"Hiding time", 					"AbsTime at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),
 	Feature("HS_AlertTime", 		"Alert time", 					"When player discovered but escapes the time for which it's still visible", 
 			10.0f, 	10.0f, 			Version(), 			GIG_HideAndSeek, 	0.1f, 	100.0f,	true ),

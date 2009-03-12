@@ -39,7 +39,7 @@ private:
 	int			iNumFrames;
 	int			iCurFrame;
 	bool		bAnimated;
-	Time		fLastFrameChange;
+	AbsTime		fLastFrameChange;
 	float		fFrameTime;
 	CBorder		cBorder;
 	Timer		*tTimer;

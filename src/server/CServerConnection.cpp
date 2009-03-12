@@ -44,7 +44,7 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	cNetChan = NULL;
 	bsUnreliable.Clear();
 	iNetSpeed = 3;
-	fLastUpdateSent = Time();
+	fLastUpdateSent = AbsTime();
 	bLocalClient = false;
 
 	fSendWait = 0;
@@ -77,7 +77,7 @@ void CServerConnection::Clear(void)
 
 	fLastReceived = 99999;
 	fSendWait = 0;
-	fLastUpdateSent = Time();
+	fLastUpdateSent = AbsTime();
 
 	cShootList.Shutdown();
 

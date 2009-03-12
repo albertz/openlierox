@@ -1148,7 +1148,7 @@ CListview::CListview(COMMON_PARAMS) : CContainerWidget(name, parent)
 	setSelected(-1);
 	setSelectedSub(NULL, -1);
 	iType = wid_Listview;
-	fLastMouseUp = Time();
+	fLastMouseUp = AbsTime();
 	iColumnHeight = 0;
     bShowSelect.set(true, DEFAULT_PRIORITY);
 	bShowColumnHeaders.set(true, DEFAULT_PRIORITY);
@@ -1530,7 +1530,7 @@ int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const
 		CContainerWidget::DoMouseUp(x, y, dx, dy, button, modstate);
 		return WID_PROCESSED;
 	} else {
-		fLastMouseUp = Time();
+		fLastMouseUp = AbsTime();
 	}
 
 	// Column headers
@@ -1594,7 +1594,7 @@ int	CListview::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const
 				if(tSelected == (*item)) {
 					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						doubleclick = true;
-						fLastMouseUp = Time();
+						fLastMouseUp = AbsTime();
 
 						CALL_EVENT(OnDoubleClick, (this, tSelected, count - 1));
 					}
