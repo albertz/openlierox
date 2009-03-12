@@ -29,7 +29,7 @@ void CHideAndSeek::PrepareGame()
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cServer->getWorms()[i], false);
-		fWarmupTime[i] = cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
+		fWarmupTime[i] = cServer->getServerTime() + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_HideTime]);
 		/*
 		// Set all the lives to 0
 		cWorms[i].setLives(0);
@@ -64,7 +64,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 		else if(cServer->getWorms()[i].isUsed())
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm);
 	}
-	fWarmupTime[worm->getID()] = cServer->getServerTime() + (float)tLXOptions->tGameInfo.features[FT_HS_HideTime];
+	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_HideTime]);
 	return false;
 }
 
@@ -116,7 +116,7 @@ void CHideAndSeek::Simulate()
 		if( !cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getLives() == WRM_OUT || !cServer->getWorms()[i].getAlive() )
 			continue;
 		// Hide the worm if the alert time is up
-		if(fLastAlert[i] + (float)tLXOptions->tGameInfo.features[FT_HS_AlertTime] < GameTime)
+		if(fLastAlert[i] + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_AlertTime]) < GameTime)
 			Hide(&cServer->getWorms()[i]);
 		for(j = 0; j < MAX_WORMS; j++) 
 		{

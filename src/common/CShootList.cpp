@@ -543,7 +543,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	// Time offset
 	if( flags & SHF_TIMEOFF ) {
 		float time = (float)bs->readByte();
-		psShot->fTime += time/1000.0f;
+		psShot->fTime += TimeDiff(time/1000.0f);
 	}
 
 	// X Large offset

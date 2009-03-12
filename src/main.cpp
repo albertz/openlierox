@@ -538,7 +538,7 @@ static int MainLoopThread(void*) {
 			oldtime = tLX->currentTime;
 			
 			// cap the delta
-			if(tLX->fDeltaTime > 0.5f) {
+			if(tLX->fDeltaTime.seconds() > 0.5f) {
 				warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
 				tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
 			}

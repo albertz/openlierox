@@ -67,11 +67,11 @@ public:
 		bHolding = false;
 		bHoldingMouse = false;
 		iLastCurpos = 0;
-		fTimeHolding = 0;
+		fTimeHolding = TimeDiff();
 		iLastMouseX = 0;
 		fLastRepeat = Time();
 		fLastClick = Time();
-		fScrollTime = 0;  // We can scroll
+		fScrollTime = TimeDiff();  // We can scroll
 		bVar = NULL;
 		iVar = NULL;
 		fVar = NULL;

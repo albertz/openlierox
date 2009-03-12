@@ -346,8 +346,8 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 //
 // Music part
 //
-Time fCurSongStart = 0;
-Time fTimePaused = 0;
+Time fCurSongStart = Time();
+Time fTimePaused = Time();
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
@@ -431,7 +431,7 @@ TimeDiff GetCurrentMusicTime(void)
 	// No song playing
 	// TODO: really a bad check that is
 	if (fCurSongStart == Time())
-		return 0;
+		return TimeDiff(0);
 
 	// Paused
 	// TODO: really a bad check that is

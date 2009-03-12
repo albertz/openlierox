@@ -138,9 +138,9 @@ public:
 		bUsed = false;
 		fSpeed = 0;
 		fLife = 0;
-		fSpawnTime = 0;
+		fSpawnTime = Time(0);
 		tProjInfo = NULL;
-		fLastTrailProj = 0;
+		fLastTrailProj = Time(0);
 		iColour = 0;
 		iRandom = 0;
         bExplode = false;

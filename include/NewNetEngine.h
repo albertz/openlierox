@@ -60,26 +60,26 @@ struct KeyState_t
 // Random number implementation
 struct __taus113_state_t
 {
-  unsigned long int z1, z2, z3, z4;
+  unsigned z1, z2, z3, z4;
 };
-static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_state );
+static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state );
 static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state );
 static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state );
-void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state);
+void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state);
 
 class NetSyncedRandom
 {
 	public:
 	NetSyncedRandom() { seed(); };
 	
-	unsigned long get() { return ___Random__(state); };
-	unsigned long getInt( unsigned long Max ) { return ___Random__(state) % (Max+1); };
+	unsigned get() { return ___Random__(state); };
+	unsigned getInt( unsigned Max ) { return ___Random__(state) % (Max+1); };
 	double getDoublePositive() { return ___RandomDouble__(state); };	// In range [0.0:1.0]
 	float getFloatPositive() { return ___RandomFloat__(state); };	// In range [0.0:1.0]
 	float getFloat() { return ___RandomFloat__(state) * 2.0f - 1.0f; };	// In range [-1.0:1.0]
 	
-	void seed( unsigned long s = getSeed() ){ ___Random_Seed__(s, state); };
-	static unsigned long getSeed();
+	void seed( unsigned s = getSeed() ){ ___Random_Seed__(s, state); };
+	static unsigned getSeed();
 	
 	private:
 	__taus113_state_t state;
@@ -93,7 +93,7 @@ extern NetSyncedRandom netRandom;
 	
 void DisableAdvancedFeatures(); // Required for now
 
-void StartRound( unsigned long localTime, unsigned long randomSeed );
+void StartRound( unsigned localTime, unsigned randomSeed );
 
 void EndRound();
 
@@ -146,8 +146,8 @@ void ReCalculateSavedState();
 void CalculateCurrentState( Time localTime );
 
 
-void NetSyncedRandom_Seed(unsigned long s);
-void Random_Seed(unsigned long s);
+void NetSyncedRandom_Seed(unsigned s);
+void Random_Seed(unsigned s);
 
 // These functions called from SaveState() and RestoreState(), and should not be called directly
 void NetSyncedRandom_Save();
@@ -219,9 +219,9 @@ void NetSyncedRandom_Restore();
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
 #define MASK 0xffffffffUL
 
-static inline unsigned long ___Random__( __taus113_state_t & NetSyncedRandom_state )
+static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state )
 {
-  unsigned long b1, b2, b3, b4;
+  unsigned b1, b2, b3, b4;
 
   b1 = ((((NetSyncedRandom_state.z1 << 6UL) & MASK) ^ NetSyncedRandom_state.z1) >> 13UL);
   NetSyncedRandom_state.z1 = ((((NetSyncedRandom_state.z1 & 4294967294UL) << 18UL) & MASK) ^ b1);

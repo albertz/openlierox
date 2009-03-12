@@ -502,7 +502,7 @@ void GameServer::gotoLobby(void)
 			cWorms[i].getLobby()->bReady = false;
 			cWorms[i].setGameReady(false);
 			cWorms[i].setTagIT(false);
-			cWorms[i].setTagTime(0);
+			cWorms[i].setTagTime(TimeDiff(0));
 			if( cWorms[i].getAFK() == AFK_TYPING_CHAT )
 			{
 				cWorms[i].setAFK(AFK_BACK_ONLINE, "");

@@ -109,11 +109,11 @@ bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
 Time ReCalculationTimeMs;
 // Constants
-TimeDiff PingTimeMs = 300;	// Send at least one packet in 10 ms - 10 packets per second, huge net load
+TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
-TimeDiff DrawDelayMs = 100;	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
-TimeDiff ReCalculationMinimumTimeMs = 100;	// Re-calculate not faster than 10 times per second - eats CPU
-TimeDiff CalculateChecksumTime = 5000; // Calculate checksum once per 5 seconds - should be equal for all clients
+TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
+TimeDiff ReCalculationMinimumTimeMs = TimeDiff(100);	// Re-calculate not faster than 10 times per second - eats CPU
+TimeDiff CalculateChecksumTime = TimeDiff(5000); // Calculate checksum once per 5 seconds - should be equal for all clients
 
 int NumPlayers = -1;
 int LocalPlayer = -1;
@@ -137,13 +137,13 @@ KeyState_t OldKeys[MAX_WORMS];
 Time LastPacketTime[MAX_WORMS]; // Time in TICK_TIME chunks
 unsigned Checksum;
 Time ChecksumTime; // Time in ms
-//unsigned long InitialRandomSeed; // Used for LoadState()/SaveState()
+//int InitialRandomSeed; // Used for LoadState()/SaveState()
 
-void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
+void getKeysForTime( int t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
 {
 	for( int i=0; i<MAX_WORMS; i++ )
 	{
-		EventList_t :: const_iterator it = Events[i].upper_bound(t);
+		EventList_t :: const_iterator it = Events[i].upper_bound(Time(int(t)));
 		if( it != Events[i].begin() )
 		{
 			--it;
@@ -158,7 +158,7 @@ void getKeysForTime( unsigned long t, KeyState_t keys[MAX_WORMS], KeyState_t key
 	}
 };
 
-void Activate( Time localTime, unsigned long randomSeed )
+void Activate( Time localTime, int randomSeed )
 {
 			OlxTimeDiffMs = localTime;
 			NumPlayers = 0;
@@ -231,7 +231,7 @@ void ReCalculateSavedState()
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( (unsigned long)BackupTime, keys, keysChanged );
+		getKeysForTime( (int)BackupTime, keys, keysChanged );
 
 		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
@@ -268,11 +268,11 @@ void CalculateCurrentState( Time localTime )
 
 	while( CurrentTimeMs < localTime /*- DrawDelayMs*/ )
 	{
-		CurrentTimeMs += TICK_TIME;
+		CurrentTimeMs += TimeDiff(TICK_TIME);
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( (unsigned long)(CurrentTimeMs.time / TICK_TIME), keys, keysChanged );
+		getKeysForTime( (int)(CurrentTimeMs.time / TICK_TIME), keys, keysChanged );
 
 		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
@@ -300,9 +300,9 @@ TimeDiff EmptyPacketTime()
 // Returns true if data was re-calculated.
 bool ReceiveNetPacket( CBytestream * bs, int player )
 {
-	unsigned long timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
+	int timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 
-	unsigned long fullTime = timeDiff;
+	int fullTime = timeDiff;
 
 	KeyState_t keys = OldKeys[ player ];
 	int keyIdx = bs->readByte();
@@ -310,9 +310,9 @@ bool ReceiveNetPacket( CBytestream * bs, int player )
 		keys.keys[keyIdx] = ! keys.keys[keyIdx];
 
 	OldKeys[ player ] = keys;
-	Events[ player ] [ fullTime ] .keys = keys;
+	Events[ player ] [ Time(fullTime) ] .keys = keys;
 	if( keyIdx != UCHAR_MAX )
-		Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx];
+		Events[ player ] [ Time(fullTime) ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ Time(fullTime) ] .keysChanged.keys[keyIdx];
 	LastPacketTime[ player ] = fullTime;
 
 	ReCalculationNeeded = true;
@@ -382,7 +382,7 @@ Time GetCurTimeFloat()
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
 #define MASK 0xffffffffUL
 
-void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state)
+void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state)
 {
   if (!s)
     s = 1UL;                    /* default seed is 1 */
@@ -476,8 +476,8 @@ void ___Random_Seed__(unsigned long s, __taus113_state_t & NetSyncedRandom_state
 		return -1;
 	}
 
-	unsigned long NetSyncedRandom::getSeed()
+	unsigned NetSyncedRandom::getSeed()
 	{
-		return (~(unsigned long)time(NULL)) + SDL_GetTicks();
+		return (~(unsigned)time(NULL)) + SDL_GetTicks();
 	};
 };

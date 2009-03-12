@@ -351,7 +351,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].Init();
 		cRemoteWorms[i].setID(i);
 		cRemoteWorms[i].setTagIT(false);
-		cRemoteWorms[i].setTagTime(0);
+		cRemoteWorms[i].setTagTime(TimeDiff(0));
 		cRemoteWorms[i].setTeam(0);
 		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
@@ -1160,7 +1160,7 @@ void CClient::SendPackets(void)
 
 	// Send every second
 	// TODO: move this somewhere else
-	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && tLX->currentTime - fMyPingRefreshed > 1) {
+	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
 		CBytestream ping;
 
 		// TODO: move this out here
@@ -1203,7 +1203,7 @@ void CClient::SendPackets(void)
 		if (serverThinksWeAreNotReadyWhenWeAre)
 		{
 			fSendWait += tLX->fDeltaTime;
-			if (fSendWait > 1.0)
+			if (fSendWait.seconds() > 1.0)
 			{
 				printf("CClient::SendPackets::Re-sending ready packet\n");
 				fSendWait = 0.0f;
@@ -1346,7 +1346,7 @@ void CClient::ConnectingBehindNAT()
 
 		// Check for a DNS timeout
 		if (!IsNetAddrValid(cServerAddr))  {
-			if (tLX->currentTime - fConnectTime >= DNS_TIMEOUT)  {
+			if ((tLX->currentTime - fConnectTime).seconds() >= DNS_TIMEOUT)  {
 				iNetStatus = NET_DISCONNECTED;
 				bBadConnection = true;
 				strBadConnectMsg = "Could not find the master server.";
@@ -1386,7 +1386,7 @@ void CClient::ConnectingBehindNAT()
 
 	case NAT_WAIT_TRAVERSE_REPLY:
 		// Check for timeouts
-		if (tLX->currentTime - fLastTraverseSent >= TRAVERSE_TIMEOUT)  {
+		if ((tLX->currentTime - fLastTraverseSent).seconds() >= TRAVERSE_TIMEOUT)  {
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "No reply from the server."; // Previous message always made me think that masterserver is down, when there's just no reply
@@ -1436,7 +1436,7 @@ void CClient::ConnectingBehindNAT()
 
 	case NAT_WAIT_CHALLENGE_REPLY:  {
 		// Check for timeouts
-		if (tLX->currentTime - fLastChallengeSent >= CHALLENGE_TIMEOUT)  {
+		if ((tLX->currentTime - fLastChallengeSent).seconds() >= CHALLENGE_TIMEOUT)  {
 
 			// If trying ports around the given one
 			if (iNatTryPort >= TRY_PORT_COUNT)  {
@@ -1483,7 +1483,7 @@ void CClient::Connecting(bool force)
 		return;
 
 	// Try every three seconds
-	if(!force && (tLX->currentTime - fConnectTime < 3.0f))
+	if(!force && ((tLX->currentTime - fConnectTime).seconds() < 3.0f))
 		return;
 
 	// For local play/hosting: don't send the challenge more times
@@ -1503,7 +1503,7 @@ void CClient::Connecting(bool force)
 
 	// Check for DNS timeout
 	if(!IsNetAddrValid(cServerAddr)) {
-		if(tLX->currentTime - fConnectTime >= DNS_TIMEOUT) { // timeout
+		if((tLX->currentTime - fConnectTime).seconds() >= DNS_TIMEOUT) { // timeout
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "Domain could not be resolved after " + itoa(DNS_TIMEOUT) + " seconds";
@@ -1708,7 +1708,7 @@ void CClient::RemoveWorm(int id)
 				cRemoteWorms[i].setType(PRF_HUMAN);
 				cRemoteWorms[i].setLocal(false);
 				cRemoteWorms[i].setTagIT(false);
-				cRemoteWorms[i].setTagTime(0);
+				cRemoteWorms[i].setTagTime(TimeDiff(0));
 			}
 		}
 	}

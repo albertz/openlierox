@@ -699,7 +699,7 @@ float CHttp::GetDownloadSpeed() const
 	Lock();
 	TimeDiff dt = fDownloadEnd - fDownloadStart;
 	Unlock();
-	if (dt == 0)
+	if (dt == TimeDiff())
 		return 999999999.0f;  // Unmeasurable
 	return iDataReceived / dt.seconds();
 }
@@ -711,7 +711,7 @@ float CHttp::GetUploadSpeed() const
 	Lock();
 	TimeDiff dt = fUploadEnd - fUploadStart;
 	Unlock();
-	if (dt == 0)
+	if (dt == TimeDiff())
 		return 999999999.0f;  // Unmeasurable
 	return iDataSent / dt.seconds();
 }
@@ -1493,7 +1493,7 @@ bool CHttp::ProcessInternal()
 		}
 
         // Timed out?
-        if(f - fResolveTime > DNS_TIMEOUT) {
+        if( (f - fResolveTime).seconds() > DNS_TIMEOUT) {
 			SetHttpError(HTTP_DNS_TIMEOUT);
 			error = true;
         }
@@ -1519,7 +1519,7 @@ bool CHttp::ProcessInternal()
 	}
 
 	// Check for HTTP timeout
-	if (GetTime() - fConnectTime >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
+	if ( (GetTime() - fConnectTime).seconds() >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;
@@ -1536,7 +1536,7 @@ bool CHttp::ProcessInternal()
 	}
 
 	// This can happen when the server stops responding in the middle of the transfer
-	if (bRequested && GetTime() - fSocketActionTime >= HTTP_TIMEOUT)  {
+	if (bRequested && (GetTime() - fSocketActionTime).seconds() >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "HINT: proxy failed, trying a direct connection" << endl;

@@ -27,10 +27,14 @@
 
 struct TimeDiff {
 	Uint64 timeDiff;
-	TimeDiff(Uint64 td = 0) : timeDiff(td) {}
-	TimeDiff(double td) : timeDiff((Uint64)(td * 1000.0f)) { assert(td >= 0); }
-	TimeDiff(int td) : timeDiff(td) { assert(td >= 0); }
-	TimeDiff(Uint64 start, Uint64 end) : timeDiff(end - start) { assert(end >= start); }
+	// Explicit constructors needed 'cause TimeDiff(float) != TimeDiff(int), and we will have hard-to-find errors in expressions
+	explicit TimeDiff(Uint64 td = 0) : timeDiff(td) {}
+	explicit TimeDiff(float seconds) : timeDiff((Uint64)seconds * 1000) { assert(seconds >= 0.0f); }
+	explicit TimeDiff(int td) : timeDiff(td) { assert(td >= 0); }
+	explicit TimeDiff(Uint64 start, Uint64 end) : timeDiff(end - start) { assert(end >= start); }
+
+	const TimeDiff & operator=(float seconds) { *this = TimeDiff(seconds); return *this; };
+	// No operator=(int) here, 'cause it will be in milliseconds - inconsistent, and hard-to-find errors occur
 	
 	float seconds() const { return timeDiff * 0.001f; }
 	Uint64 milliseconds() const { return timeDiff; }
@@ -38,7 +42,8 @@ struct TimeDiff {
 	TimeDiff operator+(const TimeDiff& td) const { return TimeDiff(timeDiff + td.timeDiff); }
 	TimeDiff operator-(const TimeDiff& td) const { return TimeDiff(timeDiff - td.timeDiff); }	
 	float operator/(const TimeDiff& td) const { return (float)timeDiff / (float)td.timeDiff; }
-	TimeDiff operator*(double f) const { return TimeDiff((Uint64)(timeDiff * f)); }
+	float operator/(float f) const { return (float)timeDiff / f; }
+	TimeDiff operator*(float f) const { return TimeDiff((Uint64)(timeDiff * f)); }
 	
 	TimeDiff& operator+=(const TimeDiff& td) { timeDiff += td.timeDiff; return *this; }
 	
@@ -48,12 +53,26 @@ struct TimeDiff {
 	bool operator>=(const TimeDiff& td) const { return timeDiff >= td.timeDiff; }
 	bool operator==(const TimeDiff& td) const { return timeDiff == td.timeDiff; }
 	bool operator!=(const TimeDiff& td) const { return timeDiff != td.timeDiff; }	
+
+	bool operator<(float td) const { return *this < TimeDiff(td); }
+	bool operator>(float td) const { return *this > TimeDiff(td); }
+	bool operator<=(float td) const { return *this <= TimeDiff(td); }
+	bool operator>=(float td) const { return *this >= TimeDiff(td); }
+
 };
 
 struct Time {
 	Uint64 time;
-	Time(Uint64 t = 0) : time(t) {}
+	explicit Time(Uint64 t = 0) : time(t) {}
+	explicit Time(int t) : time(t) {}
+	explicit Time(float seconds) : time( (Uint64)seconds * 1000 ) {}
 	static Time MAX() { return Time((Uint64)-1); }
+
+	const Time & operator=(float seconds) { *this = Time(seconds); return *this; };
+	// No operator=(int) here, 'cause it will be in milliseconds - inconsistent, and hard-to-find errors occur
+
+	float seconds() const { return time * 0.001f; }
+	Uint64 milliseconds() const { return time; }
 	
 	TimeDiff operator-(const Time& t) const { return TimeDiff(t.time, time); }
 	Time operator+(const TimeDiff& td) const { return Time(time + td.timeDiff); }

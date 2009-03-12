@@ -465,8 +465,8 @@ void CViewport::setSmoothPosition( float X, float Y, TimeDiff DeltaTime )
 	// TODO: these formulas work only for FPS > 50, so we'll run simulation twice on low FPS
 	if( DeltaTime > 0.015f )
 	{
-		setSmoothPosition( X, Y, 0.015f );
-		setSmoothPosition( X, Y, DeltaTime - 0.015f );
+		setSmoothPosition( X, Y, TimeDiff(0.015f) );
+		setSmoothPosition( X, Y, TimeDiff(DeltaTime) - TimeDiff(0.015f) );
 		return;
 	};
 

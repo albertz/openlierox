@@ -122,7 +122,7 @@ class CClientNetEngineBeta9: public CClientNetEngineBeta7 {
 public:
 	CClientNetEngineBeta9( CClient * _client ): CClientNetEngineBeta7( _client ) 
 	{ 
-		fLastDamageReportSent = 0; 
+		fLastDamageReportSent = Time();
 	}
 
 	virtual bool ParsePrepareGame(CBytestream *bs);

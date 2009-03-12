@@ -167,7 +167,7 @@ static int SdlNetEventThreadMain( void * param )
 		return 0;
 	}
 
-	TimeDiff max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
+	TimeDiff max_frame_time = TimeDiff(MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0.0f));
 	Time lastTime = GetTime();
 	while( ! SdlNetEventThreadExit )
 	{
@@ -283,7 +283,7 @@ void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff ex
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
 }
 
-static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = 3600.0f ) {
+static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = TimeDiff(3600.0f) ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	dns.get()[name] = std::make_pair( addr, tLX->currentTime + expireTime );
 }

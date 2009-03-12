@@ -31,7 +31,7 @@ void CTag::PrepareGame()
 void CTag::PrepareWorm(CWorm* worm)
 {
 	worm->setTagIT(false);
-	worm->setTagTime(0);
+	worm->setTagTime(TimeDiff(0));
 }
 
 bool CTag::Spawn(CWorm* worm, CVec pos)

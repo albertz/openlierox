@@ -458,9 +458,9 @@ bool		bHost_Update = false;
 bool		bStartDedicated = false;
 int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
-Time		fStartDedicatedSecondsPassed = 0;
+Time		fStartDedicatedSecondsPassed = Time();
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
-Time		fHostLobbyStart = 0;
+Time		fHostLobbyStart = Time();
 bool		bTestedSpeed = false;
 int			secondsAnnounced = -1;
 

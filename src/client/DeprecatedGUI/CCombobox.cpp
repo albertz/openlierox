@@ -394,7 +394,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 				}
 			}
 
-			if (iNow-iDropTime <= 20 && iDropTime != 0 && (tMouse->Y < iY+20))  // let the arrow pushed a bit longer
+			if (iNow-iDropTime <= 20 && iDropTime != Time() && (tMouse->Y < iY+20))  // let the arrow pushed a bit longer
 				bArrowDown = true;
 
 

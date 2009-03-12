@@ -65,7 +65,7 @@ void CClient::Simulation(void)
 	}
 
     // We stop a few seconds after the actual game over
-    if(bGameOver && tLX->currentTime - fGameOverTime > GAMEOVER_WAIT)
+    if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
@@ -204,7 +204,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 	}
 
     // We stop a few seconds after the actual game over
-    if(bGameOver && tLX->currentTime - fGameOverTime > GAMEOVER_WAIT)
+    if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
@@ -245,7 +245,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
 	// TODO: we should move this stuff to drawing, we may skip it for physics calculation
 	if(!bDedicated)
-		SimulateEntities(NewNet::TICK_TIME);
+		SimulateEntities(TimeDiff(NewNet::TICK_TIME));
 
 	// Projectiles
 	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), NewNet::GetCurTimeFloat());
@@ -1253,7 +1253,7 @@ void CClient::processChatter(void)
 	if(bChat_Typing) {
 
 		fChat_BlinkTime += tLX->fDeltaTime;
-		if (fChat_BlinkTime > 0.5f)  {
+		if (fChat_BlinkTime.seconds() > 0.5f)  {
 			bChat_CursorVisible = !bChat_CursorVisible;
 			fChat_BlinkTime = 0;
 		}
@@ -1408,7 +1408,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         if(iChat_Lastchar != input.ch)
             bChat_Holding = false;
         else {
-            if(tLX->currentTime - fChat_TimePushed < 0.4f)
+            if((tLX->currentTime - fChat_TimePushed).seconds() < 0.4f)
                 return;
         }
     }

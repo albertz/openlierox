@@ -149,7 +149,7 @@ public:
 	CServerNetEngineBeta9( GameServer * _server, CServerConnection * _client ):
 		CServerNetEngineBeta8( _server, _client )
 	{ 
-		fLastDamageReportSent = 0; 
+		fLastDamageReportSent = Time();
 	}
 
 	virtual void ParseReportDamage(CBytestream *bs);

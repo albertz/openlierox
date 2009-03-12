@@ -280,7 +280,7 @@ void CCursor::Draw(SDL_Surface * dst)
 
 
 	// Process animating
-	if ((tLX->currentTime - fAnimationSwapTime) >= fCursorFrameTime)  {
+	if ((tLX->currentTime - fAnimationSwapTime).seconds() >= fCursorFrameTime)  {
 		iFrame++;
 		iFrame %= iNumFrames;
 		fAnimationSwapTime = tLX->currentTime;

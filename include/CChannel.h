@@ -29,7 +29,7 @@ private:
 	Time curIndexTime;
 
 public:
-	void clear() { curIndex = -1; curIndexTime = 0; memset(buckets, 0, sizeof(buckets)); }
+	void clear() { curIndex = -1; curIndexTime = Time(); memset(buckets, 0, sizeof(buckets)); }
 	Rate() { clear(); }
 
 	TimeDiff timeRange() { return TimeDiff(TIMERANGEMS); }

@@ -355,7 +355,7 @@ void Menu_Frame() {
 
 	// DEBUG: show FPS
 #ifdef DEBUG
-	if(tLX->fDeltaTime != 0) {
+	if(tLX->fDeltaTime != TimeDiff()) {
 		Menu_redrawBufferRect(0, 0, 100, 20);
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime.seconds())));
 	}

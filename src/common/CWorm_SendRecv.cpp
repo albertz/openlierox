@@ -236,7 +236,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	}
 	else
 	{
-		if(t == 0.0f) { // this means we got 2 update packets in one frame
+		if(t == TimeDiff(0)) { // this means we got 2 update packets in one frame
 			// We want to ignore the last calculation, so use the pre-values to update the last values.
 			// Restore them also to save them later again as the pre-values as we want to keep
 			// there always some values with t>0 which we can use.
@@ -247,7 +247,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			dist = newpos - vOldPosOfLastPaket;
 		}
 
-		if(t == 0.0f) { // if it is still =0 after the update, it means that we don't have previous data
+		if(t == TimeDiff(0)) { // if it is still =0 after the update, it means that we don't have previous data
 			// we can't do anything here, just accept the situation
 
 		} else {

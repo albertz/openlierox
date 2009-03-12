@@ -76,8 +76,8 @@ public:
 		bDropped = false;
 		bArrowDown = false;
         bLastDropped = false;
-		iDropTime = 0;
-		iNow = 0;
+		iDropTime = Time();
+		iNow = Time();
 		bCanSearch = true;
 		iKeySelectedItem = -1;
 		iSortDirection = SORT_NONE;

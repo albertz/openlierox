@@ -95,7 +95,7 @@ public:
 		MinimapHeight = 96;
 		Type = MPT_PIXMAP;
         nTotalDirtCount = 0;
-		fBlinkTime = 0;
+		fBlinkTime = TimeDiff();
 
 		Created = false;
 		FileName = "";

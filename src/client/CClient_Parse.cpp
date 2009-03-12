@@ -219,7 +219,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setType(PRF_HUMAN);
 		client->cRemoteWorms[i].setLocal(false);
 		client->cRemoteWorms[i].setTagIT(false);
-		client->cRemoteWorms[i].setTagTime(0);
+		client->cRemoteWorms[i].setTagTime(TimeDiff(0));
 		client->cRemoteWorms[i].setClientVersion(Version());
 	}
 
@@ -278,7 +278,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 // Parse the server's ping reply
 void CClientNetEngine::ParsePong()
 {
-	if (client->fMyPingSent > 0)  {
+	if (client->fMyPingSent.seconds() > 0)  {
 		int png = (int) ((tLX->currentTime-client->fMyPingSent).seconds());
 
 		// Make the ping slighter
@@ -295,7 +295,7 @@ void CClientNetEngine::ParsePong()
 // Parse the server's servertime request reply
 void CClientNetEngine::ParseTimeIs(CBytestream* bs)
 {
-	TimeDiff time = bs->readFloat();
+	TimeDiff time = TimeDiff(bs->readFloat());
 	if (time > client->fServertime)
 		client->fServertime = time;
 
@@ -1360,7 +1360,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 
 	// Older servers send wrong info about tag winner, better if we count it ourself
 	if (client->tGameInfo.iGeneralGameType == GMT_TIME)  {
-		TimeDiff max = 0;
+		TimeDiff max = TimeDiff(0);
 
 		for (int i=0; i < MAX_WORMS; i++)  {
 			if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
@@ -1449,7 +1449,7 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 	}
 
 	int id = bs->readInt(1);
-	TimeDiff time = bs->readFloat();
+	TimeDiff time = TimeDiff(bs->readFloat());
 
 	// Safety check
 	if(id <0 || id >= MAX_WORMS)  {

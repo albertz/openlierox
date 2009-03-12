@@ -44,7 +44,7 @@ struct TimeCounter {
 			if(mutex) SDL_mutexV(mutex);
 			return t;
 		}
-		TimeDiff td = (Uint64)(curTicks - lastTicks);
+		TimeDiff td = TimeDiff((Uint64)(curTicks - lastTicks));
 		time += td;
 		Time t = time;
 		lastTicks = curTicks;

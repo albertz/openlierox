@@ -286,7 +286,7 @@ public:
 	simulateWormStart:
 	
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
-		worm->fLastSimulationTime += orig_dt;
+		worm->fLastSimulationTime += TimeDiff(orig_dt);
 
 
 		float speed;
@@ -406,7 +406,7 @@ public:
 				worm->getVelocity()->x = 0;
 		}
 
-		simulateWormWeapon(dt, worm);
+		simulateWormWeapon(TimeDiff(dt), worm);
 
 
 		// Fill in the info for sending
@@ -644,7 +644,7 @@ public:
 	}
 
 	void simulateProjectile(const Time currentTime, CProjectile* const prj) {
-		const TimeDiff orig_dt = 0.01f;
+		const TimeDiff orig_dt = TimeDiff(0.01f);
 		const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
@@ -908,7 +908,7 @@ public:
 			simulateProjectile( cClient->fLastSimulationTime, p );
 		}
 
-		cClient->fLastSimulationTime += orig_dt;
+		cClient->fLastSimulationTime += TimeDiff(orig_dt);
 		goto simulateProjectilesStart;
 	}
 
@@ -1083,7 +1083,7 @@ public:
 
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + orig_dt > tLX->currentTime) return;
-		bonus->fLastSimulationTime += orig_dt;
+		bonus->fLastSimulationTime += TimeDiff(orig_dt);
 
 		int x,  y;
 		int mw, mh;

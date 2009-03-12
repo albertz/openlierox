@@ -225,7 +225,7 @@ void CWorm::Prepare()
 void CWorm::Unprepare() {
 	setGameReady(false);
 	setTagIT(false);
-	setTagTime(0);
+	setTagTime(TimeDiff(0));
 	bVisible = true;
 	fVisibilityChangeTime = 0;
 	
