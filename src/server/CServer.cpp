@@ -83,7 +83,7 @@ void GameServer::Clear(void)
 		fNatTraverseSocketsLastAccessTime[i] = AbsTime();
 	}
 	bServerRegistered = false;
-	fLastRegister = 0;
+	fLastRegister = AbsTime();
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 
@@ -935,9 +935,11 @@ void GameServer::RegisterServerUdp(void)
 		if( !GetFromDnsCache(domain, addr) )
 		{
 			GetNetAddrFromNameAsync(domain, addr);
-			fLastRegisterUdp = tLX->currentTime - 35;
+			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
+			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
+			fLastRegisterUdp = tLX->currentTime + 35;
 			continue;
-		};
+		}
 		SetNetAddrPort( addr, port );
 		SetRemoteNetAddr( tSocket, addr );
 
