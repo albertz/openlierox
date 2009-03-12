@@ -1778,7 +1778,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						info->addItem(3, "Received: " + itoa(w->getClient()->getChannel()->getIncoming()/1024) + " Kb");
 						info->addItem(4, "Sent: " + itoa(w->getClient()->getChannel()->getOutgoing()/1024) + " Kb");
 						info->addItem(5, "Connected for " + 
-							itoa( (int)((tLX->currentTime - w->getClient()->getConnectTime()) / 60.0f)) + " minutes");
+							itoa( (int)((tLX->currentTime - w->getClient()->getConnectTime()).seconds() / 60.0f)) + " minutes");
 						info->addItem(6, "Total " + 
 							itoa( w->getTotalKills() ) + " kills / " +
 							itoa( w->getTotalDeaths() ) + " deaths / " +

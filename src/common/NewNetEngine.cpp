@@ -109,6 +109,9 @@ bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
 AbsTime ReCalculationTimeMs;
 // Constants
+// TODO: it seems that some of these are actually not TimeDiffs but TimeDiffs/TICK_TIME (or so).
+// For those, please don't use TimeDiff. Best would be to make an extra struct for them to have that clear and to seperate
+// all that *TICK_TIME or /TICK_TIME calculations.
 TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
 TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
@@ -332,7 +335,7 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 	localTime.time /= TICK_TIME;
 
 	if( keys == OldKeys[ LocalPlayer ] &&
-		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs / TICK_TIME ) // Do not flood the net with non-changed keys
+		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs.timeDiff / TICK_TIME ) // Do not flood the net with non-changed keys
 		return false;
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;

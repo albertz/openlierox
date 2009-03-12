@@ -177,7 +177,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
-		// AbsTime limit
+		// Time limit
 		itoa((int)(tLXOptions->tGameInfo.fTimeLimit * 10), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "fTimeLimit = ", bufsize);

@@ -273,7 +273,7 @@ public:
 		
 		int		iLives;
 		int		iKillLimit;
-		float	fTimeLimit; // AbsTime limit in minutes
+		float	fTimeLimit; // Time limit in minutes
 		int		iTagLimit;
 		int		iLoadingTime;
 		bool	bBonusesOn;

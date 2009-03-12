@@ -309,8 +309,8 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	sldLoadingTime = new CSlider("_LoadingTime", pgGeneral, MAX_LOADING_TIME);
 	lblLoadingTime = new CLabel("_LoadingTimeLabel", pgGeneral, "");
 
-	// AbsTime limit
-	new CLabel(STATIC, pgGeneral, "AbsTime limit, minutes");
+	// Time limit
+	new CLabel(STATIC, pgGeneral, "Time limit, minutes");
 	txtTimeLimit = new CTextbox("_TimeLimit", pgGeneral);
 	txtTimeLimit->setMax(3);
 
@@ -388,7 +388,7 @@ void CGameSettingsDialog::LoadFromOptions()
 	sldLoadingTime->setValue(tLXOptions->tGameInfo.iLoadingTime);
 	lblLoadingTime->setText(itoa(tLXOptions->tGameInfo.iLoadingTime));
 
-	// AbsTime limit
+	// Time limit
 	if (tLXOptions->tGameInfo.fTimeLimit > 0)
 		txtTimeLimit->setText(ftoa(tLXOptions->tGameInfo.fTimeLimit));
 
@@ -453,7 +453,7 @@ void CGameSettingsDialog::Save()
 	// Loading time
 	tLXOptions->tGameInfo.iLoadingTime = sldLoadingTime->getValue();
 
-	// AbsTime limit
+	// Time limit
 	if(txtTimeLimit->getText().size())
 		tLXOptions->tGameInfo.fTimeLimit = atof(txtTimeLimit->getText());
 
@@ -512,7 +512,7 @@ void CGameSettingsDialog::Default()
 	// Loading time
 	sldLoadingTime->setValue(100);
 
-	// AbsTime limit
+	// Time limit
 	txtTimeLimit->setText("");
 
 	// Respawn time
