@@ -132,13 +132,13 @@ public:
 	void	SetWorldX(int _x)	{ WorldX = _x; }
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 
-	bool	getUsed(void)		{ return bUsed; }
+	bool	getUsed(void) const	{ return bUsed; }
 	void	setUsed(bool _u)	{ bUsed = _u; }
 
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
-    CWorm   *getTarget(void)    { return pcTargetWorm; }
+    CWorm   *getTarget(void) const { return pcTargetWorm; }
 
-    int     getType(void)       { return nType; }
+    int     getType(void) const { return nType; }
 	void	setType(int _t)		{ nType = _t; }
 
     void    setID(int id)       { nID = id; }

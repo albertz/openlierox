@@ -131,7 +131,7 @@ void CServerNetEngine::SendPrepareGame()
 	SendPacket( &bs );
 }
 
-void CServerNetEngine::SendHideWorm(CWorm *worm, bool show, bool immediate)
+void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm,  bool show, bool immediate)
 {
 	// For old clients we move the worm out of the map and kill it
 
@@ -250,7 +250,7 @@ void CServerNetEngineBeta3::SendText(const std::string& text, int type)
 	SendPacket(&bs);
 }
 
-void CServerNetEngineBeta3::SendHideWorm(CWorm *worm, bool show, bool immediate)
+void CServerNetEngineBeta3::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
 	CServerNetEngine::SendHideWorm(worm, show, immediate);  // Just the same as for old LX
 }
@@ -741,16 +741,22 @@ void CServerNetEngineBeta9::SendUpdateLobby(CServerConnection *target)
 
 ////////////////////////
 // Hide a worm at receiver's screen
-void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, bool show, bool immediate)
+void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
 	if (!worm)  {
 		errors << "Invalid worm or receiver in SendHideWorm" << endl;
 		return;
 	}
 
+	if(forworm < 0 || forworm >= MAX_WORMS) {
+		errors << "Invalid forworm in SendHideWorm" << endl;
+		return;
+	}
+	
 	CBytestream bs;
 	bs.writeByte(S2C_HIDEWORM);
 	bs.writeByte(worm->getID());
+	bs.writeByte(forworm);
 	bs.writeBool(!show);  // True - hide, false - show
 	bs.writeBool(immediate);  // True - immediate (no animation), false - animation
 	SendPacket(&bs);

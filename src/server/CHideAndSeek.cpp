@@ -62,7 +62,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == worm->getTeam())
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
 		else if(cServer->getWorms()[i].isUsed())
-			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm);
+			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
 	}
 	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_HideTime]);
 	return false;
@@ -218,7 +218,7 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
 			continue;
-		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, true);
+		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i, true);
 		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
@@ -239,7 +239,7 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
 			continue;
-		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm);
+		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);

@@ -2296,12 +2296,19 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 {
 	int id = bs->readByte();
+	int forworm = bs->readByte();
 	bool hide = bs->readBool();
 	bool immediate = bs->readBool();  // Immediate hiding (no animation)
 
 	// Check
 	if (id < 0 || id >= MAX_WORMS)  {
 		errors << "ParseHideWorm: invalid worm ID " << id << endl;
+		return;
+	}
+
+	// Check
+	if (forworm < 0 || forworm >= MAX_WORMS)  {
+		errors << "ParseHideWorm: invalid forworm ID " << forworm << endl;
 		return;
 	}
 
@@ -2318,7 +2325,7 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 
 	// Hide or show the worm
 	if (hide)
-		w->Hide(immediate);
+		w->Hide(forworm, immediate);
 	else
-		w->Show(immediate);
+		w->Show(forworm, immediate);
 }

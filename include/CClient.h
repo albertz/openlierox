@@ -616,6 +616,7 @@ public:
 	std::string	getDownloadingErrorMessage()	{ return sDlError; }
 
 	CViewport * getViewports()					{ return cViewports; }
+	bool		isWormVisibleOnAnyViewport(int worm) const; 
 
 	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
 	AbsTime		getLastFileRequest()					{ return fLastFileRequest; };

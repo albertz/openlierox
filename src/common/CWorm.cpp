@@ -63,7 +63,7 @@ void CWorm::Clear(void)
 	fMoveSpeedX = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
-	bVisible = true;
+	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 
 	bOnGround = false;
@@ -166,7 +166,7 @@ void CWorm::Init(void)
 	// TODO: is this needed?
 	// WARNING: this works only because it does not contain any classes
 	tState = worm_state_t();
-	bVisible = true;
+	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 }
 
@@ -201,7 +201,7 @@ void CWorm::Prepare()
 		warnings << endl;
 	}
 	
-	bVisible = true;
+	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 
 	// Setup the rope
@@ -226,7 +226,7 @@ void CWorm::Unprepare() {
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
-	bVisible = true;
+	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
@@ -368,7 +368,6 @@ void CWorm::Spawn(CVec position) {
 
 	bAlive = true;
 	bAlreadyKilled = false;
-	bVisible = true;
 	fVisibilityChangeTime = 0;
 	fAngle = 0;
 	fAngleSpeed = 0;
@@ -652,23 +651,33 @@ void CWorm::UpdateDrawPos() {
 }
 
 
-bool CWorm::isVisible(CWorm* viewerWorm) const {
-	if(this->isVisible()) return true;
-	
-	// our cClient own both worms
-	if(!viewerWorm || !cClient->OwnsWorm(viewerWorm->getID())) return false;
-	if(!cClient->OwnsWorm(this->getID())) return false;
-	
-	// Kind of a hack but I have no idea how to make local games clean otherwise.
-	// And we should ensure in the viewport manager that we cannot select
-	// invisible worms of other clients.
-	if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
-		return viewerWorm->getTeam() == this->getTeam();
-	
-	return false;	
+bool CWorm::isVisibleForWorm(int worm) const {
+	assert(worm >= 0);
+	if((size_t)worm >= bVisibleForWorm.size()) return true;
+	return bVisibleForWorm[worm];
 }
 
-bool CWorm::isVisible(CViewport* v) const {
+void CWorm::setVisibleForWorm(int worm, bool visibility) {
+	assert(worm >= 0);
+	if((size_t)worm >= bVisibleForWorm.size()) {
+		bVisibleForWorm.resize(worm + 1, true);
+	}
+	bVisibleForWorm[worm] = visibility;
+}
+
+bool CWorm::isVisibleForEverybody() const {
+	for(std::vector<bool>::const_iterator i = bVisibleForWorm.begin(); i != bVisibleForWorm.end(); ++i) {
+		if(!*i) return false;
+	}
+	return true;
+}
+
+bool CWorm::isVisible(CWorm* viewerWorm) const {
+	if(viewerWorm == NULL) return isVisibleForEverybody();
+	return isVisibleForWorm(viewerWorm->getID());
+}
+
+bool CWorm::isVisible(const CViewport* v) const {
 	return isVisible(v->getTarget());
 }
 
@@ -1100,9 +1109,9 @@ bool CWorm::GiveBonus(CBonus *b)
 
 ///////////////////
 // Hide the worm, if immediate is set, no animation will be shown
-void CWorm::Hide(bool immediate)
+void CWorm::Hide(int forworm, bool immediate)
 {
-	bVisible = false;
+	setVisibleForWorm(forworm, false);
 	if (!immediate)
 		fVisibilityChangeTime = tLX->currentTime;
 	else
@@ -1111,9 +1120,9 @@ void CWorm::Hide(bool immediate)
 
 //////////////////
 // Show the worm, if immediate is set, no animation will be shown
-void CWorm::Show(bool immediate)
+void CWorm::Show(int forworm, bool immediate)
 {
-	bVisible = true;
+	setVisibleForWorm(forworm, true);
 	if (!immediate)
 		fVisibilityChangeTime = tLX->currentTime;
 	else
@@ -1249,7 +1258,7 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( fFrame );
 	COPY( cNinjaRope );
 	COPY( fRopeTime );
-	COPY( bVisible );
+	COPY( bVisibleForWorm );
 	COPY( fVisibilityChangeTime );
 	COPY( bHooked );
 	COPY( pcHookWorm );
@@ -1294,7 +1303,7 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( fFrame );
 	COPY( cNinjaRope );
 	COPY( fRopeTime );
-	COPY( bVisible );
+	COPY( bVisibleForWorm );
 	COPY( fVisibilityChangeTime );
 	COPY( bHooked );
 	COPY( pcHookWorm );

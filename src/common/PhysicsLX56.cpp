@@ -303,7 +303,9 @@ public:
 		}
 
 		// If we're seriously injured (below 15% health) and visible, bleed
-		if(worm->getHealth() < 15 && worm->isVisible()) {
+		// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
+		// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).
+		if(worm->getHealth() < 15 && worm->isVisibleForEverybody()) {
 			if(simulationTime - worm->getLastBlood() > 2) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
@@ -1030,7 +1032,7 @@ public:
 					continue;
 				if(worms[i].getFlag())
 					continue;
-				if(!worms[i].isVisible())
+				if(!worms[i].isVisible(owner))
 					continue;
 
 				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
@@ -1051,7 +1053,7 @@ public:
 			if(	!rope->getAttachedPlayer() || 
 				!rope->getAttachedPlayer()->isUsed() || 
 				!rope->getAttachedPlayer()->getAlive() ||
-				!rope->getAttachedPlayer()->isVisible() ) 
+				!rope->getAttachedPlayer()->isVisible(owner) ) 
 			{
 				if(!rope->getAttachedPlayer())
 					warnings("WARNING: the rope is attached to a non-existant player!\n");						

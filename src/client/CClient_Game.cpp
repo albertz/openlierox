@@ -672,7 +672,9 @@ void CClient::DrawBeam(CWorm *w)
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
 	Uint32 col = MakeColour(Slot->Weapon->Bm_Colour[0], Slot->Weapon->Bm_Colour[1], Slot->Weapon->Bm_Colour[2]);
-	if(col != tLX->clPink && w->isVisible()) {
+	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
+	// If you want to make that better, you would have to give the CViewport to DrawBeam.
+	if(col != tLX->clPink && w->isVisibleForEverybody()) {
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}
 }
@@ -897,7 +899,9 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	}
 
 	// Spawn a laser sight entity (only if the worm is visible though, else we'd tell the worm position)
-	if (w->isVisible())
+	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
+	// If you want to make that better, you would have to give the CViewport to LaserSight.
+	if (w->isVisibleForEverybody())
 		SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
 }
 

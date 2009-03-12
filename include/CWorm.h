@@ -260,7 +260,7 @@ private:
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
 	AbsTime		fRopeTime;
-	bool		bVisible;
+	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
 	bool		bHooked;
@@ -306,7 +306,6 @@ private:
 	CWormSkin	cSkin;
 	SmartPointer<SDL_Surface> bmpGibs;
 	DeprecatedGUI::CBar		cHealthBar;
-	//CViewport	*pcViewport;
 
 
 	// Arsenal
@@ -408,8 +407,8 @@ public:
 	bool		Kill(void);
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
-	void		Hide(bool immediate);
-	void		Show(bool immediate);
+	void		Hide(int forworm, bool immediate);
+	void		Show(int forworm, bool immediate);
 
 
 	void		getInput();
@@ -498,8 +497,10 @@ public:
 	bool		hasOwnServerTime();
 	TimeDiff	serverTime()				{ return fServertime; }
 
-	bool		isVisible()	const			{ return bVisible; }
-	bool		isVisible(CViewport* v) const;
+	bool		isVisibleForWorm(int worm) const;
+	void		setVisibleForWorm(int worm, bool visibility);
+	bool		isVisibleForEverybody() const;
+	bool		isVisible(const CViewport* v) const;
 	bool		isVisible(CWorm* viewerWorm) const;
 	
 	float		getAngle(void)				{ return fAngle; }

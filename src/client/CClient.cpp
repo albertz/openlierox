@@ -1712,8 +1712,16 @@ void CClient::RemoveWorm(int id)
 			}
 		}
 	}
-
 }
+
+bool CClient::isWormVisibleOnAnyViewport(int worm) const {
+	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
+		if(!cViewports[i].getUsed()) continue;
+		if(cRemoteWorms[worm].isVisible(&cViewports[i])) return true;
+	}
+	return false;
+}
+
 
 /////////////////
 // Writes the log into the specified file

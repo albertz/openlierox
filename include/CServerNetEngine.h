@@ -75,7 +75,7 @@ public:
 	void SendWormDied(CWorm *Worm);
 	void SendWeapons();
 	void SendSpawnWorm(CWorm *Worm, CVec pos);
-	virtual void SendHideWorm(CWorm *worm, bool show = false, bool immediate = false);
+	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 
 protected:
 	// Attributes
@@ -95,7 +95,7 @@ public:
 		{ }
 
 	virtual void SendText(const std::string& text, int type);
-	virtual void SendHideWorm(CWorm *worm, bool show = false, bool immediate = false);
+	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 
 };
 
@@ -157,7 +157,7 @@ public:
 	virtual void QueueReportDamage(int victim, int damage, int offender);
 	virtual void SendWormScore(CWorm *Worm);
 	virtual void SendUpdateLobby(CServerConnection *target = NULL);
-	virtual void SendHideWorm(CWorm *worm, bool show = false, bool immediate = false);
+	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 
 	static void WriteFeatureSettings(CBytestream* bs);
 
