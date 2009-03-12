@@ -80,8 +80,8 @@ bool PlaySoundSample(SoundSample* sample) { return false; }
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
 
 // TODO: remove these when they are not global anymore
-float fCurSongStart = 0;
-float fTimePaused = 0;
+AbsTime fCurSongStart;
+AbsTime fTimePaused;
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
@@ -93,7 +93,7 @@ SoundMusic *LoadMusic(const std::string& file) { return NULL; }
 void FreeMusic(SoundMusic *music) {}
 void PlayMusic(SoundMusic *music, int number_of_repeats) {}
 void StopMusic(void) {}
-float GetCurrentMusicTime(void) { return 0; }
+TimeDiff GetCurrentMusicTime(void) { return TimeDiff(0); }
 void SetMusicVolume(byte vol) {}
 void MusicFinishedHook(void) {}
 void ShutdownMusic() {}
