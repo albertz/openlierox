@@ -246,7 +246,9 @@ int GameServer::StartServer()
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
 	fLastRegister = AbsTime();
-	fLastRegisterUdp = tLX->currentTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
+			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
+			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
+	fLastRegisterUdp = tLX->currentTime + 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
 
