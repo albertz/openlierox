@@ -158,7 +158,9 @@ bool CGameMode::CheckGameOver() {
 		}
 	}
 	
-	if(!tLXOptions->tGameInfo.features[FT_AllowEmptyGames] || tLX->iGameType == GME_LOCAL) {
+	bool allowEmptyGames = tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && tLX->iGameType != GME_LOCAL;
+	
+	if(!allowEmptyGames) {
 		// TODO: move that to GameServer
 		int worms = 0;
 		for(int i = 0; i < MAX_WORMS; i++)
@@ -175,7 +177,7 @@ bool CGameMode::CheckGameOver() {
 		}
 	}
 
-	if(GameTeams() > 1) {
+	if(!allowEmptyGames && GameTeams() > 1) {
 		// Only one team left?
 		int teams = 0;
 		for(int i = 0; i < GameTeams(); i++)  {

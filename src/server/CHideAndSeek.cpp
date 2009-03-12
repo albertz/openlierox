@@ -145,8 +145,9 @@ void CHideAndSeek::Simulate()
 
 bool CHideAndSeek::CheckGameOver()
 {
-	if(CGameMode::CheckGameOver()) return true;
-
+	// We ignore the standard GameOver-check, we just do this check.
+	// In Simulate, we kill the seeker worms when the timelimit is hit.
+	
 	int worms[2] = { 0, 0 };
 	int winners = -1;
 	static const std::string teamname[2] = { "hiding", "seeking" };
