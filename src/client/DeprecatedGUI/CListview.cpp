@@ -1318,6 +1318,8 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 			if(tSelected && (tMouse->Up & SDL_BUTTON(1))) {
 				if(tSelected->_iID == item->_iID) {
+					//printf("tLX->currentTime %f fLastMouseUp %f tLX->currentTime - fLastMouseUp %f\n",
+					//	tLX->currentTime.seconds(), fLastMouseUp.seconds(), (tLX->currentTime - fLastMouseUp).seconds() );
 					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						event = LV_DOUBLECLK;
 						fLastMouseUp = Time();

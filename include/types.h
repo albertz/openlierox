@@ -29,7 +29,7 @@ struct TimeDiff {
 	Uint64 timeDiff;
 	// Explicit constructors needed 'cause TimeDiff(float) != TimeDiff(int), and we will have hard-to-find errors in expressions
 	explicit TimeDiff(Uint64 td = 0) : timeDiff(td) {}
-	explicit TimeDiff(float seconds) : timeDiff((Uint64)seconds * 1000) { assert(seconds >= 0.0f); }
+	explicit TimeDiff(float seconds) : timeDiff((Uint64)(seconds * 1000.0f)) { assert(seconds >= 0.0f); }
 	explicit TimeDiff(int td) : timeDiff(td) { assert(td >= 0); }
 	explicit TimeDiff(Uint64 start, Uint64 end) : timeDiff(end - start) { assert(end >= start); }
 
@@ -65,7 +65,7 @@ struct Time {
 	Uint64 time;
 	explicit Time(Uint64 t = 0) : time(t) {}
 	explicit Time(int t) : time(t) {}
-	explicit Time(float seconds) : time( (Uint64)seconds * 1000 ) {}
+	explicit Time(float seconds) : time( (Uint64)(seconds * 1000.0f) ) {}
 	static Time MAX() { return Time((Uint64)-1); }
 
 	const Time & operator=(float seconds) { *this = Time(seconds); return *this; };
