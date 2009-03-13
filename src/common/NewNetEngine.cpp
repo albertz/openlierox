@@ -165,7 +165,7 @@ int LocalPlayer = -1;
 // TODO: why is it named diff but used absolute?
 AbsTime OlxTimeDiffMs; // In milliseconds
 AbsTime CurrentTimeMs; // In milliseconds
-Uint64 BackupTime;	// In TICK_TIME chunks
+AbsTime BackupTime; // In milliseconds
 AbsTime ClearEventsLastTime;
 
 struct KeysEvent_t
@@ -183,11 +183,11 @@ unsigned Checksum;
 AbsTime ChecksumTime; // AbsTime in ms
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
 
-void getKeysForTime( int t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
+void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
 {
 	for( int i=0; i<MAX_WORMS; i++ )
 	{
-		EventList_t :: const_iterator it = Events[i].upper_bound(AbsTime(int(t)));
+		EventList_t :: const_iterator it = Events[i].upper_bound(t);
 		if( it != Events[i].begin() )
 		{
 			--it;
@@ -259,23 +259,22 @@ void ReCalculateSavedState()
 			timeMin = LastPacketTime[f];
 
 	//printf("ReCalculate(): BackupTime %lu timeMin %lu\n", BackupTime, timeMin);
-	if( AbsTime(BackupTime * TICK_TIME)  /* + DrawDelayMs / TICK_TIME */ + 1 >= timeMin )
+	if( BackupTime /* + DrawDelayMs */ + TICK_TIME >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
-	// TODO: was this meant here?
-	if( CurrentTimeMs != AbsTime(BackupTime * TICK_TIME) )	// Last recalc time
+	if( CurrentTimeMs != BackupTime )	// Last recalc time
 		RestoreState();
 
-	while( AbsTime(BackupTime * TICK_TIME) /* + DrawDelayMs / TICK_TIME */ + 1 < timeMin )
+	while( BackupTime /* + DrawDelayMs */ + TICK_TIME < timeMin )
 	{
-		BackupTime++;
-		CurrentTimeMs = AbsTime(BackupTime * TICK_TIME);
+		BackupTime += TimeDiff(TICK_TIME);
+		CurrentTimeMs = BackupTime;
 		bool calculateChecksum = CurrentTimeMs.time % CalculateChecksumTime.timeDiff == 0;
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( (int)BackupTime, keys, keysChanged );
+		getKeysForTime( BackupTime, keys, keysChanged );
 
 		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
@@ -287,7 +286,7 @@ void ReCalculateSavedState()
 	};
 
 	SaveState();
-	CurrentTimeMs = BackupTime * TICK_TIME;
+	CurrentTimeMs = BackupTime;
 
 	// Clean up old events - do not clean them if we're the server, clients may ask for them.
 	/*
@@ -316,7 +315,7 @@ void CalculateCurrentState( AbsTime localTime )
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
-		getKeysForTime( (int)(CurrentTimeMs.time / TICK_TIME), keys, keysChanged );
+		getKeysForTime( CurrentTimeMs, keys, keysChanged );
 
 		CalculatePhysics( CurrentTimeMs, keys, keysChanged, true, false );
 	};
@@ -325,14 +324,12 @@ void CalculateCurrentState( AbsTime localTime )
 int NetPacketSize()
 {
 	// Change here if you'll modify Receive()/Send()
-	return 4+1;	// First 4 bytes is time in 10-ms chunks, second byte - keypress idx
+	return 4+1;	// First 4 bytes is time, second byte - keypress idx
 }
 
 void AddEmptyPacket( AbsTime localTime, CBytestream * bs )
 {
-	localTime.time -= OlxTimeDiffMs.time;
-	localTime.time /= TICK_TIME;
-	bs->writeUInt64( localTime.time );
+	bs->writeInt( localTime.time, 4 );
 	bs->writeByte( UCHAR_MAX );
 }
 
@@ -346,7 +343,7 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 {
 	int timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 
-	int fullTime = timeDiff;
+	AbsTime fullTime(timeDiff);
 
 	KeyState_t keys = OldKeys[ player ];
 	int keyIdx = bs->readByte();
@@ -354,9 +351,9 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 		keys.keys[keyIdx] = ! keys.keys[keyIdx];
 
 	OldKeys[ player ] = keys;
-	Events[ player ] [ AbsTime(fullTime) ] .keys = keys;
+	Events[ player ] [ fullTime ] .keys = keys;
 	if( keyIdx != UCHAR_MAX )
-		Events[ player ] [ AbsTime(fullTime) ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ AbsTime(fullTime) ] .keysChanged.keys[keyIdx];
+		Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx];
 	LastPacketTime[ player ] = fullTime;
 
 	ReCalculationNeeded = true;
@@ -371,16 +368,15 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
 	//printf("SendNetPacket() time %lu\n", localTime);
 	localTime.time -= OlxTimeDiffMs.time;
-	localTime.time /= TICK_TIME;
 
 	if( keys == OldKeys[ LocalPlayer ] &&
-		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs.timeDiff / TICK_TIME ) // Do not flood the net with non-changed keys
+		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs ) // Do not flood the net with non-changed keys
 		return false;
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
 	//printf("SendNetPacket() put keys in time %lu\n", localTime);
-	bs->writeUInt64( localTime.time );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
+	bs->writeInt( localTime.time, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 	int changedKeyIdx = changedKeys.getFirstPressedKey();
 	if( changedKeyIdx == -1 )
 		bs->writeByte( UCHAR_MAX );

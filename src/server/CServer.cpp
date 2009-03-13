@@ -441,6 +441,11 @@ int GameServer::StartGame()
 		}
 	}
 
+	if( (bool)tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	{
+		NewNet::DisableAdvancedFeatures();
+	}
+
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
 	bGameOver = false;

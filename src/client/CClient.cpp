@@ -1075,7 +1075,12 @@ void CClient::Frame()
 	SimulateHud();
 
 	if(iNetStatus == NET_PLAYING && !bWaitingForMap && !bWaitingForMod)
-		Simulation();
+	{
+		if( (bool)tGameInfo.features[FT_NewNetEngine] )
+			NewNet_Frame();
+		else
+			Simulation();
+	}
 
 	SendPackets();
 
@@ -1086,6 +1091,22 @@ void CClient::Frame()
 		Connecting();
 }
 
+void CClient::NewNet_Frame()
+{
+	CBytestream out, packet;
+	if( getNumWorms() <= 0 )
+		return;
+	out.writeByte( C2S_NEWNET_KEYS );
+	out.writeByte( getWorm(0)->getID() );
+	while( NewNet::Frame(&out) )
+	{
+		packet.Append(&out);
+		out.Clear();
+		out.writeByte( C2S_NEWNET_KEYS );
+		out.writeByte( getWorm(0)->getID() );
+	};
+	cNetChan->AddReliablePacketToSend(packet);
+};
 
 ///////////////////
 // Read the packets

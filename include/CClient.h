@@ -458,6 +458,7 @@ public:
 
 	// Main
 	void		Frame();
+	void		NewNet_Frame();
 
 	// Drawing
 	bool		InitializeDrawing();

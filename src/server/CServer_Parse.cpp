@@ -133,6 +133,9 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 		case C2S_REPORTDAMAGE:
 			ParseReportDamage(bs);
 			break;
+			
+		case C2S_NEWNET_KEYS:
+			ParseNewNetKeys(bs);
 
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
@@ -706,6 +709,30 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 			server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), damage, offender->getID() );
 };
 
+
+void CServerNetEngineBeta9::ParseNewNetKeys(CBytestream *bs)
+{
+	int id = bs->readByte();
+	if( id < 0 || id >= MAX_WORMS || !cl->OwnsWorm(id) )
+	{
+		warnings << "CServerNetEngineBeta9::ParseNewNetKeys(): worm id " << id << " client doesn't own worm" << endl;
+		bs->Skip( NewNet::NetPacketSize() );
+		return;
+	}
+
+	CBytestream send;
+	send.writeByte( S2C_NEWNET_KEYS );
+	send.writeByte( id );
+	send.writeData( bs->readData( NewNet::NetPacketSize() ) );
+	
+	// Re-send the packet to all clients, except the sender
+	for( int i=0; i < MAX_CLIENTS; i++ )
+		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
+		{
+			send.ResetPosToBegin();
+			server->cClients[i].getNetEngine()->SendPacket(&send);
+		}
+};
 
 /*
 ===========================
