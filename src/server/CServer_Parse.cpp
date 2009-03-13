@@ -628,7 +628,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 void CServerNetEngine::ParseSendFile(CBytestream *bs)
 {
-	cl->setLastFileRequestPacketReceived( tLX->currentTime - 10 ); // Set time in the past to force sending next packet
+	cl->setLastFileRequestPacketReceived( AbsTime() ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
 		if( cl->getUdpFileDownloader()->isFinished() &&

@@ -562,7 +562,7 @@ void CClient::DownloadMap(const std::string& mapname)
 	bDownloadingMap = true;
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
-	setLastFileRequest( tLX->currentTime - 10.0f ); // Re-enable file requests, if previous request failed
+	setLastFileRequest( AbsTime() ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -585,7 +585,7 @@ void CClient::DownloadMod(const std::string &modname)
 	iDownloadMethod = DL_HTTP; // We start with HTTP
 
 	iModDownloadingSize = 0;
-	setLastFileRequest( tLX->currentTime - 10.0f ); // Re-enable file requests, if previous request failed
+	setLastFileRequest( AbsTime() ); // Re-enable file requests, if previous request failed
 }
 
 ///////////////////
@@ -1145,7 +1145,7 @@ void CClient::ReadPackets(void)
 	}
 
 	// Check if our connection with the server timed out
-	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() < tLX->currentTime - LX_CLTIMEOUT && tLX->iGameType == GME_JOIN) {
+	if(iNetStatus == NET_PLAYING && cNetChan->getLastReceived() + TimeDiff((float)LX_CLTIMEOUT) < tLX->currentTime && tLX->iGameType == GME_JOIN) {
 		// AbsTime out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";

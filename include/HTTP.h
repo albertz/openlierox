@@ -28,7 +28,7 @@
 #include <SDL_mutex.h>
 
 // Some basic defines
-#define		HTTP_TIMEOUT	5
+#define		HTTP_TIMEOUT	10	// Filebase became laggy lately, so increased that from 5 seconds
 #define		BUFFER_LEN		8192
 
 //

@@ -197,7 +197,6 @@ public:
 	bool	bAllowWantsJoinMsg;
 	bool	bWantsJoinBanned;
 	bool	bAllowRemoteBots;
-	bool	bSendServerSideFeatures;
 
 	// IRC chat
 	bool	bEnableChat;

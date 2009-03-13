@@ -268,7 +268,7 @@ void GameServer::SimulateGame(void)
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
 			// Check to see if they have been dead for longer then 2.5 seconds
-			if(tLX->currentTime - w->getTimeofDeath() > tLXOptions->tGameInfo.fRespawnTime )
+			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff(tLXOptions->tGameInfo.fRespawnTime) )
 			{
 				SpawnWorm(w);
 				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )

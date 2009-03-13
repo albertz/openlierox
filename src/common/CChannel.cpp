@@ -57,7 +57,7 @@ void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
 	RemoteAddr = *_adr;
 	fLastPckRecvd = tLX->currentTime;
 	Socket = _sock;
-	fLastSent = tLX->currentTime-1;
+	fLastSent = AbsTime();
 	fLastPingSent = fLastSent;
 	iPing = 0;
 }
@@ -135,7 +135,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// We send reliable message in these cases:
 	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
 	// 2. We need to refresh ping
-	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->currentTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
+	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->currentTime >= fLastPingSent + 1.0f && iPongSequence == -1))) {
 		if (Messages.size() > 0)  {
 			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());

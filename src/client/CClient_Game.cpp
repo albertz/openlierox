@@ -918,7 +918,7 @@ void CClient::ProcessServerShotList(void)
 	// shot->fTime > fServerTime.
 	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
 	// the time of both ways (ping+pong).
-	AbsTime fSpawnTime = tLX->currentTime - ((float)iMyPing / 1000.0f) / 2.0f;
+	AbsTime fSpawnTime = tLX->currentTime - TimeDiff(((float)iMyPing / 1000.0f) / 2.0f);
 
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);

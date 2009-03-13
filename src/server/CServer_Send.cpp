@@ -572,15 +572,8 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	int ftC = featureArrayLen();
 	assert(ftC < 256*256);
-	int featureNum = ftC;
+	bs->writeInt(ftC, 2);
 	foreach( Feature*, f, Array(featureArray,ftC) ) {
-		if( f->get()->serverSideOnly && !tLXOptions->bSendServerSideFeatures )
-			featureNum --;
-	}
-	bs->writeInt(featureNum, 2);
-	foreach( Feature*, f, Array(featureArray,ftC) ) {
-		if( f->get()->serverSideOnly && !tLXOptions->bSendServerSideFeatures )
-			continue;
 		bs->writeString( f->get()->name );
 		bs->writeString( f->get()->humanReadableName );
 		bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );

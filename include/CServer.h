@@ -128,7 +128,7 @@ private:
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
-	AbsTime		fLastRegisterUdp;
+	AbsTime		fRegisterUdpTime;
 	std::vector<std::string>			tUdpMasterServers;
 	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;

@@ -116,7 +116,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
-		( tLXOptions->bSendServerSideFeatures, "Network.SendServerSideFeatures", true ) // Will reduce network data if set to false
 
 		( tLXOptions->bFirstRun, "State.FirstRun" + options_ver, true )
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )

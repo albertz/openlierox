@@ -84,7 +84,7 @@ void GameServer::Clear(void)
 	}
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
-	fLastRegisterUdp = AbsTime();
+	fRegisterUdpTime = AbsTime();
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 
@@ -247,9 +247,7 @@ int GameServer::StartServer()
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
 	fLastRegister = AbsTime();
-			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
-			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
-	fLastRegisterUdp = tLX->currentTime - 35; // 5 seconds from now - to give the local client enough time to join before registering the player count
+	fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count
 	//if(bRegServer)
 		//RegisterServer();
 
@@ -943,9 +941,7 @@ void GameServer::RegisterServerUdp(void)
 		if( !GetFromDnsCache(domain, addr) )
 		{
 			GetNetAddrFromNameAsync(domain, addr);
-			// TODO: that was "- 35 " before. why? what does that mean anyway? please comment!
-			// (curTime - 35 will cause an error later because we dont allow negative timediffs)
-			fLastRegisterUdp = tLX->currentTime - 35;
+			fRegisterUdpTime = tLX->currentTime + 5.0f;
 			continue;
 		}
 		SetNetAddrPort( addr, port );
@@ -1028,8 +1024,8 @@ void GameServer::CheckRegister(void)
 		RegisterServer();
 	}
 	// UDP masterserver will remove our registry in 2 minutes
-	if( tLX->currentTime - fLastRegisterUdp > 40 ) {
-		fLastRegisterUdp = tLX->currentTime;
+	if( tLX->currentTime > fRegisterUdpTime ) {
+		fRegisterUdpTime = tLX->currentTime + 40.0f;
 		RegisterServerUdp();
 	}
 }
@@ -1094,8 +1090,6 @@ void GameServer::CheckTimeouts(void)
 {
 	int c;
 
-	AbsTime dropvalue = tLX->currentTime - LX_SVTIMEOUT;
-
 	// Check
 	if (!cClients)
 		return;
@@ -1112,7 +1106,7 @@ void GameServer::CheckTimeouts(void)
 			continue;
 
 		// Check for a drop
-		if( cl->getLastReceived() < dropvalue && ( cl->getStatus() != NET_ZOMBIE ) ) {
+		if( cl->getLastReceived() + LX_SVTIMEOUT < tLX->currentTime && ( cl->getStatus() != NET_ZOMBIE ) ) {
 			DropClient(cl, CLL_TIMEOUT);
 		}
 
@@ -1155,7 +1149,7 @@ void GameServer::CheckWeaponSelectionTime()
 		SendGlobalText("You have 60 seconds to select your weapons.", TXT_NOTICE);
 	}
 	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->currentTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
-	if( tLX->currentTime - fWeaponSelectionTime > tLXOptions->tGameInfo.iWeaponSelectionMaxTime )
+	if( tLX->currentTime > fWeaponSelectionTime + TimeDiff(float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime)) )
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
 		CServerConnection *cl = cClients;

@@ -77,7 +77,8 @@ struct AbsTime {
 	AbsTime operator+(const TimeDiff& td) const { return AbsTime(time + td.timeDiff); }
 	AbsTime operator-(const TimeDiff& td) const { return AbsTime(time - td.timeDiff); }
 	AbsTime operator+(float td) const { return AbsTime(time + (Uint64)(td * 1000.0f)); }
-	AbsTime operator-(float td) const { return AbsTime(time - (Uint64)(td * 1000.0f)); }
+	// Remake all your expressions so they will not include AbsTime minus something - it wraps around easily
+	//AbsTime operator-(float td) const { return AbsTime(time - (Uint64)(td * 1000.0f)); }
 	
 	AbsTime& operator+=(const TimeDiff& td) { time += td.timeDiff; return *this; }
 	
