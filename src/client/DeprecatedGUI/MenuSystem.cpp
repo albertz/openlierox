@@ -2096,7 +2096,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	Menu_redrawBufferRect(x,y,w,h);
 
     Menu_DrawBox(VideoPostProcessor::videoSurface(), x,y, x+w, y+h);
-	DrawRectFillA(VideoPostProcessor::videoSurface(), x+1,y+1, x+w-1, y+h-1, tLX->clDialogBackground, 230);
+	DrawRectFillA(VideoPostProcessor::videoSurface(), x+2,y+2, x+w-1, y+h-1, tLX->clDialogBackground, 230);
     tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
