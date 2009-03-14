@@ -434,8 +434,7 @@ TimeDiff GetCurrentMusicTime(void)
 		return TimeDiff(0);
 
 	// Paused
-	// TODO: really a bad check that is
-	if (fTimePaused == AbsTime())
+	if (fTimePaused != AbsTime())
 		return fTimePaused-fCurSongStart;
 	// Not paused
 	else
