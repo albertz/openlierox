@@ -1,0 +1,58 @@
+/*
+	advanced assert() definition
+
+	code under LGPL
+	created by Albert Zeyer, on 15-03-2009
+*/
+
+#include <cctype>
+
+
+#ifndef TOSTRING
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#endif
+
+
+#undef assert_failed
+#ifdef _MSC_VER
+#	define assert_failed(x) { printf("Assertion %s failed: %s in %s:%i\n", TOSTRING(x), (__FUNCSIG__), (__FILE__), (__LINE__)); __asm  { int 3 }; }
+#else
+#	ifdef __GNUC__
+#		define assert_failed(x) { printf("Assertion %s failed: %s in %s:%i\n", TOSTRING(x), __FUNCTION__, __FILE__, __LINE__); abort(); }
+#	else
+#		define assert_failed(x) { printf("Assertion %s failed: in %s:%i\n", TOSTRING(x), __FILE__, __LINE__); abort(); }
+#	endif
+#endif
+
+
+#undef rt_assert
+#define rt_assert(x) { if(!(x)) { assert_failed(x); } }
+
+
+// We will get multiple compiler errors for this (and we want these).
+// It should give a linker error for an unresolved symbol.
+void assert_failed_statically (void)
+#if defined(__GNUC__) && __GNUC_PREREQ(4,1)
+// In this case, we can print an error even earlier.
+	__attribute__((error("assertion always false")))
+#endif
+;
+
+
+#undef is_known_at_ct
+#ifdef __GNUC__
+#	define is_known_at_ct(x)	__builtin_constant_p(x)
+#else
+// TODO ...
+#	define is_known_at_ct(x)	0
+#endif
+
+
+#undef assert
+#define assert(x)	{ \
+	if(is_known_at_ct(x)) { \
+		if(strcmp(TOSTRING(x), "false") == 0) { rt_assert(x); } \
+ 		else if(!(x)) assert_failed_statically(); } \
+	else rt_assert(x); }
+
