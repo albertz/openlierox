@@ -731,7 +731,22 @@ void GameServer::Frame(void)
 	if( tLXOptions->bRegServer && !bServerRegistered )
 		ProcessRegister();
 
-
+	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
+		m_clientsNeedLobbyUpdate = false;
+		
+		if(!cClients) { // can happen if server was not started correctly
+			errors << "GS::UpdateGameLobby: cClients == NULL" << endl;
+		}
+		else {
+			CServerConnection* cl = cClients;
+			for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
+				if(cl->getStatus() != NET_CONNECTED)
+					continue;
+				cl->getNetEngine()->SendUpdateLobbyGame();
+			}	
+		}
+	}
+	
 	ReadPackets();
 
 	SimulateGame();

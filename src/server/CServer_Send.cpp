@@ -562,7 +562,7 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	{
 		static bool didShowMessageAlready = false;
 		if(!didShowMessageAlready)
-			printf("using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
+			notes << "using max upload rate " << (fMaxRate / 1024.0f) << " kb/sec" << endl;
 		didShowMessageAlready = true;
 	}
 
@@ -621,30 +621,19 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 
 ///////////////////
 // Send an update of the game details in the lobby
-void GameServer::UpdateGameLobby(CServerConnection *cl)
+void GameServer::UpdateGameLobby()
 {
 	if(getGameMode() == NULL) {
 		errors << "Trying to play a non-existant gamemode" << endl;
 		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 	}
-
+	
 	// Read map/mod name from map/mod file
 	tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
 	
-	if(cl) {
-		cl->getNetEngine()->SendUpdateLobbyGame();
-
-	} else {
-		if(!cClients) return; // can happen if server was not started correctly
-
-		cl = cClients;
-		for(int i = 0; i < MAX_CLIENTS; i++, cl++) {
-			if(cl->getStatus() != NET_CONNECTED)
-				continue;
-			cl->getNetEngine()->SendUpdateLobbyGame();
-		}
-	}
+	m_clientsNeedLobbyUpdate = true;
+	m_clientsNeedLobbyUpdateTime = tLX->currentTime;	
 }
 
 void CServerNetEngine::SendUpdateLobby(CServerConnection *target)

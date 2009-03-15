@@ -1320,7 +1320,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if( iState == SVS_LOBBY )
 		UpdateGameLobby(); // tell everybody about game lobby details
 	else
-		UpdateGameLobby(newcl); // send him the game lobby details
+		// TODO: is that needed? in theory, we should send all important things also in prepare game
+		newcl->getNetEngine()->SendUpdateLobbyGame(); // send him the game lobby details
 
 	if (tLX->iGameType != GME_LOCAL) {
 		if( iState == SVS_LOBBY )

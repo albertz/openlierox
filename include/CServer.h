@@ -133,6 +133,9 @@ private:
 	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	
+	bool		m_clientsNeedLobbyUpdate;
+	AbsTime		m_clientsNeedLobbyUpdateTime;
+	
 	static void SendConnectHereAfterTimeout (Timer::EventData ev);
 
 	friend class CServerNetEngine;
@@ -213,7 +216,7 @@ public:
 	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect();
     void        SendWormLobbyUpdate(CServerConnection* receiver = NULL, CServerConnection *target = NULL); // if NULL, to everybody, or only to cl. If target is NULL send info about all worms
-	void		UpdateGameLobby(CServerConnection* cl = NULL); // if NULL, to everybody, or only to cl
+	void		UpdateGameLobby();
 	void		UpdateWorms();
 #ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
