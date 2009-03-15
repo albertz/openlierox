@@ -247,10 +247,13 @@ int GameServer::StartServer()
 		warnings << "cfg/udpmasterservers.txt not found" << endl;
 
 
-	// Setup the register so it happens on the first frame
-	bServerRegistered = true;
-	fLastRegister = AbsTime();
-	fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count
+	if(tLXOptions->bRegServer) {
+		bServerRegistered = false;
+		fLastRegister = tLX->currentTime;
+		RegisterServer();
+		
+		fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count		
+	}
 
 	// Initialize the clients
 	for(i=0;i<MAX_CLIENTS;i++) {
