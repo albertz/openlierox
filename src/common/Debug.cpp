@@ -18,7 +18,7 @@ void RaiseDebugger() {
 	// HINT: ignored when not in debugger
 	// If it just does nothing then, remove the surrounding #ifdef DEBUG
 	// I read about a Win32's IsDebuggerPresent() function, perhaps you should use that one here.
-	//__asm  { int 3 };  // TODO: VERY annoying, gets hit very often in a spammy game
+	__asm  { int 3 };
 #endif
 }
 
