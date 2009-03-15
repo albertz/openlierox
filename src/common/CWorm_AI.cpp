@@ -1826,6 +1826,7 @@ bool CWormBotInputHandler::AI_Shoot()
     }
 
 	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
+		// there is no shooting in this gamemode
 		return false;
 	}
 	
@@ -3569,9 +3570,13 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	if (nAITargetType == AIT_WORM && psAITarget)
 		cPosTarget = AI_FindShootingSpot();
 
+	bool canShoot = true;
+	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm))
+		canShoot = false;
+	
 	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
 	// and move away!
-	if (iAiGameType == GAM_MORTARS)  {
+	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
 			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce(m_worm->vPos).x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
 				m_worm->cNinjaRope.Release();
@@ -3581,7 +3586,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		}
 	}
 
-	if (iAiGameType == GAM_MORTARS || iAiGameType == GAM_100LT)  {
+	if (canShoot && (iAiGameType == GAM_MORTARS || iAiGameType == GAM_100LT))  {
 		// If there's some worm in sight and we are on ground, jump!
 		if (m_worm->bOnGround)  {
 			for (int i = 0; i < MAX_WORMS; i++)  {
@@ -3600,7 +3605,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	}
 
 	// Don't do anything crazy a while after shooting
-	if (iAiGameType == GAM_MORTARS)  {
+	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (tLX->currentTime - fLastShoot <= 1.0f)
 			return;
 	}
@@ -3687,7 +3692,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	// TODO: in general, move away from projectiles
 
 	// prevent suicides
-	if (iAiGameType == GAM_MORTARS)  {
+	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (tLX->currentTime - fLastShoot <= 0.2f)  {
 			if (fRopeAttachedTime >= 0.1f)
 				m_worm->cNinjaRope.Release();
@@ -3778,7 +3783,7 @@ find_one_visible_node:
 
 		  This is an advanced check, so simply ignore it if we are "noobs"
 		*/
-		if (iAiGameType == GAM_RIFLES && iAiDiffLevel >=2)  {
+		if (canShoot && iAiGameType == GAM_RIFLES && iAiDiffLevel >=2)  {
 			int num_reloaded=0;
 			int i;
 			for (i=0;i<5;i++) {
@@ -3827,7 +3832,7 @@ find_one_visible_node:
 		if ((fabs(nodePos.x - m_worm->vPos.x) <= 50) && (type & PX_DIRT))
 			if (nodePos.y < m_worm->vPos.y)  {
 				int wpn;
-				if((wpn = AI_FindClearingWeapon()) != -1) {
+				if(canShoot && (wpn = AI_FindClearingWeapon()) != -1) {
 					m_worm->iCurrentWeapon = wpn;
 					ws->bShoot = AI_SetAim(nodePos); // aim at the dirt and fire if aimed
 					if(ws->bShoot) {
@@ -3906,7 +3911,7 @@ find_one_visible_node:
 
 	// In rifle games: don't continue if we see the final target and are quite close to it
 	// If we shot the rope, we wouldnt aim the target, which is the priority now
-	if(fireNinja && iAiGameType == GAM_RIFLES && we_see_the_target && (m_worm->vPos-cPosTarget).GetLength2() <= 3600.0f) {
+	if(canShoot && fireNinja && iAiGameType == GAM_RIFLES && we_see_the_target && (m_worm->vPos-cPosTarget).GetLength2() <= 3600.0f) {
 		fireNinja = false;
 	}
 
@@ -4034,9 +4039,12 @@ find_one_visible_node:
 
     }
 
-	// only move if we are away from the next node
-	ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
-
+	if(canShoot)
+		// only move if we are away from the next node
+		ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
+	else
+		// always move, we cannot do something else
+		ws->bMove = true;
 
 /*
 	// If the next node is above us by a little, jump too
