@@ -27,6 +27,7 @@
 #include <list>
 #include <cassert>
 #include "SmartPointer.h"
+#include "types.h"
 
 // these forward-declaration are needed here
 // they will be declared in CMap.h and CGameScript.h
