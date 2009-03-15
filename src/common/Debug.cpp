@@ -9,7 +9,7 @@
 
 #include "Debug.h"
 #include "StringUtils.h"
-
+#include "CrashHandler.h"
 
 #ifdef WIN32
 
@@ -101,9 +101,12 @@ static bool AmIBeingDebugged() {
 void RaiseDebugger() {
 	if(AmIBeingDebugged()) {
 		printf("I am being debugged, raising debugger ...\n");
-		// TODO: If we have set own signal handlers, these will catch the signal.
-		// That is not what we want here, so we have temporarly to disable them.
+		CrashHandler::get()->disable();
+		// TODO: We need a way to set another ucontext here. (And that should be specified via a parameter
+		// to RaiseDebugger().) E.g. when we use this function in the debugger thread, we want to set the
+		// ucontext of the main loop thread.
 		raise(SIGABRT);
+		CrashHandler::get()->enable();
 	} else
 		printf("I am not being debugged, ignoring debugger raise.\n");
 }

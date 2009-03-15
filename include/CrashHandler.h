@@ -12,9 +12,14 @@
 
 class CrashHandler {
 public:
+	virtual ~CrashHandler() {}
 	static void init();
 	static void uninit();
 	static CrashHandler* get();
+	
+	// you can temporarly disable it (and then enable it again)
+	virtual void disable() {}
+	virtual void enable() {}
 };
 
 #endif

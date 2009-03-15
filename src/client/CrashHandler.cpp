@@ -55,7 +55,6 @@ public:
 		notes << "Win32 Exception Filter installed" << endl;
 	}
 
-
 };
 
 void *ReadGameStateForReport(char *buffer, size_t bufsize)
@@ -418,6 +417,9 @@ static signal_def signal_data[] =
 { "SIGSYS", SIGSYS, "Bad system call" },
 };
 
+static int handlerSignalList[] = {
+SIGSEGV, SIGTRAP, SIGABRT, SIGHUP, SIGBUS, SIGILL, SIGFPE, SIGSYS, SIGUSR1, SIGUSR2
+};
 
 typedef const char * cchar;
 
@@ -434,6 +436,7 @@ public:
 			notes << "no signal handler with these settings" << endl;
 	}
 	
+
 	static void setSignalHandlers() {
 		struct sigaction sa;
 		
@@ -441,18 +444,18 @@ public:
 		sigemptyset (&sa.sa_mask);
 		sa.sa_flags = SA_RESTART | SA_SIGINFO;
 
-		sigaction(SIGSEGV, &sa, NULL);
-		sigaction(SIGTRAP, &sa, NULL);
-		sigaction(SIGABRT, &sa, NULL);
-		sigaction(SIGHUP, &sa, NULL);
-		sigaction(SIGBUS, &sa, NULL);
-		sigaction(SIGILL, &sa, NULL);
-		sigaction(SIGFPE, &sa, NULL);		
-		sigaction(SIGSYS, &sa, NULL);		
-		sigaction(SIGUSR1, &sa, NULL);
-		sigaction(SIGUSR2, &sa, NULL);
+		for (unsigned int i = 0; i < sizeof(handlerSignalList) / sizeof(int); i++)
+			sigaction(handlerSignalList[i], &sa, NULL);
 	}
-		
+	
+	static void unsetSignalHandlers() {
+		for (unsigned int i = 0; i < sizeof(handlerSignalList) / sizeof(int); i++)
+			signal(handlerSignalList[i], SIG_DFL);
+	}
+	
+	void enable() { if(tLXOptions->bRecoverAfterCrash) setSignalHandlers(); }
+	void disable() { unsetSignalHandlers(); }
+	
 	static void SimpleSignalHandler(int signr, siginfo_t *info, void *secret) {
 		signal(signr, SIG_IGN); // discard all remaining signals
 
