@@ -7,6 +7,9 @@
 	created on 7/3/2009
 */
 
+#ifndef __CONVERSATIONLOGGER_H__
+#define __CONVERSATIONLOGGER_H__
+
 #include "Protocol.h" // for TXT_TYPE
 
 class ConversationLogger  {
@@ -42,3 +45,5 @@ public:
 };
 
 extern ConversationLogger *convoLogger;
+
+#endif
