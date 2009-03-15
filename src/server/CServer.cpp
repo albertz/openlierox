@@ -180,8 +180,9 @@ int GameServer::StartServer()
 
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
+	// TODO: Why is that stored in debug_string ???
 	NetAddrToString(addr, tLX->debug_string);
-	hints << "server started on " <<  tLX->debug_string;
+	hints << "server started on " <<  tLX->debug_string << endl;
 
 	// Initialize the clients
 	cClients = new CServerConnection[MAX_CLIENTS];
@@ -896,7 +897,7 @@ void GameServer::RegisterServer(void)
 	bServerRegistered = false;
 
 	// Start with the first server
-	printf("Registering server at " + *tCurrentMasterServer + "\n");
+	notes << "Registering server at " << *tCurrentMasterServer << endl;
 	tCurrentMasterServer = tMasterServers.begin();
 	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 }
@@ -931,7 +932,7 @@ void GameServer::ProcessRegister(void)
 	// Server failed or finished, anyway, go on
 	tCurrentMasterServer++;
 	if (tCurrentMasterServer != tMasterServers.end())  {
-		printf("Registering server at " + *tCurrentMasterServer + "\n");
+		notes << "Registering server at " << *tCurrentMasterServer << endl;
 		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 	} else {
 		// All servers are processed
