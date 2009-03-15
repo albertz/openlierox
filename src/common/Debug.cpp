@@ -101,6 +101,8 @@ static bool AmIBeingDebugged() {
 void RaiseDebugger() {
 	if(AmIBeingDebugged()) {
 		printf("I am being debugged, raising debugger ...\n");
+		// TODO: If we have set own signal handlers, these will catch the signal.
+		// That is not what we want here, so we have temporarly to disable them.
 		raise(SIGABRT);
 	} else
 		printf("I am not being debugged, ignoring debugger raise.\n");
