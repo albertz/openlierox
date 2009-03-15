@@ -30,6 +30,7 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "IpToCountryDB.h"
+#include "ConversationLogger.h"
 
 
 namespace DeprecatedGUI {
@@ -820,18 +821,12 @@ void Menu_OptionsFrame(void)
 				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {
 						tLXOptions->bLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						FILE *f;
-
-						f = OpenGameFile("Conversations.log","a");
-						if (f)  {
-							if (tLXOptions->bLogConvos)  {
-								std::string cTime = GetDateTime();
-								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
-							}
+						if (convoLogger)  {
+							if (tLXOptions->bLogConvos)
+								convoLogger->startLogging();
 							else
-								fprintf(f,"</game>\r\n");
-							fclose(f);
-						} // if (f)
+								convoLogger->endLogging();
+						}
 					}
 					break;
 

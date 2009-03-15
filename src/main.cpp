@@ -43,6 +43,7 @@
 #include "Debug.h"
 #include "TaskManager.h"
 #include "CGameMode.h"
+#include "ConversationLogger.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -77,6 +78,7 @@ bool		bJoystickSupport = true;
 bool		bRestartGameAfterQuit = false;
 TStartFunction startFunction = NULL;
 void*		startFunctionData = NULL;
+ConversationLogger *convoLogger = NULL;
 
 
 keyboard_t	*kb = NULL;
@@ -309,20 +311,10 @@ startpoint:
 		return -1;
 	}
 
-	// TODO: abstract the logging, make an uniform message system
-	// Log the game start
-	if (tLXOptions->bLogConvos)  {
-		FILE *f;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (f)  {
-			std::string cTime = GetDateTime();
-			fputs("<game starttime=\"",f);
-			fputs(cTime.c_str(),f);
-			fputs("\">\r\n",f);
-			fclose(f);
-		}
-	}
+	// Initialize chat logging
+	convoLogger = new ConversationLogger();
+	if (tLXOptions->bLogConvos)
+		convoLogger->startLogging();
 
 	// Setup the global keys	
 	cTakeScreenshot = new CInput();
@@ -1029,16 +1021,6 @@ void ShutdownLieroX()
 	
 	ShutdownIRC(); // Disconnect from IRC
 
-	if (tLXOptions->bLogConvos)  {
-		FILE *f;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (f)  {
-			fputs("</game>\r\n",f);
-			fclose(f);
-		}
-	}
-
 	if(bDedicated)
 		DedicatedControl::Uninit();
 
@@ -1081,6 +1063,14 @@ void ShutdownLieroX()
 		cServer->Shutdown();
 		delete cServer;
 		cServer = NULL;
+	}
+
+	// End logging
+	if (convoLogger)  {
+		if (tLXOptions->bLogConvos)
+			convoLogger->endLogging();
+		delete convoLogger;
+		convoLogger = NULL;
 	}
 
 	// Options

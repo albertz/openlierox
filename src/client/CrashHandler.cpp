@@ -18,6 +18,7 @@
 #include "DedicatedControl.h"
 #include "StringUtils.h"
 #include "Debug.h"
+#include "ConversationLogger.h"
 
 
 
@@ -310,6 +311,13 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	__try  {
 		SDL_Quit();
 	} 
+	__except(EXCEPTION_EXECUTE_HANDLER) {}
+
+	// End conversation logging (to make the XML valid)
+	__try  {
+		if (convoLogger)
+			delete convoLogger;
+	}
 	__except(EXCEPTION_EXECUTE_HANDLER) {}
 
 	// Close all opened files

@@ -785,6 +785,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\cassert.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\CBytestream.cpp"
 				>
 				<FileConfiguration
@@ -1101,6 +1105,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\client\ConversationLogger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ConversationLogger.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CssParser.cpp"

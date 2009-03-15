@@ -47,6 +47,7 @@
 #include "CWormBot.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "ConversationLogger.h"
 
 
 
@@ -269,6 +270,10 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	client->bHostAllowsMouse = false;
 	client->bHostAllowsStrafing = false;
+
+	// Log the connecting
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->enterServer(client->getServerName());
 	
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
@@ -1159,8 +1164,6 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 			col = tLX->clNormalText;
     }
 
-    FILE *f;
-
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
 	// Htmlentity nicks in the message
@@ -1176,37 +1179,8 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 
 	// Log the conversation
-	if (tLXOptions->bLogConvos)  {
-		if(!client->bInServer)  {
-			client->cIConnectedBuf = buf;
-			return;
-		}
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("    <message type=\"",f);
-
-		switch(type) {
-			// Chat
-			case TXT_CHAT:		fputs("CHAT",f);	break;
-			// Normal
-			case TXT_NORMAL:	fputs("NORMAL",f);	break;
-			// Notice
-			case TXT_NOTICE:	fputs("NOTICE",f);	break;
-			// Network
-			case TXT_NETWORK:	fputs("NETWORK",f);	break;
-			// Private
-			case TXT_PRIVATE:	fputs("PRIVATE",f);	break;
-			// Team Private Chat
-			case TXT_TEAMPM:	fputs("TEAMPM",f);	break;
-		}
-
-		fputs("\" text=\"",f);
-		fputs(buf.c_str(),f);
-		fputs("\" />\r\n",f);
-		fclose(f);
-	}
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->logMessage(buf, (TXT_TYPE)type);
 }
 
 
@@ -1622,31 +1596,6 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 
-	// Log the conversation
-	if (tLXOptions->bLogConvos)  {
-		if(client->bInServer)
-			return;
-
-		client->bInServer = true;
-
-		FILE *f;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("  <server hostname=\"",f);
-		fputs(HostName.c_str(),f);
-		std::string cTime = GetDateTime();
-		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
-		if(client->cIConnectedBuf != "")  {
-			fputs("    <message type=\"NETWORK\" text=\"",f);
-			fputs(client->cIConnectedBuf.c_str(),f);
-			fputs("\" />\r\n",f);
-			client->cIConnectedBuf = "";
-		}
-		fclose(f);
-	}
-
 }
 
 void CClientNetEngineBeta9::ParseUpdateLobby(CBytestream *bs)
@@ -1951,19 +1900,9 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 	client->bServerError = true;
 	client->strServerErrorMsg = "Server has quit";
 
-	if (tLXOptions->bLogConvos)  {
-		if(!client->bInServer)
-			return;
-
-		FILE *f;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("  </server>\r\n",f);
-		client->bInServer = false;
-		fclose(f);
-	}
+	// Log
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->leaveServer();
 
 	NotifyUserOnEvent();
 
@@ -2112,23 +2051,9 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 	client->bServerError = true;
 	client->strServerErrorMsg = Utf8String(bs->readString());
 
-	if (tLXOptions->bLogConvos)  {
-		if(!client->bInServer)
-			return;
-
-		FILE *f;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("    <message type=\"NETWORK\" text=\"",f);
-		fputs(client->strServerErrorMsg.c_str(),f);
-		fputs("\" />",f);
-		fputs("  </server>\r\n",f);
-		client->bInServer = false;
-		fclose(f);
-	}
-
+	// Log
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->logMessage(client->strServerErrorMsg, TXT_NETWORK);
 }
 
 // Server sent us some file

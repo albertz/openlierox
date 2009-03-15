@@ -42,6 +42,7 @@
 #include "NotifyUser.h"
 #include "CWormHuman.h"
 #include "Debug.h"
+#include "ConversationLogger.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -1581,20 +1582,9 @@ void CClient::Disconnect()
 	getUdpFileDownloader()->reset();
 
 
-	if (tLXOptions->bLogConvos)  {
-		FILE *f;
-
-
-		if(!bInServer)
-			return;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("  </server>\r\n",f);
-		bInServer = false;
-		fclose(f);
-	}
+	// Log leaving the server
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->leaveServer();
 	
 	if( GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("");
@@ -1985,19 +1975,8 @@ void CClient::Shutdown(void)
 		DeprecatedGUI::Menu_FloatingOptionsShutdown();
 
 	// Log this
-	if (tLXOptions->bLogConvos)  {
-		FILE *f;
-
-		if(!bInServer)
-			return;
-
-		f = OpenGameFile("Conversations.log","a");
-		if (!f)
-			return;
-		fputs("  </server>\r\n",f);
-		bInServer = false;
-		fclose(f);
-	}
+	if (tLXOptions->bLogConvos && convoLogger)
+		convoLogger->leaveServer();
 }
 
 void CClient::setClientVersion(const Version& v)

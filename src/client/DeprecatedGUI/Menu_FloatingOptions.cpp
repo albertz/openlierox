@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
 #include "Music.h"
+#include "ConversationLogger.h"
 
 
 namespace DeprecatedGUI {
@@ -659,19 +660,14 @@ void Menu_FloatingOptionsFrame()
 						// check if value is really different
 						if(tLXOptions->bLogConvos != (cFloatingOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0) != 0)) {
 							tLXOptions->bLogConvos = ! tLXOptions->bLogConvos;
-							FILE *f;
-
-							f = OpenGameFile("Conversations.log","a");
-							if (f)  {
+							if (convoLogger)  {
 								if (tLXOptions->bLogConvos)  {
-									std::string cTime = GetDateTime();
-									fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
-								}
-								else
-									// bLogConvos was true before, so close <game>
-									fprintf(f,"</game>\r\n");
-								fclose(f);
-							} // if (f)
+									convoLogger->startLogging();
+									if (cClient && cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING)
+										convoLogger->enterServer(cClient->getServerName());
+								} else
+									convoLogger->endLogging();
+							}
 						}
 					}
 					break;
