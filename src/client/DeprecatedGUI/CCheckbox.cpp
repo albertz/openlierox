@@ -13,7 +13,7 @@
 // Created 30/3/03
 // Jason Boettcher
 
-#include "cassert.h"
+#include <cassert>
 #include "LieroX.h"
 
 #include "DeprecatedGUI/Menu.h"

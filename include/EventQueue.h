@@ -14,7 +14,7 @@
 #ifndef __EVENTQUEUE_H__
 #define __EVENTQUEUE_H__
 
-#include "cassert.h"
+#include <cassert>
 #include "ThreadPool.h" // for Action
 
 enum SDLUserEvent {

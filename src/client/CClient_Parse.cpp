@@ -15,7 +15,7 @@
 
 
 
-#include "cassert.h"
+#include <cassert>
 #include <time.h>
 
 #include "LieroX.h"

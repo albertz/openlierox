@@ -22,7 +22,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include "cassert.h"
+#include <cassert>
 #include <set>
 
 #include "LieroX.h"

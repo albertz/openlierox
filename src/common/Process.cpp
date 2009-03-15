@@ -7,7 +7,7 @@
  *
  */
 
-#include "cassert.h"
+#include <cassert>
 #include "Process.h"
 #include "Debug.h"
 #include "FindFile.h"

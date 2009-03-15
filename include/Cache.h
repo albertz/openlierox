@@ -25,7 +25,7 @@
 #include <map>
 #include <set>
 #include <list>
-#include "cassert.h"
+#include <cassert>
 #include "SmartPointer.h"
 
 // these forward-declaration are needed here

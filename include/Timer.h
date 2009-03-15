@@ -22,7 +22,7 @@
 
 #include <string>
 #include <SDL.h>
-#include "cassert.h"
+#include <cassert>
 #include "Event.h"
 #include "types.h"
 

@@ -15,7 +15,7 @@
 
 
 #include <cstdarg>
-#include "cassert.h"
+#include <cassert>
 
 #include "LieroX.h"
 #include "Debug.h"

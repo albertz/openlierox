@@ -26,7 +26,7 @@ void RaiseDebugger() {
 
 #if defined(__APPLE__)
 
-#include "cassert.h"
+#include <cassert>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <unistd.h>

@@ -969,7 +969,7 @@ void GameServer::RegisterServerUdp(void)
 
 		bs.Send(tSocket);
 		return;	// Only one UDP masterserver is supported
-	};
+	}
 }
 
 void GameServer::DeRegisterServerUdp(void)
@@ -985,7 +985,7 @@ void GameServer::DeRegisterServerUdp(void)
 		{
 			GetNetAddrFromNameAsync(domain, addr);
 			continue;
-		};
+		}
 		SetNetAddrPort( addr, port );
 		SetRemoteNetAddr( tSocket, addr );
 
@@ -1003,7 +1003,7 @@ void GameServer::DeRegisterServerUdp(void)
 
 		bs.Send(tSocket);
 		return;	// Only one UDP masterserver is supported
-	};
+	}
 }
 
 

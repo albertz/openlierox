@@ -586,7 +586,7 @@ void CServerNetEngine::SendUpdateLobbyGame()
 	CBytestream bs;
 	WriteUpdateLobbyGame(&bs);
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 {
@@ -600,7 +600,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeByte(tLXOptions->tGameInfo.bBonusesOn);
-};
+}
 
 void CServerNetEngineBeta7::WriteUpdateLobbyGame(CBytestream *bs)
 {
