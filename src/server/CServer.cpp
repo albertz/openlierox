@@ -251,9 +251,6 @@ int GameServer::StartServer()
 	bServerRegistered = true;
 	fLastRegister = AbsTime();
 	fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count
-	// TODO: why is this commented out?
-	//if(bRegServer)
-		//RegisterServer();
 
 	// Initialize the clients
 	for(i=0;i<MAX_CLIENTS;i++) {
@@ -1039,7 +1036,7 @@ void GameServer::CheckRegister(void)
 	// If we registered over n seconds ago, register again
 	// The master server will not add duplicates, instead it will update the last ping time
 	// so we will have another 5 minutes before our server is cleared
-	if( tLX->currentTime - fLastRegister > 4*60 ) {
+	if( tLX->currentTime - fLastRegister > 4*60.0f ) {
 		bServerRegistered = false;
 		fLastRegister = tLX->currentTime;
 		RegisterServer();
