@@ -14,6 +14,7 @@
 #include "ProfileSystem.h"
 #include "CWormHuman.h"
 #include "Entity.h"
+#include "CServer.h"
 
 namespace NewNet
 {
@@ -48,38 +49,9 @@ void RestoreState()
 };
 
 // TODO: make respawning server-sided and remove this function
-CVec FindSpot(CWorm *Worm)
+static CVec FindSpot(CWorm *Worm)
 {
-	CMap * cMap = cClient->getMap();
-	int	 x, y;
-	int	 px, py;
-	int	 cols = cMap->getGridCols() - 1;	   // Note: -1 because the grid is slightly larger than the
-	int	 rows = cMap->getGridRows() - 1;	   // level size
-	int	 gw = cMap->getGridWidth();
-	int	 gh = cMap->getGridHeight();
-
-	uchar pf, pf1, pf2, pf3, pf4;
-	cMap->lockFlags();
-	
-	// Find a random cell to start in - retry if failed
-	while(true) {
-		px = (int)(Worm->NewNet_random.getFloatPositive() * (float)cols);
-		py = (int)(Worm->NewNet_random.getFloatPositive() * (float)rows);
-		x = px; y = py;
-
-		if( x + y < 6 )	// Do not spawn in top left corner
-			continue;
-
-		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
-		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
-		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
-		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
-		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
-			cMap->unlockFlags();
-			return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
-		}
-	}
+	return cServer->FindSpot();
 }
 
 unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
