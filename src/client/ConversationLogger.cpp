@@ -135,7 +135,8 @@ void ConversationLogger::checkSizeAndRename()
 
 		// Extract filename and extension
 		std::string newname = GetBaseFilename(m_fileName);
-		// TODO: move that out here
+
+		// Remove the extension from newname and save it to ext
 		std::string ext;
 		size_t dotpos = newname.find('.');
 		if (dotpos != std::string::npos)  {

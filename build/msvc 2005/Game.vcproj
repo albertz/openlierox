@@ -785,7 +785,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\cassert.h"
+				RelativePath="..\..\include\cassert"
 				>
 			</File>
 			<File
