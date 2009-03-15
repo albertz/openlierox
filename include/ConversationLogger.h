@@ -10,6 +10,8 @@
 #ifndef __CONVERSATIONLOGGER_H__
 #define __CONVERSATIONLOGGER_H__
 
+#include <string>
+#include <cstdio>
 #include "Protocol.h" // for TXT_TYPE
 
 class ConversationLogger  {

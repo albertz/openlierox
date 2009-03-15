@@ -120,6 +120,7 @@
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
+		23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */; };
@@ -545,6 +546,7 @@
 		23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPool.cpp; sourceTree = "<group>"; };
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
+		23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConversationLogger.cpp; sourceTree = "<group>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
 		23CDBF900D0B06FD00920A5F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -1113,6 +1115,7 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
 				2395E4630ECB7FA900E8D04E /* IRC.cpp */,
 				2395E4640ECB7FA900E8D04E /* Music.cpp */,
 				23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */,
@@ -1789,6 +1792,7 @@
 				23099CCC0F60715A008E6C7F /* Mutex.cpp in Sources */,
 				23099CCD0F60715A008E6C7F /* NewNetEngine.cpp in Sources */,
 				23099CCE0F60715A008E6C7F /* StackWalker.cpp in Sources */,
+				23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
