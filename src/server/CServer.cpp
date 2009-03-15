@@ -175,8 +175,8 @@ int GameServer::StartServer()
 			if(!ListenSocket(tNatTraverseSockets[f])) {
 				continue;
 			}
-		};
-	};
+		}
+	}
 
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
@@ -225,7 +225,8 @@ int GameServer::StartServer()
 		}
 
 		fclose(fp);
-	}
+	} else
+		warnings << "cfg/masterservers.txt not found" << endl;
 
 	tCurrentMasterServer = tMasterServers.begin();
 
@@ -242,13 +243,15 @@ int GameServer::StartServer()
 		}
 
 		fclose(fp);
-	}
+	} else
+		warnings << "cfg/udpmasterservers.txt not found" << endl;
 
 
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
 	fLastRegister = AbsTime();
 	fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count
+	// TODO: why is this commented out?
 	//if(bRegServer)
 		//RegisterServer();
 
