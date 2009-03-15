@@ -27,7 +27,7 @@
 #include "MathLib.h"
 #include "CScriptableVars.h"
 #include "Debug.h"
-
+#include "Iterator.h"
 
 
 void CBytestream::Test()
@@ -251,23 +251,8 @@ void CBytestream::Append(CBytestream *bs) {
 ///////////////////
 // Dump the data out
 void CBytestream::Dump() {
-	size_t i = 0;
-	for(std::string::const_iterator it = Data.begin(); it != Data.end(); it++, i++) {
-		if((uchar)*it <= 127 && (uchar)*it >= 32) {
-			// Write out the byte and its ascii representation
-			if(*it != '\\')
-				notes << *it;
-			else
-				notes << "\\\\";
-		} else
-			notes << "\\" << hex((uint)(uchar)*it);
- 
-		// Linebreak after 16 dumped bytes
-		if((i % 16) == 15)
-			notes << endl;
-	}
- 
-	notes << endl;
+	HexDump(GetConstIterator(Data), printOnLogger<notes>);
+	notes.flush();
 }
 
 

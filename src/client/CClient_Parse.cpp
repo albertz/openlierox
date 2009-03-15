@@ -522,11 +522,11 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
-				printf("cl: Unknown packet\n");
+				warnings << "cl: Unknown packet" << endl;
 #ifdef DEBUG
-				printf("Bytestream dump:\n\n");
+				notes << "Bytestream dump:" << endl;
 				bs->Dump();
-				printf("\nDone dumping bytestream\n");
+				notes << "Done dumping bytestream" << endl;
 #endif //DEBUG
 
 #endif //FUZZY_ERROR_TESTING

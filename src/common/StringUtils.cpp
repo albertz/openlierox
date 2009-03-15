@@ -156,22 +156,62 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	return res;
 }
 
-bool PrettyPrint(const std::string& prefix, const std::string& buf, void (*PrintOutFct) (const std::string&), bool firstLineWithPrefix) {
+bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct printOutFct, bool firstLineWithPrefix) {
 	std::string::const_iterator it = buf.begin();
 	bool firstLine = true;
 	while(true) {
 		std::string tmp = ReadUntil(buf, it, '\n');		
 		if(it == buf.end()) {
 			if(tmp != "") {
-				(*PrintOutFct) ( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
+				(*printOutFct) ( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
 				return false;
 			}
 			return !firstLine || firstLineWithPrefix;
 		}
 		++it;
-		(*PrintOutFct) ( (!firstLineWithPrefix && firstLine) ? (tmp + "\n") : (prefix + tmp + "\n") );
+		(*printOutFct) ( (!firstLineWithPrefix && firstLine) ? (tmp + "\n") : (prefix + tmp + "\n") );
 		firstLine = false;
 	}
+}
+
+
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t count) {
+	std::string tmpLeft;
+	std::string tmpRight;
+	unsigned int tmpChars = 0;
+	static const unsigned int charsInLine = 16;
+	
+	size_t c = 0;
+	while(start->isValid() && c < count) {
+		unsigned char ch = start->get();
+		
+		tmpLeft += FixedWidthStr_LeftFill(hex(ch), 2, '0');
+		tmpLeft += " ";
+		if(ch >= 32 && ch <= 126)
+			tmpRight += ch;
+		else
+			tmpRight += '.';
+		
+		tmpChars++;
+		if(tmpChars == charsInLine / 2) {
+			tmpLeft += "  ";
+			tmpRight += " ";
+		}
+		if(tmpChars == charsInLine) {
+			(*printOutFct) ( tmpLeft + "| " + tmpRight + "\n" );
+			tmpChars = 0;
+			tmpLeft = tmpRight = "";
+		}
+		
+		start->next();
+	}
+	
+	tmpLeft += std::string((charsInLine - tmpChars) * 3, ' ');
+	tmpRight += std::string((charsInLine - tmpChars), ' ');	
+	if(tmpChars < charsInLine / 2) { tmpLeft += "  "; tmpRight += " "; }
+	(*printOutFct) ( tmpLeft + "| " + tmpRight + "\n" );
+	
+	return start;
 }
 
 

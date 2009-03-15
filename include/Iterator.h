@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <string>
 #include "Utils.h" // for Ref
 
 
@@ -84,6 +85,12 @@ typename Iterator<_T&>::Ref GetIterator(std::list<_T>& s) { return new STLIterat
 
 template< typename _T >
 typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
+
+inline
+Iterator<char&>::Ref GetIterator(std::string& s) { return new STLIterator<std::string,char&>(s); }
+
+inline
+Iterator<char>::Ref GetConstIterator(std::string& s) { return new STLIterator<std::string,char>(s); }
 
 template< typename _T >
 typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }

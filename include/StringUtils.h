@@ -16,10 +16,12 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cassert>
 #include <list>
 #include <limits.h>
 #include "types.h"
 #include "Color.h" // for StrToCol
+#include "Iterator.h"
 
 //
 // C-string handling routines
@@ -157,11 +159,28 @@ std::string		ColToHex(Uint32 col);
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 
-// returns true if last char was a newline
-bool PrettyPrint(const std::string& prefix, const std::string& buf, void (*PrintOutFct) (const std::string&), bool firstLineWithPrefix = true);
 
+typedef void (*PrintOutFct) (const std::string&);
 inline void NullOut(const std::string&) {}
 
+// returns true if last char was a newline
+bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct printOutFct, bool firstLineWithPrefix = true);
+
+
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t count = (size_t)-1);
+
+
+
+
+inline std::string FixedWidthStr_RightFill(const std::string& str, size_t w, char c) {
+	assert(str.size() <= w);
+	return str + std::string(str.size() - w, c);
+}
+
+inline std::string FixedWidthStr_LeftFill(const std::string& str, size_t w, char c) {
+	assert(str.size() <= w);
+	return std::string(w - str.size(), c) + str;
+}
 
 ////////////////////
 // Read a fixed-length C-string from a file

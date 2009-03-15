@@ -64,6 +64,9 @@ struct Logger {
 inline Logger& endl(Logger& __os) { return (__os << "\n").flush(); }
 inline Logger& flush(Logger& __os) { return __os.flush(); }
 
+template< Logger& l >
+void printOnLogger(const std::string& str) { l << str; }
+
 
 extern Logger notes;
 extern Logger hints;
