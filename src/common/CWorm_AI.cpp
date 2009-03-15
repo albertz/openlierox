@@ -22,7 +22,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include <cassert>
+#include "cassert.h"
 #include <set>
 
 #include "LieroX.h"
@@ -1015,7 +1015,7 @@ void CWormBotInputHandler::getInput() {
 	ws->bJump = false;
 
 	// Behave like humans and don't play immediatelly after spawn
-	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4)
+	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4f)
 		return;
 
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it

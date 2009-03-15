@@ -11,7 +11,7 @@
 #define __OLXDEBUG_H__
 
 #include <string>
-#include <cassert>
+#include "cassert.h"
 #include "StringUtils.h"
 
 // { these function should be safe to be called from everywhere, also from signalhandlers

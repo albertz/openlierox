@@ -18,7 +18,7 @@
 
 
 
-#include <cassert>
+#include "cassert.h"
 #include <gd.h>
 #include <SDL.h>
 

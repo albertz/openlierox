@@ -8,7 +8,7 @@
 #define __SMARTPOINTER_H__
 
 #include <limits.h>
-#include <cassert>
+#include "cassert.h"
 
 #ifdef DEBUG
 #include <map>

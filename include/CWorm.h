@@ -17,7 +17,7 @@
 #ifndef __CWORM_H__
 #define __CWORM_H__
 
-#include <cassert>
+#include "cassert.h"
 #include "LieroX.h" // for MAX_WORMS, _AI_DEBUG
 #include "CProjectile.h"
 #include "CNinjaRope.h"

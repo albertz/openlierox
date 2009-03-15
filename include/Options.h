@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <cassert>
+#include "cassert.h"
 #include "FeatureList.h"
 
 // Setup input id's

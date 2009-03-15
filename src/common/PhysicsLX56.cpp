@@ -306,7 +306,7 @@ public:
 		// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 		// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).
 		if(worm->getHealth() < 15 && worm->isVisibleForEverybody()) {
-			if(simulationTime - worm->getLastBlood() > 2) {
+			if((simulationTime - worm->getLastBlood()).seconds() > 2) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
 				float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;

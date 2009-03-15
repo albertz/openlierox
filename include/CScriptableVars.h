@@ -15,7 +15,7 @@
 #include <map>
 #include <vector>
 #include <list>
-#include <cassert>
+#include "cassert.h"
 #include "Color.h"
 
 namespace DeprecatedGUI {

@@ -15,7 +15,7 @@
 
 
 
-#include <cassert>
+#include "cassert.h"
 #include <time.h>
 
 #include "LieroX.h"
@@ -279,7 +279,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 void CClientNetEngine::ParsePong()
 {
 	if (client->fMyPingSent.seconds() > 0)  {
-		int png = (int) ((tLX->currentTime-client->fMyPingSent).seconds());
+		int png = (int) ((tLX->currentTime-client->fMyPingSent).milliseconds());
 
 		// Make the ping slighter
 		if (png - client->iMyPing > 5 && client->iMyPing && png)

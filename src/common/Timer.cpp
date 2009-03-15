@@ -20,7 +20,7 @@
 #include <list>
 #include "ThreadPool.h"
 #include <time.h>
-#include <cassert>
+#include "cassert.h"
 #include "Timer.h"
 #include "Debug.h"
 #include "InputEvents.h"
@@ -67,7 +67,7 @@ int GetMinFPS(void)
 	{
 		OldFPSTime_MinFPS = ms;
 
-		if( MaxFrameTime_MinFPS > 0.00000001 )
+		if( MaxFrameTime_MinFPS > 0.00000001f )
 			Fps_MinFPS = (int)( 1.0f / MaxFrameTime_MinFPS.seconds() );
 		if( Fps_MinFPS > Fps )
 			Fps_MinFPS = Fps;

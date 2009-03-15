@@ -316,7 +316,7 @@ void GameServer::SimulateGame(void)
 	// Simulate anything needed by the game mode
 	getGameMode()->Simulate();
 
-	if( tLXOptions->tGameInfo.fTimeLimit > 0 && fServertime > tLXOptions->tGameInfo.fTimeLimit*60.0 )
+	if( tLXOptions->tGameInfo.fTimeLimit > 0 && fServertime > tLXOptions->tGameInfo.fTimeLimit*60.0f )
 		RecheckGame();
 }
 

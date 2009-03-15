@@ -329,7 +329,7 @@ int NetPacketSize()
 
 void AddEmptyPacket( AbsTime localTime, CBytestream * bs )
 {
-	bs->writeInt( localTime.time, 4 );
+	bs->writeInt( (int)localTime.time, 4 );  // TODO: possible overflow
 	bs->writeByte( UCHAR_MAX );
 }
 
@@ -376,7 +376,7 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
 	//printf("SendNetPacket() put keys in time %lu\n", localTime);
-	bs->writeInt( localTime.time, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
+	bs->writeInt( (int)localTime.time, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 	int changedKeyIdx = changedKeys.getFirstPressedKey();
 	if( changedKeyIdx == -1 )
 		bs->writeByte( UCHAR_MAX );

@@ -1157,7 +1157,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( (tLX->currentTime - fStartDedicatedSecondsPassed).seconds() );
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{
-		if( tLX->currentTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
+		if( tLX->currentTime - fStartDedicatedSecondsPassed > (float)iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
 			cClient->getNetEngine()->SendText( "Game will start when " +
 					itoa(iStartDedicatedMinPlayers) + " players connect", "");

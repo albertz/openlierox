@@ -23,7 +23,7 @@
 #define __TYPES_H__
 
 #include <SDL.h>
-#include <cassert>
+#include "cassert.h"
 
 struct TimeDiff {
 	Uint64 timeDiff;

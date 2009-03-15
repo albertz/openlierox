@@ -32,12 +32,15 @@
 
 // We will get multiple compiler errors for this (and we want these).
 // It should give a linker error for an unresolved symbol.
-void assert_failed_statically (void)
-#if defined(__GNUC__) && __GNUC_PREREQ(4,3)
+
+#if defined(__GNUC__)
+#if __GNUC_PREREQ(4,3)
 // In this case, we can print an error even earlier.
-	__attribute__((error("assertion always false")))
+	void assert_failed_statically (void) __attribute__((error("assertion always false")));
 #endif
-;
+#else
+#define assert_failed_statically()  {  }
+#endif
 
 
 #undef is_known_at_ct
