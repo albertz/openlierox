@@ -126,7 +126,7 @@ void ConversationLogger::checkSizeAndRename()
 {
 	if (FileSize(m_fileName) > MAX_FILESIZE)  {
 		if (m_file)  {
-			errors << "Cannot rename the " << m_file << " file because it is being used by the logger" << endl;
+			hints << "Cannot rename the " << m_file << " file because it is being used by the logger" << endl;
 			return;
 		}
 
@@ -138,6 +138,7 @@ void ConversationLogger::checkSizeAndRename()
 
 		// Extract filename and extension
 		std::string newname = GetBaseFilename(m_fileName);
+		// TODO: move that out here
 		std::string ext;
 		size_t dotpos = newname.find('.');
 		if (dotpos != std::string::npos)  {

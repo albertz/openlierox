@@ -42,8 +42,6 @@ public:
 	void leaveServer();
 
 	void logMessage(const std::string& msg, TXT_TYPE type);
-
-
 };
 
 extern ConversationLogger *convoLogger;
