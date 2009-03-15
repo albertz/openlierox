@@ -533,6 +533,8 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// Send the connected clients a startgame message
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
+	if ((bool)tLXOptions->tGameInfo.features[FT_NewNetEngine])
+		bs.writeInt(NewNet::netRandom.getSeed(), 4);
 	if(receiver)
 		receiver->getNetEngine()->SendPacket(&bs);
 	else
