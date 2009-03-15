@@ -18,7 +18,6 @@ class ConversationLogger  {
 public:
 	ConversationLogger() : 
 		m_fileName("Conversations.log"), 
-		m_loggingActive(false),
 		m_inServer(false),
 		m_file(NULL)
 		{}
@@ -27,7 +26,6 @@ public:
 
 private:
 	std::string m_fileName;
-	bool m_loggingActive;
 	bool m_inServer;
 	FILE *m_file;
 

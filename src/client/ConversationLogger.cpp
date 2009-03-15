@@ -27,7 +27,6 @@ void ConversationLogger::startLogging()
 		return;
 	}
 
-	m_loggingActive = true;
 	fprintf(m_file, "<game starttime=\"%s\">\r\n", GetDateTime().c_str());
 }
 
@@ -35,7 +34,7 @@ void ConversationLogger::startLogging()
 // Ends conversation logging
 void ConversationLogger::endLogging()
 {
-	if (!m_file || !m_loggingActive)
+	if (!m_file)
 		return;
 
 	if (m_inServer)
@@ -48,8 +47,6 @@ void ConversationLogger::endLogging()
 	fclose(m_file);
 	m_file = NULL;
 
-	m_loggingActive = false;
-
 	// Check that the file is not too big
 	checkSizeAndRename();
 }
@@ -58,7 +55,7 @@ void ConversationLogger::endLogging()
 // Log entering the server
 void ConversationLogger::enterServer(const std::string &name)
 {
-	if (!m_file || !m_loggingActive)
+	if (!m_file)
 		return;
 
 	// Check if not already in a server
@@ -77,7 +74,7 @@ void ConversationLogger::enterServer(const std::string &name)
 // Log leaving a server
 void ConversationLogger::leaveServer()
 {
-	if (!m_file || !m_inServer || !m_loggingActive)
+	if (!m_file || !m_inServer)
 		return;
 
 	fprintf(m_file, "  </server>\r\n");
@@ -88,7 +85,7 @@ void ConversationLogger::leaveServer()
 // Log a message
 void ConversationLogger::logMessage(const std::string &msg, TXT_TYPE type)
 {
-	if (!m_file || !m_loggingActive)
+	if (!m_file)
 		return;
 
 	if (!m_inServer)  {
