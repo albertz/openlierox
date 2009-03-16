@@ -19,6 +19,7 @@ OPTION(LIBZIP_BUILTIN "LibZIP builtin support" No)
 OPTION(STLPORT "STLport support" No)
 OPTION(GCOREDUMPER "Google Coredumper support" No)
 OPTION(PCH "Precompiled header (CMake 2.6 only)" No)
+OPTION(ADVASSERT "Advanced assert" No)
 OPTION(PYTHON_DED_EMBEDDED "Python embedded in dedicated server"  No)
 
 IF (DEBUG)
@@ -65,8 +66,9 @@ MESSAGE( "CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}" )
 MESSAGE( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 MESSAGE( "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}" )
 MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
-MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)")
-MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}")
+MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
+MESSAGE( "ADVASSERT = ${ADVASSERT}" )
+MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
 
 PROJECT(openlierox)
 
@@ -74,6 +76,10 @@ PROJECT(openlierox)
 INCLUDE_DIRECTORIES(sandbox/generated)
 INCLUDE_DIRECTORIES(include)
 INCLUDE_DIRECTORIES(libs/pstreams)
+
+IF(ADVASSERT)
+	INCLUDE_DIRECTORIES(optional-includes/advanced-assert)
+ENDIF(ADVASSERT)
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
