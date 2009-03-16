@@ -107,7 +107,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	bs->writeInt(server->getGameMode()->GeneralGameType(),1);
 	bs->writeInt16(tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs->writeInt16((int)tLXOptions->tGameInfo.fTimeLimit);
+	bs->writeInt16((int)(server->getGameMode()->TimeLimit() / 60.0f));
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
 	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
@@ -191,7 +191,7 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
-	bs->writeFloat(tLXOptions->tGameInfo.fTimeLimit);
+	bs->writeFloat(server->getGameMode()->TimeLimit() / 60.0f);
 	WriteFeatureSettings(bs);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
@@ -608,7 +608,7 @@ void CServerNetEngineBeta7::WriteUpdateLobbyGame(CBytestream *bs)
 void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WriteUpdateLobbyGame(bs);
-	bs->writeFloat(tLXOptions->tGameInfo.fTimeLimit);
+	bs->writeFloat(server->getGameMode()->TimeLimit() / 60.0f);
 	CServerNetEngineBeta9::WriteFeatureSettings(bs);
 	bs->writeString(server->getGameMode()->Name());
 }

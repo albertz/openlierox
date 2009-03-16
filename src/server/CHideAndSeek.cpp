@@ -24,6 +24,7 @@
 
 class CHideAndSeek : public CGameMode {
 public:
+	virtual float TimeLimit() { return fGameLength; }
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
 	virtual bool Spawn(CWorm* worm, CVec pos);
@@ -34,6 +35,7 @@ public:
 	virtual bool CheckGameOver();
 	virtual int  GeneralGameType();
 	virtual int  GameTeams();
+	virtual std::string TeamName(int t);
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Hide and Seek"; }
@@ -53,11 +55,15 @@ protected:
 };
 
 
+std::string CHideAndSeek::TeamName(int t) {
+	static const std::string teamname[2] = { "hiding", "seeking" };
+	if(t >= 0 && t < 2) return teamname[t];
+	return itoa(t);
+}
+
 void CHideAndSeek::PrepareGame()
 {
 	GenerateTimes();
-	if(tLXOptions->tGameInfo.fTimeLimit > 0)
-		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
@@ -184,7 +190,6 @@ bool CHideAndSeek::CheckGameOver()
 	
 	int worms[2] = { 0, 0 };
 	int winners = -1;
-	static const std::string teamname[2] = { "hiding", "seeking" };
 
 	// TODO: move out here
 	for(int i = 0; i < MAX_WORMS; i++)
@@ -195,11 +200,9 @@ bool CHideAndSeek::CheckGameOver()
 	else if(worms[1] == 0)
 		winners = HIDER;
 	if(winners != -1) {
-		if(networkTexts->sTeamHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon, "<team>",
-				teamname[winners], 1)), TXT_NORMAL);
 		return true;
 	}
+	
 	return false;
 }
 

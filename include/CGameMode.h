@@ -26,6 +26,9 @@ public:
 
 	// This is the game mode name as shown in the lobby for clients
 	virtual std::string Name() = 0;
+	virtual int  GeneralGameType(); // this is the game type which is sent over network
+	virtual int  GameTeams(); // amount of teams in gamemode
+	virtual std::string TeamName(int t);
 	
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm) {}
@@ -36,17 +39,15 @@ public:
 	virtual bool Shoot(CWorm* worm) { return true; }
 	virtual void Drop(CWorm* worm) {}
 	virtual void Carve(CWorm* worm, int d) {}
-	virtual void Simulate() {}
-	
+	virtual void Simulate() {}	
 	virtual bool CheckGameOver();
-	virtual int  GeneralGameType(); // this is the game type which is sent over network
-	virtual int  GameTeams();
-	virtual std::string TeamName(int t);
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
+	virtual float TimeLimit();
+	
 	virtual int CompareWormsScore(CWorm* w1, CWorm* w2);
 	virtual int CompareTeamsScore(int t1, int t2);
-	virtual int  Winner();
+	virtual int Winner();
 	virtual int WinnerTeam();
-	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
 
 	// helper functions
 	int WormsAliveInTeam(int t);

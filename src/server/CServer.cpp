@@ -1895,14 +1895,14 @@ void GameServer::Shutdown(void)
 	if(IsSocketStateValid(tSocket))
 	{
 		CloseSocket(tSocket);
-	};
+	}
 	InvalidateSocketState(tSocket);
 	for(i=0; i<MAX_CLIENTS; i++)
 	{
 		if(IsSocketStateValid(tNatTraverseSockets[i]))
 			CloseSocket(tNatTraverseSockets[i]);
 		InvalidateSocketState(tNatTraverseSockets[i]);
-	};
+	}
 
 	if(cClients) {
 		delete[] cClients;

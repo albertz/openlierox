@@ -25,6 +25,10 @@ int CGameMode::GameTeams() {
 	return 1;
 }
 
+float CGameMode::TimeLimit() {
+	return tLXOptions->tGameInfo.fTimeLimit * 60.0f;
+}
+
 std::string CGameMode::TeamName(int t) {
 	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };
 	if(t >= 0 && t < 4) return teamnames[t];
