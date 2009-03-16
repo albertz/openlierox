@@ -308,91 +308,98 @@ void Menu_Net_HostPlyFrame(int mouse)
 			case hs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
+					lv = (CListview *)cHostPly.getWidget(hs_Playing);
+					
+					if (lv->getItemCount() == 0) {
+						Menu_MessageBox("Too less worms", "You have to select at least one worm.");
+						break;
+					}
+					
+					// TODO: why MAX_PLAYERS-1 ?
+					if(lv->getItemCount() <= MAX_PLAYERS - 1) {
+						Menu_MessageBox("Too much worms",
+										"You have selected " + itoa(lv->getItemCount()) + " worms"
+										"but only " + itoa(MAX_PLAYERS - 1) + " worms are possible.");
+						break;
+					}
+					
 					tLX->iGameType = GME_HOST;
 
 					cClient->Shutdown();
 				    cClient->Clear();
 					if(!cClient->Initialize()) {
-						printf("Client wouldn't initialize\n");
+						errors << "Client wouldn't initialize" << endl;
 						break;
 					}
 
-					lv = (CListview *)cHostPly.getWidget(hs_Playing);
+					// Fill in the game structure
+					lv_item_t* item;
+					int count=0;
 
-					// Make sure there is 1-7 players in the list
-					if (lv->getItemCount() > 0 && lv->getItemCount() <= MAX_PLAYERS - 1) {
+					int i=0;
 
-						//cClient->getNumRemoteWorms() = lv->getItemCount();
+					// Add the human players to the list
+					for(item = lv->getItems(); item != NULL; item = item->tNext) {
+						if(item->iIndex < 0)
+							continue;
 
-						// Fill in the game structure
-						lv_item_t* item;
-						int count=0;
+						profile_t *ply = FindProfile(item->iIndex);
 
-						int i=0;
+						if(ply != NULL && ply->iType == PRF_HUMAN->toInt())  {
+							// Max two humans
+							// TODO: extend this
+							if(i > 2)
+								break;
 
-						// Add the human players to the list
-						for(item = lv->getItems(); item != NULL; item = item->tNext) {
-							if(item->iIndex < 0)
-								continue;
-
-							profile_t *ply = FindProfile(item->iIndex);
-
-							if(ply != NULL && ply->iType == PRF_HUMAN->toInt())  {
-								// Max two humans
-								// TODO: extend this
-								if(i > 2)
-									break;
-
-								cClient->getLocalWormProfiles()[count++] = ply;
-								i++;
-							}
-
+							cClient->getLocalWormProfiles()[count++] = ply;
+							i++;
 						}
 
-						// Add the unhuman players to the list
-						for(item = lv->getItems(); item != NULL; item = item->tNext) {
-							if(item->iIndex < 0)
-								continue;
+					}
 
-							profile_t *ply = FindProfile(item->iIndex);
+					// Add the unhuman players to the list
+					for(item = lv->getItems(); item != NULL; item = item->tNext) {
+						if(item->iIndex < 0)
+							continue;
 
-							if(ply != NULL && ply->iType != PRF_HUMAN->toInt())  {
-								cClient->getLocalWormProfiles()[count++] = ply;
-							}
+						profile_t *ply = FindProfile(item->iIndex);
+
+						if(ply != NULL && ply->iType != PRF_HUMAN->toInt())  {
+							cClient->getLocalWormProfiles()[count++] = ply;
 						}
-						cClient->setNumWorms(count);
+					}
+					cClient->setNumWorms(count);
 
-						// Get the server name
-						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->sServerName, 0);
-						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->sWelcomeMessage, 0);
-                        //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
+					// Get the server name
+					cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->sServerName, 0);
+					cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->sWelcomeMessage, 0);
+					//cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
 
-						std::string buf;
-						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
-						tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
-						// At least 2 players, and max MAX_PLAYERS
-						tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
-						tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
-						tLXOptions->bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameInfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameInfo.bServerSideHealth = false; // HINT: disable ssh for normal (non-dedicated) servers, as it is very cheaty
-						//tLXOptions->tGameInfo.bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					std::string buf;
+					cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
+					tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
+					// At least 2 players, and max MAX_PLAYERS
+					tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
+					tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
+					tLXOptions->bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->tGameInfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->tGameInfo.bServerSideHealth = false; // HINT: disable ssh for normal (non-dedicated) servers, as it is very cheaty
+					//tLXOptions->tGameInfo.bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
-						cHostPly.Shutdown();
+					cHostPly.Shutdown();
 
-						// Click
-						PlaySoundSample(sfxGeneral.smpClick);
+					// Click
+					PlaySoundSample(sfxGeneral.smpClick);
 
-						iHumanPlayers = 0;
+					iHumanPlayers = 0;
 
-						// Start the lobby
-						if (!Menu_Net_HostLobbyInitialize())  {
-							printf("ERROR: could not start hosting\n");
-							Menu_Net_HostInitialize();
-						}
+					// Start the lobby
+					if (!Menu_Net_HostLobbyInitialize())  {
+						errors << "could not start hosting" << endl;
+						Menu_Net_HostInitialize();
 					}
 				}
 				break;
@@ -493,7 +500,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 	// Start the server
 	if(!cServer->StartServer()) {
 		// Crappy
-		printf("Server wouldn't start\n");
+		errors << "Server wouldn't start" << endl;
 		cHostLobby.Shutdown();
 		return false;
 	}
@@ -1194,9 +1201,11 @@ bool Menu_Net_HostStartGame()
 	if(it) {
 		tLXOptions->tGameInfo.sModName = it->sName;
 		tLXOptions->tGameInfo.sModDir = it->sIndex;
-	} else
+	} else {
 		errors << "Could not get the selected mod" << endl;
-
+		return false;
+	}
+	
 	// Get the game type
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 

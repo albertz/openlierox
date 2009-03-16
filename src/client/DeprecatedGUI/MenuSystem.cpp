@@ -623,14 +623,14 @@ void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool 
 
 ///////////////////
 // Show a message box
-int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type)
+MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::string& sText, MessageBoxType type)
 {
 	if(bDedicated) {
 		hints << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
-		return 0;
+		return MBR_OK;
 	}
 
-	int ret = -1;
+	MessageBoxReturnType ret = MBR_INVALID;
 	gui_event_t *ev = NULL;
 
 	SetGameCursor(CURSOR_ARROW);
@@ -763,7 +763,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			}
 		}
 
-		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == -1) {
+		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == MBR_INVALID) {
 			DrawCursor(VideoPostProcessor::videoSurface());
 			doVideoFrameInMainThread();
 			CapFPS();

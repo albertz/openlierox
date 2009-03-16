@@ -122,12 +122,15 @@ enum {
 
 
 // Message box types
-enum {
+enum MessageBoxType {
 	LMB_OK = 0,
-	LMB_YESNO,
-
+	LMB_YESNO
+};
+	
+enum MessageBoxReturnType {
 	// Return types
-	MBR_OK=0,
+	MBR_INVALID = -1,
+	MBR_OK = 0,
 	MBR_YES,
 	MBR_NO
 };
@@ -411,7 +414,7 @@ void	Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int bo
 void    Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool down);
 bool	Menu_LoadWormGfx(profile_t *ply);
-int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type);
+MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::string& sText, MessageBoxType type = LMB_OK);
 void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
