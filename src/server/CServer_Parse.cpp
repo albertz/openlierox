@@ -525,7 +525,7 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 	// Must be in lobby
 	if ( server->iState != SVS_LOBBY )  {
-		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
+		notes << "GameServer::ParseUpdateLobby: Not in lobby." << endl;
 
 		// Skip to get the right position
 		bs->Skip(1);
@@ -546,7 +546,7 @@ void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 	// Let all the worms know about the new lobby state
 	for( int i=0; i<MAX_CLIENTS; i++ )
 		server->cClients[i].getNetEngine()->SendUpdateLobby();
-};
+}
 
 
 ///////////////////
@@ -554,17 +554,24 @@ void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 void CServerNetEngine::ParseDisconnect() {
 	// Check if the client hasn't already left
 	if (cl->getStatus() == NET_DISCONNECTED)  {
-		printf("GameServer::ParseDisconnect: Client has already disconnected.\n");
-		return;
-	}
-
-	// Host cannot leave...
-	if (cl->isLocalClient())  {
-		printf("WARNING: host tried to leave\n");
+		notes << "GameServer::ParseDisconnect: Client has already disconnected." << endl;
 		return;
 	}
 
 	server->DropClient(cl, CLL_QUIT);
+
+	// Host cannot leave...
+	if (cl->isLocalClient())  {
+		/* There are several cases (e.g. in ParsePrepareGame) where we would
+		 * just disconnect, even as the local client. It's hard to catch all
+		 * these possible cases and in most cases, we have a screwed up
+		 * network stream with the client.
+		 * For that reason, we just try to reconnect it now.
+		 */
+		warnings << "host-client disconnected, reconnecting now ..." << endl;
+		cServer->bLocalClientConnected = false;
+		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+	}
 }
 
 
@@ -578,7 +585,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 	// Check
 	if (server->iState != SVS_PLAYING)  {
-		printf("GameServer::ParseGrabBonus: Not playing.\n");
+		notes << "GameServer::ParseGrabBonus: Not playing." << endl;
 		return;
 	}
 
@@ -616,13 +623,13 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 						if( server->cClients[i].getStatus() == NET_CONNECTED )
 							server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), -30, w->getID() ); // It's random between 10-50 actually, we're doing approximation here
 			} else {
-				printf("GameServer::ParseGrabBonus: Bonus already destroyed.\n");
+				notes << "GameServer::ParseGrabBonus: Bonus already destroyed." << endl;
 			}
 		} else {
-			printf("GameServer::ParseGrabBonus: Invalid bonus ID\n");
+			notes << "GameServer::ParseGrabBonus: Invalid bonus ID" << endl;
 		}
 	} else {
-		printf("GameServer::ParseGrabBonus: invalid worm ID\n");
+		notes << "GameServer::ParseGrabBonus: invalid worm ID" << endl;
 	}
 }
 
@@ -707,7 +714,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
 			server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), damage, offender->getID() );
-};
+}
 
 
 void CServerNetEngineBeta9::ParseNewNetKeys(CBytestream *bs)
@@ -732,7 +739,7 @@ void CServerNetEngineBeta9::ParseNewNetKeys(CBytestream *bs)
 			send.ResetPosToBegin();
 			server->cClients[i].getNetEngine()->SendPacket(&send);
 		}
-};
+}
 
 /*
 ===========================

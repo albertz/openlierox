@@ -203,7 +203,7 @@ private:
 			else if( Y > m.Y ) return false;
 			else if( X < m.X ) return true;
 			else return false;
-		};
+		}
 	};
 	std::set< SavedMapCoord_t > savedMapCoords;
 
@@ -352,8 +352,9 @@ public:
 	}
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline bool			getCreated(void)	{ return Created; }
-	inline std::string getName(void)		{ return Name; }
-
+	inline std::string getName()			{ return Name; }
+	inline std::string getFilename()		{ return FileName; }
+	
 	// TODO: why is this converted to CVec? either use directly CVec or don't use it at all! every conversion take performance away
 	inline CVec		getFlagSpawn(void)		{ return CVec(FlagSpawnX, FlagSpawnY); }
 	inline CVec		getBaseStart(void)		{ return CVec(BaseStartX, BaseStartY); }

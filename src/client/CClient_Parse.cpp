@@ -374,8 +374,10 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 
 			// Prepare the game
 			case S2C_PREPAREGAME:
-				if(!ParsePrepareGame(bs))					
+				if(!ParsePrepareGame(bs)) {
+					client->Disconnect();
                     return;
+				}
 				break;
 
 			// Start the game
@@ -570,9 +572,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bGameReady = true;
 
 	int random = bs->readInt(1);
-	std::string sMapName;
+	std::string sMapFilename;
 	if(!random)
-		sMapName = bs->readString();
+		sMapFilename = bs->readString();
 
 	// Other game details
 	client->iGameType = bs->readInt(1);
@@ -593,7 +595,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// Bad packet
 	if (client->sModName == "")  {
-		printf("CClientNetEngine::ParsePrepareGame: invalid mod name (none)\n");
+		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
 		client->bGameReady = false;
 		return false;
 	}
@@ -624,7 +626,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 			client->bGameReady = false;
 
-			printf("CClientNetEngine::ParsePrepareGame: out of memory when allocating map\n");
+			errors << "CClientNetEngine::ParsePrepareGame: out of memory when allocating map" << endl;
 
 			return false;
 		}
@@ -632,7 +634,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	if(random) 
 	{
-		printf("CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore\n");
+		// TODO: why don't we support that anymore? and since when?
+		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
 		client->bGameReady = false;
 		return false;
 	} else
@@ -640,8 +643,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// Load the map from a file
 
 		// Invalid packet
-		if (sMapName == "")  {
-			printf("CClientNetEngine::ParsePrepareGame: bad map name (none)\n");
+		if (sMapFilename == "")  {
+			hints << "CClientNetEngine::ParsePrepareGame: bad map name (none)" << endl;
 			client->bGameReady = false;
 			return false;
 		}
@@ -653,43 +656,49 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				client->bWaitingForMap = false;
 
 				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-				if(!client->cMap->Load(sMapName)) {
+				if(!client->cMap->Load(sMapFilename)) {
+					notes << "CClientNetEngine::ParsePrepareGame: could not load map " << sMapFilename << endl;
+
 					// Show a cannot load level error message
 					// If this is a host/local game, something is pretty wrong but if we display the message, things could
 					// go even worse
-					if (tLX->iGameType == GME_JOIN)  {
-						FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 
-						DeprecatedGUI::Menu_MessageBox(
-							"Loading Error",
-							std::string("Could not load the level '") + sMapName + "'.\n" + LxGetLastError(),
-							DeprecatedGUI::LMB_OK);
-						client->bClientError = true;
+					DeprecatedGUI::Menu_MessageBox(
+						"Loading Error",
+						std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError(),
+						DeprecatedGUI::LMB_OK);
+					client->bClientError = true;
 
-						// Go back to the menu
-						QuittoMenu();
-					} else {
-						printf("ERROR: load map error for a local game!\n");
-					}
+					// Go back to the menu
+					QuittoMenu();
 
 					client->bGameReady = false;
 
-					printf("CClientNetEngine::ParsePrepareGame: could not load map "+sMapName+"\n");
 					return false;
 				}
-			} else
+			} else {
 				client->bWaitingForMap = true;
+				notes << "Client: we got PrepareGame but we have to wait first until the download of the map finishes" << endl;
+			}
 		} else { // GME_HOST
 			assert(cServer);
 
             // Grab the server's copy of the map
 			client->cMap = cServer->getMap();
 			if (!client->cMap)  {  // Bad packet
+				errors << "our server has map unset" << endl;
 				client->bGameReady = false;
 				return false;
-			} else {
-				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-				client->bMapGrabbed = true;
+			}
+			
+			client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+			client->bMapGrabbed = true;
+		
+			if(client->cMap->getFilename() != sMapFilename) {
+				errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << client->cMap->getFilename() << endl;
+				client->bGameReady = false;
+				return false;
 			}
 		}
 
@@ -722,11 +731,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					// Go back to the menu
 					GotoNetMenu();
 				} else {
-					printf("ERROR: load mod error for a local game!\n");
+					errors << "load mod error for a local game!" << endl;
 				}
 				client->bGameReady = false;
 
-				printf("CClientNetEngine::ParsePrepareGame: error loading mod "+client->sModName+"\n");
+				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->sModName << endl;
     			return false;
 			}
 		}
@@ -1607,8 +1616,8 @@ void CClientNetEngineBeta9::ParseUpdateLobby(CBytestream *bs)
 	{
 		client->cRemoteWorms[updatedWorms.back()].setClientVersion(ver);
 		updatedWorms.pop_back();
-	};
-};
+	}
+}
 
 
 ///////////////////
