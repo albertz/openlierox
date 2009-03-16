@@ -1804,6 +1804,15 @@ void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
 	SendWeapons();
 }
 
+bool GameServer::allWormsHaveFullLives() const {
+	CWorm *w = cWorms;
+	for (int i = 0; i < MAX_WORMS; i++, w++) {
+		if(w->isUsed()) {
+			if(w->getLives() < tLXOptions->tGameInfo.iLives) return false;
+		}
+	}
+	return true;
+}
 
 
 

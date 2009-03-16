@@ -260,6 +260,7 @@ public:
 	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode
 	bool	isTeamEmpty(int t) const;
+	bool	allWormsHaveFullLives() const;
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();

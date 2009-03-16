@@ -1059,10 +1059,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << numplayers << endl;
 		std::string msg;
 
-
-
-
-
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
@@ -1367,6 +1363,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
+		// TODO: why this check? is it possible that tLX->iGameType != GME_HOST here?
 		if( tLX->iGameType == GME_HOST ) {
 			if( getGameMode()->GameTeams() > 1 ) {
 				
@@ -1398,10 +1395,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			
 			// If the game has limited lives all new worms are spectators
-			if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING ) // Do not set WRM_OUT if we're in weapon selection screen
+			if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
 				newcl->getWorm(i)->setLives(tLXOptions->tGameInfo.iLives);
-			else
+			else {
 				newcl->getWorm(i)->setLives(WRM_OUT);
+			}
 			newcl->getWorm(i)->setKills(0);
 			newcl->getWorm(i)->setGameScript(cGameScript.get());
 			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
@@ -1414,6 +1412,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		
 		newcl->getNetEngine()->SendPrepareGame();
 		
+		// TODO: what is the information of this hint? and does it apply here anyway?
 		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
 		
 		// inform new client about other ready clients
