@@ -1031,12 +1031,12 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	player = -1;
 	p=0;
 	if(newcl == NULL)
-	for (CServerConnection* cl = cClients; p < MAX_CLIENTS; p++, cl++) {
-		if (cl->getStatus() == NET_DISCONNECTED) {
-			newcl = cl;
-			break;
+		for (CServerConnection* cl = cClients; p < MAX_CLIENTS; p++, cl++) {
+			if (cl->getStatus() == NET_DISCONNECTED) {
+				newcl = cl;
+				break;
+			}
 		}
-	}
 
 	
 	// Calculate number of current players on this server

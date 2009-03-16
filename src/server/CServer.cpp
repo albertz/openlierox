@@ -1201,7 +1201,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
-		printf("An attempt to drop a local client was ignored\n");
+		notes << "DropClient: An attempt to drop a local client was ignored" << endl;
 		return;
 	}
 
@@ -1329,7 +1329,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl) {
 void GameServer::RemoveClient(CServerConnection* cl) {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
-		printf("An attempt to remove a local client was ignored\n");
+		notes << "An attempt to remove a local client was ignored" << endl;
 		return;
 	}
 	
@@ -1452,6 +1452,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			if (w->getClient())
 				w->getClient()->RemoveWorm(w->getID());
 
+			// TODO: move that out here
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
 			bs.writeByte(S2C_WORMSOUT);
@@ -1567,6 +1568,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			//tGameInfo.iNumPlayers--;
 			cl->RemoveWorm(w->getID());
 
+			// TODO: move that out here
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
 			bs.writeByte(S2C_WORMSOUT);

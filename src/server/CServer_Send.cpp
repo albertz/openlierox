@@ -265,7 +265,7 @@ void CServerNetEngineBeta8::SendText(const std::string& text, int type)
 	bs.writeString(OldLxCompatibleString(text));
 
 	SendPacket(&bs);
-};
+}
 
 void CServerNetEngineBeta7::SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) {
 	CBytestream bs;
@@ -292,6 +292,8 @@ void CServerNetEngineBeta7::SendChatCommandCompletionList(const std::string& sta
 
 // send S2C_WORMSOUT
 void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
+	if(ids.size() == 0) return; // ignore
+	
 	CBytestream bs;
 	bs.writeByte(S2C_WORMSOUT);
 	bs.writeByte(ids.size());
@@ -304,8 +306,13 @@ void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
 
 void GameServer::SendWormsOut(const std::list<byte>& ids) 
 {
-	for(int c = 0; c < MAX_CLIENTS; c++)
-		cClients[c].getNetEngine()->SendWormsOut(ids);
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		CServerConnection* cl = &cClients[c];
+		if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+			continue;
+		
+		cl->getNetEngine()->SendWormsOut(ids);
+	}
 }
 
 ///////////////////

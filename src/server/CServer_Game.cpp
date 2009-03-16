@@ -522,9 +522,12 @@ void GameServer::gotoLobby(void)
 						cl->getNetEngine()->SendPacket(&bs);
 			}
 		}
+		
+		// TODO: why are we doing this?
 		if(cWorms[i].getFlag()) {
 			cWorms[i].setUsed(false);
 			cWorms[i].setFlag(false);
+			// TODO: move that out here
 			CBytestream bs;
 			bs.writeByte(S2C_WORMSOUT);
 			bs.writeByte(1);
