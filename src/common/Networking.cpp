@@ -306,28 +306,31 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 
 
 bool bNetworkInited = false;
-ReadWriteLock* nlSystemUseChangeLock = NULL;
+ReadWriteLock nlSystemUseChangeLock;
 
 /////////////////////
 // Initializes network
 bool InitNetworkSystem() {
+	nlSystemUseChangeLock.startWriteAccess();
 	bNetworkInited = false;
 
     if(!nlInit()) {
     	SystemError("nlInit failed");
+		nlSystemUseChangeLock.endWriteAccess();
     	return false;
     }
 
     if(!nlSelectNetwork(NL_IP)) {
         SystemError("could not select IP-based network");
+		nlSystemUseChangeLock.endWriteAccess();
 		return false;
     }
 
 	bNetworkInited = true;
-	nlSystemUseChangeLock = new ReadWriteLock();
 	
 	if(!SdlNetEvent_Init()) {
 		SystemError("SdlNetEvent_Init failed");
+		nlSystemUseChangeLock.endWriteAccess();
 		return false;
 	}
 
@@ -338,6 +341,7 @@ bool InitNetworkSystem() {
 	signal(SIGPIPE, sigpipe_handler);
 #endif
 	
+	nlSystemUseChangeLock.endWriteAccess();
 	return true;
 }
 
@@ -345,12 +349,11 @@ bool InitNetworkSystem() {
 // Shutdowns the network system
 bool QuitNetworkSystem() {
 	SdlNetEvent_UnInit();
-	nlSystemUseChangeLock->startWriteAccess();
+	nlSystemUseChangeLock.startWriteAccess();
 	nlShutdown();	
 	bNetworkInited = false;
 	delete dnsCache; dnsCache = NULL;
-	nlSystemUseChangeLock->endWriteAccess();
-	delete nlSystemUseChangeLock; nlSystemUseChangeLock = NULL;
+	nlSystemUseChangeLock.endWriteAccess();
 	return true;
 }
 
@@ -816,13 +819,16 @@ bool CloseSocket(NetworkSocket& sock) {
 		NetworkSocket sock;
 		bool* started;
 		int handle() {
-			nlSystemUseChangeLock->startReadAccess();
+			nlSystemUseChangeLock.startReadAccess();
 			*started = true;
-			// this should already close the socket but not lock other parts in HawkNL
-			nlPrepareClose(*getNLsocket(&sock));
-			// hopefully this does not block anymore
-			int ret = (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
-			nlSystemUseChangeLock->endReadAccess();
+			int ret = -1;
+			if(bNetworkInited) { // only do that if we have the network system still up
+				// this should already close the socket but not lock other parts in HawkNL
+				nlPrepareClose(*getNLsocket(&sock));
+				// hopefully this does not block anymore
+				ret = (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
+			}
+			nlSystemUseChangeLock.endReadAccess();
 			return ret;
 		}
 	};
