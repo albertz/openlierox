@@ -1112,7 +1112,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
 		bytestr.Send(tSocket);
 		return;
-	};
+	}
 
 	newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
 
