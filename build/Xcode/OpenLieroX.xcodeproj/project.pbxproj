@@ -556,7 +556,6 @@
 		23D0FD100F40620D00D3DF4B /* CDeathMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDeathMatch.h; sourceTree = "<group>"; };
 		23D0FD110F40620D00D3DF4B /* CGameMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameMode.h; sourceTree = "<group>"; };
 		23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHideAndSeek.h; sourceTree = "<group>"; };
-		23D0FD130F40620D00D3DF4B /* CTeamDeathMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTeamDeathMatch.h; sourceTree = "<group>"; };
 		23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDeathMatch.cpp; sourceTree = "<group>"; };
 		23D0FD150F40624E00D3DF4B /* CHideAndSeek.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CHideAndSeek.cpp; sourceTree = "<group>"; };
 		23D0FD160F40624E00D3DF4B /* CTeamDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTeamDeathMatch.cpp; sourceTree = "<group>"; };
@@ -1236,7 +1235,6 @@
 				23D0FD100F40620D00D3DF4B /* CDeathMatch.h */,
 				23D0FD110F40620D00D3DF4B /* CGameMode.h */,
 				23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */,
-				23D0FD130F40620D00D3DF4B /* CTeamDeathMatch.h */,
 				238DA8DA0F388B1E00841FFF /* EventQueue.h */,
 				23581F730F310C6D00C64145 /* UploadSpeedTest.h */,
 				230D02220F0D809B00AFFFFF /* Debug.h */,

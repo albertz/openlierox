@@ -32,10 +32,6 @@
 #include "MathLib.h"
 #endif
 #include "CGameMode.h"
-#include "CDeathMatch.h"
-#include "CTeamDeathMatch.h"
-#include "CHideAndSeek.h"
-#include "CTag.h"
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);

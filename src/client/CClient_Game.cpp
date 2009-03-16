@@ -34,8 +34,8 @@
 #include "CClientNetEngine.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
-#include "CHideAndSeek.h"
 #include "NewNetEngine.h"
+#include "CGameMode.h"
 
 
 CClient		*cClient = NULL;

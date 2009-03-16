@@ -8,12 +8,24 @@
  */
 
 #include <iostream>
-#include "CDeathMatch.h"
 #include "CWorm.h"
 #include "Options.h"
 #include "Consts.h"
 #include "CServer.h"
 #include "CClient.h"
+#include "CGameMode.h"
+#include "Consts.h"
+
+class CDeathMatch : public CGameMode {
+public:
+	virtual void PrepareWorm(CWorm* worm);
+	virtual bool Shoot(CWorm* worm);
+	virtual void Drop(CWorm* worm);
+	virtual void Simulate();
+	virtual bool CheckGameOver();
+	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
+	virtual std::string Name() { return "Death Match"; }
+};
 
 
 
