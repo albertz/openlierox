@@ -1876,8 +1876,9 @@ bool CWormBotInputHandler::AI_Shoot()
 	}
 
 	// Don't shoot teammates
+	// TODO: why do we catch only teammates here and not the enemy worm?
 	if(cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && (nType & PX_WORM)) {
-		notes << "bot: we don't want shoot teammates" << endl;
+		//notes << "bot: we don't want shoot teammates" << endl;
 		return false;
 	}
 
