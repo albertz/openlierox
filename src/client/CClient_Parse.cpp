@@ -2277,9 +2277,7 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 {
 	int id = bs->readByte();
-	int forworm = client->getWorm(0) ? client->getWorm(0)->getID() : 0;
-	if (client->getServerVersion().revnum >= 3557)
-		forworm = bs->readByte();
+	int forworm = bs->readByte();
 	bool hide = bs->readBool();
 	bool immediate = bs->readBool();  // Immediate hiding (no animation)
 
