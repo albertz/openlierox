@@ -645,8 +645,8 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 	int maxw = 500;
 	int x = 160;
 	int y = 170;
-	int w = minw;
-	int h = 140;
+	int w = minw; // the whole box
+	int h = 140; // including caption and button, the whole box
 
 	// Adjust the width
 	int longest_line = w;
@@ -663,14 +663,16 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 	// Handle multiline messages
 	lines = splitstring(sText, (size_t)-1, w - 2, tLX->cFont);
 	
-	if((tLX->cFont.GetHeight()*(int)lines.size())+5 > h) {
-		h = (int)MIN((tLX->cFont.GetHeight()*lines.size())+90, (size_t)478);		
+	const int line_hspace = 2;
+	const int button_h = 24;
+	const int caption_h = 25;
+
+	if( (tLX->cFont.GetHeight() + line_hspace) * (int)lines.size() + button_h + caption_h + 2 > h ) {
+		// TODO: hardcoded screen height (480)
+		h = (int)MIN( (tLX->cFont.GetHeight() + line_hspace) * lines.size() + 90, (size_t)478);		
 		y = 240-h/2;
 	}
 
-	const int button_h = 24;
-	const int caption_h = 25;
-	const int line_hspace = 2;
 	int cx = x+w/2;
 	int cy = y + caption_h;
 	if(lines.size() > 0) {
