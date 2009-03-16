@@ -366,7 +366,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 								case NST_LAN: netSettingsText = "DSL/LAN"; break;
 								default: netSettingsText = "???"; break;
 							}
-							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec"; 
+							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec upload"; 
 							if(Menu_MessageBox("Check network settings",
 											   "You allowed " + itoa(tLXOptions->tGameInfo.iMaxPlayers) + " players on your server. "
 											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such amount.\n"
