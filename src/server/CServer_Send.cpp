@@ -130,7 +130,11 @@ void CServerNetEngine::SendPrepareGame()
 void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm,  bool show, bool immediate)
 {
 	// For old clients we move the worm out of the map and kill it
-
+	
+	if(cl->getNumWorms() == 0 || cl->getWorm(0)->getID() != forworm)
+		// ignore it
+		return;
+	
 	CBytestream bs;
 
 	// Hide the worm
@@ -142,7 +146,6 @@ void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm,  bool show, bool i
 		if (cServer->getState() == SVS_PLAYING)  {
 			bs.writeByte(S2C_UPDATEWORMS);
 			bs.writeByte(1);  // Worm count
-
 			bs.writeByte(worm->getID());
 			bs.write2Int12(-20, -20);  // Position
 			bs.writeInt(0, 1);  // Angle
