@@ -200,6 +200,7 @@ public:
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
+	static float getMaxUploadBandwidth();	
 	void		RegisterServer(void);
 	void		RegisterServerUdp(void);
 	void		ProcessRegister(void);

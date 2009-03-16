@@ -1830,4 +1830,17 @@ void GameServer::Shutdown(void)
 	// HINT: the gamescript is shut down by the cache
 }
 
+float GameServer::getMaxUploadBandwidth() {
+	// Modem, ISDN, DSL, local
+	// (Bytes per second)
+	const float	Rates[4] = {2500, 7500, 20000, 50000};
+	
+	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
+	if(tLXOptions->iNetworkSpeed >= 2) { // >= DSL
+		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to DSL (or higher)
+		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxUploadBandwidth);
+	}
+	
+	return fMaxRate;
+}
 

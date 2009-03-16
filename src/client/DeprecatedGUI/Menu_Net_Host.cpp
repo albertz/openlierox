@@ -13,6 +13,7 @@
 // Created 12/8/02
 // Jason Boettcher
 
+#include <iostream>
 #include "LieroX.h"
 #include "IpToCountryDB.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -206,6 +207,29 @@ void Menu_Net_HostFrame(int mouse)
 	}
 }
 
+// return value in bytes/second
+static float estimatedMinNeededUploadSpeed(int wormCount, int hostWormCount) {
+	if(wormCount <= 0) return 0.0f;
+	if(hostWormCount >= wormCount) return 0.0f;
+	
+	// HINT: This calculation assumes that there is one worm per client. (Except for the local client.)
+	
+	return
+		(wormCount - hostWormCount) * // amount of remote worms
+		(wormCount - 1) * // for each such player, we have to inform about all worms except his own 
+		500.0f; // just an estimation (bytes for worm updates of one single worm)
+}
+
+static int maxPossibleWormCountForNetwork(int hostWormCount) {
+	int i = 0;
+	while(i < MAX_PLAYERS) {
+		if(estimatedMinNeededUploadSpeed(i, hostWormCount) > GameServer::getMaxUploadBandwidth())
+			return i;
+		i++;
+	}
+	return i;
+}
+	
 ///////////////////
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
@@ -308,6 +332,58 @@ void Menu_Net_HostPlyFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
+					
+					if (lv->getItemCount() == 0) {
+						Menu_MessageBox("Too less players", "You have to select at least one worm.", DeprecatedGUI::LMB_OK);
+						break;
+					}
+					
+					// TODO: why MAX_PLAYERS-1 ?
+					if(lv->getItemCount() > MAX_PLAYERS - 1) {
+						Menu_MessageBox("Too much players",
+										"You have selected " + itoa(lv->getItemCount()) + " worms"
+										"but only " + itoa(MAX_PLAYERS - 1) + " worms are possible.",
+										DeprecatedGUI::LMB_OK);
+						break;
+					}
+					
+					std::string buf;
+					cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
+					tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
+					// At least 2 players, and max MAX_PLAYERS
+					tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
+					tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
+
+					{
+						float maxRate = GameServer::getMaxUploadBandwidth() / 1024.0f;
+						float minRate = estimatedMinNeededUploadSpeed(tLXOptions->tGameinfo.iMaxPlayers, lv->getItemCount()) / 1024.0f;
+						if(maxRate < minRate) {
+							int maxPossibleWorms = maxPossibleWormCountForNetwork(lv->getItemCount());
+							std::cout << "minEstimatedUploadRate=" << minRate << ", maxRate=" << maxRate << ", maxPossibleWorms=" << maxPossibleWorms << std::endl;
+							std::string netSettingsText;
+							switch(tLXOptions->iNetworkSpeed) {
+								case NST_MODEM: netSettingsText = "Modem"; break;
+								case NST_ISDN: netSettingsText = "ISDN"; break;
+								case NST_LAN: netSettingsText = "DSL/LAN"; break;
+								default: netSettingsText = "???"; break;
+							}
+							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec"; 
+							if(Menu_MessageBox("Check network settings",
+											   "You allowed " + itoa(tLXOptions->tGameinfo.iMaxPlayers) + " players on your server."
+											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such amount.\n"
+											   "Your current network settings (" + netSettingsText + ") only allow up to " +
+										   	   itoa(maxPossibleWorms) + " players.\n\n"
+											   "Would you like to create a server for " + itoa(maxPossibleWorms) + " players?\n"
+											   "(Otherwise please check your networks settings in the option dialog.)",
+											   LMB_YESNO) == MBR_YES) {
+								std::cout << "setting maxplayers to " << maxPossibleWorms << " as user whishes" << std::endl;
+								tLXOptions->tGameinfo.iMaxPlayers = maxPossibleWorms;
+							}
+							else break;
+						}
+					}
+						
+					tGameInfo.iGameType = GME_HOST;
 
 					// Make sure there is 1-7 players in the list
 					if (lv->getItemCount() > 0 && lv->getItemCount() <= MAX_PLAYERS - 1) {
@@ -381,7 +457,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 						// Click
 						PlaySoundSample(sfxGeneral.smpClick);
-
+						
 						iHumanPlayers = 0;
 
 						// Start the lobby
@@ -765,6 +841,41 @@ void Menu_Net_HostGotoLobby(void)
 	tMenu->sSavedChatText = "";
 }
 
+void Menu_Net_HostUpdateUploadSpeed(float speed)
+{
+	tLXOptions->iMaxUploadBandwidth = (int)speed;
+
+	// Update the network speed accordingly
+	if (tLXOptions->iMaxUploadBandwidth >= 7500)
+		tLXOptions->iNetworkSpeed = NST_LAN;
+	else if (tLXOptions->iMaxUploadBandwidth >= 2500)
+		tLXOptions->iNetworkSpeed = NST_ISDN;
+	else
+		tLXOptions->iNetworkSpeed = NST_MODEM;
+}
+
+//////////////////////
+// Change the mod displayed in the lobby
+void Menu_Net_HostLobbySetMod(const std::string& moddir)
+{
+	CCombobox *cb = (CCombobox *)cHostLobby.getWidget(hl_ModName);
+	if (!cb)
+		return;
+
+	cb->setCurSIndexItem(moddir);
+}
+
+/////////////////////
+// Change level displayed in the lobby
+void Menu_Net_HostLobbySetLevel(const std::string& filename)
+{
+	CCombobox *cb = (CCombobox *)cHostLobby.getWidget(hl_LevelList);
+	if (!cb)
+		return;
+
+	cb->setCurSIndexItem(filename);
+	Menu_HostShowMinimap();
+}
 
 ///////////////////
 // Host lobby frame

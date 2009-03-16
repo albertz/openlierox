@@ -432,23 +432,15 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	if( tGameInfo.iGameType == GME_LOCAL )
 		return true;
 
-	// Modem, ISDN, LAN, local
-	// (Bytes per second)
-	const float	Rates[4] = {2500, 7500, 10000, 50000};
-
-	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
-	if(tLXOptions->iNetworkSpeed >= 2) { // >= LAN
-		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to LAN (or higher)
-		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxUploadBandwidth);
-	}
-
+	float fMaxRate = getMaxUploadBandwidth();
+	
 	{
 		static bool didShowMessageAlready = false;
 		if(!didShowMessageAlready)
 			printf("using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
 		didShowMessageAlready = true;
 	}
-
+	
 	return fCurUploadRate < fMaxRate;
 }
 

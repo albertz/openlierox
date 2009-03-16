@@ -135,7 +135,7 @@ std::string InputNames[] = {
 std::string NetworkSpeeds[] = {
 	"Modem",
 	"ISDN",
-	"LAN"
+	"DSL / LAN"
 };
 
 
