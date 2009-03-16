@@ -375,7 +375,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			// Prepare the game
 			case S2C_PREPAREGAME:
 				if(!ParsePrepareGame(bs)) {
-					client->Disconnect();
+					// client->Disconnect();  // HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
                     return;
 				}
 				break;
@@ -553,19 +553,21 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// We've already got this packet
 	if (client->bGameReady)  {
 		warnings << "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
-		// TODO: Which reason is there to return in this case?
-		// I hit this case even with a *local* client.
-		// Anyway, that doesn't matter, much more important is, if we would ignore it, the
-		// network stream is screwed up.
-		//return false;
+		
+		// HINT: we ignore it here for the safety because S2C_PREPAREGAME is 0 and it is
+		// a very common value in corrupted streams
+		// TODO: skip to the right position, the packet could be valid
+		return false;
 	}
 
 	// If we're playing, the game has to be ready
 	if (client->iNetStatus == NET_PLAYING)  {
 		warnings << "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
+
 		// The same comment here as above.
-		//return false;
+		// TODO: skip to the right position, the packet could be valid
+		return false;
 	}
 
 	NotifyUserOnEvent();
@@ -2275,7 +2277,9 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 {
 	int id = bs->readByte();
-	int forworm = bs->readByte();
+	int forworm = client->getWorm(0) ? client->getWorm(0)->getID() : 0;
+	if (client->getServerVersion().revnum >= 3557)
+		forworm = bs->readByte();
 	bool hide = bs->readBool();
 	bool immediate = bs->readBool();  // Immediate hiding (no animation)
 
