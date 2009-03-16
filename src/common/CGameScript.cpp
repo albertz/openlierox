@@ -320,7 +320,7 @@ int CGameScript::Load(const std::string& dir)
 	// Open it
 	fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
-		SetError("CGameScript::Load(): Could not load file " + filename);
+		warnings << "CGameScript::Load(): Could not load file " << filename << endl;
 		return GSE_FILE;
 	}
 
