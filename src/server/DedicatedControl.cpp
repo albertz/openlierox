@@ -1312,7 +1312,9 @@ struct DedIntern {
 		ProcessEvents();
 
 		// Some debugging stuff
-#ifdef DEBUG
+		// TODO: This really much spams my logs. There should be a better way to inform about this.
+#if 0
+//#if DEBUG
 		int fps = GetFPS();
 		static AbsTime lastFpsPrint = tLX->currentTime;
 		if (tLX->currentTime - lastFpsPrint >= 20.0f)  {

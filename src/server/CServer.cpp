@@ -1201,7 +1201,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
-		notes << "DropClient: An attempt to drop a local client was ignored" << endl;
+		notes << "DropClient: An attempt to drop a local client (reason: " << sReason << ") was ignored" << endl;
 		return;
 	}
 
