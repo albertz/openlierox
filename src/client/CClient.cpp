@@ -246,7 +246,6 @@ CClient::CClient() {
 	cWeaponBar1 = NULL;
 	cWeaponBar2 = NULL;
 	cDownloadBar = NULL;
-	iGameType = GMT_NORMAL;
 	bGameReady = false;
 	bMapGrabbed = false;
 	cChatList = NULL;

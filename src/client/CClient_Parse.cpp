@@ -577,7 +577,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		sMapFilename = bs->readString();
 
 	// Other game details
-	client->iGameType = bs->readInt(1);
+	client->tGameInfo.iGeneralGameType = bs->readInt(1);
+	client->tGameInfo.sGameMode = "";
+	client->tGameInfo.gameMode = NULL;
 	client->iLives = bs->readInt16();
 	client->iMaxKills = bs->readInt16();
 	client->tGameInfo.fTimeLimit = (float)bs->readInt16();
@@ -587,7 +589,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->bShowBonusName = bs->readBool();
 	client->fServertime = 0;
 
-	if(client->iGameType == GMT_TIME)
+	if(client->getGeneralGameType() == GMT_TIME)
 		client->iTagLimit = bs->readInt16();
 
 	// Load the gamescript
@@ -797,7 +799,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			// We do this again because we've only just found out what type of game it is
 			// Team games require changing worm colours to match the team colour
 			// Inefficient, but i'm not going to redesign stuff for a simple gametype
-			w->ChangeGraphics(client->iGameType);
+			w->ChangeGraphics(client->getGeneralGameType());
 
 			// Also set some game details
 			w->setLives(client->iLives);
@@ -1101,7 +1103,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	client->cRemoteWorms[id].readInfo(bs);
 
 	// Load the worm graphics
-	if(!client->cRemoteWorms[id].ChangeGraphics(client->iGameType)) {
+	if(!client->cRemoteWorms[id].ChangeGraphics(client->getGeneralGameType())) {
         warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 
@@ -1754,6 +1756,8 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     client->tGameInfo.sModName = bs->readString();
     client->tGameInfo.sModDir = bs->readString();
 	client->tGameInfo.iGeneralGameType = bs->readByte();
+	client->tGameInfo.sGameMode = "";
+	client->tGameInfo.gameMode = NULL;
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();
 	client->tGameInfo.fTimeLimit = -100;

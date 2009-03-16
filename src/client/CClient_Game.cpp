@@ -157,7 +157,7 @@ void CClient::Simulation(void)
 
 
 		// In a timed game increment the tagged worms time
-		if(iGameType == GMT_TIME && w->getTagIT())  {
+		if(getGeneralGameType() == GMT_TIME && w->getTagIT())  {
 			w->incrementTagTime(tLX->fRealDeltaTime);
 
 			// Log
@@ -736,7 +736,7 @@ void CClient::UpdateScoreboard(void)
 		iScoreboard[iScorePlayers++] = p;
 
 		// Add to the team score
-		if(iGameType == GMT_TEAMS) {
+		if(getGeneralGameType() == GMT_TEAMS) {
 			// Make the score at least zero to say we have
 			int team = w->getTeam();
 			if (team < 0)  {  // prevents crashing sometimes
@@ -752,7 +752,7 @@ void CClient::UpdateScoreboard(void)
 
 
 	// Sort the team lists
-	if(iGameType == GMT_TEAMS) {
+	if(getGeneralGameType() == GMT_TEAMS) {
 		for(i=0;i<4;i++) {
 			for(j=0;j<3-i;j++) {
 				if(iTeamScores[iTeamList[j]] < iTeamScores[iTeamList[j+1]]) {
@@ -774,7 +774,7 @@ void CClient::UpdateScoreboard(void)
 	// Sort the array
 	for(i=0; i<iScorePlayers; i++) {
 		for(j=0; j<iScorePlayers-1-i; j++) {
-			if(iGameType == GMT_TIME) {
+			if(getGeneralGameType() == GMT_TIME) {
 
 				// TAG
 				if(cRemoteWorms[iScoreboard[j]].getTagTime() < cRemoteWorms[iScoreboard[j + 1]].getTagTime()) {

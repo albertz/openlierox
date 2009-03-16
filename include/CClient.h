@@ -224,7 +224,7 @@ private:
 	// Game
 	SmartPointer<CGameScript> cGameScript;
 	// TODO: what are these for? we have tGameInfo
-	int			iGameType;
+	//int			iGameType;
 	int			iLives;
 	int			iMaxKills;
 	int			iTagLimit;
@@ -595,7 +595,7 @@ public:
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName(void)			{ return szServerName; }
 
-	int getGameType()					{ return iGameType; }
+	int getGeneralGameType()					{ return tGameInfo.iGeneralGameType; }
 
 	const Version& getClientVersion()				{ return cClientVersion; }
 	void setClientVersion(const Version& v);

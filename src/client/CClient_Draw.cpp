@@ -533,7 +533,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		for( i=0; i<NUM_VIEWPORTS; i++ ) {
 			if( cViewports[i].getUsed() )  {
 				if (cMap != NULL)
-					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
+					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), getGeneralGameType());
 				DrawViewport(bmpDest, (byte)i);
 			}
 		}
@@ -541,7 +541,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (cMap != NULL)  {
 			if (iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, getGeneralGameType() );
 			else
 				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 		}
@@ -995,7 +995,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	// Special message
 	std::string spec_msg;
 
-	switch (iGameType)  {
+	switch (getGeneralGameType())  {
 	case GMT_TIME:
 		// Am i IT?
 		if(worm->getTagIT())  {
@@ -1432,7 +1432,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 	static const std::string VIPteamnames[] = {"VIP Defenders", "VIP Attackers", "VIPs"};
 
 	// Normal scoreboard
-	switch(iGameType) {
+	switch(getGeneralGameType()) {
 	case GMT_NORMAL:  {
 
 		// Fill the left listview
