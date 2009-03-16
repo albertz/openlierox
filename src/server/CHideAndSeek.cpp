@@ -24,7 +24,10 @@
 
 class CHideAndSeek : public CGameMode {
 public:
-	virtual float TimeLimit() { return fGameLength; }
+	virtual float TimeLimit() {
+		GenerateTimes();
+		return fGameLength;
+	}
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
 	virtual bool Spawn(CWorm* worm, CVec pos);
@@ -39,6 +42,7 @@ public:
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Hide and Seek"; }
+	
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm, bool message = true);
 	void Hide(CWorm* worm, bool message = true);
