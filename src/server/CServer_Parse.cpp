@@ -1181,12 +1181,12 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getWorm(i)->setTeam(-1); // set it invalid to have correct firstEmpty
 			
 			int firstEmpty = getFirstEmptyTeam();
-			notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
+			//notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
 			if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
 				newcl->getWorm(i)->setTeam(firstEmpty);
 			else {
 				int team = GetRandomInt(MIN(tLXOptions->iRandomTeamForNewWorm, getGameMode()->GameTeams() - 1));
-				notes << "   randomteam=" << team << endl;
+				//notes << "   randomteam=" << team << endl;
 				newcl->getWorm(i)->setTeam(team);
 			}
 			// we will send a WormLobbyUpdate later anyway
