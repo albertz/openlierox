@@ -368,7 +368,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 							}
 							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec"; 
 							if(Menu_MessageBox("Check network settings",
-											   "You allowed " + itoa(tLXOptions->tGameInfo.iMaxPlayers) + " players on your server."
+											   "You allowed " + itoa(tLXOptions->tGameInfo.iMaxPlayers) + " players on your server. "
 											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such amount.\n"
 											   "Your current network settings (" + netSettingsText + ") only allow up to " +
 										   	   itoa(maxPossibleWorms) + " players.\n\n"
