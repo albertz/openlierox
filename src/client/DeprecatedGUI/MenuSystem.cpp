@@ -627,9 +627,11 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 {
 	if(bDedicated) {
 		hints << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
-		if(type == LMB_YESNO) {
-			hints << "Dedicated server is positive and says YES." << endl;
-			return MBR_YES;
+		switch(type) {
+			case LMB_OK: return MBR_OK;
+			case LMB_YESNO:
+				hints << "Dedicated server is positive and says YES." << endl;
+				return MBR_YES;
 		}
 		return MBR_OK;
 	}
