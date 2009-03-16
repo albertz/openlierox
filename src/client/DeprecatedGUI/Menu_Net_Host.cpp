@@ -207,6 +207,29 @@ void Menu_Net_HostFrame(int mouse)
 	}
 }
 
+// return value in bytes/second
+static float estimatedMinNeededUploadSpeed(int wormCount, int hostWormCount) {
+	if(wormCount <= 0) return 0.0f;
+	if(hostWormCount >= wormCount) return 0.0f;
+	
+	// HINT: This calculation assumes that there is one worm per client. (Except for the local client.)
+	
+	return
+		(wormCount - hostWormCount) * // amount of remote worms
+		(wormCount - 1) * // for each such player, we have to inform about all worms except his own 
+		500.0f; // just an estimation (bytes for worm updates of one single worm)
+}
+
+static int maxPossibleWormCountForNetwork(int hostWormCount) {
+	int i = 0;
+	while(i < MAX_PLAYERS) {
+		if(estimatedMinNeededUploadSpeed(i, hostWormCount) > GameServer::getMaxUploadBandwidth())
+			return i;
+		i++;
+	}
+	return i;
+}
+	
 ///////////////////
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
@@ -311,18 +334,54 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 					
 					if (lv->getItemCount() == 0) {
-						Menu_MessageBox("Too less worms", "You have to select at least one worm.");
+						Menu_MessageBox("Too less players", "You have to select at least one worm.");
 						break;
 					}
 					
 					// TODO: why MAX_PLAYERS-1 ?
-					if(lv->getItemCount() <= MAX_PLAYERS - 1) {
-						Menu_MessageBox("Too much worms",
+					if(lv->getItemCount() > MAX_PLAYERS - 1) {
+						Menu_MessageBox("Too much players",
 										"You have selected " + itoa(lv->getItemCount()) + " worms"
 										"but only " + itoa(MAX_PLAYERS - 1) + " worms are possible.");
 						break;
 					}
 					
+					std::string buf;
+					cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
+					tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
+					// At least 2 players, and max MAX_PLAYERS
+					tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
+					tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
+
+					{
+						float maxRate = GameServer::getMaxUploadBandwidth() / 1024.0f;
+						float minRate = estimatedMinNeededUploadSpeed(tLXOptions->tGameInfo.iMaxPlayers, lv->getItemCount()) / 1024.0f;
+						if(maxRate < minRate) {
+							int maxPossibleWorms = maxPossibleWormCountForNetwork(lv->getItemCount());
+							notes << "minEstimatedUploadRate=" << minRate << ", maxRate=" << maxRate << ", maxPossibleWorms=" << maxPossibleWorms << endl;
+							std::string netSettingsText;
+							switch(tLXOptions->iNetworkSpeed) {
+								case NST_MODEM: netSettingsText = "Modem"; break;
+								case NST_ISDN: netSettingsText = "ISDN"; break;
+								case NST_LAN: netSettingsText = "DSL/LAN"; break;
+								default: netSettingsText = "???"; break;
+							}
+							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec"; 
+							if(Menu_MessageBox("Check network settings",
+											   "You allowed " + itoa(tLXOptions->tGameInfo.iMaxPlayers) + " players on your server."
+											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such amount.\n"
+											   "Your current network settings (" + netSettingsText + ") only allow up to " +
+										   	   itoa(maxPossibleWorms) + " players.\n\n"
+											   "Would you like to create a server for " + itoa(maxPossibleWorms) + " players?\n"
+											   "(Otherwise please check your networks settings in the option dialog.)",
+											   LMB_YESNO) == MBR_YES) {
+								notes << "setting maxplayers to " << maxPossibleWorms << " as user whishes" << endl;
+								tLXOptions->tGameInfo.iMaxPlayers = maxPossibleWorms;
+							}
+							else break;
+						}
+					}
+						
 					tLX->iGameType = GME_HOST;
 
 					cClient->Shutdown();
@@ -375,12 +434,6 @@ void Menu_Net_HostPlyFrame(int mouse)
 					cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->sWelcomeMessage, 0);
 					//cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
 
-					std::string buf;
-					cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
-					tLXOptions->tGameInfo.iMaxPlayers = atoi(buf);
-					// At least 2 players, and max MAX_PLAYERS
-					tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
-					tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
 					tLXOptions->bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
@@ -719,7 +772,7 @@ void Menu_Net_HostGotoLobby(void)
 
 void Menu_Net_HostUpdateUploadSpeed(float speed)
 {
-	tLXOptions->iMaxUploadBandwidth = (int)speed / 2;   // HINT: we set only a half of the maximum bandwidth not to block the line with upload only
+	tLXOptions->iMaxUploadBandwidth = (int)speed;
 
 	// Update the network speed accordingly
 	if (tLXOptions->iMaxUploadBandwidth >= 7500)
@@ -1131,7 +1184,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Speed test dialog
 	if (bSpeedTestDialog)  {
 		if (Menu_SpeedTest_Frame())  {
-			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed());
+			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed() * 0.9f); // lower a bit to leave some rest free
 			bSpeedTestDialog = false;
 			Menu_SpeedTest_Shutdown();
 		}
@@ -1146,7 +1199,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			if (tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)
 				message = "The network speed is set to a very low value. This can cause lag issues on your server. It is recommended to run a connection test.\n\nDo you want to perform a connection test now?";
 
-			// TODO: horrible how many hacks are needed to show a message box
+			// TODO: Move that out here. Horrible how many hacks are needed to show a message box
 			DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
 			if (Menu_MessageBox("Perform a Connection Test", message, LMB_YESNO) == MBR_YES)  {
 					Menu_SpeedTest_Initialize();

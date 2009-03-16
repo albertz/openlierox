@@ -175,6 +175,7 @@ public:
 	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
+	static float getMaxUploadBandwidth();	
 	void		RegisterServer(void);
 	void		RegisterServerUdp(void);
 	void		ProcessRegister(void);
