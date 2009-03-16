@@ -546,21 +546,26 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	notes << "Client: Got ParsePrepareGame" << endl;
 
 	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
-		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
+		warnings << "some previous action tried to quit the GameLoop; we are ignoring this now" << endl;
 		ResetQuitEngineFlag();
 	}
 
 	// We've already got this packet
 	if (client->bGameReady)  {
-		printf("CClientNetEngine::ParsePrepareGame: we already got this\n");
-		return false;
+		warnings << "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
+		// TODO: Which reason is there to return in this case?
+		// I hit this case even with a *local* client.
+		// Anyway, that doesn't matter, much more important is, if we would ignore it, the
+		// network stream is screwed up.
+		//return false;
 	}
 
 	// If we're playing, the game has to be ready
 	if (client->iNetStatus == NET_PLAYING)  {
-		printf("CClientNetEngine::ParsePrepareGame: playing, had to get this\n");
+		warnings << "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
-		return false;
+		// The same comment here as above.
+		//return false;
 	}
 
 	NotifyUserOnEvent();
@@ -575,7 +580,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	std::string sMapFilename;
 	if(!random)
 		sMapFilename = bs->readString();
-
+	
 	// Other game details
 	client->tGameInfo.iGeneralGameType = bs->readInt(1);
 	client->tGameInfo.sGameMode = "";

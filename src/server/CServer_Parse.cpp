@@ -559,8 +559,6 @@ void CServerNetEngine::ParseDisconnect() {
 		return;
 	}
 
-	server->DropClient(cl, CLL_QUIT);
-
 	// Host cannot leave...
 	if (cl->isLocalClient())  {
 		/* There are several cases (e.g. in ParsePrepareGame) where we would
@@ -572,7 +570,11 @@ void CServerNetEngine::ParseDisconnect() {
 		warnings << "host-client disconnected, reconnecting now ..." << endl;
 		cServer->bLocalClientConnected = false;
 		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+		
+		return;
 	}
+
+	server->DropClient(cl, CLL_QUIT);
 }
 
 
