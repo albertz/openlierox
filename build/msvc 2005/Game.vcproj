@@ -785,10 +785,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\cassert"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\CBytestream.cpp"
 				>
 				<FileConfiguration

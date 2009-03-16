@@ -1277,6 +1277,9 @@ void Menu_SvrList_RefreshList(void)
 // Refresh a single server
 void Menu_SvrList_RefreshServer(server_t *s, bool updategui)
 {
+	if (!tLX)
+		return;
+
     s->bProcessing = true;
 	s->bgotPong = false;
 	s->bgotQuery = false;
