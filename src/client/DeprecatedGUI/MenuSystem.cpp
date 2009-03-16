@@ -1898,7 +1898,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		CBytestream *bs = new CBytestream();
 		bs->writeInt(-1, 4);
 		bs->writeString("lx::getserverlist2");
-		bs->Send(sock);
+		if(!bs->Send(sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
 		bs->Clear();
 
 		notes << "Sent getserverlist to " << server << endl;
@@ -1909,20 +1909,22 @@ int Menu_SvrList_UpdaterThread(void *id)
 		while( true ) {
 
 			while (GetTime() <= timeoutTime)  {
-				SDL_Delay(40);
+				SDL_Delay(40); // TODO: do it event based
 
 				// Got a reply?
 				if (bs->Read(sock))  {
 					notes << "Got a reply from " << server << endl;
 					break;
 				}
+				
+				
 			}
 
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
 				serverlistEvent.pushToMainQueue(UdpServerlistData(bs));
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
-				bs = new CBytestream();
+				bs = new CBytestream(); // old bs pointer is in mainqueue now
 				firstPacket = false;
 			} else  {
 				if( firstPacket )
@@ -1942,7 +1944,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 void Menu_SvrList_UpdateUDPList()
 {
-	if (tUdpServers.size() == 0)  {  // Load the list of servers onlny if not already loaded
+	if (tUdpServers.size() == 0)  {  // Load the list of servers only if not already loaded
 		// Open the masterservers file
 		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
 		if(!fp1)  {
