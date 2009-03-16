@@ -49,9 +49,39 @@ void RestoreState()
 };
 
 // TODO: make respawning server-sided and remove this function
-static CVec FindSpot(CWorm *Worm)
+static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::FindSpot
 {
-	return cServer->FindSpot();
+	// This should use net synced Worm->NewNet_random for now, later I'll use respawn routines from CServer
+	CMap * cMap = cClient->getMap();
+	int	 x, y;
+	int	 px, py;
+	int	 cols = cMap->getGridCols() - 1;	   // Note: -1 because the grid is slightly larger than the
+	int	 rows = cMap->getGridRows() - 1;	   // level size
+	int	 gw = cMap->getGridWidth();
+	int	 gh = cMap->getGridHeight();
+
+	uchar pf, pf1, pf2, pf3, pf4;
+	cMap->lockFlags();
+	
+	// Find a random cell to start in - retry if failed
+	while(true) {
+		px = (int)(Worm->NewNet_random.getFloatPositive() * (float)cols);
+		py = (int)(Worm->NewNet_random.getFloatPositive() * (float)rows);
+		x = px; y = py;
+
+		if( x + y < 6 )	// Do not spawn in top left corner
+			continue;
+
+		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
+		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
+		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
+		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
+		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
+		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
+			cMap->unlockFlags();
+			return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
+		}
+	}
 }
 
 unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
@@ -65,7 +95,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 			// TODO: make this server-sided
 			if( !w->getAlive() && w->getLives() != WRM_OUT )
 				if( gameTime - w->getTimeofDeath() > 2.5f )
-					w->Spawn( FindSpot(w) );
+					w->Spawn( NewNet_FindSpot(w) );
 
 			w->NewNet_GetInput( keys[i], keysChanged[i] );
 			if (w->getWormState()->bShoot && w->getAlive())
@@ -146,11 +176,12 @@ struct KeysEvent_t
 	KeyState_t keysChanged;
 };
 
-// Sorted by player and time - time in TICK_TIME chunks
+// Sorted by player and time - time in milliseconds
 typedef std::map< AbsTime, KeysEvent_t > EventList_t;
 EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
-AbsTime LastPacketTime[MAX_WORMS]; // AbsTime in TICK_TIME chunks
+AbsTime LastPacketTime[MAX_WORMS];
+AbsTime LastSoundPlayedTime[MAX_WORMS];
 unsigned Checksum;
 AbsTime ChecksumTime; // AbsTime in ms
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
@@ -174,16 +205,17 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 	}
 };
 
-void StartRound( AbsTime localTime, unsigned randomSeed )
+void StartRound( unsigned randomSeed )
 {
-			OlxTimeDiffMs = localTime;
+			OlxTimeDiffMs = tLX->currentTime;
 			NumPlayers = 0;
 			netRandom.seed(randomSeed);
 			for( int i=0; i<MAX_WORMS; i++ )
 			{
 				Events[i].clear();
 				OldKeys[i] = KeyState_t();
-				LastPacketTime[i] = 0;
+				LastPacketTime[i] = AbsTime();
+				LastSoundPlayedTime[i] = AbsTime();
 				if( cClient->getRemoteWorms()[i].isUsed() )
 				{
 					NumPlayers ++;
@@ -381,10 +413,21 @@ AbsTime GetCurTime()
 {
 	return CurrentTimeMs;
 }
-AbsTime GetCurTimeFloat()
+
+bool CanUpdateGameState()
 {
-	return GetCurTime();
-}
+	return !QuickDirtyCalculation;
+};
+
+bool CanPlaySound(int wormID)
+{
+	if( LastSoundPlayedTime[wormID] < CurrentTimeMs )
+	{
+		LastSoundPlayedTime[wormID] = CurrentTimeMs;
+		return true;
+	}
+	return false;
+};
 
 
 // -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------

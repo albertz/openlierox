@@ -219,7 +219,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		if(w->getAlive()) 
 		{
 			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, NewNet::GetCurTimeFloat() ); 
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, NewNet::GetCurTime() ); 
 		}
 
 		if(w->getAlive()) 
@@ -248,7 +248,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		SimulateEntities(TimeDiff(NewNet::TICK_TIME));
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), NewNet::GetCurTimeFloat());
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), NewNet::GetCurTime());
 }
 
 
@@ -989,7 +989,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	shot.cPos = w->getPos();
 	shot.cWormVel = *w->getVelocity();
-	shot.fTime = NewNet::GetCurTimeFloat() - AbsTime(0);
+	shot.fTime = NewNet::GetCurTime().seconds();
 	shot.nRandom = w->NewNet_random.getInt(255);
 	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
 	shot.nWormID = w->getID();
@@ -1032,7 +1032,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		Slot->Reloading = true;
 	}
 
-	ProcessShot( &shot, NewNet::GetCurTimeFloat() );
+	ProcessShot( &shot, NewNet::GetCurTime() );
 }
 
 ///////////////////

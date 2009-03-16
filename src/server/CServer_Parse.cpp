@@ -136,6 +136,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			
 		case C2S_NEWNET_KEYS:
 			ParseNewNetKeys(bs);
+			break;
 
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel

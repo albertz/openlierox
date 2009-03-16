@@ -93,7 +93,7 @@ extern NetSyncedRandom netRandom;
 	
 void DisableAdvancedFeatures(); // Required for now
 
-void StartRound( AbsTime localTime, unsigned randomSeed );
+void StartRound( unsigned randomSeed );
 
 void EndRound();
 
@@ -117,8 +117,12 @@ unsigned GetChecksum( AbsTime * time = NULL );
 
 // Returns current simulation time in milliseconds inside new net engine
 AbsTime GetCurTime();
-// Returns current simulation time in seconds inside new net engine, use this instead of tLX->fCurTime everywhere
-AbsTime GetCurTimeFloat();
+
+// If we can do things not handled by new net engine, like update score table (or respawn worm when I'll move that to server)
+bool CanUpdateGameState();
+// If we received packet from specific worm we can play weapon sound - CanUpdateGameState() is true only when packets from all worms arrived
+// Also it won't allow sound to be played twice due to rollback/recalculate
+bool CanPlaySound(int wormID);
 
 // ------ Internal functions - do not use them from OLX ------
 

@@ -380,13 +380,15 @@ void CWormHumanInputHandler::getInput() {
 void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
 {
 	CVec	dir;
-	TimeDiff dt = NewNet::GetCurTimeFloat() - fLastInputTime;
-	fLastInputTime = NewNet::GetCurTimeFloat();
+	TimeDiff dt ( (int)NewNet::TICK_TIME );
 	
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
 	bool leftOnce = keys.keys[NewNet::K_LEFT] && keysChanged.keys[NewNet::K_LEFT];
 	bool rightOnce = keys.keys[NewNet::K_RIGHT] && keysChanged.keys[NewNet::K_RIGHT];
-
+	
+	//if( NewNet::CanUpdateGameState() )
+	//printf("keys.keys[NewNet::K_LEFT] %i leftOnce %i time %i canUpdate %i\n", keys.keys[NewNet::K_LEFT], leftOnce, (int)NewNet::GetCurTime().milliseconds(), NewNet::CanUpdateGameState() );
+	
 	worm_state_t *ws = &tState;
 
 	// Init the ws
@@ -429,19 +431,19 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 
 		if(leftOnce && !keys.keys[NewNet::K_SELWEAP]) {
 
-			if(NewNet::GetCurTimeFloat() - fLastCarve >= carveDelay) {
+			if(NewNet::GetCurTime() - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = NewNet::GetCurTimeFloat();
+				fLastCarve = NewNet::GetCurTime();
 			}
 		}
 
 		if(rightOnce && !keys.keys[NewNet::K_SELWEAP]) {
 
-			if(NewNet::GetCurTimeFloat() - fLastCarve >= carveDelay) {
+			if(NewNet::GetCurTime() - fLastCarve >= carveDelay) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = NewNet::GetCurTimeFloat();
+				fLastCarve = NewNet::GetCurTime();
 			}
 		}
 	}
@@ -464,7 +466,7 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 	if(!keys.keys[NewNet::K_SELWEAP]) {
 		if(keys.keys[NewNet::K_LEFT]) {
 			ws->bMove = true;
-			lastMoveTime = NewNet::GetCurTimeFloat();
+			lastMoveTime = NewNet::GetCurTime();
 
 			if(!keys.keys[NewNet::K_RIGHT]) {
 				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
@@ -474,13 +476,13 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 
 			if(rightOnce) {
 				ws->bCarve = true;
-				fLastCarve = NewNet::GetCurTimeFloat();
+				fLastCarve = NewNet::GetCurTime();
 			}
 		}
 
 		if(keys.keys[NewNet::K_RIGHT]) {
 			ws->bMove = true;
-			lastMoveTime = NewNet::GetCurTimeFloat();
+			lastMoveTime = NewNet::GetCurTime();
 
 			if(!keys.keys[NewNet::K_LEFT]) {
 				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
@@ -490,7 +492,7 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 
 			if(leftOnce) {
 				ws->bCarve = true;
-				fLastCarve = NewNet::GetCurTimeFloat();;
+				fLastCarve = NewNet::GetCurTime();
 			}
 		}
 	}

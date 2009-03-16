@@ -957,7 +957,7 @@ void CClientNetEngineBeta9::ParseStartGame(CBytestream *bs)
 	CClientNetEngine::ParseStartGame(bs);
 	if( (bool)client->tGameInfo.features[FT_NewNetEngine] )
 	{
-		NewNet::StartRound( tLX->currentTime, bs->readInt(4) );
+		NewNet::StartRound( bs->readInt(4) );
 		CClient * cl = client;
 		delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
 		cl->cNetEngine = new CClientNetEngineBeta9NewNet(cl);
