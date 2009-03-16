@@ -972,14 +972,19 @@ struct ChatDedHandler : DedInterface {
 	}
 	
 	virtual void pushReturnArg(const std::string& str) {
-		msg("Dedicated: " + str);
+		msg("Dedicated -> " + str);
 	}
 	virtual void finalizeReturn() {
 		msg("Dedicated.");
 	}
+	
+	virtual void writeMsg(const std::string& str) {
+		msg("Dedicated: " + str);
+	}
+	
 	virtual void finishedCommand(const std::string& cmd) {
 		delete this;
-	}			
+	}
 };
 
 

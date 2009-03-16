@@ -16,6 +16,7 @@
 struct DedInterface {
 	virtual void pushReturnArg(const std::string& str) = 0;
 	virtual void finalizeReturn() = 0;
+	virtual void writeMsg(const std::string& msg) = 0;
 	virtual void finishedCommand(const std::string& cmd) {}
 	virtual ~DedInterface() {}
 	

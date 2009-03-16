@@ -129,7 +129,11 @@ struct ScriptDedInterface : DedInterface {
 		pipeOut() << "." << endl;
 	}
 
+	void writeMsg(const std::string& str) {
+		hints << "Script Dedicated: " << str << endl;
+	}
 
+	
 	std::ostream& pipeOut() {
 #ifdef PYTHON_DED_EMBEDDED
 		if( usePython )
@@ -430,6 +434,10 @@ struct StdinDedInterface : DedInterface {
 		notes << "Dedicated return." << endl;
 	}
 
+	void writeMsg(const std::string& str) {
+		hints << "STDIN Dedicated: " << str << endl;
+	}
+	
 	
 	// reading lines from stdin and put them to pipeOutput
 	static int stdinThreadFunc(void* o) {
@@ -609,12 +617,12 @@ struct DedIntern {
 	
 	void Cmd_Script(DedInterface* caller, const std::string& script) {
 		if(IsAbsolutePath(script)) {
-			errors << "absolute path names are not allowed for script command" << endl;
+			caller->writeMsg("Error: absolute path names are not allowed for script command");
 			return;
 		}
 
 		if(script.find("..") != std::string::npos) {
-			errors << "invalid script filename" << endl;
+			caller->writeMsg("Error: invalid script filename: " + script);
 			return;
 		}
 		
@@ -633,6 +641,12 @@ struct DedIntern {
 	// adds a worm to the game (By string - id is way to complicated)
 	void Cmd_AddBot(DedInterface* caller, const std::string & params)
 	{
+		if( cClient->getNumWorms() >= MAX_WORMS )
+		{
+			caller->writeMsg("Too many worms!");
+			return;
+		}
+
 		// Default botname
 		// New variable so that we won't break const when we trim spaces.
 		std::string localWorm = "[CPU] Kamikazee!";
@@ -650,11 +664,6 @@ struct DedIntern {
 			if(p->iType == PRF_COMPUTER->toInt())
 			{
 				// we found a bot, so add it
-				if( cClient->getNumWorms() >= MAX_WORMS )
-				{
-					warnings << "Too many worms!" << endl;
-					return;
-				}
 				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
 				cClient->setNumWorms(cClient->getNumWorms()+1);
 
@@ -669,7 +678,7 @@ struct DedIntern {
 		}
 
 		// TODO: add a bot to profiles in that case
-		warnings << "Can't find ANY bot!" << endl;
+		caller->writeMsg("Can't find ANY bot!");
 	}
 
 	void Cmd_KillBots(DedInterface* caller, const std::string & params) {
@@ -703,7 +712,7 @@ struct DedIntern {
 			TrimSpaces(reason);
 		}
 		else {
-			warnings << "DedicatedControl: KickWorm: Wrong syntax" << endl;
+			caller->writeMsg("KickWorm: Wrong syntax");
 			return;
 		}
 
@@ -732,7 +741,7 @@ struct DedIntern {
 			}
 		}
 		else {
-			warnings << "DedicatedControl: BanWorm: Wrong syntax" << endl;
+			caller->writeMsg("BanWorm: Wrong syntax");
 			return;
 		}
 		if(!CheckWorm(id, "BanWorm"))
@@ -768,7 +777,7 @@ struct DedIntern {
 
 		if( team < 0 || team > 3 )
 		{
-			warnings << "DedicatedControl: SetWormTeam: invalid team number" << endl;
+			caller->writeMsg("SetWormTeam: invalid team number");
 			return;
 		}
 
@@ -790,7 +799,7 @@ struct DedIntern {
 
 	void Cmd_SetVar(DedInterface* caller, const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
-			warnings << "DedicatedControl: SetVar: wrong params: " << params << endl;
+			caller->writeMsg("SetVar: wrong params: " + params);
 			return;
 		}
 		std::string var = params.substr( 0, params.find(" ") );
@@ -804,7 +813,7 @@ struct DedIntern {
 		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL )
 		{
-			warnings << "DedicatedControl: SetVar: no var with name " << var << endl;
+			caller->writeMsg("SetVar: no var with name " + var);
 			notes << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
 			notes << "\nFor Python ded control script:\n" << endl;
 			for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
@@ -828,7 +837,7 @@ struct DedIntern {
 		}
 
 		if( varptr.type == SVT_CALLBACK ) {
-			warnings << "DedicatedControl: SetVar: callbacks are not allowed" << endl;
+			caller->writeMsg("SetVar: callbacks are not allowed");
 			// If we want supoort for that, I would suggest a seperated command like "call ...".
 			return;
 		}
@@ -842,25 +851,25 @@ struct DedIntern {
 
 	void Cmd_GetVar(DedInterface* caller, const std::string& params) {
 		if( params.find(" ") != std::string::npos ) {
-			warnings << "DedicatedControl: GetVar: wrong params: " << params << endl;
+			caller->writeMsg("GetVar: wrong params: " + params);
 			return;
 		}
 		std::string var = params;
 		TrimSpaces( var );
 		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL ) {
-			warnings << "DedicatedControl: GetVar: no var with name " << var << endl;
+			caller->writeMsg("GetVar: no var with name " + var);
 			return;
 		}
 		
 		if( varptr.type == SVT_CALLBACK ) {
-			warnings << "DedicatedControl: GetVar: callbacks are not allowed" << endl;
+			caller->writeMsg("GetVar: callbacks are not allowed");
 			// If we want supoort for that, I would suggest a seperated command like "call ...".
 			return;
 		}
 		
 		if( varptr.s == &tLXOptions->sServerPassword ) {
-			warnings << "DedicatedControl: GetVar: this variable is restricted" << endl;
+			caller->writeMsg("GetVar: this variable is restricted");
 			// If you want to check if a worm is authorized, use another function for that.
 			return;
 		}
@@ -880,8 +889,8 @@ struct DedIntern {
 	
 	void Cmd_StartLobby(DedInterface* caller, std::string param) {
 		if(state != S_INACTIVE) {
-			warnings << "Ded: we cannot start the lobby in current state" << endl;
-			hints << "Ded: stop lobby/game if you want to restart it" << endl;
+			caller->writeMsg("we cannot start the lobby in current state");
+			caller->writeMsg("stop lobby/game if you want to restart it");
 			Sig_ErrorStartLobby();
 			return;
 		}
@@ -902,7 +911,7 @@ struct DedIntern {
 		// Start the server
 		if(!cServer->StartServer()) {
 			// Crappy
-			errors("ERROR: Server wouldn't start\n");
+			caller->writeMsg("ERROR: Server wouldn't start");
 			Sig_ErrorStartLobby();
 			return;
 		}
@@ -910,22 +919,25 @@ struct DedIntern {
 		// Lets connect me to the server
 		if(!cClient->Initialize()) {
 			// Crappy
-			errors << "Client wouldn't initialize" << endl;
+			caller->writeMsg("ERROR: Client wouldn't initialize");
 			Sig_ErrorStartLobby();
 			return;
 		}
 		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
-		tLXOptions->tGameInfo.sModDir = "MW 1.0";
+		if(tLXOptions->tGameInfo.sModDir == "")
+			tLXOptions->tGameInfo.sModDir = "MW 1.0";
 		if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {
-			errors << "no mod for dedicated" << endl;
+			caller->writeMsg("no mod for dedicated, " + tLXOptions->tGameInfo.sModDir + " not found");
 			// TODO..
 		}
 
 		// Get the game type
-		//tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+		if(tLXOptions->tGameInfo.gameMode == NULL)
+			tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 
-		//tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
+		if(tLXOptions->tGameInfo.sMapFile == "")
+			tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
 		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
@@ -933,7 +945,7 @@ struct DedIntern {
 
 	void Cmd_StartGame(DedInterface* caller) {
 		if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames]) {
-			warnings << "DedControl: cannot start game, too few players" << endl;
+			caller->writeMsg("cannot start game, too few players");
 			Sig_ErrorStartGame();
 			return;
 		}
@@ -1005,7 +1017,7 @@ struct DedIntern {
 		if (str_addr != "")
 			caller->pushReturnArg(str_addr);
 		else
-			notes << "DedicatedControl: GetWormIp: str_addr == \"\"" << endl;
+			caller->writeMsg("GetWormIp: str_addr == \"\"");
 	}
 
 	void Cmd_GetWormLocationInfo(DedInterface* caller, const std::string& params) {
@@ -1030,7 +1042,7 @@ struct DedIntern {
 		}
 		else
 		{
-			notes << "DedicatedControl: GetWormCountryInfo: str_addr == \"\"" << endl;
+			caller->writeMsg("GetWormCountryInfo: str_addr == \"\"");
 		}
 	}
 
@@ -1158,7 +1170,7 @@ struct DedIntern {
 
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else {
-			warnings << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
+			command.sender->writeMsg("unknown command: " + cmd + " " + params);
 		}
 		
 		command.sender->finalizeReturn();
