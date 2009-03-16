@@ -404,7 +404,6 @@
 		2306CC270E6AC55E00132D3B /* StringBuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringBuf.h; sourceTree = "<group>"; };
 		2306CC280E6AC55E00132D3B /* StyleVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleVar.h; sourceTree = "<group>"; };
 		2306CC290E6AC55E00132D3B /* XMLutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLutils.h; sourceTree = "<group>"; };
-		2309937C0F4DA35C008E6C7F /* CTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTag.h; sourceTree = "<group>"; };
 		2309937D0F4DA370008E6C7F /* CTag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTag.cpp; sourceTree = "<group>"; };
 		230996890F5C4A46008E6C7F /* CGameMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameMode.cpp; sourceTree = "<group>"; };
 		230997250F5C5F99008E6C7F /* CDemolitionsMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDemolitionsMatch.cpp; sourceTree = "<group>"; };
@@ -553,7 +552,6 @@
 		23D07A450D36CC6200313749 /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DedicatedControl.cpp; sourceTree = "<group>"; };
 		23D07AB30D36E16B00313749 /* DedicatedControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DedicatedControl.h; sourceTree = "<group>"; };
-		23D0FD100F40620D00D3DF4B /* CDeathMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDeathMatch.h; sourceTree = "<group>"; };
 		23D0FD110F40620D00D3DF4B /* CGameMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameMode.h; sourceTree = "<group>"; };
 		23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHideAndSeek.h; sourceTree = "<group>"; };
 		23D0FD140F40624E00D3DF4B /* CDeathMatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CDeathMatch.cpp; sourceTree = "<group>"; };
@@ -1231,8 +1229,6 @@
 			children = (
 				23CB83B80F6D6275006FE300 /* ConversationLogger.h */,
 				2359F89C0F69473700A35064 /* NewNetEngine.h */,
-				2309937C0F4DA35C008E6C7F /* CTag.h */,
-				23D0FD100F40620D00D3DF4B /* CDeathMatch.h */,
 				23D0FD110F40620D00D3DF4B /* CGameMode.h */,
 				23D0FD120F40620D00D3DF4B /* CHideAndSeek.h */,
 				238DA8DA0F388B1E00841FFF /* EventQueue.h */,
