@@ -557,7 +557,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// HINT: we ignore it here for the safety because S2C_PREPAREGAME is 0 and it is
 		// a very common value in corrupted streams
 		// TODO: skip to the right position, the packet could be valid
-		return false;
+		if( tLX->iGameType == GME_JOIN )
+			return false;
 	}
 
 	// If we're playing, the game has to be ready
@@ -567,7 +568,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 		// The same comment here as above.
 		// TODO: skip to the right position, the packet could be valid
-		return false;
+		if( tLX->iGameType == GME_JOIN )
+			return false;
 	}
 
 	NotifyUserOnEvent();
@@ -585,8 +587,17 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	// Other game details
 	client->tGameInfo.iGeneralGameType = bs->readInt(1);
-	client->tGameInfo.sGameMode = "";
-	client->tGameInfo.gameMode = NULL;
+	if( tLX->iGameType != GME_JOIN && cServer->getGameMode() ) {
+		/* This is kind of a hack because we access the information from the server directly.
+		 * This is needed right now to inform the client about the used game mode (bot really depends on that).
+		 * We can extend the PrepareGame package later and then this hack becomes obsolete.
+		 */
+		client->tGameInfo.sGameMode = cServer->getGameMode()->Name();
+		client->tGameInfo.gameMode = cServer->getGameMode();
+	} else {
+		client->tGameInfo.sGameMode = "";
+		client->tGameInfo.gameMode = NULL;
+	}
 	client->iLives = bs->readInt16();
 	client->iMaxKills = bs->readInt16();
 	client->tGameInfo.fTimeLimit = (float)bs->readInt16();
@@ -971,7 +982,7 @@ void CClientNetEngineBeta9::ParseStartGame(CBytestream *bs)
 		delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
 		cl->cNetEngine = new CClientNetEngineBeta9NewNet(cl);
 	}
-};
+}
 
 void CClientNetEngineBeta9NewNet::ParseGotoLobby(CBytestream *bs)
 {
