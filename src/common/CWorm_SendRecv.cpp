@@ -529,29 +529,42 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 
 	// do carving also here as the simulation is only done in next frame and with an updated position
-	// TODO: carving also with tState.bCarve = false ?
+	
+	if(cClient->getMap() != NULL) {
+		/* Earlier, we had calculated from the whole way from vOldPos to vPos (just the direct linear way).
+		 * That had several issues:
+		 *   - vOldPos could be wrong or very inaccurate for several reasons (big lag or hideandseek or something)
+		 *   - no carving if bCarve=false
+		 *   - if the other client has made any carving we don't know about, we will thus never now about
+		 * Now, we just carve at the place where the worm is right now to hopefully solve some of these issues.
+		 */
+		incrementDirtCount( CarveHole(vPos) );
+	}
+	
 	if(tState.bCarve && cClient->getMap() != NULL) {
-		// carve the whole way from old pos to new pos
-		{
-			CVec dir = vPos - oldPos;
-			float len = NormalizeVector( &dir );
+		/* If we get the updates too infrequently, it could be that we don't have carved everything.
+		 * Thus, if the len is not too big, we still carve the whole way.
+		 */
+		CVec dir = vPos - oldPos;
+		float len = NormalizeVector( &dir );
+		if(len <= 10.0f)
 			for(float w = 0.0f; w <= len; w += 3.0f) {
 				CVec p = oldPos + dir * w;
 				incrementDirtCount( CarveHole(p) );
 			}
-		}
+	}
+	
+	// carve a bit further were we are heading to (same as in simulation)
+	if(tState.bCarve && cClient->getMap() != NULL) {
 
-		// carve a bit further were we are heading to (same as in simulation)
-		{
-			// Calculate dir
-			CVec dir;
-			dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
-			dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
-			if(tState.iDirection==DIR_LEFT)
-				dir.x=(-dir.x);
+		// Calculate dir
+		CVec dir;
+		dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
+		dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
+		if(tState.iDirection==DIR_LEFT)
+			dir.x=(-dir.x);
 
-			incrementDirtCount( CarveHole(getPos() + dir*4) );
-		}
+		incrementDirtCount( CarveHole(getPos() + dir*4) );
 	}
 
 	this->fLastSimulationTime = tLX->currentTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
