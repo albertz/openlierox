@@ -1204,7 +1204,7 @@ void GameServer::CheckForFillWithBots() {
 		int kickAmount = MIN(getNumPlayers() - (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo], getNumBots());
 		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
 		if(kickAmount > 0)
-			kickWorm(getLastBot(), "Too much players, bot not needed anymore");
+			kickWorm(getLastBot(), "too much players, bot not needed anymore");
 		// HINT: we will do the next check in kickWorm, thus stop here with further kicks
 		return;
 	}

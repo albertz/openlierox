@@ -116,6 +116,7 @@ public:
 	CChannel	*createChannel(const Version& v);
 	
 	CServerNetEngine * getNetEngine()		{ return cNetEngine; }
+	void		resetNetEngine();
 	void		setNetEngineFromClientVersion();
 	
 	int			getStatus()					{ return iNetStatus; }

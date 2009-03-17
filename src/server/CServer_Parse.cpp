@@ -1128,21 +1128,24 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		warnings << "ParseConnect: new client has old channel set" << endl;
 		newcl->resetChannel();
 	}
-	
-	if( newcl->getChannel() == NULL && ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
-	{	// This should not happen - just in case
-		errors << "Cannot create CChannel for client - invalid client version " << clientVersion.asString() << endl;
-		bytestr.Clear();
-		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::badconnect");
-		bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
-		bytestr.Send(tSocket);
-		return;
+
+	if( newcl->getChannel() == NULL) { 
+		if(! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
+		{	// This should not happen - just in case
+			errors << "Cannot create CChannel for client - invalid client version " << clientVersion.asString() << endl;
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
+			bytestr.Send(tSocket);
+			return;
+		}
+
+		newcl->getChannel()->Create(&adrFrom, tSocket);
 	}
+	
+	newcl->setNumWorms(0);	// Clean up, we reset it (probably this is not needed anymore)
 
-	newcl->setNumWorms(0);	// Clean up, or setClientVersion() will segfault
-
-	newcl->getChannel()->Create(&adrFrom, tSocket);
 	newcl->setLastReceived(tLX->currentTime);
 	newcl->setNetSpeed(iNetSpeed);
 
@@ -1150,7 +1153,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	newcl->setStatus(NET_CONNECTED);
 
-	newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
+	if(reconnectFrom && !newcl->getNetEngine())
+		warnings << "ParseConnect: net engine is not set for reconnecting client" << endl;
+	if(!reconnectFrom && newcl->getNetEngine()) {
+		warnings << "ParseConnect: old net engine was still set" << endl;
+		newcl->resetNetEngine();
+	}
+	if(!newcl->getNetEngine())
+		newcl->setNetEngineFromClientVersion(); // Deletes CServerNetEngine instance
 	// WARNING/HINT/TODO: If we'll ever move ParseConnect() to CServerNetEngine this func should be called last, 'cause *this is deleted
 
 	if(!reconnectFrom)

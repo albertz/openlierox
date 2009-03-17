@@ -201,9 +201,13 @@ void CServerConnection::setClientVersion(const Version& v)
 	cClientVersion = v;
 }
 
+void CServerConnection::resetNetEngine() {
+	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;	
+}
+
 void CServerConnection::setNetEngineFromClientVersion()
 {
-	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
+	resetNetEngine();
 	
 	if( getClientVersion() >= OLXBetaVersion(9) )
 		cNetEngine = new CServerNetEngineBeta9( server, this );
