@@ -128,7 +128,7 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 	{
 		printf("Error: map %s already in cache\n", file.c_str() );
 		return;
-	};
+	}
 
 	// Copy the map to the cache (not just the pointer because map changes during the game)
 	CMap *cached_map = new CMap;
@@ -217,7 +217,7 @@ SmartPointer<CMap> CCache::GetMap(const std::string& file1)
 
 		item->second.fSaveTime = getCurrentTime();
 		return item->second.tMap;
-	};
+	}
 	return NULL;
 }
 

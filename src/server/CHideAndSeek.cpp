@@ -21,6 +21,7 @@
 #include "CGameMode.h"
 #include "Consts.h"
 #include "types.h"
+#include "Cache.h"
 
 class CHideAndSeek : public CGameMode {
 public:
@@ -344,7 +345,31 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 
 void CHideAndSeek::GenerateTimes()
 {
+	bool deleteMapAtEnd = false;
 	CMap* cMap = cServer->getMap();
+	if(cMap == NULL) {
+		// This can happen e.g. in writelobbyupdate by server.
+		// Try to get the map from cache.
+		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+		cMap = cCache.GetMap(sMapFilename).get();
+		if (!cMap) {
+			// Ok, the map was not in the cache.
+			// Just load the map in that case. (It'll go into the cache,
+			// so GS::StartGame() or the next access to it is fast.)
+			cMap = new CMap;
+			if(cMap == NULL) {
+				errors << "CHideAndSeek::GenerateTimes(): out of mem while init map" << endl;
+				return;
+			}
+			if(!cMap->Load(sMapFilename)) {
+				warnings << "CHideAndSeek::GenerateTimes(): cannot load map " << tLXOptions->tGameInfo.sMapFile << endl;
+				fGameLength = -1;
+				delete cMap;
+				return; // nothing we can do anymore
+			}
+			deleteMapAtEnd = true;
+		}
+	}
 	int volume = cMap->GetWidth() * cMap->GetHeight();
 	enum { SMALL = 1, MEDIUM, LARGE, XLARGE } size;
 	// Decide on the level size
@@ -368,6 +393,9 @@ void CHideAndSeek::GenerateTimes()
 
 	// TODO: Is this actually any good? 
 	fGameLength = (45 * size * ratio);
+	
+	if(deleteMapAtEnd)
+		delete cMap;
 }
 
 static CHideAndSeek gameMode;
