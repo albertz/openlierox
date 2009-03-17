@@ -1125,7 +1125,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if( reconnectFrom && !newcl->getChannel() )
 		warnings << "ParseConnect: reconnecting client doesn't has channel yet" << endl;
 	if( !reconnectFrom && newcl->getChannel() ) {
-		warnings << "ParseConnect: new client has old channel set" << endl;
+		// TODO: It seems that this happens very often. Why?
+		//warnings << "ParseConnect: new client has old channel set" << endl;
 		newcl->resetChannel();
 	}
 
@@ -1156,7 +1157,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if(reconnectFrom && !newcl->getNetEngine())
 		warnings << "ParseConnect: net engine is not set for reconnecting client" << endl;
 	if(!reconnectFrom && newcl->getNetEngine()) {
-		warnings << "ParseConnect: old net engine was still set" << endl;
+		// TODO: It seems that this happens very often. Why?
+		//warnings << "ParseConnect: old net engine was still set" << endl;
 		newcl->resetNetEngine();
 	}
 	if(!newcl->getNetEngine())
