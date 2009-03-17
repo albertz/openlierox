@@ -408,7 +408,7 @@ public:
 	log_worm_t	*GetLogWorm(int id);
 	void		GetLogData(std::string& data);
 
-	void		AddRandomBot();
+	void		AddRandomBot(int amount = 1);
 	void		AddWorm(profile_t* p);
 	void		RemoveWorm(int id);
 

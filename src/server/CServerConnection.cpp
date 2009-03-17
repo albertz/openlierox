@@ -58,6 +58,10 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	cNetEngine = new CServerNetEngine( server, this );
 }
 
+void CServerConnection::resetChannel() {
+	if(cNetChan) delete cNetChan;
+	cNetChan = NULL;
+}
 
 ///////////////////
 // Clear the client details

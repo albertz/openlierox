@@ -40,6 +40,7 @@
 #include "CServerConnection.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "ProfileSystem.h"
 
 GameServer	*cServer = NULL;
 
@@ -1195,13 +1196,45 @@ void GameServer::CheckWeaponSelectionTime()
 	}
 }
 
+void GameServer::CheckForFillWithBots() {
+	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] <= 0) return; // feature not activated
+	
+	// check if already too much players
+	if(getNumPlayers() > (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] && getNumBots() > 0) {
+		int kickAmount = MIN(getNumPlayers() - (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo], getNumBots());
+		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
+		if(kickAmount > 0)
+			kickWorm(getLastBot(), "Too much players, bot not needed anymore");
+		// HINT: we will do the next check in kickWorm, thus stop here with further kicks
+		return;
+	}
+	
+	if(iState != SVS_LOBBY && !tLXOptions->tGameInfo.bAllowConnectDuringGame) {
+		notes << "CheckForFillWithBots: not in lobby and connectduringgame not allowed" << endl;
+		return;
+	}
+	
+	if(iState == SVS_PLAYING && !allWormsHaveFullLives()) {
+		notes << "CheckForFillWithBots: in game, cannot add new worms now" << endl;
+		return;
+	}
+	
+	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] > getNumPlayers()) {
+		int fillUpTo = MIN(tLXOptions->tGameInfo.iMaxPlayers, (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo]);
+		int fillNr = fillUpTo - getNumPlayers();
+		SendGlobalText("Too less players: Adding " + itoa(fillNr) + " bots to the server.", TXT_NETWORK);	
+		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
+		cClient->AddRandomBot(fillNr);
+	}
+}
+
 ///////////////////
 // Drop a client
 void GameServer::DropClient(CServerConnection *cl, int reason, const std::string& sReason)
 {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
-		notes << "DropClient: An attempt to drop a local client (reason " << reason << ": " << sReason << ") was ignored" << endl;
+		warnings << "DropClient: An attempt to drop a local client (reason " << reason << ": " << sReason << ") was ignored" << endl;
 		return;
 	}
 
@@ -1256,9 +1289,6 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 		// Send only if the text isn't <none>
 		if(buf != "<none>")
 			SendGlobalText((buf),TXT_NETWORK);
-		
-		// Notify the game mode that the worm has been dropped
-		getGameMode()->Drop(cl->getWorm(i));
 	}
 	
 	// remove the client and drop worms
@@ -1275,7 +1305,6 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	bs.writeByte(S2C_DROPPED);
 	bs.writeString(OldLxCompatibleString(cl_msg));
 	cl->getChannel()->AddReliablePacketToSend(bs);
-
 }
 
 void GameServer::RemoveClientWorms(CServerConnection* cl) {
@@ -1293,6 +1322,11 @@ void GameServer::RemoveClientWorms(CServerConnection* cl) {
 			continue;
 		}
 		
+		notes << "Worm left: " << cl->getWorm(i)->getName() << " (id " << cl->getWorm(i)->getID() << ")" << endl;
+
+		// Notify the game mode that the worm has been dropped
+		getGameMode()->Drop(cl->getWorm(i));
+
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
 
@@ -1329,13 +1363,33 @@ void GameServer::RemoveClientWorms(CServerConnection* cl) {
 void GameServer::RemoveClient(CServerConnection* cl) {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
-		notes << "An attempt to remove a local client was ignored" << endl;
+		warnings << "An attempt to remove a local client was ignored" << endl;
 		return;
 	}
 	
 	RemoveClientWorms(cl);
-
 	cl->setStatus(NET_DISCONNECTED);
+	
+	CheckForFillWithBots();
+}
+
+int GameServer::getNumBots() const {
+	int num = 0;
+	CWorm *w = cWorms;
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if(w->isUsed() && w->getProfile() && w->getProfile()->iType == PRF_COMPUTER->toInt())
+			num++;
+	}
+	return num;
+}
+
+int GameServer::getLastBot() const {
+	CWorm *w = cWorms + MAX_WORMS - 1;
+	for(int i = MAX_WORMS - 1; i >= 0; i--, w--) {
+		if(w->isUsed() && w->getProfile() && w->getProfile()->iType == PRF_COMPUTER->toInt())
+			return i;
+	}
+	return -1;
 }
 
 
@@ -1421,25 +1475,41 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 
 	if( wormID < 0 || wormID >= MAX_PLAYERS )  {
-		Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+		hints << "kickWorm: worm ID " << itoa(wormID) << " is invalid" << endl;
 		return;
 	}
 
-	if (!wormID && !bDedicated)  {
-		Con_AddText(CNC_NOTIFY, "You can't kick yourself!");
+	if ( !bDedicated && cClient && cClient->getNumWorms() > 0 && cClient->getWorm(0)->getID() == wormID )  {
+		hints << "You can't kick yourself!" << endl;
 		return;  // Don't kick ourself
 	}
 
 	// Get the worm
 	CWorm *w = cWorms + wormID;
 	if( !w->isUsed() )  {
-		Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+		hints << "Could not find worm with ID " << itoa(wormID) << endl;
 		return;
 	}
-
+	
 	// Local worms are handled another way
 	if (cClient)  {
-		if (cClient->OwnsWorm(w->getID()))  {
+		if (cClient->OwnsWorm(w->getID()))  {			
+			// Send the message
+			if (sReason.size() == 0)
+				SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
+										   "<player>", w->getName(), 1)),	TXT_NETWORK);
+			else
+				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
+													  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
+			
+			notes << "Worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+			
+			// Notify the game mode that the worm has been dropped
+			getGameMode()->Drop(w);
+			
+			if( DedicatedControl::Get() )
+				DedicatedControl::Get()->WormLeft_Signal( w );
+			
 			// Delete the worm from client and server
 			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);
@@ -1460,14 +1530,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			bs.writeByte(wormID);
 			SendGlobalPacket(&bs);
 
-			// Send the message
-			if (sReason.size() == 0)
-				SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
-				"<player>", w->getName(), 1)),	TXT_NETWORK);
-			else
-				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
-				"<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-
 			// Now that a player has left, re-check the game status
 			RecheckGame();
 
@@ -1483,7 +1545,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	// Get the client
 	CServerConnection *cl = w->getClient();
 	if( !cl ) {
-		Con_AddText(CNC_ERROR, "This worm cannot be kicked, the client is unknown");
+		errors << "worm " << wormID << " cannot be kicked, the client is unknown" << endl;
 		return;
 	}
 
@@ -1513,7 +1575,7 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 	}
 
 	// Didn't find the worm
-	Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
+	hints << "Could not find worm '" << szWormName << "'" << endl;
 }
 
 
@@ -1555,7 +1617,14 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 	// We just kick the worm, banning makes no sense
 	if (cClient)  {
 		if (cClient->OwnsWorm(w->getID()))  {
-
+			notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+			
+			// Notify the game mode that the worm has been dropped
+			getGameMode()->Drop(w);
+			
+			if( DedicatedControl::Get() )
+				DedicatedControl::Get()->WormLeft_Signal( w );
+			
 			// Delete the worm from client and server
 			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);
@@ -1583,7 +1652,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			else
 				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
 				"<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-
+						
 			// Now that a player has left, re-check the game status
 			RecheckGame();
 

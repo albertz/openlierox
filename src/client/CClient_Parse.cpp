@@ -82,7 +82,7 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::badconnect") {
 		// If we are already connected, ignore this
 		if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
-			printf("CClientNetEngine::ParseConnectionlessPacket: already connected, ignoring\n");
+			notes << "CClientNetEngine::ParseConnectionlessPacket: already connected, ignoring" << endl;
 		} else {
 			client->iNetStatus = NET_DISCONNECTED;
 			client->bBadConnection = true;
@@ -139,13 +139,13 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 {
 	// If we are already connected, ignore this
 	if (client->iNetStatus == NET_CONNECTED || client->iNetStatus == NET_PLAYING)  {
-		printf("CClientNetEngine::ParseChallenge: already connected, ignoring\n");
+		notes << "CClientNetEngine::ParseChallenge: already connected, ignoring" << endl;
 		return;
 	}
 
 #ifdef DEBUG
 	if (client->bConnectingBehindNat)
-		printf("Got a challenge from the server.\n");
+		notes << "Got a challenge from the server." << endl;
 #endif
 
 	CBytestream bytestr;
@@ -195,15 +195,18 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 // Parse a connected packet
 void CClientNetEngine::ParseConnected(CBytestream *bs)
 {
+	bool isReconnect = false;
+	
 	NetworkAddr addr;
 
 	// If already connected, ignore this
 	if (client->iNetStatus == NET_CONNECTED)  {
-		printf("CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids\n");
+		notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
+		isReconnect = true;
 	}
 	else
 	if(client->iNetStatus == NET_PLAYING) {
-		printf("CClientNetEngine::ParseConnected: currently playing; it's too risky to proceed a reconnection, so we ignore this\n");
+		warnings << "CClientNetEngine::ParseConnected: currently playing; it's too risky to proceed a reconnection, so we ignore this" << endl;
 		return;
 	}
 
@@ -224,9 +227,11 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setClientVersion(Version());
 	}
 
-	if( client->iNumWorms < 0 )
-		// TODO: why? we should allow iNumWorms = 0 for sure!
-		printf("Error %s:%i: client->iNumWorms = %i is less than zero \n", __FILE__, __LINE__, client->iNumWorms );
+	if( client->iNumWorms < 0 ) {
+		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
+		client->Disconnect();
+		return;
+	}
 	
 	// Get the id's
 	int id=0;
@@ -247,7 +252,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	}
 
 	// TODO: why do we setup the viewports only if we have at least one worm?
-	if(!bDedicated && client->iNumWorms > 0) {
+	if(!isReconnect && !bDedicated && client->iNumWorms > 0) {
 		// Setup the viewports
 		client->SetupViewports();
 
@@ -257,14 +262,24 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	// Create my channel
 	GetRemoteNetAddr(client->tSocket, addr);
 
-	if( ! client->createChannel( std::min( client->getServerVersion(), GetGameVersion() ) ) )
-	{
-		client->bServerError = true;
-		client->strServerErrorMsg = "Your client is incompatible to this server";
-		return;
+	if( isReconnect && !client->cNetChan )
+		warnings << "we are reconnecting but we don't have a working communication channel yet" << endl;
+	if( !isReconnect && client->cNetChan ) {
+		warnings << "ParseConnected: we still have an old channel" << endl;
+		delete client->cNetChan;
+		client->cNetChan = NULL;
 	}
-	client->cNetChan->Create(&addr,client->tSocket);
-
+	
+	if( client->cNetChan == NULL ) {
+		if( ! client->createChannel( std::min( client->getServerVersion(), GetGameVersion() ) ) )
+		{
+			client->bServerError = true;
+			client->strServerErrorMsg = "Your client is incompatible to this server";
+			return;
+		}
+		client->cNetChan->Create(&addr,client->tSocket);
+	}
+	
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 
@@ -272,7 +287,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	client->bHostAllowsStrafing = false;
 
 	// Log the connecting
-	if (tLXOptions->bLogConvos && convoLogger)
+	if (!isReconnect && tLXOptions->bLogConvos && convoLogger)
 		convoLogger->enterServer(client->getServerName());
 	
 	if( GetGlobalIRC() )
@@ -350,7 +365,7 @@ void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 	bs1.Send(client->tSocket);
 	bs1.Send(client->tSocket);
 	bs1.Send(client->tSocket);
-};
+}
 
 
 /*
@@ -375,7 +390,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			// Prepare the game
 			case S2C_PREPAREGAME:
 				if(!ParsePrepareGame(bs)) {
-					// client->Disconnect();  // HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
+					// HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
                     return;
 				}
 				break;

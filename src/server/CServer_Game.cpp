@@ -482,7 +482,7 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 // Go back to the lobby
 void GameServer::gotoLobby(void)
 {
-	notes << "gotoLobby" << endl;
+	notes << "GameServer: gotoLobby" << endl;
 
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
@@ -563,6 +563,8 @@ void GameServer::gotoLobby(void)
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
 		RegisterServerUdp();
 
+	CheckForFillWithBots();
+	
 	// HINT: the gamescript is shut down by the cache
 }
 

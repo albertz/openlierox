@@ -2523,7 +2523,7 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sGameMode); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();
 
-	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading AbsTime:");
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTime) + "%");
 	cur_y += tLX->cFont.GetHeight();
 

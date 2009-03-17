@@ -53,6 +53,8 @@ Feature featureArray[] = {
 			360, 	360, 			Version(),			GIG_HideAndSeek, 	0, 		360 ),
 	Feature("NewNetEngine", 		"New net engine",		"New net engine - not working yet!", 
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
+	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
+			0,	0,					Version(),			GIG_Other,			0,		MAX_PLAYERS, true),
 
 	Feature::Unset()
 };

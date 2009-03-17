@@ -305,7 +305,7 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	txtMaxKills->setMax(6);
 
 	// Loading time
-	new CLabel(STATIC, pgGeneral, "Loading AbsTime");
+	new CLabel(STATIC, pgGeneral, "Loading Time");
 	sldLoadingTime = new CSlider("_LoadingTime", pgGeneral, MAX_LOADING_TIME);
 	lblLoadingTime = new CLabel("_LoadingTimeLabel", pgGeneral, "");
 

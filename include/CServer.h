@@ -199,7 +199,9 @@ public:
 	void		killWorm(int victimID, int killerID, int suicidesCount = 0); // suicidesCount is ignored if victimID != killerID
     void		cloneWeaponsToAllWorms(CWorm* worm);
 	
-	void        CheckReadyClient(void);
+	void        CheckReadyClient();
+	void		CheckForFillWithBots();
+	
 	float		GetDownload();
 	float		GetUpload(float timeRange = 2.0f);
 
@@ -258,6 +260,8 @@ public:
 	TimeDiff	getServerTime() { return fServertime; }
 
 	int		getNumPlayers() const		{ return iNumPlayers; }
+	int		getNumBots() const;
+	int		getLastBot() const;
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode
 	bool	isTeamEmpty(int t) const;
 	bool	allWormsHaveFullLives() const;

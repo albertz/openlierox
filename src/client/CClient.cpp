@@ -1104,7 +1104,7 @@ void CClient::NewNet_Frame()
 ///////////////////
 // Read the packets
 void CClient::ReadPackets(void)
-{
+{	
 	CBytestream		bs;
 
 	while(bs.Read(tSocket)) {
@@ -1129,6 +1129,11 @@ void CClient::ReadPackets(void)
 		if(iNetStatus == NET_DISCONNECTED || iNetStatus == NET_CONNECTING)
 			continue;
 
+		if(cNetChan == NULL) {
+			errors << "Client::ReadPackets: cNetChan is unset!" << endl;
+			continue;
+		}		
+		
 		// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
 		while( cNetChan->Process(&bs) )
 		{
@@ -1313,7 +1318,37 @@ void CClient::Connect(const std::string& address)
 void CClient::Reconnect() {
 	// HINT: Don't disconnect because we don't want to lose the connection
 	// and we also want to keep the client struct on the server.
-	Connect(strServerAddr);	
+
+	// TODO: move this out here
+	// Tell the server we are connecting, and give the server our details
+	CBytestream bytestr;
+	bytestr.writeInt(-1,4);
+	bytestr.writeString("lx::connect");
+	bytestr.writeInt(PROTOCOL_VERSION,1);
+	bytestr.writeInt(this->iChallenge,4);
+	bytestr.writeInt(this->iNetSpeed,1);
+	bytestr.writeInt(this->iNumWorms, 1);
+	
+	// Send my worms info
+    //
+    // __MUST__ match the layout in CWorm::writeInfo() !!!
+    //
+	
+	for(uint i=0;i<this->iNumWorms;i++) {
+		// TODO: move this out here
+		bytestr.writeString(RemoveSpecialChars(this->tProfiles[i]->sName));
+		bytestr.writeInt(this->tProfiles[i]->iType,1);
+		bytestr.writeInt(this->tProfiles[i]->iTeam,1);
+		bytestr.writeString(this->tProfiles[i]->cSkin.getFileName());
+		bytestr.writeInt(this->tProfiles[i]->R,1);
+		bytestr.writeInt(this->tProfiles[i]->G,1);
+		bytestr.writeInt(this->tProfiles[i]->B,1);
+	}
+	
+	NetworkAddr addr;
+	GetRemoteNetAddr(tSocket, addr);
+	SetRemoteNetAddr(tSocket, addr);
+	bytestr.Send(this->tSocket);
 }
 
 
@@ -1681,7 +1716,28 @@ int CClient::OwnsWorm(int id)
 }
 
 
-void CClient::AddRandomBot() {
+
+static void addWorm(CClient* cl, profile_t* p) {
+	if(p == NULL) {
+		errors << "addWorm(): you have to specify the profile" << endl;
+		return;
+	}
+	
+	if(cl->getNumWorms() + 1 >= MAX_WORMS) {
+		errors << "addWorm(): too many worms" << endl;
+		return;
+	}
+	
+	cl->getLocalWormProfiles()[cl->getNumWorms()] = p;
+	cl->setNumWorms(cl->getNumWorms() + 1);
+}
+
+void CClient::AddRandomBot(int amount) {
+	if(amount < 1 || amount > MAX_PLAYERS) {
+		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
+		return;
+	}
+
 	std::vector<profile_t*> bots;
 	for(profile_t* p = GetProfiles(); p != NULL; p = p->tNext) {
 		if(p->iType == PRF_COMPUTER->toInt())
@@ -1694,22 +1750,13 @@ void CClient::AddRandomBot() {
 		return;
 	}
 	
-	AddWorm(randomChoiceFrom(bots));	
+	for(int i = 0; i < amount; ++i)
+		addWorm(this, randomChoiceFrom(bots));
+	Reconnect();
 }
 
-void CClient::AddWorm(profile_t* p) {
-	if(p == NULL) {
-		errors << "AddWorm(): you have to specify the profile" << endl;
-		return;
-	}
-	
-	if(getNumWorms() + 1 >= MAX_WORMS) {
-		errors << "AddWorm(): too many worms" << endl;
-		return;
-	}
-	
-	getLocalWormProfiles()[getNumWorms()] = p;
-	setNumWorms(getNumWorms() + 1);
+void CClient::AddWorm(profile_t* p) {	
+	addWorm(this, p);
 	Reconnect(); // we have to reconnect to inform the server about the new worm	
 }
 
@@ -2048,7 +2095,7 @@ CChannel * CClient::createChannel(const Version& v)
 	else
 		cNetChan = new CChannel_056b();
 	return cNetChan;
-};
+}
 
 void CClient::setNetEngineFromServerVersion()
 {

@@ -878,11 +878,23 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
 	}
-
+	
 	// User Info to get
-
 	GetRemoteNetAddr(tSocket, adrFrom);
 
+	CServerConnection* reconnectFrom = NULL;
+	for(CServerConnection* cl = cClients;p<MAX_CLIENTS;p++,cl++) {
+		
+		if(cl->getStatus() == NET_DISCONNECTED)
+			continue;
+		
+		if(AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress())) {
+			reconnectFrom = cl;
+			break;
+		}
+	}			
+	
+	
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
 	if (ProtocolVersion != PROTOCOL_VERSION) {
@@ -930,104 +942,107 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	int numworms = bs->readInt(1);
 	numworms = CLAMP(numworms, 0, (int)MAX_PLAYERS);
 	
+	Version clientVersion;
+	
 	// If we ignored this challenge verification, there could be double connections
 
 	// See if the challenge is valid
 	bool valid_challenge = false;
-	for (i = 0; i < MAX_CHALLENGES; i++) {
-		if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
+	if(reconnectFrom) {
+		// ignore the challenge, the challenge was already verified earlier
+		valid_challenge = true;
+		i = 0;
+		clientVersion = reconnectFrom->getClientVersion();
+	}
+	else {
+		for (i = 0; i < MAX_CHALLENGES; i++) {
+			if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
 
-			if (ChallId == tChallenges[i].iNum)  { // good
-				SetNetAddrValid(tChallenges[i].Address, false); // Invalidate it here to avoid duplicate connections
-				tChallenges[i].iNum = 0;
-				valid_challenge = true;
-				break;
-			} else { // bad
-				valid_challenge = false;
+				if (ChallId == tChallenges[i].iNum)  { // good
+					SetNetAddrValid(tChallenges[i].Address, false); // Invalidate it here to avoid duplicate connections
+					tChallenges[i].iNum = 0;
+					valid_challenge = true;
+					break;
+				} else { // bad
+					valid_challenge = false;
 
-				// HINT: we could receive another connect packet which will contain this challenge
-				// and therefore get the worm connected twice. To avoid it, we clear the challenge here
-				SetNetAddrValid(tChallenges[i].Address, false);
-				tChallenges[i].iNum = 0;
-				printf("HINT: deleting a doubled challenge\n");
+					// HINT: we could receive another connect packet which will contain this challenge
+					// and therefore get the worm connected twice. To avoid it, we clear the challenge here
+					SetNetAddrValid(tChallenges[i].Address, false);
+					tChallenges[i].iNum = 0;
+					hints << "HINT: deleting a doubled challenge" << endl;
 
-				// There can be more challanges from one client, if this one doesn't match,
-				// perhaps some other does
+					// There can be more challanges from one client, if this one doesn't match,
+					// perhaps some other does
+				}
 			}
 		}
+
+		if (!valid_challenge)  {
+			notes << "Bad connection verification of client" << endl;
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
+			bytestr.Send(tSocket);
+			return;
+		}
+		
+		// Ran out of challenges
+		if ( i == MAX_CHALLENGES ) {
+			printf("No connection verification for client found\n");
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
+			bytestr.Send(tSocket);
+			return;
+		}
+		
+		const std::string & clientVersionStr = tChallenges[i].sClientVersion;
+		clientVersion = clientVersionStr;
 	}
 
-	if (!valid_challenge)  {
-		printf("Bad connection verification of client\n");
-		bytestr.Clear();
-		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::badconnect");
-		bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
-		bytestr.Send(tSocket);
-		return;
-	}
-
-	// Ran out of challenges
-	if ( i == MAX_CHALLENGES ) {
-		printf("No connection verification for client found\n");
-		bytestr.Clear();
-		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::badconnect");
-		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
-		bytestr.Send(tSocket);
-		return;
-	}
-
-	const std::string & clientVersionStr = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
 	// HINT: this works in every case, even if there are two people behind one router
 	// because the address ports are checked as well (router assigns a different port for each person)
 	newcl = NULL;
-	p=0;
-	for(CServerConnection* cl = cClients;p<MAX_CLIENTS;p++,cl++) {
-
-		if(cl->getStatus() == NET_DISCONNECTED)
-			continue;
-
-		if(AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress())) {
-
-			// HINT: just let the client connect again
-			newcl = cl;
-			notes << "Reconnecting ";
-			if(cl->isLocalClient()) {
-				bLocalClientConnected = false; // because we are reconnecting the client
-				notes << "local ";
-			}
-			notes << "client " << cl->debugName() << endl;
-			RemoveClientWorms(cl); // remove them, we will add them again now
-			break;
-			
-			/*
-			// Must not have got the connection good packet
-			if(cl->getStatus() == NET_CONNECTED) {
-				printf("Duplicate connection\n");
-
-				// Resend the 'good connection' packet
-				bytestr.Clear();
-				bytestr.writeInt(-1,4);
-				bytestr.writeString("lx::goodconnection");
-	               // Send the worm ids
-	               for( int i=0; i<cl->getNumWorms(); i++ )
-	                   bytestr.writeInt(cl->getWorm(i)->getID(), 1);
-				bytestr.Send(tSocket);
-				return;
-			}
-
-			// TODO: does this make sense? the already connected client tries to connect again while playing?
-			// Trying to connect while playing? Drop the client
-			if(cl->getStatus() == NET_PLAYING) {
-				//conprintf("Client tried to reconnect\n");
-				//DropClient(&players[p]);
-				return;
-			}
-			*/
+	if(reconnectFrom) {
+		// HINT: just let the client connect again
+		newcl = reconnectFrom;
+		notes << "Reconnecting ";
+		if(reconnectFrom->isLocalClient()) {
+			bLocalClientConnected = false; // because we are reconnecting the client
+			notes << "local ";
 		}
+		notes << "client " << reconnectFrom->debugName() << endl;
+		RemoveClientWorms(reconnectFrom); // remove them, we will add them again now
+		
+		/*
+		 // Must not have got the connection good packet
+		 if(cl->getStatus() == NET_CONNECTED) {
+		 printf("Duplicate connection\n");
+		 
+		 // Resend the 'good connection' packet
+		 bytestr.Clear();
+		 bytestr.writeInt(-1,4);
+		 bytestr.writeString("lx::goodconnection");
+		 // Send the worm ids
+		 for( int i=0; i<cl->getNumWorms(); i++ )
+		 bytestr.writeInt(cl->getWorm(i)->getID(), 1);
+		 bytestr.Send(tSocket);
+		 return;
+		 }
+		 
+		 // TODO: does this make sense? the already connected client tries to connect again while playing?
+		 // Trying to connect while playing? Drop the client
+		 if(cl->getStatus() == NET_PLAYING) {
+		 //conprintf("Client tried to reconnect\n");
+		 //DropClient(&players[p]);
+		 return;
+		 }
+		 */		
 	}
 
 	// Find a spot for the client
@@ -1084,8 +1099,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if (!newcl)
 		return;
 
-	Version clientVersion = clientVersionStr;
-
 	std::string addrFromStr;
 	NetAddrToString(adrFrom, addrFromStr);
 
@@ -1102,7 +1115,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		notes << "GameServer: new " << clientVersion.asString() << " client connected from " << addrFromStr << endl;
 	}
 
-	if( ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
+	if( reconnectFrom && !newcl->getChannel() )
+		warnings << "ParseConnect: reconnecting client doesn't has channel yet" << endl;
+	if( !reconnectFrom && newcl->getChannel() ) {
+		warnings << "ParseConnect: new client has old channel set" << endl;
+		newcl->resetChannel();
+	}
+	
+	if( newcl->getChannel() == NULL && ! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
 	{	// This should not happen - just in case
 		errors << "Cannot create CChannel for client - invalid client version " << clientVersion.asString() << endl;
 		bytestr.Clear();
@@ -1193,7 +1213,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 	iNumPlayers = numplayers + numworms;
-
+	
+	// remove bots if not wanted anymore
+	CheckForFillWithBots();
+	
 	// Let em know they connected good
 	bytestr.Clear();
 	bytestr.writeInt(-1, 4);

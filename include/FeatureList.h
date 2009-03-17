@@ -86,6 +86,7 @@ enum FeatureIndex {
 	FT_HS_SeekerVisionRangeThroughWalls,
 	FT_HS_SeekerVisionAngle,
 	FT_NewNetEngine,
+	FT_FillWithBotsTo
 };
 
 class FeatureCompatibleSettingList {

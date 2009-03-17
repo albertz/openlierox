@@ -193,7 +193,7 @@ public:
 	bool	bRegServer;
 	std::string	sServerName;
 	std::string	sWelcomeMessage;
-	std::string sServerPassword;			// Password to connect to server - not used anywhere
+	std::string sServerPassword;	// Password to authenticate (login chatcmd) as admin; this is not for server-login!
 	bool	bAllowWantsJoinMsg;
 	bool	bWantsJoinBanned;
 	bool	bAllowRemoteBots;

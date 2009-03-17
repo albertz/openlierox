@@ -112,6 +112,7 @@ public:
 
 	// Variables
 	CChannel	*getChannel()				{ return cNetChan; }
+	void		resetChannel();
 	CChannel	*createChannel(const Version& v);
 	
 	CServerNetEngine * getNetEngine()		{ return cNetEngine; }
