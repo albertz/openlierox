@@ -247,6 +247,7 @@ public:
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
 	void			resetMap()			{ cMap = NULL; }
+	CMap*			getPreloadedMap(); // IMPORTANT: never ever keep this pointer! it's only temporarly! also don't modify the map!
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
 	std::string		getName()			{ return tLXOptions->sServerName; }

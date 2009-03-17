@@ -1815,6 +1815,33 @@ bool GameServer::allWormsHaveFullLives() const {
 }
 
 
+CMap* GameServer::getPreloadedMap() {
+	if(cMap) return cMap;
+	
+	std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+	
+	// Try to get the map from cache.
+	CMap* cachedMap = cCache.GetMap(sMapFilename).get();
+	if(cachedMap) return cachedMap;
+	
+	// Ok, the map was not in the cache.
+	// Just load the map in that case. (It'll go into the cache,
+	// so GS::StartGame() or the next access to it is fast.)
+	cMap = new CMap;
+	if(cMap == NULL) {
+		errors << "GameServer::getPreloadedMap(): out of mem while init map" << endl;
+		return NULL;
+	}
+	if(!cMap->Load(sMapFilename)) {
+		warnings << "GameServer::getPreloadedMap(): cannot load map " << tLXOptions->tGameInfo.sMapFile << endl;
+		delete cMap;
+		cMap = NULL;
+		return NULL; // nothing we can do anymore
+	}
+	
+	return cMap;
+}
+
 
 ///////////////////
 // Notify the host about stuff
