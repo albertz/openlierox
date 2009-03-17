@@ -881,6 +881,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	
 	// User Info to get
 	GetRemoteNetAddr(tSocket, adrFrom);
+	std::string addrFromStr;
+	NetAddrToString(adrFrom, addrFromStr);
 
 	CServerConnection* reconnectFrom = NULL;
 	p = 0;
@@ -1018,6 +1020,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			notes << "local ";
 		}
 		notes << "client " << reconnectFrom->debugName() << endl;
+		
+		if(reconnectFrom->isLocalClient() && addrFromStr.find("127.0.0.1") != 0) {
+			errors << "client cannot be the local client because it has address " << addrFromStr << endl;
+			bLocalClientConnected = true; // we just assume that
+			reconnectFrom->setLocalClient(false);
+		}
+		
 		RemoveClientWorms(reconnectFrom); // remove them, we will add them again now
 		
 		/*
@@ -1100,20 +1109,17 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if (!newcl)
 		return;
 
-	std::string addrFromStr;
-	NetAddrToString(adrFrom, addrFromStr);
-
 	// TODO: this is a bad hack, fix it
 	// If this is the first client connected, it is our local client
 	if (!bLocalClientConnected)  {
 		if (addrFromStr.find("127.0.0.1") == 0)  { // Safety: check the IP
 			newcl->setLocalClient(true);
 			bLocalClientConnected = true;
-			notes << "GameServer: our local client has connected" << endl;
+			if(!reconnectFrom) // don't spam too much
+				notes << "GameServer: our local client has connected" << endl;
 		}
 	} else {
 		newcl->setLocalClient(false);
-		notes << "GameServer: new " << clientVersion.asString() << " client connected from " << addrFromStr << endl;
 	}
 
 	if( reconnectFrom && !newcl->getChannel() )
@@ -1197,6 +1203,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	for (i = 0;i < numworms;i++) {
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
+		
+		notes << "Worm joined: " << newcl->getWorm(i)->getName();
+		notes << " (id " << newcl->getWorm(i)->getID() << ",";
+		notes << " from " << newcl->debugName(false) << ")" << endl;
 		
 		if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
 			newcl->getWorm(i)->setTeam(-1); // set it invalid to have correct firstEmpty

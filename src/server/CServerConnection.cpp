@@ -199,7 +199,6 @@ void CServerConnection::Shutdown(void)
 void CServerConnection::setClientVersion(const Version& v)
 {
 	cClientVersion = v;
-	printf(this->debugName() + " is using " + cClientVersion.asString() + "\n");
 }
 
 void CServerConnection::setNetEngineFromClientVersion()
@@ -235,34 +234,40 @@ CChannel * CServerConnection::createChannel(const Version& v)
 
 
 
-std::string CServerConnection::debugName() {
-	std::string adr = "?.?.?.?";
-
+std::string CServerConnection::debugName(bool withWorms) {	
+	std::string addr = "?.?.?.?";
 	if(isLocalClient())
-		adr = "local";
+		addr = "local";
 	else if(!getChannel())  {
-		printf("WARNING: CServerConnection::debugName(): getChannel() == NULL\n");
-	} else if(!NetAddrToString(getChannel()->getAddress(), adr))  {
-		printf("WARNING: CServerConnection::debugName(): NetAddrToString failed\n");
+		warnings << "CServerConnection::debugName(): getChannel() == NULL" << endl;
+	} else if(!NetAddrToString(getChannel()->getAddress(), addr))  {
+		warnings << "CServerConnection::debugName(): NetAddrToString failed" << endl;
 	}
 	
-	std::string worms = "no worms";
-	if(getNumWorms() > 0) {
-		worms = "";
-		for(int i = 0; i < getNumWorms(); ++i) {
-			if(i > 0) worms += ", ";
-			if(getWorm(i)) {
-				worms += itoa(getWorm(i)->getID());
-				worms += " '";
-				worms += getWorm(i)->getName();
-				worms += "'";
-			} else {
-				worms += "BAD";
+	std::string ret = addr;
+	ret += "(" + cClientVersion.asString() + ")";
+	
+	if(withWorms) {
+		std::string worms = "no worms";
+		if(getNumWorms() > 0) {
+			worms = "";
+			for(int i = 0; i < getNumWorms(); ++i) {
+				if(i > 0) worms += ", ";
+				if(getWorm(i)) {
+					worms += itoa(getWorm(i)->getID());
+					worms += " '";
+					worms += getWorm(i)->getName();
+					worms += "'";
+				} else {
+					worms += "BAD";
+				}
 			}
 		}
+		
+		ret += "(" + worms + ")";
 	}
 
-	return "CServerConnection(" + adr +") with " + worms;
+	return ret;
 }
 
 int CServerConnection::getPing() { return cNetChan->getPing(); }

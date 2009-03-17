@@ -166,7 +166,7 @@ public:
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	
 	
-	std::string	debugName();
+	std::string	debugName(bool withWorms = true);
 };
 
 #endif  //  __CSERVER_CONNECTION_H__
