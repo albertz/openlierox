@@ -123,38 +123,12 @@ void DisableAdvancedFeatures()
 void CalculateCurrentState( AbsTime localTime );
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
 
-bool Frame( CBytestream * bs )
-{
-	AbsTime localTime = tLX->currentTime;
-	KeyState_t keys;
-	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
-	{
-		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) cClient->getWorm(0)->inputHandler();
-		keys.keys[K_UP] = hnd->getInputUp().isDown();
-		keys.keys[K_DOWN] = hnd->getInputDown().isDown();
-		keys.keys[K_LEFT] = hnd->getInputLeft().isDown();
-		keys.keys[K_RIGHT] = hnd->getInputRight().isDown();
-		keys.keys[K_SHOOT] = hnd->getInputShoot().isDown();
-		keys.keys[K_JUMP] = hnd->getInputJump().isDown();
-		keys.keys[K_SELWEAP] = hnd->getInputWeapon().isDown();
-		keys.keys[K_ROPE] = hnd->getInputRope().isDown();
-		if( tLXOptions->bOldSkoolRope )
-			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
-	};
-	bool ret = SendNetPacket( localTime, keys, bs );
-	CalculateCurrentState( localTime );
-	return ret;
-};
-
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
 
 bool QuickDirtyCalculation;
 bool ReCalculationNeeded;
 AbsTime ReCalculationTimeMs;
 // Constants
-// TODO: it seems that some of these are actually not TimeDiffs but TimeDiffs/TICK_TIME (or so).
-// For those, please don't use TimeDiff. Best would be to make an extra struct for them to have that clear and to seperate
-// all that *TICK_TIME or /TICK_TIME calculations.
 TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
 TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
@@ -195,7 +169,10 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 		{
 			--it;
 			keys[i] = it->second.keys;
-			keysChanged[i] = it->second.keysChanged;
+			if( it->first == t )
+				keysChanged[i] = it->second.keysChanged;
+			else
+				keysChanged[i] = KeyState_t();
 		}
 		else
 		{
@@ -246,12 +223,44 @@ void EndRound()
 	SavedWormState = NULL;
 };
 
+bool Frame( CBytestream * bs )
+{
+	AbsTime localTime = tLX->currentTime;
+	localTime.time -= OlxTimeDiffMs.time;
+	localTime.time -= localTime.time % TICK_TIME;
+
+	KeyState_t keys;
+	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+	{
+		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) cClient->getWorm(0)->inputHandler();
+		keys.keys[K_UP] = hnd->getInputUp().isDown();
+		keys.keys[K_DOWN] = hnd->getInputDown().isDown();
+		keys.keys[K_LEFT] = hnd->getInputLeft().isDown();
+		keys.keys[K_RIGHT] = hnd->getInputRight().isDown();
+		keys.keys[K_SHOOT] = hnd->getInputShoot().isDown();
+		keys.keys[K_JUMP] = hnd->getInputJump().isDown();
+		keys.keys[K_SELWEAP] = hnd->getInputWeapon().isDown();
+		keys.keys[K_ROPE] = hnd->getInputRope().isDown();
+		if( tLXOptions->bOldSkoolRope )
+			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
+	};
+	//printf("Frame(): keys.keys[K_LEFT] %i time %i\n", keys.keys[K_LEFT], int(localTime.time));
+	
+	bool ret = SendNetPacket( localTime, keys, bs );
+	if( !ret )
+	{
+		if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+			cClient->getWorm(0)->inputHandler()->clearInput();
+		CalculateCurrentState( localTime );
+	}
+	return ret;
+};
+
+
 void ReCalculateSavedState()
 {
-	if( CurrentTimeMs - ReCalculationTimeMs < ReCalculationMinimumTimeMs || ! ReCalculationNeeded )
+	if( CurrentTimeMs < ReCalculationTimeMs + ReCalculationMinimumTimeMs || ! ReCalculationNeeded )
 		return; // Limit recalculation - it is CPU-intensive
-	//if( ! ReCalculationNeeded )
-	//	return;
 
 	ReCalculationTimeMs = CurrentTimeMs;
 	ReCalculationNeeded = false;
@@ -262,15 +271,15 @@ void ReCalculateSavedState()
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
-	//printf("ReCalculate(): BackupTime %lu timeMin %lu\n", BackupTime, timeMin);
-	if( BackupTime /* + DrawDelayMs */ + TICK_TIME >= timeMin )
+	printf("ReCalculate(): BackupTime %i timeMin %i CurrentTimeMs %i\n", (int)BackupTime.time, (int)timeMin.time, (int)CurrentTimeMs.time );
+	if( BackupTime /* + DrawDelayMs */ + TimeDiff(TICK_TIME) >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
 	if( CurrentTimeMs != BackupTime )	// Last recalc time
 		RestoreState();
 
-	while( BackupTime /* + DrawDelayMs */ + TICK_TIME < timeMin )
+	while( BackupTime /* + DrawDelayMs */ + TimeDiff(TICK_TIME) < timeMin )
 	{
 		BackupTime += TimeDiff(TICK_TIME);
 		CurrentTimeMs = BackupTime;
@@ -307,8 +316,6 @@ void ReCalculateSavedState()
 // Should be called immediately after SendNetPacket() with the same time value
 void CalculateCurrentState( AbsTime localTime )
 {
-	localTime.time -= OlxTimeDiffMs.time;
-
 	ReCalculateSavedState();
 
 	//printf("Draw() time %lu oldtime %lu\n", localTime / TICK_TIME , CurrentTimeMs / TICK_TIME );
@@ -371,10 +378,8 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
 	//printf("SendNetPacket() time %lu\n", localTime);
-	localTime.time -= OlxTimeDiffMs.time;
-
 	if( keys == OldKeys[ LocalPlayer ] &&
-		localTime - LastPacketTime[ LocalPlayer ] < PingTimeMs ) // Do not flood the net with non-changed keys
+		localTime < LastPacketTime[ LocalPlayer ] + PingTimeMs ) // Do not flood the net with non-changed keys
 		return false;
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
@@ -392,7 +397,7 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 	}
 	Events[ LocalPlayer ] [ localTime ] .keys = OldKeys[ LocalPlayer ];
 	if( changedKeyIdx != -1 )
-		Events[ LocalPlayer ] [ localTime ] .keysChanged.keys[changedKeyIdx] = ! Events[ LocalPlayer ] [ localTime ] .keysChanged.keys[changedKeyIdx];
+		Events[ LocalPlayer ] [ localTime ] .keysChanged.keys[changedKeyIdx] = true;
 
 	LastPacketTime[ LocalPlayer ] = localTime;
 

@@ -26,7 +26,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../sandbox/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -133,7 +133,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Updating revision number..."
-				CommandLine="svn_revision.exe &quot;../../sandbox/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -160,7 +160,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;ZLIB_WIN32_NODLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -266,7 +266,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -366,7 +366,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -449,7 +449,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../sandbox/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -473,7 +473,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;WITH_PYTHON"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -555,7 +555,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../sandbox/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -582,7 +582,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../sandbox/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;WITH_PYTHON"
 				StringPooling="true"
 				RuntimeLibrary="2"

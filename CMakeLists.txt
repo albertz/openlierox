@@ -73,7 +73,7 @@ MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
 PROJECT(openlierox)
 
 # main includes
-INCLUDE_DIRECTORIES(sandbox/generated)
+INCLUDE_DIRECTORIES(optional-includes/generated)
 INCLUDE_DIRECTORIES(include)
 INCLUDE_DIRECTORIES(libs/pstreams)
 
@@ -146,7 +146,7 @@ string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 MESSAGE( "OLX_VERSION = ${OLXVER}" )
 #ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"") # This will trigger whole project rebuild
 # Escaping backslashes overkill, yay.
-EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > sandbox/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
+EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > optional-includes/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
 IF(X11)
 	ADD_DEFINITIONS("-DX11")
 ENDIF(X11)
