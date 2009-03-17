@@ -639,11 +639,11 @@ struct DedIntern {
 	// adds a worm to the game (By string - id is way to complicated)
 	void Cmd_AddBot(DedInterface* caller, const std::string & params)
 	{
-		if( cClient->getNumWorms() >= MAX_WORMS ) {
+		if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
 			caller->writeMsg("Too many worms!");
 			return;
 		}
-
+		
 		// try to find the requested worm
 		if(params != "") {
 			std::string localWorm = params;
@@ -659,19 +659,7 @@ struct DedIntern {
 			caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead"); 
 		}
 		
-		std::vector<profile_t*> bots;
-		for(profile_t* p = GetProfiles(); p != NULL; p = p->tNext) {
-			if(p->iType == PRF_COMPUTER->toInt())
-				bots.push_back(p);
-		}
-		
-		if(bots.size() == 0) {
-			// TODO: add a bot to profiles in that case
-			caller->writeMsg("Can't find ANY bot profile!");
-			return;
-		}
-
-		cClient->AddWorm(randomChoiceFrom(bots));
+		cClient->AddRandomBot();
 	}
 
 	void Cmd_KillBots(DedInterface* caller, const std::string & params) {

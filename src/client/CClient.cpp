@@ -1679,8 +1679,33 @@ int CClient::OwnsWorm(int id)
 }
 
 
+void CClient::AddRandomBot() {
+	std::vector<profile_t*> bots;
+	for(profile_t* p = GetProfiles(); p != NULL; p = p->tNext) {
+		if(p->iType == PRF_COMPUTER->toInt())
+			bots.push_back(p);
+	}
+	
+	if(bots.size() == 0) {
+		// TODO: add a bot to profiles in that case
+		errors << "Can't find ANY bot profile!" << endl;
+		return;
+	}
+	
+	AddWorm(randomChoiceFrom(bots));	
+}
+
 void CClient::AddWorm(profile_t* p) {
-	assert(p != NULL);
+	if(p == NULL) {
+		errors << "AddWorm(): you have to specify the profile" << endl;
+		return;
+	}
+	
+	if(getNumWorms() + 1 >= MAX_WORMS) {
+		errors << "AddWorm(): too many worms" << endl;
+		return;
+	}
+	
 	getLocalWormProfiles()[getNumWorms()] = p;
 	setNumWorms(getNumWorms() + 1);
 	Reconnect(); // we have to reconnect to inform the server about the new worm	
