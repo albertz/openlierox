@@ -14,7 +14,6 @@
 // Karel Petranek
 
 #include "StringUtils.h"
-#include "Utils.h"
 #include "ChatCommand.h"
 #include "Protocol.h"
 #include "CServer.h"

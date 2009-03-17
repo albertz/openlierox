@@ -20,7 +20,7 @@
 #include <string>
 #include <SDL.h>
 #include "types.h"
-#include "Utils.h"
+#include "InternDataClass.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)

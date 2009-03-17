@@ -14,8 +14,6 @@
 #include <SDL.h> // for Uint32
 #include <string>
 
-#include "Utils.h"
-
 typedef Uint32 UnicodeChar;
 typedef std::basic_string<UnicodeChar> UnicodeString;
 typedef Uint16 Utf16Char;

@@ -11,8 +11,8 @@
 #define	__IPTOCOUNTRY_H__
 
 #include <string>
-#include "Utils.h"
 #include "SmartPointer.h"
+#include "InternDataClass.h"
 
 struct SDL_Surface;
 

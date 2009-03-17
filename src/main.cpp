@@ -34,7 +34,6 @@
 #include "CssParser.h"
 #include "FontHandling.h"
 #include "Timer.h"
-#include "Utils.h"
 #include "CChannel.h"
 #include "Cache.h"
 #include "ProfileSystem.h"

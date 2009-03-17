@@ -15,7 +15,6 @@
 #include "LieroX.h" // for tLX
 
 #include "StringUtils.h"
-#include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour
 #include "CFont.h"
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg

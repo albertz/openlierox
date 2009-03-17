@@ -542,6 +542,10 @@
 		23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadVar.h; sourceTree = "<group>"; };
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
 		23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenExternBrowser.cpp; sourceTree = "<group>"; };
+		23AFF03A0F7016FB005B964D /* InternDataClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InternDataClass.h; sourceTree = "<group>"; };
+		23AFF03B0F701755005B964D /* Ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ref.h; sourceTree = "<group>"; };
+		23AFF03C0F70175F005B964D /* Functors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functors.h; sourceTree = "<group>"; };
+		23AFF05A0F701804005B964D /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPool.cpp; sourceTree = "<group>"; };
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
@@ -721,7 +725,6 @@
 		EA430C880BEFCEDE00C6547E /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../include/types.h; sourceTree = SOURCE_ROOT; };
 		EA430C890BEFCEDE00C6547E /* UCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UCString.h; path = ../../include/UCString.h; sourceTree = SOURCE_ROOT; };
 		EA430C8A0BEFCEDE00C6547E /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Unicode.h; path = ../../include/Unicode.h; sourceTree = SOURCE_ROOT; };
-		EA430C8B0BEFCEDE00C6547E /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../../include/Utils.h; sourceTree = SOURCE_ROOT; };
 		EA430C8F0BEFCF7F00C6547E /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../../CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 		EA430C900BEFCF7F00C6547E /* compile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = compile.sh; path = ../../compile.sh; sourceTree = SOURCE_ROOT; };
 		EA430C910BEFCF7F00C6547E /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = install.sh; path = ../../install.sh; sourceTree = SOURCE_ROOT; };
@@ -1227,6 +1230,10 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23AFF05A0F701804005B964D /* Utils.h */,
+				23AFF03C0F70175F005B964D /* Functors.h */,
+				23AFF03B0F701755005B964D /* Ref.h */,
+				23AFF03A0F7016FB005B964D /* InternDataClass.h */,
 				23CB83B80F6D6275006FE300 /* ConversationLogger.h */,
 				2359F89C0F69473700A35064 /* NewNetEngine.h */,
 				23D0FD110F40620D00D3DF4B /* CGameMode.h */,
@@ -1326,7 +1333,6 @@
 				EA430C880BEFCEDE00C6547E /* types.h */,
 				EA430C890BEFCEDE00C6547E /* UCString.h */,
 				EA430C8A0BEFCEDE00C6547E /* Unicode.h */,
-				EA430C8B0BEFCEDE00C6547E /* Utils.h */,
 				231FE01D0F0019A7007F4CC8 /* FeatureList.h */,
 				23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */,
 				23EABF6C0F40C79100CA55CF /* TaskManager.h */,

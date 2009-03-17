@@ -27,7 +27,6 @@
 #include "Entity.h"
 #include "CClient.h"
 #include "CServerConnection.h"
-#include "Utils.h"
 #include "CWormHuman.h"
 #include "ProfileSystem.h"
 #include "CGameScript.h"

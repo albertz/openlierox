@@ -20,6 +20,8 @@
 #ifndef __PIXELFUNCTORS_H__
 #define __PIXELFUNCTORS_H__
 
+#include <cassert>
+
 //
 // Color packing and unpacking (mainly grabbed from SDL)
 //
@@ -372,7 +374,7 @@ inline PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 
 	switch (surf->format->BytesPerPixel)  {
 	case 1:
-		DEBUGASSERT(); // No alpha blending for 8-bit surfaces atm
+		assert(false); // No alpha blending for 8-bit surfaces atm
 		break;
 	case 2:
 		return px16;  // 16-bit surfaces have no alpha
@@ -383,7 +385,7 @@ inline PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 			return px32_a;
 		return px32;
 	default:
-		DEBUGASSERT();
+		assert(false);
 	}
 
 	return px32; // Should not happen
@@ -424,7 +426,7 @@ inline PixelGet& getPixelGetFunc(const SDL_Surface *surf)  {
 	case 4:
 		return px32;
 	default:
-		DEBUGASSERT();
+		assert(false);
 	}
 
 	return px32; // Should not happen

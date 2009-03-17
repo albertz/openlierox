@@ -12,9 +12,10 @@
 
 #include <SDL.h>
 #include "types.h"
-#include "Utils.h" // for Ref
+#include "Ref.h"
 #include "SmartPointer.h"
 #include "EventQueue.h"
+#include "Utils.h" // for isSameType
 
 struct EventData {
 	EventData(void* own = NULL) : owner(own) {}

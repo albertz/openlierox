@@ -24,7 +24,6 @@
 #include <cmath>
 
 #include "CVec.h"
-#include "Utils.h"
 
 
 // Constants

@@ -16,9 +16,8 @@
 #include "SDL_mutex.h"
 #endif
 
-
+#include "Functors.h"
 #include "ThreadPool.h"
-#include "Utils.h"
 
 template < typename _Type, typename _SpecificInitFunctor >
 class SmartPointer;

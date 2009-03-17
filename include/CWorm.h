@@ -23,7 +23,6 @@
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
 #include "Options.h" // for control_t
-#include "Utils.h"
 #include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
