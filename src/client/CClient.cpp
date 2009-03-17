@@ -119,9 +119,6 @@ void CClient::Clear(void)
 	fLastUpdateSent = AbsTime();
 
 
-	bInServer = false;
-	cIConnectedBuf = "";
-
 	fMyPingRefreshed = 0;
 	iMyPing = 0;
 	fMyPingSent = 0;
@@ -189,7 +186,7 @@ void CClient::MinorClear(void)
 	bServerError = false;
     bClientError = false;
 	bChat_Typing = false;
-	fLastReceived = 99999;
+	fLastReceived = AbsTime::MAX();
 
 	fSendWait = 0;
 
@@ -272,8 +269,6 @@ CClient::CClient() {
 	fChat_BlinkTime = 0;
 	bChat_CursorVisible = true;
 	bClientError = false;
-	bInServer = false;
-	cIConnectedBuf = "";
 	iNetSpeed = 3;
 	fLastUpdateSent = AbsTime();
 	SetNetAddrValid( cServerAddr, false );

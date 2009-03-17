@@ -365,10 +365,6 @@ private:
 
     bool		bClientError;
 
-	// Logging variables
-    bool		bInServer;
-	std::string	cIConnectedBuf;
-
 	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
