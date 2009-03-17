@@ -598,23 +598,22 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->tGameInfo.sGameMode = "";
 		client->tGameInfo.gameMode = NULL;
 	}
-	client->iLives = bs->readInt16();
-	client->iMaxKills = bs->readInt16();
+	client->tGameInfo.iLives = bs->readInt16();
+	client->tGameInfo.iKillLimit = bs->readInt16();
 	client->tGameInfo.fTimeLimit = (float)bs->readInt16();
-	int l = bs->readInt16();
-	client->fLoadingTime = (float)l/100.0f;
-	client->bBonusesOn = bs->readBool();
-	client->bShowBonusName = bs->readBool();
+	client->tGameInfo.iLoadingTime = bs->readInt16();
+	client->tGameInfo.bBonusesOn = bs->readBool();
+	client->tGameInfo.bShowBonusName = bs->readBool();
 	client->fServertime = 0;
 
 	if(client->getGeneralGameType() == GMT_TIME)
-		client->iTagLimit = bs->readInt16();
+		client->tGameInfo.iTagLimit = bs->readInt16();
 
 	// Load the gamescript
-	client->sModName = bs->readString();
+	client->tGameInfo.sModName = bs->readString();
 
 	// Bad packet
-	if (client->sModName == "")  {
+	if (client->tGameInfo.sModName == "")  {
 		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
 		client->bGameReady = false;
 		return false;
@@ -726,7 +725,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	PhysicsEngine::Get()->initGame();
 
-	client->cGameScript = cCache.GetMod( client->sModName );
+	client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
 	if( client->cGameScript.get() == NULL )
 	{
 		client->cGameScript = new CGameScript();
@@ -736,15 +735,15 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		else {
 			client->bWaitingForMod = false;
 
-			int result = client->cGameScript.get()->Load(client->sModName);
-			cCache.SaveMod( client->sModName, client->cGameScript );
+			int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
+			cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
 			if(result != GSE_OK) {
 
 				// Show any error messages
 				if (tLX->iGameType == GME_JOIN)  {
 					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
 					std::string err("Error load game mod: ");
-					err += client->sModName + "\r\nError code: " + itoa(result);
+					err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
 					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
 					client->bClientError = true;
 
@@ -755,7 +754,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				}
 				client->bGameReady = false;
 
-				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->sModName << endl;
+				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
     			return false;
 			}
 		}
@@ -820,13 +819,13 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->ChangeGraphics(client->getGeneralGameType());
 
 			// Also set some game details
-			w->setLives(client->iLives);
+			w->setLives(client->tGameInfo.iLives);
 			w->setKills(0);
 			w->setDamage(0);
 			w->setHealth(100);
 			w->setGameScript(client->cGameScript.get());
 			w->setWpnRest(&client->cWeaponRestrictions);
-			w->setLoadingTime(client->fLoadingTime);
+			w->setLoadingTime(client->tGameInfo.iLoadingTime/100.0f);
 
 			// Prepare for battle!
 			w->Prepare();

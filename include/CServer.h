@@ -74,7 +74,6 @@ private:
 	// General
 	int			iState;
 
-	// TODO: merge this with game_t (tGameInfo variable)
 	// Game rules
 	bool		bGameOver;
 	AbsTime		fGameOverTime;
@@ -101,7 +100,7 @@ private:
 	CMap		*cMap;
 
 	// Simulation
-	TimeDiff	fServertime;	// TODO: what is this good for
+	TimeDiff	fServertime;
 	int			iServerFrame;	// TODO: what is this good for
 	int			lastClientSendData;
 	

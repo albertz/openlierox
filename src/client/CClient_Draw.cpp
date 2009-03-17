@@ -1711,7 +1711,7 @@ void CClient::DrawBonuses(SDL_Surface * bmpDest, CViewport *v)
 		if(!b->getUsed())
 			continue;
 
-		b->Draw(bmpDest, v, bShowBonusName);
+		b->Draw(bmpDest, v, tGameInfo.bShowBonusName);
 	}
 }
 

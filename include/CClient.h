@@ -223,16 +223,9 @@ private:
 
 	// Game
 	SmartPointer<CGameScript> cGameScript;
-	// TODO: what are these for? we have tGameInfo
-	//int			iGameType;
-	int			iLives;
-	int			iMaxKills;
-	int			iTagLimit;
-	float		fLoadingTime;
-	std::string	sModName;
-	bool		bBonusesOn;
-	bool		bShowBonusName;
     CWpnRest    cWeaponRestrictions;
+	GameOptions::GameInfo tGameInfo;	// Also game lobby
+	FeatureCompatibleSettingList otherGameInfo;	
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 
 	// Ping below FPS
@@ -364,9 +357,6 @@ private:
 	bool		bHaveMap;
 	bool		bHaveMod;
 
-	GameOptions::GameInfo tGameInfo;	// Also game lobby
-	FeatureCompatibleSettingList otherGameInfo;
-	
 	bool		bBadConnection;
 	std::string	strBadConnectMsg;
 

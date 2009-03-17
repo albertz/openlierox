@@ -84,7 +84,6 @@ void CClient::Clear(void)
 	iNetStatus = NET_DISCONNECTED;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
-	fLoadingTime = 1;
 	iScorePlayers = 0;
 	cBonuses = NULL;
 	bUpdateScore = true;
@@ -329,7 +328,6 @@ int CClient::Initialize(void)
 	Shutdown();
 	Clear();
 
-	fLoadingTime = (float)tGameInfo.iLoadingTime/100.0f;
 	iNetSpeed = tLXOptions->iNetworkSpeed;
 
 	// Local/host games use instant speed
@@ -749,7 +747,7 @@ void CClient::FinishModDownloads()
 			return;
 		}
 
-		if (stringcaseequal(sModName, sModDownloadName))  {
+		if (stringcaseequal(tGameInfo.sModName, sModDownloadName))  {
 			if (cGameScript->Load(sModDownloadName) != GSE_OK)  {
 				errors("Could not load the downloaded mod.\n");
 				Disconnect();
