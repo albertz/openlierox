@@ -85,7 +85,7 @@ private:
 	CShootList	cShootList;
 
     AbsTime       fZombieTime;
-	AbsTime		fSendWait;
+	TimeDiff		fSendWait;
 	AbsTime		fLastUpdateSent;
 
 	ClientRights tRights;
