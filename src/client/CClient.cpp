@@ -1678,6 +1678,15 @@ int CClient::OwnsWorm(int id)
 	return false;
 }
 
+
+void CClient::AddWorm(profile_t* p) {
+	assert(p != NULL);
+	getLocalWormProfiles()[getNumWorms()] = p;
+	setNumWorms(getNumWorms() + 1);
+	Reconnect(); // we have to reconnect to inform the server about the new worm	
+}
+
+
 //////////////////
 // Remove the worm
 void CClient::RemoveWorm(int id)

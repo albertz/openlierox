@@ -639,40 +639,39 @@ struct DedIntern {
 	// adds a worm to the game (By string - id is way to complicated)
 	void Cmd_AddBot(DedInterface* caller, const std::string & params)
 	{
-		if( cClient->getNumWorms() >= MAX_WORMS )
-		{
+		if( cClient->getNumWorms() >= MAX_WORMS ) {
 			caller->writeMsg("Too many worms!");
 			return;
 		}
 
-		// Default botname
-		// New variable so that we won't break const when we trim spaces.
-		std::string localWorm = "[CPU] Kamikazee!";
-		if (params != "")
-		{
-			localWorm = params;
+		// try to find the requested worm
+		if(params != "") {
+			std::string localWorm = params;
 			TrimSpaces(localWorm);
 			StripQuotes(localWorm);
-		}
-
-		// try to find the requested worm or find any other worm
-		profile_t *p = FindProfile(localWorm);
-		if(!p) p = GetProfiles();
-		for(;p;p=p->tNext)
-		{
-			if(p->iType == PRF_COMPUTER->toInt())
-			{
-				// we found a bot, so add it
-				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
-				cClient->setNumWorms(cClient->getNumWorms()+1);
-				cClient->Reconnect(); // we have to reconnect to inform the server about the new worm
-
+			
+			profile_t *p = FindProfile(localWorm);
+			if(p) {
+				cClient->AddWorm(p);
 				return;
 			}
+			
+			caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead"); 
+		}
+		
+		std::vector<profile_t*> bots;
+		for(profile_t* p = GetProfiles(); p != NULL; p = p->tNext) {
+			if(p->iType == PRF_COMPUTER->toInt())
+				bots.push_back(p);
+		}
+		
+		if(bots.size() == 0) {
+			// TODO: add a bot to profiles in that case
+			caller->writeMsg("Can't find ANY bot profile!");
+			return;
 		}
 
-		// TODO: add a bot to profiles in that case
-		caller->writeMsg("Can't find ANY bot!");
+		cClient->AddWorm(randomChoiceFrom(bots));
 	}
 
 	void Cmd_KillBots(DedInterface* caller, const std::string & params) {

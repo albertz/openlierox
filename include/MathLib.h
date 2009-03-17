@@ -33,9 +33,9 @@
 
 
 // Routines
-float	GetRandomNum();
-float	GetRandomPosNum();
-int		GetRandomInt(int max);
+float	GetRandomNum(); // get a random float from [0,1]
+float	GetRandomPosNum(); // get a random float from [-1,1]
+int		GetRandomInt(int max); // get a random int from [0,max] 
 int		Round(float x);
 
 /*#ifdef _MSC_VER
@@ -57,6 +57,9 @@ float   fastSQRT(float x);
 
 #define SIGN(x) (((x) > 0)?1:(((x) < 0)?-1:0))
 #define SQR(x) ((x)*(x))
+
+#undef MIN
+#undef MAX
 
 template <typename T> T MIN(T a, T b) { return a < b ? a : b; }
 template <typename T> T MAX(T a, T b) { return a > b ? a : b; }
