@@ -1377,7 +1377,7 @@ int GameServer::getNumBots() const {
 	int num = 0;
 	CWorm *w = cWorms;
 	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(w->isUsed() && w->getProfile() && w->getProfile()->iType == PRF_COMPUTER->toInt())
+		if(w->isUsed() && w->getType() == PRF_COMPUTER)
 			num++;
 	}
 	return num;
@@ -1386,7 +1386,7 @@ int GameServer::getNumBots() const {
 int GameServer::getLastBot() const {
 	CWorm *w = cWorms + MAX_WORMS - 1;
 	for(int i = MAX_WORMS - 1; i >= 0; i--, w--) {
-		if(w->isUsed() && w->getProfile() && w->getProfile()->iType == PRF_COMPUTER->toInt())
+		if(w->isUsed() && w->getType() == PRF_COMPUTER)
 			return i;
 	}
 	return -1;
