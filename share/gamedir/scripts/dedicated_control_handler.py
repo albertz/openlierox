@@ -105,6 +105,10 @@ def init():
 
 	io.startLobby(0)
 
+	# if we load this script with already some worms on board, we have to update our worm list now
+	for w in io.getWormList():
+		parseNewWorm( w, io.getWormName(w) )
+
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 
@@ -127,7 +131,7 @@ def signalHandler(sig):
 	
 	try:
 		if header == "newworm":
-			parseNewWorm(sig)
+			parseNewWorm(int(sig[1]), sig[2])
 		elif header == "wormleft":
 			parseWormLeft(sig)
 		elif header == "privatemessage":
@@ -186,11 +190,10 @@ def signalHandler(sig):
 
 	return True
 
-def parseNewWorm(sig):
+def parseNewWorm(wormID, name):
 	global worms
 
-	wormID = int(sig[1])
-	name = sig[2].replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
+	name = name.replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	exists = False
 	try:
 		worm = worms[wormID]
@@ -204,7 +207,12 @@ def parseNewWorm(sig):
 		worms[wormID] = worm
 
 	if io.getGameType() == 4: # Hide and Seek
-		io.setWormTeam(wormID, 0) # Hider
+		minSeekers = 1
+		if len(worms.values()) >= 4: minSeekers = 2
+		if getNumberWormsInTeam(1) < minSeekers:
+			io.setWormTeam(wormID, 1) # Seeker
+		else:
+			io.setWormTeam(wormID, 0) # Hider		
 	else:
 		# Balance teams
 		teams = [0,0,0,0]
@@ -553,7 +561,7 @@ def controlHandlerDefault():
 					sentStartGame = True
 					if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
 						io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
-
+					
 	if gameState == GAME_WEAPONS:
 
 		#checkMaxPing()

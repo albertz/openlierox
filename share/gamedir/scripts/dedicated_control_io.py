@@ -136,12 +136,28 @@ def setWormTeam(iID, team):
 	else:
 		messageLog("Worm id %i invalid" % iID ,LOG_ADMIN)
 
+def getWormTeam(iID):
+	return int(SendCommand("getwormteam %i" % int(iID))[0])
+
+def getNumberWormsInTeam(team):
+	c = 0
+	for w in worms.values():
+		if getWormTeam( w.iID ) == team:
+			c = c + 1
+	return c
+
+def getWormName(iID):
+	return SendCommand("getwormname %i" % int(iID))[0]
+
 def authorizeWorm(iID):
 	SendCommand( "authorizeworm " + str(iID) )
 
+def getWormList():
+	return [int(w) for w in SendCommand( "getwormlist" )]
+
 # Use this to get the list of all possible bots.
 def getComputerWormList():
-	return SendCommand( "getcomputerwormlist" )
+	return [int(w) for w in SendCommand( "getcomputerwormlist" )]
 
 def getWormIP(iID):
 	ret = SendCommand( "getwormip %i" % int(iID) )
@@ -158,7 +174,7 @@ def getWormLocationInfo(iID):
 def getWormPing(iID):
 	ret = SendCommand( "getwormping %i" % int(iID) )
 	if len(ret) == 0:
-		return "0"
+		return 0
 	return int(ret[0])
 
 def getWormSkin(iID):

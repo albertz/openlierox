@@ -584,17 +584,15 @@ struct DedIntern {
 	State state;
 
 	// TODO: Move this
-	CWorm* CheckWorm(int id, const std::string& caller)
+	static CWorm* CheckWorm(DedInterface* caller, int id, const std::string& request)
 	{
-		if(id <0 || id >= MAX_WORMS)
-		{
-			warnings << "DedicatedControl: " << caller << " : Faulty ID (got " << id << ")" << endl;
+		if(id <0 || id >= MAX_WORMS) {
+			caller->writeMsg(request + " : Faulty ID " + itoa(id));
 			return NULL;
 		}
 		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed())
-		{
-			warnings << "DedicatedControl: " << caller << " : ID not in use" << endl;
+		if(!w->isUsed()) {
+			caller->writeMsg(request + " : ID " + itoa(id) + " not in use");
 			return NULL;
 		}
 		return w;
@@ -716,7 +714,7 @@ struct DedIntern {
 			return;
 		}
 
-		if(!CheckWorm(id, "KickWorm"))
+		if(!CheckWorm(caller, id, "KickWorm"))
 			return;
 
 		cServer->kickWorm(id,reason);
@@ -744,7 +742,7 @@ struct DedIntern {
 			caller->writeMsg("BanWorm: Wrong syntax");
 			return;
 		}
-		if(!CheckWorm(id, "BanWorm"))
+		if(!CheckWorm(caller, id, "BanWorm"))
 			return;
 
 		cServer->banWorm(id,reason);
@@ -755,7 +753,7 @@ struct DedIntern {
 	{
 		int id = -1;
 		id = atoi(params);
-		if(!CheckWorm(id, "MuteWorm"))
+		if(!CheckWorm(caller, id, "MuteWorm"))
 			return;
 
 		cServer->muteWorm(id);
@@ -771,7 +769,7 @@ struct DedIntern {
 			team = atoi( params.substr( params.find(" ")+1 ) );
 
 
-		CWorm *w = CheckWorm(id,"SetWormTeam");
+		CWorm *w = CheckWorm(caller, id,"SetWormTeam");
 		if (!w)
 			return;
 
@@ -791,7 +789,7 @@ struct DedIntern {
 	{
 		int id = -1;
 		id = atoi(params);
-		if(!CheckWorm(id, "AuthorizeWorm"))
+		if(!CheckWorm(caller, id, "AuthorizeWorm"))
 			return;
 
 		cServer->authorizeWorm(id);
@@ -891,8 +889,7 @@ struct DedIntern {
 		if(state != S_INACTIVE) {
 			caller->writeMsg("we cannot start the lobby in current state");
 			caller->writeMsg("stop lobby/game if you want to restart it");
-			Sig_ErrorStartLobby();
-			return;
+			return; // just ignore it and stay in current state
 		}
 		
 		if( param != "" ) {
@@ -973,7 +970,7 @@ struct DedIntern {
 	void Cmd_PrivateMessage(DedInterface* caller, const std::string& params, int type = TXT_NOTICE) {
 		int id = -1;
 		id = atoi(params);
-		CWorm *w = CheckWorm(id, "PrivateMessage");
+		CWorm *w = CheckWorm(caller, id, "PrivateMessage");
 		if( !w || !w->getClient() || !w->getClient()->getNetEngine() )
 			return;
 
@@ -1004,11 +1001,24 @@ struct DedIntern {
 		}
 	}
 
-	void Cmd_GetWormIp(DedInterface* caller, const std::string& params)
-	{
+	void Cmd_GetWormName(DedInterface* caller, const std::string& params) {
+		int id = atoi(params);
+		CWorm* w = CheckWorm(caller, id, "GetWormName");
+		if(!w) return;
+		caller->pushReturnArg(w->getName());
+	}
+
+	void Cmd_GetWormTeam(DedInterface* caller, const std::string& params) {
+		int id = atoi(params);
+		CWorm* w = CheckWorm(caller, id, "GetWormTeam");
+		if(!w) return;
+		caller->pushReturnArg(itoa(w->getTeam()));
+	}
+	
+	void Cmd_GetWormIp(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
-		CWorm* w = CheckWorm(id, "GetWormIp");
+		CWorm* w = CheckWorm(caller, id, "GetWormIp");
 
 		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
 		std::string str_addr;
@@ -1023,7 +1033,7 @@ struct DedIntern {
 	void Cmd_GetWormLocationInfo(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
-		CWorm* w = CheckWorm(id,"GetWormCountryInfo");
+		CWorm* w = CheckWorm(caller, id,"GetWormCountryInfo");
 		if (!w)
 		{
 			return;
@@ -1049,7 +1059,7 @@ struct DedIntern {
 	void Cmd_GetWormPing(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
-		CWorm* w = CheckWorm(id, "GetWormPing");
+		CWorm* w = CheckWorm(caller, id, "GetWormPing");
 		if(!w || !w->getClient() || !w->getClient()->getChannel())
 			return;
 
@@ -1059,7 +1069,7 @@ struct DedIntern {
 	void Cmd_GetWormSkin(DedInterface* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
-		CWorm* w = CheckWorm(id, "GetWormSkin");
+		CWorm* w = CheckWorm(caller, id, "GetWormSkin");
 		if (!w)
 		{
 			caller->pushReturnArg(0);
@@ -1154,6 +1164,10 @@ struct DedIntern {
 			Cmd_GetWormList(command.sender, params);
 		else if(cmd == "getcomputerwormlist")
 			Cmd_GetComputerWormList(command.sender);
+		else if(cmd == "getwormname")
+			Cmd_GetWormName(command.sender, params);
+		else if(cmd == "getwormteam")
+			Cmd_GetWormTeam(command.sender, params);
 		else if(cmd == "getwormip")
 			Cmd_GetWormIp(command.sender, params);
 		else if(cmd == "getwormlocationinfo")
