@@ -665,12 +665,7 @@ struct DedIntern {
 				// we found a bot, so add it
 				cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
 				cClient->setNumWorms(cClient->getNumWorms()+1);
-
-				// TODO: this is really hacky, but currently there is no better way to do so
-				// TODO: we need some function in the client + net protocol to allow adding/removing a worm to a client on-the-fly
-				//cClient->ReinitLocalWorms();
-				// HINT: It is not mandatory to have something new in the net protocol. We can reuse the connect-packet for that.
-				cClient->Reconnect();
+				cClient->Reconnect(); // we have to reconnect to inform the server about the new worm
 
 				return;
 			}

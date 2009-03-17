@@ -386,7 +386,9 @@ void Menu_Loop(void)
 		CapFPS();
 
 #ifndef WIN32
-		sigsetjmp(longJumpBuffer, 1);
+		if(sigsetjmp(longJumpBuffer, true) != 0) {
+			hints << "returned from sigsetjmp in Menu_Loop" << endl;
+		}
 #endif
 		
 		if(last_frame_was_because_of_an_event || bDedicated) {

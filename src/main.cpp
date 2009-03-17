@@ -485,7 +485,9 @@ static int MainLoopThread(void*) {
 	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
 #ifndef WIN32
-		sigsetjmp(longJumpBuffer, 1);
+		if(sigsetjmp(longJumpBuffer, true) != 0) {
+			hints << "returned from sigsetjmp in MainLoopThread before lobby" << endl;
+		}
 #endif
 		
 		menu_startgame = false; // the menu has a reference to this variable
@@ -521,7 +523,9 @@ static int MainLoopThread(void*) {
 			
 			tLX->currentTime = GetTime();
 #ifndef WIN32
-			sigsetjmp(longJumpBuffer, 1);
+			if(sigsetjmp(longJumpBuffer, true) != 0) {
+				hints << "returned from sigsetjmp in MainLoopThread in main game loop" << endl;
+			}
 #endif
 			
 			// Timing
