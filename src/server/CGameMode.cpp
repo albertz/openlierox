@@ -152,8 +152,8 @@ bool CGameMode::CheckGameOver() {
 		return true;
 
 	// Check if the timelimit has been reached
-	if(tLXOptions->tGameInfo.fTimeLimit > 0) {
-		if (cServer->getServerTime() > tLXOptions->tGameInfo.fTimeLimit*60.0f) {
+	if(TimeLimit() > 0) {
+		if (cServer->getServerTime() > TimeLimit()) {
 			if(networkTexts->sTimeLimit != "<none>")
 				cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
 			notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
@@ -162,7 +162,7 @@ bool CGameMode::CheckGameOver() {
 		}
 	}
 	
-	bool allowEmptyGames = tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && tLX->iGameType != GME_LOCAL;
+	bool allowEmptyGames = tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && tLX->iGameType != GME_LOCAL && tLXOptions->tGameInfo.iLives < 0;
 	
 	if(!allowEmptyGames) {
 		// TODO: move that to GameServer
