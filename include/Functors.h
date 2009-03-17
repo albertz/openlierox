@@ -4,7 +4,7 @@
 	various functors
 
 	code under LGPL
-	created 17-03-2009
+	created 01-05-2007
 	by Albert Zeyer and Dark Charlie
 */
 
