@@ -464,7 +464,8 @@ void GameOptions::SaveToDisc()
 		}
 	}
 
-	fprintf(fp, "\n\n# The following options are unknown in %s\n\n", GetFullGameName());
+	if(additionalOptions.size() > 0)
+		fprintf(fp, "\n\n# The following options are unknown in %s\n\n", GetFullGameName());
 	
 	// save additional options
 	// HINT: as this is done seperatly, some sections may be double; though the current parsing and therefore all future parsings handle this correctly
@@ -481,6 +482,8 @@ void GameOptions::SaveToDisc()
 		fprintf( fp, "%s = %s\n", key.c_str(), it->second.c_str() );
 	}
 
+	fprintf(fp, "\n\n# End of options\n\n");
+	
     fclose(fp);
 }
 
