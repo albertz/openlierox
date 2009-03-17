@@ -1311,6 +1311,8 @@ void CClient::Connect(const std::string& address)
 }
 
 void CClient::Reconnect() {
+	// HINT: Don't disconnect because we don't want to lose the connection
+	// and we also want to keep the client struct on the server.
 	Connect(strServerAddr);	
 }
 
