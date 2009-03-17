@@ -1,0 +1,20 @@
+###################
+# Gun: Shotgun
+
+
+[General]
+Name = Shotgun
+Class = WCL_POWERGUN
+Recoil = 75
+Recharge = 4
+Drain = 51
+ROF = 600
+Sound = shotgun.wav
+
+[Projectile]
+Amount = 15
+Speed = 230
+SpeedVar = 20
+Spread = 6
+Projectile = p_shell.txt
+

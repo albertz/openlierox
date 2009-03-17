@@ -1,0 +1,17 @@
+###################
+# Projectile: Grasshopper
+
+
+[General]
+Type = PRJ_IMAGE
+Image = grasshopper.png
+Timer = 1
+
+[Hit]
+Type = Explode
+Damage = 15
+
+[Time]
+Type = Explode
+Damage = 5
+Shake = 5

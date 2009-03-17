@@ -1,0 +1,17 @@
+###################
+# Projectile: Gauss bits
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 190, 190, 50
+Trail = TRL_NONE
+
+[Hit]
+Type = Explode
+Damage = 4
+Sound = sm_explode.wav
+
+[PlayerHit]
+Type = Injure
+Damage = 4

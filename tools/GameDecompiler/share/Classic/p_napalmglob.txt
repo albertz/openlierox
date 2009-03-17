@@ -1,0 +1,21 @@
+###################
+# Projectile: Napalm Glob
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 248,192,36
+Trail = TRL_EXPLOSIVE
+Timer = 0.8
+
+[Hit]
+Type = Explode
+Damage = 5
+
+[Timer]
+Type = Explode
+Damage = 5
+
+[PlayerHit]
+Type = Injure
+Damage = 20

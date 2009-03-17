@@ -1,0 +1,33 @@
+###################
+# Projectile: Napalm
+
+
+[General]
+Type = PRJ_IMAGE
+Image = napalm.png
+Timer = 1
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 45
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Time]
+Type = Explode
+Damage = 5
+Projectiles = true
+Shake = 4
+
+[PlayerHit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Projectile]
+Angle = 0
+Amount = 10
+Speed = 125
+Spread = 360
+Projectile = p_napalmglob.txt

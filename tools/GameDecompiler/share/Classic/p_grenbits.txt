@@ -1,0 +1,16 @@
+###################
+# Projectile: Grenade shrapnel
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 96,150,96
+Trail = TRL_NONE
+
+[Hit]
+Type = Explode
+Damage = 1
+
+[PlayerHit]
+Type = Injure
+Damage = 1

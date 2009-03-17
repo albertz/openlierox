@@ -1,0 +1,19 @@
+###################
+# Gun: Uzi
+
+
+[General]
+Name = Uzi
+Class = WCL_AUTOMATIC
+Recoil = 1
+Recharge = 3
+Drain = 5
+ROF = 5
+Sound = shot.wav
+
+[Projectile]
+Amount = 1
+Speed = 200
+Spread = 0
+Projectile = p_uzibullet.txt
+

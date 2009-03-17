@@ -1,0 +1,24 @@
+###################
+# Projectile: Blaster
+
+
+[General]
+Type = PRJ_IMAGE
+Image = blaster.png
+Trail = TRL_SMOKE
+
+[Hit]
+Type = Explode
+Projectiles = true
+Shake = 4
+
+[PlayerHit]
+Type = Nothing
+
+[Projectile]
+Angle = 0
+Amount = 30
+Speed = 75
+SpeedVar = 15
+Spread = 360
+Projectile = p_blasterbits.txt

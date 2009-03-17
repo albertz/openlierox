@@ -1,0 +1,31 @@
+###################
+# Projectile: Bouncy Larpa bomb
+
+
+[General]
+Type = PRJ_IMAGE
+Image = blarpa.png
+Trail = TRL_PROJECTILE
+Timer = 6
+Gravity = 0
+
+[Hit]
+Type = Bounce
+BounceCoeff = 1.0
+BounceExplode = 1
+
+[PlayerHit]
+Type = Injure
+Damage = 8
+
+[Time]
+Type = Explode
+Damage = 3
+
+[ProjectileTrail]
+UseProjVelocity = true
+Delay = 40
+Amount = 1
+Speed = 1
+SpeedVar = 5
+Projectile = p_larpabits.txt

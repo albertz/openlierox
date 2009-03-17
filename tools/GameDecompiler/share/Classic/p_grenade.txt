@@ -1,0 +1,31 @@
+###################
+# Projectile: Grenade
+
+
+[General]
+Type = PRJ_IMAGE
+Image = grenade.png
+Timer = 3
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[Time]
+Type = Explode
+Damage = 3
+Projectiles = true
+
+[PlayerHit]
+Type = Nothing
+
+[Projectile]
+Angle = 0
+Amount = 30
+Speed = 100
+Spread = 360
+Projectile = p_grenbits.txt

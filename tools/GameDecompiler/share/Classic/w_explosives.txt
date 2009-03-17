@@ -1,0 +1,19 @@
+###################
+# Gun: Explosives
+
+
+[General]
+Name = Explosives
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 10
+Drain = 101
+ROF = 1
+Sound = throw.wav
+
+[Projectile]
+Amount = 4
+Speed = 150
+Spread = 10
+Projectile = p_explosive.txt
+
