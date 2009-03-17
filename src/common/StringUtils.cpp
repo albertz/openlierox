@@ -31,17 +31,6 @@
 #include <libxml/HTMLparser.h>
 #include <zlib.h>
 
-void StripQuotes(std::string& str)
-{
-	if(str.size() > 0 && str[0] == '\"')  {
-		str.erase(0, 1);
-	}
-
-	if(str.size() > 0 && str[str.size() - 1] == '\"')  {
-		str.erase(str.size() - 1);
-	}
-}
-
 
 ///////////////////
 // Trim the leading & ending spaces from a string

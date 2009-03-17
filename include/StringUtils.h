@@ -139,7 +139,6 @@ bool			subStrCaseEqual(const std::string& s1, const std::string s2, size_t p);
 inline bool		strStartsWith(const std::string& str, const std::string& start) { if(start.size() > str.size()) return false; return str.substr(0,start.size()) == start; }
 size_t			maxStartingEqualStr(const std::list<std::string>& strs);
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
-void			StripQuotes(std::string& str);
 std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
 size_t			stringcasefind(const std::string& text, const std::string& search_for);
@@ -180,6 +179,12 @@ inline std::string FixedWidthStr_RightFill(const std::string& str, size_t w, cha
 inline std::string FixedWidthStr_LeftFill(const std::string& str, size_t w, char c) {
 	assert(str.size() <= w);
 	return std::string(w - str.size(), c) + str;
+}
+
+inline void StripQuotes(std::string& value) {
+	if( value.size() > 2 )
+		if( value[0] == '"' && value[value.size()-1] == '"' )
+			value = value.substr( 1, value.size()-2 );	
 }
 
 ////////////////////

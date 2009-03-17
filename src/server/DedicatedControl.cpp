@@ -652,6 +652,7 @@ struct DedIntern {
 		{
 			localWorm = params;
 			TrimSpaces(localWorm);
+			StripQuotes(localWorm);
 		}
 
 		// try to find the requested worm or find any other worm
@@ -804,10 +805,8 @@ struct DedIntern {
 		std::string value = params.substr( params.find(" ")+1 );
 		TrimSpaces( var );
 		TrimSpaces( value );
-		// Strip quotes if they are
-		if( value.size() > 1 )
-			if( value[0] == '"' && value[value.size()-1] == '"' )
-				value = value.substr( 1, value.size()-2 );
+		StripQuotes( value );
+
 		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
 		if( varptr.b == NULL )
 		{
@@ -877,10 +876,8 @@ struct DedIntern {
 	
 	void Cmd_GetFullFileName(DedInterface* caller, std::string param) {
 		std::string fn = param;
-		TrimSpaces( fn );
-		// Strip quotes if they are
-		if( fn.size() > 1 && fn[0] == '"' && fn[fn.size()-1] == '"' )
-			fn = fn.substr( 1, fn.size()-2 );
+		TrimSpaces(fn);
+		StripQuotes(fn);
 		
 		caller->pushReturnArg(GetAbsolutePath(GetFullFileName(fn, NULL)));
 	}

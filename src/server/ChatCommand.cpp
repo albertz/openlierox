@@ -1082,11 +1082,8 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	}
 	
 	std::string value = params[1];
-	TrimSpaces( value );
-	// Strip quotes if they are
-	if( value.size() > 1 )
-		if( value[0] == '"' && value[value.size()-1] == '"' )
-			value = value.substr( 1, value.size()-2 );
+	TrimSpaces(value);
+	StripQuotes(value);
 	
 	CScriptableVars::SetVarByString(varptr, value);
 	
