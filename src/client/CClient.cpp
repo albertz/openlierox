@@ -1717,19 +1717,20 @@ int CClient::OwnsWorm(int id)
 
 
 
-static void addWorm(CClient* cl, profile_t* p) {
+static bool addWorm(CClient* cl, profile_t* p) {
 	if(p == NULL) {
 		errors << "addWorm(): you have to specify the profile" << endl;
-		return;
+		return false;
 	}
-	
+
 	if(cl->getNumWorms() + 1 >= MAX_WORMS) {
 		errors << "addWorm(): too many worms" << endl;
-		return;
+		return false;
 	}
 	
 	cl->getLocalWormProfiles()[cl->getNumWorms()] = p;
 	cl->setNumWorms(cl->getNumWorms() + 1);
+	return true;
 }
 
 void CClient::AddRandomBot(int amount) {
@@ -1751,12 +1752,12 @@ void CClient::AddRandomBot(int amount) {
 	}
 	
 	for(int i = 0; i < amount; ++i)
-		addWorm(this, randomChoiceFrom(bots));
+		if(!addWorm(this, randomChoiceFrom(bots))) break;
 	Reconnect();
 }
 
 void CClient::AddWorm(profile_t* p) {	
-	addWorm(this, p);
+	if(!addWorm(this, p)) return;
 	Reconnect(); // we have to reconnect to inform the server about the new worm	
 }
 
