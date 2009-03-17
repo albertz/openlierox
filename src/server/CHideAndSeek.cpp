@@ -345,6 +345,11 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 
 void CHideAndSeek::GenerateTimes()
 {
+	if(tLXOptions->tGameInfo.fTimeLimit > 0) {
+		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60.0f;
+		return;
+	}
+	
 	bool deleteMapAtEnd = false;
 	CMap* cMap = cServer->getMap();
 	if(cMap == NULL) {
