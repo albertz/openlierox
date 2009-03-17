@@ -13,37 +13,6 @@
 
 #include <stddef.h> // for size_t
 
-// TODO: what's difference between this and Iterator in iterator.h?
-template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
-class iterator {
-protected:
-	_RandomAccessType& base;
-	_PosType pos;
-public:
-	iterator(_RandomAccessType& b, _PosType p) : base(b), pos(p) {}
-	static iterator end(_RandomAccessType& b) {
-		return iterator<_RandomAccessType, _ValueType>(b, -1); }
-
-	template<typename _ValueType2, typename _PosType2>
-	void operator==(const iterator<_RandomAccessType, _ValueType2, _PosType2>& it) {
-		return base == it->base && (pos == it->pos || MIN(pos,it->pos) >= base.size()); }
-
-	iterator& operator++() { pos++; return *this; }
-	iterator& operator--() { pos--; return *this; }
-	_ValueType operator*() { return base[pos]; }
-};
-
-/*
-// WARNING: name conflicts with some implementations of STL (eg STLport)
-template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
-class reverse_iterator : public iterator<_RandomAccessType, _ValueType, _PosType> {
-public:
-	reverse_iterator(_RandomAccessType& b, _PosType p) : iterator<_RandomAccessType, _ValueType, _PosType>(b, p) {}
-	void operator++() { this->pos--; }
-	void operator--() { this->pos++; }
-};
-*/
-
 /*
 	helpers for declaration/definition of classes
 */
