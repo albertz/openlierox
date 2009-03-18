@@ -34,16 +34,20 @@ ThreadPool::~ThreadPool() {
 	waitAll();
 
 	// this is the hint for all available threads to break
+	SDL_mutexP(mutex); // lock to be sure that every thread is outside that region, we could get crashes otherwise
 	nextAction = NULL;
 	quitting = true;
 	SDL_CondBroadcast(awakeThread);
 	for(std::set<ThreadPoolItem*>::iterator i = availableThreads.begin(); i != availableThreads.end(); ++i) {
+		SDL_mutexV(mutex);
 		SDL_WaitThread((*i)->thread, NULL);
+		SDL_mutexP(mutex);
 		SDL_DestroyCond((*i)->finishedSignal);
 		SDL_DestroyCond((*i)->readyForNewWork);
 		delete *i;
 	}
 	availableThreads.clear();
+	SDL_mutexV(mutex);
 	
 	SDL_DestroyMutex(startMutex);
 	SDL_DestroyCond(threadStartedWork);
@@ -172,6 +176,9 @@ bool ThreadPool::waitAll() {
 			}
 			else if((*i)->working && !(*i)->finished) {
 				warnings << "thread " << (*i)->name << " is still working" << endl;
+			}
+			else if(!(*i)->working && !(*i)->headless && (*i)->finished) {
+				warnings << "thread " << (*i)->name << " is cleaning itself up right now" << endl;
 			}
 			else {
 				warnings << "thread " << (*i)->name << " is in an invalid state" << endl;
