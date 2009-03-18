@@ -186,7 +186,8 @@ public:
 	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
 	void		RemoveClient(CServerConnection *cl);
-	void		RemoveClientWorms(CServerConnection* cl);
+	void		RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms);
+	void		RemoveAllClientWorms(CServerConnection* cl);
 	void		kickWorm(int wormID, const std::string& sReason = "");
     void        kickWorm(const std::string& szWormName, const std::string& sReason = "");
 	void		banWorm(int wormID, const std::string& sReason = "");

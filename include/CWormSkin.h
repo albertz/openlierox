@@ -28,8 +28,8 @@
 class CWormSkin  {
 public:
 	CWormSkin();
-	CWormSkin(const std::string& file);
 	CWormSkin(const CWormSkin& skin);
+	CWormSkin(const std::string& file);
 	~CWormSkin();
 
 private:

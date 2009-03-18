@@ -206,8 +206,13 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	}
 	else
 	if(client->iNetStatus == NET_PLAYING) {
-		warnings << "CClientNetEngine::ParseConnected: currently playing; it's too risky to proceed a reconnection, so we ignore this" << endl;
-		return;
+		if( tLX->iGameType == GME_JOIN ) {
+			warnings << "CClientNetEngine::ParseConnected: currently playing; ";
+			warnings << "it's too risky to proceed a reconnection, so we ignore this" << endl;
+			return;
+		}
+		
+		notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
 	}
 
 	// Setup the client
@@ -1112,7 +1117,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
 		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
-		CWorm::skipInfo(bs); // Skip not to break other packets
+		WormJoinInfo::skipInfo(bs); // Skip not to break other packets
 		return;
 	}
 
@@ -1132,7 +1137,9 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
 	}
 
-	client->cRemoteWorms[id].readInfo(bs);
+	WormJoinInfo wormInfo;
+	wormInfo.readInfo(bs);
+	wormInfo.applyTo(&client->cRemoteWorms[id]);
 
 	// Load the worm graphics
 	if(!client->cRemoteWorms[id].ChangeGraphics(client->getGeneralGameType())) {

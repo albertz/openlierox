@@ -163,8 +163,10 @@ public:
 };
 
 
+struct WormJoinInfo;
+
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
-class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler;
+class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler; friend struct WormJoinInfo;
 public:
 	// Constructor
 	CWorm() {
@@ -352,8 +354,6 @@ public:
 	// Network
 	//
 	void		writeInfo(CBytestream *bs);
-	void		readInfo(CBytestream *bs);
-	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver);
@@ -623,5 +623,18 @@ public:
 
 int traceWormLine(CVec target, CVec start, CVec* collision = NULL);
 
+
+struct WormJoinInfo {
+	WormJoinInfo() : iTeam(0), m_type(NULL) {}
+	void		readInfo(CBytestream *bs);
+	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
+	void applyTo(CWorm* worm);
+	
+	std::string sName;
+	int iTeam;
+	WormType* m_type;
+	CWormSkin cSkin;
+	
+};
 
 #endif  //  __CWORM_H__

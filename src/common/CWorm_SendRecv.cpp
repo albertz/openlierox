@@ -48,7 +48,7 @@ void CWorm::writeInfo(CBytestream *bs)
 
 ///////////////////
 // Read info from a bytestream
-void CWorm::readInfo(CBytestream *bs)
+void WormJoinInfo::readInfo(CBytestream *bs)
 {
 	sName = bs->readString();
 
@@ -65,6 +65,12 @@ void CWorm::readInfo(CBytestream *bs)
 }
 
 
+void WormJoinInfo::applyTo(CWorm* worm) {
+	worm->sName = sName;
+	worm->m_type = m_type;
+	worm->iTeam = iTeam;
+	worm->cSkin = cSkin;
+}
 
 // Note: We don't put charge into the update packet because we only send the update packet to
 //       _other_ worms, not to self

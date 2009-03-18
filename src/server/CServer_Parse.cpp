@@ -859,7 +859,7 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	CBytestream		bytestr;
 	NetworkAddr		adrFrom;
-	int				i, p, player = -1;
+	int				p, player = -1;
 	int				numplayers;
 	CServerConnection		/*	*cl,*/ *newcl;
 
@@ -954,10 +954,10 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if(reconnectFrom) {
 		// ignore the challenge, the challenge was already verified earlier
 		valid_challenge = true;
-		i = 0;
 		clientVersion = reconnectFrom->getClientVersion();
 	}
 	else {
+		int i;
 		for (i = 0; i < MAX_CHALLENGES; i++) {
 			if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
 
@@ -1026,9 +1026,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bLocalClientConnected = true; // we just assume that
 			reconnectFrom->setLocalClient(false);
 		}
-		
-		RemoveClientWorms(reconnectFrom); // remove them, we will add them again now
-		
+				
 		/*
 		 // Must not have got the connection good packet
 		 if(cl->getStatus() == NET_CONNECTED) {
@@ -1145,8 +1143,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		newcl->getChannel()->Create(&adrFrom, tSocket);
 	}
 	
-	newcl->setNumWorms(0);	// Clean up, we reset it (probably this is not needed anymore)
-
 	newcl->setLastReceived(tLX->currentTime);
 	newcl->setNetSpeed(iNetSpeed);
 
@@ -1168,75 +1164,125 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if(!reconnectFrom)
 		newcl->getRights()->Nothing();  // Reset the rights here
 
-	// Set the worm info
-	newcl->setNumWorms(numworms);
-	//newcl->SetupWorms(numworms, worms);
 
 	
 	// Find spots in our list for the worms
 	int ids[MAX_PLAYERS];
-	int id = 0;
-	for (i = 0;i < numworms;i++) {
+	for(int i = 0; i < MAX_PLAYERS; ++i) ids[i] = -1;
+	
+	std::vector<WormJoinInfo> newWorms;
+	newWorms.resize(numworms);
+	for (int i = 0; i < numworms; i++) {
+		newWorms[i].readInfo(bs);
 
-		w = cWorms;
-		for (p = 0;p < MAX_WORMS;p++, w++) {
-			if (w->isUsed())
+		// If bots aren't allowed, disconnect the client
+		if (newWorms[i].m_type == PRF_COMPUTER && !tLXOptions->bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
+			hints << "Bot was trying to connect from " << newcl->debugName() << endl;
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
+			bytestr.Send(tSocket);
+			
+			RemoveClient(newcl);
+			return;
+		}		
+	}
+
+	std::set<CWorm*> removeWormList;
+	
+	if(reconnectFrom) {
+		for(int i = 0; i < reconnectFrom->getNumWorms(); ++i) {
+			CWorm* w = reconnectFrom->getWorm(i);
+			if(!w) {
+				warnings << "ParseConnect with reconnecting client: worm nr " << i << " from client is unset" << endl;
 				continue;
-
-			w->readInfo(bs);
-			// If bots aren't allowed, disconnect the client
-			if (w->getType() == PRF_COMPUTER && !tLXOptions->bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
-				printf("Bot was trying to connect\n");
-				bytestr.Clear();
-				bytestr.writeInt(-1, 4);
-				bytestr.writeString("lx::badconnect");
-				bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
-				bytestr.Send(tSocket);
+			}
+			if(!w->isUsed()) {
+				warnings << "ParseConnect with reconnecting client: worm nr " << i << " from client is not used" << endl;
+				continue;
+			}
 				
-				RemoveClient(newcl);
-				return;
+			bool found = false;
+			for(int j = 0; j < numworms; ++j) {
+				// compare by name, we have no possibility to do it more exact but it's also not that important
+				if(ids[j] < 0 && newWorms[j].sName == w->getName()) {
+					// found one
+					found = true;
+					ids[j] = w->getID();
+					// HINT: Don't apply the other information from WormJoinInfo,
+					// the worm should be up-to-date and we could screw it up (e.g. skin or team).
+					break;
+				}
 			}
 			
-			w->setID(p);
-			id = p;
+			if(!found) {
+				removeWormList.insert(w);
+			}
+		}
+	}
+	
+	// search slots for new worms
+	for (int i = 0; i < numworms; ++i) {
+		if(ids[i] >= 0) continue; // this worm is already associated
+		
+		CWorm* w = cWorms;
+		for (int j  = 0; j < MAX_WORMS; j++, w++) {
+			if (w->isUsed())
+				continue;
+			
+			newWorms[i].applyTo(w);
+			w->setID(j);
 			w->setClient(newcl);
 			w->setUsed(true);
 			w->setupLobby();
 			w->setDamage(0);
-			if (tLX->iGameType == GME_HOST) // TODO: why only when hosting?
+			if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
 				w->setTeam(0);
 			newcl->setWorm(i, w);
-			ids[i] = p;
+			ids[i] = j;
+			iNumPlayers++;
+
+			if( DedicatedControl::Get() )
+				DedicatedControl::Get()->NewWorm_Signal(w);
+			
+			notes << "Worm joined: " << w->getName();
+			notes << " (id " << w->getID() << ",";
+			notes << " from " << newcl->debugName(false) << ")" << endl;
+			
+			if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
+				w->setTeam(-1); // set it invalid to have correct firstEmpty
+				
+				int firstEmpty = getFirstEmptyTeam();
+				//notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
+				if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
+					w->setTeam(firstEmpty);
+				else {
+					int team = GetRandomInt(MIN(tLXOptions->iRandomTeamForNewWorm, getGameMode()->GameTeams() - 1));
+					//notes << "   randomteam=" << team << endl;
+					w->setTeam(team);
+				}
+				// we will send a WormLobbyUpdate later anyway
+			}
 
 			break;
 		}
 	}
-	
-	for (i = 0;i < numworms;i++) {
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->NewWorm_Signal(newcl->getWorm(i));
-		
-		notes << "Worm joined: " << newcl->getWorm(i)->getName();
-		notes << " (id " << newcl->getWorm(i)->getID() << ",";
-		notes << " from " << newcl->debugName(false) << ")" << endl;
-		
-		if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
-			newcl->getWorm(i)->setTeam(-1); // set it invalid to have correct firstEmpty
-			
-			int firstEmpty = getFirstEmptyTeam();
-			//notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
-			if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
-				newcl->getWorm(i)->setTeam(firstEmpty);
-			else {
-				int team = GetRandomInt(MIN(tLXOptions->iRandomTeamForNewWorm, getGameMode()->GameTeams() - 1));
-				//notes << "   randomteam=" << team << endl;
-				newcl->getWorm(i)->setTeam(team);
-			}
-			// we will send a WormLobbyUpdate later anyway
-		}
-	}
 
-	iNumPlayers = numplayers + numworms;
+	// Set the worm info
+	newcl->setNumWorms(numworms);
+	for (int i = 0;i < numworms;i++) {
+		if(ids[i] < 0) {
+			// Very strange, we should have catched this case earlier. This means that there were not enough open slots.
+			errors << "Server::ParseConnect: We didn't found a slot for " << newWorms[i].sName << " for " << newcl->debugName(false) << endl;
+			newcl->setWorm(i, NULL);
+			continue;
+		}
+		newcl->setWorm(i, &cWorms[ids[i]]);
+	}
+	
+	if(removeWormList.size() > 0)
+		RemoveClientWorms(newcl, removeWormList);
 	
 	// remove bots if not wanted anymore
 	bool sendOutGoodConnection = true;
@@ -1260,7 +1306,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeString("lx::goodconnection");
 
 		// Tell the client the id's of the worms
-		for (i = 0;i < numworms;i++)
+		for (int i = 0;i < numworms; i++)
 			bytestr.writeInt(ids[i], 1);
 
 		bytestr.Send(tSocket);
@@ -1307,7 +1353,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// And the current client knows about the new worms
 	//
 	w = cWorms;
-	for (i = 0;i < MAX_WORMS;i++, w++) {
+	for (int i = 0;i < MAX_WORMS;i++, w++) {
 
 		if (!w->isUsed())
 			continue;
@@ -1323,7 +1369,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	std::string buf;
 	// "Has connected" message
 	if (networkTexts->sHasConnected != "<none>")  {
-		for (i = 0;i < numworms;i++) {
+		for (int i = 0;i < numworms;i++) {
 			buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
 			SendGlobalText(buf, TXT_NETWORK);
 		}

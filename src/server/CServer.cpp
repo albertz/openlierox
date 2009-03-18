@@ -1307,43 +1307,41 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
-void GameServer::RemoveClientWorms(CServerConnection* cl) {
+void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms) {
 	std::list<byte> wormsOutList;
-
+	
 	int i;
-	for(i=0; i<cl->getNumWorms(); i++) {
-		if(!cl->getWorm(i)) {
-			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
-			continue;
-		}
-		if(!cl->getWorm(i)->isUsed()) {
-			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
-			cl->setWorm(i, NULL);
+	for(std::set<CWorm*>::const_iterator w = worms.begin(); w != worms.end(); ++w) {
+		if(!*w) {
+			errors << "RemoveClientWorms: worm unset" << endl;
 			continue;
 		}
 		
-		notes << "Worm left: " << cl->getWorm(i)->getName() << " (id " << cl->getWorm(i)->getID() << ")" << endl;
-
+		if(!(*w)->isUsed()) {
+			errors << "RemoveClientWorms: worm not used" << endl;
+			continue;			
+		}
+		
+		notes << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
+		
 		// Notify the game mode that the worm has been dropped
-		getGameMode()->Drop(cl->getWorm(i));
-
+		getGameMode()->Drop((*w));
+		
 		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->WormLeft_Signal( cl->getWorm(i) );
-
-		wormsOutList.push_back(cl->getWorm(i)->getID());
+			DedicatedControl::Get()->WormLeft_Signal( (*w) );
+		
+		wormsOutList.push_back((*w)->getID());
 		
 		// Reset variables
-		cl->setMuted(false);
-		cl->getWorm(i)->setUsed(false);
-		cl->getWorm(i)->setAlive(false);
-		cl->getWorm(i)->setSpectating(false);
-		cl->setWorm(i, NULL);
+		(*w)->setUsed(false);
+		(*w)->setAlive(false);
+		(*w)->setSpectating(false);
 	}
-	cl->setNumWorms(0); // No worms are present anymore	
-
+	cl->setNumWorms( cl->getNumWorms() - wormsOutList.size() );	
+	
 	// Tell everyone that the client's worms have left both through the net & text
 	SendWormsOut(wormsOutList);
-
+	
 	// Re-Calculate number of players
 	iNumPlayers=0;
 	CWorm *w = cWorms;
@@ -1351,13 +1349,41 @@ void GameServer::RemoveClientWorms(CServerConnection* cl) {
 		if(w->isUsed())
 			iNumPlayers++;
 	}
-
+	
 	// Now that a player has left, re-check the game status
 	RecheckGame();
 	
 	// If we're waiting for players to be ready, check again
 	if(iState == SVS_GAME)
-		CheckReadyClient();
+		CheckReadyClient();	
+}
+
+void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
+	cl->setMuted(false);
+
+	int i;
+	std::set<CWorm*> worms;
+	for(i=0; i<cl->getNumWorms(); i++) {		
+		if(!cl->getWorm(i)) {
+			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
+			continue;
+		}
+		
+		if(!cl->getWorm(i)->isUsed()) {
+			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
+			cl->setWorm(i, NULL);
+			continue;
+		}
+
+		worms.insert(cl->getWorm(i));
+		cl->setWorm(i, NULL);
+	}
+	RemoveClientWorms(cl, worms);
+	
+	if( cl->getNumWorms() != 0 ) {
+		errors << "RemoveAllClientWorms: very strange, client " << cl->debugName() << " has " << cl->getNumWorms() << " left worms (but should not have any)" << endl;
+		cl->setNumWorms(0);
+	}
 }
 
 void GameServer::RemoveClient(CServerConnection* cl) {
@@ -1367,7 +1393,7 @@ void GameServer::RemoveClient(CServerConnection* cl) {
 		return;
 	}
 	
-	RemoveClientWorms(cl);
+	RemoveAllClientWorms(cl);
 	cl->setStatus(NET_DISCONNECTED);
 	
 	CheckForFillWithBots();
@@ -1479,7 +1505,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 	}
 
-	if ( !bDedicated && cClient && cClient->getNumWorms() > 0 && cClient->getWorm(0)->getID() == wormID )  {
+	if ( !bDedicated && cClient && cClient->getNumWorms() > 0 && cClient->getWorm(0) && cClient->getWorm(0)->getID() == wormID )  {
 		hints << "You can't kick yourself!" << endl;
 		return;  // Don't kick ourself
 	}
