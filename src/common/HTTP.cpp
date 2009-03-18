@@ -565,6 +565,7 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	// Make the urls http friendly (get rid of spaces)
 	if (!AdjustUrl(sRemoteAddress, address))  {
 		SetHttpError(HTTP_INVALID_URL);
+		Unlock();
 		return false;
 	}
 
@@ -579,6 +580,7 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	tSocket = OpenReliableSocket(0);
 	if(!IsSocketStateValid(tSocket))  {
 		SetHttpError(HTTP_NO_SOCKET_ERROR);
+		Unlock();
 		return false;
 	}
 
