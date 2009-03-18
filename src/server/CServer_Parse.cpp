@@ -1298,10 +1298,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			if (w->isUsed())
 				continue;
 			
-			newWorms[i].applyTo(w);
+			w->Clear();
+			w->setUsed(true);
 			w->setID(j);
 			w->setClient(newcl);
-			w->setUsed(true);
+			newWorms[i].applyTo(w);
 			w->setupLobby();
 			w->setDamage(0);
 			if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo

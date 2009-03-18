@@ -68,7 +68,9 @@ def parseAdminCommand(wormid,message):
 			kickTime = cfg.VOTING_KICK_TIME
 			if len(params) > 1: # Time for kick
 				kickTime = float(params[1])
-			kickedUsers[ io.getWormIP(int( params[0] )).split(":")[0] ] = time.time() + kickTime*60
+			wormIP = io.getWormIP(int( params[0] )).split(":")[0]
+			if wormIP != "127.0.0.1":
+				kickedUsers[ wormIP ] = time.time() + kickTime*60
 			if len(params) > 2: # Given some reason
 				io.kickWorm( int( params[0] ), " ".join(params[2:]) )
 			else:
@@ -287,8 +289,7 @@ def parseUserCommand(wormid,message):
 
 		elif cmd == "kick" and cfg.VOTING:
 			kicked = int( params[0] )
-			addVote( "kickedUsers[ '" + io.getWormIP(kicked).split(':')[0] +
-						"' ] = time.time() + cfg.VOTING_KICK_TIME*60; io.kickWorm(" + str(kicked) + 
+			addVote( "io.kickWorm(" + str(kicked) + 
 						", 'You are kicked for " + str(cfg.VOTING_KICK_TIME) + " minutes')", 
 						wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
 		elif cmd == "mute" and cfg.VOTING:
