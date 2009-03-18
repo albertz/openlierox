@@ -195,30 +195,40 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 // Parse a connected packet
 void CClientNetEngine::ParseConnected(CBytestream *bs)
 {
-	bool isReconnect = false;
+	if(client->reconnectingAmount >= 2) {
+		// This is needed because only the last connect-package will have the correct worm-amount
+		client->reconnectingAmount--;
+		notes << "ParseConnected: We are waiting for " << client->reconnectingAmount << " other reconnect, ignoring this one now" << endl;
+		bs->SkipAll(); // the next connect should be in a seperate UDP package
+		return;
+	}
+	
+	bool isReconnect = client->reconnectingAmount > 0;
+	if(isReconnect) client->reconnectingAmount--;
 	
 	NetworkAddr addr;
 
-	// If already connected, ignore this
-	if (client->iNetStatus == NET_CONNECTED)  {
-		notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
-		isReconnect = true;
-	}
-	else
-	if(client->iNetStatus == NET_PLAYING) {
-		if( tLX->iGameType == GME_JOIN ) {
-			warnings << "CClientNetEngine::ParseConnected: currently playing; ";
-			warnings << "it's too risky to proceed a reconnection, so we ignore this" << endl;
-			return;
+	if(!isReconnect) {
+		// If already connected, ignore this
+		if (client->iNetStatus == NET_CONNECTED)  {
+			notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
 		}
-		
-		notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
-		isReconnect = true;
-	}
+		else
+		if(client->iNetStatus == NET_PLAYING) {
+			if( tLX->iGameType == GME_JOIN ) {
+				warnings << "CClientNetEngine::ParseConnected: currently playing; ";
+				warnings << "it's too risky to proceed a reconnection, so we ignore this" << endl;
+				return;
+			}
+			
+			notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
+		}
+	} else
+		notes << "ParseConnected: reconnecting" << endl;
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
-
+	
 	// small cleanup (needed for example for reconnecting)
 	/*for(int i = 0; i < MAX_WORMS; i++) {
 		client->cRemoteWorms[i].setUsed(false);
@@ -245,7 +255,25 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS) {
 			warnings << "ParseConnected: parsed invalid id " << id << endl;
-			continue;
+			notes << "Something is screwed up -> reconnecting" << endl;
+			client->Reconnect();
+			return;
+		}
+		for(int j = 0; j < i; j++) {
+			if(client->cLocalWorms[j]->getID() == id) {
+				warnings << "ParseConnected: local worm nr " << j << " already has the id " << id;
+				warnings << ", cannot assign it twice to local worm nr " << i << endl;
+				notes << "Something is screwed up -> reconnecting" << endl;
+				client->Reconnect();
+				return;
+			}
+		}
+		if(client->cRemoteWorms[id].isUsed() && !client->cRemoteWorms[id].getLocal()) {
+			warnings << "ParseConnected: worm " << id << " is a remote worm";
+			warnings << ", cannot be used as our local worm " << i << endl;
+			notes << "Something is screwed up -> reconnecting" << endl;
+			client->Reconnect();
+			return;
 		}
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
 		if(!client->cLocalWorms[i]->isUsed()) {
@@ -254,13 +282,15 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
 			//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
 			client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
-			if(client->tProfiles[i])
+			if(client->tProfiles[i]) {
 				client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
+				client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
+			} else
+				warnings << "ParseConnected: profile " << i << " for worm " << id << " is not set" << endl;
 			client->cLocalWorms[i]->setLocal(true);
-			client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
 			client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
 		}
-		if(client->cLocalWorms[i]->getLocal()) {
+		if(!client->cLocalWorms[i]->getLocal()) {
 			warnings << "ParseConnected: already used local worm " << id << " was not set to local" << endl;
 			client->cLocalWorms[i]->setLocal(true);
 		}
@@ -586,7 +616,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// We've already got this packet
 	if (client->bGameReady)  {
-		warnings << "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
+		(tLX->iGameType == GME_JOIN ? warnings : notes)
+			<< "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
 		
 		// HINT: we ignore it here for the safety because S2C_PREPAREGAME is 0 and it is
 		// a very common value in corrupted streams
@@ -598,7 +629,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// If we're playing, the game has to be ready
 	if (client->iNetStatus == NET_PLAYING)  {
-		warnings << "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
+		(tLX->iGameType == GME_JOIN ? warnings : notes)
+			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
 
 		// The same comment here as above.
@@ -1713,21 +1745,16 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 	}
 
 
-	byte id;
-	CWorm *w;
 	for(byte i=0;i<numworms;i++) {
-		id = bs->readByte();
+		byte id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
 			printf("CClientNetEngine::ParseWormsOut: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		w = &client->cRemoteWorms[id];
-		if(!w->getLocal()) { // Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
-			w->setUsed(false);
-			w->setAlive(false);
-			w->getLobby()->iType = LBY_OPEN;
+		CWorm *w = &client->cRemoteWorms[id];
+		if(tLX->iGameType != GME_JOIN || !w->getLocal()) { // Server kicks local worms (in GME_JOIN) using S2C_DROPPED, this packet cannot be used for it
 
 			// Log this
 			if (client->tGameLog)  {
@@ -1737,6 +1764,9 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 					l->fTimeLeft = client->serverTime();
 				}
 			}
+			
+			client->RemoveWorm(id);
+			
 		} else {
 			hints << "Warning: server says we've left but that is not true" << endl;
 		}

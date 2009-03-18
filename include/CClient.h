@@ -302,6 +302,7 @@ private:
 	CClientNetEngine * cNetEngine;	// Should never be NULL, to skip some checks
 	int			iNetSpeed;
 	int			iNetStatus;
+	int			reconnectingAmount;
 	std::string	strServerAddr;
 	std::string	strServerAddr_HumanReadable;
 	NetworkAddr	cServerAddr;

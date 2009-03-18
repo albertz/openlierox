@@ -165,6 +165,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			// Really a bad packet
 #if !defined(FUZZY_ERROR_TESTING_C2S)
 			warnings("sv: Bad command in packet (" + itoa(cmd) + ")\n");
+			if(cl->isLocalClient()) {
+				notes << "Bad package from local client, dumping bytestream:" << endl;
+				bs->Dump();
+			}
 #endif
 		}
 	}

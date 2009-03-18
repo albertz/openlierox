@@ -836,7 +836,7 @@ void GameServer::ReadPackets(void)
 					if( cl->getStatus() != NET_ZOMBIE )
 						cl->getNetEngine()->ParsePacket(&bs);
 					bs.Clear();
-				};
+				}
 			}
 		}
 	}
@@ -1516,10 +1516,17 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		hints << "Could not find worm with ID " << itoa(wormID) << endl;
 		return;
 	}
+
+	// Get the client
+	CServerConnection *cl = w->getClient();
+	if( !cl ) {
+		errors << "worm " << wormID << " cannot be kicked, the client is unknown" << endl;
+		return;
+	}
 	
 	// Local worms are handled another way
-	if (cClient)  {
-		if (cClient->OwnsWorm(w->getID()))  {			
+	if (cl->isLocalClient())  {
+		if (cl->OwnsWorm(w->getID()))  {			
 			// Send the message
 			if (sReason.size() == 0)
 				SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
@@ -1536,17 +1543,15 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->WormLeft_Signal( w );
 			
-			// Delete the worm from client and server
-			cClient->RemoveWorm(w->getID());
+			// Delete the worm from server
+			cl->RemoveWorm(w->getID());
 			w->setAlive(false);
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
 
-			// Update the number of players on server/client
+			// Update the number of players on server
 			iNumPlayers--;
-			if (w->getClient())
-				w->getClient()->RemoveWorm(w->getID());
 
 			// TODO: move that out here
 			// Tell everyone that the client's worms have left both through the net & text
@@ -1566,14 +1571,11 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			// End here
 			return;
 		}
-	}
-
-	// Get the client
-	CServerConnection *cl = w->getClient();
-	if( !cl ) {
-		errors << "worm " << wormID << " cannot be kicked, the client is unknown" << endl;
+		
+		warnings << "worm " << wormID << " from local client cannot be kicked (" << sReason << "), local client does not have it" << endl;
 		return;
 	}
+
 
 	// Drop the whole client
 	// TODO: only kick this worm, not the whole client

@@ -82,6 +82,7 @@ void CClient::Clear(void)
 		delete cNetChan;
 	cNetChan = NULL;
 	iNetStatus = NET_DISCONNECTED;
+	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
 	iScorePlayers = 0;
@@ -1265,6 +1266,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 void CClient::Connect(const std::string& address)
 {
 	iNetStatus = NET_CONNECTING;
+	reconnectingAmount = 0;
 	strServerAddr_HumanReadable = strServerAddr = address;
 	iNumConnects = 0;
 	bBadConnection = false;
@@ -1349,6 +1351,9 @@ void CClient::Reconnect() {
 	GetRemoteNetAddr(tSocket, addr);
 	SetRemoteNetAddr(tSocket, addr);
 	bytestr.Send(this->tSocket);
+	
+	iNetStatus = NET_CONNECTING;
+	reconnectingAmount++;
 }
 
 
@@ -1766,17 +1771,17 @@ void CClient::AddWorm(profile_t* p) {
 // Remove the worm
 void CClient::RemoveWorm(int id)
 {
-	iNumWorms--;
-
 	int i,j;
 	for (i=0;i<MAX_PLAYERS;i++)  {
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
+				iNumWorms--;
 				cLocalWorms[i] = NULL;
+				tProfiles[i] = NULL;
 				for (j=i;j<MAX_PLAYERS-1;j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
+					tProfiles[j] = tProfiles[j+1];
 				}
-
 				break;
 			}
 		}
@@ -1796,6 +1801,9 @@ void CClient::RemoveWorm(int id)
 				cRemoteWorms[i].setLocal(false);
 				cRemoteWorms[i].setTagIT(false);
 				cRemoteWorms[i].setTagTime(TimeDiff(0));
+				
+				if(cRemoteWorms[i].getLobby())
+					cRemoteWorms[i].getLobby()->iType = LBY_OPEN;
 			}
 		}
 	}
