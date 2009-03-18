@@ -1165,6 +1165,57 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		newcl->getRights()->Nothing();  // Reset the rights here
 
 
+
+	
+	
+	// prepare Welcome message
+	std::string strWelcomeMessage = tLXOptions->sWelcomeMessage;
+	if(strWelcomeMessage == "<none>") strWelcomeMessage = "";
+	if(strWelcomeMessage != "")  {
+		
+		// Server name3
+		replacemax(strWelcomeMessage, "<server>", tLXOptions->sServerName, strWelcomeMessage, 1);
+		
+		// Host name
+		replacemax(strWelcomeMessage, "<me>", cWorms[0].getName(), strWelcomeMessage, 1);
+		
+		// Version
+		replacemax(strWelcomeMessage, "<version>", clientVersion.asHumanString(), strWelcomeMessage, 1);
+		
+		// Country
+		if (strWelcomeMessage.find("<country>") != std::string::npos)  {
+			IpInfo info;
+			std::string str_addr;
+			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+			if (str_addr != "")  {
+				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+				replacemax(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage, 1);
+			}
+		}
+		
+		// Continent
+		if (strWelcomeMessage.find("<continent>") != std::string::npos)  {
+			IpInfo info;
+			std::string str_addr;
+			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+			if (str_addr != "")  {
+				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+				replacemax(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage, 1);
+			}
+		}
+		
+		
+		// Address
+		std::string str_addr;
+		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+		// Remove port
+		size_t pos = str_addr.rfind(':');
+		if (pos != std::string::npos)
+			str_addr.erase(pos);
+		replacemax(strWelcomeMessage, "<ip>", str_addr, strWelcomeMessage, 1);
+	}
+	
+	
 	
 	// Find spots in our list for the worms
 	int ids[MAX_PLAYERS];
@@ -1265,6 +1316,15 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 				// we will send a WormLobbyUpdate later anyway
 			}
 
+			// "Has connected" message
+			if (networkTexts->sHasConnected != "<none>" && networkTexts->sHasConnected != "")  {
+				SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", w->getName(), 1), TXT_NETWORK);
+			}
+			
+			// Send the welcome message
+			if(strWelcomeMessage != "")
+				SendGlobalText(replacemax(strWelcomeMessage, "<player>", w->getName(), 1), TXT_NETWORK);
+			
 			break;
 		}
 	}
@@ -1365,67 +1425,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	SendGlobalPacket(&bytestr);
 
-
-	std::string buf;
-	// "Has connected" message
-	if (networkTexts->sHasConnected != "<none>")  {
-		for (int i = 0;i < numworms;i++) {
-			buf = replacemax(networkTexts->sHasConnected, "<player>", newcl->getWorm(i)->getName(), 1);
-			SendGlobalText(buf, TXT_NETWORK);
-		}
-	}
-
-	// Welcome message
-	buf = tLXOptions->sWelcomeMessage;
-	if (buf.size() > 0)  {
-
-		// Server name3
-		replacemax(buf, "<server>", tLXOptions->sServerName, buf, 1);
-
-		// Host name
-		replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
-
-		// Version
-		replacemax(buf, "<version>", clientVersion.asHumanString(), buf, 1);
-
-		// Country
-		if (buf.find("<country>") != std::string::npos)  {
-			IpInfo info;
-			std::string str_addr;
-			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-			if (str_addr != "")  {
-				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(buf, "<country>", info.Country, buf, 1);
-			}
-		}
-
-		// Continent
-		if (buf.find("<continent>") != std::string::npos)  {
-			IpInfo info;
-			std::string str_addr;
-			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-			if (str_addr != "")  {
-				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(buf, "<continent>", info.Continent, buf, 1);
-			}
-		}
-
-
-		// Address
-		std::string str_addr;
-		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-		// Remove port
-		size_t pos = str_addr.rfind(':');
-		if (pos != std::string::npos)
-			str_addr.erase(pos);
-		replacemax(buf, "<ip>", str_addr, buf, 1);
-
-		for (int i = 0; i < numworms; i++)  {
-			// Player name
-			// Send the welcome message
-			SendGlobalText(replacemax(buf, "<player>", newcl->getWorm(i)->getName(), 1), TXT_NETWORK);
-		}
-	}
 	
 	// just inform everybody in case the client is not compatible
 	checkVersionCompatibility(newcl, false);
