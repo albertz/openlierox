@@ -1168,8 +1168,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 	if(!reconnectFrom)
 		newcl->getRights()->Nothing();  // Reset the rights here
-
-
+	
+	// check version compatibility already earlier to not add/kick bots if not needed
+	if( iState != SVS_LOBBY ) {
+		if(!checkVersionCompatibility(newcl, true, false))
+			return; // client is not compatible, so it was dropped out already
+	}
+	
 
 	
 	
@@ -1469,8 +1474,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	
 	// handling for connect during game
 	if( iState != SVS_LOBBY ) {
-		if(!checkVersionCompatibility(newcl, true, false))
-			return; // client is not compatible, so it was dropped out already
+		// we already check for compatibility earlier
 		
 		newcl->getShootList()->Clear();
 		newcl->setGameReady(false);
