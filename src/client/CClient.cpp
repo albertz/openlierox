@@ -1224,7 +1224,7 @@ void CClient::SendPackets(void)
 			fSendWait += tLX->fDeltaTime;
 			if (fSendWait.seconds() > 1.0)
 			{
-				printf("CClient::SendPackets::Re-sending ready packet\n");
+				notes << "CClient::SendPackets::Re-sending ready packet" << endl;
 				fSendWait = 0.0f;
 				cNetEngine->SendGameReady();
 			}

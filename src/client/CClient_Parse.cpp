@@ -213,6 +213,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		}
 		
 		notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
+		isReconnect = true;
 	}
 
 	// Setup the client
