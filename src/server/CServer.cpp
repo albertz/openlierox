@@ -1550,6 +1550,18 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->WormLeft_Signal( w );
+
+			/* WARNING: If there are any packages left in the network stream,
+			 * these will get parsed incorrectly because of the wrong worm amount.
+			 * That could screw up the whole network stream with the local client
+			 * in the worst case.
+			 *
+			 * Another option would be to just do:
+			 * cClient->RemoveWorm(wormID);
+			 * cClient->Reconnect();
+			 *
+			 * This has other drawbacks though. 
+			 */
 			
 			// Delete the worm from client/server
 			cClient->RemoveWorm(wormID);
@@ -1670,6 +1682,8 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->WormLeft_Signal( w );
+			
+			// TODO: share the same code with kickWorm here
 			
 			// Delete the worm from client/server
 			cClient->RemoveWorm(wormID);

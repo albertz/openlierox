@@ -1338,6 +1338,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 	}
 
+	if(removeWormList.size() > 0)
+		RemoveClientWorms(newcl, removeWormList);
+	
 	// Set the worm info
 	newcl->setNumWorms(numworms);
 	for (int i = 0;i < numworms;i++) {
@@ -1349,16 +1352,13 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 		newcl->setWorm(i, &cWorms[ids[i]]);
 	}
-	
-	if(removeWormList.size() > 0)
-		RemoveClientWorms(newcl, removeWormList);
-	
+		
 	// remove bots if not wanted anymore
 	bool sendOutGoodConnection = true;
-	{
-		int localWormCount = cClient->getNumWorms();
+	if(!reconnectFrom || !reconnectFrom->isLocalClient()) {
+		int wormCount = cClient->getNumWorms();
 		CheckForFillWithBots();
-		if(localWormCount != cClient->getNumWorms() && newcl->isLocalClient()) {
+		if(wormCount != cClient->getNumWorms() && newcl->isLocalClient()) {
 			// We are reconnecting the local client and we have a different numworms
 			// on the client already, so if we would send a goodconnection now
 			// with the outdated (and wrong amount of) worm-ids, we would
