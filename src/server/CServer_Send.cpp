@@ -903,6 +903,8 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 
 void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
+	server->getWorms()[Worm->getID()].setSpawnedOnce();
+	
 	CBytestream bs;
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);

@@ -1773,7 +1773,7 @@ void CClient::RemoveWorm(int id)
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
 				cLocalWorms[i] = NULL;
-				for (j=i;j<MAX_PLAYERS-2;j++)  {
+				for (j=i;j<MAX_PLAYERS-1;j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
 

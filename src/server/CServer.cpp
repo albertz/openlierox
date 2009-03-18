@@ -574,7 +574,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
 				cClients[ii].getNetEngine()->SendWormScore( cl->getWorm(i) );
 					
-			if(cl->getWorm(i)->getAlive()) {
+			if(cl->getWorm(i)->getAlive() && !cl->getWorm(i)->haveSpawnedOnce()) {
 				SpawnWorm( cl->getWorm(i) );
 				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 					SendEmptyWeaponsOnRespawn( cl->getWorm(i) );
@@ -1322,6 +1322,8 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 			continue;			
 		}
 		
+		cl->RemoveWorm((*w)->getID());
+		
 		notes << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
 		
 		// Notify the game mode that the worm has been dropped
@@ -1337,7 +1339,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		(*w)->setAlive(false);
 		(*w)->setSpectating(false);
 	}
-	cl->setNumWorms( cl->getNumWorms() - wormsOutList.size() );	
 	
 	// Tell everyone that the client's worms have left both through the net & text
 	SendWormsOut(wormsOutList);
@@ -1376,7 +1377,6 @@ void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
 		}
 
 		worms.insert(cl->getWorm(i));
-		cl->setWorm(i, NULL);
 	}
 	RemoveClientWorms(cl, worms);
 	

@@ -206,7 +206,8 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 				server->cWorms[id].getWeapon(j)->Enabled =
 					server->cWeaponRestrictions.isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
 					server->cWeaponRestrictions.isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
-		} else { // Skip to get the right position
+		
+		} else { // wrong id -> Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}
 	}

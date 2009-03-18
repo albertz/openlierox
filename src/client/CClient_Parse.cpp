@@ -243,8 +243,10 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
 		id = bs->readInt(1);
-		if (id < 0 || id >= MAX_WORMS)
+		if (id < 0 || id >= MAX_WORMS) {
+			warnings << "ParseConnected: parsed invalid id " << id << endl;
 			continue;
+		}
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
 		client->cLocalWorms[i]->setUsed(true);
 		client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner

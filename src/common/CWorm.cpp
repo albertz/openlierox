@@ -37,6 +37,7 @@ void CWorm::Clear(void)
 {
 	bUsed = false;
 	bIsPrepared = false;
+	bSpawnedOnce = false;
 	iID = 0;
 	iTeam = 0;
 	bLocal = false;
@@ -373,6 +374,7 @@ void CWorm::Spawn(CVec position) {
 
 	bAlive = true;
 	bAlreadyKilled = false;
+	bSpawnedOnce = true;
 	fVisibilityChangeTime = 0;
 	fAngle = 0;
 	fAngleSpeed = 0;

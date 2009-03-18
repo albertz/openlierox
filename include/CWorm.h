@@ -201,7 +201,8 @@ private:
 	int			iRanking;
 	bool		bAlreadyKilled;
 	bool		bSpectating;
-
+	bool		bSpawnedOnce;
+	
 	// Client info
 	int			iClientID;
 	int			iClientWormID;
@@ -450,6 +451,9 @@ public:
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal(void)				{ return bLocal; }
 
+	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
+	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
+	
 	int			getHealth(void)				{ return iHealth; }
 	void		setHealth(int _h)			{ iHealth = CLAMP(_h, 0, 100); }
 	int			getLives(void)				{ return iLives; }
