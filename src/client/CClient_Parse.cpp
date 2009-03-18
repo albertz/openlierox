@@ -224,7 +224,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
 		}
 	} else
-		notes << "ParseConnected: reconnecting" << endl;
+		notes << "ParseConnected: reconnected" << endl;
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
@@ -1747,8 +1747,8 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 	}
 
 
-	for(byte i=0;i<numworms;i++) {
-		byte id = bs->readByte();
+	for(int i=0;i<numworms;i++) {
+		int id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
 			printf("CClientNetEngine::ParseWormsOut: invalid worm ID ("+itoa(id)+")\n");

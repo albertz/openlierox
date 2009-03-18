@@ -206,11 +206,13 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 				continue;
 			}
 			server->cWorms[id].readWeapons(bs);
-			for (j = 0; j < 5; j++)
-				server->cWorms[id].getWeapon(j)->Enabled =
-					server->cWeaponRestrictions.isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
-					server->cWeaponRestrictions.isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
-		
+			for (j = 0; j < 5; j++) {
+				if(server->cWorms[id].getWeapon(j)->Weapon)
+					server->cWorms[id].getWeapon(j)->Enabled =
+						server->cWeaponRestrictions.isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
+						server->cWeaponRestrictions.isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
+			}
+			
 		} else { // wrong id -> Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}
@@ -1278,6 +1280,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			}
 			
 			if(!found) {
+				notes << "reconnecting client " << newcl->debugName(false) << " doesn't have worm ";
+				notes << w->getID() << ":" << w->getName() << " anymore, removing that worm globally" << endl;
 				removeWormList.insert(w);
 			}
 		}
@@ -1343,8 +1347,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 	}
 
-	if(removeWormList.size() > 0)
+	if(removeWormList.size() > 0) {
 		RemoveClientWorms(newcl, removeWormList);
+	}
 	
 	// Set the worm info
 	newcl->setNumWorms(numworms);

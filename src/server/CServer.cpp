@@ -1346,7 +1346,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 	// (Except the client himself because that wouldn't work anyway.)
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		CServerConnection* con = &cClients[c];
-		if(con->getStatus() == NET_DISCONNECTED || con->getStatus() == NET_ZOMBIE) continue;
+		if(con->getStatus() != NET_CONNECTED) continue;
 		if(cl == con) continue;
 		con->getNetEngine()->SendWormsOut(wormsOutList);
 	}
@@ -1564,24 +1564,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			 */
 			
 			// Delete the worm from client/server
-			cClient->RemoveWorm(wormID);
-			cl->RemoveWorm(wormID);
-			w->setAlive(false);
-			w->setKills(0);
-			w->setLives(WRM_OUT);
-			w->setUsed(false);
-
-			// Update the number of players on server
-			// (Client already did this in RemoveWorm)
-			iNumPlayers--;
-
-			// TODO: move that out here
-			// Tell everyone that the client's worms have left both through the net & text
-			CBytestream bs;
-			bs.writeByte(S2C_WORMSOUT);
-			bs.writeByte(1);
-			bs.writeByte(wormID);
-			SendGlobalPacket(&bs);
+			cClient->RemoveWorm(wormID);			
+			std::set<CWorm*> wormList; wormList.insert(w);
+			RemoveClientWorms(cl, wormList);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -1686,25 +1671,10 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			// TODO: share the same code with kickWorm here
 			
 			// Delete the worm from client/server
-			cClient->RemoveWorm(wormID);
-			cl->RemoveWorm(wormID);
-			w->setAlive(false);
-			w->setKills(0);
-			w->setLives(WRM_OUT);
-			w->setUsed(false);
+			cClient->RemoveWorm(wormID);			
+			std::set<CWorm*> wormList; wormList.insert(w);
+			RemoveClientWorms(cl, wormList);
 			
-			// Update the number of players on server
-			// (Client already did this in RemoveWorm)
-			iNumPlayers--;
-			
-			// TODO: move that out here
-			// Tell everyone that the client's worms have left both through the net & text
-			CBytestream bs;
-			bs.writeByte(S2C_WORMSOUT);
-			bs.writeByte(1);
-			bs.writeByte(wormID);
-			SendGlobalPacket(&bs);
-									
 			// Now that a player has left, re-check the game status
 			RecheckGame();
 

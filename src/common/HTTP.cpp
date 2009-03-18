@@ -122,34 +122,37 @@ void AutoSetupHTTPProxy()
 	const char * c_proxy = getenv("http_proxy");
 	if( c_proxy == NULL )  {
 		c_proxy = getenv("HTTP_PROXY");
-		if( c_proxy == NULL )
+	}
+
+	if(c_proxy) {
+		// Get the value (string after '=' char)
+		std::string proxy(c_proxy);
+		if( proxy.find('=') == std::string::npos )  { // No proxy
+			tLXOptions->sHttpProxy = "";
 			return;
+		}
+		proxy = proxy.substr( proxy.find('=') + 1 );
+		TrimSpaces(proxy);
+
+		// Remove http:// if present
+		static const size_t httplen = 7; // length of "http://"
+		if( stringcaseequal(proxy.substr(0, httplen), "http://") )
+			proxy.erase(0, httplen);
+
+		// Blank proxy?
+		if( proxy.size() == 0 )  {
+			tLXOptions->sHttpProxy = "";
+			return;
+		}
+
+		// Remove trailing slash
+		if( *proxy.rbegin() == '/')
+			proxy.resize( proxy.size() - 1 );
+		tLXOptions->sHttpProxy = proxy;
+
+		notes << "AutoSetupHTTPProxy: " << proxy << endl;
 	}
-
-	// Get the value (string after '=' char)
-	std::string proxy(c_proxy);
-	if( proxy.find('=') == std::string::npos )  { // No proxy
-		tLXOptions->sHttpProxy = "";
-		return;
-	}
-	proxy = proxy.substr( proxy.find('=') + 1 );
-	TrimSpaces(proxy);
-
-	// Remove http:// if present
-	static const size_t httplen = 7; // length of "http://"
-	if( stringcaseequal(proxy.substr(0, httplen), "http://") )
-		proxy.erase(0, httplen);
-
-	// Blank proxy?
-	if( proxy.size() == 0 )  {
-		tLXOptions->sHttpProxy = "";
-		return;
-	}
-
-	// Remove trailing slash
-	if( *proxy.rbegin() == '/')
-		proxy.resize( proxy.size() - 1 );
-	tLXOptions->sHttpProxy = proxy;
+	
 #else
 	// TODO: similar for other systems if possible
 #endif
@@ -1503,7 +1506,7 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
-				warnings << "HINT: proxy failed, trying a direct connection" << endl;
+				warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
 				// The re-requesting must be done in the main thread, send a notification and quit
 				m_thread->onRetry.pushToMainQueue( 
 					SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1524,7 +1527,7 @@ bool CHttp::ProcessInternal()
 	if ( (GetTime() - fConnectTime).seconds() >= HTTP_TIMEOUT  && bConnected && !bRequested && !bSentHeader)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			warnings << "HINT: proxy failed, trying a direct connection" << endl;
+			warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
 			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1541,7 +1544,7 @@ bool CHttp::ProcessInternal()
 	if (bRequested && (GetTime() - fSocketActionTime).seconds() >= HTTP_TIMEOUT)  {
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
-			warnings << "HINT: proxy failed, trying a direct connection" << endl;
+			warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
 			// The re-requesting must be done in the main thread, send a notification and quit
 			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1590,7 +1593,7 @@ bool CHttp::ProcessInternal()
 
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
-					warnings("HINT: proxy failed, trying a direct connection\n");
+					warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
 					// The re-requesting must be done in the main thread, send a notification and quit
 					m_thread->onRetry.pushToMainQueue( 
 						SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
