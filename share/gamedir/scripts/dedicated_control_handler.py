@@ -209,7 +209,7 @@ def parseNewWorm(wormID, name):
 	if io.getGameType() == 4: # Hide and Seek
 		minSeekers = 1
 		if len(worms.values()) >= 4: minSeekers = 2
-		if getNumberWormsInTeam(1) < minSeekers:
+		if io.getNumberWormsInTeam(1) < minSeekers:
 			io.setWormTeam(wormID, 1) # Seeker
 		else:
 			io.setWormTeam(wormID, 0) # Hider		
