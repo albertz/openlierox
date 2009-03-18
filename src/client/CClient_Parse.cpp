@@ -220,7 +220,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	client->iNetStatus = NET_CONNECTED;
 
 	// small cleanup (needed for example for reconnecting)
-	for(int i = 0; i < MAX_WORMS; i++) {
+	/*for(int i = 0; i < MAX_WORMS; i++) {
 		client->cRemoteWorms[i].setUsed(false);
 		client->cRemoteWorms[i].setAlive(false);
 		client->cRemoteWorms[i].setKills(0);
@@ -231,7 +231,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setTagIT(false);
 		client->cRemoteWorms[i].setTagTime(TimeDiff(0));
 		client->cRemoteWorms[i].setClientVersion(Version());
-	}
+	}*/
 
 	if( client->iNumWorms < 0 ) {
 		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
@@ -248,15 +248,22 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			continue;
 		}
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
-		client->cLocalWorms[i]->setUsed(true);
-		client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
-		client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
-		//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
-		client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
-		client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
-		client->cLocalWorms[i]->setLocal(true);
-        client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
-		client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
+		if(!client->cLocalWorms[i]->isUsed()) {
+			client->cLocalWorms[i]->setUsed(true);
+			client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
+			client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
+			//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
+			client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
+			if(client->tProfiles[i])
+				client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
+			client->cLocalWorms[i]->setLocal(true);
+			client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
+			client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
+		}
+		if(client->cLocalWorms[i]->getLocal()) {
+			warnings << "ParseConnected: already used local worm " << id << " was not set to local" << endl;
+			client->cLocalWorms[i]->setLocal(true);
+		}
 	}
 
 	// TODO: why do we setup the viewports only if we have at least one worm?
@@ -852,6 +859,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			if(isReconnect && w->isPrepared())
 				continue;
 			
+			notes << "preparing worm " << i << ":" << w->getName() << " for battle" << endl;
+			
 			// (If this is a local game?), we need to reload the worm graphics
 			// We do this again because we've only just found out what type of game it is
 			// Team games require changing worm colours to match the team colour
@@ -997,9 +1006,11 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	client->fServertime = 0;
 
 	// Set the local players to dead so we wait until the server spawns us
-	for(uint i=0;i<client->iNumWorms;i++)
-		client->cLocalWorms[i]->setAlive(false);
-
+	for(uint i=0;i<client->iNumWorms;i++) {
+		if(!client->cLocalWorms[i]->haveSpawnedOnce())
+			client->cLocalWorms[i]->setAlive(false);
+	}
+	
 	// Re-initialize the ingame scoreboard
 	client->InitializeIngameScore(false);
 	client->bUpdateScore = true;
