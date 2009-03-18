@@ -68,6 +68,10 @@ void AutoSetupHTTPProxy()
 	if (!tLXOptions->bAutoSetupHttpProxy)
 		return;
 
+	if(tLXOptions->sHttpProxy != "") {
+		notes << "AutoSetupHTTPProxy: we had the proxy " << tLXOptions->sHttpProxy << " but we are trying to autodetect it now" << endl;
+	}
+	
 // DevCpp won't compile this - too old header files
 #if defined( WIN32 ) && defined( MSC_VER )
 	// Create the list of options we want to retrieve
@@ -87,37 +91,36 @@ void AutoSetupHTTPProxy()
 	List.pOptions = Options;
 
 	// Ask for proxy info
-	if(!InternetQueryOption(NULL, INTERNET_OPTION_PER_CONNECTION_OPTION, &List, &size))
-		return;
+	if(InternetQueryOption(NULL, INTERNET_OPTION_PER_CONNECTION_OPTION, &List, &size)) {
 
-	// Using proxy?
-	bool using_proxy = (Options[1].Value.dwValue & PROXY_TYPE_PROXY) == PROXY_TYPE_PROXY;
-	
-	if (using_proxy)  {
-		if (Options[0].Value.pszValue != NULL)  { // Safety check
-			tLXOptions->sHttpProxy = Options[0].Value.pszValue; // Set the proxy
+		// Using proxy?
+		bool using_proxy = (Options[1].Value.dwValue & PROXY_TYPE_PROXY) == PROXY_TYPE_PROXY;
+		
+		if (using_proxy)  {
+			if (Options[0].Value.pszValue != NULL)  { // Safety check
+				tLXOptions->sHttpProxy = Options[0].Value.pszValue; // Set the proxy
 
-			// Remove http:// if present
-			static const size_t httplen = 7; // length of "http://"
-			if( stringcaseequal(tLXOptions->sHttpProxy.substr(0, httplen), "http://") )
-				tLXOptions->sHttpProxy.erase(0, httplen);
+				// Remove http:// if present
+				static const size_t httplen = 7; // length of "http://"
+				if( stringcaseequal(tLXOptions->sHttpProxy.substr(0, httplen), "http://") )
+					tLXOptions->sHttpProxy.erase(0, httplen);
 
-			// Remove trailing slash
-			if (*tLXOptions->sHttpProxy.rbegin() == '/')
-				tLXOptions->sHttpProxy.resize(tLXOptions->sHttpProxy.size() - 1);
+				// Remove trailing slash
+				if (*tLXOptions->sHttpProxy.rbegin() == '/')
+					tLXOptions->sHttpProxy.resize(tLXOptions->sHttpProxy.size() - 1);
 
-			notes << "Using HTTP proxy: " << tLXOptions->sHttpProxy << endl;
+				notes << "Using HTTP proxy: " << tLXOptions->sHttpProxy << endl;
+			}
+		} else {
+			tLXOptions->sHttpProxy = ""; // No proxy
 		}
-	} else {
-		tLXOptions->sHttpProxy = ""; // No proxy
+
+		// Cleanup
+		if(Options[0].Value.pszValue != NULL)
+			GlobalFree(Options[0].Value.pszValue);
 	}
-
-	// Cleanup
-	if(Options[0].Value.pszValue != NULL)
-		GlobalFree(Options[0].Value.pszValue);
-
+	
 #else
-#ifdef linux
 	// Linux has numerous configuration of proxies for each application, but environment var seems to be the most common
 	const char * c_proxy = getenv("http_proxy");
 	if( c_proxy == NULL )  {
@@ -133,29 +136,23 @@ void AutoSetupHTTPProxy()
 		}
 		proxy = proxy.substr( proxy.find('=') + 1 );
 		TrimSpaces(proxy);
-
+	
 		// Remove http:// if present
 		static const size_t httplen = 7; // length of "http://"
 		if( stringcaseequal(proxy.substr(0, httplen), "http://") )
 			proxy.erase(0, httplen);
 
 		// Blank proxy?
-		if( proxy.size() == 0 )  {
-			tLXOptions->sHttpProxy = "";
-			return;
+		if( proxy != "" )  {
+			// Remove trailing slash
+			if( *proxy.rbegin() == '/')
+				proxy.resize( proxy.size() - 1 );
 		}
 
-		// Remove trailing slash
-		if( *proxy.rbegin() == '/')
-			proxy.resize( proxy.size() - 1 );
 		tLXOptions->sHttpProxy = proxy;
 
 		notes << "AutoSetupHTTPProxy: " << proxy << endl;
-	}
-	
-#else
-	// TODO: similar for other systems if possible
-#endif
+	}	
 #endif
 }
 
