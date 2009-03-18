@@ -1222,7 +1222,7 @@ void GameServer::CheckForFillWithBots() {
 	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] > getNumPlayers()) {
 		int fillUpTo = MIN(tLXOptions->tGameInfo.iMaxPlayers, (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo]);
 		int fillNr = fillUpTo - getNumPlayers();
-		SendGlobalText("Too less players: Adding " + itoa(fillNr) + " bots to the server.", TXT_NETWORK);	
+		SendGlobalText("Too less players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
 		cClient->AddRandomBot(fillNr);
 	}

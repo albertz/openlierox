@@ -164,7 +164,7 @@ static void startDebuggerThread() {
 		int handle() {
 			while(tLX && !tLX->bQuitGame) {
 				AbsTime oldTime = tLX->currentTime;
-				SDL_Delay(500);
+				SDL_Delay(1000);
 				if(!tLX) return 0;
 				if(tLX->bQuitGame) return 0;
 				if(IsWaitingForEvent()) continue;
@@ -176,7 +176,7 @@ static void startDebuggerThread() {
 				if(oldTime == tLX->currentTime) {
 					warnings << "possible lock of mainthread detected" << endl;
 					//OlxWriteCoreDump("mainlock");
-					RaiseDebugger();
+					//RaiseDebugger();
 					SDL_Delay(20 * 1000); // pause for a while, don't be so hard
 				}
 			}

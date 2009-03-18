@@ -289,14 +289,16 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
 
-	client->bHostAllowsMouse = false;
-	client->bHostAllowsStrafing = false;
-
+	if(!isReconnect) {
+		client->bHostAllowsMouse = false;
+		client->bHostAllowsStrafing = false;
+	}
+	
 	// Log the connecting
 	if (!isReconnect && tLXOptions->bLogConvos && convoLogger)
 		convoLogger->enterServer(client->getServerName());
 	
-	if( GetGlobalIRC() )
+	if( !isReconnect && GetGlobalIRC() )
 		GetGlobalIRC()->setAwayMessage("Server: " + client->getServerName());
 }
 
@@ -566,6 +568,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	notes << "Client: Got ParsePrepareGame" << endl;
 
+	bool isReconnect = false;
+	
 	if(Warning_QuitEngineFlagSet("CClientNetEngine::ParsePrepareGame: ")) {
 		warnings << "some previous action tried to quit the GameLoop; we are ignoring this now" << endl;
 		ResetQuitEngineFlag();
@@ -580,6 +584,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// TODO: skip to the right position, the packet could be valid
 		if( tLX->iGameType == GME_JOIN )
 			return false;
+		isReconnect = true;
 	}
 
 	// If we're playing, the game has to be ready
@@ -591,13 +596,16 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// TODO: skip to the right position, the packet could be valid
 		if( tLX->iGameType == GME_JOIN )
 			return false;
+		isReconnect = true;
 	}
 
-	NotifyUserOnEvent();
+	if(!isReconnect)
+		NotifyUserOnEvent();
 
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	RemoveSocketFromNotifierGroup( client->tSocket );
+	if(!isReconnect)
+		RemoveSocketFromNotifierGroup( client->tSocket );
 
 	client->bGameReady = true;
 
@@ -744,43 +752,46 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	}
 
-	PhysicsEngine::Get()->initGame();
+	if(!isReconnect)
+		PhysicsEngine::Get()->initGame();
 
-	client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
-	if( client->cGameScript.get() == NULL )
-	{
-		client->cGameScript = new CGameScript();
+	if(!isReconnect) {
+		client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
+		if( client->cGameScript.get() == NULL )
+		{
+			client->cGameScript = new CGameScript();
 
-		if (client->bDownloadingMod)
-			client->bWaitingForMod = true;
-		else {
-			client->bWaitingForMod = false;
+			if (client->bDownloadingMod)
+				client->bWaitingForMod = true;
+			else {
+				client->bWaitingForMod = false;
 
-			int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
-			cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
-			if(result != GSE_OK) {
+				int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
+				cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
+				if(result != GSE_OK) {
 
-				// Show any error messages
-				if (tLX->iGameType == GME_JOIN)  {
-					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-					std::string err("Error load game mod: ");
-					err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
-					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-					client->bClientError = true;
+					// Show any error messages
+					if (tLX->iGameType == GME_JOIN)  {
+						FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+						std::string err("Error load game mod: ");
+						err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
+						DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
+						client->bClientError = true;
 
-					// Go back to the menu
-					GotoNetMenu();
-				} else {
-					errors << "load mod error for a local game!" << endl;
+						// Go back to the menu
+						GotoNetMenu();
+					} else {
+						errors << "load mod error for a local game!" << endl;
+					}
+					client->bGameReady = false;
+
+					errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
+					return false;
 				}
-				client->bGameReady = false;
-
-				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
-    			return false;
 			}
 		}
 	}
-
+	
     // Read the weapon restrictions
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
@@ -791,48 +802,54 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// TODO: Load any other stuff
 	client->bGameReady = true;
 
-	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
-	client->InitializeIngameScore(true);
+	if(!isReconnect) {
+		// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
+		client->InitializeIngameScore(true);
 
-	// Copy the chat text from lobby to ingame chatbox
-	if( tLX->iGameType == GME_HOST )
-		client->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
-	else if( tLX->iGameType == GME_JOIN )
-		client->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
+		// Copy the chat text from lobby to ingame chatbox
+		if( tLX->iGameType == GME_HOST )
+			client->sChat_Text = DeprecatedGUI::Menu_Net_HostLobbyGetText();
+		else if( tLX->iGameType == GME_JOIN )
+			client->sChat_Text = DeprecatedGUI::Menu_Net_JoinLobbyGetText();
 
-	if (!client->sChat_Text.empty())  {
-		client->bChat_Typing = true;
-		client->bChat_CursorVisible = true;
-		client->iChat_Pos = client->sChat_Text.size();
-		SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
-	}
+		if (!client->sChat_Text.empty())  {
+			client->bChat_Typing = true;
+			client->bChat_CursorVisible = true;
+			client->iChat_Pos = client->sChat_Text.size();
+			SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+		}	
 
-	if(!bDedicated) {
-		// TODO: move that out, that does not belong here
-		// Load the chat
-		DeprecatedGUI::CBrowser *lv = client->cChatList;
-		if (lv)  {
-			lv->setBorderSize(0);
-			lv->InitializeChatBox();
-			lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-			//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+		if(!bDedicated) {
+			// TODO: move that out, that does not belong here
+			// Load the chat
+			DeprecatedGUI::CBrowser *lv = client->cChatList;
+			if (lv)  {
+				lv->setBorderSize(0);
+				lv->InitializeChatBox();
+				lines_iterator it = client->cChatbox.At((int)client->cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+				//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
-			for (; it != client->cChatbox.End(); it++)  {
+				for (; it != client->cChatbox.End(); it++)  {
 
-				// Add only chat text (PM and Team PM messages too)
-				if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
-					lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
+					// Add only chat text (PM and Team PM messages too)
+					if (it->iTextType == TXT_CHAT || it->iTextType == TXT_PRIVATE || it->iTextType == TXT_TEAMPM ) {
+						lv->AddChatBoxLine(it->strLine, it->iColour, it->iTextType);
+					}
 				}
 			}
 		}
 	}
-
 
 	CWorm *w = client->cRemoteWorms;
 	int num_worms = 0;
 	ushort i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
+			num_worms++;
+
+			if(isReconnect && w->isPrepared())
+				continue;
+			
 			// (If this is a local game?), we need to reload the worm graphics
 			// We do this again because we've only just found out what type of game it is
 			// Team games require changing worm colours to match the team colour
@@ -847,11 +864,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setGameScript(client->cGameScript.get());
 			w->setWpnRest(&client->cWeaponRestrictions);
 			w->setLoadingTime(client->tGameInfo.iLoadingTime/100.0f);
+			w->setWeaponsReady(false);
 
 			// Prepare for battle!
 			w->Prepare();
-			
-			num_worms++;
 		}
 	}
 
@@ -861,29 +877,31 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 
 	// Initialize the worms weapon selection menu & other stuff
-	for(i=0;i<client->iNumWorms;i++) {
-		// we already prepared all the worms (cRemoteWorms) above
-
-		if (!client->bWaitingForMod)
-			client->cLocalWorms[i]->initWeaponSelection();
-	}
-
-
+	if (!client->bWaitingForMod)
+		for(i=0;i<client->iNumWorms;i++) {
+			// we already prepared all the worms (cRemoteWorms) above
+			if(!client->cLocalWorms[i]->getWeaponsReady())
+				client->cLocalWorms[i]->initWeaponSelection();
+		}
+	
 	// Start the game logging
-	client->StartLogging(num_worms);
+	if(!isReconnect)
+		client->StartLogging(num_worms);
 
 	client->UpdateScoreboard();
 	client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
 
-	if( GetGlobalIRC() )
-		GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
-
+	if(!isReconnect) {
+		if( GetGlobalIRC() )
+			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
+	}
+	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
-	
+
     return true;
 }
 
@@ -937,6 +955,8 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
+	bool isReconnect = client->bGameReady || client->iNetStatus == NET_PLAYING;
+	
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
@@ -946,7 +966,8 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	ParseFeatureSettings(bs);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
-	cDamageReport.clear(); // In case something left from prev game
+	if(!isReconnect)
+		cDamageReport.clear(); // In case something left from prev game
 
 	return true;
 }

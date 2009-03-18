@@ -213,6 +213,7 @@ void CWorm::Prepare()
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
 		warnings << m_inputHandler->name(); warnings << endl;
 		delete m_inputHandler;
+		m_inputHandler = NULL;
 	}
 
 	if(bLocal) {
@@ -243,7 +244,11 @@ void CWorm::Unprepare() {
 
 void CWorm::StartGame() {
 	fTimeofDeath = tLX->currentTime;
-	m_inputHandler->startGame();
+	if(!m_inputHandler) {
+		warnings << "CWorm::StartGame(): input handler not set" << endl;
+	}
+	else
+		m_inputHandler->startGame();
 }
 
 
@@ -401,7 +406,11 @@ void CWorm::Spawn(CVec position) {
 
 	if(bLocal) {
 		clearInput();
-		m_inputHandler->onRespawn();
+		if(!m_inputHandler) {
+			warnings << "CWorm::Spawn for local worm: input handler not set" << endl;
+		}
+		else
+			m_inputHandler->onRespawn();
 	}
 
 	for( int i=0; i<MAX_WORMS; i++ )

@@ -1273,6 +1273,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 	}
 	
+	std::set<CWorm*> newJoinedWorms;
+	
 	// search slots for new worms
 	for (int i = 0; i < numworms; ++i) {
 		if(ids[i] >= 0) continue; // this worm is already associated
@@ -1294,6 +1296,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			ids[i] = j;
 			iNumPlayers++;
 
+			newJoinedWorms.insert(w);
+			
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->NewWorm_Signal(w);
 			
@@ -1467,53 +1471,51 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		newcl->setGameReady(false);
 		newcl->getUdpFileDownloader()->allowFileRequest(false);
 				
+		// TODO: why is that needed? some lines above, we already have sent exactly that
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
-		// TODO: why this check? is it possible that tLX->iGameType != GME_HOST here?
-		if( tLX->iGameType == GME_HOST ) {
-			if( getGameMode()->GameTeams() > 1 ) {
+		if( getGameMode()->GameTeams() > 1 ) {
+			
+			CWorm *w = cWorms;
+			CBytestream b;
+			
+			for(int i=0; i<MAX_WORMS; i++, w++ ) {
+				if( !w->isUsed() )
+					continue;
 				
-				CWorm *w = cWorms;
-				CBytestream b;
-				
-				for(int i=0; i<MAX_WORMS; i++, w++ ) {
-					if( !w->isUsed() )
-						continue;
-					
-					// TODO: move that out here
-					// Write out the info
-					b.writeByte(S2C_WORMINFO);
-					b.writeInt(w->getID(),1);
-					w->writeInfo(&b);
-				}
-				
-				newcl->getNetEngine()->SendPacket(&b);
+				// TODO: move that out here
+				// Write out the info
+				b.writeByte(S2C_WORMINFO);
+				b.writeInt(w->getID(),1);
+				w->writeInfo(&b);
 			}
+			
+			newcl->getNetEngine()->SendPacket(&b);
 		}
 
 		// Set some info on the worms
-		for(int i = 0; i < newcl->getNumWorms(); i++) {
-			if(newcl->getWorm(i)->isPrepared()) {
-				warnings << "WARNING: connectduringgame: worm " << newcl->getWorm(i)->getID() << " was already prepared! ";
-				if(!newcl->getWorm(i)->isUsed()) warnings << "AND it is even not used!";
+		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			if((*w)->isPrepared()) {
+				warnings << "WARNING: connectduringgame: worm " << (*w)->getID() << " was already prepared! ";
+				if(!(*w)->isUsed()) warnings << "AND it is even not used!";
 				warnings << endl;
-				newcl->getWorm(i)->Unprepare();
+				(*w)->Unprepare();
 			}
 			
 			// If the game has limited lives all new worms are spectators
 			if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-				newcl->getWorm(i)->setLives(tLXOptions->tGameInfo.iLives);
+				(*w)->setLives(tLXOptions->tGameInfo.iLives);
 			else {
-				newcl->getWorm(i)->setLives(WRM_OUT);
+				(*w)->setLives(WRM_OUT);
 			}
-			newcl->getWorm(i)->setKills(0);
-			newcl->getWorm(i)->setGameScript(cGameScript.get());
-			newcl->getWorm(i)->setWpnRest(&cWeaponRestrictions);
-			newcl->getWorm(i)->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
-			newcl->getWorm(i)->setWeaponsReady(false);
+			(*w)->setKills(0);
+			(*w)->setGameScript(cGameScript.get());
+			(*w)->setWpnRest(&cWeaponRestrictions);
+			(*w)->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
+			(*w)->setWeaponsReady(false);
 			
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
-				cClients[ii].getNetEngine()->SendWormScore( newcl->getWorm(i) );
+				cClients[ii].getNetEngine()->SendWormScore( (*w) );
 		}
 		
 		newcl->getNetEngine()->SendPrepareGame();
@@ -1536,9 +1538,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// initial server side weapon handling
 		if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
 			if(cClient->getWorm(0)->getWeaponsReady()) {
-				for(int i=0;i<newcl->getNumWorms();i++) {
-					newcl->getWorm(i)->CloneWeaponsFrom(cClient->getWorm(0));
-					newcl->getWorm(i)->setWeaponsReady(true);
+				for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+					(*w)->CloneWeaponsFrom(cClient->getWorm(0));
+					(*w)->setWeaponsReady(true);
 				}
 			}
 			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
@@ -1547,15 +1549,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		// HINT: remove this if we'll get new clients joining and playing with limited lives games
 		else if(tLXOptions->tGameInfo.bForceRandomWeapons || 
 			( tLXOptions->tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
-			for(int i=0;i<newcl->getNumWorms();i++) {
-				newcl->getWorm(i)->GetRandomWeapons();
-				newcl->getWorm(i)->setWeaponsReady(true);
+			for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+				(*w)->GetRandomWeapons();
+				(*w)->setWeaponsReady(true);
 			}
 		}
 
 		// send the client all already selected weapons of the other worms
 		SendWeapons(newcl);
-
 	}
 }
 
