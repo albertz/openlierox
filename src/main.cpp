@@ -404,6 +404,9 @@ quit:
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 	UnInitTaskManager();
+
+	// quit Network so late because some threads could use it and they are mostly too stupid to do all the checks
+	QuitNetworkSystem();
 	
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
@@ -1092,9 +1095,6 @@ void ShutdownLieroX()
 
 	// Console commands
 	Cmd_Free();
-
-	// Network
-	QuitNetworkSystem();
 
 	// Event system
 	ShutdownEventSystem();
