@@ -197,9 +197,13 @@ static void InitQuitSignalHandler()
 
 static void QuitSignalHandler(int sig)
 {
-	SDL_Event event;
-	event.type = SDL_QUIT;
-	mainQueue->push(event);
+	if(mainQueue) {
+		SDL_Event event;
+		event.type = SDL_QUIT;
+		mainQueue->push(event);
+	} else {
+		warnings << "got quit-signal and mainQueue is not set" << endl;
+	}
 }
 
 static void InitQuitSignalHandler()
