@@ -65,9 +65,15 @@ static const std::string sHttpErrors[] = {
 void AutoSetupHTTPProxy()
 {
 	// User doesn't wish an automatic proxy setup
-	if (!tLXOptions->bAutoSetupHttpProxy)
+	if (!tLXOptions->bAutoSetupHttpProxy) {
+		notes << "AutoSetupHTTPProxy is disabled";
+		if(tLXOptions->sHttpProxy != "")
+			notes << "using proxy " << tLXOptions->sHttpProxy << endl;
+		else
+			notes << "not using any proxy" << endl;
 		return;
-
+	}
+	
 	if(tLXOptions->sHttpProxy != "") {
 		notes << "AutoSetupHTTPProxy: we had the proxy " << tLXOptions->sHttpProxy << " but we are trying to autodetect it now" << endl;
 	}
@@ -1504,6 +1510,7 @@ bool CHttp::ProcessInternal()
 		if (error)  {
 			if (sProxyHost.size() != 0)  {
 				warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
+				if(sProxyHost != tLXOptions->sHttpProxy) notes << "System proxy is: " << tLXOptions->sHttpProxy << endl;		
 				// The re-requesting must be done in the main thread, send a notification and quit
 				m_thread->onRetry.pushToMainQueue( 
 					SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1525,6 +1532,7 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
+			if(sProxyHost != tLXOptions->sHttpProxy) notes << "System proxy is: " << tLXOptions->sHttpProxy << endl;		
 			// The re-requesting must be done in the main thread, send a notification and quit
 			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1542,6 +1550,7 @@ bool CHttp::ProcessInternal()
 		// If using proxy, try direct connection
 		if (sProxyHost.size() != 0)  {
 			warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
+			if(sProxyHost != tLXOptions->sHttpProxy) notes << "System proxy is: " << tLXOptions->sHttpProxy << endl;		
 			// The re-requesting must be done in the main thread, send a notification and quit
 			m_thread->onRetry.pushToMainQueue( 
 				SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));
@@ -1591,6 +1600,7 @@ bool CHttp::ProcessInternal()
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
+					if(sProxyHost != tLXOptions->sHttpProxy) notes << "System proxy is: " << tLXOptions->sHttpProxy << endl;	
 					// The re-requesting must be done in the main thread, send a notification and quit
 					m_thread->onRetry.pushToMainQueue( 
 						SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));

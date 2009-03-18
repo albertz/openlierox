@@ -1728,7 +1728,7 @@ static bool addWorm(CClient* cl, profile_t* p) {
 		return false;
 	}
 
-	if(cl->getNumWorms() + 1 >= MAX_WORMS) {
+	if(cl->getNumWorms() + 1 >= MIN((int)MAX_WORMS, cl->getGameLobby()->iMaxPlayers)) {
 		errors << "addWorm(): too many worms" << endl;
 		return false;
 	}

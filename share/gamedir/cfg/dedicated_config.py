@@ -16,10 +16,6 @@ LOG_FILE = "dedicated_control.log"
 # If you modify dedicated_control Python will write errors here
 ERROR_FILE = "dedicated_control_errors.log"
 
-# TODO: use the one from options.cfg as default
-# (it's ok if presets change the name, but the default should be the one specified in options.cfg)
-#SERVER_NAME = "Dedicated" # The name of your server, can be changed by preset
-
 MIN_PLAYERS = 2
 MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players
 MAX_TEAMS = 2 # Only blue and red teams
@@ -33,11 +29,12 @@ WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
-# TODO: same thing as for SERVERNAME. it's ok if presets change them but options.cfg should define the default 
-GAME_LIVES = -2 # -2 = unlimited, can be changed by TeamArena preset
-GAME_MAX_KILLS = 15
-GAME_MAX_TIME = 7 # In minutes
-WEAPON_SELECTION_TIME = 40 # In seconds
+import dedicated_control_io as io # control handler
+
+GAME_LIVES = int(io.getVar("GameOptions.GameInfo.Lives"))
+GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
+GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
+WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
 
 # TODO: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)
