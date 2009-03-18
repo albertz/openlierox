@@ -303,6 +303,9 @@ void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
 	SendPacket(&bs);
 }
 
+// WARNING: When using this, be sure that we also drop the specific client. This is
+// needed because the local worm amount of the client is different from ours in
+// the meanwhile and it would screw up the network.
 void GameServer::SendWormsOut(const std::list<byte>& ids) 
 {
 	for(int c = 0; c < MAX_CLIENTS; c++) {

@@ -249,6 +249,8 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		return;
 	}
 	
+	
+	
 	// Get the id's
 	int id=0;
 	for(ushort i=0;i<client->iNumWorms;i++) {
@@ -1754,7 +1756,12 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 		}
 
 		CWorm *w = &client->cRemoteWorms[id];
-		if(tLX->iGameType != GME_JOIN || !w->getLocal()) { // Server kicks local worms (in GME_JOIN) using S2C_DROPPED, this packet cannot be used for it
+		if(!w->isUsed()) {
+			warnings << "ParseWormsOut: worm " << id << " is not used anymore" << endl;
+			continue;
+		}
+		
+		if(!w->getLocal()) { // Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
 
 			// Log this
 			if (client->tGameLog)  {

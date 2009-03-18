@@ -1307,6 +1307,8 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
+// WARNING: We are using SendWormsOut here, that means that we cannot use the specific client anymore
+// because it has a different local worm amount and it would screw up the network.
 void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms) {
 	std::list<byte> wormsOutList;
 	
@@ -1341,7 +1343,13 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 	}
 	
 	// Tell everyone that the client's worms have left both through the net & text
-	SendWormsOut(wormsOutList);
+	// (Except the client himself because that wouldn't work anyway.)
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		CServerConnection* con = &cClients[c];
+		if(con->getStatus() == NET_DISCONNECTED || con->getStatus() == NET_ZOMBIE) continue;
+		if(cl == con) continue;
+		con->getNetEngine()->SendWormsOut(wormsOutList);
+	}
 	
 	// Re-Calculate number of players
 	iNumPlayers=0;
@@ -1543,14 +1551,16 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->WormLeft_Signal( w );
 			
-			// Delete the worm from server
-			cl->RemoveWorm(w->getID());
+			// Delete the worm from client/server
+			cClient->RemoveWorm(wormID);
+			cl->RemoveWorm(wormID);
 			w->setAlive(false);
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
 
 			// Update the number of players on server
+			// (Client already did this in RemoveWorm)
 			iNumPlayers--;
 
 			// TODO: move that out here
@@ -1643,8 +1653,16 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 
 	// Local worms are handled another way
 	// We just kick the worm, banning makes no sense
-	if (cClient)  {
-		if (cClient->OwnsWorm(w->getID()))  {
+	if (cl->isLocalClient())  {
+		if (cl->OwnsWorm(w->getID()))  {			
+			// Send the message
+			if (sReason.size() == 0)
+				SendGlobalText((replacemax(networkTexts->sHasBeenBanned,
+										   "<player>", w->getName(), 1)),	TXT_NETWORK);
+			else
+				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
+													  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
+
 			notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
 			
 			// Notify the game mode that the worm has been dropped
@@ -1653,18 +1671,18 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			if( DedicatedControl::Get() )
 				DedicatedControl::Get()->WormLeft_Signal( w );
 			
-			// Delete the worm from client and server
-			cClient->RemoveWorm(w->getID());
+			// Delete the worm from client/server
+			cClient->RemoveWorm(wormID);
+			cl->RemoveWorm(wormID);
 			w->setAlive(false);
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
-
-			// Update the number of players on server/client
+			
+			// Update the number of players on server
+			// (Client already did this in RemoveWorm)
 			iNumPlayers--;
-			//tGameInfo.iNumPlayers--;
-			cl->RemoveWorm(w->getID());
-
+			
 			// TODO: move that out here
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
@@ -1672,15 +1690,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			bs.writeByte(1);
 			bs.writeByte(wormID);
 			SendGlobalPacket(&bs);
-
-			// Send the message
-			if (sReason.size() == 0)
-				SendGlobalText((replacemax(networkTexts->sHasBeenBanned,
-				"<player>", w->getName(), 1)),	TXT_NETWORK);
-			else
-				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
-				"<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-						
+									
 			// Now that a player has left, re-check the game status
 			RecheckGame();
 
