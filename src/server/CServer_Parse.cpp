@@ -154,20 +154,24 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 			// Avoid "reading from stream behind end" warning if this is really a bad packet
 			// and print the bad command instead
-			if (cmd == 0xff && bs->GetRestLen() > 3)
+			if (cmd == 0xff && bs->GetRestLen() > 3) {
 				if (bs->readInt(3) == 0xffffff) {
 					std::string address;
 					NetAddrToString(cl->getChannel()->getAddress(), address);
 					server->ParseConnectionlessPacket(cl->getChannel()->getSocket(), bs, address);
 					break;
 				}
+				bs->revertByte(); bs->revertByte(); bs->revertByte();
+			}
 
 			// Really a bad packet
 #if !defined(FUZZY_ERROR_TESTING_C2S)
-			warnings("sv: Bad command in packet (" + itoa(cmd) + ")\n");
+			warnings << "sv: Bad command in packet (" << itoa(cmd) << ") from " << cl->debugName() << endl;
 			if(cl->isLocalClient()) {
 				notes << "Bad package from local client, dumping bytestream:" << endl;
+				bs->revertByte(); // to have the cmd-byte also in
 				bs->Dump();
+				bs->readByte(); // skip the bad cmd-byte
 			}
 #endif
 		}

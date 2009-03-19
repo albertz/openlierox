@@ -1181,17 +1181,17 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 void CClientNetEngineBeta9NewNet::ParseSpawnWorm(CBytestream *bs)
 {
-	int id = bs->readByte();
-	int x = bs->readInt(2);
-	int y = bs->readInt(2);
+	/* int id = */ bs->readByte();
+	/* int x = */ bs->readInt(2);
+	/* int y = */ bs->readInt(2);
 	// Skip this info for now, we'll use it later
-};
+}
 
 void CClientNetEngineBeta9NewNet::ParseWormDown(CBytestream *bs)
 {
-	byte id = bs->readByte();
+	/* byte id = */ bs->readByte();
 	// Skip this info for now, we'll use it later
-};
+}
 
 
 

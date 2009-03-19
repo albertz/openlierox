@@ -61,6 +61,8 @@ public:
 	size_t		GetLength()	const 	{ return Data.size(); }
 	size_t		GetPos() const 		{ return pos; }
 	size_t		GetRestLen() const 	{ return isPosAtEnd() ? 0 : (Data.size() - pos); }
+	bool		isPosAtEnd() const { return GetPos() >= GetLength(); }
+	void		revertByte()		{ assert(pos > 0); pos--; }
 	
 	void		Clear();
 	void		Append(CBytestream *bs);
@@ -109,7 +111,6 @@ public:
 	bool		SkipString();
 	void		SkipAll()		{ pos = Data.size(); }
 	
-	bool		isPosAtEnd() const { return GetPos() >= GetLength(); }
 	
 	// Networking stuff
 	bool	Send(NetworkSocket sock);
@@ -130,17 +131,17 @@ class CBytestreamBitIterator
 	CBytestreamBitIterator(char * Data): data(Data)
 	{ 
 		resetPos();
-	};
+	}
 
 	size_t getPos() const
 	{
 		return pos;
-	};
+	}
 	void resetPos()
 	{
 		pos = 0;
 		bitMask = 1;
-	};
+	}
 
 	CBytestreamBitIterator& operator ++()
 	{
@@ -152,24 +153,24 @@ class CBytestreamBitIterator
 		else
 			bitMask *= 2;
 		return *this;
-	};
+	}
 
 	bool getBit() const
 	{
 		return ( data[pos] & bitMask ) != 0;
-	};
+	}
 	void setBit()
 	{
 		data[pos] |= bitMask;
-	};
+	}
 	void clearBit()
 	{
 		data[pos] &= ~ bitMask;
-	};
+	}
 	void xorBit()
 	{
 		data[pos] ^= bitMask;
-	};
+	}
 
 	// Slower functions
 	bool readBit()
@@ -177,7 +178,7 @@ class CBytestreamBitIterator
 		bool ret = getBit();
 		++(*this);
 		return ret;
-	};
+	}
 	void writeBit( bool bit )
 	{
 		if( bit )
@@ -185,7 +186,7 @@ class CBytestreamBitIterator
 		else
 			clearBit();
 		++(*this);
-	};
+	}
 	
 	static size_t getSizeInBytes( size_t bits )
 	{
@@ -193,7 +194,7 @@ class CBytestreamBitIterator
 		if( bits % 8 )
 			bytes++;
 		return bytes;
-	};
+	}
 };
 
 #endif  //  __CBITSTREAM_H__
