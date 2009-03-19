@@ -891,6 +891,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	std::string addrFromStr;
 	NetAddrToString(adrFrom, addrFromStr);
 
+	// Check if this ip isn't already connected
+	// HINT: this works in every case, even if there are two people behind one router
+	// because the address ports are checked as well (router assigns a different port for each person)
 	CServerConnection* reconnectFrom = NULL;
 	p = 0;
 	for(CServerConnection* cl = cClients;p<MAX_CLIENTS;p++,cl++) {
@@ -1013,9 +1016,6 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 
 
-	// Check if this ip isn't already connected
-	// HINT: this works in every case, even if there are two people behind one router
-	// because the address ports are checked as well (router assigns a different port for each person)
 	newcl = NULL;
 	if(reconnectFrom) {
 		// HINT: just let the client connect again
