@@ -23,10 +23,12 @@ namespace NewNet
 
 CWorm * SavedWormState = NULL;
 NetSyncedRandom netRandom, netRandom_Saved;
+AbsTime cClientLastSimulationTime;
 
 void SaveState()
 {
 	netRandom_Saved = netRandom;
+	cClientLastSimulationTime = cClient->fLastSimulationTime;
 	cClient->getMap()->NewNet_SaveToMemory();
 
 	cClient->NewNet_SaveProjectiles();
@@ -39,6 +41,7 @@ void SaveState()
 void RestoreState()
 {
 	netRandom = netRandom_Saved;
+	cClient->fLastSimulationTime = cClientLastSimulationTime;
 	cClient->getMap()->NewNet_RestoreFromMemory();
 
 	cClient->NewNet_LoadProjectiles();
@@ -84,8 +87,17 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 	}
 }
 
-unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
+// GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
+// The exception for this is when we are called from CalculateCurrentState() - 
+// it will call Physics() with fastCalculation flag set to true and arbitrary gameTime -
+// we are allowed to skip some collision checks and to revert to faster routines in that case, 
+// as long as the game image on the screen will look smooth - we will discard that results anyway.
+// Keys is the state of keys for given player.
+// If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
+
+int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
+	int checksum = 0;
 	for( int i = 0; i < MAX_WORMS; i++ )
 	{
 		CWorm * w = & cClient->getRemoteWorms()[i];
@@ -95,16 +107,27 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 			// TODO: make this server-sided
 			if( !w->getAlive() && w->getLives() != WRM_OUT )
 				if( gameTime - w->getTimeofDeath() > 2.5f )
-					w->Spawn( NewNet_FindSpot(w) );
+				{
+					CVec spot = NewNet_FindSpot(w);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
+					w->Spawn( spot );
+				}
 
 			w->NewNet_GetInput( keys[i], keysChanged[i] );
 			if (w->getWormState()->bShoot && w->getAlive())
 				cClient->NewNet_DoLocalShot( w );
+				
+			if( calculateChecksum )
+				// Pretty simple formula, count only worm pos and velocity (should be synced perfectly)
+				// Later I'll add counting pos of projectiles
+				checksum += ( (w->getID() + 1) % 4 ) * 
+					( (int)w->getPos().x + (int)w->getPos().y * 0x100 +
+						(int)w->getVelocity()->x * 0x10000 + (int)w->getVelocity()->x * 0x1000000 );
 		}
 	}
 
 	cClient->NewNet_Simulation();
-	return 0;
+	return checksum;
 };
 
 void DisableAdvancedFeatures()
@@ -156,7 +179,7 @@ EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
 AbsTime LastPacketTime[MAX_WORMS];
 AbsTime LastSoundPlayedTime[MAX_WORMS];
-unsigned Checksum;
+int Checksum;
 AbsTime ChecksumTime; // AbsTime in ms
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
 
@@ -202,6 +225,9 @@ void StartRound( unsigned randomSeed )
 			LocalPlayer = -1;
 			if( cClient->getNumWorms() > 0 )
 				LocalPlayer = cClient->getWorm(0)->getID();
+				
+			cClient->fLastSimulationTime = 0;
+			
 			//InitialRandomSeed = randomSeed;
 
 			CurrentTimeMs = 0;
@@ -244,7 +270,6 @@ bool Frame( CBytestream * bs )
 		if( tLXOptions->bOldSkoolRope )
 			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
 	};
-	//printf("Frame(): keys.keys[K_LEFT] %i time %i\n", keys.keys[K_LEFT], int(localTime.time));
 	
 	bool ret = SendNetPacket( localTime, keys, bs );
 	if( !ret )
@@ -271,7 +296,7 @@ void ReCalculateSavedState()
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
-	printf("ReCalculate(): BackupTime %i timeMin %i CurrentTimeMs %i\n", (int)BackupTime.time, (int)timeMin.time, (int)CurrentTimeMs.time );
+	//printf("ReCalculate(): BackupTime %i timeMin %i CurrentTimeMs %i\n", (int)BackupTime.time, (int)timeMin.time, (int)CurrentTimeMs.time );
 	if( BackupTime /* + DrawDelayMs */ + TimeDiff(TICK_TIME) >= timeMin )
 		return;
 
@@ -289,12 +314,12 @@ void ReCalculateSavedState()
 		KeyState_t keysChanged[MAX_WORMS];
 		getKeysForTime( BackupTime, keys, keysChanged );
 
-		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
+		int checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
 		{
 			Checksum = checksum;
 			ChecksumTime = CurrentTimeMs;
-			//printf("OlxMod time %lu checksum 0x%X\n", ChecksumTime, Checksum );
+			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum 0x" << std::hex << Checksum << endl;
 		};
 	};
 

@@ -1176,6 +1176,21 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	}
 }
 
+void CClientNetEngineBeta9NewNet::ParseSpawnWorm(CBytestream *bs)
+{
+	int id = bs->readByte();
+	int x = bs->readInt(2);
+	int y = bs->readInt(2);
+	// Skip this info for now, we'll use it later
+};
+
+void CClientNetEngineBeta9NewNet::ParseWormDown(CBytestream *bs)
+{
+	byte id = bs->readByte();
+	// Skip this info for now, we'll use it later
+};
+
+
 
 ///////////////////
 // Parse a worm info packet
@@ -1840,6 +1855,17 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
+}
+
+void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
+{
+	byte count = bs->readByte();
+	// Skip to the right position
+	for (byte i=0;i<count;i++)  
+	{
+		bs->Skip(1);
+		CWorm::skipPacketState(bs);
+	}
 }
 
 

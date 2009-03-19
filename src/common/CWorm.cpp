@@ -404,7 +404,8 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = tLX->currentTime;
+	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = 
+		(bool)cClient->getGameLobby()->features[FT_NewNetEngine] ? NewNet::GetCurTime() : tLX->currentTime;
 
 	if(bLocal) {
 		clearInput();

@@ -80,8 +80,10 @@ protected:
 	virtual void ParseGotoLobby(CBytestream *bs);
 	virtual void ParseNewNetKeys(CBytestream *bs) { return; };
 	virtual void ParseStartGame(CBytestream *bs);
+	virtual void ParseSpawnWorm(CBytestream *bs);
+	virtual void ParseWormDown(CBytestream *bs);
+	virtual void ParseUpdateWorms(CBytestream *bs);
 
-	void		 ParseSpawnWorm(CBytestream *bs);
 	void		 ParseWormInfo(CBytestream *bs);
 	void		 ParseWormWeaponInfo(CBytestream *bs);
 	void		 ParseText(CBytestream *bs);
@@ -90,8 +92,6 @@ protected:
 	void		 ParseTagUpdate(CBytestream *bs);
 	void		 ParseCLReady(CBytestream *bs);
 	void		 ParseWormsOut(CBytestream *bs);
-	void		 ParseUpdateWorms(CBytestream *bs);
-	void		 ParseWormDown(CBytestream *bs);
 	void		 ParseServerLeaving(CBytestream *bs);
 	void		 ParseSingleShot(CBytestream *bs);
 	void		 ParseMultiShot(CBytestream *bs);
@@ -150,6 +150,9 @@ public:
 
 	virtual void ParseNewNetKeys(CBytestream *bs);
 	virtual void ParseGotoLobby(CBytestream *bs);
+	virtual void ParseSpawnWorm(CBytestream *bs);
+	virtual void ParseWormDown(CBytestream *bs);
+	virtual void ParseUpdateWorms(CBytestream *bs);
 
 	virtual void SendReportDamage(bool flush = false) { return; };
 	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };

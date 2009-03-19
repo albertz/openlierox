@@ -740,7 +740,7 @@ public:
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound)
+				if(pi->Hit_UseSound && ( ! (bool)cClient->getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(prj->GetOwner()) ) )
 					PlaySoundSample(pi->smpSample);
 			break;
 

@@ -194,6 +194,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		return;
 	}
 
+	/*
 	// If we're in a menu & a local game, don't do simulation
 	if (tLX->iGameType == GME_LOCAL)  {
 		if( bGameOver || bGameMenu || bViewportMgr ) {
@@ -208,6 +209,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
+    */
 
     CWorm *w;
 	// Player simulation
@@ -1080,7 +1082,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 
 	// Play the weapon's sound
-	if(wpn->UseSound)
+	if(wpn->UseSound && ( ! (bool)getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(w->getID()) ))
 		StartSound(wpn->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
 
 	// Add the recoil

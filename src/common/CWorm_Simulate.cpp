@@ -397,8 +397,11 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 	ws->bJump = false;
 
 	{
-		// Up
-		if(keys.keys[NewNet::K_UP]) {
+		if( keys.keys[NewNet::K_UP] && keys.keys[NewNet::K_DOWN] )
+		{
+			// Do not change angle speed (precise aiming as in original Liero)
+		}
+		else if(keys.keys[NewNet::K_UP]) {
 			// HINT: 500 is the original value here (rev 1)
 			fAngleSpeed -= 500 * dt.seconds();
 		} else if(keys.keys[NewNet::K_DOWN]) { // Down
@@ -512,7 +515,8 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 	if( keys.keys[NewNet::K_ROPE] && keysChanged.keys[NewNet::K_ROPE] ) {
 		cNinjaRope.Shoot(vPos,dir);
 		// Throw sound
-		PlaySoundSample(sfxGame.smpNinja);
+		if( NewNet::CanPlaySound(getID()) )
+			PlaySoundSample(sfxGame.smpNinja);
 	}
 
 	ws->iAngle = (int)fAngle;

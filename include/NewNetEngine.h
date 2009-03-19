@@ -134,14 +134,6 @@ bool CanPlaySound(int wormID);
 void SaveState();
 void RestoreState();
 
-// GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
-// The exception for this is when we are called from CalculateCurrentState() - 
-// it will call Physics() with fastCalculation flag set to true and arbitrary gameTime -
-// we are allowed to skip some collision checks and to revert to faster routines in that case, 
-// as long as the game image on the screen will look smooth - we will discard that results anyway.
-// Keys is the state of keys for given player.
-// If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
-unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum );
 
 void ReCalculateSavedState();
 
