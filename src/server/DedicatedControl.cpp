@@ -777,6 +777,7 @@ struct DedIntern {
 		w->setTeam(team);
 		cServer->UpdateWorms();
 		cServer->SendWormLobbyUpdate();
+		cServer->RecheckGame();
 	}
 
 	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string & params)
