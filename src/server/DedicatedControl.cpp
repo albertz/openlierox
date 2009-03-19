@@ -665,7 +665,12 @@ struct DedIntern {
 	void Cmd_KickBot(DedInterface* caller, const std::string& params) {
 		std::string reason = params;
 		if(reason == "") reason = "Dedicated command";
-		cServer->kickWorm(cServer->getLastBot(), reason);
+		int worm = cServer->getLastBot();
+		if(worm < 0) {
+			caller->writeMsg("there is no bot on the server");
+			return;
+		}
+		cServer->kickWorm(worm, reason);
 	}
 	
 	void Cmd_KillBots(DedInterface* caller, const std::string & params) {
