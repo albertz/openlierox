@@ -581,6 +581,11 @@ void CServerNetEngine::ParseDisconnect() {
 
 	// Host cannot leave...
 	if (cl->isLocalClient())  {
+		if(cClient->getStatus() != NET_DISCONNECTED) {
+			warnings << "we got disconnect-package from local client but local client is not disconnected" << endl;
+			return; // ignore
+		}
+		
 		/* There are several cases (e.g. in ParsePrepareGame) where we would
 		 * just disconnect, even as the local client. It's hard to catch all
 		 * these possible cases and in most cases, we have a screwed up
@@ -588,8 +593,7 @@ void CServerNetEngine::ParseDisconnect() {
 		 * For that reason, we just try to reconnect it now.
 		 */
 		warnings << "host-client disconnected, reconnecting now ..." << endl;
-		cServer->bLocalClientConnected = false;
-		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+		cClient->Reconnect();
 		
 		return;
 	}

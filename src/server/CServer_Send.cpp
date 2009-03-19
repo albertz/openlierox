@@ -75,7 +75,8 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 			receiver->getNetEngine()->SendPacket(&bytes);
 		else
 			server->SendGlobalPacket(&bytes);
-
+		
+		// TODO: I don't understand this comment. Please be more clear. (Is this meant for the "else"?)
 		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
 		// Otherwise, 0.56b would not parse the packet correctly
 	} else {

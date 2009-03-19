@@ -576,10 +576,13 @@ void GameServer::gotoLobby(void)
 // Called iff game state has changed (e.g. player left etc.)
 void GameServer::RecheckGame(void)
 {
-	if(bGameOver || iState != SVS_PLAYING)
-		return;
-	if(getGameMode()->CheckGameOver())
-		GameOver();
+	if(iState == SVS_GAME)
+		// Check if all the clients are ready
+		CheckReadyClient();
+	
+	if(!bGameOver && iState == SVS_PLAYING)
+		if(getGameMode()->CheckGameOver())
+			GameOver();
 }
 
 

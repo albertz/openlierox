@@ -1197,6 +1197,7 @@ void GameServer::CheckWeaponSelectionTime()
 				}
 			}
 			cl->getNetEngine()->SendClientReady(NULL);
+			RecheckGame();
 			continue;
 		}
 		DropClient( cl, CLL_KICK, "selected weapons too long" );
@@ -1374,10 +1375,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 	
 	// Now that a player has left, re-check the game status
 	RecheckGame();
-	
-	// If we're waiting for players to be ready, check again
-	if(iState == SVS_GAME)
-		CheckReadyClient();	
 }
 
 void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
@@ -1655,10 +1652,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			// Now that a player has left, re-check the game status
 			RecheckGame();
 
-			// If we're waiting for players to be ready, check again
-			if(iState == SVS_GAME)
-				CheckReadyClient();
-
 			// End here
 			return;
 		}
@@ -1755,10 +1748,6 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			
 			// Now that a player has left, re-check the game status
 			RecheckGame();
-
-			// If we're waiting for players to be ready, check again
-			if(iState == SVS_GAME)
-				CheckReadyClient();
 
 			// End here
 			return;

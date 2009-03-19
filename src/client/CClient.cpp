@@ -1774,20 +1774,21 @@ static void updateAddedWorms(CClient* cl) {
 				localClient->setNumWorms(i + 1);
 				localClient->setWorm(i, w);
 
-				// TODO: move that out here
-				// inform everybody about new worm
-				CBytestream bytestr;
-				bytestr.writeByte(S2C_WORMINFO);
-				bytestr.writeInt(w->getID(), 1);
-				w->writeInfo(&bytestr);				
-
 				notes << "Worm added: " << w->getName();
-				notes << " (id " << w->getID() << ")" << endl;
-				
-				for(int ii = 0; ii < MAX_CLIENTS; ii++)
-					if(!cServer->getClients()[ii].isLocalClient())
-						cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+				notes << " (id " << w->getID() << ")" << endl;				
 
+				{
+					// TODO: move that out here
+					// inform everybody else about new worm
+					CBytestream bytestr;
+					bytestr.writeByte(S2C_WORMINFO);
+					bytestr.writeInt(w->getID(), 1);
+					w->writeInfo(&bytestr);				
+					for(int ii = 0; ii < MAX_CLIENTS; ii++)
+						if(!cServer->getClients()[ii].isLocalClient())
+							cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+				}
+				
 				// handling for connect during game
 				if( cServer->getState() != SVS_LOBBY ) {
 					for(int ii = 0; ii < MAX_CLIENTS; ii++)
@@ -1799,7 +1800,8 @@ static void updateAddedWorms(CClient* cl) {
 				// (code from CClientNetEngine::ParseConnected) 
 				cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
 				if(cl->getWorm(i)->isUsed()) {
-					warnings << "updateAddedWorms: local worm " << i << " was already used" << endl;
+					warnings << "updateAddedWorms: local worm " << i << " was already used, it is ";
+					warnings << cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << endl;
 				}
 				
 				cl->getWorm(i)->setUsed(true);
@@ -1835,6 +1837,7 @@ static void updateAddedWorms(CClient* cl) {
 					cl->getWorm(i)->setWpnRest(cl->getWeaponRestrictions());
 					cl->getWorm(i)->setLoadingTime(cl->getGameLobby()->iLoadingTime/100.0f);
 					cl->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
+					cl->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
 					
 					// Prepare for battle!
 					cl->getWorm(i)->Prepare();
@@ -1843,6 +1846,7 @@ static void updateAddedWorms(CClient* cl) {
 						cl->getWorm(i)->initWeaponSelection();
 					
 					if(!cl->getWorm(i)->getWeaponsReady()) {
+						notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
 						cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
 						// we will recheck that in clients frame
 					}
@@ -1850,7 +1854,8 @@ static void updateAddedWorms(CClient* cl) {
 						// copy weapons to server
 						CBytestream bs;
 						cl->getWorm(i)->writeWeapons(&bs);
-						w->readWeapons(&bs);
+						w->readWeapons(&bs); bs.ResetPosToBegin();
+						cl->getWorm(i)->readWeapons(&bs); // read them again locally, that will init also some other stuff
 
 						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
 							// send weapon list to other clients
@@ -1866,6 +1871,7 @@ static void updateAddedWorms(CClient* cl) {
 								cServer->SendEmptyWeaponsOnRespawn( w );							
 						}
 					}
+					
 				}
 			}
 		}
@@ -1888,6 +1894,9 @@ static void updateAddedWorms(CClient* cl) {
 		
 		if( cServer->getState() != SVS_LOBBY )
 			cServer->SendWeapons(localClient);
+		
+		// Game state has changed (in many possible ways), just recheck
+		cServer->RecheckGame();
 	}
 }
 
