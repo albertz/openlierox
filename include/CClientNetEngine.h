@@ -35,7 +35,7 @@ public:
 
 	// Parsing
 	void				ParseConnectionlessPacket(CBytestream *bs);
-	void				ParsePacket(CBytestream *bs);
+	bool				ParsePacket(CBytestream *bs);
 
 	// Sending
 	virtual void		SendGameReady();
@@ -156,6 +156,7 @@ public:
 
 	virtual void SendReportDamage(bool flush = false) { return; };
 	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
+	virtual void SendDeath(int victim, int killer) { return; };
 	// TODO: add virtual worm stat update function with warning that server sends us wrong info
 
 };

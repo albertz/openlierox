@@ -365,12 +365,12 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 				proj->Timer_Type == PJ_DISAPPEAR ? "Disappear" : (
 				proj->Timer_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 		
-		if(proj->Timer_Type == PJ_EXPLODE) {
+		//if(proj->Timer_Type == PJ_EXPLODE) {
 
 			fprintf( fp, "Damage = %i\n", proj->Timer_Damage);
 			fprintf( fp, "Projectiles = %s\n", ( proj->Timer_Projectiles ? "true":"false" ));
 			fprintf( fp, "Shake = %i\n", proj->Timer_Shake);
-		}
+		//}
 	}
 
 	// Player hit
@@ -458,6 +458,7 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 
 		fprintf( fp, "\n[ProjectileTrail]\n" );
 		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->PrjTrl_Proj);
+		fprintf( fp, "UseProjVelocity = %s\n", ( proj->PrjTrl_UsePrjVelocity ? "true":"false" ));
 		fprintf( fp, "Delay = %f\n", proj->PrjTrl_Delay);
 		fprintf( fp, "Amount = %i\n", proj->PrjTrl_Amount);
 		fprintf( fp, "Speed = %i\n", proj->PrjTrl_Speed);

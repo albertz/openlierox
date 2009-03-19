@@ -194,7 +194,6 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		return;
 	}
 
-	/*
 	// If we're in a menu & a local game, don't do simulation
 	if (tLX->iGameType == GME_LOCAL)  {
 		if( bGameOver || bGameMenu || bViewportMgr ) {
@@ -209,7 +208,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
         return;
     if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
-    */
+    
 
     CWorm *w;
 	// Player simulation
@@ -413,7 +412,8 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
 	// Set it also for remote worms on pre-Beta9 server
 	if( getServerVersion() < OLXBetaVersion(9) || 
-		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) )
+		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
+		( this->getGameLobby()->features[FT_NewNetEngine] && NewNet::CanUpdateGameState() ) )
 	{
 		w->getDamageReport()[owner].damage += damage;
 		w->getDamageReport()[owner].lastTime = tLX->currentTime;
@@ -426,7 +426,8 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ) // We're hosting, calculate health for pre-Beta9 clients
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ||
+		this->getGameLobby()->features[FT_NewNetEngine] ) // We're hosting, calculate health for pre-Beta9 clients
 	{
 		if(w->Injure(damage)) {
 			// His dead Jim
@@ -441,13 +442,16 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 				w->Kill();
         	    w->clearInput();
 
-				// Let the server know that i am dead
-				cNetEngine->SendDeath(w->getID(), owner);
+				cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
+        	    
+        	    if( tLX->iGameType == GME_HOST && cServer && 
+        	    	this->getGameLobby()->features[FT_NewNetEngine] && NewNet::CanUpdateGameState() )
+        	    	cServer->killWorm(w->getID(), owner);
 			}
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
-	if(tLX->iGameType == GME_HOST && cServer) {
+	if(tLX->iGameType == GME_HOST && cServer && ! (bool)this->getGameLobby()->features[FT_NewNetEngine] ) {
 		CWorm *sw = cServer->getWorms() + w->getID();
 		sw->setHealth(w->getHealth());
 	}

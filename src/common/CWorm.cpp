@@ -405,7 +405,7 @@ void CWorm::Spawn(CVec position) {
 	}
 
 	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = 
-		(bool)cClient->getGameLobby()->features[FT_NewNetEngine] ? NewNet::GetCurTime() : tLX->currentTime;
+		cClient->getGameLobby()->features[FT_NewNetEngine] ? NewNet::GetCurTime() : tLX->currentTime;
 
 	if(bLocal) {
 		clearInput();
@@ -1060,7 +1060,7 @@ bool CWorm::Kill(void)
 //	notes << "our worm " << iID << " died" << endl;
 
 	bAlive = false;
-	fTimeofDeath = tLX->currentTime;
+	fTimeofDeath = cClient->getGameLobby()->features[FT_NewNetEngine] ? NewNet::GetCurTime() : tLX->currentTime;
 
 	// -2 means there is no lives starting value
 	if(iLives == WRM_UNLIM)

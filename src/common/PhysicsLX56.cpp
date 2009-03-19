@@ -740,7 +740,7 @@ public:
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound && ( ! (bool)cClient->getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(prj->GetOwner()) ) )
+				if(pi->Hit_UseSound && ( ! cClient->getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(prj->GetOwner()) ) )
 					PlaySoundSample(pi->smpSample);
 			break;
 
@@ -794,7 +794,7 @@ public:
 		if( result.withWorm && !explode) {
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
-			if( !preventSelfShooting )  {
+			if( !preventSelfShooting || cClient->getGameLobby()->features[FT_NewNetEngine] )  {
 				bool push_worm = true;
 
 				switch (pi->PlyHit_Type)  {

@@ -106,7 +106,7 @@ int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t k
 			// Respawn dead worms
 			// TODO: make this server-sided
 			if( !w->getAlive() && w->getLives() != WRM_OUT )
-				if( gameTime - w->getTimeofDeath() > 2.5f )
+				if( gameTime > w->getTimeofDeath() + 2.5f || gameTime.milliseconds() == TICK_TIME )
 				{
 					CVec spot = NewNet_FindSpot(w);
 					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
@@ -154,8 +154,8 @@ AbsTime ReCalculationTimeMs;
 // Constants
 TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
-TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
-TimeDiff ReCalculationMinimumTimeMs = TimeDiff(100);	// Re-calculate not faster than 10 times per second - eats CPU
+// TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
+TimeDiff ReCalculationMinimumTimeMs = TimeDiff(200);	// Re-calculate not faster than 5 times per second - eats CPU
 TimeDiff CalculateChecksumTime = TimeDiff(5000); // Calculate checksum once per 5 seconds - should be equal for all clients
 
 int NumPlayers = -1;
@@ -319,7 +319,7 @@ void ReCalculateSavedState()
 		{
 			Checksum = checksum;
 			ChecksumTime = CurrentTimeMs;
-			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum 0x" << std::hex << Checksum << endl;
+			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << (unsigned) Checksum << endl;
 		};
 	};
 

@@ -426,12 +426,14 @@ void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 
 ///////////////////
 // Parse a packet
-void CClientNetEngine::ParsePacket(CBytestream *bs)
+bool CClientNetEngine::ParsePacket(CBytestream *bs)
 {
 	uchar cmd;
 
-	while(!bs->isPosAtEnd()) {
-		cmd = bs->readInt(1);
+	if(bs->isPosAtEnd())
+		return false;
+
+	cmd = bs->readInt(1);
 
 		switch(cmd) {
 
@@ -440,7 +442,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_PREPAREGAME:
 				if(!ParsePrepareGame(bs)) {
 					// HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
-                    return;
+                    return false;
 				}
 				break;
 
@@ -588,7 +590,7 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
-				warnings << "cl: Unknown packet" << endl;
+				warnings << "cl: Unknown packet " << cmd << endl;
 #ifdef DEBUG
 				notes << "Bytestream dump:" << endl;
 				bs->Dump();
@@ -596,10 +598,11 @@ void CClientNetEngine::ParsePacket(CBytestream *bs)
 #endif //DEBUG
 
 #endif //FUZZY_ERROR_TESTING
-				return;
 
+				return false;
 		}
-	}
+
+	return true;
 }
 
 
