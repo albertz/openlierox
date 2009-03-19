@@ -264,8 +264,6 @@ def parseUserCommand(wormid,message):
 			if not params:
 				io.privateMsg(wormid, "You need to specify a team" )
 				raise Exception, "You need to specify a team"
-			if hnd.gameState == hnd.GAME_PLAYING:
-				io.privateMsg(wormid, "You cannot change team when playing" )
 			else:
 				if params[0].lower() == "blue" or params[0].lower() == "b":
 					io.setWormTeam(wormid, 0)
