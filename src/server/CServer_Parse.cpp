@@ -957,13 +957,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	// If we ignored this challenge verification, there could be double connections
 
 	// See if the challenge is valid
-	bool valid_challenge = false;
-	if(reconnectFrom) {
-		// ignore the challenge, the challenge was already verified earlier
-		valid_challenge = true;
-		clientVersion = reconnectFrom->getClientVersion();
-	}
-	else {
+	{
+		bool valid_challenge = false;
 		int i;
 		for (i = 0; i < MAX_CHALLENGES; i++) {
 			if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
@@ -980,15 +975,28 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 					// and therefore get the worm connected twice. To avoid it, we clear the challenge here
 					SetNetAddrValid(tChallenges[i].Address, false);
 					tChallenges[i].iNum = 0;
-					hints << "HINT: deleting a doubled challenge" << endl;
-
+					if(!reconnectFrom) {
+						hints << "HINT: deleting a doubled challenge" << endl;
+					}
+					
 					// There can be more challanges from one client, if this one doesn't match,
 					// perhaps some other does
 				}
 			}
 		}
 
-		if (!valid_challenge)  {
+		// Ran out of challenges
+		if (!reconnectFrom && i == MAX_CHALLENGES ) {
+			notes << "No connection verification for client found" << endl;
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
+			bytestr.Send(tSocket);
+			return;
+		}
+
+		if (!reconnectFrom && !valid_challenge)  {
 			notes << "Bad connection verification of client" << endl;
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
@@ -997,20 +1005,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.Send(tSocket);
 			return;
 		}
-		
-		// Ran out of challenges
-		if ( i == MAX_CHALLENGES ) {
-			printf("No connection verification for client found\n");
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
-			bytestr.Send(tSocket);
-			return;
-		}
-		
-		const std::string & clientVersionStr = tChallenges[i].sClientVersion;
-		clientVersion = clientVersionStr;
+				
+		if(reconnectFrom)
+			clientVersion = reconnectFrom->getClientVersion();
+		else
+			clientVersion = tChallenges[i].sClientVersion;
 	}
 
 
