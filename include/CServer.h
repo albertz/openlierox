@@ -34,6 +34,7 @@ class CServerConnection;
 class CMap;
 class Version;
 class CGameMode;
+struct WormJoinInfo;
 
 #define		MAX_CHALLENGES		1024
 
@@ -185,6 +186,7 @@ public:
 	void		CheckTimeouts(void);
 	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
+	CWorm*		AddWorm(const WormJoinInfo& wormInfo);
 	void		RemoveClient(CServerConnection *cl);
 	void		RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms);
 	void		RemoveAllClientWorms(CServerConnection* cl);

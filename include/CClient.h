@@ -553,9 +553,10 @@ public:
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
 
 	CShootList	*getShootList(void)			{ return &cShootList; }
-
     CBonus      *getBonusList(void)         { return cBonuses; }
-
+	CWpnRest*	getWeaponRestrictions()		{ return &cWeaponRestrictions; }
+	SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
+	
     void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
     AbsTime       getZombieTime(void)         { return fZombieTime; }
 

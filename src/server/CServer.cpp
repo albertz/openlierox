@@ -1506,6 +1506,83 @@ ScriptVar_t GameServer::isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset)
 }
 
 
+CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
+	CWorm* w = cWorms;
+	for (int j  = 0; j < MAX_WORMS; j++, w++) {
+		if (w->isUsed())
+			continue;
+		
+		w->Clear();
+		w->setUsed(true);
+		w->setID(j);
+		wormInfo.applyTo(w);
+		w->setupLobby();
+		w->setDamage(0);
+		if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
+			w->setTeam(0);
+		
+		
+		if(w->isPrepared()) {
+			warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! ";
+			if(!w->isUsed()) warnings << "AND it is even not used!";
+			warnings << endl;
+			w->Unprepare();
+		}
+		
+		// If the game has limited lives all new worms are spectators
+		if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
+			w->setLives(tLXOptions->tGameInfo.iLives);
+		else {
+			w->setLives(WRM_OUT);
+		}
+		w->setKills(0);
+		w->setGameScript(cGameScript.get());
+		w->setWpnRest(&cWeaponRestrictions);
+		w->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
+		w->setWeaponsReady(false);
+		
+		// initial server side weapon handling
+		if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+			if(cClient->getWorm(0)->getWeaponsReady()) {
+				w->CloneWeaponsFrom(cClient->getWorm(0));
+				w->setWeaponsReady(true);
+			}
+			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
+		}
+		// If new client is spectating skip weapon selection screen
+		// HINT: remove this if we'll get new clients joining and playing with limited lives games
+		else if(tLXOptions->tGameInfo.bForceRandomWeapons || 
+				( tLXOptions->tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
+			w->GetRandomWeapons();
+			w->setWeaponsReady(true);
+		}
+		
+		iNumPlayers++;
+		
+		if( DedicatedControl::Get() )
+			DedicatedControl::Get()->NewWorm_Signal(w);
+				
+		if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
+			w->setTeam(-1); // set it invalid to have correct firstEmpty
+			
+			int firstEmpty = getFirstEmptyTeam();
+			//notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
+			if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
+				w->setTeam(firstEmpty);
+			else {
+				int team = GetRandomInt(MIN(tLXOptions->iRandomTeamForNewWorm, getGameMode()->GameTeams() - 1));
+				//notes << "   randomteam=" << team << endl;
+				w->setTeam(team);
+			}
+			// we will send a WormLobbyUpdate later anyway
+		}
+		
+		return w;
+	}
+	
+	return NULL;
+}
+
 
 ///////////////////
 // Kick a worm out of the server

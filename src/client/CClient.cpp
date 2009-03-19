@@ -43,6 +43,8 @@
 #include "CWormHuman.h"
 #include "Debug.h"
 #include "ConversationLogger.h"
+#include "CServerConnection.h"
+#include "CServerNetEngine.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -1738,6 +1740,150 @@ static bool addWorm(CClient* cl, profile_t* p) {
 	return true;
 }
 
+static void updateAddedWorms(CClient* cl) {
+	if(tLX->iGameType == GME_JOIN) {
+		cl->Reconnect(); // we have to reconnect to inform the server about the new worm
+	} else {
+		// we can do it direct (similar to kickWorm)
+
+		CServerConnection* localClient = NULL;
+		for( int i=0; i<MAX_CLIENTS; i++ )
+			if(cServer->getClients()[i].isLocalClient()) {
+				localClient = &cServer->getClients()[i];
+				break;
+			}
+		if(localClient == NULL) {
+			errors << "updateAddedWorms: localClient not found" << endl;
+			return;
+		}
+		
+		for(int i = 0; i < cl->getNumWorms(); ++i) {
+			if(cl->getWorm(i) == NULL) { // this is a new worm
+				// first add the worm on the server
+				
+				WormJoinInfo info;
+				info.loadFromProfile(cl->getLocalWormProfiles()[i]);
+				CWorm* w = cServer->AddWorm(info);
+				if(w == NULL) {
+					warnings << "updateAddedWorms: cannot add worm " << info.sName << endl;
+					cl->setNumWorms(i);
+					break;
+				}
+				
+				w->setClient(localClient);
+				localClient->setNumWorms(i + 1);
+				localClient->setWorm(i, w);
+
+				// TODO: move that out here
+				// inform everybody about new worm
+				CBytestream bytestr;
+				bytestr.writeByte(S2C_WORMINFO);
+				bytestr.writeInt(w->getID(), 1);
+				w->writeInfo(&bytestr);				
+
+				notes << "Worm added: " << w->getName();
+				notes << " (id " << w->getID() << ")" << endl;
+				
+				for(int ii = 0; ii < MAX_CLIENTS; ii++)
+					if(!cServer->getClients()[ii].isLocalClient())
+						cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+
+				// handling for connect during game
+				if( cServer->getState() != SVS_LOBBY ) {
+					for(int ii = 0; ii < MAX_CLIENTS; ii++)
+						cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
+				}
+				
+				// now add the worm on the client
+				
+				// (code from CClientNetEngine::ParseConnected) 
+				cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
+				if(cl->getWorm(i)->isUsed()) {
+					warnings << "updateAddedWorms: local worm " << i << " was already used" << endl;
+				}
+				
+				cl->getWorm(i)->setUsed(true);
+				cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
+				cl->getWorm(i)->setName(w->getName());
+				cl->getWorm(i)->setID(w->getID());
+				cl->getWorm(i)->setGameScript(cl->getGameScript().get()); // TODO: why was this commented out?
+				//cl->getWorm(i)->setLoadingTime(cl->fLoadingTime);  // TODO: why is this commented out?
+				cl->getWorm(i)->setProfile(cl->getLocalWormProfiles()[i]);
+				if(cl->getLocalWormProfiles()[i]) {
+					cl->getWorm(i)->setTeam(cl->getLocalWormProfiles()[i]->iTeam);
+					cl->getWorm(i)->setType(WormType::fromInt(cl->getLocalWormProfiles()[i]->iType));
+				} else
+					warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
+				cl->getWorm(i)->setLocal(true);
+				cl->getWorm(i)->setClientVersion(cl->getClientVersion());
+				
+				if( cl->getStatus() == NET_PLAYING ) {
+					// (If this is a local game?), we need to reload the worm graphics
+					// We do this again because we've only just found out what type of game it is
+					// Team games require changing worm colours to match the team colour
+					// Inefficient, but i'm not going to redesign stuff for a simple gametype
+					cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType());
+					
+					// Also set some game details
+					cl->getWorm(i)->setLives(w->getLives());
+					cl->getWorm(i)->setKills(w->getKills());
+					cl->getWorm(i)->setDamage(w->getDamage());
+					cl->getWorm(i)->setHealth(w->getHealth());
+					cl->getWorm(i)->setGameScript(cl->getGameScript().get());
+					cl->getWorm(i)->setWpnRest(cl->getWeaponRestrictions());
+					cl->getWorm(i)->setLoadingTime(cl->getGameLobby()->iLoadingTime/100.0f);
+					cl->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
+					
+					// Prepare for battle!
+					cl->getWorm(i)->Prepare();
+					
+					if(!cl->getWorm(i)->getWeaponsReady())
+						cl->getWorm(i)->initWeaponSelection();
+					
+					if(!cl->getWorm(i)->getWeaponsReady()) {
+						cl->setGameReady(false); // we have to wait for the weapon selection of the new worm
+					}
+					else { // weapons are already ready
+						// copy weapons to server
+						CBytestream bs;
+						cl->getWorm(i)->writeWeapons(&bs);
+						w->readWeapons(&bs);
+
+						// send weapon list to other clients
+						for(int ii = 0; ii < MAX_CLIENTS; ii++)
+							if(!cServer->getClients()[ii].isLocalClient())
+								localClient->getNetEngine()->SendClientReady(&cServer->getClients()[ii]);
+						
+						// spawn worm
+						cServer->SpawnWorm( w );
+						if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+							cServer->SendEmptyWeaponsOnRespawn( w );						
+					}
+				}
+			}
+		}
+
+		// grabbed some code from GameServer::ParseConnect
+		
+		if( cServer->getState() == SVS_LOBBY )
+			cServer->UpdateGameLobby(); // tell everybody about game lobby details
+		
+		if (tLX->iGameType != GME_LOCAL) {
+			if( cServer->getState() == SVS_LOBBY )
+				cServer->SendWormLobbyUpdate(); // to everbody
+			else {
+				for( int i=0; i<MAX_CLIENTS; i++ )
+					cServer->SendWormLobbyUpdate( &cServer->getClients()[i], localClient); // send only data about our client
+			}
+		}
+		
+		DeprecatedGUI::bHost_Update = true;
+		
+		if( cServer->getState() != SVS_LOBBY )
+			cServer->SendWeapons(localClient);
+	}
+}
+
 void CClient::AddRandomBot(int amount) {
 	if(amount < 1 || amount > MAX_PLAYERS) {
 		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
@@ -1758,12 +1904,12 @@ void CClient::AddRandomBot(int amount) {
 	
 	for(int i = 0; i < amount; ++i)
 		if(!addWorm(this, randomChoiceFrom(bots))) break;
-	Reconnect();
+	updateAddedWorms(this);
 }
 
 void CClient::AddWorm(profile_t* p) {	
 	if(!addWorm(this, p)) return;
-	Reconnect(); // we have to reconnect to inform the server about the new worm	
+	updateAddedWorms(this);
 }
 
 

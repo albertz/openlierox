@@ -630,9 +630,10 @@ int traceWormLine(CVec target, CVec start, CVec* collision = NULL);
 
 struct WormJoinInfo {
 	WormJoinInfo() : iTeam(0), m_type(NULL) {}
-	void		readInfo(CBytestream *bs);
+	void loadFromProfile(profile_t* p);	
+	void readInfo(CBytestream *bs);
 	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
-	void applyTo(CWorm* worm);
+	void applyTo(CWorm* worm) const;
 	
 	std::string sName;
 	int iTeam;

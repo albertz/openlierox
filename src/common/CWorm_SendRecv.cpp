@@ -46,6 +46,19 @@ void CWorm::writeInfo(CBytestream *bs)
 }
 
 
+void WormJoinInfo::loadFromProfile(profile_t* p) {
+	sName = RemoveSpecialChars(p->sName);
+	m_type = WormType::fromInt(p->iType);
+	if(m_type == NULL) {
+		warnings << "WormJoinInfo::loadFromProfile: profile has invalid WormType " << p->iType << endl;
+		m_type = PRF_HUMAN; // fallback
+	}
+	iTeam = CLAMP(p->iTeam, 0, 3);
+	cSkin.Change(p->cSkin.getFileName());
+	cSkin.setDefaultColor(MakeColour(p->R, p->G, p->B));
+	cSkin.Colorize(cSkin.getDefaultColor());	
+}
+
 ///////////////////
 // Read info from a bytestream
 void WormJoinInfo::readInfo(CBytestream *bs)
@@ -65,7 +78,7 @@ void WormJoinInfo::readInfo(CBytestream *bs)
 }
 
 
-void WormJoinInfo::applyTo(CWorm* worm) {
+void WormJoinInfo::applyTo(CWorm* worm) const {
 	worm->sName = sName;
 	worm->m_type = m_type;
 	worm->iTeam = iTeam;
