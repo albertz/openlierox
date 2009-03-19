@@ -1147,52 +1147,59 @@ void GameServer::CheckWeaponSelectionTime()
 
 	// Issue some sort of warning to clients
 	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 5.2f &&
-		iWeaponSelectionTime_Warning < 4 )
+		iWeaponSelectionTime_Warning == 3 )
 	{
 		iWeaponSelectionTime_Warning = 4;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
 	}
 	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 10.2f &&
-		iWeaponSelectionTime_Warning < 3 )
+		iWeaponSelectionTime_Warning == 2 )
 	{
 		iWeaponSelectionTime_Warning = 3;
 		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
 	}
 	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 30.2f &&
-	   iWeaponSelectionTime_Warning < 2 )
+	   iWeaponSelectionTime_Warning == 1 )
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 30 seconds to select your weapons.", TXT_NOTICE);
 	}
 	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 60.2f &&
-	   iWeaponSelectionTime_Warning < 1 )
+	   iWeaponSelectionTime_Warning == 0 )
 	{
 		iWeaponSelectionTime_Warning = 1;
 		SendGlobalText("You have 60 seconds to select your weapons.", TXT_NOTICE);
 	}
 	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->currentTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
-	if( tLX->currentTime > fWeaponSelectionTime + TimeDiff(float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime)) )
+	
+	// Kick retards who still mess with their weapons, we'll start on next frame
+	CServerConnection *cl = cClients;
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 	{
-		// Kick retards who still mess with their weapons, we'll start on next frame
-		CServerConnection *cl = cClients;
-		for(int c = 0; c < MAX_CLIENTS; c++, cl++)
-		{
-			if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
-				continue;
-			if( cl->getGameReady() )
-				continue;
-			if( cl->isLocalClient() ) {
-				for(int i = 0; i < cl->getNumWorms(); i++) {
-					if(!cl->getWorm(i)->getWeaponsReady()) {
-						warnings << "WARNING: own worm " << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
-						cl->getWorm(i)->GetRandomWeapons();
-						cl->getWorm(i)->setWeaponsReady(true);
-					}
-				}
-				continue;
+		if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
+			continue;
+		if( cl->getGameReady() )
+			continue;
+
+		AbsTime weapTime = MAX(fWeaponSelectionTime, cl->getConnectTime());
+		if( tLX->currentTime < weapTime + TimeDiff(float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime)) )
+			continue;
+		
+		if( cl->isLocalClient() ) {
+			if(cl->getNumWorms() == 0) {
+				warnings << "CheckWeaponSelectionTime: local client is not ready but doesn't have any worms" << endl;
 			}
-			DropClient( cl, CLL_KICK, "selected weapons too long" );
+			for(int i = 0; i < cl->getNumWorms(); i++) {
+				if(!cl->getWorm(i)->getWeaponsReady()) {
+					warnings << "CheckWeaponSelectionTime: own worm " <<  cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
+					cl->getWorm(i)->GetRandomWeapons();
+					cl->getWorm(i)->setWeaponsReady(true);
+				}
+			}
+			cl->getNetEngine()->SendClientReady(NULL);
+			continue;
 		}
+		DropClient( cl, CLL_KICK, "selected weapons too long" );
 	}
 }
 

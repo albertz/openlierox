@@ -54,8 +54,10 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	// Assume reliable
 	CServerConnection *cl = cClients;
 
-	for(int c = 0; c < MAX_CLIENTS; c++, cl++)
-		cl->getNetEngine()->SendPacket(bs);
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+		if(cl->getNetEngine())
+			cl->getNetEngine()->SendPacket(bs);
+	}
 }
 
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {

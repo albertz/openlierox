@@ -198,12 +198,21 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 	// Read the worms weapons
 	int num = bs->readByte();
 	for (i = 0; i < num; i++) {
+		if(bs->isPosAtEnd()) {
+			warnings << "ParseImReady: packaged screwed" << endl;
+			break;
+		}
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
 			if(!server->cWorms[id].isUsed()) {
 				warnings << "ParseImReady: got unused worm-ID!" << endl;
 				CWorm::skipWeapons(bs);
 				continue;
+			}
+			if(!cl->OwnsWorm(id)) {
+				warnings << "ParseImReady: " << cl->debugName() << " wants to update the weapons of worm " << id << endl;
+				CWorm::skipWeapons(bs);
+				continue;				
 			}
 			server->cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++) {
@@ -1334,60 +1343,46 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 		
 	// remove bots if not wanted anymore
-	bool sendOutGoodConnection = true;
-	if(!reconnectFrom || !reconnectFrom->isLocalClient()) {
-		int wormCount = cClient->getNumWorms();
-		CheckForFillWithBots();
-		if(wormCount != cClient->getNumWorms() && newcl->isLocalClient()) {
-			// We are reconnecting the local client and we have a different numworms
-			// on the client already, so if we would send a goodconnection now
-			// with the outdated (and wrong amount of) worm-ids, we would
-			// not parse the goodconnection package correct (because of different numworms).
-			sendOutGoodConnection = false;
-			notes << "Server: local client has already changed its worms amount, we are waiting for reconnect" << endl;
-		}
-	}
+	CheckForFillWithBots();
 	
-	if(sendOutGoodConnection) {
-		// Let em know they connected good
+	// Let em know they connected good
+	bytestr.Clear();
+	bytestr.writeInt(-1, 4);
+	bytestr.writeString("lx::goodconnection");
+
+	// Tell the client the id's of the worms
+	for (int i = 0;i < newcl->getNumWorms(); i++)
+		bytestr.writeInt(newcl->getWorm(i)->getID(), 1);
+
+	bytestr.Send(tSocket);
+
+	// Let them know our version
+	bytestr.Clear();
+	bytestr.writeInt(-1, 4);
+	// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
+	// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
+	bytestr.writeString("lx::openbeta3");
+	// sadly we have to send this for Beta4
+	// we are sending the version string already in the challenge
+	bytestr.writeInt(-1, 4);
+	bytestr.writeString("lx::version");
+	bytestr.writeString(GetFullGameName());
+	bytestr.Send(tSocket);
+
+	//if (tLXOptions->tGameInfo.bAllowMouseAiming)
+	{
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::goodconnection");
-
-		// Tell the client the id's of the worms
-		for (int i = 0;i < numworms; i++)
-			bytestr.writeInt(ids[i], 1);
-
+		bytestr.writeString("lx:mouseAllowed");
 		bytestr.Send(tSocket);
+	}
 
-		// Let them know our version
+	if (tLXOptions->tGameInfo.bAllowStrafing)
+	{
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
-		// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
-		bytestr.writeString("lx::openbeta3");
-		// sadly we have to send this for Beta4
-		// we are sending the version string already in the challenge
-		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::version");
-		bytestr.writeString(GetFullGameName());
+		bytestr.writeString("lx:strafingAllowed");
 		bytestr.Send(tSocket);
-
-		//if (tLXOptions->tGameInfo.bAllowMouseAiming)
-		{
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx:mouseAllowed");
-			bytestr.Send(tSocket);
-		}
-
-		if (tLXOptions->tGameInfo.bAllowStrafing)
-		{
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx:strafingAllowed");
-			bytestr.Send(tSocket);
-		}
 	}
 	
 	NotifyUserOnEvent(); // new player connected; if user is away, notify him

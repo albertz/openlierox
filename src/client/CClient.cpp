@@ -1817,7 +1817,9 @@ static void updateAddedWorms(CClient* cl) {
 				cl->getWorm(i)->setLocal(true);
 				cl->getWorm(i)->setClientVersion(cl->getClientVersion());
 				
-				if( cl->getStatus() == NET_PLAYING ) {
+				// gameready means that we had a preparegame package
+				// status==NET_PLAYING means that we are already playing
+				if( cl->getGameReady() ) {
 					// (If this is a local game?), we need to reload the worm graphics
 					// We do this again because we've only just found out what type of game it is
 					// Team games require changing worm colours to match the team colour
@@ -1841,7 +1843,8 @@ static void updateAddedWorms(CClient* cl) {
 						cl->getWorm(i)->initWeaponSelection();
 					
 					if(!cl->getWorm(i)->getWeaponsReady()) {
-						cl->setGameReady(false); // we have to wait for the weapon selection of the new worm
+						cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
+						// we will recheck that in clients frame
 					}
 					else { // weapons are already ready
 						// copy weapons to server
@@ -1849,15 +1852,19 @@ static void updateAddedWorms(CClient* cl) {
 						cl->getWorm(i)->writeWeapons(&bs);
 						w->readWeapons(&bs);
 
-						// send weapon list to other clients
-						for(int ii = 0; ii < MAX_CLIENTS; ii++)
-							if(!cServer->getClients()[ii].isLocalClient())
-								localClient->getNetEngine()->SendClientReady(&cServer->getClients()[ii]);
-						
-						// spawn worm
-						cServer->SpawnWorm( w );
-						if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-							cServer->SendEmptyWeaponsOnRespawn( w );						
+						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
+							// send weapon list to other clients
+							for(int ii = 0; ii < MAX_CLIENTS; ii++)
+								if(!cServer->getClients()[ii].isLocalClient())
+									localClient->getNetEngine()->SendClientReady(&cServer->getClients()[ii]);
+						}						
+
+						if(cServer->getState() == SVS_PLAYING) {
+							// spawn worm
+							cServer->SpawnWorm( w );
+							if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+								cServer->SendEmptyWeaponsOnRespawn( w );							
+						}
 					}
 				}
 			}
