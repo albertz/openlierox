@@ -770,8 +770,9 @@ void GameServer::Frame(void)
 
 ///////////////////
 // Read packets
-void GameServer::ReadPackets(void)
+bool GameServer::ReadPackets(void)
 {
+	bool anythingNew = false;
 	CBytestream bs;
 	NetworkAddr adrFrom;
 	int c;
@@ -789,6 +790,8 @@ void GameServer::ReadPackets(void)
 			continue;
 		
 		while(bs.Read(pSock)) {
+			anythingNew = true;
+			
 			// Set out address to addr from where last packet was sent, used for NAT traverse
 			GetRemoteNetAddr(pSock, adrFrom);
 			SetRemoteNetAddr(pSock, adrFrom);
@@ -840,6 +843,8 @@ void GameServer::ReadPackets(void)
 			}
 		}
 	}
+	
+	return anythingNew;
 }
 
 
@@ -1340,7 +1345,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		
 		cl->RemoveWorm((*w)->getID());
 		
-		notes << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
+		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
 		
 		// Notify the game mode that the worm has been dropped
 		getGameMode()->Drop((*w));
@@ -1644,6 +1649,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			 * This has other drawbacks though. 
 			 */
 			
+			// to avoid a broken stream
+			SyncServerAndClient();
+			
 			// Delete the worm from client/server
 			cClient->RemoveWorm(wormID);			
 			std::set<CWorm*> wormList; wormList.insert(w);
@@ -1740,6 +1748,9 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 			notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
 						
 			// TODO: share the same code with kickWorm here
+
+			// to avoid a broken stream
+			SyncServerAndClient();
 			
 			// Delete the worm from client/server
 			cClient->RemoveWorm(wormID);			
@@ -2136,5 +2147,31 @@ float GameServer::getMaxUploadBandwidth() {
 	}
 	
 	return fMaxRate;
+}
+
+void SyncServerAndClient() {
+	if(tLX->iGameType == GME_JOIN) {
+		warnings << "SyncServerAndClient: cannot sync in join-mode" << endl;
+		return;
+	}
+	
+	notes << "Syncing server and client ..." << endl;
+	cClient->SendPackets();
+	cServer->SendPackets();
+	
+	bool needUpdate = true;
+	while(needUpdate) {
+		needUpdate = false;
+		if(cClient->ReadPackets()) {
+			needUpdate = true;
+			cClient->SendPackets();
+		}
+		if(cServer->ReadPackets()) {
+			needUpdate = true;
+			cServer->SendPackets();				
+		}
+	}
+	
+	notes << "Syncing done" << endl; 
 }
 

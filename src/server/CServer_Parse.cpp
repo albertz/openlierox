@@ -76,6 +76,13 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 	if (bs->isPosAtEnd())
 		return;
 
+#ifdef DEBUG	
+	// create a copy (just for better debug output)
+	CBytestream bsCopy = *bs;
+	bsCopy.flushOld();
+	bs = &bsCopy;
+#endif
+	
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
@@ -174,8 +181,18 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 				bs->readByte(); // skip the bad cmd-byte
 			}
 #endif
+			
+			// The stream is screwed up and we should ignore the rest.
+			// In most cases, we would get further bad command errors but
+			// sometimes we would parse wrongly some invalid stuff.
+			bs->SkipAll();
 		}
 	}
+
+#ifdef DEBUG
+	// we only read the bs copy, now also put the original bs to end
+	bs->SkipAll();
+#endif
 }
 
 
@@ -1323,9 +1340,9 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		ids[i] = w->getID();
 		newJoinedWorms.insert(w);
 
-		notes << "Worm joined: " << w->getName();
-		notes << " (id " << w->getID() << ",";
-		notes << " from " << newcl->debugName(false) << ")" << endl;
+		hints << "Worm joined: " << w->getName();
+		hints << " (id " << w->getID() << ",";
+		hints << " from " << newcl->debugName(false) << ")" << endl;
 		
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>" && networkTexts->sHasConnected != "")  {

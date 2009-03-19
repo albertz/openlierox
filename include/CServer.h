@@ -169,7 +169,7 @@ public:
 
 
 	// Network
-	void		ReadPackets(void);
+	bool		ReadPackets(void);
 	void		SendPackets(void);
 
 	int			getPort() { return nPort; }
@@ -275,6 +275,6 @@ public:
 
 extern	GameServer		*cServer;
 
-
+void SyncServerAndClient();
 
 #endif  //  __CSERVER_H__

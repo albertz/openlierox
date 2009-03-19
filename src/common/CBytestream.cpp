@@ -251,7 +251,7 @@ void CBytestream::Append(CBytestream *bs) {
 ///////////////////
 // Dump the data out
 void CBytestream::Dump() {
-	HexDump(GetConstIterator(Data), printOnLogger<notes>);
+	HexDump(GetConstIterator(Data), printOnLogger<notes>, pos);
 	notes.flush();
 }
 

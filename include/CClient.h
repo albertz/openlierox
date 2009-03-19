@@ -492,7 +492,7 @@ public:
 	void		ConnectingBehindNAT();
 	void		Disconnect();
 
-	void		ReadPackets(void);
+	bool		ReadPackets(void);
 	void		SendPackets(void);
 
 	void		InitializeDownloads();

@@ -163,7 +163,7 @@ bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct 
 }
 
 
-Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t count) {
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t mark, size_t count) {
 	std::string tmpLeft;
 	std::string tmpRight;
 	unsigned int tmpChars = 0;
@@ -174,7 +174,7 @@ Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, 
 		unsigned char ch = start->get();
 		
 		tmpLeft += FixedWidthStr_LeftFill(hex(ch), 2, '0');
-		tmpLeft += " ";
+		tmpLeft += (c == mark) ? "]" : (c + 1 == mark) ? "[" : " ";
 		if(ch >= 32 && ch <= 126)
 			tmpRight += ch;
 		else
@@ -192,6 +192,7 @@ Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, 
 		}
 		
 		start->next();
+		c++;
 	}
 	
 	tmpLeft += std::string((charsInLine - tmpChars) * 3, ' ');

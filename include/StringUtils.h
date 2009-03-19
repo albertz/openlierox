@@ -166,7 +166,7 @@ inline void NullOut(const std::string&) {}
 bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct printOutFct, bool firstLineWithPrefix = true);
 
 
-Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t count = (size_t)-1);
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t mark = (size_t)-1, size_t count = (size_t)-1);
 
 
 

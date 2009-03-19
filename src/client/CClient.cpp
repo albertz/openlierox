@@ -1106,11 +1106,14 @@ void CClient::NewNet_Frame()
 
 ///////////////////
 // Read the packets
-void CClient::ReadPackets(void)
+bool CClient::ReadPackets(void)
 {	
 	CBytestream		bs;
-
+	bool anythingNew = false;
+	
 	while(bs.Read(tSocket)) {
+		anythingNew = true;
+		
 		// each bs.Read reads the next UDP packet and resets the bs
 		// UDP is packet-based that means, we will only get single packages, no stream
 
@@ -1158,6 +1161,8 @@ void CClient::ReadPackets(void)
 
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
+	
+	return anythingNew;
 }
 
 
@@ -1320,6 +1325,9 @@ void CClient::Connect(const std::string& address)
 }
 
 void CClient::Reconnect() {
+	(tLX->iGameType == GME_JOIN ? notes : warnings)
+		<< "Reconnecting local client" << endl;
+	
 	// HINT: Don't disconnect because we don't want to lose the connection
 	// and we also want to keep the client struct on the server.
 
@@ -1774,9 +1782,9 @@ static void updateAddedWorms(CClient* cl) {
 				localClient->setNumWorms(i + 1);
 				localClient->setWorm(i, w);
 
-				notes << "Worm added: " << w->getName();
-				notes << " (id " << w->getID() << ")" << endl;				
-
+				hints << "Worm added: " << w->getName();
+				hints << " (id " << w->getID() << ")" << endl;
+				
 				{
 					// TODO: move that out here
 					// inform everybody else about new worm
@@ -1808,11 +1816,11 @@ static void updateAddedWorms(CClient* cl) {
 				cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
 				cl->getWorm(i)->setName(w->getName());
 				cl->getWorm(i)->setID(w->getID());
+				cl->getWorm(i)->setTeam(w->getTeam());
 				cl->getWorm(i)->setGameScript(cl->getGameScript().get()); // TODO: why was this commented out?
 				//cl->getWorm(i)->setLoadingTime(cl->fLoadingTime);  // TODO: why is this commented out?
 				cl->getWorm(i)->setProfile(cl->getLocalWormProfiles()[i]);
 				if(cl->getLocalWormProfiles()[i]) {
-					cl->getWorm(i)->setTeam(cl->getLocalWormProfiles()[i]->iTeam);
 					cl->getWorm(i)->setType(WormType::fromInt(cl->getLocalWormProfiles()[i]->iType));
 				} else
 					warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
@@ -1900,6 +1908,16 @@ static void updateAddedWorms(CClient* cl) {
 	}
 }
 
+static void prepareWormAdd() {
+	if(tLX->iGameType != GME_JOIN) {
+		// We are changing the amounts of worms, thus we have to sync the network now.
+		// This is needed because the network protocol depends on the amount of worms
+		// and we cannot parse old packets in the network stream correct anymore.
+		
+		SyncServerAndClient();
+	}
+}
+
 void CClient::AddRandomBot(int amount) {
 	if(amount < 1 || amount > MAX_PLAYERS) {
 		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
@@ -1918,12 +1936,14 @@ void CClient::AddRandomBot(int amount) {
 		return;
 	}
 	
+	prepareWormAdd();
 	for(int i = 0; i < amount; ++i)
 		if(!addWorm(this, randomChoiceFrom(bots))) break;
 	updateAddedWorms(this);
 }
 
-void CClient::AddWorm(profile_t* p) {	
+void CClient::AddWorm(profile_t* p) {
+	prepareWormAdd();
 	if(!addWorm(this, p)) return;
 	updateAddedWorms(this);
 }

@@ -63,6 +63,7 @@ public:
 	size_t		GetRestLen() const 	{ return isPosAtEnd() ? 0 : (Data.size() - pos); }
 	bool		isPosAtEnd() const { return GetPos() >= GetLength(); }
 	void		revertByte()		{ assert(pos > 0); pos--; }
+	void		flushOld()			{ Data.erase(0, pos); pos = 0; }
 	
 	void		Clear();
 	void		Append(CBytestream *bs);

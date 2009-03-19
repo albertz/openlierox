@@ -153,9 +153,9 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	client->iChallenge = bs->readInt(4);
 	if( ! bs->isPosAtEnd() ) {
 		client->setServerVersion( bs->readString(128) );
-		notes << "CClient: connected to " << client->getServerVersion().asString() << " server" << endl;
+		notes << "CClient: got challenge response from " << client->getServerVersion().asString() << " server" << endl;
 	} else
-		notes << "CClient: connected to old (<= OLX beta3) server" << endl;
+		notes << "CClient: got challenge response from old (<= OLX beta3) server" << endl;
 
 	// TODO: move this out here
 	// Tell the server we are connecting, and give the server our details
@@ -209,19 +209,24 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	NetworkAddr addr;
 
 	if(!isReconnect) {
-		// If already connected, ignore this
-		if (client->iNetStatus == NET_CONNECTED)  {
-			notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
-		}
-		else
-		if(client->iNetStatus == NET_PLAYING) {
-			if( tLX->iGameType == GME_JOIN ) {
+		if(tLX->iGameType == GME_JOIN) {
+			// If already connected, ignore this
+			if (client->iNetStatus == NET_CONNECTED)  {
+				notes << "CClientNetEngine::ParseConnected: already connected but server received our connect-package twice and we could have other worm-ids" << endl;
+			}
+			else if(client->iNetStatus == NET_PLAYING) {
 				warnings << "CClientNetEngine::ParseConnected: currently playing; ";
 				warnings << "it's too risky to proceed a reconnection, so we ignore this" << endl;
 				return;
 			}
-			
-			notes << "CClientNetEngine::ParseConnected: currently playing but we will parse it anyway" << endl;
+		}
+		else { // hosting and no official reconnect
+			if (client->iNetStatus != NET_CONNECTING)  {
+				warnings << "ParseConnected: local client is not supposed to reconnect right now";
+				warnings << " (state: " << NetStateString(client->iNetStatus) << ")" << endl;
+				bs->Dump();
+				return;
+			}
 		}
 	} else
 		notes << "ParseConnected: reconnected" << endl;
