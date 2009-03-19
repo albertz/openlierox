@@ -1906,8 +1906,7 @@ bool CWormBotInputHandler::AI_Shoot()
     tLX->debug_float = d;
     int wpn = AI_GetBestWeapon(iAiGameType, d, bDirect, fDist);
     if(wpn < 0) {
-        //strcpy(tLX->debug_string, "No good weapon");
-        notes << "bot: I could not find any useable weapon" << endl;
+        //notes << "bot: I could not find any useable weapon" << endl;
         return false;
     }
 
@@ -2412,7 +2411,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // AND if there is no rock/dirt nearby
     if(fDistance > 190 && m_worm->iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
         if (!AI_CheckFreeCells(5)) {
-			notes << "bot: we should not shoot because of the hints everywhere" << endl;
+			//notes << "bot: we should not shoot because of the hints everywhere" << endl;
 			return -1;
         }
 
