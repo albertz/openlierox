@@ -780,6 +780,7 @@ bool GameServer::ReadPackets(void)
 	NetworkSocket pSock = tSocket;
 	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++ )
 	{
+		// TODO: i don't understand this check. please comment
 		if(sockNum != -1 )
 			break;
 
@@ -813,12 +814,12 @@ bool GameServer::ReadPackets(void)
 			}
 			bs.ResetPosToBegin();
 
+			// Reset the suicide packet count
+			iSuicidesInPacket = 0;
+
 			// Read packets
 			CServerConnection *cl = cClients;
 			for(c=0;c<MAX_CLIENTS;c++,cl++) {
-
-				// Reset the suicide packet count
-				iSuicidesInPacket = 0;
 
 				// Player not connected
 				if(cl->getStatus() == NET_DISCONNECTED)
@@ -2156,22 +2157,54 @@ void SyncServerAndClient() {
 	}
 	
 	notes << "Syncing server and client ..." << endl;
+
+	{
+		// Read packets
+		CServerConnection *cl = cServer->getClients();
+		for(int c=0;c<MAX_CLIENTS;c++,cl++) {
+						
+			// Player not connected
+			if(cl->getStatus() == NET_DISCONNECTED)
+				continue;
+			
+			if(!cl->isLocalClient())
+				continue;
+
+			// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
+			CBytestream bs;
+			while( cl->getChannel()->Process(&bs) )
+			{
+				// Only process the actual packet for playing clients
+				if( cl->getStatus() != NET_ZOMBIE )
+					cl->getNetEngine()->ParsePacket(&bs);
+				bs.Clear();
+			}
+		}		
+	}
+	
 	cClient->SendPackets();
 	cServer->SendPackets();
 	
+	//SDL_Delay(200);
+	cClient->ReadPackets();
+	cServer->ReadPackets();
+	
+	/*
 	bool needUpdate = true;
 	while(needUpdate) {
 		needUpdate = false;
+		SDL_Delay(200);
 		if(cClient->ReadPackets()) {
 			needUpdate = true;
 			cClient->SendPackets();
 		}
+		SDL_Delay(200);
 		if(cServer->ReadPackets()) {
 			needUpdate = true;
-			cServer->SendPackets();				
+			cServer->SendPackets();
 		}
 	}
-	
+	*/
 	notes << "Syncing done" << endl; 
 }
 

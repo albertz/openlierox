@@ -1143,7 +1143,7 @@ bool CClient::ReadPackets(void)
 		// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
 		while( cNetChan->Process(&bs) )
 		{
-			while( cNetEngine->ParsePacket(&bs) ) { } ;
+			while( cNetEngine->ParsePacket(&bs) ) { }
 			bs.Clear();
 		}
 	}

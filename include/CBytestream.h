@@ -30,7 +30,8 @@ struct ScriptVar_t;
 class CBytestream {
 public:
 	CBytestream() : pos(0), bitPos(0), Data("") {}
-
+	CBytestream(const std::string& rawData) : pos(0), bitPos(0), Data(rawData) {}
+	
 	CBytestream(const CBytestream& bs) {
 		operator=(bs);
 	}
@@ -64,6 +65,7 @@ public:
 	bool		isPosAtEnd() const { return GetPos() >= GetLength(); }
 	void		revertByte()		{ assert(pos > 0); pos--; }
 	void		flushOld()			{ Data.erase(0, pos); pos = 0; }
+	std::string	getRawData(size_t start, size_t end) { assert(start <= end); return Data.substr(start, end - start + 1); } 
 	
 	void		Clear();
 	void		Append(CBytestream *bs);
@@ -81,7 +83,7 @@ public:
 	bool		write2Int12(short x, short y);
 	bool		write2Int4(short x, short y);
 	bool		writeBit(bool bit);
-	bool		writeData(const std::string& value);	// Do not append '\0' at the end
+	bool		writeData(const std::string& value);	// Do not append '\0' at the end, writes just the raw data
 	bool		writeVar(const ScriptVar_t& var);
 	
 	// Reads

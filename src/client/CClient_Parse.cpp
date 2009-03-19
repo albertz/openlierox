@@ -223,7 +223,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		else { // hosting and no official reconnect
 			if (client->iNetStatus != NET_CONNECTING)  {
 				warnings << "ParseConnected: local client is not supposed to reconnect right now";
-				warnings << " (state: " << NetStateString(client->iNetStatus) << ")" << endl;
+				warnings << " (state: " << NetStateString((ClientNetState)client->iNetStatus) << ")" << endl;
 				bs->Dump();
 				return;
 			}

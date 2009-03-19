@@ -77,15 +77,14 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 		return;
 
 #ifdef DEBUG	
-	// create a copy (just for better debug output)
-	CBytestream bsCopy = *bs;
-	bsCopy.flushOld();
-	bs = &bsCopy;
+	typedef std::list<CBytestream> BSList;
+	BSList bss;
 #endif
 	
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
+		size_t startPos = bs->GetPos();
 		cmd = bs->readInt(1);
 
 		switch (cmd) {
@@ -175,8 +174,13 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 #if !defined(FUZZY_ERROR_TESTING_C2S)
 			warnings << "sv: Bad command in packet (" << itoa(cmd) << ") from " << cl->debugName() << endl;
 			if(cl->isLocalClient()) {
-				notes << "Bad package from local client, dumping bytestream:" << endl;
-				bs->revertByte(); // to have the cmd-byte also in
+				notes << "Bad package from local client" << endl;
+				for(BSList::iterator i = bss.begin(); i != bss.end(); ++i) {
+					notes << "already parsed packet:" << endl;
+					i->Dump();
+				}
+				notes << "full bytestream:" << endl;
+				bs->revertByte(); // to have the cmd-byte the marked byte in the dump 
 				bs->Dump();
 				bs->readByte(); // skip the bad cmd-byte
 			}
@@ -187,12 +191,12 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			// sometimes we would parse wrongly some invalid stuff.
 			bs->SkipAll();
 		}
-	}
-
+		
 #ifdef DEBUG
-	// we only read the bs copy, now also put the original bs to end
-	bs->SkipAll();
+		if(!bs->isPosAtEnd())
+			bss.push_back( CBytestream( bs->getRawData(startPos, bs->GetPos()) ) );
 #endif
+	}
 }
 
 
@@ -1366,9 +1370,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		}
 		newcl->setWorm(i, &cWorms[ids[i]]);
 	}
-		
+	
 	// remove bots if not wanted anymore
 	CheckForFillWithBots();
+	numworms = newcl->getNumWorms();
+	SetRemoteNetAddr(tSocket, adrFrom); // it could have been changed
 	
 	// Let em know they connected good
 	bytestr.Clear();
