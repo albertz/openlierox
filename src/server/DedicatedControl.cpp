@@ -662,6 +662,12 @@ struct DedIntern {
 		cClient->AddRandomBot();
 	}
 
+	void Cmd_KickBot(DedInterface* caller, const std::string& params) {
+		std::string reason = params;
+		if(reason == "") reason = "Dedicated command";
+		cServer->kickWorm(cServer->getLastBot(), reason);
+	}
+	
 	void Cmd_KillBots(DedInterface* caller, const std::string & params) {
 		for( int f=0; f<cClient->getNumWorms(); f++ )
 			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
@@ -1123,6 +1129,8 @@ struct DedIntern {
 
 		else if(cmd == "addbot")
 			Cmd_AddBot(command.sender, params);
+		else if(cmd == "kickbot")
+			Cmd_KickBot(command.sender, params);
 		else if(cmd == "killbots")
 			Cmd_KillBots(command.sender, params);
 
