@@ -1218,7 +1218,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(msg));
 			bytestr.Send(tSocket);
-			return; // client is not compatible, so it was dropped out already
+			newcl->setStatus(NET_DISCONNECTED);
+			return;
 		}
 	}
 	
