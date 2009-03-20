@@ -50,6 +50,7 @@ public:
 	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "") { return; };
 	virtual void		SendReportDamage(bool flush = false) { return; };
 	virtual void		QueueReportDamage(int victim, int damage, int offender) { return; };
+	virtual void		SendNewNetChecksum() { return; };
 #ifdef FUZZY_ERROR_TESTING
 	void				SendRandomPacket();
 #endif
@@ -157,6 +158,7 @@ public:
 	virtual void SendReportDamage(bool flush = false) { return; };
 	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
 	virtual void SendDeath(int victim, int killer) { return; };
+	virtual void SendNewNetChecksum();
 	// TODO: add virtual worm stat update function with warning that server sends us wrong info
 
 };

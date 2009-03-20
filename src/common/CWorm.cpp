@@ -407,7 +407,8 @@ void CWorm::Spawn(CVec position) {
 	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = NewNet::GetCurTime();
 
 	if(bLocal) {
-		clearInput();
+		if( !NewNet::Active() )
+			clearInput();
 		if(!m_inputHandler) {
 			warnings << "CWorm::Spawn for local worm: input handler not set" << endl;
 		}

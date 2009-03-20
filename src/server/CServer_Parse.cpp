@@ -144,6 +144,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			ParseNewNetKeys(bs);
 			break;
 
+		case C2S_NEWNET_CHECKSUM:
+			ParseNewNetChecksum(bs);
+			break;
+
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
@@ -788,6 +792,28 @@ void CServerNetEngineBeta9::ParseNewNetKeys(CBytestream *bs)
 			server->cClients[i].getNetEngine()->SendPacket(&send);
 		}
 }
+
+void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
+{
+	unsigned checksum = bs->readInt(4);
+	AbsTime checkTime(bs->readInt(4));
+	AbsTime myTime;
+	unsigned myChecksum = NewNet::GetChecksum(&myTime);
+	if( myTime != checkTime )
+	{
+		warnings << "CServerNetEngineBeta9::ParseNewNetChecksum(): received time " << checkTime.milliseconds() <<
+					" our time " << myTime.milliseconds() << endl;
+		return;
+	}
+	if( myChecksum != checksum )
+	{
+		std::string wormName = "unknown";
+		if( cl->getNumWorms() > 0 )
+			wormName = cl->getWorm(0)->getName();
+		server->DropClient(cl, CLL_KICK, "Network state was de-synced in new net engine!");
+		server->SendGlobalText( "Network state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
+	}
+};
 
 /*
 ===========================

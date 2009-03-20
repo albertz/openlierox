@@ -81,6 +81,8 @@ class NetSyncedRandom
 	void seed( unsigned s = getSeed() ){ ___Random_Seed__(s, state); };
 	static unsigned getSeed();
 	
+	unsigned getChecksum() const { return state.z1 + state.z2 + state.z3 + state.z4; };
+	
 	private:
 	__taus113_state_t state;
 };
@@ -114,6 +116,8 @@ TimeDiff EmptyPacketTime();
 
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
 unsigned GetChecksum( AbsTime * time = NULL );
+
+bool ChecksumRecalculated();
 
 // Returns current simulation time in milliseconds inside new net engine, or tLX->currentTime if new net engine not active
 AbsTime GetCurTime();

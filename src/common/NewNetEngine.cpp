@@ -95,9 +95,9 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 // Keys is the state of keys for given player.
 // If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
 
-int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
+unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
-	int checksum = 0;
+	unsigned checksum = 0;
 	for( int i = 0; i < MAX_WORMS; i++ )
 	{
 		CWorm * w = & cClient->getRemoteWorms()[i];
@@ -119,10 +119,12 @@ int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t k
 				
 			if( calculateChecksum )
 				checksum += ( w->getID() % 4 + 1 ) * 
-					( (int)w->getPos().x + (int)w->getPos().y * 0x100 +
-						(int)w->getVelocity()->x * 0x10000 + (int)w->getVelocity()->x * 0x1000000 );
+					( (int)w->getPos().x + (int)w->getPos().y * 0x100 +	w->NewNet_random.getChecksum() );
 		}
 	}
+
+	cClient->NewNet_Simulation();
+
 	if( calculateChecksum )
 	{
 		for( int i=0; i<100; i++ ) // First 100 projectiles are enough to tell if we synced or not I think
@@ -135,8 +137,6 @@ int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t k
 			}
 		}
 	}
-
-	cClient->NewNet_Simulation();
 	return checksum;
 };
 
@@ -167,7 +167,7 @@ TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 p
 // TODO: calculate DrawDelayMs from other client pings
 // TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
 TimeDiff ReCalculationMinimumTimeMs = TimeDiff(200);	// Re-calculate not faster than 5 times per second - eats CPU
-TimeDiff CalculateChecksumTime = TimeDiff(5000); // Calculate checksum once per 5 seconds - should be equal for all clients
+TimeDiff CalculateChecksumTime = TimeDiff(10000); // Calculate checksum once per 10 seconds - should be equal for all clients
 
 int NumPlayers = -1;
 int LocalPlayer = -1;
@@ -190,8 +190,9 @@ EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
 AbsTime LastPacketTime[MAX_WORMS];
 AbsTime LastSoundPlayedTime[MAX_WORMS];
-int Checksum;
-AbsTime ChecksumTime; // AbsTime in ms
+unsigned Checksum;
+AbsTime ChecksumTime; 
+AbsTime OldChecksumTime;
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
 
 void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
@@ -218,6 +219,7 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 
 void StartRound( unsigned randomSeed )
 {
+			hints << "NewNet::StartRound() random " << randomSeed << endl;
 			OlxTimeDiffMs = tLX->currentTime;
 			NumPlayers = 0;
 			netRandom.seed(randomSeed);
@@ -246,6 +248,7 @@ void StartRound( unsigned randomSeed )
 			ClearEventsLastTime = 0;
 			Checksum = 0;
 			ChecksumTime = 0;
+			OldChecksumTime = 0;
 			QuickDirtyCalculation = true;
 			ReCalculationNeeded = false;
 			ReCalculationTimeMs = 0;
@@ -257,6 +260,7 @@ void StartRound( unsigned randomSeed )
 
 void EndRound()
 {
+	hints << "NewNet::EndRound()" << endl;
 	delete [] SavedWormState;
 	SavedWormState = NULL;
 	NewNetActive = false;
@@ -321,18 +325,18 @@ void ReCalculateSavedState()
 	{
 		BackupTime += TimeDiff(TICK_TIME);
 		CurrentTimeMs = BackupTime;
-		bool calculateChecksum = CurrentTimeMs.time % CalculateChecksumTime.timeDiff == 0;
+		bool calculateChecksum = CurrentTimeMs.time % CalculateChecksumTime.timeDiff == 0 || CurrentTimeMs.time == TICK_TIME;
 
 		KeyState_t keys[MAX_WORMS];
 		KeyState_t keysChanged[MAX_WORMS];
 		getKeysForTime( BackupTime, keys, keysChanged );
 
-		int checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
+		unsigned checksum = CalculatePhysics( CurrentTimeMs, keys, keysChanged, false, calculateChecksum );
 		if( calculateChecksum )
 		{
 			Checksum = checksum;
 			ChecksumTime = CurrentTimeMs;
-			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << (unsigned) Checksum << endl;
+			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << Checksum << endl;
 		};
 	};
 
@@ -451,6 +455,16 @@ unsigned GetChecksum( AbsTime * time )
 		*time = ChecksumTime;
 	return Checksum;
 };
+
+bool ChecksumRecalculated()
+{
+	if( OldChecksumTime != ChecksumTime )
+	{
+		OldChecksumTime = ChecksumTime;
+		return true;
+	}
+	return false;
+}
 
 AbsTime GetCurTime()
 {

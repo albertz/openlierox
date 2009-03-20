@@ -1101,6 +1101,10 @@ void CClient::NewNet_Frame()
 		out.writeByte( C2S_NEWNET_KEYS );
 		out.writeByte( getWorm(0)->getID() );
 	};
+	
+	if( NewNet::ChecksumRecalculated() )
+		getNetEngine()->SendNewNetChecksum();
+
 	cNetChan->AddReliablePacketToSend(packet);
 };
 

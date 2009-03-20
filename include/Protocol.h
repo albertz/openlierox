@@ -53,6 +53,7 @@ enum C2S_MESSAGES {
 	C2S_AFK				= 11, // since Beta7, if client away from keyboard
 	C2S_REPORTDAMAGE	= 12, // since Beta9
 	C2S_NEWNET_KEYS		= 13, // since Beta9
+	C2S_NEWNET_CHECKSUM = 14, // since Beta9
 };
 
 // Server->Client
