@@ -427,7 +427,8 @@ void SetCrashHandlerReturnPoint(const char* name) {
 	if(sigsetjmp(longJumpBuffer, true) != 0) {
 		hints << "returned from sigsetjmp in " << name << endl;
 		if(!tLXOptions) {
-			notes << "we already have tLXOptions uninitialised" << endl;
+			notes << "we already have tLXOptions uninitialised, exiting now" << endl;
+			exit(10);
 			return;
 		}
 		if(tLXOptions->bFullscreen) {
