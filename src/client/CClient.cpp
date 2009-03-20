@@ -1867,9 +1867,15 @@ static void updateAddedWorms(CClient* cl) {
 
 						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
 							// send weapon list to other clients
-							for(int ii = 0; ii < MAX_CLIENTS; ii++)
-								if(!cServer->getClients()[ii].isLocalClient())
-									localClient->getNetEngine()->SendClientReady(&cServer->getClients()[ii]);
+							for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+								if(!cServer->getClients()[ii].isLocalClient()) {
+									// TODO: move that out here
+									bytes.writeByte(S2C_CLREADY);
+									bytes.writeByte(1);
+									cl->getWorm(i)->writeWeapons(&bytes);
+									cServer->getClients()[ii].getNetEngine()->SendPacket(&bytes);
+								}
+							}
 						}						
 
 						if(cServer->getState() == SVS_PLAYING) {
