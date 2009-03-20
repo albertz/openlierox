@@ -2156,7 +2156,7 @@ void SyncServerAndClient() {
 		return;
 	}
 	
-	notes << "Syncing server and client ..." << endl;
+	//notes << "Syncing server and client ..." << endl;
 
 	{
 		// Read packets
@@ -2205,6 +2205,6 @@ void SyncServerAndClient() {
 		}
 	}
 	*/
-	notes << "Syncing done" << endl; 
+	//notes << "Syncing done" << endl; 
 }
 
