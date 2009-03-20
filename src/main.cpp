@@ -353,9 +353,7 @@ startpoint:
 	videoFrameMutex = SDL_CreateMutex();
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
-#ifdef DEBUG
 	startMainLockDetector();
-#endif
 		
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
