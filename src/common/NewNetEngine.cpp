@@ -113,16 +113,26 @@ int CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t k
 					w->Spawn( spot );
 				}
 
-			w->NewNet_GetInput( keys[i], keysChanged[i] );
+			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );
 			if (w->getWormState()->bShoot && w->getAlive())
 				cClient->NewNet_DoLocalShot( w );
 				
 			if( calculateChecksum )
-				// Pretty simple formula, count only worm pos and velocity (should be synced perfectly)
-				// Later I'll add counting pos of projectiles
-				checksum += ( (w->getID() + 1) % 4 ) * 
+				checksum += ( w->getID() % 4 + 1 ) * 
 					( (int)w->getPos().x + (int)w->getPos().y * 0x100 +
 						(int)w->getVelocity()->x * 0x10000 + (int)w->getVelocity()->x * 0x1000000 );
+		}
+	}
+	if( calculateChecksum )
+	{
+		for( int i=0; i<100; i++ ) // First 100 projectiles are enough to tell if we synced or not I think
+		{
+			if( cClient->getProjectiles()[i].isUsed() )
+			{
+				checksum += ( i % 8 + 1 ) * (
+					(int)cClient->getProjectiles()[i].GetPosition().x + 
+					(int)cClient->getProjectiles()[i].GetPosition().y * 0x100 );
+			}
 		}
 	}
 
@@ -148,8 +158,9 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
 
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
 
-bool QuickDirtyCalculation;
-bool ReCalculationNeeded;
+bool NewNetActive = false;
+bool QuickDirtyCalculation = false;
+bool ReCalculationNeeded = true;
 AbsTime ReCalculationTimeMs;
 // Constants
 TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
@@ -238,6 +249,7 @@ void StartRound( unsigned randomSeed )
 			QuickDirtyCalculation = true;
 			ReCalculationNeeded = false;
 			ReCalculationTimeMs = 0;
+			NewNetActive = true;
 			if( ! SavedWormState )
 				SavedWormState = new CWorm[MAX_WORMS];
 			SaveState();
@@ -247,6 +259,7 @@ void EndRound()
 {
 	delete [] SavedWormState;
 	SavedWormState = NULL;
+	NewNetActive = false;
 };
 
 bool Frame( CBytestream * bs )
@@ -441,16 +454,18 @@ unsigned GetChecksum( AbsTime * time )
 
 AbsTime GetCurTime()
 {
-	return CurrentTimeMs;
+	return NewNetActive ? CurrentTimeMs : tLX->currentTime;
 }
 
 bool CanUpdateGameState()
 {
-	return !QuickDirtyCalculation;
+	return !QuickDirtyCalculation || !NewNetActive;
 };
 
 bool CanPlaySound(int wormID)
 {
+	if( !NewNetActive )
+		return true;
 	if( LastSoundPlayedTime[wormID] < CurrentTimeMs )
 	{
 		LastSoundPlayedTime[wormID] = CurrentTimeMs;
@@ -458,6 +473,11 @@ bool CanPlaySound(int wormID)
 	}
 	return false;
 };
+
+bool Active()
+{
+	return NewNetActive;
+}
 
 
 // -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------

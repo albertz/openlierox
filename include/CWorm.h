@@ -319,8 +319,8 @@ private:
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
-	bool		bNoShooting;
-    bool		bFlag;
+	bool		bNoShooting; // TODO: variable unused, remove it (used in VIP and CTF which are removed)
+    bool		bFlag; // TODO: variable unused, remove it (used in VIP and CTF which are removed)
 	AFK_TYPE	iAFK;
 	std::string	sAFKMessage;
 
@@ -416,7 +416,7 @@ public:
 	void		initWeaponSelection();
 	void		doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 
-	void		NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ); // Synthetic input from new net engine - Ignores inputHandler
+	void		NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ); // Synthetic input from new net engine - Ignores inputHandler
 
 	//
 	// Misc.

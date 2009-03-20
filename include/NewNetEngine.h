@@ -115,14 +115,20 @@ TimeDiff EmptyPacketTime();
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
 unsigned GetChecksum( AbsTime * time = NULL );
 
-// Returns current simulation time in milliseconds inside new net engine
+// Returns current simulation time in milliseconds inside new net engine, or tLX->currentTime if new net engine not active
 AbsTime GetCurTime();
 
 // If we can do things not handled by new net engine, like update score table (or respawn worm when I'll move that to server)
+// Returns true if new net engine not active
 bool CanUpdateGameState();
 // If we received packet from specific worm we can play weapon sound - CanUpdateGameState() is true only when packets from all worms arrived
 // Also it won't allow sound to be played twice due to rollback/recalculate
+// Returns true if new net engine not active
 bool CanPlaySound(int wormID);
+
+// Returns if new net engine is active currently (time between StartRound() and EndRound())
+bool Active();
+
 
 // ------ Internal functions - do not use them from OLX ------
 

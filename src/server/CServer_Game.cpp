@@ -241,7 +241,7 @@ void GameServer::SimulateGame(void)
 	if(iState != SVS_PLAYING)
 		return;
 
-	if( (bool)tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
 		return;
 
 	// If this is a remote game, and game over,

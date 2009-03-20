@@ -413,21 +413,24 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	// Set it also for remote worms on pre-Beta9 server
 	if( getServerVersion() < OLXBetaVersion(9) || 
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
-		( this->getGameLobby()->features[FT_NewNetEngine] && NewNet::CanUpdateGameState() ) )
+		( NewNet::Active() && NewNet::CanUpdateGameState() ) )
 	{
 		w->getDamageReport()[owner].damage += damage;
-		w->getDamageReport()[owner].lastTime = tLX->currentTime;
+		w->getDamageReport()[owner].lastTime = NewNet::GetCurTime();
 	}
 
 	// Update our scoreboard for local worms
-	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(9) ) ) // Do not update scoreboard for pre-Beta9 servers
-		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo );
+	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(9) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
+		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo ); // Update client scoreboard
+	
+	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
+		cServer->getWorms()[owner].addDamage( damage, w, tGameInfo ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ||
-		this->getGameLobby()->features[FT_NewNetEngine] ) // We're hosting, calculate health for pre-Beta9 clients
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) || // We're hosting, calculate health for pre-Beta9 clients
+		NewNet::Active() ) 
 	{
 		if(w->Injure(damage)) {
 			// His dead Jim
@@ -436,22 +439,45 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 			// Kill someOwnWorm
 			// TODO: why is localworm[0] == 0 checked here?
-			if(someOwnWorm || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
+			if(someOwnWorm || NewNet::Active() ||
+				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth) ) {
 
 				w->setAlive(false);
 				w->Kill();
-        	    w->clearInput();
+				if( !NewNet::Active() )
+	        	    w->clearInput();
 
 				cNetEngine->SendDeath(w->getID(), owner); // Let the server know that i am dead
         	    
-        	    if( tLX->iGameType == GME_HOST && cServer && 
-        	    	this->getGameLobby()->features[FT_NewNetEngine] && NewNet::CanUpdateGameState() )
+        	    if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
         	    	cServer->killWorm(w->getID(), owner);
+
+        	   	if( NewNet::Active() )
+        	   	{
+        	   		// TODO: merge this part of code with cClient::ParseWormDown()?
+					// Make a death sound
+					int s = GetRandomInt(2);
+					if( NewNet::CanPlaySound(w->getID()) );
+						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cLocalWorms[0]);
+
+					// Spawn some giblets
+					for(int n=0;n<7;n++)
+						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
+
+					// Blood
+					int amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+					for(int i=0;i<amount;i++) {
+						float sp = GetRandomNum()*100+50;
+						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+					}
+        	   	}
 			}
 		}
 	}
 	// If we are hosting then synchronise the serverside worms with the clientside ones
-	if(tLX->iGameType == GME_HOST && cServer && ! (bool)this->getGameLobby()->features[FT_NewNetEngine] ) {
+	if(tLX->iGameType == GME_HOST && cServer && ! NewNet::Active() ) {
 		CWorm *sw = cServer->getWorms() + w->getID();
 		sw->setHealth(w->getHealth());
 	}
@@ -1086,7 +1112,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 
 	// Play the weapon's sound
-	if(wpn->UseSound && ( ! (bool)getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(w->getID()) ))
+	if(wpn->UseSound && NewNet::CanPlaySound(w->getID()))
 		StartSound(wpn->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
 
 	// Add the recoil

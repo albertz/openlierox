@@ -1071,7 +1071,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 void CClientNetEngineBeta9::ParseStartGame(CBytestream *bs)
 {
 	CClientNetEngine::ParseStartGame(bs);
-	if( (bool)client->tGameInfo.features[FT_NewNetEngine] )
+	if( client->tGameInfo.features[FT_NewNetEngine] )
 	{
 		NewNet::StartRound( bs->readInt(4) );
 		CClient * cl = client;

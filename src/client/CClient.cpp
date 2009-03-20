@@ -1072,7 +1072,7 @@ void CClient::Frame()
 
 	if(iNetStatus == NET_PLAYING && !bWaitingForMap && !bWaitingForMod)
 	{
-		if( (bool)tGameInfo.features[FT_NewNetEngine] )
+		if( NewNet::Active() )
 			NewNet_Frame();
 		else
 			Simulation();

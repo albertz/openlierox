@@ -644,6 +644,7 @@ public:
 	
 	void		NewNet_SaveProjectiles();
 	void		NewNet_LoadProjectiles();
+	Projectiles & getProjectiles()		{ return cProjectiles; };
 };
 
 extern	CClient			*cClient;

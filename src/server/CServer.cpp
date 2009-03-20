@@ -444,7 +444,7 @@ int GameServer::StartGame()
 		}
 	}
 
-	if( (bool)tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
 	{
 		NewNet::DisableAdvancedFeatures();
 	}
@@ -538,7 +538,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// Send the connected clients a startgame message
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
-	if ((bool)tLXOptions->tGameInfo.features[FT_NewNetEngine])
+	if (tLXOptions->tGameInfo.features[FT_NewNetEngine])
 		bs.writeInt(NewNet::netRandom.getSeed(), 4);
 	if(receiver)
 		receiver->getNetEngine()->SendPacket(&bs);
@@ -1320,7 +1320,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	bs.writeString(OldLxCompatibleString(cl_msg));
 	cl->getChannel()->AddReliablePacketToSend(bs);
 	
-	if( (bool)tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	if( NewNet::Active() )
 	{
 		gotoLobby();
 		SendGlobalText("New net engine doesn't support client leaving yet!",TXT_NETWORK);

@@ -376,7 +376,7 @@ void CWormHumanInputHandler::getInput() {
 }
 
 
-void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
+void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
 {
 	CVec	dir;
 	TimeDiff dt ( (int)NewNet::TICK_TIME );
@@ -522,6 +522,24 @@ void CWorm::NewNet_GetInput( NewNet::KeyState_t keys, NewNet::KeyState_t keysCha
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
+
+	// Clean up expired damage report values
+	if( tLXOptions->bColorizeDamageByWorm )
+	{
+		for( int i=0; i<MAX_WORMS; i++ )
+			if( NewNet::GetCurTime() > cDamageReport[i].lastTime + 1.5f )
+				cDamageReport[i].damage = 0;
+	}
+	else
+	{
+		std::map< AbsTime, int > DamageReportDrawOrder;
+		for( int i=0; i<MAX_WORMS; i++ )
+			if( cDamageReport[i].damage != 0 )
+				DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
+		if( ! DamageReportDrawOrder.empty() && NewNet::GetCurTime() > DamageReportDrawOrder.begin()->first + 1.5f )
+			for( int i=0; i<MAX_WORMS; i++ )
+				cDamageReport[i].damage = 0;
+	}
 }
 
 

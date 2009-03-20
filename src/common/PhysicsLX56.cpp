@@ -294,7 +294,7 @@ public:
 
 		// If we're IT, spawn some sparkles
 		if(worm->getTagIT() && cClient->getGameLobby()->iGeneralGameType == GMT_TIME) {
-			if(simulationTime - worm->getLastSparkle() > 0.15f) {
+			if(simulationTime > worm->getLastSparkle() + 0.15f) {
 				worm->setLastSparkle( worm->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
 
@@ -306,7 +306,7 @@ public:
 		// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 		// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).
 		if(worm->getHealth() < 15 && worm->isVisibleForEverybody()) {
-			if((simulationTime - worm->getLastBlood()).seconds() > 2) {
+			if(simulationTime > worm->getLastBlood() + 2.0f) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
 				float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
@@ -740,7 +740,7 @@ public:
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound && ( ! cClient->getGameLobby()->features[FT_NewNetEngine] || NewNet::CanPlaySound(prj->GetOwner()) ) )
+				if(pi->Hit_UseSound && NewNet::CanPlaySound(prj->GetOwner()))
 					PlaySoundSample(pi->smpSample);
 			break;
 
@@ -794,7 +794,7 @@ public:
 		if( result.withWorm && !explode) {
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
-			if( !preventSelfShooting || cClient->getGameLobby()->features[FT_NewNetEngine] )  {
+			if( !preventSelfShooting || NewNet::Active() ) {
 				bool push_worm = true;
 
 				switch (pi->PlyHit_Type)  {
