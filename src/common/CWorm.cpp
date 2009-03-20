@@ -608,11 +608,16 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {
-	for(int wp = 0; wp < 5; wp++)
-		this->getWeapon(wp)->Weapon = w->getWeapon(wp)->Weapon;
+	for(int i = 0; i < 5; ++i) {
+		tWeapons[i].Weapon = w->getWeapon(i)->Weapon;
+		tWeapons[i].Enabled = tWeapons[i].Weapon != NULL;
+		
+		tWeapons[i].Charge = 1;
+		tWeapons[i].Reloading = false;
+		tWeapons[i].SlotNum = i;
+		tWeapons[i].LastFire = 0;
+	}
 }
-
-
 
 
 // Muzzle flash positions for different angles

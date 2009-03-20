@@ -1859,14 +1859,9 @@ static void updateAddedWorms(CClient* cl) {
 						// we will recheck that in clients frame
 					}
 					else { // weapons are already ready
-						{
-							// copy weapons to server
-							CBytestream bs;
-							cl->getWorm(i)->writeWeapons(&bs);
-							bs.readByte(); w->readWeapons(&bs); bs.ResetPosToBegin(); bs.readByte(); // first byte is id, skip that
-							cl->getWorm(i)->readWeapons(&bs); // read them again locally, that will init also some other stuff
-						}
-						
+						// copy weapons to server
+						w->CloneWeaponsFrom(cl->getWorm(i));
+												
 						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
 							// send weapon list to other clients
 							for(int ii = 0; ii < MAX_CLIENTS; ii++) {

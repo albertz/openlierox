@@ -647,6 +647,8 @@ void CWorm::readWeapons(CBytestream *bs)
 	bWeaponsReady = true;
 }
 
+
+
 /////////////
 // Synchronizes the "stat needed" checking variables
 void CWorm::updateStatCheckVariables()
