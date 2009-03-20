@@ -157,11 +157,10 @@ static SDL_Event QuitEventThreadEvent() {
 }
 
 
-static void startDebuggerThread() {
-	// WARNING: This is not threadsafe at all but possible crashes should be *very* rare
-	// and it's really only for debugging, I don't want to have that code enabled in a release.
-	struct DebuggerThread : Action {
+static void startMainLockDetector() {
+	struct MainLockDetector : Action {
 		int handle() {
+			// We should always have tLX!=NULL here as we uninit it after the thread-shutdown now.
 			while(tLX && !tLX->bQuitGame) {
 				AbsTime oldTime = tLX->currentTime;
 				SDL_Delay(1000);
@@ -170,20 +169,30 @@ static void startDebuggerThread() {
 				if(IsWaitingForEvent()) continue;
 				
 				// HINT: Comment that out and you'll find a lot of things in OLX which could be improved.
-				if(!cClient || cClient->getStatus() != NET_PLAYING) continue;
+				// WARNING: This is the only code here which could lead to very rare crashes.
+				//if(!cClient || cClient->getStatus() != NET_PLAYING) continue;
 				
 				// check if the mainthread is hanging
 				if(oldTime == tLX->currentTime) {
-					warnings << "possible lock of mainthread detected" << endl;
+					warnings << "possible lock of game thread detected" << endl;
 					//OlxWriteCoreDump("mainlock");
 					//RaiseDebugger();
-					SDL_Delay(20 * 1000); // pause for a while, don't be so hard
+					SDL_Delay(30 * 1000); // pause for a while, don't be so hard
+					if(tLX && oldTime == tLX->currentTime) {
+						warnings << "we still are locked after 30 seconds" << endl;
+						if(tLXOptions && tLXOptions->bFullscreen) {
+							notes << "we are in fullscreen, going to window mode now" << endl;
+							tLXOptions->bFullscreen = false;
+							doSetVideoModeInMainThread();
+							notes << "setting window mode sucessfull" << endl;
+						}
+					}
 				}
 			}
 			return 0;
 		}
 	};
-	threadPool->start(new DebuggerThread(), "debugger", true);
+	threadPool->start(new MainLockDetector(), "main lock detector", true);
 }
 
 
@@ -345,7 +354,7 @@ startpoint:
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
 #ifdef DEBUG
-	startDebuggerThread();
+	startMainLockDetector();
 #endif
 		
 	if(!bDedicated) {
@@ -404,6 +413,13 @@ quit:
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 	UnInitTaskManager();
+
+	// LieroX structure
+	// HINT: must be after end of all threads because we could access it
+	if(tLX) {
+		delete tLX;
+		tLX = NULL;
+	}
 	
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
@@ -1115,14 +1131,6 @@ void ShutdownLieroX()
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
-
-	// LieroX structure
-	// HINT: must be after ShutdownAuxlib else the last events would not get processed and therefore
-	// they would cause leaks
-	if(tLX) {
-		delete tLX;
-		tLX = NULL;
-	}
 
 	// Save and clear options
 	ShutdownOptions();
