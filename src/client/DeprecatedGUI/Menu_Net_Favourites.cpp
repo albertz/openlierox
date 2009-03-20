@@ -46,7 +46,8 @@ enum {
 	mf_Add,
 	mf_Back,
     mf_PopupMenu,
-	mf_PlayerSelection
+	mf_PlayerSelection,
+	mf_Clear
 };
 
 
@@ -61,8 +62,9 @@ bool Menu_Net_FavouritesInitialize(void)
 	cFavourites.Initialize();
 
 	cFavourites.Add( new CButton(BUT_BACK, tMenu->bmpButtons),    mf_Back,        25, 440, 50,  15);
-	cFavourites.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	  mf_Add,		   190,440, 83,  15);
-	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mf_Refresh,	   350,440, 83,  15);
+	cFavourites.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	  mf_Add,		   170,440, 83,  15);
+	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mf_Refresh,	   400,440, 83,  15);
+	cFavourites.Add( new CButton(BUT_CLEAR, tMenu->bmpButtons), mf_Clear,	   270,440, 83,  15);
 	cFavourites.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mf_Join,	   570,440, 43,  15);
 	cFavourites.Add( new CListview(),							   mf_ServerList, 40, 180, 560, 242);
 	cFavourites.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
@@ -317,6 +319,19 @@ void Menu_Net_FavouritesFrame(int mouse)
 				}
 
 				break;
+
+			// Clear
+			case mf_Clear:
+				if (ev->iEventMsg == BTN_MOUSEUP)  {
+					if (Menu_MessageBox("Confirmation", "Do you really want to delete ALL your favourite servers?", LMB_YESNO) == MBR_YES)  {
+						Menu_SvrList_Clear();
+						Menu_SvrList_SaveList("cfg/favourites.dat");
+						CListview *lv = (CListview *)cFavourites.getWidget(mf_ServerList);
+						if (lv)
+							lv->Clear();
+					}
+				}
+			break;
 
             // Popup menu
             case mf_PopupMenu:
