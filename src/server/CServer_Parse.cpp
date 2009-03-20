@@ -1210,11 +1210,18 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	
 	// check version compatibility already earlier to not add/kick bots if not needed
 	if( iState != SVS_LOBBY ) {
-		if(!checkVersionCompatibility(newcl, true, false))
+		std::string msg;
+		if(!checkVersionCompatibility(newcl, false, false, &msg)) {
+			notes << "ParseConnect: " << newcl->debugName(false) << ": " << msg << endl;
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx::badconnect");
+			bytestr.writeString(OldLxCompatibleString(msg));
+			bytestr.Send(tSocket);
 			return; // client is not compatible, so it was dropped out already
+		}
 	}
 	
-
 	
 	
 	// prepare Welcome message

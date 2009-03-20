@@ -209,8 +209,8 @@ public:
 	float		GetUpload(float timeRange = 2.0f);
 
 	void		checkVersionCompatibilities(bool dropOut);
-	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true);
-	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true);
+	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
+	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
 	bool		clientsConnected_less(const Version& ver); // true if clients < ver are connected
 	
 	ScriptVar_t isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset);
