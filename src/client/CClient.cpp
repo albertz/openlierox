@@ -1904,9 +1904,6 @@ static void updateAddedWorms(CClient* cl) {
 		
 		DeprecatedGUI::bHost_Update = true;
 		
-		if( cServer->getState() != SVS_LOBBY )
-			cServer->SendWeapons(localClient);
-		
 		// Game state has changed (in many possible ways), just recheck
 		cServer->RecheckGame();
 	}
