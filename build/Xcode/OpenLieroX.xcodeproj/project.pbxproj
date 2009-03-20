@@ -460,6 +460,7 @@
 		2389FB650D2D5A4700358F27 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
 		238DA8DA0F388B1E00841FFF /* EventQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventQueue.h; sourceTree = "<group>"; };
 		238DA8DB0F388B2F00841FFF /* EventQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventQueue.cpp; sourceTree = "<group>"; };
+		238F2DF20F74138C0016D617 /* FlagInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlagInfo.h; sourceTree = "<group>"; };
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
 		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
@@ -1337,6 +1338,7 @@
 				23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */,
 				23EABF6C0F40C79100CA55CF /* TaskManager.h */,
 				23EAC0940F4203BE00CA55CF /* Process.h */,
+				238F2DF20F74138C0016D617 /* FlagInfo.h */,
 			);
 			name = include;
 			path = ../../include;

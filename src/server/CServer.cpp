@@ -1352,12 +1352,12 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		
 		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
 		
-		// Notify the game mode that the worm has been dropped
-		getGameMode()->Drop((*w));
-		
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormLeft_Signal( (*w) );
-		
+
+		// Notify the game mode that the worm has been dropped
+		getGameMode()->Drop((*w));
+				
 		wormsOutList.push_back((*w)->getID());
 		
 		// Reset variables

@@ -465,7 +465,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
 
 					// Blood
-					int amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+					int amount = (int) (50.0f * ((float)tLXOptions->iBloodAmount / 100.0f));
 					for(int i=0;i<amount;i++) {
 						float sp = GetRandomNum()*100+50;
 						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
