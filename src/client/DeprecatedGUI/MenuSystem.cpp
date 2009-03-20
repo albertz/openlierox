@@ -384,12 +384,7 @@ void Menu_Loop(void)
 
 		Menu_Frame();
 		CapFPS();
-
-#ifndef WIN32
-		if(sigsetjmp(longJumpBuffer, true) != 0) {
-			hints << "returned from sigsetjmp in Menu_Loop" << endl;
-		}
-#endif
+		SetCrashHandlerReturnPoint("Menu_Loop");
 		
 		if(last_frame_was_because_of_an_event || bDedicated) {
 			// Use ProcessEvents() here to handle other processes in queue.

@@ -48,7 +48,7 @@ std::string GetConfigFile();
 void		ProcessScreenshots();
 void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
 
-
+void		SetCrashHandlerReturnPoint(const char* name);
 void		OpenLinkInExternBrowser(const std::string& url);
 void		nameThread(const std::string& name);
 

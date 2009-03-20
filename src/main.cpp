@@ -421,6 +421,14 @@ quit:
 	return 0;
 }
 
+// note: important to have const char* here because std::string is too dynamic, could be screwed up when returning
+void SetCrashHandlerReturnPoint(const char* name) {
+#ifndef WIN32
+	if(sigsetjmp(longJumpBuffer, true) != 0) {
+		hints << "returned from sigsetjmp in " << name << endl;
+	}
+#endif	
+}
 
 void doVideoFrameInMainThread(bool wait) {
 	if(bDedicated) return;
@@ -483,11 +491,7 @@ static int MainLoopThread(void*) {
 	tLX->bQuitGame = false;
 	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
-#ifndef WIN32
-		if(sigsetjmp(longJumpBuffer, true) != 0) {
-			hints << "returned from sigsetjmp in MainLoopThread before lobby" << endl;
-		}
-#endif
+		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
 		
 		menu_startgame = false; // the menu has a reference to this variable
 		
@@ -521,11 +525,7 @@ static int MainLoopThread(void*) {
 		while(!tLX->bQuitEngine) {
 			
 			tLX->currentTime = GetTime();
-#ifndef WIN32
-			if(sigsetjmp(longJumpBuffer, true) != 0) {
-				hints << "returned from sigsetjmp in MainLoopThread in main game loop" << endl;
-			}
-#endif
+			SetCrashHandlerReturnPoint("main game loop");
 			
 			// Timing
 			tLX->fDeltaTime = tLX->currentTime - oldtime;
