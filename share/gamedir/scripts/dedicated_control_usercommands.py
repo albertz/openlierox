@@ -220,8 +220,9 @@ def recheckVote():
 				voteCount += 1
 			else:
 				notVoted += 1
-
-	needVoices = int( math.ceil( len(hnd.worms) * cfg.VOTING_PERCENT / 100.0 ) )
+	
+	humanWormCount = len(hnd.worms) - len(io.getComputerWormList())
+	needVoices = int( math.ceil( humanWormCount * cfg.VOTING_PERCENT / 100.0 ) )
 
 	if voteCount >= needVoices:
 		try:

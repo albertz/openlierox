@@ -163,6 +163,7 @@ void CServerConnection::RemoveWorm(int id)
 				for (uint j=i; j<MAX_PLAYERS-1; j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 				}
+				cLocalWorms[MAX_PLAYERS-1] = NULL;
 
 				found = true;
 				break;

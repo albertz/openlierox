@@ -594,6 +594,8 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					SendEmptyWeaponsOnRespawn( & cWorms[i] );
 		}
 
+		DumpGameState();
+		
 		// Prepare the gamemode
 		notes << "preparing game mode " << getGameMode()->Name() << endl;
 		getGameMode()->PrepareGame();
@@ -638,7 +640,7 @@ void GameServer::GameOver()
 	bGameOver = true;
 	fGameOverTime = tLX->currentTime;
 
-	hints << "gameover"; 
+	hints << "Server: gameover"; 
 
 	int winner = getGameMode()->Winner();
 	if(winner >= 0) {
@@ -702,6 +704,8 @@ void GameServer::GameOver()
 				w->addTotalLosses();
 		}
 	}
+	
+	DumpGameState();
 }
 
 
@@ -1619,6 +1623,11 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 	}
 
+	if(w->getID() != wormID) {
+		warnings << "serverrepresentation of worm " << wormID << " has wrong ID set" << endl;
+		w->setID(wormID);
+	}
+	
 	// Get the client
 	CServerConnection *cl = w->getClient();
 	if( !cl ) {
@@ -2150,6 +2159,53 @@ float GameServer::getMaxUploadBandwidth() {
 	
 	return fMaxRate;
 }
+
+void GameServer::DumpGameState() {
+	notes << "Server '" << this->getName() << "' game state:" << endl;
+	switch(iState) {
+		case SVS_LOBBY: notes << " * in lobby"; break;
+		case SVS_GAME: notes << " * weapon selection"; break;
+		case SVS_PLAYING: notes << " * playing"; break;
+		default: notes << " * INVALID STATE " << iState; break;
+	}
+	if(iState != SVS_LOBBY && bGameOver) notes << ", game is over";
+	bool teamGame = true;
+	if(getGameMode()) {
+		teamGame = getGameMode()->GameTeams() > 1;
+		notes << ", " << getGameMode()->Name() << endl;
+	} else
+		notes << ", GAMEMODE UNSET" << endl;
+	notes << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
+	notes << ", lives=" << tLXOptions->tGameInfo.iLives;
+	notes << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
+	notes << " (curtime=" << fServertime.seconds() << ")" << endl;
+	if(cWorms) {
+		for(int i = 0; i < MAX_WORMS; ++i) {
+			CWorm* w = &cWorms[i];
+			if(w->isUsed()) {
+				notes << " + " << i;
+				if(i != w->getID()) notes << "(WRONG ID:" << w->getID() << ")";
+				notes << ":'" << w->getName() << "'";
+				if(w->getType() == PRF_COMPUTER) notes << "(bot)";
+				if(teamGame) notes << ", team " << w->getTeam();
+				if(w->getAlive())
+					notes << ", alive";
+				else
+					notes << ", dead";
+				if(!w->isPrepared()) notes << ", not yet prepared";
+				notes << ", lives=" << w->getLives();
+				notes << ", kills=" << w->getKills();
+				if(w->getClient())
+					notes << " on " << w->getClient()->debugName(false);
+				else
+					notes << " WITH UNSET CLIENT";
+				notes << endl;
+			}
+		}
+	} else
+		notes << " - cWorms not set" << endl;
+}
+
 
 void SyncServerAndClient() {
 	if(tLX->iGameType == GME_JOIN) {

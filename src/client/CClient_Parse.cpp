@@ -1523,7 +1523,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	}
 
 	// Game over
-	hints << "the game is over" << endl;
+	hints << "Client: the game is over, the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName() << endl;
 	client->bGameOver = true;
 	client->fGameOverTime = tLX->currentTime;
 

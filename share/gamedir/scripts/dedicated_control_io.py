@@ -99,9 +99,17 @@ def startGame():
 def gotoLobby():
 	SendCommand( "gotolobby" )
 
-# Not implemented yet in OLX
-def addBot(name):
-	SendCommand( "addbot " + str(name) )
+def addBot(worm = None):
+	if worm:
+		SendCommand( "addbot " + str(worm) )
+	else:
+		SendCommand( "addbot" )
+
+def kickBot(msg = None):
+	if msg:
+		SendCommand( "kickbot " + str(msg) )
+	else:
+		SendCommand( "kickbot" )
 
 # Suicides all local bots
 def killBots():

@@ -271,6 +271,8 @@ public:
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();
+	
+	void	DumpGameState();
 };
 
 extern	GameServer		*cServer;

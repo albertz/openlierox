@@ -1958,10 +1958,17 @@ void CClient::AddWorm(profile_t* p) {
 // Remove the worm
 void CClient::RemoveWorm(int id)
 {
+	if(id < 0 || id >= MAX_WORMS) {
+		warnings << "CClient::RemoveWorm: worm id " << id << " is invalid" << endl;
+		return;
+	}
+	
+	bool found = false;
 	int i,j;
 	for (i=0;i<MAX_PLAYERS;i++)  {
 		if (cLocalWorms[i])  {
 			if (cLocalWorms[i]->getID() == id)  {
+				found = true;
 				iNumWorms--;
 				cLocalWorms[i] = NULL;
 				tProfiles[i] = NULL;
@@ -1969,30 +1976,32 @@ void CClient::RemoveWorm(int id)
 					cLocalWorms[j] = cLocalWorms[j+1];
 					tProfiles[j] = tProfiles[j+1];
 				}
+				cLocalWorms[MAX_PLAYERS-1] = NULL;
+				tProfiles[MAX_PLAYERS-1] = NULL;				
 				break;
 			}
 		}
 	}
-
+	
 	if (cRemoteWorms)  {
-		for (i=0;i<MAX_WORMS;i++) {
-			if (cRemoteWorms[i].getID() == id)  {
-				cRemoteWorms[i].Unprepare();
-				// TODO: why not a Clear() here?
-				cRemoteWorms[i].setUsed(false);
-				cRemoteWorms[i].setAlive(false);
-				cRemoteWorms[i].setKills(0);
-				cRemoteWorms[i].setLives(WRM_OUT);
-				cRemoteWorms[i].setProfile(NULL);
-				cRemoteWorms[i].setType(PRF_HUMAN);
-				cRemoteWorms[i].setLocal(false);
-				cRemoteWorms[i].setTagIT(false);
-				cRemoteWorms[i].setTagTime(TimeDiff(0));
-				
-				if(cRemoteWorms[i].getLobby())
-					cRemoteWorms[i].getLobby()->iType = LBY_OPEN;
-			}
+		if(cRemoteWorms[id].getLocal() && !found) {
+			warnings << "CClient::RemoveWorm: didn't found local worm with id " << id << endl;
 		}
+
+		cRemoteWorms[id].Unprepare();
+		// TODO: why not a Clear() here?
+		cRemoteWorms[id].setUsed(false);
+		cRemoteWorms[id].setAlive(false);
+		cRemoteWorms[id].setKills(0);
+		cRemoteWorms[id].setLives(WRM_OUT);
+		cRemoteWorms[id].setProfile(NULL);
+		cRemoteWorms[id].setType(PRF_HUMAN);
+		cRemoteWorms[id].setLocal(false);
+		cRemoteWorms[id].setTagIT(false);
+		cRemoteWorms[id].setTagTime(TimeDiff(0));
+		
+		if(cRemoteWorms[id].getLobby())
+			cRemoteWorms[id].getLobby()->iType = LBY_OPEN;
 	}
 }
 

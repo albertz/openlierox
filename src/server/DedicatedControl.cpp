@@ -985,13 +985,13 @@ struct DedIntern {
 	}
 
 	void Cmd_GetComputerWormList(DedInterface* caller) {
-		profile_t *p = GetProfiles();
-		for(;p;p=p->tNext) {
-			if(p->iType == PRF_COMPUTER->toInt())
-				caller->pushReturnArg(p->sName);
+		CWorm *w = cServer->getWorms();
+		for(int i = 0; i < MAX_WORMS; i++, w++) {
+			if(w->isUsed() && w->getType() == PRF_COMPUTER)
+				caller->pushReturnArg(itoa(w->getID()));
 		}
 	}
-
+	
 	void Cmd_GetWormName(DedInterface* caller, const std::string& params) {
 		int id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormName");
@@ -1078,6 +1078,10 @@ struct DedIntern {
 		Sig_Connecting(params);
 	}
 
+	void Cmd_DumpGameState(DedInterface* caller, const std::string& params) {
+		cServer->DumpGameState();
+	}	
+	
 	void Cmd_SaveConfig(DedInterface* caller) {
 		tLXOptions->SaveToDisc();
 	}
@@ -1175,6 +1179,9 @@ struct DedIntern {
 		else if(cmd == "connect")
 			Cmd_Connect(command.sender, params);
 
+		else if(cmd == "dumpgamestate")
+			Cmd_DumpGameState(command.sender, params);		
+		
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else {
 			command.sender->writeMsg("unknown command: " + cmd + " " + params);
