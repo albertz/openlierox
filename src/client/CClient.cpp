@@ -1859,21 +1859,24 @@ static void updateAddedWorms(CClient* cl) {
 						// we will recheck that in clients frame
 					}
 					else { // weapons are already ready
-						// copy weapons to server
-						CBytestream bs;
-						cl->getWorm(i)->writeWeapons(&bs);
-						w->readWeapons(&bs); bs.ResetPosToBegin();
-						cl->getWorm(i)->readWeapons(&bs); // read them again locally, that will init also some other stuff
-
+						{
+							// copy weapons to server
+							CBytestream bs;
+							cl->getWorm(i)->writeWeapons(&bs);
+							bs.readByte(); w->readWeapons(&bs); bs.ResetPosToBegin(); bs.readByte(); // first byte is id, skip that
+							cl->getWorm(i)->readWeapons(&bs); // read them again locally, that will init also some other stuff
+						}
+						
 						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
 							// send weapon list to other clients
 							for(int ii = 0; ii < MAX_CLIENTS; ii++) {
 								if(!cServer->getClients()[ii].isLocalClient()) {
 									// TODO: move that out here
-									bytes.writeByte(S2C_CLREADY);
-									bytes.writeByte(1);
-									cl->getWorm(i)->writeWeapons(&bytes);
-									cServer->getClients()[ii].getNetEngine()->SendPacket(&bytes);
+									CBytestream bs;
+									bs.writeByte(S2C_CLREADY);
+									bs.writeByte(1);
+									cl->getWorm(i)->writeWeapons(&bs);
+									cServer->getClients()[ii].getNetEngine()->SendPacket(&bs);
 								}
 							}
 						}						

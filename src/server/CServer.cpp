@@ -1152,25 +1152,25 @@ void GameServer::CheckWeaponSelectionTime()
 		return;
 
 	// Issue some sort of warning to clients
-	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 5.2f &&
+	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 5.2f &&
 		iWeaponSelectionTime_Warning == 3 )
 	{
 		iWeaponSelectionTime_Warning = 4;
 		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
 	}
-	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 10.2f &&
+	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 10.2f &&
 		iWeaponSelectionTime_Warning == 2 )
 	{
 		iWeaponSelectionTime_Warning = 3;
 		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
 	}
-	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 30.2f &&
+	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 30.2f &&
 	   iWeaponSelectionTime_Warning == 1 )
 	{
 		iWeaponSelectionTime_Warning = 2;
 		SendGlobalText("You have 30 seconds to select your weapons.", TXT_NOTICE);
 	}
-	if( TimeDiff(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ) < 60.2f &&
+	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 60.2f &&
 	   iWeaponSelectionTime_Warning == 0 )
 	{
 		iWeaponSelectionTime_Warning = 1;
