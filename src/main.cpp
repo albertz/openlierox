@@ -426,6 +426,16 @@ void SetCrashHandlerReturnPoint(const char* name) {
 #ifndef WIN32
 	if(sigsetjmp(longJumpBuffer, true) != 0) {
 		hints << "returned from sigsetjmp in " << name << endl;
+		if(!tLXOptions) {
+			notes << "we already have tLXOptions uninitialised" << endl;
+			return;
+		}
+		if(tLXOptions->bFullscreen) {
+			notes << "we are in fullscreen, going to window mode now" << endl;
+			tLXOptions->bFullscreen = false;
+			doSetVideoModeInMainThread();
+			notes << "back in window mode" << endl;
+		}
 	}
 #endif	
 }
@@ -462,6 +472,7 @@ void doSetVideoModeInMainThread() {
 	if(SDL_PushEvent(&ev) == 0) {
 		while(!videoModeReady) {
 			SDL_Delay(10);
+			// TODO: was it supposed like this?
 			SDL_mutexP(videoFrameMutex);
 			SDL_mutexV(videoFrameMutex);
 		}
