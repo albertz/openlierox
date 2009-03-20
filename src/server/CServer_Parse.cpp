@@ -1218,7 +1218,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(msg));
 			bytestr.Send(tSocket);
-			newcl->setStatus(NET_DISCONNECTED);
+			RemoveClient(newcl);
 			return;
 		}
 	}
