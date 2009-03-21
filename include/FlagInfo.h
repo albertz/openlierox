@@ -18,7 +18,7 @@ class CWorm;
 class CServerConnection;
 struct SDL_Surface;
 class CViewport;
-class CWormSkin;
+class CGameSkin;
 class CMap;
 
 struct FlagSpawnPoint {
@@ -35,7 +35,7 @@ struct Flag {
 	int holderWorm;
 	FlagSpawnPoint spawnPoint;
 	bool atSpawnPoint;
-	CWormSkin* skin;
+	CGameSkin* skin;
 	
 	CVec getPos();
 	void setCustomPos(const CVec& p) { pos = p; atSpawnPoint = false; holderWorm = -1; }
@@ -60,6 +60,9 @@ public:
 	Flag* getFlag(int id);
 	Flag* getFlagOfWorm(int worm);
 	bool removeFlag(int id);
+
+	int getWidth() const;
+	int getHeight() const;
 
 	Flag* applyInitFlag(int id, const CVec& spawnPos);
 	void applyRemoveFlag(int id);

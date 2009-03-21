@@ -28,7 +28,7 @@
 #include "DeprecatedGUI/CListview.h"
 #include "CWpnRest.h"
 #include "CClient.h" // for MAX_PLAYERS
-#include "CWormSkin.h"
+#include "CGameSkin.h"
 #include "CWorm.h"
 
 void GotoJoinLobby();

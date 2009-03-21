@@ -21,7 +21,7 @@
 #include <string>
 #include <stdlib.h>
 #include "SmartPointer.h"
-#include "CWormSkin.h"
+#include "CGameSkin.h"
 
 #define		PROFILE_VERSION		5
 

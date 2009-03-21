@@ -2505,6 +2505,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\CGameSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CGameSkin.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\server\ChatCommand.cpp"
 				>
 			</File>
@@ -3366,14 +3374,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\CWormSkin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\CWormSkin.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\CWpnRest.cpp"
 				>
 				<FileConfiguration
@@ -3506,6 +3506,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\FlagInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\FlagInfo.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\InputEvents.h"
 				>
 			</File>
@@ -3595,11 +3603,11 @@
 				Name="Game Modes"
 				>
 				<File
-					RelativePath="..\..\src\server\CDeathMatch.cpp"
+					RelativePath="..\..\src\server\CaptureTheFlag.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\CDeathMatch.h"
+					RelativePath="..\..\src\server\CDeathMatch.cpp"
 					>
 				</File>
 				<File
@@ -3619,23 +3627,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\CHideAndSeek.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\CTag.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\CTag.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\CTeamDeathMatch.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\CTeamDeathMatch.h"
 					>
 				</File>
 			</Filter>

@@ -54,7 +54,7 @@ struct CaptureTheFlag : public CGameMode {
 	
 	void initFlag(int t, const CVec& pos) {
 		// currently, just use this easy method to find a spot for the flag
-		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0,SKIN_HEIGHT/4);
+		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
 		cServer->flagInfo()->applyInitFlag(t, spawnPoint);
 	}
 	
@@ -80,7 +80,7 @@ struct CaptureTheFlag : public CGameMode {
 	virtual void Kill(CWorm* victim, CWorm* killer) {
 		Flag* victimsFlag = cServer->flagInfo()->getFlagOfWorm(victim->getID());
 		if(victimsFlag) {
-			CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,SKIN_HEIGHT/4);
+			CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
 			cServer->flagInfo()->applyCustomPos(victimsFlag, pos);
 			cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);
 		}

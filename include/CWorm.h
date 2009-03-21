@@ -26,7 +26,7 @@
 #include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
-#include "CWormSkin.h"
+#include "CGameSkin.h"
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
 #include "NewNetEngine.h"

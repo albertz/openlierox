@@ -63,7 +63,7 @@ CVec GameServer::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::l
 CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToEnemy) {
 	std::list<CVec> goodPos;
 	std::list<CVec> badPos;
-	bool coveredTeam[getGameMode()->GameTeams()];
+	bool *coveredTeam = new bool[getGameMode()->GameTeams()];
 	for(int i = 0; i < getGameMode()->GameTeams(); ++i)
 		coveredTeam[i] = false;
 	
@@ -86,6 +86,8 @@ CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDista
 	}
 	
 	CVec ret = FindSpotCloseToPos(goodPos, badPos, keepDistanceToEnemy);
+
+	delete[] coveredTeam;
 	
 	return ret;
 }

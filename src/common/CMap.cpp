@@ -927,7 +927,7 @@ static bool getGroundPos(CMap* cMap, const CVec& pos, CVec* ret, uchar badPX) {
 		while(y >= 0) {
 			px = cMap->GetPixelFlag(x,y);
 			if(!(px & badPX)) { // found place
-				*ret = CVec(x, y);
+				*ret = CVec((float)x, (float)y);
 				return true;
 			}
 			y--;
@@ -940,14 +940,14 @@ static bool getGroundPos(CMap* cMap, const CVec& pos, CVec* ret, uchar badPX) {
 	while((unsigned long)y < cMap->GetHeight()) {
 		px = cMap->GetPixelFlag(x,y);
 		if(px & badPX) { // found place
-			*ret = CVec(x, y - 1);
+			*ret = CVec((float)x, (float)(y - 1));
 			return true;
 		}
 		y++;		
 	}
 	
 	// everything free
-	*ret = CVec(x, cMap->GetHeight() - 1);
+	*ret = CVec((float)x, (float)(cMap->GetHeight() - 1));
 	return true;
 }
 

@@ -897,7 +897,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	if (isWormVisible(this, v))
-		cSkin.Draw(bmpDest, x - SKIN_WIDTH/2, y - SKIN_HEIGHT/2, f, false, iDirection == DIR_LEFT);
+		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
 	/*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
 		CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
@@ -1008,9 +1008,9 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// objects?
 		//cSkin.DrawShadow(bmpDest, x, y, f, iDirection == DIR_LEFT);
 		if (iDirection == DIR_RIGHT)
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
 		else
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, SKIN_WIDTH, SKIN_HEIGHT, v, (int)vPos.x - SKIN_WIDTH/2 + drop, (int)vPos.y - SKIN_HEIGHT/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
 	}
 }
 
