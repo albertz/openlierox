@@ -1036,15 +1036,16 @@ void GameServer::RegisterServerUdp(void)
 			continue;
 		}
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSocket, addr );
+		NetworkSocket socket = OpenUnreliableSocket(0, false);
+		SetRemoteNetAddr( socket, addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Send(tSocket);
+		bs.Send(socket);
+		bs.Send(socket);
+		bs.Send(socket);
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
@@ -1058,7 +1059,8 @@ void GameServer::RegisterServerUdp(void)
 		bs.writeByte(serverAllowsConnectDuringGame());
 		
 
-		bs.Send(tSocket);
+		bs.Send(socket);
+		CloseSocket(socket);
 		return;	// Only one UDP masterserver is supported
 	}
 }
@@ -1078,21 +1080,23 @@ void GameServer::DeRegisterServerUdp(void)
 			continue;
 		}
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSocket, addr );
+		NetworkSocket socket = OpenUnreliableSocket(0, false);
+		SetRemoteNetAddr( socket, addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Send(tSocket);
+		bs.Send(socket);
+		bs.Send(socket);
+		bs.Send(socket);
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::deregister");
 
-		bs.Send(tSocket);
+		bs.Send(socket);
+		CloseSocket(socket);
 		return;	// Only one UDP masterserver is supported
 	}
 }
