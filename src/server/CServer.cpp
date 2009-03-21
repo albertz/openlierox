@@ -1719,40 +1719,32 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	
 	// Local worms are handled another way
 	if (cl->isLocalClient())  {
-		if (cl->OwnsWorm(w->getID()))  {			
-			// Send the message
-			if (sReason.size() == 0)
-				SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
-										   "<player>", w->getName(), 1)),	TXT_NETWORK);
-			else
-				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
-													  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-			
-			notes << "Worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
-			
-			/* WARNING: If there are any packages left in the network stream,
-			 * these will get parsed incorrectly because of the wrong worm amount.
-			 * That could screw up the whole network stream with the local client
-			 * in the worst case.
-			 *
-			 * Another option would be to just do:
-			 * cClient->RemoveWorm(wormID);
-			 * cClient->Reconnect();
-			 *
-			 * This has other drawbacks though. 
-			 */
+		if (cl->OwnsWorm(w->getID()))  {
 			
 			// to avoid a broken stream
 			SyncServerAndClient();
 			
-			// Delete the worm from client/server
-			cClient->RemoveWorm(wormID);			
-			std::set<CWorm*> wormList; wormList.insert(w);
-			RemoveClientWorms(cl, wormList);
+			// check if we didn't already removed the worm from inside that SyncServerAndClient
+			if(cClient->OwnsWorm(wormID)) {
+				// Send the message
+				if (sReason.size() == 0)
+					SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
+											   "<player>", w->getName(), 1)),	TXT_NETWORK);
+				else
+					SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
+														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
+				
+				notes << "Worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+				
+				// Delete the worm from client/server
+				cClient->RemoveWorm(wormID);			
+				std::set<CWorm*> wormList; wormList.insert(w);
+				RemoveClientWorms(cl, wormList);
 
-			// Now that a player has left, re-check the game status
-			RecheckGame();
-
+				// Now that a player has left, re-check the game status
+				RecheckGame();
+			}
+			
 			// End here
 			return;
 		}
@@ -1830,29 +1822,33 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 	// We just kick the worm, banning makes no sense
 	if (cl->isLocalClient())  {
 		if (cl->OwnsWorm(w->getID()))  {			
-			// Send the message
-			if (sReason.size() == 0)
-				SendGlobalText((replacemax(networkTexts->sHasBeenBanned,
-										   "<player>", w->getName(), 1)),	TXT_NETWORK);
-			else
-				SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
-													  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-
-			notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
 						
 			// TODO: share the same code with kickWorm here
 
 			// to avoid a broken stream
 			SyncServerAndClient();
 			
-			// Delete the worm from client/server
-			cClient->RemoveWorm(wormID);			
-			std::set<CWorm*> wormList; wormList.insert(w);
-			RemoveClientWorms(cl, wormList);
+			// check if we didn't already removed the worm from inside that SyncServerAndClient
+			if(cClient->OwnsWorm(wormID)) {
+				// Send the message
+				if (sReason.size() == 0)
+					SendGlobalText((replacemax(networkTexts->sHasBeenBanned,
+											   "<player>", w->getName(), 1)),	TXT_NETWORK);
+				else
+					SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
+														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
+				
+				notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+				
+				// Delete the worm from client/server
+				cClient->RemoveWorm(wormID);			
+				std::set<CWorm*> wormList; wormList.insert(w);
+				RemoveClientWorms(cl, wormList);
+				
+				// Now that a player has left, re-check the game status
+				RecheckGame();
+			}
 			
-			// Now that a player has left, re-check the game status
-			RecheckGame();
-
 			// End here
 			return;
 		}
@@ -2318,7 +2314,7 @@ void SyncServerAndClient() {
 					cl->getNetEngine()->ParsePacket(&bs);
 				bs.Clear();
 			}
-		}		
+		}
 	}
 	
 	cClient->SendPackets();

@@ -1407,7 +1407,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 	
 	// remove bots if not wanted anymore
-	CheckForFillWithBots();
+	if(!reconnectFrom)
+		CheckForFillWithBots();
 	numworms = newcl->getNumWorms();
 	SetRemoteNetAddr(tSocket, adrFrom); // it could have been changed
 	
