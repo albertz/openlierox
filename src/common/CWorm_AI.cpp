@@ -1042,6 +1042,12 @@ void CWormBotInputHandler::getInput() {
 	if(tLX->currentTime - fLastThink > 0.5 && !bPathFinished)
 		nAIState = AI_THINK;
 
+    // Make sure the worm is good
+    if(nAITargetType == AIT_WORM)
+		if(!psAITarget || !psAITarget->isUsed() || !psAITarget->getAlive() || psAITarget->getAFK() != AFK_BACK_ONLINE) {
+			nAIState = AI_THINK;
+		}
+	
 	// Carve always; makes no problems and can only help
 	AI_Carve();
 
@@ -1469,7 +1475,7 @@ void CWormBotInputHandler::AI_Think()
 		return;
 	}
 	else
-		fLastShoot = AbsTime();
+		fLastShoot = AbsTime(); // force new shoot
 
     // If we're down on health (less than 80%) we should look for a health bonus
     if(m_worm->iHealth < 80) {
@@ -1936,23 +1942,16 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 // returns true if we want to do it or already doing it (also in the progress of aiming)
 bool CWormBotInputHandler::AI_Shoot()
 {
-    // Make sure the target is a worm
-    if(nAITargetType != AIT_WORM)
-        return false;
-
-    // Make sure the worm is good
-    if(!psAITarget || !psAITarget->isUsed() || !psAITarget->getAlive() || (psAITarget->getAFK() != AFK_BACK_ONLINE)) {
-        nAIState = AI_THINK;
-        return false;
-    }
-
 	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
 		// there is no shooting in this gamemode
 		return false;
 	}
 	
+	// search for best target
+ 	CWorm* w = findTarget();
+	if(!w) return false;
 	
-    CVec    cTrgPos = psAITarget->getPos();
+	CVec    cTrgPos = w->getPos();
     bool    bDirect = true;
 
 
@@ -2055,9 +2054,9 @@ bool CWormBotInputHandler::AI_Shoot()
 				// don't shoot this shit
 				break;
 			default:
-				CVec direction = (psAITarget->getPos() - m_worm->vPos).Normalize();
+				CVec direction = (w->getPos() - m_worm->vPos).Normalize();
 				// speed of target in the direction (moving away from us)
-				float targ_speed = direction.Scalar(*psAITarget->getVelocity());
+				float targ_speed = direction.Scalar(*w->getVelocity());
 				float my_speed = direction.Scalar(m_worm->vVelocity);
 
 				// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
@@ -2087,12 +2086,12 @@ bool CWormBotInputHandler::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << psAITarget->getVelocity()->GetLength() << ", proj speed: " << (float)weap->ProjSpeed*weap->Projectile->Dampening << "+" << (weap->ProjSpeedVar*100.0f) << endl;
+					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity()->GetLength() << ", proj speed: " << (float)weap->ProjSpeed*weap->Projectile->Dampening << "+" << (weap->ProjSpeedVar*100.0f) << endl;
 
 				} else { // apriori_time >= 0
 					// where the target would be
-					x += apriori_time*psAITarget->getVelocity()->x;
-					y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
+					x += apriori_time*w->getVelocity()->x;
+					y -= apriori_time*w->getVelocity()->y; // HINT: real-world-koords
 				}
 
 				// Gravity
