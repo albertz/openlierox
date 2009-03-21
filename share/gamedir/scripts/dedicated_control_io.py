@@ -148,8 +148,9 @@ def getWormTeam(iID):
 	return int(SendCommand("getwormteam %i" % int(iID))[0])
 
 def getNumberWormsInTeam(team):
+	import dedicated_control_handler as hnd
 	c = 0
-	for w in worms.values():
+	for w in hnd.worms.values():
 		if getWormTeam( w.iID ) == team:
 			c = c + 1
 	return c
