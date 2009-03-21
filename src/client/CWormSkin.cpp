@@ -29,12 +29,16 @@
 // Constructors
 CWormSkin::CWormSkin(const std::string &file)
 {
+	// TODO: share code with Change()
+	
 	if (bDedicated)  { // No skins in dedicated mode
 		bmpSurface = NULL;
 	} else {
 		bmpSurface = LoadGameImage("skins/" + file, true);
-		if (!bmpSurface.get()) // Try to load the default skin if the given one failed
+		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
+			warnings << "CWormSkin::Change: couldn't find skin " << file << endl;
 			bmpSurface = LoadGameImage("skins/default.png", true);
+		}
 		if (bmpSurface.get())
 			SetColorKey(bmpSurface.get());
 	}
@@ -88,8 +92,10 @@ void CWormSkin::Change(const std::string &file)
 		bmpSurface = NULL;
 	} else {
 		bmpSurface = LoadGameImage("skins/" + file, true);
-		if (!bmpSurface.get()) // Try to load the default skin if the given one failed
+		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
+			warnings << "CWormSkin::Change: couldn't find skin " << file << endl;
 			bmpSurface = LoadGameImage("skins/default.png", true);
+		}
 		if (bmpSurface.get())  {
 			SetColorKey(bmpSurface.get());
 			if (bmpSurface->w != 672 || bmpSurface->h != 36)

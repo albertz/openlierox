@@ -230,6 +230,9 @@ public:
 	bool		LoadImageFormat(FILE *fp, bool ctf);	
 	void		Clear(void);
 
+	inline std::string getName()			{ return Name; }
+	inline std::string getFilename()		{ return FileName; }
+	
     //void		ApplyRandom(void);
     //void        ApplyRandomLayout(maprandom_t *psRandom);
 
@@ -274,7 +277,8 @@ public:
 	
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
-	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms, int generalgametype);
+	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms);
+	void		drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special);
 	
 private:
 	// not thread-safe, therefore private	
@@ -295,15 +299,14 @@ public:
 
 	size_t GetMemorySize();
 
-	inline uchar GetPixelFlag(uint x, uint y)
-	{
+	uchar GetPixelFlag(long x, long y) {
 		// Checking edges
-		if(x >= Width || y >= Height)
+		if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
 			return PX_ROCK;
-	
 		return PixelFlags[y * Width + x];
 	}
-
+	uchar GetPixelFlag(const CVec& pos) { return GetPixelFlag((long)pos.x, (long)pos.y); }
+	
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
 	SmartPointer<SDL_Surface> GetDrawImage()		{ return bmpDrawImage; }
@@ -325,6 +328,8 @@ public:
     int         PlaceGreenDirt(CVec pos);
 	void		ApplyShadow(int sx, int sy, int w, int h);
 
+	CVec		groundPos(const CVec& pos);
+	
 	// Save/restore from memory, for commit/rollback net mechanism
 	void		NewNet_SaveToMemory();
 	void		NewNet_RestoreFromMemory();
@@ -352,8 +357,7 @@ public:
 	}
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline bool			getCreated(void)	{ return Created; }
-	inline std::string getName()			{ return Name; }
-	inline std::string getFilename()		{ return FileName; }
+	
 	
 	// TODO: why is this converted to CVec? either use directly CVec or don't use it at all! every conversion take performance away
 	inline CVec		getFlagSpawn(void)		{ return CVec(FlagSpawnX, FlagSpawnY); }

@@ -92,6 +92,11 @@ bool LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
 	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
+	LOAD_IMAGE_WITHALPHA2(gfxGame.bmpFlagSpawnpointDefault,"data/gfx/flagspawnpoint.png","data/frontend/team_1.png");
+	LOAD_IMAGE_WITHALPHA2(gfxGame.bmpFlagSpawnpoint[0],"data/gfx/flagspawnpoint1.png","data/frontend/team_1.png");
+	LOAD_IMAGE_WITHALPHA2(gfxGame.bmpFlagSpawnpoint[1],"data/gfx/flagspawnpoint2.png","data/frontend/team_2.png");
+	LOAD_IMAGE_WITHALPHA2(gfxGame.bmpFlagSpawnpoint[2],"data/gfx/flagspawnpoint3.png","data/frontend/team_3.png");
+	LOAD_IMAGE_WITHALPHA2(gfxGame.bmpFlagSpawnpoint[3],"data/gfx/flagspawnpoint4.png","data/frontend/team_4.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[0], "data/frontend/team_1.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");

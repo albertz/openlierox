@@ -21,7 +21,8 @@
 #include "CClient.h"
 #include "console.h"
 #include "Debug.h"
-
+#include "CServer.h"
+#include "FlagInfo.h"
 
 
 // TODO: clean up this code!
@@ -70,8 +71,12 @@ public:
 
 		pos += *vel * dt;
 		worm->pos() = pos;
+		
+		// check for flag
+		if(tLX->iGameType != GME_JOIN)
+			cServer->flagInfo()->checkWorm(worm);
 
-
+			
 		int x,y;
 		x = (int)pos.x;
 		y = (int)pos.y;

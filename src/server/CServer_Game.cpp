@@ -26,6 +26,44 @@
 #include "Physics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "CGameMode.h"
+#include "FlagInfo.h"
+
+
+CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm) {
+	// TODO: optimise this!
+
+	float team_dist = 0;
+	CVec pos = FindSpot();
+	CVec pos1;
+	
+	for( int k=0; k<100; k++ )
+	{
+		float team_dist1 = 0;
+		pos1 = FindSpot();
+		CWorm * w = cWorms;
+		for(int i = 0; i < MAX_WORMS; i++, w++)
+		{
+			if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || w->getAlive())
+				continue;
+			if(exceptionWorm && exceptionWorm->getID() == w->getID())
+				continue;
+			
+			// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+			// The sum will get considerably smaller if any two teams are on short dist
+			if( w->getTeam() == t )
+				team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0f;
+			else
+				team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
+		}
+		if( team_dist1 > team_dist )
+		{
+			team_dist = team_dist1;
+			pos = pos1;
+		}
+	}
+	
+	return pos;
+}
 
 ///////////////////
 // Spawn a worm
@@ -40,39 +78,14 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		pos = *_pos;
 	else
 	{
-		pos = FindSpot();
-		
 		// Spawn worm closer to it's own team and away from other teams
 		if( tLXOptions->tGameInfo.bRespawnGroupTeams &&
 				  ( getGameMode()->GameTeams() > 1 ) )
 		{
-			float team_dist = 0;
-			CVec pos1;
-			
-			for( int k=0; k<100; k++ )
-			{
-				float team_dist1 = 0;
-				pos1 = FindSpot();
-				CWorm * w = cWorms;
-				for(int i = 0; i < MAX_WORMS; i++, w++)
-				{
-					if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || 
-						Worm->getID() == w->getID() || !w->getAlive() )
-						continue;
-					// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
-					// The sum will get considerably smaller if any two teams are on short dist
-					if( w->getTeam() == Worm->getTeam() )
-						team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0f;
-					else
-						team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
-				}
-				if( team_dist1 > team_dist )
-				{
-					team_dist = team_dist1;
-					pos = pos1;
-				}
-			}
+			pos = FindSpotCloseToTeam(Worm->getTeam(), Worm);
 		}
+		else
+			pos = FindSpot();			
 	}
 
 	if(pos.x == -1 && pos.y == -1)
@@ -229,6 +242,9 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->WormDied_Signal(vict,kill);
+	
+	SendTeamScoreUpdate();
+	
 	RecheckGame();
 	return;
 };
@@ -260,9 +276,7 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	short i ;
-
-	for(i=0;i<MAX_WORMS;i++,w++) {
+	for(short i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
 
@@ -285,7 +299,7 @@ void GameServer::SimulateGame(void)
 
 	// Check if any bonuses have been in for too long and need to be destroyed
 	if (tLXOptions->tGameInfo.bBonusesOn)  {
-		for(i=0; i<MAX_BONUSES; i++) {
+		for(short i=0; i<MAX_BONUSES; i++) {
 			if(!cBonuses[i].getUsed())
 				continue;
 
@@ -303,16 +317,12 @@ void GameServer::SimulateGame(void)
 		}
 	}
 
-
-
 	// Check if we need to spawn a bonus
 	if(tLX->currentTime - fLastBonusTime > tLXOptions->tGameInfo.fBonusFreq && tLXOptions->tGameInfo.bBonusesOn && !bGameOver) {
-
 		SpawnBonus();
-
 		fLastBonusTime = tLX->currentTime;
 	}
-
+	
 	// Simulate anything needed by the game mode
 	getGameMode()->Simulate();
 

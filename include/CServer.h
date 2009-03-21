@@ -35,6 +35,7 @@ class CMap;
 class Version;
 class CGameMode;
 struct WormJoinInfo;
+class FlagInfo;
 
 #define		MAX_CHALLENGES		1024
 
@@ -126,6 +127,8 @@ private:
 	bool		bRandomMap;		// TODO: what is this good for
 	CMap		*cMap;
 
+	FlagInfo*	m_flagInfo;
+	
 	// Simulation
 	TimeDiff	fServertime;
 	int			iServerFrame;	// TODO: what is this good for
@@ -184,6 +187,8 @@ public:
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame(void);
 	CVec		FindSpot(void);
+	CVec		FindSpotCloseToTeam(int t, CWorm* exceptionWorm = NULL);
+	
 	void		SpawnBonus(void);
 	static void	WormShoot(CWorm *w, GameServer* gameserver);
     void        RecheckGame(void);
@@ -242,6 +247,7 @@ public:
 	
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
+	void		SendGlobalPacket(CBytestream* bs, const Version& minVersion);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendWormsOut(const std::list<byte>& ids);
 	void		SendDisconnect();
@@ -256,6 +262,7 @@ public:
 	bool		SendUpdate();
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 	void		SendWormTagged(CWorm *w);
+	void		SendTeamScoreUpdate();
 
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
@@ -272,6 +279,7 @@ public:
 
 	// Variables
 	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
+	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	int				getState()			{ return iState; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }

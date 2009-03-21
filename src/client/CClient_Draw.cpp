@@ -49,6 +49,7 @@
 #include "ProfileSystem.h"
 #include "IRC.h"
 #include "CGameMode.h"
+#include "FlagInfo.h"
 
 
 
@@ -541,7 +542,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (cMap != NULL)  {
 			if (iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, getGeneralGameType() );
+				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
 			else
 				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 		}
@@ -846,6 +847,9 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			// Draw the bonuses
 			DrawBonuses(bmpDest, v);
 
+			// draw unattached flags and flag spawnpoints
+			cClient->flagInfo()->draw(bmpDest, v);
+			
 			// Draw all the worms in the game
 			ushort i;
 			w = cRemoteWorms;
@@ -1226,16 +1230,35 @@ void CClient::InitializeGameMenu()
 	if (bGameOver)  {
 		if (tGameInfo.iGeneralGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
-			iMatchWinner = CLAMP(iMatchWinner, 0, 3); // Safety
-			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinner];
-			if (pic.get())
-				cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+			std::string teamName = "noone";
+			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4)
+				teamName = teamnames[iMatchWinnerTeam];
+			else if(iMatchWinnerTeam >= 4)
+				teamName = "team " + itoa(iMatchWinnerTeam);
+			
+			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
+			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4) {
+				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinnerTeam];
+				if (pic.get())
+					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+			}
 		} else {
-			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			SmartPointer<SDL_Surface> pic = cRemoteWorms[iMatchWinner].getPicimg();
-			if (pic.get())
-				cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+			std::string winnerName = "noone";
+			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
+				if(cRemoteWorms[iMatchWinner].isUsed())
+					winnerName = cRemoteWorms[iMatchWinner].getName();
+				else
+					winnerName = "unknown worm";
+			}
+			else if(iMatchWinner >= MAX_WORMS)
+				winnerName = "invalid winner";
+			
+			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(winnerName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
+			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
+				SmartPointer<SDL_Surface> pic = cRemoteWorms[iMatchWinner].getPicimg();
+				if (pic.get())
+					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+			}
 		}
 	}
 
@@ -1614,10 +1637,10 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 		for(n = 0; n < 4; n++) {
 			team = iTeamList[n];
-			score = iTeamScores[team];
+			score = getTeamScore(team);
 
 			// Check if the team has any players
-			if(score == -1)
+			if(getTeamWormCount(team) == 0)
 				continue;
 
 			// If left would overflow after adding team header, switch to right

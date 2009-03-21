@@ -38,6 +38,7 @@
 #include "IpToCountryDB.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "FlagInfo.h"
 
 #ifdef _MSC_VER
 #undef min
@@ -1564,6 +1565,8 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		
 		// send the client all already selected weapons of the other worms
 		SendWeapons(newcl);
+		
+		m_flagInfo->sendCurrentState(newcl);
 	}
 }
 

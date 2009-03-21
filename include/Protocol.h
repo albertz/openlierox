@@ -88,6 +88,8 @@ enum S2C_MESSAGES {
 	S2C_REPORTDAMAGE	= 27, // since Beta9
 	S2C_HIDEWORM		= 28, // since Beta9
 	S2C_NEWNET_KEYS		= 29, // since Beta9
+	S2C_TEAMSCOREUPDATE = 30, // >=beta9
+	S2C_FLAGINFO		= 31, // >=beta9 
 };
 
 

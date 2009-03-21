@@ -48,7 +48,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
-
+#include "FlagInfo.h"
 
 
 #ifdef _MSC_VER
@@ -593,6 +593,14 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				ParseNewNetKeys(bs);
 				break;
 
+			case S2C_TEAMSCOREUPDATE:
+				ParseTeamScoreUpdate(bs);
+				break;
+				
+			case S2C_FLAGINFO:
+				ParseFlagInfo(bs);
+				break;
+				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << cmd << endl;
@@ -709,6 +717,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
+	client->m_flagInfo->reset();
+	
 	// HINT: gamescript is shut down by the cache
 
     //bs->Dump();
@@ -1481,49 +1491,105 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 }
 
+void CClientNetEngine::ParseTeamScoreUpdate(CBytestream *bs) {
+	if(client->getServerVersion() < OLXBetaVersion(9)) {
+		warnings << "ParseTeamScoreUpdate: got update from too old " << client->getServerVersion().asString() << " server" << endl;
+		bs->SkipAll(); // screwed up
+		return;
+	}
+	
+	if(client->tGameInfo.iGeneralGameType != GMT_TEAMS)
+		warnings << "ParseTeamScoreUpdate: it's not a teamgame" << endl;
+	
+	int teamCount = bs->readByte();
+	for(int i = 0; i < teamCount; ++i) {
+		if(bs->isPosAtEnd()) {
+			warnings << "ParseTeamScoreUpdate: network is screwed up" << endl;
+			break;
+		}
+		
+		if(i == 4) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first 4 teams" << endl;
+		int score = bs->readInt16();
+		if(i < 4) client->iTeamScores[i] = score;
+	}
+	
+	// reorder the list
+	client->UpdateScoreboard();
+}
+
 
 ///////////////////
 // Parse a game over packet
 void CClientNetEngine::ParseGameOver(CBytestream *bs)
 {
-	// Check
-	if (client->bGameOver)  {
-		printf("CClientNetEngine::ParseGameOver: the game is already over, ignoring");
-		bs->Skip(1);
-		return;
-	}
+	if(client->getServerVersion() < OLXBetaVersion(9)) {
+		client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
+			
+		client->iMatchWinnerTeam = -1;
 
-	client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
+		// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
+		if (client->tGameInfo.iGeneralGameType == GMT_TEAMS)  {
 
-	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
-	if (client->tGameInfo.iGeneralGameType == GMT_TEAMS)  {
+			if (client->tGameInfo.iKillLimit != -1)  {
+				client->iMatchWinnerTeam = client->cRemoteWorms[client->iMatchWinner].getTeam();
+			} else if (client->tGameInfo.iLives != -2)  {
+				for (int i=0; i < MAX_WORMS; i++)  {
+					if (client->cRemoteWorms[i].getLives() >= 0)  {
+						client->iMatchWinnerTeam = client->cRemoteWorms[i].getTeam();
+						break;
+					}
+				}
+			}
+		}
 
-		if (client->tGameInfo.iKillLimit != -1)  {
-			client->iMatchWinner = client->cRemoteWorms[client->iMatchWinner].getTeam();
-		} else if (client->tGameInfo.iLives != -2)  {
+		// Older servers send wrong info about tag winner, better if we count it ourself
+		if (client->tGameInfo.iGeneralGameType == GMT_TIME)  {
+			TimeDiff max = TimeDiff(0);
+
 			for (int i=0; i < MAX_WORMS; i++)  {
-				if (client->cRemoteWorms[i].getLives() >= 0)  {
-					client->iMatchWinner = client->cRemoteWorms[i].getTeam();
-					break;
+				if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
+					max = client->cRemoteWorms[i].getTagTime();
+					client->iMatchWinner = i;
 				}
 			}
 		}
 	}
+	else { // server >=beta9
+		client->iMatchWinner = bs->readByte();
 
-	// Older servers send wrong info about tag winner, better if we count it ourself
-	if (client->tGameInfo.iGeneralGameType == GMT_TIME)  {
-		TimeDiff max = TimeDiff(0);
-
-		for (int i=0; i < MAX_WORMS; i++)  {
-			if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
-				max = client->cRemoteWorms[i].getTagTime();
-				client->iMatchWinner = i;
+		if(client->tGameInfo.iGeneralGameType == GMT_TEAMS)  {
+			client->iMatchWinnerTeam = bs->readByte();
+			int teamCount = bs->readByte();
+			for(int i = 0; i < teamCount; ++i) {
+				if(bs->isPosAtEnd()) {
+					warnings << "ParseGameOver: network is screwed up" << endl;
+					break;
+				}
+				
+				if(i == 4) warnings << "ParseGameOver: cannot handle teamscores for other than the first 4 teams" << endl;
+				int score = bs->readInt16();
+				if(i < 4) client->iTeamScores[i] = score;
 			}
-		}
+		} else
+			client->iMatchWinnerTeam = -1;
 	}
-
+	
+	// Check
+	if (client->bGameOver)  {
+		notes << "CClientNetEngine::ParseGameOver: the game is already over, ignoring" << endl;
+		return;
+	}
+	
+	
 	// Game over
-	hints << "Client: the game is over, the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName() << endl;
+	hints << "Client: the game is over,";
+	if(client->iMatchWinner >= 0 && client->iMatchWinner < MAX_WORMS) {
+		hints << " the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName();
+	}
+	if(client->iMatchWinnerTeam >= 0) {
+		hints << " and the winning team is team " << client->iMatchWinnerTeam;
+	}
+	hints << endl;
 	client->bGameOver = true;
 	client->fGameOverTime = tLX->currentTime;
 
@@ -2363,9 +2429,7 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		if( kills > SHRT_MAX )
 			kills -= USHRT_MAX + 1;
 		client->cRemoteWorms[id].setKills( kills );
-		int damage = bs->readInt(2);
-		if( damage > SHRT_MAX )
-			damage -= USHRT_MAX + 1;
+		int damage = bs->readInt(4);
 		if( client->cRemoteWorms[id].getDamage() != damage )
 		{
 			// Occurs pretty often, don't spam console
@@ -2448,3 +2512,26 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 	else
 		w->Show(forworm, immediate);
 }
+
+void CClientNetEngine::ParseFlagInfo(CBytestream* bs) {
+	if(!client) {
+		warnings << "Client: Got flaginfo with client unset" << endl;
+		FlagInfo::skipUpdate(bs);
+		return;
+	}
+
+	if(client->cServerVersion < OLXBetaVersion(9)) {
+		warnings << "Client: got flaginfo from too old " << client->cServerVersion.asString() << " server" << endl;
+		bs->SkipAll(); // probably wrong anyway
+		return;
+	}
+	
+	if(client->m_flagInfo == NULL) {
+		warnings << "Client: Got flaginfo with flaginfo unset" << endl;
+		FlagInfo::skipUpdate(bs);
+		return;
+	}
+	
+	client->m_flagInfo->readUpdate(bs);
+}
+

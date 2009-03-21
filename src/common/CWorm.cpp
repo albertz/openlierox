@@ -29,6 +29,7 @@
 #include "CWormHuman.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "FlagInfo.h"
 
 
 ///////////////////
@@ -782,7 +783,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 				if( ! tLXOptions->bColorizeDamageByWorm )
 					break;
-			};
+			}
 			// Clean up expired damage report values
 			if( tLXOptions->bColorizeDamageByWorm )
 			{
@@ -950,6 +951,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	} // if
 	bDrawMuzzle = false;
 
+	if(isWormVisible(this, v))
+		cClient->flagInfo()->drawWormAttachedFlag(this, bmpDest, v);
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 

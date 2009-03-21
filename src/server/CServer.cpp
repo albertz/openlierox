@@ -41,6 +41,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "ProfileSystem.h"
+#include "FlagInfo.h"
 
 GameServer	*cServer = NULL;
 
@@ -51,6 +52,12 @@ CServerConnection *cBots = NULL;
 std::string OldLxCompatibleString(const std::string &Utf8String);
 
 GameServer::GameServer() {
+	iState = SVS_LOBBY;
+	m_flagInfo = NULL;
+	cClients = NULL;
+	cMap = NULL;
+	cWorms = NULL;
+	iNumPlayers = 0;
 	Clear();
 	CScriptableVars::RegisterVars("GameServer")
 		( sWeaponRestFile, "WeaponRestrictionsFile" ) // Only for dedicated server
@@ -213,6 +220,8 @@ int GameServer::StartServer()
 
 	// In the lobby
 	iState = SVS_LOBBY;
+	
+	m_flagInfo = new FlagInfo();
 
 	// Load the master server list
 	FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
@@ -285,7 +294,7 @@ bool GameServer::serverChoosesWeapons() {
 }
 
 ///////////////////
-// Start the game
+// Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::StartGame()
 {
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
@@ -413,6 +422,8 @@ int GameServer::StartGame()
 	// Clear the shooting list
 	cShootList.Clear();
 
+	m_flagInfo->reset();
+	
 	fLastBonusTime = tLX->currentTime;
 	fWeaponSelectionTime = tLX->currentTime;
 	iWeaponSelectionTime_Warning = 0;
@@ -649,7 +660,7 @@ void GameServer::GameOver()
 	int winner = getGameMode()->Winner();
 	if(winner >= 0) {
 		if (networkTexts->sPlayerHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
+			SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
 												cWorms[winner].getName(), 1)), TXT_NORMAL);
 		hints << ", worm " << winner << " has won the match";
 	}
@@ -657,7 +668,7 @@ void GameServer::GameOver()
 	int winnerTeam = getGameMode()->WinnerTeam();
 	if(winnerTeam >= 0) {
 		if(networkTexts->sTeamHasWon != "<none>")
-			cServer->SendGlobalText((replacemax(networkTexts->sTeamHasWon,
+			SendGlobalText((replacemax(networkTexts->sTeamHasWon,
 									 "<team>", getGameMode()->TeamName(winnerTeam), 1)), TXT_NORMAL);
 		hints << ", team " << winnerTeam << " has won the match";
 	}
@@ -666,22 +677,40 @@ void GameServer::GameOver()
 
 	// TODO: move that out here!
 	// Let everyone know that the game is over
-	CBytestream bs;
-	bs.writeByte(S2C_GAMEOVER);
-	int winLX = winner;
-	if(getGameMode()->GeneralGameType() == GMT_TEAMS) {
-		// we have to send always the worm-id (that's the LX56 protocol...)
-		if(winLX < 0)
-			for(int i = 0; i < getNumPlayers(); ++i) {
-				if(cWorms[i].getTeam() == winnerTeam) {
-					winLX = i;
-					break;
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		CServerConnection *cl = &cClients[c];
+		if(!cl->getNetEngine()) continue;
+		
+		CBytestream bs;
+		bs.writeByte(S2C_GAMEOVER);
+		if(cl->getClientVersion() < OLXBetaVersion(9)) {
+			int winLX = winner;
+			if(getGameMode()->isTeamGame()) {
+				// we have to send always the worm-id (that's the LX56 protocol...)
+				if(winLX < 0)
+					for(int i = 0; i < getNumPlayers(); ++i) {
+						if(cWorms[i].getTeam() == winnerTeam) {
+							winLX = i;
+							break;
+						}
+					}
+			}
+			if(winLX < 0) winLX = 0; // we cannot have no winner in LX56
+			bs.writeInt(winLX, 1);
+		}
+		else { // >= Beta9
+			bs.writeByte(winner);
+			if(getGameMode()->GeneralGameType() == GMT_TEAMS) {
+				bs.writeByte(winnerTeam);
+				bs.writeByte(getGameMode()->GameTeams());
+				for(int i = 0; i < getGameMode()->GameTeams(); ++i) {
+					bs.writeInt16(getGameMode()->TeamScores(i));
 				}
 			}
+		}
+		
+		cl->getNetEngine()->SendPacket(&bs);
 	}
-	if(winLX < 0) winLX = 0; // we cannot have no winner in LX56
-	bs.writeInt(winLX, 1);
-	SendGlobalPacket(&bs);
 
 	// Reset the state of all the worms so they don't keep shooting/moving after the game is over
 	// HINT: next frame will send the update to all worms
@@ -693,14 +722,14 @@ void GameServer::GameOver()
 
 		w->clearInput();
 		
-		if( getGameMode()->GameTeams() <= 1 )
+		if( !getGameMode()->isTeamGame() )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
 			else
 				w->addTotalLosses();
 		}
-		else	// winner == team id
+		else
 		{
 			if( w->getTeam() == winnerTeam )
 				w->addTotalWins();
@@ -1582,7 +1611,8 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setDamage(0);
 		if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
 			w->setTeam(0);
-		
+		else
+			w->setTeam(wormInfo.iTeam);
 		
 		if(w->isPrepared()) {
 			warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! ";
@@ -2178,6 +2208,11 @@ void GameServer::Shutdown(void)
 		cMap = NULL;
 	}
 
+	if(m_flagInfo) {
+		delete m_flagInfo;
+		m_flagInfo = NULL;
+	}
+	
 	cShootList.Shutdown();
 
 	cWeaponRestrictions.Shutdown();
@@ -2234,7 +2269,7 @@ void GameServer::DumpGameState() {
 					notes << ", alive";
 				else
 					notes << ", dead";
-				if(!w->isPrepared()) notes << ", not yet prepared";
+				if(!w->getWeaponsReady()) notes << ", still weapons selecting";
 				notes << ", lives=" << w->getLives();
 				notes << ", kills=" << w->getKills();
 				if(w->getClient())

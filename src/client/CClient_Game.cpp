@@ -746,7 +746,7 @@ void CClient::UpdateScoreboard(void)
 	// Should be called ONLY in game
 	if(!bGameReady)
 		return;
-
+	
 	bUpdateScore = true;
 
 	CWorm *w = cRemoteWorms;
@@ -755,8 +755,9 @@ void CClient::UpdateScoreboard(void)
 
 	// Clear the team scores
 	for(i=0;i<4;i++) {
-		iTeamScores[i]=-1;		// -1 means no players on team
 		iTeamList[i]=i;
+		if(getServerVersion() < OLXBetaVersion(9))
+			iTeamScores[i]=0;
 	}
 
 	// Add the worms to the list
@@ -764,25 +765,28 @@ void CClient::UpdateScoreboard(void)
 	for(p=0; p<MAX_WORMS; p++,w++) {
 		if(!w->isUsed())
 			continue;
-
+		
 		iScoreboard[iScorePlayers++] = p;
-
-		// Add to the team score
-		if(getGeneralGameType() == GMT_TEAMS) {
-			// Make the score at least zero to say we have
-			int team = w->getTeam();
-			if (team < 0)  {  // prevents crashing sometimes
-				w->setTeam(0);
-				team = 0;
-			}
-			iTeamScores[team] = MAX(0,iTeamScores[team]);
-
-			if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
-				iTeamScores[team] += w->getLives();
+		
+		// in other cases, we got the scores from the server
+		if(getServerVersion() < OLXBetaVersion(9)) {
+			// Add to the team score
+			if(getGeneralGameType() == GMT_TEAMS) {
+				int team = w->getTeam();
+				if (team < 0)  {  // prevents crashing sometimes
+					w->setTeam(0);
+					team = 0;
+				}
+				// Make the score at least zero to say we have
+				iTeamScores[team] = MAX(0,iTeamScores[team]);
+				
+				if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
+					iTeamScores[team] += w->getLives();
+			}				
 		}
 	}
-
-
+		
+	
 	// Sort the team lists
 	if(getGeneralGameType() == GMT_TEAMS) {
 		for(i=0;i<4;i++) {

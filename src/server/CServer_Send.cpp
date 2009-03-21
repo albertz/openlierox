@@ -53,12 +53,22 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 {
 	// Assume reliable
 	CServerConnection *cl = cClients;
-
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getNetEngine())
 			cl->getNetEngine()->SendPacket(bs);
 	}
 }
+
+void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
+{
+	// Assume reliable
+	CServerConnection *cl = cClients;
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+		if(cl->getNetEngine() && cl->getClientVersion() >= minVersion)
+			cl->getNetEngine()->SendPacket(bs);
+	}
+}
+
 
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
@@ -955,7 +965,7 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
 	bs.writeInt(Worm->getKills(), 2); // Negative kills are allowed
-	bs.writeInt(Worm->getDamage(), 2);
+	bs.writeInt(Worm->getDamage(), 4);
 
 	SendPacket(&bs);
 }
@@ -1003,4 +1013,18 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 
 	cDamageReport.clear();
 	fLastDamageReportSent = tLX->currentTime;
+}
+
+
+void GameServer::SendTeamScoreUpdate() {
+	// only do this in a team game
+	if(getGameMode()->GeneralGameType() != GMT_TEAMS) return;
+	
+	CBytestream bs;
+	bs.writeByte(S2C_TEAMSCOREUPDATE);
+	bs.writeByte(getGameMode()->GameTeams());
+	for(int i = 0; i < getGameMode()->GameTeams(); ++i) {
+		bs.writeInt16(getGameMode()->TeamScores(i));
+	}	
+	SendGlobalPacket(&bs, OLXBetaVersion(9));
 }

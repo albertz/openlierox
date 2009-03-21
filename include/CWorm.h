@@ -627,7 +627,6 @@ public:
 
 int traceWormLine(CVec target, CVec start, CVec* collision = NULL);
 
-
 struct WormJoinInfo {
 	WormJoinInfo() : iTeam(0), m_type(NULL) {}
 	void loadFromProfile(profile_t* p);	

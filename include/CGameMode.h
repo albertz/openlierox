@@ -18,6 +18,7 @@
 class CWorm;
 class GameServer;
 class CServerConnection;
+struct Flag;
 
 class CGameMode {
 public:
@@ -28,6 +29,7 @@ public:
 	virtual std::string Name() = 0;
 	virtual int  GeneralGameType(); // this is the game type which is sent over network
 	virtual int  GameTeams(); // amount of teams in gamemode
+	bool isTeamGame() { return GameTeams() > 1; }
 	virtual std::string TeamName(int t);
 	
 	virtual void PrepareGame();
@@ -37,6 +39,8 @@ public:
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	// If Shoot returns false then no shot will be fired (used both server&client side)
 	virtual bool Shoot(CWorm* worm) { return true; }
+	virtual void hitFlag(CWorm* worm, Flag* flag) {}
+	virtual void hitFlagSpawnPoint(CWorm* worm, Flag* flag) {}
 	virtual void Drop(CWorm* worm) {}
 	virtual void Carve(CWorm* worm, int d) {}
 	virtual void Simulate() {}	
@@ -48,6 +52,7 @@ public:
 	virtual int CompareTeamsScore(int t1, int t2);
 	virtual int Winner();
 	virtual int WinnerTeam();
+	virtual int TeamScores(int t);
 
 	// helper functions
 	int WormsAliveInTeam(int t);

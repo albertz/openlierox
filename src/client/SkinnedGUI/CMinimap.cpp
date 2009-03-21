@@ -88,7 +88,7 @@ void CMinimap::DoRepaint()
 	
 	// Draw the minimap
 	if (tWorms)
-		cMap->DrawMiniMap(bmpBuffer.get(), cBorder.getLeftW(), cBorder.getTopW(), tLX->fDeltaTime, tWorms, cClient->getGameLobby()->iGeneralGameType);
+		cMap->DrawMiniMap(bmpBuffer.get(), cBorder.getLeftW(), cBorder.getTopW(), tLX->fDeltaTime, tWorms);
 	else
 		DrawImage(bmpBuffer.get(), cMap->GetMiniMap(), cBorder.getLeftW(), cBorder.getTopW());
 

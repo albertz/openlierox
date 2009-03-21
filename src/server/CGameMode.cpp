@@ -255,6 +255,10 @@ int CGameMode::WormsAliveInTeam(int t) {
 	return c;
 }
 
+int CGameMode::TeamScores(int t) {
+	return TeamKills(t);
+}
+
 int CGameMode::TeamKills(int t) {
 	int c = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
@@ -279,6 +283,12 @@ int CGameMode::CompareTeamsScore(int t1, int t2) {
 		if(d != 0) return d;
 	}
 	
+	// if there is a custom teamscore function
+	{
+		int d = TeamScores(t1) - TeamScores(t2);
+		if(d != 0) return d;
+	}
+	
 	// Kills
 	{
 		int d = TeamKills(t1) - TeamKills(t2);
@@ -296,17 +306,19 @@ extern CGameMode* gameMode_TeamDeathMatch;
 extern CGameMode* gameMode_Tag;
 extern CGameMode* gameMode_Demolitions;
 extern CGameMode* gameMode_HideAndSeek;
+extern CGameMode* gameMode_CaptureTheFlag;
 
 
 static std::vector<CGameMode*> gameModes;
 
 void InitGameModes() {
-	gameModes.resize(5);
+	gameModes.resize(6);
 	gameModes[0] = gameMode_DeathMatch;
 	gameModes[1] = gameMode_TeamDeathMatch;
 	gameModes[2] = gameMode_Tag;
 	gameModes[3] = gameMode_Demolitions;
-	gameModes[4] = gameMode_HideAndSeek;	
+	gameModes[4] = gameMode_HideAndSeek;
+	gameModes[5] = gameMode_CaptureTheFlag;
 }
 
 CGameMode* GameMode(GameModeIndex i) {

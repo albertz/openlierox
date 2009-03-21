@@ -18,6 +18,7 @@
 #define __CCLIENT_H__
 
 #include <string>
+#include <vector>
 #include "FastVector.h"
 #include "CWeather.h"
 #include "CChatBox.h"
@@ -47,6 +48,7 @@ class CClientNetEngine;
 class CBonus;
 class CMap;
 class profile_t;
+class FlagInfo;
 
 // TODO: this is just a small helper for now; some of these parts should just move into CClient::Connect
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player);
@@ -227,6 +229,7 @@ private:
 	GameOptions::GameInfo tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
+	FlagInfo*	m_flagInfo;
 
 	// Ping below FPS
 	AbsTime		fMyPingSent;
@@ -351,6 +354,7 @@ private:
 	bool		bGameOver;
 	bool		bGameMenu;
 	int			iMatchWinner;
+	int			iMatchWinnerTeam;
 	AbsTime		fGameOverTime;
 
 	bool		bLobbyReady;
@@ -530,6 +534,7 @@ public:
 	void		clearLocalWormInputs();
 
 	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
+	int			getTeamWormCount(int t) const;
 	bool		getGameReady(void)			{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
@@ -562,7 +567,7 @@ public:
 
 	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
 
-	int			getTeamScore(int team)		{ return iTeamScores[team]; }
+	int			getTeamScore(int team)		{ if(team >= 0 && team < 4) return iTeamScores[team]; else return 0; }
 
 	bool		isTyping(void)				{ return bChat_Typing; }
 	void		setChatPos(size_t v)		{ iChat_Pos = v; }
@@ -575,8 +580,8 @@ public:
 	int	getPing();
 	void setPing(int _p);
 
-	// Use only when iGameType == GME_JOIN
-	int getMyPing()							{ return iMyPing; }
+	int getMyPing()							{ return iMyPing; } // Use only when iGameType == GME_JOIN
+
 	TimeDiff serverTime()						{ return fServertime; }
 	
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
@@ -635,6 +640,7 @@ public:
 	void		setHaveMod( bool _b )	{ bHaveMod = _b; }
 	int			getNumRemoteWorms();
 	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
+	FlagInfo*	flagInfo()			{ return m_flagInfo; }
 
 	bool		isTeamGame() { return getGameLobby()->iGeneralGameType == GMT_TEAMS; }
 	bool		isTagGame() { return getGameLobby()->iGeneralGameType == GMT_TIME; }

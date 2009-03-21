@@ -37,6 +37,7 @@
 #include "ProfileSystem.h"
 #include "Cache.h"
 #include "Debug.h"
+#include "FlagInfo.h"
 
 
 ////////////////////
@@ -916,6 +917,54 @@ void CMap::CalculateDirtCount(void)
 }
 
 
+static bool getGroundPos(CMap* cMap, const CVec& pos, CVec* ret, uchar badPX) {
+	// TODO: optimise
+	
+	long x = long(pos.x), y = long(pos.y);
+	
+	uchar px = cMap->GetPixelFlag(x,y);
+	if(px & badPX) { // we are already bad, go up
+		while(y >= 0) {
+			px = cMap->GetPixelFlag(x,y);
+			if(!(px & badPX)) { // found place
+				*ret = CVec(x, y);
+				return true;
+			}
+			y--;
+		}
+		// nothing found
+		return false;
+	}
+	
+	// go down
+	while((unsigned long)y < cMap->GetHeight()) {
+		px = cMap->GetPixelFlag(x,y);
+		if(px & badPX) { // found place
+			*ret = CVec(x, y - 1);
+			return true;
+		}
+		y++;		
+	}
+	
+	// everything free
+	*ret = CVec(x, cMap->GetHeight() - 1);
+	return true;
+}
+
+CVec CMap::groundPos(const CVec& pos) {
+	CVec ret = pos;
+	lockFlags(false);	
+	
+	if(getGroundPos(this, pos, &ret, PX_DIRT|PX_ROCK)) {
+		unlockFlags(false);
+		return ret;
+	}
+	
+	getGroundPos(this, pos, &ret, PX_ROCK);
+	
+	unlockFlags(false);
+	return ret;
+}
 
 ///////////////////
 // Draw the map
@@ -1840,29 +1889,75 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 }
 
 
-///////////////////
-// Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms, int generalgametype)
-{
-	int i,j;
+void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special) {
 	float xstep,ystep;
 	float mx,my;
-	int n;
 	int mw = bmpMiniMap.get()->w;
 	int mh = bmpMiniMap.get()->h;
-
+	
 	// Calculate steps
 	xstep = (float)Width/ (float)mw;
 	ystep = (float)Height / (float)mh;
+	
+	byte dr,dg,db;
+	dr = ~r;
+	dg = ~g;
+	db = ~b;
+	
+	r += (int)( (float)dr*(fBlinkTime.seconds()*2.0f));
+	g += (int)( (float)dg*(fBlinkTime.seconds()*2.0f));
+	b += (int)( (float)db*(fBlinkTime.seconds()*2.0f));
+	
+	
+	
+	mx = pos.x/xstep;
+	my = pos.y/ystep;
+	mx = (float)floor(mx);
+	my = (float)floor(my);
+	
+	mx = MIN(mw-(float)1,mx); mx = MAX((float)0,mx);
+	my = MIN(mh-(float)1,my); my = MAX((float)0,my);
+	int i=(int)mx + miniX;
+	int j=(int)my + miniY;
+	// Snap it to the nearest 2nd pixel (prevent 'jumping')
+	//x -= x % 2;
+	//y -= y % 2;
+	
+	Uint32 col = MakeColour(r,g,b);
+	
+	{
+		int x = MAX((int)miniX, i-1);
+		int y = MAX((int)miniY, j-1);
+		
+		if(!big && !special)
+			DrawRectFill2x2(bmpDest, x, y, col);
+		else if(!big && special) {
+			if(fBlinkTime > 0.25f) {
+				DrawLine(bmpDest, x-1, y-1, x+1, y+1, col);
+				DrawLine(bmpDest, x-1, y+1, x+1, y-1, col);				
+			} else
+				DrawRectFill2x2(bmpDest, x, y, col);
+		}			
+		else if(big && !special)
+			DrawRectFill(bmpDest, x, y, i+2, j+2, col);
+		else if(big && special) {
+			if(fBlinkTime > 0.25f) {
+				DrawLine(bmpDest, x-1, y-1, i+2, j+2, col);
+				DrawLine(bmpDest, x-1, j+2, i+2, y-1, col);
+			} else {
+				DrawRectFill(bmpDest, x, y, i+2, j+2, col);				
+			}
+		}
+	}
+}
 
+///////////////////
+// Draw & Simulate the minimap
+void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms)
+{
 	if(worms == NULL)
 		return;
 
-	fBlinkTime+=dt;
-	if(fBlinkTime>0.5f)
-		fBlinkTime=TimeDiff();
-
-	Uint8 r,g,b,a;
 
 	// Update the minimap (only if dirty)
 	if(bMiniMapDirty)
@@ -1872,56 +1967,35 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 	// Draw the minimap
 	DrawImage(bmpDest, bmpMiniMap, x, y);
 
+	fBlinkTime+=dt;
+	if(fBlinkTime>0.5f)
+		fBlinkTime=TimeDiff();
+	
 
 	// Show worms
 	CWorm *w = worms;
-	byte dr,dg,db;
-	Uint32 col;
-	bool big=false;
-	for(n=0;n<MAX_WORMS;n++,w++) {
+	for(int n=0;n<MAX_WORMS;n++,w++) {
 		if(!w->getAlive() || !w->isUsed() || !cClient->isWormVisibleOnAnyViewport(n))
 			continue;
 
+		Uint8 r,g,b,a;
 		GetColour4(w->getGameColour(), bmpMiniMap.get()->format, &r,&g,&b,&a);
 
-		dr = ~r;
-		dg = ~g;
-		db = ~b;
-
-		r += (int)( (float)dr*(fBlinkTime.seconds()*2.0f));
-		g += (int)( (float)dg*(fBlinkTime.seconds()*2.0f));
-		b += (int)( (float)db*(fBlinkTime.seconds()*2.0f));
-
-		mx = w->getPos().x/xstep;
-		my = w->getPos().y/ystep;
-        mx = (float)floor(mx);
-        my = (float)floor(my);
-
-		mx = MIN(mw-(float)1,mx); mx = MAX((float)0,mx);
-		my = MIN(mh-(float)1,my); my = MAX((float)0,my);
-		i=(int)mx + x;
-		j=(int)my + y;
-		// Snap it to the nearest 2nd pixel (prevent 'jumping')
-		//x -= x % 2;
-		//y -= y % 2;
-
-		col = MakeColour(r,g,b);
-
-		//PutPixel(bmpMiniMap,x,y,col);
-		DrawRectFill2x2(bmpDest, MAX((int)x, i-1), MAX((int)y, j-1), col);
-
 		// Our worms are bigger
-		big = false;
-
+		bool big = false;
+		
 		// Tagged worms or local players are bigger, depending on the game type
-		if(generalgametype != GMT_TIME) {
+		if(cClient->getGeneralGameType() != GMT_TIME) {
 			big = (w->getType() == PRF_HUMAN && w->getLocal());
 		} else {
 			big = w->getTagIT()!=0;
 		}
-
-		if(big)
-			DrawRectFill(bmpDest, MAX(i-1, (int)x), MAX(j-1, (int)y), i+2, j+2, col);
+		
+		drawOnMiniMap(bmpDest, x, y, w->getPos(), r, g, b, big, false);
+	}
+	
+	if(cClient && cClient->getStatus() == NET_PLAYING) {
+		cClient->flagInfo()->drawOnMiniMap(this, bmpDest, x, y);
 	}
 }
 

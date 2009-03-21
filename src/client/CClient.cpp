@@ -45,6 +45,7 @@
 #include "ConversationLogger.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
+#include "FlagInfo.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -217,6 +218,9 @@ void CClient::MinorClear(void)
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->currentTime;
 	sSpectatorViewportMsg = "";
+	
+	if(m_flagInfo)
+		m_flagInfo->reset();
 }
 
 /*
@@ -235,6 +239,7 @@ CClient::CClient() {
 	//printf("cl:Constructor\n");
 	cRemoteWorms = NULL;
 	cMap = NULL;
+	m_flagInfo = NULL;
 	cBonuses = NULL;
 	bmpBoxBuffer = NULL;
 	bmpBoxLeft = NULL;
@@ -289,10 +294,7 @@ CClient::CClient() {
 	
 	bMuted = false;
 	bRepaintChatbox = true;
-	
-	for(ushort i=0; i<4; i++)
-		iTeamScores[i] = 0;
-	
+		
 	bHostAllowsMouse = false;
 	fLastFileRequest = tLX->currentTime;
 	
@@ -406,6 +408,8 @@ int CClient::Initialize(void)
     // Initialize the weather
     //cWeather.Initialize(wth_snow);
 
+	m_flagInfo = new FlagInfo();
+	
 	return true;
 }
 
@@ -1734,6 +1738,15 @@ int CClient::OwnsWorm(int id)
 	return false;
 }
 
+int CClient::getTeamWormCount(int t) const {
+	int c = 0;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cRemoteWorms[i];
+		if(w->isUsed() && w->getTeam() == t)
+			c++;
+	}
+	return c;
+}
 
 
 static bool addWorm(CClient* cl, profile_t* p) {
@@ -1770,7 +1783,7 @@ static void updateAddedWorms(CClient* cl) {
 		}
 		
 		for(int i = 0; i < cl->getNumWorms(); ++i) {
-			if(cl->getWorm(i) == NULL) { // this is a new worm
+			if(localClient->getWorm(i) == NULL) { // this is a new worm
 				// first add the worm on the server
 				
 				WormJoinInfo info;
@@ -1787,7 +1800,7 @@ static void updateAddedWorms(CClient* cl) {
 				localClient->setWorm(i, w);
 
 				hints << "Worm added: " << w->getName();
-				hints << " (id " << w->getID() << ")" << endl;
+				hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
 				
 				{
 					// TODO: move that out here
@@ -2164,8 +2177,7 @@ void CClient::ShutdownLog(void)
 
 ///////////////////
 // Shutdown the client
-void CClient::Shutdown(void)
-{
+void CClient::Shutdown() {
 	int i;
 
 	// Remote worms
@@ -2232,6 +2244,11 @@ void CClient::Shutdown(void)
 		cChatList = NULL;
 	}
 
+	if(m_flagInfo) {
+		delete m_flagInfo;
+		m_flagInfo = NULL;
+	}
+	
 	// HINT: GameScript is shut down by the cache
 
 	// Weapon restrictions
