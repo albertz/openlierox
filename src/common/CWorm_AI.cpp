@@ -41,6 +41,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "CHideAndSeek.h"
+#include "FlagInfo.h"
 
 
 // used by searchpath algo
@@ -989,7 +990,8 @@ void CWormBotInputHandler::startGame() {
 	if(	cClient->getGameLobby()->gameMode == GameMode(GM_DEATHMATCH) ||
 		cClient->getGameLobby()->gameMode == GameMode(GM_TEAMDEATH) ||
 		cClient->getGameLobby()->gameMode == GameMode(GM_TAG) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
+		cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) ||
+		cClient->getGameLobby()->gameMode == GameMode(GM_CTF))
 	{
 		// it's fine, we support that game mode
 	}
@@ -1030,7 +1032,10 @@ void CWormBotInputHandler::getInput() {
 	iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 4);
 
     // Every 3 seconds we run the think function
-    if(tLX->currentTime - fLastThink > 3 && nAIState != AI_THINK)
+	float thinkInterval = 3.0f;
+	if(cClient->getGameLobby()->gameMode == GameMode(GM_CTF))
+		thinkInterval = 0.5f; // recheck more often
+    if(tLX->currentTime - fLastThink > thinkInterval && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
 	// check more often if the path isn't finished yet
@@ -1080,6 +1085,11 @@ void CWormBotInputHandler::getInput() {
 			case AI_MOVINGTOTARGET:
 				AI_MoveToTarget();
 				break;
+				
+			default:
+				nAIState = AI_THINK;
+				AI_Think();
+				break;
 		}
 
     }
@@ -1088,6 +1098,72 @@ void CWormBotInputHandler::getInput() {
     m_worm->iMoveDirection = m_worm->iDirection;
 }
 
+static bool moveToOwnBase(int t, CVec& pos) {
+	Flag* ownFlag = cClient->flagInfo()->getFlag(t);
+	if(!ownFlag) return false; // strange
+	pos = ownFlag->spawnPoint.pos;
+	return true;
+}
+
+static bool moveToOwnFlag(int t, CVec& pos) {
+	Flag* ownFlag = cClient->flagInfo()->getFlag(t);
+	if(!ownFlag) return false; // strange
+	if(ownFlag->holderWorm < 0) {
+		pos = ownFlag->getPos();
+		return true;
+	}
+	return false;
+}
+
+static bool findEnemyBase(CWorm* w, CVec& pos) {	
+	float lastDist = 999999999.0f;
+	bool success = false;
+	for(int t = 0; t < 4; ++t) {
+		if(t == w->getTeam()) continue;
+		Flag* flag = cClient->flagInfo()->getFlag(t);
+		if(!flag) continue;
+		
+		float dist = (w->getPos() - flag->spawnPoint.pos).GetLength();
+		if(dist < lastDist) {
+			lastDist = dist;
+			pos = flag->spawnPoint.pos;
+			success = true;
+		}
+	}
+
+	return success;
+}
+
+static bool findEnemyFlag(CWorm* w, CVec& pos) {	
+	float lastDist = 999999999.0f;
+	bool success = false;
+	for(int t = 0; t < 4; ++t) {
+		if(t == w->getTeam()) continue;
+		Flag* flag = cClient->flagInfo()->getFlag(t);
+		if(!flag) continue;
+		if(flag->holderWorm >= 0) continue;
+		
+		float dist = (w->getPos() - flag->getPos()).GetLength();
+		if(dist < lastDist) {
+			lastDist = dist;
+			pos = flag->getPos();
+			success = true;
+		}
+	}
+	if(success) return true;
+	
+	return findEnemyBase(w, pos);
+}
+
+static Flag* teamHasEnemyFlag(int t) {
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cClient->getRemoteWorms()[i];
+		if(!w->isUsed() || w->getTeam() != t) continue;
+		Flag* flag = cClient->flagInfo()->getFlagOfWorm(w->getID());
+		if(flag) return flag;
+	}
+	return NULL;
+}
 
 bool CWormBotInputHandler::findNewTarget() {
 	if(	(cClient->getGameLobby()->gameMode == GameMode(GM_TAG) && m_worm->getTagIT()) ) {
@@ -1120,6 +1196,51 @@ bool CWormBotInputHandler::findNewTarget() {
 			
 			psAITarget = w;
 			nAITargetType = AIT_WORM;
+			nAIState = AI_MOVINGTOTARGET;
+			return true;
+		}
+	}
+	else if(cClient->getGameLobby()->gameMode == GameMode(GM_CTF)) {
+		Flag* wormFlag = cClient->flagInfo()->getFlagOfWorm(m_worm->getID());
+		bool success = false;
+		if(wormFlag != NULL) { // we have an enemy flag
+			if(cClient->getTeamWormCount(m_worm->getTeam()) == 1) { // we are alone in the team
+				Flag* ownFlag = cClient->flagInfo()->getFlag(m_worm->getTeam());
+				if(ownFlag) {
+					if(ownFlag->holderWorm >= 0) {
+						psAITarget = &cClient->getRemoteWorms()[ownFlag->holderWorm];
+						nAITargetType = AIT_WORM;
+						nAIState = AI_MOVINGTOTARGET;					
+					}
+					else {
+						cPosTarget = ownFlag->getPos();
+						success = true;
+					}
+				}
+			}
+			else { // not alone in our team
+				success = moveToOwnBase(m_worm->getTeam(), cPosTarget);
+			}
+		}
+		else { // we don't hold any flag
+			if(teamHasEnemyFlag(m_worm->getTeam())) {
+				Flag* ownFlag = cClient->flagInfo()->getFlag(m_worm->getTeam());
+				if(ownFlag) {
+					if(ownFlag->holderWorm >= 0) {
+						psAITarget = &cClient->getRemoteWorms()[ownFlag->holderWorm];
+						nAITargetType = AIT_WORM;
+						nAIState = AI_MOVINGTOTARGET;					
+					}
+					else {
+						cPosTarget = ownFlag->getPos();
+						success = true;
+					}
+				}
+			} else
+				success = findEnemyFlag(m_worm, cPosTarget);
+		}
+		if(success) {
+			nAITargetType = AIT_POSITION;
 			nAIState = AI_MOVINGTOTARGET;
 			return true;
 		}
@@ -1345,6 +1466,7 @@ void CWormBotInputHandler::AI_Think()
     // Search for an unfriendly worm
     if(findNewTarget()) {
 		AI_CreatePath();
+		return;
 	}
 	else
 		fLastShoot = AbsTime();
@@ -1369,7 +1491,6 @@ void CWormBotInputHandler::AI_Think()
     // Our target already on high ground?
     if(cPosTarget.y < cClient->getMap()->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
-		//printf("something in thinking\n");
 		// Nothing todo, so go find some health if we even slightly need it
 		if(m_worm->iHealth < 100) {
 			if(AI_FindHealth())
