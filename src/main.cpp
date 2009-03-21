@@ -177,8 +177,15 @@ static void startMainLockDetector() {
 					warnings << "possible lock of game thread detected" << endl;
 					//OlxWriteCoreDump("mainlock");
 					//RaiseDebugger();
-					SDL_Delay(30 * 1000); // pause for a while, don't be so hard
-					if(tLX && oldTime == tLX->currentTime) {
+					
+					// pause for a while, don't be so hard
+					for(int i = 0; i < 30; ++i) {
+						if(!tLX) return 0;
+						if(tLX->bQuitGame) return 0;						
+						if(oldTime != tLX->currentTime) continue;
+						SDL_Delay(1000);
+					}
+					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
 						if(tLXOptions && tLXOptions->bFullscreen) {
 							notes << "we are in fullscreen, going to window mode now" << endl;
