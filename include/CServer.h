@@ -69,6 +69,32 @@ public:
 
 	~GameServer();
 
+public:
+	// Handles information about a client connecting using NAT traversal
+	class NatConnection  {
+	public:
+		NatConnection() : bClientConnected(false) {}
+		NatConnection(const NatConnection& nat)  { operator=(nat); }
+		NatConnection& operator= (const NatConnection& nat)  {
+			if (&nat == this)
+				return *this;
+
+			tTraverseSocket = nat.tTraverseSocket;
+			tConnectHereSocket = nat.tConnectHereSocket;
+			fLastUsed = nat.fLastUsed;
+			bClientConnected = nat.bClientConnected;
+
+			return *this;
+		}
+
+		void Close();
+
+		NetworkSocket	tTraverseSocket;
+		NetworkSocket	tConnectHereSocket;
+		AbsTime			fLastUsed;
+		bool			bClientConnected;
+	};
+
 private:
 	// Attributes
 
@@ -112,8 +138,7 @@ private:
 	// Network
 	NetworkSocket	tSocket;
 	int				nPort;
-	NetworkSocket	tNatTraverseSockets[MAX_CLIENTS];
-	AbsTime			fNatTraverseSocketsLastAccessTime[MAX_CLIENTS];	// So two clients won't fight for one socket
+	std::vector<NatConnection>	tNatClients;
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
@@ -135,8 +160,6 @@ private:
 	
 	bool		m_clientsNeedLobbyUpdate;
 	AbsTime		m_clientsNeedLobbyUpdateTime;
-	
-	static void SendConnectHereAfterTimeout (Timer::EventData ev);
 
 	friend class CServerNetEngine;
 	friend class CServerNetEngineBeta7;
@@ -171,6 +194,8 @@ public:
 	// Network
 	bool		ReadPackets(void);
 	void		SendPackets(void);
+
+	bool		ReadPacketsFromSocket(NetworkSocket& sock);
 
 	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);

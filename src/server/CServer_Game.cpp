@@ -486,9 +486,12 @@ void GameServer::gotoLobby(void)
 
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
-	for( int f=0; f<MAX_CLIENTS; f++ )
-		if(IsSocketStateValid(tNatTraverseSockets[f]))
-			AddSocketToNotifierGroup(tNatTraverseSockets[f]);
+	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if(IsSocketStateValid(it->tTraverseSocket))
+			AddSocketToNotifierGroup(it->tTraverseSocket);
+		else if (IsSocketStateValid(it->tConnectHereSocket))
+			AddSocketToNotifierGroup(it->tConnectHereSocket);
+	}
 
 	short i;
 

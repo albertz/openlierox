@@ -457,7 +457,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
         	   		// TODO: merge this part of code with cClient::ParseWormDown()?
 					// Make a death sound
 					int s = GetRandomInt(2);
-					if( NewNet::CanPlaySound(w->getID()) );
+					if( NewNet::CanPlaySound(w->getID()) )
 						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cLocalWorms[0]);
 
 					// Spawn some giblets

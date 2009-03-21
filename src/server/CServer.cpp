@@ -78,10 +78,11 @@ void GameServer::Clear(void)
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
-	for(int i=0; i<MAX_CLIENTS; i++)
-	{
-		InvalidateSocketState(tNatTraverseSockets[i]);
-		fNatTraverseSocketsLastAccessTime[i] = AbsTime();
+	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)  {
+		InvalidateSocketState(it->tConnectHereSocket);
+		InvalidateSocketState(it->tTraverseSocket);
+		it->fLastUsed = AbsTime();
+		it->bClientConnected = false;
 	}
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
@@ -165,7 +166,7 @@ int GameServer::StartServer()
 		return false;
 	}
 
-	if(tLX->iGameType == GME_HOST )
+	/*if(tLX->iGameType == GME_HOST )
 	{
 		for( int f=0; f<MAX_CLIENTS; f++ )
 		{
@@ -177,7 +178,7 @@ int GameServer::StartServer()
 				continue;
 			}
 		}
-	}
+	}*/
 
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket, addr);
@@ -289,9 +290,12 @@ int GameServer::StartGame()
 {
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( tSocket );
-	for( int f=0; f<MAX_CLIENTS; f++ )
-		if(IsSocketStateValid(tNatTraverseSockets[f]))
-			RemoveSocketFromNotifierGroup(tNatTraverseSockets[f]);
+	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if (IsSocketStateValid(it->tTraverseSocket))
+			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
+		if (IsSocketStateValid(it->tConnectHereSocket))
+			RemoveSocketFromNotifierGroup(it->tConnectHereSocket);
+	}
 
 	
 	// Check that gamespeed != 0
@@ -771,81 +775,107 @@ void GameServer::Frame(void)
 	SendPackets();
 }
 
+////////////////////
+// Reads packets from the given sockets
+bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
+{
+	if (!IsSocketStateValid(sock))
+		return false;
+
+	NetworkAddr adrFrom;
+	CBytestream bs;
+
+	bool anythingNew = false;
+	while(bs.Read(sock)) {
+		anythingNew = true;
+		
+		// Set out address to addr from where last packet was sent, used for NAT traverse
+		GetRemoteNetAddr(sock, adrFrom);
+		SetRemoteNetAddr(sock, adrFrom);
+
+		// Check for connectionless packets (four leading 0xff's)
+		if(bs.readInt(4) == -1) {
+			std::string address;
+			NetAddrToString(adrFrom, address);
+			bs.ResetPosToBegin();
+			// parse all connectionless packets
+			// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
+			// <rev1457 (incl. Beta3) versions only will parse one package at a time.
+			// I fixed that now since >rev1457 that it parses multiple packages here
+			// (but only for new net-commands).
+			// Same thing in CClient.cpp in ReadPackets
+			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
+				ParseConnectionlessPacket(sock, &bs, address);
+			continue;
+		}
+		bs.ResetPosToBegin();
+
+		// Reset the suicide packet count
+		iSuicidesInPacket = 0;
+
+		// Read packets
+		CServerConnection *cl = cClients;
+		for (int c = 0; c < MAX_CLIENTS; c++, cl++) {
+
+			// Player not connected
+			if(cl->getStatus() == NET_DISCONNECTED)
+				continue;
+
+			// Check if the packet is from this player
+			if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
+				continue;
+
+			// Check the port
+			if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
+				continue;
+
+			// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
+			while (cl->getChannel()->Process(&bs))  {
+				// Only process the actual packet for playing clients
+				if( cl->getStatus() != NET_ZOMBIE )
+					cl->getNetEngine()->ParsePacket(&bs);
+				bs.Clear();
+			}
+		}
+	}
+
+	return anythingNew;
+}
+
 
 ///////////////////
 // Read packets
 bool GameServer::ReadPackets(void)
 {
-	bool anythingNew = false;
-	CBytestream bs;
-	NetworkAddr adrFrom;
-	int c;
+	// Main socket
+	bool anythingNew = ReadPacketsFromSocket(tSocket);
 
-	NetworkSocket pSock = tSocket;
-	for( int sockNum=-1; sockNum < MAX_CLIENTS; sockNum++ )
-	{
-		// TODO: i don't understand this check. please comment
-		if(sockNum != -1 )
-			break;
-
-		if( sockNum >= 0 )
-			pSock = tNatTraverseSockets[sockNum];
-
-		if (!IsSocketStateValid(pSock))
-			continue;
-		
-		while(bs.Read(pSock)) {
+	// Traverse sockets
+	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if (ReadPacketsFromSocket(it->tTraverseSocket))  {
 			anythingNew = true;
-			
-			// Set out address to addr from where last packet was sent, used for NAT traverse
-			GetRemoteNetAddr(pSock, adrFrom);
-			SetRemoteNetAddr(pSock, adrFrom);
-
-			// Check for connectionless packets (four leading 0xff's)
-			if(bs.readInt(4) == -1) {
-				std::string address;
-				NetAddrToString(adrFrom, address);
-				bs.ResetPosToBegin();
-				// parse all connectionless packets
-				// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
-				// <rev1457 (incl. Beta3) versions only will parse one package at a time.
-				// I fixed that now since >rev1457 that it parses multiple packages here
-				// (but only for new net-commands).
-				// Same thing in CClient.cpp in ReadPackets
-				while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
-					ParseConnectionlessPacket(pSock, &bs, address);
-				continue;
+			if (!it->bClientConnected)  {
+				std::string addr;
+				NetworkAddr a;
+				GetRemoteNetAddr(it->tTraverseSocket, a);
+				NetAddrToString(a, addr);
+				notes << "A client " << addr << " successfully connected using NAT traversal" << endl;
+				it->bClientConnected = true;
 			}
-			bs.ResetPosToBegin();
+			it->fLastUsed = tLX->currentTime;
+		}
 
-			// Reset the suicide packet count
-			iSuicidesInPacket = 0;
-
-			// Read packets
-			CServerConnection *cl = cClients;
-			for(c=0;c<MAX_CLIENTS;c++,cl++) {
-
-				// Player not connected
-				if(cl->getStatus() == NET_DISCONNECTED)
-					continue;
-
-				// Check if the packet is from this player
-				if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
-					continue;
-
-				// Check the port
-				if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
-					continue;
-
-				// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
-				while( cl->getChannel()->Process(&bs) )
-				{
-					// Only process the actual packet for playing clients
-					if( cl->getStatus() != NET_ZOMBIE )
-						cl->getNetEngine()->ParsePacket(&bs);
-					bs.Clear();
-				}
+		if (ReadPacketsFromSocket(it->tConnectHereSocket))  {
+			anythingNew = true;
+			if (!it->bClientConnected)  {
+				std::string addr;
+				NetworkAddr a;
+				GetRemoteNetAddr(it->tConnectHereSocket, a);
+				NetAddrToString(a, addr);
+				notes << "A client " << addr << " successfully connected using connect_here traversal" << endl;
+				it->bClientConnected = true;
 			}
+			it->fLastUsed = tLX->currentTime;
 		}
 	}
 	
@@ -1125,6 +1155,23 @@ void GameServer::CheckTimeouts(void)
 	// Check
 	if (!cClients)
 		return;
+
+	// Check for NAT traversal sockets that are too old
+	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if ((tLX->currentTime - it->fLastUsed) >= 10.0f)  {
+			NetworkAddr a;
+			GetRemoteNetAddr(it->tTraverseSocket, a);
+			std::string addr;
+			NetAddrToString(a, addr);
+			notes << "A NAT traverse connection timed out: " << addr << endl;
+			it->Close();
+			tNatClients.erase(it);
+			it = tNatClients.begin();
+
+			if (tNatClients.empty())
+				break;
+		}
+	}
 
 	// Cycle through clients
 	CServerConnection *cl = cClients;
@@ -2094,8 +2141,6 @@ float GameServer::GetUpload(float timeRange)
 // Shutdown the server
 void GameServer::Shutdown(void)
 {
-	uint i;
-
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;
@@ -2113,12 +2158,9 @@ void GameServer::Shutdown(void)
 		CloseSocket(tSocket);
 	}
 	InvalidateSocketState(tSocket);
-	for(i=0; i<MAX_CLIENTS; i++)
-	{
-		if(IsSocketStateValid(tNatTraverseSockets[i]))
-			CloseSocket(tNatTraverseSockets[i]);
-		InvalidateSocketState(tNatTraverseSockets[i]);
-	}
+
+	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)
+		it->Close();
 
 	if(cClients) {
 		delete[] cClients;

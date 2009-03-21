@@ -1778,103 +1778,52 @@ void GameServer::ParseGetInfo(NetworkSocket tSocket)
 	bs.Send(tSocket);
 }
 
-struct SendConnectHereAfterTimeout_Data
+////////////////////////////
+// Closes a NAT connection
+void GameServer::NatConnection::Close()
 {
-	SendConnectHereAfterTimeout_Data( int _socknum, NetworkAddr _addr )
-		{ socknum = _socknum; addr = _addr; };
-	int socknum; // Socket idx in CServer - don't know why, probably this doesn't matter
-	NetworkAddr addr;
-};
-
-void GameServer::SendConnectHereAfterTimeout (Timer::EventData ev)
-{
-	SendConnectHereAfterTimeout_Data * data = (SendConnectHereAfterTimeout_Data *) ev.userData;
-
-	// This can happen if the user quit the server in the meantime
-	if (cServer == NULL || cServer->getClients() == NULL)  {
-		delete data;
-		ev.shouldContinue = false;
-		return;
-	}
-
-	NetworkAddr addr;
-	ResetNetAddr(addr);
-	GetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], addr );
-	std::string s;
-	NetAddrToString( data->addr, s );
-	printf("SendConnectHereAfterTimeout() %s:%i\n", s.c_str(), GetNetAddrPort(data->addr) );
-
-	for( int f = 0; f < MAX_CLIENTS; f++ )
-	{
-		if( cServer->getClients()[f].getStatus() != NET_DISCONNECTED &&
-			AreNetAddrEqual( addr, cServer->getClients()[f].getChannel()->getAddress() ) )
-		{
-			NetAddrToString( cServer->getClients()[f].getChannel()->getAddress(), s );
-			printf("SendConnectHereAfterTimeout() socket is used by client %i: %s:%i\n", 
-					f, s.c_str(), GetNetAddrPort(cServer->getClients()[f].getChannel()->getAddress()) );
-			return;
-		}
-	}
-	
-	CBytestream bs;
-	bs.writeInt(-1, 4);
-	bs.writeString("lx::connect_here");// In case server behind symmetric NAT and client has IP-restricted NAT or above
-
-	int oldPort = GetNetAddrPort(data->addr);
-	SetNetAddrPort(data->addr, LX_PORT); // Many people have this port enabled, perhaps we are lucky
-	SetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], data->addr);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-	SetNetAddrPort(data->addr, oldPort);
-	SetRemoteNetAddr( cServer->tNatTraverseSockets[data->socknum], data->addr);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-	bs.Send(cServer->tNatTraverseSockets[data->socknum]);
-
-	delete data;
-	ev.shouldContinue = false;
+	if (IsSocketStateValid(tTraverseSocket))
+		CloseSocket(tTraverseSocket);
+	if (IsSocketStateValid(tConnectHereSocket))
+		CloseSocket(tConnectHereSocket);
+	InvalidateSocketState(tTraverseSocket);
+	InvalidateSocketState(tConnectHereSocket);
 }
+
 
 // Parse NAT traverse packet - can be received only with CServer::tSocket, send responce to one of tNatTraverseSockets[]
 void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip)
 {
 	NetworkAddr		adrFrom, adrClient;
+
+	// Get the server and the connecting client addresses
 	GetRemoteNetAddr(tSocket, adrFrom);
 	std::string adrClientStr = bs->readString();
 	StringToNetAddr( adrClientStr, adrClient );
-	printf("GameServer::ParseTraverse() %s\n", adrClientStr.c_str());
+	printf("GameServer: Got a traverse from client %s\n", adrClientStr.c_str());
 
-	// Find unused socket
-	int socknum=-1;
-	for( int f=0; f<MAX_CLIENTS; f++ )
-	{
-		int f1=0;
-		for( ; f1<MAX_CLIENTS; f1++ )
-		{
-			NetworkAddr addr1, addr2;
-			if( cClients[f1].getStatus() == NET_DISCONNECTED || cClients[f1].getChannel() == NULL )
-				continue;
-			GetLocalNetAddr( cClients[f1].getChannel()->getSocket(), addr1 );
-			GetLocalNetAddr( tNatTraverseSockets[f], addr2 );
-			if( GetNetAddrPort(addr1) == GetNetAddrPort(addr2) )
-				break;
-		};
-		if( f1 >= MAX_CLIENTS )
-		{
-			if( socknum == -1 )
-				socknum = f;
-			else if( fNatTraverseSocketsLastAccessTime[socknum] < fNatTraverseSocketsLastAccessTime[f] )
-				socknum = f;
-		};
-	};
-	if( socknum >= MAX_CLIENTS || socknum < 0 )
+	// Open a new connection for the client
+	NatConnection newcl;
+	newcl.tTraverseSocket = OpenUnreliableSocket(0);
+	newcl.tConnectHereSocket = OpenUnreliableSocket(0);
+	if (!IsSocketStateValid(newcl.tTraverseSocket))  {
+		errors << "Could not open a new socket for a client connecting via NAT traversal: " << GetSocketErrorStr(GetSocketErrorNr()) << endl;
 		return;
+	}
 
-	fNatTraverseSocketsLastAccessTime[socknum] = tLX->currentTime;
+	if (!ListenSocket(newcl.tTraverseSocket))  {
+		CloseSocket(newcl.tTraverseSocket);
+		errors << "Could not start listening on a NAT socket: " << GetSocketErrorStr(GetSocketErrorNr()) << endl;
+		return;
+	}
 
+	bool conn_here = false;
+	if (IsSocketStateValid(newcl.tConnectHereSocket))
+		conn_here = ListenSocket(newcl.tConnectHereSocket);
 
-	//printf("Sending lx:::traverse back, socknum %i\n", socknum);
+	// Update the last used time
+	newcl.fLastUsed = tLX->currentTime;
+
 	// Send lx::traverse to udp server and lx::pong to client
 	CBytestream bs1;
 
@@ -1884,8 +1833,8 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.writeString(adrClientStr);
 
 	// Send traverse to server
-	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrFrom);
-	bs1.Send(tNatTraverseSockets[socknum]);
+	SetRemoteNetAddr(newcl.tTraverseSocket, adrFrom);
+	bs1.Send(newcl.tTraverseSocket);
 
 	// Send ping to client to open NAT port
 	bs1.Clear();
@@ -1893,21 +1842,20 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	bs1.writeString("lx::pong");
 
 	//SetNetAddrPort(adrClient, (ushort)(port + i));
-	SetRemoteNetAddr(tNatTraverseSockets[socknum], adrClient);
+	SetRemoteNetAddr(newcl.tTraverseSocket, adrClient);
+	SetRemoteNetAddr(newcl.tConnectHereSocket, adrClient);
 
 	// Send 3 times - first packet may be ignored by remote NAT
-	bs1.Send(tNatTraverseSockets[socknum]);
-	bs1.Send(tNatTraverseSockets[socknum]);
-	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(newcl.tTraverseSocket);
+	bs1.Send(newcl.tTraverseSocket);
+	bs1.Send(newcl.tTraverseSocket);
 
 	bs1.Clear();
 	bs1.writeInt(-1, 4);
 	bs1.writeString("lx::connect_here");
-	bs1.Send(tNatTraverseSockets[socknum]);
+	bs1.Send(newcl.tConnectHereSocket);
 
-	// Send "lx::connect_here" after some time if we're behind symmetric NAT and client has restricted cone NAT or global IP
-	Timer( "GS::ParseTraverse SendConnectHereAfterTimeout", &SendConnectHereAfterTimeout,
-			new SendConnectHereAfterTimeout_Data(socknum, adrClient), 3000, true ).startHeadless();
+	tNatClients.push_back(newcl);  // Add the client
 }
 
 // Server sent us "lx::registered", that means it's alive - record that
