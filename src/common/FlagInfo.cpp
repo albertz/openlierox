@@ -214,6 +214,8 @@ void FlagInfo::checkWorm(CWorm* worm) {
 		return;
 	}
 	
+	if(!worm->getAlive()) return;
+	
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
 		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < 20.0f ) {
 			cServer->getGameMode()->hitFlagSpawnPoint(worm, &i->second);

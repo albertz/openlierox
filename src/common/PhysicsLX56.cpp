@@ -72,10 +72,6 @@ public:
 		pos += *vel * dt;
 		worm->pos() = pos;
 		
-		// check for flag
-		if(tLX->iGameType != GME_JOIN)
-			cServer->flagInfo()->checkWorm(worm);
-
 			
 		int x,y;
 		x = (int)pos.x;

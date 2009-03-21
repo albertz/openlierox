@@ -353,6 +353,14 @@ void GameServer::SimulateGame(void)
 		SpawnBonus();
 		fLastBonusTime = tLX->currentTime;
 	}
+
+	// check for flag
+	w = cWorms;
+	for(short i=0;i<MAX_WORMS;i++,w++) {
+		if(!w->isUsed())
+			continue;
+		flagInfo()->checkWorm(w);
+	}
 	
 	// Simulate anything needed by the game mode
 	getGameMode()->Simulate();
