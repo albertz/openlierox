@@ -667,7 +667,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		RemoveSocketFromNotifierGroup( client->tSocket );
 
 	client->bGameReady = true;
-
+	client->flagInfo()->reset();
+	for(int i = 0; i < 4; ++i) {
+		client->iTeamScores[i] = 0;
+	}
+	
 	int random = bs->readInt(1);
 	std::string sMapFilename;
 	if(!random)
@@ -1501,6 +1505,7 @@ void CClientNetEngine::ParseTeamScoreUpdate(CBytestream *bs) {
 	if(client->tGameInfo.iGeneralGameType != GMT_TEAMS)
 		warnings << "ParseTeamScoreUpdate: it's not a teamgame" << endl;
 	
+	bool someTeamScored = false;
 	int teamCount = bs->readByte();
 	for(int i = 0; i < teamCount; ++i) {
 		if(bs->isPosAtEnd()) {
@@ -1510,8 +1515,14 @@ void CClientNetEngine::ParseTeamScoreUpdate(CBytestream *bs) {
 		
 		if(i == 4) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first 4 teams" << endl;
 		int score = bs->readInt16();
-		if(i < 4) client->iTeamScores[i] = score;
+		if(i < 4) {
+			if(score > client->iTeamScores[i]) someTeamScored = true;
+			client->iTeamScores[i] = score;
+		}
 	}
+	
+	if(someTeamScored)
+		PlaySoundSample(sfxGame.smpTeamScore.get());
 	
 	// reorder the list
 	client->UpdateScoreboard();

@@ -221,6 +221,9 @@ void CClient::MinorClear(void)
 	
 	if(m_flagInfo)
 		m_flagInfo->reset();
+	
+	for(int i = 0; i < 4; ++i)
+		iTeamScores[i] = 0;
 }
 
 /*

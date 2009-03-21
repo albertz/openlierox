@@ -77,6 +77,7 @@ typedef struct {
 	SmartPointer<SoundSample> smpPickup;
 	SmartPointer<SoundSample> smpBump;
 	SmartPointer<SoundSample> smpDeath[3];
+	SmartPointer<SoundSample> smpTeamScore;	
 } sfxgame_t;
 
 // ID3 tag format

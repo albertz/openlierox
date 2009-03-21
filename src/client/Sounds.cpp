@@ -49,9 +49,17 @@ int LoadSounds(void)
 	//sfxGeneral.smpChat = LoadSample("data/sounds/chat.wav",2);
 	sfxGeneral.smpClick = LoadSample("data/sounds/click.wav",2);
 	sfxGeneral.smpNotify = LoadSample("data/sounds/notify.wav",2);
-	if( sfxGeneral.smpNotify.get() == NULL )
+	if( sfxGeneral.smpNotify.get() == NULL ) {
+		notes << "LoadSounds: cannot load notify.wav" << endl;
 		sfxGeneral.smpNotify = LoadSample("data/sounds/dirt.wav",2);	// Very funny sound
-
+	}
+	
+	sfxGame.smpTeamScore = LoadSample("data/sounds/teamscore.wav",2);
+	if( sfxGame.smpTeamScore.get() == NULL ) {
+		notes << "LoadSounds: cannot load teamscore.wav" << endl;
+		sfxGame.smpTeamScore = sfxGeneral.smpNotify;
+	}
+	
 	return true;
 }
 
@@ -124,14 +132,14 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	SmartPointer<SoundSample> Sample;
 
 	std::string fullfname = GetFullFileName(_filename);
-	if(fullfname.size() == 0)
+	if(fullfname.size() == 0 || !IsFileAvailable(fullfname, true))
 		return NULL;
 
 	// Load the sample
 	Sample = LoadSoundSample(fullfname, maxplaying);
 	if( Sample.get() == NULL )
 		return NULL;
-
+	
 	// Save to cache
 	cCache.SaveSound(_filename, Sample);
 	return Sample;
@@ -250,7 +258,7 @@ SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(filename.size() > 0) {
 		Mix_Chunk* sample = Mix_LoadWAV(Utf8ToSystemNative(filename).c_str());
 		if(!sample) {
-//			printf("LoadSoundSample: Error while loading %s: %s\n", filename.c_str(), Mix_GetError());
+			notes << "LoadSoundSample: Error while loading " << filename << ": " << Mix_GetError() << endl;
 			return NULL;
 		}
 
