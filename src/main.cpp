@@ -159,11 +159,22 @@ static SDL_Event QuitEventThreadEvent() {
 
 static void startMainLockDetector() {
 	struct MainLockDetector : Action {
+		bool wait(Uint32 time) {
+			if(!tLX) return false;
+			AbsTime oldTime = tLX->currentTime;
+			for(Uint32 t = 0; t < time; t += 100) {
+				if(!tLX) return false;
+				if(tLX->bQuitGame) return false;						
+				if(oldTime != tLX->currentTime) return true;
+				SDL_Delay(100);
+			}
+			return true;
+		}
 		int handle() {
 			// We should always have tLX!=NULL here as we uninit it after the thread-shutdown now.
 			while(tLX && !tLX->bQuitGame) {
 				AbsTime oldTime = tLX->currentTime;
-				SDL_Delay(1000);
+				if(!wait(1000)) return 0;
 				if(!tLX) return 0;
 				if(tLX->bQuitGame) return 0;
 				if(IsWaitingForEvent()) continue;
@@ -179,12 +190,7 @@ static void startMainLockDetector() {
 					//RaiseDebugger();
 					
 					// pause for a while, don't be so hard
-					for(int i = 0; i < 30; ++i) {
-						if(!tLX) return 0;
-						if(tLX->bQuitGame) return 0;						
-						if(oldTime != tLX->currentTime) continue;
-						SDL_Delay(1000);
-					}
+					if(!wait(30*1000)) return 0;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
 						if(tLXOptions && tLXOptions->bFullscreen) {
