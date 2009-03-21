@@ -1494,11 +1494,13 @@ bool CHttp::ProcessInternal()
 		bool error = false;
 
 		// Error
-		if (GetSocketErrorNr() != 0)  {
+		// TODO: this cannot be used like this because we're running in parallel with the main thread
+		// and any other socket can set the error
+		/*if (GetSocketErrorNr() != 0)  {
 			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 			tError.sErrorMsg += " (" + GetSocketErrorStr(GetSocketErrorNr()) + ")";
 			error = true;
-		}
+		}*/
 
         // Timed out?
         if( (f - fResolveTime).seconds() > DNS_TIMEOUT) {
