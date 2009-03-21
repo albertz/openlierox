@@ -1554,6 +1554,11 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 			return false;
 	}
 	
+	if(getGameMode() == GameMode(GM_CTF)) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "CaptureTheFlag gamemode", dropOut, makeMsg, msg))
+			return false;
+	}
+	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
 			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString(), dropOut, makeMsg, msg))
