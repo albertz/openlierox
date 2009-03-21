@@ -36,7 +36,7 @@ Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
 	skin = new CGameSkin("../data/gfx/flags.png", FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
 	
 	if(i >= 0 && i < 4) {
-		//skin->Colorize(tLX->clTeamColors[i]);
+		skin->Colorize(tLX->clTeamColors[i]);
 	}
 }
 
