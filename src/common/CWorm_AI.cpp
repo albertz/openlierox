@@ -2215,7 +2215,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 			}
 			// We don't see the target
 			else  {
-				notes << "bot: GAM_100LT: i think we should not shoot here" << endl;
+				//notes << "bot: GAM_100LT: i think we should not shoot here" << endl;
 				m_worm->tState.bJump = true; // Jump, we might get better position
 				return -1;
 			}
