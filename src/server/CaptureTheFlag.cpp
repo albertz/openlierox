@@ -52,10 +52,9 @@ struct CaptureTheFlag : public CGameMode {
 		return !cServer->isTeamEmpty(t);
 	}
 	
-	void initFlag(int t) {
+	void initFlag(int t, const CVec& pos) {
 		// currently, just use this easy method to find a spot for the flag
-		CVec spawnPoint = cServer->FindSpotCloseToTeam(t);
-		spawnPoint = cServer->getMap()->groundPos(spawnPoint) - CVec(0,SKIN_HEIGHT/4);
+		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0,SKIN_HEIGHT/4);
 		cServer->flagInfo()->applyInitFlag(t, spawnPoint);
 	}
 	
@@ -73,7 +72,7 @@ struct CaptureTheFlag : public CGameMode {
 		
 		if(!cServer->flagInfo()->getFlag(worm->getTeam())) {
 			// we have to create the new flag, there isn't any yet
-			initFlag(worm->getTeam());
+			initFlag(worm->getTeam(), pos);
 		}
 		return true;
 	}

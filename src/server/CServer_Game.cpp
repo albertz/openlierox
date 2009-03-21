@@ -28,11 +28,10 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 
-
-CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm) {
+CVec GameServer::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad) {
 	// TODO: optimise this!
-
-	float team_dist = 0;
+	
+	float team_dist = -9999999.0f;
 	CVec pos = FindSpot();
 	CVec pos1;
 	
@@ -40,21 +39,17 @@ CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm) {
 	{
 		float team_dist1 = 0;
 		pos1 = FindSpot();
-		CWorm * w = cWorms;
-		for(int i = 0; i < MAX_WORMS; i++, w++)
-		{
-			if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || w->getAlive())
-				continue;
-			if(exceptionWorm && exceptionWorm->getID() == w->getID())
-				continue;
-			
-			// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
-			// The sum will get considerably smaller if any two teams are on short dist
-			if( w->getTeam() == t )
-				team_dist1 -= ( pos1 - w->getPos() ).GetLength() / 10.0f;
+		for(std::list<CVec>::const_iterator i = goodPos.begin(); i != goodPos.end(); ++i)
+			team_dist1 -= ( pos1 - *i ).GetLength() / (goodPos.size() * 10.0f);
+		for(std::list<CVec>::const_iterator i = badPos.begin(); i != badPos.end(); ++i) {
+			if(keepDistanceToBad)
+				team_dist1 += 2.0f * ( ( pos1 - *i ).GetLength() ) / badPos.size();
 			else
-				team_dist1 += sqrt( ( pos1 - w->getPos() ).GetLength() );
+				// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+				// The sum will get considerably smaller if any two teams are on short dist
+				team_dist1 += sqrt( ( pos1 - *i ).GetLength() ) / badPos.size();			
 		}
+		
 		if( team_dist1 > team_dist )
 		{
 			team_dist = team_dist1;
@@ -62,7 +57,37 @@ CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm) {
 		}
 	}
 	
-	return pos;
+	return pos;	
+}
+
+CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToEnemy) {
+	std::list<CVec> goodPos;
+	std::list<CVec> badPos;
+	bool coveredTeam[getGameMode()->GameTeams()];
+	for(int i = 0; i < getGameMode()->GameTeams(); ++i)
+		coveredTeam[i] = false;
+	
+	CWorm * w = cWorms;
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || !w->getAlive())
+			continue;
+		if(exceptionWorm && exceptionWorm->getID() == w->getID())
+			continue;
+		if(w->getTeam() < 0 || w->getTeam() >= getGameMode()->GameTeams())
+			continue;
+		if(coveredTeam[w->getTeam()])
+			continue;
+		
+		coveredTeam[w->getTeam()] = true;
+		if(w->getTeam() == t)
+			goodPos.push_back(w->getPos());
+		else
+			badPos.push_back(w->getPos());
+	}
+	
+	CVec ret = FindSpotCloseToPos(goodPos, badPos, keepDistanceToEnemy);
+	
+	return ret;
 }
 
 ///////////////////
@@ -78,9 +103,15 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		pos = *_pos;
 	else
 	{
+		if( getGameMode() == GameMode(GM_CTF) ) {
+			Flag* flag = m_flagInfo->getFlag(Worm->getTeam());
+			if(!flag) // no flag yet, choose like in respawngroupteams
+				pos = FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
+			else
+				pos = FindSpotCloseToPos(flag->spawnPoint.pos);
+		}
 		// Spawn worm closer to it's own team and away from other teams
-		if( tLXOptions->tGameInfo.bRespawnGroupTeams &&
-				  ( getGameMode()->GameTeams() > 1 ) )
+		else if( tLXOptions->tGameInfo.bRespawnGroupTeams && ( getGameMode()->GameTeams() > 1 ) )
 		{
 			pos = FindSpotCloseToTeam(Worm->getTeam(), Worm);
 		}
