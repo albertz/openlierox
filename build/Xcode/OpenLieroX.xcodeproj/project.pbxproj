@@ -44,12 +44,12 @@
 		238DA8DC0F388B2F00841FFF /* EventQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238DA8DB0F388B2F00841FFF /* EventQueue.cpp */; };
 		238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */; };
 		238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E690F741B300016D617 /* CaptureTheFlag.cpp */; };
+		238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F337B0F756F730016D617 /* CGameSkin.cpp */; };
 		2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */; };
 		2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4630ECB7FA900E8D04E /* IRC.cpp */; };
 		2395E4660ECB7FA900E8D04E /* Music.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4640ECB7FA900E8D04E /* Music.cpp */; };
 		239ACA9B0E6AD45000C4216A /* CClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA510E6AD44F00C4216A /* CClient.cpp */; };
 		239ACA9C0E6AD45000C4216A /* CrashHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA520E6AD44F00C4216A /* CrashHandler.cpp */; };
-		239ACA9D0E6AD45000C4216A /* CWormSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA530E6AD44F00C4216A /* CWormSkin.cpp */; };
 		239ACA9E0E6AD45000C4216A /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA550E6AD44F00C4216A /* CAnimation.cpp */; };
 		239ACA9F0E6AD45000C4216A /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA560E6AD44F00C4216A /* CBar.cpp */; };
 		239ACAA00E6AD45000C4216A /* CBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACA570E6AD44F00C4216A /* CBox.cpp */; };
@@ -336,7 +336,6 @@
 		2306CBD10E6AB45500132D3B /* nl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nl.h; path = ../../libs/hawknl/include/nl.h; sourceTree = SOURCE_ROOT; };
 		2306CBDE0E6AC55E00132D3B /* CrashHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashHandler.h; sourceTree = "<group>"; };
 		2306CBDF0E6AC55E00132D3B /* CWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWorld.h; sourceTree = "<group>"; };
-		2306CBE00E6AC55E00132D3B /* CWormSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormSkin.h; sourceTree = "<group>"; };
 		2306CBE20E6AC55E00132D3B /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };
 		2306CBE30E6AC55E00132D3B /* CBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBar.h; sourceTree = "<group>"; };
 		2306CBE40E6AC55E00132D3B /* CBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBox.h; sourceTree = "<group>"; };
@@ -465,6 +464,8 @@
 		238F2DF20F74138C0016D617 /* FlagInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlagInfo.h; sourceTree = "<group>"; };
 		238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlagInfo.cpp; sourceTree = "<group>"; };
 		238F2E690F741B300016D617 /* CaptureTheFlag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CaptureTheFlag.cpp; sourceTree = "<group>"; };
+		238F337A0F756F650016D617 /* CGameSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameSkin.h; sourceTree = "<group>"; };
+		238F337B0F756F730016D617 /* CGameSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameSkin.cpp; sourceTree = "<group>"; };
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
 		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
@@ -473,7 +474,6 @@
 		2395E4640ECB7FA900E8D04E /* Music.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Music.cpp; sourceTree = "<group>"; };
 		239ACA510E6AD44F00C4216A /* CClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CClient.cpp; sourceTree = "<group>"; };
 		239ACA520E6AD44F00C4216A /* CrashHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrashHandler.cpp; sourceTree = "<group>"; };
-		239ACA530E6AD44F00C4216A /* CWormSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormSkin.cpp; sourceTree = "<group>"; };
 		239ACA550E6AD44F00C4216A /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAnimation.cpp; sourceTree = "<group>"; };
 		239ACA560E6AD44F00C4216A /* CBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CBar.cpp; sourceTree = "<group>"; };
 		239ACA570E6AD44F00C4216A /* CBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CBox.cpp; sourceTree = "<group>"; };
@@ -1120,6 +1120,7 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				238F337B0F756F730016D617 /* CGameSkin.cpp */,
 				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
 				2395E4630ECB7FA900E8D04E /* IRC.cpp */,
 				2395E4640ECB7FA900E8D04E /* Music.cpp */,
@@ -1127,7 +1128,6 @@
 				238800E30E8B150100B94DC0 /* NotifyUser.cpp */,
 				239ACA510E6AD44F00C4216A /* CClient.cpp */,
 				239ACA520E6AD44F00C4216A /* CrashHandler.cpp */,
-				239ACA530E6AD44F00C4216A /* CWormSkin.cpp */,
 				239ACA540E6AD44F00C4216A /* DeprecatedGUI */,
 				239ACA7B0E6AD44F00C4216A /* FontHandling.cpp */,
 				239ACA7C0E6AD44F00C4216A /* GuiPrimitives.cpp */,
@@ -1237,6 +1237,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				238F337A0F756F650016D617 /* CGameSkin.h */,
 				23AFF05A0F701804005B964D /* Utils.h */,
 				23AFF03C0F70175F005B964D /* Functors.h */,
 				23AFF03B0F701755005B964D /* Ref.h */,
@@ -1261,7 +1262,6 @@
 				2306CBE10E6AC55E00132D3B /* DeprecatedGUI */,
 				2306CBDE0E6AC55E00132D3B /* CrashHandler.h */,
 				2306CBDF0E6AC55E00132D3B /* CWorld.h */,
-				2306CBE00E6AC55E00132D3B /* CWormSkin.h */,
 				2306CBFD0E6AC55E00132D3B /* FontEffects.h */,
 				2306CBFE0E6AC55E00132D3B /* FontHandling.h */,
 				2306CBFF0E6AC55E00132D3B /* GuiPrimitives.h */,
@@ -1706,7 +1706,6 @@
 				230E9C510D8C407B00BFB500 /* Version.cpp in Sources */,
 				239ACA9B0E6AD45000C4216A /* CClient.cpp in Sources */,
 				239ACA9C0E6AD45000C4216A /* CrashHandler.cpp in Sources */,
-				239ACA9D0E6AD45000C4216A /* CWormSkin.cpp in Sources */,
 				239ACA9E0E6AD45000C4216A /* CAnimation.cpp in Sources */,
 				239ACA9F0E6AD45000C4216A /* CBar.cpp in Sources */,
 				239ACAA00E6AD45000C4216A /* CBox.cpp in Sources */,
@@ -1803,6 +1802,7 @@
 				23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */,
 				238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */,
 				238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */,
+				238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
