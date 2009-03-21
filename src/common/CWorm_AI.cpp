@@ -1111,16 +1111,6 @@ static bool moveToOwnBase(int t, CVec& pos) {
 	return true;
 }
 
-static bool moveToOwnFlag(int t, CVec& pos) {
-	Flag* ownFlag = cClient->flagInfo()->getFlag(t);
-	if(!ownFlag) return false; // strange
-	if(ownFlag->holderWorm < 0) {
-		pos = ownFlag->getPos();
-		return true;
-	}
-	return false;
-}
-
 static bool findEnemyBase(CWorm* w, CVec& pos) {	
 	float lastDist = 999999999.0f;
 	bool success = false;
