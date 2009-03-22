@@ -106,9 +106,10 @@ void CFont::Parse(void) {
 
 		// Ignore any free pixel columns before the character
 		char_start = x;
-		while (IsColumnFree(x) && x < bmpFont.get()->w)
+		while (x < bmpFont.get()->w && IsColumnFree(x))
 			++x;
-
+		if(x >= bmpFont.get()->w) break;
+		
 		// If we stopped at next blue line/end, this must be a kind of space
 		if (GetPixel(bmpFont.get(), x, 0) == blue || x == bmpFont.get()->w)  {
 			cur_w = x - char_start;

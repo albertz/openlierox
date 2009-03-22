@@ -859,6 +859,15 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	SDL_Rect src = { sx, sy, sw, sh };
 	SDL_Rect dst = { dx, dy, (int)((float)sw * xratio), (int)((float)sh * yratio) };
+	
+	// Source clipping
+	if (!ClipRefRectWith(src.x, src.y, src.w, src.h, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	// Dest clipping
+	if (!ClipRefRectWith(dst.x, dst.y, dst.w, dst.h, (SDLRect&)bmpDest->clip_rect))
+		return;
+	
 	if (dst.w != 0 && dst.h != 0)
 		SDL_SoftStretch(bmpSrc, &src, bmpDest, &dst);
 }
@@ -869,6 +878,15 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 {
 	SDL_Rect src = { sx, sy, sw, sh };
 	SDL_Rect dst = { dx, dy, dw, dh };
+	
+	// Source clipping
+	if (!ClipRefRectWith(src.x, src.y, src.w, src.h, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	// Dest clipping
+	if (!ClipRefRectWith(dst.x, dst.y, dst.w, dst.h, (SDLRect&)bmpDest->clip_rect))
+		return;
+	
 	if (dw != 0 && dh != 0)
 		SDL_SoftStretch(bmpSrc, &src, bmpDest, &dst);
 }
