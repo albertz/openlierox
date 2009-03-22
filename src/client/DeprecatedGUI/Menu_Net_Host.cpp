@@ -391,11 +391,10 @@ void Menu_Net_HostPlyFrame(int mouse)
 						break;
 					}
 					
-					// TODO: why MAX_PLAYERS-1 ?
-					if(lv->getItemCount() > MAX_PLAYERS - 1) {
+					if(lv->getItemCount() > MAX_PLAYERS) {
 						Menu_MessageBox("Too much players",
 										"You have selected " + itoa(lv->getItemCount()) + " worms"
-										"but only " + itoa(MAX_PLAYERS - 1) + " worms are possible.");
+										"but only " + itoa(MAX_PLAYERS) + " worms are possible.");
 						break;
 					}
 					
