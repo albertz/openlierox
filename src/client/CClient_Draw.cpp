@@ -871,7 +871,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	int *HealthLabelX, *WeaponLabelX, *LivesX, *KillsX, *TeamX, *SpecMsgX;
 	int *HealthLabelY, *WeaponLabelY, *LivesY, *KillsY, *TeamY, *SpecMsgY;
 	int	*LivesW, *KillsW, *TeamW, *SpecMsgW;
-	int TeamScoreX;
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
@@ -879,9 +878,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		return;
 
     CWorm *worm = v->getTarget();	
-	std::string teamScoreTxt = "Scr:";
-	if(worm && worm->getTeam() >= 0 && worm->getTeam() < 4)
-		teamScoreTxt += itoa(iTeamScores[worm->getTeam()]);
 	
 	// TODO: allow more viewports
 	if (viewport_index == 0)  {  // Viewport 1
@@ -899,7 +895,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		TeamX = &tInterfaceSettings.Team1X;
 		TeamY = &tInterfaceSettings.Team1Y;
 		TeamW = &tInterfaceSettings.Team1W;
-		TeamScoreX = *TeamX + *TeamW + 5;
 
 		SpecMsgX = &tInterfaceSettings.SpecMsg1X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg1Y;
@@ -922,7 +917,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		TeamX = &tInterfaceSettings.Team2X;
 		TeamY = &tInterfaceSettings.Team2Y;
 		TeamW = &tInterfaceSettings.Team2W;
-		TeamScoreX = *TeamX - tLX->cFont.GetWidth(teamScoreTxt) - 5;
 
 		SpecMsgX = &tInterfaceSettings.SpecMsg2X;
 		SpecMsgY = &tInterfaceSettings.SpecMsg2Y;
@@ -998,10 +992,32 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		}
 	}
 
+	
 	// Kills
 	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
-	tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
+	std::string teamScoreTxt = "Scores: ";
+	if(worm && worm->getTeam() >= 0 && worm->getTeam() < 4)
+		teamScoreTxt += itoa(iTeamScores[worm->getTeam()]);
+	if(getGeneralGameType() == GMT_TEAMS)
+		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, teamScoreTxt);		
+	else
+		tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
 
+	bool showTeamEnemyScores = getGeneralGameType() == GMT_TEAMS && !cViewports[1].getUsed();
+	if(showTeamEnemyScores) {
+		int x = tInterfaceSettings.Kills2X;
+		int y = tInterfaceSettings.Kills2Y;
+		for(int i = 0; i < 4; ++i) {
+			if(i != worm->getTeam() && (cClient->getTeamWormCount(i) > 0 || iTeamScores[i] != 0)) {
+				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[i], x, y );			
+				x += DeprecatedGUI::gfxGame.bmpTeamColours[i].get()->w + 5;
+				
+				std::string enemyScoreTxt = itoa(iTeamScores[i]);
+				tLX->cFont.Draw(bmpDest, x, y, tLX->clTeamColors[i], enemyScoreTxt);
+				x += MAX(30, tLX->cFont.GetWidth(enemyScoreTxt) + 5);
+			}
+		}
+	}
 
 	// Special message
 	std::string spec_msg;
@@ -1041,8 +1057,6 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				DrawImage( bmpDest, DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()],
 						   *TeamX + *TeamW - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->w - 2,
 						   *TeamY + MAX(1, box_h/2 - DeprecatedGUI::gfxGame.bmpTeamColours[worm->getTeam()].get()->h/2));
-				
-				tLX->cFont.Draw( bmpDest, TeamScoreX, *TeamY, tLX->clTeamColors[worm->getTeam()], teamScoreTxt);
 			}
 		}
 	}
