@@ -78,6 +78,7 @@ public:
 	void SendWeapons();
 	void SendSpawnWorm(CWorm *Worm, CVec pos);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
+	virtual void SendTeamScoreUpdate() {}
 
 protected:
 	// Attributes
@@ -160,7 +161,8 @@ public:
 	virtual void SendWormScore(CWorm *Worm);
 	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
-
+	virtual void SendTeamScoreUpdate();
+	
 	static void WriteFeatureSettings(CBytestream* bs);
 
 	virtual void ParseNewNetKeys(CBytestream *bs);

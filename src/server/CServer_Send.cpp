@@ -1015,16 +1015,22 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 	fLastDamageReportSent = tLX->currentTime;
 }
 
-
-void GameServer::SendTeamScoreUpdate() {
+void CServerNetEngineBeta9::SendTeamScoreUpdate() {
 	// only do this in a team game
-	if(getGameMode()->GeneralGameType() != GMT_TEAMS) return;
-	
+	if(cServer->getGameMode()->GeneralGameType() != GMT_TEAMS) return;
+
 	CBytestream bs;
 	bs.writeByte(S2C_TEAMSCOREUPDATE);
-	bs.writeByte(getGameMode()->GameTeams());
-	for(int i = 0; i < getGameMode()->GameTeams(); ++i) {
-		bs.writeInt16(getGameMode()->TeamScores(i));
+	bs.writeByte(cServer->getGameMode()->GameTeams());
+	for(int i = 0; i < cServer->getGameMode()->GameTeams(); ++i) {
+		bs.writeInt16(cServer->getGameMode()->TeamScores(i));
 	}	
-	SendGlobalPacket(&bs, OLXBetaVersion(9));
+	SendPacket(&bs);
+}
+
+void GameServer::SendTeamScoreUpdate() {
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendTeamScoreUpdate();
+	}
 }

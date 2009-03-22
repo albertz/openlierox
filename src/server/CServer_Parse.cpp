@@ -1541,13 +1541,15 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			newcl->getNetEngine()->SendPacket(&b);
 		}
 
-		// Set some info on the worms
+		// Set some info about the new worms
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
 				cClients[ii].getNetEngine()->SendWormScore( (*w) );
 		}
-		
+
 		newcl->getNetEngine()->SendPrepareGame();
+
+		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
 		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
