@@ -466,18 +466,13 @@ void CGameSkin::Colorize(Uint32 col)
                 continue;
 
             // Must be white (or some over unknown colour)
+			unsigned int r2 = colR * GetR(pixel, bmpSurface->format) / 96;
+			unsigned int g2 = colG * GetG(pixel, bmpSurface->format) / 156;
+			unsigned int b2 = colB * GetB(pixel, bmpSurface->format) / 252;
 
-			float dr = (float)GetR(pixel, bmpSurface->format) / 96.0f;
-			float dg = (float)GetG(pixel, bmpSurface->format) / 156.0f;
-			float db = (float)GetB(pixel, bmpSurface->format) / 252.0f;
-
-			float r2 = (float)colR * dr;
-			float g2 = (float)colG * dg;
-			float b2 = (float)colB * db;
-
-			r2 = MIN(255.0f, r2);
-			g2 = MIN(255.0f, g2);
-			b2 = MIN(255.0f, b2);
+			r2 = MIN(255, r2);
+			g2 = MIN(255, g2);
+			b2 = MIN(255, b2);
 
 
 			// Bit of a hack to make sure it isn't completey pink (see through)
@@ -489,9 +484,9 @@ void CGameSkin::Colorize(Uint32 col)
             // Put the colourised pixel
 			Uint8 a = GetA(pixel, bmpSurface->format);
 			PutPixel(bmpNormal.get(), x, y, 
-				SDL_MapRGBA(bmpNormal->format, (int)r2, (int)g2, (int)b2, a));
+				SDL_MapRGBA(bmpNormal->format, r2, g2, b2, a));
 			PutPixel(bmpMirrored.get(), MAX(0, bmpMirrored->w - x - 1), y, 
-				SDL_MapRGBA(bmpMirrored->format, (int)r2, (int)g2, (int)b2, a));
+				SDL_MapRGBA(bmpMirrored->format, r2, g2, b2, a));
 		}
 	}
 
