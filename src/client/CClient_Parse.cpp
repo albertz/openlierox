@@ -1521,7 +1521,7 @@ void CClientNetEngine::ParseTeamScoreUpdate(CBytestream *bs) {
 		}
 	}
 	
-	if(someTeamScored)
+	if(someTeamScored && client->tGameInfo.gameMode == GameMode(GM_CTF))
 		PlaySoundSample(sfxGame.smpTeamScore.get());
 	
 	// reorder the list
