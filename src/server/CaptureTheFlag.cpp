@@ -104,7 +104,7 @@ struct CaptureTheFlag : public CGameMode {
 		}
 		else { // enemy flag
 			cServer->flagInfo()->applyHolderWorm(flag, worm->getID());
-			cServer->SendGlobalText(worm->getName() + " catched " + flagName(flag->id), TXT_NORMAL);
+			cServer->SendGlobalText(worm->getName() + " caught " + flagName(flag->id), TXT_NORMAL);
 		}
 	}
 	
