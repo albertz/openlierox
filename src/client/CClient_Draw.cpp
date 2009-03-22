@@ -2128,18 +2128,20 @@ void CClient::InitializeSpectatorViewportKeys()
 
 void CClient::ProcessSpectatorViewportKeys()
 {
+	if(!cLocalWorms) return;
+	
 	if( ! bSpectate)
 	{
 		if( iNetStatus != NET_PLAYING )
 			return;
-		// Only process keyboard input if local human worm is dead for at least 3 seconds
-		if(cLocalWorms[0])
-			if( cLocalWorms[0]->getAlive() ||(tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 3.0f))
-				return;
-		// Do not allow spectating with 2 local players - second viewport can be screwed up while second player plays.
-		if(cLocalWorms[1])
-			if(cLocalWorms[1]->getType() == PRF_HUMAN)
-				return;
+		
+		// don't proceed if any of the locla human worms is not out of the game
+		// (also don't proceed when waiting for respawn)
+		for(uint i = 0; i < iNumWorms; ++i) {
+			if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
+				if(cLocalWorms[i]->getLives() != WRM_OUT) return;
+			}
+		}
 	}
 
 	// Don't process when typing a message
