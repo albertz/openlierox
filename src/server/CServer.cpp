@@ -96,7 +96,8 @@ void GameServer::Clear(void)
 	fRegisterUdpTime = AbsTime();
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
-
+	m_clientsNeedLobbyUpdate = false;
+	
 	fLastUpdateSent = AbsTime();
 
 	cBanList.loadList("cfg/ban.lst");

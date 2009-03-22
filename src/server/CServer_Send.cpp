@@ -647,7 +647,7 @@ void GameServer::UpdateGameLobby()
 	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
 	
 	m_clientsNeedLobbyUpdate = true;
-	m_clientsNeedLobbyUpdateTime = tLX->currentTime;	
+	m_clientsNeedLobbyUpdateTime = tLX->currentTime;
 }
 
 void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
