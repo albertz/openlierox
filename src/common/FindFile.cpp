@@ -41,6 +41,11 @@
 
 #else // WIN32
 
+// not defined for older GCC versions; we check only for >=4.3 anyway
+# ifndef __GNUC_PREREQ
+#  define __GNUC_PREREQ(maj, min) (0)
+# endif
+
 // include hash_set support
 #	if !defined(STLPORT)
 #		if defined(__GNUC__) &&  __GNUC_PREREQ(4,3)
