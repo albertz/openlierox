@@ -948,6 +948,27 @@ struct DedIntern {
 		tLX->iGameType = GME_HOST;
 	}
 
+	void Cmd_Map(DedInterface* caller, const std::string& params) {
+		std::string filename = params;
+		TrimSpaces(filename);
+		StripQuotes(filename);
+		
+		if(filename == "") {
+			caller->writeMsg("specify map filename");
+			return;
+		}
+		
+		if(filename.find(".") == std::string::npos)
+			filename += ".lxl";
+		
+		// TODO: search through all levels and match name if we don't have a proper filename
+		// Don't do this explicitly though, we should cache the list (and also use it
+		// everywhere else where we need it).
+		
+		tLXOptions->tGameInfo.sMapFile = filename;
+		cServer->UpdateGameLobby();
+	}
+	
 	void Cmd_GotoLobby(DedInterface* caller) {
 		cServer->gotoLobby();
 		*DeprecatedGUI::bGame = false;
@@ -1136,6 +1157,8 @@ struct DedIntern {
 			Cmd_StartGame(command.sender);
 		else if(cmd == "gotolobby")
 			Cmd_GotoLobby(command.sender);
+		else if(cmd == "map")
+			Cmd_Map(command.sender, params);
 
 		else if(cmd == "addbot")
 			Cmd_AddBot(command.sender, params);

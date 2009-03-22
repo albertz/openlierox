@@ -1074,6 +1074,7 @@ void CWormBotInputHandler::getInput() {
 		}
 		m_worm->tState.bMove = false;
 
+		
     } else {
 
 		// Reload weapons when we can't shoot
@@ -1927,6 +1928,42 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 
 }
 
+
+static bool canShootRightNowWithCurWeapon(CWorm* w) {
+	// code from GameServer::WormShoot, CClient::PlayerShoot
+	// and look also at CClient::ShootSpecial for special weapons like jetpack
+	
+	wpnslot_t *Slot = w->getCurWeapon();
+	
+	if(Slot->Reloading)
+		return false;
+	
+	if(Slot->LastFire>0)
+		return false;
+	
+	// Don't shoot with banned weapons
+	if (!Slot->Enabled)
+		return false;
+	
+	if(!Slot->Weapon) {
+		return false;
+	}
+
+	if(Slot->Weapon->Type == WPN_SPECIAL) {
+		switch(Slot->Weapon->Special) {
+			case SPC_JETPACK: return true;
+			default: return false;
+		}
+	}
+	
+	// Must be a projectile
+	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
+		return false;
+	
+	return true;
+}
+
+
 ///////////////////
 // Shoot!
 // returns true if we want to do it or already doing it (also in the progress of aiming)
@@ -1936,6 +1973,8 @@ bool CWormBotInputHandler::AI_Shoot()
 		// there is no shooting in this gamemode
 		return false;
 	}
+	
+	if(!canShootRightNowWithCurWeapon(m_worm)) return false;
 	
 	// search for best target
  	CWorm* w = findTarget();
@@ -1961,7 +2000,8 @@ bool CWormBotInputHandler::AI_Shoot()
 
 
     // If the target is too far away we can't shoot at all (but not when a rifle game)
-    float d = (cTrgPos - m_worm->vPos).GetLength();
+	CVec diff = cTrgPos - m_worm->vPos;
+    float d = diff.GetLength();
  /*   if(d > 300.0f && iAiGameType != GAM_RIFLES)
         return false; */
 
@@ -1995,13 +2035,17 @@ bool CWormBotInputHandler::AI_Shoot()
 	// If target is blocked by large amount of dirt, we can't shoot it
 	// But we can use a clearing weapon :)
 	if (nType & PX_DIRT)  {
-		if(d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
+		bDirect = false;
+		if(diff.y < 0 && fabs(diff.y) > fabs(diff.x) && d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
 			int w = AI_FindClearingWeapon();
-			if (w == -1 || AI_GetRockBetween(m_worm->vPos, cTrgPos) > 3)
-				bDirect = false;
-			else  {
-				m_worm->tState.bShoot = true;
-				return true;
+			if (w >= 0 && AI_GetRockBetween(m_worm->vPos, cTrgPos) <= 3) {
+				m_worm->iCurrentWeapon = w;
+				if(AI_SetAim(cTrgPos)) {
+					m_worm->tState.bShoot = true;
+					return true;
+				}
+				else
+					return false;
 			}
 		}
 	}
@@ -2167,7 +2211,6 @@ bool CWormBotInputHandler::AI_Shoot()
 				} else { // Too close, get away!
 					bAim = false;
 					bShoot = false;
-					nAIState = AI_MOVINGTOTARGET;
 				}
 
 				// Check if we can aim with this angle
