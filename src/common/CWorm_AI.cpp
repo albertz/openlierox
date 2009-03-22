@@ -1102,7 +1102,7 @@ void CWormBotInputHandler::getInput() {
     }
 
     // we have no strafing for bots at the moment
-    m_worm->iMoveDirection = m_worm->iDirection;
+    m_worm->iMoveDirection = m_worm->iDirection;	
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -3651,8 +3651,8 @@ bool CWormBotInputHandler::AI_IsInAir(CVec pos, int area_a)
 void CWormBotInputHandler::AI_Carve()
 {
 	// Don't carve too fast
-	if (GetTime() - m_worm->fLastCarve > 0.2f)  {
-		m_worm->fLastCarve = GetTime();
+	if (tLX->currentTime - m_worm->fLastCarve > 0.2f)  {
+		m_worm->fLastCarve = tLX->currentTime;
 		m_worm->tState.bCarve = true; // Carve
 	}
 	else  {
