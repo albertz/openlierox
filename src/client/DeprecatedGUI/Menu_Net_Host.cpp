@@ -85,6 +85,9 @@ enum {
 
 int iHumanPlayers = 0;
 
+bool		bSpeedTestDialog = false;
+bool		bTestedSpeed = false;
+AbsTime		fHostMenuPlyStart = AbsTime();
 
 ///////////////////
 // Initialize the host menu
@@ -92,6 +95,9 @@ bool Menu_Net_HostInitialize(void)
 {
 	iNetMode = net_host;
 	iHostType = 0;
+	bTestedSpeed = false;
+	bSpeedTestDialog = false;
+	fHostMenuPlyStart = tLX->currentTime;
 
 	// Player gui layout
 	cHostPly.Shutdown();
@@ -230,6 +236,22 @@ static int maxPossibleWormCountForNetwork(int hostWormCount) {
 	return i;
 }
 	
+
+	
+	
+void Menu_Net_HostUpdateUploadSpeed(float speed)
+{
+	tLXOptions->iMaxUploadBandwidth = (int)speed;
+	
+	// Update the network speed accordingly
+	if (tLXOptions->iMaxUploadBandwidth >= 7500)
+		tLXOptions->iNetworkSpeed = NST_LAN;
+	else if (tLXOptions->iMaxUploadBandwidth >= 2500)
+		tLXOptions->iNetworkSpeed = NST_ISDN;
+	else
+		tLXOptions->iNetworkSpeed = NST_MODEM;
+}
+	
 ///////////////////
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
@@ -242,6 +264,37 @@ void Menu_Net_HostPlyFrame(int mouse)
 	ev = cHostPly.Process();
 	cHostPly.Draw( VideoPostProcessor::videoSurface() );
 
+	
+	// Speed test dialog
+	if (bSpeedTestDialog)  {
+		if (Menu_SpeedTest_Frame())  {
+			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed() * 0.9f); // lower a bit to leave some rest free
+			bSpeedTestDialog = false;
+			Menu_SpeedTest_Shutdown();
+		}
+	}
+	
+	// If hosting for the first time or the network speed is low, ask for the upload speed test
+	if (!bDedicated && tLX->currentTime - fHostMenuPlyStart >= 0.5f && !bTestedSpeed)  { // Show a half second after coming to the lobby
+		if (tLXOptions->bFirstHosting)  {  
+			bTestedSpeed = true;
+			
+			std::string message = "You are hosting for the first time. To reduce lag, OpenLieroX needs to know the speed of your connection.\n\nDo you want to perform a connection test now?";
+			if (tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)
+				message = "The network speed is set to a very low value. This can cause lag issues on your server. It is recommended to run a connection test.\n\nDo you want to perform a connection test now?";
+			
+			// TODO: Move that out here. Horrible how many hacks are needed to show a message box
+			//DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
+			if (Menu_MessageBox("Perform a Connection Test", message, LMB_YESNO) == MBR_YES)  {
+				Menu_SpeedTest_Initialize();
+				bSpeedTestDialog = true;
+			}
+			//Menu_Net_HostLobbyDraw();  // Restore the buffer
+			//Menu_HostShowMinimap();
+			//Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
+		}
+	}
+	
 	// Process any events
 	if(ev) {
 
@@ -373,7 +426,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 											   "Your current network settings (" + netSettingsText + ") only allow up to " +
 										   	   itoa(maxPossibleWorms) + " players.\n\n"
 											   "Would you like to create a server for " + itoa(maxPossibleWorms) + " players?\n"
-											   "(Otherwise please check your networks settings in the option dialog.)",
+											   "(Otherwise please check your network settings in the option dialog.)",
 											   LMB_YESNO) == MBR_YES) {
 								notes << "setting maxplayers to " << maxPossibleWorms << " as user whishes" << endl;
 								tLXOptions->tGameInfo.iMaxPlayers = maxPossibleWorms;
@@ -510,7 +563,6 @@ bool		bHostGameSettings = false;
 bool		bHostWeaponRest = false;
 bool		bBanList = false;
 bool		bServerSettings = false;
-bool		bSpeedTestDialog = false;
 CGuiLayout	cHostLobby;
 int			iSpeaking = 0;
 int         g_nLobbyWorm = -1;
@@ -520,8 +572,6 @@ int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
 AbsTime		fStartDedicatedSecondsPassed = AbsTime();
 int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
-AbsTime		fHostLobbyStart = AbsTime();
-bool		bTestedSpeed = false;
 int			secondsAnnounced = -1;
 
 static bool register_vars = CScriptableVars::RegisterVars("GameServer")
@@ -542,8 +592,6 @@ bool Menu_Net_HostLobbyInitialize(void)
 	iHostType = 1;
 	bHostGameSettings = false;
     bHostWeaponRest = false;
-	bSpeedTestDialog = false;
-	bTestedSpeed = false;
     iSpeaking = -1;
 
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
@@ -613,8 +661,6 @@ void Menu_Net_HostLobbyDraw(void)
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
 {
-	fHostLobbyStart = tLX->currentTime;
-
     // Lobby gui layout
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
@@ -768,19 +814,6 @@ void Menu_Net_HostGotoLobby(void)
 
 	cServer->UpdateGameLobby();
 	tMenu->sSavedChatText = "";
-}
-
-void Menu_Net_HostUpdateUploadSpeed(float speed)
-{
-	tLXOptions->iMaxUploadBandwidth = (int)speed;
-
-	// Update the network speed accordingly
-	if (tLXOptions->iMaxUploadBandwidth >= 7500)
-		tLXOptions->iNetworkSpeed = NST_LAN;
-	else if (tLXOptions->iMaxUploadBandwidth >= 2500)
-		tLXOptions->iNetworkSpeed = NST_ISDN;
-	else
-		tLXOptions->iNetworkSpeed = NST_MODEM;
 }
 
 //////////////////////
@@ -1181,36 +1214,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		}
 	}
 
-	// Speed test dialog
-	if (bSpeedTestDialog)  {
-		if (Menu_SpeedTest_Frame())  {
-			Menu_Net_HostUpdateUploadSpeed(Menu_SpeedTest_GetSpeed() * 0.9f); // lower a bit to leave some rest free
-			bSpeedTestDialog = false;
-			Menu_SpeedTest_Shutdown();
-		}
-	}
-
-	// If hosting for the first time or the network speed is low, ask for the upload speed test
-	if (!bDedicated && tLX->currentTime - fHostLobbyStart >= 0.5f && !bTestedSpeed)  { // Show a half second after coming to the lobby
-		if (tLXOptions->bFirstHosting || tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)  {  
-			bTestedSpeed = true;
-
-			std::string message = "You are hosting for the first time. To reduce lag, OpenLieroX needs to know the speed of your connection.\n\nDo you want to perform a connection test now?";
-			if (tLXOptions->iNetworkSpeed == NST_MODEM || tLXOptions->iMaxUploadBandwidth < 5000)
-				message = "The network speed is set to a very low value. This can cause lag issues on your server. It is recommended to run a connection test.\n\nDo you want to perform a connection test now?";
-
-			// TODO: Move that out here. Horrible how many hacks are needed to show a message box
-			DrawImage(tMenu->bmpBuffer.get(), VideoPostProcessor::videoSurface(), 0, 0);
-			if (Menu_MessageBox("Perform a Connection Test", message, LMB_YESNO) == MBR_YES)  {
-					Menu_SpeedTest_Initialize();
-					bSpeedTestDialog = true;
-			}
-			Menu_Net_HostLobbyDraw();  // Restore the buffer
-			Menu_HostShowMinimap();
-			Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
-		}
-	}
-
+	
 	// Draw the mouse
 	DrawCursor(VideoPostProcessor::videoSurface());
 

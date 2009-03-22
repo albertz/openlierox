@@ -117,9 +117,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 
-		( tLXOptions->bFirstRun, "State.FirstRun" + options_ver, true )
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
-		( tLXOptions->bFirstHostingThisVer, "State.FirstHosting" + options_ver, true )
+		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
@@ -399,12 +398,12 @@ void GameOptions::SaveToDisc()
         return;
 
 	// Set the FirstRun to false, we're just quitting
-	tLXOptions->bFirstRun = false;
+	if(tLXOptions->sNewestVersion == "" || Version(tLXOptions->sNewestVersion) < GetGameVersion())
+		tLXOptions->sNewestVersion = GetGameVersion().asString();
 
 	// Hosted a net game? Set the FirstHosting variables to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;
-		tLXOptions->bFirstHostingThisVer = false;
 	}
 
 	// TODO: remove this UTF8 information here

@@ -127,12 +127,6 @@ int GameServer::StartServer()
 		tLX->bHosted = true;
 
 	// Notifications
-	if (tLX->iGameType == GME_HOST)  {
-		if (tLXOptions->bFirstHosting)
-			notes << "Hosting for the first time" << endl;
-		else if (tLXOptions->bFirstHostingThisVer)
-			notes << "Hosting for the first time with this version of OpenLieroX" << endl;
-	}
 	if (bDedicated)
 		notes << "Server max upload bandwidth is " << tLXOptions->iMaxUploadBandwidth << " bytes/s" << endl;
 
@@ -2175,7 +2169,6 @@ void GameServer::Shutdown(void)
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;
-		tLXOptions->bFirstHostingThisVer = false;
 	}
 
 	// Kick clients if they still connected (sends just one packet which may be lost, but whatever, we're shutting down)

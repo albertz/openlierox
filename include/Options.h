@@ -208,9 +208,8 @@ public:
 	bool	bMusicOn;
 
 	// Game state
-	bool	bFirstRun;
+	std::string	sNewestVersion;
 	bool	bFirstHosting;
-	bool	bFirstHostingThisVer;  // First hosting with this OLX version
 
 	// Controls
 	std::vector<controls_t> sPlayerControls; // sPC[playernr][controlnr]
