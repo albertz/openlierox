@@ -311,7 +311,7 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 
 	// Create if doesn't exist
 	if (!to.get())
-		to = gfxCreateSurface(from->w, from->h);
+		to = gfxCreateSurfaceAlpha(from->w, from->h);
 
 	// Alloc error
 	if (!to.get())
@@ -462,7 +462,7 @@ void CGameSkin::Colorize(Uint32 col)
             }
 
             // Pink means just ignore the pixel completely
-            if( IsTransparent(bmpSurface.get(), mask) )
+            if (IsTransparent(bmpSurface.get(), mask))
                 continue;
 
             // Must be white (or some over unknown colour)
@@ -487,10 +487,11 @@ void CGameSkin::Colorize(Uint32 col)
 			}
 
             // Put the colourised pixel
+			Uint8 a = GetA(pixel, bmpSurface->format);
 			PutPixel(bmpNormal.get(), x, y, 
-				SDL_MapRGBA(bmpNormal->format, (int)r2, (int)g2, (int)b2, GetA(pixel, bmpSurface->format)));
+				SDL_MapRGBA(bmpNormal->format, (int)r2, (int)g2, (int)b2, a));
 			PutPixel(bmpMirrored.get(), MAX(0, bmpMirrored->w - x - 1), y, 
-				SDL_MapRGBA(bmpNormal->format, (int)r2, (int)g2, (int)b2, GetA(pixel, bmpSurface->format)));
+				SDL_MapRGBA(bmpMirrored->format, (int)r2, (int)g2, (int)b2, a));
 		}
 	}
 
