@@ -387,14 +387,14 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 					
 					if (lv->getItemCount() == 0) {
-						Menu_MessageBox("Too less players", "You have to select at least one worm.");
+						Menu_MessageBox("Too less players", "You have to select at least one player.");
 						break;
 					}
 					
 					if(lv->getItemCount() > MAX_PLAYERS) {
 						Menu_MessageBox("Too much players",
-										"You have selected " + itoa(lv->getItemCount()) + " worms"
-										"but only " + itoa(MAX_PLAYERS) + " worms are possible.");
+										"You have selected " + itoa(lv->getItemCount()) + " players "
+										"but only " + itoa(MAX_PLAYERS) + " players are possible.");
 						break;
 					}
 					

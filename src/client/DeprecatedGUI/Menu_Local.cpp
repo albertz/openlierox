@@ -579,14 +579,14 @@ void Menu_LocalStartGame(void)
 	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
 
 	if (lv_playing->getItemCount() == 0) {
-		Menu_MessageBox("Too less players", "You have to select at least one worm.");
+		Menu_MessageBox("Too less players", "You have to select at least one player.");
 		return;
 	}
 	
 	if(lv_playing->getItemCount() > MAX_PLAYERS) {
 		Menu_MessageBox("Too much players",
-						"You have selected " + itoa(lv_playing->getItemCount()) + " worms"
-						"but only " + itoa(MAX_PLAYERS) + " worms are possible.");
+						"You have selected " + itoa(lv_playing->getItemCount()) + " players "
+						"but only " + itoa(MAX_PLAYERS) + " players are possible.");
 		return;
 	}
 	
