@@ -67,6 +67,8 @@ static bool AmIBeingDebugged()
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <cstring>
+#include <unistd.h>
+
 
 static bool AmIBeingDebugged() {
 	// We can look in /proc/self/status for TracerPid.  We are likely used in crash
