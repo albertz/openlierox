@@ -57,6 +57,9 @@ enum GameType_t {
 
 // LieroX structure
 class lierox_t { public:
+	lierox_t() :
+			bVideoModeChanged(false), bQuitGame(false), bQuitEngine(false), bQuitCtrlC(false)
+			, iGameType(GME_LOCAL), bHosted(false) {}
 	AbsTime	currentTime;
 	TimeDiff	fDeltaTime;
 	TimeDiff	fRealDeltaTime; // Delta time used for network synchronization,
