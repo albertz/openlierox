@@ -27,10 +27,10 @@
 #include "CMap.h"
 
 #define FLAG_FRAME_WIDTH 32
-#define FLAG_FRAME_HEIGHT 48
-#define FLAG_SPACING 0
-#define FLAG_WIDTH FLAG_FRAME_WIDTH
-#define FLAG_HEIGHT FLAG_FRAME_HEIGHT
+#define FLAG_FRAME_HEIGHT 18
+#define FLAG_SPACING 4
+#define FLAG_WIDTH 18
+#define FLAG_HEIGHT 18
 
 Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
 	skin = new CGameSkin("../data/gfx/flags.png", FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
@@ -149,20 +149,21 @@ static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	y -= y % 2;
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
-	f %= MAX(1, flag->skin->getFrameCount());
+	f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
 	
-	flag->skin->Draw(bmpDest, x, y - FLAG_HEIGHT, f, false, true);
+	flag->skin->Draw(bmpDest, x - FLAG_WIDTH/2, y - FLAG_HEIGHT/2, f, false, true);
 }
 
 void FlagInfo::draw(SDL_Surface* bmpDest, CViewport* v) {
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
 		Flag& flag = i->second;
 
-		if (flag.holderWorm < 0)
-			drawUnattachedFlag(&flag, bmpDest, v);  // drawing unattached or flags at spawnpoint
-
 		drawFlagSpawnPoint(&flag, bmpDest, v);
 		
+		if(flag.holderWorm >= 0) continue;
+		
+		// drawing unattached or flags at spawnpoint
+		drawUnattachedFlag(&flag, bmpDest, v);
 	}
 }
 
@@ -183,12 +184,12 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	int f = ((int) worm->frame()*7);
 	int ang = (int)( (worm->getAngle()+90)/151 * 7 );
 	f += ang;
-	f %= MAX(1, flag->skin->getFrameCount());
 	
 	if(worm->getDirection() == DIR_LEFT) {
-		flag->skin->Draw(bmpDest, x, y - flag->skin->getSkinHeight(), f, false, true);
-	} else {
-		flag->skin->Draw(bmpDest, x - flag->skin->getSkinWidth(), y - flag->skin->getSkinHeight(), f, false, false);
+		flag->skin->Draw(bmpDest, x - flag->skin->getSkinWidth(), y - flag->skin->getSkinHeight(), f, false, true);
+	}
+	else {
+		flag->skin->Draw(bmpDest, x, y - flag->skin->getSkinHeight(), f, false, false);
 	}
 }
 
@@ -222,7 +223,7 @@ void FlagInfo::checkWorm(CWorm* worm) {
 	if(!worm->getAlive()) return;
 	
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
-		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < 400.0f ) {
+		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < 20.0f ) {
 			cServer->getGameMode()->hitFlagSpawnPoint(worm, &i->second);
 			
 			if(i->second.atSpawnPoint)
@@ -230,7 +231,7 @@ void FlagInfo::checkWorm(CWorm* worm) {
 		}
 		
 		if(!i->second.atSpawnPoint && i->second.holderWorm < 0) {
-			if( (worm->getPos() - i->second.pos).GetLength2() < 400.0f ) {
+			if( (worm->getPos() - i->second.pos).GetLength2() < 20.0f ) {
 				cServer->getGameMode()->hitFlag(worm, &i->second);			
 			}
 		}
