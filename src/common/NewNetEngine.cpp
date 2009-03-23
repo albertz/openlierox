@@ -87,59 +87,6 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 	}
 }
 
-// GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
-// The exception for this is when we are called from CalculateCurrentState() - 
-// it will call Physics() with fastCalculation flag set to true and arbitrary gameTime -
-// we are allowed to skip some collision checks and to revert to faster routines in that case, 
-// as long as the game image on the screen will look smooth - we will discard that results anyway.
-// Keys is the state of keys for given player.
-// If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
-
-unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
-{
-	unsigned checksum = 0;
-	for( int i = 0; i < MAX_WORMS; i++ )
-	{
-		CWorm * w = & cClient->getRemoteWorms()[i];
-		if( w->isUsed() )
-		{
-			// Respawn dead worms
-			// TODO: make this server-sided
-			if( !w->getAlive() && w->getLives() != WRM_OUT )
-				if( gameTime > w->getTimeofDeath() + 2.5f )
-				{
-					CVec spot = NewNet_FindSpot(w);
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
-					w->Spawn( spot );
-					// Show a spawn entity
-					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),0,NULL);
-				}
-
-			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );
-				
-			if( calculateChecksum )
-				checksum += ( w->getID() % 4 + 1 ) * 
-					( (int)w->getPos().x + (int)w->getPos().y * 0x100 + (int)w->getHealth() * 0x100000 + 
-					w->NewNet_random.getChecksum() );
-		}
-	}
-
-	cClient->NewNet_Simulation();
-
-	if( calculateChecksum )
-	{
-		for( int i=0; i<100; i++ ) // First 100 projectiles are enough to tell if we synced or not I think
-		{
-			if( cClient->getProjectiles()[i].isUsed() )
-			{
-				checksum += ( i % 8 + 1 ) * (
-					(int)cClient->getProjectiles()[i].GetPosition().x + 
-					(int)cClient->getProjectiles()[i].GetPosition().y * 0x100 );
-			}
-		}
-	}
-	return checksum;
-};
 
 void DisableAdvancedFeatures()
 {
@@ -195,6 +142,74 @@ unsigned Checksum;
 AbsTime ChecksumTime; 
 AbsTime OldChecksumTime;
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
+bool playersLeft[MAX_WORMS];
+
+
+// GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
+// The exception for this is when we are called from CalculateCurrentState() - 
+// it will call Physics() with fastCalculation flag set to true and arbitrary gameTime -
+// we are allowed to skip some collision checks and to revert to faster routines in that case, 
+// as long as the game image on the screen will look smooth - we will discard that results anyway.
+// Keys is the state of keys for given player.
+// If calculateChecksum set to true the Physics() should return checksum of game state (at least current net synced random number).
+
+unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
+{
+	unsigned checksum = 0;
+	for( int i = 0; i < MAX_WORMS; i++ )
+	{
+		CWorm * w = & cClient->getRemoteWorms()[i];
+		if( playersLeft[i] && LastPacketTime[i] <= gameTime + TimeDiff(TICK_TIME) )
+		{
+			w->setUsed(false);
+			if( CanUpdateGameState() )
+				playersLeft[i] = false;
+		};
+		if( w->isUsed() )
+		{
+			// Respawn dead worms
+			// TODO: make this server-sided
+			if( !w->getAlive() && w->getLives() != WRM_OUT )
+				if( gameTime > w->getTimeofDeath() + 2.5f )
+				{
+					CVec spot = NewNet_FindSpot(w);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
+					w->Spawn( spot );
+					// Show a spawn entity
+					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),0,NULL);
+				}
+
+			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );
+				
+			if( calculateChecksum )
+				checksum += ( w->getID() % 4 + 1 ) * 
+					( (int)w->getPos().x + (int)w->getPos().y * 0x100 + (int)w->getHealth() * 0x100000 + 
+					w->NewNet_random.getChecksum() );
+		}
+	}
+
+	cClient->NewNet_Simulation();
+
+	if( calculateChecksum )
+	{
+		for( int i=0; i<100; i++ ) // First 100 projectiles are enough to tell if we synced or not I think
+		{
+			if( cClient->getProjectiles()[i].isUsed() )
+			{
+				checksum += ( i % 8 + 1 ) * (
+					(int)cClient->getProjectiles()[i].GetPosition().x + 
+					(int)cClient->getProjectiles()[i].GetPosition().y * 0x100 );
+			}
+		}
+	}
+	return checksum;
+};
+
+void PlayerLeft(int id)
+{
+	playersLeft[id] = true;
+};
+
 
 void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS] )
 {
@@ -244,6 +259,7 @@ void StartRound( unsigned randomSeed )
 			netRandom.seed(randomSeed);
 			for( int i=0; i<MAX_WORMS; i++ )
 			{
+				playersLeft[i] = false;
 				Events[i].clear();
 				OldKeys[i] = KeyState_t();
 				LastPacketTime[i] = AbsTime();
@@ -386,17 +402,6 @@ int NetPacketSize()
 {
 	// Change here if you'll modify Receive()/Send()
 	return 4+1;	// First 4 bytes is time, second byte - keypress idx
-}
-
-void AddEmptyPacket( AbsTime localTime, CBytestream * bs )
-{
-	bs->writeInt( (int)localTime.time, 4 );  // TODO: possible overflow
-	bs->writeByte( UCHAR_MAX );
-}
-
-TimeDiff EmptyPacketTime()
-{
-	return PingTimeMs;
 }
 
 // Returns true if data was re-calculated.

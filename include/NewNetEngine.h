@@ -108,11 +108,8 @@ bool Frame( CBytestream * bs );
 // Returns packet size without player ID.
 int NetPacketSize();
 
-// In case player disconnects the engine should emulate that player is present and won't press any buttons.
-void AddEmptyPacket( AbsTime localTime, CBytestream * bs );
-
-// How often to send empty packets
-TimeDiff EmptyPacketTime();
+// If player left during game
+void PlayerLeft(int id);
 
 // Returns mod checksum, and sets the time var to the time when that checksum was calculated
 unsigned GetChecksum( AbsTime * time = NULL );

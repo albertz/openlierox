@@ -1872,6 +1872,9 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 				}
 			}
 			
+			if( NewNet::Active() )
+				NewNet::PlayerLeft(id);
+
 			client->RemoveWorm(id);
 			
 		} else {
