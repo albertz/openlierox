@@ -20,7 +20,17 @@
 #include "Sounds.h"
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
+#include "Version.h"
 
+static const Version GS_MinLxVersion[] = {
+	Version(), // for GS_VERSION == 7
+	OLXBetaVersion(9), // for GS_VERSION == 8
+};
+
+#define		GS_LX56_VERSION	7
+#define		GS_FIRST_SUPPORTED_VERSION	GS_LX56_VERSION
+#define		GS_MINLXVERSION(ver)	GS_MinLxVersion[ver - GS_FIRST_SUPPORTED_VERSION]
+// current most recent version
 #define		GS_VERSION		7
 
 // Error codes
@@ -80,6 +90,7 @@
 // it's used in CGameScript.cpp and it represents
 // the original file format
 struct gs_header_t {
+	gs_header_t() { ID[0] = 0; Version = 0; ModName[0] = 0; }
 	char	ID[18];
 	Uint32	Version;
 	char	ModName[64];
@@ -156,7 +167,7 @@ class CGameScript {
 public:
 	// Constructor
 	CGameScript() {
-
+		loaded = false;
 		NumWeapons = 0;
 		Weapons = NULL;
         pModLog = NULL;
@@ -177,6 +188,7 @@ private:
 
 
 	// Header
+	bool loaded;
 	gs_header_t	Header;
 
 
@@ -210,7 +222,8 @@ public:
 
 	int			Load(const std::string& dir);
 	int			Save(const std::string& filename);
-
+	bool		isLoaded() const { return loaded; }
+	
 private:
 	proj_t		*LoadProjectile(FILE *fp);
 	int			SaveProjectile(proj_t *proj, FILE *fp);
@@ -224,7 +237,7 @@ public:
 	const weapon_t	*FindWeapon(const std::string& name);
     bool        weaponExists(const std::string& szName);
 
-	static int	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
+	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
 
     void        modLog(const std::string& text);
 
@@ -235,7 +248,15 @@ public:
 
 
 	const gs_header_t	*GetHeader(void)				{ return &Header; }
-
+	static bool	isCompatibleWith(int scriptVer, const Version& ver) {
+		if(scriptVer < GS_FIRST_SUPPORTED_VERSION) return false;
+		if(scriptVer > GS_VERSION) return false; // or actually no idea
+		return GS_MINLXVERSION(scriptVer) <= ver;		
+	}
+	bool		isCompatibleWith(const Version& ver) const { return isCompatibleWith(Header.Version, ver); }
+	std::string modName() const { return Header.ModName; }
+	std::string directory() const { return sDirectory; }
+	
 	int			GetNumWeapons(void)				{ return NumWeapons; }
 	const weapon_t	*GetWeapons(void)				{ return Weapons; }
 

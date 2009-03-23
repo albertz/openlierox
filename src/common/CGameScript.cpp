@@ -312,6 +312,7 @@ int CGameScript::Load(const std::string& dir)
 	}
 	*/
 
+	loaded = false;
 	FILE *fp;
 	int n;
 	std::string filename = dir + "/script.lgs";
@@ -339,7 +340,10 @@ int CGameScript::Load(const std::string& dir)
 	}
 
 	// Check version
-	if(Header.Version != GS_VERSION) {
+	if(Header.Version < GS_FIRST_SUPPORTED_VERSION || Header.Version > GS_VERSION) {
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
+		warnings << " (" << (unsigned)Header.Version << ", required is in the range ";
+		warnings << "[" << GS_FIRST_SUPPORTED_VERSION << "," << GS_VERSION << "])" << endl;
 		fclose(fp);
 		SetError("CGameScript::Load(): Bad script version");
 		return GSE_VERSION;
@@ -485,6 +489,8 @@ int CGameScript::Load(const std::string& dir)
 	// Save to cache
 	//cCache.SaveMod(dir, this);
 
+	loaded = true;
+	
 	return GSE_OK;
 }
 
@@ -891,6 +897,7 @@ size_t CGameScript::GetMemorySize()
 // Shutdown the game script
 void CGameScript::Shutdown(void)
 {
+	loaded = false;
 	int n;
 
     // Close the log file
@@ -929,7 +936,7 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 
 ///////////////////
 // Check if a file is a valid liero game script
-int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
+bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
 {
 	name = "";
 
@@ -963,9 +970,10 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_f
 	}
 
 	// Check version
-	if(head.Version != GS_VERSION) {
+	if(head.Version < GS_FIRST_SUPPORTED_VERSION || head.Version > GS_VERSION) {
 		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
-		warnings << " (" << (unsigned)head.Version << ", required is " << GS_VERSION << ")" << endl;
+		warnings << " (" << (unsigned)head.Version << ", required is in the range ";
+		warnings << "[" << GS_FIRST_SUPPORTED_VERSION << "," << GS_VERSION << "])" << endl;
 		return false;
 	}
 
