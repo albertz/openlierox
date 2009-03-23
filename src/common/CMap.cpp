@@ -2801,6 +2801,16 @@ void CMap::NewNet_RestoreFromMemory()
 	savedMapCoords.clear();
 };
 
+void CMap::NewNet_Deinit()
+{
+		bMapSavingToMemory = false;
+		bmpSavedImage = NULL;
+		if( savedPixelFlags )
+			delete[] savedPixelFlags;
+		savedPixelFlags = NULL;
+		savedMapCoords.clear();
+};
+
 void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 {
 	if( ! bMapSavingToMemory )

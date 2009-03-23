@@ -2140,7 +2140,9 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 		convoLogger->leaveServer();
 
 	NotifyUserOnEvent();
-
+	
+	if( NewNet::Active() )
+		NewNet::EndRound();
 }
 
 
@@ -2289,6 +2291,9 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 	// Log
 	if (tLXOptions->bLogConvos && convoLogger)
 		convoLogger->logMessage(client->strServerErrorMsg, TXT_NETWORK);
+	
+	if( NewNet::Active() )
+		NewNet::EndRound();
 }
 
 // Server sent us some file

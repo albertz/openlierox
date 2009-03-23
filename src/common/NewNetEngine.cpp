@@ -111,6 +111,8 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 					CVec spot = NewNet_FindSpot(w);
 					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
 					w->Spawn( spot );
+					// Show a spawn entity
+					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),0,NULL);
 				}
 
 			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );
@@ -119,7 +121,8 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				
 			if( calculateChecksum )
 				checksum += ( w->getID() % 4 + 1 ) * 
-					( (int)w->getPos().x + (int)w->getPos().y * 0x100 +	w->NewNet_random.getChecksum() );
+					( (int)w->getPos().x + (int)w->getPos().y * 0x100 + (int)w->getHealth() * 0x100000 + 
+					w->NewNet_random.getChecksum() );
 		}
 	}
 
@@ -163,10 +166,10 @@ bool QuickDirtyCalculation = false;
 bool ReCalculationNeeded = true;
 AbsTime ReCalculationTimeMs;
 // Constants
-TimeDiff PingTimeMs = TimeDiff(300);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
+TimeDiff PingTimeMs = TimeDiff(250);	// Send at least one packet in 10 ms - 10 packets per second, huge net load
 // TODO: calculate DrawDelayMs from other client pings
 // TimeDiff DrawDelayMs = TimeDiff(100);	// Not used currently // Delay the drawing until all packets are received, otherwise worms will teleport
-TimeDiff ReCalculationMinimumTimeMs = TimeDiff(200);	// Re-calculate not faster than 5 times per second - eats CPU
+TimeDiff ReCalculationMinimumTimeMs = TimeDiff(150);	// Re-calculate not faster than 7.5 times per second - eats CPU
 TimeDiff CalculateChecksumTime = TimeDiff(10000); // Calculate checksum once per 10 seconds - should be equal for all clients
 
 int NumPlayers = -1;
@@ -263,6 +266,7 @@ void EndRound()
 	hints << "NewNet::EndRound()" << endl;
 	delete [] SavedWormState;
 	SavedWormState = NULL;
+	cClient->getMap()->NewNet_Deinit();
 	NewNetActive = false;
 };
 
@@ -458,7 +462,7 @@ unsigned GetChecksum( AbsTime * time )
 
 bool ChecksumRecalculated()
 {
-	if( OldChecksumTime != ChecksumTime )
+	if( OldChecksumTime != ChecksumTime && ChecksumTime + PingTimeMs < BackupTime )
 	{
 		OldChecksumTime = ChecksumTime;
 		return true;

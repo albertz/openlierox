@@ -1287,7 +1287,10 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
 	COPY( bNoShooting );
+	COPY( bAlreadyKilled );
+	
 	COPY( NewNet_random );
+	
 	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
 		COPY( tWeapons[i] );
 	for( int i=0; i<MAX_WORMS; i++ )
@@ -1336,7 +1339,10 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
 	COPY( bNoShooting );
+	COPY( bAlreadyKilled );
+	
 	COPY( NewNet_random );
+	
 	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
 		COPY( tWeapons[i] );
 	for( int i=0; i<MAX_WORMS; i++ )

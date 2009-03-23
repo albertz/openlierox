@@ -1170,6 +1170,9 @@ bool CClient::ReadPackets(void)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
 		getUdpFileDownloader()->reset();
 
+		if( NewNet::Active() )
+			NewNet::EndRound();
+
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
 	

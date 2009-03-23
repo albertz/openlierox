@@ -333,6 +333,7 @@ public:
 	// Save/restore from memory, for commit/rollback net mechanism
 	void		NewNet_SaveToMemory();
 	void		NewNet_RestoreFromMemory();
+	void		NewNet_Deinit();
 
 	inline theme_t		*GetTheme(void)		{ return &Theme; }
 

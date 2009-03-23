@@ -394,8 +394,8 @@ int CGameScript::Load(char *dir)
 
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
-				if(wpn->smpSample == 0)
-					wpn->UseSound = false;
+				//if(wpn->smpSample == 0)
+				//	wpn->UseSound = false;
 			}
 		
 			wpn->Projectile = LoadProjectile(fp);
@@ -504,8 +504,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
 			
             if(proj->smpSample == 0) {
-				proj->Hit_UseSound = false;
-                modLog("Could not open sound '%s'",proj->Hit_SndFilename);
+				//proj->Hit_UseSound = false;
+                //modLog("Could not open sound '%s'",proj->Hit_SndFilename);
             }
 		}
 	}
