@@ -106,7 +106,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 			// Respawn dead worms
 			// TODO: make this server-sided
 			if( !w->getAlive() && w->getLives() != WRM_OUT )
-				if( gameTime > w->getTimeofDeath() + 2.5f || gameTime.milliseconds() == TICK_TIME )
+				if( gameTime > w->getTimeofDeath() + 2.5f )
 				{
 					CVec spot = NewNet_FindSpot(w);
 					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
@@ -222,23 +222,6 @@ void StartRound( unsigned randomSeed )
 {
 			hints << "NewNet::StartRound() random " << randomSeed << endl;
 			OlxTimeDiffMs = tLX->currentTime;
-			NumPlayers = 0;
-			netRandom.seed(randomSeed);
-			for( int i=0; i<MAX_WORMS; i++ )
-			{
-				Events[i].clear();
-				OldKeys[i] = KeyState_t();
-				LastPacketTime[i] = AbsTime();
-				LastSoundPlayedTime[i] = AbsTime();
-				if( cClient->getRemoteWorms()[i].isUsed() )
-				{
-					NumPlayers ++;
-					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
-				};
-			}
-			LocalPlayer = -1;
-			if( cClient->getNumWorms() > 0 )
-				LocalPlayer = cClient->getWorm(0)->getID();
 				
 			cClient->fLastSimulationTime = 0;
 			
@@ -256,6 +239,28 @@ void StartRound( unsigned randomSeed )
 			NewNetActive = true;
 			if( ! SavedWormState )
 				SavedWormState = new CWorm[MAX_WORMS];
+
+			NumPlayers = 0;
+			netRandom.seed(randomSeed);
+			for( int i=0; i<MAX_WORMS; i++ )
+			{
+				Events[i].clear();
+				OldKeys[i] = KeyState_t();
+				LastPacketTime[i] = AbsTime();
+				LastSoundPlayedTime[i] = AbsTime();
+				if( cClient->getRemoteWorms()[i].isUsed() )
+				{
+					NumPlayers ++;
+					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
+					CVec spot = NewNet_FindSpot( &cClient->getRemoteWorms()[i] );
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
+					cClient->getRemoteWorms()[i].Spawn( spot );
+				};
+			}
+			LocalPlayer = -1;
+			if( cClient->getNumWorms() > 0 )
+				LocalPlayer = cClient->getWorm(0)->getID();
+
 			SaveState();
 };
 
