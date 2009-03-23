@@ -116,8 +116,6 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				}
 
 			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );
-			if (w->getWormState()->bShoot && w->getAlive())
-				cClient->NewNet_DoLocalShot( w );
 				
 			if( calculateChecksum )
 				checksum += ( w->getID() % 4 + 1 ) * 
@@ -264,9 +262,10 @@ void StartRound( unsigned randomSeed )
 void EndRound()
 {
 	hints << "NewNet::EndRound()" << endl;
+	RestoreState();
+	cClient->getMap()->NewNet_Deinit();
 	delete [] SavedWormState;
 	SavedWormState = NULL;
-	cClient->getMap()->NewNet_Deinit();
 	NewNetActive = false;
 };
 

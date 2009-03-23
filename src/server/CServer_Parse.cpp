@@ -806,13 +806,13 @@ void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
 					" our time " << myTime.milliseconds() << endl;
 		return;
 	}
-	if( myChecksum != checksum )
+	if( myChecksum != checksum && ! server->bGameOver )
 	{
 		std::string wormName = "unknown";
 		if( cl->getNumWorms() > 0 )
 			wormName = cl->getWorm(0)->getName();
-		server->DropClient(cl, CLL_KICK, "Network state was de-synced in new net engine!");
-		server->SendGlobalText( "Network state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
+		server->DropClient(cl, CLL_KICK, "Game state was de-synced in new net engine!");
+		server->SendGlobalText( "Game state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
 	}
 };
 

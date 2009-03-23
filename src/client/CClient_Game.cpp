@@ -231,7 +231,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 				// It doesn't process the shot itself.
 				// The shot-info will be sent to the server which sends it back and
 				// we handle it in CClient::ProcessShot in the end.
-				PlayerShoot(w);
+				NewNet_DoLocalShot( w );
 			}
 
 			// TODO: we should move this stuff to drawing, we may skip it for physics calculation
@@ -1013,12 +1013,22 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		return;
 	}
 
-	// TODO: what is the effect of this?
 	Slot->LastFire = Slot->Weapon->ROF;
 
+	// Special weapons get processed differently
+	if(Slot->Weapon->Type == WPN_SPECIAL) {
+		ShootSpecial(w);
+		return;
+	}
+
+	// Beam weapons get processed differently
+	if(Slot->Weapon->Type == WPN_BEAM) {
+		DrawBeam(w);
+		return;
+	}
 
 	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
+	if(Slot->Weapon->Type != WPN_PROJECTILE)
 		return;
 
 	shoot_t shot;
@@ -1167,7 +1177,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
 		// is probably outdated at this time
 		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime,
-						tLX->currentTime + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
+						NewNet::GetCurTime() + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 					   );
 
 		shot->nRandom++;
