@@ -1,0 +1,40 @@
+If we stay at a event-based modding system but we would like to extend it a lot, we can do some parts more general. This requires also a lot of changes, so I am not sure if it is worth over a script-based modding system.
+
+Anyway, here are some thoughts:
+
+Events (based on condition checks) / Actions more general, that means: For each projectile, we will just have a list of (Condition,Action). This list can just be empty, then the projectile will just not do anything.
+
+Possibilities for [b]conditions[/b]:
+* Everything which was possible earlier.
+* Hit with other projectile. e.g.
+struct {
+projectile_t* hitProjType;
+Expression ; 
+};
+* Simple math expressions for projectile attributes (see below for more info) (e.g. time>=0.5)
+
+Possibilities for [b]actions[/b]:
+* Everything which was possible earlier (e.g. spawning new projectiles, and so on)
+* For all the actions, if there are any parameters needed (e.g. how much damage, how much to change the speed, etc.), this can be expressed also with these math expressions, described below.
+[* Area damage ([i]which specific parameters for that?[/i])]
+* Damage for players and other parameters can be simple math expressions, depending on the projectile attributes or constants
+* Overwrite/change speed of colliding player
+[* relative change of colliding player coordinates (collision check should be done though for the move of the worm, otherwise it could end up in a wall) ([i]isn't the speed change enough and better for this?[/i])]
+* overwrite/change speed of colliding projectile
+
+For [b]weapons[/b]:
+* projectile for release-shoot-key (the standard projectile is still spawned immediatly when you shoot if it is set; this special projectile is the one which is spawned when you release the shoot key; and it sets the ChargeTime attribute)
+* independent from worm-speed ([i]is that already possible?[/i])
+
+[b]Attributes[/b] for projectiles:
+* Every attribute which was there earlier. (e.g. lifeTime, ownerWorm, ...)
+* ChargeTime (see projectile for release-shoot-key)
+
+Math [b]expressions[/b]:
+* They are considered as true, when the value is >0, otherwise they are considered as false. ([i]or always true if != 0 ?[/i])
+* One parameter is "self", refering to the projectile itself.
+* Another parameter is "targetWorm", if a worm was hit. If you refer to such parameter, this condition/action set would be checked for every worm!
+* Parameter "targetProj", similar to "targetWorm". This condition/action would also be checked for every possible colliding projectile. Note: You will not be able to check both targetProj and targetWorm. That would be too complicated as there are way too much needed cases to check (every possible combination). If you need such, spawn a dummy projectile.
+* Parameter "targetNinjaHook" (when there is a ninja rope hook).
+* The expression itself is in CNF ([url=http://en.wikipedia.org/wiki/Conjunctive_normal_form]http://en.wikipedia.org/wiki/Conjunctive_normal_form[/url]) ([i]or DNF? or some other?[/i]), e.g. "(A or B) and (A or C)". The "and" will be interpreted like "min" and the "or" will be interpreted as "max".
+* Each subexpression in the CNF (the A,B or C) is in the form "a" or "a COMP b", whereby COMP is one of "=", ">", "<", ">=", "<=", "!=". The "a" can be an attribute of one of the parameters, like "object.attribute" (object would be "self", "targetWorm" or other parameter), you can use constants (numbers) and you can use easy calculations with "*","/","+","-". E.g. this are three valid subexpressions: "self.ChargeTime >= self.lifeTime + 1", "self.ChargeTime - 3" or "self.ownerWorm = targetProj.ownerWorm".
