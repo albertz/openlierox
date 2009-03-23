@@ -50,7 +50,6 @@
 struct SoundSample {
 #ifndef DEDICATED_ONLY	
 	Mix_Chunk* sample;
-	Mix_Music* sample_mus;  // A hack for .ogg samples
 #endif	//DEDICATED_ONLY
 	int maxsimulplays;
 // TODO: and other stuff

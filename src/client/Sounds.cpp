@@ -256,24 +256,15 @@ SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(!SoundSystemAvailable) return NULL;
 
 	if(filename.size() > 0) {
-		Mix_Music* sample_mus = NULL;
-		Mix_Chunk* sample = NULL;
+		Mix_Chunk* sample = Mix_LoadWAV(Utf8ToSystemNative(filename).c_str());
 
-		// HINT: SDL_Mixer corrupts memory when we try to load ogg using Mix_LoadWAW, therefore
-		// we have to use this bad hack to work around the bug
-		if (stringcaseequal(GetFileExtension(filename), "ogg"))
-			sample_mus = Mix_LoadMUS(Utf8ToSystemNative(filename).c_str());
-		else
-			sample = Mix_LoadWAV(Utf8ToSystemNative(filename).c_str());
-
-		if(!sample && !sample_mus) {
+		if(!sample) {
 			notes << "LoadSoundSample: Error while loading " << filename << ": " << Mix_GetError() << endl;
 			return NULL;
 		}
 
 		SoundSample* ret = new SoundSample;
 		ret->sample = sample;
-		ret->sample_mus = sample_mus;
 		ret->maxsimulplays = maxsimulplays;
 		return ret;
 
@@ -293,11 +284,6 @@ bool FreeSoundSample(SoundSample* sample) {
 		sample->sample = NULL;
 	}
 
-	if(sample->sample_mus)  {
-		Mix_FreeMusic(sample->sample_mus);
-		sample->sample_mus = NULL;
-	}
-
 	delete sample;
 	return true;
 }
@@ -305,22 +291,10 @@ bool FreeSoundSample(SoundSample* sample) {
 bool PlaySoundSample(SoundSample* sample) {
 	if(!SoundSystemAvailable || !SoundSystemStarted) return false;
 
-	if(sample == NULL)
+	if(sample == NULL || sample->sample == NULL)
 		return false;
-
-	if (sample->sample)  {
-		return Mix_PlayChannel(-1, sample->sample, 0) >= 0;
-	} else if (sample->sample_mus)  {
-		if (SoundSystemVolume)  {
-			Mix_VolumeMusic(SoundSystemVolume);
-			bool res = (Mix_PlayMusic(sample->sample_mus, 1) == 0);
-			Mix_VolumeMusic(iMusicVolume);
-			return res;
-		}
-		return true;
-	}
-
-	return false;
+	
+	return Mix_PlayChannel(-1, sample->sample, 0) >= 0;
 }
 
 
