@@ -21,7 +21,9 @@
 #include "CGameScript.h"
 
 #define SetError printf
+#ifndef _MSC_VER
 #define stricmp strcasecmp
+#endif
 
 Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return r + g*0x100 + b*0x10000; // Stub!
@@ -710,7 +712,7 @@ void CGameScript::writeString(char *szString, FILE *fp)
 {
     assert( szString );
 
-    char length = strlen(szString);
+    char length = (char)strlen(szString);
 
     fwrite( &length, sizeof(char), 1, fp );
     fwrite( szString,sizeof(char), length, fp );

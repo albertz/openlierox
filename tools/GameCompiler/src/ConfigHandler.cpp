@@ -17,7 +17,9 @@
 #include "ConfigHandler.h"
 
 
+#ifndef _MSC_VER
 #define stricmp strcasecmp
+#endif
 
 int			NumKeywords = 0;
 keyword_t	Keywords[MAX_KEYWORDS];
@@ -33,8 +35,8 @@ char *TrimSpaces(char *szLine)
 
     // Get rid of the ending spaces
 	int i;
-    for( i=strlen(szLine)-1; i>=0; i--) {
-        if( isgraph(szLine[i]) || !isspace(szLine[i]) )
+    for (i = (int)strlen(szLine) - 1; i>=0; i--) {
+        if (isgraph(szLine[i]) || !isspace(szLine[i]))
             break;
     }
     szLine[i+1] = '\0';
@@ -187,7 +189,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 		if(chardest != NULL)
 		{
 			// Key
-			Position = chardest - Line + 1;
+			Position = (int)(chardest - Line) + 1;
 			strcpy(curKey,Line);
 			curKey[Position-1] = '\0';
 			strcpy(curKey, TrimSpaces(curKey));
