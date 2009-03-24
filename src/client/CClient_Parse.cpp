@@ -603,7 +603,7 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
-				warnings << "cl: Unknown packet " << cmd << endl;
+				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
 #ifdef DEBUG
 				notes << "Bytestream dump:" << endl;
 				bs->Dump();
@@ -679,17 +679,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	// Other game details
 	client->tGameInfo.iGeneralGameType = bs->readInt(1);
-	if( tLX->iGameType != GME_JOIN && cServer->getGameMode() ) {
-		/* This is kind of a hack because we access the information from the server directly.
-		 * This is needed right now to inform the client about the used game mode (bot really depends on that).
-		 * We can extend the PrepareGame package later and then this hack becomes obsolete.
-		 */
-		client->tGameInfo.sGameMode = cServer->getGameMode()->Name();
-		client->tGameInfo.gameMode = cServer->getGameMode();
-	} else {
-		client->tGameInfo.sGameMode = "";
-		client->tGameInfo.gameMode = NULL;
-	}
+	client->tGameInfo.gameMode = GameMode( (GameModeIndex)client->tGameInfo.iGeneralGameType );
+	client->tGameInfo.sGameMode = "";
+	if( client->tGameInfo.gameMode )
+		client->tGameInfo.sGameMode = client->tGameInfo.gameMode->Name();
+
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();
 	client->tGameInfo.fTimeLimit = (float)bs->readInt16();
@@ -985,6 +979,8 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 }
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
+	client->tGameInfo.features = FeatureSettings(); // Clean it up
+	client->otherGameInfo.clear();
 	int ftC = bs->readInt(2);
 	for(int i = 0; i < ftC; ++i) {
 		std::string name = bs->readString();
@@ -1007,9 +1003,10 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 			}
 		} else if(f && f->serverSideOnly) {
 			// just serversideonly, thus we support it
-			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);			
 			if(value.type == f->valueType)
-				client->tGameInfo.features[f] = value;	// Set it anyway, we have to know some server-side features, like angle in H&S
+				client->tGameInfo.features[f] = value;	// Set it, we have to know some server-side features, like angle in H&S
+			else
+				client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
 		} else if(olderClientsSupported) {
 			// unknown for us but we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
@@ -1031,6 +1028,9 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if(client->tGameInfo.fTimeLimit < 0) client->tGameInfo.fTimeLimit = -1;
 	
 	ParseFeatureSettings(bs);
+
+	client->tGameInfo.sGameMode = bs->readString();
+	client->tGameInfo.gameMode = GameMode( client->tGameInfo.sGameMode );
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	if(!isReconnect)

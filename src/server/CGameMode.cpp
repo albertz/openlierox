@@ -323,7 +323,7 @@ void InitGameModes() {
 
 CGameMode* GameMode(GameModeIndex i) {
 	if(i < 0 || (uint)i >= gameModes.size()) {
-		errors << "gamemode " << i << " requested" << endl;
+		errors << "gamemode " << i << " requested, we don't have such one" << endl;
 		return NULL;
 	}
 	
@@ -335,6 +335,7 @@ CGameMode* GameMode(const std::string& name) {
 		if(name == (*i)->Name())
 			return *i;
 	}
+	warnings << "gamemode " << name << " requested, we don't have such one" << endl;
 	return NULL;
 }
 

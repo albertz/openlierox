@@ -13,6 +13,7 @@
 #include "CVec.h"
 #include "Iterator.h"
 #include "Consts.h"
+#include "Options.h"
 #include <string>
 
 class CWorm;
@@ -53,6 +54,8 @@ public:
 	virtual int Winner();
 	virtual int WinnerTeam();
 	virtual int TeamScores(int t);
+
+	virtual GameInfoGroup_t getGameInfoGroupInOptions() { return GIG_GameModeSpecific_Start; };
 
 	// helper functions
 	int WormsAliveInTeam(int t);

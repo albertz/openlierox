@@ -144,9 +144,11 @@ void CClient::Simulation(void)
 				if(w->getCurWeapon()->Weapon->LaserSight && !w->getCurWeapon()->Reloading)
 					LaserSight(w, w->getAngle());
 			
+			//hints << "getGameLobby()->gameMode " << getGameLobby()->gameMode << " name " << getGameLobby()->gameMode->Name();
+			//hints << " GameMode(GM_HIDEANDSEEK) " << GameMode(GM_HIDEANDSEEK) << " name " << GameMode(GM_HIDEANDSEEK)->Name() << endl;
 			// Show vision cone of seeker worm
 			if( getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) &&
-				w->getTeam() == 1 && 
+				w->getTeam() == HIDEANDSEEK_SEEKER && 
 				(int)getGameLobby()->features[FT_HS_SeekerVisionAngle] < 360 )
 			{
 				LaserSight(w, w->getAngle() + (int)getGameLobby()->features[FT_HS_SeekerVisionAngle]/2, false );

@@ -1175,7 +1175,7 @@ bool CWormBotInputHandler::findNewTarget() {
 	}
 	else if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
 	{
-		if(m_worm->getTeam() == (int)HIDER) {
+		if(m_worm->getTeam() == (int)HIDEANDSEEK_HIDER) {
 			CWorm* w = nearestEnemyWorm();
 			if(!w) return findRandomSpot();
 			

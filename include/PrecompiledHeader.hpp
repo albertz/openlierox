@@ -20,7 +20,6 @@
 
 #include "AuxLib.h"
 #include "Cache.h"
-#include "CAntiTag.h"
 #include "CBanList.h"
 #include "CBonus.h"
 #include "CBytestream.h"

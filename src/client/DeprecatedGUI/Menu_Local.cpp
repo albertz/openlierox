@@ -823,6 +823,12 @@ static void initFeaturesList(CListview* l)
 	int idx = 0;
 	for( int group = 0; group < GIG_Size; group++ )
 	{
+		if( group == GIG_GameModeSpecific_Start )
+			continue;
+		if( group > GIG_GameModeSpecific_Start && 
+			tLXOptions->tGameInfo.gameMode->getGameInfoGroupInOptions() != group )
+			continue;
+
 		if( idx != 0 )
 			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
 		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
@@ -841,7 +847,7 @@ static void initFeaturesList(CListview* l)
 			if( ! ( CScriptableVars::GetGroup(it->first) == group ||
 				( group == GIG_Other && CScriptableVars::GetGroup(it->first) == -1 ) ) )
 				continue;
-			
+				
 			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
 			l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first), NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay

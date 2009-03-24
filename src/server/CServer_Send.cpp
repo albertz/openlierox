@@ -209,6 +209,7 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 
 	bs->writeFloat(server->getGameMode()->TimeLimit() / 60.0f);
 	WriteFeatureSettings(bs);
+	bs->writeString(server->getGameMode()->Name());
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
@@ -586,13 +587,22 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	int ftC = featureArrayLen();
 	assert(ftC < 256*256);
-	bs->writeInt(ftC, 2);
-	foreach( Feature*, f, Array(featureArray,ftC) ) {
-		bs->writeString( f->get()->name );
-		bs->writeString( f->get()->humanReadableName );
-		bs->writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
-		bs->writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
-	}	
+	CBytestream bs1;
+	int sendCount = 0;
+	foreach( Feature*, f, Array(featureArray,ftC) )
+	{
+		if( f->get()->group < GIG_GameModeSpecific_Start ||
+			f->get()->group == cServer->getGameMode()->getGameInfoGroupInOptions() )
+		{
+			sendCount ++;
+			bs1.writeString( f->get()->name );
+			bs1.writeString( f->get()->humanReadableName );
+			bs1.writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
+			bs1.writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
+		}
+	}
+	bs->writeInt(sendCount, 2);
+	bs->Append(&bs1);
 }
 
 void CServerNetEngine::SendUpdateLobbyGame()

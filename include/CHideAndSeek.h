@@ -10,7 +10,7 @@
 #ifndef __CHIDEANDSEEK_H__
 #define __CHIDEANDSEEK_H__
 
-enum HideAndSeekTeam { HIDER = 0, SEEKER = 1 };
+enum HideAndSeekTeam { HIDEANDSEEK_HIDER = 0, HIDEANDSEEK_SEEKER = 1 };
 
 #endif
 

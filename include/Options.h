@@ -324,6 +324,9 @@ enum GameInfoGroup_t
 	GIG_Weapons,
 	GIG_Bonus,
 	GIG_Other,
+
+	GIG_GameModeSpecific_Start, // All following options are game-mode specific
+	
 	GIG_HideAndSeek,
 	
 	GIG_Size

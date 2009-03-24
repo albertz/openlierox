@@ -43,6 +43,7 @@ public:
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Hide and Seek"; }
+	virtual GameInfoGroup_t getGameInfoGroupInOptions() { return GIG_HideAndSeek; };
 	
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm, bool message = true);
@@ -115,7 +116,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 
 void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 {
-	if(killer->getTeam() == SEEKER && killer != victim) {
+	if(killer->getTeam() == HIDEANDSEEK_SEEKER && killer != victim) {
 		if (networkTexts->sCaughtMessage != "<none>")  {
 			std::string msg;
 			replace(networkTexts->sCaughtMessage, "<seeker>", killer->getName(), msg);
@@ -144,7 +145,7 @@ void CHideAndSeek::Simulate()
 	if(GameTime > fGameLength) {
 		for(int i = 0; i < MAX_WORMS; i++)
 			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT) {
-				if(cServer->getWorms()[i].getTeam() == SEEKER)
+				if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER)
 					cServer->killWorm(i, i, cServer->getWorms()[i].getLives() + 1);
 				else
 					Show(&cServer->getWorms()[i], false); // People often want to see where the hiders were
@@ -175,7 +176,7 @@ void CHideAndSeek::Simulate()
 			if(CanSee(&cServer->getWorms()[i], &cServer->getWorms()[j]))
 				Show(&cServer->getWorms()[j]);
 			// Catch the hiders if they are within 10 pixels
-			if(cServer->getWorms()[i].getTeam() == SEEKER && cServer->getWorms()[j].getTeam() == HIDER)
+			if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER && cServer->getWorms()[j].getTeam() == HIDEANDSEEK_HIDER)
 				if((cServer->getWorms()[i].getPos() - cServer->getWorms()[j].getPos()).GetLength() < 10)
 				{
 					int type;
@@ -201,9 +202,9 @@ bool CHideAndSeek::CheckGameOver()
 		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT && cServer->getWorms()[i].getTeam() < 2)
 			worms[cServer->getWorms()[i].getTeam()]++;
 	if(worms[0] == 0)
-		winners = SEEKER;
+		winners = HIDEANDSEEK_SEEKER;
 	else if(worms[1] == 0)
-		winners = HIDER;
+		winners = HIDEANDSEEK_HIDER;
 	if(winners != -1) {
 		return true;
 	}
@@ -248,7 +249,7 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 		return;
 	bVisible[worm->getID()] = true;
 
-	if(worm->getTeam() == HIDER && message)  {
+	if(worm->getTeam() == HIDEANDSEEK_HIDER && message)  {
 		if (networkTexts->sHiderVisible != "<none>")
 			worm->getClient()->getNetEngine()->SendText(networkTexts->sHiderVisible, TXT_NORMAL);
 	}
@@ -277,7 +278,7 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 	bVisible[worm->getID()] = false;
 
 	// Removed message for seekers because it is confusing since they don't get the "you are visible" one
-	if(networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDER)
+	if(networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDEANDSEEK_HIDER)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
@@ -295,7 +296,7 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 {
 	CVec dist;
 	dist = worm1->getPos() - worm2->getPos();
-	if(worm1->getTeam() == SEEKER)
+	if(worm1->getTeam() == HIDEANDSEEK_SEEKER)
 	{
 		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls] )
 			return true;

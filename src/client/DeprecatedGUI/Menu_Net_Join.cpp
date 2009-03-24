@@ -353,18 +353,6 @@ static void initDetailsList(CListview* l) {
 
 	if (tLXOptions->bAdvancedLobby)  {
 		l->AddItem("serverversion", index++, tLX->clNormalLabel); SUBS("Server version:");
-		foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-			l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel); SUBS(f->get()->humanReadableName + ":");		
-		}
-
-		// Less button
-		lv_item_t *it = l->AddItem("less", index++, tLX->clNormalLabel);
-		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
-		CButton *less = new CButton(BUT_LESS, tMenu->bmpButtons);
-		less->setID(jl_Less);
-		less->Create();
-		it->iHeight = less->getHeight() + 10;
-		l->AddSubitem(LVS_WIDGET, "", NULL, less);
 	} else {
 		// More button
 		lv_item_t *it = l->AddItem("more", index++, tLX->clNormalLabel);
@@ -452,23 +440,29 @@ static void updateDetailsList(CListview* l) {
 	// Advanced info
 	if (tLXOptions->bAdvancedLobby)  {
 		SETI; si->sText = cClient->getServerVersion().asString(); // serverversion
-
+		
+		int numItems = l->getNumItems();
+		for( int rm = index; rm < numItems; rm++ )
+			l->RemoveItem(rm);
+		
 		foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-			i = l->getItem("feature:" + f->get()->name); // initDetailsList has added the whole array => i != NULL
+			if( cClient->getGameLobby()->features[f->get()] == f->get()->unsetValue )
+				continue;
+			i = l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel);
+			l->AddSubitem(LVS_TEXT, f->get()->humanReadableName + ":", NULL, NULL); 
+			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
 			si = i->tSubitems->tNext;
+			
 			si->iColour = defaultColor;
 			si->sText = cClient->getGameLobby()->features[f->get()].toString();
 		}
 
 		foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
-			i = l->getItem("feature:" + f->get().name);
-			if(!i) {
-				i = l->AddItem("feature:" + f->get().name, 0, tLX->clNormalLabel);
-				l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
-				l->AddSubitem(LVS_TEXT, "", NULL, NULL);
-			}
+			i = l->AddItem("feature:" + f->get().name, index++, tLX->clNormalLabel);
+			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
+			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+			
 			si = i->tSubitems->tNext;
-
 			Uint32 col;
 			switch(f->get().type) {
 				case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
@@ -478,6 +472,15 @@ static void updateDetailsList(CListview* l) {
 			si->iColour = col;
 			si->sText = f->get().var.toString();
 		}
+
+		// Less button
+		lv_item_t *it = l->AddItem("less", index++, tLX->clNormalLabel);
+		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		CButton *less = new CButton(BUT_LESS, tMenu->bmpButtons);
+		less->setID(jl_Less);
+		less->Create();
+		it->iHeight = less->getHeight() + 10;
+		l->AddSubitem(LVS_WIDGET, "", NULL, less);
 	}
 
 	l->RestoreScrollbarPos();
