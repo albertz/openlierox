@@ -281,7 +281,7 @@ void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff ex
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
 }
 
-static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = TimeDiff(3600.0f) ) {
+static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = TimeDiff(600.0f) ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	dns.get()[name] = std::make_pair( addr, tLX->currentTime + expireTime );
 }
