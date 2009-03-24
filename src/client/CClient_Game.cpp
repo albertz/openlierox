@@ -36,6 +36,7 @@
 #include "Debug.h"
 #include "NewNetEngine.h"
 #include "CGameMode.h"
+#include "CHideAndSeek.h"
 
 
 CClient		*cClient = NULL;
