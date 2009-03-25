@@ -293,7 +293,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	if(proj->Trail == TRL_PROJECTILE) {
 
 		fwrite_endian((proj->PrjTrl_UsePrjVelocity),	sizeof(int),	1, fp);
-		fwrite_endian((proj->PrjTrl_Delay),				sizeof(float),	1, fp);
+		fwrite_endian((proj->PrjTrl_Delay*1000.0f),				sizeof(float),	1, fp);
 		fwrite_endian((proj->PrjTrl_Amount),			sizeof(int),	1, fp);
 		fwrite_endian((proj->PrjTrl_Speed),				sizeof(int),	1, fp);
 		fwrite_endian((proj->PrjTrl_SpeedVar),			sizeof(float),	1, fp);
@@ -1472,7 +1472,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl_UsePrjVelocity, false);
-		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl_Delay, 100);
+		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl_Delay, 100); proj->PrjTrl_Delay /= 1000.0f;
 		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl_Amount, 1);
 		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl_Speed, 100);
 		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl_SpeedVar, 0);
