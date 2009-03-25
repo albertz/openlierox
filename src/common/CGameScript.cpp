@@ -425,7 +425,6 @@ int CGameScript::Load(const std::string& dir)
 			EndianSwap(wpn->LaserSight);
 
 			int r,g,b;
-			wpn->Bm_Colour = MakeColour(0,0,0);
 			fread(&r, sizeof(int),  1, fp);
 			fread(&g, sizeof(int),  1, fp);
 			fread(&b, sizeof(int),  1, fp);
