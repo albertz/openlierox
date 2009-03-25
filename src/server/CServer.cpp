@@ -803,7 +803,7 @@ void GameServer::Frame(void)
 // Reads packets from the given sockets
 bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
 {
-	if (!IsSocketStateValid(sock))
+	if (!IsSocketReady(sock))
 		return false;
 
 	NetworkAddr adrFrom;
@@ -927,7 +927,7 @@ void GameServer::SendPackets(void)
 
 	// Go through each client and send them a message
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED)
+		if(cl->getStatus() == NET_DISCONNECTED || !IsSocketReady(cl->getChannel()->getSocket()))
 			continue;
 
 		// Send out the packets if we haven't gone over the clients bandwidth

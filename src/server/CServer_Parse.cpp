@@ -928,7 +928,7 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 
 ///////////////////
 // Handle a 'connect' message
-void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
+void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	CBytestream		bytestr;
 	NetworkAddr		adrFrom;
 	int				p, player = -1;
@@ -952,7 +952,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	}
 	
 	// User Info to get
-	GetRemoteNetAddr(tSocket, adrFrom);
+	GetRemoteNetAddr(net_socket, adrFrom);
 	std::string addrFromStr;
 	NetAddrToString(adrFrom, addrFromStr);
 
@@ -990,7 +990,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(buf));
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 		printf("GameServer::ParseConnect: Wrong protocol version");
 		return;
 	}
@@ -1005,7 +1005,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sYouAreBanned));
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 		return;
 	}
 
@@ -1060,7 +1060,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
-			bytestr.Send(tSocket);
+			bytestr.Send(net_socket);
 			return;
 		}
 
@@ -1070,7 +1070,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
-			bytestr.Send(tSocket);
+			bytestr.Send(net_socket);
 			return;
 		}
 				
@@ -1110,7 +1110,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		 // Send the worm ids
 		 for( int i=0; i<cl->getNumWorms(); i++ )
 		 bytestr.writeInt(cl->getWorm(i)->getID(), 1);
-		 bytestr.Send(tSocket);
+		 bytestr.Send(net_socket);
 		 return;
 		 }
 		 
@@ -1157,7 +1157,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoEmptySlots));
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 		return;
 	}
 
@@ -1169,7 +1169,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sServerFull));
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 		return;
 	}
 
@@ -1207,11 +1207,11 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
-			bytestr.Send(tSocket);
+			bytestr.Send(net_socket);
 			return;
 		}
 
-		newcl->getChannel()->Create(&adrFrom, tSocket);
+		newcl->getChannel()->Create(&adrFrom, net_socket);
 	}
 	
 	newcl->setLastReceived(tLX->currentTime);
@@ -1244,7 +1244,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(msg));
-			bytestr.Send(tSocket);
+			bytestr.Send(net_socket);
 			RemoveClient(newcl);
 			return;
 		}
@@ -1317,7 +1317,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
-			bytestr.Send(tSocket);
+			bytestr.Send(net_socket);
 			
 			RemoveClient(newcl);
 			return;
@@ -1410,7 +1410,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	if(!reconnectFrom)
 		CheckForFillWithBots();
 	numworms = newcl->getNumWorms();
-	SetRemoteNetAddr(tSocket, adrFrom); // it could have been changed
+	SetRemoteNetAddr(net_socket, adrFrom); // it could have been changed
 	
 	// Let em know they connected good
 	bytestr.Clear();
@@ -1421,7 +1421,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	for (int i = 0;i < newcl->getNumWorms(); i++)
 		bytestr.writeInt(newcl->getWorm(i)->getID(), 1);
 
-	bytestr.Send(tSocket);
+	bytestr.Send(net_socket);
 
 	// Let them know our version
 	bytestr.Clear();
@@ -1434,14 +1434,14 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 	bytestr.writeInt(-1, 4);
 	bytestr.writeString("lx::version");
 	bytestr.writeString(GetFullGameName());
-	bytestr.Send(tSocket);
+	bytestr.Send(net_socket);
 
 	//if (tLXOptions->tGameInfo.bAllowMouseAiming)
 	{
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:mouseAllowed");
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 	}
 
 	if (tLXOptions->tGameInfo.bAllowStrafing)
@@ -1449,7 +1449,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:strafingAllowed");
-		bytestr.Send(tSocket);
+		bytestr.Send(net_socket);
 	}
 	
 	NotifyUserOnEvent(); // new player connected; if user is away, notify him
@@ -1576,7 +1576,7 @@ void GameServer::ParseConnect(NetworkSocket tSocket, CBytestream *bs) {
 
 ///////////////////
 // Parse a ping packet
-void GameServer::ParsePing(NetworkSocket tSocket) 
+void GameServer::ParsePing(NetworkSocket net_socket) 
 {
 	// Ignore pings in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
@@ -1585,10 +1585,10 @@ void GameServer::ParsePing(NetworkSocket tSocket)
 		return;
 
 	NetworkAddr		adrFrom;
-	GetRemoteNetAddr(tSocket, adrFrom);
+	GetRemoteNetAddr(net_socket, adrFrom);
 
 	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket, adrFrom);
+	SetRemoteNetAddr(net_socket, adrFrom);
 
 	CBytestream bs;
 
@@ -1596,7 +1596,7 @@ void GameServer::ParsePing(NetworkSocket tSocket)
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::pong");
 
-	bs.Send(tSocket);
+	bs.Send(net_socket);
 }
 
 
