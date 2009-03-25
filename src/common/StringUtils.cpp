@@ -366,6 +366,25 @@ static Color ColFromFunc(const std::string& func, bool& fail)
 	return res;
 }
 
+static Color ColFromSeperatedNums(const std::string& txt, bool& fail) {
+	std::vector<std::string> tokens = explode(txt, ",");
+	if (tokens.size() < 3)  {
+		fail = true;
+		return Color();
+	}
+
+	Color res;
+	res.r = MIN(255, from_string<int>(tokens[0], fail)); if (is_percent(tokens[0])) res.r = (Uint8)MIN(255.0f, (float)res.r * 2.55f);
+	res.g = MIN(255, from_string<int>(tokens[1], fail)); if (is_percent(tokens[1])) res.g = (Uint8)MIN(255.0f, (float)res.g * 2.55f);
+	res.b = MIN(255, from_string<int>(tokens[2], fail)); if (is_percent(tokens[2])) res.b = (Uint8)MIN(255.0f, (float)res.b * 2.55f);
+	if(tokens.size() >= 4) {
+		res.a = MIN(255, from_string<int>(tokens[3], fail)); if (is_percent(tokens[3])) res.a = (Uint8)MIN(255.0f, (float)res.a * 2.55f);
+	} else
+		res.a = SDL_ALPHA_OPAQUE;
+	
+	return res;
+}
+
 //////////////////
 // Converts a string to a colour
 // HINT: it uses MakeColour
@@ -402,6 +421,10 @@ Color StrToCol(const std::string& str, bool& fail) {
 		if (stringcaseequal(temp.substr(0, 3), "rgb"))
 			return ColFromFunc(temp, fail);
 
+	// like "r,g,b", e.g. this is used in gamescripts
+	if(temp.find(",") != std::string::npos)
+		return ColFromSeperatedNums(temp, fail);
+	
 	// Check if it's a known predefined color
 	return GetColorByName(str, fail);
 }

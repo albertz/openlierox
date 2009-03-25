@@ -64,18 +64,18 @@ int CGameScript::Save(const std::string& filename)
 		if(wpn->Type == WPN_SPECIAL) {
 			fwrite_endian((wpn->Special),   sizeof(int),    1, fp);
 			fwrite_endian((wpn->tSpecial),  sizeof(gs_special_t), 1, fp); // WARNING: this works, because it contains only one int
-			fwrite_endian((wpn->Recharge),  sizeof(float),  1, fp);
+			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF),       sizeof(float),  1, fp);
+			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
 			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
 		}
 
 		// Beam
 		if(wpn->Type == WPN_BEAM) {
 			fwrite_endian((wpn->Recoil),    sizeof(int),    1, fp);
-			fwrite_endian((wpn->Recharge),  sizeof(float),  1, fp);
+			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF),       sizeof(float),  1, fp);
+			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
 			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
 
 			fwrite_endian(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
@@ -90,9 +90,9 @@ int CGameScript::Save(const std::string& filename)
 		if(wpn->Type == WPN_PROJECTILE) {
 			fwrite_endian((wpn->Class),     sizeof(int),    1, fp);
 			fwrite_endian((wpn->Recoil),    sizeof(int),    1, fp);
-			fwrite_endian((wpn->Recharge),  sizeof(float),  1, fp);
+			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF),       sizeof(float),  1, fp);
+			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
 			fwrite_endian((wpn->ProjSpeed), sizeof(int),    1, fp);
 			fwrite_endian((wpn->ProjSpeedVar),sizeof(float),1, fp);
 			fwrite_endian((wpn->ProjSpread),sizeof(float),  1, fp);
@@ -1213,26 +1213,6 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 
 	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
 
-	// Projectile Weapons
-	ReadKeyword(file,"General","Class",&Weap->Class,WCL_AUTOMATIC);
-	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
-	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
-	ReadFloat(file,"General","Drain",&Weap->Drain,0);
-	ReadFloat(file,"General","ROF",&Weap->ROF,0);
-	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
-	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
-		Weap->UseSound = true;
-	
-		if(!bDedicated) {
-			// Load the sample
-			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
-		}	
-	}
-	
-	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
-	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
-	ReadFloat(file,"Projectile","Spread",&Weap->ProjSpread,0);
-	ReadInteger(file,"Projectile","Amount",&Weap->ProjAmount,0);
 	
 	
 	// Special Weapons
@@ -1263,6 +1243,26 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	}
 
 
+	// Projectile Weapons
+	ReadKeyword(file,"General","Class",&Weap->Class,WCL_AUTOMATIC);
+	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
+	ReadFloat(file,"General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
+	ReadFloat(file,"General","Drain",&Weap->Drain,0);
+	ReadFloat(file,"General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
+	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
+	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
+		Weap->UseSound = true;
+	
+		if(!bDedicated) {
+			// Load the sample
+			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
+		}	
+	}
+	
+	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
+	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
+	ReadFloat(file,"Projectile","Spread",&Weap->ProjSpread,0);
+	ReadInteger(file,"Projectile","Amount",&Weap->ProjAmount,0);
 
 
 	// Load the projectile
@@ -1282,9 +1282,9 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 {
 	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
-	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
+	ReadFloat(file,"General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
 	ReadFloat(file,"General","Drain",&Weap->Drain,0);
-	ReadFloat(file,"General","ROF",&Weap->ROF,0);
+	ReadFloat(file,"General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
 	if(ReadString(file,"General","Sound",Weap->SndFilename,""))
 		Weap->UseSound = true;
 
@@ -1551,9 +1551,9 @@ bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 
 	ReadInteger(file, "JetPack", "Thrust", (int*)&Weap->tSpecial.Thrust, 0);
 	ReadFloat(file, "JetPack", "Drain", &Weap->Drain, 0);
-	ReadFloat(file, "JetPack", "Recharge", &Weap->Recharge, 0);	
+	ReadFloat(file, "JetPack", "Recharge", &Weap->Recharge, 0);	Weap->Recharge /= 10.0f;
 
-	Weap->ROF = 1;
+	Weap->ROF = 1.0f / 1000.0f;
 
 	return true;
 }
