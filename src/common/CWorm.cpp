@@ -30,6 +30,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "FlagInfo.h"
+#include "Physics.h"
 
 
 ///////////////////

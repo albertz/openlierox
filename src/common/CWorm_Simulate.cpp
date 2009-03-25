@@ -32,6 +32,7 @@
 #include "CGameScript.h"
 #include "Debug.h"
 #include "CGameMode.h"
+#include "Physics.h"
 
 
 

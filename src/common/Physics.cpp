@@ -10,6 +10,7 @@
 #include "Physics.h"
 #include "PhysicsLX56.h"
 #include "Debug.h"
+#include "NewNetEngine.h"
 
 
 

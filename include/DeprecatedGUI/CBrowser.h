@@ -25,6 +25,8 @@
 #include "Timer.h"
 #include "Protocol.h"
 #include "CScrollbar.h"
+#include "HTTP.h"
+#include "GfxPrimitives.h"
 
 
 namespace DeprecatedGUI {

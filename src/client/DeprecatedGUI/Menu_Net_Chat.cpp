@@ -29,6 +29,7 @@
 #include "StringUtils.h"
 #include "AuxLib.h"
 #include "NotifyUser.h"
+#include "IRC.h"
 
 
 namespace DeprecatedGUI {
