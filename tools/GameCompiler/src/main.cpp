@@ -60,12 +60,15 @@ int main(int argc, char *argv[])
 
 	// Only save if the compile went ok
 	if(comp) {
-		printf("\nSaving...\n");
+		notes << endl << "Saving..." << endl;
 		Game->Save(argv[2]);
 	}
 
 	if(comp)
-		printf("\nInfo:\nWeapons: %d\nProjectiles: %d\n",Game->GetNumWeapons(),Game->getProjectileCount());
+		notes << endl <<
+				"Info:" << endl <<
+				"Weapons: " << Game->GetNumWeapons() << endl <<
+				"Projectiles: " << Game->getProjectileCount() << endl;
 
 	if(Game) {
 		delete Game;
@@ -87,10 +90,10 @@ int CheckArgs(int argc, char *argv[])
 		d++;
 
 	if(argc != 3) {
-		printf("Usage:\n");
-		printf("%s [Mod dir] [filename]\n",d);
-		printf("\nExample:\n");
-		printf("%s Base script.lgs\n\n",d);
+		notes << "Usage:" << endl;
+		notes << d << " [Mod dir] [filename]" << endl;
+		notes << endl << "Example:" << endl;
+		notes << d << " Base script.lgs" << endl << endl;
 		return false;
 	}
 
