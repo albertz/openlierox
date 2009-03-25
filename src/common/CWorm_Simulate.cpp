@@ -385,9 +385,6 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	bool leftOnce = keys.keys[NewNet::K_LEFT] && keysChanged.keys[NewNet::K_LEFT];
 	bool rightOnce = keys.keys[NewNet::K_RIGHT] && keysChanged.keys[NewNet::K_RIGHT];
 	
-	//if( NewNet::CanUpdateGameState() )
-	//printf("keys.keys[NewNet::K_LEFT] %i leftOnce %i time %i canUpdate %i\n", keys.keys[NewNet::K_LEFT], leftOnce, (int)NewNet::GetCurTime().milliseconds(), NewNet::CanUpdateGameState() );
-	
 	worm_state_t *ws = &tState;
 
 	// Init the ws
@@ -433,19 +430,19 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 
 		if(leftOnce && !keys.keys[NewNet::K_SELWEAP]) {
 
-			if(NewNet::GetCurTime() - fLastCarve >= carveDelay) {
+			if(GetPhysicsTime() >= fLastCarve + carveDelay ) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = NewNet::GetCurTime();
+				fLastCarve = GetPhysicsTime();
 			}
 		}
 
 		if(rightOnce && !keys.keys[NewNet::K_SELWEAP]) {
 
-			if(NewNet::GetCurTime() - fLastCarve >= carveDelay) {
+			if(GetPhysicsTime() >= fLastCarve + carveDelay ) {
 				ws->bCarve = true;
 				ws->bMove = true;
-				fLastCarve = NewNet::GetCurTime();
+				fLastCarve = GetPhysicsTime();
 			}
 		}
 	}
@@ -468,7 +465,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	if(!keys.keys[NewNet::K_SELWEAP]) {
 		if(keys.keys[NewNet::K_LEFT]) {
 			ws->bMove = true;
-			lastMoveTime = NewNet::GetCurTime();
+			lastMoveTime = GetPhysicsTime();
 
 			if(!keys.keys[NewNet::K_RIGHT]) {
 				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
@@ -478,13 +475,13 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 
 			if(rightOnce) {
 				ws->bCarve = true;
-				fLastCarve = NewNet::GetCurTime();
+				fLastCarve = GetPhysicsTime();
 			}
 		}
 
 		if(keys.keys[NewNet::K_RIGHT]) {
 			ws->bMove = true;
-			lastMoveTime = NewNet::GetCurTime();
+			lastMoveTime = GetPhysicsTime();
 
 			if(!keys.keys[NewNet::K_LEFT]) {
 				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
@@ -494,7 +491,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 
 			if(leftOnce) {
 				ws->bCarve = true;
-				fLastCarve = NewNet::GetCurTime();
+				fLastCarve = GetPhysicsTime();
 			}
 		}
 	}
@@ -527,7 +524,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	if( tLXOptions->bColorizeDamageByWorm )
 	{
 		for( int i=0; i<MAX_WORMS; i++ )
-			if( NewNet::GetCurTime() > cDamageReport[i].lastTime + 1.5f )
+			if( GetPhysicsTime() > cDamageReport[i].lastTime + 1.5f )
 				cDamageReport[i].damage = 0;
 	}
 	else
@@ -536,7 +533,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 		for( int i=0; i<MAX_WORMS; i++ )
 			if( cDamageReport[i].damage != 0 )
 				DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
-		if( ! DamageReportDrawOrder.empty() && NewNet::GetCurTime() > DamageReportDrawOrder.begin()->first + 1.5f )
+		if( ! DamageReportDrawOrder.empty() && GetPhysicsTime() > DamageReportDrawOrder.begin()->first + 1.5f )
 			for( int i=0; i<MAX_WORMS; i++ )
 				cDamageReport[i].damage = 0;
 	}

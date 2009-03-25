@@ -680,7 +680,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Other game details
 	client->tGameInfo.iGeneralGameType = bs->readInt(1);
 	client->tGameInfo.gameMode = NULL;
-	client->tGameInfo.sGameMode = getGeneralGameTypeName(client->tGameInfo.iGeneralGameType);
+	client->tGameInfo.sGameMode = guessGeneralGameTypeName(client->tGameInfo.iGeneralGameType);
 
 	client->tGameInfo.iLives = bs->readInt16();
 	client->tGameInfo.iKillLimit = bs->readInt16();

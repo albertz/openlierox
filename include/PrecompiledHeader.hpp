@@ -128,6 +128,7 @@
 #include "DeprecatedGUI/CBox.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "DeprecatedGUI/CButton.h"
+#include "DeprecatedGUI/CChatWidget.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CGuiLayout.h"

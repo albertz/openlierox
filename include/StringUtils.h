@@ -155,6 +155,7 @@ std::string		AutoDetectLinks(const std::string& text);
 std::string		HtmlEntityUnpairedBrackets(const std::string &txt);
 size_t			GetPosByTextWidth(const std::string& text, int width, CFont *fnt);
 std::string		ColToHex(Uint32 col);
+std::string		EscapeHtmlTags( const std::string & src );	// Escape all "<" and ">" and "&"
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 

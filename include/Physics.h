@@ -53,4 +53,6 @@ public:
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
 };
 
+AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active
+
 #endif

@@ -944,6 +944,19 @@ std::string AutoDetectLinks(const std::string& text)
 	return result;
 }
 
+std::string EscapeHtmlTags( const std::string & src )
+{
+	std::string ret ( src );
+	
+	replace( ret, "&", "&amp;" );
+	replace( ret, "<", "&lt;" );
+	replace( ret, ">", "&gt;" );
+	replace( ret, "\"", "&quot;" );
+	replace( ret, "\'", "&apos;" );
+	
+	return ret;
+}
+
 bool Compress( const std::string & in, std::string * out, bool noCompression )
 {
 	*out = ""; //out->clear();

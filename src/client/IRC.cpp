@@ -698,7 +698,7 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 		type = IRC_TEXT_PRIVATE;
 	} else
 		text = nick + ": " + cmd.params[1];
-	addChatMessage(ircFormattingToHtml(text), type);
+	addChatMessage(ircFormattingToHtml( EscapeHtmlTags(text) ), type);
 }
 
 ///////////////////////

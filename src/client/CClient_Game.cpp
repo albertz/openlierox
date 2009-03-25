@@ -223,7 +223,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		if(w->getAlive()) 
 		{
 			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, NewNet::GetCurTime() ); 
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, GetPhysicsTime() ); 
 		}
 
 		if(w->getAlive()) 
@@ -252,7 +252,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		SimulateEntities(TimeDiff(NewNet::TICK_TIME));
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), NewNet::GetCurTime());
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), GetPhysicsTime());
 }
 
 
@@ -419,7 +419,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		( NewNet::Active() && NewNet::CanUpdateGameState() ) )
 	{
 		w->getDamageReport()[owner].damage += damage;
-		w->getDamageReport()[owner].lastTime = NewNet::GetCurTime();
+		w->getDamageReport()[owner].lastTime = GetPhysicsTime();
 	}
 
 	// Update our scoreboard for local worms
@@ -1038,7 +1038,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	shot.cPos = w->getPos();
 	shot.cWormVel = *w->getVelocity();
-	shot.fTime = NewNet::GetCurTime().seconds();
+	shot.fTime = GetPhysicsTime().seconds();
 	shot.nRandom = w->NewNet_random.getInt(255);
 	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
 	shot.nWormID = w->getID();
@@ -1081,7 +1081,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		Slot->Reloading = true;
 	}
 
-	ProcessShot( &shot, NewNet::GetCurTime() );
+	ProcessShot( &shot, GetPhysicsTime() );
 }
 
 ///////////////////
@@ -1180,7 +1180,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
 		// is probably outdated at this time
 		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime,
-						NewNet::GetCurTime() + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
+						GetPhysicsTime() + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 					   );
 
 		shot->nRandom++;

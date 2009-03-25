@@ -237,5 +237,4 @@ bool    MouseInRect(int x, int y, int w, int h);
 
 void	printf(const std::string& txt);
 
-
 #endif  //  __LIEROX_H__

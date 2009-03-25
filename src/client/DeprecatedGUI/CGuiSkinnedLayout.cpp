@@ -211,7 +211,10 @@ int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 	{
 		int ev = cFocused->MouseOver(tMouse);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 		return -1;
 	}
 
@@ -223,7 +226,10 @@ int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 		{
 			int ev = (*w)->MouseOver(tMouse);
 			if( ev >= 0 )
+			{
 				(*w)->ProcessGuiSkinEvent( ev );
+				ProcessChildEvent( ev, (*w) );
+			}
 			return -1;
 		}
 	}
@@ -246,7 +252,10 @@ int CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
 	{
 		int ev = cFocused->MouseUp(tMouse, nDown);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 		return -1;
 	}
 	return -1;
@@ -264,7 +273,10 @@ int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 	{
 		int ev = cFocused->MouseDown(tMouse, nDown);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 		return -1;
 	}
 
@@ -277,7 +289,10 @@ int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 			FocusOnMouseClick( *w );
 			int ev = (*w)->MouseDown(tMouse, nDown);
 			if( ev >= 0 )
+			{
 				(*w)->ProcessGuiSkinEvent( ev );
+				ProcessChildEvent( ev, (*w) );
+			}
 			if( cFocused )
 				bFocusSticked = true;
 			return -1;
@@ -301,7 +316,10 @@ int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 	{
 		int ev = cFocused->MouseWheelDown(tMouse);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 		return -1;
 	}
 
@@ -313,7 +331,10 @@ int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 		{
 			int ev = (*w)->MouseWheelDown(tMouse);
 			if( ev >= 0 )
+			{
 				(*w)->ProcessGuiSkinEvent( ev );
+				ProcessChildEvent( ev, (*w) );
+			}
 			return -1;
 		}
 	}
@@ -332,7 +353,10 @@ int CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 	{
 		int ev = cFocused->MouseWheelUp(tMouse);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 		return -1;
 	}
 
@@ -344,7 +368,10 @@ int CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 		{
 			int ev = (*w)->MouseWheelUp(tMouse);
 			if( ev >= 0 )
+			{
 				(*w)->ProcessGuiSkinEvent( ev );
+				ProcessChildEvent( ev, (*w) );
+			}
 			return -1;
 		}
 	}
@@ -366,7 +393,10 @@ int CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& 
 			return -1;
 		int ev = cFocused->KeyDown(c, keysym, modstate);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 	}
 
 	return -1;
@@ -387,7 +417,10 @@ int CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& mo
 			return -1;
 		int ev = cFocused->KeyUp(c, keysym, modstate);
 		if( ev >= 0 )
+		{
 			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+		}
 	}
 	return -1;
 }
@@ -421,6 +454,11 @@ void CGuiSkinnedLayout::FocusOnKeyPress(UnicodeChar c, int keysym, bool keyup)
 		}
 	}
 }
+
+void CGuiSkinnedLayout::FocusWidget(int id)
+{
+	FocusOnMouseClick( getWidget(id) );
+};
 
 CWidget * CGuiSkinnedLayout::getWidgetAtPoint(int x, int y)
 {

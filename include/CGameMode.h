@@ -76,7 +76,7 @@ CGameMode* GameMode(GameModeIndex i); // GM_* is parameter
 CGameMode* GameMode(const std::string& name);
 GameModeIndex GetGameModeIndex(CGameMode* gameMode);
 Iterator<CGameMode* const&>::Ref GameModeIterator();
-std::string getGeneralGameTypeName(int iGameType);
+std::string guessGeneralGameTypeName(int iGeneralGameType);
 
 #endif
 

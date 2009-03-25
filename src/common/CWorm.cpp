@@ -245,7 +245,7 @@ void CWorm::Unprepare() {
 }
 
 void CWorm::StartGame() {
-	fTimeofDeath = NewNet::GetCurTime();
+	fTimeofDeath = GetPhysicsTime();
 	if(!m_inputHandler) {
 		warnings << "CWorm::StartGame(): input handler not set" << endl;
 	}
@@ -278,7 +278,7 @@ void CWorm::getInput() {
 }
 
 void CWorm::clearInput() {
-	fLastInputTime = NewNet::GetCurTime();
+	fLastInputTime = GetPhysicsTime();
 	
 	// Clear the state
 	tState.bCarve = false;
@@ -383,7 +383,7 @@ void CWorm::Spawn(CVec position) {
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
 	iMoveDirection = DIR_RIGHT;
-	fLastInputTime = NewNet::GetCurTime();
+	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
@@ -405,7 +405,7 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = NewNet::GetCurTime();
+	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = GetPhysicsTime();
 
 	if(bLocal) {
 		if( !NewNet::Active() )
@@ -753,8 +753,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		{
 			int damageDrawPos = WormNameY + tLX->cFont.GetHeight(); 
 			// Make it float up a bit when time passes
-			if( NewNet::GetCurTime() > DamageReportDrawOrder.begin()->first )
-				damageDrawPos += (int)(( NewNet::GetCurTime() - DamageReportDrawOrder.begin()->first ).seconds() * 30);
+			if( GetPhysicsTime() > DamageReportDrawOrder.begin()->first )
+				damageDrawPos += (int)(( GetPhysicsTime() - DamageReportDrawOrder.begin()->first ).seconds() * 30);
 
 			int damageSum = 0;
 			std::map< AbsTime, int > :: const_iterator it;
@@ -788,12 +788,12 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			if( tLXOptions->bColorizeDamageByWorm )
 			{
 				for( int i=0; i<MAX_WORMS; i++ )
-					if( NewNet::GetCurTime() > cDamageReport[i].lastTime + 1.5f )
+					if( GetPhysicsTime() > cDamageReport[i].lastTime + 1.5f )
 						cDamageReport[i].damage = 0;
 			}
 			else
 			{
-				if( NewNet::GetCurTime() > DamageReportDrawOrder.begin()->first + 1.5f )
+				if( GetPhysicsTime() > DamageReportDrawOrder.begin()->first + 1.5f )
 					for( int i=0; i<MAX_WORMS; i++ )
 						cDamageReport[i].damage = 0;
 			}
@@ -1068,7 +1068,7 @@ bool CWorm::Kill(void)
 //	notes << "our worm " << iID << " died" << endl;
 
 	bAlive = false;
-	fTimeofDeath = NewNet::GetCurTime();
+	fTimeofDeath = GetPhysicsTime();
 
 	// -2 means there is no lives starting value
 	if(iLives == WRM_UNLIM)
@@ -1203,7 +1203,7 @@ void CWorm::setUsed(bool _u)
 	bUsed = _u; 
 	if( ! _u ) 
 		return;
-	fLastSimulationTime = NewNet::GetCurTime(); 
+	fLastSimulationTime = GetPhysicsTime(); 
 	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
 }
 

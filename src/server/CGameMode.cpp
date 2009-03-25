@@ -355,15 +355,15 @@ Iterator<CGameMode* const&>::Ref GameModeIterator() {
 	return GetConstIterator(gameModes);
 }
 
-std::string getGeneralGameTypeName(int iGameType)
+std::string guessGeneralGameTypeName(int iGeneralGameType)
 {
-	if( iGameType == GMT_NORMAL )
+	if( iGeneralGameType == GMT_NORMAL )
 		return "Death Match";
-	if( iGameType == GMT_TEAMS )
+	if( iGeneralGameType == GMT_TEAMS )
 		return "Team Death Match";
-	if( iGameType == GMT_TIME )
+	if( iGeneralGameType == GMT_TIME )
 		return "Tag";
-	if( iGameType == GMT_DIRT )
+	if( iGeneralGameType == GMT_DIRT )
 		return "Demolitions";
 	return "";
 };

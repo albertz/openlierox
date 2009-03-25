@@ -362,7 +362,7 @@ class server_t { public:
 			bAddrReady = oth.bAddrReady;
 			fLastPing = oth.fLastPing;
 			fLastQuery = oth.fLastQuery;
-			for (int i = 0; i < sizeof(fQueryTimes)/sizeof(AbsTime); i++)
+			for (int i = 0; i < int(sizeof(fQueryTimes)/sizeof(AbsTime)); i++)
 				fQueryTimes[i] = oth.fQueryTimes[i];
 			szAddress = oth.szAddress;
 			sAddress = oth.sAddress;
@@ -645,15 +645,6 @@ void	Menu_Net_NewsFrame(int mouse);
 bool	Menu_Net_ChatInitialize(void);
 void	Menu_Net_ChatShutdown();
 void	Menu_Net_ChatFrame(int mouse);
-
-void	Menu_Net_ChatNewMessage(const std::string& msg, int type);
-void	Menu_Net_ChatDisconnect();
-void	Menu_Net_ChatConnect();
-void	Menu_Net_ChatUpdateUsers(const std::list<std::string>& users);
-
-// deprecated
-//int	Menu_Net_JoinInitializePlayers(void);
-//void	Menu_Net_JoinPlayersFrame(int mouse);
 
 bool	Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);

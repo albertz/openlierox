@@ -28,3 +28,8 @@ void PhysicsEngine::UnInit() {
 	delete engine;
 	engine = NULL;
 }
+
+AbsTime GetPhysicsTime()
+{
+	return NewNet::GetCurTime();
+}

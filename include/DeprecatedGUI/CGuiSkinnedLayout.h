@@ -68,6 +68,8 @@ public:
 	int			GetIdByName(const std::string & name);
 	void		Error(int ErrorCode, const std::string& desc);
 	void		SetOffset( int x, int y );
+	void		FocusWidget(int id);
+	CWidget		*getFocused() const { return cFocused; }
 
 	bool		Process(void);	// Called only for main layout -dispatches messages to children, returns false on exit layout
 	void		Draw(SDL_Surface * bmpDest);
@@ -95,6 +97,7 @@ public:
 	void	LoadStyle(void) { };
 	
 	void	ProcessGuiSkinEvent(int iEvent);
+	virtual void ProcessChildEvent(int iEvent, CWidget * child) { };
 	
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 
