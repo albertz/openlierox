@@ -163,7 +163,7 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 	};
 
 	struct stat st;
-	StatFile(file1 + "/script.lgs", &st);
+	StatFile(file1, &st);
 	ModCache[file] = ModItem_t( mod, getCurrentTime(), st.st_mtime );
 }
 
@@ -236,7 +236,7 @@ SmartPointer<CGameScript> CCache::GetMod(const std::string& file1)
 	{
 		// If the file has changed, don't consider it as found and erase it from the cache
 		struct stat st;
-		StatFile(item->first + "/script.lgs", &st);
+		StatFile(item->first, &st);
 		if (item->second.iFileTimeStamp != (Uint64)st.st_mtime)  {
 			item->second.tMod = NULL;
 			ModCache.erase(item);

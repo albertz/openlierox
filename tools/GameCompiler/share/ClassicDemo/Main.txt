@@ -8,7 +8,7 @@
 
 
 [General]
-ModName = Classic
+ModName = Classic Demonstration
 
 
 [Weapons]

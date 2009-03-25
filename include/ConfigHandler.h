@@ -31,11 +31,11 @@
 
 
 // Internal
-int		GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string);
+int		GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn = false);
 
 
 // Value reading
-int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv);
+int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv, bool abs_fn = false);
 int		ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 int		ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv);
 int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv);

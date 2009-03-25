@@ -14,7 +14,7 @@
 // Jason Boettcher
 
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "EndianSwap.h"
 #include "LieroX.h"
@@ -329,6 +329,16 @@ int CGameScript::Load(const std::string& dir)
 	// Open it
 	fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
+		if(IsFileAvailable(dir + "/main.txt")) {
+			hints << "GameScript: '" << dir << "': loading from gamescript source" << endl;
+			if(Compile(dir))
+				return GSE_OK;
+			else {
+				warnings << "GameScript::Load(): could not compile source gamescript '" << dir << "'" << endl;
+				return GSE_BAD;
+			}
+		}
+		
 		warnings << "CGameScript::Load(): Could not load file " << filename << endl;
 		return GSE_FILE;
 	}
@@ -705,6 +715,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
     if(proj->Exp_UseSound)
     {
         proj->Exp_SndFilename = readString(fp);
+		// TODO: why are we not loading this sound?
+		// (If we change this, add this also in CompileProjectile)
 	}
 
     //
@@ -718,9 +730,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Tch_Projectiles);
     fread(&proj->Tch_UseSound, sizeof(int), 1, fp);
 	EndianSwap(proj->Tch_UseSound);
-    if(proj->Tch_UseSound)
+    if(proj->Tch_UseSound) {
         proj->Tch_SndFilename = readString(fp);
-
+		// TODO: why are we not loading this sound?
+		// (If we change this, add this also in CompileProjectile)
+	}
 
 	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
        proj->Tch_Projectiles) {
@@ -969,7 +983,22 @@ bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_
 	 		fp = fopen(filename.c_str(), "rb");
 	} else
 		fp = OpenGameFile(dir + "/script.lgs", "rb");
-	if(fp == NULL) return false;
+	
+	if(fp == NULL) {
+		// try source gamescript
+		
+		std::string filename = dir + "/main.txt";
+		if(abs_filename) {
+			if(!GetExactFileName(dir + "/main.txt", filename))
+				return false;
+		} else {
+			if(!IsFileAvailable(filename))
+				return false;
+		}
+		
+		ReadString(filename,"General","ModName", name,"untitled", abs_filename);
+		return true;
+	}
 
 	// Header
 	gs_header_t head;
@@ -1129,34 +1158,36 @@ bool CGameScript::Compile(const std::string& dir)
 		fclose(fp);
 
 
-		std::string modname;
-		ReadString(filename,"General","ModName", modname,"untitled");
-		fix_strncpy(Header.ModName, modname.c_str());
-	
-		notes << "Compiling '" << modName() << "'" << endl;
+	std::string modname;
+	ReadString(filename,"General","ModName", modname,"untitled");
+	fix_strncpy(Header.ModName, modname.c_str());
 
-		ReadInteger(filename,"Weapons","NumWeapons",&num,0);
+	notes << "Compiling '" << modName() << "'" << endl;
+
+	ReadInteger(filename,"Weapons","NumWeapons",&num,0);
 
 
 	// Weapons
-		Game->initNewWeapons(num);
+	Game->initNewWeapons(num);
 
 
 	// Compile the weapons
-		for(n=0;n<Game->GetNumWeapons();n++) {
-			std::string wpn = "Weapon" + itoa(n+1);
+	for(n=0;n<Game->GetNumWeapons();n++) {
+		std::string wpn = "Weapon" + itoa(n+1);
 
-			std::string weap;
-			ReadString(filename,"Weapons",wpn,weap,"");
+		std::string weap;
+		ReadString(filename,"Weapons",wpn,weap,"");
 
-			if(!CompileWeapon(dir,weap,n))
-				return false;
-		}
+		if(!CompileWeapon(dir,weap,n))
+			return false;
+	}
 
 	// Compile the extra stuff
-		CompileExtra(dir);
+	CompileExtra(dir);
 
-		return true;
+	loaded = true;
+	
+	return true;
 }
 
 
@@ -1169,6 +1200,8 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	weapon_t *Weap = Game->Weapons+id;
 	std::string file = dir + "/" + weapon;
 
+	Weap->ID = id;
+	Weap->Projectile = NULL;
 	Weap->UseSound = false;
 	Weap->Special = SPC_NONE;
 	Weap->Type = WPN_PROJECTILE;
@@ -1180,7 +1213,7 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 
 	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
 
-
+	
 	// Special Weapons
 	if(Weap->Type == WPN_SPECIAL) {
 		
@@ -1216,9 +1249,14 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	ReadFloat(file,"General","Drain",&Weap->Drain,0);
 	ReadFloat(file,"General","ROF",&Weap->ROF,0);
 	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
-	if(ReadString(file,"General","Sound",Weap->SndFilename,""))
+	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
 		Weap->UseSound = true;
 	
+		if(!bDedicated) {
+			// Load the sample
+			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
+		}	
+	}
 	
 	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
 	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
@@ -1322,6 +1360,12 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			ReadFloat(file,"General","AnimRate",&proj->AnimRate,0);
 			ReadKeyword(file,"General","AnimType",&proj->AnimType,ANI_ONCE);
 		}
+	
+		if(!bDedicated) {
+			proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
+			if(!proj->bmpImage)
+				modLog("Could not open image '" + proj->ImgFilename + "'");
+		}
 	}
 	
 
@@ -1336,8 +1380,18 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		ReadInteger(file,"Hit","Shake",&proj->Hit_Shake,0);
 
 		proj->Hit_UseSound = false;
-		if(ReadString(file,"Hit","Sound",proj->Hit_SndFilename,""))
+		if(ReadString(file,"Hit","Sound",proj->Hit_SndFilename,"")) {
 			proj->Hit_UseSound = true;
+			
+			if(!bDedicated) {
+				// Load the sample
+				proj->smpSample = LoadGSSample(dir,proj->Hit_SndFilename);
+
+				if(proj->smpSample == NULL) {
+					modLog("Could not open sound '" + proj->Hit_SndFilename + "'");
+				}
+			}
+		}
 	}
 
 	// Hit::Carve
@@ -1382,9 +1436,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadKeyword( file, "Explode", "Projectiles",&proj->Exp_Projectiles, false );
 	ReadInteger( file, "Explode", "Shake",      &proj->Exp_Shake, 0 );
 	proj->Exp_UseSound = false;
-	if( ReadString(file, "Explode", "Sound", proj->Exp_SndFilename,"") )
+	if( ReadString(file, "Explode", "Sound", proj->Exp_SndFilename,"") ) {
 		proj->Exp_UseSound = true;
-
+	}
 
     // Touch
 	ReadKeyword( file, "Touch", "Type",       &proj->Tch_Type, PJ_NOTHING );
@@ -1411,27 +1465,26 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		ReadString(file,"Projectile","Projectile",prjfile,"");
 
 		proj->Projectile = CompileProjectile(dir,prjfile.c_str());
-		  }
+	}
 
 
 	// Projectile trail
-		  if(proj->Trail == TRL_PROJECTILE) {
-			  ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl_UsePrjVelocity, false);
-			  ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl_Delay, 100);
-			  ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl_Amount, 1);
-			  ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl_Speed, 100);
-			  ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl_SpeedVar, 0);
-			  ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl_Spread, 0);
-		
-		// Load the projectile
-			  std::string prjfile;
-			  ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
+	if(proj->Trail == TRL_PROJECTILE) {
+		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl_UsePrjVelocity, false);
+		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl_Delay, 100);
+		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl_Amount, 1);
+		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl_Speed, 100);
+		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl_SpeedVar, 0);
+		ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl_Spread, 0);
 
-			  proj->PrjTrl_Proj = CompileProjectile(dir,prjfile.c_str());
-		  }
-	
+// Load the projectile
+		std::string prjfile;
+		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
 
-		  return proj;
+		proj->PrjTrl_Proj = CompileProjectile(dir,prjfile.c_str());
+	}
+
+	return proj;
 }
 
 

@@ -36,6 +36,7 @@ static const Version GS_MinLxVersion[] = {
 
 // Error codes
 #define		GSE_OK			1
+// TODO: what is this for?
 #define		GSE_MEM			0
 #define		GSE_VERSION		-1
 #define		GSE_FILE		-2
@@ -123,12 +124,14 @@ struct gs_worm_t {
 
 
 
-class proj_t;
+struct proj_t;
 
 
 
 // Weapon structure
-class weapon_t { public:
+struct weapon_t {
+	weapon_t() : ID(0), Projectile(NULL), smpSample(NULL) {}
+	
 	int		ID;
 	std::string	Name; // (was 64b before)
 	int		Type;
@@ -264,7 +267,7 @@ public:
 	const weapon_t	*GetWeapons()				{ return Weapons; }
 
 private:
-	void	initNewWeapons(int num)		{ if(Weapons) delete Weapons; SetNumWeapons(num); Weapons = new weapon_t[num]; }
+	void	initNewWeapons(int num)		{ if(Weapons) delete[] Weapons; SetNumWeapons(num); Weapons = new weapon_t[num]; }
 	void	SetNumWeapons(int _w)			{ NumWeapons = _w; }
 	void	SetWeapons(weapon_t *_w)		{ Weapons = _w; }
 

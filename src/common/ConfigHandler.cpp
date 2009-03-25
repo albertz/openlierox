@@ -111,11 +111,11 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 
 ///////////////////
 // Read a string from a file
-int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv)
+int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv, bool abs_fn)
 {
 	value = defaultv;
 
-	return GetString(filename,section,key,value);
+	return GetString(filename,section,key,value, abs_fn);
 
 	/*int result = GetString(filename,section,key,value);
 
@@ -190,9 +190,9 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 
 ///////////////////
 // Read a string
-int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
+int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn)
 {
-	FILE	*config;
+	FILE	*config = NULL;
 	std::string	Line;
 	std::string	tmpLine;
 	std::string	curSection;
@@ -205,7 +205,10 @@ int GetString(const std::string& filename, const std::string& section, const std
 	if(filename == "")
 		return false;
 
-	config = OpenGameFile(filename,"rt");
+	if(abs_fn) {
+		config = fopen(filename.c_str(), "rt");
+	} else
+		config = OpenGameFile(filename,"rt");
 	if(!config)
 		return false;
 

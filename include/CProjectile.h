@@ -46,6 +46,8 @@ class CViewport;
 
 // Projectile structure
 struct proj_t {
+	proj_t() : id(0), PrjTrl_Proj(NULL), bmpImage(NULL), smpSample(NULL) {}
+	
 	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 

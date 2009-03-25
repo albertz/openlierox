@@ -284,6 +284,7 @@ public:
 
 
 	// Variables
+	const SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	int				getState()			{ return iState; }
