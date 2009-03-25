@@ -40,7 +40,8 @@ EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\
 
 
 ADD_EXECUTABLE(gamecompiler ${SRCS} ${OLX_SRCS})
-#SET_TARGET_PROPERTIES(gamecompiler PROPERTIES OUTPUT_NAME bin/openlierox)
+EXEC_PROGRAM(mkdir ARGS -p ${CMAKE_CURRENT_SOURCE_DIR}/bin OUTPUT_VARIABLE -)
+SET_TARGET_PROPERTIES(gamecompiler PROPERTIES OUTPUT_NAME bin/gamecompiler)
 
 
 EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
