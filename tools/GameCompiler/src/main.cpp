@@ -45,8 +45,12 @@ int ProjCount = 0;
 // Main entry point
 int main(int argc, char *argv[])
 {
-	printf("Liero Xtreme Game Script Compiler v0.3\nCopyright Auxiliary Software 2002\n");
-	printf("GameScript Version: %d\n\n\n",GS_VERSION);
+	notes << "Liero Xtreme Game Script Compiler v0.3" << endl;
+	notes << GetGameVersion().asString() << endl;
+	notes << "(c) ..-2002  Auxiliary Software " << endl;
+	notes << "    2002-..  OpenLieroX team" << endl;
+	notes << "code under LGPL" << endl;
+	notes << "GameScript Version: " << GS_VERSION << endl << endl << endl;
 
 
 	Game = new CGameScript;
