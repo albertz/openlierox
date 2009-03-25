@@ -55,7 +55,7 @@ bool Menu_Net_ChatInitialize(void)
 
 	cChat.Add( new CButton(BUT_BACK, tMenu->bmpButtons), nc_Back, 25,440, 50,15);
 
-	cChat.Add( new CChatWidget(), nc_Chat, 25, 140, 440 + 140, 280);
+	cChat.Add( new CChatWidget(), nc_Chat, 25, 140, 585, 280);
 	cChat.Add( new CCheckbox(tLXOptions->bEnableChat), nc_EnableChat, 100, 440, 20, 20);
 	cChat.Add( new CLabel("Enable", tLX->clNormalLabel), -1, 130, 440, 0, 0);
 

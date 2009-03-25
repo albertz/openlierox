@@ -31,6 +31,7 @@
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CMenu.h"
 #include "DeprecatedGUI/CTextbox.h"
+#include "DeprecatedGUI/CChatWidget.h"
 #include "ProfileSystem.h"
 #include "IpToCountryDB.h"
 #include "Debug.h"
@@ -52,7 +53,8 @@ enum {
 	mi_AddServer,
 	mi_Back,
     mi_PopupMenu,
-	mi_PlayerSelection
+	mi_PlayerSelection,
+	mi_ChatWidget
 };
 
 ///////////////////
@@ -73,6 +75,8 @@ bool Menu_Net_NETInitialize(void)
 	cInternet.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mi_Join,		570,440, 43,  15);
 	cInternet.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cInternet.Add( new CCombobox(),								mi_PlayerSelection,		225,150, 170,  19);
+	if (tLXOptions->bEnableChat)
+		cInternet.Add( new CChatWidget(),						mi_ChatWidget,	25, 15, 585, 85 );
 
 
 	/*

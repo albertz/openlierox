@@ -87,7 +87,7 @@ void CChatWidget::Create()
 	
 	CGuiSkinnedLayout::SetOffset( iX, iY );
 	
-	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 30 )
+	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
 		warnings << "CChatWidget::CChatWidget(): too small dimensions given" << endl;
 
 	this->Add( new CBrowser(), nc_ChatText, 0, 0, iWidth - 145, iHeight - tLX->cFont.GetHeight() - 8 );
