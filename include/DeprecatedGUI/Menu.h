@@ -347,6 +347,37 @@ class server_t { public:
 		bBehindNat = false;
 	}
 
+	server_t(const server_t& s)  { operator=(s); }
+
+	server_t& operator= (const server_t& oth)  {
+		if (this != &oth)  {
+			bIgnore = oth.bIgnore;
+			bProcessing = oth.bProcessing;
+			bManual = oth.bManual;
+			nPings = oth.nPing;
+			nQueries = oth.nQueries;
+			bgotPong = oth.bgotPong;
+			bgotQuery = oth.bgotQuery;
+			fInitTime = oth.fInitTime;
+			bAddrReady = oth.bAddrReady;
+			fLastPing = oth.fLastPing;
+			fLastQuery = oth.fLastQuery;
+			for (int i = 0; i < sizeof(fQueryTimes)/sizeof(AbsTime); i++)
+				fQueryTimes[i] = oth.fQueryTimes[i];
+			szAddress = oth.szAddress;
+			sAddress = oth.sAddress;
+			szName = oth.szName;
+			nState = oth.nState;
+			nNumPlayers = oth.nNumPlayers;
+			nMaxPlayers = oth.nMaxPlayers;
+			nPing = oth.nPing;
+			bAllowConnectDuringGame = oth.bAllowConnectDuringGame;
+			tVersion = oth.tVersion;
+			bBehindNat = oth.bBehindNat;
+		}
+		return *this;
+	}
+
 	bool	bIgnore;
 	bool	bProcessing;
     bool    bManual;

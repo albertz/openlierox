@@ -1163,6 +1163,8 @@ void Menu_SvrList_ClearAuto(void)
         if(!it->bManual) 
         {
         	psServerList.erase(it);
+			if (psServerList.empty())
+				return;
         	it = psServerList.begin();
         }
     }
