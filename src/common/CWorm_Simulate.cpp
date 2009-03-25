@@ -36,7 +36,6 @@
 
 
 
-
 ///////////////////
 // Get the input from a human worm
 void CWormHumanInputHandler::getInput() {		

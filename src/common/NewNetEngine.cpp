@@ -481,7 +481,7 @@ bool ChecksumRecalculated()
 
 AbsTime GetCurTime()
 {
-	return NewNetActive ? CurrentTimeMs : tLX->currentTime;
+	return CurrentTimeMs;
 }
 
 bool CanUpdateGameState()

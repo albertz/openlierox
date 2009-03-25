@@ -11,7 +11,7 @@
 #include "PhysicsLX56.h"
 #include "Debug.h"
 #include "NewNetEngine.h"
-
+#include "LieroX.h"
 
 
 static PhysicsEngine* engine = NULL;
@@ -30,7 +30,6 @@ void PhysicsEngine::UnInit() {
 	engine = NULL;
 }
 
-AbsTime GetPhysicsTime()
-{
-	return NewNet::GetCurTime();
+AbsTime GetPhysicsTime() {
+	return NewNet::Active() ? NewNet::GetCurTime() : tLX->currentTime;
 }

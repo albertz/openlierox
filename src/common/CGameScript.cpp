@@ -1213,6 +1213,27 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 
 	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
 
+	// Projectile Weapons
+	ReadKeyword(file,"General","Class",&Weap->Class,WCL_AUTOMATIC);
+	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
+	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
+	ReadFloat(file,"General","Drain",&Weap->Drain,0);
+	ReadFloat(file,"General","ROF",&Weap->ROF,0);
+	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
+	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
+		Weap->UseSound = true;
+	
+		if(!bDedicated) {
+			// Load the sample
+			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
+		}	
+	}
+	
+	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
+	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
+	ReadFloat(file,"Projectile","Spread",&Weap->ProjSpread,0);
+	ReadInteger(file,"Projectile","Amount",&Weap->ProjAmount,0);
+	
 	
 	// Special Weapons
 	if(Weap->Type == WPN_SPECIAL) {
@@ -1242,26 +1263,6 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	}
 
 
-	// Projectile Weapons
-	ReadKeyword(file,"General","Class",&Weap->Class,WCL_AUTOMATIC);
-	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
-	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
-	ReadFloat(file,"General","Drain",&Weap->Drain,0);
-	ReadFloat(file,"General","ROF",&Weap->ROF,0);
-	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
-	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
-		Weap->UseSound = true;
-	
-		if(!bDedicated) {
-			// Load the sample
-			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
-		}	
-	}
-	
-	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
-	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
-	ReadFloat(file,"Projectile","Spread",&Weap->ProjSpread,0);
-	ReadInteger(file,"Projectile","Amount",&Weap->ProjAmount,0);
 
 
 	// Load the projectile
