@@ -600,3 +600,17 @@ bool Con_IsInited() { return false; }
 CrashHandler* CrashHandler::get() {	return NULL; }
 
 void Con_AddText(int colour, const std::string& text, bool alsoToLogger) {}
+
+SDL_PixelFormat defaultFallbackFormat =
+{
+ NULL, //SDL_Palette *palette;
+ 32, //Uint8  BitsPerPixel;
+ 4, //Uint8  BytesPerPixel;
+ 0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+ 24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+ 0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+ 0, //Uint32 colorkey;
+ 255 //Uint8  alpha;
+};
+
+SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
