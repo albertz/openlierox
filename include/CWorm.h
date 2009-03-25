@@ -64,7 +64,7 @@
 struct WormType;
 class CWpnRest;
 class CGameScript;
-class weapon_t;
+struct weapon_t;
 
 // Weapon slot structure
 struct wpnslot_t {

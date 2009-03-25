@@ -3734,6 +3734,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\DeprecatedGUI\CChatWidget.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DeprecatedGUI\CChatWidget.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\DeprecatedGUI\CCheckbox.cpp"
 				>
 			</File>
