@@ -16,6 +16,7 @@
 #include <locale>
 #include "ConfigHandler.h"
 
+// TODO: get rid of this file and use OLX code
 
 #ifndef _MSC_VER
 #define stricmp strcasecmp
@@ -47,7 +48,7 @@ char *TrimSpaces(char *szLine)
 
 ///////////////////
 // Add a keyword to the list
-int AddKeyword(char *key, int value)
+int AddKeyword(const char* key, int value)
 {
 	// Check for enough spaces
 	if(NumKeywords >= MAX_KEYWORDS-1)
@@ -63,7 +64,7 @@ int AddKeyword(char *key, int value)
 
 ///////////////////
 // Read a keyword from a file
-int ReadKeyword(char *filename, char *section, char *key, int *value, int defaultv)
+int ReadKeyword(const char* filename, const char* section, const char* key, int *value, int defaultv)
 {
 	int n;
 	char string[MAX_MINOR_LENGTH];
@@ -87,7 +88,7 @@ int ReadKeyword(char *filename, char *section, char *key, int *value, int defaul
 
 ///////////////////
 // Read an interger from a file
-int ReadInteger(char *filename, char *section, char *key, int *value, int defaultv)
+int ReadInteger(const char* filename, const char* section, const char* key, int *value, int defaultv)
 {
 	char string[MAX_MINOR_LENGTH];
 
@@ -104,17 +105,22 @@ int ReadInteger(char *filename, char *section, char *key, int *value, int defaul
 
 ///////////////////
 // Read a string from a file
-int ReadString(char *filename, char *section, char *key, char *value, char *defaultv)
+int ReadString(const char* filename, const char* section, const char* key, std::string& value, const char* defaultv)
 {
-	strcpy(value,defaultv);
+	value = defaultv;
 
-	return GetString(filename,section,key,value);
+	char tmp[256]; tmp[0] = 0;
+	int ret = 0;
+	if(ret = GetString(filename,section,key,tmp)) {
+		value = tmp;
+	}
+	return ret;
 }
 
 
 ///////////////////
 // Read a float from a file
-int ReadFloat(char *filename, char *section, char *key, float *value, float defaultv)
+int ReadFloat(const char* filename, const char* section, const char* key, float *value, float defaultv)
 {
 	char string[MAX_MINOR_LENGTH];
 
@@ -137,7 +143,7 @@ int ReadFloat(char *filename, char *section, char *key, float *value, float defa
 
 ///////////////////
 // Read a string
-int GetString(char *filename, char *section, char *key, char *string)
+int GetString(const char* filename, const char* section, const char* key, char* string)
 {
 	FILE	*config;
 	char	Line[MAX_STRING_LENGTH];

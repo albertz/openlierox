@@ -19,13 +19,13 @@
 
 // Routines
 void    writeScript(void);
-char    *newString(char *szString);
-void    lx_strncpy(char *dest, char *src, int count);
-char    *trimSpaces(char *szLine);
-char    *lx_sprintf(char *dst, char *fmt, ...);
-void    v_printf(char *fmt, ...);
-void    writePascalString(char *szString, FILE *fp);
-char    *readPascalString(char *szString, FILE *fp);
+char    *newString(const char* szString);
+void    lx_strncpy(const char* dest, const char* src, int count);
+char    *trimSpaces(const char* szLine);
+char    *lx_sprintf(const char* dst, const char* fmt, ...);
+void    v_printf(const char* fmt, ...);
+void    writePascalString(const char* szString, FILE *fp);
+char    *readPascalString(const char* szString, FILE *fp);
 
 
 

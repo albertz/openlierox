@@ -9,11 +9,11 @@
 
 #include <limits.h>
 #include <cassert>
+#include <SDL_mutex.h>
 
 #ifdef DEBUG
 #include <map>
 #include "Debug.h"
-#include "SDL_mutex.h"
 #endif
 
 #include "Functors.h"

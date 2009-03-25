@@ -13,6 +13,7 @@
 #ifndef __CONFIGHANDLER_H__
 #define __CONFIGHANDLER_H__
 
+#include <string>
 #include "CVec.h"
 
 
@@ -23,17 +24,17 @@
 
 
 // Internal
-int		GetString(char *filename, char *section, char *key, char *string);
+int		GetString(const char* filename, const char* section, const char* key, char* string);
 //void	TrimSpaces(char *str);
 
 
 // Value reading
-int		ReadString(char *filename, char *section, char *key, char *value, char *defaultv);
-int		ReadInteger(char *filename, char *section, char *key, int *value, int defaultv);
-int		ReadFloat(char *filename, char *section, char *key, float *value, float defaultv);
-//int		ReadVec2d(char *filename, char *section, char *key, CVec2d *value);
-int		ReadVec(char *filename, char *section, char *key, CVec *value);
-//int		ReadRegion(char *filename, char *section, char *key, CRegion *value);
+int		ReadString(const char* filename, const char* section, const char* key, std::string& value, const char* defaultv);
+int		ReadInteger(const char* filename, const char* section, const char* key, int *value, int defaultv);
+int		ReadFloat(const char* filename, const char* section, const char* key, float *value, float defaultv);
+//int		ReadVec2d(const char* filename, const char* section, const char* key, CVec2d *value);
+int		ReadVec(const char* filename, const char* section, const char* key, CVec *value);
+//int		ReadRegion(const char* filename, const char* section, const char* key, CRegion *value);
 
 
 
@@ -45,8 +46,8 @@ typedef struct {
 } keyword_t;
 
 
-int		AddKeyword(char *key, int value);
-int		ReadKeyword(char *filename, char *section, char *key, int *value, int defaultv);
+int		AddKeyword(const char* key, int value);
+int		ReadKeyword(const char* filename, const char* section, const char* key, int *value, int defaultv);
 
 
 

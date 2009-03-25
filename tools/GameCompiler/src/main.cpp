@@ -13,12 +13,15 @@
 // Jason Boettcher
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 #include "CVec.h"
 #include "CGameScript.h"
 #include "ConfigHandler.h"
+#include "SmartPointer.h"
+#include "CrashHandler.h"
 
 
 CGameScript	*Game;
@@ -27,13 +30,13 @@ CGameScript	*Game;
 // Prototypes
 int		CheckArgs(int argc, char *argv[]);
 
-int		Compile(char *dir);
-int		CompileWeapon(char *dir, char *weapon, int id);
-void	CompileBeam(char *file, weapon_t *Weap);
-proj_t  *CompileProjectile(char *dir, char *pfile);
-int		CompileExtra(char *dir);
+int		Compile(const char* dir);
+int		CompileWeapon(const char* dir, const std::string& weapon, int id);
+void	CompileBeam(const char* file, weapon_t *Weap);
+proj_t  *CompileProjectile(const char* dir, const char* pfile);
+int		CompileExtra(const char* dir);
 
-int		CompileJetpack(char *file, weapon_t *Weap);
+int		CompileJetpack(const char* file, weapon_t *Weap);
 
 int ProjCount = 0;
 
@@ -101,10 +104,11 @@ int main(int argc, char *argv[])
 	if(comp)
 		printf("\nInfo:\nWeapons: %d\nProjectiles: %d\n",Game->GetNumWeapons(),ProjCount);
 
-	Game->Shutdown();
-	if(Game)
+	if(Game) {
 		delete Game;
-
+		Game = NULL;
+	}
+	
 	return 0;
 }
 
@@ -133,9 +137,9 @@ int CheckArgs(int argc, char *argv[])
 
 ///////////////////
 // Compile
-int Compile(char *dir)
+int Compile(const char* dir)
 {
-	char buf[64],wpn[64],weap[32];
+	char buf[64],wpn[64];
 	int num,n;
 	sprintf(buf,"%s/Main.txt",dir);
 
@@ -149,30 +153,24 @@ int Compile(char *dir)
 		fclose(fp);
 
 
-
-	ReadString(buf,"General","ModName",Game->GetHeader()->ModName,"untitled");
-
+	std::string modname;
+	ReadString(buf,"General","ModName", modname,"untitled");
+	strcpy(Game->GetWriteableHeader()->ModName, modname.c_str());
+	
 	printf("Compiling '%s'\n",Game->GetHeader()->ModName);
 
 	ReadInteger(buf,"Weapons","NumWeapons",&num,0);
 
 
 	// Weapons
-	Game->SetNumWeapons(num);
-	weapon_t *weapons;
-
-	weapons = new weapon_t[num];
-	if(weapons == NULL) {
-		printf("Error: Out of memory\n");
-		return false;
-	}
-	Game->SetWeapons(weapons);
+	Game->initNewWeapons(num);
 
 
 	// Compile the weapons
 	for(n=0;n<Game->GetNumWeapons();n++) {
 		sprintf(wpn,"Weapon%d",n+1);
 
+		std::string weap;
 		ReadString(buf,"Weapons",wpn,weap,"");
 
 		if(!CompileWeapon(dir,weap,n))
@@ -188,13 +186,12 @@ int Compile(char *dir)
 
 ///////////////////
 // Compile a weapon
-int CompileWeapon(char *dir, char *weapon, int id)
+int CompileWeapon(const char* dir, const std::string& weapon, int id)
 {
-	weapon_t *Weap = Game->GetWeapons()+id;
+	weapon_t *Weap = Game->GetWriteableWeapons()+id;
 	char file[64];
-	char pfile[64];
 
-	sprintf(file,"%s/%s",dir,weapon);
+	sprintf(file,"%s/%s",dir,weapon.c_str());
 
 	Weap->UseSound = false;
 	Weap->Special = SPC_NONE;
@@ -203,7 +200,7 @@ int CompileWeapon(char *dir, char *weapon, int id)
 	Weap->LaserSight = false;
 
 	ReadString(file,"General","Name",Weap->Name,"");
-	printf("  Compiling Weapon '%s'\n",Weap->Name);
+	printf("  Compiling Weapon '%s'\n",Weap->Name.c_str());
 
 	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
 
@@ -254,9 +251,10 @@ int CompileWeapon(char *dir, char *weapon, int id)
 
 
 	// Load the projectile
+	std::string pfile;
 	ReadString(file,"Projectile","Projectile",pfile,"");
 
-	Weap->Projectile = CompileProjectile(dir,pfile);
+	Weap->Projectile = CompileProjectile(dir,pfile.c_str());
 	if(Weap->Projectile == NULL)
 		return false;
 
@@ -266,7 +264,7 @@ int CompileWeapon(char *dir, char *weapon, int id)
 
 ///////////////////
 // Compile a beam weapon
-void CompileBeam(char *file, weapon_t *Weap)
+void CompileBeam(const char* file, weapon_t *Weap)
 {
 	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
 	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
@@ -279,10 +277,12 @@ void CompileBeam(char *file, weapon_t *Weap)
 	ReadInteger(file, "Beam", "Length", &Weap->Bm_Length, 0);
 	ReadInteger(file, "Beam", "PlayerDamage", &Weap->Bm_PlyDamage, 0);
 
-	char string[64];
+	std::string string;
 	char *tok;
 	ReadString(file,"Beam","Colour",string,"0,0,0");
-	tok = strtok(string,",");	Weap->Bm_Colour[0] = atoi(tok);
+	char tmp[64];
+	strcpy(tmp, string.c_str());
+	tok = strtok(tmp,",");	Weap->Bm_Colour[0] = atoi(tok);
 	tok = strtok(NULL,",");		Weap->Bm_Colour[1] = atoi(tok);
 	tok = strtok(NULL,",");		Weap->Bm_Colour[2] = atoi(tok);
 }
@@ -290,10 +290,8 @@ void CompileBeam(char *file, weapon_t *Weap)
 
 ///////////////////
 // Compile a projectile
-proj_t *CompileProjectile(char *dir, char *pfile)
+proj_t *CompileProjectile(const char* dir, const char* pfile)
 {
-	char prjfile[128];
-
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
 		return NULL;
@@ -307,7 +305,7 @@ proj_t *CompileProjectile(char *dir, char *pfile)
 
 	printf("    Compiling Projectile '%s'\n",pfile);
 	
-	strcpy(proj->filename,pfile);
+	proj->filename = pfile;
 	
 	proj->Timer_Projectiles = false;
 	proj->Hit_Projectiles = false;
@@ -330,17 +328,20 @@ proj_t *CompileProjectile(char *dir, char *pfile)
 	ReadFloat(file,"General","Dampening",&proj->Dampening,1.0f);
 
 	if(proj->Type == PRJ_PIXEL) {
+		std::string tmp;
 		char string[64];
 		char *tok;
 		proj->NumColours = 1;
 
-		if( ReadString(file,"General","Colour1",string,"0,0,0") ) {
+		if( ReadString(file,"General","Colour1",tmp,"0,0,0") ) {
+			strcpy(string, tmp.c_str());
 			tok = strtok(string,",");	proj->Colour1[0] = atoi(tok);
 			tok = strtok(NULL,",");		proj->Colour1[1] = atoi(tok);
 			tok = strtok(NULL,",");		proj->Colour1[2] = atoi(tok);
 		}
 
-		if( ReadString(file,"General","Colour2",string,"0,0,0") ) {
+		if( ReadString(file,"General","Colour2",tmp,"0,0,0") ) {
+			strcpy(string, tmp.c_str());
 			tok = strtok(string,",");	proj->Colour2[0] = atoi(tok);
 			tok = strtok(NULL,",");		proj->Colour2[1] = atoi(tok);
 			tok = strtok(NULL,",");		proj->Colour2[2] = atoi(tok);
@@ -447,9 +448,10 @@ proj_t *CompileProjectile(char *dir, char *pfile)
 		ReadInteger(file,"Projectile","Amount",&proj->ProjAmount,0);
 
 		// Load the projectile
+		std::string prjfile;
 		ReadString(file,"Projectile","Projectile",prjfile,"");
 
-		proj->Projectile = CompileProjectile(dir,prjfile);
+		proj->Projectile = CompileProjectile(dir,prjfile.c_str());
 	}
 
 
@@ -463,9 +465,10 @@ proj_t *CompileProjectile(char *dir, char *pfile)
 		ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl_Spread, 0);
 		
 		// Load the projectile
+		std::string prjfile;
 		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
 
-		proj->PrjTrl_Proj = CompileProjectile(dir,prjfile);
+		proj->PrjTrl_Proj = CompileProjectile(dir,prjfile.c_str());
 	}
 	
 
@@ -475,7 +478,7 @@ proj_t *CompileProjectile(char *dir, char *pfile)
 
 ///////////////////
 // Compile the extra stuff
-int CompileExtra(char *dir)
+int CompileExtra(const char* dir)
 {
 	char file[64];
 
@@ -501,7 +504,7 @@ int CompileExtra(char *dir)
 
 	// Worm
 	printf("  Compiling Worm\n");
-	gs_worm_t *wrm = Game->getWorm();
+	gs_worm_t *wrm = Game->getWriteableWorm();
 
 	ReadFloat( file, "Worm", "AngleSpeed",		&wrm->AngleSpeed, 150);
 	ReadFloat( file, "Worm", "GroundSpeed",		&wrm->GroundSpeed, 8);
@@ -530,11 +533,11 @@ int CompileExtra(char *dir)
 
 ///////////////////
 // Compile the jetpack
-int CompileJetpack(char *file, weapon_t *Weap)
+int CompileJetpack(const char* file, weapon_t *Weap)
 {
 	Weap->Projectile = NULL;
 
-	ReadInteger(file, "JetPack", "Thrust", &Weap->tSpecial.Thrust, 0);
+	ReadInteger(file, "JetPack", "Thrust", (int*)&Weap->tSpecial.Thrust, 0);
 	ReadFloat(file, "JetPack", "Drain", &Weap->Drain, 0);
 	ReadFloat(file, "JetPack", "Recharge", &Weap->Recharge, 0);	
 
@@ -542,3 +545,58 @@ int CompileJetpack(char *file, weapon_t *Weap)
 
 	return true;
 }
+
+
+
+
+
+
+
+// some dummies/stubs are following to be able to compile with OLX sources
+
+FILE* OpenGameFile(const std::string& file, const char* mod) {
+	// stub
+	return fopen(file.c_str(), mod);
+}
+
+bool GetExactFileName(const std::string& fn, std::string& exactfn) {
+	// sub
+	exactfn = fn;
+	return true;
+}
+
+struct SoundSample;
+template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj )
+{
+	errors << "SmartPointer_ObjectDeinit SoundSample: stub" << endl;
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
+{
+	errors << "SmartPointer_ObjectDeinit SDL_Surface: stub" << endl;
+}
+
+SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying) {
+	// stub
+	return NULL;
+}
+
+SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha) {
+	// stub
+	return NULL;
+}
+
+void SetColorKey(SDL_Surface * dst) {} // stub
+
+bool bDedicated = true;
+
+void SetError(const std::string& text) { errors << "SetError: " << text << endl; }
+
+struct GameOptions;
+GameOptions *tLXOptions = NULL;
+
+bool Con_IsInited() { return false; }
+
+CrashHandler* CrashHandler::get() {	return NULL; }
+
+void Con_AddText(int colour, const std::string& text, bool alsoToLogger) {}

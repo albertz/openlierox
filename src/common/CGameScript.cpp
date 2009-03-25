@@ -1052,4 +1052,4 @@ void CGameScript::CopyFrom(CGameScript *cg)
 template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj )
 {
 	delete obj;
-};
+}

@@ -564,42 +564,6 @@ std::string GetBaseFilename(const std::string& filename) {
 }
 
 
-std::string strip(const std::string& buf, int width)
-{
-	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	if (buf.size() == 0)
-		return "";
-	std::string result;
-	result = buf;
-	for(size_t j=result.length()-1; tLX->cFont.GetWidth(result) > width && j != 0; j--)
-		result.erase(result.length()-1);
-
-	return result;
-}
-
-
-bool stripdot(std::string& buf, int width)
-{
-	if (buf.size() == 0)
-		return false;
-
-	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	int dotwidth = tLX->cFont.GetWidth("...");
-	bool stripped = false;
-	for(size_t j=buf.length()-1; tLX->cFont.GetWidth(buf) > width && j != 0; j--)  {
-		buf.erase(buf.length()-1);
-		stripped = true;
-	}
-
-	if(stripped)  {
-		buf = strip(buf,tLX->cFont.GetWidth(buf)-dotwidth);
-		buf += "...";
-	}
-
-	return stripped;
-}
-
-
 
 void ucfirst(std::string& text)
 {
@@ -621,78 +585,6 @@ void ucfirst(std::string& text)
 	}
 
 
-}
-
-//////////////////
-// Splits the str in two pieces, part before space and part after space, if no space is found, the second string is empty
-// Used internally by splitstring
-static void split_by_space(const std::string& str, std::string& before_space, std::string& after_space)
-{
-	size_t spacepos = str.rfind(' ');
-	if (spacepos == std::string::npos || spacepos == str.size() - 1 || str == "")  {
-		before_space = str;
-		after_space = "";
-	} else {
-		before_space = str.substr(0, spacepos);
-		after_space = str.substr(spacepos + 1); // exclude the space
-	}
-}
-
-//////////////////////
-// Splits the string to pieces that none of the pieces can be longer than maxlen and wider than maxwidth
-// TODO: maxlen is the raw len of the next, not the unicode len
-// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
-std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
-{
-	std::vector<std::string> result;
-	
-	// Check
-	if (!str.size())
-		return result;
-
-	std::string::const_iterator it = str.begin();
-	std::string::const_iterator last_it = str.begin();
-	size_t i = 0;
-	std::string token;
-
-	for (it++; it != str.end(); i += IncUtf8StringIterator(it, str.end()))  {
-
-		// Check for maxlen
-		if( i > maxlen )  {
-			std::string before_space;
-			split_by_space(token, before_space, token);
-			result.push_back(before_space);
-			i = token.size();
-		}
-
-		// Check for maxwidth
-		if( (size_t)font.GetWidth(token) <= maxwidth && (size_t)font.GetWidth(token + std::string(last_it, it)) > maxwidth ) {
-			std::string before_space;
-			split_by_space(token, before_space, token);
-			result.push_back(before_space);
-			i = token.size();
-		}
-
-		// handle newline in str
-		if( *it == '\n' ) {
-			result.push_back(token + std::string(last_it, it));
-			token = "";
-			i = 0;
-			last_it = it;
-			++last_it; // don't add the '\n' to token
-			continue;
-		}
-		
-		// Add the current bytes to token
-		token += std::string(last_it, it);
-
-		last_it = it;
-	}
-
-	 // Last token
-	result.push_back(token + std::string(last_it, it));
-
-	return result;
 }
 
 
@@ -909,28 +801,6 @@ std::string HtmlEntityUnpairedBrackets(const std::string &txt)
 	return result;
 }
 
-///////////////////////////////
-// Returns position in the text specified by the substring pixel width
-size_t GetPosByTextWidth(const std::string& text, int width, CFont *fnt)
-{
-	std::string::const_iterator it = text.begin();
-	int w = 0;
-	int next_w = 0;
-	size_t res = 0;
-	while (it != text.end())  {
-
-		UnicodeChar c = GetNextUnicodeFromUtf8(it, text.end());
-		w = next_w;
-		next_w += fnt->GetCharacterWidth(c) + fnt->GetSpacing();
-
-		if (w <= width && width <= next_w)
-			break;
-
-		++res;
-	}
-
-	return res;
-}
 
 ////////////////////
 // Helper function for AutoDetectLinks

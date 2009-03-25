@@ -22,6 +22,7 @@
 
 #include <string>
 #include "CVec.h"
+#include <SDL.h>
 
 #define		MAX_STRING_LENGTH	4096
 #define		MAX_MINOR_LENGTH	256

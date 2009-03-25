@@ -212,7 +212,6 @@ private:
 	std::vector< SmartPointer<SoundSample> > CachedSamples;	// To safely delete the vars, along with CGameScript.
 
 private:
-	//friend class CCache;  // Only cache can call Shutdown/CopyFrom (besides us of course)
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
@@ -246,8 +245,8 @@ public:
 	SoundSample * LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
-
-	const gs_header_t	*GetHeader(void)				{ return &Header; }
+	gs_header_t	*GetWriteableHeader()				{ return &Header; }
+	const gs_header_t	*GetHeader()				{ return &Header; }
 	static bool	isCompatibleWith(int scriptVer, const Version& ver) {
 		if(scriptVer < GS_FIRST_SUPPORTED_VERSION) return false;
 		if(scriptVer > GS_VERSION) return false; // or actually no idea
@@ -257,25 +256,30 @@ public:
 	std::string modName() const { return Header.ModName; }
 	std::string directory() const { return sDirectory; }
 	
-	int			GetNumWeapons(void)				{ return NumWeapons; }
-	const weapon_t	*GetWeapons(void)				{ return Weapons; }
+	int			GetNumWeapons()				{ return NumWeapons; }
+	const weapon_t	*GetWeapons()				{ return Weapons; }
+	weapon_t	*GetWriteableWeapons()				{ return Weapons; }
 
+	void	initNewWeapons(int num)		{ if(Weapons) delete Weapons; SetNumWeapons(num); Weapons = new weapon_t[num]; }
+	
 private:
 	void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
 	void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
 
-
+public:
+	
 	// Ninja Rope settings
 	void		SetRopeLength(int _l)			{ RopeLength = _l; }
 	void		SetRestLength(int _l)			{ RestLength = _l; }
 	void		SetStrength(float _s)			{ Strength = _s; }
+	
+	
+	int			getRopeLength()				{ return RopeLength; }
+	int			getRestLength()				{ return RestLength; }
+	float		getStrength()				{ return Strength; }
 
-public:
-	int			getRopeLength(void)				{ return RopeLength; }
-	int			getRestLength(void)				{ return RestLength; }
-	float		getStrength(void)				{ return Strength; }
-
-	const gs_worm_t	*getWorm(void)					{ return &Worm; }
+	const gs_worm_t	*getWorm()					{ return &Worm; }
+	gs_worm_t	*getWriteableWorm()					{ return &Worm; }
 
 
 };
