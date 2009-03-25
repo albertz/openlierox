@@ -175,6 +175,8 @@ public:
 		RopeLength = 150;
 		RestLength = 20;
 		Strength = 0.5f;
+		
+		ProjCount = 0;
 	}
 
 	~CGameScript() {
@@ -198,6 +200,8 @@ private:
 
 	// Worm
 	gs_worm_t	Worm;
+
+	int 	ProjCount;
 
 
 	// Ninja Rope
@@ -245,7 +249,6 @@ public:
 	SoundSample * LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
-	gs_header_t	*GetWriteableHeader()				{ return &Header; }
 	const gs_header_t	*GetHeader()				{ return &Header; }
 	static bool	isCompatibleWith(int scriptVer, const Version& ver) {
 		if(scriptVer < GS_FIRST_SUPPORTED_VERSION) return false;
@@ -258,37 +261,38 @@ public:
 	
 	int			GetNumWeapons()				{ return NumWeapons; }
 	const weapon_t	*GetWeapons()				{ return Weapons; }
-	weapon_t	*GetWriteableWeapons()				{ return Weapons; }
 
-	void	initNewWeapons(int num)		{ if(Weapons) delete Weapons; SetNumWeapons(num); Weapons = new weapon_t[num]; }
-	
 private:
-	void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
-	void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
+	void	initNewWeapons(int num)		{ if(Weapons) delete Weapons; SetNumWeapons(num); Weapons = new weapon_t[num]; }
+	void	SetNumWeapons(int _w)			{ NumWeapons = _w; }
+	void	SetWeapons(weapon_t *_w)		{ Weapons = _w; }
+
+	
+	// Ninja Rope settings
+	void	SetRopeLength(int _l)			{ RopeLength = _l; }
+	void	SetRestLength(int _l)			{ RestLength = _l; }
+	void	SetStrength(float _s)			{ Strength = _s; }
 
 public:
 	
-	// Ninja Rope settings
-	void		SetRopeLength(int _l)			{ RopeLength = _l; }
-	void		SetRestLength(int _l)			{ RestLength = _l; }
-	void		SetStrength(float _s)			{ Strength = _s; }
 	
-	
-	int			getRopeLength()				{ return RopeLength; }
-	int			getRestLength()				{ return RestLength; }
-	float		getStrength()				{ return Strength; }
+	int		getRopeLength()				{ return RopeLength; }
+	int		getRestLength()				{ return RestLength; }
+	float	getStrength()				{ return Strength; }
 
 	const gs_worm_t	*getWorm()					{ return &Worm; }
-	gs_worm_t	*getWriteableWorm()					{ return &Worm; }
 
-
+	int			getProjectileCount()	{ return ProjCount; }
+	
+	bool		Compile(const std::string& dir);
+	
+private:
+	bool	CompileWeapon(const std::string& dir, const std::string& weapon, int id);
+	void	CompileBeam(const std::string& file, weapon_t *Weap);
+	proj_t  *CompileProjectile(const std::string& dir, const std::string& pfile);
+	bool	CompileExtra(const std::string& dir);
+	bool	CompileJetpack(const std::string& file, weapon_t *Weap);
 };
-
-
-extern int ProjCount;
-bool	initCompiler();
-int		Compile(const char* dir);
-
 
 
 #endif  //  __CGAMESCRIPT_H__

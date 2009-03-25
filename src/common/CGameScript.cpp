@@ -1060,24 +1060,12 @@ template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj )
 
 
 
-
-CGameScript* Game = NULL;
-
-int		CompileWeapon(const char* dir, const std::string& weapon, int id);
-void	CompileBeam(const char* file, weapon_t *Weap);
-proj_t  *CompileProjectile(const char* dir, const char* pfile);
-int		CompileExtra(const char* dir);
-int		CompileJetpack(const char* file, weapon_t *Weap);
-
-int ProjCount = 0;
-
-bool initCompiler() {
-	Game = new CGameScript;
-	if(Game == NULL) {
-		errors << "initCompiler: Out of memory" << endl;
-		return false;
-	}
-
+///////////////////
+// Compile
+bool CGameScript::Compile(const std::string& dir)
+{
+	CGameScript* Game = this;
+	
 	// Add some keywords
 	AddKeyword("WPN_PROJECTILE",WPN_PROJECTILE);
 	AddKeyword("WPN_SPECIAL",WPN_SPECIAL);
@@ -1108,38 +1096,27 @@ bool initCompiler() {
 	AddKeyword("ANI_PINGPONG",ANI_PINGPONG);
 	AddKeyword("true",true);
 	AddKeyword("false",false);
-
-	return true;
-}
-
-
-
-
-///////////////////
-// Compile
-int Compile(const char* dir)
-{
-	char buf[64],wpn[64];
+	
+	
 	int num,n;
-	sprintf(buf,"%s/Main.txt",dir);
-
+	std::string filename = dir + "/Main.txt";
 
 	// Check the file
-	FILE *fp = fopen(buf, "rt");
+	FILE *fp = OpenGameFile(filename, "rt");
 	if(!fp) {
-		printf("Error: Could not open the file '%s' for reading\n",buf);
+		warnings << "CGameScript::Compile: Could not open the file '" << filename << "' for reading" << endl;
 		return false;
 	} else
 		fclose(fp);
 
 
 		std::string modname;
-		ReadString(buf,"General","ModName", modname,"untitled");
-		strcpy(Game->GetWriteableHeader()->ModName, modname.c_str());
+		ReadString(filename,"General","ModName", modname,"untitled");
+		fix_strncpy(Header.ModName, modname.c_str());
 	
-		printf("Compiling '%s'\n",Game->GetHeader()->ModName);
+		notes << "Compiling '" << modName() << "'" << endl;
 
-		ReadInteger(buf,"Weapons","NumWeapons",&num,0);
+		ReadInteger(filename,"Weapons","NumWeapons",&num,0);
 
 
 	// Weapons
@@ -1148,10 +1125,10 @@ int Compile(const char* dir)
 
 	// Compile the weapons
 		for(n=0;n<Game->GetNumWeapons();n++) {
-			sprintf(wpn,"Weapon%d",n+1);
+			std::string wpn = "Weapon" + itoa(n+1);
 
 			std::string weap;
-			ReadString(buf,"Weapons",wpn,weap,"");
+			ReadString(filename,"Weapons",wpn,weap,"");
 
 			if(!CompileWeapon(dir,weap,n))
 				return false;
@@ -1166,12 +1143,12 @@ int Compile(const char* dir)
 
 ///////////////////
 // Compile a weapon
-int CompileWeapon(const char* dir, const std::string& weapon, int id)
+bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapon, int id)
 {
-	weapon_t *Weap = Game->GetWriteableWeapons()+id;
-	char file[64];
-
-	sprintf(file,"%s/%s",dir,weapon.c_str());
+	CGameScript* Game = this;
+	
+	weapon_t *Weap = Game->Weapons+id;
+	std::string file = dir + "/" + weapon;
 
 	Weap->UseSound = false;
 	Weap->Special = SPC_NONE;
@@ -1180,7 +1157,7 @@ int CompileWeapon(const char* dir, const std::string& weapon, int id)
 	Weap->LaserSight = false;
 
 	ReadString(file,"General","Name",Weap->Name,"");
-	printf("  Compiling Weapon '%s'\n",Weap->Name.c_str());
+	notes << "  Compiling Weapon '" << Weap->Name << "'" << endl;
 
 	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
 
@@ -1199,7 +1176,7 @@ int CompileWeapon(const char* dir, const std::string& weapon, int id)
 				break;
 
 			default:
-				printf("   Error: Unknown special type\n");
+				notes << "   Error: Unknown special type" << endl;
 		}
 		return true;
 	}
@@ -1244,7 +1221,7 @@ int CompileWeapon(const char* dir, const std::string& weapon, int id)
 
 ///////////////////
 // Compile a beam weapon
-void CompileBeam(const char* file, weapon_t *Weap)
+void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 {
 	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
 	ReadFloat(file,"General","Recharge",&Weap->Recharge,0);
@@ -1260,7 +1237,7 @@ void CompileBeam(const char* file, weapon_t *Weap)
 	std::string string;
 	char *tok;
 	ReadString(file,"Beam","Colour",string,"0,0,0");
-	char tmp[64];
+	char tmp[64]; // TODO: std::string
 	strcpy(tmp, string.c_str());
 	tok = strtok(tmp,",");	Weap->Bm_Colour[0] = atoi(tok);
 	tok = strtok(NULL,",");		Weap->Bm_Colour[1] = atoi(tok);
@@ -1270,7 +1247,7 @@ void CompileBeam(const char* file, weapon_t *Weap)
 
 ///////////////////
 // Compile a projectile
-proj_t *CompileProjectile(const char* dir, const char* pfile)
+proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string& pfile)
 {
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
@@ -1280,10 +1257,8 @@ proj_t *CompileProjectile(const char* dir, const char* pfile)
 
 	
 	// Load the projectile
-	char file[128];
-	sprintf(file,"%s/%s",dir,pfile);
-
-	printf("    Compiling Projectile '%s'\n",pfile);
+	std::string file = dir + "/" + pfile;
+	notes << "    Compiling Projectile '" << pfile << "'" << endl;
 	
 	proj->filename = pfile;
 	
@@ -1309,7 +1284,7 @@ proj_t *CompileProjectile(const char* dir, const char* pfile)
 
 	if(proj->Type == PRJ_PIXEL) {
 		std::string tmp;
-		char string[64];
+		char string[64]; // TODO: std::string
 		char *tok;
 		proj->NumColours = 1;
 
@@ -1458,17 +1433,16 @@ proj_t *CompileProjectile(const char* dir, const char* pfile)
 
 ///////////////////
 // Compile the extra stuff
-int CompileExtra(const char* dir)
+bool CGameScript::CompileExtra(const std::string& dir)
 {
-	char file[64];
+	CGameScript* Game = this;
+	
+	notes << "   Compiling Extras" << endl;
 
-	printf("Compiling Extras\n");
-
-	sprintf(file,"%s/main.txt",dir);
-
+	std::string file = dir + "/main.txt";
 
 	// Ninja Rope
-	printf("  Compiling Ninja Rope\n");
+	notes << "  Compiling Ninja Rope" << endl;
 
 	int ropel, restl;
 	float strength;
@@ -1483,8 +1457,8 @@ int CompileExtra(const char* dir)
 
 
 	// Worm
-	printf("  Compiling Worm\n");
-	gs_worm_t *wrm = Game->getWriteableWorm();
+	notes << "  Compiling Worm" << endl;
+	gs_worm_t *wrm = &Game->Worm;
 
 	ReadFloat( file, "Worm", "AngleSpeed",		&wrm->AngleSpeed, 150);
 	ReadFloat( file, "Worm", "GroundSpeed",		&wrm->GroundSpeed, 8);
@@ -1513,7 +1487,7 @@ int CompileExtra(const char* dir)
 
 ///////////////////
 // Compile the jetpack
-int CompileJetpack(const char* file, weapon_t *Weap)
+bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 {
 	Weap->Projectile = NULL;
 

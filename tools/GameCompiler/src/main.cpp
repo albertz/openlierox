@@ -27,7 +27,7 @@
 #include "CrashHandler.h"
 
 
-extern CGameScript	*Game;
+
 
 
 // Prototypes
@@ -50,11 +50,14 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if(!initCompiler())
-		return 1;
+	CGameScript	*Game = new CGameScript;
+	if(Game == NULL) {
+		errors << "GameCompiler: Out of memory while creating gamescript" << endl;
+		return false;
+	}
 
 	// Compile
-	int comp = Compile(argv[1]);
+	bool comp = Game->Compile(argv[1]);
 
 	// Only save if the compile went ok
 	if(comp) {
