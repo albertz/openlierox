@@ -32,7 +32,7 @@ static const Version GS_MinLxVersion[] = {
 #define		GS_FIRST_SUPPORTED_VERSION	GS_LX56_VERSION
 #define		GS_MINLXVERSION(ver)	GS_MinLxVersion[ver - GS_FIRST_SUPPORTED_VERSION]
 // current most recent version
-#define		GS_VERSION		7
+#define		GS_VERSION		8
 
 // Error codes
 #define		GSE_OK			1

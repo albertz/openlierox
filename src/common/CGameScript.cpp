@@ -154,15 +154,22 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
     // Pixel type
 	if(proj->Type == PRJ_PIXEL) {
-		fwrite_endian((proj->NumColours), sizeof(int), 1, fp);
-		fwrite_endian(((int)proj->Colour1.r),   sizeof(int),1,fp);
-		fwrite_endian(((int)proj->Colour1.g),   sizeof(int),1,fp);
-		fwrite_endian(((int)proj->Colour1.b),   sizeof(int),1,fp);
-		if(proj->NumColours == 2)
-		{
-			fwrite_endian(((int)proj->Colour2.r),   sizeof(int),1,fp);
-			fwrite_endian(((int)proj->Colour2.g),   sizeof(int),1,fp);
-			fwrite_endian(((int)proj->Colour2.b),   sizeof(int),1,fp);
+		fwrite_endian(((int)proj->Colour.size()), sizeof(int), 1, fp);
+		for(size_t i = 0; i < proj->Colour.size(); ++i) {
+			if(Header.Version <= GS_LX56_VERSION && i >= 2) {
+				warnings << "SaveProjectile: projectile has more than 2 colors, other colors are ignored for LX56 format" << endl;
+				break;
+			}
+			if(Header.Version <= GS_LX56_VERSION) {
+				fwrite_endian(((int)proj->Colour[i].r),   sizeof(int),1,fp);
+				fwrite_endian(((int)proj->Colour[i].g),   sizeof(int),1,fp);
+				fwrite_endian(((int)proj->Colour[i].b),   sizeof(int),1,fp);
+			} else {
+				fwrite_endian((proj->Colour[i].r), 1,1,fp);
+				fwrite_endian((proj->Colour[i].g), 1,1,fp);
+				fwrite_endian((proj->Colour[i].b), 1,1,fp);
+				fwrite_endian((proj->Colour[i].a), 1,1,fp);	
+			}
 		}
 	}
 
@@ -540,23 +547,26 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Timer_Shake = 0;
 
 	if(proj->Type == PRJ_PIXEL) {
-		fread(&proj->NumColours, sizeof(int), 1, fp);
-		EndianSwap(proj->NumColours);
-		int color[3];
-		fread(color,sizeof(int),3,fp);
-		EndianSwap(color[0]);
-		EndianSwap(color[1]);
-		EndianSwap(color[2]);
-		proj->Colour1 = Color(color[0],color[1],color[2]);
-		if(proj->NumColours == 2)
-		{
-			fread(color,sizeof(int),3,fp);
-			EndianSwap(color[0]);
-			EndianSwap(color[1]);
-			EndianSwap(color[2]);
-			proj->Colour2 = Color(color[0],color[1],color[2]);
+		Uint32 NumColours; assert(sizeof(Uint32) == sizeof(int));
+		fread(&NumColours, sizeof(int), 1, fp);
+		EndianSwap(NumColours);
+		proj->Colour.resize(NumColours);
+		
+		for(size_t i = 0; i < NumColours; ++i) {
+			if(Header.Version <= GS_LX56_VERSION) {
+				int color[3];
+				fread(color,sizeof(int),3,fp);
+				EndianSwap(color[0]);
+				EndianSwap(color[1]);
+				EndianSwap(color[2]);
+				proj->Colour[i] = Color(color[0],color[1],color[2]);
+			} else {
+				fread(&proj->Colour[i].r,1,1,fp);
+				fread(&proj->Colour[i].g,1,1,fp);
+				fread(&proj->Colour[i].b,1,1,fp);
+				fread(&proj->Colour[i].a,1,1,fp);
+			}
 		}
-
 	}
 	else if(proj->Type == PRJ_IMAGE) {
         proj->ImgFilename = readString(fp);
@@ -1244,7 +1254,7 @@ void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 	ReadInteger(file, "Beam", "PlayerDamage", &Weap->Bm_PlyDamage, 0);
 
 	std::string string;
-	ReadColour(file,"Beam","Colour",Weap->Bm_Colour,tLX->clBlack);
+	ReadColour(file,"Beam","Colour",Weap->Bm_Colour,Color());
 }
 
 
@@ -1287,12 +1297,14 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	if(proj->Type == PRJ_PIXEL) {
 		std::string tmp;
-		proj->NumColours = 1;
+		proj->Colour.clear();
 
-		ReadColour(file,"General","Colour1",proj->Colour1,tLX->clBlack);
-
-		if( ReadColour(file,"General","Colour2",proj->Colour2,tLX->clBlack) ) {
-			proj->NumColours = 2;
+		for(size_t i = 0; ; ++i) {
+			Color col;
+			if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) || i == 0 ) {
+				proj->Colour.push_back(col);
+			} else
+				break;
 		}
 
 	} else if(proj->Type == PRJ_IMAGE) {

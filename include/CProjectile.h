@@ -18,6 +18,7 @@
 #define __CPROJECTILE_H__
 
 #include <string>
+#include <vector>
 #include "Event.h"
 #include "types.h"
 #include "Color.h"
@@ -44,15 +45,13 @@ class CViewport;
 
 
 // Projectile structure
-class proj_t { public:
+struct proj_t {
 	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 
 	int		Type;
 	int		Trail;
-	int		NumColours;
-	Color	Colour1;
-	Color	Colour2;
+	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
 	int		Rotating;
 	int		RotIncrement;

@@ -45,7 +45,7 @@ int		ReadVec(const std::string& filename, const std::string& section, const std:
 //int		ReadRegion(std::string& filename, std::string& section, std::string& key, CRegion *value);
 
 struct Color;
-int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, Uint32 defaultv);
+int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv);
 
 
 

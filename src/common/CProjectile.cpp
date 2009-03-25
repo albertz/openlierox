@@ -72,12 +72,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 	// Choose a colour
 	if(tProjInfo->Type == PRJ_PIXEL) {
-		int c = GetRandomInt(tProjInfo->NumColours-1);
-		if(c == 0)
-			iColour = tProjInfo->Colour1.get();
-		else if(c==1)
-			iColour = tProjInfo->Colour1.get();
-		// TODO: other colors
+		int c = GetRandomInt(tProjInfo->Colour.size()-1);
+		iColour = tProjInfo->Colour[c].get();
 		
 		iColSize = 1;
 	} else

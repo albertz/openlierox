@@ -162,9 +162,9 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 }
 
 
-int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, Uint32 defaultv) {
+int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv) {
 	Uint32 col = 0;
-	int ret = ReadColour(filename, section, key, &col, defaultv);
+	int ret = ReadColour(filename, section, key, &col, defaultv.get());
 	if(ret)
 		value = Color(col);
 	return ret;
