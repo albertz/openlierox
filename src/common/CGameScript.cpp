@@ -78,9 +78,17 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
 			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
 
-			fwrite_endian(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
-			fwrite_endian(((int)wpn->Bm_Colour.g), sizeof(int), 1, fp);
-			fwrite_endian(((int)wpn->Bm_Colour.b), sizeof(int), 1, fp);
+			if(Header.Version <= GS_LX56_VERSION) {
+				fwrite_endian(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
+				fwrite_endian(((int)wpn->Bm_Colour.g), sizeof(int), 1, fp);
+				fwrite_endian(((int)wpn->Bm_Colour.b), sizeof(int), 1, fp);
+			}
+			else {
+				fwrite_endian(wpn->Bm_Colour.r, 1, 1, fp);
+				fwrite_endian(wpn->Bm_Colour.g, 1, 1, fp);
+				fwrite_endian(wpn->Bm_Colour.b, 1, 1, fp);
+				fwrite_endian(wpn->Bm_Colour.a, 1, 1, fp);
+			}
 			fwrite_endian((wpn->Bm_Damage), sizeof(int),    1, fp);
 			fwrite_endian((wpn->Bm_PlyDamage), sizeof(int), 1, fp);
 			fwrite_endian((wpn->Bm_Length), sizeof(int),    1, fp);
@@ -424,14 +432,22 @@ int CGameScript::Load(const std::string& dir)
 			fread(&wpn->LaserSight, sizeof(int),    1, fp);
 			EndianSwap(wpn->LaserSight);
 
-			int r,g,b;
-			fread(&r, sizeof(int),  1, fp);
-			fread(&g, sizeof(int),  1, fp);
-			fread(&b, sizeof(int),  1, fp);
-			EndianSwap(r);
-			EndianSwap(g);
-			EndianSwap(b);
-			wpn->Bm_Colour = Color(r,g,b);
+			if(Header.Version <= GS_LX56_VERSION) {
+				int r,g,b;
+				fread(&r, sizeof(int),  1, fp);
+				fread(&g, sizeof(int),  1, fp);
+				fread(&b, sizeof(int),  1, fp);
+				EndianSwap(r);
+				EndianSwap(g);
+				EndianSwap(b);
+				wpn->Bm_Colour = Color(r,g,b);
+			}
+			else {
+				fread(&wpn->Bm_Colour.r, 1,  1, fp);
+				fread(&wpn->Bm_Colour.g, 1,  1, fp);
+				fread(&wpn->Bm_Colour.b, 1,  1, fp);
+				fread(&wpn->Bm_Colour.a, 1,  1, fp);
+			}
 			
 			fread(&wpn->Bm_Damage, sizeof(int),     1, fp);
 			EndianSwap(wpn->Bm_Damage);
