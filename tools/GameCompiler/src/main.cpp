@@ -46,7 +46,6 @@ int main(int argc, char *argv[])
 
 
 	if( !CheckArgs(argc, argv) ) {
-		delete Game;
 		return 1;
 	}
 
@@ -66,7 +65,7 @@ int main(int argc, char *argv[])
 	}
 
 	if(comp)
-		printf("\nInfo:\nWeapons: %d\nProjectiles: %d\n",Game->GetNumWeapons(),ProjCount);
+		printf("\nInfo:\nWeapons: %d\nProjectiles: %d\n",Game->GetNumWeapons(),Game->getProjectileCount());
 
 	if(Game) {
 		delete Game;
