@@ -7,6 +7,9 @@
 //
 /////////////////////////////////////////
 
+// OpenLieroX
+// code under LGPL
+
 
 // Main compiler
 // Created 7/2/02
@@ -45,11 +48,10 @@ int ProjCount = 0;
 // Main entry point
 int main(int argc, char *argv[])
 {
-	notes << "Liero Xtreme Game Script Compiler v0.3" << endl;
-	notes << GetGameVersion().asString() << endl;
+	notes << "Liero Xtreme Game Script Compiler" << endl;
 	notes << "(c) ..-2002  Auxiliary Software " << endl;
 	notes << "    2002-..  OpenLieroX team" << endl;
-	notes << "code under LGPL" << endl;
+	notes << "Version: " << GetGameVersion().asString() << endl;
 	notes << "GameScript Version: " << GS_VERSION << endl << endl << endl;
 
 
