@@ -285,6 +285,9 @@ public:
 };
 
 
+extern int ProjCount;
+bool	initCompiler();
+int		Compile(const char* dir);
 
 
 
