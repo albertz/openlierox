@@ -91,8 +91,6 @@ public:
 		}
 	}
 
-	// TODO: Ripped from my personal G15 header file, perhaps put in it's own headerfile here too?
-
 	// Small can take up to 40 characters. 3 pix wide 1 pix spacing 6 pix high (4x6)
 	// Medium can take up to 32 characters. 4 pix wide 1 pix spacing 7 pix high (5x7)
 	// Large can take up to 20 characters. 7 pix wide 1 pix spacing 8 pix high (8x8)

@@ -104,7 +104,7 @@ bool OLXG15_t::init()
 
 void OLXG15_t::menuFrame()
 {
-	lastFrame += tLX->fRealDeltaTime;
+	lastFrame += tLX->fRealDeltaTime.seconds();
 	if (lastFrame < G15FRAMETIME)
 		return;
 	lastFrame = 0.0f;
@@ -119,7 +119,7 @@ void OLXG15_t::menuFrame()
 }
 void OLXG15_t::gameFrame()
 {
-	lastFrame += tLX->fRealDeltaTime;
+	lastFrame += tLX->fRealDeltaTime.seconds();
 	if (lastFrame < G15FRAMETIME)
 		return;
 	lastFrame = 0.0f;
@@ -131,7 +131,7 @@ void OLXG15_t::gameFrame()
 		timeval curTime;
 		gettimeofday(&curTime,NULL);
 
-		timeShown += tLX->fRealDeltaTime;
+		timeShown += tLX->fRealDeltaTime.seconds();
 		if (timeShown >= G15SPLASHTIME || startTime.tv_sec + (int) G15SPLASHTIME < curTime.tv_sec)
 		{
 			// TODO: ATM it looks better to show the logo until a game starts.
