@@ -21,6 +21,7 @@
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Version.h"
+#include "Color.h"
 
 static const Version GS_MinLxVersion[] = {
 	Version(), // for GS_VERSION == 7
@@ -149,7 +150,7 @@ class weapon_t { public:
 	proj_t	*Projectile;
 
 	// Beam
-	int		Bm_Colour[3];
+	Color	Bm_Colour;
 	int		Bm_Damage;
 	int		Bm_PlyDamage;
 	int		Bm_Length;

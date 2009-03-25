@@ -161,6 +161,15 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 
 }
 
+
+int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, Uint32 defaultv) {
+	Uint32 col = 0;
+	int ret = ReadColour(filename, section, key, &col, defaultv);
+	if(ret)
+		value = Color(col);
+	return ret;
+}
+
 //////////////////
 // Reads an array of integers
 int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)

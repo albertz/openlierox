@@ -74,10 +74,11 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	if(tProjInfo->Type == PRJ_PIXEL) {
 		int c = GetRandomInt(tProjInfo->NumColours-1);
 		if(c == 0)
-			iColour = MakeColour(tProjInfo->Colour1[0], tProjInfo->Colour1[1], tProjInfo->Colour1[2]);
+			iColour = tProjInfo->Colour1.get();
 		else if(c==1)
-			iColour = MakeColour(tProjInfo->Colour2[0], tProjInfo->Colour2[1], tProjInfo->Colour2[2]);
-
+			iColour = tProjInfo->Colour1.get();
+		// TODO: other colors
+		
 		iColSize = 1;
 	} else
 		iColSize = 2;

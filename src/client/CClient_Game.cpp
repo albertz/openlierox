@@ -706,7 +706,7 @@ void CClient::DrawBeam(CWorm *w)
 
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
-	Uint32 col = MakeColour(Slot->Weapon->Bm_Colour[0], Slot->Weapon->Bm_Colour[1], Slot->Weapon->Bm_Colour[2]);
+	Uint32 col = Slot->Weapon->Bm_Colour.get();
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to DrawBeam.
 	if(col != tLX->clPink && w->isVisibleForEverybody()) {

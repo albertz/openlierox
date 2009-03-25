@@ -147,7 +147,7 @@ void SaveProfiles(void)
 	fwrite("lx:profile", 32, fp);
 
 	int ver = PROFILE_VERSION;
-	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
+	fwrite_endian((ver), sizeof(int), 1, fp);
 
 
 	// Count how many profiles we have
@@ -155,7 +155,7 @@ void SaveProfiles(void)
 	for(;p;p=p->tNext)
         Num++;
 
-	fwrite(GetEndianSwapped(Num), sizeof(int), 1, fp);
+	fwrite_endian((Num), sizeof(int), 1, fp);
 
 
 	p = tProfiles;
@@ -194,7 +194,7 @@ void ShutdownProfiles(void)
 	
 	
 	int ver = PROFILE_VERSION;
-	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
+	fwrite_endian((ver), sizeof(int), 1, fp);
 
 
 	// Count how many profiles we have
@@ -202,7 +202,7 @@ void ShutdownProfiles(void)
 	for(;p;p=p->tNext)
         Num++;
 
-	fwrite(GetEndianSwapped(Num), sizeof(int), 1, fp);
+	fwrite_endian((Num), sizeof(int), 1, fp);
 
 
 	p = tProfiles;
@@ -290,8 +290,8 @@ void SaveProfile(FILE *fp, profile_t *p)
 	// Name & Type
 	fwrite(p->sName,	32,	fp);
 	fwrite(p->cSkin.getFileName(),    128,fp);
-    fwrite(GetEndianSwapped(p->iType),   sizeof(int),    1,  fp);
-    fwrite(GetEndianSwapped(p->nDifficulty),sizeof(int), 1,  fp);
+    fwrite_endian((p->iType),   sizeof(int),    1,  fp);
+    fwrite_endian((p->nDifficulty),sizeof(int), 1,  fp);
 
 	// Multiplayer
 	fwrite(p->sUsername, 	16, fp);

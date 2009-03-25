@@ -20,6 +20,7 @@
 #include <string>
 #include "Event.h"
 #include "types.h"
+#include "Color.h"
 
 struct SDL_Surface;
 class CWorm;
@@ -50,8 +51,8 @@ class proj_t { public:
 	int		Type;
 	int		Trail;
 	int		NumColours;
-	int		Colour1[3];
-	int		Colour2[3];
+	Color	Colour1;
+	Color	Colour2;
 	std::string	ImgFilename; // (was 64b before)
 	int		Rotating;
 	int		RotIncrement;

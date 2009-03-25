@@ -73,12 +73,6 @@ bool MouseInRect(int x, int y, int w, int h)
 
 
 
-// for GetByteSwapped, declared in EndianSwap.h
-// TODO: remove this from here (or not?)
-unsigned char byteswap_buffer[16];
-
-
-
 
 void printf(const std::string& txt) {
 	notes << txt << flush;

@@ -2229,13 +2229,13 @@ bool CMap::Save(const std::string& name, const std::string& filename)
 	int		version = MAP_VERSION;
 
 	fwrite("LieroX Level",	32,	fp);
-	fwrite(GetEndianSwapped(version),	sizeof(int),	1,	fp);
+	fwrite_endian((version),	sizeof(int),	1,	fp);
 	fwrite(name,	64,	fp);
-	fwrite(GetEndianSwapped(Width),		sizeof(int),	1,	fp);
-	fwrite(GetEndianSwapped(Height),		sizeof(int),	1,	fp);
-	fwrite(GetEndianSwapped(Type),		sizeof(int),	1,	fp);
+	fwrite_endian((Width),		sizeof(int),	1,	fp);
+	fwrite_endian((Height),		sizeof(int),	1,	fp);
+	fwrite_endian((Type),		sizeof(int),	1,	fp);
 	fwrite(Theme.name,	32,	fp);
-	fwrite(GetEndianSwapped(NumObjects),	sizeof(int),	1,	fp);
+	fwrite_endian((NumObjects),	sizeof(int),	1,	fp);
 
 
 	// Save the images if in an image format
@@ -2263,10 +2263,10 @@ bool CMap::Save(const std::string& name, const std::string& filename)
 	// Objects
 	object_t *o = Objects;
 	for(int i=0;i<NumObjects;i++,o++) {
-		fwrite(GetEndianSwapped(o->Type),sizeof(int),	1,	fp);
-		fwrite(GetEndianSwapped(o->Size),sizeof(int),	1,	fp);
-		fwrite(GetEndianSwapped(o->X),	sizeof(int),	1,	fp);
-        fwrite(GetEndianSwapped(o->Y),	sizeof(int),	1,	fp);
+		fwrite_endian((o->Type),sizeof(int),	1,	fp);
+		fwrite_endian((o->Size),sizeof(int),	1,	fp);
+		fwrite_endian((o->X),	sizeof(int),	1,	fp);
+        fwrite_endian((o->Y),	sizeof(int),	1,	fp);
 	}
 
 	fclose(fp);
@@ -2355,8 +2355,8 @@ bool CMap::SaveImageFormat(FILE *fp)
 	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
 
 	// Write out the details & the data
-	fwrite(GetEndianSwapped(destsize), sizeof(Uint32), 1, fp);
-	fwrite(GetEndianSwapped(size), sizeof(Uint32), 1, fp);
+	fwrite_endian((destsize), sizeof(Uint32), 1, fp);
+	fwrite_endian((size), sizeof(Uint32), 1, fp);
 	fwrite(pDest, sizeof(uchar), destsize, fp);
 
 	delete[] pSource;

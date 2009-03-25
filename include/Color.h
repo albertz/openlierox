@@ -87,7 +87,7 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 
 // Device-independent color
-class Color  { public:
+struct Color {
 	Color() : r(0), g(0), b(0), a(0) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b) : r(_r), g(_g), b(_b), a(SDL_ALPHA_OPAQUE) {}
 	Color(Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
@@ -100,9 +100,9 @@ class Color  { public:
 	Uint8 b;
 	Uint8 a;
 
-	Uint32 get() { return get(getMainPixelFormat()); }
-	Uint32 get(SDL_PixelFormat *f)  { return SDL_MapRGBA(f, r, g, b, a); }
-	void set(SDL_PixelFormat *f, Uint32 cl)	{ SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
+	Uint32 get() const { return get(getMainPixelFormat()); }
+	Uint32 get(SDL_PixelFormat *f) const { return SDL_MapRGBA(f, r, g, b, a); }
+	void set(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	
 	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
 	bool operator != ( const Color & c ) const { return ! ( *this == c ); };

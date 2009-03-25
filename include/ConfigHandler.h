@@ -44,11 +44,13 @@ int		ReadIntArray(const std::string& filename, const std::string& section, const
 int		ReadVec(const std::string& filename, const std::string& section, const std::string& key, CVec *value);
 //int		ReadRegion(std::string& filename, std::string& section, std::string& key, CRegion *value);
 
+struct Color;
+int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, Uint32 defaultv);
 
 
 
 // Keywords
-class keyword_t { public:
+struct keyword_t {
 	std::string key;
 	int  Value;
 };

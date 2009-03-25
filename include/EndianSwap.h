@@ -11,6 +11,7 @@
 #define __ENDIANSWAP_H__
 
 #include <SDL.h>
+#include <cstdio>
 
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
@@ -27,10 +28,9 @@ inline void ByteSwap(unsigned char * b, int n) {
 extern unsigned char byteswap_buffer[16];
 
 template <typename T>
-inline T* GetByteSwapped(const T b) {
-	*((T*)byteswap_buffer) = b;
-	ByteSwap(byteswap_buffer, sizeof(T));
-	return (T*)byteswap_buffer;
+T GetByteSwapped(T b) {
+	ByteSwap(&b, sizeof(T));
+	return b;
 }
 
 #if !defined(SDL_BYTEORDER)
@@ -39,7 +39,7 @@ inline T* GetByteSwapped(const T b) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #	define EndianSwap(x)		;
 #	define BEndianSwap(x)		ByteSwap5(x);
-#	define GetEndianSwapped(x)	(&x)
+#	define GetEndianSwapped(x)	(x)
 #elif SDL_BYTEORDER == SDL_BIG_ENDIAN
 #	define EndianSwap(x)		ByteSwap5(x);
 #	define BEndianSwap(x)		;
@@ -48,5 +48,11 @@ inline T* GetByteSwapped(const T b) {
 #	error unknown ENDIAN type
 #endif
 
+
+template <typename T>
+size_t fwrite_endian(T data, size_t size, size_t nmemb, FILE* stream) {
+	data = GetEndianSwapped(data);
+	return fwrite(&data, size, nmemb, stream);
+}
 
 #endif
