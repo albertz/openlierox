@@ -786,8 +786,10 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 	else  {
 		// Start the game
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
-		cServer->StartGame();	// start in dedicated mode
-
+		if(!cServer->StartGame()) {	// start in dedicated mode
+			return "cannot start the game, there was some error";
+		}
+		
 		// Leave the frontend
 		*DeprecatedGUI::bGame = true;
 		DeprecatedGUI::tMenu->bMenuRunning = false;

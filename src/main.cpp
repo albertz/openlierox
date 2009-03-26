@@ -906,8 +906,13 @@ void GameLoopFrame(void)
 
 		// If we are connected, just start the game straight away (bypass lobby in local)
 		if(cClient->getStatus() == NET_CONNECTED) {
-			if(cServer->getState() == SVS_LOBBY)
-				cServer->StartGame();
+			if(cServer->getState() == SVS_LOBBY) {
+				if(!cServer->StartGame()) {
+					errors << "starting game in local game failed for some reason" << endl;
+					GotoLocalMenu();
+					return;
+				}
+			}
 		}
 
 		cClient->Draw(VideoPostProcessor::videoSurface());

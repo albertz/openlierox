@@ -940,7 +940,11 @@ struct DedIntern {
 
 		// Start the game
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
-		cServer->StartGame();
+		if(!cServer->StartGame()) {
+			caller->writeMsg("cannot start game, got some error");
+			Sig_ErrorStartGame();
+			return;			
+		}
 
 		// Leave the frontend
 		*DeprecatedGUI::bGame = true;

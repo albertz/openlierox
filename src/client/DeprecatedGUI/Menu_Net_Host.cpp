@@ -1265,6 +1265,12 @@ bool Menu_Net_HostStartGame()
 	// Get the game type
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 
+	// Start the game
+	if(!cServer->StartGame()) {	// Dedicated if no start button pressed
+		errors << "Could not start the game for some reason" << endl;
+		return false;
+	}
+	
 	// Get the map name
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
@@ -1274,9 +1280,6 @@ bool Menu_Net_HostStartGame()
 
 	// Setup the client
 	cClient->SetupViewports();
-
-	// Start the game
-	cServer->StartGame();	// Dedicated if no start button pressed
 
 	// Leave the frontend
 	*bGame = true;
