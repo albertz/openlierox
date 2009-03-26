@@ -291,17 +291,7 @@ bool GameServer::serverChoosesWeapons() {
 ///////////////////
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::StartGame()
-{
-	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	RemoveSocketFromNotifierGroup( tSocket );
-	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
-		if (IsSocketStateValid(it->tTraverseSocket))
-			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
-		if (IsSocketStateValid(it->tConnectHereSocket))
-			RemoveSocketFromNotifierGroup(it->tConnectHereSocket);
-	}
-
-	
+{	
 	// Check that gamespeed != 0
 	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GameSpeed] && (float)tLXOptions->tGameInfo.features[FT_GameSpeed] <= 0.05f) {
 		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
@@ -472,6 +462,7 @@ mapCreate:
 
 	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
 	{
+		warnings << "New net engine enabled, we are disabling some features" << endl;
 		NewNet::DisableAdvancedFeatures();
 	}
 
@@ -502,6 +493,15 @@ mapCreate:
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
 
+	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
+	RemoveSocketFromNotifierGroup( tSocket );
+	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if (IsSocketStateValid(it->tTraverseSocket))
+			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
+		if (IsSocketStateValid(it->tConnectHereSocket))
+			RemoveSocketFromNotifierGroup(it->tConnectHereSocket);
+	}
+	
 	// Re-register the server to reflect the state change
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
 		RegisterServerUdp();
