@@ -1815,11 +1815,11 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	DeprecatedGUI::CBrowser *lv = cChatList;
 
 	// Get any new lines
-	line_t *l = NULL;
+	line_t l;
 	//int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
-	while((l = cChatbox.GetNewLine()) != NULL) {
-		lv->AddChatBoxLine(l->strLine, l->iColour, l->iTextType);
+	while(cChatbox.GetNewLine(l)) {
+		lv->AddChatBoxLine(l.strLine, l.iColour, l.iTextType);
 	}
 
     // If there are too many lines, remove the top one

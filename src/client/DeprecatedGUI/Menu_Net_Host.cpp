@@ -930,12 +930,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
     // Add chat to the listbox
 	CBrowser *lv = (CBrowser *)cHostLobby.getWidget(hl_ChatList);
-	line_t *l = NULL;
+	line_t l;
 
-	while((l = cClient->getChatbox()->GetNewLine()) != NULL) {
+	while(cClient->getChatbox()->GetNewLine(l)) {
 
         //if(lv->getLastItem() != NULL)
-        lv->AddChatBoxLine(l->strLine, l->iColour, l->iTextType);
+        lv->AddChatBoxLine(l.strLine, l.iColour, l.iTextType);
 
         // If there are too many lines, remove the top one
         //if(lv->getItemCount() > 256) {

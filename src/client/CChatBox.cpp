@@ -61,17 +61,15 @@ void CChatBox::AddText(const std::string& txt, int colour, TXT_TYPE TextType, co
 /////////////////////
 // Get a new line from the chatbox
 // WARNING: not threadsafe
-line_t *CChatBox::GetNewLine(void)
+bool CChatBox::GetNewLine(line_t& res)
 {
 	if (NewLines.empty())
-		return NULL;
+		return false;
 
-	// TODO: change it!!!
-	static line_t result; // We're giving a pointer to it, must always exist
-	result = *NewLines.begin();
+	res = *NewLines.begin();
 	NewLines.erase(NewLines.begin());
 
-	return &result;
+	return true;
 }
 
 ////////////////////

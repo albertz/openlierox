@@ -27,7 +27,7 @@
 
 
 // Line structure
-class line_t { public:
+struct line_t {
 	std::string	strLine;
 	Uint32	iColour;
 	TXT_TYPE iTextType;
@@ -57,7 +57,7 @@ private:
 
 public:
 	// Methods
-	void	Clear(void);
+	void	Clear();
 	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, const AbsTime& time);
 
     // Variables
@@ -66,8 +66,8 @@ public:
 	lines_iterator At(int i);
 	lines_riterator RBegin()  { return Lines.rbegin(); }
 	lines_riterator REnd()  { return Lines.rend(); }
-	line_t *GetNewLine(void);
-	size_t		getNumLines(void)	{ return Lines.size(); }
+	bool GetNewLine(line_t& ln);
+	size_t		getNumLines()	{ return Lines.size(); }
 };
 
 

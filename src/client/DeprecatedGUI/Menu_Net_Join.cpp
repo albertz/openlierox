@@ -713,9 +713,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 	// Add chat to the listbox
 	CBrowser *lv = (CBrowser *)cJoinLobby.getWidget(jl_ChatList);
-    line_t *ln = NULL;
-	while((ln = cClient->getChatbox()->GetNewLine()) != NULL) {
-		lv->AddChatBoxLine(ln->strLine, ln->iColour, ln->iTextType);
+    line_t ln;
+	while(cClient->getChatbox()->GetNewLine(ln)) {
+		lv->AddChatBoxLine(ln.strLine, ln.iColour, ln.iTextType);
 	}
 
 
