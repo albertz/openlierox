@@ -904,8 +904,17 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	// Draw the worm
-	if (isWormVisible(this, v))
-		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+	if (isWormVisible(this, v)) {
+		bool drawIt = true;
+		if(fabs(fDamageFactor) >= 2.0f) {
+			// do kind of a "super" animation
+			drawIt = (tLX->currentTime.milliseconds() % 100 > 40);
+		}
+		
+		if(drawIt)
+			cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+	}
+	
 	/*FillSurfaceTransparent(bmpShadowPic.get());
 	if(iDirection == DIR_RIGHT)
 		CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
