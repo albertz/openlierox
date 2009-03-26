@@ -298,10 +298,9 @@ size_t CCache::GetEntryCount() {
 
 void CCache::ClearExtraEntries()
 {
-	ScopedLock lock(mutex);
-	
 	static const int estimatedCacheEntrySize = 1024*300;
-	int estimatedMaxPossibleEntries = GetFreeSysMemory() / estimatedCacheEntrySize;
+	size_t availableMem = GetFreeSysMemory() + GetCacheSize();
+	int estimatedMaxPossibleEntries = availableMem / estimatedCacheEntrySize;
 	if(estimatedMaxPossibleEntries < tLXOptions->iMaxCachedEntries) {
 		warnings << "The estimated possible max entry count in cache (" << estimatedMaxPossibleEntries << ") ";
 		warnings << "is lower than the current set maximum (" << tLXOptions->iMaxCachedEntries << ")" << endl;
@@ -310,6 +309,8 @@ void CCache::ClearExtraEntries()
 		tLXOptions->iMaxCachedEntries = estimatedMaxPossibleEntries;
 	}
 
+	ScopedLock lock(mutex);
+	
 	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 50 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
 		typedef std::multimap< AbsTime, MapCache_t :: iterator > TimeSorted_t;
