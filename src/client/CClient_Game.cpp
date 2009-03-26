@@ -262,7 +262,6 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 {
 	int		x,y,px;
 	ushort i;
-	CWorm	*w;
 	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
     bool    gotDirt = false;
 
@@ -351,7 +350,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 	// Check if any worm is near the explosion, for both my worms and remote worms
 	for(i=0;i<MAX_WORMS;i++) {
-		w = & cRemoteWorms[i];
+		CWorm* w = & cRemoteWorms[i];
 
 		if( !w->isUsed() || !w->getAlive())
 			continue;
@@ -380,6 +379,9 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	}
 
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
+	if(ownerWorm && ownerWorm->damageFactor() != 1.0f)
+		damage = int(float(damage) * ownerWorm->damageFactor());
+	
 	ushort i;
 	
 	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TeamInjure] && !me && w->getTeam() == ownerWorm->getTeam())

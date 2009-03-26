@@ -81,7 +81,7 @@ public:
 	virtual void SendTeamScoreUpdate() {}
 	virtual void SendWormProperties(CWorm* worm);
 	void SendWormProperties(bool onlyIfNotDef); // for all worms
-	bool isWormPropertyDefault(CWorm* worm);
+	static bool isWormPropertyDefault(CWorm* worm);
 	
 protected:
 	// Attributes

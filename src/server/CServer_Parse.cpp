@@ -1549,7 +1549,6 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 		newcl->getNetEngine()->SendPrepareGame();
 
-		newcl->getNetEngine()->SendWormProperties(true);
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
@@ -1571,6 +1570,19 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		SendWeapons(newcl);
 		
 		m_flagInfo->sendCurrentState(newcl);
+
+		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
+		
+		// send other clients non-default worm properties of new worms 
+		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			if(CServerNetEngine::isWormPropertyDefault(*w)) continue;
+				
+			for( int i = 0; i < MAX_CLIENTS; i++ ) {
+				if( newcl == &cClients[i] || cClients[i].getStatus() != NET_CONNECTED )
+					continue;
+				cClients[i].getNetEngine()->SendWormProperties(*w); // if we have changed them in prepare or so
+			}
+		}
 	}
 }
 

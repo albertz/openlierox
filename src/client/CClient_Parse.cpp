@@ -2580,6 +2580,7 @@ void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 	}
 	
 	float speedFactor = bs->readFloat();
+	float damageFactor = bs->readFloat();
 	bool canUseNinja = bs->readBool();
 	
 	CWorm* w = &client->getRemoteWorms()[wormID];
@@ -2589,6 +2590,7 @@ void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 	}
 	
 	w->setSpeedFactor(speedFactor);
+	w->setDamageFactor(damageFactor);
 	w->setCanUseNinja(canUseNinja);
 }
 

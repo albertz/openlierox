@@ -312,10 +312,8 @@ int GameServer::StartGame()
 	
 	CWorm *w = cWorms;
 	for (int p = 0; p < MAX_WORMS; p++, w++) {
-		if(w->isPrepared()) {
-			warnings << "WARNING: StartGame(): worm " << p << " was already prepared! ";
-			if(!w->isUsed()) warnings << "AND it is not even used!";
-			warnings << endl;
+		if(w->isUsed() && w->isPrepared()) {
+			warnings << "WARNING: StartGame(): worm " << p << " was already prepared!" << endl;
 			w->Unprepare();
 		}
 	}
@@ -413,6 +411,7 @@ mapCreate:
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setWeaponsReady(false);
+			cWorms[i].Prepare();
 		}
 	}
 
@@ -529,6 +528,12 @@ mapCreate:
 		if(!cWorms[i].isUsed())
 			continue;
 		getGameMode()->PrepareWorm(&cWorms[i]);
+	}
+
+	for( int i = 0; i < MAX_CLIENTS; i++ ) {
+		if( cClients[i].getStatus() != NET_CONNECTED )
+			continue;
+		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
 	}
 	
 	return true;

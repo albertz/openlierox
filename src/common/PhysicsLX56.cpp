@@ -568,7 +568,7 @@ public:
 		if(pi->PlyHit_Type == PJ_EXPLODE)
 			damage = pi->PlyHit_Damage;
 
-		if(damage != -1)
+		if(damage != -1) // TODO: why only with -1?
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
@@ -579,7 +579,7 @@ public:
 		if(pi->PlyHit_Type == PJ_EXPLODE)
 			damage = pi->PlyHit_Damage;
 
-		if(damage != -1)
+		if(damage != -1) // TODO: why only with -1?
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 

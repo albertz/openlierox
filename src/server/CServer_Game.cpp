@@ -556,6 +556,7 @@ void GameServer::gotoLobby(void)
 	bool bUpdateWorms = false;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
+			cWorms[i].Unprepare();
 			cWorms[i].getLobby()->bReady = false;
 			cWorms[i].setGameReady(false);
 			cWorms[i].setTagIT(false);

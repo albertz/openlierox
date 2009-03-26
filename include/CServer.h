@@ -271,6 +271,7 @@ public:
 	void		SendTeamScoreUpdate();
 	void		SetWormSpeedFactor(int wormID, float f);
 	void		SetWormCanUseNinja(int wormID, bool b);
+	void		SetWormDamageFactor(int wormID, float f);
 
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);

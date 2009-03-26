@@ -1076,12 +1076,13 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	bs.writeByte(S2C_SETWORMPROPS);
 	bs.writeByte(worm->getID());
 	bs.writeFloat(worm->speedFactor());
+	bs.writeFloat(worm->damageFactor());
 	bs.writeBool(worm->canUseNinja());
 	SendPacket(&bs);
 }
 
 bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
-	return worm->speedFactor() != 1.0f || !worm->canUseNinja();
+	return worm->speedFactor() != 1.0f || worm->damageFactor() != 1.0f || !worm->canUseNinja();
 }
 
 void GameServer::SetWormSpeedFactor(int wormID, float f) {
@@ -1102,7 +1103,7 @@ void GameServer::SetWormSpeedFactor(int wormID, float f) {
 
 void GameServer::SetWormCanUseNinja(int wormID, bool b) {
 	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
-		warnings << "SetWormSpeedFactor: worm " << wormID << " is invalid" << endl;
+		warnings << "SetWormCanUseNinja: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
@@ -1114,5 +1115,21 @@ void GameServer::SetWormCanUseNinja(int wormID, bool b) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
 			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
 	}		
+}
+
+void GameServer::SetWormDamageFactor(int wormID, float f) {
+	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+		warnings << "SetWormDamageFactor: worm " << wormID << " is invalid" << endl;
+		return;
+	}
+	
+	if(cWorms[wormID].damageFactor() == f) return; // nothing need to be changed
+	
+	cWorms[wormID].setDamageFactor(f);
+	
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+	}
 }
 
