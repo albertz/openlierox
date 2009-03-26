@@ -1884,7 +1884,8 @@ static void updateAddedWorms(CClient* cl) {
 					else { // weapons are already ready
 						// copy weapons to server
 						w->CloneWeaponsFrom(cl->getWorm(i));
-												
+						w->setWeaponsReady(true);
+						
 						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
 							// send weapon list to other clients
 							for(int ii = 0; ii < MAX_CLIENTS; ii++) {
