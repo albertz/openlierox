@@ -1549,6 +1549,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 		newcl->getNetEngine()->SendPrepareGame();
 
+		newcl->getNetEngine()->SendWormProperties(true);
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
