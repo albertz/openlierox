@@ -992,19 +992,28 @@ size_t GetFreeSysMemory() {
     FILE *fp = fopen("/proc/meminfo", "r");
     if ( fp )
     {		
+		unsigned long freeMem = 0;
+		unsigned long buffersMem = 0;
+		unsigned long cachedMem = 0;
+		struct SearchTerm { const char* name; unsigned long* var; };
+		SearchTerm terms[] = { {"MemFree:", &freeMem}, {"Buffers:", &buffersMem}, {"Cached:", &cachedMem} };
+				
         char buf[1024];
-		while (fgets(buf, sizeof(buf), fp)) {
-			if (!strncmp(buf, "MemFree:", 8)) {
-				unsigned long memFree = 0;
-				if (sscanf(buf, "MemFree: %lu", &memFree) != 1) {
-					fclose(fp);
-					return (size_t)memFree * 1024; // it's written in KB in meminfo
+		int n = fread(bug, sizeof(char), sizeof(buf) - 1, fp);
+		buf[sizeof(buf)-1] = '\0';
+		if(n > 0) {
+			for(int i = 0; i < sizeof(terms) / sizeof(SearchTerm); ++i) {
+				char* p = strstr(buf, terms[i].name);
+				if(p) {
+					p += strlen(terms[i].name);
+					*terms[i].var = strtoul(p, NULL, 10);
 				}
 			}
 		}
 				
         fclose(fp);		
-        return 0;
+		// it's written in KB in meminfo
+        return ((size_t)freeMem + (size_t)buffersMem + (size_t)cachedMem) * 1024;
     }
 	
 	return 0;
