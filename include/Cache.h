@@ -59,6 +59,7 @@ public:
 	// Map is copied to cache, 'cause it will be modified during game - you should free your data yourself.
 	void	SaveMap(const std::string& file, CMap *map);
 	size_t	GetCacheSize();
+	size_t	GetEntryCount();
 
 private:
 	class CacheItem_t { public:

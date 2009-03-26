@@ -2085,8 +2085,14 @@ bool CMap::Load(const std::string& filename)
 	if(Type == MPT_IMAGE)
 	{
 		// Allocate the map
+	createMap:
 		if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 			errors << "CMap::Load (" << filename << "): cannot allocate map" << endl;
+			if(cCache.GetEntryCount() > 0) {
+				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+				cCache.Clear();
+				goto createMap;
+			}
 			fclose(fp);
 			return false;
 		}
@@ -2548,7 +2554,7 @@ bool CMap::LoadOriginal(FILE *fp)
 
 	palette = new uchar[768];
 	if( palette == NULL) {
-		printf("CMap::LoadOriginal: ERROR: not enough memory for palette\n");
+		errors << "CMap::LoadOriginal: ERROR: not enough memory for palette" << endl;
 		fclose(fp);
 		return false;
 	}
@@ -2566,9 +2572,15 @@ bool CMap::LoadOriginal(FILE *fp)
 	}
 
 	// Load the image map
+imageMapCreate:
 	uchar *bytearr = new uchar[Width*Height];
 	if(bytearr == NULL) {
-		printf("CMap::LoadOriginal: ERROR: not enough memory for bytearr\n");
+		errors << "CMap::LoadOriginal: ERROR: not enough memory for bytearr" << endl;
+		if(cCache.GetEntryCount() > 0) {
+			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+			cCache.Clear();
+			goto imageMapCreate;
+		}
 		delete[] palette;
 		fclose(fp);
 		return false;

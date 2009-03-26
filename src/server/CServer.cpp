@@ -342,9 +342,15 @@ int GameServer::StartGame()
 	}
 
 	// Create the map
+mapCreate:
 	cMap = new CMap;
 	if(cMap == NULL) {
 		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
+		if(cCache.GetEntryCount() > 0) {
+			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+			cCache.Clear();
+			goto mapCreate;
+		}
 		return false;
 	}
 	
@@ -370,7 +376,7 @@ int GameServer::StartGame()
 		timer = SDL_GetTicks()/1000.0f;
 		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
-			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
+			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
 			return false;
 		}
 		notes << "Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
@@ -382,7 +388,17 @@ int GameServer::StartGame()
 	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
 	if( cGameScript.get() == NULL )
 	{
+	gameScriptCreate:
 		cGameScript = new CGameScript();
+		if(cGameScript.get() == NULL) {
+			errors << "Server StartGame: cannot allocate gamescript" << endl;
+			if(cCache.GetEntryCount() > 0) {
+				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+				cCache.Clear();
+				goto gameScriptCreate;
+			}			
+			return false;
+		}
 		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
 		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 

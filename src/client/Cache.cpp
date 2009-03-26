@@ -264,6 +264,8 @@ void CCache::Clear()
 // Get the number of memory occupied (in bytes)
 size_t CCache::GetCacheSize()
 {
+	ScopedLock lock(mutex);
+
 	size_t res = sizeof(CCache);
 	for (ImageCache_t::iterator it = ImageCache.begin(); it != ImageCache.end(); it++)
 		res += GetSurfaceMemorySize(it->second.bmpSurf.get()) + it->first.size();
@@ -274,10 +276,22 @@ size_t CCache::GetCacheSize()
 	for (MapCache_t::iterator it = MapCache.begin(); it != MapCache.end(); it++)
 		res += it->second.tMap.get()->GetMemorySize() + it->first.size();
 
-	// TODO: not exact
+	// TODO: not correct
 	for (SoundCache_t::iterator it = SoundCache.begin(); it != SoundCache.end(); it++)
 		res += it->first.size() + sizeof(SoundSample);
 
+	return res;
+}
+
+size_t CCache::GetEntryCount() {
+	ScopedLock lock(mutex);
+	
+	size_t res = 0;
+	res += ImageCache.size();
+	res += ModCache.size();
+	res += MapCache.size();
+	res += SoundCache.size();
+	
 	return res;
 }
 
