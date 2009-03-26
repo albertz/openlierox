@@ -745,6 +745,7 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 		UpdateMiniMap(true);
 	// Just set it and CreateSurface will do the rest of the job
 	} else {
+		// TODO: why can we assure here that the bmpMiniMap has the right dimension?
 		MinimapWidth = _w;
 		MinimapHeight = _h;
 	}
@@ -780,6 +781,8 @@ bool CMap::createGrid(void) {
     GridFlags = new uchar[nGridCols * nGridRows];
     AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
     if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
+		if(GridFlags) delete[] GridFlags;
+		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags;
 		unlockFlags();
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
