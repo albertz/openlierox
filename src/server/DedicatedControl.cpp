@@ -49,7 +49,8 @@
 #include "Process.h"
 #include "Event.h"
 #include "CGameMode.h"
-
+#include "Cache.h"
+#include "AuxLib.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4996)
@@ -1106,6 +1107,14 @@ struct DedIntern {
 	void Cmd_DumpGameState(DedInterface* caller, const std::string& params) {
 		cServer->DumpGameState();
 	}	
+
+	void Cmd_DumpSysState(DedInterface* caller, const std::string& params) {
+		hints << "System state:" << endl;
+		cServer->DumpGameState();
+		// TODO: client game state
+		hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
+		hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
+	}	
 	
 	void Cmd_SaveConfig(DedInterface* caller) {
 		tLXOptions->SaveToDisc();
@@ -1208,6 +1217,8 @@ struct DedIntern {
 
 		else if(cmd == "dumpgamestate")
 			Cmd_DumpGameState(command.sender, params);		
+		else if(cmd == "dumpgsysstate")
+			Cmd_DumpSysState(command.sender, params);		
 		
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
 		else {

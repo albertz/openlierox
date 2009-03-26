@@ -30,6 +30,8 @@
 #include "StringUtils.h"
 #include "AuxLib.h"
 #include "NotifyUser.h"
+#include "DeprecatedGUI/CImage.h"
+#include "DeprecatedGUI/CBox.h"
 
 
 namespace DeprecatedGUI {
