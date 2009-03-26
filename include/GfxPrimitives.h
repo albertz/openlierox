@@ -747,4 +747,20 @@ void SetColorKey(SDL_Surface * dst);
 // Resets the alpha-channel and the colorkey
 void ResetAlpha(SDL_Surface * dst);
 
+
+struct ScopedSurfaceClip {
+	SDL_Rect oldclip;
+	SDL_Surface* surf;
+	
+	ScopedSurfaceClip(SDL_Surface* s, const SDL_Rect& rect) {
+		surf = s;
+		SDL_GetClipRect(s, &oldclip);
+		SDL_SetClipRect(s, &rect);
+	}
+	~ScopedSurfaceClip() {
+		SDL_SetClipRect(surf, &oldclip);		
+	}
+};
+
+
 #endif  //  __GFXPRIMITIVES_H__

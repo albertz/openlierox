@@ -894,7 +894,6 @@ static void initFeaturesList(CListview* l)
 						txt->setText( it->second.toString() );
 				}
 			}
-			// TODO: add slider widget
 		}
 	}
 }

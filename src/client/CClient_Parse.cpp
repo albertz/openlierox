@@ -942,7 +942,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setWeaponsReady(false);
 
 			// Prepare for battle!
-			w->Prepare();
+			w->Prepare(false);
 		}
 	}
 
@@ -1246,7 +1246,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 		client->cRemoteWorms[id].setLocal(false);
 		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
-			client->cRemoteWorms[id].Prepare();
+			client->cRemoteWorms[id].Prepare(false);
 		}
 		client->cRemoteWorms[id].setID(id);
 		if( client->getServerVersion() < OLXBetaVersion(9) &&

@@ -100,155 +100,157 @@ void CListview::Draw(SDL_Surface * bmpDest)
 	if(bGotScrollbar || bAlwaysVisibleScrollbar)
 		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 
-	int h=tLX->cFont.GetHeight();
 	int texty = 0;
 
+	{
+		SDL_Rect clipRect = {iX+4, y, iWidth-8, iY + iHeight - y};
+		ScopedSurfaceClip clip(bmpDest, clipRect);
+		
+		// Draw the items
+		for(;item;item = item->tNext) {
+			if(count++ < cScrollbar.getValue())
+				continue;
 
-	// Draw the items
-	for(;item;item = item->tNext) {
-		if(count++ < cScrollbar.getValue())
-			continue;
+			x = iX+4;
 
-		h = tLX->cFont.GetHeight();
-		x = iX+4;
-
-		col = tColumns;
-
-		// Find the max height
-		h = MAX(h, item->iHeight);
-
-		if(y + h > iY + iHeight)
-			break;
-
-		// Background colour?
-		if(item->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
-			if (item->iBgAlpha == SDL_ALPHA_OPAQUE)
-				DrawRectFill(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour);
-			else
-				DrawRectFillA(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
-		}
-
-		// Selected?
-		if(item->bSelected && bShowSelect) {
-			if(bFocused)
-				DrawRectFill(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
-			else
-				DrawRect(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
-		}
-
-		// Draw the sub items
-		if(item->tSubitems) {
-
-			sub = item->tSubitems;
 			col = tColumns;
 
+			// Find the max height
+			int h = MAX(tLX->cFont.GetHeight(), item->iHeight);
 
-			// Text vertical position
-			switch (sub->iValign)  {
-			case VALIGN_TOP:
-				texty = y;
-				break;
-			case VALIGN_BOTTOM:
-				texty = y + h - tLX->cFont.GetHeight();
-				break;
-			default: // Middle
-				texty = y + (h-tLX->cFont.GetHeight())/2;
-				break;
+			if(y + h >= 480) break; // TODO: seems that it crashs without this (test by commenting out the next line)
+			if(y >= iY + iHeight) break;
+
+			// Background colour?
+			if(item->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
+				if (item->iBgAlpha == SDL_ALPHA_OPAQUE)
+					DrawRectFill(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour);
+				else
+					DrawRectFillA(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
 			}
 
-			for(;sub;sub = sub->tNext) {
+			// Selected?
+			if(item->bSelected && bShowSelect) {
+				if(bFocused)
+					DrawRectFill(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
+				else
+					DrawRect(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
+			}
 
-				int itemWidth = 0;
-				if(sub->bVisible) {
-					// Background colour
-					if(sub->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
-						if (sub->iBgAlpha == SDL_ALPHA_OPAQUE)
-							DrawRectFill(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour);
-						else
-							DrawRectFillA(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
-					}
+			// Draw the sub items
+			if(item->tSubitems) {
 
-					switch(sub->iType)  {
-					case LVS_TEXT:  {
-						// Get the colour
-						Uint32 colour = item->iColour;
-						if (sub->iColour != tLX->clPink)
-							colour = sub->iColour;
+				sub = item->tSubitems;
+				col = tColumns;
 
-						if (col && !bOldStyle && !bSubItemsAreAligned)
-							tLX->cFont.DrawAdv(bmpDest, x, texty, MAX(0, MIN( ( col->iWidth > 8 ? col->iWidth-8 : 0 ), right_bound-x)), colour, sub->sText);
-						else
-							tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
-						
-						if(bSubItemsAreAligned)
-							itemWidth = tLX->cFont.GetWidth(sub->sText);
-					}
+
+				// Text vertical position
+				switch (sub->iValign)  {
+				case VALIGN_TOP:
+					texty = y;
 					break;
-
-					case LVS_IMAGE:
-						// Set special clipping
-						SDL_Rect old_rect, new_rect;
-						SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
-						new_rect.x = x;
-						new_rect.y = y;
-						new_rect.w = col ? col->iWidth - 4 : (iX + iWidth - x - 2);
-						new_rect.h = item->iHeight;
-						SDL_SetClipRect(bmpDest, &new_rect);
-
-						// Draw according to valign
-						switch (sub->iValign)  {
-						case VALIGN_TOP:
-							DrawImage(bmpDest,sub->bmpImage,x,y);
-							break;
-
-						case VALIGN_BOTTOM:
-							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
-							break;
-
-						// Middle
-						default:
-							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
-							break;
-						}
-
-						SDL_SetClipRect(bmpDest, &old_rect);  // Restore the original clipping
+				case VALIGN_BOTTOM:
+					texty = y + h - tLX->cFont.GetHeight();
 					break;
-
-					case LVS_WIDGET:
-						CWidget *w = sub->tWidget;
-
-						// Draw according to valign
-						switch (sub->iValign)  {
-						case VALIGN_TOP:
-							w->Setup(w->getID(), x, y, w->getWidth(), w->getHeight());
-							break;
-
-						case VALIGN_BOTTOM:
-							w->Setup(w->getID(), x, y + item->iHeight - w->getHeight(), w->getWidth(), w->getHeight());
-							break;
-
-						// Middle
-						default:
-							w->Setup(w->getID(), x, y + item->iHeight/2 - w->getHeight()/2, w->getWidth(), w->getHeight());
-							break;
-						}
-						if (w->getEnabled())
-							w->Draw(bmpDest);
+				default: // Middle
+					texty = y + (h-tLX->cFont.GetHeight())/2;
 					break;
-					}
 				}
 
-				if(col) {
-					if(bSubItemsAreAligned && itemWidth + 3 > col->iWidth) {
-						x += itemWidth + 3;
-					} else
-						x += col->iWidth - 2;
-					col = col->tNext;
+				for(;sub;sub = sub->tNext) {
+
+					int itemWidth = 0;
+					if(sub->bVisible) {
+						// Background colour
+						if(sub->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
+							if (sub->iBgAlpha == SDL_ALPHA_OPAQUE)
+								DrawRectFill(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour);
+							else
+								DrawRectFillA(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
+						}
+
+						switch(sub->iType)  {
+						case LVS_TEXT:  {
+							// Get the colour
+							Uint32 colour = item->iColour;
+							if (sub->iColour != tLX->clPink)
+								colour = sub->iColour;
+
+							if (col && !bOldStyle && !bSubItemsAreAligned)
+								tLX->cFont.DrawAdv(bmpDest, x, texty, MAX(0, MIN( ( col->iWidth > 8 ? col->iWidth-8 : 0 ), right_bound-x)), colour, sub->sText);
+							else
+								tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
+							
+							if(bSubItemsAreAligned)
+								itemWidth = tLX->cFont.GetWidth(sub->sText);
+						}
+						break;
+
+						case LVS_IMAGE:
+							// Set special clipping
+							SDL_Rect old_rect, new_rect;
+							SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
+							new_rect.x = x;
+							new_rect.y = y;
+							new_rect.w = col ? col->iWidth - 4 : (iX + iWidth - x - 2);
+							new_rect.h = item->iHeight;
+							SDL_SetClipRect(bmpDest, &new_rect);
+
+							// Draw according to valign
+							switch (sub->iValign)  {
+							case VALIGN_TOP:
+								DrawImage(bmpDest,sub->bmpImage,x,y);
+								break;
+
+							case VALIGN_BOTTOM:
+								DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
+								break;
+
+							// Middle
+							default:
+								DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
+								break;
+							}
+
+							SDL_SetClipRect(bmpDest, &old_rect);  // Restore the original clipping
+						break;
+
+						case LVS_WIDGET:
+							CWidget *w = sub->tWidget;
+
+							// Draw according to valign
+							switch (sub->iValign)  {
+							case VALIGN_TOP:
+								w->Setup(w->getID(), x, y, w->getWidth(), w->getHeight());
+								break;
+
+							case VALIGN_BOTTOM:
+								w->Setup(w->getID(), x, y + item->iHeight - w->getHeight(), w->getWidth(), w->getHeight());
+								break;
+
+							// Middle
+							default:
+								w->Setup(w->getID(), x, y + item->iHeight/2 - w->getHeight()/2, w->getWidth(), w->getHeight());
+								break;
+							}
+							if (w->getEnabled())
+								w->Draw(bmpDest);
+						break;
+						}
+					}
+
+					if(col) {
+						if(bSubItemsAreAligned && itemWidth + 3 > col->iWidth) {
+							x += itemWidth + 3;
+						} else
+							x += col->iWidth - 2;
+						col = col->tNext;
+					}
 				}
 			}
+
+			y += h;
 		}
-
-		y += h;
 	}
 
 	// Draw the scrollbar

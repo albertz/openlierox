@@ -402,7 +402,7 @@ public:
 	// Game
 	//
 	bool		isPrepared() { return bIsPrepared; }
-	void		Prepare(); // weapon selection and so on
+	void		Prepare(bool serverSide); // weapon selection and so on
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);

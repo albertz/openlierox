@@ -198,13 +198,12 @@ void CWorm::FreeGraphics(void)
 
 ///////////////////
 // Prepare the worm for the game
-void CWorm::Prepare()
+void CWorm::Prepare(bool serverSide)
 {
 	assert(cGameScript);
 
 	if(bIsPrepared) {
-		warnings << "worm was already prepared! ";
-		warnings << endl;
+		warnings << "worm " << getID() << ":" << getName() << " was already prepared!" << endl;
 	}
 	
 	bVisibleForWorm.clear();
@@ -226,8 +225,13 @@ void CWorm::Prepare()
 		m_inputHandler = NULL;
 	}
 
-	if(bLocal) {
+	if(!serverSide && bLocal) {
 		m_inputHandler = m_type->createInputHandler(this);
+	}
+	
+	if(serverSide) {
+		fSpeedFactor = tLXOptions->tGameInfo.features[FT_WormSpeedFactor];
+		fDamageFactor = tLXOptions->tGameInfo.features[FT_WormDamageFactor];
 	}
 	
 	bIsPrepared = true;

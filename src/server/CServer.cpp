@@ -411,7 +411,7 @@ mapCreate:
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setWeaponsReady(false);
-			cWorms[i].Prepare();
+			cWorms[i].Prepare(true);
 		}
 	}
 

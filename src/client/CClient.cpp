@@ -1853,6 +1853,8 @@ static void updateAddedWorms(CClient* cl) {
 				// gameready means that we had a preparegame package
 				// status==NET_PLAYING means that we are already playing
 				if( cl->getGameReady() ) {
+					w->Prepare(true); // prepare serverside
+
 					// (If this is a local game?), we need to reload the worm graphics
 					// We do this again because we've only just found out what type of game it is
 					// Team games require changing worm colours to match the team colour
@@ -1871,7 +1873,7 @@ static void updateAddedWorms(CClient* cl) {
 					cl->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
 					
 					// Prepare for battle!
-					cl->getWorm(i)->Prepare();
+					cl->getWorm(i)->Prepare(false);
 					
 					if(!cl->getWorm(i)->getWeaponsReady())
 						cl->getWorm(i)->initWeaponSelection();
