@@ -19,6 +19,9 @@
 #include "CVec.h"
 #include "CGameScript.h"
 #include "ConfigHandler.h"
+#include "SmartPointer.h"
+#include "CrashHandler.h"
+#include "Sounds.h"
 
 
 CGameScript	*Game;
@@ -27,11 +30,11 @@ CGameScript	*Game;
 
 int		Decompile();
 int		DecompileWeapon(int id);
-void	DecompileBeam(FILE * fp, weapon_t *Weap);
-void	DecompileProjectile(proj_t * proj, const char * weaponName);
+void	DecompileBeam(FILE * fp, const weapon_t *Weap);
+void	DecompileProjectile(const proj_t * proj, const char * weaponName);
 int		DecompileExtra(FILE * fp);
 
-int		DecompileJetpack(FILE * fp, weapon_t *Weap);
+int		DecompileJetpack(FILE * fp, const weapon_t *Weap);
 
 int ProjCount = 0;
 
@@ -88,7 +91,7 @@ int main(int argc, char *argv[])
 	AddKeyword("false",false);
 
 
-	char * dir = ".";
+	const char * dir = ".";
 	if( argc > 1 )
 		dir = argv[1];
 	
@@ -104,7 +107,7 @@ int main(int argc, char *argv[])
 	printf("\nDone!\nInfo:\nWeapons: %d Projectiles: %d\n",Game->GetNumWeapons(), ProjCount );
 	
 
-	Game->Shutdown();
+	//Game->Shutdown();
 	if(Game)
 		delete Game;
 
@@ -136,7 +139,7 @@ int Decompile()
 
 	// Compile the weapons
 	for(n=0;n<Game->GetNumWeapons();n++) {
-		fprintf(fp,"Weapon%d = w_%s.txt\n", n+1, Game->GetWeapons()[n].Name );
+		fprintf(fp,"Weapon%d = w_%s.txt\n", n+1, Game->GetWeapons()[n].Name.c_str() );
 	}
 
 	// Compile the extra stuff
@@ -156,18 +159,18 @@ int Decompile()
 // Compile a weapon
 int DecompileWeapon(int id)
 {
-	weapon_t *Weap = Game->GetWeapons()+id;
+	const weapon_t *Weap = Game->GetWeapons()+id;
 	
 	char fname[128];
-	sprintf(fname, "w_%s.txt", Weap->Name);
+	sprintf(fname, "w_%s.txt", Weap->Name.c_str());
 	
 	FILE * fp = fopen(fname, "w");
 	if(!fp)
 		return false;
 	fprintf(fp, "%s", DisclaimerHeader);
 
-	printf("Compiling Weapon '%s'\n",Weap->Name);
-	fprintf(fp,"[General]\n\nName = %s\n",Weap->Name);
+	printf("Compiling Weapon '%s'\n",Weap->Name.c_str());
+	fprintf(fp,"[General]\n\nName = %s\n",Weap->Name.c_str());
 	fprintf(fp,"Type = %s\n", (
 				Weap->Type == WPN_PROJECTILE ? "WPN_PROJECTILE" : (
 				Weap->Type == WPN_SPECIAL ? "WPN_SPECIAL" : (
@@ -206,10 +209,10 @@ int DecompileWeapon(int id)
 	// Projectile Weapons
 	fprintf( fp, "Recoil = %i\n",Weap->Recoil);
 	fprintf( fp, "Drain = %f\n", Weap->Drain);
-	fprintf( fp, "Recharge = %f\n", Weap->Recharge);
-	fprintf( fp, "ROF = %f\n",Weap->ROF);
+	fprintf( fp, "Recharge = %f\n", Weap->Recharge * 10.0f);
+	fprintf( fp, "ROF = %f\n",Weap->ROF * 1000.0f);
 	if( Weap->UseSound )
-		fprintf( fp, "Sound = %s\n",Weap->SndFilename);
+		fprintf( fp, "Sound = %s\n",Weap->SndFilename.c_str());
 	fprintf( fp, "LaserSight = %s\n", (Weap->LaserSight ? "true":"false"));
 	fprintf( fp, "Class = %s\n", (
 				Weap->Class == WCL_AUTOMATIC ? "WCL_AUTOMATIC" : (
@@ -221,11 +224,11 @@ int DecompileWeapon(int id)
 	fprintf( fp, "SpeedVar = %f\n", Weap->ProjSpeedVar);
 	fprintf( fp, "Spread = %f\n", Weap->ProjSpread);
 	fprintf( fp, "Amount = %i\n", Weap->ProjAmount);
-	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name, (int)Weap->Projectile);
+	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name.c_str(), (int)Weap->Projectile);
 	
 	fclose(fp);
 	
-	DecompileProjectile( Weap->Projectile, Weap->Name );
+	DecompileProjectile( Weap->Projectile, Weap->Name.c_str() );
 
 	return true;
 }
@@ -233,26 +236,26 @@ int DecompileWeapon(int id)
 
 ///////////////////
 // Compile a beam weapon
-void DecompileBeam(FILE * fp, weapon_t *Weap)
+void DecompileBeam(FILE * fp, const weapon_t *Weap)
 {
 	fprintf( fp,"\n[General]\n\nRecoil = %i\n",Weap->Recoil);
 	fprintf( fp, "Drain = %f\n", Weap->Drain);
-	fprintf( fp, "Recharge = %f\n", Weap->Recharge);
-	fprintf( fp, "ROF = %f\n",Weap->ROF);
+	fprintf( fp, "Recharge = %f\n", Weap->Recharge * 10.0f);
+	fprintf( fp, "ROF = %f\n",Weap->ROF * 1000.0f);
 	if( Weap->UseSound )
-		fprintf( fp, "Sound = %s\n",Weap->SndFilename);
+		fprintf( fp, "Sound = %s\n",Weap->SndFilename.c_str());
 
 	fprintf( fp, "\n[Beam]\n\nDamage = %i\n", Weap->Bm_Damage);
 	fprintf( fp, "Length = %i\n", Weap->Bm_Length);
 	fprintf( fp, "PlayerDamage = %i\n", Weap->Bm_PlyDamage);
-	fprintf( fp, "Colour = %u,%u,%u\n", Weap->Bm_Colour[0], Weap->Bm_Colour[1], Weap->Bm_Colour[2]);
+	fprintf( fp, "Colour = %u,%u,%u\n", Weap->Bm_Colour.r, Weap->Bm_Colour.g, Weap->Bm_Colour.b);
 
 }
 
 
 ///////////////////
 // Compile a projectile
-void DecompileProjectile(proj_t * proj, const char * weaponName)
+void DecompileProjectile(const proj_t * proj, const char * weaponName)
 {
 	char fname[128];
 
@@ -290,13 +293,13 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 
 	if(proj->Type == PRJ_PIXEL) {
 
-		fprintf( fp, "Colour1 = %u,%u,%u\n", proj->Colour1[0], proj->Colour1[1], proj->Colour1[2]);
+		fprintf( fp, "Colour1 = %u,%u,%u\n", proj->Colour[0].r, proj->Colour[0].g, proj->Colour[0].b);
 
-		if( proj->NumColours >= 2 )
-			fprintf( fp, "Colour2 = %u,%u,%u\n", proj->Colour2[0], proj->Colour2[1], proj->Colour2[2]);
+		if( proj->Colour.size() >= 2 )
+			fprintf( fp, "Colour2 = %u,%u,%u\n", proj->Colour[1].r, proj->Colour[1].g, proj->Colour[1].b);
 
 	} else if(proj->Type == PRJ_IMAGE) {
-		fprintf( fp, "Image = %s\n", proj->ImgFilename);
+		fprintf( fp, "Image = %s\n", proj->ImgFilename.c_str());
 		fprintf( fp, "Rotating = %s\n", ( proj->Rotating ? "true":"false" ));
 		fprintf( fp, "RotIncrement = %i\n", proj->RotIncrement);
 		fprintf( fp, "RotSpeed = %i\n", proj->RotSpeed);
@@ -337,7 +340,7 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 		fprintf( fp, "Shake = %i\n", proj->Hit_Shake);
 		
 		if( proj->Hit_UseSound )
-			fprintf( fp, "Sound = %s\n", proj->Hit_SndFilename);
+			fprintf( fp, "Sound = %s\n", proj->Hit_SndFilename.c_str());
 	}
 
 	// Hit::Carve
@@ -414,7 +417,7 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 	fprintf( fp, "Projectiles = %s\n", ( proj->Exp_Projectiles ? "true":"false" ));
 	fprintf( fp, "Shake = %i\n", proj->Exp_Shake);
 	if( proj->Exp_UseSound )
-		fprintf( fp, "Sound = %s\n", proj->Exp_SndFilename);
+		fprintf( fp, "Sound = %s\n", proj->Exp_SndFilename.c_str());
 
 
     // Touch
@@ -433,7 +436,7 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 	fprintf( fp, "Projectiles = %s\n", ( proj->Tch_Projectiles ? "true":"false" ));
 	fprintf( fp, "Shake = %i\n", proj->Tch_Shake);
 	if( proj->Exp_UseSound )
-		fprintf( fp, "Sound = %s\n", proj->Tch_SndFilename);
+		fprintf( fp, "Sound = %s\n", proj->Tch_SndFilename.c_str());
 
 
 	// Projectiles
@@ -459,7 +462,7 @@ void DecompileProjectile(proj_t * proj, const char * weaponName)
 		fprintf( fp, "\n[ProjectileTrail]\n" );
 		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->PrjTrl_Proj);
 		fprintf( fp, "UseProjVelocity = %s\n", ( proj->PrjTrl_UsePrjVelocity ? "true":"false" ));
-		fprintf( fp, "Delay = %f\n", proj->PrjTrl_Delay);
+		fprintf( fp, "Delay = %f\n", proj->PrjTrl_Delay * 1000.0f);
 		fprintf( fp, "Amount = %i\n", proj->PrjTrl_Amount);
 		fprintf( fp, "Speed = %i\n", proj->PrjTrl_Speed);
 		fprintf( fp, "SpeedVar = %f\n", proj->PrjTrl_SpeedVar);
@@ -483,7 +486,7 @@ int DecompileExtra(FILE * fp)
 	fprintf(fp, "RestLength = %i\n", Game->getRestLength() );
 	fprintf(fp, "Strength = %f\n",Game->getStrength());
 
-	gs_worm_t *wrm = Game->getWorm();
+	const gs_worm_t *wrm = Game->getWorm();
 	
 	fprintf(fp,"\n[Worm]\n\nAngleSpeed = %f\n", wrm->AngleSpeed );
 	fprintf(fp, "GroundSpeed = %f\n", wrm->GroundSpeed );
@@ -508,12 +511,86 @@ int DecompileExtra(FILE * fp)
 
 ///////////////////
 // Compile the jetpack
-int DecompileJetpack(FILE * fp, weapon_t *Weap)
+int DecompileJetpack(FILE * fp, const weapon_t *Weap)
 {
 
 	fprintf( fp, "[JetPack]\n\nThrust = %i\n", Weap->tSpecial.Thrust);
 	fprintf( fp, "Drain = %f\n", Weap->Drain);
-	fprintf( fp, "Recharge = %f\n", Weap->Recharge);
+	fprintf( fp, "Recharge = %f\n", Weap->Recharge * 10.0f);
 
 	return true;
 }
+
+
+// some dummies/stubs are following to be able to compile with OLX sources
+
+FILE* OpenGameFile(const std::string& file, const char* mod) {
+	// stub
+	return fopen(file.c_str(), mod);
+}
+
+bool GetExactFileName(const std::string& fn, std::string& exactfn) {
+	// sub
+	exactfn = fn;
+	return true;
+}
+
+bool IsFileAvailable(const std::string& f, bool absolute) {
+	// stub
+	FILE * ff = fopen(f.c_str(), "r");
+	if( !ff )
+		return false;
+	fclose(ff);
+	return true;
+}
+
+
+//struct SoundSample;
+template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj )
+{
+	//errors << "SmartPointer_ObjectDeinit SoundSample: stub" << endl;
+}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
+{
+	//errors << "SmartPointer_ObjectDeinit SDL_Surface: stub" << endl;
+}
+
+SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying) {
+	// stub
+	return new SoundSample; // It will never be played, we just have to return non-NULL here
+}
+
+SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha) {
+	// stub
+	return NULL;
+}
+
+void SetColorKey(SDL_Surface * dst) {} // stub
+
+bool bDedicated = true;
+
+void SetError(const std::string& text) { errors << "SetError: " << text << endl; }
+
+struct GameOptions;
+GameOptions *tLXOptions = NULL;
+
+bool Con_IsInited() { return false; };
+
+CrashHandler* CrashHandler::get() {	return NULL; };
+
+void Con_AddText(int colour, const std::string& text, bool alsoToLogger) {}
+
+SDL_PixelFormat defaultFallbackFormat =
+{
+ NULL, //SDL_Palette *palette;
+ 32, //Uint8  BitsPerPixel;
+ 4, //Uint8  BytesPerPixel;
+ 0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+ 24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+ 0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+ 0, //Uint32 colorkey;
+ 255 //Uint8  alpha;
+};
+
+SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;

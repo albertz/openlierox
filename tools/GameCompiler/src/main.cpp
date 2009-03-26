@@ -119,6 +119,16 @@ bool GetExactFileName(const std::string& fn, std::string& exactfn) {
 	return true;
 }
 
+bool IsFileAvailable(const std::string& f, bool absolute) {
+	// stub
+	FILE * ff = fopen(f.c_str(), "r");
+	if( !ff )
+		return false;
+	fclose(ff);
+	return true;
+}
+
+
 struct SoundSample;
 template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj )
 {
