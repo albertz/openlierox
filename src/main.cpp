@@ -420,6 +420,10 @@ quit:
 	notes << "waiting for all left threads and tasks" << endl;
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
+
+	// do that after shutting down the timers and other threads
+	ShutdownEventQueue();
+	
 	UnInitTaskManager();
 
 	// LieroX structure
@@ -1155,12 +1159,7 @@ void ShutdownLieroX()
 	}
 
 	// Shutdown the timers
-	// HINT: must be called after event system is shut down to avoid double freed timers
-	// For safety we call it here, at the end of everything
 	ShutdownTimers();
-
-	// do that after shutting down the timers
-	ShutdownEventQueue();
 
 	xmlCleanupParser();
 
