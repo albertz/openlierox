@@ -781,8 +781,8 @@ bool CMap::createGrid(void) {
     GridFlags = new uchar[nGridCols * nGridRows];
     AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
     if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
-		if(GridFlags) delete[] GridFlags;
-		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags;
+		if(GridFlags) delete[] GridFlags; GridFlags = NULL;
+		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags; AbsoluteGridFlags = NULL;
 		unlockFlags();
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
