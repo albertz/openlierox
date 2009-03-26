@@ -1218,7 +1218,7 @@ struct DedIntern {
 
 		else if(cmd == "dumpgamestate")
 			Cmd_DumpGameState(command.sender, params);		
-		else if(cmd == "dumpgsysstate")
+		else if(cmd == "dumpsysstate")
 			Cmd_DumpSysState(command.sender, params);		
 		
 		else if(Cmd_ParseLine(cmd + " " + params)) {}
