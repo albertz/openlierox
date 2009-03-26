@@ -28,6 +28,7 @@
 #include "StringUtils.h"
 #include "Timer.h"
 #include "Options.h"
+#include "AuxLib.h"
 
 
 #ifdef DEBUG
@@ -298,6 +299,16 @@ size_t CCache::GetEntryCount() {
 void CCache::ClearExtraEntries()
 {
 	ScopedLock lock(mutex);
+	
+	static const int estimatedCacheEntrySize = 1024*300;
+	int estimatedMaxPossibleEntries = GetFreeSysMemory() / estimatedCacheEntrySize;
+	if(estimatedMaxPossibleEntries < tLXOptions->iMaxCachedEntries) {
+		warnings << "The estimated possible max entry count in cache (" << estimatedMaxPossibleEntries << ") ";
+		warnings << "is lower than the current set maximum (" << tLXOptions->iMaxCachedEntries << ")" << endl;
+		hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl; 
+		notes << "Lowering cache limit now" << endl;
+		tLXOptions->iMaxCachedEntries = estimatedMaxPossibleEntries;
+	}
 
 	if( (int)MapCache.size() >= tLXOptions->iMaxCachedEntries / 50 )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased

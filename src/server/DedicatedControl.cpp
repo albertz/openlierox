@@ -943,6 +943,7 @@ struct DedIntern {
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		if(!cServer->StartGame()) {
 			caller->writeMsg("cannot start game, got some error");
+			cCache.ClearExtraEntries(); // just to be sure
 			Sig_ErrorStartGame();
 			return;			
 		}
