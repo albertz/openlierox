@@ -77,7 +77,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 	if (bs->isPosAtEnd())
 		return;
 
-#ifdef DEBUG	
+#if defined(DEBUG) || !defined(FUZZY_ERROR_TESTING_C2S)
 	typedef std::list<CBytestream> BSList;
 	BSList bss;
 #endif
