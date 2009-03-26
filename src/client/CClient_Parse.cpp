@@ -601,6 +601,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				ParseFlagInfo(bs);
 				break;
 				
+			case S2C_SETWORMPROPS:
+				ParseWormProps(bs);
+				break;
+				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
@@ -1506,12 +1510,11 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 }
 
 void CClientNetEngine::ParseTeamScoreUpdate(CBytestream *bs) {
-	if(client->getServerVersion() < OLXBetaVersion(9)) {
-		warnings << "ParseTeamScoreUpdate: got update from too old " << client->getServerVersion().asString() << " server" << endl;
-		bs->SkipAll(); // screwed up
-		return;
-	}
-	
+	warnings << "ParseTeamScoreUpdate: got update from too old " << client->getServerVersion().asString() << " server" << endl;
+	bs->SkipAll(); // screwed up
+}
+
+void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 	if(client->tGameInfo.iGeneralGameType != GMT_TEAMS)
 		warnings << "ParseTeamScoreUpdate: it's not a teamgame" << endl;
 	
@@ -2543,18 +2546,11 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 }
 
 void CClientNetEngine::ParseFlagInfo(CBytestream* bs) {
-	if(!client) {
-		warnings << "Client: Got flaginfo with client unset" << endl;
-		FlagInfo::skipUpdate(bs);
-		return;
-	}
+	warnings << "Client: got flaginfo from too old " << client->cServerVersion.asString() << " server" << endl;
+	bs->SkipAll(); // screwed up
+}
 
-	if(client->cServerVersion < OLXBetaVersion(9)) {
-		warnings << "Client: got flaginfo from too old " << client->cServerVersion.asString() << " server" << endl;
-		bs->SkipAll(); // probably wrong anyway
-		return;
-	}
-	
+void CClientNetEngineBeta9::ParseFlagInfo(CBytestream* bs) {
 	if(client->m_flagInfo == NULL) {
 		warnings << "Client: Got flaginfo with flaginfo unset" << endl;
 		FlagInfo::skipUpdate(bs);
@@ -2562,5 +2558,37 @@ void CClientNetEngine::ParseFlagInfo(CBytestream* bs) {
 	}
 	
 	client->m_flagInfo->readUpdate(bs);
+}
+
+void CClientNetEngine::ParseWormProps(CBytestream* bs) {
+	warnings << "Client: got worm properties from too old " << client->cServerVersion.asString() << " server" << endl;
+	bs->SkipAll(); // screwed up
+}
+
+void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
+	if(bs->GetRestLen() < 3) {
+		warnings << "ParseWormProps: data is screwed up" << endl;
+		bs->SkipAll();
+		return;
+	}
+	
+	int wormID = bs->readByte();
+	if(wormID < 0 || wormID >= MAX_WORMS) {
+		warnings << "ParseWormProps: worm " << wormID << " is invalid" << endl;
+		bs->SkipAll();
+		return;
+	}
+	
+	float speedFactor = bs->readFloat();
+	bool canUseNinja = bs->readBool();
+	
+	CWorm* w = &client->getRemoteWorms()[wormID];
+	if(!w->isUsed()) {
+		warnings << "ParseWormProps: worm " << wormID << " is not used" << endl;
+		return;
+	}
+	
+	w->setSpeedFactor(speedFactor);
+	w->setCanUseNinja(canUseNinja);
 }
 

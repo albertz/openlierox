@@ -100,8 +100,9 @@ protected:
 	void		 ParseDestroyBonus(CBytestream *bs);
     void		 ParseDropped(CBytestream *bs);
     void		 ParseSendFile(CBytestream *bs);
-	void		ParseFlagInfo(CBytestream* bs);
-	void		ParseTeamScoreUpdate(CBytestream* bs);
+	virtual void ParseFlagInfo(CBytestream* bs);
+	virtual void ParseTeamScoreUpdate(CBytestream* bs);
+	virtual void ParseWormProps(CBytestream* bs);
 
 	void		 ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms = NULL); // Second parameter is used only in CClientNetEngineBeta9::ParseUpdateLobby()
 	
@@ -141,6 +142,9 @@ public:
     void ParseFeatureSettings(CBytestream* bs);
 
 	virtual void ParseStartGame(CBytestream *bs);
+	virtual void ParseFlagInfo(CBytestream* bs);
+	virtual void ParseTeamScoreUpdate(CBytestream* bs);
+	virtual void ParseWormProps(CBytestream* bs);
 	
 private:
     AbsTime fLastDamageReportSent;

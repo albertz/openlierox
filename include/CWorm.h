@@ -258,6 +258,8 @@ private:
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
+	float		fSpeedFactor;
+	bool		bCanUseNinja;
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
@@ -515,6 +517,11 @@ public:
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 	float		getLoadingTime()			{ return fLoadingTime; }
 
+	void		setCanUseNinja(bool b) { bCanUseNinja = b; }
+	bool		canUseNinja() const { return bCanUseNinja; }
+	void		setSpeedFactor(float f) { fSpeedFactor = f; }
+	float		speedFactor() const { return fSpeedFactor; }
+	
 	CGameScript* getGameScript()			{ return cGameScript; }
 	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
     void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }

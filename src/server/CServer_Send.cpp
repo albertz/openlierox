@@ -1027,13 +1027,13 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 
 void CServerNetEngineBeta9::SendTeamScoreUpdate() {
 	// only do this in a team game
-	if(cServer->getGameMode()->GeneralGameType() != GMT_TEAMS) return;
+	if(server->getGameMode()->GeneralGameType() != GMT_TEAMS) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_TEAMSCOREUPDATE);
-	bs.writeByte(cServer->getGameMode()->GameTeams());
-	for(int i = 0; i < cServer->getGameMode()->GameTeams(); ++i) {
-		bs.writeInt16(cServer->getGameMode()->TeamScores(i));
+	bs.writeByte(server->getGameMode()->GameTeams());
+	for(int i = 0; i < server->getGameMode()->GameTeams(); ++i) {
+		bs.writeInt16(server->getGameMode()->TeamScores(i));
 	}	
 	SendPacket(&bs);
 }
@@ -1044,3 +1044,75 @@ void GameServer::SendTeamScoreUpdate() {
 			cClients[c].getNetEngine()->SendTeamScoreUpdate();
 	}
 }
+
+void CServerNetEngine::SendWormProperties(bool onlyIfNotDef) {
+	CWorm* w = server->getWorms();
+	for(int i = 0; i < MAX_WORMS; ++i, ++w) {
+		if(!w->isUsed()) continue;
+		if(onlyIfNotDef && isWormPropertyDefault(w)) continue;
+		
+		SendWormProperties(w);
+	}
+}
+
+void CServerNetEngine::SendWormProperties(CWorm* worm) {
+	if(!worm->isUsed()) {
+		warnings << "SendWormProperties called for unused worm" << endl;
+		return;
+	}
+	
+	if(isWormPropertyDefault(worm)) return; // ok, don't give a warning in that case
+	
+	warnings << "SendWormProperties cannot be used for clients with <Beta9 (" << cl->debugName() << ")" << endl;
+}
+
+void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
+	if(!worm->isUsed()) {
+		warnings << "SendWormProperties called for unused worm" << endl;
+		return;
+	}
+
+	CBytestream bs;
+	bs.writeByte(S2C_SETWORMPROPS);
+	bs.writeByte(worm->getID());
+	bs.writeFloat(worm->speedFactor());
+	bs.writeBool(worm->canUseNinja());
+	SendPacket(&bs);
+}
+
+bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
+	return worm->speedFactor() != 1.0f || !worm->canUseNinja();
+}
+
+void GameServer::SetWormSpeedFactor(int wormID, float f) {
+	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+		warnings << "SetWormSpeedFactor: worm " << wormID << " is invalid" << endl;
+		return;
+	}
+	
+	if(cWorms[wormID].speedFactor() == f) return; // nothing need to be changed
+	
+	cWorms[wormID].setSpeedFactor(f);
+	
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+	}	
+}
+
+void GameServer::SetWormCanUseNinja(int wormID, bool b) {
+	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+		warnings << "SetWormSpeedFactor: worm " << wormID << " is invalid" << endl;
+		return;
+	}
+	
+	if(cWorms[wormID].canUseNinja() == b) return; // nothing need to be changed
+	
+	cWorms[wormID].setCanUseNinja(b);
+	
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+	}		
+}
+

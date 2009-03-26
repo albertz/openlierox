@@ -60,10 +60,12 @@ void CNinjaRope::Release(void)
 
 ///////////////////
 // Shoot the rope
-void CNinjaRope::Shoot(CVec pos, CVec dir)
+void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 {
 	Clear();
 
+	if(!owner->canUseNinja()) return;
+	
 	Released = true;
 	HookShooting = true;
 	HookAttached = false;

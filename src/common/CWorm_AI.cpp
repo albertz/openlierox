@@ -1734,7 +1734,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 	        if(m_worm->iDirection==DIR_LEFT)
 		        dir.x=(-dir.x);
 
-            m_worm->cNinjaRope.Shoot(m_worm->vPos,dir);
+            m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos,dir);
         }
 
 		// Jump and move
@@ -4110,7 +4110,7 @@ find_one_visible_node:
 		    dir.x=(-dir.x);
 
     	// the final shoot of the rope...
-    	m_worm->cNinjaRope.Shoot(m_worm->vPos, dir);
+    	m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, dir);
 		fRopeHookFallingTime = 0;
 		fRopeAttachedTime = 0;
 

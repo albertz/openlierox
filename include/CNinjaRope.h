@@ -74,7 +74,7 @@ public:
 	void		Clear();
 
 	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);
-	void		Shoot(CVec pos, CVec dir);
+	void		Shoot(CWorm* owner, CVec pos, CVec dir);
 
 	CVec		GetForce(CVec playerpos);
 	CVec		CalculateForce(CVec playerpos);

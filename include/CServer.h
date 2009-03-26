@@ -269,6 +269,8 @@ public:
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 	void		SendWormTagged(CWorm *w);
 	void		SendTeamScoreUpdate();
+	void		SetWormSpeedFactor(int wormID, float f);
+	void		SetWormCanUseNinja(int wormID, bool b);
 
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);

@@ -57,19 +57,19 @@ public:
 			return false;
 
 		// check if the vel is really too high (or infinity), in this case just ignore
-		if( (*vel*dt).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
+		if( (*vel*dt*worm->speedFactor()).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
 			return true;
 
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 		// TODO: is this still needed? we call this function with a fixed dt
 		// though perhaps it is as with higher speed the way we have to check is longer
-		if( (*vel*dt).GetLength2() > maxspeed2 && dt > 0.001f ) {
+		if( (*vel * dt * worm->speedFactor()).GetLength2() > maxspeed2 && dt > 0.001f ) {
 			dt /= 2;
 			if(moveAndCheckWormCollision(currentTime, dt,worm,pos,vel,vOldPos,jump)) return true;
 			return moveAndCheckWormCollision(currentTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
 		}
 
-		pos += *vel * dt;
+		pos += *vel * dt * worm->speedFactor();
 		worm->pos() = pos;
 		
 			

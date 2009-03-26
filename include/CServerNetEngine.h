@@ -79,7 +79,10 @@ public:
 	void SendSpawnWorm(CWorm *Worm, CVec pos);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 	virtual void SendTeamScoreUpdate() {}
-
+	virtual void SendWormProperties(CWorm* worm);
+	void SendWormProperties(bool onlyIfNotDef); // for all worms
+	bool isWormPropertyDefault(CWorm* worm);
+	
 protected:
 	// Attributes
 	GameServer 	*server;
@@ -162,6 +165,7 @@ public:
 	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 	virtual void SendTeamScoreUpdate();
+	virtual void SendWormProperties(CWorm* worm);
 	
 	static void WriteFeatureSettings(CBytestream* bs);
 

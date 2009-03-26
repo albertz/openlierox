@@ -87,6 +87,8 @@ void CWorm::Clear(void)
 	fRopeTime = AbsTime();
 	bRopeDownOnce = false;
 	bRopeDown = false;
+	fSpeedFactor = 1;
+	bCanUseNinja = true;
 
 	bWeaponsReady = false;
 	iNumWeaponSlots = 2;
@@ -207,6 +209,9 @@ void CWorm::Prepare()
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 
+	fSpeedFactor = 1;
+	bCanUseNinja = true;
+	
 	// Setup the rope
 	cNinjaRope.Setup(cGameScript);
 
