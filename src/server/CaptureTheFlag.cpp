@@ -17,7 +17,9 @@ struct CaptureTheFlag : public CGameMode {
 	virtual std::string Name() {
 		return "Capture The Flag";
 	}
-	
+
+	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_CaptureTheFlag; }
+
 	static const int MAXTEAMS = 4;
 	int teamScore[MAXTEAMS];
 	

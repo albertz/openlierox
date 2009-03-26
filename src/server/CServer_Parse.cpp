@@ -1239,11 +1239,11 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	if( iState != SVS_LOBBY ) {
 		std::string msg;
 		if(!checkVersionCompatibility(newcl, false, false, &msg)) {
-			notes << "ParseConnect: " << newcl->debugName(false) << ": " << msg << endl;
+			notes << "ParseConnect: " << newcl->debugName(false) << " is too old: " << msg << endl;
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(msg));
+			bytestr.writeString(OldLxCompatibleString("Your OpenLieroX version is too old, please update.\n" + msg));
 			bytestr.Send(net_socket);
 			RemoveClient(newcl);
 			return;

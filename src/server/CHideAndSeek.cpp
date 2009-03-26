@@ -43,7 +43,7 @@ public:
 	virtual int  Winner();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Hide and Seek"; }
-	virtual GameInfoGroup_t getGameInfoGroupInOptions() { return GIG_HideAndSeek; };
+	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_HideAndSeek; }
 	
 	// Show or hide a worm to/from the opposing team
 	void Show(CWorm* worm, bool message = true);

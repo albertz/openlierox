@@ -317,7 +317,7 @@ extern	GameOptions		*tLXOptions;
 extern  NetworkTexts  *networkTexts;
 
 // Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
-enum GameInfoGroup_t
+enum GameInfoGroup
 {
 	GIG_General,
 	GIG_Advanced,
@@ -329,6 +329,7 @@ enum GameInfoGroup_t
 	GIG_GameModeSpecific_Start, // All following options are game-mode specific
 	
 	GIG_HideAndSeek,
+	GIG_CaptureTheFlag,
 	
 	GIG_Size
 };

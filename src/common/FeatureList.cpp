@@ -55,6 +55,14 @@ Feature featureArray[] = {
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
 	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
 			0,	0,					Version(),			GIG_Other,			0,		MAX_PLAYERS, true),
+	Feature("WormSpeedFactor",		"Worm speed factor",	"Global factor to worm speed",
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
+	Feature("WormDamageFactor",		"Worm damage factor",	"Global factor to worm damage",
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
+	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninka rope",
+			true, true,				Version(),			GIG_CaptureTheFlag, true),
+	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
+			1.0f, 1.0f,				Version(),			GIG_CaptureTheFlag,	 -2.0f, 3.0f, true),
 
 	Feature::Unset()
 };
@@ -67,14 +75,9 @@ Feature* featureByName(const std::string& name) {
 	return NULL;
 }
 
-FeatureSettings::FeatureSettings(bool alsoServerSide) {
-	len = alsoServerSide ? featureArrayLen() : clientSideFeatureCount();
-	if(len == 0) {
-		settings = NULL;
-		return;
-	}
-	settings = new ScriptVar_t[len];
-	foreach( Feature*, f, Array(featureArray,len) ) {
+FeatureSettings::FeatureSettings() {
+	settings = new ScriptVar_t[featureArrayLen()];
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		(*this)[f->get()] = f->get()->defaultValue;
 	}
 }
@@ -86,13 +89,8 @@ FeatureSettings::~FeatureSettings() {
 FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
 	if(settings) delete[] settings;
 
-	len = r.len;
-	if(len == 0) {
-		settings = NULL;
-		return *this;
-	}
-	settings = new ScriptVar_t[len];
-	foreach( Feature*, f, Array(featureArray,len) ) {
+	settings = new ScriptVar_t[featureArrayLen()];
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		(*this)[f->get()] = r[f->get()];		
 	}
 	

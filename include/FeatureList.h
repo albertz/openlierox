@@ -58,7 +58,7 @@ struct Feature {
 
 extern Feature featureArray[];
 inline int featureArrayLen() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) ++l; return l; }
-inline int clientSideFeatureCount() { int l = 0; for(Feature* f = featureArray; f->SET ; ++f) if(!f->serverSideOnly) ++l; return l; }
+inline int clientSideFeatureCount() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) if(!f->serverSideOnly) ++l; return l; }
 Feature* featureByName(const std::string& name);
 
 // Indexes of features in featureArray
@@ -67,7 +67,6 @@ Feature* featureByName(const std::string& name);
 //  with the actual declaration of the Feature. Though I don't know a way how to put both things together
 //  in the header file.)
 // WARNING: Keep this always synchronised with featureArray!
-// WARNING: With current implementation (see FeatureSettings constr. and clientSideFeatureCount), serverSideOnly-features have to stay at end!
 enum FeatureIndex {
 	FT_GameSpeed = 0,
 	FT_ForceScreenShaking,
@@ -86,7 +85,11 @@ enum FeatureIndex {
 	FT_HS_SeekerVisionRangeThroughWalls,
 	FT_HS_SeekerVisionAngle,
 	FT_NewNetEngine,
-	FT_FillWithBotsTo
+	FT_FillWithBotsTo,
+	FT_WormSpeedFactor,
+	FT_WormDamageFactor,
+	FT_CTF_AllowRopeForCarrier,
+	FT_CTF_SpeedFactorForCarrier,
 };
 
 class FeatureCompatibleSettingList {
@@ -116,9 +119,8 @@ public:
 class FeatureSettings {
 private:
 	ScriptVar_t* settings;
-	unsigned long len;
 public:
-	FeatureSettings(bool alsoServerSide = true); ~FeatureSettings();
+	FeatureSettings(); ~FeatureSettings();
 	FeatureSettings(const FeatureSettings& r) : settings(NULL) { (*this) = r; }
 	FeatureSettings& operator=(const FeatureSettings& r);
 	

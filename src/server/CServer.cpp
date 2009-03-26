@@ -1578,6 +1578,16 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 			return false;
 	}
 	
+	if((float)tLXOptions->tGameInfo.features[FT_WormSpeedFactor] != 1.0f) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormSpeedFactor = " + ftoa(tLXOptions->tGameInfo.features[FT_WormSpeedFactor]), dropOut, makeMsg, msg))
+			return false;		
+	}
+
+	if((float)tLXOptions->tGameInfo.features[FT_WormDamageFactor] != 1.0f) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormDamageFactor = " + ftoa(tLXOptions->tGameInfo.features[FT_WormDamageFactor]), dropOut, makeMsg, msg))
+			return false;		
+	}
+	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
 			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString(), dropOut, makeMsg, msg))
@@ -1590,7 +1600,7 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 
 bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg, std::string* msg) {
 	if(cl->getClientVersion() < ver) {
-		std::string kickReason = cl->getClientVersion().asString() + " is too old: " + reason;
+		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + reason;
 		if(msg) *msg = kickReason;
 		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
 		if(dropOut)

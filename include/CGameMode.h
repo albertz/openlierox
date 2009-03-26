@@ -55,7 +55,7 @@ public:
 	virtual int WinnerTeam();
 	virtual int TeamScores(int t);
 
-	virtual GameInfoGroup_t getGameInfoGroupInOptions() { return GIG_GameModeSpecific_Start; };
+	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_GameModeSpecific_Start; };
 
 	// helper functions
 	int WormsAliveInTeam(int t);
