@@ -54,7 +54,6 @@ enum {
 	mi_Back,
     mi_PopupMenu,
 	mi_PlayerSelection,
-	mi_ChatWidget
 };
 
 ///////////////////
@@ -76,7 +75,7 @@ bool Menu_Net_NETInitialize(void)
 	cInternet.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cInternet.Add( new CCombobox(),								mi_PlayerSelection,		225,150, 170,  19);
 	if (tLXOptions->bEnableChat)
-		cInternet.Add( new CChatWidget(),						mi_ChatWidget,	25, 15, 585, 85 );
+		cInternet.Add( new CChatWidget(),						-1,	25, 15, 585, 85 );
 
 
 	/*

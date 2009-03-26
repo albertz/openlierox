@@ -960,10 +960,15 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_HostDrawLobby(VideoPostProcessor::videoSurface());
 
 	// Process & Draw the gui
-	if (!Con_IsVisible() && !bSpeedTestDialog)  // Don't process when the console is opened or speed test is being performed
+	if (!Con_IsVisible() && !bSpeedTestDialog && !CChatWidget::GlobalEnabled())  // Don't process when the console is opened or speed test is being performed
 		ev = cHostLobby.Process();
 	cHostLobby.Draw( VideoPostProcessor::videoSurface() );
-
+	if(CChatWidget::GlobalEnabled())
+	{
+		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface());
+		return;
+	}
+	
 	bool bStartPressed = false;
 
 	// Process any events

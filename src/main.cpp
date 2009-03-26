@@ -47,6 +47,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
+#include "DeprecatedGUI/CChatWidget.h"
 
 #include "SkinnedGUI/CGuiSkin.h"
 
@@ -65,6 +66,7 @@ lierox_t	*tLX = NULL;
 
 CInput		*cTakeScreenshot = NULL;
 CInput		*cSwitchMode = NULL;
+CInput		*cIrcChat = NULL;
 
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
@@ -337,8 +339,10 @@ startpoint:
 	// Setup the global keys	
 	cTakeScreenshot = new CInput();
 	cSwitchMode = new CInput();
+	cIrcChat = new CInput();
 	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
 
 
 	DrawLoading(99, "Loading Physics Engine");
@@ -413,9 +417,12 @@ quit:
 	
 	PhysicsEngine::UnInit();
 
+	DeprecatedGUI::CChatWidget::GlobalDestroy();
+	
 	ShutdownLieroX();
 	delete cSwitchMode; cSwitchMode = NULL;
 	delete cTakeScreenshot; cTakeScreenshot = NULL;	
+	delete cIrcChat; cIrcChat = NULL;
 	
 	notes << "waiting for all left threads and tasks" << endl;
 	taskManager->finishQueuedTasks();

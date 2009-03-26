@@ -795,10 +795,16 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Process & Draw the gui
-	if (!Con_IsVisible())  // Don't process when the console is opened
+	if (!Con_IsVisible() && !CChatWidget::GlobalEnabled())  // Don't process when the console is opened
 		ev = cJoinLobby.Process();
 
 	cJoinLobby.Draw( VideoPostProcessor::videoSurface() );
+
+	if(CChatWidget::GlobalEnabled())
+	{
+		CChatWidget::GlobalProcessAndDraw(VideoPostProcessor::videoSurface());
+		return;
+	}
 
 	// Process any events
 	if(ev) {

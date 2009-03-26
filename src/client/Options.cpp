@@ -45,8 +45,8 @@ const std::string    ply_def1[] =
 	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "1", "2", "3", "4", "5" };
 #endif
 const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp enter", "kp 0", "kp -", "kp .", "6", "7", "8", "9", "0" };
-const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"MediaPlayer"};
-const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "o",			"F3"};
+const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"IrcChat"};
+const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "o",			"F4"};
 
 const char * GameInfoGroupDescriptions[GIG_Size][2] = 
 {

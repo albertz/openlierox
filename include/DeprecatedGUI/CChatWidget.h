@@ -34,10 +34,16 @@ public:
 
 	void	ProcessChildEvent(int iEvent, CWidget * child);
 
-	void	EnableChat();
-	void	DisableChat();
+	static void EnableChat();
+	static void DisableChat();
 	
-	static CChatWidget * getInstance();
+	// Parent dialog should do "if(CChatWidget::GlobalEnabled()) CChatWidget::GlobalShow();" each frame
+	// instead of calling Process() on your own GUI layout, you should only call Draw() before that
+	static bool GlobalEnabled();
+	static void GlobalSetEnabled();
+	// Show standalone chat window - it will draw some background, so it won't be transparent
+	static void GlobalProcessAndDraw(SDL_Surface * bmpDest);
+	static void GlobalDestroy();
 };
 
 } // namespace DeprecatedGUI

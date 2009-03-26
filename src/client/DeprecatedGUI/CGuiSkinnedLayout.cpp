@@ -33,6 +33,7 @@ namespace DeprecatedGUI {
 void CGuiSkinnedLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 {
 	widget->Setup(id, x + iOffsetX, y + iOffsetY, w, h);
+	widget->setRedrawMenu(false);
 	widget->Create();
 	widget->setParent(this);
 

@@ -124,7 +124,8 @@ enum {
 	oc_Gen_ViewportManager,
 	oc_Gen_SwitchMode,
 	oc_Gen_ToggleTopBar,
-	oc_Gen_TeamChat
+	oc_Gen_TeamChat,
+	oc_Gen_IrcChat,
 };
 
 
@@ -246,6 +247,10 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 390, 390, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_TEAMCHAT, tLXOptions->sGeneralControls[SIN_TEAMCHAT], tMenu->bmpInputbox, "Teamchat"),
 						   oc_Gen_TeamChat, 525, 390, 50,17);
+
+	cOpt_Controls.Add( new CLabel("IRC chat window", tLX->clNormalLabel), Static, 390, 415, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_IRCCHAT, tLXOptions->sGeneralControls[SIN_IRCCHAT], tMenu->bmpInputbox, "IRC chat"),
+						   oc_Gen_IrcChat, 525, 415, 50,17);
 
 
 
@@ -549,6 +554,8 @@ void Menu_OptionsFrame(void)
 						cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 					if (ev->iControlID == oc_Gen_SwitchMode)
 						cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+					if (ev->iControlID == oc_Gen_IrcChat)
+						cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
 				}
 			}
 		}
@@ -984,7 +991,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 					if( tLXOptions->sPlayerControls[ply1][key1] ==
 						tLXOptions->sPlayerControls[ply2][key2] )
 						tLXOptions->sPlayerControls[ply1][key1] = "";
-			int lastkey = SIN_TEAMCHAT;
+			int lastkey = SIN_IRCCHAT;
 
 			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
 				if( tLXOptions->sPlayerControls[ply1][key1] ==

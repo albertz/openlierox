@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <list>
+#include <set>
 #include "Networking.h"
 #include "Timer.h"
 
@@ -41,10 +42,10 @@ public:
 	m_authorizedState(AUTH_NONE),
 	m_nickUniqueNumber(-1),
 	m_updatingUserList(false),
-	m_newMsgCallback(NULL),
-	m_disconnectCallback(NULL),
-	m_connectCallback(NULL),
-	m_updateUsersCallback(NULL)
+	m_newMsgCallback(),
+	m_disconnectCallback(),
+	m_connectCallback(),
+	m_updateUsersCallback()
 	{}
 
 	~IRCClient()  { disconnect(); }
@@ -121,10 +122,10 @@ private:
 	IRCState	m_authorizedState;
 	int			m_nickUniqueNumber;
 	bool		m_updatingUserList;
-	IRCNewMessageCB	m_newMsgCallback;
-	IRCDisconnectCB	m_disconnectCallback;
-	IRCDisconnectCB	m_connectCallback;
-	IRCUpdateUserListCB	m_updateUsersCallback;
+	std::set<IRCNewMessageCB>	m_newMsgCallback;
+	std::set<IRCDisconnectCB>	m_disconnectCallback;
+	std::set<IRCConnectCB>		m_connectCallback;
+	std::set<IRCUpdateUserListCB>	m_updateUsersCallback;
 
 private:
 	// Methods
@@ -173,21 +174,21 @@ public:
 	const std::string getNick()							{ return m_myNick; }
 	void	setAwayMessage(const std::string & msg);	// We'll write here on which server we are playing currently
 
-	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback = cb; }
-	void	clearNewMessageCallback()					{ m_newMsgCallback = NULL; }
-	IRCNewMessageCB getNewMessageCallback()	const		{ return m_newMsgCallback; }
+	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback.insert(cb); }
+	void	clearNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback.erase(cb); }
+	const std::set<IRCNewMessageCB> & getNewMessageCallbacks() const { return m_newMsgCallback; }
 
-	void	setDisconnectCallback(IRCDisconnectCB cb)	{ m_disconnectCallback = cb; }
-	void	clearDisconnectCallback()					{ m_disconnectCallback = NULL; }
-	IRCDisconnectCB getDisconnectCallback()	const		{ return m_disconnectCallback; }
+	void	setDisconnectCallback(IRCDisconnectCB cb)	{ m_disconnectCallback.insert(cb); }
+	void	clearDisconnectCallback(IRCDisconnectCB cb)	{ m_disconnectCallback.erase(cb); }
+	const std::set<IRCDisconnectCB> & getDisconnectCallbacks() const { return m_disconnectCallback; }
 
-	void	setConnectCallback(IRCConnectCB cb)			{ m_connectCallback = cb; }
-	void	clearConnectCallback()						{ m_connectCallback = NULL; }
-	IRCDisconnectCB getConnectCallback()	const		{ return m_connectCallback; }
+	void	setConnectCallback(IRCConnectCB cb)			{ m_connectCallback.insert(cb); }
+	void	clearConnectCallback(IRCConnectCB cb)		{ m_connectCallback.erase(cb); }
+	const std::set<IRCConnectCB> & getConnectCallbacks()	const { return m_connectCallback; }
 
-	void	setUpdateUserListCallback(IRCUpdateUserListCB cb)	{ m_updateUsersCallback = cb; }
-	void	clearUpdateUserListCallback()						{ m_updateUsersCallback = NULL; }
-	IRCUpdateUserListCB getUpdateUserListCallback()	const		{ return m_updateUsersCallback; }
+	void	setUpdateUserListCallback(IRCUpdateUserListCB cb)	{ m_updateUsersCallback.insert(cb); }
+	void	clearUpdateUserListCallback(IRCUpdateUserListCB cb)	{ m_updateUsersCallback.erase(cb); }
+	const std::set<IRCUpdateUserListCB> & getUpdateUserListCallbacks() const { return m_updateUsersCallback; }
 };
 
 //

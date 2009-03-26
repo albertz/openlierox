@@ -131,9 +131,10 @@ void CBox::PreDraw(void)
 	for (i=1.00f;i<1.5f;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (int)((iRound-j)*sin(PI*i))-1;
-			y = (int)((iRound-j)*cos(PI*i))-1;
-			PutPixel(bmpBuffer.get(),x+iRound,y+iRound,cur_col);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
+			
+			PutPixel(bmpBuffer.get(),x,y,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
 	}
@@ -143,9 +144,9 @@ void CBox::PreDraw(void)
 	for (i=0.50f;i<1.0f;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (int)((iRound-j)*sin(PI*i));
-			y = (int)((iRound-j)*cos(PI*i))-1;
-			PutPixel(bmpBuffer.get(),x+iWidth-iRound,y+iRound,cur_col);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
 	}
@@ -155,9 +156,9 @@ void CBox::PreDraw(void)
 	for (i=1.50f;i<2.0f;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (int)((iRound-j)*sin(PI*i))-1;
-			y = (int)((iRound-j)*cos(PI*i));
-			PutPixel(bmpBuffer.get(),x+iRound,y+iHeight-iRound,cur_col);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
 	}
@@ -167,9 +168,9 @@ void CBox::PreDraw(void)
 	for (i=-0.01f;i<0.5f;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (int)((iRound-j)*sin(PI*i));
-			y = (int)((iRound-j)*cos(PI*i));
-			PutPixel(bmpBuffer.get(),x+iWidth-iRound,y+iHeight-iRound,cur_col);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
 	}
@@ -195,9 +196,9 @@ void CBox::PreDraw(void)
 	// (1,3/2*PI)
 	for (i=1.01f;i<1.49;i+=step)  {
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
-			x = (int)((iRound-j)*sin(PI*i))-1;
-			y = (int)((iRound-j)*cos(PI*i))-1;
-			PutPixel(bmpBuffer.get(),x+iRound,y+iRound,iBgColour);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour);
 		}
 	}
 
@@ -205,9 +206,9 @@ void CBox::PreDraw(void)
 	// (PI/2,PI)
 	for (i=0.51f;i<0.99;i+=step)  {
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
-			x = (int)((iRound-j)*sin(PI*i));
-			y = (int)((iRound-j)*cos(PI*i))-1;
-			PutPixel(bmpBuffer.get(),x+iWidth-iRound,y+iRound,iBgColour);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour);
 		}
 	}
 	
@@ -215,9 +216,9 @@ void CBox::PreDraw(void)
 	// (3/2*PI,2PI)
 	for (i=1.51f;i<1.99;i+=step)  {
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
-			x = (int)((iRound-j)*sin(PI*i))-1;
-			y = (int)((iRound-j)*cos(PI*i));
-			PutPixel(bmpBuffer.get(),x+iRound,y+iHeight-iRound,iBgColour);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour);
 		}
 	}
 
@@ -225,9 +226,9 @@ void CBox::PreDraw(void)
 	// (0,PI)
 	for (i=0.01f;i<0.499;i+=step)  {
 		for (j=iBorder; j<=iRound-iBorder+2; j++)  {
-			x = (int)((iRound-j)*sin(PI*i));
-			y = (int)((iRound-j)*cos(PI*i));
-			PutPixel(bmpBuffer.get(),x+iWidth-iRound,y+iHeight-iRound,iBgColour);
+			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
+			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour);
 		}
 	}
 

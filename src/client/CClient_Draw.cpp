@@ -38,6 +38,7 @@
 #include "DeprecatedGUI/CLine.h"
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CCheckbox.h"
+#include "DeprecatedGUI/CChatWidget.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
 #include "Timer.h"
@@ -740,7 +741,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Game menu
 	bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
 	if( bGameMenu)
+	{
+		bChat_Typing = false;
 		DrawGameMenu(bmpDest);
+	}
 
 	// Options dialog
 	if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
@@ -1117,7 +1121,8 @@ void CClient::SimulateHud(void)
 	}
 
 	// Game Menu
-	if(WasKeyboardEventHappening(SDLK_ESCAPE, false) && !bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
+	if( ( WasKeyboardEventHappening(SDLK_ESCAPE, false) || DeprecatedGUI::CChatWidget::GlobalEnabled()) && 
+			!bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
         if( !bViewportMgr )
         {
 			if (!bGameMenu)
@@ -1213,7 +1218,8 @@ enum {
 	gm_RightList,
 	gm_Options,
 	gm_PopupMenu,
-	gm_PopupPlayerInfo
+	gm_PopupPlayerInfo,
+	gm_Chat,
 };
 
 void CClient::InitializeGameMenu()
@@ -1226,8 +1232,11 @@ void CClient::InitializeGameMenu()
 	cGameMenuLayout.Shutdown();
 	bUpdateScore = true;
 
-	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 260, 360, 80, 20);
+	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_GAMESETTINGS, DeprecatedGUI::tMenu->bmpButtons), gm_Options, 150, 360, 80, 20);
 	cGameMenuLayout.getWidget(gm_Options)->setEnabled(!bGameOver); // Hide on game over
+
+	cGameMenuLayout.Add(new DeprecatedGUI::CButton(DeprecatedGUI::BUT_CHAT, DeprecatedGUI::tMenu->bmpButtons), gm_Chat, 360, 360, 40, 20);
+	cGameMenuLayout.getWidget(gm_Chat)->setEnabled(!bGameOver); // Hide on game over
 
 	if (tLX->iGameType == GME_LOCAL)  {
 		if (bGameOver)
@@ -1347,9 +1356,17 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	UpdateScore((DeprecatedGUI::CListview *) cGameMenuLayout.getWidget(gm_LeftList), (DeprecatedGUI::CListview *) cGameMenuLayout.getWidget(gm_RightList));
 
 	// Draw the gui
-	DeprecatedGUI::gui_event_t *ev = DeprecatedGUI::bShowFloatingOptions  ? NULL : cGameMenuLayout.Process();
+	DeprecatedGUI::gui_event_t *ev = NULL;
+	if( ! DeprecatedGUI::bShowFloatingOptions && !DeprecatedGUI::CChatWidget::GlobalEnabled() )
+		ev = cGameMenuLayout.Process();
 	
 	cGameMenuLayout.Draw(bmpDest);
+	
+	if(DeprecatedGUI::CChatWidget::GlobalEnabled())
+	{
+		DeprecatedGUI::CChatWidget::GlobalProcessAndDraw(bmpDest);
+		return;
+	}
 
 	// Draw the mouse
 	DrawCursor(bmpDest);
@@ -1408,6 +1425,12 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
 				DeprecatedGUI::Menu_FloatingOptionsInitialize();
 				DeprecatedGUI::bShowFloatingOptions = true;
+			}
+		break;
+
+		case gm_Chat:
+			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+				DeprecatedGUI::CChatWidget::GlobalSetEnabled();
 			}
 		break;
 

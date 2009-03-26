@@ -64,9 +64,9 @@ void IRCClient::addChatMessage(const std::string &msg, IRCTextType type)
 	while (m_chatText.size() > 1024)
 		m_chatText.pop_front();
 
-	// Run the event function
-	if (m_newMsgCallback)
-		m_newMsgCallback(msg, (int)type);
+	// Run the event functions
+	for( std::set<IRCNewMessageCB>::const_iterator it = m_newMsgCallback.begin(); it != m_newMsgCallback.end(); it++ )
+		(*it)(msg, (int)type);
 }
 
 ///////////////////////
@@ -289,8 +289,8 @@ void IRCClient::disconnect()
 		return;
 
 	// Call the disconnect callback
-	if (m_disconnectCallback)
-		m_disconnectCallback();
+	for( std::set<IRCDisconnectCB>::const_iterator it = m_disconnectCallback.begin(); it != m_disconnectCallback.end(); it++ )
+		(*it)();
 
 	// Close socket
 	if (IsSocketReady(m_chatSocket))
@@ -313,8 +313,8 @@ void IRCClient::disconnect()
 	m_chatUsers.clear();
 
 	// Call the update user list callback
-	if (m_updateUsersCallback)
-		m_updateUsersCallback(m_chatUsers);
+	for( std::set<IRCUpdateUserListCB>::const_iterator it = m_updateUsersCallback.begin(); it != m_updateUsersCallback.end(); it++ )
+		(*it)(m_chatUsers);
 
 	notes("IRC: disconnected\n");
 }
@@ -531,8 +531,8 @@ void IRCClient::parseDropped(const IRCClient::IRCCommand &cmd)
 		for (std::list<std::string>::iterator it = m_chatUsers.begin(); it != m_chatUsers.end(); it++)  {
 			if (*it == cmd.sender)  {
 				m_chatUsers.erase(it);
-				if (m_updateUsersCallback)
-					m_updateUsersCallback(m_chatUsers);
+				for( std::set<IRCUpdateUserListCB>::const_iterator it = m_updateUsersCallback.begin(); it != m_updateUsersCallback.end(); it++ )
+					(*it)(m_chatUsers);
 				break;
 			}
 		}
@@ -586,8 +586,8 @@ void IRCClient::parseJoin(const IRCClient::IRCCommand& cmd)
 	sendRequestNames();
 
 	// Callback
-	if (m_connectCallback)
-		m_connectCallback();
+	for( std::set<IRCConnectCB>::const_iterator it = m_connectCallback.begin(); it != m_connectCallback.end(); it++ )
+		(*it)();
 
 	notes("IRC connected to " + m_chatServerChannel + "@" + m_chatServerAddrStr + "\n");
 }
@@ -632,8 +632,8 @@ void IRCClient::parseNameReply(const IRCClient::IRCCommand &cmd)
 	}
 
 	// Callback
-	if (m_updateUsersCallback)
-		m_updateUsersCallback(m_chatUsers);
+	for( std::set<IRCUpdateUserListCB>::const_iterator it = m_updateUsersCallback.begin(); it != m_updateUsersCallback.end(); it++ )
+		(*it)(m_chatUsers);
 }
 
 ////////////////////
