@@ -1034,7 +1034,6 @@ void GameServer::RegisterServerUdp(void)
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
-		notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		NetworkAddr addr;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
@@ -1046,6 +1045,8 @@ void GameServer::RegisterServerUdp(void)
 			fRegisterUdpTime = tLX->currentTime + 5.0f;
 			continue;
 		}
+
+		notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		SetNetAddrPort( addr, port );
 		SetRemoteNetAddr( tSocket, addr );
 
