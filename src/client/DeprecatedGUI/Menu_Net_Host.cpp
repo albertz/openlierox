@@ -44,6 +44,8 @@
 #include "Debug.h"
 #include "console.h"
 #include "CGameMode.h"
+#include "DeprecatedGUI/CChatWidget.h"
+
 
 /*
    The hosting menu is in two parts

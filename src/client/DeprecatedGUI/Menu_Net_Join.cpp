@@ -37,7 +37,7 @@
 #include "CClientNetEngine.h"
 #include "Debug.h"
 #include "console.h"
-
+#include "DeprecatedGUI/CChatWidget.h"
 
 
 namespace DeprecatedGUI {
