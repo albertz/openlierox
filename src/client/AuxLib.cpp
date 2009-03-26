@@ -995,10 +995,10 @@ size_t GetFreeSysMemory() {
         char buf[1024];
 		while (fgets(buf, sizeof(buf), fp)) {
 			if (!strncmp(buf, "MemFree:", 8)) {
-				size_t memFree = 0;
+				unsigned long memFree = 0;
 				if (sscanf(buf, "MemFree: %lu", &memFree) != 1) {
 					fclose(fp);
-					return memFree * 1024; // it's written in KB in meminfo
+					return (size_t)memFree * 1024; // it's written in KB in meminfo
 				}
 			}
 		}
