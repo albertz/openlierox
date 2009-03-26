@@ -1082,7 +1082,7 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 }
 
 bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
-	return worm->speedFactor() != 1.0f || worm->damageFactor() != 1.0f || !worm->canUseNinja();
+	return worm->speedFactor() == 1.0f && worm->damageFactor() == 1.0f && worm->canUseNinja();
 }
 
 void GameServer::SetWormSpeedFactor(int wormID, float f) {
