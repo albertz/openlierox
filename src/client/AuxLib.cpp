@@ -27,6 +27,7 @@
 #include <SDL_syswm.h>
 #include <cstdlib>
 #include <sstream>
+#include <cstring>
 
 #if defined(__APPLE__)
 #import <mach/host_info.h>
@@ -991,7 +992,7 @@ size_t GetFreeSysMemory() {
     // get it from /proc/meminfo
     FILE *fp = fopen("/proc/meminfo", "r");
     if ( fp )
-    {		
+    {
 		unsigned long freeMem = 0;
 		unsigned long buffersMem = 0;
 		unsigned long cachedMem = 0;
@@ -999,10 +1000,10 @@ size_t GetFreeSysMemory() {
 		SearchTerm terms[] = { {"MemFree:", &freeMem}, {"Buffers:", &buffersMem}, {"Cached:", &cachedMem} };
 				
         char buf[1024];
-		int n = fread(bug, sizeof(char), sizeof(buf) - 1, fp);
+		int n = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
 		buf[sizeof(buf)-1] = '\0';
 		if(n > 0) {
-			for(int i = 0; i < sizeof(terms) / sizeof(SearchTerm); ++i) {
+			for(unsigned int i = 0; i < sizeof(terms) / sizeof(SearchTerm); ++i) {
 				char* p = strstr(buf, terms[i].name);
 				if(p) {
 					p += strlen(terms[i].name);
@@ -1011,7 +1012,7 @@ size_t GetFreeSysMemory() {
 			}
 		}
 				
-        fclose(fp);		
+        fclose(fp);
 		// it's written in KB in meminfo
         return ((size_t)freeMem + (size_t)buffersMem + (size_t)cachedMem) * 1024;
     }
