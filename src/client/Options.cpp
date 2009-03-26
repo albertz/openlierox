@@ -57,7 +57,8 @@ const char * GameInfoGroupDescriptions[GIG_Size][2] =
 	{"Bonuses", "Bonuses related game options"},
 	{"Other", "Other game options"},
 	{"", ""}, // GIG_GameModeSpecific_Start - dummy value
-	{"Hide and Seek", "Hide and Seek gamemode settings"}
+	{"Hide and Seek", "Hide and Seek gamemode settings"},
+	{"Capture The Flag", "Capture The Flag gamemode settings"},
 };
 
 bool GameOptions::Init() {
