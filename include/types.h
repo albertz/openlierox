@@ -65,7 +65,7 @@ struct AbsTime {
 	explicit AbsTime(Uint64 t = 0) : time(t) {}
 	explicit AbsTime(int t) : time(t) {}
 	explicit AbsTime(float seconds) : time( (Uint64)(seconds * 1000.0f) ) {}
-	static AbsTime MAX() { return AbsTime((Uint64)-1); }
+	static AbsTime Max() { return AbsTime((Uint64)-1); }
 
 	const AbsTime & operator=(float seconds) { *this = AbsTime(seconds); return *this; };
 	// No operator=(int) here, 'cause it will be in milliseconds - inconsistent, and hard-to-find errors occur

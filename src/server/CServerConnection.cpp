@@ -79,7 +79,7 @@ void CServerConnection::Clear(void)
 	bsUnreliable.Clear();
 	bLocalClient = false;
 
-	fLastReceived = AbsTime::MAX();
+	fLastReceived = AbsTime::Max();
 	fSendWait = 0;
 	fLastUpdateSent = AbsTime();
 
@@ -95,7 +95,7 @@ void CServerConnection::Clear(void)
 void CServerConnection::MinorClear(void)
 {
 	iNetStatus = NET_CONNECTED;
-	fLastReceived = AbsTime::MAX();
+	fLastReceived = AbsTime::Max();
 
 	fSendWait = 0;
 

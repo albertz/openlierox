@@ -52,6 +52,8 @@ void		SetCrashHandlerReturnPoint(const char* name);
 void		OpenLinkInExternBrowser(const std::string& url);
 void		nameThread(const std::string& name);
 
+size_t		GetFreeSysMemory(); // returnes available physical memory in bytes
+
 
 #ifdef DEBUG
 bool		HandleDebugCommand(const std::string& cmd);

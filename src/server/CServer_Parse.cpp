@@ -860,7 +860,7 @@ void GameServer::ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *b
 void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 	int			i;
 	NetworkAddr	adrFrom;
-	AbsTime		OldestTime = AbsTime::MAX();
+	AbsTime		OldestTime = AbsTime::Max();
 	int			ChallengeToSet = -1;
 	CBytestream	bs;
 

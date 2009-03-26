@@ -25,8 +25,19 @@
 #include <time.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
+
+#if defined(__APPLE__)
+#import <mach/host_info.h>
+#import <mach/mach_host.h>
+#import <sys/sysctl.h>
+#elif defined(WIN32) || defined(WIN64)
+#include <windows.h>
+#else
+#include <cstdio>
+#include <unistd.h>
+#endif
 
 #include "Cache.h"
 #include "Debug.h"
@@ -944,5 +955,58 @@ void nameThread(const std::string& name)
 	}
 #else
 	// TODO: similar for other systems
+#endif
+}
+
+
+
+size_t GetFreeSysMemory() {
+#if defined(__APPLE__)
+	vm_statistics_data_t page_info;
+	vm_size_t pagesize;
+	mach_msg_type_number_t count;
+	kern_return_t kret;
+	
+	pagesize = 0;
+	kret = host_page_size (mach_host_self(), &pagesize);
+	count = HOST_VM_INFO_COUNT;
+	
+	kret = host_statistics (mach_host_self(), HOST_VM_INFO,(host_info_t)&page_info, &count);
+	return page_info.free_count * pagesize;
+#elif defined(__WIN64__)
+    MEMORYSTATUSEX memStatex;
+    memStatex.dwLength = sizeof (memStatex);
+    ::GlobalMemoryStatusEx (&memStatex);
+    return memStatex.ullAvailPhys;
+#elif defined(__WIN32__)
+    MEMORYSTATUS memStatus;
+    memStatus.dwLength = sizeof(MEMORYSTATUS);
+    ::GlobalMemoryStatus(&memStatus);
+    return memStatus.dwAvailPhys;
+#elif defined(__SUN__) && defined(_SC_AVPHYS_PAGES)
+    return sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGESIZE);
+//#elif defined(__FREEBSD__) -- might use sysctl() to find it out, probably
+#else
+
+    // get it from /proc/meminfo
+    FILE *fp = fopen("/proc/meminfo", "r");
+    if ( fp )
+    {		
+        char buf[1024];
+		while (fgets(buf, sizeof(buf), fp)) {
+			if (!strncmp(buf, "MemFree:", 8)) {
+				size_t memFree = 0;
+				if (sscanf(buf, "MemFree: %lu", &memFree) != 1) {
+					fclose(fp);
+					return memFree * 1024; // it's written in KB in meminfo
+				}
+			}
+		}
+				
+        fclose(fp);		
+        return 0;
+    }
+	
+	return 0;
 #endif
 }

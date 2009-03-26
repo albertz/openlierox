@@ -118,7 +118,7 @@ void CClient::Clear(void)
 	bServerError = false;
     bClientError = false;
 	bChat_Typing = false;
-	fLastReceived = AbsTime::MAX();
+	fLastReceived = AbsTime::Max();
 	fSendWait = 0;
 	fLastUpdateSent = AbsTime();
 
@@ -190,7 +190,7 @@ void CClient::MinorClear(void)
 	bServerError = false;
     bClientError = false;
 	bChat_Typing = false;
-	fLastReceived = AbsTime::MAX();
+	fLastReceived = AbsTime::Max();
 
 	fSendWait = 0;
 
