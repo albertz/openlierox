@@ -388,13 +388,22 @@ void	NewNet_LoadEntities()
 	tEntities = NewNet_SavedEntities;
 };
 
-void EntityEffect::Process( CVec pos, CVec vel )
+void EntityEffect::Process()
 {
 	_lastTime -= tLX->fDeltaTime.seconds();
 	if( _lastTime > 0 )
 		return;
 	_lastTime = _delay;
 	
+	if( _parent->getTagIT() )
+		Set( ENTE_SPARKLE_RANDOM, 1, 0.15, 5, 10 );
+	else if( _parent->damageFactor() > 1 )
+		Set( ENTE_SPARKLE_CIRCLE_ROTATING, _parent->damageFactor(), 0.05, 
+										5.0 + (_parent->damageFactor() - int(_parent->damageFactor()))*5.0, 9, 10 );
+	else
+		Set();
+
+	CVec pos( _parent->getPos() ), vel( *_parent->getVelocity() );
 	switch( _type )
 	{
 		case ENTE_NONE:

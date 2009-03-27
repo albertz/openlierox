@@ -85,18 +85,20 @@ enum EntityEffectType {
 	ENTE_SPARKLE_CIRCLE_ROTATING,
 };
 
+class CWorm;
 class EntityEffect
 {
 	public:
-	EntityEffect()
+	EntityEffect(CWorm * parent)
 	{
+		_parent = parent;
 		Set();
 
 		_lastTime = 0.0f;
 		_lastAngle = 0.0f;
 	}
 	
-	void Process( CVec pos, CVec vel );
+	void Process();
 	
 	void Set( EntityEffectType type = ENTE_NONE, int amount = 3, float delay = 0.5f, float speed = 5.0f, float radius = 25.0f, int fade = 5 )
 	{
@@ -108,6 +110,7 @@ class EntityEffect
 		_fade = fade;
 	};
 
+	CWorm * _parent;
 	EntityEffectType _type;
 	int _amount;
 	float _speed;

@@ -909,7 +909,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the worm
 	if (isWormVisible(this, v)) {
 		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
-		cSparkles.Process( vPos, vVelocity );
+		cSparkles.Process();
 	}
 	
 	/*FillSurfaceTransparent(bmpShadowPic.get());
@@ -1230,10 +1230,6 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 void CWorm::setTagIT(bool _t) 
 { 
 	bTagIT = _t; 
-	if( !bTagIT )
-		cSparkles.Set();
-	else
-		cSparkles.Set( ENTE_SPARKLE_RANDOM, 1, 0.15, 5, 10 );
 }
 
 Uint32 CWorm::getGameColour(void)

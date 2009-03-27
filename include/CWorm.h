@@ -170,7 +170,8 @@ struct WormJoinInfo;
 class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler; friend struct WormJoinInfo;
 public:
 	// Constructor
-	CWorm() {
+	CWorm(): cSparkles(this)
+	{
 		m_inputHandler = NULL;
 		cOwner = NULL;
 		tProfile = NULL;
@@ -186,7 +187,7 @@ public:
 
 private:
 	// disallow these!
-	CWorm(const CWorm&) { assert(false); }
+	CWorm(const CWorm&): cSparkles(this) { assert(false); }
 	CWorm& operator=(const CWorm&) { assert(false); return *this; }
 	
 private:
