@@ -21,6 +21,7 @@
 #define __CON_COMMAND_H__
 
 #include <string>
+#include <vector>
 
 
 #define		MAX_ARGS		32
@@ -51,6 +52,8 @@ int		Cmd_AutoComplete(std::string& strVar);
 int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide = false);
 void	Cmd_Initialize();
 void	Cmd_Free(void);
+
+std::vector<std::string> ParseParams(const std::string& params);
 
 
 // User commands

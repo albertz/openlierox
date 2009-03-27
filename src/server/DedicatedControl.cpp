@@ -756,20 +756,19 @@ struct DedIntern {
 
 	void Cmd_SetWormTeam(DedInterface* caller, const std::string & params)
 	{
-		//TODO: Is this correct? Does atoi only catch the first number sequence?
-		int id = -1;
-		id = atoi(params);
-		int team = -1;
-		if( params.find(" ") != std::string::npos )
-			team = atoi( params.substr( params.find(" ")+1 ) );
-
+		std::vector<std::string> param = ParseParams(params);
+		if(param.size() != 2) {
+			caller->writeMsg("SetWormTeam: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
+			return;
+		}
+		
+		int id = atoi(param[0]);
+		int team = atoi(param[1]);
 
 		CWorm *w = CheckWorm(caller, id,"SetWormTeam");
-		if (!w)
-			return;
+		if (!w) return;
 
-		if( team < 0 || team > 3 )
-		{
+		if( team < 0 || team > 3 ) {
 			caller->writeMsg("SetWormTeam: invalid team number");
 			return;
 		}
@@ -781,8 +780,53 @@ struct DedIntern {
 		cServer->RecheckGame();
 	}
 
-	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string & params)
-	{
+	void Cmd_SetWormSpeedFactor(DedInterface* caller, const std::string& params) {
+		std::vector<std::string> param = ParseParams(params);
+		if(param.size() != 2) {
+			caller->writeMsg("Cmd_SetWormSpeedFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
+			return;
+		}
+		
+		int id = atoi(param[0]);
+		float factor = atof(param[1]);
+		if(!CheckWorm(caller, id, "Cmd_SetWormSpeedFactor")) return;
+		
+		cServer->SetWormSpeedFactor(id, factor);
+	}
+
+	void Cmd_SetWormDamageFactor(DedInterface* caller, const std::string& params) {
+		std::vector<std::string> param = ParseParams(params);
+		if(param.size() != 2) {
+			caller->writeMsg("Cmd_SetWormDamageFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
+			return;
+		}
+		
+		int id = atoi(param[0]);
+		float factor = atof(param[1]);
+		if(!CheckWorm(caller, id, "Cmd_SetWormDamageFactor")) return;
+		
+		cServer->SetWormDamageFactor(id, factor);
+	}
+
+	void Cmd_SetWormCanUseNinja(DedInterface* caller, const std::string& params) {
+		std::vector<std::string> param = ParseParams(params);
+		if(param.size() != 2) {
+			caller->writeMsg("Cmd_SetWormCanUseNinja: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
+			return;
+		}
+		
+		int id = atoi(param[0]);
+		bool canUse = from_string<bool>(param[1]);
+		if(!CheckWorm(caller, id, "Cmd_SetWormCanUseNinja")) return;
+		
+		cServer->SetWormCanUseNinja(id, canUse);
+	}
+	
+	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string& params) {
+		if( params.find(" ") == std::string::npos ) {
+			caller->writeMsg("SetVar: wrong params: " + params);
+			return;
+		}
 		int id = -1;
 		id = atoi(params);
 		if(!CheckWorm(caller, id, "AuthorizeWorm"))
@@ -1190,6 +1234,12 @@ struct DedIntern {
 
 		else if(cmd == "setwormteam")
 			Cmd_SetWormTeam(command.sender, params);
+		else if(cmd == "setwormspeedfactor")
+			Cmd_SetWormSpeedFactor(command.sender, params);
+		else if(cmd == "setwormdamagefactor")
+			Cmd_SetWormDamageFactor(command.sender, params);
+		else if(cmd == "setwormcanuseninja")
+			Cmd_SetWormCanUseNinja(command.sender, params);
 
 		else if(cmd == "authorizeworm")
 			Cmd_AuthorizeWorm(command.sender, params);

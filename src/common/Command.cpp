@@ -71,68 +71,78 @@ std::string Cmd_GetArg(int a)
 }
 
 
-///////////////////
-// Parse a line of text
-bool Cmd_ParseLine(const std::string& text)
-{
+std::vector<std::string> ParseParams(const std::string& params) {
 	bool quote = false;
 	std::string	token;
-
-	// Clear the arguments
-	NumArgs = 0;
-
-	std::string::const_iterator i = text.begin();
-	for(; i != text.end(); i++) {
-
+	std::vector<std::string> res;
+	
+	std::string::const_iterator i = params.begin();
+	for(; i != params.end(); i++) {
+		
 		// Check delimeters
 		if(*i == ' ' || *i == ',') {
 			if(!token.empty())
-				Cmd_AddArg(token);
+				res.push_back(token);
 			token = "";
-
+			
 			continue;
 		}
-
+		
 		// Check comments
 		std::string::const_iterator i2 = i; i2++;
-		if (i2 != text.end())  {
+		if (i2 != params.end())  {
 			if(*i == '/' && *i2 == '/') {
 				if(!token.empty())
-					Cmd_AddArg(token);
+					res.push_back(token);
 				token = "";
-
+				
 				// Just end here
 				break;
 			}
 		}
-
+		
 		// Check quotes
 		if(*i == '"') {
 			quote = true;
-
+			
 			// Read until another quote
-			for(i++; i != text.end(); i++) {
-
+			for(i++; i != params.end(); i++) {
+				
 				if(*i == '"') {
 					quote = false;
 					break;
 				}
-
+				
 				token += *i;
 			}
 			if(quote) break; // if we are still in the quote, break (else we would make an addition i++ => crash)
 			continue;
 		}
-
+		
 		// Normal text
 		token += *i;
 	}
-
+	
 	// Add the last token, only if it's not in unfinished quotes
 	if(!token.empty() && !quote) {
-		Cmd_AddArg(token);
+		res.push_back(token);
 	}
+		
+	return res;
+}
 
+///////////////////
+// Parse a line of text
+bool Cmd_ParseLine(const std::string& text)
+{
+	// Clear the arguments
+	NumArgs = 0;
+
+	std::vector<std::string> params = ParseParams(text);
+	for(std::vector<std::string>::iterator i = params.begin(); i != params.end(); ++i) {
+		Cmd_AddArg(*i);
+	}
+	
 	if(!NumArgs)
 		return false;
 
