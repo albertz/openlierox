@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import division
+
 import os
 import sys
 import StringIO
@@ -37,8 +39,10 @@ def analyseData(preprint, data):
 	gzipheadersize = s.len
 	g.write(data)
 	g.close()
-	print preprint, "compressed size:", s.len
-	print preprint, "compress rate:", len(data) // s.len
+	complen = s.len - gzipheadersize
+	print preprint, "compressed size:", complen
+	print preprint, "compress rate:", (100 * len(data) / complen), "%"
+	return min(len(data), complen)
 
 def analyseDiff(diffOut):
 	addedLines = str()
@@ -49,16 +53,27 @@ def analyseDiff(diffOut):
 			addedLines += l[1:] + "\n"
 		if l.startswith("-"):
 			removedLines += l[1:] + "\n"
-	analyseData(" added:", addedLines)
-	analyseData(" removed:", removedLines)
+	addLen = analyseData("    added:", addedLines)
+	remLen = analyseData("    removed:", removedLines)
+	return addLen - remLen
+
+
+stats = dict()
 
 def analyseSvnRev(rev):
-	print "rev", rev, ":", svnInfo(rev)
+	print "rev", rev, ":",
+	info = svnInfo(rev)
+	print info
 	diffOut = os.popen("svn diff -r %i:%i -x --ignore-eol-style" % (rev - 1, rev)).read()
-	analyseDiff(diffOut)
+	res = analyseDiff(diffOut)
+	if not info[0] in stats:
+		print "new dev:", info[0]
+		stats[info[0]] = 0
+	stats[info[0]] += res
 	return True
 
 rev = startrev
 while True:
 	analyseSvnRev(rev)
+	print "stats:", stats
 	rev += 1
