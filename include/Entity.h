@@ -76,6 +76,49 @@ public:
 
 };
 
+enum EntityEffectType {
+	ENTE_NONE,
+	ENTE_SPARKLE_DOT,
+	ENTE_SPARKLE_RANDOM,
+	ENTE_SPARKLE_SPREAD,
+	ENTE_SPARKLE_CIRCLE,
+	ENTE_SPARKLE_CIRCLE_ROTATING,
+};
+
+class EntityEffect
+{
+	public:
+	EntityEffect()
+	{
+		Set();
+
+		_lastTime = 0.0f;
+		_lastAngle = 0.0f;
+	}
+	
+	void Process( CVec pos, CVec vel );
+	
+	void Set( EntityEffectType type = ENTE_NONE, int amount = 3, float delay = 0.5f, float speed = 5.0f, float radius = 25.0f, int fade = 5 )
+	{
+		_type = type;
+		_amount = amount;
+		_delay = delay;
+		_speed = speed;
+		_radius = radius;
+		_fade = fade;
+	};
+
+	EntityEffectType _type;
+	int _amount;
+	float _speed;
+	float _delay;
+	float _radius;
+	int _fade;
+	
+	private:
+	float _lastTime;
+	float _lastAngle;
+};
 
 // Entity routines
 int		InitializeEntities(void);

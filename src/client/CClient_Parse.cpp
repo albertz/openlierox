@@ -2589,5 +2589,11 @@ void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 	w->setSpeedFactor(speedFactor);
 	w->setDamageFactor(damageFactor);
 	w->setCanUseNinja(canUseNinja);
+	
+	if( damageFactor > 1 )
+		w->getSparklesEffect()->Set( ENTE_SPARKLE_CIRCLE_ROTATING, damageFactor, 0.05, 
+										5.0 + (damageFactor - int(damageFactor))*5.0, 9, 10 );
+	else
+		w->getSparklesEffect()->Set();
 }
 

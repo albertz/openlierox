@@ -293,16 +293,6 @@ public:
 		float speed;
 		float	fFrameRate = 7.5f;
 
-		// If we're IT, spawn some sparkles
-		if(worm->getTagIT() && cClient->getGameLobby()->iGeneralGameType == GMT_TIME) {
-			if(simulationTime > worm->getLastSparkle() + 0.15f) {
-				worm->setLastSparkle( worm->fLastSimulationTime );
-				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
-
-				SpawnEntity(ENT_SPARKLE,0,p, CVec(0,0), 0,NULL);
-			}
-		}
-
 		// If we're seriously injured (below 15% health) and visible, bleed
 		// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 		// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).

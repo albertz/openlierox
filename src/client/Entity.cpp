@@ -124,8 +124,8 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 		entity_t *ent = e->get();
 
-		x=((int)ent->vPos.x - wx)*2 + l;
-		y=((int)ent->vPos.y - wy)*2 + t;
+		x=(ent->vPos.x - (float)wx)*2.0 + l;
+		y=(ent->vPos.y - (float)wy)*2.0 + t;
 
 		// Clipping
 		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
@@ -146,32 +146,32 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Explosion
 			case ENT_EXPLOSION:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpExplosion,int(ent->fFrame)*32,0,x-16,y-16,32,32);
 				break;
 
 			// Smoke
 			case ENT_SMOKE:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSmoke, int(ent->fFrame)*14,0,x-7,y-7,14,14);
 				break;
 
 			// Chemical smoke
 			case ENT_CHEMSMOKE:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpChemSmoke, int(ent->fFrame)*10,0,x-5,y-5,10,10);
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSpawn, int(ent->fFrame)*32,0,x-16,y-16,32,32);
 				break;
 
 			// Giblet
 			case ENT_GIB:
-				DrawImageAdv(bmpDest,ent->bmpSurf,(int)ent->iRotation*8,0,x-2,y-2,8,8);
+				DrawImageAdv(bmpDest,ent->bmpSurf,int(ent->iRotation)*8,0,x-2,y-2,8,8);
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
+				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSparkle, int(ent->fFrame)*10,0, x-5,y-5,10,10);
 				break;
 
 			// Doomsday
@@ -330,9 +330,14 @@ void SimulateEntities(TimeDiff dt)
 
 			// Sparkle
 			case ENT_SPARKLE:
-				ent->vPos = ent->vPos + CVec(0, 5.0f * dt.seconds());
-				ent->fFrame += realdt.seconds() * 5;
-				if((int)ent->fFrame > 2) ent->setUnused();
+				{
+					ent->vPos = ent->vPos + ent->vVel * dt.seconds(); // CVec(0, 5.0f * dt.seconds());
+					int fadeSpeed = 5;
+					if(ent->iType2 != 0)
+						fadeSpeed = ent->iType2;
+					ent->fFrame += realdt.seconds() * fadeSpeed;
+					if((int)ent->fFrame > 2) ent->setUnused();
+				}
 				break;
 
 			// Jetpack Spray
@@ -381,4 +386,86 @@ void	NewNet_SaveEntities()
 void	NewNet_LoadEntities()
 {
 	tEntities = NewNet_SavedEntities;
+};
+
+void EntityEffect::Process( CVec pos, CVec vel )
+{
+	_lastTime -= tLX->fDeltaTime.seconds();
+	if( _lastTime > 0 )
+		return;
+	_lastTime = _delay;
+	
+	switch( _type )
+	{
+		case ENTE_NONE:
+			break;
+
+		case ENTE_SPARKLE_DOT:
+			for( int i = 0; i < _amount; i++ )
+			{
+				float angle = GetRandomPosNum() / 180.0f * PI;
+				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
+				// _radius here is gravitation
+				SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread + CVec(0, _radius), 0, NULL);
+			}
+			break;
+
+		case ENTE_SPARKLE_RANDOM:
+			for( int i = 0; i < _amount; i++ )
+			{
+				float angle = GetRandomPosNum() / 180.0f * PI;
+				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
+				angle = GetRandomPosNum() / 180.0f * PI;
+				CVec randPos = CVec( sin(angle), cos(angle) ) * _radius;
+				SpawnEntity(ENT_SPARKLE, _fade, pos + randPos, vel + spread, 0, NULL);
+			}
+			break;
+
+		case ENTE_SPARKLE_SPREAD:
+			{
+				_lastAngle += _speed;
+				while( _lastAngle > 360.0f )
+					_lastAngle -= 360.0f;
+				float angle = _lastAngle / 180.0f * PI;
+				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * PI;
+				for( int i = 0; i < _amount; i++, angle += angleDiv )
+				{
+					CVec spread = CVec( sin(angle), cos(angle) ) * _radius;
+					SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread, 0, NULL);
+				}
+			}
+			break;
+
+		case ENTE_SPARKLE_CIRCLE:
+			{
+				_lastAngle += _speed;
+				while( _lastAngle > 360.0f )
+					_lastAngle -= 360.0f;
+				float angle = _lastAngle / 180.0f * PI;
+				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * PI;
+				for( int i = 0; i < _amount; i++, angle += angleDiv )
+				{
+					CVec spread = CVec( sin(angle) * _radius , cos(angle) * _radius );
+					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel, 0, NULL);
+				}
+			}
+			break;
+
+		case ENTE_SPARKLE_CIRCLE_ROTATING:
+			{
+				_lastAngle += _speed;
+				while( _lastAngle > 360.0f )
+					_lastAngle -= 360.0f;
+				float angle = _lastAngle / 180.0f * PI;
+				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * PI;
+				for( int i = 0; i < _amount; i++, angle += angleDiv )
+				{
+					CVec spread = CVec( sin(angle), cos(angle) ) * _radius;
+					CVec addVel = CVec( sin(angle - PI/1.5), cos(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
+					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, 0, NULL);
+				}
+			}
+			break;
+
+	}
 };

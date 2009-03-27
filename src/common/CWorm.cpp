@@ -102,7 +102,6 @@ void CWorm::Clear(void)
 
 	bTagIT = false;
 	fTagTime = 0;
-	fLastSparkle = AbsTime();
 	iDirtCount = 0;
 
 	fLastBlood = AbsTime();
@@ -909,14 +908,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	if (isWormVisible(this, v)) {
-		bool drawIt = true;
-		if(fabs(fDamageFactor) >= 2.0f) {
-			// do kind of a "super" animation
-			drawIt = (tLX->currentTime.milliseconds() % 100 > 40);
-		}
-		
-		if(drawIt)
-			cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+		cSparkles.Process( vPos, vVelocity );
 	}
 	
 	/*FillSurfaceTransparent(bmpShadowPic.get());
@@ -1232,6 +1225,15 @@ void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 {
 	iAFK = afkType;
 	sAFKMessage = msg;
+}
+
+void CWorm::setTagIT(bool _t) 
+{ 
+	bTagIT = _t; 
+	if( !bTagIT )
+		cSparkles.Set();
+	else
+		cSparkles.Set( ENTE_SPARKLE_RANDOM, 1, 0.15, 5, 10 );
 }
 
 Uint32 CWorm::getGameColour(void)

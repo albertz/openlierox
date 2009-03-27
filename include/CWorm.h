@@ -27,6 +27,7 @@
 #include "DeprecatedGUI/CBar.h"
 #include "CMap.h"
 #include "CGameSkin.h"
+#include "Entity.h"
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
 #include "NewNetEngine.h"
@@ -276,7 +277,7 @@ private:
 
 	bool		bTagIT;
 	TimeDiff	fTagTime;
-	AbsTime		fLastSparkle;
+	EntityEffect cSparkles;
 
     int         iDirtCount;
 
@@ -553,12 +554,11 @@ public:
 	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
 
 	bool		getTagIT(void)				{ return bTagIT; }
-	void		setTagIT(bool _t)			{ bTagIT = _t; }
+	void		setTagIT(bool _t);
 
-	AbsTime		getLastSparkle()			{ return fLastSparkle; }
-	void		setLastSparkle(const AbsTime& s)		{ fLastSparkle = s; }
 	AbsTime		getLastBlood()				{ return fLastBlood; }
 	void		setLastBlood(const AbsTime& b)		{ fLastBlood = b; }
+	EntityEffect * getSparklesEffect()		{ return &cSparkles; }
 
     void        incrementDirtCount(int d);
     int         getDirtCount(void)          { return iDirtCount; }
