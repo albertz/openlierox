@@ -1248,32 +1248,24 @@ void GameServer::CheckWeaponSelectionTime()
 	if( iState != SVS_GAME || tLX->iGameType != GME_HOST )
 		return;
 
+	float timeLeft = float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
+	
+	int warnIndex = 100;
+#define CHECKTIME(time) { \
+	warnIndex--; \
+	if( timeLeft < float(time) + 0.2f && iWeaponSelectionTime_Warning <= warnIndex ) { \
+		iWeaponSelectionTime_Warning = warnIndex + 1; \
+		int t = Round(timeLeft); \
+		SendGlobalText("You have " + itoa(t) + " seconds to select your weapons" + \
+			(time <= 5 ? ", hurry or you'll be kicked." : "."), TXT_NOTICE); \
+	} }
+
 	// Issue some sort of warning to clients
-	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 5.2f &&
-		iWeaponSelectionTime_Warning == 3 )
-	{
-		iWeaponSelectionTime_Warning = 4;
-		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
-	}
-	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 10.2f &&
-		iWeaponSelectionTime_Warning == 2 )
-	{
-		iWeaponSelectionTime_Warning = 3;
-		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
-	}
-	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 30.2f &&
-	   iWeaponSelectionTime_Warning == 1 )
-	{
-		iWeaponSelectionTime_Warning = 2;
-		SendGlobalText("You have 30 seconds to select your weapons.", TXT_NOTICE);
-	}
-	if( float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds() < 60.2f &&
-	   iWeaponSelectionTime_Warning == 0 )
-	{
-		iWeaponSelectionTime_Warning = 1;
-		SendGlobalText("You have 60 seconds to select your weapons.", TXT_NOTICE);
-	}
-	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->currentTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
+	CHECKTIME(5);
+	CHECKTIME(10);
+	CHECKTIME(30);
+	CHECKTIME(60);
+#undef CHECKTIME
 	
 	// Kick retards who still mess with their weapons, we'll start on next frame
 	CServerConnection *cl = cClients;
