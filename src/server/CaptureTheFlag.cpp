@@ -69,6 +69,18 @@ struct CaptureTheFlag : public CGameMode {
 		reset();
 	}
 	
+	void wormCatchFlag(CWorm* worm, Flag* flag) {
+		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
+			cServer->SetWormCanUseNinja(worm->getID(), false);
+		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_CTF_SpeedFactorForCarrier]);
+	}
+	
+	void wormLooseFlag(CWorm* worm, Flag* flag) {
+		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
+			cServer->SetWormCanUseNinja(worm->getID(), true);
+		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);		
+	}
+	
 	virtual bool Spawn(CWorm* worm, CVec pos) {
 		if(!CGameMode::Spawn(worm, pos)) return false;
 		
@@ -82,11 +94,12 @@ struct CaptureTheFlag : public CGameMode {
 	virtual void Kill(CWorm* victim, CWorm* killer) {
 		Flag* victimsFlag = cServer->flagInfo()->getFlagOfWorm(victim->getID());
 		if(victimsFlag) {
+			wormLooseFlag(victim, victimsFlag);
 			CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
 			cServer->flagInfo()->applyCustomPos(victimsFlag, pos);
-			cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);
+			cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);			
 		}
-
+		
 		if(killer != victim) {
 			killer->AddKill();
 		}
@@ -107,6 +120,7 @@ struct CaptureTheFlag : public CGameMode {
 		else { // enemy flag
 			cServer->flagInfo()->applyHolderWorm(flag, worm->getID());
 			cServer->SendGlobalText(worm->getName() + " caught " + flagName(flag->id), TXT_NORMAL);
+			wormCatchFlag(worm, flag);
 		}
 	}
 	
@@ -116,6 +130,7 @@ struct CaptureTheFlag : public CGameMode {
 			if(wormsFlag && flag->atSpawnPoint) {
 				// yay, we scored!
 				teamScore[worm->getTeam()]++;
+				wormLooseFlag(worm, wormsFlag);
 				cServer->flagInfo()->applySetBack(wormsFlag);
 				cServer->SendGlobalText(worm->getName() + " scored for " + TeamName(worm->getTeam()), TXT_NORMAL);
 				cServer->SendTeamScoreUpdate();

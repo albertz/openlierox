@@ -62,7 +62,7 @@ Feature featureArray[] = {
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninka rope",
 			true, true,				Version(),			GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
-			1.0f, 1.0f,				Version(),			GIG_CaptureTheFlag,	 -2.0f, 3.0f, true),
+			1.0f, 1.0f,				Version(),			GIG_CaptureTheFlag,	 0.1f, 3.0f, true),
 
 	Feature::Unset()
 };
