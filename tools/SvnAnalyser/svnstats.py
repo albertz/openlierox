@@ -25,12 +25,20 @@ for o, a in opts:
 	
 
 def svnInfo(revision):
-	fullInfo = dict()
-	for l in os.popen("svn info -r 2").read().splitlines():
+	first = True
+	comment = str()
+	author = str()
+	date = str()
+	for l in os.popen("svn log -r %i" % revision).read().splitlines():
 		if len(l) == 0: continue
-		node,value = l.split(": ")
-		fullInfo[node] = value
-	return (fullInfo["Last Changed Author"], fullInfo["Last Changed Date"])
+		if l.startswith("------------"): continue
+		if first:
+			first = False
+			revname, author, date, cmntsize = l.split(" | ")
+			continue
+		if len(comment) > 0: comment += "   "
+		comment += l
+	return (author, date, comment)
 
 def analyseData(preprint, data):
 	print preprint, "size:", len(data)
@@ -69,7 +77,7 @@ def analyseSvnRev(rev):
 	if not info[0] in stats:
 		print "new dev:", info[0]
 		stats[info[0]] = 0
-	stats[info[0]] += res
+	stats[info[0]] += max(0, res)
 	return True
 
 rev = startrev
