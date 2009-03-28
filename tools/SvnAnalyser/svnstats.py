@@ -17,7 +17,7 @@ if os.path.isdir("/backup/data/openlierox-svn"):
 
 os.chdir(os.path.dirname(sys.argv[0]) + "/../..")
 
-startrev = 2 # excluding initial commit, that's not our work :)
+startrev = 2
 
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "r:", ["rev="])
@@ -45,13 +45,15 @@ def svnInfo(revision):
 			continue
 		if len(comment) > 0: comment += "   "
 		comment += l
+	if author == "": raise "invalid revision"
 	return (author, date, comment)
 
 def analyseData(preprint, data):
 	print preprint, "size:", len(data)
+	if data == "": return 0
 	s = StringIO.StringIO()
 	g = gzip.GzipFile(fileobj=s, mode="wb")
-	gzipheadersize = s.len
+	gzipheadersize = s.len + 10
 	g.write(data)
 	g.close()
 	complen = s.len - gzipheadersize
@@ -82,16 +84,16 @@ stats = dict()
 
 def analyseSvnRev(rev):
 	print "rev", rev, ":",
-	info = svnInfo(rev)
-	print info
-	if not info[0] in stats:
-		print "  new dev:", info[0]
-		stats[info[0]] = 0
+	author, date, comment = svnInfo(rev)
+	print author, ",", date, ":", comment
+	if not author in stats:
+		print "  new dev:", author
+		stats[author] = 0
 
 	for d in dirs:
 		diffOut = os.popen("svn diff -r %i:%i -x --ignore-eol-style %s/%s" % (rev - 1, rev, svnrepo, d)).read()
 		res = analyseDiff(d, diffOut)
-		stats[info[0]] += max(0, res)
+		stats[author] += max(0, res)
 
 	return True
 
