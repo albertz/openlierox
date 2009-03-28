@@ -2324,10 +2324,10 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 			FILE * ff=OpenGameFile( client->getUdpFileDownloader()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
-				printf("CClientNetEngine::ParseSendFile(): cannot write file %s\n", client->getUdpFileDownloader()->getFilename().c_str() );
+				errors << "CClientNetEngine::ParseSendFile(): cannot write file " << client->getUdpFileDownloader()->getFilename() << endl;
 				return;
 			};
-			fwrite( client->getUdpFileDownloader()->getData().c_str(), 1, client->getUdpFileDownloader()->getData().size(), ff );
+			fwrite( client->getUdpFileDownloader()->getData().data(), 1, client->getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
 
 			if( client->getUdpFileDownloader()->getFilename().find("levels/") == 0 &&
@@ -2340,13 +2340,13 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
-			};
+			}
 			if( client->getUdpFileDownloader()->getFilename().find("skins/") == 0 )
 			{
 				// Loads skin from disk automatically on next frame
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
-			};
+			}
 			if( ! client->bHaveMod &&
 				client->getUdpFileDownloader()->getFilename().find( client->tGameInfo.sModDir ) == 0 &&
 				IsFileAvailable(client->tGameInfo.sModDir + "/script.lgs", false) )
@@ -2358,7 +2358,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 
 				DeprecatedGUI::bJoin_Update = true;
 				DeprecatedGUI::bHost_Update = true;
-			};
+			}
 
 			client->getUdpFileDownloader()->requestFilesPending(); // Immediately request another file
 			client->fLastFileRequest = tLX->currentTime;
@@ -2398,7 +2398,6 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 	}
 	if( client->getUdpFileDownloader()->isReceiving() )
 	{
-		// TODO: move this out here
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);

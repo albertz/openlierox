@@ -50,7 +50,8 @@ void        TakeScreenshot(const std::string& scr_path, const std::string& addit
 
 void		SetCrashHandlerReturnPoint(const char* name);
 void		OpenLinkInExternBrowser(const std::string& url);
-void		nameThread(const std::string& name);
+void		setCurThreadName(const std::string& name);
+void		setCurThreadPriority(float p); // p in [-1,1], whereby 0 is standard
 
 size_t		GetFreeSysMemory(); // returnes available physical memory in bytes
 

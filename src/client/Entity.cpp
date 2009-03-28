@@ -23,6 +23,7 @@
 #include "FastVector.h"
 #include "CViewport.h"
 #include "CMap.h"
+#include "CWorm.h"
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;
@@ -124,8 +125,8 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 		entity_t *ent = e->get();
 
-		x=(ent->vPos.x - (float)wx)*2.0 + l;
-		y=(ent->vPos.y - (float)wy)*2.0 + t;
+		x=(int) (ent->vPos.x - (float)wx)*2.0 + l;
+		y=(int) (ent->vPos.y - (float)wy)*2.0 + t;
 
 		// Clipping
 		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {

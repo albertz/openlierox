@@ -219,8 +219,9 @@ static bool videoModeReady = true;
 // Main entry point
 int main(int argc, char *argv[])
 {
-	nameThread("Main Thread");
-
+	setCurThreadName("Main Thread");
+	setCurThreadPriority(0.5f);
+	
 	hints << GetFullGameName() << " is starting ..." << endl;
 #ifdef DEBUG
 	hints << "This is a DEBUG build." << endl;
@@ -535,6 +536,7 @@ void doActionInMainThread(Action* act) {
 
 
 static int MainLoopThread(void*) {
+	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
 	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {

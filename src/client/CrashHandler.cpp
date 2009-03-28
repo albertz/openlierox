@@ -11,7 +11,7 @@
 #include "StringUtils.h"
 #include "Version.h"
 #include "AuxLib.h"
-#include "LieroX.h" // for nameThread
+#include "LieroX.h" // for setCurThreadName
 #include "StringUtils.h"
 #include "CClient.h"
 #include "CServer.h"

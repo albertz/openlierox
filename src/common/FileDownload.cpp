@@ -597,7 +597,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		data.append( bs->readData(chunkSize) );
 		notes << "CFileDownloaderInGame::receive() - error, not receiving!" << endl;
 		if( Decompress( data, &unpacked ) )
-			if( unpacked.find( "ABORT:" ) == 0 )
+			if( strStartsWith(unpacked, "ABORT:" + std::string('\0')) )
 			{
 				notes << "CFileDownloaderInGame::receive() - abort received" << endl;
 				bWasAborted = true;
@@ -640,7 +640,6 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 
 bool CUdpFileDownloader::send( CBytestream * bs )
 {
-	// TODO: more safety here!
 	// The transferred file can be corrupted if some of the packets  gets lost,
 	// create some sequece checking here
 	// Don't worry about safety, we send everything zipped and it has checksum attached, missed packets -> wrong checksum.
@@ -649,10 +648,10 @@ bool CUdpFileDownloader::send( CBytestream * bs )
 		reset();
 		bWasError = true;
 		return true;	// Send finished (due to error)
-	};
+	}
 	size_t chunkSize = MIN( sData.size() - iPos, (size_t)MAX_DATA_CHUNK );
 	if( sData.size() - iPos == MAX_DATA_CHUNK )
-		chunkSize++;
+		chunkSize++; // TODO: why? it means that chunkSize > MAX_DATA_CHUNK. somewhere else it is stated that this should never be the case. even worse, it sends only MAX_DATA_CHUNK bytes
 	bs->writeByte( (byte)chunkSize );
 	bs->writeData( sData.substr( iPos, MIN( chunkSize, (size_t)MAX_DATA_CHUNK ) ) );
 	iPos += chunkSize;
@@ -663,19 +662,19 @@ bool CUdpFileDownloader::send( CBytestream * bs )
 		tState = S_FINISHED;
 		iPos = 0;
 		return true;	// Send finished
-	};
+	}
 	return false;
-};
+}
 
 void CUdpFileDownloader::sendPing( CBytestream * bs ) const
 {
 	bs->writeByte( 0 );
-};
+}
 
 void CUdpFileDownloader::allowFileRequest( bool allow )
 {
 	bAllowFileRequest = allow;
-};
+}
 
 void CUdpFileDownloader::requestFile( const std::string & path, bool retryIfFail )
 {
@@ -688,9 +687,9 @@ void CUdpFileDownloader::requestFile( const std::string & path, bool retryIfFail
 				exist = true;
 		if( ! exist )
 			tRequestedFiles.push_back( path );
-	};
+	}
 	sLastFileRequested = path;
-};
+}
 
 bool CUdpFileDownloader::requestFilesPending()
 {
@@ -709,7 +708,7 @@ bool CUdpFileDownloader::requestFilesPending()
 	else
 		requestFile( file, false );
 	return true;
-};
+}
 
 void CUdpFileDownloader::requestFileInfo( const std::string & path, bool retryIfFail )
 {
@@ -723,9 +722,9 @@ void CUdpFileDownloader::requestFileInfo( const std::string & path, bool retryIf
 				exist = true;
 		if( ! exist )
 			tRequestedFiles.push_back( "STAT:" + path );
-	};
+	}
 	sLastFileRequested = path;
-};
+}
 
 void CUdpFileDownloader::removeFileFromRequest( const std::string & path )
 {
@@ -742,13 +741,13 @@ void CUdpFileDownloader::removeFileFromRequest( const std::string & path )
 			tRequestedFiles.erase(it);
 			return;
 		}
-};
+}
 
 void CUdpFileDownloader::abortDownload()
 {
 	reset();
 	setDataToSend( "ABORT:", "" );
-};
+}
 
 std::string getStatPacketOneFile( const std::string & path );
 std::string getStatPacketRecursive( const std::string & path );

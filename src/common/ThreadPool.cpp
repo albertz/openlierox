@@ -87,10 +87,10 @@ int ThreadPool::threadWrapper(void* param) {
 		SDL_mutexV(data->pool->mutex);
 		
 		SDL_CondSignal(data->pool->threadStartedWork);
-		nameThread(data->name);
+		setCurThreadName(data->name);
 		data->ret = act->handle();
 		delete act;
-		nameThread(data->name + " [finished]");
+		setCurThreadName(data->name + " [finished]");
 		SDL_mutexP(data->pool->mutex);
 		data->finished = true;
 		SDL_CondSignal(data->pool->threadStatusChanged);
@@ -103,7 +103,7 @@ int ThreadPool::threadWrapper(void* param) {
 		data->pool->usedThreads.erase(data);
 		data->pool->availableThreads.insert(data);
 		SDL_CondSignal(data->pool->threadStatusChanged);
-		nameThread("");
+		setCurThreadName("");
 	}
 
 	SDL_mutexV(data->pool->mutex);

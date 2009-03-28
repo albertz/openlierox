@@ -40,6 +40,12 @@
 #include <unistd.h>
 #endif
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#endif
+
 #include "Cache.h"
 #include "Debug.h"
 #include "AuxLib.h"
@@ -928,7 +934,7 @@ bool HandleDebugCommand(const std::string& text) {
 //////////////////
 // Gives a name to the thread
 // Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
-void nameThread(const std::string& name)
+void setCurThreadName(const std::string& name)
 {
 #ifdef _MSC_VER // Currently only for MSVC, haven't found a Windows-general way (I doubt there is one)
 	typedef struct tagTHREADNAME_INFO
@@ -956,6 +962,17 @@ void nameThread(const std::string& name)
 	}
 #else
 	// TODO: similar for other systems
+#endif
+}
+
+void setCurThreadPriority(float p) {
+#ifdef WIN32
+	
+#elif defined(__APPLE__)
+	int curp = getpriority(PRIO_DARWIN_THREAD, 0); 
+	int newp = p >= 0 ? 0 : 1;
+	notes << "curp:" << curp << ", newp:" << newp << endl;
+	setpriority(PRIO_DARWIN_THREAD, 0, newp);
 #endif
 }
 
