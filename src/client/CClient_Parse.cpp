@@ -2590,8 +2590,10 @@ void CClientNetEngine::ParseSelectWeapons(CBytestream* bs) {
 void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	CWorm* w = getWorm(client, bs, "ParseSelectWeapons");
 	if(!w) return;
-		
-	client->setGameReady(false);
+	
 	w->setWeaponsReady(false);
+	if(client->OwnsWorm(w->getID())) {
+		client->setGameReady(false);
+	}
 }
 
