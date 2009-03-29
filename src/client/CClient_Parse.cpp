@@ -2593,7 +2593,8 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	
 	w->setWeaponsReady(false);
 	if(client->OwnsWorm(w->getID())) {
-		client->setGameReady(false);
+		client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
+		w->initWeaponSelection();
 	}
 }
 
