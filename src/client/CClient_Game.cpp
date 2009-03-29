@@ -37,6 +37,7 @@
 #include "NewNetEngine.h"
 #include "CGameMode.h"
 #include "CHideAndSeek.h"
+#include "ProjectileDesc.h"
 
 
 CClient		*cClient = NULL;

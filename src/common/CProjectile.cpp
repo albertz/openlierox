@@ -25,6 +25,7 @@
 #include "CClient.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
+#include "ProjectileDesc.h"
 
 
 void CProjectile::setUnused() {

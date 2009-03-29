@@ -24,6 +24,7 @@
 #include "CGameScript.h"
 #include "Error.h"
 #include "ConfigHandler.h"
+#include "ProjectileDesc.h"
 
 
 ///////////////////

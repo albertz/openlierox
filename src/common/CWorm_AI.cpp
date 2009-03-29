@@ -42,7 +42,7 @@
 #include "CGameMode.h"
 #include "CHideAndSeek.h"
 #include "FlagInfo.h"
-
+#include "ProjectileDesc.h"
 
 // used by searchpath algo
 static const unsigned short wormsize = 7;

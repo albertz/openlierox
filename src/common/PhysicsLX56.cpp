@@ -23,6 +23,7 @@
 #include "Debug.h"
 #include "CServer.h"
 #include "FlagInfo.h"
+#include "ProjectileDesc.h"
 
 
 // TODO: clean up this code!
