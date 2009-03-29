@@ -145,9 +145,11 @@ void CHideAndSeek::Simulate()
 	if(GameTime > fGameLength) {
 		for(int i = 0; i < MAX_WORMS; i++)
 			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT) {
-				if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER)
+				if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER)  {
+					if (cServer->getWorms()[i].getLives() == WRM_UNLIM)
+						cServer->getWorms()[i].setLives(0);  // Kill also worms with unlimited lives
 					cServer->killWorm(i, i, cServer->getWorms()[i].getLives() + 1);
-				else
+				} else
 					Show(&cServer->getWorms()[i], false); // People often want to see where the hiders were
 			}
 		return;
@@ -206,19 +208,6 @@ bool CHideAndSeek::CheckGameOver()
 	else if(worms[1] == 0)
 		winners = HIDEANDSEEK_HIDER;
 	if(winners != -1) {
-		return true;
-	}
-
-	// Timelimit check
-	TimeDiff GameTime = cServer->getServerTime();
-	if(GameTime > fGameLength && fGameLength > 0) {
-		winners = HIDEANDSEEK_HIDER;
-
-		if(networkTexts->sTimeLimit != "<none>")
-			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-
-		notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
-		notes << " -> game over" << endl;
 		return true;
 	}
 	
