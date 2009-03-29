@@ -108,12 +108,12 @@ public:
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip
 	bool		Skip(size_t num);
-	inline bool SkipInt()		{ return Skip(4); }
-	inline bool SkipFloat()		{ return Skip(4); }
-	inline bool SkipShort()		{ return Skip(2); }
+	bool SkipInt()		{ return Skip(4); }
+	bool SkipFloat()		{ return Skip(4); }
+	bool SkipShort()		{ return Skip(2); }
 	bool		SkipString();
 	void		SkipAll()		{ pos = Data.size(); }
-	
+	bool	SkipRestBits() { if(isPosAtEnd()) return true; ResetBitPos(); pos++; return isPosAtEnd(); }
 	
 	// Networking stuff
 	bool	Send(NetworkSocket sock);
