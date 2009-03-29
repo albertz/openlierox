@@ -231,8 +231,9 @@ void CWorm::Prepare(bool serverSide)
 	}
 	
 	if(serverSide) {
-		fSpeedFactor = tLXOptions->tGameInfo.features[FT_WormSpeedFactor];
-		fDamageFactor = tLXOptions->tGameInfo.features[FT_WormDamageFactor];
+		setSpeedFactor(tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);
+		setDamageFactor(tLXOptions->tGameInfo.features[FT_WormDamageFactor]);
+		setCanAirJump(tLXOptions->tGameInfo.features[FT_WormCanAirJump]);
 	}
 	
 	bIsPrepared = true;

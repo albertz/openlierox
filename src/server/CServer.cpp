@@ -1570,6 +1570,8 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 			return false;
 	}
 	
+	// These are some serverside settings which make old clients impossible though.
+	
 	if((float)tLXOptions->tGameInfo.features[FT_WormSpeedFactor] != 1.0f) {
 		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormSpeedFactor = " + ftoa(tLXOptions->tGameInfo.features[FT_WormSpeedFactor]), dropOut, makeMsg, msg))
 			return false;		
@@ -1579,6 +1581,12 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormDamageFactor = " + ftoa(tLXOptions->tGameInfo.features[FT_WormDamageFactor]), dropOut, makeMsg, msg))
 			return false;		
 	}
+	
+	if((bool)tLXOptions->tGameInfo.features[FT_WormCanAirJump]) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormCanAirJump activated", dropOut, makeMsg, msg))
+			return false;
+	}
+	
 	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
