@@ -208,6 +208,19 @@ bool CHideAndSeek::CheckGameOver()
 	if(winners != -1) {
 		return true;
 	}
+
+	// Timelimit check
+	TimeDiff GameTime = cServer->getServerTime();
+	if(GameTime > fGameLength && fGameLength > 0) {
+		winners = HIDEANDSEEK_HIDER;
+
+		if(networkTexts->sTimeLimit != "<none>")
+			cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
+
+		notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+		notes << " -> game over" << endl;
+		return true;
+	}
 	
 	return false;
 }
