@@ -227,7 +227,8 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 	// Read the worms weapons
 	int num = bs->readByte();
-	if(num > 0) {
+	if(server->serverChoosesWeapons() && num > 0) {
+		// It's only a note because <Beta9 clients will do that wrong anyway.
 		notes << "ParseImReady: " << cl->debugName() << " wants to set own weapons but we have serverChoosesWeapons" << endl;		
 	}
 	for (i = 0; i < num; i++) {
