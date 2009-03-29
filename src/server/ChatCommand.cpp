@@ -1137,11 +1137,12 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "Client is too old to support this";
 	}
 		
-	if(!w->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+	if(!w->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
 		return "same weapons as host worm are forced";
 	}
-	// NOTE: random weapons for host worms are handled in local client
-	else if(!w->isHostWorm() && tLXOptions->tGameInfo.bForceRandomWeapons) {
+	
+	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
+	if(!tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
 		w->GetRandomWeapons();
 		// TODO: move that out here
 		CBytestream bs;
