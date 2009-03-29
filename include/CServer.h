@@ -223,6 +223,7 @@ public:
 	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
 	CWorm*		AddWorm(const WormJoinInfo& wormInfo);
+	void		PrepareWorm(CWorm* worm);
 	void		RemoveClient(CServerConnection *cl);
 	void		RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms);
 	void		RemoveAllClientWorms(CServerConnection* cl);

@@ -611,30 +611,36 @@ void CWorm::writeWeapons(CBytestream *bs)
 // Read the weapon list
 void CWorm::readWeapons(CBytestream *bs)
 {
-	notes << "getting weapons for worm (" << iID << ") " << sName << endl;
-
+	notes << "weapons for " << iID << ":" << sName << ": ";
+	
 	ushort i;
 	int id;
 
 	for(i=0; i<5; i++) {
+		if(i > 0) notes << ", ";
 		id = bs->readByte();
 
 		tWeapons[i].Weapon = NULL;
 		tWeapons[i].Enabled = true;
 
 		if(cGameScript) {
-			if(id >= 0 && id < cGameScript->GetNumWeapons())
+			if(id >= 0 && id < cGameScript->GetNumWeapons()) {
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
-			else  {
+				notes << tWeapons[i].Weapon->Name;
+			}
+			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
 				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
 				tWeapons[i].Enabled = false;
+				notes << id;
 			}
 		} else {
 			errors << "readWeapons: cGameScript == NULL" << endl;
 			tWeapons[i].Enabled = false;
+			notes << id;
 		}
 	}
+	notes << endl;
 
 	// Reset the weapons
 	for(i=0; i<5; i++) {

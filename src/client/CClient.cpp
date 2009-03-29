@@ -1852,11 +1852,15 @@ static void updateAddedWorms(CClient* cl) {
 				cl->getWorm(i)->setLocal(true);
 				cl->getWorm(i)->setClientVersion(cl->getClientVersion());
 				
+				if(cServer->getState() != SVS_LOBBY) {
+					w->Prepare(true); // prepare serverside
+					cServer->PrepareWorm(w);
+				}
+				
 				// gameready means that we had a preparegame package
 				// status==NET_PLAYING means that we are already playing
 				if( cl->getGameReady() ) {
-					w->Prepare(true); // prepare serverside // TODO: this also when server has started game already
-
+					
 					// (If this is a local game?), we need to reload the worm graphics
 					// We do this again because we've only just found out what type of game it is
 					// Team games require changing worm colours to match the team colour

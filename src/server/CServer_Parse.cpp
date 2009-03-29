@@ -227,6 +227,9 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 	// Read the worms weapons
 	int num = bs->readByte();
+	if(num > 0) {
+		notes << "ParseImReady: " << cl->debugName() << " wants to set own weapons but we have serverChoosesWeapons" << endl;		
+	}
 	for (i = 0; i < num; i++) {
 		if(bs->isPosAtEnd()) {
 			warnings << "ParseImReady: packaged screwed" << endl;
@@ -242,7 +245,11 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			if(!cl->OwnsWorm(id)) {
 				warnings << "ParseImReady: " << cl->debugName() << " wants to update the weapons of worm " << id << endl;
 				CWorm::skipWeapons(bs);
-				continue;				
+				continue;
+			}
+			if(server->serverChoosesWeapons()) {
+				CWorm::skipWeapons(bs);
+				continue;
 			}
 			server->cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++) {
@@ -253,6 +260,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			}
 			
 		} else { // wrong id -> Skip to get the right position
+			warnings << "ParseImReady: got wrong worm-ID!" << endl;
 			CWorm::skipWeapons(bs);
 		}
 	}
@@ -263,7 +271,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 	SendClientReady(NULL);
 	
-	if(server->iState == SVS_PLAYING && server->serverAllowsConnectDuringGame())
+	if(server->iState == SVS_PLAYING /*&& server->serverAllowsConnectDuringGame()*/)
 		server->BeginMatch(cl);
 	else
 		// Check if all the clients are ready
@@ -1517,7 +1525,11 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			newcl->getUdpFileDownloader()->allowFileRequest(false);
 		}
 		newcl->setGameReady(false);
-				
+
+		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			(*w)->Prepare(true);
+		}
+		
 		// TODO: why is that needed? some lines above, we already have sent exactly that (as a global package)
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
@@ -1545,14 +1557,38 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
 				cClients[ii].getNetEngine()->SendWormScore( (*w) );
 		}
-
+		
 		newcl->getNetEngine()->SendPrepareGame();
-
+		
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
 		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
+
+		// send the client all already selected weapons of the other worms
+		SendWeapons(newcl);
 		
+		m_flagInfo->sendCurrentState(newcl);
+				
+		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			PrepareWorm(*w);
+
+			// send other clients non-default worm properties of new worms 
+
+			if(CServerNetEngine::isWormPropertyDefault(*w)) continue;
+			
+			for( int i = 0; i < MAX_CLIENTS; i++ ) {
+				if( newcl == &cClients[i] || cClients[i].getStatus() != NET_CONNECTED )
+					continue;
+				cClients[i].getNetEngine()->SendWormProperties(*w); // if we have changed them in prepare or so
+			}
+		}
+
+		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
+		
+		/*
+		 // commented out because we should do that, when we get the ImReady from client
+		 
 		// inform new client about other ready clients
 		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -1560,28 +1596,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
 
-			if(cl->getGameReady()) {
-				cl->getNetEngine()->SendClientReady(newcl);
-			}
-		}
-		
-		// send the client all already selected weapons of the other worms
-		SendWeapons(newcl);
-		
-		m_flagInfo->sendCurrentState(newcl);
-
-		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
-		
-		// send other clients non-default worm properties of new worms 
-		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			if(CServerNetEngine::isWormPropertyDefault(*w)) continue;
-				
-			for( int i = 0; i < MAX_CLIENTS; i++ ) {
-				if( newcl == &cClients[i] || cClients[i].getStatus() != NET_CONNECTED )
-					continue;
-				cClients[i].getNetEngine()->SendWormProperties(*w); // if we have changed them in prepare or so
-			}
-		}
+			cl->getNetEngine()->SendClientReady(newcl);
+		} */				
 	}
 }
 

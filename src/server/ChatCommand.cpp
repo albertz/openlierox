@@ -1106,7 +1106,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 	if (params.size() < GetCommand(&ProcessWeapons)->iMinParamCount ||
 		params.size() > GetCommand(&ProcessWeapons)->iMaxParamCount)
 		return "Invalid parameter count";
-		
+	
 	int target = sender_id;
 	if(params.size() == 1) {
 		target = atoi(params[0]);
@@ -1135,6 +1135,25 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 	
 	if(cl->getClientVersion() < OLXBetaVersion(9)) {
 		return "Client is too old to support this";
+	}
+		
+	if(!w->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+		return "same weapons as host worm are forced";
+	}
+	// NOTE: random weapons for host worms are handled in local client
+	else if(!w->isHostWorm() && tLXOptions->tGameInfo.bForceRandomWeapons) {
+		w->GetRandomWeapons();
+		// TODO: move that out here
+		CBytestream bs;
+		bs.writeByte(S2C_WORMWEAPONINFO);
+		w->writeWeapons(&bs);
+		cServer->SendGlobalPacket(&bs);		
+		return "";
+	}
+	
+	if(!w->isHostWorm() && cServer->serverChoosesWeapons()) {
+		warnings << "ProcessWeapons: unhandled case for server chooses weapons" << endl;
+		return "server chooses weapons";
 	}
 	
 	w->setWeaponsReady(false);

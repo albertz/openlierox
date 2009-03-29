@@ -440,25 +440,25 @@ mapCreate:
 	// teams they are on
 	if( tLX->iGameType == GME_HOST ) {
 		if( getGameMode()->GameTeams() > 1 ) {
-
+			
 			CWorm *w = cWorms;
 			CBytestream b;
-
+			
 			for(int i=0; i<MAX_WORMS; i++, w++ ) {
 				if( !w->isUsed() )
 					continue;
-
+				
 				// TODO: move that out here
 				// Write out the info
 				b.writeByte(S2C_WORMINFO);
 				b.writeInt(w->getID(),1);
 				w->writeInfo(&b);
 			}
-
+			
 			SendGlobalPacket(&b);
 		}
 	}
-
+	
 	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
 	{
 		warnings << "New net engine enabled, we are disabling some features" << endl;
@@ -505,29 +505,11 @@ mapCreate:
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
 		RegisterServerUdp();
 
-
-	// initial server side weapon handling
-	if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
-		// we do the clone right after we selected the weapons for this worm
-		// we cannot do anything here at this time
-		// bForceRandomWeapons is handled from the client code
-	}
-	else if(tLXOptions->tGameInfo.bForceRandomWeapons) {
-		for(int i=0;i<MAX_WORMS;i++) {
-			if(!cWorms[i].isUsed())
-				continue;
-			cWorms[i].GetRandomWeapons();
-			cWorms[i].setWeaponsReady(true);
-		}
-		
-		// the other players will get the preparegame first and have therefore already called initWeaponSelection, therefore it is save to send this here
-		SendWeapons();
-	}
 	
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed())
 			continue;
-		getGameMode()->PrepareWorm(&cWorms[i]);
+		PrepareWorm(&cWorms[i]);
 	}
 
 	for( int i = 0; i < MAX_CLIENTS; i++ ) {
@@ -537,6 +519,31 @@ mapCreate:
 	}
 	
 	return true;
+}
+
+void GameServer::PrepareWorm(CWorm* worm) {
+	// initial server side weapon handling
+	if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+		if(cClient->getGameReady() && cClient->getWorm(0) != NULL && cClient->getWorm(0)->getWeaponsReady()) {
+			worm->CloneWeaponsFrom(cClient->getWorm(0));
+			worm->setWeaponsReady(true);
+		}
+		// in the case that the host worm is not ready, we will get the weapons later
+	}
+	else if(tLXOptions->tGameInfo.bForceRandomWeapons) {
+		worm->GetRandomWeapons();
+		worm->setWeaponsReady(true);
+	}
+	
+	if(worm->getWeaponsReady()) {
+		// TODO: move that out here
+		CBytestream bs;
+		bs.writeByte(S2C_WORMWEAPONINFO);
+		worm->writeWeapons(&bs);
+		SendGlobalPacket(&bs);		
+	}
+	
+	getGameMode()->PrepareWorm(worm);	
 }
 
 
@@ -1667,28 +1674,12 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 		w->setWeaponsReady(false);
 		
-		// initial server side weapon handling
-		if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
-			if(cClient->getWorm(0)->getWeaponsReady()) {
-				w->CloneWeaponsFrom(cClient->getWorm(0));
-				w->setWeaponsReady(true);
-			}
-			// if we are not ready with weapon selection, we will send the new client worms weapons later to everybody
-		}
-		// If new client is spectating skip weapon selection screen
-		// HINT: remove this if we'll get new clients joining and playing with limited lives games
-		else if(tLXOptions->tGameInfo.bForceRandomWeapons || 
-				( tLXOptions->tGameInfo.iLives != WRM_UNLIM && iState == SVS_PLAYING ) ) {
-			w->GetRandomWeapons();
-			w->setWeaponsReady(true);
-		}
-		
 		iNumPlayers++;
 		
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->NewWorm_Signal(w);
 				
-		if(tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
+		if(tLX->iGameType == GME_HOST && tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
 			w->setTeam(-1); // set it invalid to have correct firstEmpty
 			
 			int firstEmpty = getFirstEmptyTeam();

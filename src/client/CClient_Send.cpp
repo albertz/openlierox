@@ -97,12 +97,17 @@ void CClientNetEngine::SendGameReady()
 {
 	CBytestream bs;
 	bs.writeByte(C2S_IMREADY);
-	bs.writeByte(client->iNumWorms);
+	
+	if(client->serverChoosesWeapons()) {
+		bs.writeByte(0);
+	} else {
+		bs.writeByte(client->iNumWorms);
 
-	// Send my worm's weapon details
-	for(unsigned int i=0;i<client->iNumWorms;i++)
-		client->cLocalWorms[i]->writeWeapons( &bs );
-
+		// Send my worm's weapon details
+		for(unsigned int i=0;i<client->iNumWorms;i++)
+			client->cLocalWorms[i]->writeWeapons( &bs );
+	}
+	
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
 
