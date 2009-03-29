@@ -563,7 +563,6 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 	for( i=0, cl1=server->cClients; i < MAX_CLIENTS; i++, cl1++ )
 		if( cl1->getStatus() == NET_CONNECTED && cl1->getClientVersion() >= OLXBetaVersion(7) )
 			cl1->getNetEngine()->SendPacket( &bs1 );
-		
 }
 
 

@@ -85,7 +85,7 @@ void CClient::Simulation(void)
 	for(i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
-
+		
 		if(w->getAlive()) {
 
 			// Simulate the worm

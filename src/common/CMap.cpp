@@ -1997,7 +1997,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 		drawOnMiniMap(bmpDest, x, y, w->getPos(), r, g, b, big, false);
 	}
 	
-	if(cClient && cClient->getStatus() == NET_PLAYING) {
+	if(cClient && cClient->getGameReady()) {
 		cClient->flagInfo()->drawOnMiniMap(this, bmpDest, x, y);
 	}
 }

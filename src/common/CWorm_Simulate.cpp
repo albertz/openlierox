@@ -689,7 +689,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
 		m_worm->bWeaponsReady = true;
 
-	if(!m_worm->bWeaponsReady && cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK)) {
+	if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK)) {
 		// just skip weapon selection in HideAndSeek games
 		m_worm->bWeaponsReady = true;
 	}

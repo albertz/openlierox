@@ -542,7 +542,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// Mini-Map
 		if (cMap != NULL)  {
-			if (iNetStatus == NET_PLAYING)
+			if (bGameReady || iNetStatus == NET_PLAYING)
 				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
 			else
 				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
@@ -822,7 +822,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			cMap->Draw(bmpDest, v);
 
 		// The following will be drawn only when playing
-		if (iNetStatus == NET_PLAYING)  {
+		if (bGameReady || iNetStatus == NET_PLAYING)  {
 			// update the drawing position
 			CWorm *w = cRemoteWorms;
 			for(short i=0;i<MAX_WORMS;i++,w++) {
@@ -1116,7 +1116,7 @@ void CClient::SimulateHud(void)
 	//
 
 	// Health bar toggle
-	if (cShowHealth.isDownOnce() && !bChat_Typing && iNetStatus == NET_PLAYING)  {
+	if (cShowHealth.isDownOnce() && !bChat_Typing && bGameReady)  {
 		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
 	}
 
@@ -1176,6 +1176,7 @@ void CClient::SimulateHud(void)
 
 	if( iNumWorms > 0 && cLocalWorms[0] && cLocalWorms[0]->getType() != PRF_COMPUTER) {
 		AFK_TYPE curState = AFK_BACK_ONLINE;
+		if(iNetStatus == NET_CONNECTED && bGameRunning) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
 		if( curState != cLocalWorms[0]->getAFK() ) {

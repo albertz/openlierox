@@ -359,6 +359,7 @@ private:
 
 	bool		bLobbyReady;
 	bool		bGameReady; // bGameReady says if the game (including cMap) has been initialized
+	bool		bGameRunning; // game was started and is running (implies bGameReady, but our own worm could be in weapon selection)
 	bool		bHaveMap;
 	bool		bHaveMod;
 

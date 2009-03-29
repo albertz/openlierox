@@ -35,6 +35,10 @@
 // TODO: remove this after we changed network
 #include "CBytestream.h"
 
+#ifdef _MSC_VER
+// Warning: this used in member initializer list
+#pragma warning(disable:4355)
+#endif
 
 #define		MAX_WEAPONSLOTS		10
 
@@ -167,12 +171,14 @@ public:
 struct WormJoinInfo;
 
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
-class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler; friend struct WormJoinInfo;
+class CWorm {
+	friend class CWormInputHandler;
+	friend class CWormBotInputHandler;
+	friend class CWormHumanInputHandler;
+	friend struct WormJoinInfo;
 public:
 	// Constructor
-#pragma warning(disable:4355)  // Warning: this used in member initializer list
 	CWorm(): cSparkles(this)
-#pragma warning(default:4355)
 	{
 		// set all pointers to NULL
 		m_inputHandler = NULL;
@@ -619,6 +625,7 @@ public:
 	float&		frame()						{ return fFrame; }
 	
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
+	void reinitInputHandler();
 	
 	DamageReport* getDamageReport() { return cDamageReport; }
 

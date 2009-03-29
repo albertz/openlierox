@@ -1266,6 +1266,35 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 		setDamage( getDamage() + damage );
 }
 
+void CWorm::reinitInputHandler() {
+	if(!bLocal) {
+		warnings << "reinitInputHandler called for non-local worm " << getID() << endl;
+		return;
+	}
+	
+	if(m_inputHandler)
+		delete m_inputHandler;
+	else
+		warnings << "reinitInputHandler: inputhandler was unset for worm " << getID() << endl;
+	m_inputHandler = m_type->createInputHandler(this);
+	
+	// TODO: move this to CWormInputHandler init
+	// we need to reset the inputs
+	// code from CClient::SetupGameInputs()
+	int humanWormNum = 0;
+	for(int i = 0; i < cClient->getNumWorms(); i++) {
+		CWormHumanInputHandler* handler = dynamic_cast<CWormHumanInputHandler*> (cClient->getWorm(i)->inputHandler());
+		if(handler) {
+			// TODO: Later, let the handler save a rev to his sPlayerControls. This would give
+			// more flexibility to the player and he can have multiple player control sets.
+			// Then, we would call a reloadInputs() here.
+			if(cClient->getWorm(i) == this)
+				handler->setupInputs( tLXOptions->sPlayerControls[humanWormNum] );
+			humanWormNum++;
+		}
+	}	
+}
+
 void CWorm::NewNet_SaveWormState(CWorm * w)
 {
 	// Macro to do less copypaste

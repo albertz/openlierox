@@ -107,6 +107,7 @@ void CClient::Clear(void)
 	cChatbox.Clear();
 
 	bGameReady = false;
+	bGameRunning = false;
 	bReadySent = false;
 	bGameOver = false;
 	bGameMenu = false;
@@ -170,6 +171,7 @@ void CClient::MinorClear(void)
 {
 	iNetStatus = NET_CONNECTED;
 	bGameReady = false;
+	bGameRunning = false;
 	bReadySent = false;
 	bGameOver = false;
 	bGameMenu = false;
@@ -1065,7 +1067,7 @@ void CClient::ProcessModDownloads()
 // Main frame
 void CClient::Frame()
 {
-	if(iNetStatus == NET_PLAYING) {
+	if(bGameRunning) {
 		fServertime += tLX->fRealDeltaTime;
 	}
 
@@ -1077,7 +1079,7 @@ void CClient::Frame()
 
 	SimulateHud();
 
-	if(iNetStatus == NET_PLAYING && !bWaitingForMap && !bWaitingForMod)
+	if((bGameRunning || iNetStatus == NET_PLAYING) && !bWaitingForMap && !bWaitingForMod)
 	{
 		if( NewNet::Active() )
 			NewNet_Frame();
@@ -1192,7 +1194,7 @@ void CClient::SendPackets(void)
 	}*/
 
 	// Playing packets
-	if(iNetStatus == NET_PLAYING)
+	if(iNetStatus == NET_PLAYING || bGameReady)
 	{
 		cNetEngine->SendWormDetails();
 		cNetEngine->SendReportDamage();	// It sends only if someting is queued
@@ -1853,7 +1855,7 @@ static void updateAddedWorms(CClient* cl) {
 				// gameready means that we had a preparegame package
 				// status==NET_PLAYING means that we are already playing
 				if( cl->getGameReady() ) {
-					w->Prepare(true); // prepare serverside
+					w->Prepare(true); // prepare serverside // TODO: this also when server has started game already
 
 					// (If this is a local game?), we need to reload the worm graphics
 					// We do this again because we've only just found out what type of game it is

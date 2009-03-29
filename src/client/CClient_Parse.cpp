@@ -669,6 +669,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		NotifyUserOnEvent();
 
+	if(!isReconnect)
+		client->bGameRunning = false; // wait for ParseStartGame
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	if(!isReconnect)
@@ -1059,19 +1061,37 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 // Parse a start game packet
 void CClientNetEngine::ParseStartGame(CBytestream *bs)
 {
-	// Already got this
-	if (client->iNetStatus == NET_PLAYING)  {
-		notes << "CClientNetEngine::ParseStartGame: already playing - ignoring" << endl;
-		return;
-	}
-
 	// Check that the game is ready
 	if (!client->bGameReady)  {
 		warnings << "CClientNetEngine::ParseStartGame: cannot start the game because the game is not ready" << endl;
 		return;
 	}
 
-	notes << "Client: get start game signal" << endl;
+	if (client->iNetStatus == NET_PLAYING && !client->bGameRunning)  {
+		warnings << "Client: got start signal in runnign game with unset gamerunning flag" << endl;
+		client->iNetStatus = NET_CONNECTED;
+	}
+	
+	notes << "Client: get start game signal";
+	
+	if(client->bGameRunning) {
+		notes << ", back to game" << endl;
+		client->iNetStatus = NET_PLAYING;
+		for(uint i=0;i<client->iNumWorms;i++) {
+			if(client->cLocalWorms[i]->getWeaponsReady())
+				client->cLocalWorms[i]->StartGame();
+		}
+		return;
+	}
+	notes << endl;
+	client->bGameRunning = true;
+	
+	// Already got this
+	if (client->iNetStatus == NET_PLAYING)  {
+		notes << "CClientNetEngine::ParseStartGame: already playing - ignoring" << endl;
+		return;
+	}
+	
 	client->fLastSimulationTime = tLX->currentTime;
 	client->iNetStatus = NET_PLAYING;
 	client->fServertime = 0;
@@ -1139,8 +1159,8 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Check
-	if (client->iNetStatus != NET_PLAYING)  {
-		warnings << "CClientNetEngine::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)" << endl;
+	if (!client->bGameReady)  {
+		warnings << "CClientNetEngine::ParseSpawnWorm: Cannot spawn worm when not playing" << endl;
 		return;
 	}
 
@@ -1384,7 +1404,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 
 
 static std::string getChatText(CClient* client) {
-	if(client->getStatus() == NET_PLAYING)
+	if(client->getStatus() == NET_PLAYING || client->getGameReady())
 		return client->chatterText();
 	else if(tLX->iGameType == GME_HOST)
 		return DeprecatedGUI::Menu_Net_HostLobbyGetText();
@@ -1396,7 +1416,7 @@ static std::string getChatText(CClient* client) {
 }
 
 static void setChatText(CClient* client, const std::string& txt) {
-	if(client->getStatus() == NET_PLAYING) {
+	if(client->getStatus() == NET_PLAYING || client->getGameReady()) {
 		client->chatterText() = txt;
 		client->setChatPos( Utf8StringSize(txt) );
 	} else if(tLX->iGameType == GME_HOST) {
@@ -1661,7 +1681,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Check
-	if (client->iNetStatus != NET_PLAYING)  {
+	if (!client->bGameReady)  {
 		printf("CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)\n");
 		return;
 	}
@@ -1700,7 +1720,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 {
-	if (client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+	if (!client->bGameReady || client->bGameOver)  {
 		printf("CClientNetEngine::ParseTagUpdate: not playing - ignoring\n");
 		return;
 	}
@@ -2072,7 +2092,7 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
-	if (client->iNetStatus != NET_PLAYING)  {
+	if (!client->bGameReady)  {
 		printf("CClientNetEngine::ParseWormDown: not playing - ignoring\n");
 		bs->Skip(1);  // ID
 		return;
@@ -2171,7 +2191,7 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 // Parse a 'single shot' packet
 void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
-	if(client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+	if(!client->bGameReady || client->bGameOver)  {
 		printf("CClientNetEngine::ParseSingleShot: not playing - ignoring\n");
 		CShootList::skipSingle(bs); // Skip to get to the correct position
 		return;
@@ -2189,7 +2209,7 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 // Parse a 'multi shot' packet
 void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
-	if(client->iNetStatus != NET_PLAYING || client->bGameOver)  {
+	if(!client->bGameReady || client->bGameOver)  {
 		printf("CClientNetEngine::ParseMultiShot: not playing - ignoring\n");
 		CShootList::skipMulti(bs); // Skip to get to the correct position
 		return;
@@ -2235,7 +2255,7 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 {
 	byte id = bs->readByte();
 
-	if (client->iNetStatus != NET_PLAYING)  {
+	if (!client->bGameReady)  {
 		printf("CClientNetEngine::ParseDestroyBonus: Ignoring, the game is not running.\n");
 		return;
 	}
@@ -2422,7 +2442,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 		damage -= UCHAR_MAX + 1;	// Wrap it around
 	int offenderId = bs->readByte();
 
-	if( client->getStatus() != NET_PLAYING )
+	if( !client->bGameReady )
 		return;
 	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
 		return;
@@ -2598,6 +2618,8 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	w->setWeaponsReady(false);
 	if(client->OwnsWorm(w->getID())) {
 		client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
+		client->bReadySent = false;
+		w->reinitInputHandler();
 		w->initWeaponSelection();
 	}
 }

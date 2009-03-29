@@ -149,6 +149,7 @@ void OLXG15_t::gameFrame()
 
 	switch (cClient->getStatus())
 	{
+		// HINT: (Not sure what the intention here is.) NET_CONNECTED && bGameReady -> weapon selection; NET_PLAYING -> playing
 		// TODO: Lobby in net play
 		// Weapon selections in local
 		case NET_CONNECTED:
