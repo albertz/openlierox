@@ -1075,6 +1075,7 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	bs.writeByte(S2C_SETWORMPROPS);
 	bs.writeByte(worm->getID());
 	bs.writeBit(worm->canUseNinja());
+	bs.writeBit(worm->canAirJump());
 	bs.writeFloat(worm->speedFactor());
 	bs.writeFloat(worm->damageFactor());
 	SendPacket(&bs);
@@ -1148,3 +1149,18 @@ void GameServer::SetWormDamageFactor(int wormID, float f) {
 	}
 }
 
+void GameServer::SetWormCanAirJump(int wormID, bool b) {
+	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+		warnings << "SetWormCanAirJump: worm " << wormID << " is invalid" << endl;
+		return;
+	}
+	
+	if(cWorms[wormID].canAirJump() == b) return; // nothing need to be changed
+	
+	cWorms[wormID].setCanAirJump(b);
+	
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+	}		
+}

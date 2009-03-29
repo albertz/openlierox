@@ -1877,6 +1877,7 @@ static void updateAddedWorms(CClient* cl) {
 					cl->getWorm(i)->setCanUseNinja(w->canUseNinja());
 					cl->getWorm(i)->setSpeedFactor(w->speedFactor());
 					cl->getWorm(i)->setDamageFactor(w->damageFactor());
+					cl->getWorm(i)->setCanAirJump(w->canAirJump());
 					
 					if(!cl->getWorm(i)->getWeaponsReady())
 						cl->getWorm(i)->initWeaponSelection();

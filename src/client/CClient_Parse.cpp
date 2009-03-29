@@ -2575,12 +2575,14 @@ void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 
 	bs->ResetBitPos();
 	bool canUseNinja = bs->readBit();
+	bool canAirJump = bs->readBit();
 	float speedFactor = bs->readFloat();
 	float damageFactor = bs->readFloat();
 		
 	w->setSpeedFactor(speedFactor);
 	w->setDamageFactor(damageFactor);
 	w->setCanUseNinja(canUseNinja);
+	w->setCanAirJump(canAirJump);
 }
 
 void CClientNetEngine::ParseSelectWeapons(CBytestream* bs) {
