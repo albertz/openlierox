@@ -90,6 +90,7 @@ enum FeatureIndex {
 	FT_WormDamageFactor,
 	FT_WormCanAirJump,
 	FT_AllowWeaponsChange,
+	FT_ImmediateStart,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
 };
