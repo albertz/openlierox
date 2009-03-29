@@ -215,7 +215,7 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 		else
 		if( afkType == AFK_AWAY )
 			msg = "(away)";
-	};
+	}
 
 
 	for( int i=0; i < client->getNumWorms(); i++ )
@@ -356,8 +356,8 @@ void CClientNetEngineBeta9::SendReportDamage(bool flush)
 			bs.writeByte( damageSend );
 			bs.writeByte(offender);
 			damage -= damageSend;
-		};
-	};
+		}
+	}
 
 	client->cNetChan->AddReliablePacketToSend(bs);
 
@@ -374,4 +374,4 @@ void CClientNetEngineBeta9NewNet::SendNewNetChecksum()
 	bs.writeInt(checksum, 4);
 	bs.writeInt((unsigned)time.milliseconds(), 4);
 	client->cNetChan->AddReliablePacketToSend(bs);
-};
+}

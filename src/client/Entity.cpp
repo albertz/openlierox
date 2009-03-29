@@ -125,8 +125,8 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 		entity_t *ent = e->get();
 
-		x=(int) (ent->vPos.x - (float)wx)*2.0 + l;
-		y=(int) (ent->vPos.y - (float)wy)*2.0 + t;
+		x= int((ent->vPos.x - (float)wx)*2.0) + l;
+		y= int((ent->vPos.y - (float)wy)*2.0) + t;
 
 		// Clipping
 		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
@@ -399,7 +399,7 @@ void EntityEffect::Process()
 	if( _parent->getTagIT() )
 		Set( ENTE_SPARKLE_RANDOM, 1, 0.15, 5, 10 );
 	else if( _parent->damageFactor() > 1 )
-		Set( ENTE_SPARKLE_CIRCLE_ROTATING, _parent->damageFactor(), 0.05, 
+		Set( ENTE_SPARKLE_CIRCLE_ROTATING, (int)_parent->damageFactor(), 0.05, 
 										5.0 + (_parent->damageFactor() - int(_parent->damageFactor()))*5.0, 9, 10 );
 	else
 		Set();

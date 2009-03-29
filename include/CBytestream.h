@@ -200,4 +200,13 @@ class CBytestreamBitIterator
 	}
 };
 
+
+template< bool (*fct1) (CBytestream*), bool (*fct2) (CBytestream*) >
+bool SkipMult(CBytestream* bs) { return (*fct1)(bs) && (*fct2)(bs); }
+
+template< size_t NUM >
+bool Skip(CBytestream* bs) { return bs->Skip(NUM); }
+
+inline bool SkipString(CBytestream* bs) { return bs->SkipString(); }
+
 #endif  //  __CBITSTREAM_H__

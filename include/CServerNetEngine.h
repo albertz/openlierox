@@ -82,6 +82,7 @@ public:
 	virtual void SendWormProperties(CWorm* worm);
 	void SendWormProperties(bool onlyIfNotDef); // for all worms
 	static bool isWormPropertyDefault(CWorm* worm);
+	virtual void SendSelectWeapons(CWorm* worm);	
 	
 protected:
 	// Attributes
@@ -166,6 +167,7 @@ public:
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 	virtual void SendTeamScoreUpdate();
 	virtual void SendWormProperties(CWorm* worm);
+	virtual void SendSelectWeapons(CWorm* worm);
 	
 	static void WriteFeatureSettings(CBytestream* bs);
 

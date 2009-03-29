@@ -172,12 +172,14 @@ public:
 	// Constructor
 	CWorm(): cSparkles(this)
 	{
+		// set all pointers to NULL
 		m_inputHandler = NULL;
 		cOwner = NULL;
 		tProfile = NULL;
 		pcHookWorm = NULL;
 		cGameScript = NULL;
 		cWeaponRest = NULL;
+		m_type = NULL;
 		Clear();
 	}
 

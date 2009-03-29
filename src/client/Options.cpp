@@ -74,9 +74,6 @@ bool GameOptions::Init() {
 	}
 	tLXOptions->iVerbosity = 0;
 
-	std::string options_ver = GetGameVersion().releaseType() + 
-		itoa(GetGameVersion().num) + "_" + itoa(GetGameVersion().subnum) + "_" + itoa(GetGameVersion().subsubnum);
-
 	// TODO: don't hardcode the size here
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 

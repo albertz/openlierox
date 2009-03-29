@@ -69,7 +69,8 @@ void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
 	}
 }
 
-
+// TODO: This function is designed wrong. this->cl should be the receiver
+// and the parameter should be the ready client.
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
 	CBytestream bytes;
@@ -133,10 +134,8 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 
 void CServerNetEngine::SendPrepareGame()
 {
-	CBytestream bs;
-	
+	CBytestream bs;	
 	WritePrepareGame(&bs);
-
 	SendPacket( &bs );
 }
 
@@ -1078,6 +1077,22 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	bs.writeFloat(worm->speedFactor());
 	bs.writeFloat(worm->damageFactor());
 	bs.writeBool(worm->canUseNinja());
+	SendPacket(&bs);
+}
+
+void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
+	warnings << "SendSelectWeapons not supported for " << cl->debugName() << endl;
+}
+
+void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
+	if(!worm->isUsed()) {
+		warnings << "SendSelectWeapons called for unused worm" << endl;
+		return;
+	}
+
+	CBytestream bs;
+	bs.writeByte(S2C_SELECTWEAPONS);
+	bs.writeByte(worm->getID());
 	SendPacket(&bs);
 }
 

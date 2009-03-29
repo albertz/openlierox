@@ -604,6 +604,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_SETWORMPROPS:
 				ParseWormProps(bs);
 				break;
+			
+			case S2C_SELECTWEAPONS:
+				ParseSelectWeapons(bs);
+				break;
 				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
@@ -1112,7 +1116,7 @@ void CClientNetEngineBeta9NewNet::ParseGotoLobby(CBytestream *bs)
 	CClient * cl = client;
 	delete cl->cNetEngine; // Warning: deletes *this, so "client" var is inaccessible
 	cl->cNetEngine = new CClientNetEngineBeta9(cl);
-};
+}
 
 void CClientNetEngineBeta9NewNet::ParseNewNetKeys(CBytestream *bs)
 {
@@ -1124,7 +1128,7 @@ void CClientNetEngineBeta9NewNet::ParseNewNetKeys(CBytestream *bs)
 		return;
 	}
 	NewNet::ReceiveNetPacket( bs, worm );
-};
+}
 
 ///////////////////
 // Parse a spawn worm packet
@@ -1229,12 +1233,17 @@ void CClientNetEngineBeta9NewNet::ParseWormDown(CBytestream *bs)
 // Parse a worm info packet
 void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 {
+	if(bs->GetRestLen() == 0) {
+		warnings << "CClientNetEngine::ParseWormInfo: data screwed up" << endl;
+		return;
+	}
+	
 	int id = bs->readInt(1);
 
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
 		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
-		WormJoinInfo::skipInfo(bs); // Skip not to break other packets
+		bs->SkipAll(); // data is screwed up
 		return;
 	}
 
@@ -1271,23 +1280,46 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 }
 
+static CWorm* getWorm(CClient* cl, CBytestream* bs, const std::string& fct, bool (*skipFct)(CBytestream*bs) = NULL) {
+	if(bs->GetRestLen() == 0) {
+		warnings << fct << ": data screwed up at worm ID" << endl;
+		return NULL;
+	}
+	
+	int id = bs->readByte();
+	if(id < 0 || id >= MAX_WORMS) {
+		warnings << fct << ": worm ID " << id << " is invalid" << endl;
+		bs->SkipAll();
+		return NULL;
+	}
+	
+	if(cl->getRemoteWorms() == NULL) {
+		warnings << fct << ": worms are not initialised" << endl;
+		if(skipFct) (*skipFct)(bs);
+		return NULL;		
+	}
+	
+	CWorm* w = &cl->getRemoteWorms()[id];
+	if(!w->isUsed()) {
+		warnings << fct << ": worm ID " << id << " is unused" << endl;
+		if(skipFct) (*skipFct)(bs);
+		return NULL;
+	}
+	
+	return w;
+}
+
 ///////////////////
 // Parse a worm info packet
 void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 {
-	int id = bs->readInt(1);
+	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseWormWeaponInfo", CWorm::skipWeapons);
+	if(!w) return;
 
-	// Validate the id
-	if (id < 0 || id >= MAX_WORMS)  {
-		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
-		CWorm::skipWeapons(bs); // Skip not to break other packets
-		return;
-	}
-
-	client->cRemoteWorms[id].readWeapons(bs);
+	w->readWeapons(bs);
 
 	client->UpdateScoreboard();
-	if (client->cRemoteWorms[id].getLocal())
+	if (w->getLocal())
 		client->bShouldRepaintInfo = true;
 }
 
@@ -1305,7 +1337,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 		type = TXT_TEAMPM;
 
 	Uint32 col = tLX->clWhite;
-	int	t = bDedicated ? 0 : client->cLocalWorms[0]->getTeam();
+	int	t = client->getNumWorms() == 0 ? 0 : client->cLocalWorms[0]->getTeam();
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;
@@ -1425,21 +1457,13 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 // Parse AFK packet
 void CClientNetEngineBeta7::ParseAFK(CBytestream *bs)
 {
-	int id = bs->readByte();
+	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseAFK", SkipMult<Skip<2>, SkipString>);
+	if(!w) return;
+	
 	AFK_TYPE afkType = (AFK_TYPE)bs->readByte();
 	std::string message = bs->readString(128);
-
-	// Validate the id
-	if (id < 0 || id >= MAX_WORMS)  {
-		printf("CClientNetEngine::ParseAFK: invalid ID ("+itoa(id)+")\n");
-		return;
-	}
-
-	if( ! client->cRemoteWorms[id].isUsed() )
-		return;
-
-	client->cRemoteWorms[id].setAFK(afkType, message);
-
+	
+	w->setAFK(afkType, message);
 }
 
 
@@ -1447,57 +1471,51 @@ void CClientNetEngineBeta7::ParseAFK(CBytestream *bs)
 // Parse a score update packet
 void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 {
-	short id = bs->readInt(1);
+	CWorm* w = getWorm(client, bs, "ParseScoreUpdate", Skip<3>);
+	if(!w) return;
 
-	if(id >= 0 && id < MAX_WORMS)  {
-		log_worm_t *l = client->GetLogWorm(id);
+	log_worm_t *l = client->GetLogWorm(w->getID());
 
-		int lives = (int)bs->readInt16();
-		int gameLives = client->getGameLobby()->iLives;
-		if (gameLives == WRM_UNLIM) {
-			if(lives != WRM_UNLIM)
-				warnings << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
-			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
-		} else {
-			if(lives == WRM_UNLIM)
-				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
-			else if(lives > client->getGameLobby()->iLives)
-				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
-			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
-		}
-	
-		client->cRemoteWorms[id].setKills( MAX(bs->readInt(1), 0) );
-
-		
-		if (client->cRemoteWorms[id].getLocal())
-			client->bShouldRepaintInfo = true;
-
-		// Logging
-		if (l)  {
-			// Check if the stats changed
-			bool stats_changed = false;
-			if (l->iLives != client->cRemoteWorms[id].getLives())  {
-				l->iLives = client->cRemoteWorms[id].getLives();
-				client->iLastVictim = id;
-				stats_changed = true;
-			}
-
-			if (l->iKills != client->cRemoteWorms[id].getKills())  {
-				l->iKills = client->cRemoteWorms[id].getKills();
-				client->iLastKiller = id;
-				stats_changed = true;
-			}
-
-			// If the update was sent but no changes made -> this is a killer that made a teamkill
-			// See CServer::ParseDeathPacket for more info
-			if (!stats_changed)
-				client->iLastKiller = id;
-		}
+	int lives = (int)bs->readInt16();
+	int gameLives = client->getGameLobby()->iLives;
+	if (gameLives == WRM_UNLIM) {
+		if(lives != WRM_UNLIM)
+			warnings << "WARNING: we have unlimited lives in this game but server gives worm " << w->getID() << " only " << lives << " lives" << endl;
+		w->setLives( MAX(lives,WRM_UNLIM) );
+	} else {
+		if(lives == WRM_UNLIM)
+			warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << w->getID() << " unlimited lives" << endl;
+		else if(lives > client->getGameLobby()->iLives)
+			warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << w->getID() << " even " << lives << " lives" << endl;			
+		w->setLives( MAX(lives,WRM_OUT) );
 	}
-	else
-	{
-		// do this to get the right position in net stream
-		bs->Skip(3);	
+
+	w->setKills( MAX(bs->readInt(1), 0) );
+
+	
+	if (w->getLocal())
+		client->bShouldRepaintInfo = true;
+
+	// Logging
+	if (l)  {
+		// Check if the stats changed
+		bool stats_changed = false;
+		if (l->iLives != w->getLives())  {
+			l->iLives = w->getLives();
+			client->iLastVictim = w->getID();
+			stats_changed = true;
+		}
+
+		if (l->iKills != w->getKills())  {
+			l->iKills = w->getKills();
+			client->iLastKiller = w->getID();
+			stats_changed = true;
+		}
+
+		// If the update was sent but no changes made -> this is a killer that made a teamkill
+		// See CServer::ParseDeathPacket for more info
+		if (!stats_changed)
+			client->iLastKiller = w->getID();
 	}
 
 	client->UpdateScoreboard();
@@ -1687,17 +1705,12 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 		return;
 	}
 
-	int id = bs->readInt(1);
+	CWorm* target = getWorm(client, bs, "ParseTagUpdate", Skip<sizeof(float)>);
+	if(!target) return;
 	TimeDiff time = TimeDiff(bs->readFloat());
 
-	// Safety check
-	if(id <0 || id >= MAX_WORMS)  {
-		printf("CClientNetEngine::ParseTagUpdate: invalid worm ID ("+itoa(id)+")\n");
-		return;
-	}
-
 	if (client->tGameInfo.iGeneralGameType != GMT_TIME)  {
-		printf("CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring\n");
+		warnings << "CClientNetEngine::ParseTagUpdate: game mode is not tag - ignoring" << endl;
 		return;
 	}
 
@@ -1709,11 +1722,11 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 	}
 
 	// Tag the worm
-	client->cRemoteWorms[id].setTagIT(true);
-	client->cRemoteWorms[id].setTagTime(time);
+	target->setTagIT(true);
+	target->setTagTime(time);
 
 	// Log it
-	log_worm_t *l = client->GetLogWorm(id);
+	log_worm_t *l = client->GetLogWorm(target->getID());
 	if (l)  {
 		for (int i=0; i < client->tGameLog->iNumWorms; i++)
 			client->tGameLog->tWorms[i].bTagIT = false;
@@ -1742,17 +1755,15 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 	}
 
 
-	byte id;
-	CWorm *w;
 	for(short i=0;i<numworms;i++) {
-		id = bs->readByte();
+		byte id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
 			printf("CClientNetEngine::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		w = &client->cRemoteWorms[id];
+		CWorm* w = &client->cRemoteWorms[id];
 		if(w) {
 			w->setGameReady(true);
 
@@ -1776,7 +1787,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 {
 	ParseUpdateLobby_Internal(bs);
-};
+}
 
 // TODO: I don't want to copypaste code to CClientNetEngineBeta9::ParseUpdateLobby() so I added updatedWorms param which may be ugly, do something about that
 void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms)
@@ -1797,10 +1808,8 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 
 	std::string HostName;
 
-	byte id;
-	CWorm *w;
 	for(short i=0;i<numworms;i++) {
-		id = bs->readByte();
+		byte id = bs->readByte();
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
 		if( id >= MAX_WORMS) {
@@ -1809,7 +1818,7 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 		}
 
 
-		w = &client->cRemoteWorms[id];
+		CWorm* w = &client->cRemoteWorms[id];
         if(w) {
 			w->getLobby()->bReady = ready;
             w->getLobby()->iTeam = team;
@@ -1858,7 +1867,7 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 
 
 	for(int i=0;i<numworms;i++) {
-		int id = bs->readByte();
+		byte id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
 			printf("CClientNetEngine::ParseWormsOut: invalid worm ID ("+itoa(id)+")\n");
@@ -2059,8 +2068,7 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 
 
 ///////////////////
-// Parse a 'worm down' packet
-// TODO: what exactly is this?
+// Parse a 'worm down' packet (Worm died)
 void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
@@ -2382,7 +2390,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 					client->fLastFileRequest = tLX->currentTime + 1.5f;	// Small delay so server will be able to send all the info
 					client->iModDownloadingSize = client->getUdpFileDownloader()->getFilesPendingSize();
 				}
-			};
+			}
 			for( f=0; f<client->getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
 				if( client->getUdpFileDownloader()->getFileInfo()[f].filename.find( client->tGameInfo.sModDir ) == 0 &&
@@ -2562,31 +2570,28 @@ void CClientNetEngine::ParseWormProps(CBytestream* bs) {
 }
 
 void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
-	if(bs->GetRestLen() < 3) {
-		warnings << "ParseWormProps: data is screwed up" << endl;
-		bs->SkipAll();
-		return;
-	}
-	
-	int wormID = bs->readByte();
-	if(wormID < 0 || wormID >= MAX_WORMS) {
-		warnings << "ParseWormProps: worm " << wormID << " is invalid" << endl;
-		bs->SkipAll();
-		return;
-	}
+	CWorm* w = getWorm(client, bs, "ParseWormProps", Skip<2*sizeof(float)+1>);
+	if(!w) return;
 	
 	float speedFactor = bs->readFloat();
 	float damageFactor = bs->readFloat();
 	bool canUseNinja = bs->readBool();
-	
-	CWorm* w = &client->getRemoteWorms()[wormID];
-	if(!w->isUsed()) {
-		warnings << "ParseWormProps: worm " << wormID << " is not used" << endl;
-		return;
-	}
-	
+		
 	w->setSpeedFactor(speedFactor);
 	w->setDamageFactor(damageFactor);
 	w->setCanUseNinja(canUseNinja);
+}
+
+void CClientNetEngine::ParseSelectWeapons(CBytestream* bs) {
+	warnings << "Client: got worm select weapons from too old " << client->cServerVersion.asString() << " server" << endl;
+	bs->SkipAll(); // screwed up
+}
+
+void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
+	CWorm* w = getWorm(client, bs, "ParseSelectWeapons");
+	if(!w) return;
+		
+	client->setGameReady(false);
+	w->setWeaponsReady(false);
 }
 
