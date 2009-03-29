@@ -1252,9 +1252,9 @@ void GameServer::CheckTimeouts(void)
 
 void GameServer::CheckWeaponSelectionTime()
 {
-	if( iState != SVS_GAME || tLX->iGameType != GME_HOST )
-		return;
-
+	if( iState != SVS_GAME || tLX->iGameType != GME_HOST ) return;
+	if( serverChoosesWeapons() ) return;
+	
 	float timeLeft = float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
 	
 	int warnIndex = 100;
@@ -1294,12 +1294,10 @@ void GameServer::CheckWeaponSelectionTime()
 			for(int i = 0; i < cl->getNumWorms(); i++) {
 				if(!cl->getWorm(i)->getWeaponsReady()) {
 					warnings << "CheckWeaponSelectionTime: own worm " <<  cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
-					cl->getWorm(i)->GetRandomWeapons();
 					cl->getWorm(i)->setWeaponsReady(true);
 				}
 			}
-			cl->getNetEngine()->SendClientReady(NULL);
-			RecheckGame();
+			// after we set all worms to ready, the client should sent the ImReady in next frame
 			continue;
 		}
 		DropClient( cl, CLL_KICK, "selected weapons too long" );

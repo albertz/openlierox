@@ -74,19 +74,15 @@ void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
 	
-	if(server->serverChoosesWeapons()) {
-		CBytestream bytes;
-		bytes.writeByte(S2C_CLREADY);
-		// We don't have to send the weapons, we send them directly
+	//if(server->serverChoosesWeapons()) {
+		// We don't necessarily have to send the weapons, we send them directly
 		// (e.g. in cloneWeaponsToAllWorms() or in PrepareWorm()).
-		bytes.writeByte(0);
 		
-		if(receiver)
-			receiver->getNetEngine()->SendPacket(&bytes);
-		else
-			server->SendGlobalPacket(&bytes);
-	}
-	else if (cl->getNumWorms() <= 2)  {
+		// But the client doesn't set CWorm::bGameReady=true, so we still
+		// have to send this.
+	//}
+
+	if (cl->getNumWorms() <= 2)  {
 		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
