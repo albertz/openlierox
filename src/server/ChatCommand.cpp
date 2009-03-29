@@ -1133,6 +1133,10 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "Client not found";
 	}
 	
+	if(cl->getClientVersion() < OLXBetaVersion(9)) {
+		return "Client is too old to support this";
+	}
+	
 	w->setWeaponsReady(false);
 	cl->setGameReady(false);
 	cl->getNetEngine()->SendSelectWeapons(w);
