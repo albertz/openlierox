@@ -1,0 +1,19 @@
+###################
+# Gun: Cannon
+
+
+[General]
+Name = Cannon
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 5
+Drain = 25
+ROF = 300
+Sound = bazooka.wav
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0
+Projectile = p_cannon.txt
+

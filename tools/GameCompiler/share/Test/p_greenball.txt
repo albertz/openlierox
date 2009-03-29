@@ -1,0 +1,13 @@
+###################
+# Projectile: Greenball
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 148,176,0
+
+[Hit]
+Type = GreenDirt
+
+[PlayerHit]
+Type = GreenDirt

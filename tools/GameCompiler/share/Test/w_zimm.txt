@@ -1,0 +1,18 @@
+###################
+# Gun: Zimm
+
+
+[General]
+Name = Zimm
+Class = WCL_MISSILE
+Recoil = 10
+Recharge = 5
+Drain = 34
+ROF = 400
+Sound = larpa.wav
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0
+Projectile = p_zimm.txt

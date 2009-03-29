@@ -1,0 +1,19 @@
+###################
+# Projectile: Uzi Bullet
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 239, 176, 0
+Colour2 = 207, 136, 0
+Trail = TRL_NONE
+
+[Hit]
+Type = Explode
+Damage = 3
+Sound = sm_explode.wav
+Shake = 1
+
+[PlayerHit]
+Type = Injure
+Damage = 2

@@ -1,0 +1,19 @@
+###################
+# Gun: Crackler
+
+
+[General]
+Name = Crackler
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 3
+Drain = 101
+ROF = 300
+Sound = throw.wav
+
+[Projectile]
+Amount = 1
+Speed = 200
+Spread = 0
+Projectile = p_crackler.txt
+

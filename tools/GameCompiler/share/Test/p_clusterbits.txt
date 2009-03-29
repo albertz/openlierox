@@ -1,0 +1,28 @@
+###################
+# Projectile: Cluster bits
+
+
+[General]
+Type = PRJ_IMAGE
+Image = cluster_bits.png
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Explode
+Damage = 3
+Projectiles = true
+Shake = 2
+
+[PlayerHit]
+Type = Injure
+Damage = 3
+
+[Projectile]
+Angle = 0
+Amount = 3
+Speed = 100
+Spread = 360
+Projectile = p_grenbits.txt

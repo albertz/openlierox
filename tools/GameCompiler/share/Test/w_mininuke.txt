@@ -1,0 +1,19 @@
+###################
+# Gun: Mini Nuke
+
+
+[General]
+Name = Mini Nuke
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 2
+Drain = 51
+ROF = 400
+Sound = throw.wav
+
+[Projectile]
+Amount = 1
+Speed = 150
+Spread = 0
+Projectile = p_mininuke.txt
+

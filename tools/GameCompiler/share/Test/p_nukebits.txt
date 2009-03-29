@@ -1,0 +1,30 @@
+###################
+# Projectile: Nuclear bits
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 148,136,0
+Trail = TRL_CHEMSMOKE
+Timer = 3.5
+TimerVar = 1
+
+[Hit]
+Type = Bounce
+
+[Time]
+Type = Explode
+Damage = 4
+Projectiles = true
+Shake = 4
+
+[PlayerHit]
+Type = Bounce
+
+[Projectile]
+Angle = 0
+Amount = 2
+Speed = 50
+SpeedVar = 5
+Spread = 360
+Projectile = p_blasterbits.txt

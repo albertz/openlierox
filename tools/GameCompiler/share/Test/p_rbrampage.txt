@@ -1,0 +1,23 @@
+###################
+# Projectile: RB Rampage bullet
+
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 208,216,128
+Trail = TRL_NONE
+Dampening = 0.999
+Gravity = 0
+Timer = 10
+
+[Time]
+Type = Explode
+Damage = 5
+
+[Hit]
+Type = Bounce
+BounceCoef = 500
+
+[PlayerHit]
+Type = Injure
+Damage = 10

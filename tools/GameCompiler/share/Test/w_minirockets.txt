@@ -1,0 +1,18 @@
+###################
+# Gun: Mini Rockets
+
+
+[General]
+Name = Mini Rockets
+Class = WCL_MISSILE
+Recoil = 10
+Recharge = 5
+Drain = 10
+ROF = 150
+Sound = larpa.wav
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0
+Projectile = p_minirocket.txt

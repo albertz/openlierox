@@ -1,0 +1,67 @@
+#####################
+#
+#     Mod Main file
+#
+#      For LieroX
+#
+#####################
+
+
+[General]
+ModName = Classic Demonstration
+
+
+[Weapons]
+NumWeapons = 37
+Weapon1 = w_bazooka.txt
+Weapon2 = w_bignuke.txt
+Weapon3 = w_blaster.txt
+Weapon4 = w_bouncylarpa.txt
+Weapon5 = w_bouncymine.txt
+Weapon6 = w_cannon.txt
+Weapon7 = w_chaingun.txt
+Weapon8 = w_chiquita.txt
+Weapon9 = w_clusterbomb.txt
+Weapon10 = w_crackler.txt
+Weapon11 = w_dart.txt
+Weapon12 = w_dirtball.txt
+Weapon13 = w_doomsday.txt
+Weapon14 = w_explosives.txt
+Weapon15 = w_flamer.txt
+Weapon16 = w_floatmine.txt
+Weapon17 = w_gaussgun.txt
+Weapon18 = w_greenball.txt
+Weapon19 = w_grasshopper.txt
+Weapon20 = w_grenade.txt
+Weapon21 = w_handgun.txt
+Weapon22 = w_hellraider.txt
+Weapon23 = w_larpa.txt
+Weapon24 = w_laser.txt
+Weapon25 = w_mine.txt
+Weapon26 = w_minigun.txt
+Weapon27 = w_mininuke.txt
+Weapon28 = w_minirockets.txt
+Weapon29 = w_napalm.txt
+Weapon30 = w_rbrampage.txt
+Weapon31 = w_rifle.txt
+Weapon32 = w_shotgun.txt
+Weapon33 = w_spikeballs.txt
+Weapon34 = w_supershotgun.txt
+Weapon35 = w_uzi.txt
+Weapon36 = w_winchester.txt
+Weapon37 = w_zimm.txt
+
+
+[NinjaRope]
+RopeLength = 300
+RestLength = 27
+Strength = 4.5
+
+[Worm]
+AngleSpeed = 150
+GroundSpeed = 8
+AirSpeed = 4
+Gravity = 100
+JumpForce = -65
+AirFriction = 0
+GroundFriction = 0.4

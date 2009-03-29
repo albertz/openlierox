@@ -1,0 +1,19 @@
+###################
+# Gun: Winchester
+
+
+[General]
+Name = Winchester
+Class = WCL_MISSILE
+Recoil = 10
+Recharge = 3
+Drain = 11
+ROF = 400
+Sound = rifle.wav
+
+[Projectile]
+Amount = 1
+Speed = 800
+Spread = 0
+Projectile = p_winchbullet.txt
+
