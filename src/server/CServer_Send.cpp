@@ -73,8 +73,21 @@ void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
 // and the parameter should be the ready client.
 void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	// Let everyone know this client is ready to play
-	CBytestream bytes;
-	if (cl->getNumWorms() <= 2)  {
+	
+	if(server->serverChoosesWeapons()) {
+		CBytestream bytes;
+		bytes.writeByte(S2C_CLREADY);
+		// We don't have to send the weapons, we send them directly
+		// (e.g. in cloneWeaponsToAllWorms() or in PrepareWorm()).
+		bytes.writeByte(0);
+		
+		if(receiver)
+			receiver->getNetEngine()->SendPacket(&bytes);
+		else
+			server->SendGlobalPacket(&bytes);
+	}
+	else if (cl->getNumWorms() <= 2)  {
+		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
 		for (int i = 0;i < cl->getNumWorms();i++) {
@@ -95,6 +108,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		int id = 0;
 		while (written < cl->getNumWorms())  {
 			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
+				CBytestream bytes;
 				bytes.writeByte(S2C_CLREADY);
 				bytes.writeByte(1);
 				server->cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
@@ -102,7 +116,6 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 					receiver->getNetEngine()->SendPacket(&bytes);
 				else
 					server->SendGlobalPacket(&bytes);
-				bytes.Clear();
 				written++;
 			}
 			id++;
