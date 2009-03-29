@@ -969,9 +969,9 @@ void setCurThreadPriority(float p) {
 #ifdef WIN32
 	
 #elif defined(__APPLE__)
-	int curp = getpriority(PRIO_DARWIN_THREAD, 0); 
+	//int curp = getpriority(PRIO_DARWIN_THREAD, 0); 
 	int newp = p >= 0 ? 0 : 1;
-	notes << "curp:" << curp << ", newp:" << newp << endl;
+	//notes << "curp:" << curp << ", newp:" << newp << endl;
 	setpriority(PRIO_DARWIN_THREAD, 0, newp);
 #endif
 }
