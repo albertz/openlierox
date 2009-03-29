@@ -1290,12 +1290,17 @@ void GameServer::CheckWeaponSelectionTime()
 		if( cl->isLocalClient() ) {
 			if(cl->getNumWorms() == 0) {
 				warnings << "CheckWeaponSelectionTime: local client is not ready but doesn't have any worms" << endl;
+				cl->getNetEngine()->SendClientReady(NULL);
 			}
-			for(int i = 0; i < cl->getNumWorms(); i++) {
-				if(!cl->getWorm(i)->getWeaponsReady()) {
+			for(int i = 0; i < cClient->getNumWorms(); i++) {
+				if(!cClient->getWorm(i)->getWeaponsReady()) {
 					warnings << "CheckWeaponSelectionTime: own worm " <<  cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
-					cl->getWorm(i)->setWeaponsReady(true);
+					cClient->getWorm(i)->setWeaponsReady(true);
 				}
+			}
+			if(cClient->getNumWorms() == 0) {
+				warnings << "CheckWeaponSelectionTime: local client (cClient) is not ready but doesn't have any worms" << endl;
+				cl->getNetEngine()->SendClientReady(NULL);
 			}
 			// after we set all worms to ready, the client should sent the ImReady in next frame
 			continue;
