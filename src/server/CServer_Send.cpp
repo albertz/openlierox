@@ -1074,10 +1074,14 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	CBytestream bs;
 	bs.writeByte(S2C_SETWORMPROPS);
 	bs.writeByte(worm->getID());
+	bs.writeBit(worm->canUseNinja());
 	bs.writeFloat(worm->speedFactor());
 	bs.writeFloat(worm->damageFactor());
-	bs.writeBool(worm->canUseNinja());
 	SendPacket(&bs);
+}
+
+bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
+	return worm->speedFactor() == 1.0f && worm->damageFactor() == 1.0f && worm->canUseNinja();
 }
 
 void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
@@ -1094,10 +1098,6 @@ void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
 	bs.writeByte(S2C_SELECTWEAPONS);
 	bs.writeByte(worm->getID());
 	SendPacket(&bs);
-}
-
-bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
-	return worm->speedFactor() == 1.0f && worm->damageFactor() == 1.0f && worm->canUseNinja();
 }
 
 void GameServer::SetWormSpeedFactor(int wormID, float f) {

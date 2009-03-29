@@ -2572,10 +2572,11 @@ void CClientNetEngine::ParseWormProps(CBytestream* bs) {
 void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 	CWorm* w = getWorm(client, bs, "ParseWormProps", Skip<2*sizeof(float)+1>);
 	if(!w) return;
-	
+
+	bs->ResetBitPos();
+	bool canUseNinja = bs->readBit();
 	float speedFactor = bs->readFloat();
 	float damageFactor = bs->readFloat();
-	bool canUseNinja = bs->readBool();
 		
 	w->setSpeedFactor(speedFactor);
 	w->setDamageFactor(damageFactor);

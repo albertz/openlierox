@@ -548,7 +548,7 @@ bool CBytestream::readBit()
 	{
 		bitPos = 0;
 		pos ++;
-	};
+	}
 	return ret;
 }
 
