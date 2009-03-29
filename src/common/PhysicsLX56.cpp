@@ -357,7 +357,7 @@ public:
 
 
 		// Process the jump
-		if(ws->bJump && worm->CheckOnGround()) {
+		if(ws->bJump && (worm->canAirJump() || worm->CheckOnGround())) {
 			worm->getVelocity()->y = wd->JumpForce;
 
 			// HINT: if we are on ground for a short time, make the jump X-velocity
