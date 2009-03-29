@@ -645,14 +645,12 @@ void GameServer::RecheckGame(void)
 // Checks if all the clients are ready to play
 void GameServer::CheckReadyClient(void)
 {
-	short c;
-
 	if(iState != SVS_GAME)
 		return;
 
 	bool allready = true;
 	CServerConnection *client = cClients;
-	for(c=0; c<MAX_CLIENTS; c++, client++) {
+	for(short c=0; c<MAX_CLIENTS; c++, client++) {
 		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE || client->getNumWorms() == 0)
 			continue;
 

@@ -54,17 +54,19 @@ Feature featureArray[] = {
 	Feature("NewNetEngine", 		"New net engine",		"New net engine witout self-shooting and lag effects, CPU-eating", 
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
 	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
-			0,	0,					Version(),			GIG_Other,			0,		MAX_PLAYERS, true),
+			0,	0,					OLXBetaVersion(9),		GIG_Other,			0,		MAX_PLAYERS, true),
 	Feature("WormSpeedFactor",		"Worm speed factor",	"Initial factor to worm speed",
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
 	Feature("WormDamageFactor",		"Worm damage factor",	"Initial factor to worm damage",
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
 	Feature("WormCanAirJump",		"Worm can air jump",	"All worms can jump in air initially",
 			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),
+	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
+			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninka rope",
-			true, true,				Version(),			GIG_CaptureTheFlag, true),
+			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
-			1.0f, 1.0f,				Version(),			GIG_CaptureTheFlag,	 0.1f, 3.0f, true),
+			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_CaptureTheFlag,	 0.1f, 3.0f, true),
 
 	Feature::Unset()
 };

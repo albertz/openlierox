@@ -57,6 +57,7 @@ ChatCommand tKnownCommands[] = {
 	{"dedicated",	"ded",			1, (size_t)-1,	(size_t)-1, &ProcessDedicated},
 	{"script",		"scr",			1, 1,			(size_t)-1, &ProcessScript},
 	{"setvar",		"var",			1, 2,			(size_t)-1, &ProcessSetVar},
+	{"weapons",		"wpns",			0, 1,			(size_t)-1, &ProcessWeapons},
 	{"",			"",				0, 0,			(size_t)-1, NULL}
 };
 
@@ -1093,5 +1094,47 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	
 	cServer->UpdateGameLobby();
 		
+	return "";
+}
+
+std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id) {
+	// Check the sender
+	if (sender_id < 0 || sender_id >= MAX_WORMS)
+		return "Invalid worm";
+	
+	// Param check
+	if (params.size() < GetCommand(&ProcessWeapons)->iMinParamCount ||
+		params.size() > GetCommand(&ProcessWeapons)->iMaxParamCount)
+		return "Invalid parameter count";
+		
+	int target = sender_id;
+	if(params.size() == 1) {
+		target = atoi(params[0]);
+		if(target < 0 || target >= MAX_WORMS || !cServer->getWorms()[target].isUsed()) {
+			return "worm ID " + itoa(target) + " is invalid";
+		}
+		
+		// TODO: Well, I don't want to have extra rights for every single bit, there
+		// should be some more general rights. For now, I just use StartGame for this.
+		CWorm *senderW = &cServer->getWorms()[sender_id];
+		CServerConnection *senderCl = senderW->getClient();
+		if(!senderCl || !senderCl->getRights()->StartGame) {
+			return "You don't have the permissions to init a weapon change for other worms";
+		}
+	} else {
+		if(!(bool)tLXOptions->tGameInfo.features[FT_AllowWeaponsChange]) {
+			return "Weapons changes are not allowed";
+		}
+	}
+
+	CWorm *w = &cServer->getWorms()[target];
+	CServerConnection *cl = w->getClient();
+	if(!cl) {
+		return "Client not found";
+	}
+	
+	w->setWeaponsReady(false);
+	cl->setGameReady(false);
+	cl->getNetEngine()->SendSelectWeapons(w);
 	return "";
 }
