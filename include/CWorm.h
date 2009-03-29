@@ -170,7 +170,9 @@ struct WormJoinInfo;
 class CWorm { friend class CWormInputHandler; friend class CWormBotInputHandler; friend class CWormHumanInputHandler; friend struct WormJoinInfo;
 public:
 	// Constructor
+#pragma warning(disable:4355)  // Warning: this used in member initializer list
 	CWorm(): cSparkles(this)
+#pragma warning(default:4355)
 	{
 		// set all pointers to NULL
 		m_inputHandler = NULL;
