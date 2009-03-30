@@ -110,6 +110,7 @@
 #include "SmartPointer.h"
 #include "Sounds.h"
 #include "StackWalker.h"
+#include "StaticAssert.h"
 #include "StringBuf.h"
 #include "StringUtils.h"
 #include "StyleVar.h"

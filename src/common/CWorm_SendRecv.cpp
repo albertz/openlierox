@@ -482,6 +482,11 @@ bool CWorm::skipPacket(CBytestream *bs)
 // Read a packet (client side)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
+	if( NewNet::Active() )
+	{
+		warnings << "CWorm::readPacketState(): new net engine active" << endl;
+		return;
+	}
 	if(cClient->OwnsWorm(this->getID())) {
 		warnings << "get worminfo packet from server for our own worm" << endl;
 		skipPacketState(bs);

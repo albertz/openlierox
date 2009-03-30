@@ -646,7 +646,7 @@ void DrawWormName(SDL_Surface * dest, const std::string& name, Uint32 x, Uint32 
 
 
 void CWorm::UpdateDrawPos() {
-	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this->getID()) ) {
+	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this->getID()) && !NewNet::Active() ) {
 		//if(fLastPosUpdate > tLX->currentTime) return; // something is wrong, we probably have not gotten any update yet
 
 		// tmp hack
