@@ -211,7 +211,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	if(proj->Hit_Type == PJ_EXPLODE) {
 		fwrite_endian_compat((proj->Hit_Damage),		sizeof(int),1,fp);
 		fwrite_endian_compat((proj->Hit_Projectiles),	sizeof(int),1,fp);
-		fwrite_endian_compat(proj->Hit_UseSound, sizeof(int), 1, fp);
+		fwrite_endian<int>(fp, proj->Hit_UseSound);
 		fwrite_endian_compat((proj->Hit_Shake),		sizeof(int),1,fp);
 		if(proj->Hit_UseSound)
             writeString(proj->Hit_SndFilename, fp);
@@ -301,7 +301,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 
-		fwrite_endian_compat((proj->PrjTrl_UsePrjVelocity),	sizeof(int),	1, fp);
+		fwrite_endian<int>(fp, proj->PrjTrl_UsePrjVelocity);
 		fwrite_endian_compat((proj->PrjTrl_Delay*1000.0f),				sizeof(float),	1, fp);
 		fwrite_endian_compat((proj->PrjTrl_Amount),			sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->PrjTrl_Speed),				sizeof(int),	1, fp);
