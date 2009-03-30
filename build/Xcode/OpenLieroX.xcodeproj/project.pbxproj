@@ -453,6 +453,7 @@
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
 		236718780F7F8AAB00416803 /* ProjectileDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectileDesc.h; sourceTree = "<group>"; };
+		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
 		2367B2E50F7AFC9000F7B302 /* CChatWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CChatWidget.h; sourceTree = "<group>"; };
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
 		23754FB50EDC32AB005EC287 /* CWormBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormBot.h; sourceTree = "<group>"; };
@@ -1352,6 +1353,7 @@
 				23EABF6C0F40C79100CA55CF /* TaskManager.h */,
 				23EAC0940F4203BE00CA55CF /* Process.h */,
 				238F2DF20F74138C0016D617 /* FlagInfo.h */,
+				23671C760F80D6D000416803 /* StaticAssert.h */,
 			);
 			name = include;
 			path = ../../include;

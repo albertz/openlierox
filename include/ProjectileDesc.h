@@ -12,9 +12,42 @@
 
 #include <string>
 #include <vector>
+#include "StaticAssert.h"
 
 struct SDL_Surface;
 struct SoundSample;
+
+
+// Projectile trails
+enum Proj_Trail {
+	TRL_NONE = 0,
+	TRL_SMOKE = 1,
+	TRL_CHEMSMOKE = 2,
+	TRL_PROJECTILE = 3,
+	TRL_DOOMSDAY = 4,
+	TRL_EXPLOSIVE = 5,
+	
+	__TRL_BOUND = INT_MAX // force enum to be of size int
+};
+
+static_assert(sizeof(Proj_Trail) == sizeof(int), Proj_Trail__SizeCheck);
+
+
+// Projectile method types
+enum Proj_PlyHit {
+	PJ_BOUNCE = 0,
+	PJ_EXPLODE = 1,
+	PJ_INJURE = 2,
+	PJ_CARVE = 4,
+	PJ_DIRT = 5,
+	PJ_GREENDIRT = 6,
+	PJ_DISAPPEAR = 7,
+	PJ_NOTHING = 8,
+	
+	__PJ_BOUND = INT_MAX // force enum to be of size int
+};
+
+static_assert(sizeof(Proj_PlyHit) == sizeof(int), Proj_PlyHit__SizeCheck);
 
 // Projectile structure
 struct proj_t {
@@ -24,7 +57,7 @@ struct proj_t {
 	int		id;					// File ref use
 	
 	int		Type;
-	int		Trail;
+	Proj_Trail Trail;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
 	int		Rotating;
@@ -77,7 +110,7 @@ struct proj_t {
 	
 	
 	// Player hit
-	int		PlyHit_Type;
+	Proj_PlyHit	PlyHit_Type;
 	int		PlyHit_Damage;
 	int		PlyHit_Projectiles;
 	float	PlyHit_BounceCoeff;
@@ -103,6 +136,16 @@ struct proj_t {
 	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
 	SoundSample * smpSample;
+	
+	
+	// new since Beta9
+	
+	bool SelfInjure; // SelfInjure=true in options will overwrite this
+	bool SelfHit; // SelfHit=true in options will overwrite this
+	bool TeamInjure; // TeamInjure=true in options will overwrite this
+	bool TeamHit; // TeamHit=true in options will overwrite this
+	
+	
 };
 
 

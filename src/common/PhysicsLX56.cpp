@@ -517,6 +517,7 @@ public:
 
 		// Trails
 		switch(pi->Trail) {
+		case TRL_NONE: break;
 		case TRL_SMOKE:
 			if(proj->extra() >= 0.075f) {
 				proj->extra() = 0.0f;
@@ -547,8 +548,9 @@ public:
 
 				*projspawn = true;
 			}
+			break;
+		case __TRL_BOUND: errors << "simulateProjectile_LowLevel: hit __TRL_BOUND" << endl;
 		}
-
 		return res;
 	}
 
@@ -790,6 +792,10 @@ public:
 				bool push_worm = true;
 
 				switch (pi->PlyHit_Type)  {
+					case PJ_CARVE:
+					case PJ_DISAPPEAR:
+						// TODO: do anything about it?
+						break;
 
 				// Explode
 				case PJ_EXPLODE:
@@ -823,6 +829,8 @@ public:
 				case PJ_NOTHING:
 					push_worm = false;
 				break;
+						
+					case __PJ_BOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 				}
 
 				// Push the worm back

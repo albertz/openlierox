@@ -1343,7 +1343,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadKeyword(file,"General","Type",&proj->Type,PRJ_PIXEL);
 	ReadFloat(file,"General","Timer",&proj->Timer_Time,0);
 	ReadFloat(file, "General", "TimerVar", &proj->Timer_TimeVar, 0);
-	ReadKeyword(file,"General","Trail",&proj->Trail,TRL_NONE);
+	ReadKeyword(file,"General","Trail",(int*)&proj->Trail,TRL_NONE);
 	
 	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
 		proj->UseCustomGravity = true;
@@ -1433,7 +1433,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 	// Player hit
-	ReadKeyword(file,"PlayerHit","Type",&proj->PlyHit_Type,PJ_INJURE);
+	ReadKeyword(file,"PlayerHit","Type",(int*)&proj->PlyHit_Type,PJ_INJURE);
 
 	// PlyHit::Explode || PlyHit::Injure
 	if(proj->PlyHit_Type == PJ_EXPLODE || proj->PlyHit_Type == PJ_INJURE) {

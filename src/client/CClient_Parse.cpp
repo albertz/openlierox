@@ -2617,6 +2617,7 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	
 	w->setWeaponsReady(false);
 	if(client->OwnsWorm(w->getID())) {
+		notes << "server sends us SelectWeapons for worm " << w->getID() << endl;
 		client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
 		client->bReadySent = false;
 		w->reinitInputHandler();

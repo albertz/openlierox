@@ -22,6 +22,7 @@
 #include "CProjectile.h"
 #include "Version.h"
 #include "Color.h"
+#include "StaticAssert.h"
 
 static const Version GS_MinLxVersion[] = {
 	Version(), // for GS_VERSION == 7
@@ -59,23 +60,7 @@ static const Version GS_MinLxVersion[] = {
 #define		PRJ_PIXEL		0
 #define		PRJ_IMAGE		1
 
-// Projectile method types
-#define		PJ_BOUNCE		0
-#define		PJ_EXPLODE		1
-#define		PJ_INJURE		2
-#define		PJ_CARVE		4
-#define		PJ_DIRT			5
-#define     PJ_GREENDIRT    6
-#define     PJ_DISAPPEAR    7
-#define		PJ_NOTHING		8
 
-// Projectile trails
-#define		TRL_NONE		0
-#define		TRL_SMOKE		1
-#define		TRL_CHEMSMOKE	2
-#define		TRL_PROJECTILE	3
-#define		TRL_DOOMSDAY	4
-#define		TRL_EXPLOSIVE	5
 
 // Animation types
 #define		ANI_ONCE		0
