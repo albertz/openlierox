@@ -38,7 +38,7 @@ enum Keys_t
 	K_JUMP,
 	K_SELWEAP,
 	K_ROPE,
-	// TODO: strafe key?
+	K_STRAFE,
 	
 	K_MAX	
 };

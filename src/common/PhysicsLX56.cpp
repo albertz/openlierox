@@ -357,8 +357,23 @@ public:
 
 
 		// Process the jump
-		if(ws->bJump && (worm->canAirJump() || worm->CheckOnGround())) {
-			worm->getVelocity()->y = wd->JumpForce;
+		bool onGround = worm->CheckOnGround();
+		if( onGround )
+			worm->setLastAirJumpTime( AbsTime() );
+		if(ws->bJump && ( onGround || 
+			( worm->canAirJump() && GetPhysicsTime() > worm->getLastAirJumpTime() + 1.0f ) )) {
+			if( onGround )
+				worm->getVelocity()->y = wd->JumpForce;
+			else
+			{
+				// GFX effect, as in TeeWorlds (we'll change velocity after that)
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), 0, NULL );
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), 0, NULL );
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), 0, NULL );
+
+				worm->setLastAirJumpTime(GetPhysicsTime());
+				worm->getVelocity()->y += wd->JumpForce; // Relative velocity in the air
+			}
 
 			// HINT: if we are on ground for a short time, make the jump X-velocity
 			// the same as it was in the time of the collision (before the ground had dampened the worm)

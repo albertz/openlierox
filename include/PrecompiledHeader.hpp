@@ -100,6 +100,7 @@
 #include "PixelFunctors.h"
 #include "Process.h"
 #include "ProfileSystem.h"
+#include "ProjectileDesc.h"
 #include "Protocol.h"
 #include "RandomNumberList.h"
 #include "ReadWriteLock.h"

@@ -94,7 +94,7 @@ void DisableAdvancedFeatures()
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
 	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
-	 tLXOptions->tGameInfo.bAllowStrafing = false;
+	 //tLXOptions->tGameInfo.bAllowStrafing = false;
 	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
 	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
 	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
@@ -310,6 +310,7 @@ bool Frame( CBytestream * bs )
 		keys.keys[K_ROPE] = hnd->getInputRope().isDown();
 		if( tLXOptions->bOldSkoolRope )
 			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
+		keys.keys[K_STRAFE] = hnd->getInputStrafe().isDown();
 	};
 	
 	bool ret = SendNetPacket( localTime, keys, bs );

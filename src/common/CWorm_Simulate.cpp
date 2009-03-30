@@ -468,8 +468,8 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 			lastMoveTime = GetPhysicsTime();
 
 			if(!keys.keys[NewNet::K_RIGHT]) {
-				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_LEFT;
-				iDirection = DIR_LEFT;
+				if(!cClient->isHostAllowingStrafing() || !keys.keys[NewNet::K_STRAFE]) 
+					iDirection = DIR_LEFT;
 				iMoveDirection = DIR_LEFT;
 			}
 
@@ -484,8 +484,8 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 			lastMoveTime = GetPhysicsTime();
 
 			if(!keys.keys[NewNet::K_LEFT]) {
-				//if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) iDirection = DIR_RIGHT;
-				iDirection = DIR_RIGHT;
+				if(!cClient->isHostAllowingStrafing() || !keys.keys[NewNet::K_STRAFE]) 
+					iDirection = DIR_RIGHT;
 				iMoveDirection = DIR_RIGHT;
 			}
 

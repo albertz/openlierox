@@ -274,6 +274,7 @@ private:
 	bool		bCanUseNinja;
 	float		fDamageFactor;
 	bool		bCanAirJump;
+	AbsTime		fLastAirJumpTime;
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
@@ -539,6 +540,8 @@ public:
 	float		damageFactor() const { return fDamageFactor; }
 	void		setCanAirJump(bool b) { bCanAirJump = b; }
 	bool		canAirJump() const { return bCanAirJump; }
+	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
+	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
 	
 	CGameScript* getGameScript()			{ return cGameScript; }
 	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }

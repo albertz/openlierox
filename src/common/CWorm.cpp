@@ -91,6 +91,7 @@ void CWorm::Clear(void)
 	setCanUseNinja(true);
 	setDamageFactor(1);
 	setCanAirJump(false);
+	fLastAirJumpTime = 0;
 	
 	bWeaponsReady = false;
 	iNumWeaponSlots = 2;
@@ -1339,6 +1340,7 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( iCurrentWeapon );
 	COPY( bNoShooting );
 	COPY( bAlreadyKilled );
+	COPY( fLastAirJumpTime );
 	
 	COPY( NewNet_random );
 	
@@ -1391,6 +1393,7 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( iCurrentWeapon );
 	COPY( bNoShooting );
 	COPY( bAlreadyKilled );
+	COPY( fLastAirJumpTime );
 	
 	COPY( NewNet_random );
 	
@@ -1415,4 +1418,5 @@ void CWorm::NewNet_InitWormState(int seed)
 	fTimeofDeath = AbsTime();
 	iDirection = 0;
 	fSpawnTime = AbsTime();
+	fLastAirJumpTime = AbsTime();
 }
