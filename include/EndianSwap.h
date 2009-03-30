@@ -49,7 +49,7 @@ T GetByteSwapped(T b) {
 #	error unknown ENDIAN type
 #endif
 
-template <size_t size, size_t nmemb, typename T>
+template <int size, int nmemb, typename T>
 size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 	static_assert(nmemb == 1, nmemb__equals1);
 	static_assert(size == sizeof(T), size__mismatch);
@@ -58,7 +58,7 @@ size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 }
 
 #define fwrite_endian_compat(d, size, nmemb, stream) \
-	fwrite_endian_compat_wrapper<(size),(nmemb)>(stream, d)
+	fwrite_endian_compat_wrapper<(size),(nmemb)>((stream), (d))
 
 
 template <typename T, typename _D>

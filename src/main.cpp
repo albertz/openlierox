@@ -43,6 +43,7 @@
 #include "TaskManager.h"
 #include "CGameMode.h"
 #include "ConversationLogger.h"
+#include "StaticAssert.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -128,12 +129,12 @@ void print_binary_string(const std::string& txt) {
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
-	assert(sizeof(char) == 1);
-	assert(sizeof(short) == 2);
-	assert(sizeof(int) == 4);
-	assert(sizeof(float) == 4);
+	static_assert(sizeof(char) == 1, sizeof_char__equals1);
+	static_assert(sizeof(short) == 2, sizeof_short__equals2);
+	static_assert(sizeof(int) == 4, sizeof_int__equals4);
+	static_assert(sizeof(float) == 4, sizeof_float__equals4);
 	// sometimes the return value of SendMessage is used as a pointer
-	assert(sizeof(DWORD) == sizeof(void*));
+	static_assert(sizeof(DWORD) == sizeof(void*), sizeof_dword__equals_p);
 }
 
 

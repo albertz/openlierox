@@ -211,7 +211,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	if(proj->Hit_Type == PJ_EXPLODE) {
 		fwrite_endian_compat((proj->Hit_Damage),		sizeof(int),1,fp);
 		fwrite_endian_compat((proj->Hit_Projectiles),	sizeof(int),1,fp);
-		fwrite_endian_compat((proj->Hit_UseSound),		sizeof(int),1,fp);
+		fwrite_endian_compat(proj->Hit_UseSound, sizeof(int), 1, fp);
 		fwrite_endian_compat((proj->Hit_Shake),		sizeof(int),1,fp);
 		if(proj->Hit_UseSound)
             writeString(proj->Hit_SndFilename, fp);
