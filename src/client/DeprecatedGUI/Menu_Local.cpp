@@ -1037,7 +1037,7 @@ void Menu_GameSettings_Default(void)
 	int idx = 0;
 	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
 	{
-		if( it->first.find("GameOptions.GameInfo.") != 0 )
+		if( !strStartsWith(it->first, "GameOptions.GameInfo.") )
 			continue;
 			
 		if( it->first == "GameOptions.GameInfo.ModName" || 
