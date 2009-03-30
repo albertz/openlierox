@@ -18,6 +18,18 @@ struct SDL_Surface;
 struct SoundSample;
 
 
+// Projectile types
+enum Proj_Type {
+	PRJ_PIXEL = 0,
+	PRJ_IMAGE = 1,
+	
+	__PRJ_LBOUND = INT_MIN,
+	__PRJ_UBOUND = INT_MAX
+};
+
+static_assert(sizeof(Proj_Type) == sizeof(int), Proj_Type__SizeCheck);
+
+
 // Projectile trails
 enum Proj_Trail {
 	TRL_NONE = 0,
@@ -27,7 +39,8 @@ enum Proj_Trail {
 	TRL_DOOMSDAY = 4,
 	TRL_EXPLOSIVE = 5,
 	
-	__TRL_BOUND = INT_MAX // force enum to be of size int
+	__TRL_LBOUND = INT_MIN,
+	__TRL_UBOUND = INT_MAX // force enum to be of size int
 };
 
 static_assert(sizeof(Proj_Trail) == sizeof(int), Proj_Trail__SizeCheck);
@@ -44,10 +57,27 @@ enum Proj_PlyHit {
 	PJ_DISAPPEAR = 7,
 	PJ_NOTHING = 8,
 	
-	__PJ_BOUND = INT_MAX // force enum to be of size int
+	__PJ_LBOUND = INT_MIN,
+	__PJ_UBOUND = INT_MAX // force enum to be of size int
 };
 
 static_assert(sizeof(Proj_PlyHit) == sizeof(int), Proj_PlyHit__SizeCheck);
+
+
+
+
+// Animation types
+enum Proj_AnimType {
+	ANI_ONCE = 0,
+	ANI_LOOP = 1,
+	ANI_PINGPONG = 2,
+	
+	__ANI_LBOUND = INT_MIN,
+	__ANI_UBOUND = INT_MAX,
+};
+
+static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
+
 
 // Projectile structure
 struct proj_t {
@@ -56,7 +86,7 @@ struct proj_t {
 	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 	
-	int		Type;
+	Proj_Type Type;
 	Proj_Trail Trail;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
@@ -70,7 +100,7 @@ struct proj_t {
 	int		Gravity;
 	int		Animating;
 	float	AnimRate;
-	int		AnimType;
+	Proj_AnimType AnimType;
 	float   Dampening;
 	
 	// Timer (When the timer is finished)

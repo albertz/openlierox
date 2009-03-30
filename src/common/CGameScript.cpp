@@ -1227,14 +1227,14 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	ReadString(file,"General","Name",Weap->Name,"");
 	notes << "  Compiling Weapon '" << Weap->Name << "'" << endl;
 
-	ReadKeyword(file,"General","Type",&Weap->Type,WPN_PROJECTILE);
+	ReadKeyword(file,"General","Type",(int*)&Weap->Type,WPN_PROJECTILE);
 
 	
 	
 	// Special Weapons
 	if(Weap->Type == WPN_SPECIAL) {
 		
-		ReadKeyword(file,"General","Special",&Weap->Special,SPC_NONE);
+		ReadKeyword(file,"General","Special",(int*)&Weap->Special,SPC_NONE);
 
 		// If it is a special weapon, read the values depending on the special weapon
 		// We don't bother with the 'normal' values
@@ -1260,7 +1260,7 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 
 
 	// Projectile Weapons
-	ReadKeyword(file,"General","Class",&Weap->Class,WCL_AUTOMATIC);
+	ReadKeyword(file,"General","Class",(int*)&Weap->Class,WCL_AUTOMATIC);
 	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
 	ReadFloat(file,"General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
 	ReadFloat(file,"General","Drain",&Weap->Drain,0);
@@ -1340,7 +1340,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
-	ReadKeyword(file,"General","Type",&proj->Type,PRJ_PIXEL);
+	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
 	ReadFloat(file,"General","Timer",&proj->Timer_Time,0);
 	ReadFloat(file, "General", "TimerVar", &proj->Timer_TimeVar, 0);
 	ReadKeyword(file,"General","Trail",(int*)&proj->Trail,TRL_NONE);
@@ -1375,7 +1375,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		ReadKeyword(file,"General","Animating",&proj->Animating,0);
 		if(proj->Animating) {
 			ReadFloat(file,"General","AnimRate",&proj->AnimRate,0);
-			ReadKeyword(file,"General","AnimType",&proj->AnimType,ANI_ONCE);
+			ReadKeyword(file,"General","AnimType",(int*)&proj->AnimType,ANI_ONCE);
 		}
 	
 		if(!bDedicated) {

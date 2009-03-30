@@ -45,31 +45,42 @@ static const Version GS_MinLxVersion[] = {
 
 
 // Weapon classes
-#define		WCL_AUTOMATIC	0
-#define		WCL_POWERGUN	1
-#define		WCL_GRENADE		3
-#define		WCL_MISSILE		4
-#define		WCL_CLOSERANGE	5
+enum Wpn_Class {
+	WCL_AUTOMATIC = 0,
+	WCL_POWERGUN = 1,
+	WCL_GRENADE = 3,
+	WCL_MISSILE = 4,
+	WCL_CLOSERANGE = 5,
+	
+	__WCL_LBOUND = INT_MIN,
+	__WCL_UBOUND = INT_MAX,
+};
+
+static_assert(sizeof(Wpn_Class) == sizeof(int), Wpn_Class__SizeCheck);
 
 // Weapon types
-#define		WPN_PROJECTILE	0
-#define		WPN_SPECIAL		1
-#define		WPN_BEAM		2
+enum Wpn_Type {
+	WPN_PROJECTILE = 0,
+	WPN_SPECIAL = 1,
+	WPN_BEAM = 2,
+	
+	__WPN_LBOUND = INT_MIN,
+	__WPN_UBOUND = INT_MAX
+};
 
-// Projectile types
-#define		PRJ_PIXEL		0
-#define		PRJ_IMAGE		1
+static_assert(sizeof(Wpn_Type) == sizeof(int), Wpn_Type__SizeCheck);
 
-
-
-// Animation types
-#define		ANI_ONCE		0
-#define		ANI_LOOP		1
-#define		ANI_PINGPONG	2
 
 // Special Weapons
-#define		SPC_NONE		0
-#define		SPC_JETPACK		1
+enum Wpn_Special {
+	SPC_NONE = 0,
+	SPC_JETPACK = 1,
+	
+	__SPC_LBOUND = INT_MIN,
+	__SPC_UBOUND = INT_MAX
+};
+
+static_assert(sizeof(Wpn_Special) == sizeof(int), Wpn_Special__SizeCheck);
 
 
 // Header structure
@@ -119,9 +130,9 @@ struct weapon_t {
 	
 	int		ID;
 	std::string	Name; // (was 64b before)
-	int		Type;
-	int		Special;
-	int		Class;
+	Wpn_Type Type;
+	Wpn_Special Special;
+	Wpn_Class Class;
 	int		Recoil;
 	float	Recharge;
 	float	Drain;

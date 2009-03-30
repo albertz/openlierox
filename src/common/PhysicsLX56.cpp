@@ -549,7 +549,7 @@ public:
 				*projspawn = true;
 			}
 			break;
-		case __TRL_BOUND: errors << "simulateProjectile_LowLevel: hit __TRL_BOUND" << endl;
+		case __TRL_LBOUND: case __TRL_UBOUND: errors << "simulateProjectile_LowLevel: hit __TRL_BOUND" << endl;
 		}
 		return res;
 	}
@@ -830,7 +830,7 @@ public:
 					push_worm = false;
 				break;
 						
-					case __PJ_BOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
+					case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 				}
 
 				// Push the worm back
