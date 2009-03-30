@@ -1424,7 +1424,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// Timer
 	if(proj->Timer_Time > 0) {
-		ReadKeyword(file,"Time","Type",&proj->Timer_Type,PJ_EXPLODE);
+		ReadKeyword(file,"Time","Type",(int*)&proj->Timer_Type,PJ_EXPLODE);
 		if(proj->Timer_Type == PJ_EXPLODE) {
 			ReadInteger(file,"Time","Damage",&proj->Timer_Damage,0);
 			ReadKeyword(file,"Time","Projectiles",&proj->Timer_Projectiles,false);

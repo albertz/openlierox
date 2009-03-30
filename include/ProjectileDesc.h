@@ -47,7 +47,7 @@ static_assert(sizeof(Proj_Trail) == sizeof(int), Proj_Trail__SizeCheck);
 
 
 // Projectile method types
-enum Proj_Hit {
+enum Proj_Action {
 	PJ_BOUNCE = 0,
 	PJ_EXPLODE = 1,
 	PJ_INJURE = 2,
@@ -61,7 +61,7 @@ enum Proj_Hit {
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
 };
 
-static_assert(sizeof(Proj_Hit) == sizeof(int), Proj_Hit__SizeCheck);
+static_assert(sizeof(Proj_Action) == sizeof(int), Proj_Action__SizeCheck);
 
 
 
@@ -104,7 +104,7 @@ struct proj_t {
 	float   Dampening;
 	
 	// Timer (When the timer is finished)
-	int		Timer_Type;
+	Proj_Action Timer_Type;
 	float	Timer_Time;
 	float	Timer_TimeVar;
 	int		Timer_Damage;
@@ -112,7 +112,7 @@ struct proj_t {
 	int		Timer_Shake;
 	
 	// Hit (When hitting the terrain)
-	Proj_Hit Hit_Type;
+	Proj_Action Hit_Type;
 	int		Hit_Damage;
 	int		Hit_Projectiles;
 	int		Hit_UseSound;
@@ -140,7 +140,7 @@ struct proj_t {
 	
 	
 	// Player hit
-	Proj_Hit PlyHit_Type;
+	Proj_Action PlyHit_Type;
 	int		PlyHit_Damage;
 	int		PlyHit_Projectiles;
 	float	PlyHit_BounceCoeff;

@@ -1761,7 +1761,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon(void)
 {
 	if(iAiGameType == GAM_MORTARS)
 		return -1;
-	int type = PJ_EXPLODE;
+	Proj_Action type = PJ_EXPLODE;
 
 	// search a good projectile weapon
 	int i = 0;

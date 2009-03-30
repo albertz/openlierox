@@ -671,6 +671,13 @@ public:
 
 			// Run the end timer function
 			switch (pi->Timer_Type) {
+				case PJ_NOTHING: break;
+					
+				case PJ_BOUNCE:
+				case PJ_INJURE:
+				case PJ_DISAPPEAR:
+					// TODO: do anything?
+					break;
 
 			// Explode
 			case PJ_EXPLODE:
@@ -713,6 +720,8 @@ public:
 				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 			}
 			break;
+					
+				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
 		}
 
