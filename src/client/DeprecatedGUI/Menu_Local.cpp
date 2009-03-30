@@ -637,7 +637,7 @@ void Menu_LocalStartGame(void)
 	//
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 
-    tLXOptions->sServerPassword = "";
+    //tLXOptions->sServerPassword = ""; // TODO: we have set this, why? it overwrites the password which is very annoying
     tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise
 
 
