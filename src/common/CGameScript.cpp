@@ -1388,7 +1388,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 
 	// Hit
-	ReadKeyword(file,"Hit","Type",&proj->Hit_Type,PJ_EXPLODE);
+	ReadKeyword(file,"Hit","Type",(int*)&proj->Hit_Type,PJ_EXPLODE);
 
 	// Hit::Explode
 	if(proj->Hit_Type == PJ_EXPLODE) {

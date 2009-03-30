@@ -592,9 +592,10 @@ void CClient::ShootSpecial(CWorm *w)
 	}
 
 	switch(Slot->Weapon->Special) {
+		case SPC_NONE: break;
 
 		// Jetpack
-		case SPC_JETPACK:
+		case SPC_JETPACK: {
 			CVec *v = w->getVelocity();
 			*v += CVec(0,-50) * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
 
@@ -602,6 +603,9 @@ void CClient::ShootSpecial(CWorm *w)
 			CVec s = CVec(15,0) * GetRandomNum();
 			SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->Weapon->tSpecial.Thrust, blue, NULL);
 			break;
+		}
+			
+		case __SPC_LBOUND: case __SPC_UBOUND: errors << "ShootSpecial: hit __SPC_BOUND" << endl;
 	}
 
 

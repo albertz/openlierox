@@ -86,8 +86,9 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 	fWallshootTime = 0.01f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
 
+	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now? 
 	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
-		&& (tProjInfo->Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
+		&& (tProjInfo->Hit_Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
 
     // Events
     bExplode = false;
@@ -572,6 +573,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
 	}
 	return;
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
 	}
 }
 
@@ -621,6 +623,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
 		}
 		break;
+	case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
     }
 }
 
