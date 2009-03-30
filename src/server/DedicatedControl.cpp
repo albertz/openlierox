@@ -821,6 +821,20 @@ struct DedIntern {
 		
 		cServer->SetWormCanUseNinja(id, canUse);
 	}
+
+	void Cmd_SetWormCanAirJump(DedInterface* caller, const std::string& params) {
+		std::vector<std::string> param = ParseParams(params);
+		if(param.size() != 2) {
+			caller->writeMsg("Cmd_SetWormCanAirJump: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
+			return;
+		}
+		
+		int id = atoi(param[0]);
+		bool canUse = from_string<bool>(param[1]);
+		if(!CheckWorm(caller, id, "Cmd_SetWormCanAirJump")) return;
+		
+		cServer->SetWormCanAirJump(id, canUse);
+	}
 	
 	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
@@ -1240,6 +1254,8 @@ struct DedIntern {
 			Cmd_SetWormDamageFactor(command.sender, params);
 		else if(cmd == "setwormcanuseninja")
 			Cmd_SetWormCanUseNinja(command.sender, params);
+		else if(cmd == "setwormcanairjump")
+			Cmd_SetWormCanAirJump(command.sender, params);
 
 		else if(cmd == "authorizeworm")
 			Cmd_AuthorizeWorm(command.sender, params);
