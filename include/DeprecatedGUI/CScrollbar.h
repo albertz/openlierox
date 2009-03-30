@@ -119,7 +119,7 @@ public:
 		w->setMin( p[0].i );
 		w->setMax( p[1].i );
 		w->setItemsperbox( p[2].i );
-		w->iVar = CScriptableVars::GetVar( p[3].s, SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVarP<int>( p[3].s );
 		if( w->iVar )
 			w->setValue( *w->iVar );
 		return w;

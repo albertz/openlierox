@@ -357,20 +357,20 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 		for( it = CScriptableVars::begin();
 				it != CScriptableVars::end(); it++ )
 		{
-			if( !stringcasecmp( it->first, func ) && it->second.type == SVT_CALLBACK )
+			if( !stringcasecmp( it->first, func ) && it->second.var.type == SVT_CALLBACK )
 			{
-				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.cb, param ) );
+				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.var.cb, param ) );
 				//printf("%s(\"%s\") ", it->first.c_str(), param.c_str());
 				break;
-			};
-		};
+			}
+		}
 		if( it == CScriptableVars::end() )
 		{
 			printf("Cannot find GUI skin callback \"%s(%s)\"\n", func.c_str(), param.c_str());
-		};
-	};
+		}
+	}
 	//printf("\n");
-};
+}
 
 void CGuiSkin::CallbackHandler::Call()
 {

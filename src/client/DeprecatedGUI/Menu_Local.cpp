@@ -821,7 +821,7 @@ void Menu_GameSettings(void)
 static void initFeaturesList(CListview* l)
 {
 	int idx = 0;
-	for( int group = 0; group < GIG_Size; group++ )
+	for( GameInfoGroup group = (GameInfoGroup)0; group < GIG_Size; group = (GameInfoGroup)(group + 1) )
 	{
 		if( group == GIG_GameModeSpecific_Start )
 			continue;
@@ -834,47 +834,45 @@ static void initFeaturesList(CListview* l)
 		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
 		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", NULL, NULL); 
 
-		for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+		CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
+		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 		{
-			if( it->first.find("GameOptions.GameInfo.") != 0 )
-				continue;
-				
+			if( it->second.group != group ) continue;
+			
 			if( it->first == "GameOptions.GameInfo.ModName" || 
 				it->first == "GameOptions.GameInfo.LevelName" ||
 				it->first == "GameOptions.GameInfo.GameType" )
 				continue;	// We have nice comboboxes for them, skip them in the list
 			
-			if( ! ( CScriptableVars::GetGroup(it->first) == group ||
-				( group == GIG_Other && CScriptableVars::GetGroup(it->first) == -1 ) ) )
-				continue;
-				
 			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
-			l->AddSubitem(LVS_TEXT, CScriptableVars::GetDescription(it->first), NULL, NULL); 
+			l->AddSubitem(LVS_TEXT, it->second.shortDesc, NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
-			if( it->second.type == SVT_BOOL )
+			if( it->second.var.type == SVT_BOOL )
 			{
-				CCheckbox * cb = new CCheckbox( * it->second.b );
+				CCheckbox * cb = new CCheckbox( * it->second.var.b );
 				l->AddSubitem(LVS_WIDGET, "", NULL, cb);
 				cb->Create();
 				cb->Setup(idx, 0, 0, 20, 20);
 			}
 			else
 			{
-				int imin=0, imax=0;
-				float fmin=0.0f, fmax=0.0f;
-				if( CScriptableVars::GetMinMaxValues( it->first, &imin, &imax ) ||
-					CScriptableVars::GetMinMaxValues( it->first, &fmin, &fmax ) )
+				if( it->second.haveMinMax() )
 				{
+					int imin=0, imax=0;
 					float fScale = 1.0f;
-					int iVal = * it->second.i;
-					if( it->second.type == SVT_FLOAT )
+					int iVal = 0;
+					if( it->second.var.type == SVT_FLOAT )
 					{
 						// Adding some small number to round it up correctly
-						imin = int( fmin*10.0f + 0.00001f );	// Scale them up
-						imax = int( fmax*10.0f + 0.00001f );
-						iVal = int( (*it->second.f) * 10.0f + 0.00001f );
+						imin = int( float(it->second.min) *10.0f + 0.00001f );	// Scale them up
+						imax = int( float(it->second.max) *10.0f + 0.00001f );
+						iVal = int( (*it->second.var.f) * 10.0f + 0.00001f );
 						fScale = 0.1f;
+					} else {
+						imin = it->second.min;
+						imax = it->second.max;
+						iVal = * it->second.var.i;
 					}
 					CSlider * sld = new CSlider( imax, imin, iVal, true, 190, 0, tLX->clNormalLabel, fScale );
 					l->AddSubitem(LVS_WIDGET, "", NULL, sld);
@@ -887,11 +885,11 @@ static void initFeaturesList(CListview* l)
 					l->AddSubitem(LVS_WIDGET, "", NULL, txt);
 					txt->Create();
 					txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
-					if ((it->second.type == SVT_INT && it->second.isUnsigned && *it->second.i < 0) ||
-						(it->second.type == SVT_FLOAT && it->second.isUnsigned && *it->second.f < 0))
+					if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
+						(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.f < 0))
 						txt->setText("");  // Leave blank for infinite values
 					else
-						txt->setText( it->second.toString() );
+						txt->setText( it->second.var.toString() );
 				}
 			}
 		}
@@ -902,10 +900,10 @@ static void initFeaturesList(CListview* l)
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
-	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ ) 
+	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
+	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
-		if( it->first.find("GameOptions.GameInfo.") != 0 )
-			continue;
+		if( it->second.group == GIG_Invalid ) continue;
 
 		lv_item_t * item = l->getItem(it->first);
 		if( ! item )
@@ -917,27 +915,27 @@ static void updateFeaturesList(CListview* l)
 		if( ! w )
 			continue;
 			
-		if( it->second.type == SVT_BOOL )
+		if( it->second.var.type == SVT_BOOL )
 		{
 			if( w->getType() == wid_Checkbox )
 			{
-				* it->second.b = ((CCheckbox *)w)->getValue();
-			};
+				* it->second.var.b = ((CCheckbox *)w)->getValue();
+			}
 		}
 		else
 		{
 			if( w->getType() == wid_Textbox )
 			{
-				it->second.fromString( ((CTextbox *)w)->getText() );
-			};
+				it->second.var.fromString( ((CTextbox *)w)->getText() );
+			}
 			if( w->getType() == wid_Slider )
 			{
 				int iVal = ((CSlider *)w)->getValue();
-				if( it->second.type == SVT_INT )
-					* it->second.i = iVal;
-				if( it->second.type == SVT_FLOAT )
-					* it->second.f = iVal / 10.0f;
-			};
+				if( it->second.var.type == SVT_INT )
+					* it->second.var.i = iVal;
+				if( it->second.var.type == SVT_FLOAT )
+					* it->second.var.f = iVal / 10.0f;
+			}
 		}
 	}
 	if( tLXOptions->tGameInfo.iLives < 0 )
@@ -999,10 +997,16 @@ bool Menu_GameSettings_Frame(void)
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
 					if(	features->getMouseOverSIndex() != "" )
 					{
-						std::string desc = CScriptableVars::GetLongDescription( features->getMouseOverSIndex() );
+						std::string desc;
 						for( int group = 0; group < GIG_Size; group++ )
-							if( features->getMouseOverSIndex() == GameInfoGroupDescriptions[group][0] )
+							if( features->getMouseOverSIndex() == GameInfoGroupDescriptions[group][0] ) {
 								desc = GameInfoGroupDescriptions[group][1];
+								break;
+							}
+						if(desc == "") {
+							RegisteredVar* var = CScriptableVars::GetVar( features->getMouseOverSIndex() );
+							if(var) desc = var->longDesc;
+						}
 						featuresLabel->setText( desc );
 					}
 				}
@@ -1033,26 +1037,17 @@ void Menu_GameSettings_GrabInfo(void)
 // Set the default game settings info
 void Menu_GameSettings_Default(void)
 {
-    
-	int idx = 0;
-	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++, idx++ ) 
+	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
+	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
-		if( !strStartsWith(it->first, "GameOptions.GameInfo.") )
-			continue;
-			
+		if( it->second.group == GIG_Invalid ) continue;
+		
 		if( it->first == "GameOptions.GameInfo.ModName" || 
 			it->first == "GameOptions.GameInfo.LevelName" ||
 			it->first == "GameOptions.GameInfo.GameType" )
 			continue;	// We have nice comboboxes for them, skip them in the list
 
-		switch(it->second.type) {
-			case SVT_BOOL: *it->second.b = it->second.bdef; break;
-			case SVT_INT: *it->second.i = it->second.idef; break;
-			case SVT_FLOAT: *it->second.f = it->second.fdef; break;
-			case SVT_STRING: *it->second.s = it->second.sdef; break;
-			case SVT_COLOR: *it->second.cl = it->second.cldef; break;
-			default: assert(false);
-		}
+		it->second.var.setDefault();
     }
 
     CListview * features = (CListview *)cGameSettings.getWidget(gs_FeaturesList);

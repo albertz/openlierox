@@ -782,20 +782,20 @@ CWidget * CTextbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLay
 	layout->Add( w, id, x, y, dx, dy );
 	// Text should be set in textbox AFTER the textbox is added to CGuiSkinnedLayout
 	w->cClick.Init( p[1].s, w );
-	w->bVar = CScriptableVars::GetVar( p[0].s, SVT_BOOL ).b;
+	w->bVar = CScriptableVars::GetVarP<bool>( p[0].s );
 	if( w->bVar )
 		w->setText( itoa( *w->bVar ) );
-	w->iVar = CScriptableVars::GetVar( p[0].s, SVT_INT ).i;
+	w->iVar = CScriptableVars::GetVarP<int>( p[0].s );
 	if( w->iVar )
 		w->setText( itoa( *w->iVar ) );
-	w->fVar = CScriptableVars::GetVar( p[0].s, SVT_FLOAT ).f;
+	w->fVar = CScriptableVars::GetVarP<float>( p[0].s );
 	if( w->fVar )
 		w->setText( ftoa( *w->fVar ) );
-	w->sVar = CScriptableVars::GetVar( p[0].s, SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVarP<std::string>( p[0].s );
 	if( w->sVar )
 		w->setText( *w->sVar );
 	return w;
-};
+}
 
 void	CTextbox::ProcessGuiSkinEvent(int iEvent)
 {
@@ -809,7 +809,7 @@ void	CTextbox::ProcessGuiSkinEvent(int iEvent)
 			setText( ftoa( *fVar ) );
 		if( sVar )
 			setText( *sVar );
-	};
+	}
 	if( iEvent == TXT_CHANGE )
 	{
 		if( bVar )
@@ -821,7 +821,7 @@ void	CTextbox::ProcessGuiSkinEvent(int iEvent)
 		if( sVar )
 			*sVar = getText();
 		cClick.Call();
-	};
-};
+	}
+}
 
 }; // namespace DeprecatedGUI

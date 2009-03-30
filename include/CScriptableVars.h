@@ -11,12 +11,39 @@
 #ifndef __CSCRIPTABLEVARS_H__
 #define __CSCRIPTABLEVARS_H__
 
+#include <SDL.h>
 #include <string>
 #include <map>
 #include <vector>
 #include <list>
 #include <cassert>
 #include "Color.h"
+#include "StringUtils.h"
+
+
+// Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
+enum GameInfoGroup
+{
+	GIG_Invalid = -1,
+	GIG_General = 0,
+	GIG_Advanced,
+	GIG_Score,
+	GIG_Weapons,
+	GIG_Bonus,
+	GIG_Other,
+	
+	GIG_GameModeSpecific_Start, // All following options are game-mode specific
+	
+	GIG_HideAndSeek,
+	GIG_CaptureTheFlag,
+	
+	GIG_Size
+};
+
+// And their descriptions - don't forget to edit them in Options.cpp if you change GameInfoGroup_t
+extern const char * GameInfoGroupDescriptions[GIG_Size][2];
+
+
 
 namespace DeprecatedGUI {
 class CWidget;
@@ -74,9 +101,26 @@ struct ScriptVar_t
 			case SVT_FLOAT: return var.f == f;
 			case SVT_STRING: return var.s == s;
 			case SVT_COLOR: return var.c == c;
-			default: assert(false); return false;
+			default: assert(false);
 		}
+		return false;
 	}
+	bool operator<(const ScriptVar_t& var) const {
+		if(isNumeric() && var.isNumeric()) return getNumber() < var.getNumber();
+		if(var.type != type) return type < var.type;
+		switch(type) {
+			case SVT_BOOL: return b < var.b;
+			case SVT_INT: return i < var.i;
+			case SVT_FLOAT: return f < var.f;
+			case SVT_STRING: return s < var.s;
+			case SVT_COLOR: return c < var.c;
+			default: assert(false);
+		}
+		return false;
+	}
+	
+	bool isNumeric() const { return type == SVT_INT || type == SVT_FLOAT; }
+	float getNumber() const { if(type == SVT_INT) return i; if(type == SVT_FLOAT) return f; return 0.0f; }
 	
 	std::string toString() const;
 	bool fromString( const std::string & str);
@@ -165,6 +209,106 @@ struct ScriptVarPtr_t
 	bool fromString( const std::string & str) const;	// const 'cause we don't change pointer itself, only data it points to
 };
 
+template<typename T> T* getPointer(ScriptVarPtr_t& varPtr);
+template<> inline bool* getPointer<bool>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_BOOL) return NULL; return varPtr.b; }
+template<> inline int* getPointer<int>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_INT) return NULL; return varPtr.i; }
+template<> inline float* getPointer<float>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_FLOAT) return NULL; return varPtr.f; }
+template<> inline std::string* getPointer<std::string>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_STRING) return NULL; return varPtr.s; }
+template<> inline Color_t* getPointer<Color_t>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_COLOR) return NULL; return varPtr.cl; }
+
+
+
+struct RegisteredVar {
+	RegisteredVar() : group(GIG_Invalid) {}
+
+	RegisteredVar( bool & v, const std::string & c, bool def = false, 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+	{
+		var = ScriptVarPtr_t( &v, def );
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+	}
+	
+	RegisteredVar( int & v, const std::string & c, int def = 0, 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									bool unsig = false, int minval = 0, int maxval = 0 )
+	{ 
+		var = ScriptVarPtr_t( &v, def );
+		var.isUnsigned = unsig;
+		shortDesc = descr; longDesc = descrLong;
+		min = ScriptVar_t(minval); max = ScriptVar_t(maxval);
+		group = g;
+	}
+	
+	RegisteredVar( float & v, const std::string & c, float def = 0.0f, 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									bool unsig = false, float minval = 0.0f, float maxval = 0.0f )
+	{ 
+		var = ScriptVarPtr_t( &v, def );
+		var.isUnsigned = unsig;
+		shortDesc = descr; longDesc = descrLong;
+		min = ScriptVar_t(minval); max = ScriptVar_t(maxval);
+		group = g;
+	}
+	
+	RegisteredVar( std::string & v, const std::string & c, const char * def = "", 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+	{ 
+		var = ScriptVarPtr_t( &v, def ); 
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+	}
+	
+	RegisteredVar( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+	{
+		var = ScriptVarPtr_t( &v, def ); 
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+	}
+	
+	RegisteredVar( ScriptCallback_t v, const std::string & c, 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+	{ 
+		var = ScriptVarPtr_t( v ); 
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+	}
+	
+	RegisteredVar( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t() )
+	{ 
+		var = ScriptVarPtr_t( &v, &def );
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+		if( v.type == SVT_INT && minval.isNumeric() && maxval.isNumeric() ) {
+			min = int(minval.getNumber()); max = int(maxval.getNumber());
+		} else if( v.type == SVT_FLOAT && minval.isNumeric() && maxval.isNumeric() ) {
+			min = float(minval.getNumber()); max = float(maxval.getNumber());
+		}
+	}
+	
+	template<typename T>
+	RegisteredVar( DynamicVar<T>* v, const std::string & c, const T& def,
+									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+	{ 
+		var = ScriptVarPtr_t( v, def );
+		shortDesc = descr; longDesc = descrLong;
+		group = g;
+	}
+	
+	
+	ScriptVarPtr_t var;
+	std::string shortDesc;
+	std::string longDesc;
+	ScriptVar_t min;
+	ScriptVar_t max;
+	GameInfoGroup group;
+	
+	bool haveMinMax() const { return min.isNumeric() && max.isNumeric() && min < max; }
+};
+
 
 // Do not confuse this with game script - these vars mainly for GUI frontend and options
 class CScriptableVars	// Singletone
@@ -174,28 +318,25 @@ public:
 	static CScriptableVars & Init();	// Called automatically
 	static void DeInit();	// Should be called from main()
 
-	static const std::map< std::string, ScriptVarPtr_t > & Vars()
-	{
-		Init();
-		return m_instance->m_vars;
-	}
-	
-	typedef std::map< std::string, ScriptVarPtr_t > VarMap;
-	typedef VarMap :: const_iterator const_iterator;
+	typedef std::map< std::string, RegisteredVar, stringcaseless > VarMap;
+	typedef VarMap::const_iterator const_iterator;
 
-	static const_iterator begin()
-	{ 
-		Init();
-		return m_instance->m_vars.begin();
-	}
-	static const_iterator end()
-	{ 
-		Init();
-		return m_instance->m_vars.end();
+	static const VarMap & Vars() { Init(); return m_instance->m_vars; }
+	
+	static const_iterator begin() { Init(); return m_instance->m_vars.begin(); }
+	static const_iterator end() { Init(); return m_instance->m_vars.end(); }
+	static const_iterator lower_bound(const std::string& name) { Init(); return m_instance->m_vars.lower_bound(name); }
+	static const_iterator upper_bound(const std::string& name) { Init(); return m_instance->m_vars.upper_bound(name + std::string("\177\177\177")); }
+	
+	static RegisteredVar* GetVar( const std::string & name );	// Case-insensitive search, returns NULL on fail
+	static RegisteredVar* GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search, returns NULL on fail
+	template<typename T>
+	static T* GetVarP(const std::string& name) {
+		RegisteredVar* var = GetVar(name, GetType<T>());
+		if(var) return getPointer<T>(var->var);
+		return NULL;
 	}
 	
-	static ScriptVarPtr_t GetVar( const std::string & name );	// Case-insensitive search, returns NULL on fail
-	static ScriptVarPtr_t GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search, returns NULL on fail
 	static std::string DumpVars();	// For debug output
 	
 	static void SetVarByString(const ScriptVarPtr_t& var, const std::string& str);
@@ -203,26 +344,16 @@ public:
 	// Convert "tLXOptions -> iNetworkPort " to "iNetworkPort", not used anywhere
 	static std::string StripClassName( const std::string & c );
 
-	static std::string GetDescription( const std::string & name );
-	static std::string GetLongDescription( const std::string & name );
-
-	static bool GetMinMaxValues( const std::string & name, int * minVal, int * maxVal );
-	static bool GetMinMaxValues( const std::string & name, float * minVal, float * maxVal );
-	static int GetGroup( const std::string & name );
-
 	// Allows registering vars with daisy-chaining
 	class VarRegisterHelper
 	{
 		friend class CScriptableVars;
 
-		std::map< std::string, ScriptVarPtr_t > & m_vars;	// Reference to CScriptableVars::m_vars
-		std::map< std::string, std::pair< std::string, std::string > > & m_descriptions;	// Reference to CScriptableVars::m_descriptions
-		std::map< std::string, std::pair< ScriptVar_t, ScriptVar_t > > & m_minmax; // Reference to CScriptableVars::m_minmax
-		std::map< std::string, int > & m_groups;	// Reference to CScriptableVars::m_groups
+		VarMap& m_vars;	// Reference to CScriptableVars::m_vars
 		std::string m_prefix;
 
 		VarRegisterHelper( CScriptableVars * parent, const std::string & prefix ): 
-			m_vars( parent->m_vars ), m_descriptions( parent->m_descriptions ), m_minmax( parent->m_minmax ), m_groups(parent->m_groups), m_prefix(prefix) {}
+			m_vars( parent->m_vars ), m_prefix(prefix) {}
 
 		std::string Name( const std::string & c )
 		{
@@ -236,90 +367,62 @@ public:
 		operator bool () { return true; }	// To be able to write static expressions
 
 		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false, 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
-			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def );
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong );
-				m_groups[Name(c)] = group;
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, 
-										const std::string & descr = "", const std::string & descrLong = "", int group = -1,
+										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
 										bool unsig = false, int minval = 0, int maxval = 0 )
-			{ 
-				ScriptVarPtr_t tmp = ScriptVarPtr_t( &v, def );
-				tmp.isUnsigned = unsig;
-				m_vars[Name(c)] = tmp;
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
-				m_groups[Name(c)] = group;
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, unsig, minval, maxval);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0f, 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
 											bool unsig = false, float minval = 0.0f, float maxval = 0.0f )
-			{ 
-				ScriptVarPtr_t tmp = ScriptVarPtr_t( &v, def );
-				tmp.isUnsigned = unsig;
-				m_vars[Name(c)] = tmp; 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_minmax[Name(c)] = std::make_pair( ScriptVar_t(minval), ScriptVar_t(maxval) );
-				m_groups[Name(c)] = group;
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, unsig, minval, maxval);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "", 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
-			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_groups[Name(c)] = group;
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
 			{
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_groups[Name(c)] = group;
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c, 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
-			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( v ); 
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_groups[Name(c)] = group;
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, descr, descrLong, group);
 				return *this; 
 			}
 		
 		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
-											const std::string & descr = "", const std::string & descrLong = "", int group = -1,
-											ScriptVar_t minval = ScriptVar_t(0), ScriptVar_t maxval = ScriptVar_t(0) )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
+											ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t() )
 			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( &v, &def );
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong );
-				if( v.type == SVT_INT && minval.type == SVT_FLOAT )
-					m_minmax[Name(c)] = std::make_pair( ScriptVar_t(int(minval.f)), ScriptVar_t(int(maxval.f)) );
-				else if( v.type == SVT_FLOAT && minval.type == SVT_INT )
-					m_minmax[Name(c)] = std::make_pair( ScriptVar_t(float(minval.i)), ScriptVar_t(float(maxval.i)) );
-				else
-					m_minmax[Name(c)] = std::make_pair( minval, maxval );
-				m_groups[Name(c)] = group;
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, minval, maxval);
 				return *this; 
 			}
 		
 		template<typename T>
 		VarRegisterHelper & operator() ( DynamicVar<T>* v, const std::string & c, const T& def,
-										const std::string & descr = "", const std::string & descrLong = "", int group = -1 )
-			{ 
-				m_vars[Name(c)] = ScriptVarPtr_t( v, def );
-				m_descriptions[Name(c)] = std::make_pair( descr, descrLong ); 
-				m_groups[Name(c)] = group;
+										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+			{
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
 				return *this; 
 			}
 		
@@ -338,10 +441,7 @@ private:
 	friend class VarRegisterHelper;
 
 	static CScriptableVars * m_instance;
-	std::map< std::string, ScriptVarPtr_t > m_vars;	// All in-game variables and callbacks
-	std::map< std::string, std::pair< std::string, std::string > > m_descriptions;	// Description for vars - short and long
-	std::map< std::string, std::pair< ScriptVar_t, ScriptVar_t > > m_minmax;	// Min and max values to make slider widget in GUI
-	std::map< std::string, int > m_groups;	// Grouping of variables in GUI
+	VarMap m_vars;	// All in-game variables and callbacks	
 };
 
 #endif

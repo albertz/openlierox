@@ -43,7 +43,7 @@ std::string CInputbox::InputBoxLabel;
 CWidget * CInputbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CInputbox * w = new CInputbox( 0, "", tMenu->bmpInputbox, p[0].s );
-	w->sVar = CScriptableVars::GetVar( p[1].s, SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
 	if( w->sVar )
 		w->setText( *w->sVar );
 	layout->Add( w, id, x, y, dx, dy );
@@ -61,7 +61,7 @@ void CInputbox::ProcessGuiSkinEvent(int iEvent)
 	{
 		if( sVar )
 			setText( *sVar );
-	};
+	}
 	if( iEvent == INB_MOUSEUP )
 	{
 		if( sVar )
@@ -71,20 +71,20 @@ void CInputbox::ProcessGuiSkinEvent(int iEvent)
 			CGuiSkin::CallbackHandler c;
 			c.Init( "GUI.ChildDialog(InputBoxDialog)", this );
 			c.Call();
-		};
-	};
-};
+		}
+	}
+}
 
 CInputboxInput::CInputboxInput(): CInputbox( 0, "", tMenu->bmpInputbox, "" )
 {
 	CInput::InitJoysticksTemp(); // for supporting joystick in CInput::Wait
-};
+}
 
 CInputboxInput::~CInputboxInput()
 {
 	CInput::UnInitJoysticksTemp();
 	//CGuiSkin::DeRegisterUpdateCallback( this ); // Called in CWidget::~CWidget()
-};
+}
 
 void CInputboxInput::ProcessGuiSkinEvent(int iEvent)
 {
@@ -92,8 +92,8 @@ void CInputboxInput::ProcessGuiSkinEvent(int iEvent)
 	{
 		iSkipFirstFrame = 1;
 		CGuiSkin::RegisterUpdateCallback( & UpdateCallback, "", this );
-	};
-};
+	}
+}
 
 void CInputboxInput::UpdateCallback( const std::string & param, CWidget * source )
 { 

@@ -991,7 +991,7 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 	layout->Add( w, id, x, y, dx, dy );
 	// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
 	std::vector<std::string> items = explode( p[0].s, "," );
-	w->iVar = CScriptableVars::GetVar( p[1].s, SVT_INT ).i;	// If combobox is int or string determined by attached var type
+	w->iVar = CScriptableVars::GetVarP<int>( p[1].s );	// If combobox is int or string determined by attached var type
 	if( w->iVar )
 	{
 		for( unsigned i = 0; i < items.size(); i++ )
@@ -1008,7 +1008,7 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 		};
 		w->setCurItem( *w->iVar );
 	};
-	w->sVar = CScriptableVars::GetVar( p[1].s, SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
 	if( w->sVar )
 	{
 		for( unsigned i = 0; i < items.size(); i++ )

@@ -191,7 +191,7 @@ struct ScriptDedInterface : DedInterface {
 		{
 			std::string fpContents = ReadUntil( fp, '\n' );
 			fclose(fp);
-			if( fpContents.find("python") != std::string::npos && tLXOptions->bDedicatedUseBuiltinPython )
+			if( fpContents.find("python") != std::string::npos )
 				return loadScript_Python(script);
 		}
 #endif
@@ -860,8 +860,8 @@ struct DedIntern {
 		TrimSpaces( value );
 		StripQuotes( value );
 
-		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
-		if( varptr.b == NULL )
+		RegisteredVar* varptr = CScriptableVars::GetVar(var);
+		if( varptr == NULL )
 		{
 			caller->writeMsg("SetVar: no var with name " + var);
 			notes << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
@@ -869,16 +869,16 @@ struct DedIntern {
 			for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
 			{
 				notes << "setvar( \"" << it->first << "\", ";
-				if( it->second.type == SVT_BOOL )
-					notes << (int) * it->second.b;
-				else if( it->second.type == SVT_INT )
-					notes << * it->second.i;
-				else if( it->second.type == SVT_FLOAT )
-					notes << * it->second.f;
-				else if( it->second.type == SVT_STRING )
-					notes << "\"" << * it->second.s << "\"";
-				else if( it->second.type == SVT_COLOR )
-					notes << "0x" << hex(*it->second.cl);
+				if( it->second.var.type == SVT_BOOL )
+					notes << (int) * it->second.var.b;
+				else if( it->second.var.type == SVT_INT )
+					notes << * it->second.var.i;
+				else if( it->second.var.type == SVT_FLOAT )
+					notes << * it->second.var.f;
+				else if( it->second.var.type == SVT_STRING )
+					notes << "\"" << * it->second.var.s << "\"";
+				else if( it->second.var.type == SVT_COLOR )
+					notes << "0x" << hex(*it->second.var.cl);
 				else
 					notes << "\"\"";
 				notes << ")" << endl;
@@ -886,13 +886,13 @@ struct DedIntern {
 			return;
 		}
 
-		if( varptr.type == SVT_CALLBACK ) {
+		if( varptr->var.type == SVT_CALLBACK ) {
 			caller->writeMsg("SetVar: callbacks are not allowed");
 			// If we want supoort for that, I would suggest a seperated command like "call ...".
 			return;
 		}
 		
-		CScriptableVars::SetVarByString(varptr, value);
+		CScriptableVars::SetVarByString(varptr->var, value);
 
 		//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
 
@@ -906,25 +906,25 @@ struct DedIntern {
 		}
 		std::string var = params;
 		TrimSpaces( var );
-		ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
-		if( varptr.b == NULL ) {
+		RegisteredVar* varptr = CScriptableVars::GetVar(var);
+		if( varptr == NULL ) {
 			caller->writeMsg("GetVar: no var with name " + var);
 			return;
 		}
 		
-		if( varptr.type == SVT_CALLBACK ) {
+		if( varptr->var.type == SVT_CALLBACK ) {
 			caller->writeMsg("GetVar: callbacks are not allowed");
 			// If we want supoort for that, I would suggest a seperated command like "call ...".
 			return;
 		}
 		
-		if( varptr.s == &tLXOptions->sServerPassword ) {
+		if( varptr->var.s == &tLXOptions->sServerPassword ) {
 			caller->writeMsg("GetVar: this variable is restricted");
 			// If you want to check if a worm is authorized, use another function for that.
 			return;
 		}
 		
-		caller->pushReturnArg(varptr.toString());
+		caller->pushReturnArg(varptr->var.toString());
 	}
 	
 	void Cmd_GetFullFileName(DedInterface* caller, std::string param) {

@@ -139,10 +139,12 @@ bool GameOptions::Init() {
 		( tLXOptions->iMouseSensity, "Game.MouseSensity", 200 )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
 		( tLXOptions->sLastSelectedPlayer, "Game.LastSelectedPlayer", "" )
+		( tLXOptions->sLastSelectedPlayer2, "Game.LastSelectedPlayer2", "" )
 		( tLXOptions->bTopBarVisible, "Game.TopBarVisible", true )
 		( tLXOptions->bScreenShaking, "Game.ScreenShaking", true )
 		( tLXOptions->bDamagePopups, "Game.DamagePopups", true )
 		( tLXOptions->bColorizeDamageByWorm, "Game.ColorizeDamageByWorm", false )
+		( tLXOptions->iRandomTeamForNewWorm, "Game.RandomTeamForNewWorm", 0, "Random team for new worm", "Joining worms will be randomly in a team of [0,value]", GIG_Advanced, true, 0, 3 )
 
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
@@ -158,8 +160,6 @@ bool GameOptions::Init() {
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
-		( tLXOptions->iRandomTeamForNewWorm, "Misc.RandomTeamForNewWorm", 0 )
-		( tLXOptions->bDedicatedUseBuiltinPython, "Misc.DedicatedUseBuiltinPython", false )
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
@@ -309,7 +309,7 @@ bool GameOptions::LoadFromDisc()
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
-			it->second.setDefault();
+			it->second.var.setDefault();
 		}
 	}
 
@@ -323,9 +323,9 @@ bool GameOptions::LoadFromDisc()
 		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o) {}
 
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
-			ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
-			if( var.b !=  NULL ) { // found entry
-				CScriptableVars::SetVarByString(var, value);
+			RegisteredVar* var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
+			if( var !=  NULL ) { // found entry
+				CScriptableVars::SetVarByString(var->var, value);
 			} else {
 				if( (section == "FileHandling" && propname.find("SearchPath") == 0)
 				 || (section == "Widgets") ) {
@@ -458,7 +458,7 @@ void GameOptions::SaveToDisc()
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
 			}
-			fprintf( fp, "%s = %s\n", key.c_str(), it->second.toString().c_str() );
+			fprintf( fp, "%s = %s\n", key.c_str(), it->second.var.toString().c_str() );
 		}
 	}
 

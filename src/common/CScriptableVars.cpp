@@ -49,6 +49,7 @@ std::string ScriptVarPtr_t::toString() const
 		case SVT_STRING: return *s;
 		case SVT_COLOR: return ColToHex(*cl);
 		case SVT_DYNAMIC: return dynVar->asScriptVar().toString();
+		case SVT_CALLBACK: return "callback(0x" + hex((long)cb) + ")";
 		default: assert(false); return "";
 	}
 }
@@ -136,34 +137,21 @@ std::string CScriptableVars::StripClassName( const std::string & c )
 	return ret;
 }
 
-ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
+RegisteredVar* CScriptableVars::GetVar( const std::string & name )
 {
 	Init();
-	// TODO: make it faster by binary search (lower_bound(), upper_bound() and sorting based on stringcasecmp)
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
-			it != m_instance->m_vars.end(); it++ )
-	{
-		if( !stringcasecmp( it->first, name ) )
-		{
-			return it->second;
-		}
-	}
-	return ScriptVarPtr_t();
+	VarMap::iterator it = m_instance->m_vars.find(name);
+	if(it != m_instance->m_vars.end()) return &it->second;
+	return NULL;
 }
 
 
-ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, ScriptVarType_t type )
+RegisteredVar* CScriptableVars::GetVar( const std::string & name, ScriptVarType_t type )
 {
-	Init();
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
-			it != m_instance->m_vars.end(); it++ )
-	{
-		if( !stringcasecmp( it->first, name ) && it->second.type == type )
-		{
-			return it->second;
-		}
-	}
-	return ScriptVarPtr_t();
+	RegisteredVar* var = GetVar(name);
+	if(!var) return NULL;
+	if(var->var.type != type) return NULL;
+	return var;
 }
 
 void CScriptableVars::DeRegisterVars( const std::string & base )
@@ -174,24 +162,11 @@ void CScriptableVars::DeRegisterVars( const std::string & base )
 		return;
 	}
 	Init();
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
-			it != m_instance->m_vars.end();  )
+	VarMap::iterator upper = m_instance->m_vars.upper_bound(base + ".\177\177\177");
+	for( VarMap::iterator it = m_instance->m_vars.lower_bound(base + "."); it != upper;  )
 	{
-		bool remove = false;
-		if( !stringcasecmp( it->first, base ) )
-			remove = true;
-		if( stringcasefind( it->first, base ) == 0 && it->first.size() > base.size() )
-			if( it->first[base.size()] == '.' )
-				remove = true;
-		if( remove )
-		{
-			m_instance->m_vars.erase( it );
-			it = m_instance->m_vars.begin();
-		}
-		else
-		{
-			it++;
-		}
+		VarMap::iterator cp = it; ++it;
+		m_instance->m_vars.erase( cp );
 	}
 }
 
@@ -199,11 +174,11 @@ std::string CScriptableVars::DumpVars()
 {
 	Init();
 	std::ostringstream ret;
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator i = m_instance->m_vars.begin();
+	for( VarMap :: iterator i = m_instance->m_vars.begin();
 			i != m_instance->m_vars.end(); i++ )
 	{
 		ret << i->first + ": ";
-		switch( i->second.type == SVT_DYNAMIC ? i->second.dynVar->type() : i->second.type )
+		switch( i->second.var.type == SVT_DYNAMIC ? i->second.var.dynVar->type() : i->second.var.type )
 		{
 			case SVT_BOOL: ret << "bool: "; break;
 			case SVT_INT: ret << "int: "; break;
@@ -213,7 +188,7 @@ std::string CScriptableVars::DumpVars()
 			case SVT_CALLBACK: ret << "callback: "; break;
 			default: assert(false);
 		}
-		ret << i->second.toString();
+		ret << i->second.var.toString();
 		ret << "\n";
 	}
 	return ret.str();
@@ -222,58 +197,4 @@ std::string CScriptableVars::DumpVars()
 void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::string& str) 
 {
 	var.fromString(str);
-}
-
-std::string CScriptableVars::GetDescription( const std::string & name )
-{
-	Init();
-	if( m_instance->m_descriptions.count(name) == 0 )
-		return StripClassName(name);
-	if( m_instance->m_descriptions.find(name)->second.first == "" )
-		return StripClassName(name);
-	return m_instance->m_descriptions.find(name)->second.first;
-}
-
-std::string CScriptableVars::GetLongDescription( const std::string & name )
-{
-	Init();
-	if( m_instance->m_descriptions.count(name) == 0 )
-		return StripClassName(name);
-	if( m_instance->m_descriptions.find(name)->second.second == "" )
-		return StripClassName(name);
-	return m_instance->m_descriptions.find(name)->second.second;
-}
-
-bool CScriptableVars::GetMinMaxValues( const std::string & name, int * minVal, int * maxVal )
-{
-	Init();
-	if( m_instance->m_minmax.count(name) == 0 )
-		return false;
-	if( m_instance->m_vars.find(name)->second.type != SVT_INT || 
-		m_instance->m_minmax.find(name)->second.first == m_instance->m_minmax.find(name)->second.second )
-		return false;
-	*minVal = m_instance->m_minmax.find(name)->second.first.i;
-	*maxVal = m_instance->m_minmax.find(name)->second.second.i;
-	return true;
-}
-
-bool CScriptableVars::GetMinMaxValues( const std::string & name, float * minVal, float * maxVal )
-{
-	Init();
-	if( m_instance->m_minmax.count(name) == 0 )
-		return false;
-	if( m_instance->m_vars.find(name)->second.type != SVT_FLOAT || 
-		m_instance->m_minmax.find(name)->second.first == m_instance->m_minmax.find(name)->second.second )
-		return false;
-	*minVal = m_instance->m_minmax.find(name)->second.first.f;
-	*maxVal = m_instance->m_minmax.find(name)->second.second.f;
-	return true;
-}
-
-int CScriptableVars::GetGroup( const std::string & name )
-{
-	Init();
-	if( m_instance->m_groups.count(name) == 0 )
-		return -1;
-	return m_instance->m_groups.find(name)->second;
 }

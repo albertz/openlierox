@@ -29,7 +29,7 @@ struct Feature {
 	Var unsetValue; // if the server does not provide this; for example: gamespeed=1; should always be like the behaviour without the feature to keep backward compatibility
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
 	// TODO: dont make it int! (make it a reference/pointer to the group or at least an enum)
-	int group;	// For grouping similar options in GUI
+	GameInfoGroup group;	// For grouping similar options in GUI
 	// TODO: move that to ScriptVarType_t
 	float minValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	float maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
@@ -45,13 +45,13 @@ struct Feature {
 	
 	Feature() : SET(false) {}
 	static Feature Unset() { return Feature(); }
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver, int g = -1, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, Version ver, GameInfoGroup g = GIG_Invalid, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), group(g), serverSideOnly(ssdo), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver, int g = -1, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, Version ver, GameInfoGroup g = GIG_Invalid, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), group(g), minValue(minval), maxValue(maxval), serverSideOnly(ssdo), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver, int g = -1, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, Version ver, GameInfoGroup g = GIG_Invalid, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), group(g), minValue(minval), maxValue(maxval), serverSideOnly(ssdo), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver, int g = -1, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, Version ver, GameInfoGroup g = GIG_Invalid, bool ssdo = false, bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), group(g), serverSideOnly(ssdo), minVersion(ver), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 };

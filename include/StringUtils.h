@@ -318,8 +318,8 @@ inline std::string itoa(unsigned long long num, short base=10)  {
 template<typename _T> std::string hex(_T num) { return itoa(num,16); }
 
 
-class simple_reversestring_hasher { public:
-	inline size_t operator() (const std::string& str) const {
+struct simple_reversestring_hasher {
+	size_t operator() (const std::string& str) const {
 		std::string::const_reverse_iterator pos = str.rbegin();
 		unsigned short nibble = 0;
 		size_t result = 0;
@@ -329,5 +329,10 @@ class simple_reversestring_hasher { public:
 	}
 };
 
+struct stringcaseless {
+	bool operator()(const std::string& s1, const std::string& s2) const {
+		return stringcasecmp(s1,s2) < 0;
+	}
+};
 
 #endif

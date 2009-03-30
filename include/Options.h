@@ -232,6 +232,7 @@ public:
 	int		iMouseSensity;
 	bool	bAntilagMovementPrediction;
 	std::string	sLastSelectedPlayer;
+	std::string	sLastSelectedPlayer2;
 	std::string sTheme;
 	bool	bTopBarVisible;
 	bool	bScreenShaking;
@@ -255,7 +256,6 @@ public:
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby
 	bool	bShowCountryFlags;
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
-	bool	bDedicatedUseBuiltinPython;		// Built-in Python is still buggy
 	
 	// Widget states
 	int		iInternetList[7];
@@ -316,25 +316,5 @@ void	ShutdownOptions(void);
 extern	GameOptions		*tLXOptions;
 extern  NetworkTexts  *networkTexts;
 
-// Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
-enum GameInfoGroup
-{
-	GIG_General,
-	GIG_Advanced,
-	GIG_Score,
-	GIG_Weapons,
-	GIG_Bonus,
-	GIG_Other,
-
-	GIG_GameModeSpecific_Start, // All following options are game-mode specific
-	
-	GIG_HideAndSeek,
-	GIG_CaptureTheFlag,
-	
-	GIG_Size
-};
-
-// And their descriptions - don't forget to edit them in Options.cpp if you change GameInfoGroup_t
-extern const char * GameInfoGroupDescriptions[GIG_Size][2];
 
 #endif  //  __OPTIONS_H__

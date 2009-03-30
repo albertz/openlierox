@@ -1063,13 +1063,13 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 
 	std::string var = params[0];
 	TrimSpaces( var );
-	ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
-	if( varptr.b == NULL )
+	RegisteredVar* varptr = CScriptableVars::GetVar(var);
+	if( varptr == NULL )
 		return "No variable with name " + var;
-	if(varptr.type == SVT_CALLBACK)
+	if(varptr->var.type == SVT_CALLBACK)
 		return "Callbacks are not allowed";
 	
-	if( varptr.s == &tLXOptions->sServerPassword ) {
+	if( varptr->var.s == &tLXOptions->sServerPassword ) {
 		if(params.size() == 1) return "The password cannot be shown";
 		if(!cl->getRights()->Dedicated)
 			return "You can only set the password with Dedicated priviliges";
@@ -1079,7 +1079,7 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	if(!w->getClient()) return "Invalid worm with no client";
 
 	if(params.size() == 1) {
-		w->getClient()->getNetEngine()->SendText(var + " = " + varptr.toString(), TXT_PRIVATE);
+		w->getClient()->getNetEngine()->SendText(var + " = " + varptr->var.toString(), TXT_PRIVATE);
 		return "";
 	}
 	
@@ -1087,9 +1087,9 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	TrimSpaces(value);
 	StripQuotes(value);
 	
-	CScriptableVars::SetVarByString(varptr, value);
+	CScriptableVars::SetVarByString(varptr->var, value);
 	
-	w->getClient()->getNetEngine()->SendText(var + " = " + varptr.toString(), TXT_PRIVATE);
+	w->getClient()->getNetEngine()->SendText(var + " = " + varptr->var.toString(), TXT_PRIVATE);
 	notes << "ChatCommand: SetVar " << var << " = " << value << endl;
 	
 	cServer->UpdateGameLobby();

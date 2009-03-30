@@ -116,8 +116,8 @@ public:
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CCheckbox * w = new CCheckbox(false);
-		w->bVar = CScriptableVars::GetVar( p[0].s, SVT_BOOL ).b;
-		w->iVar = CScriptableVars::GetVar( p[0].s, SVT_INT ).i;
+		w->bVar = CScriptableVars::GetVarP<bool>( p[0].s );
+		w->iVar = CScriptableVars::GetVarP<int>( p[0].s );
 		if( w->bVar )
 			w->bValue = *w->bVar != 0;
 		if( w->iVar )
