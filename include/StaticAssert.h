@@ -16,7 +16,7 @@
 
 
 #define static_assert(X, desc) \
-struct OLXJOINSTR(StaticAssertTest, __LINE__) { \
+struct OLXJOINSTR(StaticAssertTest_ ## desc ## _, __LINE__) { \
 void dummy() { char desc[((bool)(X)) ? 1 : -1]; desc[0] = 42; } \
 };
 

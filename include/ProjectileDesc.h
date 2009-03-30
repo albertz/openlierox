@@ -90,15 +90,15 @@ struct proj_t {
 	Proj_Trail Trail;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
-	int		Rotating;
+	bool	Rotating;
 	int		RotIncrement;
 	int		RotSpeed;
-	int		UseAngle;
-	int		UseSpecAngle;
+	bool	UseAngle;
+	bool	UseSpecAngle;
 	int		AngleImages;
-	int		UseCustomGravity;
+	bool	UseCustomGravity;
 	int		Gravity;
-	int		Animating;
+	bool	Animating;
 	float	AnimRate;
 	Proj_AnimType AnimType;
 	float   Dampening;
@@ -108,14 +108,14 @@ struct proj_t {
 	float	Timer_Time;
 	float	Timer_TimeVar;
 	int		Timer_Damage;
-	int		Timer_Projectiles;
+	bool	Timer_Projectiles;
 	int		Timer_Shake;
 	
 	// Hit (When hitting the terrain)
 	Proj_Action Hit_Type;
 	int		Hit_Damage;
 	int		Hit_Projectiles;
-	int		Hit_UseSound;
+	bool	Hit_UseSound;
 	int		Hit_Shake;
 	std::string	Hit_SndFilename; // (was 64b before)
 	float	Hit_BounceCoeff;
@@ -155,7 +155,7 @@ struct proj_t {
 	
 	
 	// Projectile trail
-	int		PrjTrl_UsePrjVelocity;
+	bool	PrjTrl_UsePrjVelocity;
 	float	PrjTrl_Delay;
 	int		PrjTrl_Amount;
 	int		PrjTrl_Speed;

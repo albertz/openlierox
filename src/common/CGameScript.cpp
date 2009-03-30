@@ -51,7 +51,7 @@ int CGameScript::Save(const std::string& filename)
 	EndianSwap(tmpheader.Version);
 	fwrite(&tmpheader,sizeof(gs_header_t),1,fp);
 
-	fwrite_endian((NumWeapons),sizeof(int),1,fp);
+	fwrite_endian_compat((NumWeapons),sizeof(int),1,fp);
 
 	// Weapons
 	weapon_t *wpn = Weapons;
@@ -59,56 +59,56 @@ int CGameScript::Save(const std::string& filename)
 	for(n=0;n<NumWeapons;n++,wpn++) {
 
         writeString(wpn->Name, fp);
-		fwrite_endian((wpn->Type),          sizeof(int),    1, fp);
+		fwrite_endian_compat((wpn->Type),          sizeof(int),    1, fp);
 
 		// Special
 		if(wpn->Type == WPN_SPECIAL) {
-			fwrite_endian((wpn->Special),   sizeof(int),    1, fp);
-			fwrite_endian((wpn->tSpecial),  sizeof(gs_special_t), 1, fp); // WARNING: this works, because it contains only one int
-			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
-			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Special),   sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->tSpecial),  sizeof(gs_special_t), 1, fp); // WARNING: this works, because it contains only one int
+			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
 		}
 
 		// Beam
 		if(wpn->Type == WPN_BEAM) {
-			fwrite_endian((wpn->Recoil),    sizeof(int),    1, fp);
-			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
-			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Recoil),    sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
 
 			if(Header.Version <= GS_LX56_VERSION) {
-				fwrite_endian(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
-				fwrite_endian(((int)wpn->Bm_Colour.g), sizeof(int), 1, fp);
-				fwrite_endian(((int)wpn->Bm_Colour.b), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm_Colour.g), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm_Colour.b), sizeof(int), 1, fp);
 			}
 			else {
-				fwrite_endian(wpn->Bm_Colour.r, 1, 1, fp);
-				fwrite_endian(wpn->Bm_Colour.g, 1, 1, fp);
-				fwrite_endian(wpn->Bm_Colour.b, 1, 1, fp);
-				fwrite_endian(wpn->Bm_Colour.a, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm_Colour.r, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm_Colour.g, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm_Colour.b, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm_Colour.a, 1, 1, fp);
 			}
-			fwrite_endian((wpn->Bm_Damage), sizeof(int),    1, fp);
-			fwrite_endian((wpn->Bm_PlyDamage), sizeof(int), 1, fp);
-			fwrite_endian((wpn->Bm_Length), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Bm_Damage), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Bm_PlyDamage), sizeof(int), 1, fp);
+			fwrite_endian_compat((wpn->Bm_Length), sizeof(int),    1, fp);
 		}
 
 		// Projectile
 		if(wpn->Type == WPN_PROJECTILE) {
-			fwrite_endian((wpn->Class),     sizeof(int),    1, fp);
-			fwrite_endian((wpn->Recoil),    sizeof(int),    1, fp);
-			fwrite_endian((wpn->Recharge*10.f),  sizeof(float),  1, fp);
-			fwrite_endian((wpn->Drain),     sizeof(float),  1, fp);
-			fwrite_endian((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian((wpn->ProjSpeed), sizeof(int),    1, fp);
-			fwrite_endian((wpn->ProjSpeedVar),sizeof(float),1, fp);
-			fwrite_endian((wpn->ProjSpread),sizeof(float),  1, fp);
-			fwrite_endian((wpn->ProjAmount),sizeof(int),    1, fp);
-			fwrite_endian((wpn->LaserSight),sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Class),     sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Recoil),    sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->ProjSpeed), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->ProjSpeedVar),sizeof(float),1, fp);
+			fwrite_endian_compat((wpn->ProjSpread),sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->ProjAmount),sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
 
-			fwrite_endian((wpn->UseSound),  sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->UseSound),  sizeof(int),    1, fp);
 			if(wpn->UseSound)
                 writeString(wpn->SndFilename, fp);
 
@@ -121,9 +121,9 @@ int CGameScript::Save(const std::string& filename)
 
 
 	// Ninja Rope
-	fwrite_endian((RopeLength),sizeof(int),1,fp);
-	fwrite_endian((RestLength),sizeof(int),1,fp);
-	fwrite_endian((Strength),sizeof(float),1,fp);
+	fwrite_endian_compat((RopeLength),sizeof(int),1,fp);
+	fwrite_endian_compat((RestLength),sizeof(int),1,fp);
+	fwrite_endian_compat((Strength),sizeof(float),1,fp);
 
 	// Worm
 	gs_worm_t tmpworm = Worm;
@@ -150,34 +150,34 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	if(!proj)
 		return false;
 
-	fwrite_endian((proj->Type),			sizeof(int),1,fp);
-	fwrite_endian((proj->Timer_Time),	sizeof(float),1,fp);
-	fwrite_endian((proj->Timer_TimeVar),sizeof(float),1,fp);
-	fwrite_endian((proj->Trail),		sizeof(int),1,fp);
-	fwrite_endian((proj->UseCustomGravity), sizeof(int), 1, fp);
+	fwrite_endian_compat((proj->Type),			sizeof(int),1,fp);
+	fwrite_endian_compat((proj->Timer_Time),	sizeof(float),1,fp);
+	fwrite_endian_compat((proj->Timer_TimeVar),sizeof(float),1,fp);
+	fwrite_endian_compat((proj->Trail),		sizeof(int),1,fp);
+	fwrite_endian<int>(fp, proj->UseCustomGravity);
 
 	if(proj->UseCustomGravity)
-		fwrite_endian((proj->Gravity),	sizeof(int), 1, fp);
+		fwrite_endian_compat((proj->Gravity),	sizeof(int), 1, fp);
 
-	fwrite_endian((proj->Dampening),	sizeof(int), 1, fp);
+	fwrite_endian_compat((proj->Dampening),	sizeof(int), 1, fp);
 
     // Pixel type
 	if(proj->Type == PRJ_PIXEL) {
-		fwrite_endian(((int)proj->Colour.size()), sizeof(int), 1, fp);
+		fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
 		for(size_t i = 0; i < proj->Colour.size(); ++i) {
 			if(Header.Version <= GS_LX56_VERSION && i >= 2) {
 				warnings << "SaveProjectile: projectile has more than 2 colors, other colors are ignored for LX56 format" << endl;
 				break;
 			}
 			if(Header.Version <= GS_LX56_VERSION) {
-				fwrite_endian(((int)proj->Colour[i].r),   sizeof(int),1,fp);
-				fwrite_endian(((int)proj->Colour[i].g),   sizeof(int),1,fp);
-				fwrite_endian(((int)proj->Colour[i].b),   sizeof(int),1,fp);
+				fwrite_endian_compat(((int)proj->Colour[i].r),   sizeof(int),1,fp);
+				fwrite_endian_compat(((int)proj->Colour[i].g),   sizeof(int),1,fp);
+				fwrite_endian_compat(((int)proj->Colour[i].b),   sizeof(int),1,fp);
 			} else {
-				fwrite_endian((proj->Colour[i].r), 1,1,fp);
-				fwrite_endian((proj->Colour[i].g), 1,1,fp);
-				fwrite_endian((proj->Colour[i].b), 1,1,fp);
-				fwrite_endian((proj->Colour[i].a), 1,1,fp);	
+				fwrite_endian_compat((proj->Colour[i].r), 1,1,fp);
+				fwrite_endian_compat((proj->Colour[i].g), 1,1,fp);
+				fwrite_endian_compat((proj->Colour[i].b), 1,1,fp);
+				fwrite_endian_compat((proj->Colour[i].a), 1,1,fp);	
 			}
 		}
 	}
@@ -185,17 +185,17 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
     // Image type
 	else if(proj->Type == PRJ_IMAGE) {
         writeString(proj->ImgFilename, fp);
-		fwrite_endian((proj->Rotating), sizeof(int), 1, fp);
-		fwrite_endian((proj->RotIncrement), sizeof(int), 1, fp);
-		fwrite_endian((proj->RotSpeed), sizeof(int),1,fp);
-		fwrite_endian((proj->UseAngle), sizeof(int),1,fp);
-		fwrite_endian((proj->UseSpecAngle),sizeof(int),1,fp);
+		fwrite_endian<int>(fp, proj->Rotating);
+		fwrite_endian_compat((proj->RotIncrement), sizeof(int), 1, fp);
+		fwrite_endian_compat((proj->RotSpeed), sizeof(int),1,fp);
+		fwrite_endian<int>(fp, proj->UseAngle);
+		fwrite_endian<int>(fp, proj->UseSpecAngle);
 		if(proj->UseAngle || proj->UseSpecAngle)
-			fwrite_endian((proj->AngleImages),sizeof(int),1,fp);
-		fwrite_endian((proj->Animating),sizeof(int),1,fp);
+			fwrite_endian_compat((proj->AngleImages),sizeof(int),1,fp);
+		fwrite_endian<int>(fp, proj->Animating);
 		if(proj->Animating) {
-			fwrite_endian((proj->AnimRate),sizeof(float),1,fp);
-			fwrite_endian((proj->AnimType),sizeof(int),1,fp);
+			fwrite_endian_compat((proj->AnimRate),sizeof(float),1,fp);
+			fwrite_endian_compat((proj->AnimType),sizeof(int),1,fp);
 		}
 	}
 
@@ -205,27 +205,27 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Hit
 	//
-	fwrite_endian((proj->Hit_Type),sizeof(int),1,fp);
+	fwrite_endian_compat((proj->Hit_Type),sizeof(int),1,fp);
 
 	// Hit::Explode
 	if(proj->Hit_Type == PJ_EXPLODE) {
-		fwrite_endian((proj->Hit_Damage),		sizeof(int),1,fp);
-		fwrite_endian((proj->Hit_Projectiles),	sizeof(int),1,fp);
-		fwrite_endian((proj->Hit_UseSound),		sizeof(int),1,fp);
-		fwrite_endian((proj->Hit_Shake),		sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Hit_Damage),		sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Hit_Projectiles),	sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Hit_UseSound),		sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Hit_Shake),		sizeof(int),1,fp);
 		if(proj->Hit_UseSound)
             writeString(proj->Hit_SndFilename, fp);
 	}
 
 	// Hit::Bounce
 	if(proj->Hit_Type == PJ_BOUNCE) {
-		fwrite_endian((proj->Hit_BounceCoeff),	sizeof(float),	1,fp);
-		fwrite_endian((proj->Hit_BounceExplode),sizeof(int),	1,fp);
+		fwrite_endian_compat((proj->Hit_BounceCoeff),	sizeof(float),	1,fp);
+		fwrite_endian_compat((proj->Hit_BounceExplode),sizeof(int),	1,fp);
 	}
 
 	// Hit::Carve
 	if(proj->Hit_Type == PJ_CARVE) {
-		fwrite_endian((proj->Hit_Damage),		sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Hit_Damage),		sizeof(int),1,fp);
 	}
 
 
@@ -236,11 +236,11 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Timer
 	//
 	if(proj->Timer_Time > 0) {
-		fwrite_endian((proj->Timer_Type),sizeof(int),1,fp);
+		fwrite_endian_compat((proj->Timer_Type),sizeof(int),1,fp);
 		if(proj->Timer_Type == PJ_EXPLODE) {
-			fwrite_endian((proj->Timer_Damage),		sizeof(int),1,fp);
-			fwrite_endian((proj->Timer_Projectiles),sizeof(int),1,fp);
-			fwrite_endian((proj->Timer_Shake),sizeof(int),1,fp);
+			fwrite_endian_compat((proj->Timer_Damage),		sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->Timer_Projectiles);
+			fwrite_endian_compat((proj->Timer_Shake),sizeof(int),1,fp);
 		}
 	}
 
@@ -248,27 +248,27 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Player hit
 	//
-	fwrite_endian((proj->PlyHit_Type),sizeof(int),1,fp);
+	fwrite_endian_compat((proj->PlyHit_Type),sizeof(int),1,fp);
 
 	// PlyHit::Explode || PlyHit::Injure
 	if(proj->PlyHit_Type == PJ_EXPLODE || proj->PlyHit_Type == PJ_INJURE) {
-		fwrite_endian((proj->PlyHit_Damage),sizeof(int),1,fp);
-		fwrite_endian((proj->PlyHit_Projectiles),sizeof(int),1,fp);
+		fwrite_endian_compat((proj->PlyHit_Damage),sizeof(int),1,fp);
+		fwrite_endian_compat((proj->PlyHit_Projectiles),sizeof(int),1,fp);
 	}
 
 	// PlyHit::Bounce
 	if(proj->PlyHit_Type == PJ_BOUNCE) {
-		fwrite_endian((proj->PlyHit_BounceCoeff),sizeof(float),1,fp);
+		fwrite_endian_compat((proj->PlyHit_BounceCoeff),sizeof(float),1,fp);
 	}
 
 
     //
     // Explode
     //
-    fwrite_endian((proj->Exp_Type),     sizeof(int), 1, fp);
-    fwrite_endian((proj->Exp_Damage),   sizeof(int), 1, fp);
-    fwrite_endian((proj->Exp_Projectiles), sizeof(int), 1, fp);
-    fwrite_endian((proj->Exp_UseSound), sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Exp_Type),     sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Exp_Damage),   sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Exp_Projectiles), sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Exp_UseSound), sizeof(int), 1, fp);
     if(proj->Exp_UseSound)
         writeString(proj->Exp_SndFilename, fp);
 
@@ -276,10 +276,10 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
     //
     // Touch
     //
-    fwrite_endian((proj->Tch_Type),     sizeof(int), 1, fp);
-    fwrite_endian((proj->Tch_Damage),   sizeof(int), 1, fp);
-    fwrite_endian((proj->Tch_Projectiles), sizeof(int), 1, fp);
-    fwrite_endian((proj->Tch_UseSound), sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Tch_Type),     sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Tch_Damage),   sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Tch_Projectiles), sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Tch_UseSound), sizeof(int), 1, fp);
     if(proj->Tch_UseSound)
         writeString(proj->Tch_SndFilename, fp);
 
@@ -287,12 +287,12 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
        proj->Tch_Projectiles) {
-		fwrite_endian((proj->ProjUseangle),	sizeof(int),	1, fp);
-		fwrite_endian((proj->ProjAngle),	sizeof(int),	1, fp);
-		fwrite_endian((proj->ProjAmount),	sizeof(int),	1, fp);
-		fwrite_endian((proj->ProjSpread),	sizeof(float),	1, fp);
-		fwrite_endian((proj->ProjSpeed),	sizeof(int),	1, fp);
-		fwrite_endian((proj->ProjSpeedVar),	sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->ProjUseangle),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->ProjAngle),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->ProjAmount),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->ProjSpread),	sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->ProjSpeed),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->ProjSpeedVar),	sizeof(float),	1, fp);
 
 		SaveProjectile(proj->Projectile,fp);
 	}
@@ -301,12 +301,12 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 
-		fwrite_endian((proj->PrjTrl_UsePrjVelocity),	sizeof(int),	1, fp);
-		fwrite_endian((proj->PrjTrl_Delay*1000.0f),				sizeof(float),	1, fp);
-		fwrite_endian((proj->PrjTrl_Amount),			sizeof(int),	1, fp);
-		fwrite_endian((proj->PrjTrl_Speed),				sizeof(int),	1, fp);
-		fwrite_endian((proj->PrjTrl_SpeedVar),			sizeof(float),	1, fp);
-		fwrite_endian((proj->PrjTrl_Spread),			sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_UsePrjVelocity),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_Delay*1000.0f),				sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_Amount),			sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_Speed),				sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_SpeedVar),			sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl_Spread),			sizeof(float),	1, fp);
 
 		SaveProjectile(proj->PrjTrl_Proj, fp);
 	}
@@ -552,8 +552,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Timer_TimeVar);
 	fread(&proj->Trail,			sizeof(int),  1,fp);
 	EndianSwap(proj->Trail);
-	fread(&proj->UseCustomGravity, sizeof(int), 1, fp);
-	EndianSwap(proj->UseCustomGravity);
+	fread_endian<int>(fp, proj->UseCustomGravity);
 	if(proj->UseCustomGravity)
 	{
 		fread(&proj->Gravity,	sizeof(int), 1, fp);
@@ -601,23 +600,19 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
         if(!proj->bmpImage)
             modLog("Could not open image '" + proj->ImgFilename + "'");
 
-		fread(&proj->Rotating, sizeof(int), 1, fp);
-		EndianSwap(proj->Rotating);
+		fread_endian<int>(fp, proj->Rotating);
 		fread(&proj->RotIncrement, sizeof(int), 1, fp);
 		EndianSwap(proj->RotIncrement);
 		fread(&proj->RotSpeed,sizeof(int),1,fp);
 		EndianSwap(proj->RotSpeed);
-		fread(&proj->UseAngle,sizeof(int),1,fp);
-		EndianSwap(proj->UseAngle);
-		fread(&proj->UseSpecAngle,sizeof(int),1,fp);
-		EndianSwap(proj->UseSpecAngle);
+		fread_endian<int>(fp, proj->UseAngle);
+		fread_endian<int>(fp, proj->UseSpecAngle);
 		if(proj->UseAngle || proj->UseSpecAngle)
 		{
 			fread(&proj->AngleImages,sizeof(int),1,fp);
 			EndianSwap(proj->AngleImages);
 		}
-		fread(&proj->Animating,sizeof(int),1,fp);
-		EndianSwap(proj->Animating);
+		fread_endian<int>(fp, proj->Animating);
 		if(proj->Animating) {
 			fread(&proj->AnimRate,sizeof(float),1,fp);
 			EndianSwap(proj->AnimRate);
@@ -639,8 +634,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		EndianSwap(proj->Hit_Damage);
 		fread(&proj->Hit_Projectiles,	sizeof(int),1,fp);
 		EndianSwap(proj->Hit_Projectiles);
-		fread(&proj->Hit_UseSound,		sizeof(int),1,fp);
-		EndianSwap(proj->Hit_UseSound);
+		fread_endian<int>(fp, proj->Hit_UseSound);
 		fread(&proj->Hit_Shake,			sizeof(int),1,fp);
 		EndianSwap(proj->Hit_Shake);
 
@@ -687,8 +681,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		if(proj->Timer_Type == PJ_EXPLODE) {
 			fread(&proj->Timer_Damage,sizeof(int),1,fp);
 			EndianSwap(proj->Timer_Damage);
-			fread(&proj->Timer_Projectiles,sizeof(int),1,fp);
-			EndianSwap(proj->Timer_Projectiles);
+			fread_endian<int>(fp, proj->Timer_Projectiles);
 			fread(&proj->Timer_Shake,sizeof(int),1,fp);
 			EndianSwap(proj->Timer_Shake);
 		}
@@ -773,8 +766,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 
-		fread(&proj->PrjTrl_UsePrjVelocity,	sizeof(int),	1, fp);
-		EndianSwap(proj->PrjTrl_UsePrjVelocity);
+		fread_endian<int>(fp, proj->PrjTrl_UsePrjVelocity);
 		fread(&proj->PrjTrl_Delay,			sizeof(float),	1, fp);
 		EndianSwap(proj->PrjTrl_Delay);
 		fread(&proj->PrjTrl_Amount,			sizeof(int),	1, fp);

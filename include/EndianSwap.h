@@ -12,6 +12,7 @@
 
 #include <SDL.h>
 #include <cstdio>
+#include "StaticAssert.h"
 
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
@@ -48,11 +49,32 @@ T GetByteSwapped(T b) {
 #	error unknown ENDIAN type
 #endif
 
+template <size_t size, size_t nmemb, typename T>
+size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
+	static_assert(nmemb == 1, nmemb__equals1);
+	static_assert(size == sizeof(T), size__mismatch);
+	EndianSwap(d);
+	return fwrite(&d, sizeof(T), 1, stream);	
+}
 
-template <typename T>
-size_t fwrite_endian(T data, size_t size, size_t nmemb, FILE* stream) {
-	data = GetEndianSwapped(data);
-	return fwrite(&data, size, nmemb, stream);
+#define fwrite_endian_compat(d, size, nmemb, stream) \
+	fwrite_endian_compat_wrapper<(size),(nmemb)>(stream, d)
+
+
+template <typename T, typename _D>
+size_t fwrite_endian(FILE* stream, _D d) {
+	T data = d;
+	EndianSwap(data);
+	return fwrite(&data, sizeof(T), 1, stream);
+}
+
+template <typename T, typename _D>
+size_t fread_endian(FILE* stream, _D& d) {
+	T data;
+	size_t ret = fread(&data, sizeof(T), 1, stream);
+	EndianSwap(data);
+	if(ret > 0) d = data;
+	return ret;
 }
 
 #endif
