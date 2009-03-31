@@ -249,7 +249,8 @@ std::string to_string(T val) {
 	return oss.str();
 }
 
-inline std::string to_string(bool val) {
+template<>
+inline std::string to_string<bool>(bool val) {
 	if(val) return "true"; else return "false";
 }
 
