@@ -67,6 +67,8 @@ void doVideoFrameInMainThread(bool wait = false);
 void doSetVideoModeInMainThread();
 void doActionInMainThread(Action* act);
 
+void flipRealVideo();
+
 
 class VideoPostProcessor {
 protected:

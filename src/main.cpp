@@ -386,6 +386,7 @@ startpoint:
 							VideoPostProcessor::process();
 							SDL_CondSignal(videoFrameCond);
 							SDL_mutexV(videoFrameMutex);
+							flipRealVideo();
 							continue;
 						case UE_DoSetVideoMode:
 							if(!videoModeReady) {
@@ -508,7 +509,7 @@ void doSetVideoModeInMainThread() {
 	if(SDL_PushEvent(&ev) == 0) {
 		while(!videoModeReady) {
 			SDL_Delay(10);
-			// TODO: was it supposed like this?
+			// put this thread into sleep (other thread should have locked this mutex)
 			SDL_mutexP(videoFrameMutex);
 			SDL_mutexV(videoFrameMutex);
 		}
