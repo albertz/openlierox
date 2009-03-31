@@ -154,6 +154,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite_endian_compat((proj->Timer_Time),	sizeof(float),1,fp);
 	fwrite_endian_compat((proj->Timer_TimeVar),sizeof(float),1,fp);
 	fwrite_endian_compat((proj->Trail),		sizeof(int),1,fp);
+	//fwrite_endian_compat(proj->UseCustomGravity, sizeof(int), 1, fp); // use this to test static assert (should fail if sizeof(bool)!=sizeof(int))
 	fwrite_endian<int>(fp, proj->UseCustomGravity);
 
 	if(proj->UseCustomGravity)
