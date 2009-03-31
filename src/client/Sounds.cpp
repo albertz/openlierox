@@ -54,9 +54,9 @@ int LoadSounds(void)
 		sfxGeneral.smpNotify = LoadSample("data/sounds/dirt.wav",2);	// Very funny sound
 	}
 	
-	sfxGame.smpTeamScore = LoadSample("data/sounds/teamscore.ogg",2);
+	sfxGame.smpTeamScore = LoadSample("data/sounds/teamscore.wav",2);
 	if( sfxGame.smpTeamScore.get() == NULL ) {
-		notes << "LoadSounds: cannot load teamscore.ogg" << endl;
+		notes << "LoadSounds: cannot load teamscore.wav" << endl;
 		sfxGame.smpTeamScore = sfxGeneral.smpNotify;
 	}
 	
