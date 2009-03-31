@@ -120,7 +120,7 @@ struct ScriptVar_t
 	}
 	
 	bool isNumeric() const { return type == SVT_INT || type == SVT_FLOAT; }
-	float getNumber() const { if(type == SVT_INT) return i; if(type == SVT_FLOAT) return f; return 0.0f; }
+	float getNumber() const { if(type == SVT_INT) return (float)i; if(type == SVT_FLOAT) return f; return 0.0f; }
 	
 	std::string toString() const;
 	bool fromString( const std::string & str);

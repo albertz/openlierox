@@ -16,7 +16,7 @@
 
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
-inline void ByteSwap(unsigned char * b, int n) {
+inline static void ByteSwap(unsigned char * b, int n) {
 	register int i = 0;
 	register int j = n - 1;
 	register unsigned char tmp;
@@ -50,7 +50,7 @@ T GetByteSwapped(T b) {
 #endif
 
 template <int size, int nmemb, typename T>
-size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
+inline static size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 	static_assert(nmemb == 1, nmemb__equals1);
 	static_assert(size == sizeof(T), size__mismatch);
 	EndianSwap(d);
@@ -62,18 +62,27 @@ size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 
 
 template <typename T, typename _D>
-size_t fwrite_endian(FILE* stream, _D d) {
+inline static size_t fwrite_endian(FILE* stream, _D d) {
 	T data = d;
 	EndianSwap(data);
 	return fwrite(&data, sizeof(T), 1, stream);
 }
 
 template <typename T, typename _D>
-size_t fread_endian(FILE* stream, _D& d) {
+inline static size_t fread_endian(FILE* stream, _D& d) {
 	T data;
 	size_t ret = fread(&data, sizeof(T), 1, stream);
 	EndianSwap(data);
-	if(ret > 0) d = data;
+	if(ret > 0) d = (_D)data;
+	return ret;
+}
+
+template <typename T>
+inline static size_t fread_endian(FILE* stream, bool& d)
+{
+	T data;
+	const size_t ret = fread_endian<T>(stream, data);
+	d = (data != 0);
 	return ret;
 }
 
