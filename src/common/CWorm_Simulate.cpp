@@ -380,6 +380,10 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 {
 	CVec	dir;
 	TimeDiff dt ( (int)NewNet::TICK_TIME );
+
+	if( GetPhysicsTime() > fLastInputTime )
+		dt = GetPhysicsTime() - fLastInputTime;
+	fLastInputTime = GetPhysicsTime();
 	
 	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
 	bool leftOnce = keys.keys[NewNet::K_LEFT] && keysChanged.keys[NewNet::K_LEFT];

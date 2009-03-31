@@ -419,8 +419,6 @@ quit:
 	
 	PhysicsEngine::UnInit();
 
-	DeprecatedGUI::CChatWidget::GlobalDestroy();
-	
 	ShutdownLieroX();
 	delete cSwitchMode; cSwitchMode = NULL;
 	delete cTakeScreenshot; cTakeScreenshot = NULL;	
@@ -1076,6 +1074,8 @@ void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
+
+	DeprecatedGUI::CChatWidget::GlobalDestroy();
 	
 	ShutdownIRC(); // Disconnect from IRC
 
