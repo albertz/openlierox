@@ -672,13 +672,6 @@ private:
 		searchpath_base* base = (searchpath_base*)b;
 		NEW_ai_node_t* ret;
 
-		// Name the thread
-#ifdef _MSC_VER
-		static char name[32];
-		sprintf(name, ("AI thread " + to_string<size_t>((size_t)b)).c_str());
-		setCurThreadName(name);
-#endif // WIN32
-
 		while(true) {
 			// sleep a little bit while we have nothing to do...
 			while(base->isReady()) {

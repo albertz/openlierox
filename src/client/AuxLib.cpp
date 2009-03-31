@@ -25,6 +25,7 @@
 #include <time.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
+#include <SDL_opengl.h>
 #include <cstdlib>
 #include <sstream>
 #include <cstring>
@@ -204,8 +205,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 
 
 static void DumpPixelFormat(const SDL_PixelFormat* format) {
-	std::string buf;
-	std::stringstream str(buf);
+	std::ostringstream str;
 	str << "PixelFormat:" << std::endl
 		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
 		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
@@ -220,8 +220,8 @@ static void DumpPixelFormat(const SDL_PixelFormat* format) {
 			<< (uint)format->Bloss << "/"
 		<< (uint)format->Aloss << std::endl << std::dec
 		<< "  Colorkey: " << (uint)format->colorkey << ","
-		<< "  Alpha: " << (int)format->alpha << std::endl;
-	notes << buf << endl;
+		<< "  Alpha: " << (int)format->alpha;
+	notes << str.str() << endl;
 }
 
 ///////////////////
@@ -303,27 +303,26 @@ bool SetVideoMode()
 	}
 
 	if (opengl) {
-		hints << "using OpenGL" << endl;
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT; // Without that flag SDL_GetVideoSurface()->pixels will be NULL, which is weird
-
+		
 		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
 		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
-//#ifndef MACOSX
-/*
-		short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
-		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
-*/
-//#endif
+		//#ifndef MACOSX
+		/*
+		 short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
+		 SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
+		 SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+		 */
+		//#endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
-	}
+	}	
 
 	if(HardwareAcceleration)  {
 		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
@@ -407,14 +406,20 @@ setvideomode:
 	// Set the change mode flag
 	if (tLX)
 		tLX->bVideoModeChanged = true;
-
+	
+	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
+		hints << "using OpenGL" << endl;
+		
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set black background
+	}
+	
 	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
+	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0 /* || (SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0 */)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		notes << "using hardware surfaces" << endl;
 	} else {
@@ -501,7 +506,7 @@ static void flipRealVideo() {
 
 	SDL_Flip( psScreen );
 
-	if (tLXOptions->bOpenGL)
+	if(SDL_GetVideoSurface()->flags & SDL_OPENGL)
 		SDL_GL_SwapBuffers();
 }
 

@@ -148,7 +148,7 @@ bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct 
 	std::string::const_iterator it = buf.begin();
 	bool firstLine = true;
 	while(true) {
-		std::string tmp = ReadUntil(buf, it, '\n');		
+		std::string tmp = ReadUntil(buf, it, '\n', std::string(it, buf.end()));
 		if(it == buf.end()) {
 			if(tmp != "") {
 				(*printOutFct) ( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
