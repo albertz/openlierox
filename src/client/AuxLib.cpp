@@ -665,9 +665,10 @@ void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
 
-	if(psScreen->flags & SDL_OPENGL)
+	if(psScreen->flags & SDL_OPENGL) {
+		glFlush();
 		SDL_GL_SwapBuffers();
-	else
+	} else
 		SDL_Flip( psScreen );
 }
 

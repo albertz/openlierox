@@ -63,7 +63,7 @@ inline bool	HandleDebugCommand(const std::string& cmd) { return false; }
 #endif
 
 
-void doVideoFrameInMainThread(bool wait = false);
+void doVideoFrameInMainThread();
 void doSetVideoModeInMainThread();
 void doActionInMainThread(Action* act);
 
