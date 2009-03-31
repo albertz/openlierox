@@ -442,13 +442,13 @@ void GameServer::SpawnBonus(void)
 
 ///////////////////
 // Worm is shooting
-void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
+void GameServer::WormShoot(CWorm *w)
 {
 	// Don't shoot when the game is over
 	if (cClient->isGameOver())
 		return;
 
-	if(!gameserver->getGameMode()->Shoot(w))
+	if(!getGameMode()->Shoot(w))
 		return;
 
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -497,20 +497,19 @@ void GameServer::WormShoot(CWorm *w, GameServer* gameserver)
 		speed = NormalizeVector( &vel );
 	}
 	
-	if(gameserver) {
-		TimeDiff time = gameserver->getServerTime();
-		if( w->hasOwnServerTime() )
-			time = w->serverTime();
-		
-		// Add the shot to ALL the connected clients shootlist
-		CServerConnection *cl = gameserver->getClients();
-		for(short i=0; i<MAX_CLIENTS; i++,cl++) {
-			if(cl->getStatus() == NET_DISCONNECTED)
-				continue;
+	TimeDiff time = getServerTime();
+	if( w->hasOwnServerTime() )
+		time = w->serverTime();
+	
+	// Add the shot to ALL the connected clients shootlist
+	CServerConnection *cl = getClients();
+	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
+		if(cl->getStatus() == NET_DISCONNECTED)
+			continue;
 
-			cl->getShootList()->addShoot(time, speed, (int)Angle, w);
-		}
+		cl->getShootList()->addShoot(time, speed, (int)Angle, w);
 	}
+
 	
 
 	//

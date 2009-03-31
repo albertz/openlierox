@@ -290,7 +290,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 
 		// If the worm is shooting, handle it
 		if (w->getWormState()->bShoot && w->getAlive() && server->iState == SVS_PLAYING)
-			server->WormShoot(w, server); // handle shot and add to shootlist to send it later to the clients
+			server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 	}
 }
 

@@ -196,7 +196,7 @@ public:
 	}
 	
 	void		SpawnBonus(void);
-	static void	WormShoot(CWorm *w, GameServer* gameserver);
+	void		WormShoot(CWorm *w);
     void        RecheckGame(void);
 
 	void		gotoLobby(void);
