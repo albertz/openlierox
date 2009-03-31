@@ -434,13 +434,15 @@ setvideomode:
 			0, //Uint32 colorkey;
 			255 //Uint8  alpha;
 		};
-		static SDL_PixelFormat OGL_format24 =
+		// some GFX stuff in OLX seems very slow when this is used
+		// (probably the blit from alpha surf to this format is slow)
+	/*	static SDL_PixelFormat OGL_format24 =
 		{
 			NULL, //SDL_Palette *palette;
 			24, //Uint8  BitsPerPixel;
 			3, //Uint8  BytesPerPixel;
 			0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-			#if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
+			#if SDL_BYTEORDER == SDL_LIL_ENDIAN // OpenGL RGBA masks
 			0, 8, 16, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
 			0x000000FF,
 			0x0000FF00,
@@ -455,11 +457,11 @@ setvideomode:
 			#endif
 			0, //Uint32 colorkey;
 			255 //Uint8  alpha;
-		};
-		if(tLXOptions->iColourDepth == 32)
+		}; */
+		//if(tLXOptions->iColourDepth == 32)
 			mainPixelFormat = &OGL_format32;
-		else
-			mainPixelFormat = &OGL_format24;
+		//else
+		//	mainPixelFormat = &OGL_format24;
 	} else
 		mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
@@ -467,10 +469,14 @@ setvideomode:
 		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0 || (SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)  {
+	if((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0) {
+		iSurfaceFormat = SDL_SWSURFACE;
+	}
+	else if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		notes << "using hardware surfaces" << endl;
-	} else {
+	}
+	else {
 		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
 		if (HardwareAcceleration)
 			hints << "Unable to use hardware surfaces, falling back to software." << endl;
