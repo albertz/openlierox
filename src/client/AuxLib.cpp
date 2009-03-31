@@ -89,7 +89,7 @@ SDL_PixelFormat defaultFallbackFormat =
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
-
+static const bool USE_OPENGLBLIT = true;
 
 
 ///////////////////
@@ -299,7 +299,8 @@ bool SetVideoMode()
 
 	if (opengl) {
 		vidflags |= SDL_OPENGL;
-		//vidflags |= SDL_OPENGLBLIT; // Without that flag SDL_GetVideoSurface()->pixels will be NULL, which is weird
+		if(USE_OPENGLBLIT)
+			vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
 		
 		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
 		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
@@ -316,7 +317,7 @@ bool SetVideoMode()
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
+		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
 	}	
 
 	if(HardwareAcceleration)  {
@@ -411,7 +412,7 @@ setvideomode:
 		tLX->bVideoModeChanged = true;
 	
 	
-	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
+	if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 		static SDL_PixelFormat OGL_format32 =
 		{
 			NULL, //SDL_Palette *palette;
@@ -469,7 +470,7 @@ setvideomode:
 		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0) {
+	if(!USE_OPENGLBLIT && ((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)) {
 		iSurfaceFormat = SDL_SWSURFACE;
 	}
 	else if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
@@ -486,7 +487,8 @@ setvideomode:
 	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
 		hints << "using OpenGL" << endl;
 		
-		OGL_init();
+		if(!USE_OPENGLBLIT)
+			OGL_init();
 	}
 	else
 		FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
@@ -665,11 +667,13 @@ void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
 
-	if(psScreen->flags & SDL_OPENGL) {
+	if(!USE_OPENGLBLIT && (psScreen->flags & SDL_OPENGL))
 		glFlush();
-		SDL_GL_SwapBuffers();
-	} else
+	else
 		SDL_Flip( psScreen );
+
+	if(psScreen->flags & SDL_OPENGL)
+		SDL_GL_SwapBuffers();
 }
 
 // base class for your video post processor
@@ -680,7 +684,7 @@ public:
 
 	virtual void resetVideo() {
 		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-		if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
+		if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 			// get smallest power-of-2 dimension which is bigger than src
 			int w = 1; while(w < 640) w <<= 1;
 			int h = 1; while(h < 480) h <<= 1;
@@ -708,7 +712,7 @@ public:
 	}
 
 	virtual void processToScreen() {
-		if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
+		if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 			OGL_draw(m_videoBufferSurface);
 		}
 		else
