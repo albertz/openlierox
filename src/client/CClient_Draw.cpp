@@ -741,11 +741,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Game menu
 	bool options = DeprecatedGUI::bShowFloatingOptions;  // TODO: bad hack, because DrawGameMenu does processing as well...
 	if( bGameMenu)
-	{
-		bChat_Typing = false;
 		DrawGameMenu(bmpDest);
-	}
-
+		
 	// Options dialog
 	if (DeprecatedGUI::bShowFloatingOptions && options)  {  // Skip the first frame to ignore the click on the Game Settings button
 		DeprecatedGUI::Menu_FloatingOptionsFrame();
@@ -1365,6 +1362,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	
 	if(DeprecatedGUI::CChatWidget::GlobalEnabled())
 	{
+		bChat_Typing = false; // Disable in-game chat
 		DeprecatedGUI::CChatWidget::GlobalProcessAndDraw(bmpDest);
 		return;
 	}
