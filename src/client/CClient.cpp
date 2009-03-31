@@ -96,7 +96,8 @@ void CClient::Clear(void)
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
 	bLocalClient = false;
-
+	fServertime = TimeDiff();
+	
 	tGameLog = NULL;
 	iLastVictim = -1;
 	iLastKiller = -1;
@@ -193,6 +194,7 @@ void CClient::MinorClear(void)
     bClientError = false;
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
+	fServertime = TimeDiff();
 
 	fSendWait = 0;
 

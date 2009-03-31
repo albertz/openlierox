@@ -396,7 +396,7 @@ void CClientNetEngine::ParseTraverse(CBytestream *bs)
 	// HINT: the connecting process now continues by sending a challenge in CClientNetEngine::ConnectingBehindNAT()
 
 	printf("CClientNetEngine::ParseTraverse() %s port %i\n", addr.c_str(), port);
-};
+}
 
 /////////////////////
 // Parse a connect-here packet (when a public-ip client connects to a symmetric-nat server)
