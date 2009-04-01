@@ -2293,6 +2293,7 @@ void CClient::ProcessSpectatorViewportKeys()
 
 	// Print message that we are in spectator mode for 3 seconds
 	if(cLocalWorms[0])
+	{
 		if( tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 6.0f )
 		{
 			if( cLocalWorms[0]->getLives() != WRM_OUT )
@@ -2300,6 +2301,12 @@ void CClient::ProcessSpectatorViewportKeys()
 			else
 				sSpectatorViewportMsg = "Spectator mode";
 		}
+		if( cLocalWorms[0]->getAlive() && cLocalWorms[0]->getType() == PRF_HUMAN )
+		{
+			v1_target = cLocalWorms[0]->getID();	// Force first viewport to local player if it's alive
+			Changed = true;
+		}
+	}
 
 	if( Changed )
 	{
