@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "Sounds.h"
+#include "EndianSwap.h"
 
 
 namespace DeprecatedGUI {
@@ -651,7 +652,7 @@ enum  {
 					int version;
 					char name[65];
 					fread(id,		sizeof(char),	32,	fp);
-					fread(&version,	sizeof(int),	1,	fp);
+					fread_endian<int>(fp, version);
 					fread(name,		sizeof(char),	64,	fp);
 					id[32] = '\0';
 					name[64] = '\0';

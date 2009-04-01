@@ -862,8 +862,7 @@ public:
 				if(push_worm) {
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
-					CVec *v = cClient->getRemoteWorms()[result.wormId].getVelocity();
-					*v += (d*100)*dt.seconds();
+					cClient->getRemoteWorms()[result.wormId].velocity() += (d * 100) * dt.seconds();
 				}
 
 				if(pi->PlyHit_Projectiles)

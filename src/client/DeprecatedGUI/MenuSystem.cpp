@@ -471,7 +471,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
 
 		fread(id,		sizeof(char),	32,	fp);
-		fread(&version,	sizeof(version),	1,	fp);
+		fread_compat(version,	sizeof(version),	1,	fp);
 		EndianSwap(version);
 		fread(name,		sizeof(char),	64,	fp);
 		fix_markend(id); fix_markend(name);

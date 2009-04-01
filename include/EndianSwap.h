@@ -61,6 +61,17 @@ static size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 	fwrite_endian_compat_wrapper<(size),(nmemb)>((stream), (d))
 
 
+template <int size, int nmemb, typename T>
+static size_t fread_compat_wrapper(FILE* stream, T& d) {
+	static_assert(nmemb == 1, nmemb__equals1);
+	static_assert(size == sizeof(T), size__mismatch);
+	return fread(&d, sizeof(T), 1, stream);	
+}
+
+#define fread_compat(d, size, nmemb, stream) \
+	fread_compat_wrapper<(size),(nmemb)>((stream), (d))
+
+
 template <typename T, typename _D>
 static size_t fwrite_endian(FILE* stream, _D d) {
 	T data = d;

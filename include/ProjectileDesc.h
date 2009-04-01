@@ -79,6 +79,19 @@ enum Proj_AnimType {
 static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 
+struct Proj_Hit {
+	Proj_Action action;
+	int		damage;
+	int		Hit_Projectiles;
+	bool	Hit_UseSound;
+	int		Hit_Shake;
+	std::string	Hit_SndFilename; // (was 64b before)
+	float	Hit_BounceCoeff;
+	int		Hit_BounceExplode;
+	
+};
+
+
 // Projectile structure
 struct proj_t {
 	proj_t() : id(0), PrjTrl_Proj(NULL), bmpImage(NULL), smpSample(NULL) {}
@@ -114,7 +127,7 @@ struct proj_t {
 	// Hit (When hitting the terrain)
 	Proj_Action Hit_Type;
 	int		Hit_Damage;
-	int		Hit_Projectiles;
+	bool	Hit_Projectiles;
 	bool	Hit_UseSound;
 	int		Hit_Shake;
 	std::string	Hit_SndFilename; // (was 64b before)
@@ -124,7 +137,7 @@ struct proj_t {
     // OnExplode (When something near has exploded)
     int		Exp_Type;
 	int		Exp_Damage;
-	int		Exp_Projectiles;
+	bool	Exp_Projectiles;
 	int		Exp_UseSound;
     std::string	Exp_SndFilename; // (was 64b before)
 	int		Exp_Shake;
@@ -133,7 +146,7 @@ struct proj_t {
     // Touch (When another projectile has touched this projectile)
     int		Tch_Type;
 	int		Tch_Damage;
-	int		Tch_Projectiles;
+	bool	Tch_Projectiles;
 	int		Tch_UseSound;
     std::string	Tch_SndFilename; // (was 64b before)
 	int		Tch_Shake;
@@ -142,10 +155,10 @@ struct proj_t {
 	// Player hit
 	Proj_Action PlyHit_Type;
 	int		PlyHit_Damage;
-	int		PlyHit_Projectiles;
+	bool	PlyHit_Projectiles;
 	float	PlyHit_BounceCoeff;
 	
-	int		ProjUseangle;
+	bool	ProjUseangle;
 	int		ProjAngle;
 	int		ProjSpeed;
 	float	ProjSpeedVar;
@@ -170,8 +183,11 @@ struct proj_t {
 	
 	// new since Beta9
 	
-	bool SelfInjure; // SelfInjure=true in options will overwrite this
-	bool SelfHit; // SelfHit=true in options will overwrite this
+	
+	
+	// not implemented yet:
+	bool WormOwnerInjure; // SelfInjure=true in options will overwrite this
+	bool WormOwenrHit; // SelfHit=true in options will overwrite this
 	bool TeamInjure; // TeamInjure=true in options will overwrite this
 	bool TeamHit; // TeamHit=true in options will overwrite this
 	

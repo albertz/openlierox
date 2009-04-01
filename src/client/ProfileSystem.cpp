@@ -63,7 +63,7 @@ int LoadProfiles(void)
 
 	// Check version
 	int ver = 0;
-	fread(&ver, sizeof(int), 1, fp);
+	fread_compat(ver, sizeof(int), 1, fp);
 	EndianSwap(ver);
 	if(ver != PROFILE_VERSION) {
 		std::string tmp = "Could not load profiles: \""+itoa(ver)+"\" is not equal to \""+itoa(PROFILE_VERSION)+"\"";
@@ -77,7 +77,7 @@ int LoadProfiles(void)
 
 	// Get number of profiles
 	int num = 0;
-	fread(&num,	sizeof(int), 1, fp);
+	fread_compat(num,	sizeof(int), 1, fp);
 	EndianSwap(num);
 
 	// Safety check
@@ -241,9 +241,9 @@ void LoadProfile(FILE *fp, int id)
 	// Name
 	p->sName = freadfixedcstr(fp, 32);
 	p->cSkin.Change(freadfixedcstr(fp, 128));
-    fread(&p->iType,    sizeof(int),    1,  fp);
+    fread_compat(p->iType,    sizeof(int),    1,  fp);
     EndianSwap(p->iType);
-    fread(&p->nDifficulty,sizeof(int),  1,  fp);
+    fread_compat(p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
 
 	if (p->iType == PRF_COMPUTER->toInt())
@@ -254,11 +254,11 @@ void LoadProfile(FILE *fp, int id)
 	p->sPassword = freadfixedcstr(fp,16);
 
 	// Colour
-	fread(&p->R,		sizeof(Uint8),	1,	fp);
+	fread_compat(p->R,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->R);
-	fread(&p->G,		sizeof(Uint8),	1,	fp);
+	fread_compat(p->G,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->G);
-	fread(&p->B,		sizeof(Uint8),	1,	fp);
+	fread_compat(p->B,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->B);
 
 	p->cSkin.setDefaultColor(MakeColour(p->R, p->G, p->B));

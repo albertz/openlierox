@@ -2045,7 +2045,7 @@ bool CMap::Load(const std::string& filename)
 	// Header
 	std::string id = freadfixedcstr(fp, 32);
 	int		version;
-	fread(&version,		sizeof(int),	1,	fp);
+	fread_compat(version,		sizeof(int),	1,	fp);
 	EndianSwap(version);
 
 	// Check to make sure it's a valid level file
@@ -2060,16 +2060,16 @@ bool CMap::Load(const std::string& filename)
 
 	Name = freadfixedcstr(fp, 64);
 
-	fread(&Width,		sizeof(int),	1,	fp);
+	fread_compat(Width,		sizeof(int),	1,	fp);
 	EndianSwap(Width);
-	fread(&Height,		sizeof(int),	1,	fp);
+	fread_compat(Height,		sizeof(int),	1,	fp);
 	EndianSwap(Height);
-	fread(&Type,		sizeof(int),	1,	fp);
+	fread_compat(Type,		sizeof(int),	1,	fp);
 	EndianSwap(Type);
 	std::string Theme_Name;
 	Theme_Name = freadfixedcstr(fp, 32);
 	int		numobj;
-	fread(&numobj,		sizeof(int),	1,	fp);
+	fread_compat(numobj,		sizeof(int),	1,	fp);
 	EndianSwap(numobj);
 
 /*
@@ -2179,13 +2179,13 @@ bool CMap::Load(const std::string& filename)
 	object_t o;
 	NumObjects = 0;
 	for(i = 0; (int)i < numobj; i++) {
-		fread(&o.Type,	sizeof(int),	1,	fp);
+		fread_compat(o.Type,	sizeof(int),	1,	fp);
 		EndianSwap(o.Type);
-		fread(&o.Size,	sizeof(int),	1,	fp);
+		fread_compat(o.Size,	sizeof(int),	1,	fp);
 		EndianSwap(o.Size);
-		fread(&o.X,	    sizeof(int),	1,	fp);
+		fread_compat(o.X,	    sizeof(int),	1,	fp);
 		EndianSwap(o.X);
-        fread(&o.Y,	    sizeof(int),	1,	fp);
+        fread_compat(o.Y,	    sizeof(int),	1,	fp);
 		EndianSwap(o.Y);
 
 		// Place the object
@@ -2384,9 +2384,9 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	Uint32 size, destsize;
 	uint x,y,n,p;
 
-	fread(&size, sizeof(Uint32), 1, fp);
+	fread_compat(size, sizeof(Uint32), 1, fp);
 	EndianSwap(size);
-	fread(&destsize, sizeof(Uint32), 1, fp);
+	fread_compat(destsize, sizeof(Uint32), 1, fp);
 	EndianSwap(destsize);
 
 	// Allocate the memory
@@ -2481,12 +2481,12 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	// Load the CTF gametype variables
 	if (ctf)  {
-		fread(&FlagSpawnX	,sizeof(short),1,fp);
-		fread(&FlagSpawnY	,sizeof(short),1,fp);
-		fread(&BaseStartX	,sizeof(short),1,fp);
-		fread(&BaseStartY	,sizeof(short),1,fp);
-		fread(&BaseEndX		,sizeof(short),1,fp);
-		fread(&BaseEndY		,sizeof(short),1,fp);
+		fread_compat(FlagSpawnX	,sizeof(short),1,fp);
+		fread_compat(FlagSpawnY	,sizeof(short),1,fp);
+		fread_compat(BaseStartX	,sizeof(short),1,fp);
+		fread_compat(BaseStartY	,sizeof(short),1,fp);
+		fread_compat(BaseEndX		,sizeof(short),1,fp);
+		fread_compat(BaseEndY		,sizeof(short),1,fp);
 	}
 
 	//SDL_SaveBMP(pxf, "mat.bmp");
