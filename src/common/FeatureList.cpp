@@ -61,6 +61,8 @@ Feature featureArray[] = {
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
 	Feature("WormCanAirJump",		"Worm can air jump",	"All worms can jump in air initially",
 			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),
+	Feature("AirJumpDelay",			"Delay before next air jump",	"How fast can you do air-jumps, set this to 0 and you can float in air",
+			0.0f,	0.0f,			OLXBetaVersion(9),		GIG_Other,		0.0f, 	5.0f),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",

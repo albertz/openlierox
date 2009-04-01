@@ -262,6 +262,7 @@ void CWorm::Unprepare() {
 
 void CWorm::StartGame() {
 	fTimeofDeath = GetPhysicsTime();
+	setLastAirJumpTime(AbsTime());
 	if(!m_inputHandler) {
 		warnings << "CWorm::StartGame(): input handler not set" << endl;
 	}

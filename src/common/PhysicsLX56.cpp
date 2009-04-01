@@ -360,9 +360,10 @@ public:
 		// Process the jump
 		bool onGround = worm->CheckOnGround();
 		if( onGround )
-			worm->setLastAirJumpTime( AbsTime() );
+			worm->setLastAirJumpTime(AbsTime());
 		if(ws->bJump && ( onGround || 
-			( worm->canAirJump() && GetPhysicsTime() > worm->getLastAirJumpTime() + 1.0f ) )) {
+			( worm->canAirJump() && GetPhysicsTime() > 
+				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_AirJumpDelay] ) ) )) {
 			if( onGround )
 				worm->getVelocity()->y = wd->JumpForce;
 			else
