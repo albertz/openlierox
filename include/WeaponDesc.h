@@ -83,9 +83,9 @@ struct weapon_t {
 	float	Recharge;
 	float	Drain;
 	float	ROF;
-	int		UseSound;
+	bool	UseSound;
 	std::string	SndFilename; // (was 64b before)
-	int		LaserSight;
+	bool	LaserSight;
 
 	// Projectile
 	Proj_SpawnInfo Proj;

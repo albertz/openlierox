@@ -78,7 +78,7 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
+			fwrite_endian<int>(fp, wpn->LaserSight);
 		}
 
 		// Beam
@@ -118,7 +118,7 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian_compat((wpn->Proj.Amount),sizeof(int),    1, fp);
 			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
 
-			fwrite_endian_compat((wpn->UseSound),  sizeof(int),    1, fp);
+			fwrite_endian<int>(fp, wpn->UseSound);
 			if(wpn->UseSound)
                 writeString(wpn->SndFilename, fp);
 
@@ -427,8 +427,7 @@ int CGameScript::Load(const std::string& dir)
 			EndianSwap(wpn->Drain);
 			fread_compat(wpn->ROF,        sizeof(float),  1, fp);
 			EndianSwap(wpn->ROF);
-			fread_compat(wpn->LaserSight, sizeof(int),    1, fp);
-			EndianSwap(wpn->LaserSight);
+			fread_endian<int>(fp, wpn->LaserSight);
 		}
 
 		// Beam
@@ -441,8 +440,7 @@ int CGameScript::Load(const std::string& dir)
 			EndianSwap(wpn->Drain);
 			fread_compat(wpn->ROF,        sizeof(float),  1, fp);
 			EndianSwap(wpn->ROF);
-			fread_compat(wpn->LaserSight, sizeof(int),    1, fp);
-			EndianSwap(wpn->LaserSight);
+			fread_endian<int>(fp, wpn->LaserSight);
 
 			if(Header.Version <= GS_LX56_VERSION) {
 				int r,g,b;
@@ -493,8 +491,7 @@ int CGameScript::Load(const std::string& dir)
 			fread_compat(wpn->LaserSight, sizeof(int), 1, fp);
 			EndianSwap(wpn->LaserSight);
 
-			fread_compat(wpn->UseSound,sizeof(int),1,fp);
-			EndianSwap(wpn->UseSound);
+			fread_endian<int>(fp, wpn->UseSound);
 			if(wpn->UseSound) {
                 wpn->SndFilename = readString(fp);
 
