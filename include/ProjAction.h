@@ -62,15 +62,15 @@ struct Proj_Action {
 	Proj_ActionType Type;
 	int		Damage;
 	bool	Projectiles;
-	int		Shake; // LX56: ignored for Ply
+	int		Shake; // LX56: ignored for PlyHit
 	// ---------- LX56 (timer hit) end -----------
 	
-	bool	UseSound; // LX56: ignored for Ply
-	std::string	SndFilename; // (was 64b before) // LX56: ignored for Ply
+	bool	UseSound; // LX56: only used for terrain
+	std::string	SndFilename; // LX56: only used for terrain // (was 64b before)
 	// ---------- LX56 (Exp/Tch hit) end -----------
 	
 	float	BounceCoeff;
-	int		BounceExplode; // LX56: ignored for Ply
+	int		BounceExplode; // LX56: ignored for PlyHit
 	//  --------- LX56 (terrain hit) end ----------
 };
 
