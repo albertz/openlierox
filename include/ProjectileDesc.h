@@ -149,6 +149,7 @@ struct proj_t {
 	
 	bool	ProjUseangle;
 	int		ProjAngle;
+	
 	int		ProjSpeed;
 	float	ProjSpeedVar;
 	float	ProjSpread;
@@ -159,10 +160,11 @@ struct proj_t {
 	// Projectile trail
 	bool	PrjTrl_UsePrjVelocity;
 	float	PrjTrl_Delay;
-	int		PrjTrl_Amount;
+	
 	int		PrjTrl_Speed;
 	float	PrjTrl_SpeedVar;
 	float	PrjTrl_Spread;
+	int		PrjTrl_Amount;
 	proj_t	*PrjTrl_Proj;
 	
 	

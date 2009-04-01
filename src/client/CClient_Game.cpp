@@ -645,7 +645,7 @@ void CClient::DrawBeam(CWorm *w)
 	// Trace a line from the worm to length or until it hits something
 	CVec pos = w->getPos();
 	CVec dir;
-	GetAngles((int)Angle,&dir,NULL);
+	GetVecsFromAngle((int)Angle,&dir,NULL);
 
 	int divisions = 1;			// How many pixels we go through each check (more = slower)
 
@@ -903,7 +903,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	// Trace a line from the worm to length or until it hits something
 	CVec pos = w->getPos();
 	CVec dir;
-	GetAngles((int)Angle,&dir,NULL);
+	GetVecsFromAngle((int)Angle,&dir,NULL);
 
 	int divisions = 3;			// How many pixels we go through each check (less = slower)
 
@@ -1131,7 +1131,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 	// calculate the target position of the projectile of the shoot
 	CVec dir;
-	GetAngles(shot->nAngle,&dir,NULL);
+	GetVecsFromAngle(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos + dir*8;
 
 
@@ -1160,7 +1160,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		if(a>360)
 			a-=360;
 
-		GetAngles((int)a,&sprd,NULL);
+		GetVecsFromAngle((int)a,&sprd,NULL);
 
 		// Calculate a random starting angle for the projectile rotation (if used)
 		if(wpn->Projectile) {
@@ -1205,7 +1205,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 	// Trace a line from the worm to length or until it hits something
 	CVec dir;
-	GetAngles(shot->nAngle,&dir,NULL);
+	GetVecsFromAngle(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos;
 
 	int divisions = 1;			// How many pixels we go through each check (more = slower)

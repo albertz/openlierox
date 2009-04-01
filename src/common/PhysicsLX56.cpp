@@ -605,7 +605,7 @@ public:
 
 		for(int i=0; i < pi->PrjTrl_Amount; i++) {
 			if(!pi->PrjTrl_UsePrjVelocity)
-				GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
+				GetVecsFromAngle((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
 
 			CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
@@ -629,7 +629,7 @@ public:
 		CVec sprd;
 		for(int i=0;i<pi->ProjAmount;i++) {
 			int a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
-			GetAngles(a,&sprd,NULL);
+			GetVecsFromAngle(a,&sprd,NULL);
 
 			float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar * prj->getRandomFloat();
 

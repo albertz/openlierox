@@ -308,7 +308,7 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	if(type == ROP_SHOOTING) {
 		int a = bs->readByte();
 		int angle = 360*a/256;
-		GetAngles(angle, &HookDir, NULL);
+		GetVecsFromAngle(angle, &HookDir, NULL);
 	}
 
 	// Worm id
