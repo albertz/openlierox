@@ -111,7 +111,7 @@ float CProjectile::getRandomFloat(void)
 
 static CProjectile::CollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, CProjectile::CollisionType curResult) {
 	// do we get any worm?
-	if(proj->GetProjInfo()->PlyHit_Type != PJ_NOTHING) {
+	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
 		float len = NormalizeVector( &dif );
 

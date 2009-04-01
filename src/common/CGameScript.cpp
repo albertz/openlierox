@@ -151,8 +151,8 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		return false;
 
 	fwrite_endian_compat((proj->Type),			sizeof(int),1,fp);
-	fwrite_endian_compat((proj->Timer_Time),	sizeof(float),1,fp);
-	fwrite_endian_compat((proj->Timer_TimeVar),sizeof(float),1,fp);
+	fwrite_endian_compat((proj->Timer.Time),	sizeof(float),1,fp);
+	fwrite_endian_compat((proj->Timer.TimeVar),sizeof(float),1,fp);
 	fwrite_endian_compat((proj->Trail),		sizeof(int),1,fp);
 	//fwrite_endian_compat(proj->UseCustomGravity, sizeof(int), 1, fp); // use this to test static assert (should fail if sizeof(bool)!=sizeof(int))
 	fwrite_endian<int>(fp, proj->UseCustomGravity);
@@ -236,12 +236,12 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Timer
 	//
-	if(proj->Timer_Time > 0) {
-		fwrite_endian_compat((proj->Timer_Type),sizeof(int),1,fp);
-		if(proj->Timer_Type == PJ_EXPLODE) {
-			fwrite_endian_compat((proj->Timer_Damage),		sizeof(int),1,fp);
-			fwrite_endian<int>(fp, proj->Timer_Projectiles);
-			fwrite_endian_compat((proj->Timer_Shake),sizeof(int),1,fp);
+	if(proj->Timer.Time > 0) {
+		fwrite_endian_compat((proj->Timer.Type),sizeof(int),1,fp);
+		if(proj->Timer.Type == PJ_EXPLODE) {
+			fwrite_endian_compat((proj->Timer.Damage),		sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->Timer.Projectiles);
+			fwrite_endian_compat((proj->Timer.Shake),sizeof(int),1,fp);
 		}
 	}
 
@@ -249,45 +249,45 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Player hit
 	//
-	fwrite_endian_compat((proj->PlyHit_Type),sizeof(int),1,fp);
+	fwrite_endian_compat((proj->PlyHit.Type),sizeof(int),1,fp);
 
 	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit_Type == PJ_EXPLODE || proj->PlyHit_Type == PJ_INJURE) {
-		fwrite_endian_compat((proj->PlyHit_Damage),sizeof(int),1,fp);
-		fwrite_endian<int>(fp, proj->PlyHit_Projectiles);
+	if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
+		fwrite_endian_compat((proj->PlyHit.Damage),sizeof(int),1,fp);
+		fwrite_endian<int>(fp, proj->PlyHit.Projectiles);
 	}
 
 	// PlyHit::Bounce
-	if(proj->PlyHit_Type == PJ_BOUNCE) {
-		fwrite_endian_compat((proj->PlyHit_BounceCoeff),sizeof(float),1,fp);
+	if(proj->PlyHit.Type == PJ_BOUNCE) {
+		fwrite_endian_compat((proj->PlyHit.BounceCoeff),sizeof(float),1,fp);
 	}
 
 
     //
     // Explode
     //
-    fwrite_endian_compat((proj->Exp_Type),     sizeof(int), 1, fp);
-    fwrite_endian_compat((proj->Exp_Damage),   sizeof(int), 1, fp);
-    fwrite_endian<int>(fp, proj->Exp_Projectiles);
-    fwrite_endian_compat((proj->Exp_UseSound), sizeof(int), 1, fp);
-    if(proj->Exp_UseSound)
-        writeString(proj->Exp_SndFilename, fp);
+    fwrite_endian_compat((proj->Exp.Type),     sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Exp.Damage),   sizeof(int), 1, fp);
+    fwrite_endian<int>(fp, proj->Exp.Projectiles);
+    fwrite_endian<int>(fp, proj->Exp.UseSound);
+    if(proj->Exp.UseSound)
+        writeString(proj->Exp.SndFilename, fp);
 
 
     //
     // Touch
     //
-    fwrite_endian_compat((proj->Tch_Type),     sizeof(int), 1, fp);
-    fwrite_endian_compat((proj->Tch_Damage),   sizeof(int), 1, fp);
-    fwrite_endian<int>(fp, proj->Tch_Projectiles);
-    fwrite_endian<int>(fp, proj->Tch_UseSound);
-    if(proj->Tch_UseSound)
-        writeString(proj->Tch_SndFilename, fp);
+    fwrite_endian_compat((proj->Tch.Type),     sizeof(int), 1, fp);
+    fwrite_endian_compat((proj->Tch.Damage),   sizeof(int), 1, fp);
+    fwrite_endian<int>(fp, proj->Tch.Projectiles);
+    fwrite_endian<int>(fp, proj->Tch.UseSound);
+    if(proj->Tch.UseSound)
+        writeString(proj->Tch.SndFilename, fp);
 
 
 
-	if(proj->Timer_Projectiles || proj->Hit.Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
-       proj->Tch_Projectiles) {
+	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
+       proj->Tch.Projectiles) {
 		fwrite_endian<int>(fp, proj->ProjUseangle);
 		fwrite_endian_compat((proj->ProjAngle),	sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->ProjAmount),	sizeof(int),	1, fp);
@@ -547,10 +547,10 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 	fread_compat(proj->Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Type);
-	fread_compat(proj->Timer_Time,	sizeof(float),1,fp);
-	EndianSwap(proj->Timer_Time);
-	fread_compat(proj->Timer_TimeVar,	sizeof(float),1,fp);
-	EndianSwap(proj->Timer_TimeVar);
+	fread_compat(proj->Timer.Time,	sizeof(float),1,fp);
+	EndianSwap(proj->Timer.Time);
+	fread_compat(proj->Timer.TimeVar,	sizeof(float),1,fp);
+	EndianSwap(proj->Timer.TimeVar);
 	fread_compat(proj->Trail,			sizeof(int),  1,fp);
 	EndianSwap(proj->Trail);
 	fread_endian<int>(fp, proj->UseCustomGravity);
@@ -565,12 +565,12 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->PrjTrl_Proj = NULL;
 	proj->Projectile = NULL;
 	proj->Hit.Projectiles = false;
-	proj->Timer_Projectiles = false;
-	proj->PlyHit_Projectiles = false;
+	proj->Timer.Projectiles = false;
+	proj->PlyHit.Projectiles = false;
 	proj->Animating = false;
 	proj->Rotating = false;
 	proj->RotIncrement = 0;
-	proj->Timer_Shake = 0;
+	proj->Timer.Shake = 0;
 
 	if(proj->Type == PRJ_PIXEL) {
 		Uint32 NumColours;
@@ -674,15 +674,15 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	//
 	// Timer
 	//
-	if(proj->Timer_Time > 0) {
-		fread_compat(proj->Timer_Type,sizeof(int),1,fp);
-		EndianSwap(proj->Timer_Type);
-		if(proj->Timer_Type == PJ_EXPLODE) {
-			fread_compat(proj->Timer_Damage,sizeof(int),1,fp);
-			EndianSwap(proj->Timer_Damage);
-			fread_endian<int>(fp, proj->Timer_Projectiles);
-			fread_compat(proj->Timer_Shake,sizeof(int),1,fp);
-			EndianSwap(proj->Timer_Shake);
+	if(proj->Timer.Time > 0) {
+		fread_compat(proj->Timer.Type,sizeof(int),1,fp);
+		EndianSwap(proj->Timer.Type);
+		if(proj->Timer.Type == PJ_EXPLODE) {
+			fread_compat(proj->Timer.Damage,sizeof(int),1,fp);
+			EndianSwap(proj->Timer.Damage);
+			fread_endian<int>(fp, proj->Timer.Projectiles);
+			fread_compat(proj->Timer.Shake,sizeof(int),1,fp);
+			EndianSwap(proj->Timer.Shake);
 		}
 	}
 
@@ -691,33 +691,33 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	//
 	// Player hit
 	//
-	fread_compat(proj->PlyHit_Type,sizeof(int),1,fp);
-	EndianSwap(proj->PlyHit_Type);
+	fread_compat(proj->PlyHit.Type,sizeof(int),1,fp);
+	EndianSwap(proj->PlyHit.Type);
 
 	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit_Type == PJ_INJURE || proj->PlyHit_Type == PJ_EXPLODE) {
-		fread_endian<int>(fp, proj->PlyHit_Damage);
-		fread_endian<int>(fp, proj->PlyHit_Projectiles);
+	if(proj->PlyHit.Type == PJ_INJURE || proj->PlyHit.Type == PJ_EXPLODE) {
+		fread_endian<int>(fp, proj->PlyHit.Damage);
+		fread_endian<int>(fp, proj->PlyHit.Projectiles);
 	}
 
 	// PlyHit::Bounce
-	if(proj->PlyHit_Type == PJ_BOUNCE) {
-		fread_compat(proj->PlyHit_BounceCoeff, sizeof(float), 1, fp);
-		EndianSwap(proj->PlyHit_BounceCoeff);
+	if(proj->PlyHit.Type == PJ_BOUNCE) {
+		fread_compat(proj->PlyHit.BounceCoeff, sizeof(float), 1, fp);
+		EndianSwap(proj->PlyHit.BounceCoeff);
 	}
 
 
     //
     // Explode
     //
-    fread_compat(proj->Exp_Type,     sizeof(int), 1, fp);
-	EndianSwap(proj->Exp_Type);
-    fread_compat(proj->Exp_Damage,   sizeof(int), 1, fp);
-	EndianSwap(proj->Exp_Damage);
-    fread_endian<int>(fp, proj->Exp_Projectiles);
-    fread_endian<int>(fp, proj->Exp_UseSound);
-    if(proj->Exp_UseSound) {
-        proj->Exp_SndFilename = readString(fp);
+    fread_compat(proj->Exp.Type,     sizeof(int), 1, fp);
+	EndianSwap(proj->Exp.Type);
+    fread_compat(proj->Exp.Damage,   sizeof(int), 1, fp);
+	EndianSwap(proj->Exp.Damage);
+    fread_endian<int>(fp, proj->Exp.Projectiles);
+    fread_endian<int>(fp, proj->Exp.UseSound);
+    if(proj->Exp.UseSound) {
+        proj->Exp.SndFilename = readString(fp);
 		// TODO: why are we not loading this sound?
 		// (If we change this, add this also in CompileProjectile)
 	}
@@ -725,20 +725,20 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
     //
     // Touch
     //
-    fread_compat(proj->Tch_Type,     sizeof(int), 1, fp);
-	EndianSwap(proj->Tch_Type);
-    fread_compat(proj->Tch_Damage,   sizeof(int), 1, fp);
-	EndianSwap(proj->Tch_Damage);
-    fread_endian<int>(fp, proj->Tch_Projectiles);
-    fread_endian<int>(fp, proj->Tch_UseSound);
-    if(proj->Tch_UseSound) {
-        proj->Tch_SndFilename = readString(fp);
+    fread_compat(proj->Tch.Type,     sizeof(int), 1, fp);
+	EndianSwap(proj->Tch.Type);
+    fread_compat(proj->Tch.Damage,   sizeof(int), 1, fp);
+	EndianSwap(proj->Tch.Damage);
+    fread_endian<int>(fp, proj->Tch.Projectiles);
+    fread_endian<int>(fp, proj->Tch.UseSound);
+    if(proj->Tch.UseSound) {
+        proj->Tch.SndFilename = readString(fp);
 		// TODO: why are we not loading this sound?
 		// (If we change this, add this also in CompileProjectile)
 	}
 
-	if(proj->Timer_Projectiles || proj->Hit.Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
-       proj->Tch_Projectiles) {
+	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
+       proj->Tch.Projectiles) {
 		fread_endian<int>(fp, proj->ProjUseangle);
 		fread_compat(proj->ProjAngle,		sizeof(int),	1, fp);
 		EndianSwap(proj->ProjAngle);
@@ -901,9 +901,9 @@ std::string CGameScript::readString(FILE *fp)
 static size_t GetProjSize(proj_t *prj)
 {
 	if (prj)
-		return 	prj->Exp_SndFilename.size() + prj->filename.size() +
+		return 	prj->Exp.SndFilename.size() + prj->filename.size() +
 				prj->Hit.SndFilename.size() + prj->ImgFilename.size() +
-				GetProjSize(prj->Projectile) + prj->Tch_SndFilename.size() +
+				GetProjSize(prj->Projectile) + prj->Tch.SndFilename.size() +
 				/*GetSurfaceMemorySize(prj->bmpImage.get()) + */
 				sizeof(proj_t);
 	else
@@ -1313,19 +1313,19 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	proj->filename = pfile;
 	
-	proj->Timer_Projectiles = false;
+	proj->Timer.Projectiles = false;
 	proj->Hit.Projectiles = false;
-	proj->PlyHit_Projectiles = false;
-	proj->Exp_Projectiles = false;
-	proj->Tch_Projectiles = false;
+	proj->PlyHit.Projectiles = false;
+	proj->Exp.Projectiles = false;
+	proj->Tch.Projectiles = false;
 	proj->Projectile = NULL;
 	proj->PrjTrl_Proj = NULL;
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
 	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
-	ReadFloat(file,"General","Timer",&proj->Timer_Time,0);
-	ReadFloat(file, "General", "TimerVar", &proj->Timer_TimeVar, 0);
+	ReadFloat(file,"General","Timer",&proj->Timer.Time,0);
+	ReadFloat(file, "General", "TimerVar", &proj->Timer.TimeVar, 0);
 	ReadKeyword(file,"General","Trail",(int*)&proj->Trail,TRL_NONE);
 	
 	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
@@ -1406,53 +1406,53 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 	// Timer
-	if(proj->Timer_Time > 0) {
-		ReadKeyword(file,"Time","Type",(int*)&proj->Timer_Type,PJ_EXPLODE);
-		if(proj->Timer_Type == PJ_EXPLODE) {
-			ReadInteger(file,"Time","Damage",&proj->Timer_Damage,0);
-			ReadKeyword(file,"Time","Projectiles",&proj->Timer_Projectiles,false);
-			ReadInteger(file,"Time","Shake",&proj->Timer_Shake,0);
+	if(proj->Timer.Time > 0) {
+		ReadKeyword(file,"Time","Type",(int*)&proj->Timer.Type,PJ_EXPLODE);
+		if(proj->Timer.Type == PJ_EXPLODE) {
+			ReadInteger(file,"Time","Damage",&proj->Timer.Damage,0);
+			ReadKeyword(file,"Time","Projectiles",&proj->Timer.Projectiles,false);
+			ReadInteger(file,"Time","Shake",&proj->Timer.Shake,0);
 		}
 	}
 
 	// Player hit
-	ReadKeyword(file,"PlayerHit","Type",(int*)&proj->PlyHit_Type,PJ_INJURE);
+	ReadKeyword(file,"PlayerHit","Type",(int*)&proj->PlyHit.Type,PJ_INJURE);
 
 	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit_Type == PJ_EXPLODE || proj->PlyHit_Type == PJ_INJURE) {
-		ReadInteger(file,"PlayerHit","Damage",&proj->PlyHit_Damage,0);
-		ReadKeyword(file,"PlayerHit","Projectiles",&proj->PlyHit_Projectiles,false);
+	if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
+		ReadInteger(file,"PlayerHit","Damage",&proj->PlyHit.Damage,0);
+		ReadKeyword(file,"PlayerHit","Projectiles",&proj->PlyHit.Projectiles,false);
 	}
 
 	// PlyHit::Bounce
-	if(proj->PlyHit_Type == PJ_BOUNCE) {
-		ReadFloat(file,"PlayerHit","BounceCoeff",&proj->PlyHit_BounceCoeff,0.5);
+	if(proj->PlyHit.Type == PJ_BOUNCE) {
+		ReadFloat(file,"PlayerHit","BounceCoeff",&proj->PlyHit.BounceCoeff,0.5);
 	}
 
 
     // OnExplode
-	ReadKeyword( file, "Explode", "Type",       &proj->Exp_Type, PJ_NOTHING );
-	ReadInteger( file, "Explode", "Damage",     &proj->Exp_Damage, 0 );
-	ReadKeyword( file, "Explode", "Projectiles",&proj->Exp_Projectiles, false );
-	ReadInteger( file, "Explode", "Shake",      &proj->Exp_Shake, 0 );
-	proj->Exp_UseSound = false;
-	if( ReadString(file, "Explode", "Sound", proj->Exp_SndFilename,"") ) {
-		proj->Exp_UseSound = true;
+	ReadKeyword( file, "Explode", "Type",   (int*)&proj->Exp.Type, PJ_NOTHING );
+	ReadInteger( file, "Explode", "Damage",     &proj->Exp.Damage, 0 );
+	ReadKeyword( file, "Explode", "Projectiles",&proj->Exp.Projectiles, false );
+	ReadInteger( file, "Explode", "Shake",      &proj->Exp.Shake, 0 );
+	proj->Exp.UseSound = false;
+	if( ReadString(file, "Explode", "Sound", proj->Exp.SndFilename,"") ) {
+		proj->Exp.UseSound = true;
 	}
 
     // Touch
-	ReadKeyword( file, "Touch", "Type",       &proj->Tch_Type, PJ_NOTHING );
-	ReadInteger( file, "Touch", "Damage",     &proj->Tch_Damage, 0 );
-	ReadKeyword( file, "Touch", "Projectiles",&proj->Tch_Projectiles, false );
-	ReadInteger( file, "Touch", "Shake",      &proj->Tch_Shake, 0 );
-	proj->Tch_UseSound = false;
-	if( ReadString(file, "Touch", "Sound", proj->Tch_SndFilename,"") )
-		proj->Tch_UseSound = true;
+	ReadKeyword( file, "Touch", "Type",   (int*)&proj->Tch.Type, PJ_NOTHING );
+	ReadInteger( file, "Touch", "Damage",     &proj->Tch.Damage, 0 );
+	ReadKeyword( file, "Touch", "Projectiles",&proj->Tch.Projectiles, false );
+	ReadInteger( file, "Touch", "Shake",      &proj->Tch.Shake, 0 );
+	proj->Tch.UseSound = false;
+	if( ReadString(file, "Touch", "Sound", proj->Tch.SndFilename,"") )
+		proj->Tch.UseSound = true;
 
 
 	// Projectiles
-	if(proj->Timer_Projectiles || proj->Hit.Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
-		  proj->Tch_Projectiles) {
+	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
+		  proj->Tch.Projectiles) {
 		ReadKeyword(file,"Projectile","Useangle",&proj->ProjUseangle,0);
 		ReadInteger(file,"Projectile","Angle",&proj->ProjAngle,0);
 		ReadInteger(file,"Projectile","Speed",&proj->ProjSpeed,0);

@@ -574,8 +574,8 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 		// Explosion
 		int damage = pi->Hit.Damage;
-		if(pi->PlyHit_Type == PJ_EXPLODE)
-			damage = pi->PlyHit_Damage;
+		if(pi->PlyHit.Type == PJ_EXPLODE)
+			damage = pi->PlyHit.Damage;
 
 		if(damage != -1) // TODO: why only with -1?
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
@@ -584,9 +584,9 @@ public:
 	void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		const proj_t *pi = prj->GetProjInfo();
 		// Explosion
-		int damage = pi->Timer_Damage;
-		if(pi->PlyHit_Type == PJ_EXPLODE)
-			damage = pi->PlyHit_Damage;
+		int damage = pi->Timer.Damage;
+		if(pi->PlyHit.Type == PJ_EXPLODE)
+			damage = pi->PlyHit.Damage;
 
 		if(damage != -1) // TODO: why only with -1?
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
@@ -681,11 +681,11 @@ public:
 
 		// Check if the timer is up
 		f = prj->getTimeVarRandom();
-		if(pi->Timer_Time > 0 && (pi->Timer_Time + pi->Timer_TimeVar * f) < prj->getLife()) {
+		if(pi->Timer.Time > 0 && (pi->Timer.Time + pi->Timer.TimeVar * f) < prj->getLife()) {
 			// HINT: all the following actions will delete this projectile after
 
 			// Run the end timer function
-			switch (pi->Timer_Type) {
+			switch (pi->Timer.Type) {
 				case PJ_NOTHING: break;
 					
 				case PJ_BOUNCE:
@@ -699,36 +699,36 @@ public:
 				explode = true;
 				timer = true;
 
-				if(pi->Timer_Projectiles)
+				if(pi->Timer.Projectiles)
 					spawnprojectiles = true;
-				if(pi->Timer_Shake > shake)
-					shake = pi->Timer_Shake;
+				if(pi->Timer.Shake > shake)
+					shake = pi->Timer.Shake;
 			break;
 
 			// Create some dirt
 			case PJ_DIRT:
 				dirt = true;
-				if(pi->Timer_Projectiles)
+				if(pi->Timer.Projectiles)
 					spawnprojectiles = true;
-				if(pi->Timer_Shake > shake)
-					shake = pi->Timer_Shake;
+				if(pi->Timer.Shake > shake)
+					shake = pi->Timer.Shake;
 			break;
 
 			// Create some green dirt
 			case PJ_GREENDIRT:
 				grndirt = true;
-				if(pi->Timer_Projectiles)
+				if(pi->Timer.Projectiles)
 					spawnprojectiles = true;
-				if(pi->Timer_Shake > shake)
-					shake = pi->Timer_Shake;
+				if(pi->Timer.Shake > shake)
+					shake = pi->Timer.Shake;
 			break;
 
 			// Carve
 			case PJ_CARVE:  {
-				int d = cClient->getMap()->CarveHole(	pi->Timer_Damage, prj->GetPosition() );
+				int d = cClient->getMap()->CarveHole(	pi->Timer.Damage, prj->GetPosition() );
 				deleteAfter = true;
 
-				if(pi->Timer_Projectiles)
+				if(pi->Timer.Projectiles)
 					spawnprojectiles = true;
 
 				// Increment the dirt count
@@ -816,7 +816,7 @@ public:
 			if( !preventSelfShooting || NewNet::Active() ) {
 				bool push_worm = true;
 
-				switch (pi->PlyHit_Type)  {
+				switch (pi->PlyHit.Type)  {
 					case PJ_CARVE:
 					case PJ_DISAPPEAR:
 						// TODO: do anything about it?
@@ -832,13 +832,13 @@ public:
 					deleteAfter = true;
 					
 					// Add damage to the worm
-					cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit_Damage, prj->GetOwner());
+					cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit.Damage, prj->GetOwner());
 				break;
 
 				// Bounce
 				case PJ_BOUNCE:
 					push_worm = false;
-					prj->Bounce(pi->PlyHit_BounceCoeff);
+					prj->Bounce(pi->PlyHit.BounceCoeff);
 				break;
 
 				// Dirt
@@ -865,7 +865,7 @@ public:
 					cClient->getRemoteWorms()[result.wormId].velocity() += (d * 100) * dt.seconds();
 				}
 
-				if(pi->PlyHit_Projectiles)
+				if(pi->PlyHit.Projectiles)
 					spawnprojectiles = true;
 			}
 		}
@@ -908,9 +908,9 @@ public:
 		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
 		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
 		// These conditions test for those projectiles and remove them
-		if (pi->Hit.Type == PJ_NOTHING && pi->PlyHit_Type == PJ_NOTHING && (pi->Timer_Type == PJ_NOTHING || pi->Timer_Time <= 0)) // Isn't destroyed by any event
+		if (pi->Hit.Type == PJ_NOTHING && pi->PlyHit.Type == PJ_NOTHING && (pi->Timer.Type == PJ_NOTHING || pi->Timer.Time <= 0)) // Isn't destroyed by any event
 			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
-				if (!pi->Hit.Projectiles && !pi->PlyHit_Projectiles && !pi->Timer_Projectiles)  // Doesn't spawn any projectiles
+				if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
 					deleteAfter = true;
 
 		if(deleteAfter) {

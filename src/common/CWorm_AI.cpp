@@ -1754,7 +1754,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon(void)
 {
 	if(iAiGameType == GAM_MORTARS)
 		return -1;
-	Proj_Action type = PJ_EXPLODE;
+	Proj_ActionType type = PJ_EXPLODE;
 
 	// search a good projectile weapon
 	int i = 0;
@@ -2077,7 +2077,7 @@ bool CWormBotInputHandler::AI_Shoot()
 			//case PJ_CARVE:
 			case PJ_DIRT:
 			case PJ_GREENDIRT:
-				//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
+				//printf("hit_type is %i\n", weap->Projectile->PlyHit.Type);
 				// don't shoot this shit
 				break;
 			default:
@@ -2136,11 +2136,11 @@ bool CWormBotInputHandler::AI_Shoot()
 							g = 100;
 
 					// If there are any other projectiles, that are spawned with the main one, try their gravity
-					if (tmp->Timer_Projectiles)  {
-						if (tmp->Timer_Time >= 0.5f)
+					if (tmp->Timer.Projectiles)  {
+						if (tmp->Timer.Time >= 0.5f)
 							break;
 					}
-					else if (tmp->Hit.Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
+					else if (tmp->Hit.Projectiles || tmp->PlyHit.Projectiles || tmp->Tch.Projectiles)
 						break;
 
 					tmp = tmp->Projectile;
@@ -2251,7 +2251,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		// Cannot shoot
 		if (fabs(m_worm->fAngle-ang) <= 30 && m_worm->vVelocity.GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
 			if (weap->Type == WPN_PROJECTILE)  {
-				if (weap->Projectile->PlyHit_Damage > 0)
+				if (weap->Projectile->PlyHit.Damage > 0)
 					return false;
 			}
 		}

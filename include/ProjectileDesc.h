@@ -47,7 +47,7 @@ static_assert(sizeof(Proj_Trail) == sizeof(int), Proj_Trail__SizeCheck);
 
 
 // Projectile method types
-enum Proj_Action {
+enum Proj_ActionType {
 	PJ_BOUNCE = 0,
 	PJ_EXPLODE = 1,
 	PJ_INJURE = 2,
@@ -61,7 +61,7 @@ enum Proj_Action {
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
 };
 
-static_assert(sizeof(Proj_Action) == sizeof(int), Proj_Action__SizeCheck);
+static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck);
 
 
 
@@ -79,18 +79,30 @@ enum Proj_AnimType {
 static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 
-struct Proj_Hit {
-	Proj_Hit() : Type(PJ_NOTHING) {}
+struct Proj_Action {
+	Proj_Action() : Type(PJ_NOTHING) {}
 	
-	Proj_Action Type;
+	//  --------- LX56 start ----------
+	Proj_ActionType Type;
 	int		Damage;
 	bool	Projectiles;
-	bool	UseSound;
-	int		Shake;
-	std::string	SndFilename; // (was 64b before)
-	float	BounceCoeff;
-	int		BounceExplode;
+	int		Shake; // LX56: ignored for Ply
+	// ---------- LX56 (timer hit) end -----------
 	
+	bool	UseSound; // LX56: ignored for Ply
+	std::string	SndFilename; // (was 64b before) // LX56: ignored for Ply
+	// ---------- LX56 (Exp/Tch hit) end -----------
+	
+	float	BounceCoeff;
+	int		BounceExplode; // LX56: ignored for Ply
+	//  --------- LX56 (terrain hit) end ----------
+};
+
+struct Proj_Timer : Proj_Action {
+	Proj_Timer() : Time(0) {}
+	
+	float	Time;
+	float	TimeVar;	
 };
 
 
@@ -119,39 +131,21 @@ struct proj_t {
 	float   Dampening;
 	
 	// Timer (When the timer is finished)
-	Proj_Action Timer_Type;
-	float	Timer_Time;
-	float	Timer_TimeVar;
-	int		Timer_Damage;
-	bool	Timer_Projectiles;
-	int		Timer_Shake;
+	Proj_Timer Timer;
 	
 	// Hit (When hitting the terrain)
-	Proj_Hit	Hit;
+	Proj_Action	Hit;
 	
     // OnExplode (When something near has exploded)
-    int		Exp_Type;
-	int		Exp_Damage;
-	bool	Exp_Projectiles;
-	int		Exp_UseSound;
-    std::string	Exp_SndFilename; // (was 64b before)
-	int		Exp_Shake;
-	
-	
+    Proj_Action	Exp;
+		
     // Touch (When another projectile has touched this projectile)
-    int		Tch_Type;
-	int		Tch_Damage;
-	bool	Tch_Projectiles;
-	bool	Tch_UseSound;
-    std::string	Tch_SndFilename; // (was 64b before)
-	int		Tch_Shake;
-	
+    Proj_Action	Tch;
+
 	
 	// Player hit
-	Proj_Action PlyHit_Type;
-	int		PlyHit_Damage;
-	bool	PlyHit_Projectiles;
-	float	PlyHit_BounceCoeff;
+	Proj_Action PlyHit;
+	
 	
 	bool	ProjUseangle;
 	int		ProjAngle;
