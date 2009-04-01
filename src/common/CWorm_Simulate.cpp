@@ -33,6 +33,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "Physics.h"
+#include "WeaponDesc.h"
 
 
 

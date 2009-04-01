@@ -24,8 +24,8 @@
 #include "MathLib.h"
 #include "CClient.h"
 #include "CServerConnection.h"
+#include "WeaponDesc.h"
 #include "ProfileSystem.h"
-
 
 
 

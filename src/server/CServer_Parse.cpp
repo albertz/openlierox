@@ -39,6 +39,7 @@
 #include "Debug.h"
 #include "CGameMode.h"
 #include "FlagInfo.h"
+#include "WeaponDesc.h"
 
 #ifdef _MSC_VER
 #undef min

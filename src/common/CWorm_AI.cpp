@@ -43,6 +43,8 @@
 #include "CHideAndSeek.h"
 #include "FlagInfo.h"
 #include "ProjectileDesc.h"
+#include "WeaponDesc.h"
+
 
 // used by searchpath algo
 static const unsigned short wormsize = 7;
@@ -1761,11 +1763,11 @@ int CWormBotInputHandler::AI_FindClearingWeapon(void)
     for (i=0; i<5; i++) {
     	if(m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			type = m_worm->tWeapons[i].Weapon->Projectile->Hit.Type;
+			type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
 
 			// Nothing that could fall back onto us
-			if (m_worm->tWeapons[i].Weapon->ProjSpeed < 100.0f) {
-				if (!m_worm->tWeapons[i].Weapon->Projectile->UseCustomGravity || m_worm->tWeapons[i].Weapon->Projectile->Gravity > 30)
+			if (m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
+				if (!m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity || m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity > 30)
 					continue;
 			}
 
@@ -1806,7 +1808,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	// Get the projectile
 	wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
 	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
-	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
+	proj_t* wpnproj = wpn ? wpn->Proj.Proj : NULL;
 	if(!wpnproj) {
 		errors << "cannot determinit wpnproj" << endl;
 		return false;
@@ -2071,13 +2073,13 @@ bool CWormBotInputHandler::AI_Shoot()
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	const weapon_t *weap = m_worm->getCurWeapon()->Weapon;
-	if(weap && weap->Projectile)  {
-		switch (weap->Projectile->Hit.Type)  {
+	if(weap && weap->Proj.Proj)  {
+		switch (weap->Proj.Proj->Hit.Type)  {
 			//case PJ_NOTHING:
 			//case PJ_CARVE:
 			case PJ_DIRT:
 			case PJ_GREENDIRT:
-				//printf("hit_type is %i\n", weap->Projectile->PlyHit.Type);
+				//printf("hit_type is %i\n", weap->Proj.Proj->PlyHit.Type);
 				// don't shoot this shit
 				break;
 			default:
@@ -2087,14 +2089,14 @@ bool CWormBotInputHandler::AI_Shoot()
 				float my_speed = direction.Scalar(m_worm->vVelocity);
 
 				// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
-				float v = (float)weap->ProjSpeed/* *weap->Projectile->Dampening */ + weap->ProjSpeedVar*100.0f + my_speed;
+				float v = (float)weap->Proj.Speed/* *weap->Proj.Proj->Dampening */ + weap->Proj.SpeedVar*100.0f + my_speed;
 				if(v < 0) {
 					// we have high velocities, danger to shot...
 					// if v<0, we would shoot in the wrong direction
 					//printf("velocities(%f) too high...\n", v);
-				/*	printf("  ProjSpeed = %f\n", (float)weap->ProjSpeed);
-					printf("  Dampening = %f\n", (float)weap->Projectile->Dampening);
-					printf("  ProjSpeedVar = %f\n", weap->ProjSpeedVar);
+				/*	printf("  ProjSpeed = %f\n", (float)weap->Proj.Speed);
+					printf("  Dampening = %f\n", (float)weap->Proj.Proj->Dampening);
+					printf("  ProjSpeedVar = %f\n", weap->Proj.SpeedVar);
 					printf("  my_speed = %f\n", my_speed);
 					printf("  targ_speed = %f\n", targ_speed); */
 					bAim = false;
@@ -2113,7 +2115,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity()->GetLength() << ", proj speed: " << (float)weap->ProjSpeed*weap->Projectile->Dampening << "+" << (weap->ProjSpeedVar*100.0f) << endl;
+					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity()->GetLength() << ", proj speed: " << (float)weap->Proj.Speed*weap->Proj.Proj->Dampening << "+" << (weap->Proj.SpeedVar*100.0f) << endl;
 
 				} else { // apriori_time >= 0
 					// where the target would be
@@ -2123,10 +2125,10 @@ bool CWormBotInputHandler::AI_Shoot()
 
 				// Gravity
 				int	g = 100;
-				if(weap->Projectile->UseCustomGravity)
-					g = weap->Projectile->Gravity;
+				if(weap->Proj.Proj->UseCustomGravity)
+					g = weap->Proj.Proj->Gravity;
 
-				proj_t *tmp = weap->Projectile;
+				proj_t *tmp = weap->Proj.Proj;
 				while(tmp)  {
 					if (tmp->UseCustomGravity)  {
 						if (tmp->Gravity > g)
@@ -2143,7 +2145,7 @@ bool CWormBotInputHandler::AI_Shoot()
 					else if (tmp->Hit.Projectiles || tmp->PlyHit.Projectiles || tmp->Tch.Projectiles)
 						break;
 
-					tmp = tmp->Projectile;
+					tmp = tmp->Proj.Proj;
 				}
 
 				// Get the alpha
@@ -2251,7 +2253,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		// Cannot shoot
 		if (fabs(m_worm->fAngle-ang) <= 30 && m_worm->vVelocity.GetLength2() >= 3600.0f && weap->Type != WPN_BEAM)  {
 			if (weap->Type == WPN_PROJECTILE)  {
-				if (weap->Projectile->PlyHit.Damage > 0)
+				if (weap->Proj.Proj->PlyHit.Damage > 0)
 					return false;
 			}
 		}
@@ -2457,7 +2459,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (int i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_EXPLODE)
+					if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE)
 						return i;
     }
 
@@ -2484,9 +2486,9 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
-					//if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
+					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
+					//if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL)
 					return i;
 
  		// don't return here, try selection by other, not optimal fitting cases
@@ -2509,9 +2511,9 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
-					/*if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Hit.Type == PJ_BOUNCE)*/
+					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
+					/*if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL || tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)*/
 						return i;
 
 		// don't return here, try selection by other, not optimal fitting cases
@@ -2527,8 +2529,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
+					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
@@ -2564,7 +2566,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		// try projectile weapons
 		for (int i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-				if (m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_BOUNCE)
+				if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)
 					return i;
 
     }
@@ -4236,11 +4238,11 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 
 	// Check what weapons we have
 	for (int i=0; i < 5; i++)  {
-		if (m_worm->tWeapons[i].Weapon->Projectile)  {
+		if (m_worm->tWeapons[i].Weapon->Proj.Proj)  {
 			// Get the gravity
 			int gravity = 100;  // Default
-			if (m_worm->tWeapons[i].Weapon->Projectile->UseCustomGravity)
-				gravity = m_worm->tWeapons[i].Weapon->Projectile->Gravity;
+			if (m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity)
+				gravity = m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
 
 			// Change the flags according to the gravity
 			if (gravity >= 5)

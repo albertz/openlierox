@@ -25,6 +25,16 @@
 #include "Error.h"
 #include "ConfigHandler.h"
 #include "ProjectileDesc.h"
+#include "WeaponDesc.h"
+
+
+
+void CGameScript::initNewWeapons(int num) {
+	if(Weapons) delete[] Weapons;
+	SetNumWeapons(num);
+	Weapons = new weapon_t[num];
+}
+
 
 
 ///////////////////
@@ -102,10 +112,10 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian_compat((wpn->ProjSpeed), sizeof(int),    1, fp);
-			fwrite_endian_compat((wpn->ProjSpeedVar),sizeof(float),1, fp);
-			fwrite_endian_compat((wpn->ProjSpread),sizeof(float),  1, fp);
-			fwrite_endian_compat((wpn->ProjAmount),sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Proj.Speed), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Proj.SpeedVar),sizeof(float),1, fp);
+			fwrite_endian_compat((wpn->Proj.Spread),sizeof(float),  1, fp);
+			fwrite_endian_compat((wpn->Proj.Amount),sizeof(int),    1, fp);
 			fwrite_endian_compat((wpn->LaserSight),sizeof(int),    1, fp);
 
 			fwrite_endian_compat((wpn->UseSound),  sizeof(int),    1, fp);
@@ -113,7 +123,7 @@ int CGameScript::Save(const std::string& filename)
                 writeString(wpn->SndFilename, fp);
 
 			// Recursively save the projectile id's
-			SaveProjectile(wpn->Projectile,fp);
+			SaveProjectile(wpn->Proj.Proj,fp);
 		}
 	}
 
@@ -288,28 +298,28 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		fwrite_endian<int>(fp, proj->ProjUseangle);
-		fwrite_endian_compat((proj->ProjAngle),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->ProjAmount),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->ProjSpread),	sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->ProjSpeed),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->ProjSpeedVar),	sizeof(float),	1, fp);
+		fwrite_endian<int>(fp, proj->Proj.Useangle);
+		fwrite_endian_compat((proj->Proj.Angle),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->Proj.Amount),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->Proj.Spread),	sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->Proj.Speed),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->Proj.SpeedVar),	sizeof(float),	1, fp);
 
-		SaveProjectile(proj->Projectile,fp);
+		SaveProjectile(proj->Proj.Proj,fp);
 	}
 
 
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 
-		fwrite_endian<int>(fp, proj->PrjTrl_UsePrjVelocity);
-		fwrite_endian_compat((proj->PrjTrl_Delay*1000.0f),				sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl_Amount),			sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl_Speed),				sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl_SpeedVar),			sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl_Spread),			sizeof(float),	1, fp);
+		fwrite_endian<int>(fp, proj->PrjTrl.UsePrjVelocity);
+		fwrite_endian_compat((proj->PrjTrl.Delay*1000.0f),				sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl.Amount),			sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl.Speed),				sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl.SpeedVar),			sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->PrjTrl.Spread),			sizeof(float),	1, fp);
 
-		SaveProjectile(proj->PrjTrl_Proj, fp);
+		SaveProjectile(proj->PrjTrl.Proj, fp);
 	}
 
 	return true;
@@ -399,7 +409,7 @@ int CGameScript::Load(const std::string& dir)
 		wpn = &Weapons[n];
 
 		wpn->ID = n;
-		wpn->Projectile = NULL;
+		wpn->Proj.Proj = NULL;
 
         wpn->Name = readString(fp);
 		fread_compat(wpn->Type,           sizeof(int),    1,fp);
@@ -472,14 +482,14 @@ int CGameScript::Load(const std::string& dir)
 			EndianSwap(wpn->Drain);
 			fread_compat(wpn->ROF,sizeof(float),1,fp);
 			EndianSwap(wpn->ROF);
-			fread_compat(wpn->ProjSpeed,sizeof(int),1,fp);
-			EndianSwap(wpn->ProjSpeed);
-			fread_compat(wpn->ProjSpeedVar,sizeof(float),1,fp);
-			EndianSwap(wpn->ProjSpeedVar);
-			fread_compat(wpn->ProjSpread,sizeof(float),1,fp);
-			EndianSwap(wpn->ProjSpread);
-			fread_compat(wpn->ProjAmount,sizeof(int),1,fp);
-			EndianSwap(wpn->ProjAmount);
+			fread_compat(wpn->Proj.Speed,sizeof(int),1,fp);
+			EndianSwap(wpn->Proj.Speed);
+			fread_compat(wpn->Proj.SpeedVar,sizeof(float),1,fp);
+			EndianSwap(wpn->Proj.SpeedVar);
+			fread_compat(wpn->Proj.Spread,sizeof(float),1,fp);
+			EndianSwap(wpn->Proj.Spread);
+			fread_compat(wpn->Proj.Amount,sizeof(int),1,fp);
+			EndianSwap(wpn->Proj.Amount);
 			fread_compat(wpn->LaserSight, sizeof(int), 1, fp);
 			EndianSwap(wpn->LaserSight);
 
@@ -494,7 +504,7 @@ int CGameScript::Load(const std::string& dir)
 					wpn->UseSound = false;
 			}
 
-			wpn->Projectile = LoadProjectile(fp);
+			wpn->Proj.Proj = LoadProjectile(fp);
 		}
 
 		wpn->ROF /= 1000.0f;
@@ -562,8 +572,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread_compat(proj->Dampening,		sizeof(int),  1, fp);
 	EndianSwap(proj->Dampening);
 
-	proj->PrjTrl_Proj = NULL;
-	proj->Projectile = NULL;
+	proj->PrjTrl.Proj = NULL;
+	proj->Proj.Proj = NULL;
 	proj->Hit.Projectiles = false;
 	proj->Timer.Projectiles = false;
 	proj->PlyHit.Projectiles = false;
@@ -739,40 +749,40 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		fread_endian<int>(fp, proj->ProjUseangle);
-		fread_compat(proj->ProjAngle,		sizeof(int),	1, fp);
-		EndianSwap(proj->ProjAngle);
-		fread_compat(proj->ProjAmount,	sizeof(int),	1, fp);
-		EndianSwap(proj->ProjAmount);
-		fread_compat(proj->ProjSpread,	sizeof(float),	1, fp);
-		EndianSwap(proj->ProjSpread);
-		fread_compat(proj->ProjSpeed,		sizeof(int),	1, fp);
-		EndianSwap(proj->ProjSpeed);
-		fread_compat(proj->ProjSpeedVar,	sizeof(float),	1, fp);
-		EndianSwap(proj->ProjSpeedVar);
+		fread_endian<int>(fp, proj->Proj.Useangle);
+		fread_compat(proj->Proj.Angle,		sizeof(int),	1, fp);
+		EndianSwap(proj->Proj.Angle);
+		fread_compat(proj->Proj.Amount,	sizeof(int),	1, fp);
+		EndianSwap(proj->Proj.Amount);
+		fread_compat(proj->Proj.Spread,	sizeof(float),	1, fp);
+		EndianSwap(proj->Proj.Spread);
+		fread_compat(proj->Proj.Speed,		sizeof(int),	1, fp);
+		EndianSwap(proj->Proj.Speed);
+		fread_compat(proj->Proj.SpeedVar,	sizeof(float),	1, fp);
+		EndianSwap(proj->Proj.SpeedVar);
 
-		proj->Projectile = LoadProjectile(fp);
+		proj->Proj.Proj = LoadProjectile(fp);
 	}
 
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
 
-		fread_endian<int>(fp, proj->PrjTrl_UsePrjVelocity);
-		fread_compat(proj->PrjTrl_Delay,			sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl_Delay);
-		fread_compat(proj->PrjTrl_Amount,			sizeof(int),	1, fp);
-		EndianSwap(proj->PrjTrl_Amount);
-		fread_compat(proj->PrjTrl_Speed,			sizeof(int),	1, fp);
-		EndianSwap(proj->PrjTrl_Speed);
-		fread_compat(proj->PrjTrl_SpeedVar,		sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl_SpeedVar);
-		fread_compat(proj->PrjTrl_Spread,			sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl_Spread);
+		fread_endian<int>(fp, proj->PrjTrl.UsePrjVelocity);
+		fread_compat(proj->PrjTrl.Delay,			sizeof(float),	1, fp);
+		EndianSwap(proj->PrjTrl.Delay);
+		fread_compat(proj->PrjTrl.Amount,			sizeof(int),	1, fp);
+		EndianSwap(proj->PrjTrl.Amount);
+		fread_compat(proj->PrjTrl.Speed,			sizeof(int),	1, fp);
+		EndianSwap(proj->PrjTrl.Speed);
+		fread_compat(proj->PrjTrl.SpeedVar,		sizeof(float),	1, fp);
+		EndianSwap(proj->PrjTrl.SpeedVar);
+		fread_compat(proj->PrjTrl.Spread,			sizeof(float),	1, fp);
+		EndianSwap(proj->PrjTrl.Spread);
 
 		// Change from milli-seconds to seconds
-		proj->PrjTrl_Delay /= 1000.0f;
+		proj->PrjTrl.Delay /= 1000.0f;
 
-		proj->PrjTrl_Proj = LoadProjectile(fp);
+		proj->PrjTrl.Proj = LoadProjectile(fp);
 	}
 
 	return proj;
@@ -903,7 +913,7 @@ static size_t GetProjSize(proj_t *prj)
 	if (prj)
 		return 	prj->Exp.SndFilename.size() + prj->filename.size() +
 				prj->Hit.SndFilename.size() + prj->ImgFilename.size() +
-				GetProjSize(prj->Projectile) + prj->Tch.SndFilename.size() +
+				GetProjSize(prj->Proj.Proj) + prj->Tch.SndFilename.size() +
 				/*GetSurfaceMemorySize(prj->bmpImage.get()) + */
 				sizeof(proj_t);
 	else
@@ -919,7 +929,7 @@ size_t CGameScript::GetMemorySize()
 	for (int i = 0; i < NumWeapons; i++, it++)  {
 		res += sizeof(weapon_t) + sizeof(SoundSample);
 		res += it->SndFilename.size();
-		res += GetProjSize(it->Projectile);
+		res += GetProjSize(it->Proj.Proj);
 	}
 
 	return res;
@@ -947,7 +957,7 @@ void CGameScript::Shutdown(void)
 	for(n=0;n<NumWeapons;n++) {
 		wpn = &Weapons[n];
 		// Shutdown any projectiles
-		ShutdownProjectile(wpn->Projectile);
+		ShutdownProjectile(wpn->Proj.Proj);
 	}
 
 	delete[] Weapons;
@@ -960,8 +970,8 @@ void CGameScript::Shutdown(void)
 void CGameScript::ShutdownProjectile(proj_t *prj)
 {
 	if(prj) {
-		ShutdownProjectile(prj->Projectile);
-		ShutdownProjectile(prj->PrjTrl_Proj);
+		ShutdownProjectile(prj->Proj.Proj);
+		ShutdownProjectile(prj->PrjTrl.Proj);
 		delete prj;
 	}
 }
@@ -1200,11 +1210,11 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	std::string file = dir + "/" + weapon;
 
 	Weap->ID = id;
-	Weap->Projectile = NULL;
+	Weap->Proj.Proj = NULL;
 	Weap->UseSound = false;
 	Weap->Special = SPC_NONE;
 	Weap->Type = WPN_PROJECTILE;
-	Weap->Projectile = NULL;
+	Weap->Proj.Proj = NULL;
 	Weap->LaserSight = false;
 
 	ReadString(file,"General","Name",Weap->Name,"");
@@ -1258,18 +1268,18 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		}	
 	}
 	
-	ReadInteger(file,"Projectile","Speed",&Weap->ProjSpeed,0);
-	ReadFloat(file,"Projectile","SpeedVar",&Weap->ProjSpeedVar,0);
-	ReadFloat(file,"Projectile","Spread",&Weap->ProjSpread,0);
-	ReadInteger(file,"Projectile","Amount",&Weap->ProjAmount,0);
+	ReadInteger(file,"Projectile","Speed",&Weap->Proj.Speed,0);
+	ReadFloat(file,"Projectile","SpeedVar",&Weap->Proj.SpeedVar,0);
+	ReadFloat(file,"Projectile","Spread",&Weap->Proj.Spread,0);
+	ReadInteger(file,"Projectile","Amount",&Weap->Proj.Amount,0);
 
 
 	// Load the projectile
 	std::string pfile;
 	ReadString(file,"Projectile","Projectile",pfile,"");
 
-	Weap->Projectile = CompileProjectile(dir,pfile.c_str());
-	if(Weap->Projectile == NULL)
+	Weap->Proj.Proj = CompileProjectile(dir,pfile.c_str());
+	if(Weap->Proj.Proj == NULL)
 		return false;
 
 	return true;
@@ -1318,8 +1328,8 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->PlyHit.Projectiles = false;
 	proj->Exp.Projectiles = false;
 	proj->Tch.Projectiles = false;
-	proj->Projectile = NULL;
-	proj->PrjTrl_Proj = NULL;
+	proj->Proj.Proj = NULL;
+	proj->PrjTrl.Proj = NULL;
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
@@ -1453,35 +1463,35 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
 		  proj->Tch.Projectiles) {
-		ReadKeyword(file,"Projectile","Useangle",&proj->ProjUseangle,0);
-		ReadInteger(file,"Projectile","Angle",&proj->ProjAngle,0);
-		ReadInteger(file,"Projectile","Speed",&proj->ProjSpeed,0);
-		ReadFloat(file,"Projectile","SpeedVar",&proj->ProjSpeedVar,0);
-		ReadFloat(file,"Projectile","Spread",&proj->ProjSpread,0);
-		ReadInteger(file,"Projectile","Amount",&proj->ProjAmount,0);
+		ReadKeyword(file,"Projectile","Useangle",&proj->Proj.Useangle,0);
+		ReadInteger(file,"Projectile","Angle",&proj->Proj.Angle,0);
+		ReadInteger(file,"Projectile","Speed",&proj->Proj.Speed,0);
+		ReadFloat(file,"Projectile","SpeedVar",&proj->Proj.SpeedVar,0);
+		ReadFloat(file,"Projectile","Spread",&proj->Proj.Spread,0);
+		ReadInteger(file,"Projectile","Amount",&proj->Proj.Amount,0);
 
 		// Load the projectile
 		std::string prjfile;
 		ReadString(file,"Projectile","Projectile",prjfile,"");
 
-		proj->Projectile = CompileProjectile(dir,prjfile.c_str());
+		proj->Proj.Proj = CompileProjectile(dir,prjfile.c_str());
 	}
 
 
 	// Projectile trail
 	if(proj->Trail == TRL_PROJECTILE) {
-		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl_UsePrjVelocity, false);
-		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl_Delay, 100); proj->PrjTrl_Delay /= 1000.0f;
-		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl_Amount, 1);
-		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl_Speed, 100);
-		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl_SpeedVar, 0);
-		ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl_Spread, 0);
+		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl.UsePrjVelocity, false);
+		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl.Delay, 100); proj->PrjTrl.Delay /= 1000.0f;
+		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl.Amount, 1);
+		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl.Speed, 100);
+		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl.SpeedVar, 0);
+		ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl.Spread, 0);
 
 // Load the projectile
 		std::string prjfile;
 		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
 
-		proj->PrjTrl_Proj = CompileProjectile(dir,prjfile.c_str());
+		proj->PrjTrl.Proj = CompileProjectile(dir,prjfile.c_str());
 	}
 
 	return proj;
@@ -1546,7 +1556,7 @@ bool CGameScript::CompileExtra(const std::string& dir)
 // Compile the jetpack
 bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 {
-	Weap->Projectile = NULL;
+	Weap->Proj.Proj = NULL;
 
 	ReadInteger(file, "JetPack", "Thrust", (int*)&Weap->tSpecial.Thrust, 0);
 	ReadFloat(file, "JetPack", "Drain", &Weap->Drain, 0);

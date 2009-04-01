@@ -27,6 +27,8 @@
 #include "DeprecatedGUI/Menu.h"
 #include "CGameMode.h"
 #include "FlagInfo.h"
+#include "WeaponDesc.h"
+
 
 CVec GameServer::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad) {
 	// TODO: optimise this!

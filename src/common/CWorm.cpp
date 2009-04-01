@@ -31,6 +31,7 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "Physics.h"
+#include "WeaponDesc.h"
 
 
 ///////////////////

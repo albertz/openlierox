@@ -51,6 +51,7 @@
 #include "IRC.h"
 #include "CGameMode.h"
 #include "FlagInfo.h"
+#include "WeaponDesc.h"
 
 
 

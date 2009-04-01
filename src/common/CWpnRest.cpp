@@ -23,6 +23,7 @@
 #include "CWpnRest.h"
 #include "CBytestream.h"
 #include "MathLib.h"
+#include "WeaponDesc.h"
 
 
 ///////////////////

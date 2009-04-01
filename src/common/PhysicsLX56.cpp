@@ -24,6 +24,7 @@
 #include "CServer.h"
 #include "FlagInfo.h"
 #include "ProjectileDesc.h"
+#include "WeaponDesc.h"
 
 
 // TODO: clean up this code!
@@ -560,7 +561,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(currentTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = currentTime + pi->PrjTrl_Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
+				proj->lastTrailProj() = currentTime + pi->PrjTrl.Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 				*projspawn = true;
 			}
@@ -596,20 +597,20 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
-		if(pi->PrjTrl_UsePrjVelocity) {
+		if(pi->PrjTrl.UsePrjVelocity) {
 			sprd = prj->GetVelocity();
 			float l = NormalizeVector(&sprd);
 			sprd *= (l*0.3f);		// Slow it down a bit.
 									// It can be sped up by the speed variable in the script
 		}
 
-		for(int i=0; i < pi->PrjTrl_Amount; i++) {
-			if(!pi->PrjTrl_UsePrjVelocity)
-				GetVecsFromAngle((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
+		for(int i=0; i < pi->PrjTrl.Amount; i++) {
+			if(!pi->PrjTrl.UsePrjVelocity)
+				GetVecsFromAngle((int)((float)pi->PrjTrl.Spread * prj->getRandomFloat()),&sprd,NULL);
 
-			CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
+			CVec v = sprd*(float)pi->PrjTrl.Speed + CVec(1,1)*(float)pi->PrjTrl.SpeedVar*prj->getRandomFloat();
 
-			cClient->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
+			cClient->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl.Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
@@ -620,20 +621,20 @@ public:
 
 		// Calculate the angle of the direction the projectile is heading
 		float heading = 0;
-		if(pi->ProjUseangle) {
+		if(pi->Proj.Useangle) {
 			heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
 			heading+=90;
 			FMOD(heading, 360.0f);
 		}
 
 		CVec sprd;
-		for(int i=0;i<pi->ProjAmount;i++) {
-			int a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
+		for(int i=0;i<pi->Proj.Amount;i++) {
+			int a = (int)( (float)pi->Proj.Angle + heading + prj->getRandomFloat()*(float)pi->Proj.Spread );
 			GetVecsFromAngle(a,&sprd,NULL);
 
-			float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar * prj->getRandomFloat();
+			float speed = (float)pi->Proj.Speed + (float)pi->Proj.SpeedVar * prj->getRandomFloat();
 
-			cClient->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
+			cClient->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Proj.Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 

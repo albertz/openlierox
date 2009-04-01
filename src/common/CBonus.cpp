@@ -19,8 +19,9 @@
 #include "CBonus.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
-#include "CGameScript.h"
+#include "WeaponDesc.h"
 #include "CViewport.h"
+#include "CGameScript.h"
 
 
 ///////////////////
