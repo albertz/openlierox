@@ -1761,7 +1761,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon(void)
     for (i=0; i<5; i++) {
     	if(m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			type = m_worm->tWeapons[i].Weapon->Projectile->Hit_Type;
+			type = m_worm->tWeapons[i].Weapon->Projectile->Hit.Type;
 
 			// Nothing that could fall back onto us
 			if (m_worm->tWeapons[i].Weapon->ProjSpeed < 100.0f) {
@@ -2072,7 +2072,7 @@ bool CWormBotInputHandler::AI_Shoot()
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	const weapon_t *weap = m_worm->getCurWeapon()->Weapon;
 	if(weap && weap->Projectile)  {
-		switch (weap->Projectile->Hit_Type)  {
+		switch (weap->Projectile->Hit.Type)  {
 			//case PJ_NOTHING:
 			//case PJ_CARVE:
 			case PJ_DIRT:
@@ -2140,7 +2140,7 @@ bool CWormBotInputHandler::AI_Shoot()
 						if (tmp->Timer_Time >= 0.5f)
 							break;
 					}
-					else if (tmp->Hit_Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
+					else if (tmp->Hit.Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
 						break;
 
 					tmp = tmp->Projectile;
@@ -2457,7 +2457,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (int i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE)
+					if (m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_EXPLODE)
 						return i;
     }
 
@@ -2484,8 +2484,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
 					//if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
 					return i;
 
@@ -2509,9 +2509,9 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
-					/*if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)*/
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
+					/*if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Hit.Type == PJ_BOUNCE)*/
 						return i;
 
 		// don't return here, try selection by other, not optimal fitting cases
@@ -2527,8 +2527,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		for (i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading)
 				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
-					&& m_worm->tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+					if( m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_DIRT
+					&& m_worm->tWeapons[i].Weapon->Projectile->Hit.Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
@@ -2564,7 +2564,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		// try projectile weapons
 		for (int i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-				if (m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)
+				if (m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Projectile->Hit.Type == PJ_BOUNCE)
 					return i;
 
     }

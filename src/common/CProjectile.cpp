@@ -88,7 +88,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now? 
 	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
-		&& (tProjInfo->Hit_Type != PJ_BOUNCE || (int)tProjInfo->Hit_BounceCoeff == 1);  // Changes speed on bounce
+		&& (tProjInfo->Hit.Type != PJ_BOUNCE || (int)tProjInfo->Hit.BounceCoeff == 1);  // Changes speed on bounce
 
     // Events
     bExplode = false;
@@ -164,7 +164,7 @@ void CProjectile::CalculateCheckSteps()
 		int rnd = (getRandomIndex() % 3);
 		rnd *= SIGN(getRandomFloat());
 		MIN_CHECKSTEP = 6;
-		if (tProjInfo->Hit_Type == PJ_BOUNCE)  { // HINT: this avoids fast bouncing projectiles to stay in a wall too often (for example zimm)
+		if (tProjInfo->Hit.Type == PJ_BOUNCE)  { // HINT: this avoids fast bouncing projectiles to stay in a wall too often (for example zimm)
 			MAX_CHECKSTEP = 2;
 			AVG_CHECKSTEP = 2;
 		} else {
@@ -256,7 +256,7 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt)
 {
 
-	if(tProjInfo->Hit_Type == PJ_EXPLODE && c.onlyDirt) {
+	if(tProjInfo->Hit.Type == PJ_EXPLODE && c.onlyDirt) {
 		// HINT: don't reset vPosition here, because we want
 		//		the explosion near (inside) the object
 		//		this behavior is the same as in original LX
@@ -266,7 +266,7 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 	bool bounce = false;
 
 	// Bit of a hack
-	switch (tProjInfo->Hit_Type)  {
+	switch (tProjInfo->Hit.Type)  {
 	case PJ_BOUNCE:
 		// HINT: don't reset vPosition here; it will be reset,
 		//		depending on the collisionside

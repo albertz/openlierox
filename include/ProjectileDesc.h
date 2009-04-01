@@ -80,14 +80,16 @@ static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 
 struct Proj_Hit {
-	Proj_Action action;
-	int		damage;
-	int		Hit_Projectiles;
-	bool	Hit_UseSound;
-	int		Hit_Shake;
-	std::string	Hit_SndFilename; // (was 64b before)
-	float	Hit_BounceCoeff;
-	int		Hit_BounceExplode;
+	Proj_Hit() : Type(PJ_NOTHING) {}
+	
+	Proj_Action Type;
+	int		Damage;
+	bool	Projectiles;
+	bool	UseSound;
+	int		Shake;
+	std::string	SndFilename; // (was 64b before)
+	float	BounceCoeff;
+	int		BounceExplode;
 	
 };
 
@@ -125,14 +127,7 @@ struct proj_t {
 	int		Timer_Shake;
 	
 	// Hit (When hitting the terrain)
-	Proj_Action Hit_Type;
-	int		Hit_Damage;
-	bool	Hit_Projectiles;
-	bool	Hit_UseSound;
-	int		Hit_Shake;
-	std::string	Hit_SndFilename; // (was 64b before)
-	float	Hit_BounceCoeff;
-	int		Hit_BounceExplode;
+	Proj_Hit	Hit;
 	
     // OnExplode (When something near has exploded)
     int		Exp_Type;
@@ -147,7 +142,7 @@ struct proj_t {
     int		Tch_Type;
 	int		Tch_Damage;
 	bool	Tch_Projectiles;
-	int		Tch_UseSound;
+	bool	Tch_UseSound;
     std::string	Tch_SndFilename; // (was 64b before)
 	int		Tch_Shake;
 	
