@@ -99,6 +99,7 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
+		( tLXOptions->bUseOpenGlBlit, "Video.UseOpenGlBlit", true )
 
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_LAN )
