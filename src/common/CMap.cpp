@@ -2481,12 +2481,12 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	// Load the CTF gametype variables
 	if (ctf)  {
-		fread_compat(FlagSpawnX	,sizeof(short),1,fp);
-		fread_compat(FlagSpawnY	,sizeof(short),1,fp);
-		fread_compat(BaseStartX	,sizeof(short),1,fp);
-		fread_compat(BaseStartY	,sizeof(short),1,fp);
-		fread_compat(BaseEndX		,sizeof(short),1,fp);
-		fread_compat(BaseEndY		,sizeof(short),1,fp);
+		fread_endian<short>(fp, FlagSpawnX);
+		fread_endian<short>(fp, FlagSpawnY);
+		fread_endian<short>(fp, BaseStartX);
+		fread_endian<short>(fp, BaseStartY);
+		fread_endian<short>(fp, BaseEndX);
+		fread_endian<short>(fp, BaseEndY);
 	}
 
 	//SDL_SaveBMP(pxf, "mat.bmp");

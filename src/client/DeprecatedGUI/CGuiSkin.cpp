@@ -116,14 +116,14 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	{
 		m_instance->m_guis[ filepath ]->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 		return m_instance->m_guis[ filepath ];
-	};
+	}
 
 	FILE * file = OpenGameFile( filepath, "r" );
 	if( ! file )
 	{
 		printf("Cannot read GUI skin file %s\n", filepath.c_str() );
 		return NULL;
-	};
+	}
 
 	std::string filedata;
 	char buf[4096];
@@ -131,7 +131,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	{
 		size_t read = fread( buf, 1, sizeof(buf), file );
 		filedata.append(buf, read);
-	};
+	}
 	fclose(file);
 
 	xmlDocPtr	Doc;
