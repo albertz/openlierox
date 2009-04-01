@@ -649,7 +649,7 @@ enum  {
 				FILE *fp = OpenGameFile(filename,"rb");
 				if(fp) {
 					char id[33];
-					int version;
+					int version = 0;
 					char name[65];
 					fread(id,		sizeof(char),	32,	fp);
 					fread_endian<int>(fp, version);

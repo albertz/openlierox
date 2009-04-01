@@ -573,7 +573,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Timer.Shake = 0;
 
 	if(proj->Type == PRJ_PIXEL) {
-		Uint32 NumColours;
+		Uint32 NumColours = 0;
 		fread_endian<int>(fp, NumColours);
 		proj->Colour.resize(NumColours);
 		
