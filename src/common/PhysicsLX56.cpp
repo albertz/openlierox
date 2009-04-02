@@ -603,14 +603,15 @@ public:
 			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 	}
 
-	void projectile_doProjSpawn(CProjectile* const prj, AbsTime fSpawnTime) {
-		const proj_t *pi = prj->GetProjInfo();
-		pi->Trail.Proj.apply(prj, fSpawnTime);
+	void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
+		spawnInfo->apply(prj, fSpawnTime);
 	}
 
-	void projectile_doSpawnOthers(CProjectile* const prj, AbsTime fSpawnTime) {
-		const proj_t *pi = prj->GetProjInfo();
-		pi->GeneralSpawnInfo.apply(prj, fSpawnTime);
+	void projectile_doSpawnOthers(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
+		if(spawnInfo && spawnInfo->isSet())
+			spawnInfo->apply(prj, fSpawnTime);
+		else
+			prj->GetProjInfo()->GeneralSpawnInfo.apply(prj, fSpawnTime);
 	}
 
 	void projectile_doMakeDirt(CProjectile* const prj) {
@@ -653,6 +654,7 @@ public:
 		bool trailprojspawn = false;
 
 		bool spawnprojectiles = false;
+		const Proj_SpawnInfo* spawnInfo = NULL;
 		const proj_t *pi = prj->GetProjInfo();
 
 
@@ -716,6 +718,9 @@ public:
 					
 				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
+			
+			if(spawnprojectiles)
+				spawnInfo = &pi->Timer.Proj;
 		}
 
 		// Simulate the projectile
@@ -786,8 +791,10 @@ public:
 			case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
 
-			if(pi->Hit.Projectiles)
+			if(pi->Hit.Projectiles) {
 				spawnprojectiles = true;
+				spawnInfo = &pi->Hit.Proj;
+			}
 		}
 
 		/*
@@ -850,8 +857,10 @@ public:
 					cClient->getRemoteWorms()[result.wormId].velocity() += (d * 100) * dt.seconds();
 				}
 
-				if(pi->PlyHit.Projectiles)
+				if(pi->PlyHit.Projectiles) {
 					spawnprojectiles = true;
+					spawnInfo = &pi->PlyHit.Proj;
+				}
 			}
 		}
 
@@ -879,14 +888,14 @@ public:
 
 		if(trailprojspawn) {
 			// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-			projectile_doProjSpawn( prj, prj->fLastSimulationTime );
+			projectile_doProjSpawn( prj, &prj->GetProjInfo()->Trail.Proj, prj->fLastSimulationTime );
 		}
 
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
 			// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 			// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-			projectile_doSpawnOthers(prj, currentTime);
+			projectile_doSpawnOthers(prj, spawnInfo, currentTime);
 		}
 
 		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
