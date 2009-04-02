@@ -610,26 +610,7 @@ public:
 
 	void projectile_doSpawnOthers(CProjectile* const prj, AbsTime fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
-		CVec v = prj->GetVelocity();
-		NormalizeVector(&v);
-
-		// Calculate the angle of the direction the projectile is heading
-		float heading = 0;
-		if(pi->Proj.Useangle) {
-			heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
-			heading+=90;
-			FMOD(heading, 360.0f);
-		}
-
-		CVec sprd;
-		for(int i=0;i<pi->Proj.Amount;i++) {
-			int a = (int)( (float)pi->Proj.Angle + heading + prj->getRandomFloat()*(float)pi->Proj.Spread );
-			GetVecsFromAngle(a,&sprd,NULL);
-
-			float speed = (float)pi->Proj.Speed + (float)pi->Proj.SpeedVar * prj->getRandomFloat();
-
-			cClient->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Proj.Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
-		}
+		pi->Proj.apply(prj, fSpawnTime);
 	}
 
 	void projectile_doMakeDirt(CProjectile* const prj) {
