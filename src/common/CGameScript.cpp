@@ -1340,7 +1340,6 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadFloat(file,"General","Dampening",&proj->Dampening,1.0f);
 
 	if(proj->Type == PRJ_PIXEL) {
-		std::string tmp;
 		proj->Colour.clear();
 
 		for(size_t i = 0; ; ++i) {
