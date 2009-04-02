@@ -22,6 +22,7 @@
 #include "Event.h"
 #include "types.h"
 #include "Color.h"
+#include "Consts.h"
 
 struct SDL_Surface;
 class CWorm;
@@ -188,6 +189,7 @@ public:
 	CVec	GetVelocity()		{ return vVelocity; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
 	int		GetOwner() const			{ return iOwner; }
+	bool	hasOwner() const	{ return iOwner >= 0 && iOwner < MAX_WORMS; }
 
     float   getTimeVarRandom()  { return fTimeVarRandom; }
 

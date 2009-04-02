@@ -312,14 +312,14 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
-		fwrite_endian<int>(fp, proj->PrjTrl.UseParentVelocity);
+		fwrite_endian<int>(fp, proj->Trail.Proj.UseParentVelocity);
 		fwrite_endian_compat((proj->Trail.Delay*1000.0f),				sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl.Amount),			sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl.Speed),				sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl.SpeedVar),			sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->PrjTrl.Spread),			sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->Trail.Proj.Amount),			sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->Trail.Proj.Speed),				sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->Trail.Proj.SpeedVar),			sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->Trail.Proj.Spread),			sizeof(float),	1, fp);
 
-		SaveProjectile(proj->PrjTrl.Proj, fp);
+		SaveProjectile(proj->Trail.Proj.Proj, fp);
 	}
 
 	return true;
@@ -568,7 +568,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread_compat(proj->Dampening,		sizeof(int),  1, fp);
 	EndianSwap(proj->Dampening);
 
-	proj->PrjTrl.Proj = NULL;
+	proj->Trail.Proj.Proj = NULL;
 	proj->Proj.Proj = NULL;
 	proj->Hit.Projectiles = false;
 	proj->Timer.Projectiles = false;
@@ -763,22 +763,22 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
-		fread_endian<int>(fp, proj->PrjTrl.UseParentVelocity);
+		fread_endian<int>(fp, proj->Trail.Proj.UseParentVelocity);
 		fread_compat(proj->Trail.Delay,			sizeof(float),	1, fp);
 		EndianSwap(proj->Trail.Delay);
-		fread_compat(proj->PrjTrl.Amount,			sizeof(int),	1, fp);
-		EndianSwap(proj->PrjTrl.Amount);
-		fread_compat(proj->PrjTrl.Speed,			sizeof(int),	1, fp);
-		EndianSwap(proj->PrjTrl.Speed);
-		fread_compat(proj->PrjTrl.SpeedVar,		sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl.SpeedVar);
-		fread_compat(proj->PrjTrl.Spread,			sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl.Spread);
+		fread_compat(proj->Trail.Proj.Amount,			sizeof(int),	1, fp);
+		EndianSwap(proj->Trail.Proj.Amount);
+		fread_compat(proj->Trail.Proj.Speed,			sizeof(int),	1, fp);
+		EndianSwap(proj->Trail.Proj.Speed);
+		fread_compat(proj->Trail.Proj.SpeedVar,		sizeof(float),	1, fp);
+		EndianSwap(proj->Trail.Proj.SpeedVar);
+		fread_compat(proj->Trail.Proj.Spread,			sizeof(float),	1, fp);
+		EndianSwap(proj->Trail.Proj.Spread);
 
 		// Change from milli-seconds to seconds
 		proj->Trail.Delay /= 1000.0f;
 
-		proj->PrjTrl.Proj = LoadProjectile(fp);
+		proj->Trail.Proj.Proj = LoadProjectile(fp);
 	}
 
 	return proj;
@@ -967,7 +967,7 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 {
 	if(prj) {
 		ShutdownProjectile(prj->Proj.Proj);
-		ShutdownProjectile(prj->PrjTrl.Proj);
+		ShutdownProjectile(prj->Trail.Proj.Proj);
 		delete prj;
 	}
 }
@@ -1325,7 +1325,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Exp.Projectiles = false;
 	proj->Tch.Projectiles = false;
 	proj->Proj.Proj = NULL;
-	proj->PrjTrl.Proj = NULL;
+	proj->Trail.Proj.Proj = NULL;
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
@@ -1476,18 +1476,18 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
-		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl.UseParentVelocity, false);
+		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->Trail.Proj.UseParentVelocity, false);
 		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
-		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl.Amount, 1);
-		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl.Speed, 100);
-		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl.SpeedVar, 0);
-		ReadFloat(file, "ProjectileTrail", "Spread", &proj->PrjTrl.Spread, 0);
+		ReadInteger(file, "ProjectileTrail", "Amount", &proj->Trail.Proj.Amount, 1);
+		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->Trail.Proj.Speed, 100);
+		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->Trail.Proj.SpeedVar, 0);
+		ReadFloat(file, "ProjectileTrail", "Spread", &proj->Trail.Proj.Spread, 0);
 
 // Load the projectile
 		std::string prjfile;
 		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
 
-		proj->PrjTrl.Proj = CompileProjectile(dir,prjfile.c_str());
+		proj->Trail.Proj.Proj = CompileProjectile(dir,prjfile.c_str());
 	}
 
 	return proj;

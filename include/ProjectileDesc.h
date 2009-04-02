@@ -90,9 +90,6 @@ struct proj_t {
 	Proj_SpawnInfo Proj;
 	
 	
-	// Projectile trail
-	Proj_SpawnInfo PrjTrl;
-	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
 	SoundSample * smpSample;
 	

@@ -336,7 +336,8 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	int d = cMap->CarveHole(damage,pos);
 
     // Increment the dirt count
-    cRemoteWorms[owner].incrementDirtCount( d );
+	if(owner >= 0 && owner < MAX_WORMS)
+		cRemoteWorms[owner].incrementDirtCount( d );
 
 	// If this is within a viewport, shake the viewport
 	for(i=0; i<NUM_VIEWPORTS; i++) {
@@ -422,16 +423,23 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
 		( NewNet::Active() && NewNet::CanUpdateGameState() ) )
 	{
-		w->getDamageReport()[owner].damage += damage;
-		w->getDamageReport()[owner].lastTime = GetPhysicsTime();
+		// TODO: fix this
+		if(ownerWorm) {
+			w->getDamageReport()[owner].damage += damage;
+			w->getDamageReport()[owner].lastTime = GetPhysicsTime();
+		}
 	}
 
 	// Update our scoreboard for local worms
 	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(9) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
-		getRemoteWorms()[owner].addDamage( damage, w, tGameInfo ); // Update client scoreboard
+		// TODO: fix this
+		if(ownerWorm)
+			getRemoteWorms()[owner].addDamage( damage, w, tGameInfo ); // Update client scoreboard
 	
 	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
-		cServer->getWorms()[owner].addDamage( damage, w, tGameInfo ); // Update server scoreboard
+		// TODO: fix this
+		if(ownerWorm)
+			cServer->getWorms()[owner].addDamage( damage, w, tGameInfo ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
@@ -465,7 +473,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 					// Make a death sound
 					int s = GetRandomInt(2);
 					if( NewNet::CanPlaySound(w->getID()) )
-						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cLocalWorms[0]);
+						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cViewports[0].getTarget());
 
 					// Spawn some giblets
 					for(int n=0;n<7;n++)
@@ -1096,17 +1104,19 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 // Process a shot
 void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 {
-	CWorm *w = &cRemoteWorms[shot->nWormID];
+	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
+		CWorm *w = &cRemoteWorms[shot->nWormID];
 
-    // If this worm is dead, ignore the shot
-    if(!w->getAlive()) {
-    	//printf("WARNING: dead worm was shooting\n"); // Occurs pretty often, don't spam console
-    	return;
-    }
-
-	if(!w->isUsed())  {
-		printf("WARNING: unused worm was shooting\n");
-		return;
+		if(!w->isUsed())  {
+			printf("WARNING: unused worm was shooting\n");
+			return;
+		}
+		
+		// If this worm is dead, ignore the shot (original LX56 behaviour)
+		if(!w->getAlive()) {
+			//printf("WARNING: dead worm was shooting\n"); // Occurs pretty often, don't spam console
+			return;
+		}
 	}
 
 	// Weird
@@ -1119,7 +1129,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 	// Safety check
 	if (wpn->ID < 0)  {
-		printf("WARNING: weapon ID less than zero. Guilty worm: %i with name %s\n",w->getID(),w->getName().c_str());
+		warnings << "ProcessShot: weapon ID less than zero. Guilty worm: " << shot->nWormID << endl;
 		return;
 	}
 
@@ -1137,16 +1147,25 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 
 	// Play the weapon's sound
-	if(wpn->UseSound && NewNet::CanPlaySound(w->getID()))
-		StartSound(wpn->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
+	if(wpn->UseSound && NewNet::CanPlaySound(shot->nWormID)) {
+		CWorm* me = cViewports[0].getTarget();
+		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
+			StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
+		else
+			StartSound(wpn->smpSample, shot->cPos, false, 100, me);
+	}
+	
+	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
+		CWorm *w = &cRemoteWorms[shot->nWormID];
 
-	// Add the recoil
-	CVec *vel = w->getVelocity();
-	*vel -= dir*(float)wpn->Recoil;
+		// Add the recoil
+		CVec *vel = w->getVelocity();
+		*vel -= dir*(float)wpn->Recoil;
 
-	// Draw the muzzle flash
-	w->setDrawMuzzle(true);
-
+		// Draw the muzzle flash
+		w->setDrawMuzzle(true);
+	}
+	
 	CVec sprd;
 
 	for(int i=0; i<wpn->Proj.Amount; i++) {
@@ -1187,7 +1206,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
 		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
 		// is probably outdated at this time
-		SpawnProjectile(pos, v, rot, w->getID(), wpn->Proj.Proj, shot->nRandom, fSpawnTime,
+		SpawnProjectile(pos, v, rot, shot->nWormID, wpn->Proj.Proj, shot->nRandom, fSpawnTime,
 						GetPhysicsTime() + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 					   );
 
@@ -1201,7 +1220,10 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 // Process a shot - Beam
 void CClient::ProcessShot_Beam(shoot_t *shot)
 {
-	CWorm *w = &cRemoteWorms[shot->nWormID];
+	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
+		CWorm *w = &cRemoteWorms[shot->nWormID];
+		if(!w->isUsed()) return;
+	}
 	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
 	// Trace a line from the worm to length or until it hits something
@@ -1218,7 +1240,6 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	divisions = MAX(divisions,1);
 
 	int stopbeam = false;
-	CWorm *w2;
 	short n;
 
 	for(int i=0; i<wpn->Bm_Length; i+=divisions) {
@@ -1233,7 +1254,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 				float bonussize = 3;
 				if(fabs(pos.x - b->getPosition().x) < bonussize) {
-					Explosion(pos,0,5,w->getID()); // Destroy the bonus by an explosion
+					Explosion(pos,0,5,shot->nWormID); // Destroy the bonus by an explosion
 					break;
 				}
 			}
@@ -1244,7 +1265,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 			if(wpn->Bm_Damage != -1) {
 				//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				int d = cMap->CarveHole(wpn->Bm_Damage, pos);
-				w->incrementDirtCount(d);
+				if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
+					cRemoteWorms[shot->nWormID].incrementDirtCount(d);
 			}
 
 			// Stop the beam regardless of explosion being shown
@@ -1252,18 +1274,18 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		}
 
 		// Check if it has hit any of the worms
-		w2 = cRemoteWorms;
+		CWorm* w2 = cRemoteWorms;
 		for(n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
-			// Don't check against the creator
-			if(w2->getID() == w->getID())
+			// Don't check against the creator (if any)
+			if(w2->getID() == shot->nWormID)
 				continue;
 
 			static const float wormsize = 5;
 			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				InjureWorm(w2, wpn->Bm_PlyDamage, w->getID());
+				InjureWorm(w2, wpn->Bm_PlyDamage, shot->nWormID);
 				stopbeam = true;
 				break;
 			}

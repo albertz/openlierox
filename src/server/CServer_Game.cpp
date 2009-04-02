@@ -236,11 +236,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	}
 	// Safety check
 	if (victim < 0 || victim >= MAX_WORMS)  {
-		printf("GameServer::killWorm: victim ID out of bounds.\n");
-		return;
-	}
-	if (killer < 0 || killer >= MAX_WORMS)  {
-		printf("GameServer::killWorm: killer ID out of bounds.\n");
+		errors << "GameServer::killWorm: victim ID out of bounds." << endl;
 		return;
 	}
 
@@ -250,8 +246,10 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		suicidesCount = 1;
 
 	CWorm *vict = &cWorms[victim];
-	CWorm *kill = &cWorms[killer];
-
+	CWorm *kill = NULL;
+	if(killer >= 0 && killer < MAX_WORMS && cWorms[killer].isUsed())
+		kill = &cWorms[killer];
+	
 	// Cheat prevention, game behaves weird if this happens
 	if (vict->getLives() < 0 && tLXOptions->tGameInfo.iLives >= 0)  {
 		vict->setLives(WRM_OUT);  // Safety
@@ -268,7 +266,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	getGameMode()->Kill(vict, kill);
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		cClients[i].getNetEngine()->SendWormScore(vict);
-		if (killer != victim)
+		if (kill && killer != victim)
 			cClients[i].getNetEngine()->SendWormScore(kill);
 	}
 	// Let everyone know that the worm is now dead

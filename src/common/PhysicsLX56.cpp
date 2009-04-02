@@ -7,6 +7,14 @@
 	created on 9/2/2008
 */
 
+/*
+ some references:
+ 
+ LX56 projectile simulation:
+ http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/client/CClient_Game.cpp?revision=1&view=markup&pathrev=1
+ 
+ 
+ */
 
 
 #include "LieroX.h"
@@ -25,6 +33,7 @@
 #include "FlagInfo.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+
 
 
 // TODO: clean up this code!
@@ -598,19 +607,19 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
-		if(pi->PrjTrl.UseParentVelocity) {
+		if(pi->Trail.Proj.UseParentVelocity) {
 			sprd = prj->GetVelocity();
 			sprd *= 0.3f;		// Slow it down a bit.
 								// It can be sped up by the speed variable in the script
 		}
 
-		for(int i=0; i < pi->PrjTrl.Amount; i++) {
-			if(!pi->PrjTrl.UseParentVelocity)
-				GetVecsFromAngle((int)((float)pi->PrjTrl.Spread * prj->getRandomFloat()),&sprd,NULL);
+		for(int i=0; i < pi->Trail.Proj.Amount; i++) {
+			if(!pi->Trail.Proj.UseParentVelocity)
+				GetVecsFromAngle((int)((float)pi->Trail.Proj.Spread * prj->getRandomFloat()),&sprd,NULL);
 
-			CVec v = sprd*(float)pi->PrjTrl.Speed + CVec(1,1)*(float)pi->PrjTrl.SpeedVar*prj->getRandomFloat();
+			CVec v = sprd*(float)pi->Trail.Proj.Speed + CVec(1,1)*(float)pi->Trail.Proj.SpeedVar*prj->getRandomFloat();
 
-			cClient->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl.Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
+			cClient->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->Trail.Proj.Proj, prj->getRandomIndex()+1, fSpawnTime, prj->getIgnoreWormCollBeforeTime());
 		}
 	}
 
@@ -646,14 +655,16 @@ public:
 		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
 
 		// Remove the dirt count on the worm
-		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		if(prj->hasOwner())
+			cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
 	void projectile_doMakeGreenDirt(CProjectile* const prj) {
 		int d = cClient->getMap()->PlaceGreenDirt(prj->GetPosition());
 
 		// Remove the dirt count on the worm
-		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+		if(prj->hasOwner())
+			cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
 	}
 
 	void simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
@@ -732,7 +743,8 @@ public:
 					spawnprojectiles = true;
 
 				// Increment the dirt count
-				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+				if(prj->hasOwner())
+					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 			}
 			break;
 					
@@ -759,7 +771,7 @@ public:
 					shake = pi->Hit.Shake;
 
 				// Play the hit sound
-				if(pi->Hit.UseSound && NewNet::CanPlaySound(prj->GetOwner()))
+				if(pi->Hit.UseSound && (!prj->hasOwner() || NewNet::CanPlaySound(prj->GetOwner())))
 					PlaySoundSample(pi->smpSample);
 			break;
 
@@ -779,7 +791,8 @@ public:
 				deleteAfter = true;
 
 				// Increment the dirt count
-				cClient->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS - 1)].incrementDirtCount( d );
+				if(prj->hasOwner())
+					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
 			}
 			break;
 

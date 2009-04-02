@@ -1329,7 +1329,7 @@ struct DedIntern {
 	void Sig_WormLeft(CWorm* w) { pushSignal("wormleft", itoa(w->getID()), w->getName()); }
 	void Sig_ChatMessage(CWorm* w, const std::string& message) { pushSignal("chatmessage", itoa(w->getID()), message); }
 	void Sig_PrivateMessage(CWorm* w, CWorm* to, const std::string& message) { pushSignal("privatemessage", itoa(w->getID()), itoa(to->getID()), message); }
-	void Sig_WormDied(CWorm* died, CWorm* killer) { pushSignal("wormdied", itoa(died->getID()), itoa(killer->getID())); }
+	void Sig_WormDied(int died, int killer) { pushSignal("wormdied", itoa(died), itoa(killer)); }
 	void Sig_WormSpawned(CWorm* worm) { pushSignal("wormspawned", itoa(worm->getID())); }
 	void Sig_WormGotAdmin(CWorm* w) { pushSignal("wormgotadmin", itoa(w->getID())); }
 	void Sig_WormAuthorized(CWorm* w) { pushSignal("wormauthorized", itoa(w->getID())); }
@@ -1523,7 +1523,7 @@ void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(
 void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
 void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
-void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm,killer); }
+void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm->getID(), killer ? killer->getID() : -1); }
 void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
 void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormGotAdmin(worm); };
 void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormAuthorized(worm); };

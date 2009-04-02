@@ -116,7 +116,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 
 void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 {
-	if(killer->getTeam() == HIDEANDSEEK_SEEKER && killer != victim) {
+	if(killer && killer->getTeam() == HIDEANDSEEK_SEEKER && killer != victim) {
 		if (networkTexts->sCaughtMessage != "<none>")  {
 			std::string msg;
 			replace(networkTexts->sCaughtMessage, "<seeker>", killer->getName(), msg);

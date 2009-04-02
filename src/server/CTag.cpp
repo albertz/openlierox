@@ -71,8 +71,11 @@ bool CTag::Spawn(CWorm* worm, CVec pos)
 
 void CTag::Kill(CWorm* victim, CWorm* killer)
 {
+	// TODO: what is the difference here to CGameMode::Kill() (except the end)?
+	// TODO: share the code and call CGameMode::Kill()
+	
 	// Kill or suicide message
-	if(networkTexts->sKilled != "<none>") {
+	if(killer && networkTexts->sKilled != "<none>") {
 		std::string buf;
 		if(killer != victim) {
 			replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
@@ -85,14 +88,14 @@ void CTag::Kill(CWorm* victim, CWorm* killer)
 	}
 	
 	// First blood
-	if(bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
+	if(bFirstBlood && killer && killer != victim && networkTexts->sFirstBlood != "<none>")  {
 		bFirstBlood = false;
 		cServer->SendGlobalText(replacemax(networkTexts->sFirstBlood, "<player>",
 			killer->getName(), 1), TXT_NORMAL);
 	}
 
 	// Kills & deaths in row
-	if(killer != victim) {
+	if(killer && killer != victim) {
 		killer->AddKill();
 		iKillsInRow[killer->getID()]++;
 		iDeathsInRow[killer->getID()] = 0;
@@ -101,7 +104,7 @@ void CTag::Kill(CWorm* victim, CWorm* killer)
 	iDeathsInRow[victim->getID()]++;
 
 	// Killing spree message
-	if(killer != victim) {
+	if(killer && killer != victim) {
 		switch(iKillsInRow[killer->getID()]) {
 		case 3:
 			if(networkTexts->sSpree1 != "<none>")
@@ -161,18 +164,18 @@ void CTag::Kill(CWorm* victim, CWorm* killer)
 	}
 
 	// Victim is out of the game
-	if(victim->Kill()&& networkTexts->sPlayerOut != "<none>")
+	if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
 		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 			victim->getName(), 1), TXT_NORMAL);
 
 	// Tag another worm
 	if (victim->getTagIT())  {
-		if (killer != victim)  {
+		if (killer && killer != victim)  {
 			if (killer->getLives() == WRM_OUT)  // The killer got killed and out in the meanwhile
 				TagRandomWorm();
 			else
 				TagWorm(killer);
-		} else // Suicide
+		} else // Suicide or no killer
 			TagRandomWorm();
 	}
 }

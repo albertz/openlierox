@@ -39,12 +39,11 @@ void CProjectile::setUnused() {
 // this function is called by CClient::SpawnProjectile()
 void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime)
 {
-	// Safety (it is used for indexing later)
-	if (_owner >= MAX_WORMS || _owner < 0)  {
-		warnings << "bad owner ID in CProjectile::Spawn" << endl;
-		return;
-	}
-
+	if (_owner < 0 || _owner >= MAX_WORMS)
+		iOwner = -1;
+	else
+		iOwner = _owner;
+	
 	tProjInfo = _proj;
 	fLife = 0;
 	fExtra = 0;
@@ -52,7 +51,6 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	vPosition = _pos;
 	vVelocity = _vel;
 	fRotation = (float)_rot;
-	iOwner = _owner;
 	bUsed = true;
 	fLastTrailProj = AbsTime();
 	iRandom = _random;

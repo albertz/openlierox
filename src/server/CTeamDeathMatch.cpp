@@ -67,10 +67,10 @@ bool CTeamDeathMatch::Spawn(CWorm* worm, CVec pos)
 void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 {
 	// TODO: move that to CGameMode
-	
+	// TODO: share code with CGameMode::Kill()
 	
 	// Kill or suicide message
-	if(networkTexts->sKilled != "<none>") {
+	if(killer && networkTexts->sKilled != "<none>") {
 		std::string buf;
 		if(killer != victim) {
 			replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
@@ -83,20 +83,20 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	}
 	
 	// First blood
-	if(bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
+	if(bFirstBlood && killer && killer != victim && networkTexts->sFirstBlood != "<none>")  {
 		bFirstBlood = false;
 		cServer->SendGlobalText(replacemax(networkTexts->sFirstBlood, "<player>",
 			killer->getName(), 1), TXT_NORMAL);
 	}
 	
 	// Teamkiller
-	if(killer != victim && killer->getTeam() == victim->getTeam() && networkTexts->sTeamkill != "<none>") {
+	if(killer && killer != victim && killer->getTeam() == victim->getTeam() && networkTexts->sTeamkill != "<none>") {
 		cServer->SendGlobalText(replacemax(networkTexts->sTeamkill, "<player>",
 			killer->getName(), 1), TXT_NORMAL);
 	}
 	
 	// Kills & deaths in row
-	if(killer != victim && killer->getTeam() != victim->getTeam()) {
+	if(killer && killer != victim && killer->getTeam() != victim->getTeam()) {
 		killer->AddKill();
 		iKillsInRow[killer->getID()]++;
 		iDeathsInRow[killer->getID()] = 0;
@@ -105,7 +105,7 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	iDeathsInRow[victim->getID()]++;
 
 	// Killing spree message
-	if(killer != victim && killer->getTeam() != victim->getTeam()) {
+	if(killer && killer != victim && killer->getTeam() != victim->getTeam()) {
 		switch(iKillsInRow[killer->getID()]) {
 		case 3:
 			if(networkTexts->sSpree1 != "<none>")

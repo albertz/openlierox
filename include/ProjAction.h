@@ -36,10 +36,6 @@ enum Proj_TrailType {
 
 static_assert(sizeof(Proj_TrailType) == sizeof(int), Proj_TrailType__SizeCheck);
 
-struct Proj_Trail {
-	Proj_TrailType Type;
-	float	Delay; // used for spawning
-};
 
 
 // Projectile method types
@@ -89,24 +85,26 @@ struct Proj_Timer : Proj_Action {
 
 
 class CProjectile;
-class CWorm;
+struct shoot_t;
 
 struct Proj_SpawnParent {
 	union {
-		CWorm* worm;
+		shoot_t* shot;
 		CProjectile* proj;
 	};
 	enum {
 		PSPT_NOTHING = -1,
-		PSPT_WORM = 0,
+		PSPT_SHOT = 0,
 		PSPT_PROJ,
 	} type;
 	
-	Proj_SpawnParent() : worm(NULL), type(PSPT_NOTHING) {}
-	Proj_SpawnParent(CWorm* w) : worm(w), type(PSPT_WORM) {}
+	Proj_SpawnParent() : shot(NULL), type(PSPT_NOTHING) {}
+	Proj_SpawnParent(shoot_t* s) : shot(s), type(PSPT_SHOT) {}
 	Proj_SpawnParent(CProjectile* p) : proj(p), type(PSPT_PROJ) {}
 	
 	int ownerWorm() const;
+	int fixedRandomIndex() const;
+	float fixedRandomFloat() const;
 	CVec position() const;
 	CVec velocity() const;
 };
@@ -115,10 +113,11 @@ struct Proj_SpawnParent {
 class CGameScript;
 
 struct Proj_SpawnInfo {
-	Proj_SpawnInfo() : Proj(NULL), UseParentVelocity(true), ParentVelFactor(1), Useangle(false) {}
+	Proj_SpawnInfo() : UseSpecial11VecForSpeedVar(false), Proj(NULL), UseParentVelocity(false), ParentVelFactor(0.3f), Useangle(false), Angle(0) {}
 	
 	int		Speed;
 	float	SpeedVar;
+	bool	UseSpecial11VecForSpeedVar; // LX56: true only for trail
 	float	Spread;
 	int		Amount;
 	proj_t	*Proj;
@@ -132,6 +131,14 @@ struct Proj_SpawnInfo {
 	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime);
 };
 
+struct Proj_Trail {
+	Proj_TrailType Type;
+	
+	float	Delay; // used for spawning
+	Proj_SpawnInfo Proj;
+	
+	Proj_Trail() { Proj.UseSpecial11VecForSpeedVar = true; }
+};
 
 
 #endif
