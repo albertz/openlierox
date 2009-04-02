@@ -53,7 +53,9 @@ class CGameScript;
 
 struct Proj_SpawnInfo {
 	Proj_SpawnInfo() :
-	Proj(NULL), UseParentVelocityForSpread(false), ParentVelFactor(0.3f), Useangle(false), Angle(0),
+	Speed(0), SpeedVar(0), Spread(0), Amount(0), Proj(NULL),
+	UseParentVelocityForSpread(false), ParentVelFactor(0.3f),
+	Useangle(false), Angle(0),
 	UseSpecial11VecForSpeedVar(false), UseRandomRot(false), AddParentVel(false) {}
 	
 	int		Speed;

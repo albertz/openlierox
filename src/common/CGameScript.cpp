@@ -1458,7 +1458,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
 		  proj->Tch.Projectiles) {
-		ReadKeyword(file,"Projectile","Useangle",&proj->GeneralSpawnInfo.Useangle,0);
+		ReadKeyword(file,"Projectile","Useangle",&proj->GeneralSpawnInfo.Useangle,false);
 		ReadInteger(file,"Projectile","Angle",&proj->GeneralSpawnInfo.Angle,0);
 		
 		ReadInteger(file,"Projectile","Amount",&proj->GeneralSpawnInfo.Amount,0);
