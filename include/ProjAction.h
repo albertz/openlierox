@@ -81,6 +81,25 @@ struct Proj_Timer : Proj_Action {
 	float	TimeVar;	
 };
 
+
+class CProjectile;
+class CWorm;
+
+struct Proj_SpawnParent {
+	union {
+		CWorm* worm;
+		CProjectile* proj;
+	};
+	enum {
+		PSPT_NOTHING = -1,
+		PSPT_WORM = 0,
+		PSPT_PROJ,
+	} type;
+	
+	Proj_SpawnParent() : worm(NULL), type(PSPT_NOTHING) {}
+};
+
+
 struct Proj_SpawnInfo {
 	Proj_SpawnInfo() : Proj(NULL) {}
 	
