@@ -124,15 +124,15 @@ struct Proj_SpawnInfo {
 	int		Amount;
 	proj_t	*Proj;
 	
-	bool	UseParentVelocityForSpread; // LX56: only for trail
+	bool	UseParentVelocityForSpread; // LX56: only for trail, this could be true
 	float	ParentVelFactor;
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
 
-	bool	UseSpecial11VecForSpeedVar; // LX56: true only for trail
-	bool	UseRandomRot; // LX56: true only for shot
-	bool	AddParentVel; // LX56: true only for shot
+	bool	UseSpecial11VecForSpeedVar; // LX56: true iff trail
+	bool	UseRandomRot; // LX56: true iff shot
+	bool	AddParentVel; // LX56: true iff shot
 	
 	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime);
 };

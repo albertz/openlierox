@@ -117,6 +117,8 @@ void Proj_SpawnInfo::apply(CGameScript* script, Proj_SpawnParent parent, AbsTime
 		CVec speedVarVec = sprd;
 		if(UseSpecial11VecForSpeedVar) speedVarVec = CVec(1,1);
 		v += speedVarVec * (float)SpeedVar * parent.fixedRandomFloat();
+		if(AddParentVel)
+			v += parent.velocity();
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom *= 5;
