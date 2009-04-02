@@ -87,7 +87,7 @@ struct proj_t {
 	Proj_Action PlyHit;
 	
 	// event proj spawning	
-	Proj_SpawnInfo Proj;
+	Proj_SpawnInfo GeneralSpawnInfo;
 	
 	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer

@@ -298,14 +298,14 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		fwrite_endian<int>(fp, proj->Proj.Useangle);
-		fwrite_endian_compat((proj->Proj.Angle),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->Proj.Amount),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->Proj.Spread),	sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->Proj.Speed),	sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->Proj.SpeedVar),	sizeof(float),	1, fp);
+		fwrite_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Angle),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Amount),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Spread),	sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Speed),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.SpeedVar),	sizeof(float),	1, fp);
 
-		SaveProjectile(proj->Proj.Proj,fp);
+		SaveProjectile(proj->GeneralSpawnInfo.Proj,fp);
 	}
 
 
@@ -569,7 +569,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Dampening);
 
 	proj->Trail.Proj.Proj = NULL;
-	proj->Proj.Proj = NULL;
+	proj->GeneralSpawnInfo.Proj = NULL;
 	proj->Hit.Projectiles = false;
 	proj->Timer.Projectiles = false;
 	proj->PlyHit.Projectiles = false;
@@ -745,19 +745,19 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		fread_endian<int>(fp, proj->Proj.Useangle);
-		fread_compat(proj->Proj.Angle,		sizeof(int),	1, fp);
-		EndianSwap(proj->Proj.Angle);
-		fread_compat(proj->Proj.Amount,	sizeof(int),	1, fp);
-		EndianSwap(proj->Proj.Amount);
-		fread_compat(proj->Proj.Spread,	sizeof(float),	1, fp);
-		EndianSwap(proj->Proj.Spread);
-		fread_compat(proj->Proj.Speed,		sizeof(int),	1, fp);
-		EndianSwap(proj->Proj.Speed);
-		fread_compat(proj->Proj.SpeedVar,	sizeof(float),	1, fp);
-		EndianSwap(proj->Proj.SpeedVar);
+		fread_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
+		fread_compat(proj->GeneralSpawnInfo.Angle,		sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Angle);
+		fread_compat(proj->GeneralSpawnInfo.Amount,	sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Amount);
+		fread_compat(proj->GeneralSpawnInfo.Spread,	sizeof(float),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Spread);
+		fread_compat(proj->GeneralSpawnInfo.Speed,		sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Speed);
+		fread_compat(proj->GeneralSpawnInfo.SpeedVar,	sizeof(float),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.SpeedVar);
 
-		proj->Proj.Proj = LoadProjectile(fp);
+		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
 	}
 
 	// Projectile trail
@@ -909,7 +909,7 @@ static size_t GetProjSize(proj_t *prj)
 	if (prj)
 		return 	prj->Exp.SndFilename.size() + prj->filename.size() +
 				prj->Hit.SndFilename.size() + prj->ImgFilename.size() +
-				GetProjSize(prj->Proj.Proj) + prj->Tch.SndFilename.size() +
+				GetProjSize(prj->GeneralSpawnInfo.Proj) + prj->Tch.SndFilename.size() +
 				/*GetSurfaceMemorySize(prj->bmpImage.get()) + */
 				sizeof(proj_t);
 	else
@@ -966,7 +966,7 @@ void CGameScript::Shutdown()
 void CGameScript::ShutdownProjectile(proj_t *prj)
 {
 	if(prj) {
-		ShutdownProjectile(prj->Proj.Proj);
+		ShutdownProjectile(prj->GeneralSpawnInfo.Proj);
 		ShutdownProjectile(prj->Trail.Proj.Proj);
 		delete prj;
 	}
@@ -1324,7 +1324,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->PlyHit.Projectiles = false;
 	proj->Exp.Projectiles = false;
 	proj->Tch.Projectiles = false;
-	proj->Proj.Proj = NULL;
+	proj->GeneralSpawnInfo.Proj = NULL;
 	proj->Trail.Proj.Proj = NULL;
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
@@ -1459,18 +1459,18 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
 		  proj->Tch.Projectiles) {
-		ReadKeyword(file,"Projectile","Useangle",&proj->Proj.Useangle,0);
-		ReadInteger(file,"Projectile","Angle",&proj->Proj.Angle,0);
-		ReadInteger(file,"Projectile","Speed",&proj->Proj.Speed,0);
-		ReadFloat(file,"Projectile","SpeedVar",&proj->Proj.SpeedVar,0);
-		ReadFloat(file,"Projectile","Spread",&proj->Proj.Spread,0);
-		ReadInteger(file,"Projectile","Amount",&proj->Proj.Amount,0);
+		ReadKeyword(file,"Projectile","Useangle",&proj->GeneralSpawnInfo.Useangle,0);
+		ReadInteger(file,"Projectile","Angle",&proj->GeneralSpawnInfo.Angle,0);
+		ReadInteger(file,"Projectile","Speed",&proj->GeneralSpawnInfo.Speed,0);
+		ReadFloat(file,"Projectile","SpeedVar",&proj->GeneralSpawnInfo.SpeedVar,0);
+		ReadFloat(file,"Projectile","Spread",&proj->GeneralSpawnInfo.Spread,0);
+		ReadInteger(file,"Projectile","Amount",&proj->GeneralSpawnInfo.Amount,0);
 
 		// Load the projectile
 		std::string prjfile;
 		ReadString(file,"Projectile","Projectile",prjfile,"");
 
-		proj->Proj.Proj = CompileProjectile(dir,prjfile.c_str());
+		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir,prjfile.c_str());
 	}
 
 

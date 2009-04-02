@@ -610,7 +610,7 @@ public:
 
 	void projectile_doSpawnOthers(CProjectile* const prj, AbsTime fSpawnTime) {
 		const proj_t *pi = prj->GetProjInfo();
-		pi->Proj.apply(prj, fSpawnTime);
+		pi->GeneralSpawnInfo.apply(prj, fSpawnTime);
 	}
 
 	void projectile_doMakeDirt(CProjectile* const prj) {

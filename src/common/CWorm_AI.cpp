@@ -2145,7 +2145,8 @@ bool CWormBotInputHandler::AI_Shoot()
 					else if (tmp->Hit.Projectiles || tmp->PlyHit.Projectiles || tmp->Tch.Projectiles)
 						break;
 
-					tmp = tmp->Proj.Proj;
+					// TODO: this is not correct anymore for newer gamescripts
+					tmp = tmp->GeneralSpawnInfo.Proj;
 				}
 
 				// Get the alpha

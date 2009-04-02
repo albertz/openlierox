@@ -21,68 +21,6 @@
 
 struct proj_t;
 
-// Projectile trails
-enum Proj_TrailType {
-	TRL_NONE = 0,
-	TRL_SMOKE = 1,
-	TRL_CHEMSMOKE = 2,
-	TRL_PROJECTILE = 3,
-	TRL_DOOMSDAY = 4,
-	TRL_EXPLOSIVE = 5,
-	
-	__TRL_LBOUND = INT_MIN,
-	__TRL_UBOUND = INT_MAX // force enum to be of size int
-};
-
-static_assert(sizeof(Proj_TrailType) == sizeof(int), Proj_TrailType__SizeCheck);
-
-
-
-// Projectile method types
-enum Proj_ActionType {
-	PJ_BOUNCE = 0,
-	PJ_EXPLODE = 1,
-	PJ_INJURE = 2,
-	PJ_CARVE = 4,
-	PJ_DIRT = 5,
-	PJ_GREENDIRT = 6,
-	PJ_DISAPPEAR = 7,
-	PJ_NOTHING = 8,
-	
-	__PJ_LBOUND = INT_MIN,
-	__PJ_UBOUND = INT_MAX // force enum to be of size int
-};
-
-static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck);
-
-
-
-struct Proj_Action {
-	Proj_Action() : Type(PJ_NOTHING) {}
-	
-	//  --------- LX56 start ----------
-	Proj_ActionType Type;
-	int		Damage;
-	bool	Projectiles;
-	int		Shake; // LX56: ignored for PlyHit
-	// ---------- LX56 (timer hit) end -----------
-	
-	bool	UseSound; // LX56: only used for terrain
-	std::string	SndFilename; // LX56: only used for terrain // (was 64b before)
-	// ---------- LX56 (Exp/Tch hit) end -----------
-	
-	float	BounceCoeff;
-	int		BounceExplode; // LX56: ignored for PlyHit
-	//  --------- LX56 (terrain hit) end ----------
-};
-
-struct Proj_Timer : Proj_Action {
-	Proj_Timer() : Time(0) {}
-	
-	float	Time;
-	float	TimeVar;	
-};
-
 
 class CProjectile;
 struct shoot_t;
@@ -135,7 +73,26 @@ struct Proj_SpawnInfo {
 	bool	AddParentVel; // LX56: true iff shot
 	
 	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
+	bool isSet() const { return Proj != NULL; }
 };
+
+
+
+// Projectile trails
+enum Proj_TrailType {
+	TRL_NONE = 0,
+	TRL_SMOKE = 1,
+	TRL_CHEMSMOKE = 2,
+	TRL_PROJECTILE = 3,
+	TRL_DOOMSDAY = 4,
+	TRL_EXPLOSIVE = 5,
+	
+	__TRL_LBOUND = INT_MIN,
+	__TRL_UBOUND = INT_MAX // force enum to be of size int
+};
+
+static_assert(sizeof(Proj_TrailType) == sizeof(int), Proj_TrailType__SizeCheck);
+
 
 struct Proj_Trail {
 	Proj_TrailType Type;
@@ -144,6 +101,55 @@ struct Proj_Trail {
 	Proj_SpawnInfo Proj;
 	
 	Proj_Trail() { Proj.UseSpecial11VecForSpeedVar = true; }
+};
+
+
+
+// Projectile method types
+enum Proj_ActionType {
+	PJ_BOUNCE = 0,
+	PJ_EXPLODE = 1,
+	PJ_INJURE = 2,
+	PJ_CARVE = 4,
+	PJ_DIRT = 5,
+	PJ_GREENDIRT = 6,
+	PJ_DISAPPEAR = 7,
+	PJ_NOTHING = 8,
+	
+	__PJ_LBOUND = INT_MIN,
+	__PJ_UBOUND = INT_MAX // force enum to be of size int
+};
+
+static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck);
+
+
+
+struct Proj_Action {
+	Proj_Action() : Type(PJ_NOTHING) {}
+	
+	//  --------- LX56 start ----------
+	Proj_ActionType Type;
+	int		Damage;
+	bool	Projectiles;
+	int		Shake; // LX56: ignored for PlyHit
+	// ---------- LX56 (timer hit) end -----------
+	
+	bool	UseSound; // LX56: only used for terrain
+	std::string	SndFilename; // LX56: only used for terrain // (was 64b before)
+	// ---------- LX56 (Exp/Tch hit) end -----------
+	
+	float	BounceCoeff;
+	int		BounceExplode; // LX56: ignored for PlyHit
+	//  --------- LX56 (terrain hit) end ----------
+	
+	Proj_SpawnInfo Proj;
+};
+
+struct Proj_Timer : Proj_Action {
+	Proj_Timer() : Time(0) {}
+	
+	float	Time;
+	float	TimeVar;	
 };
 
 
