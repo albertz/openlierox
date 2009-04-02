@@ -598,14 +598,14 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
-		if(pi->PrjTrl.UsePrjVelocity) {
+		if(pi->PrjTrl.UseParentVelocity) {
 			sprd = prj->GetVelocity();
 			sprd *= 0.3f;		// Slow it down a bit.
 								// It can be sped up by the speed variable in the script
 		}
 
 		for(int i=0; i < pi->PrjTrl.Amount; i++) {
-			if(!pi->PrjTrl.UsePrjVelocity)
+			if(!pi->PrjTrl.UseParentVelocity)
 				GetVecsFromAngle((int)((float)pi->PrjTrl.Spread * prj->getRandomFloat()),&sprd,NULL);
 
 			CVec v = sprd*(float)pi->PrjTrl.Speed + CVec(1,1)*(float)pi->PrjTrl.SpeedVar*prj->getRandomFloat();

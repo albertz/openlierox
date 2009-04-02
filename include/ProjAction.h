@@ -17,7 +17,7 @@
 #include <string>
 #include "StaticAssert.h"
 #include "types.h"
-
+#include "CVec.h"
 
 struct proj_t;
 
@@ -107,13 +107,15 @@ struct Proj_SpawnParent {
 	Proj_SpawnParent(CProjectile* p) : proj(p), type(PSPT_PROJ) {}
 	
 	int ownerWorm() const;
+	CVec position() const;
+	CVec velocity() const;
 };
 
 
 class CGameScript;
 
 struct Proj_SpawnInfo {
-	Proj_SpawnInfo() : Proj(NULL), UsePrjVelocity(true), Useangle(false) {}
+	Proj_SpawnInfo() : Proj(NULL), UseParentVelocity(true), ParentVelFactor(1), Useangle(false) {}
 	
 	int		Speed;
 	float	SpeedVar;
@@ -121,7 +123,8 @@ struct Proj_SpawnInfo {
 	int		Amount;
 	proj_t	*Proj;
 	
-	bool	UsePrjVelocity; // LX56: only for trail
+	bool	UseParentVelocity; // LX56: only for trail
+	float	ParentVelFactor;
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
