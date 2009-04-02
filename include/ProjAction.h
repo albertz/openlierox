@@ -134,7 +134,7 @@ struct Proj_SpawnInfo {
 	bool	UseRandomRot; // LX56: true iff shot
 	bool	AddParentVel; // LX56: true iff shot
 	
-	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime);
+	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime) const;
 };
 
 struct Proj_Trail {
