@@ -1167,55 +1167,9 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		// Draw the muzzle flash
 		w->setDrawMuzzle(true);
 	}
+
 	
-	
-	// calculate the target position of the projectile of the shoot
-	CVec dir;
-	GetVecsFromAngle(shot->nAngle,&dir,NULL);
-	CVec pos = shot->cPos + dir*8;
-	
-	
-	CVec sprd;
-
-	for(int i=0; i<wpn->Proj.Amount; i++) {
-
-		int rot = 0;
-
-		// Spread
-		{
-			float a = (float)shot->nAngle + GetFixedRandomNum(shot->nRandom)*(float)wpn->Proj.Spread;
-			GetVecsFromAngle((int)a, &sprd, NULL);
-		}
-		
-		// Calculate a random starting angle for the projectile rotation (if used)
-		if(wpn->Proj.Proj->Rotating) {
-
-			// Prevent div by zero
-			if(wpn->Proj.Proj->RotIncrement == 0)
-				wpn->Proj.Proj->RotIncrement = 1;
-			rot = GetRandomInt( 360 / wpn->Proj.Proj->RotIncrement ) * wpn->Proj.Proj->RotIncrement;
-		}
-
-        shot->nRandom++;
-		shot->nRandom %= 255;
-
-		float speed = (float)wpn->Proj.Speed + (float)wpn->Proj.SpeedVar * GetFixedRandomNum(shot->nRandom);
-
-        shot->nRandom *= 5;
-		shot->nRandom %= 255;
-
-        CVec v = sprd*speed + shot->cWormVel;
-
-		// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
-		// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
-		// is probably outdated at this time
-		SpawnProjectile(pos, v, rot, shot->nWormID, wpn->Proj.Proj, shot->nRandom, fSpawnTime,
-						GetPhysicsTime() + 0.1f // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
-					   );
-
-		shot->nRandom++;
-		shot->nRandom %= 255;
-	}
+	wpn->Proj.apply(cGameScript.get(), shot, fSpawnTime);
 }
 
 
