@@ -1169,7 +1169,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	}
 
 	
-	wpn->Proj.apply(cGameScript.get(), shot, fSpawnTime);
+	wpn->Proj.apply(shot, fSpawnTime);
 }
 
 

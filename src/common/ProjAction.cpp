@@ -83,7 +83,7 @@ float Proj_SpawnParent::angle() const {
 
 
 
-void Proj_SpawnInfo::apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime) const {
+void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	// Calculate the angle of the direction the projectile is heading
 	float heading = 0;
 	if(Useangle)
