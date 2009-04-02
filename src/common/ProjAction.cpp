@@ -13,6 +13,7 @@
 #include "CProjectile.h"
 #include "CClient.h"
 #include "ProjectileDesc.h"
+#include "Physics.h"
 
 int Proj_SpawnParent::ownerWorm() const {
 	switch(type) {
@@ -27,7 +28,7 @@ int Proj_SpawnParent::fixedRandomIndex() const {
 	switch(type) {
 		case PSPT_NOTHING: return -1;
 		case PSPT_SHOT: return shot->nRandom;
-		case PSPT_PROJ: return proj->getRandomIndex(); 
+		case PSPT_PROJ: return proj->getRandomIndex() + 1; 
 	}
 	return -1;	
 }
@@ -128,8 +129,13 @@ void Proj_SpawnInfo::apply(CGameScript* script, Proj_SpawnParent parent, AbsTime
 		AbsTime ignoreWormCollBeforeTime = spawnTime;
 		if(parent.type == Proj_SpawnParent::PSPT_PROJ)
 			ignoreWormCollBeforeTime = parent.proj->getIgnoreWormCollBeforeTime();
+		else
+			// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
+			// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
+			// is probably outdated at this time
+			ignoreWormCollBeforeTime = GetPhysicsTime() + 0.1f; // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 		
-		int random = parent.fixedRandomIndex() + 1;
+		int random = parent.fixedRandomIndex();
 
 		cClient->SpawnProjectile(parent.position(), v, rot, parent.ownerWorm(), Proj, random, spawnTime, ignoreWormCollBeforeTime);
 
