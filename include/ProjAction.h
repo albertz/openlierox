@@ -16,12 +16,13 @@
 
 #include <string>
 #include "StaticAssert.h"
+#include "types.h"
 
 
 struct proj_t;
 
 // Projectile trails
-enum Proj_Trail {
+enum Proj_TrailType {
 	TRL_NONE = 0,
 	TRL_SMOKE = 1,
 	TRL_CHEMSMOKE = 2,
@@ -33,7 +34,12 @@ enum Proj_Trail {
 	__TRL_UBOUND = INT_MAX // force enum to be of size int
 };
 
-static_assert(sizeof(Proj_Trail) == sizeof(int), Proj_Trail__SizeCheck);
+static_assert(sizeof(Proj_TrailType) == sizeof(int), Proj_TrailType__SizeCheck);
+
+struct Proj_Trail {
+	Proj_TrailType Type;
+	float	Delay; // used for spawning
+};
 
 
 // Projectile method types
@@ -107,7 +113,7 @@ struct Proj_SpawnParent {
 class CGameScript;
 
 struct Proj_SpawnInfo {
-	Proj_SpawnInfo() : Proj(NULL) {}
+	Proj_SpawnInfo() : Proj(NULL), UsePrjVelocity(true), Useangle(false) {}
 	
 	int		Speed;
 	float	SpeedVar;
@@ -116,12 +122,11 @@ struct Proj_SpawnInfo {
 	proj_t	*Proj;
 	
 	bool	UsePrjVelocity; // LX56: only for trail
-	float	Delay; // LX56: only for trail
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
 
-	void apply(CGameScript* script, Proj_SpawnParent parent);
+	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime);
 };
 
 

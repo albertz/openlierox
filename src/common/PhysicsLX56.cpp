@@ -534,7 +534,7 @@ public:
 		}
 
 		// Trails
-		switch(pi->Trail) {
+		switch(pi->Trail.Type) {
 		case TRL_NONE: break;
 		case TRL_SMOKE:
 			if(proj->extra() >= 0.075f) {
@@ -562,7 +562,7 @@ public:
 			break;
 		case TRL_PROJECTILE: // Projectile trail
 			if(currentTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = currentTime + pi->PrjTrl.Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
+				proj->lastTrailProj() = currentTime + pi->Trail.Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 				*projspawn = true;
 			}

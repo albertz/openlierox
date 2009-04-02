@@ -21,6 +21,6 @@ int Proj_SpawnParent::ownerWorm() const {
 	return -1;
 }
 
-void Proj_SpawnInfo::apply(CGameScript* script, Proj_SpawnParent parent) {
+void Proj_SpawnInfo::apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime) {
 	
 }

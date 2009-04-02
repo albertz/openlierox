@@ -163,7 +163,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite_endian_compat((proj->Type),			sizeof(int),1,fp);
 	fwrite_endian_compat((proj->Timer.Time),	sizeof(float),1,fp);
 	fwrite_endian_compat((proj->Timer.TimeVar),sizeof(float),1,fp);
-	fwrite_endian_compat((proj->Trail),		sizeof(int),1,fp);
+	fwrite_endian_compat((proj->Trail.Type),		sizeof(int),1,fp);
 	//fwrite_endian_compat(proj->UseCustomGravity, sizeof(int), 1, fp); // use this to test static assert (should fail if sizeof(bool)!=sizeof(int))
 	fwrite_endian<int>(fp, proj->UseCustomGravity);
 
@@ -310,10 +310,10 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 
 	// Projectile trail
-	if(proj->Trail == TRL_PROJECTILE) {
+	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fwrite_endian<int>(fp, proj->PrjTrl.UsePrjVelocity);
-		fwrite_endian_compat((proj->PrjTrl.Delay*1000.0f),				sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->Trail.Delay*1000.0f),				sizeof(float),	1, fp);
 		fwrite_endian_compat((proj->PrjTrl.Amount),			sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->PrjTrl.Speed),				sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->PrjTrl.SpeedVar),			sizeof(float),	1, fp);
@@ -557,8 +557,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Timer.Time);
 	fread_compat(proj->Timer.TimeVar,	sizeof(float),1,fp);
 	EndianSwap(proj->Timer.TimeVar);
-	fread_compat(proj->Trail,			sizeof(int),  1,fp);
-	EndianSwap(proj->Trail);
+	fread_compat(proj->Trail.Type,			sizeof(int),  1,fp);
+	EndianSwap(proj->Trail.Type);
 	fread_endian<int>(fp, proj->UseCustomGravity);
 	if(proj->UseCustomGravity)
 	{
@@ -761,11 +761,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 
 	// Projectile trail
-	if(proj->Trail == TRL_PROJECTILE) {
+	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fread_endian<int>(fp, proj->PrjTrl.UsePrjVelocity);
-		fread_compat(proj->PrjTrl.Delay,			sizeof(float),	1, fp);
-		EndianSwap(proj->PrjTrl.Delay);
+		fread_compat(proj->Trail.Delay,			sizeof(float),	1, fp);
+		EndianSwap(proj->Trail.Delay);
 		fread_compat(proj->PrjTrl.Amount,			sizeof(int),	1, fp);
 		EndianSwap(proj->PrjTrl.Amount);
 		fread_compat(proj->PrjTrl.Speed,			sizeof(int),	1, fp);
@@ -776,7 +776,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		EndianSwap(proj->PrjTrl.Spread);
 
 		// Change from milli-seconds to seconds
-		proj->PrjTrl.Delay /= 1000.0f;
+		proj->Trail.Delay /= 1000.0f;
 
 		proj->PrjTrl.Proj = LoadProjectile(fp);
 	}
@@ -1332,7 +1332,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
 	ReadFloat(file,"General","Timer",&proj->Timer.Time,0);
 	ReadFloat(file, "General", "TimerVar", &proj->Timer.TimeVar, 0);
-	ReadKeyword(file,"General","Trail",(int*)&proj->Trail,TRL_NONE);
+	ReadKeyword(file,"General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
 	
 	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
 		proj->UseCustomGravity = true;
@@ -1475,9 +1475,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 
 	// Projectile trail
-	if(proj->Trail == TRL_PROJECTILE) {
+	if(proj->Trail.Type == TRL_PROJECTILE) {
 		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->PrjTrl.UsePrjVelocity, false);
-		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->PrjTrl.Delay, 100); proj->PrjTrl.Delay /= 1000.0f;
+		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
 		ReadInteger(file, "ProjectileTrail", "Amount", &proj->PrjTrl.Amount, 1);
 		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->PrjTrl.Speed, 100);
 		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->PrjTrl.SpeedVar, 0);
