@@ -72,7 +72,7 @@ struct SoundSample;
 
 // Weapon structure
 struct weapon_t {
-	weapon_t() : ID(0), smpSample(NULL) {}
+	weapon_t() : ID(0), smpSample(NULL) { Proj.UseRandomRot = true; Proj.Useangle = true; Proj.AddParentVel = true; }
 	
 	int		ID;
 	std::string	Name; // (was 64b before)

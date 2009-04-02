@@ -107,27 +107,33 @@ struct Proj_SpawnParent {
 	float fixedRandomFloat() const;
 	CVec position() const;
 	CVec velocity() const;
+	float angle() const;
 };
 
 
 class CGameScript;
 
 struct Proj_SpawnInfo {
-	Proj_SpawnInfo() : UseSpecial11VecForSpeedVar(false), Proj(NULL), UseParentVelocity(false), ParentVelFactor(0.3f), Useangle(false), Angle(0) {}
+	Proj_SpawnInfo() :
+	Proj(NULL), UseParentVelocityForSpread(false), ParentVelFactor(0.3f), Useangle(false), Angle(0),
+	UseSpecial11VecForSpeedVar(false), UseRandomRot(false), AddParentVel(false) {}
 	
 	int		Speed;
 	float	SpeedVar;
-	bool	UseSpecial11VecForSpeedVar; // LX56: true only for trail
 	float	Spread;
 	int		Amount;
 	proj_t	*Proj;
 	
-	bool	UseParentVelocity; // LX56: only for trail
+	bool	UseParentVelocityForSpread; // LX56: only for trail
 	float	ParentVelFactor;
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
 
+	bool	UseSpecial11VecForSpeedVar; // LX56: true only for trail
+	bool	UseRandomRot; // LX56: true only for shot
+	bool	AddParentVel; // LX56: true only for shot
+	
 	void apply(CGameScript* script, Proj_SpawnParent parent, AbsTime spawnTime);
 };
 

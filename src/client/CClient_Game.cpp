@@ -1121,7 +1121,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 	// Weird
 	if (!cGameScript.get()->GetWeapons()) {
-		printf("WARNING: weapons not loaded while a client was shooting\n");
+		warnings << "ProcessShot: weapons not loaded while a client was shooting" << endl;
 		return;
 	}
 
@@ -1146,11 +1146,12 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	
 
 	// Play the weapon's sound
-	if(wpn->UseSound && NewNet::CanPlaySound(shot->nWormID)) {
+	if(wpn->UseSound) {
 		CWorm* me = cViewports[0].getTarget();
-		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
-			StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
-		else
+		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
+			if(NewNet::CanPlaySound(shot->nWormID))
+				StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
+		} else
 			StartSound(wpn->smpSample, shot->cPos, false, 100, me);
 	}
 	

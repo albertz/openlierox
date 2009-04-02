@@ -607,14 +607,14 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 
 		CVec sprd;
-		if(pi->Trail.Proj.UseParentVelocity) {
+		if(pi->Trail.Proj.UseParentVelocityForSpread) {
 			sprd = prj->GetVelocity();
 			sprd *= 0.3f;		// Slow it down a bit.
 								// It can be sped up by the speed variable in the script
 		}
 
 		for(int i=0; i < pi->Trail.Proj.Amount; i++) {
-			if(!pi->Trail.Proj.UseParentVelocity)
+			if(!pi->Trail.Proj.UseParentVelocityForSpread)
 				GetVecsFromAngle((int)((float)pi->Trail.Proj.Spread * prj->getRandomFloat()),&sprd,NULL);
 
 			CVec v = sprd*(float)pi->Trail.Proj.Speed + CVec(1,1)*(float)pi->Trail.Proj.SpeedVar*prj->getRandomFloat();
