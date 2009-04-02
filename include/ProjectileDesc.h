@@ -77,16 +77,17 @@ struct proj_t {
 	Proj_Action	Hit;
 	
     // OnExplode (When something near has exploded)
+	// WARNING: not used in LX56 and should thus never ever be used to keep compatibility
     Proj_Action	Exp;
 		
     // Touch (When another projectile has touched this projectile)
+	// WARNING: not used in LX56 and should thus never ever be used to keep compatibility
     Proj_Action	Tch;
-
 	
 	// Player hit
 	Proj_Action PlyHit;
 	
-	// event proj spawning	
+	// event proj spawning (if no specific spawnInfo is set in Proj_Action)
 	Proj_SpawnInfo GeneralSpawnInfo;
 	
 	
