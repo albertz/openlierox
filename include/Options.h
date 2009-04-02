@@ -182,7 +182,6 @@ public:
 	std::string	sResolution;
 	std::string sVideoPostProcessor;
 	int		iColourDepth;
-	bool	bUseOpenGlBlit;
 
 	// Network
 	int		iNetworkPort;
