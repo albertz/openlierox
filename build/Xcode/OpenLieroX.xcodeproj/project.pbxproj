@@ -33,6 +33,7 @@
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
+		2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2350DC170F84FB4800DFAD78 /* ProjAction.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -446,6 +447,7 @@
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
+		2350DC170F84FB4800DFAD78 /* ProjAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjAction.cpp; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
 		23581F630F3102D700C64145 /* UploadSpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UploadSpeedTest.cpp; sourceTree = "<group>"; };
 		23581F730F310C6D00C64145 /* UploadSpeedTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UploadSpeedTest.h; sourceTree = "<group>"; };
@@ -1216,6 +1218,7 @@
 				23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */,
 				23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */,
 				23EAC0960F4204DF00CA55CF /* Process.cpp */,
+				2350DC170F84FB4800DFAD78 /* ProjAction.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1817,6 +1820,7 @@
 				238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */,
 				238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */,
 				2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */,
+				2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

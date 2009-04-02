@@ -52,6 +52,7 @@ public:
 		bUsed = false;
 		fSpeed = 0;
 		fLife = 0;
+		iOwner = -1;
 		fSpawnTime = AbsTime(0);
 		tProjInfo = NULL;
 		fLastTrailProj = AbsTime(0);
@@ -185,8 +186,8 @@ public:
 
 	CVec	GetPosition(void)		{ return vPosition; }
 	CVec	GetVelocity(void)		{ return vVelocity; }
-	proj_t	*GetProjInfo(void)		{ return tProjInfo; }
-	int		GetOwner(void)			{ return iOwner; }
+	proj_t	*GetProjInfo()		{ return tProjInfo; }
+	int		GetOwner() const			{ return iOwner; }
 
     float   getTimeVarRandom(void)  { return fTimeVarRandom; }
 

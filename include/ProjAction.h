@@ -97,8 +97,14 @@ struct Proj_SpawnParent {
 	} type;
 	
 	Proj_SpawnParent() : worm(NULL), type(PSPT_NOTHING) {}
+	Proj_SpawnParent(CWorm* w) : worm(w), type(PSPT_WORM) {}
+	Proj_SpawnParent(CProjectile* p) : proj(p), type(PSPT_PROJ) {}
+	
+	int ownerWorm() const;
 };
 
+
+class CGameScript;
 
 struct Proj_SpawnInfo {
 	Proj_SpawnInfo() : Proj(NULL) {}
@@ -114,7 +120,8 @@ struct Proj_SpawnInfo {
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
-	
+
+	void apply(CGameScript* script, Proj_SpawnParent parent);
 };
 
 
