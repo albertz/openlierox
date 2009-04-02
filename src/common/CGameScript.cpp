@@ -1460,33 +1460,36 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		  proj->Tch.Projectiles) {
 		ReadKeyword(file,"Projectile","Useangle",&proj->GeneralSpawnInfo.Useangle,0);
 		ReadInteger(file,"Projectile","Angle",&proj->GeneralSpawnInfo.Angle,0);
+		
+		ReadInteger(file,"Projectile","Amount",&proj->GeneralSpawnInfo.Amount,0);
 		ReadInteger(file,"Projectile","Speed",&proj->GeneralSpawnInfo.Speed,0);
 		ReadFloat(file,"Projectile","SpeedVar",&proj->GeneralSpawnInfo.SpeedVar,0);
 		ReadFloat(file,"Projectile","Spread",&proj->GeneralSpawnInfo.Spread,0);
-		ReadInteger(file,"Projectile","Amount",&proj->GeneralSpawnInfo.Amount,0);
 
 		// Load the projectile
 		std::string prjfile;
 		ReadString(file,"Projectile","Projectile",prjfile,"");
 
-		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir,prjfile.c_str());
+		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir,prjfile);
 	}
 
 
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
-		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->Trail.Proj.UseParentVelocityForSpread, false);
 		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
+
+		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->Trail.Proj.UseParentVelocityForSpread, false);
+		
 		ReadInteger(file, "ProjectileTrail", "Amount", &proj->Trail.Proj.Amount, 1);
 		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->Trail.Proj.Speed, 100);
 		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->Trail.Proj.SpeedVar, 0);
 		ReadFloat(file, "ProjectileTrail", "Spread", &proj->Trail.Proj.Spread, 0);
 
-// Load the projectile
+		// Load the projectile
 		std::string prjfile;
 		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
 
-		proj->Trail.Proj.Proj = CompileProjectile(dir,prjfile.c_str());
+		proj->Trail.Proj.Proj = CompileProjectile(dir,prjfile);
 	}
 
 	return proj;
