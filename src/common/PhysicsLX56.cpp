@@ -607,13 +607,6 @@ public:
 		spawnInfo->apply(prj, fSpawnTime);
 	}
 
-	void projectile_doSpawnOthers(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
-		if(spawnInfo && spawnInfo->isSet())
-			spawnInfo->apply(prj, fSpawnTime);
-		else
-			prj->GetProjInfo()->GeneralSpawnInfo.apply(prj, fSpawnTime);
-	}
-
 	void projectile_doMakeDirt(CProjectile* const prj) {
 		int damage = 5;
 		int d = 0;
@@ -888,14 +881,16 @@ public:
 
 		if(trailprojspawn) {
 			// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-			projectile_doProjSpawn( prj, &prj->GetProjInfo()->Trail.Proj, prj->fLastSimulationTime );
+			projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );
 		}
 
 		// Spawn any projectiles?
 		if(spawnprojectiles) {
+			if(!spawnInfo || !spawnInfo->isSet())
+				spawnInfo = &pi->GeneralSpawnInfo;
 			// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 			// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-			projectile_doSpawnOthers(prj, spawnInfo, currentTime);
+			projectile_doProjSpawn(prj, spawnInfo, currentTime);
 		}
 
 		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
