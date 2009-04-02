@@ -1139,7 +1139,11 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		return;
 	}
 
-
+	if(wpn->Proj.Proj == NULL) {
+		errors << "ProcessShot: weapon " << wpn->Name << " has no projectile set" << endl;
+		return;
+	}
+	
 	// calculate the target position of the projectile of the shoot
 	CVec dir;
 	GetVecsFromAngle(shot->nAngle,&dir,NULL);
@@ -1183,14 +1187,12 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		GetVecsFromAngle((int)a,&sprd,NULL);
 
 		// Calculate a random starting angle for the projectile rotation (if used)
-		if(wpn->Proj.Proj) {
-			if(wpn->Proj.Proj->Rotating) {
+		if(wpn->Proj.Proj->Rotating) {
 
-				// Prevent div by zero
-				if(wpn->Proj.Proj->RotIncrement == 0)
-					wpn->Proj.Proj->RotIncrement = 1;
-				rot = GetRandomInt( 360 / wpn->Proj.Proj->RotIncrement ) * wpn->Proj.Proj->RotIncrement;
-			}
+			// Prevent div by zero
+			if(wpn->Proj.Proj->RotIncrement == 0)
+				wpn->Proj.Proj->RotIncrement = 1;
+			rot = GetRandomInt( 360 / wpn->Proj.Proj->RotIncrement ) * wpn->Proj.Proj->RotIncrement;
 		}
 
         shot->nRandom++;
