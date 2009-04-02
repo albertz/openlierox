@@ -25,7 +25,9 @@
 #include <time.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
+#ifdef REAL_OPENGL
 #include <SDL_opengl.h>
+#endif
 #include <cstdlib>
 #include <sstream>
 #include <cstring>
@@ -88,8 +90,6 @@ SDL_PixelFormat defaultFallbackFormat =
 	};
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
-
-static const bool USE_OPENGLBLIT = true;
 
 
 ///////////////////
@@ -224,7 +224,9 @@ static void DumpPixelFormat(const SDL_PixelFormat* format) {
 	notes << str.str() << endl;
 }
 
+#ifdef REAL_OPENGL
 static void OGL_init();
+#endif
 
 ///////////////////
 // Set the video mode
@@ -299,9 +301,9 @@ bool SetVideoMode()
 
 	if (opengl) {
 		vidflags |= SDL_OPENGL;
-		if(USE_OPENGLBLIT)
-			vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
-		
+#ifndef REAL_OPENGL
+		vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
+#endif
 		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
 		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
 		//#ifndef MACOSX
@@ -411,8 +413,8 @@ setvideomode:
 	if (tLX)
 		tLX->bVideoModeChanged = true;
 	
-	
-	if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
+#ifdef REAL_OPENGL	
+	if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 		static SDL_PixelFormat OGL_format32 =
 		{
 			NULL, //SDL_Palette *palette;
@@ -464,16 +466,19 @@ setvideomode:
 		//else
 		//	mainPixelFormat = &OGL_format24;
 	} else
+#endif		
 		mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		notes << "using doublebuffering" << endl;
 
 	// Correct the surface format according to SDL
-	if(!USE_OPENGLBLIT && ((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)) {
+#ifdef REAL_OPENGL
+	if(((SDL_GetVideoSurface()->flags & SDL_OPENGL) != 0)) {
 		iSurfaceFormat = SDL_SWSURFACE;
-	}
-	else if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
+	} else
+#endif	
+	if((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
 		notes << "using hardware surfaces" << endl;
 	}
@@ -487,8 +492,11 @@ setvideomode:
 	if(SDL_GetVideoSurface()->flags & SDL_OPENGL) {
 		hints << "using OpenGL" << endl;
 		
-		if(!USE_OPENGLBLIT)
-			OGL_init();
+#ifdef REAL_OPENGL
+		OGL_init();
+#else
+		FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));		
+#endif
 	}
 	else
 		FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
@@ -551,6 +559,7 @@ void ProcessScreenshots()
 
 
 
+#ifdef REAL_OPENGL
 
 static GLuint OGL_createTexture() {
 	GLuint textureid;
@@ -650,6 +659,7 @@ static void OGL_draw(SDL_Surface* src) {
 	int h = VideoPostProcessor::get()->screenHeight();
 	OGL_setupScreenForSingleTexture(OGL_screenBuf, w, h);
 }
+#endif
 
 
 
@@ -667,9 +677,11 @@ void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
 
-	if(!USE_OPENGLBLIT && (psScreen->flags & SDL_OPENGL))
+#ifdef REAL_OPENGL	
+	if((psScreen->flags & SDL_OPENGL))
 		glFlush();
 	else
+#endif
 		SDL_Flip( psScreen );
 
 	if(psScreen->flags & SDL_OPENGL)
@@ -684,13 +696,16 @@ public:
 
 	virtual void resetVideo() {
 		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
-		if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
+#ifdef REAL_OPENGL
+		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 			// get smallest power-of-2 dimension which is bigger than src
 			int w = 1; while(w < 640) w <<= 1;
 			int h = 1; while(h < 480) h <<= 1;
 			m_screenBuf[0] = gfxCreateSurface(w, h);
 			m_screenBuf[1] = gfxCreateSurface(w, h);
-		} else {
+		} else
+#endif
+		{
 			m_screenBuf[0] = gfxCreateSurface(640, 480);
 			m_screenBuf[1] = gfxCreateSurface(640, 480);
 		}
@@ -712,10 +727,12 @@ public:
 	}
 
 	virtual void processToScreen() {
-		if(!USE_OPENGLBLIT && (SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
+#ifdef REAL_OPENGL
+		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
 			OGL_draw(m_videoBufferSurface);
 		}
 		else
+#endif			
 			DrawImageAdv(SDL_GetVideoSurface(), m_videoBufferSurface, 0, 0, 0, 0, 640, 480);
 	}
 
