@@ -1255,8 +1255,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 				if(!b->getUsed())
 					continue;
 
-				float bonussize = 3;
-				if(fabs(pos.x - b->getPosition().x) < bonussize) {
+				const float bonussize = 3;
+				if((pos - b->getPosition()).GetLength() < bonussize) {
 					Explosion(pos,0,5,shot->nWormID); // Destroy the bonus by an explosion
 					break;
 				}
