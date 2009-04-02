@@ -600,9 +600,8 @@ public:
 		CVec sprd;
 		if(pi->PrjTrl.UsePrjVelocity) {
 			sprd = prj->GetVelocity();
-			float l = NormalizeVector(&sprd);
-			sprd *= (l*0.3f);		// Slow it down a bit.
-									// It can be sped up by the speed variable in the script
+			sprd *= 0.3f;		// Slow it down a bit.
+								// It can be sped up by the speed variable in the script
 		}
 
 		for(int i=0; i < pi->PrjTrl.Amount; i++) {
@@ -678,11 +677,10 @@ public:
 
 		bool spawnprojectiles = false;
 		const proj_t *pi = prj->GetProjInfo();
-		float f;
 
 
 		// Check if the timer is up
-		f = prj->getTimeVarRandom();
+		float f = prj->getTimeVarRandom();
 		if(pi->Timer.Time > 0 && (pi->Timer.Time + pi->Timer.TimeVar * f) < prj->getLife()) {
 			// HINT: all the following actions will delete this projectile after
 
