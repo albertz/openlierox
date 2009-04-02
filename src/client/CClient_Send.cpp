@@ -38,7 +38,7 @@ std::string OldLxCompatibleString(const std::string &Utf8String);
 
 ///////////////////
 // Send the worm details
-void CClientNetEngine::SendWormDetails(void)
+void CClientNetEngine::SendWormDetails()
 {
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update

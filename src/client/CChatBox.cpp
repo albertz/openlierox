@@ -25,7 +25,7 @@
 
 ///////////////////
 // Clear the chatbox
-void CChatBox::Clear(void)
+void CChatBox::Clear()
 {
 	Lines.clear();
 	NewLines.clear();

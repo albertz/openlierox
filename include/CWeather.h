@@ -75,7 +75,7 @@ public:
     CWeather();
 
     bool        Initialize(int nType);
-    void        Shutdown(void);
+    void        Shutdown();
     
     void        Simulate(float dt);
     void        SimulateSnow(float dt);

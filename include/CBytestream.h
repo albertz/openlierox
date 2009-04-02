@@ -87,12 +87,12 @@ public:
 	bool		writeVar(const ScriptVar_t& var);
 	
 	// Reads
-	uchar		readByte(void);
-	bool		readBool(void);
+	uchar		readByte();
+	bool		readBool();
 	int			readInt(uchar numbytes); // readInt(2) will return 0:65535 range, not -32768:32767, so save it into Sint16
-	Sint16		readInt16(void);
+	Sint16		readInt16();
 	Uint64		readUInt64();
-	float		readFloat(void);
+	float		readFloat();
 	std::string readString();
 	std::string readString(size_t maxlen);
 	void		read2Int12(short& x, short& y);

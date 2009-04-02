@@ -82,7 +82,7 @@ void CButton::Draw2(SDL_Surface * bmpDest)
 ///////////////////
 // Create
 // TODO: what is this good for? the WidgetCreator for example never calls this
-void CButton::Create(void)
+void CButton::Create()
 {
     int y2 = 5+iImageID*40;
     Uint8 r,g,b,a;

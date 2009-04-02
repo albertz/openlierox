@@ -92,9 +92,9 @@ public:
 	bool	isJoystickAxis();
 	bool	isJoystickThrottle();
 
-	bool	isUp(void);
-	bool	isDown(void);
-	bool	isDownOnce(void);
+	bool	isUp();
+	bool	isDown();
+	bool	isDownOnce();
 	int wasDown(bool withRepeats) {
 		if(withRepeats) return wasDown();
 		else return wasDown_withoutRepeats();

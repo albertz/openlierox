@@ -135,7 +135,7 @@ private:
 
 private:
 
-	void		Shutdown(void);
+	void		Shutdown();
 	void		ShutdownProjectile(proj_t *prj);
 
 public:

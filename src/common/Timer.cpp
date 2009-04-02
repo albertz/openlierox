@@ -36,7 +36,7 @@ int		Fps = 0;
 ///////////////////
 // Get the frames per second count
 // Should be called once per frame
-int GetFPS(void)
+int GetFPS()
 {
 	Frames++;
 
@@ -59,7 +59,7 @@ int		Fps_MinFPS = 0;
 ///////////////////
 // Get the minimal frames per second count ( the slowest frame )
 // Should be called once per frame
-int GetMinFPS(void)
+int GetMinFPS()
 {
 	Frames_MinFPS++;
 	AbsTime ms = GetTime();

@@ -58,7 +58,7 @@ private:
 public:
 	void	Resize(int x, int y, int w, int h);
 
-	const std::string& getText(void)	{ return sText; }
+	const std::string& getText()	{ return sText; }
 	void setText(const std::string& text);
 
 	static const std::string tagName()	{ return "marquee"; }

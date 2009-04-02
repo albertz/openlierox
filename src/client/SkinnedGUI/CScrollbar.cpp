@@ -730,7 +730,7 @@ int CScrollbar::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modst
 
 ///////////////////
 // Update the slider pos
-void CScrollbar::UpdatePos(void)
+void CScrollbar::UpdatePos()
 {
     iMax = MAX(iMax,1);
     iMin = MAX(iMin,0);

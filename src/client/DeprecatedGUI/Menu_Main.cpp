@@ -56,7 +56,7 @@ static void Menu_Main_GuiThemeComboboxCreate();
 
 ///////////////////
 // Initialize the main menu
-void Menu_MainInitialize(void)
+void Menu_MainInitialize()
 {
 	int i;
 	assert(tMenu);
@@ -100,7 +100,7 @@ void Menu_MainInitialize(void)
 
 ///////////////////
 // Main menu frame
-void Menu_MainFrame(void)
+void Menu_MainFrame()
 {
 	gui_event_t *ev = NULL;
 
@@ -281,7 +281,7 @@ void Menu_MainFrame(void)
 
 ///////////////////
 // Shutdown the main menu
-void Menu_MainShutdown(void)
+void Menu_MainShutdown()
 {
 	cMainMenu.Shutdown();
 }

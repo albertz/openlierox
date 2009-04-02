@@ -46,17 +46,17 @@ public:
     // Methods
 
 	void			setRound(int round)			{ iRound = round; }
-	int				getRound(void)				{ return iRound; }
+	int				getRound()				{ return iRound; }
 	void			setBorder(int border)		{ iBorder = border; }
-	int				getBorder(void)				{ return iBorder; }
+	int				getBorder()				{ return iBorder; }
 	void			setLightColour(Uint32 col)	{ iLightColour = col; }
-	Uint32			getLightColour(void)		{ return iLightColour; }
+	Uint32			getLightColour()		{ return iLightColour; }
 	void			setDarkColour(Uint32 col)	{ iDarkColour = col;  }
-	Uint32			getDarkColour(void)			{ return iDarkColour; }
+	Uint32			getDarkColour()			{ return iDarkColour; }
 	void			setBgColour(Uint32 col)		{ iBgColour = col; }
-	Uint32			getBgColour(void)			{ return iBgColour; }
+	Uint32			getBgColour()			{ return iBgColour; }
 
-	void	LoadStyle(void);
+	void	LoadStyle();
 	
 	void	ProcessGuiSkinEvent(int iEvent) {};
 };

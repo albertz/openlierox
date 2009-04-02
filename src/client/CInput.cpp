@@ -597,7 +597,7 @@ bool CInput::isJoystickThrottle()
 
 ///////////////////
 // Returns if the input has just been released
-bool CInput::isUp(void)
+bool CInput::isUp()
 {
 
 	switch(Type) {
@@ -629,7 +629,7 @@ bool CInput::isUp(void)
 
 ///////////////////
 // Returns if the input is down
-bool CInput::isDown(void)
+bool CInput::isDown()
 {
 	switch(Type) {
 
@@ -659,7 +659,7 @@ bool CInput::isDown(void)
 
 ///////////////////
 // Returns if the input was pushed down once
-bool CInput::isDownOnce(void)
+bool CInput::isDownOnce()
 {
 	return nDownOnce != 0;
 }

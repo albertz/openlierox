@@ -129,8 +129,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void);
+	void	Create();
+	void	Destroy();
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -143,25 +143,25 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
-	void	Backspace(void);
-	void	Delete(void);
-	void	SelectWord(void);
+	void	Backspace();
+	void	Delete();
+	void	SelectWord();
 	void	Insert(UnicodeChar c);
 
-	std::string	getText(void)						{ return sText; }
+	std::string	getText()						{ return sText; }
 	void	setText(const std::string& buf);
 	void	setFlag(Uint32 flag) { iFlags |= flag; }
 	void	unsetFlag(Uint32 flag) { iFlags &= ~flag; }
 	void	setCurPos(size_t pos)  { iCurpos = (pos > sText.size() ? sText.size() : pos); }
 
-    void    PasteText(void);
-	void	CopyText(void);
+    void    PasteText();
+	void	CopyText();
 
 	void OnTimerEvent(Timer::EventData ev);
 

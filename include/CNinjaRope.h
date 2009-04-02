@@ -82,21 +82,21 @@ public:
 
 	void		Setup(CGameScript *gs);
 
-	int			isReleased(void)		{ return Released; }
-	void		Release(void);
+	int			isReleased()		{ return Released; }
+	void		Release();
 
 	void		updateCheckVariables();
 	bool		writeNeeded();
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
 
-    CVec getHookPos(void) const       { return HookPos; }
-    bool   isAttached(void) const       { return HookAttached; }
-    bool   isShooting(void)  const      { return HookShooting; }
+    CVec getHookPos() const       { return HookPos; }
+    bool   isAttached() const       { return HookAttached; }
+    bool   isShooting()  const      { return HookShooting; }
 	void	setShooting(bool s)			{ HookShooting = s; }
 	void	setAttached(bool a)			{ HookAttached = a; }
-    float getRestLength(void) const    { return RestLength; }
-	float getMaxLength(void)	const	{ return RopeLength; }
+    float getRestLength() const    { return RestLength; }
+	float getMaxLength()	const	{ return RopeLength; }
 
 	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 

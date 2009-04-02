@@ -107,7 +107,7 @@ public:
 	void	ScrollDown();
 	void	ScrollUp();
 
-	void	UpdatePos(void);
+	void	UpdatePos();
 
 
 	void	setMin(int _min)				{ iMin = _min; UpdatePos(); }
@@ -118,11 +118,11 @@ public:
 	void	setDirection(int _d)			{ iDirection.set(_d, HIGHEST_PRIORITY); Repaint(); }
 
 	void	setItemsperbox(int _i)			{ iItemsperbox = _i; Repaint(); }
-    int     getItemsperbox(void)            { return iItemsperbox; }
+    int     getItemsperbox()            { return iItemsperbox; }
 
-	int		getValue(void)					{ return iValue; }
-	int		getMax(void)					{ return iMax; }
-	bool	getGrabbed(void)				{ return bSliderGrabbed; }
+	int		getValue()					{ return iValue; }
+	int		getMax()					{ return iMax; }
+	bool	getGrabbed()				{ return bSliderGrabbed; }
 
 	// Events
 	int		DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton button, const ModifiersState& modstate);

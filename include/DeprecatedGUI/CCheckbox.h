@@ -69,8 +69,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void) { }
+	void	Create();
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return CHK_NONE; }
@@ -102,9 +102,9 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
-	bool	getValue(void)						{ return bValue; }
+	bool	getValue()						{ return bValue; }
 
 	void	updatePointers()	{
 		if( bVar )

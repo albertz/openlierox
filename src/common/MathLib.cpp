@@ -55,7 +55,7 @@ float fastSQRT(float x)
 
 ///////////////////
 // Get a random number between -1 and 1
-float GetRandomNum(void)
+float GetRandomNum()
 {
 	int rn = rand();
 	return ((float)(rn - HALF_RAND) / (float)HALF_RAND);
@@ -118,7 +118,7 @@ float NormalizeVector(CVec *vec)
 
 ///////////////////
 // Get a random normalized vector
-CVec GetRandomVec(void)
+CVec GetRandomVec()
 {
 	return CVec(GetRandomNum(),GetRandomNum());
 }

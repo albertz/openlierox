@@ -797,7 +797,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnect
 
 ///////////////////
 // Tell all the clients that we're disconnecting
-void GameServer::SendDisconnect(void)
+void GameServer::SendDisconnect()
 {
 	CServerConnection *cl = cClients;
 	if (!cl)
@@ -819,7 +819,7 @@ void GameServer::SendDisconnect(void)
 
 ///////////////////
 // Update the worm names, skins, colours etc
-void GameServer::UpdateWorms(void)
+void GameServer::UpdateWorms()
 {
 	CBytestream bytestr;
 	CWorm* w = cWorms;

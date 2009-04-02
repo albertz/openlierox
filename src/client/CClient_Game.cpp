@@ -46,7 +46,7 @@ CClient		*cClient = NULL;
 
 ///////////////////
 // Simulation
-void CClient::Simulation(void)
+void CClient::Simulation()
 {
 	short i;
     CWorm *w;
@@ -752,7 +752,7 @@ static int CompareLives(int l1, int l2)
 
 ///////////////////
 // Update the scoreboard
-void CClient::UpdateScoreboard(void)
+void CClient::UpdateScoreboard()
 {
 	// Should be called ONLY in game
 	if(!bGameReady)
@@ -955,7 +955,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 
 ///////////////////
 // Process the shots
-void CClient::ProcessServerShotList(void)
+void CClient::ProcessServerShotList()
 {
 	int num = cShootList.getNumShots();
 
@@ -1303,7 +1303,7 @@ void CClient::clearHumanWormInputs() {
 
 ///////////////////
 // Process any chatter
-void CClient::processChatter(void)
+void CClient::processChatter()
 {
 	if (tLX->iGameType == GME_LOCAL)
 		return;

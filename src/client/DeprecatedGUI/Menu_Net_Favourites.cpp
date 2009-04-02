@@ -54,7 +54,7 @@ enum {
 
 ///////////////////
 // Initialize the favourites menu
-bool Menu_Net_FavouritesInitialize(void)
+bool Menu_Net_FavouritesInitialize()
 {
 	iNetMode = net_favourites;
 
@@ -125,7 +125,7 @@ bool Menu_Net_FavouritesInitialize(void)
 
 ///////////////////
 // Shutdown the favourites menu
-void Menu_Net_FavouritesShutdown(void)
+void Menu_Net_FavouritesShutdown()
 {
 	if (tLXOptions)  {
 
@@ -662,7 +662,7 @@ enum  {
 	fa_Name
 };
 
-void Menu_Net_FavouritesAddServer(void)
+void Menu_Net_FavouritesAddServer()
 {
 	CGuiLayout	cAddSvr;
 	gui_event_t *ev = NULL;

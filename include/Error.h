@@ -23,15 +23,15 @@
 #include <string>
 
 void SetError(const std::string& text);
-void ShowError(void);
-void EndError(void);
+void ShowError();
+void EndError();
 
 void SystemError(const std::string&text);
 
 void GuiSkinError(const std::string& text);
 
 void LxSetLastError(const std::string& desc);
-std::string LxGetLastError(void);
+std::string LxGetLastError();
 
 
 

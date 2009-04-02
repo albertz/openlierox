@@ -84,9 +84,9 @@ private:
 
 private:
 
-	void	Backspace(void);
-	void	Delete(void);
-	void	SelectWord(void);
+	void	Backspace();
+	void	Delete();
+	void	SelectWord();
 	void	Insert(UnicodeChar c);
 	void OnTimerEvent(Timer::EventData ev);
 

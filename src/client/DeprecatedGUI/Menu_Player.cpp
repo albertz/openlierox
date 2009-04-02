@@ -80,7 +80,7 @@ enum {
 
 ///////////////////
 // Initialize the player menu
-void Menu_PlayerInitialize(void)
+void Menu_PlayerInitialize()
 {
 	tMenu->iMenuType = MNU_PLAYER;
 
@@ -213,7 +213,7 @@ void Menu_PlayerInitialize(void)
 
 ///////////////
 // Shutdown
-void Menu_PlayerShutdown(void)
+void Menu_PlayerShutdown()
 {
 	cNewPlayer.Shutdown();
 	cViewPlayers.Shutdown();
@@ -226,7 +226,7 @@ void Menu_PlayerShutdown(void)
 
 ///////////////////
 // Player frame
-void Menu_PlayerFrame(void)
+void Menu_PlayerFrame()
 {
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
@@ -269,7 +269,7 @@ void Menu_PlayerFrame(void)
 
 ///////////////////
 // Initialize the newplayer settings
-void Menu_Player_NewPlayerInit(void)
+void Menu_Player_NewPlayerInit()
 {
     cNewPlayer.SendMessage( np_Name,    TXS_SETTEXT, "", 0);
     cNewPlayer.SendMessage( np_Type,    CBM_SETCURSEL, PRF_HUMAN->toInt(), 0 );
@@ -293,7 +293,7 @@ void Menu_Player_NewPlayerInit(void)
 
 ///////////////////
 // Initialize the viewplayer settings
-void Menu_Player_ViewPlayerInit(void)
+void Menu_Player_ViewPlayerInit()
 {
     // Add the players to the list
 	CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);

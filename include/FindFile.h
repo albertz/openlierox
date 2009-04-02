@@ -102,7 +102,7 @@ const std::string*	getSpecialSearchPathForTheme();
 //   ${SYSTEM_DATA} - data-dir of the system, that means usually /usr/share
 void	ReplaceFileVariables(std::string& filename);
 
-drive_list GetDrives(void);
+drive_list GetDrives();
 
 // This function converts relative paths to absolute paths
 std::string GetAbsolutePath(const std::string& path);

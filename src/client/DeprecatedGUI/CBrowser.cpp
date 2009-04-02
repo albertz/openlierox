@@ -245,7 +245,7 @@ bool CBrowser::CObjectGroup::InBox(int x, int y)
 
 ///////////////////
 // The create event
-void CBrowser::Create(void)
+void CBrowser::Create()
 {
 	tHtmlDocument = NULL;
 	tRootNode = NULL;
@@ -1807,7 +1807,7 @@ void CBrowser::CleanUpChatBox(const std::vector<TXT_TYPE> & removedText, int max
 
 ////////////////////////
 // Scrolls to the end of the document
-void CBrowser::ScrollToLastLine(void)
+void CBrowser::ScrollToLastLine()
 {
 	if (bUseScroll)  {
 		cScrollbar.setValue(cScrollbar.getMax());

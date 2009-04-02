@@ -361,10 +361,10 @@ public:
 	//
 	// General
 	//
-	void		Clear(void);
-	void		Init(void);
+	void		Clear();
+	void		Init();
 	//void		CopyProfile(plyprofile_t *profile);
-	void		Shutdown(void);
+	void		Shutdown();
 
 
 	// TODO: move this out here (to network engine)
@@ -388,12 +388,12 @@ public:
 	bool		checkStatePacketNeeded();
 	void		readStatUpdate(CBytestream *bs);
 	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
-	int			GetMyPing(void);
+	int			GetMyPing();
 
 	
-	void		setupLobby(void);
-	void		loadDetails(void);
-	void		saveDetails(void);
+	void		setupLobby();
+	void		loadDetails();
+	void		saveDetails();
 
 
 
@@ -406,7 +406,7 @@ public:
 	// Graphics
 	//
 	bool		ChangeGraphics(int generalgametype);
-	void		FreeGraphics(void);
+	void		FreeGraphics();
 	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, bool team);
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
@@ -421,7 +421,7 @@ public:
 	void		StartGame();
 	void		Spawn(CVec position);
 	bool		Injure(int damage);
-	bool		Kill(void);
+	bool		Kill();
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
 	void		Hide(int forworm, bool immediate);
@@ -438,7 +438,7 @@ public:
 	//
 	// Misc.
 	//
-	bool		CanType(void);
+	bool		CanType();
 
 	bool		isHostWorm();
 	bool		shouldDoOwnWeaponSelection();
@@ -454,65 +454,65 @@ public:
 	//
 	// Variables
 	//
-	bool		isUsed(void)				{ return bUsed; }
+	bool		isUsed()				{ return bUsed; }
 	void		setUsed(bool _u);
 
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 
-	std::string getName(void)			{ return sName; }
+	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
-	Uint32		getGameColour(void);
+	Uint32		getGameColour();
 	void		setColour(Uint32 c)			{ cSkin.Colorize(c); }
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) {cSkin.Colorize(MakeColour(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
-	bool		getLocal(void)				{ return bLocal; }
+	bool		getLocal()				{ return bLocal; }
 
 	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
 	
-	int			getHealth(void)				{ return iHealth; }
+	int			getHealth()				{ return iHealth; }
 	void		setHealth(int _h)			{ iHealth = CLAMP(_h, 0, 100); }
-	int			getLives(void)				{ return iLives; }
-	int			getKills(void)				{ return iKills; }
+	int			getLives()				{ return iLives; }
+	int			getKills()				{ return iKills; }
 	void		setLives(int l)				{ iLives = l; }
-	int			getDamage(void)				{ return iDamage; }
+	int			getDamage()				{ return iDamage; }
 	void		setDamage(int l)			{ iDamage = l; }
 	void		addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & settings);
 
-	void		AddKill(void)				{ iKills++; }
+	void		AddKill()				{ iKills++; }
     void        setKills(int k)             { iKills = k; }
 
 	void		setID(int i)				{ iID = i; }
-	int			getID(void)	const			{ return iID; }
+	int			getID()	const			{ return iID; }
 
-	WormType*	getType(void)				{ return m_type; }
+	WormType*	getType()				{ return m_type; }
     void        setType(WormType* t)        { m_type = t; }
 
-	bool		getAlive(void)				{ return bAlive; }
+	bool		getAlive()				{ return bAlive; }
 	void		setAlive(bool _a)			{ bAlive = _a; }
 
-	AbsTime		getTimeofDeath(void)		{ return fTimeofDeath; }
+	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
-    CServerConnection     *getClient(void)            { return cOwner; }
+    CServerConnection     *getClient()            { return cOwner; }
 
-	CVec		getFollowPos(void)			{ return (bFollowOverride?vFollowPos:vPos); }
-	void		resetFollow(void)			{ bFollowOverride = false; }
+	CVec		getFollowPos()			{ return (bFollowOverride?vFollowPos:vPos); }
+	void		resetFollow()			{ bFollowOverride = false; }
 	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 
-	CVec		getPos(void)				{ return vPos; }
+	CVec		getPos()				{ return vPos; }
 	void		setPos(CVec v)				{ vPos = v; }
 
 	CVec&		pos()						{ return vPos; }
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }
 
-	CVec		*getVelocity(void)			{ return &vVelocity; }
+	CVec		*getVelocity()			{ return &vVelocity; }
 	CVec&		velocity()					{ return vVelocity; }
 
-	worm_state_t *getWormState(void)		{ return &tState; }
+	worm_state_t *getWormState()		{ return &tState; }
 
 	bool		hasOwnServerTime();
 	TimeDiff	serverTime()				{ return fServertime; }
@@ -523,9 +523,9 @@ public:
 	bool		isVisible(const CViewport* v) const;
 	bool		isVisible(CWorm* viewerWorm) const;
 	
-	float		getAngle(void)				{ return fAngle; }
+	float		getAngle()				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
-	int			getDirection(void)			{ return iDirection; }
+	int			getDirection()			{ return iDirection; }
 	void		setDirection(int d)			{ iDirection = d; }
 	int			getMoveDirection()		{ return iMoveDirection; }
 
@@ -549,15 +549,15 @@ public:
 
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
-	bool		getWeaponsReady(void)		{ return bWeaponsReady; }
+	bool		getWeaponsReady()		{ return bWeaponsReady; }
 	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
-	wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
-	int			getCurrentWeapon(void)		{ return MIN(4, iCurrentWeapon); }
+	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
+	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
 	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
-	bool		getGameReady(void)			{ return bGameReady; }
+	bool		getGameReady()			{ return bGameReady; }
 
 	void		setProfile(profile_t *p)	{ tProfile = p; }
 	profile_t	*getProfile()				{ return tProfile; }
@@ -565,12 +565,12 @@ public:
 	void		setTeam(int _t)				{ iTeam = _t; if(getLobby()) getLobby()->iTeam = _t; }
 	int			getTeam() const				{ return iTeam; }
 
-	SmartPointer<SDL_Surface> getGibimg(void)			{ return bmpGibs; }
-	SmartPointer<SDL_Surface> getPicimg(void)			{ return cSkin.getPreview(); }
+	SmartPointer<SDL_Surface> getGibimg()			{ return bmpGibs; }
+	SmartPointer<SDL_Surface> getPicimg()			{ return cSkin.getPreview(); }
 
-	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
+	lobbyworm_t	*getLobby()				{ return &tLobbyState; }
 
-	bool		getTagIT(void)				{ return bTagIT; }
+	bool		getTagIT()				{ return bTagIT; }
 	void		setTagIT(bool _t);
 
 	AbsTime		getLastBlood()				{ return fLastBlood; }
@@ -578,15 +578,15 @@ public:
 	EntityEffect * getSparklesEffect()		{ return &cSparkles; }
 
     void        incrementDirtCount(int d);
-    int         getDirtCount(void)          { return iDirtCount; }
+    int         getDirtCount()          { return iDirtCount; }
 
 	void		setTarget(bool _t)			{ bGotTarget = _t; }
 
-	TimeDiff	getTagTime(void)			{ return fTagTime; }
+	TimeDiff	getTagTime()			{ return fTagTime; }
 	void		setTagTime(const TimeDiff& _t)		{ fTagTime = _t; }
 	void		incrementTagTime(const TimeDiff& dt)	{ fTagTime+=dt; }
 
-	CWormSkin&	getSkin(void)				{ return cSkin; }
+	CWormSkin&	getSkin()				{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
 
@@ -596,30 +596,30 @@ public:
 	bool		isShooting()				{ return tState.bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
 
-	bool		getVIP(void)				{ return bNoShooting; }
+	bool		getVIP()				{ return bNoShooting; }
 	void		setVIP(bool _s)				{ bNoShooting = _s; }
 
 	bool		isSpectating()				{ return bSpectating; }
 	void		setSpectating(bool _s)		{ bSpectating = _s; }
 
 	// TODO: the sense of this isn't clear; so make it clear
-	bool		getFlag(void)				{ return bFlag; }
+	bool		getFlag()				{ return bFlag; }
 	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 
-	AFK_TYPE	getAFK(void)				{ return iAFK; }
+	AFK_TYPE	getAFK()				{ return iAFK; }
 	const std::string & getAFKMessage()		{ return sAFKMessage; }
 	void		setAFK(AFK_TYPE _f, const std::string & msg);
 
 	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
-	int		getTotalWins(void)				{ return iTotalWins; }
+	int		getTotalWins()				{ return iTotalWins; }
 	void	addTotalLosses(int _l = 1)		{ iTotalLosses += _l; }
-	int		getTotalLosses(void)			{ return iTotalLosses; }
+	int		getTotalLosses()			{ return iTotalLosses; }
 	void	addTotalKills(int _k = 1)		{ iTotalKills += _k; }
-	int		getTotalKills(void)				{ return iTotalKills; }
+	int		getTotalKills()				{ return iTotalKills; }
 	void	addTotalDeaths(int _d = 1)		{ iTotalDeaths += _d; }
-	int		getTotalDeaths(void)			{ return iTotalDeaths; }
+	int		getTotalDeaths()			{ return iTotalDeaths; }
 	void	addTotalSuicides(int _d = 1)	{ iTotalSuicides += _d; }
-	int		getTotalSuicides(void)			{ return iTotalSuicides; }
+	int		getTotalSuicides()			{ return iTotalSuicides; }
 	
 	const Version & getClientVersion()				{ return cClientVersion; }
 	void	setClientVersion(const Version & v)		{ cClientVersion = v; }

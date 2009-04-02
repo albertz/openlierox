@@ -70,7 +70,7 @@ DWORD CMenu::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 
 ///////////////////
 // Create the menu
-void CMenu::Create(void)
+void CMenu::Create()
 {
     m_nHeight = 0;
     m_nWidth = 0;
@@ -83,7 +83,7 @@ void CMenu::Create(void)
 
 ///////////////////
 // Destroy the menu
-void CMenu::Destroy(void)
+void CMenu::Destroy()
 {
 	m_psItemList.clear();
 }

@@ -143,7 +143,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 
 ///////////////////
 // Find a spot with no rock
-CVec GameServer::FindSpot(void)
+CVec GameServer::FindSpot()
 {
 	int	 x, y;
 	int	 px, py;
@@ -287,7 +287,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 ///////////////////
 // Simulate the game stuff
-void GameServer::SimulateGame(void)
+void GameServer::SimulateGame()
 {
 	if(iState != SVS_PLAYING)
 		return;
@@ -376,7 +376,7 @@ void GameServer::SimulateGame(void)
 
 ///////////////////
 // Spawn a bonus
-void GameServer::SpawnBonus(void)
+void GameServer::SpawnBonus()
 {
 	// Find an empty spot for the bonus
 	CVec pos = FindSpot();
@@ -532,7 +532,7 @@ void GameServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Go back to the lobby
-void GameServer::gotoLobby(void)
+void GameServer::gotoLobby()
 {
 	notes << "GameServer: gotoLobby" << endl;
 
@@ -630,7 +630,7 @@ void GameServer::gotoLobby(void)
 ///////////////////
 // Recheck the game status
 // Called iff game state has changed (e.g. player left etc.)
-void GameServer::RecheckGame(void)
+void GameServer::RecheckGame()
 {
 	if(iState == SVS_GAME)
 		// Check if all the clients are ready
@@ -644,7 +644,7 @@ void GameServer::RecheckGame(void)
 
 ///////////////////
 // Checks if all the clients are ready to play
-void GameServer::CheckReadyClient(void)
+void GameServer::CheckReadyClient()
 {
 	if(iState != SVS_GAME)
 		return;

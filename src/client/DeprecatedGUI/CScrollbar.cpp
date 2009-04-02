@@ -25,7 +25,7 @@ namespace DeprecatedGUI {
 
 ///////////////////
 // Create the scrollbar
-void CScrollbar::Create(void)
+void CScrollbar::Create()
 {
 	iMin=0;
 	iMax=0;
@@ -244,7 +244,7 @@ int CScrollbar::MouseWheelUp(mouse_t *tMouse)
 
 ///////////////////
 // Update the slider pos
-void CScrollbar::UpdatePos(void)
+void CScrollbar::UpdatePos()
 {
     iMax = MAX(iMax,0);
     iMin = MAX(iMin,0);

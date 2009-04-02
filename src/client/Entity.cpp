@@ -32,7 +32,7 @@ Uint32 doomsday[4];
 
 ///////////////////
 // Initialzie the entity system
-int InitializeEntities(void)
+int InitializeEntities()
 {
 	tEntities.clear();
 
@@ -48,7 +48,7 @@ int InitializeEntities(void)
 
 ///////////////////
 // Shutdown the entity system
-void ShutdownEntities(void)
+void ShutdownEntities()
 {
 	tEntities.clear();
 }
@@ -56,7 +56,7 @@ void ShutdownEntities(void)
 
 ///////////////////
 // Clear all the entities
-void ClearEntities(void)
+void ClearEntities()
 {
 	tEntities.clear();
 }

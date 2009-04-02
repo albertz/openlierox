@@ -70,7 +70,7 @@ GameServer::~GameServer()  {
 
 ///////////////////
 // Clear the server
-void GameServer::Clear(void)
+void GameServer::Clear()
 {
 	cClients = NULL;
 	cMap = NULL;
@@ -786,7 +786,7 @@ int GameServer::getFirstEmptyTeam() const {
 
 ///////////////////
 // Main server frame
-void GameServer::Frame(void)
+void GameServer::Frame()
 {
 	// Playing frame
 	if(iState == SVS_PLAYING) {
@@ -897,7 +897,7 @@ bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
 
 ///////////////////
 // Read packets
-bool GameServer::ReadPackets(void)
+bool GameServer::ReadPackets()
 {
 	// Main socket
 	bool anythingNew = ReadPacketsFromSocket(tSocket);
@@ -937,7 +937,7 @@ bool GameServer::ReadPackets(void)
 
 ///////////////////
 // Send packets
-void GameServer::SendPackets(void)
+void GameServer::SendPackets()
 {
 	int c;
 	CServerConnection *cl = cClients;
@@ -969,7 +969,7 @@ void GameServer::SendPackets(void)
 
 ///////////////////
 // Register the server
-void GameServer::RegisterServer(void)
+void GameServer::RegisterServer()
 {
 	if (tMasterServers.size() == 0)
 		return;
@@ -1001,7 +1001,7 @@ void GameServer::RegisterServer(void)
 
 ///////////////////
 // Process the registering of the server
-void GameServer::ProcessRegister(void)
+void GameServer::ProcessRegister()
 {
 	if(!tLXOptions->bRegServer || bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
 		return;
@@ -1038,7 +1038,7 @@ void GameServer::ProcessRegister(void)
 
 }
 
-void GameServer::RegisterServerUdp(void)
+void GameServer::RegisterServerUdp()
 {
 	// Don't register a local play
 	if (tLX->iGameType == GME_LOCAL)
@@ -1087,7 +1087,7 @@ void GameServer::RegisterServerUdp(void)
 	}
 }
 
-void GameServer::DeRegisterServerUdp(void)
+void GameServer::DeRegisterServerUdp()
 {
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
@@ -1124,7 +1124,7 @@ void GameServer::DeRegisterServerUdp(void)
 
 ///////////////////
 // This checks the registering of a server
-void GameServer::CheckRegister(void)
+void GameServer::CheckRegister()
 {
 	// If we don't want to register, just leave
 	if(!tLXOptions->bRegServer || tLX->iGameType != GME_HOST)
@@ -1148,7 +1148,7 @@ void GameServer::CheckRegister(void)
 
 ///////////////////
 // De-register the server
-bool GameServer::DeRegisterServer(void)
+bool GameServer::DeRegisterServer()
 {
 	// If we aren't registered, or we didn't try to register, just leave
 	if( !tLXOptions->bRegServer || !bServerRegistered || tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
@@ -1179,7 +1179,7 @@ bool GameServer::DeRegisterServer(void)
 
 ///////////////////
 // Process the de-registering of the server
-bool GameServer::ProcessDeRegister(void)
+bool GameServer::ProcessDeRegister()
 {
 	if (tHttp.ProcessRequest() != HTTP_PROC_PROCESSING)  {
 
@@ -1201,7 +1201,7 @@ bool GameServer::ProcessDeRegister(void)
 
 ///////////////////
 // Check if any clients haved timed out or are out of zombie state
-void GameServer::CheckTimeouts(void)
+void GameServer::CheckTimeouts()
 {
 	int c;
 
@@ -2193,7 +2193,7 @@ float GameServer::GetUpload(float timeRange)
 
 ///////////////////
 // Shutdown the server
-void GameServer::Shutdown(void)
+void GameServer::Shutdown()
 {
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {

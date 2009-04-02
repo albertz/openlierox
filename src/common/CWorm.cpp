@@ -36,7 +36,7 @@
 
 ///////////////////
 // Clear the worm details
-void CWorm::Clear(void)
+void CWorm::Clear()
 {
 	bUsed = false;
 	bIsPrepared = false;
@@ -169,7 +169,7 @@ void CWorm::Clear(void)
 
 ///////////////////
 // Initialize the worm
-void CWorm::Init(void)
+void CWorm::Init()
 {
 	// TODO: is this needed?
 	// WARNING: this works only because it does not contain any classes
@@ -181,7 +181,7 @@ void CWorm::Init(void)
 
 ///////////////////
 // Shutdown the worm
-void CWorm::Shutdown(void)
+void CWorm::Shutdown()
 {
 	Unprepare();
 	FreeGraphics();
@@ -190,7 +190,7 @@ void CWorm::Shutdown(void)
 
 ///////////////////
 // Free the graphics
-void CWorm::FreeGraphics(void)
+void CWorm::FreeGraphics()
 {
 	bmpGibs = NULL;
 }
@@ -374,7 +374,7 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 
 ///////////////////
 // Setup the lobby details
-void CWorm::setupLobby(void)
+void CWorm::setupLobby()
 {
 	tLobbyState.bHost = false;
 	tLobbyState.iType = LBY_USED;
@@ -570,7 +570,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 
 ///////////////////
 // Randomize the weapons
-void CWorm::GetRandomWeapons(void)
+void CWorm::GetRandomWeapons()
 {
 	int lastenabled = 0;
 	int num,n;
@@ -1083,7 +1083,7 @@ bool CWorm::Injure(int damage)
 ///////////////////
 // Kill me
 // Returns true if we are out of the game
-bool CWorm::Kill(void)
+bool CWorm::Kill()
 {
 //	notes << "our worm " << iID << " died" << endl;
 
@@ -1171,7 +1171,7 @@ void CWorm::Show(int forworm, bool immediate)
 
 ///////////////////
 // Get the worm's ping
-int CWorm::GetMyPing(void)
+int CWorm::GetMyPing()
 {
 	if (!cServer)
 		return 0;
@@ -1183,7 +1183,7 @@ int CWorm::GetMyPing(void)
 
 ///////////////////
 // Resturns true, if we can start (auto-)typing
-bool CWorm::CanType(void)
+bool CWorm::CanType()
 {
 	if(!bAlive && iLives == WRM_OUT)
 		return true; // a worm can always type if out of game (whereby further checks for not-worm related stuff could be done elsewhere)
@@ -1238,7 +1238,7 @@ void CWorm::setTagIT(bool _t)
 	bTagIT = _t; 
 }
 
-Uint32 CWorm::getGameColour(void)
+Uint32 CWorm::getGameColour()
 {
 	switch(cClient->getGameLobby()->iGeneralGameType) {
 		case GMT_TEAMS:

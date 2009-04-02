@@ -510,7 +510,7 @@ setvideomode:
 #ifdef WIN32
 //////////////////////
 // Get the window handle
-HWND GetWindowHandle(void)
+HWND GetWindowHandle()
 {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
@@ -877,7 +877,7 @@ void ShutdownAuxLib()
 
 ///////////////////
 // Return the config filename
-std::string GetConfigFile(void)
+std::string GetConfigFile()
 {
 	return ConfigFile;
 }
@@ -1007,7 +1007,7 @@ bool Subclassed = false;
 
 ////////////////////
 // Subclass the window (control the incoming Windows messages)
-void SubclassWindow(void)
+void SubclassWindow()
 {
 	if (Subclassed)
 		return;
@@ -1020,7 +1020,7 @@ void SubclassWindow(void)
 
 ////////////////////
 // Remove the subclassing
-void UnSubclassWindow(void)
+void UnSubclassWindow()
 {
 	if (!Subclassed)
 		return;

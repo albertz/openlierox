@@ -42,11 +42,11 @@ private:
 
 public:
 	// Methods
-	int		getCount(void)	{return iCount; }
+	int		getCount()	{return iCount; }
 	int		Add(const std::string& Name);
 	std::string	getName(int ID);
 	int		getID(const std::string& Name);
-	void	Shutdown(void);
+	void	Shutdown();
 };
 
 } // namespace DeprecatedGUI

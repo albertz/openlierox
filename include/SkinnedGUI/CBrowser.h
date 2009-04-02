@@ -62,7 +62,7 @@ private:
 public:
 	// Methods
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	void	Load(const std::string& url);
 	void	ProcessHTTP();

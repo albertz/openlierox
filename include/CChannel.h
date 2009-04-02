@@ -138,19 +138,19 @@ public:
 	virtual bool	Process( CBytestream *bs ) = 0;
 	virtual void	AddReliablePacketToSend(CBytestream& bs);
 	
-	size_t			getPacketLoss(void)		{ return iPacketsDropped; }
-	AbsTime			getLastReceived(void)	{ return fLastPckRecvd; }
-	AbsTime			getLastSent(void)		{ return fLastSent; }
-	NetworkAddr		getAddress(void)		{ return RemoteAddr; }
+	size_t			getPacketLoss()		{ return iPacketsDropped; }
+	AbsTime			getLastReceived()	{ return fLastPckRecvd; }
+	AbsTime			getLastSent()		{ return fLastSent; }
+	NetworkAddr		getAddress()		{ return RemoteAddr; }
 	// Returns true if CChannel has sent all pending packets, and got acknowledges about them.
 	// That includes only packets after last Transmit() call, 
 	// calling AddReliablePacketToSend() won't change the value this function returns.
-	virtual bool	getBufferEmpty(void) = 0;
+	virtual bool	getBufferEmpty() = 0;
 	// Not the same as "! getBufferEmpty()" for new CChannel implementation - it can buffer up multiple packets.
-	virtual bool	getBufferFull(void) = 0;
+	virtual bool	getBufferFull() = 0;
 
-	size_t			getOutgoing(void)		{ return iOutgoingBytes; }
-	size_t			getIncoming(void)		{ return iIncomingBytes; }
+	size_t			getOutgoing()		{ return iOutgoingBytes; }
+	size_t			getIncoming()		{ return iIncomingBytes; }
 
 	int				getPing()			{ return iPing; }
 	void			setPing(int _p)		{ iPing = _p; }
@@ -159,7 +159,7 @@ public:
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 	float 			getOutgoingRate(float timeRange)		{ return cOutgoingRate.getRate((int)(timeRange * 1000.0f)); }
 
-	NetworkSocket	getSocket(void)			{ return Socket; }
+	NetworkSocket	getSocket()			{ return Socket; }
 	
 	virtual void	recheckSeqs() {}
 
@@ -200,16 +200,16 @@ public:
 	void		Transmit( CBytestream *bs );
 	// This function just skips header in bs, non-reliable data is at the end of the stream, bs not modified.
 	bool		Process( CBytestream *bs );
-	void		Clear(void);
+	void		Clear();
 
-	bool		getBufferEmpty(void)	{ return Reliable.GetLength() == 0; };
-	bool		getBufferFull(void)		{ return ! getBufferEmpty(); };
-	int			getInSeq(void)			{ return iIncomingSequence; }
-	int			getOutSeq(void)			{ return iOutgoingSequence; }
+	bool		getBufferEmpty()	{ return Reliable.GetLength() == 0; };
+	bool		getBufferFull()		{ return ! getBufferEmpty(); };
+	int			getInSeq()			{ return iIncomingSequence; }
+	int			getOutSeq()			{ return iOutgoingSequence; }
 	void		setInSeq(int _s)		{ iIncomingSequence = _s; }
 	void		setOutSeq(int _s)		{ iOutgoingSequence = _s; }
 
-	int			getInAck(void)			{ return iIncomingAcknowledged; }
+	int			getInAck()			{ return iIncomingAcknowledged; }
 
 	void		recheckSeqs();
 
@@ -269,8 +269,8 @@ public:
 	bool		Process( CBytestream *bs );
 	void		Clear();
 
-	bool		getBufferEmpty(void)	{ return ReliableOut.empty(); };
-	bool		getBufferFull(void)		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
+	bool		getBufferEmpty()	{ return ReliableOut.empty(); };
+	bool		getBufferFull()		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
 
 	friend void TestCChannelRobustness();
 };
@@ -339,8 +339,8 @@ public:
 	bool		Process( CBytestream *bs );
 	void		Clear();
 
-	bool		getBufferEmpty(void)	{ return ReliableOut.empty(); };
-	bool		getBufferFull(void)		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
+	bool		getBufferEmpty()	{ return ReliableOut.empty(); };
+	bool		getBufferFull()		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
 
 	void		AddReliablePacketToSend(CBytestream& bs); // The same as in CChannel but without error msg
 

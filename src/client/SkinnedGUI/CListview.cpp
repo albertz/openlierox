@@ -1036,7 +1036,7 @@ CListviewSubitem *CListview::getSubItem(int item_index, int subitem_index)
 ///////////////
 // Sorts the list by the current sorting column
 // Useful, when you're re-filling the list or adding new items
-void CListview::ReSort(void)
+void CListview::ReSort()
 {
 	// Find the column
 	std::vector<CListviewColumn *>::iterator it = tColumns.begin();
@@ -1751,7 +1751,7 @@ int CListview::DoChildNeedsRepaint(CWidget *child)
 
 ///////////////////
 // Scroll to the last item
-void CListview::scrollLast(void)
+void CListview::scrollLast()
 {
 	if (cScrollbar->getVisible())  {
 		cScrollbar->setValue(cScrollbar->getMax());

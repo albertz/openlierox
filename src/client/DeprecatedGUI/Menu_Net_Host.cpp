@@ -93,7 +93,7 @@ AbsTime		fHostMenuPlyStart = AbsTime();
 
 ///////////////////
 // Initialize the host menu
-bool Menu_Net_HostInitialize(void)
+bool Menu_Net_HostInitialize()
 {
 	iNetMode = net_host;
 	iHostType = 0;
@@ -520,7 +520,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 //////////////
 // Shutdown
-void Menu_Net_HostPlyShutdown(void)
+void Menu_Net_HostPlyShutdown()
 {
 	cHostPly.Shutdown();
 }
@@ -585,7 +585,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 
 ///////////////////
 // Initialize the hosting lobby
-bool Menu_Net_HostLobbyInitialize(void)
+bool Menu_Net_HostLobbyInitialize()
 {
 	tLX->iGameType = GME_HOST;
 	// TODO: please comment these vars
@@ -640,7 +640,7 @@ bool Menu_Net_HostLobbyInitialize(void)
 
 ///////////////////
 // Draw the lobby screen
-void Menu_Net_HostLobbyDraw(void)
+void Menu_Net_HostLobbyDraw()
 {
     // Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
@@ -660,7 +660,7 @@ void Menu_Net_HostLobbyDraw(void)
 
 ///////////////////
 // Create the lobby gui
-void Menu_Net_HostLobbyCreateGui(void)
+void Menu_Net_HostLobbyCreateGui()
 {
     // Lobby gui layout
 	cHostLobby.Shutdown();
@@ -752,7 +752,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 //////////////////////
 // Get the content of the chatbox
-std::string Menu_Net_HostLobbyGetText(void)
+std::string Menu_Net_HostLobbyGetText()
 {
 	if (tMenu->bMenuRunning)  {
 		std::string buf;
@@ -773,7 +773,7 @@ void Menu_Net_HostLobbySetText(const std::string& str) {
 ///////////////////
 // Go straight to the lobby, without clearing the server & client
 // TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
-void Menu_Net_HostGotoLobby(void)
+void Menu_Net_HostGotoLobby()
 {
 	tLX->iGameType = GME_HOST;
 	iNetMode = net_host;
@@ -1423,7 +1423,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 ///////////////////
 // Show the minimap
-void Menu_HostShowMinimap(void)
+void Menu_HostShowMinimap()
 {
 	CMap map;
 	std::string buf;
@@ -1450,7 +1450,7 @@ void Menu_HostShowMinimap(void)
 
 ///////////////////
 // Deregister the server
-void Menu_Net_HostDeregister(void)
+void Menu_Net_HostDeregister()
 {
 	// If the server wasn't registered, just leave
 	if( !tLXOptions->bRegServer )
@@ -1537,7 +1537,7 @@ enum {
 
 ///////////////////
 // Initialize the server settings window
-void Menu_ServerSettings(void)
+void Menu_ServerSettings()
 {
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,200);
@@ -1589,7 +1589,7 @@ void Menu_ServerSettings(void)
 ///////////////////
 // Server settings frame
 // Returns whether or not we have finished setting up the server
-bool Menu_ServerSettings_Frame(void)
+bool Menu_ServerSettings_Frame()
 {
 	gui_event_t *ev = NULL;
 
@@ -1655,7 +1655,7 @@ bool Menu_ServerSettings_Frame(void)
 	return false;
 }
 
-void Menu_ServerSettingsShutdown(void)
+void Menu_ServerSettingsShutdown()
 {
 	cServerSettings.Shutdown();
 }
@@ -1685,7 +1685,7 @@ enum {
 
 ///////////////////
 // Initialize the ban list window
-void Menu_BanList(void)
+void Menu_BanList()
 {
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,130,120,130, 400,320);
@@ -1729,7 +1729,7 @@ void Menu_BanList(void)
 ///////////////////
 // Ban List frame
 // Returns whether or not we have finished with the ban list management
-bool Menu_BanList_Frame(void)
+bool Menu_BanList_Frame()
 {
 	gui_event_t *ev = NULL;
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
@@ -1786,7 +1786,7 @@ bool Menu_BanList_Frame(void)
 
 //////////////
 // Shutdown
-void Menu_BanListShutdown(void)
+void Menu_BanListShutdown()
 {
 	if (cBanList)
 		cBanList->saveList(cBanList->getPath());

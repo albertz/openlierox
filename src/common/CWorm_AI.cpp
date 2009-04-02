@@ -913,7 +913,7 @@ bool CWormBotInputHandler::AI_Initialize() {
 
 ///////////////////
 // Shutdown the AI stuff
-void CWormBotInputHandler::AI_Shutdown(void)
+void CWormBotInputHandler::AI_Shutdown()
 {
 	if(pathSearcher) {
 		delete ((searchpath_base*)pathSearcher);
@@ -1571,7 +1571,7 @@ bool CWormBotInputHandler::AI_FindHealth()
 
 ///////////////////
 // Reloads the weapons
-void CWormBotInputHandler::AI_ReloadWeapons(void)
+void CWormBotInputHandler::AI_ReloadWeapons()
 {
     ushort  i;
 
@@ -1588,7 +1588,7 @@ void CWormBotInputHandler::AI_ReloadWeapons(void)
 ///////////////////
 // Get the target's position
 // Also checks the target and resets to a think state if needed
-CVec CWormBotInputHandler::AI_GetTargetPos(void)
+CVec CWormBotInputHandler::AI_GetTargetPos()
 {
     // Put the target into a position
     switch(nAITargetType) {
@@ -1752,7 +1752,7 @@ float fLastDirChange = 99999;
 // Finds a suitable 'clearing' weapon
 // A weapon used for making a path
 // Returns -1 on failure
-int CWormBotInputHandler::AI_FindClearingWeapon(void)
+int CWormBotInputHandler::AI_FindClearingWeapon()
 {
 	if(iAiGameType == GAM_MORTARS)
 		return -1;

@@ -60,7 +60,7 @@ public:
 
 	// Methods
 
-	bool	getValue(void)						{ return bValue; }
+	bool	getValue()						{ return bValue; }
 	void	setValue(bool _v)					{ bValue.set(_v, HIGHEST_PRIORITY); }
 
 

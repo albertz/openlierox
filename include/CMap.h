@@ -228,28 +228,28 @@ public:
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
 	bool		LoadImageFormat(FILE *fp, bool ctf);	
-	void		Clear(void);
+	void		Clear();
 
 	inline std::string getName()			{ return Name; }
 	inline std::string getFilename()		{ return FileName; }
 	
-    //void		ApplyRandom(void);
+    //void		ApplyRandom();
     //void        ApplyRandomLayout(maprandom_t *psRandom);
 
 	void		UpdateDrawImage(int x, int y, int w, int h);
 
-	void		Shutdown(void);
+	void		Shutdown();
 
 	bool		LoadTheme(const std::string& _theme);
-	bool		CreateSurface(void);
-	bool		CreatePixelFlags(void);
-    bool        createGrid(void);
-    void        calculateGrid(void);
+	bool		CreateSurface();
+	bool		CreatePixelFlags();
+    bool        createGrid();
+    void        calculateGrid();
 private:
 	// not thread-safe    
     void        calculateGridCell(int x, int y, bool bSkipEmpty);
 public:	
-	void		TileMap(void);
+	void		TileMap();
     
     void        CalculateDirtCount();
     void        CalculateShadowMap();
@@ -335,35 +335,35 @@ public:
 	void		NewNet_RestoreFromMemory();
 	void		NewNet_Deinit();
 
-	inline theme_t		*GetTheme(void)		{ return &Theme; }
+	inline theme_t		*GetTheme()		{ return &Theme; }
 
 	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
 
-    //inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
+    //inline maprandom_t *getRandomLayout()  { return &sRandomLayout; }
 
 
-	inline uint			GetWidth(void) const	{ return Width; }
-	inline uint			GetHeight(void)	const	{ return Height; }
+	inline uint			GetWidth() const	{ return Width; }
+	inline uint			GetHeight()	const	{ return Height; }
 	inline uint			GetMinimapWidth() const { return MinimapWidth; }
 	inline uint			GetMinimapHeight() const { return MinimapHeight; }
 	void				SetMinimapDimensions(uint _w, uint _h);
-    inline uint         GetDirtCount(void) const { return nTotalDirtCount; }
+    inline uint         GetDirtCount() const { return nTotalDirtCount; }
 
-    inline int         getGridCols(void) const  { return nGridCols; }
-    inline int         getGridRows(void) const  { return nGridRows; }
-    inline int         getGridWidth(void) const { return nGridWidth; }
-    inline int         getGridHeight(void) const { return nGridHeight; }
-    inline const uchar *getGridFlags(void) const { 
+    inline int         getGridCols() const  { return nGridCols; }
+    inline int         getGridRows() const  { return nGridRows; }
+    inline int         getGridWidth() const { return nGridWidth; }
+    inline int         getGridHeight() const { return nGridHeight; }
+    inline const uchar *getGridFlags() const { 
 		return GridFlags; 
 	}
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
-	inline bool			getCreated(void)	{ return Created; }
+	inline bool			getCreated()	{ return Created; }
 	
 	
 	// TODO: why is this converted to CVec? either use directly CVec or don't use it at all! every conversion take performance away
-	inline CVec		getFlagSpawn(void)		{ return CVec(FlagSpawnX, FlagSpawnY); }
-	inline CVec		getBaseStart(void)		{ return CVec(BaseStartX, BaseStartY); }
-	inline CVec		getBaseEnd(void)		{ return CVec(BaseEndX, BaseEndY); }
+	inline CVec		getFlagSpawn()		{ return CVec(FlagSpawnX, FlagSpawnY); }
+	inline CVec		getBaseStart()		{ return CVec(BaseStartX, BaseStartY); }
+	inline CVec		getBaseEnd()		{ return CVec(BaseEndX, BaseEndY); }
 
 	// TODO: this needs to be made much more general to be as fast as the current routines
 	

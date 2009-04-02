@@ -124,9 +124,9 @@ class EntityEffect
 };
 
 // Entity routines
-int		InitializeEntities(void);
-void	ShutdownEntities(void);
-void	ClearEntities(void);
+int		InitializeEntities();
+void	ShutdownEntities();
+void	ClearEntities();
 
 void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img);
 void	DrawEntities(SDL_Surface * bmpDest, CViewport *v);

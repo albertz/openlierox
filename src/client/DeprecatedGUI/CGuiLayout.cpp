@@ -190,7 +190,7 @@ void CGuiLayout::FocusWidget(int id)
 
 ///////////////////
 // Shutdown the gui layout
-void CGuiLayout::Shutdown(void)
+void CGuiLayout::Shutdown()
 {
 	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
 		(*w)->Destroy();
@@ -247,7 +247,7 @@ void CGuiLayout_ReadEvents(CGuiLayout* gui, xmlNodePtr Node, generic_events_t *E
 
 //////////////////
 // Build the layout according to code specified in skin file
-bool CGuiLayout::Build(void)
+bool CGuiLayout::Build()
 {
 
 	//
@@ -560,7 +560,7 @@ bool CGuiLayout::Build(void)
 
 ///////////////////
 // Process all the widgets
-gui_event_t *CGuiLayout::Process(void)
+gui_event_t *CGuiLayout::Process()
 {
 	mouse_t *tMouse = GetMouse();
 	int ev=-1;

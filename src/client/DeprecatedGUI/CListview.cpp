@@ -511,7 +511,7 @@ void CListview::ShowTooltip(const std::string &text, int ms_x, int ms_y)
 
 ///////////////////
 // Re-adjust the scrollbar
-void CListview::ReadjustScrollbar(void)
+void CListview::ReadjustScrollbar()
 {
 	// Go through each item and find the average height
 	lv_item_t *item = tItems;
@@ -640,7 +640,7 @@ void CListview::RemoveItem(int iIndex)
 
 ///////////////////
 // Get the first sub item from the currently selected item
-lv_subitem_t *CListview::getCurSub(void)
+lv_subitem_t *CListview::getCurSub()
 {
 	if(tSelected)
 		return tSelected->tSubitems;
@@ -669,7 +669,7 @@ int CListview::GetColumnWidth(int id)
 ///////////////
 // Sorts the list by the current sorting column
 // Useful, when you're re-filling the list or adding new items
-void CListview::ReSort(void)
+void CListview::ReSort()
 {
 	lv_column_t *col = tColumns;
 
@@ -815,7 +815,7 @@ int CListview::GetSortColumn()
 
 ///////////////////
 // Clear the items
-void CListview::Clear(void)
+void CListview::Clear()
 {
 	// Free the items
 	lv_item_t *i,*item;
@@ -851,7 +851,7 @@ void CListview::Clear(void)
 
 ///////////////////
 // Create event
-void CListview::Create(void)
+void CListview::Create()
 {
 	// Destroy any previous settings
 	Destroy();
@@ -873,7 +873,7 @@ void CListview::Create(void)
 
 ///////////////////
 // Destroy event
-void CListview::Destroy(void)
+void CListview::Destroy()
 {
 	// Free the columns
 	lv_column_t *c,*col;
@@ -1569,7 +1569,7 @@ int CListview::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 ///////////////////
 // Get the ID of the currently selected item
-int CListview::getSelectedID(void)
+int CListview::getSelectedID()
 {
 	if (!this)
 		return -1;
@@ -1605,7 +1605,7 @@ void CListview::setSelectedID(int id)
 
 ///////////////////
 // Scroll to the last item
-void CListview::scrollLast(void)
+void CListview::scrollLast()
 {
 	if (bGotScrollbar)  {
 		cScrollbar.setValue(cScrollbar.getMax());

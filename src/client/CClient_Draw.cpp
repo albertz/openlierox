@@ -63,7 +63,7 @@ int				iSelectedPlayer = -1;
 
 ///////////////////
 // Initialize the drawing routines
-bool CClient::InitializeDrawing(void)
+bool CClient::InitializeDrawing()
 {
 	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
 
@@ -1099,7 +1099,7 @@ void CClient::DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v)
 
 ///////////////////
 // Simulate the hud
-void CClient::SimulateHud(void)
+void CClient::SimulateHud()
 {
     if(bDedicated)
         return;
@@ -1935,7 +1935,7 @@ enum {
 
 ///////////////////
 // Initialize the viewport manager
-void CClient::InitializeViewportManager(void)
+void CClient::InitializeViewportManager()
 {
     int x = 320-DeprecatedGUI::gfxGame.bmpViewportMgr.get()->w/2;
     int y = 200-DeprecatedGUI::gfxGame.bmpViewportMgr.get()->h/2;

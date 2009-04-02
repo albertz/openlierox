@@ -172,9 +172,9 @@ public:
 	// Methods
 
 
-	void		Clear(void);
+	void		Clear();
 	int			StartServer();
-	void		Shutdown(void);
+	void		Shutdown();
 
     void        notifyLog(const std::string& msg);
 
@@ -185,8 +185,8 @@ public:
 	void		GameOver();
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
-	void		SimulateGame(void);
-	CVec		FindSpot(void);
+	void		SimulateGame();
+	CVec		FindSpot();
 	CVec		FindSpotCloseToTeam(int t, CWorm* exceptionWorm = NULL, bool keepDistanceToEnemy = true);
 	CVec		FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad);
 	CVec FindSpotCloseToPos(const CVec& goodPos) {
@@ -195,16 +195,16 @@ public:
 		return FindSpotCloseToPos(good, bad, true);
 	}
 	
-	void		SpawnBonus(void);
+	void		SpawnBonus();
 	void		WormShoot(CWorm *w);
-    void        RecheckGame(void);
+    void        RecheckGame();
 
-	void		gotoLobby(void);
+	void		gotoLobby();
 
 
 	// Network
-	bool		ReadPackets(void);
-	void		SendPackets(void);
+	bool		ReadPackets();
+	void		SendPackets();
 
 	bool		ReadPacketsFromSocket(NetworkSocket& sock);
 
@@ -212,15 +212,15 @@ public:
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
 	static float getMaxUploadBandwidth();	
-	void		RegisterServer(void);
-	void		RegisterServerUdp(void);
-	void		ProcessRegister(void);
-	void		CheckRegister(void);
-	bool		DeRegisterServer(void);
-	void		DeRegisterServerUdp(void);
-	bool		ProcessDeRegister(void);
-	void		CheckTimeouts(void);
-	void		CheckWeaponSelectionTime(void);
+	void		RegisterServer();
+	void		RegisterServerUdp();
+	void		ProcessRegister();
+	void		CheckRegister();
+	bool		DeRegisterServer();
+	void		DeRegisterServerUdp();
+	bool		ProcessDeRegister();
+	void		CheckTimeouts();
+	void		CheckWeaponSelectionTime();
 	void		DropClient(CServerConnection *cl, int reason, const std::string& sReason = "");
 	CWorm*		AddWorm(const WormJoinInfo& wormInfo);
 	void		PrepareWorm(CWorm* worm);

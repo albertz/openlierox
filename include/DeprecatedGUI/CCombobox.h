@@ -124,8 +124,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void);
+	void	Create();
+	void	Destroy();
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -137,13 +137,13 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface * bmpDest);
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
-    void    clear(void);
+    void    clear();
 	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
 	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
 	const std::list<cb_item_t>& getItems()	{ return tItems; }
@@ -164,7 +164,7 @@ public:
 	void	setImage(SmartPointer<SDL_Surface> img, int ItemIndex);
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
-	bool	getDropped(void) { return bDropped; }
+	bool	getDropped() { return bDropped; }
 	void	setSorted(int sort_direction);
 	int		getSorted();
 	void	setUnique(bool _u);

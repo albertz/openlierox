@@ -76,18 +76,18 @@ class profile_t { public:
 
 
 
-int		LoadProfiles(void);
-void	SaveProfiles(void);
-void	ShutdownProfiles(void);
+int		LoadProfiles();
+void	SaveProfiles();
+void	ShutdownProfiles();
 
-void    AddDefaultPlayers(void);
+void    AddDefaultPlayers();
 void	SaveProfile(FILE *fp, profile_t *p);
 void    AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
 void	LoadProfile(FILE *fp, int id);
-int		FindProfileID(void);
+int		FindProfileID();
 void	DeleteProfile(int id);
 
-profile_t *GetProfiles(void);
+profile_t *GetProfiles();
 profile_t *FindProfile(int id);
 profile_t *FindProfile(const std::string& name);
 

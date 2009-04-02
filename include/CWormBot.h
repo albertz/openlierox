@@ -91,13 +91,13 @@ public:
     // AI
     //
     bool        AI_Initialize();
-    void        AI_Shutdown(void);
+    void        AI_Shutdown();
 	
 	void		AI_Respawn();
     void        AI_Think();
     bool        AI_FindHealth();
     bool        AI_SetAim(CVec cPos);
-    CVec        AI_GetTargetPos(void);
+    CVec        AI_GetTargetPos();
 	
     void        AI_InitMoveToTarget();
     void        AI_SimpleMove(bool bHaveTarget=true);

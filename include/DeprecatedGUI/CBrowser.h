@@ -325,8 +325,8 @@ public:
 	// Methods
 
 
-	void	Create(void);
-	void	Destroy(void);
+	void	Create();
+	void	Destroy();
 
 	void	ClearDocument()	{ ClearParser(); bNeedsRender = true; }
 
@@ -344,7 +344,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface * bmpDest);
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	void	MousePosToCursorPos(int ms_x, int ms_y, size_t& cur_x, size_t& cur_y);
 	void	CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& ms_y);
@@ -363,7 +363,7 @@ public:
 	void	AddChatBoxLine(const std::string & text, Color color, TXT_TYPE textType, bool bold = false, bool underline = false);
 	std::string GetChatBoxText();
 	void	CleanUpChatBox( const std::vector<TXT_TYPE> & removedText, int maxLineCount );
-	void	ScrollToLastLine(void);
+	void	ScrollToLastLine();
 	bool	NeedsRepaint()  { return bNeedsRender; }
 
 	bool	IsLoaded()		{ return bFinished; }

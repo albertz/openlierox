@@ -65,7 +65,7 @@ void CServerConnection::resetChannel() {
 
 ///////////////////
 // Clear the client details
-void CServerConnection::Clear(void)
+void CServerConnection::Clear()
 {
 	iNumWorms = 0;
 	int i;
@@ -92,7 +92,7 @@ void CServerConnection::Clear(void)
 
 ///////////////////
 // Clear the client for another game
-void CServerConnection::MinorClear(void)
+void CServerConnection::MinorClear()
 {
 	iNetStatus = NET_CONNECTED;
 	fLastReceived = AbsTime::Max();
@@ -106,7 +106,7 @@ void CServerConnection::MinorClear(void)
 
 ///////////////////
 // Initialize the client
-int CServerConnection::Initialize(void)
+int CServerConnection::Initialize()
 {
 	// TODO: where is this function used? it's totally messed up and does not make much sense at various places
 	assert(false);
@@ -181,7 +181,7 @@ void CServerConnection::RemoveWorm(int id)
 
 ///////////////////
 // Shutdown the client
-void CServerConnection::Shutdown(void)
+void CServerConnection::Shutdown()
 {
 	iNumWorms = 0;
 	for(int i = 0; i < MAX_PLAYERS; ++i)

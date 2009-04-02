@@ -62,10 +62,10 @@ public:
 
     void        loadList(const std::string& szFilename);
     void        saveList(const std::string& szFilename);
-    void        Shutdown(void);
+    void        Shutdown();
 
     void        updateList(CGameScript *pcGameS);
-    void        reset(void);
+    void        reset();
     void        resetVisible(CGameScript *pcGameS);
     void        randomizeVisible(CGameScript *pcGameS);
 	void		cycleVisible(CGameScript *pcGameS);
@@ -79,10 +79,10 @@ public:
 
     int         getWeaponState(const std::string& szName);
 
-    void        sortList(void);
+    void        sortList();
 
-    wpnrest_t   *getList(void);
-    int         getNumWeapons(void);
+    wpnrest_t   *getList();
+    int         getNumWeapons();
 
 
 private:

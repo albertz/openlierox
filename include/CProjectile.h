@@ -166,10 +166,10 @@ public:
 
 	void	Bounce(float fCoeff);
 
-	bool	isUsed(void) const		{ return bUsed; }
+	bool	isUsed() const		{ return bUsed; }
 	void	setUnused();
 
-	float	getLife(void)			{ return fLife; }
+	float	getLife()			{ return fLife; }
 	float&	life()					{ return fLife; }
 
 	float&	extra()					{ return fExtra; }
@@ -184,15 +184,15 @@ public:
 	AbsTime&	lastTrailProj()			{ return fLastTrailProj; }
 	AbsTime	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
-	CVec	GetPosition(void)		{ return vPosition; }
-	CVec	GetVelocity(void)		{ return vVelocity; }
+	CVec	GetPosition()		{ return vPosition; }
+	CVec	GetVelocity()		{ return vVelocity; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
 	int		GetOwner() const			{ return iOwner; }
 
-    float   getTimeVarRandom(void)  { return fTimeVarRandom; }
+    float   getTimeVarRandom()  { return fTimeVarRandom; }
 
-	float	getRandomFloat(void);
-	int		getRandomIndex(void)	{ return iRandom; }
+	float	getRandomFloat();
+	int		getRandomIndex()	{ return iRandom; }
 
     void    setExplode(const AbsTime& t, bool _e)     { fExplodeTime = t; bExplode = _e; }
     void    setTouched(bool _t)      { bTouched = _t; }

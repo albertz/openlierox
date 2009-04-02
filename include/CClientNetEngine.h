@@ -41,7 +41,7 @@ public:
 	virtual void		SendGameReady();
 	virtual void		SendDeath(int victim, int killer);
 	virtual void		SendText(const std::string& sText, std::string sWormName);
-	virtual void		SendWormDetails(void);
+	virtual void		SendWormDetails();
 	virtual void		SendGrabBonus(int id, int wormid);
 	virtual void		SendUpdateLobby(bool ready = true);
 	virtual void		SendDisconnect();

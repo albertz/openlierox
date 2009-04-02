@@ -105,25 +105,25 @@ public:
 
     void    setupInputs(const controls_t& Inputs);
 
-    void    reset(void);
+    void    reset();
 
     CWorm   *findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive);
 
-	SDL_Rect getRect(void);
+	SDL_Rect getRect();
 	
 	void	setSmoothPosition( float X, float Y, TimeDiff DeltaTime );
 
 	//
 	// Variables
 	//
-	int		GetLeft(void)		{ return Left; }
-	int		GetTop(void)		{ return Top; }
-	int		GetWidth(void)		{ return Width; }
-	int		GetHeight(void)		{ return Height; }
-	int		GetWorldX(void)		{ return WorldX; }
-	int		GetWorldY(void)		{ return WorldY; }
-	int		GetVirtW(void)		{ return VirtWidth; }
-	int		GetVirtH(void)		{ return VirtHeight; }
+	int		GetLeft()		{ return Left; }
+	int		GetTop()		{ return Top; }
+	int		GetWidth()		{ return Width; }
+	int		GetHeight()		{ return Height; }
+	int		GetWorldX()		{ return WorldX; }
+	int		GetWorldY()		{ return WorldY; }
+	int		GetVirtW()		{ return VirtWidth; }
+	int		GetVirtH()		{ return VirtHeight; }
 
 	void	SetLeft(int _l)		{ Left = _l; }
 	void	SetTop(int _t)		{ Top = _t; }
@@ -132,13 +132,13 @@ public:
 	void	SetWorldX(int _x)	{ WorldX = _x; }
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 
-	bool	getUsed(void) const	{ return bUsed; }
+	bool	getUsed() const	{ return bUsed; }
 	void	setUsed(bool _u)	{ bUsed = _u; }
 
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
-    CWorm   *getTarget(void) const { return pcTargetWorm; }
+    CWorm   *getTarget() const { return pcTargetWorm; }
 
-    int     getType(void) const { return nType; }
+    int     getType() const { return nType; }
 	void	setType(int _t)		{ nType = _t; }
 
     void    setID(int id)       { nID = id; }

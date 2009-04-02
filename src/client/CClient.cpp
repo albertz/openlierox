@@ -55,7 +55,7 @@
 
 ///////////////////
 // Clear the client details
-void CClient::Clear(void)
+void CClient::Clear()
 {
 
 #ifdef DEBUG
@@ -168,7 +168,7 @@ void CClient::Clear(void)
 
 ///////////////////
 // Clear the client for another game
-void CClient::MinorClear(void)
+void CClient::MinorClear()
 {
 	iNetStatus = NET_CONNECTED;
 	bGameReady = false;
@@ -327,7 +327,7 @@ void CClient::setPing(int _p) { cNetChan->setPing(_p); }
 
 ///////////////////
 // Initialize the client
-int CClient::Initialize(void)
+int CClient::Initialize()
 {
 	uint i;
 
@@ -1121,7 +1121,7 @@ void CClient::NewNet_Frame()
 
 ///////////////////
 // Read the packets
-bool CClient::ReadPackets(void)
+bool CClient::ReadPackets()
 {	
 	CBytestream		bs;
 	bool anythingNew = false;
@@ -1186,7 +1186,7 @@ bool CClient::ReadPackets(void)
 
 ///////////////////
 // Send the packets
-void CClient::SendPackets(void)
+void CClient::SendPackets()
 {
 	// So we don't flood packets out to server
 	/*fSendWait += tLX->fDeltaTime;
@@ -1655,7 +1655,7 @@ void CClient::Disconnect()
 
 ///////////////////
 // Setup the viewports for the local players
-void CClient::SetupViewports(void)
+void CClient::SetupViewports()
 {
 	// Two players
 	if (iNumWorms >= 2)
@@ -2158,7 +2158,7 @@ log_worm_t *CClient::GetLogWorm(int id)
 ////////////////////////
 // Select weapons for client handling local bots in net play
 // Normally, this is done in CClient::Draw
-void CClient::BotSelectWeapons(void)
+void CClient::BotSelectWeapons()
 {
 	if(iNetStatus == NET_CONNECTED && bGameReady)  {
 		uint i;
@@ -2180,7 +2180,7 @@ void CClient::BotSelectWeapons(void)
 
 ///////////////////
 // Shutdown the log structure
-void CClient::ShutdownLog(void)
+void CClient::ShutdownLog()
 {
 	if (!tGameLog)
 		return;

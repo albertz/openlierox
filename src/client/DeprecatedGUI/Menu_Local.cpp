@@ -71,7 +71,7 @@ bool    bWeaponRest = false;
 
 ///////////////////
 // Initialize the local menu
-void Menu_LocalInitialize(void)
+void Menu_LocalInitialize()
 {
 	tMenu->iMenuType = MNU_LOCAL;
 	bGameSettings = false;
@@ -140,7 +140,7 @@ void Menu_LocalInitialize(void)
 
 //////////////
 // Shutdown
-void Menu_LocalShutdown(void)
+void Menu_LocalShutdown()
 {
 	if (bGameSettings)
 		Menu_GameSettingsShutdown();
@@ -160,7 +160,7 @@ void Menu_LocalShutdown(void)
 
 ///////////////////
 // Local frame
-void Menu_LocalFrame(void)
+void Menu_LocalFrame()
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
@@ -471,7 +471,7 @@ void Menu_LocalRemovePlaying(int index)
 
 ///////////////////
 // Add the profiles to the players list
-void Menu_LocalAddProfiles(void)
+void Menu_LocalAddProfiles()
 {
 	profile_t *p = GetProfiles();
 
@@ -566,7 +566,7 @@ void Menu_LocalShowMinimap(bool bReload)
 
 ///////////////////
 // Start a local game
-void Menu_LocalStartGame(void)
+void Menu_LocalStartGame()
 {
 	// Level
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
@@ -771,7 +771,7 @@ static void initFeaturesList(CListview* l);
 
 ///////////////////
 // Initialize the game settings
-void Menu_GameSettings(void)
+void Menu_GameSettings()
 {
 	//GameTabPane = 0;
 	// Setup the buffer
@@ -944,7 +944,7 @@ static void updateFeaturesList(CListview* l)
 
 /////////////
 // Shutdown
-void Menu_GameSettingsShutdown(void)
+void Menu_GameSettingsShutdown()
 {
 	cGameSettings.Shutdown();
 }
@@ -955,7 +955,7 @@ void Menu_GameSettingsShutdown(void)
 ///////////////////
 // Game settings frame
 // Returns whether of not we have finised with the game settings
-bool Menu_GameSettings_Frame(void)
+bool Menu_GameSettings_Frame()
 {
 	gui_event_t *ev = NULL;
 
@@ -1027,7 +1027,7 @@ bool Menu_GameSettings_Frame(void)
 
 ///////////////////
 // Grab the game settings info
-void Menu_GameSettings_GrabInfo(void)
+void Menu_GameSettings_GrabInfo()
 {
 	// Stub
 }
@@ -1035,7 +1035,7 @@ void Menu_GameSettings_GrabInfo(void)
 
 ///////////////////
 // Set the default game settings info
-void Menu_GameSettings_Default(void)
+void Menu_GameSettings_Default()
 {
 	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
@@ -1143,7 +1143,7 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 
 //////////////////
 // Shutdown the weapon restrictions
-void Menu_WeaponsRestrictionsShutdown(void)
+void Menu_WeaponsRestrictionsShutdown()
 {
 	cWeaponsRest.Shutdown();
 
@@ -1161,7 +1161,7 @@ void Menu_WeaponsRestrictionsShutdown(void)
 ///////////////////
 // Weapons Restrictions frame
 // Returns whether or not we have finished with the weapons restrictions
-bool Menu_WeaponsRestrictions_Frame(void)
+bool Menu_WeaponsRestrictions_Frame()
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
@@ -1447,7 +1447,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 /////////////
 // Shutdown
-void Menu_WeaponPresetsShutdown(void)
+void Menu_WeaponPresetsShutdown()
 {
 	cWpnPresets.Shutdown();
 }

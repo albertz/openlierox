@@ -65,7 +65,7 @@ bool CWeather::Initialize(int nType)
 
 ///////////////////
 // Shutdown the weather
-void CWeather::Shutdown(void)
+void CWeather::Shutdown()
 {
     if( m_psParticles ) {
         delete[] m_psParticles;

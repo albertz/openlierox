@@ -54,7 +54,7 @@ void Cmd_AddArg(const std::string& text)
 
 ///////////////////
 // Get the number of arguments
-int Cmd_GetNumArgs(void)
+int Cmd_GetNumArgs()
 {
 	return NumArgs;
 }
@@ -253,7 +253,7 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide)
 
 ///////////////////
 // Free the commands
-void Cmd_Free(void)
+void Cmd_Free()
 {
 	command_t *cmd;
 	command_t *cn;
@@ -308,7 +308,7 @@ static int atoid(const std::string& str)
 
 ///////////////////
 // Tell the server to kick someone
-void Cmd_Kick(void)
+void Cmd_Kick()
 {
 	if(tLX->iGameType == GME_JOIN)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -327,7 +327,7 @@ void Cmd_Kick(void)
 
 ///////////////////
 // Tell the server to kick and ban someone
-void Cmd_Ban(void)
+void Cmd_Ban()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -346,7 +346,7 @@ void Cmd_Ban(void)
 
 ///////////////////
 // Tell the server to mute someone
-void Cmd_Mute(void)
+void Cmd_Mute()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -365,7 +365,7 @@ void Cmd_Mute(void)
 
 ///////////////////
 // Tell the server to unmute someone
-void Cmd_Unmute(void)
+void Cmd_Unmute()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -384,7 +384,7 @@ void Cmd_Unmute(void)
 
 ///////////////////
 // Tell the server to kick someone by ID
-void Cmd_KickId(void)
+void Cmd_KickId()
 {
 	if(tLX->iGameType == GME_JOIN)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -407,7 +407,7 @@ void Cmd_KickId(void)
 
 ///////////////////
 // Tell the server to kick and ban someone by ID
-void Cmd_BanId(void)
+void Cmd_BanId()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -430,7 +430,7 @@ void Cmd_BanId(void)
 
 ///////////////////
 // Tell the server to mute someone by ID
-void Cmd_MuteId(void)
+void Cmd_MuteId()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -453,7 +453,7 @@ void Cmd_MuteId(void)
 
 ///////////////////
 // Tell the server to unmute someone by ID
-void Cmd_UnmuteId(void)
+void Cmd_UnmuteId()
 {
 	if(tLX->iGameType != GME_HOST)  {
 		Con_AddText(CNC_NORMAL, "This command is available only for host.");
@@ -508,7 +508,7 @@ void Cmd_CoreDump() {
 
 ///////////////////
 // Suicide
-void Cmd_Suicide(void)
+void Cmd_Suicide()
 {
 	if (cClient)  {
 		if(bDedicated) {
@@ -552,7 +552,7 @@ void Cmd_Suicide(void)
 
 //////////////////
 // Unstuck a stucked worm
-void Cmd_Unstuck(void)
+void Cmd_Unstuck()
 {
 
 	if (cClient)  {
@@ -576,7 +576,7 @@ void Cmd_Unstuck(void)
 
 /////////////////////
 // Enables or disables wants to join messages
-void Cmd_WantsJoin(void)
+void Cmd_WantsJoin()
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
@@ -596,7 +596,7 @@ void Cmd_WantsJoin(void)
 	}
 }
 
-void Cmd_RenameServer(void)
+void Cmd_RenameServer()
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {

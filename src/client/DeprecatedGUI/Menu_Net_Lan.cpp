@@ -52,7 +52,7 @@ enum {
 
 ///////////////////
 // Initialize the LAN menu
-bool Menu_Net_LANInitialize(void)
+bool Menu_Net_LANInitialize()
 {
 	iNetMode = net_lan;
 
@@ -119,7 +119,7 @@ bool Menu_Net_LANInitialize(void)
 
 ///////////////////
 // Shutdown the LAN menu
-void Menu_Net_LANShutdown(void)
+void Menu_Net_LANShutdown()
 {
 	if (tLXOptions)  {
 

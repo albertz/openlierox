@@ -313,7 +313,7 @@ void CCombobox::setSorted(int sort_direction)
 
 ///////////////////
 // Create the combo box
-void CCombobox::Create(void)
+void CCombobox::Create()
 {
 	iSelected = 0;
 	bGotScrollbar = false;
@@ -332,7 +332,7 @@ void CCombobox::Create(void)
 
 ///////////////////
 // Destroy the combo box
-void CCombobox::Destroy(void)
+void CCombobox::Destroy()
 {
 	tItems.clear();
 	iSelected = 0;
@@ -919,7 +919,7 @@ void CCombobox::setImage(SmartPointer<SDL_Surface> img, int ItemIndex)
 
 ///////////////////
 // Clear the data
-void CCombobox::clear(void)
+void CCombobox::clear()
 {	
     Destroy();
     Create();

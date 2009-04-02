@@ -40,7 +40,7 @@ void CCheckbox::Draw(SDL_Surface * bmpDest)
 
 ///////////////////
 // Create
-void CCheckbox::Create(void)
+void CCheckbox::Create()
 {
     bmpImage = LoadGameImage("data/frontend/checkbox.png");
 }

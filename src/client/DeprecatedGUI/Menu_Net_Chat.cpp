@@ -46,7 +46,7 @@ enum {
 
 ///////////////////
 // Initialize the news net menu
-bool Menu_Net_ChatInitialize(void)
+bool Menu_Net_ChatInitialize()
 {
 	iNetMode = net_chat;
 

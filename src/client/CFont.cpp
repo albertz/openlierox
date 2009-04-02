@@ -68,7 +68,7 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 
 ///////////////////
 // Shutdown the font
-void CFont::Shutdown(void) {
+void CFont::Shutdown() {
 }
 
 
@@ -88,7 +88,7 @@ bool CFont::IsColumnFree(int x) {
 
 ///////////////////
 // Calculate character widths, number of characters and offsets
-void CFont::Parse(void) {
+void CFont::Parse() {
 	int x;
 	UnicodeChar CurChar = FIRST_CHARACTER;
 	int cur_w;

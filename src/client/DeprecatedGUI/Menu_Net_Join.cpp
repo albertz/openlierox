@@ -101,7 +101,7 @@ void Menu_Net_JoinFrame(int mouse)
 	}
 }
 
-void Menu_Net_JoinShutdown(void)
+void Menu_Net_JoinShutdown()
 {
 	Menu_Net_JoinConnectionShutdown();
 	Menu_Net_JoinLobbyShutdown();
@@ -142,7 +142,7 @@ bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 	return true;
 }
 
-void Menu_Net_JoinConnectionShutdown(void)
+void Menu_Net_JoinConnectionShutdown()
 {
 	cConnecting.Shutdown();
 }
@@ -259,7 +259,7 @@ enum {
 
 ///////////////////
 // Initialize the joining lobby
-bool Menu_Net_JoinLobbyInitialize(void)
+bool Menu_Net_JoinLobbyInitialize()
 {
     Menu_Net_JoinDrawLobby();
 
@@ -292,7 +292,7 @@ bool Menu_Net_JoinLobbyInitialize(void)
 
 ////////////////////
 // Shutdown the join lobby
-void Menu_Net_JoinLobbyShutdown(void)
+void Menu_Net_JoinLobbyShutdown()
 {
 	if (cClient)
 		cClient->Disconnect();
@@ -308,7 +308,7 @@ void Menu_Net_JoinLobbyShutdown(void)
 	
 ///////////////////
 // Draw the join lobby
-void Menu_Net_JoinDrawLobby(void)
+void Menu_Net_JoinDrawLobby()
 {
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
@@ -533,7 +533,7 @@ void Menu_Net_JoinStartDownload()
 	
 ///////////////////
 // Create the lobby gui stuff
-void Menu_Net_JoinLobbyCreateGui(void)
+void Menu_Net_JoinLobbyCreateGui()
 {
     cJoinLobby.Shutdown();
 	cJoinLobby.Initialize();
@@ -595,7 +595,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 ///////////////////
 // Go straight back to the join lobby
 // TODO: please comment the difference between Menu_Net_JoinGotoLobby and GotoJoinLobby
-void Menu_Net_JoinGotoLobby(void)
+void Menu_Net_JoinGotoLobby()
 {
     //Menu_redrawBufferRect(0, 0, 640, 480);
 

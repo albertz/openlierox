@@ -43,14 +43,14 @@ public:
 
     // Methods
 
-	inline std::string	getPath(void)		{ return sPath; }
-	SDL_Surface		*getSurface(void)	{ return tImage; }
+	inline std::string	getPath()		{ return sPath; }
+	SDL_Surface		*getSurface()	{ return tImage; }
 	void			Change(const std::string& Path);
 	void			Change(SDL_Surface *bmpImg);
 
 	void	Draw(SDL_Surface *bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 };
 
 }; // namespace SkinnedGUI

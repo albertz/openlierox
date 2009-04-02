@@ -28,7 +28,7 @@
 
 ///////////////////
 // Clear the ninja rope vars
-void CNinjaRope::Clear(void)
+void CNinjaRope::Clear()
 {
 	Released = false;
 	HookShooting = false;
@@ -48,7 +48,7 @@ void CNinjaRope::Clear(void)
 ///////////////////
 // Release the ninja rope
 // TODO: there is a name-inconvesion between isReleased and Release
-void CNinjaRope::Release(void)
+void CNinjaRope::Release()
 {
 	// Un-hook the rope from the other worm
 	if(HookAttached && PlayerAttached && Worm)

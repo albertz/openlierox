@@ -220,12 +220,12 @@ extern	void*			startFunctionData;
 
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);
-int		InitializeLieroX(void);
-void	ShutdownLieroX(void);
-void	GameLoopFrame(void);
-void	QuittoMenu(void);
-void	GotoLocalMenu(void);
-void	GotoNetMenu(void);
+int		InitializeLieroX();
+void	ShutdownLieroX();
+void	GameLoopFrame();
+void	QuittoMenu();
+void	GotoLocalMenu();
+void	GotoNetMenu();
 
 void	SetQuitEngineFlag(const std::string& reason);
 void	ResetQuitEngineFlag();

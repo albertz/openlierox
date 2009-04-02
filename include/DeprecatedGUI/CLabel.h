@@ -66,14 +66,14 @@ private:
 public:
 	// Methods
 
-	void	Create(void) 
+	void	Create() 
 	{ 
 		iWidth = tLX->cFont.GetWidth(sText); 
 		iHeight = tLX->cFont.GetHeight(sText);
 		if( bCenter ) 
 			iX -= iWidth / 2;
 	}
-	void	Destroy(void) { }
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return LBL_NONE; }
@@ -119,7 +119,7 @@ public:
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

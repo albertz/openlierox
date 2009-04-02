@@ -205,7 +205,7 @@ void Menu_LoadFrontendInfo()
 
 ///////////////////
 // Shutdown the menu
-void Menu_Shutdown(void)
+void Menu_Shutdown()
 {
 	if(tMenu) {
 		// Shutdown all sub-menus
@@ -279,7 +279,7 @@ void Menu_Shutdown(void)
 
 ///////////////////
 // Start the menu
-void Menu_Start(void)
+void Menu_Start()
 {
 	tMenu->bMenuRunning = true;
 
@@ -373,7 +373,7 @@ void Menu_Frame() {
 
 ///////////////////
 // Main menu loop
-void Menu_Loop(void)
+void Menu_Loop()
 {
 	tLX->currentTime = GetTime();
 	bool last_frame_was_because_of_an_event = false;
@@ -791,7 +791,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 
 ///////////////////
 // Add all the default widgets
-void Menu_AddDefaultWidgets(void)
+void Menu_AddDefaultWidgets()
 {
 // 34 layouts total
 
@@ -1148,7 +1148,7 @@ static const int	MaxQueries = MAX_QUERIES;
 
 ///////////////////
 // Clear the server list
-void Menu_SvrList_Clear(void)
+void Menu_SvrList_Clear()
 {
 	Menu_SvrList_Shutdown();
 }
@@ -1156,7 +1156,7 @@ void Menu_SvrList_Clear(void)
 
 ///////////////////
 // Clear any servers automatically added
-void Menu_SvrList_ClearAuto(void)
+void Menu_SvrList_ClearAuto()
 {
     for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
     {
@@ -1173,7 +1173,7 @@ void Menu_SvrList_ClearAuto(void)
 
 ///////////////////
 // Shutdown the server list
-void Menu_SvrList_Shutdown(void)
+void Menu_SvrList_Shutdown()
 {
 	psServerList.clear();
 }
@@ -1198,7 +1198,7 @@ static void SendBroadcastPing(int port) {
 	
 ///////////////////
 // Send a ping out to the LAN (LAN menu)
-void Menu_SvrList_PingLAN(void)
+void Menu_SvrList_PingLAN()
 {
 	SendBroadcastPing(LX_PORT);
 	if(tLXOptions->iNetworkPort != LX_PORT)
@@ -1257,7 +1257,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 
 ///////////////////
 // Refresh the server list (Internet menu)
-void Menu_SvrList_RefreshList(void)
+void Menu_SvrList_RefreshList()
 {
 	// Set all the servers to be pinged
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++) 
@@ -1504,7 +1504,7 @@ static bool bUpdateFromUdpThread = false;
 ///////////////////
 // Process the network connection
 // Returns true if a server in the list was added/modified
-bool Menu_SvrList_Process(void)
+bool Menu_SvrList_Process()
 {
 	CBytestream		bs;
 	bool			update = false;

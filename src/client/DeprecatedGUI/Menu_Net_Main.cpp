@@ -38,7 +38,7 @@ enum {
 
 ///////////////////
 // Initialize the main net menu
-bool Menu_Net_MainInitialize(void)
+bool Menu_Net_MainInitialize()
 {
 	iNetMode = net_main;
 
@@ -81,7 +81,7 @@ bool Menu_Net_MainInitialize(void)
 
 ///////////////////
 // Shutdown the main net menu
-void Menu_Net_MainShutdown(void)
+void Menu_Net_MainShutdown()
 {
 	cMain.Shutdown();
 }

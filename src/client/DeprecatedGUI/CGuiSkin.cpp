@@ -422,7 +422,7 @@ void CGuiSkin::ProcessUpdateCallbacks()
 
 // Old OLX menu system hooks
 CGuiSkinnedLayout * MainLayout = NULL;
-bool Menu_CGuiSkinInitialize(void)
+bool Menu_CGuiSkinInitialize()
 {
 	// TODO: don't hardcode window-size!
 	DrawRectFill(tMenu->bmpBuffer.get(), 0, 0, 640-1, 480-1, tLX->clBlack);
@@ -440,7 +440,7 @@ bool Menu_CGuiSkinInitialize(void)
 	return true;
 }
 
-void Menu_CGuiSkinFrame(void)
+void Menu_CGuiSkinFrame()
 {
 	if( ! MainLayout->Process() )
 	{
@@ -453,7 +453,7 @@ void Menu_CGuiSkinFrame(void)
 	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
 }
 
-void Menu_CGuiSkinShutdown(void)
+void Menu_CGuiSkinShutdown()
 {
 	DrawRectFill(tMenu->bmpBuffer.get(), 0, 0, 640-1, 480-1, tLX->clBlack);
 	DrawImage(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 0, 0);

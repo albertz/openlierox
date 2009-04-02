@@ -449,7 +449,7 @@ public:
 	std::list<CListviewItem *>&			getItems()		{ return tItems; }
 	std::vector<CListviewColumn *>&		getColumns()	{ return tColumns; }
 
-	CListviewItem		*getLastItem(void)	{ return tItems.empty() ? NULL : *tItems.rbegin(); }
+	CListviewItem		*getLastItem()	{ return tItems.empty() ? NULL : *tItems.rbegin(); }
 	CListviewItem*		getItem(int index);
 	CListviewItem*		getItem(const std::string& sindex);
 	CListviewSubitem	*getSubItem(int item_index, int subitem_index);
@@ -463,8 +463,8 @@ public:
 	void	setShowColumnHeaders(bool s)	{ bShowColumnHeaders.set(s, HIGHEST_PRIORITY); ReadjustItemArea(); }
 	bool	getShowColumnHeaders()			{ return bShowColumnHeaders; }
 
-	void	SaveScrollbarPos(void)    { iSavedScrollbarPos = cScrollbar->getValue(); }
-	void	RestoreScrollbarPos(void) { cScrollbar->setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
+	void	SaveScrollbarPos()    { iSavedScrollbarPos = cScrollbar->getValue(); }
+	void	RestoreScrollbarPos() { cScrollbar->setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
 
 	static const std::string tagName()	{ return "list"; }
 	const std::string getTagName()		{ return CListview::tagName(); }

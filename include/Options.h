@@ -84,7 +84,7 @@ public:
 	std::string& operator[] (const short i) { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
 	const std::string& operator[] (const short i) const { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
 
-	unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
+	unsigned short ControlCount() const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
 };
 
@@ -310,7 +310,7 @@ public:
 
 
 // Option Routines
-void	ShutdownOptions(void);
+void	ShutdownOptions();
 
 
 extern	GameOptions		*tLXOptions;

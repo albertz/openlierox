@@ -241,7 +241,7 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 
 ///////////////////
 // Clear the map
-void CMap::Clear(void)
+void CMap::Clear()
 {
 	TileMap();
 }
@@ -250,7 +250,7 @@ void CMap::Clear(void)
 ///////////////////
 // Apply a random set to the map
 /*
-void CMap::ApplyRandom(void)
+void CMap::ApplyRandom()
 {
 	int n, x, y, i;
     int objCount = 0;
@@ -537,7 +537,7 @@ bool CMap::validateTheme(const std::string& name) {
 
 ///////////////////
 // Creates the level surface
-bool CMap::CreateSurface(void)
+bool CMap::CreateSurface()
 {
 	SDL_PixelFormat *fmt = getMainPixelFormat();
 	if(fmt == NULL)
@@ -754,7 +754,7 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 
 ///////////////////
 // Creates the level pixel flags
-bool CMap::CreatePixelFlags(void)
+bool CMap::CreatePixelFlags()
 {
 	lockFlags();
 	PixelFlags = new uchar[Width*Height];
@@ -770,7 +770,7 @@ bool CMap::CreatePixelFlags(void)
 
 ///////////////////
 // Create the AI Grid
-bool CMap::createGrid(void) {
+bool CMap::createGrid() {
     nGridWidth = 15;
     nGridHeight = 15;
 
@@ -797,7 +797,7 @@ bool CMap::createGrid(void) {
 
 ///////////////////
 // Calculate the grid
-void CMap::calculateGrid(void)
+void CMap::calculateGrid()
 {
 	lockFlags();
     for(uint y=0; y<Height; y+=nGridHeight)  {
@@ -869,7 +869,7 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
 
 ///////////////////
 // Tile the map
-void CMap::TileMap(void)
+void CMap::TileMap()
 {
 	uint x,y;
 
@@ -908,7 +908,7 @@ void CMap::TileMap(void)
 
 ///////////////////
 // Calculate the dirt count in the level
-void CMap::CalculateDirtCount(void)
+void CMap::CalculateDirtCount()
 {
     nTotalDirtCount = 0;
 	uint n;
@@ -1644,7 +1644,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 ///////////////////
 // Calculate the shadow map
-void CMap::CalculateShadowMap(void)
+void CMap::CalculateShadowMap()
 {
 	// This should be faster
 	SDL_BlitSurface(bmpBackImage.get(), NULL, bmpShadowMap.get(), NULL);
@@ -2871,7 +2871,7 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 
 ///////////////////
 // Shutdown the map
-void CMap::Shutdown(void)
+void CMap::Shutdown()
 {
 	lockFlags();
 

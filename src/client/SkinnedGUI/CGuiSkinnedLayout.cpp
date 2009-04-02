@@ -450,7 +450,7 @@ void CGuiSkinnedLayout::DoChildDestroyEvent(CWidget *child)
 
 ///////////////////
 // Process all the widgets
-void CGuiSkinnedLayout::Process(void)
+void CGuiSkinnedLayout::Process()
 {
 	// TODO: get rid of this function, it currently does nothing at all
 

@@ -934,7 +934,7 @@ size_t CGameScript::GetMemorySize()
 
 ///////////////////
 // Shutdown the game script
-void CGameScript::Shutdown(void)
+void CGameScript::Shutdown()
 {
 	loaded = false;
 	int n;

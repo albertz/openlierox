@@ -37,7 +37,7 @@
 
 ///////////////////
 // Load the sounds
-int LoadSounds(void)
+int LoadSounds()
 {
 	sfxGame.smpNinja = LoadSample("data/sounds/throw.wav",4);
 	sfxGame.smpPickup = LoadSample("data/sounds/pickup.wav",2);
@@ -80,7 +80,7 @@ bool InitSoundSystem(int rate, int channels, int buffers) { return false; }
 bool StartSoundSystem() { return false; }
 bool StopSoundSystem() { return false; }
 bool SetSoundVolume(int vol) { return false; }
-int GetSoundVolume(void) { return 0; }
+int GetSoundVolume() { return 0; }
 bool QuitSoundSystem() { return false; }
 SmartPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
 bool FreeSoundSample(SoundSample* sample) { return false; }
@@ -95,26 +95,26 @@ byte  iMusicVolume = 50;
 bool  bSongFinished;
 
 bool IsSongLoading() { return false; }
-void InitializeMusic(void) {}
+void InitializeMusic() {}
 void PlayMusicAsync(const std::string& file) {}
 SoundMusic *LoadMusic(const std::string& file) { return NULL; }
 void FreeMusic(SoundMusic *music) {}
 void PlayMusic(SoundMusic *music, int number_of_repeats) {}
-void StopMusic(void) {}
-TimeDiff GetCurrentMusicTime(void) { return TimeDiff(0); }
+void StopMusic() {}
+TimeDiff GetCurrentMusicTime() { return TimeDiff(0); }
 void SetMusicVolume(byte vol) {}
-void MusicFinishedHook(void) {}
+void MusicFinishedHook() {}
 void ShutdownMusic() {}
-void PauseMusic(void) {}
-void ResumeMusic(void) {}
-void RewindMusic(void) {}
+void PauseMusic() {}
+void ResumeMusic() {}
+void RewindMusic() {}
 void SetMusicPosition(double pos) {}
-bool PlayingMusic(void) { return false; }
-bool PausedMusic(void) { return false; }
+bool PlayingMusic() { return false; }
+bool PausedMusic() { return false; }
 int GetMusicType(SoundMusic *music) { return 0; }
-bool GetSongStopped(void) { return false; }
-bool GetSongFinished(void) { return false; }
-byte GetMusicVolume(void) { return 0; }
+bool GetSongStopped() { return false; }
+bool GetSongFinished() { return false; }
+byte GetMusicVolume() { return 0; }
 
 #else //DEDICATED_ONLY
 
@@ -229,7 +229,7 @@ bool SetSoundVolume(int vol) {
 	return false;
 }
 
-int GetSoundVolume(void)  {
+int GetSoundVolume()  {
 	if(!SoundSystemAvailable) return 0;
 
 	return SoundSystemVolume;
@@ -364,7 +364,7 @@ void SetMusicFinishedHandler(MusicFinishedCB cb)
 }
 
 
-static void MusicFinishedHook(void)
+static void MusicFinishedHook()
 {
 	bSongFinished = !GetSongStopped();
 	if (bSongFinished && tOnSongFinished)
@@ -372,7 +372,7 @@ static void MusicFinishedHook(void)
 }
 
 
-void InitializeMusic(void)
+void InitializeMusic()
 {
 	Mix_HookMusicFinished(&MusicFinishedHook);
 	SetMusicVolume(tLXOptions->iMusicVolume);
@@ -418,7 +418,7 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 	bSongStopped = false;
 }
 
-void StopMusic(void)
+void StopMusic()
 {
 	byte oldvolume = GetMusicVolume();
 	SetMusicVolume(0);
@@ -431,7 +431,7 @@ void StopMusic(void)
 	SetMusicVolume(oldvolume);
 }
 
-TimeDiff GetCurrentMusicTime(void)
+TimeDiff GetCurrentMusicTime()
 {
 	// No song playing
 	// TODO: really a bad check that is
@@ -458,23 +458,23 @@ void SetMusicVolume(byte vol)
 	Mix_VolumeMusic(Round(tmp));
 }
 
-void ShutdownMusic(void)
+void ShutdownMusic()
 {
 	Mix_HookMusicFinished(NULL);
 }
 
 
 
-void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetTime(); bSongStopped = false;}
-void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetTime()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
-void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetTime();fTimePaused = 0;}
+void		PauseMusic() {Mix_PauseMusic(); fTimePaused = GetTime(); bSongStopped = false;}
+void		ResumeMusic() {Mix_ResumeMusic();fCurSongStart += GetTime()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
+void		RewindMusic() {Mix_RewindMusic();fCurSongStart = GetTime();fTimePaused = 0;}
 void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
-bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
-bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }
+bool		PlayingMusic() {return Mix_PlayingMusic() != 0; }
+bool		PausedMusic() {return Mix_PausedMusic() != 0; }
 int			GetMusicType(SoundMusic *music) {if (music) {return Mix_GetMusicType(music->sndMusic);} else {return Mix_GetMusicType(NULL);} }
-bool		GetSongStopped(void) {return bSongStopped; }
-bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
-byte		GetMusicVolume(void) { return iMusicVolume; }
+bool		GetSongStopped() {return bSongStopped; }
+bool		GetSongFinished() { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
+byte		GetMusicVolume() { return iMusicVolume; }
 
 
 

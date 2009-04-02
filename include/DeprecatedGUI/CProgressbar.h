@@ -44,8 +44,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { cProgressBar.SetX(iX); cProgressBar.SetY(iY); iWidth = cProgressBar.GetWidth(); iHeight = cProgressBar.GetHeight(); }
-	void	Destroy(void) { }
+	void	Create() { cProgressBar.SetX(iX); cProgressBar.SetY(iY); iWidth = cProgressBar.GetWidth(); iHeight = cProgressBar.GetHeight(); }
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return BAR_NONE; }
@@ -73,7 +73,7 @@ public:
 
 	inline void SetPosition(int _pos)  { cProgressBar.SetPosition(_pos); }
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

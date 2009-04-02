@@ -37,8 +37,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { }
-	void	Destroy(void) { }
+	void	Create() { }
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return LIN_NONE; }
@@ -62,7 +62,7 @@ public:
 		DrawLine(bmpDest, iX, iY, iX + iWidth, iY + iHeight, iColour); 
 	}
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

@@ -72,15 +72,15 @@ public:
 
 
 	// variables
-	bool	getUsed(void)		{ return bUsed; }
+	bool	getUsed()		{ return bUsed; }
 	void	setUsed(bool _u);
 	
-	int		getType(void)		{ return iType; }
-	int		getWeapon(void)		{ return iWeapon; }
+	int		getType()		{ return iType; }
+	int		getWeapon()		{ return iWeapon; }
 
-	AbsTime	getSpawnTime(void)	{ return fSpawnTime; }
+	AbsTime	getSpawnTime()	{ return fSpawnTime; }
 
-	CVec	getPosition(void)	{ return vPos; }
+	CVec	getPosition()	{ return vPos; }
 
 	CVec&	pos()				{ return vPos; }
 	CVec&	velocity()			{ return vVelocity; }

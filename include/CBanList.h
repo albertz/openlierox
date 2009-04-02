@@ -53,7 +53,7 @@ public:
 
     void        loadList(const std::string& szFilename);
     void        saveList(const std::string& szFilename);
-    void        Shutdown(void);
+    void        Shutdown();
 
     bool        isBanned(const std::string& szAddress);
 
@@ -61,13 +61,13 @@ public:
 	void		removeBanned(const std::string& stAddress);
     banlist_t   *findBanned(const std::string& szAddress);
 
-    void        sortList(void);
-	void		Clear(void);
+    void        sortList();
+	void		Clear();
 
-    banlist_t   *getList(void);
-    int         getNumItems(void);
+    banlist_t   *getList();
+    int         getNumItems();
 
-	std::string getPath(void);
+	std::string getPath();
 	banlist_t	*getItemById(int ID);
 	int			getIdByAddr(const std::string& szAddress);
 

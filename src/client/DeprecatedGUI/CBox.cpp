@@ -21,7 +21,7 @@ namespace DeprecatedGUI {
 
 ///////////////////
 // Draw the frame into a buffer
-void CBox::PreDraw(void)
+void CBox::PreDraw()
 {
 	// If the width or height of the box has changed, create new buffer
 	if (bmpBuffer.get())  {
@@ -246,14 +246,14 @@ void CBox::Draw(SDL_Surface * bmpDest)
 
 /////////////////
 // Free the widget
-void CBox::Destroy(void)
+void CBox::Destroy()
 {
 	bmpBuffer = NULL;
 }
 
 //////////////////
 // Checks if any mouse event happened 
-int	CBox::CheckEvent(void)
+int	CBox::CheckEvent()
 {
 	// If the mouse is over transparent area, don't fire any event
 	// CGuiLayout will then continue processing events for other widgets

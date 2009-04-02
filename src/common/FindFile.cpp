@@ -142,7 +142,7 @@ bool EqualPaths(const std::string& path1, const std::string& path2)  {
 
 ////////////////////
 //
-drive_list GetDrives(void)
+drive_list GetDrives()
 {
 static drive_list list;
 list.clear();

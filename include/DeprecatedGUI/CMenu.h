@@ -64,8 +64,8 @@ public:
 
     CMenu(int nPosX, int nPosY);
 
-    void	Create(void);
-	void	Destroy(void);
+    void	Create();
+	void	Destroy();
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -82,7 +82,7 @@ public:
     
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 
     void    addItem(int nID, const std::string& szName, bool checkable = false, bool checked = false);

@@ -49,19 +49,19 @@ private:
 public:
     // Methods
 
-    void			Create(void)		{ iType = wid_Frame; PreDraw(); }
-	void			Destroy(void);
+    void			Create()		{ iType = wid_Frame; PreDraw(); }
+	void			Destroy();
 
 	void			setRound(int round)			{ iRound = round; }
-	int				getRound(void)				{ return iRound; }
+	int				getRound()				{ return iRound; }
 	void			setBorder(int border)		{ iBorder = border; }
-	int				getBorder(void)				{ return iBorder; }
+	int				getBorder()				{ return iBorder; }
 	void			setLightColour(Uint32 col)	{ iLightColour = col; }
-	Uint32			getLightColour(void)		{ return iLightColour; }
+	Uint32			getLightColour()		{ return iLightColour; }
 	void			setDarkColour(Uint32 col)	{ iDarkColour = col;  }
-	Uint32			getDarkColour(void)			{ return iDarkColour; }
+	Uint32			getDarkColour()			{ return iDarkColour; }
 	void			setBgColour(Uint32 col)		{ iBgColour = col; }
-	int				getBgColour(void)			{ return iBgColour; }
+	int				getBgColour()			{ return iBgColour; }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return CheckEvent(); }
@@ -76,12 +76,12 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	int		CheckEvent(void);
+	int		CheckEvent();
 
-	void	PreDraw(void);
+	void	PreDraw();
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

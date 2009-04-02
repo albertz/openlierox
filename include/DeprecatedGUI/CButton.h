@@ -96,8 +96,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void) { }
+	void	Create();
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ bMouseOver = true; SetGameCursor(CURSOR_HAND); return BTN_MOUSEOVER; }
@@ -116,7 +116,7 @@ public:
 	void	Draw(SDL_Surface * bmpDest);
     void	Draw2(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	int		getType()  { return iButtonType; }
 	void	setType(int _t)  { iButtonType = _t; }

@@ -94,7 +94,7 @@ public:
 
 	void		Initialize(int LayoutID = -1);
 
-	bool		Build(void);
+	bool		Build();
 
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	void		FocusWidget(int id);
@@ -103,10 +103,10 @@ public:
 	int			GetIdByName(const std::string& Name);
 	void		Error(int ErrorCode, const std::string& text);
 
-	gui_event_t	*Process(void);
+	gui_event_t	*Process();
 	void		Draw(SDL_Surface * bmpDest);
 
-	void		Shutdown(void);
+	void		Shutdown();
 
 	void		SetGlobalProperty(int property, int value);
 
@@ -118,7 +118,7 @@ public:
 	DWORD		SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param);
 
 	// Variables
-	int			getID(void)		{ return iID; }
+	int			getID()		{ return iID; }
 	void		setID(int _id)	{ iID = _id; }
 
 };

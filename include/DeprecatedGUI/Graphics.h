@@ -66,8 +66,8 @@ extern	gfxgame_t	gfxGame;
 // Routines
 void	InitializeColors();
 bool	LoadFonts();
-bool	LoadGraphics(void);
-void	ShutdownGraphics(void);
+bool	LoadGraphics();
+void	ShutdownGraphics();
 
 }; // namespace DeprecatedGUI
 

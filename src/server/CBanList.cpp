@@ -217,7 +217,7 @@ void CBanList::loadList(const std::string& szFilename)
 
 ///////////////////
 // Clears the list
-void CBanList::Clear(void)
+void CBanList::Clear()
 {
 	Shutdown();
 }
@@ -242,7 +242,7 @@ bool CBanList::isBanned(const std::string& szAddress)
 
 ///////////////////
 // Return the sorted ban list
-banlist_t *CBanList::getList(void)
+banlist_t *CBanList::getList()
 {
 	sortList();
     return m_psSortedList;
@@ -251,7 +251,7 @@ banlist_t *CBanList::getList(void)
 
 ///////////////////
 // Return the number of banned IPs
-int CBanList::getNumItems(void)
+int CBanList::getNumItems()
 {
     return m_nCount;
 }
@@ -259,7 +259,7 @@ int CBanList::getNumItems(void)
 
 ///////////////////
 // Create a sorted list
-void CBanList::sortList(void) {
+void CBanList::sortList() {
     int i, j;
 
     // Free any previous list
@@ -304,7 +304,7 @@ void CBanList::sortList(void) {
 
 ///////////////////
 // Path to the ban list file
-std::string CBanList::getPath(void) {
+std::string CBanList::getPath() {
 	return m_szPath;
 }
 
@@ -328,7 +328,7 @@ banlist_t *CBanList::getItemById(int ID) {
 
 ///////////////////
 // Shutdown the ban list
-void CBanList::Shutdown(void)
+void CBanList::Shutdown()
 {
      banlist_t *psWorm = m_psBanList;
      banlist_t *psNext = NULL;

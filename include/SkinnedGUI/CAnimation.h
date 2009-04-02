@@ -63,8 +63,8 @@ public:
 
     // Methods
 
-	std::string		getPath(void)		{ return sPath; }
-	SmartPointer<SDL_Surface>	getSurface(void)	{ return tImage; }
+	std::string		getPath()		{ return sPath; }
+	SmartPointer<SDL_Surface>	getSurface()	{ return tImage; }
 	float			getFrameTime()		{ return fFrameTime; }
 	void			setFrameTime(float t);
 	void			Change(const std::string& Path);

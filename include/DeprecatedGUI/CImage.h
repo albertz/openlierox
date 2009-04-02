@@ -85,11 +85,11 @@ private:
 public:
     // Methods
 
-    void			Create(void)		{ iType = wid_Image; }
-	void			Destroy(void)		{  }
+    void			Create()		{ iType = wid_Image; }
+	void			Destroy()		{  }
 
-	inline std::string	getPath(void)		{ return sPath; }
-	SmartPointer<SDL_Surface> getSurface(void)	{ return tImage; }
+	inline std::string	getPath()		{ return sPath; }
+	SmartPointer<SDL_Surface> getSurface()	{ return tImage; }
 	void			Change(const std::string& Path);
 	void			Change(SmartPointer<SDL_Surface> bmpImg);
 
@@ -108,7 +108,7 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 

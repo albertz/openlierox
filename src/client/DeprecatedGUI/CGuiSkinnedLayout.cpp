@@ -80,7 +80,7 @@ void CGuiSkinnedLayout::removeWidget(int id)
 
 ///////////////////
 // Shutdown the gui layout
-void CGuiSkinnedLayout::Shutdown(void)
+void CGuiSkinnedLayout::Shutdown()
 {
 	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
 		(*w)->Destroy();
@@ -114,7 +114,7 @@ void CGuiSkinnedLayout::Draw(SDL_Surface * bmpDest)
 
 ///////////////////
 // Process all the widgets
-bool CGuiSkinnedLayout::Process(void)
+bool CGuiSkinnedLayout::Process()
 {
 	mouse_t *tMouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();

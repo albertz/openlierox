@@ -113,7 +113,7 @@ int	CWidgetList::getID(const std::string& Name)
 
 ///////////////
 // Shutdown the widget IDs list
-void CWidgetList::Shutdown(void)
+void CWidgetList::Shutdown()
 {
 	// The list is already empty
 	if (!tItems)

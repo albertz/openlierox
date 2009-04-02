@@ -74,21 +74,21 @@ class console_t { public:
 
 
 // Routines
-int		Con_Initialize(void);
+int		Con_Initialize();
 bool	Con_IsInited();
-void	Con_Shutdown(void);
-void	Con_Toggle(void);
+void	Con_Shutdown();
+void	Con_Toggle();
 void	Con_Process(TimeDiff dt);
 void	Con_ProcessCharacter(const KeyboardEvent& input);
-void	Con_Hide(void);
+void	Con_Hide();
 void	Con_Draw(SDL_Surface * bmpDest);
 
 void	Con_AddText(int colour, const std::string& text, bool alsoToLogger = true);
 void	Con_AddHistory(const std::string& text);
 
-void	Con_Parse(void);
+void	Con_Parse();
 
-bool	Con_IsVisible(void);
+bool	Con_IsVisible();
 
 
 #endif  //  __CONSOLE_H__

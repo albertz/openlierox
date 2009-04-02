@@ -99,7 +99,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 ///////////////////
 // Gets a random float from a special list
 // TODO: how does this belong to projectiles? move it perhaps out here
-float CProjectile::getRandomFloat(void)
+float CProjectile::getRandomFloat()
 {
 	float r = GetFixedRandomNum(iRandom++);
 

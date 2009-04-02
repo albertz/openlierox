@@ -371,7 +371,7 @@ bool GameOptions::LoadFromDisc()
 
 ///////////////////
 // Save & shutdown the options
-void ShutdownOptions(void)
+void ShutdownOptions()
 {
 	CScriptableVars::DeRegisterVars("GameOptions");
 	if(tLXOptions) {

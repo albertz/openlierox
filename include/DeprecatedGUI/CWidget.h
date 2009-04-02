@@ -116,19 +116,19 @@ public:
 	void			Setup(int id, int x, int y, int w, int h);
 	bool			InBox(int x, int y);
 
-    void            redrawBuffer(void);
+    void            redrawBuffer();
 
-	int				getID(void)						{ return iID; }
+	int				getID()						{ return iID; }
 	void			setID(int _i)					{ iID = _i; }
-	WidgetType_t	getType(void)					{ return iType; }
+	WidgetType_t	getType()					{ return iType; }
 
 	void			setFocused(bool _f)				{ bFocused = _f; }
-	bool			getFocused(void)				{ return bFocused; }
+	bool			getFocused()				{ return bFocused; }
 
-	bool			getEnabled(void)				{ return bEnabled; }
+	bool			getEnabled()				{ return bEnabled; }
 	void			setEnabled(bool _e)				{ bEnabled = _e; }
 
-	bool			getRedrawMenu(void)				{ return bRedrawMenu; }
+	bool			getRedrawMenu()				{ return bRedrawMenu; }
 	void			setRedrawMenu(bool _r)			{ bRedrawMenu = _r; }
 
 	int				getX()							{ return iX; }
@@ -136,10 +136,10 @@ public:
 	int				getWidth()						{ return iWidth; }
 	int				getHeight()						{ return iHeight; }
 
-	CGuiLayoutBase	*getParent(void)				{ return cParent; }
+	CGuiLayoutBase	*getParent()				{ return cParent; }
 	void			setParent(CGuiLayoutBase *l)	{ cParent = l; }
 
-	bool			CanLoseFocus(void)				{ return bCanLoseFocus; }
+	bool			CanLoseFocus()				{ return bCanLoseFocus; }
 	void			setLoseFocus(bool _f)			{ bCanLoseFocus = _f; }
 
 	void			SetupEvents(generic_events_t *Events);	// Not used anywhere, should be removed
@@ -147,8 +147,8 @@ public:
 
 
 	// Virtual functions
-	virtual	void	Create(void) = 0;
-	virtual void	Destroy(void) = 0;
+	virtual	void	Create() = 0;
+	virtual void	Destroy() = 0;
 
 	//These events return an event id, otherwise they return -1
 	virtual	int		MouseOver(mouse_t *tMouse) = 0;
@@ -159,7 +159,7 @@ public:
 	virtual	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate) = 0;
 	virtual	int		KeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate) = 0;
 
-	virtual	void	LoadStyle(void) = 0;	// Not used anywhere
+	virtual	void	LoadStyle() = 0;	// Not used anywhere
 	virtual	void	Draw(SDL_Surface * bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;

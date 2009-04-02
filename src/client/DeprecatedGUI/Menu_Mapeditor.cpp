@@ -49,7 +49,7 @@ static int			grabWX, grabWY;
 
 ///////////////////
 // Initialize the map editor
-bool Menu_MapEdInitialize(void)
+bool Menu_MapEdInitialize()
 {
 	tMenu->iMenuType = MNU_MAPED;
 
@@ -106,7 +106,7 @@ bool Menu_MapEdInitialize(void)
 
 /////////////
 // Shutdown
-void Menu_MapEdShutdown(void)
+void Menu_MapEdShutdown()
 {
 	cMaped.Shutdown();
 	cMap->Shutdown(); delete cMap; cMap = NULL;
@@ -499,7 +499,7 @@ enum {
 		}
 	};
 
-void Menu_MapEd_New(void)
+void Menu_MapEd_New()
 {
 	gui_event_t *ev = NULL;
 	int quitloop = false;

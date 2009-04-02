@@ -55,9 +55,9 @@ public:
 	void	DoRepaint();
 
 
-	int		getValue(void)					{ return iKeyvalue; }
+	int		getValue()					{ return iKeyvalue; }
 	void	setValue(int _v)				{ iKeyvalue = _v; Repaint(); }
-	std::string	getText(void)				{ return sText; }
+	std::string	getText()				{ return sText; }
 	void	setText(const std::string& _t)	{ sText = _t; Repaint(); }
 
 	static const std::string tagName()		{ return "inputbox"; }

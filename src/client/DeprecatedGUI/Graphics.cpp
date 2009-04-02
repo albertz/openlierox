@@ -69,7 +69,7 @@ static SmartPointer<SDL_Surface> getAlternativeClockGfx() {
 	
 ///////////////////
 // Load the graphics
-bool LoadGraphics(void)
+bool LoadGraphics()
 {
 	// TODO: fix it that this works (or give some good reasons why we need these gfx in dedicated mode)
 	// we don't need any of them in dedicated mode
@@ -348,7 +348,7 @@ bool LoadFonts()  {
 
 ///////////////////
 // Shutdown the graphics
-void ShutdownGraphics(void)
+void ShutdownGraphics()
 {
 	ShutdownCursors();
 	if (tLX)  {

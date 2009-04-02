@@ -66,7 +66,7 @@ void CWpnRest::updateList(CGameScript *pcGameS)
 
 ///////////////////
 // Reset all the weapons to default (enabled)
-void CWpnRest::reset(void)
+void CWpnRest::reset()
 {
     wpnrest_t *psWpn = m_psWeaponList;
     for(; psWpn; psWpn=psWpn->psNext) {
@@ -281,7 +281,7 @@ int CWpnRest::getWeaponState(const std::string& szName)
 
 ///////////////////
 // Return the sorted weapon list
-wpnrest_t *CWpnRest::getList(void)
+wpnrest_t *CWpnRest::getList()
 {
     return m_psSortedList;
 }
@@ -289,7 +289,7 @@ wpnrest_t *CWpnRest::getList(void)
 
 ///////////////////
 // Return the number of weapons
-int CWpnRest::getNumWeapons(void)
+int CWpnRest::getNumWeapons()
 {
     return m_nCount;
 }
@@ -297,7 +297,7 @@ int CWpnRest::getNumWeapons(void)
 
 ///////////////////
 // Create a sorted list
-void CWpnRest::sortList(void)
+void CWpnRest::sortList()
 {
     int i, j;
 
@@ -408,7 +408,7 @@ void CWpnRest::readList(CBytestream *psByteS)
 
 ///////////////////
 // Shutdown the weapons restrictions list
-void CWpnRest::Shutdown(void)
+void CWpnRest::Shutdown()
 {
      wpnrest_t *psWpn = m_psWeaponList;
      wpnrest_t *psNext = NULL;

@@ -173,7 +173,7 @@ public:
 	void	ApplyCSS(CSSParser& css);
 	void	ApplyTag(xmlNodePtr node);
 
-    void    Clear(void);
+    void    Clear();
 	int		AddItem(const std::string& name);
 	int		AddItem(const std::string& sindex, const std::string& name);
 	int		AddItem(int tag, const std::string& sindex, const std::string& name);
@@ -199,7 +199,7 @@ public:
 	void	setImage(SmartPointer<SDL_Surface> img, int ItemIndex);
 	int		getSelectedIndex();
 	const CComboItem* getSelectedItem();
-	bool	getDropped(void) { return cItemList != NULL; }
+	bool	getDropped() { return cItemList != NULL; }
 	void	setSorted(int sort_direction);
 	int		getSorted();
 	void	setUnique(bool _u);

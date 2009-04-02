@@ -64,7 +64,7 @@ void SetError(const std::string& text)
 
 ///////////////////
 // Show the error
-void ShowError(void)
+void ShowError()
 {
 	SDL_ShowCursor(SDL_ENABLE);
 
@@ -85,7 +85,7 @@ void ShowError(void)
 
 ///////////////////
 // End the error system
-void EndError(void)
+void EndError()
 {
 	if(ErrorFile)
 		fclose(ErrorFile);
@@ -137,7 +137,7 @@ void LxSetLastError(const std::string& desc)
 	LastError = desc;
 }
 
-std::string LxGetLastError(void)
+std::string LxGetLastError()
 {
 	return LastError;
 }

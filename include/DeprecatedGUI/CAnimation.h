@@ -62,12 +62,12 @@ private:
 public:
     // Methods
 
-    void			Create(void);
-	void			Destroy(void)		{  }
+    void			Create();
+	void			Destroy()		{  }
 	void			Parse();
 
-	std::string		getPath(void)		{ return sPath; }
-	SmartPointer<SDL_Surface> getSurface(void)	{ return tAnimation; }
+	std::string		getPath()		{ return sPath; }
+	SmartPointer<SDL_Surface> getSurface()	{ return tAnimation; }
 	float			getFrameTime()		{ return fFrameTime; }
 	void			setFrameTime(float t) { fFrameTime = t; }
 	void			Change(const std::string& Path, float frametime);
@@ -87,7 +87,7 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

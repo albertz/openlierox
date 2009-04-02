@@ -151,7 +151,7 @@ bool bSpeedTest = false;
 
 ///////////////////
 // Initialize the options
-bool Menu_OptionsInitialize(void)
+bool Menu_OptionsInitialize()
 {
 	tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = 0;
@@ -469,7 +469,7 @@ void Menu_OptionsUpdateUpload(float speed)
 
 ///////////////////
 // Options main frame
-void Menu_OptionsFrame(void)
+void Menu_OptionsFrame()
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
@@ -1015,7 +1015,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 ///////////////////
 // Shutdown the options menu
-void Menu_OptionsShutdown(void)
+void Menu_OptionsShutdown()
 {
 	cOptions.Shutdown();
 	cOpt_Controls.Shutdown();

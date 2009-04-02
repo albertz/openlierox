@@ -446,7 +446,7 @@ void    Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool down);
 bool	Menu_LoadWormGfx(profile_t *ply);
 MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::string& sText, MessageBoxType type = LMB_OK);
-void	Menu_AddDefaultWidgets(void);
+void	Menu_AddDefaultWidgets();
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
 std::string	Menu_GetLevelName(const std::string& filename, bool abs_filename = false); // TODO: move this from Menu to CMap
@@ -454,15 +454,15 @@ void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
 
 // Server list
-void		Menu_SvrList_Clear(void);
-void        Menu_SvrList_ClearAuto(void);
-void		Menu_SvrList_Shutdown(void);
-void		Menu_SvrList_PingLAN(void);
+void		Menu_SvrList_Clear();
+void        Menu_SvrList_ClearAuto();
+void		Menu_SvrList_Shutdown();
+void		Menu_SvrList_PingLAN();
 server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual);
 server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name);
 server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
-bool		Menu_SvrList_Process(void);
+bool		Menu_SvrList_Process();
 bool		Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
 void		Menu_SvrList_PingServer(server_t *svr);
@@ -472,9 +472,9 @@ void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
 void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs);
-void		Menu_SvrList_RefreshList(void);
+void		Menu_SvrList_RefreshList();
 void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
-void		Menu_SvrList_UpdateList(void);
+void		Menu_SvrList_UpdateList();
 void		Menu_SvrList_UpdateUDPList();
 void		Menu_SvrList_FillList(CListview *lv);
 void        Menu_SvrList_SaveList(const std::string& szFilename);
@@ -485,85 +485,85 @@ void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& sz
 bool		Menu_SvrList_ServerBehindNat(const std::string& szAddress);
 
 // Main menu
-void	Menu_MainInitialize(void);
-void	Menu_MainShutdown(void);
-void	Menu_MainFrame(void);
+void	Menu_MainInitialize();
+void	Menu_MainShutdown();
+void	Menu_MainFrame();
 void	Menu_MainDrawTitle(int x, int y, int id, int selected);
 
 
 // Local menu
-void	Menu_LocalInitialize(void);
-void	Menu_LocalFrame(void);
-void	Menu_LocalAddProfiles(void);
-void	Menu_LocalStartGame(void);
+void	Menu_LocalInitialize();
+void	Menu_LocalFrame();
+void	Menu_LocalAddProfiles();
+void	Menu_LocalStartGame();
 bool	Menu_LocalCheckPlaying(int index);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);
 void	Menu_LocalAddPlaying(int index = -1);
 void	Menu_LocalRemovePlaying(int index = -1);
-void	Menu_LocalShutdown(void);
+void	Menu_LocalShutdown();
 
 
 // Player menu
-void	Menu_PlayerInitialize(void);
-void	Menu_PlayerFrame(void);
-void    Menu_Player_NewPlayerInit(void);
-void    Menu_Player_ViewPlayerInit(void);
+void	Menu_PlayerInitialize();
+void	Menu_PlayerFrame();
+void    Menu_Player_NewPlayerInit();
+void    Menu_Player_ViewPlayerInit();
 void	Menu_Player_NewPlayer(int mouse);
 void	Menu_Player_ViewPlayers(int mouse);
 void	Menu_Player_AddPlayer(const std::string& sName, Uint8 r, Uint8 g, Uint8 b);
 void    Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
 void	Menu_Player_DeletePlayer(int index);
 void    Menu_Player_FillSkinCombo(CCombobox *cb);
-void	Menu_PlayerShutdown(void);
+void	Menu_PlayerShutdown();
 
 // Map editor
-bool	Menu_MapEdInitialize(void);
+bool	Menu_MapEdInitialize();
 void	Menu_MapEdFrame(SDL_Surface * bmpDest, int process);
-void	Menu_MapEd_New(void);
+void	Menu_MapEd_New();
 void	Menu_MapEd_LoadSave(int save);
 bool	Menu_MapEd_OkSave(const std::string& szFilename);
-void	Menu_MapEdShutdown(void);
+void	Menu_MapEdShutdown();
 
 // Game Settings
-void	Menu_GameSettings(void);
-void	Menu_GameSettingsShutdown(void);
-bool	Menu_GameSettings_Frame(void);
-void	Menu_GameSettings_GrabInfo(void);
-void    Menu_GameSettings_Default(void);
+void	Menu_GameSettings();
+void	Menu_GameSettingsShutdown();
+bool	Menu_GameSettings_Frame();
+void	Menu_GameSettings_GrabInfo();
+void    Menu_GameSettings_Default();
 
 
 // Weapons Restrictions
 void    Menu_WeaponsRestrictions(const std::string& szMod);
-bool    Menu_WeaponsRestrictions_Frame(void);
-void	Menu_WeaponsRestrictionsShutdown(void);
+bool    Menu_WeaponsRestrictions_Frame();
+void	Menu_WeaponsRestrictionsShutdown();
 
 // Load/save dialog
 void	Menu_WeaponPresets(bool save, CWpnRest *gamescript);
 bool	Menu_WeaponPresetsOkSave(const std::string& szFilename);
-void	Menu_WeaponPresetsShutdown(void);
+void	Menu_WeaponPresetsShutdown();
 
 // Ban List
-void	Menu_BanList(void);
-bool	Menu_BanList_Frame(void);
-void	Menu_BanListShutdown(void);
+void	Menu_BanList();
+bool	Menu_BanList_Frame();
+void	Menu_BanListShutdown();
 
 // Server settings
-void	Menu_ServerSettings(void);
-bool	Menu_ServerSettings_Frame(void);
-void	Menu_ServerSettingsShutdown(void);
+void	Menu_ServerSettings();
+bool	Menu_ServerSettings_Frame();
+void	Menu_ServerSettingsShutdown();
 
 
 // Options
-bool	Menu_OptionsInitialize(void);
-void	Menu_OptionsShutdown(void);
-void	Menu_OptionsFrame(void);
+bool	Menu_OptionsInitialize();
+void	Menu_OptionsShutdown();
+void	Menu_OptionsFrame();
 void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
 // Floating Options
-bool	Menu_FloatingOptionsInitialize(void);
-void	Menu_FloatingOptionsShutdown(void);
-void	Menu_FloatingOptionsFrame(void);
+bool	Menu_FloatingOptionsInitialize();
+void	Menu_FloatingOptionsShutdown();
+void	Menu_FloatingOptionsFrame();
 void	Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
 // Speed test
@@ -574,36 +574,36 @@ float	Menu_SpeedTest_GetSpeed();
 
 
 // Main net
-bool	Menu_NetInitialize(void);
-void	Menu_Net_GotoHostLobby(void);
-void	Menu_NetFrame(void);
-void	Menu_NetShutdown(void);
+bool	Menu_NetInitialize();
+void	Menu_Net_GotoHostLobby();
+void	Menu_NetFrame();
+void	Menu_NetShutdown();
 
 
 // Net::Main menu
-bool	Menu_Net_MainInitialize(void);
+bool	Menu_Net_MainInitialize();
 void	Menu_Net_MainFrame(int mouse);
-void	Menu_Net_MainShutdown(void);
+void	Menu_Net_MainShutdown();
 
 
 // Net::Host menu
-bool	Menu_Net_HostInitialize(void);
-void	Menu_Net_HostShutdown(void);
+bool	Menu_Net_HostInitialize();
+void	Menu_Net_HostShutdown();
 void	Menu_Net_HostFrame(int mouse);
 void	Menu_Net_HostPlyFrame(int mouse);
-void	Menu_Net_HostPlyShutdown(void);
+void	Menu_Net_HostPlyShutdown();
 
-bool	Menu_Net_HostLobbyInitialize(void);
-void    Menu_Net_HostLobbyDraw(void);
-void    Menu_Net_HostLobbyCreateGui(void);
-void	Menu_Net_HostGotoLobby(void);
+bool	Menu_Net_HostLobbyInitialize();
+void    Menu_Net_HostLobbyDraw();
+void    Menu_Net_HostLobbyCreateGui();
+void	Menu_Net_HostGotoLobby();
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown();
-std::string	Menu_Net_HostLobbyGetText(void);
+std::string	Menu_Net_HostLobbyGetText();
 void Menu_Net_HostLobbySetText(const std::string& str);
 void	Menu_HostDrawLobby(SDL_Surface * bmpDest);
-void	Menu_HostShowMinimap(void);
-void	Menu_Net_HostDeregister(void);
+void	Menu_HostShowMinimap();
+void	Menu_Net_HostDeregister();
 bool	Menu_Net_HostStartGame();
 void	Menu_Net_HostLobbySetMod(const std::string& moddir);
 void	Menu_Net_HostLobbySetLevel(const std::string& filename);
@@ -614,66 +614,66 @@ void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu,
 
 
 // Net::LAN menu
-bool	Menu_Net_LANInitialize(void);
-void	Menu_Net_LANShutdown(void);
+bool	Menu_Net_LANInitialize();
+void	Menu_Net_LANShutdown();
 void	Menu_Net_LANFrame(int mouse);
-void	Menu_Net_LANSendPing(void);
+void	Menu_Net_LANSendPing();
 void	Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName);
 void    Menu_Net_LanShowServer(const std::string& szAddress);
 
 
 // Net::Joining menu
 bool	Menu_Net_JoinInitialize(const std::string& sAddress);
-void	Menu_Net_JoinShutdown(void);
+void	Menu_Net_JoinShutdown();
 void	Menu_Net_JoinFrame(int mouse);
 
 // Net::Favourites menu
-bool	Menu_Net_FavouritesInitialize(void);
-void	Menu_Net_FavouritesShutdown(void);
+bool	Menu_Net_FavouritesInitialize();
+void	Menu_Net_FavouritesShutdown();
 void	Menu_Net_FavouritesFrame(int mouse);
 void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
 void	Menu_Net_RenameServer(std::string& szName);
-void	Menu_Net_FavouritesAddServer(void);
+void	Menu_Net_FavouritesAddServer();
 
 // Net::News menu
-bool	Menu_Net_NewsInitialize(void);
+bool	Menu_Net_NewsInitialize();
 void	Menu_Net_NewsShutdown();
 void	Menu_Net_NewsFrame(int mouse);
 
 // Net::Chat menu
-bool	Menu_Net_ChatInitialize(void);
+bool	Menu_Net_ChatInitialize();
 void	Menu_Net_ChatShutdown();
 void	Menu_Net_ChatFrame(int mouse);
 
 bool	Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);
-void	Menu_Net_JoinConnectionShutdown(void);
+void	Menu_Net_JoinConnectionShutdown();
 
-bool	Menu_Net_JoinLobbyInitialize(void);
-void    Menu_Net_JoinDrawLobby(void);
-void    Menu_Net_JoinLobbyCreateGui(void);
-void	Menu_Net_JoinGotoLobby(void);
+bool	Menu_Net_JoinLobbyInitialize();
+void    Menu_Net_JoinDrawLobby();
+void    Menu_Net_JoinLobbyCreateGui();
+void	Menu_Net_JoinGotoLobby();
 std::string	Menu_Net_JoinLobbyGetText();
 void	Menu_Net_JoinLobbySetText(const std::string& str);
 void	Menu_Net_JoinLobbyFrame(int mouse);
-void	Menu_Net_JoinLobbyShutdown(void);
+void	Menu_Net_JoinLobbyShutdown();
 
 
 // Net::Internet menu
-bool	Menu_Net_NETInitialize(void);
-void	Menu_Net_NETShutdown(void);
+bool	Menu_Net_NETInitialize();
+void	Menu_Net_NETShutdown();
 void	Menu_Net_NETFrame(int mouse);
 void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
-void	Menu_Net_NETAddServer(void);
-void	Menu_Net_NETUpdateList(void);
+void	Menu_Net_NETAddServer();
+void	Menu_Net_NETUpdateList();
 void	Menu_Net_NETParseList(class CHttp& http);
 void    Menu_Net_NETShowServer(const std::string& szAddress);
 
 // CGuiSkin menu - when GUI skinning system will be complete (hopefully) this will become the main menu
-bool	Menu_CGuiSkinInitialize(void);
-void	Menu_CGuiSkinFrame(void);
-void	Menu_CGuiSkinShutdown(void);
+bool	Menu_CGuiSkinInitialize();
+void	Menu_CGuiSkinFrame();
+void	Menu_CGuiSkinShutdown();
 
 } // namespace DeprecatedGUI
 

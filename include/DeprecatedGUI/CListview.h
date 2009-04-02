@@ -214,8 +214,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void);
+	void	Create();
+	void	Destroy();
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -228,19 +228,19 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
-	void	ReadjustScrollbar(void);
+	void	ReadjustScrollbar();
 	void	SetupScrollbar(int x, int y, int h, bool always_visible);
 
-	void	Clear(void);
+	void	Clear();
 
 	void	SortBy(int column, bool ascending); // One-time sort
-	void	ReSort(void);
+	void	ReSort();
 	void	SetSortColumn(int column, bool ascending); // Permanent sort
 	int		GetSortColumn();
 
@@ -255,48 +255,48 @@ public:
 
 	int		GetColumnWidth(int id);
 
-    int     getSelectedID(void);
+    int     getSelectedID();
     void    setSelectedID(int id);
 
 	void	setOldStyle(bool _s)	{ bOldStyle = _s; }
-	bool	getOldStyle(void)		{ return bOldStyle; }
+	bool	getOldStyle()		{ return bOldStyle; }
 
 	bool&	subItemsAreAligned()	{ return bSubItemsAreAligned; }
 	
-    int     getNumItems(void)	{ return iItemCount; }
+    int     getNumItems()	{ return iItemCount; }
 
-    void    scrollLast(void);
+    void    scrollLast();
 
-	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
-	std::string getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return ""; }
+	int		getCurIndex()		{ if(tSelected) return tSelected->iIndex; else return -1; }
+	std::string getCurSIndex()		{ if(tSelected) return tSelected->sIndex; else return ""; }
 	lv_subitem_t	*getCurSubitem(int index);
 
 
-	lv_subitem_t	*getCurSub(void);
+	lv_subitem_t	*getCurSub();
 
-	int			getItemCount(void)		{ return iItemCount; }
-	lv_item_t	*getItems(void)			{ return tItems; }
-	lv_item_t	*getLastItem(void)	{ return tLastItem; }
+	int			getItemCount()		{ return iItemCount; }
+	lv_item_t	*getItems()			{ return tItems; }
+	lv_item_t	*getLastItem()	{ return tLastItem; }
 	lv_item_t* getItem(int index);
 	lv_item_t* getItem(const std::string& name);
 	lv_subitem_t *getSubItem(int item_index, int subitem_index);
 	lv_subitem_t *getSubItem(lv_item_t *it, int subitem_index);
 
-	int		getClickedSub(void)		{ return iClickedSub; }
+	int		getClickedSub()		{ return iClickedSub; }
 	gui_event_t *getWidgetEvent()	{ return &tLastWidgetEvent; }
 
     void    setShowSelect(bool s)   { bShowSelect = s; }
 	void	setDrawBorder(bool _d)	{ bDrawBorder = _d; }
 
-	void	SaveScrollbarPos(void)    { iSavedScrollbarPos = cScrollbar.getValue(); }
-	void	RestoreScrollbarPos(void) { cScrollbar.setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
+	void	SaveScrollbarPos()    { iSavedScrollbarPos = cScrollbar.getValue(); }
+	void	RestoreScrollbarPos() { cScrollbar.setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
 
 	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
 	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 	
 	void	setMouseOverEventEnabled(bool b)	{ bMouseOverEventEnabled = b; }
-	int		getMouseOverIndex(void)		 { if(tMouseOver) return tMouseOver->iIndex; else return -1; }
-	std::string getMouseOverSIndex(void) { if(tMouseOver) return tMouseOver->sIndex; else return ""; }
+	int		getMouseOverIndex()		 { if(tMouseOver) return tMouseOver->iIndex; else return -1; }
+	std::string getMouseOverSIndex() { if(tMouseOver) return tMouseOver->sIndex; else return ""; }
 
 
 	// Read-only listview for skinning (typically text list), more variants to come.

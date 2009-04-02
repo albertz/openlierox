@@ -103,8 +103,8 @@ private:
 public:
 	// Methods
 
-	bool		Initialize(void);
-	void		Shutdown(void);
+	bool		Initialize();
+	void		Shutdown();
 
 	bool		addShoot(TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm);
 
@@ -123,13 +123,13 @@ public:
 	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 	static bool	skipSmallShot(CBytestream *bs);
 
-	void		Clear(void);
+	void		Clear();
 
 	shoot_t		*getShot(int index);
 
-	int			getNumShots(void)			{ return m_nNumShootings; }
-	AbsTime		getStartTime(void)			{ return m_fStartTime; }
-	AbsTime		getLastWrite(void)			{ return m_fLastWrite; }
+	int			getNumShots()			{ return m_nNumShootings; }
+	AbsTime		getStartTime()			{ return m_fStartTime; }
+	AbsTime		getLastWrite()			{ return m_fLastWrite; }
 
 };
 

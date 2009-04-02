@@ -71,13 +71,13 @@ public:
 	void		FocusWidget(int id);
 	CWidget		*getFocused() const { return cFocused; }
 
-	bool		Process(void);	// Called only for main layout -dispatches messages to children, returns false on exit layout
+	bool		Process();	// Called only for main layout -dispatches messages to children, returns false on exit layout
 	void		Draw(SDL_Surface * bmpDest);
 
-	void		Shutdown(void);
+	void		Shutdown();
 
-	void	Create(void) { };
-	void	Destroy(void) { Shutdown(); }
+	void	Create() { };
+	void	Destroy() { Shutdown(); }
 
 	// CWidget functions
 	// These event handlers will route events to children event handlers
@@ -94,7 +94,7 @@ public:
 	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; };
 	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param) { return 0; };
 
-	void	LoadStyle(void) { };
+	void	LoadStyle() { };
 	
 	void	ProcessGuiSkinEvent(int iEvent);
 	virtual void ProcessChildEvent(int iEvent, CWidget * child) { };

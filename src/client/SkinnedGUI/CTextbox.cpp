@@ -651,7 +651,7 @@ int	CTextbox::DoMouseUp(int x, int y, int dx, int dy, MouseButton button, const 
 
 ////////////
 // Select a word
-void CTextbox::SelectWord(void)
+void CTextbox::SelectWord()
 {
 	// Empty text
 	if (sText.size() == 0)
@@ -686,7 +686,7 @@ void CTextbox::SelectWord(void)
 
 ///////////////////
 // Backspace
-void CTextbox::Backspace(void)
+void CTextbox::Backspace()
 {
 	// Delete any selection
 	if(iSelLength)  {
@@ -706,7 +706,7 @@ void CTextbox::Backspace(void)
 
 ///////////////////
 // Delete
-void CTextbox::Delete(void)
+void CTextbox::Delete()
 {
 	// Delete selection
 	if(iSelLength)  {
@@ -804,7 +804,7 @@ void CTextbox::setText(const std::string& buf) {
 
 ///////////////////
 // Paste some text from the clipboard
-void CTextbox::PasteText(void)
+void CTextbox::PasteText()
 {
 	std::string text;
 
@@ -825,7 +825,7 @@ void CTextbox::PasteText(void)
 
 ///////////////////
 // Copy selection to the clipboard
-void CTextbox::CopyText(void)
+void CTextbox::CopyText()
 {
 	if (!iSelLength)
 		return;

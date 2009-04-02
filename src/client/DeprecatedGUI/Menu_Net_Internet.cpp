@@ -58,7 +58,7 @@ enum {
 
 ///////////////////
 // Initialize the Internet menu
-bool Menu_Net_NETInitialize(void)
+bool Menu_Net_NETInitialize()
 {
 	iNetMode = net_internet;
     szNetCurServer = "";
@@ -143,7 +143,7 @@ bool Menu_Net_NETInitialize(void)
 
 ///////////////////
 // Shutdown the internet menu
-void Menu_Net_NETShutdown(void)
+void Menu_Net_NETShutdown()
 {
 	if (tLXOptions)  {
 
@@ -464,7 +464,7 @@ enum  {
 	na_Address
 };
 
-void Menu_Net_NETAddServer(void)
+void Menu_Net_NETAddServer()
 {
 	CGuiLayout	cAddSvr;
 	gui_event_t *ev = NULL;
@@ -559,7 +559,7 @@ void Menu_Net_NETAddServer(void)
 
 ///////////////////
 // Update the server list
-void Menu_Net_NETUpdateList(void)
+void Menu_Net_NETUpdateList()
 {
 	CGuiLayout	cListUpdate;
 	gui_event_t *ev = NULL;

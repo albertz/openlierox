@@ -100,7 +100,7 @@ bool	InitSoundSystem(int rate, int channels, int buffers);
 bool	StartSoundSystem();
 bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
-int		GetSoundVolume(void);
+int		GetSoundVolume();
 bool	QuitSoundSystem();
 //SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays); // Not cached - used internally only
 //bool	FreeSoundSample(SoundSample* sample);	// Should be avoided with cache system
@@ -112,8 +112,8 @@ inline bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
 
 class CWorm;
 
-int		LoadSounds(void);
-void	ShutdownSounds(void);
+int		LoadSounds();
+void	ShutdownSounds();
 void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
 inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
 	StartSound(smp.get(), pos, local, volume, me);
@@ -134,25 +134,25 @@ typedef void (*MusicFinishedCB)();
 SoundMusic		*LoadMusic(const std::string& file);
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
-void			PauseMusic(void);
-void			ResumeMusic(void);
-void			RewindMusic(void);
+void			PauseMusic();
+void			ResumeMusic();
+void			RewindMusic();
 void			SetMusicPosition(double pos);
-void			StopMusic(void);
-bool			PlayingMusic(void);
-bool			PausedMusic(void);
+void			StopMusic();
+bool			PlayingMusic();
+bool			PausedMusic();
 int				GetMusicType(SoundMusic *music = NULL);
-TimeDiff		GetCurrentMusicTime(void);
-bool			GetSongStopped(void);
-bool			GetSongFinished(void);
+TimeDiff		GetCurrentMusicTime();
+bool			GetSongStopped();
+bool			GetSongFinished();
 id3v1_t			GetMP3Info(const std::string& file);
 void			SetMusicFinishedHandler(MusicFinishedCB cb);
 
 void			SetMusicVolume(byte vol);
-byte			GetMusicVolume(void);
+byte			GetMusicVolume();
 
-void			InitializeMusic(void);
-void			ShutdownMusic(void);
+void			InitializeMusic();
+void			ShutdownMusic();
 
 
 

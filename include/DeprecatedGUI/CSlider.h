@@ -75,8 +75,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { }
-	void	Destroy(void) { }
+	void	Create() { }
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return SLD_NONE; }
@@ -89,13 +89,13 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	int		getValue(void)						{ return iValue; }
+	int		getValue()						{ return iValue; }
 	void	setValue(int v)						{ iValue = v; }
 
 	void	setMax(int _m)						{ iMax = _m; }

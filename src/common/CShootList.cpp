@@ -26,7 +26,7 @@
 
 ///////////////////
 // Initialize the list
-bool CShootList::Initialize(void)
+bool CShootList::Initialize()
 {
 	m_nNumShootings = 0;
 	m_fStartTime = AbsTime();
@@ -42,7 +42,7 @@ bool CShootList::Initialize(void)
 
 ///////////////////
 // Shutdown the list
-void CShootList::Shutdown(void)
+void CShootList::Shutdown()
 {
 	if( m_psShoot ) {
 		delete[] m_psShoot;
@@ -56,7 +56,7 @@ void CShootList::Shutdown(void)
 
 ///////////////////
 // Clear the list
-void CShootList::Clear(void)
+void CShootList::Clear()
 {
 	m_nNumShootings = 0;
 	m_fStartTime = AbsTime();

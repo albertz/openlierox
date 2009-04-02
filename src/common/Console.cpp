@@ -41,7 +41,7 @@ Timer *con_timer = NULL;
 
 ///////////////////
 // Initialize the console
-int Con_Initialize(void)
+int Con_Initialize()
 {
 	con_mutex = SDL_CreateMutex();
 	con_timer = new Timer("Console animation", null, NULL, 30);  // To make the animation smooth in the menu
@@ -78,7 +78,7 @@ int Con_Initialize(void)
 
 ///////////////////
 // Toggle the console
-void Con_Toggle(void)
+void Con_Toggle()
 {
 	// Update the cursor blink state
 	Console->fBlinkTime = 0;
@@ -102,7 +102,7 @@ void Con_Toggle(void)
 
 ///////////////////
 // Hide the console
-void Con_Hide(void)
+void Con_Hide()
 {
 	Console->iCurpos = 0;
 	Console->iState = CON_HIDDEN;
@@ -416,7 +416,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 
 ///////////////////
 // Returns if the console is in use
-bool Con_IsVisible(void)
+bool Con_IsVisible()
 {
 	return Console->iState != CON_HIDDEN;
 }
@@ -424,7 +424,7 @@ bool Con_IsVisible(void)
 
 ///////////////////
 // Shutdown the console
-void Con_Shutdown(void)
+void Con_Shutdown()
 {
 	if(Console)
 		delete Console;

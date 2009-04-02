@@ -57,8 +57,8 @@ extern TimeCounter timeCounter;
 inline AbsTime GetTime() { return timeCounter.update(); }
 
 
-int				GetFPS(void);
-int				GetMinFPS(void);
+int				GetFPS();
+int				GetMinFPS();
 std::string		GetDateTime();
 
 

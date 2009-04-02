@@ -39,7 +39,7 @@ class command_t { public:
 
 
 // Arguments
-int		Cmd_GetNumArgs(void);
+int		Cmd_GetNumArgs();
 void	Cmd_AddArg(const std::string& text);
 std::string Cmd_GetArg(int a);
 
@@ -51,7 +51,7 @@ bool	Cmd_ParseLine(const std::string& text);
 int		Cmd_AutoComplete(std::string& strVar);
 int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide = false);
 void	Cmd_Initialize();
-void	Cmd_Free(void);
+void	Cmd_Free();
 
 std::vector<std::string> ParseParams(const std::string& params);
 

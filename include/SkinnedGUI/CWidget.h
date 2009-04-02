@@ -273,7 +273,7 @@ public:
 	virtual void	ApplySelector(const CSSParser::Selector& sel, const std::string& prefix = "");
 	virtual void	ApplyTag(xmlNodePtr node);
 
-	WidgetType		getType(void)					{ return iType; }
+	WidgetType		getType()					{ return iType; }
 
 	SDL_Rect		getRect()						{ SDL_Rect r = { getX(), getY(), getWidth(), getHeight() }; return r; }
 
@@ -281,9 +281,9 @@ public:
 	void			setName(const std::string& _n)	{ sName = _n; }
 
 	virtual void	setFocused(bool _f)				{ bFocused = _f; }
-	bool			getFocused(void)				{ return bFocused; }
+	bool			getFocused()				{ return bFocused; }
 
-	bool			getEnabled(void)				{ return bEnabled; }
+	bool			getEnabled()				{ return bEnabled; }
 	virtual void	setEnabled(bool _e)				{ bEnabled = _e; Repaint(); }
 
 	bool			getVisible()					{ return bVisible; }
@@ -312,7 +312,7 @@ public:
 	int				getTag()						{ return iTag; }
 	void			setTag(int _t)					{ iTag = _t; }
 
-	CContainerWidget *getParent(void)				{ return cParent; }
+	CContainerWidget *getParent()				{ return cParent; }
 	void			setParent(CContainerWidget *l);
 
 	const std::string& getCSSClass()				{ return sCSSClass; }

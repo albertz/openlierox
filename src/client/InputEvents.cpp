@@ -49,14 +49,14 @@ ModifiersState *GetCurrentModstate()
 
 ///////////////////
 // Return the keyboard structure
-keyboard_t *GetKeyboard(void)
+keyboard_t *GetKeyboard()
 {
 	return &Keyboard;
 }
 
 ///////////////////
 // Return the mouse structure
-mouse_t *GetMouse(void)
+mouse_t *GetMouse()
 {
 	return &Mouse;
 }
@@ -64,7 +64,7 @@ mouse_t *GetMouse(void)
 
 ///////////////////
 // Return the event
-SDL_Event *GetEvent(void)
+SDL_Event *GetEvent()
 {
 	// TODO: this should not be used like it is atm because it only returns the last event
 	// but in ProcessEvents() could be more than one Event get passed

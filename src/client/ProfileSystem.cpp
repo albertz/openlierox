@@ -28,7 +28,7 @@ profile_t	*tProfiles = NULL;
 
 ///////////////////
 // Load the profiles
-int LoadProfiles(void)
+int LoadProfiles()
 {
 	int		i;
 
@@ -102,7 +102,7 @@ int LoadProfiles(void)
 
 ///////////////////
 // Add the default players to the list
-void AddDefaultPlayers(void)
+void AddDefaultPlayers()
 {
 	short		i;
 	std::string	buf;
@@ -128,7 +128,7 @@ void AddDefaultPlayers(void)
 
 ///////////////////
 // Save the profiles
-void SaveProfiles(void)
+void SaveProfiles()
 {
 	profile_t	*p = tProfiles;
 	profile_t	*pf;
@@ -171,7 +171,7 @@ void SaveProfiles(void)
 
 ///////////////////
 // Shutdown & save the profiles
-void ShutdownProfiles(void)
+void ShutdownProfiles()
 {
 	if (!tProfiles)  // Profiles not loaded, don't write and empty file (and delete all user's prifiles!)
 		return;
@@ -429,7 +429,7 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 
 ///////////////////
 // Find a free profile id
-int FindProfileID(void)
+int FindProfileID()
 {
 	profile_t *p = tProfiles;
 
@@ -444,7 +444,7 @@ int FindProfileID(void)
 
 ///////////////////
 // Get the profiles
-profile_t *GetProfiles(void)
+profile_t *GetProfiles()
 {
 	return tProfiles;
 }

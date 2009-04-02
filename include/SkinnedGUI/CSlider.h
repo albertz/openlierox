@@ -63,9 +63,9 @@ public:
 	// Events
 	EVENT_SETGET(OnChange, SliderChangeHandler)
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
-	int		getValue(void)						{ return iValue; }
+	int		getValue()						{ return iValue; }
 	void	setValue(int v)						{ iValue = v; }
 
 	void	setMax(int _m)						{ iMax = _m; }

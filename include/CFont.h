@@ -78,18 +78,18 @@ public:
 	void				DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
 	void				DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c);
 
-	void				Shutdown(void);
+	void				Shutdown();
 
 	inline void			SetOutline(bool _o)  {
 		OutlineFont = _o;
 	}
-	inline bool			IsOutline(void)  {
+	inline bool			IsOutline()  {
 		return OutlineFont;
 	}
 
 	int					GetWidth(const std::string& buf);
 	int					GetCharacterWidth(UnicodeChar c);
-	inline int			GetHeight(void) { return bmpFont.get()->h + VSpacing; }
+	inline int			GetHeight() { return bmpFont.get()->h + VSpacing; }
 	int					GetHeight(const std::string& buf);
 
 	// Translates the character to the position in Fontstr array, returns -1 if impossible
@@ -120,7 +120,7 @@ public:
 	}
 private:
 	bool				IsColumnFree(int x);
-	void				Parse(void);
+	void				Parse();
 	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
 	
 	// Internal functions for glyph drawing, first one for normal fonts, second one for outline fonts

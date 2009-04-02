@@ -757,7 +757,7 @@ void ParseArguments(int argc, char *argv[])
 
 ///////////////////
 // Initialize the game
-int InitializeLieroX(void)
+int InitializeLieroX()
 {
 	notes << "Hello there, I am initializing me now..." << endl;
 
@@ -879,7 +879,7 @@ int InitializeLieroX(void)
 
 ///////////////////
 // Game loop
-void GameLoopFrame(void)
+void GameLoopFrame()
 {
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
@@ -950,7 +950,7 @@ void GameLoopFrame(void)
 
 ///////////////////
 // Quit back to the menu
-void QuittoMenu(void)
+void QuittoMenu()
 {
 	SetQuitEngineFlag("QuittoMenu");
     DeprecatedGUI::Menu_SetSkipStart(false);
@@ -959,7 +959,7 @@ void QuittoMenu(void)
 
 //////////////////
 // Go to local menu
-void GotoLocalMenu(void)
+void GotoLocalMenu()
 {
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
@@ -969,7 +969,7 @@ void GotoLocalMenu(void)
 
 //////////////////
 // Go to local menu
-void GotoNetMenu(void)
+void GotoNetMenu()
 {
 	if(tLX->iGameType == GME_HOST) {
 		warnings << "called GotoLocalMenu as host, ignoring..." << endl;

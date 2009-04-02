@@ -1139,7 +1139,7 @@ void CCombobox::setImage(SmartPointer<SDL_Surface> img, int ItemIndex)
 
 ///////////////////
 // Clear the data
-void CCombobox::Clear(void)
+void CCombobox::Clear()
 {
 	tItems.clear();
 	setCurItem((const SkinnedGUI::CComboItem *)NULL);

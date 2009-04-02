@@ -76,8 +76,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void);
-	void	Destroy(void) { }
+	void	Create();
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse);
@@ -90,9 +90,9 @@ public:
 
 	void	Draw(SDL_Surface * bmpDest);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
-	void	UpdatePos(void);
+	void	UpdatePos();
 
 
 	void	setMin(int _min)				{ iMin = _min; UpdatePos(); }
@@ -100,11 +100,11 @@ public:
 	void	setValue(int _value)			{ iValue = _value; UpdatePos(); }
 
 	void	setItemsperbox(int _i)			{ iItemsperbox = _i; }
-    int     getItemsperbox(void)            { return iItemsperbox; }
+    int     getItemsperbox()            { return iItemsperbox; }
 
-	int		getValue(void)					{ return iValue; }
-	int		getMax(void)					{ return iMax; } // TODO: that should return the max possible value!!
-	bool	getGrabbed(void)				{ return bSliderGrabbed; }
+	int		getValue()					{ return iValue; }
+	int		getMax()					{ return iMax; } // TODO: that should return the max possible value!!
+	bool	getGrabbed()				{ return bSliderGrabbed; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

@@ -85,7 +85,7 @@ public:
 	EVENT_SETGET(OnMouseDown, MouseHandler)
 	EVENT_SETGET(OnClick, ButtonClickHandler);
 
-	void	LoadStyle(void) {}
+	void	LoadStyle() {}
 
 	void	setActive(bool _a) { bActive = _a; }
 	bool	getActive()	{ return bActive; }

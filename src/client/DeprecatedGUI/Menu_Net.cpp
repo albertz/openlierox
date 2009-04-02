@@ -53,7 +53,7 @@ SDL_Rect tLoadingRect;
 
 ///////////////////
 // Initialize the net menu
-bool Menu_NetInitialize(void)
+bool Menu_NetInitialize()
 {
 	if(bDedicated) return true; // just ignore
 	
@@ -117,7 +117,7 @@ bool Menu_NetInitialize(void)
 
 ///////////////////
 // Go to the host lobby
-void Menu_Net_GotoHostLobby(void)
+void Menu_Net_GotoHostLobby()
 {
 	notes << "Menu_Net_GotoHostLobby" << endl;
 
@@ -150,7 +150,7 @@ void Menu_Net_GotoHostLobby(void)
 
 ///////////////////
 // The main net menu frame
-void Menu_NetFrame(void)
+void Menu_NetFrame()
 {
 	int		mouse = 0;
 	mouse_t	*Mouse = GetMouse();
@@ -284,7 +284,7 @@ void Menu_NetFrame(void)
 
 ////////////
 // Shutdown
-void Menu_NetShutdown(void)
+void Menu_NetShutdown()
 {
 	switch(iNetMode) {
 
@@ -339,7 +339,7 @@ void Menu_NetShutdown(void)
 
 ///////////////////
 // Go to the join lobby
-void GotoJoinLobby(void)
+void GotoJoinLobby()
 {
     printf("GotoJoinLobby()\n");
 	

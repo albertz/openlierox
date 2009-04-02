@@ -405,7 +405,7 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 
 ///////////////////
 // Reads a single byte
-uchar CBytestream::readByte(void) {
+uchar CBytestream::readByte() {
 	if(!isPosAtEnd())
 		return Data[pos++];
 	else {
@@ -419,7 +419,7 @@ uchar CBytestream::readByte(void) {
 
 ///////////////////
 // Reads a boolean value from the stream
-bool CBytestream::readBool(void)
+bool CBytestream::readBool()
 {
 	return readByte() != 0;
 }
@@ -455,7 +455,7 @@ Uint64 CBytestream::readUInt64()
 
 ///////////////////
 // Read a short from the stream
-Sint16 CBytestream::readInt16(void)
+Sint16 CBytestream::readInt16()
 {
 	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
@@ -473,7 +473,7 @@ Sint16 CBytestream::readInt16(void)
 
 ///////////////////
 // Read a float value from the stream
-float CBytestream::readFloat(void)
+float CBytestream::readFloat()
 {
 	union {
 		uchar bin[4];

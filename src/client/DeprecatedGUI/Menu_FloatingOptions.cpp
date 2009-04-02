@@ -147,7 +147,7 @@ std::string sFloatingOpt_InputNames[] = {
 
 ///////////////////
 // Initialize the options
-bool Menu_FloatingOptionsInitialize(void)
+bool Menu_FloatingOptionsInitialize()
 {
 	iFloatingOptionsMode = 0;
     int i;
@@ -800,7 +800,7 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 
 ///////////////////
 // Shutdown the options menu
-void Menu_FloatingOptionsShutdown(void)
+void Menu_FloatingOptionsShutdown()
 {
 	cFloatingOptions.Shutdown();
 	cFloatingOpt_Controls.Shutdown();

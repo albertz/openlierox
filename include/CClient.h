@@ -440,10 +440,10 @@ public:
     void        disableProjectile(CProjectile *prj);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);
-	void		UpdateScoreboard(void);
+	void		UpdateScoreboard();
 	void		LaserSight(CWorm *w, float Angle, bool highlightCrosshair = true);
 
-	void		processChatter(void);
+	void		processChatter();
     void        processChatCharacter(const KeyboardEvent& input);
 
 	void		DestroyBonus(int id, bool local, int wormid);
@@ -478,11 +478,11 @@ public:
     void        DrawScoreboard(SDL_Surface * bmpDest);
 	void        DrawCurrentSettings(SDL_Surface * bmpDest);
 
-    void        InitializeViewportManager(void);
+    void        InitializeViewportManager();
     void        DrawViewportManager(SDL_Surface * bmpDest);
 	void		InitializeSpectatorViewportKeys();
 	void		ProcessSpectatorViewportKeys();	// Fast camera mode switching when local worm is dead
-	void		SimulateHud(void);
+	void		SimulateHud();
 	int			getTopBarBottom();
 	int			getBottomBarTop();
 	void		DrawChatter(SDL_Surface * bmpDest);
@@ -497,8 +497,8 @@ public:
 	void		ConnectingBehindNAT();
 	void		Disconnect();
 
-	bool		ReadPackets(void);
-	void		SendPackets(void);
+	bool		ReadPackets();
+	void		SendPackets();
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
@@ -512,18 +512,18 @@ public:
 	void		ProcessUdpUploads();
 
 	// Variables
-	CChannel	*getChannel(void)			{ return cNetChan; }
+	CChannel	*getChannel()			{ return cNetChan; }
 	CChannel	*createChannel(const Version& v);
-	int			getStatus(void)				{ return iNetStatus; }
+	int			getStatus()				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
-	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
+	CBytestream	*getUnreliable()		{ return &bsUnreliable; }
 	bool		RebindSocket();	// If client has taken the port on which server should start - free it
 
 	CMap*		getMap() const				{ return cMap; }
 	void		resetMap()					{ cMap = NULL; }
 
 	int			OwnsWorm(int id);
-	int			getNumWorms(void)			{ return iNumWorms; }
+	int			getNumWorms()			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
 
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
@@ -534,48 +534,48 @@ public:
 	void		clearHumanWormInputs();
 	void		clearLocalWormInputs();
 
-	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
+	CWorm		*getRemoteWorms()		{ return cRemoteWorms; }
 	int			getTeamWormCount(int t) const;
-	bool		getGameReady(void)			{ return bGameReady; }
+	bool		getGameReady()			{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
-    CChatBox    *getChatbox(void)           { return &cChatbox; }
+    CChatBox    *getChatbox()           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
-	GameOptions::GameInfo *getGameLobby(void)		{ return &tGameInfo; }
+	GameOptions::GameInfo *getGameLobby()		{ return &tGameInfo; }
 
-	bool		getBadConnection(void)		{ return bBadConnection; }
-	std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
+	bool		getBadConnection()		{ return bBadConnection; }
+	std::string	getBadConnectionMsg()	{ return strBadConnectMsg; }
 
-	bool		getServerError(void)		{ return bServerError; }
-	std::string	getServerErrorMsg(void)		{ return strServerErrorMsg; }
+	bool		getServerError()		{ return bServerError; }
+	std::string	getServerErrorMsg()		{ return strServerErrorMsg; }
 
-    bool		getClientError(void)        { return bClientError; }
+    bool		getClientError()        { return bClientError; }
 
-	AbsTime		getLastReceived(void)		{ return fLastReceived; }
+	AbsTime		getLastReceived()		{ return fLastReceived; }
 	void		setLastReceived(const AbsTime& _l)	{ fLastReceived = _l; }
 
-	int			getNetSpeed(void)			{ return iNetSpeed; }
+	int			getNetSpeed()			{ return iNetSpeed; }
 	void		setNetSpeed(int _n)			{ iNetSpeed = _n; }
 
-	CShootList	*getShootList(void)			{ return &cShootList; }
-    CBonus      *getBonusList(void)         { return cBonuses; }
+	CShootList	*getShootList()			{ return &cShootList; }
+    CBonus      *getBonusList()         { return cBonuses; }
 	CWpnRest*	getWeaponRestrictions()		{ return &cWeaponRestrictions; }
 	SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	
     void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
-    AbsTime       getZombieTime(void)         { return fZombieTime; }
+    AbsTime       getZombieTime()         { return fZombieTime; }
 
 	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
 
 	int			getTeamScore(int team)		{ if(team >= 0 && team < 4) return iTeamScores[team]; else return 0; }
 
-	bool		isTyping(void)				{ return bChat_Typing; }
+	bool		isTyping()				{ return bChat_Typing; }
 	void		setChatPos(size_t v)		{ iChat_Pos = v; }
 	std::string& chatterText()		{ return sChat_Text; }
 	std::string	getChatterCommand();
 
-	bool		getMuted(void)				{ return bMuted; }
+	bool		getMuted()				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
 	int	getPing();
@@ -585,11 +585,11 @@ public:
 
 	TimeDiff serverTime()						{ return fServertime; }
 	
-	const std::string& getServerAddress(void)		{ return strServerAddr; }
+	const std::string& getServerAddress()		{ return strServerAddr; }
 	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
 
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
-	const std::string& getServerName(void)			{ return szServerName; }
+	const std::string& getServerName()			{ return szServerName; }
 
 	int getGeneralGameType()					{ return tGameInfo.iGeneralGameType; }
 

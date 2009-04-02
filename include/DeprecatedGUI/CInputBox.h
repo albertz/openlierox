@@ -65,8 +65,8 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { }
-	void	Destroy(void) { }
+	void	Create() { }
+	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ bMouseOver = true; return INB_NONE; }
@@ -99,14 +99,14 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface * bmpDest);
 
-	inline void	LoadStyle(void) {}
+	inline void	LoadStyle() {}
 
 
-	inline int		getValue(void)						{ return iKeyvalue; }
+	inline int		getValue()						{ return iKeyvalue; }
 	inline void	setValue(int _v)					{ iKeyvalue = _v; }
-	inline std::string	getText(void)				{ return sText; }
+	inline std::string	getText()				{ return sText; }
 	inline void	setText(const std::string& _t)		{ sText = _t; }
-	inline std::string	getName(void)				{ return sName; }
+	inline std::string	getName()				{ return sName; }
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);

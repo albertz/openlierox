@@ -50,7 +50,7 @@ bool CWidget::InBox(int x, int y)
 
 ///////////////////
 // Redraw the buffer on the widget
-void CWidget::redrawBuffer(void)
+void CWidget::redrawBuffer()
 {
     Menu_redrawBufferRect(iX, iY, iWidth, iHeight);
 }
