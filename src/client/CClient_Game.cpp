@@ -1144,11 +1144,6 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		return;
 	}
 	
-	// calculate the target position of the projectile of the shoot
-	CVec dir;
-	GetVecsFromAngle(shot->nAngle,&dir,NULL);
-	CVec pos = shot->cPos + dir*8;
-
 
 	// Play the weapon's sound
 	if(wpn->UseSound && NewNet::CanPlaySound(shot->nWormID)) {
@@ -1163,12 +1158,21 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 
 		// Add the recoil
+		CVec dir;
+		GetVecsFromAngle(shot->nAngle,&dir,NULL);
 		CVec *vel = w->getVelocity();
 		*vel -= dir*(float)wpn->Recoil;
 
 		// Draw the muzzle flash
 		w->setDrawMuzzle(true);
 	}
+	
+	
+	// calculate the target position of the projectile of the shoot
+	CVec dir;
+	GetVecsFromAngle(shot->nAngle,&dir,NULL);
+	CVec pos = shot->cPos + dir*8;
+	
 	
 	CVec sprd;
 
@@ -1177,15 +1181,11 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		int rot = 0;
 
 		// Spread
-		float a = (float)shot->nAngle + GetFixedRandomNum(shot->nRandom)*(float)wpn->Proj.Spread;
-
-		if(a < 0)
-			a+=360;
-		if(a>360)
-			a-=360;
-
-		GetVecsFromAngle((int)a,&sprd,NULL);
-
+		{
+			float a = (float)shot->nAngle + GetFixedRandomNum(shot->nRandom)*(float)wpn->Proj.Spread;
+			GetVecsFromAngle((int)a, &sprd, NULL);
+		}
+		
 		// Calculate a random starting angle for the projectile rotation (if used)
 		if(wpn->Proj.Proj->Rotating) {
 
