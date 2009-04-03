@@ -94,7 +94,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	for(int i=0; i < Amount; i++) {		
 		CVec sprd;
 		if(UseParentVelocityForSpread)
-			sprd = parent.velocity() * ParentVelFactor;
+			sprd = parent.velocity() * ParentVelSpreadFactor;
 		else {
 			int a = (int)( (float)Angle + heading + parent.fixedRandomFloat() * (float)Spread );
 			GetVecsFromAngle(a, &sprd, NULL);

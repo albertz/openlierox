@@ -54,7 +54,7 @@ class CGameScript;
 struct Proj_SpawnInfo {
 	Proj_SpawnInfo() :
 	Speed(0), SpeedVar(0), Spread(0), Amount(0), Proj(NULL),
-	UseParentVelocityForSpread(false), ParentVelFactor(0.3f),
+	UseParentVelocityForSpread(false), ParentVelSpreadFactor(0.3f),
 	Useangle(false), Angle(0),
 	UseSpecial11VecForSpeedVar(false), UseRandomRot(false), AddParentVel(false) {}
 	
@@ -65,7 +65,7 @@ struct Proj_SpawnInfo {
 	proj_t	*Proj;
 	
 	bool	UseParentVelocityForSpread; // LX56: only for trail, this could be true
-	float	ParentVelFactor;
+	float	ParentVelSpreadFactor;
 	
 	bool	Useangle; // LX56: only for event
 	int		Angle; // LX56: only for event
