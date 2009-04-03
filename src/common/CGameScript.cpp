@@ -1271,9 +1271,9 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		Weap->Proj.UseParentVelocityForSpread = false;
 	}
 	
-	if(Weap->Proj.Useangle) {
+	if(!Weap->Proj.Useangle) {
 		warnings << "Useangle is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
-		Weap->Proj.Useangle = false;
+		Weap->Proj.Useangle = true;
 	}
 
 	if(Weap->Proj.Angle != 0) {
