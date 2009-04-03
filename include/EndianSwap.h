@@ -84,7 +84,9 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	T data;
 	size_t ret = fread(&data, sizeof(T), 1, stream);
 	EndianSwap(data);
+#pragma warning(disable: 4800)
 	if(ret > 0) d = (_D)data;
+#pragma warning(default: 4800)
 	return ret;
 }
 
