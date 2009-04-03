@@ -150,6 +150,8 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
+	
 	ReadKeyword(file, section, "Useangle", &Useangle, Useangle);
 	ReadInteger(file, section, "Angle", &Angle, Angle);
 	
@@ -166,6 +168,7 @@ std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::stri
 }
 
 bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
+	fread_endian<char>(fp, AddParentVel);
 	fread_endian<char>(fp, Useangle);
 	fread_endian<int>(fp, Angle);
 	fread_endian<int>(fp, Amount);
@@ -177,6 +180,7 @@ bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_SpawnInfo::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<char>(fp, AddParentVel);
 	fwrite_endian<char>(fp, Useangle);
 	fwrite_endian<int>(fp, Angle);
 	fwrite_endian<int>(fp, Amount);
