@@ -89,7 +89,7 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	T data;
 	size_t ret = fread(&data, sizeof(T), 1, stream);
 	EndianSwap(data);
-	if(ret > 0) d = (_D)data;
+	if(ret > 0) d = data;
 	return ret;
 }
 
