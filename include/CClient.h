@@ -598,7 +598,7 @@ public:
 	const Version& getServerVersion()				{ return cServerVersion; }
 	void setServerVersion(const std::string & _s);
 
-	FeatureCompatibleSettingList& getUnknownFeatures() { return otherGameInfo; }
+	FeatureCompatibleSettingList& getUnknownFeatures() { return otherGameInfo; } // Both unknown and server-side features here
 	
 	bool isHostAllowingMouse()					{ return bHostAllowsMouse; }
 	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }

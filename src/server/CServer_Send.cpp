@@ -602,6 +602,8 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 		if( f->get()->group < GIG_GameModeSpecific_Start ||
 			f->get()->group == cServer->getGameMode()->getGameInfoGroupInOptions() )
 		{
+			if( tLXOptions->tGameInfo.features.hostGet(f->get()) == f->get()->unsetValue ) // Do not send a feature if it has default value = LX56 behavior
+				continue;
 			sendCount ++;
 			bs1.writeString( f->get()->name );
 			bs1.writeString( f->get()->humanReadableName );

@@ -2266,11 +2266,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 							bool olderClientsSupported = inbs.readBool();
 							Feature* f = featureByName(name);
 							if(f) {
-								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
+								features.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
 							} else if(!olderClientsSupported) {
-								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
+								features.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
 							} else {
-								features.push_back(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
+								features.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE);
 							}
 						}
 					}
@@ -2471,20 +2471,19 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
 			}
 			
-			for (std::list<FeatureCompatibleSettingList::Feature>::iterator it = features.list.begin();
-				it != features.list.end(); ++it)  {
+			foreach( FeatureCompatibleSettingList::Feature&, it, features.list ){
 				Uint32 col;
-				switch(it->type) {
+				switch(it->get().type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
 					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;
 					default: col = tLX->clNormalLabel;
 				}
-				lvInfo.AddItem("feature:" + it->name, ++index, col);
-				if(tLX->cFont.GetWidth(it->humanName + ":") + 20 <= first_column_width) {
-					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, it->var.toString(), NULL, NULL);					
+				lvInfo.AddItem("feature:" + it->get().name, ++index, col);
+				if(tLX->cFont.GetWidth(it->get().humanName + ":") + 20 <= first_column_width) {
+					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->get().var.toString(), NULL, NULL);					
 				} else
-					lvInfo.AddSubitem(LVS_TEXT, it->humanName + ":      " + it->var.toString(), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":      " + it->get().var.toString(), NULL, NULL);
 			}
 
 		}

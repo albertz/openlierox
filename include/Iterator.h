@@ -33,20 +33,38 @@ public:
 	typedef ::Ref< Iterator > Ref;
 };
 
-
 template<typename _STLT, typename _T>
-class STLIterator : public Iterator<_T> {
-private:
+class STLIteratorBase : public Iterator<_T> {
+protected:
 	typename _STLT::iterator i;
 	_STLT& obj;
 public:
-	STLIterator(_STLT& o) : i(o.begin()), obj(o) {}
-	STLIterator(const STLIterator& it) : i(it.i), obj(it.obj) {}	
-	virtual Iterator<_T>* copy() const { return new STLIterator(*this); }
+	STLIteratorBase(_STLT& o) : i(o.begin()), obj(o) {}
+	STLIteratorBase(const STLIteratorBase& it) : i(it.i), obj(it.obj) {}	
 	virtual bool isValid() { return i != obj.end(); }
 	virtual void next() { ++i; }
-	virtual bool operator==(const Iterator<_T>& other) const { const STLIterator* ot = dynamic_cast< const STLIterator* > (&other); return ot && &ot->obj == &obj && ot->i == i; }
-	virtual _T get() { return *i; }
+	virtual bool operator==(const Iterator<_T>& other) const { const STLIteratorBase* ot = dynamic_cast< const STLIteratorBase* > (&other); return ot && &ot->obj == &obj && ot->i == i; }
+};
+
+
+template<typename _STLT, typename _T>
+class STLIterator : public STLIteratorBase<_STLT, _T> {
+public:
+	STLIterator(_STLT& o) : STLIteratorBase<_STLT, _T>(o) {}
+	STLIterator(const STLIterator& it) : STLIteratorBase<_STLT, _T>(it) {}	
+	virtual Iterator<_T>* copy() const { return new STLIterator(*this); }
+	virtual bool operator==(const Iterator<_T>& other) const { const STLIterator* ot = dynamic_cast< const STLIterator* > (&other); return ot != NULL && STLIteratorBase<_STLT, _T> :: operator == ( other ); }
+	virtual _T get() { return * STLIteratorBase<_STLT, _T> :: i; }
+};
+
+template<typename _STLT, typename _T>
+class STL_MapIterator : public STLIteratorBase<_STLT, _T> {
+public:
+	STL_MapIterator(_STLT& o) : STLIteratorBase<_STLT, _T> (o) {}
+	STL_MapIterator(const STL_MapIterator& it) : STLIteratorBase<_STLT, _T> (it) {}	
+	virtual Iterator<_T>* copy() const { return new STL_MapIterator(*this); }
+	virtual bool operator==(const Iterator<_T>& other) const { const STL_MapIterator* ot = dynamic_cast< const STL_MapIterator* > (&other); return ot != NULL && STLIteratorBase<_STLT, _T> :: operator == ( other ); }
+	virtual _T get() { return STLIteratorBase<_STLT, _T> :: i -> second; }
 };
 
 template<typename _T>
@@ -86,6 +104,9 @@ typename Iterator<_T&>::Ref GetIterator(std::list<_T>& s) { return new STLIterat
 template< typename _T >
 typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
 
+template< typename _T, typename _KT >
+typename Iterator<_T&>::Ref GetIterator(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
+
 inline
 Iterator<char&>::Ref GetIterator(std::string& s) { return new STLIterator<std::string,char&>(s); }
 
@@ -95,8 +116,8 @@ Iterator<char>::Ref GetConstIterator(std::string& s) { return new STLIterator<st
 template< typename _T >
 typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }
 
-template< typename _I, typename _T >
-typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }
+//template< typename _I, typename _T >
+//typename Iterator< std::pair<_I,_T> >::Ref GetIterator(std::map<_I,_T>& s) { return s.begin(); }
 
 template< typename _T >
 typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArrayIterator<_T>(s); }

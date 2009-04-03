@@ -50,7 +50,7 @@ Feature featureArray[] = {
 	Feature("HS_SeekerVisionThroughWalls", "Seeker vision thorough walls", "How far seeker can see through walls, in pixels (whole screen = 320 px)", 
 			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVisionAngle",	"Seeker vision angle",			"The angle of seeker vision (180 = half-circle, 360 = full circle)", 
-			360, 	360, 			Version(),			GIG_HideAndSeek, 	0, 		360 ),
+			360, 	360, 			Version(),			GIG_HideAndSeek, 	0, 		360,	true ),
 	Feature("NewNetEngine", 		"New net engine (restricted functionality)",		"New net engine without self-shooting and lag effects, CPU-eating", 
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
 	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
@@ -59,10 +59,12 @@ Feature featureArray[] = {
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
 	Feature("WormDamageFactor",		"Worm damage factor",	"Initial factor to worm damage",
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
-	Feature("WormCanAirJump",		"Worm can air jump",	"All worms can jump in air initially",
-			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),
-	Feature("AirJumpDelay",			"Delay before next air jump",	"How fast can you do air-jumps, set this to 0 and you can float in air",
-			0.0f,	0.0f,			OLXBetaVersion(9),		GIG_Other,		0.0f, 	5.0f),
+	Feature("InstantAirJump",		"Instant air jump",		"Worms can jump in air instantly, this allows floating in air",
+			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),	// Server-side
+	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air, jumps have delay between them",
+			false,	false,			OLXBetaVersion(9),		GIG_Other),				// Client-side
+	Feature("RelativeAirJumpDelay",	"Delay between relative air jumps",	"How fast can you do air-jumps",
+			1.0f,	1.0f,			Version(),				GIG_Other,		0.0f, 	5.0f),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
@@ -123,14 +125,3 @@ bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
 	return hostGet(f) == f->unsetValue;
 }
 
-void FeatureCompatibleSettingList::set(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
-	foreach( Feature&, f, list ) {
-		if(f->get().name == name) {
-			f->get().humanName = humanName;
-			f->get().var = var;
-			f->get().type = type;
-			return;
-		}
-	}
-	push_back(name, humanName, var, type);
-}

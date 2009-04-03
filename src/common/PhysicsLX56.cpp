@@ -370,11 +370,19 @@ public:
 		bool onGround = worm->CheckOnGround();
 		if( onGround )
 			worm->setLastAirJumpTime(AbsTime());
-		if(ws->bJump && ( onGround || 
-			( worm->canAirJump() && GetPhysicsTime() > 
-				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_AirJumpDelay] ) ) )) {
+		if(ws->bJump && ( onGround || worm->canAirJump() ||
+			( bool(cClient->getGameLobby()->features[FT_RelativeAirJump]) && GetPhysicsTime() > 
+				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
+		{
 			if( onGround )
+			{
 				worm->getVelocity()->y = wd->JumpForce;
+				// HINT: if we are on ground for a short time, make the jump X-velocity
+				// the same as it was in the time of the collision (before the ground had dampened the worm)
+				// This behavior is more like old LX
+				if (simulationTime - worm->getCollisionTime() <= 0.15f)
+					worm->getVelocity()->x = worm->getCollisionVel().x * 0.8f; // Dampen only a bit
+			}
 			else
 			{
 				// GFX effect, as in TeeWorlds (we'll change velocity after that)
@@ -383,15 +391,11 @@ public:
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), 0, NULL );
 
 				worm->setLastAirJumpTime(GetPhysicsTime());
-				worm->getVelocity()->y += wd->JumpForce; // Relative velocity in the air
+				if( worm->canAirJump() && worm->getVelocity()->y > wd->JumpForce ) // Negative Y coord = moving up
+					worm->getVelocity()->y = wd->JumpForce; // Absolute velocity - instant air jump
+				else
+					worm->getVelocity()->y += wd->JumpForce; // Relative velocity - relative air jump
 			}
-
-			// HINT: if we are on ground for a short time, make the jump X-velocity
-			// the same as it was in the time of the collision (before the ground had dampened the worm)
-			// This behavior is more like old LX
-			if (simulationTime - worm->getCollisionTime() <= 0.15f)
-				worm->getVelocity()->x = worm->getCollisionVel().x * 0.8f; // Dampen only a bit
-
 			worm->setOnGround( false );
 		}
 

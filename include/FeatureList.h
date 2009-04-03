@@ -88,8 +88,9 @@ enum FeatureIndex {
 	FT_FillWithBotsTo,
 	FT_WormSpeedFactor,
 	FT_WormDamageFactor,
-	FT_WormCanAirJump,
-	FT_AirJumpDelay,
+	FT_InstantAirJump,
+	FT_RelativeAirJump,
+	FT_RelativeAirJumpDelay,
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
 	FT_CTF_AllowRopeForCarrier,
@@ -105,18 +106,23 @@ public:
 		enum Type { FCSL_SUPPORTED, FCSL_JUSTUNKNOWN, FCSL_INCOMPATIBLE };
 		Type type;
 	};
-	std::list<Feature> list;
-	Iterator<Feature&>::Ref iterator() { return GetIterator(list); }
-	void push_back(const Feature& f) { list.push_back(f); }
-	void push_back(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
+	std::map< std::string, Feature > list;
+	Iterator< Feature & >::Ref iterator() { return GetIterator(list); }
+	void set(const Feature& f) { list[ f.name ] = f; }
+	void set(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
 		Feature f;
 		f.name = name;
 		f.humanName = humanName;
 		f.var = var;
 		f.type = type;
-		push_back(f);
+		set(f);
 	}
-	void set(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type);
+	const Feature * find( const std::string & name )
+	{
+		if( list.find( name ) == list.end() )
+			return NULL;
+		return &(list.find( name )->second);
+	}
 	void clear() { list.clear(); }
 };
 

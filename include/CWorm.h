@@ -273,8 +273,8 @@ private:
 	float		fSpeedFactor;
 	bool		bCanUseNinja;
 	float		fDamageFactor;
-	bool		bCanAirJump;
-	AbsTime		fLastAirJumpTime;
+	bool		bCanAirJump; // For instant air jump
+	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;

@@ -1592,11 +1592,15 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 			return false;		
 	}
 	
-	if((bool)tLXOptions->tGameInfo.features[FT_WormCanAirJump]) {
-		if(!forceMinVersion(cl, OLXBetaVersion(9), "WormCanAirJump activated", dropOut, makeMsg, msg))
+	if((bool)tLXOptions->tGameInfo.features[FT_InstantAirJump]) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "InstantAirJump activated", dropOut, makeMsg, msg))
 			return false;
 	}
-	
+
+	if((bool)tLXOptions->tGameInfo.features[FT_RelativeAirJump]) {
+		if(!forceMinVersion(cl, OLXBetaVersion(9), "RelativeAirJump activated", dropOut, makeMsg, msg))
+			return false;
+	}
 	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
