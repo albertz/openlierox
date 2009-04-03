@@ -63,6 +63,8 @@ int CGameScript::Save(const std::string& filename)
 
 	fwrite_endian_compat((NumWeapons),sizeof(int),1,fp);
 
+	savedProjs.clear();
+	
 	// Weapons
 	weapon_t *wpn = Weapons;
 
@@ -149,17 +151,33 @@ int CGameScript::Save(const std::string& filename)
 
 	fclose(fp);
 
+	savedProjs.clear();
+	
 	return true;
 }
 
 
 ///////////////////
 // Save a projectile
-int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
+bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 {
 	if(!proj)
 		return false;
 
+	if(Header.Version > GS_LX56_VERSION) {
+		// well, that's slow but it's not worth to create a reverted-map just for saving
+		int index = -1;
+		for(Projectiles::iterator it = projectiles.begin(); it != projectiles.end(); ++it) {
+			if(it->second == proj) {
+				index = it->first;
+				break;
+			}
+		}
+		fwrite_endian<int>(fp, index);
+		if(savedProjs.find(proj) != savedProjs.end()) return false;
+		savedProjs.insert(proj);
+	}
+	
 	fwrite_endian_compat((proj->Type),			sizeof(int),1,fp);
 	fwrite_endian_compat((proj->Timer.Time),	sizeof(float),1,fp);
 	fwrite_endian_compat((proj->Timer.TimeVar),sizeof(float),1,fp);
@@ -339,15 +357,14 @@ int CGameScript::Load(const std::string& dir)
 		return GSE_OK;
 	}
 	*/
+	Shutdown();
 
-	loaded = false;
-	FILE *fp;
 	int n;
 	std::string filename = dir + "/script.lgs";
 	sDirectory = dir;
 
 	// Open it
-	fp = OpenGameFile(filename,"rb");
+	FILE* fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
 		if(IsFileAvailable(dir + "/main.txt")) {
 			hints << "GameScript: '" << dir << "': loading from gamescript source" << endl;
@@ -546,10 +563,20 @@ int CGameScript::Load(const std::string& dir)
 // Load a projectile
 proj_t *CGameScript::LoadProjectile(FILE *fp)
 {
+	int projIndex;
+	if(Header.Version > GS_LX56_VERSION) {
+		fread_endian<int>(fp, projIndex);
+		std::map<int, proj_t*>::iterator f = projectiles.find(projIndex);
+		if(f != projectiles.end())
+			return f->second;
+	}
+	else
+		projIndex = projectiles.size();
+		
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
 		return NULL;
-
+	projectiles[projIndex] = proj;
 
 	fread_compat(proj->Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Type);
@@ -909,7 +936,7 @@ static size_t GetProjSize(proj_t *prj)
 	if (prj)
 		return 	prj->Exp.SndFilename.size() + prj->filename.size() +
 				prj->Hit.SndFilename.size() + prj->ImgFilename.size() +
-				GetProjSize(prj->GeneralSpawnInfo.Proj) + prj->Tch.SndFilename.size() +
+				prj->Tch.SndFilename.size() +
 				/*GetSurfaceMemorySize(prj->bmpImage.get()) + */
 				sizeof(proj_t);
 	else
@@ -925,9 +952,11 @@ size_t CGameScript::GetMemorySize()
 	for (int i = 0; i < NumWeapons; i++, it++)  {
 		res += sizeof(weapon_t) + sizeof(SoundSample);
 		res += it->SndFilename.size();
-		res += GetProjSize(it->Proj.Proj);
 	}
-
+	for(Projectiles::iterator i = projectiles.begin(); i != projectiles.end(); ++i) {
+		res += GetProjSize(i->second);		
+	}
+	
 	return res;
 }
 
@@ -937,7 +966,6 @@ size_t CGameScript::GetMemorySize()
 void CGameScript::Shutdown()
 {
 	loaded = false;
-	int n;
 
     // Close the log file
     if(pModLog) {
@@ -945,18 +973,15 @@ void CGameScript::Shutdown()
         pModLog = NULL;
     }
 
-	if(Weapons == NULL)
-		return;
-
-	// Go through each weapon
-	weapon_t *wpn;
-	for(n=0;n<NumWeapons;n++) {
-		wpn = &Weapons[n];
-		// Shutdown any projectiles
-		ShutdownProjectile(wpn->Proj.Proj);
+	for(Projectiles::iterator i = projectiles.begin(); i != projectiles.end(); ++i) {
+		ShutdownProjectile(i->second);
 	}
-
-	delete[] Weapons;
+	projectiles.clear();
+	savedProjs.clear();
+	projFileIndexes.clear();
+	
+	if(Weapons)
+		delete[] Weapons;
 	Weapons = NULL;
 }
 
@@ -966,8 +991,6 @@ void CGameScript::Shutdown()
 void CGameScript::ShutdownProjectile(proj_t *prj)
 {
 	if(prj) {
-		ShutdownProjectile(prj->GeneralSpawnInfo.Proj);
-		ShutdownProjectile(prj->Trail.Proj.Proj);
 		delete prj;
 	}
 }
@@ -1117,6 +1140,8 @@ template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj )
 // Compile
 bool CGameScript::Compile(const std::string& dir)
 {
+	Shutdown();
+	
 	CGameScript* Game = this;
 	
 	// Add some keywords
@@ -1312,12 +1337,19 @@ void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 // Compile a projectile
 proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string& pfile)
 {
+	ProjFileMap::iterator f = projFileIndexes.find(pfile);
+	if(f != projFileIndexes.end()) {
+		notes << "    Reuse already compiled Projectile '" << pfile << "'" << endl;
+		return projectiles[f->second];
+	}
+
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
 		return NULL;
 
-	ProjCount++;
-
+	int projIndex = projectiles.size();
+	projectiles[projIndex] = proj;	
+	projFileIndexes[pfile] = projIndex;
 	
 	// Load the projectile
 	std::string file = dir + "/" + pfile;

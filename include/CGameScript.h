@@ -17,12 +17,15 @@
 #ifndef __CGAMESCRIPT_H__
 #define __CGAMESCRIPT_H__
 
+#include <map>
+#include <set>
 #include "Sounds.h"
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Version.h"
 #include "Color.h"
 #include "StaticAssert.h"
+#include "StringUtils.h"
 
 static const Version GS_MinLxVersion[] = {
 	Version(), // for GS_VERSION == 7
@@ -93,8 +96,6 @@ public:
 		RopeLength = 150;
 		RestLength = 20;
 		Strength = 0.5f;
-		
-		ProjCount = 0;
 	}
 
 	~CGameScript() {
@@ -119,9 +120,12 @@ private:
 	// Worm
 	gs_worm_t	Worm;
 
-	int 	ProjCount;
-
-
+	typedef std::map<int, proj_t*> Projectiles;
+	typedef std::map<std::string, int, stringcaseless> ProjFileMap;
+	ProjFileMap projFileIndexes;
+	Projectiles projectiles;
+	std::set<proj_t*> savedProjs;
+	
 	// Ninja Rope
 	int			RopeLength;
 	int			RestLength;
@@ -147,7 +151,7 @@ public:
 	
 private:
 	proj_t		*LoadProjectile(FILE *fp);
-	int			SaveProjectile(proj_t *proj, FILE *fp);
+	bool		SaveProjectile(proj_t *proj, FILE *fp);
     void        writeString(const std::string& szString, FILE *fp);
     std::string readString(FILE *fp);
 
@@ -198,9 +202,9 @@ public:
 	int		getRestLength()				{ return RestLength; }
 	float	getStrength()				{ return Strength; }
 
-	const gs_worm_t	*getWorm()					{ return &Worm; }
+	const gs_worm_t	*getWorm()	const	{ return &Worm; }
 
-	int			getProjectileCount()	{ return ProjCount; }
+	int		getProjectileCount() const	{ return projectiles.size(); }
 	
 	bool		Compile(const std::string& dir);
 	

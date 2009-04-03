@@ -530,6 +530,7 @@ public:
 					case ANI_PINGPONG:
 						proj->setFrameDelta( ! proj->getFrameDelta() );
 						proj->frame() = (float)NumFrames - 1;
+						break;
 					case __ANI_LBOUND: case __ANI_UBOUND: errors << "simulateProjectile_LowLevel: hit __ANI_BOUND" << endl;
 					}
 				}
