@@ -27,7 +27,7 @@ public:
 	void close();
 
 	// this can also open script files in the UNIX-way on every system
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "" );
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > (), const std::string& working_dir = "." );
 };
 
 #endif
