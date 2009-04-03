@@ -13,6 +13,7 @@
 #include <SDL.h>
 #include <cstdio>
 #include "StaticAssert.h"
+#include "CVec.h"
 
 #ifdef _MSC_VER
 // there is no way for MSVC to cast int->bool without a warning
@@ -92,5 +93,26 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	if(ret > 0) d = data;
 	return ret;
 }
+
+
+
+template<typename T>
+static size_t fread_endian_M(FILE* stream, MatrixD2<T>& d) {
+	if(fread_endian<T>(stream, d.v1.x) == 0) return 0;
+	if(fread_endian<T>(stream, d.v1.y) == 0) return 0;
+	if(fread_endian<T>(stream, d.v2.x) == 0) return 0;
+	if(fread_endian<T>(stream, d.v2.y) == 0) return 0;
+	return 1;
+}
+
+template<typename T>
+static size_t fwrite_endian_M(FILE* stream, MatrixD2<T>& d) {
+	if(fwrite_endian<T>(stream, d.v1.x) == 0) return 0;
+	if(fwrite_endian<T>(stream, d.v1.y) == 0) return 0;
+	if(fwrite_endian<T>(stream, d.v2.x) == 0) return 0;
+	if(fwrite_endian<T>(stream, d.v2.y) == 0) return 0;
+	return 1;
+}
+
 
 #endif

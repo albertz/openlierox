@@ -12,7 +12,7 @@
 /////////////////////////////////////////
 
 
-// 2D Vector class
+// 2D Vector / Matrix class
 // Created 20/11/01
 // By Jason Boettcher
 // enhanced by Albert Zeyer
@@ -20,12 +20,11 @@
 #ifndef __CVEC_H__
 #define __CVEC_H__
 
-#include <math.h>
+#include <cmath>
 
 
 template<typename _T>
-class VectorD2 {
-public:
+struct VectorD2 {
 	// Constructor
 	VectorD2() : x(0), y(0) {}
 	VectorD2(_T _x, _T _y) : x(_x), y(_y) {}
@@ -35,7 +34,6 @@ public:
 	_T	x, y;
 
 
-public:
 	// Methods
 
 	template<typename _T2>
@@ -133,8 +131,18 @@ public:
 
 typedef VectorD2<float> CVec;
 
-
-
+template<typename _T>
+struct MatrixD2 {
+	VectorD2<_T> v1;
+	VectorD2<_T> v2;
+	
+	MatrixD2() {}
+	MatrixD2(_T f) { v1.x = f; v2.y = f; }
+	
+	VectorD2<_T> operator*(const VectorD2<_T>& v) const {
+		return VectorD2<_T>( v1.x * v.x + v2.x * v.x, v1.y * v.y + v2.y * v.y );
+	}
+};
 
 
 

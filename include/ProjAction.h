@@ -74,7 +74,7 @@ struct Proj_SpawnInfo {
 	bool	UseSpecial11VecForSpeedVar; // LX56: true iff trail
 	bool	UseRandomRot; // LX56: true iff shot
 	bool	AddParentVel; // LX56: true iff shot
-	float	ParentVelFactor; // new since Beta9
+	MatrixD2<float>	ParentVelFactor; // new since Beta9
 	
 	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
 	bool isSet() const { return Proj != NULL; }
