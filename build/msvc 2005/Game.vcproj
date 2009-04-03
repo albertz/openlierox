@@ -3596,6 +3596,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\ProjAction.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\include\Protocol.h"
 				>
 			</File>

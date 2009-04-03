@@ -23,7 +23,7 @@ struct proj_t;
 
 
 class CProjectile;
-struct shoot_t;
+class shoot_t;
 
 struct Proj_SpawnParent {
 	union {

@@ -69,7 +69,7 @@ CVec Proj_SpawnParent::velocity() const {
 float Proj_SpawnParent::angle() const {
 	switch(type) {
 		case PSPT_NOTHING: return 0;
-		case PSPT_SHOT: return shot->nAngle;
+		case PSPT_SHOT: return (float)shot->nAngle;
 		case PSPT_PROJ: {
 			CVec v = velocity();
 			NormalizeVector(&v);
