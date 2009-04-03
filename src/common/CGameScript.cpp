@@ -1304,9 +1304,7 @@ void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 	ReadInteger(file, "Beam", "Damage", &Weap->Bm_Damage, 0);
 	ReadInteger(file, "Beam", "Length", &Weap->Bm_Length, 0);
 	ReadInteger(file, "Beam", "PlayerDamage", &Weap->Bm_PlyDamage, 0);
-
-	std::string string;
-	ReadColour(file,"Beam","Colour",Weap->Bm_Colour,Color());
+	ReadColour(file, "Beam", "Colour", Weap->Bm_Colour, Color());
 }
 
 
