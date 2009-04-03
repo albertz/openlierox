@@ -57,7 +57,7 @@ struct Proj_SpawnInfo {
 	Speed(0), SpeedVar(0), Spread(0), Amount(0), Proj(NULL),
 	UseParentVelocityForSpread(false), ParentVelSpreadFactor(0.3f),
 	Useangle(false), Angle(0),
-	UseSpecial11VecForSpeedVar(false), UseRandomRot(false), AddParentVel(false) {}
+	UseSpecial11VecForSpeedVar(false), UseRandomRot(false), AddParentVel(false), ParentVelFactor(1.0f) {}
 	
 	int		Speed;
 	float	SpeedVar;
@@ -74,6 +74,7 @@ struct Proj_SpawnInfo {
 	bool	UseSpecial11VecForSpeedVar; // LX56: true iff trail
 	bool	UseRandomRot; // LX56: true iff shot
 	bool	AddParentVel; // LX56: true iff shot
+	float	ParentVelFactor; // new since Beta9
 	
 	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
 	bool isSet() const { return Proj != NULL; }

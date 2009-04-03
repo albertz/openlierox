@@ -121,7 +121,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 		if(UseSpecial11VecForSpeedVar) speedVarVec = CVec(1,1);
 		v += speedVarVec * (float)SpeedVar * parent.fixedRandomFloat();
 		if(AddParentVel)
-			v += parent.velocity();
+			v += parent.velocity() * ParentVelFactor;
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom *= 5;
