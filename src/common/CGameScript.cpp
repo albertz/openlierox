@@ -342,12 +342,18 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		fwrite_endian<int>(fp, proj->Trail.Proj.UseParentVelocityForSpread);
 		fwrite_endian_compat((proj->Trail.Delay*1000.0f),				sizeof(float),	1, fp);
 	
-		fwrite_endian_compat((proj->Trail.Proj.Amount),			sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->Trail.Proj.Speed),				sizeof(int),	1, fp);
-		fwrite_endian_compat((proj->Trail.Proj.SpeedVar),			sizeof(float),	1, fp);
-		fwrite_endian_compat((proj->Trail.Proj.Spread),			sizeof(float),	1, fp);
+		if(Header.Version <= GS_LX56_VERSION) {
+			fwrite_endian_compat((proj->Trail.Proj.Amount),			sizeof(int),	1, fp);
+			fwrite_endian_compat((proj->Trail.Proj.Speed),				sizeof(int),	1, fp);
+			fwrite_endian_compat((proj->Trail.Proj.SpeedVar),			sizeof(float),	1, fp);
+			fwrite_endian_compat((proj->Trail.Proj.Spread),			sizeof(float),	1, fp);
 
-		SaveProjectile(proj->Trail.Proj.Proj, fp);
+			SaveProjectile(proj->Trail.Proj.Proj, fp);
+		}
+		else { // newer GS versions
+			proj->Trail.Proj.write(this, fp);
+		}
+		
 	}
 
 	return true;
@@ -816,21 +822,26 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fread_endian<int>(fp, proj->Trail.Proj.UseParentVelocityForSpread);
-		fread_compat(proj->Trail.Delay,			sizeof(float),	1, fp);
-		EndianSwap(proj->Trail.Delay);
-		fread_compat(proj->Trail.Proj.Amount,			sizeof(int),	1, fp);
-		EndianSwap(proj->Trail.Proj.Amount);
-		fread_compat(proj->Trail.Proj.Speed,			sizeof(int),	1, fp);
-		EndianSwap(proj->Trail.Proj.Speed);
-		fread_compat(proj->Trail.Proj.SpeedVar,		sizeof(float),	1, fp);
-		EndianSwap(proj->Trail.Proj.SpeedVar);
-		fread_compat(proj->Trail.Proj.Spread,			sizeof(float),	1, fp);
-		EndianSwap(proj->Trail.Proj.Spread);
-
+		fread_endian<float>(fp, proj->Trail.Delay);
 		// Change from milli-seconds to seconds
 		proj->Trail.Delay /= 1000.0f;
+		
+		if(Header.Version <= GS_LX56_VERSION) {
+			fread_compat(proj->Trail.Proj.Amount,			sizeof(int),	1, fp);
+			EndianSwap(proj->Trail.Proj.Amount);
+			fread_compat(proj->Trail.Proj.Speed,			sizeof(int),	1, fp);
+			EndianSwap(proj->Trail.Proj.Speed);
+			fread_compat(proj->Trail.Proj.SpeedVar,		sizeof(float),	1, fp);
+			EndianSwap(proj->Trail.Proj.SpeedVar);
+			fread_compat(proj->Trail.Proj.Spread,			sizeof(float),	1, fp);
+			EndianSwap(proj->Trail.Proj.Spread);
 
-		proj->Trail.Proj.Proj = LoadProjectile(fp);
+			proj->Trail.Proj.Proj = LoadProjectile(fp);
+		}
+		else { // new GS versions
+			proj->Trail.Proj.read(this, fp);
+		}
+
 	}
 
 	return proj;
