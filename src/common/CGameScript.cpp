@@ -1264,17 +1264,25 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		}	
 	}
 	
-	ReadInteger(file,"Projectile","Speed",&Weap->Proj.Speed,0);
-	ReadFloat(file,"Projectile","SpeedVar",&Weap->Proj.SpeedVar,0);
-	ReadFloat(file,"Projectile","Spread",&Weap->Proj.Spread,0);
-	ReadInteger(file,"Projectile","Amount",&Weap->Proj.Amount,0);
+	std::string pfile = Weap->Proj.readFromIni(file, "Projectile");
+	
+	if(Weap->Proj.UseParentVelocityForSpread) {
+		warnings << "UseProjVelocity is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		Weap->Proj.UseParentVelocityForSpread = false;
+	}
+	
+	if(Weap->Proj.Useangle) {
+		warnings << "Useangle is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		Weap->Proj.Useangle = false;
+	}
 
+	if(Weap->Proj.Angle != 0) {
+		warnings << "Angle is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		Weap->Proj.Angle = 0;
+	}	
 
 	// Load the projectile
-	std::string pfile;
-	ReadString(file,"Projectile","Projectile",pfile,"");
-
-	Weap->Proj.Proj = CompileProjectile(dir,pfile.c_str());
+	Weap->Proj.Proj = CompileProjectile(dir, pfile);
 	if(Weap->Proj.Proj == NULL)
 		return false;
 
