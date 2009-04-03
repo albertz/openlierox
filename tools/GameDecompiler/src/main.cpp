@@ -22,6 +22,8 @@
 #include "SmartPointer.h"
 #include "CrashHandler.h"
 #include "Sounds.h"
+#include "WeaponDesc.h"
+#include "ProjectileDesc.h"
 
 
 CGameScript	*Game;
@@ -220,15 +222,15 @@ int DecompileWeapon(int id)
 				Weap->Class == WCL_GRENADE ? "WCL_GRENADE" : (
 				Weap->Class == WCL_CLOSERANGE ? "WCL_CLOSERANGE" : "Unknown" )))));
 
-	fprintf( fp,"\n[Projectile]\n\nSpeed = %i\n",Weap->ProjSpeed);
-	fprintf( fp, "SpeedVar = %f\n", Weap->ProjSpeedVar);
-	fprintf( fp, "Spread = %f\n", Weap->ProjSpread);
-	fprintf( fp, "Amount = %i\n", Weap->ProjAmount);
-	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name.c_str(), (int)Weap->Projectile);
+	fprintf( fp,"\n[Projectile]\n\nSpeed = %i\n",Weap->Proj.Speed);
+	fprintf( fp, "SpeedVar = %f\n", Weap->Proj.SpeedVar);
+	fprintf( fp, "Spread = %f\n", Weap->Proj.Spread);
+	fprintf( fp, "Amount = %i\n", Weap->Proj.Amount);
+	fprintf( fp, "Projectile = p_%s_%08x.txt\n", Weap->Name.c_str(), (int)Weap->Proj.Proj);
 	
 	fclose(fp);
 	
-	DecompileProjectile( Weap->Projectile, Weap->Name.c_str() );
+	DecompileProjectile( Weap->Proj.Proj, Weap->Name.c_str() );
 
 	return true;
 }
@@ -268,21 +270,21 @@ void DecompileProjectile(const proj_t * proj, const char * weaponName)
 
 	ProjCount++;
 
-	printf("    Compiling Projectile '%s'\n",fname);
-
+	printf("    Decompiling Projectile '%s'\n",fname);
+	
 	fprintf(fp,"[General]\n\nType = %s\n", (
 				proj->Type == PRJ_PIXEL ? "PRJ_PIXEL" : (
 				proj->Type == PRJ_IMAGE ? "PRJ_IMAGE" : "Unknown" )));
 
-	fprintf( fp, "Timer = %f\n", proj->Timer_Time);
-	fprintf( fp, "TimerVar = %f\n", proj->Timer_TimeVar);
+	fprintf( fp, "Timer = %f\n", proj->Timer.Time);
+	fprintf( fp, "TimerVar = %f\n", proj->Timer.TimeVar);
 	fprintf( fp, "Trail = %s\n", (
-				proj->Trail == TRL_NONE ? "TRL_NONE" : ( 
-				proj->Trail == TRL_SMOKE ? "TRL_SMOKE" : ( 
-				proj->Trail == TRL_CHEMSMOKE ? "TRL_CHEMSMOKE" : ( 
-				proj->Trail == TRL_PROJECTILE ? "TRL_PROJECTILE" : ( 
-				proj->Trail == TRL_DOOMSDAY ? "TRL_DOOMSDAY" : ( 
-				proj->Trail == TRL_EXPLOSIVE ? "TRL_EXPLOSIVE" : " Unknown" 
+				proj->Trail.Type == TRL_NONE ? "TRL_NONE" : ( 
+				proj->Trail.Type == TRL_SMOKE ? "TRL_SMOKE" : ( 
+				proj->Trail.Type == TRL_CHEMSMOKE ? "TRL_CHEMSMOKE" : ( 
+				proj->Trail.Type == TRL_PROJECTILE ? "TRL_PROJECTILE" : ( 
+				proj->Trail.Type == TRL_DOOMSDAY ? "TRL_DOOMSDAY" : ( 
+				proj->Trail.Type == TRL_EXPLOSIVE ? "TRL_EXPLOSIVE" : " Unknown" 
 				)))))));
 	
 
@@ -322,153 +324,168 @@ void DecompileProjectile(const proj_t * proj, const char * weaponName)
 
 	fprintf( fp, "\n[Hit]\n" );
 	fprintf( fp, "Type = %s\n", (
-				proj->Hit_Type == PJ_BOUNCE ? "Bounce" : (
-				proj->Hit_Type == PJ_EXPLODE ? "Explode" : (
-				proj->Hit_Type == PJ_INJURE ? "Injure" : (
-				proj->Hit_Type == PJ_CARVE ? "Carve" : (
-				proj->Hit_Type == PJ_DIRT ? "Dirt" : (
-				proj->Hit_Type == PJ_GREENDIRT ? "GreenDirt" : (
-				proj->Hit_Type == PJ_DISAPPEAR ? "Disappear" : (
-				proj->Hit_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
+				proj->Hit.Type == PJ_BOUNCE ? "Bounce" : (
+				proj->Hit.Type == PJ_EXPLODE ? "Explode" : (
+				proj->Hit.Type == PJ_INJURE ? "Injure" : (
+				proj->Hit.Type == PJ_CARVE ? "Carve" : (
+				proj->Hit.Type == PJ_DIRT ? "Dirt" : (
+				proj->Hit.Type == PJ_GREENDIRT ? "GreenDirt" : (
+				proj->Hit.Type == PJ_DISAPPEAR ? "Disappear" : (
+				proj->Hit.Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 
 
 	// Hit::Explode
-	if(proj->Hit_Type == PJ_EXPLODE) {
+	if(proj->Hit.Type == PJ_EXPLODE) {
 
-		fprintf( fp, "Damage = %i\n", proj->Hit_Damage);
-		fprintf( fp, "Projectiles = %s\n", ( proj->Hit_Projectiles ? "true":"false" ));
-		fprintf( fp, "Shake = %i\n", proj->Hit_Shake);
+		fprintf( fp, "Damage = %i\n", proj->Hit.Damage);
+		fprintf( fp, "Projectiles = %s\n", ( proj->Hit.Projectiles ? "true":"false" ));
+		fprintf( fp, "Shake = %i\n", proj->Hit.Shake);
 		
-		if( proj->Hit_UseSound )
-			fprintf( fp, "Sound = %s\n", proj->Hit_SndFilename.c_str());
+		if( proj->Hit.UseSound )
+			fprintf( fp, "Sound = %s\n", proj->Hit.SndFilename.c_str());
 	}
 
 	// Hit::Carve
-	if(proj->Hit_Type == PJ_CARVE) {
-		fprintf( fp, "Damage = %i\n", proj->Hit_Damage);
+	if(proj->Hit.Type == PJ_CARVE) {
+		fprintf( fp, "Damage = %i\n", proj->Hit.Damage);
 	}
 
 	// Hit::Bounce
-	if(proj->Hit_Type == PJ_BOUNCE) {
-		fprintf( fp, "BounceCoeff = %f\n", proj->Hit_BounceCoeff);
-		fprintf( fp, "BounceExplode = %i\n", proj->Hit_BounceExplode);
+	if(proj->Hit.Type == PJ_BOUNCE) {
+		fprintf( fp, "BounceCoeff = %f\n", proj->Hit.BounceCoeff);
+		fprintf( fp, "BounceExplode = %i\n", proj->Hit.BounceExplode);
 	}
 
 	// Timer
-	if(proj->Timer_Time > 0) {
+	if(proj->Timer.Time > 0) {
 	
 		fprintf( fp, "\n[Time]\n" );
 		fprintf( fp, "Type = %s\n", (
-				proj->Timer_Type == PJ_BOUNCE ? "Bounce" : (
-				proj->Timer_Type == PJ_EXPLODE ? "Explode" : (
-				proj->Timer_Type == PJ_INJURE ? "Injure" : (
-				proj->Timer_Type == PJ_CARVE ? "Carve" : (
-				proj->Timer_Type == PJ_DIRT ? "Dirt" : (
-				proj->Timer_Type == PJ_GREENDIRT ? "GreenDirt" : (
-				proj->Timer_Type == PJ_DISAPPEAR ? "Disappear" : (
-				proj->Timer_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
+				proj->Timer.Type == PJ_BOUNCE ? "Bounce" : (
+				proj->Timer.Type == PJ_EXPLODE ? "Explode" : (
+				proj->Timer.Type == PJ_INJURE ? "Injure" : (
+				proj->Timer.Type == PJ_CARVE ? "Carve" : (
+				proj->Timer.Type == PJ_DIRT ? "Dirt" : (
+				proj->Timer.Type == PJ_GREENDIRT ? "GreenDirt" : (
+				proj->Timer.Type == PJ_DISAPPEAR ? "Disappear" : (
+				proj->Timer.Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 		
 		//if(proj->Timer_Type == PJ_EXPLODE) {
 
-			fprintf( fp, "Damage = %i\n", proj->Timer_Damage);
-			fprintf( fp, "Projectiles = %s\n", ( proj->Timer_Projectiles ? "true":"false" ));
-			fprintf( fp, "Shake = %i\n", proj->Timer_Shake);
+			fprintf( fp, "Damage = %i\n", proj->Timer.Damage);
+			fprintf( fp, "Projectiles = %s\n", ( proj->Timer.Projectiles ? "true":"false" ));
+			fprintf( fp, "Shake = %i\n", proj->Timer.Shake);
 		//}
 	}
 
 	// Player hit
 	fprintf( fp, "\n[PlayerHit]\n" );
 	fprintf( fp, "Type = %s\n", (
-				proj->PlyHit_Type == PJ_BOUNCE ? "Bounce" : (
-				proj->PlyHit_Type == PJ_EXPLODE ? "Explode" : (
-				proj->PlyHit_Type == PJ_INJURE ? "Injure" : (
-				proj->PlyHit_Type == PJ_CARVE ? "Carve" : (
-				proj->PlyHit_Type == PJ_DIRT ? "Dirt" : (
-				proj->PlyHit_Type == PJ_GREENDIRT ? "GreenDirt" : (
-				proj->PlyHit_Type == PJ_DISAPPEAR ? "Disappear" : (
-				proj->PlyHit_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
+				proj->PlyHit.Type == PJ_BOUNCE ? "Bounce" : (
+				proj->PlyHit.Type == PJ_EXPLODE ? "Explode" : (
+				proj->PlyHit.Type == PJ_INJURE ? "Injure" : (
+				proj->PlyHit.Type == PJ_CARVE ? "Carve" : (
+				proj->PlyHit.Type == PJ_DIRT ? "Dirt" : (
+				proj->PlyHit.Type == PJ_GREENDIRT ? "GreenDirt" : (
+				proj->PlyHit.Type == PJ_DISAPPEAR ? "Disappear" : (
+				proj->PlyHit.Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 
 
 	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit_Type == PJ_EXPLODE || proj->PlyHit_Type == PJ_INJURE) {
-		fprintf( fp, "Damage = %i\n", proj->PlyHit_Damage);
-		fprintf( fp, "Projectiles = %s\n", ( proj->PlyHit_Projectiles ? "true":"false" ));
+	if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
+		fprintf( fp, "Damage = %i\n", proj->PlyHit.Damage);
+		fprintf( fp, "Projectiles = %s\n", ( proj->PlyHit.Projectiles ? "true":"false" ));
 	}
 
 	// PlyHit::Bounce
-	if(proj->PlyHit_Type == PJ_BOUNCE) {
-		fprintf( fp, "BounceCoeff = %f\n", proj->PlyHit_BounceCoeff);
+	if(proj->PlyHit.Type == PJ_BOUNCE) {
+		fprintf( fp, "BounceCoeff = %f\n", proj->PlyHit.BounceCoeff);
 	}
 
 
     // OnExplode
 	fprintf( fp, "\n[Explode]\n" );
 	fprintf( fp, "Type = %s\n", (
-				proj->Exp_Type == PJ_BOUNCE ? "Bounce" : (
-				proj->Exp_Type == PJ_EXPLODE ? "Explode" : (
-				proj->Exp_Type == PJ_INJURE ? "Injure" : (
-				proj->Exp_Type == PJ_CARVE ? "Carve" : (
-				proj->Exp_Type == PJ_DIRT ? "Dirt" : (
-				proj->Exp_Type == PJ_GREENDIRT ? "GreenDirt" : (
-				proj->Exp_Type == PJ_DISAPPEAR ? "Disappear" : (
-				proj->Exp_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
+				proj->Exp.Type == PJ_BOUNCE ? "Bounce" : (
+				proj->Exp.Type == PJ_EXPLODE ? "Explode" : (
+				proj->Exp.Type == PJ_INJURE ? "Injure" : (
+				proj->Exp.Type == PJ_CARVE ? "Carve" : (
+				proj->Exp.Type == PJ_DIRT ? "Dirt" : (
+				proj->Exp.Type == PJ_GREENDIRT ? "GreenDirt" : (
+				proj->Exp.Type == PJ_DISAPPEAR ? "Disappear" : (
+				proj->Exp.Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 
-	fprintf( fp, "Damage = %i\n", proj->Exp_Damage);
-	fprintf( fp, "Projectiles = %s\n", ( proj->Exp_Projectiles ? "true":"false" ));
-	fprintf( fp, "Shake = %i\n", proj->Exp_Shake);
-	if( proj->Exp_UseSound )
-		fprintf( fp, "Sound = %s\n", proj->Exp_SndFilename.c_str());
+	fprintf( fp, "Damage = %i\n", proj->Exp.Damage);
+	fprintf( fp, "Projectiles = %s\n", ( proj->Exp.Projectiles ? "true":"false" ));
+	fprintf( fp, "Shake = %i\n", proj->Exp.Shake);
+	if( proj->Exp.UseSound )
+		fprintf( fp, "Sound = %s\n", proj->Exp.SndFilename.c_str());
 
 
     // Touch
 	fprintf( fp, "\n[Touch]\n" );
 	fprintf( fp, "Type = %s\n", (
-				proj->Tch_Type == PJ_BOUNCE ? "Bounce" : (
-				proj->Tch_Type == PJ_EXPLODE ? "Explode" : (
-				proj->Tch_Type == PJ_INJURE ? "Injure" : (
-				proj->Tch_Type == PJ_CARVE ? "Carve" : (
-				proj->Tch_Type == PJ_DIRT ? "Dirt" : (
-				proj->Tch_Type == PJ_GREENDIRT ? "GreenDirt" : (
-				proj->Tch_Type == PJ_DISAPPEAR ? "Disappear" : (
-				proj->Tch_Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
+				proj->Tch.Type == PJ_BOUNCE ? "Bounce" : (
+				proj->Tch.Type == PJ_EXPLODE ? "Explode" : (
+				proj->Tch.Type == PJ_INJURE ? "Injure" : (
+				proj->Tch.Type == PJ_CARVE ? "Carve" : (
+				proj->Tch.Type == PJ_DIRT ? "Dirt" : (
+				proj->Tch.Type == PJ_GREENDIRT ? "GreenDirt" : (
+				proj->Tch.Type == PJ_DISAPPEAR ? "Disappear" : (
+				proj->Tch.Type == PJ_NOTHING ? "Nothing" : "Unknown" )))))))));
 
-	fprintf( fp, "Damage = %i\n", proj->Tch_Damage);
-	fprintf( fp, "Projectiles = %s\n", ( proj->Tch_Projectiles ? "true":"false" ));
-	fprintf( fp, "Shake = %i\n", proj->Tch_Shake);
-	if( proj->Exp_UseSound )
-		fprintf( fp, "Sound = %s\n", proj->Tch_SndFilename.c_str());
+	fprintf( fp, "Damage = %i\n", proj->Tch.Damage);
+	fprintf( fp, "Projectiles = %s\n", ( proj->Tch.Projectiles ? "true":"false" ));
+	fprintf( fp, "Shake = %i\n", proj->Tch.Shake);
+	if( proj->Tch.UseSound )
+		fprintf( fp, "Sound = %s\n", proj->Tch.SndFilename.c_str());
 
 
-	// Projectiles
-	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
-       proj->Tch_Projectiles) {
+	// Projectiles - in LX56 there's only one projectile type for all actions
+	const Proj_SpawnInfo * childProj = &proj->GeneralSpawnInfo;
+	/*
+	// Not used in LX56
+	if(proj->Timer.Projectiles)
+		childProj = &proj->Timer.Proj;
+	if(proj->Hit.Projectiles)
+		childProj = &proj->Hit.Proj;
+	if(proj->PlyHit.Projectiles)
+		childProj = &proj->PlyHit.Proj;
+	if(proj->Exp.Projectiles)
+		childProj = &proj->Exp.Proj;
+	if(proj->Tch.Projectiles)
+		childProj = &proj->Tch.Proj;
+	*/
+	
+	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles || proj->Tch.Projectiles)
+	{
 	
 		fprintf( fp, "\n[Projectile]\n" );
-		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->Projectile);
-		fprintf( fp, "Amount = %i\n", proj->ProjAmount);
-		fprintf( fp, "Speed = %i\n", proj->ProjSpeed);
-		fprintf( fp, "SpeedVar = %f\n", proj->ProjSpeedVar);
-		fprintf( fp, "Spread = %f\n", proj->ProjSpread);
-		fprintf( fp, "Useangle = %s\n", ( proj->ProjUseangle ? "true":"false" ));
-		fprintf( fp, "Angle = %i\n", proj->ProjAngle);
+		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)childProj->Proj);
+		fprintf( fp, "Amount = %i\n", childProj->Amount);
+		fprintf( fp, "Speed = %i\n", childProj->Speed);
+		fprintf( fp, "SpeedVar = %f\n", childProj->SpeedVar);
+		fprintf( fp, "Spread = %f\n", childProj->Spread);
+		fprintf( fp, "Useangle = %s\n", ( childProj->Useangle ? "true":"false" ));
+		fprintf( fp, "Angle = %i\n", childProj->Angle);
 
-		DecompileProjectile(proj->Projectile, weaponName);
+		DecompileProjectile(childProj->Proj, weaponName);
 	}
 
 
 	// Projectile trail
-	if(proj->Trail == TRL_PROJECTILE) {
+	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fprintf( fp, "\n[ProjectileTrail]\n" );
-		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->PrjTrl_Proj);
-		fprintf( fp, "UseProjVelocity = %s\n", ( proj->PrjTrl_UsePrjVelocity ? "true":"false" ));
-		fprintf( fp, "Delay = %f\n", proj->PrjTrl_Delay * 1000.0f);
-		fprintf( fp, "Amount = %i\n", proj->PrjTrl_Amount);
-		fprintf( fp, "Speed = %i\n", proj->PrjTrl_Speed);
-		fprintf( fp, "SpeedVar = %f\n", proj->PrjTrl_SpeedVar);
-		fprintf( fp, "Spread = %f\n", proj->PrjTrl_Spread);
+		fprintf( fp, "Projectile = p_%s_%08x.txt\n", weaponName, (int)proj->Trail.Proj.Proj);
+		fprintf( fp, "Delay = %f\n", proj->Trail.Delay * 1000.0f);
+		fprintf( fp, "UseProjVelocity = %s\n", ( proj->Trail.Proj.UseParentVelocityForSpread ? "true":"false" ));
+		fprintf( fp, "Amount = %i\n", proj->Trail.Proj.Amount);
+		fprintf( fp, "Speed = %i\n", proj->Trail.Proj.Speed);
+		fprintf( fp, "SpeedVar = %f\n", proj->Trail.Proj.SpeedVar);
+		fprintf( fp, "Spread = %f\n", proj->Trail.Proj.Spread);
 
-		DecompileProjectile(proj->PrjTrl_Proj, weaponName);
+		DecompileProjectile(proj->Trail.Proj.Proj, weaponName);
 	}
 }
 

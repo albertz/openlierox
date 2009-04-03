@@ -10,7 +10,7 @@ MESSAGE( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 MESSAGE( "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}" )
 MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
 
-PROJECT(gamecompiler)
+PROJECT(gamedecompiler)
 
 # main includes
 #ADD_DEFINITIONS("-I-")
@@ -41,11 +41,11 @@ EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\
 
 
 
-ADD_EXECUTABLE(gamecompiler ${SRCS} ${OLX_SRCS})
+ADD_EXECUTABLE(gamedecompiler ${SRCS} ${OLX_SRCS})
 EXEC_PROGRAM(mkdir ARGS -p ${CMAKE_CURRENT_SOURCE_DIR}/bin OUTPUT_VARIABLE -)
-SET_TARGET_PROPERTIES(gamecompiler PROPERTIES OUTPUT_NAME bin/gamecompiler)
+SET_TARGET_PROPERTIES(gamedecompiler PROPERTIES OUTPUT_NAME bin/gamedecompiler)
 
 
 EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 string(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
-TARGET_LINK_LIBRARIES(gamecompiler ${SDLLIBS} SDL SDL_image pthread z xml2)
+TARGET_LINK_LIBRARIES(gamedecompiler ${SDLLIBS} SDL SDL_image pthread z xml2)

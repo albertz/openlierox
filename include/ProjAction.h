@@ -15,6 +15,7 @@
 #define __PROJACTION_H__
 
 #include <string>
+#include <limits.h>
 #include "StaticAssert.h"
 #include "types.h"
 #include "CVec.h"

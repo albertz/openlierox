@@ -1656,3 +1656,45 @@ bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 	return true;
 }
 
+
+std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
+	
+	ReadKeyword(file, section, "Useangle", &Useangle, Useangle);
+	ReadInteger(file, section, "Angle", &Angle, Angle);
+	
+	ReadKeyword(file, section, "UseProjVelocity", &UseParentVelocityForSpread, UseParentVelocityForSpread);
+	
+	ReadInteger(file, section, "Amount", &Amount, Amount);
+	ReadInteger(file, section, "Speed",  &Speed, Speed);
+	ReadFloat(file, section, "SpeedVar",  &SpeedVar, SpeedVar);
+	ReadFloat(file, section, "Spread", &Spread, Spread);
+
+	std::string prjfile;
+	ReadString(file, section, "Projectile", prjfile, "");
+	return prjfile;
+}
+
+bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
+	fread_endian<char>(fp, AddParentVel);
+	fread_endian<char>(fp, Useangle);
+	fread_endian<int>(fp, Angle);
+	fread_endian<int>(fp, Amount);
+	fread_endian<int>(fp, Speed);
+	fread_endian<float>(fp, SpeedVar);
+	fread_endian<float>(fp, Spread);
+	Proj = gs->LoadProjectile(fp);
+	return Proj != NULL;
+}
+
+bool Proj_SpawnInfo::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<char>(fp, AddParentVel);
+	fwrite_endian<char>(fp, Useangle);
+	fwrite_endian<int>(fp, Angle);
+	fwrite_endian<int>(fp, Amount);
+	fwrite_endian<int>(fp, Speed);
+	fwrite_endian<float>(fp, SpeedVar);
+	fwrite_endian<float>(fp, Spread);
+	return gs->SaveProjectile(Proj, fp);
+}
+
