@@ -474,7 +474,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;WITH_PYTHON"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -3597,6 +3597,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\common\ProjAction.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ProjAction.h"
 				>
 			</File>
 			<File

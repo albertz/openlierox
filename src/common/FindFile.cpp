@@ -801,15 +801,15 @@ bool CanWriteToDir(const std::string& dir) {
 std::string GetAbsolutePath(const std::string& path) {
 #ifdef WIN32
 	std::string exactpath;
-	if (GetExactFileName(path, exactpath))  {
-		char buf[2048];
-		int len = GetFullPathName(Utf8ToSystemNative(exactpath).c_str(), sizeof(buf), buf, NULL);
-		fix_markend(buf);
-		if (len)
-			return SystemNativeToUtf8(buf);
-		else  // Failed
-			return path;
-	} else
+	if (!GetExactFileName(path, exactpath))
+		exactpath = path;
+
+	char buf[2048];
+	int len = GetFullPathName(Utf8ToSystemNative(exactpath).c_str(), sizeof(buf), buf, NULL);
+	fix_markend(buf);
+	if (len)
+		return SystemNativeToUtf8(buf);
+	else  // Failed
 		return path;
 #else
 	std::string exactpath;

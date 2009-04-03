@@ -212,7 +212,7 @@ struct ScriptDedInterface : DedInterface {
 			notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
 			// HINT: If a script need this change in his own directory, it is a bug in the script.
 			// If we change into script directory, ded function "getfullfilename" won't work anymore
-			if(!pipe.open(scriptfn, std::vector<std::string>() /*, ExtractDirectory(scriptfn)*/ )) {
+			if(!pipe.open(scriptfn, std::vector<std::string>() , ExtractDirectory(scriptfn) )) {
 				errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;
 				return false;
 			}

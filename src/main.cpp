@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 
 #ifdef DEBUG
 	// TODO: any reason for this?
-	setvbuf(stdout, NULL, _IOLBF, 1024);
+	//setvbuf(stdout, NULL, _IOLBF, 1024);
 #endif
 
 	DoSystemChecks();
