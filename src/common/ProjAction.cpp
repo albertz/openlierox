@@ -149,6 +149,9 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "Useangle", &Useangle, Useangle);
+	ReadInteger(file, section, "Angle", &Angle, Angle);
+	
 	ReadKeyword(file, section, "UseProjVelocity", &UseParentVelocityForSpread, UseParentVelocityForSpread);
 	
 	ReadInteger(file, section, "Amount", &Amount, Amount);
