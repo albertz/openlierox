@@ -48,10 +48,9 @@ static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 // Projectile structure
 struct proj_t {
-	proj_t() : id(0), bmpImage(NULL), smpSample(NULL) {}
+	proj_t() : bmpImage(NULL), smpSample(NULL) {}
 	
 	std::string	filename;		// Compiler use (was 64b before)
-	int		id;					// File ref use
 	
 	Proj_Type Type;
 	Proj_Trail Trail;
