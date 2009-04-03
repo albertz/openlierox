@@ -17,6 +17,7 @@
 #include "Options.h"
 #include "LieroX.h"
 #include "CWorm.h"
+#include "WeaponDesc.h"
 #include "CClient.h"
 #include "CGameScript.h"
 #include "Debug.h"
