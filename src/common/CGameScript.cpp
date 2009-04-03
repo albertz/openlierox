@@ -1458,19 +1458,16 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
 		  proj->Tch.Projectiles) {
-		ReadKeyword(file,"Projectile","Useangle",&proj->GeneralSpawnInfo.Useangle,false);
-		ReadInteger(file,"Projectile","Angle",&proj->GeneralSpawnInfo.Angle,0);
 		
-		ReadInteger(file,"Projectile","Amount",&proj->GeneralSpawnInfo.Amount,0);
-		ReadInteger(file,"Projectile","Speed",&proj->GeneralSpawnInfo.Speed,0);
-		ReadFloat(file,"Projectile","SpeedVar",&proj->GeneralSpawnInfo.SpeedVar,0);
-		ReadFloat(file,"Projectile","Spread",&proj->GeneralSpawnInfo.Spread,0);
-
+		std::string prjfile = proj->GeneralSpawnInfo.readFromIni(file, "Projectile");
+		
+		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
+			warnings << "UseProjVelocity is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
+		}
+		
 		// Load the projectile
-		std::string prjfile;
-		ReadString(file,"Projectile","Projectile",prjfile,"");
-
-		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir,prjfile);
+		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir, prjfile);
 	}
 
 
@@ -1478,18 +1475,24 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
 
-		ReadKeyword(file, "ProjectileTrail", "UseProjVelocity", &proj->Trail.Proj.UseParentVelocityForSpread, false);
+		// we have some other default values here
+		proj->Trail.Proj.Amount = 1;
+		proj->Trail.Proj.Speed = 100;
 		
-		ReadInteger(file, "ProjectileTrail", "Amount", &proj->Trail.Proj.Amount, 1);
-		ReadInteger(file, "ProjectileTrail", "Speed",  &proj->Trail.Proj.Speed, 100);
-		ReadFloat(file, "ProjectileTrail", "SpeedVar",  &proj->Trail.Proj.SpeedVar, 0);
-		ReadFloat(file, "ProjectileTrail", "Spread", &proj->Trail.Proj.Spread, 0);
-
+		std::string prjfile = proj->Trail.Proj.readFromIni(file, "ProjectileTrail");
+		
+		if(proj->Trail.Proj.Useangle) {
+			warnings << "Useangle is set in ProjectileTrail-section; this was not supported in LX56 thus we ignore it" << endl;
+			proj->Trail.Proj.Useangle = false;
+		}
+		
+		if(proj->Trail.Proj.Angle != 0) {
+			warnings << "Angle is set in ProjectileTrail-section; this was not supported in LX56 thus we ignore it" << endl;
+			proj->Trail.Proj.Useangle = false;
+		}
+		
 		// Load the projectile
-		std::string prjfile;
-		ReadString(file, "ProjectileTrail", "Projectile", prjfile, "");
-
-		proj->Trail.Proj.Proj = CompileProjectile(dir,prjfile);
+		proj->Trail.Proj.Proj = CompileProjectile(dir, prjfile);
 	}
 
 	return proj;

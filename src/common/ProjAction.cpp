@@ -14,6 +14,7 @@
 #include "CClient.h"
 #include "ProjectileDesc.h"
 #include "Physics.h"
+#include "ConfigHandler.h"
 
 int Proj_SpawnParent::ownerWorm() const {
 	switch(type) {
@@ -146,3 +147,18 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	}
 	
 }
+
+std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "UseProjVelocity", &UseParentVelocityForSpread, UseParentVelocityForSpread);
+	
+	ReadInteger(file, section, "Amount", &Amount, Amount);
+	ReadInteger(file, section, "Speed",  &Speed, Speed);
+	ReadFloat(file, section, "SpeedVar",  &SpeedVar, SpeedVar);
+	ReadFloat(file, section, "Spread", &Spread, Spread);
+
+	std::string prjfile;
+	ReadString(file, section, "Projectile", prjfile, "");
+	return prjfile;
+}
+
+

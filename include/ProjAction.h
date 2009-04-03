@@ -76,6 +76,9 @@ struct Proj_SpawnInfo {
 	
 	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
 	bool isSet() const { return Proj != NULL; }
+	
+	// returns projectile filename (used in CGameScript::compile*)
+	std::string readFromIni(const std::string& file, const std::string& section);
 };
 
 
