@@ -318,6 +318,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
        proj->Tch.Projectiles) {
 		fwrite_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
 		fwrite_endian_compat((proj->GeneralSpawnInfo.Angle),	sizeof(int),	1, fp);
+		
 		fwrite_endian_compat((proj->GeneralSpawnInfo.Amount),	sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->GeneralSpawnInfo.Spread),	sizeof(float),	1, fp);
 		fwrite_endian_compat((proj->GeneralSpawnInfo.Speed),	sizeof(int),	1, fp);
@@ -326,12 +327,21 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		SaveProjectile(proj->GeneralSpawnInfo.Proj,fp);
 	}
 
+	if(Header.Version > GS_LX56_VERSION) {
+		fwrite_endian<char>(fp, proj->Timer.Proj.isSet());
+		if(proj->Timer.Proj.isSet()) proj->Timer.Proj.write(this, fp);
+		fwrite_endian<char>(fp, proj->Hit.Proj.isSet());
+		if(proj->Hit.Proj.isSet()) proj->Hit.Proj.write(this, fp);
+		fwrite_endian<char>(fp, proj->PlyHit.Proj.isSet());
+		if(proj->PlyHit.Proj.isSet()) proj->PlyHit.Proj.write(this, fp);		
+	}
 
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
 		fwrite_endian<int>(fp, proj->Trail.Proj.UseParentVelocityForSpread);
 		fwrite_endian_compat((proj->Trail.Delay*1000.0f),				sizeof(float),	1, fp);
+	
 		fwrite_endian_compat((proj->Trail.Proj.Amount),			sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->Trail.Proj.Speed),				sizeof(int),	1, fp);
 		fwrite_endian_compat((proj->Trail.Proj.SpeedVar),			sizeof(float),	1, fp);
@@ -787,6 +797,21 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
 	}
 
+	if(Header.Version > GS_LX56_VERSION) {
+		{
+			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
+			if(projIsSet) proj->Timer.Proj.read(this, fp);
+		}
+		{
+			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
+			if(projIsSet) proj->Hit.Proj.read(this, fp);	
+		}
+		{
+			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
+			if(projIsSet) proj->PlyHit.Proj.read(this, fp);
+		}
+	}
+	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
@@ -1508,7 +1533,21 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir, prjfile);
 	}
 
-
+	// { new since OLX beta9
+	if(proj->Timer.Projectiles) {
+		std::string prjfile = proj->Timer.Proj.readFromIni(file, "ProjectileTimer");
+		if(prjfile != "") proj->Timer.Proj.Proj = CompileProjectile(dir, prjfile);
+	}		
+	if(proj->Hit.Projectiles) {
+		std::string prjfile = proj->Hit.Proj.readFromIni(file, "ProjectileHit");
+		if(prjfile != "") proj->Hit.Proj.Proj = CompileProjectile(dir, prjfile);
+	}		
+	if(proj->PlyHit.Projectiles) {
+		std::string prjfile = proj->PlyHit.Proj.readFromIni(file, "ProjectilePlyHit");
+		if(prjfile != "") proj->PlyHit.Proj.Proj = CompileProjectile(dir, prjfile);
+	}	
+	// }
+	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;

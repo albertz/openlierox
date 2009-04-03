@@ -80,11 +80,12 @@ struct gs_worm_t {
 
 struct weapon_t;
 struct proj_t;
-
+struct Proj_SpawnInfo;
 
 
 
 class CGameScript {
+	friend struct Proj_SpawnInfo;
 public:
 	// Constructor
 	CGameScript() {

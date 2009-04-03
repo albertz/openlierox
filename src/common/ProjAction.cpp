@@ -15,6 +15,7 @@
 #include "ProjectileDesc.h"
 #include "Physics.h"
 #include "ConfigHandler.h"
+#include "EndianSwap.h"
 
 int Proj_SpawnParent::ownerWorm() const {
 	switch(type) {
@@ -164,4 +165,24 @@ std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::stri
 	return prjfile;
 }
 
+bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
+	fread_endian<char>(fp, Useangle);
+	fread_endian<int>(fp, Angle);
+	fread_endian<int>(fp, Amount);
+	fread_endian<int>(fp, Speed);
+	fread_endian<float>(fp, SpeedVar);
+	fread_endian<float>(fp, Spread);
+	Proj = gs->LoadProjectile(fp);
+	return Proj != NULL;
+}
+
+bool Proj_SpawnInfo::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<char>(fp, Useangle);
+	fwrite_endian<int>(fp, Angle);
+	fwrite_endian<int>(fp, Amount);
+	fwrite_endian<int>(fp, Speed);
+	fwrite_endian<float>(fp, SpeedVar);
+	fwrite_endian<float>(fp, Spread);
+	return gs->SaveProjectile(Proj, fp);
+}
 

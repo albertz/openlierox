@@ -79,6 +79,9 @@ struct Proj_SpawnInfo {
 	
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
+	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
 };
 
 
