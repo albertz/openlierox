@@ -13,8 +13,6 @@ ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
-# If you modify dedicated_control Python will write errors here
-ERROR_FILE = "dedicated_control_errors.log"
 
 MIN_PLAYERS = 2
 MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players

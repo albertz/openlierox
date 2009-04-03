@@ -14,11 +14,6 @@ import traceback
 
 import dedicated_config as cfg # Per-host config like admin password
 
-# Print Python script errors to external file -
-# on Windows it cannot print errors to console
-if sys.platform == "win32":
-	sys.stderr = open(cfg.ERROR_FILE, "w", 0)
-
 import dedicated_control_io as io
 setvar = io.setvar
 formatExceptionInfo = io.formatExceptionInfo
