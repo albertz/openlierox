@@ -14,6 +14,11 @@
 #include <cstdio>
 #include "StaticAssert.h"
 
+#ifdef _MSC_VER
+// there is no way for MSVC to cast int->bool without a warning
+#pragma warning(disable: 4800)
+#endif
+
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
 inline static void ByteSwap(unsigned char * b, int n) {
@@ -84,9 +89,7 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	T data;
 	size_t ret = fread(&data, sizeof(T), 1, stream);
 	EndianSwap(data);
-#pragma warning(disable: 4800)
 	if(ret > 0) d = (_D)data;
-#pragma warning(default: 4800)
 	return ret;
 }
 
