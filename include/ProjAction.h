@@ -153,6 +153,8 @@ struct Proj_Action {
 	//  --------- LX56 (terrain hit) end ----------
 	
 	Proj_SpawnInfo Proj;
+	
+	
 };
 
 struct Proj_Timer : Proj_Action {

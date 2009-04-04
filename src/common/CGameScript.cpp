@@ -333,12 +333,18 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fwrite_endian<char>(fp, proj->Timer.Proj.isSet());
-		if(proj->Timer.Proj.isSet()) proj->Timer.Proj.write(this, fp);
-		fwrite_endian<char>(fp, proj->Hit.Proj.isSet());
-		if(proj->Hit.Proj.isSet()) proj->Hit.Proj.write(this, fp);
-		fwrite_endian<char>(fp, proj->PlyHit.Proj.isSet());
-		if(proj->PlyHit.Proj.isSet()) proj->PlyHit.Proj.write(this, fp);		
+		if(proj->Timer.Projectiles) {
+			fwrite_endian<char>(fp, proj->Timer.Proj.isSet());
+			if(proj->Timer.Proj.isSet()) proj->Timer.Proj.write(this, fp);
+		}
+		if(proj->Hit.Projectiles) {
+			fwrite_endian<char>(fp, proj->Hit.Proj.isSet());
+			if(proj->Hit.Proj.isSet()) proj->Hit.Proj.write(this, fp);
+		}
+		if(proj->PlyHit.Projectiles) {
+			fwrite_endian<char>(fp, proj->PlyHit.Proj.isSet());
+			if(proj->PlyHit.Proj.isSet()) proj->PlyHit.Proj.write(this, fp);		
+		}
 	}
 
 	// Projectile trail
@@ -814,15 +820,15 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
-		{
+		if(proj->Timer.Projectiles) {
 			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
 			if(projIsSet) proj->Timer.Proj.read(this, fp);
 		}
-		{
+		if(proj->Hit.Projectiles) {
 			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
 			if(projIsSet) proj->Hit.Proj.read(this, fp);	
 		}
-		{
+		if(proj->PlyHit.Projectiles) {
 			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
 			if(projIsSet) proj->PlyHit.Proj.read(this, fp);
 		}
