@@ -39,5 +39,12 @@ T& randomChoiceFrom(std::vector<T>& data) {
 	return data[i];
 }
 
+template <typename T>
+int highestBit(T d) {
+	for(int i = sizeof(T) * 8 - 1; i >= 0; --i)
+		if((1 << i) <= d) return i + 1;
+	return 0;
+}
+
 #endif
 

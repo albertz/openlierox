@@ -32,6 +32,7 @@
 #include "StringUtils.h"
 #include "AuxLib.h"
 #include "PixelFunctors.h"
+#include "Utils.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -1251,7 +1252,8 @@ void BeamPutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 alp
 }
 
 void BeamPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
-	BeamPutPixelA(bmpDest, x, y, colour, 255); }
+	BeamPutPixelA(bmpDest, x, y, colour, 255);
+}
 
 
 int laseralt = 0;
@@ -1285,13 +1287,15 @@ void LaserSightPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour)
 ////////////////////
 // Perform a line draw using a put pixel callback
 // Grabbed from allegro
-inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface * , int, int, Uint32))
+inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32, Uint8))
 {
-   int dx = x2-x1;
-   int dy = y2-y1;
-   int i1, i2;
-   int x, y;
-   int dd;
+	int dx = x2-x1;
+	int dy = y2-y1;
+	int i1, i2;
+	int x, y;
+	int dd;
+	
+	Uint32 d = col.get(bmp->format);
 
    LOCK_OR_QUIT(bmp);
 
@@ -1299,7 +1303,7 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int 
    #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
    {                                                                         \
       if (d##pri_c == 0) {                                                   \
-		 proc(bmp, x1, y1, d);                                               \
+		 proc(bmp, x1, y1, d, col.a);                                               \
 		 return;                                                             \
       }                                                                      \
 									     \
@@ -1311,7 +1315,7 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int 
       y = y1;                                                                \
 									     \
       while (pri_c pri_cond pri_c##2) {                                      \
-		 proc(bmp, x, y, d);                                                 \
+		 proc(bmp, x, y, d, col.a);                                                 \
 										 \
 		 if (dd sec_cond 0) {                                                \
 			sec_c sec_sign##= 1;                                             \
@@ -1369,16 +1373,118 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, int 
       }
    }
 
+#undef DO_LINE
+	
    UnlockSurface(bmp);
 }
 
+inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32))
+{
+	int dx = x2-x1;
+	int dy = y2-y1;
+	int i1, i2;
+	int x, y;
+	int dd;
+	
+	Uint32 d = col.get(bmp->format);
+	
+	LOCK_OR_QUIT(bmp);
+	
+	/* worker macro */
+	#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
+	{                                                                         \
+	if (d##pri_c == 0) {                                                   \
+	proc(bmp, x1, y1, d);                                               \
+	return;                                                             \
+	}                                                                      \
+	\
+	i1 = 2 * d##sec_c;                                                     \
+	dd = i1 - (sec_sign (pri_sign d##pri_c));                              \
+	i2 = dd - (sec_sign (pri_sign d##pri_c));                              \
+	\
+	x = x1;                                                                \
+	y = y1;                                                                \
+	\
+	while (pri_c pri_cond pri_c##2) {                                      \
+	proc(bmp, x, y, d);                                                 \
+	\
+	if (dd sec_cond 0) {                                                \
+	sec_c sec_sign##= 1;                                             \
+	dd += i2;                                                        \
+	}                                                                   \
+	else                                                                \
+	dd += i1;                                                        \
+	\
+	pri_c pri_sign##= 1;                                                \
+	}                                                                      \
+	}
+		
+	if (dx >= 0) {
+		if (dy >= 0) {
+			if (dx >= dy) {
+				/* (x1 <= x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, +, y, >=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, +, x, >=);
+			}
+		}
+		else {
+			if (dx >= -dy) {
+				/* (x1 <= x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, -, y, <=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, +, x, >=);
+			}
+		}
+	}
+	else {
+		if (dy >= 0) {
+			if (-dx >= dy) {
+				/* (x1 > x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, +, y, >=);
+			}
+			else {
+				/* (x1 > x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, -, x, <=);
+			}
+		}
+		else {
+			if (-dx >= -dy) {
+				/* (x1 > x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, -, y, <=);
+			}
+			else {
+				/* (x1 > x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, -, x, <=);
+			}
+		}
+	}
+	
+	#undef DO_LINE
+	
+	UnlockSurface(bmp);
+}
+
+
+
+inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8)) {
+	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
+		return;
+
+	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
+}
 
 inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
-
-	perform_line(bmpDest, x1, y1, x2, y2, color.get(bmpDest->format), proc);
+	
+	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
 }
+
 
 ////////////////////////
 // Draw horizontal line
@@ -1506,7 +1612,7 @@ void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour) {
 ///////////////////
 // Line drawing
 void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color) {
-	secure_perform_line(dst, x1, y1, x2, y2, color.get(dst->format), PutPixel);
+	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixelA);
 }
 
 //////////////////
@@ -1554,14 +1660,15 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color co
 	int dx = (x2 - x1);
 	int dy = (y2 - y1);
 	int k;
-	int distance;
-
+	Uint16 distance;
+	Uint8 alpha = color.a;
+	color.a = SDL_ALPHA_OPAQUE;
 	LOCK_OR_QUIT(dst);
 
 	Uint32 packed_c = color.get(dst->format);
 
 	// Set start pixel
-	proc(dst, x1, y1, packed_c, 255);
+	proc(dst, x1, y1, packed_c, alpha);
 
 	// X-dominant line
 	if (abs(dx) > abs(dy))
@@ -1587,8 +1694,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color co
 		distance = 0;
 		for (xs = x1 + 1; xs < x2; ++xs)
 		{
-			proc(dst, xs, yt / 256, packed_c, (Uint8) (255 - distance));
-			proc(dst, xs, yt / 256 + 1, packed_c, (Uint8) distance);
+			proc(dst, xs, yt / 256, packed_c, (Uint8) ((255 - distance) * alpha / 255));
+			proc(dst, xs, yt / 256 + 1, packed_c, (Uint8) (distance * alpha / 255));
 
 			yt += k;
 			distance = yt & 255; // Same as: yt % 256
@@ -1618,8 +1725,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Color co
 		distance = 0;
 		for (ys=y1+1; ys<y2; ++ys)
 		{
-			proc(dst, xt / 256, ys, packed_c, (Uint8) (255 - distance));
-			proc(dst, xt / 256 + 1, ys, packed_c, (Uint8) distance);
+			proc(dst, xt / 256, ys, packed_c, (Uint8) ((255 - distance) * alpha / 255));
+			proc(dst, xt / 256 + 1, ys, packed_c, (Uint8) (distance * alpha / 255));
 
 			xt += k;
 			distance = xt & 255;  // Same as: xt % 256
@@ -1748,8 +1855,12 @@ void DrawBeam(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
-	else
-		perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), BeamPutPixel);
+	else {
+		if(color.a != SDL_ALPHA_OPAQUE)
+			perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
+		else
+			perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
+	}
 }
 
 
