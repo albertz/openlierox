@@ -5,13 +5,14 @@
 [General]
 Name = Laser
 Type = WPN_BEAM
-Recoil = 5
-Recharge = 6
-Drain = 3
-ROF = 1
+Recoil = 1
+Recharge = 1
+Drain = 0
+ROF = 0
 
 [Beam]
 Damage = 1
 PlayerDamage = 3
-Colour = 255,0,0
+Colour = 0,255,0,150
 Length = 999999
+
