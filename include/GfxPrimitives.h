@@ -28,6 +28,7 @@
 #include "Color.h"
 #include "SmartPointer.h"
 #include "Debug.h"
+#include "CVec.h"
 
 
 //
@@ -760,6 +761,24 @@ struct ScopedSurfaceClip {
 	~ScopedSurfaceClip() {
 		SDL_SetClipRect(surf, &oldclip);		
 	}
+};
+
+
+
+struct Line {
+	VectorD2<int> start;
+	VectorD2<int> end;
+	
+	bool isRightFrom(int x, int y) const;
+};
+
+struct Polygon {
+	typedef std::list< VectorD2<int> > Points;
+	Points points;
+	
+	bool isInside(int x, int y) const;
+	SDL_Rect minOverlayRect() const;
+	void drawFilled(SDL_Surface* s, Color col);
 };
 
 

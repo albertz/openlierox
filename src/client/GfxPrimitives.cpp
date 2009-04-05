@@ -1256,16 +1256,16 @@ void BeamPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) { // For c
 }
 
 
-int laseralt = 0;
 
 ///////////////////
 // Put a laser-sight pixel on the surface
 void LaserSightPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour)
 {
+	static int laseralt = 0;
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
 
-	if(laseralt)
+	if(laseralt != 0)
 		return;
 
 	colour = tLX->clLaserSightColors[ GetRandomInt(1) ];
@@ -1762,13 +1762,13 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color colo
 	SDL_Rect r = { x, y, x2 - x, y2 - y };
 
 	switch (color.a)  {
-	case SDL_ALPHA_OPAQUE:
-		SDL_FillRect(bmpDest,&r,color.get(bmpDest->format));
-	break;
-	case SDL_ALPHA_TRANSPARENT:
-	break;
-	default:
-		DrawRectFill_Overlay(bmpDest, r, color);
+		case SDL_ALPHA_OPAQUE:
+			SDL_FillRect(bmpDest,&r,color.get(bmpDest->format));
+			break;
+		case SDL_ALPHA_TRANSPARENT:
+			break;
+		default:
+			DrawRectFill_Overlay(bmpDest, r, color);
 	}
 }
 
@@ -1878,8 +1878,103 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 	x2 -= x2 & 1;
 	y2 -= y2 & 1;
 
-	perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), LaserSightPutPixel);
+	perform_line(bmp, x1, y1, x2, y2, color, LaserSightPutPixel);
 }
+
+
+
+bool Line::isRightFrom(int x, int y) const {
+	VectorD2<int> rel = end - start;
+	x -= start.x; y -= start.y;
+	
+	if(rel.x == 0) {
+		if(rel.y > 0) return x >= 0;
+		if(rel.y < 0) return x <= 0;
+		return false;
+	}
+	
+	if(x == 0) {
+		if(y > 0) return rel.x <= 0;
+		if(y < 0) return rel.x >= 0;
+		return false;
+	}
+	
+	if(x > 0 && rel.x > 0)
+		return rel.y * x >= y * rel.x;
+	if(x > 0 && rel.x < 0)
+		return rel.y * x <= - y * rel.x; 
+	if(x < 0 && rel.x > 0)
+		return rel.y * x <= - y * rel.x;
+	if(x < 0 && rel.x < 0)
+		return rel.y * x >= y * rel.x;
+		
+	return false;
+}
+
+bool Polygon::isInside(int x, int y) const {
+	if(points.size() <= 1) return true;
+	Points::const_iterator j = points.begin(); ++j;
+	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
+		Line l; l.start = *i; l.end = *j;
+		if(!l.isRightFrom(x, y)) {
+			//notes << x << "," << y << " failes for line " << l.start.x << endl;
+			return false;
+		}
+	}
+	//notes << x << "," << y << " ok" << endl;	
+	return true;
+}
+
+SDL_Rect Polygon::minOverlayRect() const {
+	SDL_Rect r = {0,0,0,0};
+	for(Points::const_iterator i = points.begin(); i != points.end(); ++i) {
+		if(i == points.begin()) {
+			r.x = i->x;
+			r.y = i->y;
+		}
+		else {
+			if(r.x > i->x) {
+				r.w += r.x - i->x;
+				r.x = i->x;
+			} else if(r.x + r.w < i->x) {
+				r.w = i->x - r.x;
+			}
+			if(r.y > i->y) {
+				r.h += r.y - i->y;
+				r.y = i->y;
+			} else if(r.y + r.h < i->y) {
+				r.h = i->y - r.y;
+			}
+		}
+	}
+	return r;
+}
+
+void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
+	SDL_Rect r = minOverlayRect();
+	
+	// Clipping
+	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
+		return;
+	
+	const int bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
+	int step = bmpDest->pitch - r.w * bpp;
+	
+	// Draw the fill rect
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
+	for (int y = r.h; y; --y, px += step)
+		for (int x = r.w; x; --x, px += bpp) {
+			if(isInside(r.x + x - 1, r.y + y - 1))
+				putter.put(px, bmpDest->format, col);
+		}
+}
+
+
+
+
+
+
 
 
 ////////////////////////
@@ -1925,12 +2020,12 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	} else {
 		// we haven't initialized the screen yet
 		if(!bDedicated)
-			printf("WARNING: screen not initialized yet while loading image\n");
+			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;
 		Image = img;
 	}
 
 	if(!Image.get()) {
-		printf("ERROR: LoadImgBPP: cannot create new surface\n");
+		errors << "LoadGameImage: cannot create new surface" << endl;
 		return NULL;
 	}
 
@@ -2006,7 +2101,7 @@ bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, c
 	}
 
 #ifdef DEDICATED_ONLY
-	printf("WARNING: SaveSurface: cannot use something else than BMP in dedicated-only-mode\n");
+	warnings << "SaveSurface: cannot use something else than BMP in dedicated-only-mode" << endl;
 	return false;
 
 #else
@@ -2088,7 +2183,7 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 	#endif
 
 	SDL_FreeSurface(obj);
-};
+}
 
 #ifdef DEBUG
 SDL_mutex *SmartPointer_CollMutex = NULL;
