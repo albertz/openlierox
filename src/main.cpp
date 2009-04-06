@@ -383,7 +383,7 @@ startpoint:
 						case UE_DoVideoFrame:
 							{
 								ScopedLock lock(videoFrameMutex);
-								if(!needVideoFrame) continue;
+								if(!needVideoFrame && !ev.user.data1) continue; // data1!=0 -> forceRedraw
 								needVideoFrame = false;
 								if(!videoModeReady) continue;
 								VideoPostProcessor::process();
@@ -477,11 +477,11 @@ void SetCrashHandlerReturnPoint(const char* name) {
 #endif	
 }
 
-void doVideoFrameInMainThread() {
+void doVideoFrameInMainThread(bool forceRedraw) {
 	if(bDedicated) return;
 	
 	// don't push too much events if we have not drawn yet
-	if(needVideoFrame) return;
+	if(needVideoFrame && !forceRedraw) return;
 	
 	{
 		// wait for current drawing
@@ -493,6 +493,7 @@ void doVideoFrameInMainThread() {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_DoVideoFrame;
+	ev.user.data1 = forceRedraw ? (void*)1 : NULL;
 	if(SDL_PushEvent(&ev) != 0) {
 		warnings << "failed to push videoframeevent" << endl;
 	}
@@ -591,7 +592,7 @@ static int MainLoopThread(void*) {
 			// Main frame
 			GameLoopFrame();
 			
-			doVideoFrameInMainThread();
+			doVideoFrameInMainThread(false);
 			CapFPS();
 		}
 		
