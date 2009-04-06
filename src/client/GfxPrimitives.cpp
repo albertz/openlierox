@@ -39,6 +39,7 @@ int iSurfaceFormat = SDL_SWSURFACE;
 
 
 // Used in various alpha-blending routines, internal
+// TODO: remove this and use Color struct
 struct RGBA  {
 	Uint8 r, g, b, a;
 };
@@ -1888,25 +1889,25 @@ bool Line::isRightFrom(int x, int y) const {
 	x -= start.x; y -= start.y;
 	
 	if(rel.x == 0) {
-		if(rel.y > 0) return x >= 0;
-		if(rel.y < 0) return x <= 0;
+		if(rel.y < 0) return x > 0;
+		if(rel.y > 0) return x < 0;
 		return false;
 	}
 	
 	if(x == 0) {
-		if(y > 0) return rel.x <= 0;
-		if(y < 0) return rel.x >= 0;
+		if(y < 0) return rel.x < 0;
+		if(y > 0) return rel.x > 0;
 		return false;
 	}
 	
 	if(x > 0 && rel.x > 0)
-		return rel.y * x >= y * rel.x;
+		return rel.y * x < y * rel.x;
 	if(x > 0 && rel.x < 0)
-		return rel.y * x <= - y * rel.x; 
+		return rel.y * x < y * rel.x; 
 	if(x < 0 && rel.x > 0)
-		return rel.y * x <= - y * rel.x;
+		return rel.y * x < y * rel.x;
 	if(x < 0 && rel.x < 0)
-		return rel.y * x >= y * rel.x;
+		return rel.y * x < y * rel.x;
 		
 	return false;
 }
@@ -1916,12 +1917,8 @@ bool Polygon::isInside(int x, int y) const {
 	Points::const_iterator j = points.begin(); ++j;
 	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
 		Line l; l.start = *i; l.end = *j;
-		if(!l.isRightFrom(x, y)) {
-			//notes << x << "," << y << " failes for line " << l.start.x << endl;
-			return false;
-		}
+		if(!l.isRightFrom(x, y)) return false;
 	}
-	//notes << x << "," << y << " ok" << endl;	
 	return true;
 }
 
@@ -1952,7 +1949,7 @@ SDL_Rect Polygon::minOverlayRect() const {
 
 void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
 	SDL_Rect r = minOverlayRect();
-	
+
 	// Clipping
 	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
 		return;
@@ -1964,9 +1961,9 @@ void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
 	// Draw the fill rect
 	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int y = r.h; y; --y, px += step)
-		for (int x = r.w; x; --x, px += bpp) {
-			if(isInside(r.x + x - 1, r.y + y - 1))
+	for (int y = 0; y < r.h; ++y, px += step)
+		for (int x = 0; x < r.w; ++x, px += bpp) {
+			if(isInside(r.x + x, r.y + y))
 				putter.put(px, bmpDest->format, col);
 		}
 }

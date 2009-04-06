@@ -778,7 +778,7 @@ struct Polygon {
 	
 	bool isInside(int x, int y) const;
 	SDL_Rect minOverlayRect() const;
-	void drawFilled(SDL_Surface* s, Color col);  // TODO: either create a function DrawFilledPolygon or make all the above functions this way
+	void drawFilled(SDL_Surface* s, Color col);
 };
 
 
