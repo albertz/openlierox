@@ -673,6 +673,21 @@ void CClient::DrawBeam(CWorm *w)
 	std::vector<Line> endMarks;
 	//if(drawBeam)
 	//	endMarks.reserve(int(Slot->Weapon->Bm.InitWidth * MAX(Slot->Weapon->Bm.WidthIncrease * 10.0f, 1.0f)));
+
+	std::list<CWorm*> worms;
+	{
+		CWorm* w2 = cRemoteWorms;
+		for(short n=0;n<MAX_WORMS;n++,w2++) {
+			if(!w2->isUsed() || !w2->getAlive())
+				continue;
+			
+			// Don't check against someOwnWorm
+			if(w2->getID() == w->getID())
+				continue;
+			
+			worms.push_back(w2);
+		}
+	}
 	
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
 		{
@@ -701,7 +716,9 @@ void CClient::DrawBeam(CWorm *w)
 					// Don't draw explosion when damage is -1
 					if (Slot->Weapon->Bm.Damage != -1) {
 						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), 0, NULL);
-						int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, p);
+						int damage = Slot->Weapon->Bm.Damage;
+						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
+						int d = cMap->CarveHole(damage, p);
 						w->incrementDirtCount(d);
 					}
 					
@@ -711,19 +728,14 @@ void CClient::DrawBeam(CWorm *w)
 					continue;
 				}
 
-				CWorm* w2 = cRemoteWorms;
-				for(short n=0;n<MAX_WORMS;n++,w2++) {
-					if(!w2->isUsed() || !w2->getAlive())
-						continue;
-					
-					// Don't check against someOwnWorm
-					if(w2->getID() == w->getID())
-						continue;
-					
+				for(std::list<CWorm*>::iterator w2 = worms.begin(); w2 != worms.end(); ++w2) {					
 					static const float wormsize = 5;
-					if((p - w2->getPos()).GetLength2() < wormsize*wormsize) {
+					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
 						if (Slot->Weapon->Bm.Damage != -1)
 							SpawnEntity(ENT_EXPLOSION, 3, p+CVec(1,1), CVec(0,0), 0, NULL);
+
+						goodWidthParts[j] = false;
+						worms.erase(w2);
 						break;
 					}
 				}
@@ -1213,6 +1225,21 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	CVec orth_dir = dir.orthogonal();
 	std::vector<bool> goodWidthParts;
 	int width = 0;
+
+	std::list<CWorm*> worms;
+	{
+		CWorm* w2 = cRemoteWorms;
+		for(short n=0;n<MAX_WORMS;n++,w2++) {
+			if(!w2->isUsed() || !w2->getAlive())
+				continue;
+			
+			// Don't check against someOwnWorm
+			if(w2->getID() == shot->nWormID)
+				continue;
+			
+			worms.push_back(w2);
+		}
+	}
 	
 	for(int i=0; i<wpn->Bm.Length; ++i) {
 		{
@@ -1259,7 +1286,9 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 					// No explosion if damage is -1
 					if(wpn->Bm.Damage != -1) {
 						//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-						int d = cMap->CarveHole(wpn->Bm.Damage, p);
+						int damage = wpn->Bm.Damage;
+						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.Damage); }
+						int d = cMap->CarveHole(damage, p);
 						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
 							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
 					}
@@ -1270,19 +1299,15 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 				}
 
 				// Check if it has hit any of the worms
-				CWorm* w2 = cRemoteWorms;
-				for(short n=0;n<MAX_WORMS;n++,w2++) {
-					if(!w2->isUsed() || !w2->getAlive())
-						continue;
-
-					// Don't check against the creator (if any)
-					if(w2->getID() == shot->nWormID)
-						continue;
-
+				for(std::list<CWorm*>::iterator w2 = worms.begin(); w2 != worms.end(); ++w2) {						
 					static const float wormsize = 5;
-					if((p - w2->getPos()).GetLength2() < wormsize*wormsize) {
-						InjureWorm(w2, wpn->Bm.PlyDamage, shot->nWormID);
-						goodWidthParts[j] = false;						
+					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
+						int damage = wpn->Bm.PlyDamage;
+						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.PlyDamage); }
+						InjureWorm(*w2, damage, shot->nWormID);
+
+						goodWidthParts[j] = false;
+						worms.erase(w2);
 						break;
 					}
 				}

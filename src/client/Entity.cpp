@@ -115,6 +115,7 @@ void SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std:
 	drawBeamInfos[worm].frame = 0;
 	drawBeamInfos[worm].isUsed = true;
 	drawBeamInfos[worm].col = col;
+	drawBeamInfos[worm].hasWidth = true;
 	drawBeamInfos[worm].p.doReloadLines = false;
 	drawBeamInfos[worm].p.points.clear();
 	drawBeamInfos[worm].p.points.push_back( startLine.start );
@@ -126,8 +127,6 @@ void SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std:
 	drawBeamInfos[worm].p.lines.push_back( Line(startLine.end, endLine.start) );
 	drawBeamInfos[worm].p.lines.push_back( endLine );
 	drawBeamInfos[worm].p.lines.push_back( Line(endLine.end, startLine.start) );
-	
-	drawBeamInfos[worm].hasWidth = true;
 }
 
 void SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos) {
@@ -139,9 +138,9 @@ void SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int
 	drawBeamInfos[worm].frame = 0;
 	drawBeamInfos[worm].isUsed = true;
 	drawBeamInfos[worm].col = col;
+	drawBeamInfos[worm].hasWidth = false;
 	drawBeamInfos[worm].startPos = startPos;
 	drawBeamInfos[worm].endPos = endPos;
-	drawBeamInfos[worm].hasWidth = false;
 }
 
 static void simulateDrawBeams() {
