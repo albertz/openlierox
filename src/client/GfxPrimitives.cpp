@@ -1962,6 +1962,7 @@ void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
 	int step = bmpDest->pitch - r.w * bpp;
 	
 	// Draw the fill rect
+	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 	for (int y = r.h; y; --y, px += step)
 		for (int x = r.w; x; --x, px += bpp) {
