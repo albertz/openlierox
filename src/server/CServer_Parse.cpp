@@ -510,12 +510,15 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 		
 		return;
 	}
-	stringlwr(cmdStart[0]);
+	std::string match;
+	if(cmdStart.size() >= 1)
+		match = cmdStart[0];
+	stringlwr(match);
 	
 	for (uint i=0; tKnownCommands[i].tProcFunc != NULL; ++i) {
-		if(subStrEqual(cmdStart[0], tKnownCommands[i].sName, cmdStart[0].size()))
+		if(subStrEqual(match, tKnownCommands[i].sName, match.size()))
 			possibilities.push_back(tKnownCommands[i].sName);
-		else if(subStrEqual(cmdStart[0], tKnownCommands[i].sAlias, cmdStart[0].size()))
+		else if(subStrEqual(match, tKnownCommands[i].sAlias, match.size()))
 			possibilities.push_back(tKnownCommands[i].sAlias);
 	}
 	

@@ -55,6 +55,7 @@ struct KeyState_t
 	KeyState_t operator ^ ( const KeyState_t & k ) const;	// xor
 	KeyState_t operator ~ () const;	// not
 	int getFirstPressedKey() const; // Returns idx of first pressed key, or -1
+	int getBitmask() const;
 };
 
 // Random number implementation

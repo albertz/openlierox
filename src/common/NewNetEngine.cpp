@@ -235,7 +235,6 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 
 void StartRound( unsigned randomSeed )
 {
-			hints << "NewNet::StartRound() random " << randomSeed << endl;
 			OlxTimeDiffMs = tLX->currentTime;
 				
 			cClient->fLastSimulationTime = 0;
@@ -282,7 +281,6 @@ void StartRound( unsigned randomSeed )
 
 void EndRound()
 {
-	hints << "NewNet::EndRound()" << endl;
 	RestoreState();
 	cClient->getMap()->NewNet_Deinit();
 	delete [] SavedWormState;
@@ -323,7 +321,6 @@ bool Frame( CBytestream * bs )
 	return ret;
 };
 
-
 void ReCalculateSavedState()
 {
 	if( CurrentTimeMs < ReCalculationTimeMs + ReCalculationMinimumTimeMs || ! ReCalculationNeeded )
@@ -338,15 +335,13 @@ void ReCalculateSavedState()
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
-	//printf("ReCalculate(): BackupTime %i timeMin %i CurrentTimeMs %i\n", (int)BackupTime.time, (int)timeMin.time, (int)CurrentTimeMs.time );
-	if( BackupTime /* + DrawDelayMs */ + TimeDiff(TICK_TIME) >= timeMin )
+	if( BackupTime + TimeDiff(TICK_TIME) >= timeMin )
 		return;
 
 	QuickDirtyCalculation = false;
-	if( CurrentTimeMs != BackupTime )	// Last recalc time
-		RestoreState();
+	RestoreState();
 
-	while( BackupTime /* + DrawDelayMs */ + TimeDiff(TICK_TIME) < timeMin )
+	while( BackupTime + TimeDiff(TICK_TIME) < timeMin )
 	{
 		BackupTime += TimeDiff(TICK_TIME);
 		CurrentTimeMs = BackupTime;
@@ -361,7 +356,14 @@ void ReCalculateSavedState()
 		{
 			Checksum = checksum;
 			ChecksumTime = CurrentTimeMs;
-			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << Checksum << endl;
+			int KeysCheck = 0;
+			for( int f=0; f < MAX_WORMS; f++ )
+			{
+				for( EventList_t::iterator it = Events[f].begin(); it != Events[f].end(); it++ )
+					if( it->first <= ChecksumTime )
+						KeysCheck += (it->second.keys.getBitmask() + it->second.keysChanged.getBitmask() * 0x1000) * ( f % 4 + 1 );
+			}
+			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << Checksum << " Keys check " << KeysCheck << endl;
 		};
 	};
 
@@ -384,8 +386,6 @@ void ReCalculateSavedState()
 void CalculateCurrentState( AbsTime localTime )
 {
 	ReCalculateSavedState();
-
-	//printf("Draw() time %lu oldtime %lu\n", localTime / TICK_TIME , CurrentTimeMs / TICK_TIME );
 
 	while( CurrentTimeMs < localTime /*- DrawDelayMs*/ )
 	{
@@ -433,14 +433,12 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 // Draw() should be called after this func
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
-	//printf("SendNetPacket() time %lu\n", localTime);
 	if( keys == OldKeys[ LocalPlayer ] &&
 		localTime < LastPacketTime[ LocalPlayer ] + PingTimeMs ) // Do not flood the net with non-changed keys
 		return false;
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
-	//printf("SendNetPacket() put keys in time %lu\n", localTime);
 	bs->writeInt( (int)localTime.time, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 	int changedKeyIdx = changedKeys.getFirstPressedKey();
 	if( changedKeyIdx == -1 )
@@ -607,6 +605,15 @@ void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state)
 		return -1;
 	}
 
+	int KeyState_t::getBitmask() const
+	{
+		int b = 0;
+		for( int i=0; i<K_MAX; i++ )
+			if( keys[i] )
+				b |= 1 << i;
+		return b;
+	}
+	
 	unsigned NetSyncedRandom::getSeed()
 	{
 		return (~(unsigned)time(NULL)) + SDL_GetTicks();
