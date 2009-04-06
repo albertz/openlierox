@@ -661,7 +661,7 @@ void CClient::DrawBeam(CWorm *w)
 	int i;
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
 		{
-			uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+			uchar px = (pos.x <= 0 || pos.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 			if((px & PX_DIRT) || (px & PX_ROCK)) {
 				// Don't draw explosion when damage is -1
