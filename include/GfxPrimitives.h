@@ -770,6 +770,9 @@ struct Line {
 	VectorD2<int> end;
 	
 	bool isRightFrom(int x, int y) const;
+	bool isParallel(int x, int y) const;
+	bool isBeforeStart(int x, int y) const;
+	bool isAfterEnd(int x, int y) const;
 };
 
 struct Polygon {
@@ -780,6 +783,9 @@ struct Polygon {
 	SDL_Rect minOverlayRect() const;
 	void drawFilled(SDL_Surface* s, Color col);
 };
+
+void TestPolygonDrawing(SDL_Surface* s);
+
 
 
 #endif  //  __GFXPRIMITIVES_H__

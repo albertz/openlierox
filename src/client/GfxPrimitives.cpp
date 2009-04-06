@@ -1887,37 +1887,32 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 bool Line::isRightFrom(int x, int y) const {
 	VectorD2<int> rel = end - start;
 	x -= start.x; y -= start.y;
-	
-	if(rel.x == 0) {
-		if(rel.y < 0) return x >= 0;
-		if(rel.y > 0) return x <= 0;
-		return false;
-	}
-	
-	if(x == 0) {
-		if(y < 0) return rel.x <= 0;
-		if(y > 0) return rel.x >= 0;
-		return false;
-	}
-	
-	if(x > 0 && rel.x > 0)
-		return rel.y * x <= y * rel.x;
-	if(x > 0 && rel.x < 0)
-		return rel.y * x <= y * rel.x; 
-	if(x < 0 && rel.x > 0)
-		return rel.y * x <= y * rel.x;
-	if(x < 0 && rel.x < 0)
-		return rel.y * x <= y * rel.x;
-		
-	return false;
+	return rel.y * x <= y * rel.x;
 }
+
+bool Line::isBeforeStart(int x, int y) const {
+	VectorD2<int> rel = end - start;
+	x -= start.x; y -= start.y;
+	return rel.x * x + rel.y * y < 0;
+}
+
+bool Line::isAfterEnd(int x, int y) const {
+	VectorD2<int> rel = start - end;
+	x -= end.x; y -= end.y;
+	return rel.x * x + rel.y * y < 0;	
+}
+
+bool Line::isParallel(int x, int y) const {
+	return !isBeforeStart(x,y) && !isAfterEnd(x,y);
+}
+
 
 bool Polygon::isInside(int x, int y) const {
 	if(points.size() <= 1) return true;
 	Points::const_iterator j = points.begin(); ++j;
 	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
 		Line l; l.start = *i; l.end = *j;
-		if(!l.isRightFrom(x, y)) return false;
+		if(!l.isRightFrom(x, y) && l.isParallel(x, y)) return false;
 	}
 	return true;
 }
@@ -1968,6 +1963,30 @@ void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
 		}
 }
 
+
+
+void TestPolygonDrawing(SDL_Surface* s) {
+	Polygon p;
+	/*
+	p.points.push_back( VectorD2<int>(10, 10) );
+	p.points.push_back( VectorD2<int>(100, 20) );
+	p.points.push_back( VectorD2<int>(90, 100) );
+	p.points.push_back( VectorD2<int>(10, 10) );
+	 */
+
+	p.points.push_back( VectorD2<int>(100, 0) );
+	p.points.push_back( VectorD2<int>(110, 90) );
+	p.points.push_back( VectorD2<int>(200, 100) );
+	p.points.push_back( VectorD2<int>(110, 110) );
+	p.points.push_back( VectorD2<int>(100, 200) );
+	p.points.push_back( VectorD2<int>(90, 110) );
+	p.points.push_back( VectorD2<int>(0, 100) );
+	p.points.push_back( VectorD2<int>(90, 90) );
+	p.points.push_back( VectorD2<int>(100, 0) );
+
+	
+	p.drawFilled(s, Color(0,255,0,128));
+}
 
 
 
