@@ -67,11 +67,19 @@ struct gs_special_t {
 	Uint32	Thrust;
 };
 
+class CGameScript;
+
 struct Wpn_Beam {
+	Wpn_Beam() : Damage(0), PlyDamage(0), Length(0) {}
+	
 	Color Colour;
 	int Damage;
 	int PlyDamage;
 	int Length;
+	
+	bool readFromIni(const std::string& file, const std::string& section);
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
 };
 
 struct SoundSample;
