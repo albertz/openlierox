@@ -1182,18 +1182,9 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	GetVecsFromAngle(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos;
 
-	int divisions = 1;			// How many pixels we go through each check (more = slower)
+	for(int i=0; i<wpn->Bm.Length; ++i) {
+		bool stopbeam = false;
 
-	if( wpn->Bm.Length < divisions)
-		divisions = wpn->Bm.Length;
-
-	// Make sure we have at least 1 division
-	divisions = MAX(divisions,1);
-
-	int stopbeam = false;
-	short n;
-
-	for(int i=0; i<wpn->Bm.Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Check bonus colision and destroy the bonus, if damage isn't -1
@@ -1226,7 +1217,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 		// Check if it has hit any of the worms
 		CWorm* w2 = cRemoteWorms;
-		for(n=0;n<MAX_WORMS;n++,w2++) {
+		for(short n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
@@ -1245,7 +1236,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		if(stopbeam)
 			break;
 
-		pos += dir*(float)divisions;
+		pos += dir;
 	}
 
 	// Spawn a beam entity and don't draw 255,0,255 (pink) beams
