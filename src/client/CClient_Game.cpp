@@ -658,23 +658,11 @@ void CClient::DrawBeam(CWorm *w)
 	CVec dir;
 	GetVecsFromAngle((int)Angle,&dir,NULL);
 
-	// TODO: Please explain the divisions.
-	// Why is higher divisions = slower? Seems to me that it is the opposite.
-	// If I read the code correctly, divisions is always = 1?
-	
-	int divisions = 1;			// How many pixels we go through each check (more = slower)
-
-	if( Slot->Weapon->Bm.Length < divisions)
-		divisions = Slot->Weapon->Bm.Length;
-
-	// Make sure we have at least 1 division
-	divisions = MAX(divisions,1);
-
-	int stopbeam = false;
-
 	int i;
 	CWorm *w2;
-	for(i=0; i<Slot->Weapon->Bm.Length; i+=divisions) {
+	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
+		int stopbeam = false;
+
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Don't draw explosion when damage is -1
@@ -723,7 +711,7 @@ void CClient::DrawBeam(CWorm *w)
 		if(stopbeam)
 			break;
 
-		pos += dir*(float)divisions;
+		pos += dir;
 	}
 
 	// Spawn a beam entity
