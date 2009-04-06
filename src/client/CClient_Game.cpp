@@ -660,53 +660,44 @@ void CClient::DrawBeam(CWorm *w)
 
 	int i;
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
-		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		{
+			uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
-		// Don't draw explosion when damage is -1
-		if (Slot->Weapon->Bm.Damage != -1)  {
-			if ((int)pos.x <= 0)  {
-				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				break;
-			}
-
-			if ((int)pos.y <= 0)  {
-				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				break;
-			}
-		}
-
-		if((px & PX_DIRT) || (px & PX_ROCK)) {
-			// Don't draw explosion when damage is -1
-			if (Slot->Weapon->Bm.Damage != -1)  {
-				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, pos);
-				w->incrementDirtCount(d);
-			}
-			break;
-		}
-
-		bool stopbeam = false;
-		CWorm* w2 = cRemoteWorms;
-		for(short n=0;n<MAX_WORMS;n++,w2++) {
-			if(!w2->isUsed() || !w2->getAlive())
-				continue;
-
-			// Don't check against someOwnWorm
-			if(w2->getID() == w->getID())
-				continue;
-
-			static const float wormsize = 5;
-			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				if (Slot->Weapon->Bm.Damage != -1)
-					SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
-				stopbeam = true;
+			if((px & PX_DIRT) || (px & PX_ROCK)) {
+				// Don't draw explosion when damage is -1
+				if (Slot->Weapon->Bm.Damage != -1)  {
+					SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
+					int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, pos);
+					w->incrementDirtCount(d);
+				}
 				break;
 			}
 		}
 
-		if(stopbeam)
-			break;
+		{
+			bool stopbeam = false;
+			CWorm* w2 = cRemoteWorms;
+			for(short n=0;n<MAX_WORMS;n++,w2++) {
+				if(!w2->isUsed() || !w2->getAlive())
+					continue;
 
+				// Don't check against someOwnWorm
+				if(w2->getID() == w->getID())
+					continue;
+
+				static const float wormsize = 5;
+				if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
+					if (Slot->Weapon->Bm.Damage != -1)
+						SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
+					stopbeam = true;
+					break;
+				}
+			}
+
+			if(stopbeam)
+				break;
+		}
+		
 		pos += dir;
 	}
 
