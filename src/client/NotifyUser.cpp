@@ -72,6 +72,10 @@ void x11_SetDemandsAttention( bool v ) {
 #include <windows.h>
 #endif
 
+#ifdef __APPLE__
+static NMRec notifyData;
+static NMRecPtr notePtr = &notifyData;
+#endif
 
 // Make the sound, and blink the game window (platform-dependent)
 void NotifyUserOnEvent()
@@ -84,10 +88,8 @@ void NotifyUserOnEvent()
 	PlaySoundSample(sfxGeneral.smpNotify);
 
 #if defined(__APPLE__)
-
-	NMRecPtr	notePtr;
+	
 	OSErr		err;
-	notePtr = (NMRecPtr) NewPtr ( sizeof ( NMRec ) );
 
 	notePtr->qType = nmType; // standard queue type for NM
 	notePtr->nmMark = 1;
@@ -98,7 +100,7 @@ void NotifyUserOnEvent()
 	notePtr->nmRefCon = 0; // fFatal;
 
 	err = NMInstall( notePtr );
-
+	
 #elif defined(WIN32) || defined(__MINGW32_VERSION)
 	FLASHWINFO flash;
 	flash.cbSize = sizeof(flash);
@@ -126,6 +128,7 @@ void NotifyUserOnEvent()
 void ClearUserNotify() {
 	if(bDedicated) return;
 #if defined(__APPLE__)
+	NMRemove( notePtr );	
 #elif defined(WIN32)
 #elif defined(X11)
 	x11_SetDemandsAttention(false);
