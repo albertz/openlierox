@@ -1907,7 +1907,7 @@ bool Line::isParallel(int x, int y) const {
 }
 
 
-bool Polygon::isInside(int x, int y) const {
+bool Polygon2D::isInside(int x, int y) const {
 	if(points.size() <= 1) return true;
 	Points::const_iterator j = points.begin(); ++j;
 	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
@@ -1917,7 +1917,7 @@ bool Polygon::isInside(int x, int y) const {
 	return true;
 }
 
-SDL_Rect Polygon::minOverlayRect() const {
+SDL_Rect Polygon2D::minOverlayRect() const {
 	SDL_Rect r = {0,0,0,0};
 	for(Points::const_iterator i = points.begin(); i != points.end(); ++i) {
 		if(i == points.begin()) {
@@ -1942,7 +1942,7 @@ SDL_Rect Polygon::minOverlayRect() const {
 	return r;
 }
 
-void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	SDL_Rect r = minOverlayRect();
 
 	// Clipping
@@ -1966,7 +1966,7 @@ void Polygon::drawFilled(SDL_Surface* bmpDest, Color col) {
 
 
 void TestPolygonDrawing(SDL_Surface* s) {
-	Polygon p;
+	Polygon2D p;
 	/*
 	p.points.push_back( VectorD2<int>(10, 10) );
 	p.points.push_back( VectorD2<int>(100, 20) );

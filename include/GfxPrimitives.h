@@ -775,7 +775,7 @@ struct Line {
 	bool isAfterEnd(int x, int y) const;
 };
 
-struct Polygon {
+struct Polygon2D {
 	typedef std::list< VectorD2<int> > Points;
 	Points points;
 	
