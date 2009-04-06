@@ -18,7 +18,10 @@
 #define __ENTITY_H__
 
 #include <SDL.h>
+#include <vector>
 #include "Event.h"
+#include "Color.h"
+#include "CVec.h"
 
 class CMap;
 class CViewport;
@@ -41,7 +44,7 @@ enum {
 	ENT_DOOMSDAY,
 	ENT_JETPACKSPRAY,
 	ENT_BEAM,
-	ENT_LASERSIGHT
+	ENT_LASERSIGHT,
 };
 
 
@@ -58,7 +61,7 @@ public:
 	CVec	vPos;
 	CVec	vVel;
 	int		iAngle;
-	Uint32	iColour;
+	Color	iColour;
 	float	fAnglVel;
 	int		iRotation;
 	
@@ -128,12 +131,18 @@ int		InitializeEntities();
 void	ShutdownEntities();
 void	ClearEntities();
 
-void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img);
+void	SpawnEntity(int type, int type2, CVec pos, CVec vel, Color colour, SmartPointer<SDL_Surface> img);
 void	DrawEntities(SDL_Surface * bmpDest, CViewport *v);
 void	SimulateEntities(TimeDiff dt);
 void	EntityBounce(entity_t *ent);
 
 void	NewNet_SaveEntities();
 void	NewNet_LoadEntities();
+
+struct Line;
+
+void	SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std::vector<Line>& endMarks);
+void	SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos);
+
 
 #endif  //  __ENTITY_H__

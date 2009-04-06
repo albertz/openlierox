@@ -769,19 +769,31 @@ struct Line {
 	VectorD2<int> start;
 	VectorD2<int> end;
 	
+	Line() {}
+	Line(VectorD2<int> s, VectorD2<int> e) : start(s), end(e) {}
+	
 	bool isRightFrom(int x, int y) const;
 	bool isParallel(int x, int y) const;
 	bool isBeforeStart(int x, int y) const;
 	bool isAfterEnd(int x, int y) const;
 };
 
+class CViewport;
+
 struct Polygon2D {
 	typedef std::list< VectorD2<int> > Points;
 	Points points;
+	typedef std::vector< Line > Lines;
+	Lines lines;
+	bool doReloadLines;
 	
+	Polygon2D() : doReloadLines(true) {}
+	void reloadLines();
 	bool isInside(int x, int y) const;
 	SDL_Rect minOverlayRect() const;
+	SDL_Rect minOverlayRect(CViewport* v) const;
 	void drawFilled(SDL_Surface* s, Color col);
+	void drawFilled(SDL_Surface* s, CViewport* v, Color col); // interpret as ingame coordinates and use viewport
 };
 
 void TestPolygonDrawing(SDL_Surface* s);

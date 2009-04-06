@@ -15,4 +15,7 @@ Damage = 1
 PlayerDamage = 3
 Colour = 0,255,0,150
 Length = 999999
+InitWidth = 10
+WidthIncrease = 0.5
+DistributeDamageOverWidth = true
 

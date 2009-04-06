@@ -658,56 +658,97 @@ void CClient::DrawBeam(CWorm *w)
 	CVec dir;
 	GetVecsFromAngle((int)Angle,&dir,NULL);
 
+	CVec orth_dir = dir.orthogonal();
+	
 	int i;
+	int width = 0;
+	std::vector<bool> goodWidthParts;
+	bool drawBeam = false;
+	// Don't draw the beam if it is 255,0,255
+	Color col = Slot->Weapon->Bm.Colour;
+	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
+	// If you want to make that better, you would have to give the CViewport to DrawBeam.
+	if(col.get() != tLX->clPink && w->isVisibleForEverybody())
+		drawBeam = true;
+	std::vector<Line> endMarks;
+	//if(drawBeam)
+	//	endMarks.reserve(int(Slot->Weapon->Bm.InitWidth * MAX(Slot->Weapon->Bm.WidthIncrease * 10.0f, 1.0f)));
+	
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
 		{
-			uchar px = (pos.x <= 0 || pos.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
-
-			if((px & PX_DIRT) || (px & PX_ROCK)) {
-				// Don't draw explosion when damage is -1
-				if (Slot->Weapon->Bm.Damage != -1)  {
-					SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-					int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, pos);
-					w->incrementDirtCount(d);
+			int newWidth = int(float(Slot->Weapon->Bm.InitWidth) + Slot->Weapon->Bm.WidthIncrease * i);
+			if(newWidth != width) {
+				goodWidthParts.resize(newWidth);
+				for(int j = width; j < newWidth; ++j) {
+					int old = MAX(j - 2, 0);
+					goodWidthParts[j] = (width > 0) ? goodWidthParts[old] : true;
 				}
-				break;
+				width = newWidth;
 			}
+			if(width <= 0) break;
 		}
-
+		
 		{
-			bool stopbeam = false;
-			CWorm* w2 = cRemoteWorms;
-			for(short n=0;n<MAX_WORMS;n++,w2++) {
-				if(!w2->isUsed() || !w2->getAlive())
-					continue;
+			bool stopbeam = true;
+			for(int j = 0; j < width; ++j) {
+				if(!goodWidthParts[j]) continue;
 
-				// Don't check against someOwnWorm
-				if(w2->getID() == w->getID())
-					continue;
+				int o = (j % 2 == 0) ? j/2 : -(j + 1)/2;
+				CVec p = pos + orth_dir * o;
+				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
 
-				static const float wormsize = 5;
-				if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-					if (Slot->Weapon->Bm.Damage != -1)
-						SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
-					stopbeam = true;
-					break;
+				if((px & PX_DIRT) || (px & PX_ROCK)) {
+					// Don't draw explosion when damage is -1
+					if (Slot->Weapon->Bm.Damage != -1) {
+						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), 0, NULL);
+						int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, p);
+						w->incrementDirtCount(d);
+					}
+					
+					goodWidthParts[j] = false;
+					//endMarks.push_back( Line(p + orth_dir, p - orth_dir) );
+					
+					continue;
 				}
-			}
 
-			if(stopbeam)
-				break;
+				CWorm* w2 = cRemoteWorms;
+				for(short n=0;n<MAX_WORMS;n++,w2++) {
+					if(!w2->isUsed() || !w2->getAlive())
+						continue;
+					
+					// Don't check against someOwnWorm
+					if(w2->getID() == w->getID())
+						continue;
+					
+					static const float wormsize = 5;
+					if((p - w2->getPos()).GetLength2() < wormsize*wormsize) {
+						if (Slot->Weapon->Bm.Damage != -1)
+							SpawnEntity(ENT_EXPLOSION, 3, p+CVec(1,1), CVec(0,0), 0, NULL);
+						break;
+					}
+				}
+								
+				stopbeam = false;								
+			}
+			
+			if(stopbeam) break;
 		}
 		
 		pos += dir;
 	}
 
 	// Spawn a beam entity
-	// Don't draw the beam if it is 255,0,255
-	Uint32 col = Slot->Weapon->Bm.Colour.get();
-	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
-	// If you want to make that better, you would have to give the CViewport to DrawBeam.
-	if(col != tLX->clPink && w->isVisibleForEverybody()) {
-		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
+	if(drawBeam) {
+		if(Slot->Weapon->Bm.InitWidth != 1 || Slot->Weapon->Bm.WidthIncrease != 0) {
+			Line startLine;
+			startLine.start = w->getPos() - orth_dir * Slot->Weapon->Bm.InitWidth / 2;
+			startLine.end = w->getPos() + orth_dir * Slot->Weapon->Bm.InitWidth / 2;
+			Line endLine;
+			endLine.start = pos + orth_dir * width / 2;
+			endLine.end = pos - orth_dir * width / 2;			
+			SetWormBeamEntity(w->getID(), col, startLine, endLine, endMarks);
+		} else
+			SetWormBeamEntity(w->getID(), col, w->getPos(), pos);
 	}
 }
 
@@ -1169,60 +1210,91 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	GetVecsFromAngle(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos;
 
+	CVec orth_dir = dir.orthogonal();
+	std::vector<bool> goodWidthParts;
+	int width = 0;
+	
 	for(int i=0; i<wpn->Bm.Length; ++i) {
-		bool stopbeam = false;
-
-		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
-
-		// Check bonus colision and destroy the bonus, if damage isn't -1
-		if (wpn->Bm.Damage != -1)  {
-			CBonus *b = cBonuses;
-			for(int n=0;n<MAX_BONUSES;n++,b++) {
-				if(!b->getUsed())
-					continue;
-
-				const float bonussize = 3;
-				if((pos - b->getPosition()).GetLength() < bonussize) {
-					Explosion(pos,0,5,shot->nWormID); // Destroy the bonus by an explosion
-					break;
+		{
+			int newWidth = int(float(wpn->Bm.InitWidth) + wpn->Bm.WidthIncrease * i);
+			if(newWidth != width) {
+				goodWidthParts.resize(newWidth);
+				for(int j = width; j < newWidth; ++j) {
+					int old = MAX(j - 2, 0);
+					goodWidthParts[j] = (width > 0) ? goodWidthParts[old] : true;
 				}
+				width = newWidth;
 			}
+			if(width <= 0) break;
 		}
+		
+		{
+			bool stopbeam = true;
+			for(int j = 0; j < width; ++j) {
+				if(!goodWidthParts[j]) continue;
+				
+				int o = (j % 2 == 0) ? j/2 : -(j + 1)/2;
+				CVec p = pos + orth_dir * o;
+				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
+			
+				// Check bonus colision and destroy the bonus, if damage isn't -1
+				if (wpn->Bm.Damage != -1)  {
+					CBonus *b = cBonuses;
+					for(int n=0;n<MAX_BONUSES;n++,b++) {
+						if(!b->getUsed())
+							continue;
 
-		if((px & (PX_DIRT|PX_ROCK))) {
-			// No explosion if damage is -1
-			if(wpn->Bm.Damage != -1) {
-				//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				int d = cMap->CarveHole(wpn->Bm.Damage, pos);
-				if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
-					cRemoteWorms[shot->nWormID].incrementDirtCount(d);
+						const float bonussize = 3;
+						if((p - b->getPosition()).GetLength() < bonussize) {
+							Explosion(p,0,5,shot->nWormID); // Destroy the bonus by an explosion
+							goodWidthParts[j] = false;
+							break;
+						}
+					}
+					
+					if(!goodWidthParts[j]) continue;
+				}
+
+				if((px & (PX_DIRT|PX_ROCK))) {
+					// No explosion if damage is -1
+					if(wpn->Bm.Damage != -1) {
+						//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
+						int d = cMap->CarveHole(wpn->Bm.Damage, p);
+						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
+							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
+					}
+
+					// Stop the beam regardless of explosion being shown
+					goodWidthParts[j] = false;
+					continue;
+				}
+
+				// Check if it has hit any of the worms
+				CWorm* w2 = cRemoteWorms;
+				for(short n=0;n<MAX_WORMS;n++,w2++) {
+					if(!w2->isUsed() || !w2->getAlive())
+						continue;
+
+					// Don't check against the creator (if any)
+					if(w2->getID() == shot->nWormID)
+						continue;
+
+					static const float wormsize = 5;
+					if((p - w2->getPos()).GetLength2() < wormsize*wormsize) {
+						InjureWorm(w2, wpn->Bm.PlyDamage, shot->nWormID);
+						goodWidthParts[j] = false;						
+						break;
+					}
+				}
+				
+				if(!goodWidthParts[j]) continue;
+				
+				stopbeam = false;
 			}
-
-			// Stop the beam regardless of explosion being shown
-			break;
+			
+			if(stopbeam) break;
 		}
-
-		// Check if it has hit any of the worms
-		CWorm* w2 = cRemoteWorms;
-		for(short n=0;n<MAX_WORMS;n++,w2++) {
-			if(!w2->isUsed() || !w2->getAlive())
-				continue;
-
-			// Don't check against the creator (if any)
-			if(w2->getID() == shot->nWormID)
-				continue;
-
-			static const float wormsize = 5;
-			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				InjureWorm(w2, wpn->Bm.PlyDamage, shot->nWormID);
-				stopbeam = true;
-				break;
-			}
-		}
-
-		if(stopbeam)
-			break;
-
+		
 		pos += dir;
 	}
 

@@ -33,6 +33,7 @@
 #include "AuxLib.h"
 #include "PixelFunctors.h"
 #include "Utils.h"
+#include "CViewport.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -53,6 +54,7 @@ struct RGBA  {
 /////////////////
 // Put the pixel alpha blended with the background
 // TODO: this function is now obsolete, remove it
+// TODO: why is this function obsolete? what should be used instead?
 void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
 	
@@ -1907,12 +1909,20 @@ bool Line::isParallel(int x, int y) const {
 }
 
 
-bool Polygon2D::isInside(int x, int y) const {
-	if(points.size() <= 1) return true;
+void Polygon2D::reloadLines() {
+	doReloadLines = false;
+	lines.clear();
 	Points::const_iterator j = points.begin(); ++j;
 	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
 		Line l; l.start = *i; l.end = *j;
-		if(!l.isRightFrom(x, y) && l.isParallel(x, y)) return false;
+		lines.push_back(l);
+	}
+}
+
+bool Polygon2D::isInside(int x, int y) const {
+	if(points.size() <= 1) return true;
+	for(Lines::const_iterator l = lines.begin(); l != lines.end(); ++l) {
+		if(!l->isRightFrom(x, y) && l->isParallel(x, y)) return false;
 	}
 	return true;
 }
@@ -1942,12 +1952,50 @@ SDL_Rect Polygon2D::minOverlayRect() const {
 	return r;
 }
 
+SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
+	int wx = v->GetWorldX();
+	int wy = v->GetWorldY();
+	int l = v->GetLeft();
+	int t = v->GetTop();
+
+#define Tx(x) ((x - wx) * 2 + l)
+#define Ty(y) ((y - wy) * 2 + t)
+	
+	SDL_Rect r = {0,0,0,0};
+	for(Points::const_iterator i = points.begin(); i != points.end(); ++i) {
+		if(i == points.begin()) {
+			r.x = Tx(i->x);
+			r.y = Ty(i->y);
+		}
+		else {
+			if(r.x > Tx(i->x)) {
+				r.w += r.x - Tx(i->x);
+				r.x = Tx(i->x);
+			} else if(r.x + r.w < Tx(i->x)) {
+				r.w = Tx(i->x) - r.x;
+			}
+			if(r.y > Ty(i->y)) {
+				r.h += r.y - Ty(i->y);
+				r.y = Ty(i->y);
+			} else if(r.y + r.h < Ty(i->y)) {
+				r.h = Ty(i->y) - r.y;
+			}
+		}
+	}
+
+#undef Tx
+#undef Ty	
+	return r;
+}
+
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	SDL_Rect r = minOverlayRect();
-
+	
 	// Clipping
 	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
 		return;
+
+	if(doReloadLines) reloadLines();
 	
 	const int bpp = bmpDest->format->BytesPerPixel;
 	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
@@ -1963,6 +2011,47 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 		}
 }
 
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
+	SDL_Rect r = minOverlayRect(v);
+	
+	// Clipping
+	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
+		return;
+	
+	const int bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
+	int step = bmpDest->pitch * 2 - r.w * bpp;
+	int wx = v->GetWorldX();
+	int wy = v->GetWorldY();
+	int l = v->GetLeft();
+	int t = v->GetTop();
+	
+	// transform back
+	r.x = (r.x - l) / 2 + wx;
+	r.y = (r.y - t) / 2 + wy;
+	r.w /= 2; r.h /= 2;
+	
+#define Tx(x) ((x - wx) * 2 + l)
+#define Ty(y) ((y - wy) * 2 + t)
+
+	if(doReloadLines) reloadLines();
+		
+	// Draw the fill rect
+	// TODO: use scan-line algorithm, it is faster
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
+	for (int y = 0; y < r.h; ++y, px += step)
+		for (int x = 0; x < r.w; ++x, px += bpp * 2) {
+			if(isInside(r.x + x, r.y + y)) {
+				putter.put(px, bmpDest->format, col);
+				putter.put(px + bpp, bmpDest->format, col);
+				putter.put(px + bmpDest->pitch, bmpDest->format, col);
+				putter.put(px + bmpDest->pitch + bpp, bmpDest->format, col);
+			}
+		}
+	
+#undef Tx
+#undef Ty
+}
 
 
 void TestPolygonDrawing(SDL_Surface* s) {

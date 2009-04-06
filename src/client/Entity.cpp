@@ -24,11 +24,51 @@
 #include "CViewport.h"
 #include "CMap.h"
 #include "CWorm.h"
+#include "Consts.h"
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;
-
 Uint32 doomsday[4];
+
+struct DrawBeamInfo {
+	int frame;
+	bool isUsed;
+	Color col;
+	VectorD2<int> startPos, endPos;
+	Polygon2D p;
+	bool hasWidth;
+	
+	DrawBeamInfo() : frame(0), isUsed(false) {}
+	
+	void simulate() {
+		if(!isUsed) return;
+		if(frame >= 1) { isUsed = false; return; }
+		frame++;
+	}
+	
+	void draw(SDL_Surface* dst, CViewport* v) {
+		if(!isUsed) return;
+				
+		if(!hasWidth) {
+			int wx = v->GetWorldX();
+			int wy = v->GetWorldY();
+			int l = v->GetLeft();
+			int t = v->GetTop();
+
+			int x = (startPos.x - wx) * 2 + l;
+			int y = (startPos.y - wy) * 2 + t;
+			int x2 = (endPos.x - wx) * 2 + l;
+			int y2 = (endPos.y - wy) * 2 + t;
+			DrawBeam(dst, x, y, x2, y2, col);
+		}
+		else {
+			p.drawFilled(dst, v, col);
+		}
+	}
+};
+
+DrawBeamInfo drawBeamInfos[MAX_WORMS];
+
 
 ///////////////////
 // Initialzie the entity system
@@ -59,12 +99,66 @@ void ShutdownEntities()
 void ClearEntities()
 {
 	tEntities.clear();
+	
+	for(unsigned short i = 0; i < sizeof(drawBeamInfos) / sizeof(DrawBeamInfo); ++i) {
+		drawBeamInfos[i].isUsed = false;
+	}
 }
 
 
+void SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std::vector<Line>& endMarks) {
+	if(worm < 0 || worm >= MAX_WORMS) {
+		errors << "SetWormBeamEntity: invalid worm ID: " << worm << endl;
+		return;
+	}
+
+	drawBeamInfos[worm].frame = 0;
+	drawBeamInfos[worm].isUsed = true;
+	drawBeamInfos[worm].col = col;
+	drawBeamInfos[worm].p.doReloadLines = false;
+	drawBeamInfos[worm].p.points.clear();
+	drawBeamInfos[worm].p.points.push_back( startLine.start );
+	drawBeamInfos[worm].p.points.push_back( startLine.end );
+	drawBeamInfos[worm].p.points.push_back( endLine.start );
+	drawBeamInfos[worm].p.points.push_back( endLine.end );
+	drawBeamInfos[worm].p.lines.swap(endMarks);
+	drawBeamInfos[worm].p.lines.push_back( startLine );
+	drawBeamInfos[worm].p.lines.push_back( Line(startLine.end, endLine.start) );
+	drawBeamInfos[worm].p.lines.push_back( endLine );
+	drawBeamInfos[worm].p.lines.push_back( Line(endLine.end, startLine.start) );
+	
+	drawBeamInfos[worm].hasWidth = true;
+}
+
+void SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos) {
+	if(worm < 0 || worm >= MAX_WORMS) {
+		errors << "SetWormBeamEntity: invalid worm ID: " << worm << endl;
+		return;
+	}
+	
+	drawBeamInfos[worm].frame = 0;
+	drawBeamInfos[worm].isUsed = true;
+	drawBeamInfos[worm].col = col;
+	drawBeamInfos[worm].startPos = startPos;
+	drawBeamInfos[worm].endPos = endPos;
+	drawBeamInfos[worm].hasWidth = false;
+}
+
+static void simulateDrawBeams() {
+	for(unsigned short i = 0; i < sizeof(drawBeamInfos) / sizeof(DrawBeamInfo); ++i) {
+		drawBeamInfos[i].simulate();
+	}
+}
+
+static void drawBeams(SDL_Surface * bmpDest, CViewport *v) {
+	for(unsigned short i = 0; i < sizeof(drawBeamInfos) / sizeof(DrawBeamInfo); ++i) {
+		drawBeamInfos[i].draw(bmpDest, v);
+	}
+}
+
 ///////////////////
 // Spawn an entity
-void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SmartPointer<SDL_Surface> img)
+void SpawnEntity(int type, int type2, CVec pos, CVec vel, Color colour, SmartPointer<SDL_Surface> img)
 {
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->bParticles) {
@@ -194,7 +288,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				end = ent->vPos + ent->vVel*(float)ent->iType2;
 				x2=((int)end.x-wx)*2+l;
 				y2=((int)end.y-wy)*2+t;
-				DrawBeam(bmpDest, x,y, x2,y2, Color(ent->iColour));
+				DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
 				break;
 
 			// Laser Sight
@@ -202,10 +296,12 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				end = ent->vPos + ent->vVel*(float)ent->iType2;
 				x2=((int)end.x-wx)*2+l;
 				y2=((int)end.y-wy)*2+t;
-				DrawLaserSight(bmpDest, x,y, x2,y2, Color(ent->iColour));
+				DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
 				break;
 		}
 	}
+	
+	drawBeams(bmpDest, v);
 }
 
 
@@ -258,7 +354,7 @@ void SimulateEntities(TimeDiff dt)
 							int x = (int)ent->vPos.x;
 							int y = (int)ent->vPos.y;
 							LOCK_OR_QUIT(map->GetImage());
-							PutPixel(map->GetImage().get(),x, y,ent->iColour);
+							PutPixel(map->GetImage().get(),x, y, ent->iColour.get(map->GetImage()->format));
 							UnlockSurface(map->GetImage());
 
 							x *= 2;
@@ -366,6 +462,8 @@ void SimulateEntities(TimeDiff dt)
 				break;
 		}
 	}
+	
+	simulateDrawBeams();
 }
 
 
@@ -478,4 +576,6 @@ void EntityEffect::Process()
 			break;
 
 	}
-};
+}
+
+

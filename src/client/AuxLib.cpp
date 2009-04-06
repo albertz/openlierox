@@ -676,7 +676,7 @@ VideoPostProcessor* VideoPostProcessor::instance = &voidVideoPostProcessor;
 void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
-
+	
 #ifdef REAL_OPENGL	
 	if((psScreen->flags & SDL_OPENGL))
 		glFlush();

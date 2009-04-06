@@ -1688,12 +1688,15 @@ bool Wpn_Beam::readFromIni(const std::string& file, const std::string& section) 
 	ReadInteger(file, section, "Length", &Length, Length);
 	ReadInteger(file, section, "PlayerDamage", &PlyDamage, PlyDamage);
 	ReadColour(file, section, "Colour", Colour, Colour);
+	ReadInteger(file, section, "InitWidth", &InitWidth, InitWidth);
+	ReadFloat(file, section, "WidthIncrease", &WidthIncrease, WidthIncrease);
+	ReadKeyword(file, section, "DistributeDamageOverWidth", &DistributeDamageOverWidth, DistributeDamageOverWidth);
 	return true;
 }
 
 bool Wpn_Beam::read(CGameScript* gs, FILE* fp) {
 	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
-		int r,g,b;
+		int r=0,g=0,b=0;
 		fread_endian<int>(fp, r);
 		fread_endian<int>(fp, g);
 		fread_endian<int>(fp, b);
@@ -1709,6 +1712,12 @@ bool Wpn_Beam::read(CGameScript* gs, FILE* fp) {
 	fread_endian<int>(fp, Damage);
 	fread_endian<int>(fp, PlyDamage);
 	fread_endian<int>(fp, Length);
+
+	if(gs->GetHeader()->Version > GS_LX56_VERSION) {
+		fread_endian<int>(fp, InitWidth);
+		fread_endian<float>(fp, WidthIncrease);
+		fread_endian<char>(fp, DistributeDamageOverWidth);
+	}
 	
 	return true;
 }
@@ -1729,7 +1738,13 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<int>(fp, Damage);
 	fwrite_endian<int>(fp, PlyDamage);
 	fwrite_endian<int>(fp, Length);
-		
+
+	if(gs->GetHeader()->Version > GS_LX56_VERSION) {
+		fwrite_endian<int>(fp, InitWidth);
+		fwrite_endian<float>(fp, WidthIncrease);
+		fwrite_endian<char>(fp, DistributeDamageOverWidth);
+	}
+	
 	return true;
 }
 

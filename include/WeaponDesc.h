@@ -70,12 +70,15 @@ struct gs_special_t {
 class CGameScript;
 
 struct Wpn_Beam {
-	Wpn_Beam() : Damage(0), PlyDamage(0), Length(0) {}
+	Wpn_Beam() : Damage(0), PlyDamage(0), Length(0), InitWidth(1), WidthIncrease(0.0f), DistributeDamageOverWidth(false) {}
 	
 	Color Colour;
 	int Damage;
 	int PlyDamage;
 	int Length;
+	int InitWidth; // new since beta9
+	float WidthIncrease; // new since beta9
+	bool DistributeDamageOverWidth; // new since beta9
 	
 	bool readFromIni(const std::string& file, const std::string& section);
 	bool read(CGameScript* gs, FILE* fp);
