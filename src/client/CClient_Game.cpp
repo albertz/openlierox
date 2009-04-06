@@ -659,23 +659,18 @@ void CClient::DrawBeam(CWorm *w)
 	GetVecsFromAngle((int)Angle,&dir,NULL);
 
 	int i;
-	CWorm *w2;
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
-		int stopbeam = false;
-
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Don't draw explosion when damage is -1
 		if (Slot->Weapon->Bm.Damage != -1)  {
 			if ((int)pos.x <= 0)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				stopbeam = true;
 				break;
 			}
 
 			if ((int)pos.y <= 0)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				stopbeam = true;
 				break;
 			}
 		}
@@ -690,7 +685,8 @@ void CClient::DrawBeam(CWorm *w)
 			break;
 		}
 
-		w2 = cRemoteWorms;
+		bool stopbeam = false;
+		CWorm* w2 = cRemoteWorms;
 		for(short n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
