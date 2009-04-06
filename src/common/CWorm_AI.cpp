@@ -2225,7 +2225,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		// Beam
 		if (weap->Type == WPN_BEAM)  {
 			int dist = (int)(cTrgPos - m_worm->vPos).GetLength();
-			if (bDirect && weap->Bm_Length >= dist) // Check that the beam can reach the target
+			if (bDirect && weap->Bm.Length >= dist) // Check that the beam can reach the target
 				bShoot = bAim = AI_SetAim(cTrgPos) || dist <= 25;
 			else  {
 				if (bDirect)

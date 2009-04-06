@@ -67,6 +67,12 @@ struct gs_special_t {
 	Uint32	Thrust;
 };
 
+struct Wpn_Beam {
+	Color Colour;
+	int Damage;
+	int PlyDamage;
+	int Length;
+};
 
 struct SoundSample;
 
@@ -91,11 +97,7 @@ struct weapon_t {
 	Proj_SpawnInfo Proj;
 
 	// Beam
-	Color	Bm_Colour;
-	int		Bm_Damage;
-	int		Bm_PlyDamage;
-	int		Bm_Length;
-
+	Wpn_Beam Bm;
 
 	// Special
 	gs_special_t tSpecial;

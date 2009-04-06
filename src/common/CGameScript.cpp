@@ -92,19 +92,19 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian<int>(fp, wpn->LaserSight);
 
 			if(Header.Version <= GS_LX56_VERSION) {
-				fwrite_endian_compat(((int)wpn->Bm_Colour.r), sizeof(int), 1, fp);
-				fwrite_endian_compat(((int)wpn->Bm_Colour.g), sizeof(int), 1, fp);
-				fwrite_endian_compat(((int)wpn->Bm_Colour.b), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm.Colour.r), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm.Colour.g), sizeof(int), 1, fp);
+				fwrite_endian_compat(((int)wpn->Bm.Colour.b), sizeof(int), 1, fp);
 			}
 			else {
-				fwrite_endian_compat(wpn->Bm_Colour.r, 1, 1, fp);
-				fwrite_endian_compat(wpn->Bm_Colour.g, 1, 1, fp);
-				fwrite_endian_compat(wpn->Bm_Colour.b, 1, 1, fp);
-				fwrite_endian_compat(wpn->Bm_Colour.a, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm.Colour.r, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm.Colour.g, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm.Colour.b, 1, 1, fp);
+				fwrite_endian_compat(wpn->Bm.Colour.a, 1, 1, fp);
 			}
-			fwrite_endian_compat((wpn->Bm_Damage), sizeof(int),    1, fp);
-			fwrite_endian_compat((wpn->Bm_PlyDamage), sizeof(int), 1, fp);
-			fwrite_endian_compat((wpn->Bm_Length), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Bm.Damage), sizeof(int),    1, fp);
+			fwrite_endian_compat((wpn->Bm.PlyDamage), sizeof(int), 1, fp);
+			fwrite_endian_compat((wpn->Bm.Length), sizeof(int),    1, fp);
 		}
 
 		// Projectile
@@ -494,21 +494,21 @@ int CGameScript::Load(const std::string& dir)
 				EndianSwap(r);
 				EndianSwap(g);
 				EndianSwap(b);
-				wpn->Bm_Colour = Color(r,g,b);
+				wpn->Bm.Colour = Color(r,g,b);
 			}
 			else {
-				fread_compat(wpn->Bm_Colour.r, 1,  1, fp);
-				fread_compat(wpn->Bm_Colour.g, 1,  1, fp);
-				fread_compat(wpn->Bm_Colour.b, 1,  1, fp);
-				fread_compat(wpn->Bm_Colour.a, 1,  1, fp);
+				fread_compat(wpn->Bm.Colour.r, 1,  1, fp);
+				fread_compat(wpn->Bm.Colour.g, 1,  1, fp);
+				fread_compat(wpn->Bm.Colour.b, 1,  1, fp);
+				fread_compat(wpn->Bm.Colour.a, 1,  1, fp);
 			}
 			
-			fread_compat(wpn->Bm_Damage, sizeof(int),     1, fp);
-			EndianSwap(wpn->Bm_Damage);
-			fread_compat(wpn->Bm_PlyDamage, sizeof(int),  1, fp);
-			EndianSwap(wpn->Bm_PlyDamage);
-			fread_compat(wpn->Bm_Length, sizeof(int),     1, fp);
-			EndianSwap(wpn->Bm_Length);
+			fread_compat(wpn->Bm.Damage, sizeof(int),     1, fp);
+			EndianSwap(wpn->Bm.Damage);
+			fread_compat(wpn->Bm.PlyDamage, sizeof(int),  1, fp);
+			EndianSwap(wpn->Bm.PlyDamage);
+			fread_compat(wpn->Bm.Length, sizeof(int),     1, fp);
+			EndianSwap(wpn->Bm.Length);
 		}
 
 		// Projectile
@@ -1378,10 +1378,10 @@ void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
 	if(ReadString(file,"General","Sound",Weap->SndFilename,""))
 		Weap->UseSound = true;
 
-	ReadInteger(file, "Beam", "Damage", &Weap->Bm_Damage, 0);
-	ReadInteger(file, "Beam", "Length", &Weap->Bm_Length, 0);
-	ReadInteger(file, "Beam", "PlayerDamage", &Weap->Bm_PlyDamage, 0);
-	ReadColour(file, "Beam", "Colour", Weap->Bm_Colour, Color());
+	ReadInteger(file, "Beam", "Damage", &Weap->Bm.Damage, 0);
+	ReadInteger(file, "Beam", "Length", &Weap->Bm.Length, 0);
+	ReadInteger(file, "Beam", "PlayerDamage", &Weap->Bm.PlyDamage, 0);
+	ReadColour(file, "Beam", "Colour", Weap->Bm.Colour, Color());
 }
 
 

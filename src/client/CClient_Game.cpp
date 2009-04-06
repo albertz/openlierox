@@ -660,8 +660,8 @@ void CClient::DrawBeam(CWorm *w)
 
 	int divisions = 1;			// How many pixels we go through each check (more = slower)
 
-	if( Slot->Weapon->Bm_Length < divisions)
-		divisions = Slot->Weapon->Bm_Length;
+	if( Slot->Weapon->Bm.Length < divisions)
+		divisions = Slot->Weapon->Bm.Length;
 
 	// Make sure we have at least 1 division
 	divisions = MAX(divisions,1);
@@ -670,11 +670,11 @@ void CClient::DrawBeam(CWorm *w)
 
 	int i;
 	CWorm *w2;
-	for(i=0; i<Slot->Weapon->Bm_Length; i+=divisions) {
+	for(i=0; i<Slot->Weapon->Bm.Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Don't draw explosion when damage is -1
-		if (Slot->Weapon->Bm_Damage != -1)  {
+		if (Slot->Weapon->Bm.Damage != -1)  {
 			if ((int)pos.x <= 0)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				stopbeam = true;
@@ -690,9 +690,9 @@ void CClient::DrawBeam(CWorm *w)
 
 		if((px & PX_DIRT) || (px & PX_ROCK)) {
 			// Don't draw explosion when damage is -1
-			if (Slot->Weapon->Bm_Damage != -1)  {
+			if (Slot->Weapon->Bm.Damage != -1)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				int d = cMap->CarveHole(Slot->Weapon->Bm_Damage, pos);
+				int d = cMap->CarveHole(Slot->Weapon->Bm.Damage, pos);
 				w->incrementDirtCount(d);
 			}
 			break;
@@ -709,7 +709,7 @@ void CClient::DrawBeam(CWorm *w)
 
 			static const float wormsize = 5;
 			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				if (Slot->Weapon->Bm_Damage != -1)
+				if (Slot->Weapon->Bm.Damage != -1)
 					SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
@@ -724,7 +724,7 @@ void CClient::DrawBeam(CWorm *w)
 
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
-	Uint32 col = Slot->Weapon->Bm_Colour.get();
+	Uint32 col = Slot->Weapon->Bm.Colour.get();
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to DrawBeam.
 	if(col != tLX->clPink && w->isVisibleForEverybody()) {
@@ -1192,8 +1192,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 	int divisions = 1;			// How many pixels we go through each check (more = slower)
 
-	if( wpn->Bm_Length < divisions)
-		divisions = wpn->Bm_Length;
+	if( wpn->Bm.Length < divisions)
+		divisions = wpn->Bm.Length;
 
 	// Make sure we have at least 1 division
 	divisions = MAX(divisions,1);
@@ -1201,11 +1201,11 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	int stopbeam = false;
 	short n;
 
-	for(int i=0; i<wpn->Bm_Length; i+=divisions) {
+	for(int i=0; i<wpn->Bm.Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Check bonus colision and destroy the bonus, if damage isn't -1
-		if (wpn->Bm_Damage != -1)  {
+		if (wpn->Bm.Damage != -1)  {
 			CBonus *b = cBonuses;
 			for(int n=0;n<MAX_BONUSES;n++,b++) {
 				if(!b->getUsed())
@@ -1221,9 +1221,9 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 		if((px & (PX_DIRT|PX_ROCK))) {
 			// No explosion if damage is -1
-			if(wpn->Bm_Damage != -1) {
+			if(wpn->Bm.Damage != -1) {
 				//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
-				int d = cMap->CarveHole(wpn->Bm_Damage, pos);
+				int d = cMap->CarveHole(wpn->Bm.Damage, pos);
 				if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
 					cRemoteWorms[shot->nWormID].incrementDirtCount(d);
 			}
@@ -1244,7 +1244,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 			static const float wormsize = 5;
 			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				InjureWorm(w2, wpn->Bm_PlyDamage, shot->nWormID);
+				InjureWorm(w2, wpn->Bm.PlyDamage, shot->nWormID);
 				stopbeam = true;
 				break;
 			}
@@ -1257,8 +1257,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	}
 
 	// Spawn a beam entity and don't draw 255,0,255 (pink) beams
-	/*if(wpn->Bm_Colour[0] != 255 || wpn->Bm_Colour[1] != 0 || wpn->Bm_Colour[2] != 255) {
-		Uint32 col = MakeColour(wpn->Bm_Colour[0], wpn->Bm_Colour[1], wpn->Bm_Colour[2]);
+	/*if(wpn->Bm.Colour[0] != 255 || wpn->Bm.Colour[1] != 0 || wpn->Bm.Colour[2] != 255) {
+		Uint32 col = MakeColour(wpn->Bm.Colour[0], wpn->Bm.Colour[1], wpn->Bm.Colour[2]);
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}*/
 }
