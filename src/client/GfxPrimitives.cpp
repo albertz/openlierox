@@ -1889,25 +1889,25 @@ bool Line::isRightFrom(int x, int y) const {
 	x -= start.x; y -= start.y;
 	
 	if(rel.x == 0) {
-		if(rel.y < 0) return x > 0;
-		if(rel.y > 0) return x < 0;
+		if(rel.y < 0) return x >= 0;
+		if(rel.y > 0) return x <= 0;
 		return false;
 	}
 	
 	if(x == 0) {
-		if(y < 0) return rel.x < 0;
-		if(y > 0) return rel.x > 0;
+		if(y < 0) return rel.x <= 0;
+		if(y > 0) return rel.x >= 0;
 		return false;
 	}
 	
 	if(x > 0 && rel.x > 0)
-		return rel.y * x < y * rel.x;
+		return rel.y * x <= y * rel.x;
 	if(x > 0 && rel.x < 0)
-		return rel.y * x < y * rel.x; 
+		return rel.y * x <= y * rel.x; 
 	if(x < 0 && rel.x > 0)
-		return rel.y * x < y * rel.x;
+		return rel.y * x <= y * rel.x;
 	if(x < 0 && rel.x < 0)
-		return rel.y * x < y * rel.x;
+		return rel.y * x <= y * rel.x;
 		
 	return false;
 }
