@@ -641,7 +641,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// We've already got this packet
-	if (client->bGameReady)  {
+	if (client->bGameReady && !client->bGameOver)  {
 		(tLX->iGameType == GME_JOIN ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
 		
@@ -654,7 +654,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 
 	// If we're playing, the game has to be ready
-	if (client->iNetStatus == NET_PLAYING)  {
+	if (client->iNetStatus == NET_PLAYING && !client->bGameOver)  {
 		(tLX->iGameType == GME_JOIN ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
@@ -669,9 +669,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		NotifyUserOnEvent();
 
-	if(!isReconnect)
+	if(!isReconnect) {
 		client->bGameRunning = false; // wait for ParseStartGame
-
+		client->bGameOver = false;
+	}
+	
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	if(!isReconnect)
 		RemoveSocketFromNotifierGroup( client->tSocket );
