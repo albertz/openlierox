@@ -409,7 +409,7 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	std::string command_buf = buf;
 	if (cl->getWorm(0)) {
 		std::string startStr = cl->getWorm(0)->getName() + ": ";
-		if( buf.size() > startStr.size() && buf.substr(0,startStr.size()) == startStr )
+		if( strStartsWith(buf, startStr) )
 			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
 	}
 	notes << "CHAT: " << buf << endl;
