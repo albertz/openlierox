@@ -412,7 +412,6 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		if( strStartsWith(buf, startStr) )
 			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
 	}
-	notes << "CHAT: " << buf << endl;
 
 	// Check for special commands
 	if (command_buf.size() > 2)
@@ -420,6 +419,10 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 			ParseChatCommand(command_buf);
 			return;
 		}
+
+	// people could try wrong chat command
+	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))
+		notes << "CHAT: " << buf << endl;
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
@@ -736,13 +739,17 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 		return false;
 	}
 
+	if(cmd->tProcFunc != &ProcessLogin)
+		notes << "ChatCommand from " << cl->debugName(true) << ": " << message << endl;
+	
 	// Get the parameters
 	std::vector<std::string> parameters = std::vector<std::string>(parsed.begin() + 1, parsed.end());
 
 	// Process the command
-	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : 0); // TODO: is this handling for worm0 correct? fix if not
+	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : -1);
 	if (error.size() != 0)  {
 		SendText(error, TXT_NETWORK);
+		notes << "ChatCommand " << cmd->sName << " returned error: " << error << endl;
 		return false;
 	}
 

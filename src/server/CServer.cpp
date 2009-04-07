@@ -2146,7 +2146,7 @@ void GameServer::notifyLog(const std::string& msg)
 // Get the client owning this worm
 CServerConnection *GameServer::getClient(int iWormID)
 {
-	if (iWormID < 0 || iWormID > MAX_WORMS || !cWorms)
+	if (iWormID < 0 || iWormID >= MAX_WORMS || !cWorms)
 		return NULL;
 
 	CWorm *w = cWorms;

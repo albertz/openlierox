@@ -221,10 +221,8 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 
 	// Is the player authorized?
 	CServerConnection *sender = cServer->getClient(sender_id);
-	if (sender)  {
-		if (!sender->getRights()->Authorize)
-			return "You do not have enough privileges to authorize a player.";
-	}
+	if (!sender || !sender->getRights()->Authorize)
+		return "You do not have enough privileges to authorize a player.";
 
 	// Authorise the client
 	CServerConnection *remote_cl = cServer->getClient(id);
@@ -751,6 +749,7 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 
 	// All OK, authorize the worm
 	cServer->authorizeWorm(sender_id);
+	notes << "worm " << sender_id << ":" << cServer->getWorms()[sender_id].getName() << " logged in" << endl;
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->WormGotAdmin_Signal(cServer->getWorms() + sender_id);
 	if(DedicatedControl::Get())
