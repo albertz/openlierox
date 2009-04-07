@@ -2097,12 +2097,13 @@ void TestPolygonDrawing(SDL_Surface* s) {
 // Loads an image, and converts it to the same colour depth as the screen (speed)
 SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha)
 {
-	// Try cache first
-	SmartPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);
-	if( ImageCache.get() )
-		return ImageCache;
-
-	SmartPointer<SDL_Surface> Image;
+	{
+		// Try cache first
+		SmartPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);
+		if( ImageCache.get() )
+			return ImageCache;
+	}
+	
 	// Load the image
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
@@ -2114,6 +2115,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 		return NULL;
 	}
 
+	SmartPointer<SDL_Surface> Image;
 	if(VideoPostProcessor::videoSurface()) {
 		// Convert the image to the screen's colour depth
 		if (withalpha)  {
@@ -2129,9 +2131,17 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 
 	} else {
 		// we haven't initialized the screen yet
-		if(!bDedicated)
+		if(!bDedicated) {
 			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;
-		Image = img;
+			Image = img;
+		} else {
+			// for dedicated mode
+			if (withalpha)
+				Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
+			else
+				Image = gfxCreateSurface(img.get()->w, img.get()->h);			
+			CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);			
+		}
 	}
 
 	if(!Image.get()) {
