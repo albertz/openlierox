@@ -1154,7 +1154,7 @@ int CMap::CarveHole(int size, CVec pos)
 
 	// Variables
 	byte bpp = bmpImage.get()->format->BytesPerPixel;
-
+	
 	if (!LockSurface(hole))
 		return 0;
 	if (!LockSurface(bmpImage))
