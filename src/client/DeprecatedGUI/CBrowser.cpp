@@ -448,8 +448,8 @@ htmlDocPtr CBrowser::ParseHTML(const std::string &data)
 
 	// Parse the file
 	htmlDocPtr document = htmlCtxtReadDoc(context, (xmlChar *)data.data(), NULL, NULL, /*HTML_PARSE_RECOVER |*/ HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
+	htmlFreeParserCtxt(context);
 	if (!document)  {
-		htmlFreeParserCtxt(context);
 		return NULL;
 	}
 
@@ -457,7 +457,6 @@ htmlDocPtr CBrowser::ParseHTML(const std::string &data)
 	htmlNodePtr node = xmlDocGetRootElement(document);
 	if (!node || !node->children)  {
 		xmlFreeDoc(document);
-		htmlFreeParserCtxt(context);
 		return NULL;
 	}
 

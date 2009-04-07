@@ -375,6 +375,7 @@ startpoint:
 		// Get all SDL events and push them to our event queue.
 		// We have to do that in the same thread where we inited the video because of SDL.
 		SDL_Event ev;
+		memset( &ev, 0, sizeof(ev) );
 		while(true) {
 			while( SDL_WaitEvent(&ev) ) {
 				if(ev.type == SDL_USEREVENT) {
