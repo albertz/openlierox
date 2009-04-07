@@ -695,6 +695,11 @@ public:
 	SmartPointer<SDL_Surface> m_screenBuf[2];
 
 	virtual void resetVideo() {
+		// IMPORTANT: Don't reallocate if we already have the buffers.
+		// If we would do, the old surfaces would get deleted. This is bad
+		// because other threads could use it right now.
+		if(m_screenBuf[0].get()) return;
+		
 		// create m_screenBuf here to ensure that we have initialised the correct surface parameters like pixel format
 #ifdef REAL_OPENGL
 		if((SDL_GetVideoSurface()->flags & SDL_OPENGL)) {
