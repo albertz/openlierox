@@ -98,13 +98,14 @@ public:
 		WORM_SKIN_FRAME_SPACING,
 		WORM_SKIN_WIDTH,
 		WORM_SKIN_HEIGHT)  {}
-	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) { }
+	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) {}
 	CWormSkin(const std::string& file) : CGameSkin(file, 
 		WORM_SKIN_FRAME_WIDTH, 
 		WORM_SKIN_FRAME_HEIGHT,
 		WORM_SKIN_FRAME_SPACING,
 		WORM_SKIN_WIDTH,
 		WORM_SKIN_HEIGHT) {}
+	CWormSkin& operator=(const CWormSkin& oth) { this->CGameSkin::operator=(oth); return *this; }
 };
 
 #endif
