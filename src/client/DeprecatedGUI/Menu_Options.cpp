@@ -62,6 +62,7 @@ enum {
 	os_NetworkSpeed,
 	os_NetworkUploadBandwidth,
 	os_NetworkUploadBandwidthLabel,
+	os_NetworkUploadCheck,
 	os_UseIpToCountry,
 	os_HttpProxy,
 	os_ShowFPS,
@@ -255,7 +256,7 @@ bool Menu_OptionsInitialize()
 
 
 	// System
-	const int starty = 140;
+	const int starty = 130;
 	y = starty;
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, y, 0,0);
@@ -264,23 +265,24 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, y, 17,17);
 
-	y += 35;
+	y += 20;
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, y, 17,17);
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, y - 3, 110, 20); y += 25;
+	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, y - 2, 110, 20); y += 25;
 
 	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, y, 17,17);
 
 	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 3, 110, 20); y += 20;
-
+	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 2, 110, 20);
+	
+	y += 20;
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0); y += 20;
 
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, y - 3, 100,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, y - 2, 100,tLX->cFont.GetHeight());
 	
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,y,17,17); y += 30;
@@ -291,14 +293,16 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CCheckbox(tLXOptions->bShowCountryFlags),  os_ShowCountryFlags, 530, y,17,17); y += 30;
 	
 	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60, y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, y - 3, 130,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, y - 2, 130,tLX->cFont.GetHeight());
 	
 	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, y - 3, 50,tLX->cFont.GetHeight());
-	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, 335, 30, 22); y += 25;
-
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, y - 2, 50,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, y - 2, 30, 22); y += 25;
 	
-
+	cOpt_System.Add( new CLabel("Check bandwidth sanity",tLX->clNormalLabel),    Static, 330, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bCheckBandwidthSanity),  os_NetworkUploadCheck, 530, y,17,17);
+	
+	y += 20;
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, y, 0,0); y += 20;
 
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, y, 0,0);
@@ -306,7 +310,7 @@ bool Menu_OptionsInitialize()
 
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,y, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, y - 3, 50,tLX->cFont.GetHeight()); y += 30;
+	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, y - 2, 50,tLX->cFont.GetHeight()); y += 30;
 	
 	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,y,17,17);
@@ -316,11 +320,11 @@ bool Menu_OptionsInitialize()
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
 
-	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,y, 60,15);
+	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
-	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, starty + 170 - 3, 130,17);
-	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, starty + 243, 70,17);
+	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, starty + 155 - 3, 130,17);
+	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, starty + 250 - 2, 70,17);
 	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, starty + 20, 145, 17);
 
 	// Set the values
@@ -883,14 +887,15 @@ void Menu_OptionsFrame()
 		tLXOptions->sHttpProxy = t->getText();
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
-
+		tLXOptions->bCheckBandwidthSanity = cOpt_System.SendMessage(os_NetworkUploadCheck, CKM_GETCHECK, (DWORD)0, 0) != 0;
+		
 		cOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
 		cOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
 		cOpt_System.getWidget( os_TestBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
 		if( cOpt_System.getWidget( os_NetworkUploadBandwidth )->getEnabled() )
 			tLXOptions->iMaxUploadBandwidth = atoi( ((CTextbox *)cOpt_System.getWidget( os_NetworkUploadBandwidth ))->getText().c_str() );
 		if( tLXOptions->iMaxUploadBandwidth <= 0 )
-			tLXOptions->iMaxUploadBandwidth = 20000;
+			tLXOptions->iMaxUploadBandwidth = 50000;
 
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
