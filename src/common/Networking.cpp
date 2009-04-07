@@ -1099,10 +1099,6 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 }
 
 
-struct AddrFromNameInfo {
-	std::string name;
-	NetAddrPtr address;
-};
 
 
 Event<> onDnsReady;
@@ -1149,28 +1145,6 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     return true;
 }
 
-// copied from HawkNL sock.c and modified for usage of SmartPointer
-static void* GetAddrFromNameAsync_Threaded(void /*@owned@*/ *addr)
-{
-    AddrFromNameInfo *address = (AddrFromNameInfo *)addr;
-
-    if(GetAddrFromNameAsync_Internal(address->name.c_str(), address->address.get())) {
-		// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-		AddToDnsCache(address->name, *address->address.get());
-	}
-	
-		// TODO: handle failures here? there should be, but we only have the valid field
-		// For now, we leave it at false, so the timeout handling will just occur.
-
-	if(SdlNetEvent_Inited) {
-		// push a net event
-		onDnsReady.pushToMainQueue(EventData());
-    }
-
-    delete address;
-    return 0;
-}
-
 bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
@@ -1197,15 +1171,35 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
     getNLaddr(addr)->valid = NL_FALSE;
 
-    AddrFromNameInfo* addr_ex = new AddrFromNameInfo;
-    if(addr_ex == NULL)
+	struct GetAddrFromNameAsync_Executer : Task {
+		std::string addr_name;
+		NetAddrPtr address;
+		
+		int handle() {
+			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
+				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
+				AddToDnsCache(addr_name, *address.get());
+			}
+			
+			// TODO: handle failures here? there should be, but we only have the valid field
+			// For now, we leave it at false, so the timeout handling will just occur.
+			
+			if(SdlNetEvent_Inited) {
+				// push a net event
+				onDnsReady.pushToMainQueue(EventData());
+			}
+			
+			return 0;
+		}
+	};
+	GetAddrFromNameAsync_Executer* data = new GetAddrFromNameAsync_Executer();
+	if(data == NULL)
         return false;
-    addr_ex->name = name;
-    addr_ex->address = *NetworkAddrData(&addr);
+	data->name = "GetNetAddrFromNameAsync for " + name;
+    data->addr_name = name;
+    data->address = *NetworkAddrData(&addr);
 
-	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsync_Threaded, addr_ex, true);
-    if(thread == NULL)
-        return false;
+	taskManager->start(data, false);
     return true;
 }
 
