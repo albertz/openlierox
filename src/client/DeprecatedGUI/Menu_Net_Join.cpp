@@ -391,8 +391,9 @@ static void updateDetailsList(CListview* l) {
 
 	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
 	SETI;
+	int generalType = cClient->getGameLobby()->iGeneralGameType;
 	if(cClient->getGameLobby()->sGameMode == "")
-		si->sText = gamemodes[cClient->getGameLobby()->iGeneralGameType];
+		si->sText = (generalType < 0 || generalType >= sizeof(gamemodes)/sizeof(std::string)) ? "Unknown" : gamemodes[generalType];
 	else
 		si->sText = cClient->getGameLobby()->sGameMode;
 	SETI;
