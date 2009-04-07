@@ -41,6 +41,11 @@ Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
 }
 
 Flag& Flag::operator=(const Flag& f) {
+	if(skin) {
+		delete skin;
+		skin = NULL;
+	}
+
 	id = f.id;
 	pos = f.pos;
 	holderWorm = f.holderWorm;
