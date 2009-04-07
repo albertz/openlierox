@@ -214,7 +214,7 @@ static void startMainLockDetector() {
 static bool menu_startgame = false;
 
 static bool videoModeReady = true;
-static bool needVideoFrame = false;
+static int needVideoFrame = 0;
 
 ///////////////////
 // Main entry point
@@ -385,7 +385,7 @@ startpoint:
 							{
 								ScopedLock lock(videoFrameMutex);
 								if(!needVideoFrame && !ev.user.data1) continue; // data1!=0 -> forceRedraw
-								needVideoFrame = false;
+								if(needVideoFrame > 0) needVideoFrame--;
 								if(!videoModeReady) continue;
 								VideoPostProcessor::process();
 							}
@@ -482,12 +482,13 @@ void doVideoFrameInMainThread(bool forceRedraw) {
 	if(bDedicated) return;
 	
 	// don't push too much events if we have not drawn yet
-	if(needVideoFrame && !forceRedraw) return;
+	if(needVideoFrame >= 2) return;
 	
 	{
 		// wait for current drawing
 		ScopedLock lock(videoFrameMutex);
-		needVideoFrame = true;
+		if(needVideoFrame >= 2) return; // again the check (now we have for sure a correct value)
+		needVideoFrame++;
 		VideoPostProcessor::flipBuffers();		
 	}
 
