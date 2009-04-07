@@ -255,67 +255,73 @@ bool Menu_OptionsInitialize()
 
 
 	// System
-	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 140, 0,0);
-	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 160, 0,0);
-	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 160, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 160, 17,17);
-	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 160, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 160, 17,17);
+	const int starty = 140;
+	y = starty;
+	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
+	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, y, 0,0);
+	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, y, 17,17);
+	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, y, 17,17);
 
-	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 195, 0,0);
-	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 215, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 215, 17,17);
-	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, 240, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, 240, 17,17);
+	y += 35;
+	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
+	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, y, 17,17);
+	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, y - 3, 110, 20); y += 25;
 
-	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 215, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 212, 110, 20);
+	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, y, 17,17);
 
-	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 240, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 237, 110, 20);
+	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 3, 110, 20); y += 20;
 
-	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
+	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0); y += 20;
 
-	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
-
-	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
-
-	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 340, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 337, 50,tLX->cFont.GetHeight());
-
-	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
-
-	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
+	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, y - 3, 100,tLX->cFont.GetHeight());
 	
-	cOpt_System.Add( new CLabel("Show country flags",tLX->clNormalLabel),	Static, 330, 310, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bShowCountryFlags),  os_ShowCountryFlags, 530, 310,17,17);
+	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,y,17,17); y += 30;
+
+	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60, y, 0,0);
 	
+	cOpt_System.Add( new CLabel("Show country flags",tLX->clNormalLabel),	Static, 330, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowCountryFlags),  os_ShowCountryFlags, 530, y,17,17); y += 30;
+	
+	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60, y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, y - 3, 130,tLX->cFont.GetHeight());
+	
+	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, y - 3, 50,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, 335, 30, 22); y += 25;
+
 	
 
-	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
-	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, 385, 17,17);
-	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,415,17,17);
-	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,415,17,17);
-	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
-	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
-	cOpt_System.Add( new CButton(BUT_TEST, tMenu->bmpButtons), os_TestBandwidth, 585, 335, 30, 22);
+	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, y, 0,0); y += 20;
+
+	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, y, 17,17);
+
+	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,y, 0,0);
+	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,y, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, y - 3, 50,tLX->cFont.GetHeight()); y += 30;
+	
+	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,y,17,17);
+	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,y,17,17); y+= 25;
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
 
-	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
+	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,y, 60,15);
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
-	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
-	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 160, 145, 17);
+	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, starty + 170 - 3, 130,17);
+	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, starty + 243, 70,17);
+	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, starty + 20, 145, 17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
