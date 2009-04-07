@@ -1022,10 +1022,14 @@ void ResetNetAddr(NetworkAddr& addr) {
 
 // accepts "%i.%i.%i.%i[:%l]" as input
 bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
-	if(getNLaddr(addr) == NULL) {
+	if(getNLaddr(addr) == NULL) return false;
+	
+	if(subStrCount(string, ".") < 3) {
+		SetNetAddrValid(addr, false);
 		return false;
-	} else
-		return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
+	}
+	
+	return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool NetAddrToString(const NetworkAddr& addr, std::string& string) {

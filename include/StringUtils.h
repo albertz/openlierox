@@ -159,6 +159,14 @@ std::string		EscapeHtmlTags( const std::string & src );	// Escape all "<" and ">
 
 bool			strSeemsLikeChatCommand(const std::string& str);
 
+inline size_t subStrCount(const std::string& str, const std::string& substr) {
+	size_t c = 0;
+	size_t p = 0;
+	while((p = str.find(substr, p)) != std::string::npos)
+		c++;
+	return c;
+}
+
 
 typedef void (*PrintOutFct) (const std::string&);
 inline void NullOut(const std::string&) {}
