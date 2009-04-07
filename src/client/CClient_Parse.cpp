@@ -1641,12 +1641,12 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	
 	
 	// Game over
-	hints << "Client: the game is over,";
+	hints << "Client: the game is over";
 	if(client->iMatchWinner >= 0 && client->iMatchWinner < MAX_WORMS) {
-		hints << " the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName();
+		hints << ", the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName();
 	}
 	if(client->iMatchWinnerTeam >= 0) {
-		hints << " and the winning team is team " << client->iMatchWinnerTeam;
+		hints << ", the winning team is team " << client->iMatchWinnerTeam;
 	}
 	hints << endl;
 	client->bGameOver = true;
@@ -2273,13 +2273,17 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 {
 	notes << "Client: received gotoLobby signal" << endl;
 
+	// TODO: Why did we have that code? In hosting mode, we should always trust the server.
+	// Even worse, the check is not fully correct. client->bGameOver means that the game is over.
+	/*
 	if (tLX->iGameType != GME_JOIN)  {
 		if (!tLX->bQuitEngine)  {
 			warnings << "we should go to lobby but should not quit the game, ignoring game over signal" << endl;
 			return;
 		}
 	}
-
+	 */
+	
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( client->tSocket );
 

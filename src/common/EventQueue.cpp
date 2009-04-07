@@ -181,6 +181,7 @@ static BOOL QuitSignalHandler( DWORD fdwCtrlType )
 	ev.type = SDL_QUIT;
 	mainQueue->push(ev);
 	tLX->bQuitCtrlC = true; // Set the special CTRL-C flag, so Dedicated Server won't try to close the non-existant pipe
+	tLX->bQuitGame = true;
 	return TRUE;
 }
 
@@ -204,6 +205,7 @@ static void QuitSignalHandler(int sig)
 	} else {
 		warnings << "got quit-signal and mainQueue is not set" << endl;
 	}
+	if(tLX) tLX->bQuitGame = true;
 }
 
 static void InitQuitSignalHandler()
