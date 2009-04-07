@@ -591,6 +591,8 @@ bool CMap::CreateSurface()
 // Updates an area according to pixel flags, recalculates minimap, draw image, pixel flags and shadow
 void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 {
+	if(bDedicated) return;
+
 	int i, j;
 
 	// When drawing shadows, we have to update a bigger area
@@ -727,6 +729,7 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 // X, Y, W, H apply to bmpImage, not bmpDrawImage
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
+	if(bDedicated) return;
 	if(tLXOptions->bAntiAliasing)
 		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
 	else
@@ -737,6 +740,8 @@ void CMap::UpdateDrawImage(int x, int y, int w, int h)
 // Set dimensions of the minimap
 void CMap::SetMinimapDimensions(uint _w, uint _h)
 {
+	if(bDedicated) return;
+	
 	// If already created, reallocate
 	if (bmpMiniMap.get())  {
 		bmpMiniMap = gfxCreateSurface(_w, _h);
@@ -871,6 +876,8 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
 // Tile the map
 void CMap::TileMap()
 {
+	if(bDedicated) return;
+
 	uint x,y;
 
 	// Place the tiles
@@ -1106,6 +1113,8 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 // Draw a pixel sized shadow
 void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy)
 {
+	if(bDedicated) return;
+	
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
 
@@ -1562,9 +1571,9 @@ int CMap::PlaceGreenDirt(CVec pos)
 // Apply a shadow to an area
 void CMap::ApplyShadow(int sx, int sy, int w, int h)
 {
+	if(bDedicated) return;
 	// Draw shadows?
-	if(!tLXOptions->bShadows)
-		return;
+	if(!tLXOptions->bShadows) return;
 
 	int x, y, n;
 	uchar *px;
@@ -1851,8 +1860,8 @@ void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 // Update the minimap
 void CMap::UpdateMiniMap(bool force)
 {
-	if(!bMiniMapDirty && !force)
-		return;
+	if(bDedicated) return;
+	if(!bMiniMapDirty && !force) return;
 
 	if (tLXOptions->bAntiAliasing)
 		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
@@ -1868,6 +1877,8 @@ void CMap::UpdateMiniMap(bool force)
 // X, Y, W and H apply to the bmpImage, not bmpMinimap
 void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 {
+	if(bDedicated) return;
+
 	// If the minimap is going to be fully repainted, just move on
 	if (bMiniMapDirty)
 		return;
@@ -1887,6 +1898,8 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 
 void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special) {
+	if(bDedicated) return;
+	
 	float xstep,ystep;
 	float mx,my;
 	int mw = bmpMiniMap.get()->w;

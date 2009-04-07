@@ -861,6 +861,8 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Draws the image nicely resampled
 void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
+	if(!bmpSrc || !bmpDest) return;
+	
 	SDL_Rect src = { sx, sy, sw, sh };
 	SDL_Rect dst = { dx, dy, (int)((float)sw * xratio), (int)((float)sh * yratio) };
 	
@@ -880,6 +882,8 @@ void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, 
 // Draws the image nicely resampled
 void DrawImageResampledAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, int dw, int dh)
 {
+	if(!bmpSrc || !bmpDest) return;
+
 	SDL_Rect src = { sx, sy, sw, sh };
 	SDL_Rect dst = { dx, dy, dw, dh };
 	
