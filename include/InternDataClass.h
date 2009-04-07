@@ -36,10 +36,10 @@
 	INTERNDATA_CLASS_BEGIN(_classname) \
 	INTERNDATA_CLASS_END
 
-#define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
+#define	DECLARE_INTERNDATA_CLASS__WITH_INIT(_classname, _datatype, init_val) \
 	_classname::_classname() { INTERNDATA__init(); } \
 	void _classname::INTERNDATA__init() { \
-		intern_data = new _datatype; \
+		intern_data = new _datatype(init_val); \
 	} \
 	_classname::~_classname() { INTERNDATA__reset(); } \
 	void _classname::INTERNDATA__reset() { \
@@ -65,6 +65,8 @@
 		else return NULL; \
 	}
 
+#define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
+	DECLARE_INTERNDATA_CLASS__WITH_INIT(_classname, _datatype, _datatype())
 
 #endif
 

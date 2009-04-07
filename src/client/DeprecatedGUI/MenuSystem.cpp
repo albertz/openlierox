@@ -209,6 +209,7 @@ void Menu_Shutdown()
 {
 	if(tMenu) {
 		// Shutdown all sub-menus
+		if(!bDedicated)
 		switch(tMenu->iMenuType) {
 
 			// Main

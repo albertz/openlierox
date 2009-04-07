@@ -74,7 +74,7 @@ public:
 typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
 DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
 
-DECLARE_INTERNDATA_CLASS( NetworkSocket, NLsocket );
+DECLARE_INTERNDATA_CLASS__WITH_INIT( NetworkSocket, NLsocket, NL_INVALID );
 
 
 static NLsocket* getNLsocket(NetworkSocket* socket) {

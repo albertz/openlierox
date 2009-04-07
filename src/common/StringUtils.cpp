@@ -734,12 +734,12 @@ std::string StripHtmlTags( const std::string & src )
 			if( str[f] == ' ' || str[f] == '\t' )
 				continue;
 			else lineStart = false;
-		};
+		}
 		if( str[f] == '\n' )
 			lineStart = true;
 		if( str[f] != '\r' )
 			ret += str[f];
-	};
+	}
 
 	return ret;
 }
