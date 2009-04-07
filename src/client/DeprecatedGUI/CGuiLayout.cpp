@@ -573,8 +573,11 @@ gui_event_t *CGuiLayout::Process()
 	}
 
 	// Switch between window and fullscreen mode (only for menu)
+	// Switch only if delta time is low enough. This is because when the game does not
+	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
+	// would switch to window and here we would switch again to fullscreen which is stupid.
 	// TODO: move this out of here
-	if( cSwitchMode->isUp() && tMenu->bMenuRunning )  {
+	if( cSwitchMode->isUp() && tMenu->bMenuRunning && tLX && tLX->fRealDeltaTime < 1.0f )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
