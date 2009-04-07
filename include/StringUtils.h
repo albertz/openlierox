@@ -160,10 +160,8 @@ std::string		EscapeHtmlTags( const std::string & src );	// Escape all "<" and ">
 bool			strSeemsLikeChatCommand(const std::string& str);
 
 inline size_t subStrCount(const std::string& str, const std::string& substr) {
-	size_t c = 0;
-	size_t p = 0;
-	while((p = str.find(substr, p)) != std::string::npos)
-		c++;
+	size_t c = 0, p = 0;
+	while((p = str.find(substr, p)) != std::string::npos) { c++; p++; }
 	return c;
 }
 
