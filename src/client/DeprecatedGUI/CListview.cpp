@@ -103,7 +103,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 	int texty = 0;
 
 	{
-		SDL_Rect clipRect = {iX+4, y, iWidth-8, iY + iHeight - y};
+		SDL_Rect clipRect = {iX+4, y, iWidth-8, iHeight - (y-iY)};
 		ScopedSurfaceClip clip(bmpDest, clipRect);
 		
 		// Draw the items
@@ -187,34 +187,36 @@ void CListview::Draw(SDL_Surface * bmpDest)
 						break;
 
 						case LVS_IMAGE:
-							// Set special clipping
-							SDL_Rect old_rect, new_rect;
-							SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
-							new_rect.x = x;
-							new_rect.y = y;
-							new_rect.w = col ? col->iWidth - 4 : (iX + iWidth - x - 2);
-							new_rect.h = item->iHeight;
-							SDL_SetClipRect(bmpDest, &new_rect);
+							{
+								// Set special clipping
+								SDL_Rect new_rect;
+								new_rect.x = x;
+								new_rect.y = y;
+								new_rect.w = col ? col->iWidth - 4 : (iX + iWidth - x - 2);
+								new_rect.h = item->iHeight;
+								// Clipping
+								if (!ClipRefRectWith((SDLRect&)new_rect, (SDLRect&)clipRect))
+									break;
+								ScopedSurfaceClip imgClip(bmpDest, new_rect);
 
-							// Draw according to valign
-							switch (sub->iValign)  {
-							case VALIGN_TOP:
-								DrawImage(bmpDest,sub->bmpImage,x,y);
-								break;
+								// Draw according to valign
+								switch (sub->iValign)  {
+								case VALIGN_TOP:
+									DrawImage(bmpDest,sub->bmpImage,x,y);
+									break;
 
-							case VALIGN_BOTTOM:
-								DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
-								break;
+								case VALIGN_BOTTOM:
+									DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
+									break;
 
-							// Middle
-							default:
-								DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
+								// Middle
+								default:
+									DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
+									break;
+								}
+								
 								break;
 							}
-
-							SDL_SetClipRect(bmpDest, &old_rect);  // Restore the original clipping
-						break;
-
 						case LVS_WIDGET:
 							CWidget *w = sub->tWidget;
 
