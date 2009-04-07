@@ -104,6 +104,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_LAN )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 50000 )
+		( tLXOptions->bCheckBandwidthSanity, "Network.CheckBandwidthSanity", true )
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 

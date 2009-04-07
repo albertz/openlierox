@@ -186,8 +186,9 @@ public:
 	// Network
 	int		iNetworkPort;
 	int		iNetworkSpeed;
-	bool	bUseIpToCountry;
 	int		iMaxUploadBandwidth;
+	bool	bCheckBandwidthSanity;
+	bool	bUseIpToCountry;	
 	std::string	sHttpProxy;
 	bool	bAutoSetupHttpProxy;
 
