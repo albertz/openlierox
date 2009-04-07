@@ -216,24 +216,15 @@ int CFont::GetHeight(const std::string& buf) {
 // HINT: not thread-safe
 void CFont::DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
-
-	SDL_Rect oldrect, newrect;
-	SDL_GetClipRect(dst, &oldrect);  // Save the old rect
-
-	// Fill in the details
+	SDL_Rect newrect;
 	newrect.x = rectX;
 	newrect.y = rectY;
 	newrect.w = rectW;
 	newrect.h = rectH;
-
-	// Special clipping
-	SDL_SetClipRect(dst, &newrect);
+	ScopedSurfaceClip clip(dst, newrect);
 
 	// Blit the font
 	DrawAdv(dst, x, y, 9999, col, txt);
-
-	// Restore original clipping rect
-	SDL_SetClipRect(dst, &oldrect);
 }
 
 ///////////////////
@@ -243,19 +234,16 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 	if (txt.size() == 0)
 		return;
 
-	// Clipping rectangle
-	SDL_Rect oldrect = dst->clip_rect;
-	SDL_Rect newrect = dst->clip_rect;
-
 	// Set the newrect width and use this newrect temporarily to draw the font
 	// We use this rect because of precached fonts which use SDL_Blit for drawing (and it takes care of cliprect)
-	newrect.w = MIN(oldrect.w, (Uint16)max_w);
-	newrect.x = MAX(oldrect.x, (Sint16)x);
-	newrect.y = MAX(oldrect.y, (Sint16)y);
-	if (!ClipRefRectWith(newrect.x, newrect.y, newrect.w, newrect.h, (SDLRect&)oldrect))
+	SDL_Rect newrect = dst->clip_rect;
+	newrect.w = MIN(newrect.w, (Uint16)max_w);
+	newrect.x = MAX(newrect.x, (Sint16)x);
+	newrect.y = MAX(newrect.y, (Sint16)y);
+	if (!ClipRefRectWith(newrect.x, newrect.y, newrect.w, newrect.h, (SDLRect&)dst->clip_rect))
 		return;
-	SDL_SetClipRect(dst, &newrect);
 
+	ScopedSurfaceClip clip(dst, newrect);
 
 	// Look in the precached fonts if there's some for this color
 	SmartPointer<SDL_Surface> bmpCached = NULL;
@@ -354,9 +342,6 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, cons
 
 		x += FontWidth[l] + Spacing;
 	}
-
-	// Restore the original clipping rect
-	SDL_SetClipRect(dst, &oldrect);
 
 
 	// Unlock the surfaces

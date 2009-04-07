@@ -176,10 +176,10 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 	SDL_GetClipRect(bmpDest, &oldrect);
 	fontrect = oldrect;
 	if (prop.tFontRect)  {
-		SDL_SetClipRect(bmpDest, prop.tFontRect);
 		fontrect = *prop.tFontRect;
 	}
-
+	ScopedSurfaceClip clip(bmpDest, fontrect);
+	
 	int x = fontrect.x;
 	switch (prop.iHAlignment) {
 		case algLeft:
@@ -216,9 +216,6 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 
 	// Draw it
 	fnt->Draw(bmpDest, x, y, style.iColor.get().get(), txt);
-
-	// Restore the clipping
-	SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 ///////////////////

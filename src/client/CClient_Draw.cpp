@@ -807,63 +807,63 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
     //CWorm *worm = v->getTarget();
 
-	// Set the clipping
-	SDL_Rect rect = v->getRect();
-	SDL_SetClipRect(bmpDest,&rect);
+	{
+		// Set the clipping
+		SDL_Rect rect = v->getRect();
+		ScopedSurfaceClip clip(bmpDest, rect);
 
-    // Weather
-    //cWeather.Draw(bmpDest, v);
+		// Weather
+		//cWeather.Draw(bmpDest, v);
 
-	// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
-	if (!bGameMenu)  {
-		if (cMap)
-			cMap->Draw(bmpDest, v);
+		// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
+		if (!bGameMenu)  {
+			if (cMap)
+				cMap->Draw(bmpDest, v);
 
-		// The following will be drawn only when playing
-		if (bGameReady || iNetStatus == NET_PLAYING)  {
-			// update the drawing position
-			CWorm *w = cRemoteWorms;
-			for(short i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed() && w->getAlive())
-					w->UpdateDrawPos();
-			}
-
-			if( tLXOptions->bShadows ) {
-				// Draw the projectile shadows
-				DrawProjectileShadows(bmpDest, v);
-
-				// Draw the worm shadows
-				w = cRemoteWorms;
+			// The following will be drawn only when playing
+			if (bGameReady || iNetStatus == NET_PLAYING)  {
+				// update the drawing position
+				CWorm *w = cRemoteWorms;
 				for(short i=0;i<MAX_WORMS;i++,w++) {
 					if(w->isUsed() && w->getAlive())
-						w->DrawShadow(bmpDest, v);
+						w->UpdateDrawPos();
+				}
+
+				if( tLXOptions->bShadows ) {
+					// Draw the projectile shadows
+					DrawProjectileShadows(bmpDest, v);
+
+					// Draw the worm shadows
+					w = cRemoteWorms;
+					for(short i=0;i<MAX_WORMS;i++,w++) {
+						if(w->isUsed() && w->getAlive())
+							w->DrawShadow(bmpDest, v);
+					}
+				}
+
+				// Draw the entities
+				DrawEntities(bmpDest, v);
+
+				// Draw the projectiles
+				DrawProjectiles(bmpDest, v);
+
+				// Draw the bonuses
+				DrawBonuses(bmpDest, v);
+
+				// draw unattached flags and flag spawnpoints
+				cClient->flagInfo()->draw(bmpDest, v);
+				
+				// Draw all the worms in the game
+				ushort i;
+				w = cRemoteWorms;
+				for(i=0;i<MAX_WORMS;i++,w++) {
+					if(w->isUsed())
+						w->Draw(bmpDest, v);
 				}
 			}
-
-			// Draw the entities
-			DrawEntities(bmpDest, v);
-
-			// Draw the projectiles
-			DrawProjectiles(bmpDest, v);
-
-			// Draw the bonuses
-			DrawBonuses(bmpDest, v);
-
-			// draw unattached flags and flag spawnpoints
-			cClient->flagInfo()->draw(bmpDest, v);
-			
-			// Draw all the worms in the game
-			ushort i;
-			w = cRemoteWorms;
-			for(i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed())
-					w->Draw(bmpDest, v);
-			}
 		}
-	}
 
-	// Disable the special clipping
-	SDL_SetClipRect(bmpDest,NULL);
+	}
 
 	//
 	// Draw the worm details
@@ -2456,10 +2456,8 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 {
 	const int h = getBottomBarTop() - y;
 
-	SDL_Rect oldclip;
-	SDL_GetClipRect(bmpDest, &oldclip);
 	SDL_Rect newclip = {x, y, WAIT_COL_W, h};
-	SDL_SetClipRect(bmpDest, &newclip);
+	ScopedSurfaceClip clip(bmpDest, newclip);
 
 	DrawRectFillA(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground, 128);
 
@@ -2485,8 +2483,6 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 
 		cur_y += MAX(wrm->getPicimg().get()->h, tLX->cFont.GetHeight()) + 2;
 	}
-
-	SDL_SetClipRect(bmpDest, &oldclip);
 }
 
 ///////////////////

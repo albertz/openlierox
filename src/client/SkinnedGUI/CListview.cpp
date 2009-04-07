@@ -157,9 +157,7 @@ void CWidgetSubitem::Draw(SDL_Surface *bmpDest, const SDL_Rect &r)
 	
 	// Widget
 	if (cWidget)  {
-		SDL_Rect oldrect;
-		SDL_GetClipRect(bmpDest, &oldrect);
-		SDL_SetClipRect(bmpDest, &r);
+		ScopedSurfaceClip(bmpDest, r);
 
 		// Draw according to the valign
 		switch (iVAlign)  {
@@ -175,8 +173,6 @@ void CWidgetSubitem::Draw(SDL_Surface *bmpDest, const SDL_Rect &r)
 				cWidget->Draw(bmpDest, r.x + style->cBorder.getLeftW(), r.y + r.h - cWidget->getHeight() - style->cBorder.getBottomW());
 			break;
 		}
-
-		SDL_SetClipRect(bmpDest, &oldrect);
 	}
 
 	// Border
@@ -272,9 +268,7 @@ void CListviewItem::AppendSubitem(SDL_Surface *image)
 void CListviewItem::Draw(SDL_Surface *bmpDest, const SDL_Rect &r)
 {
 	// Save the clipping rect
-	SDL_Rect oldrect;
-	SDL_GetClipRect(bmpDest, &oldrect);
-	SDL_SetClipRect(bmpDest, &r);
+	ScopedSurfaceClip clip(bmpDest, r);
 
 	CItemStyle *style = getCurrentStyle();
 
@@ -300,9 +294,6 @@ void CListviewItem::Draw(SDL_Surface *bmpDest, const SDL_Rect &r)
 
 	// Border
 	style->cBorder.Draw(bmpDest, r.x, r.y, r.w, r.h);
-
-	// Restore the clipping rect
-	SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 ///////////////////////

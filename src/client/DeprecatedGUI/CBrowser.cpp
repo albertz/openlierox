@@ -1616,8 +1616,8 @@ void CBrowser::RenderContent()
 	DrawRectFill(bmpBuffer.get(), iBorderSize, iBorderSize, iWidth, iHeight, tBgColor);
 
 	// Setup the clipping
-	SDL_Rect clip = {iBorderSize, iBorderSize, iWidth - iBorderSize * 2, iHeight - iBorderSize * 2};
-	SDL_SetClipRect(bmpBuffer.get(), &clip);
+	SDL_Rect clipRect = {iBorderSize, iBorderSize, iWidth - iBorderSize * 2, iHeight - iBorderSize * 2};
+	ScopedSurfaceClip clip(bmpBuffer.get(), clipRect);
 
 	// Selection
 	DrawSelection();
@@ -1647,9 +1647,6 @@ void CBrowser::RenderContent()
 	}
 
 	ResetScrollbar();
-
-	// Restore clipping
-	SDL_SetClipRect(bmpBuffer.get(), NULL);
 }
 
 ///////////////////////

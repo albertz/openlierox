@@ -449,13 +449,12 @@ void CBorder::DrawBottomLine(SDL_Surface *bmpDest, const SDL_Rect& r)
 // Draws the border
 void CBorder::Draw(SDL_Surface *bmpDest, int x, int y, int w, int h, const SDL_Rect *cliprect)
 {
-	// Set the clipping rectangle
-	SDL_Rect oldrect;
-	if (cliprect)  {
-		SDL_GetClipRect(bmpDest, &oldrect);
-		SDL_SetClipRect(bmpDest, cliprect);
-	}
-
+	// Handle the clipping rect
+	SDL_Rect cr;
+	if(cliprect) cr = *cliprect;
+	else SDL_GetClipRect(bmpDest, &cr);
+	ScopedSurfaceClip clip(bmpDest, cr);
+	
 	SDL_Rect r = { x, y, w, h };
 	
 	// Corners
@@ -469,11 +468,6 @@ void CBorder::Draw(SDL_Surface *bmpDest, int x, int y, int w, int h, const SDL_R
 	DrawRightLine(bmpDest, r);
 	DrawTopLine(bmpDest, r);
 	DrawBottomLine(bmpDest, r);
-
-
-	// Restore the clipping rectangle
-	if (cliprect)
-		SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 }; // namespace SkinnedGUI

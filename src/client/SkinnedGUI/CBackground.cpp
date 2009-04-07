@@ -78,11 +78,10 @@ void CBackground::ApplySelector(const CSSParser::Selector &sel, const std::strin
 void CBackground::Draw(SDL_Surface *bmpDest, int x, int y, int w, int h, const SDL_Rect *cliprect)
 {
 	// Handle the clipping rect
-	SDL_Rect oldrect;
-	if (cliprect)  {
-		SDL_GetClipRect(bmpDest, &oldrect);
-		SDL_SetClipRect(bmpDest, cliprect);
-	}
+	SDL_Rect r;
+	if(cliprect) r = *cliprect;
+	else SDL_GetClipRect(bmpDest, &r);
+	ScopedSurfaceClip clip(bmpDest, r);
 
 	// Background image
 	if (bmpMain.get().get())  {
@@ -109,10 +108,6 @@ void CBackground::Draw(SDL_Surface *bmpDest, int x, int y, int w, int h, const S
 	} else {
 		DrawRectFill(bmpDest, x, y, x + w, y + h, clMain);
 	}
-
-	// Restore the original rect
-	if (cliprect)
-		SDL_SetClipRect(bmpDest, &oldrect);
 }
 
 }; // namespace SkinnedGUI

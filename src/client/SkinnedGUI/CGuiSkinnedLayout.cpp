@@ -328,12 +328,7 @@ void CGuiSkinnedLayout::DoRepaintRect(const SDL_Rect& r)
 {
 	CHECK_BUFFER;
 
-	SDL_Rect oldrect;
-	SDL_GetClipRect(bmpBuffer.get(), &oldrect);
-	if (SDL_SetClipRect(bmpBuffer.get(), &r) == SDL_FALSE)  {
-		SDL_SetClipRect(bmpBuffer.get(), NULL);
-		return;
-	}
+	ScopedSurfaceClip clipper(bmpBuffer.get(), r);
 
 	// Clear the buffer
 	FillSurfaceTransparent(bmpBuffer.get());;
@@ -360,8 +355,6 @@ void CGuiSkinnedLayout::DoRepaintRect(const SDL_Rect& r)
 
 	// Border
 	cBorder.Draw(bmpBuffer.get(), 0, 0, getWidth(), getHeight());
-
-	SDL_SetClipRect(bmpBuffer.get(), &oldrect);
 }
 
 ///////////////////
