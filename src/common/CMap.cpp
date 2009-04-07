@@ -1141,51 +1141,45 @@ int CMap::CarveHole(int size, CVec pos)
 		return 0;
 
 	int nNumDirt = 0;
-	int map_x = (int)pos.x - (hole.get()->w / 2);
-	int map_y = (int)pos.y - (hole.get()->h / 2);
 	int w = hole.get()->w;
 	int h = hole.get()->h;
+	int map_x = (int)pos.x - w / 2;
+	int map_y = (int)pos.y - h / 2;
 
 	// Clipping
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
 		return 0;
-		
+			
 	SaveToMemoryInternal( map_x, map_y, w, h );
 
 	// Variables
-	int hx, hy;
-	Uint8 *hole_px, *mapimage_px;
-	uchar *PixelFlag;
-	int HoleRowStep, MapImageRowStep, PixelFlagRowStep;
 	byte bpp = bmpImage.get()->format->BytesPerPixel;
-	Uint32 CurrentPixel;
-
 
 	if (!LockSurface(hole))
 		return 0;
 	if (!LockSurface(bmpImage))
 		return 0;
 
-	hole_px = (Uint8 *)hole.get()->pixels;
-	mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
-	PixelFlag = PixelFlags + map_y * Width + map_x;
+	Uint8* hole_px = (Uint8 *)hole.get()->pixels;
+	Uint8* mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
+	uchar* PixelFlag = PixelFlags + map_y * Width + map_x;
 
-	HoleRowStep = hole.get()->pitch - (w * bpp);
-	MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
-	PixelFlagRowStep = Width - w;
+	int HoleRowStep = hole.get()->pitch - (w * bpp);
+	int MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
+	int PixelFlagRowStep = Width - w;
 
 
 
 	// Lock
 	lockFlags();
 
-	for(hy = h; hy; --hy)  {
-		for(hx = w; hx; --hx) {
+	for(int hy = h; hy; --hy)  {
+		for(int hx = w; hx; --hx) {
 
 			// Carve only dirt
 			if (*PixelFlag & PX_DIRT)  {
 
-				CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+				Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
 
 				// Set the flag to empty
 				if(CurrentPixel == tLX->clPink) {
