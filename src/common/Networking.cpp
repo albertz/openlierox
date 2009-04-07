@@ -1148,11 +1148,16 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	if(getNLaddr(addr) == NULL)
 		return false;
 
+	if(name == "") {
+		SetNetAddrValid(addr, false);
+		return false;
+	}
+	
 	if (StringToNetAddr(name, addr))  {
 		return true;
 	}
 	ResetSocketError(); // Clear the bad address error
-
+	
 	if(GetFromDnsCache(name, addr)) {
 		SetNetAddrValid(addr, true);
 		return true;
