@@ -2116,7 +2116,18 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	}
 
 	SmartPointer<SDL_Surface> Image;
-	if(VideoPostProcessor::videoSurface()) {
+	if(bDedicated || !VideoPostProcessor::videoSurface()) {
+		if(!bDedicated)
+			// we haven't initialized the screen yet
+			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;	
+
+		if (withalpha)
+			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
+		else
+			Image = gfxCreateSurface(img.get()->w, img.get()->h);			
+		CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
+	}
+	else {
 		// Convert the image to the screen's colour depth
 		if (withalpha)  {
 			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
@@ -2127,20 +2138,6 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 			img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
 			Image = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
 			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
-		}
-
-	} else {
-		// we haven't initialized the screen yet
-		if(!bDedicated) {
-			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;
-			Image = img;
-		} else {
-			// for dedicated mode
-			if (withalpha)
-				Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
-			else
-				Image = gfxCreateSurface(img.get()->w, img.get()->h);			
-			CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);			
 		}
 	}
 
