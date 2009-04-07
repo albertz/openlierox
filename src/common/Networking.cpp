@@ -1067,7 +1067,7 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 }
 
 
-struct NLaddress_ex_t {
+struct AddrFromNameInfo {
 	std::string name;
 	NetAddrPtr address;
 };
@@ -1075,16 +1075,58 @@ struct NLaddress_ex_t {
 
 Event<> onDnsReady;
 
-// copied from HawkNL sock.c and modified for usage of SmartPointer
-static void* GetAddrFromNameAsync_Internal(void /*@owned@*/ *addr)
-{
-    NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
+// copied from HawkNL sock.c and modified to not use nlStringToNetAddr
+static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address) {
+	struct hostent *hostentry;
+    NLushort    port = 0;
+    int			pos;
+    NLbyte      temp[NL_MAX_STRING_LENGTH];
+	
+#ifdef _UNICODE
+    /* convert from wide char string to multibyte char string */
+    (void)wcstombs(temp, (const NLchar *)name, NL_MAX_STRING_LENGTH);
+#else
+    strncpy(temp, name, NL_MAX_STRING_LENGTH);
+#endif
+    temp[NL_MAX_STRING_LENGTH - 1] = (NLbyte)'\0';
+    pos = (int)strcspn(temp, (const char *)":");
+    if(pos > 0)
+    {
+        NLbyte      *p = &temp[pos+1];
+		
+        temp[pos] = (NLbyte)'\0';
+        (void)sscanf(p, "%hu", &port);
+    }
+    hostentry = gethostbyname((const char *)temp);
+	
+    if(hostentry != NULL)
+    {
+        ((struct sockaddr_in *)address)->sin_family = AF_INET;
+        ((struct sockaddr_in *)address)->sin_port = htons(port);
+        ((struct sockaddr_in *)address)->sin_addr.s_addr = *(NLulong *)hostentry->h_addr_list[0];
+        address->valid = NL_TRUE;
+    }
+    else
+    {
+        ((struct sockaddr_in *)address)->sin_family = AF_INET;
+        ((struct sockaddr_in *)address)->sin_addr.s_addr = INADDR_NONE;
+        ((struct sockaddr_in *)address)->sin_port = 0;
+        nlSetError(NL_SYSTEM_ERROR);
+        return false;
+    }
+    return true;
+}
 
-    if(nlGetAddrFromName(address->name.c_str(), address->address.get())) {
-		address->address.get()->valid = NL_TRUE;
+// copied from HawkNL sock.c and modified for usage of SmartPointer
+static void* GetAddrFromNameAsync_Threaded(void /*@owned@*/ *addr)
+{
+    AddrFromNameInfo *address = (AddrFromNameInfo *)addr;
+
+    if(GetAddrFromNameAsync_Internal(address->name.c_str(), address->address.get())) {
 		// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
 		AddToDnsCache(address->name, *address->address.get());
 	}
+	
 		// TODO: handle failures here? there should be, but we only have the valid field
 		// For now, we leave it at false, so the timeout handling will just occur.
 
@@ -1118,14 +1160,13 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
     getNLaddr(addr)->valid = NL_FALSE;
 
-    NLaddress_ex_t  *addr_ex;
-    addr_ex = new NLaddress_ex_t;
+    AddrFromNameInfo* addr_ex = new AddrFromNameInfo;
     if(addr_ex == NULL)
         return false;
     addr_ex->name = name;
     addr_ex->address = *NetworkAddrData(&addr);
 
-	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsync_Internal, addr_ex, true);
+	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsync_Threaded, addr_ex, true);
     if(thread == NULL)
         return false;
     return true;
