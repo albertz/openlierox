@@ -407,7 +407,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					tLXOptions->tGameInfo.iMaxPlayers = MAX(tLXOptions->tGameInfo.iMaxPlayers,2);
 					tLXOptions->tGameInfo.iMaxPlayers = MIN(tLXOptions->tGameInfo.iMaxPlayers,MAX_PLAYERS);
 
-					if(tLXOptions->bCheckBandwidthSanity) {
+					if(tLXOptions->bCheckBandwidthSanity || tLXOptions->iNetworkSpeed != NST_LAN) {
 						float maxRate = GameServer::getMaxUploadBandwidth() / 1024.0f;
 						float minRate = estimatedMinNeededUploadSpeed(tLXOptions->tGameInfo.iMaxPlayers, lv->getItemCount()) / 1024.0f;
 						if(maxRate < minRate) {
