@@ -505,73 +505,76 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		return;
 
     switch (tProjInfo->Type) {
-	case PRJ_PIXEL:
-		DrawRectFill2x2(bmpDest, x - 1, y - 1,iColour);
-        return;
-
-	case PRJ_IMAGE:  {
-
-		if(tProjInfo->bmpImage == NULL)
+		case PRJ_PIXEL:
+			DrawRectFill2x2(bmpDest, x - 1, y - 1,iColour);
 			return;
-
-		// Spinning projectile only when moving
-		if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
-			framestep = fRotation / (float)tProjInfo->RotIncrement;
-		else
-			framestep = 0;
-
-		// Directed in the direction the projectile is travelling
-		if(tProjInfo->UseAngle) {
-			CVec dir = vVelocity;
-			float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
-			float offset = 360.0f / (float)tProjInfo->AngleImages;
-
-			FMOD(angle, 360.0f);
-
-			framestep = angle / offset;
-		}
-
-		// Special angle
-		// Basically another way of organising the angles in images
-		// Straight up is in the middle, rotating left goes left, rotating right goes right in terms
-		// of image index's from the centre
-		if(tProjInfo->UseSpecAngle) {
-			CVec dir = vVelocity;
-			float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
-			int direct = 0;
-
-			if(angle > 0)
-				angle=180-angle;
-			if(angle < 0) {
-				angle=180+angle;
-				direct = 1;
+	
+		case PRJ_IMAGE:  {
+	
+			if(tProjInfo->bmpImage == NULL)
+				return;
+	
+			// Spinning projectile only when moving
+			if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
+				framestep = fRotation / (float)tProjInfo->RotIncrement;
+			else
+				framestep = 0;
+	
+			// Directed in the direction the projectile is travelling
+			if(tProjInfo->UseAngle) {
+				CVec dir = vVelocity;
+				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
+				float offset = 360.0f / (float)tProjInfo->AngleImages;
+	
+				FMOD(angle, 360.0f);
+	
+				framestep = angle / offset;
 			}
-			if(angle == 0)
-				direct = 0;
-
-
-			int num = (tProjInfo->AngleImages - 1) / 2;
-			if(direct == 0)
-				// Left side
-				framestep = (float)(151-angle) / 151.0f * (float)num;
-			else {
-				// Right side
-				framestep = (float)angle / 151.0f * (float)num;
-				framestep += num+1;
+	
+			// Special angle
+			// Basically another way of organising the angles in images
+			// Straight up is in the middle, rotating left goes left, rotating right goes right in terms
+			// of image index's from the centre
+			if(tProjInfo->UseSpecAngle) {
+				CVec dir = vVelocity;
+				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
+				int direct = 0;
+	
+				if(angle > 0)
+					angle=180-angle;
+				if(angle < 0) {
+					angle=180+angle;
+					direct = 1;
+				}
+				if(angle == 0)
+					direct = 0;
+	
+	
+				int num = (tProjInfo->AngleImages - 1) / 2;
+				if(direct == 0)
+					// Left side
+					framestep = (float)(151-angle) / 151.0f * (float)num;
+				else {
+					// Right side
+					framestep = (float)angle / 151.0f * (float)num;
+					framestep += num+1;
+				}
 			}
+	
+			if(tProjInfo->Animating)
+				framestep = fFrame;
+	
+			int size = tProjInfo->bmpImage->h;
+			int half = size/2;
+			iFrameX = (int)framestep*size;
+			MOD(iFrameX, tProjInfo->bmpImage->w);
+	
+			DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
+		
+			return;
 		}
-
-		if(tProjInfo->Animating)
-			framestep = fFrame;
-
-		int size = tProjInfo->bmpImage->h;
-		int half = size/2;
-        iFrameX = (int)framestep*size;
-		MOD(iFrameX, tProjInfo->bmpImage->w);
-
-		DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
-	}
-	return;
+		case PRJ_INVISIBLE: return;
+		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
 	}
 }
@@ -601,28 +604,30 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 		return;
 
 	switch (tProjInfo->Type)  {
-
-	// Pixel
-	case PRJ_PIXEL:
-		map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
-		break;
-
-	// Image
-	case PRJ_IMAGE:  {
-
-			if(tProjInfo->bmpImage == NULL)
-				return;
-			/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
-				map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
-				return;
-			}*/
-
-			int size = tProjInfo->bmpImage->h;
-			int half = size / 2;
-			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
-		}
-		break;
-	case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
+	
+		// Pixel
+		case PRJ_PIXEL:
+			map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+			break;
+	
+		// Image
+		case PRJ_IMAGE:  {
+	
+				if(tProjInfo->bmpImage == NULL)
+					return;
+				/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
+					map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+					return;
+				}*/
+	
+				int size = tProjInfo->bmpImage->h;
+				int half = size / 2;
+				map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+			}
+			break;
+			
+		
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
     }
 }
 

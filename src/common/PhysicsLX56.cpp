@@ -586,51 +586,6 @@ public:
 		return res;
 	}
 
-	void projectile_doExplode(CProjectile* const prj, int shake) {
-		const proj_t *pi = prj->GetProjInfo();
-		// Explosion
-		int damage = pi->Hit.Damage;
-		if(pi->PlyHit.Type == PJ_EXPLODE)
-			damage = pi->PlyHit.Damage;
-
-		if(damage != -1) // TODO: why only with -1?
-			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
-	}
-
-	void projectile_doTimerExplode(CProjectile* const prj, int shake) {
-		const proj_t *pi = prj->GetProjInfo();
-		// Explosion
-		int damage = pi->Timer.Damage;
-		if(pi->PlyHit.Type == PJ_EXPLODE)
-			damage = pi->PlyHit.Damage;
-
-		if(damage != -1) // TODO: why only with -1?
-			cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
-	}
-
-	void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
-		spawnInfo->apply(prj, fSpawnTime);
-	}
-
-	void projectile_doMakeDirt(CProjectile* const prj) {
-		int damage = 5;
-		int d = 0;
-		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
-		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
-		d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
-
-		// Remove the dirt count on the worm
-		if(prj->hasOwner())
-			cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-	}
-
-	void projectile_doMakeGreenDirt(CProjectile* const prj) {
-		int d = cClient->getMap()->PlaceGreenDirt(prj->GetPosition());
-
-		// Remove the dirt count on the worm
-		if(prj->hasOwner())
-			cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
-	}
 
 	void simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
 		const TimeDiff orig_dt = TimeDiff(0.01f);
@@ -642,17 +597,7 @@ public:
 		if(prj->fLastSimulationTime + orig_dt > currentTime) return;
 		prj->fLastSimulationTime += orig_dt;
 
-
-		bool explode = false;
-		bool timer = false;
-		int shake = 0;
-		bool dirt = false;
-		bool grndirt = false;
-		bool deleteAfter = false;
-		bool trailprojspawn = false;
-
-		bool spawnprojectiles = false;
-		const Proj_SpawnInfo* spawnInfo = NULL;
+		Proj_DoActionInfo doActionInfo;
 		const proj_t *pi = prj->GetProjInfo();
 
 
@@ -673,40 +618,40 @@ public:
 
 				// Explode
 				case PJ_EXPLODE:
-					explode = true;
-					timer = true;
+					doActionInfo.explode = true;
+					doActionInfo.timer = true;
 	
 					if(pi->Timer.Projectiles)
-						spawnprojectiles = true;
-					if(pi->Timer.Shake > shake)
-						shake = pi->Timer.Shake;
+						doActionInfo.spawnprojectiles = true;
+					if(pi->Timer.Shake > doActionInfo.shake)
+						doActionInfo.shake = pi->Timer.Shake;
 					break;
 	
 				// Create some dirt
 				case PJ_DIRT:
-					dirt = true;
+					doActionInfo.dirt = true;
 					if(pi->Timer.Projectiles)
-						spawnprojectiles = true;
-					if(pi->Timer.Shake > shake)
-						shake = pi->Timer.Shake;
+						doActionInfo.spawnprojectiles = true;
+					if(pi->Timer.Shake > doActionInfo.shake)
+						doActionInfo.shake = pi->Timer.Shake;
 					break;
 	
 				// Create some green dirt
 				case PJ_GREENDIRT:
-					grndirt = true;
+					doActionInfo.grndirt = true;
 					if(pi->Timer.Projectiles)
-						spawnprojectiles = true;
-					if(pi->Timer.Shake > shake)
-						shake = pi->Timer.Shake;
+						doActionInfo.spawnprojectiles = true;
+					if(pi->Timer.Shake > doActionInfo.shake)
+						doActionInfo.shake = pi->Timer.Shake;
 					break;
 	
 				// Carve
 				case PJ_CARVE:  {
-					int d = cClient->getMap()->CarveHole(	pi->Timer.Damage, prj->GetPosition() );
-					deleteAfter = true;
+					int d = cClient->getMap()->CarveHole( pi->Timer.Damage, prj->GetPosition() );
+					doActionInfo.deleteAfter = true;
 	
 					if(pi->Timer.Projectiles)
-						spawnprojectiles = true;
+						doActionInfo.spawnprojectiles = true;
 	
 					// Increment the dirt count
 					if(prj->hasOwner())
@@ -717,12 +662,12 @@ public:
 				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
 			
-			if(spawnprojectiles)
-				spawnInfo = &pi->Timer.Proj;
+			if(doActionInfo.spawnprojectiles)
+				doActionInfo.spawnInfo = &pi->Timer.Proj;
 		}
 
 		// Simulate the projectile
-		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &trailprojspawn, &deleteAfter );
+		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 
 		/*
 		===================
@@ -734,10 +679,10 @@ public:
 			// Explosion
 			switch (pi->Hit.Type)  {
 				case PJ_EXPLODE:
-					explode = true;
+					doActionInfo.explode = true;
 	
-					if(pi->Hit.Shake > shake)
-						shake = pi->Hit.Shake;
+					if(pi->Hit.Shake > doActionInfo.shake)
+						doActionInfo.shake = pi->Hit.Shake;
 	
 					// Play the hit sound
 					if(pi->Hit.UseSound && (!prj->hasOwner() || NewNet::CanPlaySound(prj->GetOwner())))
@@ -755,9 +700,8 @@ public:
 	
 				// Carve
 				case PJ_CARVE:  {
-					int d = cClient->getMap()->CarveHole(
-						pi->Hit.Damage, prj->GetPosition());
-					deleteAfter = true;
+					int d = cClient->getMap()->CarveHole(pi->Hit.Damage, prj->GetPosition());
+					doActionInfo.deleteAfter = true;
 	
 					// Increment the dirt count
 					if(prj->hasOwner())
@@ -767,12 +711,12 @@ public:
 	
 				// Dirt
 				case PJ_DIRT:
-					dirt = true;
+					doActionInfo.dirt = true;
 					break;
 	
 				// Green Dirt
 				case PJ_GREENDIRT:
-					grndirt = true;
+					doActionInfo.grndirt = true;
 					break;
 				
 				case PJ_INJURE:
@@ -782,7 +726,7 @@ public:
 					// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
 					if(result.colMask & PJC_MAPBORDER) {
 						// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-						deleteAfter = true;						
+						doActionInfo.deleteAfter = true;
 					}
 					break;
 					
@@ -790,8 +734,8 @@ public:
 			}
 
 			if(pi->Hit.Projectiles) {
-				spawnprojectiles = true;
-				spawnInfo = &pi->Hit.Proj;
+				doActionInfo.spawnprojectiles = true;
+				doActionInfo.spawnInfo = &pi->Hit.Proj;
 			}
 		}
 
@@ -800,7 +744,7 @@ public:
 		Worm Collision
 		===================
 		*/
-		if( result.withWorm && !explode) {
+		if( result.withWorm && !doActionInfo.explode) {
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
@@ -814,12 +758,12 @@ public:
 
 					// Explode
 					case PJ_EXPLODE:
-						explode = true;
+						doActionInfo.explode = true;
 						break;
 	
 					// Injure
-					case PJ_INJURE:					
-						deleteAfter = true;
+					case PJ_INJURE:	
+						doActionInfo.deleteAfter = true;
 						
 						// Add damage to the worm
 						cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit.Damage, prj->GetOwner());
@@ -833,12 +777,12 @@ public:
 	
 					// Dirt
 					case PJ_DIRT:
-						dirt = true;
+						doActionInfo.dirt = true;
 						break;
 	
 					// Green Dirt
 					case PJ_GREENDIRT:
-						grndirt = true;
+						doActionInfo.grndirt = true;
 						break;
 	
 					case PJ_NOTHING:
@@ -856,62 +800,15 @@ public:
 				}
 
 				if(pi->PlyHit.Projectiles) {
-					spawnprojectiles = true;
-					spawnInfo = &pi->PlyHit.Proj;
+					doActionInfo.spawnprojectiles = true;
+					doActionInfo.spawnInfo = &pi->PlyHit.Proj;
 				}
 			}
 		}
 
-
-		// Explode?
-		if(explode) {
-			if(!timer)
-				projectile_doExplode(prj, shake);
-			else
-				projectile_doTimerExplode(prj, shake);
-			deleteAfter = true;
-		}
-
-		// Dirt
-		if(dirt) {
-			projectile_doMakeDirt(prj);
-			deleteAfter = true;
-		}
-
-		// Green dirt
-		if(grndirt) {
-			projectile_doMakeGreenDirt(prj);
-			deleteAfter = true;
-		}
-
-		if(trailprojspawn) {
-			// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-			projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );
-		}
-
-		// Spawn any projectiles?
-		if(spawnprojectiles) {
-			if(!spawnInfo || !spawnInfo->isSet())
-				spawnInfo = &pi->GeneralSpawnInfo;
-			// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
-			// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-			projectile_doProjSpawn(prj, spawnInfo, currentTime);
-		}
-
-		// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
-		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
-		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
-		// These conditions test for those projectiles and remove them
-		if (!pi->Hit.hasAction() && !pi->PlyHit.hasAction() && !pi->Timer.hasAction()) // Isn't destroyed by any event
-			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
-				if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
-					deleteAfter = true;
-
-		if(deleteAfter) {
-			prj->setUnused();
-			return;
-		}
-
+		doActionInfo.execute(prj, currentTime);
+		if(doActionInfo.deleteAfter) return;
+		
 		goto simulateProjectileStart;
 	}
 

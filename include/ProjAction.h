@@ -167,4 +167,27 @@ struct Proj_Timer : Proj_Action {
 };
 
 
+
+struct Proj_DoActionInfo {
+	Proj_DoActionInfo() :
+	explode(false), timer(false), shake(0),
+	dirt(false), grndirt(false), deleteAfter(false),
+	trailprojspawn(false), spawnprojectiles(false),
+	spawnInfo(NULL) {}
+	
+	bool	explode;
+	bool	timer;
+	int		shake;
+	bool	dirt;
+	bool	grndirt;
+	bool	deleteAfter;
+	bool	trailprojspawn;
+	
+	bool	spawnprojectiles;
+	const Proj_SpawnInfo* spawnInfo;
+	
+	void execute(CProjectile* const prj, const AbsTime currentTime);
+};
+
+
 #endif

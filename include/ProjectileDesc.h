@@ -21,15 +21,20 @@ struct SoundSample;
 
 
 // Projectile types
-enum Proj_Type {
+enum Proj_GfxType {
 	PRJ_PIXEL = 0,
 	PRJ_IMAGE = 1,
+ 
+	// new since Beta9
+	PRJ_INVISIBLE = 2,
+	PRJ_CIRCLE = 3,
+	PRJ_POLYGON = 4,
 	
 	__PRJ_LBOUND = INT_MIN,
 	__PRJ_UBOUND = INT_MAX
 };
 
-static_assert(sizeof(Proj_Type) == sizeof(int), Proj_Type__SizeCheck);
+static_assert(sizeof(Proj_GfxType) == sizeof(int), Proj_Type__SizeCheck);
 
 
 // Animation types
@@ -52,7 +57,7 @@ struct proj_t {
 	
 	std::string	filename;		// Compiler use (was 64b before)
 	
-	Proj_Type Type;
+	Proj_GfxType Type;
 	Proj_Trail Trail;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)

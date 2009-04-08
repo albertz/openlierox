@@ -149,3 +149,108 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	
 }
 
+
+
+
+
+
+static void projectile_doExplode(CProjectile* const prj, int shake) {
+	const proj_t *pi = prj->GetProjInfo();
+	// Explosion
+	int damage = pi->Hit.Damage;
+	if(pi->PlyHit.Type == PJ_EXPLODE)
+		damage = pi->PlyHit.Damage;
+
+	if(damage != -1) // TODO: why only with -1?
+		cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+}
+
+static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
+	const proj_t *pi = prj->GetProjInfo();
+	// Explosion
+	int damage = pi->Timer.Damage;
+	if(pi->PlyHit.Type == PJ_EXPLODE)
+		damage = pi->PlyHit.Damage;
+
+	if(damage != -1) // TODO: why only with -1?
+		cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+}
+
+static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
+	spawnInfo->apply(prj, fSpawnTime);
+}
+
+static void projectile_doMakeDirt(CProjectile* const prj) {
+	int damage = 5;
+	int d = 0;
+	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
+	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
+	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
+
+	// Remove the dirt count on the worm
+	if(prj->hasOwner())
+		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+}
+
+static void projectile_doMakeGreenDirt(CProjectile* const prj) {
+	int d = cClient->getMap()->PlaceGreenDirt(prj->GetPosition());
+
+	// Remove the dirt count on the worm
+	if(prj->hasOwner())
+		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+}
+
+
+void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTime) {
+	const proj_t *pi = prj->GetProjInfo();
+	
+	// Explode?
+	if(explode) {
+		if(!timer)
+			projectile_doExplode(prj, shake);
+		else
+			projectile_doTimerExplode(prj, shake);
+		deleteAfter = true;
+	}
+
+	// Dirt
+	if(dirt) {
+		projectile_doMakeDirt(prj);
+		deleteAfter = true;
+	}
+
+	// Green dirt
+	if(grndirt) {
+		projectile_doMakeGreenDirt(prj);
+		deleteAfter = true;
+	}
+
+	if(trailprojspawn) {
+		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
+		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );
+	}
+
+	// Spawn any projectiles?
+	if(spawnprojectiles) {
+		if(!spawnInfo || !spawnInfo->isSet())
+			spawnInfo = &pi->GeneralSpawnInfo;
+		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
+		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
+		projectile_doProjSpawn(prj, spawnInfo, currentTime);
+	}
+
+	// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
+	// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
+	// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
+	// These conditions test for those projectiles and remove them
+	if (!pi->Hit.hasAction() && !pi->PlyHit.hasAction() && !pi->Timer.hasAction()) // Isn't destroyed by any event
+		if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
+			if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
+				deleteAfter = true;
+
+	if(deleteAfter) {
+		prj->setUnused();
+	}
+	
+}
+
