@@ -37,8 +37,10 @@
 
 ///////////////////
 // Load the sounds
-int LoadSounds()
+bool LoadSounds()
 {
+	if(bDedicated) return false;
+	
 	sfxGame.smpNinja = LoadSample("data/sounds/throw.wav",4);
 	sfxGame.smpPickup = LoadSample("data/sounds/pickup.wav",2);
 	sfxGame.smpBump = LoadSample("data/sounds/bump.wav", 2);
@@ -116,7 +118,7 @@ bool GetSongStopped() { return false; }
 bool GetSongFinished() { return false; }
 byte GetMusicVolume() { return 0; }
 
-#else //DEDICATED_ONLY
+#else // not DEDICATED_ONLY
 
 ///////////////////
 // Load a sample and cache it
@@ -124,6 +126,8 @@ SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays);
 
 SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying)
 {
+	if(bDedicated) return NULL;
+	
 	// Try cache first
 	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
 	if (SampleCached.get())
@@ -152,6 +156,8 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
+	if(bDedicated) return false;
+	
 	if(getenv("SDL_AUDIODRIVER"))
 		notes << "SDL_AUDIODRIVER=" << getenv("SDL_AUDIODRIVER") << endl;
 #if defined(__linux__)

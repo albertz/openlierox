@@ -53,6 +53,7 @@ void CTextbox::Create()
 	if (tTimer == NULL)  {
 		tTimer = new Timer;
 		if (tTimer)  {
+			tTimer->name = "CTextbox cursor blinker";
 			tTimer->interval = 500;
 			tTimer->once = false;
 			tTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);

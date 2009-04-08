@@ -112,7 +112,7 @@ inline bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
 
 class CWorm;
 
-int		LoadSounds();
+bool	LoadSounds();
 void	ShutdownSounds();
 void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
 inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
