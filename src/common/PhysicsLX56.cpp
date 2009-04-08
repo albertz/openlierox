@@ -902,7 +902,7 @@ public:
 		// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
 		// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
 		// These conditions test for those projectiles and remove them
-		if (pi->Hit.Type == PJ_NOTHING && pi->PlyHit.Type == PJ_NOTHING && (pi->Timer.Type == PJ_NOTHING || pi->Timer.Time <= 0)) // Isn't destroyed by any event
+		if (!pi->Hit.hasAction() && !pi->PlyHit.hasAction() && !pi->Timer.hasAction()) // Isn't destroyed by any event
 			if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
 				if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
 					deleteAfter = true;
