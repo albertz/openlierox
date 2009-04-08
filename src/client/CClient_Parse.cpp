@@ -941,6 +941,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 			// Also set some game details
 			w->setLives(client->tGameInfo.iLives);
+			w->setAlive(false);
 			w->setKills(0);
 			w->setDamage(0);
 			w->setHealth(100);
