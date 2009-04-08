@@ -273,7 +273,9 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 
 	SendClientReady(NULL);
 	
-	if(tLXOptions->tGameInfo.features[FT_ImmediateStart] || server->iState == SVS_PLAYING)
+	if(server->iState == SVS_PLAYING)
+		server->BeginMatch(cl);
+	else if(tLXOptions->tGameInfo.features[FT_ImmediateStart])
 		server->BeginMatch(cl);
 	else
 		// Check if all the clients are ready

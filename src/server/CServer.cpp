@@ -557,7 +557,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 
 	bool firstStart = false;
 	
-	if( iState != SVS_PLAYING) {
+	if(iState != SVS_PLAYING) {
 		// game has started for noone yet and we get the first start signal
 		firstStart = true;
 		iState = SVS_PLAYING;
@@ -572,8 +572,10 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		cShootList.Clear();
 	}
 	
-
 	// Send the connected clients a startgame message
+	// IMPORTANT: Clients will interpret this that they were forced to be ready,
+	// so they will stop the weapon selection and start the game and wait for
+	// getting spawned. Thus, this should only be sent if we got ParseImReady from client.
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
 	if (tLXOptions->tGameInfo.features[FT_NewNetEngine])
@@ -584,7 +586,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		SendGlobalPacket(&bs);
 	
 
-	if(receiver) {		
+	if(receiver) {
 		// inform new client about other ready clients
 		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -626,7 +628,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				cWorms[i].setAlive(false);
 		}
 		for(int i=0;i<MAX_WORMS;i++) {
-			if( cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT )
+			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
 				SpawnWorm( & cWorms[i] );
 				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 					SendEmptyWeaponsOnRespawn( & cWorms[i] );
