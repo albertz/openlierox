@@ -1254,6 +1254,7 @@ void GameServer::CheckWeaponSelectionTime()
 {
 	if( iState != SVS_GAME || tLX->iGameType != GME_HOST ) return;
 	if( serverChoosesWeapons() ) return;
+	if( tLXOptions->tGameInfo.features[FT_ImmediateStart] ) return;
 	
 	float timeLeft = float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
 	
