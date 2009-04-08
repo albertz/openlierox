@@ -154,7 +154,7 @@ struct Proj_Action {
 	
 	Proj_SpawnInfo Proj;
 	
-	bool hasAction() { return Type != PJ_NOTHING; }
+	bool hasAction() const { return Type != PJ_NOTHING; }
 };
 
 struct Proj_Timer : Proj_Action {
@@ -163,7 +163,7 @@ struct Proj_Timer : Proj_Action {
 	float	Time;
 	float	TimeVar;
 	
-	bool hasAction() { return Proj_Action::hasAction() && Time > 0; }
+	bool hasAction() const { return Proj_Action::hasAction() && Time > 0; }
 };
 
 

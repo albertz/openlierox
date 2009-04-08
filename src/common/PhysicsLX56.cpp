@@ -671,48 +671,48 @@ public:
 					// TODO: do anything?
 					break;
 
-			// Explode
-			case PJ_EXPLODE:
-				explode = true;
-				timer = true;
-
-				if(pi->Timer.Projectiles)
-					spawnprojectiles = true;
-				if(pi->Timer.Shake > shake)
-					shake = pi->Timer.Shake;
-			break;
-
-			// Create some dirt
-			case PJ_DIRT:
-				dirt = true;
-				if(pi->Timer.Projectiles)
-					spawnprojectiles = true;
-				if(pi->Timer.Shake > shake)
-					shake = pi->Timer.Shake;
-			break;
-
-			// Create some green dirt
-			case PJ_GREENDIRT:
-				grndirt = true;
-				if(pi->Timer.Projectiles)
-					spawnprojectiles = true;
-				if(pi->Timer.Shake > shake)
-					shake = pi->Timer.Shake;
-			break;
-
-			// Carve
-			case PJ_CARVE:  {
-				int d = cClient->getMap()->CarveHole(	pi->Timer.Damage, prj->GetPosition() );
-				deleteAfter = true;
-
-				if(pi->Timer.Projectiles)
-					spawnprojectiles = true;
-
-				// Increment the dirt count
-				if(prj->hasOwner())
-					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-			}
-			break;
+				// Explode
+				case PJ_EXPLODE:
+					explode = true;
+					timer = true;
+	
+					if(pi->Timer.Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer.Shake > shake)
+						shake = pi->Timer.Shake;
+					break;
+	
+				// Create some dirt
+				case PJ_DIRT:
+					dirt = true;
+					if(pi->Timer.Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer.Shake > shake)
+						shake = pi->Timer.Shake;
+					break;
+	
+				// Create some green dirt
+				case PJ_GREENDIRT:
+					grndirt = true;
+					if(pi->Timer.Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer.Shake > shake)
+						shake = pi->Timer.Shake;
+					break;
+	
+				// Carve
+				case PJ_CARVE:  {
+					int d = cClient->getMap()->CarveHole(	pi->Timer.Damage, prj->GetPosition() );
+					deleteAfter = true;
+	
+					if(pi->Timer.Projectiles)
+						spawnprojectiles = true;
+	
+					// Increment the dirt count
+					if(prj->hasOwner())
+						cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+					break;
+				}
 					
 				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
@@ -733,60 +733,60 @@ public:
 
 			// Explosion
 			switch (pi->Hit.Type)  {
-			case PJ_EXPLODE:
-				explode = true;
-
-				if(pi->Hit.Shake > shake)
-					shake = pi->Hit.Shake;
-
-				// Play the hit sound
-				if(pi->Hit.UseSound && (!prj->hasOwner() || NewNet::CanPlaySound(prj->GetOwner())))
-					PlaySoundSample(pi->smpSample);
-			break;
-
-			// Bounce
-			case PJ_BOUNCE:
-				prj->Bounce(pi->Hit.BounceCoeff);
-
-				// Do we do a bounce-explosion (bouncy larpa uses this)
-				if(pi->Hit.BounceExplode > 0)
-					cClient->Explosion(prj->GetPosition(), pi->Hit.BounceExplode, false, prj->GetOwner());
-			break;
-
-			// Carve
-			case PJ_CARVE:  {
-				int d = cClient->getMap()->CarveHole(
-					pi->Hit.Damage, prj->GetPosition());
-				deleteAfter = true;
-
-				// Increment the dirt count
-				if(prj->hasOwner())
-					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-			}
-			break;
-
-			// Dirt
-			case PJ_DIRT:
-				dirt = true;
-			break;
-
-			// Green Dirt
-			case PJ_GREENDIRT:
-				grndirt = true;
-				break;
-			
-			case PJ_INJURE:
-			case PJ_DISAPPEAR:
-				// TODO: do something special?
-			case PJ_NOTHING:
-				// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-				if(result.colMask & PJC_MAPBORDER) {
-					// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-					deleteAfter = true;						
+				case PJ_EXPLODE:
+					explode = true;
+	
+					if(pi->Hit.Shake > shake)
+						shake = pi->Hit.Shake;
+	
+					// Play the hit sound
+					if(pi->Hit.UseSound && (!prj->hasOwner() || NewNet::CanPlaySound(prj->GetOwner())))
+						PlaySoundSample(pi->smpSample);
+					break;
+	
+				// Bounce
+				case PJ_BOUNCE:
+					prj->Bounce(pi->Hit.BounceCoeff);
+	
+					// Do we do a bounce-explosion (bouncy larpa uses this)
+					if(pi->Hit.BounceExplode > 0)
+						cClient->Explosion(prj->GetPosition(), pi->Hit.BounceExplode, false, prj->GetOwner());
+					break;
+	
+				// Carve
+				case PJ_CARVE:  {
+					int d = cClient->getMap()->CarveHole(
+						pi->Hit.Damage, prj->GetPosition());
+					deleteAfter = true;
+	
+					// Increment the dirt count
+					if(prj->hasOwner())
+						cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+					break;
 				}
-				break;
+	
+				// Dirt
+				case PJ_DIRT:
+					dirt = true;
+					break;
+	
+				// Green Dirt
+				case PJ_GREENDIRT:
+					grndirt = true;
+					break;
 				
-			case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
+				case PJ_INJURE:
+				case PJ_DISAPPEAR:
+					// TODO: do something special?
+				case PJ_NOTHING:
+					// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
+					if(result.colMask & PJC_MAPBORDER) {
+						// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
+						deleteAfter = true;						
+					}
+					break;
+					
+				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 			}
 
 			if(pi->Hit.Projectiles) {
@@ -812,38 +812,38 @@ public:
 						// TODO: do anything about it?
 						break;
 
-				// Explode
-				case PJ_EXPLODE:
-					explode = true;
-				break;
-
-				// Injure
-				case PJ_INJURE:					
-					deleteAfter = true;
-					
-					// Add damage to the worm
-					cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit.Damage, prj->GetOwner());
-				break;
-
-				// Bounce
-				case PJ_BOUNCE:
-					push_worm = false;
-					prj->Bounce(pi->PlyHit.BounceCoeff);
-				break;
-
-				// Dirt
-				case PJ_DIRT:
-					dirt = true;
-				break;
-
-				// Green Dirt
-				case PJ_GREENDIRT:
-					grndirt = true;
-				break;
-
-				case PJ_NOTHING:
-					push_worm = false;
-				break;
+					// Explode
+					case PJ_EXPLODE:
+						explode = true;
+						break;
+	
+					// Injure
+					case PJ_INJURE:					
+						deleteAfter = true;
+						
+						// Add damage to the worm
+						cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit.Damage, prj->GetOwner());
+						break;
+	
+					// Bounce
+					case PJ_BOUNCE:
+						push_worm = false;
+						prj->Bounce(pi->PlyHit.BounceCoeff);
+						break;
+	
+					// Dirt
+					case PJ_DIRT:
+						dirt = true;
+						break;
+	
+					// Green Dirt
+					case PJ_GREENDIRT:
+						grndirt = true;
+						break;
+	
+					case PJ_NOTHING:
+						push_worm = false;
+						break;
 						
 					case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
 				}
