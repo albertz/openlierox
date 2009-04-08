@@ -59,8 +59,6 @@ public:
 		fLastTrailProj = AbsTime(0);
 		iColour = 0;
 		iRandom = 0;
-        bExplode = false;
-        bTouched = false;
         fRotation = 0;
 	}
 
@@ -122,11 +120,6 @@ private:
 	CVec		vStart, vEnd;
 	int			iWidth;
 
-    // Queued events
-    bool		bExplode;
-    AbsTime		fExplodeTime;
-    bool		bTouched;
-
 	// Debug info
 	bool		firstbounce;
 
@@ -174,9 +167,6 @@ public:
 	float&	life()					{ return fLife; }
 
 	float&	extra()					{ return fExtra; }
-	bool&	explode()				{ return bExplode; }
-	AbsTime&	explodeTime()			{ return fExplodeTime; }
-	bool&	touched()				{ return bTouched; }
 	proj_t* getProjInfo()			{ return tProjInfo; }
 	float&	rotation()				{ return fRotation; }
 	void	setFrameDelta(bool d)	{ bFrameDelta = d; }
@@ -195,9 +185,6 @@ public:
 
 	float	getRandomFloat();
 	int		getRandomIndex()	{ return iRandom; }
-
-    void    setExplode(const AbsTime& t, bool _e)     { fExplodeTime = t; bExplode = _e; }
-    void    setTouched(bool _t)      { bTouched = _t; }
 
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }

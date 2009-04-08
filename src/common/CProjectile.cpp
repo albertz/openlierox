@@ -88,10 +88,6 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now? 
 	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
 		&& (tProjInfo->Hit.Type != PJ_BOUNCE || (int)tProjInfo->Hit.BounceCoeff == 1);  // Changes speed on bounce
-
-    // Events
-    bExplode = false;
-    bTouched = false;
 }
 
 
@@ -573,7 +569,9 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		
 			return;
 		}
+		
 		case PRJ_INVISIBLE: return;
+		
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
 	}
@@ -613,19 +611,23 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 		// Image
 		case PRJ_IMAGE:  {
 	
-				if(tProjInfo->bmpImage == NULL)
-					return;
-				/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
-					map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
-					return;
-				}*/
-	
-				int size = tProjInfo->bmpImage->h;
-				int half = size / 2;
-				map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
-			}
-			break;
-			
+			if(tProjInfo->bmpImage == NULL)
+				return;
+			/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
+				map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+				return;
+			}*/
+
+			int size = tProjInfo->bmpImage->h;
+			int half = size / 2;
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+		
+			break;	
+		}
+		
+		case PRJ_INVISIBLE: return;
+		
+		
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
     }

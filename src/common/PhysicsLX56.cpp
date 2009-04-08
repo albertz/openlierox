@@ -492,15 +492,6 @@ public:
 		proj->life() += dt;
 		proj->extra() += dt;
 
-		// If any of the events have been triggered, add that onto the flags
-		// HINT: We don't add it anymore onto the flags as it is used nowhere. It also doesn't work with CollisionType.
-		if( proj->explode() && currentTime > proj->explodeTime()) {
-			proj->explode() = false;
-		}
-		if( proj->touched() ) {
-			proj->touched() = false;
-		}
-
 
 
 	/*
