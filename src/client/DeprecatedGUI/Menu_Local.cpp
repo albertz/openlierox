@@ -1351,8 +1351,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 	WeaponPresetsAdder adder(lv);
 	FindFiles(adder,"cfg/presets/",false,FM_REG);
-
-
+	
+	lv->SortBy( 0, true );
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
@@ -1407,6 +1407,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 							// Save
 							buf = std::string("cfg/presets/") + t->getText(); // + ".wps";
+							if(buf.find(".wps") == std::string::npos )
+								buf += ".wps";
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))

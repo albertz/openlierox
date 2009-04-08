@@ -56,7 +56,7 @@ RANKING_AUTHENTICATION = 0 # Should we authenticate worm by it's skin color (pre
 
 VOTING = 1 # Should we allow voting for preset/map/mod/lt/kick/mute
 VOTING_PERCENT = 51 # How much users in percent should vote yes for vote to pass
-VOTING_TIME = 15 # For how much time we should wait votes from users
+VOTING_TIME = 45 # For how much time we should wait votes from users
 VOTING_COUNT_NEGATIVE = 1 # If we should count negative votes, so users can fail unpopular vote before timeout
 VOTING_KICK_TIME = 5 # Time in minutes when user kicked by voting cannot re-join server (it auto-kicks user again with message)
 
@@ -95,16 +95,11 @@ PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare", "HideAndSe
 # General options that should be set
 GLOBAL_SETTINGS = {	
 
-#	"GameOptions.Network.WelcomeMessage":           "<player> from <country> connected",
-#	"GameOptions.GameInfo.MaxPlayers":              8,
-#	"GameOptions.GameInfo.WeaponSelectionMaxTime":  40,
-#	"GameOptions.Network.MaxUploadBandwidth":       40000, # Should be enough for 8-player game, raise this if your network is fast
-
 	# Various options that should be set, you don't need to touch them in most cases
 
 	"GameOptions.GameInfo.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
 	"GameOptions.GameInfo.AllowNickChange":         1,
-	"GameOptions.GameInfo.AllowStrafing":           1, 
+	"GameOptions.GameInfo.AllowStrafing":           1,
 	"GameOptions.Network.AllowRemoteBots":          1,
 	"GameOptions.Network.AllowWantsJoinMsg":        1,
 	"GameOptions.Network.WantsToJoinFromBanned":    0,
@@ -120,8 +115,8 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Misc.LogConversations":            0,
 	"GameOptions.Advanced.MatchLogging":            0, # Do not save game results screenshot
 	"GameOptions.Misc.ScreenshotFormat":            1, # 0 = JPG, 1 = PNG
-	"GameOptions.Network.AutoSetupHttpProxy":       1,
 	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
+	"GameOptions.Network.AutoSetupHttpProxy":       0,
 	"GameOptions.Network.HttpProxy":                "",
 }
 

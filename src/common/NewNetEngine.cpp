@@ -335,13 +335,13 @@ void ReCalculateSavedState()
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
 
-	if( BackupTime + TimeDiff(TICK_TIME) >= timeMin )
+	if( BackupTime + TimeDiff(TICK_TIME) + TimeDiff(TICK_TIME) >= timeMin ) // Safety hack
 		return;
 
 	QuickDirtyCalculation = false;
 	RestoreState();
 
-	while( BackupTime + TimeDiff(TICK_TIME) < timeMin )
+	while( BackupTime + TimeDiff(TICK_TIME) + TimeDiff(TICK_TIME) < timeMin ) // Safety hack
 	{
 		BackupTime += TimeDiff(TICK_TIME);
 		CurrentTimeMs = BackupTime;
