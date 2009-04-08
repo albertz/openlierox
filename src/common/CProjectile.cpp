@@ -489,7 +489,6 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 	int wy = view->GetWorldY();
 	int l = view->GetLeft();
 	int t = view->GetTop();
-	float framestep;
 
 	int x=((int)vPosition.x-wx)*2+l;
 	int y=((int)vPosition.y-wy)*2+t;
@@ -510,28 +509,17 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			if(tProjInfo->bmpImage == NULL)
 				return;
 	
-			// Spinning projectile only when moving
-			if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
-				framestep = fRotation / (float)tProjInfo->RotIncrement;
-			else
-				framestep = 0;
-	
-			// Directed in the direction the projectile is travelling
-			if(tProjInfo->UseAngle) {
-				CVec dir = vVelocity;
-				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
-				float offset = 360.0f / (float)tProjInfo->AngleImages;
-	
-				FMOD(angle, 360.0f);
-	
-				framestep = angle / offset;
-			}
-	
+			float framestep = 0;
+			
+
+			if(tProjInfo->Animating)
+				framestep = fFrame;
+			
 			// Special angle
 			// Basically another way of organising the angles in images
 			// Straight up is in the middle, rotating left goes left, rotating right goes right in terms
 			// of image index's from the centre
-			if(tProjInfo->UseSpecAngle) {
+			else if(tProjInfo->UseSpecAngle) {
 				CVec dir = vVelocity;
 				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
 				int direct = 0;
@@ -557,9 +545,22 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 				}
 			}
 	
-			if(tProjInfo->Animating)
-				framestep = fFrame;
+			// Directed in the direction the projectile is travelling
+			else if(tProjInfo->UseAngle) {
+				CVec dir = vVelocity;
+				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
+				float offset = 360.0f / (float)tProjInfo->AngleImages;
 	
+				FMOD(angle, 360.0f);
+	
+				framestep = angle / offset;
+			}
+			
+			// Spinning projectile only when moving
+			else if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
+				framestep = fRotation / (float)tProjInfo->RotIncrement;
+			
+			
 			int size = tProjInfo->bmpImage->h;
 			int half = size/2;
 			iFrameX = (int)framestep*size;
