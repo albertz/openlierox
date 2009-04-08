@@ -259,7 +259,7 @@ static void RemoveTimerFromGlobalList(TimerData *data)
 ////////////////
 // Constructors
 Timer::Timer() : 
-	name("unnamed"), userData(NULL), interval(1000),
+	name(""), userData(NULL), interval(1000),
 	once(false), m_running(false), m_lastData(NULL) {
 	InitTimerSystem();
 }
@@ -325,6 +325,12 @@ bool Timer::start()
 	data->interval = interval;
 	data->once = once;
 	data->quitSignal = false;
+	
+	if(data->name == "") {
+		warnings << "unnamed timer is started" << endl;
+		data->name = "unnamed";
+	}
+	
 	data->startThread();
 
 	m_running = true;
@@ -344,6 +350,11 @@ bool Timer::startHeadless()
 	data->interval = interval;
 	data->once = once;
 	data->quitSignal = false;
+	
+	if(data->name == "") {
+		warnings << "unnamed timer is started headless" << endl;
+		data->name = "unnamed headless";
+	}
 	
 	if(!data->once) {
 		// It's hard to debug headless timers with once=false, thus we just disable them.
