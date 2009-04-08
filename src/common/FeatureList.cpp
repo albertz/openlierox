@@ -77,6 +77,9 @@ Feature featureArray[] = {
 	Feature::Unset()
 };
 
+static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature) - 1, featureArray__sizecheck);
+
+
 Feature* featureByName(const std::string& name) {
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if( stringcaseequal(f->get()->name, name) )

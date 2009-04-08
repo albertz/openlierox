@@ -95,6 +95,8 @@ enum FeatureIndex {
 	FT_ImmediateStart,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
+ 
+ 	__FTI_BOTTOM
 };
 
 class FeatureCompatibleSettingList {
