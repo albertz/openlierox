@@ -264,6 +264,7 @@ void CBrowser::Create()
 	if (tTimer == NULL)  {
 		tTimer = new Timer;
 		if (tTimer)  {
+			tTimer->name = "CBrowser cursor blinker";
 			tTimer->interval = 500;
 			tTimer->once = false;
 			tTimer->onTimer.handler() = getEventHandler(this, &CBrowser::OnTimerEvent);

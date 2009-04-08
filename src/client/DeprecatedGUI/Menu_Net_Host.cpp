@@ -231,7 +231,7 @@ static float estimatedMinNeededUploadSpeed(int wormCount, int hostWormCount) {
 static int maxPossibleWormCountForNetwork(int hostWormCount) {
 	int i = 0;
 	while(i < MAX_PLAYERS) {
-		if(estimatedMinNeededUploadSpeed(i, hostWormCount) > GameServer::getMaxUploadBandwidth())
+		if(estimatedMinNeededUploadSpeed(i + 1, hostWormCount) > GameServer::getMaxUploadBandwidth())
 			return i;
 		i++;
 	}
@@ -423,7 +423,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 							netSettingsText += ", max " + ftoa(maxRate) + " kB/sec upload"; 
 							if(Menu_MessageBox("Check network settings",
 											   "You allowed " + itoa(tLXOptions->tGameInfo.iMaxPlayers) + " players on your server. "
-											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such amount.\n"
+											   "A minimum upload rate of " + ftoa(minRate) + " kB/sec is needed for such an amount.\n"
 											   "Your current network settings (" + netSettingsText + ") only allow up to " +
 										   	   itoa(maxPossibleWorms) + " players.\n\n"
 											   "Would you like to create a server for " + itoa(maxPossibleWorms) + " players?\n"
