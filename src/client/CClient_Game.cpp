@@ -692,6 +692,7 @@ void CClient::DrawBeam(CWorm *w)
 	for(i=0; i<Slot->Weapon->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(Slot->Weapon->Bm.InitWidth) + Slot->Weapon->Bm.WidthIncrease * i);
+			newWidth = MIN( newWidth, MIN( cMap->GetWidth(), cMap->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
@@ -705,10 +706,10 @@ void CClient::DrawBeam(CWorm *w)
 		
 		{
 			bool stopbeam = true;
-			for(int j = 0; j < width; ++j) {
+			for(uint j = 0; j < goodWidthParts.size(); ++j) {
 				if(!goodWidthParts[j]) continue;
 
-				int o = (j % 2 == 0) ? j/2 : -(j + 1)/2;
+				int o = (j % 2 == 0) ? j/2 : - int((j + 1)/2);
 				CVec p = pos + orth_dir * o;
 				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
 
@@ -1244,6 +1245,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	for(int i=0; i<wpn->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(wpn->Bm.InitWidth) + wpn->Bm.WidthIncrease * i);
+			newWidth = MIN( newWidth, MIN( cMap->GetWidth(), cMap->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
@@ -1257,10 +1259,10 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		
 		{
 			bool stopbeam = true;
-			for(int j = 0; j < width; ++j) {
+			for(uint j = 0; j < goodWidthParts.size(); ++j) {
 				if(!goodWidthParts[j]) continue;
 				
-				int o = (j % 2 == 0) ? j/2 : -(j + 1)/2;
+				int o = (j % 2 == 0) ? j/2 : - int((j + 1)/2);
 				CVec p = pos + orth_dir * o;
 				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
 			
