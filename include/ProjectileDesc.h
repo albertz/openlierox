@@ -58,7 +58,6 @@ struct proj_t {
 	std::string	filename;		// Compiler use (was 64b before)
 	
 	Proj_GfxType Type;
-	Proj_Trail Trail;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
 	bool	Rotating;
@@ -67,12 +66,17 @@ struct proj_t {
 	bool	UseAngle;
 	bool	UseSpecAngle;
 	int		AngleImages;
-	bool	UseCustomGravity;
-	int		Gravity;
 	bool	Animating;
 	float	AnimRate;
 	Proj_AnimType AnimType;
+	
+	// physical behaviour
+	bool	UseCustomGravity;
+	int		Gravity;
 	float   Dampening;
+	
+	// general action
+	Proj_Trail Trail;
 	
 	// Timer (When the timer is finished)
 	Proj_Timer Timer;
