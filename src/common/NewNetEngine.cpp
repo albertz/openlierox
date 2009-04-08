@@ -205,6 +205,19 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 	return checksum;
 };
 
+static unsigned getMapChecksum()
+{
+	unsigned checksum = 0;
+	cClient->getMap()->lockFlags();
+	uchar * flags = cClient->getMap()->GetPixelFlags();
+	int dimension = cClient->getMap()->GetWidth() * cClient->getMap()->GetHeight();
+	for( int i = 0; i < dimension; i++ )
+		checksum += ( ( flags[i] & PX_EMPTY ) + ( flags[i] & PX_DIRT ) * 2 ) * ( i % 0x1000000 + 1 );
+	cClient->getMap()->unlockFlags();
+	return checksum;
+};
+
+
 void PlayerLeft(int id)
 {
 	playersLeft[id] = true;
@@ -363,7 +376,10 @@ void ReCalculateSavedState()
 					if( it->first <= ChecksumTime )
 						KeysCheck += (it->second.keys.getBitmask() + it->second.keysChanged.getBitmask() * 0x1000) * ( f % 4 + 1 );
 			}
-			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << Checksum << " Keys check " << KeysCheck << endl;
+			#ifdef DEBUG
+			hints << "ReCalculateSavedState() time " << ChecksumTime.time << " checksum " << Checksum << 
+					" Keys check " << KeysCheck << " map " << getMapChecksum() << endl;
+			#endif
 		};
 	};
 

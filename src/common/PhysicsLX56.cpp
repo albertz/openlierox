@@ -390,12 +390,12 @@ public:
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), 0, NULL );
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), 0, NULL );
 
-				worm->setLastAirJumpTime(GetPhysicsTime());
 				if( worm->canAirJump() && worm->getVelocity()->y > wd->JumpForce ) // Negative Y coord = moving up
 					worm->getVelocity()->y = wd->JumpForce; // Absolute velocity - instant air jump
 				else
 					worm->getVelocity()->y += wd->JumpForce; // Relative velocity - relative air jump
 			}
+			worm->setLastAirJumpTime(GetPhysicsTime());
 			worm->setOnGround( false );
 		}
 

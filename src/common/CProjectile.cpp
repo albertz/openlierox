@@ -400,7 +400,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
-	if (tLX->currentTime - fSpawnTime <= fWallshootTime)
+	if (GetPhysicsTime() - fSpawnTime <= fWallshootTime)
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
 
 	// Check collision with the terrain
