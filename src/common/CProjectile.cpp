@@ -26,6 +26,7 @@
 #include "ProfileSystem.h"
 #include "Debug.h"
 #include "ProjectileDesc.h"
+#include "Physics.h"
 
 
 void CProjectile::setUnused() {
