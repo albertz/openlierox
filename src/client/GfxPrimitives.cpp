@@ -1792,8 +1792,7 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 	
 	float f = float(rx) / float(ry);
 	for(int _y = innerRectH + 1; _y < ry; _y++) {
-		float _w = f * sqrt(float(ry*ry - _y*_y));
-		int w(_w);
+		int w = int(f * sqrt(float(ry*ry - _y*_y)));
 			
 		DrawHLine(bmpDest, x - w, x + w, y - _y, color);
 		DrawHLine(bmpDest, x - w, x + w, y + _y, color);
@@ -1801,8 +1800,7 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 
 	f = 1.0f / f;
 	for(int _x = innerRectW + 1; _x < rx; _x++) {
-		float _h = f * sqrt(float(rx*rx - _x*_x));
-		int h(_h);
+		int h = int(f * sqrt(float(rx*rx - _x*_x)));
 			
 		DrawVLine(bmpDest, y - h, y + h, x - _x, color);
 		DrawVLine(bmpDest, y - h, y + h, x + _x, color);
