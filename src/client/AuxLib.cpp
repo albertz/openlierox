@@ -677,6 +677,9 @@ void flipRealVideo() {
 	SDL_Surface* psScreen = SDL_GetVideoSurface();
 	if(psScreen == NULL) return;
 	
+	//TestCircleDrawing(psScreen);
+	//TestPolygonDrawing(psScreen);
+	
 #ifdef REAL_OPENGL	
 	if((psScreen->flags & SDL_OPENGL))
 		glFlush();

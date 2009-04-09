@@ -656,6 +656,11 @@ void	DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color col
 void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Color color);
 void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color);
 
+// x,y is center
+void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
+
+
+
 /////////////////////
 // Draws a simple linear gradient
 void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color cl1, Color cl2, GradientDirection dir);
@@ -695,7 +700,9 @@ inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color 
 ///////////////////
 // Draws a rectangle with transparency
 inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
-	SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
+	Color col(bmpDest->format, color); col.a = alpha;
+	DrawRectFill(bmpDest, x, y, x2, y2, col);
+	/*SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
 	Uint8 r,g,b;
 	GetColour3(color,bmpDest->format,&r,&g,&b);
 	if (tmp.get() != NULL)  {
@@ -703,7 +710,7 @@ inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, U
 		Uint32 friendly_col = SDL_MapRGBA(tmp.get()->format,r,g,b,alpha);
 		SDL_FillRect(tmp.get(),NULL,friendly_col);
 		DrawImage(bmpDest,tmp,x,y);
-	}
+	}*/
 }
 
 //////////////////
@@ -797,7 +804,7 @@ struct Polygon2D {
 };
 
 void TestPolygonDrawing(SDL_Surface* s);
-
+void TestCircleDrawing(SDL_Surface* s);
 
 
 #endif  //  __GFXPRIMITIVES_H__

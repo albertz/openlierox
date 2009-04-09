@@ -1779,6 +1779,40 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color colo
 	}
 }
 
+
+void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color) {
+	if(rx <= 0 || ry <= 0) return;
+	if(rx == 1) { DrawVLine(bmpDest, y - ry, y + ry, x, color); return; }
+	if(ry == 1) { DrawHLine(bmpDest, x - rx, x + rx, y, color); return; }
+	
+	int innerRectW = int(rx / sqrt(2.0));
+	int innerRectH = int(ry / sqrt(2.0));
+	DrawRectFill(bmpDest, x - innerRectW, y - innerRectH, x + innerRectW + 1, y + innerRectH + 1, color);
+	
+	float f = float(rx) / float(ry);
+	for(int _y = innerRectH + 1; _y < ry; _y++) {
+		int w = int(f * sqrt(float(ry*ry - _y*_y)));
+		
+		DrawHLine(bmpDest, x - w, x + w, y - _y, color);
+		DrawHLine(bmpDest, x - w, x + w, y + _y, color);
+	}
+
+	f = 1.0f / f;
+	for(int _x = innerRectW + 1; _x < rx; _x++) {
+		int h = int(f * sqrt(float(rx*rx - _x*_x)));
+		
+		DrawVLine(bmpDest, y - h, y + h, x - _x, color);
+		DrawVLine(bmpDest, y - h, y + h, x + _x, color);
+	}
+}
+
+void TestCircleDrawing(SDL_Surface* s) {
+	for(int i = 0; i < 10; i += 3) {
+		DrawCircleFilled(s, i*50, i*25, i*25, i*25, Color(i*20,255,0,128));
+	}
+}
+
+
 /////////////////////
 // Draws a simple linear gradient
 void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color cl1, Color cl2, GradientDirection dir)

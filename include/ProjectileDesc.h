@@ -74,6 +74,7 @@ struct proj_t {
 	bool	UseCustomGravity;
 	int		Gravity;
 	float   Dampening;
+	int		Width, Height; // new since Beta9
 	
 	// general action
 	Proj_Trail Trail;
