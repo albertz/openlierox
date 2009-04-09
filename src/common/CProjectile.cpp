@@ -644,7 +644,10 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 			break;	
 		}
 		
-		
+		case PRJ_CIRCLE:
+		case PRJ_POLYGON:
+			// TODO ...
+			break;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
     }
