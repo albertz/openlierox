@@ -670,9 +670,6 @@ void CClient::DrawBeam(CWorm *w)
 	// If you want to make that better, you would have to give the CViewport to DrawBeam.
 	if(col.get() != tLX->clPink && w->isVisibleForEverybody())
 		drawBeam = true;
-	std::vector<Line> endMarks;
-	//if(drawBeam)
-	//	endMarks.reserve(int(Slot->Weapon->Bm.InitWidth * MAX(Slot->Weapon->Bm.WidthIncrease * 10.0f, 1.0f)));
 
 	std::list<CWorm*> worms;
 	{
@@ -724,7 +721,6 @@ void CClient::DrawBeam(CWorm *w)
 					}
 					
 					goodWidthParts[j] = false;
-					//endMarks.push_back( Line(p + orth_dir, p - orth_dir) );
 					
 					continue;
 				}
@@ -759,7 +755,7 @@ void CClient::DrawBeam(CWorm *w)
 			Line endLine;
 			endLine.start = pos + orth_dir * width / 2;
 			endLine.end = pos - orth_dir * width / 2;			
-			SetWormBeamEntity(w->getID(), col, startLine, endLine, endMarks);
+			SetWormBeamEntity(w->getID(), col, startLine, endLine);
 		} else
 			SetWormBeamEntity(w->getID(), col, w->getPos(), pos);
 	}

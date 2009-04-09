@@ -107,7 +107,7 @@ void ClearEntities()
 }
 
 
-void SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std::vector<Line>& endMarks) {
+void SetWormBeamEntity(int worm, Color col, const Line& startLine, const Line& endLine) {
 	if(worm < 0 || worm >= MAX_WORMS) {
 		errors << "SetWormBeamEntity: invalid worm ID: " << worm << endl;
 		return;
@@ -117,17 +117,14 @@ void SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std:
 	drawBeamInfos[worm].isUsed = true;
 	drawBeamInfos[worm].col = col;
 	drawBeamInfos[worm].hasWidth = true;
-	drawBeamInfos[worm].p.doReloadLines = false;
-	drawBeamInfos[worm].p.points.clear();
+	drawBeamInfos[worm].p.clear();
 	drawBeamInfos[worm].p.points.push_back( startLine.start );
-	drawBeamInfos[worm].p.points.push_back( startLine.end );
+	if(startLine.start != startLine.end)
+		drawBeamInfos[worm].p.points.push_back( startLine.end );
 	drawBeamInfos[worm].p.points.push_back( endLine.start );
-	drawBeamInfos[worm].p.points.push_back( endLine.end );
-	drawBeamInfos[worm].p.lines.swap(endMarks);
-	drawBeamInfos[worm].p.lines.push_back( startLine );
-	drawBeamInfos[worm].p.lines.push_back( Line(startLine.end, endLine.start) );
-	drawBeamInfos[worm].p.lines.push_back( endLine );
-	drawBeamInfos[worm].p.lines.push_back( Line(endLine.end, startLine.start) );
+	if(endLine.start != endLine.end)
+		drawBeamInfos[worm].p.points.push_back( endLine.end );
+	drawBeamInfos[worm].p.points.push_back( startLine.start );
 }
 
 void SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos) {

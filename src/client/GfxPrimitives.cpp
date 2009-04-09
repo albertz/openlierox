@@ -1962,8 +1962,13 @@ bool Line::containsY(int y, int& x, bool aimsDown) const {
 }
 
 void Polygon2D::reloadLines() {
+	if(points.size() == 0) {
+		warnings << "Polygon2D::reloadLines: no points set" << endl;
+		return;
+	}
 	doReloadLines = false;
 	lines.clear();
+	lines.reserve(points.size() - 1);
 	Points::const_iterator j = points.begin(); ++j;
 	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
 		Line l; l.start = *i; l.end = *j;

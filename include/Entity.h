@@ -141,7 +141,7 @@ void	NewNet_LoadEntities();
 
 struct Line;
 
-void	SetWormBeamEntity(int worm, Color col, Line& startLine, Line& endLine, std::vector<Line>& endMarks);
+void	SetWormBeamEntity(int worm, Color col, const Line& startLine, const Line& endLine);
 void	SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos);
 
 
