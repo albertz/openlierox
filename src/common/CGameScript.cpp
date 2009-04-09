@@ -1456,41 +1456,16 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 
-
-	// Hit
-	ReadKeyword(file,"Hit","Type",(int*)&proj->Hit.Type,PJ_EXPLODE);
-
-	// Hit::Explode
-	if(proj->Hit.Type == PJ_EXPLODE) {
-		ReadInteger(file,"Hit","Damage",&proj->Hit.Damage,0);
-		ReadKeyword(file,"Hit","Projectiles",&proj->Hit.Projectiles,false);
-		ReadInteger(file,"Hit","Shake",&proj->Hit.Shake,0);
-
-		proj->Hit.UseSound = false;
-		if(ReadString(file,"Hit","Sound",proj->Hit.SndFilename,"")) {
-			proj->Hit.UseSound = true;
-			
-			if(!bDedicated) {
-				// Load the sample
-				proj->smpSample = LoadGSSample(dir,proj->Hit.SndFilename);
-
-				if(proj->smpSample == NULL) {
-					modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
-				}
-			}
+	proj->Hit.readFromIni(file, "Hit");
+	if(!bDedicated && proj->Hit.UseSound) {
+		// Load the sample
+		proj->smpSample = LoadGSSample(dir, proj->Hit.SndFilename);
+		
+		if(proj->smpSample == NULL) {
+			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
 		}
 	}
-
-	// Hit::Carve
-	if(proj->Hit.Type == PJ_CARVE) {
-		ReadInteger(file,"Hit","Damage",&proj->Hit.Damage,0);
-	}
-
-	// Hit::Bounce
-	if(proj->Hit.Type == PJ_BOUNCE) {
-		ReadFloat(file,"Hit","BounceCoeff",&proj->Hit.BounceCoeff,0.5);
-		ReadInteger(file,"Hit","BounceExplode",&proj->Hit.BounceExplode,0);
-	}
+	
 
 	// Timer
 	if(proj->Timer.Time > 0) {
@@ -1775,6 +1750,57 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 		fwrite_endian<char>(fp, DistributeDamageOverWidth);
 	}
 	
+	return true;
+}
+
+
+std::string Proj_Action::readFromIni(const std::string& file, const std::string& section) {
+	// Hit
+	ReadKeyword(file,section,"Type",(int*)&Type,PJ_EXPLODE);
+	
+	// Hit::Explode
+	if(Type == PJ_EXPLODE) {
+		ReadInteger(file,section,"Damage",&Damage,0);
+		ReadKeyword(file,section,"Projectiles",&Projectiles,false);
+		ReadInteger(file,section,"Shake",&Shake,0);
+		
+		UseSound = false;
+		if(ReadString(file,section,"Sound",SndFilename,"")) {
+			UseSound = true;			
+		}
+	}
+	
+	// Hit::Carve
+	if(Type == PJ_CARVE) {
+		ReadInteger(file,section,"Damage",&Damage,0);
+	}
+	
+	// Hit::Bounce
+	if(Type == PJ_BOUNCE) {
+		ReadFloat(file,section,"BounceCoeff",&BounceCoeff,0.5);
+		ReadInteger(file,section,"BounceExplode",&BounceExplode,0);
+	}
+	
+	return "";
+}
+
+bool Proj_Action::read(CGameScript* gs, FILE* fp) {
+	return true;
+}
+
+bool Proj_Action::write(CGameScript* gs, FILE* fp) {
+	return true;
+}
+
+std::string Proj_ProjHit::readFromIni(const std::string& file, const std::string& section) {
+	return "";
+}
+
+bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
+	return true;
+}
+
+bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
 	return true;
 }
 

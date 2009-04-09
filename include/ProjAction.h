@@ -155,6 +155,12 @@ struct Proj_Action {
 	Proj_SpawnInfo Proj;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
+
+	// returns projectile filename (used in CGameScript::compile*)
+	std::string readFromIni(const std::string& file, const std::string& section);
+	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
 };
 
 struct Proj_Timer : Proj_Action {
@@ -164,6 +170,22 @@ struct Proj_Timer : Proj_Action {
 	float	TimeVar;
 	
 	bool hasAction() const { return Proj_Action::hasAction() && Time > 0; }
+};
+
+
+struct Proj_ProjHit : Proj_Action {
+	Proj_ProjHit() : Target(NULL), MinHitCount(1) {}
+	
+	proj_t* Target; // NULL -> any target
+	int		MinHitCount;
+	
+	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
+
+	// returns projectile filename (used in CGameScript::compile*)
+	std::string readFromIni(const std::string& file, const std::string& section);
+	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
 };
 
 
