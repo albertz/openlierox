@@ -135,7 +135,9 @@ static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck
 
 
 struct Proj_Action {
-	Proj_Action() : Type(PJ_NOTHING) {}
+	Proj_Action() :
+	Type(PJ_NOTHING), Damage(0), Projectiles(false), Shake(0),
+	UseSound(false), BounceCoeff(0.5), BounceExplode(0) {}
 	
 	//  --------- LX56 start ----------
 	Proj_ActionType Type;

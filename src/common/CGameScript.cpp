@@ -1467,14 +1467,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 	
 
-	// Timer
+	// Timer	
 	if(proj->Timer.Time > 0) {
-		ReadKeyword(file,"Time","Type",(int*)&proj->Timer.Type,PJ_EXPLODE);
-		if(proj->Timer.Type == PJ_EXPLODE) {
-			ReadInteger(file,"Time","Damage",&proj->Timer.Damage,0);
-			ReadKeyword(file,"Time","Projectiles",&proj->Timer.Projectiles,false);
-			ReadInteger(file,"Time","Shake",&proj->Timer.Shake,0);
-		}
+		proj->Timer.readFromIni(file, "Time");
 	}
 
 	// Player hit
@@ -1492,6 +1487,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 
+	/*
     // OnExplode
 	ReadKeyword( file, "Explode", "Type",   (int*)&proj->Exp.Type, PJ_NOTHING );
 	ReadInteger( file, "Explode", "Damage",     &proj->Exp.Damage, 0 );
@@ -1510,7 +1506,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Tch.UseSound = false;
 	if( ReadString(file, "Touch", "Sound", proj->Tch.SndFilename,"") )
 		proj->Tch.UseSound = true;
-
+	 */
 
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
