@@ -1,0 +1,27 @@
+###################
+# Projectile: Mine
+
+
+[General]
+Type = PRJ_CIRCLE
+Width = 10
+Height = 10
+Colour1 = 255,255,255,150
+Colour2 = 255,0,0,150
+Colour3 = 0,255,0,150
+Colour4 = 0,0,255,150
+
+Trail = TRL_NONE
+Rotating = true
+RotIncrement = 90
+RotSpeed = 700
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.4
+
+[PlayerHit]
+Type = Injure
+Damage = 110
+#Projectiles=true
+Shake=1

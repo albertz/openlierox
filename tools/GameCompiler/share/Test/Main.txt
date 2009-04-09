@@ -12,10 +12,11 @@ ModName = Test Mod
 
 
 [Weapons]
-NumWeapons = 3
+NumWeapons = 4
 Weapon1 = w_beamtest1.txt
 Weapon2 = w_beamtest2.txt
 Weapon3 = w_polygontest.txt
+Weapon4 = w_circletest.txt
 
 
 [NinjaRope]
