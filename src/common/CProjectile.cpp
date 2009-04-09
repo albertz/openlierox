@@ -204,6 +204,7 @@ bool CProjectile::MapBoundsCollision(int px, int py)
 
 ////////////////////////////
 // Checks for collision with the terrain
+// WARNING: assumed to be called only from SimulateFrame
 CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 {
 	CMap* map = cClient->getMap();
@@ -224,7 +225,7 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 
 	// Check for the collision
 	for(int y = py - ry; y <= py + ry; ++y) {
-
+		// this is safe because in SimulateFrame, we do map bound checks
 		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - rx;
 
 		for(int x = px - rx; x <= px + rx; ++x) {
