@@ -19,31 +19,41 @@
 
 class CTeamDeathMatch : public CGameMode {
 public:
-	virtual ~CTeamDeathMatch();
 	
 	virtual void PrepareGame();
-	virtual void PrepareWorm(CWorm* worm);
-	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
-	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
-	virtual void Simulate();
 	virtual bool CheckGameOver();
-	virtual int  GameType();
-	virtual int  GameTeams();
-	virtual int  Winner();
-	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
+	virtual int  GameType() { return GMT_TEAMS; }
+	virtual int  GameTeams() { return MAXTEAMS; }
+	virtual int  Winner() {
+		// There's no single winner so this will do for now
+		return -1;	
+	}
 	virtual std::string Name() { return "Team Death Match"; }
 	
+	virtual int TeamScores(int t) {
+		if(t >= 0 && t < MAXTEAMS) return teamScore[t];
+		return -1;
+	}
+	
+	bool isValidTeam(int t) { return t >= 0 && t < MAXTEAMS; }
+	
+	void ChangeTeamScore(int t, int diff) {
+		if(!isValidTeam(t)) {
+			errors << "CTeamDeathMatch::ChangeTeamScore: invalid team nr " << t << endl;
+			return;
+		}
+		teamScore[t] += diff;
+	}
+	
 protected:
+	static const int MAXTEAMS = 4;
+	int teamScore[MAXTEAMS];
 	bool bFirstBlood;
 	int  iKillsInRow[MAX_WORMS];
 	int  iDeathsInRow[MAX_WORMS];
 };
-
-CTeamDeathMatch::~CTeamDeathMatch()
-{
-}
 
 void CTeamDeathMatch::PrepareGame()
 {
@@ -52,16 +62,10 @@ void CTeamDeathMatch::PrepareGame()
 		iKillsInRow[i] = 0;
 		iDeathsInRow[i] = 0;
 	}
-}
 
-void CTeamDeathMatch::PrepareWorm(CWorm* worm)
-{
-}
-
-bool CTeamDeathMatch::Spawn(CWorm* worm, CVec pos)
-{
-	worm->Spawn(pos);
-	return true;
+	for(int i = 0; i < MAXTEAMS; i++) {
+		teamScore[i] = 0;
+	}
 }
 
 void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
@@ -100,6 +104,7 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 		killer->AddKill();
 		iKillsInRow[killer->getID()]++;
 		iDeathsInRow[killer->getID()] = 0;
+		ChangeTeamScore(killer->getTeam(), 1);
 	}
 	iKillsInRow[victim->getID()] = 0;
 	iDeathsInRow[victim->getID()]++;
@@ -169,34 +174,27 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 			victim->getName(), 1), TXT_NORMAL);
 
-	static const std::string teamnames[4] = { "blue", "red", "green", "yellow" };
 	int worms[4] = { 0, 0, 0, 0 };
 	for(int i = 0; i < MAX_WORMS; i++)
 		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
-			worms[cServer->getWorms()[i].getTeam()]++;
+			if(isValidTeam(cServer->getWorms()[i].getTeam()))
+				worms[cServer->getWorms()[i].getTeam()]++;
 	
 	// Victim's team is out of the game
 	if(worms[victim->getTeam()] == 0 && networkTexts->sTeamOut != "<none>")
 		cServer->SendGlobalText(replacemax(networkTexts->sTeamOut, "<team>",
-			teamnames[victim->getTeam()], 1), TXT_NORMAL);
-}
-
-bool CTeamDeathMatch::Shoot(CWorm* worm)
-{
-	return true;
+			TeamName(victim->getTeam()), 1), TXT_NORMAL);
 }
 
 void CTeamDeathMatch::Drop(CWorm* worm)
 {
-	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS)
+	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS) {
 		errors << "Dropped an invalid worm" << endl;
-
+		return;
+	}
+	
 	iKillsInRow[worm->getID()] = 0;
 	iDeathsInRow[worm->getID()] = 0;
-}
-
-void CTeamDeathMatch::Simulate()
-{
 }
 
 bool CTeamDeathMatch::CheckGameOver()
@@ -204,26 +202,6 @@ bool CTeamDeathMatch::CheckGameOver()
 	return CGameMode::CheckGameOver();
 }
 
-int CTeamDeathMatch::GameType()
-{
-	return GMT_TEAMS;
-}
-
-int CTeamDeathMatch::GameTeams()
-{
-	return 4;
-}
-
-int CTeamDeathMatch::Winner()
-{
-	// There's no single winner so this will do for now
-	return -1;
-}
-
-bool CTeamDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
-{
-	return true;
-}
 
 static CTeamDeathMatch gameMode;
 CGameMode* gameMode_TeamDeathMatch = &gameMode;
