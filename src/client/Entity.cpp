@@ -25,6 +25,7 @@
 #include "CMap.h"
 #include "CWorm.h"
 #include "Consts.h"
+#include "Geometry.h"
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;

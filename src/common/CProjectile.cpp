@@ -581,6 +581,10 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		case PRJ_CIRCLE:
 			DrawCircleFilled(bmpDest, x, y, rx, ry, iColour);
 			return;
+			
+		case PRJ_POLYGON:
+			getProjInfo()->polygon.drawFilled(bmpDest, view, iColour);
+			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
 	}

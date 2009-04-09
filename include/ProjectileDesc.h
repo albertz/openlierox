@@ -14,9 +14,8 @@
 #include <vector>
 #include "StaticAssert.h"
 #include "ProjAction.h"
+#include "Geometry.h"
 
-
-struct SDL_Surface;
 struct SoundSample;
 
 
@@ -59,6 +58,7 @@ struct proj_t {
 	Proj_GfxType Type;
 	std::vector<Color>	Colour;
 	std::string	ImgFilename; // (was 64b before)
+	Polygon2D polygon;
 	bool	Rotating;
 	int		RotIncrement;
 	int		RotSpeed;

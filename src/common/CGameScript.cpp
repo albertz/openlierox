@@ -219,6 +219,15 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	
     // Pixel type
 	switch(proj->Type) {
+		case PRJ_POLYGON:
+			fwrite_endian<Uint32>(fp, proj->polygon.points.size());
+			for(Polygon2D::Points::iterator p = proj->polygon.points.begin(); p != proj->polygon.points.end(); ++p) {
+				fwrite_endian<int>(fp, p->x);
+				fwrite_endian<int>(fp, p->y);				
+			}
+			
+			// fallthrough to save color
+		case PRJ_CIRCLE:
 		case PRJ_PIXEL:
 			fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
 			for(size_t i = 0; i < proj->Colour.size(); ++i) {
@@ -238,6 +247,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 				}
 			}
 			break;
+			
 		case PRJ_IMAGE:
 			writeString(proj->ImgFilename, fp);
 			fwrite_endian<int>(fp, proj->Rotating);
@@ -253,7 +263,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 				fwrite_endian_compat((proj->AnimType),sizeof(int),1,fp);
 			}
 			break;
-			
+					
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "SaveProjectile: PRJ BOUND" << endl;
 	}
 
@@ -668,7 +678,21 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Timer.Shake = 0;
 
 	switch(proj->Type) {
-		case PRJ_PIXEL: {
+		case PRJ_POLYGON: {
+			proj->polygon.clear();
+			Uint32 NumPoints = 0;
+			fread_endian<Uint32>(fp, NumPoints);
+			for(Uint32 i = 0; i < NumPoints; ++i) {
+				VectorD2<int> p;
+				fread_endian<int>(fp, p.x);
+				fread_endian<int>(fp, p.y);
+				proj->polygon.points.push_back(p);
+			}
+		}
+			// fallthrough to read color
+		case PRJ_CIRCLE:
+		case PRJ_PIXEL:
+		{
 			Uint32 NumColours = 0;
 			fread_endian<int>(fp, NumColours);
 			proj->Colour.resize(NumColours);
@@ -717,8 +741,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				EndianSwap(proj->AnimType);
 			}
 			break;
-			
-			
+						
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "LoadProjectile: PRJ BOUND" << endl;
 	}
 
@@ -1228,6 +1251,8 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("WCL_CLOSERANGE",WCL_CLOSERANGE);
 	AddKeyword("PRJ_PIXEL",PRJ_PIXEL);
 	AddKeyword("PRJ_IMAGE",PRJ_IMAGE);
+	AddKeyword("PRJ_CIRCLE",PRJ_CIRCLE);
+	AddKeyword("PRJ_POLYGON",PRJ_POLYGON);
 	AddKeyword("Bounce",PJ_BOUNCE);
 	AddKeyword("Explode",PJ_EXPLODE);
 	AddKeyword("Injure",PJ_INJURE);
@@ -1457,10 +1482,28 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadInteger(file, "General", "Height", &proj->Height, proj->Height);
 	
 	proj->Colour.clear();
+	proj->polygon.clear();
 	switch(proj->Type) {
-		case PRJ_PIXEL:
-		case PRJ_CIRCLE:
 		case PRJ_POLYGON:
+			for(size_t i = 0; ; ++i) {
+				std::string a = "P" + itoa(i+1);
+				VectorD2<int> p;
+				if( ReadInteger(file,"General", a + ".x", &p.x, p.x) && ReadInteger(file,"General", a + ".y", &p.y, p.y) ) {
+					proj->polygon.points.push_back(p);
+				} else
+					break;
+			}
+			if(proj->polygon.points.size() == 0) {
+				warnings << "no points specified for PRJ_POLYGON projectile; fallback to PRJ_PIXEL" << endl;
+				proj->Type = PRJ_PIXEL;
+			}
+			else
+				// put the first point to the end to have a closed figure
+				proj->polygon.points.push_back( *proj->polygon.points.begin() );
+			
+			// fallthrough to read color
+		case PRJ_CIRCLE:
+		case PRJ_PIXEL:
 			for(size_t i = 0; ; ++i) {
 				Color col;
 				if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) || i == 0 ) {

@@ -34,6 +34,7 @@
 #include "PixelFunctors.h"
 #include "Utils.h"
 #include "CViewport.h"
+#include "Geometry.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
