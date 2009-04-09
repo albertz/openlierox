@@ -45,6 +45,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	else
 		iOwner = _owner;
 	
+	bUsed = true;
 	tProjInfo = _proj;
 	fLife = 0;
 	fExtra = 0;
@@ -52,7 +53,9 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	vPosition = _pos;
 	vVelocity = _vel;
 	fRotation = (float)_rot;
-	bUsed = true;
+	width = tProjInfo->Width;
+	height = tProjInfo->Height;
+	
 	fLastTrailProj = AbsTime();
 	iRandom = _random;
     iFrameX = 0;
@@ -70,14 +73,26 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 	firstbounce = true;
 
-	// Choose a colour
-	if(tProjInfo->Type == PRJ_PIXEL) {
-		int c = GetRandomInt(tProjInfo->Colour.size()-1);
-		iColour = tProjInfo->Colour[c].get();
+	switch(tProjInfo->Type) {
+		case PRJ_PIXEL:
+		case PRJ_CIRCLE:
+		case PRJ_POLYGON: {
+			// Choose a colour
+			int c = GetRandomInt(tProjInfo->Colour.size()-1);
+			iColour = tProjInfo->Colour[c];
+			
+			// TODO: will be obsolete later
+			iColSize = 1; // collision size
+			break;
+		}
 		
-		iColSize = 1;
-	} else
-		iColSize = 2;
+		case PRJ_IMAGE:
+			// TODO: will be obsolete later
+			iColSize = 2;
+			break;
+			
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
+	}
 
 	fGravity = 100.0f; // Default
 	if (tProjInfo->UseCustomGravity)
@@ -571,8 +586,9 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			return;
 		}
 		
-		case PRJ_INVISIBLE: return;
-		
+		case PRJ_CIRCLE:
+			DrawCircleFilled(bmpDest, x, y, width/2, height/2, iColour);
+			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
 	}
@@ -625,8 +641,6 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 		
 			break;	
 		}
-		
-		case PRJ_INVISIBLE: return;
 		
 		
 		

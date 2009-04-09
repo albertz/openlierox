@@ -57,9 +57,9 @@ public:
 		fSpawnTime = AbsTime(0);
 		tProjInfo = NULL;
 		fLastTrailProj = AbsTime(0);
-		iColour = 0;
 		iRandom = 0;
         fRotation = 0;
+		width = height = 0;
 	}
 
 
@@ -80,7 +80,7 @@ private:
 	float		fExtra;
 	int			iOwner;
 	float		fSpeed;
-	Uint32		iColour;
+	Color		iColour;
 	AbsTime		fIgnoreWormCollBeforeTime;
 
 	// Projectile trail
@@ -93,6 +93,7 @@ private:
 	CVec		vPosition;
 	CVec		vVelocity;
 	float		fRotation;
+	int			width, height;
 
 	// Network
 	int			iRandom;

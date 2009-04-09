@@ -26,9 +26,8 @@ enum Proj_GfxType {
 	PRJ_IMAGE = 1,
  
 	// new since Beta9
-	PRJ_INVISIBLE = 2,
-	PRJ_CIRCLE = 3,
-	PRJ_POLYGON = 4,
+	PRJ_CIRCLE = 2,
+	PRJ_POLYGON = 3,
 	
 	__PRJ_LBOUND = INT_MIN,
 	__PRJ_UBOUND = INT_MAX
