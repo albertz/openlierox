@@ -1633,13 +1633,16 @@ bool Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer)
 	std::list<std::string> same_ips;
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
-		if (s->bgotQuery || s->bManual || s->bProcessing
+		if (s->bgotPong || s->bgotQuery || s->bManual || s->bProcessing
 			|| s->szAddress == defaultServer->szAddress || s->szName != defaultServer->szName )
 			continue;
-		notes << "Removing duplicate server: " << s->szName << " (" << s->szAddress << ")" << endl;
-		psServerList.erase(s);
-		s = psServerList.begin();
-		update = true;
+		if( no_port == s->szAddress.substr(0, s->szAddress.find(':')) )
+		{
+			notes << "Removing duplicate server: " << s->szName << " (" << s->szAddress << ")" << endl;
+			psServerList.erase(s);
+			s = psServerList.begin();
+			update = true;
+		}
 	}
 	
 	return update;
@@ -1667,8 +1670,8 @@ bool Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer)
 
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
-		if (s->bgotQuery || s->bManual || s->bBehindNat || !s->bIgnore || 
-			s->szAddress.find(no_port) == std::string::npos)
+		if (s->bgotPong || s->bgotQuery || s->bManual || s->bBehindNat || !s->bIgnore || 
+			s->szAddress.find(no_port) != 0)
 			continue;
 		notes << "Removing duplicate down server: " << s->szName << " (" << s->szAddress << ")" << endl;
 		psServerList.erase(s);
