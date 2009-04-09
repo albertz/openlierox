@@ -177,6 +177,11 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 	fwrite_endian_compat((proj->Dampening),	sizeof(int), 1, fp);
 
+	if(Header.Version > GS_LX56_VERSION) {
+		fwrite_endian<int>(fp, proj->Width);
+		fwrite_endian<int>(fp, proj->Height);
+	}
+	
     // Pixel type
 	if(proj->Type == PRJ_PIXEL) {
 		fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
@@ -587,6 +592,17 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread_compat(proj->Dampening,		sizeof(int),  1, fp);
 	EndianSwap(proj->Dampening);
 
+	if(Header.Version > GS_LX56_VERSION) {
+		fread_endian<int>(fp, proj->Width);
+		fread_endian<int>(fp, proj->Height);
+	}
+	else {
+		if(proj->Type == PRJ_PIXEL)
+			proj->Width = proj->Height = 1;
+		else
+			proj->Width = proj->Height = 2;
+	}
+	
 	proj->Trail.Proj.Proj = NULL;
 	proj->GeneralSpawnInfo.Proj = NULL;
 	proj->Hit.Projectiles = false;
@@ -1391,40 +1407,54 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	ReadFloat(file,"General","Dampening",&proj->Dampening,1.0f);
 
-	if(proj->Type == PRJ_PIXEL) {
-		proj->Colour.clear();
-
-		for(size_t i = 0; ; ++i) {
-			Color col;
-			if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) || i == 0 ) {
-				proj->Colour.push_back(col);
-			} else
-				break;
-		}
-
-	} else if(proj->Type == PRJ_IMAGE) {
-		ReadString(file,"General","Image",proj->ImgFilename,"");
-		ReadKeyword(file,"General","Rotating",&proj->Rotating,false);
-		ReadInteger(file,"General","RotIncrement",&proj->RotIncrement,0);
-		ReadInteger(file,"General","RotSpeed",&proj->RotSpeed,0);
-		ReadKeyword(file,"General","UseAngle",&proj->UseAngle,0);
-		ReadKeyword(file,"General","UseSpecAngle",&proj->UseSpecAngle,0);
-		if(proj->UseAngle || proj->UseSpecAngle)
-			ReadInteger(file,"General","AngleImages",&proj->AngleImages,0);
-
-		ReadKeyword(file,"General","Animating",&proj->Animating,0);
-		if(proj->Animating) {
-			ReadFloat(file,"General","AnimRate",&proj->AnimRate,0);
-			ReadKeyword(file,"General","AnimType",(int*)&proj->AnimType,ANI_ONCE);
-		}
+	if(proj->Type == PRJ_PIXEL)
+		proj->Width = proj->Height = 1;
+	else
+		proj->Width = proj->Height = 2;
 	
-		if(!bDedicated) {
-			proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
-			if(!proj->bmpImage)
-				modLog("Could not open image '" + proj->ImgFilename + "'");
-		}
+	ReadInteger(file, "General", "Width", &proj->Width, proj->Width);
+	ReadInteger(file, "General", "Height", &proj->Height, proj->Height);
+	
+	proj->Colour.clear();
+	switch(proj->Type) {
+		case PRJ_PIXEL:
+		case PRJ_CIRCLE:
+		case PRJ_POLYGON:
+			for(size_t i = 0; ; ++i) {
+				Color col;
+				if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) || i == 0 ) {
+					proj->Colour.push_back(col);
+				} else
+					break;
+			}
+			break;
+			
+		case PRJ_IMAGE:
+			ReadString(file,"General","Image",proj->ImgFilename,"");
+			ReadKeyword(file,"General","Rotating",&proj->Rotating,false);
+			ReadInteger(file,"General","RotIncrement",&proj->RotIncrement,0);
+			ReadInteger(file,"General","RotSpeed",&proj->RotSpeed,0);
+			ReadKeyword(file,"General","UseAngle",&proj->UseAngle,0);
+			ReadKeyword(file,"General","UseSpecAngle",&proj->UseSpecAngle,0);
+			if(proj->UseAngle || proj->UseSpecAngle)
+				ReadInteger(file,"General","AngleImages",&proj->AngleImages,0);
+
+			ReadKeyword(file,"General","Animating",&proj->Animating,0);
+			if(proj->Animating) {
+				ReadFloat(file,"General","AnimRate",&proj->AnimRate,0);
+				ReadKeyword(file,"General","AnimType",(int*)&proj->AnimType,ANI_ONCE);
+			}
+	
+			if(!bDedicated) {
+				proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
+				if(!proj->bmpImage)
+					modLog("Could not open image '" + proj->ImgFilename + "'");
+			}
+			break;
+			
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "PRJ BOUND err" << endl;
 	}
-	
+
 
 
 	// Hit
