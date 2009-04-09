@@ -210,15 +210,16 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 
 	ColInfo res = { 0, 0, 0, 0, false, true };
 
-	// If the current cell is empty, don't check for the collision
-	{
-	const int gf1 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
-	const int gf2 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
-	const int gf3 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
-	const int gf4 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
-	const uchar *pf = map->getAbsoluteGridFlags();
-	if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
-		return res;
+	// if we are small, we can make a fast check
+	if(rx*2 < map->getGridWidth() && ry*2 < map->getGridHeight()) {
+		// If the current cells are empty, don't check for the collision
+		const int gf1 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
+		const int gf2 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
+		const int gf3 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
+		const int gf4 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
+		const uchar *pf = map->getAbsoluteGridFlags();
+		if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
+			return res;
 	}
 
 	// Check for the collision
