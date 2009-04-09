@@ -598,9 +598,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 	else {
 		if(proj->Type == PRJ_PIXEL)
-			proj->Width = proj->Height = 1;
-		else
 			proj->Width = proj->Height = 2;
+		else
+			proj->Width = proj->Height = 4;
 	}
 	
 	proj->Trail.Proj.Proj = NULL;
@@ -1408,9 +1408,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ReadFloat(file,"General","Dampening",&proj->Dampening,1.0f);
 
 	if(proj->Type == PRJ_PIXEL)
-		proj->Width = proj->Height = 1;
-	else
 		proj->Width = proj->Height = 2;
+	else
+		proj->Width = proj->Height = 4;
 	
 	ReadInteger(file, "General", "Width", &proj->Width, proj->Width);
 	ReadInteger(file, "General", "Height", &proj->Height, proj->Height);

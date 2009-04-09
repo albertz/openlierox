@@ -59,7 +59,7 @@ public:
 		fLastTrailProj = AbsTime(0);
 		iRandom = 0;
         fRotation = 0;
-		width = height = 0;
+		rx = ry = 0;
 	}
 
 
@@ -93,7 +93,7 @@ private:
 	CVec		vPosition;
 	CVec		vVelocity;
 	float		fRotation;
-	int			width, height;
+	int			rx, ry;
 
 	// Network
 	int			iRandom;
@@ -104,7 +104,8 @@ private:
 	int			MAX_CHECKSTEP2; // power of max checkstep
 	int			MIN_CHECKSTEP2; // power of min checkstep
 	int			AVG_CHECKSTEP; // this is used for the intersection, if the step is to wide
-	int			iColSize;  // size of the projectile for the collision (1 for pixel, 2 for image)
+
+	
 	float		fGravity;  // gravity of the projectile (either custom or 100 by default)
 	float		fWallshootTime;  // period of time from the spawn when no collision checks are made
 	bool		bChangesSpeed;  // true if the projectile changes its speed during its life
@@ -116,10 +117,6 @@ private:
 	bool		bFrameDelta;
 	float		fFrame;
     int         iFrameX;
-
-	// Beam info
-	CVec		vStart, vEnd;
-	int			iWidth;
 
 	// Debug info
 	bool		firstbounce;

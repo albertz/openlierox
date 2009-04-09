@@ -53,8 +53,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	vPosition = _pos;
 	vVelocity = _vel;
 	fRotation = (float)_rot;
-	width = tProjInfo->Width;
-	height = tProjInfo->Height;
+	rx = tProjInfo->Width / 2;
+	ry = tProjInfo->Height / 2;
 	
 	fLastTrailProj = AbsTime();
 	iRandom = _random;
@@ -80,17 +80,9 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 			// Choose a colour
 			int c = GetRandomInt(tProjInfo->Colour.size()-1);
 			iColour = tProjInfo->Colour[c];
-			
-			// TODO: will be obsolete later
-			iColSize = 1; // collision size
 			break;
 		}
-		
-		case PRJ_IMAGE:
-			// TODO: will be obsolete later
-			iColSize = 2;
-			break;
-			
+		case PRJ_IMAGE: break;
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
 	}
 
@@ -195,16 +187,16 @@ bool CProjectile::MapBoundsCollision(int px, int py)
 	CMap* map = cClient->getMap();
 	CollisionSide = 0;
 
-	if (px - iColSize < 0)
+	if (px - rx < 0)
 		CollisionSide |= COL_LEFT;
 
-	if (px + iColSize >= (int)map->GetWidth())
+	if (px + rx >= (int)map->GetWidth())
 		CollisionSide |= COL_RIGHT;
 
-	if (py - iColSize < 0)
+	if (py - ry < 0)
 		CollisionSide |= COL_TOP;
 
-	if (py + iColSize >= (int)map->GetHeight())
+	if (py + ry >= (int)map->GetHeight())
 		CollisionSide |= COL_BOTTOM;
 
 	return CollisionSide != 0;
@@ -220,21 +212,21 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 
 	// If the current cell is empty, don't check for the collision
 	{
-	const int gf1 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
-	const int gf2 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (px + iColSize) / map->getGridWidth();
-	const int gf3 = (py + iColSize) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
-	const int gf4 = (py + iColSize) / map->getGridHeight() * map->getGridCols() + (px + iColSize) / map->getGridWidth();
+	const int gf1 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
+	const int gf2 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
+	const int gf3 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
+	const int gf4 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
 	const uchar *pf = map->getAbsoluteGridFlags();
 	if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
 		return res;
 	}
 
 	// Check for the collision
-	for(int y = py - iColSize; y <= py + iColSize; ++y) {
+	for(int y = py - ry; y <= py + ry; ++y) {
 
-		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - iColSize;
+		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - rx;
 
-		for(int x = px - iColSize; x <= px + iColSize; ++x) {
+		for(int x = px - rx; x <= px + rx; ++x) {
 
 			// Solid pixel
 			if(*pf & (PX_DIRT|PX_ROCK)) {
@@ -585,7 +577,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		}
 		
 		case PRJ_CIRCLE:
-			DrawCircleFilled(bmpDest, x, y, width/2, height/2, iColour);
+			DrawCircleFilled(bmpDest, x, y, rx, ry, iColour);
 			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;

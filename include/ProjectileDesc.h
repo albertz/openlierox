@@ -52,7 +52,7 @@ static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 // Projectile structure
 struct proj_t {
-	proj_t() : Width(1), Height(1), bmpImage(NULL), smpSample(NULL) {}
+	proj_t() : bmpImage(NULL), smpSample(NULL) {}
 	
 	std::string	filename;		// Compiler use (was 64b before)
 	
