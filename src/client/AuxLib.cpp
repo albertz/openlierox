@@ -64,7 +64,7 @@
 #include "types.h"
 #include "CClient.h"
 #include "CServer.h"
-
+#include "Geometry.h"
 
 
 Null null;	// Used in timer class

@@ -3,7 +3,7 @@
 
 
 [General]
-Name = Laser
+Name = short laser
 Type = WPN_BEAM
 Recoil = 1
 Recharge = 1

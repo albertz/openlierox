@@ -78,8 +78,14 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 		case PRJ_CIRCLE:
 		case PRJ_POLYGON: {
 			// Choose a colour
-			int c = GetRandomInt(tProjInfo->Colour.size()-1);
-			iColour = tProjInfo->Colour[c];
+			if(tProjInfo->Colour.size() > 0) {
+				int c = GetRandomInt(tProjInfo->Colour.size()-1);
+				iColour = tProjInfo->Colour[c];
+			}
+			else {
+				// don't give the warning here, give it while loading GS
+				iColour = Color();
+			}
 			break;
 		}
 		case PRJ_IMAGE: break;
@@ -579,11 +585,11 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		}
 		
 		case PRJ_CIRCLE:
-			DrawCircleFilled(bmpDest, x, y, rx, ry, iColour);
+			DrawCircleFilled(bmpDest, x, y, rx*2, ry*2, iColour);
 			return;
 			
 		case PRJ_POLYGON:
-			getProjInfo()->polygon.drawFilled(bmpDest, view, iColour);
+			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPosition.x, (int)vPosition.y, view, iColour);
 			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;

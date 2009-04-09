@@ -45,8 +45,8 @@ struct Polygon2D {
 	bool getNext(int x, int y, int& nextx, bool inside) const;
 	SDL_Rect minOverlayRect() const;
 	SDL_Rect minOverlayRect(CViewport* v) const;
-	void drawFilled(SDL_Surface* s, Color col);
-	void drawFilled(SDL_Surface* s, CViewport* v, Color col); // interpret as ingame coordinates and use viewport
+	void drawFilled(SDL_Surface* s, int x, int y, Color col);
+	void drawFilled(SDL_Surface* s, int x, int y, CViewport* v, Color col); // interpret as ingame coordinates and use viewport
 };
 
 void TestPolygonDrawing(SDL_Surface* s);

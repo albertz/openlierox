@@ -19,7 +19,9 @@
 
 
 #include <cassert>
+#ifndef DEDICATED_ONLY
 #include <gd.h>
+#endif
 #include <SDL.h>
 
 #include "LieroX.h"
@@ -35,6 +37,7 @@
 #include "Utils.h"
 #include "CViewport.h"
 #include "Geometry.h"
+#include "Timer.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -2048,8 +2051,8 @@ SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
 	return r;
 }
 
-void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
-	SDL_Rect r = minOverlayRect();
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
+	SDL_Rect r = minOverlayRect(); r.x += x; r.y += y;
 	
 	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
 	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
@@ -2064,15 +2067,16 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	LOCK_OR_QUIT(bmpDest);
 	
 	// Draw the fill rect
+	r.x -= x; r.y -= y;
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int y = r.y; y < r.y + r.h; ++y) {
-		int x = r.x;
-		while(x < r.x + r.w && getNext(x, y, x, true)) {
+	for (int _y = r.y; _y < r.y + r.h; ++_y) {
+		int _x = r.x;
+		while(_x < r.x + r.w && getNext(_x, _y, _x, true)) {
 			int endx = r.x + r.w;
-			getNext(x, y, endx, false); endx = MIN(endx, r.x + r.w);
-			Uint8 *px = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bpp;
-			for(; x < endx; ++x, px += bpp) {
-				if(x < bmpDest->clip_rect.x) continue;
+			getNext(_x, _y, endx, false); endx = MIN(endx, r.x + r.w);
+			Uint8 *px = (Uint8 *)bmpDest->pixels + (_y + y) * bmpDest->pitch + (_x + x) * bpp;
+			for(; _x < endx; ++_x, px += bpp) {
+				if(_x + x < bmpDest->clip_rect.x) continue;
 				putter.put(px, bmpDest->format, col);
 			}
 		}
@@ -2081,8 +2085,8 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	UnlockSurface(bmpDest);
 }
 
-void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
-	SDL_Rect r = minOverlayRect(v);
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Color col) {
+	SDL_Rect r = minOverlayRect(v); r.x += x*2; r.y += y*2; 
 	
 	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
 	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
@@ -2097,6 +2101,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 	int t = v->GetTop();
 	
 	// transform back
+	r.x -= x*2; r.y -= y*2;
 	r.x = (r.x - l) / 2 + wx;
 	r.y = (r.y - t) / 2 + wy;
 	r.w /= 2; r.h /= 2;
@@ -2110,14 +2115,14 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 	
 	// Draw the fill rect
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int y = r.y; y < r.y + r.h; ++y) {
-		int x = r.x;
-		while(x < r.x + r.w && getNext(x, y, x, true)) {
+	for (int _y = r.y; _y < r.y + r.h; ++_y) {
+		int _x = r.x;
+		while(_x < r.x + r.w && getNext(_x, _y, _x, true)) {
 			int endx = r.x + r.w;
-			getNext(x, y, endx, false); endx = MIN(endx, r.x + r.w);
-			Uint8 *px = (Uint8 *)bmpDest->pixels + Ty(y) * bmpDest->pitch + Tx(x) * bpp;
-			for(; x < endx; ++x, px += bpp * 2) {
-				if(Tx(x) < bmpDest->clip_rect.x) continue;
+			getNext(_x, _y, endx, false); endx = MIN(endx, r.x + r.w);
+			Uint8 *px = (Uint8 *)bmpDest->pixels + Ty(_y + y) * bmpDest->pitch + Tx(_x + x) * bpp;
+			for(; _x < endx; ++_x, px += bpp * 2) {
+				if(Tx(_x + x) < bmpDest->clip_rect.x) continue;
 				putter.put(px, bmpDest->format, col);
 				putter.put(px + bpp, bmpDest->format, col);
 				putter.put(px + bmpDest->pitch, bmpDest->format, col);
@@ -2145,7 +2150,7 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	p.points.push_back( VectorD2<int>(0, 100) );
 	p.points.push_back( VectorD2<int>(90, 90) );
 	p.points.push_back( VectorD2<int>(100, 0) );	
-	p.drawFilled(surf, Color(0,255,0,128));
+	p.drawFilled(surf, 0, 0, Color(0,255,0,128));
 	
 	// triangle
 	Polygon2D q;
@@ -2153,7 +2158,7 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	q.points.push_back( VectorD2<int>(400, 20) );
 	q.points.push_back( VectorD2<int>(390, 100) );
 	q.points.push_back( VectorD2<int>(310, 10) );
-	q.drawFilled(surf, Color(0,255,0,128));
+	q.drawFilled(surf, 0, 0, Color(0,255,0,128));
 	
 	// rectangle
 	Polygon2D r;
@@ -2162,7 +2167,7 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	r.points.push_back( VectorD2<int>(200, 400) );
 	r.points.push_back( VectorD2<int>(10, 400) );
 	r.points.push_back( VectorD2<int>(10, 240) );
-	r.drawFilled(surf, Color(0,255,0,128));
+	r.drawFilled(surf, 0, 0, Color(0,255,0,128));
 
 	// quadrangle (like worms beam)
 	Polygon2D s;
@@ -2171,7 +2176,23 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	s.points.push_back( VectorD2<int>(300, 380) );
 	s.points.push_back( VectorD2<int>(260, 400) );
 	s.points.push_back( VectorD2<int>(230, 240) );
-	s.drawFilled(surf, Color(0,255,0,128));
+	s.drawFilled(surf, 0, 0, Color(0,255,0,128));
+
+	// rotating long triangle
+	Polygon2D t;
+	float ta = (GetTime() - AbsTime()).seconds();
+	MatrixD2<float> rot = MatrixD2<float>::Rotation(cos(ta), sin(ta));
+	notes << "M:" << rot.v1.x << "," << rot.v1.y << ";" << rot.v2.x << "," << rot.v2.y << endl;
+	//rot = MatrixD2<float>(1.0f);
+	VectorD2<int> t1(0, -20); t1 = rot * t1;
+	VectorD2<int> t2(200, 0); t2 = rot * t2;
+	VectorD2<int> t3(0, 20); t3 = rot * t3;
+	notes << t1.x << "," << t1.y << ";" << t2.x << "," << t2.y << ";" << t3.x << "," << t3.y << endl;
+	t.points.push_back(t1);
+	t.points.push_back(t2);
+	t.points.push_back(t3);
+	t.points.push_back(t1);
+	t.drawFilled(surf, 70, 400, Color(0,0,255,160));
 	
 }
 

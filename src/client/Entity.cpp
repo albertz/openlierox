@@ -63,7 +63,7 @@ struct DrawBeamInfo {
 			DrawBeam(dst, x, y, x2, y2, col);
 		}
 		else {
-			p.drawFilled(dst, v, col);
+			p.drawFilled(dst, 0, 0, v, col);
 		}
 	}
 };

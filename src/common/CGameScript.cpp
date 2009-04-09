@@ -1451,6 +1451,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	std::string file = dir + "/" + pfile;
 	notes << "    Compiling Projectile '" << pfile << "'" << endl;
 	
+	if(!IsFileAvailable(dir + "/" + pfile, false))
+		warnings << "projectile file " << pfile << " not found, using defaults..." << endl;
+	
 	proj->filename = pfile;
 	
 	proj->Timer.Projectiles = false;
@@ -1494,7 +1497,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 					break;
 			}
 			if(proj->polygon.points.size() == 0) {
-				warnings << "no points specified for PRJ_POLYGON projectile; fallback to PRJ_PIXEL" << endl;
+				warnings << "no points specified for PRJ_POLYGON projectile " << pfile << "; fallback to PRJ_PIXEL" << endl;
 				proj->Type = PRJ_PIXEL;
 			}
 			else
@@ -1506,10 +1509,14 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		case PRJ_PIXEL:
 			for(size_t i = 0; ; ++i) {
 				Color col;
-				if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) || i == 0 ) {
+				if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) ) {
 					proj->Colour.push_back(col);
 				} else
 					break;
+			}
+			if(proj->Colour.size() == 0) {
+				warnings << "no colors specified for projectile " << pfile << ", using black" << endl;
+				proj->Colour.push_back(Color());
 			}
 			break;
 			
