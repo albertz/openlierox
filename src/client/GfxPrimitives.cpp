@@ -1791,16 +1791,18 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 	
 	float f = float(rx) / float(ry);
 	for(int _y = innerRectH + 1; _y < ry; _y++) {
-		int w = int(f * sqrt(float(ry*ry - _y*_y)));
-		
+		float _w = f * sqrt(float(ry*ry - _y*_y));
+		int w(_w);
+			
 		DrawHLine(bmpDest, x - w, x + w, y - _y, color);
 		DrawHLine(bmpDest, x - w, x + w, y + _y, color);
 	}
 
 	f = 1.0f / f;
 	for(int _x = innerRectW + 1; _x < rx; _x++) {
-		int h = int(f * sqrt(float(rx*rx - _x*_x)));
-		
+		float _h = f * sqrt(float(rx*rx - _x*_x));
+		int h(_h);
+			
 		DrawVLine(bmpDest, y - h, y + h, x - _x, color);
 		DrawVLine(bmpDest, y - h, y + h, x + _x, color);
 	}
@@ -2039,6 +2041,8 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
 	int step = bmpDest->pitch - r.w * bpp;
 	
+	LOCK_OR_QUIT(bmpDest);
+	
 	// Draw the fill rect
 	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
@@ -2047,6 +2051,8 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 			if(isInside(r.x + x, r.y + y))
 				putter.put(px, bmpDest->format, col);
 		}
+		
+	UnlockSurface(bmpDest);
 }
 
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
@@ -2073,7 +2079,9 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 #define Ty(y) ((y - wy) * 2 + t)
 
 	if(doReloadLines) reloadLines();
-		
+
+	LOCK_OR_QUIT(bmpDest);
+	
 	// Draw the fill rect
 	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
@@ -2086,6 +2094,8 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 				putter.put(px + bmpDest->pitch + bpp, bmpDest->format, col);
 			}
 		}
+	
+	UnlockSurface(bmpDest);
 	
 #undef Tx
 #undef Ty
