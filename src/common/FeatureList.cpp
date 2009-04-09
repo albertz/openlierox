@@ -35,7 +35,7 @@ Feature featureArray[] = {
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
 	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit.", 
 			false, 	false, 			Version(), 			GIG_Other, 							true),
-	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your kills", 
+	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your damage score counter", 
 			false, 	false, 			Version(), 			GIG_Score, 							true),
 	Feature("HS_HideTime", 			"Hiding time", 					"AbsTime at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),

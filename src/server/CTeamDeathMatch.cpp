@@ -100,11 +100,18 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	}
 	
 	// Kills & deaths in row
-	if(killer && killer != victim && killer->getTeam() != victim->getTeam()) {
-		killer->AddKill();
-		iKillsInRow[killer->getID()]++;
-		iDeathsInRow[killer->getID()] = 0;
-		ChangeTeamScore(killer->getTeam(), 1);
+	if(killer && killer != victim) {
+		if(killer->getTeam() != victim->getTeam()) {
+			killer->AddKill();
+			iKillsInRow[killer->getID()]++;
+			iDeathsInRow[killer->getID()] = 0;
+			ChangeTeamScore(killer->getTeam(), 1);
+		}
+		else { // killed team mate
+			if(tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore]) {
+				ChangeTeamScore(killer->getTeam(), -1);
+			}
+		}
 	}
 	iKillsInRow[victim->getID()] = 0;
 	iDeathsInRow[victim->getID()]++;
