@@ -347,31 +347,6 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 }
 
 
-/////////////////////////
-// Performs one side (horizontal or vertical) clip
-// c - x or y; d - width or height
-bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d)  {
-	if (c < clip_c)  {
-		d += c - clip_c;
-		c = clip_c;
-		if (d <= 0)  {
-			d = 0;
-			return false;
-		}
-	}
-
-	if (c + d >= clip_c + clip_d)  {
-		if (c >= clip_c + clip_d)  {
-			d = 0;
-			return false;
-		}
-
-		d = clip_c + clip_d - c;
-	}
-
-	return true;
-}
-
 
 //////////////////
 //
@@ -1947,6 +1922,40 @@ bool Line::isParallel(int x, int y) const {
 	return !isBeforeStart(x,y) && !isAfterEnd(x,y);
 }
 
+bool Line::containsY(int y, int& x, bool aimsDown) const {
+	if(start.y == end.y) {
+		if(start.y == y) {
+			if(!aimsDown) {
+				if(start.x < end.x) x = start.x;
+				else x = end.x;
+			}
+			else {
+				if(start.x < end.x) x = end.x;
+				else x = start.x;				
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	if(start.y <= y && end.y >= y && aimsDown) {
+		VectorD2<int> rel = end - start;
+		y -= start.y;
+		x = rel.x * y / rel.y;
+		x += start.x;
+		return true;
+	}
+	
+	if(start.y >= y && end.y <= y && !aimsDown) {
+		VectorD2<int> rel = start - end;
+		y -= end.y;
+		x = rel.x * y / rel.y;
+		x += end.x;
+		return true;
+	}
+	
+	return false;	
+}
 
 void Polygon2D::reloadLines() {
 	doReloadLines = false;
@@ -1958,13 +1967,24 @@ void Polygon2D::reloadLines() {
 	}
 }
 
-bool Polygon2D::isInside(int x, int y) const {
-	if(points.size() <= 1) return true;
+
+bool Polygon2D::getNext(int x, int y, int& nextx, bool inside) const {
+	bool haveAny = false;
 	for(Lines::const_iterator l = lines.begin(); l != lines.end(); ++l) {
-		if(!l->isRightFrom(x, y) && l->isParallel(x, y)) return false;
+		int lx;
+		if(l->containsY(y, lx, !inside) && lx >= x) {
+			if(!haveAny || lx < nextx) {
+				haveAny = true;
+				if(lx == x && !inside)
+					nextx = lx + 1; // hack to go forward in such cases
+				else
+					nextx = lx;
+			}
+		}
 	}
-	return true;
+	return haveAny;
 }
+
 
 SDL_Rect Polygon2D::minOverlayRect() const {
 	SDL_Rect r = {0,0,0,0};
@@ -2030,40 +2050,46 @@ SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, Color col) {
 	SDL_Rect r = minOverlayRect();
 	
-	// Clipping
-	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
-		return;
-
+	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
+	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
+	if(r.x + r.w < bmpDest->clip_rect.x) return;
+	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
+	r.w = MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
+	
 	if(doReloadLines) reloadLines();
-	
+		
 	const int bpp = bmpDest->format->BytesPerPixel;
-	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
-	int step = bmpDest->pitch - r.w * bpp;
-	
+
 	LOCK_OR_QUIT(bmpDest);
 	
 	// Draw the fill rect
-	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int y = 0; y < r.h; ++y, px += step)
-		for (int x = 0; x < r.w; ++x, px += bpp) {
-			if(isInside(r.x + x, r.y + y))
+	for (int y = r.y; y < r.y + r.h; ++y) {
+		int x = r.x;
+		while(x < r.x + r.w && getNext(x, y, x, true)) {
+			int endx = r.x + r.w;
+			getNext(x, y, endx, false); endx = MIN(endx, r.x + r.w);
+			Uint8 *px = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bpp;
+			for(; x < endx; ++x, px += bpp) {
+				if(x < bmpDest->clip_rect.x) continue;
 				putter.put(px, bmpDest->format, col);
+			}
 		}
-		
+	}
+	
 	UnlockSurface(bmpDest);
 }
 
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 	SDL_Rect r = minOverlayRect(v);
 	
-	// Clipping
-	if (!ClipRefRectWith((SDLRect&)r, (SDLRect&)bmpDest->clip_rect))
-		return;
+	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
+	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
+	if(r.x + r.w < bmpDest->clip_rect.x) return;
+	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
+	r.w = MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
 	
 	const int bpp = bmpDest->format->BytesPerPixel;
-	Uint8 *px = (Uint8 *)bmpDest->pixels + r.y * bmpDest->pitch + r.x * bpp;
-	int step = bmpDest->pitch * 2 - r.w * bpp;
 	int wx = v->GetWorldX();
 	int wy = v->GetWorldY();
 	int l = v->GetLeft();
@@ -2082,17 +2108,22 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 	LOCK_OR_QUIT(bmpDest);
 	
 	// Draw the fill rect
-	// TODO: use scan-line algorithm, it is faster
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int y = 0; y < r.h; ++y, px += step)
-		for (int x = 0; x < r.w; ++x, px += bpp * 2) {
-			if(isInside(r.x + x, r.y + y)) {
+	for (int y = r.y; y < r.y + r.h; ++y) {
+		int x = r.x;
+		while(x < r.x + r.w && getNext(x, y, x, true)) {
+			int endx = r.x + r.w;
+			getNext(x, y, endx, false); endx = MIN(endx, r.x + r.w);
+			Uint8 *px = (Uint8 *)bmpDest->pixels + Ty(y) * bmpDest->pitch + Tx(x) * bpp;
+			for(; x < endx; ++x, px += bpp * 2) {
+				if(Tx(x) < bmpDest->clip_rect.x) continue;
 				putter.put(px, bmpDest->format, col);
 				putter.put(px + bpp, bmpDest->format, col);
 				putter.put(px + bmpDest->pitch, bmpDest->format, col);
 				putter.put(px + bmpDest->pitch + bpp, bmpDest->format, col);
 			}
 		}
+	}
 	
 	UnlockSurface(bmpDest);
 	
@@ -2101,15 +2132,9 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, CViewport* v, Color col) {
 }
 
 
-void TestPolygonDrawing(SDL_Surface* s) {
+void TestPolygonDrawing(SDL_Surface* surf) {
+	// star
 	Polygon2D p;
-	/*
-	p.points.push_back( VectorD2<int>(10, 10) );
-	p.points.push_back( VectorD2<int>(100, 20) );
-	p.points.push_back( VectorD2<int>(90, 100) );
-	p.points.push_back( VectorD2<int>(10, 10) );
-	 */
-
 	p.points.push_back( VectorD2<int>(100, 0) );
 	p.points.push_back( VectorD2<int>(110, 90) );
 	p.points.push_back( VectorD2<int>(200, 100) );
@@ -2118,10 +2143,35 @@ void TestPolygonDrawing(SDL_Surface* s) {
 	p.points.push_back( VectorD2<int>(90, 110) );
 	p.points.push_back( VectorD2<int>(0, 100) );
 	p.points.push_back( VectorD2<int>(90, 90) );
-	p.points.push_back( VectorD2<int>(100, 0) );
-
+	p.points.push_back( VectorD2<int>(100, 0) );	
+	p.drawFilled(surf, Color(0,255,0,128));
 	
-	p.drawFilled(s, Color(0,255,0,128));
+	// triangle
+	Polygon2D q;
+	q.points.push_back( VectorD2<int>(310, 10) );
+	q.points.push_back( VectorD2<int>(400, 20) );
+	q.points.push_back( VectorD2<int>(390, 100) );
+	q.points.push_back( VectorD2<int>(310, 10) );
+	q.drawFilled(surf, Color(0,255,0,128));
+	
+	// rectangle
+	Polygon2D r;
+	r.points.push_back( VectorD2<int>(10, 240) );
+	r.points.push_back( VectorD2<int>(200, 240) );
+	r.points.push_back( VectorD2<int>(200, 400) );
+	r.points.push_back( VectorD2<int>(10, 400) );
+	r.points.push_back( VectorD2<int>(10, 240) );
+	r.drawFilled(surf, Color(0,255,0,128));
+
+	// quadrangle (like worms beam)
+	Polygon2D s;
+	s.points.push_back( VectorD2<int>(230, 240) );
+	s.points.push_back( VectorD2<int>(250, 230) );
+	s.points.push_back( VectorD2<int>(300, 380) );
+	s.points.push_back( VectorD2<int>(260, 400) );
+	s.points.push_back( VectorD2<int>(230, 240) );
+	s.drawFilled(surf, Color(0,255,0,128));
+	
 }
 
 

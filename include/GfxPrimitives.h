@@ -210,7 +210,37 @@ bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
 }
 
 
-bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
+
+/////////////////////////
+// Performs one side (horizontal or vertical) clip
+// c - x or y; d - width or height
+template<typename T1, typename T2>
+bool _OneSideClip(T1& c, T2& d, const T1 clip_c, const T2 clip_d)  {
+	if (c < clip_c)  {
+		d += c - clip_c;
+		c = clip_c;
+		if (d <= 0)  {
+			d = 0;
+			return false;
+		}
+	}
+	
+	if (c + d >= clip_c + clip_d)  {
+		if (c >= clip_c + clip_d)  {
+			d = 0;
+			return false;
+		}
+		
+		d = clip_c + clip_d - c;
+	}
+	
+	return true;
+}
+
+template<typename T1, typename T2, typename T3, typename T4>
+bool OneSideClip(T1& c, T2& d, const T3 clip_c, const T4 clip_d)  {
+	return _OneSideClip(c, d, (T1)clip_c, (T2)clip_d);
+}
 
 ////////////////
 // Create a SDL rect
@@ -783,6 +813,7 @@ struct Line {
 	bool isParallel(int x, int y) const;
 	bool isBeforeStart(int x, int y) const;
 	bool isAfterEnd(int x, int y) const;
+	bool containsY(int y, int& x, bool aimsDown) const;
 };
 
 class CViewport;
@@ -796,7 +827,7 @@ struct Polygon2D {
 	
 	Polygon2D() : doReloadLines(true) {}
 	void reloadLines();
-	bool isInside(int x, int y) const;
+	bool getNext(int x, int y, int& nextx, bool inside) const;
 	SDL_Rect minOverlayRect() const;
 	SDL_Rect minOverlayRect(CViewport* v) const;
 	void drawFilled(SDL_Surface* s, Color col);
