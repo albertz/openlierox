@@ -215,28 +215,26 @@ bool CProjectile::MapBoundsCollision(int px, int py)
 CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 {
 	CMap* map = cClient->getMap();
-	int xend = px + iColSize;
-	int yend = py + iColSize;
 
 	ColInfo res = { 0, 0, 0, 0, false, true };
 
 	// If the current cell is empty, don't check for the collision
 	{
 	const int gf1 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
-	const int gf2 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (xend) / map->getGridWidth();
-	const int gf3 = (yend) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
-	const int gf4 = (yend) / map->getGridHeight() * map->getGridCols() + (xend) / map->getGridWidth();
+	const int gf2 = (py - iColSize) / map->getGridHeight() * map->getGridCols() + (px + iColSize) / map->getGridWidth();
+	const int gf3 = (py + iColSize) / map->getGridHeight() * map->getGridCols() + (px - iColSize) / map->getGridWidth();
+	const int gf4 = (py + iColSize) / map->getGridHeight() * map->getGridCols() + (px + iColSize) / map->getGridWidth();
 	const uchar *pf = map->getAbsoluteGridFlags();
 	if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
 		return res;
 	}
 
 	// Check for the collision
-	for(int y = py - iColSize; y <= yend; ++y) {
+	for(int y = py - iColSize; y <= py + iColSize; ++y) {
 
 		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - iColSize;
 
-		for(int x = px - iColSize; x <= xend; ++x) {
+		for(int x = px - iColSize; x <= px + iColSize; ++x) {
 
 			// Solid pixel
 			if(*pf & (PX_DIRT|PX_ROCK)) {
