@@ -1473,19 +1473,19 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 	// Player hit
-	ReadKeyword(file,"PlayerHit","Type",(int*)&proj->PlyHit.Type,PJ_INJURE);
-
-	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
-		ReadInteger(file,"PlayerHit","Damage",&proj->PlyHit.Damage,0);
-		ReadKeyword(file,"PlayerHit","Projectiles",&proj->PlyHit.Projectiles,false);
+	proj->PlyHit.Type = PJ_INJURE;
+	proj->PlyHit.readFromIni(file, "PlayerHit");
+	
+	if(proj->PlyHit.Shake != 0) {
+		warnings << "projectile " << file << " has PlayerHit.Shake != 0 which was not supported earlier. this is ignored" << endl;
+		proj->PlyHit.Shake = 0;
 	}
-
-	// PlyHit::Bounce
-	if(proj->PlyHit.Type == PJ_BOUNCE) {
-		ReadFloat(file,"PlayerHit","BounceCoeff",&proj->PlyHit.BounceCoeff,0.5);
+	
+	if(proj->PlyHit.BounceExplode != 0) {
+		warnings << "projectile " << file << " has PlayerHit.BounceExplode != 0 which was not supported earlier. this is ignored" << endl;
+		proj->PlyHit.BounceExplode = 0;
 	}
-
+	
 
 	/*
     // OnExplode
@@ -1752,10 +1752,10 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 
 std::string Proj_Action::readFromIni(const std::string& file, const std::string& section) {
 	// Hit
-	ReadKeyword(file,section,"Type",(int*)&Type,PJ_EXPLODE);
+	ReadKeyword(file, section, "Type", (int*)&Type, Type);
 	
 	// Hit::Explode
-	if(Type == PJ_EXPLODE) {
+	if(Type == PJ_EXPLODE || Type == PJ_INJURE) {
 		ReadInteger(file,section,"Damage",&Damage,0);
 		ReadKeyword(file,section,"Projectiles",&Projectiles,false);
 		ReadInteger(file,section,"Shake",&Shake,0);
