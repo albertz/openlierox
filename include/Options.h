@@ -291,7 +291,6 @@ public:
 		float	fBonusLife;
 		float	fRespawnTime;
 		bool	bRespawnGroupTeams;	// respawn all team in single spot
-		bool	bGroupTeamScore;	// All worms in team will have the same kill count (sum of each one kills)
 		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
 		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
 		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true

@@ -125,7 +125,6 @@ private:
 	CCheckbox *chkWaveRespawn;
 	CCheckbox *chkGroupTeams;
 	CCheckbox *chkDecreaseScore;
-	CCheckbox *chkGroupTeamScore;
 
 	// Bonus tab
 	CCheckbox *chkBonusesOn;

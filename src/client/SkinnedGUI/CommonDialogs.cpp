@@ -335,9 +335,6 @@ CGameSettingsDialog::CGameSettingsDialog(COMMON_PARAMS) : CDialog(name, parent, 
 	new CLabel(STATIC, pgGeneral, "Suicide or teamkill\ndecreases score");
 	chkDecreaseScore = new CCheckbox("_DecreaseScore", pgGeneral, false);
 
-	// Group team score
-	new CLabel(STATIC, pgGeneral, "Group Team Score");
-	chkGroupTeamScore = new CCheckbox("_GroupTeamScore", pgGeneral, false);
 
 	//
 	// Bonus tab
@@ -404,9 +401,6 @@ void CGameSettingsDialog::LoadFromOptions()
 	// Suicide or teamkill decreases score
 	chkDecreaseScore->setValue(tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore]);
 
-	// Group team score
-	chkGroupTeamScore->setValue(tLXOptions->tGameInfo.bGroupTeamScore);
-
 	// Bonuses on
 	chkBonusesOn->setValue(tLXOptions->tGameInfo.bBonusesOn);
 
@@ -467,9 +461,6 @@ void CGameSettingsDialog::Save()
 	// Suicide and teamkill decrease score
 	tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] = chkDecreaseScore->getValue();
 
-	// Group team score
-	tLXOptions->tGameInfo.bGroupTeamScore = chkGroupTeamScore->getValue();
-
 	// Empty weapons on respawn
 	tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = chkEmptyWeapons->getValue();
 
@@ -526,9 +517,6 @@ void CGameSettingsDialog::Default()
 
 	// Suicide and teamkill decrease score
 	chkDecreaseScore->setValue(false);
-
-	// Group team score
-	chkGroupTeamScore->setValue(false);
 
 	// Empty weapons on respawn
 	chkEmptyWeapons->setValue(false);
