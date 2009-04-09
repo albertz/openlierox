@@ -1631,13 +1631,11 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color)
 	Uint8 *row1 = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
 	Uint8 *row2 = row1 + bmpDest->pitch;
 
-	const Uint32 packed_color = Pack(color, bmpDest->format);
-
-	PixelPut& putter = getPixelPutFunc(bmpDest);
-	putter.put(row1, packed_color);
-	putter.put(row1 + bmpDest->format->BytesPerPixel, packed_color);
-	putter.put(row2, packed_color);
-	putter.put(row2 + bmpDest->format->BytesPerPixel, packed_color);
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
+	putter.put(row1, bmpDest->format, color);
+	putter.put(row1 + bmpDest->format->BytesPerPixel, bmpDest->format, color);
+	putter.put(row2, bmpDest->format, color);
+	putter.put(row2 + bmpDest->format->BytesPerPixel, bmpDest->format, color);
 
 	UnlockSurface(bmpDest);
 }
@@ -1646,6 +1644,8 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color)
 // Draws the 2x2 filled rectangle, does clipping
 void DrawRectFill2x2(SDL_Surface *bmpDest, int x, int y, Color color)
 {
+	if(color.a == SDL_ALPHA_TRANSPARENT) return;
+	
 	if (x < 0 || x + 2 >= bmpDest->clip_rect.x + bmpDest->clip_rect.w)
 		return;
 	if (y < 0 || y + 2 >= bmpDest->clip_rect.y + bmpDest->clip_rect.h)
@@ -1781,6 +1781,7 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color colo
 
 
 void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color) {
+	if(color.a == SDL_ALPHA_TRANSPARENT) return;
 	if(rx <= 0 || ry <= 0) return;
 	if(rx == 1) { DrawVLine(bmpDest, y - ry, y + ry, x, color); return; }
 	if(ry == 1) { DrawHLine(bmpDest, x - rx, x + rx, y, color); return; }
