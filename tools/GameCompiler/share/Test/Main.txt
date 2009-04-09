@@ -12,8 +12,9 @@ ModName = Test Mod
 
 
 [Weapons]
-NumWeapons = 1
+NumWeapons = 2
 Weapon1 = w_beamtest1.txt
+Weapon2 = w_beamtest2.txt
 
 
 [NinjaRope]

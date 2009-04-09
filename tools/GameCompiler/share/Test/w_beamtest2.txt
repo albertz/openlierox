@@ -3,7 +3,7 @@
 
 
 [General]
-Name = wide laser
+Name = Laser
 Type = WPN_BEAM
 Recoil = 1
 Recharge = 1
@@ -13,9 +13,9 @@ ROF = 0
 [Beam]
 Damage = 1
 PlayerDamage = 3
-Colour = 0,255,0,150
+Colour = 0,0,255,150
 Length = 999999
-InitWidth = 10
-WidthIncrease = 0.5
+InitWidth = 100
+WidthIncrease = -0.5
 DistributeDamageOverWidth = true
 
