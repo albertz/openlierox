@@ -253,6 +253,8 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 				fwrite_endian_compat((proj->AnimType),sizeof(int),1,fp);
 			}
 			break;
+			
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "SaveProjectile: PRJ BOUND" << endl;
 	}
 
 
@@ -673,7 +675,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			
 			for(size_t i = 0; i < NumColours; ++i) {
 				if(Header.Version <= GS_LX56_VERSION) {
-					int color[3];
+					int color[3] = {0,0,0};
 					fread(color,sizeof(int),3,fp);
 					EndianSwap(color[0]);
 					EndianSwap(color[1]);
@@ -715,7 +717,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				EndianSwap(proj->AnimType);
 			}
 			break;
-						
+			
+			
+		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "LoadProjectile: PRJ BOUND" << endl;
 	}
 
 
