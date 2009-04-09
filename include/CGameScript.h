@@ -155,8 +155,6 @@ public:
 private:
 	proj_t		*LoadProjectile(FILE *fp);
 	bool		SaveProjectile(proj_t *proj, FILE *fp);
-    void        writeString(const std::string& szString, FILE *fp);
-    std::string readString(FILE *fp);
 
 public:
 	size_t		GetMemorySize();

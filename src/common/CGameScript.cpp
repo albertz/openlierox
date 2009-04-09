@@ -38,6 +38,41 @@ void CGameScript::initNewWeapons(int num) {
 
 
 ///////////////////
+// Write a string in pascal format
+static void writeString(const std::string& szString, FILE *fp)
+{
+    if(szString == "") return;
+	
+	size_t length = szString.size();
+	if(length > 255) {
+		warnings << "i will cut the following string for writing: " << szString << endl;
+		length = 255;
+	}
+	uchar len = (uchar)length;
+	
+    fwrite( &len, sizeof(uchar), 1, fp );
+    fwrite( szString.c_str(),sizeof(char), length, fp );
+}
+
+
+///////////////////
+// Read a string in pascal format
+static std::string readString(FILE *fp)
+{
+	char buf[256];
+	
+    uchar length;
+    fread( &length, sizeof(uchar), 1, fp );
+    fread( buf,sizeof(char), length, fp );
+	
+    buf[length] = '\0';
+	
+    return buf;
+}
+
+
+
+///////////////////
 // Save the script (compiler)
 int CGameScript::Save(const std::string& filename)
 {
@@ -183,41 +218,41 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	}
 	
     // Pixel type
-	if(proj->Type == PRJ_PIXEL) {
-		fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
-		for(size_t i = 0; i < proj->Colour.size(); ++i) {
-			if(Header.Version <= GS_LX56_VERSION && i >= 2) {
-				warnings << "SaveProjectile: projectile has more than 2 colors, other colors are ignored for LX56 format" << endl;
-				break;
+	switch(proj->Type) {
+		case PRJ_PIXEL:
+			fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
+			for(size_t i = 0; i < proj->Colour.size(); ++i) {
+				if(Header.Version <= GS_LX56_VERSION && i >= 2) {
+					warnings << "SaveProjectile: projectile has more than 2 colors, other colors are ignored for LX56 format" << endl;
+					break;
+				}
+				if(Header.Version <= GS_LX56_VERSION) {
+					fwrite_endian_compat(((int)proj->Colour[i].r),   sizeof(int),1,fp);
+					fwrite_endian_compat(((int)proj->Colour[i].g),   sizeof(int),1,fp);
+					fwrite_endian_compat(((int)proj->Colour[i].b),   sizeof(int),1,fp);
+				} else {
+					fwrite_endian_compat((proj->Colour[i].r), 1,1,fp);
+					fwrite_endian_compat((proj->Colour[i].g), 1,1,fp);
+					fwrite_endian_compat((proj->Colour[i].b), 1,1,fp);
+					fwrite_endian_compat((proj->Colour[i].a), 1,1,fp);	
+				}
 			}
-			if(Header.Version <= GS_LX56_VERSION) {
-				fwrite_endian_compat(((int)proj->Colour[i].r),   sizeof(int),1,fp);
-				fwrite_endian_compat(((int)proj->Colour[i].g),   sizeof(int),1,fp);
-				fwrite_endian_compat(((int)proj->Colour[i].b),   sizeof(int),1,fp);
-			} else {
-				fwrite_endian_compat((proj->Colour[i].r), 1,1,fp);
-				fwrite_endian_compat((proj->Colour[i].g), 1,1,fp);
-				fwrite_endian_compat((proj->Colour[i].b), 1,1,fp);
-				fwrite_endian_compat((proj->Colour[i].a), 1,1,fp);	
+			break;
+		case PRJ_IMAGE:
+			writeString(proj->ImgFilename, fp);
+			fwrite_endian<int>(fp, proj->Rotating);
+			fwrite_endian_compat((proj->RotIncrement), sizeof(int), 1, fp);
+			fwrite_endian_compat((proj->RotSpeed), sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->UseAngle);
+			fwrite_endian<int>(fp, proj->UseSpecAngle);
+			if(proj->UseAngle || proj->UseSpecAngle)
+				fwrite_endian_compat((proj->AngleImages),sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->Animating);
+			if(proj->Animating) {
+				fwrite_endian_compat((proj->AnimRate),sizeof(float),1,fp);
+				fwrite_endian_compat((proj->AnimType),sizeof(int),1,fp);
 			}
-		}
-	}
-
-    // Image type
-	else if(proj->Type == PRJ_IMAGE) {
-        writeString(proj->ImgFilename, fp);
-		fwrite_endian<int>(fp, proj->Rotating);
-		fwrite_endian_compat((proj->RotIncrement), sizeof(int), 1, fp);
-		fwrite_endian_compat((proj->RotSpeed), sizeof(int),1,fp);
-		fwrite_endian<int>(fp, proj->UseAngle);
-		fwrite_endian<int>(fp, proj->UseSpecAngle);
-		if(proj->UseAngle || proj->UseSpecAngle)
-			fwrite_endian_compat((proj->AngleImages),sizeof(int),1,fp);
-		fwrite_endian<int>(fp, proj->Animating);
-		if(proj->Animating) {
-			fwrite_endian_compat((proj->AnimRate),sizeof(float),1,fp);
-			fwrite_endian_compat((proj->AnimType),sizeof(int),1,fp);
-		}
+			break;
 	}
 
 
@@ -226,29 +261,33 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Hit
 	//
-	fwrite_endian_compat((proj->Hit.Type),sizeof(int),1,fp);
+	if(Header.Version <= GS_LX56_VERSION) {
+		fwrite_endian_compat((proj->Hit.Type),sizeof(int),1,fp);
 
-	// Hit::Explode
-	if(proj->Hit.Type == PJ_EXPLODE) {
-		fwrite_endian_compat((proj->Hit.Damage),		sizeof(int),1,fp);
-		fwrite_endian<int>(fp, proj->Hit.Projectiles);
-		fwrite_endian<int>(fp, proj->Hit.UseSound);
-		fwrite_endian_compat((proj->Hit.Shake),		sizeof(int),1,fp);
-		if(proj->Hit.UseSound)
-            writeString(proj->Hit.SndFilename, fp);
+		// Hit::Explode
+		if(proj->Hit.Type == PJ_EXPLODE) {
+			fwrite_endian_compat((proj->Hit.Damage),		sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->Hit.Projectiles);
+			fwrite_endian<int>(fp, proj->Hit.UseSound);
+			fwrite_endian_compat((proj->Hit.Shake),		sizeof(int),1,fp);
+			if(proj->Hit.UseSound)
+				writeString(proj->Hit.SndFilename, fp);
+		}
+
+		// Hit::Bounce
+		if(proj->Hit.Type == PJ_BOUNCE) {
+			fwrite_endian_compat((proj->Hit.BounceCoeff),	sizeof(float),	1,fp);
+			fwrite_endian_compat((proj->Hit.BounceExplode),sizeof(int),	1,fp);
+		}
+
+		// Hit::Carve
+		if(proj->Hit.Type == PJ_CARVE) {
+			fwrite_endian_compat((proj->Hit.Damage),		sizeof(int),1,fp);
+		}
 	}
-
-	// Hit::Bounce
-	if(proj->Hit.Type == PJ_BOUNCE) {
-		fwrite_endian_compat((proj->Hit.BounceCoeff),	sizeof(float),	1,fp);
-		fwrite_endian_compat((proj->Hit.BounceExplode),sizeof(int),	1,fp);
+	else { // newer GS version
+		proj->Hit.write(this, fp);
 	}
-
-	// Hit::Carve
-	if(proj->Hit.Type == PJ_CARVE) {
-		fwrite_endian_compat((proj->Hit.Damage),		sizeof(int),1,fp);
-	}
-
 
 
 
@@ -257,11 +296,16 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	// Timer
 	//
 	if(proj->Timer.Time > 0) {
-		fwrite_endian_compat((proj->Timer.Type),sizeof(int),1,fp);
-		if(proj->Timer.Type == PJ_EXPLODE) {
-			fwrite_endian_compat((proj->Timer.Damage),		sizeof(int),1,fp);
-			fwrite_endian<int>(fp, proj->Timer.Projectiles);
-			fwrite_endian_compat((proj->Timer.Shake),sizeof(int),1,fp);
+		if(Header.Version <= GS_LX56_VERSION) {
+			fwrite_endian_compat((proj->Timer.Type),sizeof(int),1,fp);
+			if(proj->Timer.Type == PJ_EXPLODE) {
+				fwrite_endian_compat((proj->Timer.Damage),		sizeof(int),1,fp);
+				fwrite_endian<int>(fp, proj->Timer.Projectiles);
+				fwrite_endian_compat((proj->Timer.Shake),sizeof(int),1,fp);
+			}
+		}
+		else {
+			proj->Timer.write(this, fp);
 		}
 	}
 
@@ -269,41 +313,49 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	//
 	// Player hit
 	//
-	fwrite_endian_compat((proj->PlyHit.Type),sizeof(int),1,fp);
+	if(Header.Version <= GS_LX56_VERSION) {
+		fwrite_endian_compat((proj->PlyHit.Type),sizeof(int),1,fp);
 
-	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
-		fwrite_endian_compat((proj->PlyHit.Damage),sizeof(int),1,fp);
-		fwrite_endian<int>(fp, proj->PlyHit.Projectiles);
+		// PlyHit::Explode || PlyHit::Injure
+		if(proj->PlyHit.Type == PJ_EXPLODE || proj->PlyHit.Type == PJ_INJURE) {
+			fwrite_endian_compat((proj->PlyHit.Damage),sizeof(int),1,fp);
+			fwrite_endian<int>(fp, proj->PlyHit.Projectiles);
+		}
+
+		// PlyHit::Bounce
+		if(proj->PlyHit.Type == PJ_BOUNCE) {
+			fwrite_endian_compat((proj->PlyHit.BounceCoeff),sizeof(float),1,fp);
+		}
+	}
+	else { // newer GS version
+		proj->PlyHit.write(this, fp);
 	}
 
-	// PlyHit::Bounce
-	if(proj->PlyHit.Type == PJ_BOUNCE) {
-		fwrite_endian_compat((proj->PlyHit.BounceCoeff),sizeof(float),1,fp);
+	
+	if(Header.Version <= GS_LX56_VERSION) {
+		// NOTE: this is obsolete, they are not used
+		
+		//
+		// Explode
+		//
+		fwrite_endian_compat((proj->Exp.Type),     sizeof(int), 1, fp);
+		fwrite_endian_compat((proj->Exp.Damage),   sizeof(int), 1, fp);
+		fwrite_endian<int>(fp, proj->Exp.Projectiles);
+		fwrite_endian<int>(fp, proj->Exp.UseSound);
+		if(proj->Exp.UseSound)
+			writeString(proj->Exp.SndFilename, fp);
+
+
+		//
+		// Touch
+		//
+		fwrite_endian_compat((proj->Tch.Type),     sizeof(int), 1, fp);
+		fwrite_endian_compat((proj->Tch.Damage),   sizeof(int), 1, fp);
+		fwrite_endian<int>(fp, proj->Tch.Projectiles);
+		fwrite_endian<int>(fp, proj->Tch.UseSound);
+		if(proj->Tch.UseSound)
+			writeString(proj->Tch.SndFilename, fp);
 	}
-
-
-    //
-    // Explode
-    //
-    fwrite_endian_compat((proj->Exp.Type),     sizeof(int), 1, fp);
-    fwrite_endian_compat((proj->Exp.Damage),   sizeof(int), 1, fp);
-    fwrite_endian<int>(fp, proj->Exp.Projectiles);
-    fwrite_endian<int>(fp, proj->Exp.UseSound);
-    if(proj->Exp.UseSound)
-        writeString(proj->Exp.SndFilename, fp);
-
-
-    //
-    // Touch
-    //
-    fwrite_endian_compat((proj->Tch.Type),     sizeof(int), 1, fp);
-    fwrite_endian_compat((proj->Tch.Damage),   sizeof(int), 1, fp);
-    fwrite_endian<int>(fp, proj->Tch.Projectiles);
-    fwrite_endian<int>(fp, proj->Tch.UseSound);
-    if(proj->Tch.UseSound)
-        writeString(proj->Tch.SndFilename, fp);
-
 
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
@@ -613,102 +665,110 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->RotIncrement = 0;
 	proj->Timer.Shake = 0;
 
-	if(proj->Type == PRJ_PIXEL) {
-		Uint32 NumColours = 0;
-		fread_endian<int>(fp, NumColours);
-		proj->Colour.resize(NumColours);
-		
-		for(size_t i = 0; i < NumColours; ++i) {
-			if(Header.Version <= GS_LX56_VERSION) {
-				int color[3];
-				fread(color,sizeof(int),3,fp);
-				EndianSwap(color[0]);
-				EndianSwap(color[1]);
-				EndianSwap(color[2]);
-				proj->Colour[i] = Color(color[0],color[1],color[2]);
-			} else {
-				fread_compat(proj->Colour[i].r,1,1,fp);
-				fread_compat(proj->Colour[i].g,1,1,fp);
-				fread_compat(proj->Colour[i].b,1,1,fp);
-				fread_compat(proj->Colour[i].a,1,1,fp);
+	switch(proj->Type) {
+		case PRJ_PIXEL: {
+			Uint32 NumColours = 0;
+			fread_endian<int>(fp, NumColours);
+			proj->Colour.resize(NumColours);
+			
+			for(size_t i = 0; i < NumColours; ++i) {
+				if(Header.Version <= GS_LX56_VERSION) {
+					int color[3];
+					fread(color,sizeof(int),3,fp);
+					EndianSwap(color[0]);
+					EndianSwap(color[1]);
+					EndianSwap(color[2]);
+					proj->Colour[i] = Color(color[0],color[1],color[2]);
+				} else {
+					fread_compat(proj->Colour[i].r,1,1,fp);
+					fread_compat(proj->Colour[i].g,1,1,fp);
+					fread_compat(proj->Colour[i].b,1,1,fp);
+					fread_compat(proj->Colour[i].a,1,1,fp);
+				}
 			}
+			break;
 		}
-	}
-	else if(proj->Type == PRJ_IMAGE) {
-        proj->ImgFilename = readString(fp);
-
-		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
-        if(!proj->bmpImage)
-            modLog("Could not open image '" + proj->ImgFilename + "'");
-
-		fread_endian<int>(fp, proj->Rotating);
-		fread_compat(proj->RotIncrement, sizeof(int), 1, fp);
-		EndianSwap(proj->RotIncrement);
-		fread_compat(proj->RotSpeed,sizeof(int),1,fp);
-		EndianSwap(proj->RotSpeed);
-		fread_endian<int>(fp, proj->UseAngle);
-		fread_endian<int>(fp, proj->UseSpecAngle);
-		if(proj->UseAngle || proj->UseSpecAngle)
-		{
-			fread_compat(proj->AngleImages,sizeof(int),1,fp);
-			EndianSwap(proj->AngleImages);
-		}
-		fread_endian<int>(fp, proj->Animating);
-		if(proj->Animating) {
-			fread_compat(proj->AnimRate,sizeof(float),1,fp);
-			EndianSwap(proj->AnimRate);
-			fread_compat(proj->AnimType,sizeof(int),1,fp);
-			EndianSwap(proj->AnimType);
-		}
+		case PRJ_IMAGE:
+			proj->ImgFilename = readString(fp);
+			
+			proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
+			if(!proj->bmpImage)
+				modLog("Could not open image '" + proj->ImgFilename + "'");
+			
+			fread_endian<int>(fp, proj->Rotating);
+			fread_compat(proj->RotIncrement, sizeof(int), 1, fp);
+			EndianSwap(proj->RotIncrement);
+			fread_compat(proj->RotSpeed,sizeof(int),1,fp);
+			EndianSwap(proj->RotSpeed);
+			fread_endian<int>(fp, proj->UseAngle);
+			fread_endian<int>(fp, proj->UseSpecAngle);
+			if(proj->UseAngle || proj->UseSpecAngle)
+			{
+				fread_compat(proj->AngleImages,sizeof(int),1,fp);
+				EndianSwap(proj->AngleImages);
+			}
+			fread_endian<int>(fp, proj->Animating);
+			if(proj->Animating) {
+				fread_compat(proj->AnimRate,sizeof(float),1,fp);
+				EndianSwap(proj->AnimRate);
+				fread_compat(proj->AnimType,sizeof(int),1,fp);
+				EndianSwap(proj->AnimType);
+			}
+			break;
+						
 	}
 
 
 	//
 	// Hit
 	//
-	fread_compat(proj->Hit.Type,sizeof(int),1,fp);
-	EndianSwap(proj->Hit.Type);
+	if(Header.Version <= GS_LX56_VERSION) {
+		fread_compat(proj->Hit.Type,sizeof(int),1,fp);
+		EndianSwap(proj->Hit.Type);
 
-	// Hit::Explode
-	if(proj->Hit.Type == PJ_EXPLODE) {
-		fread_compat(proj->Hit.Damage,		sizeof(int),1,fp);
-		EndianSwap(proj->Hit.Damage);
-		fread_endian<int>(fp, proj->Hit.Projectiles);
-		fread_endian<int>(fp, proj->Hit.UseSound);
-		fread_compat(proj->Hit.Shake,			sizeof(int),1,fp);
-		EndianSwap(proj->Hit.Shake);
+		// Hit::Explode
+		if(proj->Hit.Type == PJ_EXPLODE) {
+			fread_compat(proj->Hit.Damage,		sizeof(int),1,fp);
+			EndianSwap(proj->Hit.Damage);
+			fread_endian<int>(fp, proj->Hit.Projectiles);
+			fread_endian<int>(fp, proj->Hit.UseSound);
+			fread_compat(proj->Hit.Shake,			sizeof(int),1,fp);
+			EndianSwap(proj->Hit.Shake);
 
-		if(proj->Hit.UseSound) {
-            proj->Hit.SndFilename = readString(fp);
+			if(proj->Hit.UseSound) {
+				proj->Hit.SndFilename = readString(fp);
+			}
+		}
 
-			if(!bDedicated) {
-				// Load the sample
-				proj->smpSample = LoadGSSample(sDirectory,proj->Hit.SndFilename);
+		// Hit::Bounce
+		if(proj->Hit.Type == PJ_BOUNCE) {
+			fread_compat(proj->Hit.BounceCoeff,	sizeof(float), 1, fp);
+			EndianSwap(proj->Hit.BounceCoeff);
+			fread_compat(proj->Hit.BounceExplode, sizeof(int),   1, fp);
+			EndianSwap(proj->Hit.BounceExplode);
+		}
 
-				if(proj->smpSample == NULL) {
-					proj->Hit.UseSound = false;
-					modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
-				}
-			} else
-				proj->smpSample = NULL;
+		// Hit::Carve
+		if(proj->Hit.Type == PJ_CARVE) {
+			fread_compat(proj->Hit.Damage,		sizeof(int),1,fp);
+			EndianSwap(proj->Hit.Damage);
 		}
 	}
-
-	// Hit::Bounce
-	if(proj->Hit.Type == PJ_BOUNCE) {
-		fread_compat(proj->Hit.BounceCoeff,	sizeof(float), 1, fp);
-		EndianSwap(proj->Hit.BounceCoeff);
-		fread_compat(proj->Hit.BounceExplode, sizeof(int),   1, fp);
-		EndianSwap(proj->Hit.BounceExplode);
+	else { // newer GS version
+		proj->Hit.read(this, fp);
 	}
-
-	// Hit::Carve
-	if(proj->Hit.Type == PJ_CARVE) {
-		fread_compat(proj->Hit.Damage,		sizeof(int),1,fp);
-		EndianSwap(proj->Hit.Damage);
-	}
-
-
+	
+	if(!bDedicated && proj->Hit.UseSound) {
+		// Load the sample
+		proj->smpSample = LoadGSSample(sDirectory,proj->Hit.SndFilename);
+		
+		if(proj->smpSample == NULL) {
+			proj->Hit.UseSound = false;
+			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
+		}
+	} else
+		proj->smpSample = NULL;
+	
 
 
 
@@ -716,14 +776,19 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	// Timer
 	//
 	if(proj->Timer.Time > 0) {
-		fread_compat(proj->Timer.Type,sizeof(int),1,fp);
-		EndianSwap(proj->Timer.Type);
-		if(proj->Timer.Type == PJ_EXPLODE) {
-			fread_compat(proj->Timer.Damage,sizeof(int),1,fp);
-			EndianSwap(proj->Timer.Damage);
-			fread_endian<int>(fp, proj->Timer.Projectiles);
-			fread_compat(proj->Timer.Shake,sizeof(int),1,fp);
-			EndianSwap(proj->Timer.Shake);
+		if(Header.Version <= GS_LX56_VERSION) {
+			fread_compat(proj->Timer.Type,sizeof(int),1,fp);
+			EndianSwap(proj->Timer.Type);
+			if(proj->Timer.Type == PJ_EXPLODE) {
+				fread_compat(proj->Timer.Damage,sizeof(int),1,fp);
+				EndianSwap(proj->Timer.Damage);
+				fread_endian<int>(fp, proj->Timer.Projectiles);
+				fread_compat(proj->Timer.Shake,sizeof(int),1,fp);
+				EndianSwap(proj->Timer.Shake);
+			}
+		}
+		else {
+			proj->Timer.read(this, fp);
 		}
 	}
 
@@ -732,50 +797,54 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	//
 	// Player hit
 	//
-	fread_compat(proj->PlyHit.Type,sizeof(int),1,fp);
-	EndianSwap(proj->PlyHit.Type);
+	if(Header.Version <= GS_LX56_VERSION) {
+		fread_compat(proj->PlyHit.Type,sizeof(int),1,fp);
+		EndianSwap(proj->PlyHit.Type);
 
-	// PlyHit::Explode || PlyHit::Injure
-	if(proj->PlyHit.Type == PJ_INJURE || proj->PlyHit.Type == PJ_EXPLODE) {
-		fread_endian<int>(fp, proj->PlyHit.Damage);
-		fread_endian<int>(fp, proj->PlyHit.Projectiles);
+		// PlyHit::Explode || PlyHit::Injure
+		if(proj->PlyHit.Type == PJ_INJURE || proj->PlyHit.Type == PJ_EXPLODE) {
+			fread_endian<int>(fp, proj->PlyHit.Damage);
+			fread_endian<int>(fp, proj->PlyHit.Projectiles);
+		}
+
+		// PlyHit::Bounce
+		if(proj->PlyHit.Type == PJ_BOUNCE) {
+			fread_compat(proj->PlyHit.BounceCoeff, sizeof(float), 1, fp);
+			EndianSwap(proj->PlyHit.BounceCoeff);
+		}
+	}
+	else {
+		proj->PlyHit.read(this, fp);
 	}
 
-	// PlyHit::Bounce
-	if(proj->PlyHit.Type == PJ_BOUNCE) {
-		fread_compat(proj->PlyHit.BounceCoeff, sizeof(float), 1, fp);
-		EndianSwap(proj->PlyHit.BounceCoeff);
-	}
+	if(Header.Version <= GS_LX56_VERSION) {
+		// NOTE: this is obsolete, it is used nowhere
+		
+		//
+		// Explode
+		//
+		fread_compat(proj->Exp.Type,     sizeof(int), 1, fp);
+		EndianSwap(proj->Exp.Type);
+		fread_compat(proj->Exp.Damage,   sizeof(int), 1, fp);
+		EndianSwap(proj->Exp.Damage);
+		fread_endian<int>(fp, proj->Exp.Projectiles);
+		fread_endian<int>(fp, proj->Exp.UseSound);
+		if(proj->Exp.UseSound) {
+			proj->Exp.SndFilename = readString(fp);
+		}
 
-
-    //
-    // Explode
-    //
-    fread_compat(proj->Exp.Type,     sizeof(int), 1, fp);
-	EndianSwap(proj->Exp.Type);
-    fread_compat(proj->Exp.Damage,   sizeof(int), 1, fp);
-	EndianSwap(proj->Exp.Damage);
-    fread_endian<int>(fp, proj->Exp.Projectiles);
-    fread_endian<int>(fp, proj->Exp.UseSound);
-    if(proj->Exp.UseSound) {
-        proj->Exp.SndFilename = readString(fp);
-		// TODO: why are we not loading this sound?
-		// (If we change this, add this also in CompileProjectile)
-	}
-
-    //
-    // Touch
-    //
-    fread_compat(proj->Tch.Type,     sizeof(int), 1, fp);
-	EndianSwap(proj->Tch.Type);
-    fread_compat(proj->Tch.Damage,   sizeof(int), 1, fp);
-	EndianSwap(proj->Tch.Damage);
-    fread_endian<int>(fp, proj->Tch.Projectiles);
-    fread_endian<int>(fp, proj->Tch.UseSound);
-    if(proj->Tch.UseSound) {
-        proj->Tch.SndFilename = readString(fp);
-		// TODO: why are we not loading this sound?
-		// (If we change this, add this also in CompileProjectile)
+		//
+		// Touch
+		//
+		fread_compat(proj->Tch.Type,     sizeof(int), 1, fp);
+		EndianSwap(proj->Tch.Type);
+		fread_compat(proj->Tch.Damage,   sizeof(int), 1, fp);
+		EndianSwap(proj->Tch.Damage);
+		fread_endian<int>(fp, proj->Tch.Projectiles);
+		fread_endian<int>(fp, proj->Tch.UseSound);
+		if(proj->Tch.UseSound) {
+			proj->Tch.SndFilename = readString(fp);
+		}
 	}
 
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
@@ -930,38 +999,6 @@ bool CGameScript::weaponExists(const std::string& szName)
 }
 
 
-///////////////////
-// Write a string in pascal format
-void CGameScript::writeString(const std::string& szString, FILE *fp)
-{
-    if(szString == "") return;
-
-	size_t length = szString.size();
-	if(length > 255) {
-		warnings << "i will cut the following string for writing: " << szString << endl;
-		length = 255;
-	}
-	uchar len = (uchar)length;
-
-    fwrite( &len, sizeof(uchar), 1, fp );
-    fwrite( szString.c_str(),sizeof(char), length, fp );
-}
-
-
-///////////////////
-// Read a string in pascal format
-std::string CGameScript::readString(FILE *fp)
-{
-	char buf[256];
-
-    uchar length;
-    fread( &length, sizeof(uchar), 1, fp );
-    fread( buf,sizeof(char), length, fp );
-
-    buf[length] = '\0';
-
-    return buf;
-}
 
 // Helper function
 static size_t GetProjSize(proj_t *prj)
@@ -1781,10 +1818,80 @@ std::string Proj_Action::readFromIni(const std::string& file, const std::string&
 }
 
 bool Proj_Action::read(CGameScript* gs, FILE* fp) {
+	fread_endian<int>(fp, (int&)Type);
+
+	switch(Type) {
+		case PJ_EXPLODE:
+		case PJ_INJURE:
+			fread_endian<int>(fp, Damage);
+			fread_endian<char>(fp, Projectiles);
+			fread_endian<char>(fp, UseSound);
+			fread_endian<int>(fp, Shake);
+			
+			if(UseSound) {
+				SndFilename = readString(fp);
+			}
+			break;
+			
+		case PJ_BOUNCE:
+			fread_endian<float>(fp, BounceCoeff);
+			fread_endian<int>(fp, BounceExplode);
+			break;
+			
+		case PJ_CARVE:
+			fread_endian<int>(fp, Damage);
+			break;
+			
+		case PJ_DIRT:
+		case PJ_GREENDIRT:
+		case PJ_DISAPPEAR:
+		case PJ_NOTHING:
+			// no attributes
+			break;
+			
+		case __PJ_LBOUND:
+		case __PJ_UBOUND:
+			errors << "Proj_Action::read: PJ BOUND hit" << endl;
+	}
+
 	return true;
 }
 
 bool Proj_Action::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<int>(fp, Type);
+	
+	switch(Type) {
+		case PJ_EXPLODE:
+		case PJ_INJURE:
+			fwrite_endian<int>(fp, Damage);
+			fwrite_endian<char>(fp, Projectiles);
+			fwrite_endian<char>(fp, UseSound);
+			fwrite_endian<int>(fp, Shake);
+			if(UseSound)
+				writeString(SndFilename, fp);
+			break;
+		
+		case PJ_BOUNCE:
+			fwrite_endian<float>(fp, BounceCoeff);
+			fwrite_endian<int>(fp, BounceExplode);
+			break;
+		
+		case PJ_CARVE:
+			fwrite_endian<int>(fp, Damage);
+			break;
+		
+		case PJ_DIRT:
+		case PJ_GREENDIRT:
+		case PJ_DISAPPEAR:
+		case PJ_NOTHING:
+			// no attributes
+			break;
+			
+		case __PJ_LBOUND:
+		case __PJ_UBOUND:
+			errors << "Proj_Action::write: PJ BOUND hit" << endl;
+	}
+	
 	return true;
 }
 
