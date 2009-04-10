@@ -150,7 +150,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
-void Proj_Action::applyTo(const ProjCollisionType* colType, const TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const {
+void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
 	bool push_worm = true;
 
 	switch (Type)  {
@@ -178,7 +178,7 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, const TimeDiff dt, C
 			
 			// Carve
 		case PJ_CARVE: 
-			if(colType && !colType->withWorm) {
+			if(eventInfo.colType && !eventInfo.colType->withWorm) {
 				int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
 				info->deleteAfter = true;
 				
@@ -199,19 +199,19 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, const TimeDiff dt, C
 			break;
 			
 		case PJ_INJURE:
-			if(colType && colType->withWorm) {
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				info->deleteAfter = true;
-				cClient->InjureWorm(&cClient->getRemoteWorms()[colType->wormId], Damage, prj->GetOwner());
+				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
 				break;
 			}
 			
 		case PJ_DISAPPEAR:
 			// TODO: do something special?
-			if(colType && colType->withWorm) break;
+			if(eventInfo.colType && eventInfo.colType->withWorm) break;
 
 		case PJ_NOTHING:
 			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-			if(colType && !colType->withWorm && colType->colMask & PJC_MAPBORDER) {
+			if(eventInfo.colType && !eventInfo.colType->withWorm && eventInfo.colType->colMask & PJC_MAPBORDER) {
 				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
 				info->deleteAfter = true;
 			}
@@ -222,10 +222,10 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, const TimeDiff dt, C
 	}
 	
 	// Push the worm back
-	if(push_worm && colType && colType->withWorm) {
+	if(push_worm && eventInfo.colType && eventInfo.colType->withWorm) {
 		CVec d = prj->GetVelocity();
 		NormalizeVector(&d);
-		cClient->getRemoteWorms()[colType->wormId].velocity() += (d * 100) * dt.seconds();
+		cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() += (d * 100) * eventInfo.dt.seconds();
 	}
 	
 	if(Projectiles) {

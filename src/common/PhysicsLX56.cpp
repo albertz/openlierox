@@ -666,7 +666,7 @@ public:
 		===================
 		*/
 		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
-			pi->Hit.applyTo(&result, dt, prj, &doActionInfo);
+			pi->Hit.applyTo(Proj_ActionEvent::Col(dt, &result), prj, &doActionInfo);
 		}
 
 		/*
@@ -678,7 +678,7 @@ public:
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
-				pi->PlyHit.applyTo(&result, dt, prj, &doActionInfo);
+				pi->PlyHit.applyTo(Proj_ActionEvent::Col(dt, &result), prj, &doActionInfo);
 			}
 		}
 

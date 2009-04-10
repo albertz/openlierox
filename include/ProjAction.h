@@ -136,6 +136,16 @@ static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck
 struct ProjCollisionType;
 struct Proj_DoActionInfo;
 
+struct Proj_ActionEvent {
+	const ProjCollisionType* colType;
+	bool byTimer;
+	TimeDiff dt;
+	
+	Proj_ActionEvent(TimeDiff _dt) : colType(NULL), byTimer(false), dt(_dt) {}
+	static Proj_ActionEvent Timer(TimeDiff _dt) { Proj_ActionEvent e(_dt); e.byTimer = true; return e; }
+	static Proj_ActionEvent Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_ActionEvent e(_dt); e.colType = col; return e; }	
+};
+
 struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
@@ -159,7 +169,7 @@ struct Proj_Action {
 	Proj_SpawnInfo Proj;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
-	void applyTo(const ProjCollisionType* colType, const TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
+	void applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
