@@ -621,6 +621,10 @@ public:
 			}
 		}
 
+		for(size_t i = 0; i < pi->ProjHits.size(); ++i) {
+			pi->ProjHits[i].checkEvent(dt, prj, &doActionInfo);
+		}
+		
 		doActionInfo.execute(prj, currentTime);
 		if(doActionInfo.deleteAfter) return;
 		

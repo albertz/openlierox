@@ -157,6 +157,8 @@ public:
 	ProjCollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
 
+	bool	CollisionWith(const CProjectile* prj) const;
+	
 	void	Bounce(float fCoeff);
 
 	bool	isUsed() const		{ return bUsed; }

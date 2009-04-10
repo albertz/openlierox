@@ -15,6 +15,7 @@
 #define __PROJACTION_H__
 
 #include <string>
+#include <list>
 #include <limits.h>
 #include "StaticAssert.h"
 #include "types.h"
@@ -138,6 +139,7 @@ struct Proj_DoActionInfo;
 
 struct Proj_ActionEvent {
 	const ProjCollisionType* colType;
+	std::list<const CProjectile*> projCols;
 	bool byTimer;
 	TimeDiff dt;
 	
@@ -169,7 +171,7 @@ struct Proj_Action {
 	Proj_SpawnInfo Proj;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
-	void applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
@@ -195,7 +197,8 @@ struct Proj_ProjHit : Proj_Action {
 	int		MinHitCount;
 	
 	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
-
+	void checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
+	
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
 	

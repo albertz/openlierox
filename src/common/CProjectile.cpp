@@ -830,3 +830,11 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	// No worm was hit
 	return -1;
 }
+
+bool CProjectile::CollisionWith(const CProjectile* prj) const {
+	// TODO: not 100% correct
+	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->rx;
+	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->ry;
+	return overlapX && overlapY;
+}
+

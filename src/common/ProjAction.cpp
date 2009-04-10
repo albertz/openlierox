@@ -150,7 +150,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
-void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
 	/*
 	 * Well, some behaviour here seems strange, but it's all *100% exact* LX56 behaviour.
 	 * Please, before touching anything, be very sure that it stays exactly the same!
@@ -254,6 +254,28 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 }
 
 
+void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const {
+	Proj_ActionEvent ev(dt);
+	
+	/*
+	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect
+	 * but probably we don't have much projectiles where we have to do this check.
+	 * As it is a fixed array, I am even note sure if more intelligent (but more complex)
+	 * databases for projectiles would really give an improvement.
+	 */
+	for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
+		CProjectile* p = i->get();
+		if((!Target || prj->getProjInfo() == Target) && prj->CollisionWith(p)) {
+			ev.projCols.push_back(p);
+		}
+	}
+	
+	if(ev.projCols.size() >= (size_t)MinHitCount) {
+		applyTo(ev, prj, info);
+	}
+}
+
+
 
 
 static void projectile_doExplode(CProjectile* const prj, int shake) {
@@ -349,7 +371,12 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
 	// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
 	// These conditions test for those projectiles and remove them
-	if (!pi->Hit.hasAction() && !pi->PlyHit.hasAction() && !pi->Timer.hasAction()) // Isn't destroyed by any event
+	bool hasAnyAction = pi->Hit.hasAction() || pi->PlyHit.hasAction() || pi->Timer.hasAction();
+	for(size_t i = 0; i < pi->ProjHits.size(); ++i) {
+		if(hasAnyAction) break;
+		hasAnyAction |= pi->ProjHits[i].hasAction();
+	}
+	if (!hasAnyAction) // Isn't destroyed by any event
 		if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
 			if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
 				deleteAfter = true;
