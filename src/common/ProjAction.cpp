@@ -151,12 +151,23 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 
 
 void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+	/*
+	 * Well, some behaviour here seems strange, but it's all *100% exact* LX56 behaviour.
+	 * Please, before touching anything, be very sure that it stays exactly the same!
+	 * If you think something is wrong here, check the revision log from this file and
+	 * from PhysicsLX56.cpp *before* changing it here!
+	 */
+	
 	bool push_worm = true;
-
+	bool spawnprojs = Projectiles;
+	
 	switch (Type)  {
 			// Explosion
 		case PJ_EXPLODE:
 			info->explode = true;
+			
+			if(eventInfo.byTimer)
+				info->timer = true;
 			
 			if(Shake > info->shake)
 				info->shake = Shake;
@@ -168,6 +179,7 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 			
 			// Bounce
 		case PJ_BOUNCE:
+			if(eventInfo.byTimer) { spawnprojs = false; break; }
 			push_worm = false;
 			prj->Bounce(BounceCoeff);
 			
@@ -178,7 +190,7 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 			
 			// Carve
 		case PJ_CARVE: 
-			if(eventInfo.colType && !eventInfo.colType->withWorm) {
+			if(eventInfo.byTimer || (eventInfo.colType && !eventInfo.colType->withWorm)) {
 				int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
 				info->deleteAfter = true;
 				
@@ -190,12 +202,16 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 			
 			// Dirt
 		case PJ_DIRT:
-			info->dirt = true;
+			info->dirt = true;			
+			if(eventInfo.byTimer && Shake > info->shake)
+				info->shake = Shake;				
 			break;
 			
 			// Green Dirt
 		case PJ_GREENDIRT:
 			info->grndirt = true;
+			if(eventInfo.byTimer && Shake > info->shake)
+				info->shake = Shake;				
 			break;
 			
 		case PJ_INJURE:
@@ -216,6 +232,7 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 				info->deleteAfter = true;
 			}
 			push_worm = false;
+			if(eventInfo.byTimer) spawnprojs = false;
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
@@ -228,7 +245,7 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 		cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() += (d * 100) * eventInfo.dt.seconds();
 	}
 	
-	if(Projectiles) {
+	if(spawnprojs) {
 		info->spawnprojectiles = true;
 		info->spawnInfo = &Proj;
 	}
