@@ -265,6 +265,7 @@ void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* 
 	 */
 	for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
 		CProjectile* p = i->get();
+		if(p == prj) continue;
 		if((!Target || prj->getProjInfo() == Target) && prj->CollisionWith(p)) {
 			ev.projCols.push_back(p);
 		}
