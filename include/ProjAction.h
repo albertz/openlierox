@@ -159,7 +159,7 @@ struct Proj_Action {
 	Proj_SpawnInfo Proj;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
-	void applyTo(const ProjCollisionType* colType, CProjectile* prj, Proj_DoActionInfo* info) const;
+	void applyTo(const ProjCollisionType* colType, const TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);

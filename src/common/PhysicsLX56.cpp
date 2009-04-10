@@ -666,7 +666,7 @@ public:
 		===================
 		*/
 		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
-			pi->Hit.applyTo(&result, prj, &doActionInfo);
+			pi->Hit.applyTo(&result, dt, prj, &doActionInfo);
 		}
 
 		/*
@@ -678,62 +678,7 @@ public:
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
-				
-				bool push_worm = true;
-
-				switch (pi->PlyHit.Type)  {
-					case PJ_CARVE:
-					case PJ_DISAPPEAR:
-						// TODO: do anything about it?
-						break;
-
-					// Explode
-					case PJ_EXPLODE:
-						doActionInfo.explode = true;
-						break;
-	
-					// Injure
-					case PJ_INJURE:	
-						doActionInfo.deleteAfter = true;
-						
-						// Add damage to the worm
-						cClient->InjureWorm(&cClient->getRemoteWorms()[result.wormId], pi->PlyHit.Damage, prj->GetOwner());
-						break;
-	
-					// Bounce
-					case PJ_BOUNCE:
-						push_worm = false;
-						prj->Bounce(pi->PlyHit.BounceCoeff);
-						break;
-	
-					// Dirt
-					case PJ_DIRT:
-						doActionInfo.dirt = true;
-						break;
-	
-					// Green Dirt
-					case PJ_GREENDIRT:
-						doActionInfo.grndirt = true;
-						break;
-	
-					case PJ_NOTHING:
-						push_worm = false;
-						break;
-						
-					case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
-				}
-
-				// Push the worm back
-				if(push_worm) {
-					CVec d = prj->GetVelocity();
-					NormalizeVector(&d);
-					cClient->getRemoteWorms()[result.wormId].velocity() += (d * 100) * dt.seconds();
-				}
-
-				if(pi->PlyHit.Projectiles) {
-					doActionInfo.spawnprojectiles = true;
-					doActionInfo.spawnInfo = &pi->PlyHit.Proj;
-				}
+				pi->PlyHit.applyTo(&result, dt, prj, &doActionInfo);
 			}
 		}
 

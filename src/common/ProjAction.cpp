@@ -150,7 +150,9 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
-void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Proj_DoActionInfo* info) const {
+void Proj_Action::applyTo(const ProjCollisionType* colType, const TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const {
+	bool push_worm = true;
+
 	switch (Type)  {
 			// Explosion
 		case PJ_EXPLODE:
@@ -166,6 +168,7 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Pr
 			
 			// Bounce
 		case PJ_BOUNCE:
+			push_worm = false;
 			prj->Bounce(BounceCoeff);
 			
 			// Do we do a bounce-explosion (bouncy larpa uses this)
@@ -204,15 +207,25 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Pr
 			
 		case PJ_DISAPPEAR:
 			// TODO: do something special?
+			if(colType && colType->withWorm) break;
+
 		case PJ_NOTHING:
 			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
 			if(colType && !colType->withWorm && colType->colMask & PJC_MAPBORDER) {
 				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
 				info->deleteAfter = true;
 			}
+			push_worm = false;
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
+	}
+	
+	// Push the worm back
+	if(push_worm && colType && colType->withWorm) {
+		CVec d = prj->GetVelocity();
+		NormalizeVector(&d);
+		cClient->getRemoteWorms()[colType->wormId].velocity() += (d * 100) * dt.seconds();
 	}
 	
 	if(Projectiles) {
