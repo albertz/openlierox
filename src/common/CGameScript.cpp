@@ -682,6 +682,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Rotating = false;
 	proj->RotIncrement = 0;
 	proj->Timer.Shake = 0;
+	proj->Fallback.Type = PJ_NOTHING;
 
 	switch(proj->Type) {
 		case PRJ_POLYGON: {

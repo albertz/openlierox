@@ -626,7 +626,7 @@ public:
 		}
 		
 		if(!doActionInfo.hasAnyEffect()) {
-			notes << "no eff" << endl;
+			//notes << "no eff" << endl;
 			pi->Fallback.applyTo(Proj_ActionEvent::Unspec(dt), prj, &doActionInfo);
 		}
 		
