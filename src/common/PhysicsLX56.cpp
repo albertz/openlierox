@@ -678,6 +678,7 @@ public:
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
+				
 				bool push_worm = true;
 
 				switch (pi->PlyHit.Type)  {

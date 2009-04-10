@@ -1592,6 +1592,10 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->PlyHit.BounceExplode = 0;
 	}
 	
+	if(proj->PlyHit.UseSound) {
+		warnings << "projectile " << file << " has sound set, which was not supported earlier, thus it's ignored now" << endl;
+		proj->PlyHit.UseSound = false;
+	}
 
 	/*
     // OnExplode

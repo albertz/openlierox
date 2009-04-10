@@ -174,15 +174,16 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Pr
 			break;
 			
 			// Carve
-		case PJ_CARVE:  {
-			int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
-			info->deleteAfter = true;
-			
-			// Increment the dirt count
-			if(prj->hasOwner())
-				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+		case PJ_CARVE: 
+			if(colType && !colType->withWorm) {
+				int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
+				info->deleteAfter = true;
+				
+				// Increment the dirt count
+				if(prj->hasOwner())
+					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+			}
 			break;
-		}
 			
 			// Dirt
 		case PJ_DIRT:
@@ -195,11 +196,17 @@ void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Pr
 			break;
 			
 		case PJ_INJURE:
+			if(colType && colType->withWorm) {
+				info->deleteAfter = true;
+				cClient->InjureWorm(&cClient->getRemoteWorms()[colType->wormId], Damage, prj->GetOwner());
+				break;
+			}
+			
 		case PJ_DISAPPEAR:
 			// TODO: do something special?
 		case PJ_NOTHING:
 			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-			if(colType && colType->colMask & PJC_MAPBORDER) {
+			if(colType && !colType->withWorm && colType->colMask & PJC_MAPBORDER) {
 				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
 				info->deleteAfter = true;
 			}
