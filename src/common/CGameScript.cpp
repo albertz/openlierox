@@ -369,7 +369,13 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 			writeString(proj->Tch.SndFilename, fp);
 	}
 
-
+	if(Header.Version > GS_LX56_VERSION) {
+		fwrite_endian<Uint32>(fp, proj->ProjHits.size());
+		for(Uint32 i = 0; i < proj->ProjHits.size(); ++i) {
+			proj->ProjHits[i].write(this, fp);
+		}
+	}
+	
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
 		if(Header.Version <= GS_LX56_VERSION) {
@@ -874,6 +880,15 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		}
 	}
 
+	if(Header.Version > GS_LX56_VERSION) {
+		Uint32 projHitC = 0;
+		fread_endian<Uint32>(fp, projHitC);
+		proj->ProjHits.resize(projHitC);
+		for(Uint32 i = 0; i < projHitC; ++i) {
+			proj->ProjHits[i].read(this, fp);
+		}
+	}
+	
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
 		if(Header.Version <= GS_LX56_VERSION) {
@@ -1598,6 +1613,16 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	if( ReadString(file, "Touch", "Sound", proj->Tch.SndFilename,"") )
 		proj->Tch.UseSound = true;
 	 */
+	
+	{
+		int projHitC = 0;
+		ReadInteger(file, "General", "ProjHitNum", &projHitC, 0);
+		if(projHitC < 0) projHitC = 0;
+		proj->ProjHits.resize(projHitC);
+		for(int i = 0; i < projHitC; ++i) {
+			proj->ProjHits[i].readFromIni(file, "ProjHit" + itoa(i+1));
+		}
+	}
 
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
@@ -1950,14 +1975,30 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 }
 
 std::string Proj_ProjHit::readFromIni(const std::string& file, const std::string& section) {
-	return "";
+	Proj_Action::readFromIni(file, section);
+	
+	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
+
+	std::string prjfile;
+	ReadString(file, section, "Target", prjfile, "");
+	return prjfile;
 }
 
 bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
-	return true;
+	Proj_Action::read(gs, fp);
+	bool hasSpecificTarget = false;
+	fread_endian<char>(fp, hasSpecificTarget);
+	if(hasSpecificTarget)
+		Target = gs->LoadProjectile(fp);
+	else
+		Target = NULL;
+	return !hasSpecificTarget || Target != NULL;
 }
 
 bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
+	Proj_Action::write(gs, fp);
+	fwrite_endian<char>(fp, Target != NULL);
+	if(Target) return gs->SaveProjectile(Target, fp);
 	return true;
 }
 
