@@ -582,8 +582,6 @@ public:
 		const TimeDiff orig_dt = TimeDiff(0.01f);
 		const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
-		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
-
 	simulateProjectileStart:
 		if(prj->fLastSimulationTime + orig_dt > currentTime) return;
 		prj->fLastSimulationTime += orig_dt;
@@ -595,66 +593,7 @@ public:
 		// Check if the timer is up
 		float f = prj->getTimeVarRandom();
 		if(pi->Timer.Time > 0 && (pi->Timer.Time + pi->Timer.TimeVar * f) < prj->getLife()) {
-			// HINT: all the following actions will delete this projectile after
-
-			// Run the end timer function
-			switch (pi->Timer.Type) {
-				case PJ_NOTHING: break;
-					
-				case PJ_BOUNCE:
-				case PJ_INJURE:
-				case PJ_DISAPPEAR:
-					// TODO: do anything?
-					break;
-
-				// Explode
-				case PJ_EXPLODE:
-					doActionInfo.explode = true;
-					doActionInfo.timer = true;
-	
-					if(pi->Timer.Projectiles)
-						doActionInfo.spawnprojectiles = true;
-					if(pi->Timer.Shake > doActionInfo.shake)
-						doActionInfo.shake = pi->Timer.Shake;
-					break;
-	
-				// Create some dirt
-				case PJ_DIRT:
-					doActionInfo.dirt = true;
-					if(pi->Timer.Projectiles)
-						doActionInfo.spawnprojectiles = true;
-					if(pi->Timer.Shake > doActionInfo.shake)
-						doActionInfo.shake = pi->Timer.Shake;
-					break;
-	
-				// Create some green dirt
-				case PJ_GREENDIRT:
-					doActionInfo.grndirt = true;
-					if(pi->Timer.Projectiles)
-						doActionInfo.spawnprojectiles = true;
-					if(pi->Timer.Shake > doActionInfo.shake)
-						doActionInfo.shake = pi->Timer.Shake;
-					break;
-	
-				// Carve
-				case PJ_CARVE:  {
-					int d = cClient->getMap()->CarveHole( pi->Timer.Damage, prj->GetPosition() );
-					doActionInfo.deleteAfter = true;
-	
-					if(pi->Timer.Projectiles)
-						doActionInfo.spawnprojectiles = true;
-	
-					// Increment the dirt count
-					if(prj->hasOwner())
-						cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-					break;
-				}
-					
-				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
-			}
-			
-			if(doActionInfo.spawnprojectiles)
-				doActionInfo.spawnInfo = &pi->Timer.Proj;
+			pi->Timer.applyTo(Proj_ActionEvent::Timer(dt), prj, &doActionInfo);
 		}
 
 		// Simulate the projectile

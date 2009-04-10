@@ -156,6 +156,7 @@ void Proj_Action::applyTo(Proj_ActionEvent eventInfo, CProjectile* prj, Proj_DoA
 	 * Please, before touching anything, be very sure that it stays exactly the same!
 	 * If you think something is wrong here, check the revision log from this file and
 	 * from PhysicsLX56.cpp *before* changing it here!
+	 * See also CGameScript.cpp because we enforce some specific values in some cases.
 	 */
 	
 	bool push_worm = true;
