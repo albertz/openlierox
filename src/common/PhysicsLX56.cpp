@@ -472,14 +472,14 @@ public:
 		}
 	}
 
-	CProjectile::CollisionType simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+	ProjCollisionType simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
 
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
-		CProjectile::CollisionType res = proj->SimulateFrame(dt, cClient->getMap(), worms, &dt);
+		ProjCollisionType res = proj->SimulateFrame(dt, cClient->getMap(), worms, &dt);
 
 
 		// HINT: in original LX, we have this simulate code with lower dt
@@ -658,76 +658,15 @@ public:
 		}
 
 		// Simulate the projectile
-		CProjectile::CollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
+		ProjCollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 
 		/*
 		===================
 		Terrain Collision
 		===================
 		*/
-		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {
-
-			// Explosion
-			switch (pi->Hit.Type)  {
-				case PJ_EXPLODE:
-					doActionInfo.explode = true;
-	
-					if(pi->Hit.Shake > doActionInfo.shake)
-						doActionInfo.shake = pi->Hit.Shake;
-	
-					// Play the hit sound
-					if(pi->Hit.UseSound && (!prj->hasOwner() || NewNet::CanPlaySound(prj->GetOwner())))
-						PlaySoundSample(pi->smpSample);
-					break;
-	
-				// Bounce
-				case PJ_BOUNCE:
-					prj->Bounce(pi->Hit.BounceCoeff);
-	
-					// Do we do a bounce-explosion (bouncy larpa uses this)
-					if(pi->Hit.BounceExplode > 0)
-						cClient->Explosion(prj->GetPosition(), pi->Hit.BounceExplode, false, prj->GetOwner());
-					break;
-	
-				// Carve
-				case PJ_CARVE:  {
-					int d = cClient->getMap()->CarveHole(pi->Hit.Damage, prj->GetPosition());
-					doActionInfo.deleteAfter = true;
-	
-					// Increment the dirt count
-					if(prj->hasOwner())
-						cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-					break;
-				}
-	
-				// Dirt
-				case PJ_DIRT:
-					doActionInfo.dirt = true;
-					break;
-	
-				// Green Dirt
-				case PJ_GREENDIRT:
-					doActionInfo.grndirt = true;
-					break;
-				
-				case PJ_INJURE:
-				case PJ_DISAPPEAR:
-					// TODO: do something special?
-				case PJ_NOTHING:
-					// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-					if(result.colMask & PJC_MAPBORDER) {
-						// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-						doActionInfo.deleteAfter = true;
-					}
-					break;
-					
-				case __PJ_LBOUND: case __PJ_UBOUND: errors << "simulateProjectile: hit __PJ_BOUND" << endl;
-			}
-
-			if(pi->Hit.Projectiles) {
-				doActionInfo.spawnprojectiles = true;
-				doActionInfo.spawnInfo = &pi->Hit.Proj;
-			}
+		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
+			pi->Hit.applyTo(&result, prj, &doActionInfo);
 		}
 
 		/*

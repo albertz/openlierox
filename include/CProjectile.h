@@ -46,6 +46,19 @@ struct proj_t;
 
 
 
+struct ProjCollisionType {
+	bool withWorm : 1;
+	union {
+		unsigned int wormId : 7;
+		unsigned int colMask : 7;
+	};
+	static ProjCollisionType Worm(int wormid) { ProjCollisionType c; c.withWorm = true; c.wormId = wormid; return c; }
+	static ProjCollisionType Terrain(int colmask) { ProjCollisionType c; c.withWorm = false; c.colMask = colmask; return c; }
+	static ProjCollisionType NoCol() { return Terrain(0); }
+	operator bool() { return withWorm || colMask != 0; }
+};
+
+
 class CProjectile {
 public:
 	// Constructor
@@ -140,20 +153,8 @@ public:
 	ColInfo	TerrainCollision(int px, int py);
 	bool	MapBoundsCollision(int px, int py);
 	void	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
-	
-	struct CollisionType {
-		bool withWorm : 1;
-		union {
-			unsigned int wormId : 7;
-			unsigned int colMask : 7;
-		};
-		static CollisionType Worm(int wormid) { CollisionType c; c.withWorm = true; c.wormId = wormid; return c; }
-		static CollisionType Terrain(int colmask) { CollisionType c; c.withWorm = false; c.colMask = colmask; return c; }
-		static CollisionType NoCol() { return Terrain(0); }
-		operator bool() { return withWorm || colMask != 0; }
-	};
-	
-	CollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
+		
+	ProjCollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
 
 	void	Bounce(float fCoeff);

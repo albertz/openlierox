@@ -133,6 +133,8 @@ enum Proj_ActionType {
 static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck);
 
 
+struct ProjCollisionType;
+struct Proj_DoActionInfo;
 
 struct Proj_Action {
 	Proj_Action() :
@@ -157,6 +159,7 @@ struct Proj_Action {
 	Proj_SpawnInfo Proj;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
+	void applyTo(const ProjCollisionType* colType, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
@@ -197,7 +200,8 @@ struct Proj_DoActionInfo {
 	explode(false), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
-	spawnInfo(NULL) {}
+	spawnInfo(NULL),
+	playSound(false) {}
 	
 	bool	explode;
 	bool	timer;
@@ -209,6 +213,8 @@ struct Proj_DoActionInfo {
 	
 	bool	spawnprojectiles;
 	const Proj_SpawnInfo* spawnInfo;
+
+	bool	playSound;
 	
 	void execute(CProjectile* const prj, const AbsTime currentTime);
 };

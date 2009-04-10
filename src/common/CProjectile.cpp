@@ -117,7 +117,7 @@ float CProjectile::getRandomFloat()
 }
 
 
-static CProjectile::CollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, CProjectile::CollisionType curResult) {
+static ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult) {
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
@@ -137,7 +137,7 @@ static CProjectile::CollisionType FinalWormCollisionCheck(CProjectile* proj, con
 				}
 				proj->setNewPosition( curpos ); // save the new position at the first collision
 				proj->setNewVel( vFrameOldVel ); // don't get faster
-				return CProjectile::CollisionType::Worm(ret);
+				return ProjCollisionType::Worm(ret);
 			}
 		}
 	}
@@ -338,7 +338,7 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt)
+ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt)
 {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (bChangesSpeed)  {
@@ -371,7 +371,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 		// Therefore if this is the case, we don't do multiple checksteps.
 		if(checkstep < dt) {
 			for(float time = 0; time < dt; time += checkstep) {
-				CollisionType ret = SimulateFrame((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
+				ProjCollisionType ret = SimulateFrame((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
 				if(ret) {
 					if(enddt) *enddt += time;
 					return ret;
@@ -379,7 +379,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 			}
 
 			if(enddt) *enddt = dt;
-			return CollisionType::NoCol();
+			return ProjCollisionType::NoCol();
 		}
 	}
 
@@ -394,7 +394,7 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 	}
 
 	int px = (int)(vPosition.x);
@@ -405,13 +405,13 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 		vPosition = vOldPos;
 		vVelocity = vOldVel;
 
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
 
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (GetPhysicsTime() - fSpawnTime <= fWallshootTime)
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 
 	// Check collision with the terrain
 	ColInfo c = TerrainCollision(px, py);
@@ -420,13 +420,13 @@ CProjectile::CollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm
 	if(c.collided) {
 		HandleCollision(c, vFrameOldPos, vOldVel, dt);
 
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::Terrain(PJC_TERRAIN));
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN));
 	}
 
 	// the move was safe, save the position
 	vOldPos = vPosition;
 
-	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, CollisionType::NoCol());
+	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 }
 
 ///////////////////

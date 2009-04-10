@@ -150,6 +150,70 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
+void Proj_Action::applyTo(const ProjCollisionType* colType, CProjectile* prj, Proj_DoActionInfo* info) const {
+	switch (Type)  {
+			// Explosion
+		case PJ_EXPLODE:
+			info->explode = true;
+			
+			if(Shake > info->shake)
+				info->shake = Shake;
+			
+			// Play the hit sound
+			if(UseSound)
+				info->playSound = true;
+			break;
+			
+			// Bounce
+		case PJ_BOUNCE:
+			prj->Bounce(BounceCoeff);
+			
+			// Do we do a bounce-explosion (bouncy larpa uses this)
+			if(BounceExplode > 0)
+				cClient->Explosion(prj->GetPosition(), BounceExplode, false, prj->GetOwner());
+			break;
+			
+			// Carve
+		case PJ_CARVE:  {
+			int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
+			info->deleteAfter = true;
+			
+			// Increment the dirt count
+			if(prj->hasOwner())
+				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+			break;
+		}
+			
+			// Dirt
+		case PJ_DIRT:
+			info->dirt = true;
+			break;
+			
+			// Green Dirt
+		case PJ_GREENDIRT:
+			info->grndirt = true;
+			break;
+			
+		case PJ_INJURE:
+		case PJ_DISAPPEAR:
+			// TODO: do something special?
+		case PJ_NOTHING:
+			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
+			if(colType && colType->colMask & PJC_MAPBORDER) {
+				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
+				info->deleteAfter = true;
+			}
+			break;
+			
+		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
+	}
+	
+	if(Projectiles) {
+		info->spawnprojectiles = true;
+		info->spawnInfo = &Proj;
+	}
+	
+}
 
 
 
@@ -239,6 +303,10 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		projectile_doProjSpawn(prj, spawnInfo, currentTime);
 	}
 
+	if(playSound) {
+		PlaySoundSample(pi->smpSample);		
+	}
+	
 	// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
 	// Some bad-written mods contain those projectiles and they make the game more and more laggy (because new and new
 	// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
