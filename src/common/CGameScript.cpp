@@ -1276,6 +1276,8 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("GreenDirt",PJ_GREENDIRT);
 	AddKeyword("Disappear",PJ_DISAPPEAR);
 	AddKeyword("Nothing",PJ_NOTHING);
+	AddKeyword("Disappear2", PJ_DISAPPEAR2);
+	AddKeyword("GoThrough", PJ_GOTHROUGH);
 	AddKeyword("TRL_NONE",TRL_NONE);
 	AddKeyword("TRL_SMOKE",TRL_SMOKE);
 	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
@@ -1504,9 +1506,8 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	switch(proj->Type) {
 		case PRJ_POLYGON:
 			for(size_t i = 0; ; ++i) {
-				std::string a = "P" + itoa(i+1);
 				VectorD2<int> p;
-				if( ReadInteger(file,"General", a + ".x", &p.x, p.x) && ReadInteger(file,"General", a + ".y", &p.y, p.y) ) {
+				if( ReadVectorD2(file,"General", "P" + itoa(i+1), p) ) {
 					proj->polygon.points.push_back(p);
 				} else
 					break;
@@ -1624,10 +1625,19 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		if(projHitC < 0) projHitC = 0;
 		proj->ProjHits.resize(projHitC);
 		for(int i = 0; i < projHitC; ++i) {
-			proj->ProjHits[i].readFromIni(file, "ProjHit" + itoa(i+1));
+			std::string projHitProj = proj->ProjHits[i].readFromIni(file, "ProjHit" + itoa(i+1));
+			if(projHitProj != "")
+				proj->ProjHits[i].Target = CompileProjectile(dir, projHitProj);
+			else
+				proj->ProjHits[i].Target = NULL;
 		}
 	}
 
+	{
+		proj->Fallback.Type = PJ_NOTHING;
+		proj->Fallback.readFromIni(file, "Fallback");
+	}
+	
 	// Projectiles
 	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
 		  proj->Tch.Projectiles) {
@@ -1758,10 +1768,7 @@ bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 
 std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
 	ReadKeyword(file, section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
-	ReadFloat(file, section, "ParentVelFactor.x1", &ParentVelFactor.v1.x, ParentVelFactor.v1.x); // new in OLX beta9
-	ReadFloat(file, section, "ParentVelFactor.y1", &ParentVelFactor.v1.y, ParentVelFactor.v1.y); // new in OLX beta9
-	ReadFloat(file, section, "ParentVelFactor.x2", &ParentVelFactor.v2.x, ParentVelFactor.v2.x); // new in OLX beta9
-	ReadFloat(file, section, "ParentVelFactor.y2", &ParentVelFactor.v2.y, ParentVelFactor.v2.y); // new in OLX beta9
+	ReadMatrixD2(file, section, "ParentVelFactor", ParentVelFactor, ParentVelFactor); // new in OLX beta9
 	
 	ReadKeyword(file, section, "Useangle", &Useangle, Useangle);
 	ReadInteger(file, section, "Angle", &Angle, Angle);
@@ -1871,110 +1878,47 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 
 
 std::string Proj_Action::readFromIni(const std::string& file, const std::string& section) {
-	// Hit
 	ReadKeyword(file, section, "Type", (int*)&Type, Type);
-	
-	// Hit::Explode
-	if(Type == PJ_EXPLODE || Type == PJ_INJURE) {
-		ReadInteger(file,section,"Damage",&Damage,0);
-		ReadKeyword(file,section,"Projectiles",&Projectiles,false);
-		ReadInteger(file,section,"Shake",&Shake,0);
+	ReadKeyword(file,section,"Projectiles",&Projectiles,false);
+	ReadInteger(file,section,"Damage",&Damage,Damage);
+	ReadInteger(file,section,"Shake",&Shake,Shake);
 		
-		UseSound = false;
-		if(ReadString(file,section,"Sound",SndFilename,"")) {
-			UseSound = true;			
-		}
+	UseSound = false;
+	if(ReadString(file,section,"Sound",SndFilename,"")) {
+		UseSound = true;			
 	}
 	
-	// Hit::Carve
-	if(Type == PJ_CARVE) {
-		ReadInteger(file,section,"Damage",&Damage,0);
-	}
-	
-	// Hit::Bounce
-	if(Type == PJ_BOUNCE) {
-		ReadFloat(file,section,"BounceCoeff",&BounceCoeff,0.5);
-		ReadInteger(file,section,"BounceExplode",&BounceExplode,0);
-	}
+	ReadFloat(file,section,"BounceCoeff",&BounceCoeff,BounceCoeff);
+	ReadInteger(file,section,"BounceExplode",&BounceExplode,BounceExplode);
+
+	ReadFloat(file,section,"BounceCoeff",&GoThroughSpeed,GoThroughSpeed);	
 	
 	return "";
 }
 
 bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<int>(fp, (int&)Type);
-
-	switch(Type) {
-		case PJ_EXPLODE:
-		case PJ_INJURE:
-			fread_endian<int>(fp, Damage);
-			fread_endian<char>(fp, Projectiles);
-			fread_endian<char>(fp, UseSound);
-			fread_endian<int>(fp, Shake);
-			
-			if(UseSound) {
-				SndFilename = readString(fp);
-			}
-			break;
-			
-		case PJ_BOUNCE:
-			fread_endian<float>(fp, BounceCoeff);
-			fread_endian<int>(fp, BounceExplode);
-			break;
-			
-		case PJ_CARVE:
-			fread_endian<int>(fp, Damage);
-			break;
-			
-		case PJ_DIRT:
-		case PJ_GREENDIRT:
-		case PJ_DISAPPEAR:
-		case PJ_NOTHING:
-			// no attributes
-			break;
-			
-		case __PJ_LBOUND:
-		case __PJ_UBOUND:
-			errors << "Proj_Action::read: PJ BOUND hit" << endl;
-	}
-
+	fread_endian<char>(fp, Projectiles);
+	fread_endian<int>(fp, Damage);
+	fread_endian<int>(fp, Shake);
+	fread_endian<char>(fp, UseSound);	
+	if(UseSound) SndFilename = readString(fp);
+	fread_endian<float>(fp, BounceCoeff);
+	fread_endian<int>(fp, BounceExplode);
+	fread_endian<float>(fp, GoThroughSpeed);
 	return true;
 }
 
 bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<int>(fp, Type);
-	
-	switch(Type) {
-		case PJ_EXPLODE:
-		case PJ_INJURE:
-			fwrite_endian<int>(fp, Damage);
-			fwrite_endian<char>(fp, Projectiles);
-			fwrite_endian<char>(fp, UseSound);
-			fwrite_endian<int>(fp, Shake);
-			if(UseSound)
-				writeString(SndFilename, fp);
-			break;
-		
-		case PJ_BOUNCE:
-			fwrite_endian<float>(fp, BounceCoeff);
-			fwrite_endian<int>(fp, BounceExplode);
-			break;
-		
-		case PJ_CARVE:
-			fwrite_endian<int>(fp, Damage);
-			break;
-		
-		case PJ_DIRT:
-		case PJ_GREENDIRT:
-		case PJ_DISAPPEAR:
-		case PJ_NOTHING:
-			// no attributes
-			break;
-			
-		case __PJ_LBOUND:
-		case __PJ_UBOUND:
-			errors << "Proj_Action::write: PJ BOUND hit" << endl;
-	}
-	
+	fwrite_endian<char>(fp, Projectiles);
+	fwrite_endian<int>(fp, Damage);
+	fwrite_endian<int>(fp, Shake);
+	fwrite_endian<char>(fp, UseSound);
+	if(UseSound) writeString(SndFilename, fp);
+	fwrite_endian<float>(fp, BounceCoeff);
+	fwrite_endian<int>(fp, BounceExplode);
+	fwrite_endian<float>(fp, GoThroughSpeed);	
 	return true;
 }
 

@@ -1,0 +1,17 @@
+
+
+[General]
+Name = Game of Life
+Class = WCL_GRENADE
+Recoil = 5
+Recharge = 10
+Drain = 101
+ROF = 1
+Sound = throw.wav
+
+[Projectile]
+Amount = 1
+Speed = 20
+Spread = 0
+Projectile = p_gol_init.txt
+

@@ -261,34 +261,38 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 
 ////////////////////////
 // Handle the terrain collsion (helper function)
-void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt)
+// returns false if collision should be ignored
+bool CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt)
 {
 
 	if(tProjInfo->Hit.Type == PJ_EXPLODE && c.onlyDirt) {
 		// HINT: don't reset vPosition here, because we want
 		//		the explosion near (inside) the object
 		//		this behavior is the same as in original LX
-		return;
+		return true;
 	}
 
 	bool bounce = false;
 
 	// Bit of a hack
 	switch (tProjInfo->Hit.Type)  {
-	case PJ_BOUNCE:
-		// HINT: don't reset vPosition here; it will be reset,
-		//		depending on the collisionside
-		bounce = true;
-		break;
-	case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
-		vPosition -= (vVelocity * dt) * 0.5f; // TODO: the speed in walls could be moddable
-		vOldPos = vPosition; // TODO: this is a hack; we do it to not go back to real old position because of collision
-		// HINT: The above velocity reduction is not exact. SimulateFrame is also executed only for one checkstep because of the collision.
-		break;
-	default:
-		vPosition = vOldPos;
-		vVelocity = oldvel;
-		return;
+		case PJ_BOUNCE:
+			// HINT: don't reset vPosition here; it will be reset,
+			//		depending on the collisionside
+			bounce = true;
+			break;
+		case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
+			vPosition = oldpos + (vVelocity * dt) * 0.5f;
+			vOldPos = vPosition; // TODO: this is a hack; we do it to not go back to real old position because of collision
+			// HINT: The above velocity reduction is not exact. SimulateFrame is also executed only for one checkstep because of the collision.
+			break;
+		case PJ_GOTHROUGH:
+			vPosition = oldpos + (vVelocity * dt) * tProjInfo->Hit.GoThroughSpeed;			
+			return false; // ignore collision
+		default:
+			vPosition = vOldPos;
+			vVelocity = oldvel;
+			return true;
 	}
 
 	int vx = (int)vVelocity.x;
@@ -328,6 +332,8 @@ void CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 		vVelocity.x = 0;
 	if (abs(vy) < 2)
 		vVelocity.y = 0;
+	
+	return true;
 }
 
 ///////////////////
@@ -387,7 +393,7 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 	if(enddt) *enddt = dt;
 	CVec vFrameOldPos = vPosition;
 	vPosition += vVelocity * dt;
-
+	
 	// if distance is to short to last check, just return here without a check
 	if ((int)(vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP2) {
 /*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
@@ -407,7 +413,7 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
-
+	
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (GetPhysicsTime() - fSpawnTime <= fWallshootTime)
@@ -417,9 +423,7 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 	ColInfo c = TerrainCollision(px, py);
 
 	// Check for a collision
-	if(c.collided) {
-		HandleCollision(c, vFrameOldPos, vOldVel, dt);
-
+	if(c.collided && HandleCollision(c, vFrameOldPos, vOldVel, dt)) {
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN));
 	}
 

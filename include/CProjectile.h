@@ -152,7 +152,7 @@ public:
 	int		ProjWormColl(CVec pos, CWorm *worms);
 	ColInfo	TerrainCollision(int px, int py);
 	bool	MapBoundsCollision(int px, int py);
-	void	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
+	bool	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
 		
 	ProjCollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask

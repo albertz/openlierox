@@ -166,6 +166,7 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 			// Explosion
 		case PJ_EXPLODE:
 			info->explode = true;
+			info->damage = Damage;
 			
 			if(eventInfo.byTimer)
 				info->timer = true;
@@ -215,6 +216,10 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 				info->shake = Shake;				
 			break;
 			
+		case PJ_DISAPPEAR2:
+			info->deleteAfter = true;
+			break;
+			
 		case PJ_INJURE:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				info->deleteAfter = true;
@@ -226,6 +231,7 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 			// TODO: do something special?
 			if(eventInfo.colType && eventInfo.colType->withWorm) break;
 
+		case PJ_GOTHROUGH:
 		case PJ_NOTHING:
 			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
 			if(eventInfo.colType && !eventInfo.colType->withWorm && eventInfo.colType->colMask & PJC_MAPBORDER) {
@@ -279,13 +285,8 @@ void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* 
 
 
 
-static void projectile_doExplode(CProjectile* const prj, int shake) {
-	const proj_t *pi = prj->GetProjInfo();
+static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
-	int damage = pi->Hit.Damage;
-	if(pi->PlyHit.Type == PJ_EXPLODE)
-		damage = pi->PlyHit.Damage;
-
 	if(damage != -1) // TODO: why only with -1?
 		cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
 }
@@ -326,13 +327,21 @@ static void projectile_doMakeGreenDirt(CProjectile* const prj) {
 }
 
 
+bool Proj_DoActionInfo::hasAnyEffect() const {
+	if(explode) return true;
+	if(dirt || grndirt) return true;
+	if(trailprojspawn || spawnprojectiles) return true;
+	if(deleteAfter) return true;
+	return false;
+}
+
 void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTime) {
 	const proj_t *pi = prj->GetProjInfo();
 	
 	// Explode?
 	if(explode) {
 		if(!timer)
-			projectile_doExplode(prj, shake);
+			projectile_doExplode(prj, damage, shake);
 		else
 			projectile_doTimerExplode(prj, shake);
 		deleteAfter = true;

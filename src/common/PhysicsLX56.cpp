@@ -625,6 +625,11 @@ public:
 			pi->ProjHits[i].checkEvent(dt, prj, &doActionInfo);
 		}
 		
+		if(!doActionInfo.hasAnyEffect()) {
+			notes << "no eff" << endl;
+			pi->Fallback.applyTo(Proj_ActionEvent::Unspec(dt), prj, &doActionInfo);
+		}
+		
 		doActionInfo.execute(prj, currentTime);
 		if(doActionInfo.deleteAfter) return;
 		

@@ -20,9 +20,11 @@
 #ifndef __CONFIGHANDLER_H__
 #define __CONFIGHANDLER_H__
 
-#include <string>
 #include "CVec.h"
+#include "StringUtils.h"
+#include <string>
 #include <SDL.h>
+#include <vector>
 
 #define		MAX_STRING_LENGTH	4096
 #define		MAX_MINOR_LENGTH	256
@@ -30,22 +32,55 @@
 
 
 
-// Internal
-int		GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn = false);
-
-
 // Value reading
-int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv, bool abs_fn = false);
+int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn = false);
 int		ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 int		ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv);
 int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv);
 int		ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items);
-//int		ReadVec2d(std::string& filename, std::string& section, std::string& key, CVec2d *value);
-int		ReadVec(const std::string& filename, const std::string& section, const std::string& key, CVec *value);
-//int		ReadRegion(std::string& filename, std::string& section, std::string& key, CRegion *value);
+
 
 struct Color;
 int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv);
+
+
+
+template<typename T>
+bool ReadArray(const std::string& filename, const std::string& section, const std::string& key, T* data, size_t num) {
+	std::string string;
+	
+	if (!ReadString(filename,section,key,string,""))
+		return false;
+	
+	std::vector<std::string> arr = explode(string,",");
+	for (size_t i=0; i< MIN(num,arr.size()); i++)
+		data[i] = from_string<int>(arr[i]);
+	
+	return num == arr.size();
+}
+
+template<typename T>
+bool ReadVectorD2(const std::string& filename, const std::string& section, const std::string& key, VectorD2<T>& v, VectorD2<T> defv = VectorD2<T>()) {
+	v = defv;
+	
+	T _v[2] = {0,0};
+	if(!ReadArray(filename, section, key, _v, 2)) return false;
+	
+	v.x = _v[0]; v.y = _v[1];
+	return true;
+}
+
+template<typename T>
+bool ReadMatrixD2(const std::string& filename, const std::string& section, const std::string& key, MatrixD2<T>& v, MatrixD2<T> defv = MatrixD2<T>()) {
+	v = defv;
+	
+	T _v[4] = {0,0,0,0};
+	if(!ReadArray(filename, section, key, _v, 4)) return false;
+	
+	v.v1.x = _v[0]; v.v1.y = _v[1]; v.v2.x = _v[2]; v.v2.y = _v[3];
+	return true;
+}
+
 
 
 

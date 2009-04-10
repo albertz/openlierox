@@ -29,6 +29,10 @@ int			NumKeywords = 0;
 keyword_t	Keywords[MAX_KEYWORDS];
 
 
+// Internal
+static int	GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn = false);
+
+
 ///////////////////
 // Add a keyword to the list
 int AddKeyword(const std::string& key, int value)
@@ -111,7 +115,7 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 
 ///////////////////
 // Read a string from a file
-int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv, bool abs_fn)
+int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn)
 {
 	value = defaultv;
 
@@ -124,6 +128,7 @@ int ReadString(const std::string& filename, const std::string& section, const st
 
 	return result;*/
 }
+
 
 
 ///////////////////
@@ -190,7 +195,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 
 ///////////////////
 // Read a string
-int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn)
+static int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn)
 {
 	FILE	*config = NULL;
 	std::string	Line;
@@ -224,7 +229,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 		fseek(config, 0, SEEK_SET); // Not a UTF-8 file, jump back to the beginning
 
 
-	while(!feof(config))
+	while(!feof(config) && !ferror(config))
 	{
 		// Parse the lines
 		Line = ReadUntil(config, '\n');

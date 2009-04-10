@@ -124,8 +124,10 @@ enum Proj_ActionType {
 	PJ_CARVE = 4,
 	PJ_DIRT = 5,
 	PJ_GREENDIRT = 6,
-	PJ_DISAPPEAR = 7,
+	PJ_DISAPPEAR = 7, // mostly ignored (LX56)
 	PJ_NOTHING = 8,
+	PJ_DISAPPEAR2 = 9,
+	PJ_GOTHROUGH = 10,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
@@ -144,6 +146,7 @@ struct Proj_ActionEvent {
 	TimeDiff dt;
 	
 	Proj_ActionEvent(TimeDiff _dt) : colType(NULL), byTimer(false), dt(_dt) {}
+	static Proj_ActionEvent Unspec(TimeDiff _dt) { return Proj_ActionEvent(_dt); }
 	static Proj_ActionEvent Timer(TimeDiff _dt) { Proj_ActionEvent e(_dt); e.byTimer = true; return e; }
 	static Proj_ActionEvent Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_ActionEvent e(_dt); e.colType = col; return e; }	
 };
@@ -151,7 +154,8 @@ struct Proj_ActionEvent {
 struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
-	UseSound(false), BounceCoeff(0.5), BounceExplode(0) {}
+	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
+	GoThroughSpeed(1.0f) {}
 	
 	//  --------- LX56 start ----------
 	Proj_ActionType Type;
@@ -169,6 +173,8 @@ struct Proj_Action {
 	//  --------- LX56 (terrain hit) end ----------
 	
 	Proj_SpawnInfo Proj;
+	
+	float	GoThroughSpeed;
 	
 	bool hasAction() const { return Type != PJ_NOTHING; }
 	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
@@ -210,13 +216,14 @@ struct Proj_ProjHit : Proj_Action {
 
 struct Proj_DoActionInfo {
 	Proj_DoActionInfo() :
-	explode(false), timer(false), shake(0),
+	explode(false), damage(-1), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
 	spawnInfo(NULL),
 	playSound(false) {}
 	
 	bool	explode;
+	int		damage;
 	bool	timer;
 	int		shake;
 	bool	dirt;
@@ -229,6 +236,7 @@ struct Proj_DoActionInfo {
 
 	bool	playSound;
 	
+	bool hasAnyEffect() const; // NOTE: sound doesn't count
 	void execute(CProjectile* const prj, const AbsTime currentTime);
 };
 

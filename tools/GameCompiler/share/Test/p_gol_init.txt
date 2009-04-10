@@ -1,0 +1,32 @@
+# init Game of life proj
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 0,0,0,255
+Width = 16
+Height = 16
+ProjHitNum = 1
+Gravity = 0
+Dampening = 0.1
+
+[PlayerHit]
+Type = Nothing
+
+[Hit]
+Type = GoThrough
+
+# if there is already a cell, just disappear
+[ProjHit1]
+Type = Disappear2
+Target = p_gol_cell.txt
+
+
+# if we didn't found a cell here, spawn one
+[Fallback]
+Type = Disappear2
+Projectiles = true
+
+
+[Projectile]
+Projectile = p_gol_cell.txt
+Amount = 1

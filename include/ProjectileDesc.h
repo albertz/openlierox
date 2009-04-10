@@ -95,7 +95,11 @@ struct proj_t {
 	// Player hit
 	Proj_Action PlyHit;
 	
+	// projectile hits
 	std::vector<Proj_ProjHit> ProjHits; // new since beta9
+	
+	// if we have no action from other events
+	Proj_Action Fallback; // new since beta9	
 	
 	// event proj spawning (if no specific spawnInfo is set in Proj_Action)
 	Proj_SpawnInfo GeneralSpawnInfo;
