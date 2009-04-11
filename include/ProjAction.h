@@ -178,6 +178,7 @@ struct Proj_Action {
 	float	GoThroughSpeed;
 	
 	bool hasAction() const { return Type != PJ_NOTHING || Projectiles; }
+	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
 	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)

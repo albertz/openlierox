@@ -376,22 +376,21 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		}
 	}
 	
-	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
+	if(Header.Version > GS_LX56_VERSION) {
+		// always save, there are many cases where we could possibly need it
+		proj->GeneralSpawnInfo.write(this, fp);
+	}
+	else if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		if(Header.Version <= GS_LX56_VERSION) {
-			fwrite_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
-			fwrite_endian_compat((proj->GeneralSpawnInfo.Angle),	sizeof(int),	1, fp);
-			
-			fwrite_endian_compat((proj->GeneralSpawnInfo.Amount),	sizeof(int),	1, fp);
-			fwrite_endian_compat((proj->GeneralSpawnInfo.Spread),	sizeof(float),	1, fp);
-			fwrite_endian_compat((proj->GeneralSpawnInfo.Speed),	sizeof(int),	1, fp);
-			fwrite_endian_compat((proj->GeneralSpawnInfo.SpeedVar),	sizeof(float),	1, fp);
+		fwrite_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Angle),	sizeof(int),	1, fp);
+		
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Amount),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Spread),	sizeof(float),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.Speed),	sizeof(int),	1, fp);
+		fwrite_endian_compat((proj->GeneralSpawnInfo.SpeedVar),	sizeof(float),	1, fp);
 
-			SaveProjectile(proj->GeneralSpawnInfo.Proj,fp);
-		}
-		else { // newer GS versions
-			proj->GeneralSpawnInfo.write(this, fp);
-		}
+		SaveProjectile(proj->GeneralSpawnInfo.Proj,fp);
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
@@ -890,26 +889,24 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		}
 	}
 	
-	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
+	if(Header.Version > GS_LX56_VERSION) {
+		proj->GeneralSpawnInfo.read(this, fp);		
+	}
+	else if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
-		if(Header.Version <= GS_LX56_VERSION) {
-			fread_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
-			fread_compat(proj->GeneralSpawnInfo.Angle,		sizeof(int),	1, fp);
-			EndianSwap(proj->GeneralSpawnInfo.Angle);
-			fread_compat(proj->GeneralSpawnInfo.Amount,	sizeof(int),	1, fp);
-			EndianSwap(proj->GeneralSpawnInfo.Amount);
-			fread_compat(proj->GeneralSpawnInfo.Spread,	sizeof(float),	1, fp);
-			EndianSwap(proj->GeneralSpawnInfo.Spread);
-			fread_compat(proj->GeneralSpawnInfo.Speed,		sizeof(int),	1, fp);
-			EndianSwap(proj->GeneralSpawnInfo.Speed);
-			fread_compat(proj->GeneralSpawnInfo.SpeedVar,	sizeof(float),	1, fp);
-			EndianSwap(proj->GeneralSpawnInfo.SpeedVar);
+		fread_endian<int>(fp, proj->GeneralSpawnInfo.Useangle);
+		fread_compat(proj->GeneralSpawnInfo.Angle,		sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Angle);
+		fread_compat(proj->GeneralSpawnInfo.Amount,	sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Amount);
+		fread_compat(proj->GeneralSpawnInfo.Spread,	sizeof(float),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Spread);
+		fread_compat(proj->GeneralSpawnInfo.Speed,		sizeof(int),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.Speed);
+		fread_compat(proj->GeneralSpawnInfo.SpeedVar,	sizeof(float),	1, fp);
+		EndianSwap(proj->GeneralSpawnInfo.SpeedVar);
 
-			proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
-		}
-		else { // newer GS versions
-			proj->GeneralSpawnInfo.read(this, fp);
-		}
+		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
@@ -1643,9 +1640,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 	
 	// Projectiles
-	if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
-		  proj->Tch.Projectiles) {
-		
+	{
 		std::string prjfile = proj->GeneralSpawnInfo.readFromIni(file, "Projectile");
 		
 		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
@@ -1653,8 +1648,15 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
 		}
 		
-		// Load the projectile
-		proj->GeneralSpawnInfo.Proj = CompileProjectile(dir, prjfile);
+		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
+			if(prjfile == "")
+				warnings << "Projectile section is not specified correctly but needed" << endl;
+		
+		if(prjfile != "")
+			// Load the projectile
+			proj->GeneralSpawnInfo.Proj = CompileProjectile(dir, prjfile);
+		else
+			proj->GeneralSpawnInfo.Proj = NULL;
 	}
 
 	// { new since OLX beta9
