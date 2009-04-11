@@ -10,7 +10,7 @@ Gravity = 0
 Dampening = 0.1
 
 [PlayerHit]
-Type = Nothing
+Type = nothing
 
 [Hit]
 Type = GoThrough

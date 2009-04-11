@@ -85,15 +85,9 @@ bool ReadMatrixD2(const std::string& filename, const std::string& section, const
 
 
 
-// Keywords
-struct keyword_t {
-	std::string key;
-	int  Value;
-};
 
-
-int		AddKeyword(const std::string& key, int value);
-int		ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
+bool	AddKeyword(const std::string& key, int value);
+bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv);
 
 

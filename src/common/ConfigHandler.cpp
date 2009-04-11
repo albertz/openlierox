@@ -25,8 +25,9 @@
 #include "MathLib.h"
 
 
-int			NumKeywords = 0;
-keyword_t	Keywords[MAX_KEYWORDS];
+
+typedef std::map<std::string, int, stringcaseless> KeywordMap;
+static KeywordMap Keywords;
 
 
 // Internal
@@ -35,15 +36,10 @@ static int	GetString(const std::string& filename, const std::string& section, co
 
 ///////////////////
 // Add a keyword to the list
-int AddKeyword(const std::string& key, int value)
+bool AddKeyword(const std::string& key, int value)
 {
-	// Check for enough spaces
-	if(NumKeywords >= MAX_KEYWORDS-1)
-		return false;
-
-	Keywords[NumKeywords].key = key;
-	Keywords[NumKeywords++].Value = value;
-
+	Keywords[key] = value;
+	
 	return true;
 }
 
@@ -51,9 +47,8 @@ int AddKeyword(const std::string& key, int value)
 
 ///////////////////
 // Read a keyword from a file
-int ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
+bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
-	int n;
 	std::string string;
 
 	*value = defaultv;
@@ -62,13 +57,15 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 		return false;
 
 	// Try and find a keyword with matching keys
-	for(n=0;n<NumKeywords;n++) {
-		if(stringcasecmp(string,Keywords[n].key) == 0) {
-			*value = Keywords[n].Value;
-			return true;
-		}
+	KeywordMap::iterator f = Keywords.find(string);
+	if(f != Keywords.end()) {
+		//notes << filename << ":" << section << "." << key << ": " << f->first << "(" << string << ") = " << f->second << endl;
+		*value = f->second;
+		return true;
 	}
-
+	
+	warnings << filename << ":" << section << "." << key << ": '" << string << "' is an unknown keyword" << endl;
+	
 	return false;
 }
 
@@ -76,23 +73,10 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 // Read a keyword from a file (bool version)
 bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv)
 {
-	int n;
-	std::string string;
-
-	*value = defaultv;
-
-	if(!GetString(filename,section,key,string))
-		return false;
-
-	// Try and find a keyword with matching keys
-	for(n=0;n<NumKeywords;n++) {
-		if(stringcasecmp(string,Keywords[n].key) == 0) {
-			*value = Keywords[n].Value != 0;
-			return true;
-		}
-	}
-
-	return false;
+	int v = defaultv ? 1 : 0;
+	bool ret = ReadKeyword(filename, section, key, &v, defaultv ? 1 : 0);
+	*value = v != 0;
+	return ret;
 }
 
 
