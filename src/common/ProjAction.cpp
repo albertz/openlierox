@@ -307,7 +307,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 }
 
 static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
-	spawnInfo->dump();
+	//spawnInfo->dump();
 	spawnInfo->apply(prj, fSpawnTime);
 }
 
