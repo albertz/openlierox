@@ -79,6 +79,7 @@ struct Proj_SpawnInfo {
 	
 	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
 	bool isSet() const { return Proj != NULL; }
+	void dump() const;
 	
 	// returns projectile filename (used in CGameScript::compile*)
 	std::string readFromIni(const std::string& file, const std::string& section);
@@ -176,7 +177,7 @@ struct Proj_Action {
 	
 	float	GoThroughSpeed;
 	
-	bool hasAction() const { return Type != PJ_NOTHING; }
+	bool hasAction() const { return Type != PJ_NOTHING || Projectiles; }
 	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	// returns projectile filename (used in CGameScript::compile*)

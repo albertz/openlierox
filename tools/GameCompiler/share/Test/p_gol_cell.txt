@@ -16,6 +16,9 @@ Dampening = 0.1
 
 Timer = 10
 
+[PlayerHit]
+Type = Nothing
+
 [Time]
 Type = Explode
 Damage = -1

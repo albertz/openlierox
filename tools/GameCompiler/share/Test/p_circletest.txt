@@ -24,4 +24,4 @@ BounceCoeff = 0.4
 Type = Injure
 Damage = 110
 #Projectiles=true
-Shake=1
+#Shake=1

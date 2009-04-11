@@ -3,9 +3,9 @@
 [General]
 Name = Game of Life
 Class = WCL_GRENADE
-Recoil = 5
+Recoil = 0
 Recharge = 10
-Drain = 101
+Drain = 0
 ROF = 1
 Sound = throw.wav
 

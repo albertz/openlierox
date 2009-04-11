@@ -1631,6 +1631,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 				proj->ProjHits[i].Target = CompileProjectile(dir, projHitProj);
 			else
 				proj->ProjHits[i].Target = NULL;
+			if(!proj->ProjHits[i].hasAction()) {
+				warnings << "section ProjHit" << (i+1) << " doesn't have any effect" << endl;
+			}
 		}
 	}
 
@@ -1892,7 +1895,7 @@ std::string Proj_Action::readFromIni(const std::string& file, const std::string&
 	ReadFloat(file,section,"BounceCoeff",&BounceCoeff,BounceCoeff);
 	ReadInteger(file,section,"BounceExplode",&BounceExplode,BounceExplode);
 
-	ReadFloat(file,section,"BounceCoeff",&GoThroughSpeed,GoThroughSpeed);	
+	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
 	
 	return "";
 }

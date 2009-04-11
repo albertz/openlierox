@@ -84,6 +84,10 @@ float Proj_SpawnParent::angle() const {
 }
 
 
+void Proj_SpawnInfo::dump() const {
+	if(Proj)
+		notes << "spawn: " << Amount << " of " << Proj->filename << endl;
+}
 
 void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	// Calculate the angle of the direction the projectile is heading
@@ -303,6 +307,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 }
 
 static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
+	spawnInfo->dump();
 	spawnInfo->apply(prj, fSpawnTime);
 }
 
@@ -388,8 +393,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	}
 	if (!hasAnyAction) // Isn't destroyed by any event
 		if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends
-			if (!pi->Hit.Projectiles && !pi->PlyHit.Projectiles && !pi->Timer.Projectiles)  // Doesn't spawn any projectiles
-				deleteAfter = true;
+			deleteAfter = true;
 
 	if(deleteAfter) {
 		prj->setUnused();
