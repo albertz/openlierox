@@ -18,7 +18,7 @@ Type = GoThrough
 # if there is already a cell, just disappear
 [ProjHit1]
 Type = Disappear2
-#Target = p_gol_cell.txt
+Target = p_gol_cell.txt
 
 
 # if we didn't found a cell here, spawn one
