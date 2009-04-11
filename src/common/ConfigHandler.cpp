@@ -17,8 +17,9 @@
 // By Jason Boettcher
 
 
+#include <map>
+#include <string>
 #include "LieroX.h"
-
 #include "ConfigHandler.h"
 #include "FindFile.h"
 #include "StringUtils.h"
