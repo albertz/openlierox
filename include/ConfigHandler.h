@@ -22,6 +22,7 @@
 
 #include "CVec.h"
 #include "StringUtils.h"
+#include "MathLib.h"
 #include <string>
 #include <SDL.h>
 #include <vector>
