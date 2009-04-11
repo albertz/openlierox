@@ -4,12 +4,9 @@
 
 [General]
 Type = PRJ_POLYGON
-P1.x = 0
-P1.y = -10
-P2.x = 10
-P2.y = 0
-P3.x = 0
-P3.y = 10
+P1 = 0,-10
+P2 = 10,0
+P3 = 0,10
 Colour1 = 255,255,255,150
 Colour2 = 255,0,0,150
 Colour3 = 0,255,0,150
@@ -28,4 +25,4 @@ BounceCoeff = 0.4
 Type = Injure
 Damage = 110
 #Projectiles=true
-Shake=1
+#Shake=1
