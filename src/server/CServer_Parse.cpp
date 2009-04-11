@@ -209,9 +209,9 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 ///////////////////
 // Parse a 'im ready' packet
 void CServerNetEngine::ParseImReady(CBytestream *bs) {
-	if ( (server->iState != SVS_GAME && !server->serverAllowsConnectDuringGame()) || server->iState == SVS_LOBBY )
+	if ( server->iState == SVS_LOBBY )
 	{
-		notes("GameServer::ParseImReady: Not waiting for ready, packet is being ignored.\n");
+		notes << "GameServer::ParseImReady: Not waiting for ready, packet is being ignored." << endl;
 
 		// Skip to get the correct position in the stream
 		int num = bs->readByte();
