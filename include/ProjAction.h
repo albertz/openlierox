@@ -221,7 +221,6 @@ struct Proj_DoActionInfo {
 	explode(false), damage(-1), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
-	spawnInfo(NULL),
 	playSound(false) {}
 	
 	bool	explode;
@@ -234,7 +233,7 @@ struct Proj_DoActionInfo {
 	bool	trailprojspawn;
 	
 	bool	spawnprojectiles;
-	const Proj_SpawnInfo* spawnInfo;
+	std::list<const Proj_SpawnInfo*> otherSpawns;
 
 	bool	playSound;
 	

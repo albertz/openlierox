@@ -257,8 +257,10 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 	}
 	
 	if(spawnprojs) {
-		info->spawnprojectiles = true;
-		info->spawnInfo = &Proj;
+		if(Proj.isSet())
+			info->otherSpawns.push_back(&Proj);
+		else
+			info->spawnprojectiles = true;
 	}
 	
 	if(additionalAction)
@@ -337,7 +339,7 @@ static void projectile_doMakeGreenDirt(CProjectile* const prj) {
 bool Proj_DoActionInfo::hasAnyEffect() const {
 	if(explode) return true;
 	if(dirt || grndirt) return true;
-	if(trailprojspawn || spawnprojectiles) return true;
+	if(trailprojspawn || spawnprojectiles || otherSpawns.size() > 0) return true;
 	if(deleteAfter) return true;
 	return false;
 }
@@ -373,13 +375,17 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
-		if(!spawnInfo || !spawnInfo->isSet())
-			spawnInfo = &pi->GeneralSpawnInfo;
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, spawnInfo, currentTime);
+		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime);		
 	}
 
+	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
+		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
+		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
+		projectile_doProjSpawn(prj, *i, currentTime);		
+	}
+	
 	if(playSound) {
 		PlaySoundSample(pi->smpSample);		
 	}
