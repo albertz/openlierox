@@ -81,9 +81,7 @@ struct Proj_SpawnInfo {
 	bool isSet() const { return Proj != NULL; }
 	void dump() const;
 	
-	// returns projectile filename (used in CGameScript::compile*)
-	std::string readFromIni(const std::string& file, const std::string& section);
-	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };
@@ -181,9 +179,7 @@ struct Proj_Action {
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
 	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
-	// returns projectile filename (used in CGameScript::compile*)
-	std::string readFromIni(const std::string& file, const std::string& section);
-	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };
@@ -207,9 +203,7 @@ struct Proj_ProjHit : Proj_Action {
 	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
 	void checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
 	
-	// returns projectile filename (used in CGameScript::compile*)
-	std::string readFromIni(const std::string& file, const std::string& section);
-	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };

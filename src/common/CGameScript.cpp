@@ -1403,28 +1403,28 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		}	
 	}
 	
-	std::string pfile = Weap->Proj.readFromIni(file, "Projectile");
+	Weap->Proj.readFromIni(this, dir, file, "Projectile");
 	
 	if(Weap->Proj.UseParentVelocityForSpread) {
-		warnings << "UseProjVelocity is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		warnings << "UseProjVelocity is set in Projectile-section (" << weapon << "); this was not supported in LX56 thus we ignore it" << endl;
 		Weap->Proj.UseParentVelocityForSpread = false;
 	}
 	
 	if(!Weap->Proj.Useangle) {
-		warnings << "Useangle is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		warnings << "Useangle is set in Projectile-section (" << weapon << "); this was not supported in LX56 thus we ignore it" << endl;
 		Weap->Proj.Useangle = true;
 	}
 
 	if(Weap->Proj.Angle != 0) {
-		warnings << "Angle is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+		warnings << "Angle is set in Projectile-section (" << weapon << "); this was not supported in LX56 thus we ignore it" << endl;
 		Weap->Proj.Angle = 0;
 	}	
 
-	// Load the projectile
-	Weap->Proj.Proj = CompileProjectile(dir, pfile);
-	if(Weap->Proj.Proj == NULL)
+	if(Weap->Proj.Proj == NULL) {
+		warnings << "projectile not set for weapon " << weapon << endl;
 		return false;
-
+	}
+	
 	return true;
 }
 
@@ -1561,7 +1561,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 
 
-	proj->Hit.readFromIni(file, "Hit");
+	proj->Hit.readFromIni(this, dir, file, "Hit");
 	if(!bDedicated && proj->Hit.UseSound) {
 		// Load the sample
 		proj->smpSample = LoadGSSample(dir, proj->Hit.SndFilename);
@@ -1574,12 +1574,12 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// Timer	
 	if(proj->Timer.Time > 0) {
-		proj->Timer.readFromIni(file, "Time");
+		proj->Timer.readFromIni(this, dir, file, "Time");
 	}
 
 	// Player hit
 	proj->PlyHit.Type = PJ_INJURE;
-	proj->PlyHit.readFromIni(file, "PlayerHit");
+	proj->PlyHit.readFromIni(this, dir, file, "PlayerHit");
 	
 	if(proj->PlyHit.Shake != 0) {
 		warnings << "projectile " << file << " has PlayerHit.Shake != 0 which was not supported earlier. this is ignored" << endl;
@@ -1623,56 +1623,32 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		if(projHitC < 0) projHitC = 0;
 		proj->ProjHits.resize(projHitC);
 		for(int i = 0; i < projHitC; ++i) {
-			std::string projHitProj = proj->ProjHits[i].readFromIni(file, "ProjHit" + itoa(i+1));
-			if(projHitProj != "")
-				proj->ProjHits[i].Target = CompileProjectile(dir, projHitProj);
-			else
-				proj->ProjHits[i].Target = NULL;
+			proj->ProjHits[i].readFromIni(this, dir, file, "ProjHit" + itoa(i+1));
+
 			if(!proj->ProjHits[i].hasAction()) {
-				warnings << "section ProjHit" << (i+1) << " doesn't have any effect" << endl;
+				warnings << "section ProjHit" << (i+1) << " (" << pfile << ") doesn't have any effect" << endl;
 			}
 		}
 	}
 
 	{
 		proj->Fallback.Type = PJ_NOTHING;
-		proj->Fallback.readFromIni(file, "Fallback");
+		proj->Fallback.readFromIni(this, dir, file, "Fallback");
 	}
 	
 	// Projectiles
 	{
-		std::string prjfile = proj->GeneralSpawnInfo.readFromIni(file, "Projectile");
+		proj->GeneralSpawnInfo.readFromIni(this, dir, file, "Projectile");
 		
 		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
-			warnings << "UseProjVelocity is set in Projectile-section; this was not supported in LX56 thus we ignore it" << endl;
+			warnings << "UseProjVelocity is set in Projectile-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
 			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
 		}
 		
 		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
-			if(prjfile == "")
-				warnings << "Projectile section is not specified correctly but needed" << endl;
-		
-		if(prjfile != "")
-			// Load the projectile
-			proj->GeneralSpawnInfo.Proj = CompileProjectile(dir, prjfile);
-		else
-			proj->GeneralSpawnInfo.Proj = NULL;
+			if(proj->GeneralSpawnInfo.isSet())
+				warnings << "Projectile section (" << pfile << ") is not specified correctly but needed" << endl;
 	}
-
-	// { new since OLX beta9
-	if(proj->Timer.Projectiles) {
-		std::string prjfile = proj->Timer.Proj.readFromIni(file, "Timer.Projectile");
-		if(prjfile != "") proj->Timer.Proj.Proj = CompileProjectile(dir, prjfile);
-	}		
-	if(proj->Hit.Projectiles) {
-		std::string prjfile = proj->Hit.Proj.readFromIni(file, "Hit.Projectile");
-		if(prjfile != "") proj->Hit.Proj.Proj = CompileProjectile(dir, prjfile);
-	}		
-	if(proj->PlyHit.Projectiles) {
-		std::string prjfile = proj->PlyHit.Proj.readFromIni(file, "PlayerHit.Projectile");
-		if(prjfile != "") proj->PlyHit.Proj.Proj = CompileProjectile(dir, prjfile);
-	}	
-	// }
 	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
@@ -1682,20 +1658,17 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->Trail.Proj.Amount = 1;
 		proj->Trail.Proj.Speed = 100;
 		
-		std::string prjfile = proj->Trail.Proj.readFromIni(file, "ProjectileTrail");
+		proj->Trail.Proj.readFromIni(this, dir, file, "ProjectileTrail");
 		
 		if(proj->Trail.Proj.Useangle) {
-			warnings << "Useangle is set in ProjectileTrail-section; this was not supported in LX56 thus we ignore it" << endl;
+			warnings << "Useangle is set in ProjectileTrail-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
 			proj->Trail.Proj.Useangle = false;
 		}
 		
 		if(proj->Trail.Proj.Angle != 0) {
-			warnings << "Angle is set in ProjectileTrail-section; this was not supported in LX56 thus we ignore it" << endl;
+			warnings << "Angle is set in ProjectileTrail-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
 			proj->Trail.Proj.Useangle = false;
 		}
-		
-		// Load the projectile
-		proj->Trail.Proj.Proj = CompileProjectile(dir, prjfile);
 	}
 
 	return proj;
@@ -1772,7 +1745,7 @@ bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 }
 
 
-std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::string& section) {
+bool Proj_SpawnInfo::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadKeyword(file, section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
 	ReadMatrixD2(file, section, "ParentVelFactor", ParentVelFactor, ParentVelFactor); // new in OLX beta9
 	
@@ -1788,7 +1761,10 @@ std::string Proj_SpawnInfo::readFromIni(const std::string& file, const std::stri
 
 	std::string prjfile;
 	ReadString(file, section, "Projectile", prjfile, "");
-	return prjfile;
+	if(prjfile != "") Proj = gs->CompileProjectile(dir, prjfile);
+	else Proj = NULL;
+	
+	return true;
 }
 
 bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
@@ -1883,7 +1859,7 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 }
 
 
-std::string Proj_Action::readFromIni(const std::string& file, const std::string& section) {
+bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadKeyword(file, section, "Type", (int*)&Type, Type);
 	ReadKeyword(file,section,"Projectiles",&Projectiles,false);
 	ReadInteger(file,section,"Damage",&Damage,Damage);
@@ -1898,8 +1874,10 @@ std::string Proj_Action::readFromIni(const std::string& file, const std::string&
 	ReadInteger(file,section,"BounceExplode",&BounceExplode,BounceExplode);
 
 	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
-	
-	return "";
+
+	if(Projectiles)
+		Proj.readFromIni(gs, dir, file, section + ".Projectile");
+	return true;
 }
 
 bool Proj_Action::read(CGameScript* gs, FILE* fp) {
@@ -1928,14 +1906,19 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	return true;
 }
 
-std::string Proj_ProjHit::readFromIni(const std::string& file, const std::string& section) {
-	Proj_Action::readFromIni(file, section);
+bool Proj_ProjHit::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	Proj_Action::readFromIni(gs, dir, file, section);
 	
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
 
 	std::string prjfile;
 	ReadString(file, section, "Target", prjfile, "");
-	return prjfile;
+	if(prjfile != "")
+		Target = gs->CompileProjectile(dir, prjfile);
+	else
+		Target = NULL;
+	
+	return true;
 }
 
 bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
