@@ -14,14 +14,81 @@ Height = 16
 Gravity = 0
 Dampening = 0.1
 
-Timer = 10
+Timer = 1
 
 [PlayerHit]
 Type = Nothing
 
-[Time]
-Type = Explode
-Damage = -1
-
 [Hit]
 Type = GoThrough
+
+[Time]
+Type = Disappear2
+Projectiles = true
+Additional = SpawnTL
+
+[Time.Projectile]
+Projectile = p_gol_framestep_alife.txt
+
+[SpawnTL]
+Projectiles = true
+Additional = SpawnTM
+
+[SpawnTM]
+Projectiles = true
+Additional = SpawnTR
+
+[SpawnTR]
+Projectiles = true
+Additional = SpawnML
+
+[SpawnML]
+Projectiles = true
+Additional = SpawnMR
+
+[SpawnMR]
+Projectiles = true
+Additional = SpawnBL
+
+[SpawnBL]
+Projectiles = true
+Additional = SpawnBM
+
+[SpawnBM]
+Projectiles = true
+Additional = SpawnBR
+
+[SpawnBR]
+Projectiles = true
+
+[SpawnTL.Projectile]
+PosDiff = -16,-16
+Projectile = p_gol_framestep.txt
+
+[SpawnTM.Projectile]
+PosDiff = 0,-16
+Projectile = p_gol_framestep.txt
+
+[SpawnTR.Projectile]
+PosDiff = 16,-16
+Projectile = p_gol_framestep.txt
+
+[SpawnML.Projectile]
+PosDiff = -16,0
+Projectile = p_gol_framestep.txt
+
+[SpawnMR.Projectile]
+PosDiff = 16,0
+Projectile = p_gol_framestep.txt
+
+[SpawnBL.Projectile]
+PosDiff = -16,16
+Projectile = p_gol_framestep.txt
+
+[SpawnBM.Projectile]
+PosDiff = 0,16
+Projectile = p_gol_framestep.txt
+
+[SpawnTM.Projectile]
+PosDiff = 16,16
+Projectile = p_gol_framestep.txt

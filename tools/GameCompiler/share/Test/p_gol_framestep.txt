@@ -1,0 +1,19 @@
+# Game of life framestep
+# (spawned by cells and will spawn the next frame cells)
+
+[General]
+Type = PRJ_PIXEL
+Colour1 = 0,0,0,0
+Width = 16
+Height = 16
+Gravity = 0
+
+ProjHitNum = 2
+
+[ProjHit1]
+Target = p_gol_framestep_alife.txt
+Type = Disappear2
+
+[ProjHit2]
+Target = p_gol_framestep.txt
+Type = Disappear2

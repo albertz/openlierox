@@ -1646,7 +1646,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		}
 		
 		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
-			if(proj->GeneralSpawnInfo.isSet())
+			if(!proj->GeneralSpawnInfo.isSet())
 				warnings << "Projectile section (" << pfile << ") is not specified correctly but needed" << endl;
 	}
 	
@@ -1901,6 +1901,7 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 		}
 		
 		additionalAction = new Proj_Action();
+		additionalAction->Type = PJ_NOTHING;
 		if(!additionalAction->readFromIni(gs, dir, file, addActionSection, deepCounter + 1)) {
 			delete additionalAction; additionalAction = NULL;
 			return false;
