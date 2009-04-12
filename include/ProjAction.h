@@ -200,11 +200,12 @@ struct Proj_Timer : Proj_Action {
 
 
 struct Proj_ProjHit : Proj_Action {
-	Proj_ProjHit() : Target(NULL), MinHitCount(1), HitCount(-1) {}
+	Proj_ProjHit() : Target(NULL), MinHitCount(1), HitCount(-1), Width(-1), Height(-1) {}
 	
 	proj_t* Target; // NULL -> any target
 	int		MinHitCount;
 	int		HitCount; // exact hit count (ignored iff <0)
+	int		Width, Height; // custom w/h for collision check area
 	
 	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
 	void checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
