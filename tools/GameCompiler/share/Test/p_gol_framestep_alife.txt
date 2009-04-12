@@ -7,3 +7,26 @@ Colour1 = 0,0,0,0
 Width = 16
 Height = 16
 Gravity = 0
+
+ProjHitNum = 2
+
+[ProjHit1]
+Target = p_gol_framestep_alife.txt
+Width = 32
+Height = 32
+MinHitCount = 4
+Type = Disappear2
+
+[ProjHit2]
+Target = p_gol_framestep_alife.txt
+Width = 32
+Height = 32
+MinHitCount = 2
+Projectiles = true
+Type = Disappear2
+
+[ProjHit2.Projectile]
+Projectile = p_gol_cell.txt
+
+[Fallback]
+Type = Disappear2

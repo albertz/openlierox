@@ -200,10 +200,11 @@ struct Proj_Timer : Proj_Action {
 
 
 struct Proj_ProjHit : Proj_Action {
-	Proj_ProjHit() : Target(NULL), MinHitCount(1) {}
+	Proj_ProjHit() : Target(NULL), MinHitCount(1), HitCount(-1) {}
 	
 	proj_t* Target; // NULL -> any target
 	int		MinHitCount;
+	int		HitCount; // exact hit count (ignored iff <0)
 	
 	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
 	void checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;

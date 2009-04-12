@@ -1970,6 +1970,7 @@ bool Proj_ProjHit::readFromIni(CGameScript* gs, const std::string& dir, const st
 	Proj_Action::readFromIni(gs, dir, file, section);
 	
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
+	ReadInteger(file, section, "HitCount", &HitCount, HitCount);
 
 	std::string prjfile;
 	ReadString(file, section, "Target", prjfile, "");
@@ -1988,6 +1989,10 @@ bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
 	}
 
 	Proj_Action::read(gs, fp);
+
+	fread_endian<int>(fp, MinHitCount);
+	fread_endian<int>(fp, HitCount);
+	
 	bool hasSpecificTarget = false;
 	fread_endian<char>(fp, hasSpecificTarget);
 	if(hasSpecificTarget)
@@ -2004,6 +2009,10 @@ bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
 	}
 
 	Proj_Action::write(gs, fp);
+
+	fwrite_endian<int>(fp, MinHitCount);
+	fwrite_endian<int>(fp, HitCount);
+	
 	fwrite_endian<char>(fp, Target != NULL);
 	if(Target) return gs->SaveProjectile(Target, fp);
 	return true;
