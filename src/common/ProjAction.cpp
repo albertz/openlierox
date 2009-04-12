@@ -283,7 +283,7 @@ void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* 
 		}
 	}
 	
-	if(ev.projCols.size() >= (size_t)MinHitCount) {
+	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount)) {
 		applyTo(ev, prj, info);
 	}
 }
