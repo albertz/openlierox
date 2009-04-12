@@ -40,7 +40,7 @@ public:
 	CCache() { mutex = SDL_CreateMutex(); };
 	~CCache() { SDL_DestroyMutex(mutex); };
 	CCache(const CCache&) { assert(false); }
-	CCache& operator=(const CCache&) { assert(false); }
+	CCache& operator=(const CCache&) { assert(false); return *this; }
 	void Clear();
 	void ClearExtraEntries(); // Clears cache partially - should be called from time to time
 

@@ -105,8 +105,8 @@ private:
 		 iState = dl.iState;
 		 iID = dl.iID;
 		 tHttp = dl.tHttp; // HINT: safe, CHttp has a copy operator defined
-		 tError = dl.tError;
-		 return *this; */
+		 tError = dl.tError; */
+		 return *this;
 	}
 	
 	std::string		sFileName;
