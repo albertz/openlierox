@@ -142,8 +142,8 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 			ignoreWormCollBeforeTime = GetPhysicsTime() + 0.1f; // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 		
 		int random = parent.fixedRandomIndex();
-
-		cClient->SpawnProjectile(parent.position(), v, rot, parent.ownerWorm(), Proj, random, spawnTime, ignoreWormCollBeforeTime);
+		CVec pos = parent.position() + PosDiff;
+		cClient->SpawnProjectile(pos, v, rot, parent.ownerWorm(), Proj, random, spawnTime, ignoreWormCollBeforeTime);
 
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom++;

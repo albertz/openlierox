@@ -96,21 +96,35 @@ static size_t fread_endian(FILE* stream, _D& d) {
 
 
 
-template<typename T>
-static size_t fread_endian_M(FILE* stream, MatrixD2<T>& d) {
-	if(fread_endian<T>(stream, d.v1.x) == 0) return 0;
-	if(fread_endian<T>(stream, d.v1.y) == 0) return 0;
-	if(fread_endian<T>(stream, d.v2.x) == 0) return 0;
-	if(fread_endian<T>(stream, d.v2.y) == 0) return 0;
+template<typename T1, typename T2>
+static size_t fread_endian_M(FILE* stream, MatrixD2<T2>& d) {
+	if(fread_endian<T1>(stream, d.v1.x) == 0) return 0;
+	if(fread_endian<T1>(stream, d.v1.y) == 0) return 0;
+	if(fread_endian<T1>(stream, d.v2.x) == 0) return 0;
+	if(fread_endian<T1>(stream, d.v2.y) == 0) return 0;
 	return 1;
 }
 
-template<typename T>
-static size_t fwrite_endian_M(FILE* stream, MatrixD2<T>& d) {
-	if(fwrite_endian<T>(stream, d.v1.x) == 0) return 0;
-	if(fwrite_endian<T>(stream, d.v1.y) == 0) return 0;
-	if(fwrite_endian<T>(stream, d.v2.x) == 0) return 0;
-	if(fwrite_endian<T>(stream, d.v2.y) == 0) return 0;
+template<typename T1, typename T2>
+static size_t fwrite_endian_M(FILE* stream, MatrixD2<T2>& d) {
+	if(fwrite_endian<T1>(stream, d.v1.x) == 0) return 0;
+	if(fwrite_endian<T1>(stream, d.v1.y) == 0) return 0;
+	if(fwrite_endian<T1>(stream, d.v2.x) == 0) return 0;
+	if(fwrite_endian<T1>(stream, d.v2.y) == 0) return 0;
+	return 1;
+}
+
+template<typename T1, typename T2>
+static size_t fread_endian_V(FILE* stream, VectorD2<T2>& d) {
+	if(fread_endian<T1>(stream, d.x) == 0) return 0;
+	if(fread_endian<T1>(stream, d.y) == 0) return 0;
+	return 1;
+}
+
+template<typename T1, typename T2>
+static size_t fwrite_endian_V(FILE* stream, VectorD2<T2>& d) {
+	if(fwrite_endian<T1>(stream, d.x) == 0) return 0;
+	if(fwrite_endian<T1>(stream, d.y) == 0) return 0;
 	return 1;
 }
 
