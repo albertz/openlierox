@@ -1661,15 +1661,15 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// { new since OLX beta9
 	if(proj->Timer.Projectiles) {
-		std::string prjfile = proj->Timer.Proj.readFromIni(file, "ProjectileTimer");
+		std::string prjfile = proj->Timer.Proj.readFromIni(file, "Timer.Projectile");
 		if(prjfile != "") proj->Timer.Proj.Proj = CompileProjectile(dir, prjfile);
 	}		
 	if(proj->Hit.Projectiles) {
-		std::string prjfile = proj->Hit.Proj.readFromIni(file, "ProjectileHit");
+		std::string prjfile = proj->Hit.Proj.readFromIni(file, "Hit.Projectile");
 		if(prjfile != "") proj->Hit.Proj.Proj = CompileProjectile(dir, prjfile);
 	}		
 	if(proj->PlyHit.Projectiles) {
-		std::string prjfile = proj->PlyHit.Proj.readFromIni(file, "ProjectilePlyHit");
+		std::string prjfile = proj->PlyHit.Proj.readFromIni(file, "PlayerHit.Projectile");
 		if(prjfile != "") proj->PlyHit.Proj.Proj = CompileProjectile(dir, prjfile);
 	}	
 	// }
