@@ -158,6 +158,7 @@ public:
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
 
 	bool	CollisionWith(const CProjectile* prj) const;
+	bool	CollisionWith(const CProjectile* prj, int rx, int ry) const;
 	
 	void	Bounce(float fCoeff);
 

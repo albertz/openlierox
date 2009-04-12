@@ -836,6 +836,10 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 }
 
 bool CProjectile::CollisionWith(const CProjectile* prj) const {
+	return CollisionWith(prj, rx, ry);
+}
+
+bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
 	// TODO: not 100% correct
 	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->rx;
 	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->ry;

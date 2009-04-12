@@ -280,9 +280,11 @@ void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* 
 	for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
 		CProjectile* p = i->get();
 		if(p == prj) continue;
-		if((!Target || p->getProjInfo() == Target) && prj->CollisionWith(p)) {
-			ev.projCols.push_back(p);
-		}
+		if(Target && p->getProjInfo() != Target) continue;
+		if(Width >= 0 && Height >= 0) { if(!prj->CollisionWith(p, Width/2, Height/2)) continue; }
+		else { if(!prj->CollisionWith(p)) continue; }
+		
+		ev.projCols.push_back(p);
 	}
 	
 	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount)) {
