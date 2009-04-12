@@ -261,6 +261,8 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 		info->spawnInfo = &Proj;
 	}
 	
+	if(additionalAction)
+		additionalAction->applyTo(eventInfo, prj, info);
 }
 
 
