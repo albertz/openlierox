@@ -154,7 +154,8 @@ struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	GoThroughSpeed(1.0f) {}
+	GoThroughSpeed(1.0f), additionalAction(NULL) {}
+	~Proj_Action() { if(additionalAction) delete additionalAction; }
 	
 	//  --------- LX56 start ----------
 	Proj_ActionType Type;
@@ -173,13 +174,16 @@ struct Proj_Action {
 	
 	Proj_SpawnInfo Proj;
 	
-	float	GoThroughSpeed;
+	// new since Beta9:
 	
-	bool hasAction() const { return Type != PJ_NOTHING || Projectiles; }
+	float	GoThroughSpeed;
+	Proj_Action* additionalAction;
+	
+	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
 	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
-	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter = 0);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };

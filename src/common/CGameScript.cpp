@@ -1768,6 +1768,11 @@ bool Proj_SpawnInfo::readFromIni(CGameScript* gs, const std::string& dir, const 
 }
 
 bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_SpawnInfo::read called for old GS version" << endl;
+		return false;
+	}
+
 	fread_endian<char>(fp, AddParentVel);
 	fread_endian_M(fp, ParentVelFactor);
 	fread_endian<char>(fp, Useangle);
@@ -1781,6 +1786,11 @@ bool Proj_SpawnInfo::read(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_SpawnInfo::write(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_SpawnInfo::write called for old GS version" << endl;
+		return false;
+	}
+
 	fwrite_endian<char>(fp, AddParentVel);
 	fwrite_endian_M(fp, ParentVelFactor);
 	fwrite_endian<char>(fp, Useangle);
@@ -1859,7 +1869,7 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 }
 
 
-bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter) {
 	ReadKeyword(file, section, "Type", (int*)&Type, Type);
 	ReadKeyword(file,section,"Projectiles",&Projectiles,false);
 	ReadInteger(file,section,"Damage",&Damage,Damage);
@@ -1877,10 +1887,38 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
+	
+	std::string addActionSection;
+	ReadString(file, section, "Additional", addActionSection, "");
+	TrimSpaces(addActionSection);
+	if(addActionSection != "") {
+		if(deepCounter > 1000) {
+			warnings << "There is probably an additional action definition loop in " << file << ":" << section << endl;
+			return false;
+		}
+		
+		additionalAction = new Proj_Action();
+		if(!additionalAction->readFromIni(gs, dir, file, addActionSection, deepCounter + 1)) {
+			delete additionalAction; additionalAction = NULL;
+			return false;
+		}
+		else if(!additionalAction->hasAction()) {
+			warnings << "additional action " << addActionSection << "(in " << file << ":" << section << ") does not have any effect" << endl;
+			delete additionalAction; additionalAction = NULL;
+		}
+	}
+	else
+		additionalAction = NULL;
+	
 	return true;
 }
 
 bool Proj_Action::read(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_Action::read called for old GS version" << endl;
+		return false;
+	}
+	
 	fread_endian<int>(fp, (int&)Type);
 	fread_endian<char>(fp, Projectiles);
 	fread_endian<int>(fp, Damage);
@@ -1890,10 +1928,22 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, BounceCoeff);
 	fread_endian<int>(fp, BounceExplode);
 	fread_endian<float>(fp, GoThroughSpeed);
+		
+	bool haveAddAction = false;
+	fread_endian<char>(fp, haveAddAction);
+	if(haveAddAction) {
+		additionalAction = new Proj_Action();
+		return additionalAction->read(gs, fp);
+	}
 	return true;
 }
 
 bool Proj_Action::write(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_Action::write called for old GS version" << endl;
+		return false;
+	}
+
 	fwrite_endian<int>(fp, Type);
 	fwrite_endian<char>(fp, Projectiles);
 	fwrite_endian<int>(fp, Damage);
@@ -1902,7 +1952,13 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	if(UseSound) writeString(SndFilename, fp);
 	fwrite_endian<float>(fp, BounceCoeff);
 	fwrite_endian<int>(fp, BounceExplode);
-	fwrite_endian<float>(fp, GoThroughSpeed);	
+	fwrite_endian<float>(fp, GoThroughSpeed);
+	if(!additionalAction)
+		fwrite_endian<char>(fp, 0);
+	else {
+		fwrite_endian<char>(fp, 1);
+		additionalAction->write(gs, fp);
+	}
 	return true;
 }
 
@@ -1922,6 +1978,11 @@ bool Proj_ProjHit::readFromIni(CGameScript* gs, const std::string& dir, const st
 }
 
 bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_ProjHit::read called for old GS version" << endl;
+		return false;
+	}
+
 	Proj_Action::read(gs, fp);
 	bool hasSpecificTarget = false;
 	fread_endian<char>(fp, hasSpecificTarget);
@@ -1933,6 +1994,11 @@ bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
+	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
+		errors << "Proj_ProjHit::write called for old GS version" << endl;
+		return false;
+	}
+
 	Proj_Action::write(gs, fp);
 	fwrite_endian<char>(fp, Target != NULL);
 	if(Target) return gs->SaveProjectile(Target, fp);
