@@ -285,7 +285,14 @@ bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj
 }
 
 bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
-	// TODO ...
+	float& last = prj->timerInfo[this];
+	if(last > 0 && !Repeat) return false;
+	
+	if(last + Delay <= prj->getLife()) {
+		last = prj->getLife();
+		return true;
+	}
+	
 	return false;
 }
 

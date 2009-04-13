@@ -8,25 +8,36 @@ Width = 16
 Height = 16
 Gravity = 0
 
+Timer = 0.3
 ActionNum = 2
 
 [Action1]
-Event = ProjHit1
+Event = Time_TooMuchCells
 Type = Disappear2
 
+[Time_TooMuchCells]
+AndEvent = TooMuchCells
+Delay = 0.1
+Repeat = false
+
 [Action2]
-Event = ProjHit2
+Event = Time_GoodCellsAmount
 Projectiles = true
 Type = Disappear2
 
-[ProjHit1]
+[Time_GoodCellsAmount]
+AndEvent = GoodCellsAmount
+Delay = 0.2
+Repeat = false
+
+[TooMuchCells]
 Type = ProjHit
 Target = p_gol_framestep_alife.txt
 Width = 32
 Height = 32
 MinHitCount = 4
 
-[ProjHit2]
+[GoodCellsAmount]
 Target = p_gol_framestep_alife.txt
 Width = 32
 Height = 32
@@ -35,5 +46,5 @@ MinHitCount = 2
 [Action2.Projectile]
 Projectile = p_gol_cell.txt
 
-[Fallback]
+[Time]
 Type = Disappear2

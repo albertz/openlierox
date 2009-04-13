@@ -31,6 +31,7 @@
 
 void CProjectile::setUnused() {
 	bUsed = false;
+	timerInfo.clear();
 
 	onInvalidation.occurred( EventData(this) );
 }
@@ -64,6 +65,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;
 	fSpawnTime = time;
+	timerInfo.clear();
 
 	fSpeed = _vel.GetLength();
 	CalculateCheckSteps();

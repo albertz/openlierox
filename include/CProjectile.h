@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "Event.h"
 #include "types.h"
 #include "Color.h"
@@ -58,8 +59,11 @@ struct ProjCollisionType {
 	operator bool() { return withWorm || colMask != 0; }
 };
 
+struct Proj_TimerEvent;
+typedef std::map<const Proj_TimerEvent*, float> ProjTimerInfo; // saves CProj->fLife of last event hit
 
 class CProjectile {
+	friend struct Proj_TimerEvent;
 public:
 	// Constructor
 	CProjectile() {
@@ -95,7 +99,8 @@ private:
 	float		fSpeed;
 	Color		iColour;
 	AbsTime		fIgnoreWormCollBeforeTime;
-
+	ProjTimerInfo timerInfo;
+	
 	// Projectile trail
 	AbsTime		fLastTrailProj;
     float       fTimeVarRandom;
