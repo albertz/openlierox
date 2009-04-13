@@ -2044,6 +2044,24 @@ bool Proj_EventAndAction::write(CGameScript* gs, FILE* fp) {
 }
 
 
+bool Proj_TimerEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	ReadFloat(file, section, "Delay", &Delay, Delay);
+	ReadKeyword(file, section, "Repeat", &Repeat, Repeat);
+	return true;
+}
+
+bool Proj_TimerEvent::read(CGameScript* gs, FILE* fp) {
+	fread_endian<float>(fp, Delay);
+	fread_endian<char>(fp, Repeat);
+	return true;
+}
+
+bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<float>(fp, Delay);
+	fwrite_endian<char>(fp, Repeat);
+	return true;
+}
+
 bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
 	ReadInteger(file, section, "HitCount", &HitCount, HitCount);

@@ -284,6 +284,11 @@ bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	return false;
 }
 
+bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+	// TODO ...
+	return false;
+}
+
 bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {	
 	/*
 	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect

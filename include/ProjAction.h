@@ -203,7 +203,17 @@ struct _Proj_Event {
 };
 
 struct Proj_TimerEvent : _Proj_Event {
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const { return false; } // TODO ...
+	Proj_TimerEvent() : Delay(1), Repeat(true) {}
+	
+	float	Delay;
+	bool	Repeat;
+	
+	bool canMatch() const { return Delay >= 0; }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
+
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
 };
 
 struct Proj_ProjHitEvent : _Proj_Event {
