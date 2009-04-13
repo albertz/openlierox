@@ -1257,6 +1257,7 @@ bool CGameScript::Compile(const std::string& dir)
 	CGameScript* Game = this;
 	
 	// Add some keywords
+	// IMPORTANT: Every keyword (key) need to be different.
 	AddKeyword("WPN_PROJECTILE",WPN_PROJECTILE);
 	AddKeyword("WPN_SPECIAL",WPN_SPECIAL);
 	AddKeyword("WPN_BEAM",WPN_BEAM);
@@ -1279,6 +1280,8 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("Nothing",PJ_NOTHING);
 	AddKeyword("Disappear2", PJ_DISAPPEAR2);
 	AddKeyword("GoThrough", PJ_GOTHROUGH);
+	AddKeyword("Timer", Proj_Event::PET_TIMER); 
+	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
 	AddKeyword("TRL_NONE",TRL_NONE);
 	AddKeyword("TRL_SMOKE",TRL_SMOKE);
 	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
