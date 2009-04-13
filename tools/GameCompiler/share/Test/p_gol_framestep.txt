@@ -7,26 +7,54 @@ Colour1 = 0,255,255,100
 Width = 16
 Height = 16
 Gravity = 0
+ActionNum = 4
 
-ProjHitNum = 3
+[Hit]
+Type = GoThrough
+
+[WaitTime]
+Type = Timer
+Delay = 0.1
+Repeat = false
+
+[Action1]
+Event = ProjHit1
+Type = Disappear2
 
 [ProjHit1]
+AndEvent = WaitTime
+Type = ProjHit
 Target = p_gol_framestep_alife.txt
+
+[Action2]
+Event = ProjHit2
 Type = Disappear2
 
 [ProjHit2]
+AndEvent = WaitTime
+Type = ProjHit
 Target = p_gol_framestep.txt
-Type = Disappear2
 
-[ProjHit3]
+[Action3]
+Event = RightCellsAmount
+Projectiles = true
+
+[WaitTime2]
+Type = Timer
+Delay = 0.15
+Repeat = false
+
+[RightCellsAmount]
+AndEvent = WaitTime2
+Type = ProjHit
 Target = p_gol_framestep_alife.txt
 Width = 32
 Height = 32
 HitCount = 3
-Projectiles = true
 
-[ProjHit3.Projectile]
+[Action3.Projectile]
 Projectile = p_gol_cell.txt
 
-[Fallback]
+[Action4]
+Event = WaitTime2
 Type = Disappear2

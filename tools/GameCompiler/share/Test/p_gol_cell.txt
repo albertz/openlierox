@@ -9,8 +9,7 @@ Width = 16
 Height = 16
 Gravity = 0
 Dampening = 0.1
-
-Timer = 1
+ActionNum = 2
 
 [PlayerHit]
 Type = Nothing
@@ -18,12 +17,27 @@ Type = Nothing
 [Hit]
 Type = GoThrough
 
-[Time]
+[Action1]
+Event = CellHit
+Type = Disappear2
+
+[CellHit]
+Type = ProjHit
+Target = p_gol_cell.txt
+
+[FrameTime]
+Type = Timer
+Delay = 1
+Repeat = false
+UseGlobalTime = true
+
+[Action2]
+Event = FrameTime
 Type = Disappear2
 Projectiles = true
 Additional = SpawnTL
 
-[Time.Projectile]
+[Action2.Projectile]
 Projectile = p_gol_framestep_alife.txt
 
 [SpawnTL]
@@ -85,6 +99,6 @@ Projectile = p_gol_framestep.txt
 PosDiff = 0,16
 Projectile = p_gol_framestep.txt
 
-[SpawnTM.Projectile]
+[SpawnBR.Projectile]
 PosDiff = 16,16
 Projectile = p_gol_framestep.txt

@@ -160,7 +160,9 @@ struct Proj_Action {
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
 	GoThroughSpeed(1.0f), additionalAction(NULL) { Proj.Amount = 1; }
-	~Proj_Action() { if(additionalAction) delete additionalAction; }
+	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
+	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
+	Proj_Action& operator=(const Proj_Action& a);
 	
 	//  --------- LX56 start ----------
 	Proj_ActionType Type;
@@ -203,10 +205,11 @@ struct _Proj_Event {
 };
 
 struct Proj_TimerEvent : _Proj_Event {
-	Proj_TimerEvent() : Delay(1), Repeat(true) {}
+	Proj_TimerEvent() : Delay(1), Repeat(true), UseGlobalTime(false) {}
 	
 	float	Delay;
 	bool	Repeat;
+	bool	UseGlobalTime;
 	
 	bool canMatch() const { return Delay >= 0; }
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;

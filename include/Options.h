@@ -224,6 +224,7 @@ public:
 	bool	bOldSkoolRope;
 	bool	bShowHealth;
 	bool	bShowNetRates;
+	bool	bShowProjectileUsage;
 	bool	bColorizeNicks;
 	bool	bAutoTyping;
 	std::string	sSkinPath;	// Old unfinished skinned GUI

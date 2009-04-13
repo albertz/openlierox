@@ -30,7 +30,6 @@ protected:
 	_Obj m_objects[SIZE];
 	int m_firstUnused;
 	int m_lastUsed;
-	enum { size = SIZE };
 
 	void findNewFirstUnused() {
 		while(true) {
@@ -77,6 +76,13 @@ public:
 		m_lastUsed = -1;
 	}
 
+	size_t size() {
+		size_t c = 0;
+		for(int i = 0; i <= m_lastUsed; i++)
+			if(m_objects[i].isUsed()) c++;
+		return c;
+	}
+	
 	// this function assumes, that the returned object is used after
 	_Obj* getNewObj() {
 		if(m_firstUnused >= SIZE) return NULL;
@@ -126,8 +132,7 @@ public:
 
 	typename ::Iterator<_Obj*>::Ref begin() { return new Iterator(*this, 0); }
 
-	const FastVector & operator = ( const FastVector & v )
-	{
+	FastVector & operator = ( const FastVector & v ) {
 		// Fast copy routine ( _Obj should provide sane operator= )
 		for(int i = 0; i < SIZE; i++) 
 		{
@@ -142,7 +147,7 @@ public:
 		m_firstUnused = v.m_firstUnused;
 		m_lastUsed = v.m_lastUsed;
 		return *this;
-	};
+	}
 };
 
 #endif

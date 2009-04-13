@@ -160,6 +160,23 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
+Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
+	if(additionalAction) delete additionalAction; additionalAction = NULL;
+	Type = a.Type;
+	Damage = a.Damage;
+	Projectiles = a.Projectiles;
+	Shake = a.Shake;
+	UseSound = a.UseSound;
+	SndFilename = a.SndFilename;
+	BounceCoeff = a.BounceCoeff;
+	BounceExplode = a.BounceExplode;
+	Proj = a.Proj;
+	GoThroughSpeed = a.GoThroughSpeed;
+	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
+	
+	return *this;
+}
+
 void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
 	/*
 	 * Well, some behaviour here seems strange, but it's all *100% exact* LX56 behaviour.
@@ -269,8 +286,11 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			info->spawnprojectiles = true;
 	}
 	
-	if(additionalAction)
-		additionalAction->applyTo(eventInfo, prj, info);
+	if(additionalAction) {
+		Proj_EventOccurInfo ev(eventInfo);
+		ev.timerHit = false; // remove LX56 timer flag
+		additionalAction->applyTo(ev, prj, info);
+	}
 }
 
 
@@ -288,9 +308,31 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 	float& last = prj->timerInfo[this];
 	if(last > 0 && !Repeat) return false;
 	
-	if(last + Delay <= prj->getLife()) {
-		last = prj->getLife();
-		return true;
+	if(UseGlobalTime) {		
+		float cur = cClient->serverTime().seconds();
+		if(last == 0) {
+			float startTime = cur - prj->getLife();
+			float mstart = startTime; FMOD(mstart, Delay);
+			float next = startTime - mstart + Delay;
+			if(cur >= next) {
+				last = cur;
+				return true;
+			}
+		}
+		else {
+			float mcur = last; FMOD(last, Delay);
+			float next = last - mcur + Delay;			
+			if(cur >= next) {
+				last = cur;
+				return true;
+			}
+		}
+	}
+	else { // not global time
+		if(last + Delay <= prj->getLife()) {
+			last = prj->getLife();
+			return true;
+		}
 	}
 	
 	return false;
@@ -309,8 +351,11 @@ bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) co
 		if(Target && p->getProjInfo() != Target) continue;
 		if(Width >= 0 && Height >= 0) { if(!prj->CollisionWith(p, Width/2, Height/2)) continue; }
 		else { if(!prj->CollisionWith(p)) continue; }
-		
+
 		ev.projCols.push_back(p);
+
+		if(HitCount < 0 && ev.projCols.size() >= (size_t)MinHitCount) break; // no need to check further
+		if(ev.projCols.size() > (size_t)HitCount) break; // no need to check further
 	}
 	
 	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount))
@@ -344,7 +389,7 @@ static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo*
 }
 
 static void projectile_doMakeDirt(CProjectile* const prj) {
-	int damage = 5;
+	const int damage = 5;
 	int d = 0;
 	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
 	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));

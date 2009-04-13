@@ -1567,7 +1567,20 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "PRJ BOUND err" << endl;
 	}
 
-
+	// general Projectile spawn info
+	{
+		proj->GeneralSpawnInfo.readFromIni(this, dir, file, "Projectile");
+		
+		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
+			warnings << "UseProjVelocity is set in Projectile-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
+			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
+		}
+		
+		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
+			if(!proj->GeneralSpawnInfo.isSet())
+				warnings << "Projectile section (" << pfile << ") is not specified correctly but needed" << endl;
+	}
+	
 	proj->Hit.readFromIni(this, dir, file, "Hit");
 	if(!bDedicated && proj->Hit.UseSound) {
 		// Load the sample
@@ -1578,10 +1591,19 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		}
 	}
 	
-
+	if(proj->Hit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+		warnings << dir << "/" << pfile << ": Hit section wants to spawn projectiles but there is no spawning information" << endl;
+		proj->Hit.Projectiles = false;
+	}
+	
 	// Timer	
 	if(proj->Timer.Time > 0) {
 		proj->Timer.readFromIni(this, dir, file, "Time");
+
+		if(proj->Timer.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+			warnings << dir << "/" << pfile << ": Timer section wants to spawn projectiles but there is no spawning information" << endl;
+			proj->Timer.Projectiles = false;
+		}
 	}
 
 	// Player hit
@@ -1603,6 +1625,11 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->PlyHit.UseSound = false;
 	}
 
+	if(proj->PlyHit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+		warnings << dir << "/" << pfile << ": PlayerHit section wants to spawn projectiles but there is no spawning information" << endl;
+		proj->PlyHit.Projectiles = false;
+	}
+	
 	/*
     // OnExplode
 	ReadKeyword( file, "Explode", "Type",   (int*)&proj->Exp.Type, PJ_NOTHING );
@@ -1631,6 +1658,11 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			Proj_EventAndAction act;
 			if(!act.readFromIni(this, dir, file, "Action" + itoa(i+1))) continue;
 			
+			if(act.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+				warnings << dir << "/" << pfile << ": Action" << (i+1) << " section wants to spawn projectiles but there is no spawning information" << endl;
+				act.Projectiles = false;
+			}
+
 			if(!act.hasAction()) {
 				warnings << "section Action" << (i+1) << " (" << pfile << ") doesn't have any effect" << endl;
 				continue;
@@ -1643,21 +1675,13 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	{
 		proj->Fallback.Type = PJ_NOTHING;
 		proj->Fallback.readFromIni(this, dir, file, "Fallback");
+
+		if(proj->Fallback.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+			warnings << dir << "/" << pfile << ": Fallback section wants to spawn projectiles but there is no spawning information" << endl;
+			proj->Fallback.Projectiles = false;
+		}
 	}
 	
-	// Projectiles
-	{
-		proj->GeneralSpawnInfo.readFromIni(this, dir, file, "Projectile");
-		
-		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
-			warnings << "UseProjVelocity is set in Projectile-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
-			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
-		}
-		
-		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
-			if(!proj->GeneralSpawnInfo.isSet())
-				warnings << "Projectile section (" << pfile << ") is not specified correctly but needed" << endl;
-	}
 	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
@@ -1979,8 +2003,14 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	if(!ReadKeyword(file, section, "Type", (int*)&type, type)) return false;
-	if(get() == NULL) return false;
+	if(!ReadKeyword(file, section, "Type", (int*)&type, type)) {
+		warnings << file << ":" << section << ": Type attribute isn't set for event" << endl;
+		return false;
+	}
+	if(get() == NULL) {
+		warnings << file << ":" << section << ": Type attribute is invalid for event" << endl;
+		return false;
+	}
 	return get()->readFromIni(gs, dir, file, section);
 }
 
@@ -2047,18 +2077,21 @@ bool Proj_EventAndAction::write(CGameScript* gs, FILE* fp) {
 bool Proj_TimerEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadFloat(file, section, "Delay", &Delay, Delay);
 	ReadKeyword(file, section, "Repeat", &Repeat, Repeat);
+	ReadKeyword(file, section, "UseGlobalTime", &UseGlobalTime, UseGlobalTime);	
 	return true;
 }
 
 bool Proj_TimerEvent::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, Delay);
 	fread_endian<char>(fp, Repeat);
+	fread_endian<char>(fp, UseGlobalTime);
 	return true;
 }
 
 bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<float>(fp, Delay);
 	fwrite_endian<char>(fp, Repeat);
+	fwrite_endian<char>(fp, UseGlobalTime);
 	return true;
 }
 

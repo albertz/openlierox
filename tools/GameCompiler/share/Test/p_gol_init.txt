@@ -5,7 +5,7 @@ Type = PRJ_RECT
 Colour1 = 0,0,0,100
 Width = 16
 Height = 16
-ProjHitNum = 1
+ActionNum = 1
 Gravity = 0
 Dampening = 0.1
 
@@ -16,8 +16,12 @@ Type = nothing
 Type = GoThrough
 
 # if there is already a cell, just disappear
-[ProjHit1]
+[Action1]
+Event = ProjHit1
 Type = Disappear2
+
+[ProjHit1]
+Type = ProjHit
 Target = p_gol_cell.txt
 
 

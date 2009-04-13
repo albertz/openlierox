@@ -674,6 +674,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
 	}
 
+	if(tLXOptions->bShowProjectileUsage) {
+		std::string txt = "Projs: " + itoa(cProjectiles.size());
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 2 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, txt);
+	}
+	
 	// Go through and draw the first two worms select menus
 	if (iNetStatus == NET_CONNECTED && bGameReady && !bWaitingForMod)
 		for(i=0;i<num;i++)

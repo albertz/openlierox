@@ -156,6 +156,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bLogConvos, "Misc.LogConversations", false )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
+		( tLXOptions->bShowProjectileUsage, "Misc.ShowProjectileUsage", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "dedicated_control" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
