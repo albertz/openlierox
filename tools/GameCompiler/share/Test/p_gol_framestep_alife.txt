@@ -3,7 +3,7 @@
 
 [General]
 Type = PRJ_PIXEL
-Colour1 = 0,0,0,0
+Colour1 = 255,255,0,255
 Width = 16
 Height = 16
 Gravity = 0

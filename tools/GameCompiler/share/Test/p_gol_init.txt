@@ -29,4 +29,5 @@ Projectiles = true
 
 [Projectile]
 Projectile = p_gol_cell.txt
+SnapToGrid = 16,16
 Amount = 1
