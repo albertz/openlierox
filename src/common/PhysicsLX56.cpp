@@ -591,21 +591,20 @@ public:
 
 
 		// Check if the timer is up
-		float f = prj->getTimeVarRandom();
-		if(pi->Timer.Time > 0 && (pi->Timer.Time + pi->Timer.TimeVar * f) < prj->getLife()) {
-			pi->Timer.applyTo(Proj_EventOccurInfo::Timer(dt), prj, &doActionInfo);
-		}
+		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(dt), prj, &doActionInfo);
 
 		// Simulate the projectile
 		ProjCollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 
+		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(dt, &result);
+		
 		/*
 		===================
 		Terrain Collision
 		===================
 		*/
 		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
-			pi->Hit.applyTo(Proj_EventOccurInfo::Col(dt, &result), prj, &doActionInfo);
+			pi->Hit.applyTo(eventInfo, prj, &doActionInfo);
 		}
 
 		/*
@@ -617,12 +616,12 @@ public:
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
-				pi->PlyHit.applyTo(Proj_EventOccurInfo::Col(dt, &result), prj, &doActionInfo);
+				pi->PlyHit.applyTo(eventInfo, prj, &doActionInfo);
 			}
 		}
 
 		for(size_t i = 0; i < pi->ProjHits.size(); ++i) {
-			pi->ProjHits[i].checkEvent(dt, prj, &doActionInfo);
+			pi->ProjHits[i].checkAndApply(eventInfo, prj, &doActionInfo);
 		}
 		
 		if(!doActionInfo.hasAnyEffect()) {

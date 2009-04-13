@@ -144,12 +144,12 @@ struct Proj_DoActionInfo;
 struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
 	std::list<const CProjectile*> projCols;
-	bool byTimer;
+	bool timerHit;
 	TimeDiff dt;
 	
-	Proj_EventOccurInfo(TimeDiff _dt) : colType(NULL), byTimer(false), dt(_dt) {}
+	Proj_EventOccurInfo(TimeDiff _dt) : colType(NULL), timerHit(false), dt(_dt) {}
 	static Proj_EventOccurInfo Unspec(TimeDiff _dt) { return Proj_EventOccurInfo(_dt); }
-	static Proj_EventOccurInfo Timer(TimeDiff _dt) { Proj_EventOccurInfo e(_dt); e.byTimer = true; return e; }
+	static Proj_EventOccurInfo Timer(TimeDiff _dt) { Proj_EventOccurInfo e(_dt); e.timerHit = true; return e; }
 	static Proj_EventOccurInfo Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_EventOccurInfo e(_dt); e.colType = col; return e; }	
 };
 
@@ -191,17 +191,34 @@ struct Proj_Action {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
-struct Proj_Timer : Proj_Action {
+struct Proj_Event {
+	Proj_Event* otherEvent;
+	Proj_Event() : otherEvent(NULL) {}
+	virtual ~Proj_Event() { if(otherEvent) delete otherEvent; otherEvent = NULL; }
+	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+		if(otherEvent) return otherEvent->checkEvent(eventInfo, prj); return true;
+	}
+};
+
+struct Proj_EventAndAction : Proj_Action, Proj_Event {
+	virtual bool hasAction() const { return Proj_Action::hasAction(); }
+	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+		if(hasAction() && checkEvent(eventInfo, prj)) { applyTo(eventInfo, prj, info); return true; } return false;
+	}	
+};
+
+struct Proj_Timer : Proj_EventAndAction {
 	Proj_Timer() : Time(0) {}
 	
 	float	Time;
 	float	TimeVar;
 	
 	bool hasAction() const { return Proj_Action::hasAction() && Time > 0; }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
 };
 
 
-struct Proj_ProjHit : Proj_Action {
+struct Proj_ProjHit : Proj_EventAndAction {
 	Proj_ProjHit() : Target(NULL), MinHitCount(1), HitCount(-1), Width(-1), Height(-1) {}
 	
 	proj_t* Target; // NULL -> any target
@@ -210,7 +227,7 @@ struct Proj_ProjHit : Proj_Action {
 	int		Width, Height; // custom w/h for collision check area
 	
 	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
-	void checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
 	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);

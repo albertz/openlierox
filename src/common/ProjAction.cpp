@@ -178,7 +178,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			info->explode = true;
 			info->damage = Damage;
 			
-			if(eventInfo.byTimer)
+			if(eventInfo.timerHit)
 				info->timer = true;
 			
 			if(Shake > info->shake)
@@ -191,7 +191,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 			// Bounce
 		case PJ_BOUNCE:
-			if(eventInfo.byTimer) { spawnprojs = false; break; }
+			if(eventInfo.timerHit) { spawnprojs = false; break; }
 			push_worm = false;
 			prj->Bounce(BounceCoeff);
 			
@@ -202,7 +202,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 			// Carve
 		case PJ_CARVE: 
-			if(eventInfo.byTimer || (eventInfo.colType && !eventInfo.colType->withWorm)) {
+			if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
 				int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
 				info->deleteAfter = true;
 				
@@ -215,14 +215,14 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			// Dirt
 		case PJ_DIRT:
 			info->dirt = true;			
-			if(eventInfo.byTimer && Shake > info->shake)
+			if(eventInfo.timerHit && Shake > info->shake)
 				info->shake = Shake;				
 			break;
 			
 			// Green Dirt
 		case PJ_GREENDIRT:
 			info->grndirt = true;
-			if(eventInfo.byTimer && Shake > info->shake)
+			if(eventInfo.timerHit && Shake > info->shake)
 				info->shake = Shake;				
 			break;
 			
@@ -249,7 +249,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 				info->deleteAfter = true;
 			}
 			push_worm = false;
-			if(eventInfo.byTimer) spawnprojs = false;
+			if(eventInfo.timerHit) spawnprojs = false;
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
@@ -274,8 +274,18 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 }
 
 
-void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const {
-	Proj_EventOccurInfo ev(dt);
+
+bool Proj_Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+	float f = prj->getTimeVarRandom();
+	if(Time > 0 && (Time + TimeVar * f) < prj->getLife()) {
+		eventInfo.timerHit = true;
+		return Proj_Event::checkEvent(eventInfo, prj);
+	}
+	return false;
+}
+
+bool Proj_ProjHit::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {
+	if(!Proj_Event::checkEvent(ev, prj)) return false;
 	
 	/*
 	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect
@@ -293,9 +303,9 @@ void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* 
 		ev.projCols.push_back(p);
 	}
 	
-	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount)) {
-		applyTo(ev, prj, info);
-	}
+	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount))
+		return true;
+	return false;
 }
 
 
