@@ -142,7 +142,13 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 			ignoreWormCollBeforeTime = GetPhysicsTime() + 0.1f; // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 		
 		int random = parent.fixedRandomIndex();
-		CVec pos = parent.position() + PosDiff;
+		
+		VectorD2<int> pos = parent.position() + PosDiff;
+		if(SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
+			pos.x -= pos.x % SnapToGrid.x; pos.x += SnapToGrid.x / 2;
+			pos.y -= pos.y % SnapToGrid.y; pos.y += SnapToGrid.y / 2;
+		}
+		
 		cClient->SpawnProjectile(pos, v, rot, parent.ownerWorm(), Proj, random, spawnTime, ignoreWormCollBeforeTime);
 
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
