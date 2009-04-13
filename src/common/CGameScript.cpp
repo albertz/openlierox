@@ -1707,9 +1707,9 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			proj->Trail.Proj.Useangle = false;
 		}
 		
-		if(proj->Trail.Projectiles && !proj->Trail.Proj.isSet()) {
+		if(proj->Trail.Type == TRL_PROJECTILE && !proj->Trail.Proj.isSet()) {
 			warnings << dir << "/" << pfile << ": ProjectileTrail section wants to spawn projectiles but there is no spawning information" << endl;
-			proj->Fallback.Projectiles = false;			
+			proj->Trail.Type = TRL_NONE;			
 		}
 	}
 
