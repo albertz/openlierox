@@ -141,9 +141,11 @@ struct CaptureTheFlag : public CGameMode {
 
 	virtual bool CheckGameOver() {
 		// currently we use killlimit as teamscorelimit
-		for(int i = 0; i < MAXTEAMS; ++i) {
-			if(teamScore[i] >= tLXOptions->tGameInfo.iKillLimit) {
-				return true;
+		if(tLXOptions->tGameInfo.iKillLimit >= 0) {
+			for(int i = 0; i < MAXTEAMS; ++i) {
+				if(teamScore[i] >= tLXOptions->tGameInfo.iKillLimit) {
+					return true;
+				}
 			}
 		}
 		
