@@ -13,6 +13,10 @@
 // Created 7/2/02
 // Jason Boettcher
 
+/*
+ reference for original Compile* sources:
+ http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/common/CGameScript.cpp?revision=3781&view=markup
+ */
 
 #include <cstdarg>
 
@@ -1685,7 +1689,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
-		ReadFloat  (file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
+		ReadFloat(file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
 
 		// we have some other default values here
 		proj->Trail.Proj.Amount = 1;
@@ -1701,6 +1705,11 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		if(proj->Trail.Proj.Angle != 0) {
 			warnings << "Angle is set in ProjectileTrail-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
 			proj->Trail.Proj.Useangle = false;
+		}
+		
+		if(proj->Trail.Projectiles && !proj->Trail.Proj.isSet()) {
+			warnings << dir << "/" << pfile << ": ProjectileTrail section wants to spawn projectiles but there is no spawning information" << endl;
+			proj->Fallback.Projectiles = false;			
 		}
 	}
 
