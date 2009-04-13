@@ -593,7 +593,7 @@ public:
 		// Check if the timer is up
 		float f = prj->getTimeVarRandom();
 		if(pi->Timer.Time > 0 && (pi->Timer.Time + pi->Timer.TimeVar * f) < prj->getLife()) {
-			pi->Timer.applyTo(Proj_ActionEvent::Timer(dt), prj, &doActionInfo);
+			pi->Timer.applyTo(Proj_EventOccurInfo::Timer(dt), prj, &doActionInfo);
 		}
 
 		// Simulate the projectile
@@ -605,7 +605,7 @@ public:
 		===================
 		*/
 		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
-			pi->Hit.applyTo(Proj_ActionEvent::Col(dt, &result), prj, &doActionInfo);
+			pi->Hit.applyTo(Proj_EventOccurInfo::Col(dt, &result), prj, &doActionInfo);
 		}
 
 		/*
@@ -617,7 +617,7 @@ public:
 			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
 			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 			if( !preventSelfShooting || NewNet::Active() ) {
-				pi->PlyHit.applyTo(Proj_ActionEvent::Col(dt, &result), prj, &doActionInfo);
+				pi->PlyHit.applyTo(Proj_EventOccurInfo::Col(dt, &result), prj, &doActionInfo);
 			}
 		}
 
@@ -627,7 +627,7 @@ public:
 		
 		if(!doActionInfo.hasAnyEffect()) {
 			//notes << "no eff" << endl;
-			pi->Fallback.applyTo(Proj_ActionEvent::Unspec(dt), prj, &doActionInfo);
+			pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(dt), prj, &doActionInfo);
 		}
 		
 		doActionInfo.execute(prj, currentTime);

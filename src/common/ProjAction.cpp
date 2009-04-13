@@ -160,7 +160,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 }
 
 
-void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
 	/*
 	 * Well, some behaviour here seems strange, but it's all *100% exact* LX56 behaviour.
 	 * Please, before touching anything, be very sure that it stays exactly the same!
@@ -275,7 +275,7 @@ void Proj_Action::applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, P
 
 
 void Proj_ProjHit::checkEvent(TimeDiff dt, CProjectile* prj, Proj_DoActionInfo* info) const {
-	Proj_ActionEvent ev(dt);
+	Proj_EventOccurInfo ev(dt);
 	
 	/*
 	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect

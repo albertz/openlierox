@@ -141,23 +141,23 @@ static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck
 struct ProjCollisionType;
 struct Proj_DoActionInfo;
 
-struct Proj_ActionEvent {
+struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
 	std::list<const CProjectile*> projCols;
 	bool byTimer;
 	TimeDiff dt;
 	
-	Proj_ActionEvent(TimeDiff _dt) : colType(NULL), byTimer(false), dt(_dt) {}
-	static Proj_ActionEvent Unspec(TimeDiff _dt) { return Proj_ActionEvent(_dt); }
-	static Proj_ActionEvent Timer(TimeDiff _dt) { Proj_ActionEvent e(_dt); e.byTimer = true; return e; }
-	static Proj_ActionEvent Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_ActionEvent e(_dt); e.colType = col; return e; }	
+	Proj_EventOccurInfo(TimeDiff _dt) : colType(NULL), byTimer(false), dt(_dt) {}
+	static Proj_EventOccurInfo Unspec(TimeDiff _dt) { return Proj_EventOccurInfo(_dt); }
+	static Proj_EventOccurInfo Timer(TimeDiff _dt) { Proj_EventOccurInfo e(_dt); e.byTimer = true; return e; }
+	static Proj_EventOccurInfo Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_EventOccurInfo e(_dt); e.colType = col; return e; }	
 };
 
 struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	GoThroughSpeed(1.0f), additionalAction(NULL) {}
+	GoThroughSpeed(1.0f), additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; }
 	
 	//  --------- LX56 start ----------
@@ -184,7 +184,7 @@ struct Proj_Action {
 	
 	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
-	void applyTo(const Proj_ActionEvent& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	void applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter = 0);	
 	bool read(CGameScript* gs, FILE* fp);
