@@ -3,7 +3,7 @@
 
 [General]
 Type = PRJ_RECT
-Colour1 = 0,255,255,100
+Colour1 = 0,255,255,0
 Width = 16
 Height = 16
 Gravity = 0
