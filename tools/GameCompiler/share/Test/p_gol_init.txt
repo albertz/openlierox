@@ -1,8 +1,8 @@
 # init Game of life proj
 
 [General]
-Type = PRJ_PIXEL
-Colour1 = 0,0,0,255
+Type = PRJ_RECT
+Colour1 = 0,0,0,100
 Width = 16
 Height = 16
 ProjHitNum = 1

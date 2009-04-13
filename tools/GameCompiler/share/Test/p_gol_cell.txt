@@ -1,14 +1,10 @@
 # Game of life cell
 
 [General]
-Type = PRJ_POLYGON
+Type = PRJ_RECT
 Colour1 = 255,0,0
 Colour2 = 0,255,0
 Colour3 = 0,0,255
-P1 = -8,-8
-P2 = 8,-8
-P3 = 8,8
-P4 = -8,8
 Width = 16
 Height = 16
 Gravity = 0

@@ -74,6 +74,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	firstbounce = true;
 
 	switch(tProjInfo->Type) {
+		case PRJ_RECT:
 		case PRJ_PIXEL:
 		case PRJ_CIRCLE:
 		case PRJ_POLYGON: {
@@ -592,6 +593,10 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			DrawCircleFilled(bmpDest, x, y, rx*2, ry*2, iColour);
 			return;
 			
+		case PRJ_RECT:
+			DrawRectFill(bmpDest, x - rx*2, y - ry*2, x + rx*2, y + rx*2, iColour);
+			return;
+			
 		case PRJ_POLYGON:
 			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPosition.x, (int)vPosition.y, view, iColour);
 			return;
@@ -650,6 +655,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 		
 		case PRJ_CIRCLE:
 		case PRJ_POLYGON:
+		case PRJ_RECT:
 			// TODO ...
 			break;
 		

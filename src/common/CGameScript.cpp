@@ -227,6 +227,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 			}
 			
 			// fallthrough to save color
+		case PRJ_RECT:
 		case PRJ_CIRCLE:
 		case PRJ_PIXEL:
 			fwrite_endian_compat(((int)proj->Colour.size()), sizeof(int), 1, fp);
@@ -696,6 +697,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			}
 		}
 			// fallthrough to read color
+		case PRJ_RECT:	
 		case PRJ_CIRCLE:
 		case PRJ_PIXEL:
 		{
@@ -1266,6 +1268,7 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("PRJ_IMAGE",PRJ_IMAGE);
 	AddKeyword("PRJ_CIRCLE",PRJ_CIRCLE);
 	AddKeyword("PRJ_POLYGON",PRJ_POLYGON);
+	AddKeyword("PRJ_RECT", PRJ_RECT);
 	AddKeyword("Bounce",PJ_BOUNCE);
 	AddKeyword("Explode",PJ_EXPLODE);
 	AddKeyword("Injure",PJ_INJURE);
@@ -1519,6 +1522,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 				proj->polygon.points.push_back( *proj->polygon.points.begin() );
 			
 			// fallthrough to read color
+		case PRJ_RECT:	
 		case PRJ_CIRCLE:
 		case PRJ_PIXEL:
 			for(size_t i = 0; ; ++i) {

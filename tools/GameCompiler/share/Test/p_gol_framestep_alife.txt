@@ -2,8 +2,8 @@
 # (spawned by cells and will spawn the next frame cells)
 
 [General]
-Type = PRJ_PIXEL
-Colour1 = 255,255,0,255
+Type = PRJ_RECT
+Colour1 = 255,255,0,100
 Width = 16
 Height = 16
 Gravity = 0
